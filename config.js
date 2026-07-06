@@ -10,4 +10,5 @@ window.PGFX_API = "";
 // domain (its Netlify URL works too, e.g. "https://scansad.netlify.app").
 // Leave EMPTY ("") to hide every cross-product button — Graphics Studio then
 // runs 100% standalone.
-window.SCANMAP_URL = "https://scans.ad";
+// Production domain (swap in once DNS is live):  "https://scans.ad"
+window.SCANMAP_URL = "https://myleskcb.github.io/scansad-scanmap";
