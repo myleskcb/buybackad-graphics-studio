@@ -577,6 +577,363 @@ const TEMPLATES = [
 
 ];
 
+/* ═══════════════════ DESIGNER LIBRARY (premium) ═══════════════════
+   ~110 studio-grade templates generated from 16 hand-built layout
+   architectures × curated complementary palettes × locked font pairings.
+   Design language distilled from the brand's strongest ad sets (the
+   FIxed / NEWWATERMARK series): rounded ultra-heavy display type, white
+   first line + GRADIENT money word, glow, ribbon badges, check-circle
+   trust stack, rounded CTA cards, dark bokeh product photography.
+   Every template names its own background photo in assets/bg/ (see
+   window.BG_MANIFEST + assets/bg/MANIFEST.md) and carries a designed
+   gradient fallback so nothing ever renders broken. */
+(function designerLibrary(){
+  const W = 1080, CX = 540;
+  const t  = (name, role, casing, text, props, extra) => Object.assign({ kind:'text', name, role, casing, text, props }, extra || {});
+  const tb = (name, role, casing, text, props) => ({ kind:'textbox', name, role, casing, text, props });
+  const r  = (name, props) => ({ kind:'rect', name, solid:true, props });
+  const rg = (name, props) => ({ kind:'rect', name, props });            // glassy-allowed rect
+  const ci = (name, props) => ({ kind:'circle', name, props });
+
+  // ── curated complementary palettes ──  paper:true = light background
+  const PAL = {
+    volt:    { bg1:'#0b1020', bg2:'#1d2e54', ink:'#ffffff', sub:'#c9d6ff', a1:'#b7ff2e', a2:'#37d6ff', deep:'#07090f', glow:'rgba(183,255,46,0.55)', glow2:'rgba(55,214,255,0.5)' },
+    coral:   { paper:true, bg1:'#f6e7d3', bg2:'#eed7ba', ink:'#171310', sub:'#5c4f42', a1:'#ff5a3c', a2:'#ff9d3c', deep:'#171310', glow:'rgba(255,90,60,0.35)', glow2:'rgba(255,157,60,0.3)' },
+    gold:    { bg1:'#0d0b07', bg2:'#2a1f10', ink:'#f6ead2', sub:'#cbb98f', a1:'#f5c96b', a2:'#e09b2d', deep:'#0a0805', glow:'rgba(245,201,107,0.5)', glow2:'rgba(224,155,45,0.4)' },
+    emerald: { bg1:'#06231c', bg2:'#0e4936', ink:'#f2fff9', sub:'#b8e6d2', a1:'#6bffc9', a2:'#2ec27e', deep:'#04120d', glow:'rgba(107,255,201,0.5)', glow2:'rgba(46,194,126,0.4)' },
+    royal:   { bg1:'#140a2e', bg2:'#2f1a6e', ink:'#ffffff', sub:'#cfc4ff', a1:'#ffc24b', a2:'#ff8a5c', deep:'#0d0720', glow:'rgba(255,194,75,0.5)', glow2:'rgba(185,167,255,0.45)' },
+    crimson: { bg1:'#1a0c10', bg2:'#43141f', ink:'#fff5f5', sub:'#e8c9cd', a1:'#ff3b52', a2:'#ff8a4b', deep:'#120709', glow:'rgba(255,59,82,0.5)', glow2:'rgba(255,138,75,0.4)' },
+    ocean:   { bg1:'#061c2c', bg2:'#0e3d58', ink:'#f2fbff', sub:'#bcdcec', a1:'#45e0ff', a2:'#3c8dff', deep:'#04121c', glow:'rgba(69,224,255,0.5)', glow2:'rgba(60,141,255,0.45)' },
+    paper:   { paper:true, bg1:'#f2ead8', bg2:'#e6d9bd', ink:'#191713', sub:'#6b6152', a1:'#e3a51c', a2:'#c77f14', deep:'#191713', glow:'rgba(227,165,28,0.35)', glow2:'rgba(199,127,20,0.3)' },
+    rose:    { bg1:'#16161d', bg2:'#2b2634', ink:'#ffffff', sub:'#d9d3e2', a1:'#ff7ba9', a2:'#ffb17b', deep:'#0e0e13', glow:'rgba(255,123,169,0.5)', glow2:'rgba(255,177,123,0.4)' },
+    arctic:  { paper:true, bg1:'#eef3f8', bg2:'#d6e3ef', ink:'#10233a', sub:'#4c637d', a1:'#2f7cff', a2:'#19c8e0', deep:'#10233a', glow:'rgba(47,124,255,0.3)', glow2:'rgba(25,200,224,0.3)' },
+    mono:    { bg1:'#141417', bg2:'#2a2a30', ink:'#ffffff', sub:'#c8c8cf', a1:'#e8e8f0', a2:'#9a9aa6', deep:'#0c0c0e', glow:'rgba(232,232,240,0.4)', glow2:'rgba(154,154,166,0.35)' },
+    sunset:  { bg1:'#1c0f2e', bg2:'#54173f', ink:'#fff7ef', sub:'#ffd9c4', a1:'#ffb13c', a2:'#ff4f7e', deep:'#140a1f', glow:'rgba(255,177,60,0.5)', glow2:'rgba(255,79,126,0.45)' },
+  };
+
+  // ── locked font pairings [display, support] — each layout keeps its own voice ──
+  const PAIRS = {
+    passion:  ['Passion One', 'Barlow Condensed'],
+    titan:    ['Titan One', 'Nunito'],
+    lilita:   ['Lilita One', 'Poppins'],
+    slab:     ['Alfa Slab One', 'Oswald'],
+    abril:    ['Abril Fatface', 'Montserrat'],
+    playfair: ['Playfair Display', 'DM Sans'],
+    cinzel:   ['Cinzel', 'Cormorant Garamond'],
+    bungee:   ['Bungee', 'Rubik'],
+    monoton:  ['Monoton', 'Exo 2'],
+    russo:    ['Russo One', 'Saira Condensed'],
+    shrik:    ['Shrikhand', 'Poppins'],
+    pacifico: ['Pacifico', 'Josefin Sans'],
+    lucky:    ['Luckiest Guy', 'Fredoka'],
+    ultra:    ['Ultra', 'Zilla Slab'],
+    staat:    ['Staatliches', 'Kanit'],
+    right:    ['Righteous', 'Plus Jakarta Sans'],
+    blackops: ['Black Ops One', 'Teko'],
+    rowdies:  ['Rowdies', 'Changa'],
+    elite:    ['Special Elite', 'Zilla Slab'],
+    vast:     ['Vast Shadow', 'Graduate'],
+  };
+
+  // ── per-category copy decks + background photo scenes ──
+  const DECKS = {
+    phones:  { k:'TOP BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME DAY CASH — EASY LOCAL MEETUP\niCLOUD LOCKED, BROKEN, BLACKLISTED\nANY CONDITION • ANY CARRIER', cta:'TEXT US NOW!', price:'UP TO $1,100 PAID TODAY', badges:['SAFE','QUICK','EASY'],
+               scene:'extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh' },
+    gold:    { k:'LICENSED BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Coins • Dental • Broken', sub:'TESTED & PAID IN FRONT OF YOU\n10K • 14K • 18K • 24K WELCOME\nESTATES & INHERITANCE HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAYING UP TO 95% OF SPOT', badges:['TESTED','FAIR','PRIVATE'],
+               scene:'molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh' },
+    silver:  { k:'BULLION DESK', h1:'WE BUY', h2:'SILVER', alt2:'STERLING', items:'Flatware • Bars • Sterling • 90% Coins', sub:'INSTANT ASSAY — WATCH THE SCALE\nBARS, ROUNDS, FLATWARE, TEA SETS\nPAYING OVER SPOT ON PREMIUMS', cta:'BRING IT IN TODAY', price:'PAYING OVER SPOT', badges:['ASSAYED','HONEST','FAST'],
+               scene:'stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus' },
+    coins:   { k:'COLLECTIONS WANTED', h1:'RARE', h2:'COINS', alt2:'COIN LOTS', items:'Morgans • Gold Eagles • Proof Sets • Errors', sub:'FULL COLLECTIONS OR SINGLE PIECES\nGRADED & RAW — HONEST NUMISMATIC OFFERS\nHOUSE CALLS FOR LARGE ESTATES', cta:'TEXT PHOTOS FOR OFFER', price:'PAYING OVER GREYSHEET', badges:['GRADED','INSURED','LEGIT'],
+               scene:'antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro' },
+    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nNO TITLE? NO PROBLEM — ASK US\nSAME-DAY PICKUP ACROSS LA & OC', cta:'CALL FOR INSTANT OFFER', price:'UP TO $15,000 CASH', badges:['FREE TOW','SAME DAY','CASH'],
+               scene:'dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze' },
+    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Lancets • CGM sensors', sub:'UNEXPIRED & SEALED BOXES ONLY\nFAST LOCAL PICKUP OR MAIL-IN\nTOP BOX PRICES — PAID SAME DAY', cta:'TEXT A PHOTO NOW', price:'TOP BOX PRICES PAID', badges:['SEALED','FAST','FAIR'],
+               scene:'clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur' },
+    pokemon: { k:'SLABS & VINTAGE', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Slabs • Vintage • Sealed • Bulk lots', sub:'PSA / CGC / BGS SLABS WANTED\nVINTAGE WOTC THROUGH MODERN HITS\nSEALED PRODUCT & BULK COLLECTIONS', cta:'DM YOUR BINDER', price:'TOP SLAB PRICES PAID', badges:['PSA','CGC','SEALED'],
+               scene:'holographic trading card close-up with prismatic light refractions on dark felt, dreamy bokeh' },
+    sports:  { k:'VINTAGE & MODERN', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Rookies • Slabs • Wax • Vintage', sub:'ROOKIES, AUTOS, PATCHES, GRAILS\nGRADED OR RAW — REAL COMP PRICING\nENTIRE COLLECTIONS BOUGHT OUTRIGHT', cta:'TEXT YOUR HITS', price:'TOP DOLLAR FOR SLABS', badges:['COMPS','CASH','LEGIT'],
+               scene:'vintage baseball cards fanned on worn wood with stadium light bokeh, nostalgic warm grade' },
+  };
+
+  // ── shared fragments ──
+  const trust = (P, badges) => [
+    ci('Check Circle', { left:W-320, top:42, radius:46, fill:P.a1, shadow:sh(P.glow, 24) }),
+    t('Check', 'deco', 'none', '✓', { left:W-274, top:52, originX:'center', fontFamily:'DM Sans', fontSize:60, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+    t('Badges', 'badges', 'upper', badges.map(b => '•' + b).join('\n'), { left:W-56, top:34, originX:'right', fontFamily:'Barlow Condensed', fontSize:33, fill:P.ink, fontWeight:'900', lineHeight:1.14, stroke:P.paper ? undefined : '#000000', strokeWidth:P.paper ? 0 : 2 }),
+  ];
+  const ribbon = (P, T, text, y) => [
+    r('Kicker Ribbon', { left:CX-215, top:y, width:430, height:62, rx:14, angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
+    t('Kicker', 'sub', 'upper', text, { left:CX, top:y+11, originX:'center', fontFamily:T.s, fontStyle:'italic', fontSize:36, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900', angle:-3 }),
+  ];
+  const subBlock = (P, T, text, y, size) => tb('Info Text', 'info', 'upper', text, { left:CX, top:y, width:W-140, originX:'center', fontFamily:T.s, fontStyle:'italic', fontSize:size || 40, fill:P.ink, fontWeight:'800', textAlign:'center', lineHeight:1.34, stroke:P.paper ? undefined : '#000000', strokeWidth:P.paper ? 0 : 3, shadow:P.paper ? null : sh('rgba(0,0,0,0.6)', 10, 0, 3) });
+  const ctaCard = (P, T, cta) => [
+    r('CTA Card', { left:CX-380, top:838, width:760, height:194, rx:28, fill:P.deep, shadow:sh('rgba(0,0,0,0.45)', 30, 0, 12) }),
+    t('CTA', 'cta', 'upper', cta, { left:CX, top:862, originX:'center', fontFamily:T.d, fontSize:54, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 20) }),
+    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:934, originX:'center', fontFamily:'Montserrat', fontSize:58, fill:'#ffffff', fontWeight:'900', stroke:'#000000', strokeWidth:2 }),
+    t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:1002, originX:'center', fontFamily:'DM Sans', fontSize:21, fill:'rgba(255,255,255,0.45)' }),
+  ];
+  const phoneBar = (P, T, y) => [
+    r('Phone Plate', { left:CX-330, top:y, width:660, height:118, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 26) }),
+    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:y+22, originX:'center', fontFamily:'Montserrat', fontSize:64, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+  ];
+
+  // ── the 16 layout architectures ──
+  const LAYOUTS = {
+    voltStack: (P, T, C) => [
+      ...ribbon(P, T, C.k, 92), ...trust(P, C.badges),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:196, originX:'center', fontFamily:T.d, fontSize:148, fill:P.ink, stroke:P.paper ? undefined : P.deep, strokeWidth:P.paper ? 0 : 7, shadow:sh('rgba(0,0,0,0.4)', 16, 0, 6) }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:338, originX:'center', fontFamily:T.d, fontSize:226, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:P.paper ? P.deep : '#000000', strokeWidth:9, shadow:sh(P.glow, 34) }),
+      subBlock(P, T, C.sub, 636), ...ctaCard(P, T, C.cta),
+    ],
+    arcCrown: (P, T, C) => [
+      ci('Halo Ring', { left:CX-330, top:110, radius:330, fill:'', stroke:P.a2, strokeWidth:2, opacity:0.3, selectable:false, evented:false }),
+      t('Arc Crown', 'headline', 'upper', C.h1, { left:CX, top:210, fontFamily:T.d, fontSize:96, fill:P.ink, charSpacing:60, shadow:sh('rgba(0,0,0,0.45)', 12, 0, 4) }, { curve:30 }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:296, originX:'center', fontFamily:T.d, fontSize:216, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 32) }),
+      t('Items', 'info', 'upper', C.items, { left:CX, top:590, originX:'center', fontFamily:T.s, fontSize:44, fill:P.sub, fontWeight:'700', charSpacing:60 }),
+      subBlock(P, T, C.price, 674, 46), ...phoneBar(P, T, 806),
+      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:966, originX:'center', fontFamily:'DM Sans', fontSize:22, fill:P.sub, opacity:0.7 }),
+    ],
+    neonNight: (P, T, C) => [
+      t('Neon Kicker', 'sub', 'upper', C.k, { left:CX, top:120, originX:'center', fontFamily:'Monoton', fontSize:40, fill:P.a1, charSpacing:180, shadow:sh(P.glow, 28) }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:218, originX:'center', fontFamily:T.d, fontSize:172, fill:'rgba(0,0,0,0)', stroke:P.a1, strokeWidth:5, shadow:sh(P.glow, 38) }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:394, originX:'center', fontFamily:T.d, fontSize:196, fill:'rgba(0,0,0,0)', stroke:P.a2, strokeWidth:5, shadow:sh(P.glow2, 42) }),
+      t('Items', 'info', 'upper', C.items, { left:CX, top:660, originX:'center', fontFamily:T.s, fontSize:42, fill:P.ink, fontWeight:'600', charSpacing:40, opacity:0.9 }),
+      rg('Neon Frame', { left:CX-330, top:790, width:660, height:130, rx:26, fill:'rgba(0,0,0,0.45)', stroke:P.a1, strokeWidth:2.5, shadow:sh(P.glow, 22) }),
+      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:818, originX:'center', fontFamily:'Montserrat', fontSize:62, fill:P.ink, fontWeight:'900', shadow:sh(P.glow, 16) }),
+      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:960, originX:'center', fontFamily:'DM Sans', fontSize:22, fill:P.sub, opacity:0.65 }),
+    ],
+    editorialLux: (P, T, C) => [
+      rg('Hairline Frame', { left:56, top:56, width:W-112, height:W-112, rx:20, fill:'rgba(0,0,0,0)', stroke:P.ink, strokeWidth:1.5, opacity:0.5 }),
+      t('Kicker', 'sub', 'upper', C.k, { left:CX, top:150, originX:'center', fontFamily:T.s, fontSize:26, fill:P.sub, charSpacing:520, fontWeight:'600' }),
+      t('Headline 1', 'headline', 'title', C.h1.toLowerCase(), { left:CX, top:300, originX:'center', fontFamily:T.d, fontSize:120, fill:P.ink, fontStyle:'italic' }),
+      t('Headline 2', 'headline', 'title', C.h2 + '.', { left:CX, top:436, originX:'center', fontFamily:T.d, fontSize:168, grad:{ c1:P.a1, c2:P.a2, a:110 }, fontStyle:'italic' }),
+      r('Rule', { left:CX-140, top:660, width:280, height:3, rx:2, fill:P.a1, opacity:0.85 }),
+      t('Items', 'info', 'title', C.items, { left:CX, top:706, originX:'center', fontFamily:T.s, fontSize:38, fill:P.ink, opacity:0.85 }),
+      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:816, originX:'center', fontFamily:'Montserrat', fontSize:66, fill:P.ink, fontWeight:'800' }),
+      t('CTA', 'cta', 'upper', C.cta, { left:CX, top:920, originX:'center', fontFamily:T.s, fontSize:26, fill:P.sub, charSpacing:300, fontWeight:'600' }),
+    ],
+    karatSeal: (P, T, C) => [
+      ci('Seal Outer', { left:CX-150, top:96, radius:150, fill:'', stroke:P.a1, strokeWidth:3, shadow:sh(P.glow, 20) }),
+      ci('Seal Inner', { left:CX-122, top:124, radius:122, fill:'', stroke:P.a1, strokeWidth:1.5, opacity:0.6 }),
+      t('Seal Mark', 'deco', 'none', '$', { left:CX, top:170, originX:'center', fontFamily:T.d, fontSize:150, grad:{ c1:P.a1, c2:P.a2, a:120 }, shadow:sh(P.glow, 24) }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:436, originX:'center', fontFamily:T.d, fontSize:74, fill:P.ink, charSpacing:220 }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:512, originX:'center', fontFamily:T.d, fontSize:196, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 30) }),
+      t('Items', 'info', 'upper', C.items, { left:CX, top:742, originX:'center', fontFamily:T.s, fontSize:40, fill:P.sub, charSpacing:40 }),
+      ...phoneBar(P, T, 838),
+      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:990, originX:'center', fontFamily:'DM Sans', fontSize:22, fill:P.sub, opacity:0.7 }),
+    ],
+    bandKnockout: (P, T, C) => [
+      ...trust(P, C.badges),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:158, originX:'center', fontFamily:T.d, fontSize:132, fill:P.ink, shadow:sh('rgba(0,0,0,0.4)', 14, 0, 5) }),
+      r('Knockout Band', { left:34, top:334, width:W-68, height:252, rx:30, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 30, 0, 10) }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:366, originX:'center', fontFamily:T.d, fontSize:188, fill:P.paper ? '#ffffff' : P.deep }),
+      t('Chip 1', 'badges', 'upper', C.badges[0], { left:CX-250, top:664, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'900', backgroundColor:P.paper ? 'rgba(23,19,16,0.08)' : 'rgba(255,255,255,0.12)', padding:14 }),
+      t('Chip 2', 'badges', 'upper', C.badges[1], { left:CX, top:664, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'900', backgroundColor:P.paper ? 'rgba(23,19,16,0.08)' : 'rgba(255,255,255,0.12)', padding:14 }),
+      t('Chip 3', 'badges', 'upper', C.badges[2], { left:CX+250, top:664, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'900', backgroundColor:P.paper ? 'rgba(23,19,16,0.08)' : 'rgba(255,255,255,0.12)', padding:14 }),
+      ...ctaCard(P, T, C.cta),
+    ],
+    ticketStub: (P, T, C) => [
+      r('Ticket', { left:CX-390, top:150, width:780, height:560, rx:32, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 14) }),
+      rg('Ticket Perf', { left:CX-362, top:178, width:724, height:504, rx:24, fill:'rgba(0,0,0,0)', stroke:P.a1, strokeWidth:2.5, strokeDashArray:[16,11], opacity:0.9 }),
+      t('Admit', 'sub', 'upper', 'ADMIT: INSTANT CASH', { left:CX, top:224, originX:'center', fontFamily:T.s, fontSize:30, fill:P.a2, charSpacing:260, fontWeight:'700' }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:290, originX:'center', fontFamily:T.d, fontSize:92, fill:'#ffffff' }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:388, originX:'center', fontFamily:T.d, fontSize:150, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 24) }),
+      t('Price Line', 'info', 'upper', C.price, { left:CX, top:576, originX:'center', fontFamily:T.s, fontSize:42, fill:'#ffffff', fontWeight:'800', charSpacing:40 }),
+      t('Items', 'info', 'upper', C.items, { left:CX, top:640, originX:'center', fontFamily:T.s, fontSize:30, fill:'rgba(255,255,255,0.65)', charSpacing:30 }),
+      ...phoneBar(P, T, 774),
+      t('CTA', 'cta', 'upper', C.cta, { left:CX, top:936, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'800', charSpacing:120 }),
+    ],
+    glassCard: (P, T, C) => [
+      ...ribbon(P, T, C.k, 96),
+      rg('Glass Panel', { left:CX-410, top:230, width:820, height:492, rx:36, fill:'rgba(255,255,255,0.10)', stroke:'rgba(255,255,255,0.35)', strokeWidth:1.5, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 18) }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:288, originX:'center', fontFamily:T.d, fontSize:104, fill:P.ink, shadow:sh('rgba(0,0,0,0.35)', 12, 0, 4) }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:398, originX:'center', fontFamily:T.d, fontSize:174, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 28) }),
+      t('Items', 'info', 'upper', C.items, { left:CX, top:606, originX:'center', fontFamily:T.s, fontSize:36, fill:P.ink, opacity:0.85, charSpacing:30 }),
+      ...ctaCard(P, T, C.cta),
+    ],
+    diagonalRush: (P, T, C) => [
+      ...trust(P, C.badges),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:212, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 32) }),
+      r('Rush Band 1', { left:CX, top:508, originX:'center', originY:'center', width:W+160, height:112, rx:26, angle:-6, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh('rgba(0,0,0,0.4)', 18, 0, 8) }),
+      t('Rush Text 1', 'sub', 'upper', C.price, { left:CX, top:508, originX:'center', originY:'center', fontFamily:T.d, fontSize:56, fill:P.paper ? '#ffffff' : P.deep, angle:-6 }),
+      r('Rush Band 2', { left:CX, top:652, originX:'center', originY:'center', width:W+160, height:96, rx:26, angle:-6, fill:P.deep, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
+      t('Rush Text 2', 'sub', 'upper', C.items, { left:CX, top:652, originX:'center', originY:'center', fontFamily:T.s, fontSize:40, fill:P.a1, fontWeight:'800', angle:-6 }),
+      ...phoneBar(P, T, 812),
+      t('CTA', 'cta', 'upper', C.cta, { left:CX, top:966, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, fontWeight:'800', charSpacing:140 }),
+    ],
+    bubblePop: (P, T, C) => [
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX-40, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:282, originX:'center', fontFamily:T.d, fontSize:216, fill:P.a1, stroke:P.deep, strokeWidth:12, shadow:sh(P.a2, 0, 12, 12) }),
+      ci('Sticker', { left:W-322, top:486, radius:112, fill:P.a2, shadow:sh('rgba(0,0,0,0.4)', 20, 0, 8) }),
+      t('Sticker Text', 'deco', 'upper', 'TOP $$$', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:P.paper ? '#ffffff' : P.deep, angle:10 }, { curve:32 }),
+      subBlock(P, T, C.sub, 622), ...ctaCard(P, T, C.cta),
+    ],
+    slabPoster: (P, T, C) => [
+      rg('Poster Frame', { left:50, top:50, width:W-100, height:W-100, rx:22, fill:'rgba(0,0,0,0)', stroke:P.ink, strokeWidth:3, opacity:0.75 }),
+      t('Kicker', 'sub', 'upper', C.k, { left:CX, top:140, originX:'center', fontFamily:T.s, fontSize:32, fill:P.sub, charSpacing:400, fontWeight:'700' }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:238, originX:'center', fontFamily:T.d, fontSize:110, fill:P.ink }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:356, originX:'center', fontFamily:T.d, fontSize:224, fill:P.ink, shadow:sh(P.glow, 0, 10, 10) }),
+      r('Price Strip', { left:CX-330, top:650, width:660, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),
+      t('Price Line', 'info', 'upper', C.price, { left:CX, top:668, originX:'center', fontFamily:T.s, fontSize:44, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:806, originX:'center', fontFamily:'Montserrat', fontSize:74, fill:P.ink, fontWeight:'900' }),
+      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:924, originX:'center', fontFamily:'DM Sans', fontSize:24, fill:P.sub }),
+    ],
+    scriptRetro: (P, T, C) => [
+      // connected script faces must stay one run — curving per-glyph severs the joins
+      t('Script Line', 'headline', 'title', C.h1.toLowerCase(), { left:CX, top:198, originX:'center', fontFamily:T.d, fontSize:112, fill:P.a1, angle:-4, shadow:sh(P.glow, 22) }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:330, originX:'center', fontFamily:'Alfa Slab One', fontSize:172, fill:P.ink, stroke:P.deep, strokeWidth:6, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
+      t('Divider', 'deco', 'none', '───  ★  ───', { left:CX, top:576, originX:'center', fontFamily:T.s, fontSize:34, fill:P.a2 }),
+      t('Items', 'info', 'title', C.items, { left:CX, top:648, originX:'center', fontFamily:T.s, fontSize:40, fill:P.ink, opacity:0.9 }),
+      ...phoneBar(P, T, 760),
+      t('CTA', 'cta', 'upper', C.cta, { left:CX, top:922, originX:'center', fontFamily:T.s, fontSize:30, fill:P.sub, charSpacing:200, fontWeight:'700' }),
+    ],
+    hudTech: (P, T, C) => [
+      r('HUD Top', { left:CX-160, top:64, width:320, height:5, rx:3, fill:P.a2, shadow:sh(P.glow2, 14) }),
+      t('Kicker', 'sub', 'upper', '// ' + C.k + ' //', { left:CX, top:104, originX:'center', fontFamily:T.s, fontSize:34, fill:P.a2, charSpacing:220, fontWeight:'600' }),
+      ci('HUD Ring', { left:W-360, top:180, radius:230, fill:'', stroke:P.a2, strokeWidth:1.5, opacity:0.25, selectable:false, evented:false }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:200, originX:'center', fontFamily:T.d, fontSize:130, fill:P.ink, shadow:sh(P.glow2, 18) }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:344, originX:'center', fontFamily:T.d, fontSize:196, grad:{ c1:P.a2, c2:P.a1, a:100 }, shadow:sh(P.glow, 30) }),
+      t('Data Line', 'info', 'upper', C.items, { left:CX, top:600, originX:'center', fontFamily:T.s, fontSize:40, fill:P.sub, charSpacing:80 }),
+      r('Tech Chip', { left:CX-340, top:700, width:680, height:124, rx:20, fill:P.deep, stroke:P.a2, strokeWidth:2, shadow:sh(P.glow2, 18) }),
+      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:726, originX:'center', fontFamily:'Montserrat', fontSize:60, fill:'#ffffff', fontWeight:'900' }),
+      t('CTA', 'cta', 'upper', C.cta, { left:CX, top:886, originX:'center', fontFamily:T.s, fontSize:36, fill:P.a1, charSpacing:160, fontWeight:'700', shadow:sh(P.glow, 14) }),
+      r('HUD Bottom', { left:CX-160, top:986, width:320, height:5, rx:3, fill:P.a2, shadow:sh(P.glow2, 14) }),
+    ],
+    wantedFrame: (P, T, C) => [
+      rg('Frame Outer', { left:64, top:64, width:W-128, height:W-128, rx:18, fill:'rgba(0,0,0,0)', stroke:P.ink, strokeWidth:5 }),
+      rg('Frame Inner', { left:88, top:88, width:W-176, height:W-176, rx:14, fill:'rgba(0,0,0,0)', stroke:P.ink, strokeWidth:1.5, opacity:0.7 }),
+      t('Wanted', 'headline', 'upper', 'WANTED', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:140, fill:P.ink, charSpacing:120 }),
+      t('Sub Kicker', 'sub', 'upper', C.k, { left:CX, top:318, originX:'center', fontFamily:T.s, fontSize:34, fill:P.sub, charSpacing:280 }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:392, originX:'center', fontFamily:T.d, fontSize:164, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
+      t('Items', 'info', 'upper', C.items, { left:CX, top:600, originX:'center', fontFamily:T.s, fontSize:38, fill:P.ink, opacity:0.85 }),
+      t('Reward', 'info', 'upper', '— REWARD —', { left:CX, top:678, originX:'center', fontFamily:T.s, fontSize:30, fill:P.sub, charSpacing:340 }),
+      t('Price Line', 'info', 'upper', C.price, { left:CX, top:734, originX:'center', fontFamily:T.d, fontSize:44, fill:P.a2 }),
+      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:838, originX:'center', fontFamily:T.d, fontSize:66, fill:P.ink }),
+      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:944, originX:'center', fontFamily:T.s, fontSize:24, fill:P.sub }),
+    ],
+    checklistHero: (P, T, C) => {
+      const rows = C.sub.split('\n');
+      const mk = (i) => ([
+        ci('Tick ' + (i+1), { left:96, top:566 + i*96, radius:27, fill:P.a1, shadow:sh(P.glow, 14) }),
+        t('Tick Mark ' + (i+1), 'deco', 'none', '✓', { left:123, top:576 + i*96, originX:'center', fontFamily:'DM Sans', fontSize:38, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+        t('Point ' + (i+1), 'info', 'upper', rows[i], { left:164, top:576 + i*96, fontFamily:T.s, fontSize:39, fill:P.ink, fontWeight:'800' }),
+      ]);
+      return [
+        ...trust(P, C.badges),
+        t('Headline 1', 'headline', 'upper', C.h1, { left:80, top:150, fontFamily:T.d, fontSize:126, fill:P.ink, shadow:sh('rgba(0,0,0,0.4)', 14, 0, 5) }),
+        t('Headline 2', 'headline', 'upper', C.h2, { left:76, top:282, fontFamily:T.d, fontSize:212, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 30) }),
+        ...mk(0), ...mk(1), ...mk(2),
+        ...ctaCard(P, T, C.cta),
+      ];
+    },
+    duoSplit: (P, T, C) => [
+      r('Side Panel', { left:-60, top:-60, width:560, height:W+120, rx:44, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 40, 14, 0) }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:130, fontFamily:T.d, fontSize:96, fill:'#ffffff' }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:60, top:236, fontFamily:T.d, fontSize:132, grad:{ c1:P.a1, c2:P.a2, a:115 }, shadow:sh(P.glow, 24) }),
+      tb('Info Text', 'info', 'upper', C.sub, { left:64, top:462, width:372, fontFamily:T.s, fontSize:28, fill:'rgba(255,255,255,0.85)', fontWeight:'700', lineHeight:1.48 }),
+      t('Price Line', 'info', 'upper', C.price, { left:64, top:824, fontFamily:T.d, fontSize:40, fill:P.a1, shadow:sh(P.glow, 16) }),
+      t('Kicker', 'sub', 'upper', C.k, { left:770, top:120, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, charSpacing:200, fontWeight:'700', backgroundColor:'rgba(0,0,0,0.35)', padding:12 }),
+      r('Phone Chip', { left:560, top:860, width:470, height:112, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 22) }),
+      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:795, top:884, originX:'center', fontFamily:'Montserrat', fontSize:47, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+      t('Website', 'website', 'none', 'iphones.LA', { left:795, top:1000, originX:'center', fontFamily:'DM Sans', fontSize:22, fill:P.ink, opacity:0.6 }),
+    ],
+    gradientWave: (P, T, C) => [
+      ...trust(P, C.badges),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:170, originX:'center', fontFamily:T.d, fontSize:120, fill:P.ink, stroke:P.paper ? undefined : P.deep, strokeWidth:P.paper ? 0 : 6 }),
+      t('Wave Line', 'headline', 'upper', C.h2, { left:CX, top:400, fontFamily:T.d, fontSize:200, grad:{ c1:P.a1, c2:P.a2, a:90 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 30) }, { curve:-22 }),
+      t('Items', 'info', 'upper', C.items, { left:CX, top:622, originX:'center', fontFamily:T.s, fontSize:40, fill:P.sub, charSpacing:50 }),
+      subBlock(P, T, C.price, 700, 44),
+      ...ctaCard(P, T, C.cta),
+    ],
+  };
+
+  // ── the curated combo book: category → [layout, palette, pair, display name, featured] ──
+  const BOOK = {
+    phones: [
+      ['voltStack','volt','titan','Volt District',1], ['glassCard','ocean','right','Glassline'], ['neonNight','royal','bungee','Neon Vault'],
+      ['arcCrown','crimson','passion','Marquee Arc'], ['bandKnockout','arctic','staat','Arctic Band'], ['diagonalRush','sunset','rowdies','Rush Hour'],
+      ['bubblePop','volt','lucky','Bubble Volt'], ['hudTech','ocean','russo','Circuit HUD',1], ['ticketStub','mono','slab','Stub Mono'],
+      ['checklistHero','emerald','lilita','Deal Checklist'], ['duoSplit','royal','right','Split Royal'], ['gradientWave','sunset','titan','Sunset Wave'],
+      ['slabPoster','mono','ultra','Mono Slab'], ['scriptRetro','rose','pacifico','Rose Retro'],
+    ],
+    gold: [
+      ['karatSeal','gold','cinzel','24K Seal',1], ['editorialLux','gold','playfair','Estate Serif',1], ['voltStack','gold','slab','Bullion Stack'],
+      ['bandKnockout','paper','staat','Ledger Band'], ['glassCard','gold','abril','Gilt Glass'], ['ticketStub','gold','slab','Assay Ticket'],
+      ['wantedFrame','paper','vast','Gold Rush Frame'], ['arcCrown','gold','cinzel','Crown Karat'], ['slabPoster','paper','ultra','Broadsheet Gold'],
+      ['checklistHero','gold','lilita','Scale Checklist'], ['diagonalRush','crimson','rowdies','Vault Rush'], ['scriptRetro','gold','pacifico','Golden Script'],
+      ['gradientWave','gold','abril','Molten Wave'], ['duoSplit','gold','right','Karat Split'],
+    ],
+    silver: [
+      ['slabPoster','mono','ultra','Sterling Slab',1], ['editorialLux','arctic','playfair','Assay Serif'], ['voltStack','mono','slab','Bar Stack'],
+      ['hudTech','arctic','russo','Spot Ticker'], ['bandKnockout','mono','staat','Ingot Band'], ['glassCard','ocean','right','Silverline'],
+      ['ticketStub','arctic','slab','Mint Ticket'], ['karatSeal','mono','cinzel','Hallmark Seal'], ['checklistHero','ocean','lilita','Weigh-In List'],
+      ['arcCrown','mono','passion','Sterling Arc'], ['wantedFrame','arctic','elite','Silver Notice'], ['gradientWave','ocean','titan','Quicksilver'],
+      ['diagonalRush','mono','rowdies','Melt Rush'],
+    ],
+    coins: [
+      ['wantedFrame','paper','vast','Old Mint Notice',1], ['editorialLux','paper','playfair','Numismatic'], ['karatSeal','gold','cinzel','Double Eagle'],
+      ['ticketStub','paper','elite','Auction Stub'], ['slabPoster','gold','ultra','Mint Poster'], ['voltStack','royal','slab','Collector Stack'],
+      ['arcCrown','gold','passion','Liberty Arc'], ['checklistHero','paper','lilita','Estate List'], ['glassCard','royal','right','Proof Glass'],
+      ['bandKnockout','gold','staat','Greysheet Band'], ['scriptRetro','paper','pacifico','Heritage Script'], ['gradientWave','royal','abril','Gilded Wave'],
+      ['hudTech','mono','russo','Grade Scanner'],
+    ],
+    cars: [
+      ['diagonalRush','crimson','rowdies','Tow Rush',1], ['voltStack','ocean','blackops','Motor Stack'], ['bandKnockout','sunset','staat','Sunset Strip'],
+      ['hudTech','crimson','russo','Dash HUD'], ['slabPoster','mono','ultra','Junker Poster'], ['neonNight','sunset','bungee','Neon Garage'],
+      ['ticketStub','mono','slab','Pink Slip'], ['checklistHero','emerald','lilita','Pickup List'], ['glassCard','ocean','right','Showroom Glass'],
+      ['duoSplit','crimson','right','Lot Split'], ['arcCrown','sunset','passion','Boulevard Arc'], ['wantedFrame','paper','vast','Runner Wanted'],
+      ['gradientWave','crimson','titan','Redline Wave'],
+    ],
+    strips: [
+      ['checklistHero','arctic','lilita','Sealed Checklist',1], ['voltStack','emerald','titan','Strip Stack'], ['bandKnockout','arctic','staat','Clinic Band'],
+      ['glassCard','emerald','right','Clean Glass'], ['ticketStub','emerald','slab','Pharmacy Stub'], ['slabPoster','arctic','ultra','Box Poster'],
+      ['arcCrown','emerald','passion','Care Arc'], ['hudTech','ocean','russo','Sensor HUD'], ['editorialLux','arctic','playfair','Quiet Serif'],
+      ['duoSplit','emerald','right','Split Clinic'], ['gradientWave','emerald','titan','Mint Wave'], ['diagonalRush','ocean','rowdies','Priority Rush'],
+    ],
+    pokemon: [
+      ['bubblePop','royal','lucky','Holo Pop',1], ['neonNight','royal','bungee','Neon Holo'], ['voltStack','volt','titan','Trainer Stack'],
+      ['glassCard','royal','right','Slab Glass'], ['ticketStub','sunset','slab','Booster Stub'], ['bandKnockout','volt','staat','Grade Band'],
+      ['hudTech','ocean','russo','Scanner Deck'], ['checklistHero','royal','lilita','Binder List'], ['scriptRetro','sunset','pacifico','Vintage Script'],
+      ['arcCrown','royal','passion','Champion Arc'], ['gradientWave','volt','titan','Prism Wave'], ['diagonalRush','sunset','rowdies','Pull Rush'],
+      ['slabPoster','mono','ultra','Slab Poster'],
+    ],
+    sports: [
+      ['scriptRetro','paper','pacifico','Pennant Script',1], ['slabPoster','paper','ultra','Box Score'], ['voltStack','crimson','slab','Rookie Stack'],
+      ['ticketStub','crimson','slab','Season Ticket'], ['wantedFrame','paper','vast','Grail Wanted'], ['bandKnockout','emerald','staat','Field Band'],
+      ['checklistHero','crimson','lilita','Comp Checklist'], ['glassCard','mono','right','Case Glass'], ['hudTech','emerald','russo','Stat HUD'],
+      ['arcCrown','crimson','passion','Stadium Arc'], ['neonNight','emerald','bungee','Night Game'], ['gradientWave','crimson','titan','Clutch Wave'],
+      ['duoSplit','mono','right','Locker Split'],
+    ],
+  };
+
+  const MOOD = { volt:'electric lime + cyan accents on deep navy', coral:'warm cream daylight, coral tones', gold:'warm amber candlelight on near-black', emerald:'deep green with mint highlights', royal:'violet night with amber warmth', crimson:'moody red neon on black', ocean:'deep teal-blue with cyan glow', paper:'aged warm paper daylight', rose:'soft pink-amber studio dusk', arctic:'bright cool daylight, airy', mono:'neutral charcoal studio, silver light', sunset:'purple-magenta dusk with orange flare' };
+
+  window.BG_MANIFEST = [];
+  Object.keys(BOOK).forEach(cat => {
+    const D = DECKS[cat];
+    BOOK[cat].forEach(row => {
+      const [lay, pal, pair, label, feat] = row;
+      const P = PAL[pal], T = { d:PAIRS[pair][0], s:PAIRS[pair][1] };
+      const C = Object.assign({}, D, { h2: (lay === 'duoSplit' || lay === 'checklistHero') ? D.h2 : D.h2 });
+      const id = 'dl_' + cat + '_' + lay + '_' + pal;
+      const file = 'assets/bg/' + id + '.jpg';
+      const scrim = P.paper ? 0.12 : 0.55;
+      window.BG_MANIFEST.push({ file:id + '.jpg', category:cat, template:label, scene:D.scene, mood:MOOD[pal], note:'pre-blurred / heavy bokeh, no text, no logos, 2160×2160 JPG q85' });
+      const layers = LAYOUTS[lay](P, T, C);
+      // long money-words ("TEST STRIPS") shrink to fit — layouts are tuned for ~6 glyphs
+      layers.forEach(l => {
+        if ((l.name === 'Headline 2' || l.name === 'Wave Line') && l.text && l.text.length > 7)
+          l.props.fontSize = Math.round(l.props.fontSize * 7 / l.text.length);
+      });
+      TEMPLATES.push({
+        id, name:label, tag:'designer', cat, tier:'premium', feat:!!feat,
+        bg:{ type:'image', src:file, scrim, fallback:{ type:'grad', c1:P.bg1, c2:P.bg2, a:135 } },
+        layers,
+      });
+    });
+  });
+})();
+
 // traits: per-template, per-layer canonical styling — this is what Enhance restores
 const TRAIT_KEYS = ['fontFamily','fontSize','fill','stroke','strokeWidth','fontWeight','textAlign','lineHeight','backgroundColor','angle','opacity','fontStyle','charSpacing'];
 const TRAITS = {};
@@ -609,9 +966,27 @@ function gradFill(bg, w, h){
 }
 function applyBgSpec(cv, bg){
   if (bg.type === 'image'){
-    // template photos are preview-only dressing — the working canvas gets the designed fallback
+    // every template ships its OWN photo (see assets/bg/MANIFEST.md) — use it
+    // for real when it's loaded; the designed gradient is the graceful fallback
+    const bgi = freshBgImage(bg.src);
+    if (bgi){
+      removeBgRect(cv);
+      cv.setBackgroundColor('#101014', () => {});
+      cv.setBackgroundImage(coverImage(bgi, CW, CH), () => cv.renderAll());
+      let s = (cv.getObjects ? cv.getObjects() : []).find(o => o.pgScrim);
+      if (bg.scrim){
+        if (!s){ s = scrimRect(bg.scrim, CW, CH); s.pgScrim = true; cv.add(s); }
+        else s.set({ left:0, top:0, width:CW, height:CH, fill:'rgba(0,0,0,' + bg.scrim + ')' });
+        if (cv.sendToBack) cv.sendToBack(s);
+      } else if (s) cv.remove(s);
+      cv.renderAll();
+      return;
+    }
     return applyBgSpec(cv, bg.fallback || { type:'solid', c:'#101014' });
   }
+  if (cv.setBackgroundImage && cv.backgroundImage) cv.setBackgroundImage(null, () => {});
+  const oldScrim = (cv.getObjects ? cv.getObjects() : []).find(o => o.pgScrim);
+  if (oldScrim) cv.remove(oldScrim);
   // solid colors are safe as canvas background; gradients render reliably only
   // as percentage-unit object fills, so gradients go through a managed rect
   if (bg.type === 'solid'){
@@ -665,18 +1040,33 @@ function mapSpecToDoc(l, p, dw, dh){
 }
 function buildLayer(l, tplId, dw, dh){
   const p = mapSpecToDoc(l, Object.assign({}, l.props), dw || TPL_W, dh || TPL_H);
+  const gradSpec = p.grad; delete p.grad;          // {c1,c2,a} — gradient fill, applied below
+  // curved text straight from a template spec (left/top = arc CENTER)
+  if (l.curve && (l.kind === 'text' || !l.kind)){
+    const style = {};
+    ['fontFamily','fontSize','fill','stroke','strokeWidth','fontWeight','fontStyle','charSpacing'].forEach(k => { if (p[k] !== undefined) style[k] = p[k]; });
+    if (p.shadow) style.shadow = p.shadow;
+    if (gradSpec) style.fill = objGrad(gradSpec);
+    const grp = buildCurvedGroup(l.text, l.curve, style, {
+      name:l.name, pgRole:l.role || '', pgCasing:l.casing || 'none', pgTplId:tplId,
+      pos:{ left:p.left, top:p.top, angle:p.angle || 0 },
+    });
+    if (gradSpec) grp.pgFillGrad = gradSpec;
+    return grp;
+  }
   if (p.shadow) p.shadow = new fabric.Shadow(p.shadow);
   let obj;
   if (l.kind === 'rect'){
     // color blocks go glassy (45%) so background photos stay visible;
-    // stroke-only frames and rgba fills pass through as designed, and
-    // phone-number boxes are text backgroundColor fills — never touched here
-    if (typeof p.fill === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(p.fill)) p.fill = hexToRgba(p.fill, 0.45);
+    // stroke-only frames, rgba fills, and layers marked solid:true pass
+    // through as designed (bands, CTA cards, seals need full-strength ink)
+    if (!l.solid && typeof p.fill === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(p.fill)) p.fill = hexToRgba(p.fill, 0.45);
     obj = new fabric.Rect(p);
   }
   else if (l.kind === 'circle') obj = new fabric.Circle(p);
   else if (l.kind === 'textbox') obj = new fabric.Textbox(l.text, Object.assign({paintFirst:'stroke'}, p));
   else obj = new fabric.IText(l.text, Object.assign({paintFirst:'stroke'}, p));
+  if (gradSpec){ obj.set('fill', objGrad(gradSpec)); obj.pgFillGrad = gradSpec; }
   obj.set({ name:l.name, pgRole:l.role||'', pgCasing:l.casing||'none', pgTplId:tplId });
   return obj;
 }
@@ -727,7 +1117,29 @@ function thumbFallback(tpl, px){
   } catch (e){ return ''; }
 }
 function ensureThumbs(){
-  TEMPLATES.forEach(t => getThumb(t.id, 320));
+  // 150+ templates now: warm the cache progressively so first paint stays
+  // instant — getThumb() still renders synchronously on demand for any card
+  // that scrolls into view before its turn
+  if (ensureThumbs._running) return;
+  ensureThumbs._running = true;
+  const step = () => {
+    const batch = TEMPLATES.filter(t => !THUMBS[t.id]).slice(0, 6);
+    if (!batch.length){ ensureThumbs._running = false; return; }
+    batch.forEach(t => getThumb(t.id, 320));
+    setTimeout(step, 60);
+  };
+  setTimeout(step, 0);
+}
+// every font family the template library paints with, loaded before thumbs render
+function ensureTemplateFonts(){
+  const fams = new Set();
+  TEMPLATES.forEach(t => t.layers.forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); }));
+  return Promise.race([
+    Promise.all([...fams].map(f => ensureFont(f))),
+    new Promise(res => setTimeout(res, 5000)),   // never hold the page hostage
+  ]).then(() => {
+    try { if (window.fabric && fabric.util && fabric.util.clearFabricFontCache) fabric.util.clearFabricFontCache(); } catch (e){}
+  });
 }
 
 // ═══════════════ APP STATE ═══════════════
@@ -778,10 +1190,11 @@ function buildLanding(){
     card.style.cursor = 'pointer';
     card.onclick = () => showEasy(heroIds[i]);
   });
-  // gallery
+  // gallery — flagship designer templates first, then the classic starters
   const grid = $('lp-tpl-grid');
   grid.innerHTML = '';
-  TEMPLATES.forEach(t => {
+  const showcase = TEMPLATES.filter(t => t.feat).concat(TEMPLATES.filter(t => !t.feat && t.tier !== 'premium')).slice(0, 24);
+  showcase.forEach(t => {
     const card = document.createElement('div');
     card.className = 'tpl-card';
     card.setAttribute('role','button');
@@ -2321,7 +2734,7 @@ function preloadTplBgs(){
   }));
   return Promise.all(jobs).then(() => {
     if (_tplBgReport.missing.length){
-      console.error('GraphicsStudio: ' + _tplBgReport.missing.length + ' template photo(s) unavailable:', _tplBgReport.missing);
+      console.warn('GraphicsStudio: ' + _tplBgReport.missing.length + ' template background photo(s) not shipped yet — designed gradient fallbacks in use. Drop files into assets/bg/ per assets/bg/MANIFEST.md (list: window.BG_MANIFEST).');
     } else {
       console.log('GraphicsStudio: all ' + _tplBgReport.loaded + ' template background photos ready (embedded).');
     }
@@ -2409,14 +2822,28 @@ const _fontLoaded = new Set(CORE_FONTS);
 function ensureFont(name){
   if (_fontLoaded.has(name)) return Promise.resolve();
   _fontLoaded.add(name);
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
-  document.head.appendChild(link);
-  const load = document.fonts && document.fonts.load
-    ? document.fonts.load('400 24px "' + name + '"').catch(() => {})
-    : Promise.resolve();
-  return Promise.race([load, new Promise(res => setTimeout(res, 4000))]);
+  // fonts.load() only works AFTER the injected stylesheet's @font-face rules
+  // exist — waiting on link.onload first is what makes canvas thumbnails
+  // paint with the real face instead of the serif fallback
+  return new Promise(res => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
+    const done = () => {
+      // fabric caches per-family glyph widths — anything measured while the
+      // face was still loading poisons every later render (clipped tails),
+      // so flush the measurement cache the moment a font becomes real
+      try { if (window.fabric && fabric.util && fabric.util.clearFabricFontCache) fabric.util.clearFabricFontCache(); } catch (e){}
+      res();
+    };
+    link.onload = () => {
+      const l = (document.fonts && document.fonts.load) ? document.fonts.load('400 24px "' + name + '"').catch(() => {}) : Promise.resolve();
+      Promise.race([l, new Promise(r => setTimeout(r, 3000))]).then(done, done);
+    };
+    link.onerror = done;
+    document.head.appendChild(link);
+    setTimeout(done, 4500);   // hard cap — never block the app on a font
+  });
 }
 function buildFontOptions(sel){
   if (!sel || sel.dataset.fontsBuilt) return;
@@ -2788,7 +3215,7 @@ const PLANS = {
   free: { label:'Free', price:0, priceLabel:'$0', per:'forever', maxPx:1080, watermark:true, weekly:3, monthly:null,
           feats:['3 exports per week','20 starter templates (all 8 phone designs)','1080 × 1080 downloads','BUYBACK.AD watermark'] },
   pro:  { label:'Pro', price:15, priceLabel:'$15', per:'/month', maxPx:2160, watermark:false, weekly:null, monthly:100,
-          feats:['100 exports per month','All 50+ templates, every category','Up to 2160 × 2160 — no watermark','Export history & re-downloads'], hot:true },
+          feats:['100 exports per month','All 160+ templates incl. the Designer Library','Up to 2160px — no watermark, every format','Export history & re-downloads'], hot:true },
 };
 function isoWeek(){ const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
@@ -3779,9 +4206,18 @@ function renderEzCanvas(px, fmt, q){
   // Template photos are showroom dressing (thumbnails only). A selected template
   // renders on its designed fallback so ads never share one generic stock photo.
   const rawBg = ez.bg || tpl.bg;
-  const bgSpec = (!ez.bg && rawBg.type === 'image' && rawBg.src) ? (rawBg.fallback || { type:'solid', c:'#101014' }) : rawBg;
+  let bgSpec = rawBg;
   let photoOk = false;
-  if (bgSpec.type === 'image'){
+  if (!ez.bg && rawBg.type === 'image' && rawBg.src){
+    // the template's own photo, when it exists — else its designed fallback
+    const tbg = freshBgImage(rawBg.src);
+    if (tbg){
+      sc.setBackgroundImage(coverImage(tbg, TPL_W, TPL_H), () => {});
+      if (rawBg.scrim) sc.add(scrimRect(rawBg.scrim, TPL_W, TPL_H));
+      photoOk = true;
+    } else bgSpec = rawBg.fallback || { type:'solid', c:'#101014' };
+  }
+  if (!photoOk && bgSpec.type === 'image'){
     const im = ez.bgImgObj;   // the user's own photo — always theirs to use
     if (im && im.width > 0 && im.height > 0){
       sc.setBackgroundImage(coverImage(im, TPL_W, TPL_H), () => {});
@@ -4235,8 +4671,11 @@ function boot(){
   // prefill brand modal
   const b = getBrand();
   if (b){ $('bk-phone').value = b.phone || ''; $('bk-website').value = b.website || ''; $('bk-name').value = b.name || ''; }
-  buildLanding();          // instant paint on fallbacks…
-  preloadTplBgs();          // …photos swap themselves in as they arrive
+  // designer-library faces must be ready before the first thumbnail renders
+  ensureTemplateFonts().then(() => {
+    buildLanding();          // instant paint on fallbacks…
+    preloadTplBgs();          // …photos swap themselves in as they arrive
+  });
 }
 
 // wait for fonts so canvas thumbnails render with the real typefaces
