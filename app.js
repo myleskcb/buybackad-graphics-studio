@@ -49,7 +49,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Top Banner', props:{left:CW/2-130, top:55, width:260, height:50, fill:'#ff5000', rx:4, angle:-2}},
     {kind:'text', name:'Banner Text', role:'sub', casing:'upper', text:'TOP BUYER', props:{left:CW/2, top:68, originX:'center', fontFamily:F_DISPLAY, fontSize:36, fill:'#ffffff', stroke:'#000000', strokeWidth:2, angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'IPHONE', props:{left:CW/2, top:282, originX:'center', fontFamily:F_DISPLAY, fontSize:258, fill:'#ff5000', stroke:'#000000', strokeWidth:12, textAlign:'center', shadow:sh('rgba(0,0,0,0.6)',28,6,6)}},
-    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'•SAFE  •QUICK  •EASY', props:{left:CW-30, top:30, originX:'right', fontFamily:F_COND, fontSize:32, fill:'#000000', fontWeight:'900', backgroundColor:'#ffd200', padding:6}},
+    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'•SAFE  •QUICK  •EASY', props:{left:CW-30, top:30, originX:'right', fontFamily:'Montserrat', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
     {kind:'textbox', name:'Info Text', role:'info', casing:'upper', text:'SAME DAY CASH — NO HASSLE EASY MEETUP\niCLOUD LOCK, BROKEN, BLACKLIST...\nANY CONDITION ANY CARRIER', props:{left:CW/2, top:615, width:CW-80, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', stroke:'#000000', strokeWidth:2, textAlign:'center', fontWeight:'700', lineHeight:1.3, shadow:sh('rgba(0,0,0,0.9)',8,2,2)}},
     {kind:'text', name:'Arrow', role:'deco', text:'👉', props:{left:85, top:848, fontSize:62}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT US NOW!', props:{left:CW/2, top:828, originX:'center', fontFamily:F_DISPLAY, fontSize:56, fill:'#ff5000', stroke:'#000000', strokeWidth:3}},
@@ -172,7 +172,7 @@ const TEMPLATES = [
     {kind:'text', name:'Info', role:'info', casing:'upper', text:'5 MINUTE APPRAISAL \u2014 WALK OUT PAID', props:{left:CW/2, top:580, originX:'center', fontFamily:'Oswald', fontSize:42, fill:'#c9b27c', fontWeight:'600'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO FOR AN INSTANT QUOTE', props:{left:CW/2, top:670, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Anton', fontSize:92, fill:'#f5b700'}},
-    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2022LICENSED  \u2022INSURED', props:{left:CW-30, top:30, originX:'right', fontFamily:F_COND, fontSize:32, fill:'#000000', fontWeight:'900', backgroundColor:'#ffffff', padding:6}},
+    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2022LICENSED  \u2022INSURED', props:{left:CW-30, top:30, originX:'right', fontFamily:'Montserrat', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
 { id:'gold_estate', name:'Estate Buyer Serif', tag:'buyer', cat:'gold', tier:'premium',
   bg:{type:'solid', c:'#f4ead2'},
@@ -481,7 +481,7 @@ const TEMPLATES = [
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Those playground cards are adult money\nnow. Dig out the shoebox \u2014 we will sort\nit together and pay for the hits.', props:{left:CW/2, top:440, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d8c9a3', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK \u2014 ZERO PRESSURE', props:{left:CW/2, top:660, originX:'center', fontFamily:'Oswald', fontSize:44, fill:'#ffd27a', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Anton', fontSize:98, fill:'#ffffff'}},
-    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2022LOCAL  \u2022TRUSTED', props:{left:CW-30, top:30, originX:'right', fontFamily:F_COND, fontSize:32, fill:'#000000', fontWeight:'900', backgroundColor:'#ffd200', padding:6}},
+    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2022LOCAL  \u2022TRUSTED', props:{left:CW-30, top:30, originX:'right', fontFamily:'Montserrat', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
 { id:'pkm_grade', name:'Grade Gap Explainer', tag:'promo', cat:'pokemon', tier:'premium',
   bg:{type:'solid', c:'#101014'},
@@ -637,29 +637,29 @@ const TEMPLATES = [
 
   // ── per-category copy decks + background photo scenes ──
   const DECKS = {
-    phones:  { k:'TOP BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME DAY CASH — EASY LOCAL MEETUP\niCLOUD LOCKED, BROKEN, BLACKLISTED\nANY CONDITION • ANY CARRIER', cta:'TEXT US NOW!', price:'UP TO $1,100 PAID TODAY', badges:['SAFE','QUICK','EASY'],
+    phones:  { k:'TOP BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME DAY CASH — EASY LOCAL MEETUP\niCLOUD LOCKED, BROKEN, BLACKLISTED\nANY CONDITION • ANY CARRIER', cta:'TEXT US NOW!', price:'UP TO $1,100 PAID TODAY', big:'$1,100', badges:['SAFE','QUICK','EASY'],
                scene:'extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh' },
-    gold:    { k:'LICENSED BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Coins • Dental • Broken', sub:'TESTED & PAID IN FRONT OF YOU\n10K • 14K • 18K • 24K WELCOME\nESTATES & INHERITANCE HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAYING UP TO 95% OF SPOT', badges:['TESTED','FAIR','PRIVATE'],
+    gold:    { k:'LICENSED BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Coins • Dental • Broken', sub:'TESTED & PAID IN FRONT OF YOU\n10K • 14K • 18K • 24K WELCOME\nESTATES & INHERITANCE HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAYING UP TO 95% OF SPOT', big:'95% SPOT', badges:['TESTED','FAIR','PRIVATE'],
                scene:'molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh' },
-    silver:  { k:'BULLION DESK', h1:'WE BUY', h2:'SILVER', alt2:'STERLING', items:'Flatware • Bars • Sterling • 90% Coins', sub:'INSTANT ASSAY — WATCH THE SCALE\nBARS, ROUNDS, FLATWARE, TEA SETS\nPAYING OVER SPOT ON PREMIUMS', cta:'BRING IT IN TODAY', price:'PAYING OVER SPOT', badges:['ASSAYED','HONEST','FAST'],
+    silver:  { k:'BULLION DESK', h1:'WE BUY', h2:'SILVER', alt2:'STERLING', items:'Flatware • Bars • Sterling • 90% Coins', sub:'INSTANT ASSAY — WATCH THE SCALE\nBARS, ROUNDS, FLATWARE, TEA SETS\nPAYING OVER SPOT ON PREMIUMS', cta:'BRING IT IN TODAY', price:'PAYING OVER SPOT', big:'SPOT+', badges:['ASSAYED','HONEST','FAST'],
                scene:'stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus' },
-    coins:   { k:'COLLECTIONS WANTED', h1:'RARE', h2:'COINS', alt2:'COIN LOTS', items:'Morgans • Gold Eagles • Proof Sets • Errors', sub:'FULL COLLECTIONS OR SINGLE PIECES\nGRADED & RAW — HONEST NUMISMATIC OFFERS\nHOUSE CALLS FOR LARGE ESTATES', cta:'TEXT PHOTOS FOR OFFER', price:'PAYING OVER GREYSHEET', badges:['GRADED','INSURED','LEGIT'],
+    coins:   { k:'COLLECTIONS WANTED', h1:'RARE', h2:'COINS', alt2:'COIN LOTS', items:'Morgans • Gold Eagles • Proof Sets • Errors', sub:'FULL COLLECTIONS OR SINGLE PIECES\nGRADED & RAW — HONEST NUMISMATIC OFFERS\nHOUSE CALLS FOR LARGE ESTATES', cta:'TEXT PHOTOS FOR OFFER', price:'PAYING OVER GREYSHEET', big:'$25,000', badges:['GRADED','INSURED','LEGIT'],
                scene:'antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro' },
-    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nNO TITLE? NO PROBLEM — ASK US\nSAME-DAY PICKUP ACROSS LA & OC', cta:'CALL FOR INSTANT OFFER', price:'UP TO $15,000 CASH', badges:['FREE TOW','SAME DAY','CASH'],
+    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nNO TITLE? NO PROBLEM — ASK US\nSAME-DAY PICKUP ACROSS LA & OC', cta:'CALL FOR INSTANT OFFER', price:'UP TO $15,000 CASH', big:'$15,000', badges:['FREE TOW','SAME DAY','CASH'],
                scene:'dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze' },
-    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Lancets • CGM sensors', sub:'UNEXPIRED & SEALED BOXES ONLY\nFAST LOCAL PICKUP OR MAIL-IN\nTOP BOX PRICES — PAID SAME DAY', cta:'TEXT A PHOTO NOW', price:'TOP BOX PRICES PAID', badges:['SEALED','FAST','FAIR'],
+    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Lancets • CGM sensors', sub:'UNEXPIRED & SEALED BOXES ONLY\nFAST LOCAL PICKUP OR MAIL-IN\nTOP BOX PRICES — PAID SAME DAY', cta:'TEXT A PHOTO NOW', price:'TOP BOX PRICES PAID', big:'TOP $', badges:['SEALED','FAST','FAIR'],
                scene:'clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur' },
-    pokemon: { k:'SLABS & VINTAGE', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Slabs • Vintage • Sealed • Bulk lots', sub:'PSA / CGC / BGS SLABS WANTED\nVINTAGE WOTC THROUGH MODERN HITS\nSEALED PRODUCT & BULK COLLECTIONS', cta:'DM YOUR BINDER', price:'TOP SLAB PRICES PAID', badges:['PSA','CGC','SEALED'],
+    pokemon: { k:'SLABS & VINTAGE', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Slabs • Vintage • Sealed • Bulk lots', sub:'PSA / CGC / BGS SLABS WANTED\nVINTAGE WOTC THROUGH MODERN HITS\nSEALED PRODUCT & BULK COLLECTIONS', cta:'DM YOUR BINDER', price:'TOP SLAB PRICES PAID', big:'$10,000', badges:['PSA','CGC','SEALED'],
                scene:'holographic trading card close-up with prismatic light refractions on dark felt, dreamy bokeh' },
-    sports:  { k:'VINTAGE & MODERN', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Rookies • Slabs • Wax • Vintage', sub:'ROOKIES, AUTOS, PATCHES, GRAILS\nGRADED OR RAW — REAL COMP PRICING\nENTIRE COLLECTIONS BOUGHT OUTRIGHT', cta:'TEXT YOUR HITS', price:'TOP DOLLAR FOR SLABS', badges:['COMPS','CASH','LEGIT'],
+    sports:  { k:'VINTAGE & MODERN', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Rookies • Slabs • Wax • Vintage', sub:'ROOKIES, AUTOS, PATCHES, GRAILS\nGRADED OR RAW — REAL COMP PRICING\nENTIRE COLLECTIONS BOUGHT OUTRIGHT', cta:'TEXT YOUR HITS', price:'TOP DOLLAR FOR SLABS', big:'$5,000', badges:['COMPS','CASH','LEGIT'],
                scene:'vintage baseball cards fanned on worn wood with stadium light bokeh, nostalgic warm grade' },
   };
 
   // ── shared fragments ──
-  const trust = (P, badges) => [
-    ci('Check Circle', { left:W-320, top:42, radius:46, fill:P.a1, shadow:sh(P.glow, 24) }),
-    t('Check', 'deco', 'none', '✓', { left:W-274, top:52, originX:'center', fontFamily:'DM Sans', fontSize:60, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
-    t('Badges', 'badges', 'upper', badges.map(b => '•' + b).join('\n'), { left:W-56, top:34, originX:'right', fontFamily:'Barlow Condensed', fontSize:33, fill:P.ink, fontWeight:'900', lineHeight:1.14, stroke:P.paper ? undefined : '#000000', strokeWidth:P.paper ? 0 : 2 }),
+  const trust = (P, T, badges) => [
+    ci('Check Circle', { left:W-318, top:44, radius:44, fill:P.a1, shadow:sh(P.glow, 22) }),
+    t('Check', 'deco', 'none', '✓', { left:W-274, top:56, originX:'center', fontFamily:'DM Sans', fontSize:56, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+    t('Badges', 'badges', 'upper', badges.join('\n'), { left:W-56, top:40, originX:'right', fontFamily:T.s, fontSize:28, fill:P.ink, fontWeight:'800', lineHeight:1.52, charSpacing:110, opacity:0.95, shadow:P.paper ? null : sh('rgba(0,0,0,0.55)', 9, 0, 2) }),
   ];
   const ribbon = (P, T, text, y) => [
     r('Kicker Ribbon', { left:CX-215, top:y, width:430, height:62, rx:14, angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
@@ -680,7 +680,7 @@ const TEMPLATES = [
   // ── the 16 layout architectures ──
   const LAYOUTS = {
     voltStack: (P, T, C) => [
-      ...ribbon(P, T, C.k, 92), ...trust(P, C.badges),
+      ...ribbon(P, T, C.k, 92), ...trust(P, T, C.badges),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:196, originX:'center', fontFamily:T.d, fontSize:148, fill:P.ink, stroke:P.paper ? undefined : P.deep, strokeWidth:P.paper ? 0 : 7, shadow:sh('rgba(0,0,0,0.4)', 16, 0, 6) }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:338, originX:'center', fontFamily:T.d, fontSize:226, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:P.paper ? P.deep : '#000000', strokeWidth:9, shadow:sh(P.glow, 34) }),
       subBlock(P, T, C.sub, 636), ...ctaCard(P, T, C.cta),
@@ -723,7 +723,7 @@ const TEMPLATES = [
       t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:990, originX:'center', fontFamily:'DM Sans', fontSize:22, fill:P.sub, opacity:0.7 }),
     ],
     bandKnockout: (P, T, C) => [
-      ...trust(P, C.badges),
+      ...trust(P, T, C.badges),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:158, originX:'center', fontFamily:T.d, fontSize:132, fill:P.ink, shadow:sh('rgba(0,0,0,0.4)', 14, 0, 5) }),
       r('Knockout Band', { left:34, top:334, width:W-68, height:252, rx:30, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 30, 0, 10) }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:366, originX:'center', fontFamily:T.d, fontSize:188, fill:P.paper ? '#ffffff' : P.deep }),
@@ -752,7 +752,7 @@ const TEMPLATES = [
       ...ctaCard(P, T, C.cta),
     ],
     diagonalRush: (P, T, C) => [
-      ...trust(P, C.badges),
+      ...trust(P, T, C.badges),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:212, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 32) }),
       r('Rush Band 1', { left:CX, top:508, originX:'center', originY:'center', width:W+160, height:112, rx:26, angle:-6, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh('rgba(0,0,0,0.4)', 18, 0, 8) }),
       t('Rush Text 1', 'sub', 'upper', C.price, { left:CX, top:508, originX:'center', originY:'center', fontFamily:T.d, fontSize:56, fill:P.paper ? '#ffffff' : P.deep, angle:-6 }),
@@ -819,7 +819,7 @@ const TEMPLATES = [
         t('Point ' + (i+1), 'info', 'upper', rows[i], { left:164, top:576 + i*96, fontFamily:T.s, fontSize:39, fill:P.ink, fontWeight:'800' }),
       ]);
       return [
-        ...trust(P, C.badges),
+        ...trust(P, T, C.badges),
         t('Headline 1', 'headline', 'upper', C.h1, { left:80, top:150, fontFamily:T.d, fontSize:126, fill:P.ink, shadow:sh('rgba(0,0,0,0.4)', 14, 0, 5) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:76, top:282, fontFamily:T.d, fontSize:212, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 30) }),
         ...mk(0), ...mk(1), ...mk(2),
@@ -838,7 +838,7 @@ const TEMPLATES = [
       t('Website', 'website', 'none', 'iphones.LA', { left:795, top:1000, originX:'center', fontFamily:'DM Sans', fontSize:22, fill:P.ink, opacity:0.6 }),
     ],
     gradientWave: (P, T, C) => [
-      ...trust(P, C.badges),
+      ...trust(P, T, C.badges),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:170, originX:'center', fontFamily:T.d, fontSize:120, fill:P.ink, stroke:P.paper ? undefined : P.deep, strokeWidth:P.paper ? 0 : 6 }),
       t('Wave Line', 'headline', 'upper', C.h2, { left:CX, top:400, fontFamily:T.d, fontSize:200, grad:{ c1:P.a1, c2:P.a2, a:90 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 30) }, { curve:-22 }),
       t('Items', 'info', 'upper', C.items, { left:CX, top:622, originX:'center', fontFamily:T.s, fontSize:40, fill:P.sub, charSpacing:50 }),
@@ -846,6 +846,41 @@ const TEMPLATES = [
       ...ctaCard(P, T, C.cta),
     ],
   };
+
+  // ── professional / agency tier ──
+  LAYOUTS.agencyGrid = (P, T, C) => [
+    r('Rule Top', { left:70, top:96, width:200, height:5, rx:3, fill:P.a1 }),
+    t('Kicker', 'sub', 'upper', C.k, { left:70, top:130, fontFamily:T.s, fontSize:28, fill:P.sub, charSpacing:340, fontWeight:'700' }),
+    t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:210, fontFamily:T.d, fontSize:148, fill:P.ink }),
+    t('Headline 2', 'headline', 'upper', C.h2, { left:64, top:366, fontFamily:T.d, fontSize:148, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
+    r('Rule Mid', { left:70, top:594, width:W-140, height:2, rx:1, fill:P.ink, opacity:0.25 }),
+    t('Items', 'info', 'upper', C.items, { left:70, top:628, fontFamily:T.s, fontSize:33, fill:P.sub, charSpacing:60 }),
+    t('Price Label', 'info', 'upper', 'PAYING UP TO', { left:70, top:756, fontFamily:T.s, fontSize:25, fill:P.sub, charSpacing:320, fontWeight:'600' }),
+    t('Price Line', 'info', 'upper', C.big, { left:64, top:796, fontFamily:T.d, fontSize:124, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
+    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:W-64, top:820, originX:'right', fontFamily:'Montserrat', fontSize:42, fill:P.ink, fontWeight:'800' }),
+    t('CTA', 'cta', 'upper', C.cta, { left:W-64, top:884, originX:'right', fontFamily:T.s, fontSize:25, fill:P.a1, charSpacing:130, fontWeight:'700' }),
+    t('Website', 'website', 'none', 'iphones.LA', { left:W-64, top:934, originX:'right', fontFamily:'DM Sans', fontSize:20, fill:P.sub, opacity:0.8 }),
+  ];
+  LAYOUTS.priceAnchor = (P, T, C) => [
+    t('Kicker', 'sub', 'upper', C.h1 + ' ' + C.h2, { left:CX, top:118, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, charSpacing:260, fontWeight:'700', opacity:0.92 }),
+    r('Anchor Rule', { left:CX-60, top:196, width:120, height:5, rx:3, fill:P.a1 }),
+    t('Price Label', 'info', 'upper', 'WE PAY UP TO', { left:CX, top:296, originX:'center', fontFamily:T.s, fontSize:29, fill:P.sub, charSpacing:420, fontWeight:'600' }),
+    t('Price Line', 'headline', 'upper', C.big, { left:CX, top:372, originX:'center', fontFamily:T.d, fontSize:246, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 34) }),
+    t('Offer Line', 'info', 'upper', C.items, { left:CX, top:678, originX:'center', fontFamily:T.s, fontSize:35, fill:P.sub, charSpacing:60 }),
+    ...phoneBar(P, T, 786),
+    t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:948, originX:'center', fontFamily:'DM Sans', fontSize:21, fill:P.sub, opacity:0.7 }),
+  ];
+  LAYOUTS.lowerThird = (P, T, C) => [
+    ...trust(P, T, C.badges),
+    r('Third Band', { left:-40, top:640, width:W+80, height:520, rx:44, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 34, 0, -10) }),
+    r('Accent Tick', { left:70, top:702, width:120, height:6, rx:3, fill:P.a1 }),
+    t('Kicker', 'sub', 'upper', C.k, { left:70, top:734, fontFamily:T.s, fontSize:25, fill:P.a1, charSpacing:300, fontWeight:'700' }),
+    t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:786, fontFamily:T.d, fontSize:94, fill:'#ffffff' }),
+    t('Headline 2', 'headline', 'upper', C.h2, { left:64, top:886, fontFamily:T.d, fontSize:94, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
+    t('Items', 'info', 'upper', C.items, { left:70, top:1002, fontFamily:T.s, fontSize:25, fill:'rgba(255,255,255,0.6)', charSpacing:40 }),
+    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:W-70, top:812, originX:'right', fontFamily:'Montserrat', fontSize:52, fill:'#ffffff', fontWeight:'900' }),
+    t('CTA', 'cta', 'upper', C.cta, { left:W-70, top:888, originX:'right', fontFamily:T.s, fontSize:27, fill:P.a1, charSpacing:110, fontWeight:'700' }),
+  ];
 
   // ── the curated combo book: category → [layout, palette, pair, display name, featured] ──
   const BOOK = {
@@ -855,6 +890,7 @@ const TEMPLATES = [
       ['bubblePop','volt','lucky','Bubble Volt'], ['hudTech','ocean','russo','Circuit HUD',1], ['ticketStub','mono','slab','Stub Mono'],
       ['checklistHero','emerald','lilita','Deal Checklist'], ['duoSplit','royal','right','Split Royal'], ['gradientWave','sunset','titan','Sunset Wave'],
       ['slabPoster','mono','ultra','Mono Slab'], ['scriptRetro','rose','pacifico','Rose Retro'],
+      ['agencyGrid','mono','staat','Agency Mono',1], ['priceAnchor','volt','passion','Price Point'], ['lowerThird','ocean','right','Broadcast'],
     ],
     gold: [
       ['karatSeal','gold','cinzel','24K Seal',1], ['editorialLux','gold','playfair','Estate Serif',1], ['voltStack','gold','slab','Bullion Stack'],
@@ -862,6 +898,7 @@ const TEMPLATES = [
       ['wantedFrame','paper','vast','Gold Rush Frame'], ['arcCrown','gold','cinzel','Crown Karat'], ['slabPoster','paper','ultra','Broadsheet Gold'],
       ['checklistHero','gold','lilita','Scale Checklist'], ['diagonalRush','crimson','rowdies','Vault Rush'], ['scriptRetro','gold','pacifico','Golden Script'],
       ['gradientWave','gold','abril','Molten Wave'], ['duoSplit','gold','right','Karat Split'],
+      ['agencyGrid','gold','cinzel','Atelier Grid'], ['priceAnchor','gold','abril','Spot Price',1], ['lowerThird','gold','staat','Gold Standard'],
     ],
     silver: [
       ['slabPoster','mono','ultra','Sterling Slab',1], ['editorialLux','arctic','playfair','Assay Serif'], ['voltStack','mono','slab','Bar Stack'],
@@ -869,6 +906,7 @@ const TEMPLATES = [
       ['ticketStub','arctic','slab','Mint Ticket'], ['karatSeal','mono','cinzel','Hallmark Seal'], ['checklistHero','ocean','lilita','Weigh-In List'],
       ['arcCrown','mono','passion','Sterling Arc'], ['wantedFrame','arctic','elite','Silver Notice'], ['gradientWave','ocean','titan','Quicksilver'],
       ['diagonalRush','mono','rowdies','Melt Rush'],
+      ['agencyGrid','arctic','staat','Studio Grid'], ['priceAnchor','mono','ultra','Spot Anchor'], ['lowerThird','ocean','russo','Newsline'],
     ],
     coins: [
       ['wantedFrame','paper','vast','Old Mint Notice',1], ['editorialLux','paper','playfair','Numismatic'], ['karatSeal','gold','cinzel','Double Eagle'],
@@ -876,6 +914,7 @@ const TEMPLATES = [
       ['arcCrown','gold','passion','Liberty Arc'], ['checklistHero','paper','lilita','Estate List'], ['glassCard','royal','right','Proof Glass'],
       ['bandKnockout','gold','staat','Greysheet Band'], ['scriptRetro','paper','pacifico','Heritage Script'], ['gradientWave','royal','abril','Gilded Wave'],
       ['hudTech','mono','russo','Grade Scanner'],
+      ['agencyGrid','paper','playfair','Catalogue'], ['priceAnchor','gold','cinzel','Reserve Price'], ['lowerThird','royal','staat','Auction Line'],
     ],
     cars: [
       ['diagonalRush','crimson','rowdies','Tow Rush',1], ['voltStack','ocean','blackops','Motor Stack'], ['bandKnockout','sunset','staat','Sunset Strip'],
@@ -883,12 +922,14 @@ const TEMPLATES = [
       ['ticketStub','mono','slab','Pink Slip'], ['checklistHero','emerald','lilita','Pickup List'], ['glassCard','ocean','right','Showroom Glass'],
       ['duoSplit','crimson','right','Lot Split'], ['arcCrown','sunset','passion','Boulevard Arc'], ['wantedFrame','paper','vast','Runner Wanted'],
       ['gradientWave','crimson','titan','Redline Wave'],
+      ['agencyGrid','mono','blackops','Showroom Grid'], ['priceAnchor','crimson','rowdies','Sticker Price',1], ['lowerThird','sunset','staat','Prime Time'],
     ],
     strips: [
       ['checklistHero','arctic','lilita','Sealed Checklist',1], ['voltStack','emerald','titan','Strip Stack'], ['bandKnockout','arctic','staat','Clinic Band'],
       ['glassCard','emerald','right','Clean Glass'], ['ticketStub','emerald','slab','Pharmacy Stub'], ['slabPoster','arctic','ultra','Box Poster'],
       ['arcCrown','emerald','passion','Care Arc'], ['hudTech','ocean','russo','Sensor HUD'], ['editorialLux','arctic','playfair','Quiet Serif'],
       ['duoSplit','emerald','right','Split Clinic'], ['gradientWave','emerald','titan','Mint Wave'], ['diagonalRush','ocean','rowdies','Priority Rush'],
+      ['agencyGrid','arctic','right','Clinical Grid'], ['priceAnchor','emerald','titan','Box Price'], ['lowerThird','emerald','staat','Health Line'],
     ],
     pokemon: [
       ['bubblePop','royal','lucky','Holo Pop',1], ['neonNight','royal','bungee','Neon Holo'], ['voltStack','volt','titan','Trainer Stack'],
@@ -896,6 +937,7 @@ const TEMPLATES = [
       ['hudTech','ocean','russo','Scanner Deck'], ['checklistHero','royal','lilita','Binder List'], ['scriptRetro','sunset','pacifico','Vintage Script'],
       ['arcCrown','royal','passion','Champion Arc'], ['gradientWave','volt','titan','Prism Wave'], ['diagonalRush','sunset','rowdies','Pull Rush'],
       ['slabPoster','mono','ultra','Slab Poster'],
+      ['agencyGrid','royal','bungee','Set Grid'], ['priceAnchor','volt','lucky','Grail Price'], ['lowerThird','royal','right','Pull Report'],
     ],
     sports: [
       ['scriptRetro','paper','pacifico','Pennant Script',1], ['slabPoster','paper','ultra','Box Score'], ['voltStack','crimson','slab','Rookie Stack'],
@@ -903,6 +945,7 @@ const TEMPLATES = [
       ['checklistHero','crimson','lilita','Comp Checklist'], ['glassCard','mono','right','Case Glass'], ['hudTech','emerald','russo','Stat HUD'],
       ['arcCrown','crimson','passion','Stadium Arc'], ['neonNight','emerald','bungee','Night Game'], ['gradientWave','crimson','titan','Clutch Wave'],
       ['duoSplit','mono','right','Locker Split'],
+      ['agencyGrid','mono','staat','Program Grid'], ['priceAnchor','crimson','ultra','Card Price'], ['lowerThird','emerald','russo','Sports Desk'],
     ],
   };
 
@@ -922,7 +965,7 @@ const TEMPLATES = [
       const layers = LAYOUTS[lay](P, T, C);
       // long money-words ("TEST STRIPS") shrink to fit — layouts are tuned for ~6 glyphs
       layers.forEach(l => {
-        if ((l.name === 'Headline 2' || l.name === 'Wave Line') && l.text && l.text.length > 7)
+        if ((l.name === 'Headline 2' || l.name === 'Wave Line' || l.name === 'Price Line') && l.text && l.text.length > 7)
           l.props.fontSize = Math.round(l.props.fontSize * 7 / l.text.length);
       });
       TEMPLATES.push({
@@ -1629,9 +1672,9 @@ function addSellPoint(w){
     badge.set('text', badge.text + '\n\u2022 ' + w);
     if (count + 1 > 4) toast('Tip: 3–4 points reads best', 'error');
   } else {
-    badge = new fabric.IText('\u2022 ' + w, {
-      left: CW-30, top: 30, originX:'right', fontFamily:F_COND, fontSize:32, fill:'#000000',
-      fontWeight:'900', backgroundColor:'#ffd200', padding:6, paintFirst:'stroke',
+    badge = new fabric.IText('\u2713 ' + w, {
+      left: CW-30, top: 30, originX:'right', fontFamily:'Montserrat', fontSize:29, fill:'#ffffff',
+      fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:new fabric.Shadow(sh('rgba(0,0,0,0.6)',10,0,3)), paintFirst:'stroke',
       name:'Badges', pgRole:'badges', pgCasing:'upper', pgTplId: currentTplId,
     });
     canvas.add(badge);
@@ -1826,6 +1869,7 @@ function refreshProps(){
     const shBlur = (src.shadow && src.shadow.blur) || 0;
     $('pt-shadow').value = shBlur; $('pt-shadow-val').textContent = shBlur;
     $('pt-shadow-color').value = toHex(src.shadow && src.shadow.color, '#000000');
+    $('pt-bgcolor').value = toHex(src.backgroundColor, '#111111');
   }
   if (isShape){
     const sg = o.pgFillGrad;
@@ -1911,6 +1955,10 @@ function bindPropsControls(){
   });
   $('pt-under').onclick = () => withActive(o => { o.set('underline', !o.underline); $('pt-under').classList.toggle('active', !!o.underline); });
   $('pt-fill').addEventListener('input', () => withActive(o => { o.pgFillGrad = null; textProp('fill', $('pt-fill').value); }));
+  // highlight strip behind the text (the color the old selling-points pill was
+  // stuck on — now editable, and removable)
+  $('pt-bgcolor').addEventListener('input', () => withActive(o => { if (o.text !== undefined) o.set('backgroundColor', $('pt-bgcolor').value); }));
+  $('pt-bgcolor-off').onclick = () => withActive(o => { if (o.text !== undefined){ o.set('backgroundColor', ''); toast('Highlight removed'); } });
   $('pt-stroke').addEventListener('input', () => textProp('stroke', $('pt-stroke').value));
   $('pt-stroke2').addEventListener('input', () => textProp('stroke', $('pt-stroke2').value));
   $('pt-sw').addEventListener('input', () => withActive(o => {
@@ -2908,7 +2956,7 @@ function openTxtPop(anchor, layerName){
   let l = tpl.layers.find(x => x.name === layerName);
   if (!l && layerName === 'Badges'){
     l = tpl.layers.find(x => x.role === 'badges') ||
-        { name:'Badges', props:{ fontFamily:F_COND, fontSize:32, fill:'#000000', fontWeight:'900', backgroundColor:'#ffd200', padding:6 } };
+        { name:'Badges', props:{ fontFamily:'Montserrat', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3) } };
   }
   if (!l){ toast('This template has no ' + layerName.toLowerCase() + ' line', 'error'); return; }
   tpTarget = { layerName: l.name || layerName, base: l.props || {} };
@@ -4243,7 +4291,7 @@ function renderEzCanvas(px, fmt, q){
       hasBadgeLayer = true;
       if (!chips.length) return;
       const o = buildLayer(l, tpl.id);
-      o.set('text', chips.map(c => '\u2022 ' + c).join('\n'));
+      o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
       sc.add(o);
       return;
     }
@@ -4259,9 +4307,9 @@ function renderEzCanvas(px, fmt, q){
   });
   if (!hasBadgeLayer && chips.length){
     const synth = { kind:'text', name:'Badges', role:'badges', casing:'upper',
-      props:{ left: TPL_W-30, top: 30, originX:'right', fontFamily:F_COND, fontSize:32, fill:'#000000',
-              fontWeight:'900', backgroundColor:'#ffd200', padding:6 } };
-    const bo = new fabric.IText(chips.map(c => '\u2022 ' + c).join('\n'), Object.assign({}, synth.props, {
+      props:{ left: TPL_W-30, top: 30, originX:'right', fontFamily:'Montserrat', fontSize:29, fill:'#ffffff',
+              fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3) } };
+    const bo = new fabric.IText(chips.map(c => '\u2713 ' + c).join('\n'), Object.assign({}, synth.props, {
       paintFirst:'stroke', name:'Badges', pgRole:'badges', pgCasing:'upper', pgTplId: tpl.id,
     }));
     sc.add(ezApplyStyle(bo, synth, tpl.id));
@@ -4361,7 +4409,7 @@ function openAdvancedFromEz(){
   canvas.getObjects().slice().forEach(o => {
     if (hiddenNames.includes(o.name)){ canvas.remove(o); return; }
     if (o.pgRole === 'badges'){
-      if (chips.length) o.set('text', chips.map(c => '\u2022 ' + c).join('\n'));
+      if (chips.length) o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
       else canvas.remove(o);
       return;
     }
