@@ -6590,16 +6590,31 @@ function enrichFills(t){
        first one vibrate. A warm word alone on a warm photo is monochrome and
        reads flat no matter how saturated it is.
    Both are then re-checked for contrast, hue intact. */
-const CAT_COLOUR = {
-  phones:  { money:'#ff7a1a', comp:'#38bdf8' },   // orange  x electric blue
-  gold:    { money:'#f5b700', comp:'#3ba7ff' },   // gold    x azure
-  silver:  { money:'#9fd6ff', comp:'#ffb43a' },   // ice     x amber
-  coins:   { money:'#e0a53a', comp:'#4aa3ff' },   // bronze  x blue
-  cars:    { money:'#ff5a1f', comp:'#22d3ee' },   // orange  x cyan
-  strips:  { money:'#22d3ee', comp:'#ff8a3d' },   // clinical x warm
-  pokemon: { money:'#ffd200', comp:'#6d5cff' },   // yellow  x violet
-  sports:  { money:'#22c55e', comp:'#ff4d6d' },   // green   x crimson
+/* Defined in OKLCH, not picked in hex. Each money hue is stated as
+   {L, C, h} so its PERCEIVED lightness is comparable across categories — the
+   old hand-picked set had a gold at roughly L .80 sitting beside a blue at
+   L .55 and called them the same tier, which is why some pairings looked
+   broken. L is held in a narrow band, chroma is capped well under the sRGB
+   maximum, and the accent is derived as a SPLIT-complement rather than typed
+   in by eye. */
+const CAT_HUE = {
+  phones:  { L:0.72, C:0.165, h: 52 },   // amber-orange
+  gold:    { L:0.78, C:0.150, h: 88 },   // gold
+  silver:  { L:0.80, C:0.055, h:235 },   // cool pewter
+  coins:   { L:0.74, C:0.115, h: 70 },   // bronze
+  cars:    { L:0.66, C:0.180, h: 34 },   // hot orange-red
+  strips:  { L:0.78, C:0.105, h:195 },   // clinical cyan
+  pokemon: { L:0.83, C:0.160, h: 96 },   // yellow
+  sports:  { L:0.70, C:0.150, h:150 },   // field green
 };
+const CAT_COLOUR = (() => {
+  const out = {};
+  Object.keys(CAT_HUE).forEach(k => {
+    const money = oklchFit(CAT_HUE[k]);
+    out[k] = { money, comp: splitComp(money, k.length % 2 ? 1 : -1) };
+  });
+  return out;
+})();
 function satOf(hex){
   const h=String(hex).replace('#','');
   if(!/^[0-9a-f]{6}$/i.test(h)) return 0;

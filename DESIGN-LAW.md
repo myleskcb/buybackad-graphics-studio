@@ -710,3 +710,122 @@ the cards stayed frozen on the animation's opening frame.
 Nothing errored. The rule was present, matched the element, and lost. When one
 rule is meant to override another, count the selectors — or enumerate it per
 element so the specificities tie and source order decides.
+
+## 40. Colour maths belongs in a perceptual space
+
+Every colour operation in this project was done on sRGB channels: lightening
+multiplied R, G and B toward 255, darkening multiplied them toward 0, and the
+category palette was typed in as hex by eye. That is the mechanical reason the
+combinations looked wrong, and it is a fault rather than a matter of taste.
+
+sRGB and HSL are not perceptually uniform. Equal numeric steps are not equal
+*perceived* steps — a yellow and a blue at the same nominal lightness look
+nothing alike in brightness. The hand-picked set had a gold near L .80 sitting
+beside a blue near L .55 and treated them as the same tier.
+
+OKLab fixes this by construction: equal moves in L look equal at every hue. Three
+things follow, and all three were wrong before:
+
+- **Lighten and darken by moving L**, not by scaling channels. Scaling
+  desaturates as it lightens and shifts hue as it darkens — a deep gold went
+  muddy-green.
+- **Reduce chroma to reach the gamut, never clip channels.** Clipping shifts the
+  hue; reducing chroma keeps the hue and lightness the design asked for.
+- **State the palette in {L, C, h}**, so perceived lightness is comparable
+  across categories by construction. The spread across the eight categories fell
+  from ~0.30 to 0.17 doing nothing but restating the same intent properly.
+
+## 41. Exact complements are the crudest pairing on the wheel
+
+A 180° pair is maximum contrast, and maximum contrast vibrates — the two hues
+fight for the same attention and neither wins. It is the pairing you get from a
+colour wheel, not from a designer.
+
+Split-complementary (base ±160°) keeps the tension and loses the jangle. Every
+accent in the library is now derived that way rather than typed in, and chroma
+is capped well below the sRGB maximum, because everything at full saturation
+reads as a default.
+
+## 42. Never splice between two anchors in a file you are appending to
+
+A cutout rewrite replaced everything between `/* PRODUCT CUTOUT */` and
+`const LAYOUT_FAMILY` — a range that had quietly accumulated other functions
+added earlier in the same session. It deleted `enrichFills()` and its helper.
+
+The call site survived. `TEMPLATES.forEach(t => enrichFills(t))` then threw on
+every load and **aborted every pass after it** — tracking, gradient washes,
+contrast repair, phone plates, body panels, white-tinting — all silently absent
+in production, while the page still rendered 243/243 and reported no errors.
+
+Replace a *named function* by locating its own opening and closing, or append.
+Never delete a span defined by "everything up to the next landmark". And after
+any structural edit, assert that every pass invoked at the bottom of the file
+still has a definition — that check is four lines and would have caught this
+before deploy.
+
+## 43. Measure the palette under colour-vision deficiency, not just under normal sight
+
+Every contrast number in this file was measured with normal colour vision. That
+silently assumes the whole audience has it, and roughly **8% of men do not** —
+a material slice of an audience that is mostly men selling phones.
+
+The failure is invisible to the person designing. A theme can pass 4.5:1
+normally and collapse for a deuteranope, and nothing in the existing audit says
+so, because the existing audit only ever asks one question.
+
+Measured over the ten theme decks (accent against its own gradient start),
+simulating with the standard Brettel/Viénot LMS method:
+
+| theme | normal | protan | deutan | tritan | worst |
+|---|---|---|---|---|---|
+| Navy × Orange | 5.23 | 4.61 | 6.35 | 5.10 | 4.61 |
+| Teal × Coral | 2.75 | 2.31 | 3.57 | 2.71 | 2.31 |
+| Purple × Gold | 7.58 | 7.66 | 7.46 | 7.45 | 7.45 |
+| Forest × Amber | 5.46 | 5.09 | 6.22 | 5.43 | 5.09 |
+| **Crimson × Mint** | **5.26** | 6.39 | **3.84** | 5.28 | **3.84** |
+| Black × Electric | 8.84 | 9.29 | 8.03 | 8.92 | 8.03 |
+| Charcoal × Lime | 9.95 | 10.24 | 9.40 | 9.94 | 9.40 |
+| **Royal × Tangerine** | **4.58** | **4.15** | 5.29 | 4.48 | 4.15 |
+| Espresso × Cream | 10.60 | 10.66 | 10.40 | 10.58 | 10.40 |
+| Midnight × Pink | 6.04 | 5.38 | 7.06 | 6.01 | 5.38 |
+
+**Two themes cross a threshold that they clear with normal vision.**
+
+`Crimson × Mint` is the textbook case and it is worth naming precisely: a red
+ground carrying a green accent is the single pairing deuteranopia collapses, and
+it is the one pairing a colour wheel most encourages. It reads as a confident
+complementary choice (151° apart, right in the band rule 41 approves) and is the
+worst performer in the set for 5% of men. **Hue harmony and CVD safety are
+independent properties; satisfying rule 41 says nothing about this.**
+
+`Royal × Tangerine` is milder — 4.58 to 4.15 under protanopia — but it starts so
+close to the 4.5 line that it has no margin to lose.
+
+`Teal × Coral` fails at 2.75 under normal vision already and is a separate
+pre-existing problem, not a CVD one. Recorded here because the sweep found it.
+
+### The rule
+
+A palette pairing is acceptable only if it clears its contrast target under
+**normal vision AND all three simulated deficiencies**. Report the *worst* of
+the four, not the normal-vision number.
+
+Never let hue alone carry meaning. Where a red/green distinction is doing work,
+a second channel — lightness, size, position, or a glyph — must carry the same
+information, so nothing is lost when the hue difference is.
+
+### Why this is commercial, not compliance
+
+This is a paid product competing with free Canva templates. "Every template is
+checked for colour-blind legibility" is a claim no competitor in this niche
+makes, it is true once this rule is enforced, and it is exactly the kind of
+detail that separates a $15/mo tool from a free one. Rule 24 says *say what is
+being bought*; this is something worth saying.
+
+### Method, so it can be re-run
+
+Simulate on **linear** RGB via LMS (Hunt-Pointer-Estevez), not on sRGB, for the
+same reason rule 40 gives: the transform is only meaningful in a linear space.
+Then re-encode and measure WCAG contrast as normal. Glyph-masking (rule 14)
+still applies — simulate the sampled ink and the sampled ground, never a
+bounding-box average.
