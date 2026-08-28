@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Not found — Graphics Studio</title>
+    <style>
+      /* Deliberately dependency-free: a 404 that waits on app.js or a webfont
+         is a 404 that shows a blank page first. Colours are the house field and
+         accent, hardcoded for the same reason. */
+      html, body { height: 100%; margin: 0; }
+      body {
+        background: #141110;
+        color: #f6efe8;
+        font: 500 15px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 24px;
+      }
+      .code { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #9a8b7e; }
+      h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; margin: 10px 0 8px; }
+      p { color: #cfc2b6; margin: 0 0 22px; }
+      a {
+        display: inline-block; text-decoration: none;
+        background: linear-gradient(180deg, #ff7a1a, #e04e05);
+        color: #1a0d04; font-weight: 650;
+        padding: 12px 22px; border-radius: 999px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="code">404</div>
+      <h1>That page isn't here</h1>
+      <p>The link may be old, or the page may have moved.</p>
+      <a href="/">Back to Graphics Studio</a>
+    </main>
+  </body>
+</html>
