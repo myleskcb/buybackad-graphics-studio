@@ -29,6 +29,12 @@ engine or any image model — the scene + mood below is the prompt.
 | `dl_phones_gradientWave_sunset.jpg` | Sunset Wave | purple-magenta dusk with orange flare |
 | `dl_phones_slabPoster_mono.jpg` | Mono Slab | neutral charcoal studio, silver light |
 | `dl_phones_scriptRetro_rose.jpg` | Rose Retro | soft pink-amber studio dusk |
+| `dl_phones_agencyGrid_mono.jpg` | Agency Mono | neutral charcoal studio, silver light |
+| `dl_phones_priceAnchor_volt.jpg` | Price Point | electric lime + cyan accents on deep navy |
+| `dl_phones_lowerThird_ocean.jpg` | Broadcast | deep teal-blue with cyan glow |
+| `dl_phones_reviewProof_ocean.jpg` | Seller Proof | deep teal-blue with cyan glow |
+| `dl_phones_trustSeal_mono.jpg` | Trust Seal | neutral charcoal studio, silver light |
+| `dl_phones_stepsFlow_volt.jpg` | Three Steps | electric lime + cyan accents on deep navy |
 
 ## gold — base scene
 > molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh
@@ -49,6 +55,12 @@ engine or any image model — the scene + mood below is the prompt.
 | `dl_gold_scriptRetro_gold.jpg` | Golden Script | warm amber candlelight on near-black |
 | `dl_gold_gradientWave_gold.jpg` | Molten Wave | warm amber candlelight on near-black |
 | `dl_gold_duoSplit_gold.jpg` | Karat Split | warm amber candlelight on near-black |
+| `dl_gold_agencyGrid_gold.jpg` | Atelier Grid | warm amber candlelight on near-black |
+| `dl_gold_priceAnchor_gold.jpg` | Spot Price | warm amber candlelight on near-black |
+| `dl_gold_lowerThird_gold.jpg` | Gold Standard | warm amber candlelight on near-black |
+| `dl_gold_reviewProof_gold.jpg` | Golden Reviews | warm amber candlelight on near-black |
+| `dl_gold_trustSeal_gold.jpg` | Assured Gold | warm amber candlelight on near-black |
+| `dl_gold_stepsFlow_gold.jpg` | Easy Gold | warm amber candlelight on near-black |
 
 ## silver — base scene
 > stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus
@@ -68,6 +80,12 @@ engine or any image model — the scene + mood below is the prompt.
 | `dl_silver_wantedFrame_arctic.jpg` | Silver Notice | bright cool daylight, airy |
 | `dl_silver_gradientWave_ocean.jpg` | Quicksilver | deep teal-blue with cyan glow |
 | `dl_silver_diagonalRush_mono.jpg` | Melt Rush | neutral charcoal studio, silver light |
+| `dl_silver_agencyGrid_arctic.jpg` | Studio Grid | bright cool daylight, airy |
+| `dl_silver_priceAnchor_mono.jpg` | Spot Anchor | neutral charcoal studio, silver light |
+| `dl_silver_lowerThird_ocean.jpg` | Newsline | deep teal-blue with cyan glow |
+| `dl_silver_reviewProof_arctic.jpg` | Silver Proof | bright cool daylight, airy |
+| `dl_silver_trustSeal_mono.jpg` | Hallmark Trust | neutral charcoal studio, silver light |
+| `dl_silver_stepsFlow_ocean.jpg` | Silver Steps | deep teal-blue with cyan glow |
 
 ## coins — base scene
 > antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro
@@ -87,6 +105,12 @@ engine or any image model — the scene + mood below is the prompt.
 | `dl_coins_scriptRetro_paper.jpg` | Heritage Script | aged warm paper daylight |
 | `dl_coins_gradientWave_royal.jpg` | Gilded Wave | violet night with amber warmth |
 | `dl_coins_hudTech_mono.jpg` | Grade Scanner | neutral charcoal studio, silver light |
+| `dl_coins_agencyGrid_paper.jpg` | Catalogue | aged warm paper daylight |
+| `dl_coins_priceAnchor_gold.jpg` | Reserve Price | warm amber candlelight on near-black |
+| `dl_coins_lowerThird_royal.jpg` | Auction Line | violet night with amber warmth |
+| `dl_coins_reviewProof_paper.jpg` | Collector Proof | aged warm paper daylight |
+| `dl_coins_trustSeal_gold.jpg` | Estate Trust | warm amber candlelight on near-black |
+| `dl_coins_stepsFlow_royal.jpg` | Coin Steps | violet night with amber warmth |
 
 ## cars — base scene
 > dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze
@@ -106,6 +130,12 @@ engine or any image model — the scene + mood below is the prompt.
 | `dl_cars_arcCrown_sunset.jpg` | Boulevard Arc | purple-magenta dusk with orange flare |
 | `dl_cars_wantedFrame_paper.jpg` | Runner Wanted | aged warm paper daylight |
 | `dl_cars_gradientWave_crimson.jpg` | Redline Wave | moody red neon on black |
+| `dl_cars_agencyGrid_mono.jpg` | Showroom Grid | neutral charcoal studio, silver light |
+| `dl_cars_priceAnchor_crimson.jpg` | Sticker Price | moody red neon on black |
+| `dl_cars_lowerThird_sunset.jpg` | Prime Time | purple-magenta dusk with orange flare |
+| `dl_cars_reviewProof_mono.jpg` | Driver Proof | neutral charcoal studio, silver light |
+| `dl_cars_trustSeal_crimson.jpg` | Title Trust | moody red neon on black |
+| `dl_cars_stepsFlow_sunset.jpg` | Car Steps | purple-magenta dusk with orange flare |
 
 ## strips — base scene
 > clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur
@@ -124,6 +154,12 @@ engine or any image model — the scene + mood below is the prompt.
 | `dl_strips_duoSplit_emerald.jpg` | Split Clinic | deep green with mint highlights |
 | `dl_strips_gradientWave_emerald.jpg` | Mint Wave | deep green with mint highlights |
 | `dl_strips_diagonalRush_ocean.jpg` | Priority Rush | deep teal-blue with cyan glow |
+| `dl_strips_agencyGrid_arctic.jpg` | Clinical Grid | bright cool daylight, airy |
+| `dl_strips_priceAnchor_emerald.jpg` | Box Price | deep green with mint highlights |
+| `dl_strips_lowerThird_emerald.jpg` | Health Line | deep green with mint highlights |
+| `dl_strips_reviewProof_arctic.jpg` | Verified Buyer | bright cool daylight, airy |
+| `dl_strips_trustSeal_emerald.jpg` | Care Seal | deep green with mint highlights |
+| `dl_strips_stepsFlow_emerald.jpg` | Box Steps | deep green with mint highlights |
 
 ## pokemon — base scene
 > holographic trading card close-up with prismatic light refractions on dark felt, dreamy bokeh
@@ -143,6 +179,12 @@ engine or any image model — the scene + mood below is the prompt.
 | `dl_pokemon_gradientWave_volt.jpg` | Prism Wave | electric lime + cyan accents on deep navy |
 | `dl_pokemon_diagonalRush_sunset.jpg` | Pull Rush | purple-magenta dusk with orange flare |
 | `dl_pokemon_slabPoster_mono.jpg` | Slab Poster | neutral charcoal studio, silver light |
+| `dl_pokemon_agencyGrid_royal.jpg` | Set Grid | violet night with amber warmth |
+| `dl_pokemon_priceAnchor_volt.jpg` | Grail Price | electric lime + cyan accents on deep navy |
+| `dl_pokemon_lowerThird_royal.jpg` | Pull Report | violet night with amber warmth |
+| `dl_pokemon_reviewProof_royal.jpg` | Trainer Proof | violet night with amber warmth |
+| `dl_pokemon_trustSeal_royal.jpg` | Graded Trust | violet night with amber warmth |
+| `dl_pokemon_stepsFlow_volt.jpg` | Pull Steps | electric lime + cyan accents on deep navy |
 
 ## sports — base scene
 > vintage baseball cards fanned on worn wood with stadium light bokeh, nostalgic warm grade
@@ -162,4 +204,10 @@ engine or any image model — the scene + mood below is the prompt.
 | `dl_sports_neonNight_emerald.jpg` | Night Game | deep green with mint highlights |
 | `dl_sports_gradientWave_crimson.jpg` | Clutch Wave | moody red neon on black |
 | `dl_sports_duoSplit_mono.jpg` | Locker Split | neutral charcoal studio, silver light |
+| `dl_sports_agencyGrid_mono.jpg` | Program Grid | neutral charcoal studio, silver light |
+| `dl_sports_priceAnchor_crimson.jpg` | Card Price | moody red neon on black |
+| `dl_sports_lowerThird_emerald.jpg` | Sports Desk | deep green with mint highlights |
+| `dl_sports_reviewProof_paper.jpg` | Fan Proof | aged warm paper daylight |
+| `dl_sports_trustSeal_crimson.jpg` | Collector Seal | moody red neon on black |
+| `dl_sports_stepsFlow_emerald.jpg` | Card Steps | deep green with mint highlights |
 

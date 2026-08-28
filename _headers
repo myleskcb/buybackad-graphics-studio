@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' data: blob: https://api.openai.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com; base-uri 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' data: blob: https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com; frame-src 'self' https://accounts.google.com; base-uri 'self'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
@@ -7,4 +7,27 @@
   Cache-Control: public, max-age=0, must-revalidate
 
 /
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Static art. Netlify's default for everything is max-age=0,must-revalidate,
+# which meant all 153 backdrops (31MB) made a conditional round-trip on EVERY
+# load including repeat visits — measured as ~12s of tail on a 10Mbit link.
+# These files only ever change on a redeploy, so a long TTL is safe; if a
+# backdrop is ever REPLACED under the same filename, either rename it or expect
+# up to 30 days of staleness for returning visitors.
+/assets/bg/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+/assets/cutouts/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+# Fontshare faces are versioned by name and genuinely never change.
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The app itself must stay revalidating or a deploy would not reach anyone.
+/app.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/styles.css
   Cache-Control: public, max-age=0, must-revalidate

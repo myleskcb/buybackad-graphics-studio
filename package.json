@@ -1,0 +1,8 @@
+{
+  "name": "buybackad-graphics-studio",
+  "private": true,
+  "description": "Static Graphics Studio + one Netlify Function backend (netlify/functions/api.mjs)",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

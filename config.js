@@ -1,9 +1,10 @@
 // ── BUYBACK.AD configuration ──
 // Leave PGFX_API empty to run in DEMO MODE (accounts + limits simulated in the
 // browser, checkout simulated — perfect for clicking through the full flow).
-// After deploying backend/worker.js, put its URL here to go live:
-//   window.PGFX_API = "https://buybackad-api.YOURNAME.workers.dev";
-window.PGFX_API = "";
+// "/api" = the same-origin Netlify Function backend (netlify/functions/api.mjs)
+// deployed with this site: real accounts, server-enforced limits, and the AI
+// background service (the image-model key lives ONLY in Netlify env vars).
+window.PGFX_API = "/api";
 
 // ── SCANS.AD (ScanMap) integration ──
 // Where "Order prints + posting" sends finished ads: your ScanMap install's

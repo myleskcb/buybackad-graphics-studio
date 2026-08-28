@@ -3,18 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Graphics Studio by BUYBACK.AD — "We Buy" ads for resellers in under a minute</title>
-<meta name="description" content="Make scroll-stopping buyback ads for phones, gold, cars, Pokémon cards, sports cards, coins and test strips. 50+ proven templates, your number on every design, 1080p+ exports for Marketplace, OfferUp, Craigslist and Instagram.">
+<title>Graphics Studio by BUYBACK.AD: "We Buy" ads for resellers in under a minute</title>
+<meta name="description" content="Make scroll-stopping buyback ads for phones, gold, cars, Pokémon cards, sports cards, coins and test strips. 160+ proven templates, your number on every design, 1080p+ exports for Marketplace, OfferUp, Craigslist and Instagram.">
 <link rel="canonical" href="https://buyback.ad/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Graphics Studio — buyback ads that actually convert">
-<meta property="og:description" content="Pick a template, type your number, download. 50+ designs across 8 buying categories. Free to start.">
+<meta property="og:title" content="Graphics Studio: buyback ads that actually convert">
+<meta property="og:description" content="Pick a template, type your number, download. 160+ designs across 8 buying categories. Free to start.">
 <meta property="og:url" content="https://buyback.ad/">
 <meta property="og:image" content="https://buyback.ad/assets/tplbg/cash_offer.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#0a0a0c">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800;900&family=Instrument+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Anton&family=Archivo+Black&family=Oswald:wght@400;600;700&family=Montserrat:wght@700;800;900&family=Bangers&family=Permanent+Marker&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#070a12" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#eaeef6" media="(prefers-color-scheme: light)">
+<script>
+/* Stamp the theme on <html> BEFORE first paint, so there is no flash of the
+   wrong ground. Dark is the default (house preference, matching the CRM);
+   light is an explicit opt-in kept in localStorage, not an OS reading. */
+(function(){
+  try{
+    var t = localStorage.getItem('pgfx_theme');
+    document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+  }catch(e){
+    document.documentElement.setAttribute('data-theme','dark');
+  }
+})();
+</script>
+<!-- No Google Fonts stylesheet: every template face is self-hosted in
+     assets/fonts and declared in styles.css. The font PICKER still pulls
+     the Google catalogue on demand via ensureFont(), so nothing is lost
+     and the render-blocking third-party request is gone. -->
 <link rel="stylesheet" href="styles.css">
+
+<!-- ABOVE-THE-FOLD BACKDROPS, preloaded.
+     app.js is only ~160ms of download but ~2s of EXECUTION (243 templates get
+     constructed before preloadTplBgs() can know what to ask for), and the
+     connection sat completely idle through all of it — measured on production:
+     the first backdrop request left at 2497ms. These ten are the hero fan and
+     the first gallery row; hard-coding them lets the preload scanner start
+     them at ~150ms, in parallel with that parse instead of after it. They are
+     the same URLs preloadTplBgs() asks for, so they hit warm and cost nothing
+     twice. Regenerate this list if the hero seed or gallery order changes —
+     a stale entry is a wasted download and a console warning, not a break. -->
+<link rel="preload" as="image" href="assets/bg/dl_phones_voltStack_volt.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_phones_glassCard_ocean.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_phones_neonNight_royal.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_phones_arcCrown_crimson.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_phones_diagonalRush_sunset.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_phones_bandKnockout_arctic.jpg">
+<link rel="preload" as="image" href="assets/bg/dl_phones_ticketStub_mono.jpg">
+<link rel="preload" as="image" href="assets/bg/dl_phones_bubblePop_volt.jpg">
+<link rel="preload" as="image" href="assets/bg/dl_phones_hudTech_ocean.jpg">
+<link rel="preload" as="image" href="assets/bg/dl_phones_checklistHero_emerald.jpg">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 </head>
 <body>
@@ -28,7 +66,13 @@
       <a href="#lp-how">How it works</a>
     </div>
     <div class="lp-nav-right">
-      <button class="btn btn-primary" id="lp-open-studio">Make my ad</button>
+      <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
+      <button class="btn btn-ghost" id="lp-login">Log in</button>
+      <button class="btn btn-outline" id="lp-signup">Sign up free</button>
+      <span class="view-menu lp-split">
+        <button class="btn btn-primary" id="lp-open-studio">Make my ad</button><button class="btn btn-primary lp-caret" id="lp-studio-caret" title="New project or reopen a previous one">▾</button>
+        <div class="view-drop acct-drop" id="lp-projects-menu"></div>
+      </span>
     </div>
   </nav>
 
@@ -36,9 +80,9 @@
     <div>
       <div class="hero-eyebrow">Built for phone buyers &amp; resellers</div>
       <h1>Post-ready buyback ads<br><em>in under a minute.</em></h1>
-      <p>Pick a proven template, type in your phone number and headline, hit export. High-impact "we buy phones" graphics for Facebook Marketplace, OfferUp, Instagram and Craigslist — no design skills needed.</p>
+      <p>Pick a proven template, type in your phone number and headline, hit export. High-impact "we buy phones" graphics for Facebook Marketplace, OfferUp, Instagram and Craigslist, no design skills needed.</p>
       <div class="hero-ctas">
-        <button class="btn btn-primary btn-xl" id="lp-cta-main">Make my ad — under a minute</button>
+        <button class="btn btn-primary btn-xl" id="lp-cta-main">Make my ad in under a minute</button>
         <a href="#lp-templates" class="btn btn-outline btn-xl">Browse templates</a>
       </div>
       <div class="hero-note">Runs entirely in your browser. Your templates and drafts save automatically.</div>
@@ -68,7 +112,7 @@
       <div class="flow-step">
         <div class="fs-num">STEP 01</div>
         <h3>Pick a template</h3>
-        <p>Start from a layout designed for buyback ads — bold, legible on a phone screen, and built around trust signals.</p>
+        <p>Start from a layout designed for buyback ads, bold, legible on a phone screen, and built around trust signals.</p>
       </div>
       <div class="flow-step">
         <div class="fs-num">STEP 02</div>
@@ -87,19 +131,19 @@
   <div class="lp-section-head">
     <div class="lp-kicker">Pricing</div>
     <h2>Free to start. $15 when it pays for itself.</h2>
-    <p>One ad that closes one seller covers months of Pro. No contracts — cancel in two clicks.</p>
+    <p>One ad that closes one seller covers months of Pro. No contracts, cancel in two clicks.</p>
   </div>
   <div class="lp-price-grid">
     <div class="lp-price-card">
       <h3>Free</h3>
       <div class="lp-price">$0</div>
-      <ul><li>3 exports per week</li><li>20 starter templates</li><li>1080 × 1080 downloads</li><li>BUYBACK.AD watermark</li></ul>
+      <ul><li>3 exports per week</li><li>55+ free templates, every Phones design</li><li>1080 × 1080 downloads</li><li>BUYBACK.AD watermark</li></ul>
       <button class="btn btn-outline" data-goto="easy">Start free</button>
     </div>
     <div class="lp-price-card hot">
       <h3>Pro</h3>
       <div class="lp-price">$15<small>/mo</small></div>
-      <ul><li>100 exports per month</li><li>All 50+ templates, every category</li><li>Up to 2160 × 2160 — no watermark</li><li>Export history &amp; re-downloads</li></ul>
+      <ul><li>100 exports per month</li><li>All 160+ templates incl. the Designer Library</li><li>Up to 2160 × 2160, no watermark</li><li>Export history &amp; re-downloads</li></ul>
       <button class="btn btn-primary" data-goto="plans">Go Pro</button>
     </div>
   </div>
@@ -111,10 +155,10 @@
     <h2>Questions buyers ask us</h2>
   </div>
   <details class="lp-faq"><summary>Do I need any design skills?</summary><p>No. Pick a template, type your phone number, download. Every layout, font pairing and color already follows what converts for buyback ads. If you want control, the advanced editor is one click away.</p></details>
-  <details class="lp-faq"><summary>What can I make ads for?</summary><p>Eight buying categories: phones &amp; devices, gold &amp; jewelry, silver, rare coins, cars &amp; trucks, diabetic supplies, Pokémon cards and sports cards — 50+ templates written with real closing copy for each market.</p></details>
-  <details class="lp-faq"><summary>Where do people post these?</summary><p>Facebook Marketplace, OfferUp, Craigslist, Instagram, Nextdoor — plus print. Exports are square 1080×1080 (up to 2160 on Pro), the format every feed prefers.</p></details>
-  <details class="lp-faq"><summary>Can I use my own photos?</summary><p>Yes — upload any photo (HEIC from iPhone included), blur it, tint it, or generate a background with AI. Solid color blocks in templates are semi-transparent so your photo stays visible.</p></details>
-  <details class="lp-faq"><summary>How do I cancel?</summary><p>From the plans page — Manage billing opens your Stripe portal where you can cancel instantly. You keep Pro until the end of the billing period.</p></details>
+  <details class="lp-faq"><summary>What can I make ads for?</summary><p>Eight buying categories: phones &amp; devices, gold &amp; jewelry, silver, rare coins, cars &amp; trucks, diabetic supplies, Pokémon cards and sports cards, 160+ templates written with real closing copy for each market, every Designer Library layout shot on real photo backdrops.</p></details>
+  <details class="lp-faq"><summary>Where do people post these?</summary><p>Facebook Marketplace, OfferUp, Craigslist, Instagram, Nextdoor, plus print. Exports are square 1080×1080 (up to 2160 on Pro), the format every feed prefers.</p></details>
+  <details class="lp-faq"><summary>Can I use my own photos?</summary><p>Yes, upload any photo (HEIC from iPhone included), blur it, tint it, or generate a background with AI. Solid color blocks in templates are semi-transparent so your photo stays visible.</p></details>
+  <details class="lp-faq"><summary>How do I cancel?</summary><p>From the plans page, Manage billing opens your Stripe portal where you can cancel instantly. You keep Pro until the end of the billing period.</p></details>
 </section>
 
 <div class="lp-cta">
@@ -125,10 +169,32 @@
     </div>
   </div>
 
-  <footer class="lp-footer">
-    <span>Graphics Studio — high-quality buyback graphics, nothing else.</span>
-    <span>Made for volume posters.</span>
-  <span><a href="terms.html" style="color:var(--muted)">Terms</a> · <a href="privacy.html" style="color:var(--muted)">Privacy</a></span></footer>
+  <footer class="lp-footer lp-footer-big">
+    <div class="lpf-cols">
+      <div class="lpf-brand">
+        <div class="logo" style="cursor:default"><span class="logo-mark">▰</span>GRAPHICS <em>STUDIO</em></div>
+        <p>High-quality buyback graphics, nothing else. Made for volume posters.</p>
+      </div>
+      <div class="lpf-col">
+        <h4>Product</h4>
+        <a href="#lp-templates">Templates</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="#" id="lpf-studio">Open the studio</a>
+      </div>
+      <div class="lpf-col">
+        <h4>Account</h4>
+        <a href="#" id="lpf-signup">Create free account</a>
+        <a href="#" id="lpf-login">Log in</a>
+      </div>
+      <div class="lpf-col">
+        <h4>Legal</h4>
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy</a>
+      </div>
+    </div>
+    <div class="lpf-base">© 2026 BUYBACK.AD, Graphics Studio</div>
+  </footer>
 </div>
 
 
@@ -137,11 +203,25 @@
   <nav class="ez-nav">
     <button class="logo" id="ez-logo"><span class="logo-mark">▰</span>GRAPHICS <em>STUDIO</em></button>
     <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+      <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
       <button class="ez-adv-link" id="nav-community">🌐 Community</button>
-      <button class="ez-adv-link" id="nav-history">🕘 Exports</button>
+      <span class="view-menu">
+        <button class="ez-adv-link" id="nav-history">⬇ Export <span class="caret">▾</span></button>
+        <div class="view-drop acct-drop" id="export-menu"></div>
+      </span>
       <button class="ez-adv-link" id="nav-genbg">✦ Generate BG</button>
+      <button class="ez-adv-link" id="nav-admin" style="display:none">🛠 AI Studio</button>
       <button class="nav-upgrade" id="nav-upgrade" style="display:none">⬆ Upgrade</button>
-      <button class="acct-chip" id="acct-chip"><span id="acct-label">Sign in</span><span class="acct-plan free" id="acct-plan" style="display:none">FREE</span></button>
+      <span class="view-menu">
+        <button class="acct-chip" id="acct-chip"><span id="acct-label">Sign in</span><span class="acct-plan free" id="acct-plan" style="display:none">FREE</span></button>
+        <div class="view-drop acct-drop" id="acct-menu">
+          <div class="am-email" id="am-email"></div>
+          <button class="view-item" id="am-plans">💳 Plan &amp; billing</button>
+          <button class="view-item" id="am-exports">🕘 My exports</button>
+          <button class="view-item" id="am-admin" style="display:none">🛠 AI Studio</button>
+          <button class="view-item" id="am-signout">↪ Sign out</button>
+        </div>
+      </span>
       <button class="ez-adv-link" id="ez-adv-link">Advanced editor →</button>
     </span>
   </nav>
@@ -175,12 +255,12 @@
             <button class="ez-edit-btn" id="ez-edit-badges" title="Style the selling points" style="width:30px;height:26px;font-size:12px;margin-left:auto">✎</button></label>
           <div class="ez-chiprow" id="ez-chips"></div>
           <div class="ez-fieldrow" style="margin-top:8px">
-            <input id="ez-custom-point" type="text" maxlength="16" placeholder="Add your own — e.g. FREE PICKUP">
+            <input id="ez-custom-point" type="text" maxlength="16" placeholder="Add your own, e.g. FREE PICKUP">
             <button class="ez-edit-btn" id="ez-add-point" title="Add selling point" style="font-size:17px">＋</button>
           </div>
         </div>
         <div class="ez-field">
-          <label>Suggested color themes <span style="text-transform:none;font-weight:500">(complementary — built to get clicks)</span></label>
+          <label>Suggested color themes <span style="text-transform:none;font-weight:500">(complementary, built to get clicks)</span></label>
           <div class="ez-themes" id="ez-themes"></div>
         </div>
         <div class="ez-field" style="margin-bottom:0">
@@ -204,11 +284,14 @@
       <div class="ez-card ez-preview-card">
         <div class="ez-stepline" style="margin-top:0"><span class="ez-stepnum">3</span><h2>Download</h2></div>
         <img id="ez-preview" alt="Live preview of your ad">
+        <button class="ez-upload-bg" id="ez-upload-bg">📸&nbsp; Upload background photo</button>
+        <input type="file" id="ez-upload-bg-file" accept="image/*,.heic,.heif" style="display:none">
         <button class="ez-dl" id="ez-download">⬇&nbsp; Download my ad</button>
-        <button class="ez-order" id="ez-order" style="display:none" title="Send this ad to SCANS.AD — printed, posted around town, every scan tracked">🖨&nbsp; Order prints + posting</button>
+        <button class="ez-open-adv" id="ez-pack" style="display:none">📦&nbsp; Export category pack (zip)</button>
+        <button class="ez-order" id="ez-order" style="display:none" title="Send this ad to SCANS.AD, printed, posted around town, every scan tracked">🖨&nbsp; Order prints + posting</button>
         <div class="ez-quota" id="ez-quota"></div>
         <button class="ez-open-adv" id="ez-open-adv">Fine-tune in advanced editor</button>
-        <div class="ez-hint" id="ez-dl-hint">1440×1440 PNG minimum — ready for Marketplace, OfferUp &amp; Instagram</div>
+        <div class="ez-hint" id="ez-dl-hint">1440×1440 PNG minimum, ready for Marketplace, OfferUp &amp; Instagram</div>
         <div class="ez-layers">
           <div class="ez-subttl" style="margin-top:0">Layers</div>
           <div id="ez-layers-list"></div>
@@ -226,7 +309,7 @@
     <span class="tb-tplname" id="tb-tplname">No template</span>
     <button class="tb-btn" id="tb-switch" title="Switch template">⇄ <span class="tb-label">Templates</span></button>
     <div class="tb-sep"></div>
-    <select class="tb-btn tb-format" id="tb-format" title="Canvas format — square, story, flyer or wide"></select>
+    <select class="tb-btn tb-format" id="tb-format" title="Canvas format, square, story, flyer or wide"></select>
     <div class="tb-sep"></div>
     <button class="tb-btn" id="undo-btn" title="Undo (Ctrl+Z)" disabled>↩</button>
     <button class="tb-btn" id="redo-btn" title="Redo (Ctrl+Y)" disabled>↪</button>
@@ -242,6 +325,7 @@
     </div>
     <button class="tb-btn" id="enhance-btn" title="Restore template styling and clean up text">✦ <span class="tb-label">Enhance</span></button>
     <div class="tb-spacer"></div>
+    <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
     <button class="tb-btn" id="help-btn" title="Replay the tour">?</button>
     <button class="tb-btn" id="brand-btn" title="Your saved number, website and city">👤 <span class="tb-label">Brand kit</span></button>
     <button class="tb-btn" id="save-tpl-btn" title="Save as reusable template (Ctrl+S)">💾 <span class="tb-label">Save template</span></button>
@@ -320,10 +404,10 @@
             <div class="add-grid">
               <button class="add-btn" data-add="rect"><span class="ab-ico">▭</span>Rectangle</button>
               <button class="add-btn" data-add="circle"><span class="ab-ico">◯</span>Circle</button>
-              <button class="add-btn" data-add="line"><span class="ab-ico">—</span>Line</button>
+              <button class="add-btn" data-add="line"><span class="ab-ico">, </span>Line</button>
               <button class="add-btn" data-add="tri"><span class="ab-ico">△</span>Triangle</button>
               <button class="add-btn" data-add="star"><span class="ab-ico">★</span>Star</button>
-              <button class="add-btn" data-add="qr" title="Scannable QR code — point it at any link, or a SCANS.AD tracking link for scan analytics"><span class="ab-ico">▦</span>QR code<span class="ab-pro">PRO</span></button>
+              <button class="add-btn" data-add="qr" title="Scannable QR code, point it at any link, or a SCANS.AD tracking link for scan analytics"><span class="ab-ico">▦</span>QR code<span class="ab-pro">PRO</span></button>
               <button class="add-btn" id="add-image-btn"><span class="ab-ico">🖼</span>Image</button>
             </div>
             <input type="file" id="add-image-file" accept="image/*,.heic,.heif" style="display:none">
@@ -335,29 +419,22 @@
         </div>
         <div class="panel-tabview" id="ltab-bg">
           <div class="psec">
-            <div class="psec-title" style="display:flex;align-items:center;justify-content:space-between">AI background generator
-              <button class="gear-btn" id="ai-settings-btn" title="AI settings">⚙</button></div>
+            <div class="psec-title">AI background</div>
             <div class="bg-gen-box">
-              <textarea id="bg-prompt" placeholder="e.g. iPhone 15 Pro Max natural titanium, face down on dark walnut desk, soft window light"></textarea>
+              <textarea id="bg-prompt" placeholder="Describe your background, e.g. gold jewelry on marble, rainy city at night, clean white desk"></textarea>
               <div class="bg-gen-row">
-                <select id="bg-style">
-                  <option value="studio">Studio product shot</option>
-                  <option value="desk">Desk / lifestyle scene</option>
-                  <option value="cash">Cash & devices</option>
-                  <option value="texture">Clean texture (no device)</option>
-                  <option value="neon">Neon tech glow</option>
-                </select>
-                <button class="btn-gen" id="bg-generate">✦ Generate</button>
+                <button class="btn-gen" id="bg-generate" style="flex:1">✦ Generate</button>
               </div>
               <div class="bg-result" id="bg-result">
                 <img id="bg-result-img" alt="Generated background">
                 <div class="bg-result-acts">
                   <button id="bg-use">Use as background</button>
                   <button id="bg-save">＋ Save to library</button>
+                  <button id="bg-share">🌐 Share</button>
                   <button id="bg-retry">↻ Retry</button>
                 </div>
               </div>
-              <div class="ai-note" id="ai-note">Every prompt is wrapped in a locked style guide that forces real, current Apple hardware — correct camera layout, ports, colors — and bans renders, mockups and fake devices.</div>
+              <div class="ai-note" id="ai-note">Pro lighting and ad-ready composition are automatic. Just describe the scene.</div>
             </div>
           </div>
           <div class="psec">
@@ -394,7 +471,7 @@
       </div>
       <div class="panel-scroll">
         <div class="panel-tabview active" id="rtab-props">
-          <div id="props-empty" class="empty-hint">Select an element on the canvas to edit it — or use Quick edit on the left.</div>
+          <div id="props-empty" class="empty-hint">Select an element on the canvas to edit it, or use Quick edit on the left.</div>
 
           <div id="props-text" style="display:none">
             <div class="psec">
@@ -484,10 +561,10 @@
             <div class="psec">
               <div class="psec-title">QR code</div>
               <div class="field"><label>Scan destination</label>
-                <input type="text" id="pq-url" placeholder="https://your-site.com — or a SCANS.AD tracking link" spellcheck="false">
+                <input type="text" id="pq-url" placeholder="https://your-site.com, or a SCANS.AD tracking link" spellcheck="false">
               </div>
               <div class="field"><button class="btn btn-primary" id="pq-apply" style="width:100%">Update QR code</button></div>
-              <div class="qr-help">Point it anywhere — your site, phone number page, or listing.</div>
+              <div class="qr-help">Point it anywhere, your site, phone number page, or listing.</div>
               <div class="qr-help" id="pq-scansad-tip" style="display:none">Want scan-by-scan analytics on printed flyers? <a id="pq-scansad" href="#" target="_blank" rel="noopener">Get a tracked link from SCANS.AD →</a> then paste it here.</div>
             </div>
           </div>
@@ -554,7 +631,7 @@
 <div class="modal-overlay" id="brand-overlay">
   <div class="modal">
     <h3>Brand kit</h3>
-    <div class="modal-sub">Saved once, filled into every template automatically — your number, your site, done.</div>
+    <div class="modal-sub">Saved once and filled into every template automatically. Your number, your site, done.</div>
     <label for="bk-phone">Phone number</label>
     <input type="tel" id="bk-phone" placeholder="(562) 999-4994">
     <label for="bk-website">Website / handle</label>
@@ -571,9 +648,9 @@
 <div class="modal-overlay" id="savetpl-overlay">
   <div class="modal">
     <h3>Save as template</h3>
-    <div class="modal-sub">Saves the whole canvas — reuse it from Templates → My templates.</div>
+    <div class="modal-sub">Saves the whole canvas. Reuse it from Templates → My templates.</div>
     <label for="st-name">Template name</label>
-    <input type="text" id="st-name" placeholder="Weekend buyback — orange">
+    <input type="text" id="st-name" placeholder="Weekend buyback, orange">
     <div class="modal-actions">
       <button class="btn btn-ghost" id="st-cancel">Cancel</button>
       <button class="btn btn-primary" id="st-save">Save template</button>
@@ -594,17 +671,20 @@
       <button class="btn btn-ghost" id="ex-cancel">Cancel</button>
       <button class="btn btn-primary" id="ex-download">⬇ Download PNG</button>
     </div>
-    <button class="btn btn-order" id="ex-order" style="display:none" title="Send this ad to SCANS.AD — printed, posted around town, every scan tracked">🖨 Order prints + posting <span class="order-sub">printed &amp; posted via SCANS.AD</span></button>
+    <button class="btn btn-order" id="ex-order" style="display:none" title="Send this ad to SCANS.AD, printed, posted around town, every scan tracked">🖨 Order prints + posting <span class="order-sub">printed &amp; posted via SCANS.AD</span></button>
   </div>
 </div>
 
 <!-- tutorial -->
 
 <div class="modal-overlay" id="auth-overlay">
-  <div class="modal">
+  <div class="modal auth-modal">
+    <div class="auth-brand"><span class="logo-mark">▰</span></div>
     <h3 id="auth-title">Welcome to BUYBACK.AD</h3>
     <div class="modal-sub" id="auth-sub">Sign in to download your ads and track your plan.</div>
     <div id="auth-forms">
+      <div id="auth-google" class="auth-google" style="display:none"></div>
+      <div class="auth-or" id="auth-or" style="display:none"><span>or continue with email</span></div>
       <div class="auth-tabs">
         <button id="auth-tab-in" class="active">Sign in</button>
         <button id="auth-tab-up">Create account</button>
@@ -612,18 +692,34 @@
       <label for="auth-email">Email</label>
       <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
       <label for="auth-pass">Password</label>
-      <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password">
+      <div class="auth-pass-wrap">
+        <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password">
+        <button type="button" id="auth-pass-eye" title="Show password">👁</button>
+      </div>
+      <div class="auth-hint" id="auth-hint">At least 8 characters. Your account works on every device.</div>
       <div class="auth-err" id="auth-err"></div>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="auth-cancel">Cancel</button>
         <button class="btn btn-primary" id="auth-go">Sign in</button>
       </div>
-      <div class="demo-note" id="auth-demo-note" style="display:none">Demo mode — no server connected yet. Accounts are stored only in this browser. Connect the backend (see README) for real accounts.</div>
+      <div class="demo-note" id="auth-demo-note" style="display:none">Demo mode, no server connected yet. Accounts are stored only in this browser. Connect the backend (see README) for real accounts.</div>
+    </div>
+    <div class="auth-type" id="auth-type" style="display:none">
+      <h3 style="text-align:center">Pick your account type</h3>
+      <div class="modal-sub" style="text-align:center">You can change plans any time from your account menu.</div>
+      <button class="at-card" id="at-free">
+        <span class="at-name">Starter <em>free forever</em></span>
+        <span class="at-desc">3 exports a week, 20 starter templates, 1080p downloads with watermark.</span>
+      </button>
+      <button class="at-card hot" id="at-pro">
+        <span class="at-name">Pro <em>$15/mo</em></span>
+        <span class="at-desc">100 exports a month, all 160+ templates including the Designer Library, up to 2160p, no watermark.</span>
+      </button>
     </div>
     <div class="auth-ok" id="auth-ok" style="display:none">
       <div class="big">🎉</div>
       <h3 id="auth-ok-title">Account created!</h3>
-      <div class="modal-sub" id="auth-ok-sub">You're signed in and on the Free plan — 3 exports per week.</div>
+      <div class="modal-sub" id="auth-ok-sub">You're signed in and on the Free plan: 3 exports per week.</div>
       <div class="modal-actions" style="justify-content:center">
         <button class="btn btn-primary" id="auth-ok-btn">Start designing</button>
       </div>
@@ -652,7 +748,7 @@
     </div>
     <p class="plans-sub" id="plans-sub">Simple pricing for volume posters. Upgrade or cancel anytime.</p>
     <div class="plans-grid" id="plans-grid"></div>
-    <div class="demo-note" id="plans-demo-note" style="display:none">Demo mode — checkout is simulated until the backend is connected (see README in the deploy folder).</div>
+    <div class="demo-note" id="plans-demo-note" style="display:none">Demo mode, checkout is simulated until the backend is connected (see README in the deploy folder).</div>
   </div>
 </div>
 
@@ -670,35 +766,61 @@
     <h3>Community gallery</h3>
     <div class="modal-sub" id="comm-sub">Backgrounds shared by the community. Tap any to use it.</div>
     <div class="bg-lib-grid" id="comm-grid" style="grid-template-columns:repeat(4,1fr)"></div>
-    <div class="demo-note" id="comm-note">Demo mode — showing your locally shared items plus built-ins. Connect the backend (README) and 🌐 shares publish to everyone.</div>
+    <div class="demo-note" id="comm-note">Demo mode, showing your locally shared items plus built-ins. Connect the backend (README) and 🌐 shares publish to everyone.</div>
     <div class="modal-actions"><button class="btn btn-ghost" id="comm-close">Close</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="nobg-overlay">
+  <div class="modal" style="max-width:430px">
+    <h3>No background selected</h3>
+    <div class="modal-sub">The greyed-out photo is just a preview. Your ad will export on the template's designed base without a photo background.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="nobg-continue">Export without background</button>
+      <button class="btn btn-primary" id="nobg-select">Select a background</button>
+    </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="bggen-overlay">
   <div class="modal" style="max-width:480px">
-    <h3 style="display:flex;align-items:center;justify-content:space-between">✦ Generate a background
-      <button class="gear-btn" id="bggen-settings" title="AI settings">⚙</button></h3>
-    <div class="modal-sub">Locked to real, current Apple hardware and pro ad composition — your words steer the scene only.</div>
-    <textarea id="bggen-prompt" rows="3" placeholder="e.g. iPhone 15 Pro Max natural titanium on dark walnut desk, soft light" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font:500 14px/1.4 var(--ui);padding:10px"></textarea>
+    <h3>✦ Generate a background</h3>
+    <div class="modal-sub">Describe the scene. Pro lighting and ad-ready composition are automatic.</div>
+    <textarea id="bggen-prompt" rows="3" placeholder="e.g. gold jewelry on marble, rainy city at night, clean white desk" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font:500 14px/1.4 var(--ui);padding:10px"></textarea>
     <div class="bg-gen-row" style="margin-top:10px">
-      <select id="bggen-style">
-        <option value="studio">Studio product shot</option>
-        <option value="desk">Desk / lifestyle scene</option>
-        <option value="cash">Cash & devices</option>
-        <option value="texture">Clean texture (no device)</option>
-        <option value="neon">Neon tech glow</option>
-      </select>
-      <button class="btn-gen" id="bggen-go">✦ Generate</button>
+      <button class="btn-gen" id="bggen-go" style="flex:1">✦ Generate</button>
     </div>
     <div class="bg-result" id="bggen-result">
       <img id="bggen-img" alt="Generated background">
       <div class="bg-result-acts">
         <button id="bggen-use">Use as background</button>
         <button id="bggen-save">＋ Save to library</button>
+        <button id="bggen-share">🌐 Share</button>
       </div>
     </div>
     <div class="modal-actions"><button class="btn btn-ghost" id="bggen-close">Close</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminbg-overlay">
+  <div class="modal" style="max-width:560px">
+    <h3>🛠 AI Studio, Designer Library backgrounds</h3>
+    <div class="modal-sub">Operator console. The prompt below is the proven house prompt for the selected template, edit freely, regenerate until right, then publish. Published photos go live for every visitor instantly; the print-res copy still ships with the next deploy.</div>
+    <label for="adminbg-slot">Template slot</label>
+    <select id="adminbg-slot" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px;font:500 13px/1 var(--ui);margin-bottom:10px"></select>
+    <label for="adminbg-prompt">Prompt (used exactly as written)</label>
+    <textarea id="adminbg-prompt" rows="4" spellcheck="false" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font:500 12.5px/1.5 ui-monospace,Menlo,monospace;padding:10px"></textarea>
+    <div class="bg-gen-row" style="margin-top:10px">
+      <button class="btn-gen" id="adminbg-go" style="flex:1">✦ Generate</button>
+    </div>
+    <div class="bg-result" id="adminbg-result">
+      <img id="adminbg-img" alt="Generated background">
+      <div class="bg-result-acts">
+        <button id="adminbg-approve">✓ Approve &amp; publish</button>
+      </div>
+    </div>
+    <div class="ai-note" id="adminbg-status"></div>
+    <div class="modal-actions"><button class="btn btn-ghost" id="adminbg-close">Close</button></div>
   </div>
 </div>
 
@@ -721,37 +843,6 @@
   <button id="star-community">🌐 Save to community library</button>
 </div>
 
-<div class="modal-overlay" id="ai-overlay">
-  <div class="modal">
-    <h3>AI image settings</h3>
-    <div class="modal-sub">Backgrounds are generated by an image model — plug in a key once and it's saved in this browser.</div>
-    <label for="ai-provider">Provider</label>
-    <select id="ai-provider" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px;font:500 14px/1 var(--ui);margin-bottom:12px">
-      <option value="openai">OpenAI (gpt-image-1)</option>
-      <option value="custom">Custom endpoint (your proxy)</option>
-    </select>
-    <div id="ai-key-field">
-      <label for="ai-key">API key</label>
-      <input type="password" id="ai-key" placeholder="sk-...">
-    </div>
-    <div id="ai-endpoint-field" style="display:none">
-      <label for="ai-endpoint">Endpoint URL</label>
-      <input type="text" id="ai-endpoint" placeholder="https://your-worker.workers.dev/generate">
-    </div>
-    <label for="ai-quality">Quality</label>
-    <select id="ai-quality" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px;font:500 14px/1 var(--ui)">
-      <option value="medium">Medium — ~$0.04 per image</option>
-      <option value="high">High — ~$0.17 per image</option>
-      <option value="low">Low — ~$0.01 per image</option>
-    </select>
-    <div class="ai-note">The key never leaves this browser. Before a public launch, move it behind a small proxy so visitors can't extract it.</div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" id="ai-cancel">Cancel</button>
-      <button class="btn btn-primary" id="ai-save">Save</button>
-    </div>
-  </div>
-</div>
-
 <div id="tut-overlay">
   <div id="tut-spot"></div>
   <div id="tut-bubble">
@@ -770,24 +861,93 @@
 
 <div class="notif" id="notif"></div>
 
-<!-- font preloader: forces every canvas font to load before rendering -->
+<!-- Font preloader: forces the canvas faces to load before the first
+     render. fabric caches glyph widths, so a face that lands late
+     poisons every measurement taken before it (clipped tails). -->
 <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden">
-  <span style="font-family:'Bebas Neue'">a</span>
-  <span style="font-family:'Anton'">a</span>
-  <span style="font-family:'Archivo Black'">a</span>
-  <span style="font-family:'Oswald';font-weight:700">a</span>
-  <span style="font-family:'Montserrat';font-weight:900">a</span>
-  <span style="font-family:'Bangers'">a</span>
-  <span style="font-family:'Permanent Marker'">a</span>
-  <span style="font-family:'Barlow Condensed';font-weight:400">a</span>
-  <span style="font-family:'Barlow Condensed';font-weight:600">a</span>
-  <span style="font-family:'Barlow Condensed';font-weight:700">a</span>
-  <span style="font-family:'Barlow Condensed';font-weight:800">a</span>
-  <span style="font-family:'Barlow Condensed';font-weight:900">a</span>
-  <span style="font-family:'DM Sans'">a</span>
-  <span style="font-family:'Instrument Sans'">a</span>
+  <span style="font-family:'Clash Display';font-weight:500">a</span>
+  <span style="font-family:'Clash Display';font-weight:600">a</span>
+  <span style="font-family:'Clash Display';font-weight:700">a</span>
+  <span style="font-family:'Satoshi';font-weight:400">a</span>
+  <span style="font-family:'Satoshi';font-weight:500">a</span>
+  <span style="font-family:'Satoshi';font-weight:700">a</span>
+  <span style="font-family:'Satoshi';font-weight:900">a</span>
+  <span style="font-family:'Khand';font-weight:600">a</span>
+  <span style="font-family:'Khand';font-weight:700">a</span>
+  <span style="font-family:'Melodrama';font-weight:500">a</span>
+  <span style="font-family:'Melodrama';font-weight:700">a</span>
+  <span style="font-family:'Zodiak';font-weight:400">a</span>
+  <span style="font-family:'Zodiak';font-weight:700">a</span>
 </div>
 
+<script>
+/* Theme toggle. Self-contained on purpose: app.js knows nothing about it, so
+   page switching, the editor and the modals all inherit the change for free
+   through the CSS custom properties on <html>.
+   Fabric's selection handles are canvas-drawn, not CSS, so they are repainted
+   from the live accent value on every flip. */
+(function(){
+  var root = document.documentElement;
+  function paintCanvasChrome(){
+    if (!window.fabric) return;
+    var accent = getComputedStyle(root).getPropertyValue('--accent').trim() || '#3b9bff';
+    fabric.Object.prototype.borderColor = accent;
+    fabric.Object.prototype.cornerColor = accent;
+    /* app.js declares `canvas` with a top-level let, so it is a script-scoped
+       binding rather than a window property, and it is null until the editor
+       first opens. Both cases are handled here rather than assumed. */
+    try {
+      if (typeof canvas !== 'undefined' && canvas && canvas.requestRenderAll) {
+        canvas.getObjects().forEach(function(o){ o.set({borderColor:accent, cornerColor:accent}); });
+        canvas.requestRenderAll();
+      }
+    } catch(e){}
+  }
+  function setTheme(t){
+    root.setAttribute('data-theme', t);
+    try { localStorage.setItem('pgfx_theme', t); } catch(e){}
+    paintCanvasChrome();
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-theme-toggle]');
+    if (!b) return;
+    setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+  });
+  window.addEventListener('load', paintCanvasChrome);
+
+  /* Hero fan: bring a card to the front.
+     Pointer devices get it on hover (pure CSS). Touch devices have no hover,
+     so a press-and-HOLD does the same thing — 140ms so a normal tap still
+     opens the template and only a deliberate hold peeks at it. Delegated, so
+     it survives buildLanding() re-rendering the cards. */
+  (function heroPeek(){
+    var stack = null, timer = null, held = null;
+    function clear(){
+      if (timer) { clearTimeout(timer); timer = null; }
+      if (held) { held.classList.remove('lifted'); held = null; }
+      if (stack) stack.classList.remove('touching');
+    }
+    document.addEventListener('touchstart', function(e){
+      var card = e.target.closest && e.target.closest('#hero-stack .hero-card');
+      if (!card) return;
+      stack = card.closest('#hero-stack');
+      timer = setTimeout(function(){
+        held = card;
+        card.classList.add('lifted');
+        if (stack) stack.classList.add('touching');
+      }, 140);
+    }, { passive: true });
+    ['touchend','touchcancel','touchmove'].forEach(function(ev){
+      document.addEventListener(ev, clear, { passive: true });
+    });
+    // a hold that lifted a card should not also count as a tap-through
+    document.addEventListener('click', function(e){
+      var card = e.target.closest && e.target.closest('#hero-stack .hero-card');
+      if (card && card === held) { e.stopPropagation(); e.preventDefault(); clear(); }
+    }, true);
+  })();
+})();
+</script>
 <script src="config.js"></script>
 <script src="tplbg-data.js"></script>
 <script src="app.js"></script>
