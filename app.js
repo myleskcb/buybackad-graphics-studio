@@ -6782,9 +6782,36 @@ function assignStyle(t){
   if (style === 'duotone' && t.bg.type === 'image' && !t.bg.scrimColor){
     /* Shadows to a deep version of the category hue, highlights to the
        complement — so the grade itself carries the complementary pair rather
-       than relying on one chip to do it. */
-    t.bg.grade = { shadow: shade(C.money, 0.18), highlight: shade(C.comp, 0.42),
-                   contrast: 0.22, lift: 0.40 };
+       than relying on one chip to do it.
+
+       SHADOW COEFFICIENT 0.18 -> 0.58, LIFT 0.40 -> 0.68.
+       Measured, not adjusted by eye. The grade is applied as a multiply blend
+       against the shadow colour, and shade(hue, 0.18) is that hue at 18% of its
+       perceptual lightness — near black. Multiplying a photograph by near-black
+       is a floor on the entire frame, and the screen-blend lift cannot restore
+       detail that multiply has already collapsed.
+
+       scripts/darkness_audit.mjs isolated it by re-rendering every backdrop with
+       one variable removed at a time:
+
+         as shipped               0.062     <- the whole library
+         scrim removed            0.088     (the scrim was never the problem)
+         GRADE REMOVED            0.275     <- lands inside the good band
+         raw photo                0.384
+
+       against the owner's own labelled GOOD references at 0.21..0.49, median
+       0.31. The source photography is already right; the treatment was
+       destroying it. 207 of 243 templates sat below the good band.
+
+       This also closes the OTHER measured gap. HANDOFF section 5 records edge
+       density 25.8-34% in the good folder against ~8% here, and treats cut-out
+       product art as the lever. It is the same cause: crushing the photo to
+       near-black deletes the texture that produces edges, so the library's
+       remaining edges come almost entirely from its lettering while the
+       reference ads carry detail in the photograph itself. Recovering the
+       midtones recovers the detail. */
+    t.bg.grade = { shadow: shade(C.money, 0.58), highlight: shade(C.comp, 0.42),
+                   contrast: 0.22, lift: 0.68 };
     t.bg.scrim = Math.min(t.bg.scrim || 0.5, 0.50);
   }
   if (style === 'wash' && t.bg.type === 'image' && !t.bg.scrimColor){
@@ -6798,8 +6825,14 @@ function assignStyle(t){
        and money word became the same colour and the word vanished. 0.62 keeps
        the wash unmistakably one-hue while leaving the bright end short of the
        accent itself. */
-    t.bg.grade = { shadow: shade(C.money, 0.08), highlight: shade(C.money, 0.44),
-                   contrast: 0.30, lift: 0.42 };
+    /* Shadow 0.08 -> 0.52: same finding as duotone above. This style was the
+       darkest in the set (median 0.060) precisely because it multiplies by the
+       hue at 8% lightness — effectively black — which is why "near-monochrome
+       and high contrast" was rendering as "almost entirely black". A wash still
+       reads as one hue driven hard; it just keeps the photograph underneath it,
+       which is the stated intent of this style. */
+    t.bg.grade = { shadow: shade(C.money, 0.52), highlight: shade(C.money, 0.44),
+                   contrast: 0.30, lift: 0.66 };
     t.bg.scrim = Math.min(t.bg.scrim || 0.5, 0.48);
   }
   return 1;

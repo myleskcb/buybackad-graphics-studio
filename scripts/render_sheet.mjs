@@ -97,8 +97,18 @@ for (const t of picked) {
   shots.push({ ...t, url });
 }
 
+// ---- --singles: one PNG per template, for measurement rather than eyeballing
+if (has('--singles')){
+  const dir = OUT + 'singles/';
+  mkdirSync(dir, { recursive: true });
+  shots.forEach(s => {
+    writeFileSync(dir + s.id + '.png', Buffer.from(s.url.split(',')[1], 'base64'));
+  });
+  console.log('wrote ' + shots.length + ' singles to ' + dir);
+}
+
 // ---- compose contact sheets with labels, in-page
-const sheets = await page.evaluate((shots, cols, cell) => {
+const sheets = has('--singles') ? [] : await page.evaluate((shots, cols, cell) => {
   const pad = 8, lab = 26;
   const per = cols * 4;
   const out = [];
