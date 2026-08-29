@@ -50,6 +50,41 @@ Stripe checkout · auth end-to-end · community gallery · project history ·
 export caps actually enforcing · watermark rendering.
 **Do not claim these work.**
 
+## 3b. Fixed 2026-08-28 — verified against the live site, with tooling
+
+Run these before believing anything about template quality. All live in
+`scripts/`, all re-runnable, all exit non-zero on failure.
+
+| script | asks |
+|---|---|
+| `phone_audit.mjs` | is the phone number ACTUALLY visible? renders each template twice, with and without the phone layer, and diffs the pixels |
+| `layout_audit.mjs` | clipped text and text-on-text collisions, measured after `alignPass` |
+| `darkness_audit.mjs` | which variable (scrim / grade / photo) is darkening the library |
+| `design_metrics.py` | the library vs the owner's labelled good/mid/bad folders |
+| `render_sheet.mjs` | real PNG contact sheets — `--singles` for one file per template |
+| `verify_csp.mjs` | would any inline script be blocked in production? |
+| `csp_hashes.mjs` | recompute CSP hashes after editing an inline script |
+
+Measured, before → after, all 243 templates:
+
+| | before | after |
+|---|---|---|
+| phone invisible | 82 | **0** |
+| phone low contrast | 45 | **0** |
+| text collisions | 17 | **0** |
+| median luminance | 0.068 | **0.180** (good band 0.21–0.49) |
+| palette spread | 5 | **9** (good band 13–24) |
+
+Three bugs made a third of the library ship an unreadable phone number:
+`highlightBudget` chose its bright plate by vertical overlap only (no
+horizontal test, no `originX` handling); it set `fill` on plates that still
+carried `grad`, which `buildLayer` prefers, so 138 of 200 "brightenings" never
+reached the screen while the ink was darkened anyway; and a plate that merely
+clipped the number counted as its background.
+
+**The theme toggle was dead in production** — two inline scripts blocked by the
+site's own CSP. Invisible on localhost, which sends no CSP headers.
+
 ## 4. THE CENTRAL PROBLEM (read this before designing anything)
 
 Templates are transformed by **19 sequential procedural passes**, four of which
@@ -93,6 +128,26 @@ each to 256px and sampling. Their GOOD band:
 
 **Good is BUSIER than bad** (29.6% vs 23.4% edges) — generic "less is more" ad
 advice is wrong for this market.
+
+> **CORRECTED 2026-08-28 — re-measure before acting on the paragraph above.**
+> Re-running the same folders (`scripts/design_metrics.py`) reproduces the edge
+> numbers but not the conclusion drawn from them. Edge density separates good
+> from bad by **6.1% relative** (0.254 vs 0.239) — the WEAKEST of the five
+> metrics. Median luminance separates them by **26.7%** (good 0.311 vs bad
+> 0.424), and the good references are *darker* than the bad ones, which the
+> original note does not mention.
+>
+> So "busier" is real but marginal, and it was being treated as the headline
+> finding. The library's actual gap was **darkness**: it rendered at 0.068,
+> below even the bad folder, with 207/243 outside the good band.
+>
+> The lever was NOT cut-out art. The duotone/wash grade multiplied every photo
+> against the category hue at 18% lightness (8% for wash) — near black — which
+> destroyed luminance *and* the texture that produces edges, so the library's
+> remaining edges came almost entirely from its lettering. Correcting the grade
+> moved luminance 0.068 → 0.180, palette 5 → 9 and edges 10.4% → 11.8% at a
+> cost of $0. Cutouts are still worth adding; they were just not the binding
+> constraint.
 
 **The lever for the two remaining gaps is cut-out product art, not backdrops.**
 Measured: templates with a cutout score 7.8 edge density vs 4.6 without (+70%).

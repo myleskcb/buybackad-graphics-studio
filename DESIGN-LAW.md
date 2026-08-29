@@ -888,3 +888,112 @@ larger number.
 
 Do not regenerate a library to chase a metric. Regenerate it when a paying tier
 is selling a resolution the assets cannot supply, which is the case here.
+
+## 45. A style that sets `fill` must delete `grad`, or it has done nothing
+
+`buildLayer` prefers `props.grad` over `props.fill`. Any pass that assigns a
+solid colour to a layer that may carry a gradient must delete the gradient in
+the same statement, or the assignment is silently discarded.
+
+This is not hypothetical. `highlightBudget` set `fill = '#f6f2ea'` on its host
+plate and then darkened the phone number to `#141110` on the strength of that
+brightening. On **138 of the 200 plates it touched**, the plate still carried
+its original near-black gradient, so the number was painted dark ink on a dark
+ground. Every source-level audit passed: the ink WAS dark, the plate's `fill`
+WAS bright. Only the pixels disagreed.
+
+The general form: **when two properties can express the same thing, a pass that
+writes one and reads the other is measuring its own intention.** Write both, or
+read what actually paints.
+
+## 46. Ask whether the plate is behind the TEXT, not whether it is nearby
+
+Two ways this fails, both shipped:
+
+- **Wrong axis.** A host-plate search that tests only vertical overlap will
+  select a side panel at x -60..500 for a number at x 624..966. It shares the
+  y-band; it is nowhere near the text. 29 templates.
+- **Wrong anchor.** `originX:'right'` and `originX:'left'` with the same `left`
+  occupy completely different space. A span computed without the anchor puts a
+  right-aligned number at x 1016..1322 on a 1080px canvas.
+- **Mere intersection.** A plate overlapping the last 24px of a 160px-tall
+  number is not its background. Require ≥75% coverage of the text's own box.
+
+## 47. A layout pass may not grow a block into space it has not checked
+
+`stackBulletRuns` converted "A • B • C" into a vertical stack — roughly 3× the
+height — without asking what was below it. When the result did not fit,
+`alignPass` dragged it back on-canvas and straight into the headline: 7
+templates printed their item list on top of the money word.
+
+Nothing caught it, because the text was still *inside the frame*. A clipping
+audit asks "is it on the canvas"; it does not ask "is it on top of something
+else". Measure the gap to the nearest layer sharing your column, and cap the
+growth at what fits.
+
+## 48. A treatment that darkens is deleting detail, and detail is the product
+
+The duotone and wash styles multiply the backdrop against the category hue at
+18% / 8% of its perceptual lightness — effectively black. Multiplying by black
+is a floor on the whole frame, and a screen-blend "lift" afterwards cannot
+recover what multiply has already collapsed.
+
+Measured cost: median luminance 0.062 against the owner's own good references
+at 0.21–0.49, with 207/243 templates below the band — darker than their BAD
+folder. Removing the grade alone returned 0.275; the raw photography was
+already at 0.384.
+
+Two consequences worth generalising:
+
+1. **The source material was never the problem.** Before commissioning assets
+   to fix a metric, render what you already have with the treatment removed. A
+   $3 image-generation plan was queued against a gap that a coefficient
+   produced for free.
+2. **Darkness and "not enough detail" were the same defect.** Crushing a photo
+   to near-black deletes the texture that produces edges, so the library's edge
+   density came almost entirely from its lettering while the reference ads
+   carry detail in the photograph. One cause, two failing metrics, and chasing
+   the second one directly would never have found the first.
+
+## 49. Localhost cannot test a policy that only production sends
+
+`index.html`'s two inline `<script>` blocks — the pre-paint theme stamp and the
+whole theme toggle — were blocked by the site's own Content-Security-Policy for
+an unknown period. The toggle did nothing on the live site.
+
+It was invisible for two compounding reasons: a static file server sends **no
+CSP headers at all**, so localhost permits everything the deployed site
+forbids; and a CSP violation is a console error, not a broken render, so every
+page still looked correct.
+
+Anything enforced by a header — CSP, CORS, COOP, cache policy — is untested
+until it is fetched from a deploy preview. `scripts/verify_csp.mjs` does that
+and exits non-zero. Use hashes, never `'unsafe-inline'`: allowing all inline
+script to unblock two known blocks defeats the policy.
+
+Corollary, and the reason this was found at all: **a render harness must fail
+on a page error.** The library renders 243/243 while a pass is throwing (rule
+42), so a clean-looking contact sheet proves nothing while the console is
+dirty. `render_sheet.mjs` exits non-zero on any page error; that guard caught
+both this and a `ReferenceError` in a same-session fix.
+
+## 50. An audit's own geometry is the first thing to doubt
+
+Three separate instruments built in one session each reported confident,
+specific, wrong numbers:
+
+- The phone-visibility audit read the number's bounding box **before**
+  `alignPass` moved it, sampled a rectangle ~75px off, and reported 22
+  templates as having an invisible phone number. They were fine.
+- The collision audit counted **curved** headlines as collisions. An arc's
+  bounding box is enormous and mostly empty, so straight type sitting in its
+  hollow read as a 34% overlap. 8 of 17 reported hits were false, and fixing
+  them would have meant moving correctly-placed type.
+- A grade sweep's edge detector strided x and y by 2 while indexing neighbours
+  at +1, comparing pixels it had skipped, and returned **0.0% for every
+  setting**. That same sweep measured bare backdrops — legitimately smooth —
+  and would have justified chasing detail in the ground alone.
+
+Two tests before trusting any new metric: does it return **different** answers
+for inputs you know differ, and does it measure the surface the user actually
+sees? A number that is identical across every condition is not a measurement.
