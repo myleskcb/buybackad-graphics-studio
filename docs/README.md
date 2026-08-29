@@ -19,7 +19,9 @@ post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 
 | File | What it is |
 |---|---|
-| `../DESIGN-LAW.md` | **The authority.** 42 enforced rules, derived by auditing the real library. Never contradict it. |
+| `../AGENT-BRIEF.md` | **Read first.** Landmines, deploy process, domain state. Copy to `CLAUDE.md` to auto-load it. |
+| `../DESIGN-LAW.md` | **The authority.** 43 enforced rules, derived by auditing the real library. Never contradict it. |
+| `PROMPTS.md` | Copy-paste session starters for a fresh Claude session |
 | `SESSION-PROTOCOL.md` | How to run a study session, including the 99% pause rule |
 | `CURRICULUM.md` | The syllabus: what to learn, in order, college level |
 | `COLOR-THEORY.md` | Colour module — perceptual space, harmony, application |
@@ -32,6 +34,12 @@ post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 DESIGN-LAW.md is *already* the output of a serious audit: OKLab colour maths,
 split-complementary accent derivation, glyph-masked contrast measurement,
 optical alignment. It is ahead of most commercial template libraries.
+
+The corollary, learned the hard way in the rule 43 pass: **when a property has
+already been audited, ask what that audit could not have seen.** Every contrast
+number in the file was correct and every one of them assumed normal colour
+vision. A passing check that asks the wrong question is worse than no check,
+because it manufactures confidence.
 
 **So the job is not to teach it beginner theory.** The job is to extend it where
 it is thin, and to keep every addition to the same standard: a rule earns its
