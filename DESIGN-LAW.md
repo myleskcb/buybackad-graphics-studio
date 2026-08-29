@@ -829,3 +829,62 @@ same reason rule 40 gives: the transform is only meaningful in a linear space.
 Then re-encode and measure WCAG contrast as normal. Glyph-masking (rule 14)
 still applies — simulate the sampled ink and the sampled ground, never a
 bounding-box average.
+
+## 44. An asset library must be authored at the size the top tier sells
+
+The Designer Library ships 153 background photographs. `assets/bg/MANIFEST.md`
+specifies **2160x2160 JPG** for every one of them. All 153 are **1200x1200**.
+
+The gap is not cosmetic, because the short side of the export is what the plan
+cap applies to, and the background has to COVER the canvas:
+
+| format | Pro export | background must supply | upscale from 1200 |
+|---|---|---|---|
+| Square 1:1 | 2160x2160 | 2160 | **1.80x** |
+| Flyer 8.5x11 | 2160x2796 | 2796 | **2.33x** |
+| Story 9:16 | 2160x3840 | 3840 | **3.20x** |
+| Wide 16:9 | 3840x2160 | 3840 | **3.20x** |
+
+Pro is sold on the words *"Up to 2160px, no watermark, every format"*. On the
+two rectangular formats a Pro customer is paying for a 3.2x upscale of a 1200px
+JPEG.
+
+And this is not only a Pro problem. `exportSize` defaults to **1440** short side
+(app.js), so a Story export at the DEFAULT setting already demands 2560px of
+background — the library is short even before anyone upgrades. At the Free 1080
+cap a Story still needs 1920. **Every format except the square preview is
+already upscaling for every user on every plan.**
+
+### How bad, honestly
+
+Less bad than the multiplier suggests, and this is worth stating plainly rather
+than inflating it into a crisis. The library is authored defocused — the global
+spec says *"heavily defocused / bokeh (shot blurry, not post-blurred)"* — and
+defocused content upscales far better than detailed content, because there is
+less fine structure to lose.
+
+A side-by-side of the most detailed image in the set (`dl_cars_ticketStub_mono`,
+water beading on a car panel) at native pixels versus 3.2x shows the upscale is
+**visibly softer but not broken**: droplet edges lose their crispness and the
+specular highlights smear slightly. A customer would not file a bug. A designer
+comparing against a competitor's export would see it.
+
+Two measurement notes, both of which corrected an earlier wrong conclusion:
+
+- A first pass sampled a black region of a phones background and concluded
+  "no visible artifacts". It was measuring an area with no detail in it. **Find
+  the highest-variance tile before judging sharpness.**
+- A spectral high-frequency-energy metric separated native from upscaled by only
+  0.42 vs 0.40 on the same image — too weak to carry a conclusion. It is
+  reported here so nobody re-derives it and trusts it. **The A/B render is the
+  honest test; the FFT number is not.**
+
+### The rule
+
+Author assets at the size the **highest paid tier** can demand, multiplied by
+the most aggressive format's cover factor — not at the size the square preview
+happens to need. Where that is impractical, the plan copy must not promise the
+larger number.
+
+Do not regenerate a library to chase a metric. Regenerate it when a paying tier
+is selling a resolution the assets cannot supply, which is the case here.

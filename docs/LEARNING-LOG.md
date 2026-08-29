@@ -96,3 +96,64 @@ RESUME HERE:
   extend cvd_audit.py from the ten theme decks to the 243 rendered templates,
   reusing the existing glyph-masked sampler in app.js rather than writing a new
   one.
+
+
+---
+
+## 2026-08-28 (later) — Asset recreation: the background library is undersized
+
+Studied:
+  The Designer Library's 153 background photographs in assets/bg/, audited
+  against assets/bg/MANIFEST.md and against what the export pipeline actually
+  demands at each plan cap.
+
+Measured:
+  - 153/153 files present, 0 missing, 0 orphaned. The manifest and the folder
+    agree perfectly on WHICH files exist.
+  - **All 153 are 1200x1200. The manifest specifies 2160x2160.** Every file in
+    the library is off-spec, and has been since it was built.
+  - Export demand, because the plan cap applies to the SHORT side while a square
+    background must cover the LONG side:
+      Square 1:1   at Pro 2160 -> needs 2160  (1.80x upscale)
+      Flyer 8.5x11 at Pro 2160 -> needs 2796  (2.33x)
+      Story 9:16   at Pro 2160 -> needs 3840  (3.20x)
+      Wide 16:9    at Pro 2160 -> needs 3840  (3.20x)
+  - Not only a Pro problem: `exportSize` defaults to 1440 short side, so a Story
+    at the DEFAULT already needs 2560. At the Free 1080 cap a Story needs 1920.
+    Every non-square format upscales for every user on every plan.
+  - Visual A/B on the most detailed image in the set
+    (dl_cars_ticketStub_mono, water beading on a car panel), native vs 3.2x at
+    matched display size: **visibly softer, not broken.** Droplet edges lose
+    crispness, speculars smear slightly. A customer would not file a bug; a
+    designer comparing exports against a competitor would see it.
+
+Changed:
+  - DESIGN-LAW.md rule 44 (appended, per rule 42).
+  - scripts/asset_audit.py — checks presence, orphans, dimensions and
+    per-tier sufficiency; --tier free|pro, --json; exits non-zero on failure.
+    Currently exits 1 on both tiers.
+
+Rejected:
+  - **A spectral high-frequency-energy metric for sharpness.** It separated a
+    native image from a 2x-upscaled copy of ITSELF by only 0.42 vs 0.40 — far
+    too weak to gate anything. Do not re-derive it and trust it. The A/B render
+    at matched display size is the honest test, and asset_audit.py deliberately
+    does not score sharpness.
+  - **A first sharpness check that sampled a black region** of a phones
+    background and concluded "no visible artifacts". It was measuring an area
+    with no detail in it. Find the highest-variance tile before judging.
+  - **Regenerating the 153 images in this session.** That is a generation job
+    needing the ORCHARD photo engine or an image model, it costs real compute,
+    and it changes 32MB of committed product assets. Measuring the defect and
+    making it enforceable is the finished unit of work.
+
+RESUME HERE:
+  Decide the regeneration target before generating anything. 2160 satisfies the
+  manifest but still upscales 1.78x on Story/Wide; 3840 satisfies every format
+  at the Pro cap with no upscale, at roughly 3.2x the file size (32MB -> ~100MB
+  committed, which is a real repo-weight decision the owner should make).
+  Recommended: regenerate at 3840 for the ~20 templates whose backgrounds carry
+  visible detail (the cars/silver/strips sets score highest on local variance),
+  and leave the heavily-defocused ones at 2160 where the upscale is invisible.
+  Re-run `python3 scripts/asset_audit.py` after; it should exit 0 for the tier
+  being targeted.
