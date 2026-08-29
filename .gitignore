@@ -4,3 +4,6 @@ Thumbs.db
 node_modules/
 .netlify/
 .env
+# render harness output — contact sheets and audit JSON are build artifacts,
+# regenerate with scripts/render_sheet.mjs rather than committing them
+.render/

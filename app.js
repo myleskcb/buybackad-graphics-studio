@@ -6401,21 +6401,87 @@ function highlightBudget(t){
   if (!phone) return 0;
   const fs = phone.props.fontSize || 70;
   const top = (phone.props.top || 0) - fs * 0.30, h = fs * 1.62;
+
+  /* THE PHONE'S ACTUAL HORIZONTAL SPAN.
+     This used to be ignored entirely, and it is the whole bug. The host search
+     below tested only VERTICAL overlap, so it happily selected a rect that
+     shares a y-band with the number but sits somewhere else across the frame —
+     duoSplit's "Side Panel" (x -60..500) for a phone at x 624..966, agencyGrid's
+     centred "Phone Plate" for a right-anchored number, lowerThird's full-width
+     "Third Band" for text hanging off its edge. It then painted THAT rect
+     near-white and forced the number to near-black regardless, which is how 29
+     templates shipped a black phone number on a dark ground: the bright plate
+     the darkening was justified by was never behind the number.
+
+     Text is anchored by originX, so a left-anchored and a right-anchored layer
+     with the same `left` occupy completely different space. 0.52em per glyph is
+     measured against Satoshi 900 at these sizes, which is what every phone
+     layer in the library uses. */
+  const glyphs = String(phone.text || '(562) 999-4994').length;
+  const approxW = glyphs * fs * 0.52;
+  const ox = phone.props.originX;
+  const px = phone.props.left || 0;
+  const px0 = ox === 'center' ? px - approxW / 2 : ox === 'right' ? px - approxW : px;
+  const px1 = px0 + approxW;
+
   const plates = (t.layers || []).filter(l => l.kind === 'rect' && l.props);
+  /* A host must genuinely sit BEHIND the number, in both axes.
+     Intersection is not enough. st_gold_pricetag's "Claim Plate" spans y
+     836..932 while the phone runs 908..1063, so they overlap by 24px — 15% of
+     the number — and the old test accepted it, brightened the plate, and set
+     the ink near-black. The result: a black number hanging in open dark space
+     under a cream bar that belongs to a different line of copy. Require the
+     plate to cover most of the number's height, not merely touch it. */
   const host = plates.find(r => {
-    const rt = r.props.top || 0, rh = r.props.height || 0;
-    return rt < top + h && rt + rh > top;
+    const rt = r.props.top || 0,  rh = r.props.height || 0;
+    const rl = r.props.left || 0, rw = r.props.width  || 0;
+    if (!rh || !rw) return false;
+    const covered = Math.min(rt + rh, top + h) - Math.max(rt, top);
+    const vCovers = covered >= h * 0.75;               // most of the number's band
+    const hCovers = rl <= px0 + 8 && rl + rw >= px1 - 8;
+    return vCovers && hCovers;
   });
+
   if (host){
-    const hx = String(host.props.fill || '');
-    if (/^#[0-9a-f]{6}$/i.test(hx) && (hexLum(hx) || 0) > 0.55) return 0;  // already bright
+    /* Is this plate ALREADY a bright enough ground for dark ink?
+       This used to read props.fill only, which is meaningless on a
+       gradient-filled plate: buildLayer prefers props.grad, so the check was
+       inspecting a value that never reached the screen. A gold "Phone Chip"
+       (#d59f34 -> #d56234) is a perfectly good bright ground and must be left
+       alone; a near-black "CTA Card" (#17181a -> #020202) is not. Judge by what
+       actually paints — the darker gradient stop, since the ink has to survive
+       the worst part of the ramp, not the average. */
+    const g = host.props.grad;
+    const stops = g ? [g.c1, g.c2].filter(Boolean) : [String(host.props.fill || '')];
+    const lums = stops.map(c => hexLum(String(c))).filter(v => typeof v === 'number');
+    const worst = lums.length ? Math.min(...lums) : null;
+    if (worst !== null && worst > 0.45) return 0;        // already bright enough, keep the design
+
+    /* Otherwise this plate becomes the highlight — and the gradient MUST go.
+       Setting fill while leaving grad in place changed nothing on screen while
+       the code below darkened the phone number to near-black on the strength of
+       a brightening that never happened. That mismatch hit 138 of the 200
+       plates this pass touches and is the single largest cause of unreadable
+       phone numbers in the library. */
+    delete host.props.grad;
     host.props.fill = '#f6f2ea'; host.solid = true;
     phone.props.fill = '#141110'; delete phone.props.grad;
     delete phone.props.stroke; delete phone.props.strokeWidth; delete phone.props.shadow;
     return 1;
   }
+
+  /* No plate actually sits behind the number, so build one that does. Sized to
+     the number rather than to the frame: a full-bleed 76..1004 bar was the old
+     behaviour and it is wrong for a right-anchored or off-centre phone.
+     TPL_W, not W: `W` is a closure local inside the layout factories and is NOT
+     in scope in the pass chain down here. Using it threw a ReferenceError that
+     the render harness swallowed per-template while still reporting a clean
+     243/243 — landmine 2, exactly as documented. */
+  const padX = Math.max(28, fs * 0.42);
+  const pl = Math.max(24, px0 - padX);
+  const pr = Math.min(TPL_W - 24, px1 + padX);
   t.layers.unshift({ kind:'rect', name:'Phone Plate', solid:true,
-    props:{ left:76, top:top, width:928, height:h, rx:18, ry:18, fill:'#f6f2ea',
+    props:{ left:pl, top:top, width:Math.max(120, pr - pl), height:h, rx:18, ry:18, fill:'#f6f2ea',
             shadow:{ color:'rgba(0,0,0,0.45)', blur:30, offsetX:0, offsetY:12 } } });
   phone.props.fill = '#141110'; delete phone.props.grad;
   delete phone.props.stroke; delete phone.props.strokeWidth; delete phone.props.shadow;
@@ -6893,7 +6959,47 @@ function addProductCutout(t){
       tint would muddy a deliberate knockout. */
 function stackBulletRuns(t){
   let n = 0;
-  (t.layers || []).forEach(l => {
+  const layers = t.layers || [];
+  /* How much vertical room does this layer actually have? Stacking a
+     "A • B • C" run into four lines makes the block ~3x taller, and nothing
+     here used to check whether that fits. When it did not, alignPass dragged
+     the overgrown block UP to keep it on canvas — straight into the headline
+     above it. That is the lowerThird collision: seven templates whose item list
+     printed on top of the money word, which the clipping audit could not see
+     because the text was, technically, still inside the frame.
+     Room is the gap to the nearest thing below that shares horizontal space —
+     another layer, or the canvas edge with a margin. */
+  const roomBelow = (l) => {
+    const p = l.props || {};
+    const fs = p.fontSize || 34;
+    const approxW = Math.max(120, String(l.text || '').split('\n')
+      .reduce((m, s) => Math.max(m, s.length), 0) * fs * 0.5);
+    const ox = p.originX;
+    const x0 = ox === 'center' ? (p.left || 0) - approxW / 2
+             : ox === 'right'  ? (p.left || 0) - approxW : (p.left || 0);
+    const x1 = x0 + approxW;
+    const myTop = p.top || 0;
+    let floor = TPL_H - 34;                       // canvas bottom, with a margin
+    layers.forEach(o => {
+      if (o === l || !o.props) return;
+      const q = o.props;
+      const ot = q.top || 0;
+      if (ot <= myTop + 4) return;                // not below us
+      // only things that actually share our column can crowd us
+      const ow = q.width || (typeof o.text === 'string'
+        ? String(o.text).length * (q.fontSize || 30) * 0.5 : 0);
+      if (!ow) return;
+      const oox = q.originX;
+      const o0 = oox === 'center' ? (q.left || 0) - ow / 2
+               : oox === 'right'  ? (q.left || 0) - ow : (q.left || 0);
+      const o1 = o0 + ow;
+      if (o1 < x0 + 8 || o0 > x1 - 8) return;     // different column
+      if (ot < floor) floor = ot;
+    });
+    return Math.max(0, floor - myTop);
+  };
+
+  layers.forEach(l => {
     if (typeof l.text !== 'string' || !l.props) return;
     if (!/^(info|sub|badges)$/.test(l.role || '') && !/items|info|sub|line|detail/i.test(l.name || '')) return;
     const lines = String(l.text).split('\n');
@@ -6904,12 +7010,20 @@ function stackBulletRuns(t){
       else out.push(line);
     });
     if (out.length === lines.length) return;          // nothing was stacked
-    const kept = out.slice(0, 4);
+
+    const fs0 = l.props.fontSize || 34;
+    const lh = Math.min(l.props.lineHeight || 1.4, 1.34);
+    const fs = out.length > lines.length ? Math.max(24, Math.round(fs0 * 0.86)) : fs0;
+    /* Never stack into space that does not exist. Cap the run at the number of
+       lines that genuinely fit, so the block stays in its own slot instead of
+       being pushed into its neighbour. */
+    const room = roomBelow(l);
+    const fits = Math.max(1, Math.floor(room / (fs * lh)));
+    const kept = out.slice(0, Math.min(4, fits));
+    if (kept.length === lines.length) return;         // no room to improve on the original
     l.text = kept.join('\n');
-    const fs = l.props.fontSize || 34;
-    // a stack is taller than a row: ease the size so the block holds its slot
-    if (kept.length > lines.length) l.props.fontSize = Math.max(24, Math.round(fs * 0.86));
-    l.props.lineHeight = Math.min(l.props.lineHeight || 1.4, 1.34);
+    if (kept.length > lines.length) l.props.fontSize = fs;
+    l.props.lineHeight = lh;
     n++;
   });
   return n;
@@ -8038,7 +8152,16 @@ TEMPLATES.forEach(t => bodyPanel(t));
 TEMPLATES.forEach(t => warmTheWhites(t));
 try {
   tplDims(TEMPLATES[0]);
-  onAccent({ a1:'#ffffff' });
+  /* The old assertion called onAccent({a1:'#ffffff'}) here. onAccent is a const
+     arrow declared INSIDE the template-building closure, so it is not in scope
+     at this point in the file: the assertion threw a ReferenceError on every
+     single page load, which meant the one guard against a dead pass chain was
+     itself permanently broken, and its error message ("init aborted before the
+     passes ran") was a lie that masked real errors in the console for anyone
+     debugging this file. Assert against a hoisted, top-level thing instead —
+     LAYOUT_FAMILY is a const declared below the pass calls, so touching it here
+     genuinely proves the temporal dead zone was not hit. */
+  if (typeof LAYOUT_FAMILY === 'undefined') throw new Error('LAYOUT_FAMILY unset');
 } catch (e){
   console.error('GraphicsStudio: init aborted before the passes ran — a const ' +
     'below a call site is in the temporal dead zone. Everything after that ' +

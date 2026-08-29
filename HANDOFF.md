@@ -1,8 +1,18 @@
 # BUYBACK.AD Graphics Studio — clean handoff
 
 Written 2026-08-27. Everything below is verified against the live build, not
-remembered. Live: https://studio.scans.ad · source `~/Downloads/gfxv23` ·
-deploy `netlify deploy --prod` from that folder.
+remembered.
+
+**Live URL: https://buybackad-graphics-studio.netlify.app**
+
+`studio.scans.ad` does NOT resolve — `dig` returns no record, the CNAME was
+never created. Netlify prints it after every deploy because it is the configured
+custom domain, not because it works; that URL was reported as live for a whole
+session before anyone checked it. Do not quote it until `dig +short
+studio.scans.ad` answers.
+
+Source `~/Downloads/gfxv23` · deploy `netlify deploy --prod` from that folder.
+Domain options and a ready Cloudflare Worker: `~/Desktop/gfx-deploy/`.
 
 ---
 
@@ -31,6 +41,8 @@ download a post-ready 1080² image.
 | hero | 3 real clickable templates, entrance animation, hover-to-front |
 | colour vs CVD | worst 5.37 against ground under protan/deutan/tritan — clears AA |
 | load | DCL ~0.9s, above-fold art ~1.1s, repeat visit ~212ms |
+| backend function | `/api/me` returns 401 (not 404) — it runs and enforces auth |
+| base-path safety | 0 root-absolute paths; `PGFX_API` derives from `location.pathname`, so the app runs unmodified from `/gfx` or any sub-path |
 
 ## 3. NOT verified — no keys, never exercised
 
@@ -129,6 +141,17 @@ it beat Nano Banana Pro at 5× the price in a measured bakeoff). fal key lives i
 - `CSS_FALLBACK` in app.js is a one-line JSON copy of styles.css and **must be
   regenerated after every CSS edit** (the deploy script does it).
 - Browser caches `app.js` hard; `?v=` on the page URL does not bust it.
+
+## 8b. Hosting
+
+- **Working now:** `buybackad-graphics-studio.netlify.app`
+- **`studio.scans.ad`** — one CNAME (`studio` → `buybackad-graphics-studio.netlify.app`)
+  away from working; Netlify's side is already configured. ~2 minutes.
+- **`reselling.us/gfx`** — reselling.us is a React SPA ("RU CRM v1", the
+  `~/Desktop/unified-crm` project) behind Cloudflare. Its router answers every
+  unknown path with its own shell, so `/gfx` returns 200 today while serving
+  nothing. A ready Worker + route instructions are in `~/Desktop/gfx-deploy/`.
+  No Netlify changes needed — the app is already mount-aware.
 
 ## 9. Resume
 
