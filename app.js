@@ -3,6 +3,15 @@
    PhoneGFX Studio, single clean engine, one script block
    ═══════════════════════════════════════════════════════ */
 
+/* Cutout art ships as alpha WebP, not PNG: the library is ~15x smaller that way
+   (93 MB -> 10 MB across 95 assets), which matters because every cutout is
+   downloaded by the browser and stored in the repo. Declared here at the top,
+   ahead of both use sites (the template `cut()` helper and the street-family
+   picker), because a `const` introduced further down the file would sit in the
+   temporal dead zone for anything above it — the documented failure mode in
+   this codebase. */
+const CUTOUT_EXT = '.webp';
+
 // ---------- safe storage (works standalone; degrades to memory) ----------
 const store = (() => {
   try { const k='__pgfx_t'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return localStorage; }
@@ -703,23 +712,65 @@ const TEMPLATES = [
     pacifico: ['Zodiak', 'Satoshi'],
   };
 
-  // ── per-category copy decks + background photo scenes ──
+  /* ── per-category copy decks + background photo scenes ──
+     PLAIN WORDS, PROFESSIONAL REGISTER. These are two independent axes, and
+     confusing them is how this deck went wrong twice in opposite directions.
+
+                        complex                    simple
+       professional   "PAYING OVER GREYSHEET"   "PAID AT CURRENT RATES"  <- target
+       unprofessional "MELT + PREMIUM OTD"      "YOU DON'T NEED TO KNOW
+                                                 WHAT IT IS"
+
+     The FIRST version of this deck sat in the top-left: "INSTANT ASSAY",
+     "PAYING OVER GREYSHEET", "PSA / CGC / BGS SLABS WANTED", ".925 STERLING".
+     That is a filter at the top of the funnel — a seller who does not already
+     know those words reads "this is not for me" and scrolls past.
+
+     My correction over-shot into the bottom-right: "YOU DO NOT NEED TO KNOW
+     WHAT IT IS", "THAT SHOEBOX COULD BE WORTH MONEY", "CASH TODAY • WE COME TO
+     YOU". Simple, yes — and it reads like a payday lender. The owner's note is
+     exactly right: that copy does not just fail to help, it actively HURTS,
+     because the clientele it attracts is the clientele you do not want. Someone
+     selling an inherited gold collection does not hand it to the business whose
+     ad sounds desperate.
+
+     THE BUSINESS REASON, which outranks the design reason:
+     This is a high-trust transaction — a stranger hands over valuables and
+     takes cash. Confidence is what closes it. A seller with something genuinely
+     valuable is choosing between buyers, and they choose the one that looks
+     like a real business. Desperate copy selects for hagglers, tire-kickers and
+     low-value lots; professional copy selects for the estate, the collection,
+     the clean flagship phone. Same ad spend, different customer.
+
+     RULES:
+       - Plain word for the object. "Old silverware", never "flatware".
+       - Never explain that the reader is ignorant. Instead, remove the need to
+         know: "Free appraisal before you decide" does the same work as "you
+         don't need to know what it is" and signals competence rather than
+         condescension.
+       - Lead with what WE do to professional standard — tested, weighed,
+         written offer, licensed, insured, same-day — not with how little we
+         expect of the seller.
+       - No begging verbs, no hype, no exclamation stacking. Confidence is
+         quiet.
+       - At most one collector term per deck, and only where it signals we are
+         a serious buyer ("Rolex", "Charizard"), never where it gatekeeps. */
   const DECKS = {
-    phones:  { k:'TOP BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME DAY CASH • EASY LOCAL MEETUP\niCLOUD LOCKED, BROKEN, BLACKLISTED\nANY CONDITION • ANY CARRIER', cta:'TEXT US NOW!', price:'UP TO $1,100 PAID TODAY', big:'$1,100', badges:['SAFE','QUICK','EASY'],
+    phones:  { k:'LICENSED BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT, EVERY TIME\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY OR YOU MAIL IT IN', cta:'GET YOUR OFFER', price:'UP TO $1,100 PAID TODAY', big:'$1,100', badges:['LICENSED','INSURED','LOCAL'],
                scene:'extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh' },
-    gold:    { k:'LICENSED BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Coins • Dental • Broken', sub:'TESTED & PAID IN FRONT OF YOU\n10K • 14K • 18K • 24K WELCOME\nESTATES & INHERITANCE HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAYING UP TO 95% OF SPOT', big:'95% SPOT', badges:['TESTED','FAIR','PRIVATE'],
+    gold:    { k:'LICENSED GOLD BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Earrings • Broken Gold', sub:'TESTED AND WEIGHED IN FRONT OF YOU\nWRITTEN OFFER BEFORE YOU DECIDE\nESTATES HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'TOP $', badges:['LICENSED','INSURED','PRIVATE'],
                scene:'molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh' },
-    silver:  { k:'BULLION DESK', h1:'WE BUY', h2:'SILVER', alt2:'STERLING', items:'Flatware • Bars • Sterling • 90% Coins', sub:'INSTANT ASSAY • WATCH THE SCALE\nBARS, ROUNDS, FLATWARE, TEA SETS\nPAYING OVER SPOT ON PREMIUMS', cta:'BRING IT IN TODAY', price:'PAYING OVER SPOT', big:'SPOT+', badges:['ASSAYED','HONEST','FAST'],
+    silver:  { k:'LICENSED BUYER', h1:'WE BUY', h2:'SILVER', alt2:'SILVER', items:'Coins • Bars • Silverware • Jewelry', sub:'WEIGHED IN FRONT OF YOU\nCOINS, BARS, SILVERWARE AND JEWELRY\nPAID BY WEIGHT AT CURRENT RATES', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['LICENSED','INSURED','LOCAL'],
                scene:'stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus' },
-    coins:   { k:'COLLECTIONS WANTED', h1:'RARE', h2:'COINS', alt2:'COIN LOTS', items:'Morgans • Gold Eagles • Proof Sets • Errors', sub:'FULL COLLECTIONS OR SINGLE PIECES\nGRADED & RAW • HONEST NUMISMATIC OFFERS\nHOUSE CALLS FOR LARGE ESTATES', cta:'TEXT PHOTOS FOR OFFER', price:'PAYING OVER GREYSHEET', big:'$25,000', badges:['GRADED','INSURED','LEGIT'],
+    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nHOUSE CALLS FOR LARGE ESTATES', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'$25,000', badges:['LICENSED','INSURED','DISCREET'],
                scene:'antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro' },
-    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nNO TITLE? NO PROBLEM • ASK US\nSAME-DAY PICKUP ACROSS LA & OC', cta:'CALL FOR INSTANT OFFER', price:'UP TO $15,000 CASH', big:'$15,000', badges:['FREE TOW','SAME DAY','CASH'],
+    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nTITLE AND DMV PAPERWORK HANDLED\nSAME-DAY PICKUP ACROSS LA & OC', cta:'GET AN INSTANT OFFER', price:'UP TO $15,000 CASH', big:'$15,000', badges:['FREE TOW','SAME DAY','LICENSED'],
                scene:'dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze' },
-    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Lancets • CGM sensors', sub:'UNEXPIRED & SEALED BOXES ONLY\nFAST LOCAL PICKUP OR MAIL-IN\nTOP BOX PRICES • PAID SAME DAY', cta:'TEXT A PHOTO NOW', price:'TOP BOX PRICES PAID', big:'TOP $', badges:['SEALED','FAST','FAIR'],
+    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nLOCAL PICKUP OR PREPAID MAIL-IN\nPAID THE SAME DAY WE RECEIVE THEM', cta:'GET YOUR OFFER', price:'TOP BOX PRICES PAID', big:'TOP $', badges:['DISCREET','FAST','FAIR'],
                scene:'clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur' },
-    pokemon: { k:'SLABS & VINTAGE', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Slabs • Vintage • Sealed • Bulk lots', sub:'PSA / CGC / BGS SLABS WANTED\nVINTAGE WOTC THROUGH MODERN HITS\nSEALED PRODUCT & BULK COLLECTIONS', cta:'DM YOUR BINDER', price:'TOP SLAB PRICES PAID', big:'$10,000', badges:['PSA','CGC','SEALED'],
+    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Single cards • Full binders • Sealed boxes', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE SORT AND VALUE EVERYTHING FOR YOU\nFREE APPRAISAL, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'TOP PRICES PAID', big:'$10,000', badges:['TRUSTED','INSURED','LOCAL'],
                scene:'holographic trading card close-up with prismatic light refractions on dark felt, dreamy bokeh' },
-    sports:  { k:'VINTAGE & MODERN', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Rookies • Slabs • Wax • Vintage', sub:'ROOKIES, AUTOS, PATCHES, GRAILS\nGRADED OR RAW • REAL COMP PRICING\nENTIRE COLLECTIONS BOUGHT OUTRIGHT', cta:'TEXT YOUR HITS', price:'TOP DOLLAR FOR SLABS', big:'$5,000', badges:['COMPS','CASH','LEGIT'],
+    sports:  { k:'COLLECTIONS WANTED', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Single cards • Full boxes • Collections', sub:'SINGLE CARDS OR FULL COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nWE BUY ENTIRE COLLECTIONS OUTRIGHT', cta:'REQUEST AN APPRAISAL', price:'TOP DOLLAR PAID', big:'$5,000', badges:['TRUSTED','INSURED','LOCAL'],
                scene:'vintage baseball cards fanned on worn wood with stadium light bokeh, nostalgic warm grade' },
   };
 
@@ -774,7 +825,7 @@ const TEMPLATES = [
     return vsWhite > vsDeep ? '#ffffff' : (P.deep || '#0b0b0d');
   };
 
-  const cut = (name, src, props) => ({ kind:'cutout', name, role:'photo', props:Object.assign({ src:'assets/cutouts/' + src + '.png' }, props) });
+  const cut = (name, src, props) => ({ kind:'cutout', name, role:'photo', props:Object.assign({ src:'assets/cutouts/' + src + CUTOUT_EXT }, props) });
   // Hard offset shadow: the STREET family wants the sticker look the clean
   // family forbids. See DESIGN-LAW.md rule 13 for why both are correct.
   const hard = (c, d) => sh(c || 'rgba(0,0,0,0.55)', 0, d || 8, d || 8);
@@ -2076,6 +2127,38 @@ function alignPass(sc, W, H){
       }
     }
   }
+
+  /* ── 4. FIT A BOX TO ITS CONTENT ─────────────────────────────────────────
+     Measured: the median plate was 1.38x the width of the text inside it, the
+     upper quartile 2.05x, the worst a 941px panel around 69px of type — several
+     are authored at a fixed near-full width regardless of what they hold, which
+     reads as a box that missed its content rather than a box around it.
+     Padding is proportional to the type and horizontal is 1.5x vertical, the
+     optical convention; measured it was 79 against 22, nearly 4:1, which is
+     what "excessive margin" looks like. The box keeps its centre so nothing
+     else in the layout shifts. */
+  boxes.forEach(box => {
+    if (box.b.width > W * 0.93) return;                  // full-bleed by design
+    const held = texts.filter(t2 => {
+      const cx = t2.b.left + t2.b.width / 2, cy = t2.b.top + t2.b.height / 2;
+      return cx > box.b.left && cx < box.b.left + box.b.width &&
+             cy > box.b.top  && cy < box.b.top  + box.b.height;
+    });
+    if (held.length !== 1) return;                       // a row or a band: leave it
+    const t2 = held[0];
+    const fs = (t2.o.fontSize || 34) * (t2.o.scaleY || 1);
+    const padV = Math.round(fs * 0.44), padH = Math.round(fs * 0.66);
+    const wantW = t2.b.width + padH * 2, wantH = t2.b.height + padV * 2;
+    if (wantW >= box.b.width - 10 && wantH >= box.b.height - 10) return;   // already snug
+    const cx = box.b.left + box.b.width / 2, cy = box.b.top + box.b.height / 2;
+    const sx = box.o.scaleX || 1, sy = box.o.scaleY || 1;
+    const fw = Math.max(48, wantW), fh = Math.max(30, wantH);
+    box.o.set({ width: fw / sx, height: fh / sy,
+                left: cx - fw / 2, top: cy - fh / 2,
+                originX:'left', originY:'top' });
+    box.o.setCoords();
+    box.b = bb(box.o) || box.b;
+  });
 
   texts.forEach(t => {
     if (/marquee|ticker/i.test(t.o.name || '')) return;  // edge-hugging on purpose
@@ -4245,21 +4328,38 @@ function coverImage(im, w, h){
   return im;
 }
 
-// ═══════════════ SUGGESTED COLOR THEMES (complementary color theory) ═══════════════
-// Each pairs opposite-wheel hues: high-contrast complements are the most
-// click-pulling combination for feed ads. bg = scene, accent = the pop color,
-// ink = body text on that bg.
+/* ═══════════════ SUGGESTED COLOR THEMES ═══════════════
+   Scored, not asserted: run `node scripts/score_themes.mjs`. Every theme is
+   checked for white ink on the dark stop, ACCENT on the dark stop (the accent
+   carries the money word, so 4.5:1 is the floor, not 3:1), and the accent again
+   under protan/deutan/tritan simulation.
+
+   The previous set was built on "opposite-wheel hues pull clicks" and read as a
+   colour-theory exercise rather than as this business: Teal × Coral, Midnight ×
+   Pink and Crimson × Mint are lovely and belong on a festival poster. The
+   owner's note — the ads are "starting to pick some funky duotones" — is that
+   observation from the other side.
+
+   What a cash-buyback ad actually needs, and what this set is built from:
+     - a ground DARK enough that white type never has to fight it,
+     - one warm, high-energy accent doing the money word,
+     - names a non-designer can pick from ("Cash Green", not "Crimson × Mint"),
+     - and the warm/street direction locked in HANDOFF section 6.
+
+   Nine of ten accents are warm or neutral. Clean Slate is the deliberate
+   exception: some sellers respond to a clinical, no-nonsense look, and it is
+   the highest-contrast option in the set at 16.8:1. */
 const COLOR_THEMES = [
-  { name:'Navy × Orange',    bg:{type:'grad', c1:'#132a63', c2:'#0a1533', a:165}, accent:'#ff7a1a', ink:'#ffffff' },
-  { name:'Teal × Coral',     bg:{type:'grad', c1:'#0c5f5b', c2:'#043a37', a:160}, accent:'#ff6f61', ink:'#ffffff' },
-  { name:'Purple × Gold',    bg:{type:'grad', c1:'#4b1d95', c2:'#22093f', a:160}, accent:'#ffd200', ink:'#ffffff' },
-  { name:'Forest × Amber',   bg:{type:'grad', c1:'#14532d', c2:'#052012', a:170}, accent:'#fbbf24', ink:'#ffffff' },
-  { name:'Crimson × Mint',   bg:{type:'grad', c1:'#9f1239', c2:'#3b0716', a:160}, accent:'#6ee7b7', ink:'#ffffff' },
-  { name:'Black × Electric', bg:{type:'grad', c1:'#101018', c2:'#000000', a:180}, accent:'#38bdf8', ink:'#ffffff' },
-  { name:'Charcoal × Lime',  bg:{type:'grad', c1:'#26262e', c2:'#101015', a:180}, accent:'#a3e635', ink:'#ffffff' },
-  { name:'Royal × Tangerine',bg:{type:'grad', c1:'#1e3a8a', c2:'#0b1540', a:160}, accent:'#fb923c', ink:'#ffffff' },
-  { name:'Espresso × Cream', bg:{type:'grad', c1:'#3f2d20', c2:'#1a110a', a:170}, accent:'#f5e6c8', ink:'#ffffff' },
-  { name:'Midnight × Pink',  bg:{type:'grad', c1:'#1e1b4b', c2:'#0a0920', a:165}, accent:'#f472b6', ink:'#ffffff' },
+  { name:'Street Orange', bg:{type:'grad', c1:'#1c1108', c2:'#0a0603', a:170}, accent:'#ff8c33', ink:'#ffffff' },
+  { name:'Cash Green',    bg:{type:'grad', c1:'#123123', c2:'#050f0a', a:170}, accent:'#4ade80', ink:'#ffffff' },
+  { name:'Gold Standard', bg:{type:'grad', c1:'#241a08', c2:'#0d0903', a:170}, accent:'#fbbf24', ink:'#ffffff' },
+  { name:'Money Amber',   bg:{type:'grad', c1:'#1a1206', c2:'#080502', a:170}, accent:'#ffc247', ink:'#ffffff' },
+  { name:'Deep Red',      bg:{type:'grad', c1:'#2a0a0e', c2:'#0d0305', a:170}, accent:'#ff6b57', ink:'#ffffff' },
+  { name:'Night Blue',    bg:{type:'grad', c1:'#0f1b3d', c2:'#050916', a:170}, accent:'#ffa62b', ink:'#ffffff' },
+  { name:'Charcoal Lime', bg:{type:'grad', c1:'#1a1a1f', c2:'#0a0a0d', a:180}, accent:'#b6f24a', ink:'#ffffff' },
+  { name:'Warm Cream',    bg:{type:'grad', c1:'#2b2015', c2:'#0f0b07', a:170}, accent:'#f7e3bd', ink:'#ffffff' },
+  { name:'Electric Cyan', bg:{type:'grad', c1:'#07222b', c2:'#030d11', a:170}, accent:'#5fd8f0', ink:'#ffffff' },
+  { name:'Clean Slate',   bg:{type:'grad', c1:'#141a20', c2:'#06090c', a:175}, accent:'#e8ecef', ink:'#ffffff' },
 ];
 function applyColorTheme(th){
   ez.bg = { type:'grad', c1: th.bg.c1, c2: th.bg.c2, a: th.bg.a };
@@ -5940,8 +6040,8 @@ function enforcePlateSolidity(t){
   return fixed;
 }
 /* ═══════════════ BRAND VOCABULARY ═══════════════
-   Recognition comes from NAMES. "We buy phones" is a category; "iPHONE 15 PRO
-   MAX · GALAXY S24 · PIXEL 8" is a reason to stop scrolling, and it is what
+   Recognition comes from NAMES. "We buy phones" is a category; "iPHONE 17 PRO
+   MAX · GALAXY S26 · PIXEL 11" is a reason to stop scrolling, and it is what
    every real buyback shopfront puts in its window.
 
    These are word marks used nominatively — naming the goods this buyer
@@ -5949,20 +6049,47 @@ function enforcePlateSolidity(t){
    TEXT ONLY: no logo lockups, no characters, no team or marque artwork. Those
    are protected designs and not ours to redistribute in a template library.
 
+   TWO RULES LEARNED FROM THE OWNER, 2026-08-29:
+
+   1. NAME THE CURRENT GENERATION. The list read "iPHONE 15 PRO MAX · GALAXY
+      S24 ULTRA · PIXEL 8" — three generations stale in 2026, which tells a
+      seller this business has not bought a phone in two years and dates every
+      ad in the library at a glance. Anything model-specific must be
+      cross-referenced against the current line-up whenever the library is
+      touched. Current at time of writing: iPhone 17 / 17 Pro Max / iPhone Air,
+      Galaxy S26 Ultra, Pixel 11.
+
+   2. PLAIN WORDS, PROFESSIONAL REGISTER — two independent axes. The original
+      list was complex AND professional (".925 STERLING", "PRE-1965", "BOWMAN
+      1ST", "PSA / BGS / SGC"): it reads as competent but filters out any seller
+      who is not already a collector, which is a filter at the very top of the
+      funnel. The first correction went simple AND unprofessional ("GOLD TEETH",
+      "ANY AMOUNT", "OLD COLLECTIONS"): legible to everyone and signalling pawn
+      shop, which attracts hagglers and low-value lots.
+
+      The target is simple AND professional. Name the object in the word a
+      normal person uses, and let the surrounding copy carry the credentials.
+      "Gold jewelry" and "Estate collections" are both plainer than the original
+      AND more professional than the over-correction.
+
+      This matters commercially, not just aesthetically: a seller with a real
+      collection is choosing between buyers, and picks the one that looks like a
+      business. Same ad spend, different customer.
+
    Only replaces a line that is already an enumeration AND carries no proper
    noun of its own — several categories were authored with good specifics
    ("Base Set • Charizards • 1st Editions", "JORDAN • BRADY • MANTLE") and
    overwriting those would trade real copy for a generic list. Keeps the
    original line COUNT so nothing reflows, and follows the line's own casing. */
 const BRAND_WORDS = {
-  phones:  ['iPHONE 15 PRO MAX','GALAXY S24 ULTRA','PIXEL 8','iPAD','MACBOOK','APPLE WATCH'],
-  pokemon: ['BASE SET','CHARIZARD','1ST EDITION','BOOSTER BOXES','PSA 10','SHADOWLESS'],
-  sports:  ['PRIZM','TOPPS CHROME','BOWMAN 1ST','PSA / BGS / SGC','ROOKIE AUTOS','NUMBERED'],
-  gold:    ['10K / 14K / 18K / 24K','ROLEX','CARTIER','TIFFANY','DENTAL GOLD','BROKEN CHAINS'],
-  silver:  ['SILVER EAGLES','MORGAN DOLLARS','.925 STERLING','100 OZ BARS','JUNK SILVER','FLATWARE'],
-  coins:   ['MORGAN','PEACE DOLLAR','WALKING LIBERTY','GOLD EAGLES','PRE-1965','WHEAT CENTS'],
+  phones:  ['iPHONE 17 PRO MAX','GALAXY S26 ULTRA','PIXEL 11','iPAD','MACBOOK','APPLE WATCH'],
+  pokemon: ['POKEMON CARDS','CHARIZARD','VINTAGE SETS','BOOSTER BOXES','SEALED PRODUCT','FULL BINDERS'],
+  sports:  ['SPORTS CARDS','ROOKIE CARDS','AUTOGRAPHS','UNOPENED BOXES','VINTAGE CARDS','FULL SETS'],
+  gold:    ['GOLD JEWELRY','ROLEX','CLASS RINGS','GOLD CHAINS','ESTATE PIECES','BROKEN OR WORN'],
+  silver:  ['SILVER COINS','SILVER BARS','SILVERWARE','SILVER JEWELRY','SILVER DOLLARS','TEA SETS'],
+  coins:   ['OLD COINS','SILVER DOLLARS','GOLD COINS','COIN COLLECTIONS','ESTATE COLLECTIONS','PROOF SETS'],
   cars:    ['TOYOTA','HONDA','FORD','CHEVY','BMW','RUNNING OR NOT'],
-  strips:  ['ONETOUCH','ACCU-CHEK','FREESTYLE','DEXCOM','CONTOUR','SEALED BOXES'],
+  strips:  ['DIABETIC TEST STRIPS','SEALED BOXES','ALL MAJOR BRANDS','IN-DATE ONLY','LOCAL PICKUP','SAME-DAY PAYMENT'],
 };
 const LIST_LAYER = /^(Items|Info|Info Text|Devices|Sub|Subline|Who|Reward|Data Line|Offer Line|Line|Body|Detail|Kicker)$/;
 /* Proper nouns only — a name a shopper would recognise, never a material or a
@@ -6425,6 +6552,21 @@ function highlightBudget(t){
   const px1 = px0 + approxW;
 
   const plates = (t.layers || []).filter(l => l.kind === 'rect' && l.props);
+  /* THREE PLATE TREATMENTS, not one. Measured: 128 of 135 plates were the same
+     off-white, so every ad carried an identical pale bar and the number stopped
+     reading as a decision — it read as a default. What the reference set wants
+     is a BRIGHT NOTE, not specifically a white one; a saturated plate in the
+     category hue is just as bright and belongs to the design rather than
+     sitting on top of it. Picked by template id so a category shows all three
+     across its templates instead of one on repeat. Ink is paired to the plate
+     here rather than assumed near-black further down. */
+  const _C = (typeof CAT_COLOUR !== 'undefined' && CAT_COLOUR[t.cat]) || null;
+  let _k = 0; for (let _i = 0; _i < t.id.length; _i++) _k = (_k * 31 + t.id.charCodeAt(_i)) >>> 0;
+  const _kind = _C ? _k % 3 : 0;
+  const PLATE_FILL = _kind === 0 ? '#f6f2ea'
+                   : _kind === 1 ? setL(_C.money, 0.62)
+                   :               setL(_C.money, 0.20);
+  const PLATE_INK  = _kind === 2 ? setL(_C.money, 0.93) : '#141110';
   /* A host must genuinely sit BEHIND the number, in both axes.
      Intersection is not enough. st_gold_pricetag's "Claim Plate" spans y
      836..932 while the phone runs 908..1063, so they overlap by 24px — 15% of
@@ -6464,8 +6606,8 @@ function highlightBudget(t){
        plates this pass touches and is the single largest cause of unreadable
        phone numbers in the library. */
     delete host.props.grad;
-    host.props.fill = '#f6f2ea'; host.solid = true;
-    phone.props.fill = '#141110'; delete phone.props.grad;
+    host.props.fill = PLATE_FILL; host.solid = true;
+    phone.props.fill = PLATE_INK; delete phone.props.grad;
     delete phone.props.stroke; delete phone.props.strokeWidth; delete phone.props.shadow;
     return 1;
   }
@@ -6481,9 +6623,9 @@ function highlightBudget(t){
   const pl = Math.max(24, px0 - padX);
   const pr = Math.min(TPL_W - 24, px1 + padX);
   t.layers.unshift({ kind:'rect', name:'Phone Plate', solid:true,
-    props:{ left:pl, top:top, width:Math.max(120, pr - pl), height:h, rx:18, ry:18, fill:'#f6f2ea',
+    props:{ left:pl, top:top, width:Math.max(120, pr - pl), height:h, rx:18, ry:18, fill:PLATE_FILL,
             shadow:{ color:'rgba(0,0,0,0.45)', blur:30, offsetX:0, offsetY:12 } } });
-  phone.props.fill = '#141110'; delete phone.props.grad;
+  phone.props.fill = PLATE_INK; delete phone.props.grad;
   delete phone.props.stroke; delete phone.props.strokeWidth; delete phone.props.shadow;
   return 1;
 }
@@ -6771,13 +6913,45 @@ function opticalTracking(t){
               flat colour ground discards the only detail and palette we have.
 
    Split deterministically by template id so the assignment is stable across
-   reloads, and skewed toward the two new looks because the point is change. */
-const STYLE_MIX = ['duotone','wash','duotone','photo','wash','duotone'];
+   reloads, and skewed toward the two new looks because the point is change.
+
+   ═══ ASSIGNED BY CATEGORY, NOT BY HASH (2026-08-29) ═══
+   This used to be STYLE_MIX[hash(id) % 6] — the same lottery that produced the
+   owner's "it's picking funky duotones" note. A hash gives every category the
+   same 50/33/17 split regardless of whether that treatment suits the goods,
+   which is how a diabetic-supply ad ended up with a saturated volt duotone and
+   a gold ad ended up flat and grey. Style is a DESIGN decision about what the
+   category is selling, so it is now stated per category:
+
+     gold / coins / silver   the metal IS the product and its specular
+                             highlights are the reason someone stops. Mostly
+                             PHOTO, never a heavy colour drive.
+     phones / cars           hard goods that read well art-directed; duotone
+                             earns its keep here.
+     pokemon / sports        colour-forward hobby categories; duotone and wash
+                             both suit them.
+     strips                  clinical and trust-led; photo, kept calm.
+
+   Within a category the choice is still deterministic by id, so the mix stays
+   varied and stable across reloads — but it is a mix chosen for that category
+   rather than one imposed on all eight. */
+const STYLE_BY_CAT = {
+  gold:    ['photo','photo','duotone','photo'],
+  silver:  ['photo','photo','duotone','photo'],
+  coins:   ['photo','photo','photo','duotone'],
+  phones:  ['duotone','photo','duotone','wash'],
+  cars:    ['duotone','duotone','photo','wash'],
+  pokemon: ['duotone','wash','duotone','photo'],
+  sports:  ['duotone','wash','photo','duotone'],
+  strips:  ['photo','photo','wash','photo'],
+};
+const STYLE_MIX = ['duotone','wash','duotone','photo','wash','duotone'];  // fallback only
 function assignStyle(t){
   if (!t.bg || !t.cat) return 0;
   const C = CAT_COLOUR[t.cat]; if (!C) return 0;
   let h = 0; for (let i = 0; i < t.id.length; i++) h = (h * 33 + t.id.charCodeAt(i)) >>> 0;
-  const style = STYLE_MIX[h % STYLE_MIX.length];
+  const mix = STYLE_BY_CAT[t.cat] || STYLE_MIX;
+  const style = mix[h % mix.length];
   t.style = style;
   if (style === 'duotone' && t.bg.type === 'image' && !t.bg.scrimColor){
     /* Shadows to a deep version of the category hue, highlights to the
@@ -6959,7 +7133,7 @@ function addProductCutout(t){
   if (SIZE < 300) return 0;                             // too cramped to read as a product
 
   let h = 0; for (let i = 0; i < t.id.length; i++) h = (h * 31 + t.id.charCodeAt(i)) >>> 0;
-  const src = 'assets/cutouts/' + pool[h % pool.length] + '.png';
+  const src = 'assets/cutouts/' + pool[h % pool.length] + CUTOUT_EXT;
   const left = best.x * cell + (px - SIZE) / 2;
   const top  = best.y * cell + (px - SIZE) / 2;
 
@@ -8183,6 +8357,447 @@ TEMPLATES.forEach(t => bodyPanel(t));
    the tint existed. Whatever colour the contrast work lands on, this is the
    final word on it. */
 TEMPLATES.forEach(t => warmTheWhites(t));
+
+/* ═══════════════ GRADIENT INK CONTRAST (rule 51) ═══════════════
+   Appended, not spliced (rule 42).
+
+   inkVsWash reads `l.props.fill` to decide whether type clears its ground. A
+   gradient-filled layer has no meaningful `fill` — the colour lives in
+   `props.grad` — so hexLum() returned null and EVERY gradient headline was
+   skipped by the one pass that exists to guarantee legibility.
+
+   Measured with scripts/legibility_audit.mjs, which renders each text layer
+   twice (with and without) and diffs the pixels: 151 headline/CTA layers across
+   102 of 243 templates were below WCAG for their size, and the two worst layer
+   names were "Headline 2" (52) and "CTA" (52) — precisely the two the library
+   fills with a gradient. This is the same class of bug as rule 45: a pass that
+   reads one property while the renderer paints another.
+
+   Fix: judge a gradient by its WORST stop, because the ink has to survive the
+   dark end of the ramp, not the average. Where it fails, walk BOTH stops toward
+   the tone the ground is not, keeping hue (rule 31) so the palette survives. */
+function gradInkContrast(t){
+  const groundOf = (l, plates, wash) => {
+    const x = l.props.left || 0;
+    const mid = (l.props.top || 0) + (l.props.fontSize || 40) * 0.5;
+    const p = plates.find(r => {
+      const L=r.props.left||0, T=r.props.top||0, W=r.props.width||0, H=r.props.height||0;
+      return W && H && x >= L-10 && x <= L+W+10 && mid >= T && mid <= T+H;
+    });
+    if (!p) return wash;
+    const g = p.props.grad;
+    if (g){
+      const a = hexLum(String(g.c1)), b = hexLum(String(g.c2));
+      if (a !== null && b !== null) return (a + b) / 2;
+    }
+    return hexLum(String(p.props.fill));
+  };
+
+  const plates = (t.layers||[]).filter(l => (l.kind==='rect'||l.kind==='rrect') && l.props);
+  const wash = (t.bg && t.bg.type === 'image') ? washGroundLum(t) : 0.12;
+  let fixed = 0;
+
+  (t.layers||[]).forEach(l => {
+    if (typeof l.text !== 'string' || !l.props || l.role === 'deco') return;
+    const g = l.props.grad;
+    if (!g || !g.c1 || !g.c2) return;                 // fill-only layers: inkVsWash owns them
+    const ground = groundOf(l, plates, wash);
+    if (ground === null || ground === undefined) return;
+
+    const fs = l.props.fontSize || 40;
+    // WCAG: 3:1 is the floor for large text, which every headline here is.
+    const want = fs >= 30 ? 3.0 : 4.5;
+    const l1 = hexLum(String(g.c1)), l2 = hexLum(String(g.c2));
+    if (l1 === null || l2 === null) return;
+    const crOf = a => (Math.max(a,ground)+0.05)/(Math.min(a,ground)+0.05);
+    const worst = Math.min(crOf(l1), crOf(l2));
+    if (worst >= want) return;
+
+    const up = ground < 0.4;
+    const tgt = up ? (want*(ground+0.05)-0.05) : ((ground+0.05)/want-0.05);
+    g.c1 = liftInk(String(g.c1), tgt, up);
+    g.c2 = liftInk(String(g.c2), tgt, up);
+    fixed++;
+  });
+  return fixed;
+}
+/* Runs AFTER warmTheWhites for the same reason warmTheWhites runs last: it is
+   the final word on the colour a layer ends up with. A contrast repair placed
+   before the tint gets undone by it. */
+TEMPLATES.forEach(t => gradInkContrast(t));
+
+/* ═══════════════ PANEL DIET (rule 52) ═══════════════
+   Appended, not spliced (rule 42).
+
+   The owner's read: "too much white background bubbles", "a lot of giant boxes
+   that extend beyond the image that leave a solid color or some sort of
+   gradient fill", "looking pretty cheesy".
+
+   Measured with scripts/cheese_audit.mjs:
+     - 17 templates where near-white panels cover >22% of the frame, worst 87.7%
+     - 24 templates with a large rect bleeding off the canvas edge
+     - 36 templates where flat colour covers >55% of the frame, worst 159%
+
+   All three are the same failure: the design stops being a PHOTOGRAPH with type
+   on it and becomes a coloured box with a photo peeking out. A buyback ad sells
+   trust by showing the actual goods, so burying the photograph is not a style
+   choice, it is the product going missing. HANDOFF section 6 already locks
+   "every template keeps a photograph"; nothing enforced it.
+
+   Three bounded corrections, in order of how loudly they read:
+
+   1. A near-white panel covering more than a third of the frame is knocked back
+      to a translucent version of itself. It still separates its type — that is
+      what the alpha is for — but the photograph shows through instead of being
+      replaced by a white slab.
+   2. A rect that bleeds off an edge AND covers a sixth of the frame is pulled
+      inside the margin. A band that runs to the bleed reads as a print artifact
+      on a feed post; the same band inset reads as deliberate.
+   3. Anything still opaque and enormous after those two gets an alpha so the
+      backdrop survives.
+
+   Deliberately does NOT touch small plates: the phone plate, chips, ticks and
+   badges are all doing legibility work that rules 21 and 45 depend on. The
+   threshold is area, because that is what the complaint was about. */
+const PANEL_MAX_WHITE = 0.34;   // fraction of frame a near-white panel may own
+const PANEL_MAX_ANY   = 0.55;   // fraction any single opaque plate may own
+function panelDiet(t){
+  if (!t.bg || t.bg.type !== 'image') return 0;   // flat-ground designs need their panels
+  const A = TPL_W * TPL_H;
+  const M = 26;                                   // margin the design already uses
+  let n = 0;
+
+  (t.layers||[]).forEach(l => {
+    if ((l.kind !== 'rect' && l.kind !== 'rrect') || !l.props) return;
+    const p = l.props;
+    const w = p.width || 0, h = p.height || 0;
+    if (!w || !h) return;
+    const frac = (w * h) / A;
+    if (frac < 0.16) return;                      // small plates are load-bearing, leave them
+
+    // 2. pull a big bleeding box back inside the frame
+    const bleeds = (p.left||0) < -6 || (p.top||0) < -6 ||
+                   (p.left||0) + w > TPL_W + 6 || (p.top||0) + h > TPL_H + 6;
+    if (bleeds){
+      const nl = Math.max(M, p.left || 0);
+      const nt = Math.max(M, p.top || 0);
+      const nr = Math.min(TPL_W - M, (p.left||0) + w);
+      const nb = Math.min(TPL_H - M, (p.top||0) + h);
+      if (nr - nl > 80 && nb - nt > 60){
+        p.left = nl; p.top = nt; p.width = nr - nl; p.height = nb - nt;
+        if (p.rx === undefined) { p.rx = 20; p.ry = 20; }
+        n++;
+      }
+    }
+
+    // 1 & 3. an enormous opaque slab gets an alpha so the photograph survives
+    const hex = String(p.fill || '');
+    const L = /^#[0-9a-f]{6}$/i.test(hex) ? hexLum(hex) : null;
+    const area = ((p.width||0) * (p.height||0)) / A;
+    const isWhite = L !== null && L > 0.55;
+    const tooMuch = isWhite ? area > PANEL_MAX_WHITE : area > PANEL_MAX_ANY;
+    if (tooMuch && /^#[0-9a-f]{6}$/i.test(hex)){
+      /* Translucent, not deleted. The panel is still the reason its type is
+         readable; it just stops being the whole picture. 0.80 keeps a
+         comfortable margin over the 4.5:1 the ink needs while letting the
+         backdrop read through. Solidity is dropped so enforcePlateSolidity's
+         guarantee is not silently claimed for a plate that no longer has it. */
+      const n2 = parseInt(hex.slice(1), 16);
+      p.fill = `rgba(${(n2>>16)&255},${(n2>>8)&255},${n2&255},0.80)`;
+      delete l.solid;
+      n++;
+    }
+  });
+  return n;
+}
+TEMPLATES.forEach(t => panelDiet(t));
+
+/* ═══════════════ LOCAL GROUND CONTRAST (rule 53) ═══════════════
+   Appended, not spliced (rule 42). THE LAST WORD ON INK COLOUR.
+
+   Every contrast pass before this one asks "what is the average luminance of
+   the backdrop" and compares the ink to that. On a banded gradient scrim, and
+   on any template carrying plates, that average is not the ground under any
+   particular layer. Measured on st_silver_topstrip:
+
+       washGroundLum() reports   0.0575
+       true frame average        0.1948
+       ground under the CTA      0.8892   <- the bright phone plate
+
+   So a near-white CTA (#eef5fb) was judged against 0.06 — a comfortable 15:1 —
+   while actually sitting on 0.89 and rendering at 1.02:1. White on white. The
+   pass was not wrong about its own arithmetic; it was answering a question
+   about the frame when the only question that matters is local.
+
+   This walks the FINAL layer stack in paint order and, for each text layer,
+   resolves the ground from the topmost thing actually beneath it — plate,
+   panel, or the wash — then repairs anything short of WCAG for its size,
+   preserving hue via liftInk (rule 31).
+
+   Rule: contrast is a property of a PLACE, not of a template. Anything that
+   compares ink to a frame-wide average will eventually put white on white. */
+function localGroundContrast(t){
+  const layers = t.layers || [];
+  const wash = (t.bg && t.bg.type === 'image') ? (washGroundLum(t) || 0.12) : 0.12;
+
+  const alphaOf = c => {
+    const m = String(c).match(/rgba?\([^)]*,\s*([\d.]+)\s*\)/);
+    return m ? parseFloat(m[1]) : 1;
+  };
+  const lumOfFill = c => {
+    const s = String(c || '');
+    if (/^#[0-9a-f]{6}$/i.test(s)) return { L: hexLum(s), a: 1 };
+    const m = s.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (!m) return null;
+    const hex = '#' + [1,2,3].map(i => (+m[i]).toString(16).padStart(2,'0')).join('');
+    return { L: hexLum(hex), a: alphaOf(s) };
+  };
+
+  let fixed = 0;
+  layers.forEach((l, li) => {
+    if (typeof l.text !== 'string' || !l.props || l.role === 'deco') return;
+    const p = l.props;
+    const fs = p.fontSize || 40;
+    const x  = p.left || 0;
+    const mid = (p.top || 0) + fs * 0.5;
+
+    /* The ground is the LAST plate painted before this text that contains its
+       middle — last, because that is the one on top. Searching from the start
+       finds a panel that something else has since covered. */
+    let ground = wash;
+    for (let i = 0; i < li; i++){
+      const r = layers[i];
+      if ((r.kind !== 'rect' && r.kind !== 'rrect') || !r.props) continue;
+      const q = r.props;
+      const L = q.left||0, T = q.top||0, W = q.width||0, H = q.height||0;
+      if (!W || !H) continue;
+      if (!(x >= L - 12 && x <= L + W + 12 && mid >= T && mid <= T + H)) continue;
+      const g = q.grad;
+      if (g && g.c1 && g.c2){
+        const a = hexLum(String(g.c1)), b = hexLum(String(g.c2));
+        if (a !== null && b !== null){ ground = (a + b) / 2; continue; }
+      }
+      const f = lumOfFill(q.fill);
+      if (!f || f.L === null) continue;
+      // a translucent panel only partly replaces what is under it
+      ground = f.a >= 0.95 ? f.L : (f.L * f.a + ground * (1 - f.a));
+    }
+
+    const want = fs >= 30 ? 3.0 : 4.5;
+    const crOf = a => (Math.max(a,ground)+0.05)/(Math.min(a,ground)+0.05);
+
+    const g = p.grad;
+    if (g && g.c1 && g.c2){
+      const a = hexLum(String(g.c1)), b = hexLum(String(g.c2));
+      if (a === null || b === null) return;
+      if (Math.min(crOf(a), crOf(b)) >= want) return;
+      const up = ground < 0.45;
+      const tgt = up ? (want*(ground+0.05)-0.05) : ((ground+0.05)/want-0.05);
+      g.c1 = liftInk(String(g.c1), tgt, up);
+      g.c2 = liftInk(String(g.c2), tgt, up);
+      fixed++;
+      return;
+    }
+
+    const f = lumOfFill(p.fill);
+    if (!f || f.L === null) return;
+    if (crOf(f.L) >= want) return;
+    const up = ground < 0.45;
+    const tgt = up ? (want*(ground+0.05)-0.05) : ((ground+0.05)/want-0.05);
+    /* liftInk only parses #rrggbb. Handing it an rgba() string made it return
+       its fallback (#f7f3ec / #141110), throwing the layer's hue away and
+       occasionally landing on exactly the tone it was trying to escape. Convert
+       first, and drop the alpha: a layer that fails contrast cannot afford to
+       be translucent, since the transparency is part of why it failed. */
+    const hexIn = /^#[0-9a-f]{6}$/i.test(String(p.fill))
+      ? String(p.fill)
+      : (() => { const m = String(p.fill).match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+                 return m ? '#' + [1,2,3].map(i=>(+m[i]).toString(16).padStart(2,'0')).join('') : null; })();
+    if (!hexIn) return;
+    p.fill = liftInk(hexIn, tgt, up);
+    fixed++;
+  });
+  return fixed;
+}
+TEMPLATES.forEach(t => localGroundContrast(t));
+
+/* ═══════════════ MEASURED CONTRAST REPAIR (rule 54) ═══════════════
+   Appended, not spliced (rule 42). THE ACTUAL last word on ink colour.
+
+   Every pass above this one MODELS the ground: washGroundLum() averages the
+   frame, localGroundContrast resolves the topmost plate. Both are arithmetic
+   on an estimate, and a photograph is not a single luminance. "SELL YOUR" at
+   240px spans a headlight, a shadow and a wall; the average of those describes
+   none of them. Measured on neon_sell: band-average said 5.20:1, the actual
+   glyph pixels said 1.15:1, because the letters land on the bright part.
+
+   DESIGN-LAW rule 34 says never model a blend, measure it. So the measurement
+   is done offline by scripts/bake_contrast.mjs — which renders every template,
+   diffs each text layer against its own absence to recover the true ink and the
+   true ground PER GLYPH, and takes the percentile of the ground nearest the ink
+   rather than its mean — and the result is shipped as assets/contrast-fix.json.
+   This pass applies that table.
+
+   Offline because the measurement costs two full canvas renders per text layer,
+   1,863 of them. That is fine in a build step and unacceptable on page load.
+
+   REGENERATE THE TABLE after any change to the passes, the palette, or the
+   backdrops: `node scripts/bake_contrast.mjs`. A stale table is not dangerous —
+   entries are matched by template id + layer name and simply miss if either
+   changed — but it will silently stop repairing things. */
+let CONTRAST_FIX = null;
+function applyMeasuredContrast(){
+  if (!CONTRAST_FIX || !CONTRAST_FIX.length) return 0;
+  const byId = {};
+  CONTRAST_FIX.forEach(f => { (byId[f.id] ||= {})[f.layer] = f; });
+  let fixed = 0;
+  TEMPLATES.forEach(t => {
+    const m = byId[t.id]; if (!m) return;
+    (t.layers||[]).forEach(l => {
+      const f = m[l.name]; if (!f || !l.props) return;
+      const ground = f.ground;
+      const want = (l.props.fontSize || f.fs || 40) >= 30 ? 3.0 : 4.5;
+      /* Push a little past the requirement. Landing exactly on 3.00 leaves no
+         headroom for JPEG ringing or for a user swapping the backdrop. */
+      const target = want * 1.12;
+      const up = ground < 0.45;
+      const tgt = up ? (target*(ground+0.05)-0.05) : ((ground+0.05)/target-0.05);
+      const g = l.props.grad;
+      if (g && g.c1 && g.c2){
+        g.c1 = liftInk(String(g.c1), tgt, up);
+        g.c2 = liftInk(String(g.c2), tgt, up);
+      } else if (typeof l.props.fill === 'string' && /^#[0-9a-f]{6}$/i.test(l.props.fill)){
+        l.props.fill = liftInk(l.props.fill, tgt, up);
+      } else if (typeof l.props.fill === 'string' && /^rgba?\(/i.test(l.props.fill)){
+        /* rgba() fills are NOT a rare edge case — the library uses them for
+           every semi-transparent headline and sub, and the first version of
+           this pass tested only /^#[0-9a-f]{6}$/ and skipped them silently.
+           That is why the first bake made things WORSE: 131 of the 162
+           remaining failures were layers this pass had "repaired" by returning
+           early. Convert to hex, lift, and drop the alpha — a layer that failed
+           contrast cannot also afford to be translucent, because the alpha is
+           itself part of why it failed. */
+        const m = l.props.fill.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+        if (!m) return;
+        const hex = '#' + [1,2,3].map(i => (+m[i]).toString(16).padStart(2,'0')).join('');
+        l.props.fill = liftInk(hex, tgt, up);
+      } else return;
+      /* SEPARATION DEVICE, not just a hue change.
+         Measured after the ink repair converged: 33 of the 140 remaining
+         failures were >=1.0 short of their target, and no ink colour can close
+         that gap — the ground under one headline spans a headlight AND a
+         shadow, so "contrast against the average" is not contrast against every
+         pixel. Past that point the fix is to give the letterform its own edge
+         rather than keep walking its colour toward a wall it cannot reach.
+
+         Halo tone follows the GROUND, not the ink (rule 27): a ring of the tone
+         the ground is not. Scaled with the type, because a fixed 14px blur is
+         invisible behind a 240px headline and swamps a 28px CTA.
+
+         The stroke is reserved for large type that is badly short. DESIGN-LAW
+         warns that outlined type is an amateur signal (rule 3 in the clean
+         family) — it is the last resort here precisely because of that, gated
+         on >=60px and >=1.0 shortfall, so it lands on a handful of hero
+         headlines rather than becoming a house style. */
+      const isHero = l.role === 'headline' || l.role === 'phone' || l.role === 'cta';
+      if (isHero && !f.onPlate){
+        const fsz = l.props.fontSize || f.fs || 40;
+        if (!l.props.shadow){
+          l.props.shadow = { color: up ? 'rgba(0,0,0,0.62)' : 'rgba(255,255,255,0.50)',
+                             blur: Math.max(10, Math.round(fsz * 0.16)),
+                             offsetX: 0, offsetY: 2 };
+        }
+        const shortfall = want - (f.cr || want);
+        if (shortfall >= 1.0 && !l.props.stroke && fsz >= 60){
+          l.props.stroke = up ? '#000000' : '#ffffff';
+          l.props.strokeWidth = Math.max(2, Math.round(fsz * 0.035));
+        }
+      }
+      fixed++;
+    });
+  });
+  return fixed;
+}
+/* ═══════════════ PLATE GRADIENT PURGE (rule 45, enforced) ═══════════════
+   Rule 45 says a pass that sets `fill` must delete `grad`, because buildLayer
+   prefers the gradient. highlightBudget was fixed to do that, but it is not the
+   only writer: plates authored with BOTH a solid fill and a gradient still ship
+   the gradient, and any pass that later reasons about `fill` is reasoning about
+   a colour that never paints.
+
+   Caught by eye, not by the audit: st_phones_splitcol's phone plate carries
+   fill #40d8a1 AND grad #a8dec5 -> #66bc97, so a mint number sat on a mint
+   plate and read as invisible — while the pixel audit scored it 6.74:1, because
+   averaging ink over a plate the ink MATCHES flatters the result. Two
+   instruments, both wrong in the same direction; only looking at the render
+   found it.
+
+   So: any plate that carries ink loses its gradient and keeps its solid fill.
+   Applied to every rect a text layer sits on, not just the ones one pass
+   happened to touch. */
+function purgePlateGradients(t){
+  const layers = t.layers || [];
+  let n = 0;
+  layers.forEach((l, li) => {
+    if (typeof l.text !== 'string' || !l.props) return;
+    const x = l.props.left || 0;
+    const mid = (l.props.top || 0) + (l.props.fontSize || 40) * 0.5;
+    for (let i = 0; i < li; i++){
+      const r = layers[i];
+      if ((r.kind !== 'rect' && r.kind !== 'rrect') || !r.props) continue;
+      const q = r.props;
+      if (!q.grad || !q.grad.c1) continue;
+      const L = q.left||0, T = q.top||0, W = q.width||0, H = q.height||0;
+      if (!W || !H) continue;
+      if (!(x >= L - 12 && x <= L + W + 12 && mid >= T && mid <= T + H)) continue;
+      /* Keep the gradient's own darker stop as the solid colour when there is
+         no usable fill, so the plate keeps its hue instead of snapping to a
+         default. The ink is repaired against whatever this lands on by the
+         measured pass below. */
+      const keep = /^#[0-9a-f]{6}$/i.test(String(q.fill)) ? String(q.fill) : String(q.grad.c2 || q.grad.c1);
+      delete q.grad;
+      q.fill = keep;
+      r.solid = true;
+      n++;
+    }
+  });
+  return n;
+}
+TEMPLATES.forEach(t => purgePlateGradients(t));
+
+/* Fetched, not inlined: the table is data, it changes on its own cadence, and
+   inlining 657 records into app.js would bloat the file every rebake. The app
+   renders correctly without it — this only ever improves contrast — so a failed
+   fetch degrades to the modelled passes above rather than breaking the page.
+
+   RELATIVE path, exactly like every backdrop in TEMPLATES ('assets/tplbg/...'),
+   which is what keeps the app mount-aware: it runs unmodified from '/' or from
+   '/gfx' with no base-path variable to get wrong. */
+(function loadContrastFix(){
+  try {
+    /* ?nofix=1 skips the table entirely. scripts/bake_contrast.mjs uses it to
+       measure the MODELLED state: it is the tool that produces this table, so
+       if it measured a page that had already applied the previous one it would
+       see repaired colours, find nothing wrong, and bake an empty file —
+       silently undoing every repair on the next deploy. */
+    if (typeof location !== 'undefined' && /[?&]nofix=1\b/.test(location.search)) return;
+    fetch('assets/contrast-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => {
+        if (!Array.isArray(j) || !j.length) return;
+        CONTRAST_FIX = j;
+        if (!applyMeasuredContrast()) return;
+        // recolouring invalidates cached thumbnails; THUMBS is a const object,
+        // so clear its keys rather than rebinding it.
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
 try {
   tplDims(TEMPLATES[0]);
   /* The old assertion called onAccent({a1:'#ffffff'}) here. onAccent is a const
