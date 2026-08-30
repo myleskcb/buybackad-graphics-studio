@@ -370,28 +370,4 @@ figcaption span{color:var(--dim);font-size:11px}
 <figure class="a" data-k="background" data-c="strips" data-s="dl_strips_trustSeal_emerald"><div class="ph"><img loading="lazy" src="assets/bg/dl_strips_trustSeal_emerald.jpg" alt="dl_strips_trustSeal_emerald"></div><figcaption><b>dl_strips_trustSeal_emerald</b><span>strips · — · 121KB</span></figcaption></figure>
 <figure class="a" data-k="background" data-c="strips" data-s="dl_strips_voltStack_emerald"><div class="ph"><img loading="lazy" src="assets/bg/dl_strips_voltStack_emerald.jpg" alt="dl_strips_voltStack_emerald"></div><figcaption><b>dl_strips_voltStack_emerald</b><span>strips · — · 272KB</span></figcaption></figure>
 </main>
-<script>
-const g=document.getElementById('g'), items=[...g.children], q=document.getElementById('q');
-let fk='all', fc=null;
-function apply(){
-  const t=q.value.trim().toLowerCase();
-  items.forEach(el=>{
-    const okK = fk==='all' || el.dataset.k===fk;
-    const okC = !fc || el.dataset.c===fc;
-    const okT = !t || el.dataset.s.includes(t) || el.dataset.c.includes(t);
-    el.style.display = (okK&&okC&&okT) ? '' : 'none';
-  });
-}
-document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('[data-f]').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); fk=b.dataset.f; fc=null;
-  document.querySelectorAll('[data-c]').forEach(x=>x.classList.remove('on')); apply();
-});
-document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{
-  const was=b.classList.contains('on');
-  document.querySelectorAll('[data-c]').forEach(x=>x.classList.remove('on'));
-  if(!was){b.classList.add('on'); fc=b.dataset.c;} else fc=null;
-  apply();
-});
-q.oninput=apply;
-</script></body></html>
+<script src="library.js"></script></body></html>
