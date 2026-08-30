@@ -1,5 +1,5 @@
 {
- "built": 1788127781,
+ "built": 1788130347,
  "count": 602,
  "assets": [
   {
@@ -1311,8 +1311,8 @@
    "source": "generated",
    "w": 1080,
    "h": 1887,
-   "bytes": 154666,
-   "sha1": "1aa3bce8ce29",
+   "bytes": 142704,
+   "sha1": "1af98058c8f1",
    "url": "assets/cutouts/hand-grip-empty.webp"
   },
   {
@@ -3391,8 +3391,8 @@
    "source": "generated",
    "w": 47,
    "h": 55,
-   "bytes": 1710,
-   "sha1": "cdeeab44ea30",
+   "bytes": 1848,
+   "sha1": "2407005781ff",
    "url": "assets/cutouts/qs-device-watch.webp"
   },
   {
@@ -4197,8 +4197,8 @@
    "source": "generated",
    "w": 2048,
    "h": 457,
-   "bytes": 61104,
-   "sha1": "031b00ae31e5",
+   "bytes": 64778,
+   "sha1": "9745d9a00f15",
    "url": "assets/cutouts/qs-set-apple-family-five.webp"
   },
   {
@@ -4210,8 +4210,8 @@
    "source": "generated",
    "w": 1449,
    "h": 1345,
-   "bytes": 123766,
-   "sha1": "02fcdc4fea33",
+   "bytes": 125198,
+   "sha1": "387d23389217",
    "url": "assets/cutouts/qs-set-apple-grid-six.webp"
   },
   {
@@ -4223,8 +4223,8 @@
    "source": "generated",
    "w": 1431,
    "h": 1273,
-   "bytes": 109270,
-   "sha1": "ae460899e917",
+   "bytes": 116510,
+   "sha1": "d6b17396a03a",
    "url": "assets/cutouts/qs-set-apple-hero-bundle.webp"
   },
   {
@@ -4236,8 +4236,8 @@
    "source": "generated",
    "w": 2048,
    "h": 581,
-   "bytes": 78048,
-   "sha1": "214728780c88",
+   "bytes": 83306,
+   "sha1": "df6de4c46c1e",
    "url": "assets/cutouts/qs-set-apple-lineup.webp"
   },
   {
@@ -4249,8 +4249,8 @@
    "source": "generated",
    "w": 1714,
    "h": 1153,
-   "bytes": 114096,
-   "sha1": "d2590c9a6f84",
+   "bytes": 125062,
+   "sha1": "a16e92828a76",
    "url": "assets/cutouts/qs-set-apple-stagger-mix.webp"
   },
   {
@@ -4262,8 +4262,8 @@
    "source": "generated",
    "w": 1448,
    "h": 1344,
-   "bytes": 129898,
-   "sha1": "24d9d47476bd",
+   "bytes": 132966,
+   "sha1": "78c8f83e6f28",
    "url": "assets/cutouts/qs-set-everything-fan.webp"
   },
   {
@@ -4457,8 +4457,8 @@
    "source": "generated",
    "w": 1122,
    "h": 1109,
-   "bytes": 82228,
-   "sha1": "1e14756c6027",
+   "bytes": 93236,
+   "sha1": "0089e9984118",
    "url": "assets/cutouts/qs-set-portable-trio.webp"
   },
   {
@@ -4938,8 +4938,8 @@
    "source": "generated",
    "w": 447,
    "h": 525,
-   "bytes": 91774,
-   "sha1": "7998723d71e8",
+   "bytes": 92720,
+   "sha1": "688c6cb9b554",
    "url": "assets/cutouts/qs-sheet-watch-s10-2024.webp"
   },
   {
@@ -4951,8 +4951,8 @@
    "source": "generated",
    "w": 447,
    "h": 525,
-   "bytes": 79198,
-   "sha1": "24df89788bba",
+   "bytes": 80602,
+   "sha1": "bd74d6f1e8a4",
    "url": "assets/cutouts/qs-sheet-watch-s11-2025.webp"
   },
   {
@@ -4964,8 +4964,8 @@
    "source": "generated",
    "w": 425,
    "h": 505,
-   "bytes": 56686,
-   "sha1": "1734f0a5895d",
+   "bytes": 56974,
+   "sha1": "a3e675f469f0",
    "url": "assets/cutouts/qs-sheet-watch-s5-2019.webp"
   },
   {
@@ -4977,8 +4977,8 @@
    "source": "generated",
    "w": 436,
    "h": 505,
-   "bytes": 54850,
-   "sha1": "e9de31989328",
+   "bytes": 57310,
+   "sha1": "0484e2fe3b61",
    "url": "assets/cutouts/qs-sheet-watch-s6-2020.webp"
   },
   {
@@ -4990,8 +4990,8 @@
    "source": "generated",
    "w": 435,
    "h": 517,
-   "bytes": 33362,
-   "sha1": "315fc8cc4a1e",
+   "bytes": 34444,
+   "sha1": "e543e2fb90fe",
    "url": "assets/cutouts/qs-sheet-watch-s7-2021.webp"
   },
   {
@@ -5003,8 +5003,8 @@
    "source": "generated",
    "w": 431,
    "h": 515,
-   "bytes": 21696,
-   "sha1": "9709007219f8",
+   "bytes": 23154,
+   "sha1": "5dbb311c7501",
    "url": "assets/cutouts/qs-sheet-watch-s8-2022.webp"
   },
   {
@@ -5016,8 +5016,8 @@
    "source": "generated",
    "w": 437,
    "h": 516,
-   "bytes": 51184,
-   "sha1": "30c909f16c37",
+   "bytes": 51696,
+   "sha1": "925ec52b96c8",
    "url": "assets/cutouts/qs-sheet-watch-s9-2023.webp"
   },
   {
@@ -5029,8 +5029,8 @@
    "source": "generated",
    "w": 425,
    "h": 505,
-   "bytes": 29546,
-   "sha1": "7640eb6df1ca",
+   "bytes": 30638,
+   "sha1": "6fa1e0ba9d11",
    "url": "assets/cutouts/qs-sheet-watch-se-2020.webp"
   },
   {
@@ -5042,8 +5042,8 @@
    "source": "generated",
    "w": 426,
    "h": 505,
-   "bytes": 24766,
-   "sha1": "f60e31506b21",
+   "bytes": 25568,
+   "sha1": "fbfc2ecefe48",
    "url": "assets/cutouts/qs-sheet-watch-se2-2022.webp"
   },
   {
@@ -5068,8 +5068,8 @@
    "source": "generated",
    "w": 476,
    "h": 563,
-   "bytes": 82538,
-   "sha1": "d4b8b3eb6938",
+   "bytes": 82300,
+   "sha1": "c11fd35a7525",
    "url": "assets/cutouts/qs-sheet-watch-ultra-2022.webp"
   },
   {
@@ -5081,8 +5081,8 @@
    "source": "generated",
    "w": 491,
    "h": 562,
-   "bytes": 76712,
-   "sha1": "9971cb096830",
+   "bytes": 78072,
+   "sha1": "1fa17d86db0c",
    "url": "assets/cutouts/qs-sheet-watch-ultra2-2023.webp"
   },
   {
@@ -5094,8 +5094,8 @@
    "source": "generated",
    "w": 497,
    "h": 553,
-   "bytes": 34846,
-   "sha1": "c6904cac09b5",
+   "bytes": 35754,
+   "sha1": "01f9b6c394c3",
    "url": "assets/cutouts/qs-sheet-watch-ultra3-2025.webp"
   },
   {
