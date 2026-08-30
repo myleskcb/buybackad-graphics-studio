@@ -1,6 +1,6 @@
 {
- "built": 1788120818,
- "count": 409,
+ "built": 1788127093,
+ "count": 461,
  "assets": [
   {
    "slug": "airpods-buds-out",
@@ -198,6 +198,71 @@
    "url": "assets/cutouts/bundle-with-cash.webp"
   },
   {
+   "slug": "business-card-blank",
+   "file": "business-card-blank.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "two blank white business cards, one lying flat and one leaning against it, completely blank, three-quarter view",
+   "source": "generated",
+   "w": 1742,
+   "h": 1152,
+   "bytes": 46334,
+   "sha1": "a754727edb4b",
+   "url": "assets/cutouts/business-card-blank.webp"
+  },
+  {
+   "slug": "cables-bundle",
+   "file": "cables-bundle.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a neat coil of assorted white and black charging cables bundled together, photographed from above",
+   "source": "generated",
+   "w": 1804,
+   "h": 1608,
+   "bytes": 157818,
+   "sha1": "0befd4c1472b",
+   "url": "assets/cutouts/cables-bundle.webp"
+  },
+  {
+   "slug": "camera-dslr-body",
+   "file": "camera-dslr-body.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a professional DSLR camera body with a lens attached, three-quarter view, black body",
+   "source": "generated",
+   "w": 1930,
+   "h": 1716,
+   "bytes": 193650,
+   "sha1": "b6ff8656f753",
+   "url": "assets/cutouts/camera-dslr-body.webp"
+  },
+  {
+   "slug": "camera-mirrorless",
+   "file": "camera-mirrorless.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a compact mirrorless camera with a short lens, three-quarter view, black and silver body",
+   "source": "generated",
+   "w": 1966,
+   "h": 1524,
+   "bytes": 166080,
+   "sha1": "61ef1bc7bd12",
+   "url": "assets/cutouts/camera-mirrorless.webp"
+  },
+  {
+   "slug": "car-classic-side",
+   "file": "car-classic-side.webp",
+   "kind": "cutout",
+   "category": "cars",
+   "prompt": "a classic vintage car photographed from the side, glossy paint, whitewall tyres",
+   "source": "generated",
+   "w": 2048,
+   "h": 1870,
+   "bytes": 177074,
+   "sha1": "6c616c002fc9",
+   "url": "assets/cutouts/car-classic-side.webp"
+  },
+  {
    "slug": "car-damaged-front",
    "file": "car-damaged-front.webp",
    "kind": "cutout",
@@ -215,12 +280,12 @@
    "file": "car-engine-bay.webp",
    "kind": "cutout",
    "category": "cars",
-   "prompt": "an open car engine bay viewed from above showing the engine block, top-down",
+   "prompt": "a clean modern car engine block viewed from directly above, chrome and black components, engine only, no car body around it",
    "source": "generated",
-   "w": 2015,
-   "h": 1955,
-   "bytes": 396976,
-   "sha1": "07e9eab7ad2e",
+   "w": 1197,
+   "h": 1479,
+   "bytes": 181932,
+   "sha1": "25f930a4bc29",
    "url": "assets/cutouts/car-engine-bay.webp"
   },
   {
@@ -284,8 +349,8 @@
    "source": "generated",
    "w": 1790,
    "h": 1886,
-   "bytes": 227126,
-   "sha1": "ed580aec213d",
+   "bytes": 224450,
+   "sha1": "9bb7ac7b12e1",
    "url": "assets/cutouts/car-motorcycle-side.webp"
   },
   {
@@ -341,6 +406,19 @@
    "url": "assets/cutouts/car-title-docs.webp"
   },
   {
+   "slug": "car-title-keys",
+   "file": "car-title-keys.webp",
+   "kind": "cutout",
+   "category": "cars",
+   "prompt": "a set of car keys resting on a stack of blank vehicle paperwork, photographed from above",
+   "source": "generated",
+   "w": 876,
+   "h": 835,
+   "bytes": 61320,
+   "sha1": "41ed823fa830",
+   "url": "assets/cutouts/car-title-keys.webp"
+  },
+  {
    "slug": "car-truck-front",
    "file": "car-truck-front.webp",
    "kind": "cutout",
@@ -352,6 +430,19 @@
    "bytes": 126814,
    "sha1": "a105d46b5e72",
    "url": "assets/cutouts/car-truck-front.webp"
+  },
+  {
+   "slug": "car-van-cargo",
+   "file": "car-van-cargo.webp",
+   "kind": "cutout",
+   "category": "cars",
+   "prompt": "a white cargo van photographed from the front three-quarter angle, blank panels, no text",
+   "source": "generated",
+   "w": 1903,
+   "h": 1689,
+   "bytes": 108586,
+   "sha1": "c7792a7769f7",
+   "url": "assets/cutouts/car-van-cargo.webp"
   },
   {
    "slug": "car-wheel-tyre",
@@ -367,6 +458,19 @@
    "url": "assets/cutouts/car-wheel-tyre.webp"
   },
   {
+   "slug": "cardboard-box-taped",
+   "file": "cardboard-box-taped.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a sealed brown cardboard shipping box with packing tape across the top seam, no labels, no text, three-quarter view",
+   "source": "generated",
+   "w": 1616,
+   "h": 1264,
+   "bytes": 169896,
+   "sha1": "a7c1a1bc862e",
+   "url": "assets/cutouts/cardboard-box-taped.webp"
+  },
+  {
    "slug": "cardboard-shipping-labelled",
    "file": "cardboard-shipping-labelled.webp",
    "kind": "cutout",
@@ -378,6 +482,19 @@
    "bytes": 127976,
    "sha1": "d4e074ec837a",
    "url": "assets/cutouts/cardboard-shipping-labelled.webp"
+  },
+  {
+   "slug": "cash-brick-wrapped",
+   "file": "cash-brick-wrapped.webp",
+   "kind": "cutout",
+   "category": "cash",
+   "prompt": "a thick brick of US hundred dollar bills wrapped in a clear band, standing on end, three-quarter view",
+   "source": "generated",
+   "w": 673,
+   "h": 1604,
+   "bytes": 160638,
+   "sha1": "705004288f97",
+   "url": "assets/cutouts/cash-brick-wrapped.webp"
   },
   {
    "slug": "cash-bundles-pyramid",
@@ -523,6 +640,19 @@
    "url": "assets/cutouts/cash-single-hundred.webp"
   },
   {
+   "slug": "cash-spread-hand-count",
+   "file": "cash-spread-hand-count.webp",
+   "kind": "cutout",
+   "category": "cash",
+   "prompt": "a thick fan of US hundred dollar bills spread wide, no hands, photographed flat from above",
+   "source": "generated",
+   "w": 1682,
+   "h": 1238,
+   "bytes": 292504,
+   "sha1": "60cfa90eb15d",
+   "url": "assets/cutouts/cash-spread-hand-count.webp"
+  },
+  {
    "slug": "cash-stack-banded",
    "file": "cash-stack-banded.webp",
    "kind": "cutout",
@@ -562,17 +692,43 @@
    "url": "assets/cutouts/cash-two-hands-count.webp"
   },
   {
+   "slug": "chargers-adapters",
+   "file": "chargers-adapters.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "several white power adapter plugs and charging bricks arranged in a row, photographed from above",
+   "source": "generated",
+   "w": 1916,
+   "h": 1522,
+   "bytes": 122614,
+   "sha1": "607dfc6a83e2",
+   "url": "assets/cutouts/chargers-adapters.webp"
+  },
+  {
    "slug": "checklist-clipboard",
    "file": "checklist-clipboard.webp",
    "kind": "cutout",
    "category": "props",
-   "prompt": "a clipboard holding a blank sheet of paper with a pen resting on it, no text, top-down",
+   "prompt": "a brown wooden clipboard holding a single sheet of blank white paper, a pen lying diagonally on top, the whole clipboard clearly visible, photographed from directly above",
    "source": "generated",
-   "w": 784,
-   "h": 1522,
-   "bytes": 42370,
-   "sha1": "059d96a9562b",
+   "w": 1884,
+   "h": 1723,
+   "bytes": 119938,
+   "sha1": "851b8b85773e",
    "url": "assets/cutouts/checklist-clipboard.webp"
+  },
+  {
+   "slug": "clock-fast-service",
+   "file": "clock-fast-service.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a simple round wall clock with plain hands and no numerals, white face, straight on",
+   "source": "generated",
+   "w": 1729,
+   "h": 1730,
+   "bytes": 99134,
+   "sha1": "1f4b6ed4bc4f",
+   "url": "assets/cutouts/clock-fast-service.webp"
   },
   {
    "slug": "coin-album-pages",
@@ -601,6 +757,19 @@
    "url": "assets/cutouts/coin-collection-tray.webp"
   },
   {
+   "slug": "coin-graded-fan-three",
+   "file": "coin-graded-fan-three.webp",
+   "kind": "cutout",
+   "category": "coins",
+   "prompt": "three coins in clear rigid plastic grading cases fanned out overlapping, blank white label strips",
+   "source": "generated",
+   "w": 1950,
+   "h": 1865,
+   "bytes": 316770,
+   "sha1": "fbc58f966f97",
+   "url": "assets/cutouts/coin-graded-fan-three.webp"
+  },
+  {
    "slug": "coin-jar-full",
    "file": "coin-jar-full.webp",
    "kind": "cutout",
@@ -622,8 +791,8 @@
    "source": "generated",
    "w": 1935,
    "h": 1383,
-   "bytes": 313268,
-   "sha1": "91b4ac55e42d",
+   "bytes": 306184,
+   "sha1": "9324603993da",
    "url": "assets/cutouts/coin-loose-pile.webp"
   },
   {
@@ -638,6 +807,19 @@
    "bytes": 405834,
    "sha1": "ddf79ef4ab1f",
    "url": "assets/cutouts/coin-rolls-paper.webp"
+  },
+  {
+   "slug": "coin-silver-dollar-pair",
+   "file": "coin-silver-dollar-pair.webp",
+   "kind": "cutout",
+   "category": "coins",
+   "prompt": "two large old silver dollar coins, one lying flat and one standing on edge behind it, macro view",
+   "source": "generated",
+   "w": 1759,
+   "h": 1902,
+   "bytes": 276102,
+   "sha1": "2b850bc4d6dc",
+   "url": "assets/cutouts/coin-silver-dollar-pair.webp"
   },
   {
    "slug": "coin-single-large",
@@ -718,6 +900,19 @@
    "url": "assets/cutouts/coin-stack.webp"
   },
   {
+   "slug": "console-handheld-pair",
+   "file": "console-handheld-pair.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "two modern handheld gaming consoles side by side, screens off, three-quarter view",
+   "source": "generated",
+   "w": 1458,
+   "h": 784,
+   "bytes": 62990,
+   "sha1": "d64d2adbab92",
+   "url": "assets/cutouts/console-handheld-pair.webp"
+  },
+  {
    "slug": "console-single",
    "file": "console-single.webp",
    "kind": "cutout",
@@ -729,6 +924,19 @@
    "bytes": 52666,
    "sha1": "02cee129911b",
    "url": "assets/cutouts/console-single.webp"
+  },
+  {
+   "slug": "controller-pair",
+   "file": "controller-pair.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "two modern wireless game controllers side by side, one black one white, three-quarter view",
+   "source": "generated",
+   "w": 1830,
+   "h": 929,
+   "bytes": 94500,
+   "sha1": "94cff803e726",
+   "url": "assets/cutouts/controller-pair.webp"
   },
   {
    "slug": "delivery-box-open",
@@ -755,6 +963,32 @@
    "bytes": 107316,
    "sha1": "e87885158f59",
    "url": "assets/cutouts/device-bundle-large.webp"
+  },
+  {
+   "slug": "drone-folded",
+   "file": "drone-folded.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a compact folding consumer camera drone with its arms folded in, three-quarter view, grey body",
+   "source": "generated",
+   "w": 1603,
+   "h": 1121,
+   "bytes": 104282,
+   "sha1": "a7a8287a0f0b",
+   "url": "assets/cutouts/drone-folded.webp"
+  },
+  {
+   "slug": "drone-open-props",
+   "file": "drone-open-props.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a consumer camera drone with arms extended and propellers attached, seen from a low three-quarter angle",
+   "source": "generated",
+   "w": 2048,
+   "h": 1231,
+   "bytes": 146878,
+   "sha1": "5d070e2d9232",
+   "url": "assets/cutouts/drone-open-props.webp"
   },
   {
    "slug": "game-console-pair",
@@ -796,6 +1030,19 @@
    "url": "assets/cutouts/gold-bar-single.webp"
   },
   {
+   "slug": "gold-bars-fan",
+   "file": "gold-bars-fan.webp",
+   "kind": "cutout",
+   "category": "gold",
+   "prompt": "five small gold bullion bars fanned out overlapping on a flat surface, photographed from above",
+   "source": "generated",
+   "w": 1820,
+   "h": 1304,
+   "bytes": 290186,
+   "sha1": "d06eda97c22a",
+   "url": "assets/cutouts/gold-bars-fan.webp"
+  },
+  {
    "slug": "gold-bars-row",
    "file": "gold-bars-row.webp",
    "kind": "cutout",
@@ -835,6 +1082,19 @@
    "url": "assets/cutouts/gold-bars.webp"
   },
   {
+   "slug": "gold-bracelet-cuban",
+   "file": "gold-bracelet-cuban.webp",
+   "kind": "cutout",
+   "category": "gold",
+   "prompt": "a thick gold Cuban link bracelet laid in a gentle curve, photographed from above",
+   "source": "generated",
+   "w": 1484,
+   "h": 1184,
+   "bytes": 226208,
+   "sha1": "e92e2dd4beb2",
+   "url": "assets/cutouts/gold-bracelet-cuban.webp"
+  },
+  {
    "slug": "gold-bracelet-pair",
    "file": "gold-bracelet-pair.webp",
    "kind": "cutout",
@@ -872,6 +1132,19 @@
    "bytes": 100428,
    "sha1": "22fb1d03c9b1",
    "url": "assets/cutouts/gold-chains.webp"
+  },
+  {
+   "slug": "gold-class-ring",
+   "file": "gold-class-ring.webp",
+   "kind": "cutout",
+   "category": "gold",
+   "prompt": "a heavy gold class ring with a coloured gemstone, standing upright, three-quarter macro view",
+   "source": "generated",
+   "w": 846,
+   "h": 1232,
+   "bytes": 90900,
+   "sha1": "90ee148d3e67",
+   "url": "assets/cutouts/gold-class-ring.webp"
   },
   {
    "slug": "gold-coins-pile",
@@ -952,6 +1225,19 @@
    "url": "assets/cutouts/gold-nuggets-raw.webp"
   },
   {
+   "slug": "gold-pocket-watch",
+   "file": "gold-pocket-watch.webp",
+   "kind": "cutout",
+   "category": "gold",
+   "prompt": "an antique gold pocket watch with its cover open, chain coiled beside it, photographed from above",
+   "source": "generated",
+   "w": 1758,
+   "h": 1734,
+   "bytes": 263164,
+   "sha1": "7349e9d72b11",
+   "url": "assets/cutouts/gold-pocket-watch.webp"
+  },
+  {
    "slug": "gold-rings-scatter",
    "file": "gold-rings-scatter.webp",
    "kind": "cutout",
@@ -986,8 +1272,8 @@
    "source": "generated",
    "w": 1752,
    "h": 1748,
-   "bytes": 479978,
-   "sha1": "78c756d8c8f0",
+   "bytes": 465858,
+   "sha1": "2990c63ab4ad",
    "url": "assets/cutouts/gold-scrap-mixed.webp"
   },
   {
@@ -999,8 +1285,8 @@
    "source": "generated",
    "w": 880,
    "h": 589,
-   "bytes": 94540,
-   "sha1": "0c76e0bd1c05",
+   "bytes": 94458,
+   "sha1": "27a003167017",
    "url": "assets/cutouts/gold-teeth-dental.webp"
   },
   {
@@ -1017,6 +1303,19 @@
    "url": "assets/cutouts/gold-watch-luxury.webp"
   },
   {
+   "slug": "hand-grip-empty",
+   "file": "hand-grip-empty.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a single human hand held up with fingers curled into a C shape as if about to grasp something, palm facing left, whole hand and wrist clearly visible, forearm entering from the bottom of the frame",
+   "source": "generated",
+   "w": 1080,
+   "h": 1887,
+   "bytes": 154666,
+   "sha1": "1aa3bce8ce29",
+   "url": "assets/cutouts/hand-grip-empty.webp"
+  },
+  {
    "slug": "hand-offering-cash",
    "file": "hand-offering-cash.webp",
    "kind": "cutout",
@@ -1030,6 +1329,19 @@
    "url": "assets/cutouts/hand-offering-cash.webp"
   },
   {
+   "slug": "hand-open-palm-up",
+   "file": "hand-open-palm-up.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a single open human hand palm facing up in an offering gesture, forearm entering from the bottom of the frame, clean even lighting",
+   "source": "generated",
+   "w": 1526,
+   "h": 1809,
+   "bytes": 138026,
+   "sha1": "8f81e081bcda",
+   "url": "assets/cutouts/hand-open-palm-up.webp"
+  },
+  {
    "slug": "hand-phone-and-cash",
    "file": "hand-phone-and-cash.webp",
    "kind": "cutout",
@@ -1041,6 +1353,84 @@
    "bytes": 117824,
    "sha1": "b21abf2e31dd",
    "url": "assets/cutouts/hand-phone-and-cash.webp"
+  },
+  {
+   "slug": "hand-pinch-small",
+   "file": "hand-pinch-small.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a single human hand pinching a small invisible object between thumb and forefinger, forearm entering from the bottom",
+   "source": "generated",
+   "w": 912,
+   "h": 1483,
+   "bytes": 67960,
+   "sha1": "b567fed9ef0a",
+   "url": "assets/cutouts/hand-pinch-small.webp"
+  },
+  {
+   "slug": "hand-pointing-forward",
+   "file": "hand-pointing-forward.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a single human hand pointing directly at the viewer, index finger extended, forearm entering from the bottom",
+   "source": "generated",
+   "w": 973,
+   "h": 1499,
+   "bytes": 66130,
+   "sha1": "8811ae715e8c",
+   "url": "assets/cutouts/hand-pointing-forward.webp"
+  },
+  {
+   "slug": "hand-thumbs-up-dark",
+   "file": "hand-thumbs-up-dark.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a single dark-skinned human hand giving a thumbs up, forearm entering from the bottom, clean even lighting",
+   "source": "generated",
+   "w": 1302,
+   "h": 1835,
+   "bytes": 134990,
+   "sha1": "0522fb6a59a9",
+   "url": "assets/cutouts/hand-thumbs-up-dark.webp"
+  },
+  {
+   "slug": "hand-thumbs-up-light",
+   "file": "hand-thumbs-up-light.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a single light-skinned human hand giving a thumbs up, forearm entering from the bottom, clean even lighting",
+   "source": "generated",
+   "w": 1557,
+   "h": 1743,
+   "bytes": 99326,
+   "sha1": "e0bb4b1d96b6",
+   "url": "assets/cutouts/hand-thumbs-up-light.webp"
+  },
+  {
+   "slug": "hand-wave-hello",
+   "file": "hand-wave-hello.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a single human hand raised in a friendly open-palm wave, forearm entering from the bottom",
+   "source": "generated",
+   "w": 958,
+   "h": 1815,
+   "bytes": 167950,
+   "sha1": "edd6996366b5",
+   "url": "assets/cutouts/hand-wave-hello.webp"
+  },
+  {
+   "slug": "hands-two-cupped",
+   "file": "hands-two-cupped.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "two human hands cupped together side by side as if receiving something, forearms entering from the bottom",
+   "source": "generated",
+   "w": 1247,
+   "h": 1710,
+   "bytes": 139200,
+   "sha1": "834c424b9c10",
+   "url": "assets/cutouts/hands-two-cupped.webp"
   },
   {
    "slug": "handshake-deal",
@@ -1129,8 +1519,8 @@
    "source": "generated",
    "w": 1969,
    "h": 1891,
-   "bytes": 517770,
-   "sha1": "3a760ea9779e",
+   "bytes": 548012,
+   "sha1": "8d727184ad49",
    "url": "assets/cutouts/ip-damage-back-glass.webp"
   },
   {
@@ -1138,12 +1528,12 @@
    "file": "ip-damage-corner-dent.webp",
    "kind": "cutout",
    "category": "phones",
-   "prompt": "a premium smartphone with a visibly dented and scuffed corner, frame deformed, screen dark",
+   "prompt": "a whole premium smartphone seen from the back at a three-quarter angle, the entire device in frame, with one corner visibly dented and scuffed",
    "source": "generated",
-   "w": 1128,
-   "h": 1742,
-   "bytes": 57276,
-   "sha1": "7a7c245dd9f7",
+   "w": 522,
+   "h": 1686,
+   "bytes": 43734,
+   "sha1": "e76ca85fa032",
    "url": "assets/cutouts/ip-damage-corner-dent.webp"
   },
   {
@@ -1151,12 +1541,12 @@
    "file": "ip-damage-lens-broken.webp",
    "kind": "cutout",
    "category": "phones",
-   "prompt": "a close three-quarter view of a premium smartphone whose rear camera lens glass is cracked and chipped",
+   "prompt": "a premium smartphone seen from the back at a slight angle, the whole device clearly in frame, one of its rear camera lenses visibly cracked and chipped",
    "source": "generated",
-   "w": 1623,
-   "h": 1935,
-   "bytes": 234472,
-   "sha1": "0ee1fa5f4a08",
+   "w": 1829,
+   "h": 1458,
+   "bytes": 103788,
+   "sha1": "69fb51d2afd5",
    "url": "assets/cutouts/ip-damage-lens-broken.webp"
   },
   {
@@ -1424,12 +1814,12 @@
    "file": "ip-state-charging-cable.webp",
    "kind": "cutout",
    "category": "phones",
-   "prompt": "a premium smartphone lying flat with a white braided charging cable connected and coiled beside it, top-down",
+   "prompt": "a premium smartphone lying flat and fully lit, seen from the front with a dark screen, a white braided charging cable plugged in and coiled neatly beside it, photographed from above",
    "source": "generated",
-   "w": 1917,
-   "h": 1212,
-   "bytes": 178396,
-   "sha1": "5d71d823978b",
+   "w": 1380,
+   "h": 1742,
+   "bytes": 176160,
+   "sha1": "e23b59dfc0e3",
    "url": "assets/cutouts/ip-state-charging-cable.webp"
   },
   {
@@ -1857,8 +2247,8 @@
    "source": "generated",
    "w": 1959,
    "h": 1939,
-   "bytes": 317870,
-   "sha1": "bf87e24d2460",
+   "bytes": 303476,
+   "sha1": "05aace49cd3f",
    "url": "assets/cutouts/iphone-cracked-screen.webp"
   },
   {
@@ -2094,6 +2484,32 @@
    "bytes": 19518,
    "sha1": "d433cbd66206",
    "url": "assets/cutouts/iphones-trio.webp"
+  },
+  {
+   "slug": "keyboard-mouse-set",
+   "file": "keyboard-mouse-set.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a slim wireless keyboard with a matching wireless mouse beside it, blank keys, photographed from above",
+   "source": "generated",
+   "w": 1832,
+   "h": 1759,
+   "bytes": 145628,
+   "sha1": "355a2881dab4",
+   "url": "assets/cutouts/keyboard-mouse-set.webp"
+  },
+  {
+   "slug": "laptop-gaming-open",
+   "file": "laptop-gaming-open.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "an open gaming laptop with a chunky black chassis and backlit keyboard, screen off, three-quarter view",
+   "source": "generated",
+   "w": 1694,
+   "h": 1131,
+   "bytes": 106400,
+   "sha1": "4ead78d8b973",
+   "url": "assets/cutouts/laptop-gaming-open.webp"
   },
   {
    "slug": "laptop-windows-open",
@@ -2343,6 +2759,45 @@
    "url": "assets/cutouts/magnifier-inspect.webp"
   },
   {
+   "slug": "money-bag-sack",
+   "file": "money-bag-sack.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a plain canvas money sack tied at the neck with rope, plump and full, no markings, three-quarter view",
+   "source": "generated",
+   "w": 1266,
+   "h": 1691,
+   "bytes": 207174,
+   "sha1": "d8c7b904c8ee",
+   "url": "assets/cutouts/money-bag-sack.webp"
+  },
+  {
+   "slug": "monitor-widescreen",
+   "file": "monitor-widescreen.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a slim widescreen computer monitor on a stand, screen off, straight-on view",
+   "source": "generated",
+   "w": 1576,
+   "h": 1341,
+   "bytes": 33666,
+   "sha1": "1f7a0f7e6e84",
+   "url": "assets/cutouts/monitor-widescreen.webp"
+  },
+  {
+   "slug": "open-sign-neon",
+   "file": "open-sign-neon.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a glowing neon OPEN style sign shaped as a plain rectangular outline with no letters, warm orange glow, straight on",
+   "source": "generated",
+   "w": 1676,
+   "h": 596,
+   "bytes": 36754,
+   "sha1": "8339cb927f3f",
+   "url": "assets/cutouts/open-sign-neon.webp"
+  },
+  {
    "slug": "own-apple-cosmic-orange-02",
    "file": "own-apple-cosmic-orange-02.webp",
    "kind": "cutout",
@@ -2403,8 +2858,8 @@
    "source": "ingested",
    "w": 2048,
    "h": 1523,
-   "bytes": 294124,
-   "sha1": "bf1e73107930",
+   "bytes": 280402,
+   "sha1": "b132fd221260",
    "url": "assets/cutouts/own-apple-cosmic-orange-10.webp"
   },
   {
@@ -2481,8 +2936,8 @@
    "source": "ingested",
    "w": 1610,
    "h": 1782,
-   "bytes": 186328,
-   "sha1": "d952e564cc61",
+   "bytes": 174860,
+   "sha1": "fb36ff0c7c0f",
    "url": "assets/cutouts/own-apple-deep-blue-09.webp"
   },
   {
@@ -2551,17 +3006,56 @@
    "url": "assets/cutouts/padded-mailer-envelope.webp"
   },
   {
+   "slug": "pallet-boxes-stack",
+   "file": "pallet-boxes-stack.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a stack of plain brown cardboard boxes on a wooden pallet, no labels, three-quarter view",
+   "source": "generated",
+   "w": 1930,
+   "h": 1901,
+   "bytes": 189668,
+   "sha1": "07414276ed21",
+   "url": "assets/cutouts/pallet-boxes-stack.webp"
+  },
+  {
    "slug": "phone-broken-pile",
    "file": "phone-broken-pile.webp",
    "kind": "cutout",
    "category": "phones",
-   "prompt": "a pile of about eight visibly damaged smartphones with cracked screens, top-down",
+   "prompt": "a compact heap of eight smartphones with cracked screens piled closely together so the pile reads as one solid mass, photographed from above",
    "source": "generated",
-   "w": 2048,
-   "h": 1997,
-   "bytes": 289432,
-   "sha1": "747be8bbddbe",
+   "w": 1984,
+   "h": 1902,
+   "bytes": 293010,
+   "sha1": "9b5ee827f864",
    "url": "assets/cutouts/phone-broken-pile.webp"
+  },
+  {
+   "slug": "phone-flip-closed",
+   "file": "phone-flip-closed.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a modern folding flip phone closed shut showing its small outer screen, three-quarter view",
+   "source": "generated",
+   "w": 1473,
+   "h": 1705,
+   "bytes": 121444,
+   "sha1": "dd2b93f9464e",
+   "url": "assets/cutouts/phone-flip-closed.webp"
+  },
+  {
+   "slug": "phone-flip-open",
+   "file": "phone-flip-open.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a modern folding flip phone opened out flat, screen off, three-quarter view",
+   "source": "generated",
+   "w": 1836,
+   "h": 1109,
+   "bytes": 75576,
+   "sha1": "cb225f89eb8f",
+   "url": "assets/cutouts/phone-flip-open.webp"
   },
   {
    "slug": "phone-pile-large",
@@ -2572,8 +3066,8 @@
    "source": "generated",
    "w": 1882,
    "h": 1416,
-   "bytes": 268948,
-   "sha1": "fad8db8670a8",
+   "bytes": 265220,
+   "sha1": "86b7cef07de3",
    "url": "assets/cutouts/phone-pile-large.webp"
   },
   {
@@ -2585,8 +3079,8 @@
    "source": "generated",
    "w": 2026,
    "h": 1746,
-   "bytes": 219634,
-   "sha1": "1041f2411232",
+   "bytes": 216294,
+   "sha1": "6beaa5c36978",
    "url": "assets/cutouts/phone-pile-mixed.webp"
   },
   {
@@ -2685,12 +3179,12 @@
    "file": "poke-cards-spread-face.webp",
    "kind": "cutout",
    "category": "poke",
-   "prompt": "a wide spread of glossy collectible trading cards laid face up, each card a plain solid colour blank rectangle, no printed artwork, no text",
+   "prompt": "a fan of glossy collectible trading cards laid face up and overlapping, each card a plain solid pastel rectangle with a thin white border, no artwork, no text",
    "source": "generated",
-   "w": 2048,
-   "h": 2048,
-   "bytes": 327470,
-   "sha1": "0990f097566f",
+   "w": 1974,
+   "h": 1585,
+   "bytes": 193244,
+   "sha1": "1a4aa1d50482",
    "url": "assets/cutouts/poke-cards-spread-face.webp"
   },
   {
@@ -2750,13 +3244,52 @@
    "file": "poke-slabs-trio.webp",
    "kind": "cutout",
    "category": "poke",
-   "prompt": "three collectible cards in clear rigid plastic grading slabs overlapping at slight angles, each card inside a plain solid-colour blank rectangle, blank white label strips, glossy plastic",
+   "prompt": "three collectible cards sealed in clear rigid plastic grading cases, overlapping at slight angles, each card inside a solid opaque pastel rectangle so it reads clearly, blank white label strips",
    "source": "generated",
-   "w": 2023,
-   "h": 1739,
-   "bytes": 234620,
-   "sha1": "68f0ee5f0a6c",
+   "w": 1794,
+   "h": 1831,
+   "bytes": 148902,
+   "sha1": "90bb4bc9dd5e",
    "url": "assets/cutouts/poke-slabs-trio.webp"
+  },
+  {
+   "slug": "powerbank-pair",
+   "file": "powerbank-pair.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "two portable battery power banks side by side, one black one white, three-quarter view",
+   "source": "generated",
+   "w": 1074,
+   "h": 1500,
+   "bytes": 60494,
+   "sha1": "6fec9bd6e35a",
+   "url": "assets/cutouts/powerbank-pair.webp"
+  },
+  {
+   "slug": "receipt-paper-curl",
+   "file": "receipt-paper-curl.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a long white paper receipt curling naturally, completely blank with no printing, three-quarter view",
+   "source": "generated",
+   "w": 1407,
+   "h": 1183,
+   "bytes": 52496,
+   "sha1": "632435f9d04c",
+   "url": "assets/cutouts/receipt-paper-curl.webp"
+  },
+  {
+   "slug": "router-modem",
+   "file": "router-modem.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a modern white internet router with external antennas, three-quarter view",
+   "source": "generated",
+   "w": 1520,
+   "h": 1430,
+   "bytes": 68782,
+   "sha1": "92b43a17bcea",
+   "url": "assets/cutouts/router-modem.webp"
   },
   {
    "slug": "safe-open-cash",
@@ -2811,6 +3344,19 @@
    "url": "assets/cutouts/samsung-galaxy-front.webp"
   },
   {
+   "slug": "shield-check-3d",
+   "file": "shield-check-3d.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a glossy three dimensional shield shape in deep blue with a bold white check mark on it, straight on, no text",
+   "source": "generated",
+   "w": 988,
+   "h": 1234,
+   "bytes": 60170,
+   "sha1": "8151bfa8d0f5",
+   "url": "assets/cutouts/shield-check-3d.webp"
+  },
+  {
    "slug": "shop-counter-scene",
    "file": "shop-counter-scene.webp",
    "kind": "cutout",
@@ -2835,6 +3381,19 @@
    "bytes": 283920,
    "sha1": "77727623907a",
    "url": "assets/cutouts/shopping-bag-cash.webp"
+  },
+  {
+   "slug": "shopping-bag-kraft",
+   "file": "shopping-bag-kraft.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a plain brown kraft paper shopping bag with rope handles, standing upright, completely blank, three-quarter view",
+   "source": "generated",
+   "w": 1076,
+   "h": 1684,
+   "bytes": 118598,
+   "sha1": "2f01e56e753c",
+   "url": "assets/cutouts/shopping-bag-kraft.webp"
   },
   {
    "slug": "silver-bar-single",
@@ -2915,6 +3474,19 @@
    "url": "assets/cutouts/silver-coins-spill.webp"
   },
   {
+   "slug": "silver-coins-tube",
+   "file": "silver-coins-tube.webp",
+   "kind": "cutout",
+   "category": "silver",
+   "prompt": "a clear plastic coin tube standing upright, filled with silver bullion coins, beside two loose coins",
+   "source": "generated",
+   "w": 1513,
+   "h": 1586,
+   "bytes": 156548,
+   "sha1": "a0609450eff3",
+   "url": "assets/cutouts/silver-coins-tube.webp"
+  },
+  {
    "slug": "silver-flatware-set",
    "file": "silver-flatware-set.webp",
    "kind": "cutout",
@@ -2967,6 +3539,19 @@
    "url": "assets/cutouts/silver-rounds-pile.webp"
   },
   {
+   "slug": "silver-serving-tray",
+   "file": "silver-serving-tray.webp",
+   "kind": "cutout",
+   "category": "silver",
+   "prompt": "an ornate antique silver serving tray seen at a three-quarter angle, tarnished patina",
+   "source": "generated",
+   "w": 1909,
+   "h": 1461,
+   "bytes": 164148,
+   "sha1": "a88440687609",
+   "url": "assets/cutouts/silver-serving-tray.webp"
+  },
+  {
    "slug": "silver-tea-set",
    "file": "silver-tea-set.webp",
    "kind": "cutout",
@@ -2978,6 +3563,32 @@
    "bytes": 321286,
    "sha1": "5ed5d796c97a",
    "url": "assets/cutouts/silver-tea-set.webp"
+  },
+  {
+   "slug": "smart-tv-stand",
+   "file": "smart-tv-stand.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a large flatscreen television on a slim stand, screen off, straight-on view",
+   "source": "generated",
+   "w": 1298,
+   "h": 860,
+   "bytes": 27594,
+   "sha1": "3e70ee82d828",
+   "url": "assets/cutouts/smart-tv-stand.webp"
+  },
+  {
+   "slug": "speaker-portable",
+   "file": "speaker-portable.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a portable cylindrical bluetooth speaker standing upright, fabric covered, three-quarter view",
+   "source": "generated",
+   "w": 646,
+   "h": 1560,
+   "bytes": 279112,
+   "sha1": "3ca4c2ca8969",
+   "url": "assets/cutouts/speaker-portable.webp"
   },
   {
    "slug": "sports-binder-open",
@@ -3105,9 +3716,35 @@
    "source": "generated",
    "w": 1300,
    "h": 1897,
-   "bytes": 165668,
-   "sha1": "41ebaf513f42",
+   "bytes": 162334,
+   "sha1": "caf7309c4359",
    "url": "assets/cutouts/star-rating-badge.webp"
+  },
+  {
+   "slug": "storefront-awning",
+   "file": "storefront-awning.webp",
+   "kind": "cutout",
+   "category": "props",
+   "prompt": "a small retail shop front awning in solid red and white stripes, no text, straight-on view, isolated architectural element",
+   "source": "generated",
+   "w": 1506,
+   "h": 733,
+   "bytes": 64970,
+   "sha1": "358ee397c646",
+   "url": "assets/cutouts/storefront-awning.webp"
+  },
+  {
+   "slug": "strip-box-open-vials",
+   "file": "strip-box-open-vials.webp",
+   "kind": "cutout",
+   "category": "strips",
+   "prompt": "one plain unbranded medical test strip box open with white plastic vials spilling out beside it, no text",
+   "source": "generated",
+   "w": 1797,
+   "h": 1546,
+   "bytes": 91462,
+   "sha1": "ddd9cacaa319",
+   "url": "assets/cutouts/strip-box-open-vials.webp"
   },
   {
    "slug": "strip-box-single",
@@ -3162,6 +3799,19 @@
    "url": "assets/cutouts/strip-boxes-pile-large.webp"
   },
   {
+   "slug": "strip-boxes-row-five",
+   "file": "strip-boxes-row-five.webp",
+   "kind": "cutout",
+   "category": "strips",
+   "prompt": "five small plain unbranded medical test strip boxes standing in a row, plain coloured cardboard, no text",
+   "source": "generated",
+   "w": 1636,
+   "h": 1273,
+   "bytes": 91038,
+   "sha1": "a0c64829659b",
+   "url": "assets/cutouts/strip-boxes-row-five.webp"
+  },
+  {
    "slug": "strip-boxes-stack",
    "file": "strip-boxes-stack.webp",
    "kind": "cutout",
@@ -3183,8 +3833,8 @@
    "source": "original",
    "w": 444,
    "h": 418,
-   "bytes": 40706,
-   "sha1": "3a62e432cf37",
+   "bytes": 38698,
+   "sha1": "c2e4e05ec4e6",
    "url": "assets/cutouts/strip-boxes.webp"
   },
   {
@@ -3235,9 +3885,22 @@
    "source": "generated",
    "w": 1829,
    "h": 1090,
-   "bytes": 109814,
-   "sha1": "3332d9aad982",
+   "bytes": 109178,
+   "sha1": "ae1ef86d9fee",
    "url": "assets/cutouts/strip-vials-pile.webp"
+  },
+  {
+   "slug": "tablet-android-back",
+   "file": "tablet-android-back.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a mid-size Android tablet seen from the back showing its plain aluminium rear panel and single camera, upright",
+   "source": "generated",
+   "w": 968,
+   "h": 1523,
+   "bytes": 60166,
+   "sha1": "f4b385a8f812",
+   "url": "assets/cutouts/tablet-android-back.webp"
   },
   {
    "slug": "tablet-watch",
@@ -3277,6 +3940,19 @@
    "bytes": 23960,
    "sha1": "4e23754dffbf",
    "url": "assets/cutouts/tv-flatscreen.webp"
+  },
+  {
+   "slug": "vr-headset",
+   "file": "vr-headset.webp",
+   "kind": "cutout",
+   "category": "phones",
+   "prompt": "a modern standalone virtual reality headset with its strap, three-quarter view, light grey body",
+   "source": "generated",
+   "w": 1823,
+   "h": 1082,
+   "bytes": 113312,
+   "sha1": "e806d190bebf",
+   "url": "assets/cutouts/vr-headset.webp"
   },
   {
    "slug": "watch-pair-bands",
