@@ -1,5 +1,5 @@
 {
- "built": 1788131068,
+ "built": 1788132930,
  "count": 635,
  "assets": [
   {
@@ -3274,8 +3274,8 @@
    "source": "generated",
    "w": 512,
    "h": 563,
-   "bytes": 22772,
-   "sha1": "ef2facf79ed7",
+   "bytes": 24536,
+   "sha1": "0c053e8119a8",
    "url": "assets/cutouts/qs-cat-ipad.webp"
   },
   {
@@ -3285,10 +3285,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 441,
-   "h": 372,
-   "bytes": 7604,
-   "sha1": "b1d687e8f0bb",
+   "w": 443,
+   "h": 373,
+   "bytes": 8468,
+   "sha1": "c887ea181347",
    "url": "assets/cutouts/qs-cat-mac.webp"
   },
   {
@@ -3300,8 +3300,8 @@
    "source": "generated",
    "w": 530,
    "h": 320,
-   "bytes": 12744,
-   "sha1": "d1be0b73d199",
+   "bytes": 14018,
+   "sha1": "d9f9f6058d21",
    "url": "assets/cutouts/qs-cat-macbook.webp"
   },
   {
@@ -3313,8 +3313,8 @@
    "source": "generated",
    "w": 447,
    "h": 525,
-   "bytes": 79154,
-   "sha1": "808fe661468f",
+   "bytes": 86032,
+   "sha1": "9a8b7b51de84",
    "url": "assets/cutouts/qs-cat-other.webp"
   },
   {
@@ -3324,10 +3324,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 441,
-   "h": 372,
-   "bytes": 7604,
-   "sha1": "b1d687e8f0bb",
+   "w": 443,
+   "h": 373,
+   "bytes": 8468,
+   "sha1": "c887ea181347",
    "url": "assets/cutouts/qs-device-imac.webp"
   },
   {
@@ -3337,10 +3337,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 153,
-   "h": 61,
-   "bytes": 1928,
-   "sha1": "dcd7a835c550",
+   "w": 155,
+   "h": 62,
+   "bytes": 2028,
+   "sha1": "4085c7a0538a",
    "url": "assets/cutouts/qs-device-mac-mini.webp"
   },
   {
@@ -3352,8 +3352,8 @@
    "source": "generated",
    "w": 239,
    "h": 117,
-   "bytes": 2752,
-   "sha1": "64a0271041fc",
+   "bytes": 2608,
+   "sha1": "138cbe2ab29b",
    "url": "assets/cutouts/qs-device-mac-studio.webp"
   },
   {
@@ -3363,10 +3363,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 509,
-   "h": 309,
-   "bytes": 12544,
-   "sha1": "fbcff75a45cf",
+   "w": 370,
+   "h": 226,
+   "bytes": 9862,
+   "sha1": "6009f028c94f",
    "url": "assets/cutouts/qs-device-macbook-air.webp"
   },
   {
@@ -3376,10 +3376,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 530,
-   "h": 320,
-   "bytes": 12744,
-   "sha1": "d1be0b73d199",
+   "w": 381,
+   "h": 230,
+   "bytes": 9620,
+   "sha1": "a8238d4455b4",
    "url": "assets/cutouts/qs-device-macbook-pro.webp"
   },
   {
@@ -3391,8 +3391,8 @@
    "source": "generated",
    "w": 47,
    "h": 55,
-   "bytes": 1848,
-   "sha1": "2407005781ff",
+   "bytes": 1834,
+   "sha1": "11d33ad121e3",
    "url": "assets/cutouts/qs-device-watch.webp"
   },
   {
@@ -3404,8 +3404,8 @@
    "source": "generated",
    "w": 498,
    "h": 564,
-   "bytes": 19438,
-   "sha1": "5e81e6d623a9",
+   "bytes": 15642,
+   "sha1": "2723d4388a56",
    "url": "assets/cutouts/qs-family-ipad-11-a16.webp"
   },
   {
@@ -3417,8 +3417,8 @@
    "source": "generated",
    "w": 496,
    "h": 564,
-   "bytes": 28832,
-   "sha1": "6ba50c20671e",
+   "bytes": 31742,
+   "sha1": "8be0af25044d",
    "url": "assets/cutouts/qs-family-ipad-air-11-m3.webp"
   },
   {
@@ -3430,8 +3430,8 @@
    "source": "generated",
    "w": 452,
    "h": 564,
-   "bytes": 23100,
-   "sha1": "698722163d3f",
+   "bytes": 26254,
+   "sha1": "9e6e5fb71069",
    "url": "assets/cutouts/qs-family-ipad-mini-7-a17-pro.webp"
   },
   {
@@ -3441,10 +3441,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 512,
+   "w": 513,
    "h": 564,
-   "bytes": 22464,
-   "sha1": "cbf7b30c3bcb",
+   "bytes": 24778,
+   "sha1": "9f5c237a52bc",
    "url": "assets/cutouts/qs-family-ipad-pro-13-m5.webp"
   },
   {
@@ -3456,8 +3456,8 @@
    "source": "generated",
    "w": 438,
    "h": 496,
-   "bytes": 14410,
-   "sha1": "e4c014519952",
+   "bytes": 13134,
+   "sha1": "9b822a96fa6c",
    "url": "assets/cutouts/qs-ipad-10.webp"
   },
   {
@@ -3469,8 +3469,8 @@
    "source": "generated",
    "w": 438,
    "h": 496,
-   "bytes": 14410,
-   "sha1": "e4c014519952",
+   "bytes": 13134,
+   "sha1": "9b822a96fa6c",
    "url": "assets/cutouts/qs-ipad-11-a16.webp"
   },
   {
@@ -3480,10 +3480,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 400,
+   "w": 403,
    "h": 479,
-   "bytes": 29542,
-   "sha1": "d6e2bc164c49",
+   "bytes": 37108,
+   "sha1": "067a1074e3f8",
    "url": "assets/cutouts/qs-ipad-5.webp"
   },
   {
@@ -3493,10 +3493,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 399,
+   "w": 402,
    "h": 479,
-   "bytes": 27378,
-   "sha1": "06e5551f640b",
+   "bytes": 31118,
+   "sha1": "031673ec8e44",
    "url": "assets/cutouts/qs-ipad-6.webp"
   },
   {
@@ -3506,10 +3506,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 413,
-   "h": 500,
-   "bytes": 10912,
-   "sha1": "b3125a237a16",
+   "w": 414,
+   "h": 501,
+   "bytes": 12366,
+   "sha1": "7a36b27e5e70",
    "url": "assets/cutouts/qs-ipad-7.webp"
   },
   {
@@ -3519,10 +3519,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 413,
-   "h": 500,
-   "bytes": 8282,
-   "sha1": "a4253aafb84d",
+   "w": 414,
+   "h": 501,
+   "bytes": 9542,
+   "sha1": "b575ac6c4887",
    "url": "assets/cutouts/qs-ipad-8.webp"
   },
   {
@@ -3533,9 +3533,9 @@
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
    "w": 413,
-   "h": 501,
-   "bytes": 9508,
-   "sha1": "1a1041654e56",
+   "h": 500,
+   "bytes": 11064,
+   "sha1": "b85ff8e25423",
    "url": "assets/cutouts/qs-ipad-9.webp"
   },
   {
@@ -3545,10 +3545,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 436,
-   "h": 495,
-   "bytes": 24296,
-   "sha1": "f40a8770a7a4",
+   "w": 435,
+   "h": 494,
+   "bytes": 26720,
+   "sha1": "1470b7b079bd",
    "url": "assets/cutouts/qs-ipad-air-11-m2.webp"
   },
   {
@@ -3558,10 +3558,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 436,
-   "h": 495,
-   "bytes": 24296,
-   "sha1": "f40a8770a7a4",
+   "w": 435,
+   "h": 494,
+   "bytes": 26720,
+   "sha1": "1470b7b079bd",
    "url": "assets/cutouts/qs-ipad-air-11-m3.webp"
   },
   {
@@ -3571,10 +3571,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 511,
+   "w": 512,
    "h": 561,
-   "bytes": 30908,
-   "sha1": "36979b7a360d",
+   "bytes": 33260,
+   "sha1": "d14061fda893",
    "url": "assets/cutouts/qs-ipad-air-13-m2.webp"
   },
   {
@@ -3584,10 +3584,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 511,
+   "w": 512,
    "h": 561,
-   "bytes": 30908,
-   "sha1": "36979b7a360d",
+   "bytes": 33260,
+   "sha1": "d14061fda893",
    "url": "assets/cutouts/qs-ipad-air-13-m3.webp"
   },
   {
@@ -3597,10 +3597,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 413,
-   "h": 501,
-   "bytes": 25100,
-   "sha1": "921d125cb061",
+   "w": 415,
+   "h": 500,
+   "bytes": 29160,
+   "sha1": "d79a960386d8",
    "url": "assets/cutouts/qs-ipad-air-3.webp"
   },
   {
@@ -3610,10 +3610,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 436,
-   "h": 494,
-   "bytes": 16880,
-   "sha1": "7e4a7798a789",
+   "w": 437,
+   "h": 495,
+   "bytes": 18766,
+   "sha1": "52dab054cfbd",
    "url": "assets/cutouts/qs-ipad-air-4.webp"
   },
   {
@@ -3624,9 +3624,9 @@
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
    "w": 437,
-   "h": 494,
-   "bytes": 13804,
-   "sha1": "4ad179fef919",
+   "h": 495,
+   "bytes": 15194,
+   "sha1": "c1335fe5e07f",
    "url": "assets/cutouts/qs-ipad-air-5.webp"
   },
   {
@@ -3636,10 +3636,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 333,
-   "h": 406,
-   "bytes": 6352,
-   "sha1": "d3e4fb65d086",
+   "w": 336,
+   "h": 405,
+   "bytes": 7060,
+   "sha1": "8e60479cba31",
    "url": "assets/cutouts/qs-ipad-mini-5.webp"
   },
   {
@@ -3649,10 +3649,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 317,
+   "w": 318,
    "h": 390,
-   "bytes": 15856,
-   "sha1": "1524bf98e1ee",
+   "bytes": 18012,
+   "sha1": "9c7dc1e93e3a",
    "url": "assets/cutouts/qs-ipad-mini-6.webp"
   },
   {
@@ -3664,8 +3664,8 @@
    "source": "generated",
    "w": 313,
    "h": 390,
-   "bytes": 15124,
-   "sha1": "8d79827975d1",
+   "bytes": 16626,
+   "sha1": "363214ca3b4e",
    "url": "assets/cutouts/qs-ipad-mini-7-a17-pro.webp"
   },
   {
@@ -3675,10 +3675,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 436,
-   "h": 495,
-   "bytes": 37312,
-   "sha1": "51d6aaac6e8a",
+   "w": 435,
+   "h": 494,
+   "bytes": 39192,
+   "sha1": "4ce7bcf22601",
    "url": "assets/cutouts/qs-ipad-pro-11-4th-gen.webp"
   },
   {
@@ -3689,9 +3689,9 @@
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
    "w": 435,
-   "h": 499,
-   "bytes": 24352,
-   "sha1": "d59fa1327f1e",
+   "h": 498,
+   "bytes": 21546,
+   "sha1": "dbd91ff4173f",
    "url": "assets/cutouts/qs-ipad-pro-11-m4.webp"
   },
   {
@@ -3703,8 +3703,8 @@
    "source": "generated",
    "w": 454,
    "h": 499,
-   "bytes": 20028,
-   "sha1": "7f5ea464898d",
+   "bytes": 21670,
+   "sha1": "4ddce6a6868c",
    "url": "assets/cutouts/qs-ipad-pro-11-m5.webp"
   },
   {
@@ -3714,10 +3714,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 495,
-   "h": 560,
-   "bytes": 29402,
-   "sha1": "a38064e8b4d9",
+   "w": 496,
+   "h": 561,
+   "bytes": 33376,
+   "sha1": "4c44dae76c32",
    "url": "assets/cutouts/qs-ipad-pro-12-9-3rd-gen.webp"
   },
   {
@@ -3727,10 +3727,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 519,
-   "h": 561,
-   "bytes": 37922,
-   "sha1": "be1e3abf928e",
+   "w": 520,
+   "h": 560,
+   "bytes": 39298,
+   "sha1": "ca010899792c",
    "url": "assets/cutouts/qs-ipad-pro-12-9-4th-gen.webp"
   },
   {
@@ -3740,10 +3740,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 519,
+   "w": 518,
    "h": 560,
-   "bytes": 56024,
-   "sha1": "d83579650da2",
+   "bytes": 62322,
+   "sha1": "79e54c6f120e",
    "url": "assets/cutouts/qs-ipad-pro-12-9-5th-gen.webp"
   },
   {
@@ -3754,9 +3754,9 @@
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
    "w": 511,
-   "h": 561,
-   "bytes": 45156,
-   "sha1": "b1c422e90529",
+   "h": 560,
+   "bytes": 48006,
+   "sha1": "5344f46ed3d1",
    "url": "assets/cutouts/qs-ipad-pro-12-9-6th-gen.webp"
   },
   {
@@ -3768,8 +3768,8 @@
    "source": "generated",
    "w": 512,
    "h": 563,
-   "bytes": 22772,
-   "sha1": "ef2facf79ed7",
+   "bytes": 24536,
+   "sha1": "0c053e8119a8",
    "url": "assets/cutouts/qs-ipad-pro-13-m4.webp"
   },
   {
@@ -3781,8 +3781,8 @@
    "source": "generated",
    "w": 512,
    "h": 563,
-   "bytes": 22772,
-   "sha1": "ef2facf79ed7",
+   "bytes": 24536,
+   "sha1": "0c053e8119a8",
    "url": "assets/cutouts/qs-ipad-pro-13-m5.webp"
   },
   {
@@ -3794,8 +3794,8 @@
    "source": "generated",
    "w": 393,
    "h": 542,
-   "bytes": 21532,
-   "sha1": "811d662b984f",
+   "bytes": 24816,
+   "sha1": "d484768e68f1",
    "url": "assets/cutouts/qs-iphone-11-pro-max.webp"
   },
   {
@@ -3807,8 +3807,8 @@
    "source": "generated",
    "w": 359,
    "h": 495,
-   "bytes": 15678,
-   "sha1": "c06876db57f2",
+   "bytes": 17012,
+   "sha1": "e6b8407af87c",
    "url": "assets/cutouts/qs-iphone-11-pro.webp"
   },
   {
@@ -3820,8 +3820,8 @@
    "source": "generated",
    "w": 378,
    "h": 518,
-   "bytes": 13662,
-   "sha1": "5fc1284dea5e",
+   "bytes": 15374,
+   "sha1": "869988aa95d0",
    "url": "assets/cutouts/qs-iphone-11.webp"
   },
   {
@@ -3831,10 +3831,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 254,
-   "h": 344,
-   "bytes": 8804,
-   "sha1": "3e0d12b3f6eb",
+   "w": 256,
+   "h": 347,
+   "bytes": 9732,
+   "sha1": "65c115e1c73a",
    "url": "assets/cutouts/qs-iphone-12-mini.webp"
   },
   {
@@ -3844,10 +3844,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 309,
-   "h": 420,
-   "bytes": 12168,
-   "sha1": "b24252eb0c47",
+   "w": 313,
+   "h": 424,
+   "bytes": 13534,
+   "sha1": "0a27c79121e3",
    "url": "assets/cutouts/qs-iphone-12-pro-max.webp"
   },
   {
@@ -3857,10 +3857,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 282,
-   "h": 384,
-   "bytes": 10450,
-   "sha1": "7d3acb4324bf",
+   "w": 285,
+   "h": 386,
+   "bytes": 12502,
+   "sha1": "8fa3e5799d97",
    "url": "assets/cutouts/qs-iphone-12-pro.webp"
   },
   {
@@ -3870,10 +3870,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 282,
-   "h": 384,
-   "bytes": 9712,
-   "sha1": "991296d56a84",
+   "w": 284,
+   "h": 386,
+   "bytes": 11410,
+   "sha1": "e059f810c334",
    "url": "assets/cutouts/qs-iphone-12.webp"
   },
   {
@@ -3885,8 +3885,8 @@
    "source": "generated",
    "w": 338,
    "h": 452,
-   "bytes": 11898,
-   "sha1": "39a2911882cb",
+   "bytes": 12650,
+   "sha1": "326a293c9089",
    "url": "assets/cutouts/qs-iphone-13-mini.webp"
   },
   {
@@ -3898,8 +3898,8 @@
    "source": "generated",
    "w": 400,
    "h": 518,
-   "bytes": 13348,
-   "sha1": "dba783d7efff",
+   "bytes": 14806,
+   "sha1": "d802d8eb7842",
    "url": "assets/cutouts/qs-iphone-13-pro-max.webp"
   },
   {
@@ -3911,8 +3911,8 @@
    "source": "generated",
    "w": 394,
    "h": 503,
-   "bytes": 13176,
-   "sha1": "5a6b6f863d0e",
+   "bytes": 15094,
+   "sha1": "0a9e9a2ebd1a",
    "url": "assets/cutouts/qs-iphone-13-pro.webp"
   },
   {
@@ -3922,10 +3922,10 @@
    "category": "phones",
    "prompt": "imported from the iphones.la quick-sell device art (owner's own site asset)",
    "source": "generated",
-   "w": 370,
+   "w": 369,
    "h": 505,
-   "bytes": 13694,
-   "sha1": "1e14ca79a575",
+   "bytes": 15072,
+   "sha1": "278bf207c312",
    "url": "assets/cutouts/qs-iphone-13.webp"
   },
   {
@@ -3937,8 +3937,8 @@
    "source": "generated",
    "w": 400,
    "h": 547,
-   "bytes": 15968,
-   "sha1": "004583ba770d",
+   "bytes": 17938,
+   "sha1": "fa4ee5416791",
    "url": "assets/cutouts/qs-iphone-14-plus.webp"
   },
   {
@@ -3950,8 +3950,8 @@
    "source": "generated",
    "w": 400,
    "h": 502,
-   "bytes": 14298,
-   "sha1": "f1980714aa9e",
+   "bytes": 15640,
+   "sha1": "2fa5942c5c30",
    "url": "assets/cutouts/qs-iphone-14-pro-max.webp"
   },
   {
@@ -3963,8 +3963,8 @@
    "source": "generated",
    "w": 400,
    "h": 494,
-   "bytes": 16548,
-   "sha1": "626d0c9f7fef",
+   "bytes": 18082,
+   "sha1": "743723922a46",
    "url": "assets/cutouts/qs-iphone-14-pro.webp"
   },
   {
@@ -3976,8 +3976,8 @@
    "source": "generated",
    "w": 379,
    "h": 504,
-   "bytes": 15142,
-   "sha1": "3c0d62e24cce",
+   "bytes": 17054,
+   "sha1": "7ce2ca3d33d8",
    "url": "assets/cutouts/qs-iphone-14.webp"
   },
   {
@@ -3989,8 +3989,8 @@
    "source": "generated",
    "w": 400,
    "h": 525,
-   "bytes": 16640,
-   "sha1": "ddd2e17f2243",
+   "bytes": 19392,
+   "sha1": "7f7e1a2edf95",
    "url": "assets/cutouts/qs-iphone-15-plus.webp"
   },
   {
@@ -4002,8 +4002,8 @@
    "source": "generated",
    "w": 400,
    "h": 498,
-   "bytes": 32198,
-   "sha1": "e0bdd1c9f711",
+   "bytes": 37316,
+   "sha1": "c426b181ce6d",
    "url": "assets/cutouts/qs-iphone-15-pro-max.webp"
   },
   {
@@ -4015,8 +4015,8 @@
    "source": "generated",
    "w": 400,
    "h": 493,
-   "bytes": 31364,
-   "sha1": "8ec7b4d3c4a0",
+   "bytes": 35760,
+   "sha1": "cc4f9691c4cd",
    "url": "assets/cutouts/qs-iphone-15-pro.webp"
   },
   {
@@ -4028,8 +4028,8 @@
    "source": "generated",
    "w": 387,
    "h": 508,
-   "bytes": 15946,
-   "sha1": "deee24f9ecb0",
+   "bytes": 18434,
+   "sha1": "2c6e86eb6bb7",
    "url": "assets/cutouts/qs-iphone-15.webp"
   },
   {
@@ -4041,8 +4041,8 @@
    "source": "generated",
    "w": 400,
    "h": 497,
-   "bytes": 15380,
-   "sha1": "8194f62bff53",
+   "bytes": 16708,
+   "sha1": "1b079fea17ec",
    "url": "assets/cutouts/qs-iphone-16-plus.webp"
   },
   {
@@ -4054,8 +4054,8 @@
    "source": "generated",
    "w": 400,
    "h": 502,
-   "bytes": 15140,
-   "sha1": "afa738baf2c3",
+   "bytes": 17190,
+   "sha1": "f6537cb66bee",
    "url": "assets/cutouts/qs-iphone-16-pro-max.webp"
   },
   {
@@ -4067,8 +4067,8 @@
    "source": "generated",
    "w": 400,
    "h": 496,
-   "bytes": 16506,
-   "sha1": "7fb85ea57b9a",
+   "bytes": 18130,
+   "sha1": "b159fef91f46",
    "url": "assets/cutouts/qs-iphone-16-pro.webp"
   },
   {
@@ -4080,8 +4080,8 @@
    "source": "generated",
    "w": 400,
    "h": 489,
-   "bytes": 16168,
-   "sha1": "3632167e5d68",
+   "bytes": 18134,
+   "sha1": "5a56b229881e",
    "url": "assets/cutouts/qs-iphone-16.webp"
   },
   {
@@ -4093,8 +4093,8 @@
    "source": "generated",
    "w": 400,
    "h": 488,
-   "bytes": 14192,
-   "sha1": "bbd34f635159",
+   "bytes": 15874,
+   "sha1": "a3017f78e3eb",
    "url": "assets/cutouts/qs-iphone-16e.webp"
   },
   {
@@ -4106,8 +4106,8 @@
    "source": "generated",
    "w": 306,
    "h": 536,
-   "bytes": 13996,
-   "sha1": "e5b6a0cb5235",
+   "bytes": 15760,
+   "sha1": "558eca805fca",
    "url": "assets/cutouts/qs-iphone-17-air.webp"
   },
   {
@@ -4119,8 +4119,8 @@
    "source": "generated",
    "w": 400,
    "h": 515,
-   "bytes": 16408,
-   "sha1": "5d0a223084d0",
+   "bytes": 18120,
+   "sha1": "2454c0ddb792",
    "url": "assets/cutouts/qs-iphone-17-pro-max.webp"
   },
   {
@@ -4132,8 +4132,8 @@
    "source": "generated",
    "w": 400,
    "h": 497,
-   "bytes": 19982,
-   "sha1": "36f74427bbd6",
+   "bytes": 23028,
+   "sha1": "878e0db29f75",
    "url": "assets/cutouts/qs-iphone-17-pro.webp"
   },
   {
@@ -4145,8 +4145,8 @@
    "source": "generated",
    "w": 293,
    "h": 515,
-   "bytes": 16828,
-   "sha1": "df46fb096008",
+   "bytes": 19350,
+   "sha1": "5ab7dcbb7af6",
    "url": "assets/cutouts/qs-iphone-17.webp"
   },
   {
@@ -4158,8 +4158,8 @@
    "source": "generated",
    "w": 316,
    "h": 517,
-   "bytes": 17580,
-   "sha1": "167272eb1001",
+   "bytes": 19750,
+   "sha1": "07b3a3ac70ec",
    "url": "assets/cutouts/qs-iphone-xr.webp"
   },
   {
@@ -4171,8 +4171,8 @@
    "source": "generated",
    "w": 229,
    "h": 542,
-   "bytes": 29326,
-   "sha1": "a59a308ff77d",
+   "bytes": 32384,
+   "sha1": "9203e12f7c52",
    "url": "assets/cutouts/qs-iphone-xs-max.webp"
   },
   {
@@ -4184,8 +4184,8 @@
    "source": "generated",
    "w": 278,
    "h": 494,
-   "bytes": 30886,
-   "sha1": "7b93411750b6",
+   "bytes": 33840,
+   "sha1": "15b43c7ed373",
    "url": "assets/cutouts/qs-iphone-xs.webp"
   },
   {
@@ -4196,9 +4196,9 @@
    "prompt": "row assortment composed from site device art: qs-device-imac, qs-device-macbook-air, qs-family-ipad-air-11-m3, qs-iphone-15, qs-device-watch",
    "source": "generated",
    "w": 2048,
-   "h": 457,
-   "bytes": 64778,
-   "sha1": "9745d9a00f15",
+   "h": 458,
+   "bytes": 64728,
+   "sha1": "d9def7d61ca7",
    "url": "assets/cutouts/qs-set-apple-family-five.webp"
   },
   {
@@ -4208,10 +4208,10 @@
    "category": "phones",
    "prompt": "grid assortment composed from site device art: qs-device-macbook-pro, qs-device-macbook-air, qs-family-ipad-pro-13-m5, qs-ipad-mini-6, qs-iphone-15-pro, qs-device-watch",
    "source": "generated",
-   "w": 1449,
-   "h": 1345,
-   "bytes": 125198,
-   "sha1": "387d23389217",
+   "w": 1450,
+   "h": 1347,
+   "bytes": 126592,
+   "sha1": "7860b4ba6b7a",
    "url": "assets/cutouts/qs-set-apple-grid-six.webp"
   },
   {
@@ -4223,8 +4223,8 @@
    "source": "generated",
    "w": 1431,
    "h": 1273,
-   "bytes": 116510,
-   "sha1": "d6b17396a03a",
+   "bytes": 108030,
+   "sha1": "fa3afaf9ede5",
    "url": "assets/cutouts/qs-set-apple-hero-bundle.webp"
   },
   {
@@ -4236,8 +4236,8 @@
    "source": "generated",
    "w": 2048,
    "h": 581,
-   "bytes": 83306,
-   "sha1": "df6de4c46c1e",
+   "bytes": 82348,
+   "sha1": "2946ff1be756",
    "url": "assets/cutouts/qs-set-apple-lineup.webp"
   },
   {
@@ -4249,8 +4249,8 @@
    "source": "generated",
    "w": 1714,
    "h": 1153,
-   "bytes": 125062,
-   "sha1": "a16e92828a76",
+   "bytes": 124952,
+   "sha1": "3a9f4971a7ab",
    "url": "assets/cutouts/qs-set-apple-stagger-mix.webp"
   },
   {
@@ -4260,10 +4260,10 @@
    "category": "phones",
    "prompt": "fan assortment composed from site device art: qs-device-macbook-air, qs-ipad-pro-11-4th-gen, qs-iphone-15-pro, qs-iphone-13, qs-device-watch",
    "source": "generated",
-   "w": 1448,
+   "w": 1441,
    "h": 1344,
-   "bytes": 132966,
-   "sha1": "78c8f83e6f28",
+   "bytes": 129686,
+   "sha1": "7b2197f18b7d",
    "url": "assets/cutouts/qs-set-everything-fan.webp"
   },
   {
@@ -4274,9 +4274,9 @@
    "prompt": "fan assortment composed from site device art: qs-family-ipad-pro-13-m5, qs-ipad-pro-11-4th-gen, qs-ipad-air-13-m2, qs-family-ipad-air-11-m3, qs-ipad-10, qs-ipad-mini-6",
    "source": "generated",
    "w": 1446,
-   "h": 994,
-   "bytes": 96964,
-   "sha1": "99f19af8be7d",
+   "h": 992,
+   "bytes": 94062,
+   "sha1": "4ef56c7eec60",
    "url": "assets/cutouts/qs-set-ipad-fan.webp"
   },
   {
@@ -4286,10 +4286,10 @@
    "category": "phones",
    "prompt": "stagger assortment composed from site device art: qs-ipad-10, qs-ipad-9, qs-ipad-8, qs-ipad-7, qs-ipad-6",
    "source": "generated",
-   "w": 1866,
+   "w": 1868,
    "h": 1267,
-   "bytes": 108580,
-   "sha1": "620fb381f87c",
+   "bytes": 102602,
+   "sha1": "c0b0c5daee27",
    "url": "assets/cutouts/qs-set-ipad-generations.webp"
   },
   {
@@ -4300,9 +4300,9 @@
    "prompt": "row assortment composed from site device art: qs-family-ipad-pro-13-m5, qs-ipad-air-13-m2, qs-family-ipad-11-a16, qs-family-ipad-mini-7-a17-pro",
    "source": "generated",
    "w": 2048,
-   "h": 600,
-   "bytes": 90660,
-   "sha1": "7f519206a4d6",
+   "h": 599,
+   "bytes": 83760,
+   "sha1": "3674f1ecbddb",
    "url": "assets/cutouts/qs-set-ipad-row.webp"
   },
   {
@@ -4314,8 +4314,8 @@
    "source": "generated",
    "w": 1173,
    "h": 681,
-   "bytes": 72426,
-   "sha1": "9ae19ae1ac66",
+   "bytes": 74604,
+   "sha1": "61e2887d3907",
    "url": "assets/cutouts/qs-set-iphone-colour-fan.webp"
   },
   {
@@ -4327,8 +4327,8 @@
    "source": "generated",
    "w": 2048,
    "h": 535,
-   "bytes": 73848,
-   "sha1": "2b048ab7ee1c",
+   "bytes": 72964,
+   "sha1": "a7e9baf58906",
    "url": "assets/cutouts/qs-set-iphone-colour-row.webp"
   },
   {
@@ -4340,8 +4340,8 @@
    "source": "generated",
    "w": 1707,
    "h": 1097,
-   "bytes": 99348,
-   "sha1": "642dc60f42be",
+   "bytes": 100240,
+   "sha1": "9229d5dff11e",
    "url": "assets/cutouts/qs-set-iphone-generations.webp"
   },
   {
@@ -4353,8 +4353,8 @@
    "source": "generated",
    "w": 1443,
    "h": 1836,
-   "bytes": 172956,
-   "sha1": "9f4cbefa2824",
+   "bytes": 173192,
+   "sha1": "e1954b03807f",
    "url": "assets/cutouts/qs-set-iphone-grid-nine.webp"
   },
   {
@@ -4366,8 +4366,8 @@
    "source": "generated",
    "w": 1177,
    "h": 1055,
-   "bytes": 83566,
-   "sha1": "2d02ea640902",
+   "bytes": 81452,
+   "sha1": "63b9276b2f39",
    "url": "assets/cutouts/qs-set-iphone-hero-trio.webp"
   },
   {
@@ -4377,10 +4377,10 @@
    "category": "phones",
    "prompt": "row assortment composed from site device art: qs-iphone-13-mini, qs-iphone-12-mini",
    "source": "generated",
-   "w": 869,
+   "w": 868,
    "h": 558,
-   "bytes": 29584,
-   "sha1": "daa7de9f0e52",
+   "bytes": 28960,
+   "sha1": "8f9e4d558d60",
    "url": "assets/cutouts/qs-set-iphone-mini-pair.webp"
   },
   {
@@ -4392,8 +4392,8 @@
    "source": "generated",
    "w": 2048,
    "h": 484,
-   "bytes": 85178,
-   "sha1": "9ace5987a404",
+   "bytes": 86328,
+   "sha1": "0f2cf6465708",
    "url": "assets/cutouts/qs-set-iphone-pro-row.webp"
   },
   {
@@ -4405,8 +4405,8 @@
    "source": "generated",
    "w": 1214,
    "h": 725,
-   "bytes": 83910,
-   "sha1": "45ee98a341b9",
+   "bytes": 84768,
+   "sha1": "6d73734ce072",
    "url": "assets/cutouts/qs-set-iphone-promax-fan.webp"
   },
   {
@@ -4418,8 +4418,8 @@
    "source": "generated",
    "w": 2048,
    "h": 436,
-   "bytes": 37960,
-   "sha1": "2caae479394d",
+   "bytes": 34252,
+   "sha1": "d95e60c2158e",
    "url": "assets/cutouts/qs-set-mac-desktop-trio.webp"
   },
   {
@@ -4430,9 +4430,9 @@
    "prompt": "row assortment composed from site device art: qs-device-macbook-pro, qs-device-macbook-air, qs-device-imac, qs-device-mac-studio, qs-device-mac-mini",
    "source": "generated",
    "w": 2048,
-   "h": 257,
-   "bytes": 38038,
-   "sha1": "fcc9ddc326e3",
+   "h": 258,
+   "bytes": 37064,
+   "sha1": "c77d3f3dc538",
    "url": "assets/cutouts/qs-set-mac-row.webp"
   },
   {
@@ -4443,9 +4443,9 @@
    "prompt": "row assortment composed from site device art: qs-device-macbook-pro, qs-device-macbook-air",
    "source": "generated",
    "w": 2048,
-   "h": 611,
-   "bytes": 54442,
-   "sha1": "789902bc25bd",
+   "h": 613,
+   "bytes": 54192,
+   "sha1": "71ea599f59b4",
    "url": "assets/cutouts/qs-set-macbook-pair.webp"
   },
   {
@@ -4457,8 +4457,8 @@
    "source": "generated",
    "w": 1122,
    "h": 1109,
-   "bytes": 93236,
-   "sha1": "0089e9984118",
+   "bytes": 93006,
+   "sha1": "494deae28bf7",
    "url": "assets/cutouts/qs-set-portable-trio.webp"
   },
   {
@@ -4470,8 +4470,8 @@
    "source": "generated",
    "w": 441,
    "h": 372,
-   "bytes": 10786,
-   "sha1": "ac28366d0c16",
+   "bytes": 12336,
+   "sha1": "a4e7b8c85e82",
    "url": "assets/cutouts/qs-sheet-imac-24-m1-2021.webp"
   },
   {
@@ -4483,8 +4483,8 @@
    "source": "generated",
    "w": 441,
    "h": 372,
-   "bytes": 10786,
-   "sha1": "ac28366d0c16",
+   "bytes": 12336,
+   "sha1": "a4e7b8c85e82",
    "url": "assets/cutouts/qs-sheet-imac-24-m3-2023.webp"
   },
   {
@@ -4496,8 +4496,8 @@
    "source": "generated",
    "w": 441,
    "h": 372,
-   "bytes": 7630,
-   "sha1": "4ddafc7fbf19",
+   "bytes": 8714,
+   "sha1": "bdf7c4f5397f",
    "url": "assets/cutouts/qs-sheet-imac-24-m4-2024.webp"
   },
   {
@@ -4509,8 +4509,8 @@
    "source": "generated",
    "w": 275,
    "h": 49,
-   "bytes": 966,
-   "sha1": "7bc9f16907b1",
+   "bytes": 1062,
+   "sha1": "03820b573ac5",
    "url": "assets/cutouts/qs-sheet-macmini-m1-2020.webp"
   },
   {
@@ -4522,8 +4522,8 @@
    "source": "generated",
    "w": 275,
    "h": 46,
-   "bytes": 754,
-   "sha1": "f4ff2f3f5af4",
+   "bytes": 800,
+   "sha1": "306e5a8ef91a",
    "url": "assets/cutouts/qs-sheet-macmini-m2-2023.webp"
   },
   {
@@ -4535,8 +4535,8 @@
    "source": "generated",
    "w": 275,
    "h": 46,
-   "bytes": 754,
-   "sha1": "f4ff2f3f5af4",
+   "bytes": 800,
+   "sha1": "306e5a8ef91a",
    "url": "assets/cutouts/qs-sheet-macmini-m2pro-2023.webp"
   },
   {
@@ -4548,8 +4548,8 @@
    "source": "generated",
    "w": 178,
    "h": 71,
-   "bytes": 1768,
-   "sha1": "ebd0b43b4ca5",
+   "bytes": 1880,
+   "sha1": "d085421b5eae",
    "url": "assets/cutouts/qs-sheet-macmini-m4-2024.webp"
   },
   {
@@ -4561,8 +4561,8 @@
    "source": "generated",
    "w": 178,
    "h": 71,
-   "bytes": 1768,
-   "sha1": "ebd0b43b4ca5",
+   "bytes": 1880,
+   "sha1": "d085421b5eae",
    "url": "assets/cutouts/qs-sheet-macmini-m4pro-2024.webp"
   },
   {
@@ -4574,8 +4574,8 @@
    "source": "generated",
    "w": 276,
    "h": 135,
-   "bytes": 3010,
-   "sha1": "50460b491207",
+   "bytes": 3280,
+   "sha1": "73e5aa58e48a",
    "url": "assets/cutouts/qs-sheet-macstudio-2022.webp"
   },
   {
@@ -4587,8 +4587,8 @@
    "source": "generated",
    "w": 276,
    "h": 135,
-   "bytes": 3010,
-   "sha1": "50460b491207",
+   "bytes": 3280,
+   "sha1": "73e5aa58e48a",
    "url": "assets/cutouts/qs-sheet-macstudio-2023.webp"
   },
   {
@@ -4600,8 +4600,8 @@
    "source": "generated",
    "w": 276,
    "h": 135,
-   "bytes": 2728,
-   "sha1": "93fdea86b9b4",
+   "bytes": 3126,
+   "sha1": "7445891eae68",
    "url": "assets/cutouts/qs-sheet-macstudio-2025.webp"
   },
   {
@@ -4613,8 +4613,8 @@
    "source": "generated",
    "w": 502,
    "h": 288,
-   "bytes": 9992,
-   "sha1": "ae098f519f90",
+   "bytes": 11056,
+   "sha1": "50b67707a34f",
    "url": "assets/cutouts/qs-sheet-mba-13-m1-2020.webp"
   },
   {
@@ -4626,8 +4626,8 @@
    "source": "generated",
    "w": 502,
    "h": 305,
-   "bytes": 12566,
-   "sha1": "0f8ff9737e67",
+   "bytes": 13998,
+   "sha1": "9944377f92b6",
    "url": "assets/cutouts/qs-sheet-mba-13-m2-2022.webp"
   },
   {
@@ -4639,8 +4639,8 @@
    "source": "generated",
    "w": 502,
    "h": 305,
-   "bytes": 12566,
-   "sha1": "0f8ff9737e67",
+   "bytes": 13998,
+   "sha1": "9944377f92b6",
    "url": "assets/cutouts/qs-sheet-mba-13-m3-2024.webp"
   },
   {
@@ -4652,8 +4652,8 @@
    "source": "generated",
    "w": 502,
    "h": 305,
-   "bytes": 12566,
-   "sha1": "0f8ff9737e67",
+   "bytes": 13998,
+   "sha1": "9944377f92b6",
    "url": "assets/cutouts/qs-sheet-mba-13-m4-2025.webp"
   },
   {
@@ -4665,8 +4665,8 @@
    "source": "generated",
    "w": 502,
    "h": 305,
-   "bytes": 27596,
-   "sha1": "ea2a04056be4",
+   "bytes": 31024,
+   "sha1": "08ef16726059",
    "url": "assets/cutouts/qs-sheet-mba-13-m5-2026.webp"
   },
   {
@@ -4678,8 +4678,8 @@
    "source": "generated",
    "w": 560,
    "h": 340,
-   "bytes": 13886,
-   "sha1": "74d0aa437103",
+   "bytes": 16208,
+   "sha1": "0fd7e61ddc4d",
    "url": "assets/cutouts/qs-sheet-mba-15-m2-2023.webp"
   },
   {
@@ -4691,8 +4691,8 @@
    "source": "generated",
    "w": 560,
    "h": 340,
-   "bytes": 13886,
-   "sha1": "74d0aa437103",
+   "bytes": 16208,
+   "sha1": "0fd7e61ddc4d",
    "url": "assets/cutouts/qs-sheet-mba-15-m3-2024.webp"
   },
   {
@@ -4704,8 +4704,8 @@
    "source": "generated",
    "w": 560,
    "h": 340,
-   "bytes": 13886,
-   "sha1": "74d0aa437103",
+   "bytes": 16208,
+   "sha1": "0fd7e61ddc4d",
    "url": "assets/cutouts/qs-sheet-mba-15-m4-2025.webp"
   },
   {
@@ -4717,8 +4717,8 @@
    "source": "generated",
    "w": 560,
    "h": 340,
-   "bytes": 33798,
-   "sha1": "7ea96c66b335",
+   "bytes": 37694,
+   "sha1": "37127c7d4a73",
    "url": "assets/cutouts/qs-sheet-mba-15-m5-2026.webp"
   },
   {
@@ -4730,8 +4730,8 @@
    "source": "generated",
    "w": 487,
    "h": 296,
-   "bytes": 10814,
-   "sha1": "629f8c0ed0b8",
+   "bytes": 12024,
+   "sha1": "70129b6de6b6",
    "url": "assets/cutouts/qs-sheet-mbneo-13-a18pro-2026.webp"
   },
   {
@@ -4743,8 +4743,8 @@
    "source": "generated",
    "w": 481,
    "h": 279,
-   "bytes": 9502,
-   "sha1": "532483df29e4",
+   "bytes": 10708,
+   "sha1": "197520e99b04",
    "url": "assets/cutouts/qs-sheet-mbp-13-m1-2020.webp"
   },
   {
@@ -4756,8 +4756,8 @@
    "source": "generated",
    "w": 481,
    "h": 279,
-   "bytes": 11142,
-   "sha1": "1f253c025726",
+   "bytes": 12306,
+   "sha1": "ff620ca7e80b",
    "url": "assets/cutouts/qs-sheet-mbp-13-m2-2022.webp"
   },
   {
@@ -4769,8 +4769,8 @@
    "source": "generated",
    "w": 494,
    "h": 298,
-   "bytes": 12264,
-   "sha1": "107b82b67c5d",
+   "bytes": 13638,
+   "sha1": "334752c30b12",
    "url": "assets/cutouts/qs-sheet-mbp-14-2021.webp"
   },
   {
@@ -4782,8 +4782,8 @@
    "source": "generated",
    "w": 494,
    "h": 298,
-   "bytes": 12264,
-   "sha1": "107b82b67c5d",
+   "bytes": 13638,
+   "sha1": "334752c30b12",
    "url": "assets/cutouts/qs-sheet-mbp-14-2023.webp"
   },
   {
@@ -4795,8 +4795,8 @@
    "source": "generated",
    "w": 494,
    "h": 298,
-   "bytes": 12264,
-   "sha1": "e25b77bb9824",
+   "bytes": 13748,
+   "sha1": "31105879d8f1",
    "url": "assets/cutouts/qs-sheet-mbp-14-m3-2023.webp"
   },
   {
@@ -4808,8 +4808,8 @@
    "source": "generated",
    "w": 494,
    "h": 298,
-   "bytes": 12264,
-   "sha1": "e25b77bb9824",
+   "bytes": 13748,
+   "sha1": "31105879d8f1",
    "url": "assets/cutouts/qs-sheet-mbp-14-m3pro-2023.webp"
   },
   {
@@ -4821,8 +4821,8 @@
    "source": "generated",
    "w": 494,
    "h": 298,
-   "bytes": 12548,
-   "sha1": "6906fd632224",
+   "bytes": 13690,
+   "sha1": "dfc4d0c1ec15",
    "url": "assets/cutouts/qs-sheet-mbp-14-m4-2024.webp"
   },
   {
@@ -4834,8 +4834,8 @@
    "source": "generated",
    "w": 494,
    "h": 298,
-   "bytes": 12264,
-   "sha1": "e25b77bb9824",
+   "bytes": 13748,
+   "sha1": "31105879d8f1",
    "url": "assets/cutouts/qs-sheet-mbp-14-m4pro-2024.webp"
   },
   {
@@ -4847,8 +4847,8 @@
    "source": "generated",
    "w": 494,
    "h": 298,
-   "bytes": 6982,
-   "sha1": "d11e230b0f46",
+   "bytes": 7620,
+   "sha1": "d076c52318f5",
    "url": "assets/cutouts/qs-sheet-mbp-14-m5-2025.webp"
   },
   {
@@ -4860,8 +4860,8 @@
    "source": "generated",
    "w": 494,
    "h": 298,
-   "bytes": 6914,
-   "sha1": "15b7db397334",
+   "bytes": 7762,
+   "sha1": "10e48099d6b0",
    "url": "assets/cutouts/qs-sheet-mbp-14-m5pro-2026.webp"
   },
   {
@@ -4873,8 +4873,8 @@
    "source": "generated",
    "w": 563,
    "h": 343,
-   "bytes": 14266,
-   "sha1": "1df23aba3642",
+   "bytes": 16118,
+   "sha1": "01f410feb662",
    "url": "assets/cutouts/qs-sheet-mbp-16-2021.webp"
   },
   {
@@ -4886,8 +4886,8 @@
    "source": "generated",
    "w": 563,
    "h": 343,
-   "bytes": 14266,
-   "sha1": "1df23aba3642",
+   "bytes": 16118,
+   "sha1": "01f410feb662",
    "url": "assets/cutouts/qs-sheet-mbp-16-2023.webp"
   },
   {
@@ -4899,8 +4899,8 @@
    "source": "generated",
    "w": 563,
    "h": 343,
-   "bytes": 13616,
-   "sha1": "a970b46ef246",
+   "bytes": 15762,
+   "sha1": "38a202df89e7",
    "url": "assets/cutouts/qs-sheet-mbp-16-m3pro-2023.webp"
   },
   {
@@ -4912,8 +4912,8 @@
    "source": "generated",
    "w": 563,
    "h": 343,
-   "bytes": 13616,
-   "sha1": "a970b46ef246",
+   "bytes": 15762,
+   "sha1": "38a202df89e7",
    "url": "assets/cutouts/qs-sheet-mbp-16-m4pro-2024.webp"
   },
   {
@@ -4925,8 +4925,8 @@
    "source": "generated",
    "w": 563,
    "h": 343,
-   "bytes": 7388,
-   "sha1": "c6762c261ff2",
+   "bytes": 8602,
+   "sha1": "ac92268151f8",
    "url": "assets/cutouts/qs-sheet-mbp-16-m5pro-2026.webp"
   },
   {
@@ -4938,8 +4938,8 @@
    "source": "generated",
    "w": 447,
    "h": 525,
-   "bytes": 92720,
-   "sha1": "688c6cb9b554",
+   "bytes": 93336,
+   "sha1": "0da7878d6e3d",
    "url": "assets/cutouts/qs-sheet-watch-s10-2024.webp"
   },
   {
@@ -4951,8 +4951,8 @@
    "source": "generated",
    "w": 447,
    "h": 525,
-   "bytes": 80602,
-   "sha1": "bd74d6f1e8a4",
+   "bytes": 81244,
+   "sha1": "8bfdb2989cee",
    "url": "assets/cutouts/qs-sheet-watch-s11-2025.webp"
   },
   {
@@ -4964,8 +4964,8 @@
    "source": "generated",
    "w": 425,
    "h": 505,
-   "bytes": 56974,
-   "sha1": "a3e675f469f0",
+   "bytes": 58390,
+   "sha1": "693a45a90da0",
    "url": "assets/cutouts/qs-sheet-watch-s5-2019.webp"
   },
   {
@@ -4977,8 +4977,8 @@
    "source": "generated",
    "w": 436,
    "h": 505,
-   "bytes": 57310,
-   "sha1": "0484e2fe3b61",
+   "bytes": 56696,
+   "sha1": "da8d646a84bc",
    "url": "assets/cutouts/qs-sheet-watch-s6-2020.webp"
   },
   {
@@ -4990,8 +4990,8 @@
    "source": "generated",
    "w": 435,
    "h": 517,
-   "bytes": 34444,
-   "sha1": "e543e2fb90fe",
+   "bytes": 36410,
+   "sha1": "88d59f6bd047",
    "url": "assets/cutouts/qs-sheet-watch-s7-2021.webp"
   },
   {
@@ -5003,8 +5003,8 @@
    "source": "generated",
    "w": 431,
    "h": 515,
-   "bytes": 23154,
-   "sha1": "5dbb311c7501",
+   "bytes": 23684,
+   "sha1": "e18df5f91b99",
    "url": "assets/cutouts/qs-sheet-watch-s8-2022.webp"
   },
   {
@@ -5016,8 +5016,8 @@
    "source": "generated",
    "w": 437,
    "h": 516,
-   "bytes": 51696,
-   "sha1": "925ec52b96c8",
+   "bytes": 53454,
+   "sha1": "42d002dd3bfd",
    "url": "assets/cutouts/qs-sheet-watch-s9-2023.webp"
   },
   {
@@ -5029,8 +5029,8 @@
    "source": "generated",
    "w": 425,
    "h": 505,
-   "bytes": 30638,
-   "sha1": "6fa1e0ba9d11",
+   "bytes": 31436,
+   "sha1": "3d65965bc7c1",
    "url": "assets/cutouts/qs-sheet-watch-se-2020.webp"
   },
   {
@@ -5042,8 +5042,8 @@
    "source": "generated",
    "w": 426,
    "h": 505,
-   "bytes": 25568,
-   "sha1": "fbfc2ecefe48",
+   "bytes": 26198,
+   "sha1": "106c4b5a3e16",
    "url": "assets/cutouts/qs-sheet-watch-se2-2022.webp"
   },
   {
@@ -5055,8 +5055,8 @@
    "source": "generated",
    "w": 422,
    "h": 505,
-   "bytes": 26816,
-   "sha1": "b1701dcf48d6",
+   "bytes": 28916,
+   "sha1": "f6e533d555ce",
    "url": "assets/cutouts/qs-sheet-watch-se3-2025.webp"
   },
   {
@@ -5068,8 +5068,8 @@
    "source": "generated",
    "w": 476,
    "h": 563,
-   "bytes": 82300,
-   "sha1": "c11fd35a7525",
+   "bytes": 83832,
+   "sha1": "e3f669146111",
    "url": "assets/cutouts/qs-sheet-watch-ultra-2022.webp"
   },
   {
@@ -5081,8 +5081,8 @@
    "source": "generated",
    "w": 491,
    "h": 562,
-   "bytes": 78072,
-   "sha1": "1fa17d86db0c",
+   "bytes": 79014,
+   "sha1": "320a18d02b78",
    "url": "assets/cutouts/qs-sheet-watch-ultra2-2023.webp"
   },
   {
@@ -5094,8 +5094,8 @@
    "source": "generated",
    "w": 497,
    "h": 553,
-   "bytes": 35754,
-   "sha1": "01f9b6c394c3",
+   "bytes": 36562,
+   "sha1": "81b58273251c",
    "url": "assets/cutouts/qs-sheet-watch-ultra3-2025.webp"
   },
   {
@@ -7837,7 +7837,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 193773,
+   "bytes": 188125,
    "sha1": "",
    "url": "assets/scenes/scene-flat-apple-cool.jpg"
   },
@@ -7850,7 +7850,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 209840,
+   "bytes": 212134,
    "sha1": "",
    "url": "assets/scenes/scene-flat-apple-coral.jpg"
   },
@@ -7863,7 +7863,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 215410,
+   "bytes": 215068,
    "sha1": "",
    "url": "assets/scenes/scene-flat-apple-warm.jpg"
   },
@@ -7876,7 +7876,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 204933,
+   "bytes": 210527,
    "sha1": "",
    "url": "assets/scenes/scene-flat-ipads.jpg"
   },
@@ -7889,7 +7889,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 175734,
+   "bytes": 177960,
    "sha1": "",
    "url": "assets/scenes/scene-flat-iphones.jpg"
   },
@@ -7902,7 +7902,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 187232,
+   "bytes": 188284,
    "sha1": "",
    "url": "assets/scenes/scene-grad-everything-sun.jpg"
   },
@@ -7915,7 +7915,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 181515,
+   "bytes": 182555,
    "sha1": "",
    "url": "assets/scenes/scene-grad-ipad-mint.jpg"
   },
@@ -7928,7 +7928,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 174189,
+   "bytes": 168918,
    "sha1": "",
    "url": "assets/scenes/scene-grad-ipad-teal.jpg"
   },
@@ -7941,7 +7941,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 163224,
+   "bytes": 160400,
    "sha1": "",
    "url": "assets/scenes/scene-grad-ipad-violet.jpg"
   },
@@ -7954,7 +7954,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 155948,
+   "bytes": 157455,
    "sha1": "",
    "url": "assets/scenes/scene-grad-iphone-coral.jpg"
   },
@@ -7967,7 +7967,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 138959,
+   "bytes": 140480,
    "sha1": "",
    "url": "assets/scenes/scene-grad-iphone-crimson.jpg"
   },
@@ -7980,7 +7980,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 157227,
+   "bytes": 157848,
    "sha1": "",
    "url": "assets/scenes/scene-grad-iphone-sunset.jpg"
   },
@@ -7993,7 +7993,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 150895,
+   "bytes": 152565,
    "sha1": "",
    "url": "assets/scenes/scene-grad-iphone-teal.jpg"
   },
@@ -8006,7 +8006,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 161934,
+   "bytes": 164450,
    "sha1": "",
    "url": "assets/scenes/scene-grad-iphone-violet.jpg"
   },
@@ -8019,7 +8019,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 111944,
+   "bytes": 113958,
    "sha1": "",
    "url": "assets/scenes/scene-grad-legacy-ink.jpg"
   },
@@ -8032,7 +8032,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 158837,
+   "bytes": 153355,
    "sha1": "",
    "url": "assets/scenes/scene-grad-mac-gold.jpg"
   },
@@ -8045,7 +8045,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 137312,
+   "bytes": 138004,
    "sha1": "",
    "url": "assets/scenes/scene-grad-minis-lime.jpg"
   },
@@ -8058,7 +8058,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 177575,
+   "bytes": 176265,
    "sha1": "",
    "url": "assets/scenes/scene-grad-mixed-electric.jpg"
   },
@@ -8071,7 +8071,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 153205,
+   "bytes": 154807,
    "sha1": "",
    "url": "assets/scenes/scene-grad-promax-gold.jpg"
   },
@@ -8084,7 +8084,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 292501,
+   "bytes": 294452,
    "sha1": "",
    "url": "assets/scenes/scene-grad-watch-mint.jpg"
   },
@@ -8097,7 +8097,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 267956,
+   "bytes": 277991,
    "sha1": "",
    "url": "assets/scenes/scene-iso-ipad-cool.jpg"
   },
@@ -8110,7 +8110,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 251157,
+   "bytes": 250994,
    "sha1": "",
    "url": "assets/scenes/scene-iso-iphone-dark.jpg"
   },
@@ -8123,7 +8123,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 270248,
+   "bytes": 271499,
    "sha1": "",
    "url": "assets/scenes/scene-iso-iphone-grey.jpg"
   },
@@ -8136,7 +8136,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 270655,
+   "bytes": 271932,
    "sha1": "",
    "url": "assets/scenes/scene-iso-iphone-mint.jpg"
   },
@@ -8149,7 +8149,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 259938,
+   "bytes": 259868,
    "sha1": "",
    "url": "assets/scenes/scene-iso-iphone-warm.jpg"
   },
@@ -8162,7 +8162,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 265964,
+   "bytes": 269124,
    "sha1": "",
    "url": "assets/scenes/scene-iso-mini-blush.jpg"
   },
@@ -8175,7 +8175,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 163634,
+   "bytes": 164007,
    "sha1": "",
    "url": "assets/scenes/scene-studio-amber-ipad.jpg"
   },
@@ -8188,7 +8188,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 148706,
+   "bytes": 149442,
    "sha1": "",
    "url": "assets/scenes/scene-studio-blue-trio.jpg"
   },
@@ -8201,7 +8201,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 139708,
+   "bytes": 140886,
    "sha1": "",
    "url": "assets/scenes/scene-studio-green-trio.jpg"
   },
@@ -8214,7 +8214,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 124652,
+   "bytes": 124734,
    "sha1": "",
    "url": "assets/scenes/scene-studio-rose-pair.jpg"
   },
@@ -8227,7 +8227,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 230099,
+   "bytes": 231465,
    "sha1": "",
    "url": "assets/scenes/scene-studio-sand-mixed.jpg"
   },
@@ -8240,7 +8240,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 151335,
+   "bytes": 152867,
    "sha1": "",
    "url": "assets/scenes/scene-studio-slate-quad.jpg"
   },
@@ -8253,7 +8253,7 @@
    "source": "composed",
    "w": 1600,
    "h": 1350,
-   "bytes": 249965,
+   "bytes": 250503,
    "sha1": "",
    "url": "assets/scenes/scene-studio-teal-watch.jpg"
   }
