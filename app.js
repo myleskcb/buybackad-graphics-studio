@@ -55,8 +55,8 @@ const TEMPLATES = [
   layers:[
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:820, width:CW, height:260, fill:'rgba(0,0,0,0.85)'}},
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'SELL YOUR', props:{left:CW/2, top:115, originX:'center', fontFamily:F_DISPLAY, fontSize:185, fill:'#ffffff', stroke:'#000000', strokeWidth:9, textAlign:'center', shadow:sh('rgba(0,0,0,0.5)',20,4,4)}},
-    {kind:'rect', name:'Top Banner', props:{left:CW/2-130, top:55, width:260, height:50, fill:'#ff5000', rx:4, angle:-2}},
-    {kind:'text', name:'Banner Text', role:'sub', casing:'upper', text:'TOP BUYER', props:{left:CW/2, top:68, originX:'center', fontFamily:F_DISPLAY, fontSize:36, fill:'#ffffff', stroke:'#000000', strokeWidth:2, angle:-2}},
+    {kind:'rect', name:'Top Banner', props:{left:CW/2, top:80, width:260, height:50, originX:'center', originY:'center', fill:'#ff5000', rx:4, angle:-2}},
+    {kind:'text', name:'Banner Text', role:'sub', casing:'upper', text:'TOP BUYER', props:{left:CW/2, top:80, originX:'center', originY:'center', fontFamily:F_DISPLAY, fontSize:36, fill:'#ffffff', stroke:'#000000', strokeWidth:2, angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'IPHONE', props:{left:CW/2, top:282, originX:'center', fontFamily:F_DISPLAY, fontSize:258, fill:'#ff5000', stroke:'#000000', strokeWidth:12, textAlign:'center', shadow:sh('rgba(0,0,0,0.6)',28,6,6)}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'✓SAFE  ✓QUICK  ✓EASY', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
     {kind:'textbox', name:'Info Text', role:'info', casing:'upper', text:'SAME DAY CASH, NO HASSLE EASY MEETUP\niCLOUD LOCK, BROKEN, BLACKLIST...\nANY CONDITION ANY CARRIER', props:{left:CW/2, top:615, width:CW-80, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', stroke:'#000000', strokeWidth:2, textAlign:'center', fontWeight:'700', lineHeight:1.3, shadow:sh('rgba(0,0,0,0.9)',8,2,2)}},
@@ -379,8 +379,8 @@ const TEMPLATES = [
 { id:'cars_fleet', name:'Fleet + Work Trucks', tag:'buyer', cat:'cars', tier:'premium',
   bg:{type:'grad', c1:'#1c2229', c2:'#0a0d11', a:180},
   layers:[
-    {kind:'rect', name:'Caution Tag', props:{left:CW/2-260, top:70, width:520, height:76, fill:'#ff8a00', rx:8, angle:-1}},
-    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'CONTRACTORS \u2022 FLEETS', props:{left:CW/2, top:88, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'700', angle:-1}},
+    {kind:'rect', name:'Caution Tag', props:{left:CW/2, top:108, width:520, height:76, originX:'center', originY:'center', fill:'#ff8a00', rx:8, angle:-1}},
+    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'CONTRACTORS \u2022 FLEETS', props:{left:CW/2, top:108, originX:'center', originY:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'700', angle:-1}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WORK TRUCKS', props:{left:CW/2, top:220, originX:'center', fontFamily:'Clash Display', fontSize:118, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'\u0026 VANS WANTED', props:{left:CW/2, top:355, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ff8a00'}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Retiring units? Downsizing the yard?\nWe buy 1 or 20 \u2014 high miles fine,\nlettering \u0026 racks fine, diesel preferred.', props:{left:CW/2, top:520, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
@@ -604,20 +604,45 @@ const TEMPLATES = [
   const rg = (name, props) => ({ kind:'rect', name, props });            // glassy-allowed rect
   const ci = (name, props) => ({ kind:'circle', name, props });
 
-  // ── curated complementary palettes ──  paper:true = light background
+  /* ── curated complementary palettes ──  paper:true = light background
+     fb1/fb2 are the FALLBACK gradient stops, used only when a backdrop photo
+     fails to load. They exist because bg1/bg2 could not do both jobs. On the
+     three paper palettes bg1/bg2 are the palette's own cream and ice — which is
+     the point of them — but the shipped ground is that photograph under a 0.48
+     BLACK scrim, measured at L=0.05..0.11, and the ink is white. Falling back
+     to raw cream at L=0.76..0.82 handed every one of those templates white type
+     on a near-white ground: 1.1:1, and the manifest promising "nothing ever
+     renders broken" was wrong for 30 of them. fb1/fb2 restate each palette's
+     hue at a lightness that the inks already chosen for the photo path can
+     stand on, so the SAME ink works on both paths and the fallback stops being
+     a second design to maintain.
+
+     These values are SWEPT, not reasoned. The obvious theory — match the
+     fallback's mean luminance to the photo ground's — was tried and is wrong:
+     it took the fallback path from 66 failing layers to 104. A photograph is
+     bright in places and dark in others and the inks are a compromise across
+     that spread; a smooth gradient at the same mean has no dark region left to
+     carry the light ink. scripts/tune_fallback.mjs renders the whole library at
+     a ladder of lightness scales and counts real failures at each, and these
+     are the winners: 161 failing layers before, 6 after.
+
+     Where several scales tie, the LIGHTEST is taken, because the fallback
+     should still look like the palette rather than defaulting to black. paper
+     is the one that could not have both — anything with its cream left in it
+     costs legibility — so it goes nearly black and keeps only a trace of warmth. */
   const PAL = {
-    volt:    { bg1:'#0b1020', bg2:'#1d2e54', ink:'#ffffff', sub:'#c9d6ff', a1:'#b7ff2e', a2:'#37d6ff', deep:'#07090f', glow:'rgba(183,255,46,0.55)', glow2:'rgba(55,214,255,0.5)' },
-    coral:   { paper:true, bg1:'#f6e7d3', bg2:'#eed7ba', ink:'#ffffff', sub:'#ffe4d1', a1:'#ff5a3c', a2:'#ff9d3c', deep:'#171310', glow:'rgba(255,90,60,0.35)', glow2:'rgba(255,157,60,0.3)' },
-    gold:    { bg1:'#0d0b07', bg2:'#2a1f10', ink:'#f6ead2', sub:'#cbb98f', a1:'#f5c96b', a2:'#e09b2d', deep:'#0a0805', glow:'rgba(245,201,107,0.5)', glow2:'rgba(224,155,45,0.4)' },
-    emerald: { bg1:'#06231c', bg2:'#0e4936', ink:'#f2fff9', sub:'#b8e6d2', a1:'#6bffc9', a2:'#2ec27e', deep:'#04120d', glow:'rgba(107,255,201,0.5)', glow2:'rgba(46,194,126,0.4)' },
-    royal:   { bg1:'#140a2e', bg2:'#2f1a6e', ink:'#ffffff', sub:'#cfc4ff', a1:'#ffc24b', a2:'#ff8a5c', deep:'#0d0720', glow:'rgba(255,194,75,0.5)', glow2:'rgba(185,167,255,0.45)' },
-    crimson: { bg1:'#1a0c10', bg2:'#43141f', ink:'#fff5f5', sub:'#e8c9cd', a1:'#ff3b52', a2:'#ff8a4b', deep:'#120709', glow:'rgba(255,59,82,0.5)', glow2:'rgba(255,138,75,0.4)' },
-    ocean:   { bg1:'#061c2c', bg2:'#0e3d58', ink:'#f2fbff', sub:'#bcdcec', a1:'#45e0ff', a2:'#3c8dff', deep:'#04121c', glow:'rgba(69,224,255,0.5)', glow2:'rgba(60,141,255,0.45)' },
-    paper:   { paper:true, bg1:'#f2ead8', bg2:'#e6d9bd', ink:'#ffffff', sub:'#f0e6cf', a1:'#e3a51c', a2:'#c77f14', deep:'#191713', glow:'rgba(227,165,28,0.35)', glow2:'rgba(199,127,20,0.3)' },
-    rose:    { bg1:'#16161d', bg2:'#2b2634', ink:'#ffffff', sub:'#d9d3e2', a1:'#ff7ba9', a2:'#ffb17b', deep:'#0e0e13', glow:'rgba(255,123,169,0.5)', glow2:'rgba(255,177,123,0.4)' },
-    arctic:  { paper:true, bg1:'#eef3f8', bg2:'#d6e3ef', ink:'#ffffff', sub:'#dce9f7', a1:'#2f7cff', a2:'#19c8e0', deep:'#10233a', glow:'rgba(47,124,255,0.3)', glow2:'rgba(25,200,224,0.3)' },
-    mono:    { bg1:'#141417', bg2:'#2a2a30', ink:'#ffffff', sub:'#c8c8cf', a1:'#e8e8f0', a2:'#9a9aa6', deep:'#0c0c0e', glow:'rgba(232,232,240,0.4)', glow2:'rgba(154,154,166,0.35)' },
-    sunset:  { bg1:'#1c0f2e', bg2:'#54173f', ink:'#fff7ef', sub:'#ffd9c4', a1:'#ffb13c', a2:'#ff4f7e', deep:'#140a1f', glow:'rgba(255,177,60,0.5)', glow2:'rgba(255,79,126,0.45)' },
+    volt:    { bg1:'#0b1020', bg2:'#1d2e54', fb1:'#060913', fb2:'#111b31', ink:'#ffffff', sub:'#c9d6ff', a1:'#b7ff2e', a2:'#37d6ff', deep:'#07090f', glow:'rgba(183,255,46,0.55)', glow2:'rgba(55,214,255,0.5)' },
+    coral:   { paper:true, bg1:'#f6e7d3', bg2:'#eed7ba', fb1:'#292018', fb2:'#130e0b', ink:'#ffffff', sub:'#ffe4d1', a1:'#ff5a3c', a2:'#ff9d3c', deep:'#171310', glow:'rgba(255,90,60,0.35)', glow2:'rgba(255,157,60,0.3)' },
+    gold:    { bg1:'#0d0b07', bg2:'#2a1f10', fb1:'#0e0c07', fb2:'#2e2212', ink:'#f6ead2', sub:'#cbb98f', a1:'#f5c96b', a2:'#e09b2d', deep:'#0a0805', glow:'rgba(245,201,107,0.5)', glow2:'rgba(224,155,45,0.4)' },
+    emerald: { bg1:'#06231c', bg2:'#0e4936', fb1:'#041914', fb2:'#0a3427', ink:'#f2fff9', sub:'#b8e6d2', a1:'#6bffc9', a2:'#2ec27e', deep:'#04120d', glow:'rgba(107,255,201,0.5)', glow2:'rgba(46,194,126,0.4)' },
+    royal:   { bg1:'#140a2e', bg2:'#2f1a6e', fb1:'#100825', fb2:'#26155a', ink:'#ffffff', sub:'#cfc4ff', a1:'#ffc24b', a2:'#ff8a5c', deep:'#0d0720', glow:'rgba(255,194,75,0.5)', glow2:'rgba(185,167,255,0.45)' },
+    crimson: { bg1:'#1a0c10', bg2:'#43141f', fb1:'#13080c', fb2:'#300e16', ink:'#fff5f5', sub:'#e8c9cd', a1:'#ff3b52', a2:'#ff8a4b', deep:'#120709', glow:'rgba(255,59,82,0.5)', glow2:'rgba(255,138,75,0.4)' },
+    ocean:   { bg1:'#061c2c', bg2:'#0e3d58', fb1:'#041019', fb2:'#082332', ink:'#f2fbff', sub:'#bcdcec', a1:'#45e0ff', a2:'#3c8dff', deep:'#04121c', glow:'rgba(69,224,255,0.5)', glow2:'rgba(60,141,255,0.45)' },
+    paper:   { paper:true, bg1:'#f2ead8', bg2:'#e6d9bd', fb1:'#0b0907', fb2:'#040403', ink:'#ffffff', sub:'#f0e6cf', a1:'#e3a51c', a2:'#c77f14', deep:'#191713', glow:'rgba(227,165,28,0.35)', glow2:'rgba(199,127,20,0.3)' },
+    rose:    { bg1:'#16161d', bg2:'#2b2634', fb1:'#101016', fb2:'#201d27', ink:'#ffffff', sub:'#d9d3e2', a1:'#ff7ba9', a2:'#ffb17b', deep:'#0e0e13', glow:'rgba(255,123,169,0.5)', glow2:'rgba(255,177,123,0.4)' },
+    arctic:  { paper:true, bg1:'#eef3f8', bg2:'#d6e3ef', fb1:'#141d27', fb2:'#0a0e14', ink:'#ffffff', sub:'#dce9f7', a1:'#2f7cff', a2:'#19c8e0', deep:'#10233a', glow:'rgba(47,124,255,0.3)', glow2:'rgba(25,200,224,0.3)' },
+    mono:    { bg1:'#141417', bg2:'#2a2a30', fb1:'#0d0d0e', fb2:'#1a1a1e', ink:'#ffffff', sub:'#c8c8cf', a1:'#e8e8f0', a2:'#9a9aa6', deep:'#0c0c0e', glow:'rgba(232,232,240,0.4)', glow2:'rgba(154,154,166,0.35)' },
+    sunset:  { bg1:'#1c0f2e', bg2:'#54173f', fb1:'#0e0817', fb2:'#2a0c20', ink:'#fff7ef', sub:'#ffd9c4', a1:'#ffb13c', a2:'#ff4f7e', deep:'#140a1f', glow:'rgba(255,177,60,0.5)', glow2:'rgba(255,79,126,0.45)' },
   };
 
   /* ── ACCENT DISCIPLINE ───────────────────────────────────────────────────
@@ -777,12 +802,12 @@ const TEMPLATES = [
   // ── shared fragments ──
   const trust = (P, T, badges) => [
     ci('Check Circle', { left:W-318, top:44, radius:44, fill:P.a1, shadow:sh(P.glow, 22) }),
-    t('Check', 'deco', 'none', '✓', { left:W-274, top:56, originX:'center', fontFamily:'Satoshi', fontSize:56, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+    t('Check', 'deco', 'none', '✓', { left:W-274, top:56, originX:'center', fontFamily:'Satoshi', fontSize:56, fill:onAccent(P), fontWeight:'900' }),
     t('Badges', 'badges', 'upper', badges.join('\n'), { left:W-56, top:40, originX:'right', fontFamily:T.s, fontSize:28, fill:P.ink, fontWeight:'800', lineHeight:1.52, charSpacing:110, opacity:0.95, shadow:P.paper ? null : sh('rgba(0,0,0,0.55)', 9, 0, 2) }),
   ];
   const ribbon = (P, T, text, y) => [
-    r('Kicker Ribbon', { left:CX-215, top:y, width:430, height:62, rx:14, angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
-    t('Kicker', 'sub', 'upper', text, { left:CX, top:y+11, originX:'center', fontFamily:T.s, fontStyle:'italic', fontSize:36, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900', angle:-3 }),
+    r('Kicker Ribbon', { left:CX, top:y+31, width:430, height:62, rx:14, originX:'center', originY:'center', angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
+    t('Kicker', 'sub', 'upper', text, { left:CX, top:y+31, originX:'center', originY:'center', fontFamily:T.s, fontStyle:'italic', fontSize:36, fill:onAccent(P), fontWeight:'900', angle:-3 }),
   ];
   const subBlock = (P, T, text, y, size) => tb('Info Text', 'info', 'upper', text, { left:CX, top:y, width:W-140, originX:'center', fontFamily:T.s, fontStyle:'italic', fontSize:size || 40, fill:P.ink, fontWeight:'800', textAlign:'center', lineHeight:1.34, stroke:P.paper ? undefined : '#000000', strokeWidth:P.paper ? 0 : 3, shadow:P.paper ? null : sh('rgba(0,0,0,0.6)', 10, 0, 3) });
   const ctaCard = (P, T, cta) => [
@@ -793,7 +818,7 @@ const TEMPLATES = [
   ];
   const phoneBar = (P, T, y) => [
     r('Phone Plate', { left:CX-330, top:y, width:660, height:118, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 26) }),
-    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:y+22, originX:'center', fontFamily:'Satoshi', fontSize:64, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:y+22, originX:'center', fontFamily:'Satoshi', fontSize:64, fill:onAccent(P), fontWeight:'900' }),
   ];
 
   // ── local social-proof copy per category (all layers stay editable) ──
@@ -812,9 +837,22 @@ const TEMPLATES = [
      P.deep, which is right on a bright accent (lime, amber) and wrong on a
      dark one (crimson's #d53447 against #120709 is 1.9:1). Pick whichever of
      near-black / near-white wins against this palette's accent. Pure maths,
-     no render needed, so it costs nothing at build time. */
-  const onAccent = (P) => {
-    const hex = String(P.a1 || '#ffffff').replace('#','');
+     no render needed, so it costs nothing at build time.
+
+     `over` names the accent actually underneath, for the one plate that is a2
+     rather than a1 (bubblePop's sticker disc). It defaults to a1, which is what
+     every gradient plate in this library starts from.
+
+     This function was already here and already correct while NINE call sites
+     below ignored it, picking the ink from whether the PALETTE is light instead
+     of from what the ink is standing on. The street family had been calling it
+     all along; the designer family never did. Those nine include both phone
+     plates, the knockout headline and the price strip — on paper, coral and
+     arctic the old rule forced white onto a bright amber or coral plate (2.2:1
+     over paper's #e3a51c) purely because the palette is a light one, which the
+     plate underneath is not. All nine now ask. */
+  const onAccent = (P, over) => {
+    const hex = String(over || P.a1 || '#ffffff').replace('#','');
     const n = parseInt(hex, 16);
     const ch = [(n>>16)&255, (n>>8)&255, n&255].map(v => {
       v /= 255; return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
@@ -942,8 +980,8 @@ const TEMPLATES = [
     streetRibbon: (P, T, C) => {
       const ink='#ffffff', tilt=-5;
       const pill = (i, x, w, txt) => ([
-        rg('Pill '+(i+1), { left:x, top:846, width:w, height:68, rx:34, fill:hexToRgba(P.deep,0.82), angle:-2 }),
-        t('Pill Text '+(i+1), 'badges', 'upper', txt, { left:x+w/2, top:864, originX:'center', fontFamily:'Khand', fontSize:30, fill:'#ffffff', fontWeight:'700', charSpacing:18, angle:-2 }),
+        rg('Pill '+(i+1), { left:x+w/2, top:880, width:w, height:68, rx:34, originX:'center', originY:'center', fill:hexToRgba(P.deep,0.82), angle:-2 }),
+        t('Pill Text '+(i+1), 'badges', 'upper', txt, { left:x+w/2, top:880, originX:'center', originY:'center', fontFamily:'Khand', fontSize:30, fill:'#ffffff', fontWeight:'700', charSpacing:18, angle:-2 }),
       ]);
       const b = C.badges || ['FAST','FAIR','SAME DAY'];
       return [
@@ -1188,7 +1226,7 @@ const TEMPLATES = [
       ...trust(P, T, C.badges),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:158, originX:'center', fontFamily:T.d, fontSize:132, fill:P.ink, shadow:sh('rgba(0,0,0,0.4)', 14, 0, 5) }),
       r('Knockout Band', { left:34, top:334, width:W-68, height:252, rx:30, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 30, 0, 10) }),
-      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:366, originX:'center', fontFamily:T.d, fontSize:188, fill:P.paper ? '#ffffff' : P.deep }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:366, originX:'center', fontFamily:T.d, fontSize:188, fill:onAccent(P) }),
       t('Chip 1', 'badges', 'upper', C.badges[0], { left:CX-250, top:664, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'900', backgroundColor:P.paper ? 'rgba(23,19,16,0.08)' : 'rgba(255,255,255,0.12)', padding:14 }),
       t('Chip 2', 'badges', 'upper', C.badges[1], { left:CX, top:664, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'900', backgroundColor:P.paper ? 'rgba(23,19,16,0.08)' : 'rgba(255,255,255,0.12)', padding:14 }),
       t('Chip 3', 'badges', 'upper', C.badges[2], { left:CX+250, top:664, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'900', backgroundColor:P.paper ? 'rgba(23,19,16,0.08)' : 'rgba(255,255,255,0.12)', padding:14 }),
@@ -1217,7 +1255,7 @@ const TEMPLATES = [
       ...trust(P, T, C.badges),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:212, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 32) }),
       r('Rush Band 1', { left:CX, top:508, originX:'center', originY:'center', width:W+160, height:112, rx:26, angle:-6, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh('rgba(0,0,0,0.4)', 18, 0, 8) }),
-      t('Rush Text 1', 'sub', 'upper', C.price, { left:CX, top:508, originX:'center', originY:'center', fontFamily:T.d, fontSize:56, fill:P.paper ? '#ffffff' : P.deep, angle:-6 }),
+      t('Rush Text 1', 'sub', 'upper', C.price, { left:CX, top:508, originX:'center', originY:'center', fontFamily:T.d, fontSize:56, fill:onAccent(P), angle:-6 }),
       r('Rush Band 2', { left:CX, top:652, originX:'center', originY:'center', width:W+160, height:96, rx:26, angle:-6, fill:P.deep, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
       t('Rush Text 2', 'sub', 'upper', C.items, { left:CX, top:652, originX:'center', originY:'center', fontFamily:T.s, fontSize:40, fill:P.a1, fontWeight:'800', angle:-6 }),
       ...phoneBar(P, T, 812),
@@ -1227,7 +1265,7 @@ const TEMPLATES = [
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX-40, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:282, originX:'center', fontFamily:T.d, fontSize:216, fill:P.a1, stroke:P.deep, strokeWidth:12, shadow:sh(P.a2, 0, 12, 12) }),
       ci('Sticker', { left:W-322, top:486, radius:112, fill:P.a2, shadow:sh('rgba(0,0,0,0.4)', 20, 0, 8) }),
-      t('Sticker Text', 'deco', 'upper', 'TOP $$$', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:P.paper ? '#ffffff' : P.deep, angle:10 }, { curve:32 }),
+      t('Sticker Text', 'deco', 'upper', 'TOP $$$', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:onAccent(P, P.a2), angle:10 }, { curve:32 }),
       subBlock(P, T, C.sub, 622), ...ctaCard(P, T, C.cta),
     ],
     slabPoster: (P, T, C) => [
@@ -1236,7 +1274,7 @@ const TEMPLATES = [
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:238, originX:'center', fontFamily:T.d, fontSize:110, fill:P.ink }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:356, originX:'center', fontFamily:T.d, fontSize:224, fill:P.ink, shadow:sh(P.glow, 0, 10, 10) }),
       r('Price Strip', { left:CX-330, top:650, width:660, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),
-      t('Price Line', 'info', 'upper', C.price, { left:CX, top:668, originX:'center', fontFamily:T.s, fontSize:44, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+      t('Price Line', 'info', 'upper', C.price, { left:CX, top:668, originX:'center', fontFamily:T.s, fontSize:44, fill:onAccent(P), fontWeight:'900' }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:806, originX:'center', fontFamily:'Satoshi', fontSize:74, fill:P.ink, fontWeight:'900' }),
       t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:924, originX:'center', fontFamily:'Satoshi', fontSize:24, fill:P.sub }),
     ],
@@ -1277,7 +1315,7 @@ const TEMPLATES = [
       const rows = C.sub.split('\n');
       const mk = (i) => ([
         ci('Tick ' + (i+1), { left:96, top:566 + i*96, radius:27, fill:P.a1, shadow:sh(P.glow, 14) }),
-        t('Tick Mark ' + (i+1), 'deco', 'none', '✓', { left:123, top:576 + i*96, originX:'center', fontFamily:'Satoshi', fontSize:38, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+        t('Tick Mark ' + (i+1), 'deco', 'none', '✓', { left:123, top:576 + i*96, originX:'center', fontFamily:'Satoshi', fontSize:38, fill:onAccent(P), fontWeight:'900' }),
         t('Point ' + (i+1), 'info', 'upper', rows[i], { left:164, top:576 + i*96, fontFamily:T.s, fontSize:39, fill:P.ink, fontWeight:'800' }),
       ]);
       return [
@@ -1296,7 +1334,7 @@ const TEMPLATES = [
       t('Price Line', 'info', 'upper', C.price, { left:64, top:824, fontFamily:T.d, fontSize:40, fill:P.a1, shadow:sh(P.glow, 16) }),
       t('Kicker', 'sub', 'upper', C.k, { left:770, top:120, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, charSpacing:200, fontWeight:'700', backgroundColor:'rgba(0,0,0,0.35)', padding:12 }),
       r('Phone Chip', { left:560, top:860, width:470, height:112, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 22) }),
-      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:795, top:884, originX:'center', fontFamily:'Satoshi', fontSize:47, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:795, top:884, originX:'center', fontFamily:'Satoshi', fontSize:47, fill:onAccent(P), fontWeight:'900' }),
       t('Website', 'website', 'none', 'iphones.LA', { left:795, top:1000, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.ink, opacity:0.6 }),
     ],
     gradientWave: (P, T, C) => [
@@ -1633,8 +1671,13 @@ const TEMPLATES = [
       // are actually loaded. Shrinking twice would only make type smaller than
       // it needs to be, so this pass is deliberately gone.
       TEMPLATES.push({
-        id, name:label, tag:'designer', cat, tier:'premium', feat:!!feat,
-        bg:{ type:'image', src:file, scrim, fallback:{ type:'grad', c1:P.bg1, c2:P.bg2, a:135 } },
+        /* `pal` is recorded, not inferred. Audits used to identify a template's
+           palette by matching its fallback gradient stops, which stopped
+           working the moment tuneFallbacks() started deriving those stops per
+           template — every row came back "unknown". The palette is known here;
+           write it down. */
+        id, name:label, tag:'designer', cat, pal, tier:'premium', feat:!!feat,
+        bg:{ type:'image', src:file, scrim, fallback:{ type:'grad', c1:P.fb1 || P.bg1, c2:P.fb2 || P.bg2, a:135 } },
         layers,
       });
     });
@@ -1816,11 +1859,11 @@ const TEMPLATES = [
       snapColumns(layers);              // alignment still applies; houseType deliberately does not
       TEMPLATES.push({
         id: stId,
-        name: label, tag:'street', cat, tier:'premium', feat: i === 0,
+        name: label, tag:'street', cat, pal, tier:'premium', feat: i === 0,
         bg: bgSrc
           ? { type:'image', src:bgSrc, scrim:0.46, blur:0.014,
-              fallback:{ type:'grad', c1:P.bg1, c2:P.bg2, a:135 } }
-          : { type:'grad', c1:P.bg1, c2:P.bg2, a:135 },
+              fallback:{ type:'grad', c1:P.fb1 || P.bg1, c2:P.fb2 || P.bg2, a:135 } }
+          : { type:'grad', c1:P.fb1 || P.bg1, c2:P.fb2 || P.bg2, a:135 },
         layers,
       });
     });
@@ -4347,28 +4390,100 @@ function coverImage(im, w, h){
      - and the warm/street direction locked in HANDOFF section 6.
 
    Nine of ten accents are warm or neutral. Clean Slate is the deliberate
-   exception: some sellers respond to a clinical, no-nonsense look, and it is
-   the highest-contrast option in the set at 16.8:1. */
+   exception: some sellers respond to a clinical, no-nonsense look.
+
+   2026-08-31: three accents were retuned. Every theme in this set passed every
+   contrast test against its own ground and always had — but the accent's job
+   here is to carry ONE WORD inside an otherwise white headline, so the test
+   that matters is the accent against the INK NEXT TO IT, and nobody had run
+   it. Charcoal Lime scored 1.33:1 against its own white, Warm Cream 1.26 and
+   Clean Slate 1.19 — Clean Slate's #e8ecef was very nearly white on white, so
+   the money word was invisible as a money word while measuring 16.8:1 against
+   the background and looking, on a chart, like the best theme in the set.
+   Deepened to #add369 / #ecbf6a / #b1bec9: same hue, same names, now 1.71,
+   1.72 and 1.90 against the ink, and still 9:1+ against both stops with CVD
+   above 9.
+
+   Setting that floor at 1.7 then failed three MORE themes that had looked fine
+   at 1.6 — Gold Standard 1.67, Money Amber 1.61, Electric Cyan 1.67. Moving a
+   floor and grandfathering whatever was already under it is not a standard, so
+   those three were nudged to clear the same bar: #fbbf24 -> #f4bb2a,
+   #ffc247 -> #f9b939, #5fd8f0 -> #54d4ee. Sub-1% moves in lightness, invisible
+   side by side, and the whole set now passes one rule instead of two.
+   Floor is 1.7. Checked by scripts/theme_law.mjs. */
 const COLOR_THEMES = [
   { name:'Street Orange', bg:{type:'grad', c1:'#1c1108', c2:'#0a0603', a:170}, accent:'#ff8c33', ink:'#ffffff' },
   { name:'Cash Green',    bg:{type:'grad', c1:'#123123', c2:'#050f0a', a:170}, accent:'#4ade80', ink:'#ffffff' },
-  { name:'Gold Standard', bg:{type:'grad', c1:'#241a08', c2:'#0d0903', a:170}, accent:'#fbbf24', ink:'#ffffff' },
-  { name:'Money Amber',   bg:{type:'grad', c1:'#1a1206', c2:'#080502', a:170}, accent:'#ffc247', ink:'#ffffff' },
+  { name:'Gold Standard', bg:{type:'grad', c1:'#241a08', c2:'#0d0903', a:170}, accent:'#f4bb2a', ink:'#ffffff' },
+  { name:'Money Amber',   bg:{type:'grad', c1:'#1a1206', c2:'#080502', a:170}, accent:'#f9b939', ink:'#ffffff' },
   { name:'Deep Red',      bg:{type:'grad', c1:'#2a0a0e', c2:'#0d0305', a:170}, accent:'#ff6b57', ink:'#ffffff' },
   { name:'Night Blue',    bg:{type:'grad', c1:'#0f1b3d', c2:'#050916', a:170}, accent:'#ffa62b', ink:'#ffffff' },
-  { name:'Charcoal Lime', bg:{type:'grad', c1:'#1a1a1f', c2:'#0a0a0d', a:180}, accent:'#b6f24a', ink:'#ffffff' },
-  { name:'Warm Cream',    bg:{type:'grad', c1:'#2b2015', c2:'#0f0b07', a:170}, accent:'#f7e3bd', ink:'#ffffff' },
-  { name:'Electric Cyan', bg:{type:'grad', c1:'#07222b', c2:'#030d11', a:170}, accent:'#5fd8f0', ink:'#ffffff' },
-  { name:'Clean Slate',   bg:{type:'grad', c1:'#141a20', c2:'#06090c', a:175}, accent:'#e8ecef', ink:'#ffffff' },
+  { name:'Charcoal Lime', bg:{type:'grad', c1:'#1a1a1f', c2:'#0a0a0d', a:180}, accent:'#add369', ink:'#ffffff' },
+  { name:'Warm Cream',    bg:{type:'grad', c1:'#2b2015', c2:'#0f0b07', a:170}, accent:'#ecbf6a', ink:'#ffffff' },
+  { name:'Electric Cyan', bg:{type:'grad', c1:'#07222b', c2:'#030d11', a:170}, accent:'#54d4ee', ink:'#ffffff' },
+  { name:'Clean Slate',   bg:{type:'grad', c1:'#141a20', c2:'#06090c', a:175}, accent:'#b1bec9', ink:'#ffffff' },
 ];
+/* Which text is standing on the THEME's background, and which is standing on a
+   plate of its own? Picking a theme repaints the background; it does not repaint
+   the plates, so a line sitting on one has a ground the theme does not control
+   and must be left alone. Same geometry test as purgePlateGradients(): a rect
+   earlier in the stack whose box contains the text's vertical middle. */
+function plateUnder(tpl, layer){
+  const layers = tpl.layers || [];
+  const li = layers.indexOf(layer);
+  if (li < 0 || !layer.props) return null;
+  const x = layer.props.left || 0;
+  const mid = (layer.props.top || 0) + (layer.props.fontSize || 40) * 0.5;
+  for (let i = 0; i < li; i++){
+    const r = layers[i];
+    if ((r.kind !== 'rect' && r.kind !== 'rrect') || !r.props) continue;
+    const L = r.props.left||0, T = r.props.top||0, W = r.props.width||0, H = r.props.height||0;
+    if (!W || !H) continue;
+    /* A plate has to actually PAINT something. slabPoster's 'Poster Frame' is a
+       full-bleed rect with fill rgba(0,0,0,0) — a stroked outline, nothing more
+       — and counting it as a plate excused every line on those templates from
+       needing contrast against the real ground. tuneFallbacks() then had no
+       constraint on those inks and parked the fallback right on top of them:
+       12 layers at zero coverage, invisible, caused by the exclusion rather
+       than by any colour. A frame is not a plate, and neither is anything
+       covering most of the canvas. */
+    const f = r.props.fill;
+    if (r.props.grad && r.props.grad.c1){ /* gradient plates count */ }
+    else if (typeof f !== 'string') continue;
+    else if (/^rgba\(/i.test(f)){
+      const a = parseFloat((f.match(/rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([\d.]+)/i)||[])[1]);
+      if (!(a >= 0.5)) continue;                    // see-through: not a ground
+    }
+    /* TPL_W/TPL_H, not CW/CH: templates are authored at the template size, and
+       CW/CH follow whatever format the editor is currently showing. */
+    if (W * H >= TPL_W * TPL_H * 0.9) continue;     // full-bleed: a frame or a scrim
+    if (x >= L - 12 && x <= L + W + 12 && mid >= T && mid <= T + H) return r;
+  }
+  return null;
+}
 function applyColorTheme(th){
   ez.bg = { type:'grad', c1: th.bg.c1, c2: th.bg.c2, a: th.bg.a };
   ez.bgRecId = null;
   const tpl = ezTpl();
+  /* The library uses nine roles. This used to repaint three of them —
+     headline, cta, sub — so picking a theme recoloured part of the ad and left
+     badges, info, phone and website on whatever the PREVIOUS theme had made
+     them. That is the "illusion of choice" ask failing at the first click: the
+     visitor picks Cash Green and half the type stays amber.
+     Now every reading role follows the ink and the two money roles follow the
+     accent, except where the layer sits on a plate the theme does not own. */
   const heads = tpl.layers.filter(l => l.role === 'headline');
-  heads.forEach((l, i) => ezSetStyle(l.name, { fill: i === heads.length - 1 ? th.accent : th.ink }));
-  tpl.layers.filter(l => l.role === 'cta').forEach(l => ezSetStyle(l.name, { fill: th.accent }));
-  tpl.layers.filter(l => l.role === 'sub').forEach(l => ezSetStyle(l.name, { fill: th.ink }));
+  const last = heads[heads.length - 1];
+  const ACCENT_ROLES = { cta:1, phone:1 };
+  const INK_ROLES = { sub:1, info:1, badges:1, website:1 };
+  tpl.layers.forEach(l => {
+    if (typeof l.text !== 'string' || !l.props) return;
+    if (l.role === 'deco' || l.role === 'photo') return;      // texture, not message
+    if (plateUnder(tpl, l)) return;                            // not the theme's ground
+    if (l.role === 'headline') { ezSetStyle(l.name, { fill: l === last ? th.accent : th.ink }); return; }
+    if (ACCENT_ROLES[l.role]) { ezSetStyle(l.name, { fill: th.accent }); return; }
+    if (INK_ROLES[l.role])    { ezSetStyle(l.name, { fill: th.ink }); return; }
+  });
   syncEzSwatches();
   refreshEzRecents();
   refreshEzLayers();
@@ -8655,33 +8770,41 @@ function applyMeasuredContrast(){
     const m = byId[t.id]; if (!m) return;
     (t.layers||[]).forEach(l => {
       const f = m[l.name]; if (!f || !l.props) return;
-      const ground = f.ground;
       const want = (l.props.fontSize || f.fs || 40) >= 30 ? 3.0 : 4.5;
-      /* Push a little past the requirement. Landing exactly on 3.00 leaves no
-         headroom for JPEG ringing or for a user swapping the backdrop. */
-      const target = want * 1.12;
-      const up = ground < 0.45;
-      const tgt = up ? (target*(ground+0.05)-0.05) : ((ground+0.05)/target-0.05);
-      const g = l.props.grad;
-      if (g && g.c1 && g.c2){
-        g.c1 = liftInk(String(g.c1), tgt, up);
-        g.c2 = liftInk(String(g.c2), tgt, up);
-      } else if (typeof l.props.fill === 'string' && /^#[0-9a-f]{6}$/i.test(l.props.fill)){
-        l.props.fill = liftInk(l.props.fill, tgt, up);
-      } else if (typeof l.props.fill === 'string' && /^rgba?\(/i.test(l.props.fill)){
-        /* rgba() fills are NOT a rare edge case — the library uses them for
-           every semi-transparent headline and sub, and the first version of
-           this pass tested only /^#[0-9a-f]{6}$/ and skipped them silently.
-           That is why the first bake made things WORSE: 131 of the 162
-           remaining failures were layers this pass had "repaired" by returning
-           early. Convert to hex, lift, and drop the alpha — a layer that failed
-           contrast cannot also afford to be translucent, because the alpha is
-           itself part of why it failed. */
-        const m = l.props.fill.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-        if (!m) return;
-        const hex = '#' + [1,2,3].map(i => (+m[i]).toString(16).padStart(2,'0')).join('');
-        l.props.fill = liftInk(hex, tgt, up);
-      } else return;
+      /* The table now names the ink outright. It used to carry a target
+         luminance and a direction, and this pass walked the existing colour
+         with liftInk() until it got there — which desaturates (white walked
+         down is grey, never a considered near-black) and, worse, cannot serve a
+         ground that is bright in one place and dark in another. On
+         st_sports_cutouthero that walk landed the phone number on #959393,
+         L=0.250, over a plate at L=0.256: 1.02:1, invisible, and it was the
+         repair that put it there. bake_contrast.mjs now scores candidate inks
+         against every glyph pixel and writes the winner. See its header. */
+      if (!f.inkFix || !/^#[0-9a-f]{6}$/i.test(f.inkFix)) return;
+      /* Rule 45: a pass that sets `fill` must delete `grad`, because
+         buildLayer prefers the gradient and would paint the colour we just
+         replaced. A repaired layer cannot afford a gradient it did not choose,
+         and it cannot afford alpha either — translucency is usually part of
+         why it failed. */
+      if (l.props.grad) delete l.props.grad;
+      l.props.fill = f.inkFix;
+      /* And the ALPHA. A repaired layer cannot afford to be translucent,
+         because the translucency is usually why it failed: dl_gold_duoSplit's
+         website line is #807f74 at opacity 0.6, so whatever ink this pass
+         chooses gets composited 60/40 with the ground it was chosen to stand
+         against, and lands most of the way back where it started. The previous
+         version of this pass understood the problem for rgba() fills and said
+         so in a comment, but only ever stripped alpha out of the fill string —
+         props.opacity, which is how the designer library actually dims a line,
+         went straight through. 26 of the surviving website failures were this
+         and nothing else. */
+      if (typeof l.props.opacity === 'number' && l.props.opacity < 1) l.props.opacity = 1;
+      /* Halo direction follows the INK now, not a single ground luminance:
+         light ink wants a dark ring, dark ink a light one. With a bimodal
+         ground `ground < 0.45` was picking the ring for the half of the frame
+         the glyphs were not on. */
+      const inkLum = hexLum(f.inkFix);
+      const up = inkLum !== null && inkLum > 0.4;
       /* SEPARATION DEVICE, not just a hue change.
          Measured after the ink repair converged: 33 of the 140 remaining
          failures were >=1.0 short of their target, and no ink colour can close
@@ -8699,14 +8822,27 @@ function applyMeasuredContrast(){
          family) — it is the last resort here precisely because of that, gated
          on >=60px and >=1.0 shortfall, so it lands on a handful of hero
          headlines rather than becoming a house style. */
+      /* The halo used to be reserved for headline/phone/cta. That was right when
+         the alternative was decorating everything, but it left the small roles
+         with no move at all once ink ran out: 10 of the last 11 failures were
+         info/sub/website/badges at 18-28px on a mid-luminance ground, where
+         NEITHER near-white nor near-black reaches 4.5:1 and no amount of
+         re-colouring will. Those are exactly the layers that need an edge of
+         their own. So: heroes still always get the separation, and anything
+         else gets it only when the best available ink was measured short --
+         `forceHalo`, which converge_themes.mjs sets from the REAL render after
+         the previous ink landed, because the bake's own prediction always
+         claims the ink was enough. */
       const isHero = l.role === 'headline' || l.role === 'phone' || l.role === 'cta';
-      if (isHero && !f.onPlate){
+      if (!f.onPlate && (isHero || f.forceHalo || (f.cr || 99) < want)){
         const fsz = l.props.fontSize || f.fs || 40;
         if (!l.props.shadow){
           l.props.shadow = { color: up ? 'rgba(0,0,0,0.62)' : 'rgba(255,255,255,0.50)',
                              blur: Math.max(10, Math.round(fsz * 0.16)),
                              offsetX: 0, offsetY: 2 };
         }
+        // f.cr is what the CHOSEN ink achieves; if that is still short, the
+        // letterform needs an edge of its own, not another colour.
         const shortfall = want - (f.cr || want);
         if (shortfall >= 1.0 && !l.props.stroke && fsz >= 60){
           l.props.stroke = up ? '#000000' : '#ffffff';
@@ -8763,7 +8899,104 @@ function purgePlateGradients(t){
   });
   return n;
 }
+/* ═══════════════ PER-TEMPLATE FALLBACK GROUND ═══════════════
+   The fallback gradient is what paints when a backdrop photo does not load. It
+   has to work with the inks the template already has, because a template
+   carries one set of ink colours and cannot carry two.
+
+   It used to be one gradient per PALETTE, and that cannot be made to work.
+   Measured with scripts/tune_fallback.mjs: sweeping a lightness scale over the
+   palette stops moves the failure count hardly at all (arctic sits at 11, 11,
+   11, 10, 13, 13 across the whole range) because the inks were chosen per
+   TEMPLATE against a photograph, and one gradient cannot suit all of them.
+   Fifteen templates on the same palette can want fifteen different grounds.
+   Nothing in the palette knows that.
+
+   So derive it per template instead, from the inks that template actually
+   ended up with. No render needed: after the measured-contrast table has been
+   applied the fills are final, so this is arithmetic over ~10 colours. Text
+   sitting on a plate is excluded — a plate is its own ground and does not care
+   what the backdrop does.
+
+   This is why the palette's fb1/fb2 are a STARTING POINT rather than the
+   answer: they set the hue, this sets the level. */
+function tuneFallbacks(){
+  const HSL = hex => {
+    const n = parseInt(String(hex).replace('#',''),16);
+    const r=((n>>16)&255)/255, g=((n>>8)&255)/255, b=(n&255)/255;
+    const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn, l=(mx+mn)/2;
+    if (!d) return [0,0,l];
+    const sa = l > 0.5 ? d/(2-mx-mn) : d/(mx+mn);
+    let h = mx===r ? ((g-b)/d)%6 : mx===g ? (b-r)/d+2 : (r-g)/d+4;
+    h *= 60; return [h<0?h+360:h, sa, l];
+  };
+  const HEX = (h,sa,l) => {
+    const c=(1-Math.abs(2*l-1))*sa, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+    const [r,g,b]=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+    const q=v=>Math.round(Math.max(0,Math.min(255,(v+m)*255))).toString(16).padStart(2,'0');
+    return '#'+q(r)+q(g)+q(b);
+  };
+  const scaleL = (hex,k) => { const [h,sa,l] = HSL(hex); return HEX(h,sa,Math.max(0.010,Math.min(0.88,l*k))); };
+  const ratio = (a,b) => { const A=hexLum(a), B=hexLum(b);
+    if (A === null || B === null) return 21;
+    return (Math.max(A,B)+0.05)/(Math.min(A,B)+0.05); };
+
+  TEMPLATES.forEach(t => {
+    const fb = t.bg && t.bg.fallback;
+    if (!fb || fb.type !== 'grad' || !fb.c1 || !fb.c2) return;
+    /* EVERY ink on the background goes in, including the ones that are easy to
+       skip. The first version took only #rrggbb fills of non-deco layers, which
+       left rgba() fills and decorative marks unconstrained — and an ink this
+       function is not looking at is an ink it will happily park the ground
+       directly underneath. That turned 1 invisible layer into 13. A colour
+       that is not in the list does not get a lower standard, it gets no
+       standard at all. */
+    const inks = [];
+    const asHex = v => {
+      if (typeof v !== 'string') return null;
+      if (/^#[0-9a-f]{6}$/i.test(v)) return v;
+      const m = v.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+      return m ? '#' + [1,2,3].map(i => (+m[i]).toString(16).padStart(2,'0')).join('') : null;
+    };
+    (t.layers||[]).forEach(l => {
+      if (typeof l.text !== 'string' || !String(l.text).trim() || !l.props) return;
+      if (plateUnder(t, l)) return;                  // stands on a plate, not on us
+      const g = l.props.grad;
+      const cands = g && g.c1 ? [g.c1, g.c2] : [l.props.fill];
+      const want = l.role === 'deco' ? 2.5 : ((l.props.fontSize || 40) >= 30 ? 3.0 : 4.5);
+      cands.forEach(c => { const hex = asHex(c); if (hex) inks.push({ hex, want }); });
+    });
+    if (!inks.length) return;
+    /* Search ABSOLUTE lightness, not a multiple of the stop we start from.
+       Scaling the existing stop was the obvious way to write this and it cannot
+       work: the palette stops are already near-black, so even x1.9 stays
+       near-black and the search never reaches a ground a DARK ink could stand
+       on. dl_gold_checklistHero_gold's badges are #000000 — chosen for a bright
+       patch of the photograph — and the "best" ground the scaled search could
+       offer them was #060604. That is 1.03:1, which is why twelve layers went
+       to zero coverage. Sweep the whole range, keep the two stops' relationship
+       to each other, and let the inks decide the level. */
+    const l1 = HSL(fb.c1)[2], l2 = HSL(fb.c2)[2];
+    const mean0 = (l1 + l2) / 2 || 0.05;
+    let best = null;
+    for (let t = 0.02; t <= 0.86; t += 0.01){
+      const f = t / mean0;
+      const c1 = scaleL(fb.c1, f), c2 = scaleL(fb.c2, f);
+      let worst = Infinity;
+      for (let i = 0; i < inks.length; i++){
+        const m = Math.min(ratio(inks[i].hex, c1), ratio(inks[i].hex, c2)) / inks[i].want;
+        if (m < worst) worst = m;
+      }
+      /* Ties go to the DARKER ground: these are night-time cash ads, a light
+         fallback would read as a different product, and the house direction is
+         locked warm/dark (HANDOFF section 6). */
+      if (!best || worst > best.worst + 1e-9) best = { t, c1, c2, worst };
+    }
+    if (best){ fb.c1 = best.c1; fb.c2 = best.c2; }
+  });
+}
 TEMPLATES.forEach(t => purgePlateGradients(t));
+tuneFallbacks();
 
 /* Fetched, not inlined: the table is data, it changes on its own cadence, and
    inlining 657 records into app.js would bloat the file every rebake. The app
@@ -8787,6 +9020,8 @@ TEMPLATES.forEach(t => purgePlateGradients(t));
         if (!Array.isArray(j) || !j.length) return;
         CONTRAST_FIX = j;
         if (!applyMeasuredContrast()) return;
+        // the table just rewrote the inks; the fallback is derived FROM the inks
+        tuneFallbacks();
         // recolouring invalidates cached thumbnails; THUMBS is a const object,
         // so clear its keys rather than rebinding it.
         try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
