@@ -39,6 +39,10 @@ const PAL = (0, eval)('(' + palSrc.replace(/^const PAL = /, '').replace(/;\s*$/,
 /* CURRENT HARDWARE ONLY. The shop does not buy iPhone 6/7/8/X any more, and an
    ad showing one says "we are out of date" before it says anything else. */
 const LEGACY = /^(qs-)?iphone-(x|xr|xs|se|[5-9]|1[0-2])\b|^ip-gen1[0-4]\b|^qs-iphone-(x|1[012])/i;
+/* card cutouts that lost their faces to background removal — blank white
+   slabs and stacks — are out: "broken card images that have lost a lot of
+   detail" */
+const BLANK = /^(poke-booster-box|poke-graded-slab|poke-slabs-trio|poke-cards-spread-face|poke-binder-open|sports-slab-graded|sports-cards-stack-loose|sports-cards|sports-slabs-fan-five|sports-binder-open|sports-slabs-stack)$/i;
 /* measured luminance for every backdrop AND scene (scripts/measure_backdrops.mjs) */
 const BG = JSON.parse(readFileSync(ROOT + 'assets/backdrop-lum.json', 'utf8'));
 const ALL = readdirSync(ROOT + 'assets/cutouts').filter(f => /\.webp$/.test(f)).map(f => f.replace(/\.webp$/, ''));
@@ -79,8 +83,8 @@ const CUTS = {
 const DONORS = process.env.LAB_DONORS ? process.env.LAB_DONORS.split(',') : ['du07','jw05','pp04','pp02','cd06','jw07','du08','pa05','ca07','io03',
   /* set 4: six palettes outside the blue family — candy pink and mint, orchid
      and wine jewels, a peach glass, a green duotone */
-  'cd10','cd04','jw03','jw10','gl02','du05'];
-const FRESH = ['cd10','cd04','jw03','jw10','gl02','du05', 'nn01','nn05','ck01','ck03'];   // the last four: Night Neon and Chalk, 2026-09-02
+  'cd10','cd04','jw03','gl02','du05'];
+const FRESH = ['cd10','cd04','jw03','gl02','du05', 'nn01','nn05','ck01','ck03'];   // the last four: Night Neon and Chalk, 2026-09-02
 
 /* DEVICE-LINE DECKS. assets/library.json already carries the real taxonomy —
    iphones 116 assets, macbooks 55, ipads 49, watch 23, samsung 22, pixel 10 —
@@ -182,7 +186,7 @@ const CATEGORY_COPY = {
      own headline, items, claims and product pool, and their own photographs
      (`bgcat` picks the web backdrop pool) so a bike ad never sits on a car
      key. Every claim is bounded the way the owner asked. */
-  bikes:   { k:'BIKE BUYER', h1:'WE BUY', h2:'BIKES', bgcat:'bikes',
+  bikes:   { k:'MOTORCYCLE BUYER', h1:'WE BUY', h2:'MOTORCYCLES', bgcat:'bikes',
              items:'Harley • Honda • Yamaha • Kawasaki • Ducati • Dirt Bikes • Scooters',
              sub:'TITLE OR NOT, RUNNING OR NOT\\nCASH IN HAND BEFORE WE LOAD IT\\nFREE PICKUP ACROSS LA & OC',
              price:'UP TO $12,000 CASH', big:'$12,000', cta:'GET AN INSTANT OFFER',
@@ -364,7 +368,7 @@ const FIT = {
   pokemon: ['comic','script','street','hand','typewriter','condensed','horror','bold'],
   sports:  ['condensed','comic','typewriter','street','slab','bold','script','vintage'],
 };
-const FACESYS = { STYLE, FIT, TRACK: Object.fromEntries(FONTS.filter(f => f.track !== undefined).map(f => [f.name, f.track])), review100: process.env.LAB_REVIEW === '100', size: +(process.env.LAB_SIZE || 0) };
+const FACESYS = { STYLE, FIT, TRACK: Object.fromEntries(FONTS.filter(f => f.track !== undefined).map(f => [f.name, f.track])), review100: process.env.LAB_REVIEW === '100', size: +(process.env.LAB_SIZE || 0), blank: BLANK.source };
 const TRACK = FACESYS.TRACK;
 await page.evaluate(async faces => {
   await Promise.all(faces.map(f => (typeof ensureFont === 'function' ? ensureFont(f) : Promise.resolve())));
@@ -398,7 +402,7 @@ await page.evaluate(async srcs => {
     const el = new Image(); el.onload = () => { CUTOUT_ELS[s] = el; res(); };
     el.onerror = () => res(); el.src = s;
   })));
-}, ALL.filter(f => !LEGACY.test(f)).map(c => 'assets/cutouts/' + c + '.webp'));
+}, ALL.filter(f => !LEGACY.test(f) && !BLANK.test(f)).map(c => 'assets/cutouts/' + c + '.webp'));
 /* THE MISSING BACKDROPS. freshBgImage() reads TPL_BG_ELS, which the engine
    fills only with the backdrops its own templates use. The Apple scenes were
    never in it, so every scene-backed card — all of the iPhone, iPad, Watch
@@ -500,6 +504,7 @@ INFO.assort = process.env.LAB_ASSORT || 'third';
 INFO.export = !!process.env.LAB_EXPORT;
 const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS, DEVICE_DECKS, INFO, CATEGORY_COPY, MODERN, HERO, BGLUM, DEBUG_ID, TYPE, CHALLENGE, KICKERS, FACESYS, WEBBG) => {
   const TRACK = FACESYS.TRACK;
+  const BLANK = new RegExp(FACESYS.blank, 'i');     // the blank card cutouts, excluded in the page too
   /* the mark beside the website line, 100-unit box, outline like the rest of
      the set. The old arrow cursor pointed up-left, AWAY from the URL it was
      meant to point at (owner, 2026-09-02); now half the cards get an arrow
@@ -516,7 +521,10 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
     const plain = /^(condensed|grotesque|serif|slab)$/.test(style);
     const sup = plain ? FACESYS.STYLE.support : FACESYS.STYLE.grotesque;
     const numPool = cat === 'phones' ? FACESYS.STYLE.numTech : FACESYS.STYLE.num;
-    return { display, support: sup[(seed * 3 + 1) % sup.length], num: numPool[(seed * 5 + 2) % numPool.length], style };
+    /* "unify the fonts to maybe two": the number is set in the display face
+       when that face is plain, otherwise in the body face — never a third */
+    const support = sup[(seed * 3 + 1) % sup.length];
+    return { display, support, num: plain ? display : support, style };
   };
   const W = TPL_W, H = TPL_H, SIZE = FACESYS.size || +(new URLSearchParams(location.search).get('size') || 0) || (PLAN.length > 300 ? 512 : 640);
   const TH = Object.fromEntries(THEMES.map(t => [t.id, t]));
@@ -923,13 +931,21 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
           const fits = t => typeof t === 'string' && t.length <= c.text.length * 1.15 + 2;
           const put = t => { if (fits(t)) c.text = t; };
           if (c.role === 'headline'){
+            /* a layout whose headlines carry no money word (CASH IN / 3 STEPS)
+               says what is bought in line one: SELL GOLD / IN 3 STEPS. "Make
+               it super explicit and clear what's being bought." */
+            if (/^CASH IN$/i.test(c.text.trim()) && !heads.some(h => /IPHONE|PHONE|GOLD|SILVER|COINS|CARS|STRIPS|POK|CARDS|WATCH|IPAD|MACBOOK|TRUCK|BIKE|VAN/i.test(h.text || ''))){
+              const money = String(deck.h2 || '').replace(/^(YOUR|THE)\s+/i, '').split(' ')[0];
+              c.text = money ? 'SELL ' + money.toUpperCase() : c.text;
+            }
+            if (/^3 STEPS$/i.test(c.text.trim())) c.text = 'IN 3 STEPS';
             if (/^(SELL YOUR|CASH FOR|WE BUY|SPORTS)$/i.test(c.text.trim())){
               /* metals: "cash out" and "cash in" read as what the customer is
                  doing; the opener rotates through them */
               const METAL = { gold:['CASH FOR','CASH OUT YOUR','CASH IN YOUR','WE BUY'], silver:['CASH FOR','CASH OUT YOUR','WE BUY','CASH IN YOUR'], coins:['WE BUY','CASH OUT YOUR','CASH IN YOUR','CASH FOR'] };
               c.text = (!deck.challengePromise && METAL[cat]) ? METAL[cat][seed % 4] : deck.h1;
             }
-            else if (deck.challengePromise ? (l === money) : /IPHONE|PHONE/i.test(c.text)) c.text = deck.h2;
+            else if (deck.challengePromise ? (l === money) : (l === money || /IPHONE|PHONE/i.test(c.text))) c.text = deck.h2;
             // the money word alone in a card says what we are: GOLD BUYER
             if (heads.length === 1 && l === money && !deck.challengePromise && !/BUYER/i.test(c.text)) c.text = c.text.trim() + ' BUYER';
           }
@@ -989,6 +1005,19 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       }
       return c;
     });
+    /* the NUMBER gets a cue too, on two cards in five: a phone mark at its
+       left edge and a small TEXT OR CALL label above it — "otherwise people
+       don't really know what it's for" */
+    { const ph = t2.layers.find(l => l.role === 'phone' && typeof l.text === 'string' && l.props);
+      if (ph && seed % 5 < 2){
+        const fs = ph.props.fontSize || 48, est = String(ph.text).length * fs * 0.56, ox = ph.props.originX || 'left', lx = ph.props.left || 0;
+        const x0 = ox === 'center' ? lx - est / 2 : ox === 'right' ? lx - est : lx, size = Math.round(fs * 0.9);
+        t2.layers.push({ kind:'path', icon: seed % 2 ? 'phoneMark' : 'phone', name:'Phone Cue', role:'deco', __cursor:true,
+          props:{ left: x0 - size - 12, top: (ph.props.top || 0) - (ph.props.originY === 'center' ? size / 2 : -2), size, fill: ph.props.fill } });
+      }
+      const cta = t2.layers.find(l => l.role === 'cta' && typeof l.text === 'string');
+      if (cta && seed % 3 === 1) cta.text = ['TEXT US NOW', 'CALL OR TEXT NOW', 'TEXT NOW FOR A QUOTE', 'TEXT A PHOTO, GET A NUMBER'][seed % 4];
+    }
     /* "add a cursor icon near website so people know what it is" — and the
        line itself at full ink, not the 45% ghost the library ships */
     { const web = t2.layers.find(l => l.role === 'website' && typeof l.text === 'string');
@@ -1974,15 +2003,46 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
   ICONS.cardSlab = { d: 'M30 8 H70 A8 8 0 0 1 78 16 V84 A8 8 0 0 1 70 92 H30 A8 8 0 0 1 22 84 V16 A8 8 0 0 1 30 8 Z M34 22 H66 V58 H34 Z M34 70 H66', sw: 5 };
   ICONS.drop = { d: 'M50 8 C50 8 22 44 22 62 A28 28 0 0 0 78 62 C78 44 50 8 50 8 Z', sw: 6 };
   ICONS.check = { d: 'M18 52 L40 74 L84 28', sw: 12 };
+  /* the owner's list: car, truck, key, steering wheel — and the rest of a
+     five-times-larger bench */
+  ICONS.car = { d: 'M10 62 L20 42 Q24 34 34 34 H66 Q76 34 80 42 L90 62 V76 H78 A9 9 0 0 1 60 76 H40 A9 9 0 0 1 22 76 H10 Z M24 46 H76', sw: 5 };
+  ICONS.truck = { d: 'M8 30 H56 V70 H8 Z M56 44 H76 L88 58 V70 H56 Z M20 70 A8 8 0 1 0 20 86 A8 8 0 1 0 20 70 Z M74 70 A8 8 0 1 0 74 86 A8 8 0 1 0 74 70 Z', sw: 5 };
+  ICONS.wheel = { d: 'M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10 Z M50 38 A12 12 0 1 0 50 62 A12 12 0 1 0 50 38 Z M50 10 V38 M16 66 L40 56 M84 66 L60 56', sw: 5 };
+  ICONS.key = { d: 'M30 30 A18 18 0 1 0 30 66 A18 18 0 1 0 30 30 Z M46 48 H90 V62 H80 V72 H70 V62 H62 V70 H54 V62 H46 Z', sw: 5 };
+  ICONS.moto = { d: 'M22 60 A12 12 0 1 0 22 84 A12 12 0 1 0 22 60 Z M78 60 A12 12 0 1 0 78 84 A12 12 0 1 0 78 60 Z M22 72 L40 44 H60 L78 72 M52 44 L44 28 H60', sw: 5 };
+  ICONS.van = { d: 'M8 34 H62 L88 52 V72 H8 Z M22 72 A8 8 0 1 0 22 88 A8 8 0 1 0 22 72 Z M74 72 A8 8 0 1 0 74 88 A8 8 0 1 0 74 72 Z M62 34 V52 H88', sw: 5 };
+  ICONS.phoneMark = { d: 'M34 6 H66 A8 8 0 0 1 74 14 V86 A8 8 0 0 1 66 94 H34 A8 8 0 0 1 26 86 V14 A8 8 0 0 1 34 6 Z M42 14 H58', sw: 5 };
+  ICONS.watchMark = { d: 'M50 26 A24 24 0 1 0 50 74 A24 24 0 1 0 50 26 Z M38 8 H62 L58 26 H42 Z M38 92 H62 L58 74 H42 Z M50 38 V50 L58 56', sw: 5 };
+  ICONS.ringMark = { d: 'M50 30 A26 26 0 1 0 50 82 A26 26 0 1 0 50 30 Z M40 20 L50 8 L60 20 Z M40 20 H60 L50 30 Z', sw: 5 };
+  ICONS.chain = { d: 'M22 42 A12 12 0 0 1 34 30 H46 A12 12 0 0 1 46 54 H34 A12 12 0 0 1 22 42 Z M54 58 A12 12 0 0 1 66 46 H78 A12 12 0 0 1 78 70 H66 A12 12 0 0 1 54 58 Z', sw: 5 };
+  ICONS.ingot = { d: 'M22 34 H78 L90 66 H10 Z M30 46 H70', sw: 5 };
+  ICONS.box = { d: 'M14 34 L50 18 L86 34 V72 L50 88 L14 72 Z M14 34 L50 50 L86 34 M50 50 V88', sw: 5 };
+  ICONS.shield = { d: 'M50 8 L84 20 V50 C84 72 68 86 50 92 C32 86 16 72 16 50 V20 Z M36 50 L46 60 L66 40', sw: 5 };
+  ICONS.thumbs = { d: 'M22 46 H36 V86 H22 Z M36 50 L52 20 C60 20 62 28 58 42 H80 C88 42 88 52 84 58 L76 84 C74 86 72 86 68 86 H36', sw: 5 };
+  ICONS.medal = { d: 'M50 40 A22 22 0 1 0 50 84 A22 22 0 1 0 50 40 Z M34 8 L44 44 M66 8 L56 44 M30 8 H46 M54 8 H70', sw: 5 };
+  ICONS.tag = { d: 'M10 50 L48 12 H88 V52 L50 90 Z M72 28 A6 6 0 1 0 72 40 A6 6 0 1 0 72 28 Z', sw: 5 };
+  ICONS.receipt = { d: 'M26 8 H74 V92 L64 84 L54 92 L44 84 L34 92 L26 84 Z M36 30 H64 M36 46 H64 M36 62 H54', sw: 5 };
+  ICONS.cash = { d: 'M8 28 H92 V72 H8 Z M50 40 A10 10 0 1 0 50 60 A10 10 0 1 0 50 40 Z M18 38 H24 M76 62 H82', sw: 5 };
+  ICONS.burst = { d: 'M50 6 L58 30 L82 18 L70 42 L94 50 L70 58 L82 82 L58 70 L50 94 L42 70 L18 82 L30 58 L6 50 L30 42 L18 18 L42 30 Z', sw: 5 };
+  ICONS.heart = { d: 'M50 88 C20 66 8 50 14 32 C20 16 42 16 50 32 C58 16 80 16 86 32 C92 50 80 66 50 88 Z', sw: 5 };
+  ICONS.clock = { d: 'M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10 Z M50 26 V50 L66 60', sw: 5 };
+  ICONS.flag = { d: 'M20 92 V10 M20 14 H80 L68 34 L80 54 H20', sw: 6 };
+  ICONS.battery = { d: 'M10 30 H78 V70 H10 Z M78 42 H90 V58 H78 Z M20 40 H36 V60 H20 Z M42 40 H58 V60 H42 Z', sw: 5 };
+  ICONS.handshake = { d: 'M6 40 L30 22 L50 34 L70 22 L94 40 M30 22 L20 60 L44 80 L60 66 M70 22 L80 60 L56 80', sw: 5 };
+  ICONS.vial = { d: 'M36 8 H64 M42 8 V56 A8 8 0 1 0 58 56 V8 M42 40 H58', sw: 5 };
+  const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
   const ELEMENTS = {
-    pokemon: { icons: ['pokeball','pokeball','bolt','star5','cardSlab'], colors: ['#ffcb05','#2a75bb','#cc0000','#ffcb05'] },
-    sports:  { icons: ['star5','cardSlab','bolt','check'], colors: null },
-    phones:  { icons: ['bolt','check','dollar','sparkle'], colors: null },
-    cars:    { icons: ['keyfob','dollar','check','bolt'], colors: null },
-    gold:    { icons: ['gem','coin','dollar','sparkle'], colors: ['#f2c14e','#c9950f','#fff1b8'] },
-    silver:  { icons: ['gem','sparkle','coin','check'], colors: ['#e6e8ea','#9aa0a6','#ffffff'] },
-    coins:   { icons: ['coin','coin','dollar','star5'], colors: ['#f2c14e','#d9d9d9','#c9950f'] },
-    strips:  { icons: ['drop','check','dollar','sparkle'], colors: null },
+    pokemon: { icons: ['pokeball','pokeball','bolt','star5','cardSlab','burst','gem','medal','heart'], emoji: ['⚡','⭐','🔥','🎴','🃏','💎','🏆','✨'], colors: ['#ffcb05','#2a75bb','#cc0000','#ffcb05'] },
+    sports:  { icons: ['star5','cardSlab','bolt','check','baseball','trophy','medal','burst','flag'], emoji: ['⚾','🏀','🏈','🏒','🏆','⭐','🎴','🥇'], colors: null },
+    phones:  { icons: ['bolt','check','dollar','sparkle','phoneMark','watchMark','battery','cash','shield','thumbs'], emoji: ['📱','⚡','💵','✅','🔋','📲','⌚','💻'], colors: null },
+    cars:    { icons: ['car','truck','key','wheel','keyfob','dollar','check','flag','cash','tag'], emoji: ['🚗','🚙','🛻','🔑','💵','🏁','🛞','⛽'], colors: null },
+    trucks:  { icons: ['truck','key','wheel','car','keyfob','dollar','flag','cash'], emoji: ['🛻','🔑','💵','🏁','🛞','🔧'], colors: null },
+    bikes:   { icons: ['moto','key','wheel','bolt','flag','dollar','check'], emoji: ['🏍️','🔑','🏁','⚡','💵','🛞'], colors: null },
+    vans:    { icons: ['van','box','key','wheel','dollar','check','tag'], emoji: ['🚐','📦','🔑','💵','🏁','🛞'], colors: null },
+    gold:    { icons: ['gem','coin','dollar','sparkle','ringMark','chain','ingot','watchMark','medal','cash'], emoji: ['💰','💎','💍','⌚','🪙','✨','🏆','💵'], colors: ['#f2c14e','#c9950f','#fff1b8'] },
+    silver:  { icons: ['gem','sparkle','coin','check','ringMark','chain','ingot','medal','heart'], emoji: ['🥈','🍴','💍','🪙','✨','🏺','💎'], colors: ['#e6e8ea','#9aa0a6','#ffffff'] },
+    coins:   { icons: ['coin','coin','dollar','star5','ingot','medal','cash','burst','slab'], emoji: ['🪙','💰','💵','🏛️','📀','✨','🥇'], colors: ['#f2c14e','#d9d9d9','#c9950f'] },
+    strips:  { icons: ['drop','check','dollar','sparkle','box','vial','clock','shield','cash'], emoji: ['🩸','💊','📦','✅','💵','🧪','🩺','⏱️'], colors: null },
   };
   function addElements(t2, cat, seed, th, refs){
     if (seed % 4 === 3) return;                          // one card in four goes without
@@ -1991,8 +2051,10 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       .filter(b => b && !(b.width > W * 0.85 && b.height > H * 0.85));
     const clear = r => !boxes.some(b => !(r.left + r.width <= b.left || b.left + b.width <= r.left || r.top + r.height <= b.top || b.top + b.height <= r.top));
     const colors = E.colors || [th.accent, th.support, th.accent2 || th.accent, th.accent3 || th.support];
-    const want = 2 + (seed % 3), placed = [];
-    const spots = [[52, 52], [W - 52, 52], [52, H - 52], [W - 52, H - 52], [W / 2, 60], [60, H / 2], [W - 60, H / 2], [W / 2, H - 60], [200, 140], [W - 200, 140], [200, H - 160], [W - 200, H - 160]];
+    /* "stuff all over the place": one or two marks, corners first, then the
+       mid-edges, never the middle of the card */
+    const want = 1 + (seed % 2), placed = [];
+    const spots = [[62, 62], [W - 62, 62], [62, H - 62], [W - 62, H - 62], [W / 2, 60], [60, H / 2], [W - 60, H / 2]];
     for (let q = 0; q < spots.length && placed.length < want; q++){
       const [cx, cy] = spots[(q + seed) % spots.length];
       for (const size of [140, 110, 84, 64]){
@@ -2003,9 +2065,16 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       }
     }
     placed.forEach((p, i) => {
-      const icon = E.icons[(seed + i) % E.icons.length], color = colors[(seed + i * 2) % colors.length];
-      t2.layers.push({ kind:'path', icon, name:'Element ' + (i + 1), role:'deco', __element:true,
-        props:{ left: p.cx - p.size / 2, top: p.cy - p.size / 2, size: p.size, fill: color, opacity: 0.85, angle: ((seed * 7 + i * 13) % 31) - 15 } });
+      const useEmoji = E.emoji && E.emoji.length && ((seed + i * 3) % 5 < 2);   // two in five are iOS emoji
+      const color = colors[(seed + i * 2) % colors.length], angle = ((seed * 7 + i * 13) % 31) - 15;
+      if (useEmoji){
+        t2.layers.push({ kind:'text', name:'Element ' + (i + 1), role:'deco', __element:true, text: E.emoji[(seed + i) % E.emoji.length],
+          props:{ left: p.cx, top: p.cy, originX:'center', originY:'center', fontFamily: EMOJI_FONT, fontSize: Math.round(p.size * 0.86), fill:'#000000', angle } });
+      } else {
+        const icon = E.icons[(seed + i) % E.icons.length];
+        t2.layers.push({ kind:'path', icon, name:'Element ' + (i + 1), role:'deco', __element:true,
+          props:{ left: p.cx - p.size / 2, top: p.cy - p.size / 2, size: p.size, fill: color, opacity: 0.85, angle } });
+      }
     });
     return placed.length;
   }
@@ -2063,7 +2132,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
         const pool = deck
           ? ALLCUTS.filter(f => deck.cuts.some(pre => f.startsWith(pre)))
           : (HERO[p.cat] || (CUTS[p.cat] && CUTS[p.cat].length ? CUTS[p.cat] : CUTS.phones));
-        const use = pool.length ? pool : CUTS.phones;
+        const use = (pool.filter(f => !BLANK.test(f)).length ? pool.filter(f => !BLANK.test(f)) : CUTS.phones);
         const cutSrc = 'assets/cutouts/' + use[(sd * 7 + 3) % use.length] + '.webp';
         /* challenge mode on every third card: the deck's copy is replaced by
            the competitor framing before the swap runs, so the same length
@@ -2094,12 +2163,12 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
                already has one. The generic names carry THE; the pattern drops
                its own article for them. */
             k: (() => { const who = sharp ? generic : named; return /^THE /i.test(who) ? kick.replace('A {N}', '{N}').replace('{N}', who) : kick.replace('{N}', who); })(),
-            h1: CHALLENGE.lines.h1[seed % CHALLENGE.lines.h1.length],
+            h1: (() => { const h = CHALLENGE.lines.h1[seed % CHALLENGE.lines.h1.length]; return (h === 'WE MATCH' && !poss) ? 'WE BEAT' : h; })(),
             /* WE BEAT / YOUR CARRIER'S / TRADE-IN VALUE — possessive on line
                two, the thing being beaten on line three (the items slot). */
             h2: poss ? poss + "'S" : (CHALLENGE.lines.h2[p.cat] || 'THE PAWN SHOP'),
             tail: !!poss,
-            tailText: poss
+            tailText: (poss && CHALLENGE.lines.h1[seed % CHALLENGE.lines.h1.length] === 'WE MATCH') ? (seed % 2 ? 'OFFER' : 'WRITTEN QUOTE') : poss
               ? ({ phones:'TRADE-IN VALUE', cars:'TRADE-IN OFFER', gold:'CASH OFFER', silver:'CASH OFFER', coins:'BUY PRICE',
                    pokemon:'BUYLIST PRICE', sports:'BUYLIST PRICE', strips:'MAIL-IN OFFER' }[p.cat] || 'OFFER')
               : null,
@@ -2139,8 +2208,8 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
              a studio scene 6) swallows rows of small type under a light tint
              — "not legible". Past 14 it takes the ground colour at 62%. */
           const busy = row && row.detail > 14;
-          if (busy){ t2.bg.scrimColor = th.c1; t2.bg.scrim = 0.62; }
-          else if (lum > 0.55 && lumHex(th.c1) > 0.6){ t2.bg.scrimColor = th.accent; t2.bg.scrim = 0.30; }
+          if (busy){ t2.bg.scrimColor = th.c1; t2.bg.scrim = lumHex(th.c1) < 0.25 ? 0.44 : 0.62; }
+          else if (lum > 0.5){ const dark = lumHex(th.c1) < 0.3 ? th.c1 : (th.c2 && lumHex(th.c2) < 0.3 ? th.c2 : th.ink); t2.bg.scrimColor = dark; t2.bg.scrim = 0.5; }
           else if (sd % 4 === 1){ t2.bg.scrimColor = gap < 0.15 ? th.c2 : th.c1; t2.bg.scrim = Math.max(0.42, Math.min(0.68, 0.40 + gap)); }
           else { t2.bg.scrimColor = th.accent; t2.bg.scrim = lumHex(th.c1) > 0.22 ? 0.24 : 0.30; }
         }
@@ -2161,7 +2230,8 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
              category backdrops fixed a blank Paper card and put iPhones behind
              an iPad headline. Subject coherence beats contrast; if the only
              iPad scenes are light, the tint below carries the theme. */
-          const cand = deck.scenes.map(n => 'assets/scenes/' + n + '.jpg').map(src => {
+          const webExtra = (deck.bgcat && WEBBG[deck.bgcat]) || (deck.cuts && /^iphone/.test(deck.cuts[0]) && WEBBG.phones) || (deck.cuts && /^mac/.test(deck.cuts[0]) && WEBBG.macbook) || [];
+          const cand = deck.scenes.map(n => 'assets/scenes/' + n + '.jpg').concat(webExtra).map(src => {
             const row = BGLUM.find(b => b.src === src);
             return { src, lum: row ? row.lum : 0.3 };
           });
@@ -2180,7 +2250,8 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
              the photo with the ACCENT at a lower alpha, which puts colour back
              and still reads through. Sometimes the washed-out effect is nice —
              their words — so neither is the only answer. */
-          if (sd % 2 === 0){
+          if (cand[0].lum > 0.5){ const dark = lumHex(th.c1) < 0.3 ? th.c1 : (th.c2 && lumHex(th.c2) < 0.3 ? th.c2 : th.ink); t2.bg.scrimColor = dark; t2.bg.scrim = 0.5; }
+          else if (sd % 2 === 0){
             t2.bg.scrimColor = gap < 0.15 ? th.c2 : th.c1;
             t2.bg.scrim = Math.max(0.42, Math.min(0.68, 0.40 + gap));
           } else {
@@ -2458,8 +2529,16 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
             if (typeof l.text !== 'string' || !l.text.trim()) return;
             let key = norm(l.text);
             if (key.length < 8) return;                     // TOP, $850, ✓
+            if (l.role === 'headline'){
+              /* a headline is a duplicate only of another headline, exactly:
+                 THE COIN SHOP is not a repeat of "THE COIN SHOP OFFERED YOU
+                 WHAT?" — that test deleted the object of WE BEAT */
+              const heads = t2.layers.filter(x => x !== l && x.role === 'headline' && typeof x.text === 'string').map(x => norm(x.text));
+              if (heads.includes(key) && t2.layers.indexOf(l) > t2.layers.findIndex(x => x.role === 'headline' && typeof x.text === 'string' && norm(x.text) === key)) kill.push(k);
+              else seen.push(key);
+              return;
+            }
             if (!dupOf(key)){ seen.push(key); return; }
-            if (l.role === 'headline'){ kill.push(k); return; }
             const room = l.text.length * 1.15 + 2;
             const alt = pool.find(t => t.length <= room && !dupOf(norm(t)));
             if (alt){ l.text = alt; seen.push(norm(alt)); }
@@ -2624,7 +2703,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
     }
   }
   return out;
-}, PLAN, picks, DONORS, THEMES, PAL, CUTS, DEVICE_DECKS, INFO, CATEGORY_COPY, ALL.filter(f => !LEGACY.test(f)), HERO, BG, DEBUG_ID, TYPE, CHALLENGE, KICKERS, FACESYS, WEBBG);
+}, PLAN, picks, DONORS, THEMES, PAL, CUTS, DEVICE_DECKS, INFO, CATEGORY_COPY, ALL.filter(f => !LEGACY.test(f) && !BLANK.test(f)), HERO, BG, DEBUG_ID, TYPE, CHALLENGE, KICKERS, FACESYS, WEBBG);
 await browser.close();
 
 const ok = cards.filter(c => !c.err), bad = cards.filter(c => c.err);

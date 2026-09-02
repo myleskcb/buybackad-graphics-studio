@@ -9145,13 +9145,42 @@ function scLoadIndex(){
    across every reviewed set, then the card's own edge density — and then
    interleaved so no two neighbours share a category or a family. A straight
    sort put six Jewel phones cards in a row and read as one template. */
+/* colour helpers for ordering: how light a ground is, how much chroma a
+   card carries. Both read from the index row, no rendering. */
+function scHexRgb(h){ const n = parseInt(String(h || '#888888').slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function scLum(h){ const [r, g, b] = scHexRgb(h).map(c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; }
+function scSat(h){ const [r, g, b] = scHexRgb(h); const mx = Math.max(r, g, b), mn = Math.min(r, g, b); return mx ? (mx - mn) / mx : 0; }
+function scVivid(c){
+  /* measured from the rendered thumbnail when the index carries it (a toned
+     photograph under a light tint reads grey whatever its palette says);
+     the palette is the fallback */
+  if (typeof c.chroma === 'number') return c.chroma * 2.2;
+  return scSat(c.c1) * 0.55 + scSat(c.accent) * 0.3 + scSat(c.support || c.accent) * 0.15;
+}
 function scOrder(list){
-  const pool = list.slice().sort((a, b) => (b.affinity - a.affinity) || (b.density - a.density));
+  /* Strongest first — the owner's approval count for this layout+palette
+     pair, plus a vivid bonus so a saturated Candy or Duotone card outranks a
+     muted one with the same approvals — then interleaved so neighbours differ
+     in family AND in ground lightness. Approval-only order put six dark Jewel
+     cards side by side and the wall read as bland (owner, 2026-09-02). */
+  const pool = list.slice().sort((a, b) => ((b.affinity + scVivid(b) * 4) - (a.affinity + scVivid(a) * 4)) || (b.density - a.density));
+  const light = c => scLum(c.c1) > 0.22;
+  const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
+  const hueGap = (a, b) => { const x = Math.abs((hueOf(a) ?? 0) - (hueOf(b) ?? 0)) % 360; return x > 180 ? 360 - x : x; };
   const out = [];
   while (pool.length){
-    const prev = out[out.length - 1];
-    let k = prev ? pool.findIndex(c => c.cat !== prev.cat && c.family !== prev.family) : 0;
-    if (k < 0) k = prev ? pool.findIndex(c => c.cat !== prev.cat) : 0;
+    const prev = out[out.length - 1], prev2 = out[out.length - 2];
+    let k = -1;
+    if (prev){
+      /* first a different HUE (a quarter turn from the last card, an eighth
+         from the one before), then family and lightness, then category */
+      const farHue = c => hueGap(c, prev) >= 90 && (!prev2 || hueGap(c, prev2) >= 45);
+      k = pool.findIndex(c => farHue(c) && c.family !== prev.family && c.cat !== prev.cat);
+      if (k < 0) k = pool.findIndex(c => farHue(c) && c.family !== prev.family);
+      if (k < 0) k = pool.findIndex(c => hueGap(c, prev) >= 60 && c.family !== prev.family);
+      if (k < 0) k = pool.findIndex(c => c.family !== prev.family && light(c) !== light(prev));
+      if (k < 0) k = pool.findIndex(c => c.family !== prev.family);
+    }
     if (k < 0) k = 0;
     out.push(pool.splice(k, 1)[0]);
   }
@@ -9172,10 +9201,33 @@ function scBuildWall(cards){
   /* The wall is the first click anyone makes, and a first click that opens
      a paywall is a bad one (the old hero fan had the same rule): unlocked
      cards fill it, and only if there are too few do locked ones follow. */
-  const open = scOrder(cards.filter(c => !scLocked(c)));
-  const rest = scOrder(cards.filter(c => scLocked(c)));
-  const picks = open.concat(rest).slice(0, cols.length * 6);
-  cols.forEach((col, i) => {
+  /* Unlocked-only made the wall monochrome: every free card is a phones
+     card on a grey Apple studio photograph (owner, 2026-09-02: "literally 2
+     colors and the rest is greyscale"). The wall is the shop window for the
+     whole library, so it draws the most VIVID cards from all of it, measured
+     off the pixels, and keeps a third of the slots for free cards so the
+     first click still tends to open the editor rather than the plan page. */
+  /* ROUND-ROBIN ACROSS THE COLOUR WHEEL. Scoring by approvals and chroma
+     alone still filled the wall from the blue-green half of the set, because
+     that is where most of the set lives. So: six hue buckets of sixty degrees,
+     the most saturated cards first within each, and the wall takes one from
+     each bucket in turn, so warm and violet cards get their slots even when
+     the set has fewer of them. */
+  const want = cols.length * 6;
+  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12);
+  const buckets = {};
+  vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
+  Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
+  const order = Object.keys(buckets).sort((a, b) => buckets[b].length - buckets[a].length);
+  const chosen = [];
+  for (let round = 0; chosen.length < want && round < 12; round++){
+    for (const b of order){
+      const c = (buckets[b] || [])[round];
+      if (c && chosen.length < want && !chosen.some(x => x.layout === c.layout && x.cat === c.cat)) chosen.push(c);
+    }
+  }
+  vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1) chosen.push(c); });
+  const picks = scOrder(chosen);  cols.forEach((col, i) => {
     col.innerHTML = '';
     const mine = picks.filter((_, k) => k % cols.length === i);
     /* each column is its list twice, so the -50% keyframe loops seamlessly */

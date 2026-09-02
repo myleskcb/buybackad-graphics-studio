@@ -10,15 +10,7 @@ mkdirSync(OUT, { recursive: true });
 const WANT = +(process.env.PER || 3);
 const UA = { 'User-Agent': 'buyback-ad-lab/1.0 (admin@iphones.la) backdrop research' };
 const QUERIES = {
-  pokemon: ['Pokémon card', 'Pokémon Trading Card Game', 'Charizard card', 'Pokemon TCG booster', 'trading card sleeves binder', 'collectible card game'],
-  sports:  ['baseball card', 'Topps baseball card', 'basketball card', 'football trading card', 'sports memorabilia cards', 'card collection hobby'],
-  silver:  ['silverware set', 'sterling silver spoon', 'silver cutlery', 'antique silver teapot', 'silver necklace chain'],
-  gold:    ['gold necklace chain close', 'gold ring wedding band', 'gold watch', 'gold jewellery shop', 'Rolex watch'],
-  phones:  ['iPhone 14 Pro', 'iPhone 13 Pro', 'Apple iPhone 15', 'iPhone back titanium', 'smartphone camera lenses close'],
-  /* the vehicle spin-offs, 2026-09-02 */
-  bikes:   ['Harley-Davidson motorcycle', 'sport motorcycle', 'motorcycle engine chrome', 'cruiser motorcycle parked'],
-  trucks:  ['pickup truck', 'Ford F-150', 'Chevrolet Silverado pickup', 'pickup truck bed'],
-  vans:    ['cargo van', 'Ford Transit van', 'Mercedes-Benz Sprinter van', 'work van'],
+  macbook: ['MacBook Pro', 'MacBook Air', 'MacBook Pro 16-inch', 'Apple MacBook keyboard', 'MacBook on desk', 'MacBook Pro M3', 'Apple laptop closed lid'],
 };
 /* CATS=bikes,trucks,vans fetches only those pools */
 const ONLY = process.env.CATS ? process.env.CATS.split(',') : null;

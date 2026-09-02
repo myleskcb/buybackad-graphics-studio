@@ -7486,6 +7486,1187 @@
      "of": 28
     }
    }
+  },
+  {
+   "set": "review-100b",
+   "built": "2026-09-03",
+   "source": "100 review formats, second cut (industry quotes, elements)",
+   "approved": [
+    {
+     "id": "reviewProof-jw07-30",
+     "k": 0,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "sports",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-30",
+     "k": 1,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "gold",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-ca07-30",
+     "k": 4,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "strips",
+     "palette": "ca07",
+     "theme": "Sky Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-30",
+     "k": 5,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "pokemon",
+     "palette": "du07",
+     "theme": "Blue Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp04-30",
+     "k": 6,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "cars",
+     "palette": "pp04",
+     "theme": "Mint Counter",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-30",
+     "k": 7,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "cars",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pa05-30",
+     "k": 8,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "strips",
+     "palette": "pa05",
+     "theme": "Teal Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-io03-30",
+     "k": 9,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "phones",
+     "palette": "io03",
+     "theme": "Violet Payday",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-31",
+     "k": 10,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "phones",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw03-30",
+     "k": 11,
+     "spec": {
+      "rating": "inline",
+      "who": "dash",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "coins",
+     "palette": "jw03",
+     "theme": "Orchid Payday",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-31",
+     "k": 12,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "silver",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du05-30",
+     "k": 13,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "gold",
+     "palette": "du05",
+     "theme": "Mint Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd10-30",
+     "k": 14,
+     "spec": {
+      "rating": "badge",
+      "who": "pin",
+      "head": "top",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "phones",
+     "palette": "cd10",
+     "theme": "Red Quote",
+     "on": true
+    },
+    {
+     "id": "reviewProof-gl02-30",
+     "k": 15,
+     "spec": {
+      "rating": "inline",
+      "who": "pin",
+      "head": "top",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "gold",
+     "palette": "gl02",
+     "theme": "Amber Offer",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd04-30",
+     "k": 16,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "coins",
+     "palette": "cd04",
+     "theme": "Mint Counter",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-31",
+     "k": 17,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "coins",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-31",
+     "k": 18,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "top",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "phones",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw10-30",
+     "k": 20,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "pokemon",
+     "palette": "jw10",
+     "theme": "Red Quote",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-31",
+     "k": 22,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "top",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "sports",
+     "palette": "du07",
+     "theme": "Blue Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-33",
+     "k": 27,
+     "spec": {
+      "rating": "inline",
+      "who": "pin",
+      "head": "low",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "silver",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-io03-31",
+     "k": 28,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "low",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "gold",
+     "palette": "io03",
+     "theme": "Violet Payday",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-32",
+     "k": 29,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "low",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "cars",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-32",
+     "k": 30,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "low",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "gold",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-33",
+     "k": 31,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "low",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "cars",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-32",
+     "k": 34,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "low",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "phones",
+     "palette": "du07",
+     "theme": "Blue Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-32",
+     "k": 36,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "pokemon",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-33",
+     "k": 40,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "strips",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-33",
+     "k": 42,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "silver",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du05-31",
+     "k": 44,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "silver",
+     "palette": "du05",
+     "theme": "Mint Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-ca07-33",
+     "k": 45,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "phones",
+     "palette": "ca07",
+     "theme": "Sky Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd10-31",
+     "k": 46,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "gold",
+     "palette": "cd10",
+     "theme": "Red Quote",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-36",
+     "k": 47,
+     "spec": {
+      "rating": "inline",
+      "who": "dash",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "strips",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-gl02-31",
+     "k": 48,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "silver",
+     "palette": "gl02",
+     "theme": "Amber Offer",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-35",
+     "k": 49,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "pokemon",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp04-33",
+     "k": 51,
+     "spec": {
+      "rating": "inline",
+      "who": "pin",
+      "head": "top",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "sports",
+     "palette": "pp04",
+     "theme": "Mint Counter",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-34",
+     "k": 53,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "pokemon",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw10-31",
+     "k": 54,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "top",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "sports",
+     "palette": "jw10",
+     "theme": "Red Quote",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-34",
+     "k": 55,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "top",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "coins",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-37",
+     "k": 56,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "pokemon",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-33",
+     "k": 57,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "sports",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pa05-33",
+     "k": 58,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "top",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "phones",
+     "palette": "pa05",
+     "theme": "Teal Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-36",
+     "k": 59,
+     "spec": {
+      "rating": "inline",
+      "who": "dash",
+      "head": "top",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "sports",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-35",
+     "k": 64,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "low",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "sports",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-35",
+     "k": 65,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "low",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "cars",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-37",
+     "k": 67,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "low",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "phones",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-34",
+     "k": 68,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "low",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "phones",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-39",
+     "k": 69,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "low",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "phones",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pa05-34",
+     "k": 70,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "low",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "gold",
+     "palette": "pa05",
+     "theme": "Teal Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-ca07-35",
+     "k": 71,
+     "spec": {
+      "rating": "inline",
+      "who": "dash",
+      "head": "low",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "silver",
+     "palette": "ca07",
+     "theme": "Sky Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw03-32",
+     "k": 72,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "strips",
+     "palette": "jw03",
+     "theme": "Orchid Payday",
+     "on": true
+    },
+    {
+     "id": "reviewProof-io03-34",
+     "k": 73,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "cars",
+     "palette": "io03",
+     "theme": "Violet Payday",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du05-32",
+     "k": 74,
+     "spec": {
+      "rating": "badge",
+      "who": "pin",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "coins",
+     "palette": "du05",
+     "theme": "Mint Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-38",
+     "k": 75,
+     "spec": {
+      "rating": "inline",
+      "who": "pin",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "gold",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-40",
+     "k": 77,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "gold",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-36",
+     "k": 78,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "strips",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-35",
+     "k": 79,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "coins",
+     "palette": "du07",
+     "theme": "Blue Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp04-35",
+     "k": 81,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "gold",
+     "palette": "pp04",
+     "theme": "Mint Counter",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-39",
+     "k": 84,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "top",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "silver",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-ca07-36",
+     "k": 86,
+     "spec": {
+      "rating": "badge",
+      "who": "pin",
+      "head": "top",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "coins",
+     "palette": "ca07",
+     "theme": "Sky Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-35",
+     "k": 87,
+     "spec": {
+      "rating": "inline",
+      "who": "pin",
+      "head": "top",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "gold",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw10-32",
+     "k": 88,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "top",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "phones",
+     "palette": "jw10",
+     "theme": "Red Quote",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pa05-35",
+     "k": 90,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "top",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "silver",
+     "palette": "pa05",
+     "theme": "Teal Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-37",
+     "k": 91,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "top",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "pokemon",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-42",
+     "k": 92,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "top",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "coins",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-40",
+     "k": 94,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "top",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "coins",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp04-36",
+     "k": 96,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "low",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "silver",
+     "palette": "pp04",
+     "theme": "Mint Counter",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-38",
+     "k": 98,
+     "spec": {
+      "rating": "badge",
+      "who": "pin",
+      "head": "low",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "silver",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-43",
+     "k": 99,
+     "spec": {
+      "rating": "inline",
+      "who": "pin",
+      "head": "low",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "cars",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "on": true
+    }
+   ],
+   "axisStats": {
+    "rating:pill": {
+     "on": 19,
+     "of": 25
+    },
+    "who:pin": {
+     "on": 21,
+     "of": 36
+    },
+    "head:mid": {
+     "on": 25,
+     "of": 36
+    },
+    "chips:chips": {
+     "on": 25,
+     "of": 36
+    },
+    "cta:bar": {
+     "on": 34,
+     "of": 50
+    },
+    "quote:mark": {
+     "on": 22,
+     "of": 30
+    },
+    "rating:free": {
+     "on": 15,
+     "of": 25
+    },
+    "rating:badge": {
+     "on": 18,
+     "of": 25
+    },
+    "cta:pillOnly": {
+     "on": 34,
+     "of": 50
+    },
+    "rating:inline": {
+     "on": 16,
+     "of": 25
+    },
+    "who:right": {
+     "on": 25,
+     "of": 32
+    },
+    "who:dash": {
+     "on": 22,
+     "of": 32
+    },
+    "head:top": {
+     "on": 27,
+     "of": 36
+    },
+    "head:low": {
+     "on": 16,
+     "of": 28
+    },
+    "quote:strip3": {
+     "on": 16,
+     "of": 26
+    },
+    "chips:inline": {
+     "on": 24,
+     "of": 36
+    },
+    "quote:strip2": {
+     "on": 8,
+     "of": 11
+    },
+    "quote:markRight": {
+     "on": 6,
+     "of": 11
+    },
+    "quote:ghost": {
+     "on": 8,
+     "of": 11
+    },
+    "quote:centered": {
+     "on": 8,
+     "of": 11
+    },
+    "chips:lines": {
+     "on": 19,
+     "of": 28
+    }
+   }
   }
  ]
 }
