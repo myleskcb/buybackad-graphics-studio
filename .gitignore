@@ -7,3 +7,5 @@ node_modules/
 # render harness output — contact sheets and audit JSON are build artifacts,
 # regenerate with scripts/render_sheet.mjs rather than committing them
 .render/
+# photographs the owner rejected in the backdrop review; kept for the record, never shipped
+assets/bg-web-rejected/

@@ -1,0 +1,7491 @@
+{
+ "sets": [
+  {
+   "set": 1,
+   "built": "2026-09-02",
+   "source": "4x4 review, 160-card set",
+   "approved": [
+    {
+     "id": "checklistHero-du07",
+     "base": "dl_phones_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "du07",
+     "theme": "Blue Market · checklistHero",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "ip-gen16-back-ultramarine"
+    },
+    {
+     "id": "checklistHero-jw05",
+     "base": "dl_gold_checklistHero_gold",
+     "layout": "checklistHero",
+     "palette": "jw05",
+     "theme": "Blue Ticket · checklistHero",
+     "cat": "gold",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Manrope",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "gold-bars-fan"
+    },
+    {
+     "id": "checklistHero-pp04",
+     "base": "dl_silver_checklistHero_ocean",
+     "layout": "checklistHero",
+     "palette": "pp04",
+     "theme": "Mint Counter · checklistHero",
+     "cat": "silver",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "silver-bars-stack"
+    },
+    {
+     "id": "checklistHero-cd06",
+     "base": "dl_cars_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "cd06",
+     "theme": "Blue Deal · checklistHero",
+     "cat": "cars",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "car-hand-keys-over"
+    },
+    {
+     "id": "checklistHero-jw07",
+     "base": "dl_strips_checklistHero_arctic",
+     "layout": "checklistHero",
+     "palette": "jw07",
+     "theme": "Mint Market · checklistHero",
+     "cat": "strips",
+     "faces": {
+      "display": "Chivo",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-row-five"
+    },
+    {
+     "id": "checklistHero-du08",
+     "base": "dl_pokemon_checklistHero_royal",
+     "layout": "checklistHero",
+     "palette": "du08",
+     "theme": "Indigo Trade · checklistHero",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Oswald",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "poke-slabs-trio"
+    },
+    {
+     "id": "checklistHero-io03",
+     "base": "dl_gold_checklistHero_gold",
+     "layout": "checklistHero",
+     "palette": "io03",
+     "theme": "Violet Payday · checklistHero",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "gold-class-ring"
+    },
+    {
+     "id": "reviewProof-jw07",
+     "base": "dl_pokemon_reviewProof_royal",
+     "layout": "reviewProof",
+     "palette": "jw07",
+     "theme": "Mint Market · reviewProof",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster-box"
+    },
+    {
+     "id": "reviewProof-pa05",
+     "base": "dl_phones_reviewProof_ocean",
+     "layout": "reviewProof",
+     "palette": "pa05",
+     "theme": "Teal Ticket · reviewProof",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-15-pro-front-on"
+    },
+    {
+     "id": "trustSeal-jw05",
+     "base": "dl_coins_trustSeal_gold",
+     "layout": "trustSeal",
+     "palette": "jw05",
+     "theme": "Blue Ticket · trustSeal",
+     "cat": "coins",
+     "faces": {
+      "display": "Teko",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "coin-single-large"
+    },
+    {
+     "id": "trustSeal-du08",
+     "base": "dl_phones_trustSeal_mono",
+     "layout": "trustSeal",
+     "palette": "du08",
+     "theme": "Indigo Trade · trustSeal",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-17-pro-back-black"
+    },
+    {
+     "id": "trustSeal-ca07",
+     "base": "dl_silver_trustSeal_mono",
+     "layout": "trustSeal",
+     "palette": "ca07",
+     "theme": "Sky Market · trustSeal",
+     "cat": "silver",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "plate": "pill/tint",
+     "product": "silver-bars-row"
+    },
+    {
+     "id": "stepsFlow-du07",
+     "base": "dl_coins_stepsFlow_royal",
+     "layout": "stepsFlow",
+     "palette": "du07",
+     "theme": "Blue Market · stepsFlow",
+     "cat": "coins",
+     "faces": {
+      "display": "Teko",
+      "support": "Satoshi",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "coin-slab"
+    },
+    {
+     "id": "stepsFlow-jw07",
+     "base": "dl_phones_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "jw07",
+     "theme": "Mint Market · stepsFlow",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Instrument Sans",
+      "num": "DM Mono"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-17-pro-back-silver"
+    },
+    {
+     "id": "stepsFlow-ca07",
+     "base": "dl_coins_stepsFlow_royal",
+     "layout": "stepsFlow",
+     "palette": "ca07",
+     "theme": "Sky Market · stepsFlow",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "plate": "pill/tint",
+     "product": "coin-loose-pile"
+    },
+    {
+     "id": "bubblePop-du07",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "du07",
+     "theme": "Blue Market · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-angle-tilt-back"
+    },
+    {
+     "id": "bubblePop-jw05",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "jw05",
+     "theme": "Blue Ticket · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Chivo",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "poke-slabs-trio"
+    },
+    {
+     "id": "bubblePop-du08",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "du08",
+     "theme": "Indigo Trade · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-mini-single"
+    },
+    {
+     "id": "bubblePop-ca07",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "ca07",
+     "theme": "Sky Market · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "plate": "pill/tint",
+     "product": "iphone-screen-on-glow"
+    },
+    {
+     "id": "bubblePop-io03",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "io03",
+     "theme": "Violet Payday · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "poke-binder-open"
+    },
+    {
+     "id": "voltStack-pp02",
+     "base": "dl_phones_voltStack_volt",
+     "layout": "voltStack",
+     "palette": "pp02",
+     "theme": "Gold Offer · voltStack",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-in-hand-screen-on"
+    },
+    {
+     "id": "voltStack-cd06",
+     "base": "dl_gold_voltStack_gold",
+     "layout": "voltStack",
+     "palette": "cd06",
+     "theme": "Blue Deal · voltStack",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "plate": "rect/tint",
+     "product": "gold-scrap-mixed"
+    },
+    {
+     "id": "voltStack-jw07",
+     "base": "dl_silver_voltStack_mono",
+     "layout": "voltStack",
+     "palette": "jw07",
+     "theme": "Mint Market · voltStack",
+     "cat": "silver",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "silver-flatware-set"
+    },
+    {
+     "id": "voltStack-pa05",
+     "base": "dl_cars_voltStack_ocean",
+     "layout": "voltStack",
+     "palette": "pa05",
+     "theme": "Teal Ticket · voltStack",
+     "cat": "cars",
+     "faces": {
+      "display": "Oswald",
+      "support": "Instrument Sans",
+      "num": "DM Mono"
+     },
+     "plate": "rect/tint",
+     "product": "car-keys"
+    },
+    {
+     "id": "voltStack-ca07",
+     "base": "dl_strips_voltStack_emerald",
+     "layout": "voltStack",
+     "palette": "ca07",
+     "theme": "Sky Market · voltStack",
+     "cat": "strips",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Satoshi",
+      "num": "Sora"
+     },
+     "plate": "pill/tint",
+     "product": "strip-vials-pile"
+    },
+    {
+     "id": "neonNight-pp04",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "pp04",
+     "theme": "Mint Counter · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-screen-on-glow"
+    },
+    {
+     "id": "neonNight-cd06",
+     "base": "dl_pokemon_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "cd06",
+     "theme": "Blue Deal · neonNight",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster-box"
+    },
+    {
+     "id": "neonNight-du08",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "du08",
+     "theme": "Indigo Trade · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "ip-gen17-plateau-blue"
+    },
+    {
+     "id": "slabPoster-jw05",
+     "base": "dl_phones_slabPoster_mono",
+     "layout": "slabPoster",
+     "palette": "jw05",
+     "theme": "Blue Ticket · slabPoster",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "ip-gen16-back-ultramarine"
+    },
+    {
+     "id": "slabPoster-du08",
+     "base": "dl_strips_slabPoster_arctic",
+     "layout": "slabPoster",
+     "palette": "du08",
+     "theme": "Indigo Trade · slabPoster",
+     "cat": "strips",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-fan"
+    },
+    {
+     "id": "slabPoster-ca07",
+     "base": "dl_sports_slabPoster_paper",
+     "layout": "slabPoster",
+     "palette": "ca07",
+     "theme": "Sky Market · slabPoster",
+     "cat": "sports",
+     "faces": {
+      "display": "Teko",
+      "support": "Libre Franklin",
+      "num": "Oswald"
+     },
+     "plate": "pill/tint",
+     "product": "sports-slabs-stack"
+    },
+    {
+     "id": "scriptRetro-du07",
+     "base": "dl_pokemon_scriptRetro_sunset",
+     "layout": "scriptRetro",
+     "palette": "du07",
+     "theme": "Blue Market · scriptRetro",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "scriptRetro-pp04",
+     "base": "dl_phones_scriptRetro_rose",
+     "layout": "scriptRetro",
+     "palette": "pp04",
+     "theme": "Mint Counter · scriptRetro",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-back-camera"
+    },
+    {
+     "id": "scriptRetro-pp02",
+     "base": "dl_gold_scriptRetro_gold",
+     "layout": "scriptRetro",
+     "palette": "pp02",
+     "theme": "Gold Offer · scriptRetro",
+     "cat": "gold",
+     "faces": {
+      "display": "Chivo",
+      "support": "Manrope",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "gold-bracelet-cuban"
+    },
+    {
+     "id": "scriptRetro-cd06",
+     "base": "dl_coins_scriptRetro_paper",
+     "layout": "scriptRetro",
+     "palette": "cd06",
+     "theme": "Blue Deal · scriptRetro",
+     "cat": "coins",
+     "faces": {
+      "display": "Oswald",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "coin-graded-fan-three"
+    },
+    {
+     "id": "scriptRetro-pa05",
+     "base": "dl_phones_scriptRetro_rose",
+     "layout": "scriptRetro",
+     "palette": "pa05",
+     "theme": "Teal Ticket · scriptRetro",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "watch-stack-four"
+    },
+    {
+     "id": "lowerThird-du07",
+     "base": "dl_gold_lowerThird_gold",
+     "layout": "lowerThird",
+     "palette": "du07",
+     "theme": "Blue Market · lowerThird",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Satoshi",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "gold-bracelet-cuban"
+    },
+    {
+     "id": "lowerThird-jw05",
+     "base": "dl_silver_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "jw05",
+     "theme": "Blue Ticket · lowerThird",
+     "cat": "silver",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "plate": "rect/tint",
+     "product": "silver-bars-stack"
+    },
+    {
+     "id": "lowerThird-pp04",
+     "base": "dl_coins_lowerThird_royal",
+     "layout": "lowerThird",
+     "palette": "pp04",
+     "theme": "Mint Counter · lowerThird",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "plate": "rect/tint",
+     "product": "coin-jar-full"
+    },
+    {
+     "id": "lowerThird-pp02",
+     "base": "dl_cars_lowerThird_sunset",
+     "layout": "lowerThird",
+     "palette": "pp02",
+     "theme": "Gold Offer · lowerThird",
+     "cat": "cars",
+     "faces": {
+      "display": "Oswald",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "car-van-cargo"
+    },
+    {
+     "id": "lowerThird-jw07",
+     "base": "dl_pokemon_lowerThird_royal",
+     "layout": "lowerThird",
+     "palette": "jw07",
+     "theme": "Mint Market · lowerThird",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Instrument Sans",
+      "num": "DM Mono"
+     },
+     "plate": "rect/tint",
+     "product": "poke-elite-box"
+    },
+    {
+     "id": "lowerThird-pa05",
+     "base": "dl_phones_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "pa05",
+     "theme": "Teal Ticket · lowerThird",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-with-pencil"
+    },
+    {
+     "id": "lowerThird-ca07",
+     "base": "dl_gold_lowerThird_gold",
+     "layout": "lowerThird",
+     "palette": "ca07",
+     "theme": "Sky Market · lowerThird",
+     "cat": "gold",
+     "faces": {
+      "display": "Chivo",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "plate": "pill/tint",
+     "product": "gold-jewelry"
+    },
+    {
+     "id": "lowerThird-io03",
+     "base": "dl_silver_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "io03",
+     "theme": "Violet Payday · lowerThird",
+     "cat": "silver",
+     "faces": {
+      "display": "Oswald",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "silver-rounds-pile"
+    },
+    {
+     "id": "gradientWave-du07",
+     "base": "dl_silver_gradientWave_ocean",
+     "layout": "gradientWave",
+     "palette": "du07",
+     "theme": "Blue Market · gradientWave",
+     "cat": "silver",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "silver-candlesticks"
+    },
+    {
+     "id": "gradientWave-jw05",
+     "base": "dl_coins_gradientWave_royal",
+     "layout": "gradientWave",
+     "palette": "jw05",
+     "theme": "Blue Ticket · gradientWave",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "coin-rolls-paper"
+    },
+    {
+     "id": "gradientWave-cd06",
+     "base": "dl_pokemon_gradientWave_volt",
+     "layout": "gradientWave",
+     "palette": "cd06",
+     "theme": "Blue Deal · gradientWave",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "poke-slabs-trio"
+    },
+    {
+     "id": "gradientWave-jw07",
+     "base": "dl_sports_gradientWave_crimson",
+     "layout": "gradientWave",
+     "palette": "jw07",
+     "theme": "Mint Market · gradientWave",
+     "cat": "sports",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "sports-binder-open"
+    },
+    {
+     "id": "gradientWave-du08",
+     "base": "dl_phones_gradientWave_sunset",
+     "layout": "gradientWave",
+     "palette": "du08",
+     "theme": "Indigo Trade · gradientWave",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-angle-tilt-back"
+    },
+    {
+     "id": "gradientWave-pa05",
+     "base": "dl_gold_gradientWave_gold",
+     "layout": "gradientWave",
+     "palette": "pa05",
+     "theme": "Teal Ticket · gradientWave",
+     "cat": "gold",
+     "faces": {
+      "display": "Chivo",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "gold-nuggets-raw"
+    },
+    {
+     "id": "gradientWave-ca07",
+     "base": "dl_silver_gradientWave_ocean",
+     "layout": "gradientWave",
+     "palette": "ca07",
+     "theme": "Sky Market · gradientWave",
+     "cat": "silver",
+     "faces": {
+      "display": "Oswald",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "plate": "pill/tint",
+     "product": "silver-tea-set"
+    },
+    {
+     "id": "ticketStub-jw07",
+     "base": "dl_phones_ticketStub_mono",
+     "layout": "ticketStub",
+     "palette": "jw07",
+     "theme": "Mint Market · ticketStub",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-back-camera"
+    },
+    {
+     "id": "ticketStub-ca07",
+     "base": "dl_coins_ticketStub_paper",
+     "layout": "ticketStub",
+     "palette": "ca07",
+     "theme": "Sky Market · ticketStub",
+     "cat": "coins",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Satoshi",
+      "num": "Sora"
+     },
+     "plate": "pill/tint",
+     "product": "coin-graded-fan-three"
+    },
+    {
+     "id": "hudTech-pp04",
+     "base": "dl_phones_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "pp04",
+     "theme": "Mint Counter · hudTech",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-floating-tilt"
+    },
+    {
+     "id": "hudTech-pp02",
+     "base": "dl_silver_hudTech_arctic",
+     "layout": "hudTech",
+     "palette": "pp02",
+     "theme": "Gold Offer · hudTech",
+     "cat": "silver",
+     "faces": {
+      "display": "Teko",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "silver-bar-single"
+    },
+    {
+     "id": "hudTech-cd06",
+     "base": "dl_coins_hudTech_mono",
+     "layout": "hudTech",
+     "palette": "cd06",
+     "theme": "Blue Deal · hudTech",
+     "cat": "coins",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "coin-collection-tray"
+    },
+    {
+     "id": "hudTech-jw07",
+     "base": "dl_cars_hudTech_crimson",
+     "layout": "hudTech",
+     "palette": "jw07",
+     "theme": "Mint Market · hudTech",
+     "cat": "cars",
+     "faces": {
+      "display": "Chivo",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "car-sedan-rear"
+    },
+    {
+     "id": "hudTech-du08",
+     "base": "dl_strips_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "du08",
+     "theme": "Indigo Trade · hudTech",
+     "cat": "strips",
+     "faces": {
+      "display": "Oswald",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-stack"
+    },
+    {
+     "id": "hudTech-io03",
+     "base": "dl_phones_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "io03",
+     "theme": "Violet Payday · hudTech",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "watch-screen-on"
+    },
+    {
+     "id": "bandKnockout-du07",
+     "base": "dl_strips_bandKnockout_arctic",
+     "layout": "bandKnockout",
+     "palette": "du07",
+     "theme": "Blue Market · bandKnockout",
+     "cat": "strips",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-fan"
+    },
+    {
+     "id": "bandKnockout-jw05",
+     "base": "dl_pokemon_bandKnockout_volt",
+     "layout": "bandKnockout",
+     "palette": "jw05",
+     "theme": "Blue Ticket · bandKnockout",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "poke-packs-pile"
+    },
+    {
+     "id": "bandKnockout-cd06",
+     "base": "dl_gold_bandKnockout_paper",
+     "layout": "bandKnockout",
+     "palette": "cd06",
+     "theme": "Blue Deal · bandKnockout",
+     "cat": "gold",
+     "faces": {
+      "display": "Chivo",
+      "support": "Satoshi",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "gold-watch-luxury"
+    },
+    {
+     "id": "bandKnockout-du08",
+     "base": "dl_coins_bandKnockout_gold",
+     "layout": "bandKnockout",
+     "palette": "du08",
+     "theme": "Indigo Trade · bandKnockout",
+     "cat": "coins",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "plate": "rect/tint",
+     "product": "coin-silver-dollar-pair"
+    },
+    {
+     "id": "bandKnockout-io03",
+     "base": "dl_pokemon_bandKnockout_volt",
+     "layout": "bandKnockout",
+     "palette": "io03",
+     "theme": "Violet Payday · bandKnockout",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Instrument Sans",
+      "num": "DM Mono"
+     },
+     "plate": "rect/tint",
+     "product": "poke-slabs-trio"
+    },
+    {
+     "id": "arcCrown-du07",
+     "base": "dl_pokemon_arcCrown_royal",
+     "layout": "arcCrown",
+     "palette": "du07",
+     "theme": "Blue Market · arcCrown",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "poke-binder-open"
+    },
+    {
+     "id": "arcCrown-jw05",
+     "base": "dl_sports_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "jw05",
+     "theme": "Blue Ticket · arcCrown",
+     "cat": "sports",
+     "faces": {
+      "display": "Teko",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slabs-fan-five"
+    },
+    {
+     "id": "arcCrown-pp04",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "pp04",
+     "theme": "Mint Counter · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-stack-three"
+    },
+    {
+     "id": "arcCrown-pp02",
+     "base": "dl_gold_arcCrown_gold",
+     "layout": "arcCrown",
+     "palette": "pp02",
+     "theme": "Gold Offer · arcCrown",
+     "cat": "gold",
+     "faces": {
+      "display": "Chivo",
+      "support": "Manrope",
+      "num": "Manrope"
+     },
+     "plate": "rect/tint",
+     "product": "gold-bars-fan"
+    },
+    {
+     "id": "arcCrown-jw07",
+     "base": "dl_coins_arcCrown_gold",
+     "layout": "arcCrown",
+     "palette": "jw07",
+     "theme": "Mint Market · arcCrown",
+     "cat": "coins",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "plate": "rect/tint",
+     "product": "coin-slab-graded"
+    },
+    {
+     "id": "arcCrown-ca07",
+     "base": "dl_pokemon_arcCrown_royal",
+     "layout": "arcCrown",
+     "palette": "ca07",
+     "theme": "Sky Market · arcCrown",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "plate": "pill/tint",
+     "product": "poke-booster-box"
+    },
+    {
+     "id": "glassCard-du07",
+     "base": "dl_sports_glassCard_mono",
+     "layout": "glassCard",
+     "palette": "du07",
+     "theme": "Blue Market · glassCard",
+     "cat": "sports",
+     "faces": {
+      "display": "Teko",
+      "support": "Satoshi",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "sports-binder-open"
+    },
+    {
+     "id": "glassCard-jw05",
+     "base": "dl_phones_glassCard_ocean",
+     "layout": "glassCard",
+     "palette": "jw05",
+     "theme": "Blue Ticket · glassCard",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-with-pencil"
+    },
+    {
+     "id": "glassCard-pa05",
+     "base": "dl_pokemon_glassCard_royal",
+     "layout": "glassCard",
+     "palette": "pa05",
+     "theme": "Teal Ticket · glassCard",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "glassCard-ca07",
+     "base": "dl_sports_glassCard_mono",
+     "layout": "glassCard",
+     "palette": "ca07",
+     "theme": "Sky Market · glassCard",
+     "cat": "sports",
+     "faces": {
+      "display": "Chivo",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "plate": "pill/tint",
+     "product": "sports-slabs-fan-five"
+    },
+    {
+     "id": "glassCard-io03",
+     "base": "dl_phones_glassCard_ocean",
+     "layout": "glassCard",
+     "palette": "io03",
+     "theme": "Violet Payday · glassCard",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-15-pro-front-on"
+    }
+   ]
+  },
+  {
+   "set": 2,
+   "built": "2026-09-01",
+   "source": "4x4 review, weighted 160-card set",
+   "offered": {
+    "lowerThird": 16,
+    "checklistHero": 16,
+    "gradientWave": 16,
+    "hudTech": 16,
+    "arcCrown": 16,
+    "bubblePop": 10,
+    "voltStack": 10,
+    "scriptRetro": 10,
+    "bandKnockout": 10,
+    "glassCard": 10,
+    "trustSeal": 5,
+    "stepsFlow": 5,
+    "neonNight": 5,
+    "slabPoster": 5,
+    "reviewProof": 5,
+    "ticketStub": 5
+   },
+   "approved": [
+    {
+     "id": "checklistHero-ca07-1",
+     "base": "dl_strips_checklistHero_arctic",
+     "layout": "checklistHero",
+     "palette": "ca07",
+     "theme": "Sky Market · checklistHero",
+     "cat": "strips",
+     "faces": {
+      "display": "Faster One",
+      "support": "Satoshi",
+      "num": "Sora"
+     },
+     "product": "strip-vials-pile"
+    },
+    {
+     "id": "checklistHero-jw05-1",
+     "base": "dl_pokemon_checklistHero_royal",
+     "layout": "checklistHero",
+     "palette": "jw05",
+     "theme": "Blue Ticket · checklistHero",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Faster One",
+      "support": "Instrument Sans",
+      "num": "DM Mono"
+     },
+     "product": "poke-booster-packs-fan"
+    },
+    {
+     "id": "checklistHero-cd06-1",
+     "base": "dl_gold_checklistHero_gold",
+     "layout": "checklistHero",
+     "palette": "cd06",
+     "theme": "Blue Deal · checklistHero",
+     "cat": "gold",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "product": "gold-scrap-mixed"
+    },
+    {
+     "id": "checklistHero-io03-1",
+     "base": "dl_pokemon_checklistHero_royal",
+     "layout": "checklistHero",
+     "palette": "io03",
+     "theme": "Violet Payday · checklistHero",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "product": "poke-booster"
+    },
+    {
+     "id": "checklistHero-pp02-1",
+     "base": "dl_phones_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "pp02",
+     "theme": "Gold Offer · checklistHero",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "product": "iphone-in-hand-screen-on"
+    },
+    {
+     "id": "checklistHero-du08-2",
+     "base": "dl_phones_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "du08",
+     "theme": "Indigo Trade · checklistHero",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "ipad-angle-tilt-back"
+    },
+    {
+     "id": "reviewProof-du07-1",
+     "base": "dl_pokemon_reviewProof_royal",
+     "layout": "reviewProof",
+     "palette": "du07",
+     "theme": "Blue Market · reviewProof",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Faster One",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "product": "poke-elite-box"
+    },
+    {
+     "id": "reviewProof-jw05-1",
+     "base": "dl_sports_reviewProof_paper",
+     "layout": "reviewProof",
+     "palette": "jw05",
+     "theme": "Blue Ticket · reviewProof",
+     "cat": "sports",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Manrope"
+     },
+     "product": "sports-slabs-stack"
+    },
+    {
+     "id": "reviewProof-du08-1",
+     "base": "dl_cars_reviewProof_mono",
+     "layout": "reviewProof",
+     "palette": "du08",
+     "theme": "Indigo Trade · reviewProof",
+     "cat": "cars",
+     "faces": {
+      "display": "Chivo",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "product": "car-sedan-front"
+    },
+    {
+     "id": "trustSeal-jw05-1",
+     "base": "dl_phones_trustSeal_mono",
+     "layout": "trustSeal",
+     "palette": "jw05",
+     "theme": "Blue Ticket · trustSeal",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "product": "ip-gen16-back-ultramarine"
+    },
+    {
+     "id": "trustSeal-jw07-1",
+     "base": "dl_cars_trustSeal_crimson",
+     "layout": "trustSeal",
+     "palette": "jw07",
+     "theme": "Mint Market · trustSeal",
+     "cat": "cars",
+     "faces": {
+      "display": "Chivo",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "product": "car-suv-side"
+    },
+    {
+     "id": "trustSeal-cd06-1",
+     "base": "dl_coins_trustSeal_gold",
+     "layout": "trustSeal",
+     "palette": "cd06",
+     "theme": "Blue Deal · trustSeal",
+     "cat": "coins",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Satoshi",
+      "num": "Sora"
+     },
+     "product": "coin-stack"
+    },
+    {
+     "id": "trustSeal-ca07-1",
+     "base": "dl_sports_trustSeal_crimson",
+     "layout": "trustSeal",
+     "palette": "ca07",
+     "theme": "Sky Market · trustSeal",
+     "cat": "sports",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Oswald"
+     },
+     "product": "sports-slabs-stack"
+    },
+    {
+     "id": "stepsFlow-jw07-1",
+     "base": "dl_strips_stepsFlow_emerald",
+     "layout": "stepsFlow",
+     "palette": "jw07",
+     "theme": "Mint Market · stepsFlow",
+     "cat": "strips",
+     "faces": {
+      "display": "Faster One",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "product": "strip-boxes-row-five"
+    },
+    {
+     "id": "stepsFlow-du07-1",
+     "base": "dl_phones_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "du07",
+     "theme": "Blue Market · stepsFlow",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "product": "ip-gen17-plateau-blue"
+    },
+    {
+     "id": "bubblePop-jw05-1",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw05",
+     "theme": "Blue Ticket · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "product": "ipad-front-screen-off"
+    },
+    {
+     "id": "bubblePop-jw07-1",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "theme": "Mint Market · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Instrument Sans",
+      "num": "DM Mono"
+     },
+     "product": "iphone-15-pro-front-on"
+    },
+    {
+     "id": "bubblePop-cd06-1",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "cd06",
+     "theme": "Blue Deal · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Faster One",
+      "support": "Libre Franklin",
+      "num": "Oswald"
+     },
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-pp04-1",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "pp04",
+     "theme": "Mint Counter · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "product": "poke-booster-box"
+    },
+    {
+     "id": "bubblePop-io03-1",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "io03",
+     "theme": "Violet Payday · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "product": "iphone-17-pro-back-silver"
+    },
+    {
+     "id": "bubblePop-pa05-1",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "pa05",
+     "theme": "Teal Ticket · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "product": "ipad-with-pencil"
+    },
+    {
+     "id": "bubblePop-pp02-1",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "pp02",
+     "theme": "Gold Offer · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Chivo",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "product": "iphone-15-pro-back-gold"
+    },
+    {
+     "id": "voltStack-du07-1",
+     "base": "dl_silver_voltStack_mono",
+     "layout": "voltStack",
+     "palette": "du07",
+     "theme": "Blue Market · voltStack",
+     "cat": "silver",
+     "faces": {
+      "display": "Teko",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "silver-candlesticks"
+    },
+    {
+     "id": "voltStack-du08-1",
+     "base": "dl_phones_voltStack_volt",
+     "layout": "voltStack",
+     "palette": "du08",
+     "theme": "Indigo Trade · voltStack",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "ipad-angle-tilt-back"
+    },
+    {
+     "id": "voltStack-pp04-1",
+     "base": "dl_cars_voltStack_ocean",
+     "layout": "voltStack",
+     "palette": "pp04",
+     "theme": "Mint Counter · voltStack",
+     "cat": "cars",
+     "faces": {
+      "display": "Chivo",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "product": "car-classic-side"
+    },
+    {
+     "id": "voltStack-io03-1",
+     "base": "dl_coins_voltStack_royal",
+     "layout": "voltStack",
+     "palette": "io03",
+     "theme": "Violet Payday · voltStack",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "product": "coin-album-pages"
+    },
+    {
+     "id": "voltStack-pa05-1",
+     "base": "dl_gold_voltStack_gold",
+     "layout": "voltStack",
+     "palette": "pa05",
+     "theme": "Teal Ticket · voltStack",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "product": "gold-nuggets-raw"
+    },
+    {
+     "id": "voltStack-pp02-1",
+     "base": "dl_strips_voltStack_emerald",
+     "layout": "voltStack",
+     "palette": "pp02",
+     "theme": "Gold Offer · voltStack",
+     "cat": "strips",
+     "faces": {
+      "display": "Faster One",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "product": "strip-kit"
+    },
+    {
+     "id": "neonNight-jw05-1",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "jw05",
+     "theme": "Blue Ticket · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Chivo",
+      "support": "Instrument Sans",
+      "num": "DM Mono"
+     },
+     "product": "iphone-17-pro-back-black"
+    },
+    {
+     "id": "neonNight-jw07-1",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "jw07",
+     "theme": "Mint Market · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "product": "ipad-back-camera"
+    },
+    {
+     "id": "slabPoster-jw07-1",
+     "base": "dl_gold_slabPoster_paper",
+     "layout": "slabPoster",
+     "palette": "jw07",
+     "theme": "Mint Market · slabPoster",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "product": "gold-scrap-mixed"
+    },
+    {
+     "id": "slabPoster-cd06-1",
+     "base": "dl_phones_slabPoster_mono",
+     "layout": "slabPoster",
+     "palette": "cd06",
+     "theme": "Blue Deal · slabPoster",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "product": "ipad-front-screen-off"
+    },
+    {
+     "id": "scriptRetro-ca07-1",
+     "base": "dl_gold_scriptRetro_gold",
+     "layout": "scriptRetro",
+     "palette": "ca07",
+     "theme": "Sky Market · scriptRetro",
+     "cat": "gold",
+     "faces": {
+      "display": "Oswald",
+      "support": "Libre Franklin",
+      "num": "Oswald"
+     },
+     "product": "gold-bars-stack"
+    },
+    {
+     "id": "scriptRetro-du07-1",
+     "base": "dl_pokemon_scriptRetro_sunset",
+     "layout": "scriptRetro",
+     "palette": "du07",
+     "theme": "Blue Market · scriptRetro",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Faster One",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "product": "poke-elite-box"
+    },
+    {
+     "id": "scriptRetro-jw07-1",
+     "base": "dl_pokemon_scriptRetro_sunset",
+     "layout": "scriptRetro",
+     "palette": "jw07",
+     "theme": "Mint Market · scriptRetro",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "product": "poke-booster-packs-fan"
+    },
+    {
+     "id": "scriptRetro-pp04-1",
+     "base": "dl_phones_scriptRetro_rose",
+     "layout": "scriptRetro",
+     "palette": "pp04",
+     "theme": "Mint Counter · scriptRetro",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Oswald"
+     },
+     "product": "watch-screen-on"
+    },
+    {
+     "id": "scriptRetro-pa05-1",
+     "base": "dl_phones_scriptRetro_rose",
+     "layout": "scriptRetro",
+     "palette": "pa05",
+     "theme": "Teal Ticket · scriptRetro",
+     "cat": "phones",
+     "faces": {
+      "display": "Faster One",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "product": "ip-gen17-plateau-blue"
+    },
+    {
+     "id": "scriptRetro-pp02-1",
+     "base": "dl_gold_scriptRetro_gold",
+     "layout": "scriptRetro",
+     "palette": "pp02",
+     "theme": "Gold Offer · scriptRetro",
+     "cat": "gold",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Instrument Sans",
+      "num": "DM Mono"
+     },
+     "product": "gold-teeth-dental"
+    },
+    {
+     "id": "lowerThird-jw07-1",
+     "base": "dl_coins_lowerThird_royal",
+     "layout": "lowerThird",
+     "palette": "jw07",
+     "theme": "Mint Market · lowerThird",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "product": "coin-slab-graded"
+    },
+    {
+     "id": "lowerThird-cd06-1",
+     "base": "dl_silver_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "cd06",
+     "theme": "Blue Deal · lowerThird",
+     "cat": "silver",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "silver-flatware-set"
+    },
+    {
+     "id": "lowerThird-pp04-1",
+     "base": "dl_phones_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "pp04",
+     "theme": "Mint Counter · lowerThird",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "product": "ipad-stack-three"
+    },
+    {
+     "id": "lowerThird-pp02-1",
+     "base": "dl_gold_lowerThird_gold",
+     "layout": "lowerThird",
+     "palette": "pp02",
+     "theme": "Gold Offer · lowerThird",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "Manrope"
+     },
+     "product": "gold-bars-fan"
+    },
+    {
+     "id": "lowerThird-ca07-2",
+     "base": "dl_coins_lowerThird_royal",
+     "layout": "lowerThird",
+     "palette": "ca07",
+     "theme": "Sky Market · lowerThird",
+     "cat": "coins",
+     "faces": {
+      "display": "Faster One",
+      "support": "Libre Franklin",
+      "num": "Oswald"
+     },
+     "product": "coin-album-pages"
+    },
+    {
+     "id": "lowerThird-jw05-2",
+     "base": "dl_cars_lowerThird_sunset",
+     "layout": "lowerThird",
+     "palette": "jw05",
+     "theme": "Blue Ticket · lowerThird",
+     "cat": "cars",
+     "faces": {
+      "display": "Faster One",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "product": "car-suv-side"
+    },
+    {
+     "id": "lowerThird-jw07-2",
+     "base": "dl_phones_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "jw07",
+     "theme": "Mint Market · lowerThird",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "product": "iphone-in-hand-screen-on"
+    },
+    {
+     "id": "lowerThird-du08-2",
+     "base": "dl_gold_lowerThird_gold",
+     "layout": "lowerThird",
+     "palette": "du08",
+     "theme": "Indigo Trade · lowerThird",
+     "cat": "gold",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "product": "gold-scrap-mixed"
+    },
+    {
+     "id": "gradientWave-jw05-1",
+     "base": "dl_phones_gradientWave_sunset",
+     "layout": "gradientWave",
+     "palette": "jw05",
+     "theme": "Blue Ticket · gradientWave",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "product": "ipad-with-pencil"
+    },
+    {
+     "id": "gradientWave-du08-1",
+     "base": "dl_strips_gradientWave_emerald",
+     "layout": "gradientWave",
+     "palette": "du08",
+     "theme": "Indigo Trade · gradientWave",
+     "cat": "strips",
+     "faces": {
+      "display": "Oswald",
+      "support": "Satoshi",
+      "num": "Sora"
+     },
+     "product": "strip-boxes-fan"
+    },
+    {
+     "id": "gradientWave-cd06-1",
+     "base": "dl_coins_gradientWave_royal",
+     "layout": "gradientWave",
+     "palette": "cd06",
+     "theme": "Blue Deal · gradientWave",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Libre Franklin",
+      "num": "Oswald"
+     },
+     "product": "coin-slabs-stack"
+    },
+    {
+     "id": "gradientWave-pp04-1",
+     "base": "dl_gold_gradientWave_gold",
+     "layout": "gradientWave",
+     "palette": "pp04",
+     "theme": "Mint Counter · gradientWave",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "product": "gold-bars-stack"
+    },
+    {
+     "id": "gradientWave-io03-1",
+     "base": "dl_phones_gradientWave_sunset",
+     "layout": "gradientWave",
+     "palette": "io03",
+     "theme": "Violet Payday · gradientWave",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "product": "iphone-15-pro-front-on"
+    },
+    {
+     "id": "gradientWave-jw07-2",
+     "base": "dl_gold_gradientWave_gold",
+     "layout": "gradientWave",
+     "palette": "jw07",
+     "theme": "Mint Market · gradientWave",
+     "cat": "gold",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "product": "gold-watch-luxury"
+    },
+    {
+     "id": "gradientWave-du08-2",
+     "base": "dl_silver_gradientWave_ocean",
+     "layout": "gradientWave",
+     "palette": "du08",
+     "theme": "Indigo Trade · gradientWave",
+     "cat": "silver",
+     "faces": {
+      "display": "Chivo",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "product": "silver-bars-row"
+    },
+    {
+     "id": "gradientWave-cd06-2",
+     "base": "dl_phones_gradientWave_sunset",
+     "layout": "gradientWave",
+     "palette": "cd06",
+     "theme": "Blue Deal · gradientWave",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "iphone-screen-on-glow"
+    },
+    {
+     "id": "ticketStub-jw05-1",
+     "base": "dl_gold_ticketStub_gold",
+     "layout": "ticketStub",
+     "palette": "jw05",
+     "theme": "Blue Ticket · ticketStub",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "product": "gold-bracelet-cuban"
+    },
+    {
+     "id": "ticketStub-jw07-1",
+     "base": "dl_strips_ticketStub_emerald",
+     "layout": "ticketStub",
+     "palette": "jw07",
+     "theme": "Mint Market · ticketStub",
+     "cat": "strips",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Manrope"
+     },
+     "product": "strip-boxes-row-five"
+    },
+    {
+     "id": "hudTech-du08-1",
+     "base": "dl_coins_hudTech_mono",
+     "layout": "hudTech",
+     "palette": "du08",
+     "theme": "Indigo Trade · hudTech",
+     "cat": "coins",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Oswald"
+     },
+     "product": "coin-rolls-paper"
+    },
+    {
+     "id": "hudTech-cd06-1",
+     "base": "dl_phones_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "cd06",
+     "theme": "Blue Deal · hudTech",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "product": "watch-stack-four"
+    },
+    {
+     "id": "hudTech-du07-2",
+     "base": "dl_silver_hudTech_arctic",
+     "layout": "hudTech",
+     "palette": "du07",
+     "theme": "Blue Market · hudTech",
+     "cat": "silver",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "silver-bars-row"
+    },
+    {
+     "id": "hudTech-jw05-2",
+     "base": "dl_coins_hudTech_mono",
+     "layout": "hudTech",
+     "palette": "jw05",
+     "theme": "Blue Ticket · hudTech",
+     "cat": "coins",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "product": "coin-graded-fan-three"
+    },
+    {
+     "id": "hudTech-du08-2",
+     "base": "dl_phones_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "du08",
+     "theme": "Indigo Trade · hudTech",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "ipad-angle-tilt-back"
+    },
+    {
+     "id": "bandKnockout-ca07-1",
+     "base": "dl_silver_bandKnockout_mono",
+     "layout": "bandKnockout",
+     "palette": "ca07",
+     "theme": "Sky Market · bandKnockout",
+     "cat": "silver",
+     "faces": {
+      "display": "Chivo",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "silver-rounds-pile"
+    },
+    {
+     "id": "bandKnockout-jw07-1",
+     "base": "dl_sports_bandKnockout_emerald",
+     "layout": "bandKnockout",
+     "palette": "jw07",
+     "theme": "Mint Market · bandKnockout",
+     "cat": "sports",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "product": "sports-slabs-stack"
+    },
+    {
+     "id": "bandKnockout-du08-1",
+     "base": "dl_phones_bandKnockout_arctic",
+     "layout": "bandKnockout",
+     "palette": "du08",
+     "theme": "Indigo Trade · bandKnockout",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "product": "iphone-floating-tilt"
+    },
+    {
+     "id": "bandKnockout-pa05-1",
+     "base": "dl_gold_bandKnockout_paper",
+     "layout": "bandKnockout",
+     "palette": "pa05",
+     "theme": "Teal Ticket · bandKnockout",
+     "cat": "gold",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Manrope",
+      "num": "Manrope"
+     },
+     "product": "gold-rings-scatter"
+    },
+    {
+     "id": "arcCrown-du07-1",
+     "base": "dl_coins_arcCrown_gold",
+     "layout": "arcCrown",
+     "palette": "du07",
+     "theme": "Blue Market · arcCrown",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Sora",
+      "num": "DM Mono"
+     },
+     "product": "coin-rolls-paper"
+    },
+    {
+     "id": "arcCrown-jw05-1",
+     "base": "dl_cars_arcCrown_sunset",
+     "layout": "arcCrown",
+     "palette": "jw05",
+     "theme": "Blue Ticket · arcCrown",
+     "cat": "cars",
+     "faces": {
+      "display": "Faster One",
+      "support": "Chivo",
+      "num": "Sora"
+     },
+     "product": "car-suv-side"
+    },
+    {
+     "id": "arcCrown-jw07-1",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "jw07",
+     "theme": "Mint Market · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "Oswald"
+     },
+     "product": "iphone-in-hand-screen-on"
+    },
+    {
+     "id": "arcCrown-pp04-1",
+     "base": "dl_strips_arcCrown_emerald",
+     "layout": "arcCrown",
+     "palette": "pp04",
+     "theme": "Mint Counter · arcCrown",
+     "cat": "strips",
+     "faces": {
+      "display": "Oswald",
+      "support": "Libre Franklin",
+      "num": "Oswald"
+     },
+     "product": "strip-vials-pile"
+    },
+    {
+     "id": "arcCrown-io03-1",
+     "base": "dl_cars_arcCrown_sunset",
+     "layout": "arcCrown",
+     "palette": "io03",
+     "theme": "Violet Payday · arcCrown",
+     "cat": "cars",
+     "faces": {
+      "display": "Oswald",
+      "support": "Instrument Sans",
+      "num": "DM Mono"
+     },
+     "product": "car-engine-bay"
+    },
+    {
+     "id": "arcCrown-ca07-2",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "ca07",
+     "theme": "Sky Market · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "iphone-17-pro-back-silver"
+    },
+    {
+     "id": "arcCrown-du07-2",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "du07",
+     "theme": "Blue Market · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "product": "iphone-15-pro-back-black"
+    },
+    {
+     "id": "arcCrown-jw05-2",
+     "base": "dl_gold_arcCrown_gold",
+     "layout": "arcCrown",
+     "palette": "jw05",
+     "theme": "Blue Ticket · arcCrown",
+     "cat": "gold",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Manrope",
+      "num": "Manrope"
+     },
+     "product": "gold-chains-pile"
+    },
+    {
+     "id": "arcCrown-jw07-2",
+     "base": "dl_strips_arcCrown_emerald",
+     "layout": "arcCrown",
+     "palette": "jw07",
+     "theme": "Mint Market · arcCrown",
+     "cat": "strips",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Instrument Sans",
+      "num": "Barlow Condensed"
+     },
+     "product": "strip-boxes-row-five"
+    },
+    {
+     "id": "glassCard-jw07-1",
+     "base": "dl_gold_glassCard_gold",
+     "layout": "glassCard",
+     "palette": "jw07",
+     "theme": "Mint Market · glassCard",
+     "cat": "gold",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Chivo",
+      "num": "JetBrains Mono"
+     },
+     "product": "gold-watch-luxury"
+    },
+    {
+     "id": "glassCard-du08-1",
+     "base": "dl_silver_glassCard_ocean",
+     "layout": "glassCard",
+     "palette": "du08",
+     "theme": "Indigo Trade · glassCard",
+     "cat": "silver",
+     "faces": {
+      "display": "Chivo",
+      "support": "Libre Franklin",
+      "num": "Manrope"
+     },
+     "product": "silver-bars-row"
+    },
+    {
+     "id": "glassCard-cd06-1",
+     "base": "dl_phones_glassCard_ocean",
+     "layout": "glassCard",
+     "palette": "cd06",
+     "theme": "Blue Deal · glassCard",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Sora",
+      "num": "Barlow Condensed"
+     },
+     "product": "iphone-screen-on-glow"
+    },
+    {
+     "id": "glassCard-pp04-1",
+     "base": "dl_pokemon_glassCard_royal",
+     "layout": "glassCard",
+     "palette": "pp04",
+     "theme": "Mint Counter · glassCard",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Satoshi",
+      "num": "JetBrains Mono"
+     },
+     "product": "poke-slabs-trio"
+    }
+   ]
+  },
+  {
+   "set": 3,
+   "built": "2026-09-02",
+   "source": "5x5 review, 250-card Set 3, pasted by the owner 2026-09-02",
+   "offered": {
+    "checklistHero": 18,
+    "reviewProof": 12,
+    "trustSeal": 16,
+    "stepsFlow": 12,
+    "bubblePop": 20,
+    "voltStack": 18,
+    "neonNight": 12,
+    "slabPoster": 12,
+    "scriptRetro": 18,
+    "lowerThird": 20,
+    "gradientWave": 19,
+    "ticketStub": 10,
+    "hudTech": 14,
+    "bandKnockout": 15,
+    "arcCrown": 19,
+    "glassCard": 15
+   },
+   "offered_palettes": {
+    "jw07": 36,
+    "jw05": 33,
+    "du08": 31,
+    "du07": 27,
+    "cd06": 23,
+    "ca07": 23,
+    "pp04": 23,
+    "io03": 21,
+    "pp02": 17,
+    "pa05": 16
+   },
+   "approved": [
+    {
+     "id": "checklistHero-jw07-3",
+     "base": "dl_cars_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "jw07",
+     "theme": "Mint Market · checklistHero",
+     "cat": "cars",
+     "faces": {
+      "display": "Teko",
+      "support": "Zilla Slab",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "product": "car-engine-bay"
+    },
+    {
+     "id": "checklistHero-jw05-3",
+     "base": "dl_phones_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "jw05",
+     "theme": "Blue Ticket · checklistHero",
+     "cat": "phones",
+     "faces": {
+      "display": "Manrope",
+      "support": "Libre Franklin",
+      "num": "JetBrains Mono",
+      "style": "grotesque"
+     },
+     "product": "ipad-with-pencil"
+    },
+    {
+     "id": "checklistHero-du08-3",
+     "base": "dl_strips_checklistHero_arctic",
+     "layout": "checklistHero",
+     "palette": "du08",
+     "theme": "Indigo Trade · checklistHero",
+     "cat": "strips",
+     "faces": {
+      "display": "Bungee",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "bold"
+     },
+     "product": "strip-boxes-fan"
+    },
+    {
+     "id": "checklistHero-du07-3",
+     "base": "dl_sports_checklistHero_crimson",
+     "layout": "checklistHero",
+     "palette": "du07",
+     "theme": "Blue Market · checklistHero",
+     "cat": "sports",
+     "faces": {
+      "display": "Knewave",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "comic"
+     },
+     "product": "sports-binder-open"
+    },
+    {
+     "id": "checklistHero-io03-3",
+     "base": "dl_phones_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "io03",
+     "theme": "Violet Payday · checklistHero",
+     "cat": "phones",
+     "faces": {
+      "display": "Sora",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "grotesque"
+     },
+     "product": "iphone-15-pro-front-on"
+    },
+    {
+     "id": "checklistHero-pp02-3",
+     "base": "dl_silver_checklistHero_ocean",
+     "layout": "checklistHero",
+     "palette": "pp02",
+     "theme": "Gold Offer · checklistHero",
+     "cat": "silver",
+     "faces": {
+      "display": "Rubik Doodle Shadow",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "street"
+     },
+     "product": "silver-jewelry-mixed"
+    },
+    {
+     "id": "checklistHero-pa05-3",
+     "base": "dl_pokemon_checklistHero_royal",
+     "layout": "checklistHero",
+     "palette": "pa05",
+     "theme": "Teal Ticket · checklistHero",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Freckle Face",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "comic"
+     },
+     "product": "poke-booster"
+    },
+    {
+     "id": "checklistHero-jw07-4",
+     "base": "dl_gold_checklistHero_gold",
+     "layout": "checklistHero",
+     "palette": "jw07",
+     "theme": "Mint Market · checklistHero",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "condensed"
+     },
+     "product": "gold-watch-luxury"
+    },
+    {
+     "id": "checklistHero-du08-4",
+     "base": "dl_silver_checklistHero_ocean",
+     "layout": "checklistHero",
+     "palette": "du08",
+     "theme": "Indigo Trade · checklistHero",
+     "cat": "silver",
+     "faces": {
+      "display": "Teko",
+      "support": "Zilla Slab",
+      "num": "Teko",
+      "style": "condensed"
+     },
+     "product": "silver-bars-row"
+    },
+    {
+     "id": "checklistHero-du07-4",
+     "base": "dl_cars_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "du07",
+     "theme": "Blue Market · checklistHero",
+     "cat": "cars",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Zilla Slab",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "product": "car-title-keys"
+    },
+    {
+     "id": "checklistHero-cd06-4",
+     "base": "dl_phones_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "cd06",
+     "theme": "Blue Deal · checklistHero",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "product": "iphone-screen-on-glow"
+    },
+    {
+     "id": "checklistHero-jw07-5",
+     "base": "dl_pokemon_checklistHero_royal",
+     "layout": "checklistHero",
+     "palette": "jw07",
+     "theme": "Mint Market · checklistHero",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nunito",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "rounded"
+     },
+     "product": "poke-booster"
+    },
+    {
+     "id": "checklistHero-pp04-4",
+     "base": "dl_pokemon_checklistHero_royal",
+     "layout": "checklistHero",
+     "palette": "pp04",
+     "theme": "Mint Counter · checklistHero",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Creepster",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "product": "poke-slabs-trio"
+    },
+    {
+     "id": "reviewProof-du07-3",
+     "base": "dl_phones_reviewProof_ocean",
+     "layout": "reviewProof",
+     "palette": "du07",
+     "theme": "Blue Market · reviewProof",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Libre Franklin",
+      "num": "Audiowide",
+      "style": "condensed"
+     },
+     "product": "ipad-angle-tilt-back"
+    },
+    {
+     "id": "reviewProof-ca07-3",
+     "base": "dl_phones_reviewProof_ocean",
+     "layout": "reviewProof",
+     "palette": "ca07",
+     "theme": "Sky Market · reviewProof",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "product": "iphone-17-pro-back-black"
+    },
+    {
+     "id": "reviewProof-pa05-3",
+     "base": "dl_sports_reviewProof_paper",
+     "layout": "reviewProof",
+     "palette": "pa05",
+     "theme": "Teal Ticket · reviewProof",
+     "cat": "sports",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "product": "sports-binder-open"
+    },
+    {
+     "id": "reviewProof-jw05-3",
+     "base": "dl_gold_reviewProof_gold",
+     "layout": "reviewProof",
+     "palette": "jw05",
+     "theme": "Blue Ticket · reviewProof",
+     "cat": "gold",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Zilla Slab",
+      "num": "Sora",
+      "style": "condensed"
+     },
+     "product": "gold-bracelet-cuban"
+    },
+    {
+     "id": "reviewProof-du08-3",
+     "base": "dl_pokemon_reviewProof_royal",
+     "layout": "reviewProof",
+     "palette": "du08",
+     "theme": "Indigo Trade · reviewProof",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nosifer",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "product": "poke-packs-pile"
+    },
+    {
+     "id": "trustSeal-pp04-3",
+     "base": "dl_coins_trustSeal_gold",
+     "layout": "trustSeal",
+     "palette": "pp04",
+     "theme": "Mint Counter · trustSeal",
+     "cat": "coins",
+     "faces": {
+      "display": "Bungee Shade",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "vintage"
+     },
+     "product": "coin-collection-tray"
+    },
+    {
+     "id": "trustSeal-jw07-3",
+     "base": "dl_pokemon_trustSeal_royal",
+     "layout": "trustSeal",
+     "palette": "jw07",
+     "theme": "Mint Market · trustSeal",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Sniglet",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "rounded"
+     },
+     "product": "poke-binder-open"
+    },
+    {
+     "id": "trustSeal-cd06-3",
+     "base": "dl_strips_trustSeal_emerald",
+     "layout": "trustSeal",
+     "palette": "cd06",
+     "theme": "Blue Deal · trustSeal",
+     "cat": "strips",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "hand"
+     },
+     "product": "strip-boxes"
+    },
+    {
+     "id": "trustSeal-jw07-4",
+     "base": "dl_coins_trustSeal_gold",
+     "layout": "trustSeal",
+     "palette": "jw07",
+     "theme": "Mint Market · trustSeal",
+     "cat": "coins",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Manrope",
+      "num": "Saira Condensed",
+      "style": "condensed"
+     },
+     "product": "coin-silver-dollar-pair"
+    },
+    {
+     "id": "trustSeal-jw05-4",
+     "base": "dl_sports_trustSeal_crimson",
+     "layout": "trustSeal",
+     "palette": "jw05",
+     "theme": "Blue Ticket · trustSeal",
+     "cat": "sports",
+     "faces": {
+      "display": "Rubik Marker Hatch",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "street"
+     },
+     "product": "sports-slab-graded"
+    },
+    {
+     "id": "trustSeal-io03-4",
+     "base": "dl_sports_trustSeal_crimson",
+     "layout": "trustSeal",
+     "palette": "io03",
+     "theme": "Violet Payday · trustSeal",
+     "cat": "sports",
+     "faces": {
+      "display": "Rubik Dirt",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "street"
+     },
+     "product": "sports-binder-open"
+    },
+    {
+     "id": "stepsFlow-pa05-3",
+     "base": "dl_gold_stepsFlow_gold",
+     "layout": "stepsFlow",
+     "palette": "pa05",
+     "theme": "Teal Ticket · stepsFlow",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "vintage"
+     },
+     "product": "gold-rings-scatter"
+    },
+    {
+     "id": "stepsFlow-jw07-3",
+     "base": "dl_sports_stepsFlow_emerald",
+     "layout": "stepsFlow",
+     "palette": "jw07",
+     "theme": "Mint Market · stepsFlow",
+     "cat": "sports",
+     "faces": {
+      "display": "Sedgwick Ave",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "street"
+     },
+     "product": "sports-slabs-stack"
+    },
+    {
+     "id": "stepsFlow-jw05-3",
+     "base": "dl_coins_stepsFlow_royal",
+     "layout": "stepsFlow",
+     "palette": "jw05",
+     "theme": "Blue Ticket · stepsFlow",
+     "cat": "coins",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "slab"
+     },
+     "product": "coin-jar-full"
+    },
+    {
+     "id": "stepsFlow-du07-3",
+     "base": "dl_silver_stepsFlow_ocean",
+     "layout": "stepsFlow",
+     "palette": "du07",
+     "theme": "Blue Market · stepsFlow",
+     "cat": "silver",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "product": "silver-bars-stack"
+    },
+    {
+     "id": "stepsFlow-cd06-3",
+     "base": "dl_pokemon_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "cd06",
+     "theme": "Blue Deal · stepsFlow",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Sedgwick Ave",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "street"
+     },
+     "product": "poke-booster-packs-fan"
+    },
+    {
+     "id": "stepsFlow-ca07-3",
+     "base": "dl_silver_stepsFlow_ocean",
+     "layout": "stepsFlow",
+     "palette": "ca07",
+     "theme": "Sky Market · stepsFlow",
+     "cat": "silver",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Zilla Slab",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "product": "silver-rounds-pile"
+    },
+    {
+     "id": "stepsFlow-jw05-4",
+     "base": "dl_phones_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "jw05",
+     "theme": "Blue Ticket · stepsFlow",
+     "cat": "phones",
+     "faces": {
+      "display": "Sora",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "grotesque"
+     },
+     "product": "ip-group-colour-lineup"
+    },
+    {
+     "id": "bubblePop-du08-3",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "du08",
+     "theme": "Indigo Trade · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "hand"
+     },
+     "product": "poke-binder-open"
+    },
+    {
+     "id": "bubblePop-cd06-3",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "cd06",
+     "theme": "Blue Deal · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Knewave",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "script"
+     },
+     "product": "poke-packs-pile"
+    },
+    {
+     "id": "bubblePop-jw07-3",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "theme": "Mint Market · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Instrument Sans",
+      "support": "Manrope",
+      "num": "Barlow Condensed",
+      "style": "grotesque"
+     },
+     "product": "iphone-in-hand-screen-on"
+    },
+    {
+     "id": "bubblePop-jw05-3",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw05",
+     "theme": "Blue Ticket · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "bold"
+     },
+     "product": "iphone-17-pro-back-silver"
+    },
+    {
+     "id": "bubblePop-io03-3",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "io03",
+     "theme": "Violet Payday · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Squada One",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "bold"
+     },
+     "product": "ipad-mini-single"
+    },
+    {
+     "id": "bubblePop-jw07-4",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "theme": "Mint Market · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "product": "poke-binder-open"
+    },
+    {
+     "id": "bubblePop-cd06-4",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "cd06",
+     "theme": "Blue Deal · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Rubik Doodle Shadow",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "street"
+     },
+     "product": "ipad-front-screen-off"
+    },
+    {
+     "id": "bubblePop-pp04-4",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "pp04",
+     "theme": "Mint Counter · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Chivo",
+      "support": "Zilla Slab",
+      "num": "Oswald",
+      "style": "grotesque"
+     },
+     "product": "iphone-15-pro-back-gold"
+    },
+    {
+     "id": "bubblePop-du08-5",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "du08",
+     "theme": "Indigo Trade · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Kaushan Script",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "script"
+     },
+     "product": "poke-booster-packs-fan"
+    },
+    {
+     "id": "bubblePop-jw07-5",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "theme": "Mint Market · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "product": "ipad-stack-three"
+    },
+    {
+     "id": "voltStack-jw07-3",
+     "base": "dl_gold_voltStack_gold",
+     "layout": "voltStack",
+     "palette": "jw07",
+     "theme": "Mint Market · voltStack",
+     "cat": "gold",
+     "faces": {
+      "display": "Teko",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "condensed"
+     },
+     "product": "gold-watch-luxury"
+    },
+    {
+     "id": "voltStack-io03-3",
+     "base": "dl_strips_voltStack_emerald",
+     "layout": "voltStack",
+     "palette": "io03",
+     "theme": "Violet Payday · voltStack",
+     "cat": "strips",
+     "faces": {
+      "display": "Sniglet",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "rounded"
+     },
+     "product": "strip-kit"
+    },
+    {
+     "id": "voltStack-pa05-3",
+     "base": "dl_coins_voltStack_royal",
+     "layout": "voltStack",
+     "palette": "pa05",
+     "theme": "Teal Ticket · voltStack",
+     "cat": "coins",
+     "faces": {
+      "display": "Cormorant Garamond",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "serif"
+     },
+     "product": "coin-graded-fan-three"
+    },
+    {
+     "id": "voltStack-cd06-3",
+     "base": "dl_phones_voltStack_volt",
+     "layout": "voltStack",
+     "palette": "cd06",
+     "theme": "Blue Deal · voltStack",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "product": "iphone-screen-on-glow"
+    },
+    {
+     "id": "neonNight-jw05-3",
+     "base": "dl_pokemon_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "jw05",
+     "theme": "Blue Ticket · neonNight",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nunito",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "rounded"
+     },
+     "product": "poke-booster-box"
+    },
+    {
+     "id": "neonNight-io03-3",
+     "base": "dl_pokemon_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "io03",
+     "theme": "Violet Payday · neonNight",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Sniglet",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "rounded"
+     },
+     "product": "poke-booster-packs-fan"
+    },
+    {
+     "id": "neonNight-jw07-3",
+     "base": "dl_pokemon_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "jw07",
+     "theme": "Mint Market · neonNight",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Freckle Face",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "comic"
+     },
+     "product": "poke-packs-pile"
+    },
+    {
+     "id": "neonNight-pp04-3",
+     "base": "dl_sports_neonNight_emerald",
+     "layout": "neonNight",
+     "palette": "pp04",
+     "theme": "Mint Counter · neonNight",
+     "cat": "sports",
+     "faces": {
+      "display": "Bungee",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "bold"
+     },
+     "product": "sports-binder-open"
+    },
+    {
+     "id": "slabPoster-pa05-3",
+     "base": "dl_strips_slabPoster_arctic",
+     "layout": "slabPoster",
+     "palette": "pa05",
+     "theme": "Teal Ticket · slabPoster",
+     "cat": "strips",
+     "faces": {
+      "display": "Teko",
+      "support": "Zilla Slab",
+      "num": "Sora",
+      "style": "condensed"
+     },
+     "product": "strip-box-single"
+    },
+    {
+     "id": "slabPoster-jw07-3",
+     "base": "dl_coins_slabPoster_gold",
+     "layout": "slabPoster",
+     "palette": "jw07",
+     "theme": "Mint Market · slabPoster",
+     "cat": "coins",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Manrope",
+      "num": "Saira Condensed",
+      "style": "condensed"
+     },
+     "product": "coin-silver-dollar-pair"
+    },
+    {
+     "id": "slabPoster-cd06-3",
+     "base": "dl_silver_slabPoster_mono",
+     "layout": "slabPoster",
+     "palette": "cd06",
+     "theme": "Blue Deal · slabPoster",
+     "cat": "silver",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Zilla Slab",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "product": "silver-coins-spill"
+    },
+    {
+     "id": "slabPoster-pp04-3",
+     "base": "dl_phones_slabPoster_mono",
+     "layout": "slabPoster",
+     "palette": "pp04",
+     "theme": "Mint Counter · slabPoster",
+     "cat": "phones",
+     "faces": {
+      "display": "Rubik Marker Hatch",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "street"
+     },
+     "product": "ip-gen17-plateau-blue"
+    },
+    {
+     "id": "slabPoster-jw07-4",
+     "base": "dl_phones_slabPoster_mono",
+     "layout": "slabPoster",
+     "palette": "jw07",
+     "theme": "Mint Market · slabPoster",
+     "cat": "phones",
+     "faces": {
+      "display": "Satoshi",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "grotesque"
+     },
+     "product": "iphone-screen-on-glow"
+    },
+    {
+     "id": "scriptRetro-du07-3",
+     "base": "dl_pokemon_scriptRetro_sunset",
+     "layout": "scriptRetro",
+     "palette": "du07",
+     "theme": "Blue Market · scriptRetro",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Kaushan Script",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "script"
+     },
+     "product": "poke-slabs-trio"
+    },
+    {
+     "id": "scriptRetro-ca07-3",
+     "base": "dl_gold_scriptRetro_gold",
+     "layout": "scriptRetro",
+     "palette": "ca07",
+     "theme": "Sky Market · scriptRetro",
+     "cat": "gold",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "condensed"
+     },
+     "product": "gold-earrings-pile"
+    },
+    {
+     "id": "scriptRetro-du07-4",
+     "base": "dl_pokemon_scriptRetro_sunset",
+     "layout": "scriptRetro",
+     "palette": "du07",
+     "theme": "Blue Market · scriptRetro",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nunito",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "rounded"
+     },
+     "product": "poke-binder-open"
+    },
+    {
+     "id": "scriptRetro-ca07-4",
+     "base": "dl_gold_scriptRetro_gold",
+     "layout": "scriptRetro",
+     "palette": "ca07",
+     "theme": "Sky Market · scriptRetro",
+     "cat": "gold",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "product": "gold-bars"
+    },
+    {
+     "id": "scriptRetro-jw07-4",
+     "base": "dl_pokemon_scriptRetro_sunset",
+     "layout": "scriptRetro",
+     "palette": "jw07",
+     "theme": "Mint Market · scriptRetro",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Knewave",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "script"
+     },
+     "product": "poke-packs-pile"
+    },
+    {
+     "id": "lowerThird-jw05-3",
+     "base": "dl_gold_lowerThird_gold",
+     "layout": "lowerThird",
+     "palette": "jw05",
+     "theme": "Blue Ticket · lowerThird",
+     "cat": "gold",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "condensed"
+     },
+     "product": "gold-chains-pile"
+    },
+    {
+     "id": "lowerThird-io03-3",
+     "base": "dl_gold_lowerThird_gold",
+     "layout": "lowerThird",
+     "palette": "io03",
+     "theme": "Violet Payday · lowerThird",
+     "cat": "gold",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Manrope",
+      "num": "Sora",
+      "style": "condensed"
+     },
+     "product": "gold-nuggets-raw"
+    },
+    {
+     "id": "lowerThird-du07-3",
+     "base": "dl_phones_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "du07",
+     "theme": "Blue Market · lowerThird",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Manrope",
+      "num": "Audiowide",
+      "style": "condensed"
+     },
+     "product": "iphone-15-pro-back-black"
+    },
+    {
+     "id": "lowerThird-cd06-3",
+     "base": "dl_cars_lowerThird_sunset",
+     "layout": "lowerThird",
+     "palette": "cd06",
+     "theme": "Blue Deal · lowerThird",
+     "cat": "cars",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Libre Franklin",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "product": "car-title-keys"
+    },
+    {
+     "id": "lowerThird-ca07-3",
+     "base": "dl_phones_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "ca07",
+     "theme": "Sky Market · lowerThird",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Zilla Slab",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "product": "iphone-17-pro-back-silver"
+    },
+    {
+     "id": "lowerThird-pp02-3",
+     "base": "dl_coins_lowerThird_royal",
+     "layout": "lowerThird",
+     "palette": "pp02",
+     "theme": "Gold Offer · lowerThird",
+     "cat": "coins",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "product": "coin-slabs-stack"
+    },
+    {
+     "id": "lowerThird-du08-4",
+     "base": "dl_coins_lowerThird_royal",
+     "layout": "lowerThird",
+     "palette": "du08",
+     "theme": "Indigo Trade · lowerThird",
+     "cat": "coins",
+     "faces": {
+      "display": "Instrument Sans",
+      "support": "Zilla Slab",
+      "num": "Sora",
+      "style": "grotesque"
+     },
+     "product": "coin-graded-fan-three"
+    },
+    {
+     "id": "lowerThird-jw05-5",
+     "base": "dl_coins_lowerThird_royal",
+     "layout": "lowerThird",
+     "palette": "jw05",
+     "theme": "Blue Ticket · lowerThird",
+     "cat": "coins",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Zilla Slab",
+      "num": "Saira Condensed",
+      "style": "slab"
+     },
+     "product": "coin-stack"
+    },
+    {
+     "id": "lowerThird-du07-4",
+     "base": "dl_strips_lowerThird_emerald",
+     "layout": "lowerThird",
+     "palette": "du07",
+     "theme": "Blue Market · lowerThird",
+     "cat": "strips",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Zilla Slab",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "product": "strip-boxes-fan"
+    },
+    {
+     "id": "lowerThird-du08-5",
+     "base": "dl_phones_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "du08",
+     "theme": "Indigo Trade · lowerThird",
+     "cat": "phones",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Manrope",
+      "num": "Squada One",
+      "style": "street"
+     },
+     "product": "ipad-angle-tilt-back"
+    },
+    {
+     "id": "gradientWave-pa05-3",
+     "base": "dl_phones_gradientWave_sunset",
+     "layout": "gradientWave",
+     "palette": "pa05",
+     "theme": "Teal Ticket · gradientWave",
+     "cat": "phones",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Audiowide",
+      "style": "bold"
+     },
+     "product": "iphone-floating-tilt"
+    },
+    {
+     "id": "gradientWave-ca07-4",
+     "base": "dl_pokemon_gradientWave_volt",
+     "layout": "gradientWave",
+     "palette": "ca07",
+     "theme": "Sky Market · gradientWave",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Rubik Marker Hatch",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "street"
+     },
+     "product": "poke-binder-open"
+    },
+    {
+     "id": "gradientWave-jw07-5",
+     "base": "dl_phones_gradientWave_sunset",
+     "layout": "gradientWave",
+     "palette": "jw07",
+     "theme": "Mint Market · gradientWave",
+     "cat": "phones",
+     "faces": {
+      "display": "Manrope",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "grotesque"
+     },
+     "product": "ipad-back-camera"
+    },
+    {
+     "id": "ticketStub-ca07-3",
+     "base": "dl_silver_ticketStub_arctic",
+     "layout": "ticketStub",
+     "palette": "ca07",
+     "theme": "Sky Market · ticketStub",
+     "cat": "silver",
+     "faces": {
+      "display": "Teko",
+      "support": "Libre Franklin",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "product": "silver-flatware"
+    },
+    {
+     "id": "ticketStub-jw05-3",
+     "base": "dl_coins_ticketStub_paper",
+     "layout": "ticketStub",
+     "palette": "jw05",
+     "theme": "Blue Ticket · ticketStub",
+     "cat": "coins",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Manrope",
+      "num": "Saira Condensed",
+      "style": "slab"
+     },
+     "product": "coin-collection-tray"
+    },
+    {
+     "id": "ticketStub-pp02-3",
+     "base": "dl_strips_ticketStub_emerald",
+     "layout": "ticketStub",
+     "palette": "pp02",
+     "theme": "Gold Offer · ticketStub",
+     "cat": "strips",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Zilla Slab",
+      "num": "Sora",
+      "style": "slab"
+     },
+     "product": "strip-kit"
+    },
+    {
+     "id": "ticketStub-jw05-4",
+     "base": "dl_phones_ticketStub_mono",
+     "layout": "ticketStub",
+     "palette": "jw05",
+     "theme": "Blue Ticket · ticketStub",
+     "cat": "phones",
+     "faces": {
+      "display": "Chivo",
+      "support": "Zilla Slab",
+      "num": "JetBrains Mono",
+      "style": "grotesque"
+     },
+     "product": "iphone-15-pro-back-black"
+    },
+    {
+     "id": "hudTech-jw07-3",
+     "base": "dl_strips_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "jw07",
+     "theme": "Mint Market · hudTech",
+     "cat": "strips",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Zilla Slab",
+      "num": "Teko",
+      "style": "condensed"
+     },
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "hudTech-du08-3",
+     "base": "dl_pokemon_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "du08",
+     "theme": "Indigo Trade · hudTech",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "hand"
+     },
+     "product": "poke-booster"
+    },
+    {
+     "id": "hudTech-pp02-4",
+     "base": "dl_phones_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "pp02",
+     "theme": "Gold Offer · hudTech",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Zilla Slab",
+      "num": "Russo One",
+      "style": "condensed"
+     },
+     "product": "macbook-open-front"
+    },
+    {
+     "id": "bandKnockout-jw05-3",
+     "base": "dl_strips_bandKnockout_arctic",
+     "layout": "bandKnockout",
+     "palette": "jw05",
+     "theme": "Blue Ticket · bandKnockout",
+     "cat": "strips",
+     "faces": {
+      "display": "Libre Franklin",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "grotesque"
+     },
+     "product": "strip-box-single"
+    },
+    {
+     "id": "bandKnockout-cd06-3",
+     "base": "dl_phones_bandKnockout_arctic",
+     "layout": "bandKnockout",
+     "palette": "cd06",
+     "theme": "Blue Deal · bandKnockout",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Zilla Slab",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "product": "ip-gen16-back-ultramarine"
+    },
+    {
+     "id": "bandKnockout-io03-3",
+     "base": "dl_strips_bandKnockout_arctic",
+     "layout": "bandKnockout",
+     "palette": "io03",
+     "theme": "Violet Payday · bandKnockout",
+     "cat": "strips",
+     "faces": {
+      "display": "Sniglet",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "rounded"
+     },
+     "product": "strip-kit"
+    },
+    {
+     "id": "bandKnockout-pa05-3",
+     "base": "dl_coins_bandKnockout_gold",
+     "layout": "bandKnockout",
+     "palette": "pa05",
+     "theme": "Teal Ticket · bandKnockout",
+     "cat": "coins",
+     "faces": {
+      "display": "Cormorant Garamond",
+      "support": "Zilla Slab",
+      "num": "DM Mono",
+      "style": "serif"
+     },
+     "product": "coin-album-pages"
+    },
+    {
+     "id": "arcCrown-cd06-3",
+     "base": "dl_gold_arcCrown_gold",
+     "layout": "arcCrown",
+     "palette": "cd06",
+     "theme": "Blue Deal · arcCrown",
+     "cat": "gold",
+     "faces": {
+      "display": "Russo One",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "bold"
+     },
+     "product": "gold-bars-stack"
+    },
+    {
+     "id": "arcCrown-pp02-3",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "pp02",
+     "theme": "Gold Offer · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "bold"
+     },
+     "product": "ip-gen17-plateau-blue"
+    },
+    {
+     "id": "arcCrown-pa05-3",
+     "base": "dl_cars_arcCrown_sunset",
+     "layout": "arcCrown",
+     "palette": "pa05",
+     "theme": "Teal Ticket · arcCrown",
+     "cat": "cars",
+     "faces": {
+      "display": "Rubik Wet Paint",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "street"
+     },
+     "product": "car-van-cargo"
+    },
+    {
+     "id": "arcCrown-cd06-4",
+     "base": "dl_pokemon_arcCrown_royal",
+     "layout": "arcCrown",
+     "palette": "cd06",
+     "theme": "Blue Deal · arcCrown",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "street"
+     },
+     "product": "poke-booster-box"
+    },
+    {
+     "id": "arcCrown-du08-4",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "du08",
+     "theme": "Indigo Trade · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Manrope",
+      "num": "Squada One",
+      "style": "street"
+     },
+     "product": "ipad-angle-tilt-back"
+    },
+    {
+     "id": "glassCard-pp02-3",
+     "base": "dl_gold_glassCard_gold",
+     "layout": "glassCard",
+     "palette": "pp02",
+     "theme": "Gold Offer · glassCard",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "vintage"
+     },
+     "product": "gold-bracelet-cuban"
+    },
+    {
+     "id": "glassCard-jw07-4",
+     "base": "dl_phones_glassCard_ocean",
+     "layout": "glassCard",
+     "palette": "jw07",
+     "theme": "Mint Market · glassCard",
+     "cat": "phones",
+     "faces": {
+      "display": "Manrope",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "grotesque"
+     },
+     "product": "ipad-back-camera"
+    },
+    {
+     "id": "glassCard-pa05-3",
+     "base": "dl_strips_glassCard_emerald",
+     "layout": "glassCard",
+     "palette": "pa05",
+     "theme": "Teal Ticket · glassCard",
+     "cat": "strips",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "condensed"
+     },
+     "product": "strip-box-single"
+    },
+    {
+     "id": "glassCard-ca07-3",
+     "base": "dl_pokemon_glassCard_royal",
+     "layout": "glassCard",
+     "palette": "ca07",
+     "theme": "Sky Market · glassCard",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Rubik Marker Hatch",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "street"
+     },
+     "product": "poke-binder-open"
+    },
+    {
+     "id": "glassCard-jw05-4",
+     "base": "dl_cars_glassCard_ocean",
+     "layout": "glassCard",
+     "palette": "jw05",
+     "theme": "Blue Ticket · glassCard",
+     "cat": "cars",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "product": "car-suv-side"
+    }
+   ]
+  },
+  {
+   "set": 5,
+   "built": "2026-09-02",
+   "source": "5x5 review, 500-card Set 5, pasted by the owner 2026-09-02 (replaces the 5a partial read)",
+   "offered": {
+    "checklistHero": 48,
+    "reviewProof": 48,
+    "trustSeal": 30,
+    "stepsFlow": 31,
+    "bubblePop": 37,
+    "voltStack": 28,
+    "neonNight": 24,
+    "slabPoster": 26,
+    "scriptRetro": 29,
+    "lowerThird": 38,
+    "gradientWave": 28,
+    "ticketStub": 23,
+    "hudTech": 25,
+    "bandKnockout": 26,
+    "arcCrown": 31,
+    "glassCard": 28
+   },
+   "offered_palettes": {
+    "jw07": 65,
+    "jw05": 52,
+    "cd06": 46,
+    "du08": 42,
+    "ca07": 40,
+    "du07": 38,
+    "pa05": 33,
+    "pp04": 29,
+    "io03": 30,
+    "pp02": 29,
+    "cd04": 18,
+    "cd10": 17,
+    "jw03": 15,
+    "jw10": 15,
+    "gl02": 16,
+    "du05": 15
+   },
+   "approved": [
+    {
+     "id": "checklistHero-jw07-9",
+     "base": "dl_sports_checklistHero_crimson",
+     "layout": "checklistHero",
+     "palette": "jw07",
+     "theme": "Mint Market · checklistHero",
+     "cat": "sports",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slabs-fan-five"
+    },
+    {
+     "id": "checklistHero-jw05-9",
+     "base": "dl_gold_checklistHero_gold",
+     "layout": "checklistHero",
+     "palette": "jw05",
+     "theme": "Blue Ticket · checklistHero",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-pocket-watch"
+    },
+    {
+     "id": "checklistHero-du08-9",
+     "base": "dl_silver_checklistHero_ocean",
+     "layout": "checklistHero",
+     "palette": "du08",
+     "theme": "Indigo Trade · checklistHero",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-jewelry-mixed"
+    },
+    {
+     "id": "checklistHero-du07-9",
+     "base": "dl_pokemon_checklistHero_royal",
+     "layout": "checklistHero",
+     "palette": "du07",
+     "theme": "Blue Market · checklistHero",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nosifer",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "checklistHero-pp02-9",
+     "base": "dl_cars_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "pp02",
+     "theme": "Gold Offer · checklistHero",
+     "cat": "cars",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Zilla Slab",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "car-wheel-tyre"
+    },
+    {
+     "id": "checklistHero-cd04-9",
+     "base": "dl_phones_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "cd04",
+     "theme": "Mint Counter · checklistHero",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "checklistHero-jw05-10",
+     "base": "dl_silver_checklistHero_ocean",
+     "layout": "checklistHero",
+     "palette": "jw05",
+     "theme": "Blue Ticket · checklistHero",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-flatware-set"
+    },
+    {
+     "id": "checklistHero-cd10-9",
+     "base": "dl_phones_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "cd10",
+     "theme": "Red Quote · checklistHero",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ip-gen17-plateau-white"
+    },
+    {
+     "id": "checklistHero-jw03-9",
+     "base": "dl_coins_checklistHero_paper",
+     "layout": "checklistHero",
+     "palette": "jw03",
+     "theme": "Orchid Payday · checklistHero",
+     "cat": "coins",
+     "faces": {
+      "display": "Cormorant Garamond",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "serif"
+     },
+     "plate": "rect/tint",
+     "product": "coin-jar-full"
+    },
+    {
+     "id": "checklistHero-du05-9",
+     "base": "dl_pokemon_checklistHero_royal",
+     "layout": "checklistHero",
+     "palette": "du05",
+     "theme": "Mint Ticket · checklistHero",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Creepster",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "checklistHero-io03-10",
+     "base": "dl_gold_checklistHero_gold",
+     "layout": "checklistHero",
+     "palette": "io03",
+     "theme": "Violet Payday · checklistHero",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-coins-pile"
+    },
+    {
+     "id": "checklistHero-jw07-12",
+     "base": "dl_phones_checklistHero_emerald",
+     "layout": "checklistHero",
+     "palette": "jw07",
+     "theme": "Mint Market · checklistHero",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-pair-front-back"
+    },
+    {
+     "id": "checklistHero-pp02-10",
+     "base": "dl_strips_checklistHero_arctic",
+     "layout": "checklistHero",
+     "palette": "pp02",
+     "theme": "Gold Offer · checklistHero",
+     "cat": "strips",
+     "faces": {
+      "display": "Patrick Hand",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "hand"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "checklistHero-ca07-11",
+     "base": "dl_silver_checklistHero_ocean",
+     "layout": "checklistHero",
+     "palette": "ca07",
+     "theme": "Sky Market · checklistHero",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "pill/tint",
+     "product": "silver-rounds-pile"
+    },
+    {
+     "id": "checklistHero-jw05-12",
+     "base": "dl_silver_checklistHero_ocean",
+     "layout": "checklistHero",
+     "palette": "jw05",
+     "theme": "Blue Ticket · checklistHero",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-serving-tray"
+    },
+    {
+     "id": "checklistHero-pa05-11",
+     "base": "dl_sports_checklistHero_crimson",
+     "layout": "checklistHero",
+     "palette": "pa05",
+     "theme": "Teal Ticket · checklistHero",
+     "cat": "sports",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "sports-box-sealed"
+    },
+    {
+     "id": "checklistHero-io03-11",
+     "base": "dl_silver_checklistHero_ocean",
+     "layout": "checklistHero",
+     "palette": "io03",
+     "theme": "Violet Payday · checklistHero",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-flatware"
+    },
+    {
+     "id": "checklistHero-ca07-12",
+     "base": "dl_coins_checklistHero_paper",
+     "layout": "checklistHero",
+     "palette": "ca07",
+     "theme": "Sky Market · checklistHero",
+     "cat": "coins",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "plate": "pill/tint",
+     "product": "coin-loose-pile"
+    },
+    {
+     "id": "checklistHero-cd06-13",
+     "base": "dl_gold_checklistHero_gold",
+     "layout": "checklistHero",
+     "palette": "cd06",
+     "theme": "Blue Deal · checklistHero",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-scale-weighing"
+    },
+    {
+     "id": "reviewProof-ca07-9",
+     "base": "dl_coins_reviewProof_paper",
+     "layout": "reviewProof",
+     "palette": "ca07",
+     "theme": "Sky Market · reviewProof",
+     "cat": "coins",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "vintage"
+     },
+     "plate": "pill/tint",
+     "product": "coin-rolls-paper"
+    },
+    {
+     "id": "reviewProof-pa05-9",
+     "base": "dl_phones_reviewProof_ocean",
+     "layout": "reviewProof",
+     "palette": "pa05",
+     "theme": "Teal Ticket · reviewProof",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Libre Franklin",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "reviewProof-du08-12",
+     "base": "dl_pokemon_reviewProof_royal",
+     "layout": "reviewProof",
+     "palette": "du08",
+     "theme": "Indigo Trade · reviewProof",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nosifer",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "reviewProof-jw07-14",
+     "base": "dl_pokemon_reviewProof_royal",
+     "layout": "reviewProof",
+     "palette": "jw07",
+     "theme": "Mint Market · reviewProof",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Creepster",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "trustSeal-pa05-9",
+     "base": "dl_gold_trustSeal_gold",
+     "layout": "trustSeal",
+     "palette": "pa05",
+     "theme": "Teal Ticket · trustSeal",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-coins-pile"
+    },
+    {
+     "id": "trustSeal-jw07-9",
+     "base": "dl_pokemon_trustSeal_royal",
+     "layout": "trustSeal",
+     "palette": "jw07",
+     "theme": "Mint Market · trustSeal",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nosifer",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "trustSeal-cd10-9",
+     "base": "dl_cars_trustSeal_crimson",
+     "layout": "trustSeal",
+     "palette": "cd10",
+     "theme": "Red Quote · trustSeal",
+     "cat": "cars",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Libre Franklin",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "car-wheel-tyre"
+    },
+    {
+     "id": "trustSeal-ca07-9",
+     "base": "dl_gold_trustSeal_gold",
+     "layout": "trustSeal",
+     "palette": "ca07",
+     "theme": "Sky Market · trustSeal",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "pill/tint",
+     "product": "gold-bars"
+    },
+    {
+     "id": "trustSeal-jw07-10",
+     "base": "dl_sports_trustSeal_crimson",
+     "layout": "trustSeal",
+     "palette": "jw07",
+     "theme": "Mint Market · trustSeal",
+     "cat": "sports",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slabs-fan-five"
+    },
+    {
+     "id": "trustSeal-gl02-9",
+     "base": "dl_strips_trustSeal_emerald",
+     "layout": "trustSeal",
+     "palette": "gl02",
+     "theme": "Amber Offer · trustSeal",
+     "cat": "strips",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Manrope",
+      "num": "Barlow Condensed",
+      "style": "slab"
+     },
+     "plate": "pill/tint",
+     "product": "strip-boxes-stack"
+    },
+    {
+     "id": "trustSeal-du05-9",
+     "base": "dl_silver_trustSeal_mono",
+     "layout": "trustSeal",
+     "palette": "du05",
+     "theme": "Mint Ticket · trustSeal",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-jewelry-mixed"
+    },
+    {
+     "id": "trustSeal-jw05-10",
+     "base": "dl_gold_trustSeal_gold",
+     "layout": "trustSeal",
+     "palette": "jw05",
+     "theme": "Blue Ticket · trustSeal",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-scale-weighing"
+    },
+    {
+     "id": "trustSeal-pp04-10",
+     "base": "dl_gold_trustSeal_gold",
+     "layout": "trustSeal",
+     "palette": "pp04",
+     "theme": "Mint Counter · trustSeal",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-jewelry-mixed"
+    },
+    {
+     "id": "trustSeal-jw07-11",
+     "base": "dl_coins_trustSeal_gold",
+     "layout": "trustSeal",
+     "palette": "jw07",
+     "theme": "Mint Market · trustSeal",
+     "cat": "coins",
+     "faces": {
+      "display": "Bungee Shade",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "coin-slabs-stack"
+    },
+    {
+     "id": "trustSeal-jw05-11",
+     "base": "dl_strips_trustSeal_emerald",
+     "layout": "trustSeal",
+     "palette": "jw05",
+     "theme": "Blue Ticket · trustSeal",
+     "cat": "strips",
+     "faces": {
+      "display": "Squada One",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "bold"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "trustSeal-pa05-11",
+     "base": "dl_pokemon_trustSeal_royal",
+     "layout": "trustSeal",
+     "palette": "pa05",
+     "theme": "Teal Ticket · trustSeal",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Creepster",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "stepsFlow-pp02-9",
+     "base": "dl_gold_stepsFlow_gold",
+     "layout": "stepsFlow",
+     "palette": "pp02",
+     "theme": "Gold Offer · stepsFlow",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-necklace-single"
+    },
+    {
+     "id": "stepsFlow-cd04-9",
+     "base": "dl_strips_stepsFlow_emerald",
+     "layout": "stepsFlow",
+     "palette": "cd04",
+     "theme": "Mint Counter · stepsFlow",
+     "cat": "strips",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "stepsFlow-jw03-9",
+     "base": "dl_phones_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "jw03",
+     "theme": "Orchid Payday · stepsFlow",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Zilla Slab",
+      "num": "Russo One",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ip-gen17-plateau-black"
+    },
+    {
+     "id": "stepsFlow-jw10-9",
+     "base": "dl_phones_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "jw10",
+     "theme": "Red Quote · stepsFlow",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "stepsFlow-du08-9",
+     "base": "dl_cars_stepsFlow_sunset",
+     "layout": "stepsFlow",
+     "palette": "du08",
+     "theme": "Indigo Trade · stepsFlow",
+     "cat": "cars",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Libre Franklin",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "car-wheel-tyre"
+    },
+    {
+     "id": "stepsFlow-ca07-9",
+     "base": "dl_silver_stepsFlow_ocean",
+     "layout": "stepsFlow",
+     "palette": "ca07",
+     "theme": "Sky Market · stepsFlow",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "pill/tint",
+     "product": "silver-bars"
+    },
+    {
+     "id": "stepsFlow-jw07-10",
+     "base": "dl_strips_stepsFlow_emerald",
+     "layout": "stepsFlow",
+     "palette": "jw07",
+     "theme": "Mint Market · stepsFlow",
+     "cat": "strips",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "stepsFlow-gl02-9",
+     "base": "dl_coins_stepsFlow_royal",
+     "layout": "stepsFlow",
+     "palette": "gl02",
+     "theme": "Amber Offer · stepsFlow",
+     "cat": "coins",
+     "faces": {
+      "display": "Bungee Shade",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "vintage"
+     },
+     "plate": "pill/tint",
+     "product": "coin-slabs-stack"
+    },
+    {
+     "id": "stepsFlow-jw05-10",
+     "base": "dl_sports_stepsFlow_emerald",
+     "layout": "stepsFlow",
+     "palette": "jw05",
+     "theme": "Blue Ticket · stepsFlow",
+     "cat": "sports",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slabs-fan-five"
+    },
+    {
+     "id": "stepsFlow-pp04-9",
+     "base": "dl_pokemon_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "pp04",
+     "theme": "Mint Counter · stepsFlow",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Creepster",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "stepsFlow-jw07-11",
+     "base": "dl_gold_stepsFlow_gold",
+     "layout": "stepsFlow",
+     "palette": "jw07",
+     "theme": "Mint Market · stepsFlow",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-pocket-watch"
+    },
+    {
+     "id": "stepsFlow-pp02-10",
+     "base": "dl_silver_stepsFlow_ocean",
+     "layout": "stepsFlow",
+     "palette": "pp02",
+     "theme": "Gold Offer · stepsFlow",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-bars-row"
+    },
+    {
+     "id": "stepsFlow-du08-10",
+     "base": "dl_phones_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "du08",
+     "theme": "Indigo Trade · stepsFlow",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-15-pro-back-white"
+    },
+    {
+     "id": "stepsFlow-du07-10",
+     "base": "dl_cars_stepsFlow_sunset",
+     "layout": "stepsFlow",
+     "palette": "du07",
+     "theme": "Blue Market · stepsFlow",
+     "cat": "cars",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Libre Franklin",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "car-wheel-tyre"
+    },
+    {
+     "id": "stepsFlow-pa05-10",
+     "base": "dl_phones_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "pa05",
+     "theme": "Teal Ticket · stepsFlow",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "stepsFlow-du08-11",
+     "base": "dl_gold_stepsFlow_gold",
+     "layout": "stepsFlow",
+     "palette": "du08",
+     "theme": "Indigo Trade · stepsFlow",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-coins-pile"
+    },
+    {
+     "id": "stepsFlow-pp04-10",
+     "base": "dl_silver_stepsFlow_ocean",
+     "layout": "stepsFlow",
+     "palette": "pp04",
+     "theme": "Mint Counter · stepsFlow",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-bars"
+    },
+    {
+     "id": "stepsFlow-io03-10",
+     "base": "dl_pokemon_stepsFlow_volt",
+     "layout": "stepsFlow",
+     "palette": "io03",
+     "theme": "Violet Payday · stepsFlow",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Creepster",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-cd10-9",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "cd10",
+     "theme": "Red Quote · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Kalam",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "hand"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-jw03-9",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw03",
+     "theme": "Orchid Payday · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Bungee",
+      "support": "Manrope",
+      "num": "Barlow Condensed",
+      "style": "bold"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-fan-four"
+    },
+    {
+     "id": "bubblePop-du08-9",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "du08",
+     "theme": "Indigo Trade · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Manrope",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-jw07-9",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "theme": "Mint Market · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Sora",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "grotesque"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-16-back-teal"
+    },
+    {
+     "id": "bubblePop-du05-9",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "du05",
+     "theme": "Mint Ticket · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Rubik Dirt",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "street"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-15-pro-back-white"
+    },
+    {
+     "id": "bubblePop-jw07-10",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "theme": "Mint Market · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Squada One",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "bold"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-angle-tilt"
+    },
+    {
+     "id": "bubblePop-cd06-10",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "cd06",
+     "theme": "Blue Deal · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "hand"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-pp02-9",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "pp02",
+     "theme": "Gold Offer · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Bungee",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "bold"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-jw05-11",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw05",
+     "theme": "Blue Ticket · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Rubik Marker Hatch",
+      "support": "Manrope",
+      "num": "Audiowide",
+      "style": "street"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-15-pro-back-blue"
+    },
+    {
+     "id": "bubblePop-pa05-10",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "pa05",
+     "theme": "Teal Ticket · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Kaushan Script",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "script"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-cd06-11",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "cd06",
+     "theme": "Blue Deal · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Squada One",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "bold"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-jw07-12",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "theme": "Mint Market · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Squada One",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "bold"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-angle-tilt"
+    },
+    {
+     "id": "bubblePop-pp02-10",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "pp02",
+     "theme": "Gold Offer · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Libre Franklin",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "bubblePop-du07-11",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "du07",
+     "theme": "Blue Market · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Kaushan Script",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "script"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-cd06-12",
+     "base": "dl_pokemon_bubblePop_royal",
+     "layout": "bubblePop",
+     "palette": "cd06",
+     "theme": "Blue Deal · bubblePop",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "hand"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "bubblePop-jw03-10",
+     "base": "dl_phones_bubblePop_volt",
+     "layout": "bubblePop",
+     "palette": "jw03",
+     "theme": "Orchid Payday · bubblePop",
+     "cat": "phones",
+     "faces": {
+      "display": "Libre Franklin",
+      "support": "Libre Franklin",
+      "num": "Russo One",
+      "style": "grotesque"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-angle-tilt"
+    },
+    {
+     "id": "voltStack-cd06-9",
+     "base": "dl_phones_voltStack_volt",
+     "layout": "voltStack",
+     "palette": "cd06",
+     "theme": "Blue Deal · voltStack",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Zilla Slab",
+      "num": "Squada One",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-15-pro-back-white"
+    },
+    {
+     "id": "voltStack-jw10-9",
+     "base": "dl_sports_voltStack_crimson",
+     "layout": "voltStack",
+     "palette": "jw10",
+     "theme": "Red Quote · voltStack",
+     "cat": "sports",
+     "faces": {
+      "display": "Rye",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slab-graded"
+    },
+    {
+     "id": "voltStack-du08-9",
+     "base": "dl_coins_voltStack_royal",
+     "layout": "voltStack",
+     "palette": "du08",
+     "theme": "Indigo Trade · voltStack",
+     "cat": "coins",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "coin-collection-tray"
+    },
+    {
+     "id": "voltStack-gl02-9",
+     "base": "dl_sports_voltStack_crimson",
+     "layout": "voltStack",
+     "palette": "gl02",
+     "theme": "Amber Offer · voltStack",
+     "cat": "sports",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "plate": "pill/tint",
+     "product": "sports-slabs-fan-five"
+    },
+    {
+     "id": "voltStack-jw05-9",
+     "base": "dl_silver_voltStack_mono",
+     "layout": "voltStack",
+     "palette": "jw05",
+     "theme": "Blue Ticket · voltStack",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-coins-spill"
+    },
+    {
+     "id": "voltStack-pp04-9",
+     "base": "dl_strips_voltStack_emerald",
+     "layout": "voltStack",
+     "palette": "pp04",
+     "theme": "Mint Counter · voltStack",
+     "cat": "strips",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "hand"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-stack"
+    },
+    {
+     "id": "voltStack-pp02-9",
+     "base": "dl_strips_voltStack_emerald",
+     "layout": "voltStack",
+     "palette": "pp02",
+     "theme": "Gold Offer · voltStack",
+     "cat": "strips",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "voltStack-ca07-10",
+     "base": "dl_silver_voltStack_mono",
+     "layout": "voltStack",
+     "palette": "ca07",
+     "theme": "Sky Market · voltStack",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "pill/tint",
+     "product": "silver-flatware"
+    },
+    {
+     "id": "voltStack-cd06-11",
+     "base": "dl_strips_voltStack_emerald",
+     "layout": "voltStack",
+     "palette": "cd06",
+     "theme": "Blue Deal · voltStack",
+     "cat": "strips",
+     "faces": {
+      "display": "Nunito",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "rounded"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-stack"
+    },
+    {
+     "id": "voltStack-pp04-10",
+     "base": "dl_pokemon_voltStack_volt",
+     "layout": "voltStack",
+     "palette": "pp04",
+     "theme": "Mint Counter · voltStack",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nosifer",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "voltStack-ca07-11",
+     "base": "dl_coins_voltStack_royal",
+     "layout": "voltStack",
+     "palette": "ca07",
+     "theme": "Sky Market · voltStack",
+     "cat": "coins",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "typewriter"
+     },
+     "plate": "pill/tint",
+     "product": "coin-graded-fan-three"
+    },
+    {
+     "id": "neonNight-ca07-9",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "ca07",
+     "theme": "Sky Market · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Rubik Marker Hatch",
+      "support": "Manrope",
+      "num": "Barlow Condensed",
+      "style": "street"
+     },
+     "plate": "pill/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "neonNight-jw07-9",
+     "base": "dl_cars_neonNight_sunset",
+     "layout": "neonNight",
+     "palette": "jw07",
+     "theme": "Mint Market · neonNight",
+     "cat": "cars",
+     "faces": {
+      "display": "Russo One",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "bold"
+     },
+     "plate": "rect/tint",
+     "product": "car-suv-side"
+    },
+    {
+     "id": "neonNight-gl02-9",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "gl02",
+     "theme": "Amber Offer · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Zilla Slab",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "plate": "pill/tint",
+     "product": "iphone-trio-fan"
+    },
+    {
+     "id": "neonNight-du05-9",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "du05",
+     "theme": "Mint Ticket · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Libre Franklin",
+      "num": "Audiowide",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "neonNight-pp04-9",
+     "base": "dl_sports_neonNight_emerald",
+     "layout": "neonNight",
+     "palette": "pp04",
+     "theme": "Mint Counter · neonNight",
+     "cat": "sports",
+     "faces": {
+      "display": "Sedgwick Ave",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "street"
+     },
+     "plate": "rect/tint",
+     "product": "sports-box-sealed"
+    },
+    {
+     "id": "neonNight-pp02-9",
+     "base": "dl_sports_neonNight_emerald",
+     "layout": "neonNight",
+     "palette": "pp02",
+     "theme": "Gold Offer · neonNight",
+     "cat": "sports",
+     "faces": {
+      "display": "Rubik Marker Hatch",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "street"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slab-graded"
+    },
+    {
+     "id": "neonNight-jw05-10",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "jw05",
+     "theme": "Blue Ticket · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Sedgwick Ave",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "street"
+     },
+     "plate": "rect/tint",
+     "product": "ip-gen17-plateau-white"
+    },
+    {
+     "id": "neonNight-pa05-10",
+     "base": "dl_cars_neonNight_sunset",
+     "layout": "neonNight",
+     "palette": "pa05",
+     "theme": "Teal Ticket · neonNight",
+     "cat": "cars",
+     "faces": {
+      "display": "Rubik Iso",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "tech"
+     },
+     "plate": "rect/tint",
+     "product": "car-van-cargo"
+    },
+    {
+     "id": "neonNight-du08-10",
+     "base": "dl_cars_neonNight_sunset",
+     "layout": "neonNight",
+     "palette": "du08",
+     "theme": "Indigo Trade · neonNight",
+     "cat": "cars",
+     "faces": {
+      "display": "Wallpoet",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "tech"
+     },
+     "plate": "rect/tint",
+     "product": "car-keys"
+    },
+    {
+     "id": "neonNight-pp04-10",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "pp04",
+     "theme": "Mint Counter · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Rubik Marker Hatch",
+      "support": "Manrope",
+      "num": "Audiowide",
+      "style": "street"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "neonNight-io03-10",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "io03",
+     "theme": "Violet Payday · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "neonNight-jw05-11",
+     "base": "dl_phones_neonNight_royal",
+     "layout": "neonNight",
+     "palette": "jw05",
+     "theme": "Blue Ticket · neonNight",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "slabPoster-pp04-9",
+     "base": "dl_gold_slabPoster_paper",
+     "layout": "slabPoster",
+     "palette": "pp04",
+     "theme": "Mint Counter · slabPoster",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-coins-pile"
+    },
+    {
+     "id": "slabPoster-jw07-9",
+     "base": "dl_sports_slabPoster_paper",
+     "layout": "slabPoster",
+     "palette": "jw07",
+     "theme": "Mint Market · slabPoster",
+     "cat": "sports",
+     "faces": {
+      "display": "Rye",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slab-graded"
+    },
+    {
+     "id": "slabPoster-ca07-9",
+     "base": "dl_strips_slabPoster_arctic",
+     "layout": "slabPoster",
+     "palette": "ca07",
+     "theme": "Sky Market · slabPoster",
+     "cat": "strips",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "hand"
+     },
+     "plate": "pill/tint",
+     "product": "strip-boxes-stack"
+    },
+    {
+     "id": "slabPoster-io03-10",
+     "base": "dl_gold_slabPoster_paper",
+     "layout": "slabPoster",
+     "palette": "io03",
+     "theme": "Violet Payday · slabPoster",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-coins-pile"
+    },
+    {
+     "id": "slabPoster-jw07-11",
+     "base": "dl_sports_slabPoster_paper",
+     "layout": "slabPoster",
+     "palette": "jw07",
+     "theme": "Mint Market · slabPoster",
+     "cat": "sports",
+     "faces": {
+      "display": "Bungee Shade",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slabs-stack"
+    },
+    {
+     "id": "slabPoster-cd04-9",
+     "base": "dl_phones_slabPoster_mono",
+     "layout": "slabPoster",
+     "palette": "cd04",
+     "theme": "Mint Counter · slabPoster",
+     "cat": "phones",
+     "faces": {
+      "display": "Teko",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "scriptRetro-pp04-9",
+     "base": "dl_phones_scriptRetro_rose",
+     "layout": "scriptRetro",
+     "palette": "pp04",
+     "theme": "Mint Counter · scriptRetro",
+     "cat": "phones",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "watch-pair-bands"
+    },
+    {
+     "id": "scriptRetro-io03-9",
+     "base": "dl_pokemon_scriptRetro_sunset",
+     "layout": "scriptRetro",
+     "palette": "io03",
+     "theme": "Violet Payday · scriptRetro",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "hand"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "scriptRetro-jw07-9",
+     "base": "dl_phones_scriptRetro_rose",
+     "layout": "scriptRetro",
+     "palette": "jw07",
+     "theme": "Mint Market · scriptRetro",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "JetBrains Mono",
+      "style": "stencil"
+     },
+     "plate": "rect/tint",
+     "product": "macbook-open-angle"
+    },
+    {
+     "id": "scriptRetro-du08-10",
+     "base": "dl_coins_scriptRetro_paper",
+     "layout": "scriptRetro",
+     "palette": "du08",
+     "theme": "Indigo Trade · scriptRetro",
+     "cat": "coins",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "coin-loose-pile"
+    },
+    {
+     "id": "scriptRetro-pp04-10",
+     "base": "dl_phones_scriptRetro_rose",
+     "layout": "scriptRetro",
+     "palette": "pp04",
+     "theme": "Mint Counter · scriptRetro",
+     "cat": "phones",
+     "faces": {
+      "display": "Bungee",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "bold"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-15-pro-back-blue"
+    },
+    {
+     "id": "scriptRetro-jw07-11",
+     "base": "dl_gold_scriptRetro_gold",
+     "layout": "scriptRetro",
+     "palette": "jw07",
+     "theme": "Mint Market · scriptRetro",
+     "cat": "gold",
+     "faces": {
+      "display": "Bungee Shade",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "gold-bars-row"
+    },
+    {
+     "id": "scriptRetro-du07-10",
+     "base": "dl_gold_scriptRetro_gold",
+     "layout": "scriptRetro",
+     "palette": "du07",
+     "theme": "Blue Market · scriptRetro",
+     "cat": "gold",
+     "faces": {
+      "display": "Kaushan Script",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "script"
+     },
+     "plate": "rect/tint",
+     "product": "gold-bars-row"
+    },
+    {
+     "id": "scriptRetro-jw07-12",
+     "base": "dl_phones_scriptRetro_rose",
+     "layout": "scriptRetro",
+     "palette": "jw07",
+     "theme": "Mint Market · scriptRetro",
+     "cat": "phones",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Libre Franklin",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "plate": "rect/tint",
+     "product": "watch-single-angle"
+    },
+    {
+     "id": "scriptRetro-gl02-9",
+     "base": "dl_coins_scriptRetro_paper",
+     "layout": "scriptRetro",
+     "palette": "gl02",
+     "theme": "Amber Offer · scriptRetro",
+     "cat": "coins",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "vintage"
+     },
+     "plate": "pill/tint",
+     "product": "coin-graded-fan-three"
+    },
+    {
+     "id": "lowerThird-ca07-9",
+     "base": "dl_gold_lowerThird_gold",
+     "layout": "lowerThird",
+     "palette": "ca07",
+     "theme": "Sky Market · lowerThird",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "pill/tint",
+     "product": "gold-bars"
+    },
+    {
+     "id": "lowerThird-jw05-9",
+     "base": "dl_strips_lowerThird_emerald",
+     "layout": "lowerThird",
+     "palette": "jw05",
+     "theme": "Blue Ticket · lowerThird",
+     "cat": "strips",
+     "faces": {
+      "display": "Squada One",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "bold"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "lowerThird-du07-10",
+     "base": "dl_gold_lowerThird_gold",
+     "layout": "lowerThird",
+     "palette": "du07",
+     "theme": "Blue Market · lowerThird",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-pocket-watch"
+    },
+    {
+     "id": "lowerThird-io03-10",
+     "base": "dl_strips_lowerThird_emerald",
+     "layout": "lowerThird",
+     "palette": "io03",
+     "theme": "Violet Payday · lowerThird",
+     "cat": "strips",
+     "faces": {
+      "display": "Nunito",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "rounded"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "lowerThird-pp02-11",
+     "base": "dl_phones_lowerThird_ocean",
+     "layout": "lowerThird",
+     "palette": "pp02",
+     "theme": "Gold Offer · lowerThird",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Libre Franklin",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "gradientWave-jw07-10",
+     "base": "dl_strips_gradientWave_emerald",
+     "layout": "gradientWave",
+     "palette": "jw07",
+     "theme": "Mint Market · gradientWave",
+     "cat": "strips",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "gradientWave-cd04-9",
+     "base": "dl_strips_gradientWave_emerald",
+     "layout": "gradientWave",
+     "palette": "cd04",
+     "theme": "Mint Counter · gradientWave",
+     "cat": "strips",
+     "faces": {
+      "display": "Libre Franklin",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "grotesque"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "gradientWave-jw03-9",
+     "base": "dl_phones_gradientWave_sunset",
+     "layout": "gradientWave",
+     "palette": "jw03",
+     "theme": "Orchid Payday · gradientWave",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Zilla Slab",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ip-gen17-plateau-black"
+    },
+    {
+     "id": "hudTech-cd06-9",
+     "base": "dl_phones_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "cd06",
+     "theme": "Blue Deal · hudTech",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Zilla Slab",
+      "num": "Audiowide",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "iphone-15-pro-back-white"
+    },
+    {
+     "id": "hudTech-pp04-9",
+     "base": "dl_silver_hudTech_arctic",
+     "layout": "hudTech",
+     "palette": "pp04",
+     "theme": "Mint Counter · hudTech",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-coins-tube"
+    },
+    {
+     "id": "hudTech-jw07-9",
+     "base": "dl_sports_hudTech_emerald",
+     "layout": "hudTech",
+     "palette": "jw07",
+     "theme": "Mint Market · hudTech",
+     "cat": "sports",
+     "faces": {
+      "display": "Oswald",
+      "support": "Libre Franklin",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slabs-fan-five"
+    },
+    {
+     "id": "hudTech-jw05-10",
+     "base": "dl_pokemon_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "jw05",
+     "theme": "Blue Ticket · hudTech",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nosifer",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "horror"
+     },
+     "plate": "rect/tint",
+     "product": "poke-booster"
+    },
+    {
+     "id": "hudTech-pa05-9",
+     "base": "dl_silver_hudTech_arctic",
+     "layout": "hudTech",
+     "palette": "pa05",
+     "theme": "Teal Ticket · hudTech",
+     "cat": "silver",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "stencil"
+     },
+     "plate": "rect/tint",
+     "product": "silver-bars-stack"
+    },
+    {
+     "id": "hudTech-jw07-11",
+     "base": "dl_phones_hudTech_ocean",
+     "layout": "hudTech",
+     "palette": "jw07",
+     "theme": "Mint Market · hudTech",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Audiowide",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "bandKnockout-jw05-9",
+     "base": "dl_coins_bandKnockout_gold",
+     "layout": "bandKnockout",
+     "palette": "jw05",
+     "theme": "Blue Ticket · bandKnockout",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "grotesque"
+     },
+     "plate": "rect/tint",
+     "product": "coin-single-large"
+    },
+    {
+     "id": "bandKnockout-pp02-9",
+     "base": "dl_coins_bandKnockout_gold",
+     "layout": "bandKnockout",
+     "palette": "pp02",
+     "theme": "Gold Offer · bandKnockout",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "grotesque"
+     },
+     "plate": "rect/tint",
+     "product": "coin-loose-pile"
+    },
+    {
+     "id": "bandKnockout-du07-9",
+     "base": "dl_coins_bandKnockout_gold",
+     "layout": "bandKnockout",
+     "palette": "du07",
+     "theme": "Blue Market · bandKnockout",
+     "cat": "coins",
+     "faces": {
+      "display": "Cormorant Garamond",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "serif"
+     },
+     "plate": "rect/tint",
+     "product": "coin-slab"
+    },
+    {
+     "id": "bandKnockout-jw07-10",
+     "base": "dl_strips_bandKnockout_arctic",
+     "layout": "bandKnockout",
+     "palette": "jw07",
+     "theme": "Mint Market · bandKnockout",
+     "cat": "strips",
+     "faces": {
+      "display": "Libre Franklin",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "grotesque"
+     },
+     "plate": "rect/tint",
+     "product": "strip-boxes-cash"
+    },
+    {
+     "id": "bandKnockout-du05-9",
+     "base": "dl_phones_bandKnockout_arctic",
+     "layout": "bandKnockout",
+     "palette": "du05",
+     "theme": "Mint Ticket · bandKnockout",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "bandKnockout-cd06-10",
+     "base": "dl_silver_bandKnockout_mono",
+     "layout": "bandKnockout",
+     "palette": "cd06",
+     "theme": "Blue Deal · bandKnockout",
+     "cat": "silver",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "silver-tea-set"
+    },
+    {
+     "id": "arcCrown-cd04-9",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "cd04",
+     "theme": "Mint Counter · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Squada One",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "arcCrown-cd10-9",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "cd10",
+     "theme": "Red Quote · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Zilla Slab",
+      "num": "Audiowide",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ip-gen17-plateau-white"
+    },
+    {
+     "id": "arcCrown-jw10-9",
+     "base": "dl_coins_arcCrown_gold",
+     "layout": "arcCrown",
+     "palette": "jw10",
+     "theme": "Red Quote · arcCrown",
+     "cat": "coins",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "coin-single-large"
+    },
+    {
+     "id": "arcCrown-jw05-9",
+     "base": "dl_gold_arcCrown_gold",
+     "layout": "arcCrown",
+     "palette": "jw05",
+     "theme": "Blue Ticket · arcCrown",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-chains"
+    },
+    {
+     "id": "arcCrown-pp02-10",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "pp02",
+     "theme": "Gold Offer · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Libre Franklin",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "arcCrown-jw07-12",
+     "base": "dl_phones_arcCrown_crimson",
+     "layout": "arcCrown",
+     "palette": "jw07",
+     "theme": "Mint Market · arcCrown",
+     "cat": "phones",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "plate": "rect/tint",
+     "product": "ipad-pair-sizes"
+    },
+    {
+     "id": "glassCard-jw03-9",
+     "base": "dl_gold_glassCard_gold",
+     "layout": "glassCard",
+     "palette": "jw03",
+     "theme": "Orchid Payday · glassCard",
+     "cat": "gold",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "typewriter"
+     },
+     "plate": "rect/tint",
+     "product": "gold-bar-single"
+    },
+    {
+     "id": "glassCard-io03-9",
+     "base": "dl_coins_glassCard_royal",
+     "layout": "glassCard",
+     "palette": "io03",
+     "theme": "Violet Payday · glassCard",
+     "cat": "coins",
+     "faces": {
+      "display": "Chivo",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "grotesque"
+     },
+     "plate": "rect/tint",
+     "product": "coin-slab"
+    },
+    {
+     "id": "glassCard-du08-10",
+     "base": "dl_cars_glassCard_ocean",
+     "layout": "glassCard",
+     "palette": "du08",
+     "theme": "Indigo Trade · glassCard",
+     "cat": "cars",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Libre Franklin",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "plate": "rect/tint",
+     "product": "car-motorcycle-side"
+    },
+    {
+     "id": "glassCard-jw05-11",
+     "base": "dl_sports_glassCard_mono",
+     "layout": "glassCard",
+     "palette": "jw05",
+     "theme": "Blue Ticket · glassCard",
+     "cat": "sports",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "plate": "rect/tint",
+     "product": "sports-slabs-fan-five"
+    }
+   ]
+  },
+  {
+   "set": "review-family",
+   "built": "2026-09-02",
+   "source": "review family page, 25 cards, five variations x five",
+   "approved": [
+    {
+     "id": "reviewProof-cd06-20",
+     "layout": "reviewProof",
+     "variant": 3,
+     "variantName": "review strip",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "cat": "sports"
+    },
+    {
+     "id": "reviewProof-du08-20",
+     "layout": "reviewProof",
+     "variant": 4,
+     "variantName": "quote mark",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "cat": "silver"
+    },
+    {
+     "id": "reviewProof-pp04-20",
+     "layout": "reviewProof",
+     "variant": 3,
+     "variantName": "review strip",
+     "palette": "pp04",
+     "theme": "Mint Counter",
+     "cat": "cars"
+    },
+    {
+     "id": "reviewProof-io03-20",
+     "layout": "reviewProof",
+     "variant": 4,
+     "variantName": "quote mark",
+     "palette": "io03",
+     "theme": "Violet Payday",
+     "cat": "phones"
+    },
+    {
+     "id": "reviewProof-jw05-21",
+     "layout": "reviewProof",
+     "variant": 3,
+     "variantName": "review strip",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "cat": "strips"
+    },
+    {
+     "id": "reviewProof-cd10-20",
+     "layout": "reviewProof",
+     "variant": 4,
+     "variantName": "quote mark",
+     "palette": "cd10",
+     "theme": "Red Quote",
+     "cat": "coins"
+    },
+    {
+     "id": "reviewProof-jw05-22",
+     "layout": "reviewProof",
+     "variant": 4,
+     "variantName": "quote mark",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "cat": "pokemon"
+    }
+   ],
+   "offered": {
+    "numeral hero": {
+     "on": 0,
+     "of": 5
+    },
+    "twin quotes": {
+     "on": 0,
+     "of": 5
+    },
+    "review strip": {
+     "on": 3,
+     "of": 5
+    },
+    "quote mark": {
+     "on": 4,
+     "of": 5
+    },
+    "badge + product": {
+     "on": 0,
+     "of": 5
+    }
+   }
+  },
+  {
+   "set": "review-100",
+   "built": "2026-09-03",
+   "source": "100 review formats page",
+   "approved": [
+    {
+     "id": "reviewProof-jw07-30",
+     "k": 0,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "sports",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "faces": {
+      "display": "Freckle Face",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "comic"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-30",
+     "k": 1,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "gold",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "faces": {
+      "display": "Knewave",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "script"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-ca07-30",
+     "k": 4,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "strips",
+     "palette": "ca07",
+     "theme": "Sky Market",
+     "faces": {
+      "display": "Russo One",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "bold"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-30",
+     "k": 5,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "pokemon",
+     "palette": "du07",
+     "theme": "Blue Market",
+     "faces": {
+      "display": "Knewave",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "comic"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp04-30",
+     "k": 6,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "cars",
+     "palette": "pp04",
+     "theme": "Mint Counter",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "stencil"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-30",
+     "k": 7,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "cars",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "faces": {
+      "display": "Rubik Doodle Shadow",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "street"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pa05-30",
+     "k": 8,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "strips",
+     "palette": "pa05",
+     "theme": "Teal Ticket",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Libre Franklin",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-io03-30",
+     "k": 9,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "phones",
+     "palette": "io03",
+     "theme": "Violet Payday",
+     "faces": {
+      "display": "Rubik Marker Hatch",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "street"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-31",
+     "k": 10,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "phones",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "faces": {
+      "display": "Chivo",
+      "support": "Zilla Slab",
+      "num": "Oswald",
+      "style": "grotesque"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw03-30",
+     "k": 11,
+     "spec": {
+      "rating": "inline",
+      "who": "dash",
+      "head": "mid",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "coins",
+     "palette": "jw03",
+     "theme": "Orchid Payday",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "slab"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-31",
+     "k": 12,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "silver",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "faces": {
+      "display": "Rubik Wet Paint",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "street"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd10-30",
+     "k": 13,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "phones",
+     "palette": "cd10",
+     "theme": "Red Quote",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Libre Franklin",
+      "num": "Squada One",
+      "style": "slab"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd04-30",
+     "k": 14,
+     "spec": {
+      "rating": "badge",
+      "who": "pin",
+      "head": "top",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "coins",
+     "palette": "cd04",
+     "theme": "Mint Counter",
+     "faces": {
+      "display": "Bungee Shade",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-gl02-30",
+     "k": 15,
+     "spec": {
+      "rating": "inline",
+      "who": "pin",
+      "head": "top",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "gold",
+     "palette": "gl02",
+     "theme": "Amber Offer",
+     "faces": {
+      "display": "Fascinate",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "vintage"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du05-30",
+     "k": 16,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "gold",
+     "palette": "du05",
+     "theme": "Mint Ticket",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "vintage"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-31",
+     "k": 17,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "coins",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "faces": {
+      "display": "Rye",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "vintage"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-31",
+     "k": 19,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "top",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "phones",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "faces": {
+      "display": "Sora",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "grotesque"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw10-30",
+     "k": 21,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "top",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "pokemon",
+     "palette": "jw10",
+     "theme": "Red Quote",
+     "faces": {
+      "display": "Sedgwick Ave",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "street"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-31",
+     "k": 23,
+     "spec": {
+      "rating": "inline",
+      "who": "dash",
+      "head": "top",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "mark"
+     },
+     "cat": "sports",
+     "palette": "du07",
+     "theme": "Blue Market",
+     "faces": {
+      "display": "Knewave",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "comic"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-33",
+     "k": 25,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "low",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "silver",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-io03-31",
+     "k": 28,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "low",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "gold",
+     "palette": "io03",
+     "theme": "Violet Payday",
+     "faces": {
+      "display": "Kaushan Script",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "script"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-32",
+     "k": 29,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "low",
+      "chips": "chips",
+      "cta": "bar",
+      "quote": "mark"
+     },
+     "cat": "cars",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "faces": {
+      "display": "Rubik Doodle Shadow",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "street"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-32",
+     "k": 30,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "low",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "gold",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "faces": {
+      "display": "Knewave",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "script"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-32",
+     "k": 34,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "low",
+      "chips": "chips",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "phones",
+     "palette": "du07",
+     "theme": "Blue Market",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "Audiowide",
+      "style": "stencil"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-32",
+     "k": 36,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "pokemon",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "hand"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-33",
+     "k": 41,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "strips",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "faces": {
+      "display": "Patrick Hand",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "hand"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-ca07-33",
+     "k": 44,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "phones",
+     "palette": "ca07",
+     "theme": "Sky Market",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "Squada One",
+      "style": "stencil"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd10-31",
+     "k": 45,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "gold",
+     "palette": "cd10",
+     "theme": "Red Quote",
+     "faces": {
+      "display": "Knewave",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "script"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-36",
+     "k": 46,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "mid",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "strips",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "condensed"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-gl02-31",
+     "k": 48,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "silver",
+     "palette": "gl02",
+     "theme": "Amber Offer",
+     "faces": {
+      "display": "Teko",
+      "support": "Zilla Slab",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-35",
+     "k": 49,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "pokemon",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "faces": {
+      "display": "Knewave",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "script"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du05-31",
+     "k": 50,
+     "spec": {
+      "rating": "badge",
+      "who": "pin",
+      "head": "top",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "silver",
+     "palette": "du05",
+     "theme": "Mint Ticket",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Zilla Slab",
+      "num": "Sora",
+      "style": "serif"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp04-33",
+     "k": 52,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "sports",
+     "palette": "pp04",
+     "theme": "Mint Counter",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Zilla Slab",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-34",
+     "k": 53,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip3"
+     },
+     "cat": "pokemon",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Libre Franklin",
+      "num": "DM Mono",
+      "style": "hand"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-37",
+     "k": 54,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "top",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "pokemon",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-34",
+     "k": 55,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "top",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "strip3"
+     },
+     "cat": "coins",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-33",
+     "k": 56,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "sports",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Libre Franklin",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pa05-33",
+     "k": 57,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "top",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "phones",
+     "palette": "pa05",
+     "theme": "Teal Ticket",
+     "faces": {
+      "display": "Satoshi",
+      "support": "Zilla Slab",
+      "num": "Russo One",
+      "style": "grotesque"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-36",
+     "k": 59,
+     "spec": {
+      "rating": "inline",
+      "who": "dash",
+      "head": "top",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "sports",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "faces": {
+      "display": "Squada One",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "bold"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw10-31",
+     "k": 61,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "low",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "sports",
+     "palette": "jw10",
+     "theme": "Red Quote",
+     "faces": {
+      "display": "Knewave",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "script"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-35",
+     "k": 63,
+     "spec": {
+      "rating": "inline",
+      "who": "pin",
+      "head": "low",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "sports",
+     "palette": "du08",
+     "theme": "Indigo Trade",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-37",
+     "k": 66,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "low",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "phones",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "faces": {
+      "display": "Bungee",
+      "support": "Manrope",
+      "num": "DM Mono",
+      "style": "bold"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-35",
+     "k": 67,
+     "spec": {
+      "rating": "inline",
+      "who": "right",
+      "head": "low",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "cars",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "faces": {
+      "display": "Rye",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-39",
+     "k": 68,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "low",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "phones",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "faces": {
+      "display": "Squada One",
+      "support": "Libre Franklin",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-ca07-35",
+     "k": 69,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "low",
+      "chips": "inline",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "silver",
+     "palette": "ca07",
+     "theme": "Sky Market",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-34",
+     "k": 70,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "low",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "phones",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Squada One",
+      "style": "typewriter"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pa05-34",
+     "k": 71,
+     "spec": {
+      "rating": "inline",
+      "who": "dash",
+      "head": "low",
+      "chips": "inline",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "gold",
+     "palette": "pa05",
+     "theme": "Teal Ticket",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-io03-34",
+     "k": 72,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "cars",
+     "palette": "io03",
+     "theme": "Violet Payday",
+     "faces": {
+      "display": "Squada One",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "bold"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw03-32",
+     "k": 73,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "strips",
+     "palette": "jw03",
+     "theme": "Orchid Payday",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-40",
+     "k": 75,
+     "spec": {
+      "rating": "inline",
+      "who": "pin",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "gold",
+     "palette": "jw07",
+     "theme": "Mint Market",
+     "faces": {
+      "display": "Fascinate",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "vintage"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-38",
+     "k": 76,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "gold",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "faces": {
+      "display": "Pirata One",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "blackletter"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-36",
+     "k": 78,
+     "spec": {
+      "rating": "badge",
+      "who": "right",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "strips",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "hand"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-35",
+     "k": 80,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "coins",
+     "palette": "du07",
+     "theme": "Blue Market",
+     "faces": {
+      "display": "Chivo",
+      "support": "Manrope",
+      "num": "Sora",
+      "style": "grotesque"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp04-35",
+     "k": 81,
+     "spec": {
+      "rating": "free",
+      "who": "dash",
+      "head": "mid",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "gold",
+     "palette": "pp04",
+     "theme": "Mint Counter",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Zilla Slab",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du05-32",
+     "k": 84,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "top",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "coins",
+     "palette": "du05",
+     "theme": "Mint Ticket",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Zilla Slab",
+      "num": "Oswald",
+      "style": "serif"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-39",
+     "k": 85,
+     "spec": {
+      "rating": "free",
+      "who": "pin",
+      "head": "top",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "silver",
+     "palette": "jw05",
+     "theme": "Blue Ticket",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Manrope",
+      "num": "JetBrains Mono",
+      "style": "condensed"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-ca07-36",
+     "k": 86,
+     "spec": {
+      "rating": "badge",
+      "who": "pin",
+      "head": "top",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "coins",
+     "palette": "ca07",
+     "theme": "Sky Market",
+     "faces": {
+      "display": "Bungee Shade",
+      "support": "Libre Franklin",
+      "num": "Sora",
+      "style": "vintage"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp02-35",
+     "k": 88,
+     "spec": {
+      "rating": "pill",
+      "who": "right",
+      "head": "top",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "gold",
+     "palette": "pp02",
+     "theme": "Gold Offer",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Libre Franklin",
+      "num": "Manrope",
+      "style": "slab"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pa05-35",
+     "k": 89,
+     "spec": {
+      "rating": "free",
+      "who": "right",
+      "head": "top",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "markRight"
+     },
+     "cat": "silver",
+     "palette": "pa05",
+     "theme": "Teal Ticket",
+     "faces": {
+      "display": "Bungee Shade",
+      "support": "Libre Franklin",
+      "num": "Saira Condensed",
+      "style": "vintage"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-37",
+     "k": 92,
+     "spec": {
+      "rating": "pill",
+      "who": "dash",
+      "head": "top",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "pokemon",
+     "palette": "cd06",
+     "theme": "Blue Deal",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw10-32",
+     "k": 94,
+     "spec": {
+      "rating": "badge",
+      "who": "dash",
+      "head": "top",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "ghost"
+     },
+     "cat": "phones",
+     "palette": "jw10",
+     "theme": "Red Quote",
+     "faces": {
+      "display": "Satoshi",
+      "support": "Zilla Slab",
+      "num": "JetBrains Mono",
+      "style": "grotesque"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-36",
+     "k": 95,
+     "spec": {
+      "rating": "inline",
+      "who": "dash",
+      "head": "top",
+      "chips": "lines",
+      "cta": "pillOnly",
+      "quote": "centered"
+     },
+     "cat": "cars",
+     "palette": "du07",
+     "theme": "Blue Market",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "typewriter"
+     },
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp04-36",
+     "k": 96,
+     "spec": {
+      "rating": "pill",
+      "who": "pin",
+      "head": "low",
+      "chips": "lines",
+      "cta": "bar",
+      "quote": "strip2"
+     },
+     "cat": "silver",
+     "palette": "pp04",
+     "theme": "Mint Counter",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "slab"
+     },
+     "on": true
+    }
+   ],
+   "axisStats": {
+    "rating:pill": {
+     "on": 19,
+     "of": 25
+    },
+    "who:pin": {
+     "on": 20,
+     "of": 36
+    },
+    "head:mid": {
+     "on": 22,
+     "of": 36
+    },
+    "chips:chips": {
+     "on": 24,
+     "of": 36
+    },
+    "cta:bar": {
+     "on": 38,
+     "of": 50
+    },
+    "quote:mark": {
+     "on": 22,
+     "of": 30
+    },
+    "rating:free": {
+     "on": 19,
+     "of": 25
+    },
+    "rating:badge": {
+     "on": 13,
+     "of": 25
+    },
+    "cta:pillOnly": {
+     "on": 25,
+     "of": 50
+    },
+    "rating:inline": {
+     "on": 12,
+     "of": 25
+    },
+    "who:right": {
+     "on": 21,
+     "of": 32
+    },
+    "who:dash": {
+     "on": 22,
+     "of": 32
+    },
+    "head:top": {
+     "on": 27,
+     "of": 36
+    },
+    "head:low": {
+     "on": 14,
+     "of": 28
+    },
+    "quote:strip3": {
+     "on": 14,
+     "of": 26
+    },
+    "chips:inline": {
+     "on": 23,
+     "of": 36
+    },
+    "quote:strip2": {
+     "on": 9,
+     "of": 11
+    },
+    "quote:markRight": {
+     "on": 7,
+     "of": 11
+    },
+    "quote:ghost": {
+     "on": 5,
+     "of": 11
+    },
+    "quote:centered": {
+     "on": 6,
+     "of": 11
+    },
+    "chips:lines": {
+     "on": 16,
+     "of": 28
+    }
+   }
+  }
+ ]
+}

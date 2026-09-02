@@ -1,0 +1,166 @@
+<title>Buyback Composer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif&display=swap">
+<style>
+:root{ --ground:#f6f4ee; --paper:#fffdf8; --ink:#1b1c20; --dim:#5e6068; --faint:#9a9ca4; --line:#e2dfd5;
+  --accent:#0f7b74; --accent-2:#c9950f; --keep:#2f8f6b; --warn:#b4432c; --code:#f0eee6; color-scheme:light }
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){ --ground:#14161c; --paper:#1b1e26; --ink:#e9ebf1; --dim:#9aa0ae; --faint:#646a78; --line:#2c313d; --accent:#4fc6b9; --accent-2:#f2c14e; --keep:#5ad1a5; --warn:#f08a6c; --code:#212530; color-scheme:dark } }
+:root[data-theme="dark"]{ --ground:#14161c; --paper:#1b1e26; --ink:#e9ebf1; --dim:#9aa0ae; --faint:#646a78; --line:#2c313d; --accent:#4fc6b9; --accent-2:#f2c14e; --keep:#5ad1a5; --warn:#f08a6c; --code:#212530; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; line-height:1.5}
+.wrap{max-width:860px; margin:0 auto; padding:40px 24px 120px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace; font-variant-numeric:tabular-nums}
+.eyebrow{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:600; margin:0 0 10px}
+h1{font-family:"Instrument Serif",Georgia,serif; font-weight:400; font-size:48px; line-height:1.05; margin:0 0 14px; letter-spacing:-.01em; text-wrap:balance}
+.lede{font-size:18px; color:var(--dim); margin:0 0 40px; max-width:640px}
+h2{font-size:22px; font-weight:800; letter-spacing:-.01em; margin:56px 0 12px; padding-top:22px; border-top:1px solid var(--line); text-wrap:balance}
+h3{font-size:15px; font-weight:700; margin:26px 0 8px}
+p{margin:0 0 12px; max-width:68ch}
+ul,ol{margin:0 0 14px; padding-left:22px; max-width:70ch}
+li{margin:0 0 6px}
+.why{border-left:3px solid var(--accent-2); padding:10px 14px; background:var(--paper); margin:12px 0 16px; color:var(--dim); font-size:14px; max-width:70ch}
+.why b{color:var(--ink)}
+table{border-collapse:collapse; width:100%; font-size:13.5px; margin:10px 0 18px; background:var(--paper)}
+th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); font-weight:600}
+.tbl{overflow-x:auto; border:1px solid var(--line); border-radius:10px}
+code{font-family:"IBM Plex Mono",monospace; font-size:12.5px; background:var(--code); padding:1px 6px; border-radius:5px}
+pre{font-family:"IBM Plex Mono",monospace; font-size:12.5px; background:var(--code); padding:14px 16px; border-radius:10px; overflow-x:auto; line-height:1.5; margin:10px 0 18px}
+.pipe{display:grid; grid-template-columns:52px 1fr; gap:0 14px; margin:14px 0 20px}
+.pipe .n{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--accent); padding-top:4px}
+.pipe .s{padding:0 0 16px; border-left:1px solid var(--line); margin-left:-14px; padding-left:14px}
+.pipe .s b{display:block; font-size:15px; margin-bottom:3px}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 14px}
+.chip{font-size:12px; border:1px solid var(--line); border-radius:999px; padding:3px 10px; background:var(--paper); color:var(--dim)}
+.sw{display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-1px; margin-right:4px; border:1px solid rgba(0,0,0,.15)}
+.tier{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:12px 0 20px}
+.tier > div{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px 16px}
+.tier h4{margin:0 0 8px; font-size:14px}
+.tier ul{font-size:13.5px; padding-left:18px; margin:0}
+.form{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:10px 0 18px; max-width:560px}
+.form .row{display:flex; flex-direction:column; gap:4px; margin-bottom:12px}
+.form label{font-size:12px; color:var(--dim); letter-spacing:.06em; text-transform:uppercase}
+.form .in{border:1px solid var(--line); border-radius:8px; padding:8px 10px; background:var(--ground); font-size:14px; color:var(--ink)}
+.form .in.ph{color:var(--faint)}
+.form .chips .chip.on{border-color:var(--accent); color:var(--accent); font-weight:600}
+.small{font-size:13px; color:var(--dim)}
+@media (max-width:640px){ h1{font-size:36px} .tier{grid-template-columns:1fr} .wrap{padding:28px 16px 100px} }
+</style>
+
+<div class="wrap">
+<p class="eyebrow">BUYBACK.AD Graphics Studio · engine specification</p>
+<h1>Buyback Composer</h1>
+<p class="lede">How the studio makes a fresh, good, on-brief ad for any buyback business on every open, from the shop's own facts, without a designer and without repeating itself. Every rule below came from a card you rejected or kept; the <em>why</em> travels with the rule.</p>
+
+<h2>1. What it is for</h2>
+<p>A reseller opens the studio and sees a finished ad for their category, in a palette that is theirs for that session, in a typeface pairing nobody else got today, saying true things about their shop. They can post it, or open it and change anything. Free users get a good one with limits; paid users get the whole range. The graphic must look designed, not generated: nothing overlapping, nothing empty, nothing generic, nothing untrue.</p>
+<div class="why"><b>Why an engine and not more templates.</b> Every set so far was hand-cut and reviewed. A library is finite and every card in it is already on someone's feed. The engine turns the reviewed rules into a generator: the same 16 layouts and 56 faces and 16 palettes produce tens of thousands of distinct, valid cards, and each one is checked by the same audit that gated the sets you approved.</div>
+
+<h2>2. Inputs: the shop profile</h2>
+<p>Nothing on a card is invented about the business. The first open shows a three-step sheet; it is short, every field has a sensible default, and the defaults are marked so the owner knows what to change. It is stored once and edited from a single button on the studio bar.</p>
+<div class="form">
+  <div class="row"><label>Step 1 · what you buy</label><div class="chips"><span class="chip on">iPhone</span><span class="chip on">iPad</span><span class="chip">Apple Watch</span><span class="chip">MacBook</span><span class="chip">Samsung</span><span class="chip">Pixel</span><span class="chip">Gold</span><span class="chip">Silver</span><span class="chip">Coins</span><span class="chip">Cars</span><span class="chip">Pokémon</span><span class="chip">Sports cards</span><span class="chip">Test strips</span></div>
+    <div class="in ph">Models or items you want most, one per line · e.g. iPhone 17 Pro Max, 16 Pro, 15 Pro</div></div>
+  <div class="row"><label>Step 2 · your selling points (pick or write)</label><div class="chips"><span class="chip on">Same-day cash</span><span class="chip on">We come to you</span><span class="chip">Written offer first</span><span class="chip">Any condition</span><span class="chip">Cracked or locked still paid</span><span class="chip">Licensed &amp; insured</span><span class="chip">Secure storefront</span><span class="chip">Open 7 days</span><span class="chip">Cash · Zelle · Venmo · wire</span></div>
+    <div class="in ph">Your own line · e.g. Weighed in front of you, on a certified scale</div></div>
+  <div class="row"><label>Step 3 · contact and area</label><div class="in">(562) 999-4994 · iphones.LA</div><div class="in ph">Cities you serve · Long Beach, Lakewood, Downey…</div><div class="in ph">Address (optional, shown on some layouts)</div></div>
+  <div class="row"><label>Claims you can back</label><div class="chips"><span class="chip on">Beat named competitor quotes</span><span class="chip">Top payout figure: $ ___</span><span class="chip">Spot-price %: ___</span><span class="chip">Years in business: ___</span><span class="chip">Review score: ___ · count: ___</span></div></div>
+</div>
+<div class="why"><b>Why a form at all.</b> "We don't want people posting pre-filled generic information or claims that aren't true." Every claim slot on a card maps to a profile field; an unfilled claim slot is filled with a fact the shop <em>did</em> give, never with a placeholder. Competitor lines only render when the owner ticked that they will honour them.</div>
+<p class="small">Keeping it un-clunky: three steps, chips before typing, defaults prefilled from category, one "Looks right" button. The studio opens on a finished ad even when the sheet is skipped, using the safe subset (category copy, phone, site) and no claims.</p>
+
+<h2>3. The pipeline</h2>
+<p>One seed drives everything. Given the profile, a category and a seed, the composer is a pure function: same inputs, same card; new seed, new card. Each open draws a seed nobody has used for that shop.</p>
+<div class="pipe">
+  <div class="n">01</div><div class="s"><b>Subject</b> The category owns the copy, the product pool and the backdrop pool together. Phones rotates through Apple lines (iPhone ×3, Watch, iPad, MacBook); Samsung and Pixel are their own categories. An iPhone ad never shows another device. Backdrops for a line come only from that line's scenes.</div>
+  <div class="n">02</div><div class="s"><b>Layout</b> One of the 16 approved compositions, drawn by approval rate from the reviews (lowerThird, bubblePop, arcCrown, gradientWave, trustSeal lead). A layout is only eligible for a mode it can carry: challenge mode needs an opener + money-word pair.</div>
+  <div class="n">03</div><div class="s"><b>Mode</b> Sell (SELL YOUR / iPHONE), Buy (WE BUY / COINS), Metal (CASH OUT YOUR / GOLD, CASH IN YOUR), Challenge (WE BEAT / CARVANA'S / TRADE-IN OFFER) at one in three, only if the profile allows it, only with a named competitor from the category's list, never "any offer".</div>
+  <div class="n">04</div><div class="s"><b>Palette</b> One of the approved OKLCH palettes, weighted by approvals; the six newest get a fixed share so the set never settles. Four roles: ground, ink, accent, support. Money band under GOLD is golden, under SILVER is silver. No blur on photographs: one tint, either the ground colour at 42–68% or the accent at 24–30%.</div>
+  <div class="n">05</div><div class="s"><b>Type</b> Display face from the styles that fit the subject (blackletter and serif on metals, arcade and condensed on tech, comic and script on cards); body always a plain grotesque under a wild display; numerals from a mono or condensed set. A headline sentence is one face on every line. Heavy faces carry a word, not a sentence; nothing decorative on a curved line; glow never on condensed.</div>
+  <div class="n">06</div><div class="s"><b>Copy</b> Kicker (TOP BUYER, EZ BUYER, GRAILS WANTED), headline, items line from the profile's models, one selling-point row set, one trust fact, one location line (cities are liked: "helps people see where"), phone, site with a cursor mark. Category jargon on the items line: grails, Moonbreon, Morgans, key dates, Cuban links, president watch.</div>
+  <div class="n">07</div><div class="s"><b>Product</b> A hero cutout from the subject's pool, placed by search at 380/340/320px in spots that clear every text and plate; if nothing clears, no product rather than a hidden one. A layout's own product that lands on text is evicted and re-placed. Above a tall panel with nothing else up there, the product fills 80% of the room.</div>
+  <div class="n">08</div><div class="s"><b>Hygiene passes</b> Boxes hug their text with a fixed margin both ways; side-by-side lines stay inside their plate; headlines stop at 82% width and short of any right column; items lists trim to what the line holds at full size; multi-line text stays in its panel; no text on text (lower rank moves, headline shrinks when nothing can move); no line repeats anywhere on the card; a panel with 70px of empty foot gets a fact.</div>
+  <div class="n">09</div><div class="s"><b>Contrast</b> Every line is measured against the rendered ground under it — the darkest quarter for dark ink, the lightest quarter for light ink — and must reach 4.0:1 at 30px+ or 5.5:1 below; a failing line is re-inked, and if neither ink passes it gets a thin opposite-colour outline (never a glow).</div>
+  <div class="n">10</div><div class="s"><b>Audit</b> The card is rejected and re-seeded if any rule fires: repeat, off-page, text-on-text, tiny (&lt;15px), wide headline, grammar (“a the”), unbounded claim, sparse (edge density &lt;12%). A card the audit passes is the only kind a customer sees.</div>
+</div>
+
+<h2>4. Uniqueness, in numbers</h2>
+<div class="tbl"><table>
+<tr><th>Axis</th><th>Choices</th><th>Note</th></tr>
+<tr><td>Layouts</td><td class="mono">16</td><td>approved compositions, each with 6–12 base templates</td></tr>
+<tr><td>Palettes</td><td class="mono">16 now · 100 specified</td><td>weighted; any of the 100 OKLCH themes is valid by construction</td></tr>
+<tr><td>Display faces</td><td class="mono">45 of 56</td><td>per subject fit; support 9, numerals 8</td></tr>
+<tr><td>Plate shapes</td><td class="mono">5</td><td>soft, pill, round, slant, square</td></tr>
+<tr><td>Copy modes × competitor</td><td class="mono">4 × up to 8</td><td>per category</td></tr>
+<tr><td>Product × backdrop</td><td class="mono">~10 × ~6 per subject</td><td>grows with every fetched or generated asset</td></tr>
+</table></div>
+<p>Even without counting copy rotation, one subject yields more than <span class="mono">16 × 16 × 45 × 5 × 60 ≈ 3.5 million</span> distinct cards. A shop that posts daily for ten years never repeats, and no two shops share a card unless they share a seed, which they cannot.</p>
+<div class="why"><b>Why seeds and not random.</b> A seed makes a card reproducible: support can reopen exactly what the customer saw, the audit can be replayed, and "regenerate" is honest — it advances the seed, it does not shuffle the same card.</div>
+
+<h2>5. Free and paid</h2>
+<div class="tier">
+  <div><h4>Free</h4><ul><li>One fresh card per day, watermark-free at 1080px</li><li>Layouts: 6 of 16 (the simplest, still audited)</li><li>Palettes: the 10 core; faces: the plain styles only</li><li>Product and backdrop from the library</li><li>Profile: category, phone, site, two selling points</li></ul></div>
+  <div><h4>Paid</h4><ul><li>Unlimited seeds, 2160px, every layout, palette and face style</li><li>Challenge mode with named competitors and top-payout figures</li><li>Real photography per subject and generated hero assets</li><li>Full profile: models, cities, address, claims, review score</li><li>Saved brand: lock a palette and face pairing as "ours"</li></ul></div>
+</div>
+<div class="why"><b>Why the free card is still good.</b> "We need to give them something high-quality upfront." The free tier narrows the <em>range</em>, never the quality gate: the same audit, the same contrast rule, the same hygiene. What they cannot get is the range that makes a brand.</div>
+
+<h2>6. The data the engine draws from</h2>
+<h3>Palettes in rotation</h3>
+<div class="chips">
+<span class="chip"><i class="sw" style="background:#0d2b4a"></i>Blue Market</span><span class="chip"><i class="sw" style="background:#1d3d6e"></i>Blue Ticket</span><span class="chip"><i class="sw" style="background:#daf7d4"></i>Mint Counter</span><span class="chip"><i class="sw" style="background:#ffe8d7"></i>Gold Offer</span><span class="chip"><i class="sw" style="background:#c2f8fe"></i>Blue Deal</span><span class="chip"><i class="sw" style="background:#284c03"></i>Mint Market</span><span class="chip"><i class="sw" style="background:#5c4ea8"></i>Indigo Trade</span><span class="chip"><i class="sw" style="background:#eef9f5"></i>Teal Ticket</span><span class="chip"><i class="sw" style="background:#bcf7f1"></i>Sky Market</span><span class="chip"><i class="sw" style="background:#e7ecff"></i>Violet Payday</span><span class="chip"><i class="sw" style="background:#ffb2cf"></i>Red Quote</span><span class="chip"><i class="sw" style="background:#94e2a4"></i>Mint Counter (candy)</span><span class="chip"><i class="sw" style="background:#522e6a"></i>Orchid Payday</span><span class="chip"><i class="sw" style="background:#692445"></i>Red Quote (jewel)</span><span class="chip"><i class="sw" style="background:#fed2cb"></i>Amber Offer</span><span class="chip"><i class="sw" style="background:#44ac62"></i>Mint Ticket</span>
+</div>
+<h3>Faces by style and where they go</h3>
+<div class="tbl"><table>
+<tr><th>Style</th><th>Faces</th><th>Fits</th></tr>
+<tr><td>Condensed</td><td>Oswald, Big Shoulders, Barlow Condensed, Teko, Saira Condensed</td><td>every category; leads phones, cars, strips, sports</td></tr>
+<tr><td>Grotesque (body)</td><td>Satoshi, Manrope, Sora, Chivo, Libre Franklin, Instrument Sans</td><td>body under everything; display on phones, strips</td></tr>
+<tr><td>Serif / slab</td><td>Instrument Serif, Cormorant Garamond · Zilla Slab, Roboto Slab</td><td>gold, silver, coins</td></tr>
+<tr><td>Blackletter / stencil</td><td>Pirata One · Big Shoulders Stencil</td><td>gold, silver, cars</td></tr>
+<tr><td>Tech</td><td>Press Start 2P, Audiowide, Wallpoet, Rubik Iso, Russo One, Squada One</td><td>phones, cars</td></tr>
+<tr><td>Comic / script</td><td>Bangers, Luckiest Guy, Shrikhand, Knewave, Freckle Face · Kaushan Script</td><td>Pokémon, sports</td></tr>
+<tr><td>Street</td><td>Sedgwick Ave (×2), Rubik Wet Paint / Marker Hatch / Dirt / Doodle Shadow, Permanent Marker, Faster One (tracked −70)</td><td>phones, cars, silver, cards — short words only</td></tr>
+<tr><td>Vintage / horror</td><td>Rye, Special Elite, Bungee Shade, Fascinate, Cabin Sketch · Nosifer, Creepster</td><td>coins, gold, sports · Pokémon only, rarely</td></tr>
+<tr><td>Numerals</td><td>JetBrains Mono, DM Mono, Audiowide + condensed</td><td>phone numbers, prices</td></tr>
+</table></div>
+<h3>Copy tables</h3>
+<div class="tbl"><table>
+<tr><th>Category</th><th>Kickers</th><th>Competitors named</th><th>Jargon on the items line</th></tr>
+<tr><td>Apple lines</td><td>TOP BUYER · FAST BUYER · EZ BUYER · QUICK BUYER · TOP RATED · APPLE BUYER</td><td>ecoATM, Gazelle, Back Market, ItsWorthMore, Apple Trade In, Best Buy, your carrier, Decluttr</td><td>iPhone 17 · 16 · 15 · Pro &amp; Pro Max; iPad Pro · Air · mini; Series 10 · Ultra 2</td></tr>
+<tr><td>Gold</td><td>GOLD BUYER · FAST CASH · WE PAY MORE</td><td>Cash4Gold, the pawn shop, Kay trade-in, Worthy, EZPawn, the jeweler</td><td>10k · 14k · 18k · scrap &amp; dental · Cuban links · Rolex · Cartier · Tiffany · Yurman · 95% of spot</td></tr>
+<tr><td>Silver</td><td>SILVER BUYER · FAST CASH</td><td>the pawn shop, the coin shop, mail-in buyers</td><td>sterling · .925 · silverware · antiques · Tiffany &amp; Co</td></tr>
+<tr><td>Coins</td><td>GRAILS WANTED · COIN BUYER · JUNK SILVER TOO</td><td>the coin shop, the pawn shop, mail-in buyers</td><td>grails · Morgans · Peace dollars · key dates · Centenarios · Eagles · proof sets</td></tr>
+<tr><td>Cars</td><td>CAR BUYER · ANY CONDITION · FREE TOW</td><td>Carvana, CarMax, Vroom, KBB offer, WeBuyAnyCar, AutoNation, the dealer, Driveway</td><td>title in hand · running or not · high miles</td></tr>
+<tr><td>Pokémon / sports</td><td>GRAILS WANTED · CARD BUYER</td><td>TCGplayer, GameStop, Card Kingdom, COMC, the card shop · PWCC, Goldin</td><td>grails · Charizard · Moonbreon · alt arts · ETBs · rookies · autos · slabs</td></tr>
+<tr><td>Test strips</td><td>STRIP BUYER · DISCREET</td><td>the mail-in sites, the other buyers</td><td>OneTouch · FreeStyle · Contour · Accu-Chek · Dexcom · sealed, in-date</td></tr>
+</table></div>
+<p class="small">Never named as "beaten": eBay, Facebook Marketplace, bullion retailers (APMEX, JM Bullion). They do not make wholesale offers, so the claim would be meaningless.</p>
+
+<h2>7. The rules ledger</h2>
+<p>Each rule is enforced in code, checked by the audit, and traceable to the card that taught it.</p>
+<div class="tbl"><table>
+<tr><th>Rule</th><th>Why (your words)</th><th>Enforced</th></tr>
+<tr><td>No line repeats on a card, exact or as a shorter cut</td><td>"ur repeating lines… in any template EVER"</td><td>final no-repeat pass; audit</td></tr>
+<tr><td>Claims name who is beaten; no "any written offer"</td><td>"too ambitious, gives room for scammers to lie"</td><td>challenge tables; audit</td></tr>
+<tr><td>Headline sentence: one face on every line, tail matches line two's colour, three lines allowed, never in an info line</td><td>"customers miss the last three words"; "keep it purple"</td><td>tail builder</td></tr>
+<tr><td>Heavy faces: short words only; nothing decorative on a curve; no glow on condensed; no handwriting in body</td><td>"font to curve illegible"; "not making this for babies"</td><td>face limits</td></tr>
+<tr><td>Boxes hug text, fixed margin; pill ends not ellipses</td><td>"excessive margin looks bad"; "these ovals are atrocious"</td><td>hug pass; shape set</td></tr>
+<tr><td>Contrast by worst quarter, outline when no ink passes</td><td>"legibility… blue on blue… black on black"</td><td>repair pass</td></tr>
+<tr><td>Subject purity: product, copy and backdrop share one key</td><td>"really? a pixel?! as an iphone"</td><td>deck invariant</td></tr>
+<tr><td>Product placed by search or not at all; never small and hiding</td><td>"the cars are too small and hiding"</td><td>placement search, eviction</td></tr>
+<tr><td>Fill empty panel feet; cities line first</td><td>"wasted space always looks bad"; "helps people see where"</td><td>panel foot</td></tr>
+<tr><td>Website reads as a link (cursor mark, full ink)</td><td>"so people know what it is"</td><td>cursor layer</td></tr>
+<tr><td>Grammar guard ("a the")</td><td>"GOT A THE COIN SHOP QUOTE?"</td><td>kicker builder; audit</td></tr>
+</table></div>
+
+<h2>8. From lab to studio</h2>
+<p>Everything above exists today as passes in <code>scripts/retheme_lab.mjs</code> and gates in <code>scripts/audit_set.mjs</code>, run headless over the engine. Productionising is a move, not a rewrite:</p>
+<ol>
+<li><b>compose(profile, category, seed, tier) → template</b>: the lab's <code>retheme()</code> plus its selection tables become one module, with the profile replacing the hard-coded decks and INFO lines.</li>
+<li><b>layout hygiene</b> moves into the engine's build step as a post-pass on the fabric objects, exactly as it runs in <code>paint()</code> now; the measured-contrast repair already exists in app.js and takes the worst-quarter change.</li>
+<li><b>audit(card) → pass/fail</b> runs on the rendered canvas before the card is shown; a fail advances the seed. Budget: three tries, then the safest layout.</li>
+<li><b>assets</b>: cutouts, scenes, the web photographs with their attribution file, and the generated set once a fal key exists, all listed by subject in one manifest with measured luminance.</li>
+<li><b>the sheet</b>: the profile form in section 2, a single JSON document per shop, versioned so a card can say which profile made it.</li>
+</ol>
+<div class="why"><b>Why the audit ships too.</b> A generator without its judge is a template pile with extra steps. The audit is what lets the studio promise "never overlapping, never empty, never untrue" on a card no human has seen.</div>
+</div>

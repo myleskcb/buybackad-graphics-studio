@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#14161c">
+<title>Buyback Template Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* One dark judging ground, committed on purpose: these are graphics, and a
+   ground that follows the OS would change how every one of them reads. */
+:root{
+  --ground:#14161c; --panel:#1b1e26; --panel-2:#212530; --line:#2c313d;
+  --ink:#e9ebf1; --dim:#8f95a5; --faint:#5f6675;
+  --keep:#5ad1a5; --accent:#ffb03a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink);
+  font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden}
+.wrap{max-width:1900px; margin:0 auto; padding:18px 20px 120px; display:flex; flex-direction:column; gap:16px}
+header{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap}
+h1{font-size:19px; font-weight:800; letter-spacing:-.01em; margin:0}
+.sub{color:var(--dim); font-size:13px; margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-variant-numeric:tabular-nums}
+.meter{display:flex; align-items:center; gap:12px}
+.bar{flex:1; height:4px; background:var(--line); border-radius:2px; overflow:hidden}
+.bar i{display:block; height:100%; background:var(--accent); width:0; transition:width .25s ease}
+.count{font-size:12px; color:var(--dim); white-space:nowrap}
+.count b{color:var(--ink); font-weight:600}
+.kept-n{color:var(--keep); font-weight:600}
+
+/* four at a time */
+.grid{display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+.card{background:var(--panel); border:3px solid var(--line); border-radius:14px; overflow:hidden;
+  cursor:pointer; position:relative; transition:border-color .12s ease, transform .12s ease}
+.card:hover{transform:translateY(-2px)}
+.card:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+.card img{display:block; width:100%; height:auto; background:#0d0f14}
+.card.on{border-color:var(--keep); box-shadow:0 0 0 1px var(--keep), 0 14px 36px rgba(90,209,165,.18)}
+.card .tick{position:absolute; top:12px; right:12px; width:34px; height:34px; border-radius:50%;
+  background:var(--keep); color:#0f1a15; display:none; align-items:center; justify-content:center;
+  font-weight:900; font-size:18px; box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.card.on .tick{display:flex}
+.card .key{position:absolute; top:12px; left:12px; font-size:11px; padding:3px 7px; border-radius:6px;
+  background:rgba(20,22,28,.78); color:var(--dim)}
+.meta{display:flex; align-items:center; gap:5px; flex-wrap:wrap; padding:6px 8px; border-top:1px solid var(--line)}
+.nm{font-size:11px; font-weight:800; letter-spacing:-.01em}
+.chip{font-size:10px; color:var(--dim); border:1px solid var(--line); border-radius:999px; padding:2px 8px; background:var(--panel-2)}
+.sw{display:flex; gap:4px; align-items:center}
+.sw i{width:15px; height:15px; border-radius:4px; display:block; border:1px solid rgba(255,255,255,.16)}
+.id{margin-left:auto; font-size:11px; color:var(--faint)}
+
+/* docked controls — never below the fold */
+.dock{position:fixed; left:0; right:0; bottom:0; z-index:40; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to top, var(--ground) 62%, rgba(20,22,28,0)); display:flex; flex-direction:column;
+  gap:6px; align-items:center; pointer-events:none}
+.dock > *{pointer-events:auto}
+.controls{display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap}
+button{font:inherit; color:var(--ink); background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+  padding:11px 20px; cursor:pointer; font-weight:600; font-size:14px; box-shadow:0 6px 18px rgba(0,0,0,.45)}
+button:hover{border-color:var(--faint)}
+button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.btn-done{color:#0f1a15; background:var(--keep); border-color:var(--keep); min-width:140px}
+.btn-done:hover{filter:brightness(1.08)}
+.ghost{background:none; border-color:transparent; color:var(--dim); box-shadow:none}
+.ghost:hover{color:var(--ink); border-color:var(--line)}
+.hint{text-align:center; color:var(--faint); font-size:12px; margin:0}
+kbd{font-family:"IBM Plex Mono",monospace; background:var(--panel-2); border:1px solid var(--line); border-bottom-width:2px;
+  border-radius:5px; padding:1px 5px; font-size:11px; color:var(--dim)}
+
+/* review */
+.review{display:none; flex-direction:column; gap:16px}
+.review .grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.sect{display:flex; align-items:baseline; gap:10px}
+.sect h2{font-size:15px; margin:0; font-weight:700}
+.sect span{color:var(--dim); font-size:12px}
+textarea{width:100%; min-height:96px; background:var(--panel); color:var(--ink); border:1px solid var(--line);
+  border-radius:10px; padding:11px; font-family:"IBM Plex Mono",monospace; font-size:12px; resize:vertical}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+@media (max-width:1400px){ .grid{grid-template-columns:repeat(4,1fr)} }
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(3,1fr)} }
+@media (max-width:640px){ .grid{grid-template-columns:1fr} .wrap{padding:14px 14px 130px} }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>Buyback Template Lab</h1>
+    <p class="sub">Set 5 &mdash; 250 cards, every rule from the Set 3 review applied: one face per headline sentence, worst-quarter contrast, products placed or removed, no info-line sentence tails. Twenty-five a page, ten pages. Click a card to approve it &mdash; green means yes. Done shows everything you kept.</p></p>
+  </header>
+  <div class="meter">
+    <div class="bar"><i id="bar"></i></div>
+    <div class="count mono">page <b id="pg">1</b>/<span id="pages">1</span> &middot; approved <span class="kept-n" id="nkept">0</span></div>
+  </div>
+
+  <section id="pick">
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="review" id="review">
+    <div class="sect"><h2>Approved</h2><span id="keptcount"></span></div>
+    <p class="sub">Scroll back through. Click any card to take it back off the list.</p>
+    <div class="grid" id="keptgrid"></div>
+    <div class="sect"><h2>Your list</h2><span>paste this back to Claude</span></div>
+    <textarea id="out" readonly></textarea>
+  </section>
+</div>
+
+<div class="dock" id="dock">
+  <div class="controls">
+    <button class="ghost" id="prev">&larr; Previous</button>
+    <button id="next">Next twenty-five &rarr;</button>
+    <button class="btn-done" id="done">Done &mdash; review</button>
+    <button class="ghost" id="back" style="display:none">Back to picking</button>
+    <button class="ghost" id="copy" style="display:none">Copy list</button>
+    <button class="ghost" id="reset">Start over</button>
+  </div>
+  <p class="hint"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> page &middot; <kbd>Enter</kbd> done</p>
+</div>
+
+<script src="templates-set5.js"></script>
+
+</body>
+</html>

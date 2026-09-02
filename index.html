@@ -15,16 +15,36 @@
 <meta name="theme-color" content="#070a12" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#eaeef6" media="(prefers-color-scheme: light)">
 <script>
-/* Stamp the theme on <html> BEFORE first paint, so there is no flash of the
-   wrong ground. Dark is the default (house preference, matching the CRM);
-   light is an explicit opt-in kept in localStorage, not an OS reading. */
+/* Stamp the LOOK on <html> BEFORE first paint, so there is no flash of the
+   wrong ground. Three axes, all CSS custom properties in styles.css:
+   data-theme (dark | light), data-skin (graphite | night | paper | ember),
+   data-accent (blue | mint | orchid | gold | orange). Defaults: graphite,
+   blue, dark, except that Paper is a light skin and opens light.
+   A URL can set a look to share it: ?look=night-mint, ?skin=paper,
+   ?accent=gold, ?theme=light. Anything given in the URL is remembered. */
 (function(){
-  try{
-    var t = localStorage.getItem('pgfx_theme');
-    document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
-  }catch(e){
-    document.documentElement.setAttribute('data-theme','dark');
-  }
+  var d = document.documentElement, q = {}, S = ['graphite','night','paper','ember'], A = ['blue','mint','orchid','gold','orange'];
+  try { new URLSearchParams(location.search).forEach(function(v, k){ q[k] = v; }); } catch(e){}
+  var look = (q.look || '').split('-');
+  var skin = q.skin || look[0] || '', accent = q.accent || look[1] || '', theme = q.theme || '';
+  var fromUrl = { skin: !!skin, accent: !!accent, theme: !!theme };
+  try {
+    if (!skin) skin = localStorage.getItem('pgfx_skin') || '';
+    if (!accent) accent = localStorage.getItem('pgfx_accent') || '';
+    if (!theme) theme = localStorage.getItem('pgfx_theme') || '';
+  } catch(e){}
+  if (S.indexOf(skin) < 0) skin = 'graphite';
+  if (A.indexOf(accent) < 0) accent = 'blue';
+  if (fromUrl.skin && !fromUrl.theme) theme = skin === 'paper' ? 'light' : 'dark';
+  if (theme !== 'light' && theme !== 'dark') theme = skin === 'paper' ? 'light' : 'dark';
+  try {
+    if (fromUrl.skin) localStorage.setItem('pgfx_skin', skin);
+    if (fromUrl.accent) localStorage.setItem('pgfx_accent', accent);
+    if (fromUrl.skin || fromUrl.theme) localStorage.setItem('pgfx_theme', theme);
+  } catch(e){}
+  d.setAttribute('data-skin', skin);
+  d.setAttribute('data-accent', accent);
+  d.setAttribute('data-theme', theme);
 })();
 </script>
 <!-- No Google Fonts stylesheet: every template face is self-hosted in
@@ -63,9 +83,35 @@
     <button class="logo" id="lp-logo"><span class="logo-mark">▰</span>GRAPHICS <em>STUDIO</em></button>
     <div class="lp-nav-links">
       <a href="#lp-templates">Templates</a>
+      <a href="#lp-themes">Themes</a>
       <a href="#lp-how">How it works</a>
+      <a href="#pricing">Pricing</a>
     </div>
     <div class="lp-nav-right">
+      <a class="btn btn-outline lp-lab" href="lab/" title="Template, theme, font and asset labs"><span class="lp-lab-full">Template </span>Lab</a>
+      <span class="look-wrap">
+        <button class="theme-btn look-btn" id="look-btn" title="Change the look of the site" aria-haspopup="true" aria-expanded="false"><i class="look-dot"></i><span>Look</span></button>
+        <div class="look-menu" id="look-menu" role="menu">
+          <div class="look-row"><div class="look-label">Ground</div>
+            <button class="look-chip" data-skin="graphite">Graphite</button>
+            <button class="look-chip" data-skin="night">Night</button>
+            <button class="look-chip" data-skin="paper">Paper</button>
+            <button class="look-chip" data-skin="ember">Ember</button>
+          </div>
+          <div class="look-row"><div class="look-label">Accent</div>
+            <button class="look-swatch" data-accent="blue" style="--sw:#4d9cff" title="Blue"></button>
+            <button class="look-swatch" data-accent="mint" style="--sw:#3ddc97" title="Mint"></button>
+            <button class="look-swatch" data-accent="orchid" style="--sw:#b48cff" title="Orchid"></button>
+            <button class="look-swatch" data-accent="gold" style="--sw:#f2c744" title="Gold"></button>
+            <button class="look-swatch" data-accent="orange" style="--sw:#ff7a1a" title="Orange"></button>
+          </div>
+          <div class="look-row"><div class="look-label">Light</div>
+            <button class="look-chip" data-theme-set="dark">Dark</button>
+            <button class="look-chip" data-theme-set="light">Light</button>
+          </div>
+          <div class="look-note">Saved on this device. To share a look, add it to the address: <code>?look=night-mint</code>, <code>?look=paper-gold</code>.</div>
+        </div>
+      </span>
       <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
       <button class="btn btn-ghost" id="lp-login">Log in</button>
       <button class="btn btn-outline" id="lp-signup">Sign up free</button>
@@ -76,53 +122,75 @@
     </div>
   </nav>
 
-  <section class="hero">
-    <div>
-      <div class="hero-eyebrow">Built for phone buyers &amp; resellers</div>
-      <h1>Post-ready buyback ads<br><em>in under a minute.</em></h1>
-      <p>Pick a proven template, type in your phone number and headline, hit export. High-impact "we buy phones" graphics for Facebook Marketplace, OfferUp, Instagram and Craigslist, no design skills needed.</p>
+  <section class="hero hero-v2">
+    <div class="hero-copy">
+      <div class="hero-eyebrow">For phone buyers, gold buyers and every reseller in between</div>
+      <h1>Buyback ads that make strangers <em>text you first.</em></h1>
+      <p>Pick a layout, pick a colour theme, type your number. Sixty seconds later you have a square, phone-legible ad that looks like a business and not a flyer stapled to a pole. Built for Facebook Marketplace, OfferUp, Instagram and Craigslist.</p>
       <div class="hero-ctas">
-        <button class="btn btn-primary btn-xl" id="lp-cta-main">Make my ad in under a minute</button>
-        <a href="#lp-templates" class="btn btn-outline btn-xl">Browse templates</a>
+        <button class="btn btn-primary btn-xl" id="lp-cta-main">Make my ad</button>
+        <a href="#lp-templates" class="btn btn-outline btn-xl">See the library</a>
       </div>
-      <div class="hero-note">Runs entirely in your browser. Your templates and drafts save automatically.</div>
+      <div class="hero-note">No account to start. Runs in your browser. Drafts save themselves.</div>
     </div>
-    <div class="hero-stack" id="hero-stack">
-      <div class="hero-card hc1"><div class="hc-skel"></div></div>
-      <div class="hero-card hc2"><div class="hc-skel"></div></div>
-      <div class="hero-card hc3"><div class="hc-skel"></div></div>
+    <div class="hero-wall" id="hero-wall">
+      <div class="wall-col" data-dir="up"></div>
+      <div class="wall-col" data-dir="down"></div>
+      <div class="wall-col" data-dir="up"></div>
     </div>
+  </section>
+  <div class="lp-stats" id="lp-stats">
+    <div class="stat"><b>243</b><span>layouts</span></div>
+    <div class="stat"><b>120</b><span>colour themes</span></div>
+    <div class="stat"><b>478</b><span>product cutouts</span></div>
+    <div class="stat"><b>8</b><span>buying categories</span></div>
+    <div class="stat"><b id="lp-stat-new">250</b><span>combinations in the newest set</span></div>
+  </div>
+
+  <section class="lp-section" id="lp-themes">
+    <div class="lp-section-head">
+      <div class="lp-kicker">Colour themes &middot; new</div>
+      <h2>Twelve families. A hundred and twenty themes. None of them unreadable.</h2>
+      <p>A theme here is the whole ad, not a swatch: ground, ink, accent, a supporting colour, the plate the phone number sits on, and a three-face type pairing. They are built in a perceptual colour space so a family reads as a family, and the ink is pushed until it clears 4.5:1 on its own ground, so no theme in the set can be unreadable by construction. Tap a family to see it on real layouts.</p>
+    </div>
+    <div class="fam-grid" id="fam-grid"></div>
   </section>
 
   <section class="lp-section" id="lp-templates">
     <div class="lp-section-head">
       <div class="lp-kicker">Template library</div>
-      <h2>Layouts that already convert</h2>
-      <p>Every template follows the format that works for phone buyers: giant headline, trust badges, one clear number to text. Click any design to open it in the studio.</p>
+      <h2>The newest set, exactly as it will post.</h2>
+      <p>Every card below is a real template, not a picture of one. Click it and it opens with that theme, that product and that copy already in place. Type your number, export, post. Filter by what you buy, or by family above.</p>
     </div>
+    <div class="lp-chips" id="lp-chips"></div>
     <div class="tpl-grid" id="lp-tpl-grid"></div>
+    <div class="tpl-more-row">
+      <span class="tpl-count" id="lp-tpl-count"></span>
+      <button class="btn btn-outline" id="lp-tpl-more">Show more</button>
+      <button class="btn btn-ghost" id="lp-tpl-all">Open the whole library in the studio &rarr;</button>
+    </div>
   </section>
 
   <section class="lp-section" id="lp-how">
     <div class="lp-section-head">
       <div class="lp-kicker">The workflow</div>
-      <h2>Three steps to your next ad</h2>
+      <h2>Three taps between you and the post.</h2>
     </div>
     <div class="flow">
       <div class="flow-step">
         <div class="fs-num">STEP 01</div>
-        <h3>Pick a template</h3>
-        <p>Start from a layout designed for buyback ads, bold, legible on a phone screen, and built around trust signals.</p>
+        <h3>Pick a layout</h3>
+        <p>Sixteen hand-built architectures, from a checklist hero to a ticket stub, each already sized for a phone screen and a hostile feed. Giant headline, trust badges, one number to text.</p>
       </div>
       <div class="flow-step">
         <div class="fs-num">STEP 02</div>
-        <h3>Type your details</h3>
-        <p>Quick-edit fields update the canvas as you type. Save your number and website once in your Brand Kit and every template fills itself in.</p>
+        <h3>Pick a theme</h3>
+        <p>Change the whole ad&rsquo;s clothes in one tap. Ink, accent, plates and type follow the theme together, so nothing is ever left on the previous colour.</p>
       </div>
       <div class="flow-step">
         <div class="fs-num">STEP 03</div>
-        <h3>Enhance &amp; export</h3>
-        <p>One click restores the template's pro styling and cleans up your text, then export a crisp PNG ready to post.</p>
+        <h3>Type and export</h3>
+        <p>Your number, your city, your selling points. Save your brand kit once and every template fills itself in. Export a crisp square PNG and post it.</p>
       </div>
     </div>
   </section>
@@ -130,20 +198,20 @@
   <section class="lp-section" id="pricing">
   <div class="lp-section-head">
     <div class="lp-kicker">Pricing</div>
-    <h2>Free to start. $15 when it pays for itself.</h2>
-    <p>One ad that closes one seller covers months of Pro. No contracts, cancel in two clicks.</p>
+    <h2>Free to start. Fifteen dollars when it pays for itself.</h2>
+    <p>One ad that closes one seller covers months of Pro. No contract, cancel in two clicks.</p>
   </div>
   <div class="lp-price-grid">
     <div class="lp-price-card">
       <h3>Free</h3>
       <div class="lp-price">$0</div>
-      <ul><li>3 exports per week</li><li>55+ free templates, every Phones design</li><li>1080 × 1080 downloads</li><li>BUYBACK.AD watermark</li></ul>
+      <ul><li>3 exports per week</li><li>55+ free templates, every Phones design</li><li>1080 &times; 1080 downloads</li><li>BUYBACK.AD watermark</li></ul>
       <button class="btn btn-outline" data-goto="easy">Start free</button>
     </div>
     <div class="lp-price-card hot">
       <h3>Pro</h3>
       <div class="lp-price">$15<small>/mo</small></div>
-      <ul><li>100 exports per month</li><li>All 160+ templates incl. the Designer Library</li><li>Up to 2160 × 2160, no watermark</li><li>Export history &amp; re-downloads</li></ul>
+      <ul><li>100 exports per month</li><li>All 160+ templates incl. the Designer Library</li><li>Up to 2160 &times; 2160, no watermark</li><li>Export history &amp; re-downloads</li></ul>
       <button class="btn btn-primary" data-goto="plans">Go Pro</button>
     </div>
   </div>
@@ -154,17 +222,18 @@
     <div class="lp-kicker">FAQ</div>
     <h2>Questions buyers ask us</h2>
   </div>
-  <details class="lp-faq"><summary>Do I need any design skills?</summary><p>No. Pick a template, type your phone number, download. Every layout, font pairing and color already follows what converts for buyback ads. If you want control, the advanced editor is one click away.</p></details>
-  <details class="lp-faq"><summary>What can I make ads for?</summary><p>Eight buying categories: phones &amp; devices, gold &amp; jewelry, silver, rare coins, cars &amp; trucks, diabetic supplies, Pokémon cards and sports cards, 160+ templates written with real closing copy for each market, every Designer Library layout shot on real photo backdrops.</p></details>
-  <details class="lp-faq"><summary>Where do people post these?</summary><p>Facebook Marketplace, OfferUp, Craigslist, Instagram, Nextdoor, plus print. Exports are square 1080×1080 (up to 2160 on Pro), the format every feed prefers.</p></details>
-  <details class="lp-faq"><summary>Can I use my own photos?</summary><p>Yes, upload any photo (HEIC from iPhone included), blur it, tint it, or generate a background with AI. Solid color blocks in templates are semi-transparent so your photo stays visible.</p></details>
+  <details class="lp-faq"><summary>Do I need any design skills?</summary><p>No. Pick a template, type your phone number, download. Every layout, font pairing and colour already follows what converts for buyback ads. If you want control, the advanced editor has layers, fonts, your own photos and four canvas formats.</p></details>
+  <details class="lp-faq"><summary>What can I make ads for?</summary><p>Eight buying categories: phones and devices, gold and jewelry, silver, rare coins, cars and trucks, diabetic supplies, Pok&eacute;mon cards and sports cards. Every layout carries real closing copy written for its market, and every theme was measured for contrast, including under colour-blind vision, before it shipped.</p></details>
+  <details class="lp-faq"><summary>Can I change the colours?</summary><p>Yes. Every template opens with its theme in place, and the theme row in the studio changes ground, ink, accent and plates together, so an ad never ends up half one colour and half another. Your own colours and your own photos work too.</p></details>
+  <details class="lp-faq"><summary>Where do people post these?</summary><p>Facebook Marketplace, OfferUp, Craigslist, Instagram, Nextdoor, plus print. Exports are square 1080&times;1080 (up to 2160 on Pro), the format every feed prefers.</p></details>
+  <details class="lp-faq"><summary>Can I use my own photos?</summary><p>Yes, upload any photo (HEIC from iPhone included), blur it, tint it, or generate a background with AI. Solid colour blocks in templates are semi-transparent so your photo stays visible.</p></details>
   <details class="lp-faq"><summary>How do I cancel?</summary><p>From the plans page, Manage billing opens your Stripe portal where you can cancel instantly. You keep Pro until the end of the billing period.</p></details>
 </section>
 
 <div class="lp-cta">
     <div class="lp-cta-inner">
-      <h2>Your next ad is 60 seconds away</h2>
-      <p>Free to use. Unlimited exports. Save your own templates for repeat posting.</p>
+      <h2>Your next ad is sixty seconds away.</h2>
+      <p>Free to start. Save the ads you like as your own templates and repost them in one click.</p>
       <button class="btn btn-primary btn-xl" id="lp-cta-bottom">Make my ad now</button>
     </div>
   </div>
@@ -173,14 +242,16 @@
     <div class="lpf-cols">
       <div class="lpf-brand">
         <div class="logo" style="cursor:default"><span class="logo-mark">▰</span>GRAPHICS <em>STUDIO</em></div>
-        <p>High-quality buyback graphics, nothing else. Made for volume posters.</p>
+        <p>Buyback graphics that look like a business. Nothing else.</p>
       </div>
       <div class="lpf-col">
         <h4>Product</h4>
         <a href="#lp-templates">Templates</a>
+        <a href="#lp-themes">Themes</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
         <a href="#" id="lpf-studio">Open the studio</a>
+        <a href="lab/">Template Lab</a>
       </div>
       <div class="lpf-col">
         <h4>Account</h4>
@@ -193,7 +264,7 @@
         <a href="privacy.html">Privacy</a>
       </div>
     </div>
-    <div class="lpf-base">© 2026 BUYBACK.AD, Graphics Studio</div>
+    <div class="lpf-base">&copy; 2026 BUYBACK.AD, Graphics Studio</div>
   </footer>
 </div>
 
@@ -248,6 +319,10 @@
         <div class="ez-field">
           <label for="ez-website">Your website <span style="text-transform:none;font-weight:500">(optional)</span></label>
           <div class="ez-fieldrow"><input id="ez-website" type="text" placeholder="yoursite.com"><button class="ez-edit-btn" id="ez-edit-website" title="Style this text">✎</button></div>
+        </div>
+        <div class="ez-field">
+          <label for="ez-area">Your area <span style="text-transform:none;font-weight:500">(reviews and service lines name the towns around you)</span></label>
+          <div class="ez-fieldrow"><input id="ez-area" type="text" placeholder="ZIP or city" readonly><button class="ez-edit-btn" id="ez-edit-area" title="Change your area">&#9678;</button></div>
         </div>
         <div id="ez-text-fields"></div>
         <div class="ez-field">
@@ -638,9 +713,29 @@
     <input type="text" id="bk-website" placeholder="iphones.LA">
     <label for="bk-name">Business name <span style="text-transform:none;font-weight:400;color:var(--muted)">(optional)</span></label>
     <input type="text" id="bk-name" placeholder="LA Phone Buyers">
+    <label for="bk-area">Your area <span style="text-transform:none;font-weight:400;color:var(--muted)">(ZIP or city, names the towns in your ads)</span></label>
+    <input type="text" id="bk-area" placeholder="92101 or San Diego, CA">
     <div class="modal-actions">
       <button class="btn btn-ghost" id="bk-cancel">Cancel</button>
       <button class="btn btn-primary" id="bk-save">Save &amp; apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="area-overlay">
+  <div class="modal area-modal">
+    <h3>Where do you buy?</h3>
+    <div class="modal-sub">Your ZIP or city. Reviews, service-area lines and &ldquo;we cover&rdquo; copy will name the towns around you, so every ad reads local wherever you post it. Saved on this device, change it any time.</div>
+    <label for="area-input">ZIP code or city</label>
+    <div class="area-inrow">
+      <input type="text" id="area-input" placeholder="92101 or San Diego, CA" autocomplete="postal-code" inputmode="text" spellcheck="false">
+      <button type="button" class="btn btn-outline" id="area-locate" title="Use my location">&#9678; Locate me</button>
+    </div>
+    <div class="area-suggest" id="area-suggest"></div>
+    <div class="area-preview" id="area-preview"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="area-skip">Not now</button>
+      <button class="btn btn-primary" id="area-save" disabled>Use this area</button>
     </div>
   </div>
 </div>
@@ -907,13 +1002,54 @@
     root.setAttribute('data-theme', t);
     try { localStorage.setItem('pgfx_theme', t); } catch(e){}
     paintCanvasChrome();
+    syncLook();
+  }
+  /* The Look menu: ground (skin) and accent are two more attributes on
+     <html>, saved the same way. Paper is a light skin, so choosing it flips
+     to light and leaving it flips back to dark; the ◐ toggle still works on
+     top of either. */
+  function setLook(k, v){
+    root.setAttribute('data-' + k, v);
+    try { localStorage.setItem('pgfx_' + k, v); } catch(e){}
+    if (k === 'skin') setTheme(v === 'paper' ? 'light' : 'dark');
+    paintCanvasChrome();
+    syncLook();
+  }
+  function syncLook(){
+    var menu = document.getElementById('look-menu');
+    if (!menu) return;
+    ['skin','accent'].forEach(function(k){
+      var cur = root.getAttribute('data-' + k);
+      menu.querySelectorAll('[data-' + k + ']').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-' + k) === cur); });
+    });
+    var t = root.getAttribute('data-theme');
+    menu.querySelectorAll('[data-theme-set]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-theme-set') === t); });
   }
   document.addEventListener('click', function(e){
     var b = e.target.closest('[data-theme-toggle]');
-    if (!b) return;
-    setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    if (b){ setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); return; }
+    var lb = e.target.closest('#look-btn');
+    var menu = document.getElementById('look-menu');
+    if (lb && menu){
+      var open = !menu.classList.contains('open');
+      menu.classList.toggle('open', open);
+      lb.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) syncLook();
+      return;
+    }
+    var sk = e.target.closest('[data-skin]');
+    if (sk && sk.closest('#look-menu')){ setLook('skin', sk.getAttribute('data-skin')); return; }
+    var ac = e.target.closest('[data-accent]');
+    if (ac && ac.closest('#look-menu')){ setLook('accent', ac.getAttribute('data-accent')); return; }
+    var ts = e.target.closest('[data-theme-set]');
+    if (ts){ setTheme(ts.getAttribute('data-theme-set')); return; }
+    if (menu && menu.classList.contains('open') && !e.target.closest('#look-menu')){
+      menu.classList.remove('open');
+      var btn = document.getElementById('look-btn');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
   });
-  window.addEventListener('load', paintCanvasChrome);
+  window.addEventListener('load', function(){ paintCanvasChrome(); syncLook(); });
 
   /* Hero fan: bring a card to the front.
      Pointer devices get it on hover (pure CSS). Touch devices have no hover,

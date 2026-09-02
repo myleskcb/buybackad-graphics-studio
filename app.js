@@ -780,6 +780,8 @@ const TEMPLATES = [
          quiet.
        - At most one collector term per deck, and only where it signals we are
          a serious buyer ("Rolex", "Charizard"), never where it gatekeeps. */
+  /* exposed for scripts/theme_lab.mjs: the lab composes real ads and must use
+     the real copy, not a paraphrase of it. */
   const DECKS = {
     phones:  { k:'LICENSED BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT, EVERY TIME\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY OR YOU MAIL IT IN', cta:'GET YOUR OFFER', price:'UP TO $1,100 PAID TODAY', big:'$1,100', badges:['LICENSED','INSURED','LOCAL'],
                scene:'extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh' },
@@ -822,6 +824,8 @@ const TEMPLATES = [
   ];
 
   // ── local social-proof copy per category (all layers stay editable) ──
+  try { window.DECKS_SNAPSHOT = DECKS; } catch(e){}
+
   const TRUST_COPY = {
     phones:  { q:'"Texted photos at noon, had cash by 3pm. Easiest sale ever."',        w:'MARCUS D. • LONG BEACH' },
     gold:    { q:'"Fair price for my grandmother\'s rings, paid on the spot."',         w:'ELENA R. • LAKEWOOD' },
@@ -2217,6 +2221,9 @@ function alignPass(sc, W, H){
   });
 }
 function buildLayer(l, tplId, dw, dh){
+  /* AREA: copy that names a place is re-pointed at the customer's own towns
+     before it is set (see localizeText below). Identity when no area is set. */
+  const txt = (typeof l.text === 'string' && typeof localizeText === 'function') ? localizeText(l.text) : l.text;
   const p = mapSpecToDoc(l, Object.assign({}, l.props), dw || TPL_W, dh || TPL_H);
   const gradSpec = p.grad; delete p.grad;          // {c1,c2,a}, gradient fill, applied below
   // curved text straight from a template spec (left/top = arc CENTER)
@@ -2227,7 +2234,7 @@ function buildLayer(l, tplId, dw, dh){
     if (gradSpec) style.fill = objGrad(gradSpec);
     const pos = { left:p.left, top:p.top, angle:p.angle || 0 };
     const meta = { name:l.name, pgRole:l.role || '', pgCasing:l.casing || 'none', pgTplId:tplId, pos };
-    let grp = buildCurvedGroup(l.text, l.curve, style, meta);
+    let grp = buildCurvedGroup(txt, l.curve, style, meta);
     // Curved text arcs outward, so it overflows sooner than its glyph count
     // suggests: the emerald wave line measured 1354px on a 1080 board. Same
     // measure-and-fit rule as straight text, but it has to rebuild the group
@@ -2235,7 +2242,7 @@ function buildLayer(l, tplId, dw, dh){
     const docW = dw || TPL_W, margin = Math.round(docW * 0.035);
     for (let pass = 0; pass < 2 && grp.width > docW - margin * 2; pass++){
       style.fontSize = Math.max(8, Math.floor((style.fontSize || 40) * ((docW - margin * 2) / grp.width)));
-      grp = buildCurvedGroup(l.text, l.curve, style, meta);
+      grp = buildCurvedGroup(txt, l.curve, style, meta);
     }
     if (gradSpec) grp.pgFillGrad = gradSpec;
     return grp;
@@ -2337,9 +2344,9 @@ function buildLayer(l, tplId, dw, dh){
       originX: 'left', originY: 'top', objectCaching: false
     }));
   }
-  else if (l.kind === 'textbox') obj = new fabric.Textbox(l.text, Object.assign({paintFirst:'stroke'}, p));
+  else if (l.kind === 'textbox') obj = new fabric.Textbox(txt, Object.assign({paintFirst:'stroke'}, p));
   else {
-    obj = new fabric.IText(l.text, Object.assign({paintFirst:'stroke'}, p));
+    obj = new fabric.IText(txt, Object.assign({paintFirst:'stroke'}, p));
     fitToDoc(obj, p, dw || TPL_W);
     // after any size change, so the bearing is measured at the size that ships
     if (l.pgOptical !== false) obj.set('left', obj.left - opticalLeftShift(obj));
@@ -2840,7 +2847,7 @@ function openBrandModal(){
   const b = getBrand() || {};
   $('bk-phone').value = b.phone || '';
   $('bk-website').value = b.website || '';
-  $('bk-name').value = b.name || '';
+  $('bk-name').value = b.name || ''; if ($('bk-area')) $('bk-area').value = areaLabel();
   $('brand-overlay').classList.add('show');
   setTimeout(() => $('bk-phone').focus(), 60);
 }
@@ -4193,6 +4200,20 @@ function freshBgImage(src, blur, grade){
       img.applyFilters();
     } catch (e){ /* a filter failure must not cost the whole backdrop */ }
   }
+  /* The showcase set (assets/showcase, 2026-09-02) carries the Template Lab's
+     photo treatment as grade.treat: 'tone' strips the photograph to
+     luminance so the theme's own scrim colours it, 'natural' keeps its
+     colour with a touch of contrast and lets the blur and a neutral scrim do
+     the work. Same filters the lab painted with, so the card opens as shown. */
+  if (img && grade && grade.treat){
+    try {
+      const F = fabric.Image.filters;
+      img.filters = grade.treat === 'natural'
+        ? [new F.Contrast({ contrast: 0.05 })]
+        : [new F.Grayscale(), new F.Contrast({ contrast: 0.08 })];
+      img.applyFilters();
+    } catch (e){}
+  }
   return img;
 }
 function _freshBgImageRaw(src){
@@ -4412,16 +4433,30 @@ function coverImage(im, w, h){
    side by side, and the whole set now passes one rule instead of two.
    Floor is 1.7. Checked by scripts/theme_law.mjs. */
 const COLOR_THEMES = [
-  { name:'Street Orange', bg:{type:'grad', c1:'#1c1108', c2:'#0a0603', a:170}, accent:'#ff8c33', ink:'#ffffff' },
-  { name:'Cash Green',    bg:{type:'grad', c1:'#123123', c2:'#050f0a', a:170}, accent:'#4ade80', ink:'#ffffff' },
-  { name:'Gold Standard', bg:{type:'grad', c1:'#241a08', c2:'#0d0903', a:170}, accent:'#f4bb2a', ink:'#ffffff' },
-  { name:'Money Amber',   bg:{type:'grad', c1:'#1a1206', c2:'#080502', a:170}, accent:'#f9b939', ink:'#ffffff' },
-  { name:'Deep Red',      bg:{type:'grad', c1:'#2a0a0e', c2:'#0d0305', a:170}, accent:'#ff6b57', ink:'#ffffff' },
-  { name:'Night Blue',    bg:{type:'grad', c1:'#0f1b3d', c2:'#050916', a:170}, accent:'#ffa62b', ink:'#ffffff' },
-  { name:'Charcoal Lime', bg:{type:'grad', c1:'#1a1a1f', c2:'#0a0a0d', a:180}, accent:'#add369', ink:'#ffffff' },
-  { name:'Warm Cream',    bg:{type:'grad', c1:'#2b2015', c2:'#0f0b07', a:170}, accent:'#ecbf6a', ink:'#ffffff' },
-  { name:'Electric Cyan', bg:{type:'grad', c1:'#07222b', c2:'#030d11', a:170}, accent:'#54d4ee', ink:'#ffffff' },
-  { name:'Clean Slate',   bg:{type:'grad', c1:'#141a20', c2:'#06090c', a:175}, accent:'#b1bec9', ink:'#ffffff' },
+  /* 2026-09-02: the row used to be ten dark grounds, four of them brown or
+     amber under an orange accent — the old design language. Five of the old
+     ones stay (the ones that were not brown); twelve come from
+     scripts/theme_specs.mjs, the same records the Template Lab sets are
+     painted with, so a theme picked here matches a theme seen there. Light
+     grounds carry DARK ink, which applyColorTheme() already handles because
+     it maps by role rather than by assuming white type. */
+  { name:'Blue Market',   family:'Duotone',    bg:{type:'grad', c1:'#1ba3c7', c2:'#198ab5', a:170}, accent:'#254b69', ink:'#092e39' },
+  { name:'Blue Ticket',   family:'Jewel',      bg:{type:'grad', c1:'#044a51', c2:'#01363f', a:170}, accent:'#febbd3', ink:'#d0e2e4' },
+  { name:'Mint Market',   family:'Jewel',      bg:{type:'grad', c1:'#054e2f', c2:'#003928', a:170}, accent:'#e1c2fe', ink:'#d4e2d9' },
+  { name:'Orchid Payday', family:'Jewel',      bg:{type:'grad', c1:'#532d6b', c2:'#481057', a:170}, accent:'#e7d358', ink:'#e2dbe8' },
+  { name:'Indigo Cash',   family:'Night Neon', bg:{type:'grad', c1:'#0e253c', c2:'#02132e', a:170}, accent:'#fcaca5', ink:'#d4dfeb' },
+  { name:'Indigo Trade',  family:'Duotone',    bg:{type:'grad', c1:'#5593ef', c2:'#4d76e5', a:170}, accent:'#3c3e65', ink:'#1b293f' },
+  { name:'Blue Deal',     family:'Candy',      bg:{type:'grad', c1:'#80dafd', c2:'#45c4ff', a:170}, accent:'#ab117d', ink:'#1b3d49' },
+  { name:'Sky Market',    family:'Cool Air',   bg:{type:'grad', c1:'#b9f7f6', c2:'#99e1e7', a:170}, accent:'#d8360a', ink:'#173f3f' },
+  { name:'Violet Payday', family:'iOS Flat',   bg:{type:'grad', c1:'#ecefff', c2:'#d5d7ef', a:170}, accent:'#616cf8', ink:'#31364f' },
+  { name:'Gold Offer',    family:'Paper',      bg:{type:'grad', c1:'#fdf4ee', c2:'#e5ddd5', a:170}, accent:'#ac5d05', ink:'#4a3220' },
+  { name:'Mint Counter',  family:'Paper',      bg:{type:'grad', c1:'#f2f8ef', c2:'#d9e1d8', a:170}, accent:'#4a8704', ink:'#2e3d25' },
+  { name:'Red Cash',      family:'Chalk',      bg:{type:'grad', c1:'#faf5f7', c2:'#e4dedf', a:170}, accent:'#a60a69', ink:'#4a2e3a' },
+  { name:'Cash Green',    family:'Classic',    bg:{type:'grad', c1:'#123123', c2:'#050f0a', a:170}, accent:'#4ade80', ink:'#ffffff' },
+  { name:'Night Blue',    family:'Classic',    bg:{type:'grad', c1:'#0f1b3d', c2:'#050916', a:170}, accent:'#ffa62b', ink:'#ffffff' },
+  { name:'Deep Red',      family:'Classic',    bg:{type:'grad', c1:'#2a0a0e', c2:'#0d0305', a:170}, accent:'#ff6b57', ink:'#ffffff' },
+  { name:'Electric Cyan', family:'Classic',    bg:{type:'grad', c1:'#07222b', c2:'#030d11', a:170}, accent:'#54d4ee', ink:'#ffffff' },
+  { name:'Clean Slate',   family:'Classic',    bg:{type:'grad', c1:'#141a20', c2:'#06090c', a:175}, accent:'#b1bec9', ink:'#ffffff' },
 ];
 /* Which text is standing on the THEME's background, and which is standing on a
    plate of its own? Picking a theme repaints the background; it does not repaint
@@ -4497,7 +4532,7 @@ function buildThemeRow(){
   COLOR_THEMES.forEach(th => {
     const b = document.createElement('button');
     b.className = 'ez-theme';
-    b.title = th.name;
+    b.title = th.name + (th.family ? ' \u00b7 ' + th.family : '');
     b.innerHTML = `<span style="background:linear-gradient(135deg, ${th.bg.c1}, ${th.bg.c2})"></span><span style="background:${th.accent}"></span>`;
     b.onclick = () => applyColorTheme(th);
     row.appendChild(b);
@@ -7502,6 +7537,7 @@ function showEasy(tplId){
   window.scrollTo(0,0);
   ensureThumbs();
   bindEasyUI();
+  maybeAskArea();
   const b = getBrand();
   if (b){ if (!$('ez-phone').value) $('ez-phone').value = b.phone || ''; if (!$('ez-website').value) $('ez-website').value = b.website || ''; }
   selectEzTpl(tplId || ez.tpl || jget('pgfx_last', 'sell_iphone'));
@@ -7739,7 +7775,7 @@ function buildEzForm(){
   const hiddenNames = ezHiddenSet();
   tpl.layers.filter(l => (l.kind === 'text' || l.kind === 'textbox') && EZ_EDIT_ROLES.includes(l.role) && !hiddenNames.includes(l.name)).forEach(l => {
     const saved = (ez.vals[tpl.id] || {})[l.name];
-    const val = saved !== undefined ? saved : l.text;
+    const val = saved !== undefined ? saved : localizeText(l.text);
     const multi = l.text.includes('\n');
     const f = document.createElement('div');
     f.className = 'ez-field';
@@ -8186,7 +8222,8 @@ function bindEditorUI(){
   // brand modal
   $('bk-cancel').onclick = () => $('brand-overlay').classList.remove('show');
   $('bk-save').onclick = () => {
-    jset('pgfx_brand', { phone: $('bk-phone').value.trim(), website: $('bk-website').value.trim(), name: $('bk-name').value.trim() });
+    jset('pgfx_brand', Object.assign(getBrand() || {}, { phone: $('bk-phone').value.trim(), website: $('bk-website').value.trim(), name: $('bk-name').value.trim() }));
+    if ($('bk-area') && $('bk-area').value.trim() && $('bk-area').value.trim() !== areaLabel()) resolveArea($('bk-area').value.trim()).then(a => { if (a) setArea(a); else toast('Could not place that ZIP or city, try another', 'error'); });
     $('brand-overlay').classList.remove('show');
     applyBrandToCanvas(false);
     toast('Brand kit saved', 'success');
@@ -8416,7 +8453,7 @@ function boot(){
   bindEasyUI();
   // prefill brand modal
   const b = getBrand();
-  if (b){ $('bk-phone').value = b.phone || ''; $('bk-website').value = b.website || ''; $('bk-name').value = b.name || ''; }
+  if (b){ $('bk-phone').value = b.phone || ''; $('bk-website').value = b.website || ''; $('bk-name').value = b.name || ''; if ($('bk-area')) $('bk-area').value = areaLabel(); }
   // designer-library faces must be ready before the first thumbnail renders
   ensureTemplateFonts().then(() => {
     /* Order matters. buildLanding() renders 27 canvas thumbnails synchronously,
@@ -9049,4 +9086,536 @@ try {
   console.error('GraphicsStudio: init aborted before the passes ran — a const ' +
     'below a call site is in the temporal dead zone. Everything after that ' +
     'point is uninitialised.', e);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SHOWCASE — the newest Template Lab set, shipped as REAL templates.
+   2026-09-02.
+
+   Until today the landing page rendered 27 of the 243 pass-chain templates on
+   a canvas at boot (the old design language, ~3.5s of main thread) while the
+   work the owner had actually been approving — the retheme sets in the Lab —
+   lived only as pictures in lab/. scripts/retheme_lab.mjs now exports each
+   card's FINAL template record (LAB_EXPORT=1), and assets/showcase/ carries:
+     index.json          one row per card: theme, family, layout, category,
+                         base layout, faces, palette, approval affinity, thumb
+     <id>.webp           the card as the lab painted it, 448px
+     tpl/<id>.json       the full record: layers, backdrop, treatment
+   The landing shows the thumbs (no canvas work at boot) and a click fetches
+   the record, registers it in TEMPLATES under 'sc-<id>' and opens Easy Mode
+   with the photo, product and copy exactly as the card showed them. The
+   record was painted by this same engine (buildLayer/fabric) inside the lab,
+   so what opens is what was shown, not a cousin of it.
+
+   Everything here is additive and lives BELOW the pass block on purpose: a
+   showcase record is already finished, and the passes must not run on it.
+   If index.json is missing the old landing (buildLandingV1) takes over. */
+const SHOWCASE = { cards:null, byId:{}, records:{}, filter:{ cat:'all', fam:'all' }, shown:0, PAGE:16, built:false, list:[] };
+const SC_FAMILIES = [
+  /* every family in theme_specs.mjs with a representative swatch, so the
+     section says twelve and shows twelve even when a set left one out */
+  { family:'Jewel',        c1:'#1f3e7a', ink:'#d7deec', accent:'#fdc3a0', support:'#53b9e0' },
+  { family:'Duotone',      c1:'#e0677b', ink:'#371a1e', accent:'#61352a', support:'#02362d' },
+  { family:'Candy',        c1:'#fdb7bb', ink:'#4d2e30', accent:'#3c740b', support:'#176dcb' },
+  { family:'Paper',        c1:'#fef3f2', ink:'#4d2e2e', accent:'#d6143b', support:'#3b997d' },
+  { family:'Cool Air',     c1:'#baf8f1', ink:'#183f3c', accent:'#d9322b', support:'#2f9664' },
+  { family:'Pastel',       c1:'#ffe6e3', ink:'#4d2f2b', accent:'#019486', support:'#b66992' },
+  { family:'iOS Flat',     c1:'#e3f3fe', ink:'#213b4d', accent:'#0e89c7', support:'#d06962' },
+  { family:'Liquid Glass', c1:'#b7e8f1', ink:'#173e45', accent:'#d00159', support:'#17886d' },
+  { family:'Night Neon',   c1:'#0e253c', ink:'#d4dfeb', accent:'#fcaca5', support:'#5bbf43' },
+  { family:'Chalk',        c1:'#faf5f7', ink:'#4a2e3a', accent:'#a60a69', support:'#172e27' },
+  { family:'Sunlit',       c1:'#ffd9ce', ink:'#4c3027', accent:'#018283', support:'#af710e' },
+  { family:'Ink Pop',      c1:'#e5f3f6', ink:'#173e45', accent:'#c80b65', support:'#044048' },
+];
+function scLoadIndex(){
+  if (SHOWCASE.cards) return Promise.resolve(SHOWCASE.cards);
+  if (SHOWCASE._p) return SHOWCASE._p;
+  SHOWCASE._p = fetch('assets/showcase/index.json', { cache:'no-cache' })
+    .then(r => r.ok ? r.json() : [])
+    .then(j => {
+      SHOWCASE.cards = Array.isArray(j) ? j : [];
+      SHOWCASE.cards.forEach(c => { SHOWCASE.byId[c.id] = c; });
+      return SHOWCASE.cards;
+    })
+    .catch(() => (SHOWCASE.cards = []));
+  return SHOWCASE._p;
+}
+/* Strongest first — the owner's approval count for this layout+palette pair
+   across every reviewed set, then the card's own edge density — and then
+   interleaved so no two neighbours share a category or a family. A straight
+   sort put six Jewel phones cards in a row and read as one template. */
+function scOrder(list){
+  const pool = list.slice().sort((a, b) => (b.affinity - a.affinity) || (b.density - a.density));
+  const out = [];
+  while (pool.length){
+    const prev = out[out.length - 1];
+    let k = prev ? pool.findIndex(c => c.cat !== prev.cat && c.family !== prev.family) : 0;
+    if (k < 0) k = prev ? pool.findIndex(c => c.cat !== prev.cat) : 0;
+    if (k < 0) k = 0;
+    out.push(pool.splice(k, 1)[0]);
+  }
+  return out;
+}
+function scBaseOf(c){ return TEMPLATES.find(t => t.id === c.base) || null; }
+function scLocked(c){
+  const reg = TEMPLATES.find(t => t.id === 'sc-' + c.id);
+  if (reg) return tplLocked(reg);
+  const base = scBaseOf(c);
+  return base ? tplLocked(Object.assign({}, base, { cat: c.cat })) : false;
+}
+function scBuildWall(cards){
+  const wall = $('hero-wall');
+  if (!wall) return;
+  const cols = [...wall.querySelectorAll('.wall-col')];
+  if (!cols.length) return;
+  /* The wall is the first click anyone makes, and a first click that opens
+     a paywall is a bad one (the old hero fan had the same rule): unlocked
+     cards fill it, and only if there are too few do locked ones follow. */
+  const open = scOrder(cards.filter(c => !scLocked(c)));
+  const rest = scOrder(cards.filter(c => scLocked(c)));
+  const picks = open.concat(rest).slice(0, cols.length * 6);
+  cols.forEach((col, i) => {
+    col.innerHTML = '';
+    const mine = picks.filter((_, k) => k % cols.length === i);
+    /* each column is its list twice, so the -50% keyframe loops seamlessly */
+    mine.concat(mine).forEach((c, k) => {
+      const d = document.createElement('div');
+      d.className = 'wall-card';
+      d.title = c.name;
+      d.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;
+      d.onclick = () => openShowcase(c.id);
+      col.appendChild(d);
+    });
+  });
+}
+function scBuildFamilies(cards){
+  const grid = $('fam-grid');
+  if (!grid) return;
+  const counts = {};
+  cards.forEach(c => { counts[c.family] = (counts[c.family] || 0) + 1; });
+  grid.innerHTML = '';
+  SC_FAMILIES.forEach(f => {
+    const n = counts[f.family] || 0;
+    const sample = cards.find(c => c.family === f.family) || f;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'fam-card' + (n ? '' : ' idle');
+    b.dataset.fam = f.family;
+    b.innerHTML = `<div class="fam-sw"><i style="background:${sample.c1}"></i><i style="background:${sample.ink}"></i><i style="background:${sample.accent}"></i><i style="background:${sample.support}"></i></div>
+      <div class="fam-name">${escHtml(f.family)}</div>
+      <div class="fam-meta">${n ? n + ' in this set' : 'in the studio theme row'}</div>`;
+    if (n) b.onclick = () => {
+      SHOWCASE.filter.fam = SHOWCASE.filter.fam === f.family ? 'all' : f.family;
+      scSyncFilters();
+      scRenderGrid(true);
+      const sec = $('lp-templates');
+      if (sec && SHOWCASE.filter.fam !== 'all') sec.scrollIntoView({ behavior:'smooth', block:'start' });
+    };
+    grid.appendChild(b);
+  });
+}
+function scBuildChips(cards){
+  const row = $('lp-chips');
+  if (!row) return;
+  const counts = {};
+  cards.forEach(c => { counts[c.cat] = (counts[c.cat] || 0) + 1; });
+  row.innerHTML = '';
+  const mk = (id, label, n) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.dataset.cat = id;
+    b.innerHTML = escHtml(label) + (n !== undefined ? `<span class="n">${n}</span>` : '');
+    b.onclick = () => { SHOWCASE.filter.cat = id; scSyncFilters(); scRenderGrid(true); };
+    row.appendChild(b);
+  };
+  mk('all', 'All', cards.length);
+  CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] || 0));
+  mk('classics', 'Classics', scClassics().length);
+  const more = $('lp-tpl-more');
+  if (more && !more.dataset.bound){ more.dataset.bound = '1'; more.onclick = () => scRenderGrid(false); }
+  const all = $('lp-tpl-all');
+  if (all && !all.dataset.bound){ all.dataset.bound = '1'; all.onclick = () => showEasy(null); }
+}
+function scSyncFilters(){
+  document.querySelectorAll('#lp-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.cat === SHOWCASE.filter.cat));
+  document.querySelectorAll('#fam-grid .fam-card').forEach(b => b.classList.toggle('on', b.dataset.fam === SHOWCASE.filter.fam));
+}
+/* The best of the old library, kept: the street family and the designer
+   layouts on real photographs. The eighteen hand-written classics are not
+   in the shop window any more; they are still in the studio. */
+function scClassics(){
+  const DECO_K = /^(vignette|grain|noise|grid|bokeh|beams|spot|diag)$/;
+  const complete = t => (t.layers || []).filter(l => !DECO_K.test(l.kind || '')).length >= 8;
+  const pool = TEMPLATES.filter(t => !/^sc-/.test(t.id) && (t.tag === 'street' || /^dl_/.test(t.id))
+    && t.bg && t.bg.type === 'image' && complete(t));
+  const ordered = varietyOrder(pool);
+  return ordered.filter(t => !tplLocked(t)).concat(ordered.filter(t => tplLocked(t))).slice(0, 32);
+}
+function scCard(c){
+  const card = document.createElement('div');
+  card.className = 'tpl-card';
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  const locked = scLocked(c);
+  card.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="lazy" decoding="async">
+    <div class="tpl-veil"></div>
+    ${locked ? '<div class="tpl-lockpill">🔒 PRO</div>' : ''}
+    <div class="tpl-use">Use template →</div>
+    <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.family)}</span></div>`;
+  const go = () => openShowcase(c.id);
+  card.onclick = go;
+  card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };
+  return card;
+}
+function scClassicCard(t){
+  const card = document.createElement('div');
+  card.className = 'tpl-card';
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.innerHTML = `<img src="${getThumb(t.id, 320)}" alt="${escHtml(t.name)} template">
+    <div class="tpl-veil"></div>
+    ${tplLocked(t) ? '<div class="tpl-lockpill">🔒 PRO</div>' : ''}
+    <div class="tpl-use">Use template →</div>
+    <div class="tpl-meta"><span class="tpl-name">${escHtml(t.name)}</span><span class="tpl-tag">${escHtml(t.tag || 'classic')}</span></div>`;
+  const go = () => showEasy(t.id);
+  card.onclick = go;
+  card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };
+  return card;
+}
+function scRenderGrid(reset){
+  const grid = $('lp-tpl-grid');
+  if (!grid || !SHOWCASE.cards) return;
+  const f = SHOWCASE.filter;
+  if (reset !== false){
+    SHOWCASE.shown = 0;
+    grid.innerHTML = '';
+    if (f.cat === 'classics'){
+      SHOWCASE.list = scClassics().map(t => ({ classic:t }));
+    } else {
+      const sub = SHOWCASE.cards.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.family === f.fam));
+      const ordered = scOrder(sub);
+      /* unlocked first, so the first cards anyone clicks open the editor */
+      SHOWCASE.list = ordered.filter(c => !scLocked(c)).concat(ordered.filter(c => scLocked(c)));
+    }
+  }
+  const slice = SHOWCASE.list.slice(SHOWCASE.shown, SHOWCASE.shown + SHOWCASE.PAGE);
+  slice.forEach(c => grid.appendChild(c.classic ? scClassicCard(c.classic) : scCard(c)));
+  SHOWCASE.shown += slice.length;
+  const more = $('lp-tpl-more');
+  if (more) more.style.display = SHOWCASE.shown < SHOWCASE.list.length ? '' : 'none';
+  const count = $('lp-tpl-count');
+  if (count) count.textContent = SHOWCASE.list.length
+    ? 'Showing ' + SHOWCASE.shown + ' of ' + SHOWCASE.list.length
+    : 'Nothing in this set matches both filters yet';
+}
+/* Open a showcase card: fetch its record once, make it a real template, and
+   land in Easy Mode with its photograph ON (the photo is part of the design,
+   so the greyscale "pick a background" placeholder would be wrong here). */
+async function openShowcase(id){
+  const c = SHOWCASE.byId[id];
+  if (!c) return;
+  const tid = 'sc-' + id;
+  if (!TEMPLATES.some(t => t.id === tid)){
+    let rec = SHOWCASE.records[id];
+    if (!rec){
+      try { rec = await fetch('assets/showcase/tpl/' + id + '.json').then(r => r.ok ? r.json() : null); } catch (e){ rec = null; }
+      if (!rec || !rec.tpl){ toast('That design could not be loaded, opening its base layout instead', 'error'); showEasy(c.base); return; }
+      SHOWCASE.records[id] = rec;
+    }
+    const base = scBaseOf(c) || {};
+    const t = Object.assign({}, base, rec.tpl, { id: tid, name: c.name, cat: c.cat, tag: 'new', tier: base.tier, showcase: id });
+    const fams = new Set();
+    (t.layers || []).forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); });
+    const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
+    const loadCut = src => new Promise(res => {
+      if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res();
+      const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = src;
+    });
+    const loadBg = src => new Promise(res => {
+      if (!src || (TPL_BG_ELS[src] && TPL_BG_ELS[src].width)) return res();
+      const el = new Image(); el.onload = () => { TPL_BG_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = src;
+    });
+    await Promise.race([
+      Promise.all([...fams].map(f => ensureFont(f)).concat(cuts.map(loadCut), [loadBg(t.bg && t.bg.src)])),
+      new Promise(r => setTimeout(r, 7000)),      // never hold the click hostage
+    ]);
+    try { if (window.fabric && fabric.util && fabric.util.clearFabricFontCache) fabric.util.clearFabricFontCache(); } catch (e){}
+    TEMPLATES.push(t);
+    delete THUMBS[tid];
+  }
+  if (currentCat !== c.cat) setCategory(c.cat);
+  showEasy(tid);
+  /* selectEzTpl() resets bgPicked so a fresh template previews on the
+     placeholder; a showcase card's photograph is the design, so it stays on. */
+  if (ez.tpl === tid){
+    ez.bg = null; ez.bgRecId = null; ez.bgPicked = true;
+    syncEzSwatches(); schedEzPreview(0);
+  }
+}
+function buildLandingV2(){
+  scLoadIndex().then(cards => {
+    if (!cards.length){ buildLandingV1(); return; }
+    if (SHOWCASE.built){
+      /* refreshPhotoThumb() re-calls buildLanding() as each old backdrop
+         decodes; only the classics view draws from those thumbnails */
+      if (SHOWCASE.filter.cat === 'classics') scRenderGrid(true);
+      return;
+    }
+    SHOWCASE.built = true;
+    scBuildWall(cards);
+    scBuildFamilies(cards);
+    scBuildChips(cards);
+    scSyncFilters();
+    scRenderGrid(true);
+    const n = $('lp-stat-new');
+    if (n) n.textContent = String(cards.length);
+  });
+  window.__PRIORITY_TPL_IDS = [];
+}
+const buildLandingV1 = buildLanding;
+buildLanding = buildLandingV2;
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AREA — location-aware copy. 2026-09-02.
+
+   The review templates carry social proof ("Marcus T. · Lakewood, CA"), the
+   info blocks carry a service-area line and an "ACROSS LA & OC" promise, and
+   all of it was written for Long Beach. A customer in San Diego posting that
+   ad is advertising somebody else's town. So the studio asks once where they
+   buy — a ZIP or a city — and every place-name in the library is re-pointed
+   at THEIR area before it is drawn.
+
+   The reach is decided by density, not by a fixed radius: population within
+   thirty miles sorts the area into metro / city / town / rural, and each tier
+   has its own radius, its own distance penalty and its own floor on how small
+   a place may be. A metro keeps the towns close and well-known (Oceanside,
+   Escondido, Spring Valley for San Diego); a rural area reaches ninety miles
+   and names the small towns, because those are the towns that exist there.
+
+   Data: assets/geo/us-zips.json (41k ZIP centroids) and us-places.json (17k
+   places with population 1000+), both from GeoNames (CC BY 4.0), fetched only
+   when an area is being resolved. Nothing leaves the browser: no geocoding
+   service, which the site's CSP would block anyway. */
+const GEO = { zips:null, places:null, _p:{} };
+/* the author's own tokens, exactly as they appear in the library */
+const AREA_TOKENS = {
+  towns:   ['Long Beach, CA','Lakewood, CA','Downey, CA','Carson, CA','Torrance, CA','Cerritos, CA','Bellflower, CA','Signal Hill, CA'],
+  region:  'LA & OC',
+  area:    'LONG BEACH · LAKEWOOD · DOWNEY · CARSON · TORRANCE',
+  address: 'LONG BEACH, CA 90813',
+};
+function geoLoad(){
+  if (GEO.zips && GEO.places) return Promise.resolve(GEO);
+  if (GEO._p.all) return GEO._p.all;
+  GEO._p.all = Promise.all([
+    fetch('assets/geo/us-zips.json').then(r => r.ok ? r.json() : {}),
+    fetch('assets/geo/us-places.json').then(r => r.ok ? r.json() : { places: [] }),
+  ]).then(([z, p]) => { GEO.zips = z || {}; GEO.places = (p && p.places) || []; return GEO; })
+    .catch(() => { GEO.zips = GEO.zips || {}; GEO.places = GEO.places || []; return GEO; });
+  return GEO._p.all;
+}
+function geoMiles(a, b, c, d){
+  const R = 3958.8, toR = x => x * Math.PI / 180;
+  const dLat = toR(c - a), dLon = toR(d - b);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toR(a)) * Math.cos(toR(c)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+/* rows are [name, state, lat, lon, population], biggest first */
+function geoNearest(lat, lon){
+  let best = null, bd = 1e9;
+  for (const p of GEO.places){
+    const d = geoMiles(lat, lon, p[2], p[3]);
+    if (d > 60) continue;
+    const adj = d - Math.log10(p[4]) * 1.2;    // a real town beats a hamlet next door
+    if (adj < bd){ bd = adj; best = p; }
+  }
+  return best;
+}
+function geoMatch(q, n){
+  q = String(q || '').trim().toLowerCase();
+  if (!q) return [];
+  let st = null;
+  const m = q.match(/^(.*?)[,\s]+([a-z]{2})$/);
+  if (m && m[1]){ q = m[1].trim(); st = m[2].toUpperCase(); }
+  const out = [];
+  for (const p of GEO.places){
+    if (st && p[1] !== st) continue;
+    const nm = p[0].toLowerCase();
+    if (nm.startsWith(q) || (q.length >= 4 && nm.indexOf(q) !== -1)){ out.push(p); if (out.length >= (n || 6) * 5) break; }
+  }
+  const pre = p => p[0].toLowerCase().startsWith(q) ? 1 : 0;
+  return out.sort((a, b) => (pre(b) - pre(a)) || (b[4] - a[4])).slice(0, n || 6);
+}
+function geoArea(lat, lon, home){
+  const rows = GEO.places.map(p => ({ p, d: geoMiles(lat, lon, p[2], p[3]) }));
+  const within30 = rows.reduce((s, r) => s + (r.d <= 30 ? r.p[4] : 0), 0);
+  const tier = within30 >= 2500000 ? 'metro' : within30 >= 600000 ? 'city' : within30 >= 150000 ? 'town' : 'rural';
+  const R      = { metro:22,   city:35,   town:55,   rural:95    }[tier];
+  const k      = { metro:0.14, city:0.08, town:0.05, rural:0.028 }[tier];
+  const minPop = { metro:8000, city:4000, town:1500, rural:1000  }[tier];
+  const isHome = p => home && p[0] === home[0] && p[1] === home[1];
+  /* composite census places ("Casa de Oro-Mount Helix", "Arden-Arcade"),
+     campuses and bases are not towns a reviewer says they live in */
+  const oddName = /-|\/|\bUniversity\b|\bCollege\b|\bAFB\b|\bBase\b|\bStation\b/;
+  const cand = rows.filter(r => r.d <= R && r.p[4] >= minPop && !isHome(r.p) && !oddName.test(r.p[0]))
+    .map(r => ({ p: r.p, d: r.d, s: Math.log(r.p[4]) - r.d * k }))
+    .sort((a, b) => b.s - a.s);
+  const seen = new Set();
+  const uniq = cand.filter(r => !seen.has(r.p[0]) && seen.add(r.p[0]));
+  const anchor = rows.filter(r => r.d <= R).sort((a, b) => b.p[4] - a.p[4])[0];
+  const cover = [];
+  if (anchor && !isHome(anchor.p)) cover.push(anchor.p);
+  uniq.forEach(r => { if (cover.length < 5 && cover.indexOf(r.p) === -1) cover.push(r.p); });
+  /* reviewers live in the suburbs and the smaller towns, not only downtown */
+  const bigCap = { metro:250000, city:150000, town:80000, rural:1e9 }[tier];
+  const towns = [];
+  uniq.forEach(r => { if (towns.length < 8 && r.p[4] <= bigCap) towns.push(r.p); });
+  uniq.forEach(r => { if (towns.length < 8 && towns.indexOf(r.p) === -1) towns.push(r.p); });
+  if (home && towns.length && towns.indexOf(home) === -1) towns.splice(Math.min(2, towns.length), 0, home);
+  const label = p => p[0] + ', ' + p[1];
+  const a = anchor ? anchor.p : home, b2 = cover.find(p => p !== a);
+  const region = !a ? 'YOUR AREA'
+    : (tier === 'metro' || tier === 'city') ? (a[0] + (b2 ? ' & ' + b2[0] : '')).toUpperCase()
+    : ((home ? home[0] : a[0]) + (b2 ? ', ' + b2[0] : '') + (cover[2] ? ' & ' + cover[2][0] : '')).toUpperCase();
+  return { tier, within30, cover: cover.map(label), towns: towns.slice(0, 8).map(label), region,
+           areaLine: cover.slice(0, 5).map(p => p[0].toUpperCase()).join(' · ') };
+}
+function getArea(){ const b = getBrand(); return b && b.area && b.area.home ? b.area : null; }
+function areaLabel(){ const a = getArea(); return a ? (a.zip ? a.zip + ' · ' : '') + a.home : ''; }
+function setArea(area){
+  jset('pgfx_brand', Object.assign(getBrand() || {}, { area }));
+  areaChanged();
+}
+function areaChanged(){
+  Object.keys(THUMBS).forEach(k => delete THUMBS[k]);      // place-names are baked into thumbnails
+  const inp = $('ez-area'); if (inp) inp.value = areaLabel();
+  const bk = $('bk-area'); if (bk) bk.value = areaLabel();
+  try { buildEzStrip(); } catch (e){}
+  if ($('page-easy').classList.contains('active')){ try { buildEzForm(); schedEzPreview(0); } catch (e){} }
+}
+async function resolveArea(text){
+  await geoLoad();
+  text = String(text || '').trim();
+  if (!text) return null;
+  let lat, lon, home = null, zip = null;
+  const z = text.match(/^\d{5}/);
+  if (z && GEO.zips[z[0]]){ zip = z[0]; lat = GEO.zips[zip][0]; lon = GEO.zips[zip][1]; home = geoNearest(lat, lon); }
+  else { const m = geoMatch(text, 1)[0]; if (!m) return null; home = m; lat = m[2]; lon = m[3]; }
+  if (!home) return null;
+  return Object.assign({ zip, home: home[0] + ', ' + home[1], st: home[1], lat, lon, input: text }, geoArea(lat, lon, home));
+}
+/* THE SWAP. Exact tokens, so nothing else in a headline can be touched;
+   reviewer cities map by position, so the same reviewer keeps the same town
+   across every render of the same template. */
+function localizeText(text){
+  const a = getArea();
+  if (!a || typeof text !== 'string' || !text) return text;
+  let out = text;
+  if (a.towns && a.towns.length){
+    AREA_TOKENS.towns.forEach((tok, i) => { if (out.indexOf(tok) !== -1) out = out.split(tok).join(a.towns[i % a.towns.length]); });
+  }
+  if (out.indexOf(AREA_TOKENS.region) !== -1) out = out.split(AREA_TOKENS.region).join(a.region || AREA_TOKENS.region);
+  if (out.indexOf(AREA_TOKENS.area) !== -1) out = out.split(AREA_TOKENS.area).join(a.areaLine || AREA_TOKENS.area);
+  if (out.indexOf(AREA_TOKENS.address) !== -1) out = out.split(AREA_TOKENS.address).join((a.home.split(',')[0] + ', ' + a.st + (a.zip ? ' ' + a.zip : '')).toUpperCase());
+  return out;
+}
+/* ── the ask ── */
+let _areaPick = null, _areaTimer = null;
+function maybeAskArea(){
+  if (getArea() || jget('pgfx_area_asked', false)) return;
+  jset('pgfx_area_asked', true);
+  openAreaDialog();
+}
+function openAreaDialog(){
+  const ov = $('area-overlay');
+  if (!ov) return;
+  bindAreaDialog();
+  const a = getArea();
+  $('area-input').value = a ? (a.zip || a.home) : '';
+  _areaPick = a;
+  renderAreaPreview(a);
+  $('area-save').disabled = !a;
+  $('area-suggest').innerHTML = '';
+  ov.classList.add('show');
+  geoLoad();
+  setTimeout(() => { try { $('area-input').focus(); } catch (e){} }, 60);
+}
+function pickPlace(p){
+  _areaPick = Object.assign({ zip:null, home: p[0] + ', ' + p[1], st: p[1], lat: p[2], lon: p[3], input: p[0] }, geoArea(p[2], p[3], p));
+  renderAreaPreview(_areaPick);
+  $('area-save').disabled = false;
+}
+function bindAreaDialog(){
+  if (bindAreaDialog._done) return;
+  bindAreaDialog._done = true;
+  const inp = $('area-input');
+  inp.addEventListener('input', () => { clearTimeout(_areaTimer); _areaTimer = setTimeout(areaLookup, 200); });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); if (_areaPick) $('area-save').click(); } });
+  $('area-skip').onclick = () => $('area-overlay').classList.remove('show');
+  $('area-save').onclick = () => {
+    if (!_areaPick) return;
+    setArea(_areaPick);
+    $('area-overlay').classList.remove('show');
+    toast('Your ads now name ' + _areaPick.cover.slice(0, 3).map(s => s.split(',')[0]).join(', ') + ' and the towns around you', 'success');
+  };
+  $('area-locate').onclick = () => {
+    if (!navigator.geolocation){ toast('Location is not available here, type a ZIP instead', 'error'); return; }
+    $('area-locate').disabled = true;
+    navigator.geolocation.getCurrentPosition(pos => {
+      geoLoad().then(() => {
+        $('area-locate').disabled = false;
+        const home = geoNearest(pos.coords.latitude, pos.coords.longitude);
+        if (!home){ toast('Nothing in our list near you, type a ZIP instead', 'error'); return; }
+        _areaPick = Object.assign({ zip:null, home: home[0] + ', ' + home[1], st: home[1], lat: pos.coords.latitude, lon: pos.coords.longitude, input:'gps' }, geoArea(pos.coords.latitude, pos.coords.longitude, home));
+        inp.value = _areaPick.home;
+        $('area-suggest').innerHTML = '';
+        renderAreaPreview(_areaPick);
+        $('area-save').disabled = false;
+      });
+    }, () => { $('area-locate').disabled = false; toast('Location was not shared, type a ZIP instead', 'error'); }, { timeout: 8000, maximumAge: 600000 });
+  };
+  $('area-overlay').addEventListener('click', e => { if (e.target.id === 'area-overlay') $('area-overlay').classList.remove('show'); });
+  const ea = $('ez-edit-area'); if (ea) ea.onclick = openAreaDialog;
+  const ei = $('ez-area'); if (ei){ ei.onclick = openAreaDialog; ei.value = areaLabel(); }
+}
+async function areaLookup(){
+  const inp = $('area-input'), sug = $('area-suggest');
+  const q = inp.value.trim();
+  if (!q){ sug.innerHTML = ''; _areaPick = null; renderAreaPreview(null); $('area-save').disabled = true; return; }
+  await geoLoad();
+  if (inp.value.trim() !== q) return;          // typed on
+  if (/^\d{5}$/.test(q)){
+    sug.innerHTML = '';
+    _areaPick = await resolveArea(q);
+    renderAreaPreview(_areaPick);
+    $('area-save').disabled = !_areaPick;
+    if (!_areaPick) sug.innerHTML = '<div class="area-none">That ZIP is not in our list, try the city name</div>';
+    return;
+  }
+  if (/^\d+$/.test(q)){ sug.innerHTML = ''; return; }
+  const ms = geoMatch(q, 6);
+  sug.innerHTML = ms.map((p, i) => `<button type="button" class="area-opt" data-i="${i}">${escHtml(p[0])}, ${p[1]}<span>${p[4].toLocaleString()}</span></button>`).join('')
+    || '<div class="area-none">No town by that name in our list</div>';
+  sug.querySelectorAll('.area-opt').forEach(b => b.onclick = () => { const p = ms[+b.dataset.i]; inp.value = p[0] + ', ' + p[1]; sug.innerHTML = ''; pickPlace(p); });
+  const exact = ms.find(p => (p[0] + ', ' + p[1]).toLowerCase() === q.toLowerCase() || p[0].toLowerCase() === q.toLowerCase());
+  if (exact) pickPlace(exact);
+  else if (ms.length === 1) pickPlace(ms[0]);
+  else { _areaPick = null; renderAreaPreview(null); $('area-save').disabled = true; }
+}
+function renderAreaPreview(a){
+  const el = $('area-preview');
+  if (!el) return;
+  if (!a){ el.innerHTML = ''; return; }
+  const why = { metro:'a big metro, so the towns stay close and well known',
+                city:'a city, so the nearby suburbs lead',
+                town:'a smaller area, so we reach a little further out',
+                rural:'a spread-out area, so we reach further and name more of the small towns' }[a.tier] || '';
+  const chips = list => list.map(t => '<span>' + escHtml(String(t).split(',')[0]) + '</span>').join('');
+  el.innerHTML = `<div class="area-home">📍 ${escHtml(a.home)} <em>${escHtml(why)}</em></div>
+    <div class="area-row"><b>Reviews will mention</b><div class="area-chips">${chips(a.towns || [])}</div></div>
+    <div class="area-row"><b>Service-area lines</b><div class="area-chips">${chips(a.cover || [])}</div></div>
+    <div class="area-row"><b>&ldquo;Across &hellip;&rdquo;</b><div class="area-chips"><span>${escHtml(a.region || '')}</span></div></div>`;
 }

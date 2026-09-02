@@ -1,0 +1,2651 @@
+#!/usr/bin/env node
+/* RE-THEME THE TEMPLATES WE ALREADY HAVE.
+ *
+ * The previous lab composed new ads from scratch and they were worse than the
+ * library — which was the wrong instinct twice over. There are 23 hand-built
+ * layout architectures in this engine, they took real work, and the owner's
+ * note is correct: the starting points are better than anything re-rolled from
+ * nothing. So this changes the PALETTE and leaves the DESIGN alone.
+ *
+ * How: load the page with ?nofix=1 so the layer colours are the authored
+ * palette values rather than the measured-contrast overrides, then map every
+ * colour through its role — this template's palette bg1/ink/sub/a1/a2/deep to
+ * the new theme's ground/ink/sub/accent/support/on-accent — and repaint.
+ * Because the mapping is by ROLE, a layout keeps its structure, its rhythm and
+ * its hierarchy and only changes clothes.
+ *
+ * Two things are fixed on the way through:
+ *   · legacy hardware. qs-iphone-xs / xr / 11 / 12 and the gen13-14 cutouts are
+ *     phones the shop no longer buys, so they are struck from the pool.
+ *   · scrim direction. A pale theme cannot sit under a black scrim; the wash
+ *     follows the theme's own lightness.
+ *
+ * usage: node scripts/retheme_lab.mjs      (needs a server on :8899)
+ */
+import puppeteer from 'puppeteer-core';
+import { writeFileSync, mkdirSync, readFileSync, readdirSync, existsSync } from 'node:fs';
+import { THEMES, FACES } from './theme_specs.mjs';
+const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const BASE = (process.env.GFX_BASE || 'http://localhost:8899/') + '?nofix=1';
+const ROOT = new URL('../', import.meta.url).pathname;
+const OUT = ROOT + (process.env.LAB_OUT ? process.env.LAB_OUT.replace(/\/?$/, '/') : '.render/retheme/');
+mkdirSync(OUT, { recursive: true });
+
+/* the authored palettes, read out of app.js exactly as theme_law.mjs does */
+const SRC = readFileSync(ROOT + 'app.js', 'utf8');
+const palSrc = SRC.slice(SRC.search(/const PAL = \{/), SRC.indexOf('\n  };', SRC.search(/const PAL = \{/)) + 4);
+const PAL = (0, eval)('(' + palSrc.replace(/^const PAL = /, '').replace(/;\s*$/, '') + ')');
+
+/* CURRENT HARDWARE ONLY. The shop does not buy iPhone 6/7/8/X any more, and an
+   ad showing one says "we are out of date" before it says anything else. */
+const LEGACY = /^(qs-)?iphone-(x|xr|xs|se|[5-9]|1[0-2])\b|^ip-gen1[0-4]\b|^qs-iphone-(x|1[012])/i;
+/* measured luminance for every backdrop AND scene (scripts/measure_backdrops.mjs) */
+const BG = JSON.parse(readFileSync(ROOT + 'assets/backdrop-lum.json', 'utf8'));
+const ALL = readdirSync(ROOT + 'assets/cutouts').filter(f => /\.webp$/.test(f)).map(f => f.replace(/\.webp$/, ''));
+const modern = pres => ALL.filter(f => pres.some(p => f.startsWith(p)) && !LEGACY.test(f));
+/* Pools keyed on what the HEADLINE actually says. Keying them on the category
+   put a Google Pixel on an ad reading "SELL YOUR iPHONE" — the deck is called
+   `phones` and sells several brands, but the headline names one. The headline
+   wins. */
+const CUTS = {
+  /* no ip-gen* renders: they are AI drawings — the "17 Pro Max" had no logo
+     and a camera plateau Apple never shipped ("FAKE iPHONE", owner,
+     2026-09-02). The qs-* press images and the iphone-17-pro-back-* photos
+     are the real phones. */
+  phones:  modern(['iphone-1','qs-iphone-17','qs-iphone-16','iphone-trio','iphone-fan',
+                   'iphone-pair','iphone-screen-on','iphone-floating','iphone-hand',
+                   'iphone-in-hand','iphone-back','iphone-front','iphone-cracked','iphone-boxed']),
+  gold:    modern(['gold-','cash-']),
+  silver:  modern(['silver-']),
+  coins:   modern(['coin-']),
+  cars:    modern(['car-']),
+  strips:  modern(['strip-']),
+  pokemon: modern(['poke-']),
+  sports:  modern(['sports-']),
+};
+
+/* Five palettes the owner kept, spanning near-white to deep, applied across
+   twenty existing layouts. 20 x 5 = 100 variations of designs that already work. */
+/* Palettes kept in BOTH of the owner's shortlists, conventional pairings
+   first: paper + gold, paper + mint, jewel blue, duotone blue, sunlit gold.
+   The niche combinations stay in theme_specs.mjs; they just do not get a
+   fifth of the frames. */
+/* su02 (Sunlit gold) took 4 approvals of 20 and read as dull; cd06 (Candy
+   blue) was kept in both earlier shortlists. Swapping the weakest donor for a
+   vibrant one only touches the 20 cards that were mostly unapproved anyway. */
+/* Ten palettes, led by the approval counts from the 4-up review (Blue Market
+   13, Blue Ticket 12, Mint Counter 11, Gold Offer 8), then the vibrant ones
+   kept in both earlier shortlists. Sunlit is out. */
+const DONORS = process.env.LAB_DONORS ? process.env.LAB_DONORS.split(',') : ['du07','jw05','pp04','pp02','cd06','jw07','du08','pa05','ca07','io03',
+  /* set 4: six palettes outside the blue family — candy pink and mint, orchid
+     and wine jewels, a peach glass, a green duotone */
+  'cd10','cd04','jw03','jw10','gl02','du05'];
+const FRESH = ['cd10','cd04','jw03','jw10','gl02','du05', 'nn01','nn05','ck01','ck03'];   // the last four: Night Neon and Chalk, 2026-09-02
+
+/* DEVICE-LINE DECKS. assets/library.json already carries the real taxonomy —
+   iphones 116 assets, macbooks 55, ipads 49, watch 23, samsung 22, pixel 10 —
+   but DECKS in app.js still lumps all of it under one "phones" deck whose
+   headline reads iPHONE. That mismatch is what put a Pixel on an iPhone ad.
+   Samsung and Pixel are categories, so they get their own headline, their own
+   item list and their own product pool. */
+const DEVICE_DECKS = {
+  iphone:  { k:'APPLE BUYER', h1:'SELL YOUR', h2:'iPHONE',
+             items:'iPhone 17 • 16 • 15 • Pro & Pro Max',
+             sub:'SAME-DAY PAYMENT, EVERY TIME\nCRACKED, LOCKED OR BLACKLISTED\nWE MEET YOU LOCALLY OR YOU MAIL IT IN',
+             cta:'GET YOUR OFFER', price:'UP TO $1,100 PAID TODAY', big:'$1,100',
+             /* Current hardware, hero shots first: 17 Pro, 16, 15 Pro and the
+                gen16/17 renders, plus the group and in-hand shots that actually
+                sell. No 6/7/8/X, no SE, nothing pre-15 unless it is a group. */
+             badges:['LICENSED','INSURED','LOCAL'],
+             /* Hero first. The orange 17 Pro Max is the device the owner calls
+                the money maker, so it leads rather than turning up by rotation. */
+             cuts:['iphone-17-pro-back-orange','iphone-17-pro-back-black','iphone-17-pro-back-silver',
+                   'qs-iphone-17-pro-max','qs-iphone-17-pro','qs-iphone-17-air','qs-iphone-17',
+                   'iphone-16','iphone-15-pro',
+                   'iphone-trio-fan','iphone-fan-four','iphone-pair-front-back',
+                   'iphone-screen-on-glow','iphone-floating-tilt','iphone-hand-back-offer',
+                   'iphone-in-hand-screen-on','ip-group-colour-lineup','ip-group-stagger-three'],
+             /* Apple studio photography, not a bokeh desk shot. These are the
+                press-release-style flat lays already in assets/scenes, and
+                nothing in them predates the current hardware. */
+             scenes:['scene-flat-iphones','scene-studio-blue-trio','scene-studio-green-trio',
+                     'scene-studio-rose-pair','scene-studio-slate-quad'] },
+  samsung: { k:'LICENSED SAMSUNG BUYER', h1:'SELL YOUR', h2:'SAMSUNG',
+             items:'Galaxy S25 • S24 • Ultra • Fold • Flip',
+             sub:'SAME-DAY PAYMENT, EVERY TIME\nFOLDS AND FLIPS INCLUDED\nCRACKED SCREENS STILL PAID',
+             cta:'GET YOUR OFFER', price:'UP TO $900 PAID TODAY', big:'$900',
+             badges:['LICENSED','INSURED','LOCAL'], cuts:['sam-','samsung-'] },
+  pixel:   { k:'LICENSED PIXEL BUYER', h1:'SELL YOUR', h2:'PIXEL',
+             items:'Pixel 9 • Pro • Pro XL • Fold • Watch',
+             sub:'SAME-DAY PAYMENT, EVERY TIME\nANY CARRIER, ANY CONDITION\nWE COME TO YOU ACROSS LA & OC',
+             cta:'GET YOUR OFFER', price:'UP TO $750 PAID TODAY', big:'$750',
+             badges:['LICENSED','INSURED','LOCAL'], cuts:['pix-'] },
+  ipad:    { k:'APPLE BUYER', h1:'SELL YOUR', h2:'iPAD',
+             items:'iPad Pro • Air • mini • with Pencil',
+             sub:'SAME-DAY PAYMENT, EVERY TIME\nWI-FI OR CELLULAR, ANY SIZE\nCRACKED GLASS STILL PAID',
+             cta:'GET YOUR OFFER', price:'UP TO $850 PAID TODAY', big:'$850',
+             badges:['LICENSED','INSURED','LOCAL'], cuts:['ipad-'], scenes:['scene-flat-ipads','scene-studio-amber-ipad'] },
+  watch:   { k:'APPLE BUYER', h1:'SELL YOUR', h2:'APPLE WATCH',
+             items:'Series 10 • Ultra 2 • SE • Nike & Hermès',
+             sub:'SAME-DAY PAYMENT, EVERY TIME\nANY SIZE, ANY BAND, ANY FINISH\nCRACKED GLASS AND WORN BANDS FINE',
+             cta:'GET YOUR OFFER', price:'UP TO $600 PAID TODAY', big:'$600',
+             badges:['LICENSED','INSURED','LOCAL'], cuts:['watch-'], scenes:['scene-studio-teal-watch'] },
+  macbook: { k:'APPLE BUYER', h1:'SELL YOUR', h2:'MACBOOK',
+             items:'MacBook Air • Pro • M1 through M4',
+             sub:'SAME-DAY PAYMENT, EVERY TIME\nBATTERY OR SCREEN FAULTS FINE\nWRITTEN OFFER BEFORE YOU DECIDE',
+             cta:'GET YOUR OFFER', price:'UP TO $1,900 PAID TODAY', big:'$1,900',
+             badges:['LICENSED','INSURED','LOCAL'],
+             cuts:['macbook-open-angle','macbook-open-front','macbook-closed-stack','mac-air-open-angle'],
+             scenes:['scene-own-macbook-open','scene-own-macbook-stack','scene-grad-mac-gold'] },
+};
+
+/* HOT CARDS, BY NAME. The card cutouts are generic blanks and they read as
+   "we do not really know this market", which is fatal for a card seller. The
+   fix is not to generate card art — a convincing Charizard or an EX/GX face is
+   Nintendo/Creatures IP and a fake one is worse than useless. Real buyer ads
+   signal expertise by NAMING what they buy, which is ordinary nominative use.
+   So the copy carries the sets, the card types and the names people actually
+   search, and the art stays honest: slabs, binders and sealed boxes. */
+/* HERO PRODUCT ORDER, per the owner. What leads an ad decides whether anyone
+   reads it, so the desirable piece goes first instead of arriving by rotation:
+   a Cuban bracelet and a president-style gold watch, not a scrap pile. */
+const HERO = {
+  gold:   ['gold-bracelet-cuban','gold-watch-luxury','gold-chains-pile','gold-nuggets-raw',
+           'gold-class-ring','gold-necklace-single','gold-bracelet-pair','gold-rings-scatter'],
+  silver: ['silver-jewelry-mixed','silver-rounds-pile','silver-bars-stack','silver-coins-spill',
+           'silver-flatware-set','silver-tea-set'],
+  coins:  ['coin-graded-fan-three','coin-slab-graded','coin-single-large','coin-collection-tray',
+           'coin-slabs-stack','coin-silver-dollar-pair'],
+  /* car-classic-side is cropped at the rear in the asset itself — it reads as
+     "chopped" wherever it lands — so it goes last */
+  cars:   ['car-keys-fob','car-hand-keys-over','car-title-keys','car-keys','car-sedan-front',
+           'car-truck-front','car-suv-side','car-classic-side'],
+};
+
+const CATEGORY_COPY = {
+  coins:   { k:'COIN BUYER', h1:'WE BUY', h2:'COINS',
+             items:'Grails • Morgans • Peace Dollars • Key Dates • Junk Silver • Centenarios • Eagles • Proof Sets',
+             sub:'MS AND PF GRADES, RAW OR SLABBED\\n90% JUNK SILVER PAID BY WEIGHT\\nWHOLE COLLECTIONS AND ESTATES',
+             price:'PAID ON THE SPOT, AT SPOT', big:'SPOT', cta:'REQUEST AN APPRAISAL',
+             badges:['LICENSED','INSURED','DISCREET'], cuts:['coin-'] },
+  cars:    { k:'CAR BUYER', h1:'WE BUY', h2:'CARS',
+             items:'Title In Hand • Running Or Not • High Miles • Salvage • Lien Payoff • Free Tow',
+             sub:'CASH IN HAND BEFORE WE TOW\\nTITLE, DMV AND LIEN PAYOFF HANDLED\\nSAME-DAY PICKUP ACROSS LA & OC',
+             price:'UP TO $15,000 CASH', big:'$15,000', cta:'GET AN INSTANT OFFER',
+             /* cars only: the motorcycle, the pickup and the cargo van now
+                belong to their own decks below */
+             badges:['FREE TOW','SAME DAY','LICENSED'],
+             cuts:['car-keys','car-hand','car-title','car-sedan','car-suv','car-classic','car-front','car-engine','car-damaged','car-wheel'] },
+  /* VEHICLE SPIN-OFFS. Owner, 2026-09-02: "WE BUY BIKES can be a category
+     (spin off of cars), trucks too, work vans". They ride the cars templates
+     the way the Apple lines ride the phones templates: same layouts, their
+     own headline, items, claims and product pool, and their own photographs
+     (`bgcat` picks the web backdrop pool) so a bike ad never sits on a car
+     key. Every claim is bounded the way the owner asked. */
+  bikes:   { k:'BIKE BUYER', h1:'WE BUY', h2:'BIKES', bgcat:'bikes',
+             items:'Harley • Honda • Yamaha • Kawasaki • Ducati • Dirt Bikes • Scooters',
+             sub:'TITLE OR NOT, RUNNING OR NOT\\nCASH IN HAND BEFORE WE LOAD IT\\nFREE PICKUP ACROSS LA & OC',
+             price:'UP TO $12,000 CASH', big:'$12,000', cta:'GET AN INSTANT OFFER',
+             badges:['FREE PICKUP','SAME DAY','LICENSED'], cuts:['car-motorcycle','bike-'] },
+  trucks:  { k:'TRUCK BUYER', h1:'WE BUY', h2:'TRUCKS', bgcat:'trucks',
+             items:'F-150 • Silverado • Ram • Tacoma • Tundra • Diesel • Lifted • High Miles',
+             sub:'CASH IN HAND BEFORE WE TOW\\nTITLE, DMV AND LIEN PAYOFF HANDLED\\nSAME-DAY PICKUP ACROSS LA & OC',
+             price:'UP TO $25,000 CASH', big:'$25,000', cta:'GET AN INSTANT OFFER',
+             badges:['FREE TOW','SAME DAY','LICENSED'], cuts:['car-truck','truck-'] },
+  vans:    { k:'FLEET & VAN BUYER', h1:'WE BUY', h2:'WORK VANS', bgcat:'vans',
+             items:'Transit • Sprinter • ProMaster • Express • NV • Cargo & Passenger • Fleet Lots',
+             sub:'ONE VAN OR THE WHOLE FLEET\\nTITLE AND LIEN PAYOFF HANDLED\\nPAID BEFORE WE DRIVE IT AWAY',
+             price:'UP TO $20,000 CASH', big:'$20,000', cta:'GET AN INSTANT OFFER',
+             badges:['FLEETS OK','SAME DAY','LICENSED'], cuts:['car-van','van-'] },
+  strips:  { k:'STRIP BUYER', h1:'CASH FOR', h2:'TEST STRIPS',
+             items:'OneTouch • FreeStyle • Contour • Accu-Chek • Dexcom Sensors • In-Date Sealed',
+             sub:'SEALED, IN-DATE BOXES ONLY\\nLOCAL PICKUP OR PREPAID MAIL-IN\\nPAID THE DAY WE RECEIVE THEM',
+             price:'TOP BOX PRICES PAID', big:'TOP $', cta:'GET YOUR OFFER',
+             badges:['DISCREET','FAST','FAIR'], cuts:['strip-'] },
+  /* the metals: the number is the message. "Current market rates" is what
+     everyone says; 95% of spot is a claim a seller can check. */
+  gold:    { k:'GOLD BUYER', h1:'CASH FOR', h2:'GOLD',
+             items:'10k • 14k • 18k • Scrap & Dental • Cuban Links • Rolex • Cartier • Tiffany • Yurman',
+             sub:'TESTED AND WEIGHED IN FRONT OF YOU\nWRITTEN OFFER BEFORE YOU DECIDE\nESTATES HANDLED DISCREETLY',
+             price:'PAYING 95% OF SPOT PRICE', big:'95%', cta:'GET A FREE QUOTE',
+             badges:['LICENSED','INSURED','PRIVATE'], cuts:['gold-'] },
+  silver:  { k:'SILVER BUYER', h1:'WE BUY', h2:'SILVER',
+             items:'Sterling • .925 • Silverware • Antiques • Tiffany & Co • David Yurman • Chrome Hearts',
+             sub:'WEIGHED IN FRONT OF YOU, SPOT SHOWN\nSTERLING, JUNK SILVER, 90% COINS, TEA SETS\nANTIQUE AND ESTATE PIECES WELCOME',
+             price:'PAYING 95% OF SPOT PRICE', big:'95%', cta:'GET A FREE QUOTE',
+             badges:['LICENSED','INSURED','LOCAL'], cuts:['silver-'] },
+  pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON',
+             items:'Grails Wanted • Charizard • Moonbreon • Alt Arts • Illustration Rares • ETBs • WOTC',
+             sub:'GRADED SLABS AND RAW, PSA 10 TO UNGRADED\nSEALED BOOSTER BOXES AND VINTAGE WOTC\nFREE APPRAISAL, WE SORT IT FOR YOU',
+             price:'UP TO $10,000 PER CARD', big:'$10,000',
+             cta:'REQUEST AN APPRAISAL', badges:['TRUSTED','INSURED','LOCAL'],
+             /* boxes, binders and packs before loose slabs: a blank card face
+                reads as a placeholder, and a sealed box reads as a real buyer */
+             cuts:['poke-booster-box','poke-elite-box','poke-binder-open',
+                   'poke-packs-pile','poke-booster','poke-slabs-trio'] },
+  sports:  { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'SPORTS CARDS',
+             items:'Grails Wanted • Rookies • Autos • Patches • Numbered /99 • Wemby • Ohtani • Clark',
+             sub:'PSA, BGS AND SGC SLABS OR RAW\nROOKIE AUTOS, PATCHES AND NUMBERED\nWE BUY ENTIRE COLLECTIONS OUTRIGHT',
+             price:'UP TO $5,000 PER CARD', big:'$5,000',
+             cta:'REQUEST AN APPRAISAL', badges:['TRUSTED','INSURED','LOCAL'],
+             cuts:['sports-box-sealed','sports-binder-open','sports-slabs-fan-five',
+                   'sports-slabs-stack','sports-slab-graded'] },
+};
+
+/* CHALLENGE MODE — name the competitor a seller has already shopped.
+   People have a Carvana number in their phone and an ecoATM quote in their
+   head; an ad that names them is an ad about the seller's actual situation.
+   Named companies get COMPARISON copy (bring their offer, we top it), which is
+   ordinary comparative advertising as long as it is true. The sharp phrasing —
+   lowballed, offered you pennies — goes on generic targets: the pawn shop, a
+   reseller, the mall kiosk. Applied to a third of the cards, by seed. */
+const CHALLENGE = {
+  /* Only places that make WHOLESALE offers. eBay and Facebook Marketplace are
+     where retail buyers are — "we beat them" is a claim we would lose, and a
+     marketplace is a venue, not a buyer. Names over 12 characters stay on the
+     kicker; the headline takes the short ones or a category line. */
+  phones:  { names:['ECOATM','GAZELLE','BACK MARKET','ITSWORTHMORE','APPLE TRADE IN','BEST BUY','YOUR CARRIER','DECLUTTR'],
+             generic:['A RESELLER','THE KIOSK','THE MALL KIOSK'] },
+  gold:    { names:['CASH4GOLD','THE PAWN SHOP','KAY TRADE-IN','WORTHY','EZPAWN','THE JEWELER'],
+             generic:['THE PAWN SHOP','A GOLD PARTY'] },
+  silver:  { names:['THE PAWN SHOP','THE COIN SHOP','THE MAIL-IN BUYERS'],
+             generic:['THE PAWN SHOP','A RESELLER'] },
+  coins:   { names:['THE COIN SHOP','THE PAWN SHOP','THE MAIL-IN BUYERS'],
+             generic:['A RESELLER','THE PAWN SHOP'] },
+  cars:    { names:['CARVANA','CARMAX','VROOM','KBB OFFER','WEBUYANYCAR','AUTONATION','THE DEALER','DRIVEWAY'],
+             generic:['THE DEALER','A WHOLESALER'] },
+  strips:  { names:['THE MAIL-IN SITES','THE OTHER BUYERS'],
+             generic:['A MAIL-IN SITE','A RESELLER'] },
+  pokemon: { names:['TCGPLAYER','GAMESTOP','CARD KINGDOM','COMC','THE CARD SHOP'],
+             generic:['A RESELLER','A SCALPER'] },
+  sports:  { names:['COMC','THE CARD SHOP','PWCC','GOLDIN'],
+             generic:['A RESELLER','A SCALPER'] },
+  lines: {
+    // strings, not functions: this object crosses into the page as JSON
+    kicker:  ['{N} OFFERED YOU WHAT?', 'LOWBALLED BY {N}?', '{N} OFFERED PENNIES?', 'GOT A {N} QUOTE?'],
+    h1:      ['WE BEAT', 'WE TOP', 'WE MATCH', 'WE OUTBID'],
+    h2:      { cars:'TRADE-IN OFFERS', phones:'BUYBACK OFFERS', gold:'THE PAWN SHOP', silver:'THE PAWN SHOP',
+               coins:'THE COIN SHOP', strips:'MAIL-IN OFFERS', pokemon:'THE CARD SHOP', sports:'THE CARD SHOP',
+             },
+    /* every claim names WHO we beat — "any written offer" is "too ambitious,
+       gives room for scammers to lie". {N} is the competitor on the card. */
+    price:   ['BRING YOUR {N} QUOTE — WE TOP IT', 'MORE THAN {N}, PAID SAME DAY', 'SHOW US THE {N} NUMBER. WE FIX IT.', 'THE {N} NUMBER, PAID TODAY, NO FEES'],
+    promise: ['We top the {N} number or tell you to take it. Straight answers only.',
+              'Screenshot your {N} quote. We beat it or we say so.',
+              'No bots, no kiosks. A written offer from a real buyer.',
+              /* "we match is a good selling point too… you have to jump through
+                 hoops and ladders, or delayed payouts, or fees" */
+              'We match the {N} number without the hoops: no fees, no waiting, cash today.',
+              'Their offer, minus the ladders: same number, paid before we leave.'],
+  },
+};
+
+/* KICKERS — short, rotated. "LICENSED APPLE BUYER" is three words where one
+   lands; the owner's list is the brief. Cards and coins open with GRAILS. */
+const KICKERS = {
+  apple:   ['TOP BUYER','FAST BUYER','EZ BUYER','QUICK BUYER','TOP RATED','APPLE BUYER'],
+  gold:    ['GOLD BUYER','TOP BUYER','FAST CASH','TOP RATED','WE PAY MORE'],
+  silver:  ['SILVER BUYER','TOP BUYER','FAST CASH','TOP RATED'],
+  coins:   ['GRAILS WANTED','COIN BUYER','JUNK SILVER TOO','TOP BUYER'],
+  cars:    ['CAR BUYER','ANY CONDITION','FAST CASH','TOP RATED','FREE TOW'],
+  strips:  ['STRIP BUYER','FAST CASH','DISCREET','TOP RATED'],
+  pokemon: ['GRAILS WANTED','CARD BUYER','TOP BUYER','FAST CASH'],
+  sports:  ['GRAILS WANTED','CARD BUYER','TOP BUYER','FAST CASH'],
+};
+
+/* Information the ads were not carrying. The owner's own labelled references
+   measure BUSIER as better — their GOOD folder sits at 25.8-34% edge density
+   and this library at ~8-17% — so these blocks exist to close that gap with
+   facts a seller actually wants, not with decoration. */
+const INFO = {
+  area:    'LONG BEACH · LAKEWOOD · DOWNEY · CARSON · TORRANCE',
+  pay:     'CASH · ZELLE · VENMO · WIRE — YOUR CHOICE',
+  trust:   ['4.9★  200+ LOCAL REVIEWS', 'SINCE 2015', '500+ DEALS CLOSED'],
+  seals:   ['VERIFIED BUYER', 'CERTIFIED DEALER', 'TOP RATED LOCAL', 'LICENSED & BONDED'],
+  /* two things we do, one thing you will not have to put up with */
+  yes:     ['WRITTEN OFFER IN MINUTES','CASH THE SAME DAY','WE COME TO YOU','CRACKED OR LOCKED STILL PAID',
+            'PAID BEFORE WE LEAVE','ANY CONDITION, ANY CARRIER','WE MATCH REAL OFFERS, NO HOOPS','THE FULL NUMBER, NO FEES TAKEN OUT'],
+  no:      ['NO WAITING 2 HOURS FOR A QUOTE','NO LOWBALL "FINAL OFFERS"','NO HIDDEN FEES',
+            'NO MAIL IT IN AND WAIT WEEKS','NO HAGGLING AT THE DOOR',
+            'NO HOOPS, NO LADDERS, NO DELAYS','NO FEES THAT SHRINK YOUR PAYOUT','NO "PAID IN 5-7 BUSINESS DAYS"'],
+  address: '1234 E ANAHEIM ST · LONG BEACH, CA 90813',
+  promise: 'FREE WRITTEN OFFER BEFORE YOU DECIDE · NO OBLIGATION',
+  hours:   'OPEN 7 DAYS · 9AM-8PM · WALK-INS WELCOME',
+};
+const THEME_BY_ID = Object.fromEntries(THEMES.map(t => [t.id, t]));
+
+const browser = await puppeteer.launch({ executablePath: CHROME, headless:'new', args:['--no-sandbox'], protocolTimeout: 0 });
+const page = await browser.newPage();
+const perr = [];
+page.on('pageerror', e => perr.push(String(e).slice(0,200)));
+await page.goto(BASE, { waitUntil:'networkidle2', timeout:120000 });
+await page.evaluate(() => document.fonts.ready);
+await new Promise(r => setTimeout(r, 5000));
+/* THE TYPE SYSTEM: the 56 faces the owner approved in the gallery
+   (assets/approved-fonts.json), grouped by what they are FOR rather than by
+   the gallery's roles. A category draws its display face from the styles that
+   suit its subject — blackletter and serif on gold and silver, arcade and
+   condensed on tech, comic and script on Pokémon — and a wild display face
+   always gets a plain grotesque underneath it so the card stays readable. */
+const FONTS = JSON.parse(readFileSync(ROOT + 'assets/approved-fonts.json', 'utf8')).faces;
+const STYLE = {
+  condensed:  ['Oswald','Big Shoulders Display','Barlow Condensed','Teko','Saira Condensed'],
+  grotesque:  ['Satoshi','Manrope','Sora','Chivo','Libre Franklin','Instrument Sans'],
+  serif:      ['Instrument Serif','Cormorant Garamond'],
+  slab:       ['Zilla Slab','Roboto Slab'],
+  blackletter:['Pirata One'],
+  stencil:    ['Big Shoulders Stencil Display'],
+  tech:       ['Press Start 2P','Audiowide','Wallpoet','Rubik Iso','Russo One','Squada One'],
+  bold:       ['Bungee','Russo One','Squada One'],
+  comic:      ['Bangers','Luckiest Guy','Shrikhand','Knewave','Freckle Face'],
+  street:     ['Sedgwick Ave','Sedgwick Ave Display','Rubik Wet Paint','Rubik Marker Hatch','Rubik Dirt','Rubik Doodle Shadow','Permanent Marker','Faster One'],
+  vintage:    ['Rye','Special Elite','Bungee Shade','Fascinate','Cabin Sketch'],
+  /* owner, 2026-09-02, on WE BEAT WORTHY'S in Special Elite: "sickest font
+     keep this!!!!! use it" — its own style so it rotates in on its own,
+     not one draw in five of the vintage pool */
+  typewriter: ['Special Elite'],
+  script:     ['Kaushan Script','Knewave'],
+  hand:       ['Kalam','Patrick Hand','Shadows Into Light','Gloria Hallelujah','Nanum Pen Script','Architects Daughter','Amatic SC'],
+  horror:     ['Nosifer','Creepster'],
+  rounded:    ['Nunito','Sniglet'],
+  support:    ['Satoshi','Manrope','Sora','Chivo','Libre Franklin','Instrument Sans','Nunito','Zilla Slab','Roboto Slab'],
+  num:        ['JetBrains Mono','DM Mono','Oswald','Barlow Condensed','Teko','Saira Condensed','Manrope','Sora'],
+  numTech:    ['JetBrains Mono','DM Mono','Audiowide','Russo One','Squada One','Oswald','Barlow Condensed'],
+};
+/* which styles fit which subject, in rotation order — the plain ones lead so
+   roughly half of every category stays clean */
+const FIT = {
+  phones:  ['condensed','tech','grotesque','typewriter','street','stencil','bold','slab'],
+  gold:    ['serif','typewriter','blackletter','script','slab','vintage','condensed','bold'],
+  silver:  ['blackletter','serif','typewriter','stencil','street','slab','condensed','vintage'],
+  coins:   ['serif','slab','typewriter','condensed','blackletter','vintage','grotesque'],
+  cars:    ['condensed','bold','typewriter','stencil','slab','tech','street','vintage'],
+  strips:  ['condensed','grotesque','typewriter','slab','hand','rounded','bold'],
+  pokemon: ['comic','script','street','hand','typewriter','condensed','horror','bold'],
+  sports:  ['condensed','comic','typewriter','street','slab','bold','script','vintage'],
+};
+const FACESYS = { STYLE, FIT, TRACK: Object.fromEntries(FONTS.filter(f => f.track !== undefined).map(f => [f.name, f.track])), review100: process.env.LAB_REVIEW === '100', size: +(process.env.LAB_SIZE || 0) };
+const TRACK = FACESYS.TRACK;
+await page.evaluate(async faces => {
+  await Promise.all(faces.map(f => (typeof ensureFont === 'function' ? ensureFont(f) : Promise.resolve())));
+  await document.fonts.ready;
+  try { fabric.util.clearFabricFontCache(); } catch(e){}
+}, [...new Set([...FACES, ...FONTS.map(f => f.name)])]);
+{ const miss = await page.evaluate(names => {
+    const c = document.createElement('canvas').getContext('2d');
+    const w = f => { c.font = '40px ' + f; return c.measureText('Buyback 0123 WQ').width; };
+    return names.filter(n => { const a = w('"' + n + '", serif'), b = w('"' + n + '", monospace'); return Math.abs(a - w('serif')) < 0.5 && Math.abs(b - w('monospace')) < 0.5; });
+  }, FONTS.map(f => f.name));
+  console.log('faces loaded: ' + (FONTS.length - miss.length) + '/' + FONTS.length + (miss.length ? ' · missing: ' + miss.join(', ') : '')); }
+
+/* The sixteen layouts that took approvals in the 4-up review, in that order.
+   agencyGrid, diagonalRush, duoSplit, priceAnchor, editorialLux, karatSeal and
+   wantedFrame took zero and are out. For each layout, EVERY template in it is
+   kept, so the category can rotate across the palette row. */
+const APPROVED_LAYOUTS = ['checklistHero','reviewProof','trustSeal','stepsFlow','bubblePop','voltStack',
+  'neonNight','slabPoster','scriptRetro','lowerThird','gradientWave','ticketStub','hudTech','bandKnockout','arcCrown','glassCard'];
+const picks = await page.evaluate((LAYS) => {
+  const byLayout = {};
+  TEMPLATES.filter(t => t.id.startsWith('dl_') && t.pal).forEach(t => {
+    const lay = t.id.split('_')[2];
+    (byLayout[lay] ||= []).push({ id:t.id, cat:t.cat, pal:t.pal, layout:lay });
+  });
+  return LAYS.filter(l => byLayout[l]).map(l => byLayout[l]);
+}, process.env.LAB_LAYOUTS ? process.env.LAB_LAYOUTS.split(',') : APPROVED_LAYOUTS);
+await page.evaluate(async srcs => {
+  await Promise.all(srcs.map(s => new Promise(res => {
+    if (CUTOUT_ELS[s]) return res();
+    const el = new Image(); el.onload = () => { CUTOUT_ELS[s] = el; res(); };
+    el.onerror = () => res(); el.src = s;
+  })));
+}, ALL.filter(f => !LEGACY.test(f)).map(c => 'assets/cutouts/' + c + '.webp'));
+/* THE MISSING BACKDROPS. freshBgImage() reads TPL_BG_ELS, which the engine
+   fills only with the backdrops its own templates use. The Apple scenes were
+   never in it, so every scene-backed card — all of the iPhone, iPad, Watch
+   and Mac ads — silently painted a flat colour: "many of these iphone ones
+   are showing no graphics". Load the scenes into the same cache. */
+const SCENES = readdirSync(ROOT + 'assets/scenes').filter(f => /\.jpe?g$/i.test(f)).map(f => 'assets/scenes/' + f)
+  .concat(existsSync(ROOT + 'assets/bg-web') ? readdirSync(ROOT + 'assets/bg-web').filter(f => /\.jpe?g$/i.test(f)).map(f => 'assets/bg-web/' + f) : []);
+/* real photographs per category (scripts/fetch_backdrops.mjs), by filename prefix */
+const WEBBG = {};
+SCENES.filter(s => s.startsWith('assets/bg-web/')).forEach(s => { const cat = s.split('/').pop().split('-')[0]; (WEBBG[cat] ||= []).push(s); });
+console.log('web backdrops: ' + Object.entries(WEBBG).map(([k, v]) => k + ' ' + v.length).join(', '));
+await page.evaluate(async srcs => {
+  await Promise.all(srcs.map(s => new Promise(res => {
+    if (TPL_BG_ELS[s]) return res();
+    const el = new Image(); el.onload = () => { TPL_BG_ELS[s] = el; res(); };
+    el.onerror = () => res(); el.src = s;
+  })));
+}, SCENES);
+console.log('scenes cached: ' + await page.evaluate(srcs => srcs.filter(s => TPL_BG_ELS[s] && TPL_BG_ELS[s].width).length, SCENES) + '/' + SCENES.length);
+await new Promise(r => setTimeout(r, 2500));
+
+const DEBUG_ID = process.env.LAB_DEBUG || '';
+/* The thirteen faces approved in the gallery, by the job they do. Clash
+   Display is not among them, so headlines leave it. */
+const TYPE = {
+  /* Faster One from the graffiti gallery: "cool with less letter spacing,
+     otherwise doesn't look good" — so it runs tight, see TRACK */
+  display: ['Oswald','Big Shoulders Display','Barlow Condensed','Teko','Instrument Serif','Chivo','Faster One'],
+  support: ['Satoshi','Manrope','Sora','Chivo','Libre Franklin','Instrument Sans'],
+  num:     ['JetBrains Mono','DM Mono','Manrope','Sora','Barlow Condensed','Oswald'],
+};
+/* THE CUT, from the 4x4 review of the last 160 (75 approved). Layout weight
+   is its approval count: lowerThird 8, checklistHero 7, gradientWave 7,
+   hudTech 6, arcCrown 6 take sixteen frames each; the five-approval layouts
+   take ten; the rest five. Palettes in approval order — Sky Market 10, Blue
+   Market 9, Blue Ticket 9, Mint Market 9, Indigo 8, Blue Deal 7, then the
+   six-and-under — and a layout with fewer frames only sees the top of that
+   list. Every entry carries a variant number so no card repeats a reviewed
+   one: the category, product, faces and copy all rotate off it. */
+/* SET 3: 250 frames. Both reviews count — set 1 offered ten of every layout,
+   set 2 offered a weighted cut — so a layout's weight is its approval RATE
+   over everything it has been shown in, clamped so nothing vanishes and
+   nothing takes over. Palettes the same way. Variant numbers start at 3 so no
+   card repeats a judged one. */
+const APPROVED = JSON.parse(readFileSync(ROOT + 'assets/approved-templates.json', 'utf8')).sets;
+const TOTAL = +(process.env.LAB_TOTAL || 250), VSTART = +(process.env.LAB_VSTART || 3);
+/* every review so far counts: set 1 offered ten of everything; every later
+   set records what it offered per layout. Set 3 (the owner's 93 of 250,
+   pasted 2026-09-02) joined here. */
+const rateOf = lay => {
+  let a = 0, o = 0;
+  APPROVED.forEach((set, n) => {
+    a += set.approved.filter(x => x.layout === lay).length;
+    o += n === 0 ? 10 : ((set.offered || {})[lay] || 0);
+  });
+  return (a + 1) / (o + 2);
+};
+const rates = picks.map(l => rateOf(l[0].layout));
+const LO = Math.round(TOTAL / 31), HI = Math.round(TOTAL / 10.4);      // 250 → 8..24, 500 → 16..48
+let want = picks.length === 1 ? [TOTAL] : rates.map(r => Math.max(LO, Math.min(HI, Math.round(TOTAL * r / rates.reduce((a, b) => a + b, 0)))));
+for (let g = 0; want.reduce((a, b) => a + b, 0) !== TOTAL && g < 400; g++){
+  const diff = TOTAL - want.reduce((a, b) => a + b, 0);
+  const k = g % want.length;
+  if (diff > 0 && want[k] < HI) want[k]++; else if (diff < 0 && want[k] > LO) want[k]--;
+}
+const palCount = {}; DONORS.forEach(d => palCount[d] = FRESH.includes(d) ? 9 : 1);   // a new palette starts at a mid weight
+APPROVED.forEach(set => set.approved.forEach(a => { if (palCount[a.palette] !== undefined) palCount[a.palette]++; }));
+/* smooth weighted round-robin over the palettes, offset per layout */
+const rr = (want, offset) => {
+  const cur = Object.fromEntries(DONORS.map(d => [d, 0])), tot = DONORS.reduce((a, d) => a + palCount[d], 0), out = [];
+  for (let k = 0; k < want + offset; k++){
+    DONORS.forEach(d => cur[d] += palCount[d]);
+    const best = DONORS.reduce((a, d) => cur[d] > cur[a] ? d : a, DONORS[0]);
+    cur[best] -= tot; if (k >= offset) out.push(best);
+  }
+  return out;
+};
+const PLAN = [];
+picks.forEach((list, i) => {
+  const seq = rr(want[i], i * 3), seenD = {};
+  seq.forEach((donor, k) => { seenD[donor] = (seenD[donor] || 0) + 1; PLAN.push({ i, j: DONORS.indexOf(donor), v: VSTART + seenD[donor] - 1, k }); });
+});
+console.log('palette weights: ' + DONORS.map(d => d + ' ' + palCount[d]).join(', '));
+/* LAB_ONLY=lowerThird-ca07,hudTech-du08 renders just those pairs (every
+   variant) so a debug run takes seconds instead of the full set */
+if (process.env.LAB_ONLY){
+  const only = process.env.LAB_ONLY.split(',');
+  const keep = PLAN.filter(e => only.includes(picks[e.i][0].layout + '-' + DONORS[e.j]));
+  PLAN.length = 0; PLAN.push(...keep);
+}
+console.log('plan: ' + PLAN.length + ' cards · ' + picks.map(l => l[0].layout + ' ' + PLAN.filter(e => e.i === picks.indexOf(l)).length).join(', '));
+
+/* LAB_ASSORT=all|off|third — carried into the browser on INFO, which is
+   already handed across; the render code cannot read process.env */
+INFO.assort = process.env.LAB_ASSORT || 'third';
+/* LAB_EXPORT=1 also returns every card's FINAL template record (the t2 the
+   card was painted from), so a set can ship into the app as real templates
+   rather than as pictures of templates. */
+INFO.export = !!process.env.LAB_EXPORT;
+const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS, DEVICE_DECKS, INFO, CATEGORY_COPY, MODERN, HERO, BGLUM, DEBUG_ID, TYPE, CHALLENGE, KICKERS, FACESYS, WEBBG) => {
+  const TRACK = FACESYS.TRACK;
+  /* the mark beside the website line, 100-unit box, outline like the rest of
+     the set. The old arrow cursor pointed up-left, AWAY from the URL it was
+     meant to point at (owner, 2026-09-02); now half the cards get an arrow
+     pointing right at the URL and half a globe beside it. */
+  ICONS.arrowRight = { d: 'M14 50 H82 M58 26 L82 50 L58 74', sw: 9 };
+  ICONS.globe = { d: 'M50 12 A38 38 0 1 0 50 88 A38 38 0 1 0 50 12 Z M50 12 C32 30 32 70 50 88 M50 12 C68 30 68 70 50 88 M12 50 H88 M19 31 H81 M19 69 H81', sw: 6 };
+  /* map pin: a teardrop with a hole, beside the reviewer's city */
+  ICONS.pin = { d: 'M50 92 C50 92 22 58 22 40 A28 28 0 0 1 78 40 C78 58 50 92 50 92 Z M50 30 A10 10 0 1 0 50 50 A10 10 0 1 0 50 30 Z', sw: 7 };
+  const pickFaces = (cat, seed) => {
+    const fit = FACESYS.FIT[cat] || FACESYS.FIT.phones;
+    const style = fit[seed % fit.length];
+    const pool = FACESYS.STYLE[style];
+    const display = pool[Math.floor(seed / fit.length) % pool.length];
+    const plain = /^(condensed|grotesque|serif|slab)$/.test(style);
+    const sup = plain ? FACESYS.STYLE.support : FACESYS.STYLE.grotesque;
+    const numPool = cat === 'phones' ? FACESYS.STYLE.numTech : FACESYS.STYLE.num;
+    return { display, support: sup[(seed * 3 + 1) % sup.length], num: numPool[(seed * 5 + 2) % numPool.length], style };
+  };
+  const W = TPL_W, H = TPL_H, SIZE = FACESYS.size || +(new URLSearchParams(location.search).get('size') || 0) || (PLAN.length > 300 ? 512 : 640);
+  const TH = Object.fromEntries(THEMES.map(t => [t.id, t]));
+  const ALLCUTS = MODERN;   // every current-hardware cutout, not just the CUTS map
+  const lin = c => { c/=255; return c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4); };
+  const lumPx = (d,i) => 0.2126*lin(d[i]) + 0.7152*lin(d[i+1]) + 0.0722*lin(d[i+2]);
+  const lumHex = h => { const n = parseInt(String(h).replace('#',''),16);
+    return 0.2126*lin((n>>16)&255) + 0.7152*lin((n>>8)&255) + 0.0722*lin(n&255); };
+  const cr = (a,b) => { const A=lumHex(a), B=lumHex(b), hi=Math.max(A,B), lo=Math.min(A,B); return (hi+0.05)/(lo+0.05); };
+  const isHex = v => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v);
+
+  function mapper(P, th){
+    /* by ROLE, so the layout keeps its hierarchy and only changes clothes */
+    const m = new Map();
+    const put = (from, to) => { if (isHex(from)) m.set(from.toLowerCase(), to); };
+    put(P.bg1, th.c1); put(P.bg2, th.c2);
+    put(P.ink, th.ink); put(P.sub, th.sub);
+    put(P.a1, th.accent); put(P.a2, th.support);
+    put(P.deep, th.onAccent);
+    // literal white is being used as ink; on a pale theme it has to stop being white
+    m.set('#ffffff', th.ink); m.set('#fff', th.ink);
+    /* THE FALLBACK THAT MATTERS. Exact-match role mapping only catches colours
+       that ARE a palette value; the library is full of derived ones —
+       hexToRgba(P.deep, 0.82), hand-tuned panel tints, gradient stops nudged by
+       a pass. Those survived the swap unchanged, so a near-black panel stayed
+       near-black on a pale theme: agencyGrid's "Items Panel" rgba(12,10,9,0.62)
+       rendered as a black box across every light card.
+       So anything unmapped is REBUILT: keep its contrast relationship to the
+       old ground and reproduce that against the new one. An element that sat
+       just darker than a dark ground comes out just darker than a light ground,
+       which is what it was for. */
+    const Lold = lumHex(P.bg1 || '#141417');
+    const Lnew = lumHex(th.c1);
+    const nRGB = (() => { const n = parseInt(th.c1.slice(1),16);
+      return [(n>>16)&255, (n>>8)&255, n&255]; })();
+    /* Rebuild an unmapped colour at the luminance its contrast ratio implies —
+       but in ITS OWN hue, not the ground's. The first version scaled the new
+       ground's RGB, so on a saturated Jewel ground every panel, band and plate
+       came out purple and the card went monochrome: the yellow accent and the
+       periwinkle support never appeared at all. A colour that was neutral in
+       the original stays neutral; one that was coloured keeps its hue. */
+    const derive = hex => {
+      const r = (lumHex(hex) + 0.05) / (Lold + 0.05);
+      const want = Math.max(0, Math.min(1, r * (Lnew + 0.05) - 0.05));
+      const n = parseInt(hex.slice(1),16);
+      const src = [(n>>16)&255, (n>>8)&255, n&255];
+      const mx = Math.max(...src), mn = Math.min(...src);
+      const chroma = mx ? (mx - mn) / mx : 0;
+      // neutral originals become a neutral with a whisper of the ground in it;
+      // chromatic originals keep their own RGB proportions
+      /* Owner, 2026-09-02: "notice it's not matching the color palette
+         chosen. So we need to keep the palette accurate." Keeping a chromatic
+         original in ITS OWN hue is exactly how a base template's mint plate
+         reached a Blue Market card. A chromatic original now snaps to the
+         theme's tone ladder — the accent hue, or the support hue when the
+         original sat nearer it — at the luminance its contrast implies. Only
+         neutrals stay neutral. */
+      if (chroma >= 0.12 && th.ladder){
+        const hueOf = ([r,g,b]) => { const mx2 = Math.max(r,g,b), mn2 = Math.min(r,g,b), d = mx2 - mn2 || 1;
+          let h = mx2 === r ? ((g - b) / d) % 6 : mx2 === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; return (h + 360) % 360; };
+        const dist = (a, b) => { const x = Math.abs(a - b) % 360; return x > 180 ? 360 - x : x; };
+        const h0 = hueOf(src), hues = th.hues || {};
+        const lad = dist(h0, hues.support || 0) < dist(h0, hues.accent || 0) ? th.ladder.support : th.ladder.accent;
+        return lad.reduce((a, b) => Math.abs(lumHex(b) - want) < Math.abs(lumHex(a) - want) ? b : a);
+      }
+      const base = chroma < 0.12
+        ? [0,1,2].map(i => 200*0.85 + nRGB[i]*0.15)
+        : src.map(c => Math.max(8, c));
+      let lo = 0, hi = 4, mid = 1;
+      const f = c => { c/=255; return c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4); };
+      for (let k = 0; k < 24; k++){
+        mid = (lo + hi) / 2;
+        const t = base.map(c => Math.max(0, Math.min(255, c * mid)));
+        const L = 0.2126*f(t[0]) + 0.7152*f(t[1]) + 0.0722*f(t[2]);
+        if (L < want) lo = mid; else hi = mid;
+      }
+      return '#' + base.map(c => Math.round(Math.max(0, Math.min(255, c*mid))).toString(16).padStart(2,'0')).join('');
+    };
+    return v => {
+      if (isHex(v)) return m.get(v.toLowerCase()) || derive(v);
+      if (typeof v === 'string' && /^rgba?\(/i.test(v)){
+        const q = v.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?/i);
+        if (!q) return v;
+        const hex = '#' + [1,2,3].map(i => (+q[i]).toString(16).padStart(2,'0')).join('');
+        const to = m.get(hex.toLowerCase()) || derive(hex);
+        const n = parseInt(to.slice(1),16);
+        return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+(q[4]===undefined?1:q[4])+')';
+      }
+      return v;
+    };
+  }
+
+  /* rows of the frame no layer is using — where information can go without
+     touching a hand-built composition */
+  function freeBands(refs){
+    const occ = new Uint8Array(H);
+    refs.forEach(o => { if (!o) return;
+      const b = o.getBoundingRect(true, true);
+      if (b.width < W*0.34) return;                 // only wide elements block a band
+      for (let y = Math.max(0,~~b.top); y < Math.min(H, Math.ceil(b.top+b.height)); y++) occ[y] = 1;
+    });
+    const bands = []; let start = -1;
+    for (let y = 0; y <= H; y++){
+      if (y < H && !occ[y]){ if (start < 0) start = y; }
+      else if (start >= 0){ if (y - start >= 62) bands.push({ top:start, h:y-start }); start = -1; }
+    }
+    return bands.sort((a,b) => b.h - a.h);
+  }
+
+  /* Blocks of real information, added only into space that is already empty.
+     The owner's own reference set measures busier as better, and this library
+     sits at 16.7% median against a good band of 25.8-34%. */
+  function enrich(t2, th, deck, bands, n, seed, boxes){
+    const light = lumHex(th.c1) > 0.22;
+    const onGround = th.ink, dim = th.sub;
+    const blocks = [
+      /* COMPARE ROWS: two green ticks, one red cross. Semantic green and red,
+         not the theme accent — a tick and a cross read the same on every
+         palette, which is the point of them. Each disc, glyph and line is its
+         own named layer. Lands first because it earns the biggest band. */
+      b => {
+        const rows = [['✓', INFO.yes[seed % INFO.yes.length], '#22c55e'],
+                      ['✓', INFO.yes[(seed + 2) % INFO.yes.length], '#22c55e'],
+                      ['✗', INFO.no[seed % INFO.no.length], '#ef4444']];
+        const out = [];
+        rows.forEach(([g, txt, col], r) => {
+          const y = b.top + 10 + r * 44;
+          if (y + 38 > b.top + b.h) return;
+          out.push({ kind:'circle', name:'Compare Disc ' + (r+1), props:{ left:X0, top:y, radius:18, fill:col } },
+                   { kind:'text', name:'Compare Mark ' + (r+1), role:'deco', text:g,
+                     props:{ left:X0+18, top:y+18, originX:'center', originY:'center', fontFamily:'Satoshi', fontSize:20, fill:'#ffffff', fontWeight:'900' } },
+                   { kind:'text', name:'Compare Line ' + (r+1), role:'info', text:txt,
+                     props:{ left:X0+50, top:y+18, originY:'center', fontFamily:th.faces.support, fontSize: region ? 20 : 24, fill:onGround, fontWeight:'800', charSpacing:30 } });
+        });
+        return out;
+      },
+      b => ([ { kind:'rect', name:'Info Rule', props:{ left:64, top:b.top+b.h/2-30, width:W-128, height:2, fill:th.accent, opacity:0.55 } },
+              { kind:'text', name:'Service Area', role:'info', text:INFO.area,
+                props:{ left:W/2, top:b.top+b.h/2-8, originX:'center', fontFamily:th.faces.support,
+                        fontSize:23, fill:onGround, fontWeight:'800', charSpacing:60 } } ]),
+      /* icon bubbles: a disc with a glyph beside each fact. Reused because
+         the owner singled it out; varied glyph per row so it is not the same
+         tick four times. Each disc and line is its own named layer. */
+      b => {
+        const rows = [['★', INFO.trust[0]], ['⏱', 'SAME-DAY PAYMENT'], ['✉', 'TEXT US PHOTOS FOR AN OFFER']];
+        const out = [];
+        rows.forEach(([g, txt], r) => {
+          const y = b.top + 12 + r * 42;
+          if (y + 36 > b.top + b.h) return;
+          out.push({ kind:'circle', name:'Bubble ' + (r+1), props:{ left:64, top:y, radius:17, fill:th.accent } },
+                   { kind:'text', name:'Bubble Glyph ' + (r+1), role:'deco', text:g,
+                     props:{ left:81, top:y+17, originX:'center', originY:'center', fontFamily:'Satoshi', fontSize:18, fill:th.onAccent, fontWeight:'900' } },
+                   { kind:'text', name:'Bubble Text ' + (r+1), role:'info', text:txt,
+                     props:{ left:112, top:y+17, originY:'center', fontFamily:th.faces.support, fontSize:24, fill:onGround, fontWeight:'800', charSpacing:30 } });
+        });
+        return out;
+      },
+      b => ([ { kind:'text', name:'Trust Row', role:'info', text:INFO.trust.join('   ·   '),
+                props:{ left:W/2, top:b.top+b.h/2-14, originX:'center', fontFamily:th.faces.support,
+                        fontSize:26, fill:onGround, fontWeight:'800', charSpacing:20 } } ]),
+      b => ([ { kind:'rect', name:'Promise Plate', props:{ left:56, top:b.top+b.h/2-32, width:W-112, height:64,
+                        rx:14, fill:th.support, opacity:light?0.92:0.30 } },
+              { kind:'text', name:'Promise', role:'info', text: (deck && deck.challengePromise) ? deck.challengePromise.toUpperCase() : INFO.promise,
+                props:{ left:W/2, top:b.top+b.h/2-11, originX:'center', fontFamily:th.faces.support,
+                        fontSize:22, fill: light ? th.onSupport : onGround, fontWeight:'800', charSpacing:40 } } ]),
+      b => ([ { kind:'text', name:'Payment', role:'info', text:INFO.pay,
+                props:{ left:W/2, top:b.top+b.h/2-24, originX:'center', fontFamily:th.faces.support,
+                        fontSize:22, fill:dim, fontWeight:'700', charSpacing:70 } },
+              { kind:'text', name:'Hours', role:'info', text:INFO.hours,
+                props:{ left:W/2, top:b.top+b.h/2+6, originX:'center', fontFamily:th.faces.support,
+                        fontSize:21, fill:dim, fontWeight:'700', charSpacing:70 } } ]),
+      b => ([ { kind:'rect', name:'Address Plate', props:{ left:56, top:b.top+b.h/2-30, width:W-112, height:60,
+                        rx:12, fill:th.accent, opacity:light?0.16:0.22 } },
+              { kind:'text', name:'Address', role:'info', text:INFO.address,
+                props:{ left:W/2, top:b.top+b.h/2-11, originX:'center', fontFamily:th.faces.support,
+                        fontSize:22, fill:onGround, fontWeight:'800', charSpacing:50 } } ]),
+      b => (t2.layers.some(l => typeof l.text === 'string' && deck.items && l.text.trim() === String(deck.items).trim()) ? [] :
+            [ { kind:'text', name:'We Also Buy', role:'info', text:deck.items,
+                props:{ left:W/2, top:b.top+b.h/2-13, originX:'center', fontFamily:th.faces.support,
+                        fontSize:25, fill:onGround, fontWeight:'700', charSpacing:20 } } ]),
+    ];
+    for (let i = 0; i < n && i < bands.length && i < blocks.length; i++)
+      blocks[i](bands[i]).forEach(l => t2.layers.push(l));
+
+    /* SPEC CHIP GRID. The single biggest density lever the repo ever measured
+       was product art (+70%), and the second is small repeated marks: chips,
+       rules, tiles. Competitor ads are full of them. Each is its own named
+       layer so any one can be deleted. */
+    const CHIPS = ['ANY CONDITION','ANY CARRIER','CRACKED OK','ICLOUD LOCKED OK',
+                   'SAME-DAY CASH','FREE PICKUP','NO OBLIGATION','WE COME TO YOU'];
+    const band = bands[n] || bands[bands.length-1];
+    if (band && band.h >= 96){
+      const cols = 4, cw = (W - 128 - 24*(cols-1)) / cols;
+      for (let k = 0; k < 8; k++){
+        const cx2 = 64 + (k % cols) * (cw + 24), cy2 = band.top + 10 + Math.floor(k/cols) * 46;
+        if (cy2 + 40 > band.top + band.h) break;
+        t2.layers.push(
+          { kind:'rect', name:'Spec Chip ' + (k+1), props:{ left:cx2, top:cy2, width:cw, height:38, rx:19,
+              fill: light ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.10)',
+              stroke: th.accent, strokeWidth:1 } },
+          { kind:'text', name:'Spec Chip Text ' + (k+1), role:'badges', text:CHIPS[(seed + k) % CHIPS.length],
+            props:{ left:cx2 + cw/2, top:cy2 + 19, originX:'center', originY:'center',
+                    fontFamily:th.faces.support, fontSize:15, fill:onGround, fontWeight:'800', charSpacing:40 } });
+      }
+    }
+
+    /* TRUST MARK — placed, not pinned. It used to sit bottom-left on every
+       card in one style, and on half of them it sat on top of the phone plate.
+       Rule from the owner, and a correct one: text never goes over other
+       assets. So: try top-right first (their preference), then the other
+       corners, and test each against every layer already on the frame; if no
+       corner is clear, no mark. And about 40% of cards get none regardless —
+       a device that appears everywhere stops meaning anything. Four styles,
+       so it is not always the same pill with the same tick. */
+    const style = seed % 5;                       // 4 = no mark
+    if (style < 4 && boxes){
+      const label = INFO.seals[(seed >> 1) % INFO.seals.length];
+      const sw = 44 + label.length * 11, sh = 52;
+      const spots = [ { x: W-56-sw, y: 56 }, { x: 56, y: 56 }, { x: W-56-sw, y: H-116 }, { x: 56, y: H-116 } ];
+      const clear = r => !boxes.some(b => !(r.x + r.w <= b.left || b.left + b.width <= r.x ||
+                                            r.y + r.h <= b.top  || b.top + b.height <= r.y));
+      const spot = spots.find(sp => clear({ x: sp.x - 8, y: sp.y - 8, w: sw + 16, h: sh + 16 }));
+      if (spot){
+        const x = spot.x, y = spot.y;
+        const inkOnPlate = light ? th.onSupport : th.ink;
+        if (style === 0){          // pill + tick disc
+          t2.layers.push(
+            { kind:'rect', name:'Trust Mark', props:{ left:x, top:y, width:sw, height:sh, rx:sh/2,
+                fill: light ? th.support : 'rgba(255,255,255,0.14)', stroke: light ? 'rgba(0,0,0,0.10)' : th.accent, strokeWidth:1.25 } },
+            { kind:'circle', name:'Trust Mark Disc', props:{ left:x+12, top:y+12, radius:14, fill:th.accent } },
+            { kind:'text', name:'Trust Mark Tick', role:'deco', text:'✓',
+              props:{ left:x+26, top:y+26, originX:'center', originY:'center', fontFamily:'Satoshi', fontSize:17, fill:th.onAccent, fontWeight:'900' } },
+            { kind:'text', name:'Trust Mark Label', role:'badges', text:label,
+              props:{ left:x+46, top:y+17, fontFamily:th.faces.support, fontSize:19, fill:inkOnPlate, fontWeight:'800', charSpacing:60 } });
+        } else if (style === 1){   // square stamp, accent outline, no fill
+          t2.layers.push(
+            { kind:'rect', name:'Trust Mark', props:{ left:x, top:y, width:sw, height:sh, rx:8,
+                fill:'rgba(0,0,0,0)', stroke:th.accent, strokeWidth:2.5 } },
+            { kind:'text', name:'Trust Mark Label', role:'badges', text:label,
+              props:{ left:x+sw/2, top:y+sh/2, originX:'center', originY:'center', fontFamily:th.faces.display, fontSize:20, fill:th.accent, fontWeight:'700', charSpacing:90 } });
+        } else if (style === 2){   // solid accent chip, dark ink
+          t2.layers.push(
+            { kind:'rect', name:'Trust Mark', props:{ left:x, top:y, width:sw, height:sh, rx:10, fill:th.accent } },
+            { kind:'text', name:'Trust Mark Label', role:'badges', text:'★ ' + label,
+              props:{ left:x+sw/2, top:y+sh/2, originX:'center', originY:'center', fontFamily:th.faces.support, fontSize:18, fill:th.onAccent, fontWeight:'900', charSpacing:50 } });
+        } else {                   // text only, underlined — the quietest
+          t2.layers.push(
+            { kind:'text', name:'Trust Mark Label', role:'badges', text:label,
+              props:{ left:x+sw/2, top:y+14, originX:'center', fontFamily:th.faces.support, fontSize:18, fill:th.ink, fontWeight:'800', charSpacing:110 } },
+            { kind:'rect', name:'Trust Mark Rule', props:{ left:x+10, top:y+42, width:sw-20, height:3, fill:th.accent } });
+        }
+      }
+    }
+  }
+
+  function retheme(tpl, th, cutSrc, deck, cat, seed){
+    const P = PAL[tpl.pal] || PAL.mono;
+    const f = mapper(P, th);
+    const light = lumHex(th.c1) > 0.22;
+    const t2 = { id: tpl.id, cat: tpl.cat, layers: [] , bg: null };
+    t2.bg = Object.assign({}, tpl.bg, {
+      /* The old palette's duotone GRADE goes. It remaps the photograph's
+         shadows and highlights to that palette's own colours — volt's grade
+         crushes shadows to near-black — and carrying it into a new theme is
+         how a card ends up as an unusable black-and-teal murk. The new theme
+         colours the photo with its scrim; it does not need a second remap
+         from a palette that is no longer on the frame. */
+      grade: null,
+      // a pale theme cannot live under a black scrim
+      /* A full greyscale plus a 0.62 wash was costing more edge detail than
+         anything else in the frame — measured, our cards sat at 20% density
+         against references running 44-49%. The photograph is where a lot of
+         that detail lives, so it keeps its texture and most of its contrast;
+         hue drift is handled by a lighter, gradient wash instead of a blanket. */
+      scrimColor: th.c1,
+      scrim: light ? 0.62 : 0.56,
+      fallback: tpl.bg.fallback ? Object.assign({}, tpl.bg.fallback, { c1:th.c1, c2:th.c2 }) : null,
+    });
+    const heads = tpl.layers.filter(l => l.role === 'headline' && typeof l.text === 'string');
+    // the subject word, by text — the last headline by index was sometimes a
+    // glow duplicate, so "iPAD" kept its ink colour and the accent never showed
+    const money = heads.find(l => /IPHONE|PHONE|GOLD|SILVER|COINS|CARS|STRIPS|POK|CARDS|WATCH|IPAD|MACBOOK/i.test(l.text))
+               || heads[heads.length - 1];
+    const moneyPlate = tpl.layers.some(r => r.kind === 'rect' && r.props && money && money.props && (() => {
+      const mx = money.props.left || 0, fs = money.props.fontSize || 40;
+      const ty0 = (money.props.top || 0) - (money.props.originY === 'center' ? fs*0.5 : 0), ty1 = ty0 + fs;
+      const L0=r.props.left||0,T0=r.props.top||0,W0=r.props.width||0,H0=r.props.height||0;
+      return W0 > 300 && mx >= L0-12 && mx <= L0+W0+12 && ty1 > T0 && ty0 < T0+H0; })());
+    t2.layers = tpl.layers.map(l => {
+      const c = JSON.parse(JSON.stringify(l));
+      if (c.props){
+        /* The LAST headline is the money word and it takes the accent, the
+           same rule applyColorTheme() uses. Mapping it through the colour table
+           sent a white headline to ink, and a theme whose accent never appears
+           on the frame is not that theme. */
+        if (l === money){
+          c.props.fill = moneyPlate ? th.onAccent : th.accent; delete c.props.grad; c.__lock = true;
+          /* The metals say their name in their metal. "Make the word gold
+             golden" — a vertical gradient from highlight to shadow reads as
+             metal at headline size, and it is the one place a gradient in
+             type earns its keep. Silver gets the same treatment. */
+          if (cat === 'gold'   && !moneyPlate) c.props.grad = { c1:'#fff0a8', c2:'#b8860b', a:100 };
+          if (cat === 'silver' && !moneyPlate) c.props.grad = { c1:'#f4f6f8', c2:'#8c949e', a:100 };
+        }
+        /* The plate directly under the money word takes the accent and the word
+           takes the accent's ink. bandKnockout's band had been rewritten to a
+           neutral by the engine's own passes before the swap, so "neutral stays
+           neutral" handed the owner a white slab with a black word on it, next
+           to a second white slab. A knockout band is the theme's loudest
+           surface; it has to be in the theme's colour. */
+        /* PLATE SHAPES. Every band on every card had the layout's own corner
+           radius, so the whole set read as the same box over and over. A
+           single-line plate takes the card's shape: soft, round, pill, oval,
+           slant or square. Panels keep their corners. */
+        if ((c.kind === 'rect' || c.kind === 'rrect') && c.props && (c.props.height || 0) <= 210 && (c.props.width || 0) >= 200 && !c.__cursor){
+          const SHAPES = ['soft','pill','round','slant','square','pill'];
+          const shape = SHAPES[seed % SHAPES.length], h0 = c.props.height || 0;
+          delete c.props.ry; delete c.props.skewX;
+          if (shape === 'soft') c.props.rx = 16;
+          else if (shape === 'round') c.props.rx = Math.min(44, h0 / 2);
+          else if (shape === 'pill') c.props.rx = h0 / 2;
+          else if (shape === 'square') c.props.rx = 0;
+          else if (shape === 'slant'){ c.props.rx = 6; c.props.skewX = -12; }
+          else if (shape === 'oval'){ c.props.rx = (c.props.width || 0) / 2; c.props.ry = h0 / 2; c.__padX = Math.round((c.props.width || 0) * 0.16); }
+          c.__shape = shape;
+        }
+        if (c.kind === 'rect' && money && money.props){
+          const mx = money.props.left || 0, fs = money.props.fontSize || 40;
+          const ty0 = (money.props.top || 0) - (money.props.originY === 'center' ? fs*0.5 : 0), ty1 = ty0 + fs;
+          const L0 = c.props.left||0, T0 = c.props.top||0, W0 = c.props.width||0, H0 = c.props.height||0;
+          const under = W0 > 300 && mx >= L0 - 12 && mx <= L0 + W0 + 12 && ty1 > T0 && ty0 < T0 + H0;
+          if (under && H0 <= fs * 2.1){
+            /* BANDS only: a ticket or card also contains the money word, and
+               painting a whole ticket in the accent gave a pink slab on a teal
+               photo. A band takes the accent; a tall plate keeps its tone.
+               solid: buildLayer paints any unmarked hex rect at 45% (app.js:2316).
+               lock: the mapper below must not re-derive this — that is exactly
+               how #13808d became #4cffff, three renders running. */
+            c.props.fill = th.accent; delete c.props.grad; c.solid = true; c.__moneyPlate = true; c.__lock = true;
+            /* and size the band to the word: full-bleed under CARS is a slab */
+            /* Hug the word only when the plate is a BAND (about one line tall),
+               and centre on the word's real centre — the money word is often
+               left-aligned, and centring a plate on its left edge parked it
+               half off the canvas. A tall lower-third panel keeps its width. */
+            const est = (money.text || '').length * fs * 0.62 + fs * 1.2;
+            const ox = money.props.originX || 'left';
+            const wcx = ox === 'center' ? mx : ox === 'right' ? mx - est/2 : mx + est/2;
+            const isBand = H0 <= fs * 2.1;
+            if (isBand && est < W0 * 0.72){ const nw = Math.max(est, 320); c.props.left = wcx - nw/2; c.props.width = nw; }
+            /* "box is too large": the band is the word plus a fixed margin in
+               BOTH directions, not the slab the layout shipped with */
+            if (isBand && H0 > fs * 1.45){ const nh = Math.round(fs * 1.3); c.props.top = (ty0 + ty1) / 2 - nh / 2; c.props.height = nh; }
+            /* "maybe make it golden": the money band under GOLD is gold */
+            if (cat === 'gold'){ c.props.grad = { c1:'#f9e27a', c2:'#c9950f', a:100 }; c.props.fill = '#d9a92a'; c.__metal = '#1a1408'; }
+            if (cat === 'silver'){ c.props.grad = { c1:'#f2f4f6', c2:'#9aa3ad', a:100 }; c.props.fill = '#c7ccd2'; c.__metal = '#101418'; }
+          }
+        }
+        /* Role-assigned colours are LOCKED from the mapper. This block runs
+           after the money-word and money-plate assignments above, and without
+           the lock it took the accent they had just set, failed to find it in
+           the palette table, and re-derived it — a #13808d teal band came out
+           #4cffff. Debugged by dumping the layer, not by guessing. */
+        if (!c.__lock) ['fill','stroke','backgroundColor'].forEach(k => { if (c.props[k] !== undefined) c.props[k] = f(c.props[k]); });
+        if (c.props.grad && !c.__lock){ c.props.grad = Object.assign({}, c.props.grad);
+          c.props.grad.c1 = f(c.props.grad.c1); c.props.grad.c2 = f(c.props.grad.c2); }
+        if (c.props.shadow && c.props.shadow.color) c.props.shadow = Object.assign({}, c.props.shadow, { color: f(c.props.shadow.color) });
+        // type follows the theme too, or it is not a theme
+        if (typeof c.text === 'string'){
+          const big = (c.props.fontSize || 0) >= 70;
+          c.props.fontFamily = c.role === 'phone' ? th.faces.num
+            : (big || c.role === 'headline') ? th.faces.display : th.faces.support;
+          /* a bent line needs a plain letterform: Faster One on the wave was
+             "font to curve illegible". Wave, arc and skewed lines take a clean
+             condensed face whatever the theme's display face is. */
+          const warped = /Wave|Arc|Curve|Bend/i.test(c.name || '') || c.props.path || Math.abs(c.props.skewX || 0) > 4 || Math.abs(c.props.skewY || 0) > 4;
+          const DECOR = /Faster One|Sedgwick|Rubik|Wallpoet|Freckle|Nosifer|Creepster|Bungee|Rye|Fascinate|Luckiest|Shrikhand|Special Elite|Press Start|Pirata|Kaushan|Knewave|Bangers|Permanent|Kalam|Patrick|Shadows|Gloria|Nanum|Architects|Amatic|Cabin Sketch|Instrument Serif|Cormorant/i;
+          if (warped && DECOR.test(c.props.fontFamily)) c.props.fontFamily = ['Oswald','Big Shoulders Display','Barlow Condensed'][seed % 3];
+          /* a heavy decorative face carries a WORD, not a sentence: ANY WRITTEN
+             OFFER in Faster One was a stripe — "not legible". Past the face's
+             limit the line falls back to a condensed face. */
+          const LIMIT = { 'Faster One':8, 'Nosifer':9, 'Creepster':10, 'Rubik Wet Paint':11, 'Rubik Marker Hatch':11, 'Rubik Dirt':11,
+            'Rubik Doodle Shadow':10, 'Rubik Iso':10, 'Bungee Shade':10, 'Fascinate':10, 'Press Start 2P':10, 'Wallpoet':10,
+            'Rye':12, 'Sedgwick Ave Display':12, 'Sedgwick Ave':14, 'Freckle Face':12, 'Shrikhand':12, 'Luckiest Guy':14, 'Bangers':16,
+            'Special Elite':16, 'Cabin Sketch':12, 'Pirata One':8, 'Big Shoulders Stencil Display':14, 'Kaushan Script':16, 'Knewave':14 };
+          const lim = LIMIT[c.props.fontFamily];
+          if (lim && String(c.text).split('\n').some(x => x.trim().length > lim)) c.props.fontFamily = ['Oswald','Big Shoulders Display','Barlow Condensed'][seed % 3];
+          if (TRACK[c.props.fontFamily] !== undefined) c.props.charSpacing = TRACK[c.props.fontFamily];
+          /* a glow on a condensed face fills its counters and it stops being
+             readable — COINS in Big Shoulders with a bloom was the example */
+          if (/Oswald|Big Shoulders|Barlow Condensed|Teko|Saira Condensed|Russo One|Squada One|Anton|Bebas|Khand|League Gothic|Press Start|Bungee|Pirata|Faster One|Rubik/i.test(c.props.fontFamily) && c.props.shadow){
+            const sh = c.props.shadow; if ((sh.blur || 0) > 8 && !(sh.offsetX || sh.offsetY)) delete c.props.shadow;
+          }
+        }
+        if (c.kind === 'cutout' && cutSrc) c.props.src = cutSrc;
+        /* the copy follows the device line too: a template built for the coarse
+           "phones" deck says iPHONE, which is wrong the moment the product is a
+           Galaxy or a Pixel. Headline, kicker, items and price all move. */
+        if (deck && typeof c.text === 'string'){
+          /* A layer is sized, positioned and often back-plated for the exact
+             string it was authored with. "LICENSED BUYER" -> "LICENSED APPLE
+             BUYER" is 40% longer, and the angled highlight behind it ran off
+             the left edge of the canvas. Only swap copy that fits the space the
+             design already allows for. */
+          const fits = t => typeof t === 'string' && t.length <= c.text.length * 1.15 + 2;
+          const put = t => { if (fits(t)) c.text = t; };
+          if (c.role === 'headline'){
+            if (/^(SELL YOUR|CASH FOR|WE BUY|SPORTS)$/i.test(c.text.trim())){
+              /* metals: "cash out" and "cash in" read as what the customer is
+                 doing; the opener rotates through them */
+              const METAL = { gold:['CASH FOR','CASH OUT YOUR','CASH IN YOUR','WE BUY'], silver:['CASH FOR','CASH OUT YOUR','WE BUY','CASH IN YOUR'], coins:['WE BUY','CASH OUT YOUR','CASH IN YOUR','CASH FOR'] };
+              c.text = (!deck.challengePromise && METAL[cat]) ? METAL[cat][seed % 4] : deck.h1;
+            }
+            else if (deck.challengePromise ? (l === money) : /IPHONE|PHONE/i.test(c.text)) c.text = deck.h2;
+            // the money word alone in a card says what we are: GOLD BUYER
+            if (heads.length === 1 && l === money && !deck.challengePromise && !/BUYER/i.test(c.text)) c.text = c.text.trim() + ' BUYER';
+          }
+          // the kicker: short, rotated; in challenge mode it is the question
+          if (c.name === 'Kicker' || /LICENSED .*BUYER|APPLE BUYER|COLLECTIONS WANTED/i.test(c.text)
+              || (c.role === 'sub' && (c.props.top || 0) < 130 && (c.props.fontSize || 40) < 56)){
+            const pool = KICKERS[deck.cuts && /iphone|ipad|mac|watch/.test(deck.cuts[0]) ? 'apple' : cat] || KICKERS.apple;
+            c.text = deck.challengePromise ? deck.k : pool[seed % pool.length];
+          }
+          // "$1,100" in a tile is a flat promise; the shop pays UP TO that
+          if (/^\$[\d,]+\+?$/.test(c.text.trim()) && /Tile Big|Big Number|Price Big|Anchor/i.test(c.name || '')) c.text = 'UP TO ' + c.text.trim();
+
+          /* The list is authored to a length: the strips deck's seven brands
+             ran to 78 characters on a 36-character line, and the frame clamp
+             then shrank it to 30px across the whole width. Keep brands from
+             the front until the line is about as long as the one it replaces
+             (never fewer than two). */
+          const trimList = (items, maxLen) => {
+            const tok = String(items || '').split('•').map(t => t.trim()).filter(Boolean);
+            let keep = tok.slice(0, 2);
+            for (let q = 2; q < tok.length; q++){ const next = keep.concat(tok[q]).join(' • '); if (next.length > maxLen) break; keep.push(tok[q]); }
+            return keep.join(' • ');
+          };
+          /* …and never longer than the frame can show at the authored size: a
+             strips template authored WITH the long list still shrank it. A
+             single line gets 82% of the width at ~0.52em per character; a
+             wrapping textbox may take two lines. */
+          if (/^Items|^Info Text/i.test(c.name || '')){
+            const perLine = Math.floor(W * 0.82 / ((c.props.fontSize || 40) * 0.52));
+            const cap = c.kind === 'textbox' ? perLine * 2 : perLine;
+            c.text = trimList(deck.items, Math.min(cap, Math.max(c.text.length * 1.15 + 2, 36)));
+          }
+          /* the HUD chip is a two-line data readout; the base deck's own pair
+             ("iPhone / iPad") stayed on an iPad ad because nothing swapped it */
+          /* reviewProof's "Who" stack listed IPHONE 17 / GALAXY / PIXEL under
+             every quote, at 19px — the base template's own copy. It takes the
+             deck's first three items, one per line, at a readable size. */
+          /* under a quote: who said it and where — a pin, a first name and
+             initial, city and state. (The studio fills this from the shop's
+             real reviews; these rotate as placeholders.) */
+          if (c.name === 'Who'){
+            const NAMES = ['Marcus T.','Priya R.','Danny O.','Alyssa M.','Jordan K.','Rosa V.','Kevin L.','Tasha B.','Miguel S.','Erin W.'];
+            const CITIES = ['Long Beach, CA','Lakewood, CA','Downey, CA','Carson, CA','Torrance, CA','Cerritos, CA','Bellflower, CA','Signal Hill, CA'];
+            c.text = NAMES[seed % NAMES.length] + '  ·  ' + CITIES[(seed * 3 + 1) % CITIES.length];
+            c.props.fontSize = Math.max(26, c.props.fontSize || 26);
+            c.props.originX = 'center'; c.props.left = W / 2; c.props.charSpacing = 20; c.props.fontWeight = '600';
+            c.__reviewer = true;
+          }
+          if (c.name === 'Data Line' && deck.items){
+            const tok = String(deck.items).split('•').map(t => t.trim()).filter(Boolean);
+            c.text = tok[0] + '\n' + tok.slice(1, 3).join(' · ');
+          }
+          // exact name only: /Price/i also matched the kicker above it, so the
+          // same sentence printed twice in different sizes
+          if (c.name === 'Price Line' && deck.price) c.text = deck.price;
+        }
+      }
+      return c;
+    });
+    /* "add a cursor icon near website so people know what it is" — and the
+       line itself at full ink, not the 45% ghost the library ships */
+    { const web = t2.layers.find(l => l.role === 'website' && typeof l.text === 'string');
+      if (web && web.props){
+        const q = String(web.props.fill || '').match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+        if (q) web.props.fill = '#' + [1,2,3].map(k => (+q[k]).toString(16).padStart(2,'0')).join('');
+        web.props.opacity = 1;
+        const fs = web.props.fontSize || 26, est = String(web.text).length * fs * 0.56;
+        const ox = web.props.originX || 'left', lx = web.props.left || 0;
+        const x0 = ox === 'center' ? lx - est / 2 : ox === 'right' ? lx - est : lx;
+        const size = Math.round(fs * 1.35);
+        const mark = seed % 2 === 0 ? 'arrowRight' : 'globe';
+        t2.layers.push({ kind:'path', icon:mark, name:'Cursor', role:'deco', __cursor:true,
+          props:{ left: x0 - size - 10, top: (web.props.top || 0) - (web.props.originY === 'center' ? size/2 : 1), size, fill: web.props.fill } });
+      } }
+    { const who = t2.layers.find(l => l.__reviewer);
+      if (who && who.props){
+        const fs = who.props.fontSize || 26, est = String(who.text).length * fs * 0.52, size = Math.round(fs * 1.25);
+        t2.layers.push({ kind:'path', icon:'pin', name:'Pin', role:'deco', __cursor:true,
+          props:{ left: W / 2 - est / 2 - size - 8, top: (who.props.top || 0) - 2, size, fill: who.props.fill } });
+      } }
+    { const metal = t2.layers.find(l => l.__metal);
+      if (metal){
+        const mw = t2.layers.find(l => l.role === 'headline' && typeof l.text === 'string' && /GOLD|SILVER/i.test(l.text) && (l.props.fontSize || 0) >= 70);
+        if (mw){ mw.props.fill = metal.__metal; delete mw.props.grad; mw.props.opacity = 1; mw.__lock = true; if (mw.props.shadow) delete mw.props.shadow; }
+      } }
+    /* the decorative-face limits again, now that the copy is final: the
+       in-map check saw iPHONE (6) where TCGPLAYER'S (11) ended up */
+    { const LIMIT2 = { 'Faster One':8, 'Nosifer':9, 'Creepster':10, 'Rubik Wet Paint':11, 'Rubik Marker Hatch':11, 'Rubik Dirt':11,
+        'Rubik Doodle Shadow':10, 'Rubik Iso':10, 'Bungee Shade':10, 'Fascinate':10, 'Press Start 2P':10, 'Wallpoet':10,
+        'Rye':12, 'Sedgwick Ave Display':12, 'Sedgwick Ave':14, 'Freckle Face':12, 'Shrikhand':12, 'Luckiest Guy':14, 'Bangers':16,
+        'Special Elite':16, 'Cabin Sketch':12, 'Pirata One':8, 'Big Shoulders Stencil Display':14, 'Kaushan Script':16, 'Knewave':14 };
+      const fb = ['Oswald','Big Shoulders Display','Barlow Condensed'][seed % 3];
+      let headFell = false;
+      t2.layers.forEach(l => { if (typeof l.text !== 'string' || !l.props) return;
+        const lim = LIMIT2[l.props.fontFamily];
+        if (lim && String(l.text).split('\n').some(x => x.trim().length > lim)){ l.props.fontFamily = fb; if (l.role === 'headline') headFell = true; } });
+      /* one sentence, one face: if any headline line fell back, they all do */
+      if (headFell) t2.layers.forEach(l => { if (l.role === 'headline' && l.props && typeof l.text === 'string') l.props.fontFamily = fb; }); }
+    /* WE BEAT / CARVANA'S / TRADE-IN OFFER is one sentence. The third line
+       lives in the items slot, which is styled as small italic info — "almost
+       looks like it's not there". Same sentence, same face, same colour as
+       line two: "keep it purple". */
+    if (deck && deck.tail && deck.tailText){
+      const h2 = t2.layers.find(l => l.role === 'headline' && typeof l.text === 'string' && l.text.trim() === String(deck.h2).trim());
+      const h1 = t2.layers.find(l => l.role === 'headline' && l !== h2 && typeof l.text === 'string' && /^(WE BEAT|WE TOP|WE OUTBID)$/i.test(l.text.trim()));
+      if (h2 && h1){
+        const hp = h2.props || {};
+        /* THREE HEADLINE LINES, ONE FACE. The header may run to three lines;
+           the third never goes into an info line ("kind of makes confusion"),
+           and every line is set in the same face — a sentence that changes
+           face mid-way loses its last three words, which are the ones that
+           matter. Colour: line one keeps its own, line three takes line two's. */
+        const face = hp.fontFamily;
+        h1.props.fontFamily = face;
+        // a third headline line already in the layout (BUYER) is reused
+        let tail = t2.layers.find(l => l.role === 'headline' && l !== h1 && l !== h2 && typeof l.text === 'string' && /^BUYER$/i.test(l.text.trim()));
+        /* the stack is tight: when line one is above line two, line two sits
+           right under it whatever size line one ends up — the authored gap
+           was for the authored size, and "line skip looks odd" */
+        const warped2 = /Wave|Arc|Curve|Bend/i.test(h2.name || '') || h2.props.path || Math.abs(h2.props.skewX || 0) > 4 || Math.abs(h2.props.angle || 0) > 4;
+        const LEAD2 = warped2 ? 1.5 : 1.14;             // a bent line's box is far taller than its size
+        const stacked = !warped2 && (h2.props.top || 0) > (h1.props.top || 0) + 20;
+        const settle = () => { if (stacked) h2.props.top = (h1.props.top || 0) + (h1.props.fontSize || 100) * 1.1; };
+        settle();
+        /* line three is set like line one — small / BIG / small — and sits
+           tight under line two; a smaller tail with a skip "looks odd" */
+        const fs = Math.max(34, Math.min(h1.props.fontSize || 999, Math.round((hp.fontSize || 160) * 0.5)));
+        if (!tail){
+          tail = { kind:'text', role:'headline', name:'Headline 3', text:'', props:{} };
+          t2.layers.splice(t2.layers.indexOf(h2) + 1, 0, tail);
+        }
+        tail.text = String(deck.tailText).toUpperCase();
+        tail.props = Object.assign({}, tail.props, {
+          fontFamily: face, fontWeight: hp.fontWeight || '800', fontStyle: 'normal', fill: hp.fill, charSpacing: hp.charSpacing || 0,
+          fontSize: fs, originX: hp.originX || 'left', originY: 'top', left: hp.left, top: (hp.top || 0) + (hp.fontSize || 100) * LEAD2,
+          shadow: hp.shadow ? Object.assign({}, hp.shadow) : undefined });
+        if (hp.grad) tail.props.grad = hp.grad;
+        if (hp.stroke){ tail.props.stroke = hp.stroke; tail.props.strokeWidth = (hp.strokeWidth || 0) * 0.42; }
+        tail.__lock = true; tail.__pinned = true;
+        /* room under line two: when short, lines one and two give up 15% */
+        /* the room is to whatever comes next — the checklist rows, the items
+           pill, the CTA — not to the bottom of the frame */
+        const h2bottom = () => (h2.props.top || 0) + (h2.props.fontSize || 100) * LEAD2;
+        const nextTop = Math.min(H - 42, ...t2.layers.filter(l => l !== tail && l !== h1 && l !== h2 && l.props && typeof l.text === 'string' && l.role !== 'badges' && !(l.role === 'deco' && (l.props.fontSize || 0) < 30)
+          && (l.props.top || 0) > (h2.props.top || 0) + 20).map(l => (l.props.top || 0) - ((l.props.originY === 'center') ? (l.props.fontSize || 30) / 2 : 0) - 14));
+        const room = () => nextTop - h2bottom();
+        if (room() < fs * 1.2){
+          /* lines one and two give up what the tail needs, down to 70% */
+          let guard = 0;
+          while (room() < Math.max(30, Math.min(fs, Math.round((h2.props.fontSize || 100) * 0.42))) * 1.2 && guard++ < 8 && (h2.props.fontSize || 100) > (hp.fontSize || 100) * 0.7)
+            { [h1, h2].forEach(l => { l.props.fontSize = Math.round((l.props.fontSize || 100) * 0.94); }); settle(); }
+          tail.props.top = (h2.props.top || 0) + (h2.props.fontSize || 100) * LEAD2;
+          tail.props.fontSize = Math.max(30, Math.min(fs, Math.floor(room() / 1.2)));
+        }
+      }
+    }
+    /* "I don't know if being insured is a selling point, maybe for car
+       buyers, not metal buyers": INSURED stays on cars only; elsewhere the
+       seal becomes one the category can claim. */
+    if (cat !== 'cars'){
+      const SWAP = { gold:'DISCREET', silver:'DISCREET', coins:'DISCREET', strips:'PRIVATE', pokemon:'TRUSTED', sports:'TRUSTED', phones:'TRUSTED' };
+      const alt = SWAP[cat] || 'TRUSTED';
+      t2.layers.forEach(l => { if (typeof l.text !== 'string' || !/INSURED/i.test(l.text)) return;
+        const lines = l.text.split('\n'), others = lines.map(x => x.trim().toUpperCase());
+        l.text = lines.map(x => /INSURED/i.test(x) ? x.replace(/INSURED/i, others.includes(alt) ? 'BONDED' : alt) : x).join('\n'); });
+    }
+    /* EMPTY DISC GETS A TICK — as a LAYER, once. The engine's own passes strip
+       the glyph layers out of the checklist rows before this lab sees them, so
+       the discs arrived empty. Injecting during paint() re-added them on every
+       one of the several paints per card and stacked strays down the left
+       edge; a layer added here is built like any other and painted once. */
+    const added = [];
+    t2.layers.forEach(l => {
+      if (l.kind !== 'circle' || !l.props) return;
+      const r = l.props.radius || 0; if (r < 12 || r > 40) return;
+      const cx = (l.props.left || 0) + r, cy = (l.props.top || 0) + r;
+      const has = t2.layers.some(g => typeof g.text === 'string' && g.props &&
+        Math.hypot(((g.props.left || 0) + (g.props.originX === 'center' ? 0 : 10)) - cx,
+                   ((g.props.top || 0) + (g.props.originY === 'center' ? 0 : 10)) - cy) < 22);
+      if (!has) added.push({ kind:'text', name:'Tick Mark', role:'deco', text:'✓',
+        props:{ left:cx, top:cy, originX:'center', originY:'center', fontFamily:'Satoshi',
+                fontSize: Math.round(r * 1.25), fontWeight:'900', fill:'#101014' } });
+    });
+    t2.layers.push(...added);
+    return t2;
+  }
+
+  /* A cutout's place is decided before it is built. Clamping the built
+     object came too late for the product on lowerThird, which kept bleeding
+     off the top-left. Its props are plain numbers; keep them inside a margin
+     and it cannot leave the frame. Width doubles as height, which is the
+     worst case for these assets. */
+  function keepCutoutsInFrame(t2){
+    /* A clamp that only pushes ends up parking every product in the top-left
+       corner at (40,40) and cropping whatever is bigger than it guessed —
+       which is what the owner saw across a whole page of lowerThird cards.
+       So: use the asset's REAL proportions, and when a product would have to
+       be pushed, re-home it — centred horizontally in the open band above the
+       lowest wide panel, sized to that band — rather than shoved. */
+    const M = 40;
+    // the top of the lowest wide panel: the product must stay above it
+    let panelTop = H;
+    t2.layers.forEach(l => {
+      if ((l.kind === 'rect' || l.kind === 'rrect') && l.props && (l.props.width || 0) > W * 0.6 && (l.props.height || 0) > 140){
+        const t = l.props.top || 0; if (t > H * 0.35 && t < panelTop) panelTop = t;
+      }
+    });
+    t2.layers.forEach(l => {
+      if (l.kind !== 'cutout' || !l.props || l.__wall) return;
+      const el = CUTOUT_ELS[l.props.src];
+      const aspect = el && el.width ? el.height / el.width : 1;
+      let w = l.props.w || 400, ox = l.props.originX || 'left';
+      const a = Math.abs((l.props.angle || 0) * Math.PI / 180);
+      const grow = Math.abs(Math.sin(a)) + Math.abs(Math.cos(a));
+      const roomH = panelTop - M * 2;                       // vertical room above the panel
+      const maxW = Math.min((W - M*2) / grow, roomH / (aspect * grow));
+      if (w > maxW) w = Math.max(160, maxW);
+      const h = w * aspect;
+      let left = l.props.left || 0, top = l.props.top || 0;
+      const x0 = ox === 'right' ? left - w : ox === 'center' ? left - w/2 : left;
+      const offends = x0 < M || x0 + w > W - M || top < M || top + h > panelTop - M;
+      if (offends){
+        // re-home: centred in the open band above the panel
+        l.props.originX = 'center';
+        l.props.left = W / 2;
+        l.props.top = Math.max(M, (panelTop - h) / 2);
+      }
+      /* "feels incomplete": a small product floating over an empty upper
+         half. When the only text up there is the badge stack, the product
+         takes 80% of the room above the panel, centred. */
+      if (panelTop < H * 0.8){
+        const textUp = t2.layers.some(x => typeof x.text === 'string' && x.role !== 'badges' && x.props && (x.props.top || 0) < panelTop - 20 && x.kind !== 'path');
+        const roomH2 = panelTop - M * 2;
+        if (!textUp && h < roomH2 * 0.6){
+          const w2 = Math.min((W - M*2) * 0.8 / grow, roomH2 * 0.85 / (aspect * grow));
+          if (w2 > w){ w = w2; l.props.originX = 'center'; l.props.left = W / 2; l.props.top = Math.max(M, (panelTop - w * aspect) / 2); }
+        }
+      }
+      l.props.w = w;
+    });
+  }
+  /* CATEGORY SIGNATURE. Owner, 2026-09-02, on a page of scriptRetro cards:
+     "differing categories but no difference in theme style. Each theme should
+     be 100% unique to each category.. maybe we can have similar ones or
+     variations but not the exact same set up or it starts to look generic."
+     The same layout reached every category in the same setup; only the copy
+     and the palette changed. Each category now owns a setup — where the stack
+     sits, what the ornament is, whether the kicker tilts, the plate shape and
+     which palette tone carries the plates — and one card in three takes the
+     category's variation, so a category is a family rather than a stamp. */
+  const SIG = {
+    phones:  { align:'center', alt:'left',   divider:'━━━━━━━━━━',  kick:0,  frame:null,     plate:'pill',   plateAlt:'soft',   tone:'accent2', tone2:'support' },
+    cars:    { align:'left',   alt:'center', divider:'▶ ▶ ▶',       kick:0,  frame:'bar',    plate:'slant',  plateAlt:'square', tone:'accent',  tone2:'accent3' },
+    gold:    { align:'center', alt:'left',   divider:'═══ ◆ ═══',   kick:0,  frame:'double', plate:'square', plateAlt:'soft',   tone:'accent3', tone2:'support' },
+    silver:  { align:'right',  alt:'center', divider:'── ◇ ──',     kick:0,  frame:'single', plate:'soft',   plateAlt:'square', tone:'support', tone2:'accent2' },
+    coins:   { align:'left',   alt:'center', divider:'•  •  •',     kick:0,  frame:'dotted', plate:'round',  plateAlt:'pill',   tone:'accent3', tone2:'accent2' },
+    pokemon: { align:'center', alt:'right',  divider:'★ ★ ★ ★ ★',   kick:-6, frame:null,     plate:'pill',   plateAlt:'round',  tone:'support', tone2:'accent2' },
+    sports:  { align:'left',   alt:'center', divider:'━━ ● ━━',     kick:4,  frame:'corner', plate:'square', plateAlt:'slant',  tone:'accent',  tone2:'support' },
+    strips:  { align:'center', alt:'right',  divider:'──────────',  kick:0,  frame:'single', plate:'soft',   plateAlt:'pill',   tone:'accent2', tone2:'accent3' },
+  };
+  ICONS.corner = { d: 'M12 46 V12 H46', sw: 9 };
+  const toneOf = (th, k) => th[k] || th.accent;
+  const inkOfTone = (th, k) => th['on' + k.charAt(0).toUpperCase() + k.slice(1)] || th.onAccent || '#141110';
+  const contains = (r, x, y) => x >= (r.left || 0) && x <= (r.left || 0) + (r.width || 0) && y >= (r.top || 0) && y <= (r.top || 0) + (r.height || 0);
+  const anchorOf = l => { const p = l.props, fs = p.fontSize || 40; return [p.left || 0, (p.top || 0) + (p.originY === 'center' ? 0 : fs * 0.5)]; };
+  function signature(t2, cat, seed, th){
+    const s = SIG[cat] || SIG.phones;
+    const vary = seed % 3 === 2;
+    const align = /reviewProof/.test(t2.id || '') ? 'center' : (vary ? s.alt : s.align), shape = vary ? s.plateAlt : s.plate;
+    const M = 72, near = (a, b, d) => Math.abs(a - b) <= d;
+    const tone = toneOf(th, s.tone), onTone = inkOfTone(th, s.tone);
+    const tone2 = toneOf(th, s.tone2), onTone2 = inkOfTone(th, s.tone2);
+    const isPlate = l => (l.kind === 'rect' || l.kind === 'rrect') && l.props && (l.props.width || 0) >= 200 && (l.props.height || 0) <= 210 && !l.__cursor;
+    t2.layers.forEach(l => {
+      if (!l.props) return;
+      const p = l.props, isText = typeof l.text === 'string';
+      /* where the stack sits */
+      if (align !== 'center' && isText && l.role !== 'website' && l.role !== 'badges' && !p.path && !/^Chip|^Who|^Review|^Stars|^Rating|^CTA$|^Phone Number|^Seal Line|^Point /.test(l.name || '')
+          && (p.originX || 'left') === 'center' && near(p.left || 0, W / 2, 60)){
+        p.originX = align; p.left = align === 'left' ? M : W - M;
+        if (l.kind === 'textbox') p.textAlign = align;
+      }
+      /* a plate's centre depends on its origin: the kicker ribbon is drawn
+         with originX 'center', and reading its `left` as a left edge put its
+         centre 215px right of where it was — so the kicker text moved to the
+         margin and the ribbon stayed put in the middle of the card, the
+         "poor alignment of the top box" the owner sent (2026-09-02) */
+      if (align !== 'center' && isPlate(l) && !/^Chip|^Rate|^Review/.test(l.name || '') && (p.width || 0) < W * 0.86){
+        const pw = p.width || 0, pox = p.originX || 'left';
+        const pcx = pox === 'center' ? (p.left || 0) : pox === 'right' ? (p.left || 0) - pw / 2 : (p.left || 0) + pw / 2;
+        if (near(pcx, W / 2, 60)){
+          const edge = align === 'left' ? M - 28 : W - M + 28 - pw;      // the plate's LEFT edge
+          p.left = pox === 'center' ? edge + pw / 2 : pox === 'right' ? edge + pw : edge;
+        }
+      }
+      if (align !== 'center' && l.kind === 'cutout' && (p.originX || 'left') === 'center' && near(p.left || 0, W / 2, 60)){
+        p.originX = align === 'left' ? 'right' : 'left'; p.left = align === 'left' ? W - M : M;
+      }
+      /* the ornament is the category's, not the layout's */
+      if (isText && l.role === 'deco' && l.name !== 'Stars' && /[★—─•]/.test(l.text) && !/[A-Za-z0-9]/.test(l.text)) l.text = s.divider;
+      /* the kicker tilts where the category is playful */
+      if (isText && l.name === 'Kicker' && s.kick) p.angle = s.kick;
+      /* the plate shape is the category's */
+      if (l.__shape){
+        const h0 = p.height || 0; delete p.ry; delete p.skewX;
+        if (shape === 'soft') p.rx = 16; else if (shape === 'round') p.rx = Math.min(44, h0 / 2);
+        else if (shape === 'pill') p.rx = h0 / 2; else if (shape === 'square') p.rx = 0;
+        else if (shape === 'slant'){ p.rx = 6; p.skewX = -12; }
+        l.__shape = shape;
+      }
+    });
+    /* the palette, all of it: the money band already carries the accent; the
+       phone plate takes the category's tone and the kicker plate the second,
+       each with the ink that reads on it. That is how a Blue Market card
+       shows Blue Market's red instead of a stray mint. */
+    const phone = t2.layers.find(l => l.role === 'phone' && typeof l.text === 'string' && l.props);
+    if (phone){
+      const [x, y] = anchorOf(phone);
+      const plate = t2.layers.find(l => isPlate(l) && !l.__moneyPlate && contains(l.props, x, y));
+      if (plate){ plate.props.fill = tone; plate.solid = true; plate.__lock = true; delete plate.props.grad; plate.props.opacity = 1;
+        phone.props.fill = onTone; phone.__lock = true; delete phone.props.grad; }
+    }
+    const kicker = t2.layers.find(l => l.name === 'Kicker' && typeof l.text === 'string' && l.props);
+    if (kicker){
+      const [x, y] = anchorOf(kicker);
+      const plate = t2.layers.find(l => (l.kind === 'rect' || l.kind === 'rrect') && l.props && !l.__moneyPlate && (l.props.height || 0) <= 140 && (l.props.width || 0) < W * 0.7 && contains(l.props, x, y));
+      if (plate){ plate.props.fill = tone2; plate.solid = true; plate.__lock = true; delete plate.props.grad; plate.props.opacity = 1;
+        kicker.props.fill = onTone2; kicker.__lock = true; }
+    }
+  }
+  /* the frame device, added LAST so the band-filling and repair passes never
+     see it as a panel or a collision */
+  function frameFor(t2, cat, seed, th){
+    const s = SIG[cat] || SIG.phones; if (!s.frame || seed % 3 === 2) return;
+    const tone = toneOf(th, s.tone2);
+    const rect = (inset, sw, extra) => ({ kind:'rect', name:'Frame', role:'frame', solid:true,
+      props: Object.assign({ left:inset, top:inset, width:W - inset * 2, height:H - inset * 2, fill:'rgba(0,0,0,0)', stroke:tone, strokeWidth:sw, opacity:0.9 }, extra || {}) });
+    if (s.frame === 'single') t2.layers.push(rect(24, 4));
+    else if (s.frame === 'double'){ t2.layers.push(rect(22, 3)); t2.layers.push(rect(34, 1.5)); }
+    else if (s.frame === 'dotted') t2.layers.push(rect(24, 4, { strokeDashArray:[4, 14], strokeLineCap:'round' }));
+    else if (s.frame === 'bar') t2.layers.push({ kind:'rect', name:'Frame', role:'frame', solid:true,
+      props:{ left:0, top:H - 16, width:W, height:16, fill:tone, opacity:1 } });
+    else if (s.frame === 'corner'){
+      const size = 96, m = 22;
+      [[m, m, 0], [W - m - size, m, 90], [W - m - size, H - m - size, 180], [m, H - m - size, 270]].forEach(([x, y, a]) =>
+        t2.layers.push({ kind:'path', icon:'corner', name:'Frame', role:'frame', props:{ left:x, top:y, size, fill:tone, angle:a, opacity:0.9 } }));
+    }
+  }
+  function paint(t2, ghostText){
+    keepCutoutsInFrame(t2);
+    const sc = new fabric.StaticCanvas(null, { width:W, height:H, renderOnAddRemove:false });
+    const bgi = t2.bg.type === 'image' ? freshBgImage(t2.bg.src, t2.bg.blur, null) : null;
+    if (bgi){
+      /* SINGLE-TONE FILTER. Strip the photograph to luminance, then lay the
+         theme's own colour over it. A black or white scrim over a colour photo
+         gave muddy mixes and the old palettes' duotone grades gave black-and-
+         teal murk; one tone, chosen by the theme, is clean every time and the
+         picture still reads through it as texture. */
+      /* NOT EVERY GROUND IS TONED. Owner, 2026-09-02: "doesn't have to all
+         be colored backgrounds, don't take it so absolute — some non-colour-
+         edited with a blur, as long as it's legible". `natural` keeps the
+         photograph's own colour, blurs it, and lays a NEUTRAL scrim (black on
+         a deep theme, white on a light one) instead of the theme tone. */
+      try {
+        bgi.filters = t2.bg.treat === 'natural'
+          ? [new fabric.Image.filters.Contrast({ contrast: 0.05 })]
+          : [new fabric.Image.filters.Grayscale(), new fabric.Image.filters.Contrast({ contrast: 0.08 })];
+        bgi.applyFilters();
+      } catch(e){}
+      sc.setBackgroundImage(coverImage(bgi, W, H), () => {});
+      sc.add(scrimRect(t2.bg.scrim || 0.5, W, H, t2.bg.scrimColor, 'normal'));
+    } else if (t2.bg.fallback) sc.add(bgRectFor(t2.bg.fallback, W, H));
+    const refs = [];
+    t2.layers.forEach(l => {
+      let o = null;
+      try { o = buildLayer(l, t2.id); } catch(e){}
+      if (o && l.__moneyPlate){
+        /* Force it on the BUILT object. Whatever in the build path was
+           repainting the band at 45% — the layer left here solid, with the
+           accent as its fill, and rendered as the accent over peach at 45% —
+           this is the one place the final paint cannot be overridden. */
+        o.set({ fill: l.props.fill, opacity: 1 });
+      }
+      if (o){
+        // opacity 0 keeps the object in alignPass, so the ground render lines up
+        if (ghostText && typeof l.text === 'string') o.set('opacity', 0);
+        sc.add(o);
+      }
+      refs.push(o);
+    });
+    alignPass(sc, W, H);
+    /* TEXT WINS. A layout's decoration was placed to clear the copy it was
+       authored with; swap the copy and the two can meet — neonNight's tag
+       glyph landed in the middle of "COLLECTIONS WANTED". The rule from the
+       owner is that nothing sits on text, so a deco or path that overlaps a
+       text layer is dropped rather than moved. It was decoration; the words
+       are the ad. */
+    const textBoxes = [];
+    refs.forEach((o, k) => { if (o && typeof t2.layers[k].text === 'string' && t2.layers[k].role !== 'deco')
+      textBoxes.push(o.getBoundingRect(true, true)); });
+    refs.forEach((o, k) => {
+      const l = t2.layers[k];
+      if (!o || !(l.role === 'deco' || l.kind === 'path' || l.kind === 'circle')) return;
+      const b = o.getBoundingRect(true, true);
+      const hit = textBoxes.some(t => !(b.left + b.width <= t.left || t.left + t.width <= b.left ||
+                                         b.top + b.height <= t.top || t.top + t.height <= b.top));
+      if (hit){ sc.remove(o); refs[k] = null; }
+    });
+    /* TEXT CENTRED IN ITS BOX. The owner's rule, and the one the fit pass was
+       breaking: nudging a line for the frame moved it off the band it sits on,
+       and on diagonalRush's angled bands the copy and the plate came apart by
+       inches. So for every centred line, find the single-line plate whose box
+       contains its centre and put the line at that plate's centre, at that
+       plate's angle. The plate is the truth; the text follows it. */
+    const plates = refs.map((o, k) => ({ o, l: t2.layers[k] }))
+      .filter(x => x.o && (x.l.kind === 'rect' || x.l.kind === 'rrect') && x.l.props && (x.l.props.width || 0) > 120);
+    const centred = new Set();
+    /* THE BOX HUGS THE TEXT. This is the editor behaviour the owner asked for:
+       a single-line plate is sized to its text plus a FIXED margin, every
+       time, and it is not allowed to be wider than that unless the design
+       says so. Full-width bands with a four-letter word floating in them were
+       the complaint; "excessive margin looks bad" is the rule. Where several
+       lines share one plate (the review pill, the phone card) the plate keeps
+       its size and every line sits on its centre-line. */
+    const PAD_X = 44;
+    /* a Textbox's width is the box it wraps in, not the ink: measuring the box
+       against a panel the same width shrank a 40px line to 14px */
+    const textW = o => (o.type === 'textbox' && o.calcTextWidth ? Math.min(o.width || 0, o.calcTextWidth()) : (o.width || 0)) * (o.scaleX || 1);
+    const onPlate = (o, r) => { const c = o.getCenterPoint(); const bb = r.getBoundingRect(true, true);
+      return c.x >= bb.left && c.x <= bb.left + bb.width && c.y >= bb.top && c.y <= bb.top + bb.height; };
+    const singleLine = (o, k) => o && typeof t2.layers[k].text === 'string' && !String(t2.layers[k].text).includes('\n');
+    plates.forEach(({ o: r, l: rl }) => {
+      const rh = (r.height || 0) * (r.scaleY || 1);
+      const lines = refs.map((o, k) => ({ o, k })).filter(x => singleLine(x.o, x.k) && onPlate(x.o, r));
+      if (!lines.length) return;
+      const tallest = Math.max(...lines.map(x => x.o.height || x.o.fontSize || 40));
+      /* WIDTH APPLIES TO EVERY PLATE. A panel is exempt from being resized
+         around its text, not from containing it: the price line ran off both
+         sides of a ticket because the ticket was tall enough to be "a panel"
+         and every width rule stepped aside. */
+      const innerAny = (r.width || 0) * (r.scaleX || 1) - PAD_X * 2;
+      lines.forEach(({ o }) => {
+        let guard = 0;
+        while (textW(o) > innerAny && o.fontSize > 14 && guard++ < 80){ o.set('fontSize', o.fontSize - 2); o.setCoords(); }
+      });
+      if (rh > tallest * 2.2) return;                       // a panel, not a band
+      const rc = r.getCenterPoint();
+      if (lines.length === 1 && !rl.__panel){
+        const o = lines[0].o;
+        const tw = textW(o);
+        // the plate follows the text: its width, plus the margin, centred on it
+        o.set({ originY: 'center', angle: r.angle || 0 });
+        const tc = o.getCenterPoint();
+        const padX = (rl && rl.__padX) ? Math.max(PAD_X, Math.round(tw * 0.18)) : PAD_X;
+        r.set({ width: tw + padX * 2, scaleX: 1 });
+        if (rl && rl.__shape === 'oval'){ r.set({ rx: (tw + padX * 2) / 2, ry: (r.height || 0) / 2 }); }
+        r.setPositionByOrigin({ x: tc.x, y: rc.y }, 'center', 'center'); r.setCoords();
+        o.setPositionByOrigin({ x: tc.x, y: rc.y }, 'center', 'center'); o.setCoords();
+        centred.add(lines[0].k);
+      } else {
+        const inner = (r.width || 0) * (r.scaleX || 1) - PAD_X * 2;
+        lines.forEach(({ o, k }) => {                       // shared: centre-line, x untouched
+          o.set({ originY: 'center', angle: r.angle || 0 });
+          /* a line wider than the plate's inner width shrinks to it — the
+             price line ran off both sides of the ticket while the plate,
+             holding four lines, could not follow any one of them */
+          let guard = 0;
+          while (textW(o) > inner && o.fontSize > 14 && guard++ < 80){ o.set('fontSize', o.fontSize - 2); o.setCoords(); }
+          const oc = o.getCenterPoint();
+          o.setPositionByOrigin({ x: oc.x, y: rc.y }, 'center', 'center'); o.setCoords();
+          /* and INSIDE the plate: the rating line on the review pill was
+             shrunk to the plate's width but never slid back, so it ran off
+             the right edge — "it seems to not be moving" */
+          { const pb = r.getBoundingRect(true, true), ob2 = o.getBoundingRect(true, true), padIn = 22;
+            let dx = 0;
+            if (ob2.left + ob2.width > pb.left + pb.width - padIn) dx = (pb.left + pb.width - padIn) - (ob2.left + ob2.width);
+            if (ob2.left + dx < pb.left + padIn) dx = (pb.left + padIn) - ob2.left;
+            if (dx){ o.set('left', (o.left || 0) + dx); o.setCoords(); } }
+          centred.add(k);
+        });
+      }
+    });
+    /* MULTI-LINE TEXT STAYS IN ITS PANEL. The single-line rule above centres
+       a line on a band; a list that starts inside a quote card and runs out
+       of the bottom of it is the other failure, and it is the one the owner
+       pointed at. Find the panel the text starts in; if the text's box leaves
+       it, shrink the type until it fits, and failing that, lift it. */
+    refs.forEach((o, k) => {
+      const l = t2.layers[k];
+      if (!o || typeof l.text !== 'string' || !String(l.text).includes('\n')) return;
+      const tb = o.getBoundingRect(true, true);
+      const anchor = { x: tb.left + Math.min(20, tb.width/2), y: tb.top + 6 };
+      let panel = null;
+      plates.forEach(({ o: r }) => {
+        const b = r.getBoundingRect(true, true);
+        if (anchor.x < b.left || anchor.x > b.left + b.width || anchor.y < b.top || anchor.y > b.top + b.height) return;
+        if (b.height < tb.height * 0.6) return;
+        if (!panel || b.width * b.height < panel.area) panel = { b, area: b.width * b.height };
+      });
+      if (!panel) return;
+      const pb = panel.b, pad = 14;
+      const fits = () => { const b = o.getBoundingRect(true, true);
+        return b.top + b.height <= pb.top + pb.height - pad && b.left + b.width <= pb.left + pb.width - pad; };
+      if (fits()) return;
+      /* Shrink a little, never past readability. If it still does not fit,
+         the list does not belong in that card: put it just below the panel at
+         its original size. Type at 12px is not a fix, it is a hiding place. */
+      const floor = (l.props.fontSize || 40) * 0.82;
+      let guard = 0;
+      while (!fits() && o.fontSize > floor && guard++ < 20){ o.set('fontSize', o.fontSize - 1); o.setCoords(); }
+      if (!fits()){
+        /* Lift it inside the panel first — the quote card had empty room at
+           its foot, and moving the list below it dropped it onto the chip row
+           and buried a chip. Only when the panel is genuinely too short does
+           the block go below. */
+        const b = o.getBoundingRect(true, true);
+        const lifted = pb.top + pb.height - pad - b.height;
+        if (lifted >= pb.top + pad){ o.set('top', (o.top || 0) + (lifted - b.top)); o.setCoords(); }
+        else {
+          o.set({ fontSize: l.props.fontSize || o.fontSize, top: pb.top + pb.height + 18 }); o.setCoords();
+          if (o.originX !== 'center'){ o.set('left', pb.left + pad); o.setCoords(); }
+        }
+      }
+    });
+    /* ICON ROWS. A disc and the line beside it are one row, and a row reads
+       as a row only when the text's vertical centre is the disc's. The discs
+       were sitting a touch high on every checklist — small, and exactly the
+       kind of small the eye will not forgive. For each circle, find the text
+       that starts just to its right and overlaps it vertically, and lock the
+       text's centre to the disc's. */
+    const discs = refs.map((o, k) => ({ o, l: t2.layers[k], k })).filter(x => x.o && x.l.kind === 'circle');
+    const rowDisc = new Map();                       // text index -> disc object, so rows move as units
+    refs.forEach((o, k) => {
+      const l = t2.layers[k];
+      if (!o || typeof l.text !== 'string' || o.originX === 'center') return;
+      const tb = o.getBoundingRect(true, true);
+      const d = discs.find(({ o: c }) => {
+        const cb = c.getBoundingRect(true, true);
+        const gap = tb.left - (cb.left + cb.width);
+        return gap > -4 && gap < 60 && tb.top < cb.top + cb.height + 24 && tb.top + tb.height > cb.top - 24;
+      });
+      if (!d) return;
+      const cb = d.o.getBoundingRect(true, true), cc = d.o.getCenterPoint();
+      if (String(l.text).includes('\n')){
+        /* a wrapped row hangs from the disc: first line level with the disc,
+           the rest below it. Centring a two-line block on the disc pushed its
+           first line up into the row above — "good attempt, poor execution". */
+        o.set({ originY: 'top', top: cb.top - 2 }); o.setCoords();
+      } else {
+        o.set({ originY: 'center', top: cc.y }); o.setCoords();
+      }
+      rowDisc.set(k, d.o);
+      centred.add(k);
+    });
+    /* HEADLINES ARE NOT ALLOWED TO GET WIDE. The frame clamp only stops a
+       title leaving the canvas; the owner's rule is tighter — a title that
+       reaches the edges looks bad before it clips. Headlines fit 82% of the
+       width, whatever the copy. */
+    refs.forEach((o, k) => {
+      const l = t2.layers[k];
+      if (!o || l.role !== 'headline') return;
+      let guard = 0;
+      if (o.fontSize) while (o.getBoundingRect(true, true).width > W * 0.82 && o.fontSize > 24 && guard++ < 80){ o.set('fontSize', o.fontSize - 2); o.setCoords(); }
+      /* a headline beside a column of other text (lowerThird's number and
+         CTA on the right) stops short of that column */
+      { const ob = o.getBoundingRect(true, true);
+        /* the badge stack top-right counts as a column: a wide wave pushed it
+           down the card instead of stopping short of it */
+        const rightCol = refs.map((r, q) => r && q !== k && typeof t2.layers[q].text === 'string' && t2.layers[q].role !== 'headline' && t2.layers[q].role !== 'deco' ? r.getBoundingRect(true, true) : null)
+          .filter(b => b && b.left > ob.left + 60 && b.top < ob.top + ob.height && b.top + b.height > ob.top);
+        if (rightCol.length){
+          const limit = Math.min(...rightCol.map(b => b.left)) - 28 - ob.left;
+          let g2 = 0;
+          if (o.fontSize) while (o.getBoundingRect(true, true).width > limit && o.fontSize > 40 && g2++ < 60){ o.set('fontSize', o.fontSize - 2); o.setCoords(); }
+          const bw2 = o.getBoundingRect(true, true).width;
+          if (bw2 > limit && limit > 200){ const k2 = limit / bw2, c0 = o.getCenterPoint();
+            o.set({ scaleX: (o.scaleX || 1) * k2, scaleY: (o.scaleY || 1) * k2 }); o.setPositionByOrigin({ x: c0.x - (bw2 - limit) / 2, y: c0.y }, 'center', 'center'); o.setCoords(); }
+        }
+      }
+      /* a skewed or pathed line does not narrow with its fontSize: scale it */
+      const bw = o.getBoundingRect(true, true).width;
+      if (bw > W * 0.82){ const k = W * 0.82 / bw, c0 = o.getCenterPoint();
+        o.set({ scaleX: (o.scaleX || 1) * k, scaleY: (o.scaleY || 1) * k }); o.setPositionByOrigin(c0, 'center', 'center'); o.setCoords(); }
+    });
+    /* KEEP IT IN THE FRAME. Anything that ends up outside the canvas is a
+       broken ad, whatever caused it — a longer headline, an alignPass nudge, a
+       rotated plate. Shrink to fit first (type before position), then pull the
+       whole object back inside. */
+    const M = 22;
+    refs.forEach((o, k) => {
+      if (!o) return;
+      if (centred.has(k)) return;              // it belongs to its plate now
+      let b = o.getBoundingRect(true, true);
+      if (o.fontSize){
+        let guard = 0;
+        while ((b.width > W - M*2) && o.fontSize > 12 && guard++ < 80){
+          o.set('fontSize', Math.max(12, o.fontSize - 2));
+          o.setCoords(); b = o.getBoundingRect(true, true);
+        }
+      }
+      /* An asset larger than the frame cannot be pulled inside; it has to be
+         scaled first. lowerThird's product bled off the top by design, and
+         the owner's read is the right one: it looks cropped and too big.
+         Fit it to the frame with a margin, then position it. */
+      if (!o.fontSize && (b.width > W - M*2 || b.height > H - M*2)){
+        const k = Math.min((W - M*2) / b.width, (H - M*2) / b.height);
+        o.set({ scaleX: (o.scaleX || 1) * k, scaleY: (o.scaleY || 1) * k }); o.setCoords();
+        b = o.getBoundingRect(true, true);
+      }
+      let dx = 0, dy = 0;
+      if (b.left < M) dx = M - b.left;
+      if (b.left + b.width > W - M) dx = Math.min(dx, (W - M) - (b.left + b.width));
+      if (b.top < M) dy = M - b.top;
+      if (b.top + b.height > H - M) dy = Math.min(dy, (H - M) - (b.top + b.height));
+      if (dx || dy){ o.set({ left: (o.left || 0) + dx, top: (o.top || 0) + dy }); o.setCoords(); }
+
+    });
+    /* NO TEXT ON TEXT. After every other pass, any two text lines that still
+       overlap get separated: the one that is not a headline moves down until
+       it clears, and if there is no room below it moves up instead. The
+       number crashing into "SELL YOUR" was the plate-agreement pass moving the
+       number's plate and the number with it; whatever the cause, this is the
+       backstop the owner has asked for three times. */
+    const texts = refs.map((o, k) => ({ o, l: t2.layers[k] })).filter(x => x.o && typeof x.l.text === 'string' && x.l.role !== 'deco');
+    const rank = x => x.l.role === 'headline' ? 3 : x.l.role === 'phone' ? 2 : 1;
+    for (let pass = 0; pass < 3; pass++){
+      for (let a = 0; a < texts.length; a++) for (let b2 = a + 1; b2 < texts.length; b2++){
+        const A = texts[a], B = texts[b2];
+        const ab = A.o.getBoundingRect(true, true), bb = B.o.getBoundingRect(true, true);
+        const overlap = !(ab.left + ab.width <= bb.left || bb.left + bb.width <= ab.left ||
+                          ab.top + ab.height <= bb.top || bb.top + bb.height <= ab.top);
+        if (!overlap) continue;
+        let mover, fixed;
+        if (rank(A) !== rank(B)){ mover = rank(A) > rank(B) ? B : A; fixed = mover === B ? A : B; }
+        else { // equal rank: the LOWER row moves down, so a stack stays a stack
+          const at = A.o.getBoundingRect(true,true).top, bt = B.o.getBoundingRect(true,true).top;
+          mover = at > bt ? A : B; fixed = mover === A ? B : A; }
+        // a pinned line (the challenge tail under line two) never moves
+        /* a pinned tail under a headline it still touches moves DOWN (the
+           headline never moves); against anything else the other line moves */
+        if (mover.l.__pinned && !(fixed.l.role === 'headline' && !fixed.l.__pinned)){ if (fixed.l.__pinned) continue; const t = mover; mover = fixed; fixed = t; }
+        const fb = fixed.o.getBoundingRect(true, true), mb = mover.o.getBoundingRect(true, true);
+        let dy = (fb.top + fb.height + 12) - mb.top;                 // move down to clear
+        if (mb.top + mb.height + dy > H - 22) dy = (fb.top - 12) - (mb.top + mb.height); // or up
+        if (mb.top + dy < 22 || mover.l.__pinned && mover.l.role !== 'headline' && false){ dy = 0; }
+        if (mb.top + dy < 22){
+          /* nowhere to go: the fixed line (usually the headline) gives up size
+             until the two clear — MAIL-IN OFFERS ran into the phone column */
+          let g = 0;
+          const clear = () => { const a2 = fixed.o.getBoundingRect(true, true), b3 = mover.o.getBoundingRect(true, true);
+            return a2.left + a2.width <= b3.left || b3.left + b3.width <= a2.left || a2.top + a2.height <= b3.top || b3.top + b3.height <= a2.top; };
+          while (!clear() && fixed.o.fontSize && fixed.o.fontSize > 24 && g++ < 40){ fixed.o.set('fontSize', fixed.o.fontSize - 2); fixed.o.setCoords(); }
+          continue;
+        }
+        mover.o.set('top', (mover.o.top || 0) + dy); mover.o.setCoords();
+        const disc = rowDisc.get(refs.indexOf(mover.o));
+        if (disc){ disc.set('top', (disc.top || 0) + dy); disc.setCoords(); }
+        // and the glyph riding inside that disc
+        if (disc){ const dc = disc.getCenterPoint();
+          refs.forEach((g, gi) => { if (g && t2.layers[gi].role === 'deco' && typeof t2.layers[gi].text === 'string'){
+            const gc = g.getCenterPoint(); if (Math.hypot(gc.x - dc.x, gc.y - (dc.y - dy)) < 14){ g.set('top', (g.top||0) + dy); g.setCoords(); } } }); }
+      }
+    }
+    /* the pin sits at the reviewer line's left edge, whatever alignment the
+       line ended up with */
+    { const wk = t2.layers.findIndex(l => l.name === 'Who'), pk = t2.layers.findIndex(l => l.name === 'Pin');
+      if (wk >= 0 && pk >= 0 && refs[wk] && refs[pk]){
+        const wb = refs[wk].getBoundingRect(true, true), pb = refs[pk].getBoundingRect(true, true);
+        refs[pk].set({ left: (refs[pk].left || 0) + (wb.left - pb.width - 10 - pb.left), top: (refs[pk].top || 0) + (wb.top + wb.height / 2 - pb.height / 2 - pb.top) }); refs[pk].setCoords();
+      } }
+    /* DECORATION YIELDS TO WORDS. A divider (═══ ◆ ═══, ━━━━, ★ ★ ★) that
+       ends up on a line of copy is taken off the canvas; the copy stays. */
+    { const words = refs.map((o, k) => o && typeof t2.layers[k].text === 'string' && t2.layers[k].role !== 'deco' ? o.getBoundingRect(true, true) : null).filter(Boolean);
+      refs.forEach((o, k) => {
+        const l = t2.layers[k];
+        if (!o || l.role !== 'deco' || typeof l.text !== 'string' || l.text.trim().length < 3) return;
+        const b = o.getBoundingRect(true, true);
+        const hit = words.some(w => !(b.left + b.width <= w.left || w.left + w.width <= b.left || b.top + b.height <= w.top || w.top + w.height <= b.top));
+        if (hit){ sc.remove(o); refs[k] = null; }
+      }); }
+    /* LAST WORD ON HEADLINES. After the resolver has moved what it could, a
+       headline still touching another line gives up size until it clears —
+       MAIL-IN OFFERS ran under the CTA the resolver had just parked there. */
+    refs.forEach((o, k) => {
+      const l = t2.layers[k];
+      if (!o || l.role !== 'headline' || !o.fontSize) return;
+      const others = refs.map((r, q) => r && q !== k && typeof t2.layers[q].text === 'string' && t2.layers[q].role !== 'deco' && t2.layers[q].role !== 'headline' ? r : null).filter(Boolean);
+      const hits = () => { const a2 = o.getBoundingRect(true, true); return others.some(r => { const b3 = r.getBoundingRect(true, true);
+        return !(a2.left + a2.width <= b3.left || b3.left + b3.width <= a2.left || a2.top + a2.height <= b3.top || b3.top + b3.height <= a2.top); }); };
+      let g = 0;
+      while (hits() && o.fontSize > 40 && g++ < 40){ o.set('fontSize', o.fontSize - 2); o.setCoords(); }
+    });
+    /* GLYPH ON DISC, decided last. A tick inside a disc takes near-black or
+       near-white against the DISC'S FINAL fill — not the theme's accent ink,
+       not whatever the colour table mapped it to. On Blue Market both the disc
+       and the tick came out white, and the owner saw a column of empty
+       circles. Done here, after every other pass, so nothing can undo it. */
+    const lumOfFill = f => {
+      if (typeof f !== 'string') return null;
+      const q = f.match(/^#([0-9a-f]{6})$/i) ? f : (f.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i)
+        ? '#' + [1,2,3].map(i => (+f.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i)[i]).toString(16).padStart(2,'0')).join('') : null);
+      return q ? lumHex(q) : null;
+    };
+    refs.forEach((o, k) => {
+      const l = t2.layers[k];
+      if (!o || l.kind !== 'circle') return;
+      const dc = o.getCenterPoint(), L = lumOfFill(o.fill);
+      if (L === null) return;
+      refs.forEach((g, gi) => {
+        if (!g || typeof t2.layers[gi].text !== 'string') return;
+        const gc = g.getCenterPoint();
+        if (Math.hypot(gc.x - dc.x, gc.y - dc.y) > 16) return;
+        g.set({ fill: (1.05/(L+0.05)) > ((L+0.05)/0.05) ? '#ffffff' : '#101014', opacity: 1 });
+        if (g.shadow) g.set('shadow', null);
+      });
+    });
+    /* PRODUCT YIELDS TO WORDS. Owner, 2026-09-02, a coin on edge centred
+       over a trustSeal's tiles and phone number: the in-frame clamp had
+       re-homed it to the middle of the card with no regard for the copy.
+       Decided here, after every pass that can move a product or a line: a
+       cutout still covering a tenth of any real text box comes off the
+       canvas. A card with no product beats a card nobody can read. */
+    if (!ghostText){
+      const words = refs.map((o, k) => o && typeof t2.layers[k].text === 'string' && t2.layers[k].role !== 'deco' ? o.getBoundingRect(true, true) : null).filter(Boolean);
+      refs.forEach((o, k) => {
+        const l = t2.layers[k];
+        if (!o || l.kind !== 'cutout' || l.__wall) return;   // the wall sits BEHIND the words by design
+        const b = o.getBoundingRect(true, true);
+        const hit = words.some(t => { const ix = Math.max(0, Math.min(b.left + b.width, t.left + t.width) - Math.max(b.left, t.left)), iy = Math.max(0, Math.min(b.top + b.height, t.top + t.height) - Math.max(b.top, t.top)); return ix * iy > 0.1 * t.width * t.height; });
+        if (hit){ sc.remove(o); refs[k] = null; l.__yielded = true; }
+      });
+    }
+    /* backstop: any cutout still outside the frame is scaled and pulled in */
+    refs.forEach((o, k) => {
+      const l = t2.layers[k];
+      if (!o || l.kind !== 'cutout') return;
+      let b = o.getBoundingRect(true, true);
+      const kx = (W - 48) / b.width, ky = (H - 48) / b.height, kk = Math.min(1, kx, ky);
+      if (kk < 1){ o.set({ scaleX: (o.scaleX || 1) * kk, scaleY: (o.scaleY || 1) * kk }); o.setCoords(); b = o.getBoundingRect(true, true); }
+      let dx = 0, dy = 0;
+      if (b.left < 24) dx = 24 - b.left; else if (b.left + b.width > W - 24) dx = (W - 24) - (b.left + b.width);
+      if (b.top < 24) dy = 24 - b.top;   else if (b.top + b.height > H - 24) dy = (H - 24) - (b.top + b.height);
+      if (dx || dy){ o.set({ left: (o.left || 0) + dx, top: (o.top || 0) + dy }); o.setCoords(); }
+    });
+    sc.renderAll();
+    return { sc, refs };
+  }
+
+  /* THE REVIEW FAMILY. "Can you make me 5 variations of the review theme?
+     It's cool and looks nice." Same bones — rating, quote, reviewer, BUYER
+     word, chips, CTA bar — five arrangements: a numeral hero, twin quotes, a
+     three-line review strip, a speech bubble, and a badge with the product
+     beside the quote. In a normal set one review card in six takes a
+     variation; the review page cycles through all five. */
+  const QUOTES = {
+    /* reviews that sound like the industry — the things a seller in that
+       category actually worries about, in their words */
+    phones:  ['Texted photos at noon, had cash by 3pm.', 'Cracked back, still paid what they quoted.', 'Met me at work. Five minutes, done.',
+              'iCloud was still on, they walked me through it and paid.', 'Carrier said $180. These guys paid $610.', 'Three old iPhones from the drawer, paid for all three.',
+              'No "final offer" games. Number stood.', 'Sold my 15 Pro Max the day the 17 came out. Fair.'],
+    gold:    ['Weighed it in front of me, no games.', 'Paid more than the mall jeweler offered.', 'Handled my mom\'s estate with respect.',
+              'Tested every piece, told me which were plated.', 'Cuban link paid by weight at a real spot rate.', 'Dental gold too. Did not expect that.',
+              'Broken chains and single earrings, all counted.', 'Quote in writing before I decided. Took it.'],
+    silver:  ['Knew the maker\'s marks on sight.', 'Silverware set paid by weight, fair.', 'Honest about what was plated.',
+              'Grandmother\'s tea set, treated like it mattered.', 'Sterling flatware sorted from the plated in minutes.', 'Paid for the weighted candlesticks correctly.',
+              'Bars and rounds at spot, no haggling.', 'Tiffany pieces priced above melt, as they should be.'],
+    coins:   ['Knew more about my collection than I did.', 'Key dates priced right, not junk rate.', 'Slabbed and raw, all looked at properly.',
+              'Morgans checked date by date. Found two I missed.', 'Junk silver by the face value, paid on the spot.', 'Dad\'s albums went to someone who cared.',
+              'Gold eagles at a real premium, not melt.', 'Centenarios priced like Centenarios.'],
+    cars:    ['Picked up my Civic the same day, cash in hand.', 'Beat the dealer trade-in by a lot.', 'Title and DMV handled for me.',
+              'Running rough, still paid. Tow was free.', 'Lien on the truck, they sorted the payoff.', 'Carvana wanted it shipped and inspected. These guys came over.',
+              'Offer in ten minutes, check cleared same day.', 'High miles, no drama, fair number.'],
+    strips:  ['Simple and discreet. Boxes gone, paid fairly.', 'Quoted by the box, paid by the box.', 'No mail-in wait. Same day.',
+              'Sealed FreeStyle boxes, top rate.', 'Short-dated boxes still got a fair number.', 'Met at a pharmacy lot, quick and private.',
+              'Dexcom sensors too. Did not know that was a thing.', 'Text a photo of the boxes, got a number back in minutes.'],
+    pokemon: ['Got real value for my binder, not pawn prices.', 'They knew what the alt arts were worth.', 'Sold my ETBs and slabs in one visit.',
+              'Moonbreon priced off real comps, not a lowball.', 'Sealed booster boxes paid better than the shop.', 'PSA 10s and raw, sorted fairly.',
+              'Childhood binder, Charizard included. Fair.', 'No "we only buy bulk" nonsense.'],
+    sports:  ['My rookie cards found a fair, serious buyer.', 'Graded slabs priced against real comps.', 'Wax boxes paid on the spot.',
+              'Autos and patches valued properly.', 'Vintage Topps, not treated as junk.', 'Beat the card shop consignment math.',
+              'Whole collection, one number, one day.', 'Knew the difference between a base and a refractor.'],
+  };
+
+  const NAMES2 = ['Marcus T.','Priya R.','Danny O.','Alyssa M.','Jordan K.','Rosa V.','Kevin L.','Tasha B.','Miguel S.','Erin W.','Andre C.','Lena P.','Omar H.','Grace N.'];
+  const CITIES2 = ['Long Beach, CA','Lakewood, CA','Downey, CA','Carson, CA','Torrance, CA','Cerritos, CA','Bellflower, CA','Signal Hill, CA'];
+  function reviewVariant(t2, v, cat, seed, th){
+    if (!v) return;
+    const L = name => t2.layers.find(l => l.name === name);
+    const idx = name => t2.layers.findIndex(l => l.name === name);
+    const pill = L('Rate Pill'), sheen = L('Rate Pill Sheen'), stars = L('Stars'), rating = L('Rating Line');
+    const card = L('Quote Card'), csheen = L('Quote Card Sheen'), quote = L('Quote'), who = L('Who');
+    if (!pill || !stars || !rating || !card || !quote) return;
+    const qs = QUOTES[cat] || QUOTES.phones;
+    const fillOf = l => l.props.fill, inkOf = l => l.props.fill;
+    const drop = name => { const k = idx(name); if (k >= 0) t2.layers.splice(k, 1); };
+    const nameCity = k => NAMES2[(seed + k * 3) % NAMES2.length] + '  ·  ' + CITIES2[(seed + k * 5) % CITIES2.length];
+    if (v === 1){
+      /* numeral hero: the score is the headline of the pill */
+      drop('Rate Pill Sheen'); drop('Rate Pill');
+      stars.text = '4.9'; stars.role = 'info'; stars.props.fontSize = 112; stars.props.fontFamily = th.faces.num; stars.props.fontWeight = '800';
+      stars.props.left = 96; stars.props.top = 52; stars.props.originX = 'left'; stars.props.originY = 'top'; stars.props.charSpacing = -20;
+      rating.text = '★★★★★'; rating.props.fontSize = 34; rating.props.left = 300; rating.props.top = 70; rating.props.originX = 'left'; rating.props.charSpacing = 80;
+      t2.layers.splice(idx('Rating Line') + 1, 0, { kind:'text', name:'Rating Count', role:'info', text:'200+ LOCAL SELLERS · FIVE-STAR AVERAGE',
+        props:{ left: 300, top: 118, fontFamily: th.faces.support, fontSize: 24, fill: rating.props.fill, fontWeight:'700', charSpacing: 60 } });
+    } else if (v === 2){
+      /* twin quotes: one wide card carrying two short testimonials, each
+         signed on its right — a second plate only got hugged by the passes */
+      quote.text = '"' + qs[0] + '"'; quote.props.fontSize = 32; quote.props.width = 860; quote.props.left = W / 2; quote.props.originX = 'center';
+      quote.props.top = (card.props.top || 228) + 34; quote.props.textAlign = 'left';
+      const y2 = (card.props.top || 228) + 176;
+      const q2 = JSON.parse(JSON.stringify(quote)); q2.name = 'Quote 2'; q2.text = '"' + qs[1] + '"'; q2.props.top = y2;
+      t2.layers.splice(idx('Quote') + 1, 0, q2);
+      if (who){ who.props.originX = 'right'; who.props.left = 970; who.props.top = (card.props.top || 228) + 126; who.props.fontSize = 22; who.text = nameCity(1); delete who.__reviewer;
+        const w2 = JSON.parse(JSON.stringify(who)); w2.name = 'Who 2'; w2.props.top = y2 + 92; w2.text = nameCity(2);
+        t2.layers.splice(idx('Who') + 1, 0, w2); }
+      t2.layers.splice(idx('Quote'), 0, { kind:'rect', name:'Quote Rule', solid:true, __lock:true, props:{ left: 110, top: y2 - 18, width: 860, height: 2, fill: quote.props.fill, opacity: 0.35 } });
+    } else if (v === 3){
+      /* review strip: three one-line quotes with names, no big card */
+      const fill = card.props.fill, ink = quote.props.fill, at = idx('Quote Card');
+      drop('Quote Card Sheen'); drop('Quote'); drop('Who'); drop('Quote Card');
+      t2.layers.forEach(l => { if (l.__reviewer) delete l.__reviewer; });
+      const rows = [];
+      for (let r = 0; r < 3; r++){
+        const y = 236 + r * 108;
+        rows.push({ kind:'rect', name:'Review Row ' + (r + 1), solid:false, props:{ left:70, top:y, width:942, height:86, fill, rx:43, stroke: card.props.stroke, strokeWidth: card.props.strokeWidth } });
+        rows.push({ kind:'text', name:'Review Text ' + (r + 1), role:'info', text:'"' + qs[r % qs.length] + '"',
+                    props:{ left:104, top:y + 43, originY:'center', fontFamily: th.faces.support, fontSize:28, fill: ink, fontWeight:'600' } });
+        rows.push({ kind:'text', name:'Review Name ' + (r + 1), role:'info', text: NAMES2[(seed + r * 3) % NAMES2.length],
+                    props:{ left:980, top:y + 43, originX:'right', originY:'center', fontFamily: th.faces.support, fontSize:22, fill: ink, fontWeight:'800', charSpacing:40 } });
+      }
+      t2.layers.splice(at, 0, ...rows);
+    } else if (v === 4){
+      /* speech bubble: the card grows a tail toward the reviewer */
+      /* the testimonial mark: a large opening quote in the accent, riding
+         the card's top-left corner; the quote itself loses its own marks */
+      card.props.rx = 34;
+      quote.text = String(quote.text).replace(/^"|"$/g, '');
+      /* the mark owns the card's left gutter; the quote starts to its right */
+      quote.props.left = (card.props.left || 70) + 130; quote.props.width = (card.props.width || 942) - 170; quote.props.originX = 'left'; quote.props.textAlign = 'left';
+      quote.props.fontSize = Math.min(quote.props.fontSize || 46, 40);
+      t2.layers.splice(idx('Quote Card') + 1, 0, { kind:'text', name:'Quote Mark', role:'deco', text:'\u201C',
+        props:{ left: (card.props.left || 70) + 18, top: (card.props.top || 228) - 30, fontFamily: 'Instrument Serif', fontSize: 200, fill: th.accent, fontWeight:'400' } });
+    } else if (v === 5){
+      /* badge and product: a small score badge top-left, the quote card
+         narrowed to the left, the product beside it (placement search) */
+      pill.props.left = 70; pill.props.top = 60; pill.props.width = 430; pill.props.height = 72; pill.__panel = true;
+      if (sheen){ sheen.props.left = 90; sheen.props.top = 66; sheen.props.width = 390; }
+      stars.props.left = 96; stars.props.top = 80; stars.props.fontSize = 30; stars.props.originX = 'left'; stars.props.originY = 'top';
+      rating.props.left = 262; rating.props.top = 84; rating.props.fontSize = 24; rating.text = '4.9 · 200+ sellers';
+      card.props.width = 560; quote.props.width = 500; quote.props.left = 96; quote.props.fontSize = 38; quote.text = '"' + qs[seed % qs.length] + '"';
+      if (csheen) csheen.props.width = 500;
+      if (who){ who.props.left = 70 + 280; who.props.fontSize = 22; }
+    }
+  }
+
+  /* ONE HUNDRED REVIEW FORMATS. The two winners of the five-variation page —
+     the quote mark (4/5) and the review strip (3/5) — carry the quote block
+     on more than half the cards; four more quote treatments take the rest.
+     Around the quote block, five independent choices — rating block, who
+     line, headline position, chip row, CTA — are decoded from the card's
+     index in mixed radix, so no two of the hundred share a combination. */
+  const RFMT = {
+    rating: ['pill','free','badge','inline'],
+    quote:  ['mark','strip3','strip2','markRight','ghost','centered'],
+    who:    ['pin','right','dash'],
+    head:   ['mid','top','low'],
+    chips:  ['chips','inline','lines'],
+    cta:    ['bar','pillOnly'],
+  };
+  function reviewSpec(k){
+    const r = RFMT.rating[k % 4], w = RFMT.who[Math.floor(k / 4) % 3], h = RFMT.head[Math.floor(k / 12) % 3],
+          c = RFMT.chips[Math.floor(k / 36) % 3], t = RFMT.cta[Math.floor(k / 108) % 2 ^ (Math.floor(k / 2) % 2)];
+    const q = k < 30 ? 'mark' : k < 56 ? 'strip3' : RFMT.quote[2 + (k % 4)];
+    return { rating: r, quote: q, who: w, head: h, chips: c, cta: t };
+  }
+  function reviewFormat(t2, spec, cat, seed, th){
+    const L = name => t2.layers.find(l => l.name === name);
+    const idx = name => t2.layers.findIndex(l => l.name === name);
+    const drop = name => { const k = idx(name); if (k >= 0) t2.layers.splice(k, 1); };
+    const pill = L('Rate Pill'), stars = L('Stars'), rating = L('Rating Line');
+    const card = L('Quote Card'), quote = L('Quote'), who = L('Who'), head = L('Headline 2');
+    if (!pill || !stars || !rating || !card || !quote || !head) return;
+    const qs = QUOTES[cat] || QUOTES.phones;
+    const ink = quote.props.fill, plate = card.props.fill, stroke = card.props.stroke, sw = card.props.strokeWidth;
+    const nm = k => NAMES2[(seed + k * 3) % NAMES2.length], city = k => CITIES2[(seed + k * 5) % CITIES2.length];
+    const T = (name, text, props, role) => ({ kind:'text', name, role: role || 'info', text, props: Object.assign({ fontFamily: th.faces.support, fill: ink, fontWeight:'600' }, props) });
+    const R = (name, props) => ({ kind:'rect', name, solid:false, props: Object.assign({ fill: plate, stroke, strokeWidth: sw, rx: 18 }, props) });
+    const blocks = { rating: [], quote: [], head: [], chips: [], cta: [] };
+    const CTA_NAMES = ['CTA Bar','CTA Bar Sheen','CTA','Phone Pill','Phone Number'];
+    /* --- rating block --- */
+    if (spec.rating === 'pill'){
+      blocks.rating = ['Rate Pill','Rate Pill Sheen','Stars','Rating Line'];
+    } else if (spec.rating === 'free'){
+      drop('Rate Pill Sheen'); drop('Rate Pill');
+      stars.props.left = W / 2; stars.props.originX = 'center'; stars.props.top = 70; stars.props.fontSize = 44; stars.props.charSpacing = 120;
+      rating.text = '4.9 AVERAGE · 200+ LOCAL SELLERS'; rating.props.left = W / 2; rating.props.originX = 'center'; rating.props.top = 128; rating.props.fontSize = 24; rating.props.charSpacing = 80;
+      blocks.rating = ['Stars','Rating Line'];
+    } else if (spec.rating === 'badge'){
+      pill.props.left = 70; pill.props.top = 70; pill.props.width = 400; pill.props.height = 70; pill.__panel = true;
+      const sh = L('Rate Pill Sheen'); if (sh){ sh.props.left = 90; sh.props.top = 76; sh.props.width = 360; }
+      stars.props.left = 94; stars.props.top = 88; stars.props.fontSize = 28; stars.props.originX = 'left'; stars.props.originY = 'top';
+      rating.text = '4.9 · 200+ sellers'; rating.props.left = 262; rating.props.top = 92; rating.props.fontSize = 24; rating.props.originX = 'left';
+      blocks.rating = ['Rate Pill','Rate Pill Sheen','Stars','Rating Line'];
+    } else { /* inline: the stars ride the quote block; nothing up top */
+      drop('Rate Pill Sheen'); drop('Rate Pill');
+      stars.props.fontSize = 30; stars.props.charSpacing = 60; rating.props.fontSize = 22; rating.text = '4.9 · 200+ local sellers';
+      blocks.rating = [];
+    }
+    /* --- quote block --- */
+    const q0 = (card.props.top || 228);
+    const inlineStars = spec.rating === 'inline' && spec.quote !== 'centered';
+    if (spec.rating === 'inline' && spec.quote === 'centered'){
+      stars.props.left = W / 2; stars.props.originX = 'center'; stars.props.top = 70; stars.props.fontSize = 40; stars.props.charSpacing = 120;
+      rating.text = '4.9 AVERAGE · 200+ LOCAL SELLERS'; rating.props.left = W / 2; rating.props.originX = 'center'; rating.props.top = 124; rating.props.fontSize = 24; rating.props.charSpacing = 80;
+      blocks.rating = ['Stars','Rating Line'];
+    }
+    if (spec.quote === 'mark' || spec.quote === 'markRight' || spec.quote === 'centered'){
+      card.props.rx = 34;
+      quote.text = qs[(seed * 7 + 2) % qs.length];
+      quote.props.originX = 'left'; quote.props.textAlign = 'left'; quote.props.fontSize = Math.min(quote.props.fontSize || 46, 40);
+      const cl = card.props.left || 70, cw = card.props.width || 942;
+      if (spec.quote === 'mark'){
+        quote.props.left = cl + 130; quote.props.width = cw - 170;
+        t2.layers.splice(idx('Quote Card') + 1, 0, T('Quote Mark', '“', { left: cl + 18, top: q0 - 30, fontFamily:'Instrument Serif', fontSize:200, fill: th.accent, fontWeight:'400' }, 'deco'));
+      } else if (spec.quote === 'markRight'){
+        /* the closing mark owns the RIGHT gutter, top of the card */
+        quote.props.left = cl + 48; quote.props.width = cw - 210;
+        t2.layers.splice(idx('Quote Card') + 1, 0, T('Quote Mark', '”', { left: cl + cw - 150, top: q0 - 30, fontFamily:'Instrument Serif', fontSize:200, fill: th.accent, fontWeight:'400' }, 'deco'));
+      } else { /* centered: a small VERIFIED REVIEW tab on the card's top edge, quote centred */
+        quote.props.left = W / 2; quote.props.originX = 'center'; quote.props.textAlign = 'center'; quote.props.width = cw - 120; quote.props.fontSize = 42;
+        t2.layers.splice(idx('Quote Card') + 1, 0,
+          R('Review Tab', { left: W / 2 - 140, top: q0 - 20, width: 280, height: 40, rx: 20, fill: th.accent, strokeWidth: 0 }),
+          T('Review Tab Text', 'VERIFIED REVIEW', { left: W / 2, top: q0, originX:'center', originY:'center', fontSize: 18, fontWeight:'800', charSpacing: 120, fill: th.onAccent || '#141110' }, 'badges'));
+      }
+      const qtop0 = q0 + (spec.quote === 'centered' ? 60 : 50);
+      quote.props.top = qtop0;
+      if (inlineStars){
+        stars.props.left = quote.props.originX === 'center' ? W / 2 : quote.props.left; stars.props.originX = quote.props.originX; stars.props.top = q0 + 34; stars.props.originY = 'top';
+        rating.props.left = quote.props.originX === 'center' ? W / 2 + 190 : quote.props.left + 210; rating.props.originX = 'left'; rating.props.top = q0 + 40;
+        if (quote.props.originX === 'center') { rating.props.originX = 'center'; rating.props.left = W / 2; rating.props.top = q0 + 76; }
+        quote.props.top = q0 + (quote.props.originX === 'center' ? 112 : 96);
+      }
+      /* the card hugs its quote: lines from the width, plus the who line */
+      const fs0 = quote.props.fontSize, lines = Math.max(1, Math.ceil(String(quote.text).length * fs0 * 0.5 / (quote.props.width || 800)));
+      const qh = lines * fs0 * 1.25, ch = Math.max(230, (quote.props.top - q0) + qh + 96);
+      card.props.height = ch;
+      const sheen = L('Quote Card Sheen'); if (sheen && spec.quote === 'centered') drop('Quote Card Sheen');
+      if (who){ who.props.top = q0 + ch - 56; who.props.originY = 'top'; if (spec.quote === 'centered'){ who.props.originX = 'center'; who.props.left = W / 2; } }
+      blocks.quote = ['Quote Card','Quote Card Sheen','Review Tab','Review Tab Text','Quote Mark','Quote','Who','Pin'];
+    } else if (spec.quote === 'strip3' || spec.quote === 'strip2'){
+      const at = idx('Quote Card'); drop('Quote Card Sheen'); drop('Quote'); drop('Pin'); drop('Who'); drop('Quote Card');
+      /* inline stars on a strip: the strip's own stars line replaces the
+         originals — both showed, "a little confusing" */
+      if (inlineStars){ drop('Stars'); drop('Rating Line'); }
+      const rows = [], nrow = spec.quote === 'strip3' ? 3 : 2, rowH = spec.quote === 'strip3' ? 86 : 108, gap = 22;
+      let y = q0 + (inlineStars ? 52 : 0);
+      if (inlineStars){ rows.push(Object.assign({}, T('Stars Inline', '★★★★★  4.9 · 200+ local sellers', { left: 104, top: q0 + 14, fontSize: 24, charSpacing: 60 }))); }
+      for (let r = 0; r < nrow; r++){
+        rows.push(R('Review Row ' + (r + 1), { left: 70, top: y, width: 942, height: rowH, rx: rowH / 2, fill: String(plate).replace(/,\s*[\d.]+\)$/, ',0.74)') }));
+        rows.push(T('Review Text ' + (r + 1), '"' + qs[(seed + r) % qs.length] + '"', { left: 104, top: y + rowH / 2, originY:'center', fontSize: nrow === 3 ? 28 : 32 }));
+        /* the who-style shows in a strip too: dash before the name, or name
+           and city, or the name alone in caps */
+        const label = spec.who === 'dash' ? '\u2014 ' + nm(r) : spec.who === 'pin' ? nm(r) + '  ·  ' + city(r).split(',')[0] : nm(r).toUpperCase();
+        rows.push(T('Review Name ' + (r + 1), label, { left: 980, top: y + rowH / 2, originX:'right', originY:'center', fontSize: spec.who === 'pin' ? 20 : 22, fontWeight:'800', charSpacing: spec.who === 'right' ? 80 : 30, fontStyle: spec.who === 'dash' ? 'italic' : 'normal' }));
+        y += rowH + gap;
+      }
+      t2.layers.splice(at, 0, ...rows);
+      blocks.quote = rows.map(r => r.name);
+      blocks.rating = blocks.rating; // unchanged
+      if (inlineStars) blocks.quote.unshift('Stars Inline');
+    } else { /* ghost: no card, the quote set large over the photograph */
+      drop('Quote Card Sheen'); drop('Quote Card');
+      quote.text = String(quote.text); quote.props.fontSize = 50; quote.props.width = 900; quote.props.left = W / 2; quote.props.originX = 'center'; quote.props.textAlign = 'center';
+      quote.props.top = q0 + (inlineStars ? 70 : 20); quote.props.fontWeight = '700';
+      if (inlineStars){ stars.props.left = W / 2; stars.props.originX = 'center'; stars.props.top = q0 + 10; rating.props.left = W / 2; rating.props.originX = 'center'; rating.props.top = q0 + 48; }
+      if (who){ who.props.top = q0 + 250; }
+      blocks.quote = ['Stars','Rating Line','Quote','Who','Pin'].filter(nme => inlineStars || (nme !== 'Stars' && nme !== 'Rating Line'));
+    }
+    /* --- who line --- */
+    const whoL = L('Who');
+    if (whoL){
+      if (spec.who === 'right'){ drop('Pin'); whoL.props.originX = 'right'; whoL.props.left = (card.props.left || 70) + (card.props.width || 942) - 40; }
+      else if (spec.who === 'dash'){
+        drop('Pin');
+        whoL.text = '\u2014  ' + String(whoL.text).replace(/\s+·\s+/, ', ');
+        whoL.props.originX = 'center'; whoL.props.left = W / 2; whoL.props.fontStyle = 'italic';
+      }
+    }
+    /* --- headline, chips, cta membership --- */
+    blocks.head = ['Headline 2'];
+    if (spec.chips === 'chips'){ blocks.chips = ['Chip 1','Chip Text 1','Chip 2','Chip Text 2','Chip 3','Chip Text 3']; }
+    else {
+      const texts = [1, 2, 3].map(i => (L('Chip Text ' + i) || {}).text || '').map(t => String(t).replace(/^✓\s*/, '').trim()).filter(Boolean);
+      [1, 2, 3].forEach(i => { drop('Chip Text ' + i); drop('Chip ' + i); });
+      if (spec.chips === 'inline'){
+        t2.layers.push(T('Seal Line', texts.map(t => '✓ ' + t).join('     '), { left: W / 2, top: 800, originX:'center', fontSize: 24, fontWeight:'800', charSpacing: 80 }, 'badges'));
+        blocks.chips = ['Seal Line'];
+      } else {
+        const lines = INFO.yes.slice(seed % 3, seed % 3 + 3);
+        blocks.chips = [];
+        lines.forEach((t, i) => { t2.layers.push(T('Point ' + (i + 1), '✓  ' + t, { left: 96, top: 780 + i * 44, fontSize: 26, fontWeight:'700' }, 'info')); blocks.chips.push('Point ' + (i + 1)); });
+      }
+    }
+    if (spec.cta === 'bar'){ blocks.cta = CTA_NAMES; }
+    else {
+      drop('CTA Bar Sheen'); drop('CTA Bar');
+      const pp = L('Phone Pill'), ph = L('Phone Number'), ct = L('CTA');
+      if (pp){ pp.props.left = W / 2 - 310; pp.props.width = 620; pp.props.top = 920; pp.props.height = 96; }
+      if (ph){ ph.props.left = W / 2; ph.props.originX = 'center'; ph.props.top = 934; ph.props.fontSize = 48; }
+      if (ct){ ct.props.left = W / 2; ct.props.originX = 'center'; ct.props.top = 880; ct.props.fontSize = 24; ct.props.charSpacing = 120; }
+      blocks.cta = ['CTA','Phone Pill','Phone Number'];
+    }
+    /* --- vertical order and slots --- */
+    const order = spec.head === 'top' ? ['head','rating','quote','chips','cta'] : spec.head === 'low' ? ['rating','quote','chips','head','cta'] : ['rating','quote','head','chips','cta'];
+    const extent = names => {
+      const ls = names.map(L).filter(l => l && l.props);
+      if (!ls.length) return null;
+      let top = Infinity, bot = -Infinity;
+      ls.forEach(l => { const p = l.props; const h = l.kind === 'rect' ? (p.height || 0) : l.kind === 'circle' ? (p.radius || 0) * 2 : typeof l.text === 'string' ? (p.fontSize || 30) * (String(l.text).split('\n').length) * 1.15 : 0;
+        const t0 = (p.top || 0) - (p.originY === 'center' ? h / 2 : 0); top = Math.min(top, t0); bot = Math.max(bot, t0 + h); });
+      return { top, h: bot - top, ls };
+    };
+    const ex = {}; order.forEach(b => ex[b] = extent(blocks[b]));
+    const GAP = 26, used = order.filter(b => ex[b]);
+    const total = used.reduce((a, b) => a + ex[b].h, 0) + GAP * (used.length - 1);
+    let y = Math.max(40, Math.round((H - 40 - total) / 2));
+    if (total > H - 80){ y = 40; }
+    used.forEach(b => { const dy = y - ex[b].top; ex[b].ls.forEach(l => { l.props.top = (l.props.top || 0) + dy; }); y += ex[b].h + GAP; });
+  }
+  /* ELEMENTS. "All themes and templates should have some amount of extra
+     assets or imagery or things to look at — even icons can really add
+     colour." A category owns a small set of marks; two to four of them sit in
+     the card's free space, under the type, in the palette's colours (Pokémon
+     in its own brand colours), some tilted; one card in four goes without. */
+  ICONS.pokeball = { d: 'M50 8 A42 42 0 0 1 92 50 H64 A14 14 0 0 0 36 50 H8 A42 42 0 0 1 50 8 Z M50 92 A42 42 0 0 1 8 50 H36 A14 14 0 0 0 64 50 H92 A42 42 0 0 1 50 92 Z M50 42 A8 8 0 1 0 50 58 A8 8 0 1 0 50 42 Z', sw: 5 };
+  ICONS.bolt = { d: 'M56 6 L22 56 H46 L40 94 L78 42 H54 Z', sw: 6 };
+  ICONS.dollar = { d: 'M50 10 V90 M68 30 C68 20 32 18 32 34 C32 52 68 46 68 66 C68 82 32 80 32 70', sw: 8 };
+  ICONS.coin = { d: 'M50 12 A38 38 0 1 0 50 88 A38 38 0 1 0 50 12 Z M50 26 A24 24 0 1 0 50 74 A24 24 0 1 0 50 26 Z', sw: 6 };
+  ICONS.gem = { d: 'M20 40 L36 20 H64 L80 40 L50 84 Z M20 40 H80 M36 20 L50 40 L64 20 M50 40 V84', sw: 5 };
+  ICONS.star5 = { d: 'M50 8 L61 38 L94 38 L67 57 L77 90 L50 70 L23 90 L33 57 L6 38 L39 38 Z', sw: 5 };
+  ICONS.keyfob = { d: 'M30 12 H70 A10 10 0 0 1 80 22 V78 A10 10 0 0 1 70 88 H30 A10 10 0 0 1 20 78 V22 A10 10 0 0 1 30 12 Z M50 30 A8 8 0 1 0 50 46 A8 8 0 1 0 50 30 Z M38 62 H62 M38 74 H62', sw: 5 };
+  ICONS.cardSlab = { d: 'M30 8 H70 A8 8 0 0 1 78 16 V84 A8 8 0 0 1 70 92 H30 A8 8 0 0 1 22 84 V16 A8 8 0 0 1 30 8 Z M34 22 H66 V58 H34 Z M34 70 H66', sw: 5 };
+  ICONS.drop = { d: 'M50 8 C50 8 22 44 22 62 A28 28 0 0 0 78 62 C78 44 50 8 50 8 Z', sw: 6 };
+  ICONS.check = { d: 'M18 52 L40 74 L84 28', sw: 12 };
+  const ELEMENTS = {
+    pokemon: { icons: ['pokeball','pokeball','bolt','star5','cardSlab'], colors: ['#ffcb05','#2a75bb','#cc0000','#ffcb05'] },
+    sports:  { icons: ['star5','cardSlab','bolt','check'], colors: null },
+    phones:  { icons: ['bolt','check','dollar','sparkle'], colors: null },
+    cars:    { icons: ['keyfob','dollar','check','bolt'], colors: null },
+    gold:    { icons: ['gem','coin','dollar','sparkle'], colors: ['#f2c14e','#c9950f','#fff1b8'] },
+    silver:  { icons: ['gem','sparkle','coin','check'], colors: ['#e6e8ea','#9aa0a6','#ffffff'] },
+    coins:   { icons: ['coin','coin','dollar','star5'], colors: ['#f2c14e','#d9d9d9','#c9950f'] },
+    strips:  { icons: ['drop','check','dollar','sparkle'], colors: null },
+  };
+  function addElements(t2, cat, seed, th, refs){
+    if (seed % 4 === 3) return;                          // one card in four goes without
+    const E = ELEMENTS[cat] || ELEMENTS.phones;
+    const boxes = refs.map((o, k) => o && !/vignette|grain/.test(t2.layers[k].kind) ? o.getBoundingRect(true, true) : null)
+      .filter(b => b && !(b.width > W * 0.85 && b.height > H * 0.85));
+    const clear = r => !boxes.some(b => !(r.left + r.width <= b.left || b.left + b.width <= r.left || r.top + r.height <= b.top || b.top + b.height <= r.top));
+    const colors = E.colors || [th.accent, th.support, th.accent2 || th.accent, th.accent3 || th.support];
+    const want = 2 + (seed % 3), placed = [];
+    const spots = [[52, 52], [W - 52, 52], [52, H - 52], [W - 52, H - 52], [W / 2, 60], [60, H / 2], [W - 60, H / 2], [W / 2, H - 60], [200, 140], [W - 200, 140], [200, H - 160], [W - 200, H - 160]];
+    for (let q = 0; q < spots.length && placed.length < want; q++){
+      const [cx, cy] = spots[(q + seed) % spots.length];
+      for (const size of [140, 110, 84, 64]){
+        const box = { left: cx - size / 2 - 8, top: cy - size / 2 - 8, width: size + 16, height: size + 16 };
+        if (box.left < 24 || box.top < 24 || box.left + box.width > W - 24 || box.top + box.height > H - 24) continue;
+        if (!clear(box) || placed.some(p => Math.hypot(p.cx - cx, p.cy - cy) < 200)) continue;
+        placed.push({ cx, cy, size }); break;
+      }
+    }
+    placed.forEach((p, i) => {
+      const icon = E.icons[(seed + i) % E.icons.length], color = colors[(seed + i * 2) % colors.length];
+      t2.layers.push({ kind:'path', icon, name:'Element ' + (i + 1), role:'deco', __element:true,
+        props:{ left: p.cx - p.size / 2, top: p.cy - p.size / 2, size: p.size, fill: color, opacity: 0.85, angle: ((seed * 7 + i * 13) % 31) - 15 } });
+    });
+    return placed.length;
+  }
+  const REVIEW_PAGE = PLAN.length && PLAN.every(e => picks[e.i][0].layout === 'reviewProof');
+  const REVIEW100 = REVIEW_PAGE && !!(new URLSearchParams(location.search).get('r100') || FACESYS.review100);
+
+  const out = [];
+  for (const e of PLAN){
+    for (let attempt = 0; attempt < 2; attempt++){ const i = e.i + e.v * 5, j = e.j;
+      /* a card that renders sparse (density under 12) is re-seeded once; the
+         layout name salts the seed so single-layout runs do not all share the
+         same subjects */
+      const LAYSALT = [...picks[e.i][0].layout].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 9973, 7);
+      /* ONE HASHED SEED per card. Linear sums of the two counters made two
+         palettes eight apart land on the same template, face and product —
+         "too similar". Every draw below takes a different slice of this. */
+      const sd = ((e.i * 131 + e.j * 47 + e.v * 977 + LAYSALT * 13 + attempt * 7919) * 2654435761 >>> 0) % 1000003;
+      const list = picks[e.i];
+      /* DUPLICATES. Owner, 2026-09-02: two Blue Ticket silver checklistHero
+         cards, variants 10 and 12, identical to the pixel — the hashed seed
+         is different but the category, the six-deep backdrop pool and the
+         copy all rotate off it modulo small numbers, and they collided. The
+         category now steps with the VARIANT number, so consecutive variants
+         of one layout+palette walk the categories in order and can only
+         meet again after every category has had a card. */
+      const base = ((e.i * 131 + e.j * 47) * 2654435761 >>> 0) % 1000003;
+      const p = list[(base + e.v) % list.length];       // category walks with the variant
+      const th0 = TH[DONORS[j]];
+      /* the approved faces, rotated so the same palette does not always carry
+         the same pairing */
+      const th = Object.assign({}, th0, { faces: pickFaces(p.cat, sd) });
+      try {
+        const tpl = TEMPLATES.find(t => t.id === p.id);
+        /* phones rotates across the device LINES, so Samsung and Pixel get
+           their own ads instead of appearing on an iPhone one */
+        /* iPhone only on the phones templates. Samsung and Pixel are real
+           categories with their own assets, but they are 22 and 10 assets
+           against 116 for iPhone, and iPhone is the business — spending a
+           template slot on an Android is spending it on the wrong customer.
+           They get their own runs when we want them, not a share of these. */
+        /* THE INVARIANT, enforced rather than remembered: one subject key owns
+           the copy AND the product pool. Every mismatch so far — a Pixel on an
+           iPhone ad, Samsungs on an iPhone ad, Apple Watches on an iPhone ad,
+           an iPhone backdrop under a Pixel headline — was some pool being
+           chosen independently of the headline. The phones templates rotate
+           across Apple LINES so the Watch and the iPad get their own ads
+           instead of appearing on somebody else's. */
+        const APPLE = ['iphone','iphone','iphone','watch','ipad','macbook'];
+        /* the cars templates rotate across the vehicle decks the same way */
+        const VEHICLES = ['cars','cars','bikes','trucks','vans'];
+        const deck = p.cat === 'phones'
+          ? DEVICE_DECKS[APPLE[sd % APPLE.length]]
+          : p.cat === 'cars' ? CATEGORY_COPY[VEHICLES[sd % VEHICLES.length]]
+          : (CATEGORY_COPY[p.cat] || null);
+        const pool = deck
+          ? ALLCUTS.filter(f => deck.cuts.some(pre => f.startsWith(pre)))
+          : (HERO[p.cat] || (CUTS[p.cat] && CUTS[p.cat].length ? CUTS[p.cat] : CUTS.phones));
+        const use = pool.length ? pool : CUTS.phones;
+        const cutSrc = 'assets/cutouts/' + use[(sd * 7 + 3) % use.length] + '.webp';
+        /* challenge mode on every third card: the deck's copy is replaced by
+           the competitor framing before the swap runs, so the same length
+           guards and fitting apply */
+        const CH = CHALLENGE[p.cat];
+        /* only a layout with a real opener + money word pair can carry WE BEAT /
+           X'S / TRADE-IN VALUE. trustSeal's "TRUSTED LOCAL / POKÉMON / BUYER"
+           has no opener, and the swap wrote the possessive into every slot. */
+        const pairOK = tpl.layers.some(l => l.role === 'headline' && /^(SELL YOUR|CASH FOR|WE BUY)$/i.test(String(l.text || '').trim()))
+                    && tpl.layers.some(l => l.role === 'headline' && /IPHONE|PHONE|GOLD|SILVER|COINS|CARS|STRIPS|POK|CARDS|WATCH|IPAD|MACBOOK/i.test(String(l.text || '')));
+        const challenge = CH && pairOK && (sd % 3 === 0);
+        let useDeck = deck;
+        if (challenge){
+          const seed = sd;
+          const named = CH.names[seed % CH.names.length], generic = CH.generic[seed % CH.generic.length];
+          const kick = CHALLENGE.lines.kicker[seed % CHALLENGE.lines.kicker.length];
+          /* two of three cards name the competitor in the headline; the third
+             takes the category line (THE PAWN SHOP, TRADE-IN OFFERS) */
+          const named2 = CH.names[(seed + 1) % CH.names.length];
+          /* the possessive needs a third line to land in; a layout with no
+             items slot (bandKnockout) would read WE BEAT WORTHY'S and stop */
+          const hasSlot = tpl.layers.some(l => /^Items|^Info Text|^Data Line/i.test(l.name || ''));
+          const poss = seed % 3 === 1 ? null : named.length <= 12 ? named : named2.length <= 12 ? named2 : null;
+          const who = poss || named;
+          const sharp = /LOWBALLED|PENNIES/.test(kick);
+          useDeck = Object.assign({}, deck || (DECKS_SNAPSHOT[p.cat] || {}), {
+            /* "GOT A THE COIN SHOP QUOTE?" — an article before a name that
+               already has one. The generic names carry THE; the pattern drops
+               its own article for them. */
+            k: (() => { const who = sharp ? generic : named; return /^THE /i.test(who) ? kick.replace('A {N}', '{N}').replace('{N}', who) : kick.replace('{N}', who); })(),
+            h1: CHALLENGE.lines.h1[seed % CHALLENGE.lines.h1.length],
+            /* WE BEAT / YOUR CARRIER'S / TRADE-IN VALUE — possessive on line
+               two, the thing being beaten on line three (the items slot). */
+            h2: poss ? poss + "'S" : (CHALLENGE.lines.h2[p.cat] || 'THE PAWN SHOP'),
+            tail: !!poss,
+            tailText: poss
+              ? ({ phones:'TRADE-IN VALUE', cars:'TRADE-IN OFFER', gold:'CASH OFFER', silver:'CASH OFFER', coins:'BUY PRICE',
+                   pokemon:'BUYLIST PRICE', sports:'BUYLIST PRICE', strips:'MAIL-IN OFFER' }[p.cat] || 'OFFER')
+              : null,
+            items: (deck || DECKS_SNAPSHOT[p.cat] || {}).items,
+            price: CHALLENGE.lines.price[seed % CHALLENGE.lines.price.length].replace('{N}', who),
+            challengePromise: CHALLENGE.lines.promise[seed % CHALLENGE.lines.promise.length].replace('{N}', who),
+          });
+        }
+        const t2 = retheme(tpl, th, cutSrc, useDeck, p.cat, sd);
+        /* CURVED HEADLINES ARC UP. Owner, 2026-09-02, on a row of gradientWave
+           cards bending down: "down is okay but arc up is better, use both".
+           The layout ships a frown (curve -22); two cards in three take the
+           smile, the third keeps the frown. */
+        t2.layers.forEach(l => { if (l.curve && l.curve < 0 && sd % 3 !== 2) l.curve = -l.curve; });
+        if (p.layout === 'reviewProof'){
+          if (REVIEW100) reviewFormat(t2, reviewSpec(e.k), p.cat, sd, th);
+          else reviewVariant(t2, REVIEW_PAGE ? (e.k % 5) + 1 : [0, 3, 4, 0, 3, 4][sd % 6], p.cat, sd, th);   // regular sets: only the two winners
+        }
+        /* A card with no product has only the photograph to say what it is
+           about, and a bokeh macro says nothing — "no idea what it's trying to
+           convey". So when the layout carries no cutout, take the category's
+           highest-DETAIL backdrop, the one with a recognisable object in it. */
+        if (!tpl.layers.some(l => l.kind === 'cutout') && !(deck && deck.scenes)){
+          const legible = BGLUM.filter(b => b.cat === p.cat && b.detail !== undefined)
+            .sort((a,b) => b.detail - a.detail)[j % 3];
+          if (legible) t2.bg = Object.assign({}, t2.bg, { src: legible.src });
+        }
+        /* NON-APPLE CATEGORIES take a real photograph of their subject from
+           the web pool every other card — the library's own backdrops were
+           "the same thing over and over". Same tint rule as the scenes. */
+        const bgcat = (deck && deck.bgcat) || p.cat;
+        if (!(deck && deck.scenes) && WEBBG[bgcat] && WEBBG[bgcat].length && (sd % 2 === 1 || (deck && deck.bgcat))){
+          const pool = WEBBG[bgcat], src = pool[(sd * 5 + 1) % pool.length];
+          const row = BGLUM.find(b => b.src === src), lum = row ? row.lum : 0.3, tl = lumHex(th.c1), gap = Math.abs(lum - tl);
+          t2.bg = Object.assign({}, t2.bg, { type:'image', src });
+          /* a BUSY photograph (a coin macro measures 40+ on the detail scale;
+             a studio scene 6) swallows rows of small type under a light tint
+             — "not legible". Past 14 it takes the ground colour at 62%. */
+          const busy = row && row.detail > 14;
+          if (busy){ t2.bg.scrimColor = th.c1; t2.bg.scrim = 0.62; }
+          else if (lum > 0.55 && lumHex(th.c1) > 0.6){ t2.bg.scrimColor = th.accent; t2.bg.scrim = 0.30; }
+          else if (sd % 4 === 1){ t2.bg.scrimColor = gap < 0.15 ? th.c2 : th.c1; t2.bg.scrim = Math.max(0.42, Math.min(0.68, 0.40 + gap)); }
+          else { t2.bg.scrimColor = th.accent; t2.bg.scrim = lumHex(th.c1) > 0.22 ? 0.24 : 0.30; }
+        }
+        if (deck && deck.scenes && deck.scenes.length){
+          /* Pick the scene that CONTRASTS with the theme ground, not the one
+             nearest it. Nearest-luminance put a near-white Paper theme on a
+             near-white Apple flat lay under a white scrim, and the photograph
+             disappeared completely — "dope, but there's no background".
+             A backdrop has to differ from the wash to survive it. */
+          const tl = lumHex(th.c1);
+          /* Candidates are the Apple scenes PLUS the category's own backdrops.
+             The studio flat lays are all bright, so a near-white Paper theme had
+             nothing to contrast with and rendered as a blank page whichever one
+             it picked. Widening the pool lets a pale theme reach for a shot with
+             real depth, which is what makes the photograph visible under a
+             heavy white scrim. */
+          /* The deck's own scenes and NOTHING else. Widening this to the
+             category backdrops fixed a blank Paper card and put iPhones behind
+             an iPad headline. Subject coherence beats contrast; if the only
+             iPad scenes are light, the tint below carries the theme. */
+          const cand = deck.scenes.map(n => 'assets/scenes/' + n + '.jpg').map(src => {
+            const row = BGLUM.find(b => b.src === src);
+            return { src, lum: row ? row.lum : 0.3 };
+          });
+          /* Aim for a gap of about 0.22 from the theme ground — enough that the
+             picture reads through the wash, not so much that it has to be
+             crushed. Maximising the gap picked the darkest shot for a mid-tone
+             theme and then scrimmed it, which is the murk. */
+          const TARGET = 0.22;
+          cand.sort((a,b) => Math.abs(Math.abs(a.lum - tl) - TARGET) - Math.abs(Math.abs(b.lum - tl) - TARGET));
+          t2.bg = Object.assign({}, t2.bg, { type:'image', src: cand[0].src });
+          // one tone: more of it where the photo is far from the theme, less
+          // where it already sits near it, so texture survives either way
+          const gap = Math.abs(cand[0].lum - tl);
+          /* Two washes, alternated. The pale one (the theme's own ground) is
+             clean but the owner is right that it can wash out; the other tints
+             the photo with the ACCENT at a lower alpha, which puts colour back
+             and still reads through. Sometimes the washed-out effect is nice —
+             their words — so neither is the only answer. */
+          if (sd % 2 === 0){
+            t2.bg.scrimColor = gap < 0.15 ? th.c2 : th.c1;
+            t2.bg.scrim = Math.max(0.42, Math.min(0.68, 0.40 + gap));
+          } else {
+            t2.bg.scrimColor = th.accent;
+            t2.bg.scrim = lumHex(th.c1) > 0.22 ? 0.24 : 0.30;   // 0.42 turned a wheel into orange fog
+          }
+        }
+
+        /* one card in three keeps the photograph's colour under a blur and a
+           neutral scrim — see `natural` in paint(). A busy photograph gets
+           more blur and more scrim, so the copy stays the loudest thing. */
+        if (t2.bg && t2.bg.type === 'image' && sd % 3 === 1){
+          const light = lumHex(th.c1) > 0.22;
+          const row = BGLUM.find(b => b.src === t2.bg.src), busy = row && row.detail > 14;
+          t2.bg = Object.assign({}, t2.bg, { treat:'natural', blur: busy ? 22 : (sd % 2 ? 9 : 15),
+            scrimColor: light ? '#ffffff' : '#000000', scrim: busy ? (light ? 0.52 : 0.46) : (light ? 0.40 : 0.34) });
+        }
+        signature(t2, p.cat, i * 7 + j, th);
+        /* COLOUR GROUND. A card without a photograph — the assortments and
+           ghost walls on a plain ground — read as "bland, lack colours in the
+           background". The advertising references are the standard: a wash
+           of the palette behind everything. */
+        if (!(t2.bg && t2.bg.type === 'image' && t2.bg.src)){
+          t2.layers.unshift({ kind:'rect', name:'Colour Ground', role:'ground', solid:true, __lock:true,
+            props:{ left: 0, top: 0, width: W, height: H, fill: th.accent, opacity: 0.22, grad: { c1: th.accent, c2: th.support, a: 35 + (sd % 4) * 30 } } });
+          t2.layers.splice(1, 0, { kind:'rect', name:'Colour Band', role:'ground', solid:true, __lock:true,
+            props:{ left: -120, top: H * 0.55 + (sd % 3) * 60, width: W + 240, height: 220, fill: th.support, opacity: 0.28, angle: -8 + (sd % 3) * 8 } });
+        }
+        /* how much information this composition can take is decided by the
+           frame, not by taste: fill the empty bands, then check the number. */
+        const probe = paint(t2, false);
+        const bands = freeBands(probe.refs);
+        const boxes0 = probe.refs.filter(Boolean).map(o => o.getBoundingRect(true, true));
+        probe.sc.dispose();
+        /* PANEL FOOT. A lower panel with 70px of nothing under its last line
+           reads as unfinished; the cities line fills it. The no-repeat pass
+           swaps it for another fact if the card already lists the cities. */
+        { const probeF = paint(t2, false);
+          const panels = t2.layers.map((l, k) => (l.kind === 'rect' || l.kind === 'rrect') && probeF.refs[k] && (l.props.width || 0) > W * 0.6 && (l.props.height || 0) > 260 ? { l, b: probeF.refs[k].getBoundingRect(true, true) } : null).filter(Boolean);
+          const texts = t2.layers.map((l, k) => typeof l.text === 'string' && probeF.refs[k] ? probeF.refs[k].getBoundingRect(true, true) : null).filter(Boolean);
+          probeF.sc.dispose();
+          panels.forEach(({ b }) => {
+            const inside = texts.filter(t => t.top >= b.top - 4 && t.top + t.height <= b.top + b.height + 4 && t.left >= b.left - 4);
+            if (!inside.length) return;
+            const lowest = Math.max(...inside.map(t => t.top + t.height));
+            if (b.top + b.height - lowest < 70) return;
+            const fy = b.top + b.height - 30, fw = INFO.area.length * 22 * 0.62, foot = { left: W / 2 - fw / 2, top: fy - 16, width: fw, height: 32 };
+            if (texts.some(t => !(foot.left + foot.width <= t.left || t.left + t.width <= foot.left || foot.top + foot.height <= t.top || t.top + t.height <= foot.top))) return;
+            t2.layers.push({ kind:'text', name:'Panel Foot', role:'info', text: INFO.area,
+              props:{ left: W / 2, top: b.top + b.height - 30, originX:'center', originY:'center', fontFamily: th.faces.support,
+                      fontSize: 22, fill:'#ffffff', fontWeight:'700', charSpacing: 60 } });
+          }); }
+        /* the same sentence twice: a layout with both an Items line and an
+           Info Text line got deck.items in each. The second becomes a
+           different fact. */
+        { const seen = new Set();
+          t2.layers.forEach(l => {
+            if (typeof l.text !== 'string') return;
+            const k = l.text.trim().toUpperCase();
+            if (k.length < 12) return;
+            /* a shorter cut of the same list counts as the same sentence */
+            if ([...seen].some(x => x.startsWith(k) || k.startsWith(x))) l.text = [INFO.pay, INFO.hours, INFO.area][sd % 3];
+            else seen.add(k);
+          }); }
+        enrich(t2, th, deck || { items: (DECKS_SNAPSHOT[p.cat] || {}).items || '' }, bands, 4, sd, boxes0);
+
+        /* Only add a product where one genuinely fits. Forcing one in with a
+           fallback position put a phone straight through the headline and the
+           number: these are hand-built compositions, and a layout that was not
+           designed around a cutout does not have a hole for one. Require a real
+           empty band, and check the placement against every existing layer
+           before committing to it. */
+        /* the layout's own product is not exempt: stepsFlow's slab stack sat
+           across the step rows, the car "too small and hiding". A cutout that
+           overlaps any text is taken out and re-placed by the same search. */
+        { const probeX = paint(t2, false);
+          const tboxes = probeX.refs.map((o, k) => o && typeof t2.layers[k].text === 'string' && t2.layers[k].role !== 'deco' ? o.getBoundingRect(true, true) : null).filter(Boolean);
+          t2.layers.forEach((l, k) => {
+            if (l.kind !== 'cutout' || !probeX.refs[k]) return;
+            const b = probeX.refs[k].getBoundingRect(true, true);
+            const hit = tboxes.some(t => { const ix = Math.max(0, Math.min(b.left + b.width, t.left + t.width) - Math.max(b.left, t.left)), iy = Math.max(0, Math.min(b.top + b.height, t.top + t.height) - Math.max(b.top, t.top)); return ix * iy > 0.1 * t.width * t.height; });
+            if (hit) l.__evict = true;
+          });
+          probeX.sc.dispose();
+          t2.layers = t2.layers.filter(l => !l.__evict); }
+        if (!t2.layers.some(l => l.kind === 'cutout')){
+          /* PLACEMENT SEARCH. One candidate spot (right column, 260px free)
+             existed on almost no layout, so most iPhone cards shipped with no
+             product at all — on the one category where the product is the
+             point. Try several positions at several sizes, largest first, and
+             take the first that clears every layer on the frame. If nothing
+             clears, the layout genuinely has no room and gets none. */
+          const probe2 = paint(t2, false);
+          /* the vignette and the grain cover the whole frame, and counting
+             them as obstacles meant nothing ever cleared: most cards shipped
+             with no product for that reason alone */
+          const boxes = probe2.refs.map((o, k) => o && !/vignette|grain/.test(t2.layers[k].kind) ? o.getBoundingRect(true, true) : null)
+            .filter(b => b && !(b.width > W * 0.85 && b.height > H * 0.85));
+          probe2.sc.dispose();
+          const clear = r => !boxes.some(b => !(r.left + r.width <= b.left || b.left + b.width <= r.left ||
+                                                 r.top + r.height <= b.top || b.top + b.height <= r.top));
+          const spots = [
+            w => ({ left: W-70-w, top: 90 }),     w => ({ left: W-70-w, top: 150 }),
+            w => ({ left: W/2 - w/2, top: 120 }), w => ({ left: W/2 - w/2, top: 300 }),
+            w => ({ left: W-70-w, top: 300 }),    w => ({ left: W-70-w, top: 420 }),
+            w => ({ left: W-70-w, top: 540 }),    w => ({ left: 70, top: 420 }),
+          ];
+          let placed = null;
+          /* the REAL proportions of the asset, not a square guess: a coin on
+             its edge is three times taller than it is wide, "cleared" a
+             square spot, and was then re-homed to the centre of the card over
+             every tile and the phone number */
+          const elA = CUTOUT_ELS[cutSrc], aspectA = elA && elA.width ? elA.height / elA.width : 1.05;
+          outer: for (const w of [380, 340, 320]){
+            for (const sp of spots){
+              const pos = sp(w), box = { left: pos.left - 10, top: pos.top - 10, width: w + 20, height: w * aspectA + 20 };
+              if (box.top + box.height > H - 60) continue;
+              if (clear(box)){ placed = { w, left: pos.left + w, top: pos.top }; break outer; }
+            }
+          }
+          if (placed) t2.layers.push({ kind:'cutout', name:'Hero Product', role:'photo',
+            props:{ src: cutSrc, left: placed.left, top: placed.top, originX:'right', w: placed.w,
+                    shadow:{ color:'rgba(0,0,0,0.38)', blur:40, offsetX:0, offsetY:20 } } });
+        }
+
+        /* ASSORTMENTS. Owner, 2026-09-02: "currently these only contain
+           about 1-2 images of assets, we need more to catch eyes. Fill
+           background, fill empty space up more. Make relevant assortments of
+           images: similar models, styles, brands, whatever would make sense
+           for the category." Two devices, both drawn from the card's OWN pool
+           so a Pixel never joins an iPhone lineup and a coin never joins gold:
+
+             LINEUP — three to five related products in a row across the
+             tallest band the copy leaves free, hero in the middle, a step
+             larger and on top, its neighbours tilted away from it. It is
+             placed like the single product: every item has to clear every
+             line of copy, or the row is not placed and the single product
+             stands.
+             WALL   — the same family ghosted behind everything at low
+             opacity, so the ground is the product instead of bokeh.
+
+           LAB_ASSORT=all puts one on every card, off puts none, and the
+           default is one card in three. */
+        { const ASSORT = INFO.assort || 'third';
+          const wantIt = ASSORT === 'all' || (ASSORT !== 'off' && sd % 3 === 1);
+          const isGroup = n => /trio|fan|pair|group|pile|stack|scatter|collection|mixed|spill|-set|lineup|stagger|family|boxed|hand|tray|flatware/i.test(n);
+          const order = (deck && deck.cuts) || HERO[p.cat] || [];
+          const rank = n => { const k = order.findIndex(pre => n.startsWith(pre)); return k < 0 ? 99 : k; };
+          const singles = use.filter(n => !isGroup(n)).sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+          const srcOf = n => 'assets/cutouts/' + n + '.webp';
+          const aspectOf = n => { const el = CUTOUT_ELS[srcOf(n)]; return el && el.width ? el.height / el.width : 1; };
+          if (wantIt && singles.length >= 2){
+            /* the hero leads; the rest of the family rotates off the seed */
+            const family = [singles[0]];
+            for (let k = 1; k < singles.length && family.length < 5; k++) family.push(singles[1 + ((k - 1 + sd) % (singles.length - 1))]);
+            const probeA = paint(t2, false);
+            const boxes = probeA.refs.map((o, k) => o && !/vignette|grain/.test(t2.layers[k].kind) && t2.layers[k].role !== 'frame' && t2.layers[k].kind !== 'cutout' ? o.getBoundingRect(true, true) : null)
+              .filter(b => b && !(b.width > W * 0.85 && b.height > H * 0.85));
+            const bands = freeBands(probeA.refs.map((o, k) => t2.layers[k].kind === 'cutout' ? null : o));
+            const headBoxes = probeA.refs.map((o, k) => o && t2.layers[k].role === 'headline' ? o.getBoundingRect(true, true) : null).filter(Boolean);
+            probeA.sc.dispose();
+            const clear = r => !boxes.some(b => !(r.left + r.width <= b.left || b.left + b.width <= r.left || r.top + r.height <= b.top || b.top + b.height <= r.top));
+            /* where a row can go: every full-width band, then the free
+               stretch of either side column — a left-aligned headline leaves
+               the right third open top to bottom, which no band ever sees */
+            const regions = bands.filter(b => b.h >= 170).map(b => ({ left: 55, width: W - 110, top: b.top, h: b.h, row: true }));
+            [[Math.round(W * 0.56), W - 50], [50, Math.round(W * 0.44)]].forEach(([x0, x1]) => {
+              const occ = new Uint8Array(H);
+              boxes.forEach(b => { if (b.left + b.width <= x0 || b.left >= x1) return;
+                for (let y = Math.max(0, ~~b.top); y < Math.min(H, Math.ceil(b.top + b.height)); y++) occ[y] = 1; });
+              let start = -1;
+              for (let y = 0; y <= H; y++){
+                if (y < H && !occ[y]){ if (start < 0) start = y; }
+                else if (start >= 0){ if (y - start >= 300) regions.push({ left: x0, width: x1 - x0, top: start, h: y - start, row: false }); start = -1; }
+              }
+            });
+            regions.sort((a, b) => (b.width * b.h) - (a.width * a.h));
+            let lineup = null;
+            outer: for (const reg of regions){
+              for (const n of [Math.min(reg.row ? 5 : 3, family.length), reg.row ? 4 : 2, reg.row ? 3 : 0, reg.row ? 2 : 0]){
+                if (n > family.length || n < 2) continue;
+                /* the hero in the middle: neighbours are drawn from the rest */
+                const rest = family.slice(1, n), midAt = Math.floor(n / 2);
+                const names = rest.slice(0, midAt).concat([family[0]], rest.slice(midAt));
+                const overlap = 0.10;                                   // neighbours tuck under the hero a little
+                const placed = [];
+                if (reg.row){
+                  const hh = Math.min(reg.h - 24, 470);
+                  const items = names.map((nm, k) => { const a = aspectOf(nm), mid = k === midAt, h = hh * (mid ? 1 : 0.84); return { nm, a, h, w: h / a, mid }; });
+                  let total = items.reduce((t, it) => t + it.w, 0) * (1 - overlap) + items[0].w * overlap;
+                  if (total > reg.width){ const f = reg.width / total; items.forEach(it => { it.h *= f; it.w *= f; }); total = reg.width; }
+                  if (items.some(it => it.h < 150)) continue;
+                  let x = reg.left + (reg.width - total) / 2; const cy = reg.top + reg.h / 2;
+                  for (const it of items){
+                    const top = cy - it.h / 2, box = { left: x - 6, top: top - 6, width: it.w + 12, height: it.h + 12 };
+                    if (!clear(box)){ placed.length = 0; break; }
+                    placed.push(Object.assign({}, it, { left: x, top })); x += it.w * (1 - overlap);
+                  }
+                } else {
+                  /* a column: the family stacks, hero in the middle, each
+                     item as wide as the column allows */
+                  const items = names.map((nm, k) => { const a = aspectOf(nm), mid = k === midAt; let w = (reg.width - 20) * (mid ? 1 : 0.84); let h = w * a; return { nm, a, h, w, mid }; });
+                  let total = items.reduce((t, it) => t + it.h, 0) * (1 - overlap) + items[0].h * overlap;
+                  if (total > reg.h - 24){ const f = (reg.h - 24) / total; items.forEach(it => { it.h *= f; it.w *= f; }); total = reg.h - 24; }
+                  if (items.some(it => it.h < 140)) continue;
+                  let y = reg.top + (reg.h - total) / 2; const cx = reg.left + reg.width / 2;
+                  for (const it of items){
+                    const left = cx - it.w / 2, box = { left: left - 6, top: y - 6, width: it.w + 12, height: it.h + 12 };
+                    if (!clear(box)){ placed.length = 0; break; }
+                    placed.push(Object.assign({}, it, { left, top: y })); y += it.h * (1 - overlap);
+                  }
+                }
+                if (placed.length === n){ lineup = placed; break outer; }
+              }
+            }
+            if (lineup){
+              t2.layers = t2.layers.filter(l => l.kind !== 'cutout');
+              /* neighbours first, the hero last, so it sits on top of the row */
+              lineup.map((it, k) => ({ it, k })).sort((a, b) => (a.it.mid ? 1 : 0) - (b.it.mid ? 1 : 0)).forEach(({ it, k }) => {
+                const tilt = it.mid ? 0 : (k < lineup.length / 2 ? -7 : 7);
+                t2.layers.push({ kind:'cutout', name:'Lineup Product ' + (k + 1), role:'photo', __lineup:true,
+                  props:{ src: srcOf(it.nm), left: it.left + it.w / 2, top: it.top + it.h / 2, originX:'center', originY:'center',
+                          w: it.w, angle: tilt, shadow:{ color:'rgba(0,0,0,0.40)', blur:36, offsetX:0, offsetY:18 } } });
+              });
+            }
+            /* the wall: on every assorted card that took no lineup, and on
+               half of the ones that did */
+            if (!lineup || sd % 2 === 0){
+              const light = lumHex(th.c1) > 0.22;
+              const wallSet = singles.length >= 3 ? singles : use;
+              const cols = 3, rows = 3, cw = W / cols, rh = H / rows;
+              const wall = [];
+              for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++){
+                const k = r * cols + c;
+                if ((k + sd) % 4 === 0) continue;                       // a gap or two, so it is not a wallpaper grid
+                const nm = wallSet[(k * 5 + sd) % wallSet.length];
+                const jx = ((sd * (k + 3)) % 60) - 30, jy = ((sd * (k + 7)) % 60) - 30;
+                const tw = Math.round(Math.min(cw, rh) * 0.86), tx = cw * (c + 0.5) + jx, ty = rh * (r + 0.5) + jy;
+                /* a ghost under the headline fights the word; that cell stays empty */
+                const tile = { left: tx - tw / 2, top: ty - tw / 2, width: tw, height: tw };
+                const underHead = headBoxes.some(h => { const ix = Math.max(0, Math.min(tile.left + tile.width, h.left + h.width) - Math.max(tile.left, h.left)), iy = Math.max(0, Math.min(tile.top + tile.height, h.top + h.height) - Math.max(tile.top, h.top)); return ix * iy > 0.25 * tw * tw; });
+                if (underHead) continue;
+                wall.push({ kind:'cutout', name:'Wall Product ' + (k + 1), role:'photo', __wall:true,
+                  props:{ src: srcOf(nm), left: tx, top: ty, originX:'center', originY:'center',
+                          w: tw, angle: (k % 2 ? 12 : -12), opacity: light ? 0.16 : 0.26 } });
+              }
+              t2.layers.unshift(...wall);
+            }
+          }
+        }
+
+        /* NO LINE REPEATS — "in any template EVER". Every pass above can add
+           copy (the swap, the dedupe swap, enrich's info bands), so this runs
+           last: a line that repeats an earlier one, exactly or as a shorter
+           cut of it, becomes a fact the card does not have yet, or goes. */
+        { const norm = t => String(t).trim().toUpperCase().replace(/\s+/g, ' ');
+          /* the cities line is the one the owner singled out — "it helps
+             people see where" — so it is the first alternate */
+          const pool = [INFO.area, INFO.pay, INFO.hours, INFO.promise, ...INFO.trust, ...INFO.yes, ...INFO.no];
+          /* a seal STACK (LICENSED / INSURED / PRIVATE, top right) next to a
+             seal ROW of the same words: the stack changes its words */
+          { const rows = new Set(t2.layers.filter(l => typeof l.text === 'string' && !l.text.includes('\n') && /^[A-Z][A-Z &-]{3,14}$/.test(l.text.trim())).map(l => norm(l.text)));
+            const seals = ['VERIFIED','TOP RATED','SINCE 2015','BONDED','NO FEES','SAME DAY','WALK-INS OK','5-STAR','CASH PAID'];
+            t2.layers.forEach(l => {
+              if (typeof l.text !== 'string' || !l.text.includes('\n')) return;
+              const lines = l.text.split('\n');
+              if (lines.length < 2 || lines.length > 4 || !lines.some(x => rows.has(norm(x)))) return;
+              const fresh = seals.filter(x => !rows.has(x) && !lines.map(norm).includes(x));
+              l.text = lines.map(x => rows.has(norm(x)) ? fresh.shift() || x : x).join('\n');
+            }); }
+          const seen = [];
+          const dupOf = k => seen.some(x => x === k || (k.length >= 12 && x.length >= 12 && (x.startsWith(k) || k.startsWith(x))));
+          const kill = [];
+          t2.layers.forEach((l, k) => {
+            if (typeof l.text !== 'string' || !l.text.trim()) return;
+            let key = norm(l.text);
+            if (key.length < 8) return;                     // TOP, $850, ✓
+            if (!dupOf(key)){ seen.push(key); return; }
+            if (l.role === 'headline'){ kill.push(k); return; }
+            const room = l.text.length * 1.15 + 2;
+            const alt = pool.find(t => t.length <= room && !dupOf(norm(t)));
+            if (alt){ l.text = alt; seen.push(norm(alt)); }
+            else kill.push(k);
+          });
+          kill.reverse().forEach(k => t2.layers.splice(k, 1));
+        }
+        { const probeE = paint(t2, false); addElements(t2, p.cat, sd, th, probeE.refs); probeE.sc.dispose(); }
+        const ground = paint(t2, true);
+        const gd = ground.sc.lowerCanvasEl.getContext('2d').getImageData(0,0,W,H).data;
+        ground.sc.dispose();
+
+        // repair any line the swap left short, using the ground we just measured
+        const full = paint(t2, false);
+        const plates = [];                      // [layer index, bbox, plate colour] for lines that need a plate
+        t2.layers.forEach((l, k) => {
+          const o = full.refs[k];
+          if (!o || typeof l.text !== 'string' || !String(l.text).trim()) return;
+          const b = o.getBoundingRect(true, true);
+          const x0=Math.max(0,~~b.left), y0=Math.max(0,~~b.top);
+          const x1=Math.min(W,Math.ceil(b.left+b.width)), y1=Math.min(H,Math.ceil(b.top+b.height));
+          const ls = [];
+          for (let y=y0;y<y1;y+=2) for (let x=x0;x<x1;x+=2) ls.push(lumPx(gd,(y*W+x)*4));
+          if (!ls.length) return;
+          ls.sort((a, b) => a - b);
+          /* the MEAN let black sit on a photo whose dark half swallowed it
+             ("black on black"): a dark ink is judged against the darkest
+             quarter of its ground, a light ink against the lightest */
+          const q = Math.max(1, Math.floor(ls.length / 4));
+          const Ldark = ls.slice(0, q).reduce((a, b) => a + b, 0) / q, Llight = ls.slice(-q).reduce((a, b) => a + b, 0) / q;
+          const Lmean = ls.reduce((a, b) => a + b, 0) / ls.length;
+          let L = Lmean;
+          /* rgba() and gradient fills are NOT edge cases here — the designer
+             library uses them for most semi-transparent labels and every
+             gradient headline. Skipping them left "PAID TODAY" and "200+ LOCAL
+             REVIEWS" dark-on-dark after the swap: the repair ran and declined
+             to look at exactly the layers that broke. */
+          const toHex = v => {
+            if (isHex(v)) return v;
+            if (typeof v === 'string'){
+              const q = v.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+              if (q) return '#' + [1,2,3].map(n => (+q[n]).toString(16).padStart(2,'0')).join('');
+            }
+            return null;
+          };
+          /* the GRADIENT is what paints when there is one: Headline 1 on the
+             ticket carried fill #173f3f and a white-to-white grad, so the fill
+             passed and the white printed — "more white on white" */
+          const inkNow = (l.props.grad && toHex(l.props.grad.c1)) || toHex(l.props.fill) || null;
+          const want = (l.props.fontSize || 40) >= 30 ? 4.0 : 5.5;
+          const ratio = c => { const A = lumHex(c); const G = A < 0.18 ? Ldark : A > 0.5 ? Llight : Lmean; const hi=Math.max(A,G), lo=Math.min(A,G); return (hi+0.05)/(lo+0.05); };
+          /* a locked gradient (the golden money word) is kept as long as EITHER
+             stop can be read; when both fail — a white-to-cream headline on the
+             white ticket, "more white on white" — it is repaired like any line */
+          if (l.__lock && l.props.grad){
+            const c2h = toHex(l.props.grad.c2);
+            if ((inkNow && ratio(inkNow) >= want) || (c2h && ratio(c2h) >= want)) return;
+          }
+          if (inkNow && ratio(inkNow) < want){
+            const best = ratio('#f9f8f6') >= ratio('#101014') ? '#f9f8f6' : '#101014';
+            l.props.fill = best;
+            l.props.opacity = 1;                       // alpha is often why it failed
+            if (l.props.grad) delete l.props.grad;     // rule 45: set fill, drop grad
+            // a hollow outline on a repaired headline just muddies it
+            if (l.props.stroke && (l.props.fontSize || 0) >= 70) l.props.strokeWidth = 0;
+            /* neither ink clears the worst quarter: a thin outline in the
+               opposite colour carries the letter over the photo — an outline,
+               not a glow (glow on condensed faces is out) */
+            if (ratio(best) < want){
+              l.props.stroke = best === '#f9f8f6' ? '#101014' : '#f9f8f6';
+              l.props.strokeWidth = Math.max(2, (l.props.fontSize || 40) * ((l.props.fontSize || 40) >= 60 ? 0.05 : 0.09));
+              l.props.paintFirst = 'stroke';
+              /* small type over a busy photo needs more than an outline: a
+                 soft plate in the opposite tone, hugging the line */
+              if ((l.props.fontSize || 40) < 60 && l.role !== 'badges' && l.role !== 'deco' && !l.__pinned)
+                plates.push([k, b, best === '#f9f8f6' ? 'rgba(16,16,20,0.72)' : 'rgba(249,248,246,0.80)']);
+            }
+          }
+        });
+        full.sc.dispose();
+
+        /* MINIMUM INFORMATION. Owner, 2026-09-02, on a row of cards carrying
+           an items line and nothing else: "themes lacking selling points /
+           information". A card leaves here with at least two lines of
+           selling points besides the items and the CTA. They go into any
+           free band; if the copy leaves none, the headline gives up 12% and
+           the search runs once more. */
+        { const infoNames = /^(Items|Who|Who 2|Panel Foot|Website|Rating|Review|We Also Buy|Service Area|Address|Hours)/;
+          const norm = t => String(t).trim().toUpperCase().replace(/\s+/g, ' ');
+          const have = () => t2.layers.filter(l => typeof l.text === 'string' && l.role === 'info' && !infoNames.test(l.name || '') && l.text.trim().length >= 10);
+          const onCard = new Set(t2.layers.filter(l => typeof l.text === 'string').map(l => norm(l.text)));
+          const sellPool = []
+            .concat(String((useDeck || deck || DECKS_SNAPSHOT[p.cat] || {}).sub || '').split(/\\n|\n/))
+            .concat([INFO.promise], INFO.yes, INFO.no)
+            .map(t => t.trim()).filter(t => t.length >= 10 && !onCard.has(norm(t)));
+          const light = lumHex(th.c1) > 0.22;
+          for (let attempt = 0; attempt < 2 && have().length < 2 && sellPool.length; attempt++){
+            const pr = paint(t2, false);
+            const bands = freeBands(pr.refs).filter(b => b.h >= 56);
+            pr.sc.dispose();
+            if (!bands.length){
+              /* nothing free: the biggest headline yields a little room */
+              const heads = t2.layers.filter(l => l.role === 'headline' && l.props && l.props.fontSize);
+              heads.sort((a, b) => b.props.fontSize - a.props.fontSize);
+              if (heads[0]) heads[0].props.fontSize = Math.round(heads[0].props.fontSize * 0.88);
+              continue;
+            }
+            for (const b of bands){
+              if (have().length >= 2 || !sellPool.length) break;
+              const text = sellPool.shift();
+              const fs = b.h >= 84 ? 27 : 22;
+              t2.layers.push({ kind:'text', name:'Selling Point', role:'info', text: text.toUpperCase(),
+                props:{ left: W / 2, top: b.top + b.h / 2, originX:'center', originY:'center', fontFamily: th.faces.support,
+                        fontSize: fs, fill: th.ink, fontWeight:'800', charSpacing: 40 } });
+              onCard.add(norm(text));
+            }
+          }
+        }
+
+        frameFor(t2, p.cat, i * 7 + j, th);
+        const fin = paint(t2, false);
+        /* Edge density, the metric from the owner's own labelled references:
+           their GOOD folder sits at 25.8-34% and the shipped library at ~8%.
+           Busier is better in this market, so this number is a target, not a
+           warning. */
+        const small = document.createElement('canvas'); small.width = 256; small.height = 256;
+        small.getContext('2d').drawImage(fin.sc.lowerCanvasEl, 0, 0, W, H, 0, 0, 256, 256);
+        const pix = small.getContext('2d').getImageData(0,0,256,256).data;
+        let edges = 0, tot = 0;
+        for (let y=1;y<256;y++) for (let x=1;x<256;x++){
+          const a=(y*256+x)*4, b=(y*256+x-1)*4, c3=((y-1)*256+x)*4;
+          const d1=Math.abs(pix[a]-pix[b])+Math.abs(pix[a+1]-pix[b+1])+Math.abs(pix[a+2]-pix[b+2]);
+          const d2=Math.abs(pix[a]-pix[c3])+Math.abs(pix[a+1]-pix[c3+1])+Math.abs(pix[a+2]-pix[c3+2]);
+          if (Math.max(d1,d2) > 24) edges++;
+          tot++;
+        }
+        const density = +(edges/tot*100).toFixed(1);
+        if (density < 12 && attempt === 0){ fin.sc.dispose(); continue; }   // sparse: try once more with a new seed
+
+        const c = document.createElement('canvas');
+        c.width = SIZE; c.height = SIZE;
+        const g2 = c.getContext('2d'); g2.imageSmoothingQuality = 'high';
+        g2.drawImage(fin.sc.lowerCanvasEl, 0, 0, W, H, 0, 0, SIZE, SIZE);
+        /* LAB_DEBUG=layout-palette[,…] attaches the final layer table */
+        const dbg = (DEBUG_ID === 'ALL') || (DEBUG_ID && DEBUG_ID.split(',').includes(p.layout + '-' + th.id))
+          ? t2.layers.map((l, k) => { const o = fin.refs[k]; const bb = o && o.getBoundingRect(true, true);
+              return [k, l.kind, l.role || '', (l.name || '').slice(0, 22), typeof l.text === 'string' ? l.text.replace(/\n/g, '⏎').slice(0, 44) : '',
+                      (o && o.fontSize) || (l.props && l.props.fontSize) || '', bb ? [bb.left, bb.top, bb.width, bb.height].map(Math.round).join(',') : '-',
+                      l.solid ? 'solid' : '', l.props && l.props.fill || '', l.props && l.props.grad ? 'grad ' + l.props.grad.c1 + '>' + l.props.grad.c2 : '', l.__lock ? 'lock' : '', l.props && l.props.strokeWidth ? 'stroke ' + l.props.stroke + ' ' + l.props.strokeWidth : ''].join(' | '); })
+          : undefined;
+        out.push({ id: p.layout + '-' + th.id + '-' + e.v, name: th.name + ' · ' + p.layout, dbg,
+                   family: th.family, layout: p.layout, cat: p.cat, base: p.id,
+                   faces: th.faces, c1:th.c1, ink:th.ink, accent:th.accent, support:th.support,
+                   plate: th.plate.shape+'/'+th.plate.fill,
+                   product: cutSrc.split('/').pop().replace('.webp',''), density,
+                   png: c.toDataURL('image/webp', 0.82),
+                   tpl: INFO.export ? (() => { try { return JSON.parse(JSON.stringify(t2)); } catch(e){ return null; } })() : undefined });
+        fin.sc.dispose();
+        break;
+      } catch(err){ if (attempt === 0) continue; out.push({ id: picks[e.i][0].layout+'-'+DONORS[j]+'-'+e.v, err:String(err).slice(0,140) }); }
+      await new Promise(r => setTimeout(r, 0));
+    }
+  }
+  return out;
+}, PLAN, picks, DONORS, THEMES, PAL, CUTS, DEVICE_DECKS, INFO, CATEGORY_COPY, ALL.filter(f => !LEGACY.test(f)), HERO, BG, DEBUG_ID, TYPE, CHALLENGE, KICKERS, FACESYS, WEBBG);
+await browser.close();
+
+const ok = cards.filter(c => !c.err), bad = cards.filter(c => c.err);
+if (process.env.LAB_EXPORT) writeFileSync(OUT + 'templates.json', JSON.stringify(ok.map(({ png, dbg, ...r }) => r)));
+ok.forEach(c => writeFileSync(OUT + c.id + '.webp', Buffer.from(c.png.split(',')[1],'base64')));
+if (DEBUG_ID === 'ALL'){
+  let rows = ok.map(c => ({ id: c.id, cat: c.cat, faces: c.faces, density: c.density, layers: c.dbg }));
+  if (process.env.LAB_ONLY && existsSync(OUT + 'audit-layers.json')){
+    const prev = JSON.parse(readFileSync(OUT + 'audit-layers.json', 'utf8')), byId = Object.fromEntries(rows.map(r => [r.id, r]));
+    rows = prev.map(r => byId[r.id] || r);
+    // the manifest too: a re-rendered card's record replaces the old one
+    const man = JSON.parse(readFileSync(OUT + 'manifest.json', 'utf8')), mb = Object.fromEntries(ok.map(({ png, dbg, tpl, ...r }) => [r.id, r]));
+    writeFileSync(OUT + 'manifest.json', JSON.stringify(man.map(r => mb[r.id] || r), null, 1));
+  }
+  writeFileSync(OUT + 'audit-layers.json', JSON.stringify(rows, null, 0));
+}
+else ok.filter(c => c.dbg).forEach(c => console.log('\n== ' + c.id + ' (' + c.cat + ', ' + c.product + ')\n' + c.dbg.join('\n')));
+writeFileSync(OUT + (process.env.LAB_ONLY ? 'manifest-only.json' : 'manifest.json'), JSON.stringify(ok.map(({png,dbg,tpl,...r}) => r), null, 1));
+const mb = ok.reduce((s,c) => s + Buffer.from(c.png.split(',')[1],'base64').length, 0)/1048576;
+console.log(`rendered ${ok.length}/${cards.length} · ${mb.toFixed(1)} MB`);
+console.log('layouts: ' + [...new Set(ok.map(c=>c.layout))].length + ' · palettes: ' + [...new Set(ok.map(c=>c.family))].join(', '));
+console.log('legacy hardware in pool: ' + Object.values(CUTS).flat().filter(c => /iphone-(x|xr|xs|1[012])/i.test(c)).length);
+if (bad.length) bad.slice(0,6).forEach(c => console.log('  FAIL ' + c.id + ' ' + c.err));
+if (perr.length) console.log('page errors: ' + perr.slice(0,3).join(' | '));

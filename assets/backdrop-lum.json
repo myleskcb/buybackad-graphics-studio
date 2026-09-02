@@ -1,0 +1,2298 @@
+[
+ {
+  "src": "assets/bg/dl_strips_trustSeal_emerald.jpg",
+  "lum": 0.819,
+  "p90": 0.979,
+  "detail": 2.93,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_strips_stepsFlow_emerald.jpg",
+  "lum": 0.711,
+  "p90": 0.981,
+  "detail": 3.83,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_strips_reviewProof_arctic.jpg",
+  "lum": 0.669,
+  "p90": 0.976,
+  "detail": 1.69,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/scenes/scene-ref-scanmap-mar18.jpg",
+  "lum": 0.619,
+  "p90": 0.982,
+  "detail": 5.63,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/strips-blood-glucose-test-strips-2.jpg",
+  "lum": 0.616,
+  "p90": 0.871,
+  "detail": 13.22,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_silver_reviewProof_arctic.jpg",
+  "lum": 0.602,
+  "p90": 0.919,
+  "detail": 2.77,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg-web/strips-blood-glucose-test-strips-3.jpg",
+  "lum": 0.551,
+  "p90": 0.778,
+  "detail": 15.64,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-jewelry-rings-3.jpg",
+  "lum": 0.55,
+  "p90": 0.991,
+  "detail": 17.46,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-iphone-14-pro-3.jpg",
+  "lum": 0.548,
+  "p90": 0.644,
+  "detail": 5.09,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-flat-iphones.jpg",
+  "lum": 0.526,
+  "p90": 0.835,
+  "detail": 7.54,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_reviewProof_royal.jpg",
+  "lum": 0.504,
+  "p90": 0.907,
+  "detail": 3.26,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_coins_trustSeal_gold.jpg",
+  "lum": 0.502,
+  "p90": 0.917,
+  "detail": 7.01,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_silver_trustSeal_mono.jpg",
+  "lum": 0.487,
+  "p90": 0.862,
+  "detail": 6.88,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg-web/coins-american-gold-eagle-coin-2.jpg",
+  "lum": 0.482,
+  "p90": 0.88,
+  "detail": 37.76,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_silver_stepsFlow_ocean.jpg",
+  "lum": 0.477,
+  "p90": 0.934,
+  "detail": 4.2,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/tplbg/sell_iphone.jpg",
+  "lum": 0.474,
+  "p90": 0.709,
+  "detail": 2.94,
+  "cat": "iphone.jpg"
+ },
+ {
+  "src": "assets/scenes/scene-ref-lineup-oct25.jpg",
+  "lum": 0.474,
+  "p90": 0.709,
+  "detail": 3.07,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-ref-sell-iphone.jpg",
+  "lum": 0.474,
+  "p90": 0.709,
+  "detail": 2.98,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_strips_duoSplit_emerald.jpg",
+  "lum": 0.467,
+  "p90": 0.832,
+  "detail": 3.82,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/scenes/scene-pick-bone-minis.jpg",
+  "lum": 0.467,
+  "p90": 0.92,
+  "detail": 3.75,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-iphone-14-pro-2.jpg",
+  "lum": 0.462,
+  "p90": 0.63,
+  "detail": 4.58,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_phones_bubblePop_volt.jpg",
+  "lum": 0.455,
+  "p90": 0.868,
+  "detail": 3.48,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_phones_scriptRetro_rose.jpg",
+  "lum": 0.455,
+  "p90": 0.868,
+  "detail": 3.48,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/tplbg/cash_offer.jpg",
+  "lum": 0.451,
+  "p90": 0.78,
+  "detail": 4.67,
+  "cat": "offer.jpg"
+ },
+ {
+  "src": "assets/bg/dl_sports_trustSeal_crimson.jpg",
+  "lum": 0.449,
+  "p90": 0.906,
+  "detail": 5.29,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/tplbg/neon_sell.jpg",
+  "lum": 0.447,
+  "p90": 0.7,
+  "detail": 3.17,
+  "cat": "sell.jpg"
+ },
+ {
+  "src": "assets/bg-web/coins-american-gold-eagle-coin-1.jpg",
+  "lum": 0.446,
+  "p90": 0.877,
+  "detail": 46.62,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_sports_reviewProof_paper.jpg",
+  "lum": 0.443,
+  "p90": 0.804,
+  "detail": 7.3,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_strips_agencyGrid_arctic.jpg",
+  "lum": 0.442,
+  "p90": 0.841,
+  "detail": 5.18,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_gold_stepsFlow_gold.jpg",
+  "lum": 0.441,
+  "p90": 0.887,
+  "detail": 7.42,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/scenes/scene-own-stock-grad.jpg",
+  "lum": 0.44,
+  "p90": 0.713,
+  "detail": 5.5,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-iso-mini-blush.jpg",
+  "lum": 0.434,
+  "p90": 0.726,
+  "detail": 6.87,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_slabPoster_mono.jpg",
+  "lum": 0.427,
+  "p90": 1,
+  "detail": 4.73,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_silver_glassCard_ocean.jpg",
+  "lum": 0.426,
+  "p90": 0.883,
+  "detail": 4.73,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_silver_wantedFrame_arctic.jpg",
+  "lum": 0.426,
+  "p90": 0.883,
+  "detail": 4.73,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_sports_stepsFlow_emerald.jpg",
+  "lum": 0.422,
+  "p90": 0.801,
+  "detail": 4.1,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/scenes/scene-ref-slice-mixed.jpg",
+  "lum": 0.42,
+  "p90": 0.919,
+  "detail": 6.41,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-minis-lime.jpg",
+  "lum": 0.419,
+  "p90": 0.92,
+  "detail": 3.78,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-apple-iphone-15-2.jpg",
+  "lum": 0.418,
+  "p90": 0.724,
+  "detail": 8.5,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-iphone-violet.jpg",
+  "lum": 0.416,
+  "p90": 0.911,
+  "detail": 6.52,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-ford-f-150-2.jpg",
+  "lum": 0.411,
+  "p90": 0.823,
+  "detail": 17.59,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/pokemon-charizard-card-2.jpg",
+  "lum": 0.41,
+  "p90": 0.761,
+  "detail": 15.47,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-iso-iphone-warm.jpg",
+  "lum": 0.405,
+  "p90": 0.717,
+  "detail": 5.88,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_coins_stepsFlow_royal.jpg",
+  "lum": 0.404,
+  "p90": 0.841,
+  "detail": 3.66,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/tplbg/bold_buyer.jpg",
+  "lum": 0.403,
+  "p90": 0.66,
+  "detail": 6.31,
+  "cat": "buyer.jpg"
+ },
+ {
+  "src": "assets/bg/dl_coins_reviewProof_paper.jpg",
+  "lum": 0.402,
+  "p90": 0.834,
+  "detail": 5.15,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/scenes/scene-flat-apple-cool.jpg",
+  "lum": 0.402,
+  "p90": 0.75,
+  "detail": 6.34,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pick-bone-flat.jpg",
+  "lum": 0.4,
+  "p90": 0.765,
+  "detail": 6.32,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_trustSeal_royal.jpg",
+  "lum": 0.398,
+  "p90": 0.753,
+  "detail": 3.29,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_strips_checklistHero_arctic.jpg",
+  "lum": 0.396,
+  "p90": 0.685,
+  "detail": 10.92,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_strips_arcCrown_emerald.jpg",
+  "lum": 0.396,
+  "p90": 0.685,
+  "detail": 10.92,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/scenes/scene-iso-ipad-cool.jpg",
+  "lum": 0.395,
+  "p90": 0.721,
+  "detail": 8.35,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_gold_trustSeal_gold.jpg",
+  "lum": 0.389,
+  "p90": 0.854,
+  "detail": 4.68,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/scenes/scene-grad-promax-gold.jpg",
+  "lum": 0.387,
+  "p90": 0.83,
+  "detail": 4.6,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-watch-mint.jpg",
+  "lum": 0.386,
+  "p90": 0.692,
+  "detail": 19.29,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-iso-iphone-mint.jpg",
+  "lum": 0.386,
+  "p90": 0.709,
+  "detail": 6.83,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-iso-iphone-grey.jpg",
+  "lum": 0.384,
+  "p90": 0.703,
+  "detail": 6.82,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_phones_reviewProof_ocean.jpg",
+  "lum": 0.383,
+  "p90": 0.809,
+  "detail": 5.04,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_silver_ticketStub_arctic.jpg",
+  "lum": 0.378,
+  "p90": 0.819,
+  "detail": 8.31,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/scenes/scene-grad-legacy-ink.jpg",
+  "lum": 0.376,
+  "p90": 0.754,
+  "detail": 3.5,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-ref-orange-sculpt.jpg",
+  "lum": 0.374,
+  "p90": 0.574,
+  "detail": 4.31,
+  "cat": "?"
+ },
+ {
+  "src": "assets/tplbg/we_buy.jpg",
+  "lum": 0.373,
+  "p90": 0.624,
+  "detail": 6.05,
+  "cat": "buy.jpg"
+ },
+ {
+  "src": "assets/bg/dl_silver_voltStack_mono.jpg",
+  "lum": 0.373,
+  "p90": 0.751,
+  "detail": 9.76,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_silver_editorialLux_arctic.jpg",
+  "lum": 0.373,
+  "p90": 0.751,
+  "detail": 9.76,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_silver_hudTech_arctic.jpg",
+  "lum": 0.373,
+  "p90": 0.751,
+  "detail": 9.76,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-bracelet-3.jpg",
+  "lum": 0.371,
+  "p90": 0.454,
+  "detail": 18.05,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_coins_glassCard_royal.jpg",
+  "lum": 0.369,
+  "p90": 0.746,
+  "detail": 7.55,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_strips_glassCard_emerald.jpg",
+  "lum": 0.369,
+  "p90": 0.717,
+  "detail": 9.02,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_gold_reviewProof_gold.jpg",
+  "lum": 0.368,
+  "p90": 0.911,
+  "detail": 4.14,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_cars_reviewProof_mono.jpg",
+  "lum": 0.368,
+  "p90": 0.905,
+  "detail": 4.64,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/scenes/scene-grad-ipad-teal.jpg",
+  "lum": 0.366,
+  "p90": 0.762,
+  "detail": 6.02,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-ring-wedding-band-2.jpg",
+  "lum": 0.364,
+  "p90": 0.696,
+  "detail": 4.82,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-iphone-coral.jpg",
+  "lum": 0.361,
+  "p90": 0.892,
+  "detail": 5.31,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-bracelet-2.jpg",
+  "lum": 0.357,
+  "p90": 0.445,
+  "detail": 15.29,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-ref-neon-everything.jpg",
+  "lum": 0.354,
+  "p90": 0.803,
+  "detail": 5.44,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/pokemon-charizard-card-1.jpg",
+  "lum": 0.353,
+  "p90": 0.642,
+  "detail": 9.21,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_cars_stepsFlow_sunset.jpg",
+  "lum": 0.351,
+  "p90": 0.65,
+  "detail": 6.45,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/scenes/scene-allbrands-lineup.jpg",
+  "lum": 0.35,
+  "p90": 0.739,
+  "detail": 10.37,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pick-dusk-iso.jpg",
+  "lum": 0.348,
+  "p90": 0.633,
+  "detail": 6.36,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_silver_gradientWave_ocean.jpg",
+  "lum": 0.345,
+  "p90": 0.676,
+  "detail": 6.36,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_cars_trustSeal_crimson.jpg",
+  "lum": 0.343,
+  "p90": 0.756,
+  "detail": 8.6,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/scenes/scene-flat-ipads.jpg",
+  "lum": 0.343,
+  "p90": 0.766,
+  "detail": 8.58,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-ford-transit-van-2.jpg",
+  "lum": 0.34,
+  "p90": 0.776,
+  "detail": 13.28,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-ford-transit-van-3.jpg",
+  "lum": 0.34,
+  "p90": 0.734,
+  "detail": 23.53,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_silver_slabPoster_mono.jpg",
+  "lum": 0.337,
+  "p90": 0.787,
+  "detail": 4.82,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/scenes/scene-grad-iphone-sunset.jpg",
+  "lum": 0.337,
+  "p90": 0.813,
+  "detail": 5.12,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_strips_gradientWave_emerald.jpg",
+  "lum": 0.336,
+  "p90": 0.827,
+  "detail": 5.63,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_phones_trustSeal_mono.jpg",
+  "lum": 0.334,
+  "p90": 0.828,
+  "detail": 2.65,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_strips_hudTech_ocean.jpg",
+  "lum": 0.333,
+  "p90": 0.662,
+  "detail": 10.39,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/scenes/scene-own-iphone-ipad-desk.jpg",
+  "lum": 0.328,
+  "p90": 0.721,
+  "detail": 12.88,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-mac-gold.jpg",
+  "lum": 0.326,
+  "p90": 0.564,
+  "detail": 2.21,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/bikes-harley-davidson-motorcycle-3.jpg",
+  "lum": 0.325,
+  "p90": 0.725,
+  "detail": 36.37,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_gold_bandKnockout_paper.jpg",
+  "lum": 0.324,
+  "p90": 0.671,
+  "detail": 9.79,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_lowerThird_gold.jpg",
+  "lum": 0.324,
+  "p90": 0.671,
+  "detail": 9.79,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg-web/coins-morgan-silver-dollar-2.jpg",
+  "lum": 0.316,
+  "p90": 0.495,
+  "detail": 12.99,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-everything-sun.jpg",
+  "lum": 0.313,
+  "p90": 0.72,
+  "detail": 8.65,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-ipad-violet.jpg",
+  "lum": 0.308,
+  "p90": 0.766,
+  "detail": 7.02,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pick-dusk-everything.jpg",
+  "lum": 0.306,
+  "p90": 0.772,
+  "detail": 6.41,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-iso-iphone-dark.jpg",
+  "lum": 0.305,
+  "p90": 0.633,
+  "detail": 6.9,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-bars-stack-1.jpg",
+  "lum": 0.305,
+  "p90": 0.817,
+  "detail": 16.03,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-iphone-teal.jpg",
+  "lum": 0.304,
+  "p90": 0.62,
+  "detail": 5.94,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-iphone-16-pro-1.jpg",
+  "lum": 0.304,
+  "p90": 0.476,
+  "detail": 21.32,
+  "cat": "?"
+ },
+ {
+  "src": "assets/tplbg/top_buyer.jpg",
+  "lum": 0.303,
+  "p90": 0.649,
+  "detail": 8.43,
+  "cat": "buyer.jpg"
+ },
+ {
+  "src": "assets/bg/dl_coins_karatSeal_gold.jpg",
+  "lum": 0.303,
+  "p90": 0.672,
+  "detail": 6.55,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_gold_arcCrown_gold.jpg",
+  "lum": 0.302,
+  "p90": 0.73,
+  "detail": 7.33,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_slabPoster_paper.jpg",
+  "lum": 0.302,
+  "p90": 0.73,
+  "detail": 7.33,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_scriptRetro_gold.jpg",
+  "lum": 0.302,
+  "p90": 0.73,
+  "detail": 7.33,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_agencyGrid_gold.jpg",
+  "lum": 0.302,
+  "p90": 0.73,
+  "detail": 7.33,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg-web/cars-used-car-dealership-lot-1.jpg",
+  "lum": 0.301,
+  "p90": 0.687,
+  "detail": 49.84,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-mercedes-benz-sprinter-van-2.jpg",
+  "lum": 0.301,
+  "p90": 0.665,
+  "detail": 19.33,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-ipad-mint.jpg",
+  "lum": 0.3,
+  "p90": 0.594,
+  "detail": 8.97,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pick-slate-ipads.jpg",
+  "lum": 0.297,
+  "p90": 0.767,
+  "detail": 6.97,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-apple-iphone-15-3.jpg",
+  "lum": 0.296,
+  "p90": 0.718,
+  "detail": 4.89,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_stepsFlow_volt.jpg",
+  "lum": 0.295,
+  "p90": 0.843,
+  "detail": 7,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg-web/coins-coin-collection-album-1.jpg",
+  "lum": 0.295,
+  "p90": 0.68,
+  "detail": 13.09,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-apple-iphone-15-1.jpg",
+  "lum": 0.294,
+  "p90": 0.436,
+  "detail": 11.31,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-cargo-van-3.jpg",
+  "lum": 0.294,
+  "p90": 0.801,
+  "detail": 51.25,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-ref-neon-iphones.jpg",
+  "lum": 0.292,
+  "p90": 0.586,
+  "detail": 5.15,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pick-header-colour.jpg",
+  "lum": 0.289,
+  "p90": 0.62,
+  "detail": 5.95,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_phones_stepsFlow_volt.jpg",
+  "lum": 0.287,
+  "p90": 0.734,
+  "detail": 4.35,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_coins_slabPoster_gold.jpg",
+  "lum": 0.287,
+  "p90": 0.701,
+  "detail": 8.15,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/scenes/scene-ref-brass-watches.jpg",
+  "lum": 0.286,
+  "p90": 0.681,
+  "detail": 15.56,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-flat-apple-warm.jpg",
+  "lum": 0.284,
+  "p90": 0.67,
+  "detail": 7.49,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/cars-bmw-key-2.jpg",
+  "lum": 0.283,
+  "p90": 0.929,
+  "detail": 6.84,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pick-amber-watches.jpg",
+  "lum": 0.281,
+  "p90": 0.681,
+  "detail": 15.79,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/silver-silverware-set-3.jpg",
+  "lum": 0.281,
+  "p90": 0.466,
+  "detail": 13.99,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-sam-dusk-lineup.jpg",
+  "lum": 0.277,
+  "p90": 0.667,
+  "detail": 8.3,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pick-sage-mixed.jpg",
+  "lum": 0.276,
+  "p90": 0.499,
+  "detail": 6.89,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_coins_ticketStub_paper.jpg",
+  "lum": 0.273,
+  "p90": 0.594,
+  "detail": 9.4,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_coins_priceAnchor_gold.jpg",
+  "lum": 0.273,
+  "p90": 0.594,
+  "detail": 9.4,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg-web/bikes-sport-motorcycle-2.jpg",
+  "lum": 0.273,
+  "p90": 0.773,
+  "detail": 18.97,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_coins_arcCrown_gold.jpg",
+  "lum": 0.271,
+  "p90": 0.667,
+  "detail": 8.6,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_coins_agencyGrid_paper.jpg",
+  "lum": 0.271,
+  "p90": 0.667,
+  "detail": 8.6,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_bubblePop_royal.jpg",
+  "lum": 0.271,
+  "p90": 0.686,
+  "detail": 7.1,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_neonNight_royal.jpg",
+  "lum": 0.271,
+  "p90": 0.686,
+  "detail": 7.1,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_gradientWave_volt.jpg",
+  "lum": 0.271,
+  "p90": 0.686,
+  "detail": 7.1,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg-web/trucks-ford-f-150-3.jpg",
+  "lum": 0.271,
+  "p90": 0.75,
+  "detail": 35.32,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-own-macbook-open.jpg",
+  "lum": 0.27,
+  "p90": 0.584,
+  "detail": 12.1,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-work-van-1.jpg",
+  "lum": 0.268,
+  "p90": 0.479,
+  "detail": 67.29,
+  "cat": "?"
+ },
+ {
+  "src": "assets/tplbg/same_day.jpg",
+  "lum": 0.264,
+  "p90": 0.576,
+  "detail": 6.65,
+  "cat": "day.jpg"
+ },
+ {
+  "src": "assets/scenes/scene-studio-rose-pair.jpg",
+  "lum": 0.264,
+  "p90": 0.662,
+  "detail": 4.25,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-studio-sand-mixed.jpg",
+  "lum": 0.262,
+  "p90": 0.698,
+  "detail": 17.51,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-studio-green-trio.jpg",
+  "lum": 0.26,
+  "p90": 0.68,
+  "detail": 5.73,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-grad-iphone-crimson.jpg",
+  "lum": 0.259,
+  "p90": 0.523,
+  "detail": 5.23,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/bikes-harley-davidson-motorcycle-2.jpg",
+  "lum": 0.259,
+  "p90": 0.789,
+  "detail": 24.94,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_strips_editorialLux_arctic.jpg",
+  "lum": 0.256,
+  "p90": 0.733,
+  "detail": 6.81,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_sports_voltStack_crimson.jpg",
+  "lum": 0.256,
+  "p90": 0.697,
+  "detail": 10.28,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg-web/cars-classic-car-chrome-grille-1.jpg",
+  "lum": 0.256,
+  "p90": 0.947,
+  "detail": 17.88,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-flat-apple-coral.jpg",
+  "lum": 0.254,
+  "p90": 0.433,
+  "detail": 7.57,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-ref-header-lineup.jpg",
+  "lum": 0.254,
+  "p90": 0.499,
+  "detail": 4.58,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-cargo-van-1.jpg",
+  "lum": 0.253,
+  "p90": 0.608,
+  "detail": 8.41,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-mercedes-benz-sprinter-van-3.jpg",
+  "lum": 0.252,
+  "p90": 0.757,
+  "detail": 20.35,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/cars-classic-car-chrome-grille-3.jpg",
+  "lum": 0.251,
+  "p90": 0.823,
+  "detail": 31.67,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-ford-f-150-1.jpg",
+  "lum": 0.251,
+  "p90": 0.565,
+  "detail": 11.22,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_priceAnchor_volt.jpg",
+  "lum": 0.249,
+  "p90": 0.724,
+  "detail": 7.51,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_phones_checklistHero_emerald.jpg",
+  "lum": 0.249,
+  "p90": 0.67,
+  "detail": 5.46,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_glassCard_royal.jpg",
+  "lum": 0.249,
+  "p90": 0.724,
+  "detail": 7.51,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_arcCrown_royal.jpg",
+  "lum": 0.249,
+  "p90": 0.724,
+  "detail": 7.51,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg-web/silver-silver-necklace-chain-1.jpg",
+  "lum": 0.248,
+  "p90": 0.617,
+  "detail": 52.4,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-ring-wedding-band-3.jpg",
+  "lum": 0.247,
+  "p90": 0.47,
+  "detail": 5.19,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/silver-silver-jewelry-rings-2.jpg",
+  "lum": 0.247,
+  "p90": 0.925,
+  "detail": 19.31,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-cargo-van-2.jpg",
+  "lum": 0.246,
+  "p90": 0.606,
+  "detail": 26.41,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_strips_voltStack_emerald.jpg",
+  "lum": 0.245,
+  "p90": 0.512,
+  "detail": 11.65,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_strips_slabPoster_arctic.jpg",
+  "lum": 0.245,
+  "p90": 0.512,
+  "detail": 11.65,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/scenes/scene-pick-wine-studio.jpg",
+  "lum": 0.244,
+  "p90": 0.708,
+  "detail": 5.72,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-ring-wedding-band-1.jpg",
+  "lum": 0.244,
+  "p90": 0.748,
+  "detail": 9.83,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/coins-morgan-silver-dollar-1.jpg",
+  "lum": 0.243,
+  "p90": 0.666,
+  "detail": 18.55,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_strips_priceAnchor_emerald.jpg",
+  "lum": 0.241,
+  "p90": 0.641,
+  "detail": 6.53,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_strips_bandKnockout_arctic.jpg",
+  "lum": 0.24,
+  "p90": 0.632,
+  "detail": 7.67,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_strips_diagonalRush_ocean.jpg",
+  "lum": 0.24,
+  "p90": 0.632,
+  "detail": 7.67,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg/dl_coins_scriptRetro_paper.jpg",
+  "lum": 0.239,
+  "p90": 0.59,
+  "detail": 8.24,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_coins_bandKnockout_gold.jpg",
+  "lum": 0.239,
+  "p90": 0.59,
+  "detail": 8.24,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/scenes/scene-ref-glassy-ipads.jpg",
+  "lum": 0.238,
+  "p90": 0.579,
+  "detail": 9.15,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-studio-teal-watch.jpg",
+  "lum": 0.237,
+  "p90": 0.661,
+  "detail": 17.48,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_sports_wantedFrame_paper.jpg",
+  "lum": 0.236,
+  "p90": 0.534,
+  "detail": 8.97,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_arcCrown_crimson.jpg",
+  "lum": 0.236,
+  "p90": 0.534,
+  "detail": 8.97,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-necklace-chain-close-2.jpg",
+  "lum": 0.236,
+  "p90": 0.371,
+  "detail": 9.89,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_sports_glassCard_mono.jpg",
+  "lum": 0.235,
+  "p90": 0.692,
+  "detail": 6.21,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/scenes/scene-grad-mixed-electric.jpg",
+  "lum": 0.235,
+  "p90": 0.516,
+  "detail": 3.63,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/cars-bmw-key-1.jpg",
+  "lum": 0.235,
+  "p90": 0.735,
+  "detail": 14.57,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_sports_ticketStub_crimson.jpg",
+  "lum": 0.234,
+  "p90": 0.598,
+  "detail": 7.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/scenes/scene-pick-dusk-lineup.jpg",
+  "lum": 0.234,
+  "p90": 0.447,
+  "detail": 6.18,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-pickup-truck-bed-1.jpg",
+  "lum": 0.232,
+  "p90": 0.832,
+  "detail": 11.09,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/coins-morgan-silver-dollar-3.jpg",
+  "lum": 0.231,
+  "p90": 0.862,
+  "detail": 46.57,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_strips_lowerThird_emerald.jpg",
+  "lum": 0.226,
+  "p90": 0.596,
+  "detail": 9.96,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/bg-web/bikes-cruiser-motorcycle-parked-1.jpg",
+  "lum": 0.226,
+  "p90": 0.42,
+  "detail": 13.05,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-pickup-truck-2.jpg",
+  "lum": 0.223,
+  "p90": 0.662,
+  "detail": 36.55,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-pickup-truck-1.jpg",
+  "lum": 0.222,
+  "p90": 0.554,
+  "detail": 22.76,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pix-sage-lineup.jpg",
+  "lum": 0.22,
+  "p90": 0.366,
+  "detail": 5.08,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/cars-classic-car-chrome-grille-2.jpg",
+  "lum": 0.217,
+  "p90": 0.572,
+  "detail": 11.83,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_coins_checklistHero_paper.jpg",
+  "lum": 0.215,
+  "p90": 0.465,
+  "detail": 11.73,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_coins_gradientWave_royal.jpg",
+  "lum": 0.215,
+  "p90": 0.465,
+  "detail": 11.73,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/scenes/scene-sam-header-trio.jpg",
+  "lum": 0.215,
+  "p90": 0.401,
+  "detail": 3.65,
+  "cat": "?"
+ },
+ {
+  "src": "assets/tplbg/icloud_ok.jpg",
+  "lum": 0.214,
+  "p90": 0.39,
+  "detail": 3.33,
+  "cat": "ok.jpg"
+ },
+ {
+  "src": "assets/bg-web/trucks-pickup-truck-bed-3.jpg",
+  "lum": 0.21,
+  "p90": 0.622,
+  "detail": 43.37,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_cars_checklistHero_emerald.jpg",
+  "lum": 0.206,
+  "p90": 0.796,
+  "detail": 6.52,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg-web/coins-american-gold-eagle-coin-3.jpg",
+  "lum": 0.204,
+  "p90": 0.352,
+  "detail": 8.67,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-iphone-16-pro-2.jpg",
+  "lum": 0.204,
+  "p90": 0.591,
+  "detail": 7.16,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_cars_voltStack_ocean.jpg",
+  "lum": 0.202,
+  "p90": 0.474,
+  "detail": 8.13,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_cars_agencyGrid_mono.jpg",
+  "lum": 0.202,
+  "p90": 0.474,
+  "detail": 8.13,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_cars_lowerThird_sunset.jpg",
+  "lum": 0.202,
+  "p90": 0.474,
+  "detail": 8.13,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg-web/bikes-motorcycle-engine-chrome-1.jpg",
+  "lum": 0.202,
+  "p90": 0.973,
+  "detail": 22.15,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-mercedes-benz-sprinter-van-1.jpg",
+  "lum": 0.201,
+  "p90": 0.523,
+  "detail": 26.28,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-pickup-truck-3.jpg",
+  "lum": 0.2,
+  "p90": 0.633,
+  "detail": 27.79,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-studio-blue-trio.jpg",
+  "lum": 0.197,
+  "p90": 0.487,
+  "detail": 4.9,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-own-apple-sign-cash.jpg",
+  "lum": 0.196,
+  "p90": 0.369,
+  "detail": 10.96,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-sam-wine-folds.jpg",
+  "lum": 0.196,
+  "p90": 0.41,
+  "detail": 3.11,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-pickup-truck-bed-2.jpg",
+  "lum": 0.196,
+  "p90": 0.652,
+  "detail": 34.77,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pix-bone-studio.jpg",
+  "lum": 0.193,
+  "p90": 0.371,
+  "detail": 3.54,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-studio-amber-ipad.jpg",
+  "lum": 0.192,
+  "p90": 0.495,
+  "detail": 7.3,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/strips-glucose-meter-test-strip-2.jpg",
+  "lum": 0.191,
+  "p90": 0.651,
+  "detail": 9.87,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-own-stock-studio.jpg",
+  "lum": 0.19,
+  "p90": 0.483,
+  "detail": 5.42,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_gold_karatSeal_gold.jpg",
+  "lum": 0.188,
+  "p90": 0.575,
+  "detail": 7.66,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_duoSplit_gold.jpg",
+  "lum": 0.188,
+  "p90": 0.575,
+  "detail": 7.66,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_voltStack_gold.jpg",
+  "lum": 0.188,
+  "p90": 0.575,
+  "detail": 7.66,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_ticketStub_gold.jpg",
+  "lum": 0.188,
+  "p90": 0.575,
+  "detail": 7.66,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg-web/bikes-harley-davidson-motorcycle-1.jpg",
+  "lum": 0.188,
+  "p90": 0.443,
+  "detail": 43.68,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/bikes-motorcycle-engine-chrome-2.jpg",
+  "lum": 0.187,
+  "p90": 0.717,
+  "detail": 24.68,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_silver_bandKnockout_mono.jpg",
+  "lum": 0.185,
+  "p90": 0.557,
+  "detail": 3.69,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_bandKnockout_volt.jpg",
+  "lum": 0.184,
+  "p90": 0.563,
+  "detail": 4.49,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg-web/silver-silverware-set-1.jpg",
+  "lum": 0.184,
+  "p90": 0.472,
+  "detail": 38.26,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/bikes-sport-motorcycle-3.jpg",
+  "lum": 0.182,
+  "p90": 0.487,
+  "detail": 8.94,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-chevrolet-silverado-pickup-3.jpg",
+  "lum": 0.182,
+  "p90": 0.477,
+  "detail": 34.7,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_strips_ticketStub_emerald.jpg",
+  "lum": 0.181,
+  "p90": 0.443,
+  "detail": 5.4,
+  "cat": "strips"
+ },
+ {
+  "src": "assets/scenes/scene-ref-forest-pros.jpg",
+  "lum": 0.18,
+  "p90": 0.48,
+  "detail": 5.77,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_gold_diagonalRush_crimson.jpg",
+  "lum": 0.179,
+  "p90": 0.667,
+  "detail": 6.93,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_editorialLux_gold.jpg",
+  "lum": 0.179,
+  "p90": 0.667,
+  "detail": 6.93,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/scenes/scene-pick-wine-promax.jpg",
+  "lum": 0.176,
+  "p90": 0.404,
+  "detail": 4.78,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-iphone-13-pro-3.jpg",
+  "lum": 0.176,
+  "p90": 0.314,
+  "detail": 4.57,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_cars_bandKnockout_sunset.jpg",
+  "lum": 0.172,
+  "p90": 0.508,
+  "detail": 9.79,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_cars_wantedFrame_paper.jpg",
+  "lum": 0.172,
+  "p90": 0.508,
+  "detail": 9.79,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/scenes/scene-studio-slate-quad.jpg",
+  "lum": 0.172,
+  "p90": 0.434,
+  "detail": 5.6,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/bikes-sport-motorcycle-1.jpg",
+  "lum": 0.172,
+  "p90": 0.2,
+  "detail": 11.64,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-chevrolet-silverado-pickup-1.jpg",
+  "lum": 0.171,
+  "p90": 0.44,
+  "detail": 40.59,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-iphone-13-pro-2.jpg",
+  "lum": 0.17,
+  "p90": 0.364,
+  "detail": 7.02,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_gold_wantedFrame_paper.jpg",
+  "lum": 0.168,
+  "p90": 0.518,
+  "detail": 8.62,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_checklistHero_gold.jpg",
+  "lum": 0.168,
+  "p90": 0.518,
+  "detail": 8.62,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_gold_priceAnchor_gold.jpg",
+  "lum": 0.168,
+  "p90": 0.518,
+  "detail": 8.62,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_cars_glassCard_ocean.jpg",
+  "lum": 0.168,
+  "p90": 0.609,
+  "detail": 4.04,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_silver_priceAnchor_mono.jpg",
+  "lum": 0.165,
+  "p90": 0.271,
+  "detail": 8.67,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_silver_lowerThird_ocean.jpg",
+  "lum": 0.165,
+  "p90": 0.271,
+  "detail": 8.67,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg-web/bikes-motorcycle-engine-chrome-3.jpg",
+  "lum": 0.165,
+  "p90": 0.581,
+  "detail": 24.4,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-own-macbook-stack.jpg",
+  "lum": 0.164,
+  "p90": 0.489,
+  "detail": 14.24,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-iphone-13-pro-1.jpg",
+  "lum": 0.164,
+  "p90": 0.351,
+  "detail": 7.14,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_coins_hudTech_mono.jpg",
+  "lum": 0.162,
+  "p90": 0.404,
+  "detail": 15.01,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/scenes/scene-pick-sage-studio.jpg",
+  "lum": 0.16,
+  "p90": 0.399,
+  "detail": 17.27,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-work-van-2.jpg",
+  "lum": 0.158,
+  "p90": 0.414,
+  "detail": 34.87,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-work-van-3.jpg",
+  "lum": 0.151,
+  "p90": 0.519,
+  "detail": 46.72,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_coins_wantedFrame_paper.jpg",
+  "lum": 0.149,
+  "p90": 0.431,
+  "detail": 9.22,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_cars_ticketStub_mono.jpg",
+  "lum": 0.149,
+  "p90": 0.425,
+  "detail": 10.7,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_cars_arcCrown_sunset.jpg",
+  "lum": 0.149,
+  "p90": 0.425,
+  "detail": 10.7,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_cars_priceAnchor_crimson.jpg",
+  "lum": 0.149,
+  "p90": 0.425,
+  "detail": 10.7,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/scenes/scene-allbrands-studio.jpg",
+  "lum": 0.146,
+  "p90": 0.344,
+  "detail": 4.68,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/silver-silver-cutlery-1.jpg",
+  "lum": 0.144,
+  "p90": 0.403,
+  "detail": 11.59,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_silver_arcCrown_mono.jpg",
+  "lum": 0.138,
+  "p90": 0.293,
+  "detail": 9.04,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg-web/cars-sports-car-front-night-1.jpg",
+  "lum": 0.138,
+  "p90": 0.399,
+  "detail": 27.87,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/gold-rolex-watch-3.jpg",
+  "lum": 0.138,
+  "p90": 0.414,
+  "detail": 14.08,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/vans-ford-transit-van-1.jpg",
+  "lum": 0.138,
+  "p90": 0.39,
+  "detail": 13.67,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-iphone-15-pro-back-camera-1.jpg",
+  "lum": 0.137,
+  "p90": 0.285,
+  "detail": 26.8,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_sports_scriptRetro_paper.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_neonNight_emerald.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_agencyGrid_mono.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_checklistHero_crimson.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_hudTech_emerald.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_bandKnockout_emerald.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_gradientWave_crimson.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_duoSplit_mono.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_priceAnchor_crimson.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_sports_lowerThird_emerald.jpg",
+  "lum": 0.135,
+  "p90": 0.356,
+  "detail": 9.45,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg-web/cars-car-key-fob-1.jpg",
+  "lum": 0.133,
+  "p90": 0.359,
+  "detail": 24.91,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/bikes-cruiser-motorcycle-parked-2.jpg",
+  "lum": 0.132,
+  "p90": 0.462,
+  "detail": 24.13,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/strips-blood-glucose-test-strips-1.jpg",
+  "lum": 0.132,
+  "p90": 0.261,
+  "detail": 14.83,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_checklistHero_royal.jpg",
+  "lum": 0.129,
+  "p90": 0.359,
+  "detail": 5.07,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_coins_editorialLux_paper.jpg",
+  "lum": 0.125,
+  "p90": 0.423,
+  "detail": 8.21,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/scenes/scene-ref-hp-promax.jpg",
+  "lum": 0.125,
+  "p90": 0.2,
+  "detail": 4.77,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/phones-iphone-14-pro-1.jpg",
+  "lum": 0.125,
+  "p90": 0.183,
+  "detail": 4.86,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_cars_gradientWave_crimson.jpg",
+  "lum": 0.124,
+  "p90": 0.37,
+  "detail": 4.57,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-watch-1.jpg",
+  "lum": 0.122,
+  "p90": 0.645,
+  "detail": 6.79,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/trucks-chevrolet-silverado-pickup-2.jpg",
+  "lum": 0.121,
+  "p90": 0.266,
+  "detail": 28.74,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/cars-car-interior-steering-wheel-dashboard-2.jpg",
+  "lum": 0.12,
+  "p90": 0.433,
+  "detail": 6.3,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-sam-slate-studio.jpg",
+  "lum": 0.119,
+  "p90": 0.256,
+  "detail": 4.74,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_cars_duoSplit_crimson.jpg",
+  "lum": 0.118,
+  "p90": 0.306,
+  "detail": 5.91,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_gold_gradientWave_gold.jpg",
+  "lum": 0.118,
+  "p90": 0.317,
+  "detail": 7.85,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/scenes/scene-android-mixed.jpg",
+  "lum": 0.118,
+  "p90": 0.32,
+  "detail": 2.41,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-pix-amber-pair.jpg",
+  "lum": 0.117,
+  "p90": 0.324,
+  "detail": 2.33,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_phones_lowerThird_ocean.jpg",
+  "lum": 0.114,
+  "p90": 0.339,
+  "detail": 5.53,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_silver_diagonalRush_mono.jpg",
+  "lum": 0.114,
+  "p90": 0.346,
+  "detail": 4.58,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg-web/bikes-cruiser-motorcycle-parked-3.jpg",
+  "lum": 0.109,
+  "p90": 0.37,
+  "detail": 28.64,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_coins_voltStack_royal.jpg",
+  "lum": 0.108,
+  "p90": 0.334,
+  "detail": 9.41,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_phones_neonNight_royal.jpg",
+  "lum": 0.107,
+  "p90": 0.222,
+  "detail": 4.25,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_agencyGrid_royal.jpg",
+  "lum": 0.106,
+  "p90": 0.332,
+  "detail": 4.78,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_phones_glassCard_ocean.jpg",
+  "lum": 0.106,
+  "p90": 0.44,
+  "detail": 4.43,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_phones_arcCrown_crimson.jpg",
+  "lum": 0.106,
+  "p90": 0.44,
+  "detail": 4.43,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_phones_bandKnockout_arctic.jpg",
+  "lum": 0.106,
+  "p90": 0.44,
+  "detail": 4.43,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_phones_diagonalRush_sunset.jpg",
+  "lum": 0.106,
+  "p90": 0.44,
+  "detail": 4.43,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_phones_hudTech_ocean.jpg",
+  "lum": 0.106,
+  "p90": 0.44,
+  "detail": 4.43,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_phones_ticketStub_mono.jpg",
+  "lum": 0.106,
+  "p90": 0.44,
+  "detail": 4.43,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg-web/silver-silver-cutlery-2.jpg",
+  "lum": 0.106,
+  "p90": 0.298,
+  "detail": 10.24,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_hudTech_ocean.jpg",
+  "lum": 0.105,
+  "p90": 0.276,
+  "detail": 5.58,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_gold_glassCard_gold.jpg",
+  "lum": 0.105,
+  "p90": 0.366,
+  "detail": 7.4,
+  "cat": "gold"
+ },
+ {
+  "src": "assets/bg/dl_phones_voltStack_volt.jpg",
+  "lum": 0.104,
+  "p90": 0.34,
+  "detail": 5.88,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_ticketStub_sunset.jpg",
+  "lum": 0.103,
+  "p90": 0.257,
+  "detail": 5.55,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_coins_lowerThird_royal.jpg",
+  "lum": 0.1,
+  "p90": 0.259,
+  "detail": 10.81,
+  "cat": "coins"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_diagonalRush_sunset.jpg",
+  "lum": 0.098,
+  "p90": 0.337,
+  "detail": 4.67,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg-web/cars-car-interior-steering-wheel-dashboard-1.jpg",
+  "lum": 0.097,
+  "p90": 0.358,
+  "detail": 9.61,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_phones_agencyGrid_mono.jpg",
+  "lum": 0.094,
+  "p90": 0.261,
+  "detail": 4.53,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_phones_priceAnchor_volt.jpg",
+  "lum": 0.091,
+  "p90": 0.276,
+  "detail": 7.99,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg-web/cars-bmw-key-3.jpg",
+  "lum": 0.091,
+  "p90": 0.165,
+  "detail": 7.82,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_scriptRetro_sunset.jpg",
+  "lum": 0.09,
+  "p90": 0.286,
+  "detail": 3.28,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_silver_karatSeal_mono.jpg",
+  "lum": 0.084,
+  "p90": 0.211,
+  "detail": 4.81,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_lowerThird_royal.jpg",
+  "lum": 0.081,
+  "p90": 0.26,
+  "detail": 5.01,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_silver_checklistHero_ocean.jpg",
+  "lum": 0.079,
+  "p90": 0.165,
+  "detail": 6.51,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_cars_slabPoster_mono.jpg",
+  "lum": 0.077,
+  "p90": 0.162,
+  "detail": 4.04,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_cars_diagonalRush_crimson.jpg",
+  "lum": 0.076,
+  "p90": 0.198,
+  "detail": 5.79,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_sports_slabPoster_paper.jpg",
+  "lum": 0.073,
+  "p90": 0.206,
+  "detail": 5.91,
+  "cat": "sports"
+ },
+ {
+  "src": "assets/bg/dl_phones_duoSplit_royal.jpg",
+  "lum": 0.072,
+  "p90": 0.188,
+  "detail": 4.99,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/bg/dl_cars_hudTech_crimson.jpg",
+  "lum": 0.069,
+  "p90": 0.168,
+  "detail": 6.58,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/bg/dl_pokemon_voltStack_volt.jpg",
+  "lum": 0.068,
+  "p90": 0.195,
+  "detail": 5.09,
+  "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg/dl_silver_agencyGrid_arctic.jpg",
+  "lum": 0.068,
+  "p90": 0.154,
+  "detail": 4.17,
+  "cat": "silver"
+ },
+ {
+  "src": "assets/bg/dl_cars_neonNight_sunset.jpg",
+  "lum": 0.068,
+  "p90": 0.194,
+  "detail": 9.31,
+  "cat": "cars"
+ },
+ {
+  "src": "assets/scenes/scene-ref-silver-grid.jpg",
+  "lum": 0.068,
+  "p90": 0.154,
+  "detail": 4.19,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/cars-sports-car-front-night-2.jpg",
+  "lum": 0.056,
+  "p90": 0.149,
+  "detail": 23.01,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_phones_gradientWave_sunset.jpg",
+  "lum": 0.053,
+  "p90": 0.137,
+  "detail": 3.15,
+  "cat": "phones"
+ },
+ {
+  "src": "assets/scenes/scene-ref-gradient-wave.jpg",
+  "lum": 0.053,
+  "p90": 0.137,
+  "detail": 3.14,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-ref-own-render.jpg",
+  "lum": 0.053,
+  "p90": 0.293,
+  "detail": 5.23,
+  "cat": "?"
+ },
+ {
+  "src": "assets/scenes/scene-ref-neon-vault.jpg",
+  "lum": 0.047,
+  "p90": 0.131,
+  "detail": 4.76,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/gold-gold-necklace-chain-close-3.jpg",
+  "lum": 0.046,
+  "p90": 0.175,
+  "detail": 10.5,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg/dl_phones_slabPoster_mono.jpg",
+  "lum": 0.033,
+  "p90": 0.052,
+  "detail": 3.45,
+  "cat": "phones"
+ }
+]

@@ -44,6 +44,11 @@ page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
 await page.goto(BASE, { waitUntil: 'networkidle2', timeout: 60000 });
 // backdrops and cutouts load async; give the preloaders room
 await page.evaluate(() => document.fonts.ready);
+// Wait for the measured contrast table (assets/contrast-fix.json) to load and
+// apply. It is fetched asynchronously, so a harness that starts measuring too
+// early records the PRE-repair colours and reports failures that are already
+// fixed on screen.
+await page.waitForFunction(() => typeof CONTRAST_FIX !== 'undefined' && CONTRAST_FIX !== null, { timeout: 20000 }).catch(()=>{});
 await new Promise(r => setTimeout(r, 6000));
 
 // ---- integrity check: every invoked pass must still have a definition (rule 42)
