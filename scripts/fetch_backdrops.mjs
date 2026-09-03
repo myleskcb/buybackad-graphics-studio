@@ -10,7 +10,8 @@ mkdirSync(OUT, { recursive: true });
 const WANT = +(process.env.PER || 3);
 const UA = { 'User-Agent': 'buyback-ad-lab/1.0 (admin@iphones.la) backdrop research' };
 const QUERIES = {
-  macbook: ['MacBook Pro', 'MacBook Air', 'MacBook Pro 16-inch', 'Apple MacBook keyboard', 'MacBook on desk', 'MacBook Pro M3', 'Apple laptop closed lid'],
+  cash: ['pile of US dollars', 'stack of hundred dollar bills', 'US dollar bills fanned', 'cash money pile', 'bundle of banknotes dollars', 'one hundred dollar bills close'],
+  strips: ['blood glucose meter', 'glucose meter test strips OneTouch', 'diabetes lancet meter', 'continuous glucose monitor sensor', 'FreeStyle Libre'],
 };
 /* CATS=bikes,trucks,vans fetches only those pools */
 const ONLY = process.env.CATS ? process.env.CATS.split(',') : null;

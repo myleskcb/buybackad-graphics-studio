@@ -16,35 +16,53 @@
 <meta name="theme-color" content="#eaeef6" media="(prefers-color-scheme: light)">
 <script>
 /* Stamp the LOOK on <html> BEFORE first paint, so there is no flash of the
-   wrong ground. Three axes, all CSS custom properties in styles.css:
-   data-theme (dark | light), data-skin (graphite | night | paper | ember),
-   data-accent (blue | mint | orchid | gold | orange). Defaults: graphite,
-   blue, dark, except that Paper is a light skin and opens light.
-   A URL can set a look to share it: ?look=night-mint, ?skin=paper,
-   ?accent=gold, ?theme=light. Anything given in the URL is remembered. */
+   wrong ground. Four axes, all CSS custom properties in styles.css:
+   data-theme (dark | light), data-skin (ground), data-accent (accent + its
+   ring colour), data-type (display/body pairing). Defaults: graphite,
+   orchid, clash, dark; Paper and Cream are light grounds and open light.
+   A URL can set a look to share it: ?look=night-mint-unbounded (skin-accent-
+   type, any tail optional), ?skin=, ?accent=, ?type=, ?theme=. Anything
+   given in the URL is remembered. Type pairings that are not self-hosted
+   pull their faces from Google Fonts here, so the first paint has them. */
 (function(){
-  var d = document.documentElement, q = {}, S = ['graphite','night','paper','ember'], A = ['blue','mint','orchid','gold','orange'];
+  var d = document.documentElement, q = {};
+  var S = ['graphite','night','slate','obsidian','forest','ember','paper','cream'];
+  var A = ['orchid','violet','blue','sky','cyan','teal','mint','lime','gold','amber','orange','coral','rose'];
+  var T = ['clash','unbounded','syne','grotesk','manrope','khand','serif','melodrama'];
+  var LIGHT = { paper:1, cream:1 };
+  var GF = { unbounded:'Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700', syne:'Syne:wght@500;700;800&family=Sora:wght@400;500;600;700', grotesk:'Space+Grotesk:wght@400;500;600;700', manrope:'Manrope:wght@400;500;600;700;800' };
   try { new URLSearchParams(location.search).forEach(function(v, k){ q[k] = v; }); } catch(e){}
   var look = (q.look || '').split('-');
-  var skin = q.skin || look[0] || '', accent = q.accent || look[1] || '', theme = q.theme || '';
-  var fromUrl = { skin: !!skin, accent: !!accent, theme: !!theme };
+  var skin = q.skin || look[0] || '', accent = q.accent || look[1] || '', type = q.type || look[2] || '', theme = q.theme || '';
+  var fromUrl = { skin: !!skin, accent: !!accent, type: !!type, theme: !!theme };
   try {
     if (!skin) skin = localStorage.getItem('pgfx_skin') || '';
     if (!accent) accent = localStorage.getItem('pgfx_accent') || '';
+    if (!type) type = localStorage.getItem('pgfx_type') || '';
     if (!theme) theme = localStorage.getItem('pgfx_theme') || '';
   } catch(e){}
   if (S.indexOf(skin) < 0) skin = 'graphite';
-  if (A.indexOf(accent) < 0) accent = 'blue';
-  if (fromUrl.skin && !fromUrl.theme) theme = skin === 'paper' ? 'light' : 'dark';
-  if (theme !== 'light' && theme !== 'dark') theme = skin === 'paper' ? 'light' : 'dark';
+  if (A.indexOf(accent) < 0) accent = 'orchid';
+  if (T.indexOf(type) < 0) type = 'clash';
+  if (fromUrl.skin && !fromUrl.theme) theme = LIGHT[skin] ? 'light' : 'dark';
+  if (theme !== 'light' && theme !== 'dark') theme = LIGHT[skin] ? 'light' : 'dark';
   try {
     if (fromUrl.skin) localStorage.setItem('pgfx_skin', skin);
     if (fromUrl.accent) localStorage.setItem('pgfx_accent', accent);
+    if (fromUrl.type) localStorage.setItem('pgfx_type', type);
     if (fromUrl.skin || fromUrl.theme) localStorage.setItem('pgfx_theme', theme);
   } catch(e){}
   d.setAttribute('data-skin', skin);
   d.setAttribute('data-accent', accent);
+  d.setAttribute('data-type', type);
   d.setAttribute('data-theme', theme);
+  window.pgfxLoadTypeFace = function(t){
+    if (!GF[t] || document.getElementById('gf-' + t)) return;
+    var l = document.createElement('link'); l.id = 'gf-' + t; l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=' + GF[t] + '&display=swap';
+    document.head.appendChild(l);
+  };
+  window.pgfxLoadTypeFace(type);
 })();
 </script>
 <!-- No Google Fonts stylesheet: every template face is self-hosted in
@@ -92,24 +110,56 @@
       <span class="look-wrap">
         <button class="theme-btn look-btn" id="look-btn" title="Change the look of the site" aria-haspopup="true" aria-expanded="false"><i class="look-dot"></i><span>Look</span></button>
         <div class="look-menu" id="look-menu" role="menu">
+          <div class="look-row"><div class="look-label">Curated</div>
+            <button class="look-preset" data-preset="graphite-orchid-clash" style="--a:#b48cff;--b:#3ddc97">Graphite Orchid</button>
+            <button class="look-preset" data-preset="night-mint-unbounded" style="--a:#3ddc97;--b:#b48cff">Night Mint</button>
+            <button class="look-preset" data-preset="obsidian-cyan-grotesk" style="--a:#22d3ee;--b:#fb7185">Obsidian Cyan</button>
+            <button class="look-preset" data-preset="paper-gold-serif" style="--a:#a6700a;--b:#1d63d8">Paper Gold</button>
+            <button class="look-preset" data-preset="forest-lime-syne" style="--a:#b9f24a;--b:#a78bff">Forest Lime</button>
+            <button class="look-preset" data-preset="slate-coral-manrope" style="--a:#ff6b6b;--b:#3ddc97">Slate Coral</button>
+            <button class="look-preset" data-preset="cream-rose-melodrama" style="--a:#be185d;--b:#0e7490">Cream Rose</button>
+            <button class="look-preset" data-preset="ember-orange-khand" style="--a:#ff7a1a;--b:#22d3ee">Ember Orange</button>
+          </div>
           <div class="look-row"><div class="look-label">Ground</div>
             <button class="look-chip" data-skin="graphite">Graphite</button>
             <button class="look-chip" data-skin="night">Night</button>
-            <button class="look-chip" data-skin="paper">Paper</button>
+            <button class="look-chip" data-skin="slate">Slate</button>
+            <button class="look-chip" data-skin="obsidian">Obsidian</button>
+            <button class="look-chip" data-skin="forest">Forest</button>
             <button class="look-chip" data-skin="ember">Ember</button>
+            <button class="look-chip" data-skin="paper">Paper</button>
+            <button class="look-chip" data-skin="cream">Cream</button>
           </div>
-          <div class="look-row"><div class="look-label">Accent</div>
-            <button class="look-swatch" data-accent="blue" style="--sw:#4d9cff" title="Blue"></button>
-            <button class="look-swatch" data-accent="mint" style="--sw:#3ddc97" title="Mint"></button>
-            <button class="look-swatch" data-accent="orchid" style="--sw:#b48cff" title="Orchid"></button>
-            <button class="look-swatch" data-accent="gold" style="--sw:#f2c744" title="Gold"></button>
-            <button class="look-swatch" data-accent="orange" style="--sw:#ff7a1a" title="Orange"></button>
+          <div class="look-row"><div class="look-label">Accent &middot; ring</div>
+            <button class="look-swatch" data-accent="orchid" style="--sw:linear-gradient(135deg,#b48cff 0 55%,#3ddc97 55% 100%)" title="Orchid + mint ring"></button>
+            <button class="look-swatch" data-accent="violet" style="--sw:linear-gradient(135deg,#8b5cf6 0 55%,#fbbf24 55% 100%)" title="Violet + amber ring"></button>
+            <button class="look-swatch" data-accent="blue" style="--sw:linear-gradient(135deg,#4d9cff 0 55%,#f2c744 55% 100%)" title="Blue + gold ring"></button>
+            <button class="look-swatch" data-accent="sky" style="--sw:linear-gradient(135deg,#7dd3fc 0 55%,#fbbf24 55% 100%)" title="Sky + amber ring"></button>
+            <button class="look-swatch" data-accent="cyan" style="--sw:linear-gradient(135deg,#22d3ee 0 55%,#fb7185 55% 100%)" title="Cyan + rose ring"></button>
+            <button class="look-swatch" data-accent="teal" style="--sw:linear-gradient(135deg,#2dd4bf 0 55%,#ff6b6b 55% 100%)" title="Teal + coral ring"></button>
+            <button class="look-swatch" data-accent="mint" style="--sw:linear-gradient(135deg,#3ddc97 0 55%,#b48cff 55% 100%)" title="Mint + orchid ring"></button>
+            <button class="look-swatch" data-accent="lime" style="--sw:linear-gradient(135deg,#b9f24a 0 55%,#a78bff 55% 100%)" title="Lime + violet ring"></button>
+            <button class="look-swatch" data-accent="gold" style="--sw:linear-gradient(135deg,#f2c744 0 55%,#4d9cff 55% 100%)" title="Gold + blue ring"></button>
+            <button class="look-swatch" data-accent="amber" style="--sw:linear-gradient(135deg,#fbbf24 0 55%,#a78bff 55% 100%)" title="Amber + violet ring"></button>
+            <button class="look-swatch" data-accent="orange" style="--sw:linear-gradient(135deg,#ff7a1a 0 55%,#22d3ee 55% 100%)" title="Orange + cyan ring"></button>
+            <button class="look-swatch" data-accent="coral" style="--sw:linear-gradient(135deg,#ff6b6b 0 55%,#3ddc97 55% 100%)" title="Coral + mint ring"></button>
+            <button class="look-swatch" data-accent="rose" style="--sw:linear-gradient(135deg,#fb7185 0 55%,#22d3ee 55% 100%)" title="Rose + cyan ring"></button>
+          </div>
+          <div class="look-row"><div class="look-label">Type</div>
+            <button class="look-chip" data-type="clash">Clash</button>
+            <button class="look-chip" data-type="unbounded">Unbounded</button>
+            <button class="look-chip" data-type="syne">Syne</button>
+            <button class="look-chip" data-type="grotesk">Grotesk</button>
+            <button class="look-chip" data-type="manrope">Manrope</button>
+            <button class="look-chip" data-type="khand">Khand</button>
+            <button class="look-chip" data-type="serif">Zodiak serif</button>
+            <button class="look-chip" data-type="melodrama">Melodrama</button>
           </div>
           <div class="look-row"><div class="look-label">Light</div>
             <button class="look-chip" data-theme-set="dark">Dark</button>
             <button class="look-chip" data-theme-set="light">Light</button>
           </div>
-          <div class="look-note">Saved on this device. To share a look, add it to the address: <code>?look=night-mint</code>, <code>?look=paper-gold</code>.</div>
+          <div class="look-note">Saved on this device. To share a look, add it to the address: <code>?look=night-mint-unbounded</code>.</div>
         </div>
       </span>
       <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
@@ -140,11 +190,12 @@
     </div>
   </section>
   <div class="lp-stats" id="lp-stats">
+    <div class="stat stat-lead"><b>170,000+</b><span>ad variations &middot; layouts &times; themes &times; sizes</span></div>
     <div class="stat"><b>243</b><span>layouts</span></div>
     <div class="stat"><b>120</b><span>colour themes</span></div>
     <div class="stat"><b>478</b><span>product cutouts</span></div>
-    <div class="stat"><b>8</b><span>buying categories</span></div>
-    <div class="stat"><b id="lp-stat-new">250</b><span>combinations in the newest set</span></div>
+    <div class="stat"><b>363</b><span>backdrops &amp; scenes</span></div>
+    <div class="stat"><b id="lp-stat-new">500</b><span>rendered in the two newest sets</span></div>
   </div>
 
   <section class="lp-section" id="lp-themes">
@@ -230,6 +281,33 @@
   <details class="lp-faq"><summary>How do I cancel?</summary><p>From the plans page, Manage billing opens your Stripe portal where you can cancel instantly. You keep Pro until the end of the billing period.</p></details>
 </section>
 
+<section class="lp-section" id="lp-partners">
+  <div class="lp-section-head">
+    <div class="lp-kicker">Work with us</div>
+    <h2>Post for us, sell with us, or put this in front of your buyers.</h2>
+  </div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="fs-num">UGC PROGRAM</div>
+      <h3>Get paid to post</h3>
+      <p>Already posting buyback ads every day? Make them here, tag us, and earn Pro for free plus a cut on every reseller you bring in.</p>
+      <a class="btn btn-outline" href="mailto:hello@buyback.ad?subject=UGC%20program">Apply &rarr;</a>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num">PARTNERSHIP PROGRAM</div>
+      <h3>Bring your network</h3>
+      <p>Buyback groups, wholesale lists, repair shops, coaching communities. Referral pricing for your members and a share of every subscription.</p>
+      <a class="btn btn-outline" href="mailto:hello@buyback.ad?subject=Partnership%20program">Talk partnerships &rarr;</a>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num">B2B SOLUTIONS</div>
+      <h3>Your brand, our engine</h3>
+      <p>Multi-location buyers, franchises and marketplaces: branded template sets, seats for your whole team, and the ad engine behind your own product.</p>
+      <a class="btn btn-primary" href="mailto:hello@buyback.ad?subject=Schedule%20a%20call%20%E2%80%94%20B2B">Schedule a call &rarr;</a>
+    </div>
+  </div>
+</section>
+
 <div class="lp-cta">
     <div class="lp-cta-inner">
       <h2>Your next ad is sixty seconds away.</h2>
@@ -250,11 +328,20 @@
         <a href="#lp-themes">Themes</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
+        <a href="#lp-partners">Work with us</a>
         <a href="#" id="lpf-studio">Open the studio</a>
         <a href="lab/">Template Lab</a>
       </div>
       <div class="lpf-col">
-        <h4>Account</h4>
+        <h4>Programs</h4>
+        <a href="#lp-partners">UGC program</a>
+        <a href="#lp-partners">Partnership program</a>
+        <a href="#lp-partners">B2B solutions</a>
+      </div>
+      <div class="lpf-col">
+        <h4>Talk to us</h4>
+        <a href="mailto:hello@buyback.ad?subject=Schedule%20a%20call%20%E2%80%94%20Graphics%20Studio">Schedule a call</a>
+        <a href="mailto:hello@buyback.ad?subject=Graphics%20Studio">Contact us</a>
         <a href="#" id="lpf-signup">Create free account</a>
         <a href="#" id="lpf-login">Log in</a>
       </div>
@@ -306,6 +393,8 @@
     <div class="ez-catrow">
       <label for="ez-cat">What are you buying?</label>
       <select id="ez-cat" class="cat-select"></select>
+      <label for="ez-where" class="ez-wherelabel">Where are you?</label>
+      <button type="button" class="ez-where" id="ez-where" title="Your area: reviews and service lines name the towns around you">&#9678; <span id="ez-where-label">Set your area</span></button>
     </div>
     <div class="ez-strip" id="ez-strip"></div>
 
@@ -361,12 +450,13 @@
         <img id="ez-preview" alt="Live preview of your ad">
         <button class="ez-upload-bg" id="ez-upload-bg">📸&nbsp; Upload background photo</button>
         <input type="file" id="ez-upload-bg-file" accept="image/*,.heic,.heif" style="display:none">
+        <div class="ez-sizes" id="ez-sizes" title="Export size"></div>
         <button class="ez-dl" id="ez-download">⬇&nbsp; Download my ad</button>
         <button class="ez-open-adv" id="ez-pack" style="display:none">📦&nbsp; Export category pack (zip)</button>
         <button class="ez-order" id="ez-order" style="display:none" title="Send this ad to SCANS.AD, printed, posted around town, every scan tracked">🖨&nbsp; Order prints + posting</button>
         <div class="ez-quota" id="ez-quota"></div>
         <button class="ez-open-adv" id="ez-open-adv">Fine-tune in advanced editor</button>
-        <div class="ez-hint" id="ez-dl-hint">1440×1440 PNG minimum, ready for Marketplace, OfferUp &amp; Instagram</div>
+        <div class="ez-hint" id="ez-dl-hint">1080 × 1080 PNG minimum, Marketplace · Instagram post</div>
         <div class="ez-layers">
           <div class="ez-subttl" style="margin-top:0">Layers</div>
           <div id="ez-layers-list"></div>
@@ -1011,14 +1101,15 @@
   function setLook(k, v){
     root.setAttribute('data-' + k, v);
     try { localStorage.setItem('pgfx_' + k, v); } catch(e){}
-    if (k === 'skin') setTheme(v === 'paper' ? 'light' : 'dark');
+    if (k === 'skin') setTheme(v === 'paper' || v === 'cream' ? 'light' : 'dark');
+    if (k === 'type' && window.pgfxLoadTypeFace) window.pgfxLoadTypeFace(v);
     paintCanvasChrome();
     syncLook();
   }
   function syncLook(){
     var menu = document.getElementById('look-menu');
     if (!menu) return;
-    ['skin','accent'].forEach(function(k){
+    ['skin','accent','type'].forEach(function(k){
       var cur = root.getAttribute('data-' + k);
       menu.querySelectorAll('[data-' + k + ']').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-' + k) === cur); });
     });
@@ -1041,6 +1132,10 @@
     if (sk && sk.closest('#look-menu')){ setLook('skin', sk.getAttribute('data-skin')); return; }
     var ac = e.target.closest('[data-accent]');
     if (ac && ac.closest('#look-menu')){ setLook('accent', ac.getAttribute('data-accent')); return; }
+    var ty = e.target.closest('[data-type]');
+    if (ty && ty.closest('#look-menu')){ setLook('type', ty.getAttribute('data-type')); return; }
+    var pr = e.target.closest('[data-preset]');
+    if (pr){ var parts = pr.getAttribute('data-preset').split('-'); setLook('accent', parts[1]); setLook('type', parts[2]); setLook('skin', parts[0]); return; }
     var ts = e.target.closest('[data-theme-set]');
     if (ts){ setTheme(ts.getAttribute('data-theme-set')); return; }
     if (menu && menu.classList.contains('open') && !e.target.closest('#look-menu')){

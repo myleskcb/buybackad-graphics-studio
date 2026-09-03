@@ -8667,6 +8667,3075 @@
      "of": 28
     }
    }
+  },
+  {
+   "set": "gallery-1",
+   "built": "2026-09-03",
+   "source": "theme gallery, 16 layouts x 20, complete pass",
+   "approved": [
+    {
+     "id": "checklistHero-jw07-40",
+     "layout": "checklistHero",
+     "palette": "jw07"
+    },
+    {
+     "id": "checklistHero-jw05-40",
+     "layout": "checklistHero",
+     "palette": "jw05"
+    },
+    {
+     "id": "checklistHero-du08-40",
+     "layout": "checklistHero",
+     "palette": "du08"
+    },
+    {
+     "id": "checklistHero-cd06-40",
+     "layout": "checklistHero",
+     "palette": "cd06"
+    },
+    {
+     "id": "checklistHero-pp02-40",
+     "layout": "checklistHero",
+     "palette": "pp02"
+    },
+    {
+     "id": "checklistHero-pp04-40",
+     "layout": "checklistHero",
+     "palette": "pp04"
+    },
+    {
+     "id": "checklistHero-jw07-41",
+     "layout": "checklistHero",
+     "palette": "jw07"
+    },
+    {
+     "id": "checklistHero-du05-40",
+     "layout": "checklistHero",
+     "palette": "du05"
+    },
+    {
+     "id": "checklistHero-jw05-41",
+     "layout": "checklistHero",
+     "palette": "jw05"
+    },
+    {
+     "id": "checklistHero-cd10-40",
+     "layout": "checklistHero",
+     "palette": "cd10"
+    },
+    {
+     "id": "checklistHero-jw07-42",
+     "layout": "checklistHero",
+     "palette": "jw07"
+    },
+    {
+     "id": "checklistHero-cd06-41",
+     "layout": "checklistHero",
+     "palette": "cd06"
+    },
+    {
+     "id": "checklistHero-cd04-40",
+     "layout": "checklistHero",
+     "palette": "cd04"
+    },
+    {
+     "id": "reviewProof-jw07-40",
+     "layout": "reviewProof",
+     "palette": "jw07"
+    },
+    {
+     "id": "reviewProof-jw05-40",
+     "layout": "reviewProof",
+     "palette": "jw05"
+    },
+    {
+     "id": "reviewProof-cd06-40",
+     "layout": "reviewProof",
+     "palette": "cd06"
+    },
+    {
+     "id": "reviewProof-ca07-40",
+     "layout": "reviewProof",
+     "palette": "ca07"
+    },
+    {
+     "id": "reviewProof-du07-40",
+     "layout": "reviewProof",
+     "palette": "du07"
+    },
+    {
+     "id": "reviewProof-pp02-40",
+     "layout": "reviewProof",
+     "palette": "pp02"
+    },
+    {
+     "id": "reviewProof-jw07-41",
+     "layout": "reviewProof",
+     "palette": "jw07"
+    },
+    {
+     "id": "reviewProof-du05-40",
+     "layout": "reviewProof",
+     "palette": "du05"
+    },
+    {
+     "id": "reviewProof-cd10-40",
+     "layout": "reviewProof",
+     "palette": "cd10"
+    },
+    {
+     "id": "reviewProof-jw03-40",
+     "layout": "reviewProof",
+     "palette": "jw03"
+    },
+    {
+     "id": "reviewProof-gl02-40",
+     "layout": "reviewProof",
+     "palette": "gl02"
+    },
+    {
+     "id": "reviewProof-du08-41",
+     "layout": "reviewProof",
+     "palette": "du08"
+    },
+    {
+     "id": "reviewProof-jw07-42",
+     "layout": "reviewProof",
+     "palette": "jw07"
+    },
+    {
+     "id": "reviewProof-cd04-40",
+     "layout": "reviewProof",
+     "palette": "cd04"
+    },
+    {
+     "id": "trustSeal-jw07-40",
+     "layout": "trustSeal",
+     "palette": "jw07"
+    },
+    {
+     "id": "trustSeal-jw05-40",
+     "layout": "trustSeal",
+     "palette": "jw05"
+    },
+    {
+     "id": "trustSeal-cd06-40",
+     "layout": "trustSeal",
+     "palette": "cd06"
+    },
+    {
+     "id": "trustSeal-du07-40",
+     "layout": "trustSeal",
+     "palette": "du07"
+    },
+    {
+     "id": "trustSeal-pp02-40",
+     "layout": "trustSeal",
+     "palette": "pp02"
+    },
+    {
+     "id": "trustSeal-jw07-41",
+     "layout": "trustSeal",
+     "palette": "jw07"
+    },
+    {
+     "id": "trustSeal-jw05-41",
+     "layout": "trustSeal",
+     "palette": "jw05"
+    },
+    {
+     "id": "trustSeal-cd10-40",
+     "layout": "trustSeal",
+     "palette": "cd10"
+    },
+    {
+     "id": "trustSeal-gl02-40",
+     "layout": "trustSeal",
+     "palette": "gl02"
+    },
+    {
+     "id": "trustSeal-du08-41",
+     "layout": "trustSeal",
+     "palette": "du08"
+    },
+    {
+     "id": "trustSeal-jw07-42",
+     "layout": "trustSeal",
+     "palette": "jw07"
+    },
+    {
+     "id": "trustSeal-cd06-41",
+     "layout": "trustSeal",
+     "palette": "cd06"
+    },
+    {
+     "id": "trustSeal-cd04-40",
+     "layout": "trustSeal",
+     "palette": "cd04"
+    },
+    {
+     "id": "stepsFlow-jw07-40",
+     "layout": "stepsFlow",
+     "palette": "jw07"
+    },
+    {
+     "id": "stepsFlow-jw05-40",
+     "layout": "stepsFlow",
+     "palette": "jw05"
+    },
+    {
+     "id": "stepsFlow-du08-40",
+     "layout": "stepsFlow",
+     "palette": "du08"
+    },
+    {
+     "id": "stepsFlow-jw05-41",
+     "layout": "stepsFlow",
+     "palette": "jw05"
+    },
+    {
+     "id": "stepsFlow-gl02-40",
+     "layout": "stepsFlow",
+     "palette": "gl02"
+    },
+    {
+     "id": "stepsFlow-du08-41",
+     "layout": "stepsFlow",
+     "palette": "du08"
+    },
+    {
+     "id": "stepsFlow-jw07-42",
+     "layout": "stepsFlow",
+     "palette": "jw07"
+    },
+    {
+     "id": "bubblePop-jw07-40",
+     "layout": "bubblePop",
+     "palette": "jw07"
+    },
+    {
+     "id": "bubblePop-jw05-40",
+     "layout": "bubblePop",
+     "palette": "jw05"
+    },
+    {
+     "id": "bubblePop-du08-40",
+     "layout": "bubblePop",
+     "palette": "du08"
+    },
+    {
+     "id": "bubblePop-jw07-41",
+     "layout": "bubblePop",
+     "palette": "jw07"
+    },
+    {
+     "id": "bubblePop-du05-40",
+     "layout": "bubblePop",
+     "palette": "du05"
+    },
+    {
+     "id": "bubblePop-gl02-40",
+     "layout": "bubblePop",
+     "palette": "gl02"
+    },
+    {
+     "id": "voltStack-jw07-40",
+     "layout": "voltStack",
+     "palette": "jw07"
+    },
+    {
+     "id": "voltStack-du08-40",
+     "layout": "voltStack",
+     "palette": "du08"
+    },
+    {
+     "id": "voltStack-cd06-40",
+     "layout": "voltStack",
+     "palette": "cd06"
+    },
+    {
+     "id": "voltStack-pp02-40",
+     "layout": "voltStack",
+     "palette": "pp02"
+    },
+    {
+     "id": "voltStack-pp04-40",
+     "layout": "voltStack",
+     "palette": "pp04"
+    },
+    {
+     "id": "voltStack-pa05-40",
+     "layout": "voltStack",
+     "palette": "pa05"
+    },
+    {
+     "id": "voltStack-io03-40",
+     "layout": "voltStack",
+     "palette": "io03"
+    },
+    {
+     "id": "voltStack-jw07-41",
+     "layout": "voltStack",
+     "palette": "jw07"
+    },
+    {
+     "id": "voltStack-du05-40",
+     "layout": "voltStack",
+     "palette": "du05"
+    },
+    {
+     "id": "voltStack-jw03-40",
+     "layout": "voltStack",
+     "palette": "jw03"
+    },
+    {
+     "id": "voltStack-du08-41",
+     "layout": "voltStack",
+     "palette": "du08"
+    },
+    {
+     "id": "voltStack-jw07-42",
+     "layout": "voltStack",
+     "palette": "jw07"
+    },
+    {
+     "id": "voltStack-cd06-41",
+     "layout": "voltStack",
+     "palette": "cd06"
+    },
+    {
+     "id": "voltStack-cd04-40",
+     "layout": "voltStack",
+     "palette": "cd04"
+    },
+    {
+     "id": "neonNight-jw07-40",
+     "layout": "neonNight",
+     "palette": "jw07"
+    },
+    {
+     "id": "neonNight-cd06-40",
+     "layout": "neonNight",
+     "palette": "cd06"
+    },
+    {
+     "id": "neonNight-du07-40",
+     "layout": "neonNight",
+     "palette": "du07"
+    },
+    {
+     "id": "neonNight-pp04-40",
+     "layout": "neonNight",
+     "palette": "pp04"
+    },
+    {
+     "id": "neonNight-jw05-41",
+     "layout": "neonNight",
+     "palette": "jw05"
+    },
+    {
+     "id": "neonNight-cd10-40",
+     "layout": "neonNight",
+     "palette": "cd10"
+    },
+    {
+     "id": "neonNight-cd06-41",
+     "layout": "neonNight",
+     "palette": "cd06"
+    },
+    {
+     "id": "neonNight-cd04-40",
+     "layout": "neonNight",
+     "palette": "cd04"
+    },
+    {
+     "id": "slabPoster-jw07-40",
+     "layout": "slabPoster",
+     "palette": "jw07"
+    },
+    {
+     "id": "slabPoster-pp02-40",
+     "layout": "slabPoster",
+     "palette": "pp02"
+    },
+    {
+     "id": "slabPoster-jw07-41",
+     "layout": "slabPoster",
+     "palette": "jw07"
+    },
+    {
+     "id": "slabPoster-du05-40",
+     "layout": "slabPoster",
+     "palette": "du05"
+    },
+    {
+     "id": "slabPoster-jw03-40",
+     "layout": "slabPoster",
+     "palette": "jw03"
+    },
+    {
+     "id": "slabPoster-du08-41",
+     "layout": "slabPoster",
+     "palette": "du08"
+    },
+    {
+     "id": "scriptRetro-du08-40",
+     "layout": "scriptRetro",
+     "palette": "du08"
+    },
+    {
+     "id": "scriptRetro-io03-40",
+     "layout": "scriptRetro",
+     "palette": "io03"
+    },
+    {
+     "id": "scriptRetro-du05-40",
+     "layout": "scriptRetro",
+     "palette": "du05"
+    },
+    {
+     "id": "scriptRetro-jw05-41",
+     "layout": "scriptRetro",
+     "palette": "jw05"
+    },
+    {
+     "id": "scriptRetro-cd10-40",
+     "layout": "scriptRetro",
+     "palette": "cd10"
+    },
+    {
+     "id": "scriptRetro-jw03-40",
+     "layout": "scriptRetro",
+     "palette": "jw03"
+    },
+    {
+     "id": "scriptRetro-du08-41",
+     "layout": "scriptRetro",
+     "palette": "du08"
+    },
+    {
+     "id": "scriptRetro-jw07-42",
+     "layout": "scriptRetro",
+     "palette": "jw07"
+    },
+    {
+     "id": "lowerThird-jw07-40",
+     "layout": "lowerThird",
+     "palette": "jw07"
+    },
+    {
+     "id": "lowerThird-du08-40",
+     "layout": "lowerThird",
+     "palette": "du08"
+    },
+    {
+     "id": "lowerThird-jw07-41",
+     "layout": "lowerThird",
+     "palette": "jw07"
+    },
+    {
+     "id": "lowerThird-du05-40",
+     "layout": "lowerThird",
+     "palette": "du05"
+    },
+    {
+     "id": "lowerThird-jw05-41",
+     "layout": "lowerThird",
+     "palette": "jw05"
+    },
+    {
+     "id": "lowerThird-cd10-40",
+     "layout": "lowerThird",
+     "palette": "cd10"
+    },
+    {
+     "id": "lowerThird-cd06-41",
+     "layout": "lowerThird",
+     "palette": "cd06"
+    },
+    {
+     "id": "gradientWave-jw07-40",
+     "layout": "gradientWave",
+     "palette": "jw07"
+    },
+    {
+     "id": "gradientWave-du08-40",
+     "layout": "gradientWave",
+     "palette": "du08"
+    },
+    {
+     "id": "gradientWave-du07-40",
+     "layout": "gradientWave",
+     "palette": "du07"
+    },
+    {
+     "id": "gradientWave-pp04-40",
+     "layout": "gradientWave",
+     "palette": "pp04"
+    },
+    {
+     "id": "gradientWave-jw07-41",
+     "layout": "gradientWave",
+     "palette": "jw07"
+    },
+    {
+     "id": "gradientWave-du08-41",
+     "layout": "gradientWave",
+     "palette": "du08"
+    },
+    {
+     "id": "gradientWave-jw07-42",
+     "layout": "gradientWave",
+     "palette": "jw07"
+    },
+    {
+     "id": "gradientWave-cd04-40",
+     "layout": "gradientWave",
+     "palette": "cd04"
+    },
+    {
+     "id": "ticketStub-du08-40",
+     "layout": "ticketStub",
+     "palette": "du08"
+    },
+    {
+     "id": "ticketStub-pp04-40",
+     "layout": "ticketStub",
+     "palette": "pp04"
+    },
+    {
+     "id": "ticketStub-jw05-41",
+     "layout": "ticketStub",
+     "palette": "jw05"
+    },
+    {
+     "id": "ticketStub-gl02-40",
+     "layout": "ticketStub",
+     "palette": "gl02"
+    },
+    {
+     "id": "ticketStub-jw07-42",
+     "layout": "ticketStub",
+     "palette": "jw07"
+    },
+    {
+     "id": "hudTech-jw07-40",
+     "layout": "hudTech",
+     "palette": "jw07"
+    },
+    {
+     "id": "hudTech-du07-40",
+     "layout": "hudTech",
+     "palette": "du07"
+    },
+    {
+     "id": "hudTech-pa05-40",
+     "layout": "hudTech",
+     "palette": "pa05"
+    },
+    {
+     "id": "hudTech-jw05-41",
+     "layout": "hudTech",
+     "palette": "jw05"
+    },
+    {
+     "id": "hudTech-du08-41",
+     "layout": "hudTech",
+     "palette": "du08"
+    },
+    {
+     "id": "bandKnockout-jw07-40",
+     "layout": "bandKnockout",
+     "palette": "jw07"
+    },
+    {
+     "id": "bandKnockout-du07-40",
+     "layout": "bandKnockout",
+     "palette": "du07"
+    },
+    {
+     "id": "bandKnockout-du05-40",
+     "layout": "bandKnockout",
+     "palette": "du05"
+    },
+    {
+     "id": "bandKnockout-cd10-40",
+     "layout": "bandKnockout",
+     "palette": "cd10"
+    },
+    {
+     "id": "bandKnockout-du08-41",
+     "layout": "bandKnockout",
+     "palette": "du08"
+    },
+    {
+     "id": "bandKnockout-jw07-42",
+     "layout": "bandKnockout",
+     "palette": "jw07"
+    },
+    {
+     "id": "bandKnockout-cd06-41",
+     "layout": "bandKnockout",
+     "palette": "cd06"
+    },
+    {
+     "id": "bandKnockout-cd04-40",
+     "layout": "bandKnockout",
+     "palette": "cd04"
+    },
+    {
+     "id": "arcCrown-jw07-40",
+     "layout": "arcCrown",
+     "palette": "jw07"
+    },
+    {
+     "id": "arcCrown-du08-40",
+     "layout": "arcCrown",
+     "palette": "du08"
+    },
+    {
+     "id": "arcCrown-cd06-40",
+     "layout": "arcCrown",
+     "palette": "cd06"
+    },
+    {
+     "id": "arcCrown-du07-40",
+     "layout": "arcCrown",
+     "palette": "du07"
+    },
+    {
+     "id": "arcCrown-du05-40",
+     "layout": "arcCrown",
+     "palette": "du05"
+    },
+    {
+     "id": "arcCrown-jw05-41",
+     "layout": "arcCrown",
+     "palette": "jw05"
+    },
+    {
+     "id": "arcCrown-cd10-40",
+     "layout": "arcCrown",
+     "palette": "cd10"
+    },
+    {
+     "id": "arcCrown-jw03-40",
+     "layout": "arcCrown",
+     "palette": "jw03"
+    },
+    {
+     "id": "arcCrown-du08-41",
+     "layout": "arcCrown",
+     "palette": "du08"
+    },
+    {
+     "id": "arcCrown-jw07-42",
+     "layout": "arcCrown",
+     "palette": "jw07"
+    },
+    {
+     "id": "glassCard-jw07-40",
+     "layout": "glassCard",
+     "palette": "jw07"
+    },
+    {
+     "id": "glassCard-ca07-40",
+     "layout": "glassCard",
+     "palette": "ca07"
+    },
+    {
+     "id": "glassCard-pp02-40",
+     "layout": "glassCard",
+     "palette": "pp02"
+    },
+    {
+     "id": "glassCard-pp04-40",
+     "layout": "glassCard",
+     "palette": "pp04"
+    },
+    {
+     "id": "glassCard-pa05-40",
+     "layout": "glassCard",
+     "palette": "pa05"
+    },
+    {
+     "id": "glassCard-io03-40",
+     "layout": "glassCard",
+     "palette": "io03"
+    },
+    {
+     "id": "glassCard-jw07-41",
+     "layout": "glassCard",
+     "palette": "jw07"
+    },
+    {
+     "id": "glassCard-jw05-41",
+     "layout": "glassCard",
+     "palette": "jw05"
+    },
+    {
+     "id": "glassCard-cd10-40",
+     "layout": "glassCard",
+     "palette": "cd10"
+    },
+    {
+     "id": "glassCard-du08-41",
+     "layout": "glassCard",
+     "palette": "du08"
+    },
+    {
+     "id": "glassCard-jw07-42",
+     "layout": "glassCard",
+     "palette": "jw07"
+    }
+   ],
+   "perLayout": {
+    "checklistHero": {
+     "on": 13,
+     "of": 20
+    },
+    "reviewProof": {
+     "on": 14,
+     "of": 20
+    },
+    "trustSeal": {
+     "on": 13,
+     "of": 20
+    },
+    "stepsFlow": {
+     "on": 7,
+     "of": 20
+    },
+    "bubblePop": {
+     "on": 6,
+     "of": 20
+    },
+    "voltStack": {
+     "on": 14,
+     "of": 20
+    },
+    "neonNight": {
+     "on": 8,
+     "of": 20
+    },
+    "slabPoster": {
+     "on": 6,
+     "of": 20
+    },
+    "scriptRetro": {
+     "on": 8,
+     "of": 20
+    },
+    "lowerThird": {
+     "on": 7,
+     "of": 20
+    },
+    "gradientWave": {
+     "on": 8,
+     "of": 20
+    },
+    "ticketStub": {
+     "on": 5,
+     "of": 20
+    },
+    "hudTech": {
+     "on": 5,
+     "of": 20
+    },
+    "bandKnockout": {
+     "on": 8,
+     "of": 20
+    },
+    "arcCrown": {
+     "on": 10,
+     "of": 20
+    },
+    "glassCard": {
+     "on": 11,
+     "of": 20
+    }
+   }
+  },
+  {
+   "set": "spacepaper-1",
+   "built": "2026-09-03",
+   "source": "Space & Paper lab, 250 cards, complete pass",
+   "approved": [
+    {
+     "id": "checklistHero-sp01-70",
+     "layout": "checklistHero",
+     "family": "Space",
+     "palette": "sp01",
+     "theme": "Indigo Cash",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Sora",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "checklistHero-sp02-70",
+     "layout": "checklistHero",
+     "family": "Space",
+     "palette": "sp02",
+     "theme": "Blue Offer",
+     "cat": "gold",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Sora",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "product": "gold-rings-scatter",
+     "on": true
+    },
+    {
+     "id": "checklistHero-sp04-70",
+     "layout": "checklistHero",
+     "family": "Space",
+     "palette": "sp04",
+     "theme": "Blue Counter",
+     "cat": "cars",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "car-truck-front",
+     "on": true
+    },
+    {
+     "id": "checklistHero-sp05-70",
+     "layout": "checklistHero",
+     "family": "Space",
+     "palette": "sp05",
+     "theme": "Violet Ticket",
+     "cat": "sports",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "checklistHero-sp06-70",
+     "layout": "checklistHero",
+     "family": "Space",
+     "palette": "sp06",
+     "theme": "Orchid Deal",
+     "cat": "sports",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "checklistHero-sp07-70",
+     "layout": "checklistHero",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "silver",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "silver-tea-set",
+     "on": true
+    },
+    {
+     "id": "checklistHero-sp08-70",
+     "layout": "checklistHero",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "strips",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "strip-meter-hand",
+     "on": true
+    },
+    {
+     "id": "checklistHero-sp09-70",
+     "layout": "checklistHero",
+     "family": "Space",
+     "palette": "sp09",
+     "theme": "Indigo Value",
+     "cat": "strips",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "strip-meter-hand",
+     "on": true
+    },
+    {
+     "id": "checklistHero-sp10-70",
+     "layout": "checklistHero",
+     "family": "Space",
+     "palette": "sp10",
+     "theme": "Indigo Quote",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "qs-iphone-17-air",
+     "on": true
+    },
+    {
+     "id": "checklistHero-lp01-70",
+     "layout": "checklistHero",
+     "family": "Lined Paper",
+     "palette": "lp01",
+     "theme": "Indigo Cash",
+     "cat": "phones",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "ipad-pair-sizes",
+     "on": true
+    },
+    {
+     "id": "checklistHero-lp02-70",
+     "layout": "checklistHero",
+     "family": "Lined Paper",
+     "palette": "lp02",
+     "theme": "Amber Offer",
+     "cat": "coins",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-slab-graded",
+     "on": true
+    },
+    {
+     "id": "checklistHero-lp03-70",
+     "layout": "checklistHero",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "coins",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-slab-graded",
+     "on": true
+    },
+    {
+     "id": "checklistHero-lp07-70",
+     "layout": "checklistHero",
+     "family": "Lined Paper",
+     "palette": "lp07",
+     "theme": "Amber Market",
+     "cat": "cars",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-motorcycle-side",
+     "on": true
+    },
+    {
+     "id": "checklistHero-lp08-70",
+     "layout": "checklistHero",
+     "family": "Lined Paper",
+     "palette": "lp08",
+     "theme": "Indigo Trade",
+     "cat": "cars",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-truck-front",
+     "on": true
+    },
+    {
+     "id": "reviewProof-sp04-70",
+     "layout": "reviewProof",
+     "family": "Space",
+     "palette": "sp04",
+     "theme": "Blue Counter",
+     "cat": "silver",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "silver-serving-tray",
+     "on": true
+    },
+    {
+     "id": "reviewProof-sp07-70",
+     "layout": "reviewProof",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "ipad-angle-tilt",
+     "on": true
+    },
+    {
+     "id": "reviewProof-sp08-70",
+     "layout": "reviewProof",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "coins",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "coin-slab",
+     "on": true
+    },
+    {
+     "id": "reviewProof-sp09-70",
+     "layout": "reviewProof",
+     "family": "Space",
+     "palette": "sp09",
+     "theme": "Indigo Value",
+     "cat": "coins",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "coin-single-large",
+     "on": true
+    },
+    {
+     "id": "reviewProof-sp10-70",
+     "layout": "reviewProof",
+     "family": "Space",
+     "palette": "sp10",
+     "theme": "Indigo Quote",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "poke-booster",
+     "on": true
+    },
+    {
+     "id": "reviewProof-lp01-70",
+     "layout": "reviewProof",
+     "family": "Lined Paper",
+     "palette": "lp01",
+     "theme": "Indigo Cash",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-booster",
+     "on": true
+    },
+    {
+     "id": "reviewProof-lp02-70",
+     "layout": "reviewProof",
+     "family": "Lined Paper",
+     "palette": "lp02",
+     "theme": "Amber Offer",
+     "cat": "gold",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "gold-chains",
+     "on": true
+    },
+    {
+     "id": "reviewProof-lp06-70",
+     "layout": "reviewProof",
+     "family": "Lined Paper",
+     "palette": "lp06",
+     "theme": "Red Deal",
+     "cat": "sports",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "reviewProof-lp07-70",
+     "layout": "reviewProof",
+     "family": "Lined Paper",
+     "palette": "lp07",
+     "theme": "Amber Market",
+     "cat": "silver",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "silver-bars-row",
+     "on": true
+    },
+    {
+     "id": "reviewProof-lp08-70",
+     "layout": "reviewProof",
+     "family": "Lined Paper",
+     "palette": "lp08",
+     "theme": "Indigo Trade",
+     "cat": "silver",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "silver-tea-set",
+     "on": true
+    },
+    {
+     "id": "trustSeal-sp07-70",
+     "layout": "trustSeal",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Wallpoet",
+      "support": "Instrument Sans",
+      "num": "Wallpoet",
+      "style": "tech"
+     },
+     "product": "poke-booster-packs-fan",
+     "on": true
+    },
+    {
+     "id": "trustSeal-sp08-70",
+     "layout": "trustSeal",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "gold",
+     "faces": {
+      "display": "Wallpoet",
+      "support": "Instrument Sans",
+      "num": "Wallpoet",
+      "style": "tech"
+     },
+     "product": "gold-scale-weighing",
+     "on": true
+    },
+    {
+     "id": "trustSeal-sp09-70",
+     "layout": "trustSeal",
+     "family": "Space",
+     "palette": "sp09",
+     "theme": "Indigo Value",
+     "cat": "cars",
+     "faces": {
+      "display": "Wallpoet",
+      "support": "Instrument Sans",
+      "num": "Wallpoet",
+      "style": "tech"
+     },
+     "product": "car-truck-front",
+     "on": true
+    },
+    {
+     "id": "trustSeal-sp10-70",
+     "layout": "trustSeal",
+     "family": "Space",
+     "palette": "sp10",
+     "theme": "Indigo Quote",
+     "cat": "cars",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "car-van-cargo",
+     "on": true
+    },
+    {
+     "id": "trustSeal-lp02-70",
+     "layout": "trustSeal",
+     "family": "Lined Paper",
+     "palette": "lp02",
+     "theme": "Amber Offer",
+     "cat": "sports",
+     "faces": {
+      "display": "Kalam",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "trustSeal-lp03-70",
+     "layout": "trustSeal",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "silver",
+     "faces": {
+      "display": "Kalam",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "silver-serving-tray",
+     "on": true
+    },
+    {
+     "id": "trustSeal-lp04-70",
+     "layout": "trustSeal",
+     "family": "Lined Paper",
+     "palette": "lp04",
+     "theme": "Violet Counter",
+     "cat": "silver",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "silver-serving-tray",
+     "on": true
+    },
+    {
+     "id": "trustSeal-lp05-70",
+     "layout": "trustSeal",
+     "family": "Lined Paper",
+     "palette": "lp05",
+     "theme": "Sky Ticket",
+     "cat": "strips",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "strip-meter-hand",
+     "on": true
+    },
+    {
+     "id": "trustSeal-lp06-70",
+     "layout": "trustSeal",
+     "family": "Lined Paper",
+     "palette": "lp06",
+     "theme": "Red Deal",
+     "cat": "phones",
+     "faces": {
+      "display": "Architects Daughter",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "mac-damaged-screen",
+     "on": true
+    },
+    {
+     "id": "trustSeal-lp07-70",
+     "layout": "trustSeal",
+     "family": "Lined Paper",
+     "palette": "lp07",
+     "theme": "Amber Market",
+     "cat": "phones",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "own-apple-cosmic-orange-07",
+     "on": true
+    },
+    {
+     "id": "trustSeal-lp09-70",
+     "layout": "trustSeal",
+     "family": "Lined Paper",
+     "palette": "lp09",
+     "theme": "Teal Value",
+     "cat": "coins",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-single-large",
+     "on": true
+    },
+    {
+     "id": "trustSeal-lp10-70",
+     "layout": "trustSeal",
+     "family": "Lined Paper",
+     "palette": "lp10",
+     "theme": "Red Quote",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-elite-box",
+     "on": true
+    },
+    {
+     "id": "trustSeal-sp01-70",
+     "layout": "trustSeal",
+     "family": "Space",
+     "palette": "sp01",
+     "theme": "Indigo Cash",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "qs-iphone-17-air",
+     "on": true
+    },
+    {
+     "id": "trustSeal-sp02-70",
+     "layout": "trustSeal",
+     "family": "Space",
+     "palette": "sp02",
+     "theme": "Blue Offer",
+     "cat": "coins",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "coin-slab",
+     "on": true
+    },
+    {
+     "id": "trustSeal-sp05-70",
+     "layout": "trustSeal",
+     "family": "Space",
+     "palette": "sp05",
+     "theme": "Violet Ticket",
+     "cat": "coins",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Sora",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "product": "coin-single-large",
+     "on": true
+    },
+    {
+     "id": "trustSeal-sp06-70",
+     "layout": "trustSeal",
+     "family": "Space",
+     "palette": "sp06",
+     "theme": "Orchid Deal",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Sora",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-lp02-70",
+     "layout": "stepsFlow",
+     "family": "Lined Paper",
+     "palette": "lp02",
+     "theme": "Amber Offer",
+     "cat": "phones",
+     "faces": {
+      "display": "Kalam",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "iphone-hand-back-offer",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-lp04-70",
+     "layout": "stepsFlow",
+     "family": "Lined Paper",
+     "palette": "lp04",
+     "theme": "Violet Counter",
+     "cat": "coins",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-stack-silver",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-lp05-70",
+     "layout": "stepsFlow",
+     "family": "Lined Paper",
+     "palette": "lp05",
+     "theme": "Sky Ticket",
+     "cat": "coins",
+     "faces": {
+      "display": "Architects Daughter",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-stack-silver",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-lp08-70",
+     "layout": "stepsFlow",
+     "family": "Lined Paper",
+     "palette": "lp08",
+     "theme": "Indigo Trade",
+     "cat": "gold",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "gold-jewelry-mixed",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-lp10-70",
+     "layout": "stepsFlow",
+     "family": "Lined Paper",
+     "palette": "lp10",
+     "theme": "Red Quote",
+     "cat": "cars",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-sedan-front",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-sp03-70",
+     "layout": "stepsFlow",
+     "family": "Space",
+     "palette": "sp03",
+     "theme": "Violet Payday",
+     "cat": "gold",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "gold-nuggets-raw",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-sp07-70",
+     "layout": "stepsFlow",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "sports",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Sora",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-sp08-70",
+     "layout": "stepsFlow",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "sports",
+     "faces": {
+      "display": "Wallpoet",
+      "support": "Instrument Sans",
+      "num": "Wallpoet",
+      "style": "tech"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-sp09-70",
+     "layout": "stepsFlow",
+     "family": "Space",
+     "palette": "sp09",
+     "theme": "Indigo Value",
+     "cat": "silver",
+     "faces": {
+      "display": "Wallpoet",
+      "support": "Instrument Sans",
+      "num": "Wallpoet",
+      "style": "tech"
+     },
+     "product": "silver-bars-stack",
+     "on": true
+    },
+    {
+     "id": "bubblePop-lp03-70",
+     "layout": "bubblePop",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "phones",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "iphone-15-pro-back-blue",
+     "on": true
+    },
+    {
+     "id": "bubblePop-lp04-70",
+     "layout": "bubblePop",
+     "family": "Lined Paper",
+     "palette": "lp04",
+     "theme": "Violet Counter",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "bubblePop-lp05-70",
+     "layout": "bubblePop",
+     "family": "Lined Paper",
+     "palette": "lp05",
+     "theme": "Sky Ticket",
+     "cat": "phones",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "iphone-15-pro-back-blue",
+     "on": true
+    },
+    {
+     "id": "bubblePop-lp06-70",
+     "layout": "bubblePop",
+     "family": "Lined Paper",
+     "palette": "lp06",
+     "theme": "Red Deal",
+     "cat": "phones",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "apple-watch-stack-three",
+     "on": true
+    },
+    {
+     "id": "bubblePop-lp08-70",
+     "layout": "bubblePop",
+     "family": "Lined Paper",
+     "palette": "lp08",
+     "theme": "Indigo Trade",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-booster",
+     "on": true
+    },
+    {
+     "id": "bubblePop-lp10-70",
+     "layout": "bubblePop",
+     "family": "Lined Paper",
+     "palette": "lp10",
+     "theme": "Red Quote",
+     "cat": "phones",
+     "faces": {
+      "display": "Kalam",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "iphone-hand-back-offer",
+     "on": true
+    },
+    {
+     "id": "bubblePop-sp01-70",
+     "layout": "bubblePop",
+     "family": "Space",
+     "palette": "sp01",
+     "theme": "Indigo Cash",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Wallpoet",
+      "support": "Instrument Sans",
+      "num": "Wallpoet",
+      "style": "tech"
+     },
+     "product": "poke-booster-packs-fan",
+     "on": true
+    },
+    {
+     "id": "bubblePop-sp03-70",
+     "layout": "bubblePop",
+     "family": "Space",
+     "palette": "sp03",
+     "theme": "Violet Payday",
+     "cat": "phones",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "ipad-pair-sizes",
+     "on": true
+    },
+    {
+     "id": "bubblePop-sp04-70",
+     "layout": "bubblePop",
+     "family": "Space",
+     "palette": "sp04",
+     "theme": "Blue Counter",
+     "cat": "phones",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "iphone-hand-back-offer",
+     "on": true
+    },
+    {
+     "id": "bubblePop-sp06-70",
+     "layout": "bubblePop",
+     "family": "Space",
+     "palette": "sp06",
+     "theme": "Orchid Deal",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "iphone-15-pro-back-blue",
+     "on": true
+    },
+    {
+     "id": "voltStack-lp06-70",
+     "layout": "voltStack",
+     "family": "Lined Paper",
+     "palette": "lp06",
+     "theme": "Red Deal",
+     "cat": "silver",
+     "faces": {
+      "display": "Kalam",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "silver-flatware",
+     "on": true
+    },
+    {
+     "id": "voltStack-lp08-70",
+     "layout": "voltStack",
+     "family": "Lined Paper",
+     "palette": "lp08",
+     "theme": "Indigo Trade",
+     "cat": "phones",
+     "faces": {
+      "display": "Architects Daughter",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "macbook-open",
+     "on": true
+    },
+    {
+     "id": "voltStack-lp09-70",
+     "layout": "voltStack",
+     "family": "Lined Paper",
+     "palette": "lp09",
+     "theme": "Teal Value",
+     "cat": "phones",
+     "faces": {
+      "display": "Architects Daughter",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "qs-iphone-17-air",
+     "on": true
+    },
+    {
+     "id": "voltStack-sp01-70",
+     "layout": "voltStack",
+     "family": "Space",
+     "palette": "sp01",
+     "theme": "Indigo Cash",
+     "cat": "strips",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "strip-meter-hand",
+     "on": true
+    },
+    {
+     "id": "voltStack-sp03-70",
+     "layout": "voltStack",
+     "family": "Space",
+     "palette": "sp03",
+     "theme": "Violet Payday",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "qs-iphone-17-air",
+     "on": true
+    },
+    {
+     "id": "voltStack-sp04-70",
+     "layout": "voltStack",
+     "family": "Space",
+     "palette": "sp04",
+     "theme": "Blue Counter",
+     "cat": "coins",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "coin-slab-graded",
+     "on": true
+    },
+    {
+     "id": "voltStack-sp05-70",
+     "layout": "voltStack",
+     "family": "Space",
+     "palette": "sp05",
+     "theme": "Violet Ticket",
+     "cat": "phones",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "own-apple-cosmic-orange-07",
+     "on": true
+    },
+    {
+     "id": "voltStack-sp08-70",
+     "layout": "voltStack",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Sora",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "voltStack-sp09-70",
+     "layout": "voltStack",
+     "family": "Space",
+     "palette": "sp09",
+     "theme": "Indigo Value",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "tech"
+     },
+     "product": "poke-elite-box",
+     "on": true
+    },
+    {
+     "id": "voltStack-sp10-70",
+     "layout": "voltStack",
+     "family": "Space",
+     "palette": "sp10",
+     "theme": "Indigo Quote",
+     "cat": "gold",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Sora",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "product": "gold-nuggets-raw",
+     "on": true
+    },
+    {
+     "id": "voltStack-lp01-70",
+     "layout": "voltStack",
+     "family": "Lined Paper",
+     "palette": "lp01",
+     "theme": "Indigo Cash",
+     "cat": "cars",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-damaged-front",
+     "on": true
+    },
+    {
+     "id": "voltStack-lp02-70",
+     "layout": "voltStack",
+     "family": "Lined Paper",
+     "palette": "lp02",
+     "theme": "Amber Offer",
+     "cat": "cars",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-truck-front",
+     "on": true
+    },
+    {
+     "id": "voltStack-lp04-70",
+     "layout": "voltStack",
+     "family": "Lined Paper",
+     "palette": "lp04",
+     "theme": "Violet Counter",
+     "cat": "sports",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "neonNight-lp09-70",
+     "layout": "neonNight",
+     "family": "Lined Paper",
+     "palette": "lp09",
+     "theme": "Teal Value",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Architects Daughter",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-booster-packs-fan",
+     "on": true
+    },
+    {
+     "id": "neonNight-lp10-70",
+     "layout": "neonNight",
+     "family": "Lined Paper",
+     "palette": "lp10",
+     "theme": "Red Quote",
+     "cat": "cars",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-motorcycle-side",
+     "on": true
+    },
+    {
+     "id": "neonNight-sp02-70",
+     "layout": "neonNight",
+     "family": "Space",
+     "palette": "sp02",
+     "theme": "Blue Offer",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "neonNight-sp03-70",
+     "layout": "neonNight",
+     "family": "Space",
+     "palette": "sp03",
+     "theme": "Violet Payday",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "poke-booster-packs-fan",
+     "on": true
+    },
+    {
+     "id": "neonNight-sp04-70",
+     "layout": "neonNight",
+     "family": "Space",
+     "palette": "sp04",
+     "theme": "Blue Counter",
+     "cat": "cars",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "car-truck-front",
+     "on": true
+    },
+    {
+     "id": "neonNight-sp05-70",
+     "layout": "neonNight",
+     "family": "Space",
+     "palette": "sp05",
+     "theme": "Violet Ticket",
+     "cat": "cars",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "car-classic-side",
+     "on": true
+    },
+    {
+     "id": "neonNight-sp06-70",
+     "layout": "neonNight",
+     "family": "Space",
+     "palette": "sp06",
+     "theme": "Orchid Deal",
+     "cat": "cars",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "tech"
+     },
+     "product": "car-motorcycle-side",
+     "on": true
+    },
+    {
+     "id": "neonNight-sp07-70",
+     "layout": "neonNight",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "phones",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "tech"
+     },
+     "product": "apple-watch-pair",
+     "on": true
+    },
+    {
+     "id": "neonNight-sp08-70",
+     "layout": "neonNight",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "phones",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Sora",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "product": "iphone-15-pro-back-blue",
+     "on": true
+    },
+    {
+     "id": "neonNight-lp01-70",
+     "layout": "neonNight",
+     "family": "Lined Paper",
+     "palette": "lp01",
+     "theme": "Indigo Cash",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-booster",
+     "on": true
+    },
+    {
+     "id": "neonNight-lp02-70",
+     "layout": "neonNight",
+     "family": "Lined Paper",
+     "palette": "lp02",
+     "theme": "Amber Offer",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-booster-packs-fan",
+     "on": true
+    },
+    {
+     "id": "neonNight-lp03-70",
+     "layout": "neonNight",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "cars",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-van-cargo",
+     "on": true
+    },
+    {
+     "id": "neonNight-lp06-70",
+     "layout": "neonNight",
+     "family": "Lined Paper",
+     "palette": "lp06",
+     "theme": "Red Deal",
+     "cat": "sports",
+     "faces": {
+      "display": "Kalam",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "slabPoster-sp02-70",
+     "layout": "slabPoster",
+     "family": "Space",
+     "palette": "sp02",
+     "theme": "Blue Offer",
+     "cat": "cars",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "car-van-cargo",
+     "on": true
+    },
+    {
+     "id": "slabPoster-sp07-70",
+     "layout": "slabPoster",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "silver",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "silver-serving-tray",
+     "on": true
+    },
+    {
+     "id": "slabPoster-sp08-70",
+     "layout": "slabPoster",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "silver",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "silver-rounds-pile",
+     "on": true
+    },
+    {
+     "id": "slabPoster-sp10-70",
+     "layout": "slabPoster",
+     "family": "Space",
+     "palette": "sp10",
+     "theme": "Indigo Quote",
+     "cat": "phones",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "own-apple-cosmic-orange-07",
+     "on": true
+    },
+    {
+     "id": "slabPoster-lp02-70",
+     "layout": "slabPoster",
+     "family": "Lined Paper",
+     "palette": "lp02",
+     "theme": "Amber Offer",
+     "cat": "coins",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-silver-dollar-pair",
+     "on": true
+    },
+    {
+     "id": "slabPoster-lp03-70",
+     "layout": "slabPoster",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "coins",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-silver-dollar-pair",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-sp05-70",
+     "layout": "scriptRetro",
+     "family": "Space",
+     "palette": "sp05",
+     "theme": "Violet Ticket",
+     "cat": "coins",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "coin-graded-fan-three",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-sp06-70",
+     "layout": "scriptRetro",
+     "family": "Space",
+     "palette": "sp06",
+     "theme": "Orchid Deal",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "poke-elite-box",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-sp07-70",
+     "layout": "scriptRetro",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "gold",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "gold-bracelet-pair",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-sp08-70",
+     "layout": "scriptRetro",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "gold",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "gold-rings-scatter",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-sp10-70",
+     "layout": "scriptRetro",
+     "family": "Space",
+     "palette": "sp10",
+     "theme": "Indigo Quote",
+     "cat": "phones",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "ipad-angle-tilt",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp01-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp01",
+     "theme": "Indigo Cash",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp02-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp02",
+     "theme": "Amber Offer",
+     "cat": "sports",
+     "faces": {
+      "display": "Architects Daughter",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp03-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "coins",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-slab-graded",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp04-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp04",
+     "theme": "Violet Counter",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-booster",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp05-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp05",
+     "theme": "Sky Ticket",
+     "cat": "sports",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp06-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp06",
+     "theme": "Red Deal",
+     "cat": "coins",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp07-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp07",
+     "theme": "Amber Market",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp08-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp08",
+     "theme": "Indigo Trade",
+     "cat": "gold",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "gold-earrings-pile",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp09-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp09",
+     "theme": "Teal Value",
+     "cat": "coins",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-graded-fan-three",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-lp10-70",
+     "layout": "scriptRetro",
+     "family": "Lined Paper",
+     "palette": "lp10",
+     "theme": "Red Quote",
+     "cat": "phones",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "own-apple-cosmic-orange-07",
+     "on": true
+    },
+    {
+     "id": "lowerThird-sp08-70",
+     "layout": "lowerThird",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "cars",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "car-truck-front",
+     "on": true
+    },
+    {
+     "id": "lowerThird-sp09-70",
+     "layout": "lowerThird",
+     "family": "Space",
+     "palette": "sp09",
+     "theme": "Indigo Value",
+     "cat": "gold",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "gold-scale-weighing",
+     "on": true
+    },
+    {
+     "id": "lowerThird-lp03-70",
+     "layout": "lowerThird",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "silver",
+     "faces": {
+      "display": "Architects Daughter",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "silver-serving-tray",
+     "on": true
+    },
+    {
+     "id": "lowerThird-lp04-70",
+     "layout": "lowerThird",
+     "family": "Lined Paper",
+     "palette": "lp04",
+     "theme": "Violet Counter",
+     "cat": "silver",
+     "faces": {
+      "display": "Architects Daughter",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "silver-rounds-pile",
+     "on": true
+    },
+    {
+     "id": "lowerThird-lp07-70",
+     "layout": "lowerThird",
+     "family": "Lined Paper",
+     "palette": "lp07",
+     "theme": "Amber Market",
+     "cat": "phones",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "ipad-pair-sizes",
+     "on": true
+    },
+    {
+     "id": "gradientWave-lp01-70",
+     "layout": "gradientWave",
+     "family": "Lined Paper",
+     "palette": "lp01",
+     "theme": "Indigo Cash",
+     "cat": "strips",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "gradientWave-lp03-70",
+     "layout": "gradientWave",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "phones",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "iphone-hand-back-offer",
+     "on": true
+    },
+    {
+     "id": "gradientWave-lp04-70",
+     "layout": "gradientWave",
+     "family": "Lined Paper",
+     "palette": "lp04",
+     "theme": "Violet Counter",
+     "cat": "coins",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-jar-full",
+     "on": true
+    },
+    {
+     "id": "gradientWave-lp06-70",
+     "layout": "gradientWave",
+     "family": "Lined Paper",
+     "palette": "lp06",
+     "theme": "Red Deal",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "gradientWave-lp08-70",
+     "layout": "gradientWave",
+     "family": "Lined Paper",
+     "palette": "lp08",
+     "theme": "Indigo Trade",
+     "cat": "gold",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "gold-bars",
+     "on": true
+    },
+    {
+     "id": "gradientWave-lp09-70",
+     "layout": "gradientWave",
+     "family": "Lined Paper",
+     "palette": "lp09",
+     "theme": "Teal Value",
+     "cat": "gold",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "gold-teeth-dental",
+     "on": true
+    },
+    {
+     "id": "gradientWave-lp10-70",
+     "layout": "gradientWave",
+     "family": "Lined Paper",
+     "palette": "lp10",
+     "theme": "Red Quote",
+     "cat": "cars",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-suv-side",
+     "on": true
+    },
+    {
+     "id": "gradientWave-sp01-70",
+     "layout": "gradientWave",
+     "family": "Space",
+     "palette": "sp01",
+     "theme": "Indigo Cash",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Sora",
+      "num": "Audiowide",
+      "style": "tech"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "ticketStub-sp01-70",
+     "layout": "ticketStub",
+     "family": "Space",
+     "palette": "sp01",
+     "theme": "Indigo Cash",
+     "cat": "cars",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "car-keys-fob",
+     "on": true
+    },
+    {
+     "id": "hudTech-lp07-70",
+     "layout": "hudTech",
+     "family": "Lined Paper",
+     "palette": "lp07",
+     "theme": "Amber Market",
+     "cat": "strips",
+     "faces": {
+      "display": "Kalam",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "strip-kit",
+     "on": true
+    },
+    {
+     "id": "hudTech-lp08-70",
+     "layout": "hudTech",
+     "family": "Lined Paper",
+     "palette": "lp08",
+     "theme": "Indigo Trade",
+     "cat": "cars",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-keys",
+     "on": true
+    },
+    {
+     "id": "hudTech-lp09-70",
+     "layout": "hudTech",
+     "family": "Lined Paper",
+     "palette": "lp09",
+     "theme": "Teal Value",
+     "cat": "sports",
+     "faces": {
+      "display": "Gloria Hallelujah",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "hudTech-sp01-70",
+     "layout": "hudTech",
+     "family": "Space",
+     "palette": "sp01",
+     "theme": "Indigo Cash",
+     "cat": "phones",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "apple-watch-stack-three",
+     "on": true
+    },
+    {
+     "id": "hudTech-sp06-70",
+     "layout": "hudTech",
+     "family": "Space",
+     "palette": "sp06",
+     "theme": "Orchid Deal",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "own-stock-macbook-stack",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-lp10-70",
+     "layout": "bandKnockout",
+     "family": "Lined Paper",
+     "palette": "lp10",
+     "theme": "Red Quote",
+     "cat": "gold",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "gold-nuggets-raw",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-sp04-70",
+     "layout": "bandKnockout",
+     "family": "Space",
+     "palette": "sp04",
+     "theme": "Blue Counter",
+     "cat": "gold",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "gold-earrings-pile",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-sp05-70",
+     "layout": "bandKnockout",
+     "family": "Space",
+     "palette": "sp05",
+     "theme": "Violet Ticket",
+     "cat": "gold",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "gold-bracelet-cuban",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-sp06-70",
+     "layout": "bandKnockout",
+     "family": "Space",
+     "palette": "sp06",
+     "theme": "Orchid Deal",
+     "cat": "cars",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "tech"
+     },
+     "product": "car-motorcycle-side",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-sp07-70",
+     "layout": "bandKnockout",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "cars",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "tech"
+     },
+     "product": "car-classic-side",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-sp08-70",
+     "layout": "bandKnockout",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "sports",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "tech"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-sp09-70",
+     "layout": "bandKnockout",
+     "family": "Space",
+     "palette": "sp09",
+     "theme": "Indigo Value",
+     "cat": "silver",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "tech"
+     },
+     "product": "silver-rounds-pile",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-lp01-70",
+     "layout": "bandKnockout",
+     "family": "Lined Paper",
+     "palette": "lp01",
+     "theme": "Indigo Cash",
+     "cat": "strips",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "strip-box-open-vials",
+     "on": true
+    },
+    {
+     "id": "arcCrown-sp03-70",
+     "layout": "arcCrown",
+     "family": "Space",
+     "palette": "sp03",
+     "theme": "Violet Payday",
+     "cat": "cars",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "car-title-docs",
+     "on": true
+    },
+    {
+     "id": "arcCrown-sp04-70",
+     "layout": "arcCrown",
+     "family": "Space",
+     "palette": "sp04",
+     "theme": "Blue Counter",
+     "cat": "sports",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Chivo",
+      "num": "Chivo",
+      "style": "tech"
+     },
+     "product": "sports-box-sealed",
+     "on": true
+    },
+    {
+     "id": "arcCrown-sp05-70",
+     "layout": "arcCrown",
+     "family": "Space",
+     "palette": "sp05",
+     "theme": "Violet Ticket",
+     "cat": "silver",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "silver-flatware",
+     "on": true
+    },
+    {
+     "id": "arcCrown-sp06-70",
+     "layout": "arcCrown",
+     "family": "Space",
+     "palette": "sp06",
+     "theme": "Orchid Deal",
+     "cat": "silver",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "silver-coins-tube",
+     "on": true
+    },
+    {
+     "id": "arcCrown-sp07-70",
+     "layout": "arcCrown",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "strips",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "strip-meter-hand",
+     "on": true
+    }
+   ],
+   "perLayout": {
+    "scriptRetro": {
+     "on": 15,
+     "of": 16
+    },
+    "trustSeal": {
+     "on": 16,
+     "of": 20
+    },
+    "checklistHero": {
+     "on": 14,
+     "of": 19
+    },
+    "neonNight": {
+     "on": 13,
+     "of": 18
+    },
+    "voltStack": {
+     "on": 13,
+     "of": 19
+    },
+    "reviewProof": {
+     "on": 10,
+     "of": 15
+    },
+    "gradientWave": {
+     "on": 8,
+     "of": 13
+    },
+    "bandKnockout": {
+     "on": 8,
+     "of": 14
+    },
+    "bubblePop": {
+     "on": 10,
+     "of": 18
+    },
+    "slabPoster": {
+     "on": 6,
+     "of": 13
+    },
+    "stepsFlow": {
+     "on": 9,
+     "of": 20
+    },
+    "hudTech": {
+     "on": 5,
+     "of": 12
+    },
+    "lowerThird": {
+     "on": 5,
+     "of": 14
+    },
+    "arcCrown": {
+     "on": 5,
+     "of": 15
+    },
+    "ticketStub": {
+     "on": 1,
+     "of": 9
+    },
+    "glassCard": {
+     "on": 0,
+     "of": 15
+    }
+   }
   }
  ]
 }

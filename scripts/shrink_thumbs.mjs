@@ -3,7 +3,7 @@
    under the artifact size cap. Reads .render/retheme/*.webp, writes small/. */
 import puppeteer from 'puppeteer-core';
 import { readdirSync, writeFileSync, mkdirSync, readFileSync } from 'node:fs';
-const DIR = new URL('../.render/retheme/', import.meta.url).pathname, OUT = DIR + 'small/';
+const DIR = process.env.LAB_OUT ? new URL('../' + process.env.LAB_OUT.replace(/\/?$/, '/'), import.meta.url).pathname : new URL('../.render/retheme/', import.meta.url).pathname, OUT = DIR + 'small/';
 mkdirSync(OUT, { recursive: true });
 const S = +(process.env.SIZE || 448), Q = +(process.env.Q || 0.72);
 const files = readdirSync(DIR).filter(f => /\.webp$/.test(f));

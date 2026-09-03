@@ -221,6 +221,26 @@ const FAMILIES = [
            F('Clash Display','Manrope','IBM Plex Mono'),F('Syne','Jost','Space Grotesk'),
            F('Big Shoulders Display','Satoshi','Oswald'),F('Unbounded','Outfit','Manrope')] },
 
+  /* Two more, 2026-09-03: "a space theme and a lined paper theme". Space is
+     the deepest ground of all with bright, cool accents — the photograph is
+     NASA's. Lined Paper is cream with pen-coloured accents; the ground is
+     drawn, not photographed, and the plates are highlighter and sticky notes. */
+  { key:'sp', family:'Space', plate:PL.glasscap,
+    gL:0.16, gC:0.045, aL:0.84, aC:0.20, sL:0.74, sC:0.15, rel:140, rel2:-115,
+    hues:[250,232,268,205,290,320,185,215,242,258],
+    faces:[F('Unbounded','Manrope','Space Mono'),F('Syne','Sora','Space Grotesk'),
+           F('Clash Display','Manrope','IBM Plex Mono'),F('Unbounded','Sora','Sora'),
+           F('Syne','Satoshi','Space Mono'),F('Clash Display','Jost','Space Grotesk'),
+           F('Unbounded','Manrope','Manrope'),F('Syne','Sora','IBM Plex Mono'),
+           F('Clash Display','Satoshi','Space Mono'),F('Unbounded','Jost','Space Grotesk')] },
+  { key:'lp', family:'Lined Paper', plate:PL.tag,
+    gL:0.965, gC:0.014, aL:0.42, aC:0.16, sL:0.90, sC:0.18, rel:0, rel2:-155,
+    hues:[250,20,145,285,200,350,30,262,170,8],
+    faces:[F('Anton','Satoshi','Oswald'),F('Archivo Black','Manrope','Space Grotesk'),
+           F('Oswald','Jost','Oswald'),F('Clash Display','Satoshi','Chivo'),
+           F('Bebas Neue','Sora','Bebas Neue'),F('Anton','Manrope','Space Mono'),
+           F('Archivo Black','Jost','Manrope'),F('Big Shoulders Display','Satoshi','Khand'),
+           F('Oswald','Chivo','Chivo'),F('Clash Display','Outfit','Space Grotesk')] },
   { key:'ck', family:'Chalk', plate:PL.tag,
     gL:0.975, gC:0.006, aL:0.48, aC:0.24, sL:0.28, sC:0.03, rel:0, rel2:180,
     hues:[352,25,205,150,265,42,180,320,235,95],

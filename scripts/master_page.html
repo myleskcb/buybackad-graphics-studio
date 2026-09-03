@@ -1,0 +1,145 @@
+<title>Buyback Master Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{ --ground:#14161c; --panel:#1b1e26; --panel-2:#212530; --line:#2c313d; --ink:#e9ebf1; --dim:#8f95a5; --faint:#5f6675; --keep:#5ad1a5; --accent:#ffb03a; --done:#4f7cff; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden}
+.wrap{max-width:1900px; margin:0 auto; padding:16px 18px 130px; display:flex; flex-direction:column; gap:14px}
+header{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
+h1{font-size:19px; font-weight:800; margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace; font-variant-numeric:tabular-nums}
+select{font:inherit; font-size:15px; font-weight:600; color:var(--ink); background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:10px 14px; min-width:360px}
+.status{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px}
+.st{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 12px; cursor:pointer}
+.st.cur{border-color:var(--accent)}
+.st b{display:block; font-size:13px; margin-bottom:4px}
+.st .bar{height:5px; background:var(--line); border-radius:3px; overflow:hidden; margin:6px 0 4px}
+.st .bar i{display:block; height:100%; background:var(--done)}
+.st small{color:var(--dim); font-size:11.5px}
+.st small em{color:var(--keep); font-style:normal; font-weight:600}
+.premise{color:var(--dim); font-size:13px; margin:0}
+.grid{display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+.grid.eight{grid-template-columns:repeat(8,1fr); gap:8px}
+.card{background:var(--panel); border:3px solid var(--line); border-radius:12px; overflow:hidden; cursor:pointer; position:relative; transition:border-color .12s ease, transform .12s ease}
+.card:hover{transform:translateY(-2px)}
+.card img{display:block; width:100%; height:auto; background:#0d0f14}
+.grid.eight .card img{aspect-ratio:1; object-fit:contain; background:linear-gradient(45deg,#1a1d25 25%,transparent 25%,transparent 75%,#1a1d25 75%),linear-gradient(45deg,#1a1d25 25%,#232732 25%,#232732 75%,#1a1d25 75%); background-size:20px 20px; background-position:0 0,10px 10px}
+.card.on{border-color:var(--keep); box-shadow:0 0 0 1px var(--keep), 0 12px 30px rgba(90,209,165,.18)}
+.card .tick{position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:50%; background:var(--keep); color:#0f1a15; display:none; align-items:center; justify-content:center; font-weight:900; font-size:16px}
+.card.on .tick{display:flex}
+.card .key{position:absolute; top:10px; left:10px; font-size:11px; padding:2px 7px; border-radius:6px; background:rgba(20,22,28,.78); color:var(--dim)}
+.meta{display:flex; align-items:center; gap:5px; flex-wrap:wrap; padding:6px 8px; border-top:1px solid var(--line); min-width:0}
+.nm{font-size:11px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.chip{font-size:10px; color:var(--dim); border:1px solid var(--line); border-radius:999px; padding:2px 8px; background:var(--panel-2)}
+.id{margin-left:auto; font-size:10.5px; color:var(--faint)}
+.dock{position:fixed; left:0; right:0; bottom:0; z-index:40; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); background:linear-gradient(to top, var(--ground) 62%, rgba(20,22,28,0)); display:flex; flex-direction:column; gap:6px; align-items:center; pointer-events:none}
+.dock > *{pointer-events:auto}
+.controls{display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap}
+button{font:inherit; color:var(--ink); background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:11px 18px; cursor:pointer; font-weight:600; font-size:14px; box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.btn-done{color:#0f1a15; background:var(--keep); border-color:var(--keep)}
+.ghost{background:none; border-color:transparent; color:var(--dim); box-shadow:none}
+.pg{font-size:12px; color:var(--dim)}
+.review{display:none; flex-direction:column; gap:14px}
+textarea{width:100%; min-height:110px; background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:11px; font-family:"IBM Plex Mono",monospace; font-size:12px; resize:vertical}
+@media (max-width:1400px){ .grid{grid-template-columns:repeat(4,1fr)} .grid.eight{grid-template-columns:repeat(6,1fr)} }
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(3,1fr)} .grid.eight{grid-template-columns:repeat(4,1fr)} }
+@media (max-width:640px){ .grid{grid-template-columns:repeat(2,1fr)} .grid.eight{grid-template-columns:repeat(3,1fr)} select{min-width:0; width:100%} }
+</style>
+<div class="wrap">
+  <header>
+    <h1>Buyback Master Lab</h1>
+    <select id="sel"></select>
+    <span class="pg mono" id="pgline"></span>
+  </header>
+  <div class="status" id="status"></div>
+  <p class="premise" id="premise"></p>
+  <section id="pick"><div class="grid" id="grid"></div></section>
+  <section class="review" id="review">
+    <h2 style="margin:0;font-size:15px">Approved, all sections <span class="pg" id="keptcount"></span></h2>
+    <div class="grid" id="keptgrid"></div>
+    <textarea id="out" readonly></textarea>
+  </section>
+</div>
+<div class="dock">
+  <div class="controls">
+    <button class="ghost" id="prev">&larr; Previous</button>
+    <button id="next">Next page &rarr;</button>
+    <button id="resume">Resume where I left off</button>
+    <button class="btn-done" id="done">Done &mdash; review</button>
+    <button class="ghost" id="back" style="display:none">Back</button>
+    <button class="ghost" id="copy" style="display:none">Copy list</button>
+  </div>
+</div>
+<script>
+const SECTIONS = /*__SECTIONS__*/;
+const CARDS = /*__CARDS__*/;
+const KEY = 'master-lab-v1';
+let st = { sec: SECTIONS[0].key, page: {}, on: {}, seen: {} };
+try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.on) st = Object.assign({ page:{}, seen:{} }, s); } catch(e){}
+let dbDoc = null, syncTimer = null;
+const syncNow = () => { if (!dbDoc) return; dbDoc.set({ on: st.on, seen: st.seen, page: st.page, sec: st.sec, count: Object.keys(st.on).length, updated: Date.now(), set: KEY }).catch(() => {}); };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} if (dbDoc){ clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 600); } };
+(async () => { try { const db = window.claude && window.claude.use ? await window.claude.use('db') : null; if (!db) return;
+  dbDoc = db.doc('sets/approvals-' + KEY); const snap = await dbDoc.get();
+  if (snap && snap.exists && snap.data && snap.data()){ const d = snap.data(); let added = 0;
+    Object.keys(d.on || {}).forEach(id => { if (!st.on[id]){ st.on[id] = 1; added++; } });
+    Object.keys(d.seen || {}).forEach(k => { if (!st.seen[k]){ st.seen[k] = 1; added++; } });
+    if (added){ save(); render(); } }
+  syncNow(); document.getElementById('pgline').textContent += '  · synced'; } catch(e){} })();
+const $ = id => document.getElementById(id);
+const sec = () => SECTIONS.find(s => s.key === st.sec) || SECTIONS[0];
+const cardsOf = s => CARDS.filter(c => c.sec === s.key);
+const pagesOf = s => Math.max(1, Math.ceil(cardsOf(s).length / s.per));
+const seenPages = s => { let n = 0; for (let p = 0; p < pagesOf(s); p++) if (st.seen[s.key + ':' + p]) n++; return n; };
+SECTIONS.forEach(s => { const o = document.createElement('option'); o.value = s.key; o.textContent = s.name; $('sel').appendChild(o); });
+function tile(c, idx){
+  const d = document.createElement('div'); d.className = 'card' + (st.on[c.id] ? ' on' : ''); d.tabIndex = 0;
+  d.innerHTML = (idx !== undefined ? '<span class="key mono">'+(idx+1)+'</span>' : '') + '<div class="tick">✓</div><img src="'+c.src+'" alt="'+(c.name||c.id)+'" loading="lazy">'
+    + '<div class="meta"><span class="nm">'+(c.name||c.id)+'</span>'+(c.cat ? '<span class="chip">'+c.cat+'</span>' : '')+'<span class="id mono">'+c.id+'</span></div>';
+  const toggle = () => { if (st.on[c.id]) delete st.on[c.id]; else st.on[c.id] = 1; save(); d.classList.toggle('on', !!st.on[c.id]); status(); };
+  d.onclick = toggle; d.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggle(); } };
+  return d;
+}
+function status(){
+  const box = $('status'); box.innerHTML = '';
+  SECTIONS.forEach(s => {
+    const total = cardsOf(s).length, kept = cardsOf(s).filter(c => st.on[c.id]).length, sp = seenPages(s), pp = pagesOf(s);
+    const d = document.createElement('div'); d.className = 'st' + (s.key === st.sec ? ' cur' : '');
+    d.innerHTML = '<b>' + s.name + '</b><div class="bar"><i style="width:' + Math.round(sp / pp * 100) + '%"></i></div><small>' + sp + '/' + pp + ' pages seen · <em>' + kept + '</em> approved of ' + total + (sp >= pp ? ' · finished' : '') + '</small>';
+    d.onclick = () => { st.sec = s.key; $('sel').value = s.key; save(); render(); };
+    box.appendChild(d);
+  });
+  const s = sec(), p = st.page[s.key] || 0;
+  $('pgline').textContent = 'page ' + (p + 1) + '/' + pagesOf(s) + ' · approved ' + Object.keys(st.on).length + ' total';
+}
+function render(){
+  const s = sec(), list = cardsOf(s), p = Math.min(st.page[s.key] || 0, pagesOf(s) - 1); st.page[s.key] = p;
+  st.seen[s.key + ':' + p] = 1;
+  $('premise').textContent = s.premise;
+  const g = $('grid'); g.className = 'grid' + (s.per === 64 ? ' eight' : ''); g.innerHTML = '';
+  list.slice(p * s.per, p * s.per + s.per).forEach((c, i) => g.appendChild(tile(c, i)));
+  $('prev').disabled = p === 0; $('next').textContent = p >= pagesOf(s) - 1 ? 'Last page of this section' : 'Next page →';
+  save(); status(); window.scrollTo({ top: 0 });
+}
+function resume(){
+  for (const s of SECTIONS){ for (let p = 0; p < pagesOf(s); p++){ if (!st.seen[s.key + ':' + p]){ st.sec = s.key; st.page[s.key] = p; $('sel').value = s.key; render(); return; } } }
+  showReview();
+}
+function showReview(){
+  $('pick').style.display = 'none'; $('review').style.display = 'flex';
+  ['prev','next','done','resume'].forEach(id => $(id).style.display = 'none'); ['back','copy'].forEach(id => $(id).style.display = '');
+  const kg = $('keptgrid'); kg.innerHTML = ''; const kept = CARDS.filter(c => st.on[c.id]); kept.forEach(c => kg.appendChild(tile(c)));
+  $('keptcount').textContent = kept.length + ' approved';
+  $('out').value = kept.map(c => c.sec + '  ' + c.id + '  ' + (c.name || '') + (c.cat ? ' · ' + c.cat : '')).join('\n') || 'Nothing approved yet.';
+}
+function showPick(){ $('review').style.display = 'none'; $('pick').style.display = ''; ['prev','next','done','resume'].forEach(id => $(id).style.display = ''); ['back','copy'].forEach(id => $(id).style.display = 'none'); render(); }
+$('sel').onchange = () => { st.sec = $('sel').value; save(); render(); };
+$('prev').onclick = () => { const s = sec(); if ((st.page[s.key] || 0) > 0){ st.page[s.key]--; render(); } };
+$('next').onclick = () => { const s = sec(); if ((st.page[s.key] || 0) < pagesOf(s) - 1){ st.page[s.key]++; render(); } else { const i = SECTIONS.indexOf(s); if (i < SECTIONS.length - 1){ st.sec = SECTIONS[i + 1].key; $('sel').value = st.sec; render(); } } };
+$('resume').onclick = resume; $('done').onclick = showReview; $('back').onclick = showPick;
+$('copy').onclick = async () => { try { await navigator.clipboard.writeText($('out').value); $('copy').textContent = 'Copied'; } catch(e){ $('out').select(); $('copy').textContent = 'Select and copy'; } setTimeout(() => $('copy').textContent = 'Copy list', 1600); };
+window.addEventListener('keydown', e => { if ($('review').style.display === 'flex') return; if (e.key === 'ArrowRight') $('next').click(); else if (e.key === 'ArrowLeft') $('prev').click(); else if (e.key === 'Enter') showReview(); });
+$('sel').value = st.sec; render();
+</script>

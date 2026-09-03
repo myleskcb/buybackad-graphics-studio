@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /* Self-audit of a rendered set from the final layer tables (LAB_DEBUG=ALL).
    Every rule here is one the owner has called out. A card fails on any hit. */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 const DIR = process.env.LAB_OUT ? new URL('../' + process.env.LAB_OUT.replace(/\/?$/, '/'), import.meta.url).pathname : new URL('../.render/retheme/', import.meta.url).pathname;
 const cards = JSON.parse(readFileSync(DIR + 'audit-layers.json', 'utf8'));
+const MAN = Object.fromEntries((existsSync(DIR + 'manifest.json') ? JSON.parse(readFileSync(DIR + 'manifest.json', 'utf8')) : []).map(m => [m.id, m]));
 const W = 1080, H = 1080;
 const DECOR = /Faster One|Sedgwick|Rubik|Wallpoet|Freckle|Nosifer|Creepster|Bungee|Rye|Fascinate|Luckiest|Shrikhand|Special Elite|Press Start|Pirata|Kaushan|Knewave|Bangers|Permanent|Kalam|Patrick|Shadows|Gloria|Nanum|Architects|Amatic|Cabin Sketch/i;
 const norm = t => t.trim().toUpperCase().replace(/\s+/g, ' ');
@@ -35,10 +36,24 @@ for (const c of cards){
   texts.forEach(r => { if (/\bA THE\b|\bA AN\b/i.test(r.text)) hits.push('grammar: ' + r.text.slice(0, 30)); });
   // 7. ambitious claims
   texts.forEach(r => { if (/ANY (WRITTEN )?OFFER/i.test(r.text)) hits.push('claim: ' + r.text.slice(0, 30)); });
+  // 13. brand: the product must be the thing the headline names
+  { const man = MAN[c.id];
+    const head = texts.filter(r => r.role === 'headline').map(r => r.text.toUpperCase()).join(' ');
+    const prod = man ? String(man.product || '') : '';
+    const want = /IPHONE/.test(head) ? /^(iphone-|ip-(?!gen)|qs-iphone|own-apple-|own-stock-iphone)/i
+               : /IPAD/.test(head) ? /^(ipad|qs-ipad|qs-device-ipad|own-.*ipad)/i
+               : /WATCH/.test(head) ? /^(watch|apple-watch|qs-device-watch|qs-.*watch)/i
+               : /MACBOOK|MAC\b/.test(head) ? /^(mac|macbook|own-stock-mac|qs-.*mac)/i
+               : /SAMSUNG|GALAXY/.test(head) ? /^(sam-|samsung)/i
+               : /PIXEL/.test(head) ? /^(pix-|pixel)/i : null;
+    if (prod && /^(ip-gen|iphone-16-back-teal|iphone-17-pro-back-orange|iphone-back-flat-straight|iphone-back|iphone-six-grid)$/i.test(prod)) hits.push('brand: not an iPhone ' + prod);
+    if (prod && /^ip-gen/i.test(prod)) hits.push('brand: AI render ' + prod);
+    else if (want && prod && !want.test(prod)) hits.push('brand: ' + prod + ' under ' + head.slice(0, 24));
+  }
   // 8. sparse
   if (c.density < 12) hits.push('sparse: density ' + c.density);
   // 10. product over words — a cutout covering a tenth of any text box (owner, 2026-09-02: a coin over the tiles and the number)
-  rows.filter(r => r.kind === 'cutout' && r.bb && !/^Wall /.test(r.name)).forEach(r => texts.forEach(t => {   // the wall is behind the words by design
+  rows.filter(r => r.kind === 'cutout' && r.bb && !/^Wall /.test(r.name)).forEach(r => texts.filter(t => t.role !== 'badges').forEach(t => {   // badges are not copy; the wall is behind the words by design
     const A = r.bb, B = t.bb;
     const ix = Math.max(0, Math.min(A[0]+A[2], B[0]+B[2]) - Math.max(A[0], B[0])), iy = Math.max(0, Math.min(A[1]+A[3], B[1]+B[3]) - Math.max(A[1], B[1]));
     if (B[2] * B[3] > 0 && ix * iy > 0.1 * B[2] * B[3]) hits.push('product-on-text: ' + t.text.slice(0, 24));

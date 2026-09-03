@@ -32,6 +32,8 @@ const FORMATS = {
   story:     { label:'Story 9:16',      w:1080, h:1920, hint:'IG / TikTok story · phone wallpaper' },
   flyer:     { label:'Flyer 8.5×11',    w:1080, h:1398, hint:'Letter-size print · pole & board posting' },
   landscape: { label:'Wide 16:9',       w:1920, h:1080, hint:'Banner · Craigslist header' },
+  four3:     { label:'Wide 4:3',        w:1440, h:1080, hint:'Facebook link image · slides' },
+  three4:    { label:'Tall 3:4',        w:1080, h:1440, hint:'Instagram portrait · Pinterest' },
 };
 let docFormat = 'square';
 const fmtOf = () => FORMATS[docFormat] || FORMATS.square;
@@ -4208,7 +4210,8 @@ function freshBgImage(src, blur, grade){
   if (img && grade && grade.treat){
     try {
       const F = fabric.Image.filters;
-      img.filters = grade.treat === 'natural'
+      img.filters = grade.treat === 'raw' ? []                       // as shot
+        : grade.treat === 'natural'
         ? [new F.Contrast({ contrast: 0.05 })]
         : [new F.Grayscale(), new F.Contrast({ contrast: 0.08 })];
       img.applyFilters();
@@ -5899,7 +5902,7 @@ const BG_PRESETS = [
   {type:'grad', c1:'#f5b700', c2:'#ff8a00', a:135},
 ];
 const EZ_EDIT_ROLES = ['headline','sub','cta','info','user','offer'];
-let ez = { tpl: null, vals:{}, chips:null, bg:null, bgPicked:false, custom:'#2563eb', hidden:{}, bgRecId:null, bgData:null, bgImgObj:null, fx:{ blur:0, overlay:'none', oc:'#000000', os:45 }, styles:{}, customPoints: jget('pgfx_custom_points', []) };
+let ez = { tpl: null, format: jget('pgfx_ez_format', 'square'), vals:{}, chips:null, bg:null, bgPicked:false, custom:'#2563eb', hidden:{}, bgRecId:null, bgData:null, bgImgObj:null, fx:{ blur:0, overlay:'none', oc:'#000000', os:45 }, styles:{}, customPoints: jget('pgfx_custom_points', []) };
 let ezBound = false, ezPrevTimer = null;
 
 function ezTpl(){ return TEMPLATES.find(t => t.id === ez.tpl) || TEMPLATES[0]; }
@@ -7537,6 +7540,7 @@ function showEasy(tplId){
   window.scrollTo(0,0);
   ensureThumbs();
   bindEasyUI();
+  bindAreaDialog();
   maybeAskArea();
   const b = getBrand();
   if (b){ if (!$('ez-phone').value) $('ez-phone').value = b.phone || ''; if (!$('ez-website').value) $('ez-website').value = b.website || ''; }
@@ -7551,6 +7555,7 @@ function bindEasyUI(){
   $('ez-adv-link').onclick = () => openAdvancedFromEz();
   $('ez-open-adv').onclick = () => openAdvancedFromEz();
   $('ez-download').onclick = () => ezDownload();
+  buildEzSizes();
   const pk = $('ez-pack');
   if (pk) pk.onclick = exportCategoryPack;
   $('nobg-continue').onclick = () => { $('nobg-overlay').classList.remove('show'); ezDownload(true); };
@@ -7882,11 +7887,17 @@ function placeholderBgImage(src){
   }
   try { return new fabric.Image(p); } catch (e){ return null; }
 }
-function renderEzCanvas(px, fmt, q, mode){
+function renderEzCanvas(px, fmt, q, mode, format){
+  /* 2026-09-02: Easy Mode exports in every format the editor has. Layers are
+     built straight into the target document (buildLayer takes dw/dh, the same
+     remap the advanced editor uses), the photo covers it, alignPass runs on
+     it. `px` is the SHORT side, so plan caps keep meaning what they meant. */
+  const F = FORMATS[format || ez.format || 'square'] || FORMATS.square;
+  const DW = F.w, DH = F.h;
   // Easy Mode is deliberately square-only, the guided flow targets Marketplace
   // & Instagram posts; rectangular formats live in the advanced editor
   const tpl = ezTpl();
-  const sc = new fabric.StaticCanvas(null, { width:TPL_W, height:TPL_H, renderOnAddRemove:false });
+  const sc = new fabric.StaticCanvas(null, { width:DW, height:DH, renderOnAddRemove:false });
   // solid base first: guarantees no transparent pixels can ever export as black
   sc.setBackgroundColor('#101014', () => {});
   // Until a background is explicitly picked, the template photo previews as a
@@ -7901,8 +7912,8 @@ function renderEzCanvas(px, fmt, q, mode){
     } else {
       const tbg = ez.bgPicked ? freshBgImage(rawBg.src, rawBg.blur, rawBg.grade) : placeholderBgImage(rawBg.src);
       if (tbg){
-        sc.setBackgroundImage(coverImage(tbg, TPL_W, TPL_H), () => {});
-        if (rawBg.scrim) sc.add(scrimRect(rawBg.scrim, TPL_W, TPL_H, rawBg.scrimColor, rawBg.scrimMode));
+        sc.setBackgroundImage(coverImage(tbg, DW, DH), () => {});
+        if (rawBg.scrim) sc.add(scrimRect(rawBg.scrim, DW, DH, rawBg.scrimColor, rawBg.scrimMode));
         photoOk = true;
       } else bgSpec = rawBg.fallback || { type:'solid', c:'#101014' };
     }
@@ -7910,7 +7921,7 @@ function renderEzCanvas(px, fmt, q, mode){
   if (!photoOk && bgSpec.type === 'image'){
     const im = ez.bgImgObj;   // the user's own photo, always theirs to use
     if (im && im.width > 0 && im.height > 0){
-      sc.setBackgroundImage(coverImage(im, TPL_W, TPL_H), () => {});
+      sc.setBackgroundImage(coverImage(im, DW, DH), () => {});
       photoOk = true;
     }
   }
@@ -7918,9 +7929,9 @@ function renderEzCanvas(px, fmt, q, mode){
     // color/gradient backgrounds render as a locked bottom rect with a
     // percentage-unit gradient, unambiguous in fabric, identical at any export size
     const fb = bgSpec.type === 'image' ? { type:'solid', c:'#101014' } : bgSpec;
-    sc.add(bgRectFor(fb, TPL_W, TPL_H));
+    sc.add(bgRectFor(fb, DW, DH));
   }
-  const ov = ezOverlayRect(TPL_W, TPL_H);
+  const ov = ezOverlayRect(DW, DH);
   if (ov) sc.add(ov);
   const phone = $('ez-phone').value.trim();
   const site = $('ez-website').value.trim();
@@ -7932,13 +7943,13 @@ function renderEzCanvas(px, fmt, q, mode){
     if (l.role === 'badges'){
       hasBadgeLayer = true;
       if (!chips.length) return;
-      const o = buildLayer(l, tpl.id);
+      const o = buildLayer(l, tpl.id, DW, DH);
       o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
       sc.add(o);
       return;
     }
     if (l.role === 'website' && !site) return; // no site typed → leave it off the ad
-    const o = buildLayer(l, tpl.id);
+    const o = buildLayer(l, tpl.id, DW, DH);
     let retyped = false;
     if (l.role === 'phone' && phone){ o.set('text', formatPhone(phone)); retyped = true; }
     else if (l.role === 'website'){ o.set('text', cleanText(site, 'none', 'website')); retyped = true; }
@@ -7953,23 +7964,23 @@ function renderEzCanvas(px, fmt, q, mode){
        is the single most common thing anyone does in this product.
        Textboxes wrap and look after themselves; single-line text does not. */
     if (retyped && l.kind !== 'textbox' && (o.type === 'i-text' || o.type === 'text')){
-      fitToDoc(o, l.props, TPL_W);
+      fitToDoc(o, l.props, DW);
       if (l.pgOptical !== false) o.set('left', o.left - opticalLeftShift(o));
     }
     sc.add((l.kind === 'text' || l.kind === 'textbox') ? ezApplyStyle(o, l, tpl.id) : o);
   });
   if (!hasBadgeLayer && chips.length){
     const synth = { kind:'text', name:'Badges', role:'badges', casing:'upper',
-      props:{ left: TPL_W-30, top: 30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff',
+      props:{ left: DW-30, top: 30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff',
               fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3) } };
     const bo = new fabric.IText(chips.map(c => '\u2713 ' + c).join('\n'), Object.assign({}, synth.props, {
       paintFirst:'stroke', name:'Badges', pgRole:'badges', pgCasing:'upper', pgTplId: tpl.id,
     }));
     sc.add(ezApplyStyle(bo, synth, tpl.id));
   }
-  alignPass(sc, TPL_W, TPL_H);
+  alignPass(sc, DW, DH);
   sc.renderAll();
-  const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / TPL_W });
+  const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / Math.min(DW, DH) });
   sc.dispose();
   return url;
 }
@@ -8095,7 +8106,7 @@ async function ezDownload(skipBgCheck){
   catch (e){ toast('Export could not be recorded: ' + e.message, 'error'); return; }
   const a = document.createElement('a');
   a.href = url;
-  a.download = ezTpl().name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-ad-' + gate.px + '.png';
+  a.download = ezTpl().name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-ad-' + (ez.format && ez.format !== 'square' ? ez.format + '-' : '') + gate.px + '.png';
   document.body.appendChild(a); a.click(); a.remove();
   addHistory(a.download, gate.px, url, undefined, undefined, {
     kind: 'ez',
@@ -9214,7 +9225,9 @@ function scBuildWall(cards){
      each bucket in turn, so warm and violet cards get their slots even when
      the set has fewer of them. */
   const want = cols.length * 6;
-  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12);
+  /* owner: "some of these have way too much blur on the hero" — the lab's
+     heavier `natural` blur (15+) stays out of the shop window */
+  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15));
   const buckets = {};
   vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
   Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
@@ -9227,6 +9240,18 @@ function scBuildWall(cards){
     }
   }
   vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1) chosen.push(c); });
+  /* a third of the wall stays free, so the first click usually opens the
+     editor rather than the plan page; the free pool is also walked by hue */
+  const freeVivid = vivid.filter(c => !scLocked(c)).sort((a, b) => b.chroma - a.chroma);
+  const quota = Math.round(want / 3);
+  let haveFree = chosen.filter(c => !scLocked(c)).length;
+  for (const c of freeVivid){
+    if (haveFree >= quota) break;
+    if (chosen.indexOf(c) !== -1) continue;
+    const k = chosen.map((x, i) => [x, i]).reverse().find(([x]) => scLocked(x));
+    if (!k) break;
+    chosen[k[1]] = c; haveFree++;
+  }
   const picks = scOrder(chosen);  cols.forEach((col, i) => {
     col.innerHTML = '';
     const mine = picks.filter((_, k) => k % cols.length === i);
@@ -9235,7 +9260,7 @@ function scBuildWall(cards){
       const d = document.createElement('div');
       d.className = 'wall-card';
       d.title = c.name;
-      d.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;
+      d.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
       d.onclick = () => openShowcase(c.id);
       col.appendChild(d);
     });
@@ -9313,8 +9338,8 @@ function scCard(c){
   const locked = scLocked(c);
   card.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="lazy" decoding="async">
     <div class="tpl-veil"></div>
-    ${locked ? '<div class="tpl-lockpill">🔒 PRO</div>' : ''}
-    <div class="tpl-use">Use template →</div>
+    ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
+    <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
     <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.family)}</span></div>`;
   const go = () => openShowcase(c.id);
   card.onclick = go;
@@ -9328,7 +9353,7 @@ function scClassicCard(t){
   card.setAttribute('tabindex', '0');
   card.innerHTML = `<img src="${getThumb(t.id, 320)}" alt="${escHtml(t.name)} template">
     <div class="tpl-veil"></div>
-    ${tplLocked(t) ? '<div class="tpl-lockpill">🔒 PRO</div>' : ''}
+    ${tplLocked(t) ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">Use template →</div>
     <div class="tpl-meta"><span class="tpl-name">${escHtml(t.name)}</span><span class="tpl-tag">${escHtml(t.tag || 'classic')}</span></div>`;
   const go = () => showEasy(t.id);
@@ -9541,8 +9566,16 @@ function setArea(area){
   jset('pgfx_brand', Object.assign(getBrand() || {}, { area }));
   areaChanged();
 }
+function syncWherePill(){
+  const b = $('ez-where'), l = $('ez-where-label');
+  if (!b || !l) return;
+  const a = getArea();
+  l.textContent = a ? a.home : 'Set your area';
+  b.classList.toggle('unset', !a);
+}
 function areaChanged(){
   Object.keys(THUMBS).forEach(k => delete THUMBS[k]);      // place-names are baked into thumbnails
+  syncWherePill();
   const inp = $('ez-area'); if (inp) inp.value = areaLabel();
   const bk = $('bk-area'); if (bk) bk.value = areaLabel();
   try { buildEzStrip(); } catch (e){}
@@ -9632,6 +9665,8 @@ function bindAreaDialog(){
   $('area-overlay').addEventListener('click', e => { if (e.target.id === 'area-overlay') $('area-overlay').classList.remove('show'); });
   const ea = $('ez-edit-area'); if (ea) ea.onclick = openAreaDialog;
   const ei = $('ez-area'); if (ei){ ei.onclick = openAreaDialog; ei.value = areaLabel(); }
+  const wp = $('ez-where'); if (wp) wp.onclick = openAreaDialog;
+  syncWherePill();
 }
 async function areaLookup(){
   const inp = $('area-input'), sug = $('area-suggest');
@@ -9670,4 +9705,31 @@ function renderAreaPreview(a){
     <div class="area-row"><b>Reviews will mention</b><div class="area-chips">${chips(a.towns || [])}</div></div>
     <div class="area-row"><b>Service-area lines</b><div class="area-chips">${chips(a.cover || [])}</div></div>
     <div class="area-row"><b>&ldquo;Across &hellip;&rdquo;</b><div class="area-chips"><span>${escHtml(a.region || '')}</span></div></div>`;
+}
+
+
+/* ═══ EASY MODE SIZES — square, story, wide, 4:3, 3:4, flyer ═══ */
+function buildEzSizes(){
+  const row = $('ez-sizes');
+  if (!row || row.dataset.built) return;
+  row.dataset.built = '1';
+  if (!FORMATS[ez.format]) ez.format = 'square';
+  Object.keys(FORMATS).forEach(id => {
+    const f = FORMATS[id];
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip ez-size' + (id === ez.format ? ' on' : '');
+    b.dataset.fmt = id;
+    b.title = f.hint + ' · ' + f.w + '×' + f.h;
+    b.innerHTML = escHtml(f.label);
+    b.onclick = () => {
+      ez.format = id;
+      jset('pgfx_ez_format', id);
+      row.querySelectorAll('.ez-size').forEach(x => x.classList.toggle('on', x.dataset.fmt === id));
+      const hint = $('ez-dl-hint');
+      if (hint) hint.textContent = f.w + ' × ' + f.h + ' PNG minimum, ' + f.hint;
+      schedEzPreview(0);
+    };
+    row.appendChild(b);
+  });
 }

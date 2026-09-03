@@ -39,12 +39,12 @@ const THEMES = [
 ];
 const cards = [];
 for (const t of THEMES){
-  const dir = ROOT + '.render/gallery/' + t.key + '/';
+  const dir = ROOT + (process.env.GALLERY_DIR || '.render/gallery').replace(/\/?$/, '/') + t.key + '/';
   if (!existsSync(dir + 'manifest.json')){ console.log('  missing: ' + t.key); continue; }
   const man = JSON.parse(readFileSync(dir + 'manifest.json', 'utf8'));
   man.forEach(m => cards.push({ ...m, src: 'data:image/webp;base64,' + readFileSync(dir + m.id + '.webp').toString('base64') }));
 }
 const tpl = readFileSync(new URL('./gallery_page.html', import.meta.url).pathname, 'utf8');
 const out = tpl.replace('/*__THEMES__*/', JSON.stringify(THEMES)).replace('/*__CARDS__*/', JSON.stringify(cards));
-writeFileSync(ROOT + '.render/gallery/picker.html', out);
-console.log(`gallery: ${cards.length} cards across ${THEMES.filter(t => existsSync(ROOT + '.render/gallery/' + t.key + '/manifest.json')).length} themes, ${(out.length/1048576).toFixed(1)} MB`);
+writeFileSync(ROOT + (process.env.GALLERY_DIR || '.render/gallery').replace(/\/?$/, '/') + 'picker.html', out);
+console.log(`gallery: ${cards.length} cards across ${THEMES.filter(t => existsSync(ROOT + (process.env.GALLERY_DIR || '.render/gallery').replace(/\/?$/, '/') + t.key + '/manifest.json')).length} themes, ${(out.length/1048576).toFixed(1)} MB`);

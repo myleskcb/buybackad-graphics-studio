@@ -42,6 +42,13 @@
   "cat": "silver"
  },
  {
+  "src": "assets/bg-web/cash-one-hundred-dollar-bills-close-1.jpg",
+  "lum": 0.557,
+  "p90": 0.847,
+  "detail": 16.25,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg-web/strips-blood-glucose-test-strips-3.jpg",
   "lum": 0.551,
   "p90": 0.778,
@@ -95,6 +102,13 @@
   "lum": 0.482,
   "p90": 0.88,
   "detail": 37.76,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/strips-blood-glucose-meter-2.jpg",
+  "lum": 0.478,
+  "p90": 0.624,
+  "detail": 8.42,
   "cat": "?"
  },
  {
@@ -273,6 +287,20 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/cash-cash-money-pile-1.jpg",
+  "lum": 0.417,
+  "p90": 0.72,
+  "detail": 68.86,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/cash-pile-of-us-dollars-1.jpg",
+  "lum": 0.417,
+  "p90": 0.72,
+  "detail": 68.86,
+  "cat": "?"
+ },
+ {
   "src": "assets/scenes/scene-grad-iphone-violet.jpg",
   "lum": 0.416,
   "p90": 0.911,
@@ -336,6 +364,13 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/strips-blood-glucose-meter-4.jpg",
+  "lum": 0.402,
+  "p90": 0.624,
+  "detail": 7.64,
+  "cat": "?"
+ },
+ {
   "src": "assets/scenes/scene-pick-bone-flat.jpg",
   "lum": 0.4,
   "p90": 0.765,
@@ -348,6 +383,13 @@
   "p90": 0.753,
   "detail": 3.29,
   "cat": "pokemon"
+ },
+ {
+  "src": "assets/bg-web/cash-pile-of-us-dollars-3.jpg",
+  "lum": 0.398,
+  "p90": 0.95,
+  "detail": 9.47,
+  "cat": "?"
  },
  {
   "src": "assets/bg/dl_strips_checklistHero_arctic.jpg",
@@ -490,6 +532,13 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/strips-blood-glucose-meter-3.jpg",
+  "lum": 0.373,
+  "p90": 0.49,
+  "detail": 5.83,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg-web/gold-gold-bracelet-3.jpg",
   "lum": 0.371,
   "p90": 0.454,
@@ -546,6 +595,13 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/strips-freestyle-libre-3.jpg",
+  "lum": 0.361,
+  "p90": 0.568,
+  "detail": 21.13,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg-web/gold-gold-bracelet-2.jpg",
   "lum": 0.357,
   "p90": 0.445,
@@ -578,6 +634,13 @@
   "lum": 0.35,
   "p90": 0.739,
   "detail": 10.37,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/strips-blood-glucose-meter-1.jpg",
+  "lum": 0.35,
+  "p90": 0.586,
+  "detail": 8.02,
   "cat": "?"
  },
  {
@@ -928,6 +991,13 @@
   "lum": 0.281,
   "p90": 0.466,
   "detail": 13.99,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/strips-continuous-glucose-monitor-sensor-2.jpg",
+  "lum": 0.278,
+  "p90": 0.517,
+  "detail": 28.49,
   "cat": "?"
  },
  {
@@ -1337,6 +1407,13 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/space-hubble-nebula-4.jpg",
+  "lum": 0.225,
+  "p90": 0.435,
+  "detail": 16.38,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg-web/trucks-pickup-truck-1.jpg",
   "lum": 0.222,
   "p90": 0.554,
@@ -1404,6 +1481,13 @@
   "lum": 0.208,
   "p90": 0.701,
   "detail": 26.59,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-galaxy-hubble-telescope-3.jpg",
+  "lum": 0.208,
+  "p90": 0.407,
+  "detail": 42.08,
   "cat": "?"
  },
  {
@@ -1481,6 +1565,20 @@
   "lum": 0.196,
   "p90": 0.41,
   "detail": 3.11,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/strips-freestyle-libre-4.jpg",
+  "lum": 0.196,
+  "p90": 0.375,
+  "detail": 4.31,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-orion-nebula-hubble-2.jpg",
+  "lum": 0.194,
+  "p90": 0.399,
+  "detail": 13.16,
   "cat": "?"
  },
  {
@@ -1778,6 +1876,13 @@
   "cat": "cars"
  },
  {
+  "src": "assets/bg-web/space-aurora-from-space-3.jpg",
+  "lum": 0.148,
+  "p90": 0.457,
+  "detail": 43.78,
+  "cat": "?"
+ },
+ {
   "src": "assets/scenes/scene-allbrands-studio.jpg",
   "lum": 0.146,
   "p90": 0.344,
@@ -1831,6 +1936,13 @@
   "lum": 0.137,
   "p90": 0.285,
   "detail": 26.8,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-earth-from-iss-night-2.jpg",
+  "lum": 0.137,
+  "p90": 0.353,
+  "detail": 15.95,
   "cat": "?"
  },
  {
@@ -1902,6 +2014,13 @@
   "p90": 0.356,
   "detail": 9.45,
   "cat": "sports"
+ },
+ {
+  "src": "assets/bg-web/space-hubble-nebula-3.jpg",
+  "lum": 0.135,
+  "p90": 0.44,
+  "detail": 28.67,
+  "cat": "?"
  },
  {
   "src": "assets/bg-web/cars-car-key-fob-1.jpg",
@@ -2009,6 +2128,13 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/space-aurora-from-space-4.jpg",
+  "lum": 0.118,
+  "p90": 0.294,
+  "detail": 5.39,
+  "cat": "?"
+ },
+ {
   "src": "assets/scenes/scene-pix-amber-pair.jpg",
   "lum": 0.117,
   "p90": 0.324,
@@ -2030,10 +2156,24 @@
   "cat": "silver"
  },
  {
+  "src": "assets/bg-web/space-galaxy-hubble-telescope-1.jpg",
+  "lum": 0.113,
+  "p90": 0.362,
+  "detail": 4.76,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg-web/bikes-cruiser-motorcycle-parked-3.jpg",
   "lum": 0.109,
   "p90": 0.37,
   "detail": 28.64,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-aurora-from-space-2.jpg",
+  "lum": 0.109,
+  "p90": 0.28,
+  "detail": 17.63,
   "cat": "?"
  },
  {
@@ -2049,6 +2189,13 @@
   "p90": 0.222,
   "detail": 4.25,
   "cat": "phones"
+ },
+ {
+  "src": "assets/bg-web/space-earth-from-iss-night-1.jpg",
+  "lum": 0.107,
+  "p90": 0.218,
+  "detail": 25.01,
+  "cat": "?"
  },
  {
   "src": "assets/bg/dl_pokemon_agencyGrid_royal.jpg",
@@ -2156,6 +2303,13 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/space-aurora-from-space-1.jpg",
+  "lum": 0.095,
+  "p90": 0.355,
+  "detail": 5.14,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg/dl_phones_agencyGrid_mono.jpg",
   "lum": 0.094,
   "p90": 0.261,
@@ -2184,6 +2338,13 @@
   "cat": "pokemon"
  },
  {
+  "src": "assets/bg-web/space-galaxy-hubble-telescope-2.jpg",
+  "lum": 0.087,
+  "p90": 0.235,
+  "detail": 43.31,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg/dl_silver_karatSeal_mono.jpg",
   "lum": 0.084,
   "p90": 0.211,
@@ -2198,11 +2359,25 @@
   "cat": "pokemon"
  },
  {
+  "src": "assets/bg-web/space-starfield-deep-space-4.jpg",
+  "lum": 0.08,
+  "p90": 0.155,
+  "detail": 12.02,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg/dl_silver_checklistHero_ocean.jpg",
   "lum": 0.079,
   "p90": 0.165,
   "detail": 6.51,
   "cat": "silver"
+ },
+ {
+  "src": "assets/bg-web/space-starfield-deep-space-2.jpg",
+  "lum": 0.079,
+  "p90": 0.153,
+  "detail": 7.51,
+  "cat": "?"
  },
  {
   "src": "assets/bg/dl_cars_slabPoster_mono.jpg",
@@ -2219,6 +2394,13 @@
   "cat": "cars"
  },
  {
+  "src": "assets/bg-web/space-milky-way-night-sky-4.jpg",
+  "lum": 0.076,
+  "p90": 0.19,
+  "detail": 20.84,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg/dl_sports_slabPoster_paper.jpg",
   "lum": 0.073,
   "p90": 0.206,
@@ -2231,6 +2413,13 @@
   "p90": 0.188,
   "detail": 4.99,
   "cat": "phones"
+ },
+ {
+  "src": "assets/bg-web/space-earth-from-iss-night-4.jpg",
+  "lum": 0.071,
+  "p90": 0.122,
+  "detail": 16.17,
+  "cat": "?"
  },
  {
   "src": "assets/bg/dl_cars_hudTech_crimson.jpg",
@@ -2265,6 +2454,34 @@
   "lum": 0.068,
   "p90": 0.154,
   "detail": 4.19,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-hubble-nebula-1.jpg",
+  "lum": 0.063,
+  "p90": 0.138,
+  "detail": 6.65,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-orion-nebula-hubble-1.jpg",
+  "lum": 0.063,
+  "p90": 0.138,
+  "detail": 6.65,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-orion-nebula-hubble-4.jpg",
+  "lum": 0.063,
+  "p90": 0.139,
+  "detail": 7,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-orion-nebula-hubble-3.jpg",
+  "lum": 0.059,
+  "p90": 0.142,
+  "detail": 12.71,
   "cat": "?"
  },
  {
@@ -2331,6 +2548,13 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/space-starfield-deep-space-3.jpg",
+  "lum": 0.039,
+  "p90": 0.078,
+  "detail": 42.99,
+  "cat": "?"
+ },
+ {
   "src": "assets/bg/dl_phones_slabPoster_mono.jpg",
   "lum": 0.033,
   "p90": 0.052,
@@ -2342,6 +2566,34 @@
   "lum": 0.023,
   "p90": 0.034,
   "detail": 6.17,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-moon-surface-nasa-4.jpg",
+  "lum": 0.023,
+  "p90": 0.092,
+  "detail": 10.14,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-hubble-nebula-2.jpg",
+  "lum": 0.022,
+  "p90": 0.012,
+  "detail": 6.68,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-milky-way-night-sky-3.jpg",
+  "lum": 0.02,
+  "p90": 0.04,
+  "detail": 24.42,
+  "cat": "?"
+ },
+ {
+  "src": "assets/bg-web/space-earth-from-iss-night-3.jpg",
+  "lum": 0.014,
+  "p90": 0.027,
+  "detail": 12.7,
   "cat": "?"
  }
 ]
