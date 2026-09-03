@@ -2733,6 +2733,25 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
             w => ({ left: W-70-w, top: 540 }),    w => ({ left: 70, top: 420 }),
           ];
           let placed = null;
+          /* THE CROWN SPOT (arcCrown): the bowl under the arched opener and
+             above the money word is the natural place for a round product —
+             "add a silver dollar between the arc text". The arc's own box
+             covers the bowl, so it is not an obstacle here. */
+          if (/arcCrown/.test(tpl.id || '')){
+            const arcIx = t2.layers.findIndex(l => l.role === 'headline' && /Arc|Wave|Curve/i.test(l.name || '')), moneyIx = t2.layers.findIndex(l => l.role === 'headline' && (l.props.fontSize || 0) >= 100 && !/Arc|Wave|Curve/i.test(l.name || ''));
+            const ao = arcIx >= 0 && probe2.refs[arcIx], mo = moneyIx >= 0 && probe2.refs[moneyIx];
+            if (ao && mo){
+              const ab = ao.getBoundingRect(true, true), mb = mo.getBoundingRect(true, true);
+              const top = ab.top + ab.height * 0.42, room = mb.top - 12 - top;
+              const w = Math.min(260, Math.floor(room / Math.max(aspectA, 0.6)));
+              if (w >= 140){
+                const others = boxes.filter(b => !(Math.abs(b.left - ab.left) < 1 && Math.abs(b.top - ab.top) < 1));
+                const box = { left: W / 2 - w / 2 - 6, top: top - 6, width: w + 12, height: w * aspectA + 12 };
+                const ok = !others.some(b => !(box.left + box.width <= b.left || b.left + b.width <= box.left || box.top + box.height <= b.top || b.top + b.height <= box.top));
+                if (ok) placed = { w, left: W / 2 + w / 2, top };
+              }
+            }
+          }
           /* the REAL proportions of the asset, not a square guess: a coin on
              its edge is three times taller than it is wide, "cleared" a
              square spot, and was then re-homed to the centre of the card over

@@ -9174,7 +9174,10 @@ function scOrder(list){
      muted one with the same approvals — then interleaved so neighbours differ
      in family AND in ground lightness. Approval-only order put six dark Jewel
      cards side by side and the wall read as bland (owner, 2026-09-02). */
-  const pool = list.slice().sort((a, b) => ((b.affinity + scVivid(b) * 4) - (a.affinity + scVivid(a) * 4)) || (b.density - a.density));
+  /* imagery outranks everything: a card with a real product first, a
+     photograph next, a bare ground last */
+  const img = c => c.imagery === 'product' ? 6 : c.imagery === 'photo' ? 3 : 0;
+  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4) - (img(a) + a.affinity + scVivid(a) * 4)) || (b.density - a.density));
   const light = c => scLum(c.c1) > 0.22;
   const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
   const hueGap = (a, b) => { const x = Math.abs((hueOf(a) ?? 0) - (hueOf(b) ?? 0)) % 360; return x > 180 ? 360 - x : x; };
@@ -9227,18 +9230,24 @@ function scBuildWall(cards){
   const want = cols.length * 6;
   /* owner: "some of these have way too much blur on the hero" — the lab's
      heavier `natural` blur (15+) stays out of the shop window */
-  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15));
+  /* and only cards that SHOW something: a product cutout of real size.
+     Owner, on a plain green Pokémon card and a tiny mark on a sports one:
+     "those two lack the proper imagery, looks a little bit confusing". */
+  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product');
   const buckets = {};
   vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
   Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
   const order = Object.keys(buckets).sort((a, b) => buckets[b].length - buckets[a].length);
   const chosen = [];
-  for (let round = 0; chosen.length < want && round < 12; round++){
+  for (let round = 0; chosen.length < want && round < 40; round++){
     for (const b of order){
       const c = (buckets[b] || [])[round];
-      if (c && chosen.length < want && !chosen.some(x => x.layout === c.layout && x.cat === c.cat)) chosen.push(c);
+      /* one PALETTE per card on the wall, never the same twice: the wall has
+         to show the range of the library, not six blues (owner, 2026-09-02) */
+      if (c && chosen.length < want && !chosen.some(x => x.theme === c.theme || (x.layout === c.layout && x.cat === c.cat))) chosen.push(c);
     }
   }
+  vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1 && !chosen.some(x => x.theme === c.theme)) chosen.push(c); });
   vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1) chosen.push(c); });
   /* a third of the wall stays free, so the first click usually opens the
      editor rather than the plan page; the free pool is also walked by hue */
@@ -9247,7 +9256,7 @@ function scBuildWall(cards){
   let haveFree = chosen.filter(c => !scLocked(c)).length;
   for (const c of freeVivid){
     if (haveFree >= quota) break;
-    if (chosen.indexOf(c) !== -1) continue;
+    if (chosen.indexOf(c) !== -1 || chosen.some(x => x.theme === c.theme && x !== c)) continue;
     const k = chosen.map((x, i) => [x, i]).reverse().find(([x]) => scLocked(x));
     if (!k) break;
     chosen[k[1]] = c; haveFree++;
