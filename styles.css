@@ -1586,3 +1586,21 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>");
   background-size:120px 120px;mix-blend-mode:overlay}
 .flow-step .btn{margin-top:16px}
+
+/* locked mini cards in the editor's left panel and its picker */
+.mini-tpl.locked{position:relative}
+.mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>");
+  background-size:120px 120px;mix-blend-mode:overlay}
+
+/* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's
+   default min-width:auto refuses to shrink below its content, so on a 390px
+   phone the cards stayed 481px wide and the whole page scrolled sideways by
+   105px (measured 2026-09-03). min-width:0 lets them fit; anything genuinely
+   too wide inside now scrolls in its own box instead of moving the page. */
+@media (max-width:920px){
+  .ez-main{min-width:0}
+  .ez-main > .ez-card{min-width:0;max-width:100%}
+  .ez-card{overflow-x:clip}
+}
+#ez-preview{max-width:100%;height:auto}

@@ -1727,5 +1727,44 @@
   "page": "https://commons.wikimedia.org/wiki/File%3AFreeStyle%20libre%20am%20Oberarm%20und%20Ausleseger%C3%A4t-4.JPG",
   "width": 5616,
   "height": 3744
+ },
+ {
+  "file": "strips-contour-next-test-strips-1.jpg",
+  "cat": "strips",
+  "query": "Contour Next test strips",
+  "title": "File:Contour Next test strips box and test strip.jpg",
+  "artist": "Marius Vassnes",
+  "license": "CC BY-SA 4.0",
+  "usage": "Creative Commons Attribution-Share Alike 4.0",
+  "credit": "Own work",
+  "page": "https://commons.wikimedia.org/wiki/File%3AContour%20Next%20test%20strips%20box%20and%20test%20strip.jpg",
+  "width": 4032,
+  "height": 3024
+ },
+ {
+  "file": "strips-contour-next-test-strips-2.jpg",
+  "cat": "strips",
+  "query": "Contour Next test strips",
+  "title": "File:Contour Next test strips box.jpg",
+  "artist": "Marius Vassnes",
+  "license": "CC BY-SA 4.0",
+  "usage": "Creative Commons Attribution-Share Alike 4.0",
+  "credit": "Own work",
+  "page": "https://commons.wikimedia.org/wiki/File%3AContour%20Next%20test%20strips%20box.jpg",
+  "width": 4032,
+  "height": 3024
+ },
+ {
+  "file": "strips-contour-next-test-strips-3.jpg",
+  "cat": "strips",
+  "query": "Contour Next test strips",
+  "title": "File:Open Contour Next test strips box and test strip.jpg",
+  "artist": "Marius Vassnes",
+  "license": "CC BY-SA 4.0",
+  "usage": "Creative Commons Attribution-Share Alike 4.0",
+  "credit": "Own work",
+  "page": "https://commons.wikimedia.org/wiki/File%3AOpen%20Contour%20Next%20test%20strips%20box%20and%20test%20strip.jpg",
+  "width": 4032,
+  "height": 3024
  }
 ]

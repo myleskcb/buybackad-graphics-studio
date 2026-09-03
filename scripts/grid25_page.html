@@ -77,12 +77,42 @@ textarea{width:100%; min-height:96px; background:var(--panel); color:var(--ink);
 @media (max-width:1400px){ .grid{grid-template-columns:repeat(4,1fr)} }
 @media (max-width:1100px){ .grid{grid-template-columns:repeat(3,1fr)} }
 @media (max-width:640px){ .grid{grid-template-columns:1fr} .wrap{padding:14px 14px 130px} }
+
+/* THE DECK (default view). One card at a time, dating-app style: drag it
+   right to approve, left to pass, or press 2 / 1. */
+#swipe{display:none; flex-direction:column; align-items:center; gap:16px; padding:4px 0 132px}
+#swipe .stage{position:relative; width:min(94vw, 62vh, 560px); aspect-ratio:1/1; touch-action:pan-y; user-select:none}
+#swipe .sc{position:absolute; inset:0; border-radius:22px; overflow:hidden; background:var(--panel);
+  border:1px solid var(--line); box-shadow:0 26px 60px rgba(0,0,0,.45); will-change:transform; cursor:grab}
+#swipe .sc:active{cursor:grabbing}
+#swipe .sc img{display:block; width:100%; height:100%; object-fit:cover; pointer-events:none}
+#swipe .sc.under{transform:scale(.93) translateY(18px); opacity:.45; box-shadow:none}
+#swipe .sc.deep{transform:scale(.87) translateY(34px); opacity:.22; box-shadow:none}
+#swipe .sc .stamp{position:absolute; top:22px; padding:8px 16px; border-radius:10px; font-weight:800;
+  letter-spacing:.1em; font-size:19px; border:4px solid; opacity:0; background:rgba(10,12,16,.55)}
+#swipe .sc .keep{left:20px; color:var(--keep); border-color:var(--keep); transform:rotate(-11deg)}
+#swipe .sc .pass{right:20px; color:#ff7b7b; border-color:#ff7b7b; transform:rotate(11deg)}
+#swipe .sc.anim{transition:transform .3s cubic-bezier(.3,.7,.4,1), opacity .3s ease}
+#swipe .smeta{width:min(94vw,560px); display:flex; flex-wrap:wrap; gap:7px; align-items:center; justify-content:center;
+  font-size:12px; color:var(--muted); min-height:26px}
+#swipe .smeta .nm{font-size:15px; font-weight:700; color:var(--ink); width:100%; text-align:center}
+#swipe .sbtns{display:flex; gap:20px; align-items:center}
+#swipe .sbtns button{width:66px; height:66px; padding:0; border-radius:50%; font-size:26px; line-height:1;
+  display:grid; place-items:center; border-width:2px; transition:transform .12s ease}
+#swipe .sbtns button:hover{transform:scale(1.08)}
+#swipe .sbtns button:active{transform:scale(.94)}
+#swipe .sbtns .no{border-color:#ff7b7b; color:#ff7b7b; background:transparent}
+#swipe .sbtns .yes{background:var(--keep); color:#08130e; border-color:var(--keep)}
+#swipe .sbtns .undo{width:48px; height:48px; font-size:19px; color:var(--muted)}
+#swipe .prog{font-size:13px; color:var(--muted); letter-spacing:.02em}
+#swipe .fin{display:grid; place-items:center; height:100%; padding:30px; text-align:center; color:var(--muted);
+  border:1px dashed var(--line); border-radius:22px}
 </style>
 
 <div class="wrap">
   <header>
     <h1>Buyback Template Lab</h1>
-    <p class="sub">Set 3 &mdash; 250 cards cut from both reviews, all 56 approved faces. Twenty-five a page, ten pages. Click a card to approve it &mdash; green means yes. Done shows everything you kept.</p>
+    <p class="sub">Set 3 &mdash; 250 cards cut from both reviews, all 56 approved faces. Done shows everything you kept.</p>
   </header>
   <div class="meter">
     <div class="bar"><i id="bar"></i></div>
@@ -93,6 +123,17 @@ textarea{width:100%; min-height:96px; background:var(--panel); color:var(--ink);
     <div class="grid" id="grid"></div>
   </section>
 
+
+  <section id="swipe">
+    <div class="prog mono"><b id="sidx">1</b>/<span id="stot">1</span> &middot; approved <span class="kept-n" id="snkept">0</span> &middot; passed <span id="snpass">0</span></div>
+    <div class="stage" id="stage"></div>
+    <div class="smeta" id="smeta"></div>
+    <div class="sbtns">
+      <button class="no" id="sno" title="Pass (1 or swipe left)" aria-label="Pass">&#10005;</button>
+      <button class="ghost undo" id="sundo" title="Undo (Backspace)" aria-label="Undo">&#8634;</button>
+      <button class="yes" id="syes" title="Approve (2 or swipe right)" aria-label="Approve">&#10003;</button>
+    </div>
+  </section>
   <section class="review" id="review">
     <div class="sect"><h2>Approved</h2><span id="keptcount"></span></div>
     <p class="sub">Scroll back through. Click any card to take it back off the list.</p>
@@ -109,9 +150,10 @@ textarea{width:100%; min-height:96px; background:var(--panel); color:var(--ink);
     <button class="btn-done" id="done">Done &mdash; review</button>
     <button class="ghost" id="back" style="display:none">Back to picking</button>
     <button class="ghost" id="copy" style="display:none">Copy list</button>
+    <button class="ghost" id="mode">Swipe mode</button>
     <button class="ghost" id="reset">Start over</button>
   </div>
-  <p class="hint"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> page &middot; <kbd>Enter</kbd> done</p>
+  <p class="hint" id="hint"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> page &middot; <kbd>Enter</kbd> done &middot; swipe mode: <kbd>1</kbd> pass <kbd>2</kbd> approve <kbd>Backspace</kbd> undo</p>
 </div>
 
 <script>
@@ -178,8 +220,8 @@ function render(){
   count(); window.scrollTo({ top:0 });
 }
 function showReview(){
-  $('pick').style.display = 'none'; $('review').style.display = 'flex';
-  ['prev','next','done'].forEach(id => $(id).style.display = 'none');
+  $('pick').style.display = 'none'; $('swipe').style.display = 'none'; $('review').style.display = 'flex';
+  ['prev','next','done','mode'].forEach(id => $(id).style.display = 'none');
   ['back','copy'].forEach(id => $(id).style.display = '');
   const kg = $('keptgrid'); kg.innerHTML = '';
   const kept = CARDS.filter(c => st.on[c.id]);
@@ -188,26 +230,96 @@ function showReview(){
   $('out').value = kept.map(c => c.id + '  ' + c.name + ' · ' + c.family + ' · ' + c.layout + ' · ' + c.cat).join('\n') || 'Nothing approved yet.';
 }
 function showPick(){
-  $('review').style.display = 'none'; $('pick').style.display = '';
-  ['prev','next','done'].forEach(id => $(id).style.display = '');
+  $('review').style.display = 'none';
+  ['done','mode'].forEach(id => $(id).style.display = '');
   ['back','copy'].forEach(id => $(id).style.display = 'none');
-  render();
+  setMode(st.mode || 'grid');
 }
 $('prev').onclick = () => { if (st.page > 0){ st.page--; save(); render(); } };
 $('next').onclick = () => { if (st.page < PAGES - 1){ st.page++; save(); render(); } };
 $('done').onclick = showReview;
 $('back').onclick = showPick;
-$('reset').onclick = () => { st = { page:0, on:{} }; save(); showPick(); };
+$('reset').onclick = () => { st = { page:0, on:{}, seen:{}, hist:[], mode: st.mode }; save(); showPick(); };
 $('copy').onclick = async () => {
   try { await navigator.clipboard.writeText($('out').value); $('copy').textContent = 'Copied'; }
   catch(e){ $('out').select(); $('copy').textContent = 'Select and copy'; }
   setTimeout(() => $('copy').textContent = 'Copy list', 1600);
 };
 window.addEventListener('keydown', e => {
-  if ($('review').style.display === 'flex') return;
+  if ($('review').style.display === 'flex' || inSwipe()) return;
   if (e.key === 'ArrowRight') $('next').click();
   else if (e.key === 'ArrowLeft') $('prev').click();
   else if (e.key === 'Enter') showReview();
 });
-render();
+/* SWIPE MODE. Same state, same sync: a keep is st.on[id] = 1, a pass is
+   remembered in st.seen so the deck resumes where it stopped. */
+st.seen = st.seen || {}; st.hist = st.hist || [];
+const inSwipe = () => st.mode === 'swipe';
+const nextIdx = () => CARDS.findIndex(c => !st.seen[c.id]);
+function swipeCounts(){
+  const seen = Object.keys(st.seen).length, kept = Object.keys(st.on).length;
+  $('sidx').textContent = Math.min(seen + 1, CARDS.length); $('stot').textContent = CARDS.length;
+  $('snkept').textContent = kept; $('snpass').textContent = Object.keys(st.seen).filter(id => !st.on[id]).length;
+  $('bar').style.width = (seen / CARDS.length * 100) + '%';
+}
+function makeSc(c, under){
+  const d = document.createElement('div'); d.className = 'sc' + (under ? ' under' : '');
+  d.innerHTML = '<img src="' + c.src + '" alt="' + c.name + '"><span class="stamp keep">APPROVE</span><span class="stamp pass">PASS</span>';
+  return d;
+}
+let swipeOff = null;
+function renderSwipe(){
+  if (swipeOff) swipeOff();          // one card's drag listeners at a time, never 250 stale ones
+  const stage = $('stage'); stage.innerHTML = '';
+  const i = nextIdx();
+  swipeCounts();
+  if (i < 0){ stage.innerHTML = '<div class="fin">Every card decided. Press Done to review your list, or Undo to step back.</div>'; $('smeta').innerHTML = ''; return; }
+  const c = CARDS[i], n = CARDS[i + 1], n2 = CARDS[i + 2];
+  if (n2){ const d2 = makeSc(n2, true); d2.classList.add('deep'); stage.appendChild(d2); }
+  if (n) stage.appendChild(makeSc(n, true));
+  const top = makeSc(c, false); stage.appendChild(top);
+  $('smeta').innerHTML = '<span class="nm">' + c.name + '</span>' + chips(c) + '<span class="id mono">' + c.id + '</span>';
+  let x0 = 0, dx = 0, active = false;
+  const setX = (x, anim) => { top.classList.toggle('anim', !!anim); top.style.transform = 'translateX(' + x + 'px) rotate(' + (x / 18) + 'deg)';
+    top.querySelector('.keep').style.opacity = Math.min(1, Math.max(0, x / 90)); top.querySelector('.pass').style.opacity = Math.min(1, Math.max(0, -x / 90)); };
+  const down = e => { active = true; x0 = (e.touches ? e.touches[0].clientX : e.clientX); dx = 0; top.classList.remove('anim'); };
+  const move = e => { if (!active) return; const x = (e.touches ? e.touches[0].clientX : e.clientX); dx = x - x0; setX(dx, false); };
+  const up = () => { if (!active) return; active = false; if (dx > 90) decide('keep'); else if (dx < -90) decide('pass'); else setX(0, true); };
+  top.addEventListener('mousedown', down); window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+  top.addEventListener('touchstart', down, { passive: true }); top.addEventListener('touchmove', move, { passive: true }); top.addEventListener('touchend', up);
+  swipeOff = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); swipeOff = null; };
+  top.__fly = dir => { setX(dir * (window.innerWidth * 0.8), true); top.style.opacity = '0'; };
+}
+function decide(what){
+  const i = nextIdx(); if (i < 0) return;
+  const c = CARDS[i], top = $('stage').querySelector('.sc:not(.under)');
+  if (top && top.__fly) top.__fly(what === 'keep' ? 1 : -1);
+  st.seen[c.id] = 1; if (what === 'keep') st.on[c.id] = 1; else delete st.on[c.id];
+  st.hist.push(c.id); if (st.hist.length > 400) st.hist.shift();
+  save(); setTimeout(renderSwipe, 240);
+}
+function undo(){
+  const id = st.hist.pop(); if (!id) return;
+  delete st.seen[id]; delete st.on[id]; save(); renderSwipe();
+}
+function setMode(m){
+  st.mode = m; save();
+  const sw = inSwipe();
+  $('swipe').style.display = sw ? 'flex' : 'none'; $('pick').style.display = sw ? 'none' : '';
+  ['prev','next'].forEach(id => $(id).style.display = sw ? 'none' : '');
+  $('mode').textContent = sw ? 'Grid of twenty-five' : 'Back to the deck';
+  $('hint').innerHTML = sw
+    ? '<kbd>1</kbd> pass &middot; <kbd>2</kbd> approve &middot; <kbd>Backspace</kbd> undo &middot; or drag the card'
+    : '<kbd>&larr;</kbd> <kbd>&rarr;</kbd> page &middot; <kbd>Enter</kbd> done';
+  if (sw) renderSwipe(); else render();
+}
+$('sno').onclick = () => decide('pass'); $('syes').onclick = () => decide('keep'); $('sundo').onclick = undo;
+$('mode').onclick = () => setMode(inSwipe() ? 'grid' : 'swipe');
+window.addEventListener('keydown', e => {
+  if (!inSwipe() || $('review').style.display === 'flex') return;
+  if (e.key === '1' || e.key === 'ArrowLeft'){ e.preventDefault(); decide('pass'); }
+  else if (e.key === '2' || e.key === 'ArrowRight'){ e.preventDefault(); decide('keep'); }
+  else if (e.key === 'Backspace'){ e.preventDefault(); undo(); }
+}, true);
+setMode(st.mode || 'swipe');   // the deck is where a review starts
 </script>

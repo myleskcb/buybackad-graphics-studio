@@ -42,7 +42,7 @@ for (const c of cards){
     const prod = man ? String(man.product || '') : '';
     const want = /IPHONE/.test(head) ? /^(iphone-|ip-(?!gen)|qs-iphone|own-apple-|own-stock-iphone)/i
                : /IPAD/.test(head) ? /^(ipad|qs-ipad|qs-device-ipad|own-.*ipad)/i
-               : /WATCH/.test(head) ? /^(watch|apple-watch|qs-device-watch|qs-.*watch)/i
+               : /WATCH/.test(head) && !/GOLD|SILVER|LUXURY/.test(head) ? /^(watch|apple-watch|qs-device-watch|qs-.*watch)/i   // GOLD WATCHES is a metals line: gold-watch-* is right
                : /MACBOOK|MAC\b/.test(head) ? /^(mac|macbook|own-stock-mac|qs-.*mac)/i
                : /SAMSUNG|GALAXY/.test(head) ? /^(sam-|samsung)/i
                : /PIXEL/.test(head) ? /^(pix-|pixel)/i : null;
@@ -51,9 +51,9 @@ for (const c of cards){
     else if (want && prod && !want.test(prod)) hits.push('brand: ' + prod + ' under ' + head.slice(0, 24));
   }
   // 8. sparse
-  if (c.density < 12) hits.push('sparse: density ' + c.density);
+  if (c.density < 16) hits.push('sparse: density ' + c.density);
   // 10. product over words — a cutout covering a tenth of any text box (owner, 2026-09-02: a coin over the tiles and the number)
-  rows.filter(r => r.kind === 'cutout' && r.bb && !/^Wall /.test(r.name)).forEach(r => texts.filter(t => t.role !== 'badges').forEach(t => {   // badges are not copy; the wall is behind the words by design
+  rows.filter(r => r.kind === 'cutout' && r.bb && !/^Wall /.test(r.name)).forEach(r => texts.filter(t => t.role !== 'badges' && !(/Hero Product/.test(r.name) && /Arc|Wave|Curve/i.test(t.name))).forEach(t => {   // a crown product sits inside the arc by design   // badges are not copy; the wall is behind the words by design
     const A = r.bb, B = t.bb;
     const ix = Math.max(0, Math.min(A[0]+A[2], B[0]+B[2]) - Math.max(A[0], B[0])), iy = Math.max(0, Math.min(A[1]+A[3], B[1]+B[3]) - Math.max(A[1], B[1]));
     if (B[2] * B[3] > 0 && ix * iy > 0.1 * B[2] * B[3]) hits.push('product-on-text: ' + t.text.slice(0, 24));

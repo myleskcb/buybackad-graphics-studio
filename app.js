@@ -3561,6 +3561,8 @@ function miniTplCard(thumb, name, onUse, onDel){
   const d = document.createElement('div');
   d.className = 'mini-tpl';
   d.innerHTML = `<img src="${thumb}" alt="${escHtml(name)}"><div class="mt-name">${escHtml(name)}</div>` + (onDel ? '<button class="mt-del" title="Delete">✕</button>' : '');
+  /* a locked mini card is guarded by the same pattern as the gallery — the
+     CSS hangs off .locked, which refreshMyTemplates() sets */
   d.onclick = e => { if (e.target.classList.contains('mt-del')) return; onUse(); };
   if (onDel) d.querySelector('.mt-del').onclick = e => { e.stopPropagation(); if (confirm('Delete "'+name+'"? This can\'t be undone.')) onDel(); };
   return d;
@@ -3605,17 +3607,19 @@ function buildPickerGrid(filter){
     TEMPLATES.filter(t => filter === 'all' ? t.cat === currentCat : t.cat === filter).forEach(t => {
       const locked = tplLocked(t);
       const c = pickerCard(getThumb(t.id, 320), t.name, locked ? 'premium 🔒' : t.tag,
-        () => { if (tplLocked(t)){ openPlans('“' + t.name + '” is a premium template, unlock all 8 designs with Starter or Pro.'); return; } closePicker(); loadTemplate(t.id); });
+        () => { if (tplLocked(t)){ openPlans('“' + t.name + '” is a premium template, unlock the whole library with Pro.'); return; } closePicker(); loadTemplate(t.id); },
+        null, locked);
       if (locked) c.classList.add('locked');
       grid.appendChild(c);
     });
   }
 }
-function pickerCard(thumb, name, tag, onUse, onDel){
+function pickerCard(thumb, name, tag, onUse, onDel, locked){
   const card = document.createElement('div');
   card.className = 'tpl-card' + (onDel ? ' tpl-saved-card' : '');
   card.innerHTML = `<img src="${thumb}" alt="${escHtml(name)}"><div class="tpl-veil"></div>
-    <div class="tpl-use">Use →</div>
+    ${locked ? '<div class="pro-guard"></div>' : ''}
+    <div class="tpl-use">${locked ? 'Unlock →' : 'Use →'}</div>
     ${onDel ? '<button class="tpl-del" title="Delete">✕</button>' : ''}
     <div class="tpl-meta"><span class="tpl-name">${escHtml(name)}</span><span class="tpl-tag">${escHtml(tag)}</span></div>`;
   card.onclick = e => { if (e.target.classList.contains('tpl-del')) return; onUse(); };
@@ -7757,7 +7761,7 @@ function revealSelectedTpl(){
 function selectEzTpl(id){
   const want = TEMPLATES.find(t => t.id === id);
   if (want && tplLocked(want)){
-    openPlans('“' + want.name + '” is a premium template, unlock all 8 designs with Starter or Pro.');
+    openPlans('“' + want.name + '” is a premium template. Pro unlocks the whole library.');
     if (!ez.tpl || tplLocked(ezTpl())) id = firstFreeTplId();
     else return;
   }
@@ -9145,7 +9149,12 @@ function scLoadIndex(){
   SHOWCASE._p = fetch('assets/showcase/index.json', { cache:'no-cache' })
     .then(r => r.ok ? r.json() : [])
     .then(j => {
-      SHOWCASE.cards = Array.isArray(j) ? j : [];
+      /* A card with neither a product cutout nor a photograph is a headline
+         on a flat ground, and at thumbnail size it reads as a card that
+         failed to load rather than as a design (owner, 2026-09-02: "those
+         two lack the proper imagery, looks a little bit confusing"). The
+         records stay on disk; they are simply not offered. */
+      SHOWCASE.cards = (Array.isArray(j) ? j : []).filter(c => c.imagery !== 'none');
       SHOWCASE.cards.forEach(c => { SHOWCASE.byId[c.id] = c; });
       return SHOWCASE.cards;
     })
@@ -9201,7 +9210,29 @@ function scOrder(list){
   return out;
 }
 function scBaseOf(c){ return TEMPLATES.find(t => t.id === c.base) || null; }
+/* THE FIRST THREE OF EVERY CATEGORY ARE FREE — the same promise the classics
+   have always kept (freeFirst3) and the pricing copy makes out loud. Without
+   this the showcase locked everything outside Phones, so the gallery the
+   landing page leads with opened the plan modal on nearly every card. The
+   three are the STRONGEST three by the gallery's own order, so the free
+   sample is the good work, not the leftovers. */
+let _scFree = null;
+function scFreeSet(){
+  if (_scFree) return _scFree;
+  _scFree = {};
+  const cards = SHOWCASE.cards || [];
+  [...new Set(cards.map(c => c.cat))].forEach(cat => {
+    _scFree[cat] = new Set(scOrder(cards.filter(c => c.cat === cat)).slice(0, 3).map(c => c.id));
+  });
+  return _scFree;
+}
+function scIsFree(c){
+  if (c.cat === 'phones') return true;                       // every Phones design is free
+  const f = scFreeSet()[c.cat];
+  return !!(f && f.has(c.id));
+}
 function scLocked(c){
+  if (scIsFree(c)) return false;
   const reg = TEMPLATES.find(t => t.id === 'sc-' + c.id);
   if (reg) return tplLocked(reg);
   const base = scBaseOf(c);
@@ -9411,7 +9442,8 @@ async function openShowcase(id){
       SHOWCASE.records[id] = rec;
     }
     const base = scBaseOf(c) || {};
-    const t = Object.assign({}, base, rec.tpl, { id: tid, name: c.name, cat: c.cat, tag: 'new', tier: base.tier, showcase: id });
+    const t = Object.assign({}, base, rec.tpl, { id: tid, name: c.name, cat: c.cat, tag: 'new',
+      tier: scIsFree(c) ? 'free' : base.tier, showcase: id });
     const fams = new Set();
     (t.layers || []).forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); });
     const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];

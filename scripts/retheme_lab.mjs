@@ -46,7 +46,13 @@ const BLANK = /^(poke-booster-box|poke-graded-slab|poke-slabs-trio|poke-cards-sp
 /* measured luminance for every backdrop AND scene (scripts/measure_backdrops.mjs) */
 const BG = JSON.parse(readFileSync(ROOT + 'assets/backdrop-lum.json', 'utf8'));
 const ALL = readdirSync(ROOT + 'assets/cutouts').filter(f => /\.webp$/.test(f)).map(f => f.replace(/\.webp$/, ''));
-const modern = pres => ALL.filter(f => pres.some(p => f.startsWith(p)) && !LEGACY.test(f));
+/* The owner's asset pass (assets/approved-assets.json, 2026-09-03): 360 approved / 104 rejected of 464.
+   The approved list is the pool; LEGACY (pre-12 iPhones, ip-gen renders) stays on top because the
+   owner stated that rule twice; the rejected ids also feed the page-side BLANK filter. */
+const ASSETPASS = JSON.parse(readFileSync(ROOT + 'assets/approved-assets.json', 'utf8'))['asset-grid-v1'] || { approved: [], rejected: [] };
+const APPROVED_CUTS = new Set(ASSETPASS.approved), REJECTED = new Set(ASSETPASS.rejected);
+const okCut = f => !LEGACY.test(f) && (APPROVED_CUTS.size ? APPROVED_CUTS.has(f) : !BLANK.test(f));
+const modern = pres => ALL.filter(f => pres.some(p => f.startsWith(p)) && okCut(f));
 /* Pools keyed on what the HEADLINE actually says. Keying them on the category
    put a Google Pixel on an ad reading "SELL YOUR iPHONE" — the deck is called
    `phones` and sells several brands, but the headline names one. The headline
@@ -80,10 +86,16 @@ const CUTS = {
 /* Ten palettes, led by the approval counts from the 4-up review (Blue Market
    13, Blue Ticket 12, Mint Counter 11, Gold Offer 8), then the vibrant ones
    kept in both earlier shortlists. Sunlit is out. */
-const DONORS = process.env.LAB_DONORS ? process.env.LAB_DONORS.split(',') : ['du07','jw05','pp04','pp02','cd06','jw07','du08','pa05','ca07','io03',
+let DONORS = process.env.LAB_DONORS ? process.env.LAB_DONORS.split(',') : ['du07','jw05','pp04','pp02','cd06','jw07','du08','pa05','ca07','io03',
   /* set 4: six palettes outside the blue family — candy pink and mint, orchid
      and wine jewels, a peach glass, a green duotone */
   'cd10','cd04','jw03','gl02','du05'];
+/* a locked-theme run needs every palette its themes ask for, not the shortlist */
+if (process.env.LAB_LOOKS){
+  const want = [...new Set(JSON.parse(readFileSync(ROOT + 'assets/looks.json', 'utf8')).looks.flatMap(L => L.palettes || []))];
+  want.forEach(p2 => { if (!DONORS.includes(p2)) DONORS.push(p2); });
+  console.log('donors widened for looks: ' + DONORS.length);
+}
 /* a donor listed twice minted two cards with one id (a phones card and a
    sports card both called voltStack-du07-40); their records overwrote each
    other and every "brand"/"duplicate" hit traced back here */
@@ -252,19 +264,19 @@ const CHALLENGE = {
      where retail buyers are — "we beat them" is a claim we would lose, and a
      marketplace is a venue, not a buyer. Names over 12 characters stay on the
      kicker; the headline takes the short ones or a category line. */
-  phones:  { names:['ECOATM','GAZELLE','BACK MARKET','APPLE TRADE IN','BEST BUY','YOUR CARRIER','VERIZON','T-MOBILE'],
+  phones:  { names:['ECOATM','GAZELLE','BACK MARKET','APPLE TRADE IN','BEST BUY','VERIZON','T-MOBILE'],
              generic:['A RESELLER','THE KIOSK','THE MALL KIOSK'] },
-  gold:    { names:['CASH4GOLD','THE PAWN SHOP','EZPAWN','THE JEWELER','THE MALL JEWELER'],
+  gold:    { names:['CASH4GOLD','THE PAWN SHOP','EZPAWN','THE MALL JEWELER'],
              generic:['THE PAWN SHOP','A GOLD PARTY'] },
   silver:  { names:['THE PAWN SHOP','THE COIN SHOP','THE MAIL-IN BUYERS'],
              generic:['THE PAWN SHOP','A RESELLER'] },
   coins:   { names:['THE COIN SHOP','THE PAWN SHOP','THE MAIL-IN BUYERS'],
              generic:['A RESELLER','THE PAWN SHOP'] },
-  cars:    { names:['CARVANA','CARMAX','KBB OFFER','AUTONATION','THE DEALER','YOUR DEALER'],
+  cars:    { names:['CARVANA','CARMAX','KBB','AUTONATION','THE DEALER'],
              generic:['THE DEALER','A WHOLESALER'] },
   strips:  { names:['THE MAIL-IN SITES','THE OTHER BUYERS'],
              generic:['A MAIL-IN SITE','A RESELLER'] },
-  pokemon: { names:['TCGPLAYER','GAMESTOP','THE CARD SHOP','PSA VAULT'],
+  pokemon: { names:['TCGPLAYER','GAMESTOP','THE CARD SHOP'],
              generic:['A RESELLER','A SCALPER'] },
   sports:  { names:['GOLDIN','FANATICS','THE CARD SHOP'],
              generic:['A RESELLER','A SCALPER'] },
@@ -420,7 +432,7 @@ const FIT = {
   pokemon: ['comic','script','street','hand','typewriter','condensed','horror','bold'],
   sports:  ['condensed','comic','typewriter','street','slab','bold','script','vintage'],
 };
-const FACESYS = { STYLE, FIT, TRACK: Object.fromEntries(FONTS.filter(f => f.track !== undefined).map(f => [f.name, f.track])), review100: process.env.LAB_REVIEW === '100', size: +(process.env.LAB_SIZE || 0), blank: BLANK.source, subcats: process.env.LAB_SUBCATS === '1', forceAbs: process.env.LAB_ABS === '1', placeDebug: process.env.LAB_PLACE === '1', grounds: process.env.LAB_GROUNDS ? process.env.LAB_GROUNDS.split(',') : null };
+const FACESYS = { STYLE, FIT, TRACK: Object.fromEntries(FONTS.filter(f => f.track !== undefined).map(f => [f.name, f.track])), review100: process.env.LAB_REVIEW === '100', size: +(process.env.LAB_SIZE || 0), blank: REJECTED.size ? '^(' + [...REJECTED].join('|') + ')$' : BLANK.source, subcats: process.env.LAB_SUBCATS === '1', forceAbs: process.env.LAB_ABS === '1', placeDebug: process.env.LAB_PLACE === '1', dground: process.env.LAB_DGROUND || null, slab: process.env.LAB_SLAB === '1', cats: process.env.LAB_CATS ? process.env.LAB_CATS.split(',') : null, slabGrade: process.env.LAB_SLABGRADE || null, attempt: +(process.env.LAB_ATTEMPT || 0), grounds: process.env.LAB_GROUNDS ? process.env.LAB_GROUNDS.split(',') : (existsSync(ROOT + 'assets/approved-grounds.json') ? Object.keys(JSON.parse(readFileSync(ROOT + 'assets/approved-grounds.json', 'utf8')).kinds).concat(['shadowcast','blinds']) : null) };
 const TRACK = FACESYS.TRACK;
 await page.evaluate(async faces => {
   await Promise.all(faces.map(f => (typeof ensureFont === 'function' ? ensureFont(f) : Promise.resolve())));
@@ -448,13 +460,19 @@ const picks = await page.evaluate((LAYS) => {
   });
   return LAYS.filter(l => byLayout[l]).map(l => byLayout[l]);
 }, process.env.LAB_LAYOUTS ? process.env.LAB_LAYOUTS.split(',') : APPROVED_LAYOUTS);
+/* THE LOCKED LOOKS. Each one owns its palettes, its type pairing and its ground;
+   the variations are the only thing allowed to move inside a look. Filled from the
+   theme-lock study of all 924 approvals. LAB_LOOKS=1 builds the plan from these. */
+const LOOKS = JSON.parse(readFileSync(ROOT + 'assets/looks.json', 'utf8')).looks || [];
+/* the brand wordmarks, loaded beside the cutouts so a card can wear its make's mark */
+const LOGOS = existsSync(ROOT + 'assets/logos') ? Object.fromEntries(readdirSync(ROOT + 'assets/logos').filter(f => f.endsWith('.png')).map(f => [f.replace(/\.png$/, ''), 'assets/logos/' + f])) : {};
 await page.evaluate(async srcs => {
   await Promise.all(srcs.map(s => new Promise(res => {
     if (CUTOUT_ELS[s]) return res();
     const el = new Image(); el.onload = () => { CUTOUT_ELS[s] = el; res(); };
     el.onerror = () => res(); el.src = s;
   })));
-}, ALL.filter(f => !LEGACY.test(f) && !BLANK.test(f)).map(c => 'assets/cutouts/' + c + '.webp'));
+}, ALL.filter(okCut).map(c => 'assets/cutouts/' + c + '.webp').concat(['assets/cutouts/sports-slab-graded.webp'], Object.values(LOGOS)));   // + the slab frame and the brand logos
 /* THE MISSING BACKDROPS. freshBgImage() reads TPL_BG_ELS, which the engine
    fills only with the backdrops its own templates use. The Apple scenes were
    never in it, so every scene-backed card — all of the iPhone, iPad, Watch
@@ -534,6 +552,25 @@ const rr = (want, offset) => {
   return out;
 };
 const PLAN = [];
+if (process.env.LAB_LOOKS && LOOKS.length){
+  /* one look at a time: every card in a block shares its palette set, faces and
+     ground, so a page of the lab reads as one campaign instead of a shuffle */
+  const layoutIx = {}; picks.forEach((l, i) => layoutIx[l[0].layout] = i);
+  /* N cards per theme (LAB_PERLOOK, default 2): the theme's own layouts and its
+     own palettes, in order, so a gallery shows every theme the same number of times */
+  const PERLOOK = +(process.env.LAB_PERLOOK || 2);
+  LOOKS.forEach(L => {
+    const lays = (L.layouts || []).map(l => layoutIx[l]).filter(i2 => i2 !== undefined);
+    if (!lays.length){ console.log('  no usable layout: ' + (L.key || L.id)); return; }
+    const pals = (L.palettes || []).filter(pl => DONORS.indexOf(pl) >= 0);
+    for (let v = 0; v < PERLOOK; v++){
+      const i = lays[v % lays.length];
+      const j = pals.length ? DONORS.indexOf(pals[v % pals.length]) : 0;
+      PLAN.push({ i, j, v: VSTART + v, k: PLAN.length, look: L.key || L.id });
+    }
+  });
+  console.log('looks: ' + LOOKS.map(L => (L.key || L.id) + ' ' + PLAN.filter(e => e.look === (L.key || L.id)).length).join(', '));
+} else
 picks.forEach((list, i) => {
   const seq = rr(want[i], i * 3), seenD = {};
   seq.forEach((donor, k) => { seenD[donor] = (seenD[donor] || 0) + 1; PLAN.push({ i, j: DONORS.indexOf(donor), v: VSTART + seenD[donor] - 1, k }); });
@@ -556,7 +593,7 @@ INFO.assort = process.env.LAB_ASSORT || 'off';   // ghost walls read as "layerin
    rather than as pictures of templates. */
 INFO.export = !!process.env.LAB_EXPORT;
 INFO.raw = process.env.LAB_RAW || 'on';
-const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS, DEVICE_DECKS, INFO, CATEGORY_COPY, MODERN, HERO, BGLUM, DEBUG_ID, TYPE, CHALLENGE, KICKERS, FACESYS, WEBBG, SUBCATS_PAGE) => {
+const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS, DEVICE_DECKS, INFO, CATEGORY_COPY, MODERN, HERO, BGLUM, DEBUG_ID, TYPE, CHALLENGE, KICKERS, FACESYS, WEBBG, LOGOS, LOOKS, SUBCATS_PAGE) => {
   const TRACK = FACESYS.TRACK;
   const BLANK = new RegExp(FACESYS.blank, 'i');     // the blank card cutouts, excluded in the page too
   /* PRODUCT OVER A PILE OF CASH. "Why isn't any product over a pile of cash
@@ -1088,9 +1125,11 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
              supplies" — so people know what is bought */
           const LONG = { iphone:['iPHONE · iPAD · MACBOOK','iPHONE & iPAD'], ipad:['iPAD PRO · AIR · MINI · REGULAR'], macbook:['MACBOOK PRO & AIR'], watch:['APPLE WATCH'],
             gold:['GOLD CHAINS & RINGS','GOLD JEWELRY'], silver:['SILVER & SILVERWARE','SILVER COINS & BARS'], coins:['COINS & BULLION','SILVER DOLLARS'],
-            cars:['CARS, TRUCKS & VANS','CARS & TRUCKS','TOYOTAS','HONDAS','TESLAS','BMWS','FORDS','LEXUS'], trucks:['TRUCKS & VANS','F-150S','SILVERADOS','TACOMAS','RAMS'], bikes:['MOTORCYCLES','HARLEYS','HONDAS','YAMAHAS'], vans:['CARGO VANS','TRANSITS','SPRINTERS'],
+            /* makes a seller actually walks in with (owner, 2026-09-03: "too niche and
+             odd" on AUDIS) — Audi, Porsche, Acura, Mazda, Infiniti and the rest are out */
+            cars:['CARS, TRUCKS & VANS','CARS & TRUCKS','TOYOTAS','HONDAS','FORDS','CHEVYS','NISSANS','JEEPS','TESLAS','BMWS','MERCEDES','HYUNDAIS','KIAS','DODGES'], trucks:['TRUCKS & VANS','F-150S','SILVERADOS','TACOMAS','RAMS'], bikes:['MOTORCYCLES','HARLEYS','HONDAS','YAMAHAS','KAWASAKIS'], vans:['CARGO VANS','TRANSITS','SPRINTERS'],
             strips:['DIABETIC SUPPLIES','TEST STRIPS & CGMS'], pokemon:['POKÉMON CARDS'], sports:['SPORTS CARDS & SLABS'] };
-          const lineKey = deck && deck.cuts ? (/^own-apple|^iphone/.test(deck.cuts[0]) ? 'iphone' : /^ipad/.test(deck.cuts[0]) ? 'ipad' : /^mac/.test(deck.cuts[0]) ? 'macbook' : /^watch/.test(deck.cuts[0]) ? 'watch' : cat) : cat;
+          const lineKey = deck && deck.bgcat && LONG[deck.bgcat] ? deck.bgcat : deck && deck.cuts && /^car-truck/.test(deck.cuts[0]) ? 'trucks' : deck && deck.cuts && /^car-van/.test(deck.cuts[0]) ? 'vans' : deck && deck.cuts && /^car-motorcycle/.test(deck.cuts[0]) ? 'bikes' : deck && deck.cuts ? (/^own-apple|^iphone/.test(deck.cuts[0]) ? 'iphone' : /^ipad/.test(deck.cuts[0]) ? 'ipad' : /^mac/.test(deck.cuts[0]) ? 'macbook' : /^watch/.test(deck.cuts[0]) ? 'watch' : cat) : cat;   // a bike deck takes the bike brands, never DODGES over a motorcycle
           if (c.role === 'headline'){
             /* a layout whose headlines carry no money word (CASH IN / 3 STEPS)
                says what is bought in line one: SELL GOLD / IN 3 STEPS. "Make
@@ -1113,13 +1152,27 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
               const BRAND_ITEMS = { TOYOTAS:'Camry • Corolla • Tacoma • RAV4 • 4Runner', HONDAS:'Civic • Accord • CR-V • Pilot • Odyssey', TESLAS:'Model 3 • Model Y • Model S • Model X',
                 BMWS:'3 Series • 5 Series • X3 • X5 • M Series', FORDS:'F-150 • Mustang • Explorer • Bronco', LEXUS:'RX • ES • IS • GX • NX',
                 'F-150S':'XL • XLT • Lariat • Raptor', SILVERADOS:'1500 • 2500 • LT • Z71', TACOMAS:'SR • TRD • Off-Road • Pro', RAMS:'1500 • 2500 • Big Horn • Laramie',
-                HARLEYS:'Sportster • Softail • Street Glide • Road King', YAMAHAS:'R1 • R6 • MT-07 • MT-09', TRANSITS:'Cargo • Connect • High Roof', SPRINTERS:'Cargo • Crew • High Roof' };
-              if (BRAND_ITEMS[c.text]) deck.__brandItems = BRAND_ITEMS[c.text];
+                HARLEYS:'Sportster • Softail • Street Glide • Road King', YAMAHAS:'R1 • R6 • MT-07 • MT-09', TRANSITS:'Cargo • Connect • High Roof', SPRINTERS:'Cargo • Crew • High Roof',
+                CHEVYS:'Silverado • Tahoe • Equinox • Malibu • Camaro', NISSANS:'Altima • Rogue • Sentra • Frontier • Titan', JEEPS:'Wrangler • Grand Cherokee • Gladiator • Compass', SUBARUS:'Outback • Forester • Crosstrek • WRX • Impreza',
+                MERCEDES:'C-Class • E-Class • GLC • GLE • S-Class', AUDIS:'A4 • A6 • Q5 • Q7 • S4', KIAS:'Telluride • Sorento • Forte • Sportage • K5', HYUNDAIS:'Tucson • Santa Fe • Elantra • Sonata • Palisade',
+                MAZDAS:'CX-5 • Mazda3 • CX-9 • MX-5', DODGES:'Charger • Challenger • Durango • Ram', PORSCHES:'911 • Cayenne • Macan • Taycan', ACURAS:'MDX • RDX • TLX • Integra',
+                TUNDRAS:'SR5 • Limited • TRD Pro • 1794', SIERRAS:'1500 • 2500 • AT4 • Denali', 'F-250S':'XL • XLT • Lariat • King Ranch', GLADIATORS:'Sport • Rubicon • Mojave',
+                KAWASAKIS:'Ninja • Z900 • Vulcan • KLR', DUCATIS:'Monster • Panigale • Scrambler • Multistrada', SUZUKIS:'GSX-R • Hayabusa • V-Strom • Boulevard', TRIUMPHS:'Bonneville • Street Triple • Tiger • Speed Twin',
+                PROMASTERS:'1500 • 2500 • 3500 • High Roof', 'EXPRESS VANS':'2500 • 3500 • Cargo • Extended' };
+              if (BRAND_ITEMS[c.text]) { deck.__brandItems = BRAND_ITEMS[c.text]; deck.__brandWord = c.text; }   // and the word it belongs to
             }
             // the money word alone in a card says what we are: GOLD BUYER
             if (heads.length === 1 && l === money && !deck.challengePromise && !/BUYER/i.test(c.text)) c.text = c.text.trim() + ' BUYER';
           }
           // the kicker: short, rotated; in challenge mode it is the question
+          /* THE STICKER SAYS SOMETHING. Owner, 2026-09-03: "top $$$ is a little
+             too random and vague." Dollar signs are not an offer; what the shop
+             actually does is. Short enough to keep the curved sticker's shape. */
+          if (/^Sticker Text$/.test(c.name || '') || /^TOP \$+$/.test(String(c.text || '').trim())){
+            const STICK = ['CASH TODAY', 'PAID TODAY', 'SAME DAY', 'ON THE SPOT', 'FREE QUOTE'];
+            c.text = STICK[(seed + (c.props.top || 0)) % STICK.length];
+            c.props.fontSize = Math.max(26, Math.round((c.props.fontSize || 44) * 7 / c.text.length));
+          }
           if (c.name === 'Kicker' || /LICENSED .*BUYER|APPLE BUYER|COLLECTIONS WANTED/i.test(c.text)
               || (c.role === 'sub' && (c.props.top || 0) < 130 && (c.props.fontSize || 40) < 56)){
             const pool = KICKERS[deck.cuts && /iphone|ipad|mac|watch/.test(deck.cuts[0]) ? 'apple' : cat] || KICKERS.apple;
@@ -1144,7 +1197,11 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
              single line gets 82% of the width at ~0.52em per character; a
              wrapping textbox may take two lines. */
           if (/^Items|^Info Text/i.test(c.name || '')){
-            if (deck.__brandItems) deck.items = deck.__brandItems;
+            /* only while that brand is still the word on the card: a TRUCKS
+               headline over "A4 · A6 · Q5 · Q7 · S4" is the wrong car (owner,
+               2026-09-03: "this one looks terrible") */
+            if (deck.__brandItems && heads.some(h => String(h.text || '').toUpperCase().includes(deck.__brandWord))) deck.items = deck.__brandItems;
+            else if (deck.__brandItems) { delete deck.__brandItems; delete deck.__brandWord; }
             const perLine = Math.floor(W * 0.82 / ((c.props.fontSize || 40) * 0.52));
             const cap = c.kind === 'textbox' ? perLine * 2 : perLine;
             c.text = trimList(deck.items, Math.min(cap, Math.max(c.text.length * 1.15 + 2, 36)));
@@ -1499,12 +1556,38 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
        phone plate takes the category's tone and the kicker plate the second,
        each with the ink that reads on it. That is how a Blue Market card
        shows Blue Market's red instead of a stray mint. */
+    /* THE NUMBER BELONGS TO THE CARD. Owner, 2026-09-03: "the phone numbers
+       are looking very out of place for each one — make it cohesive with each
+       theme." The plate had been taking the CATEGORY's tone and the category's
+       corner radius, so a violet slab landed on a gold card and a mono face on
+       a hand-set one. It now wears a colour the card is already showing and the
+       corner language of its own theme family, and the digits keep the card's
+       voice unless the theme is a technical one. */
     const phone = t2.layers.find(l => l.role === 'phone' && typeof l.text === 'string' && l.props);
     if (phone){
       const [x, y] = anchorOf(phone);
       const plate = t2.layers.find(l => isPlate(l) && !l.__moneyPlate && contains(l.props, x, y));
-      if (plate){ plate.props.fill = tone; plate.solid = true; plate.__lock = true; delete plate.props.grad; plate.props.opacity = 1;
-        phone.props.fill = onTone; phone.__lock = true; delete phone.props.grad; }
+      const money = t2.layers.find(l => l.__moneyPlate && l.props);
+      const same = (a2, b2) => String(a2 || '').toLowerCase() === String(b2 || '').toLowerCase();
+      const fill = money && same(money.props.fill, th.accent) ? (th.support || th.accent) : th.accent;
+      const onFill = same(fill, th.accent) ? th.onAccent : th.onSupport;
+      const FAMSHAPE = { 'iOS Flat':'pill', 'Candy':'pill', 'Pastel':'pill', 'Jewel':'pill', 'Cool Air':'round', 'Sunlit':'round',
+                         'Liquid Glass':'round', 'Space':'round', 'Duotone':'square', 'Ink Pop':'square', 'Paper':'square',
+                         'Night Neon':'square', 'Chalk':'soft', 'Lined Paper':'soft' };
+      if (plate){
+        plate.props.fill = fill; plate.solid = true; plate.__lock = true; delete plate.props.grad; plate.props.opacity = 1;
+        const h0 = plate.props.height || 0, sh = FAMSHAPE[th.family] || 'soft';
+        plate.props.rx = sh === 'pill' ? h0 / 2 : sh === 'round' ? Math.min(40, h0 / 2) : sh === 'square' ? 0 : 16;
+        delete plate.props.skewX; delete plate.props.ry;
+        if (/Night Neon|Space/.test(th.family)){ plate.props.stroke = th.accent; plate.props.strokeWidth = 2; }
+        phone.props.fill = onFill; phone.__lock = true; delete phone.props.grad;
+      } else {
+        phone.props.fill = lumHex(th.c1) > 0.5 ? th.ink : th.accent; phone.__lock = true; delete phone.props.grad;   // a bare number takes a tone that reads on the ground
+      }
+      if (!/Space|Night Neon|Liquid Glass/.test(th.family) && /Mono|JetBrains/i.test(phone.props.fontFamily || ''))
+        phone.props.fontFamily = th.faces.support;
+      const cta = t2.layers.find(l => l.role === 'cta' && typeof l.text === 'string' && l.props && plate && contains(plate.props, ...anchorOf(l)));
+      if (cta && plate){ cta.props.fill = onFill; cta.__lock = true; delete cta.props.grad; }   // the words on the plate match the number
     }
     const kicker = t2.layers.find(l => l.name === 'Kicker' && typeof l.text === 'string' && l.props);
     if (kicker){
@@ -1548,7 +1631,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
          photograph's own colour, blurs it, and lays a NEUTRAL scrim (black on
          a deep theme, white on a light one) instead of the theme tone. */
       try {
-        const keepColour = /^(paper|space|abs):/.test(t2.bg.src || '') || t2.__spaceBg || t2.__cashBg || t2.__absBg;   // drawn grounds, nebulae and money keep their colour
+        const keepColour = /^(paper|space|abs):/.test(t2.bg.src || '') || t2.__spaceBg || t2.__cashBg || t2.__absBg || t2.__dg;   // drawn grounds, nebulae and money keep their colour
         bgi.filters = t2.bg.treat === 'raw' ? []
           : (t2.bg.treat === 'natural' || keepColour)
           ? [new fabric.Image.filters.Contrast({ contrast: 0.05 })]
@@ -1918,7 +2001,8 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
         const l = t2.layers[k];
         if (!o || l.kind !== 'cutout' || l.__wall) return;   // the wall sits BEHIND the words by design
         const b = o.getBoundingRect(true, true);
-        const hit = words.some(t => { const ix = Math.max(0, Math.min(b.left + b.width, t.left + t.width) - Math.max(b.left, t.left)), iy = Math.max(0, Math.min(b.top + b.height, t.top + t.height) - Math.max(b.top, t.top)); return ix * iy > 0.1 * t.width * t.height; });
+        const wordsFor = l.__crown ? refs.map((o2, k2) => o2 && typeof t2.layers[k2].text === 'string' && t2.layers[k2].role !== 'deco' && t2.layers[k2].role !== 'badges' && !/Arc|Wave|Curve/i.test(t2.layers[k2].name || '') ? o2.getBoundingRect(true, true) : null).filter(Boolean) : words;
+        const hit = wordsFor.some(t => { const ix = Math.max(0, Math.min(b.left + b.width, t.left + t.width) - Math.max(b.left, t.left)), iy = Math.max(0, Math.min(b.top + b.height, t.top + t.height) - Math.max(b.top, t.top)); return ix * iy > 0.1 * t.width * t.height; });
         if (hit){ sc.remove(o); refs[k] = null; l.__yielded = true; }
       });
     }
@@ -2238,7 +2322,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
      five-times-larger bench */
   ICONS.car = { d: 'M10 62 L20 42 Q24 34 34 34 H66 Q76 34 80 42 L90 62 V76 H78 A9 9 0 0 1 60 76 H40 A9 9 0 0 1 22 76 H10 Z M24 46 H76', sw: 5 };
   ICONS.truck = { d: 'M8 30 H56 V70 H8 Z M56 44 H76 L88 58 V70 H56 Z M20 70 A8 8 0 1 0 20 86 A8 8 0 1 0 20 70 Z M74 70 A8 8 0 1 0 74 86 A8 8 0 1 0 74 70 Z', sw: 5 };
-  ICONS.wheel = { d: 'M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10 Z M50 38 A12 12 0 1 0 50 62 A12 12 0 1 0 50 38 Z M50 10 V38 M16 66 L40 56 M84 66 L60 56', sw: 5 };
+  ICONS.wheel = { d: 'M50 8 A42 42 0 1 0 50 92 A42 42 0 1 0 50 8 Z M50 36 A14 14 0 1 0 50 64 A14 14 0 1 0 50 36 Z M11 50 H36 M64 50 H89 M50 64 V90', sw: 6 };   // rim, hub, spokes at 9/3/6 — the old one read as a peace sign
   ICONS.key = { d: 'M30 30 A18 18 0 1 0 30 66 A18 18 0 1 0 30 30 Z M46 48 H90 V62 H80 V72 H70 V62 H62 V70 H54 V62 H46 Z', sw: 5 };
   ICONS.moto = { d: 'M22 60 A12 12 0 1 0 22 84 A12 12 0 1 0 22 60 Z M78 60 A12 12 0 1 0 78 84 A12 12 0 1 0 78 60 Z M22 72 L40 44 H60 L78 72 M52 44 L44 28 H60', sw: 5 };
   ICONS.van = { d: 'M8 34 H62 L88 52 V72 H8 Z M22 72 A8 8 0 1 0 22 88 A8 8 0 1 0 22 72 Z M74 72 A8 8 0 1 0 74 88 A8 8 0 1 0 74 72 Z M62 34 V52 H88', sw: 5 };
@@ -2265,8 +2349,13 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
   const ELEMENTS = {
     pokemon: { icons: ['pokeball','pokeball','bolt','star5','cardSlab','burst','gem','medal','heart'], emoji: ['⚡','⭐','🔥','🎴','🃏','💎','🏆','✨'], colors: ['#ffcb05','#2a75bb','#cc0000','#ffcb05'] },
     sports:  { icons: ['star5','cardSlab','bolt','check','baseball','trophy','medal','burst','flag'], emoji: ['⚾','🏀','🏈','🏒','🏆','⭐','🎴','🥇'], colors: null },
-    phones:  { icons: ['bolt','check','dollar','sparkle','phoneMark','watchMark','battery','cash','shield','thumbs'], emoji: ['📱','⚡','💵','✅','🔋','📲','⌚','💻'], colors: null },
-    cars:    { icons: ['car','truck','key','wheel','keyfob','dollar','check','flag','cash','tag'], emoji: ['🚗','🚙','🛻','🔑','💵','🏁','🛞','⛽'], colors: null },
+    phones:  { icons: ['bolt','check','dollar','sparkle','phoneMark','battery','cash','shield','thumbs'], emoji: ['📱','⚡','💵','✅','🔋','📲'], colors: null },   // no watch glyph on an iPhone card
+    /* one Apple line per card: a phone emoji on a MacBook ad is the wrong
+       product (owner, 2026-09-03: "why is there an iPhone emoji?") */
+    ipad:    { icons: ['bolt','check','dollar','sparkle','battery','cash','shield','tag'], emoji: ['⚡','💵','✅','🔋'], colors: null },
+    macbook: { icons: ['bolt','check','dollar','sparkle','battery','cash','shield','tag'], emoji: ['💻','⚡','💵','✅'], colors: null },
+    watch:   { icons: ['bolt','check','dollar','sparkle','watchMark','battery','cash','shield'], emoji: ['⌚','⚡','💵','✅'], colors: null },
+    cars:    { icons: ['car','key','wheel','keyfob','dollar','check','flag','cash','tag'], emoji: ['🚗','🚙','🔑','💵','🏁','🛞'], colors: null },
     trucks:  { icons: ['truck','key','wheel','car','keyfob','dollar','flag','cash'], emoji: ['🛻','🔑','💵','🏁','🛞','🔧'], colors: null },
     bikes:   { icons: ['flame','flame','moto','key','wheel','flag'], emoji: ['🔥','🏍️','🔑','🏁','🔥'], colors: ['#ff6a00','#ffb300','#e53935'] },
     vans:    { icons: ['van','box','key','wheel','dollar','check','tag'], emoji: ['🚐','📦','🔑','💵','🏁','🛞'], colors: null },
@@ -2279,9 +2368,205 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
      which is bullion, not little space icons"; a family only sets the colour
      (pen ink on paper) and, on paper, drops emoji for drawn marks */
   const ELEMENTS_FAMILY = { 'Lined Paper': { colors: 'pen', noEmoji: true } };
-  function addElements(t2, cat, seed, th, refs){
-    if (seed % 4 === 3 && !ELEMENTS_FAMILY[th.family]) return;   // one card in four goes without (families always decorate)
-    const EF = ELEMENTS_FAMILY[th.family], base = ELEMENTS[cat] || ELEMENTS.phones;
+  /* THE SLAB FRAME (owner, 2026-09-03: "we can make a blank slab a theme… it
+     perfectly leaves room for content"). The blank graded slab is the frame:
+     the headline goes on the label like a grade line, everything else is the
+     card in the window, scaled to fit. The window is painted in the palette so
+     the theme still shows; the label stays paper-white with dark ink. */
+  const SLAB = { src:'assets/cutouts/sports-slab-graded.webp', iw:1572, ih:1425, label:[0.075,0.055,0.925,0.265], win:[0.075,0.31,0.925,0.95] };
+  function slabFrame(t2, th, cat, seed){
+    if (!/pokemon|sports/.test(cat)) return;   // "this should just be for card buyers"
+    const W = 1080, H = 1080, k0 = H / SLAB.ih, dw = SLAB.iw * k0, ox = (W - dw) / 2;
+    const box = r => ({ x: ox + r[0] * dw, y: r[1] * H, w: (r[2] - r[0]) * dw, h: (r[3] - r[1]) * H });
+    const LB = box(SLAB.label), WB = box(SLAB.win);
+    const key = 'slab:' + th.id + ':' + cat + ':' + (seed % 3);
+    const img = CUTOUT_ELS[SLAB.src];
+    if (!img) return;
+    /* what the slab holds: the category's own photograph first, a card cutout
+       second (marked __cut so it is fitted, not cropped) */
+    const cardImg = (() => {
+      const web = (WEBBG[cat] || []).filter(src => TPL_BG_ELS[src] && TPL_BG_ELS[src].width);
+      if (web.length) return TPL_BG_ELS[web[seed % web.length]];
+      const names = cat === 'pokemon' ? ['poke-slabs-trio'] : ['sports-slabs-stack','sports-slab'];
+      const el = names.map(n => CUTOUT_ELS['assets/cutouts/' + n + '.webp']).filter(e => e && e.width)[seed % 2] ||
+                 names.map(n => CUTOUT_ELS['assets/cutouts/' + n + '.webp']).filter(e => e && e.width)[0];
+      if (el) el.__cut = true;
+      return el || null;
+    })();
+    drawGround(key, (g) => {
+      g.fillStyle = th.c1; g.fillRect(0, 0, W, H);
+      const lg = g.createLinearGradient(0, 0, W, H); lg.addColorStop(0, rgba(th.c2 || th.c1, 0.9)); lg.addColorStop(1, rgba(th.c1, 0)); g.fillStyle = lg; g.fillRect(0, 0, W, H);
+      g.save(); g.shadowColor = 'rgba(0,0,0,0.35)'; g.shadowBlur = 50; g.shadowOffsetY = 18; g.drawImage(img, ox, 0, dw, H); g.restore();
+      g.fillStyle = rgba(th.c1, 0.97); g.fillRect(WB.x + 6, WB.y + 6, WB.w - 12, WB.h - 12);            // the card in the window takes the palette
+      /* A REAL CARD IN THE WINDOW (owner, 2026-09-03: "maybe a card in the
+         background") — a slab with an empty window is a slab with nothing in
+         it. The photograph goes under a heavy wash of the ground so the copy
+         printed over it stays the loudest thing. */
+      if (cardImg){
+        g.save(); g.beginPath(); g.rect(WB.x + 6, WB.y + 6, WB.w - 12, WB.h - 12); g.clip();
+        const iw = cardImg.width, ih = cardImg.height, cut = cardImg.__cut;
+        const k = cut ? Math.min((WB.w - 60) / iw, (WB.h - 60) / ih) : Math.max((WB.w - 12) / iw, (WB.h - 12) / ih) * 1.02;
+        const w = iw * k, h = ih * k;
+        g.drawImage(cardImg, WB.x + (WB.w - w) / 2, WB.y + (WB.h - h) / 2, w, h);
+        g.fillStyle = rgba(th.c1, cut ? 0.55 : 0.66); g.fillRect(WB.x + 6, WB.y + 6, WB.w - 12, WB.h - 12);
+        g.restore();
+      }
+      const wg = g.createLinearGradient(WB.x, WB.y, WB.x + WB.w, WB.y + WB.h); wg.addColorStop(0, rgba(th.c2 || th.accent, 0.35)); wg.addColorStop(1, rgba(th.c1, 0)); g.fillStyle = wg; g.fillRect(WB.x + 6, WB.y + 6, WB.w - 12, WB.h - 12);
+      g.fillStyle = rgba(th.c1, 0.06); g.fillRect(LB.x, LB.y, LB.w, LB.h);                               // a whisper of the palette on the label
+      /* "make it appear as graded": a divider, and a barcode under the grade block */
+      g.fillStyle = 'rgba(20,20,24,0.55)'; g.fillRect(LB.x + LB.w * 0.68, LB.y + LB.h * 0.10, 2, LB.h * 0.80);
+      let bx = LB.x + LB.w * 0.72, r = seed * 7 + 3; const by = LB.y + LB.h * 0.80, bh = LB.h * 0.12, bend = LB.x + LB.w * 0.96;
+      g.fillStyle = '#1a1a1e'; while (bx < bend){ r = (r * 1103515245 + 12345) & 0x7fffffff; const w = 2 + (r % 4); if ((r >> 4) % 3) g.fillRect(bx, by, w, bh); bx += w + 2; }
+    });
+    t2.bg = { type:'image', src: key, scrimColor: th.c1, scrim: 0.001, blur: 0 }; t2.__slab = true; t2.__dg = true;
+    const est = l => {   // a layer's box, best effort from its props
+      const p = l.props || {}; let w = p.width || p.w || 0, h = p.height || p.h || 0;
+      if (typeof l.text === 'string'){ const lines = String(l.text).split('\n'); const fs = p.fontSize || 40;
+        w = Math.max(w, Math.max(...lines.map(t => t.length)) * fs * 0.64); h = Math.max(h, lines.length * fs * Math.max(p.lineHeight || 1.15, 1.25)); }
+      if (l.kind === 'circle'){ w = h = (p.radius || 40) * 2; }
+      if (l.kind === 'cutout' && !h){ const im = CUTOUT_ELS[p.src]; h = im ? w * im.height / im.width : w; }
+      const x = (p.left || 0) - (p.originX === 'center' ? w / 2 : p.originX === 'right' ? w : 0);
+      const y = (p.top || 0) - (p.originY === 'center' ? h / 2 : p.originY === 'bottom' ? h : 0);
+      return { x, y, w, h };
+    };
+    const scaleInto = (layers, B, pad, kmax) => {
+      if (!layers.length) return;
+      const bx = layers.map(est); const x0 = Math.min(...bx.map(b => b.x)), y0 = Math.min(...bx.map(b => b.y)), x1 = Math.max(...bx.map(b => b.x + b.w)), y1 = Math.max(...bx.map(b => b.y + b.h));
+      const k = Math.min((B.w - pad * 2) / Math.max(1, x1 - x0), (B.h - pad * 2) / Math.max(1, y1 - y0), kmax || 1);
+      const dx = B.x + (B.w - (x1 - x0) * k) / 2 - x0 * k, dy = B.y + (B.h - (y1 - y0) * k) / 2 - y0 * k;
+      layers.forEach(l => { const p = l.props; if (!p) return;
+        p.left = (p.left || 0) * k + dx; p.top = (p.top || 0) * k + dy;
+        ['width','height','w','h','fontSize','rx','ry','radius','strokeWidth'].forEach(q => { if (typeof p[q] === 'number') p[q] *= k; });
+        if (p.shadow){ p.shadow = Object.assign({}, p.shadow, { blur: (p.shadow.blur || 0) * k, offsetX: (p.shadow.offsetX || 0) * k, offsetY: (p.shadow.offsetY || 0) * k }); }
+        l.__slabK = k; });
+    };
+    t2.layers = t2.layers.filter(l => !l.__moneyPlate);   // a band with no word in it is an empty pink box
+    const live = t2.layers.filter(l => l.props && !(l.props.opacity === 0) && !/Sheen|Vignette|Grain/i.test(l.name || '') && l.kind !== 'vignette' && l.kind !== 'grain');
+    const heads = live.filter(l => l.role === 'headline' && typeof l.text === 'string');
+    const rest = live.filter(l => !heads.includes(l));
+    const dark = lumHex(th.ink) < 0.35 ? th.ink : '#17171a';
+    heads.forEach(l => { l.props.fill = dark; delete l.props.grad; l.props.shadow = null; l.props.stroke = null; l.props.strokeWidth = 0; l.__lock = true; });
+    const LBH = { x: LB.x + 16, y: LB.y, w: LB.w * 0.66 - 16, h: LB.h };
+    scaleInto(heads, LBH, 14, 1.8);   // the label headline may grow into the room
+    /* tracked, three-line headlines measure short: if any line still runs past
+       the label, scale the group again on the measured overflow */
+    { const bx = heads.map(est); const y0 = Math.min(...bx.map(b => b.y)), y1 = Math.max(...bx.map(b => b.y + b.h * 1.12));
+      if (y1 > LBH.y + LBH.h - 10 || y0 < LBH.y + 6) scaleInto(heads, LBH, 22, (LBH.h - 32) / Math.max(1, y1 - y0)); }
+    /* the grade block: a 10 and GEM MT on the right of the label, like the slab it sits in */
+    const gx = LB.x + LB.w * 0.84, dispFace = (heads[0] && heads[0].props.fontFamily) || th.faces.display;
+    /* two grade blocks (owner, 2026-09-03: "or put 5 star? for another variation"):
+       10 / GEM MT, or five stars / TOP RATED — always five, never fewer */
+    const starGrade = FACESYS.slabGrade ? FACESYS.slabGrade === 'stars' : seed % 2 === 1;
+    if (starGrade){
+      t2.layers.push({ kind:'text', name:'Grade Stars', role:'badges', text:'★★★★★', __lock:true, __slabGrade:true,
+        props:{ left: gx, top: LB.y + LB.h * 0.36, originX:'center', originY:'center', fontFamily:'Satoshi', fontSize: Math.round(LB.h * 0.22), fill: lumHex(th.accent) < 0.62 ? th.accent : dark, fontWeight:'900', charSpacing: 60 } });
+      t2.layers.push({ kind:'text', name:'Grade Word', role:'badges', text:'TOP RATED', __lock:true, __slabGrade:true,
+        props:{ left: gx, top: LB.y + LB.h * 0.64, originX:'center', originY:'center', fontFamily: th.faces.support, fontSize: Math.round(LB.h * 0.10), fill: dark, fontWeight:'700', charSpacing: 180 } });
+    } else {
+      t2.layers.push({ kind:'text', name:'Grade Num', role:'badges', text:'10', __lock:true, __slabGrade:true,
+        props:{ left: gx, top: LB.y + LB.h * 0.33, originX:'center', originY:'center', fontFamily: dispFace, fontSize: Math.round(LB.h * 0.52), fill: dark, fontWeight:'900' } });
+      t2.layers.push({ kind:'text', name:'Grade Word', role:'badges', text:'GEM MT', __lock:true, __slabGrade:true,
+        props:{ left: gx, top: LB.y + LB.h * 0.66, originX:'center', originY:'center', fontFamily: th.faces.support, fontSize: Math.round(LB.h * 0.10), fill: dark, fontWeight:'700', charSpacing: 180 } });
+    }
+    /* the headline left a hole in the middle of the card: close vertical gaps
+       wider than 40px between the remaining bands, then centre the stack */
+    const bands = rest.map(l => ({ l, b: est(l) })).sort((a, b) => a.b.y - b.b.y);
+    let bottom = -Infinity, shift = 0;   // bottom and b.y are both in the original (unshifted) frame
+    bands.forEach(({ l, b }) => { if (bottom > -Infinity && b.y - bottom > 40) shift += (b.y - bottom) - 40; l.props.top = (l.props.top || 0) - shift; bottom = Math.max(bottom, b.y + b.h); });
+    scaleInto(rest, WB, 26);
+  }
+  /* THE BRAND'S OWN MARK. Owner, 2026-09-03: "where is the brand logo?" on a
+     WE BUY HYUNDAIS card. The Commons wordmarks are black on transparent, so
+     each one is re-inked to a tone that reads on the card before it is placed. */
+  const BRAND_LOGO = { TOYOTAS:'toyota', TACOMAS:'toyota', TUNDRAS:'toyota', HONDAS:'honda', FORDS:'ford', 'F-150S':'ford', TRANSITS:'ford',
+    CHEVYS:'chevrolet', SILVERADOS:'chevrolet', NISSANS:'nissan', JEEPS:'jeep', TESLAS:'tesla', BMWS:'bmw', MERCEDES:'mercedes-benz',
+    SPRINTERS:'mercedes-benz', HYUNDAIS:'hyundai', KIAS:'kia', DODGES:'dodge', RAMS:'ram-trucks', HARLEYS:'harley-davidson',
+    YAMAHAS:'yamaha-motor', KAWASAKIS:'kawasaki' };
+  function inkedLogo(src, colour){
+    const key = 'logo:' + src + ':' + colour;
+    if (CUTOUT_ELS[key]) return key;
+    const img = CUTOUT_ELS[src]; if (!img || !img.width) return null;
+    const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    g.globalCompositeOperation = 'source-in'; g.fillStyle = colour; g.fillRect(0, 0, c.width, c.height);
+    CUTOUT_ELS[key] = c; return key;
+  }
+  /* WHAT THE CARD IS ABOUT, and what may therefore appear on it. Positive list
+     first (the prefixes that ARE this subject), then the negative list — the
+     prefixes that must never share a card with it. */
+  const lookSkips = [];
+  const SUBJECTS = {
+    iphone:  { cut:/^(iphone-|ip-(?!gen)|qs-iphone|own-apple|own-stock-iphone)/i, photo:/^(assets\/scenes\/|assets\/bg-web\/phones-)/i, never:/^(ipad|qs-ipad|mac|macbook|qs-device-mac|qs-sheet-mb|watch|apple-watch|sam-|samsung|pix-|gold-|silver-|coin-|strip-|poke-|sports-|car-)/i },
+    ipad:    { cut:/^(ipad|qs-ipad|qs-family-ipad|own-stock-iphone-ipad)/i, photo:/^(assets\/scenes\/|assets\/bg-web\/phones-)/i, never:/^(iphone-|ip-|qs-iphone|own-apple|mac|macbook|watch|sam-|pix-|gold-|silver-|coin-|strip-|poke-|sports-|car-)/i },
+    macbook: { cut:/^(mac|macbook|qs-device-mac|qs-sheet-mb|qs-sheet-imac|qs-sheet-macstudio|qs-cat-mac|own-stock-mac)/i, photo:/^(assets\/scenes\/|assets\/bg-web\/macbook-)/i, never:/^(iphone-|ip-|qs-iphone|own-apple|ipad|qs-ipad|watch|sam-|pix-|gold-|silver-|coin-|strip-|poke-|sports-|car-)/i },
+    gold:    { cut:/^gold-/i, photo:/^assets\/bg-web\/gold-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|silver-|coin-|strip-|poke-|sports-|car-)/i },
+    silver:  { cut:/^silver-/i, photo:/^assets\/bg-web\/silver-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|gold-|strip-|poke-|sports-|car-)/i },
+    coins:   { cut:/^(coin-|silver-coins|gold-coins)/i, photo:/^assets\/bg-web\/(coins|silver)-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|strip-|poke-|sports-|car-)/i },
+    strips:  { cut:/^strip-/i, photo:/^assets\/bg-web\/strips-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|gold-|silver-|coin-|poke-|sports-|car-)/i },
+    pokemon: { cut:/^poke-/i, photo:/^assets\/bg-web\/pokemon-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|gold-|silver-|coin-|strip-|sports-|car-)/i },
+    sports:  { cut:/^sports-/i, photo:/^assets\/bg-web\/(sports|pokemon)-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|gold-|silver-|coin-|strip-|poke-|car-)/i },
+    cars:    { cut:/^car-(?!truck|van|motorcycle)/i, photo:/^assets\/bg-web\/cars-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|gold-|silver-|coin-|strip-|poke-|sports-)/i },
+    trucks:  { cut:/^car-(truck|title|keys|key|wheel)/i, photo:/^assets\/bg-web\/trucks-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|gold-|silver-|coin-|strip-|poke-|sports-)/i },
+    vans:    { cut:/^car-(van|title|keys|key)/i, photo:/^assets\/bg-web\/vans-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|gold-|silver-|coin-|strip-|poke-|sports-)/i },
+    bikes:   { cut:/^car-(motorcycle|keys|key|wheel)/i, photo:/^assets\/bg-web\/bikes-/i, never:/^(iphone|ip-|qs-|ipad|mac|watch|sam-|pix-|gold-|silver-|coin-|strip-|poke-|sports-)/i },
+  };
+  function subjectOf(t2, deck, cat){
+    const c0 = (deck && deck.cuts && deck.cuts[0]) || '';
+    if (/^own-apple|^iphone|^qs-iphone|^ip-/.test(c0)) return 'iphone';
+    if (/^ipad|^qs-ipad/.test(c0)) return 'ipad';
+    if (/^mac|^qs-device-mac|^qs-sheet-mb|^own-stock-mac/.test(c0)) return 'macbook';
+    if (/^car-truck/.test(c0)) return 'trucks';
+    if (/^car-van/.test(c0)) return 'vans';
+    if (/^car-motorcycle/.test(c0)) return 'bikes';
+    return SUBJECTS[cat] ? cat : (cat === 'phones' ? 'iphone' : null);
+  }
+  /* A THEME'S OWN AUDIT RULES. Every locked look ships a positive list (what it
+     must show) and a negative list (what may never appear on it) — the owner's
+     "check the negative prompts" — and the renderer enforces both rather than
+     trusting the recipe. Rules are literal startsWith on the cutout name, plus
+     ground: and treat: tokens for the background. */
+  function lookFaults(t2, look){
+    if (!look) return [];
+    const names = t2.layers.filter(l => l.kind === 'cutout' && l.props && typeof l.props.src === 'string'
+        && !/^(logo:|slab:|dg:|abs:)/.test(l.props.src))
+      .map(l => String(l.props.src).split('/').pop().replace(/\.webp$/, ''));
+    const bg = t2.bg && typeof t2.bg.src === 'string' ? t2.bg.src : '';
+    const groundNow = t2.__slab ? 'slab' : t2.__tileBg ? 'tile' : t2.__castBg ? 'cast' : t2.__absBg ? 'abs'
+      : t2.__cashBg ? 'cash' : /^assets\/scenes\//.test(bg) ? 'scene' : /^assets\/bg-web\//.test(bg) ? 'photo' : 'flat';
+    const out = [];
+    (look.neverShow || []).forEach(rule => {
+      const r = String(rule).trim();
+      if (!r || /\s/.test(r) && !/^(ground|treat):/.test(r)) return;          // prose entries are for people, not the matcher
+      if (/^ground:/.test(r)){ if (groundNow === r.slice(7)) out.push('neverShow ' + r); return; }
+      if (/^logo:/.test(r)){ if (t2.layers.some(l => l.props && String(l.props.src || '').startsWith('logo:' + r.slice(5)))) out.push('neverShow ' + r); return; }
+      if (/^assets\//.test(r)){ if (bg.startsWith(r)) out.push('neverShow ' + r); return; }
+      if (names.some(n => n.startsWith(r))) out.push('neverShow ' + r);
+    });
+    const must = (look.mustShow || []).filter(m => /^[a-z0-9]/i.test(m) && !/\s/.test(m));
+    if (must.length && names.length && !must.some(m => names.some(n => n.startsWith(m))))
+      out.push('mustShow satisfied by nothing (' + must.slice(0, 3).join(', ') + ')');
+    if (look.ground && groundNow !== look.ground && !(look.ground === 'photo' && groundNow === 'scene'))
+      out.push('ground ' + groundNow + ' but the theme is ' + look.ground);
+    return out;
+  }
+  function subjectFaults(t2, subject){
+    const S = SUBJECTS[subject]; if (!S) return [];
+    const out = [];
+    t2.layers.forEach(l => {
+      if (l.kind !== 'cutout' || !l.props || !l.props.src) return;
+      if (/^logo:/.test(l.props.src) || /^slab:|^dg:|^abs:/.test(l.props.src)) return;
+      const n = String(l.props.src).split('/').pop().replace(/\.webp$/, '');
+      if (S.never.test(n) && !S.cut.test(n)) out.push('product ' + n + ' on a ' + subject + ' card');
+    });
+    const bg = t2.bg && typeof t2.bg.src === 'string' ? t2.bg.src : '';
+    if (/^assets\/bg-web\//.test(bg) && !S.photo.test(bg)) out.push('ground ' + bg.split('/').pop() + ' on a ' + subject + ' card');
+    if (/^assets\/scenes\//.test(bg) && !/^(iphone|ipad|macbook)$/.test(subject)) out.push('apple scene on a ' + subject + ' card');
+    return out;
+  }
+  function addElements(t2, cat, seed, th, refs, line, brandWord){
+    // every card decorates (owner, 2026-09-03: "smaller icons… part of being a good designer")
+    const EF = ELEMENTS_FAMILY[th.family], base = (line && ELEMENTS[line]) || ELEMENTS[cat] || ELEMENTS.phones;
     const E = EF ? Object.assign({}, base, { colors: EF.colors === 'pen' ? [th.accent, th.ink, th.accent] : base.colors, emoji: EF.noEmoji ? null : base.emoji }) : base;
     const boxes = refs.map((o, k) => o && !/vignette|grain/.test(t2.layers[k].kind) ? o.getBoundingRect(true, true) : null)
       .filter(b => b && !(b.width > W * 0.85 && b.height > H * 0.85));
@@ -2290,11 +2575,24 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
     /* "stuff all over the place": one or two marks, corners first, then the
        mid-edges, never the middle of the card */
     const want = 1 + (seed % 2), placed = [];
+    /* the logo takes the best free corner before any decorative mark does */
+    let logoKey = null;
+    if (brandWord && BRAND_LOGO[brandWord] && LOGOS[BRAND_LOGO[brandWord]]){
+      const onDark = lumHex(th.c1) < 0.55;
+      /* th.ink is brown on the amber palettes, which printed a brown Toyota
+         wordmark; the mark takes black or white, whichever clears the ground */
+      logoKey = inkedLogo(LOGOS[BRAND_LOGO[brandWord]], onDark ? '#ffffff' : '#14161c');
+    }
     /* "to the left and the right of the hero": the money word's flanks come
        first, then the corners and mid-edges */
     const heroIdx = t2.layers.findIndex(l => l.role === 'headline' && typeof l.text === 'string' && (l.props.fontSize || 0) >= 100);
     const hb = heroIdx >= 0 && refs[heroIdx] ? refs[heroIdx].getBoundingRect(true, true) : null;
-    const flank = hb ? [[hb.left - 70, hb.top + hb.height / 2], [hb.left + hb.width + 70, hb.top + hb.height / 2]] : [];
+    /* a mark set 70px off the hero still touched the word — a green tick beside
+       SELL YOUR read as part of the sentence (owner, 2026-09-03: "really?").
+       The flank sits a clear 118px out, and only line art goes there: an emoji
+       next to a word always reads as a glyph in that word. */
+    const flank = hb ? [[hb.left - 118, hb.top + hb.height / 2], [hb.left + hb.width + 118, hb.top + hb.height / 2]] : [];
+    const flankN = flank.length;
     const spots = flank.concat([[62, 62], [W - 62, 62], [62, H - 62], [W - 62, H - 62], [W / 2, 60], [60, H / 2], [W - 60, H / 2]]);
     for (let q = 0; q < spots.length && placed.length < want; q++){
       const [cx, cy] = spots[(q + seed) % spots.length];
@@ -2302,11 +2600,28 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
         const box = { left: cx - size / 2 - 8, top: cy - size / 2 - 8, width: size + 16, height: size + 16 };
         if (box.left < 24 || box.top < 24 || box.left + box.width > W - 24 || box.top + box.height > H - 24) continue;
         if (!clear(box) || placed.some(p => Math.hypot(p.cx - cx, p.cy - cy) < 200)) continue;
-        placed.push({ cx, cy, size }); break;
+        const onFlank = (q + seed) % spots.length < flankN;
+        if (onFlank && size > 96) continue;                       // a mark beside the word stays small
+        placed.push({ cx, cy, size, onFlank }); break;
+      }
+    }
+    if (logoKey){
+      const el = CUTOUT_ELS[logoKey], ar = el.width / el.height;
+      for (const [cx, cy] of [[W - 150, 120], [150, 120], [W - 150, H - 150], [150, H - 150]]){
+        for (const wide of [230, 190, 150]){
+          const h2 = wide / ar, box = { left: cx - wide / 2 - 10, top: cy - h2 / 2 - 10, width: wide + 20, height: h2 + 20 };
+          if (box.left < 20 || box.top < 20 || box.left + box.width > W - 20 || box.top + box.height > H - 20) continue;
+          if (!clear(box)) continue;
+          t2.layers.push({ kind:'cutout', name:'Brand Logo', role:'deco', __element:true,
+            props:{ src: logoKey, left: cx, top: cy - h2 / 2, originX:'center', w: wide, opacity: 0.95 } });
+          boxes.push(box);
+          break;
+        }
+        if (t2.layers.some(l => l.name === 'Brand Logo')) break;
       }
     }
     placed.forEach((p, i) => {
-      const useEmoji = E.emoji && E.emoji.length && ((seed + i * 3) % 5 < 2);   // two in five are iOS emoji
+      const useEmoji = !p.onFlank && E.emoji && E.emoji.length && ((seed + i * 3) % 5 < 2);   // two in five are iOS emoji, never beside a word
       const color = colors[(seed + i * 2) % colors.length], angle = ((seed * 7 + i * 13) % 31) - 15;
       if (useEmoji){
         t2.layers.push({ kind:'text', name:'Element ' + (i + 1), role:'deco', __element:true, text: E.emoji[(seed + i) % E.emoji.length],
@@ -2408,7 +2723,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       /* ONE HASHED SEED per card. Linear sums of the two counters made two
          palettes eight apart land on the same template, face and product —
          "too similar". Every draw below takes a different slice of this. */
-      const sd = ((e.i * 131 + e.j * 47 + e.v * 977 + LAYSALT * 13 + attempt * 7919) * 2654435761 >>> 0) % 1000003;
+      const sd = ((e.i * 131 + e.j * 47 + e.v * 977 + LAYSALT * 13 + (attempt + (FACESYS.attempt || 0)) * 7919) * 2654435761 >>> 0) % 1000003;   // LAB_ATTEMPT=n re-seeds a re-render
       const list = picks[e.i];
       /* DUPLICATES. Owner, 2026-09-02: two Blue Ticket silver checklistHero
          cards, variants 10 and 12, identical to the pixel — the hashed seed
@@ -2418,7 +2733,20 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
          of one layout+palette walk the categories in order and can only
          meet again after every category has had a card. */
       const base = ((e.i * 131 + e.j * 47) * 2654435761 >>> 0) % 1000003;
-      const p = list[(base + e.v) % list.length];       // category walks with the variant
+      const listC = FACESYS.cats ? list.filter(t => FACESYS.cats.includes(t.cat)) : [];   // LAB_CATS=pokemon,sports restricts the walk
+      /* the walk steps a fixed ring of categories (the pilot of 2026-09-03 gave
+         cards nine of twenty-five because the donor templates skew that way) */
+      const RING0 = ['phones','gold','cars','pokemon','coins','silver','sports','strips'];
+      /* a locked look walks only the categories it was built for */
+      const lookNow = e.look ? (LOOKS.find(L => (L.key || L.id) === e.look) || null) : null;
+      const lookCats = lookNow && Array.isArray(lookNow.categories) ? lookNow.categories.filter(c => RING0.includes(c)) : null;
+      const RING = lookCats && lookCats.length ? lookCats : RING0;
+      const wantCat = RING[(lookCats && lookCats.length ? (e.k || 0) : (base + e.v)) % RING.length], src = listC.length ? listC : list;   // a look covers its own categories evenly
+      const ofCat = src.filter(t => t.cat === wantCat);
+      /* a layout with no donor for that category borrows one — but only its
+         geometry: the lender's scenes go, or a Pokémon card wears an iPhone
+         (owner, 2026-09-03: "pokemon buyer with iphone pic?") */
+      const p = ofCat.length ? ofCat[(base + e.v) % ofCat.length] : Object.assign({}, src[(base + e.v) % src.length], { cat: wantCat, borrowed: true });
       const th0 = TH[DONORS[j]];
       /* the approved faces, rotated so the same palette does not always carry
          the same pairing */
@@ -2443,7 +2771,17 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       { const fit = PALFIT[p.cat]; const bad = fit && fit.avoid.test(th0.name + ' ' + th0.family);
         const familyPal = th0.family === 'Space' || th0.family === 'Lined Paper';
         if (bad && !familyPal && sd % 3 !== 0){ const pref = fit.prefer.filter(id => TH[id]); if (pref.length) thFit = TH[pref[sd % pref.length]]; } }
-      const th = Object.assign({}, thFit, { faces: pickFaces(p.cat, sd, thFit.family) });
+      /* A LOCKED LOOK (LAB_LOOKS). The owner, 2026-09-03: "too many concepts at
+         once… find cohesive themes and stick to the theme." When a card belongs
+         to a look, the look owns the palette, the type pairing and the ground;
+         only the named variations are allowed to move. */
+      const look = e.look ? (LOOKS.find(L => (L.key || L.id) === e.look) || null) : null;
+      if (look && look.palettes && look.palettes.length){
+        const pick = look.palettes[(sd + e.v) % look.palettes.length];
+        if (TH[pick]) thFit = TH[pick];
+      }
+      const th = Object.assign({}, thFit, { faces: look && look.faces ? Object.assign({}, look.faces) : pickFaces(p.cat, sd, thFit.family) });
+      if (look) th.__look = look.key;
       try {
         const tpl = TEMPLATES.find(t => t.id === p.id);
         /* phones rotates across the device LINES, so Samsung and Pixel get
@@ -2460,7 +2798,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
            chosen independently of the headline. The phones templates rotate
            across Apple LINES so the Watch and the iPad get their own ads
            instead of appearing on somebody else's. */
-        const APPLE = ['iphone','iphone','iphone','watch','ipad','macbook'];
+        const APPLE = ['iphone','iphone','iphone','ipad','ipad','macbook'];   // watch buying is "a super unpopular category" (owner, 2026-09-03)
         /* the cars templates rotate across the vehicle decks the same way */
         const VEHICLES = ['cars','cars','bikes','trucks','vans'];
         const SUB = (FACESYS.subcats && SUBCATS_PAGE[p.cat]) ? SUBCATS_PAGE[p.cat].filter(d => d.ready || d.cuts.some(pre => ALLCUTS.some(f => f.startsWith(pre)))) : null;
@@ -2472,7 +2810,35 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
         const pool = deck
           ? ALLCUTS.filter(f => deck.cuts.some(pre => f.startsWith(pre)))
           : (HERO[p.cat] || (CUTS[p.cat] && CUTS[p.cat].length ? CUTS[p.cat] : CUTS.phones));
-        const use = (pool.filter(f => !BLANK.test(f)).length ? pool.filter(f => !BLANK.test(f)) : CUTS.phones);
+        /* THE FALLBACK IS THE CATEGORY'S OWN SHELF, never the phone shelf
+           (owner, 2026-09-03: "pokemon buyer with iphone pic?"). A sub-deck
+           whose only cutout the owner rejected — poke-elite-box — emptied the
+           pool, and the old fallback handed it an iPhone. */
+        const catPool = (CUTS[p.cat] || []).filter(f => !BLANK.test(f) && ALLCUTS.includes(f));
+        const wide = ALLCUTS.filter(f => (CUTS[p.cat] || []).some(c => f.startsWith(String(c).split('-')[0])) && !BLANK.test(f));
+        const ok = pool.filter(f => !BLANK.test(f));
+        let use = ok.length ? ok : catPool.length ? catPool : wide.length ? wide : null;
+        if (!use) continue;                                   // no honest product for this category: skip the frame
+        /* A LOCKED THEME OWNS ITS ASSETS. Declaring mustShow / neverShow is not
+           enough — the engine has to pick from them, or the theme's own audit
+           rules fail on its own cards. Positive list first, negative list always. */
+        if (look){
+          const clean = r => /^[a-z0-9]/i.test(r) && !/\s/.test(r) && !/^(logo|ground|treat|assets):/.test(r);
+          const must = (look.mustShow || []).filter(clean);
+          const never = (look.neverShow || []).filter(clean);
+          const allowed = f => !never.some(r => f.startsWith(r));
+          const preferred = use.filter(f => allowed(f) && must.some(r => f.startsWith(r)));
+          const fromMust = must.length ? ALLCUTS.filter(f => allowed(f) && must.some(r => f.startsWith(r))) : [];
+          const cleaned = use.filter(allowed);
+          /* a theme whose positive rules name photographs or the slab frame rather
+             than cutouts still needs a product: the negative list alone applies */
+          if (!preferred.length && !fromMust.length && cleaned.length){ use = cleaned; }
+          else
+          /* a theme's rules are honoured or the card is not made: falling back to
+             the unfiltered pool is how a theme ends up breaking its own audit */
+          use = preferred.length ? preferred : fromMust.length ? fromMust : cleaned.length ? cleaned : null;
+          if (!use){ lookSkips.push((look.key || look.id) + ': every product its rules allow is unavailable for ' + p.cat); continue; }
+        }
         const cutSrc = 'assets/cutouts/' + use[(sd * 7 + 3) % use.length] + '.webp';
         /* challenge mode on every third card: the deck's copy is replaced by
            the competitor framing before the swap runs, so the same length
@@ -2506,16 +2872,14 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
             h1: (() => { const h = CHALLENGE.lines.h1[seed % CHALLENGE.lines.h1.length]; return (h === 'WE MATCH' && !poss) ? 'WE BEAT' : h; })(),
             /* WE BEAT / YOUR CARRIER'S / TRADE-IN VALUE — possessive on line
                two, the thing being beaten on line three (the items slot). */
-            h2: poss ? poss + "'S" : (CHALLENGE.lines.h2[p.cat] || 'THE PAWN SHOP'),
-            tail: !!poss,
-            tailText: (poss && CHALLENGE.lines.h1[seed % CHALLENGE.lines.h1.length] === 'WE MATCH')
-              ? ((deck && deck.cuts && /^ipad|^qs-ipad/.test(deck.cuts[0])) ? 'iPAD OFFER' : (deck && deck.cuts && /watch/.test(deck.cuts[0])) ? 'WATCH OFFER' : (deck && deck.cuts && /mac/.test(deck.cuts[0])) ? 'MACBOOK OFFER'
-               : ({ phones:'iPHONE OFFER', cars:'CAR OFFER', gold:'GOLD OFFER', silver:'SILVER OFFER', coins:'COIN OFFER', pokemon:'POKÉMON OFFER', sports:'CARD OFFER', strips:'STRIP OFFER' }[p.cat] || 'OFFER')) : poss
+            h2: poss ? (CHALLENGE.lines.h1[seed % CHALLENGE.lines.h1.length] === 'WE MATCH' ? poss : poss + "'S") : (CHALLENGE.lines.h2[p.cat] || 'THE PAWN SHOP'),
+            tail: !!poss && CHALLENGE.lines.h1[seed % CHALLENGE.lines.h1.length] !== 'WE MATCH',   // "we match Carvana" is the whole sentence
+            tailText: (poss && CHALLENGE.lines.h1[seed % CHALLENGE.lines.h1.length] === 'WE MATCH') ? null : poss
               ? ((deck && deck.cuts && /^ipad|^qs-ipad/.test(deck.cuts[0])) ? 'iPAD TRADE-IN VALUE'
                : (deck && deck.cuts && /watch/.test(deck.cuts[0])) ? 'WATCH TRADE-IN VALUE'
                : (deck && deck.cuts && /mac/.test(deck.cuts[0])) ? 'MACBOOK TRADE-IN VALUE'
                : ({ phones:'iPHONE TRADE-IN VALUE', cars:'CAR TRADE-IN OFFER', trucks:'TRUCK TRADE-IN OFFER', bikes:'BIKE TRADE-IN OFFER', vans:'VAN TRADE-IN OFFER', gold:'GOLD CASH OFFER', silver:'SILVER CASH OFFER', coins:'COIN BUY PRICE',
-                   pokemon:'POKÉMON BUYLIST PRICE', sports:'CARD BUYLIST PRICE', strips:'TEST STRIP OFFER' }[p.cat] || 'OFFER'))
+                   pokemon:'POKÉMON BUYLIST PRICE', sports:'CARD BUYLIST PRICE', strips:'TEST STRIP OFFER' }[(deck && deck.bgcat) || p.cat] || 'OFFER'))   // a van deck names the van
               : null,
             items: (deck || DECKS_SNAPSHOT[p.cat] || {}).items,
             price: CHALLENGE.lines.price[seed % CHALLENGE.lines.price.length].replace('{N}', who),
@@ -2527,16 +2891,191 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
         const familyGround = th.family === 'Space' || th.family === 'Lined Paper';   // a drawn or family-owned ground: the photo passes step aside
         /* the abstract catalogue, easy-on-the-eye kinds first (approved list in FACESYS.grounds) */
         const GK = FACESYS.grounds && FACESYS.grounds.length ? FACESYS.grounds : ['mesh','blobs','duo','spotlight','aurora','waves','curves','bokeh','dotgrid','sweep','glow','split','topo','duneshade','frost'];
-        const abstractKind = !familyGround && (FACESYS.forceAbs || sd % 5 === 4) ? GK[(FACESYS.forceAbs ? sd : Math.floor(sd / 5)) % GK.length] : null;
+        const abstractKind = !familyGround && (FACESYS.forceAbs || sd % 12 === 7) ? GK[(FACESYS.forceAbs ? sd : Math.floor(sd / 5)) % GK.length] : null;   // 37% approval: the smallest slice, not the biggest
         if (abstractKind){
           const src = abstractGround(abstractKind, th, sd);
           t2.bg = { type:'image', src, scrimColor: th.c1, scrim: 0.001, blur: 0 }; t2.__absBg = true;
         }
-        const cashGround = !familyGround && !abstractKind && sd % 3 === 2 && t2.layers.some(l => l.kind === 'cutout');
+        const cashGround = !familyGround && !abstractKind && sd % 11 === 5 && t2.layers.some(l => l.kind === 'cutout');   // 33% approval
         if (cashGround){
           const pool = (WEBBG.cash || []).concat(CASH_GROUNDS.filter(src => TPL_BG_ELS[src]));
           if (pool.length){ const dark = lumHex(th.c1) < 0.3 ? th.c1 : (th.c2 && lumHex(th.c2) < 0.3 ? th.c2 : th.ink);
             t2.bg = { type:'image', src: pool[(sd * 7 + 3) % pool.length], scrimColor: dark, scrim: 0.42, blur: 0 }; t2.__cashBg = true; }
+        }
+        /* DEVICE GROUNDS (owner, 2026-09-03): (a) 'cast' — the diagonal-split idea as a cast
+           shadow: the product sits large in the ground and a soft window shadow falls across it;
+           (b) 'tile' — the category's cutouts laid out flat like the iphones.LA device wall
+           (BasicAppleGuy style): even gaps, no overlap, real drop shadows on a light ground. */
+        const bgcat0 = (deck && deck.bgcat) || p.cat;
+        const ownScenes = !p.borrowed && deck && deck.scenes;   // a borrowed layout has no scenes of its own
+        const willPhoto = ownScenes || (WEBBG[bgcat0] && WEBBG[bgcat0].length && (sd % 2 === 1 || (deck && deck.bgcat)));
+        /* a photo of a Rolls-Royce under WE BUY HYUNDAIS is the wrong car
+           (owner, 2026-09-03: "neither of the cars are Hyundai's"), and we have
+           no per-make photography — so a brand-led card wears its own ground. */
+        const brandLed = !!(useDeck && useDeck.__brandWord);
+        const plain = !familyGround && !abstractKind && !cashGround && (!willPhoto || brandLed);   // nothing behind the type, or a photo that would show the wrong make
+        const lookGround = look && look.ground ? (typeof look.ground === 'string' ? look.ground : look.ground[(sd + e.v) % look.ground.length]) : null;
+        const lookWantsPhoto = lookGround === 'photo' || lookGround === 'scene';
+        const plainKind = lookGround && /^(cast|tile)$/.test(lookGround) ? lookGround : ['tile','cast','tile'][Math.floor(sd / 7) % 3];   // tile took 10/10, cast 22/44   // "shouldn't we at least have an image in the background?" — product-in-ground or device wall; abstract only if neither can run
+        const dg = lookWantsPhoto || lookGround === 'slab' || lookGround === 'paper' || lookGround === 'deep' ? null : (lookGround && /^(cast|tile)$/.test(lookGround) ? lookGround : null) || FACESYS.dground || (plain || (!familyGround && !abstractKind && !cashGround && sd % 5 < 3) ? (plain ? plainKind : (sd % 3 === 1 ? 'cast' : 'tile')) : null);
+        /* a wall that cannot be filled becomes a cast, not a stock photo: the
+           fall-through to assets/bg-web was sending 68 cards to the ground that
+           scored 28% while tile, which took 10 of 10, went unused */
+        /* a locked theme gets exactly the ground it asked for: falling through
+           from tile to cast is how a theme breaks its own ground rule */
+        let dgKinds = !dg ? [] : lookGround ? [dg] : (dg === 'tile' ? ['tile', 'cast'] : dg === 'cast' ? ['cast', 'tile'] : [dg]);
+        for (const dgTry of dgKinds){
+        const dg2 = dgTry;
+        if (t2.__dg) break;
+        if (dg2 && (dg2 === 'cast' ? cutSrc && CUTOUT_ELS[cutSrc] : true)){
+          const key = 'dg:' + dg2 + ':' + th.id + ':' + p.cat + ':' + (sd % 6);
+          const shadowOver = (g, W, H, strength) => {   // one soft diagonal shadow + a fainter penumbra, blurred seam
+            g.save(); g.filter = 'blur(26px)'; g.fillStyle = 'rgba(8,10,16,' + strength + ')';
+            g.beginPath(); g.moveTo(W * 0.62, -40); g.lineTo(W + 60, -40); g.lineTo(W + 60, H + 60); g.lineTo(W * 0.22, H + 60); g.closePath(); g.fill();
+            g.filter = 'blur(60px)'; g.fillStyle = 'rgba(8,10,16,' + (strength * 0.5) + ')';
+            g.beginPath(); g.moveTo(W * 0.5, -80); g.lineTo(W + 80, -80); g.lineTo(W + 80, H + 80); g.lineTo(W * 0.05, H + 80); g.closePath(); g.fill();
+            g.restore(); };
+          if (dg2 === 'cast'){
+            const img = CUTOUT_ELS[cutSrc];
+            const pale = lumHex(th.c1) > 0.55;   // a near-white ground under a grey photo is the "too bland… what is this light theme" card
+            drawGround(key, (g, W, H) => {
+              g.fillStyle = th.c1; g.fillRect(0, 0, W, H);
+              if (pale){ g.fillStyle = rgba(th.ink, 0.20); g.fillRect(0, 0, W, H);                      // body, from the palette's own ink
+                const dg2 = g.createLinearGradient(0, 0, 0, H); dg2.addColorStop(0, rgba(th.accent, 0.18)); dg2.addColorStop(1, rgba(th.ink, 0.10)); g.fillStyle = dg2; g.fillRect(0, 0, W, H); }
+              const lg = g.createLinearGradient(0, 0, W, H); lg.addColorStop(0, rgba('#ffffff', pale ? 0.12 : 0.10)); lg.addColorStop(0.55, rgba('#ffffff', 0)); g.fillStyle = lg; g.fillRect(0, 0, W, H);
+              const k = Math.min((W * 0.62) / img.width, (H * 0.92) / img.height), w = img.width * k, h = img.height * k;
+              g.save(); g.translate(W * 0.66, H * 0.52); g.rotate(-0.12); g.shadowColor = 'rgba(0,0,0,0.35)'; g.shadowBlur = 40; g.shadowOffsetX = 24; g.shadowOffsetY = 30;
+              g.globalAlpha = 0.92; g.drawImage(img, -w / 2, -h / 2, w, h); g.restore();
+              shadowOver(g, W, H, pale ? 0.58 : 0.5);
+            });
+            const scrimC = pale ? (th.c2 && lumHex(th.c2) < 0.45 ? th.c2 : th.ink) : th.c1;
+            t2.bg = { type:'image', src: key, scrimColor: scrimC, scrim: pale ? 0.30 : 0.22, blur: 0 }; t2.__castBg = true; t2.__dg = true;
+          } else {
+            /* ONE FAMILY ON THE WALL. Pulling every cutout that starts with
+               "car-" put keys, an engine bay, a title document and a motorcycle
+               behind a TRUCKS headline. The wall shows the deck's own things,
+               and if the deck cannot fill it the card takes another ground. */
+            const deckPre = (useDeck && useDeck.cuts) || [];
+            const S0 = SUBJECTS[subjectOf(t2, useDeck, p.cat)];
+            /* a lattice cell holds ONE object. The qs- Apple press renders are
+               two-up composites (a back overlapping a front) — verified by opening
+               them — so they are heroes, never wall stock. */
+            const MULTI = /-(pair|trio|group|set|lineup|quad|six|nine|five|three|fan)\b|-pair-|-trio-|-group-|-stack-three|grid-|-row\b|^qs-(iphone|ipad|family-ipad)|^ip-group-|^qs-set-|^iphone-(pair|trio|fan|tall-stack|back-lean-stack)|^coin-single-large$/i;
+            const fromDeck = ALLCUTS.filter(c => deckPre.some(pre => c.startsWith(String(pre).replace(/\.webp$/, ''))));
+            /* one family, but the family's whole shelf: the deck's own four or five
+               cutouts could not fill a lattice, so the wall kept falling through to
+               the stock-photo ground that scored 28% */
+            const fromSubject = S0 ? ALLCUTS.filter(c => S0.cut.test(c) && !S0.never.test(c)) : [];
+            const cand = [...new Set(fromDeck.concat(fromSubject))].filter(c => !MULTI.test(c));
+            let cand2 = cand;
+            if (look){
+              const clean = r => /^[a-z0-9]/i.test(r) && !/\s/.test(r) && !/^(logo|ground|treat|assets):/.test(r);
+              const never = (look.neverShow || []).filter(clean), must = (look.mustShow || []).filter(clean);
+              cand2 = cand.filter(c => !never.some(r => c.startsWith(r)));
+              const pref = cand2.filter(c => must.some(r => c.startsWith(r)));
+              if (pref.length >= 4) cand2 = pref;
+              else if (pref.length && cand2.length < 4) cand2 = [...new Set(pref.concat(cand2))];
+            }
+            let pool = cand2.map(c => 'assets/cutouts/' + c + '.webp').filter(s => CUTOUT_ELS[s] && CUTOUT_ELS[s].width && CUTOUT_ELS[s].width >= 200);
+            pool = [...new Set(pool)].slice(0, 12);
+            if (pool.length >= 4){
+              drawGround(key, (g, W, H) => {
+                const light = lumHex(th.c1) > 0.55 ? th.c1 : (lumHex(th.c2 || th.c1) > 0.55 ? th.c2 : '#eceef2');
+                g.fillStyle = light; g.fillRect(0, 0, W, H);
+                /* THE LATTICE FITS THE SHELF. A pool of eight in a twelve-cell wall
+                   made row three a copy of row one, so the grid is chosen from what
+                   the shelf actually holds and no cell repeats. */
+                const GRIDS = [[4,3,12],[3,3,9],[4,2,8],[3,2,6],[2,2,4]];
+                const fit = GRIDS.find(gr => pool.length >= gr[2]) || GRIDS[GRIDS.length - 1];
+                const COLS = fit[0], ROWS = fit[1], gap = COLS > 3 ? 28 : 40;
+                const cw = (W - gap * (COLS + 1)) / COLS, chh = (H - gap * (ROWS + 1)) / ROWS;
+                /* ONE SHELF, ONE SCALE. Fitting every unit to its own cell put a
+                   phone and a ring at sizes that differ more than twofold and the
+                   wall stopped reading as objects on a surface. Portraits share a
+                   height, landscapes share a width, and both are capped by the cell. */
+                const units = [];
+                for (let q = 0; q < COLS * ROWS; q++) units.push(CUTOUT_ELS[pool[(q + sd) % pool.length]]);
+                const tallH = Math.min(...units.filter(u => u.height >= u.width).map(u => (chh - 26)), chh - 26);
+                const wideW = Math.min(...units.filter(u => u.width > u.height).map(u => (cw - 26)), cw - 26);
+                let n = 0;
+                for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++){
+                  const img = units[n]; n++;
+                  const portrait = img.height >= img.width;
+                  let k = portrait ? (tallH * 0.94) / img.height : (wideW * 0.94) / img.width;
+                  k = Math.min(k, (cw - 22) / img.width, (chh - 22) / img.height);
+                  const w = img.width * k, h = img.height * k;
+                  const x = gap + c * (cw + gap) + (cw - w) / 2, y = gap + r * (chh + gap) + (chh - h) / 2;
+                  g.save(); g.shadowColor = 'rgba(0,0,0,0.28)'; g.shadowBlur = 26; g.shadowOffsetX = 10; g.shadowOffsetY = 16; g.drawImage(img, x, y, w, h); g.restore();
+                }
+              });
+              const dark = lumHex(th.c1) < 0.3 ? th.c1 : (th.c2 && lumHex(th.c2) < 0.35 ? th.c2 : th.ink);
+              t2.bg = { type:'image', src: key, scrimColor: dark, scrim: lumHex(dark) > 0.4 ? 0.72 : 0.6, blur: 0 }; t2.__tileBg = true; t2.__dg = true;   // a busy ground takes the dark tone, harder when that tone is pale
+            }
+          }
+        }
+        }
+        /* PANELS GO SOLID OVER A BUSY GROUND. A device wall or a cast product
+           behind a translucent stat tile leaves "200+ LOCAL REVIEWS" as grey on
+           grey. Over a drawn ground the tiles take a real fill from the palette
+           so their small copy keeps its contrast. */
+        if (t2.__tileBg || t2.__castBg){
+          const deep = lumHex(th.c1) < 0.42 ? th.c1 : (th.c2 && lumHex(th.c2) < 0.42 ? th.c2 : th.ink);
+          const onDeep = lumHex(deep) < 0.5 ? '#ffffff' : th.ink;
+          t2.layers.forEach(l => {
+            if (!(l.kind === 'rect' || l.kind === 'rrect') || !l.props || l.__moneyPlate || l.__lock) return;
+            const w0 = l.props.width || 0, h0 = l.props.height || 0;
+            if (w0 < 150 || h0 < 60 || (w0 > W * 0.92 && h0 > H * 0.92)) return;
+            l.props.fill = rgba(deep, 0.9); l.props.opacity = 1; l.solid = true; delete l.props.grad; l.__panelSolid = true;
+          });
+          t2.layers.forEach(l => {
+            if (typeof l.text !== 'string' || !l.props || l.__lock || l.role === 'headline' || l.role === 'phone') return;
+            const inPanel = t2.layers.some(r => r.__panelSolid && r.props &&
+              (l.props.left || 0) >= (r.props.left || 0) - 6 && (l.props.left || 0) <= (r.props.left || 0) + (r.props.width || 0) + 6 &&
+              (l.props.top || 0) >= (r.props.top || 0) - 6 && (l.props.top || 0) <= (r.props.top || 0) + (r.props.height || 0) + 6);
+            if (inPanel){ l.props.fill = onDeep; l.props.opacity = 1; delete l.props.grad; }
+          });
+        }
+        /* COPY OVER A PHOTOGRAPH. A line with no plate behind it takes the tone
+           that reads against the scrim, plus a soft carry shadow — the items
+           line and the CTA sub-line had been printing dark on a dark photo. */
+        if (t2.bg && t2.bg.type === 'image'){
+          const scrimDark = lumHex(t2.bg.scrimColor || th.c1) < 0.5;
+          const overCol = scrimDark ? '#ffffff' : (lumHex(th.ink) < 0.5 ? th.ink : '#14161c');
+          const plates = t2.layers.filter(l => (l.kind === 'rect' || l.kind === 'rrect') && l.props && (l.props.opacity === undefined || l.props.opacity > 0.55));
+          t2.layers.forEach(l => {
+            if (typeof l.text !== 'string' || !l.props || l.__lock || l.role === 'headline' || l.role === 'phone' || l.role === 'deco') return;
+            const x = l.props.left || 0, y = l.props.top || 0;
+            const onPlate = plates.some(r => x >= (r.props.left || 0) - 8 && x <= (r.props.left || 0) + (r.props.width || 0) + 8 &&
+                                             y >= (r.props.top || 0) - 8 && y <= (r.props.top || 0) + (r.props.height || 0) + 8);
+            if (onPlate) return;
+            l.props.fill = overCol; l.props.opacity = 1; delete l.props.grad;
+            l.props.shadow = { color: scrimDark ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)', blur: 10, offsetX: 0, offsetY: 1 };
+          });
+        }
+        /* 'deep' — the after-hours ground: the palette's own darkest tone with one
+           warm pool of light behind the headline. No photograph, no lattice. */
+        if (lookGround === 'deep' && !t2.__dg){
+          const key = 'deep:' + th.id + ':' + (sd % 4);
+          drawGround(key, (g, W2, H2) => {
+            const base = lumHex(th.c1) < 0.34 ? th.c1 : (th.c2 && lumHex(th.c2) < 0.34 ? th.c2 : '#0e1118');
+            g.fillStyle = base; g.fillRect(0, 0, W2, H2);
+            const cx = W2 * (0.34 + (sd % 3) * 0.16), cy = H2 * 0.34;
+            const gr = g.createRadialGradient(cx, cy, 0, cx, cy, W2 * 0.72);
+            gr.addColorStop(0, rgba(th.accent, 0.34)); gr.addColorStop(0.55, rgba(th.accent, 0.10)); gr.addColorStop(1, rgba(base, 0));
+            g.fillStyle = gr; g.fillRect(0, 0, W2, H2);
+            const vg = g.createRadialGradient(W2 / 2, H2 / 2, W2 * 0.28, W2 / 2, H2 / 2, W2 * 0.78);
+            vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+            g.fillStyle = vg; g.fillRect(0, 0, W2, H2);
+          });
+          t2.bg = { type:'image', src: key, scrimColor: th.c1, scrim: 0.001, blur: 0 }; t2.__deepBg = true; t2.__dg = true;
+        }
+        if (look && lookGround && !t2.__dg && /^(tile|cast|deep)$/.test(lookGround)){
+          lookSkips.push((look.key || look.id) + ': ' + lookGround + ' ground could not be built for ' + p.cat);
+          continue;
+        }
+        if (plain && !t2.__dg){   // cast needed a hero, tile needed four cutouts: fall back to an approved abstract ground
+          const kind = GK[Math.floor(sd / 3) % GK.length], src = abstractGround(kind, th, sd);
+          t2.bg = { type:'image', src, scrimColor: th.c1, scrim: 0.001, blur: 0 }; t2.__absBg = true; t2.__dg = true;
         }
         /* CURVED HEADLINES ARC UP. Owner, 2026-09-02, on a row of gradientWave
            cards bending down: "down is okay but arc up is better, use both".
@@ -2551,7 +3090,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
            about, and a bokeh macro says nothing — "no idea what it's trying to
            convey". So when the layout carries no cutout, take the category's
            highest-DETAIL backdrop, the one with a recognisable object in it. */
-        if (!familyGround && !cashGround && !abstractKind && !tpl.layers.some(l => l.kind === 'cutout') && !(deck && deck.scenes)){
+        if (!familyGround && !cashGround && !abstractKind && !t2.__dg && !tpl.layers.some(l => l.kind === 'cutout') && !(deck && deck.scenes)){
           const legible = BGLUM.filter(b => b.cat === p.cat && b.detail !== undefined)
             .sort((a,b) => b.detail - a.detail)[j % 3];
           if (legible) t2.bg = Object.assign({}, t2.bg, { src: legible.src });
@@ -2560,7 +3099,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
            the web pool every other card — the library's own backdrops were
            "the same thing over and over". Same tint rule as the scenes. */
         const bgcat = (deck && deck.bgcat) || p.cat;
-        if (!familyGround && !cashGround && !abstractKind && !(deck && deck.scenes) && WEBBG[bgcat] && WEBBG[bgcat].length && (sd % 2 === 1 || (deck && deck.bgcat))){
+        if (!familyGround && !cashGround && !abstractKind && !t2.__dg && !brandLed && !ownScenes && WEBBG[bgcat] && WEBBG[bgcat].length && (sd % 2 === 1 || (deck && deck.bgcat))){
           const pool = WEBBG[bgcat], src = pool[(sd * 5 + 1) % pool.length];
           const row = BGLUM.find(b => b.src === src), lum = row ? row.lum : 0.3, tl = lumHex(th.c1), gap = Math.abs(lum - tl);
           t2.bg = Object.assign({}, t2.bg, { type:'image', src });
@@ -2573,7 +3112,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
           else if (sd % 4 === 1){ t2.bg.scrimColor = gap < 0.15 ? th.c2 : th.c1; t2.bg.scrim = Math.max(0.42, Math.min(0.68, 0.40 + gap)); }
           else { t2.bg.scrimColor = th.accent; t2.bg.scrim = lumHex(th.c1) > 0.22 ? 0.24 : 0.30; }
         }
-        if (!familyGround && !cashGround && !abstractKind && deck && deck.scenes && deck.scenes.length){
+        if (!familyGround && !cashGround && !abstractKind && !t2.__dg && ownScenes && deck.scenes.length){
           /* Pick the scene that CONTRASTS with the theme ground, not the one
              nearest it. Nearest-luminance put a near-white Paper theme on a
              near-white Apple flat lay under a white scrim, and the photograph
@@ -2623,7 +3162,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
         /* one card in three keeps the photograph's colour under a blur and a
            neutral scrim — see `natural` in paint(). A busy photograph gets
            more blur and more scrim, so the copy stays the loudest thing. */
-        if (t2.bg && t2.bg.type === 'image' && sd % 3 === 1){
+        if (t2.bg && t2.bg.type === 'image' && sd % 3 === 1 && !t2.__dg){
           const light = lumHex(th.c1) > 0.22;
           const row = BGLUM.find(b => b.src === t2.bg.src), busy = row && row.detail > 14;
           t2.bg = Object.assign({}, t2.bg, { treat:'natural', blur: busy ? 22 : (sd % 2 ? 9 : 15),
@@ -2638,7 +3177,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
         if (t2.bg && t2.bg.type === 'image' && t2.bg.treat !== 'natural' && sd % 4 === 2 && INFO.raw !== 'off'){
           const light = lumHex(th.c1) > 0.22;
           const row = BGLUM.find(b => b.src === t2.bg.src), busy = row && row.detail > 14;
-          if (!busy) t2.bg = Object.assign({}, t2.bg, { treat:'raw', blur: 0,
+          if (!busy && !t2.__dg) t2.bg = Object.assign({}, t2.bg, { treat:'raw', blur: 0,
             scrimColor: light ? '#ffffff' : '#000000', scrim: light ? 0.30 : 0.36 });
         }
         signature(t2, p.cat, i * 7 + j, th);
@@ -2740,15 +3279,26 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
           if (/arcCrown/.test(tpl.id || '')){
             const arcIx = t2.layers.findIndex(l => l.role === 'headline' && /Arc|Wave|Curve/i.test(l.name || '')), moneyIx = t2.layers.findIndex(l => l.role === 'headline' && (l.props.fontSize || 0) >= 100 && !/Arc|Wave|Curve/i.test(l.name || ''));
             const ao = arcIx >= 0 && probe2.refs[arcIx], mo = moneyIx >= 0 && probe2.refs[moneyIx];
+            if (FACESYS.placeDebug) (t2.__placeLog = t2.__placeLog || []).push('crown-enter arcIx=' + arcIx + ' moneyIx=' + moneyIx + ' ao=' + !!ao + ' mo=' + !!mo + ' heads=' + t2.layers.filter(l => l.role === 'headline').map(l => (l.name || '?') + ':' + (l.props && l.props.fontSize)).join(','));
             if (ao && mo){
               const ab = ao.getBoundingRect(true, true), mb = mo.getBoundingRect(true, true);
-              const top = ab.top + ab.height * 0.42, room = mb.top - 12 - top;
-              const w = Math.min(260, Math.floor(room / Math.max(aspectA, 0.6)));
+              const elC = CUTOUT_ELS[cutSrc], aspC = elC && elC.width ? elC.height / elC.width : 1.05;
+              const arcFs = (t2.layers[arcIx].props && t2.layers[arcIx].props.fontSize) || 80;
+              const top = ab.top + arcFs * 1.15 + 6;             // below the letters at the crown of the arc, not just inside its box
+              let room = mb.top - 12 - top;
+              /* open the bowl: the money word may drop toward the next line
+                 below it so a 220px product fits under the arch */
+              const below = probe2.refs.map((o, q) => o && q !== moneyIx && q !== arcIx && typeof t2.layers[q].text === 'string' && t2.layers[q].role !== 'badges' ? o.getBoundingRect(true, true) : null).filter(b => b && b.top > mb.top + mb.height - 4);
+              const nextTop = below.length ? Math.min(...below.map(b => b.top)) : H - 60;
+              const want = 220 * Math.max(aspC, 0.6), slack = nextTop - 20 - (mb.top + mb.height);
+              if (room < want && slack > 0){ const d = Math.min(want - room, slack); t2.layers[moneyIx].props.top = (t2.layers[moneyIx].props.top || 0) + d; room += d; }
+              const w = Math.min(260, Math.floor((room - 20) / Math.max(aspC, 0.6)));   // the product plus a margin fits INSIDE the room
+              if (FACESYS.placeDebug) (t2.__placeLog = t2.__placeLog || []).push('crown: arc=' + [ab.left,ab.top,ab.width,ab.height].map(Math.round) + ' money=' + [mb.left,mb.top,mb.width,mb.height].map(Math.round) + ' room=' + Math.round(room) + ' w=' + w + ' next=' + Math.round(nextTop));
               if (w >= 140){
-                const others = boxes.filter(b => !(Math.abs(b.left - ab.left) < 1 && Math.abs(b.top - ab.top) < 1));
-                const box = { left: W / 2 - w / 2 - 6, top: top - 6, width: w + 12, height: w * aspectA + 12 };
+                const others = boxes.filter(b => !(Math.abs(b.left - ab.left) < 1 && Math.abs(b.top - ab.top) < 1) && !(Math.abs(b.left - mb.left) < 1 && Math.abs(b.top - mb.top) < 1));   // the arc and the (moved) money word are not obstacles
+                const box = { left: W / 2 - w / 2 - 4, top: top + 4, width: w + 8, height: w * aspC + 8 };
                 const ok = !others.some(b => !(box.left + box.width <= b.left || b.left + b.width <= box.left || box.top + box.height <= b.top || b.top + b.height <= box.top));
-                if (ok) placed = { w, left: W / 2 + w / 2, top };
+                if (ok) placed = { w, left: W / 2 + w / 2, top, crown: true };
               }
             }
           }
@@ -2759,12 +3309,12 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
           const elA = CUTOUT_ELS[cutSrc], aspectA = elA && elA.width ? elA.height / elA.width : 1.05;
           /* a smaller product beats none: a wide headline over full-width rows
              leaves only the top-right corner, and 260px fits there */
-          const sizes = th.family === 'Space' || t2.__absBg ? [460, 420, 380, 340, 300, 260, 220, 190] : [380, 340, 320, 280, 240, 200, 180];
+          const sizes = th.family === 'Space' || t2.__absBg ? [520, 460, 420, 380, 340, 300, 260, 220, 190] : [480, 440, 400, 360, 320, 280, 240, 200, 180];   // bigger first: "the imagery has to sell the point"
           { /* the badge column is never an obstacle: a product may sit under it */
             const badgeBoxes = probe2.refs.map((o, q) => o && t2.layers[q].role === 'badges' ? o.getBoundingRect(true, true) : null).filter(Boolean);
             for (let q = boxes.length - 1; q >= 0; q--) if (badgeBoxes.some(b => Math.abs(b.left - boxes[q].left) < 1 && Math.abs(b.top - boxes[q].top) < 1)) boxes.splice(q, 1); }
-          if (FACESYS.placeDebug){ (t2.__placeLog = []).push('boxes: ' + boxes.map(b => [b.left, b.top, b.width, b.height].map(Math.round).join(',') + (t2.layers[probe2.refs.findIndex(o => o && o.getBoundingRect(true, true).left === b.left && o.getBoundingRect(true, true).top === b.top)] || {}).name).join(' | ')); }
-          outer: for (const w of sizes){
+          if (FACESYS.placeDebug){ (t2.__placeLog = t2.__placeLog || []).push('boxes: ' + boxes.map(b => [b.left, b.top, b.width, b.height].map(Math.round).join(',') + (t2.layers[probe2.refs.findIndex(o => o && o.getBoundingRect(true, true).left === b.left && o.getBoundingRect(true, true).top === b.top)] || {}).name).join(' | ')); }
+          if (!placed) outer: for (const w of sizes){
             for (const sp of spots){
               const pos = sp(w), box = { left: pos.left - 10, top: pos.top - 10, width: w + 20, height: w * aspectA + 20 };
               if (box.top + box.height > H - 60) continue;
@@ -2772,7 +3322,15 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
             }
           }
           if (FACESYS.placeDebug) t2.__placeResult = (placed ? 'ok w=' + placed.w : 'none') + ' :: ' + (t2.__placeLog || []).join(' ');
-          if (placed) t2.layers.push({ kind:'cutout', name:'Hero Product', role:'photo',
+          /* "with the sharp edge, we can align it left against the left side":
+             a cutout that lands within 90px of an edge is snapped flush to it,
+             so a flat-sided van reads as anchored, not floating. */
+          if (placed && !placed.crown){
+            const right = placed.left, left = placed.left - placed.w;
+            if (left > 0 && left < 90) placed.left = placed.w;
+            else if (right < W && W - right < 90) placed.left = W;
+          }
+          if (placed) t2.layers.push({ kind:'cutout', name:'Hero Product', role:'photo', __crown: !!placed.crown,
             props:{ src: cutSrc, left: placed.left, top: placed.top, originX:'right', w: placed.w,
                     shadow: th.family === 'Space' ? { color: th.accent, blur: 60, offsetX: 0, offsetY: 0 } : { color:'rgba(0,0,0,0.38)', blur:40, offsetX:0, offsetY:20 } } });
         }
@@ -2946,7 +3504,64 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
           });
           kill.reverse().forEach(k => t2.layers.splice(k, 1));
         }
-        { const probeE = paint(t2, false); addElements(t2, p.cat, sd, th, probeE.refs); probeE.sc.dispose(); }
+        if (t2.__castBg) t2.layers = t2.layers.filter(l => !/^Hero Product|^Lineup Product/.test(l.name || ''));   // cast ground: the product is the ground
+        if ((FACESYS.slab || (look && look.ground === 'slab') || (!look && /pokemon|sports/.test(p.cat) && sd % 3 === 0)) && !/bandKnockout|arcCrown|gradientWave|ticketStub|glassCard|slabPoster|neonNight/.test(p.layout)) slabFrame(t2, th, p.cat, sd);   // cards: one in three is graded
+        /* BOXES HUG THEIR TEXT. Owner, 2026-09-03: "is the margin supposed to
+           be that wide?" — a CTA plate carrying two centred lines had been
+           left at the layout's full panel width, so the words floated in the
+           middle of a long bar. A plate that runs edge to edge is a deliberate
+           full-bleed band and is left alone; anything else is pulled in to the
+           widest line it holds plus one fixed margin. */
+        { const probeH = paint(t2, false);
+          const rect = k => probeH.refs[k] ? probeH.refs[k].getBoundingRect(true, true) : null;
+          t2.layers.forEach((l, k) => {
+            if (!(l.kind === 'rect' || l.kind === 'rrect') || !l.props || l.__moneyPlate || l.__hilite) return;
+            const pr = rect(k); if (!pr || pr.width >= W - 16 || pr.width < 120) return;
+            const held = t2.layers.map((t, q) => {
+              if (typeof t.text !== 'string' || !t.props || q === k) return null;
+              const b = rect(q); if (!b) return null;
+              const cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+              return cx > pr.left && cx < pr.left + pr.width && cy > pr.top && cy < pr.top + pr.height ? { t, b } : null;
+            }).filter(Boolean);
+            if (!held.length) return;
+            /* a band carrying the money word is the design, not a loose box:
+               shrinking it turned WE BUY / CARS into a sticker */
+            if (held.some(h => h.t.role === 'headline' || (h.t.props.fontSize || 0) >= 70)) return;
+            const inside = held.map(h => h.b);
+            const wide = Math.max(...inside.map(b => b.width));
+            const PAD = 48, want = Math.min(W - 80, wide + PAD * 2);
+            if (pr.width - want < 90) return;                       // already close: leave it
+            const cx = pr.left + pr.width / 2, scale = want / pr.width;
+            l.props.width = (l.props.width || pr.width) * scale;
+            const ox = l.props.originX || 'left';
+            l.props.left = ox === 'center' ? cx : ox === 'right' ? cx + want / 2 : cx - want / 2;
+            if (l.props.rx && l.props.rx > (l.props.height || 0) / 2) l.props.rx = (l.props.height || 0) / 2;
+          });
+          probeH.sc.dispose(); }
+        { const probeE = paint(t2, false);
+          const c0 = (deck && deck.cuts && deck.cuts[0]) || '';
+          const line = /^own-apple|^iphone|^qs-iphone|^ip-/.test(c0) ? 'iphone' : /^ipad|^qs-ipad/.test(c0) ? 'ipad' : /^mac|^qs-device-mac|^qs-sheet-mb|^own-stock-mac/.test(c0) ? 'macbook' : /watch/.test(c0) ? 'watch' : null;
+          addElements(t2, p.cat, sd, th, probeE.refs, line, useDeck && useDeck.__brandWord); probeE.sc.dispose(); }
+        /* THE TRUST STACK YIELDS TO THE PRODUCT (owner, 2026-09-03: "overlapping",
+           on a slab and a card stack sitting across TRUSTED / BONDED / LOCAL).
+           The product is still allowed the corner — "products may sit under it" —
+           but a half-covered word is worse than no word, so the whole stack goes,
+           its plate and tick with it, rather than leaving letter fragments. */
+        { const probeB = paint(t2, false);
+          const box = k => probeB.refs[k] ? probeB.refs[k].getBoundingRect(true, true) : null;
+          const prods = t2.layers.map((l, k) => l.kind === 'cutout' ? box(k) : null).filter(Boolean);
+          const isStack = l => /^Trust Mark/.test(l.name || '') || (l.role === 'badges' && !l.__slabGrade && !/Spec Chip/.test(l.name || ''));
+          const covered = t2.layers.some((l, k) => {
+            if (!isStack(l) || typeof l.text !== 'string') return false;
+            const b = box(k); if (!b || !b.width || !b.height) return false;
+            return prods.some(pb => {
+              const ov = Math.max(0, Math.min(pb.left + pb.width, b.left + b.width) - Math.max(pb.left, b.left))
+                       * Math.max(0, Math.min(pb.top + pb.height, b.top + b.height) - Math.max(pb.top, b.top));
+              return ov > b.width * b.height * 0.14;
+            });
+          });
+          if (covered) t2.layers = t2.layers.filter(l => !isStack(l));
+          probeB.sc.dispose(); }
         const ground = paint(t2, true);
         const gd = ground.sc.lowerCanvasEl.getContext('2d').getImageData(0,0,W,H).data;
         ground.sc.dispose();
@@ -3076,7 +3691,20 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
           tot++;
         }
         const density = +(edges/tot*100).toFixed(1);
-        if (density < 12 && attempt === 0){ fin.sc.dispose(); continue; }   // sparse: try once more with a new seed
+        if (density < 16 && attempt === 0){ fin.sc.dispose(); continue; }   // sparse (under 16): try once more with a new seed
+
+        /* SELF-AUDIT BEFORE THE CARD IS KEPT. Owner, 2026-09-03: "self audit as
+           you're making it… check the negative prompts… make sure you're putting
+           images of what you are talking about with the relevant brand." A card
+           whose words and pictures disagree — POKEMON over an iPhone, HYUNDAIS
+           over a Rolls-Royce, TEST STRIPS over a lancing device — is re-seeded
+           here rather than shipped and caught later. */
+        const subject = subjectOf(t2, useDeck, p.cat);
+        const faults = subjectFaults(t2, subject).concat(lookFaults(t2, look));
+        if (faults.length){
+          if (attempt === 0){ fin.sc.dispose(); continue; }
+          console.warn('SUBJECT ' + tpl.id + ' ' + faults.join(' · '));
+        }
 
         const c = document.createElement('canvas');
         c.width = SIZE; c.height = SIZE;
@@ -3089,11 +3717,11 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
                       (o && o.fontSize) || (l.props && l.props.fontSize) || '', bb ? [bb.left, bb.top, bb.width, bb.height].map(Math.round).join(',') : '-',
                       l.solid ? 'solid' : '', l.props && l.props.fill || '', l.props && l.props.grad ? 'grad ' + l.props.grad.c1 + '>' + l.props.grad.c2 : '', l.__lock ? 'lock' : '', l.props && l.props.strokeWidth ? 'stroke ' + l.props.stroke + ' ' + l.props.strokeWidth : '', l.kind === 'cutout' && l.props ? 'src=' + String(l.props.src).split('/').pop() + ' w=' + l.props.w + ' op=' + l.props.opacity : ''].join(' | '); })
           : undefined;
-        out.push({ id: p.layout + '-' + DONORS[j] + '-' + e.v, palette: th.id, name: th.name + ' · ' + p.layout, dbg, placeLog: t2.__placeResult,
+        out.push({ id: p.layout + '-' + DONORS[j] + '-' + e.v + (e.look ? '-' + String(e.k) : ''),   // two themes can land on the same layout+palette+variant; the plan index keeps their cards apart palette: th.id, name: th.name + ' · ' + p.layout, dbg, placeLog: t2.__placeResult,
                    family: th.family, layout: p.layout, cat: p.cat, base: p.id,
                    faces: th.faces, c1:th.c1, ink:th.ink, accent:th.accent, support:th.support,
                    plate: th.plate.shape+'/'+th.plate.fill,
-                   product: cutSrc.split('/').pop().replace('.webp',''), density, deckH2: useDeck && useDeck.h2, deckCut: useDeck && useDeck.cuts && useDeck.cuts[0],
+                   product: cutSrc.split('/').pop().replace('.webp',''), density, look: (look && (look.key || look.id)) || null, ground: t2.__slab ? 'slab' : t2.__deepBg ? 'deep' : t2.__castBg ? 'cast' : t2.__tileBg ? 'tile' : t2.__absBg ? 'abs' : t2.__cashBg ? 'cash' : t2.__spaceBg ? 'space' : (t2.bg && t2.bg.src ? String(t2.bg.src).split('/').slice(-2).join('/') : 'plain'), deckH2: useDeck && useDeck.h2, deckCut: useDeck && useDeck.cuts && useDeck.cuts[0],
                    png: c.toDataURL('image/webp', 0.82),
                    tpl: INFO.export ? (() => { try { return JSON.parse(JSON.stringify(t2)); } catch(e){ return null; } })() : undefined });
         fin.sc.dispose();
@@ -3102,8 +3730,9 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       await new Promise(r => setTimeout(r, 0));
     }
   }
+  if (lookSkips.length) console.log('LOOKSKIP ' + lookSkips.length + '\n  ' + [...new Set(lookSkips)].join('\n  '));
   return out;
-}, PLAN, picks, DONORS, THEMES, PAL, CUTS, DEVICE_DECKS, INFO, CATEGORY_COPY, ALL.filter(f => !LEGACY.test(f) && !BLANK.test(f)), HERO, BG, DEBUG_ID, TYPE, CHALLENGE, KICKERS, FACESYS, WEBBG, JSON.parse(JSON.stringify(SUBCATS, (k, v) => v instanceof RegExp ? v.source : v)));
+}, PLAN, picks, DONORS, THEMES, PAL, CUTS, DEVICE_DECKS, INFO, CATEGORY_COPY, ALL.filter(okCut), HERO, BG, DEBUG_ID, TYPE, CHALLENGE, KICKERS, FACESYS, WEBBG, LOGOS, LOOKS, JSON.parse(JSON.stringify(SUBCATS, (k, v) => v instanceof RegExp ? v.source : v)));
 await browser.close();
 
 const ok = cards.filter(c => !c.err), bad = cards.filter(c => c.err);

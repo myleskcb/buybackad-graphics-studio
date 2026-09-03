@@ -9459,7 +9459,7 @@
   {
    "set": "spacepaper-1",
    "built": "2026-09-03",
-   "source": "Space & Paper lab, 250 cards, complete pass",
+   "source": "Space & Paper lab, 250 cards, complete pass (final list)",
    "approved": [
     {
      "id": "checklistHero-sp01-70",
@@ -11606,22 +11606,6 @@
      "on": true
     },
     {
-     "id": "arcCrown-sp04-70",
-     "layout": "arcCrown",
-     "family": "Space",
-     "palette": "sp04",
-     "theme": "Blue Counter",
-     "cat": "sports",
-     "faces": {
-      "display": "Press Start 2P",
-      "support": "Chivo",
-      "num": "Chivo",
-      "style": "tech"
-     },
-     "product": "sports-box-sealed",
-     "on": true
-    },
-    {
      "id": "arcCrown-sp05-70",
      "layout": "arcCrown",
      "family": "Space",
@@ -11668,74 +11652,2067 @@
      },
      "product": "strip-meter-hand",
      "on": true
+    },
+    {
+     "id": "arcCrown-sp08-70",
+     "layout": "arcCrown",
+     "family": "Space",
+     "palette": "sp08",
+     "theme": "Blue Trade",
+     "cat": "strips",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "strip-box-open-vials",
+     "on": true
+    },
+    {
+     "id": "arcCrown-sp09-70",
+     "layout": "arcCrown",
+     "family": "Space",
+     "palette": "sp09",
+     "theme": "Indigo Value",
+     "cat": "phones",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "qs-iphone-17-air",
+     "on": true
+    },
+    {
+     "id": "arcCrown-sp10-70",
+     "layout": "arcCrown",
+     "family": "Space",
+     "palette": "sp10",
+     "theme": "Indigo Quote",
+     "cat": "phones",
+     "faces": {
+      "display": "Squada One",
+      "support": "Chivo",
+      "num": "Squada One",
+      "style": "tech"
+     },
+     "product": "ipad-pair-sizes",
+     "on": true
+    },
+    {
+     "id": "arcCrown-lp01-70",
+     "layout": "arcCrown",
+     "family": "Lined Paper",
+     "palette": "lp01",
+     "theme": "Indigo Cash",
+     "cat": "coins",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-graded-fan-three",
+     "on": true
+    },
+    {
+     "id": "arcCrown-lp02-70",
+     "layout": "arcCrown",
+     "family": "Lined Paper",
+     "palette": "lp02",
+     "theme": "Amber Offer",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-elite-box",
+     "on": true
+    },
+    {
+     "id": "arcCrown-lp03-70",
+     "layout": "arcCrown",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "coins",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "coin-album-pages",
+     "on": true
+    },
+    {
+     "id": "arcCrown-lp04-70",
+     "layout": "arcCrown",
+     "family": "Lined Paper",
+     "palette": "lp04",
+     "theme": "Violet Counter",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "arcCrown-lp05-70",
+     "layout": "arcCrown",
+     "family": "Lined Paper",
+     "palette": "lp05",
+     "theme": "Sky Ticket",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "poke-elite-box",
+     "on": true
+    },
+    {
+     "id": "arcCrown-lp07-70",
+     "layout": "arcCrown",
+     "family": "Lined Paper",
+     "palette": "lp07",
+     "theme": "Amber Market",
+     "cat": "gold",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "gold-jewelry-mixed",
+     "on": true
+    },
+    {
+     "id": "glassCard-sp07-70",
+     "layout": "glassCard",
+     "family": "Space",
+     "palette": "sp07",
+     "theme": "Sky Market",
+     "cat": "coins",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Russo One",
+      "style": "tech"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "glassCard-sp09-70",
+     "layout": "glassCard",
+     "family": "Space",
+     "palette": "sp09",
+     "theme": "Indigo Value",
+     "cat": "pokemon",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Sora",
+      "num": "Big Shoulders Display",
+      "style": "tech"
+     },
+     "product": "poke-packs-pile",
+     "on": true
+    },
+    {
+     "id": "glassCard-sp10-70",
+     "layout": "glassCard",
+     "family": "Space",
+     "palette": "sp10",
+     "theme": "Indigo Quote",
+     "cat": "gold",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Instrument Sans",
+      "num": "Saira Condensed",
+      "style": "tech"
+     },
+     "product": "gold-scale-weighing",
+     "on": true
+    },
+    {
+     "id": "glassCard-lp01-70",
+     "layout": "glassCard",
+     "family": "Lined Paper",
+     "palette": "lp01",
+     "theme": "Indigo Cash",
+     "cat": "gold",
+     "faces": {
+      "display": "Architects Daughter",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "gold-jewelry-mixed",
+     "on": true
+    },
+    {
+     "id": "glassCard-lp03-70",
+     "layout": "glassCard",
+     "family": "Lined Paper",
+     "palette": "lp03",
+     "theme": "Mint Payday",
+     "cat": "gold",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "gold-jewelry-mixed",
+     "on": true
+    },
+    {
+     "id": "glassCard-lp04-70",
+     "layout": "glassCard",
+     "family": "Lined Paper",
+     "palette": "lp04",
+     "theme": "Violet Counter",
+     "cat": "cars",
+     "faces": {
+      "display": "Shadows Into Light",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "car-title-keys",
+     "on": true
+    },
+    {
+     "id": "glassCard-lp07-70",
+     "layout": "glassCard",
+     "family": "Lined Paper",
+     "palette": "lp07",
+     "theme": "Amber Market",
+     "cat": "silver",
+     "faces": {
+      "display": "Amatic SC",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "silver-jewelry-mixed",
+     "on": true
+    },
+    {
+     "id": "glassCard-lp09-70",
+     "layout": "glassCard",
+     "family": "Lined Paper",
+     "palette": "lp09",
+     "theme": "Teal Value",
+     "cat": "strips",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Architects Daughter",
+      "num": "Architects Daughter",
+      "style": "hand"
+     },
+     "product": "strip-kit-meter",
+     "on": true
     }
    ],
    "perLayout": {
-    "scriptRetro": {
-     "on": 15,
-     "of": 16
-    },
-    "trustSeal": {
-     "on": 16,
-     "of": 20
-    },
     "checklistHero": {
      "on": 14,
-     "of": 19
-    },
-    "neonNight": {
-     "on": 13,
-     "of": 18
-    },
-    "voltStack": {
-     "on": 13,
      "of": 19
     },
     "reviewProof": {
      "on": 10,
      "of": 15
     },
-    "gradientWave": {
-     "on": 8,
-     "of": 13
+    "trustSeal": {
+     "on": 16,
+     "of": 20
     },
-    "bandKnockout": {
-     "on": 8,
-     "of": 14
+    "stepsFlow": {
+     "on": 9,
+     "of": 20
     },
     "bubblePop": {
      "on": 10,
+     "of": 18
+    },
+    "voltStack": {
+     "on": 13,
+     "of": 19
+    },
+    "neonNight": {
+     "on": 13,
      "of": 18
     },
     "slabPoster": {
      "on": 6,
      "of": 13
     },
-    "stepsFlow": {
-     "on": 9,
-     "of": 20
-    },
-    "hudTech": {
-     "on": 5,
-     "of": 12
+    "scriptRetro": {
+     "on": 15,
+     "of": 16
     },
     "lowerThird": {
      "on": 5,
      "of": 14
     },
-    "arcCrown": {
-     "on": 5,
-     "of": 15
+    "gradientWave": {
+     "on": 8,
+     "of": 13
     },
     "ticketStub": {
      "on": 1,
      "of": 9
     },
+    "hudTech": {
+     "on": 5,
+     "of": 12
+    },
+    "bandKnockout": {
+     "on": 8,
+     "of": 14
+    },
+    "arcCrown": {
+     "on": 13,
+     "of": 15
+    },
     "glassCard": {
-     "on": 0,
+     "on": 8,
      "of": 15
     }
    }
+  },
+  {
+   "set": "set8-deck",
+   "built": "2026-09-03",
+   "source": ".render/set8 (deck review, 250 offered)",
+   "perLayout": {
+    "checklistHero": 19,
+    "reviewProof": 15,
+    "trustSeal": 22,
+    "stepsFlow": 19,
+    "bubblePop": 17,
+    "voltStack": 20,
+    "neonNight": 20,
+    "slabPoster": 13,
+    "scriptRetro": 17,
+    "lowerThird": 13,
+    "gradientWave": 12,
+    "ticketStub": 8,
+    "hudTech": 11,
+    "bandKnockout": 14,
+    "arcCrown": 16,
+    "glassCard": 14
+   },
+   "approved": [
+    {
+     "id": "checklistHero-jw05-92",
+     "layout": "checklistHero",
+     "palette": "jw05",
+     "cat": "strips",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Manrope",
+      "num": "Saira Condensed",
+      "style": "condensed"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "checklistHero-du08-92",
+     "layout": "checklistHero",
+     "palette": "du08",
+     "cat": "phones",
+     "family": "Duotone",
+     "ground": "scenes/scene-flat-iphones.jpg",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Libre Franklin",
+      "num": "Roboto Slab",
+      "style": "slab"
+     },
+     "product": "iphone-15-pro-back-gold",
+     "on": true
+    },
+    {
+     "id": "checklistHero-ca07-92",
+     "layout": "checklistHero",
+     "palette": "ca07",
+     "cat": "pokemon",
+     "family": "Cool Air",
+     "ground": "slab",
+     "faces": {
+      "display": "Permanent Marker",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "street"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "checklistHero-pa05-92",
+     "layout": "checklistHero",
+     "palette": "pa05",
+     "cat": "pokemon",
+     "family": "Pastel",
+     "ground": "slab",
+     "faces": {
+      "display": "Russo One",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "bold"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "checklistHero-jw07-93",
+     "layout": "checklistHero",
+     "palette": "jw07",
+     "cat": "sports",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Oswald",
+      "support": "Zilla Slab",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "product": "sports-slabs-stack",
+     "on": true
+    },
+    {
+     "id": "checklistHero-io03-92",
+     "layout": "checklistHero",
+     "palette": "io03",
+     "cat": "sports",
+     "family": "iOS Flat",
+     "ground": "abs",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "product": "sports-slabs-stack",
+     "on": true
+    },
+    {
+     "id": "checklistHero-du05-92",
+     "layout": "checklistHero",
+     "palette": "du05",
+     "cat": "strips",
+     "family": "Duotone",
+     "ground": "cast",
+     "faces": {
+      "display": "Sora",
+      "support": "Manrope",
+      "num": "Sora",
+      "style": "grotesque"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "checklistHero-jw05-93",
+     "layout": "checklistHero",
+     "palette": "jw05",
+     "cat": "phones",
+     "family": "Jewel",
+     "ground": "abs",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Manrope",
+      "num": "Zilla Slab",
+      "style": "slab"
+     },
+     "product": "watch-pair-bands",
+     "on": true
+    },
+    {
+     "id": "checklistHero-jw03-92",
+     "layout": "checklistHero",
+     "palette": "ck01",
+     "cat": "gold",
+     "family": "Chalk",
+     "ground": "abs",
+     "faces": {
+      "display": "Cormorant Garamond",
+      "support": "Libre Franklin",
+      "num": "Cormorant Garamond",
+      "style": "serif"
+     },
+     "product": "gold-bars-fan",
+     "on": true
+    },
+    {
+     "id": "checklistHero-du08-93",
+     "layout": "checklistHero",
+     "palette": "du08",
+     "cat": "gold",
+     "family": "Duotone",
+     "ground": "cast",
+     "faces": {
+      "display": "Cormorant Garamond",
+      "support": "Libre Franklin",
+      "num": "Cormorant Garamond",
+      "style": "serif"
+     },
+     "product": "gold-watch-luxury",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd06-92",
+     "layout": "reviewProof",
+     "palette": "cd06",
+     "cat": "pokemon",
+     "family": "Candy",
+     "ground": "slab",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du07-92",
+     "layout": "reviewProof",
+     "palette": "du07",
+     "cat": "phones",
+     "family": "Duotone",
+     "ground": "scenes/scene-flat-iphones.jpg",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "bold"
+     },
+     "product": "iphone-15-pro-back-white",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pp04-92",
+     "layout": "reviewProof",
+     "palette": "pp04",
+     "cat": "phones",
+     "family": "Paper",
+     "ground": "abs",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "tech"
+     },
+     "product": "iphone-in-hand-screen-on",
+     "on": true
+    },
+    {
+     "id": "reviewProof-ca07-92",
+     "layout": "reviewProof",
+     "palette": "ck01",
+     "cat": "gold",
+     "family": "Chalk",
+     "ground": "abs",
+     "faces": {
+      "display": "Fascinate",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "vintage"
+     },
+     "product": "gold-bars-row",
+     "on": true
+    },
+    {
+     "id": "reviewProof-pa05-92",
+     "layout": "reviewProof",
+     "palette": "pa05",
+     "cat": "gold",
+     "family": "Pastel",
+     "ground": "abs",
+     "faces": {
+      "display": "Pirata One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "blackletter"
+     },
+     "product": "gold-watch-luxury",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-92",
+     "layout": "reviewProof",
+     "palette": "jw07",
+     "cat": "sports",
+     "family": "Jewel",
+     "ground": "slab",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "vintage"
+     },
+     "product": "sports-slab",
+     "on": true
+    },
+    {
+     "id": "reviewProof-io03-92",
+     "layout": "reviewProof",
+     "palette": "io03",
+     "cat": "coins",
+     "family": "iOS Flat",
+     "ground": "bg-web/coins-morgan-silver-dollar-3.jpg",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Libre Franklin",
+      "num": "Zilla Slab",
+      "style": "slab"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du05-92",
+     "layout": "reviewProof",
+     "palette": "du05",
+     "cat": "silver",
+     "family": "Duotone",
+     "ground": "abs",
+     "faces": {
+      "display": "Oswald",
+      "support": "Zilla Slab",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "product": "silver-jewelry-mixed",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw05-92",
+     "layout": "reviewProof",
+     "palette": "jw05",
+     "cat": "silver",
+     "family": "Jewel",
+     "ground": "bg-web/silver-silver-jewelry-rings-2.jpg",
+     "faces": {
+      "display": "Cormorant Garamond",
+      "support": "Zilla Slab",
+      "num": "Cormorant Garamond",
+      "style": "serif"
+     },
+     "product": "silver-jewelry-mixed",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd10-92",
+     "layout": "reviewProof",
+     "palette": "jw05",
+     "cat": "coins",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Pirata One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "blackletter"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw03-92",
+     "layout": "reviewProof",
+     "palette": "jw03",
+     "cat": "cars",
+     "family": "Jewel",
+     "ground": "bg-web/bikes-harley-davidson-motorcycle-2.jpg",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "stencil"
+     },
+     "product": "car-motorcycle-side",
+     "on": true
+    },
+    {
+     "id": "reviewProof-du08-92",
+     "layout": "reviewProof",
+     "palette": "du08",
+     "cat": "sports",
+     "family": "Duotone",
+     "ground": "slab",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "condensed"
+     },
+     "product": "sports-slabs-stack",
+     "on": true
+    },
+    {
+     "id": "reviewProof-jw07-93",
+     "layout": "reviewProof",
+     "palette": "jw07",
+     "cat": "strips",
+     "family": "Jewel",
+     "ground": "abs",
+     "faces": {
+      "display": "Sniglet",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "rounded"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "reviewProof-cd04-92",
+     "layout": "reviewProof",
+     "palette": "cd04",
+     "cat": "strips",
+     "family": "Candy",
+     "ground": "cast",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Manrope",
+      "num": "Roboto Slab",
+      "style": "slab"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "trustSeal-ca07-92",
+     "layout": "trustSeal",
+     "palette": "ca07",
+     "cat": "cars",
+     "family": "Cool Air",
+     "ground": "bg-web/bikes-cruiser-motorcycle-parked-2.jpg",
+     "faces": {
+      "display": "Rubik Wet Paint",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "street"
+     },
+     "product": "car-motorcycle-side",
+     "on": true
+    },
+    {
+     "id": "trustSeal-pa05-92",
+     "layout": "trustSeal",
+     "palette": "pa05",
+     "cat": "strips",
+     "family": "Pastel",
+     "ground": "abs",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "bold"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "trustSeal-jw07-92",
+     "layout": "trustSeal",
+     "palette": "jw07",
+     "cat": "coins",
+     "family": "Jewel",
+     "ground": "tile",
+     "faces": {
+      "display": "Libre Franklin",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "grotesque"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "trustSeal-du08-92",
+     "layout": "trustSeal",
+     "palette": "du08",
+     "cat": "coins",
+     "family": "Duotone",
+     "ground": "abs",
+     "faces": {
+      "display": "Bungee Shade",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "vintage"
+     },
+     "product": "coin-silver-dollar-pair",
+     "on": true
+    },
+    {
+     "id": "trustSeal-jw07-93",
+     "layout": "trustSeal",
+     "palette": "jw07",
+     "cat": "silver",
+     "family": "Jewel",
+     "ground": "bg-web/silver-silver-cutlery-1.jpg",
+     "faces": {
+      "display": "Rye",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "vintage"
+     },
+     "product": "silver-bars",
+     "on": true
+    },
+    {
+     "id": "trustSeal-jw05-93",
+     "layout": "trustSeal",
+     "palette": "jw05",
+     "cat": "cars",
+     "family": "Jewel",
+     "ground": "abs",
+     "faces": {
+      "display": "Russo One",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "bold"
+     },
+     "product": "car-van-cargo",
+     "on": true
+    },
+    {
+     "id": "trustSeal-jw07-94",
+     "layout": "trustSeal",
+     "palette": "jw07",
+     "cat": "sports",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Rubik Doodle Shadow",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "street"
+     },
+     "product": "sports-slab",
+     "on": true
+    },
+    {
+     "id": "trustSeal-du07-92",
+     "layout": "trustSeal",
+     "palette": "du07",
+     "cat": "sports",
+     "family": "Duotone",
+     "ground": "slab",
+     "faces": {
+      "display": "Squada One",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "bold"
+     },
+     "product": "sports-slab",
+     "on": true
+    },
+    {
+     "id": "trustSeal-pp04-92",
+     "layout": "trustSeal",
+     "palette": "pp04",
+     "cat": "sports",
+     "family": "Paper",
+     "ground": "abs",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "product": "sports-slabs-stack",
+     "on": true
+    },
+    {
+     "id": "trustSeal-ca07-93",
+     "layout": "trustSeal",
+     "palette": "ca07",
+     "cat": "pokemon",
+     "family": "Cool Air",
+     "ground": "slab",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Manrope",
+      "num": "Saira Condensed",
+      "style": "condensed"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "trustSeal-du08-93",
+     "layout": "trustSeal",
+     "palette": "du08",
+     "cat": "silver",
+     "family": "Duotone",
+     "ground": "tile",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "product": "silver-bars",
+     "on": true
+    },
+    {
+     "id": "trustSeal-pa05-93",
+     "layout": "trustSeal",
+     "palette": "pa05",
+     "cat": "phones",
+     "family": "Pastel",
+     "ground": "scenes/scene-flat-iphones.jpg",
+     "faces": {
+      "display": "Sora",
+      "support": "Manrope",
+      "num": "Sora",
+      "style": "grotesque"
+     },
+     "product": "iphone-hand-back-offer",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-jw07-92",
+     "layout": "stepsFlow",
+     "palette": "jw07",
+     "cat": "cars",
+     "family": "Jewel",
+     "ground": "cash",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "stencil"
+     },
+     "product": "car-truck-front",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-io03-92",
+     "layout": "stepsFlow",
+     "palette": "io03",
+     "cat": "phones",
+     "family": "iOS Flat",
+     "ground": "scenes/scene-studio-teal-watch.jpg",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "tech"
+     },
+     "product": "apple-watch-single",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-cd10-92",
+     "layout": "stepsFlow",
+     "palette": "cd10",
+     "cat": "pokemon",
+     "family": "Candy",
+     "ground": "slab",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-jw03-92",
+     "layout": "stepsFlow",
+     "palette": "du07",
+     "cat": "sports",
+     "family": "Duotone",
+     "ground": "cash",
+     "faces": {
+      "display": "Fascinate",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "vintage"
+     },
+     "product": "sports-slab",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-jw07-93",
+     "layout": "stepsFlow",
+     "palette": "jw07",
+     "cat": "pokemon",
+     "family": "Jewel",
+     "ground": "abs",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-cd04-92",
+     "layout": "stepsFlow",
+     "palette": "cd04",
+     "cat": "sports",
+     "family": "Candy",
+     "ground": "cash",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Zilla Slab",
+      "num": "Roboto Slab",
+      "style": "slab"
+     },
+     "product": "sports-slabs-stack",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-jw07-94",
+     "layout": "stepsFlow",
+     "palette": "jw07",
+     "cat": "coins",
+     "family": "Jewel",
+     "ground": "abs",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "typewriter"
+     },
+     "product": "coin-slabs-stack",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-pp04-92",
+     "layout": "stepsFlow",
+     "palette": "pp04",
+     "cat": "strips",
+     "family": "Paper",
+     "ground": "cast",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Manrope",
+      "num": "Zilla Slab",
+      "style": "slab"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-ca07-92",
+     "layout": "stepsFlow",
+     "palette": "ca07",
+     "cat": "phones",
+     "family": "Cool Air",
+     "ground": "cast",
+     "faces": {
+      "display": "Press Start 2P",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "tech"
+     },
+     "product": "iphone-in-hand-screen-on",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-du08-93",
+     "layout": "stepsFlow",
+     "palette": "du08",
+     "cat": "sports",
+     "family": "Duotone",
+     "ground": "cash",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "vintage"
+     },
+     "product": "sports-slab",
+     "on": true
+    },
+    {
+     "id": "stepsFlow-pa05-92",
+     "layout": "stepsFlow",
+     "palette": "pa05",
+     "cat": "silver",
+     "family": "Pastel",
+     "ground": "tile",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Libre Franklin",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "product": "silver-bars",
+     "on": true
+    },
+    {
+     "id": "bubblePop-jw03-92",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "cat": "coins",
+     "family": "Jewel",
+     "ground": "bg-web/coins-morgan-silver-dollar-1.jpg",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "typewriter"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "bubblePop-du08-92",
+     "layout": "bubblePop",
+     "palette": "du08",
+     "cat": "pokemon",
+     "family": "Duotone",
+     "ground": "abs",
+     "faces": {
+      "display": "Rubik Wet Paint",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "street"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "bubblePop-jw07-92",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "cat": "phones",
+     "family": "Jewel",
+     "ground": "scenes/scene-studio-teal-watch.jpg",
+     "faces": {
+      "display": "Audiowide",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "tech"
+     },
+     "product": "apple-watch-single",
+     "on": true
+    },
+    {
+     "id": "bubblePop-cd04-92",
+     "layout": "bubblePop",
+     "palette": "cd04",
+     "cat": "coins",
+     "family": "Candy",
+     "ground": "bg-web/coins-american-gold-eagle-coin-3.jpg",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "product": "coin-slabs-stack",
+     "on": true
+    },
+    {
+     "id": "bubblePop-jw07-93",
+     "layout": "bubblePop",
+     "palette": "jw07",
+     "cat": "gold",
+     "family": "Jewel",
+     "ground": "abs",
+     "faces": {
+      "display": "Pirata One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "blackletter"
+     },
+     "product": "gold-bracelet-pair",
+     "on": true
+    },
+    {
+     "id": "bubblePop-pp04-92",
+     "layout": "bubblePop",
+     "palette": "pp04",
+     "cat": "phones",
+     "family": "Paper",
+     "ground": "scenes/scene-flat-iphones.jpg",
+     "faces": {
+      "display": "Rubik Doodle Shadow",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "street"
+     },
+     "product": "own-apple-cosmic-orange-06",
+     "on": true
+    },
+    {
+     "id": "bubblePop-pp02-92",
+     "layout": "bubblePop",
+     "palette": "pp02",
+     "cat": "phones",
+     "family": "Paper",
+     "ground": "tile",
+     "faces": {
+      "display": "Sedgwick Ave",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "street"
+     },
+     "product": "qs-iphone-17",
+     "on": true
+    },
+    {
+     "id": "voltStack-jw07-92",
+     "layout": "voltStack",
+     "palette": "jw07",
+     "cat": "gold",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Cormorant Garamond",
+      "support": "Libre Franklin",
+      "num": "Cormorant Garamond",
+      "style": "serif"
+     },
+     "product": "gold-rings-scatter",
+     "on": true
+    },
+    {
+     "id": "voltStack-pp04-92",
+     "layout": "voltStack",
+     "palette": "pp04",
+     "cat": "sports",
+     "family": "Paper",
+     "ground": "abs",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "product": "sports-slabs-stack",
+     "on": true
+    },
+    {
+     "id": "voltStack-ca07-92",
+     "layout": "voltStack",
+     "palette": "ca07",
+     "cat": "coins",
+     "family": "Cool Air",
+     "ground": "abs",
+     "faces": {
+      "display": "Pirata One",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "blackletter"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "voltStack-pp02-92",
+     "layout": "voltStack",
+     "palette": "pp02",
+     "cat": "gold",
+     "family": "Paper",
+     "ground": "bg-web/gold-gold-watch-1.jpg",
+     "faces": {
+      "display": "Cabin Sketch",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "vintage"
+     },
+     "product": "gold-bracelet-cuban",
+     "on": true
+    },
+    {
+     "id": "voltStack-jw07-94",
+     "layout": "voltStack",
+     "palette": "jw07",
+     "cat": "pokemon",
+     "family": "Jewel",
+     "ground": "bg-web/pokemon-charizard-card-1.jpg",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Zilla Slab",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "voltStack-du05-92",
+     "layout": "voltStack",
+     "palette": "du05",
+     "cat": "phones",
+     "family": "Duotone",
+     "ground": "scenes/scene-own-macbook-stack.jpg",
+     "faces": {
+      "display": "Wallpoet",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "tech"
+     },
+     "product": "macbook-open",
+     "on": true
+    },
+    {
+     "id": "neonNight-cd06-92",
+     "layout": "neonNight",
+     "palette": "cd06",
+     "cat": "strips",
+     "family": "Candy",
+     "ground": "bg-web/strips-contour-next-test-strips-3.jpg",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Zilla Slab",
+      "num": "Zilla Slab",
+      "style": "slab"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "neonNight-jw05-92",
+     "layout": "neonNight",
+     "palette": "jw05",
+     "cat": "coins",
+     "family": "Jewel",
+     "ground": "tile",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "neonNight-pp04-92",
+     "layout": "neonNight",
+     "palette": "pp04",
+     "cat": "coins",
+     "family": "Paper",
+     "ground": "abs",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Manrope",
+      "num": "Roboto Slab",
+      "style": "slab"
+     },
+     "product": "coin-silver-dollar-pair",
+     "on": true
+    },
+    {
+     "id": "neonNight-ca07-92",
+     "layout": "neonNight",
+     "palette": "ca07",
+     "cat": "silver",
+     "family": "Cool Air",
+     "ground": "cast",
+     "faces": {
+      "display": "Oswald",
+      "support": "Libre Franklin",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "product": "silver-bars",
+     "on": true
+    },
+    {
+     "id": "neonNight-pp02-92",
+     "layout": "neonNight",
+     "palette": "pp02",
+     "cat": "strips",
+     "family": "Paper",
+     "ground": "bg-web/strips-contour-next-test-strips-3.jpg",
+     "faces": {
+      "display": "Nanum Pen Script",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "hand"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "neonNight-du08-92",
+     "layout": "neonNight",
+     "palette": "du08",
+     "cat": "cars",
+     "family": "Duotone",
+     "ground": "abs",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Manrope",
+      "num": "Roboto Slab",
+      "style": "slab"
+     },
+     "product": "car-van-cargo",
+     "on": true
+    },
+    {
+     "id": "neonNight-pa05-92",
+     "layout": "neonNight",
+     "palette": "pa05",
+     "cat": "cars",
+     "family": "Pastel",
+     "ground": "bg-web/cars-bmw-key-1.jpg",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "stencil"
+     },
+     "product": "car-hand-keys-over",
+     "on": true
+    },
+    {
+     "id": "neonNight-jw05-93",
+     "layout": "neonNight",
+     "palette": "jw05",
+     "cat": "silver",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Instrument Serif",
+      "support": "Libre Franklin",
+      "num": "Instrument Serif",
+      "style": "serif"
+     },
+     "product": "silver-bars",
+     "on": true
+    },
+    {
+     "id": "neonNight-du08-93",
+     "layout": "neonNight",
+     "palette": "du08",
+     "cat": "pokemon",
+     "family": "Duotone",
+     "ground": "bg-web/pokemon-charizard-card-1.jpg",
+     "faces": {
+      "display": "Oswald",
+      "support": "Manrope",
+      "num": "Oswald",
+      "style": "condensed"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "neonNight-pp04-93",
+     "layout": "neonNight",
+     "palette": "pp04",
+     "cat": "silver",
+     "family": "Paper",
+     "ground": "tile",
+     "faces": {
+      "display": "Teko",
+      "support": "Libre Franklin",
+      "num": "Teko",
+      "style": "condensed"
+     },
+     "product": "silver-bars",
+     "on": true
+    },
+    {
+     "id": "slabPoster-du08-92",
+     "layout": "slabPoster",
+     "palette": "du08",
+     "cat": "phones",
+     "family": "Duotone",
+     "ground": "scenes/scene-flat-iphones.jpg",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "stencil"
+     },
+     "product": "qs-iphone-17-pro",
+     "on": true
+    },
+    {
+     "id": "slabPoster-cd06-92",
+     "layout": "slabPoster",
+     "palette": "cd06",
+     "cat": "phones",
+     "family": "Candy",
+     "ground": "scenes/scene-studio-teal-watch.jpg",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "stencil"
+     },
+     "product": "apple-watch-single",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-ca07-92",
+     "layout": "scriptRetro",
+     "palette": "ca07",
+     "cat": "gold",
+     "family": "Cool Air",
+     "ground": "cast",
+     "faces": {
+      "display": "Russo One",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "bold"
+     },
+     "product": "gold-pocket-watch",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-pp02-92",
+     "layout": "scriptRetro",
+     "palette": "cd04",
+     "cat": "pokemon",
+     "family": "Candy",
+     "ground": "abs",
+     "faces": {
+      "display": "Shrikhand",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "comic"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-cd06-92",
+     "layout": "scriptRetro",
+     "palette": "cd06",
+     "cat": "sports",
+     "family": "Candy",
+     "ground": "abs",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "vintage"
+     },
+     "product": "sports-slab",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-jw05-92",
+     "layout": "scriptRetro",
+     "palette": "jw05",
+     "cat": "phones",
+     "family": "Jewel",
+     "ground": "scenes/scene-studio-rose-pair.jpg",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "bold"
+     },
+     "product": "iphone-15-pro-back-white",
+     "on": true
+    },
+    {
+     "id": "scriptRetro-du08-93",
+     "layout": "scriptRetro",
+     "palette": "du08",
+     "cat": "cars",
+     "family": "Duotone",
+     "ground": "tile",
+     "faces": {
+      "display": "Barlow Condensed",
+      "support": "Manrope",
+      "num": "Barlow Condensed",
+      "style": "condensed"
+     },
+     "product": "car-front",
+     "on": true
+    },
+    {
+     "id": "lowerThird-pa05-92",
+     "layout": "lowerThird",
+     "palette": "pa05",
+     "cat": "cars",
+     "family": "Pastel",
+     "ground": "abs",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Manrope",
+      "num": "Zilla Slab",
+      "style": "slab"
+     },
+     "product": "car-front",
+     "on": true
+    },
+    {
+     "id": "lowerThird-jw07-92",
+     "layout": "lowerThird",
+     "palette": "jw07",
+     "cat": "strips",
+     "family": "Jewel",
+     "ground": "bg-web/strips-contour-next-test-strips-3.jpg",
+     "faces": {
+      "display": "Russo One",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "bold"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "lowerThird-cd06-92",
+     "layout": "lowerThird",
+     "palette": "cd06",
+     "cat": "coins",
+     "family": "Candy",
+     "ground": "tile",
+     "faces": {
+      "display": "Big Shoulders Display",
+      "support": "Libre Franklin",
+      "num": "Big Shoulders Display",
+      "style": "condensed"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "gradientWave-io03-92",
+     "layout": "gradientWave",
+     "palette": "io03",
+     "cat": "phones",
+     "family": "iOS Flat",
+     "ground": "scenes/scene-flat-iphones.jpg",
+     "faces": {
+      "display": "Big Shoulders Stencil Display",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "stencil"
+     },
+     "product": "qs-iphone-17-pro",
+     "on": true
+    },
+    {
+     "id": "gradientWave-jw07-92",
+     "layout": "gradientWave",
+     "palette": "jw07",
+     "cat": "silver",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Sedgwick Ave",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "street"
+     },
+     "product": "silver-jewelry-mixed",
+     "on": true
+    },
+    {
+     "id": "gradientWave-ca07-92",
+     "layout": "gradientWave",
+     "palette": "ca07",
+     "cat": "phones",
+     "family": "Cool Air",
+     "ground": "scenes/scene-grad-mac-gold.jpg",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "typewriter"
+     },
+     "product": "mac-with-accessories",
+     "on": true
+    },
+    {
+     "id": "gradientWave-jw07-93",
+     "layout": "gradientWave",
+     "palette": "jw07",
+     "cat": "sports",
+     "family": "Jewel",
+     "ground": "abs",
+     "faces": {
+      "display": "Teko",
+      "support": "Manrope",
+      "num": "Teko",
+      "style": "condensed"
+     },
+     "product": "sports-slabs-stack",
+     "on": true
+    },
+    {
+     "id": "ticketStub-pp04-92",
+     "layout": "ticketStub",
+     "palette": "pp04",
+     "cat": "phones",
+     "family": "Paper",
+     "ground": "scenes/scene-grad-mac-gold.jpg",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Zilla Slab",
+      "num": "Roboto Slab",
+      "style": "slab"
+     },
+     "product": "own-stock-macbook-stack",
+     "on": true
+    },
+    {
+     "id": "ticketStub-ca07-92",
+     "layout": "ticketStub",
+     "palette": "du02",
+     "cat": "gold",
+     "family": "Duotone",
+     "ground": "abs",
+     "faces": {
+      "display": "Cormorant Garamond",
+      "support": "Zilla Slab",
+      "num": "Cormorant Garamond",
+      "style": "serif"
+     },
+     "product": "gold-watch-luxury",
+     "on": true
+    },
+    {
+     "id": "hudTech-cd10-92",
+     "layout": "hudTech",
+     "palette": "cd10",
+     "cat": "strips",
+     "family": "Candy",
+     "ground": "bg-web/strips-contour-next-test-strips-3.jpg",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "typewriter"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "hudTech-cd06-92",
+     "layout": "hudTech",
+     "palette": "jw07",
+     "cat": "gold",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Libre Franklin",
+      "num": "Zilla Slab",
+      "style": "slab"
+     },
+     "product": "gold-bracelet-pair",
+     "on": true
+    },
+    {
+     "id": "hudTech-du08-92",
+     "layout": "hudTech",
+     "palette": "du08",
+     "cat": "coins",
+     "family": "Duotone",
+     "ground": "abs",
+     "faces": {
+      "display": "Zilla Slab",
+      "support": "Manrope",
+      "num": "Zilla Slab",
+      "style": "slab"
+     },
+     "product": "coin-silver-dollar-pair",
+     "on": true
+    },
+    {
+     "id": "hudTech-cd04-92",
+     "layout": "hudTech",
+     "palette": "nn01",
+     "cat": "cars",
+     "family": "Night Neon",
+     "ground": "abs",
+     "faces": {
+      "display": "Rubik Iso",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "tech"
+     },
+     "product": "car-van-cargo",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-cd06-92",
+     "layout": "bandKnockout",
+     "palette": "cd06",
+     "cat": "strips",
+     "family": "Candy",
+     "ground": "cast",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Manrope",
+      "num": "Saira Condensed",
+      "style": "condensed"
+     },
+     "product": "strip-kit-meter",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-jw03-92",
+     "layout": "bandKnockout",
+     "palette": "jw03",
+     "cat": "pokemon",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Kaushan Script",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "script"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-pa05-92",
+     "layout": "bandKnockout",
+     "palette": "pa05",
+     "cat": "silver",
+     "family": "Pastel",
+     "ground": "abs",
+     "faces": {
+      "display": "Pirata One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "blackletter"
+     },
+     "product": "silver-jewelry-mixed",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-jw05-92",
+     "layout": "bandKnockout",
+     "palette": "jw05",
+     "cat": "coins",
+     "family": "Jewel",
+     "ground": "tile",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "bandKnockout-gl02-92",
+     "layout": "bandKnockout",
+     "palette": "gl02",
+     "cat": "pokemon",
+     "family": "Liquid Glass",
+     "ground": "abs",
+     "faces": {
+      "display": "Special Elite",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "typewriter"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "arcCrown-jw03-92",
+     "layout": "arcCrown",
+     "palette": "du02",
+     "cat": "gold",
+     "family": "Duotone",
+     "ground": "cast",
+     "faces": {
+      "display": "Knewave",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "script"
+     },
+     "product": "gold-pocket-watch",
+     "on": true
+    },
+    {
+     "id": "arcCrown-cd04-92",
+     "layout": "arcCrown",
+     "palette": "cd04",
+     "cat": "coins",
+     "family": "Candy",
+     "ground": "cast",
+     "faces": {
+      "display": "Pirata One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "blackletter"
+     },
+     "product": "coin-loose-pile",
+     "on": true
+    },
+    {
+     "id": "arcCrown-jw07-92",
+     "layout": "arcCrown",
+     "palette": "jw07",
+     "cat": "phones",
+     "family": "Jewel",
+     "ground": "scenes/scene-studio-rose-pair.jpg",
+     "faces": {
+      "display": "Saira Condensed",
+      "support": "Zilla Slab",
+      "num": "Saira Condensed",
+      "style": "condensed"
+     },
+     "product": "iphone-pair-front-back",
+     "on": true
+    },
+    {
+     "id": "arcCrown-cd06-92",
+     "layout": "arcCrown",
+     "palette": "cd06",
+     "cat": "phones",
+     "family": "Candy",
+     "ground": "tile",
+     "faces": {
+      "display": "Manrope",
+      "support": "Libre Franklin",
+      "num": "Manrope",
+      "style": "grotesque"
+     },
+     "product": "ipad-with-stylus",
+     "on": true
+    },
+    {
+     "id": "arcCrown-jw07-93",
+     "layout": "arcCrown",
+     "palette": "jw07",
+     "cat": "gold",
+     "family": "Jewel",
+     "ground": "abs",
+     "faces": {
+      "display": "Roboto Slab",
+      "support": "Libre Franklin",
+      "num": "Roboto Slab",
+      "style": "slab"
+     },
+     "product": "gold-bars-fan",
+     "on": true
+    },
+    {
+     "id": "arcCrown-pp04-92",
+     "layout": "arcCrown",
+     "palette": "nn01",
+     "cat": "cars",
+     "family": "Night Neon",
+     "ground": "bg-web/cars-bmw-key-3.jpg",
+     "faces": {
+      "display": "Squada One",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "bold"
+     },
+     "product": "car-engine-bay",
+     "on": true
+    },
+    {
+     "id": "arcCrown-jw05-93",
+     "layout": "arcCrown",
+     "palette": "jw05",
+     "cat": "pokemon",
+     "family": "Jewel",
+     "ground": "cast",
+     "faces": {
+      "display": "Freckle Face",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "comic"
+     },
+     "product": "poke-slabs-trio",
+     "on": true
+    },
+    {
+     "id": "glassCard-cd04-92",
+     "layout": "glassCard",
+     "palette": "cd04",
+     "cat": "cars",
+     "family": "Candy",
+     "ground": "cast",
+     "faces": {
+      "display": "Squada One",
+      "support": "Libre Franklin",
+      "num": "Libre Franklin",
+      "style": "tech"
+     },
+     "product": "car-truck-front",
+     "on": true
+    },
+    {
+     "id": "glassCard-du07-92",
+     "layout": "glassCard",
+     "palette": "du07",
+     "cat": "phones",
+     "family": "Duotone",
+     "ground": "scenes/scene-flat-iphones.jpg",
+     "faces": {
+      "display": "Russo One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "bold"
+     },
+     "product": "iphone-15-pro-back-white",
+     "on": true
+    },
+    {
+     "id": "glassCard-ca07-92",
+     "layout": "glassCard",
+     "palette": "ca07",
+     "cat": "coins",
+     "family": "Cool Air",
+     "ground": "cast",
+     "faces": {
+      "display": "Satoshi",
+      "support": "Manrope",
+      "num": "Satoshi",
+      "style": "grotesque"
+     },
+     "product": "coin-silver-dollar-pair",
+     "on": true
+    },
+    {
+     "id": "glassCard-jw05-93",
+     "layout": "glassCard",
+     "palette": "jw05",
+     "cat": "gold",
+     "family": "Jewel",
+     "ground": "abs",
+     "faces": {
+      "display": "Pirata One",
+      "support": "Manrope",
+      "num": "Manrope",
+      "style": "blackletter"
+     },
+     "product": "gold-bracelet-pair",
+     "on": true
+    }
+   ]
   }
  ]
 }
