@@ -69,6 +69,12 @@
      assets/fonts and declared in styles.css. The font PICKER still pulls
      the Google catalogue on demand via ensureFont(), so nothing is lost
      and the render-blocking third-party request is gone. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b48cff'/%3E%3Crect x='16' y='26' width='32' height='12' rx='3' fill='%23140a24'/%3E%3C/svg%3E">
+<!-- The ten 150KB template backdrops that used to be preloaded here fed the
+     OLD canvas landing. The showcase ships 448px thumbnails instead, so they
+     were 1.5MB of art the page never drew: on a phone that was most of a
+     13.6s load (measured 2026-09-04). The studio fetches what it needs when
+     somebody opens it. -->
 <link rel="stylesheet" href="styles.css">
 
 <!-- ABOVE-THE-FOLD BACKDROPS, preloaded.
@@ -81,16 +87,6 @@
      the same URLs preloadTplBgs() asks for, so they hit warm and cost nothing
      twice. Regenerate this list if the hero seed or gallery order changes —
      a stale entry is a wasted download and a console warning, not a break. -->
-<link rel="preload" as="image" href="assets/bg/dl_phones_voltStack_volt.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_glassCard_ocean.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_neonNight_royal.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_arcCrown_crimson.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_diagonalRush_sunset.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_bandKnockout_arctic.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_ticketStub_mono.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_bubblePop_volt.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_hudTech_ocean.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_checklistHero_emerald.jpg">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 </head>
 <body>

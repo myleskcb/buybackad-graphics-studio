@@ -10601,6 +10601,334 @@
    "collectionNote": "Eight colourways of ONE engine-built ground: the device wall drawn at scripts/retheme_lab.mjs:2925-2952 — 4 columns x 3 rows, 28px gutters, cells 235 x 322.7 at 1080, one contact shadow per cell (rgba(0,0,0,0.28), blur 26, +10/+16), veiled by the palette's own dark tone at 0.60. Three engine facts govern every theme here and none of them was true in the first draft. (a) THE WALL IS NOT AUTHORED. The pool is the subject's whole approved shelf minus two-up composites (the MULTI filter) minus anything under 240px wide, sliced to twelve, so it is fixed per deck: the iPhone wall is always iphone-15-pro-back-black, -blue, -gold, -white, iphone-15-pro-front-on, iphone-17-pro-back-black, iphone-17-pro-back-silver, iphone-hand-back-offer, iphone-in-hand-screen-on, iphone-screen-on-glow, own-apple-cosmic-orange-02 and -06; the iPad wall is exactly eight units (ipad-angle-tilt-back, ipad-back-camera, ipad-front-screen-off, ipad-mini-single, ipad-with-keyboard, ipad-with-pencil, ipad-with-stylus, own-stock-iphone-ipad), which is the pool size that makes row three a copy of row one; the MacBook wall still carries mac-damaged-screen. No look field selects wall units, so NO theme here claims a curated wall, a pool size or a lattice rhythm — index=(n+seed)%pool.length is arithmetic the recipe cannot reach, and the two in-hand shots and one macro crop in the iPhone wall are ground texture under a 0.60 veil, not a promise the recipe can make. (b) EACH UNIT IS CONTAIN-FITTED TO ITS OWN CELL. Aspects in the iPhone pool run 0.42 to 1.11, so adjacent cells differ in apparent size by more than 2x; 'all twelve share one scale' is deleted collection-wide. (c) THE DECK ROTATES iphone, iphone, iphone, ipad, ipad, macbook on sd%6 and look.categories does not steer it, so every card's headline, items line, price, badges, marks and selling points belong to whichever Apple line the seed dealt. Every copy block here is written deck-neutral: SELL YOUR iPHONE / iPAD / MACBOOK is the engine's own sentence, one sentence in one face, and the two selling points come from the engine's pool (the deck's sub lines, then FREE WRITTEN OFFER BEFORE YOU DECIDE, then INFO.yes and INFO.no) — no theme invents a claim and every bare figure keeps its UP TO. WHAT A THEME OWNS: two palettes, its faces, its layouts, its variations, and its mustShow/neverShow, which lookFaults now enforces on the card's cutout LAYERS (hero and lineup), re-seeding the card once on a fault. Those lists are the only enforcement in the set, so every rule is a bare startsWith token — a rule containing a space is prose the matcher skips, which is why every parenthesised entry from the first draft banned nothing. Each theme also carries ONE enforceable foreground rule (greyscale bodies, backs only, single bodies, dark bodies, pale bodies) so the eight differ in what they SHOW, not only in what colour they are. WHAT THE LISTS CANNOT REACH, stated rather than pretended: the wall (a drawn ground, not layers); a cast product (the hero layer is deleted under a cast ground, which is why no theme here takes cast); the sticker (five texts by seed: CASH TODAY, PAID TODAY, SAME DAY, ON THE SPOT, FREE QUOTE); the kicker (KICKERS.apple by seed); and the icon marks — ELEMENTS.phones carries a watch glyph on iPhone cards, and there is no tablet or laptop glyph in the set at all. Three refusals hold across all eight: no slab (slabFrame already returns unless the category is pokemon or sports), no watch theme (watch is out of the Apple rotation), and no curved headline over a straight lattice, so arcCrown and gradientWave stay out of every layout list. Two data fixes are asked for and neither is applied here: assets/approved-assets.json still lists mac-damaged-screen in the approved array while filing it under damage-heavy, so it sits in the live MacBook wall; and no code path places an Apple mark (BRAND_LOGO maps vehicle words only), so 'logo:apple' is unreachable and every theme bans logos outright with the catch-all rule 'logo:'.",
    "source": "variation-of:device-wall-deep-glass",
    "renderedCards": 0
+  },
+  {
+   "id": "house-lime-buy",
+   "name": "Lime Buy",
+   "collection": "house-style",
+   "oneLine": "The shop’s own poster look: the photograph fills the card, the words sit straight on it in heavy outlined type, one accent line, and the number in a black box.",
+   "palettes": [
+    "jw07",
+    "cd04"
+   ],
+   "faces": {
+    "display": "Big Shoulders Display",
+    "support": "Satoshi",
+    "num": "Big Shoulders Display"
+   },
+   "ground": "cast",
+   "style": "poster",
+   "groundSpec": "The product is drawn large into the ground under a soft window shadow and the whole card is the picture — no panels, no margins. Type sits on the photograph with a heavy black outline and a hard offset shadow, which is what lets it read without a plate.",
+   "imagery": "The category’s own approved cutouts, one large hero in the ground.",
+   "mustShow": [],
+   "neverShow": [
+    "ground:abs",
+    "ground:paper"
+   ],
+   "layouts": [
+    "checklistHero",
+    "trustSeal",
+    "stepsFlow",
+    "reviewProof"
+   ],
+   "categories": [
+    "phones"
+   ],
+   "copy": "Two-line headline, line one white and line two in the accent — WE BUY / iPHONES. Claim lines short and specific. The number is the second biggest thing on the card.",
+   "variations": [
+    "ribbon kicker",
+    "ticker strip across the ends",
+    "plain poster"
+   ],
+   "source": "learned-from-owner-canva",
+   "perLook": 6
+  },
+  {
+   "id": "house-street-cash",
+   "name": "Street Cash",
+   "collection": "house-style",
+   "oneLine": "The shop’s own poster look: the photograph fills the card, the words sit straight on it in heavy outlined type, one accent line, and the number in a black box.",
+   "palettes": [
+    "pp02",
+    "jw03"
+   ],
+   "faces": {
+    "display": "Big Shoulders Display",
+    "support": "Satoshi",
+    "num": "Big Shoulders Display"
+   },
+   "ground": "cast",
+   "style": "poster",
+   "groundSpec": "The product is drawn large into the ground under a soft window shadow and the whole card is the picture — no panels, no margins. Type sits on the photograph with a heavy black outline and a hard offset shadow, which is what lets it read without a plate.",
+   "imagery": "The category’s own approved cutouts, one large hero in the ground.",
+   "mustShow": [],
+   "neverShow": [
+    "ground:abs",
+    "ground:paper"
+   ],
+   "layouts": [
+    "checklistHero",
+    "trustSeal",
+    "stepsFlow",
+    "reviewProof"
+   ],
+   "categories": [
+    "gold"
+   ],
+   "copy": "Two-line headline, line one white and line two in the accent — WE BUY / iPHONES. Claim lines short and specific. The number is the second biggest thing on the card.",
+   "variations": [
+    "ribbon kicker",
+    "ticker strip across the ends",
+    "plain poster"
+   ],
+   "source": "learned-from-owner-canva",
+   "perLook": 6
+  },
+  {
+   "id": "house-silver-poster",
+   "name": "Silver Poster",
+   "collection": "house-style",
+   "oneLine": "The shop’s own poster look: the photograph fills the card, the words sit straight on it in heavy outlined type, one accent line, and the number in a black box.",
+   "palettes": [
+    "ca07",
+    "jw05"
+   ],
+   "faces": {
+    "display": "Big Shoulders Display",
+    "support": "Satoshi",
+    "num": "Big Shoulders Display"
+   },
+   "ground": "cast",
+   "style": "poster",
+   "groundSpec": "The product is drawn large into the ground under a soft window shadow and the whole card is the picture — no panels, no margins. Type sits on the photograph with a heavy black outline and a hard offset shadow, which is what lets it read without a plate.",
+   "imagery": "The category’s own approved cutouts, one large hero in the ground.",
+   "mustShow": [],
+   "neverShow": [
+    "ground:abs",
+    "ground:paper"
+   ],
+   "layouts": [
+    "checklistHero",
+    "trustSeal",
+    "stepsFlow",
+    "reviewProof"
+   ],
+   "categories": [
+    "silver"
+   ],
+   "copy": "Two-line headline, line one white and line two in the accent — WE BUY / iPHONES. Claim lines short and specific. The number is the second biggest thing on the card.",
+   "variations": [
+    "ribbon kicker",
+    "ticker strip across the ends",
+    "plain poster"
+   ],
+   "source": "learned-from-owner-canva",
+   "perLook": 6
+  },
+  {
+   "id": "house-coin-poster",
+   "name": "Coin Poster",
+   "collection": "house-style",
+   "oneLine": "The shop’s own poster look: the photograph fills the card, the words sit straight on it in heavy outlined type, one accent line, and the number in a black box.",
+   "palettes": [
+    "jw05",
+    "du08"
+   ],
+   "faces": {
+    "display": "Big Shoulders Display",
+    "support": "Satoshi",
+    "num": "Big Shoulders Display"
+   },
+   "ground": "cast",
+   "style": "poster",
+   "groundSpec": "The product is drawn large into the ground under a soft window shadow and the whole card is the picture — no panels, no margins. Type sits on the photograph with a heavy black outline and a hard offset shadow, which is what lets it read without a plate.",
+   "imagery": "The category’s own approved cutouts, one large hero in the ground.",
+   "mustShow": [],
+   "neverShow": [
+    "ground:abs",
+    "ground:paper"
+   ],
+   "layouts": [
+    "checklistHero",
+    "trustSeal",
+    "stepsFlow",
+    "reviewProof"
+   ],
+   "categories": [
+    "coins"
+   ],
+   "copy": "Two-line headline, line one white and line two in the accent — WE BUY / iPHONES. Claim lines short and specific. The number is the second biggest thing on the card.",
+   "variations": [
+    "ribbon kicker",
+    "ticker strip across the ends",
+    "plain poster"
+   ],
+   "source": "learned-from-owner-canva",
+   "perLook": 6
+  },
+  {
+   "id": "house-lot-poster",
+   "name": "Lot Poster",
+   "collection": "house-style",
+   "oneLine": "The shop’s own poster look: the photograph fills the card, the words sit straight on it in heavy outlined type, one accent line, and the number in a black box.",
+   "palettes": [
+    "du08",
+    "jw01"
+   ],
+   "faces": {
+    "display": "Big Shoulders Display",
+    "support": "Satoshi",
+    "num": "Big Shoulders Display"
+   },
+   "ground": "cast",
+   "style": "poster",
+   "groundSpec": "The product is drawn large into the ground under a soft window shadow and the whole card is the picture — no panels, no margins. Type sits on the photograph with a heavy black outline and a hard offset shadow, which is what lets it read without a plate.",
+   "imagery": "The category’s own approved cutouts, one large hero in the ground.",
+   "mustShow": [],
+   "neverShow": [
+    "ground:abs",
+    "ground:paper"
+   ],
+   "layouts": [
+    "checklistHero",
+    "trustSeal",
+    "stepsFlow",
+    "reviewProof"
+   ],
+   "categories": [
+    "cars"
+   ],
+   "copy": "Two-line headline, line one white and line two in the accent — WE BUY / iPHONES. Claim lines short and specific. The number is the second biggest thing on the card.",
+   "variations": [
+    "ribbon kicker",
+    "ticker strip across the ends",
+    "plain poster"
+   ],
+   "source": "learned-from-owner-canva",
+   "perLook": 6
+  },
+  {
+   "id": "house-card-poster",
+   "name": "Card Poster",
+   "collection": "house-style",
+   "oneLine": "The shop’s own poster look: the photograph fills the card, the words sit straight on it in heavy outlined type, one accent line, and the number in a black box.",
+   "palettes": [
+    "cd06",
+    "cd04"
+   ],
+   "faces": {
+    "display": "Big Shoulders Display",
+    "support": "Satoshi",
+    "num": "Big Shoulders Display"
+   },
+   "ground": "cast",
+   "style": "poster",
+   "groundSpec": "The product is drawn large into the ground under a soft window shadow and the whole card is the picture — no panels, no margins. Type sits on the photograph with a heavy black outline and a hard offset shadow, which is what lets it read without a plate.",
+   "imagery": "The category’s own approved cutouts, one large hero in the ground.",
+   "mustShow": [],
+   "neverShow": [
+    "ground:abs",
+    "ground:paper"
+   ],
+   "layouts": [
+    "checklistHero",
+    "trustSeal",
+    "stepsFlow",
+    "reviewProof"
+   ],
+   "categories": [
+    "pokemon"
+   ],
+   "copy": "Two-line headline, line one white and line two in the accent — WE BUY / iPHONES. Claim lines short and specific. The number is the second biggest thing on the card.",
+   "variations": [
+    "ribbon kicker",
+    "ticker strip across the ends",
+    "plain poster"
+   ],
+   "source": "learned-from-owner-canva",
+   "perLook": 6
+  },
+  {
+   "id": "house-slab-poster",
+   "name": "Slab Poster",
+   "collection": "house-style",
+   "oneLine": "The shop’s own poster look: the photograph fills the card, the words sit straight on it in heavy outlined type, one accent line, and the number in a black box.",
+   "palettes": [
+    "du07",
+    "jw05"
+   ],
+   "faces": {
+    "display": "Big Shoulders Display",
+    "support": "Satoshi",
+    "num": "Big Shoulders Display"
+   },
+   "ground": "cast",
+   "style": "poster",
+   "groundSpec": "The product is drawn large into the ground under a soft window shadow and the whole card is the picture — no panels, no margins. Type sits on the photograph with a heavy black outline and a hard offset shadow, which is what lets it read without a plate.",
+   "imagery": "The category’s own approved cutouts, one large hero in the ground.",
+   "mustShow": [],
+   "neverShow": [
+    "ground:abs",
+    "ground:paper"
+   ],
+   "layouts": [
+    "checklistHero",
+    "trustSeal",
+    "stepsFlow",
+    "reviewProof"
+   ],
+   "categories": [
+    "sports"
+   ],
+   "copy": "Two-line headline, line one white and line two in the accent — WE BUY / iPHONES. Claim lines short and specific. The number is the second biggest thing on the card.",
+   "variations": [
+    "ribbon kicker",
+    "ticker strip across the ends",
+    "plain poster"
+   ],
+   "source": "learned-from-owner-canva",
+   "perLook": 6
+  },
+  {
+   "id": "house-strip-poster",
+   "name": "Supply Poster",
+   "collection": "house-style",
+   "oneLine": "The shop’s own poster look: the photograph fills the card, the words sit straight on it in heavy outlined type, one accent line, and the number in a black box.",
+   "palettes": [
+    "ca07",
+    "pp04"
+   ],
+   "faces": {
+    "display": "Big Shoulders Display",
+    "support": "Satoshi",
+    "num": "Big Shoulders Display"
+   },
+   "ground": "cast",
+   "style": "poster",
+   "groundSpec": "The product is drawn large into the ground under a soft window shadow and the whole card is the picture — no panels, no margins. Type sits on the photograph with a heavy black outline and a hard offset shadow, which is what lets it read without a plate.",
+   "imagery": "The category’s own approved cutouts, one large hero in the ground.",
+   "mustShow": [],
+   "neverShow": [
+    "ground:abs",
+    "ground:paper"
+   ],
+   "layouts": [
+    "checklistHero",
+    "trustSeal",
+    "stepsFlow",
+    "reviewProof"
+   ],
+   "categories": [
+    "strips"
+   ],
+   "copy": "Two-line headline, line one white and line two in the accent — WE BUY / iPHONES. Claim lines short and specific. The number is the second biggest thing on the card.",
+   "variations": [
+    "ribbon kicker",
+    "ticker strip across the ends",
+    "plain poster"
+   ],
+   "source": "learned-from-owner-canva",
+   "perLook": 6
   }
  ]
 }

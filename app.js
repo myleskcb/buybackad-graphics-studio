@@ -2452,6 +2452,7 @@ function showLanding(){
   window.scrollTo(0,0);
 }
 function showEditor(){
+  warmTemplateAssets();
   $('page-landing').classList.add('hidden');
   $('page-easy').classList.remove('active');
   $('page-editor').classList.add('active');
@@ -7536,7 +7537,18 @@ function cssBg(spec){
   return spec.type === 'solid' ? spec.c : `linear-gradient(${spec.a||0}deg, ${spec.c1}, ${spec.c2})`;
 }
 
+/* The template art — backdrops and product cutouts — is only needed by a
+   CANVAS render, which only happens inside the studio. Warmed once, on the
+   way in, so the landing page stays light on a phone. Idempotent. */
+let _tplAssetsWarmed = false;
+function warmTemplateAssets(){
+  if (_tplAssetsWarmed) return;
+  _tplAssetsWarmed = true;
+  try { preloadTplBgs(); } catch (e){}
+  try { preloadCutouts(); } catch (e){}
+}
 function showEasy(tplId){
+  warmTemplateAssets();
   buildEzStrip();   // pick up any photo thumbs that landed while on other pages
   $('page-landing').classList.add('hidden');
   $('page-editor').classList.remove('active');
@@ -8465,7 +8477,11 @@ function boot(){
   $('lp-open-studio').onclick = () => showEasy(null);
   $('lp-cta-main').onclick = () => showEasy(null);
   $('lp-cta-bottom').onclick = () => showEasy(null);
-  bindEasyUI();
+  /* bindEasyUI() builds the whole Easy Mode panel — background swatches, the
+     layer rows, the template strip — and its swatches carry template photos as
+     CSS backgrounds and <img> tags. Run at boot it fetched ten backdrops for a
+     panel nobody was looking at yet. showEasy() calls it, and it is idempotent,
+     so the studio still builds itself on the way in. */
   // prefill brand modal
   const b = getBrand();
   if (b){ $('bk-phone').value = b.phone || ''; $('bk-website').value = b.website || ''; $('bk-name').value = b.name || ''; if ($('bk-area')) $('bk-area').value = areaLabel(); }
@@ -8476,8 +8492,13 @@ function boot(){
        queued behind it, the first backdrop request did not leave the browser
        until 4.1s. Start the NETWORK first and let it run while the CPU draws:
        the two no longer wait on each other. */
-    preloadTplBgs();          // photos start downloading immediately…
-    preloadCutouts();         // …as do the street family's product cutouts…
+    /* THE LANDING NO LONGER PAINTS TEMPLATES ON A CANVAS, so it does not need
+       the 153 backdrops (31.4 MB) or the product cutouts. Measured on a phone
+       2026-09-04: 33.6 MB over 207 requests and 13.6s to load, of which 31.4 MB
+       was /assets/bg — art the page never showed. The showcase ships its own
+       448px thumbnails. Those assets are warmed the moment somebody opens the
+       studio instead (warmTemplateAssets), which is the first time a canvas
+       render actually needs them. */
     buildLanding();
     try { refreshPlanFeats(); refreshCountCopy(); } catch (e){}   // copy states counts; make them true           // …while the CPU paints fallbacks, upgraded on arrival
   });
@@ -9474,7 +9495,7 @@ async function openShowcase(id){
 }
 function buildLandingV2(){
   scLoadIndex().then(cards => {
-    if (!cards.length){ buildLandingV1(); return; }
+    if (!cards.length){ warmTemplateAssets(); buildLandingV1(); return; }
     if (SHOWCASE.built){
       /* refreshPhotoThumb() re-calls buildLanding() as each old backdrop
          decodes; only the classics view draws from those thumbnails */

@@ -383,6 +383,10 @@ const THEME_BY_ID = Object.fromEntries(THEMES.map(t => [t.id, t]));
 
 const browser = await puppeteer.launch({ executablePath: CHROME, headless:'new', args:['--no-sandbox'], protocolTimeout: 0 });
 const page = await browser.newPage();
+/* page-side logs were never forwarded, so every console.warn from the in-render
+   self-audit has been invisible. Surface the ones that matter. */
+page.on('console', m => { const t = m.text(); if (/^(SUBJECT|LOOKSKIP|NOGOODS|PILLDBG|WARN)/.test(t)) console.log(t); });
+page.on('pageerror', e => console.log('PAGEERROR ' + e.message));
 const perr = [];
 page.on('pageerror', e => perr.push(String(e).slice(0,200)));
 await page.goto(BASE, { waitUntil:'networkidle2', timeout:120000 });
@@ -432,7 +436,7 @@ const FIT = {
   pokemon: ['comic','script','street','hand','typewriter','condensed','horror','bold'],
   sports:  ['condensed','comic','typewriter','street','slab','bold','script','vintage'],
 };
-const FACESYS = { STYLE, FIT, TRACK: Object.fromEntries(FONTS.filter(f => f.track !== undefined).map(f => [f.name, f.track])), review100: process.env.LAB_REVIEW === '100', size: +(process.env.LAB_SIZE || 0), blank: REJECTED.size ? '^(' + [...REJECTED].join('|') + ')$' : BLANK.source, subcats: process.env.LAB_SUBCATS === '1', forceAbs: process.env.LAB_ABS === '1', placeDebug: process.env.LAB_PLACE === '1', dground: process.env.LAB_DGROUND || null, slab: process.env.LAB_SLAB === '1', cats: process.env.LAB_CATS ? process.env.LAB_CATS.split(',') : null, slabGrade: process.env.LAB_SLABGRADE || null, attempt: +(process.env.LAB_ATTEMPT || 0), grounds: process.env.LAB_GROUNDS ? process.env.LAB_GROUNDS.split(',') : (existsSync(ROOT + 'assets/approved-grounds.json') ? Object.keys(JSON.parse(readFileSync(ROOT + 'assets/approved-grounds.json', 'utf8')).kinds).concat(['shadowcast','blinds']) : null) };
+const FACESYS = { STYLE, FIT, TRACK: Object.fromEntries(FONTS.filter(f => f.track !== undefined).map(f => [f.name, f.track])), review100: process.env.LAB_REVIEW === '100', size: +(process.env.LAB_SIZE || 0), blank: REJECTED.size ? '^(' + [...REJECTED].join('|') + ')$' : BLANK.source, subcats: process.env.LAB_SUBCATS === '1', forceAbs: process.env.LAB_ABS === '1', placeDebug: process.env.LAB_PLACE === '1', dground: process.env.LAB_DGROUND || null, slab: process.env.LAB_SLAB === '1', cats: process.env.LAB_CATS ? process.env.LAB_CATS.split(',') : null, slabGrade: process.env.LAB_SLABGRADE || null, attempt: +(process.env.LAB_ATTEMPT || 0), noGroup: process.env.LAB_NOGROUP === '1', grounds: process.env.LAB_GROUNDS ? process.env.LAB_GROUNDS.split(',') : (existsSync(ROOT + 'assets/approved-grounds.json') ? Object.keys(JSON.parse(readFileSync(ROOT + 'assets/approved-grounds.json', 'utf8')).kinds).concat(['shadowcast','blinds']) : null) };
 const TRACK = FACESYS.TRACK;
 await page.evaluate(async faces => {
   await Promise.all(faces.map(f => (typeof ensureFont === 'function' ? ensureFont(f) : Promise.resolve())));
@@ -563,7 +567,8 @@ if (process.env.LAB_LOOKS && LOOKS.length){
     const lays = (L.layouts || []).map(l => layoutIx[l]).filter(i2 => i2 !== undefined);
     if (!lays.length){ console.log('  no usable layout: ' + (L.key || L.id)); return; }
     const pals = (L.palettes || []).filter(pl => DONORS.indexOf(pl) >= 0);
-    for (let v = 0; v < PERLOOK; v++){
+    const nHere = L.perLook || PERLOOK;   // a new collection can ask for more cards to grade
+    for (let v = 0; v < nHere; v++){
       const i = lays[v % lays.length];
       const j = pals.length ? DONORS.indexOf(pals[v % pals.length]) : 0;
       PLAN.push({ i, j, v: VSTART + v, k: PLAN.length, look: L.key || L.id });
@@ -1409,9 +1414,12 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       if (l.kind !== 'circle' || !l.props) return;
       const r = l.props.radius || 0; if (r < 12 || r > 40) return;
       const cx = (l.props.left || 0) + r, cy = (l.props.top || 0) + r;
-      const has = t2.layers.some(g => typeof g.text === 'string' && g.props &&
-        Math.hypot(((g.props.left || 0) + (g.props.originX === 'center' ? 0 : 10)) - cx,
-                   ((g.props.top || 0) + (g.props.originY === 'center' ? 0 : 10)) - cy) < 22);
+      /* a glyph OR a vector: the check used to look only for text, so when the
+         tick had already been drawn as an icon a second one landed on top of it
+         — "we're putting two vectors?? it looks like confused AI" */
+      const has = t2.layers.some(g => g.props && (typeof g.text === 'string' || g.kind === 'path' || g.icon) &&
+        Math.hypot(((g.props.left || 0) + (g.props.originX === 'center' ? 0 : (g.props.size || 20) / 2)) - cx,
+                   ((g.props.top || 0) + (g.props.originY === 'center' ? 0 : (g.props.size || 20) / 2)) - cy) < 30);
       if (!has) added.push({ kind:'text', name:'Tick Mark', role:'deco', text:'✓',
         props:{ left:cx, top:cy, originX:'center', originY:'center', fontFamily:'Satoshi',
                 fontSize: Math.round(r * 1.25), fontWeight:'900', fill:'#101014' } });
@@ -1575,6 +1583,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
                          'Liquid Glass':'round', 'Space':'round', 'Duotone':'square', 'Ink Pop':'square', 'Paper':'square',
                          'Night Neon':'square', 'Chalk':'soft', 'Lined Paper':'soft' };
       if (plate){
+        plate.__ctaPlate = true;   // the plate under the number: not a highlighter, never overrun
         plate.props.fill = fill; plate.solid = true; plate.__lock = true; delete plate.props.grad; plate.props.opacity = 1;
         const h0 = plate.props.height || 0, sh = FAMSHAPE[th.family] || 'soft';
         plate.props.rx = sh === 'pill' ? h0 / 2 : sh === 'round' ? Math.min(40, h0 / 2) : sh === 'square' ? 0 : 16;
@@ -1671,7 +1680,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       textBoxes.push(o.getBoundingRect(true, true)); });
     refs.forEach((o, k) => {
       const l = t2.layers[k];
-      if (!o || !(l.role === 'deco' || l.kind === 'path' || l.kind === 'circle')) return;
+      if (!o || l.__keepDeco || !(l.role === 'deco' || l.kind === 'path' || l.kind === 'circle')) return;
       const b = o.getBoundingRect(true, true);
       const hit = textBoxes.some(t => !(b.left + b.width <= t.left || t.left + t.width <= b.left ||
                                          b.top + b.height <= t.top || t.top + t.height <= b.top));
@@ -1941,10 +1950,10 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       } }
     /* DECORATION YIELDS TO WORDS. A divider (═══ ◆ ═══, ━━━━, ★ ★ ★) that
        ends up on a line of copy is taken off the canvas; the copy stays. */
-    { const words = refs.map((o, k) => o && typeof t2.layers[k].text === 'string' && t2.layers[k].role !== 'deco' ? o.getBoundingRect(true, true) : null).filter(Boolean);
+    { const words = refs.map((o, k) => o && typeof t2.layers[k].text === 'string' && t2.layers[k].role !== 'deco' ? Object.assign(o.getBoundingRect(true, true), { __head: t2.layers[k].role === 'headline' }) : null).filter(Boolean);
       refs.forEach((o, k) => {
         const l = t2.layers[k];
-        if (!o || l.role !== 'deco' || typeof l.text !== 'string' || l.text.trim().length < 3) return;
+        if (!o || l.__keepDeco || l.role !== 'deco' || typeof l.text !== 'string' || l.text.trim().length < 3) return;   // a mark placed on purpose inside its own plate stays
         const b = o.getBoundingRect(true, true);
         const hit = words.some(w => !(b.left + b.width <= w.left || w.left + w.width <= b.left || b.top + b.height <= w.top || w.top + w.height <= b.top));
         if (hit){ sc.remove(o); refs[k] = null; }
@@ -1996,14 +2005,57 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
          a product may sit beside or under it — that corner is the one spot a
          wide-headline layout has, and dropping the product for it left cards
          with no imagery at all (owner, 2026-09-03) */
-      const words = refs.map((o, k) => o && typeof t2.layers[k].text === 'string' && t2.layers[k].role !== 'deco' && t2.layers[k].role !== 'badges' ? o.getBoundingRect(true, true) : null).filter(Boolean);
+      const words = refs.map((o, k) => o && typeof t2.layers[k].text === 'string' && t2.layers[k].role !== 'deco' && t2.layers[k].role !== 'badges' ? Object.assign(o.getBoundingRect(true, true), { __head: t2.layers[k].role === 'headline' }) : null).filter(Boolean);
       refs.forEach((o, k) => {
         const l = t2.layers[k];
         if (!o || l.kind !== 'cutout' || l.__wall) return;   // the wall sits BEHIND the words by design
         const b = o.getBoundingRect(true, true);
-        const wordsFor = l.__crown ? refs.map((o2, k2) => o2 && typeof t2.layers[k2].text === 'string' && t2.layers[k2].role !== 'deco' && t2.layers[k2].role !== 'badges' && !/Arc|Wave|Curve/i.test(t2.layers[k2].name || '') ? o2.getBoundingRect(true, true) : null).filter(Boolean) : words;
-        const hit = wordsFor.some(t => { const ix = Math.max(0, Math.min(b.left + b.width, t.left + t.width) - Math.max(b.left, t.left)), iy = Math.max(0, Math.min(b.top + b.height, t.top + t.height) - Math.max(b.top, t.top)); return ix * iy > 0.1 * t.width * t.height; });
-        if (hit){ sc.remove(o); refs[k] = null; l.__yielded = true; }
+        const wordsFor = l.__crown ? refs.map((o2, k2) => o2 && typeof t2.layers[k2].text === 'string' && t2.layers[k2].role !== 'deco' && t2.layers[k2].role !== 'badges' && !/Arc|Wave|Curve/i.test(t2.layers[k2].name || '') ? Object.assign(o2.getBoundingRect(true, true), { __head: t2.layers[k2].role === 'headline' }) : null).filter(Boolean) : words;
+        /* three ways a product is "on the words": across a line, sitting on a
+           word, or touching a HEADLINE at all — a graze against the headline
+           still reads as a mistake, so that one wants real clearance. */
+        const over = t => {
+          const pad = t.__head ? 10 : 0;
+          const ix = Math.max(0, Math.min(b.left + b.width, t.left + t.width + pad) - Math.max(b.left, t.left - pad));
+          const iy = Math.max(0, Math.min(b.top + b.height, t.top + t.height + pad) - Math.max(b.top, t.top - pad));
+          const ov = ix * iy;
+          if (t.__head && ov > 0) return true;
+          return ov > t.width * t.height * 0.10 || ov > b.width * b.height * 0.25;
+        };
+        const hit = wordsFor.some(over);
+        if (hit){
+          /* RESOLVE, DO NOT DELETE. Deleting the product is what left cards with
+             nothing to show — "people don't know what you're buying". Shrink it
+             toward the nearest clear space first; only if it still cannot clear
+             the words does it come off, and then it is demoted to the ground by
+             the goods pass rather than lost. */
+          let saved = false;
+          /* MOVE FIRST, at full size: shrinking a product that only needed to
+             step aside is why the goods ended up too small to read. */
+          { const bw = b.width, bh = b.height;
+            outerMove: for (let y = 26; y <= H - bh - 26; y += 24)
+              for (let x = 26; x <= W - bw - 26; x += 24){
+                const clash = wordsFor.some(t => {
+                  const pad = t.__head ? 10 : 0;
+                  const ix = Math.max(0, Math.min(x + bw, t.left + t.width + pad) - Math.max(x, t.left - pad));
+                  const iy = Math.max(0, Math.min(y + bh, t.top + t.height + pad) - Math.max(y, t.top - pad));
+                  const ov = ix * iy;
+                  if (t.__head && ov > 0) return true;
+                  return ov > t.width * t.height * 0.10 || ov > bw * bh * 0.25;
+                });
+                if (!clash){ o.set({ left: (o.left || 0) + (x - b.left), top: (o.top || 0) + (y - b.top) }); o.setCoords(); saved = true; break outerMove; }
+              }
+          }
+          for (const shrink of saved ? [] : [0.78, 0.6, 0.46]){
+            const sx = (o.scaleX || 1), sy = (o.scaleY || 1);
+            o.set({ scaleX: sx * shrink, scaleY: sy * shrink }); o.setCoords();
+            const nb = o.getBoundingRect(true, true);
+            const still = wordsFor.some(t => { const pad = t.__head ? 10 : 0; const ix = Math.max(0, Math.min(nb.left + nb.width, t.left + t.width + pad) - Math.max(nb.left, t.left - pad)), iy = Math.max(0, Math.min(nb.top + nb.height, t.top + t.height + pad) - Math.max(nb.top, t.top - pad)); const ov = ix * iy; if (t.__head && ov > 0) return true; return ov > t.width * t.height * 0.10 || ov > nb.width * nb.height * 0.25; });
+            if (!still && nb.left > 10 && nb.top > 10 && nb.left + nb.width < W - 10 && nb.top + nb.height < H - 10){ saved = true; break; }
+            o.set({ scaleX: sx, scaleY: sy }); o.setCoords();
+          }
+          if (!saved){ sc.remove(o); refs[k] = null; l.__yielded = true; t2.__lostGoods = l.props && l.props.src; }
+        }
       });
     }
     /* backstop: any cutout still outside the frame is scaled and pulled in */
@@ -2641,6 +2693,85 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
      ink, a hand-set tilt on the headline. */
   const HIGHLIGHT = ['#fff59d','#ffd6e7','#c9f5c4','#cfe8ff','#ffe0b3','#e8d7ff'];
   const STICKY = ['#fff3a0','#ffd9e6','#d3f7d0','#d6ebff','#ffe4bf'];
+  /* THE HOUSE STYLE, learned from the owner's own Canva work (2026-09-04).
+     Their two live ads do not use plates behind the words at all: the photograph
+     fills the card edge to edge and every line sits straight on it in heavy type
+     with a black outline and a hard offset shadow. That is why their cards read
+     full where ours read empty — the picture is the whole card, not a backdrop
+     behind panels. Devices, in their order of weight:
+       posterInk   heavy stroke + hard shadow on every line, plates removed
+       ribbon      the kicker in an angled parallelogram, top left
+       sealCheck   a filled tick disc with the seal words stacked beside it
+       ticker      a repeating offer strip across the top and the foot
+       ctaBox      a black box with an accent border carrying the number, big */
+  function posterInk(t2, th, seed){
+    const accent = th.accent, ink = '#ffffff', outline = 'rgba(8,8,10,0.92)';
+    let headN = 0;
+    t2.layers.forEach(l => {
+      if (typeof l.text !== 'string' || !l.props || !l.text.trim()) return;
+      const fs = l.props.fontSize || 0;
+      if (l.role === 'headline'){
+        /* line two of the sentence takes the accent, the rest stay white — the
+           owner's own card is WE BUY in white over IPHONES in lime */
+        l.props.fill = (headN++ === 1) ? accent : ink;
+        delete l.props.grad;
+        l.props.stroke = outline;
+        l.props.strokeWidth = Math.max(5, Math.round(fs * 0.075));
+        l.props.paintFirst = 'stroke';
+        l.props.shadow = { color: 'rgba(6,6,8,0.75)', blur: 0, offsetX: Math.round(fs * 0.045), offsetY: Math.round(fs * 0.055) };
+        l.__lock = true;
+      } else if (l.role === 'sub' || l.role === 'info' || l.role === 'badges' || l.role === 'cta'){
+        l.props.fill = ink; delete l.props.grad;
+        l.props.stroke = outline; l.props.strokeWidth = Math.max(3, Math.round((fs || 28) * 0.06));
+        l.props.paintFirst = 'stroke';
+        l.props.shadow = { color: 'rgba(6,6,8,0.6)', blur: 0, offsetX: 2, offsetY: 3 };
+      }
+    });
+    /* the plates go: on this style the photograph carries the card and a panel
+       over it is what made ours look like a form rather than an ad */
+    t2.layers = t2.layers.filter(l => {
+      if (!(l.kind === 'rect' || l.kind === 'rrect') || !l.props) return true;
+      if (l.__ctaPlate || l.__footerBar || l.__moneyPlate) return true;      // the number keeps its box
+      const w0 = l.props.width || 0, h0 = l.props.height || 0;
+      if (w0 > W * 0.92 && h0 > H * 0.92) return true;                        // the ground
+      return false;
+    });
+    t2.__poster = true;
+  }
+  function ribbonFor(t2, th, seed){
+    const kick = t2.layers.find(l => /^Kicker$/.test(l.name || '') && typeof l.text === 'string');
+    if (!kick || !kick.props) return;
+    const fs = Math.max(30, Math.min(46, kick.props.fontSize || 34));
+    const text = String(kick.text || '').trim();
+    const w2 = Math.min(W * 0.56, text.length * fs * 0.62 + 72), h2 = fs * 1.9;
+    const left = 46, top = 92;
+    kick.props.fontSize = fs; kick.props.left = left + w2 / 2; kick.props.top = top + h2 / 2;
+    kick.props.originX = 'center'; kick.props.originY = 'center';
+    kick.props.fill = th.onAccent || '#101014'; kick.props.angle = -6;
+    kick.props.stroke = null; kick.props.strokeWidth = 0; kick.props.shadow = null;
+    kick.__lock = true;
+    const ix = t2.layers.indexOf(kick);
+    t2.layers.splice(ix, 0, { kind:'rect', name:'Ribbon', solid:true, __lock:true, __ribbon:true,
+      props:{ left, top, width: w2, height: h2, rx: 4, angle: -6, fill: th.accent,
+              shadow:{ color:'rgba(6,6,8,0.5)', blur: 0, offsetX: 5, offsetY: 6 } } });
+  }
+  function tickerFor(t2, th, seed, line){
+    /* the ticker repeats the offer and the number, the way the owner's own card
+       runs a strip across the top and the foot */
+    const num = (t2.layers.find(l => /^Phone Number$/.test(l.name || '')) || {}).text || INFO.area.split(' · ')[0];
+    const txt = String(line || 'CASH TODAY').toUpperCase().replace(/\s+/g, ' ').slice(0, 30) + '  \u2022  ' + String(num).trim() + '  \u2022  ';
+    const fs = 26, band = fs * 1.7;
+    [0, H - band].forEach((y, i2) => {
+      /* the strip only runs where nothing else does */
+      if (t2.layers.some(l => typeof l.text === 'string' && l.text.trim() && l.props && Math.abs((l.props.top || 0) - (y + band / 2)) < band * 1.4)) return;
+      t2.layers.push({ kind:'rect', name:'Ticker Band ' + (i2 + 1), solid:true, __lock:true, __ticker:true,
+        props:{ left: 0, top: y, width: W, height: band, rx: 0, fill: th.accent, opacity: 0.96 } });
+      t2.layers.push({ kind:'text', name:'Ticker ' + (i2 + 1), role:'deco', __lock:true, __keepDeco:true, __ticker:true,
+        text: txt.repeat(4).slice(0, 96),
+        props:{ left: -8, top: y + band / 2, originX:'left', originY:'center', fontFamily: th.faces.support,
+                fontSize: fs, fill: th.onAccent || '#101014', fontWeight:'800', charSpacing: 40 } });
+    });
+  }
   function familyTreatment(t2, th, cat, seed){
     if (th.family === 'Space'){
       const pool = (WEBBG.space || []);
@@ -2660,10 +2791,27 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       const sheet = ['paper:ruled','paper:legal','paper:grid','paper:dots','paper:ruled'][seed % 5];
       /* a second, fainter stroke offset under each highlighter so the ends
          overrun like a real marker */
-      const addOverrun = () => { const extra = [];
-        t2.layers.forEach((l, k) => { if (!l.__hilite) return; const p = l.props;
-          extra.push([k, { kind:'rect', name:'Marker Overrun', solid:true, __lock:true, props:{ left: (p.left || 0) - 10 + ((seed + k) % 3) * 6, top: (p.top || 0) + 3, width: (p.width || 0) + 22, height: (p.height || 0) - 6, fill: p.fill, opacity: 0.3, rx: Math.round((p.height || 0) * 0.3), angle: (p.angle || 0) - 0.6 } }]); });
-        extra.reverse().forEach(([k, l]) => t2.layers.splice(k, 0, l)); };
+      /* A MARKER OVERRUN IS A HAND SLIP AT THE ENDS OF A STROKE, not a second
+         plate. Drawing a full-size copy behind the CTA card produced two stacked
+         plates in two different colours — "you got issues". Two narrow end-caps
+         only, in the stroke's own colour, and never on a plate that carries the
+         phone number. */
+      const addOverrun = () => {
+        const extra = [];
+        t2.layers.forEach((l, k) => {
+          if (!l.__hilite || l.__ctaPlate) return;
+          const p = l.props, h = p.height || 0, w = p.width || 0;
+          if (w < 120 || h < 24) return;
+          const cap = Math.min(26, w * 0.06);
+          [-1, 1].forEach((side, si) => {
+            const left = side < 0 ? (p.left || 0) - cap + 2 : (p.left || 0) + w - 2;
+            extra.push([k, { kind:'rect', name:'Marker Overrun', solid:true, __lock:true, __overrunOf:k,
+              props:{ left, top: (p.top || 0) + 4 + ((seed + si) % 3) * 2, width: cap, height: h - 8,
+                      fill: p.fill, opacity: (p.opacity || 0.55) * 0.9, rx: 3 } }]);
+          });
+        });
+        extra.reverse().forEach(([k, l]) => t2.layers.splice(k, 0, l));
+      };
       t2.__addOverrun = addOverrun;
       t2.bg = { type:'image', src: sheet, scrimColor: th.c1, scrim: 0.001, blur: 0 };
       const pen = th.accent, inkDark = '#26231f';
@@ -2679,6 +2827,8 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
              small number squares take the pen colour */
           if (w0 < 130 && h0 < 130){
             l.props.fill = pen; l.props.opacity = 1; l.props.rx = 8; l.props.angle = 0; l.solid = true; l.__lock = true; l.__penBox = true;
+          } else if (l.__ctaPlate){    // the plate under the number keeps its own shape and colour
+            l.props.opacity = 1; l.solid = true; l.__lock = true;
           } else if (l.__moneyPlate || (h0 <= 210 && w0 >= 200)){    // a band or pill → a highlighter stroke: translucent, slightly off-square, uneven ends
             l.props.fill = HIGHLIGHT[seed % HIGHLIGHT.length]; l.props.opacity = 0.55; l.props.rx = Math.round(h0 * 0.18); l.props.angle = ((seed + k) % 3 - 1) * 0.8; l.solid = true; l.__lock = true; l.__hilite = true;
           } else {                                                    // a card or panel → sticky note
@@ -2830,13 +2980,22 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
           const preferred = use.filter(f => allowed(f) && must.some(r => f.startsWith(r)));
           const fromMust = must.length ? ALLCUTS.filter(f => allowed(f) && must.some(r => f.startsWith(r))) : [];
           const cleaned = use.filter(allowed);
-          /* a theme whose positive rules name photographs or the slab frame rather
-             than cutouts still needs a product: the negative list alone applies */
-          if (!preferred.length && !fromMust.length && cleaned.length){ use = cleaned; }
+          /* THE SUBJECT WINS. A theme's asset rules narrow what the card may show;
+             they never change WHAT IT IS. Letting mustShow reach outside the deck
+             is how an iPad headline ended up over an iPhone (owner, 2026-09-03:
+             "this is not an iPad in the background and I think you're aware"). */
+          /* subjectOf only reads the deck and the category, so it can run before
+             the template is themed */
+          const subj0 = SUBJECTS[subjectOf({ layers: [] }, deck, p.cat)];
+          const inSubject = f => !subj0 || (subj0.cut.test(f) && !subj0.never.test(f));
+          const keepSubj = arr => { const k = arr.filter(inSubject); return k.length ? k : null; };
+          if (!preferred.length && !fromMust.length && cleaned.length){ use = keepSubj(cleaned) || cleaned; }
           else
           /* a theme's rules are honoured or the card is not made: falling back to
              the unfiltered pool is how a theme ends up breaking its own audit */
-          use = preferred.length ? preferred : fromMust.length ? fromMust : cleaned.length ? cleaned : null;
+          use = preferred.length ? (keepSubj(preferred) || keepSubj(cleaned) || preferred)
+              : fromMust.length ? (keepSubj(fromMust) || keepSubj(cleaned) || fromMust)
+              : cleaned.length ? (keepSubj(cleaned) || cleaned) : null;
           if (!use){ lookSkips.push((look.key || look.id) + ': every product its rules allow is unavailable for ' + p.cat); continue; }
         }
         const cutSrc = 'assets/cutouts/' + use[(sd * 7 + 3) % use.length] + '.webp';
@@ -2887,7 +3046,18 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
           });
         }
         const t2 = retheme(tpl, th, cutSrc, useDeck, p.cat, sd);
+        /* the star row is content, not an ornament: it must survive every probe
+           so the passes that size its pill can actually see it */
+        t2.layers.forEach(l => { if (/^Stars$/.test(l.name || '')) l.__keepDeco = true; });
         familyTreatment(t2, th, p.cat, sd);
+        /* the owner's own house style: photograph edge to edge, outlined type
+           straight on it, a ribbon for the kicker and a ticker across the ends */
+        const houseStyle = look && look.style === 'poster';
+        if (houseStyle){
+          posterInk(t2, th, sd);
+          if (sd % 2 === 0) ribbonFor(t2, th, sd);
+          if (sd % 3 === 0) tickerFor(t2, th, sd, (useDeck && useDeck.k) || 'CASH TODAY');
+        }
         const familyGround = th.family === 'Space' || th.family === 'Lined Paper';   // a drawn or family-owned ground: the photo passes step aside
         /* the abstract catalogue, easy-on-the-eye kinds first (approved list in FACESYS.grounds) */
         const GK = FACESYS.grounds && FACESYS.grounds.length ? FACESYS.grounds : ['mesh','blobs','duo','spotlight','aurora','waves','curves','bokeh','dotgrid','sweep','glow','split','topo','duneshade','frost'];
@@ -3321,6 +3491,31 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
               if (clear(box)){ placed = { w, left: pos.left + w, top: pos.top }; break outer; }
             }
           }
+          /* THE GOODS ARE ALWAYS ON THE CARD. Owner, 2026-09-03: "many of these
+             images still lack assets… otherwise people don't know what you're
+             buying." When the ground is a drawn sheet or a colour — paper, deep,
+             abstract — the card has no other way to say what it buys, so the
+             search drops to small sizes and scans a fine grid for any clear
+             rectangle rather than giving up. */
+          if (!placed && !t2.__tileBg && !t2.__castBg && !t2.__slab && !(t2.bg && /^assets\//.test(String(t2.bg.src || '')))){
+            /* only the WORDS are obstacles here. A panel or a highlighter band is
+               something the product may lie on; a sentence is not. */
+            const wordBoxes = probe2.refs.map((o, q) => {
+              const l = t2.layers[q];
+              return o && l && typeof l.text === 'string' && l.text.trim() && l.role !== 'badges' ? o.getBoundingRect(true, true) : null;
+            }).filter(Boolean);
+            const clearOfWords = r2 => !wordBoxes.some(b2 => !(r2.left + r2.width <= b2.left || b2.left + b2.width <= r2.left || r2.top + r2.height <= b2.top || b2.top + b2.height <= r2.top));
+            outer2: for (const w of [300, 260, 220, 190, 165, 145]){
+              const h2 = w * aspectA;
+              if (h2 > H * 0.42) continue;
+              for (let y = 40; y <= H - h2 - 40; y += 26){
+                for (let x = 30; x <= W - w - 30; x += 26){
+                  const box = { left: x - 8, top: y - 8, width: w + 16, height: h2 + 16 };
+                  if (clearOfWords(box)){ placed = { w, left: x + w, top: y, __rescue: true }; break outer2; }
+                }
+              }
+            }
+          }
           if (FACESYS.placeDebug) t2.__placeResult = (placed ? 'ok w=' + placed.w : 'none') + ' :: ' + (t2.__placeLog || []).join(' ');
           /* "with the sharp edge, we can align it left against the left side":
              a cutout that lands within 90px of an edge is snapped flush to it,
@@ -3486,7 +3681,15 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
           t2.layers.forEach((l, k) => {
             if (typeof l.text !== 'string' || !l.text.trim()) return;
             let key = norm(l.text);
-            if (key.length < 8) return;                     // TOP, $850, ✓
+            /* the length guard skips ornaments like TOP or $850 — but it was also
+               skipping short money words, so a card could read iPHONE over iPHONE
+               (owner, 2026-09-03: "why is it saying iPhone twice?"). A headline is
+               never too short to be a repeat. */
+            if (key.length < 8 && l.role !== 'headline') return;
+            if (key.length < 3) return;
+            /* ornaments are not sentences: a star row and a rating both show five
+               stars by rule, and a divider repeats by design */
+            if (!/[A-Z0-9]/.test(key)) return;
             if (l.role === 'headline'){
               /* a headline is a duplicate only of another headline, exactly:
                  THE COIN SHOP is not a repeat of "THE COIN SHOP OFFERED YOU
@@ -3512,6 +3715,64 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
            middle of a long bar. A plate that runs edge to edge is a deliberate
            full-bleed band and is left alone; anything else is pulled in to the
            widest line it holds plus one fixed margin. */
+        /* A PLATE HOLDS ITS OWN GROUP. Sizing a plate from whatever text happened
+           to sit inside it missed content that had drifted outside — the rating
+           pill was 279px wide while its stars and its line spanned 670, so the
+           stars hung off one end and the sentence off the other ("can we fix the
+           rating bubble?"). Each known plate is fitted to the union of the layers
+           that belong to it, with a fixed margin. */
+        if (!FACESYS.noGroup) { const probeP = paint(t2, false);
+          const bx = k => probeP.refs[k] ? probeP.refs[k].getBoundingRect(true, true) : null;
+          const find = rx => t2.layers.map((l, k) => ({ l, k })).filter(({ l }) => rx.test(l.name || ''));
+          const hasPhonePill = t2.layers.some(l => /^Phone Pill$/.test(l.name || ''));
+          const GROUPS = [
+            { plate: /^Quote Card$/,           items: /^(Quote|Who)$/,                  padX: 34, padY: 26 },
+            { plate: /^Phone Pill$/,           items: /^(Phone Number|Phone Cue)$/,     padX: 28, padY: 16 },
+            { plate: /^(CTA Bar|CTA Card)$/,   items: hasPhonePill ? /^CTA$/ : /^(CTA|Phone Number|Phone Cue|Website)$/, padX: 32, padY: 20 },
+          ];
+          GROUPS.forEach(G => {
+            const plates = find(G.plate); if (!plates.length) return;
+            /* a FRESH measurement per group: an earlier group in this same pass
+               may already have moved things, and stale boxes compound */
+            const pr2 = paint(t2, false);
+            const bxG = kk => pr2.refs[kk] ? pr2.refs[kk].getBoundingRect(true, true) : null;
+            const parts = find(G.items).map(({ k }) => bxG(k)).filter(Boolean);
+            if (!parts.length){ pr2.sc.dispose(); return; }
+            if (!parts.length) return;
+            const x0 = Math.min(...parts.map(b2 => b2.left)) - G.padX;
+            const x1 = Math.max(...parts.map(b2 => b2.left + b2.width)) + G.padX;
+            const y0 = Math.min(...parts.map(b2 => b2.top)) - G.padY;
+            const y1 = Math.max(...parts.map(b2 => b2.top + b2.height)) + G.padY;
+            const want = { left: Math.max(18, x0), top: Math.max(18, y0), width: Math.min(W - 36, x1 - x0), height: Math.min(H - 36, y1 - y0) };
+            plates.forEach(({ l, k }) => {
+              if (l.__footerBar) return;
+              const pr = bxG(k); if (!pr || !pr.width || !pr.height) return;
+              /* GROW AROUND THE PLATE'S OWN CENTRE. Relocating a plate to its
+                 content's bounding box moved it out from under layers that were
+                 not in the group and cost a card its stars; the plate stays where
+                 the layout put it and only opens up enough to hold its group. */
+              /* the plate must CONTAIN its group. Growing around the old centre
+                 leaves content hanging off the end when the group sits to one
+                 side, which is the misalignment the owner keeps seeing. */
+              const w2 = Math.min(Math.max(pr.width, want.width), W - 36);
+              const h2 = Math.min(Math.max(pr.height, want.height), H - 36);
+              const cx = want.left + want.width / 2, cy = want.top + want.height / 2;
+              if (Math.abs(w2 - pr.width) < 8 && Math.abs(h2 - pr.height) < 8
+                  && Math.abs(cx - (pr.left + pr.width / 2)) < 8) return;           // already holds it
+              l.props.width = (l.props.width || pr.width) * (w2 / pr.width);
+              l.props.height = (l.props.height || pr.height) * (h2 / pr.height);
+              const ox = l.props.originX || 'left', oy = l.props.originY || 'top';
+              const nl = Math.max(18, Math.min(W - 18 - w2, cx - w2 / 2)), nt = Math.max(18, Math.min(H - 18 - h2, cy - h2 / 2));
+              l.props.left = ox === 'center' ? nl + w2 / 2 : ox === 'right' ? nl + w2 : nl;
+              l.props.top  = oy === 'center' ? nt + h2 / 2 : oy === 'bottom' ? nt + h2 : nt;
+              if (l.props.rx && l.props.rx > l.props.height / 2) l.props.rx = l.props.height / 2;
+              l.__fitted = true;
+            });
+            pr2.sc.dispose();
+          });
+          /* sheens are bound to their plates in the final layout pass */
+
+          probeP.sc.dispose(); }
         { const probeH = paint(t2, false);
           const rect = k => probeH.refs[k] ? probeH.refs[k].getBoundingRect(true, true) : null;
           t2.layers.forEach((l, k) => {
@@ -3529,6 +3790,26 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
             if (held.some(h => h.t.role === 'headline' || (h.t.props.fontSize || 0) >= 70)) return;
             const inside = held.map(h => h.b);
             const wide = Math.max(...inside.map(b => b.width));
+            const tall = Math.max(...inside.map(b => b.height));
+            /* A PLATE TOO SMALL FOR ITS TEXT is the other half of the box rule:
+               "the rating bar is way too skinny for that much text to fit."
+               A plate whose copy overruns it grows to hold the copy. */
+            if (wide > pr.width - 24 || tall > pr.height - 10){
+              const growW = Math.min(W - 56, wide + 40), growH = Math.max(pr.height, tall + 22);
+              const cx0 = pr.left + pr.width / 2;
+              const ox0 = l.props.originX || 'left';
+              const sc0 = growW / pr.width;
+              l.props.width = (l.props.width || pr.width) * sc0;
+              l.props.left = ox0 === 'center' ? cx0 : ox0 === 'right' ? cx0 + growW / 2 : cx0 - growW / 2;
+              if (growH > (l.props.height || 0)){
+                const cy0 = pr.top + pr.height / 2, oy0 = l.props.originY || 'top';
+                const scH = growH / pr.height;
+                l.props.height = (l.props.height || pr.height) * scH;
+                l.props.top = oy0 === 'center' ? cy0 : oy0 === 'bottom' ? cy0 + growH / 2 : cy0 - growH / 2;
+              }
+              if (l.props.rx && l.props.rx > (l.props.height || 0) / 2) l.props.rx = (l.props.height || 0) / 2;
+              return;
+            }
             const PAD = 48, want = Math.min(W - 80, wide + PAD * 2);
             if (pr.width - want < 90) return;                       // already close: leave it
             const cx = pr.left + pr.width / 2, scale = want / pr.width;
@@ -3538,6 +3819,279 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
             if (l.props.rx && l.props.rx > (l.props.height || 0) / 2) l.props.rx = (l.props.height || 0) / 2;
           });
           probeH.sc.dispose(); }
+        /* THE GOODS GO ON THE PAGE. Owner, 2026-09-03: "many of these images
+           still lack assets… people don't know what you're buying," and again
+           "so we don't just put a line background in, no stickers/assets."
+           A drawn ground — ruled paper, a dark counter, a colour — says nothing
+           on its own, and on a full card there is no gap left to drop a cutout
+           into. So the product is drawn INTO the ground: large, in the quietest
+           quarter, under a wash so the copy over it still reads. It cannot
+           collide with anything, because by then it is the background. */
+        /* what matters is what the card SHOWS, not what its layer list contains:
+           a product the yield pass removed is still in t2.layers with no box */
+        let __drawnCut = false;
+        { const probeQ = paint(t2, false);
+          __drawnCut = t2.layers.some((l, q) => l.kind === 'cutout' && probeQ.refs[q]);
+          probeQ.sc.dispose(); }
+        const __needGoods = !__drawnCut && !t2.__tileBg && !t2.__castBg && !t2.__slab
+            && !(t2.bg && /^assets\/(scenes|bg-web)\//.test(String(t2.bg.src || '')));
+        if (__needGoods && !(cutSrc && CUTOUT_ELS[cutSrc])) console.log('NOGOODS ' + (p.layout + '-' + th.id) + ' no cutout element for ' + cutSrc);
+        if (__needGoods && cutSrc && CUTOUT_ELS[cutSrc]){
+          const img = CUTOUT_ELS[cutSrc];
+          const probeG = paint(t2, false);
+          const words = probeG.refs.map((o, q) => {
+            const l = t2.layers[q];
+            return o && l && typeof l.text === 'string' && l.text.trim() ? o.getBoundingRect(true, true) : null;
+          }).filter(Boolean);
+          probeG.sc.dispose();
+          /* THE BIGGEST CLEAR RECTANGLE, not merely the quietest quarter. A
+             product centred in a quarter still landed across the headline, and
+             a product on the words is the fault the owner has raised most. */
+          const ar = img.width / img.height;
+          const clearOf = r2 => !words.some(b2 => !(r2.left + r2.width <= b2.left || b2.left + b2.width <= r2.left || r2.top + r2.height <= b2.top || b2.top + b2.height <= r2.top));
+          let spot = null;
+          for (const wide of [W * 0.50, W * 0.44, W * 0.38, W * 0.32, W * 0.27, W * 0.22]){
+            const hh = wide / ar;
+            if (hh > H * 0.62) continue;
+            for (let y = 24; y <= H - hh - 24 && !spot; y += 20)
+              for (let x = 24; x <= W - wide - 24 && !spot; x += 20){
+                const r2 = { left: x - 10, top: y - 10, width: wide + 20, height: hh + 20 };
+                if (clearOf(r2)) spot = { left: x, top: y, width: wide, height: hh };
+              }
+            if (spot) break;
+          }
+          if (!spot){
+            const quarters = [[0, 0], [1, 0], [0, 1], [1, 1]].map(([qx, qy]) => {
+              const r = { left: qx * W / 2, top: qy * H / 2, width: W / 2, height: H / 2 };
+              const covered = words.reduce((n, b) => n + Math.max(0, Math.min(r.left + r.width, b.left + b.width) - Math.max(r.left, b.left))
+                * Math.max(0, Math.min(r.top + r.height, b.top + b.height) - Math.max(r.top, b.top)), 0);
+              return { r, covered };
+            }).sort((a2, b2) => a2.covered - b2.covered);
+            const qr = quarters[0].r, wide = Math.min(qr.width * 0.78, qr.height * 0.78 * ar);
+            spot = { left: qr.left + (qr.width - wide) / 2, top: qr.top + (qr.height - wide / ar) / 2, width: wide, height: wide / ar, __crowded: true };
+          }
+          t2.__onPageBox = [Math.round(spot.left), Math.round(spot.top), Math.round(spot.width), Math.round(spot.height)];
+          const prev = t2.bg && t2.bg.src, key = 'onpage:' + String(cutSrc).split('/').pop() + ':' + th.id + ':' + (sd % 4);
+          drawGround(key, (g, W2, H2) => {
+            if (prev && TPL_BG_ELS[prev]) g.drawImage(TPL_BG_ELS[prev], 0, 0, W2, H2);
+            else { g.fillStyle = th.c1; g.fillRect(0, 0, W2, H2); }
+            const w2 = spot.width, h2 = spot.height;
+            const cx = spot.left + w2 / 2, cy = spot.top + h2 / 2;
+            g.save();
+            g.shadowColor = 'rgba(0,0,0,0.34)'; g.shadowBlur = 46; g.shadowOffsetX = 12; g.shadowOffsetY = 26;
+            g.globalAlpha = 0.96;
+            g.drawImage(img, cx - w2 / 2, cy - h2 / 2, w2, h2);
+            g.restore();
+            /* a wash of the ground so the copy laid over it keeps its contrast */
+            /* a wash only where it is needed: a product standing in clear space
+               keeps its colour, one that had to be crowded is pushed back */
+            const wash = spot.__crowded ? (lumHex(th.c1) > 0.5 ? 0.42 : 0.5) : 0.12;
+            g.fillStyle = rgba(lumHex(th.c1) > 0.5 ? th.c1 : (th.c2 && lumHex(th.c2) < 0.4 ? th.c2 : th.c1), wash);
+            g.fillRect(0, 0, W2, H2);
+          });
+          t2.bg = Object.assign({}, t2.bg || {}, { type:'image', src: key, scrimColor: th.c1, scrim: 0.001, blur: 0 });
+          t2.__onPage = true;
+        }
+          /* THE PILL LAYS ITS OWN CONTENTS OUT. Widening the plate let the
+             centring pass drop the rating line on top of the stars, and the
+             deco cleanup then deleted the stars. Stars left, sentence right,
+             both locked, so nothing re-centres them into each other. */
+        { const pill = t2.layers.find(l => /^Rate Pill$/.test(l.name || ''));
+          const st = t2.layers.find(l => /^Stars$/.test(l.name || ''));
+          const rl = t2.layers.find(l => /^Rating Line$/.test(l.name || ''));
+            if (pill && st && rl && st.props && rl.props){
+              const si = t2.layers.indexOf(st), ri = t2.layers.indexOf(rl), pi = t2.layers.indexOf(pill);
+              /* a FRESH measurement: the generic plate pass has already moved
+                 things, so the earlier probe's boxes are stale */
+              const probeR = paint(t2, false);
+              const bxR = kk => probeR.refs[kk] ? probeR.refs[kk].getBoundingRect(true, true) : null;
+              const sb = bxR(si), rb = bxR(ri), pbNow = bxR(pi);
+              probeR.sc.dispose();
+              if (sb && rb && pbNow){
+                /* size the pill from its two items directly: side by side if they
+                   fit the card, stacked if they do not */
+                const pad = 26, gap = 20;
+                const sideW = sb.width + gap + rb.width + pad * 2;
+                const side = sideW <= W - 80;
+                const wNew = side ? sideW : Math.max(sb.width, rb.width) + pad * 2;
+                const hNew = side ? Math.max(sb.height, rb.height) + pad * 1.5
+                                  : sb.height + gap + rb.height + pad * 1.5;
+                const cx = Math.max(wNew / 2 + 20, Math.min(W - wNew / 2 - 20, pbNow.left + pbNow.width / 2));
+                const cy = pbNow.top + pbNow.height / 2;
+                const sx = wNew / pbNow.width, sy = hNew / pbNow.height;
+                pill.props.width = (pill.props.width || pbNow.width) * sx;
+                pill.props.height = (pill.props.height || pbNow.height) * sy;
+                const ox = pill.props.originX || 'left', oy = pill.props.originY || 'top';
+                pill.props.left = ox === 'center' ? cx : ox === 'right' ? cx + wNew / 2 : cx - wNew / 2;
+                pill.props.top  = oy === 'center' ? cy : oy === 'bottom' ? cy + hNew / 2 : cy - hNew / 2;
+                if (pill.props.rx && pill.props.rx > pill.props.height / 2) pill.props.rx = pill.props.height / 2;
+                pill.__fitted = true;
+                if (side){
+                  st.props.left = cx - wNew / 2 + pad; st.props.originX = 'left';
+                  st.props.top = cy; st.props.originY = 'center';
+                  rl.props.left = cx + wNew / 2 - pad; rl.props.originX = 'right';
+                  rl.props.top = cy; rl.props.originY = 'center';
+                } else {
+                  st.props.left = cx; st.props.originX = 'center';
+                  st.props.top = cy - hNew / 2 + pad * 0.75 + sb.height / 2; st.props.originY = 'center';
+                  rl.props.left = cx; rl.props.originX = 'center';
+                  rl.props.top = cy + hNew / 2 - pad * 0.75 - rb.height / 2; rl.props.originY = 'center';
+                }
+                st.__lock = true; st.__keepDeco = true; rl.__lock = true;
+              }
+            } }
+        /* THE FOOTER BAR. Every one of the six reference ads the owner sent ends
+           in a full-width band carrying the number with an icon and the address —
+           it is the device that stops a card reading as a headline floating in
+           space. On a sparse card the phone plate becomes that band. */
+        { const pf0 = paint(t2, false);
+          const gb0 = k => pf0.refs[k] ? pf0.refs[k].getBoundingRect(true, true) : null;
+          const pn0 = t2.layers.findIndex(l => /^Phone Number$/.test(l.name || ''));
+          const nb0 = pn0 >= 0 ? gb0(pn0) : null;
+          let lowest = 0;
+          t2.layers.forEach((l, k) => {
+            if (/Vignette|Grain|Frame|Ground|Wall|Sheen$/i.test(l.name || '')) return;
+            const b = gb0(k); if (!b) return;
+            if (pn0 >= 0 && k === pn0) return;
+            if (typeof l.text === 'string' && l.text.trim() && b.top + b.height < H - 30) lowest = Math.max(lowest, b.top + b.height);
+          });
+          pf0.sc.dispose();
+          if (nb0 && nb0.top > H * 0.6){
+            const plate0 = t2.layers.find(l => (l.kind === 'rect' || l.kind === 'rrect') && l.props && l.__ctaPlate);
+            const barTop = Math.max(lowest + 26, nb0.top - 34);
+            if (plate0 && H - barTop > 90 && H - barTop < 300){
+              plate0.props.left = 0; plate0.props.originX = 'left';
+              plate0.props.width = W;
+              plate0.props.top = barTop; plate0.props.originY = 'top';
+              plate0.props.height = H - barTop;
+              plate0.props.rx = 0;
+              plate0.__footerBar = true;
+              /* the bar carries its own contents: the number centred, the call to
+                 action above it, the website under it — otherwise the words stay
+                 where the old pill was and the bar reads empty */
+              const mid0 = barTop + (H - barTop) / 2;
+              const pnL = t2.layers.find(l => /^Phone Number$/.test(l.name || ''));
+              const ctaL = t2.layers.find(l => /^CTA$/.test(l.name || ''));
+              const webL = t2.layers.find(l => /^Website$/.test(l.name || ''));
+              const rows0 = [ctaL, pnL, webL].filter(l => l && l.props);
+              if (rows0.length){
+                const fs0 = rows0.map(l => l.props.fontSize || 30);
+                const gapY = 12;
+                const totalH = fs0.reduce((a2, b2) => a2 + b2 * 1.15, 0) + gapY * (rows0.length - 1);
+                let y0 = mid0 - totalH / 2;
+                rows0.forEach((l, i2) => {
+                  const h2 = fs0[i2] * 1.15;
+                  l.props.left = W / 2; l.props.originX = 'center';
+                  l.props.top = y0 + h2 / 2; l.props.originY = 'center';
+                  l.__lock = true;
+                  y0 += h2 + gapY;
+                });
+              }
+            }
+          } }
+        /* THE CTA BAR HOLDS ITS OWN WORDS, and the phone pill stands clear of
+           them. Sized last, from a fresh measurement, because every earlier pass
+           can still move the copy underneath it. */
+        { const bar = t2.layers.find(l => /^(CTA Bar|CTA Card)$/.test(l.name || ''));
+          const cta = t2.layers.find(l => /^CTA$/.test(l.name || ''));
+          const pill2 = t2.layers.find(l => /^Phone Pill$/.test(l.name || ''));
+          if (bar && cta && bar.props && cta.props && !bar.__footerBar){
+            const pb = paint(t2, false);
+            const gb = k => pb.refs[k] ? pb.refs[k].getBoundingRect(true, true) : null;
+            const bb = gb(t2.layers.indexOf(bar)), cb = gb(t2.layers.indexOf(cta));
+            const qb = pill2 ? gb(t2.layers.indexOf(pill2)) : null;
+            pb.sc.dispose();
+            if (bb && cb && bb.width && bb.height){
+              const padX = 34, padY = 22;
+              let x0 = cb.left - padX, x1 = cb.left + cb.width + padX;
+              let y0 = Math.min(bb.top, cb.top - padY), y1 = Math.max(bb.top + bb.height, cb.top + cb.height + padY);
+              if (qb && !pill2.__ownRow){          // the number keeps its own pill beside the words
+                if (qb.left < x1 && qb.left + qb.width > x0){
+                  const shift = x1 + 18 - qb.left;
+                  if (qb.left + qb.width + shift < W - 24){
+                    pill2.props.left = (pill2.props.left || 0) + shift;
+                    const pn = t2.layers.find(l => /^Phone Number$/.test(l.name || ''));
+                    if (pn && pn.props) pn.props.left = (pn.props.left || 0) + shift;
+                    const pc = t2.layers.find(l => /^Phone Cue$/.test(l.name || ''));
+                    if (pc && pc.props) pc.props.left = (pc.props.left || 0) + shift;
+                  } else { x1 = Math.min(x1, qb.left - 18); }
+                }
+              }
+              const wN = Math.max(60, Math.min(W - 40, x1 - x0)), hN = Math.max(40, y1 - y0);
+              const nl = Math.max(20, Math.min(W - 20 - wN, x0));
+              const sx = wN / bb.width, sy = hN / bb.height;
+              bar.props.width = (bar.props.width || bb.width) * sx;
+              bar.props.height = (bar.props.height || bb.height) * sy;
+              const ox = bar.props.originX || 'left', oy = bar.props.originY || 'top';
+              bar.props.left = ox === 'center' ? nl + wN / 2 : ox === 'right' ? nl + wN : nl;
+              bar.props.top = oy === 'center' ? y0 + hN / 2 : oy === 'bottom' ? y0 + hN : y0;
+              if (bar.props.rx && bar.props.rx > bar.props.height / 2) bar.props.rx = bar.props.height / 2;
+            }
+          } }
+        /* ROWS, THE PHONE MARK, AND NO SHARP CORNERS. Owner, 2026-09-04:
+           "make sure all the boxes are extended enough to cover the text behind
+           it or scooted to the left since there is excess margin on the right",
+           "the phone icon is often off the background box", and "less sharp
+           corners… even three radii". Done last, from a fresh measurement. */
+        { const pz = paint(t2, false);
+          const gz = k => pz.refs[k] ? pz.refs[k].getBoundingRect(true, true) : null;
+
+          /* a numbered row holds everything on that row */
+          t2.layers.forEach((plate, pi2) => {
+            const m2 = /^(Step Card|Row Card) (\d+)$/.exec(plate.name || '');
+            if (!m2 || !plate.props) return;
+            const n2 = m2[2];
+            const mine = t2.layers.map((l, k) => ({ l, k }))
+              .filter(({ l }) => new RegExp('^(Step Num Box|Step Num|Step Lab|Step Micro|Row Lab|Row Micro) ' + n2 + '$').test(l.name || ''))
+              .map(({ k }) => gz(k)).filter(Boolean);
+            if (!mine.length) return;
+            const pb2 = gz(pi2); if (!pb2 || !pb2.width) return;
+            const padX = 26, padY = 16;
+            const x0 = Math.min(...mine.map(b => b.left)) - padX;
+            const x1 = Math.max(...mine.map(b => b.left + b.width)) + padX;
+            const y0 = Math.min(pb2.top, Math.min(...mine.map(b => b.top)) - padY);
+            const y1 = Math.max(pb2.top + pb2.height, Math.max(...mine.map(b => b.top + b.height)) + padY);
+            const wN = Math.min(W - 36, x1 - x0), hN = Math.min(H - 36, y1 - y0);
+            const nl = Math.max(18, Math.min(W - 18 - wN, x0));
+            if (Math.abs(wN - pb2.width) < 6 && Math.abs(nl - pb2.left) < 6) return;
+            plate.props.width = (plate.props.width || pb2.width) * (wN / pb2.width);
+            plate.props.height = (plate.props.height || pb2.height) * (hN / pb2.height);
+            const ox = plate.props.originX || 'left', oy = plate.props.originY || 'top';
+            plate.props.left = ox === 'center' ? nl + wN / 2 : ox === 'right' ? nl + wN : nl;
+            plate.props.top = oy === 'center' ? y0 + hN / 2 : oy === 'bottom' ? y0 + hN : y0;
+          });
+
+          /* the phone mark belongs to the number, inside whatever plate holds it */
+          { const pn = t2.layers.find(l => /^Phone Number$/.test(l.name || ''));
+            const cue = t2.layers.find(l => /^Phone Cue$/.test(l.name || ''));
+            if (pn && cue && cue.props){
+              const nb = gz(t2.layers.indexOf(pn));
+              if (nb){
+                const size = cue.props.size || 34;
+                const holder = t2.layers.map((l, k) => ({ l, b: (l.kind === 'rect' || l.kind === 'rrect') ? gz(k) : null }))
+                  .filter(({ b }) => b && b.width > 120 && nb.left >= b.left - 4 && nb.left + nb.width <= b.left + b.width + 4
+                          && nb.top >= b.top - 4 && nb.top + nb.height <= b.top + b.height + 4)
+                  .sort((a, b) => (a.b.width * a.b.height) - (b.b.width * b.b.height))[0];
+                let x = nb.left - size - 16;
+                if (holder && x < holder.b.left + 12) x = holder.b.left + 12;      // never off its own plate
+                if (x < 18) x = 18;
+                cue.props.left = x;
+                cue.props.top = nb.top + nb.height / 2 - size / 2;
+                cue.props.originX = 'left'; cue.props.originY = 'top';
+                cue.__lock = true;
+              }
+            } }
+          pz.sc.dispose();
+        }
+
+
+        /* nothing on the card has a knife edge */
+        t2.layers.forEach(l => {
+          if (!(l.kind === 'rect' || l.kind === 'rrect') || !l.props) return;
+          if (/^Frame|Sheen$|Overrun$|Ground|Wall/i.test(l.name || '')) return;
+          const h3 = l.props.height || 0;
+          l.props.rx = Math.min(Math.max(l.props.rx || 0, 3), Math.max(3, h3 / 2));
+        });
         { const probeE = paint(t2, false);
           const c0 = (deck && deck.cuts && deck.cuts[0]) || '';
           const line = /^own-apple|^iphone|^qs-iphone|^ip-/.test(c0) ? 'iphone' : /^ipad|^qs-ipad/.test(c0) ? 'ipad' : /^mac|^qs-device-mac|^qs-sheet-mb|^own-stock-mac/.test(c0) ? 'macbook' : /watch/.test(c0) ? 'watch' : null;
@@ -3674,6 +4228,114 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
         }
 
         frameFor(t2, p.cat, i * 7 + j, th);
+        /* FILL THE CARD. Owner, 2026-09-04: "don't you think these are a little
+           blank of assets and have too much empty space?" Coverage is measured on
+           a 24px grid; a card under 45% covered has its product moved into the
+           largest empty rectangle and grown to fill it, clear of every word. */
+        { const GS = 24, cols = Math.ceil(W / GS), rowsG = Math.ceil(H / GS);
+          const gridOf = refs2 => {
+            const g2 = new Uint8Array(cols * rowsG);
+            t2.layers.forEach((l, k) => {
+              const o = refs2[k]; if (!o) return;
+              if (/Vignette|Grain|Frame|Ground|Wall|Overrun|Sheen$/i.test(l.name || '') || l.kind === 'vignette' || l.kind === 'grain') return;
+              const b = o.getBoundingRect(true, true);
+              const x0 = Math.max(0, Math.floor(b.left / GS)), x1 = Math.min(cols - 1, Math.floor((b.left + b.width) / GS));
+              const y0 = Math.max(0, Math.floor(b.top / GS)), y1 = Math.min(rowsG - 1, Math.floor((b.top + b.height) / GS));
+              if ((x1 - x0 + 1) * (y1 - y0 + 1) > cols * rowsG * 0.86) return;
+              for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) g2[y * cols + x] = 1;
+            });
+            return g2;
+          };
+          const biggestGap = g2 => {
+            const hgt = new Int32Array(cols); let best = 0, box = null;
+            for (let y = 0; y < rowsG; y++){
+              for (let x = 0; x < cols; x++) hgt[x] = g2[y * cols + x] ? 0 : hgt[x] + 1;
+              const st = [];
+              for (let x = 0; x <= cols; x++){
+                const h = x === cols ? 0 : hgt[x]; let start = x;
+                while (st.length && st[st.length - 1][1] >= h){
+                  const [si, sh] = st.pop(); const ar = sh * (x - si);
+                  if (ar > best){ best = ar; box = { left: si * GS, top: (y - sh + 1) * GS, width: (x - si) * GS, height: sh * GS }; }
+                  start = si;
+                }
+                st.push([start, h]);
+              }
+            }
+            return { best, box };
+          };
+          for (let pass = 0; pass < 3; pass++){
+            const pf = paint(t2, false);
+            const grid = gridOf(pf.refs);
+            let filled = 0; for (let i = 0; i < grid.length; i++) filled += grid[i];
+            const cov = filled / (cols * rowsG);
+            const hero = t2.layers.find(l => l.kind === 'cutout' && /Hero Product/.test(l.name || ''));
+            const words = pf.refs.map((o, k) => {
+              const l = t2.layers[k];
+              return o && typeof l.text === 'string' && l.text.trim() ? o.getBoundingRect(true, true) : null;
+            }).filter(Boolean);
+            const gap = biggestGap(grid);
+            pf.sc.dispose();
+            if (cov >= 0.45 || !hero || !hero.props || !gap.box) break;
+            const img2 = CUTOUT_ELS[hero.props.src]; if (!img2) break;
+            const ar2 = img2.height / img2.width;
+            const g3 = gap.box;
+            const clear2 = (x, y, w2, h2) => !words.some(t => !(x + w2 <= t.left - 8 || t.left + t.width + 8 <= x || y + h2 <= t.top - 8 || t.top + t.height + 8 <= y));
+            let put = null;
+            for (const w2 of [g3.width - 30, g3.width * 0.86, g3.width * 0.7, g3.width * 0.56]){
+              const h2 = w2 * ar2;
+              if (w2 < 180 || h2 > g3.height - 20) continue;
+              const x = g3.left + (g3.width - w2) / 2, y = g3.top + (g3.height - h2) / 2;
+              if (clear2(x, y, w2, h2)){ put = { x, y, w: w2 }; break; }
+            }
+            if (!put) break;
+            hero.props.w = put.w;
+            hero.props.left = (hero.props.originX === 'right') ? put.x + put.w : put.x;
+            hero.props.top = put.y;
+          }
+        }
+        { const ps = paint(t2, false);
+          const gs = k => ps.refs[k] ? ps.refs[k].getBoundingRect(true, true) : null;
+        /* A HIGHLIGHT IS PART OF ITS BOX. Owner, 2026-09-04: the sheen bars were
+             drawn at fixed pixel positions from the layout's original geometry, so
+             once a plate moved or resized the highlight hung off both ends — "there
+             is a highlight, but it is square corners, I'm confused… issues with
+             scaling." Every sheen is now measured FROM its own plate: inset 5% of
+             the plate's width each side, sitting 7% down, 9% of the plate's height
+             tall, with a rounded cap. It can never be wider than what it lights. */
+          t2.layers.forEach((sh, k2) => {
+            const m3 = /^(.*) Sheen$/.exec(sh.name || ''); if (!m3 || !sh.props) return;
+            let oi = t2.layers.findIndex(l => (l.name || '') === m3[1] && l.props && (l.kind === 'rect' || l.kind === 'rrect'));
+            if (oi < 0) oi = t2.layers.findIndex(l => (l.name || '').trim() === m3[1].trim() && l.props && (l.kind === 'rect' || l.kind === 'rrect'));
+            if (oi < 0) { sh.props.opacity = 0; return; }              // an orphan highlight lights nothing
+            const ob = gs(oi); if (!ob || !ob.width || !ob.height) { sh.props.opacity = 0; return; }
+            const insetX = Math.max(10, ob.width * 0.05);
+            const hN = Math.max(3, Math.round(ob.height * 0.09));
+            sh.props.left = ob.left + insetX;
+            sh.props.width = Math.max(24, ob.width - insetX * 2);
+            sh.props.top = ob.top + Math.max(5, ob.height * 0.07);
+            sh.props.height = hN;
+            sh.props.rx = Math.max(2, hN / 2);
+            sh.props.originX = 'left'; sh.props.originY = 'top';
+            sh.__lock = true; sh.__sheenOf = m3[1];
+          });
+          ps.sc.dispose();
+          /* the self-audit the owner asked for: after binding, a highlight that
+             still is not inside what it lights does not draw at all */
+          { const pv = paint(t2, false);
+            const gv = k => pv.refs[k] ? pv.refs[k].getBoundingRect(true, true) : null;
+            t2.layers.forEach((sh, k2) => {
+              if (!sh.__sheenOf || !sh.props) return;
+              const oi = t2.layers.findIndex(l => (l.name || '') === sh.__sheenOf);
+              const sb = gv(k2), ob = oi >= 0 ? gv(oi) : null;
+              if (!sb || !ob){ sh.props.opacity = 0; return; }
+              const ix = Math.max(0, Math.min(sb.left + sb.width, ob.left + ob.width) - Math.max(sb.left, ob.left));
+              const iy = Math.max(0, Math.min(sb.top + sb.height, ob.top + ob.height) - Math.max(sb.top, ob.top));
+              if (ix * iy < sb.width * sb.height * 0.98){
+                sh.props.opacity = 0; sh.props.width = 0; sh.props.height = 0;   // opacity alone is not always honoured on a solid
+                console.log('WARN sheen ' + (sh.name || '') + ' could not sit inside ' + sh.__sheenOf + ' — hidden');
+              }
+            });
+            pv.sc.dispose(); } }
         const fin = paint(t2, false);
         /* Edge density, the metric from the owner's own labelled references:
            their GOOD folder sits at 25.8-34% and the shipped library at ~8%.
@@ -3717,11 +4379,13 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
                       (o && o.fontSize) || (l.props && l.props.fontSize) || '', bb ? [bb.left, bb.top, bb.width, bb.height].map(Math.round).join(',') : '-',
                       l.solid ? 'solid' : '', l.props && l.props.fill || '', l.props && l.props.grad ? 'grad ' + l.props.grad.c1 + '>' + l.props.grad.c2 : '', l.__lock ? 'lock' : '', l.props && l.props.strokeWidth ? 'stroke ' + l.props.stroke + ' ' + l.props.strokeWidth : '', l.kind === 'cutout' && l.props ? 'src=' + String(l.props.src).split('/').pop() + ' w=' + l.props.w + ' op=' + l.props.opacity : ''].join(' | '); })
           : undefined;
-        out.push({ id: p.layout + '-' + DONORS[j] + '-' + e.v + (e.look ? '-' + String(e.k) : ''),   // two themes can land on the same layout+palette+variant; the plan index keeps their cards apart palette: th.id, name: th.name + ' · ' + p.layout, dbg, placeLog: t2.__placeResult,
+        /* two themes can land on the same layout+palette+variant; the plan index keeps their cards apart */
+        out.push({ id: p.layout + '-' + DONORS[j] + '-' + e.v + (e.look ? '-' + String(e.k) : ''),
+                   palette: th.id, name: th.name + ' · ' + p.layout, dbg, placeLog: t2.__placeResult,
                    family: th.family, layout: p.layout, cat: p.cat, base: p.id,
                    faces: th.faces, c1:th.c1, ink:th.ink, accent:th.accent, support:th.support,
                    plate: th.plate.shape+'/'+th.plate.fill,
-                   product: cutSrc.split('/').pop().replace('.webp',''), density, look: (look && (look.key || look.id)) || null, ground: t2.__slab ? 'slab' : t2.__deepBg ? 'deep' : t2.__castBg ? 'cast' : t2.__tileBg ? 'tile' : t2.__absBg ? 'abs' : t2.__cashBg ? 'cash' : t2.__spaceBg ? 'space' : (t2.bg && t2.bg.src ? String(t2.bg.src).split('/').slice(-2).join('/') : 'plain'), deckH2: useDeck && useDeck.h2, deckCut: useDeck && useDeck.cuts && useDeck.cuts[0],
+                   product: cutSrc.split('/').pop().replace('.webp',''), density, look: (look && (look.key || look.id)) || null, onPage: !!t2.__onPage, onPageBox: t2.__onPageBox || null, ground: t2.__slab ? 'slab' : t2.__deepBg ? 'deep' : t2.__castBg ? 'cast' : t2.__tileBg ? 'tile' : t2.__absBg ? 'abs' : t2.__cashBg ? 'cash' : t2.__spaceBg ? 'space' : (t2.bg && t2.bg.src ? String(t2.bg.src).split('/').slice(-2).join('/') : 'plain'), deckH2: useDeck && useDeck.h2, deckCut: useDeck && useDeck.cuts && useDeck.cuts[0],
                    png: c.toDataURL('image/webp', 0.82),
                    tpl: INFO.export ? (() => { try { return JSON.parse(JSON.stringify(t2)); } catch(e){ return null; } })() : undefined });
         fin.sc.dispose();
