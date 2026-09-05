@@ -498,9 +498,15 @@ D.arcText=(c,str,cx,cy,r,fill,size,fit)=>{
       const run=(advance(str,c.F.display,weight,0)||String(str).length*c.F.dw)*size;
       const half=Math.min(Math.PI*.98,run/r)/2;               // half the swept angle
       const up=(m?m.up[str[0]]||m.cap:.72)*size, dn=(m?m.desc:.2)*size;
-      const x0=cx-Math.sin(half)*(r+up), x1=cx+Math.sin(half)*(r+up);
-      const yTop=cy-r-up;                                     // the apex, plus its cap
-      const yBot=cy-Math.cos(half)*(r-dn);                    // where the ends fall to
+      /* Every other text box is measured; this one is DERIVED from the arc's
+         geometry, and derived geometry gets a margin. Without one the release
+         gate caught the crown touching the seal's number by 9% on a card the
+         engine had declared clean — the browser sets glyphs on a curve a little
+         wider than the chord model says. */
+      const m2=size*.08;
+      const x0=cx-Math.sin(half)*(r+up)-m2, x1=cx+Math.sin(half)*(r+up)+m2;
+      const yTop=cy-r-up-m2;                                  // the apex, plus its cap
+      const yBot=cy-Math.cos(half)*(r-dn)+m2;                 // where the ends fall to
       return{type:'text',id:'arc',box:{x:x0,y:yTop,w:x1-x0,h:Math.max(size*.8,yBot-yTop)},
         size:size*.7,fill,backing:c.P.ground,role:'headline'};
     })());
@@ -1211,14 +1217,14 @@ const RULES=[
  ['R6','Badge placement','if a seal exists it covers 6–32% of the hero','a seal floating in dead space, or swallowing the product'],
  ['R7','Text collision','no two text boxes intersect','overlap you only notice after export'],
  ['R8','Minimum size','every text ≥ 2.0% of the short edge','fine print that dies in a feed thumbnail'],
- ['R13','Text on its plate','every line stays inside the panel it was set on','copy running off its card onto the photo'],
- ['R14','Words on top','no opaque shape is drawn over a line of text','a seal painted across the headline'],
- ['R15','Legible figures','no price is set in a face that draws a slashed zero','"$1,250" reading as "$1,25Ø"'],
- ['R16','Subject on show','the product is present and bigger than any prop','a card whose largest object is a cardboard box'],
  ['R9','Contrast','every text ≥ 4.5:1 on its own backing','accent-on-accent text that vanishes'],
  ['R10','Hot restraint','hot colour ≤ 14% of canvas area','the all-red card where nothing reads as urgent'],
  ['R11','Sheen parentage','every sheen sits inside its own plate','the highlight drawn at the layout’s original geometry'],
- ['R12','Safe area','non-bleed elements inside a 4.5% margin','clipped corners after a crop']
+ ['R12','Safe area','non-bleed elements inside a 4.5% margin','clipped corners after a crop'],
+ ['R13','Text on its plate','every line stays inside the panel it was set on','copy running off its card onto the photo'],
+ ['R14','Words on top','no opaque shape is drawn over a line of text','a seal painted across the headline'],
+ ['R15','Legible figures','no price is set in a face that draws a slashed zero','"$1,250" reading as "$1,25Ø"'],
+ ['R16','Subject on show','the product is present and bigger than any prop','a card whose largest object is a cardboard box']
 ];
 function inter(a,b){const x=Math.max(a.x,b.x),y=Math.max(a.y,b.y);
   const r=Math.min(a.x+a.w,b.x+b.w),bt=Math.min(a.y+a.h,b.y+b.h);
@@ -1255,6 +1261,9 @@ function largestHole(o){
   return{area:best/(cols*rows),box};
 }
 function audit(card){
+  /* the audit narrates into card.notes; a second audit of the same card must
+     not read last time's narration as this time's */
+  card.notes=card.notes.filter(n=>!/^(spill|buried|collide|tight|figures|seal still)/.test(n));
   const {W,H,nodes,P}=card,cell=20;
   const occ=occupancy(card,cell),g=occ.g,cols=occ.cols,rows=occ.rows;
   let filled=0;for(let i=0;i<g.length;i++)filled+=g[i];
@@ -1290,12 +1299,14 @@ function audit(card){
   };
   r.push(['R6',!badge||!hero||Math.abs(edgeGap(badge,hero))<=badge.box.w/2]);
   let collide=false;
-  for(let i=0;i<texts.length&&!collide;i++)for(let j=i+1;j<texts.length;j++){
+  /* every pair, not just the first — a card with three collisions used to
+     report one, and the fix for that one uncovered the next */
+  for(let i=0;i<texts.length;i++)for(let j=i+1;j<texts.length;j++){
     /* 30% of the smaller box was far too generous: a headline could cover most
        of the lockup's second line and still pass. These are real ink extents
        now, so anything past a hair's touch is a defect. */
     if(inter(texts[i].box,texts[j].box)>Math.min(texts[i].box.w*texts[i].box.h,texts[j].box.w*texts[j].box.h)*.06){
-      collide=true;card.note(`collide: ${texts[i].id} x ${texts[j].id}`);break;}}
+      collide=true;card.note(`collide: ${texts[i].id} x ${texts[j].id}`);}}
   r.push(['R7',!collide]);
   const SS=Math.min(W,H);
   r.push(['R8',texts.every(t=>t.size>=SS*.020)]);
@@ -1364,6 +1375,10 @@ function audit(card){
   if(buried.length)card.note('buried: '+buried.join(', '));
   r.push(['R11',sheens.every(s=>s.parent&&inter(s.box,s.parent)>=s.box.w*s.box.h*.999)]);
   r.push(['R12',nodes.every(n=>n.bleed||n.role==='field'||(n.box.x>=-1&&n.box.y>=-1&&n.box.x+n.box.w<=W+1&&n.box.y+n.box.h<=H+1))]);
+  /* results in the order RULES declares them, so nothing that zips the two by
+     index can mislabel a rule */
+  const order=RULES.map(x=>x[0]);
+  r.sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0]));
   return{coverage,dead,hotArea,elements:nodes.length,rules:r,pass:r.filter(x=>x[1]).length,total:r.length};
 }
 
@@ -1434,6 +1449,78 @@ function render(archKey,seed,vertical,sizeKey,cfg){
 }
 
 /* ══════════════════════════════════════════════════════════
+   10b · THE GATE
+   The owner's standing instruction: graphics at 100% confidence, no less.
+   render() will draw anything and report on it; that is right for a lab. This
+   is the exit the world sees through, and it refuses. A card is either clean —
+   every rule passing — or it is not produced. When the seed asked for fails,
+   nearby seeds are tried, then the optional ornaments are dropped one at a time
+   (a seal or a prop is decoration; the offer is not), and if nothing clean can
+   be found the answer is null and the caller must say so, never "close enough".
+   ══════════════════════════════════════════════════════════ */
+const OPTIONAL=['stickers','starburst','sunburst','halftone','checker','grain','sheen','arcCrown','paintStroke','tornPaper'];
+function renderClean(archKey,seed,vertical,sizeKey,cfg,o={}){
+  const tries=o.tries||6;
+  const clean=r=>r.audit.pass===r.audit.total;
+  let best=null;
+  const keep=r=>{if(!best||r.audit.pass>best.audit.pass)best=r;};
+  for(let t=0;t<tries;t++){
+    const r=render(archKey,(seed+t*977)%999983,vertical,sizeKey,cfg);
+    if(clean(r))return Object.assign(r,{gate:{seed:(seed+t*977)%999983,dropped:[],tries:t+1}});
+    keep(r);
+  }
+  const dropped=[];
+  let c={...cfg};
+  for(const k of OPTIONAL){
+    if(c[k]===false)continue;
+    c={...c,[k]:false};dropped.push(k);
+    const r=render(archKey,seed,vertical,sizeKey,c);
+    if(clean(r))return Object.assign(r,{gate:{seed,dropped:dropped.slice(),tries}});
+    keep(r);
+  }
+  return o.lenient?Object.assign(best,{gate:{seed,dropped,tries,refused:true}}):null;
+}
+
+/* THE SECOND OPINION — what the browser actually drew.
+   The engine's geometry is exact to the metrics it was measured with, but the
+   only thing a reader sees is pixels, and the two have disagreed before (a
+   quotation mark's em box, an arc's rotated glyphs). This judges a card from
+   the boxes the browser reports for every text run, and it is the same function
+   whether it is called from the console on the live card or from the release
+   gate in headless Chrome, so the two can never drift apart.
+   boxes: [{s,x,y,w,h,op}] in viewBox units. Returns [] when clean. */
+function pixelFaults(boxes,W,H){
+  const raw=boxes.filter(t=>t.op>0.05&&t.s.trim());
+  const vis=[];
+  for(const t of raw){
+    /* outlined and hard-shadowed type is several stacked copies of one string */
+    const tol=Math.max(14,t.h*0.35);
+    const twin=vis.find(v=>v.s===t.s&&Math.abs(v.x-t.x)<tol&&Math.abs(v.y-t.y)<tol);
+    if(twin){const x1=Math.max(twin.x+twin.w,t.x+t.w),y1=Math.max(twin.y+twin.h,t.y+t.h);
+      twin.x=Math.min(twin.x,t.x);twin.y=Math.min(twin.y,t.y);twin.w=x1-twin.x;twin.h=y1-twin.y;continue;}
+    vis.push({...t});
+  }
+  const out=[];
+  const ink=t=>({x:t.x,w:t.w,y:t.y+t.h*0.16,h:t.h*0.68,s:t.s});
+  for(let i=0;i<vis.length;i++)for(let j=i+1;j<vis.length;j++){
+    const a=ink(vis[i]),b=ink(vis[j]);
+    const ox=Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x), oy=Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y);
+    if(ox>2&&oy>2){
+      const small=Math.min(a.w*a.h,b.w*b.h);
+      const share=ox/Math.min(a.w,b.w), apart=Math.abs((a.y+a.h/2)-(b.y+b.h/2))/Math.max(a.h,b.h);
+      const stacked=share>0.55&&apart>0.55;
+      if(ox*oy>small*(stacked?0.22:0.06))
+        out.push(`"${a.s.trim()}" over "${b.s.trim()}" (${Math.round(ox*oy/small*100)}%)`);
+    }
+  }
+  for(const t of vis)if(t.x<-2||t.y<-2||t.x+t.w>W+2||t.y+t.h>H+2)
+    out.push(`"${t.s.trim()}" is clipped by the edge`);
+  const SS=Math.min(W,H);
+  for(const t of vis)if(t.h<SS*0.018)out.push(`"${t.s.trim()}" is too small to read`);
+  return out;
+}
+
+/* ══════════════════════════════════════════════════════════
    11 · PROMPT + SENTIMENT
    ══════════════════════════════════════════════════════════ */
 const PERMANENT_NEG=[
@@ -1501,5 +1588,5 @@ export {
   QUEUE, ALLKEYS, KEYMETA, DEFAULT_CFG,
   RULES, PERMANENT_NEG, audit, render, buildPrompt, sentiment,
   ground, placeHero, headline, sealOnHero, priceRows, proofSteps, reviewCard,
-  fontCSS, faceCSS
+  fontCSS, faceCSS, renderClean, OPTIONAL, pixelFaults
 };

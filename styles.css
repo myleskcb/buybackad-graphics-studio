@@ -1406,11 +1406,25 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .wall-card img{width:100%;height:100%;object-fit:cover;display:block}
 .hero-wall:hover .wall-col{animation-play-state:paused}
 @media(prefers-reduced-motion:reduce){.wall-col{animation:none!important}}
+/* THE SCROLLER RUNS ON A PHONE TOO. It used to stop dead here — the animation
+   was killed and every card past the second was hidden, which also broke the
+   seamless loop, since each column is its own list twice over and the keyframe
+   travels -50%. It was disabled out of caution about phone performance, and
+   that caution was misplaced: the movement is a transform on three columns, so
+   it is composited on the GPU and costs no repaint. The wall is shorter here,
+   tilted less, and keeps its fade at top and bottom.
+   prefers-reduced-motion still stops it, above. */
 @media(max-width:900px){
-  .hero-v2{grid-template-columns:1fr;padding-top:92px;min-height:0;gap:28px}
-  .hero-wall{height:auto;transform:none;grid-template-columns:repeat(3,1fr);gap:10px;-webkit-mask-image:none;mask-image:none}
-  .wall-col{animation:none!important;gap:10px}
-  .wall-col .wall-card:nth-child(n+3){display:none}
+  .hero-v2{grid-template-columns:1fr;padding-top:92px;min-height:0;gap:26px}
+  .hero-wall{height:clamp(380px,54vh,470px);gap:9px;transform:rotate(-4deg) scale(1.07)}
+  .wall-col{gap:9px}
+  .wall-col[data-dir=up]{animation-duration:38s}
+  .wall-col[data-dir=down]{animation-duration:43s}
+  .wall-col:nth-child(3){animation-duration:48s}
+}
+@media(max-width:520px){
+  .hero-wall{height:clamp(330px,46vh,400px);gap:7px;transform:rotate(-3deg) scale(1.05)}
+  .wall-col{gap:7px}
 }
 .lp-stats{max-width:1200px;margin:0 auto;padding:22px clamp(16px,5vw,48px) 0;display:flex;flex-wrap:wrap;gap:10px 34px;border-top:.5px solid var(--hairline)}
 .stat{display:flex;align-items:baseline;gap:8px}

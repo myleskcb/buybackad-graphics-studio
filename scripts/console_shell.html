@@ -6,7 +6,7 @@
 /*__FONTCSS__*/
 :root{
   --bg:#0b0d10; --panel:#12161b; --panel2:#171c23; --line:#232a33;
-  --ink:#e8edf3; --dim:#8d99a8; --faint:#5b6675;
+  --ink:#e8edf3; --dim:#9aa6b4; --faint:#828a99;
   --ok:#3ddc84; --warn:#ffc93c; --bad:#ff5d5d; --live:#4cc9f0;
   --pad:14px; --r:10px;
   --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
@@ -49,7 +49,7 @@ button{background:none;border:0;cursor:pointer}
 .railtop{position:sticky;top:0;z-index:2;background:var(--panel);padding:10px var(--pad) 8px;
   border-bottom:1px solid var(--line)}
 .railtop h2{margin:0 0 2px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
-.railtop p{margin:0;font-size:11px;color:var(--faint);line-height:1.35}
+.railtop p{margin:0;font-size:11px;color:var(--dim);line-height:1.35}
 .grp{padding:9px var(--pad) 3px}
 .grp h3{margin:0 0 5px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
 .sw{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;
@@ -63,13 +63,13 @@ button{background:none;border:0;cursor:pointer}
 .sw[aria-checked=true] .dot::after{transform:translateX(11px);background:var(--ok)}
 .sw b{display:block;font-weight:500;font-size:12px}
 .sw[aria-checked=true] b{font-weight:600}
-.sw i{display:block;font-style:normal;font-size:10.5px;color:var(--faint);line-height:1.3}
+.sw i{display:block;font-style:normal;font-size:10.5px;color:var(--dim);line-height:1.3}
 .sw .imp{font:10px var(--mono);color:var(--faint);min-width:26px;text-align:right}
 .sw .imp.pos{color:var(--ok)} .sw .imp.neg{color:var(--bad)}
 .sw[data-last=true]{box-shadow:inset 2px 0 0 var(--live)}
 
 /* ── centre: the card ────────────────────────────────────── */
-.stage{display:flex;flex-direction:column;min-width:0;background:#090b0e}
+.stage{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:#090b0e}
 .archrow{display:flex;gap:5px;padding:9px var(--pad);border-bottom:1px solid var(--line);
   overflow-x:auto;background:var(--panel);scrollbar-width:none}
 .archrow::-webkit-scrollbar{display:none}
@@ -79,7 +79,8 @@ button{background:none;border:0;cursor:pointer}
 .canvas{flex:1;display:grid;place-items:center;padding:16px;min-height:0}
 .card{position:relative;max-width:100%;max-height:100%;border-radius:6px;overflow:hidden;
   box-shadow:0 18px 50px rgba(0,0,0,.6);background:#000;line-height:0}
-.card svg{display:block;width:auto;height:auto;max-width:100%;max-height:100%}
+.card svg{display:block}
+.canvas{overflow:hidden}
 .card.flash{outline:2px solid var(--live)}
 .readout{display:flex;gap:0;border-top:1px solid var(--line);background:var(--panel)}
 .gauge{flex:1;padding:8px 10px;border-right:1px solid var(--line);min-width:0}
@@ -104,7 +105,7 @@ button{background:none;border:0;cursor:pointer}
 .rule.fail code{color:var(--bad)}
 .rule b{font-weight:500;font-size:12px}
 .rule.fail b{font-weight:600;color:var(--bad)}
-.rule i{display:block;font-style:normal;font-size:10.5px;color:var(--faint);line-height:1.35}
+.rule i{display:block;font-style:normal;font-size:10.5px;color:var(--dim);line-height:1.35}
 .rule.fail i{color:#ff9a9a}
 .note{font:10.5px/1.5 var(--mono);color:var(--warn);background:rgba(255,201,60,.07);
   border-left:2px solid var(--warn);padding:6px 8px;border-radius:0 6px 6px 0;margin:3px 0;
@@ -152,6 +153,7 @@ pre.neg{color:#c98d8d}
   <div class="seg" id="fmtSeg"></div>
   <button class="btn go" id="reroll">↻ seed</button>
   <button class="btn" id="measure">measure switches</button>
+  <button class="btn" id="axisBtn">open an axis</button>
   <div class="grow"></div>
   <div class="seedbox" id="seedTag">—</div>
   <button class="btn" id="exportBtn">export</button>
@@ -183,7 +185,4 @@ pre.neg{color:#c98d8d}
   </aside>
 </div>
 
-<script type="module">
-/*__ENGINE__*/
-/*__UI__*/
-</script>
+<script type="module" src="console.js?v=__STAMP__"></script>

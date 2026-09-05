@@ -51,12 +51,19 @@ const importLine = `import { faceCSS, nearestWeight, FONT_FILES } from './fonts.
 if (!engine.includes(importLine)) throw new Error('engine imports moved — update build_console.mjs');
 engine = engine.replace(importLine, fontsShim);
 
-/* The measured type metrics are a build artefact; inline them as data. */
-const metricsLine = engine.match(/^const METRICS=.*$/m);
-if (!metricsLine) throw new Error('METRICS loader moved — update build_console.mjs');
-if (!existsSync(ROOT + 'spec/metrics.json'))
-  throw new Error('spec/metrics.json missing — run: node tools/gfx/measure_fonts.mjs');
-engine = engine.replace(metricsLine[0], `const METRICS=${read('spec/metrics.json')};`);
+/* Both build artefacts — the measured type metrics and the approved asset
+   index — are inlined as data. Anything the engine reads from disk has to be
+   named here; the guard below fails the build if a new one appears, which is
+   how this stays honest rather than drifting the way the old console did. */
+const dataFile = (marker, file, hint) => {
+  const line = engine.match(marker);
+  if (!line) throw new Error(`${file} loader moved — update build_console.mjs`);
+  if (!existsSync(ROOT + file)) throw new Error(`${file} missing — run: ${hint}`);
+  engine = engine.replace(line[0], line[0].replace(/=\(\(\)=>.*$/, `=${read(file)};`));
+};
+dataFile(/^const ASSETS=.*$/m, 'spec/assets.json', 'node tools/gfx/build_assets.mjs');
+
+dataFile(/^const METRICS=.*$/m, 'spec/metrics.json', 'node tools/gfx/measure_fonts.mjs');
 
 /* `export {...}` is legal in a module script but pointless here — the UI shares
    the module scope, so drop it rather than leave a dead statement. */
@@ -71,11 +78,20 @@ const shell = read('scripts/console_shell.html');
 const ui = read('scripts/console_ui.js');
 
 const stamp = process.env.BUILD_STAMP || 'dev';
+/* The script is a SEPARATE FILE, not inline. The deployed site's CSP is
+   `script-src 'self'` plus two hashes that cover index.html only — no
+   'unsafe-inline' — so an inline module runs on localhost and is silently
+   refused on studio.scans.ad. That is precisely the failure this console
+   exists to make impossible, so the build enforces it. */
+if (/<script(?![^>]*\bsrc=)[^>]*>/i.test(shell))
+  throw new Error('console_shell.html has an inline <script>; the site CSP will block it');
+const js = `/* built by scripts/build_console.mjs — do not edit; edit scripts/console_ui.js */\n` +
+  engine + '\n' + ui;
 const html = shell
-  .replace('/*__ENGINE__*/', () => engine)
-  .replace('/*__UI__*/', () => ui)
+  .replace('/*__FONTCSS__*/', '')          // the page declares its own faces at runtime
   .replace(/__STAMP__/g, stamp);
 
 writeFileSync(ROOT + 'lab/console.html', html);
-console.log(`lab/console.html  ${(html.length / 1024).toFixed(0)} KB` +
+writeFileSync(ROOT + 'lab/console.js', js);
+console.log(`lab/console.html  ${(html.length / 1024).toFixed(0)} KB · lab/console.js ${(js.length / 1024).toFixed(0)} KB` +
   `  (engine ${(engine.length / 1024).toFixed(0)} KB · ui ${(ui.length / 1024).toFixed(0)} KB)`);
