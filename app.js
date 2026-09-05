@@ -9401,24 +9401,36 @@ function scBuildWall(cards){
     });
   });
 }
+/* PALETTES, not families. A "family" is how the engine generates colour; a
+   palette — ground, ink, accent, support, with a name — is what a person
+   chooses. Owner, 2026-09-04: "I don't even know what families are for
+   colours." So this shows the palettes that are actually in the library, each
+   with its real swatches and a live count, strongest colour first, and a tap
+   filters the gallery to that palette. */
 function scBuildFamilies(cards){
   const grid = $('fam-grid');
   if (!grid) return;
-  const counts = {};
-  cards.forEach(c => { counts[c.family] = (counts[c.family] || 0) + 1; });
+  const by = {};
+  cards.forEach(c => { (by[c.theme] = by[c.theme] || []).push(c); });
+  const pals = Object.keys(by).map(t => {
+    const list = by[t];
+    const chroma = list.reduce((a, c) => a + (c.chroma || 0), 0) / list.length;
+    /* the swatch comes from the card that shows this palette best */
+    const rep = list.slice().sort((x, y) => (y.chroma || 0) - (x.chroma || 0))[0];
+    return { theme: t, n: list.length, chroma, rep, family: rep.family };
+  }).sort((x, y) => y.chroma - x.chroma);
   grid.innerHTML = '';
-  SC_FAMILIES.forEach(f => {
-    const n = counts[f.family] || 0;
-    const sample = cards.find(c => c.family === f.family) || f;
+  pals.forEach(p => {
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'fam-card' + (n ? '' : ' idle');
-    b.dataset.fam = f.family;
-    b.innerHTML = `<div class="fam-sw"><i style="background:${sample.c1}"></i><i style="background:${sample.ink}"></i><i style="background:${sample.accent}"></i><i style="background:${sample.support}"></i></div>
-      <div class="fam-name">${escHtml(f.family)}</div>
-      <div class="fam-meta">${n ? n + ' in this set' : 'in the studio theme row'}</div>`;
-    if (n) b.onclick = () => {
-      SHOWCASE.filter.fam = SHOWCASE.filter.fam === f.family ? 'all' : f.family;
+    b.className = 'fam-card';
+    b.dataset.fam = p.theme;
+    b.title = p.theme + ' · ' + p.family + ' · ' + p.n + ' cards';
+    b.innerHTML = `<div class="fam-sw"><i style="background:${p.rep.c1}"></i><i style="background:${p.rep.ink}"></i><i style="background:${p.rep.accent}"></i><i style="background:${p.rep.support}"></i></div>
+      <div class="fam-name">${escHtml(p.theme)}</div>
+      <div class="fam-meta">${p.n} card${p.n === 1 ? '' : 's'} &middot; ${escHtml(p.family)}</div>`;
+    b.onclick = () => {
+      SHOWCASE.filter.fam = SHOWCASE.filter.fam === p.theme ? 'all' : p.theme;
       scSyncFilters();
       scRenderGrid(true);
       const sec = $('lp-templates');
@@ -9426,6 +9438,8 @@ function scBuildFamilies(cards){
     };
     grid.appendChild(b);
   });
+  const n = $('lp-pal-count'); if (n) n.textContent = String(pals.length);
+  const n2 = $('lp-stat-pal'); if (n2) n2.textContent = String(pals.length);
 }
 function scBuildChips(cards){
   const row = $('lp-chips');
@@ -9506,7 +9520,7 @@ function scRenderGrid(reset){
     if (f.cat === 'classics'){
       SHOWCASE.list = scClassics().map(t => ({ classic:t }));
     } else {
-      const sub = SHOWCASE.cards.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.family === f.fam));
+      const sub = SHOWCASE.cards.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.theme === f.fam));
       const ordered = scOrder(sub);
       /* unlocked first, so the first cards anyone clicks open the editor */
       SHOWCASE.list = ordered.filter(c => !scLocked(c)).concat(ordered.filter(c => scLocked(c)));

@@ -55,7 +55,12 @@ function accentFor(groundHex, H, C, startL, wantDark){
 /* Owner, 2026-09-02, looking at the Set 5 cards: "these are good colors, but
    slightly muted" — accent and support run 10% more chroma; the ground gets
    a whisper (4%) so a pastel stays a pastel. */
-const VIB = 1.10, VIB_GROUND = 1.04;
+/* LAB_VIB overrides the chroma multiplier for one render. Owner, 2026-09-04,
+   looking at the library: "a bit too muted in a lot of themes" — measured
+   colourfulness across 702 cards was 0.29. The default stays; a set rendered
+   with LAB_VIB=1.45 is how the brighter end gets tried without moving the
+   baseline under every earlier set. */
+const VIB = +(process.env.LAB_VIB || 1.10), VIB_GROUND = +(process.env.LAB_VIB_GROUND || 1.04);
 const clampL = v => Math.max(0.12, Math.min(0.96, v));
 
 function build(o){
