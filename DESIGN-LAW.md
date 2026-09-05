@@ -997,3 +997,32 @@ specific, wrong numbers:
 Two tests before trusting any new metric: does it return **different** answers
 for inputs you know differ, and does it measure the surface the user actually
 sees? A number that is identical across every condition is not a measurement.
+
+## 51. A theme is a set of jobs, not a bag of attractive swatches
+
+A useful buyback theme has four semantic roles: **ground**, **reading ink**,
+**money/action accent**, and **support/trust**. The same accent must not carry
+every piece of emphasis. When the phone, CTA, badges, and qualification copy
+all shout in one colour, the ad loses its order even if the palette is
+technically harmonious.
+
+The GFX Grammar records therefore map by role instead of repainting arbitrary
+layers: headline and body reading copy use ink; the final money word, CTA, and
+phone use the action accent; badges and supporting facts use the support hue.
+Text on a plate is left alone because that plate, not the theme background,
+owns its contrast.
+
+Four campaign intentions were transplanted into the existing engine without
+copying a source template: urgent local offer, high-value electronics, safe
+same-day payout, and after-hours scroll stop. Under normal, protan, deutan, and
+tritan simulation, their worst role ratios were:
+
+- reading ink: **8.67–16.57:1** against both gradient stops;
+- action accent: **3.93–7.35:1** against both stops;
+- support/trust: **4.77–11.51:1** against both stops;
+- action accent versus adjacent ink: **1.88–2.77:1**.
+
+The portable lesson is the schema, not these four names. A new palette enters
+the product only when every colour has a declared job and survives
+`scripts/audit_theme_grammar.mjs`; `scripts/preview_theme_grammar.mjs` then
+proves the records are reachable and applied through the real editor UI.

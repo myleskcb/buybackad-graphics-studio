@@ -1278,6 +1278,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-theme{display:flex;border:2px solid var(--hairline-strong);border-radius:11px;overflow:hidden;padding:0;cursor:pointer;width:52px;height:32px;background:none;transition:border-color .13s,transform .13s}
 .ez-theme span{flex:1;display:block}
 .ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}
+.ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);transform:translateY(-1px)}
+.ez-theme:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
 
 .ez-chip-custom{border-style:dashed}

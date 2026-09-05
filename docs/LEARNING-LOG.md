@@ -157,3 +157,50 @@ RESUME HERE:
   and leave the heavily-defocused ones at 2160 where the upscale is invisible.
   Re-run `python3 scripts/asset_audit.py` after; it should exit 0 for the tier
   being targeted.
+
+
+---
+
+## 2026-09-04 — Theme grammar transplant into the production studio
+
+Studied:
+  The useful logic behind four campaign looks from the GFX Grammar prototype,
+  then mapped it onto the production editor's existing `COLOR_THEMES` and
+  semantic layer roles. The object of study was role hierarchy and campaign
+  intent, not copying template geometry or rebuilding the product UI.
+
+Measured:
+  - Four of four new theme records pass normal, protan, deutan, and tritan
+    checks against both gradient stops.
+  - Worst reading-ink contrast: Hot Sale 10.94, Electric Trust 16.57, Fresh
+    Cash 8.67, Night Neon 16.47.
+  - Worst action-accent contrast: 3.93, 5.27, 4.37, 7.35 respectively.
+  - Worst support-role contrast: 4.77, 7.88, 6.96, 11.51 respectively.
+  - Accent/ink separation: 2.39, 2.77, 1.88, 2.06 respectively; floor 1.7.
+  - The rendered Easy Studio exposes all 21 palettes, exactly four are tagged
+    GFX Grammar, and all four can be selected through the existing control.
+
+Changed:
+  - Added Hot Sale, Electric Trust, Fresh Cash, and Night Neon as campaign
+    intents inside `COLOR_THEMES`.
+  - Split small trust/qualification copy into a support role while preserving
+    the existing plate-ownership rule.
+  - Added active/pressed state and intent labels to the current theme strip.
+  - Added `scripts/audit_theme_grammar.mjs` for colour-role checks and
+    `scripts/preview_theme_grammar.mjs` for rendered UI reachability.
+  - Appended DESIGN-LAW rule 51: a theme is a set of jobs, not a bag of
+    attractive swatches.
+
+Rejected:
+  - Replacing the existing studio with the standalone prototype. The useful
+    unit was the theme logic, so it was transplanted into the mature codebase.
+  - Copying Canva layouts, uncontrolled neon, and starburst treatments. They
+    conflict with the production design law and add irrelevant visual noise.
+  - Recolouring text that sits on its own plate. The theme does not own that
+    ground and therefore cannot guarantee the contrast.
+
+RESUME HERE:
+  Give the older 17 theme records the same explicit intent/support schema, then
+  reconcile the pre-existing failures in `scripts/theme_law.mjs` one palette
+  at a time. Do not mass-retune them from the audit table alone; render each
+  candidate in representative phone, gold, car, and sports templates first.
