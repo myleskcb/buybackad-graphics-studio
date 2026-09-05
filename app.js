@@ -9188,6 +9188,38 @@ const SC_FAMILIES = [
   { family:'Sunlit',       c1:'#ffd9ce', ink:'#4c3027', accent:'#018283', support:'#af710e' },
   { family:'Ink Pop',      c1:'#e5f3f6', ink:'#173e45', accent:'#c80b65', support:'#044048' },
 ];
+/* THE OWNER'S OWN HERO. The wall can pick for itself — measured colourfulness,
+   one palette per card, a product in every one — and that is a decent machine
+   answer, not taste. assets/hero-picks.json lets a person overrule it: the
+   cards named there lead the wall, in the order they were picked, and the
+   algorithm fills only what is left. Entries may be a SKU (CHK-JW07-16, the
+   code shown on /lab/hero.html) or a raw card id. */
+const SC_LAY = { checklistHero:'CHK', reviewProof:'REV', trustSeal:'TRS', stepsFlow:'STP', bubblePop:'BUB',
+  voltStack:'VLT', neonNight:'NEO', slabPoster:'SLB', scriptRetro:'SCR', lowerThird:'LOW',
+  gradientWave:'GRD', ticketStub:'TKT', hudTech:'HUD', bandKnockout:'BND', arcCrown:'ARC', glassCard:'GLS' };
+function scSku(c){
+  const p = String(c.id).split('-');
+  return (SC_LAY[c.layout] || String(c.layout).slice(0, 3).toUpperCase()) + '-' + (p[1] || '').toUpperCase() + '-' + (p[2] || '0');
+}
+function scLoadPicks(){
+  if (SHOWCASE.picks) return Promise.resolve(SHOWCASE.picks);
+  return fetch('assets/hero-picks.json', { cache:'no-cache' })
+    .then(r => r.ok ? r.json() : null)
+    .then(j => (SHOWCASE.picks = (j && Array.isArray(j.picks)) ? j.picks : []))
+    .catch(() => (SHOWCASE.picks = []));
+}
+function scPickedCards(cards){
+  const want = SHOWCASE.picks || [];
+  if (!want.length) return [];
+  const byId = {}, bySku = {};
+  cards.forEach(c => { byId[c.id] = c; bySku[scSku(c)] = c; });
+  const out = [];
+  want.forEach(k => {
+    const c = byId[k] || bySku[String(k).trim().toUpperCase()];
+    if (c && out.indexOf(c) === -1) out.push(c);
+  });
+  return out;
+}
 function scLoadIndex(){
   if (SHOWCASE.cards) return Promise.resolve(SHOWCASE.cards);
   if (SHOWCASE._p) return SHOWCASE._p;
@@ -9309,12 +9341,14 @@ function scBuildWall(cards){
      each bucket in turn, so warm and violet cards get their slots even when
      the set has fewer of them. */
   const want = cols.length * 6;
+  const chosenByHand = scPickedCards(cards);
   /* owner: "some of these have way too much blur on the hero" — the lab's
      heavier `natural` blur (15+) stays out of the shop window */
   /* and only cards that SHOW something: a product cutout of real size.
      Owner, on a plain green Pokémon card and a tiny mark on a sports one:
      "those two lack the proper imagery, looks a little bit confusing". */
-  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product');
+  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product')
+    .filter(c => chosenByHand.indexOf(c) === -1);
   const buckets = {};
   vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
   Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
@@ -9342,7 +9376,11 @@ function scBuildWall(cards){
     if (!k) break;
     chosen[k[1]] = c; haveFree++;
   }
-  const picks = scOrder(chosen);  cols.forEach((col, i) => {
+  /* hand-picked first, in the order they were picked, then the machine's
+     choices fill whatever is left — so a short list still gives a full wall */
+  const picks = chosenByHand.length
+    ? chosenByHand.concat(scOrder(chosen)).slice(0, want)
+    : scOrder(chosen);  cols.forEach((col, i) => {
     col.innerHTML = '';
     const mine = picks.filter((_, k) => k % cols.length === i);
     /* each column is its list twice, so the -50% keyframe loops seamlessly */
@@ -9523,7 +9561,7 @@ async function openShowcase(id){
   }
 }
 function buildLandingV2(){
-  scLoadIndex().then(cards => {
+  Promise.all([scLoadIndex(), scLoadPicks()]).then(([cards]) => {
     if (!cards.length){ warmTemplateAssets(); buildLandingV1(); return; }
     if (SHOWCASE.built){
       /* refreshPhotoThumb() re-calls buildLanding() as each old backdrop

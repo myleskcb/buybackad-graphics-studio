@@ -1,0 +1,4 @@
+{
+  "note": "Hand-picked hero cards, chosen in /lab/hero.html. Entries may be a SKU (CHK-JW07-16) or a card id (checklistHero-jw07-16). Order is the order they appear. An empty list means the wall picks for itself: measured colourfulness, one palette per card, a product in every one.",
+  "picks": []
+}

@@ -44,13 +44,20 @@ for (const c of cases) {
     if (!el) return null;
     const vb = (el.getAttribute('viewBox') || '0 0 1080 1080').split(/\s+/).map(Number);
     await document.fonts.ready;
+    /* getBBox() reports the box in the element's OWN user space, so a glyph run
+       inside a rotated group — the arc crown — comes back at coordinates it is
+       not actually drawn at. Measure on screen and map back through the
+       viewBox, which accounts for every transform above the element. */
+    const host = el.getBoundingClientRect();
+    const sx = vb[2] / host.width, sy = vb[3] / host.height;
     const out = [];
     el.querySelectorAll('text').forEach(t => {
-      let b; try { b = t.getBBox(); } catch (e) { return; }
+      let b; try { b = t.getBoundingClientRect(); } catch (e) { return; }
       if (!b || !b.width) return;
       out.push({ id: t.getAttribute('data-id') || t.getAttribute('id') || '',
                  s: (t.textContent || '').slice(0, 26),
-                 x: b.x, y: b.y, w: b.width, h: b.height,
+                 x: (b.left - host.left) * sx, y: (b.top - host.top) * sy,
+                 w: b.width * sx, h: b.height * sy,
                  op: +(getComputedStyle(t).opacity || 1) });
     });
     return { W: vb[2], H: vb[3], out };
@@ -65,7 +72,11 @@ for (const c of cases) {
   const raw = out.filter(t => t.op > 0.05 && t.s.trim());
   const vis = [];
   for (const t of raw) {
-    const twin = vis.find(v => v.s === t.s && Math.abs(v.x - t.x) < 14 && Math.abs(v.y - t.y) < 14);
+    /* The offset scales with the type, so a fixed pixel tolerance misses the
+       shadow copy of a 200px poster line and reports it as a collision with
+       itself. Judge the offset against the run's own height. */
+    const tol = Math.max(14, t.h * 0.35);
+    const twin = vis.find(v => v.s === t.s && Math.abs(v.x - t.x) < tol && Math.abs(v.y - t.y) < tol);
     if (twin) {                                   // keep the union of the stack
       const x1 = Math.max(twin.x + twin.w, t.x + t.w), y1 = Math.max(twin.y + twin.h, t.y + t.h);
       twin.x = Math.min(twin.x, t.x); twin.y = Math.min(twin.y, t.y);
@@ -89,10 +100,14 @@ for (const c of cases) {
     const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
     if (ox > 2 && oy > 2) {
       const small = Math.min(a.w * a.h, b.w * b.h);
-      /* consecutive lines of one headline are set tight on purpose; a real
-         collision is copy landing on unrelated copy */
-      const sameBlock = a.id && b.id && a.id === b.id;
-      const limit = sameBlock ? 0.22 : 0.06;
+      /* Consecutive lines of a stack are set tight on purpose, and ids differ
+         between them (headline0 / headline1), so identity is the wrong test.
+         What makes a stack is geometry: the runs share a column and sit one
+         above the other. Copy landing on unrelated copy does neither. */
+      const share = ox / Math.min(a.w, b.w);
+      const apart = Math.abs((a.y + a.h / 2) - (b.y + b.h / 2)) / Math.max(a.h, b.h);
+      const stacked = share > 0.55 && apart > 0.55;
+      const limit = stacked ? 0.22 : 0.06;
       if (ox * oy > small * limit)
         say('text-collision', `"${a.s.trim()}" over "${b.s.trim()}" (${Math.round(ox * oy / small * 100)}%)`);
     }

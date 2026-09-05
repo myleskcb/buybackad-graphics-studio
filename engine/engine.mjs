@@ -9,6 +9,30 @@ import { readFileSync } from 'node:fs';
    which is why headlines ran off their plates while the declared-box audit
    reported twelve of twelve rules passing. */
 const METRICS=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/metrics.json',import.meta.url),'utf8'));}catch{return{};}})();
+/* the face a price may be set in — the display face unless its figures are
+   unfit for money */
+/* HOW MUCH OF A TEXT BOX A SHAPE ACTUALLY COVERS.
+   A starburst is neither its bounding square nor its inner disc: the points
+   reach out to the full radius in sixteen directions and the gaps between them
+   cover nothing. Judging it by the square condemned placements that were fine;
+   judging it by the disc let a point sit across the last letters of a pill.
+   Sampling the real star polygon answers the question that was actually being
+   asked — can the reader still read this. */
+function starCover(box,st){
+  const N=8,M=8;let hit=0;
+  for(let i=0;i<N;i++)for(let j=0;j<M;j++){
+    const px=box.x+box.w*(i+.5)/N, py=box.y+box.h*(j+.5)/M;
+    const dx=px-st.cx, dy=py-st.cy, d=Math.hypot(dx,dy);
+    if(d>st.r)continue;
+    const a=Math.atan2(dy,dx)-st.rot;
+    const step=Math.PI/st.pts;
+    /* the radius of the star at this angle: linear between a point and a valley */
+    const t=Math.abs(((a/step)%2+2)%2-1);            // 0 at a valley, 1 at a point
+    if(d<=st.r*(st.inner+(1-st.inner)*t))hit++;
+  }
+  return hit/(N*M);
+}
+function numFace(c){return c.F.figures?{face:c.F.display,wf:c.F.dw}:{face:c.F.body,wf:c.F.bw};}
 function faceMetrics(family,weight){
   return METRICS[family+'|'+nearestWeight(family,weight)]||null;
 }
@@ -63,7 +87,10 @@ const PALETTES=[
 const PAIRS=[
  {id:"cs",display:"Clash Display",body:"Satoshi", dw:.52,bw:.50,dweight:700,note:"geometric display over the workhorse grotesque — the studio default"},
  {id:"kh",display:"Khand",        body:"Satoshi", dw:.40,bw:.50,dweight:700,note:"tall condensed over a soft grotesque — holds long model names"},
- {id:"ml",display:"Melodrama",    body:"Satoshi", dw:.46,bw:.50,dweight:700,note:"high-contrast editorial display — expensive, not loud"},
+ /* Melodrama draws a slashed zero, so "$1,250" reads "$1,25Ø" — checked
+    against a rendered swatch of all five families, it is the only one that
+    does. Prices in this pairing are set in the body face instead. */
+ {id:"ml",display:"Melodrama",    body:"Satoshi", dw:.46,bw:.50,dweight:700,figures:false,note:"high-contrast editorial display — expensive, not loud"},
  {id:"zd",display:"Zodiak",       body:"Satoshi", dw:.50,bw:.50,dweight:700,note:"display serif over a grotesque — authority, the trade-in desk"},
  {id:"cz",display:"Clash Display",body:"Zodiak",  dw:.52,bw:.48,dweight:600,note:"geometric over a serif body — editorial weight under a modern head"},
  {id:"kc",display:"Khand",        body:"Clash Display",dw:.40,bw:.50,dweight:700,note:"condensed over geometric — poster type, nothing else beside it"}
@@ -172,6 +199,10 @@ class Card{
      picked a corner that looked empty, and then the price ladder was drawn
      into the space underneath it. */
   defer(fn){this.later.push(fn);}
+  /* The first y a layout may use. The corner lockup owns the top-left strip;
+     archetypes that started their headline at a fixed fraction were landing on
+     it whenever the type ran large. Asked once, honoured everywhere. */
+  topSafe(){return this.on('cornerLockup')?this.H*.045+this.W*.072*1.30:this.H*.045;}
   flush(){const q=this.later;this.later=[];q.forEach(fn=>fn());}
   note(t){this.notes.push(t);}
   use(family,weight){
@@ -270,7 +301,7 @@ class Card{
     // measured box: fitted text spans its plate, unfitted text is estimated from advance width
     /* the measured box is the run's real ink, not a generic cap+descent band,
        so the collision rule tests what a reader can actually see touching */
-    this.add(m,{type:'text',id:o.id||'text',box:p.box,
+    this.add(m,{type:'text',id:o.id||'text',box:p.box,str:String(str),face,weight,
       size:cap,fill,backing:o.on||this.P.ground,bleed:!!o.bleed,role:o.role||'text'});
     return cap;
   }
@@ -303,7 +334,8 @@ D.starburst=(c,cx,cy,r,pts,inner,rot,fill,stroke)=>{
         it is mostly background showing between the points, so coverage is
         judged on the inner disc — and the seal's own placement search is
         scored on this same box, so it optimises what the rule measures */
-     solid:{x:cx-r*inner,y:cy-r*inner,w:r*inner*2,h:r*inner*2}});
+     solid:{x:cx-r*inner,y:cy-r*inner,w:r*inner*2,h:r*inner*2},
+     star:{cx,cy,r,pts,inner,rot}});
   return{x:cx-r,y:cy-r,w:r*2,h:r*2};
 };
 D.tornPaper=(c,box,fill,seed)=>{
@@ -366,15 +398,75 @@ D.lockup=(c,corner)=>{
   const x=corner==='right'?W-m-s:m,y=H*.045;
   c.rect({x,y,w:s,h:s},P.accent,{r:s*.24,id:'markPlate',role:'brand'});
   c.text(C.mark,{x:x+s*.16,y:y+s*.26,w:s*.68},{align:'middle',fill:onColor(P.accent,P),on:P.accent,id:'mark',role:'brand'});
-  c.text(C.brand,{x:x+s*1.22,y:y+s*.13,w:W*.30},{face:F.body,wf:F.bw,weight:800,fill:P.ink,id:'wordmark',role:'brand',max:W*.045});
-  c.text(C.kicker,{x:x+s*1.22,y:y+s*.62,w:W*.34},{face:F.body,wf:F.bw,weight:600,
+  /* Set the second line from where the first one actually ENDS. At a fixed
+     s*.62 offset the descender of "iPhones.LA" ran into the cap line of
+     "SAME DAY CASH" on all but a handful of cards — the leading was guessed
+     from the mark's size rather than measured from the type. */
+  const wm={x:x+s*1.22,y:y+s*.10,w:W*.30};
+  const wo={face:F.body,wf:F.bw,weight:800,fill:P.ink,id:'wordmark',role:'brand',max:W*.045};
+  const wp=c.plan(C.brand,wm,wo);
+  c.text(C.brand,wm,wo);
+  c.text(C.kicker,{x:x+s*1.22,y:wp.box.y+wp.box.h+s*.07,w:W*.34},{face:F.body,wf:F.bw,weight:600,
     fill:readable(P.accent,P.ground,P),id:'kicker',role:'brand',tracking:.04,min:W*.026});
 };
-D.arcText=(c,str,cx,cy,r,fill,size)=>{
+/* fit=  {left,right,bottom}  the box the crown must stay inside. Sizing is done
+   here, with the same geometry that declares the node's box, so the fit and the
+   audit can never disagree — they used to be computed in two places. */
+D.arcText=(c,str,cx,cy,r,fill,size,fit)=>{
   const id=c.id('arc');
+  const weight=c.use(c.F.display,c.F.dweight);
+  if(fit){
+    const m0=faceMetrics(c.F.display,weight);
+    const unit=advance(str,c.F.display,weight,0)||String(str).length*c.F.dw;
+    /* The apex passed in is the BASELINE of the curve; the capitals stand above
+       it by most of the type size, which is how a crown reached back over the
+       lockup it was meant to clear. Each candidate size is measured at the
+       centre it would actually be drawn at, so the fit test and the drawing
+       can never be describing different circles. */
+    const at=t=>{
+      const up=(m0?m0.up[str[0]]||m0.cap:.72)*t, dn=(m0?m0.desc:.2)*t;
+      const CY=fit.top!==undefined?fit.top+up+r:cy;
+      const half=Math.min(Math.PI*.98,unit*t/r)/2;
+      return{cy:CY,x0:cx-Math.sin(half)*(r+up),x1:cx+Math.sin(half)*(r+up),
+             yBot:CY-Math.cos(half)*(r-dn)};
+    };
+    /* Two dials, not one. A flatter curve dips less for the same words, so when
+       the band is shallow — the square crop leaves the crown barely 120px —
+       widening the radius saves the device where shrinking the type alone
+       cannot. If neither dial reaches, say so and let the caller set the line
+       straight instead of curving it into the product. */
+    let pick=null;
+    for(const rk of [1,1.3,1.7,2.2,3.0]){
+      const R0=r; r=R0*rk;
+      for(let t=size;t>=size*.55;t-=size*.03){
+        const e=at(t);
+        if(e.x0>=fit.left&&e.x1<=fit.right&&e.yBot<=fit.bottom){pick={t,r};break;}
+      }
+      r=R0;
+      if(pick)break;
+    }
+    if(!pick)return null;
+    r=pick.r; size=pick.t; cy=at(size).cy;
+  }
   c.def(`<path id="${id}" d="M${(cx-r).toFixed(1)} ${cy.toFixed(1)} A${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${(cx+r).toFixed(1)} ${cy.toFixed(1)}" fill="none"/>`);
-  c.add(`<text font-family="${c.F.display}, sans-serif" font-weight="${c.F.dweight}" font-size="${size.toFixed(1)}" fill="${fill}"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${esc(str)}</textPath></text>`,
-    {type:'text',id:'arc',box:{x:cx-r*.72,y:cy-r-size*.15,w:r*1.44,h:size*1.05},size:size*.7,fill,backing:c.P.ground,role:'headline'});
+  c.add(`<text font-family="${c.F.display}, sans-serif" font-weight="${weight}" font-size="${size.toFixed(1)}" fill="${fill}"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${esc(str)}</textPath></text>`,
+    /* THE ARC'S REAL EXTENT, NOT A RECTANGLE OVER ITS APEX.
+       Type set on a curve is highest in the middle and falls away at both ends,
+       so a flat box across the top described a shape the glyphs never occupied:
+       the ends dipped out of it and landed on the seal below. The run's own
+       length gives the angle it sweeps, and the geometry gives the rest. */
+    (()=>{
+      const m=faceMetrics(c.F.display,weight);
+      const run=(advance(str,c.F.display,weight,0)||String(str).length*c.F.dw)*size;
+      const half=Math.min(Math.PI*.98,run/r)/2;               // half the swept angle
+      const up=(m?m.up[str[0]]||m.cap:.72)*size, dn=(m?m.desc:.2)*size;
+      const x0=cx-Math.sin(half)*(r+up), x1=cx+Math.sin(half)*(r+up);
+      const yTop=cy-r-up;                                     // the apex, plus its cap
+      const yBot=cy-Math.cos(half)*(r-dn);                    // where the ends fall to
+      return{type:'text',id:'arc',box:{x:x0,y:yTop,w:x1-x0,h:Math.max(size*.8,yBot-yTop)},
+        size:size*.7,fill,backing:c.P.ground,role:'headline'};
+    })());
+  return true;
 };
 D.promises=(c,y,items,o={})=>{
   const {W,P,F}=c,pad=W*.05,gap=W*.018,n=items.length;
@@ -546,11 +638,16 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
      it. Try the anchor we wanted first, then the mirrored corners, and take the
      first that costs no words; if every seat is occupied, shrink rather than
      print over the sentence. */
+  let rot=0;
   {
     const words=c.nodes.filter(n=>n.type==='text'&&n.box.w>0);
-    const cost=(X,Y,rr)=>words.reduce((s,t)=>{
-      const b={x:X-rr*.80,y:Y-rr*.80,w:rr*1.6,h:rr*1.6};   // the opaque inner disc
-      return s+inter(b,t.box)/(t.box.w*t.box.h);},0);
+    /* Fix the rotation before searching. The seal is drawn at a random angle,
+       so scoring seats against an unrotated star was scoring a different shape
+       from the one that gets painted — enough to pick a seat whose point then
+       lands across a line. */
+    rot=c.R.f(-.40,-.14);
+    const cost=(X,Y,rr)=>words.reduce((s,t)=>
+      s+starCover(t.box,{cx:X,cy:Y,r:rr,pts,inner:.80,rot}),0);
     const lim=(X,Y,rr)=>[Math.min(Math.max(X,rr+c.W*.015),c.W-rr-c.W*.015),
                          Math.min(Math.max(Y,rr+c.H*.015),c.H*.885-rr)];
     /* Cost is words lost. Distance from the seat the designer asked for is a
@@ -588,7 +685,7 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
     if(best){cx=best.X;cy=best.Y;r=best.rr;}
     if(best&&best.cost>.02)c.note(`seal still costs ${(best.cost*100).toFixed(0)}% of a line`);
   }
-  const b=D.starburst(c,cx,cy,r,pts,.80,c.R.f(-.40,-.14),fill,P.dark);
+  const b=D.starburst(c,cx,cy,r,pts,.80,rot,fill,P.dark);
   const money=text.replace(/^UP TO\s+/,''), pre=money===text?null:'UP TO';
   const ink=onColor(fill,P);
   /* A STAR IS NOT ITS BOUNDING BOX. The three lines were fitted to b, the full
@@ -627,7 +724,7 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
     const hh=side*q.f;
     c.text(q.t,{x:bx,y:ty,w:side},
       Object.assign({align:'middle',fill:ink,on:fill,role:'offer',max:hh},
-        q.face?{face:c.F.body,wf:c.F.bw,weight:800,id:q.id,tracking:.04}:{id:q.id}));
+        q.face?{face:c.F.body,wf:c.F.bw,weight:800,id:q.id,tracking:.04}:{...numFace(c),id:q.id}));
     ty+=hh*lead;
   });
   return b;
@@ -644,7 +741,7 @@ function priceRows(c,top,rows,floorY){
     const y=top+i*rh,alt=i%2===0,bg=alt?P.paper:P.ground2;
     c.rect({x:pad*.6,y,w:W-pad*1.2,h:rh*.9},bg,{r:rh*.16,id:'row',role:'data'});
     c.text(r[0],{x:pad,y:y+rh*.24,w:W*.50},{face:F.body,wf:F.bw,weight:700,fill:onColor(bg,P),on:bg,id:'rowLabel',role:'data',max:rh*.52});
-    c.text(r[1],{x:W-pad-W*.26,y:y+rh*.18,w:W*.26},{align:'end',fill:readable(P.accent,bg,P),on:bg,id:'rowPrice',role:'data',max:rh*.66});
+    c.text(r[1],{x:W-pad-W*.26,y:y+rh*.18,w:W*.26},{...numFace(c),align:'end',fill:readable(P.accent,bg,P),on:bg,id:'rowPrice',role:'data',max:rh*.66});
   });
 }
 function proofSteps(c,sy,steps){
@@ -698,7 +795,7 @@ ARCH.nightLot=c=>{
     c.rect({x:W*.05,y,w:W*.33,h:rh*.88},bg,{r:rh*.16,id:'row',role:'data'});
     c.text(row[2]||row[0],{x:W*.063,y:y+rh*.20,w:W*.148},{face:F.body,wf:F.bw,weight:800,
       fill:onColor(bg,P),on:bg,id:'rowLabel',role:'data',max:rh*.58});
-    c.text(row[1],{x:W*.2185,y:y+rh*.16,w:W*.148},{align:'end',fill:readable(P.accent,bg,P),on:bg,
+    c.text(row[1],{x:W*.2185,y:y+rh*.16,w:W*.148},{...numFace(c),align:'end',fill:readable(P.accent,bg,P),on:bg,
       id:'rowPrice',role:'data',max:rh*.64});
   });
   sealOnHero(c,hero,W*.145,16,C.offer,C.offerSub,P.hot,'bl',H*.56,W*.46);
@@ -740,9 +837,24 @@ ARCH.sunburstHero=c=>{
   ground(c,'radial');
   if(c.on('sunburst'))D.sunburst(c,W*.56,H*.40,W*1.05,P.accent,32,R.f(0,.3),.17);
   if(c.on('halftone'))D.halftone(c,{x:0,y:H*.60,w:W,h:H*.26},P.hot,W*.032,R.i(1,9999),'v');
-  if(c.on('arcCrown')){const ar=W*.44,apex=Math.max(H*.148,W*.152);
-    D.arcText(c,C.heads.join(' '),W*.5,apex+ar,ar,P.ink,W*.062);}
-  else headline(c,C.heads,{x:W*.06,y:H*.115,w:W*.88,h:H*.145},{align:'middle',stroke:P.dark,shadow:P.hot});
+  /* The crown is the headline; at W*.062 it was set smaller than the call to
+     action underneath it, which is the wrong way round and left the top of the
+     card thin. Sized to the run so a short line comes up big and a long one
+     still fits the arc. */
+  let crowned=false;
+  if(c.on('arcCrown')){const ar=W*.44,apex=Math.max(H*.148,W*.152,c.topSafe()+W*.030);
+    const txt=C.heads.join(' ');
+    /* Type on a curve grows in two directions at once: a bigger size sweeps a
+       wider angle, so the ends swing outward AND downward. Sizing it by width
+       alone sent the ends into the lockup on one side and the product on the
+       other. Fit it to the band it is allowed to occupy instead — try large,
+       step down, take the first size whose real extent stays inside. */
+    /* the floor is where the product starts, not an arbitrary band: the crown
+       may grow until its ends reach the hero, and no further */
+    crowned=D.arcText(c,txt,W*.5,apex+ar,ar,P.ink,W*.105,
+      {left:W*.045,right:W*.955,top:apex,bottom:Math.min(apex+H*.185,H*.295-H*.014)})!==null;}
+  if(!crowned)headline(c,C.heads,{x:W*.06,y:Math.max(H*.115,c.topSafe()),w:W*.88,h:H*.145},
+    {align:'middle',stroke:P.dark,shadow:P.hot});
   const hero=placeHero(c,{x:W*.44,y:H*.295,w:W*.70,h:H*.330},R.f(-6,8));
   if(c.on('promisePills'))C.promises.slice(0,c.H/c.W>1.45?5:3).forEach((t,i)=>
     D.promises(c,(c.H/c.W>1.45?H*.400:H*.430)+i*c.S*.072,[t],{h:c.S*.058,w:W*.30}));
@@ -776,7 +888,7 @@ ARCH.tornSplit=c=>{
     {stroke:P.dark,shadow:P.accent,strokeW:.05,
      plateIndex:c.on('paintStroke')?1:-1,plateColor:P.accent,
      plateDraw:(cc,b)=>D.paintStroke(cc,b,P.accent,R.i(1,9999))});
-  c.text(C.offer,{x:W*.055,y:H*.545,w:W*.50},{fill:onColor(P.paper,P),on:P.paper,id:'offer2',role:'offer'});
+  c.text(C.offer,{x:W*.055,y:H*.545,w:W*.50},{...numFace(c),fill:onColor(P.paper,P),on:P.paper,id:'offer2',role:'offer'});
   c.text('CASH IN HAND',{x:W*.055,y:H*.655,w:W*.40},
     {face:F.body,wf:F.bw,weight:800,fill:readable(P.accent,P.paper,P),on:P.paper,
      id:'offerSub2',role:'offer',tracking:.03});
@@ -822,7 +934,8 @@ ARCH.posterBleed=c=>{
      H*.215 the lines came out small AND short, leaving the whole top-right
      corner — 560x400px, 19% of a square card — as one empty rectangle. Given
      the room a poster headline expects, the type grows to fill it. */
-  const headH=H*(H/W>1.45?.215:.285), headY=H*.112, bandY=headY+headH+H*.022;
+  const headH=H*(H/W>1.45?.215:.285);
+  const headY=Math.max(H*.112,c.topSafe()), bandY=headY+headH+H*.022;
   headline(c,C.heads,{x:W*.05,y:headY,w:W*.90,h:headH},
     {stroke:P.hot,shadow:P.dark,shadowDx:W*.012,shadowDy:H*.010,strokeW:.05,fill:readable(P.paper,P.ground,P),
      measure:true,
@@ -835,10 +948,10 @@ ARCH.posterBleed=c=>{
   if(c.on('knockoutBand')){
     c.rect({x:0,y:bandY,w:W,h:H*.056},P.ink,{bleed:true,id:'kickerBand',role:'plate',fill:P.ink});
     c.text(C.offer+'  ·  '+C.offerSub,{x:W*.05,y:bandY+H*.015,w:W*.90},
-      {align:'middle',fill:onColor(P.ink,P),on:P.ink,id:'offerLine',role:'offer',max:H*.036});
+      {...numFace(c),align:'middle',fill:onColor(P.ink,P),on:P.ink,id:'offerLine',role:'offer',max:H*.036});
   }else{
     c.text(C.offer+'  ·  '+C.offerSub,{x:W*.05,y:bandY-H*.006,w:W*.90},
-      {align:'middle',fill:readable(P.accent,P.ground,P),on:P.ground,
+      {...numFace(c),align:'middle',fill:readable(P.accent,P.ground,P),on:P.ground,
        stroke:P.dark,strokeW:.05,id:'offerLine',role:'offer',max:H*.052});
   }
   sealOnHero(c,hero,W*.150,20,'CASH','TODAY',P.hot,'tr',H/W>1.45?H*.755:H*.66,null,H/W>1.45?H*.700:H*.58);
@@ -856,9 +969,12 @@ ARCH.ticketOffer=c=>{
   const {W,H,P,F,R,C}=c;
   ground(c,'radial');
   if(c.on('sunburst'))D.sunburst(c,W*.5,H*.44,W*.95,P.hot,24,R.f(0,.3),.12);
-  headline(c,[C.heads[0]],{x:W*.05,y:H*.125,w:W*.90,h:H*.070},{stroke:P.dark,align:'middle'});
-  headline(c,[C.heads[1]],{x:W*.05,y:H*.200,w:W*.90,h:H*.110},{fill:readable(P.accent,P.ground,P),shadow:P.dark,stroke:P.dark,align:'middle'});
-  placeHero(c,{x:W*.32,y:H*.315,w:W*.84,h:H*.315},R.f(-7,9));
+  const ty=Math.max(H*.125,c.topSafe());
+  headline(c,[C.heads[0]],{x:W*.05,y:ty,w:W*.90,h:H*.070},{stroke:P.dark,align:'middle'});
+  headline(c,[C.heads[1]],{x:W*.05,y:ty+H*.075,w:W*.90,h:H*.110},{fill:readable(P.accent,P.ground,P),shadow:P.dark,stroke:P.dark,align:'middle'});
+  /* the hero follows the headline block rather than a constant, so pushing the
+     type clear of the lockup cannot push it under the product */
+  placeHero(c,{x:W*.32,y:Math.max(H*.315,ty+H*.200),w:W*.84,h:H*.315},R.f(-7,9));
   if(c.on('proofBlock')){
     const ry=H*(H/W>1.45?.500:.522);
     D.stars(c,W*.06,ry,c.S*.030,readable(P.accent,P.ground,P));
@@ -868,7 +984,7 @@ ARCH.ticketOffer=c=>{
   if(c.on('ticket')){
     const t=D.ticket(c,{x:W*.08,y:H*.600,w:W*.84,h:H*.145},P.paper,H*.024);
     D.sheen(c,t,P.accent);
-    c.text(C.offer,{x:W*.125,y:H*.632,w:W*.75},{align:'middle',fill:onColor(P.paper,P),on:P.paper,
+    c.text(C.offer,{x:W*.125,y:H*.632,w:W*.75},{...numFace(c),align:'middle',fill:onColor(P.paper,P),on:P.paper,
       id:'offer',role:'offer',max:H*.080});
   }
   c.text('NO OBLIGATION · 20 MIN · CASH OR TRANSFER',{x:W*.09,y:H*.757,w:W*.82},
@@ -887,13 +1003,16 @@ ARCH.proofWall=c=>{
   const {W,H,P,F,R,C}=c;
   ground(c,'pool');
   if(c.on('checker'))D.checker(c,{x:0,y:0,w:W,h:H*.5},P.accent,10,.08);
+  /* The hero goes down first. The review card overlaps it by design — a paper
+     card lying on the product — but while the card was drawn first the phone
+     was painted over the quote, and "cash out. Twenty minutes." ran under it. */
+  const hero=placeHero(c,{x:W*.60,y:H*.295,w:W*.56,h:H*.26},R.f(12,20));
   if(c.on('proofBlock')){
     D.stars(c,W*.055,H*.140,c.S*.034,readable(P.accent,P.ground,P));
     c.text(C.rating,{x:W*.055+c.S*.034*3.6,y:H*.140,w:W*.40},
       {face:F.body,wf:F.bw,weight:800,fill:P.ink,on:P.ground,id:'rating',role:'proof',max:c.S*.036});
     reviewCard(c,{x:W*.05,y:H*.200,w:W*.62,h:H*.160});
   }
-  const hero=placeHero(c,{x:W*.60,y:H*.295,w:W*.56,h:H*.26},R.f(12,20));
   headline(c,[C.heads.join(' ')],{x:W*.055,y:H*.422,w:W*.56,h:H*.060},
     {plateIndex:c.on('paintStroke')?0:-1,plateColor:P.accent,
      plateDraw:(cc,b)=>D.paintStroke(cc,b,P.accent,R.i(1,9999)),
@@ -940,6 +1059,7 @@ const RULES=[
  ['R8','Minimum size','every text ≥ 2.0% of the short edge','fine print that dies in a feed thumbnail'],
  ['R13','Text on its plate','every line stays inside the panel it was set on','copy running off its card onto the photo'],
  ['R14','Words on top','no opaque shape is drawn over a line of text','a seal painted across the headline'],
+ ['R15','Legible figures','no price is set in a face that draws a slashed zero','"$1,250" reading as "$1,25Ø"'],
  ['R9','Contrast','every text ≥ 4.5:1 on its own backing','accent-on-accent text that vanishes'],
  ['R10','Hot restraint','hot colour ≤ 14% of canvas area','the all-red card where nothing reads as urgent'],
  ['R11','Sheen parentage','every sheen sits inside its own plate','the highlight drawn at the layout’s original geometry'],
@@ -983,7 +1103,11 @@ function audit(card){
   r.push(['R6',!badge||(bo>=.06&&bo<=.32)]);
   let collide=false;
   for(let i=0;i<texts.length&&!collide;i++)for(let j=i+1;j<texts.length;j++){
-    if(inter(texts[i].box,texts[j].box)>Math.min(texts[i].box.w*texts[i].box.h,texts[j].box.w*texts[j].box.h)*.30){collide=true;break;}}
+    /* 30% of the smaller box was far too generous: a headline could cover most
+       of the lockup's second line and still pass. These are real ink extents
+       now, so anything past a hair's touch is a defect. */
+    if(inter(texts[i].box,texts[j].box)>Math.min(texts[i].box.w*texts[i].box.h,texts[j].box.w*texts[j].box.h)*.06){
+      collide=true;card.note(`collide: ${texts[i].id} x ${texts[j].id}`);break;}}
   r.push(['R7',!collide]);
   const SS=Math.min(W,H);
   r.push(['R8',texts.every(t=>t.size>=SS*.020)]);
@@ -1027,11 +1151,20 @@ function audit(card){
     for(let k=i+1;k<nodes.length;k++){
       const n=nodes[k];
       if(n.type!=='shape'||!SOLID.has(n.role))continue;
-      const ov=inter(t.box,n.solid||n.box);
-      if(ov>area*.08)buried.push(`${t.id} under ${n.id} ${Math.round(ov/area*100)}%`);
+      const frac=n.star?starCover(t.box,n.star):inter(t.box,n.solid||n.box)/area;
+      if(frac>.05)buried.push(`${t.id} under ${n.id} ${Math.round(frac*100)}%`);
     }
   });
   r.push(['R14',!buried.length]);
+  /* R15 · A PRICE MUST NOT BE AMBIGUOUS.
+     Melodrama draws a slashed zero, so "$1,250" reads "$1,25Ø" — checked
+     against a rendered swatch of all five families, it is the only one that
+     does. Prices are routed to the body face in that pairing; this makes sure
+     they stay there when someone adds an archetype. */
+  const AMBIG=new Set(['Melodrama']);
+  const figs=texts.filter(t=>AMBIG.has(t.face)&&/0/.test(t.str||''));
+  r.push(['R15',!figs.length]);
+  if(figs.length)card.note('figures: '+figs.map(t=>`${t.id} "${t.str}" in ${t.face}`).join(', '));
   if(buried.length)card.note('buried: '+buried.join(', '));
   r.push(['R11',sheens.every(s=>s.parent&&inter(s.box,s.parent)>=s.box.w*s.box.h*.999)]);
   r.push(['R12',nodes.every(n=>n.bleed||n.role==='field'||(n.box.x>=-1&&n.box.y>=-1&&n.box.x+n.box.w<=W+1&&n.box.y+n.box.h<=H+1))]);
@@ -1041,17 +1174,23 @@ function audit(card){
 /* ══════════════════════════════════════════════════════════
    10 · RENDER PIPELINE
    ══════════════════════════════════════════════════════════ */
+/* A self-contained card embeds the two families it uses, which costs about
+   110KB. A page showing a gallery of them should carry the faces ONCE instead:
+   render with {embedFonts:false} and put fontCSS() in the page head. */
+function fontCSS(){return faceCSS(Object.fromEntries(
+  Object.entries(FONT_FILES).map(([f,w])=>[f,Object.keys(w).map(Number)])));}
 function render(archKey,seed,vertical,sizeKey,cfg){
   const R=RNG(seed);
   const P=PALETTES[seed%PALETTES.length], Fp=PAIRS[(seed>>3)%PAIRS.length];
   const [W,H]=SIZES[sizeKey], C0=CONTENT[vertical];
   const C=Object.assign({},C0,{heads:R.pick(C0.heads),promises:R.shuffle(C0.promises)});
-  const F={display:Fp.display,body:Fp.body,dw:Fp.dw,bw:Fp.bw,dweight:Fp.dweight};
+  const F={display:Fp.display,body:Fp.body,dw:Fp.dw,bw:Fp.bw,dweight:Fp.dweight,
+    figures:Fp.figures!==false};
   const c=new Card(W,H,P,F,R,C,cfg,archKey+seed+sizeKey);
   ARCH[archKey](c);
   c.flush();
   const a=audit(c);
-  const svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(archKey)} buyback ad in the ${esc(P.name)} palette"><defs><style>${faceCSS(c.used)}</style>${c.defs.join('')}</defs><rect width="${W}" height="${H}" fill="${P.ground}"/>${c.svg.join('')}</svg>`;
+  const svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(archKey)} buyback ad in the ${esc(P.name)} palette"><defs>${cfg&&cfg.embedFonts===false?'':`<style>${faceCSS(c.used)}</style>`}${c.defs.join('')}</defs><rect width="${W}" height="${H}" fill="${P.ground}"/>${c.svg.join('')}</svg>`;
   return{svg,audit:a,palette:P,pair:Fp,card:c};
 }
 
@@ -1122,5 +1261,6 @@ export {
   Card, D, ARCH, ARCHS,
   QUEUE, ALLKEYS, KEYMETA, DEFAULT_CFG,
   RULES, PERMANENT_NEG, audit, render, buildPrompt, sentiment,
-  ground, placeHero, headline, sealOnHero, priceRows, proofSteps, reviewCard
+  ground, placeHero, headline, sealOnHero, priceRows, proofSteps, reviewCard,
+  fontCSS, faceCSS
 };
