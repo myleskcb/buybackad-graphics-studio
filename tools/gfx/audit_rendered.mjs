@@ -76,9 +76,15 @@ for (const c of cases) {
   }
   const say = (rule, msg) => hits.push({ ...c, rule, msg });
 
-  /* 1. real glyph runs must not touch each other */
+  /* 1. real glyph runs must not touch each other.
+        getBBox returns the EM box — ascender to descender — so two lines set
+        with tight leading always overlap on paper even though the ink never
+        does. Compare the middle band of each box, which approximates the ink,
+        so a true collision still trips and a tight stack does not. */
+  const ink = t => ({ x: t.x, w: t.w, y: t.y + t.h * 0.16, h: t.h * 0.68 });
   for (let i = 0; i < vis.length; i++) for (let j = i + 1; j < vis.length; j++) {
-    const a = vis[i], b = vis[j];
+    const a = ink(vis[i]), b = ink(vis[j]);
+    a.s = vis[i].s; b.s = vis[j].s; a.id = vis[i].id; b.id = vis[j].id;
     const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
     const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
     if (ox > 2 && oy > 2) {

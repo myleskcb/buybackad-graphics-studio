@@ -1,3 +1,38 @@
+import { faceCSS, nearestWeight, FONT_FILES } from './fonts.mjs';
+import { readFileSync } from 'node:fs';
+
+/* REAL TYPE METRICS, measured from the embedded fonts by
+   tools/gfx/measure_fonts.mjs. Every run is sized from the exact sum of its
+   glyph advances instead of one average-character constant per family, so a
+   line cannot be wider than the box it was told to fit. The old constants were
+   out by up to 41% (Clash Display caps measure .735, the constant said .52),
+   which is why headlines ran off their plates while the declared-box audit
+   reported twelve of twelve rules passing. */
+const METRICS=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/metrics.json',import.meta.url),'utf8'));}catch{return{};}})();
+function faceMetrics(family,weight){
+  return METRICS[family+'|'+nearestWeight(family,weight)]||null;
+}
+/* the run's real ink extents above and below the baseline, at font-size 1 */
+function inkExtent(str,family,weight){
+  const m=faceMetrics(family,weight);
+  if(!m||!m.up)return null;
+  let up=0,dn=0;
+  for(const ch of String(str)){
+    if(ch===' ')continue;
+    up=Math.max(up,m.up[ch]!==undefined?m.up[ch]:m.cap);
+    dn=Math.max(dn,m.dn[ch]!==undefined?m.dn[ch]:m.desc);
+  }
+  return up||dn?{up,dn}:null;
+}
+/* width of str at font-size 1, tracking included */
+function advance(str,family,weight,tracking){
+  const m=faceMetrics(family,weight);
+  const n=String(str).length;
+  if(!m)return null;
+  let w=0;
+  for(const ch of String(str))w+=m.adv[ch]!==undefined?m.adv[ch]:m.avg;
+  return w+(tracking||0)*Math.max(0,n-1);
+}
 /* Buyback graphics engine — extracted from the console, framework-free.
    Import with:  import * as E from './engine.mjs'
    Nothing here touches the DOM; every function is a pure transform. */
@@ -26,12 +61,12 @@ const PALETTES=[
  {id:"np03",name:"Newsprint",   mood:"classified ad, urgent",     ground:"#EDE7DC",ground2:"#DCD3C4",ink:"#121212",body:"#4A463F",accent:"#D7263D",hot:"#1B4079",paper:"#FFFFFF",dark:"#121212"}
 ];
 const PAIRS=[
- {id:"tk",display:"Teko",         body:"Sora",             dw:.34,bw:.56,dweight:700,note:"tall condensed over a soft geometric — reads modern, holds long model names"},
- {id:"sq",display:"Squada One",   body:"Chivo",            dw:.42,bw:.53,dweight:400,note:"squared display over a grotesque — the forecourt default"},
- {id:"an",display:"Anton",        body:"Barlow Condensed", dw:.42,bw:.42,dweight:400,note:"maximum weight, minimum width — poster type, nothing else fits beside it"},
- {id:"ab",display:"Archivo Black",body:"Archivo",          dw:.60,bw:.52,dweight:400,note:"one family, two weights — the quiet, expensive-looking option"},
- {id:"bb",display:"Bebas Neue",   body:"Chivo",            dw:.36,bw:.53,dweight:400,note:"all-caps ticket type, very narrow — good when the headline is four words"},
- {id:"os",display:"Oswald",       body:"Sora",             dw:.45,bw:.56,dweight:700,note:"condensed gothic, slightly civic — trustworthy over loud"}
+ {id:"cs",display:"Clash Display",body:"Satoshi", dw:.52,bw:.50,dweight:700,note:"geometric display over the workhorse grotesque — the studio default"},
+ {id:"kh",display:"Khand",        body:"Satoshi", dw:.40,bw:.50,dweight:700,note:"tall condensed over a soft grotesque — holds long model names"},
+ {id:"ml",display:"Melodrama",    body:"Satoshi", dw:.46,bw:.50,dweight:700,note:"high-contrast editorial display — expensive, not loud"},
+ {id:"zd",display:"Zodiak",       body:"Satoshi", dw:.50,bw:.50,dweight:700,note:"display serif over a grotesque — authority, the trade-in desk"},
+ {id:"cz",display:"Clash Display",body:"Zodiak",  dw:.52,bw:.48,dweight:600,note:"geometric over a serif body — editorial weight under a modern head"},
+ {id:"kc",display:"Khand",        body:"Clash Display",dw:.40,bw:.50,dweight:700,note:"condensed over geometric — poster type, nothing else beside it"}
 ];
 const SIZES={"45":[1080,1350],"11":[1080,1080],"916":[1080,1920]};
 
@@ -126,31 +161,102 @@ class Card{
   constructor(W,H,P,F,R,C,cfg,key){
     Object.assign(this,{W,H,P,F,R,C,cfg,key});
     this.S=Math.min(W,H);
-    this.defs=[];this.svg=[];this.nodes=[];this.uid=0;this.notes=[];
+    this.defs=[];this.svg=[];this.nodes=[];this.uid=0;this.notes=[];this.used={};this.later=[];
   }
   on(k){return this.cfg[k]!==false;}
   id(p){return p+(this.uid++)+this.key;}
   add(m,n){this.svg.push(m);if(n)this.nodes.push(n);}
   def(d){this.defs.push(d);}
+  /* Run after the archetype has finished. A seal has to choose its seat from
+     the finished card: placed mid-build it was choosing against half the copy,
+     picked a corner that looked empty, and then the price ladder was drawn
+     into the space underneath it. */
+  defer(fn){this.later.push(fn);}
+  flush(){const q=this.later;this.later=[];q.forEach(fn=>fn());}
   note(t){this.notes.push(t);}
-  text(str,box,o={}){
+  use(family,weight){
+    const w=nearestWeight(family,weight);
+    (this.used[family]||=new Set()).add(w);
+    return w;
+  }
+  /* PLAN A RUN WITHOUT DRAWING IT.
+     Everything that decides where a line of type lands lives here, so a
+     caller can ask for the exact box a run will occupy and cut a plate to
+     fit it BEFORE drawing it. The bar behind a headline used to be a fixed
+     fraction of the card while the headline sized itself from the copy, so
+     the two were decided independently and the words ran off the bar. */
+  plan(str,box,o={}){
+
     const face=o.face||this.F.display, wf=o.wf!==undefined?o.wf:this.F.dw, tr=o.tracking||0;
     const chars=Math.max(String(str).length,1);
-    let size=o.size||(box.w/(chars*(wf+tr)));
+    const weight=this.use(face,o.weight||this.F.dweight);
+    /* unit = the run's exact width at font-size 1. Falls back to the old
+       average-per-character estimate only if the face was never measured. */
+    const unit=advance(str,face,weight,tr)||chars*(wf+tr);
+    let size=o.size||(box.w/unit);
     if(o.max)size=Math.min(size,o.max); if(o.min)size=Math.max(size,o.min);
-    let natural0=chars*(wf+tr)*size;
-    if(natural0>box.w)size=box.w/(chars*(wf+tr));
-    const cap=size*(o.capRatio||.72), y=box.y+cap;
+    if(unit*size>box.w)size=box.w/unit;          // never wider than the plate
+    /* LEGIBILITY IS A FLOOR, NOT A PREFERENCE.
+       Fitting by width alone can drive a run under the size R8 requires, which
+       is how fine print that dies in a feed thumbnail used to ship. Hold the
+       floor instead and take the width back by condensing: textLength with
+       lengthAdjust compresses letter-spacing and glyphs, and down to about 82%
+       that reads as a condensed cut rather than a squeeze. Only when even that
+       is not enough is it a genuine layout/copy mismatch, and the card says so
+       out loud rather than silently setting six-point type. */
+    const floor=this.S*.021/(o.capRatio||(faceMetrics(face,weight)||{cap:.72}).cap);
+    let condense=0;
+    if(!o.size&&size<floor){
+      const want=unit*floor;
+      if(want<=box.w*1.22){size=floor;condense=box.w/want;}
+      else{size=box.w/unit;this.note(`tight: "${String(str).slice(0,22)}" needs ${(want/box.w*100|0)}% of its box at the legible floor`);}
+    }
+    const fm=faceMetrics(face,weight);
+    /* FIT A SHORT RUN TO THE BOX HEIGHT, NOT JUST ITS WIDTH.
+       Sizing by width alone means the size depends on which glyph it is: "1"
+       has a much narrower advance than "2", so a numbered list came out with a
+       first step half again the size of the others, overflowing its own tile.
+       When the caller gives the box a height, fit to the smaller of the two
+       and centre the ink in it, which is what setting a numeral in a square
+       has always meant. */
+    const ink0=inkExtent(str,face,weight);
+    let vcentre=0;
+    if(box.h&&o.fitH!==false&&ink0&&(ink0.up+ink0.dn)>0){
+      const sizeH=box.h/(ink0.up+ink0.dn);
+      if(sizeH<size){size=sizeH;}
+      vcentre=(box.h-(ink0.up+ink0.dn)*size)/2;
+    }
+    const cap=size*(o.capRatio||(fm?fm.cap:.72));
+    const y=box.h&&o.fitH!==false&&ink0?box.y+vcentre+ink0.up*size:box.y+cap;
 
     const anchor=o.align||'start';
     const x=anchor==='middle'?box.x+box.w/2:anchor==='end'?box.x+box.w:box.x;
-    const fill=o.fill||this.P.ink;
-    const natural=chars*(wf+tr)*size;
+    const natural=unit*size;
     const ratio=natural>0?box.w/natural:1;
-    const snap=(o.fit!==false)&&this.on('fitToPlate')&&ratio>=.70&&ratio<=1.60;
-    const tl=snap?` textLength="${box.w.toFixed(1)}" lengthAdjust="spacingAndGlyphs"`:'';
+    /* o.measure sets the line flush to the full width of its box — the stacked
+       poster lockup where every word is the same measure. Short headlines like
+       TOP / BUYER cannot fill a wide box at a fixed leading, so a square poster
+       was left with a quarter of itself empty; set to the measure they become
+       the artwork. Capped at 4x so a one-letter line is never smeared. */
+    const measure=o.measure&&ratio>1&&ratio<=4;
+    const snap=measure||((o.fit!==false)&&this.on('fitToPlate')&&ratio>=.70&&ratio<=1.60);
+    const realW=(snap||condense)?box.w:Math.min(box.w,natural);
+    const ext=ink0;
+    const top=ext?y-ext.up*size:box.y;
+    const hgt=ext?(ext.up+ext.dn)*size:cap*1.18;
+    return{face,weight,size,cap,y,x,anchor,natural,snap,condense,tr,
+      box:{x:anchor==='middle'?x-realW/2:anchor==='end'?x-realW:x,y:top,w:realW,h:hgt}};
+  }
+  text(str,box,o={}){
+    const p=this.plan(str,box,o);
+    const {face,weight,size,cap,y,x,anchor,snap,condense,tr}=p;
+    const fill=o.fill||this.P.ink;
+    /* condensing is a containment guarantee, so it applies whether or not the
+       fitToPlate look is switched on for this configuration */
+    const tl=(condense&&condense<1)?` textLength="${box.w.toFixed(1)}" lengthAdjust="spacingAndGlyphs"`
+            :snap?` textLength="${box.w.toFixed(1)}" lengthAdjust="spacingAndGlyphs"`:'';
     const ls=tr?` letter-spacing="${(tr*size).toFixed(2)}"`:'';
-    const base=`font-family="${face}, sans-serif" font-weight="${o.weight||this.F.dweight}" font-size="${size.toFixed(1)}" text-anchor="${anchor}"`;
+    const base=`font-family="${face}, sans-serif" font-weight="${weight}" font-size="${size.toFixed(1)}" text-anchor="${anchor}"`;
     const useStroke=o.stroke&&this.on('outlineStroke');
     const useShadow=o.shadow&&this.on('hardShadow');
     let m='';
@@ -162,9 +268,10 @@ class Card{
     const sa=useStroke?` stroke="${o.stroke}" stroke-width="${(size*(o.strokeW||.055)).toFixed(2)}" paint-order="stroke"`:'';
     m+=`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" ${base} fill="${fill}"${sa}${tl}${ls}>${esc(str)}</text>`;
     // measured box: fitted text spans its plate, unfitted text is estimated from advance width
-    const realW=snap?box.w:Math.min(box.w,natural);
-    this.add(m,{type:'text',id:o.id||'text',box:{x:anchor==='middle'?x-realW/2:anchor==='end'?x-realW:x,
-      y:box.y,w:realW,h:cap*1.18},size:cap,fill,backing:o.on||this.P.ground,bleed:!!o.bleed,role:o.role||'text'});
+    /* the measured box is the run's real ink, not a generic cap+descent band,
+       so the collision rule tests what a reader can actually see touching */
+    this.add(m,{type:'text',id:o.id||'text',box:p.box,
+      size:cap,fill,backing:o.on||this.P.ground,bleed:!!o.bleed,role:o.role||'text'});
     return cap;
   }
   rect(box,fill,o={}){
@@ -191,7 +298,12 @@ D.starburst=(c,cx,cy,r,pts,inner,rot,fill,stroke)=>{
   for(let i=0;i<n;i++){const rr=i%2?r*inner:r,a=rot+i*st;
     p+=(i?'L':'M')+(cx+Math.cos(a)*rr).toFixed(1)+' '+(cy+Math.sin(a)*rr).toFixed(1)+' ';}
   c.add(`<path d="${p}Z" fill="${fill}"${stroke?` stroke="${stroke}" stroke-width="${(r*.05).toFixed(1)}"`:''}/>`,
-    {type:'shape',id:'badge',box:{x:cx-r,y:cy-r,w:r*2,h:r*2},role:'badge',fill});
+    {type:'shape',id:'badge',box:{x:cx-r,y:cy-r,w:r*2,h:r*2},role:'badge',fill,
+     /* what the star actually paints over: between the inner and outer radius
+        it is mostly background showing between the points, so coverage is
+        judged on the inner disc — and the seal's own placement search is
+        scored on this same box, so it optimises what the rule measures */
+     solid:{x:cx-r*inner,y:cy-r*inner,w:r*inner*2,h:r*inner*2}});
   return{x:cx-r,y:cy-r,w:r*2,h:r*2};
 };
 D.tornPaper=(c,box,fill,seed)=>{
@@ -364,21 +476,51 @@ function placeHero(c,box,rot){
 function headline(c,lines,box,o={}){
   const gap=box.h*.06,lh=(box.h-gap*(lines.length-1))/lines.length;
   let y=box.y;
-  lines.forEach((ln,i)=>{
+  /* PLAN THE WHOLE STACK, THEN PAINT IT.
+     Bars are drawn for every line before any word is set, so a bar cut for the
+     second line cannot land on top of the first — which is what happened while
+     each line planned and painted itself in turn. */
+  const set=lines.map((ln,i)=>{
     const onPlate=o.plateIndex===i&&o.plateColor;
     const back=onPlate?o.plateColor:(o.on||c.P.ground);
-    const byWidth=box.w/(Math.max(String(ln).length,1)*c.F.dw);
-    const size=Math.min(lh/.74,byWidth*1.35);
-    c.text(ln,{x:box.x,y,w:box.w},{fill:onPlate?onColor(o.plateColor,c.P):(o.fill||c.P.ink),
+    const opt={fill:onPlate?onColor(o.plateColor,c.P):(o.fill||c.P.ink),
       stroke:o.stroke,shadow:o.shadow,strokeW:o.strokeW,on:back,align:o.align,
-      id:'headline'+i,role:'headline',capRatio:.74,size});
+      id:'headline'+i,role:'headline',capRatio:.74,measure:o.measure,
+      /* the line is as big as its box allows in BOTH axes — the old estimate
+         multiplied a bad average-width constant by a 1.35 fudge factor, which
+         is why headlines came out wider than the bars drawn behind them */
+      size:lh/.74};
+    /* A line that is going to get a bar must leave room for it, otherwise the
+       bar — now cut to the words — grows past the edge of the card. The pad is
+       known from the leading before the type is planned, so inset first and the
+       finished bar lands exactly inside the box the layout asked for. */
+    const inset=(onPlate&&o.plateDraw)?lh*.74*.30:0;
+    const at={x:box.x+inset,y,w:box.w-inset*2};
+    const r={ln,opt,at,onPlate,plan:c.plan(ln,at,opt)};
     y+=lh+gap;
+    return r;
   });
+  /* the bar is cut to what the words will actually measure, padded — it used to
+     be a fixed fraction of the card, so "CASH FOR IPHONES" ran off its own
+     highlighter — and never taller than the leading, so it stays in its lane */
+  if(o.plateDraw)set.forEach(t=>{
+    if(!t.onPlate)return;
+    const padX=t.plan.cap*.30,padY=Math.min(t.plan.cap*.26,(lh+gap-t.plan.box.h)/2);
+    const m=c.W*.012;                                  // stay inside the safe area
+    const x0=Math.max(m,t.plan.box.x-padX), x1=Math.min(c.W-m,t.plan.box.x+t.plan.box.w+padX);
+    o.plateDraw(c,{x:x0,y:t.plan.box.y-padY,w:x1-x0,h:t.plan.box.h+padY*2});
+  });
+  set.forEach(t=>c.text(t.ln,t.at,t.opt));
 }
 /* A seal is placed from the hero's own corner, offset by .106r, which lands the
    overlap at ~20% of the badge — inside the 6–32% the auditor asks for. */
 function sealOnHero(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
   if(!c.on('starburst'))return null;
+  c.defer(()=>placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy));
+  return null;
+}
+function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
+  /* r is re-chosen below when every seat is occupied */
   const P=c.P,d=r*.106;
   let cx,cy;
   if(hero){
@@ -397,6 +539,55 @@ function sealOnHero(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
   }
   if(minCx)cx=Math.max(cx,minCx);
   cx=Math.min(Math.max(cx,r+c.W*.015),c.W-r-c.W*.015);
+  /* A SEAL IS PLACED LAST, SO IT DECIDES WHAT THE READER LOSES.
+     It used to be positioned from the hero's corner alone, blind to the copy,
+     and being drawn after the type it simply covered whatever was there — cards
+     shipped reading "CASH FOR IPHON<seal>" and with a whole price column behind
+     it. Try the anchor we wanted first, then the mirrored corners, and take the
+     first that costs no words; if every seat is occupied, shrink rather than
+     print over the sentence. */
+  {
+    const words=c.nodes.filter(n=>n.type==='text'&&n.box.w>0);
+    const cost=(X,Y,rr)=>words.reduce((s,t)=>{
+      const b={x:X-rr*.80,y:Y-rr*.80,w:rr*1.6,h:rr*1.6};   // the opaque inner disc
+      return s+inter(b,t.box)/(t.box.w*t.box.h);},0);
+    const lim=(X,Y,rr)=>[Math.min(Math.max(X,rr+c.W*.015),c.W-rr-c.W*.015),
+                         Math.min(Math.max(Y,rr+c.H*.015),c.H*.885-rr)];
+    /* Cost is words lost. Distance from the seat the designer asked for is a
+       tie-breaker only, so the seal keeps its intended corner whenever that
+       corner is free and gives it up when it is not. */
+    let best=null;
+    const want=[cx,cy];
+    /* A seal belongs on the corner of the product — that bite of overlap is
+       what makes it read as a sticker on the thing rather than a floating
+       graphic, and R6 asks for 6-32% of it. So the search balances two jobs:
+       cover no words, and keep its grip on the hero. */
+    const grip=(X,Y,rr)=>{
+      if(!hero)return 0;
+      const b={x:X-rr*.80,y:Y-rr*.80,w:rr*1.6,h:rr*1.6};
+      const f=inter(b,hero)/(rr*rr*4);
+      return f>=.06&&f<=.32?0:Math.min(.5,Math.abs(f-.19)*1.2);
+    };
+    const consider=(sx,sy,rr,bias)=>{
+      const [X,Y]=lim(sx,sy,rr);
+      const d=Math.hypot(X-want[0],Y-want[1])/c.S;
+      const co=cost(X,Y,rr);
+      const k=co+grip(X,Y,rr)+d*.03+bias;
+      if(!best||k<best.k-1e-6)best={k,cost:co,X,Y,rr};
+    };
+    for(const rr of [r,r*.88,r*.78]){
+      consider(cx,cy,rr,0);
+      if(hero)for(const [sx,sy] of [[hero.x-r*.106,hero.y+hero.h+r*.106],
+                                    [hero.x+hero.w+r*.106,hero.y+hero.h+r*.106],
+                                    [hero.x-r*.106,hero.y-r*.106],
+                                    [hero.x+hero.w+r*.106,hero.y-r*.106]])consider(sx,sy,rr,.01);
+      for(let gx=0;gx<=6;gx++)for(let gy=0;gy<=6;gy++)
+        consider(c.W*(.10+gx*.133),c.H*(.12+gy*.118),rr,.02);
+      if(best&&best.cost<=.02)break;
+    }
+    if(best){cx=best.X;cy=best.Y;r=best.rr;}
+    if(best&&best.cost>.02)c.note(`seal still costs ${(best.cost*100).toFixed(0)}% of a line`);
+  }
   const b=D.starburst(c,cx,cy,r,pts,.80,c.R.f(-.40,-.14),fill,P.dark);
   const money=text.replace(/^UP TO\s+/,''), pre=money===text?null:'UP TO';
   const ink=onColor(fill,P);
@@ -405,30 +596,50 @@ function sealOnHero(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
      41-45% overlap between "UP TO", the money and the sub on every archetype
      that carries a seal. The readable area is the INNER disc, so the lines are
      fitted to the square inscribed in it and stacked with real leading. */
-  const inR=r*.80, side=inR*1.32;                  // inscribed square of the inner disc
+  const inR=r*.80, side=inR*1.38;                  // inscribed square of the inner disc
   const bx=cx-side/2, by=cy-side/2;
-  /* a seal too small for three lines carries fewer, rather than lines nobody
-     can read at feed size — R8 is a floor, not a suggestion */
-  const floor=c.S*.021;
-  let usePre=!!pre, useSub=!!sub;
-  if(side*.135<floor) useSub=false;
-  if(side*.150<floor) usePre=false;
-  const rows=[usePre?{t:pre,f:.150,face:1}:null,{t:money,f:.300,face:0},useSub?{t:sub,f:.135,face:1}:null].filter(Boolean);
+  /* HOW MANY LINES THE SEAL CAN CARRY, decided by its size. Three lines in a
+     small burst either overflow the points or fall under the legibility floor;
+     the seal drops to two, then to the number alone, and the surviving lines
+     grow to use the disc. R8 is a floor, not a suggestion. */
+  /* R8 measures CAP height (size * capRatio), not the font size, so the floor a
+     row must clear in font terms is 2% / 0.72 with a little margin. */
+  const floor=c.S*.021/((faceMetrics(c.F.display,c.F.dweight)||{cap:.72}).cap);
+  const plan=[[3,.150,.300,.135],[2,.190,.380,0],[1,0,.520,0]];
+  let pick=plan[plan.length-1];
+  for(const p2 of plan){
+    const want=p2[0];
+    if(want===3&&!(pre&&sub))continue;
+    if(want===2&&!(pre||sub))continue;
+    const smallest=Math.min(...[p2[1],p2[2],p2[3]].filter(v=>v>0))*side;
+    if(smallest>=floor){pick=p2;break;}
+  }
+  const rows=[];
+  if(pick[0]===3){rows.push({t:pre,f:pick[1],face:1,id:'offerPre'},{t:money,f:pick[2],face:0,id:'offer'},{t:sub,f:pick[3],face:1,id:'offerSub'});}
+  else if(pick[0]===2){
+    if(pre)rows.push({t:pre,f:pick[1],face:1,id:'offerPre'},{t:money,f:pick[2],face:0,id:'offer'});
+    else rows.push({t:money,f:pick[2],face:0,id:'offer'},{t:sub,f:pick[1],face:1,id:'offerSub'});
+  }
+  else rows.push({t:money,f:pick[2],face:0,id:'offer'});
   const lead=1.20, totalH=rows.reduce((a2,q)=>a2+side*q.f*lead,0);
   let ty=cy-totalH/2;
   rows.forEach(q=>{
     const hh=side*q.f;
     c.text(q.t,{x:bx,y:ty,w:side},
       Object.assign({align:'middle',fill:ink,on:fill,role:'offer',max:hh},
-        q.face?{face:c.F.body,wf:c.F.bw,weight:800,id:q.t===sub?'offerSub':'offerPre',tracking:.04,min:floor}
-              :{id:'offer'}));
+        q.face?{face:c.F.body,wf:c.F.bw,weight:800,id:q.id,tracking:.04}:{id:q.id}));
     ty+=hh*lead;
   });
   return b;
 }
-function priceRows(c,top,rows){
+function priceRows(c,top,rows,floorY){
   if(!c.on('priceRows'))return;
   const {W,H,S,P,F}=c,rh=S*.066,pad=W*.055;
+  /* Show only the rows that fit above whatever comes next. In the square format
+     the board ran five rows straight under the hero, which was then drawn on
+     top of the last two — better to quote three models legibly than five with
+     the prices hidden behind a photograph. */
+  if(floorY)rows=rows.slice(0,Math.max(2,Math.floor((floorY-top)/rh)));
   rows.forEach((r,i)=>{
     const y=top+i*rh,alt=i%2===0,bg=alt?P.paper:P.ground2;
     c.rect({x:pad*.6,y,w:W-pad*1.2,h:rh*.9},bg,{r:rh*.16,id:'row',role:'data'});
@@ -441,7 +652,7 @@ function proofSteps(c,sy,steps){
   steps.forEach((s,i)=>{
     const y=sy+i*sh;
     c.rect({x:W*.05,y,w:sh*.72,h:sh*.72},P.hot,{r:sh*.16,id:'stepNum',role:'data',fill:P.hot});
-    c.text(String(i+1),{x:W*.05+sh*.16,y:y+sh*.16,w:sh*.40},{align:'middle',fill:onColor(P.hot,P),on:P.hot,id:'stepN',role:'data'});
+    c.text(String(i+1),{x:W*.05+sh*.16,y:y+sh*.16,w:sh*.40,h:sh*.40},{align:'middle',fill:onColor(P.hot,P),on:P.hot,id:'stepN',role:'data'});
     c.text(s[0],{x:W*.05+sh*.92,y:y+sh*.06,w:W*.24},{face:F.body,wf:F.bw,weight:800,fill:P.ink,on:P.ground,id:'stepLabel',role:'data',max:sh*.40});
     c.text(s[1],{x:W*.05+sh*.92,y:y+sh*.44,w:W*.30},{face:F.body,wf:F.bw,weight:500,fill:readable(P.body,P.ground,P),on:P.ground,id:'stepBody',role:'data',max:sh*.50});
   });
@@ -451,7 +662,10 @@ function reviewCard(c,box){
   const q=c.rect(box,P.paper,{r:W*.02,id:'quoteCard',role:'proof'});
   D.sheen(c,q,P.accent);
   const words=C.quote.split(' '),half=Math.ceil(words.length/2);
-  c.text('“',{x:box.x+W*.025,y:box.y+H*.010,w:W*.06},{fill:readable(P.hot,P.paper,P),on:P.paper,id:'qm',role:'proof'});
+  /* Sized by width alone, a single quote glyph took whatever size its narrow
+     advance implied — a 90px-tall mark that hung off the card and sat on the
+     first line of the quote. Give it a height and it stays an ornament. */
+  c.text('“',{x:box.x+W*.025,y:box.y+H*.012,w:W*.06,h:H*.026},{fill:readable(P.hot,P.paper,P),on:P.paper,id:'qm',role:'proof'});
   c.text(words.slice(0,half).join(' '),{x:box.x+W*.035,y:box.y+H*.057,w:box.w-W*.07},
     {face:F.body,wf:F.bw,weight:700,fill:P.dark,on:P.paper,id:'quote',role:'proof',max:c.S*.036});
   c.text(words.slice(half).join(' '),{x:box.x+W*.035,y:box.y+H*.093,w:box.w-W*.07},
@@ -468,7 +682,6 @@ ARCH.nightLot=c=>{
   ground(c,'pool');
   if(c.on('sunburst'))D.sunburst(c,W*.74,H*.36,W*.88,P.accent,28,R.f(0,.4),.11);
   const hero=placeHero(c,{x:W*.52,y:H*.155,w:W*.60,h:H*.40},R.f(10,20));
-  if(c.on('paintStroke'))D.paintStroke(c,{x:W*.035,y:H*.256,w:W*.40,h:H*.074},P.accent,R.i(1,9999));
   headline(c,C.heads,{x:W*.055,y:H*.165,w:W*.50,h:H*.155},
     {stroke:P.dark,shadow:P.hot,shadowDx:W*.008,shadowDy:H*.007,strokeW:.045});
   if(c.on('proofBlock')){
@@ -478,10 +691,14 @@ ARCH.nightLot=c=>{
   }
   if(c.on('priceRows'))C.rows.slice(0,c.H/c.W>1.45?5:4).forEach((row,i)=>{
     const rh=c.S*.056,y=(c.H/c.W>1.45?H*.395:H*.418)+i*rh,bg=i%2===0?P.ground2:P.ground;
-    c.rect({x:W*.05,y,w:W*.275,h:rh*.88},bg,{r:rh*.16,id:'row',role:'data'});
-    c.text(row[2]||row[0],{x:W*.063,y:y+rh*.20,w:W*.125},{face:F.body,wf:F.bw,weight:800,
+    /* The label column was W*.125 — 135px, too narrow for a real model tag.
+       "4RUNNER" needed 124% of it just to reach the legibility floor, so the
+       ladder shipped with unreadable model names. Widened to two 160px columns
+       inside a wider plate, which every tag in the deck clears. */
+    c.rect({x:W*.05,y,w:W*.33,h:rh*.88},bg,{r:rh*.16,id:'row',role:'data'});
+    c.text(row[2]||row[0],{x:W*.063,y:y+rh*.20,w:W*.148},{face:F.body,wf:F.bw,weight:800,
       fill:onColor(bg,P),on:bg,id:'rowLabel',role:'data',max:rh*.58});
-    c.text(row[1],{x:W*.185,y:y+rh*.16,w:W*.125},{align:'end',fill:readable(P.accent,bg,P),on:bg,
+    c.text(row[1],{x:W*.2185,y:y+rh*.16,w:W*.148},{align:'end',fill:readable(P.accent,bg,P),on:bg,
       id:'rowPrice',role:'data',max:rh*.64});
   });
   sealOnHero(c,hero,W*.145,16,C.offer,C.offerSub,P.hot,'bl',H*.56,W*.46);
@@ -555,10 +772,10 @@ ARCH.tornSplit=c=>{
   if(c.on('tornPaper'))D.tornPaper(c,{x:0,y:H*.44,w:W,h:H*.48},P.paper,R.i(1,9999));
   else c.rect({x:0,y:H*.46,w:W,h:H*.46},P.paper,{bleed:true,id:'flatPlate',role:'plate',fill:P.paper});
   const hero=placeHero(c,{x:W*.46,y:H*.10,w:W*.62,h:H*.34},R.f(12,22));
-  if(c.on('paintStroke'))D.paintStroke(c,{x:W*.035,y:H*.222,w:W*.42,h:H*.078},P.accent,R.i(1,9999));
   headline(c,C.heads,{x:W*.055,y:H*.128,w:W*.44,h:H*.185},
     {stroke:P.dark,shadow:P.accent,strokeW:.05,
-     plateIndex:c.on('paintStroke')?1:-1,plateColor:P.accent});
+     plateIndex:c.on('paintStroke')?1:-1,plateColor:P.accent,
+     plateDraw:(cc,b)=>D.paintStroke(cc,b,P.accent,R.i(1,9999))});
   c.text(C.offer,{x:W*.055,y:H*.545,w:W*.50},{fill:onColor(P.paper,P),on:P.paper,id:'offer2',role:'offer'});
   c.text('CASH IN HAND',{x:W*.055,y:H*.655,w:W*.40},
     {face:F.body,wf:F.bw,weight:800,fill:readable(P.accent,P.paper,P),on:P.paper,
@@ -582,7 +799,7 @@ ARCH.priceBoard=c=>{
     D.sheen(c,head,'#FFFFFF');
     c.text(C.heads.join(' '),{x:W*.05,y:H*.166,w:W*.90},{align:'middle',fill:onColor(P.accent,P),on:P.accent,role:'headline',id:'headline',max:H*.070});
   }else headline(c,[C.heads.join(' ')],{x:W*.05,y:H*.150,w:W*.90,h:H*.082},{align:'middle',stroke:P.dark,shadow:P.hot});
-  priceRows(c,H*.285,C.rows);
+  priceRows(c,H*.285,C.rows,H*.575);
   placeHero(c,{x:W*.575,y:H*.575,w:W*.52,h:H*.255},R.f(14,24));
   if(c.on('promisePills'))D.promises(c,H*.715,C.promises.slice(0,2).concat([C.offerSub]),{bg:P.paper});
   if(c.on('cta'))D.cta(c,H*.800,'band');
@@ -597,15 +814,32 @@ ARCH.posterBleed=c=>{
   const {W,H,P,R,C}=c;
   ground(c,'flat');
   if(c.on('halftone'))D.halftone(c,{x:0,y:0,w:W,h:H*.52},P.accent,W*.030,R.i(1,9999),'v');
-  const hero=placeHero(c,{x:-W*.14,y:H*.50,w:W*.70,h:H*.34},R.f(-24,-12));
-  if(c.on('paintStroke'))D.paintStroke(c,{x:W*.035,y:H*.243,w:W*.56,h:H*.098},P.accent,R.i(1,9999));
-  headline(c,C.heads,{x:W*.05,y:H*.128,w:W*.90,h:H*.215},
+  /* At 4:5 and 9:16 the poster's lower half is a wide band the hero fills. The
+     square crop is shorter, so the same hero left a 475x376 hole to its right —
+     19% of the card as one empty rectangle. Let the hero run the width there. */
+  const hero=placeHero(c,{x:-W*.12,y:H*.50,w:W*(H/W>1.45?.70:.94),h:H*.34},R.f(-24,-12));
+  /* This is a poster: the headline is the artwork. Squeezed into a band of
+     H*.215 the lines came out small AND short, leaving the whole top-right
+     corner — 560x400px, 19% of a square card — as one empty rectangle. Given
+     the room a poster headline expects, the type grows to fill it. */
+  const headH=H*(H/W>1.45?.215:.285), headY=H*.112, bandY=headY+headH+H*.022;
+  headline(c,C.heads,{x:W*.05,y:headY,w:W*.90,h:headH},
     {stroke:P.hot,shadow:P.dark,shadowDx:W*.012,shadowDy:H*.010,strokeW:.05,fill:readable(P.paper,P.ground,P),
-     plateIndex:c.on('paintStroke')?1:-1,plateColor:P.accent});
+     measure:true,
+     plateIndex:c.on('paintStroke')?1:-1,plateColor:P.accent,
+     plateDraw:(cc,b)=>D.paintStroke(cc,b,P.accent,R.i(1,9999))});
+  /* The offer used to live inside the knockout band, so switching that band off
+     removed the price from the card altogether and left its band empty — the
+     one thing a reader is scanning for, gone with a decorative toggle. The band
+     is optional; the number is not. */
   if(c.on('knockoutBand')){
-    c.rect({x:0,y:H*.378,w:W,h:H*.056},P.ink,{bleed:true,id:'kickerBand',role:'plate',fill:P.ink});
-    c.text(C.offer+'  ·  '+C.offerSub,{x:W*.05,y:H*.393,w:W*.90},
+    c.rect({x:0,y:bandY,w:W,h:H*.056},P.ink,{bleed:true,id:'kickerBand',role:'plate',fill:P.ink});
+    c.text(C.offer+'  ·  '+C.offerSub,{x:W*.05,y:bandY+H*.015,w:W*.90},
       {align:'middle',fill:onColor(P.ink,P),on:P.ink,id:'offerLine',role:'offer',max:H*.036});
+  }else{
+    c.text(C.offer+'  ·  '+C.offerSub,{x:W*.05,y:bandY-H*.006,w:W*.90},
+      {align:'middle',fill:readable(P.accent,P.ground,P),on:P.ground,
+       stroke:P.dark,strokeW:.05,id:'offerLine',role:'offer',max:H*.052});
   }
   sealOnHero(c,hero,W*.150,20,'CASH','TODAY',P.hot,'tr',H/W>1.45?H*.755:H*.66,null,H/W>1.45?H*.700:H*.58);
   if(c.on('promisePills'))D.promises(c,H*.782,C.promises.slice(3,6),{bg:P.dark});
@@ -660,15 +894,22 @@ ARCH.proofWall=c=>{
     reviewCard(c,{x:W*.05,y:H*.200,w:W*.62,h:H*.160});
   }
   const hero=placeHero(c,{x:W*.60,y:H*.295,w:W*.56,h:H*.26},R.f(12,20));
-  if(c.on('paintStroke'))D.paintStroke(c,{x:W*.04,y:H*.408,w:W*.60,h:H*.088},P.accent,R.i(1,9999));
   headline(c,[C.heads.join(' ')],{x:W*.055,y:H*.422,w:W*.56,h:H*.060},
-    {fill:c.on('paintStroke')?onColor(P.accent,P):P.ink,
-     on:c.on('paintStroke')?P.accent:P.ground});
+    {plateIndex:c.on('paintStroke')?0:-1,plateColor:P.accent,
+     plateDraw:(cc,b)=>D.paintStroke(cc,b,P.accent,R.i(1,9999)),
+     fill:P.ink,on:P.ground});
   sealOnHero(c,hero,W*.135,16,C.offer,null,P.accent,'bl',H*.60,W*.58,H*.50);
-  if(c.on('proofBlock'))proofSteps(c,H*.530,C.steps);
-  if(H/W>1.45&&c.on('promisePills'))D.promises(c,H*.690,C.promises.slice(3,6),{bg:P.dark});
-  if(c.on('cta'))D.cta(c,H*.740,'band');
-  if(c.on('promisePills'))D.promises(c,H*.828,C.promises.slice(0,3),{bg:P.paper});
+  /* The 9:16 card has a whole band of nothing under the headline, because the
+     4:5 proportions were simply stretched. Fill it with the price ladder: it is
+     the strongest "how much" device we have, it names a model against every
+     number instead of making an unbounded claim, and it is what the empty half
+     of a tall card was always for. */
+  const tall=H/W>1.45;
+  if(tall)priceRows(c,H*.498,C.rows,H*.616);   // clears the headline band above
+  if(c.on('proofBlock'))proofSteps(c,H*(tall?.622:.530),C.steps);
+  if(tall&&c.on('promisePills'))D.promises(c,H*.745,C.promises.slice(3,6),{bg:P.dark});
+  if(c.on('cta'))D.cta(c,H*(tall?.800:.740),'band');
+  if(c.on('promisePills'))D.promises(c,H*(tall?.882:.828),C.promises.slice(0,3),{bg:P.paper});
   if(c.on('cornerLockup'))D.lockup(c,'left');
   if(c.on('footerBar'))D.footerBar(c);
   if(c.on('grain'))D.grain(c);
@@ -697,6 +938,8 @@ const RULES=[
  ['R6','Badge placement','if a seal exists it covers 6–32% of the hero','a seal floating in dead space, or swallowing the product'],
  ['R7','Text collision','no two text boxes intersect','overlap you only notice after export'],
  ['R8','Minimum size','every text ≥ 2.0% of the short edge','fine print that dies in a feed thumbnail'],
+ ['R13','Text on its plate','every line stays inside the panel it was set on','copy running off its card onto the photo'],
+ ['R14','Words on top','no opaque shape is drawn over a line of text','a seal painted across the headline'],
  ['R9','Contrast','every text ≥ 4.5:1 on its own backing','accent-on-accent text that vanishes'],
  ['R10','Hot restraint','hot colour ≤ 14% of canvas area','the all-red card where nothing reads as urgent'],
  ['R11','Sheen parentage','every sheen sits inside its own plate','the highlight drawn at the layout’s original geometry'],
@@ -736,7 +979,7 @@ function audit(card){
   r.push(['R3',!!nodes.find(n=>n.role==='footer'&&n.box.w>=W*.999)]);
   r.push(['R4',!!hero&&(hero.box.x<-W*.06||hero.box.x+hero.box.w>W*1.06||hero.box.y<-H*.06||hero.box.y+hero.box.h>H*1.06)]);
   r.push(['R5',heads.some(h=>plates.some(p=>inter(h.box,p.box)>h.box.w*h.box.h*.25))||nodes.some(n=>n.id==='sunburst'||n.id==='arc')]);
-  const bo=(badge&&hero)?inter(badge.box,hero.box)/(badge.box.w*badge.box.h):0;
+  const bo=(badge&&hero)?inter(badge.solid||badge.box,hero.box)/(badge.box.w*badge.box.h):0;
   r.push(['R6',!badge||(bo>=.06&&bo<=.32)]);
   let collide=false;
   for(let i=0;i<texts.length&&!collide;i++)for(let j=i+1;j<texts.length;j++){
@@ -746,6 +989,50 @@ function audit(card){
   r.push(['R8',texts.every(t=>t.size>=SS*.020)]);
   r.push(['R9',texts.every(t=>{try{return contrast(t.fill,t.backing)>=4.5;}catch(e){return true;}})]);
   r.push(['R10',hotArea<=.14]);
+  /* R13 · A LINE MUST STAY ON THE PLATE IT WAS SET ON.
+     Every text records the colour it was drawn to sit on. Find the panel that
+     actually is that colour under the line, and require the ink to stay inside
+     it. Without this a quote can run off its card onto the photograph and
+     twelve of twelve rules still report a pass, because nothing was comparing
+     the run against the thing behind it. */
+  const spill=[];
+  texts.forEach(t=>{
+    if(!t.backing)return;
+    const i=nodes.indexOf(t);
+    let plate=null;
+    for(let k=i-1;k>=0;k--){
+      const n=nodes[k];
+      if(n.type!=='shape'||n.fill!==t.backing)continue;
+      const cx=t.box.x+t.box.w/2,cy=t.box.y+t.box.h/2;
+      if(cx>=n.box.x&&cx<=n.box.x+n.box.w&&cy>=n.box.y&&cy<=n.box.y+n.box.h){plate=n;break;}
+    }
+    if(!plate||plate.bleed)return;
+    const pad=2;
+    if(t.box.x<plate.box.x-pad||t.box.x+t.box.w>plate.box.x+plate.box.w+pad||
+       t.box.y<plate.box.y-pad||t.box.y+t.box.h>plate.box.y+plate.box.h+pad)
+      spill.push(`${t.id} off ${plate.id}`);
+  });
+  r.push(['R13',!spill.length]);
+  if(spill.length)card.note('spill: '+spill.join(', '));
+  /* R14 · NOTHING OPAQUE MAY BE DROPPED ON TOP OF THE WORDS.
+     Draw order decides what a reader sees. A seal painted after the headline
+     covers it however well the headline was placed, which is how a card ships
+     reading "CASH FOR IPHON<seal>". Text-against-text was the only overlap ever
+     checked, so a shape landing on a line was invisible to the audit. */
+  const SOLID=new Set(['badge','plate','cta','data','proof','brand','footer','hero']);
+  const buried=[];
+  texts.forEach(t=>{
+    const i=nodes.indexOf(t),area=t.box.w*t.box.h;
+    if(area<=0)return;
+    for(let k=i+1;k<nodes.length;k++){
+      const n=nodes[k];
+      if(n.type!=='shape'||!SOLID.has(n.role))continue;
+      const ov=inter(t.box,n.solid||n.box);
+      if(ov>area*.08)buried.push(`${t.id} under ${n.id} ${Math.round(ov/area*100)}%`);
+    }
+  });
+  r.push(['R14',!buried.length]);
+  if(buried.length)card.note('buried: '+buried.join(', '));
   r.push(['R11',sheens.every(s=>s.parent&&inter(s.box,s.parent)>=s.box.w*s.box.h*.999)]);
   r.push(['R12',nodes.every(n=>n.bleed||n.role==='field'||(n.box.x>=-1&&n.box.y>=-1&&n.box.x+n.box.w<=W+1&&n.box.y+n.box.h<=H+1))]);
   return{coverage,dead,hotArea,elements:nodes.length,rules:r,pass:r.filter(x=>x[1]).length,total:r.length};
@@ -762,8 +1049,9 @@ function render(archKey,seed,vertical,sizeKey,cfg){
   const F={display:Fp.display,body:Fp.body,dw:Fp.dw,bw:Fp.bw,dweight:Fp.dweight};
   const c=new Card(W,H,P,F,R,C,cfg,archKey+seed+sizeKey);
   ARCH[archKey](c);
+  c.flush();
   const a=audit(c);
-  const svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(archKey)} buyback ad in the ${esc(P.name)} palette"><defs>${c.defs.join('')}</defs><rect width="${W}" height="${H}" fill="${P.ground}"/>${c.svg.join('')}</svg>`;
+  const svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(archKey)} buyback ad in the ${esc(P.name)} palette"><defs><style>${faceCSS(c.used)}</style>${c.defs.join('')}</defs><rect width="${W}" height="${H}" fill="${P.ground}"/>${c.svg.join('')}</svg>`;
   return{svg,audit:a,palette:P,pair:Fp,card:c};
 }
 
