@@ -1,4 +1,22 @@
 {
   "note": "Hand-picked hero cards, chosen in /lab/hero.html. Entries may be a SKU (CHK-JW07-16) or a card id (checklistHero-jw07-16). Order is the order they appear. An empty list means the wall picks for itself: measured colourfulness, one palette per card, a product in every one.",
-  "picks": []
+  "picks": [
+    "SCR-NN04-20",
+    "STP-NN01-20",
+    "REV-NN01-30",
+    "GRD-DU02-30",
+    "STP-CD10-20",
+    "SLB-NN04-20",
+    "STP-JW01-20",
+    "STP-NN05-30",
+    "LOW-SU02-25",
+    "STP-NN01-30",
+    "STP-NN01-31",
+    "STP-CD06-30",
+    "STP-DU02-30",
+    "VLT-CK03-20",
+    "LOW-DU07-30",
+    "CHK-PP02-20",
+    "LOW-JW07-20"
+  ]
 }

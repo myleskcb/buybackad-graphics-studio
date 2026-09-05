@@ -26,7 +26,7 @@ const sku = c => {
 };
 
 /* the same bar the wall applies, so the page shows what is actually eligible */
-const live = idx.filter(c => c.imagery !== 'none' && (c.chroma === undefined || c.chroma >= 0.05));
+const live = idx.filter(c => !c.defect && c.imagery !== 'none' && (c.chroma === undefined || c.chroma >= 0.05));
 const eligible = live.filter(c => c.imagery === 'product' && !(c.blur >= 15) && (c.chroma || 0) >= 0.12);
 const strong  = live.filter(c => c.imagery === 'photo' && !(c.blur >= 15) && (c.chroma || 0) >= 0.22 && (c.density || 0) >= 26);
 

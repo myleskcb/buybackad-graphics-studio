@@ -9234,7 +9234,14 @@ function scLoadIndex(){
       /* …and a card whose rendered thumbnail came out nearly colourless is a
          washed-out one: a pale slab under pale type, legible in the layout but
          invisible in a feed. Measured off the pixels, 7 of 721. */
+      /* …and nothing the audits condemned. `defect` is written onto the index
+         by scripts/audit_showcase_overlap.mjs and audit_showcase_content.mjs:
+         something drawn over the words, a product that does not belong to the
+         thing being sold, or the same line printed twice. Filtering on stamped
+         DATA rather than on a rule buried in here means the reason a card is
+         missing can be looked up. */
       SHOWCASE.cards = (Array.isArray(j) ? j : [])
+        .filter(c => !c.defect)
         .filter(c => c.imagery !== 'none')
         .filter(c => typeof c.chroma !== 'number' || c.chroma >= 0.05);
       SHOWCASE.cards.forEach(c => { SHOWCASE.byId[c.id] = c; });

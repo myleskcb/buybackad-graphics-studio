@@ -19,6 +19,7 @@ import puppeteer from 'puppeteer-core';
 const SEEDS = +(process.argv[2] || 4);
 const VERT = process.argv[3] || 'phones';
 const FMT = process.argv[4] || '45';
+const BASE = process.env.ASSET_BASE || 'http://localhost:8899/';
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 const archetypes = Object.keys(E.ARCH || {});
@@ -29,13 +30,14 @@ for (let s = 0; s < SEEDS; s++)
 
 const browser = await puppeteer.launch({ executablePath: CHROME, headless: 'new', args: ['--no-sandbox'], protocolTimeout: 0 });
 const page = await browser.newPage();
+await page.goto(BASE);
 
 const hits = [];
 let measured = 0;
 
 for (const c of cases) {
   let r;
-  try { r = E.render(c.arch, c.seed, c.vert, c.fmt, E.DEFAULT_CFG()); }
+  try { r = E.render(c.arch, c.seed, c.vert, c.fmt, { ...E.DEFAULT_CFG(), assetBase: BASE }); }
   catch (e) { hits.push({ ...c, rule: 'render', msg: e.message.slice(0, 90) }); continue; }
 
   const boxes = await page.evaluate(async svg => {

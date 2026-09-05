@@ -8,6 +8,13 @@ import { readFileSync } from 'node:fs';
    out by up to 41% (Clash Display caps measure .735, the constant said .52),
    which is why headlines ran off their plates while the declared-box audit
    reported twelve of twelve rules passing. */
+/* THE OWNER'S APPROVED PHOTOGRAPHY, built by tools/gfx/build_assets.mjs.
+   The engine's own hero is a vector: a rounded rectangle with three circles for
+   a phone, a silhouette on two wheels for a car. It reads as a DIAGRAM of a
+   product, and a diagram does not stop a thumb in a marketplace feed. These are
+   348 real cutouts the owner has personally approved — rejected ones cannot
+   reach a card, because only the approved list is written into the index. */
+const ASSETS=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/assets.json',import.meta.url),'utf8'));}catch{return{subjects:{},props:[],cash:[]};}})();
 const METRICS=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/metrics.json',import.meta.url),'utf8'));}catch{return{};}})();
 /* the face a price may be set in — the display face unless its figures are
    unfit for money */
@@ -19,6 +26,11 @@ const METRICS=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/metrics.
    Sampling the real star polygon answers the question that was actually being
    asked — can the reader still read this. */
 function starCover(box,st){
+  /* Most candidate seats are nowhere near most lines. Reject on the bounding
+     square first so the search can afford to evaluate every seat rather than
+     stopping at the first tolerable one. */
+  if(box.x+box.w<st.cx-st.r||box.x>st.cx+st.r||
+     box.y+box.h<st.cy-st.r||box.y>st.cy+st.r)return 0;
   const N=8,M=8;let hit=0;
   for(let i=0;i<N;i++)for(let j=0;j<M;j++){
     const px=box.x+box.w*(i+.5)/N, py=box.y+box.h*(j+.5)/M;
@@ -31,6 +43,17 @@ function starCover(box,st){
     if(d<=st.r*(st.inner+(1-st.inner)*t))hit++;
   }
   return hit/(N*M);
+}
+/* An asset is chosen from the pool for the card's own subject. A phone card
+   shows a phone; the pool is never widened to "whatever is left", which is how
+   a Pokemon card once ended up advertising an iPhone. */
+function pickAsset(c,pool,salt){
+  if(!pool||!pool.length)return null;
+  return pool[Math.floor(c.R.f(0,1)*pool.length+(salt||0))%pool.length];
+}
+function assetsFor(c,kind){
+  const s=ASSETS.subjects||{};
+  return kind==='prop'?(ASSETS.props||[]):kind==='cash'?(ASSETS.cash||[]):(s[kind]||[]);
 }
 function numFace(c){return c.F.figures?{face:c.F.display,wf:c.F.dw}:{face:c.F.body,wf:c.F.bw};}
 function faceMetrics(family,weight){
@@ -151,7 +174,9 @@ const QUEUE=[
   ['checker','Checker field','8–12 cell warped checker at 8–14%','Retail-poster ground. Fills the corners the composition never reaches.'],
   ['diagonalSplit','Diagonal split','angled two-tone divide','Breaks the rectangle so the eye travels instead of scanning rows.']]],
  ['Hero',[
-  ['hero','Product hero','device or vehicle art','The subject. Without it the card is a price list.'],
+  ['photoHero','Real photography','approved product cutout instead of vector art','A photograph of the actual thing stops a thumb; a diagram of it does not.'],
+ ['stickers','Prop dressing','banded cash and boxed stock in the empty corners','Fills the holes a cutout leaves with things the shop actually hands over.'],
+ ['hero','Product hero','device or vehicle art','The subject. Without it the card is a price list.'],
   ['heroBleed','Bleed off the edge','crosses one edge by 6–14%','The single biggest anti-blandness move — implies the product continues past the frame.'],
   ['heroRotate','Angle the hero','6–24° rotation','Diagonal beats orthogonal. A straight product reads as a catalogue photo.'],
   ['heroShadow','Cast shadow','soft drop at 3.5% of hero height','Separates the hero from the field so it sits above, not inside.']]],
@@ -184,15 +209,27 @@ const DEFAULT_CFG=()=>Object.fromEntries(ALLKEYS.map(k=>[k,true]));
 /* ══════════════════════════════════════════════════════════
    6 · CARD BUILDER
    ══════════════════════════════════════════════════════════ */
+/* What sits in front of what. Anything unlisted is content and paints at 0. */
+const Z={field:-60,ground:-60,hero:-30,plate:-10,shape:-10,sheen:-5,badge:20};
 class Card{
-  constructor(W,H,P,F,R,C,cfg,key){
-    Object.assign(this,{W,H,P,F,R,C,cfg,key});
+  constructor(W,H,P,F,R,C,cfg,key,vertical){
+    Object.assign(this,{W,H,P,F,R,C,cfg,key,vertical});
     this.S=Math.min(W,H);
-    this.defs=[];this.svg=[];this.nodes=[];this.uid=0;this.notes=[];this.used={};this.later=[];
+    /* LAYERS CARRY A DEPTH, NOT JUST AN ORDER.
+       Every "why is that on top of the text" bug came from paint order being an
+       accident of the order somebody happened to write the calls in. A layer now
+       declares what KIND of thing it is — ground, field, product, content, seal —
+       and the card is assembled by depth. Adding a device to an archetype can no
+       longer bury the copy just because it was written last. */
+    this.defs=[];this.layers=[];this.uid=0;this.notes=[];this.used={};this.later=[];this.seq=0;this._m=null;
   }
   on(k){return this.cfg[k]!==false;}
   id(p){return p+(this.uid++)+this.key;}
-  add(m,n){this.svg.push(m);if(n)this.nodes.push(n);}
+  add(m,n,z){this.layers.push({m,n,z:z===undefined?(n&&Z[n.role])||0:z,i:this.seq++});this._m=null;}
+  /* materialised paint order — depth first, then the order it was written */
+  get sorted(){return this._m||(this._m=this.layers.slice().sort((a,b)=>a.z-b.z||a.i-b.i));}
+  get svg(){return this.sorted.map(l=>l.m);}
+  get nodes(){return this.sorted.filter(l=>l.n).map(l=>l.n);}
   def(d){this.defs.push(d);}
   /* Run after the archetype has finished. A seal has to choose its seat from
      the finished card: placed mid-build it was choosing against half the copy,
@@ -302,12 +339,13 @@ class Card{
     /* the measured box is the run's real ink, not a generic cap+descent band,
        so the collision rule tests what a reader can actually see touching */
     this.add(m,{type:'text',id:o.id||'text',box:p.box,str:String(str),face,weight,
-      size:cap,fill,backing:o.on||this.P.ground,bleed:!!o.bleed,role:o.role||'text'});
+      size:cap,fill,backing:o.on||this.P.ground,bleed:!!o.bleed,role:o.role||'text'},o.z);
     return cap;
   }
   rect(box,fill,o={}){
     this.add(`<rect x="${box.x.toFixed(1)}" y="${box.y.toFixed(1)}" width="${box.w.toFixed(1)}" height="${box.h.toFixed(1)}" rx="${o.r||0}" fill="${fill}"/>`,
-      o.ghost?null:{type:'shape',id:o.id||'rect',box,bleed:!!o.bleed,role:o.role||'shape',fill});
+      o.ghost?null:{type:'shape',id:o.id||'rect',box,bleed:!!o.bleed,role:o.role||'shape',fill},
+      o.z);
     return box;
   }
   raw(m,n){this.add(m,n);}
@@ -382,7 +420,7 @@ D.sheen=(c,plate,color)=>{
 D.footerBar=(c)=>{
   const {W,H,P,F,C}=c,h=H*.088,y=H-h;
   c.rect({x:0,y,w:W,h},P.dark,{id:'footer',bleed:true,role:'footer'});
-  c.rect({x:0,y,w:W,h:H*.006},P.accent,{ghost:true});
+  c.rect({x:0,y,w:W,h:H*.006},P.accent,{ghost:true,z:1});
   const pad=W*.05,ir=h*.30,cy=y+h*.5;
   c.raw(`<circle cx="${(pad+ir).toFixed(1)}" cy="${cy.toFixed(1)}" r="${ir.toFixed(1)}" fill="${P.accent}"/>`+
     `<g transform="translate(${(pad+ir*.38).toFixed(1)},${(cy-ir*.62).toFixed(1)}) scale(${(ir*1.24/24).toFixed(4)})">`+
@@ -494,6 +532,84 @@ D.cta=(c,y,kind,color)=>{
   c.text(C.cta,{x:pad+w*.08,y:y+h*.28,w:w*.84},{fill:onColor(col,P),on:col,align:'middle',id:'ctaText',role:'cta',max:h*.60});
   return plate;
 };
+/* A REAL PRODUCT, FITTED TO ITS BOX.
+   Contained rather than cropped — a cutout that has had its head cut off is
+   worse than no photograph — and the node is registered at the rectangle the
+   image ACTUALLY occupies, not the box it was offered, so coverage and the
+   collision rules measure the picture and not the empty air beside it. */
+D.photo=(c,box,rot,pick,o={})=>{
+  const id=c.id('ph');
+  /* SHOW THE WHOLE PRODUCT, AND SHOW IT BIG.
+     A cutout's whole worth is its silhouette — the shape of a phone read at a
+     glance while scrolling. Filling the box by cropping turned most heroes into
+     an abstract slab of glass, which stops nobody. So the picture is contained,
+     never cropped, and the BOX is enlarged instead: the product ends up larger
+     than the vector it replaced and still runs off the edge the layout wanted. */
+  const grow=o.grow||1.34;
+  const bw=box.w*grow, bh=box.h*grow;
+  box={x:box.x-(bw-box.w)/2,y:box.y-(bh-box.h)/2,w:bw,h:bh};
+  let sc=Math.min(box.w/pick.w,box.h/pick.h);
+  /* A HERO IS A HERO. The layout hands over a box shaped for a vector; a
+     photograph contained inside it can come out small, and a small product both
+     leaves the card empty and cannot cross an edge by the 6% of the card that
+     R4 asks for without half of it disappearing. So a hero is held to a minimum
+     footprint against the card itself, not against the box it was offered. */
+  if(o.min!==false){
+    const want=Math.min(c.W,c.H)*(o.minShare||.56);
+    const got=Math.max(pick.w,pick.h)*sc;
+    if(got<want)sc*=want/got;
+  }
+  const w=pick.w*sc, h=pick.h*sc;
+  /* Hold the edge the layout was reaching for. These boxes are positioned to
+     overhang the canvas on one side; centring the picture inside the box pulled
+     it back on-card and the bleed rule failed on 251 of 576 configurations. If
+     the box crossed an edge, the photograph crosses it too. */
+  /* The box is a REGION, not a frame. A contained photograph is narrower than
+     the box it was offered, so aligning its far edge with the box's far edge —
+     which is deliberately off-canvas — put the whole product outside the card:
+     heroes were landing at x=1102 on a 1080-wide card and 65 configurations lost
+     the seal's grip on a product that was not there. Bleed by a share of the
+     PICTURE's own size instead, so it always overhangs and is always mostly on. */
+  /* Bleed by a share of the PICTURE, but never by less than the card rule asks
+     for: R4 wants the hero across an edge by 6% of the canvas, and a bleed
+     measured only against a small picture never reached it. */
+  const over=(iw,limit)=>Math.max(iw*.16,limit*.075);
+  const pin=(bx,bw,iw,limit)=>{
+    const o2=Math.min(over(iw,limit),iw*.42);      // never lose half the product
+    if(bx<0)return -o2;
+    if(bx+bw>limit)return limit-iw+o2;
+    return bx+(bw-iw)/2;
+  };
+  let x=pin(box.x,box.w,w,c.W), y=pin(box.y,box.h,h,c.H);
+  /* R4 wants the product to cross an edge by 6% of the card — the single
+     biggest move against a card that looks like a catalogue photo. Test the
+     finished position against that rule rather than trusting the anchor: a
+     small picture pinned by a share of ITSELF can end up overhanging by less
+     than the card asks, which is not "inside" and so never triggered a nudge. */
+  if(o.bleed!==false){
+    const need=.065;
+    const outL=-x/c.W, outR=(x+w-c.W)/c.W, outT=-y/c.H, outB=(y+h-c.H)/c.H;
+    if(Math.max(outL,outR,outT,outB)<need){
+      const side=[[outL,'l'],[outR,'r'],[outT,'t'],[outB,'b']].sort((a,b)=>b[0]-a[0])[0][1];
+      if(side==='l')x=-c.W*need;
+      else if(side==='r')x=c.W*(1+need)-w;
+      else if(side==='t')y=-c.H*need;
+      else y=c.H*(1+need)-h;
+    }
+  }
+  const cx=x+w/2, cy=y+h/2;
+  let filt='';
+  if(c.on('heroShadow')){
+    c.def(`<filter id="${id}f" x="-25%" y="-25%" width="150%" height="150%">`+
+      `<feDropShadow dx="0" dy="${(h*.045).toFixed(1)}" stdDeviation="${(h*.040).toFixed(1)}" flood-color="#000" flood-opacity=".50"/></filter>`);
+    filt=` filter="url(#${id}f)"`;
+  }
+  const base=(c.cfg&&c.cfg.assetBase)||'../';
+  c.add(`<g transform="rotate(${(rot||0).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})"${filt}>`+
+    `<image href="${esc(base+pick.u)}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" preserveAspectRatio="xMidYMid meet"/></g>`,
+    {type:'shape',id:o.id||'hero',box:{x,y,w,h},bleed:o.bleed!==false,role:o.role||'hero',asset:pick.s});
+  return{x,y,w,h};
+};
 D.hero=(c,box,rot,variant)=>{
   const {P}=c,id=c.id('h'),cx=box.x+box.w/2,cy=box.y+box.h/2,{x,y,w,h}=box;
   let inner='';
@@ -527,7 +643,7 @@ D.hero=(c,box,rot,variant)=>{
 D.grain=(c)=>{
   const id=c.id('g');
   c.def(`<filter id="${id}"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3"/><feColorMatrix type="saturate" values="0"/></filter>`);
-  c.add(`<rect width="${c.W}" height="${c.H}" filter="url(#${id})" opacity=".055" style="mix-blend-mode:overlay"/>`);
+  c.add(`<rect width="${c.W}" height="${c.H}" filter="url(#${id})" opacity=".055" style="mix-blend-mode:overlay"/>`,null,60);
 };
 D.stars=(c,x,y,size,fill)=>{
   let p='';
@@ -547,10 +663,10 @@ D.split=(c,color)=>{
    ══════════════════════════════════════════════════════════ */
 function ground(c,mode){
   const {W,H,P}=c;
-  if(!c.on('groundGradient')||mode==='flat'){c.rect({x:0,y:0,w:W,h:H},P.ground,{ghost:true});return;}
+  if(!c.on('groundGradient')||mode==='flat'){c.rect({x:0,y:0,w:W,h:H},P.ground,{ghost:true,z:-90});return;}
   const id=c.id('bg');
   c.def(`<radialGradient id="${id}" cx="${mode==='pool'?'34%':'50%'}" cy="${mode==='pool'?'38%':'30%'}" r="78%"><stop offset="0" stop-color="${P.ground2}"/><stop offset="1" stop-color="${P.ground}"/></radialGradient>`);
-  c.rect({x:0,y:0,w:W,h:H},`url(#${id})`,{ghost:true});
+  c.rect({x:0,y:0,w:W,h:H},`url(#${id})`,{ghost:true,z:-90});
 }
 /* hero placement respects the bleed switch: off ⇒ clamped inside the safe area */
 function placeHero(c,box,rot){
@@ -563,7 +679,14 @@ function placeHero(c,box,rot){
     b.x=Math.min(Math.max(b.x,m),c.W-m-b.w);
     b.y=Math.min(Math.max(b.y,c.H*.14),c.H*.86-b.h);
   }
-  return D.hero(c,b,c.on('heroRotate')?rot:0,c.C.hero);
+  const turn=c.on('heroRotate')?rot:0;
+  /* Photography when we have an approved cutout for this subject; the vector
+     stays as the fallback so the engine still renders with no asset index. */
+  if(c.on('photoHero')){
+    const pick=pickAsset(c,assetsFor(c,c.vertical));
+    if(pick)return D.photo(c,b,turn,pick);
+  }
+  return D.hero(c,b,turn,c.C.hero);
 }
 function headline(c,lines,box,o={}){
   const gap=box.h*.06,lh=(box.h-gap*(lines.length-1))/lines.length;
@@ -659,28 +782,58 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
        what makes it read as a sticker on the thing rather than a floating
        graphic, and R6 asks for 6-32% of it. So the search balances two jobs:
        cover no words, and keep its grip on the hero. */
+    /* Straddle the product's outline: the seal's centre wants to sit ON the
+       edge, and the cost is how far it has drifted either way. Optimising the
+       same quantity the rule measures is the whole point — the old version
+       scored a ratio while the rule tested a ratio band, and the search kept
+       parking on the boundary. */
     const grip=(X,Y,rr)=>{
       if(!hero)return 0;
-      const b={x:X-rr*.80,y:Y-rr*.80,w:rr*1.6,h:rr*1.6};
-      const f=inter(b,hero)/(rr*rr*4);
-      return f>=.06&&f<=.32?0:Math.min(.5,Math.abs(f-.19)*1.2);
+      const dx=Math.max(hero.x-X,0,X-(hero.x+hero.w));
+      const dy=Math.max(hero.y-Y,0,Y-(hero.y+hero.h));
+      const gap=(dx>0||dy>0)?Math.hypot(dx,dy)
+        :-Math.min(X-hero.x,hero.x+hero.w-X,Y-hero.y,hero.y+hero.h-Y);
+      const slack=Math.abs(gap)/rr;                    // 0 = dead on the outline
+      return slack<=.55?0:Math.min(1,(slack-.55)*1.6);
     };
     const consider=(sx,sy,rr,bias)=>{
       const [X,Y]=lim(sx,sy,rr);
       const d=Math.hypot(X-want[0],Y-want[1])/c.S;
       const co=cost(X,Y,rr);
-      const k=co+grip(X,Y,rr)+d*.03+bias;
+      /* Covering a line is the worse sin. Scored evenly against the grip
+         penalty the search would happily print the seal across a sentence to
+         keep its bite on the product, so words are weighted four to one. */
+      const k=co*4+grip(X,Y,rr)+d*.03+bias;
       if(!best||k<best.k-1e-6)best={k,cost:co,X,Y,rr};
     };
-    for(const rr of [r,r*.88,r*.78]){
+    /* a seal that cannot find a clean seat at full size is better small than
+       printed across a sentence */
+    for(const rr of [r,r*.92,r*.84,r*.78]){
       consider(cx,cy,rr,0);
-      if(hero)for(const [sx,sy] of [[hero.x-r*.106,hero.y+hero.h+r*.106],
-                                    [hero.x+hero.w+r*.106,hero.y+hero.h+r*.106],
-                                    [hero.x-r*.106,hero.y-r*.106],
-                                    [hero.x+hero.w+r*.106,hero.y-r*.106]])consider(sx,sy,rr,.01);
+      /* Seats ON THE PRODUCT'S EDGE. Four corners was enough while the hero was
+         a vector that filled its box; a photograph is contained inside its box
+         and sits wherever its own proportions put it, so the corners often lie
+         in empty ground and the seal lost its bite on 67 of 576 configurations.
+         Walk the perimeter instead and offer the seal a seat every eighth of
+         the way round, each one placed to overlap by about the fifth R6 wants. */
+      if(hero){
+        const pts2=[];
+        /* Several stand-off distances, because how much of the seal lands on the
+           product depends on where round the edge it sits — a seat that bites a
+           fifth on a corner bites nearly half in the middle of a long side, and
+           R6 rejects anything past a third. */
+        for(const off of [rr*.62,rr*.86,rr*1.06])
+          for(let t=0;t<8;t++){
+            const a=t/8;
+            if(a<.25)      pts2.push([hero.x+hero.w*(a*4),      hero.y-off]);
+            else if(a<.5)  pts2.push([hero.x+hero.w+off,        hero.y+hero.h*((a-.25)*4)]);
+            else if(a<.75) pts2.push([hero.x+hero.w*(1-(a-.5)*4),hero.y+hero.h+off]);
+            else           pts2.push([hero.x-off,               hero.y+hero.h*(1-(a-.75)*4)]);
+          }
+        for(const [sx,sy] of pts2)consider(sx,sy,rr,.008);
+      }
       for(let gx=0;gx<=6;gx++)for(let gy=0;gy<=6;gy++)
         consider(c.W*(.10+gx*.133),c.H*(.12+gy*.118),rr,.02);
-      if(best&&best.cost<=.02)break;
     }
     if(best){cx=best.X;cy=best.Y;r=best.rr;}
     if(best&&best.cost>.02)c.note(`seal still costs ${(best.cost*100).toFixed(0)}% of a line`);
@@ -724,7 +877,8 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
     const hh=side*q.f;
     c.text(q.t,{x:bx,y:ty,w:side},
       Object.assign({align:'middle',fill:ink,on:fill,role:'offer',max:hh},
-        q.face?{face:c.F.body,wf:c.F.bw,weight:800,id:q.id,tracking:.04}:{...numFace(c),id:q.id}));
+        q.face?{face:c.F.body,wf:c.F.bw,weight:800,id:q.id,tracking:.04,z:Z.badge+1}
+              :{...numFace(c),id:q.id,z:Z.badge+1}));
     ty+=hh*lead;
   });
   return b;
@@ -1060,6 +1214,7 @@ const RULES=[
  ['R13','Text on its plate','every line stays inside the panel it was set on','copy running off its card onto the photo'],
  ['R14','Words on top','no opaque shape is drawn over a line of text','a seal painted across the headline'],
  ['R15','Legible figures','no price is set in a face that draws a slashed zero','"$1,250" reading as "$1,25Ø"'],
+ ['R16','Subject on show','the product is present and bigger than any prop','a card whose largest object is a cardboard box'],
  ['R9','Contrast','every text ≥ 4.5:1 on its own backing','accent-on-accent text that vanishes'],
  ['R10','Hot restraint','hot colour ≤ 14% of canvas area','the all-red card where nothing reads as urgent'],
  ['R11','Sheen parentage','every sheen sits inside its own plate','the highlight drawn at the layout’s original geometry'],
@@ -1068,8 +1223,15 @@ const RULES=[
 function inter(a,b){const x=Math.max(a.x,b.x),y=Math.max(a.y,b.y);
   const r=Math.min(a.x+a.w,b.x+b.w),bt=Math.min(a.y+a.h,b.y+b.h);
   return(r>x&&bt>y)?(r-x)*(bt-y):0;}
-function audit(card){
-  const {W,H,nodes,P}=card,cell=20,cols=Math.ceil(W/cell),rows=Math.ceil(H/cell);
+/* WHERE THE CARD IS EMPTY.
+   The audit already had to know this to score dead space; placement wants the
+   same answer, so it lives in one place. Returns the occupancy grid plus the
+   largest empty rectangle, found by the classic largest-rectangle-under-a-
+   histogram sweep. */
+function occupancy(card,cell){
+  const {W,H,nodes}=card;
+  cell=cell||20;
+  const cols=Math.ceil(W/cell),rows=Math.ceil(H/cell);
   const g=new Uint8Array(cols*rows);
   nodes.forEach(n=>{
     if(n.role==='field'&&n.id!=='split')return;
@@ -1077,17 +1239,27 @@ function audit(card){
     const x0=Math.max(0,Math.floor(b.x/cell)),x1=Math.min(cols,Math.ceil((b.x+b.w)/cell));
     const y0=Math.max(0,Math.floor(b.y/cell)),y1=Math.min(rows,Math.ceil((b.y+b.h)/cell));
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)g[y*cols+x]=1;});
-  let filled=0;for(let i=0;i<g.length;i++)filled+=g[i];
-  const coverage=filled/g.length;
-  const hgt=new Int32Array(cols);let best=0;
+  return{g,cols,rows,cell};
+}
+function largestHole(o){
+  const {g,cols,rows,cell}=o;
+  const hgt=new Int32Array(cols);let best=0,box=null;
   for(let y=0;y<rows;y++){
     for(let x=0;x<cols;x++)hgt[x]=g[y*cols+x]?0:hgt[x]+1;
     const st=[];
     for(let x=0;x<=cols;x++){const h=x<cols?hgt[x]:0;
       while(st.length&&hgt[st[st.length-1]]>=h){const ht=hgt[st.pop()],left=st.length?st[st.length-1]+1:0;
-        best=Math.max(best,ht*(x-left));}
+        const a=ht*(x-left);
+        if(a>best){best=a;box={x:left*cell,y:(y-ht+1)*cell,w:(x-left)*cell,h:ht*cell};}}
       st.push(x);}}
-  const dead=best/(cols*rows);
+  return{area:best/(cols*rows),box};
+}
+function audit(card){
+  const {W,H,nodes,P}=card,cell=20;
+  const occ=occupancy(card,cell),g=occ.g,cols=occ.cols,rows=occ.rows;
+  let filled=0;for(let i=0;i<g.length;i++)filled+=g[i];
+  const coverage=filled/g.length;
+  const dead=largestHole(occ).area;
   const texts=nodes.filter(n=>n.type==='text');
   const hero=nodes.find(n=>n.role==='hero'), badge=nodes.find(n=>n.role==='badge');
   const heads=nodes.filter(n=>n.role==='headline'), plates=nodes.filter(n=>n.role==='plate');
@@ -1099,8 +1271,24 @@ function audit(card){
   r.push(['R3',!!nodes.find(n=>n.role==='footer'&&n.box.w>=W*.999)]);
   r.push(['R4',!!hero&&(hero.box.x<-W*.06||hero.box.x+hero.box.w>W*1.06||hero.box.y<-H*.06||hero.box.y+hero.box.h>H*1.06)]);
   r.push(['R5',heads.some(h=>plates.some(p=>inter(h.box,p.box)>h.box.w*h.box.h*.25))||nodes.some(n=>n.id==='sunburst'||n.id==='arc')]);
-  const bo=(badge&&hero)?inter(badge.solid||badge.box,hero.box)/(badge.box.w*badge.box.h):0;
-  r.push(['R6',!badge||(bo>=.06&&bo<=.32)]);
+  /* R6 · THE SEAL SITS ON THE PRODUCT'S EDGE.
+     This used to be "6-32% of the badge overlaps the hero", which encoded the
+     intent only as long as the hero was a small vector. A photographic hero can
+     fill half the card, and then every legal seat overlaps past 32% — 58 of 64
+     failures were the seal landing at 32-33% with nowhere better to go. The
+     intent was never a ratio: it is that the seal STRADDLES the product's
+     outline, so it reads as a sticker stuck on the thing rather than a graphic
+     floating beside it or a graphic lost in the middle of it. Measured as the
+     distance from the seal's centre to the product's edge, that holds at any
+     scale. */
+  const edgeGap=(b,h)=>{
+    const cx=b.box.x+b.box.w/2, cy=b.box.y+b.box.h/2;
+    const dx=Math.max(h.box.x-cx,0,cx-(h.box.x+h.box.w));
+    const dy=Math.max(h.box.y-cy,0,cy-(h.box.y+h.box.h));
+    if(dx>0||dy>0)return Math.hypot(dx,dy);                 // outside
+    return -Math.min(cx-h.box.x,h.box.x+h.box.w-cx,cy-h.box.y,h.box.y+h.box.h-cy);
+  };
+  r.push(['R6',!badge||!hero||Math.abs(edgeGap(badge,hero))<=badge.box.w/2]);
   let collide=false;
   for(let i=0;i<texts.length&&!collide;i++)for(let j=i+1;j<texts.length;j++){
     /* 30% of the smaller box was far too generous: a headline could cover most
@@ -1164,6 +1352,14 @@ function audit(card){
   const AMBIG=new Set(['Melodrama']);
   const figs=texts.filter(t=>AMBIG.has(t.face)&&/0/.test(t.str||''));
   r.push(['R15',!figs.length]);
+  /* R16 · THE CARD MUST SHOW WHAT IS BEING BOUGHT, AND SHOW IT BIGGEST.
+     The owner's standing rule. Props earn their place by making the offer feel
+     real; the moment one is larger than the product it stops dressing the card
+     and starts being the card. */
+  const heroN=nodes.find(n=>n.role==='hero');
+  const propsN=nodes.filter(n=>n.id==='prop');
+  const areaOf=n=>Math.max(0,n.box.w)*Math.max(0,n.box.h);
+  r.push(['R16',!!heroN&&propsN.every(pn=>areaOf(pn)<=areaOf(heroN))]);
   if(figs.length)card.note('figures: '+figs.map(t=>`${t.id} "${t.str}" in ${t.face}`).join(', '));
   if(buried.length)card.note('buried: '+buried.join(', '));
   r.push(['R11',sheens.every(s=>s.parent&&inter(s.box,s.parent)>=s.box.w*s.box.h*.999)]);
@@ -1179,15 +1375,58 @@ function audit(card){
    render with {embedFonts:false} and put fontCSS() in the page head. */
 function fontCSS(){return faceCSS(Object.fromEntries(
   Object.entries(FONT_FILES).map(([f,w])=>[f,Object.keys(w).map(Number)])));}
+/* DRESS THE EMPTY CORNERS WITH REAL THINGS.
+   A photographic hero shows the whole product, which means it no longer fills
+   its box corner to corner the way the vector did — the card is left with holes.
+   Filling them with more graphics would just be more decoration; filling them
+   with the props the shop actually deals in — banded cash, boxed stock, an
+   accessory — is the difference between a poster about buying phones and a
+   photograph of the transaction. Placed by finding the card's largest empty
+   rectangle and dropping one prop into it, repeatedly, never over the copy. */
+function placeStickers(c){
+  if(!c.on('stickers'))return;
+  const pool=[...assetsFor(c,'cash'),...assetsFor(c,'prop')];
+  if(!pool.length)return;
+  const S=Math.min(c.W,c.H);
+  for(let n=0;n<3;n++){
+    const hole=largestHole(occupancy(c,20));
+    if(!hole.box||hole.area<.045)break;
+    const b=hole.box;
+    /* only worth dressing if the hole is chunky rather than a thin seam */
+    if(Math.min(b.w,b.h)<S*.16)break;
+    const pick=pool[Math.floor(c.R.f(0,1)*pool.length+n*7)%pool.length];
+    const pad=Math.min(b.w,b.h)*.10;
+    let inset={x:b.x+pad,y:b.y+pad,w:b.w-pad*2,h:b.h-pad*2};
+    /* A PROP NEVER OUT-SIZES THE PRODUCT.
+       Dressing is dressing. Left uncapped, a shipping box dropped into a big
+       hole came out larger than the phone the card is about, and a card whose
+       biggest object is a cardboard box is not selling a phone. */
+    const hero=c.nodes.find(n=>n.role==='hero');
+    if(hero){
+      const cap=hero.box.w*hero.box.h*.40;
+      const a=inset.w*inset.h;
+      if(a>cap){const k=Math.sqrt(cap/a);
+        inset={x:inset.x+inset.w*(1-k)/2,y:inset.y+inset.h*(1-k)/2,w:inset.w*k,h:inset.h*k};}
+    }
+    D.photo(c,inset,c.R.f(-11,11),pick,{id:'prop',role:'plate',bleed:false,grow:1,min:false});
+  }
+}
 function render(archKey,seed,vertical,sizeKey,cfg){
   const R=RNG(seed);
-  const P=PALETTES[seed%PALETTES.length], Fp=PAIRS[(seed>>3)%PAIRS.length];
+  /* Palette and type pairing are derived from the seed so a seed reproduces a
+     card exactly — but a configurator has to be able to hold everything else
+     still and change ONE of them, which the old console could not do: it could
+     only reroll the seed and take whatever palette came with it. An explicit
+     choice overrides the derivation without disturbing anything else. */
+  const P=(cfg&&cfg.palette&&PALETTES.find(x=>x.id===cfg.palette))||PALETTES[seed%PALETTES.length];
+  const Fp=(cfg&&cfg.pair&&PAIRS.find(x=>x.id===cfg.pair))||PAIRS[(seed>>3)%PAIRS.length];
   const [W,H]=SIZES[sizeKey], C0=CONTENT[vertical];
   const C=Object.assign({},C0,{heads:R.pick(C0.heads),promises:R.shuffle(C0.promises)});
   const F={display:Fp.display,body:Fp.body,dw:Fp.dw,bw:Fp.bw,dweight:Fp.dweight,
     figures:Fp.figures!==false};
-  const c=new Card(W,H,P,F,R,C,cfg,archKey+seed+sizeKey);
+  const c=new Card(W,H,P,F,R,C,cfg,archKey+seed+sizeKey,vertical);
   ARCH[archKey](c);
+  placeStickers(c);
   c.flush();
   const a=audit(c);
   const svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(archKey)} buyback ad in the ${esc(P.name)} palette"><defs>${cfg&&cfg.embedFonts===false?'':`<style>${faceCSS(c.used)}</style>`}${c.defs.join('')}</defs><rect width="${W}" height="${H}" fill="${P.ground}"/>${c.svg.join('')}</svg>`;
