@@ -47,13 +47,34 @@ function starCover(box,st){
 /* An asset is chosen from the pool for the card's own subject. A phone card
    shows a phone; the pool is never widened to "whatever is left", which is how
    a Pokemon card once ended up advertising an iPhone. */
+/* Does this picture belong on this card? The deck says what the copy is about;
+   the tag says what the picture is of. Brand and condition must agree; if both
+   sides know the generation those must agree too; and only a single product or
+   a group may stand as the hero — never a hand, a tool or another device. */
+function matchSubject(a,subj){
+  if(!subj)return true;
+  const t=a.t; if(!t||!t.h)return false;
+  if(subj.brand&&!subj.brand.includes(t.b))return false;
+  if(subj.cond&&subj.cond!=='any'&&t.c!==subj.cond)return false;
+  if(subj.gen&&t.g&&!subj.gen.includes(t.g))return false;
+  return true;
+}
 function pickAsset(c,pool,salt){
   if(!pool||!pool.length)return null;
-  return pool[Math.floor(c.R.f(0,1)*pool.length+(salt||0))%pool.length];
+  const subj=c.C&&c.C.subject;
+  let ok=pool.filter(a=>matchSubject(a,subj));
+  if(!ok.length){c.note('NOASSET: nothing in the library matches this deck\'s subject');return null;}
+  /* prefer a picture that names the generation the copy leads with */
+  if(subj&&subj.gen){const named=ok.filter(a=>a.t.g&&subj.gen.includes(a.t.g));
+    if(named.length)ok=[...named,...named,...named,...ok];}
+  return ok[Math.floor(c.R.f(0,1)*ok.length+(salt||0))%ok.length];
 }
+const POOL_OF={broken:'phones'};                // decks that share another deck's pictures
 function assetsFor(c,kind){
   const s=ASSETS.subjects||{};
-  return kind==='prop'?(ASSETS.props||[]):kind==='cash'?(ASSETS.cash||[]):(s[kind]||[]);
+  if(kind==='prop')return ASSETS.props||[];
+  if(kind==='cash')return ASSETS.cash||[];
+  return s[POOL_OF[kind]||kind]||[];
 }
 function numFace(c){return c.F.figures?{face:c.F.display,wf:c.F.dw}:{face:c.F.body,wf:c.F.bw};}
 function faceMetrics(family,weight){
@@ -134,7 +155,23 @@ const CONTENT={
   quote:"Cracked 15 Pro in, cash out. Twenty minutes.",
   quoteBy:"Marcus T. · Carson",rating:"4.9★ · 200+ REVIEWS",
   steps:[["TEXT PICS","Snap it, send it"],["GET OFFER","Firm quote, fast."],
-         ["GET PAID","Cash or transfer"]]},
+         ["GET PAID","Cash or transfer"]],
+  /* what the copy is ABOUT, so the picture can be held to it */
+  subject:{brand:['iphone'],gen:[17,16,15],cond:'clean'}},
+ /* The cracked phones belong to THIS deck, not to the one quoting $1,250 for a
+    17 Pro Max. PRICES ARE PLACEHOLDERS for the owner to set. */
+ broken:{brand:"iPhones.LA",mark:"iL",kicker:"BROKEN IS FINE",hero:"phone",
+  heads:[["WE BUY","BROKEN PHONES"],["CRACKED?","WE PAY"],["SMASHED","STILL PAYS"],["SCREEN GONE","CASH STAYS"]],
+  offer:"UP TO $700",offerSub:"CRACKED · TODAY",
+  promises:["CRACKED OK","WON'T TURN ON","WATER DAMAGE","ICLOUD OK","FREE PICKUP","CASH TODAY"],
+  rows:[["17 Pro Max · cracked","$700","17 PM"],["16 Pro · cracked","$480","16 PRO"],
+        ["15 Pro · cracked","$320","15 PRO"],["14 · cracked","$160","14"],["Galaxy S24 · cracked","$260","S24"]],
+  cta:"GET A BROKEN-PHONE QUOTE",phone:"(562) 999-4994",addr:"iphones.LA · Long Beach",
+  quote:"Screen in pieces, still got $420 for it.",
+  quoteBy:"Dana R. · Lakewood",rating:"4.9★ · 200+ REVIEWS",
+  steps:[["TEXT PICS","Cracks and all"],["GET OFFER","Firm, for the damage"],
+         ["GET PAID","Cash or transfer"]],
+  subject:{brand:['iphone','samsung','pixel'],cond:'cracked'}},
  cars:{brand:"Cars Buyer",mark:"CB",kicker:"LICENSED BUYER",hero:"car",
   heads:[["WE BUY","CARS"],["CASH FOR","TRUCKS"],["WE OUTBID","THE DEALER"],["SELL YOUR","TRUCK"]],
   offer:"UP TO $25,000",offerSub:"CASH TODAY",
@@ -146,7 +183,8 @@ const CONTENT={
   quote:"Old Civic gone the same day, cash in hand.",
   quoteBy:"Jordan K. · Long Beach",rating:"4.9★ · 200+ SELLERS",
   steps:[["SEND VIN","Dash photo. Done."],["GET OFFER","Firm number, fast."],
-         ["FREE TOW","We tow, you bank."]]}
+         ["FREE TOW","We tow, you bank."]],
+  subject:{brand:['car'],cond:'any'}}          // "runs or not": a damaged car is on-message
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -431,20 +469,38 @@ D.footerBar=(c)=>{
     {face:F.body,wf:F.bw,weight:600,fill:readable(P.body,P.dark,P),on:P.dark,id:'footerAddr',role:'footer',
      capRatio:.70,min:c.S*.031});
 };
+/* THE MARK, FRAMED FIVE WAYS.
+   app    — initials on a rounded square, the app-icon shape (the default)
+   circle — initials in a disc
+   float  — initials alone, large, outlined; no plate
+   name   — no mark at all; the wordmark and kicker carry the brand
+   mark   — the framed initials alone; no wordmark (for a shop that is its logo) */
 D.lockup=(c,corner)=>{
   const {W,H,P,F,C}=c,m=W*.048,s=W*.072;
+  const frame=(c.cfg&&c.cfg.brand&&c.cfg.brand.frame)||'app';
   const x=corner==='right'?W-m-s:m,y=H*.045;
-  c.rect({x,y,w:s,h:s},P.accent,{r:s*.24,id:'markPlate',role:'brand'});
-  c.text(C.mark,{x:x+s*.16,y:y+s*.26,w:s*.68},{align:'middle',fill:onColor(P.accent,P),on:P.accent,id:'mark',role:'brand'});
+  const hasMark=frame!=='name', hasName=frame!=='mark';
+  if(hasMark){
+    if(frame==='app')c.rect({x,y,w:s,h:s},P.accent,{r:s*.24,id:'markPlate',role:'brand'});
+    else if(frame==='circle')c.add(`<circle cx="${(x+s/2).toFixed(1)}" cy="${(y+s/2).toFixed(1)}" r="${(s/2).toFixed(1)}" fill="${P.accent}"/>`,
+      {type:'shape',id:'markPlate',box:{x,y,w:s,h:s},role:'brand',fill:P.accent});
+    if(frame==='float')
+      c.text(C.mark,{x:x-s*.04,y:y+s*.08,w:s*1.08,h:s*.84},{align:'middle',fill:P.accent,on:P.ground,
+        stroke:P.dark,strokeW:.06,id:'mark',role:'brand'});
+    else
+      c.text(C.mark,{x:x+s*.16,y:y+s*.26,w:s*.68,h:s*.48},{align:'middle',fill:onColor(P.accent,P),on:P.accent,id:'mark',role:'brand'});
+  }
+  if(!hasName)return;
+  const nx=hasMark?x+s*1.22:x;
   /* Set the second line from where the first one actually ENDS. At a fixed
      s*.62 offset the descender of "iPhones.LA" ran into the cap line of
      "SAME DAY CASH" on all but a handful of cards — the leading was guessed
      from the mark's size rather than measured from the type. */
-  const wm={x:x+s*1.22,y:y+s*.10,w:W*.30};
+  const wm={x:nx,y:y+s*.10,w:W*.30};
   const wo={face:F.body,wf:F.bw,weight:800,fill:P.ink,id:'wordmark',role:'brand',max:W*.045};
   const wp=c.plan(C.brand,wm,wo);
   c.text(C.brand,wm,wo);
-  c.text(C.kicker,{x:x+s*1.22,y:wp.box.y+wp.box.h+s*.07,w:W*.34},{face:F.body,wf:F.bw,weight:600,
+  c.text(C.kicker,{x:nx,y:wp.box.y+wp.box.h+s*.07,w:W*.34},{face:F.body,wf:F.bw,weight:600,
     fill:readable(P.accent,P.ground,P),id:'kicker',role:'brand',tracking:.04,min:W*.026});
 };
 /* fit=  {left,right,bottom}  the box the crown must stay inside. Sizing is done
@@ -613,7 +669,7 @@ D.photo=(c,box,rot,pick,o={})=>{
   const base=(c.cfg&&c.cfg.assetBase)||'../';
   c.add(`<g transform="rotate(${(rot||0).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})"${filt}>`+
     `<image href="${esc(base+pick.u)}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" preserveAspectRatio="xMidYMid meet"/></g>`,
-    {type:'shape',id:o.id||'hero',box:{x,y,w,h},bleed:o.bleed!==false,role:o.role||'hero',asset:pick.s});
+    {type:'shape',id:o.id||'hero',box:{x,y,w,h},bleed:o.bleed!==false,role:o.role||'hero',asset:pick.s,tags:pick.t});
   return{x,y,w,h};
 };
 D.hero=(c,box,rot,variant)=>{
@@ -1224,7 +1280,8 @@ const RULES=[
  ['R13','Text on its plate','every line stays inside the panel it was set on','copy running off its card onto the photo'],
  ['R14','Words on top','no opaque shape is drawn over a line of text','a seal painted across the headline'],
  ['R15','Legible figures','no price is set in a face that draws a slashed zero','"$1,250" reading as "$1,25Ø"'],
- ['R16','Subject on show','the product is present and bigger than any prop','a card whose largest object is a cardboard box']
+ ['R16','Subject on show','the product is present and bigger than any prop','a card whose largest object is a cardboard box'],
+ ['R17','Picture matches the copy','the hero is of the brand, generation and condition the copy names','a cracked iPhone 11 under a "17 Pro Max · $1,250" ladder']
 ];
 function inter(a,b){const x=Math.max(a.x,b.x),y=Math.max(a.y,b.y);
   const r=Math.min(a.x+a.w,b.x+b.w),bt=Math.min(a.y+a.h,b.y+b.h);
@@ -1263,7 +1320,7 @@ function largestHole(o){
 function audit(card){
   /* the audit narrates into card.notes; a second audit of the same card must
      not read last time's narration as this time's */
-  card.notes=card.notes.filter(n=>!/^(spill|buried|collide|tight|figures|seal still)/.test(n));
+  card.notes=card.notes.filter(n=>!/^(spill|buried|collide|tight|figures|mismatch|seal still)/.test(n));
   const {W,H,nodes,P}=card,cell=20;
   const occ=occupancy(card,cell),g=occ.g,cols=occ.cols,rows=occ.rows;
   let filled=0;for(let i=0;i<g.length;i++)filled+=g[i];
@@ -1371,6 +1428,15 @@ function audit(card){
   const propsN=nodes.filter(n=>n.id==='prop');
   const areaOf=n=>Math.max(0,n.box.w)*Math.max(0,n.box.h);
   r.push(['R16',!!heroN&&propsN.every(pn=>areaOf(pn)<=areaOf(heroN))]);
+  /* R17 · THE PICTURE IS OF WHAT THE COPY SAYS.
+     The owner's rule, restated after it was broken: a cracked iPhone 11 under a
+     ladder that leads with "17 Pro Max · $1,250". A photographic hero carries
+     the tags it was chosen by; the deck carries its subject; they must agree.
+     A vector hero has no tags and is judged by the deck's own hero kind. */
+  const subj=card.C&&card.C.subject;
+  const heroOK=!heroN||!subj||(heroN.tags?matchSubject({t:heroN.tags},subj):true);
+  r.push(['R17',heroOK]);
+  if(!heroOK)card.note(`mismatch: hero "${heroN.asset}" is ${heroN.tags.b} · ${heroN.tags.c}${heroN.tags.g?' · gen '+heroN.tags.g:''}; the copy is about ${subj.brand.join('/')} · ${subj.cond}${subj.gen?' · gen '+subj.gen.join('/'):''}`);
   if(figs.length)card.note('figures: '+figs.map(t=>`${t.id} "${t.str}" in ${t.face}`).join(', '));
   if(buried.length)card.note('buried: '+buried.join(', '));
   r.push(['R11',sheens.every(s=>s.parent&&inter(s.box,s.parent)>=s.box.w*s.box.h*.999)]);
@@ -1437,6 +1503,13 @@ function render(archKey,seed,vertical,sizeKey,cfg){
   const Fp=(cfg&&cfg.pair&&PAIRS.find(x=>x.id===cfg.pair))||PAIRS[(seed>>3)%PAIRS.length];
   const [W,H]=SIZES[sizeKey], C0=CONTENT[vertical];
   const C=Object.assign({},C0,{heads:R.pick(C0.heads),promises:R.shuffle(C0.promises)});
+  /* The brand block used to be "iPhones.LA / iL / SAME DAY CASH" baked into the
+     deck. It is the owner's mark — or another shop's — so it is a setting:
+     name, kicker, initials, address, and how the mark is framed. */
+  if(cfg&&cfg.brand){const b=cfg.brand;
+    if(b.name!=null)C.brand=b.name; if(b.kicker!=null)C.kicker=b.kicker;
+    if(b.initials!=null)C.mark=b.initials; if(b.addr!=null)C.addr=b.addr;
+    if(b.phone!=null)C.phone=b.phone;}
   const F={display:Fp.display,body:Fp.body,dw:Fp.dw,bw:Fp.bw,dweight:Fp.dweight,
     figures:Fp.figures!==false};
   const c=new Card(W,H,P,F,R,C,cfg,archKey+seed+sizeKey,vertical);
@@ -1588,5 +1661,5 @@ export {
   QUEUE, ALLKEYS, KEYMETA, DEFAULT_CFG,
   RULES, PERMANENT_NEG, audit, render, buildPrompt, sentiment,
   ground, placeHero, headline, sealOnHero, priceRows, proofSteps, reviewCard,
-  fontCSS, faceCSS, renderClean, OPTIONAL, pixelFaults
+  fontCSS, faceCSS, renderClean, OPTIONAL, pixelFaults, matchSubject
 };

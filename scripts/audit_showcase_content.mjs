@@ -29,7 +29,7 @@ const ALLOW = {
 };
 const family = p => String(p || '').replace(/^(qs-|ip-)/, '').split('-')[0];
 
-let n = { subject:0, repeat:0, cover:0, clean:0 };
+let n = { subject:0, repeat:0, cover:0, clip:0, clean:0 };
 idx.forEach(c => {
   const why = [];
   /* Only a card that actually SHOWS a product can show the wrong one. Most
@@ -48,6 +48,7 @@ idx.forEach(c => {
     if (texts.length !== new Set(texts).size) why.push('repeat');
   }
   if ((c.cover || 0) >= 0.12) why.push('cover');
+  if ((c.clip || 0) > 6) why.push('clip');            // a line running off the card
   why.forEach(w => n[w]++);
   if (why.length) c.defect = why.join('+'); else { delete c.defect; n.clean++; }
 });
@@ -56,6 +57,7 @@ console.log('audited ' + idx.length);
 console.log('  subject mismatch ' + n.subject);
 console.log('  repeated copy    ' + n.repeat);
 console.log('  covered text     ' + n.cover);
+console.log('  clipped text     ' + n.clip);
 console.log('  CLEAN            ' + n.clean);
 if (WRITE){ writeFileSync(ROOT + 'assets/showcase/index.json', JSON.stringify(idx)); console.log('wrote defect flags'); }
 else console.log('(dry run; pass --write)');

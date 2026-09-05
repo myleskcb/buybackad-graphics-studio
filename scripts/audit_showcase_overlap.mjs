@@ -68,6 +68,13 @@ for (let i = 0; i < idx.length; i += 12){
         const covers = objs.filter(z => (z.l.kind === 'cutout' || (typeof z.l.text === 'string' && READ[z.l.role]))
           && ((z.l.props && z.l.props.opacity !== undefined ? z.l.props.opacity : 1) >= 0.5)
           && !z.l.__wall);
+        /* CLIPPING: a line that leaves the card. The owner's sample turned up
+           "BRING YOUR THE COIN SHOP QUOTE" running off both edges at 7% cover,
+           so this is a separate measure: how far past the frame the widest
+           text box reaches, in px. */
+        let clip = 0;
+        texts.forEach(tz => { const b = box(tz.o);
+          clip = Math.max(clip, -b.x, -b.y, (b.x + b.w) - TPL_W, (b.y + b.h) - TPL_H); });
         let worst = 0, by = null, kind = null;
         texts.forEach(tz => {
           const tb = box(tz.o), ta = area(tb);
@@ -79,7 +86,7 @@ for (let i = 0; i < idx.length; i += 12){
             if (f > worst){ worst = f; by = (cz.l.name || cz.l.kind); kind = cz.l.kind === 'cutout' ? 'cutout' : 'text'; }
           });
         });
-        R[id] = { cover: +worst.toFixed(3), by, kind };
+        R[id] = { cover: +worst.toFixed(3), by, kind, clip: Math.round(Math.max(0, clip)) };
       } catch(e){ R[id] = { err: String(e).slice(0, 70) }; }
     }
     return R;
@@ -105,7 +112,9 @@ const byKind = {}; rows.filter(x => !x.r.err && x.r.cover >= 0.12).forEach(x => 
 console.log('\nbad-or-worse by cause:', JSON.stringify(byKind));
 
 if (WRITE){
-  idx.forEach(c => { const r = out[c.id]; if (r && !r.err){ c.cover = r.cover; c.coverBy = r.kind; } });
+  idx.forEach(c => { const r = out[c.id]; if (r && !r.err){ c.cover = r.cover; c.coverBy = r.kind; c.clip = r.clip; } });
+  const clipped = idx.filter(c => (c.clip || 0) > 6);
+  console.log('text leaving the card by >6px: ' + clipped.length + (clipped.length ? '  e.g. ' + clipped.slice(0,4).map(c => c.id + ' ' + c.clip + 'px').join(', ') : ''));
   writeFileSync(ROOT + 'assets/showcase/index.json', JSON.stringify(idx));
   console.log('\nwrote cover/coverBy onto ' + idx.length + ' index rows');
 }

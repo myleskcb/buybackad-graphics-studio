@@ -21,15 +21,16 @@ const S = {
   seed: 4242, cfg: DEFAULT_CFG(),
   palette: null, pair: null,          // null = follow the seed
   tab: 'audit', impact: {}, log: [], lastKey: null, grades: {}, prev: null,
+  brand: null,                        // null = the deck's own; else {name,kicker,initials,addr,phone,frame}
 };
 try { Object.assign(S, JSON.parse(localStorage.getItem(STORE) || '{}')); } catch {}
 S.cfg = { ...DEFAULT_CFG(), ...(S.cfg || {}) };
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(
   { arch: S.arch, vertical: S.vertical, size: S.size, seed: S.seed, cfg: S.cfg,
-    palette: S.palette, pair: S.pair, tab: S.tab, grades: S.grades })); } catch {} };
+    palette: S.palette, pair: S.pair, tab: S.tab, grades: S.grades, brand: S.brand })); } catch {} };
 
 /* live config, including the direct palette/type choices the old console lacked */
-const conf = () => ({ ...S.cfg, palette: S.palette, pair: S.pair,
+const conf = () => ({ ...S.cfg, palette: S.palette, pair: S.pair, brand: S.brand,
   embedFonts: false, assetBase: '../' });
 
 /* ── chrome ─────────────────────────────────────────────────────────────── */
@@ -209,7 +210,23 @@ function renderLook(r) {
     `<button class="chip" data-pair="${p.id}" aria-pressed="${String(r.pair.id === p.id)}"
        title="${p.note}">${p.display} + ${p.body}</button>`).join('');
   const s = sentiment(r, conf());
-  $('#pane-look').innerHTML =
+  /* THE MONOGRAM. The mark is the owner's, or the next shop's — initials on an
+     app-shaped plate, in a disc, floating, or no mark at all. Saved with the
+     rest of the console's state, so it follows every card and every export. */
+  const B = S.brand || {};
+  const deck = CONTENT[S.vertical];
+  const FRAMES = [['app', 'app shape'], ['circle', 'disc'], ['float', 'floating'], ['name', 'name only'], ['mark', 'mark only']];
+  const brandUI =
+    `<h4>Brand ${S.brand ? '· yours' : '· the deck\'s own'}</h4>
+     <div class="brandgrid">
+       <label>Name<input id="bName" value="${esc(B.name ?? deck.brand)}" maxlength="24"></label>
+       <label>Initials<input id="bInit" value="${esc(B.initials ?? deck.mark)}" maxlength="3"></label>
+       <label>Kicker<input id="bKick" value="${esc(B.kicker ?? deck.kicker)}" maxlength="22"></label>
+       <label>Footer<input id="bAddr" value="${esc(B.addr ?? deck.addr)}" maxlength="30"></label>
+     </div>
+     <div class="chips">${FRAMES.map(([k, l]) => `<button class="chip" data-frame="${k}" aria-pressed="${String((B.frame || 'app') === k)}">${l}</button>`).join('')}</div>
+     <button class="btn" id="brandReset" style="width:100%">use the deck's own brand</button>`;
+  $('#pane-look').innerHTML = brandUI +
     `<h4>Palette ${S.palette ? '· pinned' : '· following the seed'}</h4><div class="chips">${pal}</div>` +
     `<h4>Type ${S.pair ? '· pinned' : '· following the seed'}</h4><div class="chips">${pairs}</div>` +
     `<button class="btn" id="unpin" style="width:100%">unpin both · back to the seed</button>` +
@@ -225,6 +242,12 @@ function renderLook(r) {
     note('type · ' + (S.pair || 'seed')); paint();
   });
   $('#unpin').onclick = () => { S.palette = S.pair = null; note('palette + type follow the seed'); paint(); };
+  const setBrand = patch => { S.brand = { ...(S.brand || {}), ...patch }; save(); note('brand · ' + Object.keys(patch)[0]); paint(); };
+  const bind = (id, key) => { const i = $(id); i.onchange = () => setBrand({ [key]: i.value.trim() });
+    i.onkeydown = e => { if (e.key === 'Enter') i.blur(); }; };
+  bind('#bName', 'name'); bind('#bInit', 'initials'); bind('#bKick', 'kicker'); bind('#bAddr', 'addr');
+  $('#pane-look').querySelectorAll('[data-frame]').forEach(b => b.onclick = () => setBrand({ frame: b.dataset.frame }));
+  $('#brandReset').onclick = () => { S.brand = null; save(); note('brand · deck'); paint(); };
 }
 
 function renderPrompt(r) {
@@ -374,7 +397,7 @@ function download(name, text, type) {
 function record(r) {
   return {
     id: cardId(), arch: S.arch, vertical: S.vertical, size: S.size, seed: S.seed,
-    palette: r.palette.id, pair: r.pair.id,
+    palette: r.palette.id, pair: r.pair.id, brand: S.brand,
     off: ALLKEYS.filter(k => S.cfg[k] === false),
     audit: { coverage: +r.audit.coverage.toFixed(4), dead: +r.audit.dead.toFixed(4),
              hot: +r.audit.hotArea.toFixed(4), elements: r.audit.elements,
