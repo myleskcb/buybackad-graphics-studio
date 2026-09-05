@@ -4387,7 +4387,30 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
                    plate: th.plate.shape+'/'+th.plate.fill,
                    product: cutSrc.split('/').pop().replace('.webp',''), density, look: (look && (look.key || look.id)) || null, onPage: !!t2.__onPage, onPageBox: t2.__onPageBox || null, ground: t2.__slab ? 'slab' : t2.__deepBg ? 'deep' : t2.__castBg ? 'cast' : t2.__tileBg ? 'tile' : t2.__absBg ? 'abs' : t2.__cashBg ? 'cash' : t2.__spaceBg ? 'space' : (t2.bg && t2.bg.src ? String(t2.bg.src).split('/').slice(-2).join('/') : 'plain'), deckH2: useDeck && useDeck.h2, deckCut: useDeck && useDeck.cuts && useDeck.cuts[0],
                    png: c.toDataURL('image/webp', 0.82),
-                   tpl: INFO.export ? (() => { try { return JSON.parse(JSON.stringify(t2)); } catch(e){ return null; } })() : undefined });
+                   tpl: INFO.export ? (() => { try { return JSON.parse(JSON.stringify(t2)); } catch(e){ return null; } })() : undefined,
+                   /* DRAWN GROUNDS ARE BAKED ON THE WAY OUT. A card whose
+                      backdrop is a synthetic key (dg:, abs:, paper:, space:,
+                      slab:) has no file behind it — the ground was painted
+                      into a canvas in this page. The app cannot reproduce that
+                      without a copy of this file's drawing code, which is the
+                      classic drift pair, so the RENDERER writes a picture and
+                      the app just loads it. Cheap: one toDataURL per unique
+                      key, deduped in node. */
+                   ground_key: INFO.export && /^(dg|abs|paper|space|slab):/.test((t2.bg && t2.bg.src) || '') ? t2.bg.src : undefined,
+                   ground_png: (() => {
+                     if (!INFO.export) return undefined;
+                     const k = (t2.bg && t2.bg.src) || '';
+                     if (!/^(dg|abs|paper|space|slab):/.test(k)) return undefined;
+                     const el = TPL_BG_ELS[k];
+                     if (!el) return undefined;
+                     try {
+                       const S = 864;                       // soft grounds survive the downscale; 1080 was 2x the bytes
+                       const cc = document.createElement('canvas'); cc.width = cc.height = S;
+                       const gg = cc.getContext('2d'); gg.imageSmoothingQuality = 'high';
+                       gg.drawImage(el, 0, 0, S, S);
+                       return cc.toDataURL('image/webp', 0.82);
+                     } catch(e){ return undefined; }
+                   })() });
         fin.sc.dispose();
         break;
       } catch(err){ if (attempt === 0) continue; out.push({ id: picks[e.i][0].layout+'-'+DONORS[j]+'-'+e.v, err:String(err).slice(0,140) }); }
@@ -4400,7 +4423,25 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
 await browser.close();
 
 const ok = cards.filter(c => !c.err), bad = cards.filter(c => c.err);
-if (process.env.LAB_EXPORT) writeFileSync(OUT + 'templates.json', JSON.stringify(ok.map(({ png, dbg, ...r }) => r)));
+if (process.env.LAB_EXPORT){
+  /* one file per unique ground key, and every record that used it now points
+     at that file — so a showcase card ships like any other backdrop */
+  const gdir = ROOT + 'assets/showcase/bg/';
+  mkdirSync(gdir, { recursive: true });
+  const written = {};
+  let gBytes = 0;
+  ok.forEach(r => {
+    if (!r.ground_key || !r.ground_png) return;
+    const file = 'assets/showcase/bg/' + r.ground_key.replace(/[^A-Za-z0-9]+/g, '_') + '.webp';
+    if (!written[file]){
+      const buf = Buffer.from(r.ground_png.split(',')[1], 'base64');
+      writeFileSync(ROOT + file, buf); written[file] = 1; gBytes += buf.length;
+    }
+    if (r.tpl && r.tpl.bg) r.tpl.bg.src = file;
+  });
+  console.log('baked grounds: ' + Object.keys(written).length + ' files · ' + (gBytes/1048576).toFixed(1) + ' MB');
+  writeFileSync(OUT + 'templates.json', JSON.stringify(ok.map(({ png, dbg, ground_png, ...r }) => r)));
+}
 ok.forEach(c => writeFileSync(OUT + c.id + '.webp', Buffer.from(c.png.split(',')[1],'base64')));
 if (process.env.LAB_PLACE) ok.forEach(c => console.log('PLACE ' + c.id + ' ' + (c.placeLog || '(search not run)')));
 if (DEBUG_ID === 'ALL'){

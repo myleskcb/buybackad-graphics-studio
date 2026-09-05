@@ -9175,7 +9175,12 @@ function scLoadIndex(){
          failed to load rather than as a design (owner, 2026-09-02: "those
          two lack the proper imagery, looks a little bit confusing"). The
          records stay on disk; they are simply not offered. */
-      SHOWCASE.cards = (Array.isArray(j) ? j : []).filter(c => c.imagery !== 'none');
+      /* …and a card whose rendered thumbnail came out nearly colourless is a
+         washed-out one: a pale slab under pale type, legible in the layout but
+         invisible in a feed. Measured off the pixels, 7 of 721. */
+      SHOWCASE.cards = (Array.isArray(j) ? j : [])
+        .filter(c => c.imagery !== 'none')
+        .filter(c => typeof c.chroma !== 'number' || c.chroma >= 0.05);
       SHOWCASE.cards.forEach(c => { SHOWCASE.byId[c.id] = c; });
       return SHOWCASE.cards;
     })
