@@ -1,0 +1,74 @@
+[
+  {
+    "id": "R1",
+    "rule": "Coverage floor",
+    "threshold": "≥ 62% of the canvas carries content",
+    "catches": "the empty card — 29% coverage reads as a placeholder"
+  },
+  {
+    "id": "R2",
+    "rule": "Dead space",
+    "threshold": "largest empty rectangle ≤ 18% of the canvas",
+    "catches": "a card that averages fine but has one big hole"
+  },
+  {
+    "id": "R3",
+    "rule": "Footer bar",
+    "threshold": "full-bleed footer carrying the number",
+    "catches": "a number floating with nothing under it"
+  },
+  {
+    "id": "R4",
+    "rule": "Hero bleed",
+    "threshold": "hero crosses an edge by ≥ 6%",
+    "catches": "product parked inside a box like a catalogue photo"
+  },
+  {
+    "id": "R5",
+    "rule": "Shape language",
+    "threshold": "headline sits on stroke, tear, band or rays",
+    "catches": "the flat rounded plate behind every headline"
+  },
+  {
+    "id": "R6",
+    "rule": "Badge placement",
+    "threshold": "if a seal exists it covers 6–32% of the hero",
+    "catches": "a seal floating in dead space, or swallowing the product"
+  },
+  {
+    "id": "R7",
+    "rule": "Text collision",
+    "threshold": "no two text boxes intersect",
+    "catches": "overlap you only notice after export"
+  },
+  {
+    "id": "R8",
+    "rule": "Minimum size",
+    "threshold": "every text ≥ 2.0% of the short edge",
+    "catches": "fine print that dies in a feed thumbnail"
+  },
+  {
+    "id": "R9",
+    "rule": "Contrast",
+    "threshold": "every text ≥ 4.5:1 on its own backing",
+    "catches": "accent-on-accent text that vanishes"
+  },
+  {
+    "id": "R10",
+    "rule": "Hot restraint",
+    "threshold": "hot colour ≤ 14% of canvas area",
+    "catches": "the all-red card where nothing reads as urgent"
+  },
+  {
+    "id": "R11",
+    "rule": "Sheen parentage",
+    "threshold": "every sheen sits inside its own plate",
+    "catches": "the highlight drawn at the layout’s original geometry"
+  },
+  {
+    "id": "R12",
+    "rule": "Safe area",
+    "threshold": "non-bleed elements inside a 4.5% margin",
+    "catches": "clipped corners after a crop"
+  }
+]

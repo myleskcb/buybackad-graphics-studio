@@ -1,0 +1,162 @@
+[
+  {
+    "id": "nn01",
+    "name": "Night Lot",
+    "mood": "sodium light on a dark lot",
+    "ground": "#0B1B3A",
+    "ground2": "#132A57",
+    "ink": "#FFFFFF",
+    "body": "#C6D4EE",
+    "accent": "#FFB020",
+    "hot": "#FF3B30",
+    "paper": "#FFF4DE",
+    "dark": "#050C1E",
+    "contrast": {
+      "inkOnGround": 17.04,
+      "accentOnGround": 9.32,
+      "onHot": "#000000",
+      "onAccent": "#000000",
+      "onPaper": "#000000"
+    }
+  },
+  {
+    "id": "jw09",
+    "name": "Neon Counter",
+    "mood": "late-night shop window",
+    "ground": "#0A0F1E",
+    "ground2": "#14204A",
+    "ink": "#FFFFFF",
+    "body": "#BFD2E8",
+    "accent": "#22D3EE",
+    "hot": "#FF2E93",
+    "paper": "#FFF6E5",
+    "dark": "#04070F",
+    "contrast": {
+      "inkOnGround": 19.09,
+      "accentOnGround": 10.56,
+      "onHot": "#000000",
+      "onAccent": "#000000",
+      "onPaper": "#000000"
+    }
+  },
+  {
+    "id": "ca10",
+    "name": "Cash Green",
+    "mood": "money, plainly",
+    "ground": "#05261B",
+    "ground2": "#0A4230",
+    "ink": "#FFFFFF",
+    "body": "#B9E3CF",
+    "accent": "#16C172",
+    "hot": "#FFC93C",
+    "paper": "#F2FFF8",
+    "dark": "#021711",
+    "contrast": {
+      "inkOnGround": 16.16,
+      "accentOnGround": 6.85,
+      "onHot": "#000000",
+      "onAccent": "#000000",
+      "onPaper": "#000000"
+    }
+  },
+  {
+    "id": "du06",
+    "name": "Paper Red",
+    "mood": "stapled to a pole",
+    "ground": "#F5EFE3",
+    "ground2": "#E8DFCC",
+    "ink": "#16130F",
+    "body": "#4A423A",
+    "accent": "#E23A1E",
+    "hot": "#1D4ED8",
+    "paper": "#FFFFFF",
+    "dark": "#16130F",
+    "contrast": {
+      "inkOnGround": 16.17,
+      "accentOnGround": 3.78,
+      "onHot": "#FFFFFF",
+      "onAccent": "#000000",
+      "onPaper": "#000000"
+    }
+  },
+  {
+    "id": "st04",
+    "name": "Steel Orange",
+    "mood": "workshop, high-vis",
+    "ground": "#12161C",
+    "ground2": "#1E2732",
+    "ink": "#FFFFFF",
+    "body": "#B4C1CE",
+    "accent": "#FF6B18",
+    "hot": "#FFD60A",
+    "paper": "#F3F6F9",
+    "dark": "#080B0F",
+    "contrast": {
+      "inkOnGround": 18.15,
+      "accentOnGround": 6.37,
+      "onHot": "#000000",
+      "onAccent": "#000000",
+      "onPaper": "#000000"
+    }
+  },
+  {
+    "id": "su07",
+    "name": "Sunset Lot",
+    "mood": "golden hour, loud",
+    "ground": "#2B0B3A",
+    "ground2": "#4A125C",
+    "ink": "#FFFFFF",
+    "body": "#E8C9F0",
+    "accent": "#FF8A00",
+    "hot": "#FF2D78",
+    "paper": "#FFF0E0",
+    "dark": "#160520",
+    "contrast": {
+      "inkOnGround": 17.33,
+      "accentOnGround": 7.33,
+      "onHot": "#000000",
+      "onAccent": "#000000",
+      "onPaper": "#000000"
+    }
+  },
+  {
+    "id": "bp02",
+    "name": "Blueprint",
+    "mood": "technical, trustworthy",
+    "ground": "#06203A",
+    "ground2": "#0A3457",
+    "ink": "#FFFFFF",
+    "body": "#AFD3EC",
+    "accent": "#4CC9F0",
+    "hot": "#FFD60A",
+    "paper": "#EAF6FF",
+    "dark": "#031324",
+    "contrast": {
+      "inkOnGround": 16.46,
+      "accentOnGround": 8.56,
+      "onHot": "#000000",
+      "onAccent": "#000000",
+      "onPaper": "#000000"
+    }
+  },
+  {
+    "id": "np03",
+    "name": "Newsprint",
+    "mood": "classified ad, urgent",
+    "ground": "#EDE7DC",
+    "ground2": "#DCD3C4",
+    "ink": "#121212",
+    "body": "#4A463F",
+    "accent": "#D7263D",
+    "hot": "#1B4079",
+    "paper": "#FFFFFF",
+    "dark": "#121212",
+    "contrast": {
+      "inkOnGround": 15.22,
+      "accentOnGround": 4.03,
+      "onHot": "#FFFFFF",
+      "onAccent": "#FFFFFF",
+      "onPaper": "#000000"
+    }
+  }
+]

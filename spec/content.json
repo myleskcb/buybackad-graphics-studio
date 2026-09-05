@@ -1,0 +1,164 @@
+{
+  "phones": {
+    "brand": "iPhones.LA",
+    "mark": "iL",
+    "kicker": "SAME DAY CASH",
+    "hero": "phone",
+    "heads": [
+      [
+        "WE BUY",
+        "IPHONES"
+      ],
+      [
+        "CASH FOR",
+        "IPHONES"
+      ],
+      [
+        "TOP",
+        "BUYER"
+      ],
+      [
+        "SELL YOUR",
+        "IPHONE"
+      ]
+    ],
+    "offer": "UP TO $1,250",
+    "offerSub": "PAID TODAY",
+    "promises": [
+      "CRACKED OK",
+      "ICLOUD OK",
+      "ANY CARRIER",
+      "FREE PICKUP",
+      "NO APPT",
+      "CASH TODAY"
+    ],
+    "rows": [
+      [
+        "iPhone 17 Pro Max",
+        "$1,250",
+        "17 PM"
+      ],
+      [
+        "iPhone 17 Pro",
+        "$1,050",
+        "17 PRO"
+      ],
+      [
+        "iPhone 16 Pro Max",
+        "$900",
+        "16 PM"
+      ],
+      [
+        "iPhone 16",
+        "$620",
+        "16"
+      ],
+      [
+        "iPhone 15 Pro",
+        "$580",
+        "15 PRO"
+      ]
+    ],
+    "cta": "GET AN INSTANT OFFER",
+    "phone": "(562) 999-4994",
+    "addr": "iphones.LA · Long Beach",
+    "quote": "Cracked 15 Pro in, cash out. Twenty minutes.",
+    "quoteBy": "Marcus T. · Carson",
+    "rating": "4.9★ · 200+ REVIEWS",
+    "steps": [
+      [
+        "TEXT PICS",
+        "Snap it, send it"
+      ],
+      [
+        "GET OFFER",
+        "Firm quote, fast."
+      ],
+      [
+        "GET PAID",
+        "Cash or transfer"
+      ]
+    ]
+  },
+  "cars": {
+    "brand": "Cars Buyer",
+    "mark": "CB",
+    "kicker": "LICENSED BUYER",
+    "hero": "car",
+    "heads": [
+      [
+        "WE BUY",
+        "CARS"
+      ],
+      [
+        "CASH FOR",
+        "TRUCKS"
+      ],
+      [
+        "WE OUTBID",
+        "THE DEALER"
+      ],
+      [
+        "SELL YOUR",
+        "TRUCK"
+      ]
+    ],
+    "offer": "UP TO $25,000",
+    "offerSub": "CASH TODAY",
+    "promises": [
+      "FREE TOW",
+      "SAME DAY",
+      "LICENSED",
+      "TITLE OR NOT",
+      "RUNS OR NOT",
+      "WE COLLECT"
+    ],
+    "rows": [
+      [
+        "F-150 / Silverado",
+        "$25,000",
+        "F-150"
+      ],
+      [
+        "Tacoma / Ranger",
+        "$21,500",
+        "TACOMA"
+      ],
+      [
+        "4Runner / Tahoe",
+        "$19,800",
+        "4RUNNER"
+      ],
+      [
+        "Civic / Corolla",
+        "$12,400",
+        "CIVIC"
+      ],
+      [
+        "Sprinter / Transit",
+        "$23,000",
+        "SPRINTER"
+      ]
+    ],
+    "cta": "GET AN INSTANT OFFER",
+    "phone": "(562) 999-4994",
+    "addr": "Long Beach · Carson",
+    "quote": "Old Civic gone the same day, cash in hand.",
+    "quoteBy": "Jordan K. · Long Beach",
+    "rating": "4.9★ · 200+ SELLERS",
+    "steps": [
+      [
+        "SEND VIN",
+        "Dash photo. Done."
+      ],
+      [
+        "GET OFFER",
+        "Firm number, fast."
+      ],
+      [
+        "FREE TOW",
+        "We tow, you bank."
+      ]
+    ]
+  }
+}
