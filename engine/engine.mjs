@@ -1,4 +1,5 @@
 import { faceCSS, nearestWeight, FONT_FILES } from './fonts.mjs';
+import { drawShowcase, LAYOUTS as SHOWCASE_LAYOUTS } from './showcase.mjs';
 import { readFileSync } from 'node:fs';
 
 /* REAL TYPE METRICS, measured from the embedded fonts by
@@ -15,6 +16,27 @@ import { readFileSync } from 'node:fs';
    348 real cutouts the owner has personally approved — rejected ones cannot
    reach a card, because only the approved list is written into the index. */
 const ASSETS=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/assets.json',import.meta.url),'utf8'));}catch{return{subjects:{},props:[],cash:[]};}})();
+/* THE SHOP'S OWN MARKS — 20 category icons from assets/icon-set.svg, one
+   stroke weight, round joins. The reference audit found an icon on every
+   bullet in 61% of GOOD ads and 15% of BAD; the engine's pills were text-only. */
+const ICONS=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/icons.json',import.meta.url),'utf8'));}catch{return{};}})();
+const ICON_FOR=[[/ICLOUD|LOCK|CARRIER/,'lock'],[/PICKUP|SHIP|COLLECT|MAIL|BOX/,'sealedBox'],[/LICENSED|TITLE|TRUST|INSURED/,'shieldTick'],
+  [/CASH|PAID|\$|MONEY/,'cashTag'],[/SAME DAY|TODAY|FAST|NO APPT|INSTANT|MIN\b|NO WAIT/,'boltFast'],[/CRACKED|DAMAGE|TURN ON|SMASH|PHONE/,'phone'],
+  [/TOW|RUNS|CAR|TRUCK|VAN/,'carSide'],[/KEY/,'keyFob'],[/OK$/,'shieldTick']];
+function iconFor(text,vertical){const t=String(text).toUpperCase();for(const [re,k] of ICON_FOR)if(re.test(t))return k;return vertical==='cars'?'carSide':'phone';}
+function iconSVG(key,x,y,size,stroke){const ic=ICONS[key];if(!ic)return '';const k=size/100;
+  return `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${k.toFixed(4)})"><path d="${ic.d}" fill="none" stroke="${stroke}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g>`;}
+/* THE OWNER'S OWN PALETTES, recovered from the graded sets by
+   tools/gfx/port_palettes.mjs. The eight authored here are six near-black
+   grounds and two creams — one idea, eight hats, which is what "the colour
+   schemes are slightly bland" was pointing at. These twenty were graded by the
+   owner across three sets and carry structures this engine had none of:
+   saturated light grounds, saturated mid colour fields, coloured darks.
+   Where an id collides, the graded palette wins — it is the approved one. */
+const PORTED=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/palettes.json',import.meta.url),'utf8'));}catch{return[];}})();
+/* which faces draw an ambiguous figure, measured rather than remembered */
+const LEGIBILITY=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/legibility.json',import.meta.url),'utf8'));}catch{return[];}})();
+const BAD_FIGURES=new Set(LEGIBILITY.filter(r=>r.figures).map(r=>r.family+'|'+r.weight));
 const METRICS=(()=>{try{return JSON.parse(readFileSync(new URL('../spec/metrics.json',import.meta.url),'utf8'));}catch{return{};}})();
 /* the face a price may be set in — the display face unless its figures are
    unfit for money */
@@ -51,22 +73,110 @@ function starCover(box,st){
    the tag says what the picture is of. Brand and condition must agree; if both
    sides know the generation those must agree too; and only a single product or
    a group may stand as the hero — never a hand, a tool or another device. */
+/* WHAT MODEL THE CARD LITERALLY NAMES.
+   Read from the strings that will be printed, not from a setting: "iPhone 17
+   Pro Max" or "17 PM" → gen 17, variant pro max. The first ladder row is the
+   card's lead — it is the model the price is attached to. */
+const VARIANT={'pm':'pro max','pro max':'pro max','pro':'pro','plus':'plus','air':'air','mini':'mini','ultra':'ultra','e':'e'};
+function parseModel(str){
+  /* not preceded by $ , . or a digit, not followed by , or a digit — so the 19
+     in "$19,800" and the 25 in "$1,250" are prices, not generations */
+  const m=String(str).match(/(?<![$\d,.])\b(1[1-9])(?![,\d])\s*(PRO MAX|PM|PRO|PLUS|AIR|MINI|ULTRA|E)?\b/i);
+  if(!m)return null;
+  return{gen:+m[1],v:m[2]?VARIANT[m[2].toLowerCase()]||null:'base'};
+}
+/* every model the card's copy names, lead first: the priced model (row 1)
+   leads, then anything else the copy mentions — a testimonial's "15 Pro" is a
+   model the card prints, and the owner wants what is printed to be pictured */
+function namedModels(C){
+  const seen=[],add=m=>{if(m&&!seen.some(x=>x.gen===m.gen&&x.v===m.v))seen.push(m);};
+  const row=C.rows&&C.rows[0];
+  if(row)add(parseModel(row[0])||parseModel(row[2]||''));
+  [C.offer,C.quote,...(C.heads||[])].forEach(t=>add(parseModel(t||'')));
+  (C.rows||[]).slice(1).forEach(r=>add(parseModel(r[0])||parseModel(r[2]||'')));
+  return seen;
+}
+function leadOf(C){return namedModels(C)[0]||null;}
+/* the short tag the ladder prints for its lead row — "17 PM" / "F-150" — the
+   cheapest way to BOUND an offer on a card that has no ladder */
+function leadTag(C){const r=C.rows&&C.rows[0];return r?(r[2]||r[0]):null;}
+const LADDER_AT={nightLot:['45','11','916'],priceBoard:['45','11','916'],posterBleed:['916'],proofWall:['916']};
+/* ONE DEFINITION OF A REPEAT, shared by the pill dedupe and by R18 — if the
+   two ever disagreed, a card could be built clean and then judged dirty. */
+const normLine=t=>String(t).toUpperCase().replace(/(\d),(\d)/g,'$1$2').replace(/[^A-Z0-9$ ]+/g,' ').replace(/\s+/g,' ').trim();
+function repeats(a,b){
+  a=normLine(a);b=normLine(b);
+  if(!a||!b)return false;
+  if(a===b)return true;
+  const [sh,lg]=a.length<=b.length?[a,b]:[b,a];
+  return sh.split(' ').length>=2&&new RegExp('(^| )'+sh.replace(/[$]/g,'\\$')+'( |$)').test(lg);
+}
+/* the phrase an archetype's seal carries, declared once so the promise pills
+   can be deduplicated against it — "CASH TODAY" used to print on the seal and
+   again as a pill on the same card */
+const SEAL_PHRASE={
+  posterBleed:[['CASH','TODAY'],['PAID','TODAY'],['CASH','NOW'],['NO','WAIT']],
+  tornSplit:  [['SAME','DAY'],['CASH','NOW'],['NO','WAIT'],['WE','PAY'],['PAID','FAST']],
+};
+/* the seal is placed last, when every other line exists, so it can choose the
+   first phrase that repeats nothing already on the card — the owner's kicker
+   "SAME DAY CASH" collided with a seal fixed at "SAME DAY" on every Torn Split */
+function sealPhrase(c){
+  const said=c.nodes.filter(n=>n.type==='text'&&n.str).map(n=>n.str);
+  for(const cand of (SEAL_PHRASE[c.arch]||[]))
+    if(!said.some(t=>repeats(t,cand.join(' '))))return cand;
+  return null;
+}
+function hasLadder(c){return (LADDER_AT[c.arch]||[]).includes(c.sizeKey)&&c.on('priceRows');}
+/* "UP TO $1,250" alone is the unbounded claim the owner forbids; the same
+   figure beside the model it is for is a price. When the card carries no
+   ladder the offer line names the lead model itself. */
+function boundOffer(c){return hasLadder(c)?c.C.offer:c.C.offer+' · '+(leadTag(c.C)||'');}
+/* the offer line: with a ladder, offer + sub-line; without one, offer + model —
+   the sub-line's claim lives in the pills and must not print twice */
+function offerLine(c){
+  const sealSays=((SEAL_PHRASE[c.arch]||[])[0]||[]).join(' ').toUpperCase();
+  const sub=c.C.offerSub&&c.C.offerSub.toUpperCase().replace(/[^A-Z0-9 ]+/g,' ').replace(/\s+/g,' ').trim()!==sealSays?c.C.offerSub:null;
+  return hasLadder(c)?(sub?c.C.offer+'  ·  '+sub:c.C.offer):boundOffer(c);}
+/* what the library can be held to, for this pool: a generation it has pictures
+   of, and a variant it has an exact picture of */
+function poolHasGen(pool,gen){return pool.some(a=>a.t&&a.t.g===gen);}
+/* the library can only be held to a variant it actually has */
+function libraryHas(pool,gen,v){return pool.some(a=>a.t&&a.t.g===gen&&a.t.v===v);}
 function matchSubject(a,subj){
   if(!subj)return true;
   const t=a.t; if(!t||!t.h)return false;
   if(subj.brand&&!subj.brand.includes(t.b))return false;
   if(subj.cond&&subj.cond!=='any'&&t.c!==subj.cond)return false;
   if(subj.gen&&t.g&&!subj.gen.includes(t.g))return false;
+  if(subj.body&&t.body&&t.body!==subj.body)return false;
   return true;
 }
-function pickAsset(c,pool,salt){
+function pickAsset(c,pool,salt,o={}){
   if(!pool||!pool.length)return null;
   const subj=c.C&&c.C.subject;
   let ok=pool.filter(a=>matchSubject(a,subj));
   if(!ok.length){c.note('NOASSET: nothing in the library matches this deck\'s subject');return null;}
-  /* prefer a picture that names the generation the copy leads with */
-  if(subj&&subj.gen){const named=ok.filter(a=>a.t.g&&subj.gen.includes(a.t.g));
-    if(named.length)ok=[...named,...named,...named,...ok];}
+  /* THE HERO IS THE MODEL THE CARD NAMES. If the copy leads with "17 Pro Max",
+     the picture is a 17 Pro Max — exact variant when the library has one, the
+     generation otherwise. "Close" was a 15 under a 17 Pro Max price. */
+  const lead=o.lead||leadOf(c.C);
+  if(lead&&lead.gen){
+    const exact=ok.filter(a=>a.t.g===lead.gen&&a.t.v===lead.v);
+    const gen=ok.filter(a=>a.t.g===lead.gen);
+    /* exact variant when the library has one; the generation otherwise; and
+       when the library has no picture of that generation at all in this
+       condition — every cracked shot is gen-less — the subject match stands.
+       The rule below is held to the same standard, so this cannot ship a
+       picture the rule would then reject. */
+    if(exact.length&&!o.avoidExact)ok=exact;
+    else if(gen.length)ok=gen;
+    else if(poolHasGen(pool.filter(a=>matchSubject(a,subj)),lead.gen))return null;
+  }
+  if(o.not){const rest=ok.filter(a=>a.s!==o.not);if(rest.length)ok=rest;else return null;}
+  if(!ok.length)return null;
+  /* a pinned hero (renderClean holding the look across a reseed) */
+  if(o.pin){const p=ok.find(a=>a.s===o.pin);if(p)return p;}
   return ok[Math.floor(c.R.f(0,1)*ok.length+(salt||0))%ok.length];
 }
 const POOL_OF={broken:'phones'};                // decks that share another deck's pictures
@@ -128,61 +238,95 @@ const PALETTES=[
  {id:"bp02",name:"Blueprint",   mood:"technical, trustworthy",    ground:"#06203A",ground2:"#0A3457",ink:"#FFFFFF",body:"#AFD3EC",accent:"#4CC9F0",hot:"#FFD60A",paper:"#EAF6FF",dark:"#031324"},
  {id:"np03",name:"Newsprint",   mood:"classified ad, urgent",     ground:"#EDE7DC",ground2:"#DCD3C4",ink:"#121212",body:"#4A463F",accent:"#D7263D",hot:"#1B4079",paper:"#FFFFFF",dark:"#121212"}
 ];
+/* authored + graded, graded first so a colliding id resolves to the approved one */
+const AUTHORED=PALETTES.slice();
+if(PORTED.length){
+  const taken=new Set(PORTED.map(p=>p.id));
+  PALETTES.length=0;
+  PALETTES.push(...PORTED,...AUTHORED.filter(p=>!taken.has(p.id)));
+}
+
+/* which display faces are ornamental — they set a headline of two or three
+   words and nothing longer, because a sentence in a blackletter is a puzzle */
+const ORNAMENTAL=new Set(['Pirata One','Knewave','Sedgwick Ave Display','Bungee','Special Elite']);
 const PAIRS=[
- {id:"cs",display:"Clash Display",body:"Satoshi", dw:.52,bw:.50,dweight:700,note:"geometric display over the workhorse grotesque — the studio default"},
- {id:"kh",display:"Khand",        body:"Satoshi", dw:.40,bw:.50,dweight:700,note:"tall condensed over a soft grotesque — holds long model names"},
- /* Melodrama draws a slashed zero, so "$1,250" reads "$1,25Ø" — checked
-    against a rendered swatch of all five families, it is the only one that
-    does. Prices in this pairing are set in the body face instead. */
- {id:"ml",display:"Melodrama",    body:"Satoshi", dw:.46,bw:.50,dweight:700,figures:false,note:"high-contrast editorial display — expensive, not loud"},
- {id:"zd",display:"Zodiak",       body:"Satoshi", dw:.50,bw:.50,dweight:700,note:"display serif over a grotesque — authority, the trade-in desk"},
- {id:"cz",display:"Clash Display",body:"Zodiak",  dw:.52,bw:.48,dweight:600,note:"geometric over a serif body — editorial weight under a modern head"},
- {id:"kc",display:"Khand",        body:"Clash Display",dw:.40,bw:.50,dweight:700,note:"condensed over geometric — poster type, nothing else beside it"}
+ /* THE OWNER'S OWN TYPE. Sixteen pairings drawn only from the 56 faces they
+    approved out of 151 reviewed, and only from the weights that passed
+    tools/gfx/score_legibility.mjs: a display face whose thinnest stroke
+    survives over a photograph and whose caps are even enough to set large, a
+    body face that still reads at 13px with its counters open, and a numeral
+    face with an unambiguous zero. The four families this engine arrived with —
+    Clash Display, Khand, Melodrama, Zodiak — are not in the approved list and
+    no longer carry anything. */
+ {id:"fc",display:"Oswald",body:"Libre Franklin",num:"Libre Franklin",dw:0.53,bw:0.54,dweight:700,bweight:500,nweight:700,note:"forecourt condensed — the classic lot poster"},
+ {id:"tw",display:"Special Elite",body:"Satoshi",num:"Satoshi",dw:0.60,bw:0.51,dweight:400,bweight:500,nweight:700,note:"typewriter — the face their sets used on 167 cards"},
+ {id:"zs",display:"Zilla Slab",body:"Satoshi",num:"Zilla Slab",dw:0.66,bw:0.51,dweight:700,bweight:500,nweight:700,note:"slab — weight without shouting"},
+ {id:"rs",display:"Roboto Slab",body:"Libre Franklin",num:"Roboto Slab",dw:0.70,bw:0.53,dweight:700,bweight:400,nweight:700,note:"newspaper slab, quiet and solid"},
+ {id:"bu",display:"Bungee",body:"Manrope",num:"Manrope",dw:0.71,bw:0.53,dweight:400,bweight:500,nweight:700,note:"poster block — signwriting, maximum stop"},
+ {id:"st",display:"Big Shoulders Stencil Display",body:"Satoshi",num:"Satoshi",dw:0.42,bw:0.51,dweight:700,bweight:500,nweight:700,note:"stencil — crate-marking, industrial"},
+ {id:"ru",display:"Russo One",body:"Chivo",num:"Chivo",dw:0.69,bw:0.54,dweight:400,bweight:500,nweight:700,note:"squared tech — the electronics counter"},
+ {id:"sw",display:"Sedgwick Ave Display",body:"Manrope",num:"Manrope",dw:0.55,bw:0.53,dweight:400,bweight:500,nweight:700,note:"street marker — loud, hand-made"},
+ {id:"tk",display:"Teko",body:"Satoshi",num:"Satoshi",dw:0.51,bw:0.51,dweight:700,bweight:500,nweight:700,note:"tall condensed — holds a long model name"},
+ {id:"s9",display:"Satoshi",body:"Satoshi",num:"Satoshi",dw:0.70,bw:0.51,dweight:900,bweight:500,nweight:700,note:"one family, heaviest over regular — the plain option"},
+ {id:"sq",display:"Squada One",body:"Libre Franklin",num:"Libre Franklin",dw:0.46,bw:0.54,dweight:400,bweight:500,nweight:700,note:"squared display — forecourt default"},
+ {id:"bs",display:"Big Shoulders Display",body:"Instrument Sans",num:"Instrument Sans",dw:0.41,bw:0.53,dweight:700,bweight:500,nweight:700,note:"american condensed, civic"},
+ {id:"pi",display:"Pirata One",body:"Satoshi",num:"Satoshi",dw:0.42,bw:0.51,dweight:400,bweight:500,nweight:700,note:"blackletter — their sets reached for it 45 times"},
+ {id:"kn",display:"Knewave",body:"Manrope",num:"Manrope",dw:0.58,bw:0.53,dweight:400,bweight:500,nweight:700,note:"brush script — the hand-painted window"},
+ {id:"sa",display:"Saira Condensed",body:"Sora",num:"Sora",dw:0.47,bw:0.58,dweight:700,bweight:500,nweight:700,note:"condensed grotesque, technical"},
+ {id:"ba",display:"Barlow Condensed",body:"Manrope",num:"Manrope",dw:0.47,bw:0.53,dweight:700,bweight:500,nweight:700,note:"condensed workhorse"}
 ];
 const SIZES={"45":[1080,1350],"11":[1080,1080],"916":[1080,1920]};
+/* the margin bounded elements keep from the edge — R12 said 4.5% and tested
+   1px; now it is one number that placement and the rule both read */
+const MARGIN=.045;
+function safeRect(W,H){const m=MARGIN*Math.min(W,H);return{x:m,y:m,w:W-2*m,h:H-2*m};}
 
 /* ══════════════════════════════════════════════════════════
    3 · CONTENT
    ══════════════════════════════════════════════════════════ */
+/* The brand block in every deck is a PLACEHOLDER — "YOUR NAME", "YN", "YOUR
+   TAGLINE", "yourname.com · Your City" — by the owner's instruction. The
+   console will not export a card that still carries it. */
+const PLACEHOLDER=/YOUR NAME|YOUR TAGLINE|yourname\.com|Your City|\bYN\b/;
 const CONTENT={
- phones:{brand:"iPhones.LA",mark:"iL",kicker:"SAME DAY CASH",hero:"phone",
+ phones:{brand:"YOUR NAME",mark:"YN",kicker:"YOUR TAGLINE",hero:"phone",
   heads:[["WE BUY","IPHONES"],["CASH FOR","IPHONES"],["TOP","BUYER"],["SELL YOUR","IPHONE"]],
   offer:"UP TO $1,250",offerSub:"PAID TODAY",
   promises:["CRACKED OK","ICLOUD OK","ANY CARRIER","FREE PICKUP","NO APPT","CASH TODAY"],
   rows:[["iPhone 17 Pro Max","$1,250","17 PM"],["iPhone 17 Pro","$1,050","17 PRO"],
         ["iPhone 16 Pro Max","$900","16 PM"],["iPhone 16","$620","16"],["iPhone 15 Pro","$580","15 PRO"]],
-  cta:"GET AN INSTANT OFFER",phone:"(562) 999-4994",addr:"iphones.LA · Long Beach",
+  cta:"GET AN INSTANT OFFER",phone:"(562) 999-4994",addr:"yourname.com · Your City",
   quote:"Cracked 15 Pro in, cash out. Twenty minutes.",
-  quoteBy:"Marcus T. · Carson",rating:"4.9★ · 200+ REVIEWS",
-  steps:[["TEXT PICS","Snap it, send it"],["GET OFFER","Firm quote, fast."],
+  quoteBy:"Marcus T. · Carson, CA",rating:"4.9 · 200+ REVIEWS",
+  steps:[["TEXT PICS","Snap it, send it"],["SEE THE NUMBER","Firm quote, fast."],
          ["GET PAID","Cash or transfer"]],
   /* what the copy is ABOUT, so the picture can be held to it */
   subject:{brand:['iphone'],gen:[17,16,15],cond:'clean'}},
  /* The cracked phones belong to THIS deck, not to the one quoting $1,250 for a
     17 Pro Max. PRICES ARE PLACEHOLDERS for the owner to set. */
- broken:{brand:"iPhones.LA",mark:"iL",kicker:"BROKEN IS FINE",hero:"phone",
+ broken:{brand:"YOUR NAME",mark:"YN",kicker:"YOUR TAGLINE",hero:"phone",
   heads:[["WE BUY","BROKEN PHONES"],["CRACKED?","WE PAY"],["SMASHED","STILL PAYS"],["SCREEN GONE","CASH STAYS"]],
-  offer:"UP TO $700",offerSub:"CRACKED · TODAY",
+  offer:"UP TO $700",offerSub:"PAID TODAY",
   promises:["CRACKED OK","WON'T TURN ON","WATER DAMAGE","ICLOUD OK","FREE PICKUP","CASH TODAY"],
   rows:[["17 Pro Max · cracked","$700","17 PM"],["16 Pro · cracked","$480","16 PRO"],
         ["15 Pro · cracked","$320","15 PRO"],["14 · cracked","$160","14"],["Galaxy S24 · cracked","$260","S24"]],
-  cta:"GET A BROKEN-PHONE QUOTE",phone:"(562) 999-4994",addr:"iphones.LA · Long Beach",
+  cta:"GET A BROKEN-PHONE QUOTE",phone:"(562) 999-4994",addr:"yourname.com · Your City",
   quote:"Screen in pieces, still got $420 for it.",
-  quoteBy:"Dana R. · Lakewood",rating:"4.9★ · 200+ REVIEWS",
-  steps:[["TEXT PICS","Cracks and all"],["GET OFFER","Firm, for the damage"],
+  quoteBy:"Dana R. · Lakewood, CA",rating:"4.9 · 200+ REVIEWS",
+  steps:[["TEXT PICS","Cracks and all"],["SEE THE NUMBER","Firm, for the damage"],
          ["GET PAID","Cash or transfer"]],
   subject:{brand:['iphone','samsung','pixel'],cond:'cracked'}},
- cars:{brand:"Cars Buyer",mark:"CB",kicker:"LICENSED BUYER",hero:"car",
+ cars:{brand:"YOUR NAME",mark:"YN",kicker:"YOUR TAGLINE",hero:"car",
   heads:[["WE BUY","CARS"],["CASH FOR","TRUCKS"],["WE OUTBID","THE DEALER"],["SELL YOUR","TRUCK"]],
   offer:"UP TO $25,000",offerSub:"CASH TODAY",
   promises:["FREE TOW","SAME DAY","LICENSED","TITLE OR NOT","RUNS OR NOT","WE COLLECT"],
   rows:[["F-150 / Silverado","$25,000","F-150"],["Tacoma / Ranger","$21,500","TACOMA"],
         ["4Runner / Tahoe","$19,800","4RUNNER"],["Civic / Corolla","$12,400","CIVIC"],
         ["Sprinter / Transit","$23,000","SPRINTER"]],
-  cta:"GET AN INSTANT OFFER",phone:"(562) 999-4994",addr:"Long Beach · Carson",
+  cta:"GET AN INSTANT OFFER",phone:"(562) 999-4994",addr:"yourname.com · Your City",
   quote:"Old Civic gone the same day, cash in hand.",
-  quoteBy:"Jordan K. · Long Beach",rating:"4.9★ · 200+ SELLERS",
-  steps:[["SEND VIN","Dash photo. Done."],["GET OFFER","Firm number, fast."],
+  quoteBy:"Jordan K. · Long Beach, CA",rating:"4.9 · 200+ SELLERS",
+  steps:[["SEND VIN","Dash photo. Done."],["SEE THE NUMBER","Firm figure, fast."],
          ["FREE TOW","We tow, you bank."]],
   subject:{brand:['car'],cond:'any'}}          // "runs or not": a damaged car is on-message
 };
@@ -213,7 +357,10 @@ const QUEUE=[
   ['diagonalSplit','Diagonal split','angled two-tone divide','Breaks the rectangle so the eye travels instead of scanning rows.']]],
  ['Hero',[
   ['photoHero','Real photography','approved product cutout instead of vector art','A photograph of the actual thing stops a thumb; a diagram of it does not.'],
+ ['showcase','Device wall','a wall of devices at one angle, each screen carrying palette artwork','The reference genre: for a shop that buys these devices, the product is the pattern.'],
  ['stickers','Prop dressing','banded cash and boxed stock in the empty corners','Fills the holes a cutout leaves with things the shop actually hands over.'],
+ ['duo','More units','up to two more cutouts of the named model, other angles or colours','The ads that get rated well show the device two or three times, not once.'],
+ ['arrow','Arrow','a drawn arrow from the price to the product','Six of the owner\'s twenty-eight good references draw one; none of the bad ones do.'],
  ['hero','Product hero','device or vehicle art','The subject. Without it the card is a price list.'],
   ['heroBleed','Bleed off the edge','crosses one edge by 6–14%','The single biggest anti-blandness move — implies the product continues past the frame.'],
   ['heroRotate','Angle the hero','6–24° rotation','Diagonal beats orthogonal. A straight product reads as a catalogue photo.'],
@@ -242,7 +389,11 @@ const QUEUE=[
 ];
 const ALLKEYS=QUEUE.flatMap(g=>g[1].map(t=>t[0]));
 const KEYMETA={}; QUEUE.forEach(g=>g[1].forEach(t=>KEYMETA[t[0]]={group:g[0],name:t[1],fx:t[2],purpose:t[3]}));
-const DEFAULT_CFG=()=>Object.fromEntries(ALLKEYS.map(k=>[k,true]));
+/* Most devices are on unless a card turns them off. A few are the opposite:
+   the showcase ground replaces the whole background, so it is a theme you
+   choose rather than the default dress. */
+const OFF_BY_DEFAULT=new Set(['showcase']);
+const DEFAULT_CFG=()=>Object.fromEntries(ALLKEYS.map(k=>[k,!OFF_BY_DEFAULT.has(k)]));
 
 /* ══════════════════════════════════════════════════════════
    6 · CARD BUILDER
@@ -250,8 +401,8 @@ const DEFAULT_CFG=()=>Object.fromEntries(ALLKEYS.map(k=>[k,true]));
 /* What sits in front of what. Anything unlisted is content and paints at 0. */
 const Z={field:-60,ground:-60,hero:-30,plate:-10,shape:-10,sheen:-5,badge:20};
 class Card{
-  constructor(W,H,P,F,R,C,cfg,key,vertical){
-    Object.assign(this,{W,H,P,F,R,C,cfg,key,vertical});
+  constructor(W,H,P,F,R,C,cfg,key,vertical,arch,sizeKey){
+    Object.assign(this,{W,H,P,F,R,C,cfg,key,vertical,arch,sizeKey});
     this.S=Math.min(W,H);
     /* LAYERS CARRY A DEPTH, NOT JUST AN ORDER.
        Every "why is that on top of the text" bug came from paint order being an
@@ -274,6 +425,13 @@ class Card{
      picked a corner that looked empty, and then the price ladder was drawn
      into the space underneath it. */
   defer(fn){this.later.push(fn);}
+  /* the largest size at which EVERY item in a set still fits its own box —
+     a set drawn at one size reads as a set */
+  fitAll(items){
+    let m=Infinity;
+    for(const it of items){const p=this.plan(it.str,it.box,it.opt);if(p.size<m)m=p.size;}
+    return m===Infinity?undefined:m;
+  }
   /* The first y a layout may use. The corner lockup owns the top-left strip;
      archetypes that started their headline at a fixed fraction were landing on
      it whenever the type ran large. Asked once, honoured everywhere. */
@@ -312,7 +470,12 @@ class Card{
        out loud rather than silently setting six-point type. */
     const floor=this.S*.021/(o.capRatio||(faceMetrics(face,weight)||{cap:.72}).cap);
     let condense=0;
-    if(!o.size&&size<floor){
+    /* THE FLOOR IS UNIVERSAL. It used to apply only when the caller had not
+       named a size, so any code that computed its own size — a headline from
+       its leading, a set equalised to its smallest member — could quietly land
+       under it. Equalising the promise pills drove 32 cards under the floor
+       that way before this was made unconditional. */
+    if(size<floor){
       const want=unit*floor;
       if(want<=box.w*1.22){size=floor;condense=box.w/want;}
       else{size=box.w/unit;this.note(`tight: "${String(str).slice(0,22)}" needs ${(want/box.w*100|0)}% of its box at the legible floor`);}
@@ -344,8 +507,14 @@ class Card{
        TOP / BUYER cannot fill a wide box at a fixed leading, so a square poster
        was left with a quarter of itself empty; set to the measure they become
        the artwork. Capped at 4x so a one-letter line is never smeared. */
-    const measure=o.measure&&ratio>1&&ratio<=4;
-    const snap=measure||((o.fit!==false)&&this.on('fitToPlate')&&ratio>=.70&&ratio<=1.60);
+    /* Letter-spacing has its own limits, and they are TIGHT. Allowed to carry
+       a 45% shortfall it turned "$700" into "$ 7 0 0" and the phone number
+       into a dotted line — the stretch had simply moved from inside the
+       letters to between them. Filling a plate is worth a nudge and nothing
+       more: past that the run is set at its natural width and the space is
+       left as space, which is what the space was for. */
+    const measure=o.measure&&ratio>1&&ratio<=1.35;
+    const snap=measure||((o.fit!==false)&&this.on('fitToPlate')&&ratio>=.92&&ratio<=1.12);
     const realW=(snap||condense)?box.w:Math.min(box.w,natural);
     const ext=ink0;
     const top=ext?y-ext.up*size:box.y;
@@ -359,8 +528,18 @@ class Card{
     const fill=o.fill||this.P.ink;
     /* condensing is a containment guarantee, so it applies whether or not the
        fitToPlate look is switched on for this configuration */
+    /* COSMETIC FITTING NEVER DISTORTS THE LETTERFORMS.
+       Both paths used to set lengthAdjust="spacingAndGlyphs", which scales the
+       glyphs themselves — so fourteen runs a card were drawn at anywhere from
+       70% to 160% of their true width. One family stretched three different
+       amounts on one card reads as three different typefaces, which is exactly
+       what the owner saw: "the text is very stretched and it is not unified
+       type faces". Fitting a run to its plate is a nicety and now moves only
+       the SPACE between letters. Only `condense` — the containment guarantee
+       that holds the legibility floor, where the alternative is type too small
+       to read — may squeeze the glyphs, and only inward. */
     const tl=(condense&&condense<1)?` textLength="${box.w.toFixed(1)}" lengthAdjust="spacingAndGlyphs"`
-            :snap?` textLength="${box.w.toFixed(1)}" lengthAdjust="spacingAndGlyphs"`:'';
+            :snap?` textLength="${box.w.toFixed(1)}" lengthAdjust="spacing"`:'';
     const ls=tr?` letter-spacing="${(tr*size).toFixed(2)}"`:'';
     const base=`font-family="${face}, sans-serif" font-weight="${weight}" font-size="${size.toFixed(1)}" text-anchor="${anchor}"`;
     const useStroke=o.stroke&&this.on('outlineStroke');
@@ -387,6 +566,22 @@ class Card{
     return box;
   }
   raw(m,n){this.add(m,n);}
+  /* IS THIS RECTANGLE FREE?
+     Devices that seat themselves — a row of marks dropped into a gap — were
+     trusting the gap they were handed. A gap measured on a 20px grid, then
+     clamped to a margin, is not a promise: the row of trust marks came down
+     across "iPhones.LA · SAME DAY CASH" on 42 of 432 cards because nothing
+     ever asked. Anything that seats itself asks this first. */
+  clear(box,pad){
+    const p=pad||0, b={x:box.x-p,y:box.y-p,w:box.w+p*2,h:box.h+p*2};
+    const OCCUPIED=new Set(['badge','plate','cta','data','proof','brand','footer','hero','offer','headline']);
+    return !this.nodes.some(n=>{
+      if(!n.box||n.box.w<=0||n.box.h<=0)return false;
+      if(n.type!=='text'&&!OCCUPIED.has(n.role))return false;
+      return Math.min(b.x+b.w,n.box.x+n.box.w)>Math.max(b.x,n.box.x)
+          && Math.min(b.y+b.h,n.box.y+n.box.h)>Math.max(b.y,n.box.y);
+    });
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -413,6 +608,136 @@ D.starburst=(c,cx,cy,r,pts,inner,rot,fill,stroke)=>{
      solid:{x:cx-r*inner,y:cy-r*inner,w:r*inner*2,h:r*inner*2},
      star:{cx,cy,r,pts,inner,rot}});
   return{x:cx-r,y:cy-r,w:r*2,h:r*2};
+};
+/* A PRICE TAG: the seal's fallback. Two lines on a rounded plate, on the seat
+   the seal search already cleared, painted at the seal's depth. It is what a
+   card gets when the star would have had to drop its phrase to fit. */
+D.priceTag=(c,cx,cy,w,lines,fill)=>{
+  const h=w*.58,x=cx-w/2,y=cy-h/2,ink=onColor(fill,c.P);
+  c.add(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${(h*.16).toFixed(1)}" fill="${fill}" stroke="${c.P.dark}" stroke-width="${(w*.03).toFixed(1)}"/>`,
+    {type:'shape',id:'priceTag',box:{x,y,w,h},role:'badge',fill});
+  c.text(lines[0],{x:x+w*.08,y:y+h*.10,w:w*.84},{...numFace(c),align:'middle',fill:ink,on:fill,id:'offer',role:'offer',max:h*.44,z:Z.badge+1});
+  if(lines[1])c.text(lines[1],{x:x+w*.08,y:y+h*.62,w:w*.84},{face:c.F.body,wf:c.F.bw,weight:800,align:'middle',fill:ink,on:fill,id:'offerSub',role:'offer',max:h*.27,tracking:.03,z:Z.badge+1});
+};
+/* A ROW OF MARKS. Four to six of the shop's category icons on one line —
+   the device that fills the slot the banned second pill row used to take, and
+   the imagery the reference audit says GOOD ads carry and the engine did not. */
+function stripKeys(c){
+  const seen=[];const add=k=>{if(k&&!seen.includes(k)&&ICONS[k])seen.push(k);};
+  (c.C.promises||[]).forEach(t=>add(iconFor(t,c.vertical)));
+  (c.vertical==='cars'?['carSide','cashTag','boltFast','shieldTick','keyFob']:['phone','cashTag','boltFast','lock','sealedBox','shieldTick']).forEach(add);
+  return seen.slice(0,c.vertical==='cars'?5:6);
+}
+/* the strip's height, named once. The guard that decides whether a band can
+   take a strip used to be a round S*.075 while the strip itself drew at
+   S*.064 — so a genuinely roomy 80px band was refused for being 1px under a
+   threshold that was 12px taller than the thing it gated. */
+const STRIP_H=c=>c.S*.064;
+/* WHERE A ROW OF MARKS CAN ACTUALLY GO.
+   Handing the strip the largest COVERAGE hole was the mistake: that grid counts
+   the ground and the field as empty, so "the biggest gap" was often a band that
+   already had the wordmark in it. This scans only what a reader would see
+   collide — every line of type and every solid shape, padded — and returns the
+   widest horizontal band inside the safe margins that is genuinely free at the
+   strip's own height. If it returns nothing, there is nowhere to put it, and
+   the honest answer is not to draw one. */
+function stripSeat(c,minW,hWant){
+  const h=hWant||STRIP_H(c), sr=safeRect(c.W,c.H), cell=10, pad=h*.12;
+  const cols=Math.ceil(c.W/cell), rows=Math.ceil(c.H/cell);
+  const g=new Uint8Array(cols*rows);
+  const mark=(x0,y0,x1,y1)=>{
+    for(let y=Math.max(0,Math.floor(y0/cell));y<Math.min(rows,Math.ceil(y1/cell));y++)
+      for(let x=Math.max(0,Math.floor(x0/cell));x<Math.min(cols,Math.ceil(x1/cell));x++)g[y*cols+x]=1;};
+  /* anything outside the crop margin is not a seat */
+  mark(0,0,c.W,sr.y); mark(0,sr.y+sr.h,c.W,c.H);
+  mark(0,0,sr.x,c.H); mark(sr.x+sr.w,0,c.W,c.H);
+  const OCCUPIED=new Set(['badge','plate','cta','data','proof','brand','footer','hero','offer','headline']);
+  c.nodes.forEach(n=>{
+    if(!n.box||n.box.w<=0||n.box.h<=0)return;
+    if(n.type!=='text'&&!OCCUPIED.has(n.role))return;
+    mark(n.box.x-pad,n.box.y-pad,n.box.x+n.box.w+pad,n.box.y+n.box.h+pad);
+  });
+  const need=Math.max(1,Math.ceil(h/cell));
+  let best=null;
+  for(let y=0;y+need<=rows;y++){
+    let run=0;
+    for(let x=0;x<=cols;x++){
+      let free=x<cols;
+      if(free)for(let k=0;k<need;k++)if(g[(y+k)*cols+x]){free=false;break;}
+      if(free){run++;continue;}
+      if(run*cell>=minW){const b={x:(x-run)*cell,y:y*cell,w:run*cell,h};
+        if(!best||b.w*b.h>best.w*best.h)best=b;}
+      run=0;
+    }
+  }
+  return best;
+}
+D.iconStrip=(c,y,keys,o={})=>{
+  const {W,P}=c,n=keys.length; if(n<3)return false;
+  const x=o.x!=null?o.x:W*.05, w=o.w!=null?o.w:W-W*.10;
+  /* a row of marks may be set smaller to fit the band it was given, but never
+     so small it stops reading as a mark */
+  const sz=Math.max(o.sz||STRIP_H(c),c.S*.042),gap=(w-n*sz)/(n-1);
+  /* Returns whether it drew. The caller that could not fit a product used to
+     fall through to a strip spanning the WHOLE card whatever the gap was, so a
+     narrow gap at the top right put marks straight through the brand lockup. */
+  if(!c.clear({x,y,w,h:sz},sz*.10))return false;
+  const col=o.stroke||readable(P.accent,P.ground,P);
+  let m='';keys.forEach((k,i)=>{m+=iconSVG(k,x+i*(sz+gap),y,sz,col);});
+  c.add(m,{type:'shape',id:'iconStrip',box:{x,y,w,h:sz},role:'deco',fill:col});
+  return true;
+};
+/* AN ARROW FROM THE PRICE TO THE PRODUCT — six of the twenty-eight GOOD
+   references draw one; no BAD reference does. Drawn last, over empty ground
+   only: if the shortest path from the price to the product crosses a line of
+   type the arrow is not drawn. */
+D.arrow=(c)=>{
+  if(!c.on('arrow'))return;
+  /* from a PRICE — a seal that carries a figure, the tag, or a $ line — never
+     from a phrase seal; "SAME DAY" has nothing to point with */
+  const priced=n=>c.nodes.some(t=>t.type==='text'&&t.z>=Z.badge&&/\$\d/.test(t.str||'')&&inter(t.box,n.box)>0);
+  const hero=c.nodes.find(n=>n.role==='hero'); if(!hero)return;
+  const hb=hero.box;
+  /* Every price on the card is a candidate source — the seal if it carries a
+     figure, the offer line, the ladder's top price — and the first one that
+     stands clear of the product is the one that points. A seal already sitting
+     on the phone has nothing to point at; the reference arrows run from the
+     headline or the offer LINE to the product. */
+  const cands=[...c.nodes.filter(n=>(n.id==='badge'||n.id==='priceTag')&&priced(n)),
+               ...c.nodes.filter(n=>n.type==='text'&&(/offer/.test(n.id)||n.id==='rowPrice')&&/\$\d/.test(n.str||''))];
+  let from=null,fb=null,fc=null,ux=0,uy=0,tEnter=0,start=0;
+  for(const cand of cands){
+    const b=cand.box,ctr=[b.x+b.w/2,b.y+b.h/2], hc=[hb.x+hb.w*.5,hb.y+hb.h*.5];
+    const dx=hc[0]-ctr[0],dy=hc[1]-ctr[1],len=Math.hypot(dx,dy); if(len<c.S*.12)continue;
+    const vx=dx/len,vy=dy/len;
+    const slab=(o,w,u,i)=>{if(Math.abs(u)<1e-9)return[-Infinity,Infinity];const a=(o-ctr[i])/u,bb=(o+w-ctr[i])/u;return[Math.min(a,bb),Math.max(a,bb)];};
+    const [ex0,ex1]=slab(hb.x,hb.w,vx,0),[ey0,ey1]=slab(hb.y,hb.h,vy,1);
+    const tIn=Math.max(ex0,ey0),tOut=Math.min(ex1,ey1);
+    if(!(tIn<tOut)||tIn<=0)continue;                       // this price sits on the product already
+    const st=cand.type==='text'?Math.max(b.w,b.h)*.55:Math.min(b.w,b.h)*.62;
+    if(tIn-st<c.S*.10)continue;                            // too close to be worth pointing
+    from=cand;fb=b;fc=ctr;ux=vx;uy=vy;tEnter=tIn;start=st;break;
+  }
+  if(!from)return;
+  const p0=[fc[0]+ux*start,fc[1]+uy*start];
+  let p1=[fc[0]+ux*(tEnter-c.S*.015),fc[1]+uy*(tEnter-c.S*.015)];
+  /* the product may bleed off the card; the arrow does not follow it out */
+  const sr=safeRect(c.W,c.H),pad2=c.S*.03;
+  p1=[Math.min(Math.max(p1[0],sr.x+pad2),sr.x+sr.w-pad2),Math.min(Math.max(p1[1],sr.y+pad2),sr.y+sr.h-pad2)];
+  const L=Math.hypot(p1[0]-p0[0],p1[1]-p0[1]); if(L<c.S*.08)return;
+  const bend=c.S*.06*(c.R.f(0,1)<.5?1:-1), cx2=(p0[0]+p1[0])/2-uy*bend, cy2=(p0[1]+p1[1])/2+ux*bend;
+  const box={x:Math.min(p0[0],p1[0],cx2)-8,y:Math.min(p0[1],p1[1],cy2)-8,w:Math.abs(Math.max(p0[0],p1[0],cx2)-Math.min(p0[0],p1[0],cx2))+16,h:Math.abs(Math.max(p0[1],p1[1],cy2)-Math.min(p0[1],p1[1],cy2))+16};
+  /* every line on the card, the price's own included */
+  const words=c.nodes.filter(n=>n.type==='text');
+  if(words.some(t=>inter(box,t.box)>t.box.w*t.box.h*.02))return;
+  const solids=c.nodes.filter(n=>n.type==='shape'&&(n.id==='badge'||n.id==='priceTag'||n.id==='pill'||n.id==='row'||/^product\d$/.test(n.id)));
+  if(solids.some(n=>inter(box,n.solid||n.box)>Math.min(box.w*box.h,n.box.w*n.box.h)*.04))return;
+  const w=c.S*.014,head=c.S*.035,ang=Math.atan2(p1[1]-cy2,p1[0]-cx2);
+  const hp=[[p1[0],p1[1]],[p1[0]-Math.cos(ang-.5)*head,p1[1]-Math.sin(ang-.5)*head],[p1[0]-Math.cos(ang+.5)*head,p1[1]-Math.sin(ang+.5)*head]];
+  c.add(`<path d="M${p0[0].toFixed(1)} ${p0[1].toFixed(1)} Q${cx2.toFixed(1)} ${cy2.toFixed(1)} ${p1[0].toFixed(1)} ${p1[1].toFixed(1)}" fill="none" stroke="${c.P.dark}" stroke-width="${(w*1.9).toFixed(1)}" stroke-linecap="round"/>`+
+        `<path d="M${p0[0].toFixed(1)} ${p0[1].toFixed(1)} Q${cx2.toFixed(1)} ${cy2.toFixed(1)} ${p1[0].toFixed(1)} ${p1[1].toFixed(1)}" fill="none" stroke="${c.P.hot}" stroke-width="${w.toFixed(1)}" stroke-linecap="round"/>`+
+        `<path d="M${hp.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L')} Z" fill="${c.P.hot}" stroke="${c.P.dark}" stroke-width="${(w*.5).toFixed(1)}" stroke-linejoin="round"/>`,
+    {type:'shape',id:'arrow',box,role:'deco',bleed:true},Z.badge+2);   // thin ink: no fill recorded, so it is not hot AREA
 };
 D.tornPaper=(c,box,fill,seed)=>{
   const R=RNG(seed),segs=26;let p=`M${box.x} ${(box.y+box.h*.12).toFixed(1)} `;
@@ -456,16 +781,19 @@ D.sheen=(c,plate,color)=>{
   return box;
 };
 D.footerBar=(c)=>{
-  const {W,H,P,F,C}=c,h=H*.088,y=H-h;
+  /* sized to the SHORT edge — H*.088 made a 182px band on 9:16 — and the
+     number and address sit inside the 4.5% crop margin, where the old offsets
+     left the address 5px outside it on every format */
+  const {W,H,P,F,C}=c,h=c.S*.10,y=H-h;
   c.rect({x:0,y,w:W,h},P.dark,{id:'footer',bleed:true,role:'footer'});
   c.rect({x:0,y,w:W,h:H*.006},P.accent,{ghost:true,z:1});
   const pad=W*.05,ir=h*.30,cy=y+h*.5;
   c.raw(`<circle cx="${(pad+ir).toFixed(1)}" cy="${cy.toFixed(1)}" r="${ir.toFixed(1)}" fill="${P.accent}"/>`+
     `<g transform="translate(${(pad+ir*.38).toFixed(1)},${(cy-ir*.62).toFixed(1)}) scale(${(ir*1.24/24).toFixed(4)})">`+
     `<path d="M6.6 2.5c.9 0 1.6.6 1.8 1.4l.7 2.6c.2.7 0 1.4-.5 1.9L7.3 9.6c1.1 2.3 3 4.2 5.3 5.3l1.2-1.3c.5-.5 1.2-.7 1.9-.5l2.6.7c.8.2 1.4.9 1.4 1.8v2.4c0 1.1-.9 2-2 2C10.7 20 4 13.3 4 5.5c0-1.1.9-2 2-2h.6z" fill="${onColor(P.accent,P)}"/></g>`);
-  c.text(C.phone,{x:pad+ir*2+W*.022,y:cy-h*.30,w:W*.30},
-    {fill:P.paper,on:P.dark,id:'footerNum',role:'footer',max:h*.50});
-  c.text(C.addr,{x:W-pad-W*.40,y:cy-h*.12,w:W*.40},
+  c.text(C.phone,{x:pad+ir*2+W*.022,y:cy-h*.44,w:W*.30},
+    {...numFace(c),fill:P.paper,on:P.dark,id:'footerNum',role:'footer',max:h*.46});
+  c.text(C.addr,{x:W-pad-W*.40,y:cy-h*.30,w:W*.40},
     {face:F.body,wf:F.bw,weight:600,fill:readable(P.body,P.dark,P),on:P.dark,id:'footerAddr',role:'footer',
      capRatio:.70,min:c.S*.031});
 };
@@ -485,10 +813,11 @@ D.lockup=(c,corner)=>{
     else if(frame==='circle')c.add(`<circle cx="${(x+s/2).toFixed(1)}" cy="${(y+s/2).toFixed(1)}" r="${(s/2).toFixed(1)}" fill="${P.accent}"/>`,
       {type:'shape',id:'markPlate',box:{x,y,w:s,h:s},role:'brand',fill:P.accent});
     if(frame==='float')
-      c.text(C.mark,{x:x-s*.04,y:y+s*.08,w:s*1.08,h:s*.84},{align:'middle',fill:P.accent,on:P.ground,
-        stroke:P.dark,strokeW:.06,id:'mark',role:'brand'});
+      c.text(C.mark,{x:x-s*.04,y:y+s*.08,w:s*1.08,h:s*.84},{face:F.body,wf:F.bw,weight:900,
+        align:'middle',fill:P.accent,on:P.ground,stroke:P.dark,strokeW:.06,id:'mark',role:'brand'});
     else
-      c.text(C.mark,{x:x+s*.16,y:y+s*.26,w:s*.68,h:s*.48},{align:'middle',fill:onColor(P.accent,P),on:P.accent,id:'mark',role:'brand'});
+      c.text(C.mark,{x:x+s*.16,y:y+s*.26,w:s*.68,h:s*.48},{face:F.body,wf:F.bw,weight:900,
+        align:'middle',fill:onColor(P.accent,P),on:P.accent,id:'mark',role:'brand'});
   }
   if(!hasName)return;
   const nx=hasMark?x+s*1.22:x;
@@ -569,29 +898,59 @@ D.arcText=(c,str,cx,cy,r,fill,size,fit)=>{
   return true;
 };
 D.promises=(c,y,items,o={})=>{
+  /* the engine's own permanent negative bans more than three promise pills; two
+     archetypes drew six. The third pill and the next row are simply not drawn. */
+  c.pills=c.pills||0;
+  items=items.slice(0,Math.max(0,3-c.pills));
+  if(!items.length)return;
+  c.pills+=items.length;
   const {W,P,F}=c,pad=W*.05,gap=W*.018,n=items.length;
   const w=o.w||((W-pad*2-gap*(n-1))/n),h=o.h||c.S*.058;
+  const pOpt=t=>({face:F.body,wf:F.bw,weight:800,id:'promise',role:'proof',max:h*.50});
+  /* one size for every pill on the CARD — two rows sized independently is the
+     same sloppiness as one row sized per item, just harder to spot */
+  const thisRow=c.fitAll(items.map((t,i)=>{const x=pad+i*(w+gap),ic=h*.30;
+    return {str:t,box:{x:x+w*.07+ic+w*.03,y:0,w:w-(w*.07+ic+w*.03)-w*.04},opt:pOpt(t)};}));
+  c.pillSize=c.pillSize===undefined?thisRow:Math.min(c.pillSize,thisRow);
+  const pSize=c.pillSize;
   items.forEach((t,i)=>{
     const x=pad+i*(w+gap),bg=o.bg||P.paper;
     c.rect({x,y,w,h},bg,{r:h*.5,id:'pill',role:'proof'});
     const ic=h*.30,cxp=x+w*.07;
-    c.raw(`<g transform="translate(${cxp.toFixed(1)},${(y+h/2-ic/2).toFixed(1)}) scale(${(ic/24).toFixed(4)})"><path d="M4 12.5l5 5 11-11" fill="none" stroke="${P.accent}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>`);
+    /* the benefit's own mark, not a generic tick — an icon per bullet is the
+       GOOD set's most common secondary imagery */
+    const key=iconFor(t,c.vertical),isz=ic*2.0,stroke=/paper|#F/i.test(bg)?readable(P.accent,bg,P):onColor(bg,P);
+    c.raw(iconSVG(key,cxp-ic*.35,y+h/2-isz*.5,isz,stroke));
     c.text(t,{x:x+w*.07+ic+w*.03,y:y+h*.29,w:w-(w*.07+ic+w*.03)-w*.04},
-      {face:F.body,wf:F.bw,weight:800,fill:onColor(bg,P),on:bg,id:'promise',role:'proof',capRatio:.70,max:h*.50});
+      {face:F.body,wf:F.bw,weight:800,fill:onColor(bg,P),on:bg,id:'promise',role:'proof',max:h*.50,size:pSize});
   });
   return{x:pad,y,w:W-pad*2,h};
 };
 D.cta=(c,y,kind,color)=>{
-  const {W,H,P,C}=c,pad=W*.05,col=color||P.hot;
+  /* ONE HOT THING PER CARD. The seal and the call to action were both painted
+     in P.hot, and on a square crop the two together came to 15.4% against the
+     14% ceiling — the seal 9.8%, the button 5.6%. The seal is the shout; the
+     call to action is an instruction and takes the accent. */
+  const {W,H,P,C}=c,pad=W*.05,col=color||P.accent;
   if(kind==='band'){
     const h=H*.072,plate=c.rect({x:0,y,w:W,h},col,{id:'ctaBand',bleed:true,role:'cta',fill:col});
     D.sheen(c,plate,'#FFFFFF');
-    c.text(C.cta,{x:pad,y:y+h*.28,w:W-pad*2},{fill:onColor(col,P),on:col,align:'middle',id:'ctaText',role:'cta',max:h*.62});
+    /* CENTRE THE WORDS IN THE BUTTON. Offsetting the top by .28h and letting
+       the ink fall where it may left the label sitting low in its own plate —
+       28% of clearance above, 14% below. On a square crop that 5px of droop
+       was enough to push the longest call to action ("GET A BROKEN-PHONE
+       QUOTE") down into the footer band. Handing plan() the plate's height
+       centres the ink in it, which is what a button has always meant, and it
+       moves no opaque shape — the earlier attempt to clamp the plate upward
+       instead put it over the copy above on all 48 square ticketOffer cards. */
+    c.text(C.cta,{x:pad,y,w:W-pad*2,h},{face:c.F.body,wf:c.F.bw,weight:900,
+      fill:onColor(col,P),on:col,align:'middle',id:'ctaText',role:'cta',max:h*.62});
     return plate;
   }
   const w=W-pad*2,h=H*.062,plate=c.rect({x:pad,y,w,h},col,{r:h*.22,id:'ctaBtn',role:'cta',fill:col});
   D.sheen(c,plate,'#FFFFFF');
-  c.text(C.cta,{x:pad+w*.08,y:y+h*.28,w:w*.84},{fill:onColor(col,P),on:col,align:'middle',id:'ctaText',role:'cta',max:h*.60});
+  c.text(C.cta,{x:pad+w*.08,y,w:w*.84,h},{face:c.F.body,wf:c.F.bw,weight:900,
+    fill:onColor(col,P),on:col,align:'middle',id:'ctaText',role:'cta',max:h*.60});
   return plate;
 };
 /* A REAL PRODUCT, FITTED TO ITS BOX.
@@ -617,9 +976,21 @@ D.photo=(c,box,rot,pick,o={})=>{
      R4 asks for without half of it disappearing. So a hero is held to a minimum
      footprint against the card itself, not against the box it was offered. */
   if(o.min!==false){
-    const want=Math.min(c.W,c.H)*(o.minShare||.56);
+    /* heroBoost: renderClean's answer to a coverage miss — a bigger product,
+       not a dropped ornament (dropping only ever lowers coverage) */
+    /* heroBoost may be a NUMBER. renderClean escalates it: a card that is
+       clean but short of picture gets more picture, and one step of 16% is not
+       always enough to clear the floor. */
+    const boost=(c.cfg&&c.cfg.heroBoost)?(+c.cfg.heroBoost>1?+c.cfg.heroBoost:1.16):1;
+    const want=Math.min(c.W,c.H)*(o.minShare||.48)*boost;
     const got=Math.max(pick.w,pick.h)*sc;
     if(got<want)sc*=want/got;
+    /* and by area: a 187px-wide phone at .56 of the short edge is a sliver
+       that leaves the card at 55% coverage — hold the picture to 12% of the
+       canvas, with the long side capped so nothing becomes absurd */
+    const area=pick.w*pick.h*sc*sc, need=c.W*c.H*.095*boost*boost;
+    if(area<need){const k=Math.sqrt(need/area), capK=(c.S*.82)/(Math.max(pick.w,pick.h)*sc);
+      sc*=Math.min(k,Math.max(1,capK));}
   }
   const w=pick.w*sc, h=pick.h*sc;
   /* Hold the edge the layout was reaching for. These boxes are positioned to
@@ -637,7 +1008,7 @@ D.photo=(c,box,rot,pick,o={})=>{
      measured only against a small picture never reached it. */
   const over=(iw,limit)=>Math.max(iw*.16,limit*.075);
   const pin=(bx,bw,iw,limit)=>{
-    const o2=Math.min(over(iw,limit),iw*.42);      // never lose half the product
+    const o2=Math.min(over(iw,limit),iw*.28);      // never lose more than a quarter of the product
     if(bx<0)return -o2;
     if(bx+bw>limit)return limit-iw+o2;
     return bx+(bw-iw)/2;
@@ -649,14 +1020,26 @@ D.photo=(c,box,rot,pick,o={})=>{
      small picture pinned by a share of ITSELF can end up overhanging by less
      than the card asks, which is not "inside" and so never triggered a nudge. */
   if(o.bleed!==false){
-    const need=.065;
+    /* both axes can overhang at once; hold the product to ≥75% on-card */
+    const share=()=>(Math.max(0,Math.min(x+w,c.W)-Math.max(x,0))*Math.max(0,Math.min(y+h,c.H)-Math.max(y,0)))/(w*h);
+    for(let k=0;k<6&&share()<.75;k++){
+      if(x<0)x+=(-x)*.5; else if(x+w>c.W)x-=(x+w-c.W)*.5;
+      if(y<0)y+=(-y)*.5; else if(y+h>c.H)y-=(y+h-c.H)*.5;
+    }
+    /* a tall narrow cutout — a phone seen straight on is 187px wide — cannot
+       cross the edge by 6.5% of a 1080px card and keep three quarters of
+       itself on the card; it would need to be 37% off. So the bleed a hero
+       owes is the smaller of 6.5% of the card and a quarter of its own width,
+       and R4 is held to the same definition. */
+    const need=Math.min(.065,Math.max(w*.25/c.W,.03));
     const outL=-x/c.W, outR=(x+w-c.W)/c.W, outT=-y/c.H, outB=(y+h-c.H)/c.H;
     if(Math.max(outL,outR,outT,outB)<need){
       const side=[[outL,'l'],[outR,'r'],[outT,'t'],[outB,'b']].sort((a,b)=>b[0]-a[0])[0][1];
-      if(side==='l')x=-c.W*need;
-      else if(side==='r')x=c.W*(1+need)-w;
-      else if(side==='t')y=-c.H*need;
-      else y=c.H*(1+need)-h;
+      const nd=need*1.08;                       // just past the boundary, never on it
+      if(side==='l')x=-c.W*nd;
+      else if(side==='r')x=c.W*(1+nd)-w;
+      else if(side==='t')y=-c.H*nd;
+      else y=c.H*(1+nd)-h;
     }
   }
   const cx=x+w/2, cy=y+h/2;
@@ -725,6 +1108,20 @@ D.split=(c,color)=>{
    ══════════════════════════════════════════════════════════ */
 function ground(c,mode){
   const {W,H,P}=c;
+  /* A WALL OF THE THING WE BUY. The showcase grounds put devices at one angle
+     across the whole card, each screen carrying artwork drawn from this card's
+     palette. It is the reference genre the owner sent, and for a shop that buys
+     these exact devices the product is also the pattern. */
+  if(c.on('showcase')&&mode!=='flat'){
+    const lay=c.cfg&&c.cfg.showcaseLayout;
+    const keys=Object.keys(SHOWCASE_LAYOUTS);
+    c.rect({x:0,y:0,w:W,h:H},P.ground,{ghost:true,z:-90});
+    drawShowcase(c,{x:0,y:0,w:W,h:H},{
+      layout:lay&&SHOWCASE_LAYOUTS[lay]?lay:keys[c.R.i(0,keys.length-1)],
+      brand:c.C.brand,
+      fade:c.cfg&&c.cfg.showcaseFade!==undefined?c.cfg.showcaseFade:.26});
+    return;
+  }
   if(!c.on('groundGradient')||mode==='flat'){c.rect({x:0,y:0,w:W,h:H},P.ground,{ghost:true,z:-90});return;}
   const id=c.id('bg');
   c.def(`<radialGradient id="${id}" cx="${mode==='pool'?'34%':'50%'}" cy="${mode==='pool'?'38%':'30%'}" r="78%"><stop offset="0" stop-color="${P.ground2}"/><stop offset="1" stop-color="${P.ground}"/></radialGradient>`);
@@ -745,12 +1142,17 @@ function placeHero(c,box,rot){
   /* Photography when we have an approved cutout for this subject; the vector
      stays as the fallback so the engine still renders with no asset index. */
   if(c.on('photoHero')){
-    const pick=pickAsset(c,assetsFor(c,c.vertical));
+    const pick=pickAsset(c,assetsFor(c,c.vertical),0,{pin:c.cfg&&c.cfg.heroAsset});
     if(pick)return D.photo(c,b,turn,pick);
   }
   return D.hero(c,b,turn,c.C.hero);
 }
 function headline(c,lines,box,o={}){
+  /* an ornamental display face gets the words only if there are few of them;
+     past that the body face carries the line and the display face keeps its
+     job as the first thing the eye lands on, not the thing it has to decode */
+  if(!o.face&&ORNAMENTAL.has(c.F.display)&&lines.join(' ').split(/\s+/).length>3)
+    o={...o,face:c.F.body,weight:900};
   const gap=box.h*.06,lh=(box.h-gap*(lines.length-1))/lines.length;
   let y=box.y;
   /* PLAN THE WHOLE STACK, THEN PAINT IT.
@@ -760,13 +1162,21 @@ function headline(c,lines,box,o={}){
   const set=lines.map((ln,i)=>{
     const onPlate=o.plateIndex===i&&o.plateColor;
     const back=onPlate?o.plateColor:(o.on||c.P.ground);
-    const opt={fill:onPlate?onColor(o.plateColor,c.P):(o.fill||c.P.ink),
+    const opt={fill:onPlate?onColor(o.plateColor,c.P):((i===1&&o.line1Fill)||o.fill||c.P.ink),
       stroke:o.stroke,shadow:o.shadow,strokeW:o.strokeW,on:back,align:o.align,
-      id:'headline'+i,role:'headline',capRatio:.74,measure:o.measure,
+      id:'headline'+i,role:'headline',measure:o.measure,
       /* the line is as big as its box allows in BOTH axes — the old estimate
          multiplied a bad average-width constant by a 1.35 fudge factor, which
-         is why headlines came out wider than the bars drawn behind them */
-      size:lh/.74};
+         is why headlines came out wider than the bars drawn behind them.
+         The cap ratio is the FACE'S OWN: hard-coding .74 was true of the four
+         families the engine arrived with and wrong for the sixteen approved
+         ones, whose caps run .71 to .77 — enough to drop a baseline into the
+         line beneath it. */
+      /* sized so the line's INK fits the leading, not just its cap height: a
+         face with real descenders drew a stack whose lines overlapped, and the
+         collision rule was right to fail it */
+      size:lh/(()=>{const m=faceMetrics(o.face||c.F.display,o.weight||c.F.dweight);
+        return m?Math.max(m.cap,m.cap+m.desc*.92):.86;})()};
     /* A line that is going to get a bar must leave room for it, otherwise the
        bar — now cut to the words — grows past the edge of the card. The pad is
        known from the leading before the type is planned, so inset first and the
@@ -783,7 +1193,7 @@ function headline(c,lines,box,o={}){
   if(o.plateDraw)set.forEach(t=>{
     if(!t.onPlate)return;
     const padX=t.plan.cap*.30,padY=Math.min(t.plan.cap*.26,(lh+gap-t.plan.box.h)/2);
-    const m=c.W*.012;                                  // stay inside the safe area
+    const m=MARGIN*c.S;                                // stay inside the safe area
     const x0=Math.max(m,t.plan.box.x-padX), x1=Math.min(c.W-m,t.plan.box.x+t.plan.box.w+padX);
     o.plateDraw(c,{x:x0,y:t.plan.box.y-padY,w:x1-x0,h:t.plan.box.h+padY*2});
   });
@@ -796,7 +1206,13 @@ function sealOnHero(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
   c.defer(()=>placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy));
   return null;
 }
-function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
+function placeSeal(c,hero,r,pts,text,sub0,fill,corner,maxCy,minCx,minCy){
+  let sub=sub0;
+  if(text==='@phrase'){
+    const ph=sealPhrase(c);
+    if(!ph){c.note('seal: every phrase would repeat a line on the card, not drawn');return null;}
+    text=ph[0];sub=ph[1];
+  }
   /* r is re-chosen below when every seat is occupied */
   const P=c.P,d=r*.106;
   let cx,cy;
@@ -825,16 +1241,33 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
      print over the sentence. */
   let rot=0;
   {
-    const words=c.nodes.filter(n=>n.type==='text'&&n.box.w>0);
+    /* A ROW OF TRUST MARKS IS AS MUCH "SOMETHING THE READER LOSES" AS A LINE
+       OF WORDS. The seal is placed last and was scored against text alone, so
+       it parked itself on the icon strip on 42 cards — the words survived, the
+       marks were eaten. Anything solid the card has already committed to
+       counts against the seat. */
+    /* ...AND NOT A PHOTOGRAPH EITHER. A second product unit is placed before
+       the seal is deferred, so the seal — scored against words alone — sat
+       squarely on top of one on 69 of 432 cards, one of them covering it
+       ENTIRELY: a phone paid for, placed, and then hidden. The hero is the
+       exception and stays out of this list, because biting into the hero is
+       the seal's whole job (R6 asks for 6-32% of it). */
+    const words=c.nodes.filter(n=>n.box&&n.box.w>0&&n.box.h>0&&
+      (n.type==='text'||n.id==='iconStrip'||/^product\d$/.test(n.id)));
     /* Fix the rotation before searching. The seal is drawn at a random angle,
        so scoring seats against an unrotated star was scoring a different shape
        from the one that gets painted — enough to pick a seat whose point then
        lands across a line. */
     rot=c.R.f(-.40,-.14);
-    const cost=(X,Y,rr)=>words.reduce((s,t)=>
-      s+starCover(t.box,{cx:X,cy:Y,r:rr,pts,inner:.80,rot}),0);
-    const lim=(X,Y,rr)=>[Math.min(Math.max(X,rr+c.W*.015),c.W-rr-c.W*.015),
-                         Math.min(Math.max(Y,rr+c.H*.015),c.H*.885-rr)];
+    /* the polygon is sampled on an 8×8 grid of the text box; a wide line can
+       hide a sliver of the disc between samples and R7 then finds it. The
+       inner square's plain intersection is added as a second, unsampled term. */
+    const cost=(X,Y,rr)=>words.reduce((s,t)=>{
+      const sq={x:X-rr*.57,y:Y-rr*.57,w:rr*1.14,h:rr*1.14};        // inscribed square of the inner disc
+      return s+starCover(t.box,{cx:X,cy:Y,r:rr,pts,inner:.80,rot})+inter(sq,t.box)/(t.box.w*t.box.h);},0);
+    const mg=MARGIN*c.S;
+    const lim=(X,Y,rr)=>[Math.min(Math.max(X,rr+mg),c.W-rr-mg),
+                         Math.min(Math.max(Y,rr+mg),c.H*.885-rr)];
     /* Cost is words lost. Distance from the seat the designer asked for is a
        tie-breaker only, so the seal keeps its intended corner whenever that
        corner is free and gives it up when it is not. */
@@ -870,7 +1303,14 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
     };
     /* a seal that cannot find a clean seat at full size is better small than
        printed across a sentence */
-    for(const rr of [r,r*.92,r*.84,r*.78]){
+    /* never shrink below the radius that can still carry two legible lines —
+       a seat found by shrinking the seal to where its phrase no longer fits is
+       not a seat, it is a refusal with extra steps */
+    const rMin=(c.S*.021/((faceMetrics(c.F.display,c.F.dweight)||{cap:.72}).cap))/(.215*.80*1.38);
+    /* The size the layout asked for first, then smaller, and only then bigger.
+       Leading with the grown radius made every seal grow whether it needed to
+       or not, and the hot colour blew past its 14% ceiling on 40 cards. */
+    for(const rr of [r,r*.92,r*.84,r*.78,r*1.08,r*1.16].filter((rr,i)=>i===0||i>=4||rr>=rMin)){
       consider(cx,cy,rr,0);
       /* Seats ON THE PRODUCT'S EDGE. Four corners was enough while the hero was
          a vector that filled its box; a photograph is contained inside its box
@@ -898,10 +1338,38 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
         consider(c.W*(.10+gx*.133),c.H*(.12+gy*.118),rr,.02);
     }
     if(best){cx=best.X;cy=best.Y;r=best.rr;}
-    if(best&&best.cost>.02)c.note(`seal still costs ${(best.cost*100).toFixed(0)}% of a line`);
+    /* NO CLEAN SEAT, NO SEAL. The search used to take the least-bad seat and
+       paint the star over 13% of a line; the second opinion then failed the
+       card. A price seal tries again as the smaller tag rectangle, which fits
+       where a star cannot; if even that covers words, the price is left to the
+       card's other carriers and the must-have rule decides. */
+    if(best&&best.cost>.02){
+      const money=String(text).replace(/^UP TO\s+/,'');
+      if(/\$\d/.test(money)){
+        const tw=r*1.36,th=tw*.58;
+        let tb=null;
+        const tcost=(X,Y)=>words.reduce((s2,t)=>s2+inter({x:X-tw/2,y:Y-th/2,w:tw,h:th},t.box)/(t.box.w*t.box.h),0);
+        for(let gx=0;gx<=8;gx++)for(let gy=0;gy<=8;gy++){
+          const mg2=MARGIN*c.S;
+          const X=Math.min(Math.max(c.W*(.08+gx*.105),tw/2+mg2),c.W-tw/2-mg2), Y=Math.min(Math.max(c.H*(.10+gy*.095),th/2+mg2),c.H*.885-th/2);
+          const k=tcost(X,Y)*4+grip(X,Y,r)*.5+Math.hypot(X-want[0],Y-want[1])/c.S*.03;
+          if(!tb||k<tb.k)tb={k,X,Y,cost:tcost(X,Y)};
+        }
+        if(tb&&tb.cost<=.01){
+          const preT=/^UP TO/.test(String(text))&&hasLadder(c)?'UP TO':(hasLadder(c)?'':(leadTag(c.C)||''));
+          D.priceTag(c,tb.X,tb.Y,tw,[money,preT],fill);
+          c.note('seal: no clean seat for the star; price tag placed instead');
+          return null;
+        }
+      }
+      c.note(`seal: no clean seat (best still covers ${(best.cost*100).toFixed(0)}% of a line), not drawn`);
+      return null;
+    }
   }
-  const b=D.starburst(c,cx,cy,r,pts,.80,rot,fill,P.dark);
-  const money=text.replace(/^UP TO\s+/,''), pre=money===text?null:'UP TO';
+  let money=text.replace(/^UP TO\s+/,''), pre=money===text?null:'UP TO';
+  /* a price seal on a card with no ladder is bounded by the lead model instead
+     of by "UP TO", which bounds nothing */
+  if(pre&&!hasLadder(c)){pre=null;sub=leadTag(c.C)||sub;}
   const ink=onColor(fill,P);
   /* A STAR IS NOT ITS BOUNDING BOX. The three lines were fitted to b, the full
      outer box of the points, so the number ran out past the tips — measured at
@@ -917,8 +1385,14 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
   /* R8 measures CAP height (size * capRatio), not the font size, so the floor a
      row must clear in font terms is 2% / 0.72 with a little margin. */
   const floor=c.S*.021/((faceMetrics(c.F.display,c.F.dweight)||{cap:.72}).cap);
-  const plan=[[3,.150,.300,.135],[2,.190,.380,0],[1,0,.520,0]];
-  let pick=plan[plan.length-1];
+  /* Two lines fit a seal of this size; three do not, and the old budget's
+     small lines (.150, .190 of the side) never cleared the legibility floor,
+     so 251 of 288 seals silently fell to ONE line — a bare "$1,250" with its
+     "UP TO" gone, or "SAME" with its "DAY" gone. A seal that cannot carry its
+     phrase is not drawn at all; the card's must-have rule then says whether the
+     offer survives elsewhere. */
+  const plan=[[3,.200,.300,.170],[2,.215,.360,0]];
+  let pick=null;
   for(const p2 of plan){
     const want=p2[0];
     if(want===3&&!(pre&&sub))continue;
@@ -926,6 +1400,39 @@ function placeSeal(c,hero,r,pts,text,sub,fill,corner,maxCy,minCx,minCy){
     const smallest=Math.min(...[p2[1],p2[2],p2[3]].filter(v=>v>0))*side;
     if(smallest>=floor){pick=p2;break;}
   }
+  /* one line is honest only when it is a price and a ladder on the card says
+     what it is for; "SAME" without its "DAY" is never honest */
+  if(!pick&&pre&&hasLadder(c)&&.52*side>=floor)pick=[1,0,.52,0];
+  /* A HEIGHT CHECK IS NOT A FIT. The plan only asked whether each row's height
+     cleared the legibility floor; a long row then got shrunk to fit the seal's
+     width and landed under it anyway — "CASH TODAY" came out at 1.65% of the
+     short edge. Ask the type itself whether it can be set. */
+  /* A HEIGHT CHECK IS NOT A FIT — but the answer is to drop a ROW, not the
+     seal. The plan only asked whether each row's height cleared the legibility
+     floor; a long row was then shrunk to fit the seal's width and landed under
+     it anyway ("CASH TODAY" at 1.65% of the short edge). Refusing the whole
+     seal for that cost more in coverage than it saved, so the supporting lines
+     go first and the money stays. */
+  if(pick){
+    const fits=(str,f)=>!str||!f||c.plan(str,{x:bx,y:by,w:side},
+      {align:'middle',fill:ink,on:fill,role:'offer',max:side*f}).size>=floor*.98;
+    if(pick[0]===3&&!(fits(pre,pick[1])&&fits(sub,pick[3]))){pick=[2,.215,.360,0];}
+    if(pick[0]===2){
+      if(pre&&!fits(pre,pick[1])){pre=null;sub=sub&&fits(sub,pick[1])?sub:null;}
+      else if(sub&&!fits(sub,pick[1]))sub=null;
+      if(!pre&&!sub)pick=hasLadder(c)&&.52*side>=floor?[1,0,.52,0]:pick;
+    }
+    if(!fits(money,pick[2]))pick=null;          // the figure itself cannot be set
+  }
+  if(!pick){
+    if(/\$\d/.test(money)){
+      /* the price must survive the seal: a two-line tag on the same clean seat */
+      D.priceTag(c,cx,cy,r*1.36,[money,pre&&hasLadder(c)?pre:(sub||'')],fill);   // diagonal ≈ .79r, inside the .8r disc
+      c.note('seal: too small for its phrase; price tag drawn instead');
+    }else c.note('seal: cannot carry its phrase legibly at this size, not drawn');
+    return null;
+  }
+  const b=D.starburst(c,cx,cy,r,pts,.80,rot,fill,P.dark);
   const rows=[];
   if(pick[0]===3){rows.push({t:pre,f:pick[1],face:1,id:'offerPre'},{t:money,f:pick[2],face:0,id:'offer'},{t:sub,f:pick[3],face:1,id:'offerSub'});}
   else if(pick[0]===2){
@@ -953,21 +1460,39 @@ function priceRows(c,top,rows,floorY){
      top of the last two — better to quote three models legibly than five with
      the prices hidden behind a photograph. */
   if(floorY)rows=rows.slice(0,Math.max(2,Math.floor((floorY-top)/rh)));
+  const labOpt={face:F.body,wf:F.bw,weight:700,id:'rowLabel',role:'data',max:rh*.52};
+  const priOpt={...numFace(c),align:'end',id:'rowPrice',role:'data',max:rh*.66};
+  const labSize=c.fitAll(rows.map(r=>({str:r[0],box:{x:0,y:0,w:W*.50},opt:labOpt})));
+  const priSize=c.fitAll(rows.map(r=>({str:r[1],box:{x:0,y:0,w:W*.26},opt:priOpt})));
   rows.forEach((r,i)=>{
-    const y=top+i*rh,alt=i%2===0,bg=alt?P.paper:P.ground2;
-    c.rect({x:pad*.6,y,w:W-pad*1.2,h:rh*.9},bg,{r:rh*.16,id:'row',role:'data'});
-    c.text(r[0],{x:pad,y:y+rh*.24,w:W*.50},{face:F.body,wf:F.bw,weight:700,fill:onColor(bg,P),on:bg,id:'rowLabel',role:'data',max:rh*.52});
-    c.text(r[1],{x:W-pad-W*.26,y:y+rh*.18,w:W*.26},{...numFace(c),align:'end',fill:readable(P.accent,bg,P),on:bg,id:'rowPrice',role:'data',max:rh*.66});
+    /* On a light palette both paper and ground2 can land within a hair of the
+       ground, and the ladder stops being a ladder — it reads as prices floating
+       on the card. Pick the two candidates that actually separate from the
+       ground and alternate those. */
+    const y=top+i*rh;
+    const cands=[P.paper,P.ground2,P.dark,P.ink].map(c2=>({c:c2,k:contrast(c2,P.ground)}))
+      .filter(x=>x.k>=1.30).sort((a,b)=>b.k-a.k);
+    const bg=cands.length>=2?(i%2===0?cands[0].c:cands[1].c):(cands[0]?cands[0].c:P.ground2);
+    c.rect({x:pad,y,w:W-pad*2,h:rh*.9},bg,{r:rh*.16,id:'row',role:'data'});   // shares the pills' left edge
+    c.text(r[0],{x:pad,y:y+rh*.24,w:W*.50},{face:F.body,wf:F.bw,weight:700,fill:onColor(bg,P),on:bg,id:'rowLabel',role:'data',max:rh*.52,size:labSize});
+    c.text(r[1],{x:W-pad-W*.26,y:y+rh*.18,w:W*.26},{...numFace(c),align:'end',fill:readable(P.accent,bg,P),on:bg,id:'rowPrice',role:'data',max:rh*.66,size:priSize});
   });
 }
 function proofSteps(c,sy,steps){
   const {W,H,S,P,F}=c,sh=S*.070;
+  /* three steps at three different sizes reads as sloppy however legible each
+     one is — the set is sized to its smallest member */
+  const lOpt={face:F.body,wf:F.bw,weight:800,id:'stepLabel',role:'data',max:sh*.40};
+  const bOpt={face:F.body,wf:F.bw,weight:500,id:'stepBody',role:'data',max:sh*.50};
+  const lSize=c.fitAll(steps.map(s=>({str:s[0],box:{x:0,y:0,w:W*.24},opt:lOpt})));
+  const bSize=c.fitAll(steps.map(s=>({str:s[1],box:{x:0,y:0,w:W*.30},opt:bOpt})));
   steps.forEach((s,i)=>{
     const y=sy+i*sh;
     c.rect({x:W*.05,y,w:sh*.72,h:sh*.72},P.hot,{r:sh*.16,id:'stepNum',role:'data',fill:P.hot});
-    c.text(String(i+1),{x:W*.05+sh*.16,y:y+sh*.16,w:sh*.40,h:sh*.40},{align:'middle',fill:onColor(P.hot,P),on:P.hot,id:'stepN',role:'data'});
-    c.text(s[0],{x:W*.05+sh*.92,y:y+sh*.06,w:W*.24},{face:F.body,wf:F.bw,weight:800,fill:P.ink,on:P.ground,id:'stepLabel',role:'data',max:sh*.40});
-    c.text(s[1],{x:W*.05+sh*.92,y:y+sh*.44,w:W*.30},{face:F.body,wf:F.bw,weight:500,fill:readable(P.body,P.ground,P),on:P.ground,id:'stepBody',role:'data',max:sh*.50});
+    c.text(String(i+1),{x:W*.05+sh*.16,y:y+sh*.16,w:sh*.40,h:sh*.40},{...numFace(c),
+      align:'middle',fill:onColor(P.hot,P),on:P.hot,id:'stepN',role:'data'});
+    c.text(s[0],{x:W*.05+sh*.92,y:y+sh*.06,w:W*.24},{face:F.body,wf:F.bw,weight:800,fill:P.ink,on:P.ground,id:'stepLabel',role:'data',max:sh*.40,size:lSize});
+    c.text(s[1],{x:W*.05+sh*.92,y:y+sh*.44,w:W*.30},{face:F.body,wf:F.bw,weight:500,fill:readable(P.body,P.ground,P),on:P.ground,id:'stepBody',role:'data',max:sh*.50,size:bSize});
   });
 }
 function reviewCard(c,box){
@@ -1002,20 +1527,33 @@ ARCH.nightLot=c=>{
     c.text(C.rating,{x:W*.055+c.S*.034*3.6,y:H*.370,w:W*.38},
       {face:F.body,wf:F.bw,weight:800,fill:P.ink,on:P.ground,id:'rating',role:'proof',max:c.S*.036});
   }
-  if(c.on('priceRows'))C.rows.slice(0,c.H/c.W>1.45?5:4).forEach((row,i)=>{
-    const rh=c.S*.056,y=(c.H/c.W>1.45?H*.395:H*.418)+i*rh,bg=i%2===0?P.ground2:P.ground;
+  if(c.on('priceRows')){
+  const nRows=C.rows.slice(0,c.H/c.W>1.45?5:4), nrh=c.S*.056;
+  const nlOpt={face:F.body,wf:F.bw,weight:800,id:'rowLabel',role:'data',max:nrh*.58};
+  const npOpt={...numFace(c),align:'end',id:'rowPrice',role:'data',max:nrh*.64};
+  const nlSize=c.fitAll(nRows.map(r=>({str:r[2]||r[0],box:{x:0,y:0,w:W*.148},opt:nlOpt})));
+  const npSize=c.fitAll(nRows.map(r=>({str:r[1],box:{x:0,y:0,w:W*.148},opt:npOpt})));
+  nRows.forEach((row,i)=>{
+    /* Alternating between ground2 and THE GROUND ITSELF meant every other row
+       had no plate at all — on a light palette ground2 is barely separate
+       either, so the ladder read as prices floating loose on the card. Both
+       stripes are now picked for real separation from the ground. */
+    const rh=c.S*.056,y=(c.H/c.W>1.45?H*.395:H*.418)+i*rh;
+    const cds=[P.paper,P.ground2,P.dark,P.ink].map(x=>({c:x,k:contrast(x,P.ground)}))
+      .filter(x=>x.k>=1.30).sort((a,b)=>b.k-a.k);
+    const bg=cds.length>=2?(i%2===0?cds[0].c:cds[1].c):(cds[0]?cds[0].c:P.ground2);
     /* The label column was W*.125 — 135px, too narrow for a real model tag.
        "4RUNNER" needed 124% of it just to reach the legibility floor, so the
        ladder shipped with unreadable model names. Widened to two 160px columns
        inside a wider plate, which every tag in the deck clears. */
     c.rect({x:W*.05,y,w:W*.33,h:rh*.88},bg,{r:rh*.16,id:'row',role:'data'});
     c.text(row[2]||row[0],{x:W*.063,y:y+rh*.20,w:W*.148},{face:F.body,wf:F.bw,weight:800,
-      fill:onColor(bg,P),on:bg,id:'rowLabel',role:'data',max:rh*.58});
+      fill:onColor(bg,P),on:bg,id:'rowLabel',role:'data',max:rh*.58,size:nlSize});
     c.text(row[1],{x:W*.2185,y:y+rh*.16,w:W*.148},{...numFace(c),align:'end',fill:readable(P.accent,bg,P),on:bg,
-      id:'rowPrice',role:'data',max:rh*.64});
-  });
+      id:'rowPrice',role:'data',max:rh*.64,size:npSize});
+  });}
   sealOnHero(c,hero,W*.145,16,C.offer,C.offerSub,P.hot,'bl',H*.56,W*.46);
-  if(H/W>1.45&&c.on('promisePills'))D.promises(c,H*.648,C.promises.slice(3,6),{bg:P.dark});
+  if(H/W>1.45&&c.on('promisePills'))D.iconStrip(c,H*.648,stripKeys(c));
   if(c.on('promisePills'))D.promises(c,H*.715,C.promises.slice(0,3));
   if(c.on('cta'))D.cta(c,H*.795,'button',P.accent);
   if(c.on('cornerLockup'))D.lockup(c,'left');
@@ -1077,7 +1615,7 @@ ARCH.sunburstHero=c=>{
   sealOnHero(c,hero,W*.135,20,C.offer,null,P.hot,'tl');
   if(c.on('proofBlock')){
     D.stars(c,W*.60,H*.635,H*.032,readable(P.accent,P.ground,P));
-    c.text(C.rating,{x:W*.60,y:H*.682,w:W*.36},{face:F.body,wf:F.bw,weight:800,
+    c.text(C.rating,{x:W*.60,y:H*.682,w:W*.35},{face:F.body,wf:F.bw,weight:800,
       fill:P.ink,on:P.ground,id:'rating',role:'proof',max:c.S*.036});
   }
   if(c.on('ticket')){
@@ -1100,15 +1638,15 @@ ARCH.tornSplit=c=>{
   if(c.on('tornPaper'))D.tornPaper(c,{x:0,y:H*.44,w:W,h:H*.48},P.paper,R.i(1,9999));
   else c.rect({x:0,y:H*.46,w:W,h:H*.46},P.paper,{bleed:true,id:'flatPlate',role:'plate',fill:P.paper});
   const hero=placeHero(c,{x:W*.46,y:H*.10,w:W*.62,h:H*.34},R.f(12,22));
-  headline(c,C.heads,{x:W*.055,y:H*.128,w:W*.44,h:H*.185},
+  headline(c,C.heads,{x:W*.055,y:Math.max(H*.128,c.topSafe()),w:W*.44,h:H*.185},
     {stroke:P.dark,shadow:P.accent,strokeW:.05,
      plateIndex:c.on('paintStroke')?1:-1,plateColor:P.accent,
      plateDraw:(cc,b)=>D.paintStroke(cc,b,P.accent,R.i(1,9999))});
-  c.text(C.offer,{x:W*.055,y:H*.545,w:W*.50},{...numFace(c),fill:onColor(P.paper,P),on:P.paper,id:'offer2',role:'offer'});
+  c.text(boundOffer(c),{x:W*.055,y:H*.545,w:W*.50},{...numFace(c),fill:onColor(P.paper,P),on:P.paper,id:'offer2',role:'offer'});
   c.text('CASH IN HAND',{x:W*.055,y:H*.655,w:W*.40},
     {face:F.body,wf:F.bw,weight:800,fill:readable(P.accent,P.paper,P),on:P.paper,
      id:'offerSub2',role:'offer',tracking:.03});
-  sealOnHero(c,hero,W*.135,20,'SAME','DAY',P.hot,'bl',H*.475,null,H*.445);
+  sealOnHero(c,hero,W*.135,20,'@phrase',null,P.hot,'bl',H*.475,null,H*.445);
   if(c.on('promisePills'))D.promises(c,H*.700,C.promises.slice(2,5),{bg:P.dark});
   if(c.on('cta'))D.cta(c,H*.780,'button');
   if(c.on('cornerLockup'))D.lockup(c,'left');
@@ -1128,7 +1666,14 @@ ARCH.priceBoard=c=>{
     c.text(C.heads.join(' '),{x:W*.05,y:H*.166,w:W*.90},{align:'middle',fill:onColor(P.accent,P),on:P.accent,role:'headline',id:'headline',max:H*.070});
   }else headline(c,[C.heads.join(' ')],{x:W*.05,y:H*.150,w:W*.90,h:H*.082},{align:'middle',stroke:P.dark,shadow:P.hot});
   priceRows(c,H*.285,C.rows,H*.575);
-  placeHero(c,{x:W*.575,y:H*.575,w:W*.52,h:H*.255},R.f(14,24));
+  const hero=placeHero(c,{x:W*.575,y:H*.575,w:W*.52,h:H*.255},R.f(14,24));
+  /* NO SEAL HERE. This layout is a full-width ladder, a pill row and a hero:
+     there is no clear seat, and the seal was landing on the price column —
+     covering the very figures it was repeating. The ladder already bounds the
+     offer, and the icon strip gives the card its second sticker kind. */
+  /* the ladder's own header band: marks for what the shop takes, sitting in
+     the gap the seal used to be crammed into */
+  if(c.on('iconStrip')!==false)D.iconStrip(c,H*.246,stripKeys(c).slice(0,5),{x:W*.30,w:W*.40});
   if(c.on('promisePills'))D.promises(c,H*.715,C.promises.slice(0,2).concat([C.offerSub]),{bg:P.paper});
   if(c.on('cta'))D.cta(c,H*.800,'band');
   if(c.on('cornerLockup'))D.lockup(c,'left');
@@ -1163,15 +1708,20 @@ ARCH.posterBleed=c=>{
      is optional; the number is not. */
   if(c.on('knockoutBand')){
     c.rect({x:0,y:bandY,w:W,h:H*.056},P.ink,{bleed:true,id:'kickerBand',role:'plate',fill:P.ink});
-    c.text(C.offer+'  ·  '+C.offerSub,{x:W*.05,y:bandY+H*.015,w:W*.90},
+    c.text(offerLine(c),{x:W*.05,y:bandY+H*.015,w:W*.90},
       {...numFace(c),align:'middle',fill:onColor(P.ink,P),on:P.ink,id:'offerLine',role:'offer',max:H*.036});
   }else{
-    c.text(C.offer+'  ·  '+C.offerSub,{x:W*.05,y:bandY-H*.006,w:W*.90},
+    c.text(offerLine(c),{x:W*.05,y:bandY-H*.006,w:W*.90},
       {...numFace(c),align:'middle',fill:readable(P.accent,P.ground,P),on:P.ground,
        stroke:P.dark,strokeW:.05,id:'offerLine',role:'offer',max:H*.052});
   }
-  sealOnHero(c,hero,W*.150,20,'CASH','TODAY',P.hot,'tr',H/W>1.45?H*.755:H*.66,null,H/W>1.45?H*.700:H*.58);
-  if(c.on('promisePills'))D.promises(c,H*.782,C.promises.slice(3,6),{bg:P.dark});
+  sealOnHero(c,hero,W*.150,20,'@phrase',null,P.hot,'tr',H/W>1.45?H*.755:H*.66,null,H/W>1.45?H*.700:H*.58);
+  /* a poster with no way to act: the loudest layout in the set shipped with
+     no call to action on any format, and the must-have rule is what noticed */
+  /* the seal already carries the hot colour here; a hot button on top tipped
+     the card to 15% against R10's 14% */
+  if(c.on('cta'))D.cta(c,H*(H/W>1.45?.700:.690),'button',P.accent);
+  if(c.on('promisePills'))D.iconStrip(c,H*.782,stripKeys(c));
   if(H/W>1.45&&c.on('priceRows'))priceRows(c,H*.505,C.rows.slice(0,3));
   if(c.on('promisePills'))D.promises(c,H*.850,C.promises.slice(0,3),{bg:P.paper});
   if(c.on('cornerLockup'))D.lockup(c,'left');
@@ -1186,8 +1736,12 @@ ARCH.ticketOffer=c=>{
   ground(c,'radial');
   if(c.on('sunburst'))D.sunburst(c,W*.5,H*.44,W*.95,P.hot,24,R.f(0,.3),.12);
   const ty=Math.max(H*.125,c.topSafe());
-  headline(c,[C.heads[0]],{x:W*.05,y:ty,w:W*.90,h:H*.070},{stroke:P.dark,align:'middle'});
-  headline(c,[C.heads[1]],{x:W*.05,y:ty+H*.075,w:W*.90,h:H*.110},{fill:readable(P.accent,P.ground,P),shadow:P.dark,stroke:P.dark,align:'middle'});
+  /* two separate headline() calls each produce an id of "headline0", so the
+     collision rule could not tell the two lines apart and the taller approved
+     faces overlapped them. One call, two lines, two ids. */
+  headline(c,[C.heads[0],C.heads[1]],{x:W*.05,y:ty,w:W*.90,h:H*.185},
+    {align:'middle',stroke:P.dark,shadow:P.dark,
+     fill:P.ink,line1Fill:readable(P.accent,P.ground,P)});
   /* the hero follows the headline block rather than a constant, so pushing the
      type clear of the lockup cannot push it under the product */
   placeHero(c,{x:W*.32,y:Math.max(H*.315,ty+H*.200),w:W*.84,h:H*.315},R.f(-7,9));
@@ -1200,13 +1754,18 @@ ARCH.ticketOffer=c=>{
   if(c.on('ticket')){
     const t=D.ticket(c,{x:W*.08,y:H*.600,w:W*.84,h:H*.145},P.paper,H*.024);
     D.sheen(c,t,P.accent);
-    c.text(C.offer,{x:W*.125,y:H*.632,w:W*.75},{...numFace(c),align:'middle',fill:onColor(P.paper,P),on:P.paper,
+    c.text(boundOffer(c),{x:W*.125,y:H*.632,w:W*.75},{...numFace(c),align:'middle',fill:onColor(P.paper,P),on:P.paper,
       id:'offer',role:'offer',max:H*.080});
   }
-  c.text('NO OBLIGATION · 20 MIN · CASH OR TRANSFER',{x:W*.09,y:H*.757,w:W*.82},
+  c.text('NO OBLIGATION · CASH OR TRANSFER',{x:W*.09,y:H*.757,w:W*.82},
     {face:F.body,wf:F.bw,weight:700,align:'middle',fill:readable(P.body,P.ground,P),on:P.ground,
      id:'fine',role:'proof',max:c.S*.032,tracking:.03});
   if(c.on('promisePills'))D.promises(c,H*.800,C.promises.slice(3,6));
+  /* Left where the layout puts it. Two attempts to clamp this clear of the
+     footer band both drove the button up into the copy above and broke 36
+     cards to fix one; the one it was fixing is a 7% clip that renderClean
+     resolves by reseeding. A clamp here needs the real button geometry, which
+     D.cta owns — not a fraction guessed from outside it. */
   if(c.on('cta'))D.cta(c,H*.849,'button');
   if(c.on('cornerLockup'))D.lockup(c,'left');
   if(c.on('footerBar'))D.footerBar(c);
@@ -1229,7 +1788,7 @@ ARCH.proofWall=c=>{
       {face:F.body,wf:F.bw,weight:800,fill:P.ink,on:P.ground,id:'rating',role:'proof',max:c.S*.036});
     reviewCard(c,{x:W*.05,y:H*.200,w:W*.62,h:H*.160});
   }
-  headline(c,[C.heads.join(' ')],{x:W*.055,y:H*.422,w:W*.56,h:H*.060},
+  headline(c,[C.heads.join(' ')],{x:W*.055,y:Math.max(H*.422,c.topSafe()),w:W*.56,h:H*.060},
     {plateIndex:c.on('paintStroke')?0:-1,plateColor:P.accent,
      plateDraw:(cc,b)=>D.paintStroke(cc,b,P.accent,R.i(1,9999)),
      fill:P.ink,on:P.ground});
@@ -1242,7 +1801,7 @@ ARCH.proofWall=c=>{
   const tall=H/W>1.45;
   if(tall)priceRows(c,H*.498,C.rows,H*.616);   // clears the headline band above
   if(c.on('proofBlock'))proofSteps(c,H*(tall?.622:.530),C.steps);
-  if(tall&&c.on('promisePills'))D.promises(c,H*.745,C.promises.slice(3,6),{bg:P.dark});
+  if(tall&&c.on('promisePills'))D.iconStrip(c,H*.745,stripKeys(c));
   if(c.on('cta'))D.cta(c,H*(tall?.800:.740),'band');
   if(c.on('promisePills'))D.promises(c,H*(tall?.882:.828),C.promises.slice(0,3),{bg:P.paper});
   if(c.on('cornerLockup'))D.lockup(c,'left');
@@ -1265,7 +1824,7 @@ const ARCHS=[
    9 · AUDITOR
    ══════════════════════════════════════════════════════════ */
 const RULES=[
- ['R1','Coverage floor','≥ 62% of the canvas carries content','the empty card — 29% coverage reads as a placeholder'],
+ ['R1','Coverage floor','≥ 68% of the canvas carries content (60% on 9:16, whose top and bottom sit under the app chrome)','the empty card — 29% coverage reads as a placeholder'],
  ['R2','Dead space','largest empty rectangle ≤ 18% of the canvas','a card that averages fine but has one big hole'],
  ['R3','Footer bar','full-bleed footer carrying the number','a number floating with nothing under it'],
  ['R4','Hero bleed','hero crosses an edge by ≥ 6%','product parked inside a box like a catalogue photo'],
@@ -1276,12 +1835,19 @@ const RULES=[
  ['R9','Contrast','every text ≥ 4.5:1 on its own backing','accent-on-accent text that vanishes'],
  ['R10','Hot restraint','hot colour ≤ 14% of canvas area','the all-red card where nothing reads as urgent'],
  ['R11','Sheen parentage','every sheen sits inside its own plate','the highlight drawn at the layout’s original geometry'],
- ['R12','Safe area','non-bleed elements inside a 4.5% margin','clipped corners after a crop'],
+ ['R12','Safe area','every bounded element inside a 4.5% margin of the edge','a pill or a seal clipped by the crop'],
  ['R13','Text on its plate','every line stays inside the panel it was set on','copy running off its card onto the photo'],
  ['R14','Words on top','no opaque shape is drawn over a line of text','a seal painted across the headline'],
  ['R15','Legible figures','no price is set in a face that draws a slashed zero','"$1,250" reading as "$1,25Ø"'],
  ['R16','Subject on show','the product is present and bigger than any prop','a card whose largest object is a cardboard box'],
- ['R17','Picture matches the copy','the hero is of the brand, generation and condition the copy names','a cracked iPhone 11 under a "17 Pro Max · $1,250" ladder']
+ ['R17','Picture matches the copy','the hero is of the brand, generation and condition the copy names','a cracked iPhone 11 under a "17 Pro Max · $1,250" ladder'],
+ ['R18','No repeats','no line appears twice, and no phrase of two words or more sits inside another line','"FREE TOW" as a step and again as a pill'],
+ ['R19','Bounded offer','every $ figure is tied to a named model on the same card','"UP TO $1,250" with nothing to say what for'],
+ ['R20','Must-haves','a price, a call to action, a phone number, an address and the brand are all on the card','a clean 17/17 card with no way to act'],
+ ['R21','No placeholder','YOUR NAME and its kin never leave as copy','a template shipped as an ad'],
+ ['R22','Hero on the card','at least 70% of the product is inside the canvas','a phone with its head cut off by the edge'],
+ ['R23','A real product','the hero is a photograph whenever the library has one for this subject','a vector diagram of a phone passing as the phone'],
+ ['R24','Eye-grabbing detail','at least two kinds of sticker — seal or tag, pills, arrow, icon strip, stub','a card with nothing to catch a thumb']
 ];
 function inter(a,b){const x=Math.max(a.x,b.x),y=Math.max(a.y,b.y);
   const r=Math.min(a.x+a.w,b.x+b.w),bt=Math.min(a.y+a.h,b.y+b.h);
@@ -1332,10 +1898,16 @@ function audit(card){
   const sheens=nodes.filter(n=>n.role==='sheen');
   const hotArea=nodes.filter(n=>n.fill===P.hot).reduce((s,n)=>s+Math.max(0,n.box.w)*Math.max(0,n.box.h),0)/(W*H);
   const r=[];
-  r.push(['R1',coverage>=.62]);
+  /* the floor was 62%; the owner's references sit at .85 median with a
+     quartile floor of .84 — the engine ran a full step below every graded ad */
+  /* on 9:16 the top ~13% and bottom ~18% of the canvas sit under the
+     Stories/Reels interface, so content is right to avoid them; the floor
+     there is judged on the visible two thirds */
+  r.push(['R1',coverage>=(H/W>1.45?.60:.68)]);
   r.push(['R2',dead<=.18]);
   r.push(['R3',!!nodes.find(n=>n.role==='footer'&&n.box.w>=W*.999)]);
-  r.push(['R4',!!hero&&(hero.box.x<-W*.06||hero.box.x+hero.box.w>W*1.06||hero.box.y<-H*.06||hero.box.y+hero.box.h>H*1.06)]);
+  {const hb=hero&&hero.box, nx=hb?Math.min(.06,Math.max(hb.w*.25/W,.03)):.06, ny=hb?Math.min(.06,Math.max(hb.h*.25/H,.03)):.06;
+   r.push(['R4',!!hero&&(hb.x<-W*nx||hb.x+hb.w>W*(1+nx)||hb.y<-H*ny||hb.y+hb.h>H*(1+ny))]);}
   r.push(['R5',heads.some(h=>plates.some(p=>inter(h.box,p.box)>h.box.w*h.box.h*.25))||nodes.some(n=>n.id==='sunburst'||n.id==='arc')]);
   /* R6 · THE SEAL SITS ON THE PRODUCT'S EDGE.
      This used to be "6-32% of the badge overlaps the hero", which encoded the
@@ -1399,7 +1971,11 @@ function audit(card){
      covers it however well the headline was placed, which is how a card ships
      reading "CASH FOR IPHON<seal>". Text-against-text was the only overlap ever
      checked, so a shape landing on a line was invisible to the audit. */
-  const SOLID=new Set(['badge','plate','cta','data','proof','brand','footer','hero']);
+  /* 'deco' belongs here. The icon strip and the arrow were the only shapes the
+     engine drew that no rule governed: they could land anywhere, on anything,
+     and the gate would still say 1152/1152. A shape being decorative is a
+     reason to place it carefully, not a reason to stop looking at it. */
+  const SOLID=new Set(['badge','plate','cta','data','proof','brand','footer','hero','deco']);
   const buried=[];
   texts.forEach(t=>{
     const i=nodes.indexOf(t),area=t.box.w*t.box.h;
@@ -1417,15 +1993,14 @@ function audit(card){
      against a rendered swatch of all five families, it is the only one that
      does. Prices are routed to the body face in that pairing; this makes sure
      they stay there when someone adds an archetype. */
-  const AMBIG=new Set(['Melodrama']);
-  const figs=texts.filter(t=>AMBIG.has(t.face)&&/0/.test(t.str||''));
+  const figs=texts.filter(t=>BAD_FIGURES.has(t.face+'|'+t.weight)&&/0/.test(t.str||''));
   r.push(['R15',!figs.length]);
   /* R16 · THE CARD MUST SHOW WHAT IS BEING BOUGHT, AND SHOW IT BIGGEST.
      The owner's standing rule. Props earn their place by making the offer feel
      real; the moment one is larger than the product it stops dressing the card
      and starts being the card. */
   const heroN=nodes.find(n=>n.role==='hero');
-  const propsN=nodes.filter(n=>n.id==='prop');
+  const propsN=nodes.filter(n=>n.id==='prop'||/^product\d$/.test(n.id));
   const areaOf=n=>Math.max(0,n.box.w)*Math.max(0,n.box.h);
   r.push(['R16',!!heroN&&propsN.every(pn=>areaOf(pn)<=areaOf(heroN))]);
   /* R17 · THE PICTURE IS OF WHAT THE COPY SAYS.
@@ -1434,13 +2009,102 @@ function audit(card){
      the tags it was chosen by; the deck carries its subject; they must agree.
      A vector hero has no tags and is judged by the deck's own hero kind. */
   const subj=card.C&&card.C.subject;
-  const heroOK=!heroN||!subj||(heroN.tags?matchSubject({t:heroN.tags},subj):true);
-  r.push(['R17',heroOK]);
+  let heroOK=!heroN||!subj||(heroN.tags?matchSubject({t:heroN.tags},subj):true);
   if(!heroOK)card.note(`mismatch: hero "${heroN.asset}" is ${heroN.tags.b} · ${heroN.tags.c}${heroN.tags.g?' · gen '+heroN.tags.g:''}; the copy is about ${subj.brand.join('/')} · ${subj.cond}${subj.gen?' · gen '+subj.gen.join('/'):''}`);
+  /* …and the model the card LITERALLY PRINTS must be in the imagery. The text
+     nodes are parsed for the first model number in reading order; if one is
+     printed, some product picture on the card must carry that generation — and
+     that variant, when the library owns one. A 15 under "17 PM · $1,250" was
+     exactly this. */
+  if(heroN&&heroN.tags&&subj){
+    const pool=assetsFor(card,card.vertical).filter(a=>matchSubject(a,subj));
+    if(pool.some(a=>a.t&&a.t.g)){                    // a pool that knows generations at all
+      const pics=nodes.filter(n=>(n.role==='hero'||/^product\d$/.test(n.id))&&n.tags);
+      const lead=leadOf(card.C);
+      /* the priced model is what the card is selling; if it is printed on the
+         card, a picture of it must be too — to the variant when the library
+         owns one, to the generation when it owns that */
+      const printedLead=lead&&texts.some(t=>{const m=parseModel(t.str||'');return m&&m.gen===lead.gen;});
+      if(printedLead){
+        const strictV=libraryHas(pool,lead.gen,lead.v), strictG=poolHasGen(pool,lead.gen);
+        const carried=pics.some(n=>(!strictG||n.tags.g===lead.gen)&&(!strictV||n.tags.v===lead.v));
+        if(!carried){heroOK=false;
+          card.note(`mismatch: the card prints "${lead.gen}${lead.v&&lead.v!=='base'?' '+lead.v:''}" but shows ${pics.map(n=>n.asset).join(', ')||'no product'}`);}
+      }
+    }
+  }
+  r.push(['R17',heroOK]);
+  /* R18 · NO REPEATS — the owner's standing rule, never audited until now.
+     Every printed string is normalised; a seal's rows are joined into its
+     phrase; ladder rows may share a prefix with each other and are exempt as a
+     pair; the brand token is exempt. Two equal lines fail; a phrase of two or
+     more words sitting whole inside another line fails. */
+  const norm=normLine;
+  const sealRows=texts.filter(t=>t.role==='offer'&&(t.id==='offerPre'||t.id==='offer'||t.id==='offerSub'));
+  /* a ladder's price column is data — the same figure on the seal is the
+     headline for that row, not a repeated line */
+  const lines=texts.filter(t=>!sealRows.includes(t)&&t.id!=='rowPrice'&&t.str&&t.str.length>1&&!/^[★✓•·]+$/.test(t.str))
+    .map(t=>({s:norm(t.str),id:t.id}));
+  if(sealRows.length)lines.push({s:norm(sealRows.map(t=>t.str).join(' ')),id:'seal'});
+  const brandTok=norm(card.C.brand||'');
+  const rep=[];
+  for(let i=0;i<lines.length;i++)for(let j=i+1;j<lines.length;j++){
+    const a=lines[i],b=lines[j];
+    if(!a.s||!b.s)continue;
+    if(a.id==='rowLabel'&&b.id==='rowLabel')continue;
+    if(a.s===brandTok||b.s===brandTok)continue;
+    if(repeats(a.s,b.s))rep.push(a.s===b.s?`"${a.s}" twice (${a.id}, ${b.id})`:`"${a.s.length<=b.s.length?a.s:b.s}" (${a.s.length<=b.s.length?a.id:b.id}) inside "${a.s.length<=b.s.length?b.s:a.s}" (${a.s.length<=b.s.length?b.id:a.id})`);
+  }
+  r.push(['R18',!rep.length]);
+  if(rep.length)card.note('repeat: '+[...new Set(rep)].join(', '));
+  /* R19 · A PRICE IS FOR SOMETHING. Any $ figure that is not a ladder row must
+     share the card with a named model: a ladder, a model in the copy, or the
+     lead tag the seal and offer lines now carry. */
+  const offers=texts.filter(t=>/\$\d/.test(t.str||'')&&t.id!=='rowPrice');
+  const bound=texts.some(t=>t.id==='rowLabel')||texts.some(t=>parseModel(t.str||''))||
+              (leadTag(card.C)&&texts.some(t=>norm(t.str||'').includes(norm(leadTag(card.C)))));
+  r.push(['R19',!offers.length||!!bound]);
+  if(offers.length&&!bound)card.note('unbounded: '+offers.map(t=>`"${t.str}"`).join(', ')+' with no model on the card');
+  /* R20 · MUST-HAVES. Geometry can be perfect on a card that gives the reader
+     no price, no action and no number; renderClean could drop the seal and
+     ship exactly that. */
+  const has=f=>texts.some(f);
+  const missing=[];
+  if(!has(t=>/\$\d/.test(t.str||'')))missing.push('price');
+  if(card.on('cta')&&!has(t=>t.role==='cta'))missing.push('call to action');
+  if(!has(t=>/\(\d{3}\) \d{3}-\d{4}/.test(t.str||'')))missing.push('phone number');
+  if(!has(t=>t.id==='footerAddr'&&(t.str||'').length>=6))missing.push('address');
+  if(!has(t=>t.id==='wordmark'||t.id==='mark'))missing.push('brand');
+  r.push(['R20',!missing.length]);
+  if(missing.length)card.note('missing: '+missing.join(', '));
+  /* R21 · the placeholder never leaves as copy — unless this render is
+     explicitly a template (the gate's geometry pass, the console's live view) */
+  const ph=texts.filter(t=>PLACEHOLDER.test(t.str||''));
+  r.push(['R21',!ph.length||!!(card.cfg&&card.cfg.allowPlaceholder)]);
+  /* R22 · the product is mostly ON the card */
+  let onCard=true;
+  if(heroN){const b=heroN.box;const ix=Math.max(0,Math.min(b.x+b.w,W)-Math.max(b.x,0)),iy=Math.max(0,Math.min(b.y+b.h,H)-Math.max(b.y,0));
+    onCard=(ix*iy)/(b.w*b.h)>=.70;}
+  r.push(['R22',onCard]);
+  /* R23 · the vector hero is a fallback for an empty library, not a product */
+  const heroPool=assetsFor(card,card.vertical).filter(a=>matchSubject(a,card.C&&card.C.subject));
+  r.push(['R23',!heroPool.length||!!(heroN&&heroN.asset)]);
+  if(heroPool.length&&!(heroN&&heroN.asset))card.note('no photograph: the hero is vector art while the library holds '+heroPool.length+' pictures of this subject');
+  /* R24 · stickers are the strongest good/bad separator in the owner's own
+     references (3.2 per good ad, 1.5 per bad); the engine sat at the bad end */
+  const kinds=new Set();
+  nodes.forEach(n=>{if(n.id==='badge'||n.id==='priceTag')kinds.add('seal');else if(n.id==='pill')kinds.add('pill');
+    else if(n.id==='arrow')kinds.add('arrow');else if(n.id==='iconStrip')kinds.add('icons');else if(n.id==='ticket'||n.id==='stub')kinds.add('stub');});
+  r.push(['R24',kinds.size>=2]);
+  if(kinds.size<2)card.note('flat: only '+([...kinds].join(', ')||'no')+' sticker kind on the card');
   if(figs.length)card.note('figures: '+figs.map(t=>`${t.id} "${t.str}" in ${t.face}`).join(', '));
   if(buried.length)card.note('buried: '+buried.join(', '));
   r.push(['R11',sheens.every(s=>s.parent&&inter(s.box,s.parent)>=s.box.w*s.box.h*.999)]);
-  r.push(['R12',nodes.every(n=>n.bleed||n.role==='field'||(n.box.x>=-1&&n.box.y>=-1&&n.box.x+n.box.w<=W+1&&n.box.y+n.box.h<=H+1))]);
+  {const sr=safeRect(W,H),tol=2;
+   const out=nodes.filter(n=>!n.bleed&&n.role!=='field'&&n.role!=='hero'&&!/^product\d$/.test(n.id)&&
+     !(n.box.x>=sr.x-tol&&n.box.y>=sr.y-tol&&n.box.x+n.box.w<=sr.x+sr.w+tol&&n.box.y+n.box.h<=sr.y+sr.h+tol));
+   r.push(['R12',!out.length]);
+   if(out.length)card.note('margin: '+[...new Set(out.map(n=>n.id))].join(', ')+' outside the 4.5% safe area');}
   /* results in the order RULES declares them, so nothing that zips the two by
      index can mislabel a rule */
   const order=RULES.map(x=>x[0]);
@@ -1465,17 +2129,133 @@ function fontCSS(){return faceCSS(Object.fromEntries(
    photograph of the transaction. Placed by finding the card's largest empty
    rectangle and dropping one prop into it, repeatedly, never over the copy. */
 function placeStickers(c){
-  if(!c.on('stickers'))return;
-  const pool=[...assetsFor(c,'cash'),...assetsFor(c,'prop')];
-  if(!pool.length)return;
   const S=Math.min(c.W,c.H);
-  for(let n=0;n<3;n++){
+  /* A SECOND PICTURE OF THE PRODUCT. The competitor ads the owner rates well
+     rarely show one device; they show the device twice, or two colours, or the
+     front and the back. When the hero carries the lead model, a second cutout
+     of the same model — different angle or colour — goes into the largest hole
+     before any prop does. It is a product, not a prop, so R16 does not rank it
+     against the hero, and it must carry the lead model like the hero does. */
+  if(c.on('duo')){
+    const hero=c.nodes.find(n=>n.role==='hero');
+    const named=namedModels(c.C);
+    const lead=named[0];
+    for(let unit=2;unit<=3&&hero&&hero.tags;unit++){
+      const hole=largestHole(occupancy(c,20));
+      const sr=safeRect(c.W,c.H);
+      if(hole.box){const hb=hole.box;const x0=Math.max(hb.x,sr.x),y0=Math.max(hb.y,sr.y);
+        hole.box={x:x0,y:y0,w:Math.min(hb.x+hb.w,sr.x+sr.w)-x0,h:Math.min(hb.y+hb.h,sr.y+sr.h)-y0};}
+      /* a second product that is a speck is worse than none: at least 18% of
+         the short edge on its shorter side, else it is not drawn */
+      if(hole.box&&hole.area>=.03&&Math.min(hole.box.w,hole.box.h)>=S*.16){
+        /* if the copy names a second model — the quote's "15 Pro" — picture
+           that; otherwise the lead again from another angle or colour */
+        const second=named[1];
+        const taken=new Set(c.nodes.filter(n=>n.asset).map(n=>n.asset));
+        const notIn=a=>a&&!taken.has(a.s)?a:null;
+        const pick=notIn(unit===2&&second&&pickAsset(c,assetsFor(c,c.vertical),3,{lead:second,not:hero.asset}))
+                 ||(lead&&notIn(pickAsset(c,assetsFor(c,c.vertical),3+unit,{lead,not:hero.asset,avoidExact:true})))
+                 ||notIn(pickAsset(c,assetsFor(c,c.vertical),7+unit,{lead:lead||{},not:hero.asset}));
+        if(pick){
+          const b=hole.box,pad=Math.min(b.w,b.h)*.08;
+          let inset={x:b.x+pad,y:b.y+pad,w:b.w-pad*2,h:b.h-pad*2};
+          const cap=hero.box.w*hero.box.h*.55, a=inset.w*inset.h;
+          if(a>cap){const k=Math.sqrt(cap/a);inset={x:inset.x+inset.w*(1-k)/2,y:inset.y+inset.h*(1-k)/2,w:inset.w*k,h:inset.h*k};}
+          D.photo(c,inset,c.R.f(-9,9),pick,{id:'product'+unit,role:'plate',bleed:false,grow:1,min:false});
+        }
+      }
+    }
+  }
+  /* COVERAGE-DRIVEN FILL. The reference floor is real, and a tall 9:16 Night
+     Lot or a wide-car Sunburst Hero is short of picture, not long on ornament.
+     While the card is under the floor and a hole is big enough, add another
+     unit of the product (distinct asset), up to four; renderClean can then
+     stop dropping ornaments to fix what dropping can never fix. */
+  {
+    const hero=c.nodes.find(n=>n.role==='hero');
+    let guard=0;
+    /* A HOLE THAT CANNOT BE FILLED IS NOT THE END OF THE SEARCH.
+       This used to break out of the loop the moment the biggest hole refused
+       everything, so a card could sit 5 points under the coverage floor with a
+       wide, empty, perfectly fillable band above its footer — the band was
+       simply second in line behind a narrow column that took neither a product
+       nor a strip. Rejected holes are remembered and painted out of the grid so
+       the next-largest one gets its turn. */
+    const blocked=[];
+    while(hero&&hero.tags&&guard++<4){
+      const occ=occupancy(c,20); let filled=0; for(let i=0;i<occ.g.length;i++)filled+=occ.g[i];
+      if(filled/occ.g.length>=.70)break;
+      blocked.forEach(r=>{
+        for(let y=Math.max(0,Math.floor(r.y/occ.cell));y<Math.min(occ.rows,Math.ceil((r.y+r.h)/occ.cell));y++)
+          for(let x=Math.max(0,Math.floor(r.x/occ.cell));x<Math.min(occ.cols,Math.ceil((r.x+r.w)/occ.cell));x++)
+            occ.g[y*occ.cols+x]=1;});
+      const hole=largestHole(occ); if(!hole.box)break;
+      const sr=safeRect(c.W,c.H),hb=hole.box,x0=Math.max(hb.x,sr.x),y0=Math.max(hb.y,sr.y);
+      const b={x:x0,y:y0,w:Math.min(hb.x+hb.w,sr.x+sr.w)-x0,h:Math.min(hb.y+hb.h,sr.y+sr.h)-y0};
+      const short=Math.min(b.w,b.h);
+      /* the last hole on a sparse card is usually a WIDE, SHORT band above the
+         footer — it will not take a square-ish product, but it takes a row of
+         marks, or a wide product like a car lying along it */
+      const hasStrip=c.nodes.some(x=>x.id==='iconStrip');
+      const n=c.nodes.filter(x=>/^product\d$/.test(x.id)).length+2;
+      const taken=new Set(c.nodes.filter(x=>x.asset).map(x=>x.asset));
+      const lead=leadOf(c.C);
+      const pick=n<=4?[pickAsset(c,assetsFor(c,c.vertical),11+n,{lead:lead||{},not:hero.asset,avoidExact:true}),
+                       pickAsset(c,assetsFor(c,c.vertical),17+n,{lead:lead||{},not:hero.asset})].find(a=>a&&!taken.has(a.s)):null;
+      /* a unit fits if its drawn long side would clear .22S in this hole */
+      const fits=pick&&(()=>{const sc=Math.min((b.w*.84)/pick.w,(b.h*.84)/pick.h);return Math.max(pick.w,pick.h)*sc>=S*.22&&short>=S*.11;})();
+      if(fits){
+        const pad=short*.08;
+        let inset={x:b.x+pad,y:b.y+pad,w:b.w-pad*2,h:b.h-pad*2};
+        const cap=hero.box.w*hero.box.h*.55,a=inset.w*inset.h;
+        if(a>cap){const k=Math.sqrt(cap/a);inset={x:inset.x+inset.w*(1-k)/2,y:inset.y+inset.h*(1-k)/2,w:inset.w*k,h:inset.h*k};}
+        D.photo(c,inset,c.R.f(-9,9),pick,{id:'product'+n,role:'plate',bleed:false,grow:1,min:false});
+      }else if(!hasStrip&&(()=>{
+        const seat=stripSeat(c,c.W*.42); if(!seat)return false;
+        return D.iconStrip(c,seat.y,stripKeys(c).slice(0,seat.w>=c.W*.7?6:4),{x:seat.x,w:seat.w});
+      })()){
+        /* drawn in a band that was measured against the type, not the ground */
+      }else blocked.push(hole.box);
+    }
+  }
+  /* a card whose seal was refused would be left with pills as its only
+     sticker kind; a row of marks in the widest free band is the fallback */
+  if(c.on('iconStrip')!==false){
+    const kinds=new Set(c.nodes.map(n=>n.id==='badge'||n.id==='priceTag'?'seal':n.id==='iconStrip'?'icons':n.id==='pill'?'pill':null).filter(Boolean));
+    if(!kinds.has('icons')&&!kinds.has('seal')){
+      /* IN A FREE BAND, NOT ACROSS THE CARD. This call used to pass no x/w at
+         all, so the row was drawn from W*.05 to W-W*.10 whatever the gap was,
+         with its y clamped up to the safe margin — which is exactly where the
+         brand lockup lives. Both numbers now come from a measured seat. */
+      const seat=stripSeat(c,c.W*.42);
+      if(seat)D.iconStrip(c,seat.y,stripKeys(c).slice(0,seat.w>=c.W*.7?6:4),{x:seat.x,w:seat.w});
+    }
+  }
+  if(!c.on('stickers'))return;
+  /* The reference audit: good ads carry at most ONE cash element and it
+     touches the product; two or more is the BAD pattern (engine had it on a
+     third of its cards). Boxes and mailers belong to a phone ad, not a car ad. */
+  const ALLOW={cars:['cash'],phones:['cash','box'],broken:['cash','box']};
+  const fams=ALLOW[c.vertical]||['cash','box'];
+  const used=new Set(c.nodes.filter(n=>n.asset).map(n=>n.asset));
+  let cashUsed=0;
+  const pool0=[...assetsFor(c,'cash'),...assetsFor(c,'prop')].filter((a,i,arr)=>arr.findIndex(b=>b.s===a.s)===i)
+    .filter(a=>fams.includes(a.t&&a.t.fam==='box'?'box':'cash'));
+  if(!pool0.length)return;
+  for(let n=0;n<2;n++){
+    const pool=pool0.filter(a=>!used.has(a.s)&&!(cashUsed&&(!a.t||a.t.fam!=='box')));
+    if(!pool.length)break;
     const hole=largestHole(occupancy(c,20));
     if(!hole.box||hole.area<.045)break;
-    const b=hole.box;
+    /* a hole that touches the canvas edge would seat the prop in the margin */
+    const sr=safeRect(c.W,c.H);
+    const b={x:Math.max(hole.box.x,sr.x),y:Math.max(hole.box.y,sr.y)};
+    b.w=Math.min(hole.box.x+hole.box.w,sr.x+sr.w)-b.x; b.h=Math.min(hole.box.y+hole.box.h,sr.y+sr.h)-b.y;
+    if(b.w<S*.12||b.h<S*.12)break;
     /* only worth dressing if the hole is chunky rather than a thin seam */
     if(Math.min(b.w,b.h)<S*.16)break;
     const pick=pool[Math.floor(c.R.f(0,1)*pool.length+n*7)%pool.length];
+    used.add(pick.s); if(!pick.t||pick.t.fam!=='box')cashUsed++;
     const pad=Math.min(b.w,b.h)*.10;
     let inset={x:b.x+pad,y:b.y+pad,w:b.w-pad*2,h:b.h-pad*2};
     /* A PROP NEVER OUT-SIZES THE PRODUCT.
@@ -1502,7 +2282,8 @@ function render(archKey,seed,vertical,sizeKey,cfg){
   const P=(cfg&&cfg.palette&&PALETTES.find(x=>x.id===cfg.palette))||PALETTES[seed%PALETTES.length];
   const Fp=(cfg&&cfg.pair&&PAIRS.find(x=>x.id===cfg.pair))||PAIRS[(seed>>3)%PAIRS.length];
   const [W,H]=SIZES[sizeKey], C0=CONTENT[vertical];
-  const C=Object.assign({},C0,{heads:R.pick(C0.heads),promises:R.shuffle(C0.promises)});
+  const headIdx=(cfg&&cfg.headIndex!=null)?cfg.headIndex:Math.floor(R.f(0,1)*C0.heads.length);
+  const C=Object.assign({},C0,{heads:C0.heads[headIdx],headIndex:headIdx,promises:R.shuffle(C0.promises)});
   /* The brand block used to be "iPhones.LA / iL / SAME DAY CASH" baked into the
      deck. It is the owner's mark — or another shop's — so it is a setting:
      name, kicker, initials, address, and how the mark is framed. */
@@ -1510,11 +2291,26 @@ function render(archKey,seed,vertical,sizeKey,cfg){
     if(b.name!=null)C.brand=b.name; if(b.kicker!=null)C.kicker=b.kicker;
     if(b.initials!=null)C.mark=b.initials; if(b.addr!=null)C.addr=b.addr;
     if(b.phone!=null)C.phone=b.phone;}
-  const F={display:Fp.display,body:Fp.body,dw:Fp.dw,bw:Fp.bw,dweight:Fp.dweight,
-    figures:Fp.figures!==false};
-  const c=new Card(W,H,P,F,R,C,cfg,archKey+seed+sizeKey,vertical);
+  /* ONE CLAIM, ONE PLACE. A pill that says what the kicker, the seal, the
+     offer line, a step or the headline already says is dropped — judged with
+     the same test R18 will apply, AFTER the brand is in, because the owner's
+     own kicker "SAME DAY CASH" is what collided with the "SAME DAY" pill. */
+  /* "CASH FOR TRUCKS" over a Civic is the iPhone-15 mistake in another aisle:
+     the headline's body word becomes part of the subject the picture must match */
+  if(C.subject&&C.subject.brand&&C.subject.brand.includes('car')){
+    const hw=(C.heads||[]).join(' ').toUpperCase();
+    const body=/\bTRUCKS?\b/.test(hw)?'truck':/\bVANS?\b/.test(hw)?'van':/\bCARS?\b/.test(hw)?'car':null;
+    if(body)C.subject={...C.subject,body};
+  }
+  const already=[C.kicker,C.offerSub,C.offer,((SEAL_PHRASE[archKey]||[])[0]||[]).join(' '),...(C.steps||[]).map(x=>x[0]),...(C.heads||[])].filter(Boolean);
+  C.promises=C.promises.filter(pr=>!already.some(a=>repeats(a,pr)));
+  const F={display:Fp.display,body:Fp.body,num:Fp.num||Fp.body,
+    dw:Fp.dw,bw:Fp.bw,nw:Fp.bw,
+    dweight:Fp.dweight,bweight:Fp.bweight||700,nweight:Fp.nweight||700};
+  const c=new Card(W,H,P,F,R,C,cfg,archKey+seed+sizeKey,vertical,archKey,sizeKey);
   ARCH[archKey](c);
   placeStickers(c);
+  c.defer(()=>D.arrow(c));            // after the seal has taken its seat
   c.flush();
   const a=audit(c);
   const svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(archKey)} buyback ad in the ${esc(P.name)} palette"><defs>${cfg&&cfg.embedFonts===false?'':`<style>${faceCSS(c.used)}</style>`}${c.defs.join('')}</defs><rect width="${W}" height="${H}" fill="${P.ground}"/>${c.svg.join('')}</svg>`;
@@ -1531,21 +2327,49 @@ function render(archKey,seed,vertical,sizeKey,cfg){
    (a seal or a prop is decoration; the offer is not), and if nothing clean can
    be found the answer is null and the caller must say so, never "close enough".
    ══════════════════════════════════════════════════════════ */
-const OPTIONAL=['stickers','starburst','sunburst','halftone','checker','grain','sheen','arcCrown','paintStroke','tornPaper'];
+const OPTIONAL=['showcase','stickers','duo','starburst','sunburst','halftone','checker','grain','sheen','arcCrown','paintStroke','tornPaper'];
+/* the device that IS the archetype is not an ornament — dropping the tear from
+   Torn Split leaves a flat plate, which is the first permanent negative */
+const ARCH_MUST={tornSplit:['tornPaper'],sunburstHero:['sunburst','arcCrown'],posterBleed:['paintStroke']};
 function renderClean(archKey,seed,vertical,sizeKey,cfg,o={}){
   const tries=o.tries||6;
   const clean=r=>r.audit.pass===r.audit.total;
   let best=null;
   const keep=r=>{if(!best||r.audit.pass>best.audit.pass)best=r;};
+  /* A reseed moves placement, not identity. 977 mod 8 is 1, so every retry
+     used to rotate the palette, and the type pair, headline and hero photo all
+     moved with the seed — the gate was counting a different card as this card,
+     clean. The look is read off the first render and pinned for the retries. */
+  let held=null;
   for(let t=0;t<tries;t++){
-    const r=render(archKey,(seed+t*977)%999983,vertical,sizeKey,cfg);
-    if(clean(r))return Object.assign(r,{gate:{seed:(seed+t*977)%999983,dropped:[],tries:t+1}});
+    const r=render(archKey,(seed+t*977)%999983,vertical,sizeKey,held||cfg);
+    if(!held){const h=r.card.nodes.find(n=>n.role==='hero');
+      held={...cfg,palette:r.palette.id,pair:r.pair.id,headIndex:r.card.C.headIndex,heroAsset:h&&h.asset||undefined};}
+    if(clean(r))return Object.assign(r,{gate:{seed:(seed+t*977)%999983,dropped:[],tries:t+1,held:t>0}});
     keep(r);
   }
+  /* a card that is clean except for coverage is short of picture, not long
+     on ornament: grow the hero and try the seeds again before dropping anything */
+  if(best&&best.audit.rules.every(x=>x[1]||x[0]==='R1')&&!(held||cfg).heroBoost){
+    /* ESCALATE. One step of 16% used to be the whole offer, and a card sitting
+       a single point under the floor with a hero at 12% of the canvas was
+       refused outright — a picture-poor card whose answer was more picture.
+       Dropping an ornament can never fix coverage, so this is the last real
+       lever before refusal; it stops at 30% so the hero cannot eat the card. */
+    for(const step of [1.16,1.30]){
+      const boosted={...(held||cfg),heroBoost:step};
+      for(let t=0;t<tries;t++){
+        const r=render(archKey,(seed+t*977)%999983,vertical,sizeKey,boosted);
+        if(clean(r))return Object.assign(r,{gate:{seed:(seed+t*977)%999983,dropped:[],tries:t+1,held:t>0,boosted:step}});
+        keep(r);
+      }
+    }
+  }
   const dropped=[];
-  let c={...cfg};
+  let c={...(held||cfg)};
   for(const k of OPTIONAL){
     if(c[k]===false)continue;
+    if((ARCH_MUST[archKey]||[]).includes(k))continue;
     c={...c,[k]:false};dropped.push(k);
     const r=render(archKey,seed,vertical,sizeKey,c);
     if(clean(r))return Object.assign(r,{gate:{seed,dropped:dropped.slice(),tries}});
@@ -1562,6 +2386,47 @@ function renderClean(archKey,seed,vertical,sizeKey,cfg,o={}){
    whether it is called from the console on the live card or from the release
    gate in headless Chrome, so the two can never drift apart.
    boxes: [{s,x,y,w,h,op}] in viewBox units. Returns [] when clean. */
+/* THE BROWSER'S OWN INK, NOT ITS EM BOX.
+   getBoundingClientRect() on an SVG <text> returns the font's em box — ascent
+   plus descent — and that is 1.18x the font size for Sora but 1.57x for Saira
+   Condensed. pixelFaults used to shave a flat 16%/68% off it, which fits a
+   body face and puts a display headline's ink ~38px higher than it is drawn:
+   six cards were failed for a collision with 16px of clear air in it, while a
+   real touch between two body lines could hide inside the same slack.
+   Canvas measureText reports actualBoundingBoxAscent/Descent for the face the
+   browser actually loaded, so the vertical extent is MEASURED. Everything is a
+   ratio taken from that one call and anchored to the rect, so it is immune to
+   enclosing transforms and to the user-unit/CSS-pixel scale. The horizontal
+   extent stays with the rect, which is exact and already accounts for
+   textLength. This is still a second opinion: it reads the page, never the
+   engine's own metrics. */
+function inkBox(t,host,sx,sy){
+  const b=t.getBoundingClientRect(), str=t.textContent||'';
+  const box={s:str.slice(0,26),x:(b.left-host.left)*sx,y:(b.top-host.top)*sy,
+             w:b.width*sx,h:b.height*sy,op:+(getComputedStyle(t).opacity||1)};
+  try{
+    const cs=getComputedStyle(t);
+    const cv=inkBox._ctx||(inkBox._ctx=document.createElement('canvas').getContext('2d'));
+    cv.font=`${cs.fontStyle||'normal'} ${cs.fontWeight||400} ${cs.fontSize} ${cs.fontFamily}`;
+    const m=cv.measureText(str);
+    const em=m.fontBoundingBoxAscent+m.fontBoundingBoxDescent;
+    const up=m.actualBoundingBoxAscent, dn=m.actualBoundingBoxDescent;
+    if(em>0&&(up+dn)>0&&box.h>0){
+      const k=box.h/em;                       // user units per font unit
+      box.y+=(m.fontBoundingBoxAscent-up)*k;
+      box.h=(up+dn)*k;
+      /* HOW BIG THE TYPE IS, NOT HOW MUCH INK THIS PARTICULAR RUN HAS.
+         "is too small to read" is a statement about the size of the type. Ink
+         height only stands in for that while the run contains capitals: the
+         proof wall's opening quotation mark is set at 90px and has 20px of
+         ink, and reading the ink flagged it as unreadably small on 90 cards.
+         Measure the loaded face's own cap height instead — still the browser's
+         number, taken from the same context at the same size. */
+      box.cap=cv.measureText('H').actualBoundingBoxAscent*k;
+    }
+  }catch(e){}                                  // a browser without the metrics keeps the em box
+  return box;
+}
 function pixelFaults(boxes,W,H){
   const raw=boxes.filter(t=>t.op>0.05&&t.s.trim());
   const vis=[];
@@ -1574,9 +2439,9 @@ function pixelFaults(boxes,W,H){
     vis.push({...t});
   }
   const out=[];
-  const ink=t=>({x:t.x,w:t.w,y:t.y+t.h*0.16,h:t.h*0.68,s:t.s});
+  /* boxes arrive as ink from inkBox(); the old blanket 16%/68% shave is gone */
   for(let i=0;i<vis.length;i++)for(let j=i+1;j<vis.length;j++){
-    const a=ink(vis[i]),b=ink(vis[j]);
+    const a=vis[i],b=vis[j];
     const ox=Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x), oy=Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y);
     if(ox>2&&oy>2){
       const small=Math.min(a.w*a.h,b.w*b.h);
@@ -1589,7 +2454,7 @@ function pixelFaults(boxes,W,H){
   for(const t of vis)if(t.x<-2||t.y<-2||t.x+t.w>W+2||t.y+t.h>H+2)
     out.push(`"${t.s.trim()}" is clipped by the edge`);
   const SS=Math.min(W,H);
-  for(const t of vis)if(t.h<SS*0.018)out.push(`"${t.s.trim()}" is too small to read`);
+  for(const t of vis)if((t.cap||t.h)<SS*0.018)out.push(`"${t.s.trim()}" is too small to read`);
   return out;
 }
 
@@ -1661,5 +2526,5 @@ export {
   QUEUE, ALLKEYS, KEYMETA, DEFAULT_CFG,
   RULES, PERMANENT_NEG, audit, render, buildPrompt, sentiment,
   ground, placeHero, headline, sealOnHero, priceRows, proofSteps, reviewCard,
-  fontCSS, faceCSS, renderClean, OPTIONAL, pixelFaults, matchSubject
+  fontCSS, faceCSS, renderClean, OPTIONAL, ARCH_MUST, OFF_BY_DEFAULT, pixelFaults, inkBox, matchSubject, parseModel, leadOf, namedModels, PLACEHOLDER
 };

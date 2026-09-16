@@ -2,6 +2,7 @@
 /* The theme library page: 100 locked themes, two rendered samples each.
    LOOKS_DIR=.render/looks100 node scripts/build_theme_site.mjs */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 const ROOT = new URL('../', import.meta.url).pathname;
 const DIR = (process.env.LOOKS_DIR || '.render/looks100').replace(/\/?$/, '/');
 const man = JSON.parse(readFileSync(ROOT + DIR + 'manifest.json', 'utf8'));
@@ -38,6 +39,16 @@ if (FILES){
   console.log('theme images -> ' + FILES + ' (' + man.length + ')');
 }
 const tpl = readFileSync(ROOT + 'scripts/theme_site.html', 'utf8');
-const html = tpl.replace('/*__THEMES__*/[]', JSON.stringify(out));
-writeFileSync(ROOT + (process.env.THEME_OUT || (DIR + 'themes.html')), html);
+const page = tpl.replace('/*__THEMES__*/[]', JSON.stringify(out));
+/* Same reason as the set pages: the site's CSP allows inline script only by
+   sha256, and the theme list lives inside the script, so a rebuild left the
+   deployed page with its script silently refused. 'self' covers a file. */
+const OUT = ROOT + (process.env.THEME_OUT || (DIR + 'themes.html'));
+const m = page.match(/<script>([\s\S]*?)<\/script>/);
+if (!m) throw new Error('theme_site.html no longer has the inline page script — the CSP split needs updating');
+const jsName = OUT.split('/').pop().replace(/\.html$/, '') + '.js';
+const stamp = createHash('sha256').update(m[1]).digest('hex').slice(0, 8);
+const html = page.replace(m[0], `<script src="${jsName}?v=${stamp}"></script>`);
+writeFileSync(OUT.replace(/[^/]+$/, jsName), m[1]);
+writeFileSync(OUT, html);
 console.log(`theme library: ${out.length} themes, ${out.reduce((n, t) => n + t.shots.length, 0)} samples, ${(html.length / 1048576).toFixed(1)} MB`);

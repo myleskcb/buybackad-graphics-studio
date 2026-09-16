@@ -31,7 +31,7 @@ const save = () => { try { localStorage.setItem(STORE, JSON.stringify(
 
 /* live config, including the direct palette/type choices the old console lacked */
 const conf = () => ({ ...S.cfg, palette: S.palette, pair: S.pair, brand: S.brand,
-  embedFonts: false, assetBase: '../' });
+  embedFonts: false, assetBase: '../', allowPlaceholder: true });   // the live view is a template; export is not
 
 /* ── chrome ─────────────────────────────────────────────────────────────── */
 function segment(host, items, get, set) {
@@ -217,7 +217,7 @@ function renderLook(r) {
   const deck = CONTENT[S.vertical];
   const FRAMES = [['app', 'app shape'], ['circle', 'disc'], ['float', 'floating'], ['name', 'name only'], ['mark', 'mark only']];
   const brandUI =
-    `<h4>Brand ${S.brand ? '· yours' : '· the deck\'s own'}</h4>
+    `<h4>Brand ${S.brand && !PLACEHOLDER.test(JSON.stringify(S.brand)) ? '· yours' : '· PLACEHOLDER — type yours'}</h4>
      <div class="brandgrid">
        <label>Name<input id="bName" value="${esc(B.name ?? deck.brand)}" maxlength="24"></label>
        <label>Initials<input id="bInit" value="${esc(B.initials ?? deck.mark)}" maxlength="3"></label>
@@ -225,7 +225,7 @@ function renderLook(r) {
        <label>Footer<input id="bAddr" value="${esc(B.addr ?? deck.addr)}" maxlength="30"></label>
      </div>
      <div class="chips">${FRAMES.map(([k, l]) => `<button class="chip" data-frame="${k}" aria-pressed="${String((B.frame || 'app') === k)}">${l}</button>`).join('')}</div>
-     <button class="btn" id="brandReset" style="width:100%">use the deck's own brand</button>`;
+     <button class="btn" id="brandReset" style="width:100%">back to the placeholder</button>`;
   $('#pane-look').innerHTML = brandUI +
     `<h4>Palette ${S.palette ? '· pinned' : '· following the seed'}</h4><div class="chips">${pal}</div>` +
     `<h4>Type ${S.pair ? '· pinned' : '· following the seed'}</h4><div class="chips">${pairs}</div>` +
@@ -290,7 +290,7 @@ addEventListener('resize', fit);
    card on screen after the fonts and photographs have settled. The engine's
    geometry is one opinion; this is the browser's. Both must be clean before
    a card is called clean here, and nothing that is not clean can be exported. */
-let pixels = { ok: true, faults: [] };
+let pixels = { ok: true, faults: [], pending: true };
 async function checkPixels() {
   const svg = $('#frame').firstElementChild;
   if (!svg || openAxis) return;
@@ -302,14 +302,14 @@ async function checkPixels() {
     setTimeout(r, 1500); })));
   const vb = (svg.getAttribute('viewBox') || '0 0 1 1').split(/\s+/).map(Number);
   const host = svg.getBoundingClientRect(), sx = vb[2] / host.width, sy = vb[3] / host.height;
-  const boxes = [...svg.querySelectorAll('text')].map(t => { const b = t.getBoundingClientRect();
-    return { s: (t.textContent || '').slice(0, 26), x: (b.left - host.left) * sx, y: (b.top - host.top) * sy,
-             w: b.width * sx, h: b.height * sy, op: +(getComputedStyle(t).opacity || 1) }; });
+  const boxes = [...svg.querySelectorAll('text:not([data-deco])')].map(t => inkBox(t, host, sx, sy));
   const faults = pixelFaults(boxes, vb[2], vb[3]);
-  pixels = { ok: !faults.length, faults };
+  pixels = { ok: !faults.length, faults, pending: false };
   renderVerdict();
 }
-const isClean = () => !!last && last.audit.pass === last.audit.total && pixels.ok;
+/* not clean until the browser has actually answered — the export used to be
+   able to slip through in the gap between paint() and the pixel verdict */
+const isClean = () => !!last && last.audit.pass === last.audit.total && pixels.ok && !pixels.pending;
 function renderVerdict() {
   const g = $('#gPixels');
   if (g) { g.textContent = pixels.ok ? 'clean' : pixels.faults.length + ' fault' + (pixels.faults.length > 1 ? 's' : '');
@@ -327,7 +327,7 @@ function renderVerdict() {
 }
 
 /* ── paint ──────────────────────────────────────────────────────────────── */
-let last = null;
+let last = null, pixelsDone = Promise.resolve();
 function paint() {
   const r = render(S.arch, S.seed, S.vertical, S.size, conf());
   last = r;
@@ -341,8 +341,8 @@ function paint() {
   $('#seedTag').textContent = `${S.arch} · seed ${S.seed} · ${r.palette.id} · ${r.pair.id}`;
   renderReadout(r.audit);
   renderAudit(r); renderLook(r); renderPrompt(r); renderLog();
-  pixels = { ok: true, faults: [] };
-  checkPixels();
+  pixels = { ok: true, faults: [], pending: true };
+  pixelsDone = checkPixels();
   renderQueue(); renderArch();
   segment($('#vertSeg'), VERT.map(v => [v, v]), () => S.vertical, v => S.vertical = v);
   segment($('#fmtSeg'), FMT, () => S.size, v => S.size = v);
@@ -407,11 +407,21 @@ function record(r) {
     prompt: buildPrompt(S.arch, r, conf()),
   };
 }
-function exportAll() {
+async function exportAll() {
   const r = last || paint();
+  await pixelsDone;
+  /* the export itself is judged with the placeholder forbidden */
+  const strict = render(S.arch, S.seed, S.vertical, S.size, { ...conf(), allowPlaceholder: false });
+  if (strict.audit.pass !== strict.audit.total) { last = strict; renderAudit(strict); }
   /* 100% confidence, no less. A card that fails a rule, or whose pixels the
      browser disagrees with, does not leave. The gate is offered instead: the
      nearest clean card, with what it changed said out loud. */
+  /* a card that still says YOUR NAME is a template, not an ad */
+  if (PLACEHOLDER.test(r.svg)) {
+    note('export refused · brand is still the placeholder');
+    alert('Refused: the brand is still the placeholder. Type your name, initials, tagline and footer in the Look tab.');
+    S.tab = 'look'; renderTabs(); showPane(); return;
+  }
   if (!isClean()) {
     const g = renderClean(S.arch, S.seed, S.vertical, S.size, conf());
     if (!g) { note('export refused · no clean card near this one'); alert('Refused: this card is not clean and no clean neighbour was found.'); return; }

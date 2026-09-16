@@ -15,7 +15,7 @@ let sharp = null;
 try { sharp = (await import('sharp')).default; } catch { /* SVG only */ }
 
 for (const [key, name] of E.ARCHS) {
-  const r = E.render(key, SEED, V, F, E.DEFAULT_CFG());
+  const r = E.render(key, SEED, V, F, { ...E.DEFAULT_CFG(), allowPlaceholder: true });
   const stem = `${key}-${V}-${F}-${SEED}`;
   writeFileSync(join(OUT, stem + '.svg'), r.svg);
   if (sharp) await sharp(Buffer.from(r.svg)).png().toFile(join(OUT, stem + '.png'));

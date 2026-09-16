@@ -19,7 +19,7 @@ const cards = [];
 for (let s = 0; s < N; s++)
   for (const [k, name] of E.ARCHS) {
     /* the faces go in the page once, not into all 24 cards */
-    const r = E.render(k, 4242 + s * 977, V, F, { ...E.DEFAULT_CFG(), embedFonts: false, assetBase: BASE });
+    const r = E.render(k, 4242 + s * 977, V, F, { ...E.DEFAULT_CFG(), allowPlaceholder: true, embedFonts: false, assetBase: BASE });
     cards.push({ svg: r.svg, cap: `${name} · ${r.palette.name} · ${r.pair.display} · ${(r.audit.coverage*100).toFixed(0)}% · ${r.audit.pass}/${r.audit.total}` });
   }
 

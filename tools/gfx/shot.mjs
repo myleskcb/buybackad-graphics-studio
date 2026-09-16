@@ -28,7 +28,7 @@ await page.goto(BASE);   // give the document an origin the images can load from
 await page.setViewport({ width: 1080, height: 1350, deviceScaleFactor: 1 });
 
 for (const seed of SEEDS) {
-  const r = E.render(ARCH, seed, V, F, { ...E.DEFAULT_CFG(), assetBase: BASE });
+  const r = E.render(ARCH, seed, V, F, { ...E.DEFAULT_CFG(), allowPlaceholder: true, assetBase: BASE });
   const stem = `${ARCH}-${seed}`;
   writeFileSync(`${OUT}/${stem}.svg`, r.svg);
   await page.setContent(`<style>html,body{margin:0}svg{display:block;width:100vw;height:auto}</style>${r.svg}`);

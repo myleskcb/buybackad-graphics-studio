@@ -1,0 +1,10 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "buyback-lab",
+      "url": "http://localhost:8899",
+      "port": 8899
+    }
+  ]
+}

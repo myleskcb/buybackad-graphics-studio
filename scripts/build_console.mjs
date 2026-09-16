@@ -47,9 +47,29 @@ function faceCSS(used){
   return out.join('');
 }`;
 
-const importLine = `import { faceCSS, nearestWeight, FONT_FILES } from './fonts.mjs';\nimport { readFileSync } from 'node:fs';`;
-if (!engine.includes(importLine)) throw new Error('engine imports moved — update build_console.mjs');
-engine = engine.replace(importLine, fontsShim);
+/* showcase.mjs is a sibling module, not a build artefact — inline its source
+   with the export keywords stripped so it shares the bundle's scope */
+{
+  const parts = read('engine/showcase-parts.mjs').replace(/^export /gm, '');
+  const sc = parts + '\n' + read('engine/showcase.mjs')
+    .replace(/^import \* as PARTS from[^\n]*\n/m, '')
+    .replace(/PARTS\./g, '')
+    .replace(/^import .*$/gm, '')
+    .replace(/^export (function|const) /gm, '$1 ');
+  const line = engine.match(/^import \{ drawShowcase.*$/m);
+  if (!line) throw new Error('showcase import moved — update build_console.mjs');
+  engine = engine.replace(line[0], sc + '\nconst SHOWCASE_LAYOUTS = LAYOUTS;');
+}
+
+/* replaced one at a time: they are no longer adjacent, and asserting on an
+   adjacent pair is how this broke the moment another import landed between */
+for (const [re, sub] of [
+  [/^import \{ faceCSS[^\n]*\n/m, fontsShim + '\n'],
+  [/^import \{ readFileSync \} from 'node:fs';\n/m, ''],
+]) {
+  if (!re.test(engine)) throw new Error(`engine imports moved (${re}) — update build_console.mjs`);
+  engine = engine.replace(re, sub);
+}
 
 /* Both build artefacts — the measured type metrics and the approved asset
    index — are inlined as data. Anything the engine reads from disk has to be
@@ -62,8 +82,25 @@ const dataFile = (marker, file, hint) => {
   engine = engine.replace(line[0], line[0].replace(/=\(\(\)=>.*$/, `=${read(file)};`));
 };
 dataFile(/^const ASSETS=.*$/m, 'spec/assets.json', 'node tools/gfx/build_assets.mjs');
+dataFile(/^const ICONS=.*$/m, 'spec/icons.json', 'extract from assets/icon-set.svg');
+dataFile(/^const PORTED=.*$/m, 'spec/palettes.json', 'node tools/gfx/port_palettes.mjs --write');
+dataFile(/^const LEGIBILITY=.*$/m, 'spec/legibility.json', 'node tools/gfx/score_legibility.mjs');
 
-dataFile(/^const METRICS=.*$/m, 'spec/metrics.json', 'node tools/gfx/measure_fonts.mjs');
+/* Only the faces the sixteen pairings can actually reach. The full measurement
+   covers 99 faces and is worth keeping on disk, but inlining all of it put
+   307KB of glyph advances into a page that can only ever draw twenty of them. */
+{
+  const metrics = JSON.parse(read('spec/metrics.json'));
+  const pairs = engine.slice(engine.indexOf('const PAIRS=['), engine.indexOf('];', engine.indexOf('const PAIRS=[')));
+  const wanted = new Set();
+  for (const m of pairs.matchAll(/(display|body|num):"([^"]+)"/g)) wanted.add(m[2]);
+  const trimmed = Object.fromEntries(Object.entries(metrics).filter(([k]) => wanted.has(k.split('|')[0])));
+  const line = engine.match(/^const METRICS=.*$/m);
+  if (!line) throw new Error('METRICS loader moved — update build_console.mjs');
+  engine = engine.replace(line[0], `const METRICS=${JSON.stringify(trimmed)};`);
+  console.log(`  metrics trimmed to ${wanted.size} families · ${Object.keys(trimmed).length} faces` +
+    ` (${(JSON.stringify(trimmed).length / 1024).toFixed(0)} KB of ${(JSON.stringify(metrics).length / 1024).toFixed(0)} KB)`);
+}
 
 /* `export {...}` is legal in a module script but pointless here — the UI shares
    the module scope, so drop it rather than leave a dead statement. */

@@ -28,7 +28,11 @@ h1{font-size:17px; font-weight:800; margin:0 0 2px}
 .count b{color:var(--keep); font-weight:700}
 
 main{padding:14px 16px 96px}
-.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(var(--tile,190px),1fr)); gap:10px}
+.zoom{display:flex;align-items:center;gap:0;border:1px solid var(--line,#232a33);border-radius:8px;overflow:hidden}
+.zoom button{padding:6px 11px;font-size:15px;line-height:1;background:none;border:0;color:inherit;cursor:pointer}
+.zoom button:hover{background:rgba(255,255,255,.07)}
+.zoom span{padding:0 8px;font:11px ui-monospace,monospace;opacity:.65;min-width:44px;text-align:center}
 .card{background:var(--panel); border:3px solid var(--line); border-radius:14px; overflow:hidden;
   cursor:pointer; position:relative; content-visibility:auto; contain-intrinsic-size:260px}
 .card img{display:block; width:100%; height:auto; aspect-ratio:1/1; background:#0d0f14}
@@ -77,7 +81,7 @@ dialog textarea{width:100%; height:46vh; border:none; background:transparent; co
   padding:13px 16px; font:12px/1.6 "IBM Plex Mono",ui-monospace,monospace; resize:none}
 dialog textarea:focus{outline:none}
 dialog .df{padding:11px 16px; border-top:1px solid var(--line); display:flex; gap:8px; justify-content:flex-end}
-@media (max-width:640px){ .grid{grid-template-columns:repeat(2,1fr); gap:8px} main{padding:12px 10px 100px} }
+@media (max-width:640px){ .grid{grid-template-columns:repeat(auto-fill,minmax(min(var(--tile,190px),46vw),1fr)); gap:8px} main{padding:12px 10px 100px} }
 </style>
 </head>
 <body>
@@ -106,6 +110,7 @@ dialog .df{padding:11px 16px; border-top:1px solid var(--line); display:flex; ga
 
 <div class="dock">
   <span class="n mono">Set __SET__</span>
+  <div class="zoom"><button id="zout" title="Smaller (−)">−</button><span id="zlabel">190</span><button id="zin" title="Bigger (+)">+</button></div>
   <button class="ghost" id="mode">Deck</button>
   <button class="ghost" id="reset">Start over</button>
   <button id="export">Export list</button>
@@ -170,6 +175,29 @@ function renderGrid(){
 
 /* ---- the deck ---- */
 const nextIdx = () => CARDS.findIndex(c => !st.seen[c.id]);
+/* ZOOM. The grid is sized from one custom property, so the tiles grow without
+   the page reflowing anything else, and the choice is remembered — a set of a
+   hundred is worked through over more than one sitting. */
+const ZSTEPS=[130,160,190,240,300,380,480,620,820];
+let zi=ZSTEPS.indexOf(+(localStorage.getItem('lab-tile')||190));
+if(zi<0)zi=2;
+function applyZoom(){
+  const px=ZSTEPS[zi];
+  document.documentElement.style.setProperty('--tile',px+'px');
+  const l=document.getElementById('zlabel'); if(l)l.textContent=px;
+  try{localStorage.setItem('lab-tile',px)}catch(e){}
+  document.getElementById('zout').disabled=zi<=0;
+  document.getElementById('zin').disabled=zi>=ZSTEPS.length-1;
+}
+document.getElementById('zin').onclick=()=>{if(zi<ZSTEPS.length-1){zi++;applyZoom()}};
+document.getElementById('zout').onclick=()=>{if(zi>0){zi--;applyZoom()}};
+addEventListener('keydown',e=>{
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName))return;
+  if(e.key==='+'||e.key==='='){if(zi<ZSTEPS.length-1){zi++;applyZoom()}e.preventDefault();}
+  if(e.key==='-'||e.key==='_'){if(zi>0){zi--;applyZoom()}e.preventDefault();}
+});
+applyZoom();
+
 function renderDeck(){
   const stage = $('stage'); stage.innerHTML = ''; count();
   const i = nextIdx();

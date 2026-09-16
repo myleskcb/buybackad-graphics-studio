@@ -14,8 +14,8 @@ const rows = E.ALLKEYS.map(k => {
   let sum = 0, n = 0;
   for (const seed of SEEDS)
     for (const [arch] of E.ARCHS) {
-      const on = { ...E.DEFAULT_CFG(), [k]: true };
-      const off = { ...E.DEFAULT_CFG(), [k]: false };
+      const on = { ...E.DEFAULT_CFG(), allowPlaceholder: true, [k]: true };
+      const off = { ...E.DEFAULT_CFG(), allowPlaceholder: true, [k]: false };
       sum += score(E.render(arch, seed, V, F, on).audit) - score(E.render(arch, seed, V, F, off).audit);
       n++;
     }

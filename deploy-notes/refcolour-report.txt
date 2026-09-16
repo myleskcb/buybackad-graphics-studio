@@ -1,0 +1,430 @@
+
+══ AGGREGATE BY GRADE ══
+
+── GOOD (n=28)
+  ground L*      med 32.4  mean 40.4   range 1.3–96.0
+  ground relLum  med 0.0723
+  ground chroma  med 5.6  mean 11.0   >=20: 6/28 (21%)
+  ground HSL S   med 0.132
+  near-black gr  10/28 (36%)   near-white gr 2/28 (7%)   NEITHER 16/28 (57%)
+  groundKind     FLAT 3/28 (11%)  GRADIENT 3/28 (11%)  SEMI 12/28 (43%)  PHOTO 10/28 (36%)
+  ring MAD L*    med 7.6   (painted ground = low)
+  ring dE t/b    med 17.5  >=8: 22/28 (79%)   full-canvas dE med 12.0
+  ring dL* t→b   med 0.3   darker-at-bottom 11/28 (39%)  lighter-at-bottom 8/28 (29%)
+  class          sat-coloured 6/28 (21%)  dark-gr 16/28 (57%)  light-gr 6/28 (21%)
+  satMax med 1.00   satMean(area) med 0.373   vividShare med 0.212
+  chroma mean med 16.5   chromaP95 med 70.2   chromaticShare med 0.257
+  colourfulness  med 67.4  mean 71.2  range 11.7–111.0
+  hue entropy    med 1.46   biggest single hue holds med 65% of the chromatic area
+  punch C*>50    med 0.117   neutral C*<12 med 0.588   chroma(interior)/chroma(ground) med 3.02
+  hueFamilies    med 3  mean 2.71   >=3: 16/28 (57%)  >=4: 7/28 (25%)
+  ink vs GROUND  med 1.8   <4.5: 22/28 (79%)   light-ink 4/28 (14%)
+  ink vs LOCAL   med 4.3   >=7: 8/28 (29%)  >=12: 0/28 (0%)  <4.5: 15/28 (54%)
+  big fields     med 5   BIG CHROMATIC (share>=6%, C*>=25) med 2 mean 1.75  >=2: 18/28 (64%)  >=3: 5/28 (18%)
+  top1 share med 0.395   top2 sum med 0.626
+  area held by chromatic (C*>=25) dominants: med 0.223  mean 0.268
+
+── MID (n=49)
+  ground L*      med 49.6  mean 46.4   range 0.0–96.1
+  ground relLum  med 0.1812
+  ground chroma  med 10.6  mean 14.6   >=20: 14/49 (29%)
+  ground HSL S   med 0.195
+  near-black gr  12/49 (24%)   near-white gr 1/49 (2%)   NEITHER 36/49 (73%)
+  groundKind     FLAT 11/49 (22%)  GRADIENT 4/49 (8%)  SEMI 20/49 (41%)  PHOTO 14/49 (29%)
+  ring MAD L*    med 9.0   (painted ground = low)
+  ring dE t/b    med 13.1  >=8: 34/49 (69%)   full-canvas dE med 11.9
+  ring dL* t→b   med 0.9   darker-at-bottom 18/49 (37%)  lighter-at-bottom 16/49 (33%)
+  class          sat-coloured 13/49 (27%)  dark-gr 17/49 (35%)  light-gr 19/49 (39%)
+  satMax med 1.00   satMean(area) med 0.443   vividShare med 0.334
+  chroma mean med 23.9   chromaP95 med 68.2   chromaticShare med 0.403
+  colourfulness  med 73.3  mean 76.4  range 7.9–166.6
+  hue entropy    med 2.16   biggest single hue holds med 42% of the chromatic area
+  punch C*>50    med 0.124   neutral C*<12 med 0.382   chroma(interior)/chroma(ground) med 2.04
+  hueFamilies    med 3  mean 3.24   >=3: 34/49 (69%)  >=4: 20/49 (41%)
+  ink vs GROUND  med 2.1   <4.5: 41/49 (84%)   light-ink 26/49 (53%)
+  ink vs LOCAL   med 3.2   >=7: 8/49 (16%)  >=12: 1/49 (2%)  <4.5: 32/49 (65%)
+  big fields     med 5   BIG CHROMATIC (share>=6%, C*>=25) med 2 mean 1.96  >=2: 30/49 (61%)  >=3: 16/49 (33%)
+  top1 share med 0.365   top2 sum med 0.610
+  area held by chromatic (C*>=25) dominants: med 0.308  mean 0.343
+
+── BAD (n=26)
+  ground L*      med 40.1  mean 46.1   range 0.5–99.2
+  ground relLum  med 0.1159
+  ground chroma  med 7.9  mean 16.9   >=20: 8/26 (31%)
+  ground HSL S   med 0.126
+  near-black gr  6/26 (23%)   near-white gr 2/26 (8%)   NEITHER 18/26 (69%)
+  groundKind     FLAT 5/26 (19%)  GRADIENT 5/26 (19%)  SEMI 6/26 (23%)  PHOTO 10/26 (38%)
+  ring MAD L*    med 7.6   (painted ground = low)
+  ring dE t/b    med 20.2  >=8: 20/26 (77%)   full-canvas dE med 14.5
+  ring dL* t→b   med 0.1   darker-at-bottom 9/26 (35%)  lighter-at-bottom 12/26 (46%)
+  class          sat-coloured 8/26 (31%)  dark-gr 11/26 (42%)  light-gr 7/26 (27%)
+  satMax med 1.00   satMean(area) med 0.494   vividShare med 0.339
+  chroma mean med 25.1   chromaP95 med 55.4   chromaticShare med 0.413
+  colourfulness  med 78.2  mean 72.9  range 0.5–133.6
+  hue entropy    med 1.72   biggest single hue holds med 55% of the chromatic area
+  punch C*>50    med 0.061   neutral C*<12 med 0.425   chroma(interior)/chroma(ground) med 2.14
+  hueFamilies    med 3  mean 2.50   >=3: 14/26 (54%)  >=4: 4/26 (15%)
+  ink vs GROUND  med 2.0   <4.5: 17/26 (65%)   light-ink 8/26 (31%)
+  ink vs LOCAL   med 4.4   >=7: 5/26 (19%)  >=12: 1/26 (4%)  <4.5: 13/26 (50%)
+  big fields     med 5   BIG CHROMATIC (share>=6%, C*>=25) med 2 mean 1.92  >=2: 17/26 (65%)  >=3: 11/26 (42%)
+  top1 share med 0.342   top2 sum med 0.593
+  area held by chromatic (C*>=25) dominants: med 0.389  mean 0.319
+
+── ENGINE (n=216)
+  ground L*      med 62.4  mean 55.7   range 1.9–97.6
+  ground relLum  med 0.3085
+  ground chroma  med 20.6  mean 22.0   >=20: 113/216 (52%)
+  ground HSL S   med 0.544
+  near-black gr  59/216 (27%)   near-white gr 22/216 (10%)   NEITHER 135/216 (63%)
+  groundKind     FLAT 1/216 (0%)  GRADIENT 2/216 (1%)  SEMI 176/216 (81%)  PHOTO 37/216 (17%)
+  ring MAD L*    med 5.5   (painted ground = low)
+  ring dE t/b    med 45.1  >=8: 215/216 (100%)   full-canvas dE med 15.0
+  ring dL* t→b   med -35.8   darker-at-bottom 205/216 (95%)  lighter-at-bottom 11/216 (5%)
+  class          sat-coloured 99/216 (46%)  dark-gr 53/216 (25%)  light-gr 64/216 (30%)
+  satMax med 1.00   satMean(area) med 0.494   vividShare med 0.320
+  chroma mean med 19.9   chromaP95 med 63.4   chromaticShare med 0.281
+  colourfulness  med 67.2  mean 70.0  range 29.0–120.2
+  hue entropy    med 0.96   biggest single hue holds med 69% of the chromatic area
+  punch C*>50    med 0.087   neutral C*<12 med 0.418   chroma(interior)/chroma(ground) med 0.96
+  hueFamilies    med 2  mean 2.10   >=3: 52/216 (24%)  >=4: 7/216 (3%)
+  ink vs GROUND  med 7.0   <4.5: 84/216 (39%)   light-ink 126/216 (58%)
+  ink vs LOCAL   med 8.3   >=7: 132/216 (61%)  >=12: 46/216 (21%)  <4.5: 32/216 (15%)
+  big fields     med 4   BIG CHROMATIC (share>=6%, C*>=25) med 2 mean 1.64  >=2: 117/216 (54%)  >=3: 31/216 (14%)
+  top1 share med 0.425   top2 sum med 0.673
+  area held by chromatic (C*>=25) dominants: med 0.223  mean 0.309
+
+══ ENGINE PALETTES (swatch maths, same colour space) ══
+palette	ground	gL*	gC*	gRelLum	ground→ground2 dE	accentC*	hotC*	hueFams	accentContrast	inkContrast
+nn01 Night Lot	#0B1B3A	10.3	22.9	0.0116	11.2	78.1	88.7	3	9.32	17.04
+jw09 Neon Counter	#0A0F1E	4.5	10.5	0.005	21.6	40.8	80.5	3	10.56	19.09
+ca10 Cash Green	#05261B	12.6	15.9	0.015	13.9	64.7	73.1	2	6.85	16.16
+du06 Paper Red	#F5EFE3	94.6	6.5	0.8669	6.8	82.8	83.2	3	3.78	16.17
+st04 Steel Orange	#12161C	7.1	4.8	0.0079	8.9	85.6	86.1	3	6.37	18.15
+su07 Sunset Lot	#2B0B3A	9.5	34.4	0.0106	17.5	84.2	79.3	3	7.33	17.33
+bp02 Blueprint	#06203A	11.8	19.7	0.0138	10.6	36.9	86.1	2	8.56	16.46
+np03 Newsprint	#EDE7DC	91.8	6.1	0.8032	7.4	74.1	37.3	3	4.03	15.22
+  engine ground chroma: med 13.2   range 4.8–34.4
+  engine ground→ground2 dE (the only gradient it owns): med 10.9   max 21.6
+  engine hue families per palette: 3,3,2,3,3,3,2,3  (accent+hot+body only; ground is achromatic-ish)
+
+══ RAW PER-IMAGE ══
+grade	file	groundHex	L*	C*	S	relLum	kind	ringMAD	ringdE	dL*t→b	R2	satMax	satMean	chromaMean	vivid	cfulness	hues	hueEnt	topHue	punch	neutral	ink	cGround	cLocal	bigChrom	class	modalHex
+good	MATTHEW3.0	#dda68f	72.5	26.2	0.532	0.4444	SEMI	7.8	55.43	3.8	0.01	1	0.441	32	0.391	111	3	1.7	0.628	0.312	0.431	light	1.75	2.18	4	SATURATED-COLOURED-GROUND	#ffffff
+good	MATTHEW3.2	#dec9c5	82.6	8.1	0.274	0.6134	SEMI	2.3	14.47	1.2	0.09	1	0.349	27.5	0.248	102.6	1	1.19	0.787	0.226	0.526	light	1.32	2.56	2	light-ground-dark-ink	#ffffff
+good	MATTHEW3.7	#d7ded9	87.8	3.6	0.095	0.7168	GRADIENT	5.3	14.46	-12.9	0.89	1	0.408	20.1	0.299	72.9	4	2.42	0.383	0.148	0.568	light	1.19	2.5	2	light-ground-dark-ink	#ffffff
+good	SS3.03.23 PM	#322c22	18.2	7.5	0.195	0.0257	GRADIENT	4.6	17.75	16.7	0.75	1	0.363	10.4	0.108	46	1	0.34	0.949	0.069	0.845	dark	1.42	4.35	1	dark-ground-light-ink	#040303
+good	SS3.15.24 PM	#0a0d11	3.4	2.5	0.282	0.0038	FLAT	1.7	2.03	1.2	0	0.938	0.294	11.5	0.126	50.3	3	2.01	0.511	0.087	0.816	dark	1.35	1.31	0	dark-ground-light-ink	#04050b
+good	SS3.18.58 PM	#6c404d	32.7	21.2	0.258	0.0738	SEMI	11.2	12.6	0.1	0.01	1	0.551	30	0.409	96.4	4	2.21	0.339	0.284	0.421	dark	2	5.15	3	SATURATED-COLOURED-GROUND	#edeceb
+good	SS3.19.23 PM	#685d53	40.3	7.8	0.111	0.1143	PHOTO	22.9	32.54	-31.5	0.5	0.926	0.262	14.5	0.112	46.4	4	2.66	0.337	0.044	0.622	dark	2.39	3.64	1	dark-ground-light-ink	#040403
+good	SS3.19.38 PM	#e4c39f	80.7	23.5	0.561	0.5787	SEMI	6.6	28.81	-28.7	0.16	1	0.503	23.4	0.447	72.8	3	1.4	0.707	0.083	0.23	dark	9.8	5.2	2	SATURATED-COLOURED-GROUND	#eccca4
+good	SS3.23.39 PM	#050505	1.3	0	0	0.0014	FLAT	0.6	3.03	2.8	0.43	0.857	0.297	15.8	0.181	53.3	1	0.16	0.979	0.142	0.714	dark	1.4	1.91	2	dark-ground-light-ink	#030303
+good	SS3.23.54 PM	#040b1a	3	9.2	0.744	0.0033	SEMI	2.5	17.21	17.2	0.1	1	0.495	16.3	0.197	56.4	3	1.44	0.536	0.049	0.482	dark	1.27	1.68	2	dark-ground-light-ink	#02061b
+good	SS3.26.14 PM	#33302b	19.9	3.5	0.082	0.0297	PHOTO	14.5	35.77	-25.8	0	1	0.384	20.9	0.221	80.1	1	0.07	0.994	0.185	0.62	dark	1.41	7.88	2	dark-ground-light-ink	#fefefe
+good	SS3.26.22 PM	#f3f3f3	96	0	0	0.8999	SEMI	1.1	9.39	9.4	0.14	1	0.191	10.7	0.13	58.4	2	1.33	0.754	0.09	0.806	dark	15.55	5.36	1	light-ground-dark-ink	#f4f4f4
+good	SS3.26.49 PM	#6f604e	41.8	13	0.176	0.1238	PHOTO	31.5	57.77	-57.7	0.15	1	0.359	12.7	0.204	65.2	2	1.31	0.679	0.006	0.632	dark	3.25	7.79	2	dark-ground-light-ink	#020202
+good	SS3.26.57 PM	#4b4b4d	32	1.2	0.013	0.0707	SEMI	11.3	11.42	-6.3	0.22	1	0.209	12.9	0.125	58.7	3	2.29	0.374	0.077	0.688	dark	1.89	2.51	2	dark-ground-light-ink	#1b1b1b
+good	SS3.27.14 PM	#0b0908	2.6	0.6	0.134	0.0028	FLAT	1.9	1.26	-0.8	0.19	1	0.295	8	0.093	38.9	1	0.03	0.996	0.042	0.791	dark	1.45	1.17	2	dark-ground-light-ink	#020202
+good	SS3.35.49 PM	#487abc	50.7	40	0.465	0.1897	PHOTO	15.6	39.53	-35.6	0.9	1	0.587	34.1	0.515	110.4	3	2.03	0.411	0.285	0.215	dark	3.38	7.46	3	SATURATED-COLOURED-GROUND	#f2f4f7
+good	SS3.38.17 PM	#342b2a	18.5	4.2	0.105	0.0262	PHOTO	17.9	54.99	-43.8	0.77	1	0.448	20.7	0.264	71.5	3	2.37	0.385	0.114	0.463	dark	1.37	4.19	2	dark-ground-light-ink	#04050c
+good	SS3.42.37 PM	#f0f0f0	94.9	0	0.002	0.8739	SEMI	3.5	55.54	55.5	0	1	0.253	10.3	0.143	59.6	1	0.03	0.997	0.12	0.84	dark	16.58	9.72	1	light-ground-dark-ink	#fbfbfb
+good	SS4.22.53 PM	#2b2b2b	17.6	0	0	0.0242	PHOTO	17.3	25.03	-25	0.44	1	0.329	14.1	0.164	66.2	2	1.12	0.666	0.139	0.77	dark	1.41	6.05	1	dark-ground-light-ink	#020202
+good	SS4.23.24 PM	#1b4593	31	49.2	0.693	0.0664	SEMI	7.2	20.44	4.7	0.13	1	0.597	35.2	0.442	101.4	2	1.48	0.588	0.365	0.275	dark	1.87	7.62	2	SATURATED-COLOURED-GROUND	#f2f4f7
+good	SS4.23.33 PM	#c8c5c8	79.9	1.8	0.026	0.5658	SEMI	8.8	6.33	6.2	0.12	1	0.108	3.7	0.009	11.7	3	1.13	0.718	0	0.99	dark	9.1	7.4	0	light-ground-dark-ink	#dbdadd
+good	SS4.24.27 PM	#151413	6.3	1	0.068	0.0069	SEMI	7.4	8.22	-2	0.21	1	0.58	29.3	0.383	103.6	6	2.96	0.218	0.251	0.434	dark	1.14	2.05	3	dark-ground-light-ink	#020202
+good	SS4.24.33 PM	#3d4959	30.7	11.1	0.185	0.0652	PHOTO	23.3	25.82	-15.8	0.36	1	0.516	29.4	0.33	96.7	6	2.54	0.239	0.263	0.452	dark	2.08	7.53	3	dark-ground-light-ink	#020202
+good	SS4.24.59 PM	#6c6568	43.6	3.4	0.033	0.1358	PHOTO	35.7	77.19	46.1	0.15	1	0.386	23.7	0.334	101.7	1	0.38	0.926	0.278	0.608	dark	3.16	5.77	1	dark-ground-light-ink	#f3f4f5
+good	SS4.25.08 PM	#2b6e1d	40.9	52.9	0.585	0.118	SEMI	6.2	4.44	0.6	0	1	0.563	37.8	0.575	79	3	1.53	0.683	0.407	0.274	light	5.31	7.5	2	SATURATED-COLOURED-GROUND	#fefefe
+good	SS4.25.40 PM	#b2a79a	69.1	8.1	0.13	0.3949	PHOTO	17.4	20.94	17.1	0.28	1	0.346	16.6	0.178	57.4	4	1.59	0.601	0.022	0.465	dark	6.69	3.57	1	light-ground-dark-ink	#f2f4f7
+good	SS4.25.55 PM	#0a0b0e	2.9	1.5	0.178	0.0032	GRADIENT	2.4	11.21	-11.2	0.5	1	0.353	13.8	0.187	68.6	2	0.87	0.792	0.1	0.721	dark	1.37	1.39	2	dark-ground-light-ink	#030304
+good	SS4.26.08 PM	#404851	30.1	6.9	0.121	0.0628	PHOTO	13.6	5.97	2.3	0.01	1	0.478	15.3	0.359	55.9	4	2.87	0.364	0.021	0.416	dark	1.58	3.63	0	dark-ground-light-ink	#f2f4f7
+mid	MATTHEW3.1	#c1e1c0	86.5	21.1	0.358	0.6904	FLAT	3.2	7.89	1	0.1	1	0.44	33.1	0.449	123.7	4	2.82	0.352	0.245	0.367	light	1.12	3.16	2	SATURATED-COLOURED-GROUND	#ffffff
+mid	MATTHEW3.3	#ba0ad3	46.1	100.2	0.912	0.1533	GRADIENT	4	23.22	-6.4	0.68	1	0.644	60	0.725	134.2	2	2.19	0.404	0.661	0.199	light	4.49	4.33	3	SATURATED-COLOURED-GROUND	#ffffff
+mid	MATTHEW3.4	#857667	50.6	10.6	0.124	0.1891	PHOTO	18.7	32.84	31.3	0.71	1	0.439	30.6	0.385	107	4	2.17	0.529	0.288	0.412	dark	4.02	6.31	3	light-ground-dark-ink	#ffffff
+mid	MATTHEW3.5	#ca88ba	64.6	36.5	0.383	0.336	PHOTO	15.2	58.89	-25.9	0.9	1	0.383	30	0.282	77.9	4	3.12	0.281	0.199	0.278	light	2.17	3.21	3	SATURATED-COLOURED-GROUND	#ffffff
+mid	MATTHEW3.6	#34435d	28.3	17.5	0.287	0.0556	SEMI	11.9	6.99	6.2	0.04	1	0.409	19.9	0.289	67.5	5	2.71	0.285	0.078	0.377	light	8.56	6.32	1	dark-ground-light-ink	#ffffff
+mid	MATTHEW3.8	#c1cfda	82.4	7.7	0.26	0.6108	GRADIENT	4.9	13.28	-9.8	0.61	1	0.501	18.5	0.444	61.6	3	1.99	0.509	0.038	0.442	light	1.17	1.48	1	light-ground-dark-ink	#000000
+mid	MATTHEW3.9	#eaac7f	75.2	36.5	0.717	0.486	FLAT	3	4.32	2.8	0.07	1	0.598	27.7	0.598	83.7	3	2.34	0.376	0.106	0.23	light	1.41	2.15	1	SATURATED-COLOURED-GROUND	#000000
+mid	MATTHEW4.0	#434860	31	15.5	0.177	0.0663	PHOTO	18.6	16.3	-14	0.14	1	0.462	20.6	0.342	60.7	4	2.34	0.487	0.055	0.332	dark	2.06	9.82	1	dark-ground-light-ink	#000000
+mid	MATTHEW4.1	#759cb7	62.5	19.2	0.311	0.3103	PHOTO	14.7	9.24	-8.9	0.13	1	0.581	26.1	0.567	82	5	2.98	0.342	0.09	0.218	light	2.11	2.31	1	light-ground-dark-ink	#000000
+mid	MATTHEW4.2	#d7bd9c	78.1	20.8	0.425	0.5332	SEMI	5.5	21.34	-21.3	0.29	1	0.49	22.5	0.466	68.1	5	2.39	0.372	0.072	0.294	light	1.26	2.67	2	SATURATED-COLOURED-GROUND	#000000
+mid	MATTHEW4.3	#aa8e68	60.6	24.6	0.277	0.2882	PHOTO	15.2	20.61	16.6	0.01	1	0.443	25	0.384	73.3	4	2.1	0.516	0.124	0.388	light	2.18	2.99	2	SATURATED-COLOURED-GROUND	#000000
+mid	MATTHEW4.4	#a99c92	65.3	7.5	0.116	0.3437	SEMI	9.1	13.22	9.5	0.21	1	0.457	23.4	0.347	60.7	3	1.69	0.647	0.074	0.262	light	1.91	3	1	light-ground-dark-ink	#000000
+mid	MATTHEW4.5	#897d69	53	12.9	0.133	0.2107	SEMI	11.8	11.06	-6.4	0.12	1	0.42	23	0.336	77	2	1.49	0.717	0.095	0.387	dark	4.72	9.19	1	light-ground-dark-ink	#000000
+mid	MATTHEW4.6	#5c7670	47.6	11	0.125	0.1647	PHOTO	17.9	14.44	12.2	0	1	0.491	24.2	0.396	82.5	3	1.88	0.633	0.091	0.303	dark	3.74	8.15	1	light-ground-dark-ink	#000000
+mid	MATTHEW4.7	#636455	41.9	8.8	0.079	0.1242	SEMI	6.7	9.79	-7.5	0.37	1	0.429	34.6	0.416	105.6	3	1.81	0.506	0.315	0.382	dark	2.87	6.92	2	dark-ground-light-ink	#000000
+mid	MATTHEW4.8	#c38eab	65	25.6	0.309	0.3406	PHOTO	20.6	28.34	-19.6	0.39	1	0.647	51.2	0.669	140.5	3	3.02	0.283	0.529	0.114	light	1.98	3.11	5	SATURATED-COLOURED-GROUND	#000000
+mid	MATTHEW4.9	#636c70	45.1	4	0.058	0.146	PHOTO	16.4	21.12	-0.2	0.07	1	0.458	37.4	0.432	123.9	6	2.89	0.274	0.329	0.293	light	3.6	3.78	3	light-ground-dark-ink	#000000
+mid	MATTHEW5.0	#48423f	28.4	3.2	0.063	0.056	PHOTO	14.5	13.92	4.1	0.01	1	0.485	38.1	0.462	125.7	4	2.98	0.247	0.355	0.317	dark	1.77	7.73	4	dark-ground-light-ink	#000000
+mid	MATTHEW5.1	#bfbeba	76.9	2.3	0.042	0.5137	FLAT	2.8	6.57	-4.3	0.59	1	0.281	26.4	0.244	75.5	5	2.55	0.31	0.253	0.504	light	1.36	2.63	2	light-ground-dark-ink	#bbbab4
+mid	MATTHEW5.2	#b2947f	63.6	17.3	0.25	0.3235	SEMI	9.3	47.9	6.7	0.06	1	0.399	33.6	0.351	94	6	3.08	0.193	0.336	0.343	light	2.05	2.28	3	light-ground-dark-ink	#000000
+mid	MATTHEW5.3 (1)	#77502e	37.5	29.4	0.446	0.0982	SEMI	10.2	20.11	7.5	0.02	1	0.458	37.6	0.408	126.3	3	1.44	0.699	0.335	0.35	dark	2.55	5.61	2	SATURATED-COLOURED-GROUND	#ff3131
+mid	SS3.10.52 PM	#040c18	3.3	7.6	0.722	0.0036	SEMI	3.6	10.83	4.2	0.05	1	0.559	20.5	0.26	74.3	4	2.17	0.351	0.124	0.496	dark	1.28	1.8	2	dark-ground-light-ink	#030303
+mid	SS3.11.12 PM	#4d565c	35.9	5.1	0.088	0.0894	FLAT	1.7	1.46	-0.8	0.12	1	0.209	10.9	0.067	42.8	3	2.4	0.334	0.008	0.762	dark	2.23	3.52	1	dark-ground-light-ink	#4b555b
+mid	SS3.14.34 PM	#0b0a0d	2.9	1.4	0.132	0.0032	SEMI	2.6	9.35	1.6	0	1	0.496	14.7	0.133	51.3	1	0.08	0.99	0.068	0.591	dark	1.29	1.12	3	dark-ground-light-ink	#030203
+mid	SS3.14.46 PM	#0c0b30	4.9	26.1	0.612	0.0054	FLAT	3.4	6.47	2.2	0.09	1	0.626	34.5	0.244	59	3	2.01	0.401	0.149	0.102	dark	1.13	1.63	3	dark-ground-light-ink	#040a2c
+mid	SS3.17.04 PM	#231c11	10.7	8.4	0.337	0.0122	SEMI	6.8	9.31	7.4	0.01	1	0.434	16	0.191	45.9	2	0.78	0.776	0.02	0.524	dark	1.04	1.51	2	dark-ground-light-ink	#040403
+mid	SS3.20.07 PM	#171717	7.7	0	0	0.0085	FLAT	5.2	2.18	2.2	0.07	1	0.247	13.4	0.143	59.4	1	1.29	0.792	0.107	0.732	light	14.04	5.54	1	dark-ground-light-ink	#121212
+mid	SS3.20.57 PM	#515a38	36.5	20.5	0.228	0.0929	PHOTO	23.3	44.11	-38.3	0.44	1	0.687	41.8	0.574	111.7	4	2.6	0.331	0.443	0.276	dark	2.47	7.95	2	SATURATED-COLOURED-GROUND	#020502
+mid	SS3.21.07 PM	#251512	8.8	8.8	0.332	0.0098	GRADIENT	2.9	52.06	52	0.53	1	0.473	20.1	0.247	61.3	3	2.59	0.303	0.145	0.578	light	15.05	10.53	1	dark-ground-light-ink	#fdfcfc
+mid	SS3.27.24 PM	#000000	0	0	0	0	FLAT	0	0	0	0	1	0.011	0.3	0.003	7.9	5	2.47	0.29	0.001	0.994	light	18.06	18.18	0	dark-ground-light-ink	#000000
+mid	SS3.27.34 PM	#c4c7ca	80	2.1	0.055	0.5674	FLAT	2.2	7.81	-7.8	0.3	1	0.098	4.5	0.024	21.5	1	0.89	0.84	0.001	0.925	dark	8.85	2.42	0	light-ground-dark-ink	#c7cacd
+mid	SS3.27.43 PM	#563a1c	27	25.1	0.512	0.0511	PHOTO	17.6	63.42	-54.7	0.84	1	0.579	31	0.497	63.9	2	0.92	0.662	0.154	0.168	dark	1.6	2.34	4	SATURATED-COLOURED-GROUND	#f2f4f7
+mid	SS3.35.31 PM	#b3aeac	71.3	2.2	0.044	0.4265	FLAT	1.5	2.06	2	0.09	1	0.171	9.6	0.095	37.7	2	0.66	0.88	0.072	0.87	light	1.64	1.97	1	light-ground-dark-ink	#b3acab
+mid	SS3.35.59 PM	#929292	60.7	0	0	0.2887	PHOTO	35	0.3	-0.2	0	1	0.473	23.9	0.334	113.8	1	0.4	0.921	0.296	0.629	light	3.04	5.47	1	light-ground-dark-ink	#ffffff
+mid	SS3.38.00 PM	#16150f	6.8	3.9	0.195	0.0076	SEMI	6.4	1.85	0.9	0.02	1	0.336	12	0.098	42.4	1	0.38	0.953	0.056	0.764	dark	1.47	1.18	1	dark-ground-light-ink	#030203
+mid	SS3.40.02 PM	#9b9897	63.2	1.1	0.017	0.3178	SEMI	11.7	52.15	-52	0.27	1	0.234	12.9	0.115	49.3	4	2.38	0.399	0.07	0.727	dark	5.85	3.34	2	light-ground-dark-ink	#b3b2ab
+mid	SS3.40.37 PM	#2a2d2c	18.2	1.6	0.036	0.0257	SEMI	4.1	12.09	11.7	0.47	1	0.153	3.7	0	10.6	2	0.9	0.788	0	0.933	dark	1.43	1.49	0	dark-ground-light-ink	#343534
+mid	SS4.18.35 PM	#1a3667	23.1	32.9	0.599	0.0384	SEMI	11.8	12.82	-7	0.02	1	0.638	30.8	0.373	92.8	3	1.62	0.631	0.204	0.311	dark	1.39	4.96	4	SATURATED-COLOURED-GROUND	#f2f4f7
+mid	SS4.19.54 PM	#323838	23.1	3	0.064	0.0383	SEMI	4.2	13.88	4.9	0.24	1	0.317	20.3	0.255	70.6	2	2.16	0.42	0.166	0.572	light	9.1	2.99	2	dark-ground-light-ink	#f3f4f5
+mid	SS4.20.57 PM	#6c5c75	41.4	16.8	0.121	0.1209	PHOTO	12.2	14.85	4.5	0.02	1	0.393	28.3	0.284	74.1	5	3.32	0.156	0.144	0.242	dark	2.4	2.99	3	dark-ground-light-ink	#f2f4f7
+mid	SS4.21.22 PM	#e4cebb	84.1	12.9	0.427	0.6432	SEMI	6.9	7.86	1.4	0	1	0.538	31.9	0.47	94.8	3	2	0.405	0.318	0.416	light	1.21	3.51	3	light-ground-dark-ink	#fdfdfd
+mid	SS4.21.33 PM	#918c6d	57.9	17.5	0.143	0.2582	SEMI	9.5	8.04	7.9	0	1	0.342	22.2	0.23	64.2	4	2.38	0.264	0.098	0.221	light	2.99	7.24	2	light-ground-dark-ink	#fefefd
+mid	SS4.22.35 PM	#4e79a7	49.6	28.9	0.361	0.1812	GRADIENT	10.7	39.07	-22.3	0.68	1	0.479	29.5	0.386	92.6	6	2.73	0.242	0.168	0.284	dark	3.52	3.55	3	SATURATED-COLOURED-GROUND	#4a112a
+mid	SS4.23.16 PM	#241d1f	11.7	3.9	0.109	0.0136	SEMI	9	13.06	0.9	0.01	1	0.549	20.3	0.221	60.7	3	1.97	0.544	0.127	0.488	dark	1.01	1.7	3	dark-ground-light-ink	#030203
+mid	SS4.24.48 PM	#cea984	71.5	25.4	0.429	0.4299	FLAT	2.8	5.33	-4	0.61	1	0.309	16.8	0.165	56.3	2	0.94	0.701	0.024	0.456	light	1.71	2.1	1	SATURATED-COLOURED-GROUND	#f2f4f7
+mid	SS4.25.14 PM	#b19779	63.9	19.8	0.261	0.3271	SEMI	8.3	18.02	-14.5	0.05	1	0.252	12	0.055	40.8	1	0.55	0.909	0.034	0.652	light	2.27	2.88	0	light-ground-dark-ink	#cbbcac
+mid	SS4.25.29 PM	#f2f4f7	96.1	1.7	0.238	0.9029	FLAT	2.7	0.23	0.2	0.01	1	0.711	39.6	0.656	166.6	2	1.49	0.538	0.27	0.275	light	1.09	5.18	2	light-ground-dark-ink	#fbf243
+mid	SS4.25.48 PM	#b3b3b5	73	1.1	0.013	0.4518	PHOTO	23.1	29.93	29.4	0.02	1	0.441	25	0.288	74.4	5	3.17	0.205	0.109	0.331	light	1.71	5.62	3	light-ground-dark-ink	#f2f4f7
+mid	SS4.26.29 PM	#6f7e83	51.8	6.3	0.082	0.1997	SEMI	11.9	22.07	-17.9	0.48	1	0.243	13.1	0.139	49.6	3	1.85	0.431	0.027	0.686	dark	3.57	2.92	2	light-ground-dark-ink	#f2f4f6
+bad	SS3.03.56 PM	#141112	5.3	1.8	0.097	0.0059	FLAT	4.8	6.62	6.6	0.02	1	0.614	31.3	0.47	95.6	3	1.72	0.371	0.298	0.366	dark	1.24	2.5	3	dark-ground-light-ink	#020101
+bad	SS3.04.15 PM	#322e2d	19.2	2.1	0.055	0.028	PHOTO	17.2	20.63	-18.9	0.12	1	0.609	26	0.376	80.8	3	2.24	0.433	0.21	0.436	dark	1.39	6.86	4	dark-ground-light-ink	#020202
+bad	SS3.04.22 PM	#4a4948	31.1	0.6	0.011	0.0671	PHOTO	23	32.21	-15.9	0.3	1	0.515	31	0.395	86.8	3	1.62	0.599	0.306	0.414	dark	2	6.84	3	dark-ground-light-ink	#020402
+bad	SS3.11.00 PM	#6b6b6a	45	0.6	0.006	0.1456	FLAT	3.2	2.72	-2.3	0.19	1	0.113	5	0.022	24.1	3	1.75	0.623	0.001	0.936	light	4.26	2.6	0	dark-ground-light-ink	#6c6c6b
+bad	SS3.11.37 PM	#4e443d	29.6	6.6	0.124	0.0609	PHOTO	22.6	26.61	23.1	0.27	1	0.516	26.5	0.306	81.8	3	1.86	0.551	0.213	0.415	dark	1.94	5.92	3	dark-ground-light-ink	#030302
+bad	SS3.11.48 PM	#9b8982	58.4	8.3	0.111	0.2643	PHOTO	17.7	17.14	-8.4	0.44	1	0.612	35.7	0.45	115.1	4	1.99	0.352	0.34	0.378	light	2.8	3.4	3	light-ground-dark-ink	#fdfbfc
+bad	SS3.12.04 PM	#a09e9a	65	2.2	0.03	0.3408	SEMI	4.7	9.53	-2.1	0.08	1	0.198	13.3	0.08	47.4	3	1.98	0.378	0.049	0.763	dark	6.61	7.19	0	light-ground-dark-ink	#040106
+bad	SS3.12.12 PM	#ed7c1d	63.7	75.2	0.851	0.3243	SEMI	11.2	29.62	8	0.08	1	0.667	45.1	0.551	130	2	1.72	0.561	0.493	0.268	dark	6.33	7.6	3	SATURATED-COLOURED-GROUND	#fdc331
+bad	SS3.12.48 PM	#4f535e	35.2	7.4	0.087	0.0861	PHOTO	14.3	25.35	18.7	0.28	1	0.276	15	0.089	54.1	1	0.95	0.848	0.042	0.49	dark	2.16	3.01	2	dark-ground-light-ink	#020202
+bad	SS3.14.05 PM	#fbfdfc	99.2	0.9	0.382	0.9785	SEMI	0.9	48.76	27.6	0.08	1	0.681	18.9	0.456	133.6	1	0.01	0.999	0	0.52	light	1.21	1.66	2	light-ground-dark-ink	#fefefe
+bad	SS3.15.38 PM	#25242c	14.6	5.9	0.104	0.0184	FLAT	2.6	7.31	-7.3	0.95	1	0.226	13.3	0.087	42.6	2	1.4	0.64	0.017	0.667	dark	1.1	2.69	1	dark-ground-light-ink	#1b1b23
+bad	SS3.17.15 PM	#eaebee	93	1.5	0.108	0.8298	SEMI	6.1	13.15	12.4	0	1	0.655	24.3	0.336	92.2	2	1.82	0.436	0.224	0.578	light	1.08	1.44	3	light-ground-dark-ink	#fbfcfd
+bad	SS3.19.56 PM	#05467d	29.1	36.8	0.923	0.0586	PHOTO	33.6	44.22	39.1	0.14	1	0.612	31.1	0.426	109.3	5	2.45	0.298	0.284	0.388	dark	1.91	6.97	2	SATURATED-COLOURED-GROUND	#fcfdfd
+bad	SS3.26.05 PM	#020202	0.5	0	0	0.0006	SEMI	0	99.26	99.3	0.34	1	0.008	0	0	0.5	0	0	0	0	1	light	20.18	20.03	0	dark-ground-light-ink	#020202
+bad	SS3.26.31 PM	#0993c4	56.8	37.4	0.913	0.2476	FLAT	1.9	2.07	0.2	0.46	1	0.651	26.8	0.576	132.4	2	0.61	0.879	0.039	0.184	dark	5.39	5.81	1	SATURATED-COLOURED-GROUND	#0293c5
+bad	SS3.27.05 PM	#e8e9b7	91.2	25.9	0.534	0.7888	GRADIENT	8.1	41.71	-19.2	0.51	1	0.521	35.3	0.441	93	3	2.55	0.375	0.298	0.273	light	1.07	2.49	3	SATURATED-COLOURED-GROUND	#fbeb41
+bad	SS3.28.06 PM	#7889a8	56.8	18.2	0.215	0.2473	PHOTO	16.1	35.71	-35.3	0.85	1	0.237	12.8	0.038	36.1	1	0.82	0.866	0.001	0.471	dark	4.77	6.26	0	light-ground-dark-ink	#1d264b
+bad	SS3.38.08 PM	#d9cab7	81.9	11.5	0.305	0.601	GRADIENT	3.2	34.15	-34	0.6	1	0.212	9.7	0.045	29.8	2	0.8	0.791	0.001	0.753	dark	11.24	5.45	1	light-ground-dark-ink	#dccdbb
+bad	SS3.38.53 PM	#6a4716	33.1	35.5	0.658	0.0758	PHOTO	12.2	10.66	9.8	0.05	1	0.553	28.2	0.424	51.2	2	0.6	0.853	0.037	0.129	dark	1.86	3.27	4	SATURATED-COLOURED-GROUND	#2b1b04
+bad	SS4.18.43 PM	#e1c45b	79.8	55.4	0.694	0.5631	GRADIENT	1.6	82.14	-56.7	0.56	1	0.533	39.1	0.435	99.7	1	0.52	0.921	0.379	0.128	dark	8.02	8.44	2	SATURATED-COLOURED-GROUND	#f9c131
+bad	SS4.20.48 PM	#44404e	28	9.6	0.102	0.0546	PHOTO	15.9	52.29	25.3	0.03	1	0.391	28.7	0.285	75.5	4	2.62	0.301	0.18	0.202	dark	1.42	2.13	2	dark-ground-light-ink	#f2f4f7
+bad	SS4.23.43 PM	#c2b49c	73.8	14	0.234	0.4643	PHOTO	15.6	7.23	-1.9	0	1	0.418	21.6	0.342	67.4	4	3.03	0.305	0.054	0.319	light	1.57	1.69	3	light-ground-dark-ink	#6b544a
+bad	SS4.23.53 PM	#141414	6.3	0	0	0.007	FLAT	0	0	0	0.09	1	0.144	7.9	0.091	51.1	2	1.23	0.646	0.068	0.849	light	15.59	5.62	0	dark-ground-light-ink	#141414
+bad	SS4.24.13 PM	#a7866c	58.4	20.7	0.252	0.2642	GRADIENT	6.5	19.71	-9.9	0.56	1	0.253	13	0.045	40.5	3	1.4	0.558	0.02	0.551	dark	5.75	7.1	0	SATURATED-COLOURED-GROUND	#f2f4f7
+bad	SS4.25.21 PM	#6e358c	33.6	55.7	0.448	0.078	SEMI	10.2	17.04	8.9	0.14	1	0.473	41.5	0.383	83.4	3	2.28	0.395	0.458	0.227	dark	1.89	2.8	2	SATURATED-COLOURED-GROUND	#f2f4f7
+bad	SS4.26.15 PM	#1c1921	9.5	5.7	0.127	0.0107	GRADIENT	7.1	13.36	12.7	0.57	1	0.436	15.5	0.092	42.2	3	2.09	0.398	0.018	0.488	dark	1.1	1.1	3	dark-ground-light-ink	#030303
+engine	bp02-bandStack	#082641	14.5	20.1	0.772	0.0183	SEMI	5	13.21	-11.5	0.18	1	0.58	19.4	0.38	92.2	2	0.89	0.703	0.061	0.353	light	12.94	14.11	2	dark-ground-light-ink	#0d324d
+engine	bp02-nightLot	#092b48	16.6	21.9	0.784	0.0223	SEMI	5.9	10.21	-8.3	0.34	1	0.634	20.7	0.535	86.1	2	0.99	0.678	0.058	0.286	light	11.76	10.88	1	dark-ground-light-ink	#031324
+engine	bp02-posterBleed	#0e3450	20.7	20.9	0.698	0.0316	PHOTO	16.2	19.37	-17.6	0.05	1	0.655	19.1	0.245	83.1	2	0.81	0.787	0.045	0.303	light	11	14.97	1	SATURATED-COLOURED-GROUND	#06203b
+engine	bp02-priceBoard	#0a3558	21.2	25.3	0.796	0.0329	SEMI	9.2	19.49	-15.6	0.27	1	0.739	24.6	0.495	102.5	2	0.71	0.805	0.094	0.262	light	10.17	14.56	2	SATURATED-COLOURED-GROUND	#0a3558
+engine	bp02-proofWall	#082948	16.1	22.3	0.805	0.0213	SEMI	5.5	16.13	-13.5	0.01	1	0.671	20.1	0.479	88	2	1.02	0.572	0.07	0.361	light	11.96	13.01	2	dark-ground-light-ink	#031324
+engine	bp02-sunburstHero	#0b2e4c	18.3	21.8	0.753	0.0258	SEMI	9.1	19.61	-17.1	0.13	1	0.627	21.5	0.529	89.2	2	1.22	0.523	0.085	0.343	light	10.96	10.62	1	SATURATED-COLOURED-GROUND	#031324
+engine	bp02-ticketOffer	#0c2b44	16.7	19.1	0.695	0.0223	SEMI	7.4	15.44	-13.9	0.07	1	0.595	16.2	0.316	72.8	2	0.92	0.668	0.038	0.522	dark	1.03	6.31	1	dark-ground-light-ink	#031324
+engine	bp02-tornSplit	#051c34	10	18.1	0.815	0.0113	SEMI	6.4	76.28	74.9	0.29	1	0.741	17.8	0.152	84.1	2	0.97	0.606	0.087	0.5	light	14.39	17.02	1	dark-ground-light-ink	#06203b
+engine	ca07-bandStack	#b8edea	90.1	17.8	0.591	0.7653	SEMI	5.5	66.64	-66.6	0.05	1	0.517	23.9	0.437	93.5	2	0.99	0.703	0.136	0.271	dark	10.64	5.75	2	light-ground-dark-ink	#bde4de
+engine	ca07-nightLot	#a9e1dc	85.9	19.3	0.487	0.677	SEMI	5.5	51.82	-51.8	0.25	1	0.514	20.7	0.455	83.5	2	0.83	0.746	0.061	0.274	dark	10.2	7.92	1	light-ground-dark-ink	#053e3d
+engine	ca07-posterBleed	#c0d5cd	83.6	9	0.205	0.6322	PHOTO	20.9	62.09	-61.5	0.05	1	0.543	21.4	0.58	87.1	2	1.02	0.514	0.082	0.29	light	1.35	3.94	2	light-ground-dark-ink	#baf7f6
+engine	ca07-priceBoard	#aef6f4	92.2	23.3	0.794	0.8122	SEMI	3.7	67.97	-66.6	0.09	1	0.626	27.4	0.717	107.9	2	0.82	0.746	0.117	0.266	light	1.13	3.54	3	light-ground-dark-ink	#8df2f0
+engine	ca07-proofWall	#a7e6e0	87	21	0.55	0.7002	SEMI	4.5	66.77	-66.7	0.35	1	0.521	20.2	0.586	85.1	2	0.73	0.803	0.059	0.359	light	1.26	3.54	1	SATURATED-COLOURED-GROUND	#053e3d
+engine	ca07-sunburstHero	#a4d7d0	82.5	18.1	0.392	0.6122	GRADIENT	9	61.43	-61.4	0.57	1	0.451	16.8	0.398	65.1	1	0.4	0.926	0.013	0.362	light	1.3	1.4	1	light-ground-dark-ink	#053e3d
+engine	ca07-ticketOffer	#a0eae5	88	24.4	0.64	0.7201	SEMI	3.7	65.94	-65.3	0.43	1	0.474	16.3	0.528	67.3	1	0.31	0.947	0.012	0.417	light	1.22	3.58	0	SATURATED-COLOURED-GROUND	#053e3d
+engine	ca07-tornSplit	#baf7f5	93.1	19.9	0.782	0.833	SEMI	5.5	38.07	-37.6	0.18	1	0.485	15	0.474	70.6	2	0.95	0.647	0.04	0.49	light	1.11	4.58	1	light-ground-dark-ink	#fafcfc
+engine	ca10-bandStack	#062b1e	14.8	17.9	0.768	0.0188	SEMI	4.5	15.06	-11.3	0.16	1	0.587	22.3	0.39	84.7	2	0.9	0.691	0.206	0.419	light	12.75	14.28	2	dark-ground-light-ink	#05261b
+engine	ca10-nightLot	#083526	18.9	20	0.751	0.0272	SEMI	5.4	13.73	-11.6	0.42	1	0.615	20.7	0.545	71.8	2	0.73	0.817	0.122	0.387	light	11.09	10.95	1	SATURATED-COLOURED-GROUND	#021711
+engine	ca10-posterBleed	#052a1d	14.3	17.4	0.772	0.0178	SEMI	9.7	22.16	-15.7	0.03	1	0.637	20.1	0.231	76.5	2	0.81	0.775	0.148	0.452	light	13.53	15.72	1	dark-ground-light-ink	#05261b
+engine	ca10-priceBoard	#0a4331	24.6	23.7	0.74	0.0428	SEMI	11.8	24.13	-18.6	0	1	0.714	26.1	0.5	90.8	2	0.98	0.583	0.225	0.338	dark	1.57	10.6	2	SATURATED-COLOURED-GROUND	#0a4331
+engine	ca10-proofWall	#073325	18.2	19.6	0.752	0.0257	SEMI	4.8	18.4	-13.8	0	1	0.65	19.8	0.485	74	2	1.01	0.625	0.135	0.466	light	11.52	12.14	2	dark-ground-light-ink	#021711
+engine	ca10-sunburstHero	#073426	18.6	19.9	0.751	0.0266	SEMI	8.5	24.53	-18.4	0.02	1	0.627	21.1	0.499	72.8	2	1.11	0.667	0.105	0.4	light	10.89	10.46	1	dark-ground-light-ink	#021711
+engine	ca10-ticketOffer	#073325	18.2	19.5	0.751	0.0256	SEMI	7.4	19.21	-15.1	0.05	1	0.569	19.7	0.321	66.8	3	1.51	0.412	0.116	0.429	dark	1.19	7.94	1	dark-ground-light-ink	#021711
+engine	ca10-tornSplit	#021711	6.1	8.4	0.833	0.0067	SEMI	6.7	71.8	71.1	0.29	1	0.704	16	0.146	69.5	2	0.98	0.62	0.131	0.653	light	16.1	18.03	1	dark-ground-light-ink	#f2fff8
+engine	cd04-bandStack	#87d1a2	78	36.6	0.442	0.5326	SEMI	4.5	62.08	-61.2	0.03	1	0.429	34.3	0.445	83.8	2	0.92	0.674	0.2	0.273	light	1.58	4.17	4	SATURATED-COLOURED-GROUND	#8ad4aa
+engine	cd04-nightLot	#7ed19f	77.5	39.9	0.473	0.5242	SEMI	4	41.96	-39.3	0.28	1	0.433	34.8	0.444	79.7	2	0.71	0.82	0.269	0.26	dark	8.34	6.77	2	SATURATED-COLOURED-GROUND	#0c3715
+engine	cd04-posterBleed	#85cbad	76.6	29.9	0.406	0.5089	PHOTO	27.2	51.02	-47.2	0.03	1	0.425	30.6	0.532	76.4	3	1.23	0.672	0.125	0.309	light	1.39	4.18	3	SATURATED-COLOURED-GROUND	#92e2a3
+engine	cd04-priceBoard	#87d197	77.8	41.2	0.443	0.5286	SEMI	5.4	66.38	-58.8	0.04	1	0.497	42.1	0.717	95.1	2	0.88	0.703	0.477	0.261	light	1.68	4.56	3	SATURATED-COLOURED-GROUND	#6bd882
+engine	cd04-proofWall	#7cd29b	77.8	42.5	0.489	0.5282	SEMI	3.6	63.11	-61	0.36	1	0.433	33.5	0.503	81.5	2	0.81	0.76	0.339	0.343	light	1.63	4.56	4	SATURATED-COLOURED-GROUND	#0c3715
+engine	cd04-sunburstHero	#76c99e	75	37.9	0.437	0.4833	SEMI	7.9	57.69	-56	0.39	1	0.374	27.2	0.364	69.6	3	1.54	0.5	0.22	0.378	light	1.64	2.73	3	SATURATED-COLOURED-GROUND	#0c3715
+engine	cd04-ticketOffer	#7dd09e	77.4	40.1	0.472	0.522	SEMI	3.6	60.9	-58.5	0.37	1	0.404	28.1	0.356	66.4	2	0.49	0.897	0.193	0.344	dark	8.91	7.18	2	SATURATED-COLOURED-GROUND	#0c3715
+engine	cd04-tornSplit	#d0d0d0	83.5	0.3	0.006	0.6314	PHOTO	15.2	55.6	-35.1	0.07	1	0.393	22.9	0.457	65.3	2	0.89	0.708	0.127	0.495	light	1.3	7.98	2	light-ground-dark-ink	#fafcfb
+engine	cd06-bandStack	#86c7f0	77.5	28.5	0.78	0.5233	SEMI	5.7	63.21	-61.8	0.04	1	0.582	26.4	0.562	96.9	2	1.03	0.624	0.2	0.267	dark	7.78	7.71	2	SATURATED-COLOURED-GROUND	#82dafd
+engine	cd06-nightLot	#79c3f0	75.8	31.4	0.801	0.4952	SEMI	5.2	63.03	-60.6	0.27	1	0.617	25.9	0.606	102.5	2	0.89	0.78	0.112	0.266	dark	8.17	7.31	2	SATURATED-COLOURED-GROUND	#052f3e
+engine	cd06-posterBleed	#87bfec	75.2	28.6	0.722	0.4858	PHOTO	29.8	49.34	-46.4	0.02	1	0.558	23.5	0.492	89.6	3	1.49	0.585	0.127	0.316	light	1.44	4.3	3	SATURATED-COLOURED-GROUND	#82dafd
+engine	cd06-priceBoard	#7bcfef	79.1	29.4	0.79	0.5511	SEMI	5.9	64.22	-59.7	0.04	1	0.658	30.1	0.617	120.2	2	0.99	0.657	0.208	0.268	light	1.61	4.86	2	SATURATED-COLOURED-GROUND	#4fccfc
+engine	cd06-proofWall	#77c4ef	75.9	31.1	0.788	0.4969	SEMI	4.6	64.42	-62.1	0.35	1	0.577	23.8	0.529	101.7	2	0.94	0.73	0.129	0.362	light	1.73	4.86	2	SATURATED-COLOURED-GROUND	#052f3e
+engine	cd06-sunburstHero	#7ab8e8	72.3	31.2	0.71	0.4417	SEMI	9.6	57.63	-55	0.41	1	0.54	23.4	0.498	89.9	2	0.99	0.767	0.097	0.302	light	1.82	4.5	2	SATURATED-COLOURED-GROUND	#052f3e
+engine	cd06-ticketOffer	#76c4ef	75.7	31.1	0.785	0.4946	SEMI	4.2	61.34	-58.9	0.44	1	0.551	19.9	0.526	87.6	2	0.59	0.879	0.049	0.371	dark	9.01	7.86	1	SATURATED-COLOURED-GROUND	#052f3e
+engine	cd06-tornSplit	#7cd1f1	79.6	29.5	0.81	0.5599	PHOTO	15.6	41.89	-36.3	0.05	1	0.485	17	0.366	76.2	2	1.14	0.57	0.13	0.497	light	1.6	6.46	2	SATURATED-COLOURED-GROUND	#fafbfc
+engine	cd10-bandStack	#eeadbc	77.1	25.9	0.656	0.5171	SEMI	3.8	67.91	-67.8	0.07	1	0.546	23.5	0.481	60.2	2	1.08	0.577	0.063	0.294	dark	8.77	9.13	2	SATURATED-COLOURED-GROUND	#3e051a
+engine	cd10-nightLot	#ea9aae	72.1	32.7	0.661	0.4377	SEMI	3.9	32.14	-31.1	0.24	1	0.605	27.6	0.557	69.8	2	0.9	0.781	0.076	0.267	dark	7.97	7.3	2	SATURATED-COLOURED-GROUND	#3e051a
+engine	cd10-posterBleed	#e9aab5	75.7	24.9	0.587	0.4936	SEMI	7.1	63.87	-63.6	0.07	1	0.601	24.4	0.48	61	2	1.08	0.631	0.076	0.266	dark	9.07	10.18	2	SATURATED-COLOURED-GROUND	#feb4d0
+engine	cd10-priceBoard	#e893b2	70.2	36.2	0.643	0.4107	SEMI	11.3	63.51	-59	0.03	1	0.708	32.5	0.628	82.3	2	1	0.655	0.375	0.262	light	2.1	5.04	2	SATURATED-COLOURED-GROUND	#fd83b0
+engine	cd10-proofWall	#f09eb5	73.7	33.6	0.731	0.4623	SEMI	4	64.76	-64.1	0.34	1	0.582	25.4	0.494	69.6	2	0.95	0.724	0.074	0.36	light	1.84	5.11	3	SATURATED-COLOURED-GROUND	#3e051a
+engine	cd10-sunburstHero	#e797a8	70.8	32.5	0.625	0.4187	SEMI	5.8	61.57	-61	0.4	1	0.559	25.3	0.511	66.7	2	1.01	0.765	0.087	0.305	light	1.93	4.35	2	SATURATED-COLOURED-GROUND	#3e051a
+engine	cd10-ticketOffer	#ec9aad	72.2	33.1	0.678	0.4392	SEMI	3.2	62.75	-62.1	0.4	1	0.518	22.5	0.449	63.7	2	0.6	0.876	0.04	0.395	light	1.9	5.11	1	SATURATED-COLOURED-GROUND	#3e051a
+engine	cd10-tornSplit	#c8c8c7	80.5	0.2	0.003	0.5763	PHOTO	17.6	46.72	-35.4	0.01	1	0.527	18	0.335	54.4	2	1.11	0.596	0.086	0.49	light	1.6	5.55	2	light-ground-dark-ink	#fcfafb
+engine	ck01-bandStack	#424143	27.6	1.8	0.02	0.0531	PHOTO	36.1	79.86	-79.6	0.05	1	0.36	15.4	0.151	63.5	1	0.02	0.998	0.144	0.678	light	8.66	9.42	1	dark-ground-light-ink	#faf5f7
+engine	ck01-nightLot	#ebd1de	86.3	11.5	0.388	0.6861	SEMI	5.6	79.03	-78.6	0.24	1	0.333	12.5	0.083	49.5	1	0.02	0.998	0.077	0.619	dark	11.74	12.03	1	light-ground-dark-ink	#2f141f
+engine	ck01-posterBleed	#dea6c7	74.1	27.1	0.456	0.4693	PHOTO	26.5	74.44	-74.3	0.06	1	0.357	14.9	0.121	60.6	1	0.03	0.997	0.113	0.623	light	1.86	6.73	2	SATURATED-COLOURED-GROUND	#faf5f7
+engine	ck01-priceBoard	#e9d4dc	86.7	9	0.328	0.694	SEMI	10.3	76.43	-76.2	0.05	1	0.366	14.2	0.133	60.3	1	0	1	0.129	0.768	light	1.33	6.67	1	light-ground-dark-ink	#e9d4dc
+engine	ck01-proofWall	#efdfe5	90.1	6.7	0.329	0.7661	SEMI	4.3	80.75	-80.2	0.34	1	0.318	10.9	0.082	48.2	1	0.03	0.997	0.074	0.774	dark	12.98	13.7	1	light-ground-dark-ink	#2f141f
+engine	ck01-sunburstHero	#e5c3d5	82	16.1	0.404	0.6035	SEMI	10.3	73.16	-72.7	0.44	1	0.29	9.5	0.024	32.3	1	0.07	0.991	0.018	0.657	light	1.36	2.29	0	light-ground-dark-ink	#2f141f
+engine	ck01-ticketOffer	#dbd0d5	84.5	4.6	0.127	0.6506	SEMI	7.8	80	-79.3	0.28	1	0.269	9.3	0.065	42.2	1	0.04	0.996	0.056	0.784	dark	11.19	11.56	1	light-ground-dark-ink	#2f141f
+engine	ck01-tornSplit	#fbf7f9	97.6	1.5	0.311	0.9393	SEMI	1.5	79.8	-79.8	0.16	1	0.306	8.5	0.064	42.4	1	0.06	0.994	0.056	0.773	dark	15.46	16.27	1	light-ground-dark-ink	#fcfafb
+engine	ck03-bandStack	#daeaec	91.6	5.5	0.316	0.7988	SEMI	5.5	75.65	-75.5	0.05	1	0.393	9.8	0.174	57.4	2	0.64	0.846	0.02	0.702	dark	12.29	11.86	1	light-ground-dark-ink	#daeaec
+engine	ck03-nightLot	#cce2e5	88.4	7.6	0.324	0.729	SEMI	5	74.56	-74.4	0.26	1	0.336	7.7	0.08	39.8	1	0	1	0	0.846	dark	11.53	10.46	1	light-ground-dark-ink	#132c30
+engine	ck03-posterBleed	#9fc7ca	77.5	13.9	0.295	0.523	PHOTO	22.3	71.63	-71.5	0.02	1	0.377	8	0.123	48.2	1	0	1	0	0.729	light	1.69	5.83	1	light-ground-dark-ink	#f2f8f9
+engine	ck03-priceBoard	#d0e5e9	89.6	7.6	0.366	0.7534	SEMI	7.6	73.47	-73.4	0.04	1	0.385	8.2	0.135	48.1	1	0	1	0	0.811	dark	12.04	13.74	1	light-ground-dark-ink	#d0e5e9
+engine	ck03-proofWall	#d6e7e9	90.5	6	0.311	0.773	SEMI	4.7	76.19	-76.1	0.33	1	0.325	6.7	0.078	38.7	1	0	1	0	0.869	dark	12.49	12.27	0	light-ground-dark-ink	#132c30
+engine	ck03-sunburstHero	#bfdadd	85.1	9.5	0.307	0.6627	SEMI	8.4	70.3	-70.2	0.27	1	0.278	6.6	0.025	29	1	0	1	0	0.903	dark	10.69	10.75	0	light-ground-dark-ink	#132c30
+engine	ck03-ticketOffer	#ccd6d8	85.1	3.7	0.132	0.6611	SEMI	8.2	70.82	-70.6	0.41	1	0.282	5.8	0.057	33	1	0	1	0	0.891	dark	10.85	10.71	0	light-ground-dark-ink	#132c30
+engine	ck03-tornSplit	#f2f8f9	97.2	2.1	0.368	0.9285	SEMI	1.7	80.98	-81	0.08	1	0.318	5.2	0.064	34.7	1	0	1	0	0.877	dark	14.38	14.31	0	light-ground-dark-ink	#fafcfc
+engine	du05-bandStack	#3ba35c	59.9	54	0.468	0.2801	SEMI	3	36.38	-30.1	0	1	0.381	30.1	0.28	67	2	0.62	0.869	0.325	0.272	light	2.77	7.84	1	SATURATED-COLOURED-GROUND	#3ca55d
+engine	du05-nightLot	#46ac66	63.1	52.9	0.424	0.3175	SEMI	4.1	39.35	-34	0.35	1	0.38	34	0.212	70.2	2	0.52	0.902	0.437	0.258	dark	5.89	5.51	2	SATURATED-COLOURED-GROUND	#19522a
+engine	du05-posterBleed	#318b56	51.5	44.4	0.481	0.1969	PHOTO	22.2	34.11	-28.6	0.03	1	0.394	31.8	0.261	67.1	1	0.45	0.924	0.323	0.26	dark	4.12	5.18	2	SATURATED-COLOURED-GROUND	#40ae60
+engine	du05-priceBoard	#3faa5e	62.2	56.3	0.46	0.3069	SEMI	7.7	45.75	-40.7	0.12	1	0.407	34.1	0.278	73.5	2	0.68	0.841	0.417	0.268	light	2.65	8.19	3	SATURATED-COLOURED-GROUND	#59c379
+engine	du05-proofWall	#46ae66	63.6	53.8	0.428	0.3237	SEMI	3.9	40.18	-34.6	0.33	1	0.364	30.2	0.231	69.3	2	0.63	0.865	0.364	0.35	light	2.48	8.08	3	SATURATED-COLOURED-GROUND	#19522a
+engine	du05-sunburstHero	#43a765	61.5	51.1	0.427	0.298	SEMI	5.2	39.02	-33.9	0.22	1	0.353	30.7	0.19	70	2	0.67	0.849	0.371	0.356	light	2.54	6.16	3	SATURATED-COLOURED-GROUND	#19522a
+engine	du05-ticketOffer	#49a368	60.3	46.3	0.38	0.2849	SEMI	6.7	35.78	-32.4	0.49	1	0.339	29.5	0.173	64.3	1	0.42	0.927	0.207	0.345	light	2.78	8.59	2	SATURATED-COLOURED-GROUND	#19522a
+engine	du05-tornSplit	#389a55	56.7	52.3	0.464	0.2463	PHOTO	33.1	42.1	-32.8	0.04	1	0.353	23.7	0.273	62	2	0.83	0.792	0.212	0.482	light	3.2	8.59	3	SATURATED-COLOURED-GROUND	#f4f8f5
+engine	du06-bandStack	#f2e7da	92.1	7.5	0.473	0.81	SEMI	5	85.35	-85.2	0.08	1	0.381	20.2	0.349	89.8	2	0.91	0.698	0.195	0.788	dark	15.27	10.07	2	light-ground-dark-ink	#16130f
+engine	du06-nightLot	#e7e1d5	89.7	6.4	0.265	0.7557	SEMI	4.5	37.78	-37.7	0.26	1	0.35	15.3	0.284	69.8	2	1	0.57	0.113	0.698	dark	14.5	12.66	1	light-ground-dark-ink	#16130f
+engine	du06-posterBleed	#c2c2c1	78.4	0.7	0.011	0.539	PHOTO	17.3	80.43	-79.6	0.03	1	0.365	18.4	0.236	81.9	2	0.96	0.631	0.155	0.756	light	1.58	3.78	3	light-ground-dark-ink	#f5efe3
+engine	du06-priceBoard	#e8dfcd	89.1	10.1	0.373	0.7446	SEMI	5.5	83.42	-83.1	0.13	1	0.352	19.8	0.196	84.7	2	1	0.52	0.188	0.801	dark	14.72	13.98	2	light-ground-dark-ink	#e8dfcd
+engine	du06-proofWall	#e7e0d2	89.3	7.5	0.295	0.7488	SEMI	4.2	84.73	-84.5	0.37	1	0.31	15.3	0.191	71.5	2	1.02	0.52	0.13	0.834	dark	14.42	13.23	1	light-ground-dark-ink	#16130f
+engine	du06-sunburstHero	#ebddcc	88.9	10.2	0.432	0.7394	SEMI	8.4	80.12	-79.8	0.37	1	0.334	14.6	0.285	61.8	2	0.64	0.843	0.096	0.681	dark	14.05	11.84	1	light-ground-dark-ink	#16130f
+engine	du06-ticketOffer	#dad7d4	86.1	2	0.078	0.6824	SEMI	6.3	82.8	-82.8	0.44	1	0.197	7.8	0.073	43.8	2	0.92	0.687	0.051	0.909	dark	13.16	12.77	0	light-ground-dark-ink	#16130f
+engine	du06-tornSplit	#f8f3eb	96.1	4.7	0.472	0.9019	SEMI	5.4	55.67	-55.3	0.17	1	0.244	12.3	0.131	64.6	2	0.92	0.679	0.119	0.865	dark	17.23	16.17	1	light-ground-dark-ink	#ffffff
+engine	du07-bandStack	#1b99bc	58.7	33.7	0.75	0.2676	SEMI	3.6	32.98	-30	0.01	1	0.565	21.7	0.589	101.2	2	0.62	0.845	0	0.249	dark	5.08	4.83	2	SATURATED-COLOURED-GROUND	#1c9bbf
+engine	du07-nightLot	#24a4c8	62.6	34.7	0.694	0.3114	SEMI	4.4	37.2	-34.5	0.33	1	0.56	23.8	0.654	111.8	2	0.56	0.894	0.006	0.262	light	2.45	3.62	1	SATURATED-COLOURED-GROUND	#094c5e
+engine	du07-posterBleed	#1f81a3	50.4	29.9	0.678	0.1876	PHOTO	22.1	31.64	-28.9	0.01	1	0.529	20	0.578	100.1	2	0.5	0.891	0	0.324	dark	4.21	5.53	1	SATURATED-COLOURED-GROUND	#1ba4c8
+engine	du07-priceBoard	#1ba4c8	62.5	35.3	0.761	0.3101	SEMI	9	45.53	-42	0.16	1	0.591	24.8	0.619	118.1	2	0.69	0.813	0	0.263	light	2.62	8.38	2	SATURATED-COLOURED-GROUND	#2ebee3
+engine	du07-proofWall	#23a7cb	63.5	35.3	0.704	0.3219	SEMI	4.2	38.38	-35.2	0.36	1	0.527	21.4	0.574	109.6	2	0.64	0.837	0	0.347	light	2.48	8.26	2	SATURATED-COLOURED-GROUND	#094c5e
+engine	du07-sunburstHero	#239dc0	60.2	33.8	0.692	0.2838	SEMI	6.4	37.09	-34	0.45	1	0.523	21.3	0.603	108.9	2	0.68	0.821	0	0.361	dark	5.71	5.67	2	SATURATED-COLOURED-GROUND	#094c5e
+engine	du07-ticketOffer	#2a9bbb	59.4	32.3	0.63	0.2748	SEMI	7.2	38.6	-35.6	0.41	1	0.504	20.1	0.606	102.5	2	0.43	0.912	0	0.371	light	2.83	8.82	1	SATURATED-COLOURED-GROUND	#094c5e
+engine	du07-tornSplit	#1893b3	56.4	32.5	0.762	0.2433	PHOTO	33	36.53	-32.7	0.04	1	0.479	16.1	0.458	93	2	0.87	0.707	0	0.5	light	3.23	8.84	2	SATURATED-COLOURED-GROUND	#f4f7f8
+engine	du08-bandStack	#548ce1	58	49.6	0.703	0.26	SEMI	3.3	54.83	-48.4	0.04	1	0.445	25.4	0.311	72.5	1	0.17	0.977	0.136	0.267	dark	4.6	4.61	1	SATURATED-COLOURED-GROUND	#5694ef
+engine	du08-nightLot	#518be1	57.7	50.3	0.708	0.2561	SEMI	3.1	40.81	-31.5	0.28	1	0.516	30	0.444	79.9	1	0.01	0.999	0.379	0.262	dark	4.86	4.9	1	SATURATED-COLOURED-GROUND	#5393ef
+engine	du08-posterBleed	#4e78c1	50.4	43.3	0.479	0.1878	SEMI	9.7	50.39	-44.9	0.07	1	0.463	26.6	0.309	73.3	1	0	1	0.291	0.275	dark	3.86	5.54	1	SATURATED-COLOURED-GROUND	#5694ef
+engine	du08-priceBoard	#5493ef	60.8	52.9	0.829	0.2903	SEMI	1	57.47	-49.5	0.08	1	0.521	29.6	0.423	81.5	1	0	1	0.41	0.263	light	2.86	9.48	1	SATURATED-COLOURED-GROUND	#5292ef
+engine	du08-proofWall	#528ce4	58.3	50.9	0.731	0.2626	SEMI	2.7	56.5	-49.9	0.37	1	0.472	25.5	0.358	77.3	1	0.01	0.999	0.34	0.359	light	3.02	9.58	1	SATURATED-COLOURED-GROUND	#5493ef
+engine	du08-sunburstHero	#5086d9	55.8	48.9	0.647	0.2373	SEMI	5	53.85	-47.1	0.41	1	0.481	27.4	0.405	76.1	1	0.01	0.999	0.203	0.299	light	3.17	5.48	1	SATURATED-COLOURED-GROUND	#5493ef
+engine	du08-ticketOffer	#5189dd	57.1	48.9	0.675	0.25	SEMI	3.6	54.43	-47.8	0.45	1	0.484	26	0.4	83.4	1	0.33	0.94	0.214	0.381	dark	5.13	5.36	1	SATURATED-COLOURED-GROUND	#5189dd
+engine	du08-tornSplit	#508bdf	57.5	49.3	0.694	0.2549	PHOTO	37.3	48.06	-33	0.01	1	0.421	17.9	0.208	64.4	1	0.01	0.999	0.197	0.491	light	3.19	9.65	1	SATURATED-COLOURED-GROUND	#fafbfc
+engine	gl02-bandStack	#f0c6bf	83.3	16.4	0.614	0.6268	SEMI	4.2	74.85	-73.7	0.08	1	0.538	16.1	0.368	70.2	1	0.03	0.997	0	0.413	dark	10.09	9.89	1	light-ground-dark-ink	#ffd3cb
+engine	gl02-nightLot	#edbaae	79.7	21.4	0.643	0.5609	SEMI	3.5	32.11	-31.5	0.24	1	0.577	18.6	0.495	72.5	2	0.97	0.621	0	0.292	dark	10.05	8.76	2	SATURATED-COLOURED-GROUND	#3e0d05
+engine	gl02-posterBleed	#ebccc4	84.4	12.4	0.493	0.6492	PHOTO	12	73.31	-70.8	0.07	1	0.607	16.2	0.476	65.9	1	0.05	0.995	0	0.263	dark	11.53	9.16	1	light-ground-dark-ink	#ffd3cb
+engine	gl02-priceBoard	#ffa898	77	37	0.997	0.5151	SEMI	10.9	66.25	-65.6	0.05	1	0.703	22.1	0.614	88.4	2	0.99	0.568	0	0.267	light	1.55	3.47	3	SATURATED-COLOURED-GROUND	#ffa898
+engine	gl02-proofWall	#f8bcb1	81.3	24.5	0.831	0.5895	SEMI	3.2	70.99	-70.7	0.42	1	0.582	17.6	0.5	73.7	2	0.97	0.614	0	0.356	light	1.47	3.98	3	SATURATED-COLOURED-GROUND	#3e0d05
+engine	gl02-sunburstHero	#ebb2a6	77.6	23.8	0.636	0.5246	SEMI	6.6	67.91	-67.6	0.4	1	0.502	16.1	0.315	67	2	0.97	0.611	0	0.376	light	1.58	2.45	2	SATURATED-COLOURED-GROUND	#3e0d05
+engine	gl02-ticketOffer	#eeb5a9	78.6	23.4	0.663	0.5421	SEMI	3.3	68.89	-68.6	0.23	1	0.523	16	0.355	60.2	2	0.76	0.783	0	0.371	light	1.58	4.03	3	SATURATED-COLOURED-GROUND	#3e0d05
+engine	gl02-tornSplit	#dadada	87.2	0	0	0.7035	SEMI	10.7	39.79	-36	0.12	1	0.527	12.7	0.329	59.8	1	0.11	0.987	0	0.489	dark	12.53	12.2	2	light-ground-dark-ink	#fcfbfa
+engine	io03-bandStack	#dee2fe	90.4	14.5	0.941	0.7722	SEMI	4.2	88.75	-85.6	0.09	1	0.591	23.5	0.507	71.1	2	0.98	0.685	0.207	0.455	dark	13.18	9.84	3	light-ground-dark-ink	#ecefff
+engine	io03-nightLot	#cdd4fe	85.5	22.4	0.971	0.6707	SEMI	3.9	81.91	-80.3	0.24	1	0.626	22.7	0.531	62	2	0.74	0.828	0.115	0.35	dark	12.15	10.6	2	SATURATED-COLOURED-GROUND	#050e3e
+engine	io03-posterBleed	#d6dafe	87.8	18.5	0.94	0.7175	PHOTO	14.7	83.68	-81.7	0.05	1	0.597	20.5	0.485	62.9	2	0.86	0.769	0.138	0.615	light	1.2	3.59	2	light-ground-dark-ink	#ecefff
+engine	io03-priceBoard	#bac5ff	80.5	31.1	1	0.575	PHOTO	14.2	74.63	-74.2	0.07	1	0.696	27.6	0.62	78	2	0.77	0.796	0.211	0.423	light	1.5	3.26	3	SATURATED-COLOURED-GROUND	#bac5ff
+engine	io03-proofWall	#cfd5fc	86	20.6	0.896	0.6796	SEMI	4.4	82.7	-80.9	0.32	1	0.608	21.8	0.494	64.5	2	0.95	0.707	0.138	0.39	light	1.28	3.18	2	SATURATED-COLOURED-GROUND	#050e3e
+engine	io03-sunburstHero	#c5ccfb	82.8	25	0.868	0.6186	SEMI	5.2	78.43	-77.5	0.39	1	0.586	20.6	0.483	61.3	2	0.92	0.718	0.102	0.375	dark	11.83	10.13	2	SATURATED-COLOURED-GROUND	#050e3e
+engine	io03-ticketOffer	#cfd1f1	84.5	16.7	0.539	0.6506	SEMI	4.6	81.55	-79	0.06	1	0.469	15.6	0.267	45.5	2	1.07	0.586	0.054	0.471	dark	12.73	11.77	1	light-ground-dark-ink	#050e3e
+engine	io03-tornSplit	#f0f2fe	95.7	6.1	0.897	0.8937	SEMI	3.9	42.66	-39.4	0.18	1	0.508	15.3	0.328	56	2	1.07	0.662	0.123	0.718	dark	17	16.12	2	light-ground-dark-ink	#fafbfc
+engine	jw03-bandStack	#5d3b64	30.4	29.1	0.257	0.0641	SEMI	4	22.74	-20.7	0.22	1	0.36	27.1	0.202	65.3	3	1.29	0.619	0.14	0.342	light	6.8	7.81	3	SATURATED-COLOURED-GROUND	#542e6c
+engine	jw03-nightLot	#603b6b	31.2	33.3	0.289	0.0672	SEMI	4.4	15.22	-9.4	0.34	1	0.348	29.1	0.129	60.9	3	1.08	0.757	0.119	0.301	light	6.82	6.23	2	SATURATED-COLOURED-GROUND	#261233
+engine	jw03-posterBleed	#67436a	33.9	28.1	0.226	0.0794	PHOTO	20.2	25.97	-25.5	0.03	1	0.376	27.8	0.173	62.6	3	1.38	0.631	0.092	0.304	dark	1.75	4.63	2	SATURATED-COLOURED-GROUND	#542e6c
+engine	jw03-priceBoard	#6e3c8d	34.9	51.8	0.401	0.0844	SEMI	8.3	36.68	-25.1	0.18	1	0.405	33.6	0.202	70.6	3	1.26	0.664	0.374	0.273	dark	1.93	11.35	3	SATURATED-COLOURED-GROUND	#6d3c8d
+engine	jw03-proofWall	#653e73	32.9	35.7	0.296	0.0749	SEMI	4.3	26.11	-22.5	0.07	1	0.351	27.2	0.14	59.5	3	1.16	0.716	0.082	0.362	light	6.79	8.29	3	SATURATED-COLOURED-GROUND	#261233
+engine	jw03-sunburstHero	#664464	33.8	23.8	0.196	0.079	SEMI	8.5	24.38	-23.2	0.02	1	0.326	24.9	0.111	50	3	1.83	0.446	0.033	0.316	light	6.6	6.84	1	SATURATED-COLOURED-GROUND	#261233
+engine	jw03-ticketOffer	#613c80	32.4	44.8	0.366	0.0727	SEMI	3.5	31.86	-23.5	0	1	0.361	28.2	0.122	60.9	2	1.33	0.737	0.08	0.361	light	7.02	8.49	1	SATURATED-COLOURED-GROUND	#261233
+engine	jw03-tornSplit	#261233	9.7	25.1	0.476	0.0109	PHOTO	22.7	48.21	43.2	0.22	1	0.34	19.7	0.13	49.1	3	1.38	0.599	0.043	0.509	light	14.72	9.76	2	dark-ground-light-ink	#542e6c
+engine	jw05-bandStack	#144d55	29.8	18.2	0.627	0.0615	SEMI	3.3	22.78	-21.3	0.22	1	0.536	15	0.454	59.9	3	1.3	0.624	0	0.445	light	6.95	7.35	1	dark-ground-light-ink	#044b52
+engine	jw05-nightLot	#195a63	34.8	20.1	0.6	0.084	SEMI	4.6	17.67	-14.2	0.41	1	0.564	16.2	0.532	66.5	2	1.3	0.501	0	0.394	light	5.99	5.41	1	SATURATED-COLOURED-GROUND	#032023
+engine	jw05-posterBleed	#265a64	35.4	17.7	0.444	0.0871	PHOTO	22.2	25.8	-24.9	0.08	1	0.594	14	0.442	58.3	2	0.85	0.732	0	0.497	light	5.77	7.36	1	dark-ground-light-ink	#044b52
+engine	jw05-priceBoard	#066a74	40.7	25	0.902	0.1168	PHOTO	12.2	33.34	-30.2	0.44	1	0.651	17.9	0.534	77.3	3	1.58	0.353	0	0.36	light	4.94	5.5	2	SATURATED-COLOURED-GROUND	#066a74
+engine	jw05-proofWall	#185a62	34.7	20.1	0.603	0.0835	SEMI	4.2	26.93	-24.7	0.02	1	0.554	15	0.448	67	2	1.02	0.516	0	0.467	light	6.3	7.16	2	SATURATED-COLOURED-GROUND	#032023
+engine	jw05-sunburstHero	#0f5b63	34.8	21.5	0.745	0.0841	SEMI	6.9	29.67	-27.9	0.25	1	0.469	14.5	0.229	60.3	2	0.64	0.847	0	0.47	dark	2.33	7.81	1	SATURATED-COLOURED-GROUND	#032023
+engine	jw05-ticketOffer	#0b5b60	34.8	22	0.799	0.0841	SEMI	3.4	29.86	-27.2	0	1	0.581	15.1	0.483	67.2	3	1.58	0.373	0	0.462	light	6.45	6.98	0	SATURATED-COLOURED-GROUND	#032023
+engine	jw05-tornSplit	#04444a	25.6	18.2	0.904	0.0461	PHOTO	18.1	44.64	43.1	0.21	1	0.492	11.3	0.263	53.5	2	0.95	0.646	0	0.639	light	9.37	9.14	1	dark-ground-light-ink	#044b52
+engine	jw07-bandStack	#12523a	30.4	27.4	0.631	0.0642	SEMI	3.6	24.14	-21.3	0.22	1	0.535	20.8	0.496	51.2	3	1.31	0.618	0	0.326	light	6.76	7.23	3	SATURATED-COLOURED-GROUND	#1b5b45
+engine	jw07-nightLot	#155d42	34.8	30.3	0.625	0.0841	SEMI	4.9	20.21	-13.6	0.39	1	0.564	23.5	0.544	59.4	3	0.99	0.788	0	0.287	light	5.99	5.28	2	SATURATED-COLOURED-GROUND	#032315
+engine	jw07-posterBleed	#296251	37.3	23.7	0.413	0.0972	PHOTO	24.5	26.71	-25.6	0.02	1	0.574	21.6	0.422	52.1	3	1.42	0.599	0	0.33	light	5.37	7.24	3	SATURATED-COLOURED-GROUND	#032315
+engine	jw07-priceBoard	#077044	41.4	42	0.883	0.1214	PHOTO	12.4	38.93	-30.2	0.11	1	0.632	26.4	0.533	67.3	3	1.27	0.661	0	0.259	light	4.84	5.31	3	SATURATED-COLOURED-GROUND	#077044
+engine	jw07-proofWall	#175f44	35.7	30.5	0.606	0.0885	SEMI	4.3	29.32	-24.8	0.1	1	0.54	21.6	0.45	58.3	3	1.16	0.717	0	0.357	light	6.1	6.66	2	SATURATED-COLOURED-GROUND	#032315
+engine	jw07-sunburstHero	#215f4a	35.9	25.9	0.484	0.0897	SEMI	6.7	31.78	-28.8	0.01	1	0.459	21.3	0.221	55.8	2	1.25	0.735	0	0.344	light	6.13	5.53	1	SATURATED-COLOURED-GROUND	#032315
+engine	jw07-ticketOffer	#0e603a	35.5	36.7	0.747	0.0877	SEMI	3.2	33.38	-26.3	0.42	1	0.555	23.1	0.483	57.2	3	1.69	0.414	0	0.324	light	6.31	6.57	1	SATURATED-COLOURED-GROUND	#032315
+engine	jw07-tornSplit	#05472b	25.8	29.4	0.874	0.0467	PHOTO	17.8	44.51	42	0.21	1	0.474	15.8	0.261	44.5	3	1.36	0.615	0	0.493	light	9.42	9.17	2	SATURATED-COLOURED-GROUND	#f4f8f6
+engine	jw09-bandStack	#0b1625	6.8	12	0.552	0.0076	SEMI	5	11.79	-8	0.16	1	0.52	17.2	0.224	101.6	2	0.95	0.693	0.063	0.568	light	16.29	14.99	2	dark-ground-light-ink	#0a0f1e
+engine	jw09-nightLot	#0d1b31	9.6	16.9	0.577	0.0108	SEMI	6.5	13.85	-9.3	0.29	1	0.519	18.6	0.296	85.3	3	1.71	0.425	0.054	0.426	dark	1.08	6.34	1	dark-ground-light-ink	#04070f
+engine	jw09-posterBleed	#16273b	15.1	14.8	0.46	0.0192	PHOTO	12.7	19.17	-15.1	0.06	1	0.559	17.7	0.264	97.7	2	1.13	0.636	0.084	0.723	dark	1.33	10.72	2	dark-ground-light-ink	#0a0f1e
+engine	jw09-priceBoard	#14204b	13.8	30.3	0.578	0.017	SEMI	9.3	29.38	-11.9	0.02	1	0.604	24	0.221	104.1	3	1.45	0.553	0.097	0.503	dark	1.26	10.57	2	dark-ground-light-ink	#14204b
+engine	jw09-proofWall	#0c1329	6.4	16.4	0.535	0.007	SEMI	6	19.06	-10.4	0.03	1	0.558	18.8	0.228	87.6	3	1.49	0.441	0.072	0.478	light	15.97	16.01	2	dark-ground-light-ink	#04070f
+engine	jw09-sunburstHero	#0e1b33	10.1	17.9	0.573	0.0114	SEMI	8.1	21.8	-13.9	0.04	1	0.546	19.9	0.342	80.9	4	1.81	0.468	0.089	0.441	dark	1.09	3.72	1	dark-ground-light-ink	#04070f
+engine	jw09-ticketOffer	#121632	8.5	20.7	0.461	0.0094	SEMI	3.4	22.38	-9.5	0.06	1	0.496	17.4	0.096	69.7	4	2.04	0.434	0.04	0.492	dark	1.05	7.07	1	dark-ground-light-ink	#04070f
+engine	jw09-tornSplit	#04070f	1.9	3.6	0.573	0.0022	SEMI	2.6	53.43	53	0.31	1	0.628	14.8	0.144	80.5	2	1.01	0.621	0.087	0.846	light	18.08	17.79	1	dark-ground-light-ink	#0a0f1e
+engine	jw10-bandStack	#652c45	26.8	29	0.393	0.0502	SEMI	3.5	21.83	-19.6	0.21	1	0.368	24.4	0.316	58.5	3	1.31	0.619	0.134	0.334	light	7.82	7.97	2	SATURATED-COLOURED-GROUND	#6b2246
+engine	jw10-nightLot	#72324d	30.3	31.5	0.388	0.0638	SEMI	4.6	14.86	-8.7	0.28	1	0.371	25.7	0.318	62.1	3	1.01	0.777	0.072	0.303	light	7.11	6.27	2	SATURATED-COLOURED-GROUND	#330d1f
+engine	jw10-posterBleed	#724052	33.7	23.9	0.277	0.0789	PHOTO	23	38.5	-35.5	0.1	1	0.371	22.3	0.395	55.7	3	1.23	0.677	0.092	0.353	dark	1.79	5.23	2	SATURATED-COLOURED-GROUND	#6b2246
+engine	jw10-priceBoard	#6b2246	26	36.4	0.515	0.0476	SEMI	9	35.05	-25.3	0.08	1	0.415	30.3	0.537	72.6	3	1.28	0.65	0.112	0.26	light	8.51	6.45	2	SATURATED-COLOURED-GROUND	#8e2e5d
+engine	jw10-proofWall	#773551	32	32.2	0.381	0.0706	SEMI	3.6	25.82	-21.7	0.01	1	0.363	24.1	0.331	61.6	3	1.17	0.717	0.073	0.366	light	7.04	8.19	2	SATURATED-COLOURED-GROUND	#330d1f
+engine	jw10-sunburstHero	#733e52	33.3	25.8	0.299	0.0769	SEMI	7.5	28.7	-25.8	0.01	1	0.32	20.5	0.212	57.2	3	1.41	0.662	0.044	0.412	dark	2.19	6.82	2	SATURATED-COLOURED-GROUND	#330d1f
+engine	jw10-ticketOffer	#763250	31	33.6	0.406	0.0667	SEMI	2.3	28.1	-22.6	0	1	0.375	24.2	0.272	60.1	2	1.01	0.771	0.078	0.337	light	7.29	8.29	2	SATURATED-COLOURED-GROUND	#330d1f
+engine	jw10-tornSplit	#0b1c26	9.3	9.6	0.561	0.0104	PHOTO	20.2	27.69	12.2	0.22	1	0.333	17.2	0.248	47.3	3	1.31	0.61	0.039	0.506	light	14.94	10.81	2	dark-ground-light-ink	#f8f4f6
+engine	nn01-bandStack	#182637	14.8	12.8	0.387	0.0188	SEMI	4.7	17.55	-16.6	0.18	1	0.437	16.4	0.142	53	2	0.9	0.692	0.061	0.447	light	12.31	9.92	2	dark-ground-light-ink	#0e253d
+engine	nn01-nightLot	#162e48	18.5	18.7	0.524	0.0262	SEMI	5.9	17.69	-14.8	0.4	1	0.441	17.2	0.283	53.3	4	1.77	0.462	0.053	0.409	light	11.17	8.9	1	dark-ground-light-ink	#05111c
+engine	nn01-posterBleed	#17323f	19.4	12.6	0.464	0.0283	PHOTO	12.6	19.49	-18.9	0.05	1	0.465	17.3	0.096	54.1	2	1.12	0.521	0.079	0.427	dark	1.48	8.24	2	dark-ground-light-ink	#0e253d
+engine	nn01-priceBoard	#173d62	24.9	26	0.62	0.0439	SEMI	10.6	26.69	-20.2	0.03	1	0.527	21.7	0.391	66.2	4	1.98	0.308	0.093	0.35	dark	1.58	8.48	2	SATURATED-COLOURED-GROUND	#173d62
+engine	nn01-proofWall	#23344c	21.3	16.8	0.368	0.0332	SEMI	5.1	19.49	-16.4	0	1	0.433	17.1	0.308	55.1	2	1.34	0.489	0.072	0.47	light	10.86	11.92	2	dark-ground-light-ink	#05111c
+engine	nn01-sunburstHero	#303a4e	24.5	13.3	0.237	0.0425	SEMI	7.8	23.93	-22.3	0	1	0.359	17.1	0.198	51.2	3	1.68	0.612	0.084	0.454	light	9.45	8.62	1	dark-ground-light-ink	#05111c
+engine	nn01-ticketOffer	#163748	21.4	15.2	0.529	0.0334	SEMI	4.6	20.38	-19.2	0.02	1	0.435	13.8	0.247	48.8	2	1.33	0.507	0.04	0.507	light	10.81	11.28	0	dark-ground-light-ink	#05111c
+engine	nn01-tornSplit	#0b1d28	9.9	9.9	0.562	0.0112	SEMI	9.6	57.84	55.4	0.27	1	0.401	13.5	0.04	48.2	2	0.92	0.692	0.086	0.65	light	15.14	14.35	1	dark-ground-light-ink	#f4f6f8
+engine	nn05-bandStack	#0d322c	18.1	14.7	0.584	0.0254	SEMI	4.3	17.7	-15	0.19	1	0.559	18.2	0.294	63.5	2	0.92	0.681	0.066	0.444	light	11.29	9.61	2	dark-ground-light-ink	#153a37
+engine	nn05-nightLot	#0d4137	24.1	19.5	0.656	0.0413	SEMI	6.2	26.92	-22.2	0.39	1	0.603	19.3	0.55	69.3	3	1.47	0.55	0.052	0.388	light	9.45	8.02	1	dark-ground-light-ink	#02130e
+engine	nn05-posterBleed	#0d2923	14.3	12.3	0.504	0.0179	PHOTO	13.6	20.59	-19.3	0.12	1	0.602	18.5	0.346	66	2	1.04	0.548	0.076	0.454	light	13.19	13.54	2	dark-ground-light-ink	#002d20
+engine	nn05-priceBoard	#005b42	33.8	31.6	1	0.0789	PHOTO	18.5	38.76	-29.2	0.11	1	0.732	25	0.574	87.4	3	1.44	0.55	0.098	0.345	dark	2.15	8.49	3	SATURATED-COLOURED-GROUND	#005b42
+engine	nn05-proofWall	#11423a	24.7	18.7	0.596	0.0433	SEMI	5.7	26.49	-21.1	0.04	1	0.604	19.5	0.513	74	3	1.47	0.547	0.074	0.458	light	9.74	10.06	2	dark-ground-light-ink	#02130e
+engine	nn05-sunburstHero	#214847	27.7	14.4	0.374	0.0536	SEMI	10.4	28.78	-24.7	0	1	0.517	18.9	0.314	76.2	2	1.36	0.466	0.087	0.433	dark	1.55	5.69	1	dark-ground-light-ink	#02130e
+engine	nn05-ticketOffer	#06402d	23.5	24.5	0.82	0.0395	SEMI	4	30.18	-22.2	0	1	0.541	18.3	0.331	61.2	4	1.74	0.466	0.041	0.451	light	10.25	10.29	1	SATURATED-COLOURED-GROUND	#02130e
+engine	nn05-tornSplit	#02130e	4.6	6.1	0.81	0.0051	SEMI	10.6	54.01	51.1	0.26	1	0.517	14.2	0.245	66.2	2	0.93	0.665	0.088	0.663	light	16.94	14.05	1	dark-ground-light-ink	#f4f8f7
+engine	np03-bandStack	#e9ded4	89	6.5	0.323	0.742	SEMI	5.1	83.22	-83	0.07	1	0.284	15.8	0.208	77.2	2	0.9	0.695	0.137	0.786	dark	12.6	13.19	2	light-ground-dark-ink	#121212
+engine	np03-nightLot	#dbd1c6	84.4	7	0.229	0.6478	SEMI	4.4	39.85	-39.2	0.25	1	0.252	11.4	0.13	57.1	2	1.01	0.571	0.062	0.863	dark	11.58	12.03	1	light-ground-dark-ink	#121212
+engine	np03-posterBleed	#bfbfbe	77.3	0.6	0.009	0.521	PHOTO	18.4	78.92	-78	0.06	1	0.274	14.6	0.248	70.3	2	0.95	0.66	0.09	0.743	light	1.58	4.03	3	light-ground-dark-ink	#ede7dc
+engine	np03-priceBoard	#dcd4c5	85.1	8.4	0.253	0.6619	SEMI	6.8	80.06	-79.6	0.1	1	0.271	14.8	0.207	69.5	2	1.02	0.531	0.102	0.79	dark	10.75	14.17	2	light-ground-dark-ink	#dcd4c5
+engine	np03-proofWall	#ded8cc	86.4	6.4	0.214	0.6876	SEMI	4.7	82.38	-82.1	0.37	1	0.227	10.8	0.142	56.5	2	1.02	0.513	0.06	0.851	dark	11.8	13.65	2	light-ground-dark-ink	#121212
+engine	np03-sunburstHero	#e0d4c7	85.5	8.1	0.29	0.6692	GRADIENT	8.6	76.7	-76.3	0.5	1	0.265	10.5	0.123	43.8	2	0.91	0.785	0.013	0.634	dark	11.16	11.85	1	light-ground-dark-ink	#121212
+engine	np03-ticketOffer	#ceccc8	82.2	2.5	0.065	0.6065	SEMI	7	81.16	-80.9	0.4	1	0.164	6.7	0.097	39.5	3	1.58	0.468	0.032	0.902	dark	11.49	12.98	0	light-ground-dark-ink	#121212
+engine	np03-tornSplit	#e5e5e5	91.1	0	0	0.7865	SEMI	8.1	64.23	-64	0.15	1	0.18	8.2	0.137	48.3	2	0.96	0.638	0.041	0.856	dark	13.26	16.73	1	light-ground-dark-ink	#ffffff
+engine	pa05-bandStack	#bcecde	89.9	18.3	0.563	0.7613	SEMI	4.6	69.36	-68.9	0.06	1	0.428	21.6	0.318	62.6	2	1.39	0.615	0.137	0.419	dark	11.44	5.03	2	light-ground-dark-ink	#053e2e
+engine	pa05-nightLot	#a8e6d5	86.9	23.3	0.555	0.6981	SEMI	4.5	36.38	-36.1	0.24	1	0.485	20.6	0.485	61	3	1.58	0.565	0.061	0.276	dark	10.84	8.45	1	SATURATED-COLOURED-GROUND	#053e2e
+engine	pa05-posterBleed	#c7ebe7	90.5	12.7	0.478	0.7733	PHOTO	14	66.82	-63.9	0.06	1	0.502	21.6	0.49	59.6	3	1.73	0.374	0.088	0.263	dark	13.1	3.64	3	light-ground-dark-ink	#c7faeb
+engine	pa05-priceBoard	#baf9e7	93.4	23.3	0.837	0.8393	SEMI	3.9	69.16	-68.2	0.11	1	0.561	26.8	0.573	76.4	3	1.49	0.567	0.112	0.268	light	1.09	1.77	3	light-ground-dark-ink	#98f6db
+engine	pa05-proofWall	#b1efdd	89.9	23.2	0.656	0.7616	SEMI	4.1	68.09	-67.9	0.35	1	0.472	19.9	0.48	60.5	3	1.5	0.586	0.059	0.361	light	1.15	3.69	1	SATURATED-COLOURED-GROUND	#053e2e
+engine	pa05-sunburstHero	#abe9de	88	21.5	0.579	0.7207	SEMI	7.2	65.05	-64.6	0.38	1	0.44	17.6	0.304	51.3	2	1.58	0.567	0.012	0.351	light	1.13	1.76	1	SATURATED-COLOURED-GROUND	#053e2e
+engine	pa05-ticketOffer	#adecd3	88.6	25.4	0.619	0.7334	SEMI	3.9	67.03	-66.9	0.42	1	0.468	17.6	0.477	50.6	2	0.81	0.843	0.012	0.371	dark	12.13	8.96	1	SATURATED-COLOURED-GROUND	#053e2e
+engine	pa05-tornSplit	#c7faeb	94.5	19.2	0.837	0.8649	SEMI	4.3	39.39	-39.1	0.19	1	0.443	14.4	0.365	45.9	2	1.17	0.684	0.032	0.494	light	1.06	11.6	1	light-ground-dark-ink	#c7faeb
+engine	pp02-bandStack	#f5e5d8	91.9	9.1	0.596	0.8044	SEMI	4.8	80.65	-78.7	0.05	1	0.522	19.7	0.339	70.9	1	0.1	0.988	0.2	0.604	dark	12.35	6.65	1	light-ground-dark-ink	#3e1c05
+engine	pp02-nightLot	#f2dbc8	88.7	13.4	0.628	0.7353	SEMI	4	59.88	-58.3	0.25	1	0.56	17.6	0.525	60.5	1	0.36	0.936	0.118	0.446	dark	12.39	10.52	1	light-ground-dark-ink	#3e1c05
+engine	pp02-posterBleed	#e2c19f	80	22.2	0.534	0.5664	PHOTO	17.2	72.15	-70.6	0.07	1	0.586	17.9	0.258	65.7	1	0.21	0.969	0.146	0.581	light	1.56	4.42	2	SATURATED-COLOURED-GROUND	#fdf4ee
+engine	pp02-priceBoard	#f8d7c1	88	17.2	0.797	0.7216	SEMI	5.4	73.7	-73.3	0.06	1	0.633	21.1	0.497	72.5	1	0.1	0.986	0.202	0.423	light	1.25	3.21	1	light-ground-dark-ink	#f8d7c1
+engine	pp02-proofWall	#f3dfd1	90.2	10.7	0.603	0.7672	SEMI	4.3	78.15	-76.8	0.34	1	0.544	16.8	0.499	63.6	1	0.18	0.974	0.137	0.549	dark	13.31	11.11	2	light-ground-dark-ink	#3e1c05
+engine	pp02-sunburstHero	#eed3bb	86.1	16.5	0.602	0.6816	SEMI	6.4	73.75	-72.9	0.26	1	0.532	17.3	0.552	60	2	0.64	0.846	0.097	0.444	light	1.25	2	2	light-ground-dark-ink	#3e1c05
+engine	pp02-ticketOffer	#f5dcc9	89.4	13.9	0.701	0.751	SEMI	3.7	75.92	-75	0.13	1	0.51	13.3	0.462	47.9	1	0.29	0.953	0.051	0.516	dark	13.35	10.96	1	light-ground-dark-ink	#3e1c05
+engine	pp02-tornSplit	#fdf4ee	96.7	4.4	0.789	0.9176	SEMI	1.9	44.28	-39.3	0.18	1	0.505	14	0.163	62.9	1	0.23	0.965	0.129	0.702	dark	15.25	14.09	2	light-ground-dark-ink	#fcfbfa
+engine	pp04-bandStack	#e1edd8	92.4	11.9	0.374	0.8154	SEMI	4.5	77.26	-76.1	0.06	1	0.405	21.6	0.22	55.5	2	0.93	0.662	0.209	0.522	dark	11.99	6.12	1	light-ground-dark-ink	#1c3112
+engine	pp04-nightLot	#d7e6ca	89.5	15.4	0.355	0.7528	SEMI	4	57.99	-56.9	0.26	1	0.361	18.1	0.127	43.5	2	1.02	0.506	0.117	0.448	dark	12.22	10.11	1	light-ground-dark-ink	#1c3112
+engine	pp04-posterBleed	#dbe9cf	90.6	14	0.361	0.7766	PHOTO	18.3	75.11	-73.7	0.03	1	0.395	19.2	0.169	50.4	2	0.81	0.758	0.155	0.585	dark	13.3	4.64	2	light-ground-dark-ink	#f2f8ef
+engine	pp04-priceBoard	#d6e8cd	90	15.7	0.373	0.7636	SEMI	6.9	72.62	-72.3	0.09	1	0.415	21.6	0.215	53.5	2	1	0.501	0.207	0.421	light	1.19	3.17	1	light-ground-dark-ink	#d6e8cd
+engine	pp04-proofWall	#e1ecd8	92.2	11.5	0.356	0.8112	SEMI	3.3	75.93	-75	0.35	1	0.363	17.3	0.148	46.2	2	1.02	0.501	0.138	0.567	dark	13.68	8.53	1	light-ground-dark-ink	#1c3112
+engine	pp04-sunburstHero	#d0e1c0	87.6	18.4	0.356	0.7114	SEMI	7.3	73.5	-72.8	0.37	1	0.338	17.9	0.11	41.9	2	0.51	0.897	0.1	0.486	light	1.2	2.04	1	light-ground-dark-ink	#1c3112
+engine	pp04-ticketOffer	#d9e8ce	90.4	15	0.372	0.7712	SEMI	3.1	73.91	-73.4	0.24	1	0.32	13.6	0.057	31.8	2	0.82	0.761	0.049	0.521	dark	13.25	10.36	0	light-ground-dark-ink	#1c3112
+engine	pp04-tornSplit	#f2f8ef	96.9	5.1	0.391	0.9224	SEMI	1.9	42.89	-39.1	0.18	1	0.349	14.6	0.142	45	2	0.9	0.695	0.131	0.689	dark	14.82	13.13	1	light-ground-dark-ink	#fbfcfa
+engine	st04-bandStack	#1a191c	8.8	2.3	0.057	0.0098	SEMI	4.1	8.51	-8.1	0.16	1	0.355	20.6	0.216	102.7	2	0.9	0.69	0.206	0.774	light	14.72	14.93	2	dark-ground-light-ink	#12161c
+engine	st04-nightLot	#1d1d21	11	3.1	0.067	0.0126	FLAT	4.6	6.38	-6.3	0.35	1	0.3	14.9	0.142	82.7	2	0.99	0.602	0.127	0.851	light	13.79	13.62	1	dark-ground-light-ink	#080b0f
+engine	st04-posterBleed	#1b191c	9.2	2.2	0.05	0.0103	SEMI	6.5	16	-11.8	0.12	1	0.359	17.9	0.22	90.6	2	0.81	0.761	0.146	0.77	light	15.07	16.73	2	dark-ground-light-ink	#12161c
+engine	st04-priceBoard	#1b232d	13.3	7.7	0.248	0.0161	SEMI	8.4	14.16	-12.5	0	1	0.405	22.6	0.226	107.5	2	0.99	0.565	0.218	0.77	light	12.87	16.2	2	dark-ground-light-ink	#1e2732
+engine	st04-proofWall	#151b23	9.5	6.1	0.234	0.0107	SEMI	4.1	10	-10	0	1	0.332	16.4	0.162	90.5	2	1.01	0.527	0.15	0.832	light	14.24	14.82	2	dark-ground-light-ink	#080b0f
+engine	st04-sunburstHero	#1b1d20	10.6	2.8	0.084	0.0121	SEMI	7.9	11.02	-10.9	0.13	1	0.32	15.2	0.137	80.4	2	0.74	0.795	0.121	0.796	light	13.41	10.99	1	dark-ground-light-ink	#080b0f
+engine	st04-ticketOffer	#1c2125	12.2	3.7	0.144	0.0144	SEMI	8.9	11.16	-10.8	0.05	1	0.291	12.3	0.105	68.2	2	1.02	0.534	0.083	0.858	light	13.55	14.16	0	dark-ground-light-ink	#080b0f
+engine	st04-tornSplit	#121416	6.3	1.7	0.106	0.007	SEMI	4.2	79.76	79.7	0.3	1	0.345	13.9	0.144	85.6	2	0.97	0.63	0.133	0.85	light	15.68	18.18	1	dark-ground-light-ink	#f3f6f9
+engine	su07-bandStack	#361334	12.6	26.9	0.491	0.0149	SEMI	4.1	16.27	-10.1	0.16	1	0.551	31.2	0.231	109.4	3	1.65	0.399	0.214	0.304	light	14.43	13.38	2	dark-ground-light-ink	#2c0b3b
+engine	su07-nightLot	#3d143a	14.5	29.7	0.499	0.0182	SEMI	4.4	10.33	-6.3	0.32	1	0.561	31.8	0.295	92.2	4	1.93	0.395	0.14	0.282	dark	1.11	4.44	2	dark-ground-light-ink	#160520
+engine	su07-posterBleed	#471c33	17.4	24.6	0.44	0.0238	SEMI	11.2	23.37	-15.3	0.1	1	0.63	31.8	0.248	100.9	3	1.6	0.468	0.161	0.294	dark	1.29	6.04	3	dark-ground-light-ink	#2c0b3b
+engine	su07-priceBoard	#411053	16.1	45.4	0.678	0.0212	SEMI	9.2	35.82	-15.4	0.03	1	0.713	40.9	0.513	115.2	3	1.55	0.528	0.29	0.244	dark	1.26	7.38	3	dark-ground-light-ink	#4b125d
+engine	su07-proofWall	#43173e	16.3	31.3	0.496	0.0215	SEMI	4.4	22.36	-12.2	0	1	0.618	30.9	0.376	93.9	4	1.92	0.452	0.144	0.356	dark	1.19	6.08	3	dark-ground-light-ink	#160520
+engine	su07-sunburstHero	#4b1c37	18.4	26.9	0.458	0.026	SEMI	7.7	25.78	-16.2	0.01	1	0.558	29.1	0.247	83.7	3	1.83	0.43	0.13	0.313	dark	1.26	4.5	2	SATURATED-COLOURED-GROUND	#160520
+engine	su07-ticketOffer	#410f47	15	39.6	0.652	0.0191	SEMI	3.9	29.68	-13.9	0.36	1	0.642	30.6	0.421	82.6	3	1.79	0.412	0.093	0.316	light	13.19	13.37	1	dark-ground-light-ink	#160520
+engine	su07-tornSplit	#160520	3.5	17.9	0.726	0.0039	SEMI	6.2	59.1	47	0.29	1	0.712	24.7	0.154	88.1	2	1.25	0.611	0.14	0.492	light	16.99	15.43	2	dark-ground-light-ink	#2c0b3b

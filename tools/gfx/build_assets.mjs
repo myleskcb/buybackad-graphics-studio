@@ -50,6 +50,8 @@ const PROP_DENY = [
   /^qs-|^bundle-|device-bundle|apple-bundle|own-apple|sheet-|^mac|imac|macbook|ipad|watch/, // another subject
   /awning|clipboard|clock|location-pin|shield|magnifier|strip-boxes|counter-scene/, // set dressing
   /money-bag-sack/,                                 // reads as a cartoon, not a transaction
+  /cash-scatter-loose|cash-fan$/,                   // "flying $100 bills" is on the owner's BAD list, twice
+  /cash-envelope-stuffed|shopping-bag-cash/,        // the reference audit: bag and envelope cash trend BAD
 ];
 const PROP_ALLOW = [
   /^cash-/, /^safe-open-cash/, /^shopping-bag-cash/,
@@ -91,15 +93,33 @@ const tag = (a, vertical) => {
       : /^car/.test(s) ? 'car' : a.category;
   const g = s.match(/gen(\d\d)|iphone-(\d\d)|qs-iphone-(\d\d)/);
   t.g = g ? +(g[1] || g[2] || g[3]) : null;
+  /* the variant, when the name states it: "17 Pro Max" is not "17 Pro" */
+  const v = s.match(/-(pro-max|pro|plus|air|mini|ultra|e)(?:-|$)/);
+  t.v = v ? v[1].replace('-', ' ') : (/iphone-1\d-pro-back/.test(s) ? 'pro' : null);
   t.c = /crack|damage|shatter|dent|smash|broken/.test(s + ' ' + d) ? 'cracked' : 'clean';
   const foreign = FOREIGN[vertical] && !FAMILY.test(s) && FOREIGN[vertical].test(s + ' ' + d);
   const foreignBySlug = FOREIGN[vertical] && FOREIGN[vertical].test(s) && !FAMILY.test(s);
-  t.k = /hand|grip|holding|forearm/.test(s + ' ' + d) ? 'hand'
-      : /tool|teardown|repair/.test(s + ' ' + d) ? 'tool'
+  const words = (s.replace(/-/g, ' ') + ' ' + d);
+  /* a part, a macro, a sliver seen edge-on: not the product, whatever the
+     folder says — and "held" is a hand even when "hand" is not written */
+  t.k = /\b(hands?|held|holding|holds|fingers?|thumb|palm|grip|wrist|forearm|arm)\b/.test(words) ? 'hand'
+      : /\b(tools?|teardown|repair)\b/.test(words) ? 'tool'
+      : /\b(macro|close ?up|corner of|edge|profile|half|detail|sliver)\b/.test(words) ? 'detail'
       : (foreign || foreignBySlug || /drone|buds-case|-watch-|watch-pair|tablet-back/.test(s) && vertical === 'phones') ? 'other'
       : /pair|trio|group|set-|lineup|stack|scatter|fan|row|grid|six|three|five|nine|quad|bundle/.test(s) ? 'group'
       : 'single';
-  t.h = (t.k === 'single' || t.k === 'group') ? 1 : 0;
+  /* a part is not the product: keys, a title document, a tyre, an engine bay,
+     a macro of one corner — all tagged b:'car', k:'single' and shipped as the
+     hero of a car ad. A hero must be the WHOLE thing. And a motorcycle is not
+     a car, whatever folder it sits in. */
+  t.w = /keys|fob|title|docs|wheel|tyre|tire|engine|cable|macro|edge|tools|charger|-part/.test(s) ? 0 : 1;
+  if (/motorcycle|bike/.test(s)) t.b = 'bike';
+  /* the body a vehicle is, so "CASH FOR TRUCKS" is not set over a Civic */
+  if (t.b === 'car') t.body = /truck|pickup|f-?150|tacoma|silverado/.test(s) ? 'truck' : /van|sprinter|transit/.test(s) ? 'van' : 'car';
+  /* cash sub-family, so two cash props are never the same idea twice */
+  if (/^cash-|safe-open-cash|shopping-bag-cash/.test(s)) t.fam = (s.match(/fan|stack|bundle|roll|single|safe|scatter|envelope|bag/) || ['cash'])[0];
+  else if (/box|mailer|pallet/.test(s)) t.fam = 'box';
+  t.h = (t.k === 'single' || t.k === 'group') && t.w ? 1 : 0;
   return t;
 };
 const rec = (a, vertical) => ({ u: a.url, w: a.w, h: a.h, s: a.slug, d: a.prompt || '', t: tag(a, vertical) });

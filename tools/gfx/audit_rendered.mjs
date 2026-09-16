@@ -31,13 +31,15 @@ for (let s = 0; s < SEEDS; s++)
 const browser = await puppeteer.launch({ executablePath: CHROME, headless: 'new', args: ['--no-sandbox'], protocolTimeout: 0 });
 const page = await browser.newPage();
 await page.goto(BASE);
+/* the same ink probe the gate and the console use */
+await page.evaluate(src => { window.__inkBox = eval('(' + src + ')'); }, E.inkBox.toString());
 
 const hits = [];
 let measured = 0;
 
 for (const c of cases) {
   let r;
-  try { r = E.render(c.arch, c.seed, c.vert, c.fmt, { ...E.DEFAULT_CFG(), assetBase: BASE }); }
+  try { r = E.render(c.arch, c.seed, c.vert, c.fmt, { ...E.DEFAULT_CFG(), allowPlaceholder: true, assetBase: BASE }); }
   catch (e) { hits.push({ ...c, rule: 'render', msg: e.message.slice(0, 90) }); continue; }
 
   const boxes = await page.evaluate(async svg => {
@@ -53,14 +55,11 @@ for (const c of cases) {
     const host = el.getBoundingClientRect();
     const sx = vb[2] / host.width, sy = vb[3] / host.height;
     const out = [];
-    el.querySelectorAll('text').forEach(t => {
+    el.querySelectorAll('text:not([data-deco])').forEach(t => {
       let b; try { b = t.getBoundingClientRect(); } catch (e) { return; }
       if (!b || !b.width) return;
       out.push({ id: t.getAttribute('data-id') || t.getAttribute('id') || '',
-                 s: (t.textContent || '').slice(0, 26),
-                 x: (b.left - host.left) * sx, y: (b.top - host.top) * sy,
-                 w: b.width * sx, h: b.height * sy,
-                 op: +(getComputedStyle(t).opacity || 1) });
+                 ...window.__inkBox(t, host, sx, sy) });
     });
     return { W: vb[2], H: vb[3], out };
   }, r.svg);

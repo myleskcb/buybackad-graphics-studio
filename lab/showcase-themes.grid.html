@@ -1,0 +1,46 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Showcase theme grading</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{--bg:#0b0c0f;--panel:#14161b;--line:#242832;--ink:#e8eaf0;--dim:#8d93a3;--ok:#3ecf8e;--no:#e0475f;--star:#e8b23c}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif}
+  header{position:sticky;top:0;z-index:5;background:rgba(11,12,15,.94);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  h1{font-size:14px;margin:0 12px 0 0;font-weight:650;letter-spacing:.2px}
+  select,input,button{background:var(--panel);color:var(--ink);border:1px solid var(--line);
+    border-radius:7px;padding:6px 10px;font:inherit}
+  button{cursor:pointer}
+  button:hover{border-color:#39404f}
+  .count{color:var(--dim);font-variant-numeric:tabular-nums}
+  main{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  .card.up{border-color:var(--ok)} .card.down{border-color:var(--no);opacity:.55} .card.star{border-color:var(--star)}
+  .art{aspect-ratio:1/1;background:#000;display:block;width:100%}
+  .meta{padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+  .id{font:12px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink)}
+  .note{color:var(--dim);font-size:11px}
+  .row{display:flex;gap:6px}
+  .row button{flex:1;padding:5px 0;font-size:12px}
+  textarea{width:100%;background:#0e1015;color:var(--ink);border:1px solid var(--line);border-radius:6px;
+    padding:6px;font:inherit;resize:vertical;min-height:34px}
+</style>
+<header>
+  <h1>Showcase themes</h1>
+  <label>palette <select id=pal></select></label>
+  <label>ratio <select id=ratio>
+    <option value="1">1:1</option><option value="0.75">3:4</option><option value="1.3333">4:3</option>
+    <option value="0.5625">9:16</option><option value="1.7778">16:9</option><option value="3.5556">32:9</option>
+  </select></label>
+  <label>show <select id=filter>
+    <option value=all>all</option><option value=ungraded>ungraded</option>
+    <option value=up>kept</option><option value=star>starred</option><option value=down>killed</option>
+  </select></label>
+  <button id=reroll>Reroll seeds</button>
+  <button id=export>Export grades</button>
+  <button id=clear>Clear grades</button>
+  <span class=count id=count></span>
+</header>
+<main id=grid></main>
+<script type="module" src="./showcase-themes.js"></script>

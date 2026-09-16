@@ -145,6 +145,13 @@ pre.neg{color:#c98d8d}
   .card svg{max-height:none}
   .hintbar{display:none}
 }
+
+/* the brand form: two columns of label-over-input */
+.brandgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:4px 0 8px}
+.brandgrid label{display:flex;flex-direction:column;gap:3px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.brandgrid input{background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 8px;
+  color:var(--ink);font:12px var(--ui);letter-spacing:0;text-transform:none;min-width:0;width:100%}
+.brandgrid input:focus{outline:2px solid var(--live);outline-offset:-1px}
 </style>
 
 <div class="top">

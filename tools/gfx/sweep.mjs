@@ -19,7 +19,7 @@ for (let set = 0; set < SETS; set++) {
     for (const f of FORMATS)
       for (const [key, name] of E.ARCHS) {
         const seed = base + set * 137;
-        const r = E.render(key, seed, v, f, E.DEFAULT_CFG());
+        const r = E.render(key, seed, v, f, { ...E.DEFAULT_CFG(), allowPlaceholder: true });
         tested++;
         coverage.push(r.audit.coverage);
         const bad = r.audit.rules.filter(x => !x[1]).map(x => x[0]);
