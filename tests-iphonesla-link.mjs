@@ -69,13 +69,13 @@ function studio(opts = {}){
       if (opts.fetchThrowsSync) throw new Error('fetch blew up');
       return Promise.resolve().then(() => respond(String(url), init || {})).then(a => ({
         ok: a.status >= 200 && a.status < 300, status: a.status,
-        json: async () => { if (a.body === undefined) throw new Error('no body'); return a.body; },
+        json: async () => { if (a.json) return a.json(); if (a.body === undefined) throw new Error('no body'); return a.body; },
       }));
     },
     setTimeout(fn, ms){ const id = nextTimer++; timers.push({ id, fn, ms }); return id; },
     clearTimeout(id){ const i = timers.findIndex(t => t.id === id); if (i >= 0) timers.splice(i, 1); },
     addEventListener(type, fn){ (listeners[type] = listeners[type] || []).push(fn); },
-    FormData: opts.FormData || FormData, Blob, URL, TextDecoder, atob,
+    FormData: opts.FormData || FormData, Blob, URL, TextDecoder, atob, AbortController,
     toast(msg, kind){ toasts.push({ msg, kind }); },
     planOf: () => opts.plan || { label: 'Free', watermark: true },
     TEMPLATES: opts.templates || TEMPLATES,
@@ -170,10 +170,10 @@ test('the API origin is hard-coded and nothing in a fragment can change it', asy
 });
 
 test('a return address is kept only when it is exactly the shop', async () => {
-  const href = r => { const s = studio({ hash: '#brief=' + b64url({ family: 'iphone', return: r }) }); return backLink(s.doc).href; };
-  assert.equal(href('https://iphones.la/repost?tab=1#configurator'), 'https://iphones.la/repost?tab=1#configurator');
+  const href = async r => { const s = studio({ hash: '#ipla=' + CODE + '&brief=' + b64url({ family: 'iphone', return: r }), respond: () => ({ status: 200, body: { token: TOKEN } }) }); await settle(); assert.equal(backLink(s.doc).attrs.target, '_blank'); assert.equal(backLink(s.doc).attrs.rel, 'noopener'); return backLink(s.doc).href; };
+  assert.equal(await href('https://iphones.la/repost?tab=1#configurator'), 'https://iphones.la/repost?tab=1#configurator');
   for (const bad of ['https://iphones.la.evil.example/repost', 'https://user:pw@iphones.la/repost', 'http://iphones.la/repost', 'https://www.iphones.la/repost', 'javascript:alert(1)', '//evil.example', 42]){
-    assert.equal(href(bad), 'https://iphones.la/repost#configurator', String(bad));
+    assert.equal(await href(bad), 'https://iphones.la/repost#configurator', String(bad));
   }
 });
 
@@ -263,7 +263,7 @@ test('a brief is kept for the session and its tags ride on each upload', async (
   const local = storage();
   const first = studio({ hash: '#ipla=' + CODE + '&brief=' + b64url(BRIEF_TAGS), local, session, respond: () => ({ status: 200, body: { token: TOKEN } }) });
   await settle();
-  assert.deepEqual(JSON.parse(session._m.ipla_brief).models, BRIEF_TAGS.models);
+  assert.deepEqual(JSON.parse(session._m.ipla_verified_brief).models, BRIEF_TAGS.models);
 
   // the same tab, reloaded: no fragment this time
   const s = studio({ local, session, respond: url => (url === IMAGES ? { status: 200, body: { photo: { id: 7, selected: false }, duplicate: false } } : { status: 200, body: {} }) });
@@ -303,12 +303,13 @@ test('a new tab has no brief, so an upload carries only where the picture came f
 });
 
 test('a brief is data: it is capped, stripped of control characters, and junk is dropped', async () => {
-  const s = studio({ hash: '#brief=' + b64url({ family: 'x'.repeat(500), headline: 'We buy' + String.fromCharCode(7) + ' iPhones\n today', models: ['ok', 7, { a: 1 }, 'y'.repeat(200)].concat(Array(40).fill('m')), price: 540, payout: 480, extra: { nested: true } }) });
+  const s = studio({ respond: () => ({ status: 200, body: { token: TOKEN } }), hash: '#ipla=' + CODE + '&brief=' + b64url({ family: 'x'.repeat(500), headline: 'We buy' + String.fromCharCode(7) + ' iPhones\n today', models: ['ok', 7, { a: 1 }, 'y'.repeat(200)].concat(Array(40).fill('m')), price: 540, payout: 480, extra: { nested: true } }) });
+  await settle();
   const b = plain(s.ctx.iplaLink.state().brief);
-  assert.equal(b.family.length, 24);
+  assert.equal(b.family.length, 20);
   assert.equal(b.headline, 'We buy  iPhones  today');
   assert.equal(b.models.length, 12);
-  assert.equal(b.models[1].length, 40);
+  assert.equal(b.models[1].length, 80);
   assert.deepEqual(Object.keys(b).sort(), ['family', 'headline', 'models']);
   for (const junk of ['not base64!!', b64url([1, 2]), b64url('a string'), 'A'.repeat(7000)]){
     assert.equal(studio({ hash: '#brief=' + junk }).ctx.iplaLink.state().brief, null);
@@ -519,11 +520,11 @@ test('an Easy Mode export prints a phone number, so it is not sent and the note 
   s.ctx.addHistory('sell-your-iphone-ad-1440.png', 1440, PNG, undefined, undefined, { kind: 'ez', st: { tpl: 'sell_iphone', vals: {}, hidden: {} }, bgData: null });
   await settle();
   assert.equal(s.uploads().length, 0);
-  assert.equal(s.ctx.iplaLink.state().noteKind, 'error');
+  assert.equal(s.ctx.iplaLink.state().noteKind, '');
   assert.match(s.ctx.iplaLink.state().note, /shows a phone number\. Remove it and export again/);
   await s.runTimers();
-  assert.match(s.toasts[s.toasts.length - 1].msg, /shows a phone number/);
-  assert.match(pageText(s.doc), /shows a phone number/, 'the note opens by itself on a refusal');
+  assert.equal(s.toasts.length, 0, 'ordinary exports retain the studio download toast');
+  assert.ok(!pageText(s.doc).includes('shows a phone number'), 'a refusal does not force the note open');
 });
 
 test('an Easy Mode export whose phone and website lines were removed in Layers is sent', async () => {
@@ -700,4 +701,192 @@ test('both copies of the CSP allow the shop in connect-src, identically, and onl
 test('this test file is repo, not product: the site answers 404 for it', () => {
   const toml = readFileSync(new URL('netlify.toml', HERE), 'utf8');
   assert.match(toml, /from = "\/tests-iphonesla-link\.mjs"\n  to = "\/404\.html"\n  status = 404\n  force = true/);
+});
+
+// Review regressions: actual curved-group metadata and Easy Mode snapshots.
+test('curved groups check whole words, preserve roles, and ignore hidden groups', async () => {
+  for (const [words, role, hidden, blocked] of [
+    ['(562) 555-0142', 'phone', false, true],
+    ['CALL TODAY', 'phone', false, true],
+    ['iphones.la', 'headline', false, true],
+    ['WE BUY IPHONES', 'headline', false, false],
+    ['(562) 555-0142', 'phone', true, false],
+  ]) {
+    const s = studio({ local: linked(), respond: okUpload });
+    await settle();
+    await s.exportAdvanced('curve.png', { objects: [{ type: 'group', pgRole: role, visible: !hidden,
+      pgCurved: { text: words, curve: 30, style: { fontSize: 60 } },
+      objects: [...words].map(text => ({ type: 'text', text })) }] });
+    assert.equal(s.uploads().length, blocked ? 0 : 1, words);
+  }
+});
+
+test('chips are checked as rendered, including hidden and synthesized badges', async () => {
+  for (const hasBadges of [true, false]) for (const hidden of [true, false]) {
+    for (const chips of [['562-555-0142'], ['IPHONES.LA'], ['CASH TODAY'], []]) {
+      const s = studio({ local: linked(), respond: okUpload, templates: [{ id: 'plain', layers: hasBadges
+        ? [{ kind: 'text', name: 'Points', role: 'badges', text: 'iphones.la' }] : [] }] });
+      await settle();
+      s.ctx.addHistory('chips.png', 1440, PNG, 1440, 1440, { kind: 'ez', st: {
+        tpl: 'plain', chips, hidden: { plain: hidden ? ['Points'] : [] }, vals: {} } });
+      await settle();
+      assert.equal(s.uploads().length, chips.length && chips[0] !== 'CASH TODAY' ? 0 : 1,
+        JSON.stringify({ hasBadges, hidden, chips }));
+    }
+  }
+  const s = studio({ local: linked(), respond: okUpload, templates: [{ id: 'plain', layers: [
+    { kind: 'text', name: 'Points', role: 'badges', text: '✓ iphones.la' }] }] });
+  await settle();
+  s.ctx.addHistory('default.png', 1440, PNG, 1440, 1440, { kind: 'ez', st: { tpl: 'plain', chips: null } });
+  await settle();
+  assert.equal(s.uploads().length, 0, 'default chips come from the authored badge text');
+});
+
+test('local and vanity phones, spaced digits, domains, handles and street addresses are refused', async () => {
+  for (const text of ['555-0142', '1-800-GOT-JUNK', '5 6 2 5 5 5 0 1 4 2', 'buyback.ad',
+    'scans.ad/x', 'iphones . la', 'iphones. la', '@iphonesla', 'IG: iphonesla', '123 Main Street']) {
+    const s = studio({ local: linked(), respond: okUpload });
+    await settle();
+    await s.exportAdvanced('contact.png', { objects: [{ type: 'i-text', text }] });
+    assert.equal(s.uploads().length, 0, text);
+  }
+});
+
+function navigate(s, hash) {
+  s.location.hash = hash;
+  s.listeners.hashchange.forEach(fn => fn());
+}
+const connectHash = brief => '#ipla=' + CODE + (brief ? '&brief=' + b64url(brief) : '');
+const connectOK = url => url === EXCHANGE ? { status: 200, body: { token: TOKEN } } : okUpload(url);
+
+test('same-tab connect clears the fragment immediately and replaces old tags only after exchange', async () => {
+  const s = studio({ hash: connectHash(BRIEF_TAGS), respond: connectOK });
+  await settle();
+  let finish;
+  s.setRespond(url => url === EXCHANGE ? new Promise(resolve => { finish = resolve; }) : okUpload(url));
+  navigate(s, connectHash({ family: 'mac', target: 'MacBook Pro' }));
+  assert.equal(s.location.hash, '');
+  assert.equal(s.ctx.iplaLink.state().brief, null);
+  assert.equal(s.session._m.ipla_verified_brief, undefined);
+  await s.exportAdvanced();
+  assert.equal(s.uploads().length, 0, 'exports during exchange cannot inherit old tags');
+  finish({ status: 200, body: { token: TOKEN } });
+  await settle();
+  await s.exportAdvanced();
+  assert.equal(s.uploads()[0].init.body.get('family'), 'mac');
+  assert.equal(s.uploads()[0].init.body.get('target'), 'MacBook Pro');
+});
+
+test('code-less briefs are ignored; absent, malformed and refused new briefs never retain old tags', async () => {
+  const untrusted = studio({ local: linked(), hash: '#brief=' + b64url(BRIEF_TAGS), respond: okUpload });
+  await settle();
+  assert.equal(untrusted.ctx.iplaLink.state().brief, null);
+  assert.equal(untrusted.session._m.ipla_verified_brief, undefined);
+  for (const hash of [connectHash(null), '#ipla=bad&brief=' + b64url(BRIEF_TAGS),
+    connectHash(null) + '&brief=broken', connectHash({ family: 'mac' })]) {
+    const s = studio({ hash: connectHash(BRIEF_TAGS), respond: connectOK });
+    await settle();
+    s.setRespond(url => url === EXCHANGE ? { status: 400, body: { detail: 'Expired.' } } : okUpload(url));
+    navigate(s, hash);
+    await settle();
+    assert.equal(s.ctx.iplaLink.state().brief, null);
+    await s.exportAdvanced();
+    assert.equal(s.uploads()[0].init.body.get('family'), null);
+  }
+});
+
+test('late exchange responses cannot overwrite a newer brief or undo Disconnect', async () => {
+  const pending = [];
+  const s = studio({ local: linked(), respond: url => url === EXCHANGE
+    ? new Promise(resolve => pending.push(resolve)) : okUpload(url) });
+  await settle();
+  navigate(s, connectHash({ family: 'iphone' })); await settle();
+  navigate(s, connectHash({ family: 'mac' })); await settle();
+  pending[1]({ status: 200, body: { token: TOKEN } }); await settle();
+  pending[0]({ status: 200, body: { token: TOKEN } }); await settle();
+  assert.equal(s.ctx.iplaLink.state().brief.family, 'mac');
+  navigate(s, connectHash(BRIEF_TAGS)); await settle();
+  s.ctx.iplaLink.disconnect();
+  pending[2]({ status: 200, body: { token: TOKEN } }); await settle();
+  assert.equal(s.ctx.iplaLink.state().connected, false);
+  assert.equal(s.ctx.iplaLink.state().brief, null);
+});
+
+test('stalled requests and response bodies time out, abort and release the queue for retry', async () => {
+  for (const bodyStalls of [false, true]) {
+    const s = studio({ local: linked(), respond: url => url !== IMAGES ? okUpload(url)
+      : bodyStalls ? { status: 200, json: () => new Promise(() => {}) } : new Promise(() => {}) });
+    await settle();
+    await s.exportAdvanced();
+    await s.exportAdvanced('next.png');
+    assert.equal(s.ctx.iplaLink.state().busy, true);
+    await s.runTimers(t => t.ms === 90000);
+    assert.equal(s.uploads()[0].init.signal.aborted, true);
+    assert.equal(s.ctx.iplaLink.state().busy, false);
+    assert.equal(s.ctx.iplaLink.state().queued, 2);
+    s.setRespond(okUpload);
+    s.ctx.iplaLink.retryNow(); await settle();
+    assert.equal(s.ctx.iplaLink.state().queued, 0);
+    assert.equal(s.uploads().length, 3);
+    assert.equal(s.timers.filter(t => t.ms >= 5000).length, 0);
+  }
+});
+
+test('429 is not retried and keeps the server explanation', async () => {
+  const detail = 'That is 60 pictures in an hour from this studio. Try later.';
+  const s = studio({ local: linked(), respond: url => url === IMAGES ? { status: 429, body: { detail } } : okUpload(url) });
+  await settle(); await s.exportAdvanced();
+  assert.equal(s.uploads().length, 1);
+  assert.equal(s.ctx.iplaLink.state().queued, 0);
+  assert.equal(s.ctx.iplaLink.state().note, 'Not sent to iPhones LA. ' + detail);
+  assert.equal(s.timers.filter(t => t.ms >= 5000).length, 0);
+});
+
+test('retry exhaustion preserves the last server warning even if later attempts lose the network', async () => {
+  let attempts = 0;
+  const detail = 'Uploads are temporarily unavailable. Please try tomorrow.';
+  const s = studio({ local: linked(), respond: url => {
+    if (url !== IMAGES) return okUpload(url);
+    if (++attempts === 1) return { status: 503, body: { detail } };
+    throw new Error('offline');
+  } });
+  await settle(); await s.exportAdvanced();
+  for (let i = 0; i < 3; i++) await s.runTimers(t => t.ms >= 5000);
+  assert.equal(s.ctx.iplaLink.state().note, 'Not sent to iPhones LA after 4 tries. ' + detail);
+});
+
+test('brief and upload caps agree with the server contract', async () => {
+  const caps = { family: 20, target: 120, angle: 30, tone: 20, headline: 200 };
+  const brief = Object.fromEntries(Object.entries(caps).map(([key, cap]) => [key, 'x'.repeat(cap + 1)]));
+  brief.models = ['m'.repeat(81)];
+  const s = studio({ hash: connectHash(brief), respond: connectOK });
+  await settle();
+  s.ctx.addHistory('caps.png', 1440, PNG, 1440, 1440, { kind: 'adv', json: { objects: [] }, tplId: 't'.repeat(121) });
+  await settle();
+  const fd = s.uploads()[0].init.body;
+  for (const [key, cap] of Object.entries(caps)) assert.equal(fd.get(key).length, cap, key);
+  assert.equal(JSON.parse(fd.get('models'))[0].length, 80);
+  assert.equal(fd.get('source_ref').length, 120);
+});
+
+test('legacy session briefs saved without exchange verification are discarded', async () => {
+  const session = storage({ ipla_brief: JSON.stringify(BRIEF_TAGS) });
+  const s = studio({ local: linked(), session, respond: okUpload });
+  await settle(); await s.exportAdvanced();
+  assert.equal(s.ctx.iplaLink.state().brief, null);
+  assert.equal(session._m.ipla_brief, undefined);
+  assert.equal(s.uploads()[0].init.body.get('family'), null);
+});
+
+test('a successful connect with no brief clears tags, while code-less links cannot replace verified tags', async () => {
+  const s = studio({ hash: connectHash(BRIEF_TAGS), respond: connectOK });
+  await settle();
+  navigate(s, '#brief=' + b64url({ family: 'mac' }));
+  await settle();
+  assert.equal(s.ctx.iplaLink.state().brief.family, 'iphone');
+  navigate(s, connectHash(null));
+  await settle();
+  assert.equal(s.ctx.iplaLink.state().brief, null);
+  await s.exportAdvanced();
+  assert.equal(s.uploads()[0].init.body.get('family'), null);
 });

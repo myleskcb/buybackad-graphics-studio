@@ -31,7 +31,7 @@
   const BACK = API + '/repost#configurator';
 
   const LINK_KEY = 'ipla_link';      // localStorage: {token, connectedAt}
-  const BRIEF_KEY = 'ipla_brief';    // sessionStorage: the brief, for this tab only
+  const BRIEF_KEY = 'ipla_verified_brief'; // sessionStorage: accepted after exchange, for this tab only
   const OPEN_KEY = 'ipla_open';      // sessionStorage: is the note open
 
   const CODE_RE = /^gfxc_[A-Za-z0-9_-]{16,160}$/;
@@ -43,9 +43,14 @@
   const BACKOFF_MS = [5000, 30000, 120000];
   const TOAST_AFTER_MS = 1500;              // app.js toasts "downloaded" right after addHistory returns
 
-  const CAPS = { family: 24, target: 80, angle: 24, tone: 24, headline: 120, area: 60 };
+  const UPLOAD_TIMEOUT_MS = 90000;
+  const CAPS = { family: 20, target: 120, angle: 30, tone: 20, headline: 200, area: 60 };
   const PHONE_RE = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?!\d)/;
-  const SITE_RE = /(?:https?:\/\/|www\.)\S+|\b[a-z0-9-]+\.(?:com|net|org|la|co|io|us|biz|info|shop|store)\b/i;
+  const SITE_RE = /(?:https?:\/\/|www\.)\S+|\b[a-z0-9-]+\.[a-z]{2,24}\b|\b[a-z0-9-]+\s+\.\s*[a-z]{2,24}\b|\b[a-z0-9-]+\.\s+(?:com|net|org|la|ad|co|io|us|biz|info|shop|store)\b/i;
+  const LOCAL_PHONE_RE = /(?:^|\D)\d{3}[ .-]\d{4}(?!\d)/;
+  const VANITY_RE = /\b(?:1[ .-]?)?8(?:00|33|44|55|66|77|88)[ .-]+[a-z][a-z .-]{5,}/i;
+  const HANDLE_RE = /(?:^|\s)@[a-z0-9_.]+|\b(?:ig|instagram|facebook|tiktok|snapchat)\s*:\s*\S+/i;
+  const ADDRESS_RE = /\b\d{1,6}\s+(?:[a-z0-9.-]+\s+){1,5}(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|ln|way|court|ct)\b/i;
 
   // ---------- storage that cannot throw ----------
   function box(kind){
@@ -63,13 +68,15 @@
   const readJson = (s, k) => { try { const v = s.getItem(k); return v == null ? null : JSON.parse(v); } catch (e){ return null; } };
   const writeJson = (s, k, v) => { try { s.setItem(k, JSON.stringify(v)); } catch (e){} };
   const drop = (s, k) => { try { s.removeItem(k); } catch (e){} };
+  // Older versions saved code-less URL briefs. Never restore those as verified tags.
+  drop(session, 'ipla_brief');
 
   function text(v, cap){
     if (typeof v !== 'string') return '';
     return v.replace(/[\x00-\x1f\x7f]/g, ' ').trim().slice(0, cap);
   }
 
-  // ---------- the fragment: read once, cleared at once ----------
+  // ---------- the fragment: read and clear on every navigation ----------
   function takeFragment(){
     let raw = '';
     try { raw = String(location.hash || ''); } catch (e){ return {}; }
@@ -122,7 +129,7 @@
     const b = {};
     Object.keys(CAPS).forEach(k => { const v = text(obj[k], CAPS[k]); if (v) b[k] = v; });
     if (Array.isArray(obj.models)){
-      const m = obj.models.map(x => text(x, 40)).filter(Boolean).slice(0, 12);
+      const m = obj.models.map(x => text(x, 80)).filter(Boolean).slice(0, 12);
       if (m.length) b.models = m;
     }
     const ret = safeReturn(obj.return);
@@ -138,8 +145,8 @@
 
   const state = {
     link: readLink(),
-    brief: cleanBrief(readJson(session, BRIEF_KEY)),
-    connecting: false,
+    brief: readLink() ? cleanBrief(readJson(session, BRIEF_KEY)) : null,
+    connecting: false, connectVersion: 0,
     note: '', noteKind: '',
     queue: [], busy: false, timer: null,
     maxBytes: HARD_MAX_BYTES,
@@ -212,7 +219,7 @@
       if (state.link || state.brief){
         // Said up front, not after the fact: Easy Mode will not download without a
         // phone number, and that is the one thing a WE BUY picture cannot carry.
-        card.appendChild(el('p', '', 'No phone number, website or QR code on a WE BUY picture. Easy Mode prints your phone number: remove that line in Layers, or use the Advanced editor.'));
+        card.appendChild(el('p', '', 'No phone number, website or QR code on a WE BUY picture. No address or social handle either. Checks are best-effort; review the finished picture, including text in images. Easy Mode prints your phone number: remove that line in Layers, or use the Advanced editor.'));
         card.appendChild(el('p', '', 'Sign in as an admin. Watermarked exports are not sent.'));
       }
       if (state.note) card.appendChild(el('p', state.noteKind === 'error' ? 'bad' : state.noteKind === 'success' ? 'ok' : '', state.note));
@@ -221,6 +228,7 @@
       const back = el('a', '', 'Back to Auto-post');
       back.href = (state.brief && state.brief.return) || BACK;
       back.setAttribute('rel', 'noopener');
+      back.setAttribute('target', '_blank');
       row.appendChild(back);
       if (state.queue.length && !state.busy){
         const again = el('button', '', 'Try again now');
@@ -283,7 +291,7 @@
 
   // One try, never a retry: the code is single-use and the fragment is already
   // gone. A person whose exchange failed clicks Generate in Auto-post again.
-  async function exchange(code){
+  async function exchange(code, brief, version){
     state.connecting = true; setOpen(true); render();
     let msg = '', ok = false;
     try {
@@ -293,9 +301,12 @@
         body: JSON.stringify({ code, label: deviceLabel() }),
       });
       const j = await r.json().catch(() => ({}));
+      if (version !== state.connectVersion) return;
       if (r.ok && j && typeof j.token === 'string' && TOKEN_RE.test(j.token)){
         state.link = { token: j.token, connectedAt: new Date().toISOString() };
         writeJson(local, LINK_KEY, state.link);
+        state.brief = brief;
+        if (brief) writeJson(session, BRIEF_KEY, brief);
         ok = true;
       } else {
         msg = sentence(j) || 'That link did not work. Open the studio from Auto-post again.';
@@ -303,6 +314,7 @@
     } catch (e){
       msg = 'Could not reach iPhones LA. Open the studio from Auto-post again.';
     }
+    if (version !== state.connectVersion) return;
     state.connecting = false;
     if (ok) say('Connected to iPhones LA', 'success');
     else say(msg, 'error');
@@ -318,6 +330,7 @@
         method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer',
         headers: { Authorization: 'Bearer ' + token },
       });
+      if (!state.link || state.link.token !== token || state.connecting) return;
       if (r.status === 401){ forget('iPhones LA ended this connection. Open the studio from Auto-post to connect again.'); return; }
       if (!r.ok) return;
       const j = await r.json().catch(() => ({}));
@@ -327,7 +340,9 @@
     } catch (e){}
   }
 
+  function clearBrief(){ state.brief = null; drop(session, BRIEF_KEY); }
   function forget(msg){
+    state.connectVersion++; state.connecting = false; clearBrief();
     state.link = null;
     drop(local, LINK_KEY);
     state.queue.length = 0;
@@ -336,6 +351,7 @@
     say(msg, 'error');
   }
   function disconnect(){
+    state.connectVersion++; state.connecting = false; clearBrief();
     state.link = null;
     drop(local, LINK_KEY);
     state.queue.length = 0;
@@ -359,8 +375,10 @@
   }
   function contactIn(s){
     if (typeof s !== 'string' || !s) return '';
-    if (PHONE_RE.test(s)) return 'a phone number';
+    if (PHONE_RE.test(s.replace(/(\d)\s+(?=\d)/g, '$1')) || LOCAL_PHONE_RE.test(s) || VANITY_RE.test(s)) return 'a phone number';
     if (SITE_RE.test(s)) return 'a website';
+    if (HANDLE_RE.test(s)) return 'a social handle';
+    if (ADDRESS_RE.test(s)) return 'a street address';
     return '';
   }
   // Easy Mode: what renderEzCanvas will have drawn, from the project snapshot.
@@ -369,10 +387,14 @@
     if (!tpl || !Array.isArray(tpl.layers)) return 'unknown';
     const hidden = (st.hidden && st.hidden[tpl.id]) || [];
     const vals = (st.vals && st.vals[tpl.id]) || {};
+    // Hidden badge layers are synthesized again by renderEzCanvas.
+    const badges = tpl.layers.find(l => l && l.role === 'badges');
+    const chips = Array.isArray(st.chips) ? st.chips : [badges && badges.text];
+    for (const chip of chips){ const hit = contactIn(chip); if (hit) return hit; }
     let site = 'typed';
     try { const f = document.getElementById('ez-website'); if (f) site = String(f.value || '').trim(); } catch (e){}
     for (const l of tpl.layers){
-      if (!l || hidden.indexOf(l.name) >= 0) continue;
+      if (!l || hidden.indexOf(l.name) >= 0 || l.role === 'badges') continue;
       if (l.role === 'phone') return 'a phone number';       // typed or authored, it prints either way
       if (l.role === 'website'){ if (site) return 'a website'; continue; }
       if (l.kind !== 'text' && l.kind !== 'textbox') continue;
@@ -388,12 +410,13 @@
     while (stack.length){
       const o = stack.pop();
       if (!o || o.visible === false) continue;
-      if (Array.isArray(o.objects)) stack.push(...o.objects);
+      if (!o.pgCurved && Array.isArray(o.objects)) stack.push(...o.objects);
       if (o.pgRole === 'qr') return 'a QR code';
-      const has = typeof o.text === 'string' && o.text.trim();
+      const words = typeof o.text === 'string' ? o.text : (o.pgCurved && typeof o.pgCurved.text === 'string' ? o.pgCurved.text : '');
+      const has = words.trim();
       if (o.pgRole === 'phone' && has) return 'a phone number';
       if (o.pgRole === 'website' && has) return 'a website';
-      const hit = contactIn(o.text);
+      const hit = contactIn(words);
       if (hit) return hit;
     }
     return '';
@@ -433,16 +456,19 @@
     const f = {};
     ['family', 'target', 'angle', 'tone', 'headline'].forEach(k => { if (b[k]) f[k] = b[k]; });
     if (b.models && b.models.length) f.models = JSON.stringify(b.models);
-    const ref = text(String((proj && (proj.tplId || (proj.st && proj.st.tpl))) || ''), 80);
+    const ref = text(String((proj && (proj.tplId || (proj.st && proj.st.tpl))) || ''), 120);
     if (ref) f.source_ref = ref;
     return f;
   }
 
   async function consider(name, dataUrl, proj){
     if (!state.link) return;   // not connected: nothing leaves this page
+    if (state.connecting){ say('Not sent to iPhones LA: connecting. Export again after the connection finishes.', '', true); return; }
+    const fields = fieldsFor(proj);
+    const token = state.link.token;
     if (typeof dataUrl !== 'string' || dataUrl.slice(0, 11) !== 'data:image/') return;
     const why = refusal(proj);
-    if (why){ say(why, 'error'); return; }
+    if (why){ say(why, '', true); return; }
     let blob = toBlob(dataUrl);
     if (blob && blob.size > state.maxBytes){
       // downscaleDataUrl is app.js's own helper: a 1600px JPEG, which is what
@@ -457,12 +483,13 @@
       if (!blob){ say('Not sent to iPhones LA: the picture is too large. Export it smaller.', 'error'); return; }
     }
     if (!blob){ say('Not sent to iPhones LA: the picture could not be read.', 'error'); return; }
+    if (!state.link || state.link.token !== token) return;
     if (state.queue.length >= MAX_QUEUE){
       // Drop the oldest one still waiting (never the one in flight).
       state.queue.splice(state.busy ? 1 : 0, 1);
       say('An older picture was not sent to iPhones LA. Too many were waiting.', 'error', true);
     }
-    state.queue.push({ blob, name: fileName(name, blob.type), fields: fieldsFor(proj), tries: 0 });
+    state.queue.push({ blob, name: fileName(name, blob.type), fields, tries: 0 });
     render();
     if (state.timer == null) pump();
   }
@@ -470,24 +497,33 @@
   async function send(job){
     const token = state.link && state.link.token;
     if (!token) return { verdict: 'stop' };
-    let r;
+    let r, j = {}, timer;
+    const controller = new AbortController();
     try {
       const fd = new FormData();
       fd.append('file', job.blob, job.name);
       Object.keys(job.fields).forEach(k => fd.append(k, job.fields[k]));
-      // No Content-Type header: the browser writes the multipart boundary itself.
-      r = await fetch(IMAGES, {
-        method: 'POST', mode: 'cors', credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer',
-        headers: { Authorization: 'Bearer ' + token },
-        body: fd,
-      });
+      // Bound both the request and its response body, even if fetch ignores abort.
+      await Promise.race([
+        (async () => {
+          r = await fetch(IMAGES, {
+            method: 'POST', mode: 'cors', credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer',
+            headers: { Authorization: 'Bearer ' + token },
+            body: fd, signal: controller.signal,
+          });
+          try { j = await r.json(); } catch (e){}
+        })(),
+        new Promise((resolve, reject) => {
+          timer = setTimeout(() => { controller.abort(); reject(new Error('Upload timed out')); }, UPLOAD_TIMEOUT_MS);
+        }),
+      ]);
     } catch (e){ return { verdict: 'retry' }; }
-    let j = {};
-    try { j = await r.json(); } catch (e){}
+    finally { clearTimeout(timer); }
     if (r.ok) return { verdict: 'sent', duplicate: !!(j && j.duplicate) };
     if (r.status === 401) return { verdict: 'forget' };
     if (r.status === 507) return { verdict: 'full', msg: sentence(j) };
-    if (r.status === 429 || r.status === 408 || r.status >= 500) return { verdict: 'retry', msg: sentence(j) };
+    if (r.status === 429) return { verdict: 'drop', msg: sentence(j) || 'The studio upload limit was reached. Export again later.' };
+    if (r.status === 408 || r.status >= 500) return { verdict: 'retry', msg: sentence(j) };
     return { verdict: 'drop', msg: sentence(j) };
   }
 
@@ -499,6 +535,7 @@
     send(job).then(out => out, () => ({ verdict: 'retry' })).then(out => {
       state.busy = false;
       const at = state.queue.indexOf(job);
+      if (at < 0){ pump(); return; } // disconnected or cleared while in flight
       const done = () => { if (at >= 0) state.queue.splice(at, 1); };
       if (out.verdict === 'sent'){
         done();
@@ -514,12 +551,13 @@
         done();
         say('Not sent to iPhones LA. ' + (out.msg || 'The picture was refused.'), 'error');
       } else if (out.verdict === 'retry'){
+        if (out.msg) job.lastWarning = out.msg;
         job.tries += 1;
         if (job.tries >= MAX_TRIES){
           done();
-          say('Not sent to iPhones LA after ' + MAX_TRIES + ' tries. Export it again later.', 'error');
+          say('Not sent to iPhones LA after ' + MAX_TRIES + ' tries. ' + (job.lastWarning || 'Export it again later.'), 'error');
         } else {
-          say(out.msg || 'Could not reach iPhones LA. Trying again soon.', '', true);
+          say(job.lastWarning || 'Could not reach iPhones LA. Trying again soon.', '', true);
           wait(BACKOFF_MS[Math.min(job.tries - 1, BACKOFF_MS.length - 1)]);
           return;
         }
@@ -563,26 +601,35 @@
   }
 
   // ---------- start ----------
-  const frag = takeFragment();              // synchronous, before anything else
-  if (frag.brief !== undefined){
-    const b = decodeBrief(frag.brief);
-    if (b){ state.brief = b; writeJson(session, BRIEF_KEY, b); setOpen(true); }
+  function startFragment(initial){
+    const frag = takeFragment(); // synchronous, including hash-only navigation
+    if (frag.ipla !== undefined){
+      const version = ++state.connectVersion;
+      clearBrief(); // an absent, malformed or refused new brief never reuses old tags
+      state.connecting = false;
+      if (CODE_RE.test(frag.ipla)) exchange(frag.ipla, decodeBrief(frag.brief), version);
+      else say('That link did not work. Open the studio from Auto-post again.', 'error');
+    } else if (initial && state.link){
+      checkLink();
+    }
+    // A brief alone is untrusted and cannot replace a verified brief.
   }
+  startFragment(true);
   hook();
-  if (frag.ipla !== undefined){
-    if (CODE_RE.test(frag.ipla)) exchange(frag.ipla);
-    else say('That link did not work. Open the studio from Auto-post again.', 'error');
-  } else if (state.link){
-    checkLink();
-  }
   try {
+    window.addEventListener('hashchange', () => startFragment(false));
     window.addEventListener('online', retryNow);
     window.addEventListener('resize', place);
     // The stage changes size when the editor opens, closes or folds a panel away.
     const stage = typeof document !== 'undefined' && document.getElementById('stage');
     if (stage && typeof ResizeObserver === 'function') new ResizeObserver(place).observe(stage);
     window.addEventListener('storage', e => {
-      if (e && e.key === LINK_KEY){ state.link = readLink(); if (!state.link) state.queue.length = 0; render(); }
+      if (e && e.key === LINK_KEY){
+        state.connectVersion++; state.connecting = false; clearBrief();
+        state.link = readLink();
+        if (!state.link) state.queue.length = 0;
+        render();
+      }
     });
   } catch (e){}
   try {
