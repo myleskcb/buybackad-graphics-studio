@@ -1670,3 +1670,15 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   .ez-card{overflow-x:clip}
 }
 #ez-preview{max-width:100%;height:auto}
+
+/* ═══ 2026-09-22 UX/SEO pass (studio-ux branch) ═══
+   1. Clash Display's space is narrow and the hero sets -.028em tracking, so at
+      58px "Buyback ads that" read as one word. Word spacing puts the gaps back
+      without loosening the letters.
+   2. The footer gained an "Ad templates" column (links to the category pages),
+      so it is six blocks now: let the grid fit them instead of a fixed four. */
+.hero h1,.lp-section-head h2,.lp-cta h2{word-spacing:.1em}
+.lpf-cols{grid-template-columns:1.4fr repeat(5,minmax(0,1fr))}
+@media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}
+.lp-faq p a{color:var(--accent);text-decoration:underline}

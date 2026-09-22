@@ -73,6 +73,101 @@
   status = 404
   force = true
 
+# 2026-09-22: more of the repo that is not the product, found public on the
+# live site (deploy-notes, spec, tools, the scratch_* folders, the retired
+# Cloudflare worker, the npm lockfiles, the asset-library sqlite). None of it
+# holds a secret, and nothing the site loads refers to any of it; it was simply
+# fetchable and indexable because the publish dir is the repo root.
+[[redirects]]
+  from = "/deploy-notes/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/spec/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/tools/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/scratch_lp/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/scratch_wb/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/scratch_wf/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/scratch_wh/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/scratch_wm/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/scratch_wp/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/scratch_ws/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/worker.js"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/package.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/package-lock.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/deno.lock"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/assets/library.sqlite"
+  to = "/404.html"
+  status = 404
+  force = true
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
@@ -124,3 +219,26 @@
   for = "/styles.css"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Owner tools that stay reachable by link but should never be in search:
+# the labs, the good/bad picker, the asset library and the old single-file build.
+# Mirrors _headers.
+[[headers]]
+  for = "/lab/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/pick.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/library.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/phonegfx-studio.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
