@@ -451,6 +451,64 @@
     const stem = text(String(name || ''), 120).toLowerCase().replace(/\.(png|jpe?g)$/, '').replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
     return (stem || 'studio-export') + (type === 'image/jpeg' ? '.jpg' : '.png');
   }
+  // ---------- what is IN the picture ----------
+  // The tag file: the words drawn on it and the products placed on it, read
+  // off the same records the export was drawn from. The shop names the
+  // devices from the product slugs and writes the ad from them, so a graphic
+  // that says CONSOLE BUYER over two consoles arrives already described.
+  // Contact lines never reach this: refusal() stopped any export with one.
+  const SKIP_ROLES = { phone: 1, website: 1, qr: 1, deco: 1, frame: 1 };
+  function slugOf(src){
+    const m = /([a-z0-9][a-z0-9-]{0,79})\.(?:webp|png|jpe?g)(?:[?#].*)?$/i.exec(String(src || ''));
+    return m ? m[1].toLowerCase() : '';
+  }
+  function pushText(out, role, words){
+    const t = text(String(words || ''), 200);
+    if (!t || out.texts.length >= 24 || contactIn(t)) return;
+    out.texts.push({ role: text(String(role || 'text'), 20), text: t });
+  }
+  function pushProduct(out, src){
+    const slug = slugOf(src);
+    if (slug && out.products.length < 24) out.products.push(slug);
+  }
+  function graphicFor(proj){
+    if (!proj) return null;
+    const out = { v: 1, category: '', template: '', texts: [], products: [] };
+    try {
+      if (proj.kind === 'ez'){
+        const st = proj.st || {};
+        const tpl = templateById(st.tpl);
+        if (!tpl || !Array.isArray(tpl.layers)) return null;
+        out.template = text(String(tpl.id || ''), 120);
+        out.category = text(String(tpl.cat || ''), 30);
+        const hidden = (st.hidden && st.hidden[tpl.id]) || [];
+        const vals = (st.vals && st.vals[tpl.id]) || {};
+        tpl.layers.forEach(l => {
+          if (!l || hidden.indexOf(l.name) >= 0 || SKIP_ROLES[l.role]) return;
+          if (l.kind === 'cutout') return pushProduct(out, l.props && l.props.src);
+          if (l.role === 'badges') return (Array.isArray(st.chips) ? st.chips : [l.text]).forEach(c => pushText(out, 'badge', c));
+          if (l.kind === 'text' || l.kind === 'textbox') pushText(out, l.role, vals[l.name] !== undefined ? vals[l.name] : l.text);
+        });
+      } else if (proj.json && Array.isArray(proj.json.objects)){
+        const tpl = templateById(proj.tplId);
+        out.template = text(String(proj.tplId || ''), 120);
+        out.category = text(String((tpl && tpl.cat) || ''), 30);
+        const stack = proj.json.objects.slice().reverse();
+        while (stack.length){
+          const o = stack.pop();
+          if (!o || o.visible === false || SKIP_ROLES[o.pgRole]) continue;
+          if (!o.pgCurved && Array.isArray(o.objects)){ stack.push(...o.objects.slice().reverse()); continue; }
+          if (typeof o.type === 'string' && /image/i.test(o.type)){ pushProduct(out, o.src); continue; }
+          const words = typeof o.text === 'string' ? o.text : (o.pgCurved && typeof o.pgCurved.text === 'string' ? o.pgCurved.text : '');
+          if (words.trim()) pushText(out, o.pgRole || 'text', words);
+        }
+      } else {
+        return null;
+      }
+    } catch (e){ return null; }
+    return (out.texts.length || out.products.length || out.category) ? out : null;
+  }
+
   function fieldsFor(proj){
     const b = state.brief || {};
     const f = {};
@@ -458,6 +516,8 @@
     if (b.models && b.models.length) f.models = JSON.stringify(b.models);
     const ref = text(String((proj && (proj.tplId || (proj.st && proj.st.tpl))) || ''), 120);
     if (ref) f.source_ref = ref;
+    const graphic = graphicFor(proj);
+    if (graphic) f.graphic = JSON.stringify(graphic);
     return f;
   }
 
@@ -658,5 +718,6 @@
     }),
     retryNow,
     disconnect,
+    graphicFor,
   };
 })();

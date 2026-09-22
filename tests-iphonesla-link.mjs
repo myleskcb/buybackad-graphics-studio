@@ -294,12 +294,68 @@ test('a brief is kept for the session and its tags ride on each upload', async (
   assert.equal(first.ctx.iplaLink.state().brief.area, 'Long Beach');
 });
 
-test('a new tab has no brief, so an upload carries only where the picture came from', async () => {
+test('a new tab has no brief, so an upload carries only where the picture came from and what is on it', async () => {
   const s = studio({ local: linked(), respond: url => (url === IMAGES ? { status: 200, body: { photo: { id: 1 } } } : { status: 200, body: {} }) });
   await settle();
   await s.exportAdvanced();
   const fd = s.uploads()[0].init.body;
-  assert.deepEqual([...fd.keys()].sort(), ['file', 'source_ref']);
+  assert.deepEqual([...fd.keys()].sort(), ['file', 'graphic', 'source_ref']);
+});
+
+// ───────────── the tag file: what is in the picture ─────────────
+
+const CONSOLE_TPL = { id: 'sc-console', name: 'Console Buyer', cat: 'phones', layers: [
+  { kind: 'text', name: 'Headline 1', role: 'headline', text: 'CONSOLE BUYER' },
+  { kind: 'text', name: 'Sub', role: 'sub', text: 'PS5 · XBOX · SWITCH' },
+  { kind: 'text', name: 'Hidden line', role: 'info', text: 'NOT DRAWN' },
+  { kind: 'badges', name: 'Badges', role: 'badges', text: 'SAME DAY' },
+  { kind: 'cutout', name: 'Hero Product', role: 'photo', props: { src: 'assets/cutouts/console-single.webp' } },
+  { kind: 'cutout', name: 'Second', role: 'photo', props: { src: 'assets/cutouts/controller-pair.webp' } },
+  { kind: 'path', name: 'Cursor', role: 'deco', props: {} },
+] };
+
+test('an Easy Mode export says what is drawn on it: its words, badges and products, never a hidden layer', async () => {
+  const s = studio({ local: linked(), templates: [CONSOLE_TPL] });
+  await settle();
+  const g = s.ctx.iplaLink.graphicFor({ kind: 'ez', st: { tpl: 'sc-console', vals: { 'sc-console': { 'Headline 1': 'WE BUY CONSOLES' } },
+    hidden: { 'sc-console': ['Hidden line'] }, chips: ['SAME DAY', 'LOCAL'] } });
+  assert.equal(g.v, 1);
+  assert.equal(g.category, 'phones');
+  assert.equal(g.template, 'sc-console');
+  assert.deepEqual(plain(g.texts), [
+    { role: 'headline', text: 'WE BUY CONSOLES' },
+    { role: 'sub', text: 'PS5 · XBOX · SWITCH' },
+    { role: 'badge', text: 'SAME DAY' },
+    { role: 'badge', text: 'LOCAL' },
+  ]);
+  assert.deepEqual(plain(g.products), ['console-single', 'controller-pair']);
+});
+
+test('an Advanced export reads the canvas: text objects, images inside groups, and no phone or website layer', async () => {
+  const s = studio({ local: linked(), templates: [CONSOLE_TPL] });
+  await settle();
+  const g = s.ctx.iplaLink.graphicFor({ kind: 'adv', tplId: 'sc-console', json: { objects: [
+    { type: 'i-text', pgRole: 'headline', text: 'CONSOLE BUYER' },
+    { type: 'group', objects: [{ type: 'image', pgRole: 'photo', src: 'https://studio.example/assets/cutouts/game-console-pair.webp?v=3' }] },
+    { type: 'i-text', pgRole: 'website', text: 'shop.com' },
+    { type: 'image', pgRole: 'photo', src: 'data:image/png;base64,AAAA' },
+    { type: 'i-text', pgRole: 'info', text: 'Hidden', visible: false },
+  ] } });
+  assert.equal(g.category, 'phones');
+  assert.deepEqual(plain(g.texts), [{ role: 'headline', text: 'CONSOLE BUYER' }]);
+  assert.deepEqual(plain(g.products), ['game-console-pair'], 'a pasted data image names no product');
+});
+
+test('the tag file rides on the upload as JSON and is capped', async () => {
+  const many = { id: 'many', name: 'Many', cat: 'phones', layers: Array.from({ length: 40 }, (_, i) => ({ kind: 'text', name: 'L' + i, role: 'info', text: 'LINE ' + i + ' ' + 'x'.repeat(400) })) };
+  const s = studio({ local: linked(), templates: [many], respond: url => (url === IMAGES ? { status: 200, body: { photo: { id: 1 } } } : { status: 200, body: {} }) });
+  await settle();
+  const g = s.ctx.iplaLink.graphicFor({ kind: 'ez', st: { tpl: 'many' } });
+  assert.equal(g.texts.length, 24);
+  assert.ok(g.texts.every(t => t.text.length <= 200));
+  await s.exportAdvanced('x.png', { objects: [{ type: 'i-text', pgRole: 'headline', text: 'WE BUY IPHONES' }] });
+  const sent = JSON.parse(s.uploads()[0].init.body.get('graphic'));
+  assert.deepEqual(sent.texts, [{ role: 'headline', text: 'WE BUY IPHONES' }]);
 });
 
 test('a brief is data: it is capped, stripped of control characters, and junk is dropped', async () => {
