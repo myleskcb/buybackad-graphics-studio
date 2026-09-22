@@ -15,6 +15,7 @@
  * usage: node scripts/audit_showcase_content.mjs [--write]
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { COMPANY, LICENSE, foreignWords } from './refresh_copy.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
 const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
@@ -29,7 +30,7 @@ const ALLOW = {
 };
 const family = p => String(p || '').replace(/^(qs-|ip-)/, '').split('-')[0];
 
-let n = { subject:0, repeat:0, cover:0, clip:0, clean:0 };
+let n = { subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, clean:0 };
 idx.forEach(c => {
   const why = [];
   /* Only a card that actually SHOWS a product can show the wrong one. Most
@@ -46,11 +47,24 @@ idx.forEach(c => {
       .filter(l => typeof l.text === 'string' && l.text.trim())
       .map(l => l.text.trim().toUpperCase());
     if (texts.length !== new Set(texts).size) why.push('repeat');
+    /* COPY (2026-09-22): a named competitor, a licensing claim the reseller
+       may not be able to make, or words that sell another deck's goods */
+    const words = rec.tpl.layers.filter(l => typeof l.text === 'string' && l.role !== 'website').map(l => l.text).join('\n');
+    if (COMPANY.test(words) || LICENSE.test(words) || foreignWords(c.cat, words).length) why.push('copy');
   }
+  /* LEGIBILITY (2026-09-22), written by audit_showcase_legibility.mjs: a
+     headline, phone or CTA under 3:1 against the pixels behind it, or one that
+     never marked the canvas, or a backdrop the studio could not load */
+  if (typeof c.legib === 'number' && c.legib < 3) why.push('legib');
+  if (c.ghost) why.push('legib');
+  if (c.bgMissing) why.push('bg');
+  /* a solid shape drawn over the words (audit_showcase_overlap.mjs) */
+  if ((c.shapeCover || 0) >= 0.12) why.push('shape');
   if ((c.cover || 0) >= 0.12) why.push('cover');
   if ((c.clip || 0) > 6) why.push('clip');            // a line running off the card
-  why.forEach(w => n[w]++);
-  if (why.length) c.defect = why.join('+'); else { delete c.defect; n.clean++; }
+  const uniq = [...new Set(why)];
+  uniq.forEach(w => n[w]++);
+  if (uniq.length) c.defect = uniq.join('+'); else { delete c.defect; n.clean++; }
 });
 
 console.log('audited ' + idx.length);
@@ -58,6 +72,10 @@ console.log('  subject mismatch ' + n.subject);
 console.log('  repeated copy    ' + n.repeat);
 console.log('  covered text     ' + n.cover);
 console.log('  clipped text     ' + n.clip);
+console.log('  copy (company / licence / other deck) ' + n.copy);
+console.log('  critical text under 3:1 / invisible   ' + n.legib);
+console.log('  shape over text   ' + n.shape);
+console.log('  backdrop missing  ' + n.bg);
 console.log('  CLEAN            ' + n.clean);
 if (WRITE){ writeFileSync(ROOT + 'assets/showcase/index.json', JSON.stringify(idx)); console.log('wrote defect flags'); }
 else console.log('(dry run; pass --write)');

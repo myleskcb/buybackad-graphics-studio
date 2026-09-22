@@ -75,6 +75,25 @@ for (let i = 0; i < idx.length; i += 12){
         let clip = 0;
         texts.forEach(tz => { const b = box(tz.o);
           clip = Math.max(clip, -b.x, -b.y, (b.x + b.w) - TPL_W, (b.y + b.h) - TPL_H); });
+        /* SHAPES drawn over words (added 2026-09-22): a bubble, a plate or an
+           icon painted AFTER the text it lands on. The first version only
+           counted cutouts and other text, so a solid circle over a line of
+           copy passed. Full-frame layers (scrims, vignettes) are excluded. */
+        const SHAPE = { rect:1, circle:1, path:1, triangle:1, polygon:1, ellipse:1, image:1, svg:1 };
+        const shapes = objs.filter(z => SHAPE[z.l.kind] && !z.l.__wall
+          /* corner brackets are L-shaped paths: their box is mostly empty */
+          && !(z.l.kind === 'path' && /Frame|Corner|Bracket/i.test(z.l.name || ''))
+          && ((z.l.props && z.l.props.opacity !== undefined ? z.l.props.opacity : 1) >= 0.5)
+          && area(box(z.o)) < TPL_W * TPL_H * 0.5
+          /* an outline frame (no fill) hides nothing */
+          && !(z.l.props && !z.l.props.grad && !z.l.grad && (!z.l.props.fill || z.l.props.fill === 'transparent' || /rgba\([^)]*,\s*0(\.0+)?\)$/.test(String(z.l.props.fill)))) );
+        let shapeCover = 0, shapeBy = null;
+        texts.forEach(tz => {
+          const tb = box(tz.o), ta = area(tb);
+          if (ta < 400) return;
+          shapes.forEach(cz => { if (cz.k <= tz.k) return;
+            const f = inter(tb, box(cz.o)) / ta; if (f > shapeCover){ shapeCover = f; shapeBy = (cz.l.name || cz.l.kind) + ' over ' + (tz.l.name || tz.l.role); } });
+        });
         let worst = 0, by = null, kind = null;
         texts.forEach(tz => {
           const tb = box(tz.o), ta = area(tb);
@@ -86,7 +105,7 @@ for (let i = 0; i < idx.length; i += 12){
             if (f > worst){ worst = f; by = (cz.l.name || cz.l.kind); kind = cz.l.kind === 'cutout' ? 'cutout' : 'text'; }
           });
         });
-        R[id] = { cover: +worst.toFixed(3), by, kind, clip: Math.round(Math.max(0, clip)) };
+        R[id] = { cover: +worst.toFixed(3), by, kind, clip: Math.round(Math.max(0, clip)), shapeCover: +shapeCover.toFixed(3), shapeBy };
       } catch(e){ R[id] = { err: String(e).slice(0, 70) }; }
     }
     return R;
@@ -110,9 +129,13 @@ console.log('\nworst offenders:');
 worst.forEach(x => console.log('  ' + (x.r.cover*100).toFixed(0).padStart(3) + '%  ' + x.c.id.padEnd(28) + ' covered by ' + x.r.kind + ' "' + x.r.by + '"'));
 const byKind = {}; rows.filter(x => !x.r.err && x.r.cover >= 0.12).forEach(x => byKind[x.r.kind] = (byKind[x.r.kind]||0)+1);
 console.log('\nbad-or-worse by cause:', JSON.stringify(byKind));
+const sh = rows.filter(x => !x.r.err && x.r.shapeCover >= 0.12);
+console.log('a solid SHAPE drawn over >=12% of a text box: ' + sh.length);
+sh.sort((a, b) => b.r.shapeCover - a.r.shapeCover).slice(0, 10).forEach(x => console.log('  ' + (x.r.shapeCover*100).toFixed(0).padStart(3) + '%  ' + x.c.id.padEnd(28) + x.r.shapeBy));
+if (process.argv.includes('--json')) writeFileSync(process.argv[process.argv.indexOf('--json') + 1], JSON.stringify(out));
 
 if (WRITE){
-  idx.forEach(c => { const r = out[c.id]; if (r && !r.err){ c.cover = r.cover; c.coverBy = r.kind; c.clip = r.clip; } });
+  idx.forEach(c => { const r = out[c.id]; if (r && !r.err){ c.cover = r.cover; c.coverBy = r.kind; c.clip = r.clip; if (r.shapeCover) c.shapeCover = r.shapeCover; else delete c.shapeCover; } });
   const clipped = idx.filter(c => (c.clip || 0) > 6);
   console.log('text leaving the card by >6px: ' + clipped.length + (clipped.length ? '  e.g. ' + clipped.slice(0,4).map(c => c.id + ' ' + c.clip + 'px').join(', ') : ''));
   writeFileSync(ROOT + 'assets/showcase/index.json', JSON.stringify(idx));
