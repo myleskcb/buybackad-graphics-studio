@@ -736,9 +736,10 @@ test('the source holds no secret, logs nothing, and every request leaves the coo
 
 test('index.html loads the link right after app.js and gains no inline script', () => {
   const html = readFileSync(new URL('index.html', HERE), 'utf8');
-  assert.ok(html.includes('<script src="app.js"></script>\n<script src="iphonesla-link.js"></script>\n</body>'));
+  assert.ok(html.includes('<script src="app.js"></script>\n<script src="iphonesla-link.js"></script>\n'));
   assert.equal((html.match(/iphonesla-link\.js/g) || []).length, 1);
-  assert.equal((html.match(/<script(?![^>]*\bsrc=)[^>]*>/gi) || []).length, 2, 'the CSP carries exactly two inline hashes');
+  // Structured data (application/ld+json) never runs, so the CSP needs no hash for it.
+  assert.equal((html.match(/<script(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>/gi) || []).length, 2, 'the CSP carries exactly two inline hashes');
 });
 
 test('both copies of the CSP allow the shop in connect-src, identically, and only the apex', () => {
