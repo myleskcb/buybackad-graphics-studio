@@ -38,3 +38,18 @@
 
 /styles.css
   Cache-Control: public, max-age=0, must-revalidate
+
+# Owner tools that stay reachable by link but should never be in search:
+# the labs, the good/bad picker, the asset library and the old single-file build.
+# Mirrors netlify.toml.
+/lab/*
+  X-Robots-Tag: noindex, nofollow
+
+/pick.html
+  X-Robots-Tag: noindex, nofollow
+
+/library.html
+  X-Robots-Tag: noindex, nofollow
+
+/phonegfx-studio.html
+  X-Robots-Tag: noindex, nofollow

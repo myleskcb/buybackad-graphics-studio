@@ -1,3 +1,12 @@
+# Graphics Studio by BUYBACK.AD. The site is served from the Netlify address;
+# buyback.ad does not resolve yet (checked 2026-09-22). Update the Sitemap line
+# with the rest of the canonical URLs when the domain goes live.
 User-agent: *
 Allow: /
-Sitemap: https://buyback.ad/sitemap.xml
+Disallow: /api/
+Disallow: /lab/
+Disallow: /pick.html
+Disallow: /library.html
+Disallow: /phonegfx-studio.html
+
+Sitemap: https://buybackad-graphics-studio.netlify.app/sitemap.xml

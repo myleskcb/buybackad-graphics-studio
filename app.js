@@ -2946,6 +2946,11 @@ async function enhance(){
 }
 
 async function aiPolish(texts){
+  /* Off (2026-09-22). This called api.anthropic.com straight from the browser
+     with no key, which the site's own CSP (connect-src) blocks, so every
+     Enhance logged a CSP violation and fell back to the local cleanup anyway.
+     A spelling pass would need a server route that holds the key. */
+  return null;
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 6000);
   try {
@@ -5110,8 +5115,13 @@ let FEAT_PRO_TPL  = 'the full Designer Library';
 function refreshPlanFeats(){
   try {
     const c = tplCounts();
-    FEAT_FREE_TPL = c.freeRounded + ' free templates, every Phones design included';
-    FEAT_PRO_TPL  = 'All ' + c.totalRounded + ' templates incl. the Designer Library';
+    /* Worded the way the gate works rather than as a count: the gallery on the
+       landing page gates by scIsFree() (every Phones design, the top 3 of every
+       other category) and tplCounts() counts the classic templates, so a number
+       here described a different set from the one visitors click. (2026-09-22) */
+    void c;
+    FEAT_FREE_TPL = 'Every Phones design, plus the top 3 in every other category';
+    FEAT_PRO_TPL  = 'Every design in all 8 categories';
     if (typeof PLANS === 'object' && PLANS){
       PLANS.free.feats[1] = FEAT_FREE_TPL;
       PLANS.pro.feats[1]  = FEAT_PRO_TPL;
@@ -5377,7 +5387,12 @@ async function startCheckout(planId){
   try {
     const j = await api('/checkout', { plan: planId });
     location.href = j.url; // Stripe-hosted checkout page
-  } catch (e){ toast('Checkout failed: ' + e.message, 'error'); }
+  } catch (e){
+    // The function answers 503 "Billing is not enabled yet" until the Stripe
+    // keys are set; say that in words a customer can act on.
+    if (/not enabled/i.test(e.message)) toast('Pro checkout is not open yet. Nothing was charged, and your free plan keeps working.', 'error');
+    else toast('Checkout failed: ' + e.message, 'error');
+  }
 }
 function showPayResult(ok, planId){
   $('page-plans').classList.remove('active');
