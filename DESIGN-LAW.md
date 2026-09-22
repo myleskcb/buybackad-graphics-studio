@@ -1026,3 +1026,28 @@ The portable lesson is the schema, not these four names. A new palette enters
 the product only when every colour has a declared job and survives
 `scripts/audit_theme_grammar.mjs`; `scripts/preview_theme_grammar.mjs` then
 proves the records are reachable and applied through the real editor UI.
+
+## 52. A finished card may change colour only if it keeps its luminance, and it is judged on its own pixels
+
+Added 2026-09-22 with the showcase refresh (`docs/refresh-2026-09-22.md`).
+
+Two things were true of the showcase before that day. Its legibility had
+never been measured: the diff audit (`legibility_audit.mjs`) ran only over the
+243 classics, and when it was pointed at the 971 showcase records
+(`audit_showcase_legibility.mjs`) **276 of them had a headline, phone number or
+CTA under 3:1** against the pixels behind it — the landing section said "None
+of them unreadable." And its palettes were generated, not chosen: 51 names out
+of one word pot, the largest of them brown ink on a cream ground.
+
+The rule the refresh follows, so a skin can change without undoing an audit:
+
+- **Luminance lock.** Every colour is re-hued from its role in the new palette
+  and its lightness is solved so its WCAG luminance equals the colour it
+  replaces. Contrast between flat colours is then unchanged by construction;
+  only hue and chroma move (rule 31, mirrored).
+- **Endpoints, not averages, for a photograph.** Grey under a flat veil became
+  a duotone solved to the same black and white endpoints, so the tonal range a
+  card was audited at survives.
+- **Then measure the pixels anyway**, repair what fails without moving its hue
+  (`repair_showcase_contrast.mjs`), and stamp what still fails as a defect
+  rather than ship it. A card that cannot be made legible is not offered.

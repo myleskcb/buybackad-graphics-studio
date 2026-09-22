@@ -4220,7 +4220,15 @@ function freshBgImage(src, blur, grade){
   if (img && grade && grade.treat){
     try {
       const F = fabric.Image.filters;
+      /* 'duo' (2026-09-22): a true duotone, shadows in grade.lo and highlights
+         in grade.hi, solved by scripts/refresh_palettes.mjs duoFor() to the
+         same two endpoints the old grey-under-a-veil 'tone' produced, so the
+         card keeps its tonal range and only gains colour. */
       img.filters = grade.treat === 'raw' ? []                       // as shot
+        : grade.treat === 'duo' && grade.lo && grade.hi
+        ? [new F.Grayscale(), new F.Contrast({ contrast: 0.08 }),
+           new F.BlendColor({ color: grade.hi, mode: 'multiply', alpha: 1 }),
+           new F.BlendColor({ color: grade.lo, mode: 'screen', alpha: 1 })]
         : grade.treat === 'natural'
         ? [new F.Contrast({ contrast: 0.05 })]
         : [new F.Grayscale(), new F.Contrast({ contrast: 0.08 })];
@@ -4579,18 +4587,21 @@ function buildThemeRow(){
 // ═══════════════ FONT LIBRARY (lazy-loaded from Google Fonts on first use) ═══════════════
 const FONT_GROUPS = [
   ['House faces', ['Clash Display','Satoshi','Khand','Melodrama','Zodiak']],
+  ['Showcase faces', ['Unbounded','Bricolage Grotesque','Sofia Sans Extra Condensed','Schibsted Grotesk','Gloock','Young Serif','Tilt Warp']],
   ['Display & impact', ['Alfa Slab One','Abril Fatface','Bakbak One','Big Shoulders Display','Black Ops One','Bowlby One SC','Bungee','Chango','Concert One','Days One','Fjalla One','Francois One','Graduate','Hammersmith One','Lilita One','Luckiest Guy','Monoton','Passion One','Patua One','Paytone One','Press Start 2P','Racing Sans One','Righteous','Rowdies','Russo One','Secular One','Shrikhand','Sigmar One','Squada One','Staatliches','Titan One','Ultra','Unbounded','Vast Shadow']],
   ['Script & fun', ['Creepster','Fredoka','Gloria Hallelujah','Great Vibes','Knewave','Lobster','Pacifico','Special Elite','Yellowtail']],
   ['Clean & modern', ['Changa','Exo 2','Inter','Josefin Sans','Kanit','Lato','League Spartan','Nunito','Plus Jakarta Sans','Poppins','Prompt','Raleway','Rubik','Saira Condensed','Teko']],
   ['Serif', ['Cinzel','Cormorant Garamond','DM Serif Display','Merriweather','Playfair Display','Zilla Slab']],
   ['System', ['Georgia','Impact','Arial Black']],
 ];
-const CORE_FONTS = new Set(FONT_GROUPS[0][1].concat(FONT_GROUPS[5][1]));
+const CORE_FONTS = new Set(FONT_GROUPS[0][1].concat(FONT_GROUPS[FONT_GROUPS.length - 1][1]));
 const _fontLoaded = new Set(CORE_FONTS);
 // The five house faces are self-hosted, declared in styles.css, and must never
 // be requested from Google — that lookup 404s and costs a round trip before
 // the harmless onerror fires.
 const HOUSE_FACES = ['Clash Display', 'Satoshi', 'Khand', 'Melodrama', 'Zodiak'];
+const LOCAL_FACES = ['Unbounded', 'Bricolage Grotesque', 'Sofia Sans Extra Condensed', 'Schibsted Grotesk', 'Gloock', 'Young Serif', 'Tilt Warp', 'JetBrains Mono', 'Big Shoulders Display'];
+let _localFacesCss = null;
 function ensureFont(name){
   if (_fontLoaded.has(name)) return Promise.resolve();
   _fontLoaded.add(name);
@@ -4604,10 +4615,18 @@ function ensureFont(name){
   // fonts.load() only works AFTER the injected stylesheet's @font-face rules
   // exist, waiting on link.onload first is what makes canvas thumbnails
   // paint with the real face instead of the serif fallback
+  /* The 2026-09-22 showcase faces are vendored (OFL, assets/fonts/faces.css,
+     written by scripts/fetch_fonts.mjs): one same-origin stylesheet for all of
+     them, so a showcase card never waits on a third-party font server. */
+  const local = LOCAL_FACES.indexOf(name) !== -1;
+  if (local && _localFacesCss) return _localFacesCss.then(() => document.fonts.load('400 24px "' + name + '"').catch(() => {}))
+    .then(() => { try { fabric.util.clearFabricFontCache(); } catch (e){} });
   return new Promise(res => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
+    link.href = local ? 'assets/fonts/faces.css'
+      : 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
+    if (local) _localFacesCss = new Promise(r => { link.addEventListener('load', r); link.addEventListener('error', r); });
     const done = () => {
       // fabric caches per-family glyph widths, anything measured while the
       // face was still loading poisons every later render (clipped tails),

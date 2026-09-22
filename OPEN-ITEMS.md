@@ -180,3 +180,24 @@ close suburbs and a rural area names the small towns further out.
 `buildLayer()` and the Easy form defaults, so every render path is covered and
 an unset area is a no-op. `tests`: none yet; the checks were done by hand for
 92101, 91945, 95758, 73301, 10001, 04101, 57501, 59527, Bozeman and Fresno.
+
+## H. 2026-09-22 — the refresh, and the recipe that replaces §G's snippet
+
+The "python snippet in the session notes" is now `scripts/import_lab_export.mjs`.
+The whole chain, from a lab export to a live, audited showcase:
+
+    LAB_EXPORT=1 LAB_OUT=.render/exportN ... node scripts/retheme_lab.mjs
+    node scripts/import_lab_export.mjs .render/exportN     # tpl/*.json + index rows
+    node scripts/refresh_showcase.mjs                      # palettes, faces, duotone, copy rules, bake
+    node scripts/fix_cta_straddle.mjs
+    node scripts/repair_showcase_contrast.mjs
+    node scripts/audit_showcase_overlap.mjs --write
+    node scripts/audit_showcase_legibility.mjs --write
+    node scripts/measure_showcase_color.mjs
+    node scripts/audit_showcase_content.mjs --write        # stamps `defect`; the app filters it
+    node scripts/sample_sheet.mjs .render/sheet.png 48 7   # then LOOK at it
+    node scripts/landing_check.mjs                         # 390 + 1440, errors, 404s, overflow, bytes
+
+`refresh_showcase.mjs` reads the records from git (REFRESH_FROM, default HEAD),
+so run it against the commit that holds the lab import. What changed and what
+is still open: `docs/refresh-2026-09-22.md`.
