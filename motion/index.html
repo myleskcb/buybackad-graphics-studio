@@ -34,7 +34,7 @@
 <main id="main" class="mo-main">
   <div class="mo-head">
     <h1>Phone video ads</h1>
-    <p class="mo-sub">Phones fly in and flip to their backs, your headline slides in, your number lands, with music. Shuffle for a new look, lock what you like, download an MP4. It all runs in your browser: nothing is uploaded. <span class="mo-count" id="look-count"></span></p>
+    <p class="mo-sub">Phones fly in and flip to their backs, your headline slides in, your number lands, with music. Pick an LA look (freeway signs, swap meet posters, yellow street signs, lowrider paint, neon, murals, corner stores) in English, Spanish or both, and add a push to text now. Shuffle for a new look, lock what you like, download an MP4. It all runs in your browser: nothing is uploaded. <span class="mo-count" id="look-count"></span></p>
   </div>
 
   <div class="mo-grid">
@@ -72,7 +72,18 @@
     <aside class="mo-panel" aria-label="Settings">
       <details open class="mo-sec">
         <summary>Words</summary>
-        <label class="mo-field">Opening line <span class="mo-opt">first second, shown with the Hook line opening</span>
+        <div class="mo-field">Language <span class="mo-opt">Mix gives some looks in English, some in Spanish, some in both</span>
+          <div class="mo-seg" id="langs" role="radiogroup" aria-label="Language">
+            <button data-lang="en" role="radio">English</button>
+            <button data-lang="es" role="radio">Español</button>
+            <button data-lang="both" role="radio">Both</button>
+            <button data-lang="mix" role="radio">Mix</button>
+          </div>
+        </div>
+        <label class="mo-field">Your area <span class="mo-opt">the city the ads name, like LA or Long Beach</span>
+          <input id="f-area" maxlength="30" placeholder="LA" autocomplete="address-level2">
+        </label>
+        <label class="mo-field">Opening line <span class="mo-opt">the first second: the Hook line and Word beat openings show it</span>
           <span class="mo-row"><input id="f-hook" maxlength="44" placeholder="STILL GOT YOUR OLD IPHONE?"><button class="mo-mini" id="new-hook" title="Another opening line">&#10227;</button></span>
         </label>
         <label class="mo-field">Headline

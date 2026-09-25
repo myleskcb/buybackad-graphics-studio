@@ -33,6 +33,10 @@ export async function renderSoundtrack(ad) {
   // Nothing opens on silence: the first frame lands on a hit that matches the hook.
   switch (st.hook) {
     case "hook_line": S.bassDrop(sfx, 0, .75); S.impact(sfx, 0, .8); S.whoosh(sfx, .8, .3, true, 0, .4); break;
+    case "word_beat":                                // one hit per word, like a drum roll that spells the question
+      S.impact(sfx, 0, .75);
+      (ad.hookLines || []).forEach((_, i) => { const tt = i * (ad.hookBeat || .2); S.kick(sfx, tt, .8); S.clap(sfx, tt, i % 2 ? .45 : .3); });
+      S.whoosh(sfx, ad.hookEnd - .12, .3, true, 0, .4); break;
     case "flash_cut": ad.phones.forEach(p => S.impact(sfx, p.tIn, .6)); break;
     case "crash_zoom": S.whoosh(sfx, 0, .6, false, 0, .7); ad.phones.filter(p => p.crash).forEach(p => S.impact(sfx, p.tLand, .8)); break;
     case "punch_in": S.impact(sfx, 0, .85); S.whoosh(sfx, 0, .5, false, 0, .5); break;
@@ -60,6 +64,12 @@ export async function renderSoundtrack(ad) {
     default: S.pop(sfx, tl.number + .05, .7);
   }
   if (st.shine || st.sparkles) S.shimmer(sfx, tl.shine, .45);
+  // the signs and the urgency pieces each land on a sound of their own
+  const cues = ad.cues || {};
+  if (cues.board != null) { S.tap(sfx, cues.board, 0, .55); S.thud(sfx, cues.board + .05, 110, 60, .2, 0, .35); }
+  if (cues.burst != null) S.pop(sfx, cues.burst, .45);
+  if (cues.stamp != null) { S.thud(sfx, cues.stamp + .2, 120, 38, .45, 0, 1); S.clap(sfx, cues.stamp + .2, .45); }
+  if (cues.tape != null) S.whoosh(sfx, cues.tape, .38, false, .3, .45);
   if (st.sound_kit !== "none") {
     // The beat runs from the first frame, on a grid that puts a downbeat exactly on the headline hit.
     const b = 60 / (st.bpm || 118), start = st.hook && st.hook !== "none" ? hit - Math.ceil(hit / b) * b : hit;

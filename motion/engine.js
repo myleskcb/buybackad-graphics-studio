@@ -2,7 +2,9 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY } from "./catalog.js";
+import { vibeBackground, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
+  drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
 // ------------------------------------------------------------ small tools
 
@@ -53,7 +55,7 @@ export function canvas(w, h) {
   c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h));
   return c;
 }
-function rrect(ctx, x, y, w, h, r) {
+export function rrect(ctx, x, y, w, h, r) {
   r = Math.max(0, Math.min(r, w / 2, h / 2));
   ctx.beginPath();
   if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
@@ -78,14 +80,112 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   }
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
   if (!locked.has("bpm")) out.bpm = r.int(90, 134);
-  if (content) {
-    if (!locked.has("headline")) out.headline = r.pick(HEADLINES);
-    if (!locked.has("tag")) out.tag = r.pick(TAGS);
-    if (!locked.has("number_label")) out.number_label = r.pick(NUMBER_LABELS);
-    if (!locked.has("hook_text")) out.hook_text = r.pick(HOOKS);
-  }
+  // an opening that shows the phones on frame 0 shows their backs: screen-up phones are black glass in the thumbnail
+  if (!["hook_line", "word_beat"].includes(out.hook) && out.front_glimpse === "hold" && !locked.has("front_glimpse")) out.front_glimpse = "spin";
+  vibeInto(out, r, locked);
+  copyInto(out, r, locked, content);
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = r.sample(phonesPool, r.pick([3, 4, 4, 5]));
   return harmonise(out, locked);
+}
+
+/** An LA vibe draws the look's ground, palette, faces, treatment, sign board
+ *  and decorations from its own pools, so one vibe is many looks. The page calls
+ *  this when a vibe is picked by hand, so the pick shows at once. */
+export function applyVibe(st, seed, locked = new Set()) {
+  const out = { ...st };
+  vibeInto(out, rng(seed * 4099 + 17), locked);
+  return out;
+}
+
+// Grounds that are a material (a cork board, a stucco wall, candy paint) belong to
+// the vibe that paints them in its own colours; any other look draws the rest.
+const VIBE_GROUNDS = new Set(["cork", "stucco", "concrete", "brick_night", "candy_flake", "asphalt", "velvet", "beach", "mural_wall", "fluoro"]);
+
+function vibeInto(out, r, locked) {
+  const v = VIBES[out.vibe];
+  const set = (k, list) => { if (list && list.length && !locked.has(k)) out[k] = r.pick(list); };
+  const g = () => lum((PALETTES[out.palette] || PALETTES.sand).ground);
+  const fits = b => !(b === "brick_night" && g() > .45) && !(b === "sky_day" && g() < .3) && !(b === "concrete" && g() < .2);
+  if (!v) {
+    if (!locked.has("board")) out.board = "none";
+    if (!locked.has("decor")) out.decor = r() < .2 ? [r.pick(["palms", "skyline"])] : [];
+    if (!locked.has("background") && (VIBE_GROUNDS.has(out.background) || !fits(out.background)))
+      out.background = r.pick(OPTIONS.background.filter(b => !VIBE_GROUNDS.has(b) && fits(b)));
+    return out;
+  }
+  set("palette", v.palettes); set("background", v.backgrounds); set("font", v.fonts);
+  set("text_fx", v.fx); set("number_style", v.numbers); set("text_in", v.text_in); set("skew", v.skew);
+  if (!locked.has("background") && !fits(out.background)) out.background = (v.backgrounds || []).find(fits) || "radial";
+  if (!locked.has("board")) out.board = v.boards && r() < (v.boardChance ?? 1) ? r.pick(v.boards) : "none";
+  if (!locked.has("decor")) {
+    const d = v.decor || [], lo = Math.min(d.length, v.decorMin ?? 0), hi = Math.min(d.length, v.decorMax ?? d.length);
+    out.decor = d.length ? r.sample(d, r.int(lo, Math.max(lo, hi))) : [];
+  }
+  return out;
+}
+
+const SPANISH = /[¿¡ÁÉÍÓÚÑ]|\b(COMPRAMOS|COMPRO|VENDE|TU|EFECTIVO|DINERO|TEL[ÉE]FONOS?|AQU[ÍI]|M[ÁA]NDANOS|LLAMA)\b/i;
+
+/** The look's city ({AREA}): the brand kit's, else LA for an LA vibe, else none. */
+export function areaOf(st) {
+  const a = String(st.area || "").split(",")[0].trim().toUpperCase();
+  return a || (st.vibe && st.vibe !== "none" ? "LA" : "");
+}
+/** The area code of the number on the ad ({CODE}), or nothing. */
+export function codeOf(st) {
+  let d = String(st.number || "").replace(/\D/g, "");
+  if (d.length === 11 && d[0] === "1") d = d.slice(1);
+  return d.length === 10 ? d.slice(0, 3) : "";
+}
+
+/** The words, in the look's language. A line that needs a city or an area code
+ *  we do not know is skipped rather than printed with a hole in it. */
+export function applyCopy(st, seed, locked = new Set(), content = true) {
+  const out = { ...st };
+  copyInto(out, rng(seed * 6007 + 29), locked, content);
+  return out;
+}
+
+function copyInto(out, r, locked, content) {
+  const mode = out.lang_mode || "en";
+  let lang = mode === "mix" ? r.weighted(["en", "es", "both"], { en: 5, es: 3, both: 2 }) : mode;
+  if (!content && mode !== "both") lang = SPANISH.test(out.headline || "") ? "es" : "en";   // the words on the page decide
+  out.lang = lang;
+  const v = VIBES[out.vibe], known = { AREA: areaOf(out), CODE: codeOf(out) };
+  const fillIn = L => s => {
+    let ok = true;
+    const t = String(s).replace(/\{(AREA|CODE)\}/g, (_, k) => { if (!known[k]) ok = false; return k === "AREA" && L === "es" && known.AREA === "LA" ? "L.A." : known[k]; });
+    return ok ? t : null;
+  };
+  const legacy = { headlines: HEADLINES, hooks: HOOKS, tags: TAGS, labels: NUMBER_LABELS };
+  const pool = (L, key) => {
+    const own = (v && v.copy && v.copy[L] && v.copy[L][key]) || [];
+    const base = (COPY[L] && COPY[L][key]) || [];
+    const extra = L === "en" ? (legacy[key] || []) : [];
+    const fill = fillIn(L);
+    return [...new Set([...own, ...base, ...extra].map(fill).filter(s => s != null))].concat(own.map(fill).filter(s => s != null));
+  };
+  const pick = (L, key, fallback = "") => { const p = pool(L, key); return p.length ? r.pick(p) : fallback; };
+  const headL = lang === "both" ? (r() < .6 ? "en" : "es") : lang;
+  const otherL = lang === "both" ? (headL === "en" ? "es" : "en") : lang;
+  if (content) {
+    if (!locked.has("headline")) out.headline = pick(headL, "headlines", out.headline);
+    if (!locked.has("tag")) out.tag = out.urgency !== "none" && r() < .3 ? pick(otherL, "urgent") : pick(otherL, "tags");
+    if (!locked.has("number_label")) out.number_label = lang === "both" && r() < .6 ? r.pick(COPY.both.labels) : pick(otherL, "labels");
+    if (!locked.has("hook_text")) {
+      const hooks = pool(headL, "hooks"), short = hooks.filter(h => h.split(/\s+/).length <= 5);
+      out.hook_text = r.pick(out.hook === "word_beat" && short.length ? short : hooks);
+    }
+  }
+  if (!locked.has("cta")) out.cta = pick(otherL, "cta", "TEXT NOW");
+  if (!locked.has("urgent")) out.urgent = pick(otherL, "urgent", "IT LOSES VALUE EVERY MONTH");
+  if (!locked.has("stamp_text")) out.stamp_text = pick(headL, "stamp", "CASH");
+  if (!locked.has("burst_text")) out.burst_text = pick(headL, "burst", "CASH!");
+  if (!locked.has("ticker_items")) {
+    const items = lang === "both" ? [...new Set([...pool("en", "ticker"), ...pool("es", "ticker")])] : [...new Set(pool(lang, "ticker"))];
+    out.ticker_items = r.sample(items, Math.min(items.length, 5));
+  }
+  return out;
 }
 
 /** The few pairings that do not work, repaired. Nothing here narrows the look;
@@ -97,27 +197,70 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
     st.palette = found.length ? found[Math.floor(rng(st.seed * 31)() * found.length)] : "sand";
     st._matched = true;
   }
+  if (!Array.isArray(st.decor)) st.decor = [];
+  const board = BOARDS[st.board];
+  if (!board) st.board = "none";
+  const halo = st.decor.includes("spray_halo");
   const p = pal(st);
   const darkInk = lum(p.ink) < 0.5;
   if (st.text_pos === "bottom-left" && ["bottom-left", "bottom-center"].includes(st.number_pos) && !locked.has("number_pos")) st.number_pos = "bottom-right";
   if (st.text_pos === "top-right" && st.number_pos === "bottom-right" && !locked.has("number_pos")) st.number_pos = "bottom-left";
   if (["top-center", "center"].includes(st.text_pos) && ["bottom-left", "bottom-right"].includes(st.number_pos) && !locked.has("number_pos")) st.number_pos = "bottom-center";
+  if (st.decor.includes("pinstripe") && st.number_pos === "under-headline" && !locked.has("number_pos")) st.number_pos = "bottom-center";
   if (st.number_in === "type" && !locked.has("number_sfx")) st.number_sfx = "ticks";
+  if (!["hook_line", "word_beat"].includes(st.hook) && ["typewriter", "scramble", "drop_letters", "spin_letters"].includes(st.text_in) && !locked.has("text_in"))
+    st.text_in = ["slide", "skew_slide", "slam", "wipe"][st.seed % 4];
   if (st.text_fx === "box" && st.color_mode === "split_lines") st.color_mode = "mono";
-  // dark type crosses black glass somewhere in almost every layout
-  const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline"];
-  if (darkInk && !onPlate.includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = ["sticker", "box", "highlighter", "double_outline"][st.seed % 4];
-  if (darkInk && st.text_fx === "neon") st.text_fx = "sticker";
-  if (!darkInk && lum(p.accent) < 0.42 && st.color_mode !== "mono" && st.text_fx !== "box" && !locked.has("color_mode")) st.color_mode = "mono";
-  // an outline or a neon tube only reads on a darker ground
-  if (lum(p.ground) > .5 && ["outline", "neon"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = st.text_fx === "outline" ? "double_outline" : "shadow";
+  if (board) {
+    // the headline sits on the sign, so the sign decides its colours and treatment
+    if (!board.fx.includes(st.text_fx)) st.text_fx = board.fx[st.seed % board.fx.length];
+    if (board.fonts && !locked.has("font") && !board.fonts.includes(st.font)) st.font = board.fonts[st.seed % board.fonts.length];
+    if (st.color_mode === "split_lines") st.color_mode = "accent_line";
+    st.skew = 0;
+  } else {
+    // dark type crosses black glass somewhere in almost every layout (a spray halo carries it instead)
+    const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline"];
+    if (darkInk && !halo && !onPlate.includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = ["sticker", "box", "highlighter", "double_outline"][st.seed % 4];
+    if (darkInk && st.text_fx === "neon") st.text_fx = "sticker";
+    if (!darkInk && lum(p.accent) < 0.42 && st.color_mode !== "mono" && st.text_fx !== "box" && !locked.has("color_mode")) st.color_mode = "mono";
+    // an outline or a neon tube only reads on a darker ground
+    if (lum(p.ground) > .5 && ["outline", "neon"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = st.text_fx === "outline" ? "double_outline" : "shadow";
+  }
   if (lum(p.ground) > .4 && st.number_style === "neon" && !locked.has("number_style")) st.number_style = "pill";
   // one "quote" is enough: a tag and a label must not say the same thing twice
   if (st.tag && st.number_label && /QUOTE/i.test(st.tag) && /QUOTE/i.test(st.number_label) && !locked.has("number_label")) st.number_label = "";
   if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
   if (st.case === "title" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.05);
   if ((FONTS[st.font] || [])[3] === "wide" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.01);
+  if (st.decor.includes("sparkle")) st.sparkles = true;
   return st;
+}
+
+/** The colours of type set ON a sign board: the board's, not the scene's. */
+function boardPalette(b, p) {
+  let ink = b.ink;
+  if (ink === "auto") ink = lum(p.plate) > .55 ? "#111111" : "#ffffff";
+  let accent = b.accent ?? p.accent;
+  if (Math.abs(lum(accent) - lum(ink)) < .2) accent = ink;
+  return { ...p, ink, accent, plate: lum(ink) > .5 ? "#111111" : "#ffffff", plate_ink: ink };
+}
+
+/** A loud colour that reads on this ground: for badges, tickers, arrows and borders. */
+function hotColour(p) {
+  for (const c of [p.accent, "#ffd60a", "#ff2d55", "#30d158", "#00e5ff"]) if (Math.abs(lum(c) - lum(p.ground)) > .3 && lum(c) > .25) return c;
+  return lum(p.ground) > .5 ? "#111111" : "#ffd60a";
+}
+
+/** The spray behind street lettering: whichever of the scene's colours stands off the ink. */
+function haloColour(p) {
+  const best = [p.accent, p.plate].sort((a, b) => Math.abs(lum(b) - lum(p.ink)) - Math.abs(lum(a) - lum(p.ink)))[0];
+  return Math.abs(lum(best) - lum(p.ink)) >= .45 ? best : (lum(p.ink) > .5 ? "#111111" : "#ffffff");
+}
+
+/** The face a starburst is lettered in: the headline's, unless that face is too fine or too loopy. */
+export function burstFontFor(st) {
+  const f = FONTS[st.font];
+  return f && !FINE_FACES.has(st.font) && !["script", "serif", "mono"].includes(f[3]) ? st.font : "luckiest";
 }
 
 // ------------------------------------------------------------ phones
@@ -293,7 +436,7 @@ function planEntries(phones, st, W, H, r, stageC) {
     const p = phones[i];
     // The first 3 seconds decide whether anyone watches: phones are already in
     // the air at frame 0 and land fast. A hook line owns the first second.
-    const lead = st.hook === "hook_line" ? .5 : st.hook === "crash_zoom" ? .22 : st.hook === "punch_in" ? -.7 : -.45;
+    const lead = ["hook_line", "word_beat"].includes(st.hook) ? .5 : st.hook === "crash_zoom" ? .22 : st.hook === "punch_in" ? -.7 : -.45;
     p.tIn = lead + k * stag * .75; p.tLand = p.tIn + dur * .85;
     if (st.hook === "flash_cut") { p.tIn = p.tLand = Math.max(0, k - 1) * .15; p.flashIn = k > 1; p.landsBack = true; p.reveal = false; }   // two are there at frame 0, backs up
     p.spin = r.pick([-2, -1, 1, 2]) * (r() < .2 ? 1.5 : 1); p.flips = r.pick([1, 2]);
@@ -405,10 +548,19 @@ export async function loadFonts(names) {
   }));
 }
 
-const fontCss = (name, size) => { const [fam, wt] = FONTS[name] || FONTS.franklin; return `${wt} ${Math.round(size)}px "${fam}", "Arial Black", sans-serif`; };
+/** Every face one look draws with: headline, number, the signs' own lettering and the starburst. */
+export function fontsFor(st) {
+  const f = [st.font, st.number_font === "same" ? st.font : st.number_font, "oswald"];
+  if ((st.decor || []).includes("starburst")) f.push(burstFontFor(st));
+  return [...new Set(f)].filter(n => FONTS[n]);
+}
 
+export const fontCss = (name, size) => { const [fam, wt] = FONTS[name] || FONTS.franklin; return `${wt} ${Math.round(size)}px "${fam}", "Arial Black", sans-serif`; };
+
+const KEEP_UPPER = new Set(["LA", "OC", "SF", "NYC", "USA", "IE", "SGV", "DTLA", "LB", "SD"]);
 export function applyCase(text, cs) {
-  let out = cs === "upper" ? text.toUpperCase() : text.split(/\s+/).map(w => w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w).join(" ");
+  let out = cs === "upper" ? text.toUpperCase() : text.split(/\s+/).map(w => !w ? w
+    : KEEP_UPPER.has(w.replace(/[^A-Za-z]/g, "").toUpperCase()) && w === w.toUpperCase() ? w : w[0].toUpperCase() + w.slice(1).toLowerCase()).join(" ");
   if (cs !== "upper") out = out.replace(/\bIphone/g, "iPhone").replace(/\bIpad/g, "iPad").replace(/\bMacbook/g, "MacBook");
   return out;
 }
@@ -473,25 +625,36 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
     case "shadow":
       ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .13; ctx.shadowOffsetY = size * .045; fillAll(); break;
     case "hard_shadow": {
-      const d = Math.max(2, size * .06); ctx.save(); ctx.translate(d, d); fillAll(accent); ctx.restore(); fillAll(); break;
+      const d = Math.max(2, size * .06); ctx.save(); ctx.translate(d, d);
+      each((ch, cx, cy, c0) => { ctx.fillStyle = Math.abs(lum(c0) - lum(accent)) < .2 ? shade(c0, lum(c0) > .5 ? -.62 : .55) : accent; ctx.fillText(ch, cx, cy); });
+      ctx.restore(); fillAll(); break;
     }
     case "outline":
       ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .08; strokeAll(null, Math.max(2, size * .05)); break;
     case "sticker": {
       const plate = darkInk ? "#ffffff" : (Math.abs(lum(p.plate) - lum(ink)) < .25 ? "#111111" : p.plate);
+      const plateFor = c0 => Math.abs(lum(c0) - lum(plate)) < .22 ? (lum(c0) > .5 ? "#111111" : "#ffffff") : plate;
       ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = size * .1; ctx.shadowOffsetY = size * .04;
-      strokeAll(plate, size * .24); noShadow(); fillAll(); break;
+      ctx.lineWidth = size * .24; each((ch, cx, cy, c0) => { ctx.strokeStyle = plateFor(c0); ctx.strokeText(ch, cx, cy); });
+      noShadow(); fillAll(); break;
     }
     case "extrude": {
       const depth = Math.max(3, Math.round(size * .08));
       const col = Math.abs(lum(accent) - lum(ink)) < .2 ? shade(ink, darkInk ? .6 : -.65) : accent;
+      const depthFor = c0 => Math.abs(lum(c0) - lum(col)) < .2 ? shade(c0, lum(c0) > .5 ? -.62 : .55) : col;
       ctx.shadowColor = "rgba(0,0,0,.3)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .03;
-      for (let k = depth; k >= 1; k--) { ctx.save(); ctx.translate(k, k); fillAll(col); ctx.restore(); if (k === depth) noShadow(); }
+      for (let k = depth; k >= 1; k--) {
+        ctx.save(); ctx.translate(k, k); each((ch, cx, cy, c0) => { ctx.fillStyle = depthFor(c0); ctx.fillText(ch, cx, cy); }); ctx.restore();
+        if (k === depth) noShadow();
+      }
       fillAll(); break;
     }
     case "glow": {
       const g = darkInk ? "#ffffff" : accent;
-      ctx.shadowColor = rgba(g.startsWith("#") ? g : "#ffffff", .9); ctx.shadowBlur = size * .38; fillAll(); fillAll(); break;
+      const haloFor = c0 => Math.abs(lum(c0) - lum(g)) < .2 ? shade(c0, lum(c0) > .5 ? -.55 : .5) : g;
+      ctx.shadowBlur = size * .38;
+      for (let pass = 0; pass < 2; pass++) each((ch, cx, cy, c0) => { ctx.shadowColor = rgba(haloFor(c0), .9); ctx.fillStyle = c0; ctx.fillText(ch, cx, cy); });
+      break;
     }
     case "neon": {
       const g = lum(accent) > .35 ? accent : "#7cf5ff";
@@ -509,6 +672,12 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04;
       strokeAll("#111418", size * .07); noShadow(); fillAll(g3); break;
     }
+    case "gold": {
+      const g4 = ctx.createLinearGradient(0, pad, 0, pad + asc);
+      [[0, "#fff6c8"], [.38, "#f5c542"], [.5, "#9a6b12"], [.6, "#f7d774"], [1, "#b8860b"]].forEach(([o, c2]) => g4.addColorStop(o, c2));
+      ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04;
+      strokeAll("#2a1a00", size * .07); noShadow(); fillAll(g4); break;
+    }
     case "long_shadow": {
       const L = Math.round(size * .35), col = shade(p.ground, -.45);
       for (let k = L; k >= 1; k -= 1) { ctx.save(); ctx.translate(k, k); fillAll(col); ctx.restore(); }
@@ -517,9 +686,11 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
     case "highlighter": {
       const barCol = lum(p.accent) > .45 ? p.accent : (darkInk ? "#fff176" : p.plate);
       ctx.save(); ctx.globalAlpha = .92; ctx.fillStyle = barCol;
-      ctx.beginPath(); ctx.moveTo(pad - size * .1, by - asc * .55); ctx.lineTo(pad + inkW + size * .12, by - asc * .62);
+      // the marker covers the whole letter: dark type half on the bar and half on a dark scene loses its top
+      ctx.beginPath(); ctx.moveTo(pad - size * .1, by - asc * .9); ctx.lineTo(pad + inkW + size * .12, by - asc * .96);
       ctx.lineTo(pad + inkW + size * .08, by + desc * .35); ctx.lineTo(pad - size * .14, by + desc * .45); ctx.closePath(); ctx.fill(); ctx.restore();
-      fillAll(Math.abs(lum(barCol) - lum(ink)) < .3 ? (lum(barCol) > .5 ? "#111111" : "#ffffff") : null); break;
+      each((ch, cx, cy, c0) => { ctx.fillStyle = Math.abs(lum(c0) - lum(barCol)) < .3 ? (lum(barCol) > .5 ? "#111111" : "#ffffff") : c0; ctx.fillText(ch, cx, cy); });
+      break;
     }
     case "double_outline": {
       strokeAll(lum(accent) > .35 ? accent : "#ffffff", size * .26);
@@ -584,6 +755,7 @@ function headlineLines(st, p, size, nLines) {
       if (st.color_mode === "split_lines") col = li % 2 ? p.accent : ink;
       else if (st.color_mode === "accent_line") col = li === lines.length - 1 ? p.accent : ink;
       else if (st.color_mode === "accent_word" && wi === aw && st.text_fx !== "box") col = p.accent;
+      if (st.text_fx === "box" && Math.abs(lum(col) - lum(p.plate)) < .25) col = lum(p.plate) > .5 ? "#111111" : "#ffffff";   // never the colour of its own box
       for (let k = 0; k < wd.length; k++) cols.push(col);
       cols.push(col); wi++;
     });
@@ -591,12 +763,29 @@ function headlineLines(st, p, size, nLines) {
   });
 }
 
-function numberSprite(st, p, size) {
+/** A speech-bubble badge (TEXT NOW) that points at the number. */
+function ctaBadge(text, size, hot) {
+  const ink = lum(hot) > .55 ? "#111111" : "#ffffff";
+  const fs = Math.max(12, size * .4);
+  const sp = inkSprite(text, text.split("").map(() => ink), "oswald", fs, .05, "flat", { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink }, 0);
+  const px = fs * .6, py = fs * .26, w = sp.inkW + px * 2, h = sp.asc * .92 + py * 2, tail = h * .34;
+  const c = canvas(w + 12, h + tail + 12), x = c.getContext("2d");
+  x.translate(6, 4);
+  x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = fs * .3; x.shadowOffsetY = fs * .1;
+  rrect(x, 0, 0, w, h, h / 2); x.fillStyle = hot; x.fill();
+  x.beginPath(); x.moveTo(w / 2 - tail * .75, h - 2); x.lineTo(w / 2, h + tail); x.lineTo(w / 2 + tail * .75, h - 2); x.closePath(); x.fill();
+  x.restore();
+  x.drawImage(sp.c, px - sp.pad, py - sp.pad - sp.asc * .04);
+  return trim(c);
+}
+
+function numberSprite(st, p, size, cta) {
   const text = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
-  const font = st.number_font === "same" ? st.font : st.number_font;
+  let font = st.number_font === "same" ? st.font : st.number_font;
+  if (FINE_FACES.has(font) || !FONTS[font]) font = "oswald";
   const style = st.number_style;
-  const fxFor = { plain: ["hard_shadow", "extrude", "glow", "chrome", "neon", "long_shadow"].includes(st.text_fx) ? st.text_fx : "shadow",
-    sticker: "sticker", outline: "shadow", underline: "shadow", neon: "neon", chrome: "chrome", split: "shadow", stacked: "flat" };
+  const fxFor = { plain: ["hard_shadow", "extrude", "glow", "chrome", "gold", "neon", "long_shadow"].includes(st.text_fx) ? st.text_fx : "shadow",
+    sticker: "sticker", outline: "shadow", underline: "shadow", neon: "neon", chrome: "chrome", gold: "gold", split: "shadow", stacked: "flat" };
   const fx = fxFor[style] || "flat";
   const onPlate = ["pill", "box", "ticket", "tag", "stacked"].includes(style);
   const col = onPlate ? p.plate_ink : p.ink;
@@ -639,9 +828,16 @@ function numberSprite(st, p, size) {
     let acc = p.accent; if (Math.abs(lum(acc) - lum(p.ground)) < .15) acc = p.ink;
     rrect(x, sp.pad, sp.pad + bodyH * .92, sp.inkW, bar, bar / 2); x.fillStyle = acc; x.fill();
     out = c;
+  } else if (style === "neon") {
+    const px = size * .3, py = size * .1, W = sp.inkW + px * 2, H = sp.asc * .95 + py * 2;
+    const c = canvas(W + 24, H + 24), x = c.getContext("2d");
+    rrect(x, 12, 12, W, H, H * .3); x.fillStyle = "rgba(8,6,20,.62)"; x.fill();
+    x.drawImage(sp.c, 12 + px - sp.pad, 12 + py - sp.pad - sp.asc * .03);
+    out = c;
   } else out = sp.c;
   const trimmed = trim(out);
   let label = null;
+  if (cta) return { c: trimmed, label: ctaBadge(applyCase(cta.text, "upper"), size, cta.hot), text, cta: true };
   if (st.number_label) {
     const lt = applyCase(st.number_label, "upper");
     const lsp = inkSprite(lt, lt.split("").map(() => p.ink), font, Math.max(12, size * .34), .08, lum(p.ink) < .5 ? "flat" : "shadow", p, 0);
@@ -650,7 +846,7 @@ function numberSprite(st, p, size) {
   return { c: trimmed, label, text };
 }
 
-function trim(c) {
+export function trim(c) {
   const x = c.getContext("2d"), { width: w, height: h } = c;
   const d = x.getImageData(0, 0, w, h).data;
   let x0 = w, y0 = h, x1 = -1, y1 = -1;
@@ -671,6 +867,12 @@ function background(st, p, W, H, sc, r) {
   const [cx, cy] = sc;
   const radial = (k = .75) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * k); gr.addColorStop(0, l); gr.addColorStop(1, g); return gr; };
   x.fillStyle = g; x.fillRect(0, 0, W, H);
+  if (vibeBackground(st.background, x, st, p, W, H, sc, r)) {
+    const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
+    vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
+    if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .3; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
+    return c;
+  }
   switch (st.background) {
     case "flat": break;
     case "linear": { const a = r() * Math.PI, gr = x.createLinearGradient(W / 2 - Math.cos(a) * W / 2, H / 2 - Math.sin(a) * H / 2, W / 2 + Math.cos(a) * W / 2, H / 2 + Math.sin(a) * H / 2); gr.addColorStop(0, g); gr.addColorStop(1, l); x.fillStyle = gr; x.fillRect(0, 0, W, H); break; }
@@ -798,6 +1000,7 @@ function background(st, p, W, H, sc, r) {
     }
     default: x.fillStyle = radial(); x.fillRect(0, 0, W, H);
   }
+  sceneryOver(x, st, p, W, H, r);
   // vignette
   const vg = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .3, cx, cy, Math.hypot(W, H) * .75);
   vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.28)"); x.fillStyle = vg; x.fillRect(0, 0, W, H);
@@ -805,7 +1008,7 @@ function background(st, p, W, H, sc, r) {
   return c;
 }
 
-function noiseTile(n, seed, amp) {
+export function noiseTile(n, seed, amp) {
   const c = canvas(n, n), x = c.getContext("2d"), id = x.createImageData(n, n), r = rng(seed * 97 + 5);
   for (let i = 0; i < n * n; i++) { const v = 128 + (r() - .5) * amp * 2; id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = v; id.data[i * 4 + 3] = 255; }
   x.putImageData(id, 0, 0);
@@ -818,6 +1021,17 @@ function noiseTile(n, seed, amp) {
   return o;
 }
 
+/** How bright a picture is on average (0 to 1), and how much of it is nearly black. */
+function lumStats(c) {
+  const s = canvas(24, 24), x = s.getContext("2d", { willReadFrequently: true });
+  x.drawImage(c, 0, 0, 24, 24);
+  const d = x.getImageData(0, 0, 24, 24).data;
+  let t = 0, dark = 0;
+  for (let i = 0; i < d.length; i += 4) { const v = .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]; t += v; if (v < 48) dark++; }
+  const n = d.length / 4;
+  return { mean: t / n / 255, dark: dark / n };
+}
+
 // ------------------------------------------------------------ the ad
 
 export class Ad {
@@ -828,16 +1042,44 @@ export class Ad {
     this.W = width || (ASPECTS[st.aspect] || ASPECTS["1:1"])[0];
     this.H = height || (ASPECTS[st.aspect] || ASPECTS["1:1"])[1];
     this.p = pal(st);
+    this.boardDef = BOARDS[st.board] || null;
+    this.pHead = this.boardDef ? boardPalette(this.boardDef, this.p) : this.p;
+    this.decor = new Set(st.decor || []);
+    this.hot = hotColour(this.p);
     this.r = rng(st.seed);
     this.assets = assets;
+    this._insets();
     this._buildPhones();
     this._timeline();
     this._layoutType();
+    this._buildDecor();
     this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1));
+    const ls = lumStats(this.bg);
+    this.bgLum = ls.mean; this.bgDark = ls.dark;
     this._scrim();
     this._contrastGuard();
     this.still = null;
     this.acc = canvas(this.W, this.H); this.tmp = canvas(this.W, this.H);
+  }
+
+  /** Room taken off the top of the frame by a shop awning and a ticker. */
+  _insets() {
+    const W = this.W, H = this.H, tall = W / H < .85;
+    this.insetTop = 0; this.awningH = 0; this.tickerH = 0; this.tickerY = 0;
+    if (this.decor.has("awning")) { this.awningH = H * (tall ? .07 : .1); this.insetTop += this.awningH; }
+    if (this.st.urgency === "ticker") { this.tickerH = Math.max(14, Math.min(W, H) * .062); this.tickerY = this.insetTop; this.insetTop += this.tickerH; }
+  }
+
+  /** When the opening hook gives way to the headline. */
+  _hookEnd() {
+    const st = this.st;
+    if (st.hook === "hook_line") return .92;
+    if (st.hook === "word_beat") {
+      const n = Math.max(1, applyCase(st.hook_text || HOOKS[0], "upper").split(/\s+/).filter(Boolean).length);
+      this.hookBeat = clamp(.95 / n, .16, .24);
+      return Math.max(.92, n * this.hookBeat + .2);
+    }
+    return 0;
   }
 
   _buildPhones() {
@@ -869,8 +1111,9 @@ export class Ad {
     const st = this.st;
     // words on screen within a second: the headline starts as the phones arrive, not after the last one lands
     const lands = this.phones.map(p => p.tLand).sort((a, b) => a - b), median = lands.length ? lands[Math.floor(lands.length / 2)] : .3;
-    const text = st.hook === "hook_line" ? .92
-      : st.hook === "crash_zoom" ? .55 : Math.max(.3, Math.min(median, revealEnd) + .02);
+    this.hookEnd = this._hookEnd();
+    const text = ["hook_line", "word_beat"].includes(st.hook) ? this.hookEnd
+      : st.hook === "crash_zoom" ? .42 : Math.max(.3, Math.min(.45, median + .02, revealEnd + .02));
     this.tl = { landed: this.tLanded, revealEnd, text, still: revealEnd + .25 };
   }
 
@@ -884,28 +1127,31 @@ export class Ad {
     let size = H * (wide ? .21 : tall ? .09 : .15) * (st.text_scale || 1);
     // how many lines: whichever lets the type be biggest in the room it has
     const text = applyCase(st.headline, st.case), words = text.split(/\s+/).length;
+    const B = this.boardDef, bpad = B ? B.pad : 0, btabs = B ? (B.tabs || 0) : 0;
     const mc = canvas(4, 4).getContext("2d"); mc.font = fontCss(st.font, size);
     let bestN = 2, bestS = 0;
     for (const n of [...new Set([1, 2, 3, 4].map(k => Math.min(words, k)))]) {
       const ls = splitLines(text, n);
-      const wid = Math.max(...ls.map(l => mc.measureText(l).width + st.tracking * size * l.length));
-      const hgt = size * .82 * (.98 * (ls.length - 1) + 1);
+      const wid = Math.max(...ls.map(l => mc.measureText(l).width + st.tracking * size * l.length)) + 2 * bpad * size;
+      const hgt = size * .82 * (.98 * (ls.length - 1) + 1) + (1.6 * bpad + btabs) * size;
       const s2 = size * Math.min(1, maxW / Math.max(wid, 1), maxH / Math.max(hgt, 1));
       if (s2 > bestS * 1.04) { bestN = n; bestS = s2; }
     }
     const alts = [st.number_pos, ...["under-headline", "bottom-center", "bottom-right", "bottom-left"].filter(x => x !== st.number_pos)];
     let pos = null, lines, lineH, blockH, tag, num, firstFit = null, dropLabel = false;
     for (let attempt = 0; attempt < 18; attempt++) {
-      lines = headlineLines(st, p, size, bestN);
-      const gap = size * (["box", "sticker", "highlighter", "cutout", "double_outline"].includes(st.text_fx) ? .14 : .02);
+      lines = headlineLines(st, this.pHead, size, bestN);
+      const gap = size * (["box", "sticker", "highlighter", "cutout", "double_outline"].includes(st.text_fx) ? .14 : B ? .09 : .02);
       lineH = lines[0].asc * .98 + gap;
       const widest = Math.max(...lines.map(L => L.inkW));
       blockH = lineH * (lines.length - 1) + lines[0].asc;
-      if (widest > maxW || blockH > maxH) { size *= .93; continue; }
-      tag = st.tag ? trim(inkSprite(applyCase(st.tag, "upper"), st.tag.split("").map(() => p.ink), st.font, size * .26, .12, lum(p.ink) < .5 ? "flat" : "shadow", p).c) : null;
+      if (widest + 2 * bpad * size > maxW || blockH + (1.6 * bpad + btabs) * size > maxH) { size *= .93; continue; }
+      const ph = this.pHead;
+      tag = st.tag ? trim(inkSprite(applyCase(st.tag, "upper"), st.tag.split("").map(() => ph.ink), st.font, size * .26, .12, lum(ph.ink) < .5 ? "flat" : "shadow", ph).c) : null;
       let nSize = Math.min(size * .72, W * (wide ? .075 : .11)) * (st.number_scale || 1);
-      num = numberSprite(st, p, nSize);
-      while (num.c.width > W - 2 * m && nSize > 12) { nSize *= .92; num = numberSprite(st, p, nSize); }
+      const cta = st.urgency === "pulse_cta" ? { text: st.cta || (st.lang === "es" ? "¡MÁNDANOS TEXTO!" : "TEXT NOW"), hot: this.hot } : null;
+      num = numberSprite(st, p, nSize, cta);
+      while (num.c.width > W - 2 * m && nSize > 12) { nSize *= .92; num = numberSprite(st, p, nSize, cta); }
       if (dropLabel) num = { ...num, label: null };
       for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.ok) break; }
       if (pos.ok) break;
@@ -916,20 +1162,22 @@ export class Ad {
         if (num.label) { dropLabel = true; continue; }
         if (tag) { tag = null; st.tag = ""; continue; }
         let placed = false;
-        for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.num[1] + num.c.height <= H * .985 && pos.y0 >= H * .02) { placed = true; break; } }
+        for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.num[1] + num.c.height <= H * .985 && pos.oy >= H * .02) { placed = true; break; } }
         if (placed) break;
       }
       st.number_pos = alts[0]; size *= .95;
     }
+    if (st.urgency === "pulse_cta" && !num.label) st.urgency = "arrows";
     Object.assign(this, { size, lines, lineH, tag, num, pos });
     const n = lines.length;
     this.tl.lines = lines.map((_, i) => this.tl.text + i * .12);
     const perLetter = ["slide_letters", "drop_letters", "typewriter", "scramble", "spin_letters"].includes(st.text_in);
     const last = this.tl.lines[n - 1] + (perLetter ? .4 : .26);
     this.tl.hit = this.tl.text + (["slam", "stomp"].includes(st.text_in) ? .42 : .3);
-    this.tl.tag = last + .15; this.tl.number = last + .35; this.tl.shine = this.tl.number + .5; this.tl.sparkle = this.tl.number + .35;
+    this.tl.tag = last + .12; this.tl.number = last + .25; this.tl.shine = this.tl.number + .5; this.tl.sparkle = this.tl.number + .35;
     this.tl.still = Math.max(this.tl.still, this.tl.revealEnd + .25);
     this.hookLines = null;
+    const hookFont = FINE_FACES.has(st.font) ? "oswald" : st.font;     // the opening words must read at a glance
     if (st.hook === "hook_line") {
       const txt = applyCase(st.hook_text || "STILL GOT YOUR OLD IPHONE?", "upper");
       const hp = { ...p, ink: "#ffffff", accent: lum(p.accent) > .45 ? p.accent : "#ffd60a" };
@@ -937,45 +1185,177 @@ export class Ad {
       const words = txt.split(/\s+/).length;
       for (let k = 0; k < 14; k++) {
         const ls = splitLines(txt, Math.min(words, tall ? 4 : 3));
-        const sp = ls.map(l => inkSprite(l, l.split("").map(() => "#ffffff"), st.font, hs, .01, "shadow", hp, 0));
+        const sp = ls.map(l => inkSprite(l, l.split("").map(() => "#ffffff"), hookFont, hs, .01, "shadow", hp, 0));
         const wid = Math.max(...sp.map(s => s.inkW)), hgt = sp.length * sp[0].asc * 1.02;
         if (wid <= W * .86 && hgt <= H * .5) { this.hookLines = sp; break; }
         hs *= .92;
       }
       this.hookSize = hs;
     }
+    this.hookWords = false;
+    if (st.hook === "word_beat") {
+      const words = applyCase(st.hook_text || HOOKS[0], "upper").split(/\s+/).filter(Boolean);
+      const cols = ["#ffffff", lum(p.accent) > .45 ? p.accent : "#ffd60a"];
+      this.hookLines = words.map((w, i) => {
+        let hs = H * (wide ? .3 : tall ? .13 : .22), sp = null;
+        for (let k = 0; k < 18; k++) {
+          const hp = { ...p, ink: cols[i % 2], accent: cols[i % 2] };
+          sp = inkSprite(w, w.split("").map(() => cols[i % 2]), hookFont, hs, .01, "shadow", hp, 0);
+          if (sp.inkW <= W * .84 && sp.asc <= H * .36) break;
+          hs *= .9;
+        }
+        return sp;
+      });
+      this.hookWords = true;
+    }
   }
 
   _place(lines, lineH, blockH, tag, num, m, size) {
-    const st = this.st, W = this.W, H = this.H, pos = st.text_pos;
+    const st = this.st, W = this.W, H = this.H, pos = st.text_pos, B = this.boardDef;
     const center = ["top-center", "center"].includes(pos), right = pos === "top-right";
-    const tagH = tag ? tag.height + size * .14 : 0;
-    const y0 = { "top-left": H * .075, "top-center": H * .075, "top-right": H * .075, "middle-left": (H - blockH - tagH) / 2 - H * .03,
-      "bottom-left": H * .8 - blockH - tagH }[pos] ?? (H - blockH - tagH) / 2 - H * .05;
-    const xs = lines.map(L => center ? (W - L.inkW) / 2 : right ? W - m - L.inkW : m);
-    const block = [Math.min(...xs), y0, Math.max(...lines.map((L, i) => xs[i] + L.inkW)), y0 + blockH];
-    let tagXY = null;
-    if (tag) tagXY = [center ? (W - tag.width) / 2 : right ? W - m - tag.width : m, y0 + blockH + size * (["box", "sticker", "highlighter", "cutout"].includes(st.text_fx) ? .34 : .14)];
+    const tagGap = size * (["box", "sticker", "highlighter", "cutout"].includes(st.text_fx) ? .34 : .14);
+    const tagH = tag ? tag.height + tagGap : 0;
+    const padX = B ? B.pad * size : 0, padY = B ? B.pad * .8 * size : 0, tabs = B ? (B.tabs || 0) * size : 0;
+    const outerH = blockH + tagH + padY * 2 + tabs;
     const labH = num.label ? num.label.height + size * .06 : 0;
+    // words at the bottom with the number under them sit as one stack on the bottom margin
+    const under = st.number_pos === "under-headline", stack = under ? size * (B ? .45 : .28) + labH + num.c.height : 0;
+    const top = Math.max(H * .075, this.insetTop + H * .035 + (B && ["freeway", "freeway_blue", "store_sign"].includes(st.board) ? size * .35 : 0));
+    const oy = { "top-left": top, "top-center": top, "top-right": top, "middle-left": (H - outerH) / 2 - H * .03,
+      "bottom-left": under ? H * .95 - outerH - stack : H * .8 - outerH }[pos] ?? (H - outerH) / 2 - H * .05;
+    const y0 = oy + padY;
+    let xs, block, board = null;
+    if (B) {
+      const innerW = Math.max(...lines.map(L => L.inkW), tag ? tag.width : 0), bw = innerW + padX * 2;
+      const bx = center ? (W - bw) / 2 : right ? W - m - bw : m;
+      xs = lines.map(L => bx + padX + (innerW - L.inkW) / 2);
+      board = [bx, oy, bx + bw, oy + outerH];
+      block = [bx + padX, y0, bx + bw - padX, y0 + blockH];
+    } else {
+      xs = lines.map(L => center ? (W - L.inkW) / 2 : right ? W - m - L.inkW : m);
+      block = [Math.min(...xs), y0, Math.max(...lines.map((L, i) => xs[i] + L.inkW)), y0 + blockH];
+    }
+    let tagXY = null;
+    if (tag) tagXY = [B ? (board[0] + board[2] - tag.width) / 2 : center ? (W - tag.width) / 2 : right ? W - m - tag.width : m, y0 + blockH + tagGap];
+    const textBottom = board ? board[3] : tagXY ? tagXY[1] + tag.height : block[3];
+    const outer = board || [Math.min(block[0], tagXY ? tagXY[0] : W), block[1], Math.max(block[2], tagXY ? tagXY[0] + tag.width : 0), textBottom];
     let nx, ny;
     if (st.number_pos === "under-headline") {
-      ny = (tagXY ? tagXY[1] + tag.height : block[3]) + size * .28 + labH;
-      nx = center ? (W - num.c.width) / 2 : right ? W - m - num.c.width : m;
+      ny = textBottom + size * (B ? .45 : .28) + labH;
+      nx = center ? (W - num.c.width) / 2 : right ? W - m - num.c.width : B ? (board[0] + board[2] - num.c.width) / 2 : m;
+      nx = clamp(nx, m * .5, W - m * .5 - num.c.width);
     } else {
       ny = H * .94 - num.c.height;
       nx = { "bottom-left": m, "bottom-right": W - m - num.c.width }[st.number_pos] ?? (W - num.c.width) / 2;
     }
     let labXY = null;
     if (num.label) {
-      const lx = ["bottom-left", "under-headline"].includes(st.number_pos) && !center && !right ? nx
+      const lx = num.cta ? nx + (num.c.width - num.label.width) / 2
+        : ["bottom-left", "under-headline"].includes(st.number_pos) && !center && !right ? nx
         : st.number_pos === "bottom-right" || right ? nx + num.c.width - num.label.width : nx + (num.c.width - num.label.width) / 2;
       labXY = [lx, ny - labH];
     }
-    const textBottom = tagXY ? tagXY[1] + tag.height : block[3];
     const nb = [nx, ny - labH, nx + num.c.width, ny + num.c.height];
-    const overlapX = !(nb[2] < block[0] || nb[0] > block[2]);
-    const ok = ny + num.c.height <= H * .985 && y0 >= H * .02 && (st.number_pos === "under-headline" || !overlapX || nb[1] > textBottom + size * .15);
-    return { ok, xs, y0, block, tag: tagXY, num: [nx, ny], label: labXY };
+    const overlapX = !(nb[2] < outer[0] || nb[0] > outer[2]);
+    const inside = !board || (board[0] >= m * .4 && board[2] <= W - m * .4);
+    const ok = inside && ny + num.c.height <= H * .985 && oy >= Math.max(H * .02, this.insetTop + H * .01)
+      && (st.number_pos === "under-headline" || !overlapX || nb[1] > textBottom + size * .15);
+    return { ok, xs, y0, oy, block, board, outer, tag: tagXY, num: [nx, ny], label: labXY };
+  }
+
+  /** A round piece of radius about R where it covers under a tenth of anything that matters. */
+  _spot(R, avoid) {
+    for (let k = 0; k < 4; k++, R *= .82) {
+      const s = freeSpot(this.W, this.H, R, avoid, this.stageC);
+      if (s && s.over < .1) return { ...s, R };
+    }
+    return null;
+  }
+
+  /** The sign board, the spray, and the urgency pieces, placed where they cover the least. */
+  _buildDecor() {
+    const st = this.st, W = this.W, H = this.H, p = this.p, pos = this.pos, size = this.size, tl = this.tl;
+    const r = rng(st.seed * 53 + 7), es = st.lang === "es", B = this.boardDef;
+    this.board = null; this.spray = null; this.burst = null; this.stamp = null; this.tape = null; this.ticker = null; this.arrow = null;
+    this.cues = {};
+    if (B && pos.board) {
+      const [x0, y0, x1, y1] = pos.board, tabsH = (B.tabs || 0) * size;
+      this.board = buildBoard(st.board, x1 - x0, y1 - y0 - tabsH, size, p, st, r,
+        { code: codeOf(st), tabsH, numberText: formatNumber(st.number, "dashed"), font: "oswald" });
+      if (this.board) this.cues.board = tl.text - .12;
+    }
+    const labH = this.num.label ? this.num.label.height + size * .06 : 0;
+    const nb = [pos.num[0], pos.num[1] - labH, pos.num[0] + this.num.c.width, pos.num[1] + this.num.c.height];
+    this.numBox = nb;
+    const o = pos.outer, avoid = [this.board ? [o[0], o[1] - size * .5, o[2], o[3]] : o, nb];
+    if (this.tickerH) avoid.push([0, this.tickerY, W, this.tickerY + this.tickerH]);
+    if (this.awningH) avoid.push([0, 0, W, this.awningH]);
+    const pad = size * .1, grow = b => [b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad];
+    if (this.decor.has("spray_halo") && !this.board) this.spray = buildSpray(pos.block, size, haloColour(this.pHead), r);
+    const s0 = this.decor.has("starburst") ? this._spot(Math.min(W, H) * .105, avoid.map(grow)) : null;
+    if (s0) {
+      const R = s0.R, s = s0;
+      const fills = ["#fff200", "#ff2d55", "#30d158", "#00e5ff", "#ff9e1b"].filter(f => Math.abs(lum(f) - lum(p.ground)) > .22);
+      const fill = fills.length ? r.pick(fills) : "#fff200";
+      this.burst = { x: s.x, y: s.y, R, fill, ink: lum(fill) > .55 ? "#111111" : "#ffffff", text: st.burst_text || (es ? "¡EFECTIVO!" : "CASH!"), t0: tl.hit + .12, font: burstFontFor(st) };
+      avoid.push([s.x - R, s.y - R, s.x + R, s.y + R]);
+      this.cues.burst = this.burst.t0;
+    }
+    if (this.decor.has("neon_arrow")) {
+      const h = nb[3] - nb[1], left = nb[0] > W - nb[2];
+      const tip = left ? [nb[0] - size * .15, nb[1] + h * .45] : [nb[2] + size * .15, nb[1] + h * .45];
+      const tail = left ? [tip[0] - size * 1.1, tip[1] - size * .9] : [tip[0] + size * 1.1, tip[1] - size * .9];
+      const box = [Math.min(tail[0], tip[0]) - size * .2, tail[1] - size * .2, Math.max(tail[0], tip[0]) + size * .2, tip[1] + size * .3];
+      const clear = box[2] < o[0] || box[0] > o[2] || box[3] < o[1] || box[1] > o[3];
+      if (tail[0] > 0 && tail[0] < W && clear) this.arrow = { from: tail, to: tip, color: lum(p.accent) > .35 ? p.accent : "#ff2e88", t0: tl.number + .25 };
+    }
+    if (st.urgency === "stamp") {
+      const col = lum(p.ground) > .45 ? r.pick(["#d62828", "#1d4ed8", "#b5179e"]) : this.hot;
+      const text = st.stamp_text || (es ? "EFECTIVO" : "CASH");
+      for (let fs = Math.min(size * .5, Math.min(W, H) * .07), k = 0; k < 4 && !this.stamp; k++, fs *= .8) {
+        const S = buildStamp(text, fs, col, "oswald", r), R = Math.max(S.width, S.height) * .5;
+        const s = freeSpot(W, H, R, avoid.map(grow), this.stageC);
+        if (s && s.over < .1) { this.stamp = { S, x: s.x, y: s.y, t0: tl.number + .55 }; avoid.push([s.x - R, s.y - R, s.x + R, s.y + R]); }
+      }
+      if (this.stamp) this.cues.stamp = this.stamp.t0;
+      else st.urgency = "arrows";                          // nowhere clear to stamp: point at the number instead
+    }
+    if (st.urgency === "caution_tape") {
+      // across whichever corner it covers least of the words and the number
+      const band = Math.min(W, H) * .085, L = Math.hypot(W, H) * .5;
+      const score = corner => {
+        const [sx, sy] = { tr: [1, -1], tl: [-1, -1], br: [1, 1], bl: [-1, 1] }[corner];
+        const cx = W / 2 + sx * W * .4, cy = H / 2 + sy * H * .4, ang = Math.atan2(H, W) * (sx * sy > 0 ? 1 : -1) * .9;
+        let hits = 0;
+        for (let k = -10; k <= 10; k++) {
+          const u = k / 10 * L / 2, x = cx + Math.cos(-ang) * u, y = cy + Math.sin(-ang) * u;
+          if (x < 0 || y < 0 || x > W || y > H) continue;
+          for (const b of avoid) if (x > b[0] - band / 2 && x < b[2] + band / 2 && y > b[1] - band / 2 && y < b[3] + band / 2) hits++;
+        }
+        return hits;
+      };
+      const best = ["tr", "tl", "br", "bl"].map(k => [k, score(k)]).sort((a, b) => a[1] - b[1])[0];
+      if (best[1] <= 2) { this.tape = { corner: best[0], text: st.cta || (es ? "¡NO ESPERES!" : "DON'T WAIT"), t0: tl.number + .35 }; this.cues.tape = this.tape.t0; }
+      else st.urgency = "arrows";                          // no clear corner: point at the number instead
+    }
+    if (st.urgency === "ticker") {
+      const items = st.ticker_items && st.ticker_items.length ? st.ticker_items
+        : es ? ["MÁNDANOS FOTO", "TE DAMOS PRECIO", "EFECTIVO", "PIERDE VALOR CADA MES"] : ["TEXT A PIC", "GET A PRICE", "CASH", "IT LOSES VALUE EVERY MONTH"];
+      this.ticker = buildTicker(items.map(s => applyCase(s, "upper")), this.tickerH, "oswald",
+        { bg: "#0d0d0f", line: this.hot, ink: "#ffffff", badge: this.hot, badgeInk: lum(this.hot) > .55 ? "#111111" : "#ffffff" },
+        applyCase(st.cta || (es ? "¡MÁNDANOS TEXTO!" : "TEXT NOW"), "upper"));
+    }
+    if (this.awningH) this.awningColors = [lum(p.plate) < .8 && lum(p.plate) > .08 ? p.plate : this.hot, "#fbfaf5"];
+    // arrows at the number go beside it, or above it when that is clear of the words; otherwise the border flashes instead
+    this.arrowsMode = null;
+    if (st.urgency === "arrows") {
+      const words = this.board ? [o[0], o[1] - size * .5, o[2], o[3]] : o;
+      this.arrowsMode = chevronRoom(nb, size, W, words);
+      if (!this.arrowsMode) st.urgency = "flash_border";
+    }
+    // a pinstripe under the words only where it clears the number
+    const yP = o[3] + size * .28, band = [o[0], yP - size * .32, o[2], yP + size * .42];
+    this.pinstripe = this.decor.has("pinstripe") && band[3] < H * .97 && (band[3] < nb[1] || band[1] > nb[3] || band[2] < nb[0] || band[0] > nb[2]);
   }
 
   /** Measure the pixels that will actually sit behind the headline once the
@@ -987,6 +1367,7 @@ export class Ad {
     const [bx0, by0, bx1, by1] = this.pos.block;
     const ink = hexRgb(this.st.text_fx === "box" ? this.p.plate_ink : this.p.ink);
     if (["box", "sticker", "cutout", "highlighter"].includes(this.st.text_fx)) return;   // carried by their own plate
+    if (this.board) return;                                                              // carried by the sign
     const L = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
     const Li = .2126 * L(ink[0]) + .7152 * L(ink[1]) + .0722 * L(ink[2]);
     for (let round = 0; round < 3; round++) {
@@ -1016,6 +1397,7 @@ export class Ad {
     const light = lum(this.p.ink) > .5;
     const c = canvas(W / 4, H / 4), x = c.getContext("2d");
     const boxes = [this.pos.block, [this.pos.num[0], this.pos.num[1], this.pos.num[0] + this.num.c.width, this.pos.num[1] + this.num.c.height]];
+    if (this.board) boxes.shift();
     for (const [x0, y0, x1, y1] of boxes) {
       const cx = (x0 + x1) / 8, cy = (y0 + y1) / 8, rx = Math.max(10, (x1 - x0) * .75 / 4), ry = Math.max(10, (y1 - y0) * 1.1 / 4);
       x.save(); x.translate(cx, cy); x.scale(rx, ry);
@@ -1063,16 +1445,19 @@ export class Ad {
   }
 
   _shake(t) {
-    const lvl = this.st.shake; if (!lvl) return [0, 0];
+    const lvl = this.st.shake || 0, hits = [];
+    if (lvl) {
+      for (const p of this.phones) { hits.push([p.tLand, .004 * lvl]); if (p.reveal) hits.push([p.tReveal + .5, .0018 * lvl]); }
+      if (["slam", "stomp"].includes(this.st.text_in)) hits.push([this.tl.hit, .006 * lvl]);
+      if (this.st.hook === "punch_in") hits.push([.5, .007 * lvl]);
+      if (["hook_line", "word_beat"].includes(this.st.hook)) hits.push([0, .008 * lvl]);
+    }
+    if (this.hookWords) this.hookLines.forEach((_, i) => { if (i) hits.push([i * this.hookBeat, .004]); });
+    if (this.stamp) hits.push([this.stamp.t0 + .2, .007]);
     let dx = 0, dy = 0;
-    const hits = [];
-    for (const p of this.phones) { hits.push([p.tLand, .004]); if (p.reveal) hits.push([p.tReveal + .5, .0018]); }
-    if (["slam", "stomp"].includes(this.st.text_in)) hits.push([this.tl.hit, .006]);
-    if (this.st.hook === "punch_in") hits.push([.5, .007]);
-    if (this.st.hook === "hook_line") hits.push([0, .008]);
     for (const [h, amp] of hits) {
       const d = t - h;
-      if (d >= 0 && d < .25) { const a = amp * lvl * this.W * Math.exp(-d * 18); dx += a * Math.sin(d * 90 + h * 7); dy += a * Math.cos(d * 75 + h * 5); }
+      if (d >= 0 && d < .25) { const a = amp * this.W * Math.exp(-d * 18); dx += a * Math.sin(d * 90 + h * 7); dy += a * Math.cos(d * 75 + h * 5); }
     }
     return [dx, dy];
   }
@@ -1080,13 +1465,28 @@ export class Ad {
   _camera(t) {
     const c = this._camera0(t);
     if (this.st.hook === "punch_in" && t < .5) c[0] *= lerp(2.1, 1, outQuint(clamp(t / .5)));
+    if (this.st.urgency === "beat_pump") c[0] *= 1 + .022 * beatPulse(t, this.tl.hit, this.st.bpm || 118);
     return c;
   }
 
   _hookLine(ctx, t) {
-    const W = this.W, H = this.H, s0 = outCubic(prog(t, 0, .14)), out = prog(t, .88, .22);
-    const scrimA = .58 * (1 - out);
-    if (scrimA > 0) { ctx.fillStyle = `rgba(0,0,0,${scrimA})`; ctx.fillRect(0, 0, W, H); }
+    const W = this.W, H = this.H, s0 = outCubic(prog(t, 0, .14)), out = prog(t, this.hookEnd - .04, .22);
+    // the wash behind the opening words is dark for contrast; over a scene that is already dark
+    // it is the look's loud colour instead, so the thumbnail is neither black nor bare
+    // (a scene with large dark areas, a dusk sky, gets a lighter wash for the same reason)
+    const dark = (this.bgLum ?? .5) < .22, wash = dark ? mix(this.hot, "#000000", .45) : "#000000";
+    const k = dark ? 1 : clamp(((this.bgLum ?? .5) - .1) / .25, .5, 1) * clamp(1.1 - (this.bgDark || 0) * 1.8, .4, 1);
+    const scrimA = (this.hookWords ? .52 : .56) * k * (1 - out);
+    if (scrimA > 0) { ctx.fillStyle = rgba(wash, scrimA); ctx.fillRect(0, 0, W, H); }
+    if (this.hookWords) {
+      const n = this.hookLines.length, i = Math.min(n - 1, Math.floor(t / this.hookBeat)), t0 = i * this.hookBeat;
+      const q = outCubic(prog(t, t0, .07)), L = this.hookLines[i], s = lerp(i ? 1.4 : 1.08, 1, q) * (1 + .3 * out);
+      if (i > 0 && t - t0 < .06) { ctx.fillStyle = `rgba(255,255,255,${.2 * (1 - (t - t0) / .06)})`; ctx.fillRect(0, 0, W, H); }
+      ctx.save(); ctx.globalAlpha = 1 - out; ctx.translate(W / 2, H / 2); ctx.scale(s, s);
+      ctx.drawImage(L.c, -L.inkW / 2 - L.pad, -L.asc * .55 - L.pad);
+      ctx.restore();
+      return;
+    }
     const a = 1 - out, s = lerp(1.25, 1, s0) * (1 + .3 * out);
     const lh = this.hookLines[0].asc * 1.02, total = lh * this.hookLines.length;
     ctx.save(); ctx.globalAlpha = a; ctx.translate(W / 2, H / 2); ctx.scale(s, s);
@@ -1102,7 +1502,7 @@ export class Ad {
       case "drift": return [1.05, Math.sin(u * Math.PI) * .015, -.01 * u, 0];
       case "punch": { const d = t - this.tl.hit; return [1.02 + (d > 0 && d < .4 ? .06 * Math.exp(-d * 8) : 0), 0, 0, 0]; }
       case "tilt": return [1.06, 0, 0, (1 - outCubic(clamp(u * 2.5))) * 3];
-      case "whip_in": { const q = clamp(t / .5); return [1.04, (1 - outQuint(q)) * .6, 0, 0]; }
+      case "whip_in": { const e = outQuint(clamp(t / .5)); return [lerp(1.34, 1.04, e), .15 * (1 - e), 0, 0]; }
       case "handheld": return [1.05, Math.sin(t * 1.3) * .004 + Math.sin(t * 3.1) * .002, Math.cos(t * 1.1) * .004, Math.sin(t * .9) * .4];
       default: return [1, 0, 0, 0];
     }
@@ -1119,15 +1519,22 @@ export class Ad {
     ctx.drawImage(base, -W / 2, -H / 2);
     ctx.restore();
 
-    if (this.hookLines && t < 1.2) this._hookLine(ctx, t);
+    if (this.awningH) drawAwning(ctx, W, this.awningH, this.awningColors, t);
+    if (this.hookLines && t < this.hookEnd + .3) this._hookLine(ctx, t);
     if (st.hook === "flash_cut") for (const p of this.phones) { if (!p.flashIn) continue; const f = t - p.tIn; if (f >= 0 && f < .09) { ctx.fillStyle = `rgba(255,255,255,${.6 * (1 - f / .09)})`; ctx.fillRect(0, 0, W, H); } }
     if (this.scrimC) { const k = prog(t, tl.text - .1, .4); if (k > 0) { ctx.globalAlpha = k; ctx.drawImage(this.scrimC, 0, 0, W, H); ctx.globalAlpha = 1; } }
+    if (this.spray) drawSpray(ctx, this.spray, this.pos.block, t, tl.text);
+    if (this.board) drawBoard(ctx, this.board, this.pos.board[0], this.pos.board[1], t, tl.text - .12, W, H);
     if (st.speed_lines) this._speedLines(ctx, t);
     this._headline(ctx, t, dt);
     if (this.tag) { const q = prog(t, tl.tag, .35); if (q > 0) { ctx.globalAlpha = q; ctx.drawImage(this.tag, lerp(this.pos.tag[0] - W * .05, this.pos.tag[0], outCubic(q)), this.pos.tag[1]); ctx.globalAlpha = 1; } }
+    if (this.pinstripe) drawPinstripe(ctx, this.pos.outer, this.size, lum(this.p.accent) > .45 ? this.p.accent : "#f6c945", t, tl.tag + .1);
     this._number(ctx, t);
+    this._urgency(ctx, t);
     if (st.sparkles) this._sparkles(ctx, t);
     this._overlay(ctx, t);
+    if (this.ticker) { const q = outCubic(prog(t, Math.max(0, tl.text - .25), .3)); if (q > 0) drawTicker(ctx, this.ticker, W, this.tickerY - (1 - q) * (this.tickerY + this.tickerH), t); }
+    if (st.urgency === "flash_border") drawFlashBorder(ctx, W, H, this.hot, t, tl.hit, st.bpm || 118);
     if (st.flash) { const f = t - tl.hit; if (f >= 0 && f < .12) { ctx.fillStyle = `rgba(255,255,255,${.27 * (1 - f / .12)})`; ctx.fillRect(0, 0, W, H); } }
     if (st.rgb_hit) { const d = t - tl.hit; if (d >= 0 && d < .16) this._rgbShift(ctx, Math.round(W * .006 * (1 - d / .16))); }
   }
@@ -1208,10 +1615,11 @@ export class Ad {
             ctx.restore();
           });
           if (st.text_in === "typewriter") {
-            const n = G.filter((g, j) => t >= t0 + j * .032).length;
-            if (n < G.length || (t - t0) % .6 < .3) {
+            // one cursor: on the line being typed, then blinking at the end of the last line only
+            const n = G.filter((g, j) => t >= t0 + j * .032).length, lastLine = i === this.lines.length - 1;
+            if (n < G.length || (lastLine && (t - t0) % .6 < .3)) {
               const gx = xEnd + (n < G.length ? G[n].x : G[G.length - 1].x + G[G.length - 1].c.width - L.pad * 1.6) + L.pad;
-              ctx.fillStyle = this.p.ink; ctx.fillRect(gx, y + L.pad, Math.max(3, this.size * .06), L.asc);
+              ctx.fillStyle = this.pHead.ink; ctx.fillRect(gx, y + L.pad, Math.max(3, this.size * .06), L.asc);
             }
           }
           if (shineP > 0 && shineP < 1) this._shine(ctx, xEnd, y, L.c.width, L.c.height, shineP, L.c);
@@ -1223,7 +1631,7 @@ export class Ad {
   _glyphFor(ch, col) {
     this._gcache = this._gcache || {};
     const k = ch + col;
-    if (!this._gcache[k]) this._gcache[k] = inkSprite(ch, [col], this.st.font, this.size, 0, this.st.text_fx, this.p, this.st.skew).c;
+    if (!this._gcache[k]) this._gcache[k] = inkSprite(ch, [col], this.st.font, this.size, 0, this.st.text_fx, this.pHead, this.st.skew).c;
     return this._gcache[k];
   }
 
@@ -1245,7 +1653,8 @@ export class Ad {
     const st = this.st, W = this.W, H = this.H, tl = this.tl;
     const q = prog(t, tl.number, .45); if (q <= 0) return;
     const [nx, ny] = this.pos.num, c = this.num.c;
-    const draw = (x, y, a = 1, sx = 1, sy = 1) => { ctx.save(); ctx.globalAlpha = a; ctx.translate(x + c.width / 2, y + c.height / 2); ctx.scale(sx, sy); ctx.drawImage(c, -c.width / 2, -c.height / 2); ctx.restore(); };
+    const pump = st.urgency === "beat_pump" && t > tl.number + .45 ? 1 + .05 * beatPulse(t, tl.hit, st.bpm || 118) : 1;
+    const draw = (x, y, a = 1, sx = 1, sy = 1) => { ctx.save(); ctx.globalAlpha = a; ctx.translate(x + c.width / 2, y + c.height / 2); ctx.scale(sx * pump, sy * pump); ctx.drawImage(c, -c.width / 2, -c.height / 2); ctx.restore(); };
     switch (st.number_in) {
       case "pop": { const s = Math.max(.05, outBack(q, 2.2)); draw(nx, ny + (1 - outCubic(q)) * H * .05, clamp(q / .3), s, s); break; }
       case "slide_up": draw(nx, ny + (1 - outBack(q, 1.2)) * H * .14, clamp(q * 2.5)); break;
@@ -1270,9 +1679,24 @@ export class Ad {
     }
     if (this.num.label && this.pos.label) {
       const lq = prog(t, tl.number + .15, .3);
-      if (lq > 0) { ctx.globalAlpha = lq; ctx.drawImage(this.num.label, this.pos.label[0], this.pos.label[1] + (1 - outCubic(lq)) * 12); ctx.globalAlpha = 1; }
+      if (lq > 0) {
+        const Lc = this.num.label, beat = this.num.cta ? 1 + .1 * beatPulse(t, tl.hit, st.bpm || 118) : 1;
+        ctx.save(); ctx.globalAlpha = lq;
+        ctx.translate(this.pos.label[0] + Lc.width / 2, this.pos.label[1] + Lc.height / 2 + (1 - outCubic(lq)) * 12); ctx.scale(beat, beat);
+        ctx.drawImage(Lc, -Lc.width / 2, -Lc.height / 2); ctx.restore();
+      }
     }
     if (st.shine && t >= tl.shine + .25) { const sp = prog(t, tl.shine + .25, .6); if (sp > 0 && sp < 1) this._shine(ctx, nx, ny, c.width, c.height, sp, c); }
+  }
+
+  /** The starburst, the arrows at the number, the rubber stamp and the caution tape. */
+  _urgency(ctx, t) {
+    const st = this.st, tl = this.tl;
+    if (this.burst) drawStarburst(ctx, this.burst.x, this.burst.y, this.burst.R, applyCase(this.burst.text, "upper"), this.burst.fill, this.burst.ink, t, this.burst.t0, this.burst.font);
+    if (this.arrow) drawNeonArrow(ctx, this.arrow.from, this.arrow.to, this.arrow.color, t, this.arrow.t0, this.size);
+    if (st.urgency === "arrows" && this.arrowsMode) drawChevrons(ctx, this.numBox, this.size, this.hot, t, tl.number + .3, this.W, this.arrowsMode);
+    if (this.stamp) drawStamp(ctx, this.stamp.S, this.stamp.x, this.stamp.y, t, this.stamp.t0);
+    if (this.tape) drawTape(ctx, this.W, this.H, this.tape.corner, applyCase(this.tape.text, "upper"), t, this.tape.t0, "oswald", false);
   }
 
   _speedLines(ctx, t) {
@@ -1291,8 +1715,11 @@ export class Ad {
     const tl = this.tl; if (t < tl.sparkle) return;
     const [nx, ny] = this.pos.num, c = this.num.c, r = rng(this.st.seed * 3);
     const col = lum(this.p.accent) > .5 ? this.p.accent : "#ffffff";
+    const sides = this.num.label ? [1, 2, 3] : [0, 1, 2, 3], h = c.height;
     for (let k = 0; k < 9; k++) {
-      const sx = nx + r.uniform(-.08, 1.08) * c.width, sy = ny + r.uniform(-.5, 1.3) * c.height, ph = r.uniform(0, .9);
+      const side = sides[k % sides.length], ph = r.uniform(0, .9), along = r.uniform(0, 1);
+      const sx = side < 2 ? nx + along * c.width : side === 2 ? nx - h * r.uniform(.45, .75) : nx + c.width + h * r.uniform(.45, .75);
+      const sy = side === 0 ? ny - h * r.uniform(.45, .7) : side === 1 ? ny + h * r.uniform(1.45, 1.7) : ny + along * h;
       const u = ((t - tl.sparkle - ph) % 1.3 + 1.3) % 1.3 / .55;
       if (u > 0 && u < 1) star(ctx, sx, sy, c.height * .35 * Math.sin(Math.PI * u), col);
     }
@@ -1369,7 +1796,7 @@ export class Ad {
   stillAt(ctx, t) { this.still = null; this.frame(ctx, t ?? this.st.duration - .1, { subsFly: 1, subsMove: 1 }); }
 }
 
-function star(ctx, x, y, s, col) {
+export function star(ctx, x, y, s, col) {
   if (s < 1) return;
   const k = s * .18;
   ctx.save(); ctx.fillStyle = col; ctx.beginPath();
