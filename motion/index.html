@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone video ad maker | Graphics Studio by BUYBACK.AD</title>
+<meta name="description" content="Make a moving We Buy Phones video ad in your browser: iPhones fly in and flip to their backs, your headline slides in, your number lands, with music. Millions of looks, free to try, nothing uploaded.">
+<link rel="canonical" href="https://buybackad-graphics-studio.netlify.app/motion/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Graphics Studio by BUYBACK.AD">
+<meta property="og:title" content="Phone video ad maker">
+<meta property="og:description" content="Moving We Buy Phones ads, made in your browser in seconds.">
+<meta property="og:url" content="https://buybackad-graphics-studio.netlify.app/motion/">
+<meta property="og:image" content="https://buybackad-graphics-studio.netlify.app/assets/og/buybackad-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../pages.css">
+<link rel="stylesheet" href="motion.css">
+<script src="vendor/mp4-muxer.min.js" defer></script>
+<script type="module" src="app.js"></script>
+</head>
+<body class="mo">
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="../index.html">GRAPHICS <em>STUDIO</em></a>
+  <nav aria-label="Site">
+    <a href="../index.html#lp-templates">Image ads</a>
+    <a href="./" aria-current="page">Video ads</a>
+    <a href="../index.html#pricing">Pricing</a>
+    <a href="../about.html">About</a>
+  </nav>
+</header>
+
+<main id="main" class="mo-main">
+  <div class="mo-head">
+    <h1>Phone video ads</h1>
+    <p class="mo-sub">Phones fly in and flip to their backs, your headline slides in, your number lands, with music. Shuffle for a new look, lock what you like, download an MP4. It all runs in your browser: nothing is uploaded. <span class="mo-count" id="look-count"></span></p>
+  </div>
+
+  <div class="mo-grid">
+    <section class="mo-stage-col" aria-label="Preview">
+      <div class="mo-stage" id="stage">
+        <canvas id="preview" width="720" height="720" aria-label="Preview of the video ad"></canvas>
+        <div class="mo-loading" id="loading">Loading phones and fonts&hellip;</div>
+      </div>
+      <div class="mo-transport">
+        <button class="mo-icon" id="play" aria-label="Pause" title="Play or pause">&#10074;&#10074;</button>
+        <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Position in the video">
+        <button class="mo-icon" id="sound" aria-pressed="false" title="Sound on or off">&#128263;</button>
+      </div>
+      <div class="mo-actions">
+        <button class="mo-btn primary" id="shuffle-look" title="New design, same words and phones">&#10227; New look</button>
+        <button class="mo-btn" id="shuffle-all" title="New design, new words">&#9861; Surprise me</button>
+        <button class="mo-btn" id="undo" title="Back to the previous look" disabled>&#8630; Back</button>
+        <button class="mo-btn download" id="download">&#11015; Download MP4</button>
+      </div>
+      <div class="mo-progress" id="progress" hidden><div class="mo-bar"><i id="bar"></i></div><span id="progress-label"></span></div>
+      <p class="mo-note" id="export-note"></p>
+
+      <h2 class="mo-h2">More looks <button class="mo-link" id="more">Show 8 more</button></h2>
+      <p class="mo-note">Your locked settings and your words stay; everything else is new. Tap one to use it.</p>
+      <div class="mo-gallery" id="gallery"></div>
+    </section>
+
+    <aside class="mo-panel" aria-label="Settings">
+      <details open class="mo-sec">
+        <summary>Words</summary>
+        <label class="mo-field">Headline
+          <span class="mo-row"><input id="f-headline" list="headline-list" maxlength="60"><button class="mo-mini" id="new-headline" title="Another headline">&#10227;</button></span>
+        </label>
+        <datalist id="headline-list"></datalist>
+        <label class="mo-field">Small line under it <span class="mo-opt">optional</span>
+          <input id="f-tag" maxlength="40" placeholder="TEXT FOR A QUOTE">
+        </label>
+        <label class="mo-field">Your phone number
+          <input id="f-number" inputmode="tel" maxlength="20" placeholder="(555) 123-4567">
+        </label>
+        <label class="mo-field">Label over the number <span class="mo-opt">optional</span>
+          <input id="f-label" maxlength="24" placeholder="CALL OR TEXT">
+        </label>
+      </details>
+
+      <details open class="mo-sec">
+        <summary>Phones <span class="mo-opt" id="phone-count"></span></summary>
+        <p class="mo-note">Pick 2 to 5. Every phone lands on its back, where the cameras make the model easy to recognise.</p>
+        <div class="mo-phones" id="phones"></div>
+        <label class="mo-upload">&#8682; Add your own phone back (PNG or photo on a plain background)
+          <input type="file" id="upload" accept="image/*">
+        </label>
+        <label class="mo-check"><input type="checkbox" id="shuffle-phones"> Surprise me picks phones too</label>
+      </details>
+
+      <details open class="mo-sec">
+        <summary>Format</summary>
+        <div class="mo-seg" id="aspects" role="radiogroup" aria-label="Size">
+          <button data-aspect="1:1" role="radio">Square 1:1</button>
+          <button data-aspect="4:5" role="radio">Feed 4:5</button>
+          <button data-aspect="9:16" role="radio">Story 9:16</button>
+          <button data-aspect="16:9" role="radio">Wide 16:9</button>
+        </div>
+        <div class="mo-seg" id="lengths" role="radiogroup" aria-label="Length">
+          <button data-len="5" role="radio">5 s</button>
+          <button data-len="6" role="radio">6 s</button>
+          <button data-len="8" role="radio">8 s</button>
+        </div>
+      </details>
+
+      <div id="design"></div>
+
+      <details class="mo-sec">
+        <summary>Extras</summary>
+        <div class="mo-flags" id="flags"></div>
+      </details>
+      <p class="mo-note mo-seed">Look number <b id="seed"></b>. The same number with the same settings always makes the same video.</p>
+    </aside>
+  </div>
+</main>
+
+<footer class="bottom">
+  <a href="../index.html">Graphics Studio</a>
+  <a href="../ads/we-buy-phones.html">We buy phones image ads</a>
+  <a href="../about.html">About</a>
+  <a href="../terms.html">Terms</a>
+  <a href="../privacy.html">Privacy</a>
+  <span>&copy; 2026 BUYBACK.AD</span>
+</footer>
+</body>
+</html>

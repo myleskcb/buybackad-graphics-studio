@@ -1,0 +1,74 @@
+/* Phone video ad maker. Rides on pages.css (tokens, header, footer). */
+.mo-main{max-width:1240px;padding-top:6px}
+.mo-head h1{margin:6px 0 8px}
+.mo-sub{max-width:760px;margin:0 0 18px;color:var(--text-2)}
+.mo-count{color:var(--muted);font-size:14px;white-space:nowrap}
+.mo-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}
+@media (max-width:920px){.mo-grid{grid-template-columns:minmax(0,1fr)}}
+
+.mo-stage{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;justify-content:center;align-items:center;min-height:240px}
+.mo-stage canvas{display:block;max-width:100%;max-height:72vh;width:auto;height:auto;border-radius:10px;background:#000}
+.mo-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
+.mo-loading[hidden]{display:none}
+
+.mo-transport{display:flex;align-items:center;gap:10px;margin:10px 2px}
+.mo-transport input[type=range]{flex:1;accent-color:var(--btn)}
+.mo-icon{width:40px;height:40px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);font-size:15px;cursor:pointer}
+.mo-icon[aria-pressed=true]{border-color:var(--btn)}
+
+.mo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
+.mo-btn{border:1.5px solid var(--line);background:var(--panel);color:var(--text);font:700 15px Satoshi,system-ui,sans-serif;padding:10px 16px;border-radius:999px;cursor:pointer;min-height:44px}
+.mo-btn:hover{border-color:var(--accent)}
+.mo-btn:disabled{opacity:.45;cursor:default}
+.mo-btn.primary,.mo-btn.download{background:var(--btn);color:var(--accent-ink);border-color:transparent}
+.mo-btn.download{margin-left:auto}
+@media (max-width:520px){.mo-btn.download{margin-left:0;flex-basis:100%}}
+.mo-btn:focus-visible,.mo-icon:focus-visible,.mo-mini:focus-visible,.mo-seg button:focus-visible,.mo-lock:focus-visible,.mo-phone:focus-visible,.mo-thumb:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.mo-progress{display:flex;align-items:center;gap:12px;margin:10px 2px}
+.mo-progress[hidden]{display:none}
+.mo-bar{flex:1;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.mo-bar i{display:block;height:100%;width:0;background:var(--btn);transition:width .15s}
+.mo-note{font-size:13.5px;color:var(--muted);margin:6px 2px}
+
+.mo-h2{display:flex;align-items:baseline;gap:14px;margin:26px 0 4px;font-size:22px}
+.mo-link{background:none;border:0;color:var(--accent);font:700 14px Satoshi,sans-serif;cursor:pointer;padding:4px}
+.mo-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
+.mo-thumb{position:relative;padding:0;border:2px solid transparent;border-radius:12px;overflow:hidden;background:var(--panel);cursor:pointer;aspect-ratio:1}
+.mo-thumb canvas{width:100%;height:100%;object-fit:contain;display:block}
+.mo-thumb:hover{border-color:var(--accent)}
+.mo-thumb span{position:absolute;left:6px;bottom:6px;font-size:11px;font-weight:700;background:rgba(0,0,0,.6);color:#fff;padding:2px 7px;border-radius:99px}
+
+.mo-panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:6px 14px 14px;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
+@media (max-width:920px){.mo-panel{position:static;max-height:none}}
+.mo-sec{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:10px 2px;margin:0}
+.mo-sec:last-of-type{border-bottom:0}
+.mo-sec summary{font-size:15px;padding:4px 0}
+.mo-opt{font-weight:500;color:var(--muted);font-size:12.5px}
+.mo-field{display:block;font-size:13px;font-weight:700;color:var(--text-2);margin:10px 0}
+.mo-field input,.mo-field select,.mo-set select{width:100%;margin-top:5px;background:var(--bg);color:var(--text);border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;font:600 14.5px Satoshi,system-ui,sans-serif;min-height:40px}
+.mo-row{display:flex;gap:6px;align-items:center}.mo-row input{flex:1}
+.mo-mini{width:40px;height:40px;margin-top:5px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer;font-size:16px}
+
+.mo-phones{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
+.mo-phone{position:relative;padding:4px 2px 18px;border:2px solid var(--line);border-radius:10px;background:var(--bg);cursor:pointer;display:flex;justify-content:center}
+.mo-phone img{height:62px;width:auto;object-fit:contain}
+.mo-phone small{position:absolute;left:0;right:0;bottom:2px;font-size:9.5px;line-height:1.1;color:var(--muted);text-align:center;padding:0 2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.mo-phone[aria-pressed=true]{border-color:var(--btn);background:color-mix(in srgb,var(--btn) 14%,var(--bg))}
+.mo-phone[aria-pressed=true]::after{content:"\2713";position:absolute;top:2px;right:4px;font-size:11px;font-weight:900;color:var(--btn)}
+.mo-upload{display:block;font-size:13px;font-weight:700;color:var(--accent);cursor:pointer;margin:6px 0}
+.mo-upload input{display:block;font-size:12px;margin-top:4px;color:var(--muted)}
+.mo-check{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--text-2);margin:8px 0}
+
+.mo-seg{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.mo-seg button{flex:1 1 auto;border:1.5px solid var(--line);background:var(--bg);color:var(--text-2);font:700 13px Satoshi,sans-serif;padding:8px 10px;border-radius:10px;cursor:pointer;min-height:38px}
+.mo-seg button[aria-checked=true]{border-color:var(--btn);color:var(--text);background:color-mix(in srgb,var(--btn) 16%,var(--bg))}
+
+.mo-set{display:grid;grid-template-columns:minmax(0,1fr) 36px;gap:6px;align-items:end;margin:8px 0}
+.mo-set label{font-size:12.5px;font-weight:700;color:var(--text-2)}
+.mo-lock{width:36px;height:40px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer;font-size:15px}
+.mo-lock[aria-pressed=true]{border-color:var(--btn);color:var(--btn);background:color-mix(in srgb,var(--btn) 16%,var(--bg))}
+.mo-swatches{display:flex;gap:4px;margin:2px 0 8px}
+.mo-swatches i{flex:1;height:14px;border-radius:4px;border:1px solid rgba(127,127,127,.35)}
+.mo-flags{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.mo-seed{margin-top:12px}

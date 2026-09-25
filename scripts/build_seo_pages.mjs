@@ -175,6 +175,7 @@ const nav = (up) => `<a class="skip" href="#main">Skip to content</a>
   <a class="brand" href="${up}index.html">GRAPHICS <em>STUDIO</em></a>
   <nav aria-label="Site">
     <a href="${up}index.html#lp-templates">Templates</a>
+    <a href="${up}motion/">Video ads</a>
     <a href="${up}index.html#pricing">Pricing</a>
     <a href="${up}about.html">About</a>
     <a class="btn" href="${up}index.html">Make my ad</a>
@@ -184,6 +185,7 @@ const nav = (up) => `<a class="skip" href="#main">Skip to content</a>
 const footer = (up) => `<footer class="bottom">
   <div class="cats">${CATS.map((c) => `<a href="${up}ads/${c.slug}.html">We buy ${esc(c.name)}</a>`).join('\n    ')}</div>
   <a href="${up}index.html">Graphics Studio</a>
+  <a href="${up}motion/">Phone video ads</a>
   <a href="${up}about.html">About</a>
   <a href="${up}index.html#pricing">Pricing</a>
   <a href="${up}index.html#faq">FAQ</a>
@@ -234,6 +236,7 @@ ${nav('../')}
   <p class="lead">Graphics Studio makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
   <div class="ctas">
     <a class="btn" href="../index.html?cat=${c.id}">See the ${esc(c.name)} designs</a>
+    ${c.id === 'phones' ? '<a class="btn ghost" href="../motion/">Make a phone video ad</a>' : ''}
     <a class="btn ghost" href="../index.html#pricing">Pricing</a>
   </div>
   <div class="hero-art">${c.art.map((a) => `<img src="../assets/cutouts/${a}.webp" alt="" loading="lazy" width="400" height="400">`).join('')}</div>

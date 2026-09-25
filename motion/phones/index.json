@@ -1,0 +1,255 @@
+{
+ "_note": "Phone backs for the video maker, baked by iphoneslainv scripts/phone-ad (cut out, covered strips rebuilt and measured). repaint=true means the back is a clean iPhone 16 back painted in that finish, because no straight-on photo of that back exists in the source set.",
+ "phones": [
+  {
+   "id": "18-pro-max-burgundy",
+   "model": "iPhone 18 Pro Max",
+   "finish": "Burgundy",
+   "metal": "#7d4f59",
+   "w": 430,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "18-pro-burgundy",
+   "model": "iPhone 18 Pro",
+   "finish": "Burgundy",
+   "metal": "#865b65",
+   "w": 432,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "18-pro-max-glacier",
+   "model": "iPhone 18 Pro Max",
+   "finish": "Glacier",
+   "metal": "#cfd8e6",
+   "w": 430,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "18-pro-glacier",
+   "model": "iPhone 18 Pro",
+   "finish": "Glacier",
+   "metal": "#cfdce7",
+   "w": 432,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "18-pro-max-silver",
+   "model": "iPhone 18 Pro Max",
+   "finish": "Silver",
+   "metal": "#efefef",
+   "w": 430,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "18-pro-black",
+   "model": "iPhone 18 Pro",
+   "finish": "Black",
+   "metal": "#49494b",
+   "w": 428,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "17-pro-max-cosmic-orange",
+   "model": "iPhone 17 Pro Max",
+   "finish": "Cosmic Orange",
+   "metal": "#fdb482",
+   "w": 426,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "17-pro-cosmic-orange",
+   "model": "iPhone 17 Pro",
+   "finish": "Cosmic Orange",
+   "metal": "#ffbc87",
+   "w": 428,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "17-pro-max-deep-blue",
+   "model": "iPhone 17 Pro Max",
+   "finish": "Deep Blue",
+   "metal": "#656a85",
+   "w": 426,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "17-pro-deep-blue",
+   "model": "iPhone 17 Pro",
+   "finish": "Deep Blue",
+   "metal": "#6e748e",
+   "w": 428,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "17-pro-max-silver",
+   "model": "iPhone 17 Pro Max",
+   "finish": "Silver",
+   "metal": "#ebebeb",
+   "w": 426,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "17-pro-silver",
+   "model": "iPhone 17 Pro",
+   "finish": "Silver",
+   "metal": "#eeeeec",
+   "w": 428,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "16-white-as-lavender",
+   "model": "iPhone 17",
+   "finish": "Lavender",
+   "metal": "#cdc6ce",
+   "w": 434,
+   "h": 900,
+   "repaint": true,
+   "ok": true
+  },
+  {
+   "id": "16-white-as-sage",
+   "model": "iPhone 17",
+   "finish": "Sage",
+   "metal": "#bfc6b9",
+   "w": 434,
+   "h": 900,
+   "repaint": true,
+   "ok": true
+  },
+  {
+   "id": "16-white-as-mist-blue",
+   "model": "iPhone 17",
+   "finish": "Mist Blue",
+   "metal": "#c5cdce",
+   "w": 434,
+   "h": 900,
+   "repaint": true,
+   "ok": true
+  },
+  {
+   "id": "16-ultramarine",
+   "model": "iPhone 16",
+   "finish": "Ultramarine",
+   "metal": "#8f9cdc",
+   "w": 434,
+   "h": 900,
+   "repaint": false,
+   "ok": false
+  },
+  {
+   "id": "16-teal",
+   "model": "iPhone 16",
+   "finish": "Teal",
+   "metal": "#93b3b5",
+   "w": 434,
+   "h": 900,
+   "repaint": false,
+   "ok": false
+  },
+  {
+   "id": "16-pink",
+   "model": "iPhone 16",
+   "finish": "Pink",
+   "metal": "#d79cc2",
+   "w": 434,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "16-white",
+   "model": "iPhone 16",
+   "finish": "White",
+   "metal": "#cfd0ce",
+   "w": 434,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "16-black",
+   "model": "iPhone 16",
+   "finish": "Black",
+   "metal": "#555756",
+   "w": 434,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "17e-soft-pink",
+   "model": "iPhone 17e",
+   "finish": "Soft Pink",
+   "metal": "#e3d2d3",
+   "w": 433,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "17e-white",
+   "model": "iPhone 17e",
+   "finish": "White",
+   "metal": "#d5d5d4",
+   "w": 433,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "17e-black",
+   "model": "iPhone 17e",
+   "finish": "Black",
+   "metal": "#414142",
+   "w": 433,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "16e-white",
+   "model": "iPhone 16e",
+   "finish": "White",
+   "metal": "#dbdbd9",
+   "w": 433,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  },
+  {
+   "id": "16e-black",
+   "model": "iPhone 16e",
+   "finish": "Black",
+   "metal": "#404142",
+   "w": 433,
+   "h": 900,
+   "repaint": false,
+   "ok": true
+  }
+ ]
+}
