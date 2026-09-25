@@ -152,6 +152,10 @@ export const HEADLINES = [
   "SELL YOUR OLD IPHONE", "CASH FOR IPHONES", "THAT OLD PHONE IS MONEY", "STILL GOT YOUR OLD IPHONE?",
   "WE BUY EVERY IPHONE", "SWITCHED PHONES? SELL US THE OLD ONE",
 ];
+// The first second: a question or a pattern break, never a claim or a price.
+export const HOOKS = ["STILL GOT YOUR OLD IPHONE?", "UPGRADED THIS YEAR?", "OLD PHONE IN A DRAWER?",
+  "GOT AN IPHONE YOU DON'T USE?", "WAIT. READ THIS.", "IPHONE OWNERS, LOOK", "NEW PHONE?", "THAT OLD IPHONE?",
+  "STOP SCROLLING", "HOW MUCH IS YOUR OLD IPHONE WORTH?", "DRAWER FULL OF PHONES?", "SWITCHING PHONES?"];
 export const TAGS = ["", "", "", "TEXT FOR A QUOTE", "CALL OR TEXT", "LOCAL CASH OFFERS", "FAST, FAIR, LOCAL",
   "FREE QUOTE", "QUICK QUOTES", "LOCAL BUYER", "IPHONE, IPAD, MACBOOK", "MEET LOCALLY", "ALL MODELS WANTED",
   "TEXT A PHOTO FOR A QUOTE"];
@@ -187,6 +191,7 @@ export const OPTIONS = {
   hit: ["impact", "riser", "glitch", "cymbal", "bass_drop", "clap_stack"],
   number_sfx: ["pop", "register", "ticks", "coin", "chime", "whoosh_ding"],
   glare: [0.5, 1, 1, 1.5],
+  hook: ["hook_line", "hook_line", "hook_line", "crash_zoom", "flash_cut", "punch_in", "cold_open"],
   overlay: ["none", "none", "confetti", "light_leak", "vignette_pulse", "lens_flare", "glitch", "grain_live", "sparkle_field"],
 };
 
@@ -211,7 +216,7 @@ export const DEFAULT_STYLE = {
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
   sound_kit: "house", bpm: 118, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
-  overlay: "none", bigword: "CASH",
+  overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
 };
 
 // The first ad's look, as a starting point.
@@ -219,7 +224,7 @@ export const CLASSIC = {
   font: "franklin", text_fx: "shadow", text_in: "slide", text_pos: "top-left", number_style: "plain",
   number_pos: "bottom-center", number_in: "pop", arrangement: "row", entry: "fly_spin", end_face: "back",
   front_glimpse: "hold", background: "radial", palette: "sand", color_mode: "mono", camera: "push_in",
-  sound_kit: "house", overlay: "none",
+  sound_kit: "house", overlay: "none", hook: "cold_open",
 };
 
 // Human labels for the panel.
@@ -229,12 +234,12 @@ export const LABELS = {
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
   number_in: "Number entrance", arrangement: "Phone layout", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
-  sound_kit: "Music", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect",
+  sound_kit: "Music", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
 };
 
 export const GROUPS = [
   ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
-  ["Headline", ["text_in", "text_pos"]],
+  ["Opening", ["hook", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
   ["Phones", ["arrangement", "entry", "end_face", "front_glimpse", "glare"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay"]],

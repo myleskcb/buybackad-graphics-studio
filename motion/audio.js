@@ -30,6 +30,14 @@ export async function renderSoundtrack(ad) {
     if (p.reveal) { S.whoosh(sfx, p.tReveal, .45, true, pan, .25); S.tap(sfx, p.tReveal + .48, pan, .6); }
   }
   const hit = tl.hit;
+  // Nothing opens on silence: the first frame lands on a hit that matches the hook.
+  switch (st.hook) {
+    case "hook_line": S.bassDrop(sfx, 0, .75); S.impact(sfx, 0, .8); S.whoosh(sfx, .8, .3, true, 0, .4); break;
+    case "flash_cut": ad.phones.forEach(p => S.impact(sfx, p.tIn, .6)); break;
+    case "crash_zoom": S.whoosh(sfx, 0, .6, false, 0, .7); ad.phones.filter(p => p.crash).forEach(p => S.impact(sfx, p.tLand, .8)); break;
+    case "punch_in": S.impact(sfx, 0, .85); S.whoosh(sfx, 0, .5, false, 0, .5); break;
+    case "cold_open": S.impact(sfx, 0, .6); break;
+  }
   switch (st.hit) {
     case "riser": S.riser(sfx, hit - .8, .8, .55); S.impact(sfx, hit, .9); break;
     case "glitch": S.whoosh(sfx, tl.text - .45, .55, true, -.6, .5); S.glitch(sfx, hit - .05, r, .6); S.impact(sfx, hit, .8); break;
@@ -40,7 +48,7 @@ export async function renderSoundtrack(ad) {
   }
   if (ad.lines.length > 1) S.impact(sfx, tl.lines[1] + .3, .45);
   if (["slide_letters", "drop_letters", "typewriter", "scramble", "spin_letters"].includes(st.text_in)) {
-    ad.lines.forEach((L, i) => L.glyphs.forEach((_, j) => S.tick(sfx, tl.lines[i] + j * (st.text_in === "typewriter" ? .05 : .035) + (st.text_in === "typewriter" ? 0 : .2), .16)));
+    ad.lines.forEach((L, i) => L.glyphs.forEach((_, j) => S.tick(sfx, tl.lines[i] + j * (st.text_in === "typewriter" ? .032 : .024) + (st.text_in === "typewriter" ? 0 : .16), .16)));
   }
   const n = ad.num.text.length;
   switch (st.number_in === "type" ? "ticks" : st.number_sfx) {
@@ -52,7 +60,11 @@ export async function renderSoundtrack(ad) {
     default: S.pop(sfx, tl.number + .05, .7);
   }
   if (st.shine || st.sparkles) S.shimmer(sfx, tl.shine, .45);
-  if (st.sound_kit !== "none") beat(S, music, st.sound_kit, hit, st.duration, st.bpm || 118, r);
+  if (st.sound_kit !== "none") {
+    // The beat runs from the first frame, on a grid that puts a downbeat exactly on the headline hit.
+    const b = 60 / (st.bpm || 118), start = st.hook && st.hook !== "none" ? hit - Math.ceil(hit / b) * b : hit;
+    beat(S, music, st.sound_kit, start, st.duration, st.bpm || 118, r);
+  }
   // fade the whole mix out at the end
   master.gain.setValueAtTime(.9, Math.max(0, st.duration - .6));
   master.gain.linearRampToValueAtTime(0, st.duration);
@@ -193,6 +205,7 @@ function beat(S, dest, kit, start, total, bpm, r) {
     funk: [41.2, 41.2, 49, 55], afrobeat: [55, 61.7, 49, 55], boombap: [49, 49, 55, 43.65], minimal: [55, 55, 55, 55], drumline: [55, 55, 55, 55] }[kit] || [55, 55, 55, 55];
   let n = 0;
   for (let t = start; t < total; t += b, n++) {
+    if (t < -1e-6) continue;
     const root = roots[Math.floor(n / 8) % 4];
     switch (kit) {
       case "house":

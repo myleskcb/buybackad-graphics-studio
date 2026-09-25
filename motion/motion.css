@@ -72,3 +72,15 @@
 .mo-swatches i{flex:1;height:14px;border-radius:4px;border:1px solid rgba(127,127,127,.35)}
 .mo-flags{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
 .mo-seed{margin-top:12px}
+
+.mo-attn{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin:10px 0}
+.mo-attn-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mo-score{font:700 14px Satoshi,sans-serif;padding:2px 10px;border-radius:99px;background:var(--line);color:var(--text)}
+.mo-score.good{background:#1f8a57;color:#fff}.mo-score.ok{background:#b8860b;color:#fff}.mo-score.bad{background:#b3261e;color:#fff}
+.mo-strong{margin:0 0 0 auto;font-size:12.5px}
+#attn-curve{width:100%;height:70px;display:block;margin:6px 0}
+.mo-attn-list{list-style:none;padding:0;margin:4px 0;display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;font-size:13px}
+@media (max-width:520px){.mo-attn-list{grid-template-columns:1fr}}
+.mo-attn-list li{color:var(--text-2);display:flex;gap:6px}
+.mo-attn-list li b{font-weight:700;color:var(--text)}
+.mo-attn-list li i{font-style:normal;width:16px;flex:none}

@@ -2,7 +2,7 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS } from "./catalog.js";
 
 // ------------------------------------------------------------ small tools
 
@@ -82,6 +82,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
     if (!locked.has("headline")) out.headline = r.pick(HEADLINES);
     if (!locked.has("tag")) out.tag = r.pick(TAGS);
     if (!locked.has("number_label")) out.number_label = r.pick(NUMBER_LABELS);
+    if (!locked.has("hook_text")) out.hook_text = r.pick(HOOKS);
   }
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = r.sample(phonesPool, r.pick([3, 4, 4, 5]));
   return harmonise(out, locked);
@@ -290,7 +291,11 @@ function planEntries(phones, st, W, H, r, stageC) {
   if (st.arrangement === "hero") order = order.slice(1).concat(order.slice(0, 1));
   order.forEach((i, k) => {
     const p = phones[i];
-    p.tIn = .1 + k * stag; p.tLand = p.tIn + dur;
+    // The first 3 seconds decide whether anyone watches: phones are already in
+    // the air at frame 0 and land fast. A hook line owns the first second.
+    const lead = st.hook === "hook_line" ? .5 : st.hook === "crash_zoom" ? .22 : st.hook === "punch_in" ? -.7 : -.45;
+    p.tIn = lead + k * stag * .75; p.tLand = p.tIn + dur * .85;
+    if (st.hook === "flash_cut") { p.tIn = p.tLand = Math.max(0, k - 1) * .15; p.flashIn = k > 1; p.landsBack = true; p.reveal = false; }   // two are there at frame 0, backs up
     p.spin = r.pick([-2, -1, 1, 2]) * (r() < .2 ? 1.5 : 1); p.flips = r.pick([1, 2]);
     const far = Math.max(p.h * p.size, H * .4);
     const [hx, hy] = p.home;
@@ -312,6 +317,9 @@ function planEntries(phones, st, W, H, r, stageC) {
       default: p.start = sides.left;
     }
     p.side = side;
+    if (st.hook === "crash_zoom" && k === order.length - 1) {     // the last to land crashes in from the lens
+      p.crash = true; p.tIn = -.04; p.tLand = .72; p.crashFrom = [stageC[0], stageC[1]]; p.landsBack = true; p.reveal = false;
+    }
   });
   return Math.max(...phones.map(p => p.tLand));
 }
@@ -319,6 +327,11 @@ function planEntries(phones, st, W, H, r, stageC) {
 function phoneState(p, t, st) {
   if (t < p.tIn) return null;
   const [hx, hy] = p.home, base = p.size;
+  if (p.crash && t < p.tLand) {
+    const q = (t - p.tIn) / (p.tLand - p.tIn), e = outQuint(q);
+    const end = p.landsBack ? Math.PI : 0;
+    return [lerp(p.crashFrom[0], hx, e), lerp(p.crashFrom[1], hy, e), base * lerp(3.4, 1, e), p.angle + 28 * (1 - e), Math.PI, .9 * (1 - e), 1];
+  }
   if (t < p.tLand) {
     const q = (t - p.tIn) / (p.tLand - p.tIn), e = outCubic(q), z = 1 - e;
     // A phone that LANDS on its back ends every turn at pi; one with no spin of
@@ -520,7 +533,7 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       ctx.globalCompositeOperation = "source-over"; fillAll(); break;
     }
     case "cutout": {
-      const plateCol = darkInk ? ink : "#ffffff";
+      const plateCol = lum(p.ground) > .45 ? "#111111" : "#ffffff";   // the letters show the ground, so the plate is its opposite
       rrect(ctx, pad - size * .18, pad + asc * .05, inkW + size * .36, asc * .98 + desc * .4, size * .08);
       ctx.fillStyle = plateCol; ctx.fill();
       ctx.globalCompositeOperation = "destination-out"; fillAll("#000"); ctx.globalCompositeOperation = "source-over"; break;
@@ -822,6 +835,7 @@ export class Ad {
     this._layoutType();
     this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1));
     this._scrim();
+    this._contrastGuard();
     this.still = null;
     this.acc = canvas(this.W, this.H); this.tmp = canvas(this.W, this.H);
   }
@@ -852,7 +866,12 @@ export class Ad {
     const r0 = this.tLanded + .35; let k = 0;
     for (const i of this.drawOrder) { const p = this.phones[i]; if (p.reveal) p.tReveal = r0 + (k++) * .1; }
     const revealEnd = k ? r0 + (k - 1) * .1 + .5 : this.tLanded;
-    this.tl = { landed: this.tLanded, revealEnd, text: revealEnd + .05, still: revealEnd + .25 };
+    const st = this.st;
+    // words on screen within a second: the headline starts as the phones arrive, not after the last one lands
+    const lands = this.phones.map(p => p.tLand).sort((a, b) => a - b), median = lands.length ? lands[Math.floor(lands.length / 2)] : .3;
+    const text = st.hook === "hook_line" ? .92
+      : st.hook === "crash_zoom" ? .55 : Math.max(.3, Math.min(median, revealEnd) + .02);
+    this.tl = { landed: this.tLanded, revealEnd, text, still: revealEnd + .25 };
   }
 
   _layoutType() {
@@ -906,9 +925,25 @@ export class Ad {
     const n = lines.length;
     this.tl.lines = lines.map((_, i) => this.tl.text + i * .12);
     const perLetter = ["slide_letters", "drop_letters", "typewriter", "scramble", "spin_letters"].includes(st.text_in);
-    const last = this.tl.lines[n - 1] + (perLetter ? .55 : .3);
+    const last = this.tl.lines[n - 1] + (perLetter ? .4 : .26);
     this.tl.hit = this.tl.text + (["slam", "stomp"].includes(st.text_in) ? .42 : .3);
-    this.tl.tag = last + .15; this.tl.number = last + .45; this.tl.shine = this.tl.number + .5; this.tl.sparkle = this.tl.number + .35;
+    this.tl.tag = last + .15; this.tl.number = last + .35; this.tl.shine = this.tl.number + .5; this.tl.sparkle = this.tl.number + .35;
+    this.tl.still = Math.max(this.tl.still, this.tl.revealEnd + .25);
+    this.hookLines = null;
+    if (st.hook === "hook_line") {
+      const txt = applyCase(st.hook_text || "STILL GOT YOUR OLD IPHONE?", "upper");
+      const hp = { ...p, ink: "#ffffff", accent: lum(p.accent) > .45 ? p.accent : "#ffd60a" };
+      let hs = H * (wide ? .2 : tall ? .085 : .14);
+      const words = txt.split(/\s+/).length;
+      for (let k = 0; k < 14; k++) {
+        const ls = splitLines(txt, Math.min(words, tall ? 4 : 3));
+        const sp = ls.map(l => inkSprite(l, l.split("").map(() => "#ffffff"), st.font, hs, .01, "shadow", hp, 0));
+        const wid = Math.max(...sp.map(s => s.inkW)), hgt = sp.length * sp[0].asc * 1.02;
+        if (wid <= W * .86 && hgt <= H * .5) { this.hookLines = sp; break; }
+        hs *= .92;
+      }
+      this.hookSize = hs;
+    }
   }
 
   _place(lines, lineH, blockH, tag, num, m, size) {
@@ -943,10 +978,39 @@ export class Ad {
     return { ok, xs, y0, block, tag: tagXY, num: [nx, ny], label: labXY };
   }
 
+  /** Measure the pixels that will actually sit behind the headline once the
+   *  phones have landed, and strengthen the shade behind the type until the
+   *  lettering stands out at least 4.5:1 (or the shade is at full strength). */
+  _contrastGuard() {
+    const W = this.W, H = this.H, q = 4, w = Math.max(8, Math.round(W / q)), h = Math.max(8, Math.round(H / q));
+    const c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true });
+    const [bx0, by0, bx1, by1] = this.pos.block;
+    const ink = hexRgb(this.st.text_fx === "box" ? this.p.plate_ink : this.p.ink);
+    if (["box", "sticker", "cutout", "highlighter"].includes(this.st.text_fx)) return;   // carried by their own plate
+    const L = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+    const Li = .2126 * L(ink[0]) + .7152 * L(ink[1]) + .0722 * L(ink[2]);
+    for (let round = 0; round < 3; round++) {
+      x.save(); x.scale(1 / q, 1 / q); x.drawImage(this.bg, 0, 0);
+      const tEnd = this.st.duration - .1;
+      for (const i of this.drawOrder) { const p = this.phones[i], stt = phoneState(p, tEnd, this.st); if (stt) drawPhone(x, p, ...stt, W); }
+      x.restore();
+      if (this.scrimC) x.drawImage(this.scrimC, 0, 0, w, h);
+      const d = x.getImageData(Math.max(0, Math.floor(bx0 / q)), Math.max(0, Math.floor(by0 / q)), Math.max(1, Math.ceil((bx1 - bx0) / q)), Math.max(1, Math.ceil((by1 - by0) / q))).data;
+      let s = 0, n = 0;
+      for (let k = 0; k < d.length; k += 4) { s += .2126 * L(d[k]) + .7152 * L(d[k + 1]) + .0722 * L(d[k + 2]); n++; }
+      const Lb = s / Math.max(1, n), ratio = (Math.max(Li, Lb) + .05) / (Math.min(Li, Lb) + .05);
+      this.contrastBehind = ratio;
+      if (ratio >= 4.5) return;
+      this.scrimBoost = (this.scrimBoost || 1) * 1.6;
+      this._scrim();
+    }
+  }
+
   _scrim() {
     const st = this.st, W = this.W, H = this.H;
     let s = st.scrim;
     if (s < 0) s = { box: 0, sticker: .25, cutout: .3, highlighter: .2, double_outline: .3, outline: .8, neon: .8 }[st.text_fx] ?? .65;
+    s = Math.min(1.9, s * (this.scrimBoost || 1));
     this.scrimC = null;
     if (s <= 0) return;
     const light = lum(this.p.ink) > .5;
@@ -957,7 +1021,7 @@ export class Ad {
       x.save(); x.translate(cx, cy); x.scale(rx, ry);
       const g = x.createRadialGradient(0, 0, 0, 0, 0, 1.6);
       const col = light ? "0,0,0" : "255,255,255";
-      g.addColorStop(0, `rgba(${col},${.47 * s})`); g.addColorStop(1, `rgba(${col},0)`);
+      g.addColorStop(0, `rgba(${col},${Math.min(.85, .47 * s)})`); g.addColorStop(.55, `rgba(${col},${Math.min(.6, .3 * s)})`); g.addColorStop(1, `rgba(${col},0)`);
       x.fillStyle = g; x.fillRect(-2, -2, 4, 4); x.restore();
     }
     this.scrimC = c;
@@ -1004,6 +1068,8 @@ export class Ad {
     const hits = [];
     for (const p of this.phones) { hits.push([p.tLand, .004]); if (p.reveal) hits.push([p.tReveal + .5, .0018]); }
     if (["slam", "stomp"].includes(this.st.text_in)) hits.push([this.tl.hit, .006]);
+    if (this.st.hook === "punch_in") hits.push([.5, .007]);
+    if (this.st.hook === "hook_line") hits.push([0, .008]);
     for (const [h, amp] of hits) {
       const d = t - h;
       if (d >= 0 && d < .25) { const a = amp * lvl * this.W * Math.exp(-d * 18); dx += a * Math.sin(d * 90 + h * 7); dy += a * Math.cos(d * 75 + h * 5); }
@@ -1012,6 +1078,23 @@ export class Ad {
   }
 
   _camera(t) {
+    const c = this._camera0(t);
+    if (this.st.hook === "punch_in" && t < .5) c[0] *= lerp(2.1, 1, outQuint(clamp(t / .5)));
+    return c;
+  }
+
+  _hookLine(ctx, t) {
+    const W = this.W, H = this.H, s0 = outCubic(prog(t, 0, .14)), out = prog(t, .88, .22);
+    const scrimA = .58 * (1 - out);
+    if (scrimA > 0) { ctx.fillStyle = `rgba(0,0,0,${scrimA})`; ctx.fillRect(0, 0, W, H); }
+    const a = 1 - out, s = lerp(1.25, 1, s0) * (1 + .3 * out);
+    const lh = this.hookLines[0].asc * 1.02, total = lh * this.hookLines.length;
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(W / 2, H / 2); ctx.scale(s, s);
+    this.hookLines.forEach((L, i) => ctx.drawImage(L.c, -L.inkW / 2 - L.pad, -total / 2 + i * lh - L.pad));
+    ctx.restore();
+  }
+
+  _camera0(t) {
     const u = t / this.st.duration;
     switch (this.st.camera) {
       case "push_in": return [1 + .05 * u, 0, 0, 0];
@@ -1036,6 +1119,8 @@ export class Ad {
     ctx.drawImage(base, -W / 2, -H / 2);
     ctx.restore();
 
+    if (this.hookLines && t < 1.2) this._hookLine(ctx, t);
+    if (st.hook === "flash_cut") for (const p of this.phones) { if (!p.flashIn) continue; const f = t - p.tIn; if (f >= 0 && f < .09) { ctx.fillStyle = `rgba(255,255,255,${.6 * (1 - f / .09)})`; ctx.fillRect(0, 0, W, H); } }
     if (this.scrimC) { const k = prog(t, tl.text - .1, .4); if (k > 0) { ctx.globalAlpha = k; ctx.drawImage(this.scrimC, 0, 0, W, H); ctx.globalAlpha = 1; } }
     if (st.speed_lines) this._speedLines(ctx, t);
     this._headline(ctx, t, dt);
@@ -1051,7 +1136,7 @@ export class Ad {
     const st = this.st, W = this.W, H = this.H, tl = this.tl;
     this.lines.forEach((L, i) => {
       const t0 = tl.lines[i], xEnd = this.pos.xs[i] - L.pad, y = this.pos.y0 + i * this.lineH - L.pad;
-      const q = prog(t, t0, .45); if (q <= 0) return;
+      const q = prog(t, t0, .38); if (q <= 0) return;
       const shineP = st.shine && t >= tl.shine ? prog(t, tl.shine + i * .08, .6) : 0;
       if (L.plate && !["slide", "skew_slide"].includes(st.text_in)) {
         const f = outCubic(prog(t, t0 - .05, .3));
@@ -1070,7 +1155,7 @@ export class Ad {
       switch (st.text_in) {
         case "slide": case "skew_slide": {
           const start = -L.c.width - W * .05, e = outBack(q, 1.3);
-          const x = lerp(start, xEnd, e), v = Math.abs(lerp(start, xEnd, outBack(prog(t + dt, t0, .45), 1.3)) - x);
+          const x = lerp(start, xEnd, e), v = Math.abs(lerp(start, xEnd, outBack(prog(t + dt, t0, .38), 1.3)) - x);
           const n = v > 3 ? Math.min(10, Math.ceil(v / 12)) : 1;
           for (let k = 0; k < n; k++) drawLine(x - v * .8 * k / n, y, n > 1 ? (k === 0 ? .55 : .45 / n) : 1, 1, 1, st.text_in === "skew_slide" ? .45 * (1 - outCubic(q)) : 0);
           break;
@@ -1109,7 +1194,7 @@ export class Ad {
           const G = L.glyphs;
           if (!G.length) { drawLine(xEnd, y); break; }
           G.forEach((g, j) => {
-            const qj = prog(t, t0 + j * (st.text_in === "typewriter" ? .05 : .035), st.text_in === "typewriter" ? .01 : .38);
+            const qj = prog(t, t0 + j * (st.text_in === "typewriter" ? .032 : .024), st.text_in === "typewriter" ? .01 : .3);
             if (qj <= 0) return;
             const gx = xEnd + g.x;
             ctx.save(); ctx.globalAlpha = clamp(qj * 3);
@@ -1123,7 +1208,7 @@ export class Ad {
             ctx.restore();
           });
           if (st.text_in === "typewriter") {
-            const n = G.filter((g, j) => t >= t0 + j * .05).length;
+            const n = G.filter((g, j) => t >= t0 + j * .032).length;
             if (n < G.length || (t - t0) % .6 < .3) {
               const gx = xEnd + (n < G.length ? G[n].x : G[G.length - 1].x + G[G.length - 1].c.width - L.pad * 1.6) + L.pad;
               ctx.fillStyle = this.p.ink; ctx.fillRect(gx, y + L.pad, Math.max(3, this.size * .06), L.asc);

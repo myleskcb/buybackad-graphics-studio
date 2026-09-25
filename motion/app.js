@@ -1,9 +1,10 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, countLooks } from "./catalog.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, HOOKS, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, countLooks } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, phoneFromFile, pal, rng } from "./engine.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode } from "./export.js";
+import { auditLook, drawCurve } from "./audit.js";
 
 const $ = id => document.getElementById(id);
 const STORE = "pgfx_motion_v1";
@@ -68,6 +69,46 @@ async function rebuild() {
   if (state.sound) startAudio(0);
   syncPanel(st);
   $("loading").hidden = true;
+  scheduleAudit(st);
+}
+
+// ------------------------------------------------------------ attention
+
+let auditTimer = null, auditId = 0;
+function scheduleAudit(st) {
+  clearTimeout(auditTimer);
+  $("attn-score").textContent = "measuring…"; $("attn-score").className = "mo-score";
+  auditTimer = setTimeout(async () => {
+    const id = ++auditId;
+    try {
+      const rep = await auditLook(st, state.assets, { size: 200, secs: 4, sound: true });
+      if (id !== auditId) return;
+      showAudit(rep);
+    } catch (e) { console.warn("audit", e); }
+  }, 350);
+}
+
+function showAudit(rep) {
+  const s = $("attn-score");
+  s.textContent = `${rep.score} / 100`; s.className = "mo-score " + (rep.score >= 90 ? "good" : rep.score >= 75 ? "ok" : "bad");
+  drawCurve($("attn-curve"), rep);
+  $("attn-list").innerHTML = rep.checks.map(c => `<li><i>${c.ok ? "✅" : "⚠️"}</i><span>${c.label}: <b>${c.value}</b></span></li>`).join("");
+}
+
+/** A look is strong when it scores 90+ and passes what decides a scroll. */
+async function strongSeed(base, locked, pool, content) {
+  let best = null;
+  for (let k = 0; k < 8; k++) {
+    const seed = (Math.random() * 1e9) | 0;
+    const st = randomize(base, seed, locked, pool, content);
+    const h = harmonise({ ...st }, locked, indexById());
+    await loadFonts([h.font, h.number_font === "same" ? h.font : h.number_font]);
+    const rep = await auditLook(h, state.assets, { size: 120, secs: 3.4, sound: false });
+    const ok = id => rep.checks.find(c => c.id === id)?.ok;
+    if (!best || rep.score > best.score) best = { st, score: rep.score };
+    if (rep.score >= 90 && ok("frame0") && ok("words") && ok("number") && ok("contrast")) return st;
+  }
+  return best.st;
 }
 
 function indexById() { const o = {}; state.index.forEach(m => { o[m.id] = m; }); Object.values(state.assets.phones).forEach(a => { o[a.meta.id] = a.meta; }); return o; }
@@ -143,6 +184,8 @@ function buildPanel() {
   const bind = (id, key, fmt = v => v) => $(id).addEventListener("input", debounce(e => { state.style[key] = fmt(e.target.value); state.locked.add(key); save(); rebuild(); }, 280));
   bind("f-headline", "headline", v => v.toUpperCase().slice(0, 60) || "WE BUY PHONES");
   bind("f-tag", "tag"); bind("f-label", "number_label");
+  bind("f-hook", "hook_text", v => v.toUpperCase().slice(0, 44));
+  $("new-hook").addEventListener("click", () => { pushHistory(); const r = rng(Date.now() & 0xffff); state.style.hook_text = r.pick(HOOKS); state.locked.add("hook_text"); $("f-hook").value = state.style.hook_text; save(); rebuild(); });
   $("f-number").addEventListener("input", debounce(e => { state.style.number = e.target.value; save(); rebuild(); renderGallery(true); }, 500));
   $("new-headline").addEventListener("click", () => { pushHistory(); const r = rng(Date.now() & 0xffff); state.style.headline = r.pick(HEADLINES); $("f-headline").value = state.style.headline; save(); rebuild(); });
 
@@ -201,14 +244,17 @@ function togglePlay() {
 
 function pushHistory() { state.history.push(JSON.parse(JSON.stringify(state.style))); if (state.history.length > 30) state.history.shift(); $("undo").disabled = false; }
 
-function shuffle(all) {
+async function shuffle(all) {
   pushHistory();
-  const seed = (Math.random() * 1e9) | 0;
   const locked = new Set(state.locked);
-  if (all) ["headline", "tag", "number_label"].forEach(k => locked.delete(k));
+  if (all) ["headline", "tag", "number_label", "hook_text"].forEach(k => locked.delete(k));
   const pool = all && $("shuffle-phones").checked ? state.index.map(m => m.id) : [];
   if (pool.length) locked.delete("phones"); else locked.add("phones");
-  state.style = randomize(state.style, seed, locked, pool, all);
+  const btns = [$("shuffle-look"), $("shuffle-all")]; btns.forEach(b => b.disabled = true);
+  try {
+    state.style = $("strong-only").checked ? await strongSeed(state.style, locked, pool, all)
+      : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
+  } finally { btns.forEach(b => b.disabled = false); }
   state.style.number = state.style.number;              // the number is never shuffled
   save(); syncWords(); drawPhonePicker(); rebuild();
 }
@@ -218,6 +264,7 @@ function syncWords() {
   $("f-tag").value = state.style.tag || "";
   $("f-number").value = state.style.number || "";
   $("f-label").value = state.style.number_label || "";
+  $("f-hook").value = state.style.hook_text || "";
 }
 
 function syncPanel(st) {

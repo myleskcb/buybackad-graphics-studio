@@ -54,6 +54,13 @@
         <button class="mo-btn" id="undo" title="Back to the previous look" disabled>&#8630; Back</button>
         <button class="mo-btn download" id="download">&#11015; Download MP4</button>
       </div>
+      <section class="mo-attn" id="attn" aria-label="Attention check">
+        <div class="mo-attn-head"><b>Attention check</b><span class="mo-score" id="attn-score">&hellip;</span>
+          <label class="mo-check mo-strong"><input type="checkbox" id="strong-only" checked> New looks must pass</label></div>
+        <canvas id="attn-curve" width="640" height="70" aria-hidden="true"></canvas>
+        <ul class="mo-attn-list" id="attn-list"></ul>
+        <p class="mo-note">Measured off the rendered frames: what is on the very first frame, how much moves, and when the words can actually be read. Viewers decide in about a second and a half, often with the sound off.</p>
+      </section>
       <div class="mo-progress" id="progress" hidden><div class="mo-bar"><i id="bar"></i></div><span id="progress-label"></span></div>
       <p class="mo-note" id="export-note"></p>
 
@@ -65,6 +72,9 @@
     <aside class="mo-panel" aria-label="Settings">
       <details open class="mo-sec">
         <summary>Words</summary>
+        <label class="mo-field">Opening line <span class="mo-opt">first second, shown with the Hook line opening</span>
+          <span class="mo-row"><input id="f-hook" maxlength="44" placeholder="STILL GOT YOUR OLD IPHONE?"><button class="mo-mini" id="new-hook" title="Another opening line">&#10227;</button></span>
+        </label>
         <label class="mo-field">Headline
           <span class="mo-row"><input id="f-headline" list="headline-list" maxlength="60"><button class="mo-mini" id="new-headline" title="Another headline">&#10227;</button></span>
         </label>
