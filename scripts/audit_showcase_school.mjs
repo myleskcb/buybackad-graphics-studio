@@ -21,6 +21,9 @@
  *                patch at about 2:1 (the study session's own finding), and on
  *                2026-09-26 it caught numbers half off their own plate (1.2 to
  *                2.2 per letter) that the line average passed.
+ *     offPlate   more than 8% of the number's ink outside the plate it stands
+ *                on: a number half on its plate and half on the photograph
+ *                (alignPass moved the number and not the plate)
  *     onProduct  the number drawn over a product (the video engine's lesson of
  *                the same week: the number never sits on the phones)
  *     thumb      the headline's largest line under 8px tall in a 160px tile
@@ -59,7 +62,7 @@ const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.ar
 const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
 const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
 const work = idx.filter(c => !only || only.has(c.id));
-export const T = { number: 72, numInk: 3, onProduct: 0.12, thumb: 8, hierarchy: 1.3, families: 2,
+export const T = { number: 72, numInk: 3, onProduct: 0.12, offPlate: 0.08, thumb: 8, hierarchy: 1.3, families: 2,
   small: 25.2, margin: 0.06, align: 4, empty: 0.25, contrast: 4.5, tile: 160 };
 
 /* weights each face ships: assets/fonts/faces.css and the house faces */
@@ -159,6 +162,27 @@ for (let i = 0; i < work.length; i += 6){
           if (op < 0.5 || l.__wall) return;
           onProduct = Math.max(onProduct, inter(phone.b, box(refs[k])) / Math.max(1, phone.b.w * phone.b.h));
         });
+        /* the number off its plate: the last solid, not full-frame rect drawn
+           before it that meets its centre; the share of its ink outside it */
+        let offPlate = 0;
+        if (phone){
+          const b = phone.b, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+          let plate = null;
+          t.layers.forEach((l, j) => { if (j >= phone.k || !refs[j] || l.kind !== 'rect' || !l.props) return;
+            const f = String(l.props.fill || ''); if (!f || f === 'transparent' || /rgba\([^)]*,\s*0(\.[0-4]\d*)?\)$/.test(f)) return;
+            const c = box(refs[j]); if (c.w * c.h > 0.6 * W * H) return;
+            if (cx >= c.x && cx <= c.x + c.w && c.y < b.y + b.h && c.y + c.h > b.y) plate = c; });
+          if (plate){
+            const x0 = Math.max(0, Math.floor(b.x)), y0 = Math.max(0, Math.floor(b.y)), w = Math.min(W, Math.ceil(b.x + b.w)) - x0, h = Math.min(H, Math.ceil(b.y + b.h)) - y0;
+            sc.renderAll(); const on = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = false; sc.renderAll();
+            const off = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = true; sc.renderAll();
+            let ink = 0, out = 0;
+            for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){ const q = (y * w + x) * 4;
+              if (Math.abs(on[q] - off[q]) + Math.abs(on[q + 1] - off[q + 1]) + Math.abs(on[q + 2] - off[q + 2]) < 90) continue;
+              ink++; const X = x + x0, Y = y + y0; if (X < plate.x || X > plate.x + plate.w || Y < plate.y || Y > plate.y + plate.h) out++; }
+            offPlate = ink ? out / ink : 0;
+          }
+        }
         const fams = new Set(texts.filter(x => /[A-Za-z0-9]{2}/.test(x.l.text) && x.fam).map(x => x.fam));
         /* faux = a weight HEAVIER than any file the face ships: that is the case
            the browser fakes (synthetic bold) or silently draws lighter than
@@ -198,6 +222,7 @@ for (let i = 0; i < work.length; i += 6){
           ctaInk: worstOf(crit.filter(x => x.role === 'cta')),
           minorInk: worstOf(minor),
           onProduct: +onProduct.toFixed(3),
+          offPlate: +offPlate.toFixed(3),
           headTile: +(headPx * 0.7 * T.tile / W).toFixed(1),
           hierarchy: nextPx ? +(headPx / nextPx).toFixed(2) : 9,
           families: fams.size, famList: [...fams],
@@ -225,6 +250,7 @@ const verdict = (c, r) => {
   if (r.numInk != null && r.numInk < T.numInk) fail.push('numInk');
 
   if (r.onProduct > T.onProduct) fail.push('onProduct');
+  if (r.offPlate > T.offPlate) fail.push('offPlate');
   if (r.headTile < T.thumb) fail.push('thumb');
   if (r.hierarchy < T.hierarchy) fail.push('hierarchy');
   if (r.families > T.families) fail.push('families');
@@ -250,7 +276,7 @@ const count = (key, list) => rows.filter(x => x[list].includes(key)).length;
 const live = x => !x.c.defect;
 console.log(`\naudited ${rows.length} · page errors ${errors.length} · errors ${rows.filter(x => x.r.err).length}`);
 console.log('REJECT (all cards / cards live before this audit)');
-['number', 'numInk', 'onProduct', 'thumb', 'hierarchy', 'families', 'faux', 'copy', 'device'].forEach(k =>
+['number', 'numInk', 'offPlate', 'onProduct', 'thumb', 'hierarchy', 'families', 'faux', 'copy', 'device'].forEach(k =>
   console.log('  ' + k.padEnd(10) + String(count(k, 'fail')).padStart(4) + ' / ' + String(rows.filter(x => live(x) && x.fail.includes(k)).length).padStart(4)));
 console.log('WARN');
 ['small', 'margin', 'widow', 'align', 'crowded', 'contrast'].forEach(k => console.log('  ' + k.padEnd(10) + String(count(k, 'warn')).padStart(4)));
