@@ -157,3 +157,58 @@ RESUME HERE:
   and leave the heavily-defocused ones at 2160 where the upscale is invisible.
   Re-run `python3 scripts/asset_audit.py` after; it should exit 0 for the tier
   being targeted.
+
+---
+
+## 2026-09-26 — Video ad field research
+
+Studied:
+  The owner asked to "expand the video ad logic", then redirected: study
+  competitors, good "we buy" video ads and good commercials, and find what grabs
+  attention, keeps it and converts in short-form marketplace ads. Four parallel
+  research passes: platform creative guidance (Meta, TikTok, Google), 23 "we
+  buy" brands and formats, commercials and direct-response craft (System1,
+  Ehrenberg-Bass, Nielsen, IPA, DRTV, subtitle standards, flash regulation), and
+  marketplace mechanics (surfaces, formats, policy, browser encoding).
+  Output: docs/VIDEO-AD-RESEARCH.md.
+
+Measured:
+  - There is no video code to expand: app.js, index.html and
+    phonegfx-studio.html contain no video / MediaRecorder / captureStream / WebM
+    reference. The research file is the spec to build it from.
+  - 48 of 243 templates default to "up to" pricing (gold 12, cars 11, phones 9,
+    coins 4, sports 4, strips 3, pokemon 3, silver 2), from the category decks.
+    4 phone templates advertise iCloud-locked phones, 2 say "blacklisted".
+    0 carry health or financial-status phrasing. scripts/copy_audit.mjs.
+  - In the 16 national "we buy" ads with a usable description, only 2 show a
+    dollar figure, and both are "up to" store credit. 11 of 16 make a speed
+    claim; 14 of 16 send the viewer to a URL or app rather than a phone.
+
+Changed:
+  - docs/VIDEO-AD-RESEARCH.md (new), docs/README.md map entry.
+  - scripts/copy_audit.mjs (new) — counts flagged default copy in the loaded
+    library; exits non-zero on a page error. Takes CHROME and GFX_BASE.
+
+Rejected:
+  - Treating any figure as verified. The container's egress proxy blocked the
+    page fetcher on every help-centre and research domain, and the shared
+    search budget (200) ran out, so every figure is from a search extract
+    except GitHub-hosted sources. The file labels each one.
+  - TikTok's effect sizes (+152% / +280% / +312%) as magnitudes. They are
+    observational, self-published comparisons of top ads. Direction only.
+  - "More colours and effects" as decoration. No evidence found that glitch,
+    particles, flares or money rain help; flashing is prohibited by Meta,
+    Google, TikTok, WCAG 2.3.1 and the UK ASA. Colour as hierarchy and
+    information-carrying motion are what the evidence supports.
+  - Repainting the "up to" copy. That is an owner decision under rule 24; this
+    session names the defect and makes it countable.
+  - Adding rules V1–V7 to DESIGN-LAW. There is no video output to measure them
+    against yet.
+
+RESUME HERE:
+  Before building anything for Marketplace, read Facebook's Marketplace commerce
+  policy in full by hand — its help text (search excerpt only) says "in search
+  of" posts and services are not allowed, which a "we buy" post arguably is.
+  Then build the engine from section 8 of VIDEO-AD-RESEARCH.md, starting with
+  the rule that frame 0 is the static template and a frame-as-pure-function-of-t
+  renderer encoded through WebCodecs.

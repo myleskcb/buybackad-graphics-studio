@@ -26,6 +26,7 @@ post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 | `CURRICULUM.md` | The syllabus: what to learn, in order, college level |
 | `COLOR-THEORY.md` | Colour module — perceptual space, harmony, application |
 | `FIELD-RESEARCH.md` | How to study real competitor ads legally and usefully |
+| `VIDEO-AD-RESEARCH.md` | What grabs, keeps and converts in short video ads; the spec for the video engine |
 | `OPERATIONS.md` | Hosting, deploy, URLs, DNS state, repo hygiene |
 | `LEARNING-LOG.md` | Append-only record of every session and what changed |
 
