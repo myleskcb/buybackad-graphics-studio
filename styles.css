@@ -399,7 +399,7 @@ input,textarea,select{font-family:inherit;color:var(--text)}
   .logo .logo-mark{width:26px;height:26px;font-size:13px}
 }
 
-.hero{padding:120px clamp(16px,5vw,48px) 72px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(84vh,760px)}
+.hero{padding:112px clamp(16px,5vw,48px) 40px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(80vh,720px)}
 @media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:120px;gap:44px;min-height:0}}
 .hero-eyebrow{
   display:inline-flex;align-items:center;gap:8px;
@@ -408,17 +408,36 @@ input,textarea,select{font-family:inherit;color:var(--text)}
   border:.5px solid rgba(255,122,26,.28);
   border-radius:var(--r-pill);padding:7px 15px;margin-bottom:22px;
 }
-/* The ceiling at which "in under a minute." still sets on ONE line inside the
-   1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is face-specific and
-   has now caught two typefaces out: the system stack held one line to 68px,
-   Clash Display breaks at 66 (it runs ~8.4x its size for that string against
-   a 548px column at 1280). Re-measure this if --display ever changes again;
-   guessing produces a four-line ragged hero. */
+/* The ceiling at which the accent line ("a real business.") still sets on ONE
+   line inside the 1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is
+   face-specific and has caught two typefaces out before: the system stack held
+   the old line to 68px, Clash Display broke it at 66. Re-measure if --display
+   or the headline changes; guessing produces a four-line ragged hero.
+   The accent line is wrapped in <em> and set nowrap so it can never orphan
+   "business." onto a line of its own. */
 .hero h1{font-family:var(--display);font-size:clamp(34px,4.5vw,58px);line-height:1.06;letter-spacing:-.028em;margin-bottom:20px;font-weight:700}
-.hero h1 em{font-style:normal;color:var(--accent)}
-.hero p{font-size:17px;line-height:1.65;color:var(--text-2);max-width:480px;margin-bottom:32px}
+.hero h1 em{font-style:normal;color:var(--accent);white-space:nowrap}
+.hero p{font-size:17px;line-height:1.6;color:var(--text-2);max-width:500px;margin-bottom:18px}
 .hero-ctas{display:flex;gap:14px;flex-wrap:wrap}
 .hero-note{margin-top:18px;font-size:13px;color:var(--text-dim)}
+/* Say what is being bought (rule 24). Plain text, not buttons that look like
+   buttons: they filter the gallery, but the job here is to be READ. */
+.hero-cats{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0 0 26px;max-width:520px}
+.hero-cats li{font-size:12.5px;font-weight:600;color:var(--text-2);border:.5px solid var(--hairline-strong);border-radius:var(--r-pill);padding:5px 11px}
+.hero-cats button{all:unset;cursor:pointer}
+.hero-cats li:has(button:hover){border-color:var(--accent);color:var(--text)}
+.hero-cats li:has(button:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+/* Anything the eye compares is tabular mono (chrome law 4). Written from the
+   library at boot, never typed (rule 37). */
+.hero-proof{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:0;margin-top:30px}
+.hero-proof>div{padding:0 20px;border-left:1px solid var(--hairline-strong)}
+.hero-proof>div:first-child{padding-left:0;border-left:none}
+.hero-proof dt{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.hero-proof dd{font-size:12px;color:var(--text-dim);margin-top:2px}
+@media(max-width:520px){
+  .hero-proof{grid-template-columns:repeat(2,auto);row-gap:14px}
+  .hero-proof>div:nth-child(3){padding-left:0;border-left:none}
+}
 
 /* Height is set by the fan's geometry, not by taste: the front card must start
    BELOW the back cards' phone-number band or it buries the one element the ad
@@ -530,19 +549,32 @@ input,textarea,select{font-family:inherit;color:var(--text)}
 .tpl-card{position:relative;border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--glass-edge);background:var(--surface-raise);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s;aspect-ratio:1;box-shadow:var(--lift-1)}
 .tpl-card:hover{transform:translateY(-4px);box-shadow:var(--lift-2),0 16px 48px -14px rgba(255,122,26,.4)}
 .tpl-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.tpl-card .tpl-veil{position:absolute;inset:0;backdrop-filter:blur(1.6px) brightness(.86);transition:backdrop-filter .25s,opacity .25s}
-.tpl-card:hover .tpl-veil{backdrop-filter:blur(0) brightness(1);opacity:0}
-.tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
-.tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}
-.tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#ffd7a1;background:rgba(0,0,0,.55);border:.5px solid rgba(255,215,161,.35);border-radius:var(--r-pill);padding:4px 9px}
+/* No veil. It blurred every template until hover, and touch has no hover, so
+   no phone visitor ever saw the product in focus. The name moved OFF the art
+   into a caption row: a gradient footer across the bottom sat on exactly the
+   band where every template puts its phone number (rule 15 — protect the
+   region that carries the message, not the whole card). */
+.tpl-item{display:flex;flex-direction:column;gap:9px;min-width:0}
+/* The editor's template picker (pickerCard) keeps the overlay caption — a
+   dense tool grid, not the shop window — but loses the hover-only blur for
+   the same reason the landing did: touch never hovers. */
+.picker-grid .tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.picker-grid .tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.picker-grid .tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#ffd7a1;background:rgba(0,0,0,.55);border:.5px solid rgba(255,215,161,.35);border-radius:var(--r-pill);padding:4px 9px}
+.tpl-card .tpl-veil{display:none}
+.tpl-item .tpl-cap{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:0 2px}
+.tpl-item .tpl-name{font-weight:650;font-size:14px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tpl-item .tpl-tag{flex:none;font-size:11px;font-weight:600;color:var(--text-dim)}
+.tpl-item .tpl-tag.pro{font:700 10px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--warn);border:.5px solid currentColor;border-radius:var(--r-pill);padding:4px 8px}
 .tpl-card .tpl-use{position:absolute;top:12px;right:12px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;box-shadow:var(--glow-accent)}
-.tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}
+.tpl-card:hover .tpl-use,.tpl-card:focus-visible .tpl-use{opacity:1;transform:translateY(0)}
+@media (hover:none){.tpl-card .tpl-use{display:none}}
 .tpl-card .tpl-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}
 .tpl-card.tpl-saved-card .tpl-del{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:14px;opacity:0;transition:opacity .2s}
 .tpl-card.tpl-saved-card:hover .tpl-del{opacity:1}
 .tpl-card .tpl-del:hover{color:var(--danger);border-color:var(--danger)}
 
-.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;list-style:none}
 @media(max-width:820px){.flow{grid-template-columns:1fr}}
 .flow-step{
   position:relative;background:var(--glass-bg);
@@ -572,6 +604,131 @@ input,textarea,select{font-family:inherit;color:var(--text)}
 .lp-cta-inner h2{font-family:var(--display);font-size:clamp(30px,4.4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.06;margin-bottom:12px}
 .lp-cta-inner p{color:var(--text-2);margin-bottom:28px;font-size:15px}
 .lp-footer{border-top:1px solid var(--hairline);padding:26px clamp(16px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--text-dim);font-size:13px}
+
+
+/* ═══════════ LANDING v2 (2026-09-26) ═══════════ */
+/* Icons: the sprite at the top of <body>. Sized by font-size so they sit on
+   the text they label. */
+.ic{width:1.15em;height:1.15em;flex:none;display:inline-block;vertical-align:-.2em}
+.theme-btn .ic{width:18px;height:18px}
+
+.lp-section{scroll-margin-top:72px}
+.lp-section-head h2{text-wrap:balance}
+.lp-section-head p{text-wrap:pretty}
+
+/* ── video reel ──────────────────────────────────────────────────────────
+   Condensed: every tile shares one height, so a 9:16 and a 1:1 read as the
+   same ad in two shapes rather than as two sizes of importance. */
+.vreel{--vh:330px;display:flex;gap:18px;justify-content:center;align-items:flex-end}
+.vreel-item{margin:0;display:flex;flex-direction:column;gap:10px;flex:none}
+.vad{position:relative;height:var(--vh);border-radius:var(--r-lg);overflow:hidden;background:var(--surface-raise);
+  border:.5px solid var(--glass-edge);box-shadow:var(--lift-2);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s}
+.fmt-story .vad{aspect-ratio:9/16}
+.fmt-square .vad{aspect-ratio:1}
+.vad:hover{transform:translateY(-3px);box-shadow:var(--lift-3)}
+.vad video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+/* Small, in the corner, on the ad — and still a 44px target (the ::before
+   extends the hit area without growing the mark that sits on the artwork).
+   Bottom-right because the phone number sits bottom-centre on almost every
+   template and the top-right carries the selling-point ticks. */
+.vad-sound{position:absolute;right:9px;bottom:9px;z-index:2;width:30px;height:30px;border-radius:50%;
+  display:grid;place-items:center;padding:0;cursor:pointer;color:#fff;
+  background:rgba(12,10,9,.58);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:.5px solid rgba(255,255,255,.28);box-shadow:0 2px 8px rgba(0,0,0,.35);transition:background .15s,transform .1s}
+.vad-sound::before{content:'';position:absolute;inset:-7px;border-radius:50%}
+.vad-sound:hover{background:rgba(12,10,9,.8)}
+.vad-sound:active{transform:scale(.92)}
+.vad-sound .ic{width:16px;height:16px}
+/* The corner is measured per clip by the renderer (clips.json): the one with
+   the least text under it, so the button never sits on the phone plate. */
+.vad[data-corner="tr"] .vad-sound,.vad[data-corner="tl"] .vad-sound{top:9px;bottom:auto}
+.vad[data-corner="bl"] .vad-sound,.vad[data-corner="tl"] .vad-sound{left:9px;right:auto}
+.hero-card .vad-sound{width:26px;height:26px;right:7px;bottom:7px}
+.hero-card .vad[data-corner="tr"] .vad-sound,.hero-card .vad[data-corner="tl"] .vad-sound{top:7px;bottom:auto}
+.hero-card .vad[data-corner="bl"] .vad-sound,.hero-card .vad[data-corner="tl"] .vad-sound{left:7px;right:auto}
+.hero-card .vad-sound .ic{width:14px;height:14px}
+.hero-card .vad-sound::before{inset:-9px}
+/* A clip this browser cannot decode keeps its poster — the finished ad — and
+   drops the controls, because a sound or play button that does nothing is a
+   control that lies. */
+.vad.noplay .vad-sound,.vad.noplay .vad-play{display:none!important}
+.vad-sound .ic-on,.vad-sound[aria-pressed="true"] .ic-off{display:none}
+.vad-sound[aria-pressed="true"] .ic-on{display:block}
+.vad-sound[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+/* Reduced motion / Save-Data: nothing autoplays, the poster (frame 0, the
+   finished ad) stays, and a play mark says there is more. */
+.vad-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;width:52px;height:52px;border-radius:50%;
+  display:none;place-items:center;padding:0;cursor:pointer;color:#fff;background:rgba(12,10,9,.58);border:.5px solid rgba(255,255,255,.3);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.vad-play .ic{width:22px;height:22px;margin-left:3px}
+.vad.manual.paused .vad-play{display:grid}
+.vreel-item figcaption{font-size:12.5px;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:8px;padding:0 2px}
+.vreel-item figcaption .num{font-size:11px;color:var(--accent);font-weight:700}
+/* The keyboard route into a clip's template (the tile itself holds buttons,
+   so it cannot also be one). */
+.vreel-use{margin-left:auto;background:none;border:none;padding:6px 0;cursor:pointer;color:var(--text-dim);font:600 12px/1 var(--ui);min-height:32px}
+.vreel-use:hover,.vreel-use:focus-visible{color:var(--accent)}
+.lp-video-foot{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:30px}
+.lp-note{font-size:13px;color:var(--text-dim)}
+/* The hero's front card is the same video tile, filling the card the fan
+   geometry already measured (rule 15) rather than bringing its own size. */
+.hero-card .vad{position:absolute;inset:0;height:auto;aspect-ratio:auto;border:none;border-radius:0;box-shadow:none;transform:none}
+.hero-card .vad:hover{transform:none;box-shadow:none}
+@media(max-width:1180px){.vreel{--vh:300px}}
+@media(max-width:1080px){
+  /* A rail on anything narrower than four tiles: swipeable, snapping, and
+     bleeding to the screen edge so the cut-off tile says "there is more". */
+  .vreel{justify-content:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px clamp(16px,5vw,48px) 10px;
+    margin:0 calc(-1 * clamp(16px,5vw,48px));scrollbar-width:none}
+  .vreel::-webkit-scrollbar{display:none}
+  .vreel-item{scroll-snap-align:center}
+}
+@media(max-width:640px){.vreel{--vh:340px;gap:14px}}
+
+/* ── why ─────────────────────────────────────────────────────────────── */
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:1000px){.why-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.why-grid{grid-template-columns:1fr}}
+.why{background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:22px;box-shadow:var(--glass-shadow)}
+.why-ic{width:26px;height:26px;color:var(--accent);margin-bottom:14px}
+.why h3{font-size:16.5px;font-weight:700;letter-spacing:-.02em;margin-bottom:7px}
+.why p{font-size:14px;color:var(--text-dim);line-height:1.6}
+
+/* ── template filter + grid ──────────────────────────────────────────── */
+.lp-filter{display:flex;flex-wrap:wrap;gap:8px;margin:-14px 0 24px}
+.lp-chip{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:8px 14px;border-radius:var(--r-pill);cursor:pointer;
+  background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font:600 13px/1 var(--ui);transition:all .12s}
+.lp-chip:hover{color:var(--text);border-color:var(--hairline-strong)}
+.lp-chip .num{font-size:11.5px;color:var(--text-dim)}
+.lp-chip[aria-pressed="true"]{background:var(--accent-wash);border-color:var(--accent);color:var(--text)}
+.lp-chip[aria-pressed="true"] .num{color:var(--accent)}
+.lp-more{display:flex;justify-content:center;margin-top:28px}
+.lp-more .btn[hidden]{display:none}   /* .btn's display:inline-flex would otherwise beat [hidden] */
+@media(max-width:640px){
+  /* Two up on a phone. One-up made 24 full-width cards, a 10,000px scroll. */
+  .tpl-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .tpl-item .tpl-name{font-size:12.5px}
+  .lp-filter{flex-wrap:nowrap;overflow-x:auto;margin:-14px calc(-1 * clamp(16px,5vw,48px)) 20px;padding:2px clamp(16px,5vw,48px);scrollbar-width:none}
+  .lp-filter::-webkit-scrollbar{display:none}
+  .lp-chip{flex:none}
+}
+
+/* ── formats ─────────────────────────────────────────────────────────── */
+.fmt-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:22px}
+@media(max-width:820px){.fmt-row{grid-template-columns:repeat(2,1fr)}}
+.fmt{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:18px;border-radius:var(--r-lg);
+  background:var(--surface-sunk);border:.5px solid var(--hairline)}
+.fmt-frame{height:84px;display:flex;align-items:flex-end;margin-bottom:8px}
+.fmt-frame i{display:block;height:100%;border:1.5px solid var(--text-dim);border-radius:6px;opacity:.8}
+.fmt b{font-size:14.5px;letter-spacing:-.01em}
+.fmt span{font-size:12.5px;color:var(--text-dim);line-height:1.45}
+.fmt .num{font-size:11.5px;color:var(--text-2)}
+
+/* ── pricing, rendered from PLANS ────────────────────────────────────── */
+.lp-price-card .lp-price-per{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:-.01em}
+.lp-price-card .btn{margin-top:auto}
+.lp-price-card{display:flex;flex-direction:column}
 
 
 /* ═══════════ EDITOR ═══════════ */
@@ -913,16 +1070,31 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .lpf-col a:hover{color:var(--accent)}
 .lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}
 @media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}
-.ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}
+.ez-upload-bg{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}
 .ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}
-.ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}
+.ez-dl{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}
 .ez-dl:hover{filter:brightness(1.06)}
 .ez-dl:active{transform:scale(.985)}
 .ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}
 .ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}
 .ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}
+/* Video export sits right under the PNG button: same job, second shape. */
+.ez-video-row,.ex-video-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+.ez-video{flex:1;display:flex;align-items:center;justify-content:center;gap:9px;background:var(--surface-sunk);color:var(--text);
+  border:1px solid var(--accent);border-radius:var(--r-lg);font:650 15px/1 var(--ui);padding:14px;cursor:pointer;transition:background .15s}
+.ez-video:hover{background:var(--accent-wash)}
+.ez-video .num,.ex-video-row .num{font-size:11.5px;color:var(--text-dim)}
+.ez-video:disabled,#ex-video:disabled{opacity:.55;cursor:wait}
+.snd-toggle{display:inline-flex;align-items:center;gap:6px;font:600 12.5px/1 var(--ui);color:var(--text-2);cursor:pointer;white-space:nowrap;min-height:44px}
+.snd-toggle input{accent-color:var(--accent);width:16px;height:16px}
+.ex-video-row{flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--hairline)}
+.ex-video-note{flex-basis:100%;font-size:12px;color:var(--text-dim)}
 @media (max-width:920px){
-  .ez-main{grid-template-columns:1fr}
+  /* minmax(0,1fr), not 1fr: a 1fr track cannot shrink below its content's
+     min-content width, and the preview <img> (width:auto, max-height:52vh)
+     has a ~439px one, so on a 390px phone both cards grew to 481px and the
+     page scrolled sideways — cutting off the inputs and the ad itself. */
+  .ez-main{grid-template-columns:minmax(0,1fr)}
   /* The preview used to be pulled above the form with order:-1, which made a
      THREE-STEP guided flow read 1 -> 3 -> 2: the visitor was told "step 2, type
      your info" and then had to scroll past an 1180px preview to find the
@@ -930,7 +1102,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
      The preview stays useful while typing by sticking to the bottom of the
      viewport at a height that cannot swallow the page. */
   .ez-preview-card{position:static;order:0}
-  .ez-preview-card img{max-height:52vh;width:auto;margin:0 auto;display:block}
+  .ez-preview-card img{max-height:52vh;width:auto;max-width:100%;margin:0 auto;display:block}
 }
 /* Narrow phones: smaller thumbs so more than two fit, and the arrows pull in
    off the very edge where a thumb-swipe would fight them. */
@@ -1097,6 +1269,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}
 .ez-tpl{position:relative}
 .ez-tpl .tpl-lock{top:6px;left:6px}
+/* The Pro mark lives in the label, off the artwork. */
+.ez-tpl .pro-tag{display:inline-block;margin-left:5px;color:var(--warn);font:700 9px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;vertical-align:1px}
 .ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}
 .ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}
 .tpl-card.locked img{filter:grayscale(.35) brightness(.7)}

@@ -4,13 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Graphics Studio by BUYBACK.AD: "We Buy" ads for resellers in under a minute</title>
-<meta name="description" content="Make scroll-stopping buyback ads for phones, gold, cars, Pokémon cards, sports cards, coins and test strips. 160+ proven templates, your number on every design, 1080p+ exports for Marketplace, OfferUp, Craigslist and Instagram.">
+<!-- No counts in the meta tags: crawlers do not run the boot script that keeps
+     the on-page numbers true (rule 37), and this said "160+" to a library of 243. -->
+<meta name="description" content="Buyback ads that look like a real business, for phones, gold, silver, coins, cars, Pokémon and sports cards, and test strips. Pick a template, type your number, download an image or an 8-second video for Marketplace, OfferUp, Craigslist, Instagram and TikTok.">
 <link rel="canonical" href="https://buyback.ad/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Graphics Studio: buyback ads that actually convert">
-<meta property="og:description" content="Pick a template, type your number, download. 160+ designs across 8 buying categories. Free to start.">
+<meta property="og:title" content="Graphics Studio: buyback ads that look like a real business">
+<meta property="og:description" content="Pick a template for what you buy, type your number, download an image or a video ad. Free to start.">
 <meta property="og:url" content="https://buyback.ad/">
-<meta property="og:image" content="https://buyback.ad/assets/tplbg/cash_offer.jpg">
+<!-- assets/tplbg/ does not exist, so every share preview was blank. Served from
+     the netlify host because buyback.ad has no DNS yet (docs/OPERATIONS.md);
+     move it with canonical/og:url once the domain resolves. -->
+<meta property="og:image" content="https://buybackad-graphics-studio.netlify.app/assets/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#070a12" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#eaeef6" media="(prefers-color-scheme: light)">
@@ -37,134 +44,217 @@
      app.js is only ~160ms of download but ~2s of EXECUTION (243 templates get
      constructed before preloadTplBgs() can know what to ask for), and the
      connection sat completely idle through all of it — measured on production:
-     the first backdrop request left at 2497ms. These ten are the hero fan and
-     the first gallery row; hard-coding them lets the preload scanner start
+     the first backdrop request left at 2497ms. The entries below are the hero
+     and the first gallery row; hard-coding them lets the preload scanner start
      them at ~150ms, in parallel with that parse instead of after it. They are
      the same URLs preloadTplBgs() asks for, so they hit warm and cost nothing
-     twice. Regenerate this list if the hero seed or gallery order changes —
-     a stale entry is a wasted download and a console warning, not a break. -->
+     twice. Regenerate this list if the hero seed, the video reel or the
+     gallery order changes — a stale entry is a wasted download and a console
+     warning, not a break. -->
+<!-- Regenerated 2026-09-26 for the rebuilt landing: the hero's video poster,
+     the two still hero cards, and the first gallery row. The previous list was
+     ten phones backdrops, several no longer on screen. -->
+<link rel="preload" as="image" href="assets/video/gold_square.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_silver_priceAnchor_mono.jpg" fetchpriority="high">
 <link rel="preload" as="image" href="assets/bg/dl_phones_voltStack_volt.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_glassCard_ocean.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_neonNight_royal.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_arcCrown_crimson.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_diagonalRush_sunset.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_bandKnockout_arctic.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_ticketStub_mono.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_bubblePop_volt.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_hudTech_ocean.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_checklistHero_emerald.jpg">
+<link rel="preload" as="image" href="assets/bg/dl_silver_voltStack_mono.jpg">
+<link rel="preload" as="image" href="assets/bg/dl_cars_checklistHero_emerald.jpg">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 </head>
 <body>
 
-<!-- ═══════════════════ LANDING ═══════════════════ -->
+<!-- ═══════════════════ ICONS ═══════════════════
+     One system, per DESIGN-LAW rule 17: a 24-unit box, one 1.75 stroke, round
+     caps AND joins, outline not solid. Chrome glyphs used to be emoji and
+     Unicode (◐ ▾ 🌐 ⬇), which render in whatever font the OS falls back to —
+     the theme toggle's ◐ drew as a 4px sliver. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-theme" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></symbol>
+    <symbol id="i-sound-off" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></symbol>
+    <symbol id="i-sound-on" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.25 6.5a8 8 0 0 1 0 11"/></g></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.75v12.5L18.25 12z" fill="currentColor" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h13.5M13 6.5l5.5 5.5-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-contrast" viewBox="0 0 24 24"><rect x="3.75" y="3.75" width="16.5" height="16.5" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M20.25 7.25v9.5a3.5 3.5 0 0 1-3.5 3.5h-9.5z" fill="currentColor"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.5 3.75h3l1.5 4.25-2 1.5a10 10 0 0 0 5.5 5.5l1.5-2 4.25 1.5v3a1.75 1.75 0 0 1-1.9 1.75C11.5 18.6 5.4 12.5 4.75 5.65A1.75 1.75 0 0 1 6.5 3.75z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-photo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.75" y="5" width="16.5" height="14" rx="3"/><circle cx="9" cy="10" r="1.75"/><path d="M4.5 17l4.75-4.5 3.5 3.25 2.75-2.5 4 3.75"/></g></symbol>
+    <symbol id="i-say" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5.75 4.75h12.5a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4.5 3.5v-3.5h-1a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><path d="M8.5 9.25h7M8.5 12.5h4.5"/></g></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.75" y="6.25" width="12" height="11.5" rx="2.5"/><path d="M15.75 10.5l4.5-2.75v8.5l-4.5-2.75"/></g></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4.25v11M7.25 10.75L12 15.5l4.75-4.75M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<!-- ═══════════════════ LANDING ═══════════════════
+     Rebuilt 2026-09-26 against DESIGN-LAW, which until now governed the
+     templates and not the page selling them. What changed and why, briefly:
+     - Say what is being bought (rule 24): the hero named phones only while
+       the fan beside it showed silver and gold. It now names all eight.
+     - State no number you can count (rule 37): counts, prices and quotas are
+       written from TEMPLATES / PLANS / FORMATS at boot. The bottom CTA had
+       promised "Unlimited exports" to a plan that gets three a week.
+     - Show the product, sharp: the gallery sat behind a blur veil that only
+       cleared on hover, so no touch visitor ever saw a template in focus.
+     - Trust is the conversion: vague superlatives ("layouts that already
+       convert") replaced with the house rules, stated as what the buyer gets. -->
 <div id="page-landing">
-  <nav class="lp-nav">
+  <nav class="lp-nav" aria-label="Main">
     <button class="logo" id="lp-logo"><span class="logo-mark">▰</span>GRAPHICS <em>STUDIO</em></button>
     <div class="lp-nav-links">
       <a href="#lp-templates">Templates</a>
-      <a href="#lp-how">How it works</a>
+      <a href="#lp-video">Video ads</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
     </div>
     <div class="lp-nav-right">
-      <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
+      <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg class="ic"><use href="#i-theme"/></svg></button>
       <button class="btn btn-ghost" id="lp-login">Log in</button>
       <button class="btn btn-outline" id="lp-signup">Sign up free</button>
       <span class="view-menu lp-split">
-        <button class="btn btn-primary" id="lp-open-studio">Make my ad</button><button class="btn btn-primary lp-caret" id="lp-studio-caret" title="New project or reopen a previous one">▾</button>
+        <button class="btn btn-primary" id="lp-open-studio">Make my ad</button><button class="btn btn-primary lp-caret" id="lp-studio-caret" title="New project or reopen a previous one" aria-label="New project or reopen a previous one">▾</button>
         <div class="view-drop acct-drop" id="lp-projects-menu"></div>
       </span>
     </div>
   </nav>
 
   <section class="hero">
-    <div>
-      <div class="hero-eyebrow">Built for phone buyers &amp; resellers</div>
-      <h1>Post-ready buyback ads<br><em>in under a minute.</em></h1>
-      <p>Pick a proven template, type in your phone number and headline, hit export. High-impact "we buy phones" graphics for Facebook Marketplace, OfferUp, Instagram and Craigslist, no design skills needed.</p>
+    <div class="hero-copy">
+      <div class="hero-eyebrow">Ad maker for buyback businesses</div>
+      <h1>Buyback ads<br>that look like<br><em>a real business.</em></h1>
+      <p class="hero-lede">Pick a template for what you buy, type your number, and download a post-ready image or video for Marketplace, OfferUp, Craigslist, Instagram and TikTok. About a minute, start to finish.</p>
+      <ul class="hero-cats" id="lp-hero-cats" aria-label="What you can make ads for">
+        <li>Phones &amp; Devices</li><li>Gold &amp; Jewelry</li><li>Silver</li><li>Rare Coins</li><li>Cars &amp; Trucks</li><li>Diabetic Supplies</li><li>Pokémon Cards</li><li>Sports Cards</li>
+      </ul>
       <div class="hero-ctas">
-        <button class="btn btn-primary btn-xl" id="lp-cta-main">Make my ad in under a minute</button>
-        <a href="#lp-templates" class="btn btn-outline btn-xl">Browse templates</a>
+        <button class="btn btn-primary btn-xl" id="lp-cta-main">Make my ad, free</button>
+        <a href="#lp-video" class="btn btn-outline btn-xl"><svg class="ic"><use href="#i-play"/></svg>See video ads</a>
       </div>
-      <div class="hero-note">Runs entirely in your browser. Your templates and drafts save automatically.</div>
+      <dl class="hero-proof" id="lp-proof">
+        <div><dt class="num" data-count="templates">240+</dt><dd>templates</dd></div>
+        <div><dt class="num" data-count="categories">8</dt><dd>categories</dd></div>
+        <div><dt class="num" data-count="formats">4</dt><dd>formats</dd></div>
+        <div><dt class="num">PNG·MP4</dt><dd>image or video</dd></div>
+      </dl>
     </div>
-    <div class="hero-stack" id="hero-stack">
+    <div class="hero-stack" id="hero-stack" aria-label="Example ads, tap one to start from it">
       <div class="hero-card hc1"><div class="hc-skel"></div></div>
       <div class="hero-card hc2"><div class="hc-skel"></div></div>
       <div class="hero-card hc3"><div class="hc-skel"></div></div>
     </div>
   </section>
 
+  <section class="lp-section lp-video" id="lp-video">
+    <div class="lp-section-head">
+      <div class="lp-kicker">New · Video ads</div>
+      <h2>Same ad. Now it moves.</h2>
+      <p>Any template exports as an 8-second video for Reels, Stories and TikTok. The photo drifts and the offer, the selling points and your number each get one beat, but every frame is still a finished ad, so nobody scrolls past before they see your number. It plays muted, like every video in the feed. Tap the speaker for sound.</p>
+    </div>
+    <!-- Clips are rendered by the product's own motion code
+         (scripts/render_motion_clips.mjs), so what plays here is what the
+         export button produces. Sources and the sound button's corner come
+         from assets/video/clips.json, which that script writes; the video is
+         fetched only when a tile comes into view. The poster is frame 0, the
+         finished ad, so without JS or without the manifest this still shows
+         four complete ads. -->
+    <div class="vreel" id="lp-vreel">
+      <figure class="vreel-item fmt-story" data-clip="phones_story" data-tpl="sell_iphone">
+        <div class="vad">
+          <video muted loop playsinline preload="none" poster="assets/video/phones_story.jpg" aria-label="Video ad, Story format: Sell your iPhone"></video>
+          <button class="vad-sound" type="button" aria-label="Turn sound on" aria-pressed="false"><svg class="ic ic-off"><use href="#i-sound-off"/></svg><svg class="ic ic-on"><use href="#i-sound-on"/></svg></button>
+        </div>
+        <figcaption><span class="num">9:16</span> Story · Phones</figcaption>
+      </figure>
+      <figure class="vreel-item fmt-square" data-clip="gold_square" data-tpl="gold_spot">
+        <div class="vad">
+          <video muted loop playsinline preload="none" poster="assets/video/gold_square.jpg" aria-label="Video ad, Square format: Today's gold price"></video>
+          <button class="vad-sound" type="button" aria-label="Turn sound on" aria-pressed="false"><svg class="ic ic-off"><use href="#i-sound-off"/></svg><svg class="ic ic-on"><use href="#i-sound-on"/></svg></button>
+        </div>
+        <figcaption><span class="num">1:1</span> Square · Gold</figcaption>
+      </figure>
+      <figure class="vreel-item fmt-story" data-clip="cars_story" data-tpl="cars_anycond">
+        <div class="vad">
+          <video muted loop playsinline preload="none" poster="assets/video/cars_story.jpg" aria-label="Video ad, Story format: We buy cars, running or not"></video>
+          <button class="vad-sound" type="button" aria-label="Turn sound on" aria-pressed="false"><svg class="ic ic-off"><use href="#i-sound-off"/></svg><svg class="ic ic-on"><use href="#i-sound-on"/></svg></button>
+        </div>
+        <figcaption><span class="num">9:16</span> Story · Cars</figcaption>
+      </figure>
+      <figure class="vreel-item fmt-square" data-clip="cards_square" data-tpl="pkm_zard">
+        <div class="vad">
+          <video muted loop playsinline preload="none" poster="assets/video/cards_square.jpg" aria-label="Video ad, Square format: We buy Charizard"></video>
+          <button class="vad-sound" type="button" aria-label="Turn sound on" aria-pressed="false"><svg class="ic ic-off"><use href="#i-sound-off"/></svg><svg class="ic ic-on"><use href="#i-sound-on"/></svg></button>
+        </div>
+        <figcaption><span class="num">1:1</span> Square · Pokémon</figcaption>
+      </figure>
+    </div>
+    <div class="lp-video-foot">
+      <button class="btn btn-primary" data-goto="easy"><svg class="ic"><use href="#i-video"/></svg>Make a video ad</button>
+      <span class="lp-note">A video uses one export, same as an image. 1080p MP4 from Chrome, Edge or Safari.</span>
+    </div>
+  </section>
+
+  <section class="lp-section" id="lp-why">
+    <div class="lp-section-head">
+      <div class="lp-kicker">Why they get calls</div>
+      <h2>Built to look trustworthy, not loud.</h2>
+      <p>Someone is about to hand a stranger their phone, their gold or their car keys. Your ad has to read as a business before it reads as a deal, so every template follows the same house rules.</p>
+    </div>
+    <div class="why-grid">
+      <article class="why"><svg class="ic why-ic"><use href="#i-contrast"/></svg><h3>Contrast, not neon</h3><p>Attention comes from size and contrast. Neon colours, rainbow text and starbursts read as a scam, so no template uses them.</p></article>
+      <article class="why"><svg class="ic why-ic"><use href="#i-phone"/></svg><h3>Your number, always readable</h3><p>Every template is checked so the phone number stands clear of the photo behind it, on a solid plate when it needs one.</p></article>
+      <article class="why"><svg class="ic why-ic"><use href="#i-photo"/></svg><h3>Real photos, not clip art</h3><p>Each design sits on photography of what you buy. No memes, no winged-money clip art, no flyer-on-a-pole look.</p></article>
+      <article class="why"><svg class="ic why-ic"><use href="#i-say"/></svg><h3>Say what you buy</h3><p>Headlines name the product, WE BUY IPHONES rather than slang, so the right sellers stop scrolling.</p></article>
+    </div>
+  </section>
+
   <section class="lp-section" id="lp-templates">
     <div class="lp-section-head">
       <div class="lp-kicker">Template library</div>
-      <h2>Layouts that already convert</h2>
-      <p>Every template follows the format that works for phone buyers: giant headline, trust badges, one clear number to text. Click any design to open it in the studio.</p>
+      <h2>Start from a design made for what you buy.</h2>
+      <p>Tap any design to open it with your details. Every Phones design is free, plus the first three in every other category.</p>
     </div>
+    <div class="lp-filter" id="lp-filter" role="group" aria-label="Filter templates by category"></div>
     <div class="tpl-grid" id="lp-tpl-grid"></div>
+    <div class="lp-more"><button class="btn btn-outline" id="lp-tpl-more" hidden>Show more</button></div>
   </section>
 
   <section class="lp-section" id="lp-how">
     <div class="lp-section-head">
-      <div class="lp-kicker">The workflow</div>
-      <h2>Three steps to your next ad</h2>
+      <div class="lp-kicker">How it works</div>
+      <h2>Three steps. About a minute.</h2>
     </div>
-    <div class="flow">
-      <div class="flow-step">
-        <div class="fs-num">STEP 01</div>
-        <h3>Pick a template</h3>
-        <p>Start from a layout designed for buyback ads, bold, legible on a phone screen, and built around trust signals.</p>
-      </div>
-      <div class="flow-step">
-        <div class="fs-num">STEP 02</div>
-        <h3>Type your details</h3>
-        <p>Quick-edit fields update the canvas as you type. Save your number and website once in your Brand Kit and every template fills itself in.</p>
-      </div>
-      <div class="flow-step">
-        <div class="fs-num">STEP 03</div>
-        <h3>Enhance &amp; export</h3>
-        <p>One click restores the template's pro styling and cleans up your text, then export a crisp PNG ready to post.</p>
-      </div>
-    </div>
+    <ol class="flow">
+      <li class="flow-step"><div class="fs-num">01</div><h3>Pick what you buy</h3><p>Choose your category and a look. Layout, colour and type are already done.</p></li>
+      <li class="flow-step"><div class="fs-num">02</div><h3>Type your number</h3><p>Add your phone, headline and selling points. Save them once in your Brand Kit and every template fills itself in.</p></li>
+      <li class="flow-step"><div class="fs-num">03</div><h3>Download and post</h3><p>Get a sharp PNG or an 8-second video. Need a Story, a flyer or a banner? The advanced editor re-flows the same design.</p></li>
+    </ol>
+    <div class="fmt-row" id="lp-formats" aria-label="Formats"></div>
   </section>
 
   <section class="lp-section" id="pricing">
-  <div class="lp-section-head">
-    <div class="lp-kicker">Pricing</div>
-    <h2>Free to start. $15 when it pays for itself.</h2>
-    <p>One ad that closes one seller covers months of Pro. No contracts, cancel in two clicks.</p>
-  </div>
-  <div class="lp-price-grid">
-    <div class="lp-price-card">
-      <h3>Free</h3>
-      <div class="lp-price">$0</div>
-      <ul><li>3 exports per week</li><li>55+ free templates, every Phones design</li><li>1080 × 1080 downloads</li><li>BUYBACK.AD watermark</li></ul>
-      <button class="btn btn-outline" data-goto="easy">Start free</button>
+    <div class="lp-section-head">
+      <div class="lp-kicker">Pricing</div>
+      <h2>Free to start. <span data-plan-price="pro">$15</span> when it pays for itself.</h2>
+      <p>One seller who calls covers months of Pro. No contract, and you can cancel any time from Plan &amp; billing.</p>
     </div>
-    <div class="lp-price-card hot">
-      <h3>Pro</h3>
-      <div class="lp-price">$15<small>/mo</small></div>
-      <ul><li>100 exports per month</li><li>All 160+ templates incl. the Designer Library</li><li>Up to 2160 × 2160, no watermark</li><li>Export history &amp; re-downloads</li></ul>
-      <button class="btn btn-primary" data-goto="plans">Go Pro</button>
+    <div class="lp-price-grid" id="lp-price-grid"></div>
+  </section>
+
+  <section class="lp-section" id="faq">
+    <div class="lp-section-head">
+      <div class="lp-kicker">FAQ</div>
+      <h2>Questions buyers ask us</h2>
     </div>
-  </div>
-</section>
+    <details class="lp-faq"><summary>Do I need any design skills?</summary><p>No. Pick a template, type your phone number, download. Layout, type and colour are already done, to rules written for buyback ads. If you want full control, the advanced editor is one click away.</p></details>
+    <details class="lp-faq"><summary>What can I make ads for?</summary><p><span data-cat-list>Phones &amp; devices, gold &amp; jewelry, silver, rare coins, cars &amp; trucks, diabetic supplies, Pokémon cards and sports cards</span>, with copy written for each market and a real photo behind every design.</p></details>
+    <details class="lp-faq"><summary>Can I make video ads?</summary><p>Yes. Any template exports as an 8-second video for Reels, Stories and TikTok, with or without sound. It records right in your browser at 1080p: MP4 from Chrome, Edge and Safari, WebM from Firefox. A video uses one export, the same as an image.</p></details>
+    <details class="lp-faq"><summary>Where do people post these?</summary><p>Facebook Marketplace, OfferUp, Craigslist, Instagram, TikTok and Nextdoor, plus print. Square fits every feed, and the advanced editor makes a Story 9:16, a letter-size flyer or a wide 16:9 banner from the same design.</p></details>
+    <details class="lp-faq"><summary>Can I use my own photos?</summary><p>Yes. Upload any photo, iPhone HEIC included, then blur it, tint it, or generate a background with AI. The plates behind your text stay solid, so your words stay readable over any photo.</p></details>
+    <details class="lp-faq"><summary>How do I cancel?</summary><p>Open your account menu, then Plan &amp; billing, then Manage billing. You can cancel in the billing portal and keep Pro until the end of the period you paid for.</p></details>
+  </section>
 
-<section class="lp-section" id="faq">
-  <div class="lp-section-head">
-    <div class="lp-kicker">FAQ</div>
-    <h2>Questions buyers ask us</h2>
-  </div>
-  <details class="lp-faq"><summary>Do I need any design skills?</summary><p>No. Pick a template, type your phone number, download. Every layout, font pairing and color already follows what converts for buyback ads. If you want control, the advanced editor is one click away.</p></details>
-  <details class="lp-faq"><summary>What can I make ads for?</summary><p>Eight buying categories: phones &amp; devices, gold &amp; jewelry, silver, rare coins, cars &amp; trucks, diabetic supplies, Pokémon cards and sports cards, 160+ templates written with real closing copy for each market, every Designer Library layout shot on real photo backdrops.</p></details>
-  <details class="lp-faq"><summary>Where do people post these?</summary><p>Facebook Marketplace, OfferUp, Craigslist, Instagram, Nextdoor, plus print. Exports are square 1080×1080 (up to 2160 on Pro), the format every feed prefers.</p></details>
-  <details class="lp-faq"><summary>Can I use my own photos?</summary><p>Yes, upload any photo (HEIC from iPhone included), blur it, tint it, or generate a background with AI. Solid color blocks in templates are semi-transparent so your photo stays visible.</p></details>
-  <details class="lp-faq"><summary>How do I cancel?</summary><p>From the plans page, Manage billing opens your Stripe portal where you can cancel instantly. You keep Pro until the end of the billing period.</p></details>
-</section>
-
-<div class="lp-cta">
+  <div class="lp-cta">
     <div class="lp-cta-inner">
-      <h2>Your next ad is 60 seconds away</h2>
-      <p>Free to use. Unlimited exports. Save your own templates for repeat posting.</p>
+      <h2>Your next ad is a minute away.</h2>
+      <p>Free to start: <span data-plan-quota="free">3 exports a week</span>, image or video. No card needed.</p>
       <button class="btn btn-primary btn-xl" id="lp-cta-bottom">Make my ad now</button>
     </div>
   </div>
@@ -173,11 +263,12 @@
     <div class="lpf-cols">
       <div class="lpf-brand">
         <div class="logo" style="cursor:default"><span class="logo-mark">▰</span>GRAPHICS <em>STUDIO</em></div>
-        <p>High-quality buyback graphics, nothing else. Made for volume posters.</p>
+        <p>Ads for buyback businesses, for people who post every day.</p>
       </div>
       <div class="lpf-col">
         <h4>Product</h4>
         <a href="#lp-templates">Templates</a>
+        <a href="#lp-video">Video ads</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
         <a href="#" id="lpf-studio">Open the studio</a>
@@ -203,15 +294,15 @@
   <nav class="ez-nav">
     <button class="logo" id="ez-logo"><span class="logo-mark">▰</span>GRAPHICS <em>STUDIO</em></button>
     <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-      <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
-      <button class="ez-adv-link" id="nav-community">🌐 Community</button>
+      <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg class="ic"><use href="#i-theme"/></svg></button>
+      <button class="ez-adv-link" id="nav-community">Community</button>
       <span class="view-menu">
-        <button class="ez-adv-link" id="nav-history">⬇ Export <span class="caret">▾</span></button>
+        <button class="ez-adv-link" id="nav-history">Projects <span class="caret">▾</span></button>
         <div class="view-drop acct-drop" id="export-menu"></div>
       </span>
       <button class="ez-adv-link" id="nav-genbg">✦ Generate BG</button>
       <button class="ez-adv-link" id="nav-admin" style="display:none">🛠 AI Studio</button>
-      <button class="nav-upgrade" id="nav-upgrade" style="display:none">⬆ Upgrade</button>
+      <button class="nav-upgrade" id="nav-upgrade" style="display:none">Upgrade</button>
       <span class="view-menu">
         <button class="acct-chip" id="acct-chip"><span id="acct-label">Sign in</span><span class="acct-plan free" id="acct-plan" style="display:none">FREE</span></button>
         <div class="view-drop acct-drop" id="acct-menu">
@@ -228,7 +319,7 @@
   <div class="ez-wrap">
     <div class="ez-head">
       <h1>Make your ad</h1>
-      <p>Three steps. Under a minute. Everything is cleaned up automatically.</p>
+      <p>Three steps, about a minute. Download an image, or an 8-second video for Reels and Stories.</p>
     </div>
 
     <div class="ez-stepline"><span class="ez-stepnum">1</span><h2>Pick a look</h2><small>tap one</small></div>
@@ -284,9 +375,13 @@
       <div class="ez-card ez-preview-card">
         <div class="ez-stepline" style="margin-top:0"><span class="ez-stepnum">3</span><h2>Download</h2></div>
         <img id="ez-preview" alt="Live preview of your ad">
-        <button class="ez-upload-bg" id="ez-upload-bg">📸&nbsp; Upload background photo</button>
+        <button class="ez-upload-bg" id="ez-upload-bg"><svg class="ic"><use href="#i-photo"/></svg> Use my own photo</button>
         <input type="file" id="ez-upload-bg-file" accept="image/*,.heic,.heif" style="display:none">
-        <button class="ez-dl" id="ez-download">⬇&nbsp; Download my ad</button>
+        <button class="ez-dl" id="ez-download"><svg class="ic"><use href="#i-download"/></svg> Download my ad</button>
+        <div class="ez-video-row">
+          <button class="ez-video" id="ez-video"><svg class="ic"><use href="#i-video"/></svg> Download as video <span class="num">8s</span></button>
+          <label class="snd-toggle" title="Include the sound track. Every feed starts it muted either way."><input type="checkbox" data-video-sound checked> Sound</label>
+        </div>
         <button class="ez-open-adv" id="ez-pack" style="display:none">📦&nbsp; Export category pack (zip)</button>
         <button class="ez-order" id="ez-order" style="display:none" title="Send this ad to SCANS.AD, printed, posted around town, every scan tracked">🖨&nbsp; Order prints + posting</button>
         <div class="ez-quota" id="ez-quota"></div>
@@ -325,11 +420,11 @@
     </div>
     <button class="tb-btn" id="enhance-btn" title="Restore template styling and clean up text">✦ <span class="tb-label">Enhance</span></button>
     <div class="tb-spacer"></div>
-    <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
+    <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg class="ic"><use href="#i-theme"/></svg></button>
     <button class="tb-btn" id="help-btn" title="Replay the tour">?</button>
     <button class="tb-btn" id="brand-btn" title="Your saved number, website and city">👤 <span class="tb-label">Brand kit</span></button>
     <button class="tb-btn" id="save-tpl-btn" title="Save as reusable template (Ctrl+S)">💾 <span class="tb-label">Save template</span></button>
-    <button class="tb-btn" id="export-btn" title="Export PNG">⬇ Export</button>
+    <button class="tb-btn" id="export-btn" title="Export an image or a video"><svg class="ic"><use href="#i-download"/></svg> Export</button>
   </div>
 
   <div class="editor-body">
@@ -660,8 +755,8 @@
 
 <div class="modal-overlay" id="export-overlay">
   <div class="modal">
-    <h3>Export PNG</h3>
-    <div class="modal-sub">Crisp, post-ready. Standard is perfect for Marketplace &amp; Instagram; 2× for print, flyers or zoom-heavy listings.</div>
+    <h3>Export</h3>
+    <div class="modal-sub">A PNG for posts and print, or an 8-second video for Reels, Stories and TikTok. Standard size suits every feed; 2× is for print and flyers.</div>
     <img class="export-preview" id="export-preview" alt="Ad preview">
     <div class="seg" id="export-size-seg">
       <button data-size="1440" class="active">1440 × 1440</button>
@@ -669,7 +764,12 @@
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="ex-cancel">Cancel</button>
-      <button class="btn btn-primary" id="ex-download">⬇ Download PNG</button>
+      <button class="btn btn-primary" id="ex-download"><svg class="ic"><use href="#i-download"/></svg> Download PNG</button>
+    </div>
+    <div class="ex-video-row">
+      <button class="btn btn-outline" id="ex-video"><svg class="ic"><use href="#i-video"/></svg> Download video <span class="num">8s</span></button>
+      <label class="snd-toggle" title="Include the sound track. Every feed starts it muted either way."><input type="checkbox" data-video-sound checked> Sound</label>
+      <span class="ex-video-note">In the format you are working in, at 1080p. Keep this tab open while it records.</span>
     </div>
     <button class="btn btn-order" id="ex-order" style="display:none" title="Send this ad to SCANS.AD, printed, posted around town, every scan tracked">🖨 Order prints + posting <span class="order-sub">printed &amp; posted via SCANS.AD</span></button>
   </div>
@@ -708,12 +808,12 @@
       <h3 style="text-align:center">Pick your account type</h3>
       <div class="modal-sub" style="text-align:center">You can change plans any time from your account menu.</div>
       <button class="at-card" id="at-free">
-        <span class="at-name">Starter <em>free forever</em></span>
-        <span class="at-desc">3 exports a week, 20 starter templates, 1080p downloads with watermark.</span>
+        <span class="at-name">Free <em>forever</em></span>
+        <span class="at-desc">3 exports a week, image or video. 50+ free templates, 1080p downloads with a watermark.</span>
       </button>
       <button class="at-card hot" id="at-pro">
         <span class="at-name">Pro <em>$15/mo</em></span>
-        <span class="at-desc">100 exports a month, all 160+ templates including the Designer Library, up to 2160p, no watermark.</span>
+        <span class="at-desc">100 exports a month, image or video. All 240+ templates, up to 2160px, no watermark.</span>
       </button>
     </div>
     <div class="auth-ok" id="auth-ok" style="display:none">

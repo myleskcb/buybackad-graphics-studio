@@ -1,0 +1,38 @@
+[
+  {
+    "key": "phones_story",
+    "tpl": "sell_iphone",
+    "fmt": "story",
+    "corner": "br",
+    "poster": "assets/video/phones_story.jpg",
+    "mp4": "assets/video/phones_story.mp4",
+    "webm": "assets/video/phones_story.webm"
+  },
+  {
+    "key": "gold_square",
+    "tpl": "gold_spot",
+    "fmt": "square",
+    "corner": "tr",
+    "poster": "assets/video/gold_square.jpg",
+    "mp4": "assets/video/gold_square.mp4",
+    "webm": "assets/video/gold_square.webm"
+  },
+  {
+    "key": "cars_story",
+    "tpl": "cars_anycond",
+    "fmt": "story",
+    "corner": "br",
+    "poster": "assets/video/cars_story.jpg",
+    "mp4": "assets/video/cars_story.mp4",
+    "webm": "assets/video/cars_story.webm"
+  },
+  {
+    "key": "cards_square",
+    "tpl": "pkm_zard",
+    "fmt": "square",
+    "corner": "br",
+    "poster": "assets/video/cards_square.jpg",
+    "mp4": "assets/video/cards_square.mp4",
+    "webm": "assets/video/cards_square.webm"
+  }
+]
