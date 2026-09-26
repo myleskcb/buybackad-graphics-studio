@@ -1682,3 +1682,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 @media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}
 .lp-faq p a{color:var(--accent);text-decoration:underline}
+
+/* THE LANDING GRID SHOWS EACH CARD AS IT WILL POST (2026-09-26). The number
+   was rebuilt big and sits at the foot of most cards; the caption strip (a
+   38px gradient with the palette and layout name) was drawn over exactly
+   that, and the veil blurred and dimmed every card until hover, which a phone
+   never sends. The section is headed "exactly as it will post": the card is
+   shown crisp, and its name appears on hover or keyboard focus. Scoped to the
+   landing grid; the studio's own template pickers keep their captions. */
+#lp-tpl-grid .tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none}
+#lp-tpl-grid .tpl-card .tpl-meta{opacity:0;transition:opacity .2s}
+#lp-tpl-grid .tpl-card:hover .tpl-meta,#lp-tpl-grid .tpl-card:focus-visible .tpl-meta{opacity:1}
