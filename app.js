@@ -1923,7 +1923,11 @@ function applyBgSpec(cv, bg){
       let s = (cv.getObjects ? cv.getObjects() : []).find(o => o.pgScrim);
       if (bg.scrim){
         if (!s){ s = scrimRect(bg.scrim, CW, CH, bg.scrimColor, bg.scrimMode); s.pgScrim = true; cv.add(s); }
-        else s.set({ left:0, top:0, width:CW, height:CH, fill:(bg.scrimColor === '#ffffff' ? 'rgba(255,255,255,' : 'rgba(0,0,0,') + bg.scrim + ')' });
+        /* the same fill scrimRect() draws: any hex and the gradient mode. This
+           read `scrimColor === '#ffffff' ? white : black`, so a paper-white
+           wash ('#f4f1ec', '#f6f6f4') turned black the second time it was
+           applied, under the dark ink it was chosen for. */
+        else s.set({ left:0, top:0, width:CW, height:CH, fill:scrimRect(bg.scrim, CW, CH, bg.scrimColor, bg.scrimMode).fill });
         if (cv.sendToBack) cv.sendToBack(s);
       } else if (s) cv.remove(s);
       cv.renderAll();
@@ -9198,6 +9202,52 @@ tuneFallbacks();
           });
           if (hits.some(h => !h)) return;
           hits.forEach(([l, f]) => { l.props = Object.assign({}, l.props, f.props); });
+          n++;
+        });
+        if (!n) return;
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
+/* THE GROUND TABLE, 2026-09-26. assignStyle() above paints 129 classics'
+   photographs as a duotone or a one-hue wash (the multiply/screen grade). The
+   owner: "not these ugly hideous overlaid colors and duotone background
+   images." The study session's layering ladder puts the photograph at rung 0
+   and atmosphere at rung 1, "light and shade, never an object": colour belongs
+   to the plate and the money word, not as a coat over the picture.
+
+   scripts/naturalize_classics.mjs renders each graded classic as the visitor
+   sees it (the contrast and number tables applied) and writes
+   assets/ground-fix.json: the photograph with no grade, and a neutral scrim in
+   the template's own gradient mode, solved on its own pixels to keep the worst
+   end of the ground under every line on the photograph at least as far from
+   the ink as the graded ground kept it (DESIGN-LAW rule 52). So the measured
+   inks stay right. Same shape as the tables above: a failed fetch leaves the
+   graded look, a row whose photograph changed since the bake is skipped, and
+   ?noground=1 skips it, for the script. */
+(function loadGroundFix(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]noground=1\b/.test(location.search)) return;
+    fetch('assets/ground-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(rows => {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const byId = {};
+        rows.forEach(f => { if (f && f.id && f.bg) byId[f.id] = f; });
+        let n = 0;
+        TEMPLATES.forEach(t => {
+          const f = byId[t.id], bg = t.bg;
+          if (!f || !bg || bg.type !== 'image' || bg.src !== f.src) return;
+          delete bg.grade;
+          bg.scrim = f.bg.scrim;
+          if (f.bg.scrimColor) bg.scrimColor = f.bg.scrimColor; else delete bg.scrimColor;
+          bg.scrimMode = f.bg.scrimMode || 'gradient';
+          t.style = 'photo';
           n++;
         });
         if (!n) return;
