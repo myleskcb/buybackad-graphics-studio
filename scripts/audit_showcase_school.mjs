@@ -27,7 +27,8 @@
  *                (the study's thumbnail test, at the size of an OfferUp tile)
  *     hierarchy  the headline under 1.3x the next biggest line: it does not win
  *     families   more than two type families
- *     faux       a weight asked of a face that ships no file for it (rule 20)
+ *     faux       a weight heavier than any file the face ships (rule 20): the
+ *                browser fakes it
  *     copy       invented proof, a price figure, invented hours, a dash, a
  *                deadline or a "real person" claim (refresh_copy.mjs)
  *     device     the headline names a device the card does not show (an
@@ -103,16 +104,20 @@ for (let i = 0; i < work.length; i += 6){
           texts.push({ k, l, o, b: box(o), px: (o.fontSize || (l.props && l.props.fontSize) || 0) * (o.scaleY || 1), role: l.role || '', fam: o.fontFamily || (l.props && l.props.fontFamily) || null });
         });
         const read = texts.filter(x => READ[x.role]);
-        /* letter by letter, the way the video engine's attention audit judges a
-           headline: paint without the line and the changed pixels are the line's
-           footprint (fill, stroke, shadow, plate); within each letter-wide column
-           the LETTER is the brightest or darkest 15% of that footprint, whichever
-           is further from the ground around it, and what it is read against is
-           everything else within 3px, the halo included. A line average hides two
-           letters on a light patch; a per-pixel average scores the halo against
-           the ground, which is exactly backwards for outlined type. */
+        /* LETTER BY LETTER. Paint without the line: the pixels that change are
+           the line's footprint, each against the very pixel that was behind it.
+           Cut the footprint into letter-wide columns and judge each column by
+           the core of its strokes, the upper quartile of its per-pixel
+           contrast (the audit_showcase_legibility.mjs measure, per letter). A
+           letter off its plate, on a light patch, or crossed by a line scores
+           its own column.
+           This replaced a ring method (2026-09-26) that read each letter
+           against a 3px ring around the whole footprint: the footprint holds
+           the number's soft shadow, so on a plate that hugs the digits the ring
+           fell on the photograph outside it, and 471 of 971 numbers that read
+           at 5-8:1 on their plates "failed" at about 2.5. */
         const letters = x => {
-          const b = x.b, pad = 3;
+          const b = x.b, pad = 2;
           const x0 = Math.max(0, Math.floor(b.x) - pad), y0 = Math.max(0, Math.floor(b.y) - pad);
           const x1 = Math.min(W, Math.ceil(b.x + b.w) + pad), y1 = Math.min(H, Math.ceil(b.y + b.h) + pad);
           const w = x1 - x0, h = y1 - y0;
@@ -120,44 +125,19 @@ for (let i = 0; i < work.length; i += 6){
           x.o.visible = false; sc.renderAll();
           const wo = ctx.getImageData(x0, y0, w, h).data;
           x.o.visible = true;
-          const M = new Uint8Array(w * h), Lf = new Float32Array(w * h);
-          for (let y = 0; y < h; y++) for (let xx = 0; xx < w; xx++){
-            const f = ((y + y0) * W + (xx + x0)) * 4, g = (y * w + xx) * 4, q = y * w + xx;
-            Lf[q] = lum(full, f);
-            if (Math.abs(full[f] - wo[g]) + Math.abs(full[f + 1] - wo[g + 1]) + Math.abs(full[f + 2] - wo[g + 2]) >= 24) M[q] = 1;
-          }
-          /* the 3px ring: a separable dilation of the footprint, minus the footprint */
-          const R1 = new Uint8Array(w * h), R = new Uint8Array(w * h);
-          for (let y = 0; y < h; y++){ let last = -99; for (let xx = 0; xx < w; xx++){ if (M[y * w + xx]) last = xx; if (xx - last <= pad) R1[y * w + xx] = 1; }
-            last = 99999; for (let xx = w - 1; xx >= 0; xx--){ if (M[y * w + xx]) last = xx; if (last - xx <= pad) R1[y * w + xx] = 1; } }
-          for (let xx = 0; xx < w; xx++){ let last = -99; for (let y = 0; y < h; y++){ if (R1[y * w + xx]) last = y; if (y - last <= pad) R[y * w + xx] = 1; }
-            last = 99999; for (let y = h - 1; y >= 0; y--){ if (R1[y * w + xx]) last = y; if (last - y <= pad) R[y * w + xx] = 1; } }
-          /* the letter's ink is decided once for the whole line (a line has one
-             fill): the brightest or darkest 15% of its footprint, whichever is
-             further from the ring; a column between two letters holds no ink and
-             is skipped instead of scoring a shadow */
-          const all = [], ring = [];
-          for (let q = 0; q < M.length; q++){ if (M[q]) all.push(Lf[q]); else if (R[q]) ring.push(Lf[q]); }
-          if (all.length < 20 || !ring.length) return null;
-          all.sort((p, q) => p - q);
-          const hi = all[Math.floor(all.length * 0.85)], lo = all[Math.floor(all.length * 0.15)];
-          const ringMean = ring.reduce((a, v) => a + v, 0) / ring.length;
-          const light = Math.abs(hi - ringMean) >= Math.abs(lo - ringMean);
-          const isInk = v => (light ? v >= hi : v <= lo);
           const step = Math.max(8, 0.55 * x.px);
           let worst = 99, any = 0;
-          for (let c0 = pad; c0 < w - pad; c0 += step){
-            const c1 = Math.min(w - pad, c0 + step);
-            let is = 0, ni = 0, bs = 0, nb = 0;
-            for (let y = 0; y < h; y++) for (let xx = Math.floor(c0) - pad; xx < Math.ceil(c1) + pad; xx++){
-              if (xx < 0 || xx >= w) continue;
-              const q = y * w + xx, v = Lf[q];
-              if (M[q] && xx >= c0 && xx < c1 && isInk(v)){ is += v; ni++; }
-              else if (M[q] || R[q]){ bs += v; nb++; }
+          for (let c0 = 0; c0 < w; c0 += step){
+            const c1 = Math.min(w, c0 + step), v = [];
+            for (let y = 0; y < h; y++) for (let xx = Math.floor(c0); xx < Math.ceil(c1); xx++){
+              const f = ((y + y0) * W + (xx + x0)) * 4, g = (y * w + xx) * 4;
+              if (Math.abs(full[f] - wo[g]) + Math.abs(full[f + 1] - wo[g + 1]) + Math.abs(full[f + 2] - wo[g + 2]) < 24) continue;
+              const a = lum(full, f), c = lum(wo, g);
+              v.push((Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05));
             }
-            if (ni < Math.max(8, 0.02 * step * h) || !nb) continue;
-            const li = is / ni, lb = bs / nb;
-            worst = Math.min(worst, (Math.max(li, lb) + 0.05) / (Math.min(li, lb) + 0.05)); any++;
+            if (v.length < Math.max(12, 0.03 * step * h)) continue;        // a gap between letters
+            v.sort((p, q) => p - q);
+            worst = Math.min(worst, v[Math.floor(v.length * 0.75)]); any++;
           }
           return any ? +worst.toFixed(2) : null;
         };
@@ -180,8 +160,16 @@ for (let i = 0; i < work.length; i += 6){
           onProduct = Math.max(onProduct, inter(phone.b, box(refs[k])) / Math.max(1, phone.b.w * phone.b.h));
         });
         const fams = new Set(texts.filter(x => /[A-Za-z0-9]{2}/.test(x.l.text) && x.fam).map(x => x.fam));
-        const faux = texts.filter(x => { const w = WEIGHTS[x.fam]; if (!w) return false; const ask = +(x.o.fontWeight === 'bold' ? 700 : x.o.fontWeight || 400);
-          return w.length === 2 && w[1] - w[0] > 100 ? (ask < w[0] - 50 || ask > w[1] + 50) : !w.some(v => Math.abs(v - ask) <= 50); }).map(x => x.fam + ' ' + x.o.fontWeight);
+        /* faux = a weight HEAVIER than any file the face ships: that is the case
+           the browser fakes (synthetic bold) or silently draws lighter than
+           designed. A lighter ask resolves to a real, heavier file and fakes
+           nothing. The weight comes from the layer when the object has none
+           (a curved line is a group of letters): reading it off the group gave
+           400 and flagged 93 cards whose type was drawn from a real file. */
+        const faux = texts.filter(x => { const w = WEIGHTS[x.fam]; if (!w) return false;
+          const fw = x.o.fontWeight ?? (x.l.props && x.l.props.fontWeight) ?? 400;
+          const ask = fw === 'bold' ? 700 : fw === 'normal' ? 400 : +fw || 400;
+          return ask > Math.max(...w) + 50; }).map(x => x.fam + ' ' + (x.o.fontWeight ?? (x.l.props && x.l.props.fontWeight)));
         const M = T.margin * W;
         const margin = read.filter(x => x.b.x < M - 2 || x.b.y < M - 2 || x.b.x + x.b.w > W - M + 2 || x.b.y + x.b.h > H - M + 2).length;
         const widow = read.filter(x => { const lines = (x.o._textLines || String(x.l.text).split('\n').map(s => s.split(''))).map(a => (Array.isArray(a) ? a.join('') : String(a)).trim()).filter(Boolean);
