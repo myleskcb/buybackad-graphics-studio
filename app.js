@@ -9437,7 +9437,10 @@ function scOrder(list){
   /* imagery outranks everything: a card with a real product first, a
      photograph next, a bare ground last */
   const img = c => c.imagery === 'product' ? 6 : c.imagery === 'photo' ? 3 : 0;
-  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4) - (img(a) + a.affinity + scVivid(a) * 4)) || (b.density - a.density));
+  /* the design school's warnings (scripts/audit_showcase_school.mjs): a card
+     with one shows, but after every clean card, fewer warnings first */
+  const warned = c => { const w = c.school && c.school.warn; return w && w.length ? 40 + w.length : 0; };
+  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4 - warned(b)) - (img(a) + a.affinity + scVivid(a) * 4 - warned(a))) || (b.density - a.density));
   const light = c => scLum(c.c1) > 0.22;
   const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
   const hueGap = (a, b) => { const x = Math.abs((hueOf(a) ?? 0) - (hueOf(b) ?? 0)) % 360; return x > 180 ? 360 - x : x; };
@@ -9516,8 +9519,12 @@ function scBuildWall(cards){
   /* and only cards that SHOW something: a product cutout of real size.
      Owner, on a plain green Pokémon card and a tiny mark on a sports one:
      "those two lack the proper imagery, looks a little bit confusing". */
-  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product')
+  let vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product')
     .filter(c => chosenByHand.indexOf(c) === -1);
+  /* the shop window takes clean cards only: a design-school warning keeps a
+     card in the library but off the wall, unless that would leave it short */
+  const cleanVivid = vivid.filter(c => !(c.school && c.school.warn && c.school.warn.length));
+  if (cleanVivid.length >= want) vivid = cleanVivid;
   const buckets = {};
   vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
   Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
