@@ -9437,9 +9437,12 @@ function scOrder(list){
   /* imagery outranks everything: a card with a real product first, a
      photograph next, a bare ground last */
   const img = c => c.imagery === 'product' ? 6 : c.imagery === 'photo' ? 3 : 0;
-  /* the design school's warnings (scripts/audit_showcase_school.mjs): a card
-     with one shows, but after every clean card, fewer warnings first */
-  const warned = c => { const w = c.school && c.school.warn; return w && w.length ? 40 + w.length : 0; };
+  /* the design school's warnings (scripts/audit_showcase_school.mjs) rank a
+     card down, one step per warning, a soft term beside imagery and colour.
+     Not "every clean card first": small type and the 6% margin are warned on
+     most of the library, so no card is clean and that rule would sort by
+     nothing but the warning count */
+  const warned = c => { const w = c.school && c.school.warn; return w ? w.length : 0; };
   const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4 - warned(b)) - (img(a) + a.affinity + scVivid(a) * 4 - warned(a))) || (b.density - a.density));
   const light = c => scLum(c.c1) > 0.22;
   const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
@@ -9521,8 +9524,10 @@ function scBuildWall(cards){
      "those two lack the proper imagery, looks a little bit confusing". */
   let vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product')
     .filter(c => chosenByHand.indexOf(c) === -1);
-  /* the shop window takes clean cards only: a design-school warning keeps a
-     card in the library but off the wall, unless that would leave it short */
+  /* the shop window prefers clean cards: with enough of them, a card with a
+     design-school warning stays in the library but off the wall (today small
+     type and the 6% margin are warned on nearly every card, so the wall
+     takes from all of them, and the ranking above orders by warning count) */
   const cleanVivid = vivid.filter(c => !(c.school && c.school.warn && c.school.warn.length));
   if (cleanVivid.length >= want) vivid = cleanVivid;
   const buckets = {};

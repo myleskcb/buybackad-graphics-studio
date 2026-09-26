@@ -36,7 +36,8 @@
  *                deadline or a "real person" claim (refresh_copy.mjs)
  *     device     the headline names a device the card does not show (an
  *                iPhone headline over three Apple Watches): say what is bought
- *   WARN (shown, ranked below clean cards, never in the hero wall)
+ *   WARN (shown; each warning ranks a card one step down, and the hero wall
+ *   prefers cards with none when there are enough of them)
  *     small      reading text under 25px (the study's 28px at 1200)
  *     margin     reading ink inside the 6% safe margin (an open decision in
  *                the study plan: raise 5% to 6%?)
