@@ -1121,6 +1121,12 @@ Two lessons from building it:
   at the literal thresholds, would have held back 791 of 971 cards, most of
   them readable: the thresholds are the study's, the measures had to earn the
   right to reject.
+- **The same holds for the line gate.** Averaged over every pixel a line
+  changes, contrast counts the letters' soft shadow and anti-aliased edge as
+  ink: a 26px label, #101014 on a cyan plate at 6:1 by colour, measured a mean
+  of 2.85 because more than half its changed pixels were shadow. The gate now
+  judges the core of the strokes (the upper quartile of per-pixel contrast);
+  a line that is really unreadable has no core either.
 
 ## 55. Copy states how the offer works, never a fact the shop has not published
 
