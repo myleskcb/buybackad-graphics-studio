@@ -1051,3 +1051,154 @@ The rule the refresh follows, so a skin can change without undoing an audit:
 - **Then measure the pixels anyway**, repair what fails without moving its hue
   (`repair_showcase_contrast.mjs`), and stamp what still fails as a defect
   rather than ship it. A card that cannot be made legible is not offered.
+
+## 53. The phone number is the second biggest thing on the card
+
+Added 2026-09-26, from the study session "Teaching the Engine Design"
+(2026-09-24..26) and the owner's note on the new work: good "but lacking a
+big/medium phone number for people to contact us."
+
+For a buyback ad the number is the action: it is how the person who stopped
+reaches the shop. Measured before the fix, on the 1080 canvas:
+
+- showcase (971 cards): the number at a median **58px**, 5.4% of the width,
+  0.41× the headline. In a 160px OfferUp tile its digits were about 6px tall;
+- classics (243): median **64px**, 149 of them under 72px;
+- the video maker, which learned this first: up to 0.72× the headline and 11%
+  of the width.
+
+The rule, as `scripts/number_block.mjs` enforces it:
+
+- **Size.** 0.62× the headline *as drawn* (not as authored: fitToDoc shrinks
+  long lines), held to **84–118px**, never under **72px** (80px on a 1200
+  canvas), never over 0.77× the headline, so the headline still wins by 1.3×.
+- **Face.** One of the card's two families: the display face when it is
+  condensed, else the support face, at a weight the face really ships (rule 20).
+  Never a third family; 54 cards had set it in JetBrains Mono.
+- **Ground.** On its own plate, the plate hugging it on the same axis (half of
+  the number sat off an off-centre plate on five layouts), or at 4.5:1 per
+  letter against the photograph.
+- **Never on the devices.** Below the product or beside it (the video engine's
+  measured rule: the number on a phone in about half its tall looks).
+- **When it does not fit, the small extras go first**: the CTA shrinks to a
+  label over the number, then the web address to its minimum, and only then does
+  the number step down. A card that cannot fit 72px is not offered.
+
+After: showcase 58 → **84px** median (945 of 971 rebuilt), classics 64 →
+**108px** median (165 rebuilt; 73 already at 84px or more keep their own). The
+classics' rebuild ships as `assets/number-fix.json`, applied at load.
+
+## 54. A critic decides what is shown, and it judges the number letter by letter
+
+Added 2026-09-26. The study session's plan for the Studio, verbatim: "the
+critic runs through the existing audit_showcase_*.mjs pass and stamps `defect`
+on assets/showcase/index.json, which the landing already filters on."
+`scripts/audit_showcase_school.mjs` is that critic. Every check is a number
+measured through `buildLayer()`/`alignPass()` on the card's own pixels.
+
+**Reject** (the card is held back): the number under 72px; the number's worst
+**letter** under 3:1 against what is behind it; the number over a product; the
+headline under 8px tall in a 160px tile; the headline under 1.3× the next
+biggest line; more than two type families; a weight the face does not ship
+(rule 20); the copy rules (rule 55); a headline naming a device the card does
+not show.
+
+**Warn** (shown, ranked after every clean card, never in the hero wall):
+reading text under 25px, ink inside the 6% margin, a widow, more than four
+alignment positions, under 25% empty, and a headline, CTA or support line
+whose worst letter is under 4.5:1.
+
+Two lessons from building it:
+
+- **Judge the number letter by letter.** A line average passed numbers that
+  sat half off their own plate at 1.2 to 2.2:1 per letter, and passed white
+  type at 5:1 while two words stood on a light patch at about 2:1.
+- **A measure that cannot tell fill from halo must not reject.** On outlined,
+  shadowed display type the "letter" is ambiguous (fill, stroke and a 19px
+  shadow all change the pixels), so per-letter contrast on headlines is a
+  warning; the line gate (`audit_showcase_legibility.mjs`, under 3:1 is a
+  defect) still applies to every headline, number and CTA. The first dry run,
+  at the literal thresholds, would have held back 791 of 971 cards, most of
+  them readable: the thresholds are the study's, the measures had to earn the
+  right to reject.
+
+## 55. Copy states how the offer works, never a fact the shop has not published
+
+Added 2026-09-26. The study session wrote the industry's copy rules down as
+law and the video maker ships them. Every template carries the owner's own
+number and site, so every line on it is a line iPhones.LA publishes:
+
+- **no dollar figure** on a graphic (prices move, a picture does not);
+- **no invented proof**: no rating, star row, review count, "deals closed",
+  quoted testimonial or "since 2015";
+- **no promise about how long an offer lasts**, and urgency only when it is true;
+- **no invented hours**, and no claim that a person answers every text;
+- **no competitor names**;
+- **no em or en dash** in anything a customer reads.
+
+Counted on the 971 showcase records before the pass: "SINCE 2015" on 145
+cards, a rating on 144, a price figure on 83, invented hours on 46, an em dash
+on 61, and 43 testimonial cards signed with invented names. Each became a plain
+fact about the offer from the video engine's vocabulary: TEXT A PIC / GET A
+PRICE, FREE QUOTE / NO OBLIGATION, NO FEES, CASH PAID TODAY. A testimonial card
+became a how-it-works card in the shop's own voice.
+
+The patterns live in one place (`scripts/refresh_copy.mjs`: PROOF, PRICE,
+HOURS, DASH, BANNED), so the rewrite and the audit that checks it
+(`audit_showcase_content.mjs`) cannot drift apart. A replacement must fit
+where the old line was: two first drafts ("SEALED BOXES BOUGHT", "CASH, CARD BY
+CARD") set wider than the lines they replaced and ran off their panel.
+
+## 56. The photograph keeps its own colour; shade is neutral, solved, and one-directional
+
+Added 2026-09-26. The owner, on the showcase and the classics: "fix the bad
+color schemes from the past … not these ugly hideous overlaid colors and
+duotone background images." This replaces the second bullet of rule 52 (grey
+under a veil re-solved as a duotone): the luminance lock was right, the
+duotone was not.
+
+The study session's layering ladder says what each rung may carry: rung 0 is
+the ground (the photograph), rung 1 is atmosphere, **light and shade, never an
+object and never a colour**, then graphic, device and copy. Colour has a job,
+not a coat: the accent on the plate and the money word, near-black or
+near-white ink, and the photograph as it was shot.
+
+Counted before the change:
+
+- showcase: **766 of 971** cards painted their photograph as a duotone (two
+  palette colours through shadows and highlights), and 483 distinct tinted
+  veils sat over photographs, pastel pinks and mints among them;
+- classics: **129 of 243** graded their photograph (88 duotone, 41 one-hue
+  wash) in `assignStyle()`;
+- 17 poster frames and 9 quote cards were pastel glass covering most of the
+  photograph, a veil by another name;
+- 12 of the 21 Easy Mode themes failed `scripts/theme_law.mjs`.
+
+The rule:
+
+- **The photograph in its own colour** (`grade.treat 'natural'`, a touch of
+  contrast, or as shot). No duotone, no wash, no tint.
+- **Shade is neutral**: near-black under light ink, near-white (paper) under
+  dark ink. Never a hue.
+- **Its strength is solved on the card's own pixels**, per line of copy on the
+  photograph (`__sc.naturalGround()` in `scripts/_showcase_harness.mjs`): each
+  line's worst end of ground (90th percentile under light ink, 10th under dark)
+  must clear 4.5:1 against its ink, or hold where the old ground held it if
+  that was further. The lightest shade that does both. No line loses contrast
+  and none is shaded darker than it needs. A line counts as light ink when it
+  is lighter than its own ground: an orange word on a dark photograph is light
+  ink, whatever a fixed grey threshold says.
+- **One ink direction per ground.** White badges beside a black headline on
+  one photograph ask a single shade to darken and lighten the same picture.
+  When the lines in the way are neutral, they take the other side's ink (and
+  lose the outline the shade now replaces). A coloured line is never flipped.
+- **A plate that covers most of the photograph is judged as a veil**: a big
+  translucent pastel panel becomes neutral paper or smoke at the same
+  luminance, so the words on it keep exactly their contrast.
+
+After: showcase 920 natural and 51 as shot, **0 duotones, 0 tinted veils**
+(562 cards needed only the solved shade, median 0.31; 204 also took one ink
+direction, 344 neutral lines); classics 128 of 129 natural via
+`assets/ground-fix.json` (neon_sell keeps its grade: its number is carried by
+a plate no neutral shade can serve); Easy Mode themes 21 of 21 pass, every hue
+kept.

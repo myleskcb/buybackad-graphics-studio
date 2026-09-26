@@ -201,3 +201,55 @@ The whole chain, from a lab export to a live, audited showcase:
 `refresh_showcase.mjs` reads the records from git (REFRESH_FROM, default HEAD),
 so run it against the commit that holds the lab import. What changed and what
 is still open: `docs/refresh-2026-09-22.md`.
+
+## I. 2026-09-26 — the study session in the templates, natural photographs
+
+What landed (DESIGN-LAW 53-56; the log entry of the same date has the numbers):
+the phone number rebuilt big on every card (`scripts/number_block.mjs`,
+`assets/number-fix.json` for the classics), the copy rules
+(`scripts/refresh_copy.mjs` honestCopy), the design-school critic
+(`scripts/audit_showcase_school.mjs`, its rejects become `defect`), the
+photographs in their own colour under a neutral solved shade
+(`scripts/naturalize_showcase.mjs`, `scripts/naturalize_classics.mjs` ->
+`assets/ground-fix.json`), the twelve failing Easy Mode themes re-solved, and
+the site's pages brought up to date.
+
+The §H recipe with this session's steps in place. `refresh_showcase.mjs` no
+longer paints duotones; the natural pass must run after it:
+
+    node scripts/refresh_showcase.mjs                      # palettes, faces, copy rules, bake
+    node scripts/number_block.mjs --write                  # the number, big (rule 53)
+    node scripts/naturalize_showcase.mjs --write           # photo in its own colour (rule 56)
+    node scripts/audit_showcase_overlap.mjs --write
+    node scripts/audit_showcase_legibility.mjs --write
+    node scripts/audit_showcase_school.mjs --write         # the critic (rule 54)
+    node scripts/audit_showcase_content.mjs --write        # stamps `defect`, school rejects included
+    node scripts/rethumb_showcase.mjs
+    node scripts/measure_showcase_color.mjs
+    node scripts/landing_check.mjs
+
+The classics: after any change to the passes, the palette or the backdrops,
+re-bake in this order, each with the tables after it switched off by its own
+flag: `bake_contrast.mjs` (?nofix=1), `number_block.mjs --classics --write`
+(?nonum=1), `naturalize_classics.mjs --write` (?noground=1).
+
+Off the owner's Mac (a sandbox, CI): `CHROME=/path/to/chrome` and
+`FABRIC_JS=/path/to/fabric.min.js` for every script above.
+
+Still open:
+
+- **The 50 offer cards** live in `loganipad/iphoneslainv`, out of this repo's
+  reach. `docs/handoff-offer-cards-number.md` has the rule at 1200px and a
+  paste-ready prompt. Owner's call inside it: does the marketplace set carry
+  the number too.
+- **iPhones LA's server** now receives pictures that show the number; whether
+  `/api/buy-ads/studio/images` or Auto-post accepts them is untested from here.
+- **The video maker's page** says a few things its code does not (listed in the
+  handoff); fix in the phone ad engine's repo, then sync `motion/`.
+- **38 classic lines still run past their plate** by the measure used here; the
+  big ones are deliberate (duoSplit and ticketStub headlines cross their panel),
+  the rest 3-35px. The ticketStub item lists are small (critic: warn).
+- **neon_sell** keeps its colour grade: its number is carried by a plate no
+  neutral shade can serve. Rebuild that layout rather than special-case it.
+- **Not verified here** (no route to them from the session): the live site,
+  Stripe and sign-in, the Netlify headers as served. Draft-deploy and look.
