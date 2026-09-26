@@ -18,9 +18,12 @@
      studio routes only.
    - An upload can fail in any way it likes and the download still happens: the
      original addHistory runs first and nothing here throws into it.
-   - A WE BUY picture may not show a phone number, a website or a QR code, and
-     a watermarked export is no use to the shop. Those are not sent, and the
-     note says why in plain words rather than sending them quietly.
+   - A WE BUY picture may show the shop's phone number: people have to be able
+     to reach the shop from the picture alone, so the number is welcome and the
+     templates set it big (owner's call, 2026-09-26; before that a number was
+     refused). A website, a QR code, a street address or a social handle is
+     still not sent, and a watermarked export is no use to the shop. The note
+     says why in plain words rather than refusing quietly.
    - This source is public (the site is a folder upload). It holds no secret.
    ═══════════════════════════════════════════════════════ */
 (() => {
@@ -217,9 +220,9 @@
       if (state.brief && briefLine(state.brief)) card.appendChild(el('p', '', 'Making: ' + briefLine(state.brief)));
       if (state.brief && state.brief.headline) card.appendChild(el('p', '', 'Headline: ' + state.brief.headline));
       if (state.link || state.brief){
-        // Said up front, not after the fact: Easy Mode will not download without a
-        // phone number, and that is the one thing a WE BUY picture cannot carry.
-        card.appendChild(el('p', '', 'No phone number, website or QR code on a WE BUY picture. No address or social handle either. Checks are best-effort; review the finished picture, including text in images. Easy Mode prints your phone number: remove that line in Layers, or use the Advanced editor.'));
+        // Said up front, not after the fact: the number is what lets people reach
+        // the shop, and the other contact lines are what a WE BUY picture cannot carry.
+        card.appendChild(el('p', '', 'Your phone number goes on the picture, big enough to read in a feed. No website, QR code, street address or social handle. Checks are best-effort; review the finished picture, including text in images.'));
         card.appendChild(el('p', '', 'Sign in as an admin. Watermarked exports are not sent.'));
       }
       if (state.note) card.appendChild(el('p', state.noteKind === 'error' ? 'bad' : state.noteKind === 'success' ? 'ok' : '', state.note));
@@ -373,9 +376,16 @@
   function templateById(id){
     try { return TEMPLATES.find(t => t && t.id === id) || null; } catch (e){ return null; }
   }
+  // Every kind of contact line. The tag file leaves all of them out: the words
+  // are for writing the ad, and the shop knows its own number.
   function contactIn(s){
     if (typeof s !== 'string' || !s) return '';
     if (PHONE_RE.test(s.replace(/(\d)\s+(?=\d)/g, '$1')) || LOCAL_PHONE_RE.test(s) || VANITY_RE.test(s)) return 'a phone number';
+    return blockedIn(s);
+  }
+  // The contact lines a picture may NOT carry. A phone number is not one of them.
+  function blockedIn(s){
+    if (typeof s !== 'string' || !s) return '';
     if (SITE_RE.test(s)) return 'a website';
     if (HANDLE_RE.test(s)) return 'a social handle';
     if (ADDRESS_RE.test(s)) return 'a street address';
@@ -390,15 +400,14 @@
     // Hidden badge layers are synthesized again by renderEzCanvas.
     const badges = tpl.layers.find(l => l && l.role === 'badges');
     const chips = Array.isArray(st.chips) ? st.chips : [badges && badges.text];
-    for (const chip of chips){ const hit = contactIn(chip); if (hit) return hit; }
+    for (const chip of chips){ const hit = blockedIn(chip); if (hit) return hit; }
     let site = 'typed';
     try { const f = document.getElementById('ez-website'); if (f) site = String(f.value || '').trim(); } catch (e){}
     for (const l of tpl.layers){
       if (!l || hidden.indexOf(l.name) >= 0 || l.role === 'badges') continue;
-      if (l.role === 'phone') return 'a phone number';       // typed or authored, it prints either way
-      if (l.role === 'website'){ if (site) return 'a website'; continue; }
+      if (l.role === 'website'){ if (site) return 'a website'; continue; }   // a phone line is welcome, and still read for a site below
       if (l.kind !== 'text' && l.kind !== 'textbox') continue;
-      const hit = contactIn(vals[l.name] !== undefined ? String(vals[l.name]) : l.text);
+      const hit = blockedIn(vals[l.name] !== undefined ? String(vals[l.name]) : l.text);
       if (hit) return hit;
     }
     return '';
@@ -414,21 +423,20 @@
       if (o.pgRole === 'qr') return 'a QR code';
       const words = typeof o.text === 'string' ? o.text : (o.pgCurved && typeof o.pgCurved.text === 'string' ? o.pgCurved.text : '');
       const has = words.trim();
-      if (o.pgRole === 'phone' && has) return 'a phone number';
-      if (o.pgRole === 'website' && has) return 'a website';
-      const hit = contactIn(words);
+      if (o.pgRole === 'website' && has) return 'a website';  // a phone line is welcome, and still read for a site below
+      const hit = blockedIn(words);
       if (hit) return hit;
     }
     return '';
   }
   function refusal(proj){
     if (watermarked()) return 'Not sent to iPhones LA: this export has a watermark. Sign in as an admin and export again.';
-    // Print orders pass no project, so there is nothing to check for a number.
-    if (!proj) return 'Not sent to iPhones LA: a print order is not checked for a phone number. Use Download instead.';
+    // Print orders pass no project, so there is nothing to check for a website.
+    if (!proj) return 'Not sent to iPhones LA: a print order is not checked for a website. Use Download instead.';
     let found = '';
     if (proj.kind === 'ez'){
       found = contactInEasy(proj.st);
-      if (found === 'unknown') return 'Not sent to iPhones LA: Easy Mode prints your phone number. Use the Advanced editor.';
+      if (found === 'unknown') return 'Not sent to iPhones LA: this Easy Mode design could not be checked for a website. Use the Advanced editor.';
     } else {
       found = contactInCanvas(proj.json);
     }
@@ -456,7 +464,8 @@
   // off the same records the export was drawn from. The shop names the
   // devices from the product slugs and writes the ad from them, so a graphic
   // that says CONSOLE BUYER over two consoles arrives already described.
-  // Contact lines never reach this: refusal() stopped any export with one.
+  // Contact lines never reach this: the phone layer is skipped by role and any
+  // line that holds a number is dropped, and refusal() stopped the rest.
   const SKIP_ROLES = { phone: 1, website: 1, qr: 1, deco: 1, frame: 1 };
   function slugOf(src){
     const m = /([a-z0-9][a-z0-9-]{0,79})\.(?:webp|png|jpe?g)(?:[?#].*)?$/i.exec(String(src || ''));

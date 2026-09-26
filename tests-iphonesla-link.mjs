@@ -372,14 +372,15 @@ test('a brief is data: it is capped, stripped of control characters, and junk is
   }
 });
 
-test('with a brief active the note says up front that Easy Mode prints a phone number', async () => {
+test('with a brief active the note says up front that the number goes on and the other contact lines do not', async () => {
   const s = studio({ hash: '#ipla=' + CODE + '&brief=' + b64url(BRIEF_TAGS), respond: () => ({ status: 200, body: { token: TOKEN } }) });
   await settle();
   const words = pageText(s.doc);
   assert.match(words, /Making: iPhone 15 Pro Max, Long Beach, damaged, urgent/);
   assert.match(words, /Headline: We buy cracked iPhones/);
-  assert.match(words, /No phone number, website or QR code on a WE BUY picture/);
-  assert.match(words, /Easy Mode prints your phone number/);
+  assert.match(words, /Your phone number goes on the picture, big enough to read in a feed/);
+  assert.match(words, /No website, QR code, street address or social handle/);
+  assert.ok(!/No phone number/.test(words), 'the note no longer forbids the number');
   assert.match(words, /Sign in as an admin\. Watermarked exports are not sent/);
 });
 
@@ -570,17 +571,28 @@ test('Disconnect forgets the token here and says where the link is really ended'
 
 const okUpload = url => (url === IMAGES ? { status: 200, body: { photo: { id: 1 } } } : { status: 200, body: {} });
 
-test('an Easy Mode export prints a phone number, so it is not sent and the note says why', async () => {
+test('an Easy Mode export that shows the phone number is sent: the number is how people reach the shop', async () => {
+  const s = studio({ local: linked(), respond: okUpload });
+  await settle();
+  s.ctx.addHistory('sell-your-iphone-ad-1440.png', 1440, PNG, undefined, undefined, { kind: 'ez', st: { tpl: 'sell_iphone', vals: {}, hidden: { sell_iphone: ['Site'] } }, bgData: null });
+  await settle();
+  assert.equal(s.uploads().length, 1);
+  assert.equal(s.uploads()[0].init.body.get('source_ref'), 'sell_iphone');
+  const g = JSON.parse(s.uploads()[0].init.body.get('graphic'));
+  assert.ok(!g.texts.some(t => /555|123-4567/.test(t.text)), 'the number is on the picture, not in the words the shop writes the ad from');
+});
+
+test('an Easy Mode export that prints a website is not sent and the note says why', async () => {
   const s = studio({ local: linked(), respond: okUpload });
   await settle();
   s.ctx.addHistory('sell-your-iphone-ad-1440.png', 1440, PNG, undefined, undefined, { kind: 'ez', st: { tpl: 'sell_iphone', vals: {}, hidden: {} }, bgData: null });
   await settle();
   assert.equal(s.uploads().length, 0);
   assert.equal(s.ctx.iplaLink.state().noteKind, '');
-  assert.match(s.ctx.iplaLink.state().note, /shows a phone number\. Remove it and export again/);
+  assert.match(s.ctx.iplaLink.state().note, /shows a website\. Remove it and export again/);
   await s.runTimers();
   assert.equal(s.toasts.length, 0, 'ordinary exports retain the studio download toast');
-  assert.ok(!pageText(s.doc).includes('shows a phone number'), 'a refusal does not force the note open');
+  assert.ok(!pageText(s.doc).includes('shows a website'), 'a refusal does not force the note open');
 });
 
 test('an Easy Mode export whose phone and website lines were removed in Layers is sent', async () => {
@@ -614,27 +626,29 @@ test('an Easy Mode export this file cannot check is not sent', async () => {
   s.ctx.addHistory('a.png', 1440, PNG, undefined, undefined, { kind: 'ez', st: { tpl: 'a_template_added_later' } });
   await settle();
   assert.equal(s.uploads().length, 0);
-  assert.match(s.ctx.iplaLink.state().note, /Easy Mode prints your phone number\. Use the Advanced editor\.$/);
+  assert.match(s.ctx.iplaLink.state().note, /this Easy Mode design could not be checked for a website\. Use the Advanced editor\.$/);
 });
 
-test('a phone number typed into an Easy Mode headline is caught too', async () => {
+test('a number typed into an Easy Mode headline is sent, and a website typed there is caught', async () => {
   const s = studio({ local: linked(), respond: okUpload });
   await settle();
   s.ctx.addHistory('a.png', 1440, PNG, undefined, undefined, { kind: 'ez', st: { tpl: 'no_phone', vals: { no_phone: { 'Headline 1': 'CALL 562-555-0142' } } } });
   await settle();
-  assert.equal(s.uploads().length, 0);
-  s.ctx.addHistory('b.png', 1440, PNG, undefined, undefined, { kind: 'ez', st: { tpl: 'no_phone', vals: {} } });
+  assert.equal(s.uploads().length, 1);
+  s.ctx.addHistory('b.png', 1440, PNG, undefined, undefined, { kind: 'ez', st: { tpl: 'no_phone', vals: { no_phone: { 'Headline 1': 'VISIT SHOP.COM' } } } });
   await settle();
   assert.equal(s.uploads().length, 1);
+  assert.match(s.ctx.iplaLink.state().note, /shows a website/);
 });
 
-test('an advanced export is checked for a phone line, a website, a QR code and typed numbers', async () => {
+test('an advanced export is checked for a website, a QR code, a handle and an address, and a phone number is let through', async () => {
   const refused = [
-    [{ objects: [{ pgRole: 'phone', text: '(562) 555-0142' }] }, /a phone number/],
     [{ objects: [{ pgRole: 'website', text: 'iphones.la' }] }, /a website/],
     [{ objects: [{ pgRole: 'qr', pgQrData: 'https://iphones.la' }] }, /a QR code/],
-    [{ objects: [{ type: 'group', objects: [{ type: 'i-text', text: 'text 562.555.0142 today' }] }] }, /a phone number/],
+    [{ objects: [{ pgRole: 'phone', text: '(562) 555-0142 · shop.com' }] }, /a website/],
     [{ objects: [{ type: 'i-text', text: 'visit www.example.com' }] }, /a website/],
+    [{ objects: [{ type: 'i-text', text: 'DM us @shopname' }] }, /a social handle/],
+    [{ objects: [{ type: 'i-text', text: '1200 Pine Avenue, Long Beach' }] }, /a street address/],
   ];
   for (const [json, why] of refused){
     const s = studio({ local: linked(), respond: okUpload });
@@ -644,6 +658,8 @@ test('an advanced export is checked for a phone line, a website, a QR code and t
     assert.match(s.ctx.iplaLink.state().note, why);
   }
   const sent = [
+    { objects: [{ pgRole: 'phone', text: '(562) 555-0142' }] },
+    { objects: [{ type: 'group', objects: [{ type: 'i-text', text: 'text 562.555.0142 today' }] }] },
     { objects: [{ pgRole: 'phone', text: '(562) 555-0142', visible: false }] },
     { objects: [{ pgRole: 'headline', text: 'WE BUY IPHONES 11 TO 17, 256GB OR 1TB' }, { pgRole: 'sub', text: 'Any condition. Paid the same day in Long Beach 90802.' }] },
     { objects: [] },
@@ -763,9 +779,10 @@ test('this test file is repo, not product: the site answers 404 for it', () => {
 // Review regressions: actual curved-group metadata and Easy Mode snapshots.
 test('curved groups check whole words, preserve roles, and ignore hidden groups', async () => {
   for (const [words, role, hidden, blocked] of [
-    ['(562) 555-0142', 'phone', false, true],
-    ['CALL TODAY', 'phone', false, true],
+    ['(562) 555-0142', 'phone', false, false],
+    ['CALL TODAY', 'phone', false, false],
     ['iphones.la', 'headline', false, true],
+    ['(562) 555-0142 · iphones.la', 'phone', false, true],
     ['WE BUY IPHONES', 'headline', false, false],
     ['(562) 555-0142', 'phone', true, false],
   ]) {
@@ -787,7 +804,7 @@ test('chips are checked as rendered, including hidden and synthesized badges', a
       s.ctx.addHistory('chips.png', 1440, PNG, 1440, 1440, { kind: 'ez', st: {
         tpl: 'plain', chips, hidden: { plain: hidden ? ['Points'] : [] }, vals: {} } });
       await settle();
-      assert.equal(s.uploads().length, chips.length && chips[0] !== 'CASH TODAY' ? 0 : 1,
+      assert.equal(s.uploads().length, chips[0] === 'IPHONES.LA' ? 0 : 1,
         JSON.stringify({ hasBadges, hidden, chips }));
     }
   }
@@ -799,13 +816,20 @@ test('chips are checked as rendered, including hidden and synthesized badges', a
   assert.equal(s.uploads().length, 0, 'default chips come from the authored badge text');
 });
 
-test('local and vanity phones, spaced digits, domains, handles and street addresses are refused', async () => {
-  for (const text of ['555-0142', '1-800-GOT-JUNK', '5 6 2 5 5 5 0 1 4 2', 'buyback.ad',
-    'scans.ad/x', 'iphones . la', 'iphones. la', '@iphonesla', 'IG: iphonesla', '123 Main Street']) {
+test('domains, handles and street addresses are refused; local, vanity and spaced phone numbers are sent', async () => {
+  for (const text of ['buyback.ad', 'scans.ad/x', 'iphones . la', 'iphones. la', '@iphonesla', 'IG: iphonesla', '123 Main Street']) {
     const s = studio({ local: linked(), respond: okUpload });
     await settle();
     await s.exportAdvanced('contact.png', { objects: [{ type: 'i-text', text }] });
     assert.equal(s.uploads().length, 0, text);
+  }
+  for (const text of ['555-0142', '1-800-GOT-JUNK', '5 6 2 5 5 5 0 1 4 2', '(562) 999-4994']) {
+    const s = studio({ local: linked(), respond: okUpload });
+    await settle();
+    await s.exportAdvanced('contact.png', { objects: [{ type: 'i-text', text }] });
+    assert.equal(s.uploads().length, 1, text);
+    const g = JSON.parse(s.uploads()[0].init.body.get('graphic') || '{"texts":[]}');
+    assert.ok(!g.texts.some(t => t.text === text), 'the number stays out of the words: ' + text);
   }
 });
 
