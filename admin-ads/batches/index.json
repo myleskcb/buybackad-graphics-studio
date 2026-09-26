@@ -20,6 +20,13 @@
       "commit": "c5ea75e",
       "date": "2026-09-26",
       "subject": "Put the number under the phones, never on top of them"
+    },
+    {
+      "id": "b4-effects",
+      "label": "Effects (PR #3, not merged)",
+      "commit": "6144804",
+      "date": "2026-09-26",
+      "subject": "Widen the video ad maker: palettes, a colour grade, phone depth, transitions and an ending"
     }
   ]
 }

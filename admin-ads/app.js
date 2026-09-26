@@ -25,7 +25,8 @@ function recipeGroups(batch) {
   const c = batch.catalog;
   const groups = (c.GROUPS || []).map(([name, keys]) => [name, keys.slice()]);
   const seen = new Set(groups.flatMap(g => g[1]));
-  const extras = [...Object.keys(c.FLAGS || {}), "grain", "decor", "bpm"].filter(k => !seen.has(k));
+  // anything the maker can choose that its panel does not group yet (new effects land here first)
+  const extras = [...Object.keys(c.OPTIONS || {}), ...Object.keys(c.FLAGS || {}), "grain", "decor", "bpm"].filter(k => !seen.has(k) && !WORDS.includes(k));
   groups.unshift(["Words", WORDS]);
   groups.push(["Extras", extras]);
   return groups;

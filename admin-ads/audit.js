@@ -62,7 +62,8 @@ export async function auditLook(style, assets, { AdClass = Ad, size = 200, secs 
   const tmp = canvas(W, H);
   const none = new Set(), noHead = new Set(["headline"]), noNum = new Set(["number"]), noHook = new Set(["hook"]);
   const hasHook = !!ad.hookLines;
-  const tEnd = Math.min(ad.st.duration - .1, 5.5);
+  // the settled ad, before any ending takes over the last second (from 6144804; a no-op for rounds without endings)
+  const tEnd = Math.min(ad.st.duration - .1, 5.5, ad.tOutro != null ? ad.tOutro - .05 : Infinity);
   const finalF = render(ad, tEnd, none, W, H, tmp);
   const finalHead = inkMask(finalF, render(ad, tEnd, noHead, W, H, tmp));
   const finalNum = inkMask(finalF, render(ad, tEnd, noNum, W, H, tmp));
