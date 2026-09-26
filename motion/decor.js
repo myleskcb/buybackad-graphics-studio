@@ -689,12 +689,14 @@ export function drawStamp(ctx, S, cx, cy, t, t0) {
   }
 }
 
-/** Where arrows at the number can go: "sides", "above", or null when neither is clear of the words. */
-export function chevronRoom(rect, s, W, words) {
-  const [x0, y0, x1, y1] = rect, sz = Math.min(s * .5, (y1 - y0) * .5);
-  if (Math.min(x0, W - x1) > sz * 3.2) return "sides";
+/** Where arrows at the number can go: "sides", "above", or null when neither is clear of the words
+ *  and of whatever blocked() says is in the way. */
+export function chevronRoom(rect, s, W, words, blocked = () => false) {
+  const [x0, y0, x1, y1] = rect, sz = Math.min(s * .5, (y1 - y0) * .5), cy = (y0 + y1) / 2;
+  const sides = [[x0 - sz * 3.2, cy - sz * .5, x0, cy + sz * .5], [x1, cy - sz * .5, x1 + sz * 3.2, cy + sz * .5]];
+  if (Math.min(x0, W - x1) > sz * 3.2 && !sides.some(blocked)) return "sides";
   const cx = (x0 + x1) / 2, band = [cx - sz * .6, y0 - sz * 2.4, cx + sz * .6, y0];
-  const clear = !words || band[2] < words[0] || band[0] > words[2] || band[3] < words[1] || band[1] > words[3];
+  const clear = (!words || band[2] < words[0] || band[0] > words[2] || band[3] < words[1] || band[1] > words[3]) && !blocked(band);
   return clear && band[1] > 0 ? "above" : null;
 }
 

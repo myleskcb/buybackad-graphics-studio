@@ -421,6 +421,38 @@ function arrangement(name, n, r, tall) {
   return out;
 }
 
+/** The four corners of a phone where it comes to rest, a little generous for its
+ *  shadow and for the pop of a phone that turns over after it lands. */
+function landedOutline(p) {
+  const g = p.reveal ? 1.06 : 1.02, hw = p.w * p.size * g / 2, hh = p.h * p.size * g / 2;
+  const th = -p.angle * Math.PI / 180, c = Math.cos(th), s = Math.sin(th);
+  return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => [p.home[0] + x * c - y * s, p.home[1] + x * s + y * c]);
+}
+
+// How far each camera has pushed in by the time the number is on screen (from about
+// one second in); the phones it draws bigger must still clear the number.
+const SETTLE_ZOOM = { push_in: 1.05, push_out: 1.07, still: 1, drift: 1.06, punch: 1.02, tilt: 1.06, whip_in: 1.04, handheld: 1.06 };
+const settleZoom = st => (SETTLE_ZOOM[st.camera] ?? 1.08) * (st.urgency === "beat_pump" ? 1.023 : 1);
+const onCamera = (P, W, H, z) => P.map(([x, y]) => [W / 2 + (x - W / 2) * z, H / 2 + (y - H / 2) * z]);
+// The phones may stand no smaller than this to make room for the number.
+const MIN_FIT = .45;
+
+/** Whether a convex outline and an upright box overlap (separating axes). */
+function hitsRect(P, r) {
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const [x, y] of P) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  if (x1 <= r[0] || x0 >= r[2] || y1 <= r[1] || y0 >= r[3]) return false;
+  const rc = [[r[0], r[1]], [r[2], r[1]], [r[2], r[3]], [r[0], r[3]]];
+  for (let i = 0; i < P.length; i++) {
+    const a = P[i], b = P[(i + 1) % P.length], nx = b[1] - a[1], ny = a[0] - b[0];
+    let p0 = Infinity, p1 = -Infinity, q0 = Infinity, q1 = -Infinity;
+    for (const q of P) { const d = q[0] * nx + q[1] * ny; p0 = Math.min(p0, d); p1 = Math.max(p1, d); }
+    for (const q of rc) { const d = q[0] * nx + q[1] * ny; q0 = Math.min(q0, d); q1 = Math.max(q1, d); }
+    if (p1 <= q0 || q1 <= p0) return false;
+  }
+  return true;
+}
+
 // ------------------------------------------------------------ how they get there
 
 const ENTRY_TIMES = { fly_spin: [1, .12], drop: [.85, .11], conveyor: [1.05, .14], zoom: [.9, .10], orbit: [1.2, .07],
@@ -1050,8 +1082,12 @@ export class Ad {
     this.assets = assets;
     this._insets();
     this._buildPhones();
-    this._timeline();
     this._layoutType();
+    this._numberBelowPhones();
+    // how the phones get there is planned from where they finally land (the same draws from this.r as ever)
+    this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC) : .3;
+    this._timeline();
+    this._typeTimeline();
     this._buildDecor();
     this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1));
     const ls = lumStats(this.bg);
@@ -1101,7 +1137,6 @@ export class Ad {
     });
     this.drawOrder = this.phones.map((_, i) => i);
     if (st.arrangement === "hero") this.drawOrder = this.drawOrder.slice(1).concat([0]);
-    this.tLanded = this.phones.length ? planEntries(this.phones, st, W, H, this.r, this.stageC) : .3;
   }
 
   _timeline() {
@@ -1153,7 +1188,8 @@ export class Ad {
       num = numberSprite(st, p, nSize, cta);
       while (num.c.width > W - 2 * m && nSize > 12) { nSize *= .92; num = numberSprite(st, p, nSize, cta); }
       if (dropLabel) num = { ...num, label: null };
-      for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.ok) break; }
+      // a slot counts only where the phones can make room for the number under them
+      for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.ok && this._roomUnder(pos, num, size, true)) break; pos.ok = false; }
       if (pos.ok) break;
       if (firstFit == null) firstFit = size;
       if (size < firstFit * .8) {
@@ -1162,20 +1198,16 @@ export class Ad {
         if (num.label) { dropLabel = true; continue; }
         if (tag) { tag = null; st.tag = ""; continue; }
         let placed = false;
-        for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.num[1] + num.c.height <= H * .985 && pos.oy >= H * .02) { placed = true; break; } }
+        for (const room of ["shown", "under", null]) {  // under the phones in full view, then under them at all, then anywhere
+          for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.num[1] + num.c.height <= H * .985 && pos.oy >= H * .02 && (!room || this._roomUnder(pos, num, size, room === "shown"))) { placed = true; break; } }
+          if (placed) break;
+        }
         if (placed) break;
       }
       st.number_pos = alts[0]; size *= .95;
     }
     if (st.urgency === "pulse_cta" && !num.label) st.urgency = "arrows";
-    Object.assign(this, { size, lines, lineH, tag, num, pos });
-    const n = lines.length;
-    this.tl.lines = lines.map((_, i) => this.tl.text + i * .12);
-    const perLetter = ["slide_letters", "drop_letters", "typewriter", "scramble", "spin_letters"].includes(st.text_in);
-    const last = this.tl.lines[n - 1] + (perLetter ? .4 : .26);
-    this.tl.hit = this.tl.text + (["slam", "stomp"].includes(st.text_in) ? .42 : .3);
-    this.tl.tag = last + .12; this.tl.number = last + .25; this.tl.shine = this.tl.number + .5; this.tl.sparkle = this.tl.number + .35;
-    this.tl.still = Math.max(this.tl.still, this.tl.revealEnd + .25);
+    Object.assign(this, { size, lines, lineH, blockH, margin: m, tag, num, pos });
     this.hookLines = null;
     const hookFont = FINE_FACES.has(st.font) ? "oswald" : st.font;     // the opening words must read at a glance
     if (st.hook === "hook_line") {
@@ -1208,6 +1240,101 @@ export class Ad {
       });
       this.hookWords = true;
     }
+  }
+
+  /** When the words and the number arrive, once the phones' timeline is known. */
+  _typeTimeline() {
+    const st = this.st, n = this.lines.length;
+    this.tl.lines = this.lines.map((_, i) => this.tl.text + i * .12);
+    const perLetter = ["slide_letters", "drop_letters", "typewriter", "scramble", "spin_letters"].includes(st.text_in);
+    const last = this.tl.lines[n - 1] + (perLetter ? .4 : .26);
+    this.tl.hit = this.tl.text + (["slam", "stomp"].includes(st.text_in) ? .42 : .3);
+    this.tl.tag = last + .12; this.tl.number = last + .25; this.tl.shine = this.tl.number + .5; this.tl.sparkle = this.tl.number + .35;
+    this.tl.still = Math.max(this.tl.still, this.tl.revealEnd + .25);
+  }
+
+  /** The number never sits on a phone. Where it shares the phones' width it goes UNDER
+   *  them, and the phones make room: first they rise into space nothing else uses, then
+   *  they stand smaller. A number already clear of every phone changes nothing, so those
+   *  looks draw exactly as they did.
+   *  (Owner, 2026-09-26, over a tear-off flyer whose number landed on the phones: the
+   *  CTA was placed on top of them and "should've been below".) */
+  _numberBelowPhones() {
+    this.phoneFit = { k: 1, dy: 0, moved: false };
+    if (!this.phones.length) return;
+    const st = this.st, keep = st.number_pos, kept = this.pos, center = ["top-center", "center"].includes(st.text_pos);
+    // the slots harmonise pairs with this headline position (a centred headline keeps a centred number)
+    const pairs = np => !(center && ["bottom-left", "bottom-right"].includes(np)) && !(st.text_pos === "top-right" && np === "bottom-right")
+      && !(st.text_pos === "bottom-left" && ["bottom-left", "bottom-center"].includes(np));
+    let best = null;
+    for (const strict of [true, false]) {
+      for (const np of [keep, ...["bottom-center", "bottom-left", "bottom-right", "under-headline"].filter(x => x !== keep && pairs(x))]) {
+        st.number_pos = np;
+        const pos = np === keep ? kept : this._place(this.lines, this.lineH, this.blockH, this.tag, this.num, this.margin, this.size);
+        if (np !== keep && !pos.ok) continue;
+        const fit = this._roomUnder(pos, this.num, this.size, strict);
+        if (!fit) continue;
+        if (fit.k === 1 && !fit.dy) { best = { np, pos, fit }; break; }
+        if (!best || fit.k > best.fit.k + .01 || (fit.k > best.fit.k - .01 && fit.dy > best.fit.dy)) best = { np, pos, fit };
+      }
+      if (best) break;
+    }
+    if (!best) { st.number_pos = keep; this.pos = kept; return; }          // nothing can clear it: the look stays as it was
+    st.number_pos = best.np; this.pos = best.pos;
+    const { k, dy, ax, ay } = best.fit;
+    this.phoneFit = { k, dy, moved: best.np !== keep };
+    if (k === 1 && !dy) return;
+    const T = ([x, y]) => [ax + k * (x - ax), ay + k * (y - ay) + dy];
+    for (const p of this.phones) { p.home = T(p.home); p.size *= k; }
+    this.stageC = T(this.stageC);
+  }
+
+  /** The least the phones must do for the number at pos to sit under them: rise by -dy,
+   *  then stand k times their size about a point (ax, ay). They rise only into room nothing
+   *  else uses: under a headline at the top, no higher than its bottom edge (not at all when
+   *  they already tuck under it); otherwise no higher than the top of the frame, so no phone
+   *  is cut that was whole. They shrink toward the top of the group, keeping how far they
+   *  tuck under the words (and, round words in the middle, what shows above them); under a
+   *  SIGN BOARD at the top they shrink toward its bottom edge instead, because a board hides
+   *  whatever is behind it and a phone that showed half of itself below one must still show
+   *  half. strict: only that; otherwise the group's top will do when the board leaves no
+   *  room. null when not even MIN_FIT-size phones would clear it. Measured where the camera
+   *  will show them, not where they are laid out. */
+  _roomUnder(pos, num, size, strict = false) {
+    const W = this.W, H = this.H, z = settleZoom(this.st);
+    const labH = num.label ? num.label.height + size * .06 : 0;
+    const g = Math.max(size * .15, H * .018);
+    const nb = [pos.num[0], pos.num[1] - labH, pos.num[0] + num.c.width, pos.num[1] + num.c.height];
+    const column = [nb[0] - g * .5, nb[1] - g, nb[2] + g * .5, H * 3];      // the number, and everything under it
+    const outlines = this.phones.map(landedOutline);
+    let top = Infinity, x0 = Infinity, x1 = -Infinity;
+    for (const P of outlines) for (const [x, y] of P) { top = Math.min(top, y); x0 = Math.min(x0, x); x1 = Math.max(x1, x); }
+    const ax = (x0 + x1) / 2;
+    const clear = (k, dy, ay) => !outlines.some(P => hitsRect(onCamera(P.map(([x, y]) => [ax + k * (x - ax), ay + k * (y - ay) + dy]), W, H, z), column));
+    if (clear(1, 0, top)) return { k: 1, dy: 0, ax, ay: top };
+    const atTop = this.st.text_pos.startsWith("top");
+    const ceiling = atTop ? pos.outer[3] + g : this.insetTop + H * .02;
+    const lift = Math.max(0, top - ceiling);
+    if (lift > 0 && clear(1, -lift, top)) {                 // rising is enough: as little as clears it
+      let lo = 0, hi = lift;
+      for (let i = 0; i < 16; i++) { const mid = (lo + hi) / 2; if (clear(1, -mid, top)) hi = mid; else lo = mid; }
+      return { k: 1, dy: -hi, ax, ay: top };
+    }
+    const board = atTop && pos.board && pos.board[3] > top - lift ? pos.board[3] : null;   // a sign board ABOVE the phones
+    for (const ay of board != null ? [board, top] : [top]) {
+      if (clear(MIN_FIT, -lift, ay)) {
+        let lo = MIN_FIT, hi = 1;                           // the biggest phones that clear it
+        for (let i = 0; i < 16; i++) { const mid = (lo + hi) / 2; if (clear(mid, -lift, ay)) lo = mid; else hi = mid; }
+        return { k: lo, dy: -lift, ax, ay };
+      }
+      if (strict) break;
+    }
+    return null;
+  }
+
+  /** Whether a box on screen would sit on any phone once they have landed. */
+  _onPhones(r) {
+    return this.phones.some(p => hitsRect(onCamera(landedOutline(p), this.W, this.H, settleZoom(this.st)), r));
   }
 
   _place(lines, lineH, blockH, tag, num, m, size) {
@@ -1346,11 +1473,13 @@ export class Ad {
         applyCase(st.cta || (es ? "¡MÁNDANOS TEXTO!" : "TEXT NOW"), "upper"));
     }
     if (this.awningH) this.awningColors = [lum(p.plate) < .8 && lum(p.plate) > .08 ? p.plate : this.hot, "#fbfaf5"];
-    // arrows at the number go beside it, or above it when that is clear of the words; otherwise the border flashes instead
+    // arrows at the number go beside it, or above it when that is clear of the words and
+    // the phones (they are part of the number, and the number never sits on a phone);
+    // otherwise the border flashes instead
     this.arrowsMode = null;
     if (st.urgency === "arrows") {
       const words = this.board ? [o[0], o[1] - size * .5, o[2], o[3]] : o;
-      this.arrowsMode = chevronRoom(nb, size, W, words);
+      this.arrowsMode = chevronRoom(nb, size, W, words, r => this._onPhones(r));
       if (!this.arrowsMode) st.urgency = "flash_border";
     }
     // a pinstripe under the words only where it clears the number
