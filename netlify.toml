@@ -138,6 +138,45 @@
   status = 404
   force = true
 
+# 2026-09-26: the dot-prefixed folders (screenshots, scratch working dirs and
+# the agent settings) are committed too and were not covered above.
+
+[[redirects]]
+  from = "/.shot/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.scratch-wd/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.scratch-tablet/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.scratch-frame-desktop/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.scratch-frame-phone/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.claude/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 [[redirects]]
   from = "/worker.js"
   to = "/404.html"
