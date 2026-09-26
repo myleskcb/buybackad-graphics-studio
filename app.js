@@ -9164,6 +9164,52 @@ tuneFallbacks();
   } catch(e){}
 })();
 
+/* THE NUMBER TABLE, 2026-09-26. The phone number is how the people who stop
+   reach the seller, and 149 of the 243 classics set it under 72px on the 1080
+   canvas: in a 160px feed tile that is digits 7px tall. The video maker draws
+   the same number at up to 0.72x the headline, and the owner asked for "a
+   big/medium phone number" on everything. scripts/number_block.mjs --classics
+   measures every classic through buildLayer()/alignPass(), rebuilds the number
+   block (the number at 0.62x the headline, never under 72px, on one axis, its
+   plate hugging it, clear of every other line and product) and writes
+   assets/number-fix.json: one row per layer, with the layer's own words.
+
+   Same shape as the contrast table above: fetched, applied as a final pass,
+   and a failed fetch leaves the classics as the passes drew them. All or
+   nothing per template: if any row no longer matches a layer by name, role
+   and words (a template edited since the bake), that template keeps its own
+   layout rather than half of a new one. ?nonum=1 skips it, for the script. */
+(function loadNumberFix(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]nonum=1\b/.test(location.search)) return;
+    fetch('assets/number-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(rows => {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const byId = {};
+        rows.forEach(f => { if (f && f.id && f.layer && f.props) (byId[f.id] ||= []).push(f); });
+        let n = 0;
+        TEMPLATES.forEach(t => {
+          const list = byId[t.id]; if (!list) return;
+          const layers = t.layers || [];
+          const hits = list.map(f => {
+            const m = layers.filter(l => l.name === f.layer && (l.role || '') === (f.role || ''));
+            return m.length === 1 && (f.text == null || m[0].text === f.text) ? [m[0], f] : null;
+          });
+          if (hits.some(h => !h)) return;
+          hits.forEach(([l, f]) => { l.props = Object.assign({}, l.props, f.props); });
+          n++;
+        });
+        if (!n) return;
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
 try {
   tplDims(TEMPLATES[0]);
   /* The old assertion called onAccent({a1:'#ffffff'}) here. onAccent is a const
