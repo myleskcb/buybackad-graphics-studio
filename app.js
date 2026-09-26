@@ -5170,9 +5170,9 @@ const API_BASE = (window.PGFX_API || '').replace(/\/$/, '');
 const DEMO = !API_BASE;
 const PLANS = {
   free: { label:'Free', price:0, priceLabel:'$0', per:'forever', maxPx:1080, watermark:true, weekly:3, monthly:null,
-          feats:['3 exports per week',FEAT_FREE_TPL,'1080 × 1080 downloads','BUYBACK.AD watermark'] },
+          feats:['3 exports per week',FEAT_FREE_TPL,'1080px downloads (short side)','BUYBACK.AD watermark'] },
   pro:  { label:'Pro', price:15, priceLabel:'$15', per:'/month', maxPx:2160, watermark:false, weekly:null, monthly:100,
-          feats:['100 exports per month',FEAT_PRO_TPL,'Up to 2160px, no watermark, every format','Export history & re-downloads'], hot:true },
+          feats:['100 exports per month',FEAT_PRO_TPL,'Up to 2160px (short side), no watermark','Scannable QR code layer'], hot:true },
 };
 function isoWeek(){ const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
@@ -5545,7 +5545,7 @@ function bindSaasUI(){
     syncAcctUI();
     jset('pgfx_tut_done', false);   // brand-new account always gets the tour
     if (pro){
-      openPlans('Pro unlocks all 160+ templates, 2160p exports and no watermark.');
+      openPlans('Pro unlocks every design, 2160px exports and no watermark.');
       return;
     }
     showEditor();
@@ -9997,7 +9997,7 @@ function renderAreaPreview(a){
                 rural:'a spread-out area, so we reach further and name more of the small towns' }[a.tier] || '';
   const chips = list => list.map(t => '<span>' + escHtml(String(t).split(',')[0]) + '</span>').join('');
   el.innerHTML = `<div class="area-home">📍 ${escHtml(a.home)} <em>${escHtml(why)}</em></div>
-    <div class="area-row"><b>Reviews will mention</b><div class="area-chips">${chips(a.towns || [])}</div></div>
+    <div class="area-row"><b>Service-area lines will mention</b><div class="area-chips">${chips(a.towns || [])}</div></div>
     <div class="area-row"><b>Service-area lines</b><div class="area-chips">${chips(a.cover || [])}</div></div>
     <div class="area-row"><b>&ldquo;Across &hellip;&rdquo;</b><div class="area-chips"><span>${escHtml(a.region || '')}</span></div></div>`;
 }
