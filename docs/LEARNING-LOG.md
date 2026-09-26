@@ -204,3 +204,78 @@ RESUME HERE:
   reconcile the pre-existing failures in `scripts/theme_law.mjs` one palette
   at a time. Do not mass-retune them from the audit table alone; render each
   candidate in representative phone, gold, car, and sports templates first.
+
+---
+
+## 2026-09-26 — The study session into the templates, and the photographs back
+
+Studied:
+  The study session "Teaching the Engine Design" (iphoneslainv, 2026-09-24..26)
+  and the video maker built beside it: design rules as numbers (hierarchy
+  1.3x, 6% margins, 28px at 1200, contrast letter by letter, the 160px
+  thumbnail test, two type families), the copy rules (no dollar figures, no
+  dashes, no invented reviews or years, no competitor names, no promise about
+  how long an offer lasts) and the layering ladder (ground, atmosphere as light
+  and shade only, graphic, device, copy). The owner: the video maker had moved
+  far ahead of the image templates, the 50 offer cards lacked "a big/medium
+  phone number", and then, of the old colour work, "not these ugly hideous
+  overlaid colors and duotone background images."
+
+Measured:
+  - The number: showcase median 58px on the 1080 canvas (digits ~6px tall in a
+    160px tile), classics median 64px, 149 classics under 72px.
+  - The copy: on 971 showcase cards, "SINCE 2015" on 145, a rating on 144, a
+    price figure on 83, invented hours on 46, an em dash on 61, 43 signed
+    testimonials; the classics carried the same set at the source.
+  - The colour: 766 of 971 showcase photographs painted as duotones, 483 tinted
+    veils; 129 of 243 classics colour-graded; 12 of 21 Easy Mode themes failing
+    theme_law.mjs.
+  - Layout, on pixels: the street price tags hid 37-53% of the category word
+    behind the cash; the ribbons 54-63% of their item line behind the product;
+    59 classic lines ran past their own plate.
+  - The audits, re-measured: two measures held readable cards back. The line
+    gate averaged the letters' soft shadow in as ink (a #101014 label on a
+    cyan plate at 6:1 scored 2.85); the critic's per-letter check read each
+    number against a ring that fell off its plate (471 of 971 "failed" at
+    about 2.5). Both now judge the core of the strokes. After the fixes:
+    critical lines under 3:1 went 188 -> 9, the critic holds back 243 for
+    real reasons (hierarchy 128, three families 83, headline too small in a
+    tile 61, number under 72px 26, number off its plate 9), and 684 of 971
+    cards are live (780 before, on a looser bar).
+
+Changed:
+  - The number rebuilt on 945 showcase cards and 165 classics (median 84px and
+    108px), one of the card's two families, on one axis with its plate.
+  - Honest copy on 340 cards (943 lines) and in the classics' source.
+  - The design-school critic: its rejects hold a card back as a defect, its
+    warnings keep a card off the hero wall.
+  - Photographs in their own colour under a neutral shade solved per line of
+    copy (rule 56): showcase 0 duotones, 0 tinted veils; classics 128 of 129 via
+    assets/ground-fix.json; big pastel panels neutral at the same luminance.
+  - The 12 failing themes re-solved in OKLCH, every hue kept: 21 of 21 pass.
+  - Products moved off the words on 8 street layouts; four plates sized to
+    their words; the spec-check number kept on its bar.
+  - Nothing on the number: 38 cards had a rule, cue icon or frame border
+    across it after it moved (scripts/clear_number.mjs removes decoration
+    there); the critic now rejects a number more than 8% off its plate.
+  - 127 weak headline, number or CTA lines repaired in lightness (hue kept)
+    or neutral ink (scripts/repair_showcase_ink.mjs).
+  - The iPhones LA link now sends pictures that show the phone number (owner:
+    "Yes, allow the number").
+  - The site's pages: the video maker, what is checked, the data kept.
+
+Rejected:
+  - Editing motion/. It mirrors the phone ad engine's repo; its untrue copy is
+    listed in docs/handoff-offer-cards-number.md for that repo.
+  - Holding every line to its old contrast when the old ground was a crushed
+    duotone: the shade then came out near-black. Each line clears 4.5:1 or
+    keeps its old ground, whichever is further, so none is darker than it needs.
+  - Flipping a coloured line's ink to make one shade work. Only neutral lines
+    change side; a coloured one would lose its job.
+  - Touching the 50 offer cards: they are in loganipad/iphoneslainv.
+
+RESUME HERE:
+  Draft-deploy this branch (netlify deploy, then look at the preview on a
+  phone) before --prod. Then the iPhones LA session: run the paste-ready
+  prompt in docs/handoff-offer-cards-number.md, and check its server accepts
+  pictures that carry the number.

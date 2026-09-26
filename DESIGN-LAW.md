@@ -1097,13 +1097,15 @@ on assets/showcase/index.json, which the landing already filters on."
 measured through `buildLayer()`/`alignPass()` on the card's own pixels.
 
 **Reject** (the card is held back): the number under 72px; the number's worst
-**letter** under 3:1 against what is behind it; the number over a product; the
+**letter** under 3:1 against what is behind it; more than 8% of the number off
+the plate it stands on; the number over a product; the
 headline under 8px tall in a 160px tile; the headline under 1.3× the next
 biggest line; more than two type families; a weight the face does not ship
 (rule 20); the copy rules (rule 55); a headline naming a device the card does
 not show.
 
-**Warn** (shown, ranked after every clean card, never in the hero wall):
+**Warn** (shown; each warning ranks a card one step down, and the hero wall
+prefers cards with none when there are enough):
 reading text under 25px, ink inside the 6% margin, a widow, more than four
 alignment positions, under 25% empty, and a headline, CTA or support line
 whose worst letter is under 4.5:1.
@@ -1127,6 +1129,18 @@ Two lessons from building it:
   of 2.85 because more than half its changed pixels were shadow. The gate now
   judges the core of the strokes (the upper quartile of per-pixel contrast);
   a line that is really unreadable has no core either.
+- **Nothing on the number.** After the number moved, a 5px rule, a cue icon or
+  a frame border crossed it on 38 cards; each covered about 2% of the box, far
+  under the overlap audit's 12%. `scripts/clear_number.mjs` finds what is drawn
+  on the number's own ink and removes it when it is decoration.
+
+Result, 2026-09-26, over all 971 showcase cards: the critic holds back 243
+(the headline under 1.3x the next line 128, three families 83, the headline
+under 8px in a tile 61, the number under 72px 26, the number off its plate 9,
+a headline naming a device the card does not show 1; a card can fail more
+than one). With the overlap, legibility and repeated-copy defects, **684 are
+live** (780 were before the session, on a looser bar), every category and all
+29 palettes among them, the number at 72px or more (median 85).
 
 ## 55. Copy states how the offer works, never a fact the shop has not published
 

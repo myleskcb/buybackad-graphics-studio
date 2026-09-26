@@ -220,8 +220,11 @@ longer paints duotones; the natural pass must run after it:
     node scripts/refresh_showcase.mjs                      # palettes, faces, copy rules, bake
     node scripts/number_block.mjs --write                  # the number, big (rule 53)
     node scripts/naturalize_showcase.mjs --write           # photo in its own colour (rule 56)
+    node scripts/clear_number.mjs --write                  # nothing drawn on the number
     node scripts/audit_showcase_overlap.mjs --write
-    node scripts/audit_showcase_legibility.mjs --write
+    node scripts/audit_showcase_legibility.mjs --write --json .render/legib.json
+    node scripts/repair_showcase_ink.mjs --from .render/legib.json --write
+    ONLY=<repaired ids> node scripts/audit_showcase_legibility.mjs --write
     node scripts/audit_showcase_school.mjs --write         # the critic (rule 54)
     node scripts/audit_showcase_content.mjs --write        # stamps `defect`, school rejects included
     node scripts/rethumb_showcase.mjs
