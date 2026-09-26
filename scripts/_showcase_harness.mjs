@@ -112,7 +112,7 @@ export async function openStudio(query = ''){
           const b = box(refs[k]), c = { x: b.x + b.w / 2, y: b.y + b.h / 2 };
           if (b.w < 2 || b.h < 2 || plates.some(p => p.k < k && inside(c, p.b))) return;
           const p = l.props || {}, lum = hexLum(p.fill) ?? (p.grad ? ((hexLum(p.grad.c1) || 0) + (hexLum(p.grad.c2) || 0)) / 2 : null);
-          lines.push({ b, lum, a: b.w * b.h, name: l.name });
+          lines.push({ b, lum, a: b.w * b.h, name: l.name, props: p });
         });
         sc.dispose();
         const pixels = (d, x) => { const v = [], b = x.b;
@@ -131,7 +131,7 @@ export async function openStudio(query = ''){
         const known = lines.filter(x => x.lum != null && x.mid != null);
         known.forEach(x => { x.light = x.lum > x.mid; });
         const area = f => known.filter(f).reduce((s, x) => s + x.a, 0);
-        const light = known.length ? area(x => x.light) >= area(x => !x.light) : true;
+        let light = known.length ? area(x => x.light) >= area(x => !x.light) : true;
         lines.forEach(x => { if (x.light === undefined) x.light = light; });
         const inkLum = known.length ? known.reduce((s, x) => s + x.lum * x.a, 0) / known.reduce((s, x) => s + x.a, 0) : null;
         const want = o.want || 4.5;
@@ -157,8 +157,31 @@ export async function openStudio(query = ''){
           for (let it = 0; it < 8; it++){ const m = (lo + hi) / 2; if (ok(make(m, mode))) hi = m; else lo = m; }
           return make(hi, mode);
         };
-        let spec = null;
+        let spec = null, flipped = null;
         for (const mode of o.modes){ spec = solve(mode); if (spec) break; }
+        /* ONE INK DIRECTION PER GROUND. A card that sets white badges beside a
+           black headline on the same photograph asks one scrim to darken and
+           lighten the same picture. When the lines in the way are neutral
+           (white or black, no hue to lose), they take the other side's
+           near-white or near-black ink, their outline goes (the shade now
+           separates them), and each must clear o.want against the new ground
+           on its own. Majority direction first. A coloured line is never
+           flipped: the card keeps its old ground instead. */
+        if (!spec && o.flip){
+          const neutralInk = x => { const p = x.props || {}, m = /^#?([0-9a-f]{6})$/i.exec(String(p.fill || '')); if (!m || p.grad) return false;
+            const n = parseInt(m[1], 16), c = [(n >> 16) & 255, (n >> 8) & 255, n & 255]; return (Math.max(...c) - Math.min(...c)) / 255 < 0.12; };
+          for (const dir of [light, !light]){
+            const flips = live.filter(x => x.light !== dir);
+            if (!flips.length || flips.some(x => !neutralInk(x))) continue;
+            const save = flips.map(x => ({ x, light: x.light, lum: x.lum, allow: x.allow })), was = light;
+            const ink = dir ? o.flip.light : o.flip.dark, il = hexLum(ink);
+            flips.forEach(x => { x.light = dir; x.lum = il; x.allow = dir ? (il + 0.05) / want - 0.05 : want * (il + 0.05) - 0.05; });
+            light = dir;
+            for (const mode of o.modes){ spec = solve(mode); if (spec) break; }
+            if (spec){ flipped = flips.map(x => ({ name: x.name, fill: ink })); break; }
+            light = was; save.forEach(v => Object.assign(v.x, { light: v.light, lum: v.lum, allow: v.allow }));
+          }
+        }
         if (!spec){
           /* which lines no strength of this scrim can hold, at its strongest */
           const d = ground(make(0.92, o.modes[o.modes.length - 1]));
@@ -168,7 +191,7 @@ export async function openStudio(query = ''){
         }
         if (!spec.scrimColor) delete spec.scrimColor;
         if (spec.grade == null) delete spec.grade;
-        return { bg: spec, light, inkLum: inkLum == null ? null : +inkLum.toFixed(3), lines: live.length,
+        return { bg: spec, light, flipped, inkLum: inkLum == null ? null : +inkLum.toFixed(3), lines: live.length,
                  shortBefore: live.filter(x => x.lum != null && x.allow === x.old && (x.light ? x.old > (x.lum + 0.05) / want - 0.05 : x.old < want * (x.lum + 0.05) - 0.05)).length };
       },
     };

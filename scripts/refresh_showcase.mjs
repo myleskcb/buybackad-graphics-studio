@@ -6,7 +6,8 @@
  * so their geometry is kept and only their skin changes.
  *
  *   colour   refresh_palettes.mjs — balanced palette assignment, luminance-locked
- *            recolour of every colour in the record, grey+veil photo -> duotone
+ *            recolour of every colour in the record (the grey+veil -> duotone
+ *            step is retired: DESIGN-LAW 56, scripts/naturalize_showcase.mjs)
  *   type     refresh_palettes.mjs — the face each card had maps to one of seven
  *            vendored OFL faces with the same voice; then, IN THE STUDIO, the
  *            new line is sized so it is no wider and no taller than the old
@@ -25,7 +26,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { openStudio } from './_showcase_harness.mjs';
 import { rewriteCopy, deckOfHeadline, fixForeignLines, foreignWords, COMPANY, LICENSE } from './refresh_copy.mjs';
-import { PALETTES, assign, mapper, walkColours, duoFor, displayFace, numFace, SUPPORT_FACE, snapWeight, parse, lumOf, toOklch } from './refresh_palettes.mjs';
+import { PALETTES, assign, mapper, walkColours, displayFace, numFace, SUPPORT_FACE, snapWeight, parse, lumOf, toOklch } from './refresh_palettes.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const DIR = ROOT + 'assets/showcase/';
 const FROM = process.env.REFRESH_FROM || 'HEAD';
@@ -63,20 +64,16 @@ function refreshRecord(c){
   const rec = JSON.parse(git('assets/showcase/tpl/' + c.id + '.json'));
   const pal = plan[c.id];
   const map = mapper(pal, c);
-  const oldBg = rec.tpl.bg || {};
   const oldText = (rec.tpl.layers || []).map(l => l.text);
   const tpl = walkColours(rec.tpl, map);
   tpl.cat = c.cat;
   rewriteCopy(tpl, c.cat).concat(fixForeignLines(tpl, c.cat, DEFAULTS)).forEach(x => COPYLOG.push(c.id + ': ' + x.replace(/\n/g, '/')));
-  /* the photograph */
-  const bg = tpl.bg || {};
-  const treat = oldBg.grade && oldBg.grade.treat;
-  const drawn = /showcase\/bg\//.test(oldBg.src || '');
-  if (bg.type === 'image' && (oldBg.scrimMode || 'normal') === 'normal' && (treat === 'tone' || (drawn && treat === 'natural'))){
-    const duo = duoFor(pal, oldBg.scrimColor || '#808080', +oldBg.scrim || 0);
-    bg.grade = { treat:'duo', lo:duo.lo, hi:duo.hi };
-    bg.scrim = 0;
-  }
+  /* the photograph: no longer painted here. This turned grey-under-a-veil
+     photographs into palette duotones (2026-09-22); the owner rejected them on
+     2026-09-26 ("not these ugly hideous overlaid colors and duotone background
+     images") and DESIGN-LAW rule 56 replaced them. The photograph keeps its own
+     colour and a neutral, solved shade: run scripts/naturalize_showcase.mjs
+     after this script, before the audits (OPEN-ITEMS §I has the order). */
   /* the type */
   const f = c.faces || {};
   const disp = displayFace(f.display, c.cat);
@@ -97,7 +94,6 @@ function refreshRecord(c){
     p.fontWeight = snapWeight(nf, p.fontWeight);
     if (p.fontStyle === 'italic' && /Gloock|Young Serif|Tilt Warp/.test(nf)) p.fontStyle = 'normal';  // no italic files: no faux slant
   });
-  tpl.bg = bg;
   const roles = { c1:map(c.c1), ink:map(c.ink), accent:map(c.accent), support:map(c.support) };
   return { rec:Object.assign({}, rec, { tpl }), pal, faces, roles };
 }
