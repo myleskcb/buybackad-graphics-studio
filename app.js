@@ -810,7 +810,7 @@ const TEMPLATES = [
     t('Badges', 'badges', 'upper', badges.join('\n'), { left:W-56, top:40, originX:'right', fontFamily:T.s, fontSize:28, fill:P.ink, fontWeight:'800', lineHeight:1.52, charSpacing:110, opacity:0.95, shadow:P.paper ? null : sh('rgba(0,0,0,0.55)', 9, 0, 2) }),
   ];
   const ribbon = (P, T, text, y) => [
-    r('Kicker Ribbon', { left:CX, top:y+31, width:430, height:62, rx:14, originX:'center', originY:'center', angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
+    r('Kicker Ribbon', { left:CX, top:y+31, width:490, height:62,   /* 490: COLLECTIONS WANTED ran 17px past 430 */ rx:14, originX:'center', originY:'center', angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
     t('Kicker', 'sub', 'upper', text, { left:CX, top:y+31, originX:'center', originY:'center', fontFamily:T.s, fontStyle:'italic', fontSize:36, fill:onAccent(P), fontWeight:'900', angle:-3 }),
   ];
   const subBlock = (P, T, text, y, size) => tb('Info Text', 'info', 'upper', text, { left:CX, top:y, width:W-140, originX:'center', fontFamily:T.s, fontStyle:'italic', fontSize:size || 40, fill:P.ink, fontWeight:'800', textAlign:'center', lineHeight:1.34, stroke:P.paper ? undefined : '#000000', strokeWidth:P.paper ? 0 : 3, shadow:P.paper ? null : sh('rgba(0,0,0,0.6)', 10, 0, 3) });
@@ -1130,9 +1130,11 @@ const TEMPLATES = [
         t('Chip Text ' + i, 'badges', 'upper', txt, { left:x+w/2, top:792, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:40 }),
       ];
       return [
-        ...panel('Rate Pill', CX-330, 82, 660, 92, 46),
-        t('Stars', 'deco', 'none', 'FREE QUOTE', { left:CX-286, top:104, fontFamily:'Satoshi', fontSize:30, fontWeight:'900', fill:P.a1, charSpacing:60 }),
-        t('Rating Line', 'info', 'none', 'No fees · no obligation', { left:CX+52, top:110, fontFamily:'Satoshi', fontSize:33, fill:'#ffffff', fontWeight:'800' }),
+        /* 800 wide, not 660: the rating line ran 78px past the pill's right
+           end (it did with the old "4.9 · 200+ local sellers" too) */
+        ...panel('Rate Pill', CX-400, 82, 800, 92, 46),
+        t('Stars', 'deco', 'none', 'FREE QUOTE', { left:CX-356, top:104, fontFamily:'Satoshi', fontSize:30, fontWeight:'900', fill:P.a1, charSpacing:60 }),
+        t('Rating Line', 'info', 'none', 'No fees · no obligation', { left:CX+22, top:110, fontFamily:'Satoshi', fontSize:33, fill:'#ffffff', fontWeight:'800' }),
         ...panel('Quote Card', 70, 228, W-140, 336, 34),
         tb('Quote', 'info', 'none', C.quote, { left:CX, top:278, width:W-250, originX:'center', fontFamily:'Satoshi', fontSize:46, fill:'#ffffff', fontWeight:'700', textAlign:'center', lineHeight:1.32 }),
         t('Who', 'info', 'none', C.who, { left:CX, top:492, originX:'center', fontFamily:'Satoshi', fontSize:25, fill:'rgba(255,255,255,0.72)', charSpacing:90 }),
@@ -1289,7 +1291,7 @@ const TEMPLATES = [
       t('Kicker', 'sub', 'upper', C.k, { left:CX, top:140, originX:'center', fontFamily:T.s, fontSize:32, fill:P.sub, charSpacing:400, fontWeight:'700' }),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:238, originX:'center', fontFamily:T.d, fontSize:110, fill:P.ink }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:356, originX:'center', fontFamily:T.d, fontSize:224, fill:P.ink, shadow:sh(P.glow, 0, 10, 10) }),
-      r('Price Strip', { left:CX-330, top:650, width:660, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),
+      r('Price Strip', { left:CX-410, top:650, width:820, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),   // 820: "PAID AT CURRENT MARKET RATES" ran 50px past 660
       t('Price Line', 'info', 'upper', C.price, { left:CX, top:668, originX:'center', fontFamily:T.s, fontSize:44, fill:onAccent(P), fontWeight:'900' }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:806, originX:'center', fontFamily:'Satoshi', fontSize:74, fill:P.ink, fontWeight:'900' }),
       t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:924, originX:'center', fontFamily:'Satoshi', fontSize:24, fill:P.sub }),
@@ -1347,7 +1349,9 @@ const TEMPLATES = [
       t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:130, fontFamily:T.d, fontSize:96, fill:'#ffffff' }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:60, top:236, fontFamily:T.d, fontSize:132, grad:{ c1:P.a1, c2:P.a2, a:115 }, shadow:sh(P.glow, 24) }),
       tb('Info Text', 'info', 'upper', C.sub, { left:64, top:462, width:372, fontFamily:T.s, fontSize:28, fill:'rgba(255,255,255,0.85)', fontWeight:'700', lineHeight:1.48 }),
-      t('Price Line', 'info', 'upper', C.price, { left:64, top:824, fontFamily:T.d, fontSize:40, fill:P.a1, shadow:sh(P.glow, 16) }),
+      /* a box the panel's width, so a long line wraps inside the panel:
+         "PAID AT CURRENT MARKET RATES" ran 289px past it onto the photograph */
+      tb('Price Line', 'info', 'upper', C.price, { left:64, top:764, width:400, fontFamily:T.d, fontSize:40, fill:P.a1, lineHeight:1.12, shadow:sh(P.glow, 16) }),
       t('Kicker', 'sub', 'upper', C.k, { left:770, top:120, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, charSpacing:200, fontWeight:'700', backgroundColor:'rgba(0,0,0,0.35)', padding:12 }),
       r('Phone Chip', { left:560, top:860, width:470, height:112, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 22) }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:795, top:884, originX:'center', fontFamily:'Satoshi', fontSize:47, fill:onAccent(P), fontWeight:'900' }),
