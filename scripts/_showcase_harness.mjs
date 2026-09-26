@@ -4,15 +4,33 @@
  * the way renderThumb() does, so every measurement is taken on the pixels a
  * visitor sees. */
 import puppeteer from 'puppeteer-core';
+import { readFileSync } from 'node:fs';
 export const BASE = process.env.GFX_BASE || 'http://localhost:8899/';
-export async function openStudio(){
-  const browser = await puppeteer.launch({ executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+/* A machine that cannot reach cdnjs (a sandbox, CI) can still run the audits:
+ * FABRIC_JS=/path/to/fabric.min.js serves that file for the page's fabric
+ * <script>, and every other off-origin request is aborted instead of left
+ * hanging. CHROME=/path/to/chrome picks the browser. Unset, nothing changes. */
+export async function offline(page){
+  if (!process.env.FABRIC_JS) return;
+  const fabricJs = readFileSync(process.env.FABRIC_JS);
+  const origin = new URL(BASE).origin;
+  await page.setRequestInterception(true);
+  page.on('request', req => {
+    const url = req.url();
+    if (/\/fabric(\.min)?\.js(\?|$)/.test(url)) return req.respond({ status:200, contentType:'application/javascript', body:fabricJs });
+    if (url.startsWith(origin) || url.startsWith('data:') || url.startsWith('blob:')) return req.continue();
+    return req.abort();
+  });
+}
+export async function openStudio(query = ''){
+  const browser = await puppeteer.launch({ executablePath: process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     headless:'new', args:['--no-sandbox'], protocolTimeout:0 });
   const page = await browser.newPage();
   await page.setViewport({ width:1280, height:900 });
   const errors = [];
   page.on('pageerror', e => errors.push(String(e).slice(0, 160)));
-  await page.goto(BASE + '?look=graphite-orchid', { waitUntil:'networkidle2', timeout:120000 });
+  await offline(page);
+  await page.goto(BASE + '?look=graphite-orchid' + query, { waitUntil:'networkidle2', timeout:120000 });
   await page.waitForFunction(() => typeof buildLayer === 'function' && typeof renderThumb === 'function' && typeof SHOWCASE !== 'undefined', { timeout:60000 });
   await page.evaluate(() => {
     window.__sc = {

@@ -18,17 +18,19 @@
  *   --write records `cover` (worst fraction) and `coverBy` on each index row.
  */
 import puppeteer from 'puppeteer-core';
+import { offline } from './_showcase_harness.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
 const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
 
-const browser = await puppeteer.launch({ executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:'new', args:['--no-sandbox'], protocolTimeout: 0 });
+const browser = await puppeteer.launch({ executablePath: process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:'new', args:['--no-sandbox'], protocolTimeout: 0 });
 const page = await browser.newPage();
 await page.setViewport({ width: 1280, height: 900 });
 const perr = [];
 page.on('pageerror', e => perr.push(String(e).slice(0, 120)));
-await page.goto('http://localhost:8899/', { waitUntil:'networkidle2', timeout: 90000 });
+await offline(page);
+await page.goto((process.env.GFX_BASE || 'http://localhost:8899/'), { waitUntil:'networkidle2', timeout: 90000 });
 await page.evaluate(() => document.fonts.ready);
 await page.waitForFunction(() => typeof buildLayer === 'function' && typeof alignPass === 'function', { timeout: 30000 });
 
