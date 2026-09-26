@@ -157,3 +157,90 @@ RESUME HERE:
   and leave the heavily-defocused ones at 2160 where the upscale is invisible.
   Re-run `python3 scripts/asset_audit.py` after; it should exit 0 for the tier
   being targeted.
+
+
+---
+
+## 2026-09-26 — Module 7 (commercial polish) + video ads
+
+Studied:
+  The first-run experience against rule 36, and the landing page against the
+  whole of DESIGN-LAW, which had governed the templates but never the page
+  that sells them. Then, at the owner's request mid-session, video ads:
+  muted autoplay in condensed formats with a small unmute in the corner.
+
+Measured:
+  - Chrome tokens pass WCAG AA in both themes (lowest: dim text on raised
+    surface 4.89:1 dark; accent kicker on field 4.61:1 light). Not the problem.
+  - Copy vs product: meta/share text said 160+ (real 243); sign-up card said
+    "Starter … 20 templates" (no Starter plan; real 54 free); bottom CTA
+    promised "Unlimited exports" to a 3/week plan; FAQ said exports are square
+    only (4 formats exist) and that plates are semi-transparent (rule 21 made
+    them opaque); og:image pointed at assets/tplbg/, which does not exist.
+  - Easy Mode at 390px rendered 495px wide: `1fr` cannot shrink below the
+    preview <img>'s ~439px min-content. Inputs and the ad were cut off.
+  - Easy Mode opened every template on a grey, blurred placeholder and
+    exported a flat fallback unless "ORIG" was clicked (while ORIG already
+    showed as selected), against the locked direction "every template keeps
+    a photograph".
+  - The "PRO" badge in Easy Mode was wrong on 34 of 243 templates (25 Phones).
+  - Landing gallery: blurred until hover (never sharp on touch); 24 one-up
+    cards on a phone made a 13,784px page (now 9,125px).
+  - __PRIORITY_TPL_IDS was set after preloadTplBgs() had already ordered
+    wave 1, so the "visible first" preload never saw the landing picks.
+  - Layers panel requested assets/tplbg/<id>.jpg for classic templates: a 404
+    and a blank swatch, on the original build too.
+  - Video export: 1.6 → 1.8 → 2.3 → 30.0 fps across three measured fixes
+    (DESIGN-LAW 54). Sound: 91% of energy <500 Hz, rebalanced for a phone
+    speaker (53). Clips: 4 × (MP4 + WebM + poster) = 2.4 MB.
+  - Under the production CSP (served locally from _headers): 0 violations
+    across landing, theme toggle, reel playback + unmute and a full export.
+
+Changed:
+  - index.html / styles.css / app.js: landing rebuilt (hero names all eight
+    categories; derived proof row; video reel; "why they get calls" = the
+    house rules; filterable sharp gallery, 2-up on phones; how-it-works
+    matching Easy Mode; formats from FORMATS; pricing from PLANS; FAQ fixed;
+    true CTA). SVG icon sprite replaces emoji/Unicode chrome glyphs.
+  - Video export (MOTION section, appended): living-still motion, synthesized
+    sound, bake-and-composite renderer, MediaRecorder with an honest MIME
+    choice, gated/counted/watermarked like a PNG. Easy Mode + export modal.
+  - Easy Mode: overflow fix, template photo is the default background, Pro
+    badge from tplLocked(), cssBg/tplPhotoUrl resolve embedded photos.
+  - scripts/render_motion_clips.mjs (clips + clips.json, measured button
+    corner, refuses silent or backdrop-less renders);
+    scripts/sync_css_fallback.mjs (CSS_FALLBACK had no regenerator in repo).
+  - DESIGN-LAW rules 51–56, appended.
+
+Rejected:
+  - A REVEAL animation (type flying in). Every frame before the number lands
+    is a frame that cannot convert in a muted, fast-scrolling feed.
+  - top_buyer as the reel's phones clip: its CTA measures 1.02:1, ΔE 2 —
+    invisible in every format. Named here, NOT repainted (rule 14 needs field
+    research first). sell_iphone replaced it.
+  - Luminance-only contrast for picking clips: it failed orange-on-brown
+    type that reads fine. Used the house method (<3:1 AND ΔE<30).
+  - Showing an unmute button on silent clips, or a play button on clips the
+    browser cannot decode (rule 55).
+  - Trusting requestAnimationFrame to pace a recorder (rule 54).
+  - Changing canonical/og:url off buyback.ad (no DNS). Only og:image moved to
+    the working netlify host; the domain is the owner's decision.
+
+Known, not fixed (out of scope, logged so nobody rediscovers them):
+  - Module 6 reflow: several designer phones templates shrink the phone
+    number to a small plate in Story 9:16 (e.g. dl_phones_voltStack_volt).
+  - top_buyer CTA 1.02:1 (above). The phone audit never looks at CTAs; a
+    CTA/secondary-text audit is the natural extension.
+  - MediaRecorder WebM files carry no duration header (Chrome behaviour);
+    platforms re-encode, but a desktop player shows no scrub bar.
+  - The sound is a synthesized placeholder. Nobody has listened to it.
+
+RESUME HERE:
+  1. Owner: audition the sound (assets/video/*.mp4, unmute) and the motion on
+     a real phone, then draft-deploy (netlify deploy --dir=.) and run
+     scripts/verify_csp.mjs against the draft URL before --prod.
+  2. Test MP4 recording in real Chrome ≥126 and Safari: this sandbox's
+     Chromium has no H.264, so only the WebM path was exercised end to end.
+  3. Module 6: a reflow regression check that renders every template in all
+     four formats and asserts phone-number height and CTA contrast per format
+     (reuse the glyph-masked method in scripts/ + the clip renderer's harness).

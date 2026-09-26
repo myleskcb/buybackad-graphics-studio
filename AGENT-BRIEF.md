@@ -49,7 +49,7 @@ looks louder.
 
 ## The prime directive: measure, do not assert
 
-`DESIGN-LAW.md` is 43 numbered rules, and almost every one was derived by
+`DESIGN-LAW.md` is a numbered rule set, and almost every rule was derived by
 measuring the real library rather than by quoting a textbook. Rule 34 says
 *never model a blend, measure it*. Rule 37 says *state no number you can count*.
 Rule 14 says colour theory selects **from** a vocabulary observed in real
@@ -137,6 +137,15 @@ curl -sS -o /dev/null -w '%{http_code} /\n'       $U
 curl -sS -o /dev/null -w '%{http_code} /app.js\n' $U/app.js
 curl -sS -o /dev/null -w '%{http_code} /docs\n'   $U/docs/README.md   # must be 404
 python3 scripts/cvd_audit.py                                         # exits 1 on failure
+node scripts/verify_csp.mjs $U                                       # inline scripts allowed by the live CSP
+```
+
+Before deploying, after any CSS edit or clip change:
+
+```bash
+node scripts/sync_css_fallback.mjs --check      # CSS_FALLBACK in app.js must equal styles.css
+node scripts/render_motion_clips.mjs            # re-render the landing video clips + clips.json
+                                                # (needs ffmpeg with libx264 + libvpx-vp9 on PATH)
 ```
 
 ## Domains — known broken, needs a human

@@ -29,7 +29,9 @@ That’s the full loop: sign-up → Stripe-hosted checkout → webhook flips the
 ## Plan rules (change in ONE place each side)
 `PLANS` at the top of `app.js` (labels/pricing shown in UI) and of
 `backend/worker.js` (the enforced truth):
-Free = 3/week, 1080px, watermark, 20 templates · Pro = 100/month, 2160px, all 50+ templates.
+Free = 3/week, 1080px, watermark, every Phones template plus the first three of
+each other category · Pro = 100/month, 2160px, every template. Template counts
+are derived from the library at boot (DESIGN-LAW rule 37), never typed.
 
 ## Notes
 - Test first with Stripe **test keys** + card 4242 4242 4242 4242.
@@ -44,6 +46,20 @@ The editor supports four canvas formats (topbar picker): **Square 1:1**
 authored square and re-flow into the chosen format; switching back is lossless.
 Plan pixel caps apply to the short side, so rectangular exports keep their
 aspect. Easy Mode stays square by design.
+
+## Video ads
+Every template exports as an 8-second video (Easy Mode "Download as video", or
+the editor's Export modal), in whatever format is selected, at up to 1080p. It
+is recorded in the browser: H.264 MP4 from Chrome 126+, Edge and Safari; WebM
+from Firefox and browsers built without H.264. A video uses one export credit
+and carries the Free-plan watermark, exactly like a PNG. The motion and sound
+rules are DESIGN-LAW 52–55; the code is the MOTION section at the end of app.js.
+
+The landing page's clips are rendered by that same code:
+`node scripts/render_motion_clips.mjs` writes `assets/video/*.{mp4,webm,jpg}`
+and `assets/video/clips.json`, which the page reads for sources and for the
+corner each clip's sound button goes in. The sound is a synthesized placeholder
+(`motionSound()`); audition it before relying on it.
 
 ## SCANS.AD (ScanMap) integration — optional
 Graphics Studio runs 100% standalone. The integration is also **invisible to

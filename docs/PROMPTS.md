@@ -24,7 +24,7 @@ standard.
 
 READ FIRST, IN THIS ORDER
 1. AGENT-BRIEF.md          — landmines, deploy process, domain state
-2. DESIGN-LAW.md           — 43 numbered rules, the authority on all design
+2. DESIGN-LAW.md           — the numbered rules, the authority on all design
 3. docs/SESSION-PROTOCOL.md — how to run a session, incl. the 99% pause rule
 4. The LAST THREE entries of docs/LEARNING-LOG.md — where we left off
 

@@ -997,3 +997,127 @@ specific, wrong numbers:
 Two tests before trusting any new metric: does it return **different** answers
 for inputs you know differ, and does it measure the surface the user actually
 sees? A number that is identical across every condition is not a measurement.
+
+## 51. The page that sells the product is held to the product's law
+
+Fifty rules governed the templates and none governed the landing page that
+sells them, and it had drifted into every failure the rules name:
+
+- **Say what is being bought (24).** The hero said *"Built for phone buyers"*
+  beside a fan showing silver and gold. The product serves eight categories;
+  the page named one.
+- **State no number you can count (37).** The meta description and share
+  text said "160+" to a library of 243 (crawlers never run the boot script
+  that fixes the on-page copy). The sign-up card offered "20 starter
+  templates" against a real 54 and a plan called "Starter" that does not
+  exist. The bottom CTA promised **"Unlimited exports"** to a plan that gets
+  three a week — a false claim one scroll below the true one, on a product
+  whose conversion is trust.
+- **Show the product.** Every gallery card sat behind a blur veil that only
+  cleared on hover. Touch has no hover, so no phone visitor had ever seen a
+  template in focus. The template's name was laid over the bottom band of the
+  art, which is exactly where every template puts its phone number (15).
+- **Say the rule, not the superlative.** "Layouts that already convert" is a
+  claim nobody measured. The house rules are true and specific — contrast
+  not neon, a readable number, real photographs, a headline that names the
+  product — so the page now sells those.
+
+Counts, categories, formats, prices and quotas on the page are now written
+from `TEMPLATES`, `CATS`, `FORMATS` and `PLANS` at boot (`fillLandingFacts`),
+and the pricing cards are rendered from the same `PLANS` object the plans
+page reads. The meta tags carry no counts at all.
+
+## 52. In a video ad, every frame is a finished ad
+
+Feeds autoplay muted and people scroll past in a second or two. A reveal —
+headline slides in, then the offer, then the number — spends the first two
+seconds on frames that cannot convert, because the phone number is not on
+them yet.
+
+So the motion is a **living still**. Frame 0 is the PNG export, pixel for
+pixel, and every later frame is complete too. What moves is emphasis:
+
+1. the photograph breathes on a slow closed path (push-in and a small pan
+   inside the headroom the push creates, so no edge is ever exposed);
+2. three beats of **scale, never colour**, in reading order — the money
+   word, the selling points, the phone number and its plate as one unit —
+   because rule-zero ("attention comes from contrast and scale, not from
+   saturation") holds in time as well as in space;
+3. every beat returns exactly to rest, so the loop point is invisible.
+
+The phone beat scales the number *with its plate* (found by rule 46's test),
+or the number would outgrow its own ground. The landing-page clips are
+rendered by the same code (`scripts/render_motion_clips.mjs` →
+`motionBake`/`motionDraw`), so the page cannot promise a video the export
+button does not make.
+
+## 53. Sound is designed for the speaker it will play on
+
+The first sound mix put **91% of its energy below 500 Hz**. It measured
+fine: no clipping, beats landing exactly at 1.0 / 3.0 / 5.0 s, no click at the
+loop seam. And it would have been nearly silent on the device this audience
+uses, because a phone speaker reproduces very little below ~200 Hz.
+
+Measured against a 250 Hz–8 kHz band as a stand-in for a phone speaker, and
+re-balanced until that band carried half the energy (phone-band RMS −24.8 →
+−21.8 dBFS, overall −18.5 dBFS RMS, peak −3.2 dBFS). The loudest moment on a
+phone is the chime when the phone number lands — the sonic peak sits on the
+element the ad exists to deliver.
+
+The number that matters is the one measured through the listener's speaker,
+not the file's. (Nobody on this project has yet *listened* to it; the mix
+is a synthesized placeholder until the owner auditions it.)
+
+## 54. A real-time recorder is only as fast as the main thread is free
+
+The first real video export came out at **1.6 fps**. Three causes were
+proposed in turn and each was measured before the next:
+
+1. *Fabric re-rendering the scene per frame* — real, and fixed by baking the
+   scene into bitmaps once and compositing (5.4 ms per 1080² frame, even in
+   software). The export was still 1.8 fps.
+2. *`requestAnimationFrame` pacing* — rAF runs at display rate, and at
+   2.5 Hz in a headless browser. Replaced with a 30 fps timer scheduled on
+   absolute time. Still 2.3 fps.
+3. *Background thumbnail warm-up* — `ensureThumbs()` renders all 243
+   thumbnails after load and held the main thread for ~46 s in software.
+   Started after warm-up, the same code recorded **29.8 fps**. Background
+   work now yields while `window.__gfxRecording` is set: **30.0 fps** four
+   seconds after page load.
+
+Each fix was right and only the last one was the binding constraint. Measure
+each stage on its own (build, bake, draw, clock, encoder) before believing
+any of them — a plausible fix that does not move the number is not a fix.
+
+## 55. A control that can do nothing must not be shown
+
+An unmute button on a clip with no audio track, a play button on a video the
+browser cannot decode, a file named `.mp4` that holds VP9: each is a control
+or a label that lies, and on a trust product a lie costs more than a missing
+feature.
+
+- The renderer refuses to write a clip without an audio stream, so every
+  unmute button has something to unmute.
+- A tile whose video cannot play keeps its poster (frame 0, the finished ad)
+  and drops both buttons (`.noplay`). The poster is also painted as the
+  tile's background, so a video layer that paints nothing never shows an
+  empty card (rule 38).
+- `MediaRecorder.isTypeSupported('video/mp4')` returned *true* in a browser
+  with no H.264 and then recorded VP9 inside an MP4 box — a file Instagram
+  refuses. A bare `video/mp4` is only trusted where the browser can also play
+  H.264; otherwise the export is an honest WebM and the toast says so.
+- The sound button's corner is **measured per clip**: the corner with the
+  least text (and plate) under it. A fixed bottom-right sat on 29% of the gold
+  ad's phone plate, so that clip's button is top-right.
+
+## 56. A badge must ask the gate, not the data
+
+Easy Mode drew "🔒 PRO" on any template with `tier === 'premium'`. The gate,
+`tplLocked()`, makes every Phones design free and the first three of every
+other category free. The label was wrong on **34 of 243 templates** (25 of
+them Phones), telling visitors that free designs were paywalled — and it sat
+on the top-left of the artwork, over the headline.
+
+This is rule 37's corollary again in a different costume: two predicates for
+one fact. The badge now asks `tplLocked()`, lives in the label rather than on
+the art, and updates when the account changes (0 badges once Pro, verified).

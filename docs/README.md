@@ -20,7 +20,7 @@ post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 | File | What it is |
 |---|---|
 | `../AGENT-BRIEF.md` | **Read first.** Landmines, deploy process, domain state. Copy to `CLAUDE.md` to auto-load it. |
-| `../DESIGN-LAW.md` | **The authority.** 43 enforced rules, derived by auditing the real library. Never contradict it. |
+| `../DESIGN-LAW.md` | **The authority.** Numbered, enforced rules derived by auditing the real library. Never contradict it. |
 | `PROMPTS.md` | Copy-paste session starters for a fresh Claude session |
 | `SESSION-PROTOCOL.md` | How to run a study session, including the 99% pause rule |
 | `CURRICULUM.md` | The syllabus: what to learn, in order, college level |
