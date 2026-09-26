@@ -4456,7 +4456,22 @@ function coverImage(im, w, h){
    those three were nudged to clear the same bar: #fbbf24 -> #f4bb2a,
    #ffc247 -> #f9b939, #5fd8f0 -> #54d4ee. Sub-1% moves in lightness, invisible
    side by side, and the whole set now passes one rule instead of two.
-   Floor is 1.7. Checked by scripts/theme_law.mjs. */
+   Floor is 1.7. Checked by scripts/theme_law.mjs.
+
+   2026-09-26: the twelve rows that came from scripts/theme_specs.mjs failed
+   that same audit (12 of 21 themes). Five Jewel and Night Neon rows set a
+   pastel accent beside a pale tinted ink, 1.12 to 1.34:1 apart, so the money
+   word was not a different colour; four light rows put a phone-number accent
+   under 4.5:1 on their own ground; two Duotone rows stood dark ink on a
+   mid-tone cyan or blue, under 4.5:1 for everything. The study session's
+   design language gives every colour one job, near-black or near-white ink,
+   one accent, and a ground that is clearly light or clearly dark, so each row
+   was re-solved in OKLCH keeping every hue: inks to near-black or near-white
+   with a breath of the ground's hue; mid-tone grounds to a pale tint of their
+   own hue (dark ink) or kept deep (light ink); accents placed in the one
+   luminance band that clears 4.5:1 on both stops and 1.75:1 against the ink,
+   at the most chroma the gamut allows, yellows and ambers at the light end of
+   that band so they stay gold rather than olive or brown. 21 of 21 pass. */
 const COLOR_THEMES = [
   /* 2026-09-02: the row used to be ten dark grounds, four of them brown or
      amber under an orange accent — the old design language. Five of the old
@@ -4465,18 +4480,18 @@ const COLOR_THEMES = [
      painted with, so a theme picked here matches a theme seen there. Light
      grounds carry DARK ink, which applyColorTheme() already handles because
      it maps by role rather than by assuming white type. */
-  { name:'Blue Market',   family:'Duotone',    bg:{type:'grad', c1:'#1ba3c7', c2:'#198ab5', a:170}, accent:'#254b69', ink:'#092e39' },
-  { name:'Blue Ticket',   family:'Jewel',      bg:{type:'grad', c1:'#044a51', c2:'#01363f', a:170}, accent:'#febbd3', ink:'#d0e2e4' },
-  { name:'Mint Market',   family:'Jewel',      bg:{type:'grad', c1:'#054e2f', c2:'#003928', a:170}, accent:'#e1c2fe', ink:'#d4e2d9' },
-  { name:'Orchid Payday', family:'Jewel',      bg:{type:'grad', c1:'#532d6b', c2:'#481057', a:170}, accent:'#e7d358', ink:'#e2dbe8' },
-  { name:'Indigo Cash',   family:'Night Neon', bg:{type:'grad', c1:'#0e253c', c2:'#02132e', a:170}, accent:'#fcaca5', ink:'#d4dfeb' },
-  { name:'Indigo Trade',  family:'Duotone',    bg:{type:'grad', c1:'#5593ef', c2:'#4d76e5', a:170}, accent:'#3c3e65', ink:'#1b293f' },
-  { name:'Blue Deal',     family:'Candy',      bg:{type:'grad', c1:'#80dafd', c2:'#45c4ff', a:170}, accent:'#ab117d', ink:'#1b3d49' },
-  { name:'Sky Market',    family:'Cool Air',   bg:{type:'grad', c1:'#b9f7f6', c2:'#99e1e7', a:170}, accent:'#d8360a', ink:'#173f3f' },
-  { name:'Violet Payday', family:'iOS Flat',   bg:{type:'grad', c1:'#ecefff', c2:'#d5d7ef', a:170}, accent:'#616cf8', ink:'#31364f' },
-  { name:'Gold Offer',    family:'Paper',      bg:{type:'grad', c1:'#fdf4ee', c2:'#e5ddd5', a:170}, accent:'#ac5d05', ink:'#4a3220' },
-  { name:'Mint Counter',  family:'Paper',      bg:{type:'grad', c1:'#f2f8ef', c2:'#d9e1d8', a:170}, accent:'#4a8704', ink:'#2e3d25' },
-  { name:'Red Cash',      family:'Chalk',      bg:{type:'grad', c1:'#faf5f7', c2:'#e4dedf', a:170}, accent:'#a60a69', ink:'#4a2e3a' },
+  { name:'Blue Market',   family:'Duotone',    bg:{type:'grad', c1:'#aae8ff', c2:'#99dbfb', a:170}, accent:'#005284', ink:'#0a2026' },
+  { name:'Blue Ticket',   family:'Jewel',      bg:{type:'grad', c1:'#02383e', c2:'#002e36', a:170}, accent:'#ff83b6', ink:'#eaf5f7' },
+  { name:'Mint Market',   family:'Jewel',      bg:{type:'grad', c1:'#003a21', c2:'#003021', a:170}, accent:'#cd92ff', ink:'#edf5f0' },
+  { name:'Orchid Payday', family:'Jewel',      bg:{type:'grad', c1:'#47205e', c2:'#481057', a:170}, accent:'#d1b906', ink:'#f7f2fa' },
+  { name:'Indigo Cash',   family:'Night Neon', bg:{type:'grad', c1:'#0e253c', c2:'#02132e', a:170}, accent:'#fe7f78', ink:'#eef5fc' },
+  { name:'Indigo Trade',  family:'Duotone',    bg:{type:'grad', c1:'#cde1ff', c2:'#bdd2fe', a:170}, accent:'#4839b8', ink:'#141d2b' },
+  { name:'Blue Deal',     family:'Candy',      bg:{type:'grad', c1:'#afe7ff', c2:'#9bdafc', a:170}, accent:'#98056e', ink:'#0b2027' },
+  { name:'Sky Market',    family:'Cool Air',   bg:{type:'grad', c1:'#b9f7f6', c2:'#99e1e7', a:170}, accent:'#9b2000', ink:'#082021' },
+  { name:'Violet Payday', family:'iOS Flat',   bg:{type:'grad', c1:'#ecefff', c2:'#d5d7ef', a:170}, accent:'#3d40bc', ink:'#181c2b' },
+  { name:'Gold Offer',    family:'Paper',      bg:{type:'grad', c1:'#fdf4ee', c2:'#e5ddd5', a:170}, accent:'#904d03', ink:'#281a0f' },
+  { name:'Mint Counter',  family:'Paper',      bg:{type:'grad', c1:'#f2f8ef', c2:'#d9e1d8', a:170}, accent:'#325f01', ink:'#162011' },
+  { name:'Red Cash',      family:'Chalk',      bg:{type:'grad', c1:'#faf5f7', c2:'#e4dedf', a:170}, accent:'#a10966', ink:'#29171f' },
   { name:'Cash Green',    family:'Classic',    bg:{type:'grad', c1:'#123123', c2:'#050f0a', a:170}, accent:'#4ade80', ink:'#ffffff' },
   { name:'Night Blue',    family:'Classic',    bg:{type:'grad', c1:'#0f1b3d', c2:'#050916', a:170}, accent:'#ffa62b', ink:'#ffffff' },
   { name:'Deep Red',      family:'Classic',    bg:{type:'grad', c1:'#2a0a0e', c2:'#0d0305', a:170}, accent:'#ff6b57', ink:'#ffffff' },
