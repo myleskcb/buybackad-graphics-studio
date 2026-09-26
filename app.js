@@ -942,8 +942,13 @@ const TEMPLATES = [
         t('Headline 1', 'headline', 'upper', C.h1 || 'BUYING', { left:54, top:70, fontFamily:T.d, fontSize:100, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:154, fontFamily:T.d, fontSize:173, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:13, shadow:hard('rgba(0,0,0,0.5)', 10) }),
         cut('Product', C.cut || 'iphone-cracked', { left:1030, top:352, originX:'right', w:573, angle:6, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
-        ...chk(1, 372, pts[0]), ...chk(2, 462, pts[1]), ...chk(3, 552, pts[2]), ...chk(4, 642, pts[3] || 'ANY OTHER ISSUE'),
-        rg('CTA Bar', { left:0, top:846, width:W, height:150, fill:P.deep }),
+        /* rows from 420, not 372: the category word runs to ~405, and alignPass
+           pushed the first label clear of it but not its chip, so the first
+           check sat beside the wrong line. The bar runs to the foot of the
+           card: at height 150 it stopped 84px short and the number (Khand at
+           93px) hung its lower edge off it onto the photograph. */
+        ...chk(1, 420, pts[0]), ...chk(2, 510, pts[1]), ...chk(3, 600, pts[2]), ...chk(4, 690, pts[3] || 'ANY OTHER ISSUE'),
+        rg('CTA Bar', { left:0, top:846, width:W, height:W - 846, fill:P.deep }),   // square canvas: to the foot
         t('CTA', 'cta', 'upper', C.cta || 'TEXT A PHOTO FOR AN OFFER', { left:CX, top:872, originX:'center', fontFamily:'Khand', fontSize:38, fill:'rgba(255,255,255,0.88)', fontWeight:'700', charSpacing:44 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:906, originX:'center', fontFamily:T.d, fontSize:93, fill:ink, fontWeight:'700' }),
       ];
