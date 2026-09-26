@@ -995,7 +995,10 @@ const TEMPLATES = [
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:100, fill:onAccent(P), fontWeight:'700', angle:tilt }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:308, originX:'center', fontFamily:T.d, fontSize:204, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:14, shadow:hard('rgba(0,0,0,0.5)', 12), angle:-3 }),
         t('Sub', 'sub', 'upper', C.sub || 'CASH PAID TODAY', { left:CX, top:520, originX:'center', fontFamily:'Khand', fontSize:41, fill:ink, fontWeight:'700', charSpacing:30, stroke:P.deep, strokeWidth:3, angle:-2 }),
-        cut('Product', C.cut || 'cash-fan', { left:CX, top:534, originX:'center', w:353, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
+        /* in the band between the item line and the pills, never over the words:
+           the study session's layering ladder puts copy on the top rung, and
+           at top:534 the product hid 54-63% of the item line on every ribbon */
+        cut('Product', C.cut || 'cash-fan', { left:CX, top:648, originX:'center', w:353, maxH:176, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
         ...pill(0, 70, 280, b[0]), ...pill(1, 372, 300, b[1]), ...pill(2, 694, 316, b[2] || 'CASH NOW'),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:944, originX:'center', fontFamily:T.d, fontSize:104, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:9, shadow:hard('rgba(0,0,0,0.45)', 8) }),
       ];
@@ -1099,7 +1102,9 @@ const TEMPLATES = [
         t('Kicker', 'sub', 'upper', C.kicker || 'WE PAY', { left:CX, top:96, originX:'center', fontFamily:'Khand', fontSize:51, fill:ink, fontWeight:'700', charSpacing:52, stroke:P.deep, strokeWidth:4 }),
         t('Price Line', 'headline', 'upper', C.price || 'CASH', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:259, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:396, originX:'center', fontFamily:T.d, fontSize:109, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
-        cut('Product', C.cut || 'cash-bundles', { left:CX, top:474, originX:'center', w:409, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
+        /* below the category word, never over it: at top:474 the cash hid
+           37-53% of GOLD, SILVER, CARDS or STRIPS (the layering ladder) */
+        cut('Product', C.cut || 'cash-bundles', { left:CX, top:606, originX:'center', w:409, maxH:224, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
         rg('Claim Plate', { left:96, top:836, width:888, height:96, rx:16, fill:hexToRgba(P.deep,0.82) }),
         t('Claim 1', 'info', 'upper', C.badges ? C.badges.join('  •  ') : 'SAME DAY • CASH IN HAND • NO HAGGLING', { left:CX, top:862, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:22 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:908, originX:'center', fontFamily:T.d, fontSize:96, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
@@ -2280,7 +2285,10 @@ function buildLayer(l, tplId, dw, dh){
     }
     const u = (dw || TPL_W) / TPL_W;
     const img = new fabric.Image(el);
-    const s = ((l.props.w || 420) * u) / el.width;
+    /* maxH caps the height as well: a layout with a fixed band for the product
+       (the street ribbon and price tag, 2026-09-26) cannot know each cutout's
+       aspect, and a tall one ran up over the words above it */
+    const s = Math.min(((l.props.w || 420) * u) / el.width, p.maxH ? (p.maxH * u) / el.height : Infinity);
     img.set({
       left:p.left, top:p.top,
       originX:p.originX || 'left', originY:p.originY || 'top',
