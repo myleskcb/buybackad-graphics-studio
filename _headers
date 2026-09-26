@@ -53,3 +53,7 @@
 
 /phonegfx-studio.html
   X-Robots-Tag: noindex, nofollow
+
+# TEMPORARY: the ad review admin (admin-ads/). Remove with the folder.
+/admin-ads/*
+  X-Robots-Tag: noindex, nofollow
