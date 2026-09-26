@@ -10,6 +10,12 @@ logos, no people, dark-enough midtones that white type stays legible
 (each template also adds its own scrim). Generate with the ORCHARD photo
 engine or any image model — the scene + mood below is the prompt.
 
+**Then hold it to the photo standard.** Every file dropped in here must pass
+`python3 scripts/standardize_photos.py` (run it with `--write` to bring a new
+file onto the standard: size, letterbox, black/white point, midtone band), and
+if it replaces a file under the same name, bump `ASSET_REV` in `app.js` or
+returning visitors keep the old photo for up to 30 days.
+
 ## phones — base scene
 > extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh
 

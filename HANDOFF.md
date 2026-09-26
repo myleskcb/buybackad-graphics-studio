@@ -85,6 +85,30 @@ clipped the number counted as its background.
 **The theme toggle was dead in production** — two inline scripts blocked by the
 site's own CSP. Invisible on localhost, which sends no CSP headers.
 
+## 3c. Photo standard, 2026-09-26 — every photo on one spec, every photo used
+
+| script | asks |
+|---|---|
+| `standardize_photos.py` | is every photo on the spec? `--write` fixes framing, tone, size, letterbox; idempotent, never touches hue |
+| `asset_usage_audit.mjs` | does every shipped photo appear on a template? Phones shows iPhone + iPad + Mac? any product unreadably small? |
+
+| | before | after |
+|---|---|---|
+| product photos on no template | 2 (iPad, iPhone back) | **0** |
+| Phones product photos shown | 4 iPhone, 1 Mac | **5 iPhone, iPad, Mac** |
+| smallest product on a template | 67px (a coin) | **200px** |
+| cut-out subject fill | 20%–92% of frame | **85%** (coin 60%: 144px source, capped at 3x) |
+| street templates' backdrops per category | 1 | **4–5** |
+| legacy iPhone photos | 780–1080px q74, base64 in a 635KB blocking script | 1200px, library encoding, `assets/tplbg/` |
+
+Asset URLs now carry `?v=ASSET_REV` (app.js) because the art is cached for 30
+days: bump it, and the `?v=` on the index.html preloads, whenever a photo is
+replaced. Open: 7 backdrops and the coin still hit a correction cap and are
+listed by the script as reshoot candidates; `tplbg/sell_iphone.jpg` carries the
+Gemini AI mark (left in place: provenance is the owner's call); 70 of the 153
+backdrop files are byte-identical copies of 24 photos (regen_dupes never
+finished). Detail in DESIGN-LAW rule 51.
+
 ## 4. THE CENTRAL PROBLEM (read this before designing anything)
 
 Templates are transformed by **19 sequential procedural passes**, four of which

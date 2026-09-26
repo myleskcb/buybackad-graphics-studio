@@ -82,6 +82,11 @@
     Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
 
 [[headers]]
+  for = "/assets/tplbg/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+[[headers]]
   for = "/assets/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"

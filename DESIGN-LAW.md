@@ -997,3 +997,63 @@ specific, wrong numbers:
 Two tests before trusting any new metric: does it return **different** answers
 for inputs you know differ, and does it measure the surface the user actually
 sees? A number that is identical across every condition is not a measurement.
+
+## 51. A photo library is standardised by code, or it is not standardised
+
+The shipped photography came from three sources over several sessions (an AI
+backdrop board, a batch of transparent product cut-outs, eight original iPhone
+photographs) and nothing held them to one spec. Measured on 2026-09-26:
+
+- **Framing.** Every cut-out sat on the same 720px canvas, but its subject
+  filled anywhere from 20% to 92% of the frame's long side. A layout slot's `w`
+  therefore meant a different product size for every photo: a 366px slot drew
+  the cash fan 319px across, a 353px slot drew the coin at 71px, and the coin
+  was a **67-71px speck** on all four templates that used it.
+- **Tone.** Backdrop median luma ran 0.079 to 0.956; black points (2nd
+  percentile) 0.004 to 0.443, washed out; white points (98th) 0.51, never
+  reaching white, to 1.0. The black
+  iPhone cut-out's brightest pixel was 0.62, a dull grey phone beside phones
+  whose speculars reach 0.9+.
+- **Resolution and encoding.** The library is 1200px at q91. The eight iPhone
+  photos were 780 to 1080px at q74, embedded as base64 in a render-blocking
+  script. One backdrop was letterboxed with flat white bars.
+- **Use.** Two of the 26 product photos, the iPad and the back of an iPhone,
+  appeared on **no template**: the picker was `hash(id) % n` and nothing
+  checked coverage. The Phones copy sells "iPhone • iPad • MacBook" over art
+  that showed iPhones only.
+
+### The rule
+
+A photo is on the standard when `scripts/standardize_photos.py` says it is, and
+in the product when `scripts/asset_usage_audit.mjs` says it is. Both exit
+non-zero otherwise. The spec lives in the script, not in prose, so it cannot
+drift from what is checked.
+
+Three things the first attempt got wrong, all caught by looking:
+
+1. **The same curve on R, G and B is a saturation control.** Darkening a pale
+   photo that way turned the mint test-strip backdrops vivid green, against
+   this document's first principle (contrast, never saturation). Tone is now
+   applied to lightness only, scaling the channels together.
+2. **A band edge is not a target.** Aiming a correction exactly at 0.62 landed
+   at 0.621 to 0.625 after an 8-bit curve and a JPEG round trip: 27 of the
+   first run's 37 warnings were rounding. Aim inside the band.
+3. **Standardising a photo can expose its layout.** Centred, correctly-sized
+   products revealed that the ribbon layout drew its product ON TOP of a sub
+   line that `alignPass` had moved into the product's slot. The old off-centre
+   framing had hidden it; the coin, once it was a coin, covered the word
+   EAGLES. Products are now drawn beneath copy. Measure product-over-text with
+   the photo's real alpha after `alignPass`, not with its box.
+
+Corollaries:
+
+- **A correction that has to be violent is a sourcing problem.** Levels gain is
+  capped at 1.45 and midtone gamma at 0.70 to 1.50. A photo that still misses
+  the band is reported as a reshoot candidate rather than forced into it.
+- **Never scrub provenance.** `tplbg/sell_iphone.jpg` carries the Gemini
+  AI-generation mark. Framing and tone are the pipeline's business; removing a
+  disclosure is the owner's decision.
+- **A photo cut at its source has an edge that belongs on the board's edge.**
+  The iPad runs off its frame. Centred, it reads as a sliced product; flush to
+  the board it reads as a bleed. `CUTOUT_BLEED` in app.js records it and the
+  usage audit fails if a cut photo is declared wrong or placed off the edge.

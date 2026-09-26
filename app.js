@@ -32,7 +32,7 @@ function exportDims(shortPx){
   const s = shortPx / Math.min(CW, CH);
   return { w: Math.round(CW * s), h: Math.round(CH * s) };
 }
-const EXTRA_PROPS = ['name','pgRole','pgCasing','pgTplId','selectable','evented','padding','paintFirst','pgLocked','pgAdj','underline','fontStyle','pgFillGrad','pgCurved','pgBgRect','pgScrim','pgQrData','crossOrigin'];
+const EXTRA_PROPS = ['name','pgRole','pgCasing','pgTplId','selectable','evented','padding','paintFirst','pgLocked','pgAdj','underline','fontStyle','pgFillGrad','pgCurved','pgBgRect','pgScrim','pgQrData','crossOrigin','pgBleed'];
 
 function toast(msg, type){ const n=$('notif'); n.textContent=msg; n.className='notif show'+(type?' '+type:''); clearTimeout(n._t); n._t=setTimeout(()=>n.classList.remove('show'), 2800); }
 
@@ -897,10 +897,17 @@ const TEMPLATES = [
       const b = C.badges || ['FAST','FAIR','SAME DAY'];
       return [
         rg('Ribbon', { left:-40, top:120, width:1160, height:132, fill:P.a1, angle:tilt, shadow:hard('rgba(0,0,0,0.35)', 9) }),
+        /* The product sits BENEATH the copy, centred in the band between the
+           sub line and the pills. It used to be drawn on top of the sub line
+           with its box starting at 534, and alignPass lands that line at
+           576-642 under the money word, so the product covered it: 15-20% of
+           "CHAINS RINGS COINS DENTAL" on the gold ribbon, and once the coin
+           photo was standardised from a 67px speck to a readable coin, the
+           word EAGLES on the coin ribbon. Centre 739 = mid-band (642..836). */
+        cut('Product', C.cut || 'cash-fan', { left:CX, top:562, originX:'center', w:353, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:100, fill:onAccent(P), fontWeight:'700', angle:tilt }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:308, originX:'center', fontFamily:T.d, fontSize:204, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:14, shadow:hard('rgba(0,0,0,0.5)', 12), angle:-3 }),
         t('Sub', 'sub', 'upper', C.sub || 'TOP DOLLAR PAID TODAY', { left:CX, top:520, originX:'center', fontFamily:'Khand', fontSize:41, fill:ink, fontWeight:'700', charSpacing:30, stroke:P.deep, strokeWidth:3, angle:-2 }),
-        cut('Product', C.cut || 'cash-fan', { left:CX, top:534, originX:'center', w:353, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
         ...pill(0, 70, 280, b[0]), ...pill(1, 372, 300, b[1]), ...pill(2, 694, 316, b[2] || 'CASH NOW'),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:944, originX:'center', fontFamily:T.d, fontSize:104, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:9, shadow:hard('rgba(0,0,0,0.45)', 8) }),
       ];
@@ -1003,8 +1010,10 @@ const TEMPLATES = [
       return [
         t('Kicker', 'sub', 'upper', C.kicker || 'PAYING UP TO', { left:CX, top:96, originX:'center', fontFamily:'Khand', fontSize:51, fill:ink, fontWeight:'700', charSpacing:52, stroke:P.deep, strokeWidth:4 }),
         t('Price Line', 'headline', 'upper', C.price || '$1,100', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:259, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13) }),
-        t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:396, originX:'center', fontFamily:T.d, fontSize:109, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
+        // beneath the money word, not over it: the stack's top meets the
+        // word's baseline, and a taller product photo would clip the word
         cut('Product', C.cut || 'cash-bundles', { left:CX, top:474, originX:'center', w:409, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
+        t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:396, originX:'center', fontFamily:T.d, fontSize:109, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         rg('Claim Plate', { left:96, top:836, width:888, height:96, rx:16, fill:hexToRgba(P.deep,0.82) }),
         t('Claim 1', 'info', 'upper', C.badges ? C.badges.join('  •  ') : 'SAME DAY • CASH IN HAND • NO HAGGLING', { left:CX, top:862, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:22 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:908, originX:'center', fontFamily:T.d, fontSize:96, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
@@ -1754,10 +1763,18 @@ const TEMPLATES = [
   };;
   Object.keys(STREET_BOOK).forEach(cat => {
     const D = Object.assign({}, DECKS[cat], STREET_DECK[cat]);
-    // borrow the category's first designer backdrop rather than generating 32 more
-    const borrow = BOOK[cat] && BOOK[cat][0];
-    const bgSrc = borrow ? 'assets/bg/dl_' + cat + '_' + borrow[0] + '_' + borrow[1] + '.jpg' : null;
+    /* Borrow the category's designer backdrops rather than generating 32 more,
+       spread evenly through the book. All five used to borrow row 0, so each
+       category's street family was one photo five times over, on top of the
+       templates that own it, while the rest of the library sat unused by this
+       family. Evenly spaced rows give the five 4-5 different photos per
+       category (measured; byte-identical copies in the library account for
+       the 4s). */
+    const book = BOOK[cat] || [];
+    const nStreet = STREET_BOOK[cat].length;
     STREET_BOOK[cat].forEach(([lay, pal, label, cutName], i) => {
+      const borrow = book.length ? book[Math.floor((i + 0.5) * book.length / nStreet)] : null;
+      const bgSrc = borrow ? 'assets/bg/dl_' + cat + '_' + borrow[0] + '_' + borrow[1] + '.jpg' : null;
       const stId = 'st_' + cat + '_' + lay.replace('street', '').toLowerCase();
       const P = PAL[pal], T = { d: STREET_FACE[stId] || 'Clash Display', s:'Satoshi' };
       const C = Object.assign({}, D, { cut:cutName });
@@ -2131,7 +2148,10 @@ function buildLayer(l, tplId, dw, dh){
      photo behind it. Every "good design" reference the user supplied is built
      this way: a cut-out phone, cash stack or graded slab as the subject. A
      blurred backdrop with type over it is the pattern their "mid" and "bad"
-     piles are full of. Sized by target width so one asset serves any layout. */
+     piles are full of. Sized by target width so one asset serves any layout:
+     every cutout is a square frame with its subject filling 85% of the long
+     side (scripts/standardize_photos.py), so `w` means the same product size
+     whichever photo fills the slot. */
   if (l.kind === 'cutout'){
     const el = CUTOUT_ELS[l.props.src];
     if (!el || !el.width){
@@ -2139,7 +2159,11 @@ function buildLayer(l, tplId, dw, dh){
       return new fabric.Rect({ left:-9999, top:-9999, width:1, height:1, opacity:0,
         selectable:false, evented:false, name:l.name || 'Product', pgTplId:tplId });
     }
-    const u = (dw || TPL_W) / TPL_W;
+    /* The SHORT-axis factor, like type and like remapObjects. This read the
+       width ratio alone, so a template opened straight into Wide 16:9 drew its
+       product 1.78x too big (a 560px product at 996px on a 1080px-tall board)
+       while the same template switched to Wide after loading kept it at 1x. */
+    const u = Math.min((dw || TPL_W) / TPL_W, (dh || TPL_H) / TPL_H);
     const img = new fabric.Image(el);
     const s = ((l.props.w || 420) * u) / el.width;
     img.set({
@@ -2150,6 +2174,8 @@ function buildLayer(l, tplId, dw, dh){
     });
     if (p.shadow) img.set('shadow', p.shadow);
     img.set({ name:l.name || 'Product', pgRole:l.role || 'photo', pgTplId:tplId });
+    const bleed = cutoutBleed(l.props.src);
+    if (bleed) img.set('pgBleed', bleed);        // remapObjects keeps the cut on the board edge
     return img;
   }
   if (l.kind === 'grain'){
@@ -2576,6 +2602,15 @@ function remapObjects(ow, oh, nw, nh){
     }
     o.setPositionByOrigin(new fabric.Point(c.x * rx, c.y * ry), 'center', 'center');
     o.setCoords();
+    /* A product photographed running off its frame (see cutoutBleed) only
+       works while that cut sits ON the board edge. Moving its centre by rx
+       pulled the iPad's sliced edge 218px into a Wide board. */
+    if (o.pgBleed){
+      const b = o.getBoundingRect(true, true);
+      if (o.pgBleed === 'left')  o.set({ left: o.left - b.left });
+      if (o.pgBleed === 'right') o.set({ left: o.left + (nw - (b.left + b.width)) });
+      o.setCoords();
+    }
   });
 }
 function refitBackground(){
@@ -4009,6 +4044,17 @@ function downscaleDataUrl(url, maxPx){
 
 
 // ═══════════════ TEMPLATE PHOTO BACKGROUNDS ═══════════════
+/* Photo assets are served with a 30-day browser TTL (_headers), so a photo
+   replaced under the same filename stays stale for returning visitors for up
+   to a month. Every asset URL the app requests carries this revision: bump it
+   whenever assets/bg, assets/cutouts or assets/tplbg change, and the whole set
+   refetches once. The index.html preload hints must carry the same value or
+   the browser downloads the hero backdrops twice. Caches stay keyed by the
+   bare path, which is what templates name. */
+const ASSET_REV = '20260926';
+function assetUrl(src){
+  return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src;
+}
 const TPL_BG_ELS = {};   // raw <img> elements, shared safely, never owned by any canvas
 let _tplBgReport = { loaded: 0, missing: [] };
 /* Defocused backdrops for the STREET family.
@@ -4092,7 +4138,7 @@ function preloadCutouts(){
     const el = new Image();
     el.onload = () => { CUTOUT_ELS[src] = el; res(); };
     el.onerror = () => { missing.push(src); res(); };
-    el.src = src;
+    el.src = assetUrl(src);
   }))).then(() => {
     if (missing.length) console.warn('GraphicsStudio: ' + missing.length + ' cutout(s) missing from assets/cutouts, those layers render empty:', missing.slice(0, 5));
     else console.log('GraphicsStudio: all ' + srcs.length + ' product cutouts ready.');
@@ -4143,7 +4189,7 @@ function preloadTplBgs(){
       else finish(null);
     };
     // embedded data first (cannot 404, works on file://); asset file is the backup
-    el.src = embedded[t.bg.src] || t.bg.src;
+    el.src = embedded[t.bg.src] || assetUrl(t.bg.src);
   });
   /* Wave 1 = what is on screen. Wave 2 = everything else, started only once
      wave 1 has settled, so the visible page is never competing with 130
@@ -6897,7 +6943,9 @@ function refreshCountCopy(){
    empty rectangle is found, and the product is fitted inside it with a margin.
    Below 300px of clear space there is no cutout at all. */
 const CAT_CUTOUTS = {
-  phones:  ['iphones-trio','iphone-cracked','iphone-front','iphones-cash','macbook-open','tablet-watch'],
+  // iPhone, iPad (tablet-watch) and Mac (macbook-open): the Phones copy sells
+  // all three, so the product photos have to show all three
+  phones:  ['iphones-trio','iphone-cracked','iphone-front','iphone-back','iphones-cash','macbook-open','tablet-watch'],
   gold:    ['gold-bars','gold-chains','gold-jewelry'],
   silver:  ['silver-bars','silver-flatware'],
   coins:   ['coin-stack','coin-slab'],
@@ -6906,6 +6954,45 @@ const CAT_CUTOUTS = {
   pokemon: ['poke-cards-fan','poke-slab','poke-booster'],
   sports:  ['sports-cards','sports-slab'],
 };
+/* Photos cut at the source: the subject runs off one side of its frame, so
+   that side has to sit on the edge of the ad or it reads as a sliced product.
+   scripts/standardize_photos.py detects these and keeps the cut flush to the
+   frame; scripts/asset_usage_audit.mjs fails if one is missing from here. */
+const CUTOUT_BLEED = { 'tablet-watch': 'left' };
+function cutoutBleed(src){
+  const m = /([^\/]+)\.png$/.exec(String(src || ''));
+  return (m && CUTOUT_BLEED[m[1]]) || null;
+}
+/* Which product photo a template gets. This was pool[hash(id) % n], which is
+   deterministic but blind: across the 68 templates that carry a product it
+   put iphones-cash and iphone-front on two each and never once drew the iPad
+   (tablet-watch), and iphone-back was in no pool at all, so two of the seven
+   Apple product photos appeared nowhere, one of them the only iPad the Phones
+   copy promises. Now the least-used photo in the
+   category's pool wins, counting the ones the street layouts place by hand,
+   so every photo appears before any appears twice. A bleed photo only fits a
+   slot on the matching edge of the board, and because it fits fewer slots it
+   takes a tie when it can. The hash still breaks the remaining ties, so the
+   choice stays deterministic and varied across categories. */
+const CUTOUT_USES = {};
+let _cutoutUsesCounted = false;
+function pickCutout(pool, touches, h){
+  if (!_cutoutUsesCounted){
+    TEMPLATES.forEach(t => (t.layers || []).forEach(l => {
+      if (l.kind === 'cutout' && l.props && l.props.src)
+        CUTOUT_USES[l.props.src] = (CUTOUT_USES[l.props.src] || 0) + 1;
+    }));
+    _cutoutUsesCounted = true;
+  }
+  const uses = n => CUTOUT_USES['assets/cutouts/' + n + '.png'] || 0;
+  const fits = pool.filter(n => !CUTOUT_BLEED[n] || touches[CUTOUT_BLEED[n]]);
+  if (!fits.length) return null;
+  const least = Math.min(...fits.map(uses));
+  const tied = fits.filter(n => uses(n) === least);
+  const bound = tied.filter(n => CUTOUT_BLEED[n]);
+  const from = bound.length ? bound : tied;
+  return from[h % from.length];
+}
 /* Width of a text layer, estimated from its own metrics. Build time has no
    font loaded, so this is deliberately GENEROUS — over-reserving space costs a
    cutout, under-reserving costs a collision, and only one of those is visible. */
@@ -6959,8 +7046,14 @@ function addProductCutout(t){
   if (SIZE < 300) return 0;                             // too cramped to read as a product
 
   let h = 0; for (let i = 0; i < t.id.length; i++) h = (h * 31 + t.id.charCodeAt(i)) >>> 0;
-  const src = 'assets/cutouts/' + pool[h % pool.length] + '.png';
-  const left = best.x * cell + (px - SIZE) / 2;
+  const touches = { left: best.x === 0, right: best.x + best.k === N };
+  const name = pickCutout(pool, touches, h);
+  if (!name) return 0;
+  const src = 'assets/cutouts/' + name + '.png';
+  CUTOUT_USES[src] = (CUTOUT_USES[src] || 0) + 1;
+  // a bleed photo goes flush to its edge: the free block already runs to it
+  const bleed = CUTOUT_BLEED[name];
+  const left = bleed === 'left' ? 0 : bleed === 'right' ? W - SIZE : best.x * cell + (px - SIZE) / 2;
   const top  = best.y * cell + (px - SIZE) / 2;
 
   let at = 0;
@@ -7198,7 +7291,7 @@ function ezDefaultChips(tpl){
 function ezChips(){ return ez.chips !== null ? ez.chips : ezDefaultChips(ezTpl()); }
 function cssBg(spec){
   if (spec.type === 'image'){
-    if (spec.src) return `url(${spec.src}) center/cover`;
+    if (spec.src) return `url(${assetUrl(spec.src)}) center/cover`;
     const fb = spec.fallback;
     return fb ? cssBg(fb) : '#101014';
   }

@@ -157,3 +157,66 @@ RESUME HERE:
   and leave the heavily-defocused ones at 2160 where the upscale is invisible.
   Re-run `python3 scripts/asset_audit.py` after; it should exit 0 for the tier
   being targeted.
+
+---
+
+## 2026-09-26 — Photo standard: every photo on one spec, every photo used
+
+Studied:
+  Every photograph the product ships: 26 product cut-outs (assets/cutouts),
+  153 Designer Library backdrops (assets/bg) and the eight original iPhone
+  photos that lived as base64 in tplbg-data.js. Owner's ask: use all of the
+  assets and the iPhone / iPad / Mac photos, standardised and quality matched.
+
+Measured:
+  - Two cut-outs appeared on NO template after the passes ran: tablet-watch
+    (the only iPad photo) and iphone-back. hash(id) % n never drew them.
+    Phones showed 4 iPhone photos and 1 Mac while its copy sells iPad too.
+  - Cut-out subjects filled 20%..92% of identical 720px frames, so a slot's
+    `w` meant a different product size per photo. coin-slab rendered as a
+    67-71px speck on all four templates that used it.
+  - Backdrop median luma 0.079..0.956; black points (p2) 0.004..0.443;
+    white points (p98) 0.51..1.0. One backdrop letterboxed in flat white.
+  - The eight iPhone photos: 780/900/1024/1080px at q74, against a library of
+    1200px at q91.
+  - 70 of 153 backdrop files are byte-identical copies of 24 photos; the five
+    street templates per category all borrowed the same one.
+  - Rendered-ad luminance barely moves with backdrop tone (median 0.175 ->
+    0.179): the grade and scrim dominate. Source standardisation is for
+    consistency, and it is safe; it is not a lever on the render metric.
+  - Found in passing: a template opened straight into Wide 16:9 drew its
+    product at 996px (the cutout branch scaled by width alone). Switching to
+    Wide after loading kept it at 560. Fixed to the short-axis factor.
+
+Changed:
+  - scripts/standardize_photos.py (new): the spec as code. Audits by default,
+    --write fixes; idempotent via an in-file marker; tone on lightness only.
+    97 files rewritten: 25 cut-outs (iphones-trio was already on spec and
+    is byte-identical), 64 backdrops, 8 legacy photos.
+  - scripts/asset_usage_audit.mjs (new): fails on any unused shipped photo, a
+    missing device class in Phones, a product under 150px, a mis-placed bleed
+    photo, or an unversioned asset URL. Exits 1 on the old build, 0 on this.
+  - app.js: least-used product picker (every photo before any twice), bleed
+    placement for tablet-watch, street backdrops spread through the book,
+    products drawn beneath copy in the ribbon and price-tag layouts, the Wide
+    scale fix, ASSET_REV cache revision on every asset URL.
+  - assets/tplbg/ holds the iPhone photos as files; tplbg-data.js removed.
+  - index.html preloads regenerated: 10/10 now hit the landing's first
+    backdrops (was 1/10, a pre-existing drift), all carrying ?v=.
+  - DESIGN-LAW rule 51 (appended, per rule 42). HANDOFF 3c.
+
+Rejected:
+  - **The same tone curve on R, G and B.** It is a saturation control: the mint
+    strips backdrops came out vivid green. Replaced by lightness-only scaling.
+  - **Upscaling backdrops to the manifest's 2160.** No detail is added; rule 44
+    says regenerate.
+  - **Removing the Gemini mark from tplbg/sell_iphone.jpg.** Provenance.
+  - **Re-pointing designer templates away from duplicate backdrop files.** Each
+    template owns its slot filename for the ORCHARD approve flow; duplicates
+    are a generation job (regen_dupes), not a routing one.
+
+RESUME HERE:
+  `python3 scripts/standardize_photos.py` lists 8 reshoot candidates (the coin
+  at 144px, and 7 backdrops that still miss the midtone band after the caps).
+  Regenerating those, plus the 70 duplicate backdrop files, is the next asset
+  job; run the script with --write on every new file and bump ASSET_REV.

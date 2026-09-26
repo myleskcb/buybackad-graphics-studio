@@ -13,12 +13,16 @@
 # which meant all 153 backdrops (31MB) made a conditional round-trip on EVERY
 # load including repeat visits — measured as ~12s of tail on a 10Mbit link.
 # These files only ever change on a redeploy, so a long TTL is safe; if a
-# backdrop is ever REPLACED under the same filename, either rename it or expect
-# up to 30 days of staleness for returning visitors.
+# backdrop is ever REPLACED under the same filename, bump ASSET_REV in app.js
+# (and the matching ?v= on the index.html preloads) or expect up to 30 days of
+# staleness for returning visitors.
 /assets/bg/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 
 /assets/cutouts/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+/assets/tplbg/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 
 # Fontshare faces are versioned by name and genuinely never change.

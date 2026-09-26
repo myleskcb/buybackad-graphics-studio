@@ -41,18 +41,21 @@
      the first gallery row; hard-coding them lets the preload scanner start
      them at ~150ms, in parallel with that parse instead of after it. They are
      the same URLs preloadTplBgs() asks for, so they hit warm and cost nothing
-     twice. Regenerate this list if the hero seed or gallery order changes —
-     a stale entry is a wasted download and a console warning, not a break. -->
-<link rel="preload" as="image" href="assets/bg/dl_phones_voltStack_volt.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_glassCard_ocean.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_neonNight_royal.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_arcCrown_crimson.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_diagonalRush_sunset.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="assets/bg/dl_phones_bandKnockout_arctic.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_ticketStub_mono.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_bubblePop_volt.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_hudTech_ocean.jpg">
-<link rel="preload" as="image" href="assets/bg/dl_phones_checklistHero_emerald.jpg">
+     twice, and that includes the ?v= revision: it must equal ASSET_REV in
+     app.js or every one of these downloads twice. Regenerate this list if the
+     hero seed or gallery order changes (the first ten distinct backdrops of
+     window.__PRIORITY_TPL_IDS) — a stale entry is a wasted download and a
+     console warning, not a break. -->
+<link rel="preload" as="image" href="assets/bg/dl_silver_priceAnchor_mono.jpg?v=20260926" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_gold_karatSeal_gold.jpg?v=20260926" fetchpriority="high">
+<link rel="preload" as="image" href="assets/tplbg/sell_iphone.jpg?v=20260926" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_phones_neonNight_royal.jpg?v=20260926" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_silver_voltStack_mono.jpg?v=20260926" fetchpriority="high">
+<link rel="preload" as="image" href="assets/bg/dl_cars_checklistHero_emerald.jpg?v=20260926">
+<link rel="preload" as="image" href="assets/bg/dl_phones_bubblePop_volt.jpg?v=20260926">
+<link rel="preload" as="image" href="assets/bg/dl_gold_diagonalRush_crimson.jpg?v=20260926">
+<link rel="preload" as="image" href="assets/bg/dl_strips_voltStack_emerald.jpg?v=20260926">
+<link rel="preload" as="image" href="assets/bg/dl_phones_duoSplit_royal.jpg?v=20260926">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 </head>
 <body>
@@ -949,7 +952,6 @@
 })();
 </script>
 <script src="config.js"></script>
-<script src="tplbg-data.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
