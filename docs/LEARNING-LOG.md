@@ -363,3 +363,57 @@ RESUME HERE:
   the Offer cards chip on a phone. Then the owner's Mac: redraw the six offer
   card headlines in the v2 review, and source real photos for the type-only
   lines (the v2 brief says how).
+
+## 2026-09-27, later — real cards, photographs behind them, faces with a voice
+
+Asked:
+  "they are good designs, they are definitely lacking and type faces that have
+  personality or flavor and the gray sections should have a background image
+  and it feels really incomplete because the cards don't even have a brand or
+  image on them. We need actual cards", then "At least give us a bare minimum
+  of base images that we can start using as placeholders", and for the rest,
+  "We can just scrape separately and implement as assets into our engine."
+
+Measured:
+  - The owner's own picture review (assets/approved-assets.json, 2026-09-03)
+    had never been consulted by this session's audits or swaps: 131 showcase
+    cards (89 live) drew a picture the owner had rejected, some put there by
+    the first swap (iphone-fan-four, mac-air-open-angle, silver-tea-set).
+  - Under that list, Pokemon had one usable picture (a trio of blank pastel
+    slabs), test strips one small one, sports cards two blank ones.
+  - This container reaches Google Fonts, npm, PyPI and raw GitHub files; every
+    image host (Commons, the Met, the Library of Congress, Openverse, stock
+    sites) is denied.
+
+Changed:
+  - poke-psa-charizard: a real PSA 10 1999 Charizard, cut straight-on from a
+    Commons photograph already in the repo (the perspective fitted to the
+    card's and the label's borders with OpenCV; certificate number softened).
+  - ph-sports-*: placeholder cards, a slab, fans and a sealed box that show a
+    card face and no invented brand (scripts/make_card_assets.py).
+  - The offer family on photographs of its goods with a solved neutral shade,
+    the small type on panels, and seventeen vendored display faces assigned
+    by category (DESIGN-LAW 60). 161 of 161 pass the audit.
+  - scripts/picture_gate.mjs: the owner's list and the flags, one rule for
+    every audit and the swap; 247 pictures on 162 showcase cards swapped
+    again, none of them now rejected; 692 of 971 showcase cards live.
+  - scripts/ingest_assets.py and docs/scrape-intake.md: scraped files in
+    incoming/ become cut-out, checked, credited, approved and wired assets
+    (offer-assets.js) in one command, with the shot list of what to fetch.
+  - The landing's offer and category chips draw each card again once its own
+    pictures, photograph and faces land.
+
+Rejected:
+  - Pulling vintage card scans from other people's GitHub repositories: raw
+    GitHub is reachable, but this session only works in the owner's repository.
+  - Pictogram athletes on the placeholder cards: they read as a child's toy.
+    The placeholders carry a ball on a light burst instead.
+  - Filling the owner's blank slab frames (sports-slab-graded is broken at a
+    corner and landscape); the placeholder slab is drawn to the real PSA
+    slab's proportions, measured off the Charizard photograph.
+
+RESUME HERE:
+  The owner scrapes; drop the files in incoming/ and run
+  python3 scripts/ingest_assets.py, then --write, then the template audit.
+  The ph-* placeholders go first (docs/scrape-intake.md).
+

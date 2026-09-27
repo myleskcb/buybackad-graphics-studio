@@ -303,6 +303,13 @@ Still open:
   hidden, not deleted.
 - **The six offer-card headlines** in the review (docs/offer-cards-prompt-v2.md)
   need drawing again on the owner's Mac, both versions of each.
+- **Placeholders to replace with real photographs** (docs/scrape-intake.md,
+  scripts/ingest_assets.py): ph-sports-slab, ph-sports-slabs-fan,
+  ph-sports-cards-fan, ph-sports-box; Pokemon boxes, packs and larger slabs
+  (the real Charizard is 369 x 610, so the street templates that draw it
+  bigger are held); sealed test strip boxes (only strip-boxes, 444 x 418, is
+  approved); the seven type-only lines; Galaxy, Pixel and foldable
+  photographs (those lines stand on NASA pictures).
 - **Not verified here**: the live site and the Netlify headers as served (the
   two new scripts are revalidated like app.js; faces.css is versioned in its
   URL because /assets/fonts/* is immutable for a year). Draft-deploy and look.

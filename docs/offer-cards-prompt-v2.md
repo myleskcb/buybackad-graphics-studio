@@ -115,6 +115,14 @@ RULES (every one checked on the finished pixels):
 - No rank or reputation: never "best", "highest", "top", "#1", "trusted", "honest",
   "guaranteed", "we beat", "we top", "we outbid", "we match", "we pay more", "more than
   the pawn shop". An invitation is fine: "Skip the trade-in".
+- NO GREY SWEEP (the owner, 2026-09-27: "the gray sections should have a background image"):
+  the ground behind the product is a photograph of the line's goods, in its own colour, under a
+  neutral shade just strong enough for white type; the small type sits on a solid panel.
+- NO BLANK PRODUCT: a card, a slab or a box shows its face. A slab with a blank card or a
+  faceless box reads as unfinished ("the cards don't even have a brand or image on them").
+- A VOICE PER CATEGORY: display faces with personality (varsity or marker for sports cards,
+  comic for Pokemon, Western or engraved for gold and coins, techno for gaming), a plain
+  reading face for the steps and the number.
 - No clock and no service we do not run: never "instant", "in minutes", "30 seconds",
   "7 days", "daily", "mail-in", "prepaid label", "house calls", "we come to you",
   "free tow", "pickup", "paperwork handled".

@@ -1254,6 +1254,23 @@ live template draws:
 
 59 pictures are listed in `assets/cutout-flags.json` with the reason. The rule:
 
+- **The owner's own pass is the first gate.** `assets/approved-assets.json`
+  is the owner's review of every cutout (2026-09-03: 348 approved, 116
+  rejected with reasons). A picture the owner rejected never ships, whatever
+  else it passes; the flags below catch what the owner's pass missed. One rule
+  in one place, `scripts/picture_gate.mjs`, read by every audit and by the
+  swap. The first version of this rule consulted only the flags, and its swaps
+  put rejected pictures back on 131 showcase cards; 247 pictures on 162 cards
+  were swapped again. The owner's "off-category" rejections (a speaker, a
+  gaming laptop: "not something the shop advertises") are lifted only in the
+  five categories the owner opened for those goods.
+- **No blank product.** A slab with a blank card, a faceless box, white cards
+  in a fan: the owner rejected them ("nothing says what is bought") and,
+  looking at the offer cards, "it feels really incomplete because the cards
+  don't even have a brand or image on them." A card category shows cards with
+  their faces: the real PSA 10 Charizard cut from a Commons photograph, and
+  until real sports photographs land, placeholders named `ph-*` whose cards
+  carry a picture and no invented brand (`scripts/make_card_assets.py`).
 - **A flagged picture never ships.** A card that drew one gets a clean
   picture of the same kind of thing, fitted inside the old one's footprint so
   nothing new overlaps (`scripts/swap_flagged_cutouts.py`); the classics'
@@ -1318,3 +1335,29 @@ the ones that fail to `template-holds.js`. app.js takes them out of TEMPLATES
 once every template-building script has run, before the page is drawn.
 `?noholds=1` keeps them, for the audit.
 A hold is data somebody can read: the id and the reasons.
+
+## 60. Every offer card stands on a photograph of its goods, and speaks in its category's voice
+
+Added 2026-09-27. The owner, on the offer cards: "they are good designs, they
+are definitely lacking type faces that have personality or flavor and the
+gray sections should have a background image".
+
+- **No grey sweep.** The ground behind the headline and the product is a
+  photograph of the line's own goods (a coin album for coins, real test strip
+  boxes, a binder of cards, a dealership lot), in its own colour
+  (`assets/bg-offer`, `scripts/make_offer_grounds.py`). A line with no
+  photograph of its goods yet stands on a NASA picture, which shows no product
+  at all, rather than on somebody else's goods.
+- **Type on a photograph is white, over a solved neutral shade** (rule 56):
+  solid black from the top to under the last line of type, as strong as that
+  photograph needs for 4.5:1 (its 90th percentile luminance; 0.2 to 0.62 on
+  this set), fading toward the product. The small type (the steps, the ticks)
+  never sits on a photograph: it has a solid panel in the look's colour, which
+  is where the look lives now.
+- **Each category has a voice**: its own display faces (varsity and marker
+  for sports cards, comic for Pokemon, Western and engraved for gold and
+  coins, techno for gaming, rounded for test strips), paired with a plain
+  reading face for the steps and the number. When none of a category's faces
+  can set a headline in a layout at 1.3x the number, the general faces do,
+  rather than the card being dropped.
+
