@@ -426,8 +426,15 @@ Changed:
     layouts so every design's best card comes before any design's second.
     400 kept, 115 of 118 designs, largest recolour group 17 -> 7, the owner's
     hero picks all kept.
-  - 165 device cutouts imported under the owner's floors, 26 upgraded in place,
-    assets/devices.json by model and colour.
+  - 165 device cutouts imported under the owner's floors, 26 upgraded in place.
+  - Device catalogue (118 models, 139 finishes) and variants: one card re-set
+    for any device, the finish chosen to answer the palette. A finish's colour
+    is measured where finishes DIFFER (the body), not over the whole cut-out:
+    the first measure read the shared wallpaper, five MacBook Air finishes as
+    one blue.
+  - Regression caught by the critic: the "taller than its plate" rule shrank
+    phone numbers on snug pills (76 -> 55px, 63 cards). Fixed to fire only on
+    real overflow and never on the number.
   - Chrome: the public Look menu removed (it offered the abandoned ember look),
     the header fits 390 to 1440px, CSS_FALLBACK regenerated, ASSET_REV ported.
 

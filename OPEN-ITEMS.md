@@ -332,9 +332,15 @@ Next, in order of what the owner will see:
    trustSeal's tile wall. Fix the layout builders, re-run
    `scripts/audit_collisions.mjs`, and a card that measures clean can be
    brought back by deleting its `defect:"curated"` stamp.
-3. **Product colour could answer the palette.** `assets/devices.json` maps 58
-   models to 139 colour cut-outs; a Cobalt palette could carry the blue iPad
-   Air, an orange one the Cosmic Orange iPhone. Nothing reads it yet.
+3. **Device variants in the studio.** The owner: "once a theme is perfect we
+   can make unlimited variations for all types of devices specifically."
+   `assets/devices.json` (scripts/device_catalog.py: 118 models, 139 finishes,
+   each finish's colour measured on the device body) and
+   `scripts/device_variants.mjs` (re-set a card for a device: family headline,
+   that family's models as the selling points, the finish nearest the card's
+   accent) exist and were proved on one Glass Card across 11 devices. Next: a
+   device picker in Easy Mode that applies `variant()` to the open card, so a
+   variant exists when someone asks for it rather than as more library cards.
 4. **Art the upload did not contain:** the iPhone 17 Pro / 17 Pro Max / 18 Pro
    / 18 Pro Max colour backs the ad-backs manifest reads "in place from the
    storefront" (`file: null`; the owner pasted four of them as images). Relic

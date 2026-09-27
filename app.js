@@ -10443,3 +10443,132 @@ function buildEzSizes(){
     row.appendChild(b);
   });
 }
+
+/* ═══════════════ DEVICE VARIANTS IN EASY MODE ═══════════════
+   Owner, 2026-09-27: "once a theme is perfect we can make unlimited variations
+   for all types of devices specifically." A Phones & Devices showcase card
+   that carries a product can be re-set for any device the shop buys: the
+   device family in the headline, that family's models as the selling points,
+   and the device's own cut-out in the finish nearest the card's accent,
+   fitted into the product's box. The theme is untouched, and alignPass keeps
+   a longer name or a wider device on its plate and inside the guides.
+   Variants are built on request, not stored: the library stays one card per
+   design (DESIGN-LAW rule 60). Same logic as scripts/device_variants.mjs;
+   the catalogue is assets/devices.json (scripts/device_catalog.py). */
+let SC_DEVICES = null;
+function scLoadDevices(){
+  if (SC_DEVICES) return Promise.resolve(SC_DEVICES);
+  return fetch(assetUrl('assets/devices.json')).then(r => r.ok ? r.json() : { models:{} })
+    .then(j => (SC_DEVICES = j.models || {})).catch(() => (SC_DEVICES = {}));
+}
+const SC_DEV_LINE = {
+  'IPAD AIR': 'iPad Air M2 • M3 • M4 • 11 & 13-inch', 'IPAD PRO': 'iPad Pro M4 • M5 • 11 & 13-inch',
+  'IPAD MINI': 'iPad mini 6 • mini (A17 Pro)', 'IPAD': 'iPad 10th gen • iPad (A16)',
+  'MACBOOK AIR': 'M1 to M5 • 13 & 15-inch • Every colour', 'MACBOOK PRO': 'M1 to M5 • 14 & 16-inch',
+  'MACBOOK NEO': 'MacBook Neo • Every colour', 'IMAC': 'iMac 24-inch • M1 • M3 • M4 • Every colour',
+  'APPLE WATCH': 'Series 11 • 10 • 9 • SE', 'WATCH ULTRA': 'Ultra • Ultra 2 • Ultra 3',
+  'AIRPODS': 'AirPods • AirPods Pro • AirPods Max', 'AIRPODS PRO': 'AirPods Pro 2 • Pro 3', 'AIRPODS MAX': 'AirPods Max • AirPods Pro',
+};
+function scDeviceLine(D, fam){
+  if (SC_DEV_LINE[fam]) return SC_DEV_LINE[fam];
+  const names = Object.values(D).filter(m => m.family === fam).map(m => m.name).sort();
+  return names.length ? names.map((n, i) => i ? n.replace(/^iPhone /, '') : n).join(' • ') : fam;
+}
+function scDeviceLabel(fam){
+  return fam.split(' ').map(w => ({ IPHONE:'iPhone', IPAD:'iPad', MACBOOK:'MacBook', IMAC:'iMac', AIRPODS:'AirPods',
+    HOMEPOD:'HomePod', TV:'TV', PRO:'Pro', AIR:'Air', MAX:'Max', MINI:'mini', NEO:'Neo', WATCH:'Watch', ULTRA:'Ultra',
+    APPLE:'Apple', DUO:'Duo', VISION:'Vision', MAC:'Mac', STUDIO:'Studio' }[w] || w.replace(/^(\d+)E$/, '$1e'))).join(' ');
+}
+/* one entry per family, newest iPhones first, then iPad, Mac, Watch, AirPods */
+function scDeviceChoices(D){
+  const order = { iphone:0, ipad:1, mac:2, watch:3, airpods:4, other:5 }, best = {};
+  Object.entries(D).forEach(([k, m]) => {
+    if (!m.art && !Object.keys(m.colours || {}).length) return;
+    const score = Object.keys(m.colours || {}).length * 10 + (m.art ? 1 : 0) + (parseInt((k.match(/\d+/) || [0])[0], 10) || 0) / 100;
+    if (!best[m.family] || score > best[m.family].score) best[m.family] = { key:k, m, score };
+  });
+  const num = f => parseInt((f.match(/\d+/) || [0])[0], 10) || 0;
+  return Object.entries(best).map(([fam, b]) => ({ fam, key:b.key, line:b.m.line, label:scDeviceLabel(fam) }))
+    .sort((a, b) => (order[a.line] - order[b.line]) || (num(b.fam) - num(a.fam)) || a.fam.localeCompare(b.fam));
+}
+function scDeviceFinish(m, accent){
+  const fins = Object.values(m.colours || {}).filter(f => f.hex);
+  if (!fins.length) return m.art;
+  const hsv = h => { const n = parseInt(String(h || '#888888').slice(1), 16), r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let hu = 0;
+    if (d){ hu = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; hu *= 60; if (hu < 0) hu += 360; }
+    return { h:hu, s: mx ? d / mx : 0 }; };
+  const a = hsv(accent);
+  const score = f => { const c = hsv(f.hex); if (a.s < 0.18) return c.s;
+    const dh = Math.min(Math.abs(c.h - a.h), 360 - Math.abs(c.h - a.h)) / 180;
+    return dh + 0.6 * Math.abs(c.s - a.s) + (c.s < 0.12 ? 0.5 : 0); };
+  return fins.sort((x, y) => score(x) - score(y))[0].slug;
+}
+const scLoadImg = src => new Promise(res => {
+  if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res(CUTOUT_ELS[src]);
+  const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(el); }; el.onerror = () => res(null); el.src = assetUrl(src);
+});
+async function scDeviceVariant(baseId, key){
+  const D = await scLoadDevices(), m = D[key], base = TEMPLATES.find(t => t.id === baseId);
+  if (!m || !base) return null;
+  const id = baseId + '--' + key;
+  if (TEMPLATES.some(t => t.id === id)) return id;
+  const t = JSON.parse(JSON.stringify(base));
+  const by = n => t.layers.find(l => l.name === n);
+  const h1 = by('Headline 1'), h2 = by('Headline 2'), prod = t.layers.find(l => l.kind === 'cutout' && !l.__wall);
+  if (!h2 || !prod) return null;
+  if (h1 && !/^(WE BUY|SELL YOUR|CASH IN YOUR|CASH FOR)$/i.test(String(h1.text).trim())) h1.text = 'WE BUY';
+  h2.text = m.family;
+  const line = scDeviceLine(D, m.family);
+  t.layers.forEach(l => {   // a line that lists models names this device's models instead
+    if (typeof l.text === 'string' && l !== h2 && (l.name === 'Items' ||
+        (/•/.test(l.text) && /iPhone|iPad|MacBook|iMac|Series \d|Watch|AirPods|Pro Max/i.test(l.text)))) l.text = line;
+  });
+  const card = SHOWCASE.byId[base.showcase] || {};
+  const slug = scDeviceFinish(m, card.accent || card.c1), src = 'assets/cutouts/' + slug + CUTOUT_EXT;
+  const [oldEl, newEl] = await Promise.all([scLoadImg(prod.props.src), scLoadImg(src)]);
+  if (!newEl) return null;
+  const ow = prod.props.w || 400, oh = oldEl && oldEl.width ? ow * oldEl.height / oldEl.width : ow;
+  const cx = (prod.props.left || 0) + ow / 2, cy = (prod.props.top || 0) + oh / 2;
+  const ar = newEl.width / newEl.height; let w = ow, h = w / ar; if (h > oh){ h = oh; w = h * ar; }
+  prod.props = Object.assign({}, prod.props, { src, w: Math.round(w), left: Math.round(cx - w / 2), top: Math.round(cy - h / 2) });
+  Object.assign(t, { id, name: base.name + ' · ' + scDeviceLabel(m.family), deviceOf: baseId, device: key });
+  TEMPLATES.push(t);
+  delete THUMBS[id];
+  return id;
+}
+/* the picker: shown for a Phones & Devices showcase card with a product */
+async function ezDeviceSync(){
+  const field = $('ez-device-field'), sel = $('ez-device');
+  if (!field || !sel) return;
+  const t = ezTpl(), baseId = t && (t.deviceOf || t.id), base = TEMPLATES.find(x => x.id === baseId);
+  const ok = base && base.showcase && base.cat === 'phones' && base.layers.some(l => l.kind === 'cutout' && !l.__wall) &&
+             base.layers.some(l => l.name === 'Headline 2');
+  field.hidden = !ok;
+  if (!ok) return;
+  const D = await scLoadDevices();
+  if (ezTpl() !== t) return;                                   // the user moved on while the catalogue loaded
+  /* the list is the same for every card: built once, so a template switch
+     never rebuilds it under a pick in progress */
+  if (!sel.dataset.built){
+    const groups = { iphone:'iPhone', ipad:'iPad', mac:'Mac', watch:'Apple Watch', airpods:'AirPods', other:'Home & other' };
+    const ch = scDeviceChoices(D);
+    sel.innerHTML = '<option value="">As designed</option>' + Object.keys(groups).map(g => {
+      const opts = ch.filter(c => c.line === g); if (!opts.length) return '';
+      return '<optgroup label="' + groups[g] + '">' + opts.map(c => '<option value="' + c.key + '">' + escHtml(c.label) + '</option>').join('') + '</optgroup>';
+    }).join('');
+    sel.dataset.built = '1';
+  }
+  sel.value = t.device || '';
+  sel.onchange = async () => {
+    const key = sel.value, target = key ? await scDeviceVariant(baseId, key) : baseId;
+    if (!target){ toast('That device could not be set on this design', 'error'); sel.value = t.device || ''; return; }
+    selectEzTpl(target);
+    ez.bg = null; ez.bgRecId = null; ez.bgPicked = true;         // a showcase photograph is part of the design
+    syncEzSwatches(); schedEzPreview(0);
+  };
+}
+{
+  const _buildEzForm = buildEzForm;
+  buildEzForm = function(){ const r = _buildEzForm.apply(this, arguments); ezDeviceSync(); return r; };
+}
