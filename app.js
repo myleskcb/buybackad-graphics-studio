@@ -5891,22 +5891,7 @@ function applyWatermark(dataUrl, w, h){
       cv.width = w; cv.height = h;
       const x = cv.getContext('2d');
       x.drawImage(im, 0, 0, w, h);
-      const base = Math.min(w, h);
-      const fs = Math.round(base * 0.032);
-      x.font = '800 ' + fs + 'px "DM Sans", sans-serif';
-      x.globalAlpha = 0.5;
-      x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
-      x.fillStyle = '#ffffff';
-      const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
-      x.textAlign = 'center'; x.textBaseline = 'middle';
-      // each corner mark rotated 45° along its corner→center diagonal
-      [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
-        x.save();
-        x.translate(cx, cy);
-        x.rotate(deg * Math.PI / 180);
-        x.fillText(t, 0, 0);
-        x.restore();
-      });
+      drawWatermarkMarks(x, w, h);          // the same marks every video frame carries (Satoshi, vendored)
       res(cv.toDataURL('image/png'));
     };
     im.onerror = () => res(dataUrl);
@@ -8383,7 +8368,7 @@ function placeholderBgImage(src){
   }
   try { return new fabric.Image(p); } catch (e){ return null; }
 }
-function renderEzCanvas(px, fmt, q, mode, format){
+function renderEzCanvas(px, fmt, q, mode, format, keep){
   /* 2026-09-02: Easy Mode exports in every format the editor has. Layers are
      built straight into the target document (buildLayer takes dw/dh, the same
      remap the advanced editor uses), the photo covers it, alignPass runs on
@@ -8476,6 +8461,7 @@ function renderEzCanvas(px, fmt, q, mode, format){
   }
   alignPass(sc, DW, DH);
   sc.renderAll();
+  if (keep) return sc;          // the video export animates this exact scene, and disposes it
   const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / Math.min(DW, DH) });
   sc.dispose();
   return url;
@@ -10634,3 +10620,473 @@ async function ezDeviceSync(){
   const _buildEzForm = buildEzForm;
   buildEzForm = function(){ const r = _buildEzForm.apply(this, arguments); ezDeviceSync(); return r; };
 }
+
+
+/* Ported 2026-09-27 from the superseded claude/fervent-pascal commit bf45814
+   (OPEN-ITEMS §J), at the owner's word: "make everything animateable". Every
+   design in the studio, showcase cards, classics and device variants alike,
+   exports as an 8-second video from Easy Mode or the editor. The engine is
+   unchanged; the Easy Mode entry takes its scene from renderEzCanvas(), the
+   editor's from the live canvas. */
+/* ═══════════════ MOTION: VIDEO ADS ═══════════════
+   An 8-second video of the same ad, for Reels, Stories and TikTok.
+
+   The motion is a LIVING STILL, not a reveal, and that is a design decision
+   with a reason. Feeds autoplay muted and people scroll past in a second or
+   two, so any frame that has not yet shown the phone number is a frame that
+   cannot convert. Frame 0 is the finished ad — the same pixels as the PNG
+   export — and so is every frame after it. What moves is EMPHASIS:
+
+   - the photograph breathes on a slow closed path, so the ad reads as alive
+     and the loop has no seam;
+   - three beats of SCALE, never colour, in reading order: the money word,
+     the selling points, the phone number. "Attention comes from contrast and
+     scale, not from saturation" holds in time as well as in space;
+   - every beat returns exactly to rest.
+
+   Deterministic in t: the landing-page clips are rendered by THIS code
+   (scripts/render_motion_clips.mjs, via motionBake/motionDraw), not by a
+   separate animation that could drift from what the product actually exports.
+
+   Appended, not spliced (rule 42). Nothing here runs at load: declarations
+   only, plus one DOMContentLoaded binder at the very bottom. */
+const MOTION = {
+  dur: 8, fps: 30,
+  beats: { money: [0.5, 1.5], points: [2.5, 3.5], phone: [4.5, 5.5] },
+  amp:   { money: 0.045,      points: 0.035,      phone: 0.06 },
+  breathe: 0.06,          // peak photo push-in at the loop's midpoint
+  maxShort: 1080,         // real-time recording above 1080p stutters on phones
+};
+const _bell = u => (u <= 0 || u >= 1) ? 0 : 0.5 - 0.5 * Math.cos(2 * Math.PI * u);  // 0 → 1 → 0, flat at both ends
+const _beat = (t, w) => _bell((t - w[0]) / (w[1] - w[0]));
+
+function motionIsText(o){
+  return !!o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && !!o.pgCurved));
+}
+function motionBox(o){ const r = o.getBoundingRect(true, true); return { x:r.left, y:r.top, w:r.width, h:r.height }; }
+
+/* The plate a text sits on, by the test rule 46 settled on: the rect must lie
+   behind the TEXT (≥75% of the text's own box), not merely near it — and it
+   must be a plate, not a panel. Scaling a full-width band with the number
+   would pulse half the ad. */
+function motionPlate(objs, o, W, H){
+  const t = motionBox(o);
+  let best = null, bestArea = Infinity;
+  objs.forEach(p => {
+    if (p === o || p.type !== 'rect' || p.pgBgRect || p.pgScrim) return;
+    if (p.name === 'Scrim' || p.name === 'BG' || p.name === 'Overlay') return;
+    const b = motionBox(p);
+    const ix = Math.max(0, Math.min(t.x + t.w, b.x + b.w) - Math.max(t.x, b.x));
+    const iy = Math.max(0, Math.min(t.y + t.h, b.y + b.h) - Math.max(t.y, b.y));
+    if (ix * iy < 0.75 * t.w * t.h) return;
+    if (b.w > 0.9 * W || b.w * b.h > 5 * t.w * t.h) return;   // a panel, not this text's plate
+    if (b.w * b.h < bestArea){ best = p; bestArea = b.w * b.h; }
+  });
+  return best;
+}
+
+/* Read the scene once and record every rest value the pose will touch, so
+   restoring is exact rather than "scale back by 1/s". */
+function motionRig(sc, W, H){
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const texts = objs.filter(o => motionIsText(o) && live(o));
+  const size = o => ((o.fontSize || 0) * (o.scaleY || 1)) || motionBox(o).h;
+  const phone = texts.filter(o => o.pgRole === 'phone').sort((a, b) => size(b) - size(a))[0] || null;
+  const money = texts.filter(o => o !== phone && !['phone','website','badges','deco'].includes(o.pgRole))
+                     .sort((a, b) => size(b) - size(a))[0] || null;
+  const points = texts.find(o => o.pgRole === 'badges' && o !== money)
+              || texts.find(o => o.pgRole === 'cta' && o !== money) || null;
+  const unit = o => {
+    if (!o) return null;
+    const plate = motionPlate(objs, o, W, H);
+    const members = plate ? [plate, o] : [o];
+    return { c: (plate || o).getCenterPoint(),
+             members: members.map(m => ({ o:m, sx:m.scaleX || 1, sy:m.scaleY || 1, left:m.left, top:m.top, c:m.getCenterPoint() })) };
+  };
+  const bg = sc.backgroundImage && sc.backgroundImage.type === 'image' ? sc.backgroundImage : null;
+  // product cutouts only: the film-grain overlay is an image too, and it must not bob
+  const cut = objs.filter(o => o.type === 'image' && live(o) && o.pgRole === 'photo');
+  if (!phone) console.warn('GraphicsStudio motion: no phone-number layer found, the last beat is skipped.');
+  return {
+    W, H,
+    bg: bg ? { o:bg, left:bg.left, top:bg.top, sx:bg.scaleX || 1, sy:bg.scaleY || 1 } : null,
+    cut: cut.map(o => ({ o, left:o.left, top:o.top })),
+    units: { money: unit(money), points: unit(points), phone: unit(phone) },
+  };
+}
+
+/* ── BAKE, THEN COMPOSITE ────────────────────────────────────────────────
+   The first version re-rendered the whole fabric scene every frame. Scaling
+   text invalidates fabric's object cache, so every frame re-drew shadowed
+   type from scratch, and the first real export came out at 1.6 fps — a
+   slideshow. Real-time recording turns every slow frame into a dropped one.
+
+   So the scene is rendered ONCE into bitmaps, in z-order: the photograph,
+   each run of layers that never moves, and each element that does (cropped to
+   its own bounds). A frame is then a dozen drawImage calls with a transform —
+   GPU work on every device, and cheap even in software.
+   Exactness: rest frames use a native-resolution photo, so frame 0 is the
+   still ad; the push-in draws from a copy baked at (1 + breathe)x, so the
+   photo is never upscaled. The one non-normal blend in the library (the
+   grain overlay) is drawn with its own blend mode at its own depth, which
+   reproduces it exactly. */
+function motionBake(sc, docW, docH, outW, outH){
+  const z = outW / docW;
+  sc.enableRetinaScaling = false;
+  sc.setDimensions({ width:outW, height:outH }); sc.setZoom(z);
+  const rig = motionRig(sc, docW, docH);
+  const objs = sc.getObjects();
+  const unitOf = new Map();
+  Object.entries(rig.units).forEach(([k, u]) => u && u.members.forEach(m => unitOf.set(m.o, k)));
+  const cutSet = new Set(rig.cut.map(c => c.o));
+  const saved = { img: sc.backgroundImage, col: sc.backgroundColor, vis: objs.map(o => o.visible) };
+  const copy = (w, h, crop) => {
+    sc.renderAll();
+    const c = document.createElement('canvas');
+    const r = crop || { x:0, y:0, w, h };
+    c.width = Math.max(1, r.w); c.height = Math.max(1, r.h);
+    c.getContext('2d').drawImage(sc.lowerCanvasEl, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+    return { bmp:c, x:r.x, y:r.y };
+  };
+  const only = set => objs.forEach((o, i) => { o.visible = saved.vis[i] !== false && set.has(o); });
+  const bake = { W:outW, H:outH, z, base: saved.col || '#101014', bg:null, bgHi:null, layers:[], rig };
+  try {
+    if (rig.bg){
+      objs.forEach(o => { o.visible = false; });
+      sc.backgroundColor = '';
+      bake.bg = copy(outW, outH).bmp;
+      const K = 1 + MOTION.breathe, hw = Math.round(outW * K), hh = Math.round(outH * K);
+      sc.setDimensions({ width:hw, height:hh }); sc.setZoom(z * K);
+      bake.bgHi = copy(hw, hh).bmp;
+      sc.setDimensions({ width:outW, height:outH }); sc.setZoom(z);
+    }
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    let run = [];
+    const flush = () => { if (run.length){ only(new Set(run)); bake.layers.push(Object.assign({ kind:'static' }, copy(outW, outH))); run = []; } };
+    objs.forEach((o, i) => {
+      if (saved.vis[i] === false) return;
+      const blend = o.globalCompositeOperation && o.globalCompositeOperation !== 'source-over' ? o.globalCompositeOperation : null;
+      if (!unitOf.has(o) && !cutSet.has(o) && !blend){ run.push(o); return; }
+      flush();
+      const op = o.globalCompositeOperation, alpha = o.opacity;
+      if (blend){ o.globalCompositeOperation = 'source-over'; o.opacity = 1; }
+      only(new Set([o]));
+      let crop = null;
+      if (!blend){
+        // crop to the element plus its shadow, so a phone's memory is not spent on empty canvas
+        const r = o.getBoundingRect(false, true), sh = o.shadow || {};
+        const pad = Math.ceil(((sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * z) + 6;
+        const x0 = Math.max(0, Math.floor(r.left - pad)), y0 = Math.max(0, Math.floor(r.top - pad));
+        const x1 = Math.min(outW, Math.ceil(r.left + r.width + pad)), y1 = Math.min(outH, Math.ceil(r.top + r.height + pad));
+        crop = { x:x0, y:y0, w:x1 - x0, h:y1 - y0 };
+      }
+      bake.layers.push(Object.assign({ kind: unitOf.has(o) ? 'unit' : cutSet.has(o) ? 'cut' : 'blend',
+        unit: unitOf.get(o), blend, alpha: blend ? alpha : 1 }, copy(outW, outH, crop)));
+      if (blend){ o.globalCompositeOperation = op; o.opacity = alpha; }
+    });
+    flush();
+  } finally {
+    sc.backgroundImage = saved.img; sc.backgroundColor = saved.col;
+    objs.forEach((o, i) => { o.visible = saved.vis[i]; });
+  }
+  return bake;
+}
+function motionDraw(x, b, t){
+  const W = b.W, H = b.H;
+  const th = 2 * Math.PI * (((t % MOTION.dur) + MOTION.dur) % MOTION.dur) / MOTION.dur;
+  const push = MOTION.breathe * (0.5 - 0.5 * Math.cos(th));        // 0 at t=0 and t=dur
+  x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  x.fillStyle = b.base; x.fillRect(0, 0, W, H);
+  if (b.bg){
+    if (push < 1e-4) x.drawImage(b.bg, 0, 0, W, H);
+    else {
+      // pan inside the headroom the push-in creates, so no edge is ever exposed
+      const k = 1 + push, dx = push * W * 0.35 * Math.sin(th), dy = -push * H * 0.25;
+      x.drawImage(b.bgHi, (W - W * k) / 2 + dx, (H - H * k) / 2 + dy, W * k, H * k);
+    }
+  }
+  for (const L of b.layers){
+    if (L.kind === 'static'){ x.drawImage(L.bmp, L.x, L.y); continue; }
+    x.save();
+    if (L.kind === 'unit'){
+      const s = 1 + MOTION.amp[L.unit] * _beat(t, MOTION.beats[L.unit]);
+      if (s !== 1){
+        const u = b.rig.units[L.unit], cx = u.c.x * b.z, cy = u.c.y * b.z;
+        x.translate(cx, cy); x.scale(s, s); x.translate(-cx, -cy);
+      }
+    } else if (L.kind === 'cut'){
+      x.translate(0, -H * 0.008 * Math.sin(th));                 // product floats against the drift
+    } else if (L.kind === 'blend'){
+      x.globalCompositeOperation = L.blend; x.globalAlpha = L.alpha;
+    }
+    x.drawImage(L.bmp, L.x, L.y);
+    x.restore();
+  }
+}
+
+/* ── SOUND ──────────────────────────────────────────────────────────────────
+   Designed to the same beats, rendered offline so it is identical on every
+   export: a soft pulse and shaker at 120 BPM (four bars = the eight seconds),
+   a two-chord pad, a whoosh into the money word, a wood tick on the selling
+   points and a two-note chime when the phone number lands. Every feed starts
+   it muted; it exists for the viewer who taps to hear. Seeded noise, so two
+   renders are sample-identical. */
+function motionSound(rate){
+  const sr = rate || 48000, T = MOTION.dur;
+  const ac = new OfflineAudioContext(2, Math.ceil(T * sr), sr);
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -20; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.005; comp.release.value = 0.2;
+  const master = ac.createGain(); master.gain.value = 1.3;
+  master.connect(comp); comp.connect(ac.destination);
+  // edge fades: the loop point must not click
+  master.gain.setValueAtTime(0, 0); master.gain.linearRampToValueAtTime(1.3, 0.012);
+  master.gain.setValueAtTime(1.3, T - 0.03); master.gain.linearRampToValueAtTime(0, T);
+
+  let seed = 20260926;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+  const noise = ac.createBuffer(1, sr, sr);
+  const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = rnd();
+  const env = (g, t0, a, peak, d) => {
+    g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(peak, t0 + a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + a + d);
+  };
+  const noiseHit = (t0, type, f, q, a, peak, d) => {
+    const s = ac.createBufferSource(); s.buffer = noise;
+    const f1 = ac.createBiquadFilter(); f1.type = type; f1.frequency.value = f; f1.Q.value = q;
+    const g = ac.createGain(); env(g, t0, a, peak, d);
+    s.connect(f1); f1.connect(g); g.connect(master); s.start(t0, (t0 * 0.37) % 0.5); s.stop(t0 + a + d + 0.05);
+  };
+  const tone = (t0, type, f0, f1, a, peak, d) => {
+    const o = ac.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(f0, t0); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t0 + Math.min(0.15, d));
+    const g = ac.createGain(); env(g, t0, a, peak, d);
+    o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + a + d + 0.05);
+  };
+  /* Pulse on every half-bar, shaker on the off-beats. Tuned for a PHONE
+     SPEAKER, which is where this is heard: the first mix put 91% of its energy
+     under 500Hz, which a phone barely reproduces. So the pulse carries a click
+     in the band a phone does play, and the shaker is loud enough to be heard. */
+  for (let t = 0; t < T - 0.01; t += 1.0){ tone(t, 'sine', 150, 55, 0.004, 0.2, 0.3); noiseHit(t, 'bandpass', 2600, 1.4, 0.002, 0.10, 0.025); }
+  for (let t = 0.25; t < T - 0.05; t += 0.5) noiseHit(t, 'highpass', 5200, 0.7, 0.002, (t % 1 === 0.25) ? 0.10 : 0.07, 0.06);
+  // pad: Am(add9) for two bars, Fmaj(add9) for two, spread voicings, soft attack
+  const pad = (t0, t1, freqs) => freqs.forEach(f => [-4, 4].forEach(cents => {
+    const o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = f; o.detune.value = cents;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; lp.Q.value = 0.5;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.024, t0 + 0.06);
+    g.gain.setValueAtTime(0.024, t1 - 0.12); g.gain.linearRampToValueAtTime(0, t1);
+    o.connect(lp); lp.connect(g); g.connect(master); o.start(t0); o.stop(t1 + 0.02);
+  }));
+  pad(0, 4.06, [110.00, 164.81, 261.63, 392.00, 493.88]);
+  pad(3.94, T, [87.31, 130.81, 220.00, 329.63, 392.00]);
+  // whoosh into the money word, then a soft low hit on its peak
+  {
+    const s = ac.createBufferSource(); s.buffer = noise; s.loop = true;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
+    bp.frequency.setValueAtTime(350, 0.55); bp.frequency.exponentialRampToValueAtTime(2800, 0.98);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, 0.55); g.gain.linearRampToValueAtTime(0.22, 0.97); g.gain.linearRampToValueAtTime(0.0001, 1.0);
+    s.connect(bp); bp.connect(g); g.connect(master); s.start(0.55); s.stop(1.02);
+  }
+  tone(1.0, 'sine', 84, 40, 0.004, 0.55, 0.5);
+  noiseHit(1.0, 'lowpass', 1200, 0.7, 0.002, 0.12, 0.12);
+  // selling points: a dry wood tick
+  tone(3.0, 'sine', 920, 920, 0.002, 0.22, 0.07); tone(3.0, 'sine', 1380, 1380, 0.002, 0.12, 0.05);
+  // phone number lands: two bell notes, inharmonic partials for a struck-metal read
+  const bell = (t0, f, peak) => [[1, 1, 1.5], [2.0, 0.35, 0.9], [2.76, 0.22, 0.6], [5.4, 0.1, 0.3]]
+    .forEach(([m, gm, d]) => tone(t0, 'sine', f * m, f * m, 0.003, peak * gm, d));
+  bell(5.0, 880.00, 0.17); bell(5.09, 1318.51, 0.15);
+  return ac.startRendering();
+}
+
+/* The four corner marks, shared by the PNG watermark and every video frame so
+   the two cannot drift apart. Satoshi 900 is vendored; the old "DM Sans" was
+   not, so every free export had been silently set in a fallback face. */
+function drawWatermarkMarks(x, w, h){
+  const base = Math.min(w, h);
+  const fs = Math.round(base * 0.032);
+  x.save();
+  x.font = '900 ' + fs + 'px Satoshi, sans-serif';
+  x.globalAlpha = 0.5;
+  x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
+  x.fillStyle = '#ffffff';
+  const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
+    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText(t, 0, 0); x.restore();
+  });
+  x.restore();
+}
+
+/* H.264 MP4 first: Instagram and TikTok reject WebM on upload. Chrome 126+
+   and Safari record it natively; Firefox falls back to WebM and the toast
+   says so.
+   A BARE 'video/mp4' is only trusted where the browser can also PLAY H.264.
+   An open-source Chromium build answers yes to 'video/mp4' and then writes
+   VP9 inside an MP4 box — a file named .mp4 that the platforms refuse, which
+   is worse than an honest .webm. Measured, not assumed: it is exactly what
+   the test browser here did. */
+function motionMime(withAudio){
+  if (typeof MediaRecorder === 'undefined' || !HTMLCanvasElement.prototype.captureStream) return null;
+  const ok = m => { try { return MediaRecorder.isTypeSupported(m); } catch (e){ return false; } };
+  let h264 = false;
+  try { h264 = !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'); } catch (e){}
+  const mp4 = withAudio
+    ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs="avc1.42E01E, mp4a.40.2"']
+    : ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1'];
+  const webm = withAudio ? ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'] : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  return mp4.find(ok) || (h264 && ok('video/mp4') ? 'video/mp4' : null) || webm.find(ok) || null;
+}
+const motionSoundOn = () => jget('pgfx_video_sound', true) !== false;
+/* Must be created inside the click: Safari will not start audio from a
+   context born after an await. */
+function motionAudioContext(){
+  try { const A = window.AudioContext || window.webkitAudioContext; return A ? new A() : null; } catch (e){ return null; }
+}
+
+/* Real-time capture. MediaRecorder timestamps frames by wall clock, so the
+   pose is computed from elapsed time, not frame count — a slow frame is a
+   dropped frame, never a slowed-down ad. A hidden tab throttles timers to
+   1 Hz (rule 38), so hiding the tab aborts rather than exporting a frozen video. */
+async function recordMotion(sc, o){
+  const out = document.createElement('canvas');
+  out.width = o.w; out.height = o.h;
+  const x = out.getContext('2d');
+  const bake = motionBake(sc, o.docW, o.docH, o.w, o.h);
+  const withAudio = !!(o.actx && o.sound);
+  const mime = motionMime(withAudio);
+  if (!mime) throw new Error('this browser cannot record video');
+  const stream = out.captureStream(MOTION.fps);
+  let src = null;
+  if (withAudio){
+    const dest = o.actx.createMediaStreamDestination();
+    src = o.actx.createBufferSource(); src.buffer = o.sound; src.connect(dest);
+    dest.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
+  }
+  const rec = new MediaRecorder(stream, { mimeType:mime, videoBitsPerSecond: Math.round(o.w * o.h * MOTION.fps * 0.12) });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  const done = new Promise((res, rej) => {
+    rec.onstop = () => res({ blob: new Blob(chunks, { type: mime.split(';')[0] }), mime });
+    rec.onerror = e => rej((e && e.error) || new Error('recording failed'));
+  });
+  let frames = 0;
+  const draw = t => {
+    motionDraw(x, bake, t); frames++;
+    if (o.watermark) drawWatermarkMarks(x, o.w, o.h);
+  };
+  let hidden = false, finish = null;
+  const onVis = () => { if (document.hidden){ hidden = true; if (finish) finish(); } };
+  document.addEventListener('visibilitychange', onVis);
+  /* Background work yields while this runs (ensureThumbs, refreshPhotoThumb).
+     Measured: during the first ~minute after load, thumbnail warm-up held the
+     main thread so completely that the recorder ticked at 2-3 Hz. */
+  window.__gfxRecording = true;
+  try {
+    draw(0);
+    rec.start(250);
+    if (src){ try { await o.actx.resume(); } catch (e){} src.start(); }
+    /* A 30 fps timer on absolute time, not requestAnimationFrame: rAF is paced
+       by the DISPLAY (60/120 Hz, and 2.5 Hz in a headless browser, which is
+       how the first export came out at 1.8 fps), while captureStream samples
+       at 30. Each tick is scheduled against t0 so timer jitter never
+       accumulates into drift. */
+    const t0 = performance.now(), step = 1000 / MOTION.fps;
+    await new Promise(res => {
+      finish = res;
+      let n = 0;
+      const tick = () => {
+        if (hidden) return;
+        const t = (performance.now() - t0) / 1000;
+        if (t >= MOTION.dur){ res(); return; }
+        draw(t);
+        if (o.onProgress) o.onProgress(t / MOTION.dur);
+        n = Math.max(n + 1, Math.floor((performance.now() - t0) / step) + 1);
+        setTimeout(tick, Math.max(0, t0 + n * step - performance.now()));
+      };
+      tick();
+    });
+    draw(MOTION.dur);
+  } finally {
+    window.__gfxRecording = false;
+    document.removeEventListener('visibilitychange', onVis);
+    try { rec.state !== 'inactive' && rec.stop(); } catch (e){}
+    if (src) try { src.stop(); } catch (e){}
+  }
+  const res = await done;
+  res.fps = frames / MOTION.dur;
+  stream.getTracks().forEach(tr => tr.stop());
+  if (hidden) throw new Error('recording stopped because this tab was hidden. Try again and keep this tab in front');
+  return res;
+}
+
+/* One path for both editors: gate → record → count the credit → download.
+   The credit is taken only after a video actually exists, same as a PNG. */
+async function runVideoExport(o){
+  const btn = o.btn, label = btn ? btn.innerHTML : '';
+  const setBtn = html => { if (btn) btn.innerHTML = html; };
+  if (btn) btn.disabled = true;
+  try {
+    let sound = null;
+    if (o.actx && motionSoundOn()){
+      setBtn('Preparing sound…');
+      try { sound = await motionSound(o.actx.sampleRate); } catch (e){ console.warn('GraphicsStudio motion: sound render failed, exporting silent.', e); }
+    }
+    const r = await recordMotion(o.sc, Object.assign({}, o, { sound,
+      onProgress: p => setBtn('Recording… ' + Math.max(1, Math.ceil(MOTION.dur * (1 - p))) + 's') }));
+    setBtn('Saving…');
+    try { await recordExport(); }
+    catch (e){ toast('Export could not be recorded: ' + e.message, 'error'); return; }
+    const ext = /mp4/.test(r.mime) ? 'mp4' : 'webm';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(r.blob);
+    a.download = (o.name || 'ad').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-video-' + o.w + 'x' + o.h + '.' + ext;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    toast(ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4', ext === 'mp4' ? 'success' : undefined);
+  } catch (e){
+    toast('Video export failed: ' + (e.message || 'unknown error'), 'error');
+  } finally {
+    try { o.sc.dispose(); } catch (e){}
+    if (o.actx) try { o.actx.close(); } catch (e){}
+    if (btn){ btn.disabled = false; btn.innerHTML = label; }
+  }
+}
+
+async function ezDownloadVideo(){
+  const actx = motionSoundOn() ? motionAudioContext() : null;   // inside the click, see motionAudioContext
+  const phone = $('ez-phone').value.trim();
+  if (!phone){
+    toast('Type your phone number first, buyers need to reach you', 'error');
+    $('ez-phone').focus(); $('ez-phone').scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  const gate = await gateExport(ezExportPx());
+  if (!gate) return;
+  /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
+     flattening it), so the video's frame 0 IS the still ad */
+  const sc = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true);
+  const docW = sc.width, docH = sc.height, k = Math.min(gate.px, MOTION.maxShort) / Math.min(docW, docH);
+  await runVideoExport({ sc, docW, docH, w: Math.round(docW * k), h: Math.round(docH * k), watermark:gate.watermark, actx, name:ezTpl().name, btn:$('ez-video') });
+}
+async function editorDownloadVideo(){
+  const actx = motionSoundOn() ? motionAudioContext() : null;
+  if (!canvas) return;
+  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  const gate = await gateExport(exportSize);
+  if (!gate) return;
+  const d = exportDims(Math.min(gate.px, MOTION.maxShort));
+  canvas.discardActiveObject(); canvas.renderAll();
+  const sc = new fabric.StaticCanvas(null, { width:CW, height:CH, renderOnAddRemove:false, enableRetinaScaling:false });
+  await new Promise(res => sc.loadFromJSON(canvas.toJSON(EXTRA_PROPS), res));
+  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, actx, name:currentTplName, btn:$('ex-video') });
+}
+
+/* the buttons (index.html: #ez-video beside Download my ad, #ex-video in the
+   editor's export panel) */
+(function bindMotionButtons(){
+  const bind = () => { const a = $('ez-video'), b = $('ex-video');
+    if (a) a.onclick = () => ezDownloadVideo(); if (b) b.onclick = () => editorDownloadVideo(); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+})();
