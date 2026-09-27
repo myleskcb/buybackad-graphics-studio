@@ -361,3 +361,39 @@ Next, in order of what the owner will see:
    done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
    predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
    the three "Starter" prompts.
+
+## L. 2026-09-27 (night) — video on the new language, plate air
+
+Done (DESIGN-LAW rules 64 to 67, LEARNING-LOG same date): every design
+downloads as a 10 s video that opens on the finished ad and shifts to its own
+call to action; exact encoder, frame-0 and flash gates; words on a plate keep
+air at both ends (plateAir, and the collision audit measures it); the video
+scripts prove they opened the card they name.
+
+Next:
+
+1. **Export one MP4 from real Chrome or Safari and play it** (the test
+   container has no H.264 encoder; the WebM path is the one verified end to
+   end). Then upload it to a Reel and a TikTok draft.
+2. **9:16 across the curated set.** Square (all 641) and 3:4 (curated 398)
+   are audited clean; 9:16 has a 60-card sample, clean. Run
+   `scripts/motion_audit.mjs --set showcase --format story` when 9:16 ads are
+   next wanted.
+3. **Cards that keep the still** (no call to action passes its audit): five
+   classics. `neon_sell` (a plate no neutral shade serves, rule 56),
+   `silver_ster`, and dl_gold_voltStack_gold, dl_coins_voltStack_royal and
+   dl_sports_voltStack_crimson, whose action line reads 2.5 to 2.9:1 on its
+   own plate in every stack. Fix the voltStack plate colour in the builder
+   and they get one; the clip is a correct living still meanwhile.
+4. **One classic short of air**: dl_strips_duoSplit_emerald's TEST STRIPS is
+   1.26x its side panel, so the 72% floor leaves it 20px short. Fix the layout
+   builder (a smaller authored size or a wider panel), not the floor.
+5. **Decide the call to action once, at 1080.** Its legibility test reads the
+   export's own pixels, so a Pro 2160 download can choose a fuller stack than
+   the 1080 one (both are audited, so neither is wrong, but they can differ).
+   Bake the decision at 1080 and render the chosen stack at the export size;
+   the gallery already previews the 1080 decision.
+6. **The live site** may not carry alignPass step 4b yet (the owner's
+   screenshot of CALL FOR INSTANT OFFER over its badge is the unfitted,
+   authored state; every render path on this branch fits it). Deploy the
+   trunk to see the fix.

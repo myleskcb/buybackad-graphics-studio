@@ -109,7 +109,7 @@ for (const [n, j] of jobs.entries()){
     const out = { id: j.id, kind: j.kind, cta: !!c, off: bake.ctaOff || null,
       parts: c ? c.parts.map(p => p.key).concat(c.prod ? ['prod'] : []) : [], shade: c ? c.shade : null, passed: c ? c.passed : null,
       legib: c ? Math.min(...c.legibility.map(l => l.q75)) : null, number: c ? +(c.texts.find(t => t.role === 'number') || {}).size : null,
-      frame0: { off: z0.off, most: z0.most, ok: z0.ok } };
+      frame0: { off: z0.off, most: z0.most, block: z0.block, ok: z0.ok } };
     if (strip){
       const times = [0, 2.0, 5.0, 5.8, 6.1, 6.4, 7.0, 9.9], tw = 180, th = Math.round(tw * H / W), pad = 5;
       const sh = document.createElement('canvas'); sh.width = times.length * (tw + pad) + pad; sh.height = th + 2 * pad + 14;

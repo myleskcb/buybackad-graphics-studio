@@ -1469,3 +1469,155 @@ it holds up on the card's own pixels:
 
 61 cards qualified. 289 fail contrast on their own ground and keep their line
 as it was. "Some themes" is the measurement's answer, not a quota.
+
+## 64. Words on a plate keep air at both ends, measured in the plate's own frame
+
+Added 2026-09-27. The owner, on CALL FOR INSTANT OFFER set edge to edge on the
+Street price badge: "why can't we seem to catch this? it would need to be
+shrunk 10-15% to make a minimum margin on the sides."
+
+Why it was not caught:
+
+- **The collision audit only scored a straddle** (rule 58: 4 to 96% of a
+  line's ink inside a plate, failing at 6%). A line that fills its plate end
+  to end, or pokes one letter over it, has 97 to 100% of its ink inside and
+  passed.
+- **alignPass step 4b fits on axis-aligned boxes.** On a tilted sticker the
+  badge turns about its corner and its line about its own top centre, so on
+  the -4° badge the line landed 8px off centre: 22px of air at one end and 37
+  at the other, "inside" by the box test.
+- **A box is not the ink** (rule 50). A serif W starts 33px into its box; a
+  textbox's box is its wrap width, not its words.
+
+The rule, as `plateAir()` applies it after alignPass (app.js) and
+`scripts/audit_collisions.mjs` measures it:
+
+- A line **on** a plate (its ink centred within the plate, no taller than
+  1.15x it, no wider than 1.4x it) needs, at each end, along the plate's own
+  axis, `max(12px, 4.5% of the plate, 0.35 of the type size)`.
+- The ink is measured (`measureText` bounds: where the ink starts in the line
+  and how wide it is), not the text box.
+- **The least change first.** A centred line alone on its plate goes back on
+  the plate's centre line; any other line slides by its shortfall toward the
+  end with room. Only when the total air is short does the type come down,
+  about the end it is anchored to, never below 72% of itself, and the number
+  never below 72px (rule 53).
+- A plate washed to 45% by buildLayer is still the ground the line reads on:
+  anything from 25% alpha up counts, and plates are taken as drawn (a
+  palette fill lives on the object, not in the layer's props).
+- **Plates of one fill that overlap are one shape**: a ticket and its notched
+  perforation (780 and 866 wide) read as one ticket, so the line is measured
+  against whichever gives it the most room. The smallest plate is otherwise
+  the line's own: a pill on a card is judged by the pill.
+
+Measured with `--no-air-fix` for the before: classics short of air **25 → 1**
+(the one left is a headline 1.26x its panel, held by the 72% floor), showcase
+records **187 → 1**, live cards **56 → 0**. Collisions did not rise (classics
+48 → 48, showcase records 102 → 101, live 0 → 0). The shrink the owner estimated, 10 to 15%, is
+what the rule gives a line on a tight sticker; a line that only sat off
+centre moves instead of shrinking.
+
+## 65. A video opens on the finished ad and shifts to the card's own call to action
+
+Added 2026-09-27. The owner, on the first video build: "this is still bound by
+our OLD design language", "the bg images / colors don't look very good", then
+"it is a good theme for ads to then shift to a CTA.. starts a fully made
+graphic image ad". And on formats: "primarily 1:1 or 3:4 but occasionally we
+will do the 9:16", "primarily design for the square format".
+
+The first engine (`video.js`) re-set the copy on its own tinted grounds and
+recoloured the ad, the look rules 56 and 62 retired. It is gone. The video is
+now the trunk's living still with one addition (app.js, MOTION parts 2 and 3):
+
+- **Frame 0 is the still**, so every grid, every cover image and every muted
+  autoplay shows the finished ad. It is judged on 8x8 blocks: no block more
+  than 8 levels off on average, and under 0.5% of pixels more than 8 off. A
+  faint layer composited back through 8-bit premultiplied alpha is off by a
+  few levels on scattered pixels (worst block 4.9); a real mismatch is a
+  region (a clipped shadow: blocks at 17 to 23). The per-pixel rule refused
+  one 3:4 card for rounding alone; the block rule passes it and still
+  refuses both simulated shadow clips.
+- **At 5.8s it shifts to a call to action built from the card's own parts**:
+  its headline, its call-to-action line, its number on its plate, its product
+  cut, on its own photograph. Nothing is added and nothing is recoloured,
+  except as rule 62 prescribes below. The parts travel from where they stood
+  in the ad; each line travels with its own plate (the badge under CALL FOR
+  INSTANT OFFER went with it).
+- **The words before the picture.** The stacks tried, in order: product +
+  headline + action line, headline + action line, product + headline,
+  headline, product, the number alone. What the shop buys and what to do
+  about it are the message; a picture without them is not.
+- **Rule 62 in motion.** The shade is near-black and graded to the band the
+  copy occupies, so the photograph comes through above and below; its
+  strength is solved per line to 4.5:1 on the frame's own pixels. A line that
+  lands dark on the photograph (or too dim for any dark shade, under 0.3
+  luminance) turns its ink as rule 62 does: neutral to near-white, coloured
+  to its own hue turned light, outline and halo dropped (a light halo round
+  now-light type is a haze). The ink crossfades during the move. A line
+  carried by a light outline of real weight (the red CASH with its white
+  outline) keeps its accent.
+- **Rule 27 in motion.** A part that lands on dark ground has any light glow
+  the card keyed to its old, lighter ground re-cut dark, same blur and
+  offset: on WE BUY GOLD JEWELRY and its green number plate that glow read
+  as a white haze once the ground was shaded.
+- **Every call to action is audited before it ships**: parts inside the 6%
+  guides (on 9:16, inside the clear box between the platform's own chrome),
+  the product off the copy, no two parts on each other, the number at least
+  72px at 1080, every line 3:1 or better by the critic's method (rule 54).
+  A card with no passing stack keeps the living still for the whole clip.
+- **Square is the design format**, 3:4 second, 9:16 occasional. Audits run
+  square across the library first.
+
+Measured (`scripts/motion_audit.mjs`, 2026-09-27, merged trunk):
+
+| | cards | call to action built | with the headline | frame 0 fails | flash fails |
+|---|---|---|---|---|---|
+| square, curated | 398 | 398 | 383 | 0 | 0 (worst 13.9% of a region; the limit is 25%) |
+| square, classics | 243 | 238 | 223 | 0 | 0 (worst 8.3%) |
+| 3:4, curated | 398 | 398 | 391 | 0 (1 under the per-pixel gate, below) | 0 (worst 19.4%) |
+| 9:16, first 60 curated | 60 | 60 | 56 | 0 | 0 (worst 5.8%) |
+
+The five classics that keep the living still: `neon_sell` (its number is
+carried by a plate no neutral shade serves, rule 56), `silver_ster`, and
+three voltStack classics whose action line reads 2.5 to 2.9:1 on its plate
+in every stack. Every call to action's worst line reads 3.05:1 or better
+square (3.02:1 at 3:4) by the critic's measure. 186 curated cards take a
+shade under the copy.
+
+## 66. A flash check reads linear light at full resolution, and a counting number is a flash
+
+Found building the first engine, and kept for every clip since (WCAG 2.3.1,
+`MotionFlashCheck`).
+
+- **Linear light, every pixel.** WCAG's thresholds are relative luminance.
+  Letting `drawImage` shrink a frame first averages in gamma space: against an
+  exact linear-light average of a real 1080×1920 frame that misread cell
+  luminance by up to **0.29**, three times the 0.10 transition threshold, and
+  the error sits on type edges, where an ad's motion is. A transition is a
+  swing of 0.10 in relative luminance with the darker state under 0.80; cells
+  are 1/36 of the short side; a cell with 7 transitions inside any one second
+  (more than three flashes) is hot; hot cells over 25% of any third-by-third
+  region fail the clip. Saturated red is checked on its own, the same way.
+- **A counting number is a flash.** A $1,100 count at 170px on a dark ground
+  at 30fps failed, 10 flashes a second over 33% of a region: each digit swaps
+  glyph in place many times a second. Numbers arrive once, whole.
+- The export is refused, not warned, when the check fails.
+
+## 67. An audit proves it opened the card it names
+
+Added 2026-09-27. The first run of the video audit reported 14 curated cards
+with no call to action. They were one classic, measured fourteen times.
+
+`showEasy()` runs `loadAccount()`, which with no token signs out whatever
+account a headless script set, synchronously; `selectEzTpl()` then swaps a
+premium template for the first free one without a word. So a card that "fell
+back" was `sell_iphone`, with its dark number on a cream band. The same trap
+opened classics as the wrong template, and a render taken before the
+photograph finished loading measured the plain ground.
+
+Every audit that opens a card through the app now pins its stub account
+(`loadAccount = async () => account`), **asserts** the template that opened
+is the one it names (an error row, not a silent substitute), and waits for the
+photograph and cutouts before it renders. An audit's first suspect is its own
+harness (rule 50), and a result that looks like a design failure on many
+different cards at once is a harness failure until proved otherwise.

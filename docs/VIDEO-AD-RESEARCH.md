@@ -534,64 +534,58 @@ output, and there is no output to measure.
 
 ## 10. Built — 2026-09-27
 
-The engine is `video.js`, loaded after `app.js`; the panel opens from
-**Export → Make it a video ad**. It reads whatever is on the canvas, so every
-template, every edit and every saved design has a video without any
-per-template authoring.
+**Second build (current): the living still and its call to action.** The
+owner rejected the first build: "still bound by our OLD design language",
+"the bg images / colors don't look very good". They kept its arc: "a good
+theme for ads to then shift to a CTA.. starts a fully made graphic image ad".
+The video is now the trunk's living-still engine (app.js MOTION) plus one
+addition, and it follows the design law rather than this document where the
+two differ (DESIGN-LAW rules 55, 56, 62 and 65):
 
-**What the export refuses.** Download runs a self-audit before a single frame
-is encoded, and the flash check over every encoded frame. Any failure refuses
-the file and does not spend an export:
+- 0 s: the finished ad, frame for frame (the grid thumbnail and the muted
+  autoplay are the ad; §2).
+- 0.5 to 5.5 s: the still breathes. The money line, the points and the
+  number each take one beat in turn (§3), and the photograph drifts.
+- 5.8 s: the ad hands over to a call to action built from the card's own
+  parts, headline, action line, number on its plate and product, on its own
+  photograph, shaded dark and graded to the copy (§4). The number lands with
+  one stamp and a two-note bell.
+- 10 s: it holds on the call to action and loops.
 
-| gate | how it is checked | where |
-|---|---|---|
-| V1 frame 0 is the still | frame 0 rendered by the engine vs the PNG the Export button makes, byte for byte | `frameZeroMatches()` |
-| V2 number on screen | share of frames with the phone in the template or the phone bar, ≥ 70% | `phoneShare()` |
-| V3 time to read | every line: onset to scene end ≥ max(1.2 s, chars ÷ 15 + 0.5 s) | `dwell()` |
-| layout | every recorded line and shape inside the safe box; no two lines overlapping (against the smaller box, rule 35); nothing on the product or photo; nothing under 22 px at 1080 | `measure()` |
-| contrast | each line against the backdrop **measured on the real frame with the text removed** (rule 22): 4.5:1, or 3:1 at ≥ 52 px | `measure()` |
-| V4 flashing | WCAG 2.3.1 general + red flash over every frame | `FlashCheck` |
+**Where this departs from §8, measured or ruled:**
 
-Contrast failures are fixed before they are reported: `harden()` darkens the
-backdrop against measured contrast, or turns an accent that cannot hold 3:1
-white. Only what still fails reaches the user, with the line named.
+1. **No dollar figures.** §8 asked for a price that counts up and lands. The
+   design law now keeps dollar figures off graphics (rule 55), and a counting
+   number fails the flash check anyway (rule 66: 10 flashes a second over 33%
+   of a region at 30 fps).
+2. **No new grounds, no recolouring.** The first build set its scenes on
+   tinted grounds and re-inked the ad (§6's colour work). Rules 56 and 62 retire
+   both: the photograph keeps its own colour, and shade is neutral and dark. The
+   only ink that changes is a line that lands dark on the shaded photograph,
+   turned as rule 62 turns it.
+3. **The flash check reads linear light at full resolution** (rule 66): a
+   gamma-space downscale misread cell luminance by up to 0.29, three times the
+   threshold.
+4. **Square first.** §7 surveyed placements; the owner's order is 1:1, then
+   3:4, then 9:16 occasionally, and audits run in that order.
 
-**Three measured departures from this spec:**
+**Gates on every download:** frame 0 against the still, the exact encode
+(Mediabunny, frame by frame, MP4 where the browser can and WebM otherwise),
+and the flash check over every frame. A call to action is built only if it
+passes its own audit (guides, overlaps, the 72px number, 3:1 by the critic's
+method); otherwise the living still runs the whole clip.
 
-1. **No counter.** A price counting up at 30 fps swaps glyphs in place many
-   times a second. Tested against the flash check with a synthetic clip — a
-   $1,100 count at 170 px on a dark ground — it **fails: 10 flashes a second
-   over 33% of a region**. The figure is built as a cascade instead: each
-   character rises once from behind its own baseline, then one stamp. Each
-   glyph region changes state once.
-2. **Flash analysis at full resolution.** Letting `drawImage` downscale the
-   frame first averages in gamma space; against an exact linear-light average
-   it misread cell luminance by up to **0.29** — three times the 0.10 flash
-   threshold. A half-resolution pass still erred by 0.05. The check reads every
-   pixel (~41 ms a frame here) and skips frames the renderer knows are
-   unchanged.
-3. **The layout is stacked on measured glyph bounds.** The first self-audit run
-   caught "UP TO" colliding with "$1,100": a `$` rises above cap height and the
-   layout had estimated glyph heights from ratios of the font size. It now
-   stacks on `measureText` bounds, and the cascade's clip sits on the measured
-   descent.
+**Not verified in this environment:** the H.264 encoder. The container's
+Chromium has no H.264 or AAC encoder, so the WebM path was exercised end to
+end (both buttons, production CSP, files decoded: 10.0 s, 300 frames).
+**Export one clip from Chrome or Safari and play it before announcing it.**
 
-**Not verified in this environment:** the H.264 encoder itself. The container's
-Chromium is an open-source build without H.264 or AAC encoders, and Chrome for
-Testing could not be downloaded (egress 403). Everything around it was
-exercised — rendering, timing, the MP4 muxer (with VP9 inside), audio (Opus),
-decoding the file back — and Mediabunny selects H.264 by codec name. **Export
-one clip from Chrome or Safari and play it before announcing the feature.**
+Measured: see DESIGN-LAW rule 65 and `scripts/motion_audit.mjs`.
 
-`scripts/video_audit.mjs` checks V1–V4 and V7 on real renders, encodes and
-decodes real files, and drives the panel under the production CSP.
-`scripts/video_library_audit.mjs` runs every template. On 2026-09-27: 243
-templates × story and square = 486 clips, with **0** failures of frame 0, **0**
-self-audit failures across 1,458 runs (6, 10 and 15 s), and **0** flash
-failures. The number was on screen at least 99% of the time in every clip. No
-clip needed the contrast fix. 66 of 486 fell back to a white accent, because
-their template has no coloured text that holds contrast on the scene backdrop.
-That is the next lever for colour (DESIGN-LAW rules 51–54).
+*First build, retired the same day:* `video.js`, a timeline of its own scenes
+(kicker, price cascade, three steps, end card) with a self-audit of reading
+time, layout and contrast; 243 templates × 2 formats, 0 frame-0, audit or
+flash failures. Its measured findings survive as rule 66; its look did not.
 
 ## 11. Sources
 

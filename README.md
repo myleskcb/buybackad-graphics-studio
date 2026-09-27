@@ -38,12 +38,33 @@ Free = 3/week, 1080px, watermark, 20 templates · Pro = 100/month, 2160px, all 5
   to these keys.
 
 ## Formats
-The editor supports four canvas formats (topbar picker): **Square 1:1**
-(1080×1080), **Story 9:16** (1080×1920), **Flyer 8.5×11** (1080×1398, prints at
-~250 dpi on a Pro 2× export) and **Wide 16:9** (1920×1080). Templates are
-authored square and re-flow into the chosen format; switching back is lossless.
-Plan pixel caps apply to the short side, so rectangular exports keep their
-aspect. Easy Mode stays square by design.
+**Square 1:1 is the format the ads are designed for; Tall 3:4 comes second and
+Story 9:16 is occasional** (owner, 2026-09-27). Both the editor (topbar picker)
+and Easy Mode (the size chips) offer six: Square 1:1 (1080×1080), Tall 3:4
+(1080×1440), Story 9:16 (1080×1920), Flyer 8.5×11 (1080×1398, prints at ~250
+dpi on a Pro 2× export), Wide 16:9 (1920×1080) and Wide 4:3 (1440×1080).
+Templates are authored square and re-flow into the chosen format; switching
+back is lossless. Plan pixel caps apply to the short side, so rectangular
+exports keep their aspect.
+
+## Video ads
+Every design also downloads as a 10-second video: **Download as video** in
+Easy Mode, **Video** in the editor's export. The clip opens on the finished ad
+(frame 0 is the still, so every feed thumbnail and muted autoplay shows the
+ad), lets it breathe, and at 5.8 s shifts to a call to action built from the
+card's own headline, action line, number and photograph (DESIGN-LAW rule 65).
+It is MP4 (H.264 + AAC) where the browser can encode it and WebM (VP9 + Opus)
+otherwise, encoded frame by frame, so switching tabs does not spoil it.
+
+The export refuses the file, and does not spend an export, if frame 0 does
+not match the still or the clip fails the WCAG 2.3.1 flash check (rule 66).
+
+Checks: `scripts/motion_audit.mjs` (every curated card and classic, per
+format), `scripts/motion_export_check.mjs` (presses both buttons under the
+production CSP and decodes the files), `scripts/motion_gallery.mjs` +
+`scripts/gallery/build.py` (the playback gallery). The H.264 path has not been
+exercised in this repo's test container (its Chromium has no H.264 encoder):
+export one clip from Chrome or Safari before announcing it.
 
 ## SCANS.AD (ScanMap) integration — optional
 Graphics Studio runs 100% standalone. The integration is also **invisible to

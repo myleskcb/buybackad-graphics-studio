@@ -572,3 +572,78 @@ RESUME HERE:
   Marketplace commerce policy. Colour lever for later: the 66 white-accent
   clips could take a hue from their backdrop photo (OKLCH, rule 40) instead of
   white. Measure the contrast before changing it.
+
+---
+
+## 2026-09-27 (night) — The video rebuilt on the new language; plate air
+
+Owner:
+  "this is still bound by our OLD design language", "the bg images / colors
+  don't look very good", "it is a good theme for ads to then shift to a CTA..
+  starts a fully made graphic image ad", "these colored hazes don't look
+  great. Unify with the new design language", "primarily 1:1 or 3:4 but
+  occasionally we will do the 9:16", "primarily design for the square
+  format", and, on CALL FOR INSTANT OFFER edge to edge on its badge, "why
+  can't we seem to catch this? it would need to be shrunk 10-15% to make a
+  minimum margin on the sides".
+
+Changed:
+  - video.js is gone. The video is the trunk's living still plus a shift to
+    the card's own call to action at 5.8 s (DESIGN-LAW rule 65): its own
+    parts on its own photograph, the shade near-black and graded to the copy,
+    dark lines turned light as rule 62 turns them, lines carried with their
+    plates, the words before the picture. Exact encoder, frame-0 gate and
+    flash gate on every download (rule 66).
+  - plateAir() after alignPass, and the same margin measured by
+    audit_collisions.mjs (rule 64).
+  - The three video scripts pin their stub account, assert the card that
+    opened, wait for the photograph, and take --format (rule 67).
+  - Merged the trunk (fervent-pascal: white haze lifted, supportive
+    highlights, rule 63) and the audit thread (vibrant-hawking: the 50 offer
+    cards' big number) before measuring.
+  - The rules this log cited as "51-54" in the two entries above were my
+    first build's drafts; the trunk's rules own those numbers. Their findings
+    are restated as rule 66.
+
+Measured:
+  scripts/motion_audit.mjs, merged trunk:
+  - square, curated 398: call to action on 398 (383 with the headline),
+    frame 0 fails 0, flash fails 0 (worst 13.9% of a region, limit 25%)
+  - square, classics 243: call to action on 238, frame 0 0, flash 0
+  - 3:4, curated 398: call to action on 398, flash 0; frame 0 refused one
+    card per pixel (faint-halo rounding, worst block 4.9 levels), which the
+    block gate passes; a clipped shadow blocks at 17 to 23
+  - 9:16, first 60 curated: 60 of 60, frame 0 0, flash 0
+  scripts/audit_collisions.mjs, --no-air-fix vs plateAir:
+  - classics short of air 25 -> 1, collisions 48 -> 48
+  - showcase records short of air 187 -> 1 (live 56 -> 0), collisions
+    102 -> 101 (live 0 -> 0)
+  scripts/motion_export_check.mjs: both buttons, production CSP, 10.0 s,
+  300 frames, VP9 + Opus, 0 violations, 0 errors.
+  Gallery v2: 26 clips (18 square, 6 at 3:4, 2 at 9:16), all pass.
+
+Learned:
+  - A straddle test cannot see a line that fills its plate: 97% inside is
+    "inside". Air is its own measurement, and it has to be taken in the
+    plate's frame and on ink.
+  - Fourteen "failures" of one shape on fourteen different cards were one
+    classic measured fourteen times (rule 67). Suspect the harness first.
+  - The second pass of the ink turn made a white halo round white type, the
+    haze the owner had just rejected. A treatment tuned to one ink is wrong
+    for the other: the halo goes with the outline. The cards' own light
+    glows (WE BUY GOLD JEWELRY, a green number plate) did the same once the
+    call to action shaded their ground: re-cut dark (rule 27).
+  - A gate turns a quiet flaw into a refused download. The living still had
+    always clipped the tail of a scaled product's shadow (fabric scales a
+    shadow with its object; the bake padded by the unscaled blur); frame 0
+    missed the still by 4,076 pixels on scriptRetro-cd06-15, and the new gate
+    refused it. Fixed at the cause, not by loosening the gate.
+  - A preview must be the download scaled down, not a smaller render: at 480px
+    the call to action re-decided on softer pixels and one card lost its
+    headline in the gallery while keeping it in the file.
+
+RESUME HERE:
+  Export one real MP4 from Chrome or Safari and play it. Then the 3:4 audit
+  of the curated set (scripts/motion_audit.mjs --format three4) if it has not
+  been run, and the one classic still short of air
+  (dl_strips_duoSplit_emerald: its headline is 1.26x its panel).

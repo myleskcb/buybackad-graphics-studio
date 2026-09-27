@@ -11873,13 +11873,23 @@ function motionFrameZero(sc, bake, x){
   rx.drawImage(sc.lowerCanvasEl, 0, 0);
   motionDraw(x, bake, 0);
   const a = x.getImageData(0, 0, W, H).data, b = rx.getImageData(0, 0, W, H).data;
+  /* Judged on 8x8 blocks, not single pixels. A layer drawn onto a
+     transparent canvas and composited back is off by a few levels wherever it
+     is faint (8-bit premultiplied alpha): a light halo at 0.72 read up to 15
+     levels off on 1,769 scattered pixels, invisibly. A real mismatch is a
+     region: a clipped shadow put block means at 17 to 23 levels on hundreds
+     of blocks. Measured worst block for noise 4.9, for a clean card 1.9. */
+  const BS = 8, bw = Math.ceil(W / BS), bsum = new Float32Array(bw * Math.ceil(H / BS));
   let off = 0, most = 0;
-  for (let i = 0; i < a.length; i += 4){
+  for (let i = 0, p = 0; i < a.length; i += 4, p++){
     const d = Math.max(Math.abs(a[i] - b[i]), Math.abs(a[i + 1] - b[i + 1]), Math.abs(a[i + 2] - b[i + 2]));
     if (d > most) most = d;
     if (d > 8) off++;
+    bsum[Math.floor(Math.floor(p / W) / BS) * bw + Math.floor((p % W) / BS)] += d;
   }
-  return { off, most, share: off / (W * H), ok: off / (W * H) < 0.001 };
+  let block = 0;
+  for (let k = 0; k < bsum.length; k++) block = Math.max(block, bsum[k] / (BS * BS));
+  return { off, most, block: +block.toFixed(2), share: off / (W * H), ok: block <= 8 && off / (W * H) < 0.005 };
 }
 async function motionPlan(w, h, sound){
   if (typeof VideoEncoder !== 'function') return null;
