@@ -268,3 +268,26 @@ RESUME HERE:
   Export one clip from real Chrome or Safari, play the MP4, and upload it to
   a Reel and a TikTok draft before announcing the feature. Then read
   Facebook's Marketplace commerce policy by hand (research §7.2).
+
+---
+
+## 2026-09-27 (later) — Library sweep result
+
+Measured:
+  scripts/video_library_audit.mjs, all 243 templates x story + square = 486
+  clips:
+  - frame 0 vs the Export PNG: 0 differing; last frame vs frame 0: 0 differing
+  - self-audit at 6, 10 and 15 s (1,458 runs): 0 failures
+  - whole-clip flash check: 0 failures (worst: 4 transitions/s over 6.9% of a
+    region; the limit is 25%)
+  - number on screen: at least 99% in every clip; contrast fix needed: 0 clips
+  - accent fell back to white: 66 of 486 clips
+
+Changed:
+  DESIGN-LAW rules 51-54 (appended, per rule 42).
+
+RESUME HERE:
+  Unchanged from the entry above: one real MP4 from Chrome or Safari, then the
+  Marketplace commerce policy. Colour lever for later: the 66 white-accent
+  clips could take a hue from their backdrop photo (OKLCH, rule 40) instead of
+  white. Measure the contrast before changing it.

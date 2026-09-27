@@ -997,3 +997,71 @@ specific, wrong numbers:
 Two tests before trusting any new metric: does it return **different** answers
 for inputs you know differ, and does it measure the surface the user actually
 sees? A number that is identical across every condition is not a measurement.
+
+## 51. A video opens and closes on the still, byte for byte
+
+Every grid shows a video as its first frame, and feed content is judged in
+0.25–0.4 s (`docs/VIDEO-AD-RESEARCH.md` §2). So the clip's first frame is the
+finished ad, not a fade, a logo or a blank that fills in. `video.js` draws
+frame 0 through the same fabric path `snapshotPng()` uses. The end card
+returns to the same state, so the clip loops without a seam, and on an
+image-only surface the cover image is the ad.
+
+Measured across the library by `scripts/video_library_audit.mjs` on 2026-09-27: all **243 templates × story
+and square = 486 clips**. Frame 0 differed from the Export PNG in **0** of them.
+The last frame differed from frame 0 in **0**. The self-audit (6, 10 and 15 s,
+1,458 runs) failed **0**, and the whole-clip flash check failed **0**. The worst
+reading was 4 transitions a second over 6.9% of a region, against a 25% limit.
+
+One trap found on the way: an identity transform has to be skipped outright,
+not applied. A round trip through `setPositionByOrigin` can shift `left`/`top`
+by a rounding error, and then frame 0 is no longer the still.
+
+Enforced in `frameZeroMatches()`, which refuses the download on any differing
+byte, and by `scripts/video_library_audit.mjs`.
+
+## 52. Average luminance in linear light, or a flash check is blind
+
+WCAG's flash thresholds are in relative luminance, which is linear light. The
+cheap way to analyse a frame is to let `drawImage` shrink it first, and a
+browser averages those pixels in gamma space. Against an exact linear-light
+average of a real 1080×1920 frame, that misread cell luminance by up to
+**0.29**, nearly three times the 0.10 transition threshold. Halving the
+resolution first still missed by 0.05. The error sits on type edges, which is
+where an ad's motion is, so a gamma-averaged check under-reads real flashes
+exactly where they happen.
+
+`FlashCheck` reads every pixel (~41 ms a frame in a GPU-less container) and
+skips frames the renderer knows are unchanged. It is tested against known
+answers on every audit run. A 7.5 Hz full-frame black/white strobe fails, and a
+5 Hz red strobe fails. A 40 px strobe, under 25% of any region, passes, and so
+does a slow fade.
+
+## 53. A counting number is a flash
+
+The research spec called for a price that counts up and lands. Measured with
+the flash check before it was built: a $1,100 count at 170 px on a dark ground,
+30 fps, **fails WCAG 2.3.1, 10 flashes a second across 33% of a region**. Each
+digit swaps glyph in place many times a second, and a bright accent on a dark
+ground turns every swap into a luminance transition.
+
+Built instead as a cascade: each character rises once from behind its own
+baseline, then the figure takes one stamp. Every glyph region changes state
+once. Slowing the counter was not measured, and is not a safe substitute.
+
+## 54. Stack type on measured glyph bounds, not on ratios of the font size
+
+The first self-audit run caught "UP TO" colliding with "$1,100". The layout
+estimated each line's height as a fraction of its font size, and a `$` rises
+above cap height while a comma drops below the baseline. Ratios that hold for
+one face and one string fail for the next.
+
+The price scene now stacks on `measureText` bounds
+(`actualBoundingBoxAscent` and `…Descent`). The cascade's clip sits on the
+line's measured descent, so a settled comma is whole.
+
+The check that caught it is the general one. While the self-audit runs, every
+line and shape the renderer draws is recorded with its real box through the
+current transform. Layout and contrast are judged on those boxes, and on the
+backdrop measured on the same frame drawn without its text (rules 22 and 35).
+It is not judged on the layout model, which is exactly what was wrong.

@@ -585,8 +585,13 @@ one clip from Chrome or Safari and play it before announcing the feature.**
 
 `scripts/video_audit.mjs` checks V1–V4 and V7 on real renders, encodes and
 decodes real files, and drives the panel under the production CSP.
-`scripts/video_library_audit.mjs` runs every template. Library results: see the
-learning log entry for 2026-09-27.
+`scripts/video_library_audit.mjs` runs every template. On 2026-09-27: 243
+templates × story and square = 486 clips, with **0** failures of frame 0, **0**
+self-audit failures across 1,458 runs (6, 10 and 15 s), and **0** flash
+failures. The number was on screen at least 99% of the time in every clip. No
+clip needed the contrast fix. 66 of 486 fell back to a white accent, because
+their template has no coloured text that holds contrast on the scene backdrop.
+That is the next lever for colour (DESIGN-LAW rules 51–54).
 
 ## 11. Sources
 
