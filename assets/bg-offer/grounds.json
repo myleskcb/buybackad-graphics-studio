@@ -150,5 +150,19 @@
    "file": "space-galaxy-hubble-telescope-1",
    "p90": 170
   }
+ ],
+ "gaming": [
+  {
+   "file": "gaming-rgb-desk-setup",
+   "p90": 160
+  },
+  {
+   "file": "gaming-bedroom-night",
+   "p90": 96
+  },
+  {
+   "file": "gaming-living-room-tv",
+   "p90": 179
+  }
  ]
 }

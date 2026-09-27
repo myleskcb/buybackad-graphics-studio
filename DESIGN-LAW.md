@@ -40,6 +40,9 @@ Strokes on **rects and circles stay** — those are frames and hairline rules
 doing structural work. 190 of them are load-bearing. Only the 139 on type were
 removed.
 
+(2026-09-27: the street and outline tagline styles put a rim on type when the
+visitor asks for it; rule 72.)
+
 ### 2. Type separates from photography with one tight, dense, neutral shadow
 Not an outline, not a glow, not a hard offset. Dense (0.72 alpha at hero
 sizes) because it is doing the job the outline used to do — a polite 0.4 alpha
@@ -68,6 +71,10 @@ WordArt. Past **40° of hue travel** it is flattened to its dominant stop.
 
 A gradient from a neutral into a colour (white into gold) is left alone. That
 is the money-word treatment, not a rainbow.
+
+(2026-09-27: this holds for one money word. A cohesive sweep repeated on every
+selling line, carried by a rim, is the owner's pick and may travel hue: the
+street, gradient and pair tagline styles, rule 72.)
 
 ### 6. No starbursts, ever
 The 14-spike disc behind a price is 1990s clearance-rack retail. It was the
@@ -1759,3 +1766,105 @@ gray sections should have a background image".
   reading face for the steps and the number. When none of a category's faces
   can set a headline in a layout at 1.3x the number, the general faces do,
   rather than the card being dropped.
+
+## 72. A choice is made once and holds everywhere: every template, every family, the picture and the video
+
+Added 2026-09-27. The owner: "You don't build anything in this repo if it's not
+100% unified into all design language not just portions ... have it as a
+possibility in all possible templates so video elements could be possible in
+templates and vice versa so we don't have logic that only applies to one type
+of ad or worse, one type of category only ... at the end of the day this is
+gonna be one engine inside of the GFX studio site".
+
+- **A choice lives where the pictures are made, never in a family.** The
+  tagline style (the owner's picks from the Tagline Lab: as designed, street,
+  gradient, blocks, pair, outline) is applied in `renderEzCanvas()`, which
+  makes Easy Mode's preview, every download, the category pack and the video
+  (MOTION animates that same scene), and on the editor's canvas
+  (`loadTemplate`, the hand-off from Easy Mode, the editor's own row). No
+  code path styles one family or one category.
+- **A card's colours come from the card** (`tplPalette`): the theme the
+  visitor picked on it, else its family's own palette (a showcase record, a
+  designer or street PAL, an offer look), else the scene's most colourful ink,
+  else the owner's reference sweep (orange into yellow).
+- **A style reads the ground it lands on, and keeps the contrast the line was
+  designed with** (3.2:1 at the least, 4.5:1 asked at the most). The gradient
+  and pair sweeps solve their lightness on the line's measured ground; street
+  darkens a plate or a mid-toned band under a line (the reference's dark
+  bands) and gives a line on a large light panel the same sweep, deep and
+  without the rim; outline is heavier with a soft halo on a light ground; the
+  design's own ink says which side of the ground a line was set on when a
+  translucent panel measures mid-grey. Type under 34px keeps its design: a
+  3px rim on a 20px label is a smudge.
+- **A style that would break a card gives way and says so.** Blocks are
+  measured from the drawn ink before anything moves; a block that would land
+  on other copy or the product, or reach within 2.5% of the card's edge, turns
+  that card to the outline, and the row says why.
+- **A style can be switched on a canvas someone has edited.** What a style
+  changes is recorded on the object (`pgTagRest`, kept through undo, autosave
+  and saved designs) and `taglineReset` puts the designed card back first; a
+  block follows its line through a drag, a retype and a format switch.
+- **It is measured on every family.** `scripts/tagline_audit.mjs` opens two
+  templates of every family and category the way a visitor does, picks each
+  style the way the row does, and runs the critic (rule 54) on every line and
+  the video's frame-zero check (rule 65): every style passes on all 82.
+  Building it found a bug in the video that no one style owned: the bake
+  cropped a moving line to its box plus 6px, and an italic T reaches past its
+  box, so on a line with no shadow (on a block) the video cut the end off the
+  T. A moving text's crop now allows a third of its size.
+
+Rules 1 and 5, amended by the owner's picks. Rule 5 stands for a single money
+word: a rainbow on one word still lands in "mid" (the MATTHEW study). A
+cohesive sweep repeated on every selling line and carried by a rim is a
+different thing and the owner's favourite (the #1 BUYER reference), so the
+street, gradient and pair styles may travel hue. Rule 1 (no outlines on type)
+stands for the templates as designed; the street and outline styles are a rim
+the visitor asks for, and the critic measures them like any other line.
+
+## 73. A product stands off its photograph's subject
+
+Added 2026-09-27. The owner: "keep in mind where the background subject is in
+relation to the secondary asset to show another version/view of the product
+... we don't want it to entirely cover the content of our background subject,
+if possible sometimes it's OK or a little bit but consistently starts to look
+bad or confusing, especially when we're talking about centered images and then
+we happen to center something on top of it" (gold coins over the ring
+photograph, the strip fan over the Contour bottle).
+
+- **Where the eye goes is mapped, not guessed.** `scripts/photo_subjects.py`
+  maps every photograph a product can stand on (every offer ground, the
+  designer and street scenes, each photograph a showcase card puts a product
+  over) into 16 x 16 cells of where it draws the eye: what stands out at
+  object scale (spectral residual saliency), what differs from the picture's
+  own edges, what is in focus. A box would not do: the ring photograph is
+  rings from edge to edge with the one that matters in the middle. Subjects
+  checked by eye are set by hand (`BOX`). The table loads with the page
+  (`photo-subjects.js`).
+- **Covering is two things** (`coversSubject`): hiding much of the subject (at
+  least 30% of it, and 1.35 times the product's share of the card, so a
+  full-frame texture covered in proportion is fine), or sitting on the centre
+  of a concentrated subject (a ring, a bottle, a coin) and hiding at least 12%
+  of it.
+- **The product moves, the words do not** (`productYield`, with alignPass, so
+  every family and every surface gets the same card: Easy Mode, the editor,
+  the thumbnails, the video). The smallest move, then the least shrink (never
+  below 85%), that shows the subject: 40% less of it hidden, or off its
+  centre by 6% of the card and a fifth less hidden. It never lands on a word,
+  a plate (a full-width band counts; a shade that fades to nothing does not)
+  or another product it was not on, never leaves its 6% guides (or the bleed
+  it was designed with) or the plate it stands on; a glow or shadow drawn
+  under it goes with it. Where no such place exists it stays: a little cover
+  is fine, a broken card is not.
+- **A room is context, not a rival subject.** A console in front of the
+  gaming room's TV reads as a console in a room, and the map's weight on a
+  screen is shared with its strips and panels, so it is not moved. Tried the
+  other way (each room's screen set as its subject), 13 of the 30 gaming
+  cards moved and most came out worse: products pushed into corners and onto
+  the bands.
+- `scripts/subject_audit.mjs` paints every card with a product on a mapped
+  photograph with the pass off and on, and lists what moved and what still
+  covers. 2026-09-27, 427 cards: designer 0 of 30 cover their photograph's
+  subject; street 1 of 37 (moved); offer 7 of 140 (4 moved, 3 still cover a
+  little: cameras over city lights, a laptop over the moon, the strip fan in
+  the narrow split layout); showcase 0 of 220 (its products hide at most 12%
+  of a subject).

@@ -45,6 +45,9 @@
 /offer-assets.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/photo-subjects.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 /styles.css
   Cache-Control: public, max-age=0, must-revalidate
 

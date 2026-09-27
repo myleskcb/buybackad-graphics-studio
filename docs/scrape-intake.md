@@ -29,7 +29,9 @@ What the script does with each kind:
   shop): that one needs cutting out by hand first.
 - **photo** (a ground behind the offer cards): centre-cropped to the 1080 card
   and measured so the shade under its white type is exactly as strong as it
-  needs to be (DESIGN-LAW 56).
+  needs to be (DESIGN-LAW 56). Then run `python3 scripts/photo_subjects.py`:
+  it maps where the photograph draws the eye, so a product drawn over it
+  stands off its subject (DESIGN-LAW 73).
 
 Everything landed is credited (`assets/cutouts/ATTRIBUTION.json`,
 `assets/bg-offer/ATTRIBUTION.json`), registered in `assets/library.json`,
@@ -89,7 +91,21 @@ packshots, whole, on a plain background, 1000px or more on the long side.
    Chromebook boxes (Acer, HP, Lenovo); Ray-Ban Meta glasses with the case.
    A line's headlines stay as they are, so pick pictures that show what they
    name ("Steam Deck or ROG Ally? We buy both." wants both).
-5. **Phones without a photograph of their own** (they stand on NASA
+5. **Gaming rooms** (grounds, `kind=photo`, `line=console`; the owner:
+   "gamer bedrooms, gamer living rooms, aesthetic gaming set ups"). The gaming
+   lines, gaming headsets and monitors stand on three drawn placeholders today
+   (`scripts/make_gaming_grounds.py`: an RGB desk setup, a bedroom at night, a
+   living room with the TV). Wanted, one or more of each:
+   - an aesthetic setup: a desk against a wall, RGB strip or light panels, a
+     monitor or two, a tower with a glass side;
+   - a gamer's bedroom at night: the bed, an LED strip, a desk with its screen;
+   - a living room: a TV with the console under it, bias lighting, the couch.
+   Wide, from a little back, the room in soft focus and nothing branded in
+   the middle: the product is drawn over it, and the lower third carries the
+   steps and the number. Landed as `photo` rows they join the gaming grounds;
+   delete the `gaming-*` placeholders from `assets/bg-offer` and
+   `GROUNDS.gaming` in offer-library.js once three real rooms are in.
+6. **Phones without a photograph of their own** (they stand on NASA
    pictures today): Galaxy S24 and S25 Ultra, Pixel 9 and 9 Pro, Galaxy Z Fold
    and Flip, Pixel Fold, Galaxy Tab. Grounds (`kind=photo`) for the tech lines
-   too: a gaming desk, a studio desk, a camera bag.
+   too: a studio desk, a camera bag.

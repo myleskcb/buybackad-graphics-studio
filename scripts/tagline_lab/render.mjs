@@ -22,7 +22,8 @@ const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/M
 const BASE = process.env.GFX_BASE || 'http://localhost:8899/';
 const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k); return i < 0 ? d : argv[i + 1]; };
 const IDS = arg('--ids', '') ? arg('--ids', '').split(',') : null, PX = +arg('--px', 540);
-const STYLES = ['solid', 'street', 'gradient', 'outline', 'blocks', 'pair', 'pattern'];
+// the offered styles (app.js TAGLINE_STYLES; pattern was dropped by the owner)
+const STYLES = ['solid', 'street', 'gradient', 'outline', 'blocks', 'pair'];
 const OUT = new URL('../../.render/tagline/', import.meta.url).pathname;
 mkdirSync(OUT, { recursive: true });
 const fab = process.env.FABRIC_JS ? readFileSync(process.env.FABRIC_JS) : null;
@@ -76,10 +77,11 @@ for (const [n, c] of cards.entries()){
     const lum = (d, k) => 0.2126 * lin(d[k]) + 0.7152 * lin(d[k + 1]) + 0.0722 * lin(d[k + 2]);
     const out = [];
     for (const style of STYLES){
+      // the product's own path: the style the Tagline style row sets, applied inside renderEzCanvas (DESIGN-LAW 72)
+      ez.tagline = style;
       const sc = renderEzCanvas(1080, 'png', undefined, undefined, 'square', true);
       const W = sc.width, H = sc.height;
-      const info = taglineStyle(sc, style, pal, W, H);
-      plateAir(sc, W, H);
+      const info = ez.tagInfo || { touched: 0 };
       sc.renderAll();
       const ctx = sc.lowerCanvasEl.getContext('2d'), full = ctx.getImageData(0, 0, W, H).data;
       // the critic (rule 54), per critical line

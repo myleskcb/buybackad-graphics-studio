@@ -346,8 +346,13 @@
     mac: [{ file:'macbook-macbook-on-desk-1', p90:208 }, { file:'macbook-macbook-pro-m3-1', p90:198 }, { file:'macbook-macbook-air-2', p90:34 }],
     space: [{ file:'space-earth-from-iss-night-1', p90:130 }, { file:'space-earth-from-iss-night-3', p90:22 }, { file:'space-moon-surface-nasa-4', p90:99 }, { file:'space-earth-from-iss-night-4', p90:99 }, { file:'space-aurora-from-space-3', p90:172 }, { file:'space-galaxy-hubble-telescope-1', p90:170 }],
   };
+  /* the gaming lines stand in gamers' rooms (the owner: "gamer bedrooms, gamer
+     living rooms, aesthetic gaming set ups"), drawn by
+     scripts/make_gaming_grounds.py until the photographs come; gaming
+     headsets and monitors live in the same rooms */
+  GROUNDS.gaming = [{ file:'gaming-rgb-desk-setup', p90:160 }, { file:'gaming-living-room-tv', p90:179 }, { file:'gaming-bedroom-night', p90:96 }];
   const GROUND_OF = { iphone:'iphone', ipad:'iphone', mac:'mac', gold:'gold', silver:'silver', coins:'coins', car:'cars',
-    strips:'strips', pokemon:'pokemon', sports:'sports' };
+    strips:'strips', pokemon:'pokemon', sports:'sports', gaming:'gaming', headset:'gaming', monitor:'gaming' };
   /* white on black-shaded pixels of luminance v: v * (1 - a) <= 118 is 4.5:1;
      110 and 0.05 are the margin */
   const shadeFor = p90 => +Math.max(0.2, Math.min(0.82, 1 - 110 / Math.max(1, p90) + 0.05)).toFixed(2);
@@ -643,11 +648,13 @@
         if (layers) built = { look, F, head, layers, L };
       }
       if (!built) return;
-      const { look, F, layers } = built;
+      const { look, F, layers, L } = built;
       made.push({
         id: 'of_' + line.key + '_' + lay + '_' + look,
         name: line.label + ' · ' + LAYOUT_NAME[lay],
         tag: 'offer', cat: line.cat, tier: 'premium', line: line.key, layout: lay, look, faces: [F.d, F.r],
+        /* the look's colours, for the tagline styles every template offers (app.js tplPalette) */
+        palette: typeof palFromColors === 'function' ? palFromColors([L.band, L.acc, L.g1, L.g2]) : null,
         bg: { type:'image', src:G.src, fallback:{ type:'grad', c1:'#1b1e24', c2:'#0b0d10', a:180 } },
         photoIsDesign: true,
         layers,

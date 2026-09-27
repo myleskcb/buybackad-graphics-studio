@@ -95,6 +95,11 @@ TWENTY-FOUR PHOTOGRAPHS (calm backdrops only; version 1 had the first twelve):
   concrete-window-shadow, desert-road-dusk, neon-sign-blur, rooftop-dusk-skyline,
   earth-at-night-from-orbit (NASA, public domain), moon-limb-dark (NASA, public domain),
   aurora-from-orbit (NASA, public domain), galaxy-dark-field (NASA, public domain).
+FOR THE GAMING CARDS (consoles, Switch, controllers, handhelds, gaming PCs and laptops, VR,
+gaming headsets, monitors) a gamer's room instead of space (the owner, 2026-09-27: "gamer
+bedrooms, gamer living rooms, aesthetic gaming set ups"): an RGB desk setup, a bedroom at
+night, a living room with the TV and the console under it. Wide, soft focus, nothing branded
+in the middle: the room is the setting the product stands in (DESIGN-LAW 73).
 Never a table in perspective under a flat product picture. The photograph keeps its own
 colour: no duotone, no tint; shade is black and even, only as strong as the words need.
 
