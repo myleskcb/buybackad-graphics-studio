@@ -22,7 +22,7 @@ TW = json.load(open(WORK + '/text_weights.json'))
 
 X_L, X_R, Y_B = 91, 1109, 1140          # the ads' own text margins; the brief's 60px safe margin
 SUPPORT, SMALL = 40, 30                  # the brief's type scale
-GAP_BRAND = 48
+GAP_BRAND = int(os.environ.get('OFFER_BRAND_GAP', 48))   # clear space between the number and the brand line
 
 def ink_box(f, text):
     """ink bbox relative to a left-baseline origin"""
@@ -45,9 +45,15 @@ def plan(ad):
     verb_w, brand_w = vb[2] - vb[0], bb[2] - bb[0]
     word_gap = round(0.3 * SUPPORT)
     n_hier = int(0.77 * hl['size'])
+    # the owner's call (2026-09-27, "now double down"): the number at a fixed
+    # size, double the generator's 40px, whatever the headline; everything
+    # else (the safe margin, the width, the gap to the brand) still holds
+    fixed = int(os.environ['OFFER_NUMBER_PX']) if os.environ.get('OFFER_NUMBER_PX') else None
+    n_top = fixed if fixed else n_hier
+    n_floor = fixed if fixed else 39
     best = None
     for layout in ('inline', 'stacked'):
-        for N in range(n_hier, 39, -1):
+        for N in range(n_top, n_floor - 1, -1):
             fn = font(fam, N, w_num); nb = ink_box(fn, number)
             num_w, num_h = nb[2] - nb[0], nb[3] - nb[1]
             if layout == 'inline':
@@ -74,6 +80,8 @@ def plan(ad):
             # would cost the number more than a tenth of its size
             if not best or (layout == 'stacked' and N > best['N'] / 0.9): best = cand
             break
+    if best is None:
+        raise SystemExit('card %02d: a %spx number does not fit (width, safe margin or the gap to the steps)' % (ad['n'], n_top))
     best.update(fam=fam, w_num=w_num, w_brand=w_brand, verb=verb, number=number, brand=brand, n_hier=n_hier, studio=studio)
     return best
 

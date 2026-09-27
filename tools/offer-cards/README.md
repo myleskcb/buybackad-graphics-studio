@@ -35,11 +35,24 @@ then the verb stands over the brand on the right.
     python3 analyze.py && python3 headline.py && python3 weights.py
     python3 compose.py && python3 sheet.py        # -> out/social, out/sheet-social.jpg
 
+The owner then doubled down (2026-09-27): the number at 80px on every card,
+double the generator's 40px, whatever the headline. That is the delivered
+set, made with
+
+    OFFER_NUMBER_PX=80 OFFER_BRAND_GAP=40 python3 compose.py && python3 sheet.py
+
+`OFFER_NUMBER_PX` fixes the size (the headline cap no longer applies; the safe
+margin, the width and the gap to the steps still do, and a card that cannot
+hold it stops the run). `OFFER_BRAND_GAP` is the clear space between the
+number and iPhones.LA/sell (48 by default; 40 keeps four more sentences on
+one line at 80px).
+
 Check `headline.py`'s output before composing: a headline whose size is far
 from its neighbours (the generator sets about 84px on two-line studio
 headlines and about 99px on photo bands and lists) needs its lines in
 `headline-lines.json`.
 
 `measurements/` holds the 2026-09-27 batch's numbers; with them the scripts
-reproduce the delivered cards pixel for pixel. Needs Python 3 with Pillow
+reproduce both deliveries pixel for pixel (`number-report.json`: the number
+under the headline cap, 59 to 80px; `number-report-80.json`: 80px). Needs Python 3 with Pillow
 (raqm), numpy and fontTools.

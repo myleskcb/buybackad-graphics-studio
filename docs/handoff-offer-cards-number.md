@@ -39,6 +39,23 @@ headlines and break the brief's hierarchy rule. **To get an 80px number on
 every card, the generator has to set studio-row headlines at about 104px**
 (from 84), which is the owner's call; the rest follows.
 
+## Then, 2026-09-27: doubled to 80px
+
+Shown the result above, the owner said "now double down". The delivered set
+(`webuy-offer-ads-50-number-80.zip`) has the number at **80px on every social
+card**, double the generator's 40px, same face, weight and colour. 26 cards
+keep "Text (562) 999-4994" on one line with iPhones.LA/sell right-aligned; on
+the other 24 ("Call or text", or a monospace face) the line does not fit at
+80px, so the verb stands over iPhones.LA/sell on the right. Studio bars grew by
+up to 18px, never within 24px of the steps; the 60px safe margin and 4.5:1
+contrast hold; the marketplace set is unchanged.
+
+The trade the owner chose: at 80px the number rivals the headline on the
+studio cards (headlines 80 to 87px) and a few photo bands, so the brief's
+"largest type at least 1.3x the next" no longer holds there. The generator can
+restore it where pictures cannot: set studio-row headlines at about 104px and
+re-lay the card around them.
+
 ## Where the generator lives
 
 The 50 are the **offer cards** from the study session "Teaching the Engine
@@ -107,27 +124,26 @@ of the Studio change.
 ```text
 In loganipad/iphoneslainv: the offer cards (app/ad_offers.py, app/design_school/offer.py,
 scripts/offer_ads.py, the Offer look on /ads) set the phone number at 40px, the support
-size, in the social version's action band. Owner: "lacking a big/medium phone number for
-people to contact us." The Graphics Studio fixed the 50 of 2026-09-25 on the pictures
-(tools/offer-cards in buybackad-graphics-studio); make the generator do it, so the next
-batch comes out right.
+size, in the social version's action band. The owner wants it doubled: the Graphics Studio
+put it at 80px on the 50 of 2026-09-25 from the pictures (tools/offer-cards in
+buybackad-graphics-studio). Make the generator do it, so the next batch comes out right.
 
-Rule, as applied to those 50 (1200px card, social version only):
-- the number's size = the smallest of 0.77x the headline's size (the brief: the largest
-  type is at least 1.3x the next), what the action band holds inside the 60px safe
-  margin, and what the width holds with 48px to the brand line. That gave 59-80px
-  (median 66) at today's headline sizes (about 84px studio rows, 99px bands and lists).
-- the card's reading face at the action line's own weight, in the action colour
-- keep the sentence on one baseline: the verb ("Text" / "Call or text") at the 40px
-  support size, then the number, then iPhones.LA/sell right-aligned at 30px. If that
-  would cost the number more than a tenth of its size, put the verb over the brand
-  line on the right instead.
-- a studio action bar may grow up to 30px to hold it, never closer than 24px to the steps
-- contrast 4.5:1 letter by letter; the marketplace version keeps no number
-Add "number size" to the type scale in app/design_tokens.json (it is a fourth size beside
-headline, 40px support and 30px small) and a design-school check that fails a social card
-whose number is under 0.62x its headline. Ask the owner whether studio-row headlines
-should go from 84px to about 104px, which is what an 80px number on every card needs.
+Rule for the social version (1200px card), as delivered:
+- the number at 80px, in the card's reading face at the action line's own weight and
+  in the action colour; contrast 4.5:1 letter by letter
+- keep the sentence on one baseline where it fits: the verb ("Text" / "Call or text")
+  at the 40px support size, the number, then iPhones.LA/sell right-aligned at 30px with
+  at least 40px clear before it. Where it does not fit (a long verb, a monospace face),
+  put the verb over the brand line on the right and give the number the left.
+- the action band grows to hold it inside the 60px safe margin, never closer than 24px
+  to the steps
+- the marketplace version keeps no number and no web address
+- the headline must still lead: raise studio-row headlines from about 84px to about
+  104px (1.3x the number) and re-lay the card around them; photo bands and studio lists
+  (about 99px) need about 104px too
+Add "number" to the type scale in app/design_tokens.json (a fourth size: headline, number
+80px, support 40px, small 30px) and a design-school check that fails a social card whose
+number is under 80px or whose headline is under 1.3x it.
 ```
 
 ## Also found, for the phone ad engine's own repo (not fixed here)
