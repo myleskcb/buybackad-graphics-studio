@@ -256,3 +256,53 @@ Still open:
   neutral shade can serve. Rebuild that layout rather than special-case it.
 - **Not verified here** (no route to them from the session): the live site,
   Stripe and sign-in, the Netlify headers as served. Draft-deploy and look.
+
+## J. 2026-09-27 — the offer family, new categories, and what must not ship
+
+What landed (DESIGN-LAW 57-59, the log entry of the same date has the numbers):
+the offer family (`offer-library.js`, 161 cards over 35 buying lines, six
+layouts, twenty looks, twelve pairings, in all 13 categories, five of them
+new), the picture flags (`assets/cutout-flags.json`: garbled, wrong product,
+cut off at the frame, broken, too small) with every showcase card's picture
+swapped for a whole one, the invented-claim rewrite (`refresh_copy.mjs` CLAIM /
+CLAIM_FIX), the Studio's own templates held to the showcase's bar
+(`template-holds.js`), and the v2 generator brief
+(`docs/offer-cards-prompt-v2.md`).
+
+After any change to app.js's templates, the passes or the tables, re-run in
+this order (each with the tables after it switched off by its own flag, as §I):
+
+    python3 scripts/cutout_edges.py                    # new pictures: cut off at the frame?
+    python3 scripts/swap_flagged_cutouts.py --write    # showcase cards off flagged pictures
+    node scripts/honest_claims.mjs --write             # invented facts rewritten
+    ... the §I showcase chain (overlap, legibility, school, content, rethumb) ...
+    node scripts/audit_templates.mjs --write           # classics + offer family -> template-holds.js
+    node scripts/landing_check.mjs
+
+To add a product picture: put the cutout in assets/cutouts (trimmed, whole,
+at least 1.5x the size it will be drawn), OCR it and run cutout_edges.py, look
+at it, then give the line a `sets` entry in offer-library.js with its pixel
+size in SIZE. The type-only lines waiting for one: PC handhelds, gaming PCs,
+gaming headsets, SSDs, mini PCs, sealed Chromebooks, Meta glasses.
+
+Still open:
+
+- **Product photos from the web.** The owner offered Wikimedia Commons and the
+  makers' and retailers' pictures; this container's network policy denies
+  those hosts (Network access in the environment settings would open them).
+  The v2 brief describes the sourcing for the owner's Mac.
+- **Held classics.** 108 of 243 fail the bar and are out of the Studio: 41 of
+  the 50 hand-built ones (three typefaces, a headline that does not win) and
+  the voltStack, stepsFlow, gradientWave, diagonalRush and agencyGrid layouts
+  in every category (box overlaps, a headline under 1.3x the number). Fixing a
+  layout function brings back eight at once, but its number block
+  (assets/number-fix.json) must be re-baked after: `number_block.mjs --classics`.
+- **Held showcase cards.** 279 of 971 fail a check (249 the design school,
+  22 a product or line over the words, 13 a shape over the words, 10 a line
+  under 3:1, 5 the same words twice; a card can fail more than one). They are
+  hidden, not deleted.
+- **The six offer-card headlines** in the review (docs/offer-cards-prompt-v2.md)
+  need drawing again on the owner's Mac, both versions of each.
+- **Not verified here**: the live site and the Netlify headers as served (the
+  two new scripts are revalidated like app.js; faces.css is versioned in its
+  URL because /assets/fonts/* is immutable for a year). Draft-deploy and look.

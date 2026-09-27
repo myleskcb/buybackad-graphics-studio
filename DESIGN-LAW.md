@@ -1222,3 +1222,99 @@ direction, 344 neutral lines); classics 128 of 129 natural via
 `assets/ground-fix.json` (neon_sell keeps its grade: its number is carried by
 a plate no neutral shade can serve); Easy Mode themes 21 of 21 pass, every hue
 kept.
+
+## 57. A product picture is a claim: it must be the product, whole, and legible
+
+Added 2026-09-27. The owner: "Audit any overlapping issues, bad assets, or
+inaccurate info / flaws. or bad copy gets removed." The library's product
+pictures had been checked for their subject (rule: an iPhone on a sports card
+is wrong) and never for what they are. Most are AI renders, and an AI render
+can letter a product wrong, invent a camera, or leave half a hand in frame.
+
+Found by OCR over all 478 cutouts (RapidOCR) and by eye over every cutout a
+live template draws:
+
+- **garbled lettering**: gold bars stamped BOLD, silver bars WILD GOLD and
+  WILD BOLD, a banknote reading FDDERALRESDRVENOTE, a keyboard with a
+  "copslock" key, phone backs reading Addrorid, AMDFORIO and AHDImONO;
+- **the wrong product**: three "iPhones" that are Android phones (one has a
+  rear fingerprint sensor), "Pokemon" boosters with another game's art, rapid
+  test cassettes on the diabetic test strip ads, playing cards as sports cards,
+  euro coin rolls on a US coin ad;
+- **cut off at the frame**: 24 pictures whose subject the photograph cut (a
+  truck without its front, gold bars sliced at both ends, phones without their
+  bottoms), found by `scripts/cutout_edges.py`: a cutout trimmed to its own
+  edges is anti-aliased all the way round, a crop meets the frame with a run of
+  fully opaque pixels (0 on every edge for a whole product, 0.25 or more of an
+  edge for these);
+- **broken**: a key fob with a fragment of a hand, two phones with the wavy edge a hand leaves when
+  it is cut away, a smeared binder, a stray orange ball;
+- **too small**: a 144px coin drawn at up to 2.6x on six coin cards, a 365px
+  key fob at 1.5x, a 222px iPhone at 2.5x.
+
+59 pictures are listed in `assets/cutout-flags.json` with the reason. The rule:
+
+- **A flagged picture never ships.** A card that drew one gets a clean
+  picture of the same kind of thing, fitted inside the old one's footprint so
+  nothing new overlaps (`scripts/swap_flagged_cutouts.py`); the classics'
+  product pools and street rows use whole, full-size pictures.
+- **No picture is drawn past 1.5x its own pixels** on the 1080 card (soft on a
+  Free export, 3x on Pro); 1.0x to 1.5x is a warning.
+- **No clean picture, no picture**: a buying line the library has no clean
+  picture of is set in type (the offer family's type layout), never over a
+  near-miss device.
+- A new picture is OCR'd, edge-tested and looked at before it is used.
+- **A layer that draws nothing is removed, not shipped.** Three car cards
+  carried a brand-logo layer the lab had inked (`logo:assets/logos/…`); app.js
+  has no inking step, so in the Studio it was an empty layer called Brand
+  Logo, and marks are type only in any case (the ICONS and wordmark notes in
+  app.js). The layers were taken out; the audit no longer counts a `logo:`
+  layer as a missing product picture.
+
+## 58. A headline claims no more than the picture shows and the shop buys
+
+Added 2026-09-27, the same instruction. Rule 55 took out ratings, prices,
+hours and dashes. The same kind of claim was still there in other words:
+
+- **a rank**: #1 TOP BUYER, WE BEAT, "show us their number, we fix it",
+  and in a second pass WE TOP, WE OUTBID and WE MATCH THE COIN SHOP (57
+  showcase headlines), WE PAY MORE, MORE THAN THE PAWN SHOP;
+- **a clock**: "Snap photos, text them over. 30 seconds." (81 showcase cards),
+  "Firm quote in minutes" (81), GET AN INSTANT OFFER (53), OFFER IN 10 MINUTES;
+- **a service the reseller may not run**: WE MEET YOU LOCALLY OR YOU MAIL IT
+  IN, LOCAL PICKUP OR PREPAID MAIL-IN, MAIL-IN KITS AVAILABLE, HOUSE CALLS,
+  7 DAYS, EVALUATIONS DAILY; on the car cards FREE TOW (51 showcase lines),
+  CASH IN HAND BEFORE WE TOW, SAME-DAY PICKUP ACROSS LA & OC, TITLE AND DMV
+  PAPERWORK HANDLED, LIEN PAYOFF;
+- **the law**: NO SMOG NEEDED, "NO TITLE? WE STILL WANT IT.": what a car sale
+  needs is the state's to say, not a template's;
+- **a policy nobody set**: NO LOWBALLS, COMPS SHOWN WITH EVERY OFFER,
+  DOCUMENTED FAIR-MARKET OFFERS, PAYING COLLECTOR PRICES, NOT MELT;
+- **a reputation nobody gave**: TRUSTED (205 showcase lines), HONEST GRADING;
+- **more than is bought or shown**: EVERY SEALED BOX, and on the owner's 50
+  offer cards "We buy all three" over four kinds of device, "Every Apple device
+  in the drawer is cash" over models lines that stop at iPhone 11 and M1.
+
+`scripts/refresh_copy.mjs` CLAIM names them and CLAIM_FIX says what each says
+instead, in the same room ("GET A CASH OFFER", "A firm quote by text. Zero
+obligation.", "CASH / NO FEES / LOCAL", "SKIP THE COIN SHOP", "AS-IS / SAME
+DAY / NO FEES", "CASH IN HAND WHEN WE MEET"); `scripts/honest_claims.mjs`
+applied it to 540 lines on 423 showcase cards, then 150 more on 116 in the
+second pass, and the same words were edited in app.js. A comparison becomes
+an invitation (SKIP THE COIN SHOP says where to sell, not that we pay more).
+The audits reject what is left. One star either side of a word is an ornament;
+a star row or a number with a star is a rating. A headline names only what the
+picture shows or the kind of thing it shows; "all three" needs three.
+
+## 59. Every template the studio builds meets the showcase's bar, or is held back
+
+Added 2026-09-27. The showcase was measured by four audits and the landing hid
+what they rejected; the 243 templates the studio builds at load were never
+held to that bar. `scripts/audit_templates.mjs` now measures every one of
+them, the offer family included, with the showcase's own measures (overlap,
+legibility, the design school) plus the rules above (a flagged or stretched
+picture, invented copy, the wrong device, the same words twice), and writes
+the ones that fail to `template-holds.js`. app.js takes them out of TEMPLATES
+once every template-building script has run, before the page is drawn.
+`?noholds=1` keeps them, for the audit.
+A hold is data somebody can read: the id and the reasons.

@@ -279,3 +279,87 @@ RESUME HERE:
   phone) before --prod. Then the iPhones LA session: run the paste-ready
   prompt in docs/handoff-offer-cards-number.md, and check its server accepts
   pictures that carry the number.
+
+## 2026-09-27 — The offer cards in every category, and what must not ship
+
+Asked:
+  "Double the variation and make an alternate prompt for the same style but
+  more variations.. the best ones we go ahead and apply to multiple
+  categories." Then, mid-way: "Audit any overlapping issues, bad assets, or
+  inaccurate info / flaws. or bad copy gets removed", and the buying lines
+  next to phones (Samsung, Pixel, foldables, Meta glasses, consoles, PS5 and
+  Xbox, Steam Deck and ROG Ally, Switch, gaming PCs, headphones and gaming
+  headsets, controllers, monitors, SSDs, mini PCs, sealed Chromebooks):
+  "this is alternate media and we will create some alternate categories for".
+
+Measured:
+  - The product pictures, as pictures: OCR over all 478 cutouts found garbled
+    lettering on 14 (BOLD gold bars, WILD GOLD silver, FDDERALRESDRVENOTE,
+    "copslock", Addrorid); an edge test (a crop meets the frame with fully
+    opaque pixels, a real edge is anti-aliased) found 24 used ones cut off at
+    the frame; by eye, three "iPhones" were Android phones, the test strip ads
+    showed rapid test cassettes, the Pokemon boosters were another game's; two
+    were simply too small (a 144px coin drawn at 2.6x). 59 flagged in all.
+  - The claims: invented facts in rule 55's other words (TRUSTED on 205
+    showcase lines, "30 seconds" and "in minutes" on 81 each, INSTANT on 53,
+    WE BEAT 35, TOP BUYER 34, mail-in and house calls); in a second pass, a
+    price comparison nobody measured (WE TOP, WE OUTBID, WE MATCH THE COIN
+    SHOP on 57 headlines) and car services nobody offers (FREE TOW on 51
+    lines, DMV paperwork, same-day pickup, lien payoff, NO SMOG NEEDED); a
+    grammar slip in live copy ("SHOW US THE YOUR CARRIER NUMBER"); on the
+    owner's 50 offer cards, six headlines that claim more than the ad shows or
+    the shop buys.
+  - The Studio's own templates had never been held to the showcase's bar:
+    measured now, 108 of 243 classics fail it (41 of the 50 hand-built ones,
+    mostly three typefaces or a headline that does not win; 38 with a product
+    or a line over the words).
+  - The landing drew a Studio card's thumbnail before its product picture,
+    photograph or face had loaded (it never warms the library, to stay light
+    on a phone), so the five new categories showed type on black.
+  - Build-time headline fitting: estimated widths ran up to 10% narrow on some
+    faces, so a headline set in three lines where two were planned and the
+    product sat on it. Calibrated per face in the browser.
+
+Changed:
+  - The offer family in the Studio (offer-library.js): the owner's offer card
+    with every axis doubled (six layouts, twenty looks, twelve pairings), 161
+    cards over 35 buying lines in all 13 categories, five of them new (Gaming
+    & Consoles, Headphones & Audio, Computers & Parts, Wearables & Glasses,
+    Cameras & Drones). Lines with no clean picture are set in type. Every card
+    passes scripts/audit_templates.mjs.
+  - assets/cutout-flags.json, swap_flagged_cutouts.py, cutout_edges.py: bad
+    pictures named, and every showcase card that drew one given a whole, clean
+    picture of the same kind inside the old footprint (355 pictures over three
+    passes; none left).
+  - CLAIM / CLAIM_FIX (refresh_copy.mjs), honest_claims.mjs: 690 lines on the
+    showcase (540 on 423 cards, then 150 on 116) and the same words in app.js.
+    A comparison becomes an invitation ("SKIP THE COIN SHOP"), a tow becomes
+    AS-IS, a pickup becomes CASH IN HAND WHEN WE MEET.
+  - Three dead brand-logo layers removed (app.js cannot ink them, so they drew
+    nothing), two status dots moved off the words they sat on.
+  - template-holds.js: what fails the bar is left out of TEMPLATES (108 of 404).
+  - The landing fetches a shown Studio card's own assets and draws it again.
+  - The showcase: 620 records re-measured; 692 of 971 pass every check (690
+    before, under looser rules).
+  - docs/offer-cards-prompt-v2.md: the brief for the owner's generator, every
+    axis doubled, the category banks, the new honesty rules, the review of the
+    first 50.
+  - DESIGN-LAW 57-59.
+
+Rejected:
+  - Fetching product photos from Wikimedia Commons or the makers' sites (the
+    owner offered): this container's network policy denies them. The fetch is
+    described in the v2 brief for the owner's Mac.
+  - Moving the voltStack and stepsFlow headlines apart by hand to clear their
+    box overlap: their number blocks were solved for the current positions
+    (assets/number-fix.json). They are held until the number block is re-baked.
+  - Treating iCloud-locked copy as inaccurate: it is a product line the studio
+    offers resellers, though the owner's own offer brief bans it for iPhones.LA.
+  - Unholding the five trustSeal cards that repeat FREE QUOTE: they fail the
+    design school too, so a copy fix alone would not bring them back.
+
+RESUME HERE:
+  Draft-deploy this branch and look at the landing's new category chips and
+  the Offer cards chip on a phone. Then the owner's Mac: redraw the six offer
+  card headlines in the v2 review, and source real photos for the type-only
+  lines (the v2 brief says how).
