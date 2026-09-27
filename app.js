@@ -2360,7 +2360,11 @@ function alignPass(sc, W, H){
       .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
     if (!host) return;
     const fs = (t.o.fontSize || 34) * (t.o.scaleY || 1), padV = Math.round(fs * 0.36);
-    if (tb.height + 2 * padV <= host.b.height + 1) return;
+    /* only a line that is genuinely TALLER than its plate: the first version
+       also fired on padding shortfall, so a 76px number on its snug 108px
+       pill "overflowed", could not grow into the CTA above, and came down to
+       55px: 63 cards under rule 53's 72px floor */
+    if (tb.height <= host.b.height + 1) return;
     const o = host.x.o, c = o.getCenterPoint(), h0 = o.height;
     const others = texts.filter(x => x !== t).map(x => bb(x.o)).filter(Boolean);
     const hits = b => others.some(r => r.left < b.left + b.width && r.left + r.width > b.left && r.top < b.top + b.height && r.top + r.height > b.top &&
@@ -2372,6 +2376,7 @@ function alignPass(sc, W, H){
       host.b = g; return;
     }
     o.set({ height: h0 }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    if (t.o.pgRole === 'phone') return;                      // the number is never shrunk to fit (rule 53)
     const k = Math.max(0.72, (host.b.height - 2 * padV) / tb.height);
     if (k < 1){
       const tc = t.o.getCenterPoint();

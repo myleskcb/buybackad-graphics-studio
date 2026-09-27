@@ -60,6 +60,8 @@ const why = c => {
   }
   // the headline, the number or the CTA under 3:1 on its own pixels (audit_showcase_legibility)
   if (typeof c.legib === 'number' && c.legib < 3) w.push('critical line under 3:1 (' + c.legib + ')');
+  // the critic decides what is shown (rule 54): a card it rejects is not kept
+  if (c.school && c.school.fail && c.school.fail.length) w.push('critic rejects (' + c.school.fail.join('+') + ')');
   return w;
 };
 const warns = c => (c.school && c.school.warn ? c.school.warn.length : 0);

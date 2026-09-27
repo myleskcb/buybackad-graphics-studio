@@ -1343,7 +1343,9 @@ its colours.
 
 1. **Disqualified outright**: collides (rule 58, at least 6%), copy off the ad,
    copy in the margin (rule 57), the headline, number or CTA under 3:1 on the
-   card's own pixels.
+   card's own pixels, and anything the critic rejects (rule 54: a number under
+   72px, the number's worst letter under 3:1, a line off its plate, a broken
+   hierarchy).
 2. **Ranked by mistakes**, lower is better: the critic's warnings (rule 54),
    line and letter contrast short of 4.5:1, the number's worst letter short of
    7:1, measured overlaps, a product cut off or half on a panel. Ties go to the

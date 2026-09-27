@@ -245,10 +245,6 @@ if __name__ == '__main__':
     by = {a['slug']: a for a in lib['assets']}
     ap_p = os.path.join(ROOT, 'assets', 'approved-assets.json'); ap = json.load(open(ap_p))
     grid = ap['asset-grid-v1']; approved = set(grid['approved']); rejected = set(grid.get('reasonById', {}))
-    dev_p = os.path.join(ROOT, 'assets', 'devices.json')
-    devices = json.load(open(dev_p)) if os.path.exists(dev_p) else {'about': '', 'models': {}}
-    devices['about'] = ('Every device the storefront buys, by model and colour, as cut-out art in assets/cutouts. '
-                        'Written by scripts/import_device_art.py; `colours` maps a finish to its cutout slug, `art` is the model shot.')
     for j, im in built:
         slug, _, line, model, name, col, src, action = j
         data = encode(im)
@@ -260,15 +256,11 @@ if __name__ == '__main__':
             lib['assets'].append(e); by[slug] = e
         e.update({'w': im.width, 'h': im.height, 'bytes': len(data), 'sha1': sha12(data)})
         if action == 'new' and slug not in rejected: approved.add(slug)
-        if line:
-            m = devices['models'].setdefault(model, {'line': line, 'name': name, 'colours': {}})
-            if col: m['colours'][col] = slug
-            else: m['art'] = slug
     lib['count'] = len(lib['assets']); lib['built'] = int(time.time())
     with open(lib_p, 'w') as f: json.dump(lib, f, indent=1)   # the files' own format: indent 1, no final newline
     grid['approved'] = sorted(approved)
     with open(ap_p, 'w') as f: json.dump(ap, f, indent=1)
-    devices['models'] = dict(sorted(devices['models'].items()))
-    with open(dev_p, 'w') as f: json.dump(devices, f, indent=1)
-    print('wrote %d cutouts; library %d assets; %d approved; %d models in assets/devices.json'
-          % (len(built), lib['count'], len(approved), len(devices['models'])))
+    print('wrote %d cutouts; library %d assets; %d approved' % (len(built), lib['count'], len(approved)))
+    # the device catalogue is rebuilt from the library, so it names only art that exists
+    import subprocess
+    subprocess.run([sys.executable, os.path.join(ROOT, 'scripts', 'device_catalog.py')], check=True)
