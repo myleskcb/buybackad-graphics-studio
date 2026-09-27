@@ -15,3 +15,6 @@ tools/offer-cards/.fonts/
 tools/offer-cards/export/
 tools/offer-cards/out/
 tools/offer-cards/__pycache__/
+
+# scraped photographs waiting for scripts/ingest_assets.py; what it lands goes to assets/
+incoming/

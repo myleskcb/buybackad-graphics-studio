@@ -226,6 +226,11 @@
     Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
+  for = "/offer-assets.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
   for = "/styles.css"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
