@@ -58,7 +58,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:820, width:CW, height:260, fill:'rgba(0,0,0,0.85)'}},
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'SELL YOUR', props:{left:CW/2, top:115, originX:'center', fontFamily:F_DISPLAY, fontSize:185, fill:'#ffffff', stroke:'#000000', strokeWidth:9, textAlign:'center', shadow:sh('rgba(0,0,0,0.5)',20,4,4)}},
     {kind:'rect', name:'Top Banner', props:{left:CW/2, top:80, width:260, height:50, originX:'center', originY:'center', fill:'#ff5000', rx:4, angle:-2}},
-    {kind:'text', name:'Banner Text', role:'sub', casing:'upper', text:'TOP BUYER', props:{left:CW/2, top:80, originX:'center', originY:'center', fontFamily:F_DISPLAY, fontSize:36, fill:'#ffffff', stroke:'#000000', strokeWidth:2, angle:-2}},
+    {kind:'text', name:'Banner Text', role:'sub', casing:'upper', text:'CASH BUYER', props:{left:CW/2, top:80, originX:'center', originY:'center', fontFamily:F_DISPLAY, fontSize:36, fill:'#ffffff', stroke:'#000000', strokeWidth:2, angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'IPHONE', props:{left:CW/2, top:282, originX:'center', fontFamily:F_DISPLAY, fontSize:258, fill:'#ff5000', stroke:'#000000', strokeWidth:12, textAlign:'center', shadow:sh('rgba(0,0,0,0.6)',28,6,6)}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'✓SAFE  ✓QUICK  ✓EASY', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
     {kind:'textbox', name:'Info Text', role:'info', casing:'upper', text:'SAME DAY CASH, NO HASSLE EASY MEETUP\niCLOUD LOCK, BROKEN, BLACKLIST...\nANY CONDITION ANY CARRIER', props:{left:CW/2, top:615, width:CW-80, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', stroke:'#000000', strokeWidth:2, textAlign:'center', fontWeight:'700', lineHeight:1.3, shadow:sh('rgba(0,0,0,0.9)',8,2,2)}},
@@ -67,10 +67,10 @@ const TEMPLATES = [
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2+20, top:885, originX:'center', fontFamily:F_COND, fontSize:90, fill:'#ff5000', fontWeight:'900', shadow:sh('rgba(255,80,0,0.4)',22)}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.45)'}},
   ]},
-{ id:'top_buyer', name:'#1 Top Buyer', tag:'buyer', cat:'phones',
+{ id:'top_buyer', name:'Local Cash Buyer', tag:'buyer', cat:'phones',
   bg:{type:'image', src:'assets/tplbg/top_buyer.jpg', scrim:0.5, fallback:{type:'grad', c1:'#1a1a2e', c2:'#16213e', a:180}},
   layers:[
-    {kind:'text', name:'Title', role:'headline', casing:'upper', text:'#1 TOP BUYER', props:{left:CW/2, top:80, originX:'center', fontFamily:F_DISPLAY, fontSize:155, fill:'#ffb800', stroke:'#000000', strokeWidth:6, textAlign:'center', shadow:sh('#ff8c00',45)}},
+    {kind:'text', name:'Title', role:'headline', casing:'upper', text:'CASH BUYER', props:{left:CW/2, top:80, originX:'center', fontFamily:F_DISPLAY, fontSize:155, fill:'#ffb800', stroke:'#000000', strokeWidth:6, textAlign:'center', shadow:sh('#ff8c00',45)}},
     {kind:'textbox', name:'Main Headline', role:'headline', casing:'upper', text:'WE BUY\niPHONES', props:{left:CW/2, top:260, width:CW-60, originX:'center', fontFamily:F_DISPLAY, fontSize:205, fill:'#ffffff', stroke:'#000000', strokeWidth:9, textAlign:'center', lineHeight:0.88}},
     {kind:'textbox', name:'Subline', role:'sub', casing:'upper', text:'CASH IN HAND TODAY\nALL MODELS • ALL CONDITIONS', props:{left:CW/2, top:672, width:CW-80, originX:'center', fontFamily:F_COND, fontSize:46, fill:'#ffb800', fontWeight:'800', textAlign:'center', lineHeight:1.3}},
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:800, width:CW, height:280, fill:'#ff5000'}},
@@ -89,10 +89,10 @@ const TEMPLATES = [
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CALL OR TEXT ANYTIME', props:{left:CW/2, top:785, originX:'center', fontFamily:F_COND, fontSize:30, fill:'rgba(0,0,0,0.65)', fontWeight:'900'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:825, originX:'center', fontFamily:F_DISPLAY, fontSize:100, fill:'#ffffff', stroke:'#c03000', strokeWidth:4}},
   ]},
-{ id:'cash_offer', name:'Instant Cash Offer', tag:'promo', cat:'phones',
+{ id:'cash_offer', name:'Cash Offer', tag:'promo', cat:'phones',
   bg:{type:'image', src:'assets/tplbg/cash_offer.jpg', scrim:0.5, fallback:{type:'grad', c1:'#f7971e', c2:'#ffd200', a:135}},
   layers:[
-    {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'INSTANT', props:{left:CW/2, top:100, originX:'center', fontFamily:F_DISPLAY, fontSize:170, fill:'#ffffff'}},
+    {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'GET A', props:{left:CW/2, top:100, originX:'center', fontFamily:F_DISPLAY, fontSize:170, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'CASH OFFER', props:{left:CW/2, top:255, originX:'center', fontFamily:F_DISPLAY, fontSize:155, fill:'#ffffff', stroke:'#ff5000', strokeWidth:4}},
     {kind:'text', name:'Headline 3', role:'sub', casing:'upper', text:'FOR YOUR iPHONE', props:{left:CW/2, top:440, originX:'center', fontFamily:F_COND, fontSize:72, fill:'#ffffff', fontWeight:'900'}},
     {kind:'rect', name:'Phone Plate', props:{left:CW/2-245, top:558, width:490, height:135, fill:'#000000', rx:8}},
@@ -139,7 +139,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline 3', role:'headline', casing:'upper', text:'iPHONE', props:{left:CW/2, top:500, originX:'center', fontFamily:F_DISPLAY, fontSize:200, fill:'rgba(0,0,0,0)', stroke:'#ff0066', strokeWidth:4, shadow:sh('#ff0066',35)}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:755, originX:'center', fontFamily:F_COND, fontSize:72, fill:'#ffffff', fontWeight:'900'}},
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:870, width:CW, height:210, fill:'rgba(255,255,255,0.04)'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT NOW FOR INSTANT CASH', props:{left:CW/2, top:900, originX:'center', fontFamily:F_COND, fontSize:38, fill:'rgba(255,255,255,0.5)', fontWeight:'700'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT NOW FOR A CASH OFFER', props:{left:CW/2, top:900, originX:'center', fontFamily:F_COND, fontSize:38, fill:'rgba(255,255,255,0.5)', fontWeight:'700'}},
   ]},
 /* ── GOLD (6) ── */
 { id:'gold_spot', name:'Spot Price Payout', tag:'buyer', cat:'gold',
@@ -180,8 +180,8 @@ const TEMPLATES = [
     {kind:'rect', name:'Ink Panel', props:{left:70, top:170, width:CW-140, height:740, fill:'#101010', rx:26, shadow:sh('rgba(0,0,0,0.45)',40,0,18)}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOLD IN.', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#f5b700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'CASH OUT.', props:{left:CW/2, top:395, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff'}},
-    {kind:'text', name:'Info', role:'info', casing:'upper', text:'5 MINUTE APPRAISAL, WALK OUT PAID', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#c9b27c', fontWeight:'600'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO FOR AN INSTANT QUOTE', props:{left:CW/2, top:670, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', fontWeight:'700'}},
+    {kind:'text', name:'Info', role:'info', casing:'upper', text:'FREE APPRAISAL, PAID ON THE SPOT', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#c9b27c', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO FOR A QUOTE', props:{left:CW/2, top:670, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#f5b700'}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713NO FEES  \u2713FREE QUOTE', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
@@ -190,8 +190,8 @@ const TEMPLATES = [
   layers:[
     {kind:'rect', name:'Rule Top', props:{left:90, top:120, width:CW-180, height:6, fill:'#1c1710'}},
     {kind:'text', name:'Headline', role:'headline', casing:'title', text:'Settling An Estate?', props:{left:CW/2, top:190, originX:'center', fontFamily:'Zodiak', fontSize:96, fill:'#1c1710'}},
-    {kind:'textbox', name:'Body', role:'info', casing:'none', text:'We purchase entire gold and jewelry\ncollections with dignity, discretion\nand documented fair-market offers.', props:{left:CW/2, top:360, width:CW-200, originX:'center', fontFamily:'Zodiak', fontSize:44, fill:'#443b2c', textAlign:'center', lineHeight:1.45, fontStyle:'italic'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'HOUSE CALLS AVAILABLE', props:{left:CW/2, top:640, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#8a6d1f', charSpacing:340, fontWeight:'700'}},
+    {kind:'textbox', name:'Body', role:'info', casing:'none', text:'We purchase entire gold and jewelry\ncollections with dignity, discretion\nand an offer before you decide.', props:{left:CW/2, top:360, width:CW-200, originX:'center', fontFamily:'Zodiak', fontSize:44, fill:'#443b2c', textAlign:'center', lineHeight:1.45, fontStyle:'italic'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'FREE APPRAISAL', props:{left:CW/2, top:640, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#8a6d1f', charSpacing:340, fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:740, originX:'center', fontFamily:'Zodiak', fontSize:84, fill:'#1c1710', fontWeight:'700'}},
     {kind:'rect', name:'Rule Bottom', props:{left:90, top:900, width:CW-180, height:6, fill:'#1c1710'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'#8a6d1f', fontWeight:'600'}},
@@ -214,7 +214,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SELLING YOUR', props:{left:CW/2, top:130, originX:'center', fontFamily:'Khand', fontSize:84, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'SILVER STACK?', props:{left:CW/2, top:230, originX:'center', fontFamily:'Khand', fontSize:120, fill:'#c7d0dc', fontWeight:'700', shadow:sh('rgba(199,208,220,0.35)',28)}},
     {kind:'textbox', name:'Items', role:'info', casing:'upper', text:'EAGLES \u2022 BARS \u2022 JUNK SILVER\n90% COINS \u2022 STERLING FLATWARE', props:{left:CW/2, top:440, width:CW-140, originX:'center', fontFamily:F_COND, fontSize:52, fill:'#8fa3bb', textAlign:'center', lineHeight:1.4, fontWeight:'700'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRICED LIVE OFF SPOT, NO LOWBALLS', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRICED LIVE OFF SPOT', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#c7d0dc'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -236,7 +236,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Panel', props:{left:120, top:560, width:CW-240, height:200, fill:'rgba(16,20,27,0.85)', rx:18}},
     {kind:'text', name:'Info', role:'info', casing:'none', text:'Even tarnished pieces, shine does not matter, weight does.', props:{left:CW/2, top:600, originX:'center', fontFamily:F_UI, fontSize:34, fill:'#c7d0dc', width:CW-300, textAlign:'center'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:670, originX:'center', fontFamily:'Clash Display', fontSize:76, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE EVALUATIONS DAILY', props:{left:CW/2, top:850, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#10141b', fontWeight:'700'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE EVALUATIONS', props:{left:CW/2, top:850, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#10141b', fontWeight:'700'}},
   ]},
 { id:'silver_ster', name:'Sterling Wanted Poster', tag:'buyer', cat:'silver', tier:'premium',
   bg:{type:'solid', c:'#f7f1e3'},
@@ -276,7 +276,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Circle Halo', props:{left:CW/2-230, top:60, width:460, height:460, fill:'rgba(232,217,174,0.08)', rx:230}},
     {kind:'text', name:'Year', role:'headline', casing:'none', text:'1878 TO 1921', props:{left:CW/2, top:180, originX:'center', fontFamily:'Zodiak', fontSize:110, fill:'#e8d9ae', fontWeight:'700'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'MORGAN DOLLARS', props:{left:CW/2, top:350, originX:'center', fontFamily:'Khand', fontSize:96, fill:'#ffffff', fontWeight:'700'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PAYING COLLECTOR PRICES, NOT MELT', props:{left:CW/2, top:490, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#c9a24b', fontWeight:'700', charSpacing:120}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'WE LOOK AT EVERY COIN', props:{left:CW/2, top:490, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#c9a24b', fontWeight:'700', charSpacing:120}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Carson City? Key dates? Toned beauties?\nWe know exactly what you have.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:'Zodiak', fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.5, fontStyle:'italic'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#e8d9ae'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT PHOTOS FOR A REAL OFFER', props:{left:CW/2, top:925, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:160}},
@@ -289,7 +289,7 @@ const TEMPLATES = [
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'IT MIGHT PAY THE RENT.', props:{left:CW/2, top:450, originX:'center', fontFamily:'Clash Display', fontSize:74, fill:'#f5b700', shadow:sh('rgba(245,183,0,0.4)',26)}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free sorting \u2022 We separate the treasure\nfrom the pocket change, honestly.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'HOUSE CALLS FOR BIG FINDS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Clash Display', fontSize:38, fill:'#e8d9ae'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK, NO OBLIGATION', props:{left:CW/2, top:910, originX:'center', fontFamily:'Clash Display', fontSize:38, fill:'#e8d9ae'}},
   ]},
 { id:'coins_error', name:'Error Coin Hunter', tag:'promo', cat:'coins', tier:'premium',
   bg:{type:'solid', c:'#0d0d10'},
@@ -310,7 +310,7 @@ const TEMPLATES = [
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'GRADED COINS WANTED', props:{left:CW/2, top:310, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#8fb4ff', fontWeight:'600'}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pay for the grade, the strike and the eye appeal, registry-quality offers on registry-quality coins.', props:{left:CW/2, top:530, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:740, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#8fb4ff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CERT NUMBERS GET INSTANT QUOTES', props:{left:CW/2, top:890, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:140}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'SEND CERT NUMBERS FOR A QUOTE', props:{left:CW/2, top:890, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:140}},
   ]},
 { id:'coins_ticket', name:'Gold Rush Ticket', tag:'sell', cat:'coins', tier:'premium',
   bg:{type:'solid', c:'#c9a24b'},
@@ -331,18 +331,18 @@ const TEMPLATES = [
     {kind:'rect', name:'Hazard Bottom', props:{left:0, top:CH-44, width:CW, height:44, fill:'#f5b700'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WE BUY CARS', props:{left:CW/2, top:130, originX:'center', fontFamily:'Clash Display', fontSize:150, fill:'#ffffff', stroke:'#000000', strokeWidth:6}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'RUNNING OR NOT', props:{left:CW/2, top:310, originX:'center', fontFamily:'Clash Display', fontSize:104, fill:'#f5b700', shadow:sh('rgba(245,183,0,0.4)',24)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'upper', text:'BLOWN ENGINE \u2022 SALVAGE \u2022 NO TITLE?\nWRECKED \u2022 FLOODED \u2022 JUST OLD?\nWE STILL WANT IT.', props:{left:CW/2, top:480, width:CW-140, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c7d0dc', textAlign:'center', lineHeight:1.35, fontWeight:'600'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE TOW \u2022 PAID ON PICKUP', props:{left:CW/2, top:760, originX:'center', fontFamily:F_COND, fontSize:48, fill:'#ffffff', fontWeight:'800'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'upper', text:'BLOWN ENGINE \u2022 SALVAGE \u2022 RUSTED?\nWRECKED \u2022 FLOODED \u2022 JUST OLD?\nWE STILL WANT IT.', props:{left:CW/2, top:480, width:CW-140, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c7d0dc', textAlign:'center', lineHeight:1.35, fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'NO FEES \u2022 CASH ON THE SPOT', props:{left:CW/2, top:760, originX:'center', fontFamily:F_COND, fontSize:48, fill:'#ffffff', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:860, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#f5b700'}},
   ]},
 { id:'cars_kbb', name:'Beat The Trade-In', tag:'promo', cat:'cars',
   bg:{type:'grad', c1:'#0b2340', c2:'#050d18', a:160},
   layers:[
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'DEALER OFFERED YOU WHAT?', props:{left:CW/2, top:110, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#8fb4ff', fontWeight:'600'}},
-    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WE BEAT', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:140, fill:'#ffffff'}},
+    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'COMPARE', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:140, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'TRADE-IN OFFERS', props:{left:CW/2, top:370, originX:'center', fontFamily:'Clash Display', fontSize:88, fill:'#4da3ff'}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring their written offer.\nWe will give you ours. Straight answers only.', props:{left:CW/2, top:530, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'VIN + MILES = OFFER IN 10 MINUTES', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'VIN + MILES = A CASH OFFER', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4da3ff'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -352,9 +352,9 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'That car is not', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:84, fill:'#c7d0dc', angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'none', text:'a lawn ornament.', props:{left:CW/2, top:260, originX:'center', fontFamily:'Clash Display', fontSize:84, fill:'#ffffff', angle:1}},
     {kind:'text', name:'Big', role:'headline', casing:'upper', text:'CASH FOR JUNKERS', props:{left:CW/2, top:430, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ff5000', shadow:sh('rgba(255,80,0,0.45)',28)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Dead battery? Flat tires? Wasp nest\nin the glovebox? We tow it free\nand hand you cash before we leave.', props:{left:CW/2, top:580, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Dead battery? Flat tires? Wasp nest\nin the glovebox? Text us a photo\nand get paid cash when we meet.', props:{left:CW/2, top:580, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'SAME-DAY PICKUP MOST AREAS', props:{left:CW/2, top:930, originX:'center', fontFamily:'Clash Display', fontSize:36, fill:'#ff5000'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO FOR AN OFFER', props:{left:CW/2, top:930, originX:'center', fontFamily:'Clash Display', fontSize:36, fill:'#ff5000'}},
   ]},
 { id:'cars_plate', name:'License Plate Split', tag:'promo', cat:'cars', tier:'premium',
   bg:{type:'solid', c:'#e9edf2'},
@@ -363,7 +363,7 @@ const TEMPLATES = [
     {kind:'text', name:'Plate State', role:'sub', casing:'upper', text:'\u2605 CASH \u2605', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#8a2b1d', fontWeight:'700', charSpacing:340}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'4-UR-CAR', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#10141b', charSpacing:80}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'ANY YEAR \u2022 ANY MAKE \u2022 ANY SHAPE', props:{left:CW/2, top:500, originX:'center', fontFamily:'Satoshi', fontSize:40, fill:'#2a3340', fontWeight:'800', charSpacing:120}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Title handled and DMV paperwork\ndone for you, zero fees.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#5a6b80', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring the title and the keys.\nNo fees, no obligation.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#5a6b80', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:86, fill:'#10141b'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT YOUR VIN \u2192 GET A NUMBER', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:36, fill:'#8a2b1d', fontWeight:'700'}},
   ]},
@@ -374,9 +374,9 @@ const TEMPLATES = [
     {kind:'rect', name:'Stripe 2', props:{left:-100, top:730, width:CW+200, height:26, fill:'rgba(255,255,255,0.5)', angle:-6}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SELL IT', props:{left:CW/2, top:110, originX:'center', fontFamily:'Clash Display', fontSize:210, fill:'#ffffff', fontStyle:'italic', shadow:sh('rgba(0,0,0,0.4)',20,8,8)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'TODAY.', props:{left:CW/2, top:350, originX:'center', fontFamily:'Clash Display', fontSize:210, fill:'#ffffff', fontStyle:'italic', stroke:'#ffffff', strokeWidth:5}},
-    {kind:'text', name:'Info', role:'info', casing:'upper', text:'OFFER \u2192 INSPECTION \u2192 PAID. 60 MINUTES.', props:{left:CW/2, top:655, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'700', angle:-6}},
+    {kind:'text', name:'Info', role:'info', casing:'upper', text:'OFFER \u2192 INSPECTION \u2192 PAID.', props:{left:CW/2, top:655, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'700', angle:-6}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:820, originX:'center', fontFamily:'Clash Display', fontSize:104, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'7 DAYS \u2022 WE COME TO YOU', props:{left:CW/2, top:950, originX:'center', fontFamily:F_COND, fontSize:38, fill:'rgba(255,255,255,0.75)', fontWeight:'700'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'WE COME TO YOU', props:{left:CW/2, top:950, originX:'center', fontFamily:F_COND, fontSize:38, fill:'rgba(255,255,255,0.75)', fontWeight:'700'}},
   ]},
 { id:'cars_fleet', name:'Fleet + Work Trucks', tag:'buyer', cat:'cars', tier:'premium',
   bg:{type:'grad', c1:'#1c2229', c2:'#0a0d11', a:180},
@@ -387,7 +387,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'\u0026 VANS WANTED', props:{left:CW/2, top:355, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ff8a00'}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Retiring units? Downsizing the yard?\nWe buy 1 or 20, high miles fine,\nlettering \u0026 racks fine, diesel preferred.', props:{left:CW/2, top:520, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ff8a00'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BULK QUOTES IN WRITING SAME DAY', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:120}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BULK LOTS QUOTED SAME DAY', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:120}},
   ]},
 { id:'cars_odometer', name:'Odometer Honest', tag:'promo', cat:'cars', tier:'premium',
   bg:{type:'solid', c:'#08090b'},
@@ -407,14 +407,14 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EXTRA TEST STRIPS?', props:{left:CW/2, top:80, originX:'center', fontFamily:'Satoshi', fontSize:82, fill:'#ffffff', fontWeight:'900'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'TURN THEM INTO CASH, SIMPLY', props:{left:CW/2, top:200, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', fontWeight:'600'}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Unopened \u2022 Unexpired \u2022 Factory sealed\nAll major brands, boxes checked\nand paid while you wait.', props:{left:CW/2, top:400, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:44, fill:'#1d3a38', textAlign:'center', lineHeight:1.5}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'MAIL-IN KITS AVAILABLE, FREE SHIPPING', props:{left:CW/2, top:680, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#0f6e6a', fontWeight:'800'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO OF THE BOXES', props:{left:CW/2, top:680, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#0f6e6a', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Satoshi', fontSize:84, fill:'#0f6e6a', fontWeight:'900'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:920, originX:'center', fontFamily:F_UI, fontSize:28, fill:'#5a8683'}},
   ]},
 { id:'strips_box', name:'Box Count Bold', tag:'promo', cat:'strips', tier:'premium',
   bg:{type:'grad', c1:'#123c5e', c2:'#071726', a:170},
   layers:[
-    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EVERY SEALED BOX', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
+    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SEALED BOXES', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'= MONEY', props:{left:CW/2, top:260, originX:'center', fontFamily:'Clash Display', fontSize:160, fill:'#4dd7ff', shadow:sh('rgba(77,215,255,0.4)',34)}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Insurance sent too many? Switched meters?\nDo not let good boxes expire in a drawer.\nWe pay by brand \u0026 date, transparent list.', props:{left:CW/2, top:480, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7e4', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO OF YOUR BOXES', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'600'}},
@@ -425,10 +425,10 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Lock', role:'deco', text:'\uD83E\uDD10', props:{left:CW/2, top:80, originX:'center', fontSize:110}},
     {kind:'text', name:'Headline', role:'headline', casing:'title', text:'Private. Discreet. Paid.', props:{left:CW/2, top:250, originX:'center', fontFamily:'Zodiak', fontSize:86, fill:'#ffffff', fontStyle:'italic'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Curbside pickup \u2022 No questions beyond\nthe expiration date \u2022 Cash or instant transfer', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#9fc3c0', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Curbside pickup \u2022 Sealed, in-date\nboxes only \u2022 Cash or instant transfer', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#9fc3c0', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'STRIPS \u2022 SENSORS \u2022 LANCETS', props:{left:CW/2, top:640, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#4dd7ff', fontWeight:'800', charSpacing:200}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Satoshi', fontSize:88, fill:'#ffffff', fontWeight:'900'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'REPLIES IN MINUTES, NOT DAYS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:32, fill:'rgba(255,255,255,0.55)', fontWeight:'600', charSpacing:180}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO, GET A PRICE', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:32, fill:'rgba(255,255,255,0.55)', fontWeight:'600', charSpacing:180}},
   ]},
 { id:'strips_cgm', name:'CGM Sensor Buyer', tag:'buyer', cat:'strips', tier:'premium',
   bg:{type:'grad', c1:'#0e2e2c', c2:'#04100f', a:160},
@@ -469,9 +469,9 @@ const TEMPLATES = [
     {kind:'text', name:'Fire', role:'deco', text:'\uD83D\uDD25', props:{left:CW/2, top:60, originX:'center', fontSize:130}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOT A ZARD?', props:{left:CW/2, top:240, originX:'center', fontFamily:'Clash Display', fontSize:180, fill:'#ffffff', stroke:'#000000', strokeWidth:6, shadow:sh('rgba(0,0,0,0.5)',18,6,6)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'HOLO \u2022 SHADOWLESS \u2022 GRADED \u2022 RAW', props:{left:CW/2, top:470, originX:'center', fontFamily:'Khand', fontSize:46, fill:'#ffd200', fontWeight:'700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Serious money for serious cards,\nrecent comps shown with every offer.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#ffe3c2', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Serious money for serious cards,\nsend photos for a cash offer.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#ffe3c2', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffd200', stroke:'#000000', strokeWidth:3}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC, OFFER IN MINUTES', props:{left:CW/2, top:905, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#ffffff', charSpacing:40}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC, GET AN OFFER', props:{left:CW/2, top:905, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#ffffff', charSpacing:40}},
   ]},
 { id:'pkm_sealed', name:'Sealed Product Vault', tag:'buyer', cat:'pokemon', tier:'premium',
   bg:{type:'solid', c:'#0a0d18'},
@@ -492,7 +492,7 @@ const TEMPLATES = [
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Those playground cards are adult money\nnow. Dig out the shoebox, we will sort\nit together and pay for the hits.', props:{left:CW/2, top:440, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d8c9a3', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK, ZERO PRESSURE', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffd27a', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
-    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713LOCAL  \u2713TRUSTED', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
+    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713LOCAL  \u2713CASH', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
 { id:'pkm_grade', name:'Grade Gap Explainer', tag:'promo', cat:'pokemon', tier:'premium',
   bg:{type:'solid', c:'#101014'},
@@ -510,7 +510,7 @@ const TEMPLATES = [
     {kind:'text', name:'Rising Sun', role:'deco', text:'\u26E9\uFE0F', props:{left:CW/2, top:70, originX:'center', fontSize:110}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'JAPANESE CARDS', props:{left:CW/2, top:240, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'WANTED BADLY', props:{left:CW/2, top:365, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ffd200', shadow:sh('rgba(255,210,0,0.35)',26)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Promos \u2022 Trophy cards \u2022 Vending sheets\nOld Back anything, if it is from Japan\nand mint, we are your best offer.', props:{left:CW/2, top:530, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#ffd9e2', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Promos \u2022 Trophy cards \u2022 Vending sheets\nOld Back anything, if it is from Japan\nand mint, send us a photo.', props:{left:CW/2, top:530, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#ffd9e2', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'COLLECTION MANAGERS: DM US FIRST', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.7)', fontWeight:'600', charSpacing:120}},
   ]},
@@ -572,8 +572,8 @@ const TEMPLATES = [
     {kind:'rect', name:'Perforation', props:{left:CW-300, top:250, width:6, height:560, fill:'rgba(244,239,228,0.5)'}},
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'ADMIT: YOUR COLLECTION', props:{left:100, top:300, fontFamily:'Khand', fontSize:38, fill:'#fca311', fontWeight:'600', charSpacing:160}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'CARD SHOW', props:{left:100, top:370, fontFamily:'Clash Display', fontSize:120, fill:'#ffffff'}},
-    {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'PRICES DAILY', props:{left:100, top:510, fontFamily:'Clash Display', fontSize:96, fill:'#fca311'}},
-    {kind:'text', name:'Info', role:'info', casing:'none', text:'Why wait for the convention? Show rates, every single day.', props:{left:100, top:650, fontFamily:F_UI, fontSize:34, fill:'#e5e5e5', width:CW-420}},
+    {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'PRICES BY TEXT', props:{left:100, top:510, fontFamily:'Clash Display', fontSize:96, fill:'#fca311'}},
+    {kind:'text', name:'Info', role:'info', casing:'none', text:'Why wait for the convention? Text a photo for a price.', props:{left:100, top:650, fontFamily:F_UI, fontSize:34, fill:'#e5e5e5', width:CW-420}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:880, originX:'center', fontFamily:'Clash Display', fontSize:88, fill:'#14213d'}},
   ]},
 { id:'sports_setbuild', name:'Set Builder Wanted', tag:'sell', cat:'sports', tier:'premium',
@@ -785,21 +785,21 @@ const TEMPLATES = [
   /* exposed for scripts/theme_lab.mjs: the lab composes real ads and must use
      the real copy, not a paraphrase of it. */
   const DECKS = {
-    phones:  { k:'LOCAL BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY OR YOU MAIL IT IN', cta:'GET YOUR OFFER', price:'CASH PAID TODAY', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
+    phones:  { k:'LOCAL BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY', cta:'GET YOUR OFFER', price:'CASH PAID TODAY', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
                scene:'extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh' },
     gold:    { k:'LOCAL GOLD BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Earrings • Broken Gold', sub:'TESTED AND WEIGHED IN FRONT OF YOU\nWRITTEN OFFER BEFORE YOU DECIDE\nESTATES HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','PRIVATE'],
                scene:'molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh' },
     silver:  { k:'LOCAL BUYER', h1:'WE BUY', h2:'SILVER', alt2:'SILVER', items:'Coins • Bars • Silverware • Jewelry', sub:'WEIGHED IN FRONT OF YOU\nCOINS, BARS, SILVERWARE AND JEWELRY\nPAID BY WEIGHT AT CURRENT RATES', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
                scene:'stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus' },
-    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nHOUSE CALLS FOR LARGE ESTATES', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'CASH', badges:['NO FEES','FREE QUOTE','DISCREET'],
+    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nNO FEES, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'CASH', badges:['NO FEES','FREE QUOTE','DISCREET'],
                scene:'antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro' },
-    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nTITLE AND DMV PAPERWORK HANDLED\nSAME-DAY PICKUP ACROSS LA & OC', cta:'GET AN INSTANT OFFER', price:'CASH ON THE SPOT', big:'CASH', badges:['FREE TOW','SAME DAY','NO FEES'],
+    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • High miles • Any make', sub:'CASH IN HAND WHEN WE MEET\nBRING THE TITLE AND THE KEYS\nAN OFFER BEFORE YOU DECIDE', cta:'GET A CASH OFFER', price:'CASH ON THE SPOT', big:'CASH', badges:['AS-IS','SAME DAY','NO FEES'],
                scene:'dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze' },
-    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nLOCAL PICKUP OR PREPAID MAIL-IN\nPAID THE SAME DAY WE RECEIVE THEM', cta:'GET YOUR OFFER', price:'PAID SAME DAY', big:'CASH', badges:['DISCREET','FAST','FAIR'],
+    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nWE MEET YOU LOCALLY\nPAID THE SAME DAY WE MEET', cta:'GET YOUR OFFER', price:'PAID SAME DAY', big:'CASH', badges:['DISCREET','FAST','FAIR'],
                scene:'clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur' },
-    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Single cards • Full binders • Sealed boxes', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE SORT AND VALUE EVERYTHING FOR YOU\nFREE APPRAISAL, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['TRUSTED','NO FEES','LOCAL'],
+    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Single cards • Full binders • Sealed boxes', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE SORT AND VALUE EVERYTHING FOR YOU\nFREE APPRAISAL, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['CASH','NO FEES','LOCAL'],
                scene:'holographic trading card close-up with prismatic light refractions on dark felt, dreamy bokeh' },
-    sports:  { k:'COLLECTIONS WANTED', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Single cards • Full boxes • Collections', sub:'SINGLE CARDS OR FULL COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nWE BUY ENTIRE COLLECTIONS OUTRIGHT', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['TRUSTED','NO FEES','LOCAL'],
+    sports:  { k:'COLLECTIONS WANTED', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Single cards • Full boxes • Collections', sub:'SINGLE CARDS OR FULL COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nWE BUY ENTIRE COLLECTIONS OUTRIGHT', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['CASH','NO FEES','LOCAL'],
                scene:'vintage baseball cards fanned on worn wood with stadium light bokeh, nostalgic warm grade' },
   };
 
@@ -922,7 +922,7 @@ const TEMPLATES = [
         cut('Product', C.cut || 'cash-stack', { left:1032, top:398, originX:'right', w:505, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
         ...row(1, 452, (C.badges && C.badges[0]) || 'CASH PAID',   (C.subs && C.subs[0]) || 'Paid in cash, same day'),
         ...row(2, 572, (C.badges && C.badges[1]) || 'FAST & EASY',  (C.subs && C.subs[1]) || 'Text photos, get an offer'),
-        ...row(3, 692, (C.badges && C.badges[2]) || 'ANY CONDITION',(C.subs && C.subs[2]) || 'No appointment needed'),
+        ...row(3, 692, (C.badges && C.badges[2]) || ['ANY CONDITION', 'NO FEES', 'FREE QUOTE'].find(w => !(C.badges || []).concat(C.subs || []).some(x => String(x).toUpperCase() === w)),(C.subs && C.subs[2]) || 'No appointment needed'),
         rg('Phone Plate', { left:54, top:836, width:940, height:132, rx:22, fill:P.a1, shadow:hard('rgba(0,0,0,0.4)', 9) }),
         t('CTA', 'cta', 'upper', C.cta || 'CALL OR TEXT', { left:CX, top:856, originX:'center', fontFamily:'Khand', fontSize:36, fill:onAccent(P), fontWeight:'700', charSpacing:60 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:892, originX:'center', fontFamily:T.d, fontSize:82, fill:onAccent(P), fontWeight:'700' }),
@@ -1164,7 +1164,7 @@ const TEMPLATES = [
         ...panel('Status Pill', CX-292, 78, 584, 78, 39),
         ci('Status Dot', { left:CX-252, top:104, radius:13, fill:'#22c55e', shadow:sh('rgba(34,197,94,0.8)', 14) }),
         t('Status Text', 'info', 'upper', 'NO FEES · FREE QUOTE · LOCAL BUYER', { left:CX+16, top:100, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:60 }),
-        t('Headline 1', 'headline', 'upper', 'TRUSTED LOCAL', { left:CX, top:206, originX:'center', fontFamily:'Satoshi', fontSize:52, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:180 }),
+        t('Headline 1', 'headline', 'upper', 'YOUR LOCAL', { left:CX, top:206, originX:'center', fontFamily:'Satoshi', fontSize:52, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:180 }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:262, originX:'center', fontFamily:'Clash Display', fontSize:158, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 26) }),
         t('Headline 3', 'headline', 'upper', 'BUYER', { left:CX, top:424, originX:'center', fontFamily:'Satoshi', fontSize:44, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:300 }),
         ...tile(1, 84, 512, C.big || 'CASH NOW', 'PAID TODAY'),
@@ -1191,8 +1191,8 @@ const TEMPLATES = [
         t('Kicker', 'sub', 'upper', 'HOW IT WORKS', { left:234, top:102, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'#ffffff', fontWeight:'800', charSpacing:120 }),
         t('Headline 1', 'headline', 'upper', 'CASH IN', { left:84, top:172, fontFamily:'Clash Display', fontSize:104, fill:P.ink }),
         t('Headline 2', 'headline', 'upper', '3 STEPS', { left:84, top:274, fontFamily:'Clash Display', fontSize:142, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 24) }),
-        ...row(1, 452, '1', 'TEXT PICS', 'Snap photos, text them over. 30 seconds.'),
-        ...row(2, 606, '2', 'GET OFFER', 'Firm quote in minutes. Zero obligation.'),
+        ...row(1, 452, '1', 'TEXT PICS', 'Snap photos and text them over.'),
+        ...row(2, 606, '2', 'GET OFFER', 'A firm quote by text. Zero obligation.'),
         ...row(3, 760, '3', 'GET PAID', 'Cash or instant transfer, same day.'),
         ...phoneBar(P, T, 924),
       ];
@@ -1253,7 +1253,7 @@ const TEMPLATES = [
     ticketStub: (P, T, C) => [
       r('Ticket', { left:CX-390, top:150, width:780, height:560, rx:32, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 14) }),
       rg('Ticket Perf', { left:CX-362, top:178, width:724, height:504, rx:24, fill:'rgba(0,0,0,0)', stroke:P.a1, strokeWidth:2.5, strokeDashArray:[16,11], opacity:0.9 }),
-      t('Admit', 'sub', 'upper', 'ADMIT: INSTANT CASH', { left:CX, top:224, originX:'center', fontFamily:T.s, fontSize:30, fill:P.a2, charSpacing:260, fontWeight:'700' }),
+      t('Admit', 'sub', 'upper', 'ADMIT: CASH OFFER', { left:CX, top:224, originX:'center', fontFamily:T.s, fontSize:30, fill:P.a2, charSpacing:260, fontWeight:'700' }),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:290, originX:'center', fontFamily:T.d, fontSize:92, fill:'#ffffff' }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:388, originX:'center', fontFamily:T.d, fontSize:150, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 24) }),
       t('Price Line', 'info', 'upper', C.price, { left:CX, top:576, originX:'center', fontFamily:T.s, fontSize:42, fill:'#ffffff', fontWeight:'800', charSpacing:40 }),
@@ -1777,16 +1777,16 @@ const TEMPLATES = [
                points:['BROKEN JEWELRY','SINGLE EARRINGS','DENTAL GOLD','ANY KARAT'], subs:['Tested and weighed in front of you','Broken pieces welcome','Paid on the spot'] },
     silver:  { h1:'WE BUY',   h2:'SILVER',   kicker:'WE PAY', price:'CASH', cta:'BRING IT IN TODAY',
                badges:['ANY QUANTITY','WEIGHED IN FRONT OF YOU'], sub:'FLATWARE BARS COINS ROUNDS',
-               points:['STERLING FLATWARE','BARS & ROUNDS','90% COINS','TARNISHED IS FINE'], subs:['Scale on the counter, you watch','Tarnish does not matter','No lowball offers'] },
+               points:['STERLING FLATWARE','BARS & ROUNDS','90% COINS','TARNISHED IS FINE'], subs:['Scale on the counter, you watch','Tarnish does not matter','No pressure to sell'] },
     coins:   { h1:'WE BUY',   h2:'COINS',    kicker:'WE PAY', price:'CASH', cta:'TEXT PHOTOS FOR OFFER',
-               badges:['SINGLES OR COLLECTIONS','HONEST GRADING'], sub:'MORGANS EAGLES PROOF SETS',
-               points:['WHOLE COLLECTIONS','GRADED OR RAW','SILVER DOLLARS','HOUSE CALLS'], subs:['Singles or whole collections','Graded or raw, both fine','House calls for estates'] },
-    cars:    { h1:'WE BUY',   h2:'CARS',     kicker:'WE PAY', price:'CASH', cta:'CALL FOR INSTANT OFFER',
-               badges:['RUNNING OR NOT','FREE TOW'], sub:'SAME DAY PICKUP CASH IN HAND',
-               points:['RUNNING OR NOT','NO SMOG NEEDED','FREE TOWING','SAME DAY PICKUP'], subs:['Free tow, we come to you','Title in hand or not','Same day pickup'] },
+               badges:['SINGLES OR COLLECTIONS','FREE APPRAISAL'], sub:'MORGANS EAGLES PROOF SETS',
+               points:['WHOLE COLLECTIONS','GRADED OR RAW','SILVER DOLLARS','FULL ESTATES'], subs:['Singles or whole collections','Graded or raw, both fine','Estates handled discreetly'] },
+    cars:    { h1:'WE BUY',   h2:'CARS',     kicker:'WE PAY', price:'CASH', cta:'CALL FOR A CASH OFFER',
+               badges:['RUNNING OR NOT','NO FEES'], sub:'SAME DAY CASH IN HAND',
+               points:['RUNNING OR NOT','HIGH MILES','ANY MAKE','SAME DAY CASH'], subs:['We meet you locally','Bring the title and keys','Cash the same day'] },
     strips:  { h1:'CASH FOR', h2:'STRIPS',   kicker:'WE PAY', price:'CASH', cta:'TEXT A PHOTO NOW',
                badges:['SEALED BOXES ONLY','NOT EXPIRED'], sub:'TEST STRIPS LANCETS CGM',
-               points:['UNEXPIRED ONLY','SEALED BOXES','ALL MAJOR BRANDS','MAIL IN WELCOME'], subs:['Sealed and unexpired only','All the major brands','Mail in kits available'] },
+               points:['UNEXPIRED ONLY','SEALED BOXES','ALL MAJOR BRANDS','LOCAL MEETUP'], subs:['Sealed and unexpired only','All the major brands','We meet you locally'] },
     pokemon: { h1:'WE BUY',   h2:'POKEMON',  kicker:'WE PAY', price:'CASH', cta:'DM TO SELL TODAY',
                badges:['SEALED OR SINGLES','GRADED OR RAW'], sub:'BOOSTER BOXES SLABS BINDERS',
                points:['SEALED PRODUCT','GRADED SLABS','VINTAGE SETS','WHOLE COLLECTIONS'], subs:['Sealed product or singles','Graded slabs welcome','Real market pricing'] },
@@ -1841,30 +1841,30 @@ const TEMPLATES = [
     st_sports_pricetag: 'Satoshi',
   };
   const STREET_BOOK = {
-    phones:  [['streetCashFor','volt','Street Cash','iphones-trio'], ['streetIconGrid','ocean','Device Grid','iphones-cash'],
-              ['streetSpecCheck','crimson','Street Broken','iphone-cracked'], ['streetPriceBadge','sunset','Payout Badge','iphone-front'],
-              ['streetSplitCol','emerald','Split Buyer','iphones-trio']],
-    gold:    [['streetRibbon','gold','Gold Ribbon','gold-chains'], ['streetCutoutHero','coral','Gold Lineup','gold-bars'],
-              ['streetTwoCol','royal','Gold Checklist','gold-jewelry'], ['streetTopStrip','gold','Gold Strip','gold-chains'],
-              ['streetPriceTag','crimson','Gold Payout','cash-bundles']],
-    silver:  [['streetTopStrip','arctic','Silver Strip','silver-bars'], ['streetCutoutHero','ocean','Silver Lineup','silver-flatware'],
-              ['streetSpecCheck','ocean','Silver Checklist','coin-stack'], ['streetIconGrid','emerald','Silver Grid','silver-bars'],
-              ['streetPriceTag','emerald','Silver Payout','cash-stack']],
-    coins:   [['streetTwoCol','gold','Coin Checklist','coin-stack'], ['streetRibbon','royal','Coin Ribbon','coin-slab'],
-              ['streetSplitCol','gold','Coin Split','gold-bars'], ['streetPriceBadge','crimson','Coin Payout','cash-fan'],
+    phones:  [['streetCashFor','volt','Street Cash','iphone-15-pro-back-white'], ['streetIconGrid','ocean','Device Grid','iphone-17-pro-back-silver'],
+              ['streetSpecCheck','crimson','Street Broken','iphone-cracked-corner'], ['streetPriceBadge','sunset','Payout Badge','iphone-15-pro-front-on'],
+              ['streetSplitCol','emerald','Split Buyer','iphone-15-pro-back-white']],
+    gold:    [['streetRibbon','gold','Gold Ribbon','gold-jewelry-mixed'], ['streetCutoutHero','coral','Gold Lineup','gold-coins-pile'],
+              ['streetTwoCol','royal','Gold Checklist','gold-jewelry-mixed'], ['streetTopStrip','gold','Gold Strip','gold-jewelry-mixed'],
+              ['streetPriceTag','crimson','Gold Payout','cash-stack-banded']],
+    silver:  [['streetTopStrip','arctic','Silver Strip','silver-coins-spill'], ['streetCutoutHero','ocean','Silver Lineup','silver-flatware-set'],
+              ['streetSpecCheck','ocean','Silver Checklist','coin-stack'], ['streetIconGrid','emerald','Silver Grid','silver-coins-spill'],
+              ['streetPriceTag','emerald','Silver Payout','cash-stack-banded']],
+    coins:   [['streetTwoCol','gold','Coin Checklist','coin-stack'], ['streetRibbon','royal','Coin Ribbon','coin-graded-fan-three'],
+              ['streetSplitCol','gold','Coin Split','gold-coins-pile'], ['streetPriceBadge','crimson','Coin Payout','cash-stack-banded'],
               ['streetCashFor','coral','Coin Street','coin-stack']],
-    cars:    [['streetPriceBadge','crimson','Car Payout','car-front'], ['streetCutoutHero','sunset','Car Lineup','car-keys'],
-              ['streetTopStrip','ocean','Car Strip','car-front'], ['streetTwoCol','emerald','Car Checklist','car-keys'],
+    cars:    [['streetPriceBadge','crimson','Car Payout','car-front'], ['streetCutoutHero','sunset','Car Lineup','car-title-docs'],
+              ['streetTopStrip','ocean','Car Strip','car-front'], ['streetTwoCol','emerald','Car Checklist','car-title-docs'],
               ['streetCashFor','volt','Car Street','car-front']],
-    strips:  [['streetIconGrid','emerald','Strip Grid','strip-boxes'], ['streetRibbon','arctic','Strip Ribbon','strip-kit'],
-              ['streetSpecCheck','ocean','Strip Checklist','strip-boxes'], ['streetSplitCol','volt','Strip Split','strip-kit'],
-              ['streetPriceTag','volt','Strip Payout','cash-stack']],
-    pokemon: [['streetRibbon','royal','Poke Ribbon','poke-booster'], ['streetTwoCol','volt','Poke Checklist','poke-slab'],
-              ['streetIconGrid','crimson','Poke Grid','poke-cards-fan'], ['streetPriceBadge','ocean','Poke Payout','poke-slab'],
-              ['streetCutoutHero','sunset','Poke Lineup','poke-booster']],
-    sports:  [['streetSplitCol','crimson','Card Split','sports-cards'], ['streetCutoutHero','emerald','Card Lineup','sports-slab'],
-              ['streetTwoCol','crimson','Card Checklist','sports-cards'], ['streetTopStrip','royal','Card Strip','sports-slab'],
-              ['streetPriceTag','royal','Card Payout','cash-bundles']],
+    strips:  [['streetIconGrid','emerald','Strip Grid','strip-boxes-stack'], ['streetRibbon','arctic','Strip Ribbon','strip-vials-pile'],
+              ['streetSpecCheck','ocean','Strip Checklist','strip-boxes-stack'], ['streetSplitCol','volt','Strip Split','strip-vials-pile'],
+              ['streetPriceTag','volt','Strip Payout','cash-stack-banded']],
+    pokemon: [['streetRibbon','royal','Poke Ribbon','poke-booster-packs-fan'], ['streetTwoCol','volt','Poke Checklist','poke-slab'],
+              ['streetIconGrid','crimson','Poke Grid','poke-booster-box'], ['streetPriceBadge','ocean','Poke Payout','poke-slab'],
+              ['streetCutoutHero','sunset','Poke Lineup','poke-booster-packs-fan']],
+    sports:  [['streetSplitCol','crimson','Card Split','sports-cards-stack-loose'], ['streetCutoutHero','emerald','Card Lineup','sports-slab'],
+              ['streetTwoCol','crimson','Card Checklist','sports-cards-stack-loose'], ['streetTopStrip','royal','Card Strip','sports-slab'],
+              ['streetPriceTag','royal','Card Payout','cash-stack-banded']],
   };;
   Object.keys(STREET_BOOK).forEach(cat => {
     const D = Object.assign({}, DECKS[cat], STREET_DECK[cat]);
@@ -1910,7 +1910,7 @@ TEMPLATES.forEach(t => {
   });
 });
 
-const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','5 MINUTES','HASSLE FREE','SAME DAY','CASH PAID','ANY CONDITION','INSTANT CASH','NO GAMES','CALL NOW'];
+const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','NO FEES','HASSLE FREE','SAME DAY','CASH PAID','ANY CONDITION','FREE QUOTE','NO GAMES','CALL NOW'];
 const EMOJIS = ['📱','💰','💵','✅','✔️','👉','🔥','⭐','📲','🤝'];
 
 // ---------- gradient helper (CSS-angle semantics) ----------
@@ -2579,7 +2579,9 @@ function buildLanding(){
     const scored = fan.map(t => ({ t, s: strength(t) })).sort((a, b) => a.s - b.s);
     fan = scored.map(x => x.t);          // weakest first -> strongest lands in hc3
   }
-  const heroIds = fan.length === 3 ? fan.map(t => t.id) : ['sell_iphone','icloud_ok','top_buyer'];
+  const has = id => TEMPLATES.some(t => t.id === id);
+  const heroIds = fan.length === 3 ? fan.map(t => t.id)
+    : ['sell_iphone','icloud_ok','top_buyer'].filter(has).concat(TEMPLATES.filter(t => !tplLocked(t)).map(t => t.id)).filter((v, i, a) => a.indexOf(v) === i).slice(0, 3);
   document.querySelectorAll('#hero-stack .hero-card').forEach((card, i) => {
     card.innerHTML = '';
     const img = new Image();
@@ -4636,7 +4638,10 @@ const _fontLoaded = new Set(CORE_FONTS);
 // be requested from Google — that lookup 404s and costs a round trip before
 // the harmless onerror fires.
 const HOUSE_FACES = ['Clash Display', 'Satoshi', 'Khand', 'Melodrama', 'Zodiak'];
-const LOCAL_FACES = ['Unbounded', 'Bricolage Grotesque', 'Sofia Sans Extra Condensed', 'Schibsted Grotesk', 'Gloock', 'Young Serif', 'Tilt Warp', 'JetBrains Mono', 'Big Shoulders Display'];
+const LOCAL_FACES = ['Unbounded', 'Bricolage Grotesque', 'Sofia Sans Extra Condensed', 'Schibsted Grotesk', 'Gloock', 'Young Serif', 'Tilt Warp', 'JetBrains Mono', 'Big Shoulders Display',
+  /* the offer family's reading faces (offer-library.js), the ones the owner's
+     own offer cards are set in; OFL, files already in assets/fonts */
+  'Manrope', 'Chivo', 'Libre Franklin', 'Instrument Sans', 'Zilla Slab', 'DM Mono', 'Sora'];
 let _localFacesCss = null;
 function ensureFont(name){
   if (_fontLoaded.has(name)) return Promise.resolve();
@@ -4660,7 +4665,9 @@ function ensureFont(name){
   return new Promise(res => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = local ? 'assets/fonts/faces.css'
+    /* versioned: /assets/fonts/* is served immutable for a year, and the
+       2026-09-27 edition adds the offer family's faces */
+    link.href = local ? 'assets/fonts/faces.css?v=20260927'
       : 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
     if (local) _localFacesCss = new Promise(r => { link.addEventListener('load', r); link.addEventListener('error', r); });
     const done = () => {
@@ -5176,7 +5183,7 @@ function refreshPlanFeats(){
        here described a different set from the one visitors click. (2026-09-22) */
     void c;
     FEAT_FREE_TPL = 'Every Phones design, plus the top 3 in every other category';
-    FEAT_PRO_TPL  = 'Every design in all 8 categories';
+    FEAT_PRO_TPL  = 'Every design in all 13 categories';
     if (typeof PLANS === 'object' && PLANS){
       PLANS.free.feats[1] = FEAT_FREE_TPL;
       PLANS.pro.feats[1]  = FEAT_PRO_TPL;
@@ -6014,6 +6021,13 @@ const CATS = [
   { id:'strips',  label:'\uD83E\uDE78 Diabetic Supplies' },
   { id:'pokemon', label:'\u26A1 Pok\u00e9mon Cards' },
   { id:'sports',  label:'\uD83C\uDFC0 Sports Cards' },
+  /* 2026-09-27, the owner: "this is alternate media and we will create some
+     alternate categories for" it. Their templates come from offer-library.js. */
+  { id:'gaming',    label:'\uD83C\uDFAE Gaming & Consoles' },
+  { id:'audio',     label:'\uD83C\uDFA7 Headphones & Audio' },
+  { id:'computers', label:'\uD83D\uDCBB Computers & Parts' },
+  { id:'wearables', label:'\u231A Wearables & Glasses' },
+  { id:'cameras',   label:'\uD83D\uDCF7 Cameras & Drones' },
 ];
 let currentCat = jget('pgfx_cat', 'phones');
 function setCategory(cat){
@@ -7323,14 +7337,14 @@ function refreshCountCopy(){
    empty rectangle is found, and the product is fitted inside it with a margin.
    Below 300px of clear space there is no cutout at all. */
 const CAT_CUTOUTS = {
-  phones:  ['iphones-trio','iphone-cracked','iphone-front','iphones-cash','macbook-open','tablet-watch'],
-  gold:    ['gold-bars','gold-chains','gold-jewelry'],
-  silver:  ['silver-bars','silver-flatware'],
-  coins:   ['coin-stack','coin-slab'],
-  cars:    ['car-front','car-keys'],
-  strips:  ['strip-boxes','strip-kit'],
-  pokemon: ['poke-cards-fan','poke-slab','poke-booster'],
-  sports:  ['sports-cards','sports-slab'],
+  phones:  ['iphone-15-pro-back-white','iphone-cracked-corner','iphone-15-pro-front-on','iphone-17-pro-back-silver','macbook-open-front','apple-watch-pair'],
+  gold:    ['gold-coins-pile','gold-jewelry-mixed','gold-scrap-mixed'],
+  silver:  ['silver-coins-spill','silver-flatware-set'],
+  coins:   ['coin-loose-pile','coin-graded-fan-three'],
+  cars:    ['car-sedan-rear','car-title-docs'],
+  strips:  ['strip-boxes-stack','strip-vials-pile'],
+  pokemon: ['poke-booster-box','poke-slabs-trio','poke-booster-packs-fan'],
+  sports:  ['sports-cards-stack-loose','sports-slabs-stack'],
 };
 /* Width of a text layer, estimated from its own metrics. Build time has no
    font loaded, so this is deliberately GENEROUS — over-reserving space costs a
@@ -7393,7 +7407,7 @@ function addProductCutout(t){
   while (at < t.layers.length && /^(vignette|grain|noise|grid|bokeh|beams|spot|diag)$/.test(t.layers[at].kind || '')) at++;
   t.layers.splice(at, 0, {
     kind:'cutout', name:'Product', role:'photo',
-    props:{ src: src, left: left, top: top, w: SIZE, opacity: 0.97,
+    props:{ src: src, left: left, top: top, w: SIZE, maxH: SIZE, opacity: 0.97,
             shadow:{ color:'rgba(0,0,0,0.6)', blur:46, offsetX:-10, offsetY:16 } }
   });
   return 1;
@@ -7534,12 +7548,14 @@ function tplDims(t){
   // hand-authored classic, which takes its tag as its family.
   const m = /^dl_([a-z]+)_([A-Za-z]+)_([a-z]+)$/.exec(t.id);
   const classic = 'classic:' + (t.tag || '');
+  /* the offer family (offer-library.js) carries its layout and look outright */
+  const o = !m && t.tag === 'offer' && t.layout ? t : null;
   d = {
     cat:    t.cat,
-    layout: m ? m[2] : classic,
-    pal:    m ? m[3] : classic,
+    layout: m ? m[2] : o ? 'offer:' + o.layout : classic,
+    pal:    m ? m[3] : o ? 'offer:' + o.look : classic,
     tag:    t.tag || '',
-    fam:    m ? (LAYOUT_FAMILY[m[2]] || m[2]) : classic,
+    fam:    m ? (LAYOUT_FAMILY[m[2]] || m[2]) : o ? 'offer:' + o.layout : classic,
   };
   _DIMS_CACHE.set(t.id, d);
   return d;
@@ -7874,6 +7890,9 @@ function selectEzTpl(id){
   ez.tpl = TEMPLATES.some(t => t.id === id) ? id : firstFreeTplId();
   ez.chips = null; // back to this template's default points
   ez.bgPicked = false; // fresh template → background is a placeholder again
+  /* ...unless the photograph IS the design (the offer family's photo band):
+     then it previews and exports as drawn, like an opened showcase card */
+  if ((TEMPLATES.find(t => t.id === ez.tpl) || {}).photoIsDesign){ ez.bg = null; ez.bgRecId = null; ez.bgPicked = true; }
   jset('pgfx_last', ez.tpl);
   document.querySelectorAll('.ez-tpl').forEach(b => b.classList.toggle('sel', b.dataset.tpl === ez.tpl));
   buildEzForm();
@@ -7881,6 +7900,48 @@ function selectEzTpl(id){
   syncEzSwatches();
   refreshEzLayers();
   schedEzPreview(0);
+  /* The background waves load photographs and product pictures in their own
+     order, and a template opened before its own arrived previewed without
+     them (the product missing, the photo on its gradient) until the next
+     keystroke. Fetch this template's own now, and redraw when they land. */
+  const picked = ez.tpl;
+  ensureTplAssets(ezTpl()).then(n => { if (n && ez.tpl === picked) schedEzPreview(0); });
+}
+/* this template's product pictures, photograph and faces; resolves with how
+   many had to be fetched (0: nothing to redraw). Never waits past 7s. A face
+   counts when it is not loaded yet at the weight the template sets it in:
+   ensureFont() returns at once for a face already asked for, loaded or not,
+   and a canvas drawn before the face lands keeps the fallback. */
+function ensureTplAssets(t){
+  if (!t) return Promise.resolve(0);
+  let n = 0;
+  const faceLoads = [];
+  (t.layers || []).forEach(l => {
+    const f = l.props && l.props.fontFamily;
+    if (!f || !document.fonts || !document.fonts.check) return;
+    const spec = (l.props.fontWeight || 400) + ' 24px "' + f + '"';
+    let ready = true;
+    try { ready = _fontLoaded.has(f) && document.fonts.check(spec); } catch (e){}
+    if (!ready){ n++; faceLoads.push(ensureFont(f).then(() => document.fonts.load(spec)).catch(() => {})); }
+  });
+  const load = (src, store, embedded) => new Promise(res => {
+    if (!src || (store[src] && store[src].width)) return res();
+    n++;
+    const el = new Image();
+    el.onload = () => { store[src] = el; res(); };
+    el.onerror = () => res();
+    el.src = (embedded && embedded[src]) || src;
+  });
+  const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
+  const fams = [...new Set((t.layers || []).map(l => l.props && l.props.fontFamily).filter(Boolean))];
+  const bg = t.bg && t.bg.type === 'image' ? t.bg.src : null;
+  return Promise.race([
+    Promise.all(cuts.map(src => load(src, CUTOUT_ELS)).concat([load(bg, TPL_BG_ELS, window.TPL_BG_DATA || {})], fams.map(f => ensureFont(f).catch(() => {})), faceLoads)),
+    new Promise(r => setTimeout(r, 7000)),
+  ]).then(() => {
+    if (n){ try { fabric.util.clearFabricFontCache(); } catch (e){} delete THUMBS[t.id]; }
+    return n;
+  });
 }
 
 function buildEzForm(){
@@ -9292,6 +9353,24 @@ tuneFallbacks();
   } catch(e){}
 })();
 
+/* HELD BACK (2026-09-27). scripts/audit_templates.mjs holds every template the
+   studio builds at load to the showcase's bar (overlap, legibility, the design
+   school, a flagged or stretched product picture, invented copy) and writes
+   the ones that fail to template-holds.js, loaded before this file. They leave
+   TEMPLATES here, and again after offer-library.js adds its cards. Idempotent.
+   ?noholds=1 keeps them, for the audit that decides. */
+function applyTemplateHolds(){
+  try {
+    if (/[?&]noholds=1\b/.test(location.search)) return 0;
+    const H = (typeof window !== 'undefined' && window.TEMPLATE_HOLDS) || {};
+    let n = 0;
+    for (let i = TEMPLATES.length - 1; i >= 0; i--) if (H[TEMPLATES[i].id]){ TEMPLATES.splice(i, 1); n++; }
+    if (n) _freeFirst3 = null;
+    return n;
+  } catch (e){ return 0; }
+}
+applyTemplateHolds();
+
 try {
   tplDims(TEMPLATES[0]);
   /* The old assertion called onAccent({a1:'#ffffff'}) here. onAccent is a const
@@ -9631,12 +9710,25 @@ function scBuildChips(cards){
     row.appendChild(b);
   };
   mk('all', 'All', cards.length);
-  CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] || 0));
+  /* a category the showcase has no cards for yet (the 2026-09-27 ones) shows
+     the studio's own templates for it, so its chip is never an empty room */
+  CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] || scStudioCat(c.id).length));
+  mk('offer', 'Offer cards', scOffers().length);
   mk('classics', 'Classics', scClassics().length);
   const more = $('lp-tpl-more');
   if (more && !more.dataset.bound){ more.dataset.bound = '1'; more.onclick = () => scRenderGrid(false); }
   const all = $('lp-tpl-all');
   if (all && !all.dataset.bound){ all.dataset.bound = '1'; all.onclick = () => showEasy(null); }
+}
+/* the offer family (offer-library.js), unlocked first */
+function scOffers(){
+  const pool = varietyOrder(TEMPLATES.filter(t => t.tag === 'offer'));
+  return pool.filter(t => !tplLocked(t)).concat(pool.filter(t => tplLocked(t)));
+}
+function scStudioCat(cat){
+  if (SHOWCASE.cards && SHOWCASE.cards.some(c => c.cat === cat)) return [];
+  const pool = orderedCatList(cat);
+  return pool.filter(t => !tplLocked(t)).concat(pool.filter(t => tplLocked(t)));
 }
 function scSyncFilters(){
   document.querySelectorAll('#lp-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.cat === SHOWCASE.filter.cat));
@@ -9682,6 +9774,10 @@ function scClassicCard(t){
   const go = () => showEasy(t.id);
   card.onclick = go;
   card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };
+  /* The landing does not warm the template library (a phone would pay for
+     all of it), so a Studio card is first drawn without its product picture,
+     photograph or face. Fetch just this card's, then draw it again. */
+  ensureTplAssets(t).then(n => { const img = card.querySelector('img'); if (n && img) img.src = getThumb(t.id, 320); });
   return card;
 }
 function scRenderGrid(reset){
@@ -9693,6 +9789,10 @@ function scRenderGrid(reset){
     grid.innerHTML = '';
     if (f.cat === 'classics'){
       SHOWCASE.list = scClassics().map(t => ({ classic:t }));
+    } else if (f.cat === 'offer'){
+      SHOWCASE.list = scOffers().map(t => ({ classic:t }));
+    } else if (f.cat !== 'all' && scStudioCat(f.cat).length){
+      SHOWCASE.list = scStudioCat(f.cat).map(t => ({ classic:t }));
     } else {
       const sub = SHOWCASE.cards.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.theme === f.fam));
       const ordered = scOrder(sub);

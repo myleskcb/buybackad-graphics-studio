@@ -36,6 +36,12 @@
 /app.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/offer-library.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/template-holds.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 /styles.css
   Cache-Control: public, max-age=0, must-revalidate
 
