@@ -216,7 +216,7 @@ for (let i = 0; i < work.length; i += 6){
         /* each product picture's drawn size against its own pixels, and whether it
            loaded at all (2026-09-27): a picture stretched past 1.5x is soft on a
            Free export and 3x on Pro */
-        const cutScale = t.layers.map((l, k) => ({ l, o: refs[k] })).filter(z => z.l.kind === 'cutout' && z.l.props && z.l.props.src)
+        const cutScale = t.layers.map((l, k) => ({ l, o: refs[k] })).filter(z => z.l.kind === 'cutout' && z.l.props && z.l.props.src && !/^logo:/.test(z.l.props.src))
           .map(z => (!z.o || z.o.type !== 'image') ? 99 : +(z.o.scaleX || 1).toFixed(2));
         const worstOf = a => { const v = a.map(x => x.worst).filter(v => v != null); return v.length ? Math.min(...v) : null; };
         R[id] = {

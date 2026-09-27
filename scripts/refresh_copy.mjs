@@ -144,11 +144,15 @@ export const DASH = /[–—]/;
 /* INVENTED FACTS (2026-09-27; the owner: "inaccurate info ... or bad copy gets
    removed"). The same kind of claim as PROOF and HOURS in other words, each a
    fact a template cannot know about the reseller who posts it:
-     rank        #1, TOP BUYER, BEST PRICE, HIGHEST, WE BEAT, PRICE MATCH
+     rank        #1, TOP BUYER, BEST PRICE, HIGHEST, WE BEAT, PRICE MATCH,
+                 WE TOP / OUTBID / MATCH, WE PAY MORE, MORE THAN THE PAWN SHOP
      a clock     "30 SECONDS", "OFFER IN 10 MINUTES", "REPLIES IN MINUTES",
                  INSTANT: an offer takes as long as the reseller takes (an
                  "instant transfer" is a way to pay, and stays)
-     a service   MAIL IT IN, PREPAID, FREE SHIPPING, HOUSE CALLS, 7 DAYS, DAILY
+     a service   MAIL IT IN, PREPAID, FREE SHIPPING, HOUSE CALLS, 7 DAYS, DAILY,
+                 FREE TOW, SAME-DAY PICKUP, DMV PAPERWORK HANDLED, LIEN PAYOFF
+     the law     NO SMOG NEEDED, NO TITLE: what a car sale needs is not a
+                 template's promise to make
      a policy    NO LOWBALLS, COMPS SHOWN WITH EVERY OFFER, IN WRITING, NOT MELT
      reputation  TRUSTED, HONEST: proof nobody gave
      too much    EVERY APPLE DEVICE, EVERY SEALED BOX, ALL THREE: more than the
@@ -163,6 +167,9 @@ export const CLAIM = new RegExp([
   String.raw`\bEVALUATIONS DAILY\b`, String.raw`\bPRICES DAILY\b`, String.raw`\bEVERY SINGLE DAY\b`, String.raw`\bWALK OUT\b`,
   String.raw`\bNO LOWBALLS?\b`, String.raw`\bNOT MELT\b`, String.raw`\bCOMPS SHOWN\b`, String.raw`\bDOCUMENTED\b`, String.raw`\bIN WRITING\b`,
   String.raw`\bEVERY (APPLE )?DEVICE\b`, String.raw`\bEVERY SEALED BOX\b`, String.raw`\bALL THREE\b`, String.raw`\bTRUSTED\b`, String.raw`\bHONEST\b`,
+  String.raw`\bWE (TOP|OUTBID|MATCH)\b`, String.raw`\bOUTBID\b`, String.raw`\bPAYS? MORE\b`, String.raw`\bMORE THAN (THE|ANY|OTHER)\b`,
+  String.raw`\bFREE TOW(ING)?\b`, String.raw`\bWE TOW\b`, String.raw`\bTOW IT FREE\b`, String.raw`\bSAME[- ]DAY PICKUP\b`, String.raw`\bDMV\b`, String.raw`\bLIEN PAYOFF\b`,
+  String.raw`\bNO SMOG\b`, String.raw`\bNO TITLE\b`, String.raw`\bTITLE IN HAND OR NOT\b`,
 ].join('|'), 'i');
 /* ...and what each one says instead: how the offer works, in the same room.
    Each replacement is no wider than the line it replaces unless the line has
@@ -195,6 +202,18 @@ export const CLAIM_FIX = [
   [/and documented fair-market offers\./, 'and an offer before you decide.'],
   [/\bHONEST GRADING\b/, 'FREE APPRAISAL'],
   [/(^|\n|✓ ?)TRUSTED(?=\n|$)/g, '$1CASH'], [/✓TRUSTED\b/, '✓CASH'],
+  /* a price comparison nobody measured becomes an invitation: "SKIP THE COIN
+     SHOP" says where to sell, not that we pay more (and is narrower than the
+     line it replaces, so it never runs into anything) */
+  [/^WE (TOP|OUTBID|MATCH)$/, 'SKIP'], [/^YOUR CARRIER'S$/, 'THE TRADE-IN'], [/^WE PAY MORE$/, 'FAIR OFFERS'],
+  [/^MORE THAN THE [A-Z' ]+, PAID SAME DAY$/, 'A FAIR OFFER, PAID SAME DAY'],
+  /* a tow, a pickup run, the DMV and a lien are services the reseller may not
+     offer; AS-IS says what a car buyer can: it buys the car the way it is */
+  [/(^|\n|✓ ?)FREE TOW(?=\n|$)/g, '$1AS-IS'],
+  [/^CASH IN HAND BEFORE WE TOW$/, 'CASH IN HAND WHEN WE MEET'],
+  [/^TITLE AND DMV PAPERWORK HANDLED$/, 'BRING THE TITLE AND THE KEYS'],
+  [/^SAME-DAY PICKUP ACROSS LA & OC$/, 'AN OFFER BEFORE YOU DECIDE'],
+  [/ • Lien Payoff • Free Tow$/, ''],
 ];
 export function fixClaims(text){
   let s = String(text);

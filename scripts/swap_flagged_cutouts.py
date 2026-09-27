@@ -21,22 +21,32 @@ DIR = os.path.join(ROOT, 'assets', 'showcase')
 WRITE = '--write' in sys.argv
 
 REPLACE = {
-    'poke-booster': 'poke-booster-packs-fan', 'poke-elite-box': 'poke-packs-pile', 'poke-binder-open': 'poke-cards-spread-face',
-    'silver-bar-single': 'silver-bars-stack', 'silver-bars-row': 'silver-bars-stack',
-    'gold-bars-row': 'gold-bars-stack', 'gold-bar-single': 'gold-bars-stack', 'gold-bars-fan': 'gold-bars-stack',
-    'strip-kit-meter': 'strip-boxes-row-five', 'strip-boxes-cash': 'strip-boxes-stack', 'strip-boxes-fan': 'strip-boxes-stack',
-    'car-hand-keys-over': 'car-sedan-front', 'car-classic-side': 'car-truck-front', 'car-keys-fob': 'car-wheel-tyre',
-    'coin-rolls-paper': 'coin-graded-fan-three',
-    'own-apple-cosmic-orange-16': 'iphone-trio-fan', 'iphone-15-pro-back-black': 'iphone-pair-front-back',
+    'poke-booster': 'poke-booster-packs-fan', 'poke-elite-box': 'poke-booster-box', 'poke-binder-open': 'poke-slabs-trio',
+    'poke-cards-fan': 'poke-booster-packs-fan',
+    'silver-bar-single': 'silver-coins-spill', 'silver-bars-row': 'silver-coins-spill', 'silver-bars-stack': 'silver-coins-spill',
+    'silver-rounds-pile': 'silver-coins-spill', 'silver-serving-tray': 'silver-tea-set',
+    'gold-bars-row': 'gold-coins-pile', 'gold-bar-single': 'gold-coins-pile', 'gold-bars-fan': 'gold-coins-pile', 'gold-bars-stack': 'gold-coins-pile',
+    'gold-chains-pile': 'gold-jewelry-mixed',
+    'strip-kit-meter': 'strip-boxes-row-five', 'strip-boxes-cash': 'strip-boxes-stack', 'strip-boxes-fan': 'strip-boxes-stack', 'strip-boxes-pile-large': 'strip-boxes-stack',
+    'car-hand-keys-over': 'car-sedan-rear', 'car-classic-side': 'car-sedan-rear', 'car-keys-fob': 'car-wheel-tyre',
+    'car-truck-front': 'car-suv-side', 'car-van-cargo': 'car-suv-side', 'car-sedan-front': 'car-sedan-rear',
+    'coin-rolls-paper': 'coin-graded-fan-three', 'coin-stack-silver': 'coin-silver-dollar-pair', 'coin-collection-tray': 'coin-slabs-stack',
+    'coin-album-pages': 'coin-graded-fan-three',
+    'own-apple-cosmic-orange-16': 'iphone-fan-four', 'iphone-15-pro-back-black': 'iphone-fan-four', 'iphone-pair-front-back': 'iphone-fan-four',
+    'iphone-trio-fan': 'iphone-fan-four',
     'iphone-hand-back-offer': 'iphone-17-pro-back-silver', 'iphone-16-back-teal': 'iphone-15-pro-back-blue',
     'iphone-floating-tilt': 'iphone-fan-four', 'iphone-hand-hold': 'iphone-15-pro-front-on',
     'iphone-back-flat-straight': 'iphone-15-pro-back-white', 'iphone-back-lean-stack': 'iphone-fan-four',
     'iphone-17-pro-back-orange': 'iphone-17-pro-back-black',
+    'ipad-with-pencil': 'ipad-front', 'tablet-watch': 'apple-watch-pair', 'watch-stack-four': 'apple-watch-stack-three',
+    'own-stock-macbook-stack': 'mac-air-open-angle', 'mac-pair-open-angle': 'mac-pro-open-front',
     'sam-s24-back-cream': 'sam-s24-ultra-back', 'sam-trio-lineup': 'sam-pile-mixed', 'sam-pair-front-back': 'sam-pile-mixed',
-    'pix-9-pro-back': 'pix-9-back-green',
+    'pix-9-pro-back': 'pix-9-back-green', 'pix-pair-angle': 'pix-trio-lineup', 'pix-watch-round': 'sam-watch-pair',
+    'drone-open-props': 'drone-folded',
     'cash-single-hundred': 'cash-stack-banded', 'cash-envelope-stuffed': 'cash-bundles-pyramid',
-    'bundle-with-cash': 'cash-stack-banded', 'keyboard-mouse-set': 'mac-pair-open-angle',
-    'sports-cards-spread': 'sports-slabs-stack',
+    'bundle-with-cash': 'cash-stack-banded', 'keyboard-mouse-set': 'mac-pro-open-front',
+    'sports-cards-spread': 'sports-slabs-stack', 'sports-binder-open': 'sports-slabs-fan-five',
+    'coin-slab': 'coin-silver-dollar-pair', 'car-keys': 'car-title-keys',
 }
 _size = {}
 def size(name):
@@ -47,6 +57,14 @@ missing = flags - set(REPLACE)
 if missing: sys.exit('no replacement chosen for: ' + ', '.join(sorted(missing)))
 for k, v in REPLACE.items():
     if v in flags: sys.exit(k + ' -> ' + v + ' is itself flagged')
+
+def js(v):
+    """the numbers as JSON.stringify writes them (210, not 210.0), so a record
+    this touches differs from the one the JS tools wrote only where it changed"""
+    if isinstance(v, float) and v.is_integer(): return int(v)
+    if isinstance(v, dict): return {k: js(x) for k, x in v.items()}
+    if isinstance(v, list): return [js(x) for x in v]
+    return v
 
 def refit(p, old, new):
     """the new picture inside the old one's drawn box, same centre"""
@@ -77,7 +95,7 @@ for c in idx:
     if hit:
         touched.append(c['id'])
         if c.get('product') and c['product'].replace('.webp', '') in REPLACE: c['product'] = REPLACE[c['product'].replace('.webp', '')]
-        if WRITE: json.dump(rec, open(f, 'w'), separators=(',', ':'), ensure_ascii=False)
-if WRITE: json.dump(idx, open(os.path.join(DIR, 'index.json'), 'w'), separators=(',', ':'), ensure_ascii=False)
+        if WRITE: json.dump(js(rec), open(f, 'w'), separators=(',', ':'), ensure_ascii=False)
+if WRITE: json.dump(js(idx), open(os.path.join(DIR, 'index.json'), 'w'), separators=(',', ':'), ensure_ascii=False)
 print(f'pictures swapped {n} on {len(touched)} cards' + (' · written' if WRITE else ' · dry run'))
 if '--ids-out' in sys.argv: json.dump(touched, open(sys.argv[sys.argv.index('--ids-out') + 1], 'w'))
