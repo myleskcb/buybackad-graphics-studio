@@ -11176,3 +11176,647 @@ function fontPicker(sel){
   const upgrade = () => document.querySelectorAll('select[data-fonts-built]').forEach(fontPicker);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', upgrade); else upgrade();
 }
+
+/* ═══════════════ MOTION, PART 2: THE SHIFT TO THE CALL TO ACTION ═══════════════
+   Owner, 2026-09-27, on the video: "a good theme for ads to then shift to a
+   CTA .. starts a fully made graphic image ad". Evidence for the arc is in
+   docs/VIDEO-AD-RESEARCH.md (the ad is judged in the first half second; the
+   close is the number, held long enough to act on).
+
+   0 to MOTION.cta.at is the living still above, untouched: the finished ad,
+   the photograph breathing, the three beats. Then the ad hands over to its
+   own call to action, and nothing in it is invented:
+
+   - the rest of the copy leaves the photograph. The photograph stays in its
+     own colour, with the card's own scrim, vignette and grain (rules 56, 62):
+     no blur, no tint, no new veil unless a line on the photograph needs one;
+   - the card's own CTA plate (the plate, the CTA line and the number on it)
+     glides to the centre and grows to fill the guides. fabric re-renders it at
+     the new size, so it is crisp, and its faces, colours and contrast are the
+     ones the critic already passed (rules 53, 54);
+   - the product settles in above the plate, never under the number (rule 53);
+   - one beat of scale on the plate, the way the living still does its beats.
+
+   Everything lands inside the guides (rule 57), and on 9:16 inside the box no
+   platform UI covers (research §7.3). A card whose call to action cannot be
+   built to that standard keeps the living still for the whole clip: the
+   measured reasons are logged, and nothing half-made ships.
+
+   Appended, not spliced (rule 42): the functions above are wrapped, never
+   edited, so everything before the shift is the living still byte for byte. */
+MOTION.dur = 10;
+MOTION.cta = { at: 5.8, fade: 0.5, move: 0.65, stagger: 0.06, prod: [5.85, 6.5], stamp: [6.75, 7.35], amp: 0.05 };
+
+const _ctaSeg = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+const _ctaEase = p => p <= 0 ? 0 : p >= 1 ? 1 : (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+/* rule 57's ground: anything covering at least 85% of both dimensions */
+function ctaIsGround(o, W, H){
+  if (o.pgBgRect || o.pgScrim) return true;
+  const r = o.getBoundingRect(true, true);
+  return r.width >= 0.85 * W && r.height >= 0.85 * H;
+}
+/* 6% guides; on 9:16 also the box Reels, Stories and TikTok leave clear
+   (top 14%, bottom 35%, left 6%, right 140px of 1080) */
+function ctaSafeBox(W, H){
+  const g = 0.06 * Math.min(W, H);
+  if (H / W >= 1.7) return { x0: Math.max(g, W * 65 / 1080), x1: Math.min(W - g, W * 940 / 1080), y0: Math.max(g, H * 269 / 1920), y1: Math.min(H - g, H * 1248 / 1920) };
+  return { x0: g, x1: W - g, y0: g, y1: H - g };
+}
+/* The CTA block: the number's plate and everything that lives on it (the CTA
+   line, a cursor mark), by the same "inside the plate" test motionPlate uses.
+   A number with no plate takes the CTA line directly above or below it. */
+function ctaBlock(sc, rig, W, H){
+  const u = rig.units.phone;
+  if (!u) return null;
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const own = u.members.map(m => m.o);
+  const phone = own.find(o => motionIsText(o));
+  if (!phone) return null;
+  const plate = own.find(o => o !== phone && o.type === 'rect') || null;
+  const area = b => b.w * b.h;
+  const inside = (o, b) => {
+    const r = motionBox(o);
+    const ix = Math.max(0, Math.min(r.x + r.w, b.x + b.w) - Math.max(r.x, b.x));
+    const iy = Math.max(0, Math.min(r.y + r.h, b.y + b.h) - Math.max(r.y, b.y));
+    return area(r) > 0 && ix * iy >= 0.75 * area(r);
+  };
+  let members;
+  if (plate){
+    const pb = motionBox(plate);
+    members = objs.filter(o => live(o) && !ctaIsGround(o, W, H) && (o === plate || (inside(o, pb) && area(motionBox(o)) < area(pb))));
+  } else {
+    members = [phone];
+    const pb = motionBox(phone);
+    const cta = objs.find(o => live(o) && o.pgRole === 'cta' && motionIsText(o));
+    if (cta){
+      const cb = motionBox(cta);
+      const gap = Math.max(cb.y - (pb.y + pb.h), pb.y - (cb.y + cb.h));
+      const ov = Math.min(cb.x + cb.w, pb.x + pb.w) - Math.max(cb.x, pb.x);
+      if (gap < 0.8 * pb.h && ov > 0.5 * Math.min(cb.w, pb.w)) members.push(cta);
+    }
+    members.sort((a, b) => objs.indexOf(a) - objs.indexOf(b));
+  }
+  const bx = members.map(motionBox);
+  const x0 = Math.min(...bx.map(b => b.x)), y0 = Math.min(...bx.map(b => b.y));
+  const x1 = Math.max(...bx.map(b => b.x + b.w)), y1 = Math.max(...bx.map(b => b.y + b.h));
+  return { members, plate, phone, box: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 } };
+}
+/* Where the call to action lands, in document units: the plate as wide as the
+   guides allow, its number capped where it stops reading as a number, the
+   product above it in what height is left. */
+/* Render a set of the scene's own objects, moved as one (scaled by s about
+   `from`, then carried to `to`, both in document units), alone, into a
+   bitmap cropped to them plus their shadows. Every property touched is
+   restored exactly. */
+function ctaRender(sc, set, s, from, to, z, outW, outH){
+  if (!set.size){ const e = document.createElement('canvas'); e.width = e.height = 1; return { bmp: e, x: 0, y: 0 }; }
+  const objs = sc.getObjects();
+  const keep = objs.map(o => ({ o, v: o.visible, left: o.left, top: o.top, sx: o.scaleX, sy: o.scaleY }));
+  const bgi = sc.backgroundImage, bgc = sc.backgroundColor;
+  try {
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    set.forEach(o => {
+      const c = o.getCenterPoint();
+      o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+      o.setPositionByOrigin(new fabric.Point(to.x + (c.x - from.x) * s, to.y + (c.y - from.y) * s), 'center', 'center');
+      o.setCoords();
+    });
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    keep.forEach(k => {
+      k.o.visible = k.v !== false && set.has(k.o);
+      if (!k.o.visible) return;
+      const r = k.o.getBoundingRect(false, true), sh = k.o.shadow || {};
+      const pad = Math.ceil(((sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * z * s) + 6;
+      x0 = Math.min(x0, r.left - pad); y0 = Math.min(y0, r.top - pad);
+      x1 = Math.max(x1, r.left + r.width + pad); y1 = Math.max(y1, r.top + r.height + pad);
+    });
+    x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0));
+    x1 = Math.min(outW, Math.ceil(x1)); y1 = Math.min(outH, Math.ceil(y1));
+    sc.renderAll();
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, x1 - x0); c.height = Math.max(1, y1 - y0);
+    if (x1 > x0 && y1 > y0) c.getContext('2d').drawImage(sc.lowerCanvasEl, x0, y0, c.width, c.height, 0, 0, c.width, c.height);
+    return { bmp: c, x: Math.min(x0, outW), y: Math.min(y0, outH) };
+  } finally {
+    sc.backgroundImage = bgi; sc.backgroundColor = bgc;
+    keep.forEach(k => { k.o.visible = k.v; k.o.set({ left: k.left, top: k.top, scaleX: k.sx, scaleY: k.sy }); k.o.setCoords(); });
+  }
+}
+/* The ground the call to action stands on: the card's own full-cover layers
+   (scrim, vignette, grain, frame), in order, blends kept, so the photograph
+   reads exactly as it did under the ad. */
+function ctaGroundLayers(sc, W, H, outW, outH){
+  const objs = sc.getObjects(), vis = objs.map(o => o.visible);
+  const bgi = sc.backgroundImage, bgc = sc.backgroundColor;
+  const layers = [];
+  const snap = () => { sc.renderAll(); const c = document.createElement('canvas'); c.width = outW; c.height = outH; c.getContext('2d').drawImage(sc.lowerCanvasEl, 0, 0); return c; };
+  try {
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    let run = [];
+    const only = set => objs.forEach((o, i) => { o.visible = vis[i] !== false && set.has(o); });
+    const flush = () => { if (run.length){ only(new Set(run)); layers.push({ bmp: snap(), blend: null, alpha: 1 }); run = []; } };
+    objs.forEach((o, i) => {
+      if (vis[i] === false || !ctaIsGround(o, W, H)) return;
+      const blend = o.globalCompositeOperation && o.globalCompositeOperation !== 'source-over' ? o.globalCompositeOperation : null;
+      if (!blend){ run.push(o); return; }
+      flush();
+      const op = o.globalCompositeOperation, al = o.opacity;
+      o.globalCompositeOperation = 'source-over'; o.opacity = 1;
+      only(new Set([o]));
+      layers.push({ bmp: snap(), blend, alpha: al });
+      o.globalCompositeOperation = op; o.opacity = al;
+    });
+    flush();
+  } finally {
+    sc.backgroundImage = bgi; sc.backgroundColor = bgc;
+    objs.forEach((o, i) => { o.visible = vis[i]; });
+  }
+  return layers;
+}
+function ctaInkOf(o){
+  const f = o && o.fill;
+  if (typeof f === 'string') return f;
+  if (f && f.colorStops && f.colorStops.length){
+    // a gradient's worst case for a dark shade is its lightest stop's opposite: judge by the darkest stop
+    return f.colorStops.map(s => s.color).sort((a, b) => _ctaLum(..._ctaRgb(a)) - _ctaLum(..._ctaRgb(b)))[0];
+  }
+  return '#ffffff';
+}
+const _ctaLin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+const _ctaLum = (r, g, b) => 0.2126 * _ctaLin(r) + 0.7152 * _ctaLin(g) + 0.0722 * _ctaLin(b);
+const _ctaRatio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+function _ctaRgb(c){
+  const m = String(c).match(/#([0-9a-f]{6})\b|#([0-9a-f]{3})\b|rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i);
+  if (!m) return [255, 255, 255];
+  if (m[1]){ const n = parseInt(m[1], 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  if (m[2]) return m[2].split('').map(h => parseInt(h + h, 16));
+  return [+m[3], +m[4], +m[5]];
+}
+/* The parts of the card that make up its call to action, each moved as one
+   so its own internal arrangement survives: the product, the headline lines,
+   the CTA line when it is not on the plate, and the block. */
+function ctaUnits(sc, rig, W, H){
+  const block = ctaBlock(sc, rig, W, H);
+  if (!block) return null;
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const inBlock = new Set(block.members);
+  const unit = (key, members, extra) => {
+    const bx = members.map(motionBox);
+    const x0 = Math.min(...bx.map(q => q.x)), y0 = Math.min(...bx.map(q => q.y));
+    const x1 = Math.max(...bx.map(q => q.x + q.w)), y1 = Math.max(...bx.map(q => q.y + q.h));
+    return Object.assign({ key, members, box: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }, c: { x: (x0 + x1) / 2, y: (y0 + y1) / 2 } }, extra || {});
+  };
+  const heads = objs.filter(o => live(o) && motionIsText(o) && o.pgRole === 'headline' && !inBlock.has(o));
+  const cta = objs.find(o => live(o) && motionIsText(o) && o.pgRole === 'cta' && !inBlock.has(o)) || null;
+  const prod = (rig.cut || []).map(q => q.o).sort((a, q) => motionBox(q).w * motionBox(q).h - motionBox(a).w * motionBox(a).h)[0] || null;
+  return {
+    block: unit('block', block.members, { plate: block.plate, phone: block.phone }),
+    head: heads.length ? unit('head', heads) : null,
+    cta: cta ? unit('cta', [cta]) : null,
+    prod: prod ? unit('prod', [prod]) : null,
+  };
+}
+/* Stack the chosen parts inside the guides. The text parts share ONE scale,
+   so the hierarchy the critic approved (headline over number, rule 53)
+   survives; the number is capped where it stops reading as a number; the
+   product takes what height is left. null when the card's own type would
+   have to shrink below 80% to fit. */
+function ctaLayout(W, H, U, use){
+  const B = ctaSafeBox(W, H), bw = B.x1 - B.x0, bh = B.y1 - B.y0, S = Math.min(W, H), gap = 0.045 * S;
+  const text = [use.head && U.head, use.cta && U.cta, U.block].filter(Boolean);
+  const widest = Math.max(...text.map(u => u.box.w)), textH = text.reduce((h, u) => h + u.box.h, 0);
+  const gaps = (text.length - 1) * gap;
+  const wantProd = !!(use.prod && U.prod), prodMin = wantProd ? 0.18 * bh : 0;
+  let s = Math.min(0.92 * bw / widest, 0.17 * S / motionBox(U.block.phone).h);
+  s = Math.min(s, (bh - gaps - (wantProd ? prodMin + gap : 0)) / textH);
+  if (s < 0.8) return null;
+  let prod = null;
+  if (wantProd){
+    const pb = U.prod.box, room = Math.min(bh - textH * s - gaps - gap, 0.46 * bh);
+    const k = Math.min(0.62 * bw / pb.w, room / pb.h);
+    if (!(k > 0 && pb.h * k >= prodMin)) return null;
+    prod = { u: U.prod, k, w: pb.w * k, h: pb.h * k };
+  }
+  const total = textH * s + gaps + (prod ? prod.h + gap : 0);
+  const cx = (B.x0 + B.x1) / 2;
+  let y = B.y0 + (bh - total) / 2;
+  if (prod){ prod.to = { x: cx, y: y + prod.h / 2 }; y += prod.h + gap; }
+  const place = text.map(u => { const to = { x: cx, y: y + u.box.h * s / 2 }; y += u.box.h * s + gap; return { u, s, to }; });
+  return { box: B, s, place, prod };
+}
+function ctaTextBox(o, u, s, to){
+  const r = motionBox(o);
+  return { x: to.x + (r.x - u.c.x) * s, y: to.y + (r.y - u.c.y) * s, w: r.w * s, h: r.h * s };
+}
+
+function ctaBake(sc, b, docW, docH, outW, outH){
+  const z = b.z, U = ctaUnits(sc, b.rig, docW, docH);
+  if (!U) return { off: 'no phone number layer' };
+  const ground = ctaGroundLayers(sc, docW, docH, outW, outH);
+  const at = {};   // each part exactly where it stood in the ad, to lift it out of the ad frame
+  ['block', 'head', 'cta', 'prod'].forEach(k => { if (U[k]) at[k] = ctaRender(sc, new Set(U[k].members), 1, U[k].c, U[k].c, z, outW, outH); });
+  const tries = [{ prod: 1, head: 1, cta: 1 }, { prod: 1, head: 1 }, { prod: 1 }, { head: 1, cta: 1 }, { head: 1 }, {}]
+    .filter((v, i, a) => (!v.prod || U.prod) && (!v.head || U.head) && (!v.cta || U.cta) && a.findIndex(w => JSON.stringify(w) === JSON.stringify(v)) === i);
+  const why = [];
+  for (const use of tries){
+    const L = ctaLayout(docW, docH, U, use);
+    if (!L){ why.push(JSON.stringify(use) + ': does not fit'); continue; }
+    const c = { L, z, docW, docH, ground, at, U, shade: 0, parts: [], texts: [] };
+    L.place.forEach((pl, i) => {
+      const set = new Set(pl.u.members);
+      const part = { key: pl.u.key, from: { x: pl.u.c.x * z, y: pl.u.c.y * z }, to: { x: pl.to.x * z, y: pl.to.y * z }, s: pl.s,
+        bmp: ctaRender(sc, set, pl.s, pl.u.c, pl.to, z, outW, outH), delay: i * MOTION.cta.stagger };
+      if (pl.u.key === 'block') part.bare = ctaRender(sc, new Set(pl.u.members.filter(o => !motionIsText(o))), pl.s, pl.u.c, pl.to, z, outW, outH);
+      c.parts.push(part);
+      pl.u.members.filter(motionIsText).forEach(o => {
+        const r = ctaTextBox(o, pl.u, pl.s, pl.to);
+        c.texts.push({ o, role: o === U.block.phone ? 'number' : (o.pgRole || 'text'), onPlate: pl.u.key === 'block' && !!U.block.plate,
+          size: (o.fontSize || 0) * (o.scaleY || 1) * pl.s, box: { x: r.x * z, y: r.y * z, w: r.w * z, h: r.h * z } });
+      });
+    });
+    if (L.prod){
+      const pu = L.prod.u;
+      c.prod = { from: { x: pu.c.x * z, y: pu.c.y * z }, to: { x: L.prod.to.x * z, y: L.prod.to.y * z }, s: L.prod.k,
+        bmp: ctaRender(sc, new Set(pu.members), L.prod.k, pu.c, L.prod.to, z, outW, outH),
+        box: { x: (L.prod.to.x - L.prod.w / 2) * z, y: (L.prod.to.y - L.prod.h / 2) * z, w: L.prod.w * z, h: L.prod.h * z } };
+    }
+    b.cta = c;
+    const sh = ctaSolveShade(b);
+    if (sh == null){ why.push(JSON.stringify(use) + ': a line on the photograph cannot reach 4.5:1 with a dark shade'); continue; }
+    c.shade = sh;
+    const bad = ctaAudit(b);
+    if (!bad.length) return c;
+    why.push(JSON.stringify(use) + ': ' + bad.join(', '));
+  }
+  b.cta = null;
+  return { off: why.join(' | ') };
+}
+/* Rule 56 for the lines that land on the photograph (not on a plate): the
+   lightest NEUTRAL DARK shade that brings every light line's worst end of
+   ground (90th percentile) to 4.5:1, while every dark line still clears 4.5:1
+   at its own worst end (10th). Dark type is never rescued with a pale veil:
+   rule 62, a photograph is shaded dark, never milky. null when no shade
+   serves both. */
+function ctaSolveShade(b){
+  const c = b.cta, W = b.W, H = b.H;
+  const lines = c.texts.filter(t => !t.onPlate);
+  if (!lines.length) return 0;
+  const g = document.createElement('canvas'); g.width = W; g.height = H;
+  const gx = g.getContext('2d', { willReadFrequently: true });
+  ctaDrawGround(gx, b, MOTION.dur - 2.4, 0);
+  const d = gx.getImageData(0, 0, W, H).data, pad = 0.03 * Math.min(W, H);
+  const sets = lines.map(t => {
+    const ink = _ctaLum(..._ctaRgb(ctaInkOf(t.o))), px = [];
+    for (let y = Math.max(0, t.box.y - pad); y < Math.min(H, t.box.y + t.box.h + pad); y += 3)
+      for (let x = Math.max(0, t.box.x - pad); x < Math.min(W, t.box.x + t.box.w + pad); x += 3){
+        const i = (Math.floor(y) * W + Math.floor(x)) * 4; px.push([d[i], d[i + 1], d[i + 2]]);
+      }
+    return { ink, light: ink > 0.18, px };
+  });
+  for (let a = 0; a <= 0.8 + 1e-9; a += 0.02){
+    const ok = sets.every(s => {
+      if (!s.px.length) return true;
+      const L = s.px.map(([r, gg, bb]) => _ctaLum(r * (1 - a), gg * (1 - a), bb * (1 - a))).sort((p, q) => p - q);
+      const worst = s.light ? L[Math.floor(L.length * 0.9)] : L[Math.floor(L.length * 0.1)];
+      return _ctaRatio(s.ink, worst) >= 4.5;
+    });
+    if (ok) return +a.toFixed(2);
+    if (sets.some(s => !s.light)) break;   // darkening only hurts a dark line: no shade will serve it
+  }
+  return null;
+}
+
+/* The photograph as motionDraw paints it at t, then the card's ground, then
+   the call-to-action shade at strength a. */
+function ctaDrawGround(x, b, t, a){
+  const W = b.W, H = b.H, c = b.cta;
+  const th = 2 * Math.PI * (((t % MOTION.dur) + MOTION.dur) % MOTION.dur) / MOTION.dur;
+  const push = MOTION.breathe * (0.5 - 0.5 * Math.cos(th));
+  x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  x.fillStyle = b.base; x.fillRect(0, 0, W, H);
+  if (b.bg){
+    if (push < 1e-4) x.drawImage(b.bg, 0, 0, W, H);
+    else {
+      const k = 1 + push, dx = push * W * 0.35 * Math.sin(th), dy = -push * H * 0.25;
+      x.drawImage(b.bgHi, (W - W * k) / 2 + dx, (H - H * k) / 2 + dy, W * k, H * k);
+    }
+  }
+  c.ground.forEach(g => {
+    if (g.blend){ x.globalCompositeOperation = g.blend; x.globalAlpha = g.alpha; }
+    x.drawImage(g.bmp, 0, 0);
+    x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  });
+  if (a > 0){ x.fillStyle = 'rgba(10,10,12,' + a + ')'; x.fillRect(0, 0, W, H); }
+  return th;
+}
+function ctaMorph(x, bmp, from, to, s, e, dy){
+  const k = (1 / s) + (1 - 1 / s) * e;
+  const cx = from.x + (to.x - from.x) * e, cy = from.y + (to.y - from.y) * e;
+  x.save();
+  x.translate(cx, cy + (dy || 0)); x.scale(k, k); x.translate(-to.x, -to.y);
+  x.drawImage(bmp.bmp, bmp.x, bmp.y);
+  x.restore();
+}
+/* The shift. The ad frame is drawn whole by motionDraw, with every part that
+   travels lifted out of it by its own silhouette, and fades over the ground;
+   the parts then travel from where they stood to where they land, so nothing
+   is drawn twice and nothing jumps. Parts the call to action does not use
+   simply fade with the ad. */
+function ctaDraw(x, b, t){
+  const c = b.cta, C = MOTION.cta, W = b.W, H = b.H;
+  const m = _ctaEase(_ctaSeg(t, C.at, C.at + C.fade));
+  const th = ctaDrawGround(x, b, t, c.shade * m);
+  const float = -H * 0.008 * Math.sin(th);
+  if (m < 1){
+    if (!b._ad){ b._ad = document.createElement('canvas'); b._ad.width = W; b._ad.height = H; }
+    const ax = b._ad.getContext('2d');
+    _ctaDrawStill(ax, b, t);
+    ax.save(); ax.globalCompositeOperation = 'destination-out';
+    c.parts.forEach(p => { const a = c.at[p.key]; ax.drawImage(a.bmp, a.x, a.y); });
+    if (c.prod){ const a = c.at.prod; ax.drawImage(a.bmp, a.x, a.y + float); }
+    ax.restore();
+    x.globalAlpha = 1 - m; x.drawImage(b._ad, 0, 0); x.globalAlpha = 1;
+  }
+  if (c.prod) ctaMorph(x, c.prod.bmp, c.prod.from, c.prod.to, c.prod.s, _ctaEase(_ctaSeg(t, C.prod[0], C.prod[1])), float);
+  c.parts.forEach(p => {
+    const e = _ctaEase(_ctaSeg(t, C.at + p.delay, C.at + p.delay + C.move));
+    const st = p.key === 'block' ? 1 + C.amp * _bell(_ctaSeg(t, C.stamp[0], C.stamp[1])) : 1;
+    x.save();
+    if (st !== 1){ x.translate(p.to.x, p.to.y); x.scale(st, st); x.translate(-p.to.x, -p.to.y); }
+    ctaMorph(x, p.bmp, p.from, p.to, p.s, e, 0);
+    x.restore();
+  });
+}
+let _ctaDrawStill = null;
+{
+  const _motionBake = motionBake, _motionDraw = motionDraw;
+  _ctaDrawStill = _motionDraw;
+  motionBake = function(sc, docW, docH, outW, outH){
+    const b = _motionBake.apply(this, arguments);
+    b.cta = null;
+    try {
+      const c = ctaBake(sc, b, docW, docH, outW, outH);
+      if (c.off){ b.cta = null; b.ctaOff = c.off; console.warn('GraphicsStudio motion: no call-to-action card, the living still runs the whole clip. ' + c.off); }
+      else b.cta = c;
+    } catch (e){ b.cta = null; b.ctaOff = String(e && e.message || e); console.warn('GraphicsStudio motion: call-to-action card failed, the living still runs the whole clip.', e); }
+    return b;
+  };
+  motionDraw = function(x, b, t){
+    if (!b.cta || t < MOTION.cta.at) return _motionDraw(x, b, t);
+    return ctaDraw(x, b, t);
+  };
+}
+/* Measure the call to action before it can ship, on its own pixels:
+   - every part inside the guides, and on 9:16 inside the clear box;
+   - no two parts on each other;
+   - the number at least 72px on a 1080 frame (rule 53);
+   - every line at 3:1 or better, judged the way the critic judges it
+     (rule 54): the upper quartile of per-pixel contrast over the pixels the
+     line changes, on the landed frame drawn with and without the lines. */
+function ctaAudit(b){
+  const c = b.cta, bad = [], W = b.W, H = b.H, z = c.z;
+  const B = c.L.box, bx = { x0: B.x0 * z - 1, y0: B.y0 * z - 1, x1: B.x1 * z + 1, y1: B.y1 * z + 1 };
+  const inBox = r => r.x >= bx.x0 && r.y >= bx.y0 && r.x + r.w <= bx.x1 && r.y + r.h <= bx.y1;
+  const hit = (p, q) => Math.min(p.x + p.w, q.x + q.w) - Math.max(p.x, q.x) > 1 && Math.min(p.y + p.h, q.y + q.h) - Math.max(p.y, q.y) > 1;
+  c.texts.forEach(t => { if (!inBox(t.box)) bad.push(t.role + ' outside the guides'); });
+  if (c.prod){
+    if (!inBox(c.prod.box)) bad.push('product outside the guides');
+    if (c.texts.some(t => hit(t.box, c.prod.box))) bad.push('product on the copy');
+  }
+  const own = k => c.texts.filter(t => c.U[k] && c.U[k].members.includes(t.o));
+  c.parts.forEach((p, i) => c.parts.slice(i + 1).forEach(q => {
+    own(p.key).forEach(t1 => own(q.key).forEach(t2 => { if (hit(t1.box, t2.box)) bad.push(p.key + ' on ' + q.key); }));
+  }));
+  const num = c.texts.find(t => t.role === 'number');
+  if (!num || num.size < 72 * Math.min(c.docW, c.docH) / 1080) bad.push('number under 72px');
+  const f1 = document.createElement('canvas'); f1.width = W; f1.height = H;
+  const f0 = document.createElement('canvas'); f0.width = W; f0.height = H;
+  const x1 = f1.getContext('2d', { willReadFrequently: true }), x0 = f0.getContext('2d', { willReadFrequently: true });
+  const t = MOTION.dur - 0.25;
+  ctaDrawGround(x1, b, t, c.shade); ctaDrawGround(x0, b, t, c.shade);
+  if (c.prod){ x1.drawImage(c.prod.bmp.bmp, c.prod.bmp.x, c.prod.bmp.y); x0.drawImage(c.prod.bmp.bmp, c.prod.bmp.x, c.prod.bmp.y); }
+  c.parts.forEach(p => { x1.drawImage(p.bmp.bmp, p.bmp.x, p.bmp.y); if (p.bare) x0.drawImage(p.bare.bmp, p.bare.x, p.bare.y); });
+  const d1 = x1.getImageData(0, 0, W, H).data, d0 = x0.getImageData(0, 0, W, H).data;
+  c.legibility = c.texts.map(tx => {
+    const r = [];
+    for (let y = Math.max(0, Math.floor(tx.box.y)); y < Math.min(H, Math.ceil(tx.box.y + tx.box.h)); y++)
+      for (let x = Math.max(0, Math.floor(tx.box.x)); x < Math.min(W, Math.ceil(tx.box.x + tx.box.w)); x++){
+        const i = (y * W + x) * 4;
+        if (Math.abs(d1[i] - d0[i]) + Math.abs(d1[i + 1] - d0[i + 1]) + Math.abs(d1[i + 2] - d0[i + 2]) < 12) continue;
+        r.push(_ctaRatio(_ctaLum(d1[i], d1[i + 1], d1[i + 2]), _ctaLum(d0[i], d0[i + 1], d0[i + 2])));
+      }
+    r.sort((p, q) => p - q);
+    return { role: tx.role, q75: r.length ? +r[Math.floor(r.length * 0.75)].toFixed(2) : 0, px: r.length };
+  });
+  c.legibility.forEach(l => { if (l.px && l.q75 < 3) bad.push(l.role + ' at ' + l.q75 + ':1'); });
+  return bad;
+}
+/* ═══════════════ MOTION, PART 3: EXACT ENCODING AND THE EXPORT GATE ═══════════════
+   The recorder above captures in real time: a slow frame is a dropped frame,
+   and hiding the tab aborts the export (rule 38). Every frame here is already
+   a pure function of t (motionDraw), so where the browser has WebCodecs the
+   clip is encoded frame by frame with explicit timestamps, through the
+   vendored Mediabunny (vendor/, MPL-2.0): exact timing, faster than real time
+   on most machines, and indifferent to the tab being hidden. H.264 in MP4
+   first (Instagram and TikTok refuse WebM); VP9 in WebM only where the
+   browser cannot encode H.264, and the toast says so. No WebCodecs: the
+   real-time recorder above, unchanged.
+
+   Before a byte is kept, the clip is checked (docs/VIDEO-AD-RESEARCH.md §9):
+   - frame 0 is the still ad, measured against the scene rendered directly;
+   - no flashing, WCAG 2.3.1: more than six opposing luminance changes of
+     0.10 in any one second, over more than 25% of any region a third of the
+     frame wide and tall, refuses the clip. Luminance is averaged in LINEAR
+     light at full resolution: letting drawImage downscale first averaged in
+     gamma space and misread type edges by up to 0.29, three times the
+     threshold. Red flashes are counted the same way on (R-G-B)x320.
+   A refused clip is not downloaded and does not use an export. */
+const MOTION_MB_URL = new URL('vendor/mediabunny-1.60.0.min.mjs', document.baseURI).href;
+let _motionMB = null;
+const motionMB = () => _motionMB || (_motionMB = import(MOTION_MB_URL));
+
+class MotionFlashCheck {
+  constructor(W, H, fps){
+    this.W = W; this.H = H; this.fps = fps;
+    const cell = Math.max(1, Math.round(Math.min(W, H) / 36));
+    this.cell = cell; this.gw = Math.ceil(W / cell); this.gh = Math.ceil(H / cell);
+    const n = this.gw * this.gh;
+    this.col = new Uint16Array(W).map((_, x) => Math.floor(x / cell));
+    const st = () => ({ init: new Uint8Array(n), ext: new Float32Array(n), dir: new Int8Array(n), tr: Array.from({ length: n }, () => []) });
+    this.g = st(); this.r = st();
+    this.sy = new Float64Array(n); this.sr = new Float64Array(n); this.cnt = new Uint32Array(n);
+    this.LUT = new Float32Array(256).map((_, i) => _ctaLin(i));
+    this.frame = 0;
+  }
+  add(ctx){
+    const { W, H, gw, cell, col, sy, sr, cnt, LUT } = this;
+    const d = ctx.getImageData(0, 0, W, H).data;
+    sy.fill(0); sr.fill(0); cnt.fill(0);
+    for (let y = 0, i = 0; y < H; y++){
+      const row = Math.floor(y / cell) * gw;
+      for (let x = 0; x < W; x++, i += 4){
+        const R = LUT[d[i]], G = LUT[d[i + 1]], B = LUT[d[i + 2]], k = row + col[x], t = R + G + B;
+        sy[k] += 0.2126 * R + 0.7152 * G + 0.0722 * B;
+        if (t > 0 && R >= 0.8 * t) sr[k] += (R - G - B) * 320;
+        cnt[k]++;
+      }
+    }
+    for (let k = 0; k < cnt.length; k++){
+      if (!cnt[k]) continue;
+      this.step(this.g, k, sy[k] / cnt[k], 0.1, true);
+      this.step(this.r, k, sr[k] / cnt[k], 20, false);
+    }
+    this.frame++;
+  }
+  step(st, k, v, th, general){
+    if (!st.init[k]){ st.init[k] = 1; st.ext[k] = v; return; }
+    const e = st.ext[k], d = st.dir[k];
+    const rec = () => { if (!general || Math.min(e, v) < 0.8) st.tr[k].push(this.frame); };
+    if (d === 0){
+      if (v - e >= th){ rec(); st.dir[k] = 1; st.ext[k] = v; }
+      else if (e - v >= th){ rec(); st.dir[k] = -1; st.ext[k] = v; }
+    } else if (d === 1){
+      if (v > e) st.ext[k] = v; else if (e - v >= th){ rec(); st.dir[k] = -1; st.ext[k] = v; }
+    } else {
+      if (v < e) st.ext[k] = v; else if (v - e >= th){ rec(); st.dir[k] = 1; st.ext[k] = v; }
+    }
+  }
+  judge(st){
+    const { gw, gh } = this, hot = new Uint8Array(gw * gh);
+    let most = 0;
+    st.tr.forEach((ts, k) => {
+      let m = 0;
+      for (let j = 0, s = 0; j < ts.length; j++){ while (ts[j] - ts[s] >= this.fps) s++; m = Math.max(m, j - s + 1); }
+      most = Math.max(most, m);
+      if (m >= 7) hot[k] = 1;
+    });
+    const rw = Math.max(1, Math.ceil(gw / 3)), rh = Math.max(1, Math.ceil(gh / 3));
+    const P = new Uint32Array((gw + 1) * (gh + 1));
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++)
+      P[(y + 1) * (gw + 1) + x + 1] = hot[y * gw + x] + P[y * (gw + 1) + x + 1] + P[(y + 1) * (gw + 1) + x] - P[y * (gw + 1) + x];
+    let worst = 0;
+    for (let y = 0; y + rh <= gh; y++) for (let x = 0; x + rw <= gw; x++){
+      const s = P[(y + rh) * (gw + 1) + x + rw] - P[y * (gw + 1) + x + rw] - P[(y + rh) * (gw + 1) + x] + P[y * (gw + 1) + x];
+      worst = Math.max(worst, s / (rw * rh));
+    }
+    return { perSec: Math.floor(most / 2), area: worst };
+  }
+  result(){
+    const g = this.judge(this.g), r = this.judge(this.r);
+    return { pass: g.area <= 0.25 && r.area <= 0.25, general: g, red: r, frames: this.frame };
+  }
+}
+function motionFlashMessage(f){
+  const w = f.general.area >= f.red.area ? f.general : f.red;
+  return 'this video would flash ' + w.perSec + ' times a second over ' + Math.round(w.area * 100) + '% of an area, which breaks the flashing rules (WCAG 2.3.1, and Meta, Google and TikTok ad policy), so it was not saved';
+}
+/* Frame 0 against the scene itself, rendered directly at the export size. The
+   bake composites separately rendered layers, so a single level of rounding
+   on an anti-aliased edge is expected; anything more is a different picture. */
+function motionFrameZero(sc, bake, x){
+  sc.renderAll();
+  const W = bake.W, H = bake.H;
+  const ref = document.createElement('canvas'); ref.width = W; ref.height = H;
+  const rx = ref.getContext('2d', { willReadFrequently: true });
+  rx.drawImage(sc.lowerCanvasEl, 0, 0);
+  motionDraw(x, bake, 0);
+  const a = x.getImageData(0, 0, W, H).data, b = rx.getImageData(0, 0, W, H).data;
+  let off = 0, most = 0;
+  for (let i = 0; i < a.length; i += 4){
+    const d = Math.max(Math.abs(a[i] - b[i]), Math.abs(a[i + 1] - b[i + 1]), Math.abs(a[i + 2] - b[i + 2]));
+    if (d > most) most = d;
+    if (d > 8) off++;
+  }
+  return { off, most, share: off / (W * H), ok: off / (W * H) < 0.001 };
+}
+async function motionPlan(w, h, sound){
+  if (typeof VideoEncoder !== 'function') return null;
+  try {
+    const MB = await motionMB();
+    for (const p of [{ codec: 'avc', fmt: 'mp4', audio: 'aac' }, { codec: 'vp9', fmt: 'webm', audio: 'opus' }]){
+      if (!(await MB.canEncodeVideo(p.codec, { width: w, height: h, frameRate: MOTION.fps }))) continue;
+      let audio = null;
+      if (sound && typeof AudioEncoder === 'function' &&
+          await MB.canEncodeAudio(p.audio, { numberOfChannels: sound.numberOfChannels, sampleRate: sound.sampleRate })) audio = p.audio;
+      return Object.assign({ MB }, p, { audio });
+    }
+  } catch (e){ console.warn('GraphicsStudio motion: exact encoder unavailable, recording in real time.', e); }
+  return null;
+}
+{
+  const _recordMotion = recordMotion;
+  recordMotion = async function(sc, o){
+    const plan = await motionPlan(o.w, o.h, o.sound || null);
+    const out = document.createElement('canvas');
+    out.width = o.w; out.height = o.h;
+    const x = out.getContext('2d', { willReadFrequently: true });
+    const bake = motionBake(sc, o.docW, o.docH, o.w, o.h);
+    const z0 = motionFrameZero(sc, bake, x);
+    if (!z0.ok) throw new Error('the first frame did not match the still ad (' + z0.off + ' pixels differ), so nothing was saved');
+    const n = Math.round(MOTION.dur * MOTION.fps);
+    const fc = new MotionFlashCheck(o.w, o.h, MOTION.fps);
+    if (!plan){
+      // real-time fallback: check every frame first, then record as before
+      for (let i = 0; i < n; i++){ motionDraw(x, bake, i / MOTION.fps); fc.add(x); }
+      const f = fc.result();
+      if (!f.pass) throw new Error(motionFlashMessage(f));
+      return _recordMotion(sc, o);
+    }
+    const MB = plan.MB;
+    const format = plan.fmt === 'mp4' ? new MB.Mp4OutputFormat({ fastStart: 'in-memory' }) : new MB.WebMOutputFormat();
+    const output = new MB.Output({ format, target: new MB.BufferTarget() });
+    const vs = new MB.CanvasSource(out, { codec: plan.codec, quality: MB.QUALITY_HIGH, keyFrameInterval: 2 });
+    output.addVideoTrack(vs, { frameRate: MOTION.fps });
+    let as = null;
+    if (plan.audio){ as = new MB.AudioBufferSource({ codec: plan.audio, quality: MB.QUALITY_HIGH }); output.addAudioTrack(as); }
+    await output.start();
+    if (as) await as.add(o.sound);
+    window.__gfxRecording = true;
+    try {
+      for (let i = 0; i < n; i++){
+        const t = i / MOTION.fps;
+        motionDraw(x, bake, t);
+        fc.add(x);
+        if (o.watermark) drawWatermarkMarks(x, o.w, o.h);
+        await vs.add(t, 1 / MOTION.fps);
+        if (o.onProgress) o.onProgress((i + 1) / n);
+      }
+    } catch (e){ await output.cancel().catch(() => {}); throw e; }
+    finally { window.__gfxRecording = false; }
+    const f = fc.result();
+    if (!f.pass){ await output.cancel().catch(() => {}); throw new Error(motionFlashMessage(f)); }
+    await output.finalize();
+    const mime = plan.fmt === 'mp4' ? 'video/mp4' : 'video/webm';
+    return { blob: new Blob([output.target.buffer], { type: mime }), mime, fps: MOTION.fps, exact: true, flash: f, frameZero: z0, cta: !!bake.cta };
+  };
+}
+/* Sound for the shift, laid over the living still's own score (which now runs
+   the full ten seconds): a soft whoosh as the ad hands over, and the same
+   two-note bell as the number's beat when the plate lands. */
+{
+  const _motionSound = motionSound;
+  motionSound = async function(rate){
+    const base = await _motionSound(rate);
+    const sr = base.sampleRate, C = MOTION.cta;
+    const ac = new OfflineAudioContext(base.numberOfChannels, base.length, sr);
+    const src = ac.createBufferSource(); src.buffer = base; src.connect(ac.destination); src.start(0);
+    const out = ac.createGain(); out.gain.value = 1; out.connect(ac.destination);
+    let seed = 20260927;
+    const nb = ac.createBuffer(1, sr, sr), nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+    const w = ac.createBufferSource(); w.buffer = nb;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.1;
+    bp.frequency.setValueAtTime(420, C.at - 0.1); bp.frequency.exponentialRampToValueAtTime(2400, C.at + 0.35);
+    const wg = ac.createGain(); wg.gain.setValueAtTime(0.0001, C.at - 0.1); wg.gain.linearRampToValueAtTime(0.16, C.at + 0.25); wg.gain.linearRampToValueAtTime(0.0001, C.at + 0.5);
+    w.connect(bp); bp.connect(wg); wg.connect(out); w.start(C.at - 0.1); w.stop(C.at + 0.55);
+    const tone = (t0, f, peak, d) => { const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(peak, t0 + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      o.connect(g); g.connect(out); o.start(t0); o.stop(t0 + d + 0.05); };
+    const bell = (t0, f, peak) => [[1, 1, 1.5], [2.0, 0.35, 0.9], [2.76, 0.22, 0.6], [5.4, 0.1, 0.3]].forEach(([m, gm, d]) => tone(t0, f * m, peak * gm, d));
+    const land = (C.stamp[0] + C.stamp[1]) / 2;
+    bell(land, 880.00, 0.15); bell(land + 0.09, 1318.51, 0.13);
+    return ac.startRendering();
+  };
+}
