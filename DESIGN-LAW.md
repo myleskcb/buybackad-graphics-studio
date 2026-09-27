@@ -1363,3 +1363,36 @@ the record and its thumbnail stay, and deleting the stamp brings a card back.
 After: 400 kept of 684 (52 disqualified, 232 retired as weaker recolours),
 115 of 118 designs still shown, the largest recolour group 17 -> 7, median
 mistake score 3.92 kept against 5.92 retired.
+
+## 61. A perfected theme is re-set for a device, not redrawn
+
+Added 2026-09-27. The owner: "once a theme is perfect we can make unlimited
+variations for all types of devices specifically."
+
+A variant changes only what names the device, and nothing that makes the
+theme:
+
+- **the headline** takes the device family from `assets/devices.json` (IPAD
+  AIR, MACBOOK PRO), short enough to set large;
+- **the line that lists models** takes that family's models as the
+  storefront names them;
+- **the product** takes the device's own cut-out, in the finish whose colour
+  is nearest the card's accent (a neutral palette takes a neutral finish).
+  A finish's colour is measured where a model's finishes DIFFER, which is the
+  body; measured over the whole cut-out, it read the shared wallpaper. The
+  product is fitted into the original product's box.
+
+Layout, palette, faces and ground are the card's own, and alignPass (rules
+57, 58) keeps a longer name or a wider device on its plate and inside the
+guides.
+
+**A card can be re-set only when the product is the hero and the ground does
+not picture a device.** A card whose device is its photograph would put
+SELL YOUR APPLE WATCH over a stack of MacBooks, the mismatch fixed on twelve
+cards the same day. On 2026-09-27 that is the Glass Card (rule 59). Other
+themes qualify as they are finished with the product on a plain, scene or
+money ground.
+
+Variants are generated when someone asks (the Easy Mode device picker;
+`scripts/device_variants.mjs` for a batch), never stored, so the library
+stays one card per design (rule 60).

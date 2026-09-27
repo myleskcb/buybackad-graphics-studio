@@ -10537,13 +10537,25 @@ async function scDeviceVariant(baseId, key){
   delete THUMBS[id];
   return id;
 }
+/* Which cards can be re-set. The product must be the hero (a corner icon is
+   not what names the device) and the ground must not picture a device: a
+   Bubble Pop card set on a photograph of stacked MacBooks read SELL YOUR
+   APPLE WATCH over the MacBooks once re-set, the fault fixed on twelve watch
+   cards the same day. Money grounds, scenes and plain grounds qualify. */
+const SC_DEVICE_GROUND = /iphone|ipad|macbook|imac|mac-|watch|airpods|phone|device|tablet|laptop/i;
+function scDeviceReady(t){
+  if (!t || !t.showcase || t.cat !== 'phones' || !t.layers.some(l => l.name === 'Headline 2')) return false;
+  const prod = t.layers.find(l => l.kind === 'cutout' && !l.__wall);
+  if (!prod || (prod.props && (prod.props.w || 0) < 260)) return false;
+  const src = t.bg && t.bg.type === 'image' ? String(t.bg.src || '') : '';
+  return !src || /\/grounds\//.test(src) || !SC_DEVICE_GROUND.test(src.replace(/^.*\//, ''));
+}
 /* the picker: shown for a Phones & Devices showcase card with a product */
 async function ezDeviceSync(){
   const field = $('ez-device-field'), sel = $('ez-device');
   if (!field || !sel) return;
   const t = ezTpl(), baseId = t && (t.deviceOf || t.id), base = TEMPLATES.find(x => x.id === baseId);
-  const ok = base && base.showcase && base.cat === 'phones' && base.layers.some(l => l.kind === 'cutout' && !l.__wall) &&
-             base.layers.some(l => l.name === 'Headline 2');
+  const ok = base && scDeviceReady(base);
   field.hidden = !ok;
   if (!ok) return;
   const D = await scLoadDevices();

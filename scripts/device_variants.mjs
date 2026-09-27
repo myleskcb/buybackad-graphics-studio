@@ -57,6 +57,17 @@ function finishFor(model, accent){
   return fins.sort((x, y) => score(x) - score(y))[0][1].slug;
 }
 
+/* a card can be re-set only when its product is the hero and its ground does
+   not picture a device (a watch headline over a photograph of MacBooks is the
+   mismatch fixed on twelve cards); same test as scDeviceReady() in app.js */
+const DEVICE_GROUND = /iphone|ipad|macbook|imac|mac-|watch|airpods|phone|device|tablet|laptop/i;
+export function ready(rec){
+  const L = rec.tpl.layers, prod = L.find(l => l.kind === 'cutout' && !l.__wall), bg = rec.tpl.bg || {};
+  const src = bg.type === 'image' ? String(bg.src || '') : '';
+  return !!(L.some(l => l.name === 'Headline 2') && prod && (prod.props.w || 0) >= 260 &&
+    (!src || /\/grounds\//.test(src) || !DEVICE_GROUND.test(src.replace(/^.*\//, ''))));
+}
+
 export function variant(rec, card, key){
   const m = DEV[key]; if (!m) throw new Error('no device ' + key);
   const r = JSON.parse(JSON.stringify(rec)); const L = r.tpl.layers;
@@ -81,6 +92,7 @@ if (process.argv[1] && process.argv[1].endsWith('device_variants.mjs')){
   const base = arg('--base'), out = arg('--out');
   if (!base || !out){ console.error('usage: --base <card id> --out <dir> [--models a,b]'); process.exit(2); }
   const rec = JSON.parse(readFileSync(ROOT + 'assets/showcase/tpl/' + base + '.json', 'utf8'));
+  if (!ready(rec)) console.warn('warning: ' + base + ' has no hero product, or its ground pictures a device; its variants will contradict it');
   const models = (arg('--models') || '').split(',').filter(Boolean);
   const keys = models.length ? models : [...new Set(Object.values(DEV).map(m => m.family))]
     .map(f => Object.entries(DEV).filter(([, m]) => m.family === f).sort((a, b) => Object.keys(b[1].colours).length - Object.keys(a[1].colours).length)[0][0]);
