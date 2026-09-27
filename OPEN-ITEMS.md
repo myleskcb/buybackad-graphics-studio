@@ -220,6 +220,10 @@ longer paints duotones; the natural pass must run after it:
     node scripts/refresh_showcase.mjs                      # palettes, faces, copy rules, bake
     node scripts/number_block.mjs --write                  # the number, big (rule 53)
     node scripts/naturalize_showcase.mjs --write           # photo in its own colour (rule 56)
+    node scripts/restage_glasscards.mjs --write            # Glass Card: product on the card (rule 59)
+    node scripts/darken_grounds.mjs --write                # shade dark, never milky (rule 62)
+    node scripts/support_highlights.mjs --write            # support colour on the selling points (rule 63)
+    node scripts/neutral_panels.mjs --write                # no hue over the photograph (rule 64)
     node scripts/clear_number.mjs --write                  # nothing drawn on the number
     node scripts/audit_showcase_overlap.mjs --write
     node scripts/audit_showcase_legibility.mjs --write --json .render/legib.json
@@ -357,7 +361,12 @@ Next, in order of what the owner will see:
 6. **`/motion` keeps its own light chrome** (53 faces, 121 palettes). It is
    synced from the phone ad engine's repo, so restyle it there and re-sync;
    an edit here would be overwritten.
-7. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
+7. **Colour hazes (rule 64) are cleared on the showcase only.** The classics
+   (243, built at runtime by `assignStyle()`) and the Easy Mode themes were not
+   measured for tinted panels, pale glows or light halos on light ink. Run the
+   same census on them (`scripts/neutral_panels.mjs` reads the showcase
+   records; the classics need their builders changed, not their records).
+8. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
    done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
    predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
    the three "Starter" prompts.

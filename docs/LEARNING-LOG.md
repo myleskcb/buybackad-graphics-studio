@@ -493,3 +493,47 @@ Rejected:
   - Re-inking coloured copy white: the palette would be gone.
   - Sizing a line-up to the single product it replaced: three MacBooks as
     stamps.
+
+## 2026-09-27 (night) — No hue over the photograph
+
+Studied:
+  The owner: "these colored hazes don't look great. Unify with the new design
+  language in the 'template and content audit update' thread." That thread's
+  language is DESIGN-LAW rule 56 (rung 1 is light and shade, never a colour).
+  Its one new commit since the reunification (the offer cards' number) is in
+  another repo's tool and does not touch the showcase.
+
+Measured:
+  - Every live card's shade was already neutral (#0b0b0d, #000, paper) and
+    every grade natural: the hazes were drawn ON the photograph, not in it.
+  - 182 cards laid a hue over the picture: see-through tinted rects (step
+    cards at a median 0.52, tiles, item panels, chips) and solid pastel or
+    deep-tinted panels holding the copy (lavender, navy, olive, cherry, beige).
+  - 423 wide pale or tinted glows round plates, panels and products, set for
+    the old white shade; on the dark grounds each plate sat in a haze.
+  - 947 light lines with light halos: the dark-ground pass re-inked them and
+    left their halos, so they glowed (rule 27 says the halo takes the tone the
+    ground is not).
+  - While testing sibling panels: every step digit on all 44 live Steps Flow
+    cards sat 23 to 60px right of its box. alignPass 4c tested a mark made of
+    type against its own box, so it always "collided" with itself.
+
+Changed:
+  - scripts/neutral_panels.mjs (rule 64): panels holding copy become smoke
+    under light copy, paper (0.9 and more) under dark, a same-luminance grey
+    when mixed; siblings share one treatment; glows become shade; halos take
+    the ground's opposite tone. Every line judged on its own pixels before and
+    after. 366 cards; no line lost contrast; a second run changes nothing.
+  - darken_grounds.mjs and restage_glasscards.mjs can no longer produce a
+    tinted band or card.
+  - alignPass 4c: a mark is not tested against itself. 44 cards' digits back
+    in their boxes.
+
+Rejected:
+  - Keeping each panel's luminance in grey everywhere: mid-grey panels read as
+    dull as the tints did. Smoke or paper wherever all the copy on the panel
+    points one way; grey only where it does not.
+  - Treating Headline 1 to 3 as a sibling set for ink: it would have turned
+    the yellow money word pale.
+  - A light halo behind dark copy on a coloured plate: rule 27 says the plate
+    is the separation; a glow there fuzzes the number.

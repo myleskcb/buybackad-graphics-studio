@@ -63,9 +63,10 @@ for (let i = 0; i < work.length; i += 6){
         r.was = was;
         /* a line re-inked light may stand on a pale band the solver does not
            see as a plate (see-through, or so large it counts as a veil): the
-           band turns dark with it, same shape and opacity, a tinted band to a
-           deep shade of its own hue. Found on the cars card (a light model
-           line on its light band) and a paper poster (the number on it). */
+           band turns dark with it, same shape and opacity. Found on the cars
+           card (a light model line on its light band) and a paper poster (the
+           number on it). Smoke, never a deep shade of the band's own hue: the
+           owner read those as coloured hazes (scripts/neutral_panels.mjs). */
         if (r.bg && r.flipped && r.flipped.length){
           const { sc, refs } = __sc.paint(Object.assign({}, t, { bg: r.bg }));
           const W = TPL_W, H = TPL_H, plates = {};
@@ -83,10 +84,7 @@ for (let i = 0; i < work.length; i += 6){
               const a = c[3] * (l.props.opacity == null ? 1 : l.props.opacity), L = 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
               const big = q.width * q.height >= 0.45 * W * H;
               if (L < 0.45 || !(a < 0.5 || big) || q.width >= W * 0.97) return;
-              const mx = Math.max(...c.slice(0, 3)), mn = Math.min(...c.slice(0, 3));
-              let dark = 'rgba(18,18,22,' + Math.max(0.55, a).toFixed(2) + ')';
-              if ((mx - mn) / 255 > 0.1){ const k2 = 0.22; dark = 'rgba(' + c.slice(0, 3).map(v => Math.round(v * k2)).join(',') + ',' + Math.max(0.6, a).toFixed(2) + ')'; }
-              plates[l.name] = dark;
+              plates[l.name] = 'rgba(16,16,19,' + Math.max(0.55, a).toFixed(2) + ')';
             });
           });
           /* and the other way round: a SEE-THROUGH plate (0.5 to 0.9) keeps
@@ -94,8 +92,9 @@ for (let i = 0; i < work.length; i += 6){
              but what the eye saw was the plate over the WHITE shade. Over the
              dark ground the same plate reads mid-grey and its copy fell to
              about 2:1 (the cars card's model line). Such a plate becomes
-             solid in the colour it showed before, so its copy keeps exactly
-             the contrast it had (rule 52). */
+             solid at the luminance it showed before, in neutral grey (rule 56:
+             no hue over the photograph), so its copy keeps exactly the
+             contrast it had (rule 52). */
           const flippedNames = new Set(r.flipped.map(f => f.name));
           let oldPx = null;
           const groundPx = spec => { const g = new fabric.StaticCanvas(null, { width: W, height: H, renderOnAddRemove: false });
@@ -118,8 +117,10 @@ for (let i = 0; i < work.length; i += 6){
             for (let y = Math.max(0, Math.floor(q.top)); y < Math.min(H, q.top + q.height); y += 4)
               for (let x = Math.max(0, Math.floor(q.left)); x < Math.min(W, q.left + q.width); x += 4){ const i = (y * W + x) * 4; m[0] += oldPx[i]; m[1] += oldPx[i + 1]; m[2] += oldPx[i + 2]; n++; }
             if (!n) return;
-            const seen = c.slice(0, 3).map((v, i) => Math.round(a * v + (1 - a) * m[i] / n));
-            plates[l.name] = 'rgb(' + seen.join(',') + ')';
+            const seen = c.slice(0, 3).map((v, i) => a * v + (1 - a) * m[i] / n);
+            const Ys = 0.2126 * lin(seen[0]) + 0.7152 * lin(seen[1]) + 0.0722 * lin(seen[2]);
+            const g = Math.round(255 * (Ys <= 0.0031308 ? 12.92 * Ys : 1.055 * Math.pow(Ys, 1 / 2.4) - 0.055));
+            plates[l.name] = 'rgb(' + g + ',' + g + ',' + g + ')';
           });
           sc.dispose();
           r.plates = Object.entries(plates).map(([name, fill]) => ({ name, fill }));
@@ -147,7 +148,10 @@ const apply = (id, r) => {
   rec.tpl.bg = r.bg;
   (r.flipped || []).forEach(f => { const l = rec.tpl.layers.find(x => x.name === f.name); if (!l || !l.props) return;
     l.props.fill = f.fill; delete l.props.grad; delete l.props.stroke; delete l.props.strokeWidth;
-    if (typeof l.props.opacity === 'number' && l.props.opacity < 1) l.props.opacity = 1; });
+    if (typeof l.props.opacity === 'number' && l.props.opacity < 1) l.props.opacity = 1;
+    /* its halo turns with it (rule 27): a light halo behind light ink is a glow */
+    const sh = l.props.shadow, m = sh && typeof sh === 'object' && /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(String(sh.color || ''));
+    if (m && +m[1] + +m[2] + +m[3] > 380) l.props.shadow = Object.assign({}, sh, { color: 'rgba(12,12,14,' + (m[4] == null ? 1 : +m[4]) + ')' }); });
   (r.plates || []).forEach(pl => { const l = rec.tpl.layers.find(x => x.name === pl.name); if (!l || !l.props) return;
     l.props.fill = pl.fill; if (typeof l.props.opacity === 'number') l.props.opacity = 1; });
   return rec;

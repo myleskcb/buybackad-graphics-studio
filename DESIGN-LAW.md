@@ -1469,3 +1469,71 @@ it holds up on the card's own pixels:
 
 61 cards qualified. 289 fail contrast on their own ground and keep their line
 as it was. "Some themes" is the measurement's answer, not a quota.
+
+## 64. No hue over the photograph: panels are smoke or paper, glows are shade
+
+Added 2026-09-27. The owner, on the curated library: "these colored hazes
+don't look great. Unify with the new design language in the 'template and
+content audit update' thread." That language is rule 56: rung 1 over the
+photograph is light and shade, never a colour. Colour has a job, not a coat:
+the accent on the action plate and the money word, the support colour on the
+selling points (rule 63), the product, and the photograph as it was shot.
+This replaces rule 62's "a tinted band to a deep shade of its own hue", and
+extends rule 59: the Glass Card's card is neutral when solid too, not only
+when it was see-through.
+
+Measured on the 404 live cards, three kinds of haze were left after rules 56
+and 62:
+
+- **Tinted panels.** 182 cards laid a hue over the picture: see-through
+  tinted rects (87 step cards at a median 0.52, 64 tiles, 33 item panels,
+  chips, review rows, the tinted bands rule 62 left under re-inked lines),
+  and solid pastel or deep-tinted panels holding the copy (lavender step
+  cards under SELL YOUR iPAD, a navy poster frame under WE BUY SILVER, olive
+  under WE BUY GOLD JEWELRY, cherry and beige Glass Cards).
+- **Pale glows round shapes.** 423 plates, panels and products threw a wide
+  (12px and more) pale or tinted shadow, set for the white-shaded grounds;
+  on the dark grounds of rule 62 every plate sat in a halo of haze.
+- **Glowing type.** Rule 62 re-inked lines light and left their light halos:
+  947 lines glowed white on the photograph, which rule 27 already forbids
+  (the halo takes the tone the ground is not).
+
+The rule, as `scripts/neutral_panels.mjs` applies it:
+
+- **A panel that holds copy is smoke or paper.** All its copy lighter than
+  it: smoke (16,16,19) at its own opacity, so the photograph shows through as
+  shade. All darker: paper (247,246,243) at 0.9 or more, since paper thinner
+  than that is rule 62's milky veil. Mixed, empty, or a sheen: a neutral grey
+  at the same luminance and opacity (rule 52).
+- **A see-through tinted rect is judged the same whatever it is**, and so is a
+  pale see-through one whatever its hue: the white quote card at 0.5 is the
+  milky veil.
+- **One system, one treatment.** Numbered siblings (Tile 1 to 4, Step Card
+  1 to 3) take what most of them take; a panel with no copy of its own that
+  frames one that has (the ticket round its perforated card) goes the same
+  way; a numbered line that alone is dark among light siblings, held up by an
+  outline (FREE QUOTE on three white tiles), takes their ink.
+- **The glow round a shape is shade**: neutral dark at its own strength.
+- **A halo takes the tone its ground is not** (rule 27), never a hue; on a
+  plate a light halo is never added, since the plate is the separation.
+- **Judged on the pixels.** Every line's ground (copy hidden, 10th and 90th
+  percentile) is measured before and after. A change that leaves any line
+  under what it had, or under 4.5:1 where it had more, steps back to the
+  same-luminance grey, then to as it was.
+- **Solid accent plates keep their colour**: the CTA card, phone plate,
+  kicker, price strip, step number box and knockout band are the accent
+  doing its job.
+
+After: 366 cards changed. Panels on 239 cards: 225 paper, 213 smoke, 6 grey
+(one kept as it was); 315 sheens made neutral; 423 glows made shade on 170
+cards; 1015 halos on 288 cards (947 light to dark, 16 dark to light, 52 hues
+taken out); no line lost contrast. A second run changes nothing.
+`darken_grounds.mjs` now darkens a band to smoke and turns a re-inked line's
+halo with it, and `restage_glasscards.mjs` sets the card in smoke or paper, so
+neither can bring the tints back.
+
+Found on the way: alignPass 4c (decoration yields to copy) tested a mark made
+of type against its own authored box, so every step digit, quote mark and
+star row "collided" with itself and was pushed about its own width: on all 44
+live Steps Flow cards the digits sat 23 to 60px right of their boxes' centre.
+A mark is no longer tested against itself; all 44 now sit centred.

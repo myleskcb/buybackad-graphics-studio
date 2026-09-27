@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20260927';
+const ASSET_REV = '20260927b';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -2495,7 +2495,12 @@ function alignPass(sc, W, H){
     const clash = (u, b) => {
       if (b.left < G5 || b.top < G5 || b.left + b.width > W - G5 || b.top + b.height > H - G5) return true;
       const A = b.width * b.height;
-      if (txt.some(t => !u.own.has(t.o) && overlap(b, t.b) > 0.02 * Math.min(A, t.b.width * t.b.height))) return true;
+      /* a mark made of type (a step's digit, a quote mark, a star row) is in
+         txt itself: the first version tested it against its own authored box,
+         so every one of them "collided" with itself and was pushed about its
+         own width off where it was set (44 live Steps Flow cards, every digit
+         23 to 60px off the centre of its box) */
+      if (txt.some(t => !u.parts.includes(t.o) && overlap(b, t.b) > 0.02 * Math.min(A, t.b.width * t.b.height))) return true;
       if (plates.some(p => { const f = overlap(b, p.b) / A; return f > 0.05 && f < 0.95 && !u.parts.includes(p.o); })) return true;
       if (cuts.some(c => overlap(b, c.b) > 0.15 * A)) return true;
       return units.some(v => v !== u && v.b && overlap(b, v.b) > 0);
