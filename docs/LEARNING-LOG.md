@@ -334,3 +334,45 @@ RESUME HERE:
   Then build the engine from section 8 of VIDEO-AD-RESEARCH.md, starting with
   the rule that frame 0 is the static template and a frame-as-pure-function-of-t
   renderer encoded through WebCodecs.
+
+
+---
+
+## 2026-09-27 — Reunifying the branches
+
+Studied:
+  Why three sessions on 2026-09-26 produced work the owner called "super old
+  design language": each started from `main`, which had not moved since
+  2026-08-28.
+
+Measured:
+  - 14 remote branches. `claude/finished-copy-site-manf7r` (2026-09-26 22:19)
+    already contained phone-ad-maker, live-2026-09-22, the three project
+    threads, the iPhones LA link, the 2K asset library and the 09-16 backup.
+  - Not contained: vibrant-hawking (26 commits, merges clean), vibrant-lovelace
+    (1 commit, stale base, 2 small conflicts), busy-allen (1 commit, stale
+    base, conflicts in app.js/index.html/headers and 25 modify/delete cut-outs
+    the trunk had replaced with 2K WebP), fervent-pascal (2 commits, stale base).
+  - The trunk after merging: 243 templates, landing, /motion and library.html
+    load with 0 page errors and 0 failed requests.
+
+Changed:
+  - Merged vibrant-hawking and vibrant-lovelace into the trunk.
+  - claude/fervent-pascal-w6mthe reset to the trunk (its two stale commits,
+    bf45814 and ee650df, superseded; see OPEN-ITEMS §J for what survives).
+  - OPEN-ITEMS §J: the verified port list. AGENT-BRIEF landmine 6: check that
+    `main` is current before building.
+
+Rejected:
+  - Merging busy-allen or the old fervent-pascal: both would lay August code
+    over September work (old default copy over the study session's honest
+    copy, `.png` cut-out names the trunk no longer has, a landing the owner
+    abandoned). Ported item by item instead.
+  - A `-s ours` merge to mark them "merged": it would claim work was
+    integrated when none of it was.
+
+RESUME HERE:
+  1. Owner decision: fast-forward `main` to this trunk so new sessions start
+     from current code (main is an ancestor, so it is a fast-forward).
+  2. The owner's reported card defects (overlaps; colour theory on the pale
+     palettes), then OPEN-ITEMS §J items 5–9 (small, verified), then 1–2.

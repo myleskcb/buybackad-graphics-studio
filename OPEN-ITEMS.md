@@ -256,3 +256,56 @@ Still open:
   neutral shade can serve. Rebuild that layout rather than special-case it.
 - **Not verified here** (no route to them from the session): the live site,
   Stripe and sign-in, the Netlify headers as served. Draft-deploy and look.
+
+## J. 2026-09-27 — the branches reunified, and what was ported rather than merged
+
+`main` had not moved since 2026-08-28 while the product moved on across a dozen
+branches, so three sessions on 2026-09-26 started from a month-old codebase and
+rebuilt things that no longer existed. The trunk is now one line:
+`claude/finished-copy-site-manf7r` + `claude/vibrant-hawking-htxrvn` (the study
+session, clean merge) + `claude/vibrant-lovelace-rze4rx` (video ad research; its
+`copy_audit.mjs` kept as `scripts/claims_audit.mjs`, since the study session's
+copy-rules audit already had the name).
+
+**Not merged, because they were cut from the stale August main.** Merging
+either would put August code over September work. Their still-useful parts
+are listed to port, each checked against the trunk on 2026-09-27:
+
+`claude/busy-allen-2d5iv1` (photo standard, 317597c):
+1. **`tplbg-data.js` is still a 635KB render-blocking base64 script** on the
+   trunk. Port: move the eight classic photos to `assets/tplbg/` files.
+2. **No asset cache-busting** (`ASSET_REV` absent) while art is cached 30 days,
+   so a replaced photo never reaches a returning visitor. Port the `?v=` revision.
+3. The photo standard itself (subject fill, tone band, 1200px) and
+   `standardize_photos.py` / `asset_usage_audit.mjs` were written against the
+   26 legacy PNG cut-outs, which the trunk replaced with 478 2K WebP cut-outs.
+   Re-derive against the WebP library before running anything; do not copy
+   its 97 rewritten files over the trunk's.
+4. Least-used photo picker (every photo appears before any repeats): the idea
+   ports, the code does not (`.png` names, old picker).
+
+`claude/fervent-pascal-w6mthe` before 2026-09-27 (bf45814, ee650df): a rebuilt
+landing in the abandoned warm/orange language and a second video engine that
+duplicated `/motion`. Both discarded. Verified still present on the trunk:
+5. **`CSS_FALLBACK` in app.js is out of sync with styles.css**, so a host that
+   blocks the stylesheet gets the OLD design. A regenerator
+   (`scripts/sync_css_fallback.mjs`, with `--check`) is in bf45814.
+6. Easy Mode's "PRO" badge reads `t.tier === 'premium'`, not `tplLocked(t)`, the
+   gate itself: measured on the August library it labelled 34 of 243 free
+   templates PRO (25 of them Phones).
+7. Easy Mode resets every template to a grey, blurred placeholder
+   (`ez.bgPicked = false`) and exports a flat fallback unless ORIG is clicked,
+   while ORIG already shows as selected.
+8. The Easy layers panel draws classic templates' photo from the raw
+   `assets/tplbg/…` path, which is not shipped: a 404 and a blank swatch.
+9. Three Pro prompts still say "unlock all 8 designs with Starter or Pro"; there
+   is no Starter plan.
+Already fixed on the trunk independently, so not ported: og:image, "Unlimited
+exports", the Starter sign-up card, the preload ordering, the 390px overflow.
+
+**Reported by the owner 2026-09-27, next:** overlapping elements on library
+cards (a "CASH NOW" disc on the item line and an appraisal pill over the number
+on *Blush & Cobalt · Bubble Pop*; the product over the headline on *Kiwi &
+Violet · Script Retro*; card captions laid over the number band), and colour
+theory on the pale palettes, where the ink washes into the ground. `/motion` is
+still in its own light chrome, unlike the rest of the site.

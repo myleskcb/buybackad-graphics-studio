@@ -110,6 +110,27 @@ owner present, and leave the old copies alone until they confirm.
 Deploys have appeared minutes apart from separate sessions. Before concluding
 something is broken, check `git log` and the Netlify deploy list.
 
+### 6. `main` is not the newest code, so check before you build
+
+On 2026-09-26 `main` was a month behind: the product had moved on across a
+dozen branches (the violet landing, the palettes, `/motion`, the iPhones LA
+link) and none of it was on `main`. Three sessions that day started from `main`
+and rebuilt things in a language the owner had already abandoned, one of them
+a second video engine beside `/motion`. Nothing errored; the page just looked a
+month old.
+
+Before changing anything:
+
+```bash
+git fetch origin --prune
+git for-each-ref --sort=-committerdate --format='%(committerdate:short) %(refname:short)' refs/remotes | head
+git merge-base --is-ancestor origin/main <newest-branch> && echo "main is behind it"
+```
+
+If `main` is behind the newest integration branch, start from that branch and
+say so. Screenshot the landing before you touch it: the violet Template Lab page
+is current; a warm orange one is August.
+
 ### 5. Internal docs are blocked from the public site
 
 `docs/`, `scripts/` and `DESIGN-LAW.md` are 404'd at the edge in
