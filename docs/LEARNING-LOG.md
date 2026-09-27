@@ -647,3 +647,40 @@ RESUME HERE:
   of the curated set (scripts/motion_audit.mjs --format three4) if it has not
   been run, and the one classic still short of air
   (dl_strips_duoSplit_emerald: its headline is 1.26x its panel).
+
+## 2026-09-27 (late) — "the worst ad I've ever seen you make": a card rebuilt, and an audit that says so first
+
+The owner took stepsFlow-nn05-30 apart: a headline that was only the item
+word, a trust word posing as the headline, too many typefaces, cheesy glossy
+pills, blurred small type, a "3" outside its box, a phone covering the
+photograph they loved, a CTA too small. Then, three renders in: "not put out
+another without 100% validating and self auditing."
+
+What was wrong under the hood was mostly one thing: **the engine judged type
+by its box, not its letters.** A 192px line's box reaches 44px above its caps
+and 50px under its baseline. So the guides pass thought the headline had left
+the canvas and shrank the whole card 1%; the collision pass thought two
+display lines 19px apart overlapped and pushed the second onto the first step;
+the decoration pass thought a bolt touched the headline and moved it off its
+pill; the product pass thought the number's box touched the phone and lifted
+the phone off the band; plates centred their words by the box and big type
+sat high. One helper, `textInkRect()`, and five passes switched to it.
+
+The "3" was its own bug: a step numeral is decoration and a word, and the
+decoration pass counted it as colliding with itself. The first dry render
+showed the "1" doing it too, pushed by the headline above.
+
+Two harness lessons. Measuring ink with the drop shadow on shifts a line's
+bearing by a different amount per glyph; and an auditor that uses the canvas
+width as its height sees nothing below 1080 on a 3:4 card. Both were mine and
+the audit caught the second itself (rule 50: suspect the harness first).
+
+Mirroring the phone, which the owner suggested, was the owner's own next
+catch: a mirrored iPhone has its cameras on the wrong side. The library had
+the same phone photographed leaning the other way.
+
+Result: `scripts/restage_steps_flow.mjs` rebuilds the card (claim, badge from
+the bank in the CTA's colour, two faces, flat uniform steps, a real phone
+standing on the band, the accent read off the photograph), and
+`scripts/audit_card.mjs` passes it 154/154 in the gallery painter, Easy Mode
+square and 3:4, and the video. DESIGN-LAW 68-76.

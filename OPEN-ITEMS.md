@@ -424,3 +424,55 @@ Next:
    owner's favourite.
 3. The reference's heavy italic display face is its own axis (a font choice);
    the lab kept each card's face.
+
+## N. 2026-09-27 (late) — the audited card, and what the owner asked for next
+
+Done: stepsFlow-nn05-30 restaged and passing `scripts/audit_card.mjs` at
+154/154 (gallery, Easy Mode square and 3:4, video). Engine: letters not boxes
+in five layout passes, `blockRemap()` for tall formats, numeral self-collision,
+badge plates, number centred on the seen band. DESIGN-LAW 68-76.
+
+Asked for, not done yet:
+1. **The variation board**: "at least 500 options … themes, taglines, fonts,
+   colors, everything … even shapes for the background box/bubble like the
+   CTA (with or without outline) … types of devices … your best unique 500".
+   Built on the audited card; every variant through audit_card before it is
+   shown; the engine chooses cohesive combinations (rule 75), not random ones.
+2. **Aesthetic gradients**: holographic / iridescent / opal / vaporwave /
+   sherbet / Y2K chrome presets (the owner's WE BUY IPHONES reference).
+3. **Pattern library**: about 30 procedural textures, each with a scale
+   slider (bigger money, or more of it) and position sliders to slide the
+   tile in the editor.
+4. **Product swap in Easy Mode**: popular models first (17 Pro Max, 17 Pro),
+   randomise, the photo that faces the right way (rule 73); cutouts tagged
+   with the direction they face.
+5. **More faces across the library** ("we should be using more fonts, but
+   that's another story"): more pairs to choose from, still two per card.
+6. stepsFlow-nn01-30 has the same bare "iPHONE" headline: restage it the
+   same way and audit it.
+7. Known, not caused here: the tagline lab's tiles are from before the
+   restage.
+
+### N.1 Devices: authentic imagery, and generated angles
+
+- Only these photos are the real 17-series design: qs-iphone-17-pro (Cosmic
+  Orange, back and front), qs-iphone-17-pro-max (Silver), ip-gen17-plateau-white,
+  -blue, -black (a crop). Every own-apple-* photo is a re-skin; the
+  iphone-17-pro-back-* files are mislabelled (square bump). `assets/cutouts/devices.json`.
+- The owner wants FAL used to make more angles from real photos as reference
+  entities. Not wired: no FAL key in this environment (add `FAL_KEY` in the
+  environment's settings). The plan when it is: a spec sheet per model (camera
+  plateau and lens layout, buttons incl. Action button and Camera Control,
+  Dynamic Island vs notch, rail material and colour, e.g. Pacific Blue's chrome
+  rail) as ground truth, generation from real reference photos, and a QA gate
+  that compares each render against the sheet and the reference and refuses
+  anything off; only passes enter devices.json as authentic.
+
+### N.2 The letter layout, library-wide
+
+The letter passes apply to `__ink` records only (DESIGN-LAW 76). Moving the
+library over: restage or flag a card, run audit_card and the collision audit on
+it, keep it only if nothing regresses. The ungated run's diff (2026-09-27)
+named what to fix first: authored straddles the box push had been hiding
+(scriptRetro and trustSeal phone numbers half off their bands), and
+stepsFlow-du01-30's number wedged 3px between step 3 and the website.

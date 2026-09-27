@@ -1,0 +1,18 @@
+{
+  "_doc": "Device photos the design engine may use as a product. Owner, 2026-09-27: never re-skin a device colour; every device must look factory original (camera module and plateau, lens count and layout, buttons incl. Action button and Camera Control, Dynamic Island vs notch, rail material and colour — e.g. Pacific Blue's shiny chrome-blue rail). authentic:false entries are re-skins or mislabels and are refused by scripts/audit_card.mjs. faces: which way the device leans or looks ('left' suits a product on the right of a layout, 'front' suits either side).",
+  "devices": {
+    "assets/cutouts/qs-iphone-17-pro.webp":            { "model": "iPhone 17 Pro",     "color": "Cosmic Orange", "view": "back+front pair", "faces": "front", "authentic": true },
+    "assets/cutouts/qs-iphone-17-pro-max.webp":        { "model": "iPhone 17 Pro Max", "color": "Silver",        "view": "back+front pair", "faces": "front", "authentic": true },
+    "assets/cutouts/ip-gen17-plateau-white.webp":      { "model": "iPhone 17 Pro",     "color": "Silver",        "view": "back",            "faces": "front", "authentic": true },
+    "assets/cutouts/ip-gen17-plateau-blue.webp":       { "model": "iPhone 17 Pro",     "color": "Deep Blue",     "view": "side",            "faces": "front", "authentic": true },
+    "assets/cutouts/ip-gen17-plateau-black.webp":      { "model": "iPhone 17 Pro",     "color": "unknown",       "view": "camera close-up, cropped", "faces": "left", "authentic": true, "note": "a crop, not a whole phone" },
+    "assets/cutouts/own-apple-cosmic-orange-02.webp":  { "model": "re-skin",           "authentic": false, "note": "16 Pro-style square camera bump painted orange; the 17 Pro has the full-width plateau" },
+    "assets/cutouts/own-apple-cosmic-orange-07.webp":  { "model": "re-skin",           "authentic": false, "note": "16 Pro-style square camera bump painted orange" },
+    "assets/cutouts/own-apple-cosmic-orange-17.webp":  { "model": "re-skin",           "authentic": false, "note": "16 Pro-style square camera bump painted orange" },
+    "assets/cutouts/own-apple-cosmic-orange-20.webp":  { "model": "re-skin",           "authentic": false },
+    "assets/cutouts/own-apple-cosmic-orange-21.webp":  { "model": "re-skin",           "authentic": false },
+    "assets/cutouts/own-apple-deep-blue-14.webp":      { "model": "re-skin",           "authentic": false, "note": "an orange 16-style phone filed as deep blue" },
+    "assets/cutouts/iphone-17-pro-back-black.webp":    { "model": "mislabelled",       "authentic": false, "note": "square camera bump: not the 17 Pro design" },
+    "assets/cutouts/iphone-17-pro-back-silver.webp":   { "model": "mislabelled",       "authentic": false, "note": "square camera bump: not the 17 Pro design" }
+  }
+}

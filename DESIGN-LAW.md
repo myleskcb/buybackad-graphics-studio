@@ -1621,3 +1621,164 @@ is the one it names (an error row, not a silent substitute), and waits for the
 photograph and cutouts before it renders. An audit's first suspect is its own
 harness (rule 50), and a result that looks like a design failure on many
 different cards at once is a harness failure until proved otherwise.
+
+## 68. The headline is a claim, set big and tight
+
+Added 2026-09-27, the owner on stepsFlow-nn05-30: "the tagline just says
+iPhone, that's abysmal. We need to at least say we buy iPhone. Sell your
+iPhone. Top iPhone buyer. Fast cash for iPhones. Quick iPhone buyer. It needs
+to be larger and more legible … everyone can say they buy iPhones but
+claiming the top buyer or quickest buyer is a really good way to get you the
+clicks."
+
+- The headline carries a claim, never the item word alone. The bank, ranked:
+  TOP iPHONE BUYER, QUICK iPHONE BUYER, FAST CASH FOR iPHONES, SELL YOUR
+  iPHONE, WE BUY iPHONES (a ranking claim first: it earns the click). The
+  generator authored SELL YOUR / iPHONE; a later pass dropped the claim line
+  on two Steps Flow cards, and nothing checked. `scripts/audit_card.mjs` now
+  fails a card whose headline has no claim word.
+- As large as the width inside the margins and the height above the next
+  block allow (the restaged card: 204px, caps 10%+ of the canvas).
+- Stacked lines sit as display type sits: 4-16% of the size between the
+  LETTERS, left edges within 2px. The engine judges stacked lines by their ink
+  (alignPass step 3); judged by their boxes, which carry the face's ascent and
+  descent room, two lines 10% apart "collided" and were pushed a line apart
+  ("too wide of line spacing").
+
+## 69. A trust word is a badge with a mark, hung on the claim
+
+Added 2026-09-27: "ez buyer does not count as part of the headline. That's
+just an extra selling point … a verification badge, a shield icon … I don't
+want it to be so obvious that it's a floating piece of text at the top always."
+
+- The kicker's words become a badge: a pill with a mark and its words. The
+  words rotate from a bank (#1 BUYER, TOP BUYER, BEST BUYER, EZ BUYER, FAST
+  BUYER, QUICK CASH, TOP OFFER, MEET NOW, AVAILABLE NOW, LA · OC · IE, LA / OC,
+  `BADGE_WORDS` in app.js) and the mark says what kind of point it is: shield
+  for trust, bolt for speed, tag for money, a live signal for availability, a
+  pin for where.
+- It never repeats a word of the headline beside it (TOP iPHONE BUYER + EZ
+  BUYER reads BUYER BUYER; `badgeWordsFor()` filters the bank).
+- It hangs from the claim's cap line, beside its last line; not a floating pill
+  at the top of the card. Mark and words centred on the pill, padding balanced.
+- A dark outline mark reads only on its plate. A mark that ends up off its
+  plate takes the plate's colour (alignPass 4c recolours it): "floating makes
+  it really hard to even discern".
+- A plate that carries a mark as well as words is composed: the layout passes
+  neither centre its words nor fit it to them (`plateHoldsMark()`); fitted to
+  the words alone, the bolt fell off the pill's left end.
+
+## 70. Two faces, two weights each
+
+Added 2026-09-27: "There's too many type faces so it looks all over the place.
+We need to use one to two maybe three max."
+
+One display face (the claim, the step numerals, the number) and one support
+face (the badge, the step titles and lines). A third only for a reason the card
+can name. Two weights a face. Rows of the same kind share one set of sizes: the
+restaged card's step titles had been fitted per row to 33.8, 36.8 and 35.1px,
+which reads as three different styles. The library measured 297 live cards on
+two families, 98 on three, 3 on four; the audit fails over two.
+
+## 71. Small type on a plate is crisp
+
+Added 2026-09-27: "it looks a bit blurry for the subtext in each bubble."
+Nothing under 26px at 1080. Type that sits on its own plate carries no blurred
+shadow: the plate gives the contrast, and a 4px blur on 22px type reads as out
+of focus.
+
+## 72. Repeated plates are one plate
+
+Added 2026-09-27: "The boxes look cheesy … number three isn't even centered."
+Steps, tiles and rows share one width, one height, one gap and one style: flat,
+no sheen stripes, no per-row fitting to the words, no boxed numerals. The
+numeral is set in the display face in the accent, centred on its plate, all
+numerals on one axis; each row's words centred in the plate with one left
+edge. The "3" left its box because a numeral is decoration AND a word, and
+alignPass 4c counted it against itself: a mark is never in its own way now.
+
+## 73. The product is photographed facing the layout, never mirrored
+
+Added 2026-09-27: "what if we mirrored it to face the other way and put it to
+the right of the three blue boxes … that space looks perfectly carved out for
+the phone and it leaves space for the background image", then "is there any AI
+magic to make the phone flipped the correct way around instead of mirrored?"
+
+- The product goes in the space the layout leaves for it, clear of every word,
+  and it stands on something (the CTA band) rather than floating.
+- It faces into the layout by being photographed that way. A mirrored iPhone
+  carries its cameras on the wrong side of the back, which a buyer of phones
+  sees at once. Pick the photo that faces the right way (cosmic-orange-17
+  leans in; -02 stands straight); the audit fails a mirrored product. The
+  cutout builder honours `flipX` for things with no handedness only.
+- The background photograph is a design asset: the audit wants a third of the
+  card to show it.
+- Factory original only: "we should never re-skin a device color … everything
+  needs to look factory original factory finish and factory side/secondary
+  color … like Pacific Blue, it has a shiny chrome blue side". The
+  own-apple-cosmic-orange photos are a 16 Pro's square camera bump painted
+  orange; a 17 Pro has the full-width camera plateau. `assets/cutouts/devices.json`
+  lists each device photo's model, colour, view, the way it faces, and whether
+  it is authentic; audit_card fails a card whose product is not an authentic
+  entry. Model details that give a fake away: the camera module and plateau,
+  lens count and layout, the Action button and Camera Control, Dynamic Island
+  or notch, the rail's material and colour.
+
+## 74. One accent carries the card; the badge wears the CTA's colour
+
+Added 2026-09-27, on the glassCard iPhone cards: "if there is anything to unify
+the theme it would be carry on the color of the ez buyer bubble … as the CTA
+bubble color." The badge pill and the CTA plate are one colour, and the same
+accent sets the claim's last line and the step numerals. The number fills its
+band: its DIGITS at least 70% of the width inside the margins and two-thirds of
+the band's height inside the guides, centred on the band as it is seen (a band
+that runs off the canvas is seen to the edge), as far as the guides let the
+letters go. The website line leaves the band when it would hold the number
+small (Easy Mode already leaves it off unless one is typed).
+
+## 75. The engine chooses; it does not roll
+
+Added 2026-09-27: "Let's use more neon colors too, pastels can be good too but
+neon is the easiest attention grabber", then "The idea isn't to be unlimited
+variety and completely random … we wanna have the options so the design engine
+can produce the best possible graphics using our BG assets … it's gonna select
+a color or a theme that might support what we have already built. At the end of
+the day we're looking for cohesiveness."
+
+The libraries (gradients, textures, badge words, claims, shapes, devices) are a
+palette for the engine to choose from, not a lottery. The accent is read off
+the photograph: its dominant hue, weighted by colourfulness, picks the neon
+across the wheel from it (the flame-orange laptop picked glacier cyan on the
+card called Glacier & Flame). Neon first; pastel where the photograph is soft.
+
+## 76. Nothing ships unaudited; letters, not boxes
+
+Added 2026-09-27: "can you audit this graphic and not put out another without
+100% validating and self auditing? using all of the factors we're expecting
+and have mentioned … you should already know to NEVER deliver without self
+validating and extensively auditing your designs until fixed and PERFECT."
+
+- `scripts/audit_card.mjs <id>` measures every rule above on the pixels the
+  studio paints, in the gallery painter, in Easy Mode (square and 3:4) and in
+  the video bake. A card is shown to anyone only at 100%, and after a human
+  look at all three renders.
+- The layout passes judge type by its letters (`textInkRect()`), not its box:
+  the guides (57), stacked lines (3), decoration (4c), the product (4d) and
+  centring on a plate (step 1). Judged by boxes, they shrank a card 1% and
+  slid it 5px, pushed a headline's second line down, moved a badge's bolt and
+  lifted a phone off its band — every one a move nobody placed.
+- The audit checks the layout passes moved nothing that was placed; a pass
+  that moves a placed layer is second-guessing the design.
+- Tall formats move blocks, not layers (`blockRemap()`): a claim and its badge,
+  a stack of steps, a band and the phone on it each stay rigid; the extra
+  height goes between them.
+- How it ships: the letter passes (above, plus `linesOffEdges()`: a line mostly
+  on a plate goes all the way on, a band pinned to an edge grows to hold its
+  line, a line grazing a plate's edge moves clear) and the number-fill and
+  block-remap changes apply to records whose layers carry `__ink` (restaged
+  and passed by audit_card). Flipped for the whole library at once they
+  regressed live cards: the library had been tuned against the box passes, and
+  a box-based push had been landing some numbers on plates they were authored
+  half off. With the flag, the classics audit is identical and no live
+  showcase card changes. The library moves over card by card, each through
+  audit_card. The numeral fix (4c) applies everywhere; it only removes a bug.

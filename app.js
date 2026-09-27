@@ -2122,6 +2122,10 @@ function alignPass(sc, W, H){
   W = W || TPL_W; H = H || TPL_H;
   let objs;
   try { objs = sc.getObjects(); } catch (e){ return; }
+  /* Letters, not boxes (DESIGN-LAW 76) is how an audited, restaged card is laid
+     out; the rest of the library was tuned against the box passes and moves to
+     the letter passes card by card, each through scripts/audit_card.mjs */
+  const INK = objs.some(o => o && o.pgInk);
   const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
   const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
 
@@ -2155,8 +2159,18 @@ function alignPass(sc, W, H){
       b.top  < u.b.top  + u.b.height && b.top  + b.height > u.b.top);
     host.forEach((h, t) => {
       if (tally.get(h.o) !== 1) return;                 // shared box → a row, leave it
-      const dx = (h.b.left + h.b.width  / 2) - (t.b.left + t.b.width  / 2);
-      const dy = (h.b.top  + h.b.height / 2) - (t.b.top  + t.b.height / 2);
+      if (INK && plateHoldsMark(objs, h.b)) return;     // words beside a mark: composed as a unit (see step 4)
+      /* the LETTERS on the plate's centre, and a band that runs off the canvas
+         counted only inside the guides: a box has more room under its baseline
+         than over its caps, so box-centred type sat high (5.5px at a 170px
+         number, restaged stepsFlow-nn05-30) */
+      const tr = (INK && textInkRect(t.o)) || t.b;
+      const Gc = Math.round(GUIDE * Math.min(W, H));
+      const hy0 = h.b.top <= 2 ? Math.max(h.b.top, Gc + 3) : h.b.top, hy1 = h.b.top + h.b.height >= H - 2 ? Math.min(h.b.top + h.b.height, H - Gc - 3) : h.b.top + h.b.height;
+      const dx = (h.b.left + h.b.width  / 2) - (tr.left + tr.width  / 2);
+      // centred on the plate as it is seen, as far as the guides let the letters go (numberCentreY)
+      const dy = INK ? numberCentreY(h.b, hy0, hy1, tr.height, H, Gc) - (tr.top + tr.height / 2)
+                     : (h.b.top + h.b.height / 2) - (t.b.top + t.b.height / 2);
       if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
       const before = { left: t.o.left, top: t.o.top }, wasClear = !hits(t.b, t);
       t.o.set({ left: t.o.left + dx, top: t.o.top + dy });
@@ -2181,6 +2195,19 @@ function alignPass(sc, W, H){
      correctly into whatever sits beneath it instead of creating a new clash.
      Never pushes past the safe area — if there is no room the overlap stays and
      the edge clamp below wins, because type outside the frame is worse. */
+  /* …and a line's box is not its letters. A single line of caps fills about
+     60% of its box (the rest is the face's ascent and descent room), so two
+     display lines set as display type is set, 10% of a size apart, overlapped
+     by 40% of a box and were pushed a line-space apart (owner, 2026-09-27, on
+     TOP iPHONE / BUYER: "too wide of line spacing"). Where both lines are one
+     unrotated line each, the test is their INK: they collide when the letters
+     come closer than 4% of the smaller size, and are pushed only that far. */
+  const inkV = o => {
+    if (!o || o.angle || /\n/.test(o.text || '')) return null;
+    const r = textInkRect(o), b = bb(o);
+    if (!r || !b || r === b || (r.top === b.top && r.height === b.height)) return null;
+    return { top: r.top, bottom: r.top + r.height, fs: (o.fontSize || 40) * (o.scaleY || 1) };
+  };
   const stack = texts.filter(t => !/marquee|ticker/i.test(t.o.name || ''))
     .map(t => ({ t, b: bb(t.o) })).filter(x => x.b && x.b.height > 0)
     .sort((a, c) => a.b.top - c.b.top);
@@ -2191,9 +2218,17 @@ function alignPass(sc, W, H){
         const ox = Math.min(a.b.left + a.b.width,  c.b.left + c.b.width)  - Math.max(a.b.left, c.b.left);
         const oy = Math.min(a.b.top  + a.b.height, c.b.top  + c.b.height) - Math.max(a.b.top,  c.b.top);
         if (ox <= 2 || oy <= 2) continue;
-        const smaller = Math.min(a.b.width * a.b.height, c.b.width * c.b.height);
-        if ((ox * oy) / smaller <= 0.18) continue;        // a kiss, not a collision
-        const need = (a.b.top + a.b.height + 6) - c.b.top;
+        const ia = INK && inkV(a.t.o), ic = INK && inkV(c.t.o);
+        let need;
+        if (ia && ic && ic.top >= ia.top){
+          const gap = Math.max(4, 0.04 * Math.min(ia.fs, ic.fs));
+          need = (ia.bottom + gap) - ic.top;             // letters closer than the gap: push by the shortfall
+          if (need <= 0) continue;
+        } else {
+          const smaller = Math.min(a.b.width * a.b.height, c.b.width * c.b.height);
+          if ((ox * oy) / smaller <= 0.18) continue;        // a kiss, not a collision
+          need = (a.b.top + a.b.height + 6) - c.b.top;
+        }
         if (need <= 0) continue;
         const room = (H - SAFE_EDGE) - (c.b.top + c.b.height);
         const shift = Math.min(need, Math.max(0, room));
@@ -2248,6 +2283,10 @@ function alignPass(sc, W, H){
              cy > box.b.top  && cy < box.b.top  + box.b.height;
     });
     if (held.length !== 1) return;                       // a row or a band: leave it
+    /* a plate that carries a mark as well as its words (a shield-tick badge) is
+       a composed unit: fitted to the words alone about its own centre, the mark
+       fell off its left end (restaged stepsFlow-nn05-30, 2026-09-27) */
+    if (INK && plateHoldsMark(objs, box.b)) return;
     const t2 = held[0];
     const fs = (t2.o.fontSize || 34) * (t2.o.scaleY || 1);
     const padV = Math.round(fs * 0.44), padH = Math.round(fs * 0.66);
@@ -2397,7 +2436,8 @@ function alignPass(sc, W, H){
   {
     const G6 = Math.round(GUIDE * Math.min(W, H)), CELL = 12;
     const live = o => o && o.visible !== false;
-    const words = objs.filter(o => live(o) && (isText(o) || (o.type === 'group' && o.pgCurved))).map(o => bb(o)).filter(Boolean);
+    // words by their letters: a 170px number's box reaches 30px over its digits, where a phone stands on the band
+    const words = objs.filter(o => live(o) && (isText(o) || (o.type === 'group' && o.pgCurved))).map(o => INK && isText(o) ? textInkRect(o) : bb(o)).filter(Boolean);
     const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
     const plates = boxes.map(x => bb(x.o)).filter(b => b && words.some(w => inside({ x: w.left + w.width / 2, y: w.top + w.height / 2 }, b)));
     const ov = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
@@ -2474,7 +2514,8 @@ function alignPass(sc, W, H){
        version left them out, so a sticker moved and its curved CASH NOW label
        stayed behind, dark type on a dark photograph */
     const isWord = o => isText(o) || (o && o.type === 'group' && o.pgCurved);
-    const txt = objs.filter(o => live(o) && isWord(o)).map(o => ({ o, b: bb(o) })).filter(t => t.b);
+    // words by their letters: TOP iPHONE's box reached 44px below its caps and pushed a badge's bolt away
+    const txt = objs.filter(o => live(o) && isWord(o)).map(o => ({ o, b: INK && isText(o) ? textInkRect(o) : bb(o) })).filter(t => t.b);
     const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
     const ctr = b => ({ x: b.left + b.width / 2, y: b.top + b.height / 2 });
     const plates = boxes.map(x => ({ o: x.o, b: bb(x.o) })).filter(x => x.b && txt.some(t => inside(ctr(t.b), x.b)));
@@ -2488,7 +2529,10 @@ function alignPass(sc, W, H){
       if (!deco && !sticker) return;
       const b = bb(o); if (!b || b.width * b.height > W * H * 0.08) return;
       const label = sticker ? txt.filter(t => inside(ctr(t.b), b)) : [];
-      units.push({ parts: [o].concat(label.map(t => t.o)), own: new Set(label.map(t => t.o)), b, sticker });
+      /* a mark is never in its own way: a step numeral is decoration AND a word, and
+         counted against itself it always "touched copy" and was pushed out of its
+         box (stepsFlow-nn05-30, "number three isn't even centered", 2026-09-27) */
+      units.push({ parts: [o].concat(label.map(t => t.o)), own: new Set([o].concat(label.map(t => t.o))), b, sticker });
     });
     const overlap = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
                               Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
@@ -2517,11 +2561,17 @@ function alignPass(sc, W, H){
         if (best) break;
       }
       if (!best){ u.parts.forEach(o => { o.visible = false; }); u.b = null; return; }
+      /* an outline mark drawn to sit on its plate, moved off it, is dark ink on a
+         photograph: it takes its plate's colour instead (owner, 2026-09-27, on a
+         bolt beside the QUICK CASH pill: "floating makes it really hard to even
+         discern, match the blue of the bubble") */
+      const home = plates.find(p => inside(c0, p.b) && typeof p.o.fill === 'string' && !u.parts.includes(p.o));
       u.parts.forEach(o => {
         const c = o.getCenterPoint();
         const n = new fabric.Point(c0.x + (c.x - c0.x) * best.k + best.dx, c0.y + (c.y - c0.y) * best.k + best.dy);
         o.set({ scaleX: (o.scaleX || 1) * best.k, scaleY: (o.scaleY || 1) * best.k });
         o.setPositionByOrigin(n, 'center', 'center'); o.setCoords();
+        if (INK && home && o.type === 'path' && !inside(o.getCenterPoint(), home.b)) o.set('stroke', home.o.fill);
       });
       u.b = best.b;
     });
@@ -2534,7 +2584,7 @@ function alignPass(sc, W, H){
 
   texts.forEach(t => {
     if (/marquee|ticker/i.test(t.o.name || '')) return;  // edge-hugging on purpose
-    const b = bb(t.o); if (!b) return;
+    const b = INK ? inkClear(textInkRect(t.o)) : bb(t.o); if (!b) return;
     let dx = 0, dy = 0;
     if (b.left < SAFE_EDGE) dx = SAFE_EDGE - b.left;
     else if (b.left + b.width > W - SAFE_EDGE) dx = (W - SAFE_EDGE) - (b.left + b.width);
@@ -2544,6 +2594,9 @@ function alignPass(sc, W, H){
     if (b.height > H - SAFE_EDGE * 2) dy = 0;
     if (dx || dy){ t.o.set({ left: t.o.left + dx, top: t.o.top + dy }); t.o.setCoords(); }
   });
+
+  /* ── 6. NO LINE ON A PLATE'S EDGE (rule 58), last, after the guides ────── */
+  if (INK) linesOffEdges(sc, W, H);
 }
 
 /* THE GUIDES — DESIGN-LAW rule 57.
@@ -2574,16 +2627,26 @@ function fitInsideGuides(sc, W, H){
   const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
   const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
   const TOUCH = 2;
+  const INK = objs.some(o => o && o.pgInk);
   const items = [];
   objs.forEach(o => {
     if (!o || o.visible === false || o.pgBgRect || o.pgScrim) return;
     if (/^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '')) return;
-    if (o.pgRole === 'frame' || /Frame|Corner|Bracket|Border/.test(o.name || '') && !isText(o)) return;
+    /* a frame that holds words is their plate and moves with them (neonNight's
+       "Neon Frame" holds the number: left behind, the website slid onto its
+       edge); a frame that holds nothing is a border and stays */
+    const holdsWords = o2 => { let b2; try { b2 = o2.getBoundingRect(true, true); } catch (e){ return false; }
+      return objs.some(q => q !== o2 && q.visible !== false && isText(q) && (() => { const c = q.getCenterPoint();
+        return c.x > b2.left && c.x < b2.left + b2.width && c.y > b2.top && c.y < b2.top + b2.height; })()); };
+    if (o.pgRole === 'frame' || /Frame|Corner|Bracket|Border/.test(o.name || '') && !isText(o) && !(INK && holdsWords(o))) return;
     if (/marquee|ticker/i.test(o.name || '')) return;
-    const b = bb(o); if (!b || b.width <= 0 || b.height <= 0) return;
+    const text = isText(o);
+    /* a line is judged by its letters, not its box: a 192px headline's box
+       reaches 44px above its caps, and read as "outside the guides" it shrank
+       the whole card 1% and slid it 5px (restaged stepsFlow-nn05-30) */
+    const b = text && INK ? inkClear(textInkRect(o)) : bb(o); if (!b || b.width <= 0 || b.height <= 0) return;
     if (b.width >= W * 0.85 && b.height >= H * 0.85) return;          // ground, not message
     const edge = { l: b.left <= TOUCH, r: b.left + b.width >= W - TOUCH, t: b.top <= TOUCH, bo: b.top + b.height >= H - TOUCH };
-    const text = isText(o);
     const bleed = !text && (edge.l || edge.r || edge.t || edge.bo);
     items.push({ o, b, edge, text, bleed });
   });
@@ -2687,7 +2750,7 @@ function buildLayer(l, tplId, dw, dh){
     img.set({
       left:p.left, top:p.top,
       originX:p.originX || 'left', originY:p.originY || 'top',
-      scaleX:s, scaleY:s, angle:p.angle || 0,
+      scaleX:s, scaleY:s, angle:p.angle || 0, flipX: !!p.flipX,    // a product faces into the layout (rule 73)
       opacity:p.opacity !== undefined ? p.opacity : 1,
     });
     if (p.shadow) img.set('shadow', p.shadow);
@@ -2762,6 +2825,7 @@ function buildLayer(l, tplId, dw, dh){
   }
   if (gradSpec){ obj.set('fill', objGrad(gradSpec)); obj.pgFillGrad = gradSpec; }
   obj.set({ name:l.name, pgRole:l.role||'', pgCasing:l.casing||'none', pgTplId:tplId });
+  if (l.__ink) obj.pgInk = true;            // laid out by its letters (DESIGN-LAW 76): restaged, audited records
   return obj;
 }
 
@@ -8460,6 +8524,7 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
     }));
     sc.add(ezApplyStyle(bo, synth, tpl.id));
   }
+  if (typeof blockRemap === 'function') blockRemap(sc, DW, DH);    // tall formats: blocks move whole, plates keep their words
   alignPass(sc, DW, DH);
   if (typeof ezApplyTagline === 'function') ezApplyTagline(sc, DW, DH, !keep && fmt === 'jpeg');   // tagline style + number fill
   sc.renderAll();
@@ -12473,13 +12538,27 @@ function numberFill(sc, W, H){
   // what the plate's height allows, less anything else that lives on the plate
   const mates = others.filter(x => { const xc = { x: x.b.left + x.b.width / 2, y: x.b.top + x.b.height / 2 };
     return xc.x > hb.left && xc.x < hb.left + hb.width && xc.y > hb.top && xc.y < hb.top + hb.height; });
-  let top = hb.top, bot = hb.top + hb.height;
+  /* a band that runs off the canvas holds the number only inside the guides
+     (restaged, audited records: DESIGN-LAW 74, 76; the rest keep the box fill) */
+  const INK = objs.some(o => o && o.pgInk);
+  let top = INK ? Math.max(hb.top, G + 3) : hb.top, bot = INK ? Math.min(hb.top + hb.height, H - G - 3) : hb.top + hb.height;   // 3px: the letters' clearance off a guide (inkClear)
   mates.forEach(x => { if (x.b.top + x.b.height <= pb.top + 2) top = Math.max(top, x.b.top + x.b.height); else if (x.b.top >= pb.top + pb.height - 2) bot = Math.min(bot, x.b.top); });
-  const kH = ((bot - top) * 0.78) / pb.height;
+  /* the DIGITS fill 74% of the room: sized by its box, the number's letters
+     filled 45% of a 184px band ("the CTA is way too small", 2026-09-27) */
+  const pI = (INK && textInkRect(ph)) || pb;
+  const kH = INK ? ((bot - top) * 0.74) / pI.height : ((bot - top) * 0.78) / pb.height;
   const maxW = (full ? W - 2 * G : W - 2 * G) - 2 * Math.max(12, 0.35 * fs0 * 1.5);
   const kW = maxW / inkW;
   let k = Math.min(kH, kW, 2.2);
-  if (!(k > 1.04)) return { k: 1, fs: Math.round(fs0) };
+  /* already big enough: still set its LETTERS on the room's centre when it was
+     meant to be centred there (its box within 10px of it) — box-centred, a
+     170px number sat 5.5px low */
+  const inkCentre = () => {
+    const r = textInkRect(ph); if (!r) return;
+    const d = numberCentreY(hb, top, bot, r.height, H, G) - (r.top + r.height / 2);
+    if (Math.abs(d) > 0.5 && Math.abs(d) < Math.max(12, 0.15 * (bot - top))){ ph.set('top', ph.top + d); ph.setCoords(); }
+  };
+  if (!(k > 1.04)){ if (INK) inkCentre(); return { k: 1, fs: Math.round(fs0) }; }
   // the plate widens (never narrows) to hold the ink with air, into clear space only
   const tryK = kk => {
     const w = Math.max(hb.width, Math.min(W - 2 * G, inkW * kk + 2 * plateAirNeed(hb.width, fs0 * kk)));
@@ -12492,8 +12571,9 @@ function numberFill(sc, W, H){
   if (w == null || k <= 1.04) return { k: 1, fs: Math.round(fs0) };
   if (!full && w > hb.width + 1){ const pc = host.getCenterPoint(); host.set({ width: w / (host.scaleX || 1) }); host.setPositionByOrigin(pc, 'center', 'center'); host.setCoords(); }
   ph.set({ scaleX: (ph.scaleX || 1) * k, scaleY: (ph.scaleY || 1) * k });
-  // centred in the room between whatever sits above and below it on the plate
+  // its letters centred in the room between whatever sits above and below it on the plate
   ph.setPositionByOrigin(new fabric.Point(c.x, (top + bot) / 2), 'center', 'center'); ph.setCoords();
+  if (INK){ const r = textInkRect(ph); if (r){ ph.set('top', ph.top + (numberCentreY(hb, top, bot, r.height, H, G) - (r.top + r.height / 2))); ph.setCoords(); } }
   if (typeof plateAir === 'function') plateAir(sc, W, H);
   return { k: +k.toFixed(2), fs: Math.round(fs0 * k) };
 }
@@ -12727,4 +12807,293 @@ function buildEzTagline(){
   seg('ez-tag-outline', [['auto', 'Auto', 'What the look uses'], ['none', 'None'], ['black', 'Black'], ['white', 'White']], 'outline');
   seg('ez-tag-effect', [['auto', 'Auto', 'What the look uses'], ['none', 'None'], ['glow', 'Glow'], ['anaglyph', 'Red & blue 3-D'], ['extrude', '3-D block']], 'effect');
   ezTagSync();
+}
+
+/* ═══ BADGE WORDS AND THEIR MARKS ══════════════════════════════════════════
+   Owner, 2026-09-27: "for 'ez buyer' each variation could say different things
+   like #1 BUYER or FAST BUYER or EZ BUYER or QUICK CASH or MEET NOW or
+   AVAILABLE NOW or TOP BUYER or BEST BUYER or TOP OFFER or LA, OC, IE or
+   LA / OC". The badge is a selling point with a mark that says what kind of
+   point it is: a shield for a trust claim, a bolt for speed, a tag for money,
+   a live signal for availability, a pin for where. It never repeats a word
+   of the headline beside it (TOP iPHONE BUYER + EZ BUYER reads BUYER BUYER),
+   and it wears the CTA's colour (DESIGN-LAW 69, 74). */
+ICONS.pin     = { d:'M50 90 C50 90 22 60 22 39 A28 28 0 0 1 78 39 C78 60 50 90 50 90 Z M50 29 A10 10 0 1 0 50 49 A10 10 0 1 0 50 29 Z', min:28 };
+ICONS.liveDot = { d:'M50 40 A10 10 0 1 0 50 60 A10 10 0 1 0 50 40 Z M31 29 A29 29 0 0 0 31 71 M69 29 A29 29 0 0 1 69 71 M17 16 A47 47 0 0 0 17 84 M83 16 A47 47 0 0 1 83 84', min:28 };
+const BADGE_WORDS = [
+  ['#1 BUYER', 'shieldTick'], ['TOP BUYER', 'shieldTick'], ['BEST BUYER', 'shieldTick'], ['EZ BUYER', 'shieldTick'],
+  ['FAST BUYER', 'boltFast'], ['QUICK CASH', 'boltFast'], ['TOP OFFER', 'cashTag'],
+  ['MEET NOW', 'liveDot'], ['AVAILABLE NOW', 'liveDot'], ['LA · OC · IE', 'pin'], ['LA / OC', 'pin'],
+];
+/* the badges that can sit beside a headline: no shared word */
+function badgeWordsFor(headline){
+  const words = new Set(String(headline || '').toUpperCase().split(/[^A-Z0-9#]+/).filter(w => w.length > 1));
+  return BADGE_WORDS.filter(([t]) => !t.toUpperCase().split(/[^A-Z0-9#]+/).some(w => w.length > 1 && words.has(w)));
+}
+
+/* THE LETTERS OF A LINE. A text's box carries the face's ascent and descent
+   room (a line of caps fills about 60% of it) and, with an outline, half the
+   stroke; judged by the box, a display line "left the guides" or "hit" the
+   line under it with clear air between the letters. This is the ink's own
+   rectangle, read off the pixels: the line drawn once, alone, without its
+   shadow, and cached by everything that shapes its ink. Measured from the
+   face's metrics instead, a "✓" the face does not carry (drawn from a
+   fallback font) read 22px tall where it paints 39px, and three selling-point
+   lines were let into the margin (collision audit, 2026-09-27). Rotated text
+   keeps its box. */
+function textInkRect(o){
+  let b;
+  try { o.setCoords(); b = o.getBoundingRect(true, true); } catch (e){ return null; }
+  if (!o || o.angle || !(o.type === 'i-text' || o.type === 'text' || o.type === 'textbox')) return b;
+  const I = textInkOffsets(o);
+  if (!I) return b;
+  const c = o.getCenterPoint(), sx = o.scaleX || 1, sy = o.scaleY || 1;
+  const x0 = o.flipX ? -I.x1 : I.x0, x1 = o.flipX ? -I.x0 : I.x1, y0 = o.flipY ? -I.y1 : I.y0, y1 = o.flipY ? -I.y0 : I.y1;
+  return { left: c.x + x0 * sx, top: c.y + y0 * sy, width: (x1 - x0) * sx, height: (y1 - y0) * sy };
+}
+/* the ink's extent in the object's own units, from its centre */
+function textInkOffsets(o){
+  let key;
+  try {
+    key = [o.type, o.text, o._getFontDeclaration ? o._getFontDeclaration() : o.fontFamily, o.charSpacing, typeof o.fill === 'string' ? o.fill : 'g',
+      o.stroke, o.strokeWidth, o.paintFirst, o.textAlign, o.lineHeight, o.type === 'textbox' ? o.width : '', o.styles && Object.keys(o.styles).length ? JSON.stringify(o.styles) : '',
+      o.underline, o.linethrough, o.overline].join('|');
+  } catch (e){ return null; }
+  const C = textInkOffsets.cache || (textInkOffsets.cache = new Map());
+  if (C.has(key)) return C.get(key);
+  let res = null;
+  try {
+    const cv = o.toCanvasElement({ withoutShadow: true, withoutTransform: true, enableRetinaScaling: false });
+    const w = cv.width, h = cv.height;
+    if (w > 0 && h > 0){
+      const d = cv.getContext('2d').getImageData(0, 0, w, h).data;
+      let x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (let y = 0; y < h; y++){ const row = y * w * 4; for (let x = 0; x < w; x++) if (d[row + x * 4 + 3] > 40){ if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+      if (x1 >= 0) res = { x0: x0 - w / 2, y0: y0 - h / 2, x1: x1 + 1 - w / 2, y1: y1 + 1 - h / 2 };
+    }
+  } catch (e){ res = null; }
+  if (C.size > 2000) C.clear();
+  C.set(key, res);
+  return res;
+}
+
+/* a plate that carries an icon mark as well as words (a shield-tick badge): the
+   layout passes treat it as composed, not as words to centre or a box to fit */
+function plateHoldsMark(objs, b){
+  return objs.some(o => { if (!o || o.type !== 'path' || o.visible === false) return false;
+    let r; try { o.setCoords(); r = o.getBoundingRect(true, true); } catch (e){ return false; }
+    const px = r.left + r.width / 2, py = r.top + r.height / 2;
+    return px > b.left && px < b.left + b.width && py > b.top && py < b.top + b.height; });
+}
+
+/* ═══ TALL FORMATS MOVE BLOCKS, NOT LAYERS ═════════════════════════════════
+   The square card is the design (owner: "primarily design for the square
+   format"); 3:4 and 9:16 are the same card with more height. mapSpecToDoc()
+   stretches every position and every rect's height by the extra height and
+   scales type by the short side, so a plate grew a third taller than its
+   words and they slid off its centre (a step's numeral 18px high on its
+   plate), and two headline lines 29px apart ended 80px apart
+   (audit_card.mjs, restaged stepsFlow-nn05-30, 2026-09-27).
+   A designer keeps each block rigid and gives the extra height to the space
+   between blocks. So the square layout is read back out of the stretched one,
+   clustered into blocks (anything within 3.5% of the width of something else:
+   a claim and its badge, a stack of steps, a band and the phone standing on
+   it), and each block is placed whole: a block near the top keeps its
+   distance from the top, a block at the bottom its distance from the bottom,
+   and the blocks between share the rest in proportion to the gaps they had. */
+function blockRemap(sc, W, H){
+  const sx = W / TPL_W, sy = H / TPL_H;
+  if (!(sy > sx * 1.02)) return 0;              // tall formats only; the square is untouched
+  const u = Math.min(sx, sy);
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  if (!objs.some(o => o && o.pgInk)) return 0;  // restaged, audited records first (DESIGN-LAW 76)
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const ground = o => !o || o.pgBgRect || o.pgScrim || /^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '') || (() => {
+    try { const b = o.getBoundingRect(true, true); return b.width >= W * 0.85 && b.height >= H * 0.85; } catch (e){ return true; } })();
+  const items = [];
+  objs.forEach(o => {
+    if (o.visible === false || ground(o)) return;
+    let bb; try { o.setCoords(); bb = o.getBoundingRect(true, true); } catch (e){ return; }
+    if (!bb || bb.width <= 0 || bb.height <= 0 || bb.left < -2000) return;
+    const k = o.type === 'rect' ? sy : u;          // rect heights were stretched; everything else scaled by the short side
+    // icons and circles were placed by their centre; everything else by its origin
+    const oy = (o.type === 'path' || o.type === 'circle') ? o.getCenterPoint().y : o.top;
+    const r = isText(o) && typeof textInkRect === 'function' ? textInkRect(o) : bb;
+    const sq = b => ({ left: b.left / sx, top: oy / sy + (b.top - oy) / k, width: b.width / sx, height: b.height / k });
+    items.push({ o, bb, k, box: sq(bb), key: sq(r) });
+  });
+  if (!items.length) return 0;
+  // blocks: connected by a gap of at most 3.5% of the width, in square space
+  const T = 0.035 * TPL_W;
+  const near = (a, b) => {
+    const dx = Math.max(a.left - (b.left + b.width), b.left - (a.left + a.width));
+    const dy = Math.max(a.top - (b.top + b.height), b.top - (a.top + a.height));
+    return Math.max(dx, dy) <= T;
+  };
+  const block = items.map((_, i) => i);
+  const find = i => { while (block[i] !== i) i = block[i] = block[block[i]]; return i; };
+  for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++)
+    if (near(items[i].key, items[j].key)) block[find(i)] = find(j);
+  const groups = new Map();
+  items.forEach((it, i) => { const g = find(i); if (!groups.has(g)) groups.set(g, []); groups.get(g).push(it); });
+  const B = [...groups.values()].map(g => {
+    const t0 = Math.min(...g.map(it => it.box.top)), b0 = Math.max(...g.map(it => it.box.top + it.box.height));
+    return { g, t0, b0, h: (b0 - t0) * u };
+  }).sort((a, b) => a.t0 - b.t0);
+  // anchors: near the top keeps its distance from the top, near the bottom from the bottom
+  B.forEach(b => {
+    if (b.t0 <= 0.14 * TPL_H) b.top = b.t0 * u;
+    else if (b.b0 >= 0.86 * TPL_H) b.top = H - (TPL_H - b.t0) * u;
+  });
+  // the blocks between two anchored ones share the space in proportion to their old gaps
+  for (let i = 0; i < B.length; i++){
+    if (B[i].top != null) continue;
+    let a = i - 1; while (a >= 0 && B[a].top == null) a--;
+    let z = i; while (z < B.length && B[z].top == null) z++;
+    const lo = a >= 0 ? B[a].top + B[a].h : 0, loSq = a >= 0 ? B[a].b0 : 0;
+    const hi = z < B.length ? B[z].top : H, hiSq = z < B.length ? B[z].t0 : TPL_H;
+    const run = B.slice(i, z), used = run.reduce((s, b) => s + b.h, 0);
+    const gaps = [run[0].t0 - loSq].concat(run.slice(1).map((b, k) => b.t0 - run[k].b0), [hiSq - run[run.length - 1].b0]).map(v => Math.max(0, v));
+    const gsum = gaps.reduce((s, v) => s + v, 0) || 1, free = Math.max(0, hi - lo - used);
+    let y = lo;
+    run.forEach((b, k) => { y += free * gaps[k] / gsum; b.top = y; y += b.h; });
+    i = z - 1;
+  }
+  let moved = 0;
+  B.forEach(b => b.g.forEach(it => {
+    const o = it.o, wantTop = b.top + (it.box.top - b.t0) * u, wantH = it.box.height * u;
+    if (o.type === 'rect' && Math.abs(it.bb.height - wantH) > 0.5){ o.set('height', o.height * wantH / it.bb.height); o.setCoords(); }
+    const now = o.getBoundingRect(true, true);
+    if (Math.abs(now.top - wantTop) > 0.25){ o.set('top', o.top + (wantTop - now.top)); o.setCoords(); moved++; }
+  }));
+  return moved;
+}
+
+/* where a number's letters centre on its plate: on the plate as it is SEEN
+   (a band that runs off the canvas is seen to the edge, so centred only
+   inside the guides a number read as sitting high in its cyan), as far as the
+   letters can go and stay inside the guides and the room its mates leave */
+function numberCentreY(hb, top, bot, inkH, H, G){
+  const seen = (Math.max(hb.top, 0) + Math.min(hb.top + hb.height, H)) / 2;
+  return Math.max(top + inkH / 2, Math.min(seen, bot - inkH / 2));
+}
+
+/* letters kept off a line get 3px of clearance: set exactly on the guide, a
+   line's anti-aliased edge fell a pixel inside the margin, 4% of a thin line */
+function inkClear(r){ return r ? { left: r.left - 3, top: r.top - 3, width: r.width + 6, height: r.height + 6 } : r; }
+
+/* A line is never cut by a plate's edge (DESIGN-LAW 58). Letters, not boxes
+   (rule 76) took away an accident: step 3's box-based push used to shove a
+   phone number 30px down, which happened to land it on a plate it had been
+   authored half off (scriptRetro, trustSeal); and the guides' uniform scale
+   keeps a full-bleed band pinned to its edge while the words move, so a line
+   can end a few pixels over an edge. Last of all, so nothing undoes it:
+   a line whose letters are mostly on a plate (half or more, not all) moves
+   up or down until they are all on it with air; a line that only grazes a
+   plate (a fifth or less) moves up or down just clear of it. Never sideways,
+   never onto another line, never out of the guides. */
+function linesOffEdges(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const solid = f => f && typeof f === 'object' ? true : !!f && f !== 'transparent' && !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(String(f));
+  const lines = objs.filter(o => live(o) && isText(o) && !o.angle && !o.pgKin && /\S/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
+  const plates = objs.filter(o => live(o) && o.type === 'rect' && !o.angle && !o.pgBgRect && !o.pgScrim && (solid(o.fill) || (o.stroke && o.strokeWidth))
+      && !/^(BG|Scrim|Overlay)$/.test(o.name || ''))
+    .map(o => ({ o, b: bb(o) })).filter(x => x.b && x.b.width <= W + 8 && x.b.height < H * 0.6);
+  let moved = 0;
+  lines.forEach(t => {
+    const r = textInkRect(t); if (!r || r.width <= 0 || r.height <= 0) return;
+    const zo = objs.indexOf(t);
+    const over = plates.filter(p => objs.indexOf(p.o) < zo).map(p => {
+      const ix = Math.max(0, Math.min(r.left + r.width, p.b.left + p.b.width) - Math.max(r.left, p.b.left));
+      const iy = Math.max(0, Math.min(r.top + r.height, p.b.top + p.b.height) - Math.max(r.top, p.b.top));
+      return { p, f: (ix * iy) / (r.width * r.height), fx: ix / r.width };
+    }).filter(c => c.f > 0.003 && c.f < 0.995 && c.fx >= 0.5)
+      .sort((a, c) => a.p.b.width * a.p.b.height - c.p.b.width * c.p.b.height);
+    /* within 8px of an edge counts as touching it: at a feed's scale a 6px gap
+       between a chip's edge and the line under it reads as the line on the edge */
+    const near = plates.filter(p => objs.indexOf(p.o) < zo && !over.some(c => c.p === p)).map(p => {
+      const ix = Math.max(0, Math.min(r.left + r.width, p.b.left + p.b.width) - Math.max(r.left, p.b.left));
+      const gap = r.top >= p.b.top + p.b.height ? r.top - (p.b.top + p.b.height) : p.b.top >= r.top + r.height ? p.b.top - (r.top + r.height) : -1;
+      return { p, f: 0, fx: ix / r.width, gap };
+    }).filter(c => c.gap >= 0 && c.gap < 8 && c.fx >= 0.5);
+    const onto = over.find(c => c.f >= 0.5 && c.fx >= 0.98), graze = over.find(c => c.f <= 0.2) || near[0];
+    let dy = 0, k = 1;
+    if (onto){
+      /* the plate's room inside the guides; a line a little too tall for it
+         comes down to fit (never under 85%, a number never under 72px, rule 53) */
+      let P = onto.p.b, top = Math.max(P.top, G), bot = Math.min(P.top + P.height, H - G), room = bot - top;
+      /* a band pinned to the top or bottom edge grows on its inner side to hold
+         its line, when nothing is in the way: the guides' uniform scale had
+         shortened one to 71px under a 79px number */
+      if (room < r.height + 8){
+        const atBottom = P.top + P.height >= H - 2, atTop = P.top <= 2, need = r.height + 8 - room;
+        const clearOf = (y0, y1) => !lines.some(u => u !== t && (() => { const q = textInkRect(u); return q && q.top < y1 && q.top + q.height > y0 &&
+          Math.min(P.left + P.width, q.left + q.width) - Math.max(P.left, q.left) > 1; })());
+        if (atBottom && clearOf(P.top - need - 4, P.top)){
+          const o = onto.p.o; o.set({ top: o.top - need, height: o.height + need / (o.scaleY || 1) }); o.setCoords();
+          onto.p.b = P = bb(o); top = Math.max(P.top, G); room = bot - top;
+        } else if (atTop && clearOf(P.top + P.height, P.top + P.height + need + 4)){
+          const o = onto.p.o; o.set({ height: o.height + need / (o.scaleY || 1) }); o.setCoords();
+          onto.p.b = P = bb(o); bot = Math.min(P.top + P.height, H - G); room = bot - top;
+        }
+      }
+      let pad = Math.max(3, Math.min(0.12 * r.height, (room - r.height) / 2));
+      if (room < r.height + 6){
+        k = (room - 6) / r.height;
+        const fs = (t.fontSize || 40) * (t.scaleY || 1);
+        if (k < 0.85 || (t.pgRole === 'phone' && fs * k < 72)) return;
+        pad = 3;
+      }
+      const h = r.height * k, c = r.top + r.height / 2;
+      const t0 = c - h / 2;
+      if (t0 < top + pad) dy = top + pad - t0;
+      else if (t0 + h > bot - pad) dy = (bot - pad) - (t0 + h);
+      if (k !== 1){
+        const m = { left: r.left + r.width * (1 - k) / 2, top: t0 + dy, width: r.width * k, height: h };
+        if (lines.some(u => u !== t && (() => { const q = textInkRect(u); return q && Math.min(m.left + m.width, q.left + q.width) - Math.max(m.left, q.left) > 1 &&
+            Math.min(m.top + m.height, q.top + q.height) - Math.max(m.top, q.top) > 1; })())) return;
+        const pt = t.getCenterPoint();
+        t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k }); t.setPositionByOrigin(pt, 'center', 'center');
+        t.set('top', t.top + dy); t.setCoords(); moved++;
+        return;
+      }
+    } else if (graze){
+      const P = graze.p.b, cy = r.top + r.height / 2, below = cy >= P.top + P.height / 2;
+      dy = below ? (P.top + P.height + 8) - r.top : (P.top - 8) - (r.top + r.height);
+      /* blocked by the line beyond it: come down up to 8% (a number never under
+         72px) so the line clears both */
+      const beyond = lines.filter(u => u !== t).map(u => textInkRect(u)).filter(q => q && Math.min(r.left + r.width, q.left + q.width) - Math.max(r.left, q.left) > 1)
+        .filter(q => below ? q.top >= r.top + r.height - 2 : q.top + q.height <= r.top + 2)
+        .sort((a, b) => below ? a.top - b.top : (b.top + b.height) - (a.top + a.height))[0];
+      if (beyond){
+        const lo = below ? P.top + P.height + 8 : beyond.top + beyond.height + 4, hi = below ? beyond.top - 4 : P.top - 8;
+        if (hi - lo < r.height){
+          const kk = (hi - lo) / r.height, fs = (t.fontSize || 40) * (t.scaleY || 1);
+          if (kk < 0.92 || (t.pgRole === 'phone' && fs * kk < 72)) return;
+          const pt = t.getCenterPoint();
+          t.set({ scaleX: (t.scaleX || 1) * kk, scaleY: (t.scaleY || 1) * kk }); t.setPositionByOrigin(pt, 'center', 'center'); t.setCoords();
+          const r2 = textInkRect(t); t.set('top', t.top + (lo - r2.top)); t.setCoords(); moved++;
+          return;
+        }
+      }
+    }
+    if (!dy || Math.abs(dy) > 0.4 * r.height + 12) return;
+    const m = { left: r.left, top: r.top + dy, width: r.width, height: r.height };
+    if (m.top < G || m.top + m.height > H - G) return;
+    const hitLine = lines.some(u => u !== t && (() => { const q = textInkRect(u); if (!q) return false;
+      return Math.min(m.left + m.width, q.left + q.width) - Math.max(m.left, q.left) > 1 &&
+             Math.min(m.top + m.height, q.top + q.height) - Math.max(m.top, q.top) > 1; })());
+    // and it must not land across another plate's edge
+    const hitEdge = plates.some(p => p !== (onto || graze).p && objs.indexOf(p.o) < zo && (() => {
+      const ix = Math.max(0, Math.min(m.left + m.width, p.b.left + p.b.width) - Math.max(m.left, p.b.left));
+      const iy = Math.max(0, Math.min(m.top + m.height, p.b.top + p.b.height) - Math.max(m.top, p.b.top));
+      const f = (ix * iy) / (m.width * m.height); return f > 0.003 && f < 0.995; })());
+    if (hitLine || hitEdge) return;
+    t.set('top', t.top + dy); t.setCoords(); moved++;
+  });
+  return moved;
 }
