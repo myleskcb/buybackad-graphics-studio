@@ -44,7 +44,7 @@ h1{font:600 clamp(28px,4vw,40px)/1.05 var(--display);letter-spacing:-.01em;margi
 /* player */
 .player{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}
 @media (max-width:820px){.player{position:static}}
-.stage{position:relative;background:var(--sunk);border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-height:66vh;width:100%;margin:0 auto;display:grid;place-items:center}
+.stage{position:relative;background:var(--sunk);border-radius:12px;overflow:hidden;aspect-ratio:1/1;max-height:66vh;width:100%;max-width:100%;margin:0 auto;display:grid;place-items:center}
 .stage img,.stage video{width:100%;height:100%;object-fit:contain;display:block;grid-area:1/1}
 .stage video[hidden]{display:none}
 .play{grid-area:1/1;z-index:2;display:grid;place-items:center;width:74px;height:74px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.45)}
@@ -77,7 +77,7 @@ h1{font:600 clamp(28px,4vw,40px)/1.05 var(--display);letter-spacing:-.01em;margi
 .chip[aria-pressed=true]{background:var(--text);border-color:var(--text);color:var(--ground)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:14px}
 .card{display:grid;gap:7px;background:none;border:0;padding:0;text-align:left;cursor:pointer}
-.poster{position:relative;aspect-ratio:9/16;background:var(--sunk);border-radius:10px;overflow:hidden;border:1px solid var(--line);display:grid;place-items:center}
+.poster{position:relative;aspect-ratio:var(--poster-ar,9/16);max-width:100%;background:var(--sunk);border-radius:10px;overflow:hidden;border:1px solid var(--line);display:grid;place-items:center}
 .poster img{width:100%;height:100%;object-fit:contain;display:block}
 .card[aria-current=true] .poster{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
 .card:hover .poster{border-color:var(--line-2)}
@@ -140,12 +140,32 @@ const store = { get(k, d){ try { const v = localStorage.getItem(k); return v == 
                 set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e){} } };
 const S = { round: ROUNDS.length - 1, filter: 'all', i: 0, sound: store.get('cuts.sound', false), loop: store.get('cuts.loop', true) };
 const kb = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB';
-const pass = c => !c.audit.length && c.frame0 && c.flash.pass;
+const FMT = { square:'1:1', three4:'3:4', story:'9:16', wide:'16:9' };
+/* round 1 (the old video.js) wrote its facts in its own fields; later rounds
+   carry a generic checks list. v1 is read through this adapter. */
+const pass = c => c.checks ? !!c.pass : (!c.audit.length && c.frame0 && c.flash.pass);
+function checksOf(c){
+  if (c.checks) return c.checks;
+  const f = c.flash;
+  return [
+    { ok: c.frame0, label: 'Opens and ends on the still ad', val: c.frame0 ? 'identical' : 'differs' },
+    { ok: c.facts.phoneShare >= 0.7, label: 'Number on screen', val: Math.round(c.facts.phoneShare * 100) + '%' },
+    { ok: c.facts.dwell.every(d => d.have >= d.need), label: 'Every line on long enough to read', val: c.facts.dwell.length + ' lines' },
+    { ok: !c.audit.length, label: 'Layout and contrast, measured', val: c.audit.length ? c.audit.length + ' issues' : 'pass' },
+    { ok: f.pass, label: 'Flashing (WCAG 2.3.1)', val: 'max ' + Math.max(f.general.maxFlashesPerSec, f.red.maxFlashesPerSec) + '/s' },
+  ];
+}
+const FOOT = {
+  v1: 'Round v1 is the first engine, video.js, since replaced: it recoloured the ads and set them on tinted grounds, which the design law now rules out. It stays here for before-and-after.',
+  now: 'Each clip is a small preview made through the same path as a real download: the frame-0 check, the exact encoder and the flash check. The call-to-action facts beside it come from the full 1080 export. The ad opens as the finished still and, at 5.8 s, shifts to its call to action, built from the card\u2019s own headline, action line, number and photograph, shaded dark and never tinted.',
+  tail: ' The grid shows still posters only. A clip downloads when you press play, and the previous one is released, so only one video is ever loaded.',
+};
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[m]));
 
 function clips(){
   const r = ROUNDS[S.round];
-  return r.clips.filter(c => S.filter === 'all' || (S.filter === 'square' ? c.fmt === 'square' : S.filter === 'lengths' ? c.len !== 10 : c.cat === S.filter));
+  return r.clips.filter(c => S.filter === 'all' || (S.filter === 'hero' ? c.hero
+    : S.filter.startsWith('fmt:') ? c.fmt === S.filter.slice(4) : S.filter === 'lengths' ? c.len !== 10 : c.cat === S.filter));
 }
 function renderVersions(){
   $('versions').innerHTML = ROUNDS.map((r, i) => `<button class="ver" data-i="${i}" aria-pressed="${i === S.round}">${esc(r.version)}<small>${esc(r.label)} · ${new Date(r.made).toLocaleDateString(undefined, { month:'short', day:'numeric' })}</small></button>`).join('');
@@ -154,21 +174,30 @@ function renderVersions(){
 function renderSummary(){
   const r = ROUNDS[S.round], all = r.clips, ok = all.filter(pass).length;
   const bytes = all.reduce((s, c) => s + c.bytes, 0);
+  const fmts = [...new Set(all.map(c => c.fmt))].map(f => FMT[f] || f).join(', ');
   $('summary').innerHTML = `<span><b>${all.length}</b> clips</span>
     <span class="${ok === all.length ? 'ok' : ''}"><b>${ok}</b> of ${all.length} pass every check</span>
-    <span><b>${new Set(all.map(c => c.id)).size}</b> templates, <b>${new Set(all.map(c => c.cat)).size}</b> categories</span>
+    <span><b>${new Set(all.map(c => c.id)).size}</b> designs, <b>${new Set(all.map(c => c.cat)).size}</b> categories, ${esc(fmts)}</span>
     <span><b>${kb(bytes)}</b> in all, loaded one clip at a time</span>`;
+  $('foot').textContent = (r.version === 'v1' ? FOOT.v1 : FOOT.now) + FOOT.tail;
 }
 function renderFilters(){
-  const cats = [...new Set(ROUNDS[S.round].clips.map(c => c.cat))];
-  const opts = [['all', 'All']].concat(cats.map(c => [c, CAT[c] || c]), [['square', 'Square'], ['lengths', '6 s and 15 s']]);
+  const all = ROUNDS[S.round].clips, cats = [...new Set(all.map(c => c.cat))], fmts = [...new Set(all.map(c => c.fmt))];
+  const opts = [['all', 'All']]
+    .concat(all.some(c => c.hero) ? [['hero', 'Hero picks']] : [])
+    .concat(cats.map(c => [c, CAT[c] || c]))
+    .concat(fmts.length > 1 ? fmts.map(f => ['fmt:' + f, FMT[f] || f]) : [])
+    .concat(all.some(c => c.len !== 10) ? [['lengths', '6 s and 15 s']] : []);
   $('filters').innerHTML = opts.map(([k, l]) => `<button class="chip" data-k="${k}" aria-pressed="${S.filter === k}">${esc(l)}</button>`).join('');
   $('filters').querySelectorAll('.chip').forEach(b => b.onclick = () => { S.filter = b.dataset.k; S.i = 0; renderAll(); });
 }
 function renderGrid(){
   const list = clips();
-  $('grid').innerHTML = list.map((c, i) => `<button class="card" data-i="${i}" aria-current="${i === S.i}" aria-label="${esc(c.name)}, ${esc(CAT[c.cat] || c.cat)}, ${c.len} seconds">
-      <span class="poster"><img src="${ROUNDS[S.round].version}/${c.poster}" alt="" loading="lazy" decoding="async"><span class="state ${pass(c) ? '' : 'no'}"></span><span class="len">${c.len} s${c.fmt === 'square' ? ' · 1:1' : ''}</span></span>
+  // one poster shape per round: the format most of its clips are in
+  const tally = {}; ROUNDS[S.round].clips.forEach(c => { const k = c.sw + '/' + c.sh; tally[k] = (tally[k] || 0) + 1; });
+  $('grid').style.setProperty('--poster-ar', Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0] || '9/16');
+  $('grid').innerHTML = list.map((c, i) => `<button class="card" data-i="${i}" aria-current="${i === S.i}" aria-label="${esc(c.name)}, ${esc(CAT[c.cat] || c.cat)}, ${c.len} seconds, ${FMT[c.fmt] || c.fmt}">
+      <span class="poster"><img src="${ROUNDS[S.round].version}/${c.poster}" alt="" loading="lazy" decoding="async"><span class="state ${pass(c) ? '' : 'no'}"></span><span class="len">${c.len} s · ${FMT[c.fmt] || c.fmt}</span></span>
       <span class="t">${esc(c.name)}</span><span class="s">${esc(CAT[c.cat] || c.cat)}</span></button>`).join('');
   $('grid').querySelectorAll('.card').forEach(b => b.onclick = () => { select(+b.dataset.i, true); });
 }
@@ -182,26 +211,26 @@ function select(i, autoplay){
   S.i = (i + list.length) % list.length;
   const c = list[S.i], r = ROUNDS[S.round];
   release();
-  $('stage').classList.toggle('sq', c.fmt === 'square');
+  $('stage').style.aspectRatio = c.sw + ' / ' + c.sh;
   $('poster').src = `${r.version}/${c.poster}`;
   $('poster').hidden = false;
   $('play').hidden = false;
-  $('note').textContent = `${c.len} s · ${c.fmt === 'square' ? '1:1' : '9:16'} · ${kb(c.bytes)}`;
+  $('note').textContent = `${c.len} s · ${FMT[c.fmt] || c.fmt} · ${kb(c.bytes)}`;
   $('title').textContent = c.name;
   $('sub').textContent = `${CAT[c.cat] || c.cat} · ${c.W}×${c.H} export, previewed at ${c.sw}×${c.sh}${c.audio ? ' · with sound' : ''}`;
-  const a = c.ad;
-  $('copy').innerHTML = `<b>${esc(a.kicker)}</b> · ${esc([a.lead, a.price, a.qualifier].filter(Boolean).join(' '))}<br>Phone bar: <b>${esc(a.phone || 'none')}</b> · Type: ${esc(a.font)} · Accent: <span style="font-family:var(--mono)">${esc(c.facts.accent)}</span>`;
-  const f = c.flash;
-  const rows = [
-    [c.frame0, 'Opens and ends on the still ad', c.frame0 ? 'identical' : 'differs'],
-    [c.facts.phoneShare >= 0.7, 'Number on screen', Math.round(c.facts.phoneShare * 100) + '%'],
-    [c.facts.dwell.every(d => d.have >= d.need), 'Every line on long enough to read', c.facts.dwell.length + ' lines'],
-    [!c.audit.length, 'Layout and contrast, measured', c.audit.length ? c.audit.length + ' issues' : 'pass'],
-    [f.pass, 'Flashing (WCAG 2.3.1)', `max ${Math.max(f.general.maxFlashesPerSec, f.red.maxFlashesPerSec)}/s`],
-  ];
-  $('checks').innerHTML = rows.map(([ok, l, v]) => `<li><span class="dot ${ok ? '' : 'no'}"></span><span>${l}</span><span class="val">${esc(v)}</span></li>`).join('')
-    + `<li style="grid-template-columns:1fr"><div class="dwell">${c.facts.dwell.map(d => `${esc(d.label).padEnd(14, ' ')} on ${d.have.toFixed(1)} s · needs ${d.need.toFixed(1)} s`).join('<br>')}</div></li>`
-    + (c.audit.length ? `<li style="grid-template-columns:1fr;color:var(--bad)">${c.audit.map(esc).join('<br>')}</li>` : '');
+  if (c.ad){
+    const a = c.ad;
+    $('copy').innerHTML = `<b>${esc(a.kicker)}</b> · ${esc([a.lead, a.price, a.qualifier].filter(Boolean).join(' '))}<br>Phone bar: <b>${esc(a.phone || 'none')}</b> · Type: ${esc(a.font)} · Accent: <span style="font-family:var(--mono)">${esc(c.facts.accent)}</span>`;
+  } else $('copy').innerHTML = esc(c.copy || '');
+  const r0 = ROUNDS[S.round].version;
+  $('frames').hidden = !c.end;
+  $('frames').innerHTML = c.end ? `<figure><img src="${r0}/${c.poster}" alt="The finished ad it opens on" loading="lazy" style="aspect-ratio:${c.sw}/${c.sh}"><figcaption>Opens on</figcaption></figure>
+    <figure><img src="${r0}/${c.end}" alt="The call to action it lands on" loading="lazy" style="aspect-ratio:${c.sw}/${c.sh}"><figcaption>Lands on</figcaption></figure>` : '';
+  $('checks').innerHTML = checksOf(c).map(k => `<li><span class="dot ${k.ok ? '' : 'no'}"></span><span>${esc(k.label)}</span><span class="val">${esc(k.val)}</span></li>`).join('')
+    + (c.facts ? `<li style="grid-template-columns:1fr"><div class="dwell">${c.facts.dwell.map(d => `${esc(d.label).padEnd(14, ' ')} on ${d.have.toFixed(1)} s · needs ${d.need.toFixed(1)} s`).join('<br>')}</div></li>` : '')
+    + (c.audit && c.audit.length ? `<li style="grid-template-columns:1fr;color:var(--bad)">${c.audit.map(esc).join('<br>')}</li>` : '');
+  $('notes').hidden = !(c.notes && c.notes.length);
+  $('notes').textContent = c.notes && c.notes.length ? 'Why it keeps the still: ' + c.notes.join(' ') : '';
   // the same cut in other rounds, for before-and-after
   const others = ROUNDS.map((rr, ri) => [rr, ri]).filter(([rr, ri]) => ri !== S.round && rr.clips.some(x => x.key === c.key));
   $('cmp').innerHTML = others.length ? 'Same cut in: ' + others.map(([rr, ri]) => `<button class="chip" data-r="${ri}">${esc(rr.version)}</button>`).join('') : '';

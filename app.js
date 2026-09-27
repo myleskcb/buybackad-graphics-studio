@@ -10774,9 +10774,11 @@ function motionBake(sc, docW, docH, outW, outH){
       only(new Set([o]));
       let crop = null;
       if (!blend){
-        // crop to the element plus its shadow, so a phone's memory is not spent on empty canvas
-        const r = o.getBoundingRect(false, true), sh = o.shadow || {};
-        const pad = Math.ceil(((sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * z) + 6;
+        // crop to the element plus its shadow, so a phone's memory is not spent on empty canvas.
+        // fabric scales a shadow with its object (a 2.6x product's 38px blur is ~100px) and a
+        // blur's tail runs to ~1.5x it: cropped shorter, frame 0 lost the shadow's edge (rule 65)
+        const r = o.getBoundingRect(false, true), sh = o.shadow || {}, os = sh.nonScaling ? 1 : Math.max(Math.abs(o.scaleX || 1), Math.abs(o.scaleY || 1));
+        const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z) + 6;
         const x0 = Math.max(0, Math.floor(r.left - pad)), y0 = Math.max(0, Math.floor(r.top - pad));
         const x1 = Math.min(outW, Math.ceil(r.left + r.width + pad)), y1 = Math.min(outH, Math.ceil(r.top + r.height + pad));
         crop = { x:x0, y:y0, w:x1 - x0, h:y1 - y0 };
@@ -11286,8 +11288,8 @@ function ctaRender(sc, set, s, from, to, z, outW, outH){
     keep.forEach(k => {
       k.o.visible = k.v !== false && set.has(k.o);
       if (!k.o.visible) return;
-      const r = k.o.getBoundingRect(false, true), sh = k.o.shadow || {};
-      const pad = Math.ceil(((sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * z * s) + 6;
+      const r = k.o.getBoundingRect(false, true), sh = k.o.shadow || {}, os = sh.nonScaling ? 1 : Math.max(Math.abs(k.o.scaleX || 1), Math.abs(k.o.scaleY || 1));
+      const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z) + 6;
       x0 = Math.min(x0, r.left - pad); y0 = Math.min(y0, r.top - pad);
       x1 = Math.max(x1, r.left + r.width + pad); y1 = Math.max(y1, r.top + r.height + pad);
     });
@@ -11998,10 +12000,11 @@ function plateAir(sc, W, H){
   const inkSpan = (t, p) => {
     const s = span(t, p), same = Math.abs(((((t.angle || 0) - (p.angle || 0)) % 360) + 540) % 360 - 180) < 10;
     if (!same) return s;
-    const k = (s.x1 - s.x0) / (t.width || 1), I = plateAirInk(t), al = String(t.textAlign || 'left');
-    const start = al === 'right' ? s.x1 - I.lw * k : (al === 'center' || al.startsWith('justify')) ? (s.x0 + s.x1 - I.lw * k) / 2 : s.x0;
-    const x0 = start + I.off * k;
-    return { x0, x1: x0 + I.w * k, y0: s.y0, y1: s.y1 };
+    // the box carries the stroke's width; the drawn ink reaches half a stroke past each glyph
+    const sw = (t.stroke && t.strokeWidth) || 0, k = (s.x1 - s.x0) / ((t.width || 1) + sw);
+    const I = plateAirInk(t), al = String(t.textAlign || 'left'), bl = s.x0 + sw / 2 * k, br = s.x1 - sw / 2 * k;
+    const start = al === 'right' ? br - I.lw * k : (al === 'center' || al.startsWith('justify')) ? (bl + br - I.lw * k) / 2 : bl;
+    return { x0: start + (I.off - sw / 2) * k, x1: start + (I.off + I.w + sw / 2) * k, y0: s.y0, y1: s.y1 };
   };
   const words = objs.filter(o => live(o) && isText(o) && /[A-Za-z0-9]/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
   words.forEach(t => {

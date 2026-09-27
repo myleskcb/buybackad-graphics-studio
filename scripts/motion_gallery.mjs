@@ -9,10 +9,13 @@
    the owner downloads.
 
    Cards: the owner's hero picks (assets/hero-picks.json) first, then one card
-   from each category the picks leave out, then a few classics.
+   from each category the picks leave out, then a few classics. Every card is
+   rendered square, the format the ads are designed for; the first --three4
+   also at 3:4 and the first --story at 9:16 (owner, 2026-09-27: "primarily
+   1:1 or 3:4 but occasionally we will do the 9:16").
 
    usage:  npx http-server -p 8899 -s .   then
-           CHROME=/path/to/chrome node scripts/motion_gallery.mjs v2 "label" [--preview 480] [--classics 3]
+           CHROME=/path/to/chrome node scripts/motion_gallery.mjs v2 "label" [--preview 480] [--classics 3] [--three4 6] [--story 2]
    Writes .render/video/gallery/<version>/{manifest.json, clips/, posters/};
    then python3 scripts/gallery/build.py makes the page. */
 import puppeteer from 'puppeteer-core';
@@ -24,6 +27,7 @@ const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k);
 const VERSION = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'v2';
 const LABEL = argv[1] && !argv[1].startsWith('--') ? argv[1] : 'new language';
 const PREVIEW = +arg('--preview', 480), CLASSICS = +arg('--classics', 3), LIMIT = +arg('--limit', 0);
+const THREE4 = +arg('--three4', 6), STORY = +arg('--story', 2);
 const OUT = new URL(`../.render/video/gallery/${VERSION}/`, import.meta.url).pathname;
 mkdirSync(OUT + 'clips', { recursive: true }); mkdirSync(OUT + 'posters', { recursive: true });
 const fab = process.env.FABRIC_JS ? readFileSync(process.env.FABRIC_JS) : null;
@@ -66,7 +70,10 @@ let jobs = await page.evaluate(async (nClassics) => {
   return show.concat(classics);
 }, CLASSICS);
 if (LIMIT) jobs.splice(LIMIT);
-console.log('rendering', jobs.length, 'clips:', jobs.map(j => j.id).join(', '));
+jobs = jobs.map(j => ({ ...j, fmt: 'square' }))
+  .concat(jobs.slice(0, THREE4).map(j => ({ ...j, fmt: 'three4' })))
+  .concat(jobs.slice(0, STORY).map(j => ({ ...j, fmt: 'story' })));
+console.log('rendering', jobs.length, 'clips:', jobs.map(j => j.id + (j.fmt === 'square' ? '' : ':' + j.fmt)).join(', '));
 
 const clips = [];
 for (const [n, j] of jobs.entries()){
@@ -86,7 +93,7 @@ for (const [n, j] of jobs.entries()){
       await new Promise(r => setTimeout(r, 100));
     }
     await new Promise(r => setTimeout(r, 600));
-    const sc = renderEzCanvas(1080, 'png', undefined, undefined, undefined, true);
+    const sc = renderEzCanvas(1080, 'png', undefined, undefined, j.fmt, true);
     const docW = sc.width, docH = sc.height;
     const even = (w) => Math.round(w * docH / docW / 2) * 2;
     // the call to action as the 1080 download builds it
@@ -109,13 +116,13 @@ for (const [n, j] of jobs.entries()){
     motionDraw(x, small, 0); const poster = cv.toDataURL('image/jpeg', 0.84).split(',')[1];
     motionDraw(x, small, MOTION.dur - 0.25); const end = cv.toDataURL('image/jpeg', 0.84).split(',')[1];
     sc.dispose();
-    return { W: 1080, H: even(1080), sw: w, sh: h, fmt: Math.abs(docW - docH) < 2 ? 'square' : docH > docW ? 'story' : 'wide',
+    return { W: 1080, H: even(1080), sw: w, sh: h, fmt: j.fmt,
       mime: rec.mime, clip: await b64(rec.blob), bytes: rec.blob.size, poster, end, audio: !!sound,
       frame0: { ok: rec.frameZero.ok, off: rec.frameZero.off },
       flash: { pass: rec.flash.pass, perSec: Math.max(rec.flash.general.perSec, rec.flash.red.perSec), area: +Math.max(rec.flash.general.area, rec.flash.red.area).toFixed(3) },
       fact };
   }, j, PREVIEW).catch(e => ({ err: String(e && e.message || e) }));
-  if (r.err){ console.log(`[${n + 1}/${jobs.length}] ${j.id} ERROR ${r.err}`); clips.push({ id: j.id, err: r.err }); continue; }
+  if (r.err){ console.log(`[${n + 1}/${jobs.length}] ${j.id} ${j.fmt} ERROR ${r.err}`); clips.push({ id: j.id, err: r.err }); continue; }
   const ext = r.mime.includes('mp4') ? 'mp4' : 'webm', key = `${j.id}-${r.fmt}-10s`;
   writeFileSync(`${OUT}clips/${key}.${ext}`, Buffer.from(r.clip, 'base64'));
   writeFileSync(`${OUT}posters/${key}.jpg`, Buffer.from(r.poster, 'base64'));
