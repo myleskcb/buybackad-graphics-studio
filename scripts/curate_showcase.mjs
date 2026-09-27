@@ -16,7 +16,8 @@
  *    near-colourless.
  * 2. Disqualified outright (the faults the owner named): copy colliding with
  *    copy or a shape (audit_collisions.mjs, >= 6%), copy running off the ad,
- *    copy inside the 6% safe margin (>= 2% of a line's ink).
+ *    copy inside the 6% safe margin (>= 2% of a line's ink), and the
+ *    headline, number or CTA under 3:1 ("maximum legibility").
  * 3. Mistake score, lower is better: the critic's warnings, line and letter
  *    contrast below 4.5:1, the number's worst letter below 7:1, any overlap
  *    the older audits measured, and product cut off or half off its panel.
@@ -57,6 +58,8 @@ const why = c => {
     if (r.off > 2) w.push('runs off the ad');
     if (r.guide >= 0.02) w.push('outside the guides (' + r.guideBy + ')');
   }
+  // the headline, the number or the CTA under 3:1 on its own pixels (audit_showcase_legibility)
+  if (typeof c.legib === 'number' && c.legib < 3) w.push('critical line under 3:1 (' + c.legib + ')');
   return w;
 };
 const warns = c => (c.school && c.school.warn ? c.school.warn.length : 0);
