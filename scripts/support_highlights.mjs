@@ -27,13 +27,12 @@
  * usage: node scripts/support_highlights.mjs [--ids a,b] [--out dir] [--write] [--json f]
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { openStudio } from './_showcase_harness.mjs';
+import { openStudio, gateRecords, gateSummary, live } from './_showcase_harness.mjs';
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/showcase/';
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const WRITE = process.argv.includes('--write'), OUT = argv('--out');
 const idx = JSON.parse(readFileSync(DIR + 'index.json', 'utf8'));
 const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
-const live = c => !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05);
 const work = idx.filter(c => (only ? only.has(c.id) : live(c)) && c.support).map(c => ({ id: c.id, support: c.support, accent: c.accent, ink: c.ink }));
 console.log('cards: ' + work.length);
 
@@ -92,15 +91,18 @@ for (let i = 0; i < work.length; i += 6){
   }, work.slice(i, i + 6)));
   if (i % 60 === 0) console.log('…' + Math.min(i + 6, work.length) + '/' + work.length);
 }
-await browser.close();
-
-const rows = Object.entries(out), yes = rows.filter(([, r]) => r.fill), no = rows.filter(([, r]) => !r.fill);
+const rows = Object.entries(out); let yes = rows.filter(([, r]) => r.fill); const no = rows.filter(([, r]) => !r.fill);
 const why = {}; no.forEach(([, r]) => { const k = r.skip || 'error'; why[k] = (why[k] || 0) + 1; });
 console.log(`highlight: ${yes.length} · left as is: ${no.length} · page errors ${errors.length}`);
 console.log('left as is because: ' + JSON.stringify(why));
 console.log('lines: ' + JSON.stringify(yes.reduce((m, [, r]) => (m[r.line] = (m[r.line] || 0) + 1, m), {})));
 const apply = (id, r) => { const rec = JSON.parse(readFileSync(DIR + 'tpl/' + id + '.json', 'utf8'));
   const l = rec.tpl.layers.find(x => x.name === r.line); if (l && l.props){ l.props.fill = r.fill; delete l.props.grad; } return rec; };
+/* the writers' gate: the one measure, before anything is written */
+const gate = await gateRecords(page, yes.map(([id, r]) => ({ id, rec: apply(id, r) })));
+console.log(gateSummary(gate));
+yes = yes.filter(([id]) => gate[id] && gate[id].ok);
+await browser.close();
 if (OUT){ mkdirSync(OUT, { recursive: true }); yes.forEach(([id, r]) => writeFileSync(OUT + '/' + id + '.json', JSON.stringify(apply(id, r)))); }
 if (WRITE){ yes.forEach(([id, r]) => writeFileSync(DIR + 'tpl/' + id + '.json', JSON.stringify(apply(id, r)))); console.log('wrote ' + yes.length + ' records'); }
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify(out));

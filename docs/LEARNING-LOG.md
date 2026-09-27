@@ -574,3 +574,41 @@ Rejected:
     "lacking imagery"; only cards with a hero cut-out moved.
   - Keeping the smear and calling it blur: the owner asked for blurred images.
   - A hue in a pattern overlay (rule 56).
+
+## 2026-09-27 (small hours) — One measure, one gate
+
+Studied:
+  The owner: "audit of any overlapping code, contradictory code, or overall
+  fuzzy directions … every generation has a self audit process and a check
+  before they're produced." Three readings: the rulebook, the pipeline in
+  app.js, the writer scripts.
+
+Measured:
+  - app.js: 11 luminance helpers (two sRGB knees), 8 contrast formulas, 14
+    hex parsers, 21 plate finders with different tolerances; scripts: 30 more
+    luminance helpers, four live-card predicates, ten contrast measures
+    against three thresholds. The rulebook: 37 rule pairs pointing opposite
+    ways, 19 of them a later rule replacing an earlier one silently.
+  - Nothing measured a card at export. The classics loaded with duotone
+    grades the ground table undid a second later. The Easy overlay laid the
+    visitor's colour over the photograph. A theme replaced a photo-led
+    card's photograph. The content audit's --write would have un-retired
+    all 284 curated cards. The watermark squashed story exports square.
+  - The shared measure (pgCheck) reproduces the two audits it replaces:
+    median difference 0.000 on both contrast measures over 120 live cards.
+  - The first gate fix shaded the wrong way on a card whose dark copy sat on
+    plates: majority ink is not the question; the failing lines' own ground is.
+
+Changed:
+  - pgCheck / PG_T / pgGate in app.js; __sc.check, accept, gateRecords and
+    live() in the harness; verify_showcase.mjs; the writers gated; the
+    legibility audit and the critic on the one measure.
+  - The contradictions above fixed in code; rule 66 and 19 "Superseded"
+    pointers in DESIGN-LAW; the pipeline in OPEN-ITEMS §L; the findings in
+    docs/COHESION-AUDIT.md.
+
+Rejected:
+  - Deleting the duplicate helpers in the classics' passes now: their tables
+    were baked with them; consolidation belongs to the classics' re-bake.
+  - A gate that blocks: an ad is never held hostage; it is measured, shaded
+    when shade fixes it, and otherwise named, with "Download anyway".

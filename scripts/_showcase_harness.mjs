@@ -6,6 +6,8 @@
 import puppeteer from 'puppeteer-core';
 import { readFileSync } from 'node:fs';
 export const BASE = process.env.GFX_BASE || 'http://localhost:8899/';
+/* THE ONE "LIVE" PREDICATE (= scIsLive in app.js): not condemned, with imagery, with colour */
+export const live = c => !!c && !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05);
 /* A machine that cannot reach cdnjs (a sandbox, CI) can still run the audits:
  * FABRIC_JS=/path/to/fabric.min.js serves that file for the page's fabric
  * <script>, and every other off-origin request is aborted instead of left
@@ -57,6 +59,30 @@ export async function openStudio(query = ''){
         const rec = await fetch('assets/showcase/tpl/' + id + '.json', { cache:'no-store' }).then(r => r.json());
         return this.prep(rec, id);
       },
+      /* THE GATE (app.js pgCheck): the one measure every generation passes
+         before it is produced. Paints the card the way renderThumb() does and
+         returns the numbers: fails (legib, number, numInk, offPlate,
+         onProduct, thumb, margin, touch), warns, and every reading line's
+         core and worst letter. A writer script keeps a change only when
+         accept(before, after) says so. */
+      check(t, opts){
+        const { sc, refs, bgMissing } = this.paint(t);
+        const r = pgCheck(sc, opts); r.bgMissing = bgMissing;
+        sc.dispose();
+        return r;
+      },
+      /* a change is kept when it leaves no failure that was not there before,
+         and no critical line under what it had (rule 52), by the same measure */
+      accept(before, after, opts){
+        const tol = (opts && opts.tol) || 0.05;
+        const was = new Set(before.fails.map(f => f.code + '|' + f.line));
+        const fresh = after.fails.filter(f => !was.has(f.code + '|' + f.line));
+        const B = Object.fromEntries(before.lines.map(x => [x.name, x]));
+        const lost = after.lines.filter(x => PG_CRIT[x.role] && B[x.name] && x.core != null && B[x.name].core != null && x.core < Math.min(B[x.name].core, PG_T.contrast) - tol)
+          .map(x => ({ line: x.name, was: B[x.name].core, now: x.core }));
+        return { ok: !fresh.length && !lost.length, fresh, lost };
+      },
+      colour: { lin: pgLin, lum: pgLum, rgb: pgRgb, cr: pgCr },
       /* renderThumb()'s own sequence, kept open so layers can be toggled */
       paint(t){
         const W = TPL_W, H = TPL_H;
@@ -236,4 +262,34 @@ export async function openStudio(query = ''){
     };
   });
   return { browser, page, errors };
+}
+
+/* THE WRITERS' GATE. Every script that rewrites a showcase record runs its
+   candidates through here before writing: each pair {id, rec} is painted as
+   the record on disk and as the candidate, both through __sc.check (the one
+   measure, app.js pgCheck), and kept only when __sc.accept says the candidate
+   leaves no failure that was not there before and no critical line under what
+   it had. Returns { id: { ok, before, after, fresh, lost } }. */
+export async function gateRecords(page, pairs, opts){
+  const out = {};
+  for (let i = 0; i < pairs.length; i += 4){
+    Object.assign(out, await page.evaluate(async (batch, opts) => {
+      const R = {};
+      for (const { id, rec } of batch){
+        try {
+          const before = __sc.check(await __sc.load(id), opts);
+          const after = __sc.check(await __sc.prep(rec, id + '__candidate'), opts);
+          const a = __sc.accept(before, after, opts);
+          R[id] = { ok: a.ok, fresh: a.fresh, lost: a.lost, before: { legib: before.legib, number: before.number, fails: before.fails.length }, after: { legib: after.legib, number: after.number, fails: after.fails.map(f => f.code + ' ' + (f.line || '')) } };
+        } catch (e){ R[id] = { ok: false, err: String(e).slice(0, 160) }; }
+      }
+      return R;
+    }, pairs.slice(i, i + 4), opts || {}));
+  }
+  return out;
+}
+export function gateSummary(gate){
+  const rows = Object.entries(gate), kept = rows.filter(([, g]) => g.ok), held = rows.filter(([, g]) => !g.ok);
+  const why = {}; held.forEach(([, g]) => { const k = g.err ? 'error' : (g.fresh || []).map(f => f.code).concat((g.lost || []).length ? ['lost contrast'] : []).join('+') || 'held'; why[k] = (why[k] || 0) + 1; });
+  return `gate: kept ${kept.length} · held back ${held.length}` + (held.length ? ' (' + JSON.stringify(why) + ')' : '');
 }

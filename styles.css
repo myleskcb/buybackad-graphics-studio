@@ -1044,6 +1044,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-drawn{gap:8px;margin-top:2px}
 .ez-gsw{background-size:cover;background-position:center;background-color:var(--surface-sunk)}
 .ez-gnone{font:500 12px/1.3 var(--ui);color:var(--text-dim)}
+/* the gate's reasons, in the visitor's words */
+.gate-list{margin:10px 0 4px;padding-left:18px;font:500 13.5px/1.45 var(--ui);color:var(--text)}
+.gate-list li{margin:4px 0}
 .ez-preview-card{position:sticky;top:84px}
 .ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}
 /* account dropdown (reuses .view-drop look) */

@@ -383,3 +383,60 @@ Next, in order of what the owner will see:
    done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
    predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
    the three "Starter" prompts.
+
+## L. 2026-09-27 (night) — one measure, one gate, the pipeline in one place
+
+Done (DESIGN-LAW rule 66, docs/COHESION-AUDIT.md): `pgCheck` is the measure,
+`pgGate` runs before every export, `gateRecords` before every record write,
+`verify_showcase.mjs` before a commit; the classics no longer load graded;
+the Easy overlay is shade; a theme keeps a photo-led card's photograph; the
+content audit keeps curation stamps; one live predicate.
+
+**The showcase pipeline, in order** (replaces the §H, §I and §K lists; each
+step is measured by the gate before it writes):
+
+    node scripts/refresh_showcase.mjs                      # palettes, faces, copy rules, from git HEAD: FIRST, or it discards everything after
+    node scripts/import_lab_export.mjs                     # new records from the lab (restores the tone grade: before naturalize)
+    node scripts/number_block.mjs --write                  # the number, big (rule 53)
+    node scripts/naturalize_showcase.mjs --write           # photo in its own colour (rule 56)
+    node scripts/restage_glasscards.mjs --write            # Glass Card: product on the card (rule 59)
+    node scripts/darken_grounds.mjs --write                # shade dark, never milky (rule 62)
+    node scripts/darken_grounds.mjs --resolve --ids <blurred ids> --write   # blurred cards: strict shade (rule 65)
+    node scripts/clear_number.mjs --write                  # nothing drawn on the number
+    node scripts/support_highlights.mjs --write            # support colour on the selling points (rule 63); BEFORE neutral_panels
+    node scripts/neutral_panels.mjs --write                # no hue over the photograph (rule 64)
+    node scripts/vary_grounds.mjs --write                  # every kind of ground (rule 65)
+    node scripts/audit_showcase_overlap.mjs --write        # cover / clip stamps (before content)
+    node scripts/audit_showcase_legibility.mjs --write     # legib stamps (the one measure)
+    node scripts/audit_showcase_school.mjs --write         # the critic (the one measure + its own checks)
+    node scripts/audit_collisions.mjs --json .render/collide.json
+    node scripts/audit_showcase_content.mjs --write        # `defect` from the stamps (keeps `curated`)
+    node scripts/curate_showcase.mjs --write               # the owner's cut, LAST
+    node scripts/verify_showcase.mjs --write               # the gate over the library: exit 1 stops the commit
+    node scripts/rethumb_showcase.mjs                      # then bump ASSET_REV in app.js
+    node scripts/measure_showcase_color.mjs
+    node scripts/landing_check.mjs
+
+Never after darken: `supply_backgrounds.mjs` (it writes a tinted tone scrim;
+retire it or rewrite it on the gate). Never on the showcase: `decollide_text`,
+`replace_cutouts` (alignPass 4b/4d and number_block do their jobs).
+
+Still open, from the audit (numbers in docs/COHESION-AUDIT.md):
+
+1. **The classics' re-bake.** `assignStyle` no longer grades, so the 129
+   rows of ground-fix.json now only supply the shade; three dark-ink
+   classics stand on 0.86 paper, every hex plate is drawn at 45% (rule 21 vs
+   64), nine designer layouts author the number under 72px. Re-bake with
+   `naturalize_classics --prefer dark`, `number_block --classics`, then run
+   the gate over TEMPLATES (a classics `verify` is the missing script).
+2. **The editor path** does not refit retyped text or re-run alignPass, and
+   drops the synthesised Badges line; the gate catches the results, the fix
+   is to route `openAdvancedFromEz` through the same refit Easy Mode uses.
+3. **The classics' passes** (inkVsWash, gradInkContrast, localGroundContrast,
+   applyMeasuredContrast) each carry their own luminance, contrast and plate
+   finder and each claims to be final. Fold them onto `pgCheck` at the
+   re-bake; until then they are frozen.
+4. **Retire the superseded scripts** listed in the audit once nothing in
+   .render depends on them.
+5. **A classics verify** (`verify_showcase.mjs --classics`): the gate over
+   TEMPLATES, so the Easy strip is held to the same measure as the library.

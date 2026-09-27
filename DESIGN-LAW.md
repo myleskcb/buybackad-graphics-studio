@@ -55,6 +55,8 @@ shadow (chroma > 0.18) is rewritten neutral at the same optical weight.
 Shadows that were *already* neutral are left alone — those were doing
 legitimate legibility work, not decoration.
 
+> Superseded (rule 66): a halo is neutral at any chroma and takes the tone its ground is not; a light halo behind light ink is a glow (rules 27, 64).
+
 ### 4. No hard offset "sticker" shadow
 A shadow with a large offset and no blur reads as a sticker peeling off the
 page. A contact shadow sits almost directly under the type and reads as the
@@ -73,6 +75,8 @@ is the money-word treatment, not a rainbow.
 The 14-spike disc behind a price is 1990s clearance-rack retail. It was the
 single worst thing in the library. Deleted.
 
+> Scope (rule 66): the starburst this bans is the 14-spike price disc. A sunburst GROUND in the card's own palette (rule 65) is a background, not a sticker.
+
 ### 7. Decoration that imitates information is worse than no decoration
 An 88px filled disc with a tick in it, at identical coordinates on 46 of 153
 templates, carrying no information, is decoration wearing the costume of a
@@ -82,6 +86,8 @@ and they stay.
 
 Functional marks stay too: checklist ticks, step numbers, review stars. They
 are information design.
+
+> Superseded in part (rule 66): review stars and review rows are invented proof and do not ship (rule 55); the layouts stay.
 
 ### 8. Accents are deepened, not neon
 Hue is preserved so every template keeps its identity, but anything both very
@@ -162,6 +168,8 @@ dark. So bright palettes (`mono`, `arctic`, `paper`, `coral`, `ocean`,
 `emerald`, `gold`) carry **0.48** and the dark ones stay at **0.32** and keep
 their depth.
 
+> Superseded (rule 66): the shade is solved per line on the card's own pixels (rule 56), dark on a photograph (rule 62); no fixed strength per palette.
+
 ### 12. Small text is quietened by size, not by washing the colour out
 Supporting text was set in dim greys like `#c8c8cf` at 24–32px. That is the
 worst case there is: small type needs *more* contrast than large, not less,
@@ -224,6 +232,8 @@ words land in "mid" every time. Rules 1, 2 and 4 did not, for this family.
    none of. Generated Seedream → birefnet, ~$0.05 each, resized to 900px.
 
 ---
+
+> Superseded in part (rule 66): STREET's white 0.70 scrim and its outlines are gone (rules 56, 62); the family's other traits stand.
 
 ## Rule 14 — colour is chosen against the pixels, from a fixed vocabulary
 
@@ -353,6 +363,8 @@ The principles here are standard, not invented. Useful references:
 - [13 Popular Print Design Trends (That Make Us Cringe) — Company Folders](https://www.companyfolders.com/blog/13-popular-print-design-trends)
 - [How to Create Drop Shadow Text Effects That Don't Suck — Easil](https://about.easil.com/text-effects/)
 
+> Superseded in part (rule 66): the 140 to 180° "maximum pop" pairing gave way to the split complement (rule 41); a coloured dark line may lighten to a pale tint of its hue (rule 62).
+
 ## 15. Measure occlusion; never eyeball a stacked layout
 
 The hero fan shipped at `width:57%` per card. Three cards then came to 192% of
@@ -462,6 +474,8 @@ its plate's own lightness, not on whatever photograph happens to sit behind it.
 If a rect carries dark ink, it is opaque. 283 plates across 172 templates were
 wrong on this one point.
 
+> Superseded in part (rule 66): a see-through tinted rect over a photograph is a haze and becomes smoke, paper or grey at the same luminance (rule 64). The 45% wash still applies to the classics until they are re-baked (OPEN-ITEMS §L).
+
 ## 22. Measure against the real backdrop, or do not measure
 
 A contrast audit that substituted each template's `bg.fallback` gradient for its
@@ -491,6 +505,8 @@ flipped to a paper wash are now the best-looking classics in the set.
 
 The general form: a background treatment is not a house style you apply
 uniformly. It is a function of the foreground it has to carry.
+
+> Superseded (rule 66): on a photograph the shade is dark and neutral dark copy takes light ink (rule 62); the ground no longer takes a light wash from dark ink.
 
 ## 24. Say what is being bought
 
@@ -536,6 +552,8 @@ Lifting keeps the hue. Walking a colour toward white or black until it clears th
 threshold preserves the palette; flattening every failure to `#ffffff` would
 erase it.
 
+> Superseded in part (rule 66): colour moves in OKLCH, not toward white or black in sRGB (rule 40).
+
 ## 27. The halo takes its tone from the ground, not the ink
 
 Type on a photograph needs a separation device, and the reference folder scores
@@ -550,6 +568,8 @@ letterform is a ring of the tone the ground is not.
 fuzzes the letterforms — one phone number came out visibly smeared. Halos are for
 type over photography, nothing else.
 
+> Clarified (rule 66): the ring is dark behind ink lighter than its ground and light behind ink darker; never a hue; on a plate no light halo is added (rule 64).
+
 ## 28. A tolerance on one edge is not containment
 
 Deciding whether a text sat on a plate by testing its top edge within 10px of the
@@ -560,6 +580,8 @@ on dark photography.
 
 Test the thing you mean. Containment means the text's vertical middle falls
 within the plate's real span.
+
+> Superseded (rule 66): containment is the centre inside the plate for a host, 75% cover for a fit (rules 46, 58).
 
 ## 29. Gestures point; they do not symbolise
 
@@ -598,6 +620,8 @@ Walking the *same* colour to the lightness it needs costs nothing and keeps the
 palette. A contrast fix that changes the hue is not a fix, it is a different
 design.
 
+> Superseded in part (rule 66): hue is kept by moving L in OKLCH (rule 40).
+
 ## 32. The complement goes on the small element
 
 A saturated money word on a warm photograph is still monochrome, and monochrome
@@ -612,6 +636,8 @@ real work.
 
 The category convention outranks the theory, though: a gold ad's money word is
 gold. Put the complement somewhere else.
+
+> Superseded (rule 66): every accent is derived as a split complement (rule 41); the complement no longer sits on the small element by design.
 
 ## 33. Polishing one idea cannot change the read
 
@@ -649,6 +675,8 @@ Resolve top-down, pushing the lower element down, so one nudge cascades into
 whatever sits beneath it rather than creating a fresh collision. And clamp at
 the safe edge — an unresolved overlap is bad, but type pushed off the canvas is
 worse.
+
+> Superseded (rule 66): a card that does not fit moves as one composition inside the 6% guides (rule 57); the per-line nudge and the 24px clamp are gone.
 
 ## 36. Use the product before polishing it
 
@@ -1052,6 +1080,8 @@ The rule the refresh follows, so a skin can change without undoing an audit:
   (`repair_showcase_contrast.mjs`), and stamp what still fails as a defect
   rather than ship it. A card that cannot be made legible is not offered.
 
+> Superseded in part (rule 66): the second bullet (a duotone solved to the same endpoints) is replaced by rule 56; the luminance lock stands.
+
 ## 53. The phone number is the second biggest thing on the card
 
 Added 2026-09-26, from the study session "Teaching the Engine Design"
@@ -1142,6 +1172,8 @@ than one). With the overlap, legibility and repeated-copy defects, **684 are
 live** (780 were before the session, on a looser bar), every category and all
 29 palettes among them, the number at 72px or more (median 85).
 
+> Superseded in part (rule 66): a collision is 6% of the smaller party's ink (rule 58), not the overlap audit's 12%; copy in the 6% margin disqualifies (rules 57, 60).
+
 ## 55. Copy states how the offer works, never a fact the shop has not published
 
 Added 2026-09-26. The study session wrote the industry's copy rules down as
@@ -1222,6 +1254,8 @@ direction, 344 neutral lines); classics 128 of 129 natural via
 `assets/ground-fix.json` (neon_sell keeps its grade: its number is carried by
 a plate no neutral shade can serve); Easy Mode themes 21 of 21 pass, every hue
 kept.
+
+> Superseded in part (rule 66): on a photograph the shade is dark, never paper (rule 62); a coloured dark line lightens to a tint of its hue (rule 62).
 
 ## 57. Everything that carries the message sits inside the guides, and it moves as one
 
@@ -1325,6 +1359,8 @@ read as clutter.
 restages to itself, so re-running it is safe. A product WALL (ghosted cut-outs
 tiled over the ground, four records, three of them rejected strip photographs)
 is removed: under the money it is ground-rung clutter.
+
+> Superseded in part (rule 66): the card is smoke or paper whether see-through or solid (rule 64).
 
 ## 60. The library shows each design once at its best, not every recolour of it
 
@@ -1444,6 +1480,8 @@ The same pass also takes a card with NO shade whose critical line reads under
 4.5:1 with dark copy straight on a mid-tone photograph (nine cards, a blue
 SILVER DOLLARS on a teal halftone among them): a white veil was not their
 fault, but the dull read was the same.
+
+> Superseded in part (rule 66): a band under a re-inked line is smoke, never a deep shade of its hue, and a see-through plate becomes neutral (rule 64); a blurred photograph is 14 to 24px, not 4 (rule 65).
 
 ## 63. The support colour highlights the supporting copy, where it reads
 
@@ -1592,3 +1630,61 @@ a "Pattern on top" row under Effects that lays any overlay over any ground.
 The Apple Store photograph the owner mentions is not in the repo, and this
 session's network policy refused every free-photo host. It goes in as a
 photograph like any other once the owner supplies one (OPEN-ITEMS §K).
+
+## 66. One measure, one gate, and which rule wins
+
+Added 2026-09-27. The owner: "audit of any overlapping code, contradictory
+code, or overall fuzzy directions … every generation has a self audit process
+and a check before they're produced."
+
+Measured: the checks lived in scripts and ran after the fact; the studio
+exported unmeasured. app.js carried 11 luminance helpers, 8 contrast-ratio
+formulas, 14 hex parsers and 21 "which plate is under this line" finders; the
+scripts carried 30 more luminance helpers, four live-card predicates and ten
+contrast measures (mean, upper quartile, worst letter, 10th/90th percentile)
+against three thresholds. Two checks could disagree about one card. And the
+rulebook contradicted itself: 37 pairs of rules pointed opposite ways, most
+because a later rule replaced an earlier one without saying so.
+
+The rule:
+
+- **One measure.** `pgCheck()` in app.js is the measure of a card: every
+  reading line's core (the upper quartile of its per-pixel contrast, paint
+  with it and without it) and worst letter, the number's size and its ink off
+  the plate or on the product, the headline in a 160px tile, the guides, copy
+  touching copy. Its thresholds are `PG_T`. The legibility audit and the
+  critic read their numbers from it; the scripts reach it as `__sc.check`.
+  A new helper for luminance, contrast or a plate under a line is a
+  mistake: use `pgLum`, `pgCr`, `pgRgb`, `pgCheck`.
+- **One gate, before anything is produced.** A download, a video or a print
+  order runs `pgGate`: a contrast failure is fixed first by neutral shade in
+  the direction the failing lines need (dark under ink lighter than its
+  ground, paper under darker), raised until every line reads; anything else
+  is named in the visitor's words, with the choice to go back or download
+  anyway. A script that rewrites a record runs `gateRecords`: the candidate
+  is measured against the record on disk and kept only when it leaves no
+  new failure and no critical line under what it had.
+  `scripts/verify_showcase.mjs` runs the gate over the library and exits 1
+  on any failure; it runs before a commit.
+- **One predicate.** A card is live when it is not condemned, has imagery,
+  and has colour: `scIsLive` in app.js, `live()` in the harness. No script
+  writes its own.
+- **One unit.** Blur is pixels on the 1080 card when 1 or more, a fraction
+  of the width below 1 (the classics). The index carries the record's blur.
+- **Precedence.** The later rule wins, and the earlier one now says so in
+  place (the "Superseded" lines). In particular: 56 over 52; 62 over 56, 23,
+  13 and 11 (shade); 64 over 62, 59, 21 and 3 (hue over the photograph,
+  halos); 65 over 62 (blur) and 6 (a sunburst ground is not a price disc);
+  41 over 14 and 32 (the split complement); 40 over 26 and 31 (OKLCH); 57
+  over 35 (the composition moves as one); 58 over 54 (6%, not 12%); 55 over
+  7 (no review stars). Where a threshold differs between rules, `PG_T` is
+  the number.
+
+Fixed with it: the classics no longer load with a duotone or wash grade that
+the ground table undid a second later (rule 56); the Easy Mode overlay is
+shade, never the visitor's colour (rules 56, 64); a theme recolours the copy
+and keeps a photo-led card's photograph (rule 65); a halo's tone follows the
+ink's own ground where the bake measured it (rule 27); the watermark keeps a
+story or wide ad's shape; the content audit never clears a curation stamp; a
+wall cut-out is not a hero. Left for the classics' re-bake (OPEN-ITEMS §L):
+the 45% wash on their hex plates, and paper scrims on three dark-ink cards.

@@ -155,7 +155,7 @@
     </div>
   </section>
   <div class="lp-stats" id="lp-stats">
-    <div class="stat stat-lead"><b id="lp-stat-new">398</b><span>designs ready to post &middot; each one checked on its own pixels</span></div>
+    <div class="stat stat-lead"><b id="lp-stat-new">400</b><span>designs ready to post &middot; each one checked on its own pixels</span></div>
     <div class="stat"><b>243</b><span>classic templates</span></div>
     <div class="stat"><b id="lp-stat-pal">29</b><span>colour palettes in the library</span></div>
     <div class="stat"><b>357</b><span>backdrops &amp; scenes</span></div>
@@ -437,9 +437,9 @@
             <button data-ov="none" class="active">No overlay</button>
             <button data-ov="down">Fade ↓</button>
             <button data-ov="up">Fade ↑</button>
-            <button data-ov="tint">Tint</button>
+            <button data-ov="shade">Shade</button>
           </div>
-          <div class="ez-fxline" id="fx-ov-opts" style="display:none"><label>Overlay</label><input type="color" id="fx-oc" value="#000000"><input type="range" id="fx-os" min="10" max="85" value="45"><span class="fxval" id="fx-os-val">45%</span></div>
+          <div class="ez-fxline" id="fx-ov-opts" style="display:none"><label>Overlay</label><input type="color" id="fx-oc" value="#000000" style="display:none" aria-hidden="true"><input type="range" id="fx-os" min="10" max="85" value="45"><span class="fxval" id="fx-os-val">45%</span></div>
           <div class="ez-subttl">Pattern on top</div>
           <div class="ez-fxrow" id="fx-pat-seg"></div>
           <div class="ez-subttl">Recent photos</div>
@@ -967,6 +967,18 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" id="nobg-continue">Export without background</button>
       <button class="btn btn-primary" id="nobg-select">Select a background</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="gate-overlay">
+  <div class="modal" style="max-width:460px">
+    <h3>Not ready to post yet</h3>
+    <div class="modal-sub">Every ad is measured before it goes out. This one has a problem the studio could not fix on its own:</div>
+    <ul class="gate-list" id="gate-list"></ul>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="gate-anyway">Download anyway</button>
+      <button class="btn btn-primary" id="gate-back">Go back and fix it</button>
     </div>
   </div>
 </div>

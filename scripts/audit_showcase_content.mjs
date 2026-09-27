@@ -71,7 +71,11 @@ idx.forEach(c => {
   if (c.school && c.school.fail && c.school.fail.length) why.push('school');
   const uniq = [...new Set(why)];
   uniq.forEach(w => n[w]++);
-  if (uniq.length) c.defect = uniq.join('+'); else { delete c.defect; n.clean++; }
+  /* a curation stamp (scripts/curate_showcase.mjs) is the owner's cut, not
+     a measured defect: this audit never clears it (2026-09-27, cohesion
+     audit: a --write run used to un-retire all 284 curated cards) */
+  const curated = /\bcurated\b/.test(String(c.defect || ''));
+  if (uniq.length) c.defect = (curated ? 'curated+' : '') + uniq.join('+'); else if (curated) c.defect = 'curated'; else { delete c.defect; n.clean++; }
 });
 
 console.log('audited ' + idx.length);

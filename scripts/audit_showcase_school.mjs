@@ -63,6 +63,8 @@ const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.ar
 const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
 const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
 const work = idx.filter(c => !only || only.has(c.id));
+/* thresholds: app.js PG_T (the one table every generation is judged by) plus
+   the critic's own for hierarchy, families, small, align and empty */
 export const T = { number: 72, numInk: 3, onProduct: 0.12, offPlate: 0.08, thumb: 8, hierarchy: 1.3, families: 2,
   small: 25.2, margin: 0.06, align: 4, empty: 0.25, contrast: 4.5, tile: 160 };
 
@@ -81,6 +83,7 @@ const SHOWS = src => { const f = String(src || '').toLowerCase().replace(/^.*\//
   return /watch/.test(f) ? 'watch' : /ipad/.test(f) ? 'ipad' : /macbook|imac|mac-/.test(f) ? 'mac' : /iphone|ip-|qs-/.test(f) ? 'iphone' : null; };
 
 const { browser, page, errors } = await openStudio();
+Object.assign(T, await page.evaluate(() => ({ number: PG_T.number, numInk: PG_T.numInk, onProduct: PG_T.onProduct, offPlate: PG_T.offPlate, thumb: PG_T.thumb, margin: PG_T.margin, contrast: PG_T.contrast, tile: PG_T.tile })));
 await page.evaluate(T => { window.__T = T; }, T);
 const out = {};
 for (let i = 0; i < work.length; i += 6){
@@ -96,7 +99,11 @@ for (let i = 0; i < work.length; i += 6){
         const t = await __sc.load(id);
         const { sc, refs } = __sc.paint(t);
         const W = TPL_W, H = TPL_H, ctx = sc.lowerCanvasEl.getContext('2d');
-        const full = ctx.getImageData(0, 0, W, H).data;
+        /* the one measure (app.js pgCheck): every line's core and worst
+           letter, the number's size, its ink off the plate, over the product,
+           the headline in a tile. The critic's own checks (hierarchy,
+           families, faux, copy, device, widow, align, empty) follow. */
+        const GATE = pgCheck(sc), GL = Object.fromEntries(GATE.lines.map(l => [l.name, l]));
         const box = o => { const b = o.getBoundingRect(true, true); return { x: b.left, y: b.top, w: b.width, h: b.height }; };
         const inter = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
         const texts = [];
@@ -108,82 +115,13 @@ for (let i = 0; i < work.length; i += 6){
           texts.push({ k, l, o, b: box(o), px: (o.fontSize || (l.props && l.props.fontSize) || 0) * (o.scaleY || 1), role: l.role || '', fam: o.fontFamily || (l.props && l.props.fontFamily) || null });
         });
         const read = texts.filter(x => READ[x.role]);
-        /* LETTER BY LETTER. Paint without the line: the pixels that change are
-           the line's footprint, each against the very pixel that was behind it.
-           Cut the footprint into letter-wide columns and judge each column by
-           the core of its strokes, the upper quartile of its per-pixel
-           contrast (the audit_showcase_legibility.mjs measure, per letter). A
-           letter off its plate, on a light patch, or crossed by a line scores
-           its own column.
-           This replaced a ring method (2026-09-26) that read each letter
-           against a 3px ring around the whole footprint: the footprint holds
-           the number's soft shadow, so on a plate that hugs the digits the ring
-           fell on the photograph outside it, and 471 of 971 numbers that read
-           at 5-8:1 on their plates "failed" at about 2.5. */
-        const letters = x => {
-          const b = x.b, pad = 2;
-          const x0 = Math.max(0, Math.floor(b.x) - pad), y0 = Math.max(0, Math.floor(b.y) - pad);
-          const x1 = Math.min(W, Math.ceil(b.x + b.w) + pad), y1 = Math.min(H, Math.ceil(b.y + b.h) + pad);
-          const w = x1 - x0, h = y1 - y0;
-          if (w < 8 || h < 8) return null;
-          x.o.visible = false; sc.renderAll();
-          const wo = ctx.getImageData(x0, y0, w, h).data;
-          x.o.visible = true;
-          const step = Math.max(8, 0.55 * x.px);
-          let worst = 99, any = 0;
-          for (let c0 = 0; c0 < w; c0 += step){
-            const c1 = Math.min(w, c0 + step), v = [];
-            for (let y = 0; y < h; y++) for (let xx = Math.floor(c0); xx < Math.ceil(c1); xx++){
-              const f = ((y + y0) * W + (xx + x0)) * 4, g = (y * w + xx) * 4;
-              if (Math.abs(full[f] - wo[g]) + Math.abs(full[f + 1] - wo[g + 1]) + Math.abs(full[f + 2] - wo[g + 2]) < 24) continue;
-              const a = lum(full, f), c = lum(wo, g);
-              v.push((Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05));
-            }
-            if (v.length < Math.max(12, 0.03 * step * h)) continue;        // a gap between letters
-            v.sort((p, q) => p - q);
-            worst = Math.min(worst, v[Math.floor(v.length * 0.75)]); any++;
-          }
-          return any ? +worst.toFixed(2) : null;
-        };
-        sc.renderAll();
-        const crit = read.filter(x => CRIT[x.role]);
-        crit.forEach(x => { x.worst = letters(x); });
-        const minor = read.filter(x => !CRIT[x.role] && x.px >= 18);
-        minor.forEach(x => { x.worst = letters(x); });
-        sc.renderAll();
+        const crit = read.filter(x => CRIT[x.role]), minor = read.filter(x => !CRIT[x.role] && x.px >= 18);
+        read.forEach(x => { const g = GL[x.l.name]; x.worst = g ? g.letters : null; });
         const phone = read.find(x => x.role === 'phone');
         const heads = read.filter(x => x.role === 'headline');
         const headPx = heads.length ? Math.max(...heads.map(x => x.px)) : 0;
         const nextPx = Math.max(0, ...read.filter(x => x.role !== 'headline' && (String(x.l.text).match(/[A-Za-z0-9]/g) || []).length >= 3).map(x => x.px));  // a lone grade numeral is a graphic, not a level
-        /* the number over a product: an opaque cutout under the number's box */
-        let onProduct = 0;
-        if (phone) t.layers.forEach((l, k) => {
-          if (l.kind !== 'cutout' || !refs[k] || k > phone.k) return;
-          const op = l.props && l.props.opacity !== undefined ? l.props.opacity : 1;
-          if (op < 0.5 || l.__wall) return;
-          onProduct = Math.max(onProduct, inter(phone.b, box(refs[k])) / Math.max(1, phone.b.w * phone.b.h));
-        });
-        /* the number off its plate: the last solid, not full-frame rect drawn
-           before it that meets its centre; the share of its ink outside it */
-        let offPlate = 0;
-        if (phone){
-          const b = phone.b, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
-          let plate = null;
-          t.layers.forEach((l, j) => { if (j >= phone.k || !refs[j] || l.kind !== 'rect' || !l.props) return;
-            const f = String(l.props.fill || ''); if (!f || f === 'transparent' || /rgba\([^)]*,\s*0(\.[0-4]\d*)?\)$/.test(f)) return;
-            const c = box(refs[j]); if (c.w * c.h > 0.6 * W * H) return;
-            if (cx >= c.x && cx <= c.x + c.w && c.y < b.y + b.h && c.y + c.h > b.y) plate = c; });
-          if (plate){
-            const x0 = Math.max(0, Math.floor(b.x)), y0 = Math.max(0, Math.floor(b.y)), w = Math.min(W, Math.ceil(b.x + b.w)) - x0, h = Math.min(H, Math.ceil(b.y + b.h)) - y0;
-            sc.renderAll(); const on = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = false; sc.renderAll();
-            const off = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = true; sc.renderAll();
-            let ink = 0, out = 0;
-            for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){ const q = (y * w + x) * 4;
-              if (Math.abs(on[q] - off[q]) + Math.abs(on[q + 1] - off[q + 1]) + Math.abs(on[q + 2] - off[q + 2]) < 90) continue;
-              ink++; const X = x + x0, Y = y + y0; if (X < plate.x || X > plate.x + plate.w || Y < plate.y || Y > plate.y + plate.h) out++; }
-            offPlate = ink ? out / ink : 0;
-          }
-        }
+        const onProduct = GATE.onProduct, offPlate = GATE.offPlate;
         const fams = new Set(texts.filter(x => /[A-Za-z0-9]{2}/.test(x.l.text) && x.fam).map(x => x.fam));
         /* faux = a weight HEAVIER than any file the face ships: that is the case
            the browser fakes (synthetic bold) or silently draws lighter than

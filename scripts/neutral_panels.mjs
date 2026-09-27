@@ -47,13 +47,13 @@
  * usage: node scripts/neutral_panels.mjs [--ids a,b] [--out dir] [--write] [--json f]
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { openStudio } from './_showcase_harness.mjs';
+import { openStudio, gateRecords, gateSummary, live } from './_showcase_harness.mjs';
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/showcase/';
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const WRITE = process.argv.includes('--write'), OUT = argv('--out');
 const idx = JSON.parse(readFileSync(DIR + 'index.json', 'utf8'));
 const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
-const work = idx.filter(c => only ? only.has(c.id) : !c.defect).map(c => c.id);
+const work = idx.filter(c => only ? only.has(c.id) : live(c)).map(c => c.id);
 console.log('cards: ' + work.length);
 
 /* the panels that hold copy; any other rect only when it is see-through */
@@ -237,12 +237,11 @@ for (let i = 0; i < work.length; i += 6){
   }, work.slice(i, i + 6), CONTAINER));
   if (i % 60 === 0) console.log('…' + Math.min(i + 6, work.length) + '/' + work.length);
 }
-await browser.close();
-
-const rows = Object.entries(out), changed = rows.filter(([, r]) => r.changes && (r.changes.some(c => c.to) || [r.inked, r.halos, r.glows].some(a => (a || []).length)));
+const rows = Object.entries(out), changed0 = rows.filter(([, r]) => r.changes && (r.changes.some(c => c.to) || [r.inked, r.halos, r.glows].some(a => (a || []).length)));
 const count = key => rows.reduce((n, [, r]) => n + (r[key] || []).length, 0);
 const modes = {}; rows.forEach(([, r]) => (r.changes || []).forEach(c => modes[c.mode] = (modes[c.mode] || 0) + 1));
 console.log(`cards changed: ${changed.length} · rects: ${JSON.stringify(modes)} · halos turned: ${count('halos')} · glows made shade: ${count('glows')} · lines re-inked: ${count('inked')} · still failing: ${rows.filter(([, r]) => r.fails && r.fails.length).length} · errors ${rows.filter(([, r]) => r.err).length} · page errors ${errors.length}`);
+let changed = changed0;
 const apply = (id, r) => {
   const rec = JSON.parse(readFileSync(DIR + 'tpl/' + id + '.json', 'utf8'));
   (r.inked || []).forEach(c => { const l = rec.tpl.layers[c.k]; if (!l || l.name !== c.name) throw new Error(id + ': layer ' + c.k + ' moved');
@@ -253,6 +252,11 @@ const apply = (id, r) => {
     l.props.fill = c.to; if (c.opTo === 1) l.props.opacity = 1; });
   return rec;
 };
+/* the writers' gate: the one measure, before anything is written */
+const gate = await gateRecords(page, changed.map(([id, r]) => ({ id, rec: apply(id, r) })));
+console.log(gateSummary(gate));
+changed = changed.filter(([id]) => gate[id] && gate[id].ok);
+await browser.close();
 if (OUT){ mkdirSync(OUT, { recursive: true }); changed.forEach(([id, r]) => writeFileSync(OUT + '/' + id + '.json', JSON.stringify(apply(id, r)))); console.log('wrote ' + changed.length + ' to ' + OUT); }
 if (WRITE){ changed.forEach(([id, r]) => writeFileSync(DIR + 'tpl/' + id + '.json', JSON.stringify(apply(id, r)))); console.log('wrote ' + changed.length + ' records'); }
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify(out));

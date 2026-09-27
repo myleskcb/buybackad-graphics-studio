@@ -25,7 +25,7 @@
  *   records in place (thumbnails and the audits re-run after).
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { openStudio } from './_showcase_harness.mjs';
+import { openStudio, gateRecords, gateSummary, live } from './_showcase_harness.mjs';
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/showcase/';
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const WRITE = process.argv.includes('--write'), OUT = argv('--out');
@@ -42,7 +42,6 @@ const lum = h => { const m = /^#?([0-9a-f]{6})$/i.exec(String(h || '')); if (!m)
   const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
   return 0.2126 * f(n >> 16) + 0.7152 * f((n >> 8) & 255) + 0.0722 * f(n & 255); };
 const recOf = id => JSON.parse(readFileSync(DIR + 'tpl/' + id + '.json', 'utf8'));
-const live = c => !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05);
 const work = idx.filter(c => (only ? only.has(c.id) : live(c))).map(c => c.id).filter(id => {
   const bg = recOf(id).tpl.bg || {};
   /* by default the white-shaded cards; named cards (--ids) also when they
@@ -138,10 +137,8 @@ for (let i = 0; i < work.length; i += 6){
   }, ids, DARK, LIGHT, RESOLVE ? Infinity : MAX_BLUR));
   if (i % 60 === 0) console.log('…' + (i + ids.length) + '/' + work.length);
 }
-await browser.close();
-
 const rows = Object.entries(out);
-const done = rows.filter(([, r]) => r.bg && r.light), skips = rows.filter(([, r]) => !r.bg || !r.light), errs = rows.filter(([, r]) => r.err);
+let done = rows.filter(([, r]) => r.bg && r.light), skips = rows.filter(([, r]) => !r.bg || !r.light), errs = rows.filter(([, r]) => r.err);
 const med = a => { const s = a.slice().sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : 0; };
 console.log(`re-grounded dark: ${done.length} · left alone: ${skips.length} · errors ${errs.length} · page errors ${errors.length}`);
 console.log(`shade: ${JSON.stringify(done.reduce((m, [, r]) => (m[r.bg.scrimMode] = (m[r.bg.scrimMode] || 0) + 1, m), {}))}, strength median ${med(done.map(([, r]) => r.bg.scrim))} (white was ${med(done.map(([, r]) => r.was.scrim || 0))})`);
@@ -162,6 +159,11 @@ const apply = (id, r) => {
     l.props.fill = pl.fill; if (typeof l.props.opacity === 'number') l.props.opacity = 1; });
   return rec;
 };
+/* the writers' gate: the one measure, before anything is written */
+const gate = await gateRecords(page, done.map(([id, r]) => ({ id, rec: apply(id, r) })));
+console.log(gateSummary(gate));
+done = done.filter(([id]) => gate[id] && gate[id].ok);
+await browser.close();
 if (OUT){ mkdirSync(OUT, { recursive: true }); done.forEach(([id, r]) => writeFileSync(OUT + '/' + id + '.json', JSON.stringify(apply(id, r)))); console.log('wrote ' + done.length + ' to ' + OUT); }
 if (WRITE){ done.forEach(([id, r]) => writeFileSync(DIR + 'tpl/' + id + '.json', JSON.stringify(apply(id, r)))); console.log('wrote ' + done.length + ' records'); }
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify(out));

@@ -32,6 +32,7 @@
  *   records and thumbnails stay on disk; delete the stamp to bring one back).
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { live } from './_showcase_harness.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf(k); return i < 0 ? d : argv[i + 1]; };
@@ -48,7 +49,7 @@ const SC_LAY = { checklistHero:'CHK', reviewProof:'REV', trustSeal:'TRS', stepsF
 const sku = c => { const p = String(c.id).split('-'); return (SC_LAY[c.layout] || String(c.layout).slice(0, 3).toUpperCase()) + '-' + (p[1] || '').toUpperCase() + '-' + (p[2] || '0'); };
 const picks = new Set((JSON.parse(readFileSync(ROOT + 'assets/hero-picks.json', 'utf8')).picks || []).map(k => String(k).trim().toUpperCase()));
 const picked = c => picks.has(c.id.toUpperCase()) || picks.has(sku(c));
-const eligible = c => !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05);
+const eligible = live;   // the one predicate (scripts/_showcase_harness.mjs, = scIsLive in app.js)
 const pool = idx.filter(eligible);
 const why = c => {
   const r = col[c.id]; const w = [];

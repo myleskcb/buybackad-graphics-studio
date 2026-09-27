@@ -29,7 +29,7 @@
  * usage: node scripts/vary_grounds.mjs [--ids a,b] [--out dir] [--write] [--json f]
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { openStudio } from './_showcase_harness.mjs';
+import { openStudio, gateRecords, gateSummary, live as isLive } from './_showcase_harness.mjs';
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/showcase/';
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const WRITE = process.argv.includes('--write'), OUT = argv('--out');
@@ -49,13 +49,13 @@ const SEQ = ['sunburst', 'solid', 'gradient', 'pattern', 'texture', 'keep'];
 const OVERLAYS = ['halftone', 'dots', 'grid', 'stripes', 'rays', 'scan'];
 
 /* the plan: which card gets what, deterministic, spread across layouts */
-const live = idx.filter(c => !c.defect && c.imagery !== 'none' && (!only || only.has(c.id)));
+const live = idx.filter(c => isLive(c) && (!only || only.has(c.id)));
 const plan = [];
 const byLayout = {};
 live.forEach(c => {
   const r = recOf(c.id), b = r.tpl.bg || {};
   if (b.type !== 'image' || !b.src || /^(ground|overlay):/.test(b.src) || /\/grounds\//.test(b.src) || (b.blur || 0) >= 1) return;
-  const hero = r.tpl.layers.some(l => l.kind === 'cutout' && l.props && (l.props.w || 0) >= 220);
+  const hero = r.tpl.layers.some(l => l.kind === 'cutout' && !l.__wall && l.props && (l.props.w || 0) >= 220);   // a wall cut-out is texture, not the subject
   const lay = c.id.split('-')[0];
   (byLayout[lay] = byLayout[lay] || { hero: [], photo: [] })[hero ? 'hero' : 'photo'].push(c);
 });
@@ -158,15 +158,18 @@ for (let i = 0; i < plan.length; i += 6){
   }, plan.slice(i, i + 6), STYLES));
   if (i % 60 === 0) console.log('…' + Math.min(i + 6, plan.length) + '/' + plan.length);
 }
-await browser.close();
-
-const rows = Object.entries(out), done = rows.filter(([, r]) => r.bg);
+const rows = Object.entries(out); let done = rows.filter(([, r]) => r.bg);
 const by = done.reduce((m, [, r]) => (m[r.style] = (m[r.style] || 0) + 1, m), {});
 const kinds = done.reduce((m, [, r]) => (m[r.kind] = (m[r.kind] || 0) + 1, m), {});
 const why = {}; rows.filter(([, r]) => !r.bg).forEach(([, r]) => { const k = r.skip || 'error'; why[k] = (why[k] || 0) + 1; });
 console.log(`re-grounded: ${done.length} · ${JSON.stringify(by)} · kept: ${JSON.stringify(why)} · page errors ${errors.length}`);
 console.log('kinds: ' + JSON.stringify(kinds));
 const apply = (id, r) => { const rec = recOf(id); rec.tpl.bg = r.bg; return rec; };
+/* the writers' gate: the one measure, before anything is written */
+const gate = await gateRecords(page, done.map(([id, r]) => ({ id, rec: apply(id, r) })));
+console.log(gateSummary(gate));
+done = done.filter(([id]) => gate[id] && gate[id].ok);
+await browser.close();
 if (OUT){ mkdirSync(OUT, { recursive: true }); done.forEach(([id, r]) => writeFileSync(OUT + '/' + id + '.json', JSON.stringify(apply(id, r)))); console.log('wrote ' + done.length + ' to ' + OUT); }
 if (WRITE){
   done.forEach(([id, r]) => writeFileSync(DIR + 'tpl/' + id + '.json', JSON.stringify(apply(id, r))));
