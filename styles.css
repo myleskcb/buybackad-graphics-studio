@@ -541,6 +541,21 @@ input,textarea,select{font-family:inherit;color:var(--text)}
 .lp-nav-links a:hover{color:var(--text)}
 .lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
 .lp-lab{white-space:nowrap}
+/* The bar measured about 1290px wide at every viewport, so from 1100 to 1439px
+   "Make my ad" (the one action the page exists for) was clipped off the right
+   edge. It gives ground in order of least use: tighter link spacing and the
+   "Template" word first, then the two links that are also reachable from the
+   page itself, then the link row. */
+@media(max-width:1380px){
+  .lp-nav-links{gap:18px;margin-left:24px}
+  .lp-lab-full{display:none}
+}
+@media(max-width:1200px){
+  .lp-nav-links a[href="#lp-themes"],.lp-nav-links a[href="#faq"]{display:none}
+}
+@media(max-width:1000px){
+  .lp-nav-links{display:none}
+}
 @media(max-width:640px){
   .lp-nav-links{display:none}
   /* The lab link is the one nav item that must survive on a phone (it is
