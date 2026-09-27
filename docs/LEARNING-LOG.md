@@ -158,6 +158,128 @@ RESUME HERE:
   Re-run `python3 scripts/asset_audit.py` after; it should exit 0 for the tier
   being targeted.
 
+
+---
+
+## 2026-09-04 — Theme grammar transplant into the production studio
+
+Studied:
+  The useful logic behind four campaign looks from the GFX Grammar prototype,
+  then mapped it onto the production editor's existing `COLOR_THEMES` and
+  semantic layer roles. The object of study was role hierarchy and campaign
+  intent, not copying template geometry or rebuilding the product UI.
+
+Measured:
+  - Four of four new theme records pass normal, protan, deutan, and tritan
+    checks against both gradient stops.
+  - Worst reading-ink contrast: Hot Sale 10.94, Electric Trust 16.57, Fresh
+    Cash 8.67, Night Neon 16.47.
+  - Worst action-accent contrast: 3.93, 5.27, 4.37, 7.35 respectively.
+  - Worst support-role contrast: 4.77, 7.88, 6.96, 11.51 respectively.
+  - Accent/ink separation: 2.39, 2.77, 1.88, 2.06 respectively; floor 1.7.
+  - The rendered Easy Studio exposes all 21 palettes, exactly four are tagged
+    GFX Grammar, and all four can be selected through the existing control.
+
+Changed:
+  - Added Hot Sale, Electric Trust, Fresh Cash, and Night Neon as campaign
+    intents inside `COLOR_THEMES`.
+  - Split small trust/qualification copy into a support role while preserving
+    the existing plate-ownership rule.
+  - Added active/pressed state and intent labels to the current theme strip.
+  - Added `scripts/audit_theme_grammar.mjs` for colour-role checks and
+    `scripts/preview_theme_grammar.mjs` for rendered UI reachability.
+  - Appended DESIGN-LAW rule 51: a theme is a set of jobs, not a bag of
+    attractive swatches.
+
+Rejected:
+  - Replacing the existing studio with the standalone prototype. The useful
+    unit was the theme logic, so it was transplanted into the mature codebase.
+  - Copying Canva layouts, uncontrolled neon, and starburst treatments. They
+    conflict with the production design law and add irrelevant visual noise.
+  - Recolouring text that sits on its own plate. The theme does not own that
+    ground and therefore cannot guarantee the contrast.
+
+RESUME HERE:
+  Give the older 17 theme records the same explicit intent/support schema, then
+  reconcile the pre-existing failures in `scripts/theme_law.mjs` one palette
+  at a time. Do not mass-retune them from the audit table alone; render each
+  candidate in representative phone, gold, car, and sports templates first.
+
+---
+
+## 2026-09-26 — The study session into the templates, and the photographs back
+
+Studied:
+  The study session "Teaching the Engine Design" (iphoneslainv, 2026-09-24..26)
+  and the video maker built beside it: design rules as numbers (hierarchy
+  1.3x, 6% margins, 28px at 1200, contrast letter by letter, the 160px
+  thumbnail test, two type families), the copy rules (no dollar figures, no
+  dashes, no invented reviews or years, no competitor names, no promise about
+  how long an offer lasts) and the layering ladder (ground, atmosphere as light
+  and shade only, graphic, device, copy). The owner: the video maker had moved
+  far ahead of the image templates, the 50 offer cards lacked "a big/medium
+  phone number", and then, of the old colour work, "not these ugly hideous
+  overlaid colors and duotone background images."
+
+Measured:
+  - The number: showcase median 58px on the 1080 canvas (digits ~6px tall in a
+    160px tile), classics median 64px, 149 classics under 72px.
+  - The copy: on 971 showcase cards, "SINCE 2015" on 145, a rating on 144, a
+    price figure on 83, invented hours on 46, an em dash on 61, 43 signed
+    testimonials; the classics carried the same set at the source.
+  - The colour: 766 of 971 showcase photographs painted as duotones, 483 tinted
+    veils; 129 of 243 classics colour-graded; 12 of 21 Easy Mode themes failing
+    theme_law.mjs.
+  - Layout, on pixels: the street price tags hid 37-53% of the category word
+    behind the cash; the ribbons 54-63% of their item line behind the product;
+    59 classic lines ran past their own plate.
+  - The audits, re-measured: two measures held readable cards back. The line
+    gate averaged the letters' soft shadow in as ink (a #101014 label on a
+    cyan plate at 6:1 scored 2.85); the critic's per-letter check read each
+    number against a ring that fell off its plate (471 of 971 "failed" at
+    about 2.5). Both now judge the core of the strokes. After the fixes:
+    critical lines under 3:1 went 188 -> 9, the critic holds back 243 for
+    real reasons (hierarchy 128, three families 83, headline too small in a
+    tile 61, number under 72px 26, number off its plate 9), and 684 of 971
+    cards are live (780 before, on a looser bar).
+
+Changed:
+  - The number rebuilt on 945 showcase cards and 165 classics (median 84px and
+    108px), one of the card's two families, on one axis with its plate.
+  - Honest copy on 340 cards (943 lines) and in the classics' source.
+  - The design-school critic: its rejects hold a card back as a defect, its
+    warnings keep a card off the hero wall.
+  - Photographs in their own colour under a neutral shade solved per line of
+    copy (rule 56): showcase 0 duotones, 0 tinted veils; classics 128 of 129 via
+    assets/ground-fix.json; big pastel panels neutral at the same luminance.
+  - The 12 failing themes re-solved in OKLCH, every hue kept: 21 of 21 pass.
+  - Products moved off the words on 8 street layouts; four plates sized to
+    their words; the spec-check number kept on its bar.
+  - Nothing on the number: 38 cards had a rule, cue icon or frame border
+    across it after it moved (scripts/clear_number.mjs removes decoration
+    there); the critic now rejects a number more than 8% off its plate.
+  - 127 weak headline, number or CTA lines repaired in lightness (hue kept)
+    or neutral ink (scripts/repair_showcase_ink.mjs).
+  - The iPhones LA link now sends pictures that show the phone number (owner:
+    "Yes, allow the number").
+  - The site's pages: the video maker, what is checked, the data kept.
+
+Rejected:
+  - Editing motion/. It mirrors the phone ad engine's repo; its untrue copy is
+    listed in docs/handoff-offer-cards-number.md for that repo.
+  - Holding every line to its old contrast when the old ground was a crushed
+    duotone: the shade then came out near-black. Each line clears 4.5:1 or
+    keeps its old ground, whichever is further, so none is darker than it needs.
+  - Flipping a coloured line's ink to make one shade work. Only neutral lines
+    change side; a coloured one would lose its job.
+  - Touching the 50 offer cards: they are in loganipad/iphoneslainv.
+
+RESUME HERE:
+  Draft-deploy this branch (netlify deploy, then look at the preview on a
+  phone) before --prod. Then the iPhones LA session: run the paste-ready
+  prompt in docs/handoff-offer-cards-number.md, and check its server accepts
+  pictures that carry the number.
+
 ---
 
 ## 2026-09-26 — Video ad field research
@@ -179,14 +301,14 @@ Measured:
   - 48 of 243 templates default to "up to" pricing (gold 12, cars 11, phones 9,
     coins 4, sports 4, strips 3, pokemon 3, silver 2), from the category decks.
     4 phone templates advertise iCloud-locked phones, 2 say "blacklisted".
-    0 carry health or financial-status phrasing. scripts/copy_audit.mjs.
+    0 carry health or financial-status phrasing. scripts/claims_audit.mjs.
   - In the 16 national "we buy" ads with a usable description, only 2 show a
     dollar figure, and both are "up to" store credit. 11 of 16 make a speed
     claim; 14 of 16 send the viewer to a URL or app rather than a phone.
 
 Changed:
   - docs/VIDEO-AD-RESEARCH.md (new), docs/README.md map entry.
-  - scripts/copy_audit.mjs (new) — counts flagged default copy in the loaded
+  - scripts/claims_audit.mjs (new) — counts flagged default copy in the loaded
     library; exits non-zero on a page error. Takes CHROME and GFX_BASE.
 
 Rejected:
@@ -212,6 +334,122 @@ RESUME HERE:
   Then build the engine from section 8 of VIDEO-AD-RESEARCH.md, starting with
   the rule that frame 0 is the static template and a frame-as-pure-function-of-t
   renderer encoded through WebCodecs.
+
+
+---
+
+## 2026-09-27 — Reunifying the branches
+
+Studied:
+  Why three sessions on 2026-09-26 produced work the owner called "super old
+  design language": each started from `main`, which had not moved since
+  2026-08-28.
+
+Measured:
+  - 14 remote branches. `claude/finished-copy-site-manf7r` (2026-09-26 22:19)
+    already contained phone-ad-maker, live-2026-09-22, the three project
+    threads, the iPhones LA link, the 2K asset library and the 09-16 backup.
+  - Not contained: vibrant-hawking (26 commits, merges clean), vibrant-lovelace
+    (1 commit, stale base, 2 small conflicts), busy-allen (1 commit, stale
+    base, conflicts in app.js/index.html/headers and 25 modify/delete cut-outs
+    the trunk had replaced with 2K WebP), fervent-pascal (2 commits, stale base).
+  - The trunk after merging: 243 templates, landing, /motion and library.html
+    load with 0 page errors and 0 failed requests.
+
+Changed:
+  - Merged vibrant-hawking and vibrant-lovelace into the trunk.
+  - claude/fervent-pascal-w6mthe reset to the trunk (its two stale commits,
+    bf45814 and ee650df, superseded; see OPEN-ITEMS §J for what survives).
+  - OPEN-ITEMS §J: the verified port list. AGENT-BRIEF landmine 6: check that
+    `main` is current before building.
+
+Rejected:
+  - Merging busy-allen or the old fervent-pascal: both would lay August code
+    over September work (old default copy over the study session's honest
+    copy, `.png` cut-out names the trunk no longer has, a landing the owner
+    abandoned). Ported item by item instead.
+  - A `-s ours` merge to mark them "merged": it would claim work was
+    integrated when none of it was.
+
+RESUME HERE:
+  1. Owner decision: fast-forward `main` to this trunk so new sessions start
+     from current code (main is an ancestor, so it is a fast-forward).
+  2. The owner's reported card defects (overlaps; colour theory on the pale
+     palettes), then OPEN-ITEMS §J items 5–9 (small, verified), then 1–2.
+
+## 2026-09-27 (later) — One design language: collisions, guides, the Glass Card, the curated 400
+
+Studied:
+  The owner's four asks after the reunification: overlaps and legibility
+  ("audit any overlapping elements, poor quality assets, or hard to read
+  designs"), the guides ("make sure everything fits within the guides"), the
+  Glass Card ("the asset should be on the inner card while a tile PNG of
+  money … in BG"), and "of the 780 possible themes, take out at least half …
+  so we have the 400 that showed the least mistakes". Plus the device art the
+  owner uploaded (devices, ad-backs, iPad, Mac, Watch), and "main text doesn't
+  seem to be centered".
+
+Measured:
+  - A bounding-box overlap audit could not see the faults (a box round italic
+    type is mostly air; rule 50). scripts/audit_collisions.mjs renders each
+    layer alone into an ink mask. Baseline: 285 of 684 live cards collided at
+    6% of the smaller party's ink, and copy sat in the 6% margin on 293.
+  - Each layout repeated ONE fault: the phone plate over the CTA line
+    (scriptRetro, hudTech, ticketStub), the website under the plate (arcCrown,
+    neonNight), the product under three step cards (47 stepsFlow), left-aligned
+    copy outside its ticket or glass panel, a sticker disc on the item line.
+  - My own first plate fix made 5 layouts collide that had been clean: a plate
+    grown about its centre reaches the line below it. The audit caught it on
+    the next run; growth is now limited to clear space.
+  - Redundancy: 632 of 690 live cards sat in 91 (category, layout) groups of
+    four or more, up to 17 recolours of one composition. Pixel similarity
+    separated same-layout from different-layout pairs by 4.90 vs 5.24, too
+    weak to decide anything, so redundancy is judged structurally.
+  - Device art: the site's renders are 640px squares with the device at 400
+    to 560px; the qs- copies had been capped at 400 and two were unusable
+    (Mac mini 155x62, Watch 47x55).
+
+Changed:
+  - alignPass: 2c one axis for centred stacks; 4 plates grow into clear space
+    only; 4b words stay on their plate (widen, slide in, then shrink, with a
+    72% floor); 4c decoration yields (a sticker is removed, never moved);
+    4d the product keeps clear of the copy; 5 fitInsideGuides moves the whole
+    composition into the 6% margin. After: live collisions 269 -> 52, copy in
+    the margin 293 -> 0.
+  - Glass Card restaged (53 records): money-fall ground, card solid enough
+    to read, product on the card between the headline and the selling points.
+  - 12 cards read WE BUY IPHONES over an Apple Watch photograph with watch
+    selling points: the headline was the slip, now WE BUY WATCHES.
+  - Curation (scripts/curate_showcase.mjs): 65 disqualified (collisions,
+    critic rejects, a critical line under 3:1); the rest ranked by the
+    critic's warnings, contrast shortfalls and the measured overlaps; kept in
+    proportion per category, round-robin across layouts so every design's
+    best card comes before any design's second. 400 kept, 114 of 118
+    designs, largest recolour group 17 -> 8, the owner's hero picks all kept.
+    Thumbnails of the 400 re-rendered through the new engine.
+  - 165 device cutouts imported under the owner's floors, 26 upgraded in place.
+  - Device catalogue (118 models, 139 finishes) and variants: one card re-set
+    for any device, the finish chosen to answer the palette. A finish's colour
+    is measured where finishes DIFFER (the body), not over the whole cut-out:
+    the first measure read the shared wallpaper, five MacBook Air finishes as
+    one blue.
+  - Regression caught by the critic: the "taller than its plate" rule shrank
+    phone numbers on snug pills (76 -> 55px, 63 cards). Fixed to fire only on
+    real overflow and never on the number.
+  - Chrome: the public Look menu removed (it offered the abandoned ember look),
+    the header fits 390 to 1440px, CSS_FALLBACK regenerated, ASSET_REV ported.
+
+Rejected:
+  - Moving a clashing sticker to the nearest clear spot: it landed as a bare
+    disc mid-photograph with its curved label dark on dark. Removed instead.
+  - Forcing a centred stack onto the card's centre: a column set beside a
+    product would slide into it. The widest line's axis is used.
+  - Restyling /motion here: it is synced from the phone ad engine's repo, and
+    the next sync would undo it. Listed in OPEN-ITEMS §K.
+
+RESUME HERE:
+  1. Owner decision: fast-forward `main` to this trunk.
+  2. OPEN-ITEMS §K.
 
 ---
 

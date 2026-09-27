@@ -1,0 +1,1422 @@
+{
+ "about": "Every device the shop buys, by model and finish, from the approved cut-outs in assets/cutouts. Written by scripts/device_catalog.py. family is the headline name; hex is each finish as measured on its own cut-out, for picking the finish that answers a palette.",
+ "models": {
+  "airpods": {
+   "line": "airpods",
+   "family": "AIRPODS",
+   "name": "AirPods",
+   "colours": {},
+   "art": "qs-device-airpods"
+  },
+  "airpods-3": {
+   "line": "airpods",
+   "family": "AIRPODS",
+   "name": "AirPods (3rd gen)",
+   "colours": {},
+   "art": "qs-airpods-3"
+  },
+  "airpods-max": {
+   "line": "airpods",
+   "family": "AIRPODS MAX",
+   "name": "AirPods Max",
+   "colours": {},
+   "art": "qs-device-airpods-max"
+  },
+  "airpods-pro": {
+   "line": "airpods",
+   "family": "AIRPODS PRO",
+   "name": "AirPods Pro",
+   "colours": {},
+   "art": "qs-device-airpods-pro"
+  },
+  "airpods-pro-2": {
+   "line": "airpods",
+   "family": "AIRPODS PRO",
+   "name": "AirPods Pro 2",
+   "colours": {},
+   "art": "qs-airpods-pro-2"
+  },
+  "airpods-pro-3": {
+   "line": "airpods",
+   "family": "AIRPODS PRO",
+   "name": "AirPods Pro 3",
+   "colours": {},
+   "art": "qs-airpods-pro-3"
+  },
+  "apple-tv": {
+   "line": "other",
+   "family": "APPLE TV",
+   "name": "Apple TV",
+   "colours": {},
+   "art": "qs-device-apple-tv"
+  },
+  "apple-tv-4k-2": {
+   "line": "other",
+   "family": "APPLE TV",
+   "name": "Apple TV 4K",
+   "colours": {},
+   "art": "qs-apple-tv-4k-2"
+  },
+  "homepod": {
+   "line": "other",
+   "family": "HOMEPOD",
+   "name": "HomePod",
+   "colours": {},
+   "art": "qs-device-homepod"
+  },
+  "homepod-mini": {
+   "line": "other",
+   "family": "HOMEPOD",
+   "name": "HomePod mini",
+   "colours": {},
+   "art": "qs-homepod-mini"
+  },
+  "imac": {
+   "line": "mac",
+   "family": "IMAC",
+   "name": "iMac",
+   "colours": {},
+   "art": "qs-device-imac"
+  },
+  "imac-24-m1": {
+   "line": "mac",
+   "family": "IMAC",
+   "name": "iMac 24-inch (M1)",
+   "colours": {
+    "blue": {
+     "slug": "qs-imac-24-m1--blue",
+     "hex": "#b0c8dd"
+    },
+    "green": {
+     "slug": "qs-imac-24-m1--green",
+     "hex": "#b7d1c8"
+    },
+    "orange": {
+     "slug": "qs-imac-24-m1--orange",
+     "hex": "#f2b4a0"
+    },
+    "pink": {
+     "slug": "qs-imac-24-m1--pink",
+     "hex": "#f3cbc4"
+    },
+    "purple": {
+     "slug": "qs-imac-24-m1--purple",
+     "hex": "#c3c5e9"
+    },
+    "silver": {
+     "slug": "qs-imac-24-m1--silver",
+     "hex": "#d3d5d7"
+    },
+    "yellow": {
+     "slug": "qs-imac-24-m1--yellow",
+     "hex": "#fbd68d"
+    }
+   },
+   "art": "qs-sheet-imac-24-m1-2021"
+  },
+  "imac-24-m3": {
+   "line": "mac",
+   "family": "IMAC",
+   "name": "iMac 24-inch (M3)",
+   "colours": {},
+   "art": "qs-sheet-imac-24-m3-2023"
+  },
+  "imac-24-m4": {
+   "line": "mac",
+   "family": "IMAC",
+   "name": "iMac 24-inch (M4)",
+   "colours": {
+    "blue": {
+     "slug": "qs-imac-24-m4--blue",
+     "hex": "#b8cde6"
+    },
+    "green": {
+     "slug": "qs-imac-24-m4--green",
+     "hex": "#b9d9c7"
+    },
+    "orange": {
+     "slug": "qs-imac-24-m4--orange",
+     "hex": "#ffc8ab"
+    },
+    "pink": {
+     "slug": "qs-imac-24-m4--pink",
+     "hex": "#feccd8"
+    },
+    "purple": {
+     "slug": "qs-imac-24-m4--purple",
+     "hex": "#c7c3e5"
+    },
+    "silver": {
+     "slug": "qs-imac-24-m4--silver",
+     "hex": "#d5d7d8"
+    },
+    "yellow": {
+     "slug": "qs-imac-24-m4--yellow",
+     "hex": "#fbebb7"
+    }
+   },
+   "art": "qs-sheet-imac-24-m4-2024"
+  },
+  "ipad-10": {
+   "line": "ipad",
+   "family": "IPAD",
+   "name": "iPad 10",
+   "colours": {},
+   "art": "qs-ipad-10"
+  },
+  "ipad-11-a16": {
+   "line": "ipad",
+   "family": "IPAD",
+   "name": "iPad (A16)",
+   "colours": {
+    "blue": {
+     "slug": "qs-ipad-11-a16--blue",
+     "hex": "#7c9cbb"
+    },
+    "pink": {
+     "slug": "qs-ipad-11-a16--pink",
+     "hex": "#e86c88"
+    },
+    "silver": {
+     "slug": "qs-ipad-11-a16--silver",
+     "hex": "#d6d6d7"
+    },
+    "yellow": {
+     "slug": "qs-ipad-11-a16--yellow",
+     "hex": "#e1ce5e"
+    }
+   },
+   "art": "qs-ipad-11-a16"
+  },
+  "ipad-5": {
+   "line": "ipad",
+   "family": "IPAD",
+   "name": "iPad 5",
+   "colours": {},
+   "art": "qs-ipad-5"
+  },
+  "ipad-6": {
+   "line": "ipad",
+   "family": "IPAD",
+   "name": "iPad 6",
+   "colours": {},
+   "art": "qs-ipad-6"
+  },
+  "ipad-7": {
+   "line": "ipad",
+   "family": "IPAD",
+   "name": "iPad 7",
+   "colours": {},
+   "art": "qs-ipad-7"
+  },
+  "ipad-8": {
+   "line": "ipad",
+   "family": "IPAD",
+   "name": "iPad 8",
+   "colours": {},
+   "art": "qs-ipad-8"
+  },
+  "ipad-9": {
+   "line": "ipad",
+   "family": "IPAD",
+   "name": "iPad 9",
+   "colours": {},
+   "art": "qs-ipad-9"
+  },
+  "ipad-air-11-m2": {
+   "line": "ipad",
+   "family": "IPAD AIR",
+   "name": "iPad Air 11-inch (M2)",
+   "colours": {
+    "blue": {
+     "slug": "qs-ipad-air-11-m2--blue",
+     "hex": "#98b0b4"
+    },
+    "purple": {
+     "slug": "qs-ipad-air-11-m2--purple",
+     "hex": "#b7afbd"
+    },
+    "space-gray": {
+     "slug": "qs-ipad-air-11-m2--space-gray",
+     "hex": "#5d5869"
+    },
+    "starlight": {
+     "slug": "qs-ipad-air-11-m2--starlight",
+     "hex": "#bbb1a8"
+    }
+   },
+   "art": "qs-ipad-air-11-m2"
+  },
+  "ipad-air-11-m3": {
+   "line": "ipad",
+   "family": "IPAD AIR",
+   "name": "iPad Air 11-inch (M3)",
+   "colours": {
+    "blue": {
+     "slug": "qs-ipad-air-11-m3--blue",
+     "hex": "#98b0b4"
+    },
+    "purple": {
+     "slug": "qs-ipad-air-11-m3--purple",
+     "hex": "#b7afbd"
+    },
+    "space-gray": {
+     "slug": "qs-ipad-air-11-m3--space-gray",
+     "hex": "#5d5869"
+    },
+    "starlight": {
+     "slug": "qs-ipad-air-11-m3--starlight",
+     "hex": "#bbb1a8"
+    }
+   },
+   "art": "qs-ipad-air-11-m3"
+  },
+  "ipad-air-11-m4": {
+   "line": "ipad",
+   "family": "IPAD AIR",
+   "name": "iPad Air 11-inch (M4)",
+   "colours": {
+    "blue": {
+     "slug": "qs-ipad-air-11-m4--blue",
+     "hex": "#98b0b4"
+    },
+    "purple": {
+     "slug": "qs-ipad-air-11-m4--purple",
+     "hex": "#b7afbd"
+    },
+    "space-gray": {
+     "slug": "qs-ipad-air-11-m4--space-gray",
+     "hex": "#5d5869"
+    },
+    "starlight": {
+     "slug": "qs-ipad-air-11-m4--starlight",
+     "hex": "#bbb1a8"
+    }
+   },
+   "art": "qs-ipad-air-11-m4"
+  },
+  "ipad-air-13-m2": {
+   "line": "ipad",
+   "family": "IPAD AIR",
+   "name": "iPad Air 13-inch (M2)",
+   "colours": {
+    "blue": {
+     "slug": "qs-ipad-air-13-m2--blue",
+     "hex": "#4a72b0"
+    },
+    "purple": {
+     "slug": "qs-ipad-air-13-m2--purple",
+     "hex": "#9252ad"
+    },
+    "space-gray": {
+     "slug": "qs-ipad-air-13-m2--space-gray",
+     "hex": "#47474d"
+    },
+    "starlight": {
+     "slug": "qs-ipad-air-13-m2--starlight",
+     "hex": "#a87241"
+    }
+   },
+   "art": "qs-ipad-air-13-m2"
+  },
+  "ipad-air-13-m3": {
+   "line": "ipad",
+   "family": "IPAD AIR",
+   "name": "iPad Air 13-inch (M3)",
+   "colours": {
+    "blue": {
+     "slug": "qs-ipad-air-13-m3--blue",
+     "hex": "#4a72b0"
+    },
+    "purple": {
+     "slug": "qs-ipad-air-13-m3--purple",
+     "hex": "#9252ad"
+    },
+    "space-gray": {
+     "slug": "qs-ipad-air-13-m3--space-gray",
+     "hex": "#47474d"
+    },
+    "starlight": {
+     "slug": "qs-ipad-air-13-m3--starlight",
+     "hex": "#a87241"
+    }
+   },
+   "art": "qs-ipad-air-13-m3"
+  },
+  "ipad-air-13-m4": {
+   "line": "ipad",
+   "family": "IPAD AIR",
+   "name": "iPad Air 13-inch (M4)",
+   "colours": {
+    "blue": {
+     "slug": "qs-ipad-air-13-m4--blue",
+     "hex": "#4a72b0"
+    },
+    "purple": {
+     "slug": "qs-ipad-air-13-m4--purple",
+     "hex": "#9252ad"
+    },
+    "space-gray": {
+     "slug": "qs-ipad-air-13-m4--space-gray",
+     "hex": "#47474d"
+    },
+    "starlight": {
+     "slug": "qs-ipad-air-13-m4--starlight",
+     "hex": "#a87241"
+    }
+   },
+   "art": "qs-ipad-air-13-m4"
+  },
+  "ipad-air-3": {
+   "line": "ipad",
+   "family": "IPAD AIR",
+   "name": "iPad Air 3",
+   "colours": {},
+   "art": "qs-ipad-air-3"
+  },
+  "ipad-air-4": {
+   "line": "ipad",
+   "family": "IPAD AIR",
+   "name": "iPad Air 4",
+   "colours": {},
+   "art": "qs-ipad-air-4"
+  },
+  "ipad-air-5": {
+   "line": "ipad",
+   "family": "IPAD AIR",
+   "name": "iPad Air 5",
+   "colours": {},
+   "art": "qs-ipad-air-5"
+  },
+  "ipad-mini-5": {
+   "line": "ipad",
+   "family": "IPAD MINI",
+   "name": "iPad mini 5",
+   "colours": {},
+   "art": "qs-ipad-mini-5"
+  },
+  "ipad-mini-6": {
+   "line": "ipad",
+   "family": "IPAD MINI",
+   "name": "iPad mini 6",
+   "colours": {},
+   "art": "qs-ipad-mini-6"
+  },
+  "ipad-mini-7-a17-pro": {
+   "line": "ipad",
+   "family": "IPAD MINI",
+   "name": "iPad mini (A17 Pro)",
+   "colours": {
+    "blue": {
+     "slug": "qs-ipad-mini-7-a17-pro--blue",
+     "hex": "#acc0c1"
+    },
+    "purple": {
+     "slug": "qs-ipad-mini-7-a17-pro--purple",
+     "hex": "#c3bac8"
+    },
+    "space-gray": {
+     "slug": "qs-ipad-mini-7-a17-pro--space-gray",
+     "hex": "#5a585b"
+    },
+    "starlight": {
+     "slug": "qs-ipad-mini-7-a17-pro--starlight",
+     "hex": "#c4bcb4"
+    }
+   },
+   "art": "qs-ipad-mini-7-a17-pro"
+  },
+  "ipad-pro-11-m4": {
+   "line": "ipad",
+   "family": "IPAD PRO",
+   "name": "iPad Pro 11-inch (M4)",
+   "colours": {
+    "silver": {
+     "slug": "qs-ipad-pro-11-m4--silver",
+     "hex": "#e1e3e5"
+    },
+    "space-black": {
+     "slug": "qs-ipad-pro-11-m4--space-black",
+     "hex": "#4c494d"
+    }
+   },
+   "art": "qs-ipad-pro-11-m4"
+  },
+  "ipad-pro-11-m5": {
+   "line": "ipad",
+   "family": "IPAD PRO",
+   "name": "iPad Pro 11-inch (M5)",
+   "colours": {},
+   "art": "qs-ipad-pro-11-m5"
+  },
+  "ipad-pro-12-9-3rd-gen": {
+   "line": "ipad",
+   "family": "IPAD PRO",
+   "name": "iPad Pro 12.9-inch (3rd gen)",
+   "colours": {},
+   "art": "qs-ipad-pro-12-9-3rd-gen"
+  },
+  "ipad-pro-12-9-4th-gen": {
+   "line": "ipad",
+   "family": "IPAD PRO",
+   "name": "iPad Pro 12.9-inch (4th gen)",
+   "colours": {},
+   "art": "qs-ipad-pro-12-9-4th-gen"
+  },
+  "ipad-pro-12-9-5th-gen": {
+   "line": "ipad",
+   "family": "IPAD PRO",
+   "name": "iPad Pro 12.9-inch (5th gen)",
+   "colours": {},
+   "art": "qs-ipad-pro-12-9-5th-gen"
+  },
+  "ipad-pro-12-9-6th-gen": {
+   "line": "ipad",
+   "family": "IPAD PRO",
+   "name": "iPad Pro 12.9-inch (6th gen)",
+   "colours": {},
+   "art": "qs-ipad-pro-12-9-6th-gen"
+  },
+  "ipad-pro-13-m4": {
+   "line": "ipad",
+   "family": "IPAD PRO",
+   "name": "iPad Pro 13-inch (M4)",
+   "colours": {
+    "silver": {
+     "slug": "qs-ipad-pro-13-m4--silver",
+     "hex": "#c9cdd0"
+    },
+    "space-black": {
+     "slug": "qs-ipad-pro-13-m4--space-black",
+     "hex": "#464344"
+    }
+   },
+   "art": "qs-ipad-pro-13-m4"
+  },
+  "ipad-pro-13-m5": {
+   "line": "ipad",
+   "family": "IPAD PRO",
+   "name": "iPad Pro 13-inch (M5)",
+   "colours": {
+    "silver": {
+     "slug": "qs-ipad-pro-13-m5--silver",
+     "hex": "#c9cdd0"
+    },
+    "space-black": {
+     "slug": "qs-ipad-pro-13-m5--space-black",
+     "hex": "#464344"
+    }
+   },
+   "art": "qs-ipad-pro-13-m5"
+  },
+  "iphone-12": {
+   "line": "iphone",
+   "family": "IPHONE 12",
+   "name": "iPhone 12",
+   "colours": {
+    "blue": {
+     "slug": "qs-iphone-12-back--blue",
+     "hex": "#053457"
+    },
+    "green": {
+     "slug": "qs-iphone-12-back--green",
+     "hex": "#daf1d7"
+    },
+    "purple": {
+     "slug": "qs-iphone-12-back--purple",
+     "hex": "#aca3db"
+    },
+    "white": {
+     "slug": "qs-iphone-12-back--white",
+     "hex": "#f8f4f0"
+    }
+   }
+  },
+  "iphone-12-pro": {
+   "line": "iphone",
+   "family": "IPHONE 12 PRO",
+   "name": "iPhone 12 Pro",
+   "colours": {
+    "gold": {
+     "slug": "qs-iphone-12-pro-back--gold",
+     "hex": "#fbebd3"
+    },
+    "graphite": {
+     "slug": "qs-iphone-12-pro-back--graphite",
+     "hex": "#494845"
+    },
+    "pacific-blue": {
+     "slug": "qs-iphone-12-pro-back--pacific-blue",
+     "hex": "#2b4652"
+    }
+   }
+  },
+  "iphone-13": {
+   "line": "iphone",
+   "family": "IPHONE 13",
+   "name": "iPhone 13",
+   "colours": {
+    "blue": {
+     "slug": "qs-iphone-13-back--blue",
+     "hex": "#256281"
+    },
+    "green": {
+     "slug": "qs-iphone-13-back--green",
+     "hex": "#364835"
+    },
+    "midnight": {
+     "slug": "qs-iphone-13-back--midnight",
+     "hex": "#1b2229"
+    },
+    "pink": {
+     "slug": "qs-iphone-13-back--pink",
+     "hex": "#f6ddd6"
+    },
+    "starlight": {
+     "slug": "qs-iphone-13-back--starlight",
+     "hex": "#f8f3ee"
+    }
+   },
+   "art": "qs-iphone-13"
+  },
+  "iphone-13-mini": {
+   "line": "iphone",
+   "family": "IPHONE 13",
+   "name": "iPhone 13 Mini",
+   "colours": {},
+   "art": "qs-iphone-13-mini"
+  },
+  "iphone-13-pro": {
+   "line": "iphone",
+   "family": "IPHONE 13 PRO",
+   "name": "iPhone 13 Pro",
+   "colours": {
+    "alpine-green": {
+     "slug": "qs-iphone-13-pro-back--alpine-green",
+     "hex": "#536352"
+    },
+    "gold": {
+     "slug": "qs-iphone-13-pro-back--gold",
+     "hex": "#ecddc6"
+    },
+    "graphite": {
+     "slug": "qs-iphone-13-pro-back--graphite",
+     "hex": "#5e5c58"
+    },
+    "sierra-blue": {
+     "slug": "qs-iphone-13-pro-back--sierra-blue",
+     "hex": "#96aac1"
+    }
+   },
+   "art": "qs-iphone-13-pro"
+  },
+  "iphone-13-pro-max": {
+   "line": "iphone",
+   "family": "IPHONE 13 PRO",
+   "name": "iPhone 13 Pro Max",
+   "colours": {},
+   "art": "qs-iphone-13-pro-max"
+  },
+  "iphone-14": {
+   "line": "iphone",
+   "family": "IPHONE 14",
+   "name": "iPhone 14",
+   "colours": {},
+   "art": "qs-iphone-14"
+  },
+  "iphone-14-plus": {
+   "line": "iphone",
+   "family": "IPHONE 14",
+   "name": "iPhone 14 Plus",
+   "colours": {},
+   "art": "qs-iphone-14-plus"
+  },
+  "iphone-14-pro": {
+   "line": "iphone",
+   "family": "IPHONE 14 PRO",
+   "name": "iPhone 14 Pro",
+   "colours": {},
+   "art": "qs-iphone-14-pro"
+  },
+  "iphone-14-pro-max": {
+   "line": "iphone",
+   "family": "IPHONE 14 PRO",
+   "name": "iPhone 14 Pro Max",
+   "colours": {},
+   "art": "qs-iphone-14-pro-max"
+  },
+  "iphone-15": {
+   "line": "iphone",
+   "family": "IPHONE 15",
+   "name": "iPhone 15",
+   "colours": {},
+   "art": "qs-iphone-15"
+  },
+  "iphone-15-plus": {
+   "line": "iphone",
+   "family": "IPHONE 15",
+   "name": "iPhone 15 Plus",
+   "colours": {},
+   "art": "qs-iphone-15-plus"
+  },
+  "iphone-15-pro": {
+   "line": "iphone",
+   "family": "IPHONE 15 PRO",
+   "name": "iPhone 15 Pro",
+   "colours": {},
+   "art": "qs-iphone-15-pro"
+  },
+  "iphone-15-pro-max": {
+   "line": "iphone",
+   "family": "IPHONE 15 PRO",
+   "name": "iPhone 15 Pro Max",
+   "colours": {},
+   "art": "qs-iphone-15-pro-max"
+  },
+  "iphone-16": {
+   "line": "iphone",
+   "family": "IPHONE 16",
+   "name": "iPhone 16",
+   "colours": {
+    "black": {
+     "slug": "qs-iphone-16-back--black",
+     "hex": "#404040"
+    },
+    "pink": {
+     "slug": "qs-iphone-16-back--pink",
+     "hex": "#e398c7"
+    },
+    "teal": {
+     "slug": "qs-iphone-16-back--teal",
+     "hex": "#95bdbc"
+    },
+    "ultramarine": {
+     "slug": "qs-iphone-16-back--ultramarine",
+     "hex": "#798cd2"
+    },
+    "white": {
+     "slug": "qs-iphone-16-back--white",
+     "hex": "#f2f3f0"
+    }
+   },
+   "art": "qs-iphone-16"
+  },
+  "iphone-16-plus": {
+   "line": "iphone",
+   "family": "IPHONE 16",
+   "name": "iPhone 16 Plus",
+   "colours": {
+    "white": {
+     "slug": "qs-iphone-16-plus-back--white",
+     "hex": "#f1f2ef"
+    }
+   },
+   "art": "qs-iphone-16-plus"
+  },
+  "iphone-16-pro": {
+   "line": "iphone",
+   "family": "IPHONE 16 PRO",
+   "name": "iPhone 16 Pro",
+   "colours": {},
+   "art": "qs-iphone-16-pro"
+  },
+  "iphone-16-pro-max": {
+   "line": "iphone",
+   "family": "IPHONE 16 PRO",
+   "name": "iPhone 16 Pro Max",
+   "colours": {},
+   "art": "qs-iphone-16-pro-max"
+  },
+  "iphone-16e": {
+   "line": "iphone",
+   "family": "IPHONE 16E",
+   "name": "iPhone 16e",
+   "colours": {
+    "black": {
+     "slug": "qs-iphone-16e-back--black",
+     "hex": "#3e3e3e"
+    },
+    "white": {
+     "slug": "qs-iphone-16e-back--white",
+     "hex": "#f4f4f1"
+    }
+   },
+   "art": "qs-iphone-16e"
+  },
+  "iphone-17": {
+   "line": "iphone",
+   "family": "IPHONE 17",
+   "name": "iPhone 17",
+   "colours": {},
+   "art": "qs-iphone-17"
+  },
+  "iphone-17-air": {
+   "line": "iphone",
+   "family": "IPHONE 17 AIR",
+   "name": "iPhone 17 Air",
+   "colours": {},
+   "art": "qs-iphone-17-air"
+  },
+  "iphone-17-pro": {
+   "line": "iphone",
+   "family": "IPHONE 17 PRO",
+   "name": "iPhone 17 Pro",
+   "colours": {},
+   "art": "qs-iphone-17-pro"
+  },
+  "iphone-17-pro-max": {
+   "line": "iphone",
+   "family": "IPHONE 17 PRO",
+   "name": "iPhone 17 Pro Max",
+   "colours": {},
+   "art": "qs-iphone-17-pro-max"
+  },
+  "iphone-17e": {
+   "line": "iphone",
+   "family": "IPHONE 17E",
+   "name": "iPhone 17e",
+   "colours": {
+    "black": {
+     "slug": "qs-iphone-17e-back--black",
+     "hex": "#3a3b3a"
+    },
+    "soft-pink": {
+     "slug": "qs-iphone-17e-back--soft-pink",
+     "hex": "#fbe8e5"
+    },
+    "white": {
+     "slug": "qs-iphone-17e-back--white",
+     "hex": "#f2f3f0"
+    }
+   },
+   "art": "qs-iphone-17e"
+  },
+  "iphone-18-pro": {
+   "line": "iphone",
+   "family": "IPHONE 18 PRO",
+   "name": "iPhone 18 Pro",
+   "colours": {},
+   "art": "qs-iphone-18-pro"
+  },
+  "iphone-18-pro-max": {
+   "line": "iphone",
+   "family": "IPHONE 18 PRO",
+   "name": "iPhone 18 Pro Max",
+   "colours": {},
+   "art": "qs-iphone-18-pro-max"
+  },
+  "iphone-duo": {
+   "line": "iphone",
+   "family": "IPHONE DUO",
+   "name": "iPhone Duo",
+   "colours": {},
+   "art": "qs-iphone-duo"
+  },
+  "mac-mini-m1": {
+   "line": "mac",
+   "family": "MAC MINI",
+   "name": "mac-mini-m1",
+   "colours": {},
+   "art": "qs-sheet-macmini-m1-2020"
+  },
+  "mac-mini-m2": {
+   "line": "mac",
+   "family": "MAC MINI",
+   "name": "mac-mini-m2",
+   "colours": {},
+   "art": "qs-sheet-macmini-m2-2023"
+  },
+  "mac-studio": {
+   "line": "mac",
+   "family": "MAC STUDIO",
+   "name": "Mac Studio",
+   "colours": {},
+   "art": "qs-device-mac-studio"
+  },
+  "mac-studio-2022": {
+   "line": "mac",
+   "family": "MAC STUDIO",
+   "name": "mac-studio-2022",
+   "colours": {},
+   "art": "qs-sheet-macstudio-2022"
+  },
+  "mac-studio-2025": {
+   "line": "mac",
+   "family": "MAC STUDIO",
+   "name": "mac-studio-2025",
+   "colours": {},
+   "art": "qs-sheet-macstudio-2025"
+  },
+  "macbook-air": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air",
+   "colours": {},
+   "art": "qs-device-macbook-air"
+  },
+  "macbook-air-13": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 13-inch",
+   "colours": {
+    "midnight": {
+     "slug": "qs-macbook-air-13--midnight",
+     "hex": "#334c5e"
+    },
+    "silver": {
+     "slug": "qs-macbook-air-13--silver",
+     "hex": "#96a7c3"
+    },
+    "sky-blue": {
+     "slug": "qs-macbook-air-13--sky-blue",
+     "hex": "#8aa3bc"
+    },
+    "space-gray": {
+     "slug": "qs-macbook-air-13--space-gray",
+     "hex": "#6a6e7e"
+    },
+    "starlight": {
+     "slug": "qs-macbook-air-13--starlight",
+     "hex": "#a0abbd"
+    }
+   }
+  },
+  "macbook-air-13-m1": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 13-inch (M1)",
+   "colours": {},
+   "art": "qs-sheet-mba-13-m1-2020"
+  },
+  "macbook-air-13-m2": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 13-inch (M2)",
+   "colours": {},
+   "art": "qs-sheet-mba-13-m2-2022"
+  },
+  "macbook-air-13-m3": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 13-inch (M3)",
+   "colours": {},
+   "art": "qs-sheet-mba-13-m3-2024"
+  },
+  "macbook-air-13-m4": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 13-inch (M4)",
+   "colours": {},
+   "art": "qs-sheet-mba-13-m4-2025"
+  },
+  "macbook-air-13-m5": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 13-inch (M5)",
+   "colours": {
+    "midnight": {
+     "slug": "qs-macbook-air-13-m5--midnight",
+     "hex": "#232f4a"
+    },
+    "silver": {
+     "slug": "qs-macbook-air-13-m5--silver",
+     "hex": "#318c8f"
+    },
+    "sky-blue": {
+     "slug": "qs-macbook-air-13-m5--sky-blue",
+     "hex": "#778b97"
+    },
+    "starlight": {
+     "slug": "qs-macbook-air-13-m5--starlight",
+     "hex": "#a1984c"
+    }
+   },
+   "art": "qs-sheet-mba-13-m5-2026"
+  },
+  "macbook-air-15": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 15-inch",
+   "colours": {
+    "midnight": {
+     "slug": "qs-macbook-air-15--midnight",
+     "hex": "#2f4351"
+    },
+    "silver": {
+     "slug": "qs-macbook-air-15--silver",
+     "hex": "#a1a5b1"
+    },
+    "sky-blue": {
+     "slug": "qs-macbook-air-15--sky-blue",
+     "hex": "#929fa6"
+    },
+    "space-gray": {
+     "slug": "qs-macbook-air-15--space-gray",
+     "hex": "#7a7f8e"
+    },
+    "starlight": {
+     "slug": "qs-macbook-air-15--starlight",
+     "hex": "#afa9a2"
+    }
+   }
+  },
+  "macbook-air-15-m2": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 15-inch (M2)",
+   "colours": {},
+   "art": "qs-sheet-mba-15-m2-2023"
+  },
+  "macbook-air-15-m3": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 15-inch (M3)",
+   "colours": {},
+   "art": "qs-sheet-mba-15-m3-2024"
+  },
+  "macbook-air-15-m4": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 15-inch (M4)",
+   "colours": {},
+   "art": "qs-sheet-mba-15-m4-2025"
+  },
+  "macbook-air-15-m5": {
+   "line": "mac",
+   "family": "MACBOOK AIR",
+   "name": "MacBook Air 15-inch (M5)",
+   "colours": {
+    "midnight": {
+     "slug": "qs-macbook-air-15-m5--midnight",
+     "hex": "#23314a"
+    },
+    "silver": {
+     "slug": "qs-macbook-air-15-m5--silver",
+     "hex": "#3e8b91"
+    },
+    "sky-blue": {
+     "slug": "qs-macbook-air-15-m5--sky-blue",
+     "hex": "#648c96"
+    },
+    "starlight": {
+     "slug": "qs-macbook-air-15-m5--starlight",
+     "hex": "#a59c44"
+    }
+   },
+   "art": "qs-sheet-mba-15-m5-2026"
+  },
+  "macbook-neo-13": {
+   "line": "mac",
+   "family": "MACBOOK NEO",
+   "name": "MacBook Neo 13-inch",
+   "colours": {
+    "blush": {
+     "slug": "qs-macbook-neo-13--blush",
+     "hex": "#cc97be"
+    },
+    "citrus": {
+     "slug": "qs-macbook-neo-13--citrus",
+     "hex": "#afc05b"
+    },
+    "indigo": {
+     "slug": "qs-macbook-neo-13--indigo",
+     "hex": "#375379"
+    },
+    "silver": {
+     "slug": "qs-macbook-neo-13--silver",
+     "hex": "#a098c9"
+    }
+   },
+   "art": "qs-sheet-mbneo-13-a18pro-2026"
+  },
+  "macbook-pro": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro",
+   "colours": {},
+   "art": "qs-device-macbook-pro"
+  },
+  "macbook-pro-13-m1": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 13-inch (M1)",
+   "colours": {},
+   "art": "qs-sheet-mbp-13-m1-2020"
+  },
+  "macbook-pro-13-m2": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 13-inch (M2)",
+   "colours": {},
+   "art": "qs-sheet-mbp-13-m2-2022"
+  },
+  "macbook-pro-14": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 14-inch",
+   "colours": {
+    "silver": {
+     "slug": "qs-macbook-pro-14--silver",
+     "hex": "#a1a2a4"
+    },
+    "space-black": {
+     "slug": "qs-macbook-pro-14--space-black",
+     "hex": "#39383e"
+    },
+    "space-gray": {
+     "slug": "qs-macbook-pro-14--space-gray",
+     "hex": "#77797d"
+    }
+   }
+  },
+  "macbook-pro-14-2021": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 14-inch (2021)",
+   "colours": {},
+   "art": "qs-sheet-mbp-14-2021"
+  },
+  "macbook-pro-14-2023": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 14-inch (2023)",
+   "colours": {},
+   "art": "qs-sheet-mbp-14-2023"
+  },
+  "macbook-pro-14-m3": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 14-inch (M3)",
+   "colours": {},
+   "art": "qs-sheet-mbp-14-m3-2023"
+  },
+  "macbook-pro-14-m3pro": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 14-inch (M3 Pro)",
+   "colours": {},
+   "art": "qs-sheet-mbp-14-m3pro-2023"
+  },
+  "macbook-pro-14-m4": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 14-inch (M4)",
+   "colours": {},
+   "art": "qs-sheet-mbp-14-m4-2024"
+  },
+  "macbook-pro-14-m4pro": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 14-inch (M4 Pro)",
+   "colours": {},
+   "art": "qs-sheet-mbp-14-m4pro-2024"
+  },
+  "macbook-pro-14-m5": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 14-inch (M5)",
+   "colours": {
+    "silver": {
+     "slug": "qs-macbook-pro-14-m5--silver",
+     "hex": "#afb1b2"
+    },
+    "space-black": {
+     "slug": "qs-macbook-pro-14-m5--space-black",
+     "hex": "#464447"
+    }
+   },
+   "art": "qs-sheet-mbp-14-m5-2025"
+  },
+  "macbook-pro-16": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 16-inch",
+   "colours": {
+    "silver": {
+     "slug": "qs-macbook-pro-16--silver",
+     "hex": "#8d99a1"
+    },
+    "space-black": {
+     "slug": "qs-macbook-pro-16--space-black",
+     "hex": "#414447"
+    },
+    "space-gray": {
+     "slug": "qs-macbook-pro-16--space-gray",
+     "hex": "#7b8892"
+    }
+   }
+  },
+  "macbook-pro-16-2021": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 16-inch (2021)",
+   "colours": {},
+   "art": "qs-sheet-mbp-16-2021"
+  },
+  "macbook-pro-16-2023": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 16-inch (2023)",
+   "colours": {},
+   "art": "qs-sheet-mbp-16-2023"
+  },
+  "macbook-pro-16-m3pro": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 16-inch (M3 Pro)",
+   "colours": {},
+   "art": "qs-sheet-mbp-16-m3pro-2023"
+  },
+  "macbook-pro-16-m4pro": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 16-inch (M4 Pro)",
+   "colours": {},
+   "art": "qs-sheet-mbp-16-m4pro-2024"
+  },
+  "macbook-pro-16-m5": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 16-inch (M5)",
+   "colours": {
+    "silver": {
+     "slug": "qs-macbook-pro-16-m5--silver",
+     "hex": "#a8aaab"
+    },
+    "space-black": {
+     "slug": "qs-macbook-pro-16-m5--space-black",
+     "hex": "#4c494d"
+    }
+   }
+  },
+  "macbook-pro-16-m5pro": {
+   "line": "mac",
+   "family": "MACBOOK PRO",
+   "name": "MacBook Pro 16-inch (M5 Pro)",
+   "colours": {},
+   "art": "qs-sheet-mbp-16-m5pro-2026"
+  },
+  "vision-pro": {
+   "line": "other",
+   "family": "VISION PRO",
+   "name": "Apple Vision Pro",
+   "colours": {},
+   "art": "qs-device-vision-pro"
+  },
+  "watch-s10": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch Series 10",
+   "colours": {
+    "aluminum-jet-black": {
+     "slug": "qs-watch-s10--aluminum-jet-black",
+     "hex": "#2f2f35"
+    },
+    "aluminum-rose-gold": {
+     "slug": "qs-watch-s10--aluminum-rose-gold",
+     "hex": "#5f3b53"
+    },
+    "aluminum-silver": {
+     "slug": "qs-watch-s10--aluminum-silver",
+     "hex": "#abaeba"
+    },
+    "titanium-gold": {
+     "slug": "qs-watch-s10--titanium-gold",
+     "hex": "#836952"
+    },
+    "titanium-natural": {
+     "slug": "qs-watch-s10--titanium-natural",
+     "hex": "#6f655d"
+    },
+    "titanium-slate": {
+     "slug": "qs-watch-s10--titanium-slate",
+     "hex": "#403b38"
+    }
+   },
+   "art": "qs-sheet-watch-s10-2024"
+  },
+  "watch-s11": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch Series 11",
+   "colours": {
+    "aluminum-jet-black": {
+     "slug": "qs-watch-s11--aluminum-jet-black",
+     "hex": "#353739"
+    },
+    "aluminum-rose-gold": {
+     "slug": "qs-watch-s11--aluminum-rose-gold",
+     "hex": "#ece5e3"
+    },
+    "aluminum-silver": {
+     "slug": "qs-watch-s11--aluminum-silver",
+     "hex": "#e5ed8f"
+    },
+    "aluminum-space-gray": {
+     "slug": "qs-watch-s11--aluminum-space-gray",
+     "hex": "#5f6c78"
+    },
+    "titanium-gold": {
+     "slug": "qs-watch-s11--titanium-gold",
+     "hex": "#856e59"
+    },
+    "titanium-natural": {
+     "slug": "qs-watch-s11--titanium-natural",
+     "hex": "#726960"
+    },
+    "titanium-slate": {
+     "slug": "qs-watch-s11--titanium-slate",
+     "hex": "#413d3a"
+    }
+   },
+   "art": "qs-sheet-watch-s11-2025"
+  },
+  "watch-s5": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch Series 5",
+   "colours": {},
+   "art": "qs-sheet-watch-s5-2019"
+  },
+  "watch-s6": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch Series 6",
+   "colours": {
+    "aluminum-blue": {
+     "slug": "qs-watch-s6--aluminum-blue",
+     "hex": "#34486c"
+    }
+   },
+   "art": "qs-sheet-watch-s6-2020"
+  },
+  "watch-s7": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch Series 7",
+   "colours": {
+    "aluminum-green": {
+     "slug": "qs-watch-s7--aluminum-green",
+     "hex": "#574432"
+    }
+   },
+   "art": "qs-sheet-watch-s7-2021"
+  },
+  "watch-s8": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch Series 8",
+   "colours": {
+    "aluminum-midnight": {
+     "slug": "qs-watch-s8--aluminum-midnight",
+     "hex": "#37393f"
+    }
+   },
+   "art": "qs-sheet-watch-s8-2022"
+  },
+  "watch-s9": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch Series 9",
+   "colours": {
+    "aluminum-midnight": {
+     "slug": "qs-watch-s9--aluminum-midnight",
+     "hex": "#50637f"
+    }
+   },
+   "art": "qs-sheet-watch-s9-2023"
+  },
+  "watch-se": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch SE",
+   "colours": {
+    "aluminum-brush-gold": {
+     "slug": "qs-watch-se--aluminum-brush-gold",
+     "hex": "#d8cdc5"
+    }
+   },
+   "art": "qs-sheet-watch-se-2020"
+  },
+  "watch-se2": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch SE 2",
+   "colours": {
+    "aluminum-midnight": {
+     "slug": "qs-watch-se2--aluminum-midnight",
+     "hex": "#3f4348"
+    },
+    "aluminum-silver": {
+     "slug": "qs-watch-se2--aluminum-silver",
+     "hex": "#cbdbd1"
+    },
+    "aluminum-starlight": {
+     "slug": "qs-watch-se2--aluminum-starlight",
+     "hex": "#e5ded5"
+    }
+   },
+   "art": "qs-sheet-watch-se2-2022"
+  },
+  "watch-se3": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch SE 3",
+   "colours": {
+    "aluminum-midnight": {
+     "slug": "qs-watch-se3--aluminum-midnight",
+     "hex": "#3f434a"
+    },
+    "aluminum-starlight": {
+     "slug": "qs-watch-se3--aluminum-starlight",
+     "hex": "#e6ded6"
+    }
+   },
+   "art": "qs-sheet-watch-se3-2025"
+  },
+  "watch-ultra": {
+   "line": "watch",
+   "family": "WATCH ULTRA",
+   "name": "Apple Watch Ultra",
+   "colours": {
+    "titanium-natural": {
+     "slug": "qs-watch-ultra--titanium-natural",
+     "hex": "#dc6a3b"
+    }
+   },
+   "art": "qs-sheet-watch-ultra-2022"
+  },
+  "watch-ultra2": {
+   "line": "watch",
+   "family": "WATCH ULTRA",
+   "name": "Apple Watch Ultra 2",
+   "colours": {
+    "titanium-black": {
+     "slug": "qs-watch-ultra2--titanium-black",
+     "hex": "#423f3e"
+    },
+    "titanium-natural": {
+     "slug": "qs-watch-ultra2--titanium-natural",
+     "hex": "#8d857c"
+    }
+   },
+   "art": "qs-sheet-watch-ultra2-2023"
+  },
+  "watch-ultra3": {
+   "line": "watch",
+   "family": "WATCH ULTRA",
+   "name": "Apple Watch Ultra 3",
+   "colours": {
+    "titanium-black": {
+     "slug": "qs-watch-ultra3--titanium-black",
+     "hex": "#363938"
+    },
+    "titanium-natural": {
+     "slug": "qs-watch-ultra3--titanium-natural",
+     "hex": "#c0eab2"
+    }
+   },
+   "art": "qs-sheet-watch-ultra3-2025"
+  }
+ }
+}

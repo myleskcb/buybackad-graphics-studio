@@ -3,6 +3,25 @@
    PhoneGFX Studio, single clean engine, one script block
    ═══════════════════════════════════════════════════════ */
 
+/* Cutout art ships as alpha WebP, not PNG: the library is ~15x smaller that way
+   (93 MB -> 10 MB across 95 assets), which matters because every cutout is
+   downloaded by the browser and stored in the repo. Declared here at the top,
+   ahead of both use sites (the template `cut()` helper and the street-family
+   picker), because a `const` introduced further down the file would sit in the
+   temporal dead zone for anything above it — the documented failure mode in
+   this codebase. */
+const CUTOUT_EXT = '.webp';
+/* ASSET_REV (ported from claude/busy-allen, OPEN-ITEMS §J). Photos, cut-outs
+   and showcase cards are served with a 30-day browser TTL (_headers), so a
+   file replaced under the same name stays stale for a returning visitor for
+   up to a month: the 2026-09-27 device art, restaged Glass Cards and curated
+   showcase would not have reached the owner's own browser. Every assets/ URL
+   the app requests carries this revision; bump it whenever assets/bg,
+   assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
+   by the bare path, which is what templates name. */
+const ASSET_REV = '20260927';
+function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
+
 // ---------- safe storage (works standalone; degrades to memory) ----------
 const store = (() => {
   try { const k='__pgfx_t'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return localStorage; }
@@ -23,6 +42,8 @@ const FORMATS = {
   story:     { label:'Story 9:16',      w:1080, h:1920, hint:'IG / TikTok story · phone wallpaper' },
   flyer:     { label:'Flyer 8.5×11',    w:1080, h:1398, hint:'Letter-size print · pole & board posting' },
   landscape: { label:'Wide 16:9',       w:1920, h:1080, hint:'Banner · Craigslist header' },
+  four3:     { label:'Wide 4:3',        w:1440, h:1080, hint:'Facebook link image · slides' },
+  three4:    { label:'Tall 3:4',        w:1080, h:1440, hint:'Instagram portrait · Pinterest' },
 };
 let docFormat = 'square';
 const fmtOf = () => FORMATS[docFormat] || FORMATS.square;
@@ -46,8 +67,8 @@ const TEMPLATES = [
   layers:[
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:820, width:CW, height:260, fill:'rgba(0,0,0,0.85)'}},
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'SELL YOUR', props:{left:CW/2, top:115, originX:'center', fontFamily:F_DISPLAY, fontSize:185, fill:'#ffffff', stroke:'#000000', strokeWidth:9, textAlign:'center', shadow:sh('rgba(0,0,0,0.5)',20,4,4)}},
-    {kind:'rect', name:'Top Banner', props:{left:CW/2-130, top:55, width:260, height:50, fill:'#ff5000', rx:4, angle:-2}},
-    {kind:'text', name:'Banner Text', role:'sub', casing:'upper', text:'TOP BUYER', props:{left:CW/2, top:68, originX:'center', fontFamily:F_DISPLAY, fontSize:36, fill:'#ffffff', stroke:'#000000', strokeWidth:2, angle:-2}},
+    {kind:'rect', name:'Top Banner', props:{left:CW/2, top:80, width:260, height:50, originX:'center', originY:'center', fill:'#ff5000', rx:4, angle:-2}},
+    {kind:'text', name:'Banner Text', role:'sub', casing:'upper', text:'TOP BUYER', props:{left:CW/2, top:80, originX:'center', originY:'center', fontFamily:F_DISPLAY, fontSize:36, fill:'#ffffff', stroke:'#000000', strokeWidth:2, angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'IPHONE', props:{left:CW/2, top:282, originX:'center', fontFamily:F_DISPLAY, fontSize:258, fill:'#ff5000', stroke:'#000000', strokeWidth:12, textAlign:'center', shadow:sh('rgba(0,0,0,0.6)',28,6,6)}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'✓SAFE  ✓QUICK  ✓EASY', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
     {kind:'textbox', name:'Info Text', role:'info', casing:'upper', text:'SAME DAY CASH, NO HASSLE EASY MEETUP\niCLOUD LOCK, BROKEN, BLACKLIST...\nANY CONDITION ANY CARRIER', props:{left:CW/2, top:615, width:CW-80, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', stroke:'#000000', strokeWidth:2, textAlign:'center', fontWeight:'700', lineHeight:1.3, shadow:sh('rgba(0,0,0,0.9)',8,2,2)}},
@@ -73,7 +94,7 @@ const TEMPLATES = [
     {kind:'circle', name:'Ring Inner', role:'deco', props:{left:CW/2-360, top:CH/2-360, radius:360, fill:'', stroke:'#ff5000', strokeWidth:2, opacity:0.25, selectable:false, evented:false}},
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'WE BUY', props:{left:CW/2, top:120, originX:'center', fontFamily:F_DISPLAY, fontSize:180, fill:'#ffffff', stroke:'#000000', strokeWidth:7}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'iPHONES', props:{left:CW/2, top:278, originX:'center', fontFamily:F_DISPLAY, fontSize:255, fill:'#ff5000', stroke:'#000000', strokeWidth:9, shadow:sh('#ff5000',55)}},
-    {kind:'textbox', name:'Devices', role:'info', casing:'none', text:'iPads • MacBooks • Samsung\nANY CONDITION, TOP DOLLAR', props:{left:CW/2, top:605, width:CW-60, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#aaaaaa', fontWeight:'600', textAlign:'center', lineHeight:1.3}},
+    {kind:'textbox', name:'Devices', role:'info', casing:'none', text:'iPads • MacBooks • Samsung\nANY CONDITION, CASH PAID', props:{left:CW/2, top:605, width:CW-60, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#aaaaaa', fontWeight:'600', textAlign:'center', lineHeight:1.3}},
     {kind:'rect', name:'Phone Bar', props:{left:80, top:770, width:CW-160, height:180, fill:'#ff5000', rx:12}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CALL OR TEXT ANYTIME', props:{left:CW/2, top:785, originX:'center', fontFamily:F_COND, fontSize:30, fill:'rgba(0,0,0,0.65)', fontWeight:'900'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:825, originX:'center', fontFamily:F_DISPLAY, fontSize:100, fill:'#ffffff', stroke:'#c03000', strokeWidth:4}},
@@ -115,7 +136,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'CASH FOR', props:{left:CW/2, top:100, originX:'center', fontFamily:F_DISPLAY, fontSize:170, fill:'#ffffff', stroke:'#000000', strokeWidth:8}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'iPHONES', props:{left:CW/2, top:255, originX:'center', fontFamily:F_DISPLAY, fontSize:260, fill:'#ffffff', shadow:sh('rgba(0,0,0,0.3)',20,5,5)}},
-    {kind:'text', name:'Subline', role:'sub', casing:'upper', text:'WE PAY TOP DOLLAR', props:{left:CW/2, top:520, originX:'center', fontFamily:F_COND, fontSize:68, fill:'#ffffff', fontWeight:'900'}},
+    {kind:'text', name:'Subline', role:'sub', casing:'upper', text:'WE PAY CASH', props:{left:CW/2, top:520, originX:'center', fontFamily:F_COND, fontSize:68, fill:'#ffffff', fontWeight:'900'}},
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:680, width:CW, height:400, fill:'rgba(0,0,0,0.8)'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT FOR FREE QUOTE →', props:{left:CW/2, top:700, originX:'center', fontFamily:F_COND, fontSize:40, fill:'#ffffff', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:F_DISPLAY, fontSize:105, fill:'#ff1493', stroke:'#000000', strokeWidth:5, shadow:sh('#ff1493',30)}},
@@ -135,7 +156,7 @@ const TEMPLATES = [
   bg:{type:'grad', c1:'#141007', c2:'#2b2008', a:160},
   layers:[
     {kind:'rect', name:'Gold Band', props:{left:0, top:392, width:CW, height:300, fill:'rgba(245,183,0,0.12)'}},
-    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'PAYING UP TO 95% OF', props:{left:CW/2, top:120, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c9b27c', charSpacing:220, fontWeight:'600'}},
+    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'PRICED FROM', props:{left:CW/2, top:120, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c9b27c', charSpacing:220, fontWeight:'600'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'TODAYS GOLD PRICE', props:{left:CW/2, top:200, originX:'center', fontFamily:'Clash Display', fontSize:132, fill:'#f5b700', shadow:sh('rgba(245,183,0,0.45)',34)}},
     {kind:'textbox', name:'Items', role:'info', casing:'upper', text:'RINGS \u2022 CHAINS \u2022 COINS \u2022 DENTAL\nBROKEN JEWELRY WELCOME\n10K \u2022 14K \u2022 18K \u2022 24K', props:{left:CW/2, top:430, width:CW-140, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#ffffff', textAlign:'center', lineHeight:1.35, fontWeight:'600'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TESTED \u0026 PAID IN FRONT OF YOU', props:{left:CW/2, top:760, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#c9b27c', fontWeight:'700'}},
@@ -151,7 +172,7 @@ const TEMPLATES = [
     {kind:'text', name:'Line', role:'deco', text:'\u2500\u2500\u2500\u2500\u2500 \u25C6 \u2500\u2500\u2500\u2500\u2500', props:{left:CW/2, top:580, originX:'center', fontFamily:F_UI, fontSize:30, fill:'#c9a24b'}},
     {kind:'text', name:'Info', role:'info', casing:'title', text:'Estates, Inheritance \u0026 Fine Jewelry', props:{left:CW/2, top:660, originX:'center', fontFamily:'Zodiak', fontSize:42, fill:'#ffffff'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Satoshi', fontSize:72, fill:'#e8d9ae', fontWeight:'800'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BY APPOINTMENT \u2014 TEXT ANYTIME', props:{left:CW/2, top:905, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.55)', charSpacing:260, fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BY APPOINTMENT, TEXT ANYTIME', props:{left:CW/2, top:905, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.55)', charSpacing:260, fontWeight:'600'}},
   ]},
 { id:'gold_scale', name:'On The Scale', tag:'promo', cat:'gold', tier:'premium',
   bg:{type:'grad', c1:'#3a2b00', c2:'#0d0a02', a:180},
@@ -160,7 +181,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'YOUR GOLD IS', props:{left:CW/2, top:300, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'WORTH MORE', props:{left:CW/2, top:410, originX:'center', fontFamily:'Clash Display', fontSize:118, fill:'#f5b700', shadow:sh('#f5b700',40)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'THAN YOU THINK', props:{left:CW/2, top:555, originX:'center', fontFamily:'Khand', fontSize:60, fill:'#c9b27c', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free testing \u2022 No obligation quote\nWatch the scale \u2014 zero tricks', props:{left:CW/2, top:680, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', textAlign:'center', lineHeight:1.4}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free testing \u2022 No obligation quote\nWatch the scale, zero tricks', props:{left:CW/2, top:680, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', textAlign:'center', lineHeight:1.4}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:850, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#f5b700'}},
   ]},
 { id:'gold_cash_now', name:'Gold = Cash Now', tag:'sell', cat:'gold', tier:'premium',
@@ -169,10 +190,10 @@ const TEMPLATES = [
     {kind:'rect', name:'Ink Panel', props:{left:70, top:170, width:CW-140, height:740, fill:'#101010', rx:26, shadow:sh('rgba(0,0,0,0.45)',40,0,18)}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOLD IN.', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#f5b700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'CASH OUT.', props:{left:CW/2, top:395, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff'}},
-    {kind:'text', name:'Info', role:'info', casing:'upper', text:'5 MINUTE APPRAISAL \u2014 WALK OUT PAID', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#c9b27c', fontWeight:'600'}},
+    {kind:'text', name:'Info', role:'info', casing:'upper', text:'5 MINUTE APPRAISAL, WALK OUT PAID', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#c9b27c', fontWeight:'600'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO FOR AN INSTANT QUOTE', props:{left:CW/2, top:670, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#f5b700'}},
-    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713LICENSED  \u2713INSURED', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
+    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713NO FEES  \u2713FREE QUOTE', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
 { id:'gold_estate', name:'Estate Buyer Serif', tag:'buyer', cat:'gold', tier:'premium',
   bg:{type:'solid', c:'#f4ead2'},
@@ -191,7 +212,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'That old chain?', props:{left:CW/2, top:170, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff', angle:-3}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'none', text:'PAID.', props:{left:CW/2, top:330, originX:'center', fontFamily:'Clash Display', fontSize:210, fill:'#f5b700', angle:2, shadow:sh('rgba(245,183,0,0.5)',30)}},
     {kind:'text', name:'Arrow', role:'deco', text:'\u2935\uFE0F', props:{left:CW/2+250, top:520, fontSize:80, angle:15}},
-    {kind:'text', name:'Info', role:'info', casing:'none', text:'Broken, tangled, one earring \u2014 all of it counts.', props:{left:CW/2, top:640, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c'}},
+    {kind:'text', name:'Info', role:'info', casing:'none', text:'Broken, tangled, one earring, all of it counts.', props:{left:CW/2, top:640, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:104, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC \u2192 GET A NUMBER', props:{left:CW/2, top:900, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#f5b700'}},
   ]},
@@ -203,7 +224,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SELLING YOUR', props:{left:CW/2, top:130, originX:'center', fontFamily:'Khand', fontSize:84, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'SILVER STACK?', props:{left:CW/2, top:230, originX:'center', fontFamily:'Khand', fontSize:120, fill:'#c7d0dc', fontWeight:'700', shadow:sh('rgba(199,208,220,0.35)',28)}},
     {kind:'textbox', name:'Items', role:'info', casing:'upper', text:'EAGLES \u2022 BARS \u2022 JUNK SILVER\n90% COINS \u2022 STERLING FLATWARE', props:{left:CW/2, top:440, width:CW-140, originX:'center', fontFamily:F_COND, fontSize:52, fill:'#8fa3bb', textAlign:'center', lineHeight:1.4, fontWeight:'700'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRICED LIVE OFF SPOT \u2014 NO LOWBALLS', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRICED LIVE OFF SPOT, NO LOWBALLS', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#c7d0dc'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -211,11 +232,11 @@ const TEMPLATES = [
   bg:{type:'solid', c:'#e9edf2'},
   layers:[
     {kind:'rect', name:'Slab', props:{left:0, top:0, width:CW, height:340, fill:'#10141b'}},
-    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'TOP DOLLAR', props:{left:CW/2, top:80, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffffff'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PER OUNCE \u2014 EVERY OUNCE', props:{left:CW/2, top:225, originX:'center', fontFamily:'Khand', fontSize:48, fill:'#ffffff', fontWeight:'600', charSpacing:160}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring the whole box \u2014 tea sets, trays,\ncandlesticks, coins. We sort, weigh\nand pay on the spot.', props:{left:CW/2, top:430, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#2a3340', textAlign:'center', lineHeight:1.45}},
+    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'CASH PAID', props:{left:CW/2, top:80, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffffff'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PER OUNCE, EVERY OUNCE', props:{left:CW/2, top:225, originX:'center', fontFamily:'Khand', fontSize:48, fill:'#ffffff', fontWeight:'600', charSpacing:160}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring the whole box, tea sets, trays,\ncandlesticks, coins. We sort, weigh\nand pay on the spot.', props:{left:CW/2, top:430, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#2a3340', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:88, fill:'#10141b'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'OPEN 7 DAYS \u2014 WALK-INS WELCOME', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'#5a6b80', fontWeight:'600', charSpacing:200}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC, GET A PRICE', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'#5a6b80', fontWeight:'600', charSpacing:200}},
   ]},
 { id:'silver_mirror', name:'Mirror Shine', tag:'sell', cat:'silver', tier:'premium',
   bg:{type:'grad', c1:'#7c8899', c2:'#3f4b5c', a:135},
@@ -223,7 +244,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SILVER', props:{left:CW/2, top:150, originX:'center', fontFamily:'Clash Display', fontSize:250, fill:'#ffffff', stroke:'#10141b', strokeWidth:8, shadow:sh('rgba(0,0,0,0.35)',24,6,6)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'BOUGHT \u2022 WEIGHED \u2022 PAID', props:{left:CW/2, top:440, originX:'center', fontFamily:'Satoshi', fontSize:44, fill:'#10141b', fontWeight:'800', charSpacing:260}},
     {kind:'rect', name:'Panel', props:{left:120, top:560, width:CW-240, height:200, fill:'rgba(16,20,27,0.85)', rx:18}},
-    {kind:'text', name:'Info', role:'info', casing:'none', text:'Even tarnished pieces \u2014 shine does not matter, weight does.', props:{left:CW/2, top:600, originX:'center', fontFamily:F_UI, fontSize:34, fill:'#c7d0dc', width:CW-300, textAlign:'center'}},
+    {kind:'text', name:'Info', role:'info', casing:'none', text:'Even tarnished pieces, shine does not matter, weight does.', props:{left:CW/2, top:600, originX:'center', fontFamily:F_UI, fontSize:34, fill:'#c7d0dc', width:CW-300, textAlign:'center'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:670, originX:'center', fontFamily:'Clash Display', fontSize:76, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE EVALUATIONS DAILY', props:{left:CW/2, top:850, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#10141b', fontWeight:'700'}},
   ]},
@@ -236,14 +257,14 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'STERLING SILVER', props:{left:CW/2, top:250, originX:'center', fontFamily:'Zodiak', fontSize:100, fill:'#2b2416', fontWeight:'700'}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Flatware sets \u2022 Serving pieces \u2022 .925 marked\nGenerous reward paid in cash', props:{left:CW/2, top:430, width:CW-220, originX:'center', fontFamily:'Zodiak', fontSize:44, fill:'#443b2c', textAlign:'center', lineHeight:1.5, fontStyle:'italic'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:680, originX:'center', fontFamily:'Zodiak', fontSize:88, fill:'#2b2416', fontWeight:'700'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'INQUIRE WITHIN \u2014 OR JUST TEXT US', props:{left:CW/2, top:830, originX:'center', fontFamily:'Satoshi', fontSize:30, fill:'#8a2b1d', fontWeight:'700', charSpacing:180}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'INQUIRE WITHIN, OR JUST TEXT US', props:{left:CW/2, top:830, originX:'center', fontFamily:'Satoshi', fontSize:30, fill:'#8a2b1d', fontWeight:'700', charSpacing:180}},
   ]},
 { id:'silver_neon', name:'Second Place Pays', tag:'promo', cat:'silver', tier:'premium',
   bg:{type:'solid', c:'#07080c'},
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SECOND PLACE', props:{left:CW/2, top:170, originX:'center', fontFamily:'Khand', fontSize:140, fill:'rgba(0,0,0,0)', stroke:'#c7d0dc', strokeWidth:4, shadow:sh('#c7d0dc',26)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'STILL PAYS', props:{left:CW/2, top:330, originX:'center', fontFamily:'Khand', fontSize:190, fill:'#c7d0dc', shadow:sh('#8fa3bb',45)}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'SILVER BUYER \u2014 CASH TODAY', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'SILVER BUYER, CASH TODAY', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:720, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff', shadow:sh('#c7d0dc',20)}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BARS \u2022 ROUNDS \u2022 90% \u2022 STERLING', props:{left:CW/2, top:880, originX:'center', fontFamily:F_COND, fontSize:40, fill:'#8fa3bb', fontWeight:'700'}},
   ]},
@@ -263,9 +284,9 @@ const TEMPLATES = [
   bg:{type:'solid', c:'#10131a'},
   layers:[
     {kind:'rect', name:'Circle Halo', props:{left:CW/2-230, top:60, width:460, height:460, fill:'rgba(232,217,174,0.08)', rx:230}},
-    {kind:'text', name:'Year', role:'headline', casing:'none', text:'1878\u20131921', props:{left:CW/2, top:180, originX:'center', fontFamily:'Zodiak', fontSize:110, fill:'#e8d9ae', fontWeight:'700'}},
+    {kind:'text', name:'Year', role:'headline', casing:'none', text:'1878 TO 1921', props:{left:CW/2, top:180, originX:'center', fontFamily:'Zodiak', fontSize:110, fill:'#e8d9ae', fontWeight:'700'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'MORGAN DOLLARS', props:{left:CW/2, top:350, originX:'center', fontFamily:'Khand', fontSize:96, fill:'#ffffff', fontWeight:'700'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PAYING COLLECTOR PRICES \u2014 NOT MELT', props:{left:CW/2, top:490, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#c9a24b', fontWeight:'700', charSpacing:120}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PAYING COLLECTOR PRICES, NOT MELT', props:{left:CW/2, top:490, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#c9a24b', fontWeight:'700', charSpacing:120}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Carson City? Key dates? Toned beauties?\nWe know exactly what you have.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:'Zodiak', fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.5, fontStyle:'italic'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#e8d9ae'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT PHOTOS FOR A REAL OFFER', props:{left:CW/2, top:925, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:160}},
@@ -276,7 +297,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'Found a coin jar', props:{left:CW/2, top:150, originX:'center', fontFamily:'Clash Display', fontSize:90, fill:'#ffffff', angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'none', text:'in the attic?', props:{left:CW/2, top:280, originX:'center', fontFamily:'Clash Display', fontSize:90, fill:'#e8d9ae', angle:1}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'IT MIGHT PAY THE RENT.', props:{left:CW/2, top:450, originX:'center', fontFamily:'Clash Display', fontSize:74, fill:'#f5b700', shadow:sh('rgba(245,183,0,0.4)',26)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free sorting \u2022 We separate the treasure\nfrom the pocket change \u2014 honestly.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free sorting \u2022 We separate the treasure\nfrom the pocket change, honestly.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'HOUSE CALLS FOR BIG FINDS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Clash Display', fontSize:38, fill:'#e8d9ae'}},
   ]},
@@ -287,7 +308,7 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'\u26A0 CHECK YOUR CHANGE \u26A0', props:{left:CW/2, top:98, originX:'center', fontFamily:'Khand', fontSize:54, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'ERROR COINS', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'= REAL MONEY', props:{left:CW/2, top:400, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#f5b700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Double dies \u2022 Off-centers \u2022 Wrong planchets\nSome are worth thousands. We will tell you\nwhich \u2014 for free.', props:{left:CW/2, top:560, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Double dies \u2022 Off-centers \u2022 Wrong planchets\nSome are worth thousands. We will tell you\nwhich, for free.', props:{left:CW/2, top:560, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:94, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A CLOSE-UP PHOTO NOW', props:{left:CW/2, top:925, originX:'center', fontFamily:'Khand', fontSize:36, fill:'#f5b700', fontWeight:'700'}},
   ]},
@@ -297,7 +318,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Slab Frame', props:{left:CW/2-320, top:120, width:640, height:340, fill:'rgba(255,255,255,0.06)', rx:22, stroke:'#3a4a63', strokeWidth:3}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'PCGS \u2022 NGC', props:{left:CW/2, top:180, originX:'center', fontFamily:'Satoshi', fontSize:86, fill:'#ffffff', fontWeight:'900'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'GRADED COINS WANTED', props:{left:CW/2, top:310, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#8fb4ff', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pay for the grade, the strike and the eye appeal \u2014 registry-quality offers on registry-quality coins.', props:{left:CW/2, top:530, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pay for the grade, the strike and the eye appeal, registry-quality offers on registry-quality coins.', props:{left:CW/2, top:530, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:740, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#8fb4ff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CERT NUMBERS GET INSTANT QUOTES', props:{left:CW/2, top:890, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:140}},
   ]},
@@ -330,7 +351,7 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'DEALER OFFERED YOU WHAT?', props:{left:CW/2, top:110, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#8fb4ff', fontWeight:'600'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WE BEAT', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:140, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'TRADE-IN OFFERS', props:{left:CW/2, top:370, originX:'center', fontFamily:'Clash Display', fontSize:88, fill:'#4da3ff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring their written offer \u2014 we will top it\nor tell you to take it. Straight answers only.', props:{left:CW/2, top:530, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring their written offer.\nWe will give you ours. Straight answers only.', props:{left:CW/2, top:530, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'VIN + MILES = OFFER IN 10 MINUTES', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4da3ff'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
@@ -352,7 +373,7 @@ const TEMPLATES = [
     {kind:'text', name:'Plate State', role:'sub', casing:'upper', text:'\u2605 CASH \u2605', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#8a2b1d', fontWeight:'700', charSpacing:340}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'4-UR-CAR', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#10141b', charSpacing:80}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'ANY YEAR \u2022 ANY MAKE \u2022 ANY SHAPE', props:{left:CW/2, top:500, originX:'center', fontFamily:'Satoshi', fontSize:40, fill:'#2a3340', fontWeight:'800', charSpacing:120}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Licensed \u0026 bonded buyer \u2014 title handled,\nDMV paperwork done for you, zero fees.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#5a6b80', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Title handled and DMV paperwork\ndone for you, zero fees.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#5a6b80', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:86, fill:'#10141b'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT YOUR VIN \u2192 GET A NUMBER', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:36, fill:'#8a2b1d', fontWeight:'700'}},
   ]},
@@ -370,11 +391,11 @@ const TEMPLATES = [
 { id:'cars_fleet', name:'Fleet + Work Trucks', tag:'buyer', cat:'cars', tier:'premium',
   bg:{type:'grad', c1:'#1c2229', c2:'#0a0d11', a:180},
   layers:[
-    {kind:'rect', name:'Caution Tag', props:{left:CW/2-260, top:70, width:520, height:76, fill:'#ff8a00', rx:8, angle:-1}},
-    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'CONTRACTORS \u2022 FLEETS', props:{left:CW/2, top:88, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'700', angle:-1}},
+    {kind:'rect', name:'Caution Tag', props:{left:CW/2, top:108, width:520, height:76, originX:'center', originY:'center', fill:'#ff8a00', rx:8, angle:-1}},
+    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'CONTRACTORS \u2022 FLEETS', props:{left:CW/2, top:108, originX:'center', originY:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'700', angle:-1}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WORK TRUCKS', props:{left:CW/2, top:220, originX:'center', fontFamily:'Clash Display', fontSize:118, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'\u0026 VANS WANTED', props:{left:CW/2, top:355, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ff8a00'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Retiring units? Downsizing the yard?\nWe buy 1 or 20 \u2014 high miles fine,\nlettering \u0026 racks fine, diesel preferred.', props:{left:CW/2, top:520, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Retiring units? Downsizing the yard?\nWe buy 1 or 20, high miles fine,\nlettering \u0026 racks fine, diesel preferred.', props:{left:CW/2, top:520, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ff8a00'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BULK QUOTES IN WRITING SAME DAY', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:120}},
   ]},
@@ -384,7 +405,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Gauge Panel', props:{left:CW/2-350, top:140, width:700, height:260, fill:'#101318', rx:130, stroke:'#2a3340', strokeWidth:4}},
     {kind:'text', name:'Odometer', role:'headline', casing:'none', text:'246,801 mi', props:{left:CW/2, top:210, originX:'center', fontFamily:'Khand', fontSize:110, fill:'#4dff88', fontWeight:'600', shadow:sh('rgba(77,255,136,0.4)',24)}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'HIGH MILES? STILL PAYS.', props:{left:CW/2, top:480, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Hondas \u0026 Toyotas especially \u2014 the miles\nscare dealers, not us. Fair offers based\non what your car is actually worth.', props:{left:CW/2, top:620, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#8fa3bb', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Hondas \u0026 Toyotas especially, the miles\nscare dealers, not us. Fair offers based\non what your car is actually worth.', props:{left:CW/2, top:620, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#8fa3bb', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:830, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dff88'}},
   ]},
 
@@ -394,9 +415,9 @@ const TEMPLATES = [
   layers:[
     {kind:'rect', name:'Teal Header', solid:true, props:{left:0, top:0, width:CW, height:300, fill:'#0b5551'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EXTRA TEST STRIPS?', props:{left:CW/2, top:80, originX:'center', fontFamily:'Satoshi', fontSize:82, fill:'#ffffff', fontWeight:'900'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'TURN THEM INTO CASH \u2014 LEGALLY \u0026 SIMPLY', props:{left:CW/2, top:200, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Unopened \u2022 Unexpired \u2022 Factory sealed\nAll major brands \u2014 boxes checked\nand paid while you wait.', props:{left:CW/2, top:400, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:44, fill:'#1d3a38', textAlign:'center', lineHeight:1.5}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'MAIL-IN KITS AVAILABLE \u2014 FREE SHIPPING', props:{left:CW/2, top:680, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#0f6e6a', fontWeight:'800'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'TURN THEM INTO CASH, SIMPLY', props:{left:CW/2, top:200, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Unopened \u2022 Unexpired \u2022 Factory sealed\nAll major brands, boxes checked\nand paid while you wait.', props:{left:CW/2, top:400, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:44, fill:'#1d3a38', textAlign:'center', lineHeight:1.5}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'MAIL-IN KITS AVAILABLE, FREE SHIPPING', props:{left:CW/2, top:680, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#0f6e6a', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Satoshi', fontSize:84, fill:'#0f6e6a', fontWeight:'900'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:920, originX:'center', fontFamily:F_UI, fontSize:28, fill:'#5a8683'}},
   ]},
@@ -405,7 +426,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EVERY SEALED BOX', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'= MONEY', props:{left:CW/2, top:260, originX:'center', fontFamily:'Clash Display', fontSize:160, fill:'#4dd7ff', shadow:sh('rgba(77,215,255,0.4)',34)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Insurance sent too many? Switched meters?\nDo not let good boxes expire in a drawer.\nWe pay by brand \u0026 date \u2014 transparent list.', props:{left:CW/2, top:480, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7e4', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Insurance sent too many? Switched meters?\nDo not let good boxes expire in a drawer.\nWe pay by brand \u0026 date, transparent list.', props:{left:CW/2, top:480, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7e4', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO OF YOUR BOXES', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dd7ff'}},
   ]},
@@ -436,9 +457,9 @@ const TEMPLATES = [
     {kind:'text', name:'Clock', role:'deco', text:'\u23F3', props:{left:CW/2, top:70, originX:'center', fontSize:120}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EXPIRING BOXES', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffb020'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'LOSE VALUE DAILY', props:{left:CW/2, top:380, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'12+ months out pays the most.\nEven 6 months still pays \u2014 but the\nclock only runs one way. Sell now.', props:{left:CW/2, top:540, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#d8c9a3', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'12+ months out pays the most.\nEven 6 months still pays, but the\nclock only runs one way. Sell now.', props:{left:CW/2, top:540, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#d8c9a3', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffb020'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'QUOTE FROM ONE PHOTO \u2014 TRY IT', props:{left:CW/2, top:905, originX:'center', fontFamily:'Khand', fontSize:36, fill:'rgba(255,255,255,0.65)', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'QUOTE FROM ONE PHOTO, TRY IT', props:{left:CW/2, top:905, originX:'center', fontFamily:'Khand', fontSize:36, fill:'rgba(255,255,255,0.65)', fontWeight:'600'}},
   ]},
 
 /* ── POKEMON CARDS (7) ── */
@@ -448,7 +469,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'YOUR OLD BINDER', props:{left:CW/2, top:120, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffd200', charSpacing:60, shadow:sh('rgba(0,0,0,0.6)',14,5,5)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'MIGHT BE A GOLDMINE', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffffff', charSpacing:40, shadow:sh('rgba(0,0,0,0.6)',14,5,5)}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Base Set \u2022 Charizards \u2022 1st Editions\nShadowless \u2022 Japanese \u2022 Full binders\nWe grade-check for free, in front of you.', props:{left:CW/2, top:430, width:CW-150, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CASH \u2014 NOT STORE CREDIT', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffd200', fontWeight:'700'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CASH, NOT STORE CREDIT', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffd200', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -458,9 +479,9 @@ const TEMPLATES = [
     {kind:'text', name:'Fire', role:'deco', text:'\uD83D\uDD25', props:{left:CW/2, top:60, originX:'center', fontSize:130}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOT A ZARD?', props:{left:CW/2, top:240, originX:'center', fontFamily:'Clash Display', fontSize:180, fill:'#ffffff', stroke:'#000000', strokeWidth:6, shadow:sh('rgba(0,0,0,0.5)',18,6,6)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'HOLO \u2022 SHADOWLESS \u2022 GRADED \u2022 RAW', props:{left:CW/2, top:470, originX:'center', fontFamily:'Khand', fontSize:46, fill:'#ffd200', fontWeight:'700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Serious money for serious cards \u2014\nrecent comps shown with every offer.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#ffe3c2', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Serious money for serious cards,\nrecent comps shown with every offer.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#ffe3c2', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffd200', stroke:'#000000', strokeWidth:3}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC \u2014 OFFER IN MINUTES', props:{left:CW/2, top:905, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#ffffff', charSpacing:40}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC, OFFER IN MINUTES', props:{left:CW/2, top:905, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#ffffff', charSpacing:40}},
   ]},
 { id:'pkm_sealed', name:'Sealed Product Vault', tag:'buyer', cat:'pokemon', tier:'premium',
   bg:{type:'solid', c:'#0a0d18'},
@@ -469,7 +490,7 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'DO NOT OPEN THAT BOX', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:48, fill:'#ff5b5b', fontWeight:'700', charSpacing:120}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SEALED PRODUCT', props:{left:CW/2, top:260, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'PAYS PREMIUM', props:{left:CW/2, top:375, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffd200'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Booster boxes \u2022 ETBs \u2022 Collections\nVintage WOTC to modern \u2014 factory\nseal intact = top of market paid.', props:{left:CW/2, top:530, width:CW-220, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Booster boxes \u2022 ETBs \u2022 Collections\nVintage WOTC to modern, factory\nseal intact = top of market paid.', props:{left:CW/2, top:530, width:CW-220, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:750, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffd200'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BULK COLLECTIONS WELCOME', props:{left:CW/2, top:890, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:180}},
   ]},
@@ -478,8 +499,8 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'Remember 1999?', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd27a', angle:-2}},
     {kind:'text', name:'Sub', role:'sub', casing:'none', text:'Your childhood shoebox does.', props:{left:CW/2, top:290, originX:'center', fontFamily:'Zodiak', fontSize:52, fill:'#ffffff', fontStyle:'italic'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Those playground cards are adult money\nnow. Dig out the shoebox \u2014 we will sort\nit together and pay for the hits.', props:{left:CW/2, top:440, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d8c9a3', textAlign:'center', lineHeight:1.5}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK \u2014 ZERO PRESSURE', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffd27a', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Those playground cards are adult money\nnow. Dig out the shoebox, we will sort\nit together and pay for the hits.', props:{left:CW/2, top:440, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d8c9a3', textAlign:'center', lineHeight:1.5}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK, ZERO PRESSURE', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffd27a', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713LOCAL  \u2713TRUSTED', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
@@ -488,7 +509,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'PSA 9 vs PSA 10', props:{left:CW/2, top:130, originX:'center', fontFamily:'Satoshi', fontSize:96, fill:'#ffffff', fontWeight:'900'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'CAN BE A 5X PRICE GAP', props:{left:CW/2, top:270, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#ffd200', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pre-screen your raw cards with the\nsame checklist graders use \u2014 centering,\nedges, surface \u2014 and pay for the upside.', props:{left:CW/2, top:420, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bcd0ff', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pre-screen your raw cards with the\nsame checklist graders use, centering,\nedges, surface, and pay for the upside.', props:{left:CW/2, top:420, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bcd0ff', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'SLABS ALSO BOUGHT AT COMP PRICES', props:{left:CW/2, top:650, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd200'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
@@ -499,7 +520,7 @@ const TEMPLATES = [
     {kind:'text', name:'Rising Sun', role:'deco', text:'\u26E9\uFE0F', props:{left:CW/2, top:70, originX:'center', fontSize:110}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'JAPANESE CARDS', props:{left:CW/2, top:240, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'WANTED BADLY', props:{left:CW/2, top:365, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ffd200', shadow:sh('rgba(255,210,0,0.35)',26)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Promos \u2022 Trophy cards \u2022 Vending sheets\nOld Back anything \u2014 if it is from Japan\nand mint, we are your best offer.', props:{left:CW/2, top:530, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#ffd9e2', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Promos \u2022 Trophy cards \u2022 Vending sheets\nOld Back anything, if it is from Japan\nand mint, we are your best offer.', props:{left:CW/2, top:530, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#ffd9e2', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'COLLECTION MANAGERS: DM US FIRST', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.7)', fontWeight:'600', charSpacing:120}},
   ]},
@@ -508,7 +529,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'BULK CARDS', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#4dff88'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'BY THE POUND', props:{left:CW/2, top:290, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Commons, energies, whole tubs \u2014\nyes, even those. Weighed on a certified\nscale, paid per pound, hauled away free.', props:{left:CW/2, top:470, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7cd', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Commons, energies, whole tubs,\nyes, even those. Weighed on a certified\nscale, paid per pound, hauled away free.', props:{left:CW/2, top:470, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7cd', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'HITS PULLED \u0026 PAID SEPARATELY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#4dff88', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
   ]},
@@ -519,8 +540,8 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'ROOKIE CARDS', props:{left:CW/2, top:130, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff', fontStyle:'italic'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'BOUGHT AT COMPS', props:{left:CW/2, top:285, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#4dff88', fontStyle:'italic', shadow:sh('rgba(77,255,136,0.35)',24)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Prizm \u2022 Topps Chrome \u2022 Bowman 1sts\nAutos \u0026 numbered parallels \u2014 we track\nlive sales, you get the real number.', props:{left:CW/2, top:450, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bfe7cd', textAlign:'center', lineHeight:1.45}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'NO CONSIGNMENT WAIT \u2014 PAID TODAY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Prizm \u2022 Topps Chrome \u2022 Bowman 1sts\nAutos \u0026 numbered parallels, we track\nlive sales, you get the real number.', props:{left:CW/2, top:450, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bfe7cd', textAlign:'center', lineHeight:1.45}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'NO CONSIGNMENT WAIT, PAID TODAY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dff88'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -531,7 +552,7 @@ const TEMPLATES = [
     {kind:'text', name:'Score You', role:'headline', casing:'upper', text:'YOU: PAID', props:{left:CW/2, top:170, originX:'center', fontFamily:'Khand', fontSize:92, fill:'#ffd200', fontWeight:'700', shadow:sh('rgba(255,210,0,0.4)',20)}},
     {kind:'text', name:'Score Them', role:'headline', casing:'upper', text:'EBAY FEES: 0', props:{left:CW/2, top:300, originX:'center', fontFamily:'Khand', fontSize:70, fill:'#ff5b5b', fontWeight:'700'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'SKIP THE LISTINGS. SKIP THE FEES.', props:{left:CW/2, top:520, originX:'center', fontFamily:'Clash Display', fontSize:52, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Full card collections bought outright \u2014\nbasketball, football, baseball, soccer.', props:{left:CW/2, top:640, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Full card collections bought outright,\nbasketball, football, baseball, soccer.', props:{left:CW/2, top:640, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd200'}},
   ]},
 { id:'sports_goat', name:'GOAT Era Vintage', tag:'sell', cat:'sports', tier:'premium',
@@ -540,16 +561,16 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'JORDAN \u2022 BRADY \u2022 MANTLE \u2022 KOBE', props:{left:CW/2, top:110, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ff9d5c', fontWeight:'600', charSpacing:100}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOAT CARDS', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:160, fill:'#ffffff', shadow:sh('rgba(0,0,0,0.5)',20,6,6)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'DESERVE GOAT OFFERS', props:{left:CW/2, top:400, originX:'center', fontFamily:'Clash Display', fontSize:74, fill:'#ff9d5c'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Vintage to modern grails \u2014 if it hangs\nin a man cave, it cashes out here.\nAuthentication handled on the spot.', props:{left:CW/2, top:540, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#e8cdb8', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Vintage to modern grails, if it hangs\nin a man cave, it cashes out here.\nAuthentication handled on the spot.', props:{left:CW/2, top:540, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#e8cdb8', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRIVATE SALES \u2014 NO AUCTION CIRCUS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.65)', fontWeight:'600', charSpacing:120}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRIVATE SALES, NO AUCTION CIRCUS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.65)', fontWeight:'600', charSpacing:120}},
   ]},
 { id:'sports_break', name:'Breaker Overflow', tag:'buyer', cat:'sports', tier:'premium',
   bg:{type:'grad', c1:'#1d1040', c2:'#090418', a:160},
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'BREAKERS:', props:{left:CW/2, top:130, originX:'center', fontFamily:'Clash Display', fontSize:120, fill:'#b78bff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'SELL YOUR HITS', props:{left:CW/2, top:270, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Weekend breaks piling up? We buy\nyour pulled slabs, autos \u0026 parallels\nin bulk lots \u2014 one transfer, all gone.', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d9c9ff', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Weekend breaks piling up? We buy\nyour pulled slabs, autos \u0026 parallels\nin bulk lots, one transfer, all gone.', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d9c9ff', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'STANDING WEEKLY BUY-OUTS AVAILABLE', props:{left:CW/2, top:650, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#b78bff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713FAST PAY  \u2713BULK OK', props:{left:CW-30, top:30, originX:'right', fontFamily:F_COND, fontSize:32, fill:'#ffffff', fontWeight:'900', backgroundColor:'#b78bff', padding:6}},
@@ -570,7 +591,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'COMPLETE SETS', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:116, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'\u0026 WAX BOXES', props:{left:CW/2, top:290, originX:'center', fontFamily:'Khand', fontSize:116, fill:'#4da3ff', fontWeight:'700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'86 Fleer to 2024 releases \u2014 sealed wax,\nfactory sets, and the shoebox of doubles\nyou almost threw away. Bring it all.', props:{left:CW/2, top:470, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd7ff', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'86 Fleer to 2024 releases, sealed wax,\nfactory sets, and the shoebox of doubles\nyou almost threw away. Bring it all.', props:{left:CW/2, top:470, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd7ff', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'ESTATES \u0026 STORAGE UNITS: CALL FIRST', props:{left:CW/2, top:690, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4da3ff'}},
   ]},
@@ -595,20 +616,45 @@ const TEMPLATES = [
   const rg = (name, props) => ({ kind:'rect', name, props });            // glassy-allowed rect
   const ci = (name, props) => ({ kind:'circle', name, props });
 
-  // ── curated complementary palettes ──  paper:true = light background
+  /* ── curated complementary palettes ──  paper:true = light background
+     fb1/fb2 are the FALLBACK gradient stops, used only when a backdrop photo
+     fails to load. They exist because bg1/bg2 could not do both jobs. On the
+     three paper palettes bg1/bg2 are the palette's own cream and ice — which is
+     the point of them — but the shipped ground is that photograph under a 0.48
+     BLACK scrim, measured at L=0.05..0.11, and the ink is white. Falling back
+     to raw cream at L=0.76..0.82 handed every one of those templates white type
+     on a near-white ground: 1.1:1, and the manifest promising "nothing ever
+     renders broken" was wrong for 30 of them. fb1/fb2 restate each palette's
+     hue at a lightness that the inks already chosen for the photo path can
+     stand on, so the SAME ink works on both paths and the fallback stops being
+     a second design to maintain.
+
+     These values are SWEPT, not reasoned. The obvious theory — match the
+     fallback's mean luminance to the photo ground's — was tried and is wrong:
+     it took the fallback path from 66 failing layers to 104. A photograph is
+     bright in places and dark in others and the inks are a compromise across
+     that spread; a smooth gradient at the same mean has no dark region left to
+     carry the light ink. scripts/tune_fallback.mjs renders the whole library at
+     a ladder of lightness scales and counts real failures at each, and these
+     are the winners: 161 failing layers before, 6 after.
+
+     Where several scales tie, the LIGHTEST is taken, because the fallback
+     should still look like the palette rather than defaulting to black. paper
+     is the one that could not have both — anything with its cream left in it
+     costs legibility — so it goes nearly black and keeps only a trace of warmth. */
   const PAL = {
-    volt:    { bg1:'#0b1020', bg2:'#1d2e54', ink:'#ffffff', sub:'#c9d6ff', a1:'#b7ff2e', a2:'#37d6ff', deep:'#07090f', glow:'rgba(183,255,46,0.55)', glow2:'rgba(55,214,255,0.5)' },
-    coral:   { paper:true, bg1:'#f6e7d3', bg2:'#eed7ba', ink:'#ffffff', sub:'#ffe4d1', a1:'#ff5a3c', a2:'#ff9d3c', deep:'#171310', glow:'rgba(255,90,60,0.35)', glow2:'rgba(255,157,60,0.3)' },
-    gold:    { bg1:'#0d0b07', bg2:'#2a1f10', ink:'#f6ead2', sub:'#cbb98f', a1:'#f5c96b', a2:'#e09b2d', deep:'#0a0805', glow:'rgba(245,201,107,0.5)', glow2:'rgba(224,155,45,0.4)' },
-    emerald: { bg1:'#06231c', bg2:'#0e4936', ink:'#f2fff9', sub:'#b8e6d2', a1:'#6bffc9', a2:'#2ec27e', deep:'#04120d', glow:'rgba(107,255,201,0.5)', glow2:'rgba(46,194,126,0.4)' },
-    royal:   { bg1:'#140a2e', bg2:'#2f1a6e', ink:'#ffffff', sub:'#cfc4ff', a1:'#ffc24b', a2:'#ff8a5c', deep:'#0d0720', glow:'rgba(255,194,75,0.5)', glow2:'rgba(185,167,255,0.45)' },
-    crimson: { bg1:'#1a0c10', bg2:'#43141f', ink:'#fff5f5', sub:'#e8c9cd', a1:'#ff3b52', a2:'#ff8a4b', deep:'#120709', glow:'rgba(255,59,82,0.5)', glow2:'rgba(255,138,75,0.4)' },
-    ocean:   { bg1:'#061c2c', bg2:'#0e3d58', ink:'#f2fbff', sub:'#bcdcec', a1:'#45e0ff', a2:'#3c8dff', deep:'#04121c', glow:'rgba(69,224,255,0.5)', glow2:'rgba(60,141,255,0.45)' },
-    paper:   { paper:true, bg1:'#f2ead8', bg2:'#e6d9bd', ink:'#ffffff', sub:'#f0e6cf', a1:'#e3a51c', a2:'#c77f14', deep:'#191713', glow:'rgba(227,165,28,0.35)', glow2:'rgba(199,127,20,0.3)' },
-    rose:    { bg1:'#16161d', bg2:'#2b2634', ink:'#ffffff', sub:'#d9d3e2', a1:'#ff7ba9', a2:'#ffb17b', deep:'#0e0e13', glow:'rgba(255,123,169,0.5)', glow2:'rgba(255,177,123,0.4)' },
-    arctic:  { paper:true, bg1:'#eef3f8', bg2:'#d6e3ef', ink:'#ffffff', sub:'#dce9f7', a1:'#2f7cff', a2:'#19c8e0', deep:'#10233a', glow:'rgba(47,124,255,0.3)', glow2:'rgba(25,200,224,0.3)' },
-    mono:    { bg1:'#141417', bg2:'#2a2a30', ink:'#ffffff', sub:'#c8c8cf', a1:'#e8e8f0', a2:'#9a9aa6', deep:'#0c0c0e', glow:'rgba(232,232,240,0.4)', glow2:'rgba(154,154,166,0.35)' },
-    sunset:  { bg1:'#1c0f2e', bg2:'#54173f', ink:'#fff7ef', sub:'#ffd9c4', a1:'#ffb13c', a2:'#ff4f7e', deep:'#140a1f', glow:'rgba(255,177,60,0.5)', glow2:'rgba(255,79,126,0.45)' },
+    volt:    { bg1:'#0b1020', bg2:'#1d2e54', fb1:'#060913', fb2:'#111b31', ink:'#ffffff', sub:'#c9d6ff', a1:'#b7ff2e', a2:'#37d6ff', deep:'#07090f', glow:'rgba(183,255,46,0.55)', glow2:'rgba(55,214,255,0.5)' },
+    coral:   { paper:true, bg1:'#f6e7d3', bg2:'#eed7ba', fb1:'#292018', fb2:'#130e0b', ink:'#ffffff', sub:'#ffe4d1', a1:'#ff5a3c', a2:'#ff9d3c', deep:'#171310', glow:'rgba(255,90,60,0.35)', glow2:'rgba(255,157,60,0.3)' },
+    gold:    { bg1:'#0d0b07', bg2:'#2a1f10', fb1:'#0e0c07', fb2:'#2e2212', ink:'#f6ead2', sub:'#cbb98f', a1:'#f5c96b', a2:'#e09b2d', deep:'#0a0805', glow:'rgba(245,201,107,0.5)', glow2:'rgba(224,155,45,0.4)' },
+    emerald: { bg1:'#06231c', bg2:'#0e4936', fb1:'#041914', fb2:'#0a3427', ink:'#f2fff9', sub:'#b8e6d2', a1:'#6bffc9', a2:'#2ec27e', deep:'#04120d', glow:'rgba(107,255,201,0.5)', glow2:'rgba(46,194,126,0.4)' },
+    royal:   { bg1:'#140a2e', bg2:'#2f1a6e', fb1:'#100825', fb2:'#26155a', ink:'#ffffff', sub:'#cfc4ff', a1:'#ffc24b', a2:'#ff8a5c', deep:'#0d0720', glow:'rgba(255,194,75,0.5)', glow2:'rgba(185,167,255,0.45)' },
+    crimson: { bg1:'#1a0c10', bg2:'#43141f', fb1:'#13080c', fb2:'#300e16', ink:'#fff5f5', sub:'#e8c9cd', a1:'#ff3b52', a2:'#ff8a4b', deep:'#120709', glow:'rgba(255,59,82,0.5)', glow2:'rgba(255,138,75,0.4)' },
+    ocean:   { bg1:'#061c2c', bg2:'#0e3d58', fb1:'#041019', fb2:'#082332', ink:'#f2fbff', sub:'#bcdcec', a1:'#45e0ff', a2:'#3c8dff', deep:'#04121c', glow:'rgba(69,224,255,0.5)', glow2:'rgba(60,141,255,0.45)' },
+    paper:   { paper:true, bg1:'#f2ead8', bg2:'#e6d9bd', fb1:'#0b0907', fb2:'#040403', ink:'#ffffff', sub:'#f0e6cf', a1:'#e3a51c', a2:'#c77f14', deep:'#191713', glow:'rgba(227,165,28,0.35)', glow2:'rgba(199,127,20,0.3)' },
+    rose:    { bg1:'#16161d', bg2:'#2b2634', fb1:'#101016', fb2:'#201d27', ink:'#ffffff', sub:'#d9d3e2', a1:'#ff7ba9', a2:'#ffb17b', deep:'#0e0e13', glow:'rgba(255,123,169,0.5)', glow2:'rgba(255,177,123,0.4)' },
+    arctic:  { paper:true, bg1:'#eef3f8', bg2:'#d6e3ef', fb1:'#141d27', fb2:'#0a0e14', ink:'#ffffff', sub:'#dce9f7', a1:'#2f7cff', a2:'#19c8e0', deep:'#10233a', glow:'rgba(47,124,255,0.3)', glow2:'rgba(25,200,224,0.3)' },
+    mono:    { bg1:'#141417', bg2:'#2a2a30', fb1:'#0d0d0e', fb2:'#1a1a1e', ink:'#ffffff', sub:'#c8c8cf', a1:'#e8e8f0', a2:'#9a9aa6', deep:'#0c0c0e', glow:'rgba(232,232,240,0.4)', glow2:'rgba(154,154,166,0.35)' },
+    sunset:  { bg1:'#1c0f2e', bg2:'#54173f', fb1:'#0e0817', fb2:'#2a0c20', ink:'#fff7ef', sub:'#ffd9c4', a1:'#ffb13c', a2:'#ff4f7e', deep:'#140a1f', glow:'rgba(255,177,60,0.5)', glow2:'rgba(255,79,126,0.45)' },
   };
 
   /* ── ACCENT DISCIPLINE ───────────────────────────────────────────────────
@@ -703,35 +749,79 @@ const TEMPLATES = [
     pacifico: ['Zodiak', 'Satoshi'],
   };
 
-  // ── per-category copy decks + background photo scenes ──
+  /* ── per-category copy decks + background photo scenes ──
+     PLAIN WORDS, PROFESSIONAL REGISTER. These are two independent axes, and
+     confusing them is how this deck went wrong twice in opposite directions.
+
+                        complex                    simple
+       professional   "PAYING OVER GREYSHEET"   "PAID AT CURRENT RATES"  <- target
+       unprofessional "MELT + PREMIUM OTD"      "YOU DON'T NEED TO KNOW
+                                                 WHAT IT IS"
+
+     The FIRST version of this deck sat in the top-left: "INSTANT ASSAY",
+     "PAYING OVER GREYSHEET", "PSA / CGC / BGS SLABS WANTED", ".925 STERLING".
+     That is a filter at the top of the funnel — a seller who does not already
+     know those words reads "this is not for me" and scrolls past.
+
+     My correction over-shot into the bottom-right: "YOU DO NOT NEED TO KNOW
+     WHAT IT IS", "THAT SHOEBOX COULD BE WORTH MONEY", "CASH TODAY • WE COME TO
+     YOU". Simple, yes — and it reads like a payday lender. The owner's note is
+     exactly right: that copy does not just fail to help, it actively HURTS,
+     because the clientele it attracts is the clientele you do not want. Someone
+     selling an inherited gold collection does not hand it to the business whose
+     ad sounds desperate.
+
+     THE BUSINESS REASON, which outranks the design reason:
+     This is a high-trust transaction — a stranger hands over valuables and
+     takes cash. Confidence is what closes it. A seller with something genuinely
+     valuable is choosing between buyers, and they choose the one that looks
+     like a real business. Desperate copy selects for hagglers, tire-kickers and
+     low-value lots; professional copy selects for the estate, the collection,
+     the clean flagship phone. Same ad spend, different customer.
+
+     RULES:
+       - Plain word for the object. "Old silverware", never "flatware".
+       - Never explain that the reader is ignorant. Instead, remove the need to
+         know: "Free appraisal before you decide" does the same work as "you
+         don't need to know what it is" and signals competence rather than
+         condescension.
+       - Lead with what WE do to professional standard — tested, weighed,
+         written offer, licensed, insured, same-day — not with how little we
+         expect of the seller.
+       - No begging verbs, no hype, no exclamation stacking. Confidence is
+         quiet.
+       - At most one collector term per deck, and only where it signals we are
+         a serious buyer ("Rolex", "Charizard"), never where it gatekeeps. */
+  /* exposed for scripts/theme_lab.mjs: the lab composes real ads and must use
+     the real copy, not a paraphrase of it. */
   const DECKS = {
-    phones:  { k:'TOP BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME DAY CASH • EASY LOCAL MEETUP\niCLOUD LOCKED, BROKEN, BLACKLISTED\nANY CONDITION • ANY CARRIER', cta:'TEXT US NOW!', price:'UP TO $1,100 PAID TODAY', big:'$1,100', badges:['SAFE','QUICK','EASY'],
+    phones:  { k:'LOCAL BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY OR YOU MAIL IT IN', cta:'GET YOUR OFFER', price:'CASH PAID TODAY', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
                scene:'extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh' },
-    gold:    { k:'LICENSED BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Coins • Dental • Broken', sub:'TESTED & PAID IN FRONT OF YOU\n10K • 14K • 18K • 24K WELCOME\nESTATES & INHERITANCE HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAYING UP TO 95% OF SPOT', big:'95% SPOT', badges:['TESTED','FAIR','PRIVATE'],
+    gold:    { k:'LOCAL GOLD BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Earrings • Broken Gold', sub:'TESTED AND WEIGHED IN FRONT OF YOU\nWRITTEN OFFER BEFORE YOU DECIDE\nESTATES HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','PRIVATE'],
                scene:'molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh' },
-    silver:  { k:'BULLION DESK', h1:'WE BUY', h2:'SILVER', alt2:'STERLING', items:'Flatware • Bars • Sterling • 90% Coins', sub:'INSTANT ASSAY • WATCH THE SCALE\nBARS, ROUNDS, FLATWARE, TEA SETS\nPAYING OVER SPOT ON PREMIUMS', cta:'BRING IT IN TODAY', price:'PAYING OVER SPOT', big:'SPOT+', badges:['ASSAYED','HONEST','FAST'],
+    silver:  { k:'LOCAL BUYER', h1:'WE BUY', h2:'SILVER', alt2:'SILVER', items:'Coins • Bars • Silverware • Jewelry', sub:'WEIGHED IN FRONT OF YOU\nCOINS, BARS, SILVERWARE AND JEWELRY\nPAID BY WEIGHT AT CURRENT RATES', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
                scene:'stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus' },
-    coins:   { k:'COLLECTIONS WANTED', h1:'RARE', h2:'COINS', alt2:'COIN LOTS', items:'Morgans • Gold Eagles • Proof Sets • Errors', sub:'FULL COLLECTIONS OR SINGLE PIECES\nGRADED & RAW • HONEST NUMISMATIC OFFERS\nHOUSE CALLS FOR LARGE ESTATES', cta:'TEXT PHOTOS FOR OFFER', price:'PAYING OVER GREYSHEET', big:'$25,000', badges:['GRADED','INSURED','LEGIT'],
+    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nHOUSE CALLS FOR LARGE ESTATES', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'CASH', badges:['NO FEES','FREE QUOTE','DISCREET'],
                scene:'antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro' },
-    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nNO TITLE? NO PROBLEM • ASK US\nSAME-DAY PICKUP ACROSS LA & OC', cta:'CALL FOR INSTANT OFFER', price:'UP TO $15,000 CASH', big:'$15,000', badges:['FREE TOW','SAME DAY','CASH'],
+    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nTITLE AND DMV PAPERWORK HANDLED\nSAME-DAY PICKUP ACROSS LA & OC', cta:'GET AN INSTANT OFFER', price:'CASH ON THE SPOT', big:'CASH', badges:['FREE TOW','SAME DAY','NO FEES'],
                scene:'dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze' },
-    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Lancets • CGM sensors', sub:'UNEXPIRED & SEALED BOXES ONLY\nFAST LOCAL PICKUP OR MAIL-IN\nTOP BOX PRICES • PAID SAME DAY', cta:'TEXT A PHOTO NOW', price:'TOP BOX PRICES PAID', big:'TOP $', badges:['SEALED','FAST','FAIR'],
+    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nLOCAL PICKUP OR PREPAID MAIL-IN\nPAID THE SAME DAY WE RECEIVE THEM', cta:'GET YOUR OFFER', price:'PAID SAME DAY', big:'CASH', badges:['DISCREET','FAST','FAIR'],
                scene:'clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur' },
-    pokemon: { k:'SLABS & VINTAGE', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Slabs • Vintage • Sealed • Bulk lots', sub:'PSA / CGC / BGS SLABS WANTED\nVINTAGE WOTC THROUGH MODERN HITS\nSEALED PRODUCT & BULK COLLECTIONS', cta:'DM YOUR BINDER', price:'TOP SLAB PRICES PAID', big:'$10,000', badges:['PSA','CGC','SEALED'],
+    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Single cards • Full binders • Sealed boxes', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE SORT AND VALUE EVERYTHING FOR YOU\nFREE APPRAISAL, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['TRUSTED','NO FEES','LOCAL'],
                scene:'holographic trading card close-up with prismatic light refractions on dark felt, dreamy bokeh' },
-    sports:  { k:'VINTAGE & MODERN', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Rookies • Slabs • Wax • Vintage', sub:'ROOKIES, AUTOS, PATCHES, GRAILS\nGRADED OR RAW • REAL COMP PRICING\nENTIRE COLLECTIONS BOUGHT OUTRIGHT', cta:'TEXT YOUR HITS', price:'TOP DOLLAR FOR SLABS', big:'$5,000', badges:['COMPS','CASH','LEGIT'],
+    sports:  { k:'COLLECTIONS WANTED', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Single cards • Full boxes • Collections', sub:'SINGLE CARDS OR FULL COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nWE BUY ENTIRE COLLECTIONS OUTRIGHT', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['TRUSTED','NO FEES','LOCAL'],
                scene:'vintage baseball cards fanned on worn wood with stadium light bokeh, nostalgic warm grade' },
   };
 
   // ── shared fragments ──
   const trust = (P, T, badges) => [
     ci('Check Circle', { left:W-318, top:44, radius:44, fill:P.a1, shadow:sh(P.glow, 22) }),
-    t('Check', 'deco', 'none', '✓', { left:W-274, top:56, originX:'center', fontFamily:'Satoshi', fontSize:56, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+    t('Check', 'deco', 'none', '✓', { left:W-274, top:56, originX:'center', fontFamily:'Satoshi', fontSize:56, fill:onAccent(P), fontWeight:'900' }),
     t('Badges', 'badges', 'upper', badges.join('\n'), { left:W-56, top:40, originX:'right', fontFamily:T.s, fontSize:28, fill:P.ink, fontWeight:'800', lineHeight:1.52, charSpacing:110, opacity:0.95, shadow:P.paper ? null : sh('rgba(0,0,0,0.55)', 9, 0, 2) }),
   ];
   const ribbon = (P, T, text, y) => [
-    r('Kicker Ribbon', { left:CX-215, top:y, width:430, height:62, rx:14, angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
-    t('Kicker', 'sub', 'upper', text, { left:CX, top:y+11, originX:'center', fontFamily:T.s, fontStyle:'italic', fontSize:36, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900', angle:-3 }),
+    r('Kicker Ribbon', { left:CX, top:y+31, width:490, height:62,   /* 490: COLLECTIONS WANTED ran 17px past 430 */ rx:14, originX:'center', originY:'center', angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
+    t('Kicker', 'sub', 'upper', text, { left:CX, top:y+31, originX:'center', originY:'center', fontFamily:T.s, fontStyle:'italic', fontSize:36, fill:onAccent(P), fontWeight:'900', angle:-3 }),
   ];
   const subBlock = (P, T, text, y, size) => tb('Info Text', 'info', 'upper', text, { left:CX, top:y, width:W-140, originX:'center', fontFamily:T.s, fontStyle:'italic', fontSize:size || 40, fill:P.ink, fontWeight:'800', textAlign:'center', lineHeight:1.34, stroke:P.paper ? undefined : '#000000', strokeWidth:P.paper ? 0 : 3, shadow:P.paper ? null : sh('rgba(0,0,0,0.6)', 10, 0, 3) });
   const ctaCard = (P, T, cta) => [
@@ -742,28 +832,43 @@ const TEMPLATES = [
   ];
   const phoneBar = (P, T, y) => [
     r('Phone Plate', { left:CX-330, top:y, width:660, height:118, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 26) }),
-    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:y+22, originX:'center', fontFamily:'Satoshi', fontSize:64, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:y+22, originX:'center', fontFamily:'Satoshi', fontSize:64, fill:onAccent(P), fontWeight:'900' }),
   ];
 
   // ── local social-proof copy per category (all layers stay editable) ──
+  try { window.DECKS_SNAPSHOT = DECKS; } catch(e){}
+
   const TRUST_COPY = {
-    phones:  { q:'"Texted photos at noon, had cash by 3pm. Easiest sale ever."',        w:'MARCUS D. • LONG BEACH' },
-    gold:    { q:'"Fair price for my grandmother\'s rings, paid on the spot."',         w:'ELENA R. • LAKEWOOD' },
-    silver:  { q:'"Weighed everything right in front of me. Honest start to finish."',  w:'PAUL S. • SIGNAL HILL' },
-    coins:   { q:'"Knew more about my collection than I did. Strong offer."',           w:'HOWARD B. • CERRITOS' },
-    cars:    { q:'"Picked up my old Civic the same day, cash in hand."',                w:'DENISE W. • CARSON' },
-    strips:  { q:'"Simple and discreet. Boxes gone, paid fairly."',                     w:'T.J. • NORWALK' },
-    pokemon: { q:'"Got real value for my binder, not pawn shop prices."',               w:'ALEX M. • DOWNEY' },
-    sports:  { q:'"My rookie cards finally found a fair, serious buyer."',              w:'RAY G. • TORRANCE' },
+    phones:  { q:'Text us a photo of the phone. We send a price, you decide.', w:'HOW IT WORKS' },
+    gold:    { q:'Send photos first. We weigh it in front of you and pay the same day.', w:'HOW IT WORKS' },
+    silver:  { q:'Send photos first. We weigh it in front of you and pay the same day.', w:'HOW IT WORKS' },
+    coins:   { q:'Send photos of the collection. We tell you what we see and what we pay.', w:'HOW IT WORKS' },
+    cars:    { q:'Send photos of the car. We make an offer, you decide.', w:'HOW IT WORKS' },
+    strips:  { q:'Sealed, unexpired boxes only. Text a photo for a price.', w:'HOW IT WORKS' },
+    pokemon: { q:'Send photos of the binder or the slabs. We make a cash offer.', w:'HOW IT WORKS' },
+    sports:  { q:'Send photos of the cards. We make a cash offer, you decide.', w:'HOW IT WORKS' },
   };
 
   /* Ink that actually reads ON the accent. Chip glyphs were hard-coded to
      P.deep, which is right on a bright accent (lime, amber) and wrong on a
      dark one (crimson's #d53447 against #120709 is 1.9:1). Pick whichever of
      near-black / near-white wins against this palette's accent. Pure maths,
-     no render needed, so it costs nothing at build time. */
-  const onAccent = (P) => {
-    const hex = String(P.a1 || '#ffffff').replace('#','');
+     no render needed, so it costs nothing at build time.
+
+     `over` names the accent actually underneath, for the one plate that is a2
+     rather than a1 (bubblePop's sticker disc). It defaults to a1, which is what
+     every gradient plate in this library starts from.
+
+     This function was already here and already correct while NINE call sites
+     below ignored it, picking the ink from whether the PALETTE is light instead
+     of from what the ink is standing on. The street family had been calling it
+     all along; the designer family never did. Those nine include both phone
+     plates, the knockout headline and the price strip — on paper, coral and
+     arctic the old rule forced white onto a bright amber or coral plate (2.2:1
+     over paper's #e3a51c) purely because the palette is a light one, which the
+     plate underneath is not. All nine now ask. */
+  const onAccent = (P, over) => {
+    const hex = String(over || P.a1 || '#ffffff').replace('#','');
     const n = parseInt(hex, 16);
     const ch = [(n>>16)&255, (n>>8)&255, n&255].map(v => {
       v /= 255; return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
@@ -774,7 +879,7 @@ const TEMPLATES = [
     return vsWhite > vsDeep ? '#ffffff' : (P.deep || '#0b0b0d');
   };
 
-  const cut = (name, src, props) => ({ kind:'cutout', name, role:'photo', props:Object.assign({ src:'assets/cutouts/' + src + '.png' }, props) });
+  const cut = (name, src, props) => ({ kind:'cutout', name, role:'photo', props:Object.assign({ src:'assets/cutouts/' + src + CUTOUT_EXT }, props) });
   // Hard offset shadow: the STREET family wants the sticker look the clean
   // family forbids. See DESIGN-LAW.md rule 13 for why both are correct.
   const hard = (c, d) => sh(c || 'rgba(0,0,0,0.55)', 0, d || 8, d || 8);
@@ -801,7 +906,7 @@ const TEMPLATES = [
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:168, originX:'center', fontFamily:T.d, fontSize:233, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:15, shadow:hard('rgba(0,0,0,0.5)', 12) }),
         rg('Claim Plate', { left:96, top:512, width:888, height:118, rx:16, fill:hexToRgba(P.deep,0.82), shadow:hard('rgba(0,0,0,0.28)', 6) }),
         t('Claim 1', 'info', 'upper', C.badges ? C.badges.join(' • ') : 'ANY CONDITION ANY CARRIER', { left:CX, top:534, originX:'center', fontFamily:'Khand', fontSize:41, fill:P.a2, fontWeight:'700', charSpacing:30 }),
-        t('Claim 2', 'info', 'upper', C.sub || 'TOP DOLLAR PAID TODAY', { left:CX, top:578, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:30 }),
+        t('Claim 2', 'info', 'upper', C.sub || 'CASH PAID TODAY', { left:CX, top:578, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:30 }),
         t('Area 1', 'info', 'upper', C.a1 || 'IE', { left:CX-268, top:672, originX:'center', fontFamily:T.d, fontSize:98, fill:'#2fbf4f', fontWeight:'700', stroke:ink, strokeWidth:7 }),
         t('Arrow 1', 'deco', 'none', '↓', { left:CX-134, top:686, originX:'center', fontFamily:'Satoshi', fontSize:78, fill:'#e8362c', fontWeight:'900' }),
         t('Area 2', 'info', 'upper', C.a2 || 'OC', { left:CX, top:672, originX:'center', fontFamily:T.d, fontSize:98, fill:'#2fbf4f', fontWeight:'700', stroke:ink, strokeWidth:7 }),
@@ -825,7 +930,7 @@ const TEMPLATES = [
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:54, top:78, fontFamily:T.d, fontSize:109, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:172, fontFamily:T.d, fontSize:187, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:13, shadow:hard('rgba(0,0,0,0.5)', 10) }),
         cut('Product', C.cut || 'cash-stack', { left:1032, top:398, originX:'right', w:505, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
-        ...row(1, 452, (C.badges && C.badges[0]) || 'TOP DOLLAR',   (C.subs && C.subs[0]) || 'Paid in cash, same day'),
+        ...row(1, 452, (C.badges && C.badges[0]) || 'CASH PAID',   (C.subs && C.subs[0]) || 'Paid in cash, same day'),
         ...row(2, 572, (C.badges && C.badges[1]) || 'FAST & EASY',  (C.subs && C.subs[1]) || 'Text photos, get an offer'),
         ...row(3, 692, (C.badges && C.badges[2]) || 'ANY CONDITION',(C.subs && C.subs[2]) || 'No appointment needed'),
         rg('Phone Plate', { left:54, top:836, width:940, height:132, rx:22, fill:P.a1, shadow:hard('rgba(0,0,0,0.4)', 9) }),
@@ -847,8 +952,13 @@ const TEMPLATES = [
         t('Headline 1', 'headline', 'upper', C.h1 || 'BUYING', { left:54, top:70, fontFamily:T.d, fontSize:100, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:154, fontFamily:T.d, fontSize:173, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:13, shadow:hard('rgba(0,0,0,0.5)', 10) }),
         cut('Product', C.cut || 'iphone-cracked', { left:1030, top:352, originX:'right', w:573, angle:6, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
-        ...chk(1, 372, pts[0]), ...chk(2, 462, pts[1]), ...chk(3, 552, pts[2]), ...chk(4, 642, pts[3] || 'ANY OTHER ISSUE'),
-        rg('CTA Bar', { left:0, top:846, width:W, height:150, fill:P.deep }),
+        /* rows from 420, not 372: the category word runs to ~405, and alignPass
+           pushed the first label clear of it but not its chip, so the first
+           check sat beside the wrong line. The bar runs to the foot of the
+           card: at height 150 it stopped 84px short and the number (Khand at
+           93px) hung its lower edge off it onto the photograph. */
+        ...chk(1, 420, pts[0]), ...chk(2, 510, pts[1]), ...chk(3, 600, pts[2]), ...chk(4, 690, pts[3] || 'ANY OTHER ISSUE'),
+        rg('CTA Bar', { left:0, top:846, width:W, height:W - 846, fill:P.deep }),   // square canvas: to the foot
         t('CTA', 'cta', 'upper', C.cta || 'TEXT A PHOTO FOR AN OFFER', { left:CX, top:872, originX:'center', fontFamily:'Khand', fontSize:38, fill:'rgba(255,255,255,0.88)', fontWeight:'700', charSpacing:44 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:906, originX:'center', fontFamily:T.d, fontSize:93, fill:ink, fontWeight:'700' }),
       ];
@@ -891,16 +1001,19 @@ const TEMPLATES = [
     streetRibbon: (P, T, C) => {
       const ink='#ffffff', tilt=-5;
       const pill = (i, x, w, txt) => ([
-        rg('Pill '+(i+1), { left:x, top:846, width:w, height:68, rx:34, fill:hexToRgba(P.deep,0.82), angle:-2 }),
-        t('Pill Text '+(i+1), 'badges', 'upper', txt, { left:x+w/2, top:864, originX:'center', fontFamily:'Khand', fontSize:30, fill:'#ffffff', fontWeight:'700', charSpacing:18, angle:-2 }),
+        rg('Pill '+(i+1), { left:x+w/2, top:880, width:w, height:68, rx:34, originX:'center', originY:'center', fill:hexToRgba(P.deep,0.82), angle:-2 }),
+        t('Pill Text '+(i+1), 'badges', 'upper', txt, { left:x+w/2, top:880, originX:'center', originY:'center', fontFamily:'Khand', fontSize:30, fill:'#ffffff', fontWeight:'700', charSpacing:18, angle:-2 }),
       ]);
       const b = C.badges || ['FAST','FAIR','SAME DAY'];
       return [
         rg('Ribbon', { left:-40, top:120, width:1160, height:132, fill:P.a1, angle:tilt, shadow:hard('rgba(0,0,0,0.35)', 9) }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:100, fill:onAccent(P), fontWeight:'700', angle:tilt }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:308, originX:'center', fontFamily:T.d, fontSize:204, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:14, shadow:hard('rgba(0,0,0,0.5)', 12), angle:-3 }),
-        t('Sub', 'sub', 'upper', C.sub || 'TOP DOLLAR PAID TODAY', { left:CX, top:520, originX:'center', fontFamily:'Khand', fontSize:41, fill:ink, fontWeight:'700', charSpacing:30, stroke:P.deep, strokeWidth:3, angle:-2 }),
-        cut('Product', C.cut || 'cash-fan', { left:CX, top:534, originX:'center', w:353, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
+        t('Sub', 'sub', 'upper', C.sub || 'CASH PAID TODAY', { left:CX, top:520, originX:'center', fontFamily:'Khand', fontSize:41, fill:ink, fontWeight:'700', charSpacing:30, stroke:P.deep, strokeWidth:3, angle:-2 }),
+        /* in the band between the item line and the pills, never over the words:
+           the study session's layering ladder puts copy on the top rung, and
+           at top:534 the product hid 54-63% of the item line on every ribbon */
+        cut('Product', C.cut || 'cash-fan', { left:CX, top:648, originX:'center', w:353, maxH:176, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
         ...pill(0, 70, 280, b[0]), ...pill(1, 372, 300, b[1]), ...pill(2, 694, 316, b[2] || 'CASH NOW'),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:944, originX:'center', fontFamily:T.d, fontSize:104, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:9, shadow:hard('rgba(0,0,0,0.45)', 8) }),
       ];
@@ -920,7 +1033,7 @@ const TEMPLATES = [
       };
       const pts = C.points || ['SEALED','GRADED','VINTAGE','BULK LOTS','SINGLES','COLLECTIONS'];
       return [
-        t('Kicker', 'sub', 'upper', C.kicker || 'PAYING UP TO', { left:CX, top:74, originX:'center', fontFamily:'Khand', fontSize:47, fill:ink, fontWeight:'700', charSpacing:50, stroke:P.deep, strokeWidth:3 }),
+        t('Kicker', 'sub', 'upper', C.kicker || 'WE PAY', { left:CX, top:74, originX:'center', fontFamily:'Khand', fontSize:47, fill:ink, fontWeight:'700', charSpacing:50, stroke:P.deep, strokeWidth:3 }),
         t('Price Line', 'headline', 'upper', C.price || '90%', { left:CX, top:116, originX:'center', fontFamily:T.d, fontSize:196, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:15, shadow:hard('rgba(0,0,0,0.5)', 12) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:334, originX:'center', fontFamily:T.d, fontSize:100, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         cut('Product', C.cut || 'cash-bundles', { left:1040, top:392, originX:'right', w:256, angle:5, shadow:sh('rgba(0,0,0,0.5)', 34, 0, 18) }),  // sits in the clear band between the price and the grid; a long price like $15,000 reaches x960 up top
@@ -962,7 +1075,7 @@ const TEMPLATES = [
         t('Kicker', 'sub', 'upper', C.brand || 'LOCAL BUYER', { left:54, top:70, fontFamily:'Khand', fontSize:38, fill:ink, fontWeight:'700', charSpacing:44, stroke:P.deep, strokeWidth:3 }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:54, top:124, fontFamily:T.d, fontSize:87, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:7, shadow:hard('rgba(0,0,0,0.45)', 6) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:206, fontFamily:T.d, fontSize:141, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:10, shadow:hard('rgba(0,0,0,0.45)', 8) }),
-        t('Price Line', 'headline', 'upper', C.price || '$1,100', { left:54, top:392, fontFamily:T.d, fontSize:165, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13), angle:-4 }),
+        t('Price Line', 'headline', 'upper', C.price || 'CASH', { left:54, top:392, fontFamily:T.d, fontSize:165, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13), angle:-4 }),
         cut('Product', C.cut || 'iphone-front', { left:1048, top:132, originX:'right', w:366, angle:5, shadow:sh('rgba(0,0,0,0.5)', 38, 0, 20) }),
         ...roundel(0, 70, b[0]), ...roundel(1, 232, b[1]), ...roundel(2, 394, b[2] || 'NO HAGGLE'),
         rg('Badge', { left:620, top:762, width:390, height:104, rx:22, fill:P.a1, angle:-4, shadow:hard('rgba(0,0,0,0.35)', 8) }),
@@ -1001,10 +1114,12 @@ const TEMPLATES = [
     streetPriceTag: (P, T, C) => {
       const ink = '#ffffff';
       return [
-        t('Kicker', 'sub', 'upper', C.kicker || 'PAYING UP TO', { left:CX, top:96, originX:'center', fontFamily:'Khand', fontSize:51, fill:ink, fontWeight:'700', charSpacing:52, stroke:P.deep, strokeWidth:4 }),
-        t('Price Line', 'headline', 'upper', C.price || '$1,100', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:259, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13) }),
+        t('Kicker', 'sub', 'upper', C.kicker || 'WE PAY', { left:CX, top:96, originX:'center', fontFamily:'Khand', fontSize:51, fill:ink, fontWeight:'700', charSpacing:52, stroke:P.deep, strokeWidth:4 }),
+        t('Price Line', 'headline', 'upper', C.price || 'CASH', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:259, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:396, originX:'center', fontFamily:T.d, fontSize:109, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
-        cut('Product', C.cut || 'cash-bundles', { left:CX, top:474, originX:'center', w:409, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
+        /* below the category word, never over it: at top:474 the cash hid
+           37-53% of GOLD, SILVER, CARDS or STRIPS (the layering ladder) */
+        cut('Product', C.cut || 'cash-bundles', { left:CX, top:606, originX:'center', w:409, maxH:224, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
         rg('Claim Plate', { left:96, top:836, width:888, height:96, rx:16, fill:hexToRgba(P.deep,0.82) }),
         t('Claim 1', 'info', 'upper', C.badges ? C.badges.join('  •  ') : 'SAME DAY • CASH IN HAND • NO HAGGLING', { left:CX, top:862, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:22 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:908, originX:'center', fontFamily:T.d, fontSize:96, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
@@ -1025,9 +1140,11 @@ const TEMPLATES = [
         t('Chip Text ' + i, 'badges', 'upper', txt, { left:x+w/2, top:792, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:40 }),
       ];
       return [
-        ...panel('Rate Pill', CX-330, 82, 660, 92, 46),
-        t('Stars', 'deco', 'none', '★★★★★', { left:CX-286, top:104, fontFamily:'Satoshi', fontSize:42, fill:P.a1, charSpacing:60 }),
-        t('Rating Line', 'info', 'none', '4.9 · 200+ local sellers', { left:CX+52, top:110, fontFamily:'Satoshi', fontSize:33, fill:'#ffffff', fontWeight:'800' }),
+        /* 800 wide, not 660: the rating line ran 78px past the pill's right
+           end (it did with the old "4.9 · 200+ local sellers" too) */
+        ...panel('Rate Pill', CX-400, 82, 800, 92, 46),
+        t('Stars', 'deco', 'none', 'FREE QUOTE', { left:CX-356, top:104, fontFamily:'Satoshi', fontSize:30, fontWeight:'900', fill:P.a1, charSpacing:60 }),
+        t('Rating Line', 'info', 'none', 'No fees · no obligation', { left:CX+22, top:110, fontFamily:'Satoshi', fontSize:33, fill:'#ffffff', fontWeight:'800' }),
         ...panel('Quote Card', 70, 228, W-140, 336, 34),
         tb('Quote', 'info', 'none', C.quote, { left:CX, top:278, width:W-250, originX:'center', fontFamily:'Satoshi', fontSize:46, fill:'#ffffff', fontWeight:'700', textAlign:'center', lineHeight:1.32 }),
         t('Who', 'info', 'none', C.who, { left:CX, top:492, originX:'center', fontFamily:'Satoshi', fontSize:25, fill:'rgba(255,255,255,0.72)', charSpacing:90 }),
@@ -1056,13 +1173,13 @@ const TEMPLATES = [
       return [
         ...panel('Status Pill', CX-292, 78, 584, 78, 39),
         ci('Status Dot', { left:CX-252, top:104, radius:13, fill:'#22c55e', shadow:sh('rgba(34,197,94,0.8)', 14) }),
-        t('Status Text', 'info', 'upper', 'LICENSED & INSURED LOCAL BUYER', { left:CX+16, top:100, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:60 }),
+        t('Status Text', 'info', 'upper', 'NO FEES · FREE QUOTE · LOCAL BUYER', { left:CX+16, top:100, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:60 }),
         t('Headline 1', 'headline', 'upper', 'TRUSTED LOCAL', { left:CX, top:206, originX:'center', fontFamily:'Satoshi', fontSize:52, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:180 }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:262, originX:'center', fontFamily:'Clash Display', fontSize:158, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 26) }),
         t('Headline 3', 'headline', 'upper', 'BUYER', { left:CX, top:424, originX:'center', fontFamily:'Satoshi', fontSize:44, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:300 }),
-        ...tile(1, 84, 512, C.big || 'TOP $$$', 'PAID TODAY'),
-        ...tile(2, 554, 512, '4.9★', '200+ LOCAL REVIEWS'),
-        ...tile(3, 84, 682, 'SINCE 2015', '500+ DEALS CLOSED'),
+        ...tile(1, 84, 512, C.big || 'CASH NOW', 'PAID TODAY'),
+        ...tile(2, 554, 512, 'TEXT A PIC', 'GET A PRICE'),
+        ...tile(3, 84, 682, 'FREE QUOTE', 'NO OBLIGATION'),
         ...tile(4, 554, 682, 'SAME DAY', 'CASH OR TRANSFER'),
         t('Items', 'info', 'upper', C.items, { left:CX, top:860, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.7)', charSpacing:50 }),
         ...phoneBar(P, T, 912),
@@ -1137,7 +1254,7 @@ const TEMPLATES = [
       ...trust(P, T, C.badges),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:158, originX:'center', fontFamily:T.d, fontSize:132, fill:P.ink, shadow:sh('rgba(0,0,0,0.4)', 14, 0, 5) }),
       r('Knockout Band', { left:34, top:334, width:W-68, height:252, rx:30, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 30, 0, 10) }),
-      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:366, originX:'center', fontFamily:T.d, fontSize:188, fill:P.paper ? '#ffffff' : P.deep }),
+      t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:366, originX:'center', fontFamily:T.d, fontSize:188, fill:onAccent(P) }),
       t('Chip 1', 'badges', 'upper', C.badges[0], { left:CX-250, top:664, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'900', backgroundColor:P.paper ? 'rgba(23,19,16,0.08)' : 'rgba(255,255,255,0.12)', padding:14 }),
       t('Chip 2', 'badges', 'upper', C.badges[1], { left:CX, top:664, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'900', backgroundColor:P.paper ? 'rgba(23,19,16,0.08)' : 'rgba(255,255,255,0.12)', padding:14 }),
       t('Chip 3', 'badges', 'upper', C.badges[2], { left:CX+250, top:664, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, fontWeight:'900', backgroundColor:P.paper ? 'rgba(23,19,16,0.08)' : 'rgba(255,255,255,0.12)', padding:14 }),
@@ -1166,17 +1283,17 @@ const TEMPLATES = [
       ...trust(P, T, C.badges),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:212, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 32) }),
       r('Rush Band 1', { left:CX, top:508, originX:'center', originY:'center', width:W+160, height:112, rx:26, angle:-6, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh('rgba(0,0,0,0.4)', 18, 0, 8) }),
-      t('Rush Text 1', 'sub', 'upper', C.price, { left:CX, top:508, originX:'center', originY:'center', fontFamily:T.d, fontSize:56, fill:P.paper ? '#ffffff' : P.deep, angle:-6 }),
+      t('Rush Text 1', 'sub', 'upper', C.price, { left:CX, top:508, originX:'center', originY:'center', fontFamily:T.d, fontSize:56, fill:onAccent(P), angle:-6 }),
       r('Rush Band 2', { left:CX, top:652, originX:'center', originY:'center', width:W+160, height:96, rx:26, angle:-6, fill:P.deep, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
       t('Rush Text 2', 'sub', 'upper', C.items, { left:CX, top:652, originX:'center', originY:'center', fontFamily:T.s, fontSize:40, fill:P.a1, fontWeight:'800', angle:-6 }),
       ...phoneBar(P, T, 812),
       t('CTA', 'cta', 'upper', C.cta, { left:CX, top:966, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, fontWeight:'800', charSpacing:140 }),
     ],
     bubblePop: (P, T, C) => [
-      t('Headline 1', 'headline', 'upper', C.h1, { left:CX-40, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:282, originX:'center', fontFamily:T.d, fontSize:216, fill:P.a1, stroke:P.deep, strokeWidth:12, shadow:sh(P.a2, 0, 12, 12) }),
       ci('Sticker', { left:W-322, top:486, radius:112, fill:P.a2, shadow:sh('rgba(0,0,0,0.4)', 20, 0, 8) }),
-      t('Sticker Text', 'deco', 'upper', 'TOP $$$', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:P.paper ? '#ffffff' : P.deep, angle:10 }, { curve:32 }),
+      t('Sticker Text', 'deco', 'upper', 'CASH NOW', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:onAccent(P, P.a2), angle:10 }, { curve:32 }),
       subBlock(P, T, C.sub, 622), ...ctaCard(P, T, C.cta),
     ],
     slabPoster: (P, T, C) => [
@@ -1184,8 +1301,8 @@ const TEMPLATES = [
       t('Kicker', 'sub', 'upper', C.k, { left:CX, top:140, originX:'center', fontFamily:T.s, fontSize:32, fill:P.sub, charSpacing:400, fontWeight:'700' }),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:238, originX:'center', fontFamily:T.d, fontSize:110, fill:P.ink }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:356, originX:'center', fontFamily:T.d, fontSize:224, fill:P.ink, shadow:sh(P.glow, 0, 10, 10) }),
-      r('Price Strip', { left:CX-330, top:650, width:660, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),
-      t('Price Line', 'info', 'upper', C.price, { left:CX, top:668, originX:'center', fontFamily:T.s, fontSize:44, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+      r('Price Strip', { left:CX-410, top:650, width:820, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),   // 820: "PAID AT CURRENT MARKET RATES" ran 50px past 660
+      t('Price Line', 'info', 'upper', C.price, { left:CX, top:668, originX:'center', fontFamily:T.s, fontSize:44, fill:onAccent(P), fontWeight:'900' }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:806, originX:'center', fontFamily:'Satoshi', fontSize:74, fill:P.ink, fontWeight:'900' }),
       t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:924, originX:'center', fontFamily:'Satoshi', fontSize:24, fill:P.sub }),
     ],
@@ -1226,7 +1343,7 @@ const TEMPLATES = [
       const rows = C.sub.split('\n');
       const mk = (i) => ([
         ci('Tick ' + (i+1), { left:96, top:566 + i*96, radius:27, fill:P.a1, shadow:sh(P.glow, 14) }),
-        t('Tick Mark ' + (i+1), 'deco', 'none', '✓', { left:123, top:576 + i*96, originX:'center', fontFamily:'Satoshi', fontSize:38, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+        t('Tick Mark ' + (i+1), 'deco', 'none', '✓', { left:123, top:576 + i*96, originX:'center', fontFamily:'Satoshi', fontSize:38, fill:onAccent(P), fontWeight:'900' }),
         t('Point ' + (i+1), 'info', 'upper', rows[i], { left:164, top:576 + i*96, fontFamily:T.s, fontSize:39, fill:P.ink, fontWeight:'800' }),
       ]);
       return [
@@ -1242,10 +1359,12 @@ const TEMPLATES = [
       t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:130, fontFamily:T.d, fontSize:96, fill:'#ffffff' }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:60, top:236, fontFamily:T.d, fontSize:132, grad:{ c1:P.a1, c2:P.a2, a:115 }, shadow:sh(P.glow, 24) }),
       tb('Info Text', 'info', 'upper', C.sub, { left:64, top:462, width:372, fontFamily:T.s, fontSize:28, fill:'rgba(255,255,255,0.85)', fontWeight:'700', lineHeight:1.48 }),
-      t('Price Line', 'info', 'upper', C.price, { left:64, top:824, fontFamily:T.d, fontSize:40, fill:P.a1, shadow:sh(P.glow, 16) }),
+      /* a box the panel's width, so a long line wraps inside the panel:
+         "PAID AT CURRENT MARKET RATES" ran 289px past it onto the photograph */
+      tb('Price Line', 'info', 'upper', C.price, { left:64, top:764, width:400, fontFamily:T.d, fontSize:40, fill:P.a1, lineHeight:1.12, shadow:sh(P.glow, 16) }),
       t('Kicker', 'sub', 'upper', C.k, { left:770, top:120, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, charSpacing:200, fontWeight:'700', backgroundColor:'rgba(0,0,0,0.35)', padding:12 }),
       r('Phone Chip', { left:560, top:860, width:470, height:112, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 22) }),
-      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:795, top:884, originX:'center', fontFamily:'Satoshi', fontSize:47, fill:P.paper ? '#ffffff' : P.deep, fontWeight:'900' }),
+      t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:795, top:884, originX:'center', fontFamily:'Satoshi', fontSize:47, fill:onAccent(P), fontWeight:'900' }),
       t('Website', 'website', 'none', 'iphones.LA', { left:795, top:1000, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.ink, opacity:0.6 }),
     ],
     gradientWave: (P, T, C) => [
@@ -1266,7 +1385,7 @@ const TEMPLATES = [
     t('Headline 2', 'headline', 'upper', C.h2, { left:64, top:366, fontFamily:T.d, fontSize:148, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
     r('Rule Mid', { left:70, top:594, width:W-140, height:2, rx:1, fill:P.ink, opacity:0.25 }),
     t('Items', 'info', 'upper', C.items, { left:70, top:628, fontFamily:T.s, fontSize:33, fill:P.sub, charSpacing:60 }),
-    t('Price Label', 'info', 'upper', 'PAYING UP TO', { left:70, top:756, fontFamily:T.s, fontSize:25, fill:P.sub, charSpacing:320, fontWeight:'600' }),
+    t('Price Label', 'info', 'upper', 'WE PAY', { left:70, top:756, fontFamily:T.s, fontSize:25, fill:P.sub, charSpacing:320, fontWeight:'600' }),
     t('Price Line', 'info', 'upper', C.big, { left:64, top:796, fontFamily:T.d, fontSize:124, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
     t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:W-64, top:820, originX:'right', fontFamily:'Satoshi', fontSize:42, fill:P.ink, fontWeight:'800' }),
     t('CTA', 'cta', 'upper', C.cta, { left:W-64, top:884, originX:'right', fontFamily:T.s, fontSize:25, fill:P.a1, charSpacing:130, fontWeight:'700' }),
@@ -1346,7 +1465,7 @@ const TEMPLATES = [
       ['arcCrown','emerald','passion','Care Arc'], ['hudTech','ocean','russo','Sensor HUD'], ['editorialLux','arctic','playfair','Quiet Serif'],
       ['duoSplit','emerald','right','Split Clinic'], ['gradientWave','emerald','titan','Mint Wave'], ['diagonalRush','ocean','rowdies','Priority Rush'],
       ['agencyGrid','arctic','right','Clinical Grid'], ['priceAnchor','emerald','titan','Box Price'], ['lowerThird','emerald','staat','Health Line'],
-      ['reviewProof','arctic','playfair','Verified Buyer'], ['trustSeal','emerald','cinzel','Care Seal'], ['stepsFlow','emerald','russo','Box Steps'],
+      ['reviewProof','arctic','playfair','Local Buyer'], ['trustSeal','emerald','cinzel','Care Seal'], ['stepsFlow','emerald','russo','Box Steps'],
     ],
     pokemon: [
       ['bubblePop','royal','lucky','Holo Pop',1], ['neonNight','royal','bungee','Neon Holo'], ['voltStack','volt','titan','Trainer Stack'],
@@ -1531,7 +1650,7 @@ const TEMPLATES = [
     BOOK[cat].forEach(row => {
       const [lay, pal, pair, label, feat] = row;
       const P = PAL[pal], T = { d:PAIRS[pair][0], s:PAIRS[pair][1] };
-      const C = Object.assign({}, D, { h2: (lay === 'duoSplit' || lay === 'checklistHero') ? D.h2 : D.h2, quote: (TRUST_COPY[cat]||{}).q || '"Great local buyer, fast and fair."', who: (TRUST_COPY[cat]||{}).w || 'A LOCAL SELLER' });
+      const C = Object.assign({}, D, { h2: (lay === 'duoSplit' || lay === 'checklistHero') ? D.h2 : D.h2, quote: (TRUST_COPY[cat]||{}).q || 'Text us a photo. We send a price, you decide.', who: (TRUST_COPY[cat]||{}).w || 'HOW IT WORKS' });
       const id = 'dl_' + cat + '_' + lay + '_' + pal;
       const file = 'assets/bg/' + id + '.jpg';
       /* Scrim compensates for how bright the BACKDROP is, which is a property
@@ -1582,8 +1701,13 @@ const TEMPLATES = [
       // are actually loaded. Shrinking twice would only make type smaller than
       // it needs to be, so this pass is deliberately gone.
       TEMPLATES.push({
-        id, name:label, tag:'designer', cat, tier:'premium', feat:!!feat,
-        bg:{ type:'image', src:file, scrim, fallback:{ type:'grad', c1:P.bg1, c2:P.bg2, a:135 } },
+        /* `pal` is recorded, not inferred. Audits used to identify a template's
+           palette by matching its fallback gradient stops, which stopped
+           working the moment tuneFallbacks() started deriving those stops per
+           template — every row came back "unknown". The palette is known here;
+           write it down. */
+        id, name:label, tag:'designer', cat, pal, tier:'premium', feat:!!feat,
+        bg:{ type:'image', src:file, scrim, fallback:{ type:'grad', c1:P.fb1 || P.bg1, c2:P.fb2 || P.bg2, a:135 } },
         layers,
       });
     });
@@ -1655,28 +1779,28 @@ const TEMPLATES = [
   }
 
   const STREET_DECK = {
-    phones:  { h1:'CASH FOR', h2:'IPHONES',  kicker:'PAYING UP TO', price:'$1,100', cta:'TEXT US NOW',
+    phones:  { h1:'CASH FOR', h2:'IPHONES',  kicker:'WE PAY', price:'CASH', cta:'TEXT US NOW',
                badges:['ANY CONDITION','ANY CARRIER'], sub:'IPAD IPHONE MACBOOK BUYER',
                points:['CRACKED SCREEN',"WON'T TURN ON",'ICLOUD LOCKED','ANY OTHER ISSUE'], subs:['Paid in cash, same day','iCloud locked is fine','Text photos for an offer'] },
-    gold:    { h1:'CASH FOR', h2:'GOLD',     kicker:'PAYING UP TO', price:'95%',    cta:'GET A FREE QUOTE',
+    gold:    { h1:'CASH FOR', h2:'GOLD',     kicker:'WE PAY', price:'CASH', cta:'GET A FREE QUOTE',
                badges:['ANY KARAT','ANY CONDITION'], sub:'CHAINS RINGS COINS DENTAL',
                points:['BROKEN JEWELRY','SINGLE EARRINGS','DENTAL GOLD','ANY KARAT'], subs:['Tested and weighed in front of you','Broken pieces welcome','Paid on the spot'] },
-    silver:  { h1:'WE BUY',   h2:'SILVER',   kicker:'PAYING OVER',  price:'SPOT',   cta:'BRING IT IN TODAY',
+    silver:  { h1:'WE BUY',   h2:'SILVER',   kicker:'WE PAY', price:'CASH', cta:'BRING IT IN TODAY',
                badges:['ANY QUANTITY','WEIGHED IN FRONT OF YOU'], sub:'FLATWARE BARS COINS ROUNDS',
                points:['STERLING FLATWARE','BARS & ROUNDS','90% COINS','TARNISHED IS FINE'], subs:['Scale on the counter, you watch','Tarnish does not matter','No lowball offers'] },
-    coins:   { h1:'WE BUY',   h2:'COINS',    kicker:'PAYING UP TO', price:'95%',    cta:'TEXT PHOTOS FOR OFFER',
+    coins:   { h1:'WE BUY',   h2:'COINS',    kicker:'WE PAY', price:'CASH', cta:'TEXT PHOTOS FOR OFFER',
                badges:['SINGLES OR COLLECTIONS','HONEST GRADING'], sub:'MORGANS EAGLES PROOF SETS',
                points:['WHOLE COLLECTIONS','GRADED OR RAW','SILVER DOLLARS','HOUSE CALLS'], subs:['Singles or whole collections','Graded or raw, both fine','House calls for estates'] },
-    cars:    { h1:'WE BUY',   h2:'CARS',     kicker:'PAYING UP TO', price:'$15,000',cta:'CALL FOR INSTANT OFFER',
+    cars:    { h1:'WE BUY',   h2:'CARS',     kicker:'WE PAY', price:'CASH', cta:'CALL FOR INSTANT OFFER',
                badges:['RUNNING OR NOT','FREE TOW'], sub:'SAME DAY PICKUP CASH IN HAND',
                points:['RUNNING OR NOT','NO SMOG NEEDED','FREE TOWING','SAME DAY PICKUP'], subs:['Free tow, we come to you','Title in hand or not','Same day pickup'] },
-    strips:  { h1:'CASH FOR', h2:'STRIPS',   kicker:'PAYING UP TO', price:'$100',   cta:'TEXT A PHOTO NOW',
+    strips:  { h1:'CASH FOR', h2:'STRIPS',   kicker:'WE PAY', price:'CASH', cta:'TEXT A PHOTO NOW',
                badges:['SEALED BOXES ONLY','NOT EXPIRED'], sub:'TEST STRIPS LANCETS CGM',
                points:['UNEXPIRED ONLY','SEALED BOXES','ALL MAJOR BRANDS','MAIL IN WELCOME'], subs:['Sealed and unexpired only','All the major brands','Mail in kits available'] },
-    pokemon: { h1:'WE BUY',   h2:'POKEMON',  kicker:'PAYING UP TO', price:'90%',    cta:'DM TO SELL TODAY',
+    pokemon: { h1:'WE BUY',   h2:'POKEMON',  kicker:'WE PAY', price:'CASH', cta:'DM TO SELL TODAY',
                badges:['SEALED OR SINGLES','GRADED OR RAW'], sub:'BOOSTER BOXES SLABS BINDERS',
                points:['SEALED PRODUCT','GRADED SLABS','VINTAGE SETS','WHOLE COLLECTIONS'], subs:['Sealed product or singles','Graded slabs welcome','Real market pricing'] },
-    sports:  { h1:'WE BUY',   h2:'CARDS',    kicker:'PAYING UP TO', price:'90%',    cta:'TEXT YOUR HITS',
+    sports:  { h1:'WE BUY',   h2:'CARDS',    kicker:'WE PAY', price:'CASH', cta:'TEXT YOUR HITS',
                badges:['ROOKIES SLABS WAX','FAIR COMP PRICING'], sub:'ROOKIES SLABS WAX VINTAGE',
                points:['GRADED SLABS','ROOKIE AUTOS','SEALED WAX','WHOLE COLLECTIONS'], subs:['Rookies, autos and wax','Graded or raw','Priced off real comps'] },
   };
@@ -1765,11 +1889,11 @@ const TEMPLATES = [
       snapColumns(layers);              // alignment still applies; houseType deliberately does not
       TEMPLATES.push({
         id: stId,
-        name: label, tag:'street', cat, tier:'premium', feat: i === 0,
+        name: label, tag:'street', cat, pal, tier:'premium', feat: i === 0,
         bg: bgSrc
           ? { type:'image', src:bgSrc, scrim:0.46, blur:0.014,
-              fallback:{ type:'grad', c1:P.bg1, c2:P.bg2, a:135 } }
-          : { type:'grad', c1:P.bg1, c2:P.bg2, a:135 },
+              fallback:{ type:'grad', c1:P.fb1 || P.bg1, c2:P.fb2 || P.bg2, a:135 } }
+          : { type:'grad', c1:P.fb1 || P.bg1, c2:P.fb2 || P.bg2, a:135 },
         layers,
       });
     });
@@ -1796,7 +1920,7 @@ TEMPLATES.forEach(t => {
   });
 });
 
-const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','5 MINUTES','HASSLE FREE','SAME DAY','TOP $$$','ANY CONDITION','INSTANT CASH','NO GAMES','CALL NOW'];
+const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','5 MINUTES','HASSLE FREE','SAME DAY','CASH PAID','ANY CONDITION','INSTANT CASH','NO GAMES','CALL NOW'];
 const EMOJIS = ['📱','💰','💵','✅','✔️','👉','🔥','⭐','📲','🤝'];
 
 // ---------- gradient helper (CSS-angle semantics) ----------
@@ -1823,7 +1947,11 @@ function applyBgSpec(cv, bg){
       let s = (cv.getObjects ? cv.getObjects() : []).find(o => o.pgScrim);
       if (bg.scrim){
         if (!s){ s = scrimRect(bg.scrim, CW, CH, bg.scrimColor, bg.scrimMode); s.pgScrim = true; cv.add(s); }
-        else s.set({ left:0, top:0, width:CW, height:CH, fill:(bg.scrimColor === '#ffffff' ? 'rgba(255,255,255,' : 'rgba(0,0,0,') + bg.scrim + ')' });
+        /* the same fill scrimRect() draws: any hex and the gradient mode. This
+           read `scrimColor === '#ffffff' ? white : black`, so a paper-white
+           wash ('#f4f1ec', '#f6f6f4') turned black the second time it was
+           applied, under the dark ink it was chosen for. */
+        else s.set({ left:0, top:0, width:CW, height:CH, fill:scrimRect(bg.scrim, CW, CH, bg.scrimColor, bg.scrimMode).fill });
         if (cv.sendToBack) cv.sendToBack(s);
       } else if (s) cv.remove(s);
       cv.renderAll();
@@ -2077,6 +2205,333 @@ function alignPass(sc, W, H){
     }
   }
 
+  /* ── 2c. ONE AXIS ─────────────────────────────────────────────────────────
+     Owner, 2026-09-27, on WE BUY / POKÉMON: "alignment issues. Plus main text
+     doesn't seem to be centered." Bubble Pop set its first headline line 40px
+     left of centre as a stagger, and every record built on it carried the
+     offset; a stagger that small does not read as intent, it reads as a
+     line that slipped. Centred lines stacked in one column share ONE axis,
+     the widest line's own centre (a column set beside a product keeps its
+     place). Lines side by side (two columns) are not a stack. */
+  {
+    const col = texts.filter(t => t.o.visible !== false && (t.o.originX === 'center' || t.o.textAlign === 'center') &&
+        !/marquee|ticker/i.test(t.o.name || '')).map(t => ({ t, b: bb(t.o) })).filter(x => x.b)
+      .sort((a, c) => a.b.top - c.b.top);
+    const cx = b => b.left + b.width / 2;
+    const groups = [];
+    col.forEach(x => {
+      const g = groups.find(g => { const last = g[g.length - 1];
+        return Math.abs(cx(x.b) - cx(last.b)) <= 90 && x.b.top - (last.b.top + last.b.height) < 0.6 * Math.max(x.b.height, last.b.height); });
+      if (g) g.push(x); else groups.push([x]);
+    });
+    groups.filter(g => g.length > 1).forEach(g => {
+      const wide = g.reduce((m, x) => x.b.width > m.b.width ? x : m, g[0]);
+      const axis = cx(wide.b);
+      g.forEach(x => { const dx = axis - cx(x.b); if (Math.abs(dx) > 1.5){ x.t.o.set({ left: x.t.o.left + dx }); x.t.o.setCoords(); } });
+    });
+  }
+
+  /* ── 4. FIT A BOX TO ITS CONTENT ─────────────────────────────────────────
+     Measured: the median plate was 1.38x the width of the text inside it, the
+     upper quartile 2.05x, the worst a 941px panel around 69px of type — several
+     are authored at a fixed near-full width regardless of what they hold, which
+     reads as a box that missed its content rather than a box around it.
+     Padding is proportional to the type and horizontal is 1.5x vertical, the
+     optical convention; measured it was 79 against 22, nearly 4:1, which is
+     what "excessive margin" looks like. The box keeps its centre so nothing
+     else in the layout shifts. */
+  boxes.forEach(box => {
+    if (box.b.width > W * 0.93) return;                  // full-bleed by design
+    const held = texts.filter(t2 => {
+      const cx = t2.b.left + t2.b.width / 2, cy = t2.b.top + t2.b.height / 2;
+      return cx > box.b.left && cx < box.b.left + box.b.width &&
+             cy > box.b.top  && cy < box.b.top  + box.b.height;
+    });
+    if (held.length !== 1) return;                       // a row or a band: leave it
+    const t2 = held[0];
+    const fs = (t2.o.fontSize || 34) * (t2.o.scaleY || 1);
+    const padV = Math.round(fs * 0.44), padH = Math.round(fs * 0.66);
+    const wantW = t2.b.width + padH * 2, wantH = t2.b.height + padV * 2;
+    /* "Snug" means within 10px EITHER way. The first version tested
+       want >= box - 10 on both axes, which is also true when the words are
+       BIGGER than the plate, so exactly the plates that most needed to grow
+       were skipped: a 574px kicker on a 408px ribbon, pills and price strips
+       with their words hanging off both ends (collision audit, 2026-09-27). */
+    if (Math.abs(wantW - box.b.width) <= 10 && Math.abs(wantH - box.b.height) <= 10) return;   // already snug
+    const cx = box.b.left + box.b.width / 2, cy = box.b.top + box.b.height / 2;
+    const sx = box.o.scaleX || 1, sy = box.o.scaleY || 1;
+    let fw = Math.max(48, wantW), fh = Math.max(30, wantH);
+    /* Growing is allowed only into clear space. A phone plate grown to its
+       padding about its own centre reached down over the REQUEST AN
+       APPRAISAL line under it (scriptRetro, hudTech, ticketStub) and the
+       website line (arcCrown, neonNight): fixing one collision made another.
+       So each axis grows only as far as it stays off every other line. */
+    const others = texts.filter(x => x !== t2).map(x => bb(x.o)).filter(Boolean);   // fresh: steps 1-3 move lines
+    const hits = (w, h) => others.some(r => r.left < cx + w / 2 && r.left + r.width > cx - w / 2 &&
+                                          r.top < cy + h / 2 && r.top + r.height > cy - h / 2);
+    if (fh > box.b.height && hits(Math.min(fw, box.b.width), fh)){
+      let h = fh; while (h > box.b.height && hits(Math.min(fw, box.b.width), h)) h -= 2;
+      fh = Math.max(box.b.height, h);
+    }
+    if (fw > box.b.width && hits(fw, fh)){
+      let w = fw; while (w > box.b.width && hits(w, fh)) w -= 2;
+      fw = Math.max(box.b.width, w);
+    }
+    box.o.set({ width: fw / sx, height: fh / sy,
+                left: cx - fw / 2, top: cy - fh / 2,
+                originX:'left', originY:'top' });
+    box.o.setCoords();
+    box.b = bb(box.o) || box.b;
+  });
+
+  /* ── 4b. WORDS STAY ON THEIR PLATE ───────────────────────────────────────
+     A panel that holds several lines is not resized by step 4, so a headline
+     set wider than its panel hung off both sides ("SPORTS CARDS" on the glass
+     card). The panel widens first, up to the guides, keeping its centre; only
+     if that is not enough does the line's type come down, never below 72%
+     of itself, and the phone number never below 72px (rule 53). */
+  const G4 = Math.round(GUIDE * Math.min(W, H));
+  /* panels, not just plates: a 560px ticket is taller than the half-height
+     cap on `boxes`, so its headline found no host and stayed outside it */
+  const panels = objs.filter(o => o && o.type === 'rect' && o.visible !== false).map(o => ({ o, b: bb(o) }))
+    .filter(x => x.b && x.b.width > 0 && x.b.width < W * 0.93 && x.b.height < H * 0.9);
+  const slid = [];
+  texts.forEach(t => {
+    if (/marquee|ticker/i.test(t.o.name || '')) return;
+    const tb = bb(t.o); if (!tb) return;
+    const tcx = tb.left + tb.width / 2, tcy = tb.top + tb.height / 2;
+    const host = panels.map(x => ({ x, b: bb(x.o) })).filter(h => h.b &&
+        tcx > h.b.left && tcx < h.b.left + h.b.width && tcy > h.b.top && tcy < h.b.top + h.b.height)
+      .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
+    if (!host) return;
+    const pad = Math.max(12, Math.round(host.b.width * 0.045));
+    const over = () => { const b = bb(t.o); return b ? Math.max(0, (host.b.left + pad) - b.left, (b.left + b.width) - (host.b.left + host.b.width - pad)) : 0; };
+    if (over() <= 1) return;
+    // 1. widen the panel about its centre, within the guides
+    const cur = bb(t.o), want = Math.min(W - 2 * G4, cur.width + 2 * pad);
+    if (want > host.b.width){
+      const o = host.x.o, c = o.getCenterPoint();
+      o.set({ width: want / (o.scaleX || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+      host.b = bb(o) || host.b;
+    }
+    if (over() <= 1) return;
+    /* 2. a line that FITS but was set outside the panel: a left-aligned
+       variant put every line at x=72 while its ticket or glass panel starts
+       at 110 to 130, so ADMIT crossed the ticket's edge and the items line
+       hung off the glass. It slides in; lines that shared a left edge still
+       share one (they all land on the panel's left edge plus padding). */
+    { const b1 = bb(t.o), room1 = host.b.width - 2 * pad;
+      if (b1.width <= room1){
+        const lo = host.b.left + pad, hi = host.b.left + host.b.width - pad;
+        const dx = b1.left < lo ? lo - b1.left : (b1.left + b1.width > hi ? hi - (b1.left + b1.width) : 0);
+        if (dx){ slid.push({ t, from: b1.left, host }); t.o.set({ left: t.o.left + dx }); t.o.setCoords(); }
+        if (over() <= 1) return;
+      } }
+    // 3. then bring the type down to the panel
+    const b2 = bb(t.o), room = host.b.width - 2 * pad;
+    let k = Math.max(0.72, room / b2.width);
+    if (t.o.pgRole === 'phone'){
+      const px = (t.o.fontSize || 84) * (t.o.scaleY || 1);
+      k = Math.max(k, Math.min(1, 72 / px));
+    }
+    if (k < 1){
+      const c = t.o.getCenterPoint();
+      t.o.set({ scaleX: (t.o.scaleX || 1) * k, scaleY: (t.o.scaleY || 1) * k });
+      t.o.setPositionByOrigin(c, 'center', 'center'); t.o.setCoords();
+    }
+  });
+  // lines that shared a left edge before sliding share one after (the innermost)
+  slid.forEach(a => {
+    const mates = slid.filter(c => Math.abs(c.from - a.from) <= 3);
+    const edge = Math.max(...mates.map(c => bb(c.t.o).left));
+    mates.forEach(c => { const b = bb(c.t.o), dx = edge - b.left;
+      if (dx > 0 && b.left + b.width + dx <= c.host.b.left + c.host.b.width - 12){ c.t.o.set({ left: c.t.o.left + dx }); c.t.o.setCoords(); } });
+  });
+  /* and TALLER than its plate: a selling-point line wrapped to two lines on a
+     one-line pill, the second line hanging under it on the photograph. The
+     plate grows about its centre to hold every line; if that would put it on
+     other copy, the type comes down instead (not below 72%). */
+  texts.forEach(t => {
+    if (/marquee|ticker/i.test(t.o.name || '')) return;
+    const tb = bb(t.o); if (!tb) return;
+    const tcx = tb.left + tb.width / 2, tcy = tb.top + tb.height / 2;
+    const host = boxes.map(x => ({ x, b: bb(x.o) })).filter(h => h.b && h.b.width < W * 0.93 && h.b.height < H * 0.5 &&
+        tcx > h.b.left && tcx < h.b.left + h.b.width && tcy > h.b.top && tcy < h.b.top + h.b.height)
+      .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
+    if (!host) return;
+    const fs = (t.o.fontSize || 34) * (t.o.scaleY || 1), padV = Math.round(fs * 0.36);
+    /* only a line that is genuinely TALLER than its plate: the first version
+       also fired on padding shortfall, so a 76px number on its snug 108px
+       pill "overflowed", could not grow into the CTA above, and came down to
+       55px: 63 cards under rule 53's 72px floor */
+    if (tb.height <= host.b.height + 1) return;
+    const o = host.x.o, c = o.getCenterPoint(), h0 = o.height;
+    const others = texts.filter(x => x !== t).map(x => bb(x.o)).filter(Boolean);
+    const hits = b => others.some(r => r.left < b.left + b.width && r.left + r.width > b.left && r.top < b.top + b.height && r.top + r.height > b.top &&
+      !(r.left >= b.left && r.top >= b.top && r.left + r.width <= b.left + b.width && r.top + r.height <= b.top + b.height));
+    o.set({ height: (tb.height + 2 * padV) / (o.scaleY || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    const g = bb(o);
+    if (g && !hits(g) && g.top >= 0 && g.top + g.height <= H){
+      const tc = t.o.getCenterPoint(); t.o.setPositionByOrigin(new fabric.Point(tc.x, c.y), 'center', 'center'); t.o.setCoords();
+      host.b = g; return;
+    }
+    o.set({ height: h0 }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    if (t.o.pgRole === 'phone') return;                      // the number is never shrunk to fit (rule 53)
+    const k = Math.max(0.72, (host.b.height - 2 * padV) / tb.height);
+    if (k < 1){
+      const tc = t.o.getCenterPoint();
+      t.o.set({ scaleX: (t.o.scaleX || 1) * k, scaleY: (t.o.scaleY || 1) * k });
+      t.o.setPositionByOrigin(tc, 'center', 'center'); t.o.setCoords();
+    }
+  });
+
+  /* ── 4d. THE PRODUCT KEEPS CLEAR OF THE COPY ─────────────────────────────
+     Collision audit, 2026-09-27: on 47 live Steps Flow cards the product had
+     been dropped where the three full-width step cards run, so the cards and
+     the 3 STEPS headline sat on the coins; classics put a phone under a
+     kicker and under grid labels. A product that touches a line of copy, or
+     sits half on a plate and half off it, moves to the largest clear space:
+     open ground, or the inside of a card (on a card is a place; across its
+     edge is not). It is never enlarged, and if it would read at under 40%
+     of its authored size it is left out rather than shown as a speck. */
+  {
+    const G6 = Math.round(GUIDE * Math.min(W, H)), CELL = 12;
+    const live = o => o && o.visible !== false;
+    const words = objs.filter(o => live(o) && (isText(o) || (o.type === 'group' && o.pgCurved))).map(o => bb(o)).filter(Boolean);
+    const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
+    const plates = boxes.map(x => bb(x.o)).filter(b => b && words.some(w => inside({ x: w.left + w.width / 2, y: w.top + w.height / 2 }, b)));
+    const ov = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
+                         Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
+    const prods = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo');
+    const bad = b => words.some(w => ov(b, w) > 0.03 * Math.min(b.width * b.height, w.width * w.height)) ||
+                     plates.some(p => { const f = ov(b, p) / (b.width * b.height); return f > 0.10 && f < 0.90; });
+    /* largest empty rectangle of free cells inside a region (histogram method) */
+    const bestRect = (reg, blocked) => {
+      const x0 = Math.ceil(reg.left / CELL), y0 = Math.ceil(reg.top / CELL);
+      const nx = Math.floor((reg.left + reg.width) / CELL) - x0, ny = Math.floor((reg.top + reg.height) / CELL) - y0;
+      if (nx < 4 || ny < 4) return null;
+      const hgt = new Array(nx).fill(0); let best = null;
+      for (let j = 0; j < ny; j++){
+        for (let i = 0; i < nx; i++){
+          const cb = { left:(x0 + i) * CELL, top:(y0 + j) * CELL, width:CELL, height:CELL };
+          hgt[i] = blocked.some(r => ov(cb, r) > 0) ? 0 : hgt[i] + 1;
+        }
+        const st = [];
+        for (let i = 0; i <= nx; i++){
+          const h = i < nx ? hgt[i] : 0; let s0 = i;
+          while (st.length && st[st.length - 1].h >= h){
+            const top = st.pop(); const wcells = i - top.i;
+            const r = { left:(x0 + top.i) * CELL, top:(y0 + j - top.h + 1) * CELL, width:wcells * CELL, height:top.h * CELL };
+            if (top.h && (!best || r.width * r.height > best.width * best.height)) best = r;
+            s0 = top.i;
+          }
+          st.push({ i: s0, h });
+        }
+      }
+      return best;
+    };
+    prods.forEach(o => {
+      const b = bb(o); if (!b || b.width * b.height > W * H * 0.6) return;
+      if (!bad(b)) return;
+      const pad = 16;
+      const wordsPad = words.map(w => ({ left: w.left - pad, top: w.top - pad, width: w.width + 2 * pad, height: w.height + 2 * pad }));
+      const others = prods.filter(p => p !== o).map(p => bb(p)).filter(Boolean);
+      const guide = { left: G6, top: G6, width: W - 2 * G6, height: H - 2 * G6 };
+      const regions = [{ reg: guide, blocked: wordsPad.concat(plates.map(p => ({ left: p.left - 10, top: p.top - 10, width: p.width + 20, height: p.height + 20 })), others) }]
+        .concat(plates.map(p => ({ reg: { left: p.left + 14, top: p.top + 14, width: p.width - 28, height: p.height - 28 },
+                                   blocked: wordsPad.concat(others) })));
+      let pick = null;
+      regions.forEach(({ reg, blocked }) => {
+        const r = bestRect(reg, blocked); if (!r) return;
+        const k = Math.min(1, (r.width * 0.94) / b.width, (r.height * 0.94) / b.height);
+        const d = Math.hypot(r.left + r.width / 2 - (b.left + b.width / 2), r.top + r.height / 2 - (b.top + b.height / 2));
+        if (!pick || k > pick.k + 0.02 || (Math.abs(k - pick.k) <= 0.02 && d < pick.d)) pick = { r, k, d };
+      });
+      if (!pick || pick.k < 0.4){ o.visible = false; return; }
+      o.set({ scaleX: (o.scaleX || 1) * pick.k, scaleY: (o.scaleY || 1) * pick.k });
+      o.setPositionByOrigin(new fabric.Point(pick.r.left + pick.r.width / 2, pick.r.top + pick.r.height / 2), 'center', 'center');
+      o.setCoords();
+    });
+  }
+
+  /* ── 4c. DECORATION YIELDS TO COPY ───────────────────────────────────────
+     DESIGN-LAW rule 7, enforced at render (collision audit, 2026-09-27): a
+     sticker whose disc the item line ran through, a category mark on the
+     letters of CARD BUYER, a sparkle on the D of iPAD, a bolt across a tile's
+     edge. Decoration never outranks a word. A mark that touches copy, crosses
+     a plate that carries copy, or sits outside the guides moves to the nearest
+     clear place (down to 70% of its size) near where it was authored; if
+     there is none, it goes. A STICKER (a disc or burst with its own words) is
+     never moved, only removed: moved, one landed as a bare blue disc in the
+     middle of a photograph with its curved label left dark on dark
+     (bubblePop-jw07-15). A mark placed at random reads as a mistake.
+     A pointer cursor on a static ad imitates a link nobody can click, so it
+     goes everywhere. Checklist ticks are information, not decoration: kept. */
+  {
+    const G5 = Math.round(GUIDE * Math.min(W, H));
+    const live = o => o && o.visible !== false;
+    /* curved words are groups (textToCurved), and they are words: the first
+       version left them out, so a sticker moved and its curved CASH NOW label
+       stayed behind, dark type on a dark photograph */
+    const isWord = o => isText(o) || (o && o.type === 'group' && o.pgCurved);
+    const txt = objs.filter(o => live(o) && isWord(o)).map(o => ({ o, b: bb(o) })).filter(t => t.b);
+    const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
+    const ctr = b => ({ x: b.left + b.width / 2, y: b.top + b.height / 2 });
+    const plates = boxes.map(x => ({ o: x.o, b: bb(x.o) })).filter(x => x.b && txt.some(t => inside(ctr(t.b), x.b)));
+    const cuts = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo').map(o => ({ o, b: bb(o) })).filter(x => x.b);
+    const units = [];
+    objs.forEach(o => {
+      if (!live(o)) return;
+      if (o.name === 'Cursor'){ o.visible = false; return; }
+      const deco = o.pgRole === 'deco' && !/^Tick/.test(o.name || '');
+      const sticker = (o.type === 'circle' || o.type === 'rect') && /Sticker|Seal Disc|Burst/i.test(o.name || '');
+      if (!deco && !sticker) return;
+      const b = bb(o); if (!b || b.width * b.height > W * H * 0.08) return;
+      const label = sticker ? txt.filter(t => inside(ctr(t.b), b)) : [];
+      units.push({ parts: [o].concat(label.map(t => t.o)), own: new Set(label.map(t => t.o)), b, sticker });
+    });
+    const overlap = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
+                              Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
+    const clash = (u, b) => {
+      if (b.left < G5 || b.top < G5 || b.left + b.width > W - G5 || b.top + b.height > H - G5) return true;
+      const A = b.width * b.height;
+      if (txt.some(t => !u.own.has(t.o) && overlap(b, t.b) > 0.02 * Math.min(A, t.b.width * t.b.height))) return true;
+      if (plates.some(p => { const f = overlap(b, p.b) / A; return f > 0.05 && f < 0.95 && !u.parts.includes(p.o); })) return true;
+      if (cuts.some(c => overlap(b, c.b) > 0.15 * A)) return true;
+      return units.some(v => v !== u && v.b && overlap(b, v.b) > 0);
+    };
+    units.forEach(u => {
+      if (!clash(u, u.b)) return;
+      const c0 = ctr(u.b);
+      let best = null;
+      const reach = u.sticker ? 0 : Math.min(160, Math.max(48, 1.5 * Math.max(u.b.width, u.b.height)));
+      for (const k of [1, 0.85, 0.7]){
+        const w = u.b.width * k, h = u.b.height * k;
+        for (let r = 12; r <= reach && !best; r += 12){
+          for (let a = 0; a < 16 && !best; a++){
+            const x = c0.x + r * Math.cos(a * Math.PI / 8) - w / 2, y = c0.y + r * Math.sin(a * Math.PI / 8) - h / 2;
+            const b = { left: x, top: y, width: w, height: h };
+            if (!clash(u, b)) best = { k, dx: x + w / 2 - c0.x, dy: y + h / 2 - c0.y, b };
+          }
+        }
+        if (best) break;
+      }
+      if (!best){ u.parts.forEach(o => { o.visible = false; }); u.b = null; return; }
+      u.parts.forEach(o => {
+        const c = o.getCenterPoint();
+        const n = new fabric.Point(c0.x + (c.x - c0.x) * best.k + best.dx, c0.y + (c.y - c0.y) * best.k + best.dy);
+        o.set({ scaleX: (o.scaleX || 1) * best.k, scaleY: (o.scaleY || 1) * best.k });
+        o.setPositionByOrigin(n, 'center', 'center'); o.setCoords();
+      });
+      u.b = best.b;
+    });
+  }
+
+  /* ── 5. THE GUIDES ───────────────────────────────────────────────────────
+     Everything that carries the message sits inside the 6% safe margin. See
+     fitInsideGuides(); the per-line clamp below stays as a last resort. */
+  fitInsideGuides(sc, W, H);
+
   texts.forEach(t => {
     if (/marquee|ticker/i.test(t.o.name || '')) return;  // edge-hugging on purpose
     const b = bb(t.o); if (!b) return;
@@ -2090,7 +2545,91 @@ function alignPass(sc, W, H){
     if (dx || dy){ t.o.set({ left: t.o.left + dx, top: t.o.top + dy }); t.o.setCoords(); }
   });
 }
+
+/* THE GUIDES — DESIGN-LAW rule 57.
+   Owner, 2026-09-27: "make sure everything fits within the guides it needs
+   to." The study session's critic already WARNED at a 6% safe margin and
+   left it "an open decision"; measured on the live showcase, the website line
+   sat inside that margin on 293 of 684 cards, the selling-point badges on
+   106, a headline on 54, the phone number on 22 — and the engine's own clamp
+   was 24px (2.2%), one line at a time.
+
+   Moving one line at a time is how collisions are made: pull the website line
+   up and it lands on the number's plate. So the COMPOSITION moves as one:
+   copy, plates, stickers, icons and products are scaled and shifted together,
+   about their own centre, until the whole message is inside the guides. Every
+   spacing relationship survives, so nothing that was clear starts to collide.
+
+   Left alone: the ground (anything covering >= 85% of both dimensions:
+   photographs, scrims, beams, bokeh, grids, vignettes, grain, canvas frames),
+   frame and corner marks, and edge tickers. Kept attached: a band or a
+   product that touches an edge still touches it afterwards (a full-width band
+   keeps its full width; a product cut at the frame keeps its bleed). */
+const GUIDE = 0.06;
+function fitInsideGuides(sc, W, H){
+  W = W || TPL_W; H = H || TPL_H;
+  let objs;
+  try { objs = sc.getObjects(); } catch (e){ return 1; }
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
+  const TOUCH = 2;
+  const items = [];
+  objs.forEach(o => {
+    if (!o || o.visible === false || o.pgBgRect || o.pgScrim) return;
+    if (/^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '')) return;
+    if (o.pgRole === 'frame' || /Frame|Corner|Bracket|Border/.test(o.name || '') && !isText(o)) return;
+    if (/marquee|ticker/i.test(o.name || '')) return;
+    const b = bb(o); if (!b || b.width <= 0 || b.height <= 0) return;
+    if (b.width >= W * 0.85 && b.height >= H * 0.85) return;          // ground, not message
+    const edge = { l: b.left <= TOUCH, r: b.left + b.width >= W - TOUCH, t: b.top <= TOUCH, bo: b.top + b.height >= H - TOUCH };
+    const text = isText(o);
+    const bleed = !text && (edge.l || edge.r || edge.t || edge.bo);
+    items.push({ o, b, edge, text, bleed });
+  });
+  /* the message's extent: everything that is not attached to an edge */
+  const msg = items.filter(x => !x.bleed);
+  if (!msg.some(x => x.text)) return 1;
+  const U = msg.reduce((u, x) => ({ l: Math.min(u.l, x.b.left), t: Math.min(u.t, x.b.top),
+    r: Math.max(u.r, x.b.left + x.b.width), bo: Math.max(u.bo, x.b.top + x.b.height) }), { l: Infinity, t: Infinity, r: -Infinity, bo: -Infinity });
+  if (U.l >= G - 0.5 && U.t >= G - 0.5 && U.r <= W - G + 0.5 && U.bo <= H - G + 0.5) return 1;   // already inside
+  const uw = U.r - U.l, uh = U.bo - U.t;
+  const s = Math.min(1, (W - 2 * G) / uw, (H - 2 * G) / uh);
+  const ucx = (U.l + U.r) / 2, ucy = (U.t + U.bo) / 2;
+  // after scaling about the message's centre, shift it into the guides
+  const sl = ucx - uw * s / 2, sr = ucx + uw * s / 2, st = ucy - uh * s / 2, sb = ucy + uh * s / 2;
+  const dx = Math.max(0, G - sl) - Math.max(0, sr - (W - G));
+  const dy = Math.max(0, G - st) - Math.max(0, sb - (H - G));
+  items.forEach(x => {
+    const o = x.o, c = o.getCenterPoint();
+    const n = new fabric.Point((c.x - ucx) * s + ucx + dx, (c.y - ucy) * s + ucy + dy);
+    o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+    o.setPositionByOrigin(n, 'center', 'center');
+    o.setCoords();
+    if (!x.bleed) return;
+    /* keep what was attached to an edge attached: a full-width band keeps its
+       width, a band or product at an edge keeps reaching it */
+    const b = bb(o); if (!b) return;
+    if (o.type === 'rect'){
+      let L = b.left, T = b.top, R = b.left + b.width, B = b.top + b.height;
+      if (x.edge.l) L = x.b.left; if (x.edge.r) R = x.b.left + x.b.width;
+      if (x.edge.t) T = x.b.top;  if (x.edge.bo) B = x.b.top + x.b.height;
+      o.set({ originX:'left', originY:'top', left: L, top: T,
+              width: (R - L) / (o.scaleX || 1), height: (B - T) / (o.scaleY || 1) });
+    } else {
+      let ox = 0, oy = 0;
+      if (x.edge.l) ox = x.b.left - b.left; else if (x.edge.r) ox = (x.b.left + x.b.width) - (b.left + b.width);
+      if (x.edge.t) oy = x.b.top - b.top;   else if (x.edge.bo) oy = (x.b.top + x.b.height) - (b.top + b.height);
+      o.set({ left: o.left + ox, top: o.top + oy });
+    }
+    o.setCoords();
+  });
+  return s;
+}
 function buildLayer(l, tplId, dw, dh){
+  /* AREA: copy that names a place is re-pointed at the customer's own towns
+     before it is set (see localizeText below). Identity when no area is set. */
+  const txt = (typeof l.text === 'string' && typeof localizeText === 'function') ? localizeText(l.text) : l.text;
   const p = mapSpecToDoc(l, Object.assign({}, l.props), dw || TPL_W, dh || TPL_H);
   const gradSpec = p.grad; delete p.grad;          // {c1,c2,a}, gradient fill, applied below
   // curved text straight from a template spec (left/top = arc CENTER)
@@ -2101,7 +2640,7 @@ function buildLayer(l, tplId, dw, dh){
     if (gradSpec) style.fill = objGrad(gradSpec);
     const pos = { left:p.left, top:p.top, angle:p.angle || 0 };
     const meta = { name:l.name, pgRole:l.role || '', pgCasing:l.casing || 'none', pgTplId:tplId, pos };
-    let grp = buildCurvedGroup(l.text, l.curve, style, meta);
+    let grp = buildCurvedGroup(txt, l.curve, style, meta);
     // Curved text arcs outward, so it overflows sooner than its glyph count
     // suggests: the emerald wave line measured 1354px on a 1080 board. Same
     // measure-and-fit rule as straight text, but it has to rebuild the group
@@ -2109,7 +2648,7 @@ function buildLayer(l, tplId, dw, dh){
     const docW = dw || TPL_W, margin = Math.round(docW * 0.035);
     for (let pass = 0; pass < 2 && grp.width > docW - margin * 2; pass++){
       style.fontSize = Math.max(8, Math.floor((style.fontSize || 40) * ((docW - margin * 2) / grp.width)));
-      grp = buildCurvedGroup(l.text, l.curve, style, meta);
+      grp = buildCurvedGroup(txt, l.curve, style, meta);
     }
     if (gradSpec) grp.pgFillGrad = gradSpec;
     return grp;
@@ -2141,7 +2680,10 @@ function buildLayer(l, tplId, dw, dh){
     }
     const u = (dw || TPL_W) / TPL_W;
     const img = new fabric.Image(el);
-    const s = ((l.props.w || 420) * u) / el.width;
+    /* maxH caps the height as well: a layout with a fixed band for the product
+       (the street ribbon and price tag, 2026-09-26) cannot know each cutout's
+       aspect, and a tall one ran up over the words above it */
+    const s = Math.min(((l.props.w || 420) * u) / el.width, p.maxH ? (p.maxH * u) / el.height : Infinity);
     img.set({
       left:p.left, top:p.top,
       originX:p.originX || 'left', originY:p.originY || 'top',
@@ -2211,9 +2753,9 @@ function buildLayer(l, tplId, dw, dh){
       originX: 'left', originY: 'top', objectCaching: false
     }));
   }
-  else if (l.kind === 'textbox') obj = new fabric.Textbox(l.text, Object.assign({paintFirst:'stroke'}, p));
+  else if (l.kind === 'textbox') obj = new fabric.Textbox(txt, Object.assign({paintFirst:'stroke'}, p));
   else {
-    obj = new fabric.IText(l.text, Object.assign({paintFirst:'stroke'}, p));
+    obj = new fabric.IText(txt, Object.assign({paintFirst:'stroke'}, p));
     fitToDoc(obj, p, dw || TPL_W);
     // after any size change, so the bearing is measured at the size that ships
     if (l.pgOptical !== false) obj.set('left', obj.left - opticalLeftShift(obj));
@@ -2317,6 +2859,7 @@ function showLanding(){
   window.scrollTo(0,0);
 }
 function showEditor(){
+  warmTemplateAssets();
   $('page-landing').classList.add('hidden');
   $('page-easy').classList.remove('active');
   $('page-editor').classList.add('active');
@@ -2714,7 +3257,7 @@ function openBrandModal(){
   const b = getBrand() || {};
   $('bk-phone').value = b.phone || '';
   $('bk-website').value = b.website || '';
-  $('bk-name').value = b.name || '';
+  $('bk-name').value = b.name || ''; if ($('bk-area')) $('bk-area').value = areaLabel();
   $('brand-overlay').classList.add('show');
   setTimeout(() => $('bk-phone').focus(), 60);
 }
@@ -2810,6 +3353,11 @@ async function enhance(){
 }
 
 async function aiPolish(texts){
+  /* Off (2026-09-22). This called api.anthropic.com straight from the browser
+     with no key, which the site's own CSP (connect-src) blocks, so every
+     Enhance logged a CSP violation and fell back to the local cleanup anyway.
+     A spelling pass would need a server route that holds the key. */
+  return null;
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 6000);
   try {
@@ -3426,6 +3974,8 @@ function miniTplCard(thumb, name, onUse, onDel){
   const d = document.createElement('div');
   d.className = 'mini-tpl';
   d.innerHTML = `<img src="${thumb}" alt="${escHtml(name)}"><div class="mt-name">${escHtml(name)}</div>` + (onDel ? '<button class="mt-del" title="Delete">✕</button>' : '');
+  /* a locked mini card is guarded by the same pattern as the gallery — the
+     CSS hangs off .locked, which refreshMyTemplates() sets */
   d.onclick = e => { if (e.target.classList.contains('mt-del')) return; onUse(); };
   if (onDel) d.querySelector('.mt-del').onclick = e => { e.stopPropagation(); if (confirm('Delete "'+name+'"? This can\'t be undone.')) onDel(); };
   return d;
@@ -3470,17 +4020,19 @@ function buildPickerGrid(filter){
     TEMPLATES.filter(t => filter === 'all' ? t.cat === currentCat : t.cat === filter).forEach(t => {
       const locked = tplLocked(t);
       const c = pickerCard(getThumb(t.id, 320), t.name, locked ? 'premium 🔒' : t.tag,
-        () => { if (tplLocked(t)){ openPlans('“' + t.name + '” is a premium template, unlock all 8 designs with Starter or Pro.'); return; } closePicker(); loadTemplate(t.id); });
+        () => { if (tplLocked(t)){ openPlans('“' + t.name + '” is a premium template, unlock the whole library with Pro.'); return; } closePicker(); loadTemplate(t.id); },
+        null, locked);
       if (locked) c.classList.add('locked');
       grid.appendChild(c);
     });
   }
 }
-function pickerCard(thumb, name, tag, onUse, onDel){
+function pickerCard(thumb, name, tag, onUse, onDel, locked){
   const card = document.createElement('div');
   card.className = 'tpl-card' + (onDel ? ' tpl-saved-card' : '');
   card.innerHTML = `<img src="${thumb}" alt="${escHtml(name)}"><div class="tpl-veil"></div>
-    <div class="tpl-use">Use →</div>
+    ${locked ? '<div class="pro-guard"></div>' : ''}
+    <div class="tpl-use">${locked ? 'Unlock →' : 'Use →'}</div>
     ${onDel ? '<button class="tpl-del" title="Delete">✕</button>' : ''}
     <div class="tpl-meta"><span class="tpl-name">${escHtml(name)}</span><span class="tpl-tag">${escHtml(tag)}</span></div>`;
   card.onclick = e => { if (e.target.classList.contains('tpl-del')) return; onUse(); };
@@ -4067,6 +4619,29 @@ function freshBgImage(src, blur, grade){
       img.applyFilters();
     } catch (e){ /* a filter failure must not cost the whole backdrop */ }
   }
+  /* The showcase set (assets/showcase, 2026-09-02) carries the Template Lab's
+     photo treatment as grade.treat: 'tone' strips the photograph to
+     luminance so the theme's own scrim colours it, 'natural' keeps its
+     colour with a touch of contrast and lets the blur and a neutral scrim do
+     the work. Same filters the lab painted with, so the card opens as shown. */
+  if (img && grade && grade.treat){
+    try {
+      const F = fabric.Image.filters;
+      /* 'duo' (2026-09-22): a true duotone, shadows in grade.lo and highlights
+         in grade.hi, solved by scripts/refresh_palettes.mjs duoFor() to the
+         same two endpoints the old grey-under-a-veil 'tone' produced, so the
+         card keeps its tonal range and only gains colour. */
+      img.filters = grade.treat === 'raw' ? []                       // as shot
+        : grade.treat === 'duo' && grade.lo && grade.hi
+        ? [new F.Grayscale(), new F.Contrast({ contrast: 0.08 }),
+           new F.BlendColor({ color: grade.hi, mode: 'multiply', alpha: 1 }),
+           new F.BlendColor({ color: grade.lo, mode: 'screen', alpha: 1 })]
+        : grade.treat === 'natural'
+        ? [new F.Contrast({ contrast: 0.05 })]
+        : [new F.Grayscale(), new F.Contrast({ contrast: 0.08 })];
+      img.applyFilters();
+    } catch (e){}
+  }
   return img;
 }
 function _freshBgImageRaw(src){
@@ -4092,7 +4667,7 @@ function preloadCutouts(){
     const el = new Image();
     el.onload = () => { CUTOUT_ELS[src] = el; res(); };
     el.onerror = () => { missing.push(src); res(); };
-    el.src = src;
+    el.src = assetUrl(src);
   }))).then(() => {
     if (missing.length) console.warn('GraphicsStudio: ' + missing.length + ' cutout(s) missing from assets/cutouts, those layers render empty:', missing.slice(0, 5));
     else console.log('GraphicsStudio: all ' + srcs.length + ' product cutouts ready.');
@@ -4143,7 +4718,7 @@ function preloadTplBgs(){
       else finish(null);
     };
     // embedded data first (cannot 404, works on file://); asset file is the backup
-    el.src = embedded[t.bg.src] || t.bg.src;
+    el.src = embedded[t.bg.src] || assetUrl(t.bg.src);
   });
   /* Wave 1 = what is on screen. Wave 2 = everything else, started only once
      wave 1 has settled, so the visible page is never competing with 130
@@ -4245,35 +4820,170 @@ function coverImage(im, w, h){
   return im;
 }
 
-// ═══════════════ SUGGESTED COLOR THEMES (complementary color theory) ═══════════════
-// Each pairs opposite-wheel hues: high-contrast complements are the most
-// click-pulling combination for feed ads. bg = scene, accent = the pop color,
-// ink = body text on that bg.
+/* ═══════════════ SUGGESTED COLOR THEMES ═══════════════
+   Scored, not asserted: run `node scripts/score_themes.mjs`. Every theme is
+   checked for white ink on the dark stop, ACCENT on the dark stop (the accent
+   carries the money word, so 4.5:1 is the floor, not 3:1), and the accent again
+   under protan/deutan/tritan simulation.
+
+   The previous set was built on "opposite-wheel hues pull clicks" and read as a
+   colour-theory exercise rather than as this business: Teal × Coral, Midnight ×
+   Pink and Crimson × Mint are lovely and belong on a festival poster. The
+   owner's note — the ads are "starting to pick some funky duotones" — is that
+   observation from the other side.
+
+   What a cash-buyback ad actually needs, and what this set is built from:
+     - a ground DARK enough that white type never has to fight it,
+     - one warm, high-energy accent doing the money word,
+     - names a non-designer can pick from ("Cash Green", not "Crimson × Mint"),
+     - and the warm/street direction locked in HANDOFF section 6.
+
+   Nine of ten accents are warm or neutral. Clean Slate is the deliberate
+   exception: some sellers respond to a clinical, no-nonsense look.
+
+   2026-08-31: three accents were retuned. Every theme in this set passed every
+   contrast test against its own ground and always had — but the accent's job
+   here is to carry ONE WORD inside an otherwise white headline, so the test
+   that matters is the accent against the INK NEXT TO IT, and nobody had run
+   it. Charcoal Lime scored 1.33:1 against its own white, Warm Cream 1.26 and
+   Clean Slate 1.19 — Clean Slate's #e8ecef was very nearly white on white, so
+   the money word was invisible as a money word while measuring 16.8:1 against
+   the background and looking, on a chart, like the best theme in the set.
+   Deepened to #add369 / #ecbf6a / #b1bec9: same hue, same names, now 1.71,
+   1.72 and 1.90 against the ink, and still 9:1+ against both stops with CVD
+   above 9.
+
+   Setting that floor at 1.7 then failed three MORE themes that had looked fine
+   at 1.6 — Gold Standard 1.67, Money Amber 1.61, Electric Cyan 1.67. Moving a
+   floor and grandfathering whatever was already under it is not a standard, so
+   those three were nudged to clear the same bar: #fbbf24 -> #f4bb2a,
+   #ffc247 -> #f9b939, #5fd8f0 -> #54d4ee. Sub-1% moves in lightness, invisible
+   side by side, and the whole set now passes one rule instead of two.
+   Floor is 1.7. Checked by scripts/theme_law.mjs.
+
+   2026-09-26: the twelve rows that came from scripts/theme_specs.mjs failed
+   that same audit (12 of 21 themes). Five Jewel and Night Neon rows set a
+   pastel accent beside a pale tinted ink, 1.12 to 1.34:1 apart, so the money
+   word was not a different colour; four light rows put a phone-number accent
+   under 4.5:1 on their own ground; two Duotone rows stood dark ink on a
+   mid-tone cyan or blue, under 4.5:1 for everything. The study session's
+   design language gives every colour one job, near-black or near-white ink,
+   one accent, and a ground that is clearly light or clearly dark, so each row
+   was re-solved in OKLCH keeping every hue: inks to near-black or near-white
+   with a breath of the ground's hue; mid-tone grounds to a pale tint of their
+   own hue (dark ink) or kept deep (light ink); accents placed in the one
+   luminance band that clears 4.5:1 on both stops and 1.75:1 against the ink,
+   at the most chroma the gamut allows, yellows and ambers at the light end of
+   that band so they stay gold rather than olive or brown. 21 of 21 pass. */
 const COLOR_THEMES = [
-  { name:'Navy × Orange',    bg:{type:'grad', c1:'#132a63', c2:'#0a1533', a:165}, accent:'#ff7a1a', ink:'#ffffff' },
-  { name:'Teal × Coral',     bg:{type:'grad', c1:'#0c5f5b', c2:'#043a37', a:160}, accent:'#ff6f61', ink:'#ffffff' },
-  { name:'Purple × Gold',    bg:{type:'grad', c1:'#4b1d95', c2:'#22093f', a:160}, accent:'#ffd200', ink:'#ffffff' },
-  { name:'Forest × Amber',   bg:{type:'grad', c1:'#14532d', c2:'#052012', a:170}, accent:'#fbbf24', ink:'#ffffff' },
-  { name:'Crimson × Mint',   bg:{type:'grad', c1:'#9f1239', c2:'#3b0716', a:160}, accent:'#6ee7b7', ink:'#ffffff' },
-  { name:'Black × Electric', bg:{type:'grad', c1:'#101018', c2:'#000000', a:180}, accent:'#38bdf8', ink:'#ffffff' },
-  { name:'Charcoal × Lime',  bg:{type:'grad', c1:'#26262e', c2:'#101015', a:180}, accent:'#a3e635', ink:'#ffffff' },
-  { name:'Royal × Tangerine',bg:{type:'grad', c1:'#1e3a8a', c2:'#0b1540', a:160}, accent:'#fb923c', ink:'#ffffff' },
-  { name:'Espresso × Cream', bg:{type:'grad', c1:'#3f2d20', c2:'#1a110a', a:170}, accent:'#f5e6c8', ink:'#ffffff' },
-  { name:'Midnight × Pink',  bg:{type:'grad', c1:'#1e1b4b', c2:'#0a0920', a:165}, accent:'#f472b6', ink:'#ffffff' },
+  /* 2026-09-02: the row used to be ten dark grounds, four of them brown or
+     amber under an orange accent — the old design language. Five of the old
+     ones stay (the ones that were not brown); twelve come from
+     scripts/theme_specs.mjs, the same records the Template Lab sets are
+     painted with, so a theme picked here matches a theme seen there. Light
+     grounds carry DARK ink, which applyColorTheme() already handles because
+     it maps by role rather than by assuming white type. */
+  { name:'Blue Market',   family:'Duotone',    bg:{type:'grad', c1:'#aae8ff', c2:'#99dbfb', a:170}, accent:'#005284', ink:'#0a2026' },
+  { name:'Blue Ticket',   family:'Jewel',      bg:{type:'grad', c1:'#02383e', c2:'#002e36', a:170}, accent:'#ff83b6', ink:'#eaf5f7' },
+  { name:'Mint Market',   family:'Jewel',      bg:{type:'grad', c1:'#003a21', c2:'#003021', a:170}, accent:'#cd92ff', ink:'#edf5f0' },
+  { name:'Orchid Payday', family:'Jewel',      bg:{type:'grad', c1:'#47205e', c2:'#481057', a:170}, accent:'#d1b906', ink:'#f7f2fa' },
+  { name:'Indigo Cash',   family:'Night Neon', bg:{type:'grad', c1:'#0e253c', c2:'#02132e', a:170}, accent:'#fe7f78', ink:'#eef5fc' },
+  { name:'Indigo Trade',  family:'Duotone',    bg:{type:'grad', c1:'#cde1ff', c2:'#bdd2fe', a:170}, accent:'#4839b8', ink:'#141d2b' },
+  { name:'Blue Deal',     family:'Candy',      bg:{type:'grad', c1:'#afe7ff', c2:'#9bdafc', a:170}, accent:'#98056e', ink:'#0b2027' },
+  { name:'Sky Market',    family:'Cool Air',   bg:{type:'grad', c1:'#b9f7f6', c2:'#99e1e7', a:170}, accent:'#9b2000', ink:'#082021' },
+  { name:'Violet Payday', family:'iOS Flat',   bg:{type:'grad', c1:'#ecefff', c2:'#d5d7ef', a:170}, accent:'#3d40bc', ink:'#181c2b' },
+  { name:'Gold Offer',    family:'Paper',      bg:{type:'grad', c1:'#fdf4ee', c2:'#e5ddd5', a:170}, accent:'#904d03', ink:'#281a0f' },
+  { name:'Mint Counter',  family:'Paper',      bg:{type:'grad', c1:'#f2f8ef', c2:'#d9e1d8', a:170}, accent:'#325f01', ink:'#162011' },
+  { name:'Red Cash',      family:'Chalk',      bg:{type:'grad', c1:'#faf5f7', c2:'#e4dedf', a:170}, accent:'#a10966', ink:'#29171f' },
+  { name:'Cash Green',    family:'Classic',    bg:{type:'grad', c1:'#123123', c2:'#050f0a', a:170}, accent:'#4ade80', ink:'#ffffff' },
+  { name:'Night Blue',    family:'Classic',    bg:{type:'grad', c1:'#0f1b3d', c2:'#050916', a:170}, accent:'#ffa62b', ink:'#ffffff' },
+  { name:'Deep Red',      family:'Classic',    bg:{type:'grad', c1:'#2a0a0e', c2:'#0d0305', a:170}, accent:'#ff6b57', ink:'#ffffff' },
+  { name:'Electric Cyan', family:'Classic',    bg:{type:'grad', c1:'#07222b', c2:'#030d11', a:170}, accent:'#54d4ee', ink:'#ffffff' },
+  { name:'Clean Slate',   family:'Classic',    bg:{type:'grad', c1:'#141a20', c2:'#06090c', a:175}, accent:'#b1bec9', ink:'#ffffff' },
+  /* GFX GRAMMAR TRANSPLANT, 2026-09-04.
+     These are not copied Canva templates. They are four reusable campaign
+     intentions distilled from the prototype and expressed in this engine's
+     existing semantic roles. `support` is deliberately separate from the
+     money/CTA accent: one hue earns attention, the other carries small trust
+     and qualification copy. All four are checked by audit_theme_grammar.mjs
+     against both gradient stops under normal/protan/deutan/tritan vision. */
+  { name:'Hot Sale',       family:'GFX Grammar', intent:'urgent local offer',
+    bg:{type:'grad', c1:'#fff1d6', c2:'#e7c8a6', a:170}, accent:'#9f2d1f', ink:'#241612', support:'#7a4210' },
+  { name:'Electric Trust', family:'GFX Grammar', intent:'high-value electronics',
+    bg:{type:'grad', c1:'#101a3a', c2:'#07102b', a:170}, accent:'#ff6a55', ink:'#fffdf7', support:'#8fb1ff' },
+  { name:'Fresh Cash',     family:'GFX Grammar', intent:'safe same-day payout',
+    bg:{type:'grad', c1:'#174c3c', c2:'#082b23', a:170}, accent:'#f7a15a', ink:'#fff4d8', support:'#a8e6cf' },
+  { name:'Night Neon',     family:'GFX Grammar', intent:'after-hours scroll stop',
+    bg:{type:'grad', c1:'#121212', c2:'#050505', a:170}, accent:'#ff8b3d', ink:'#f7f0e6', support:'#c5d63b' },
 ];
+/* Which text is standing on the THEME's background, and which is standing on a
+   plate of its own? Picking a theme repaints the background; it does not repaint
+   the plates, so a line sitting on one has a ground the theme does not control
+   and must be left alone. Same geometry test as purgePlateGradients(): a rect
+   earlier in the stack whose box contains the text's vertical middle. */
+function plateUnder(tpl, layer){
+  const layers = tpl.layers || [];
+  const li = layers.indexOf(layer);
+  if (li < 0 || !layer.props) return null;
+  const x = layer.props.left || 0;
+  const mid = (layer.props.top || 0) + (layer.props.fontSize || 40) * 0.5;
+  for (let i = 0; i < li; i++){
+    const r = layers[i];
+    if ((r.kind !== 'rect' && r.kind !== 'rrect') || !r.props) continue;
+    const L = r.props.left||0, T = r.props.top||0, W = r.props.width||0, H = r.props.height||0;
+    if (!W || !H) continue;
+    /* A plate has to actually PAINT something. slabPoster's 'Poster Frame' is a
+       full-bleed rect with fill rgba(0,0,0,0) — a stroked outline, nothing more
+       — and counting it as a plate excused every line on those templates from
+       needing contrast against the real ground. tuneFallbacks() then had no
+       constraint on those inks and parked the fallback right on top of them:
+       12 layers at zero coverage, invisible, caused by the exclusion rather
+       than by any colour. A frame is not a plate, and neither is anything
+       covering most of the canvas. */
+    const f = r.props.fill;
+    if (r.props.grad && r.props.grad.c1){ /* gradient plates count */ }
+    else if (typeof f !== 'string') continue;
+    else if (/^rgba\(/i.test(f)){
+      const a = parseFloat((f.match(/rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([\d.]+)/i)||[])[1]);
+      if (!(a >= 0.5)) continue;                    // see-through: not a ground
+    }
+    /* TPL_W/TPL_H, not CW/CH: templates are authored at the template size, and
+       CW/CH follow whatever format the editor is currently showing. */
+    if (W * H >= TPL_W * TPL_H * 0.9) continue;     // full-bleed: a frame or a scrim
+    if (x >= L - 12 && x <= L + W + 12 && mid >= T && mid <= T + H) return r;
+  }
+  return null;
+}
 function applyColorTheme(th){
   ez.bg = { type:'grad', c1: th.bg.c1, c2: th.bg.c2, a: th.bg.a };
   ez.bgRecId = null;
   const tpl = ezTpl();
+  /* The library uses nine roles. This used to repaint three of them —
+     headline, cta, sub — so picking a theme recoloured part of the ad and left
+     badges, info, phone and website on whatever the PREVIOUS theme had made
+     them. That is the "illusion of choice" ask failing at the first click: the
+     visitor picks Cash Green and half the type stays amber.
+     Now every reading role follows the ink and the two money roles follow the
+     accent, except where the layer sits on a plate the theme does not own. */
   const heads = tpl.layers.filter(l => l.role === 'headline');
-  heads.forEach((l, i) => ezSetStyle(l.name, { fill: i === heads.length - 1 ? th.accent : th.ink }));
-  tpl.layers.filter(l => l.role === 'cta').forEach(l => ezSetStyle(l.name, { fill: th.accent }));
-  tpl.layers.filter(l => l.role === 'sub').forEach(l => ezSetStyle(l.name, { fill: th.ink }));
+  const last = heads[heads.length - 1];
+  const ACCENT_ROLES = { cta:1, phone:1 };
+  const SUPPORT_ROLES = { info:1, badges:1 };
+  const INK_ROLES = { sub:1, website:1 };
+  tpl.layers.forEach(l => {
+    if (typeof l.text !== 'string' || !l.props) return;
+    if (l.role === 'deco' || l.role === 'photo') return;      // texture, not message
+    if (plateUnder(tpl, l)) return;                            // not the theme's ground
+    if (l.role === 'headline') { ezSetStyle(l.name, { fill: l === last ? th.accent : th.ink }); return; }
+    if (ACCENT_ROLES[l.role]) { ezSetStyle(l.name, { fill: th.accent }); return; }
+    if (SUPPORT_ROLES[l.role]) { ezSetStyle(l.name, { fill: th.support || th.ink }); return; }
+    if (INK_ROLES[l.role])    { ezSetStyle(l.name, { fill: th.ink }); return; }
+  });
   syncEzSwatches();
   refreshEzRecents();
   refreshEzLayers();
   schedEzPreview(0);
-  toast(th.name + ' applied, complementary contrast', 'success');
+  toast(th.name + ' applied' + (th.intent ? ' · ' + th.intent : ''), 'success');
 }
 function buildThemeRow(){
   const row = $('ez-themes');
@@ -4282,9 +4992,16 @@ function buildThemeRow(){
   COLOR_THEMES.forEach(th => {
     const b = document.createElement('button');
     b.className = 'ez-theme';
-    b.title = th.name;
-    b.innerHTML = `<span style="background:linear-gradient(135deg, ${th.bg.c1}, ${th.bg.c2})"></span><span style="background:${th.accent}"></span>`;
-    b.onclick = () => applyColorTheme(th);
+    b.title = [th.name, th.family, th.intent].filter(Boolean).join(' \u00b7 ');
+    b.setAttribute('aria-label', b.title);
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `<span style="background:linear-gradient(135deg, ${th.bg.c1}, ${th.bg.c2})"></span><span style="background:${th.accent}"></span>${th.support ? `<span style="background:${th.support}"></span>` : ''}`;
+    b.onclick = () => {
+      row.querySelectorAll('.ez-theme').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-pressed', 'false'); });
+      b.classList.add('active');
+      b.setAttribute('aria-pressed', 'true');
+      applyColorTheme(th);
+    };
     row.appendChild(b);
   });
 }
@@ -4292,18 +5009,21 @@ function buildThemeRow(){
 // ═══════════════ FONT LIBRARY (lazy-loaded from Google Fonts on first use) ═══════════════
 const FONT_GROUPS = [
   ['House faces', ['Clash Display','Satoshi','Khand','Melodrama','Zodiak']],
+  ['Showcase faces', ['Unbounded','Bricolage Grotesque','Sofia Sans Extra Condensed','Schibsted Grotesk','Gloock','Young Serif','Tilt Warp']],
   ['Display & impact', ['Alfa Slab One','Abril Fatface','Bakbak One','Big Shoulders Display','Black Ops One','Bowlby One SC','Bungee','Chango','Concert One','Days One','Fjalla One','Francois One','Graduate','Hammersmith One','Lilita One','Luckiest Guy','Monoton','Passion One','Patua One','Paytone One','Press Start 2P','Racing Sans One','Righteous','Rowdies','Russo One','Secular One','Shrikhand','Sigmar One','Squada One','Staatliches','Titan One','Ultra','Unbounded','Vast Shadow']],
   ['Script & fun', ['Creepster','Fredoka','Gloria Hallelujah','Great Vibes','Knewave','Lobster','Pacifico','Special Elite','Yellowtail']],
   ['Clean & modern', ['Changa','Exo 2','Inter','Josefin Sans','Kanit','Lato','League Spartan','Nunito','Plus Jakarta Sans','Poppins','Prompt','Raleway','Rubik','Saira Condensed','Teko']],
   ['Serif', ['Cinzel','Cormorant Garamond','DM Serif Display','Merriweather','Playfair Display','Zilla Slab']],
   ['System', ['Georgia','Impact','Arial Black']],
 ];
-const CORE_FONTS = new Set(FONT_GROUPS[0][1].concat(FONT_GROUPS[5][1]));
+const CORE_FONTS = new Set(FONT_GROUPS[0][1].concat(FONT_GROUPS[FONT_GROUPS.length - 1][1]));
 const _fontLoaded = new Set(CORE_FONTS);
 // The five house faces are self-hosted, declared in styles.css, and must never
 // be requested from Google — that lookup 404s and costs a round trip before
 // the harmless onerror fires.
 const HOUSE_FACES = ['Clash Display', 'Satoshi', 'Khand', 'Melodrama', 'Zodiak'];
+const LOCAL_FACES = ['Unbounded', 'Bricolage Grotesque', 'Sofia Sans Extra Condensed', 'Schibsted Grotesk', 'Gloock', 'Young Serif', 'Tilt Warp', 'JetBrains Mono', 'Big Shoulders Display'];
+let _localFacesCss = null;
 function ensureFont(name){
   if (_fontLoaded.has(name)) return Promise.resolve();
   _fontLoaded.add(name);
@@ -4317,10 +5037,18 @@ function ensureFont(name){
   // fonts.load() only works AFTER the injected stylesheet's @font-face rules
   // exist, waiting on link.onload first is what makes canvas thumbnails
   // paint with the real face instead of the serif fallback
+  /* The 2026-09-22 showcase faces are vendored (OFL, assets/fonts/faces.css,
+     written by scripts/fetch_fonts.mjs): one same-origin stylesheet for all of
+     them, so a showcase card never waits on a third-party font server. */
+  const local = LOCAL_FACES.indexOf(name) !== -1;
+  if (local && _localFacesCss) return _localFacesCss.then(() => document.fonts.load('400 24px "' + name + '"').catch(() => {}))
+    .then(() => { try { fabric.util.clearFabricFontCache(); } catch (e){} });
   return new Promise(res => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
+    link.href = local ? 'assets/fonts/faces.css'
+      : 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
+    if (local) _localFacesCss = new Promise(r => { link.addEventListener('load', r); link.addEventListener('error', r); });
     const done = () => {
       // fabric caches per-family glyph widths, anything measured while the
       // face was still loading poisons every later render (clipped tails),
@@ -4828,8 +5556,13 @@ let FEAT_PRO_TPL  = 'the full Designer Library';
 function refreshPlanFeats(){
   try {
     const c = tplCounts();
-    FEAT_FREE_TPL = c.freeRounded + ' free templates, every Phones design included';
-    FEAT_PRO_TPL  = 'All ' + c.totalRounded + ' templates incl. the Designer Library';
+    /* Worded the way the gate works rather than as a count: the gallery on the
+       landing page gates by scIsFree() (every Phones design, the top 3 of every
+       other category) and tplCounts() counts the classic templates, so a number
+       here described a different set from the one visitors click. (2026-09-22) */
+    void c;
+    FEAT_FREE_TPL = 'Every Phones design, plus the top 3 in every other category';
+    FEAT_PRO_TPL  = 'Every design in all 8 categories';
     if (typeof PLANS === 'object' && PLANS){
       PLANS.free.feats[1] = FEAT_FREE_TPL;
       PLANS.pro.feats[1]  = FEAT_PRO_TPL;
@@ -4840,9 +5573,9 @@ const API_BASE = (window.PGFX_API || '').replace(/\/$/, '');
 const DEMO = !API_BASE;
 const PLANS = {
   free: { label:'Free', price:0, priceLabel:'$0', per:'forever', maxPx:1080, watermark:true, weekly:3, monthly:null,
-          feats:['3 exports per week',FEAT_FREE_TPL,'1080 × 1080 downloads','BUYBACK.AD watermark'] },
+          feats:['3 exports per week',FEAT_FREE_TPL,'1080px downloads (short side)','BUYBACK.AD watermark'] },
   pro:  { label:'Pro', price:15, priceLabel:'$15', per:'/month', maxPx:2160, watermark:false, weekly:null, monthly:100,
-          feats:['100 exports per month',FEAT_PRO_TPL,'Up to 2160px, no watermark, every format','Export history & re-downloads'], hot:true },
+          feats:['100 exports per month',FEAT_PRO_TPL,'Up to 2160px (short side), no watermark','Scannable QR code layer'], hot:true },
 };
 function isoWeek(){ const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
@@ -5095,7 +5828,12 @@ async function startCheckout(planId){
   try {
     const j = await api('/checkout', { plan: planId });
     location.href = j.url; // Stripe-hosted checkout page
-  } catch (e){ toast('Checkout failed: ' + e.message, 'error'); }
+  } catch (e){
+    // The function answers 503 "Billing is not enabled yet" until the Stripe
+    // keys are set; say that in words a customer can act on.
+    if (/not enabled/i.test(e.message)) toast('Pro checkout is not open yet. Nothing was charged, and your free plan keeps working.', 'error');
+    else toast('Checkout failed: ' + e.message, 'error');
+  }
 }
 function showPayResult(ok, planId){
   $('page-plans').classList.remove('active');
@@ -5153,22 +5891,7 @@ function applyWatermark(dataUrl, w, h){
       cv.width = w; cv.height = h;
       const x = cv.getContext('2d');
       x.drawImage(im, 0, 0, w, h);
-      const base = Math.min(w, h);
-      const fs = Math.round(base * 0.032);
-      x.font = '800 ' + fs + 'px "DM Sans", sans-serif';
-      x.globalAlpha = 0.5;
-      x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
-      x.fillStyle = '#ffffff';
-      const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
-      x.textAlign = 'center'; x.textBaseline = 'middle';
-      // each corner mark rotated 45° along its corner→center diagonal
-      [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
-        x.save();
-        x.translate(cx, cy);
-        x.rotate(deg * Math.PI / 180);
-        x.fillText(t, 0, 0);
-        x.restore();
-      });
+      drawWatermarkMarks(x, w, h);          // the same marks every video frame carries (Satoshi, vendored)
       res(cv.toDataURL('image/png'));
     };
     im.onerror = () => res(dataUrl);
@@ -5210,7 +5933,7 @@ function bindSaasUI(){
     syncAcctUI();
     jset('pgfx_tut_done', false);   // brand-new account always gets the tour
     if (pro){
-      openPlans('Pro unlocks all 160+ templates, 2160p exports and no watermark.');
+      openPlans('Pro unlocks every design, 2160px exports and no watermark.');
       return;
     }
     showEditor();
@@ -5433,7 +6156,7 @@ function refreshEzLayers(){
   const isPhoto = bgSpec.type === 'image' && ez.bgData;
   const isTplPhoto = bgSpec.type === 'image' && bgSpec.src;
   const sw = isPhoto ? `<img src="${ez.bgData}" alt="">`
-    : isTplPhoto ? `<img src="${bgSpec.src}" alt="">`
+    : isTplPhoto ? `<img src="${assetUrl(bgSpec.src)}" alt="">`
     : `<span style="width:100%;height:100%;display:block;background:${cssBg(bgSpec)}"></span>`;
   list.appendChild(ezLayerRow({
     swatchHtml: sw, name: 'Background',
@@ -5649,7 +6372,7 @@ const BG_PRESETS = [
   {type:'grad', c1:'#f5b700', c2:'#ff8a00', a:135},
 ];
 const EZ_EDIT_ROLES = ['headline','sub','cta','info','user','offer'];
-let ez = { tpl: null, vals:{}, chips:null, bg:null, bgPicked:false, custom:'#2563eb', hidden:{}, bgRecId:null, bgData:null, bgImgObj:null, fx:{ blur:0, overlay:'none', oc:'#000000', os:45 }, styles:{}, customPoints: jget('pgfx_custom_points', []) };
+let ez = { tpl: null, format: jget('pgfx_ez_format', 'square'), vals:{}, chips:null, bg:null, bgPicked:false, custom:'#2563eb', hidden:{}, bgRecId:null, bgData:null, bgImgObj:null, fx:{ blur:0, overlay:'none', oc:'#000000', os:45 }, styles:{}, customPoints: jget('pgfx_custom_points', []) };
 let ezBound = false, ezPrevTimer = null;
 
 function ezTpl(){ return TEMPLATES.find(t => t.id === ez.tpl) || TEMPLATES[0]; }
@@ -5940,8 +6663,8 @@ function enforcePlateSolidity(t){
   return fixed;
 }
 /* ═══════════════ BRAND VOCABULARY ═══════════════
-   Recognition comes from NAMES. "We buy phones" is a category; "iPHONE 15 PRO
-   MAX · GALAXY S24 · PIXEL 8" is a reason to stop scrolling, and it is what
+   Recognition comes from NAMES. "We buy phones" is a category; "iPHONE 17 PRO
+   MAX · GALAXY S26 · PIXEL 11" is a reason to stop scrolling, and it is what
    every real buyback shopfront puts in its window.
 
    These are word marks used nominatively — naming the goods this buyer
@@ -5949,20 +6672,47 @@ function enforcePlateSolidity(t){
    TEXT ONLY: no logo lockups, no characters, no team or marque artwork. Those
    are protected designs and not ours to redistribute in a template library.
 
+   TWO RULES LEARNED FROM THE OWNER, 2026-08-29:
+
+   1. NAME THE CURRENT GENERATION. The list read "iPHONE 15 PRO MAX · GALAXY
+      S24 ULTRA · PIXEL 8" — three generations stale in 2026, which tells a
+      seller this business has not bought a phone in two years and dates every
+      ad in the library at a glance. Anything model-specific must be
+      cross-referenced against the current line-up whenever the library is
+      touched. Current at time of writing: iPhone 17 / 17 Pro Max / iPhone Air,
+      Galaxy S26 Ultra, Pixel 11.
+
+   2. PLAIN WORDS, PROFESSIONAL REGISTER — two independent axes. The original
+      list was complex AND professional (".925 STERLING", "PRE-1965", "BOWMAN
+      1ST", "PSA / BGS / SGC"): it reads as competent but filters out any seller
+      who is not already a collector, which is a filter at the very top of the
+      funnel. The first correction went simple AND unprofessional ("GOLD TEETH",
+      "ANY AMOUNT", "OLD COLLECTIONS"): legible to everyone and signalling pawn
+      shop, which attracts hagglers and low-value lots.
+
+      The target is simple AND professional. Name the object in the word a
+      normal person uses, and let the surrounding copy carry the credentials.
+      "Gold jewelry" and "Estate collections" are both plainer than the original
+      AND more professional than the over-correction.
+
+      This matters commercially, not just aesthetically: a seller with a real
+      collection is choosing between buyers, and picks the one that looks like a
+      business. Same ad spend, different customer.
+
    Only replaces a line that is already an enumeration AND carries no proper
    noun of its own — several categories were authored with good specifics
    ("Base Set • Charizards • 1st Editions", "JORDAN • BRADY • MANTLE") and
    overwriting those would trade real copy for a generic list. Keeps the
    original line COUNT so nothing reflows, and follows the line's own casing. */
 const BRAND_WORDS = {
-  phones:  ['iPHONE 15 PRO MAX','GALAXY S24 ULTRA','PIXEL 8','iPAD','MACBOOK','APPLE WATCH'],
-  pokemon: ['BASE SET','CHARIZARD','1ST EDITION','BOOSTER BOXES','PSA 10','SHADOWLESS'],
-  sports:  ['PRIZM','TOPPS CHROME','BOWMAN 1ST','PSA / BGS / SGC','ROOKIE AUTOS','NUMBERED'],
-  gold:    ['10K / 14K / 18K / 24K','ROLEX','CARTIER','TIFFANY','DENTAL GOLD','BROKEN CHAINS'],
-  silver:  ['SILVER EAGLES','MORGAN DOLLARS','.925 STERLING','100 OZ BARS','JUNK SILVER','FLATWARE'],
-  coins:   ['MORGAN','PEACE DOLLAR','WALKING LIBERTY','GOLD EAGLES','PRE-1965','WHEAT CENTS'],
+  phones:  ['iPHONE 17 PRO MAX','GALAXY S26 ULTRA','PIXEL 11','iPAD','MACBOOK','APPLE WATCH'],
+  pokemon: ['POKEMON CARDS','CHARIZARD','VINTAGE SETS','BOOSTER BOXES','SEALED PRODUCT','FULL BINDERS'],
+  sports:  ['SPORTS CARDS','ROOKIE CARDS','AUTOGRAPHS','UNOPENED BOXES','VINTAGE CARDS','FULL SETS'],
+  gold:    ['GOLD JEWELRY','ROLEX','CLASS RINGS','GOLD CHAINS','ESTATE PIECES','BROKEN OR WORN'],
+  silver:  ['SILVER COINS','SILVER BARS','SILVERWARE','SILVER JEWELRY','SILVER DOLLARS','TEA SETS'],
+  coins:   ['OLD COINS','SILVER DOLLARS','GOLD COINS','COIN COLLECTIONS','ESTATE COLLECTIONS','PROOF SETS'],
   cars:    ['TOYOTA','HONDA','FORD','CHEVY','BMW','RUNNING OR NOT'],
-  strips:  ['ONETOUCH','ACCU-CHEK','FREESTYLE','DEXCOM','CONTOUR','SEALED BOXES'],
+  strips:  ['DIABETIC TEST STRIPS','SEALED BOXES','ALL MAJOR BRANDS','IN-DATE ONLY','LOCAL PICKUP','SAME-DAY PAYMENT'],
 };
 const LIST_LAYER = /^(Items|Info|Info Text|Devices|Sub|Subline|Who|Reward|Data Line|Offer Line|Line|Body|Detail|Kicker)$/;
 /* Proper nouns only — a name a shopper would recognise, never a material or a
@@ -6065,7 +6815,7 @@ const COPY_FIX = {
   cars_plate:    { Headline:'WE BUY CARS', Sub:'ANY YEAR • ANY MAKE • RUNNING OR NOT' },
   pkm_attic:     { Headline:'WE BUY VINTAGE POKÉMON', Sub:'1999 BASE SET • WOTC • BOOSTER BOXES' },
   silver_neon:   { Headline:'WE BUY SILVER', 'Headline 2':'PAID TODAY' },
-  silver_ounce:  { Headline:'TOP DOLLAR FOR SILVER' },
+  silver_ounce:  { Headline:'CASH FOR SILVER' },
   silver_mirror: { Headline:'WE BUY SILVER' },
   coins_graded:  { Headline:'WE BUY GRADED COINS', Sub:'PCGS • NGC • RAW COLLECTIONS WELCOME' },
   strips_pickup: { Headline:'WE BUY TEST STRIPS', Sub:'PRIVATE • DISCREET • PAID ON PICKUP' },
@@ -6425,6 +7175,21 @@ function highlightBudget(t){
   const px1 = px0 + approxW;
 
   const plates = (t.layers || []).filter(l => l.kind === 'rect' && l.props);
+  /* THREE PLATE TREATMENTS, not one. Measured: 128 of 135 plates were the same
+     off-white, so every ad carried an identical pale bar and the number stopped
+     reading as a decision — it read as a default. What the reference set wants
+     is a BRIGHT NOTE, not specifically a white one; a saturated plate in the
+     category hue is just as bright and belongs to the design rather than
+     sitting on top of it. Picked by template id so a category shows all three
+     across its templates instead of one on repeat. Ink is paired to the plate
+     here rather than assumed near-black further down. */
+  const _C = (typeof CAT_COLOUR !== 'undefined' && CAT_COLOUR[t.cat]) || null;
+  let _k = 0; for (let _i = 0; _i < t.id.length; _i++) _k = (_k * 31 + t.id.charCodeAt(_i)) >>> 0;
+  const _kind = _C ? _k % 3 : 0;
+  const PLATE_FILL = _kind === 0 ? '#f6f2ea'
+                   : _kind === 1 ? setL(_C.money, 0.62)
+                   :               setL(_C.money, 0.20);
+  const PLATE_INK  = _kind === 2 ? setL(_C.money, 0.93) : '#141110';
   /* A host must genuinely sit BEHIND the number, in both axes.
      Intersection is not enough. st_gold_pricetag's "Claim Plate" spans y
      836..932 while the phone runs 908..1063, so they overlap by 24px — 15% of
@@ -6464,8 +7229,8 @@ function highlightBudget(t){
        plates this pass touches and is the single largest cause of unreadable
        phone numbers in the library. */
     delete host.props.grad;
-    host.props.fill = '#f6f2ea'; host.solid = true;
-    phone.props.fill = '#141110'; delete phone.props.grad;
+    host.props.fill = PLATE_FILL; host.solid = true;
+    phone.props.fill = PLATE_INK; delete phone.props.grad;
     delete phone.props.stroke; delete phone.props.strokeWidth; delete phone.props.shadow;
     return 1;
   }
@@ -6481,9 +7246,9 @@ function highlightBudget(t){
   const pl = Math.max(24, px0 - padX);
   const pr = Math.min(TPL_W - 24, px1 + padX);
   t.layers.unshift({ kind:'rect', name:'Phone Plate', solid:true,
-    props:{ left:pl, top:top, width:Math.max(120, pr - pl), height:h, rx:18, ry:18, fill:'#f6f2ea',
+    props:{ left:pl, top:top, width:Math.max(120, pr - pl), height:h, rx:18, ry:18, fill:PLATE_FILL,
             shadow:{ color:'rgba(0,0,0,0.45)', blur:30, offsetX:0, offsetY:12 } } });
-  phone.props.fill = '#141110'; delete phone.props.grad;
+  phone.props.fill = PLATE_INK; delete phone.props.grad;
   delete phone.props.stroke; delete phone.props.strokeWidth; delete phone.props.shadow;
   return 1;
 }
@@ -6771,13 +7536,45 @@ function opticalTracking(t){
               flat colour ground discards the only detail and palette we have.
 
    Split deterministically by template id so the assignment is stable across
-   reloads, and skewed toward the two new looks because the point is change. */
-const STYLE_MIX = ['duotone','wash','duotone','photo','wash','duotone'];
+   reloads, and skewed toward the two new looks because the point is change.
+
+   ═══ ASSIGNED BY CATEGORY, NOT BY HASH (2026-08-29) ═══
+   This used to be STYLE_MIX[hash(id) % 6] — the same lottery that produced the
+   owner's "it's picking funky duotones" note. A hash gives every category the
+   same 50/33/17 split regardless of whether that treatment suits the goods,
+   which is how a diabetic-supply ad ended up with a saturated volt duotone and
+   a gold ad ended up flat and grey. Style is a DESIGN decision about what the
+   category is selling, so it is now stated per category:
+
+     gold / coins / silver   the metal IS the product and its specular
+                             highlights are the reason someone stops. Mostly
+                             PHOTO, never a heavy colour drive.
+     phones / cars           hard goods that read well art-directed; duotone
+                             earns its keep here.
+     pokemon / sports        colour-forward hobby categories; duotone and wash
+                             both suit them.
+     strips                  clinical and trust-led; photo, kept calm.
+
+   Within a category the choice is still deterministic by id, so the mix stays
+   varied and stable across reloads — but it is a mix chosen for that category
+   rather than one imposed on all eight. */
+const STYLE_BY_CAT = {
+  gold:    ['photo','photo','duotone','photo'],
+  silver:  ['photo','photo','duotone','photo'],
+  coins:   ['photo','photo','photo','duotone'],
+  phones:  ['duotone','photo','duotone','wash'],
+  cars:    ['duotone','duotone','photo','wash'],
+  pokemon: ['duotone','wash','duotone','photo'],
+  sports:  ['duotone','wash','photo','duotone'],
+  strips:  ['photo','photo','wash','photo'],
+};
+const STYLE_MIX = ['duotone','wash','duotone','photo','wash','duotone'];  // fallback only
 function assignStyle(t){
   if (!t.bg || !t.cat) return 0;
   const C = CAT_COLOUR[t.cat]; if (!C) return 0;
   let h = 0; for (let i = 0; i < t.id.length; i++) h = (h * 33 + t.id.charCodeAt(i)) >>> 0;
-  const style = STYLE_MIX[h % STYLE_MIX.length];
+  const mix = STYLE_BY_CAT[t.cat] || STYLE_MIX;
+  const style = mix[h % mix.length];
   t.style = style;
   if (style === 'duotone' && t.bg.type === 'image' && !t.bg.scrimColor){
     /* Shadows to a deep version of the category hue, highlights to the
@@ -6959,7 +7756,7 @@ function addProductCutout(t){
   if (SIZE < 300) return 0;                             // too cramped to read as a product
 
   let h = 0; for (let i = 0; i < t.id.length; i++) h = (h * 31 + t.id.charCodeAt(i)) >>> 0;
-  const src = 'assets/cutouts/' + pool[h % pool.length] + '.png';
+  const src = 'assets/cutouts/' + pool[h % pool.length] + CUTOUT_EXT;
   const left = best.x * cell + (px - SIZE) / 2;
   const top  = best.y * cell + (px - SIZE) / 2;
 
@@ -7198,14 +7995,25 @@ function ezDefaultChips(tpl){
 function ezChips(){ return ez.chips !== null ? ez.chips : ezDefaultChips(ezTpl()); }
 function cssBg(spec){
   if (spec.type === 'image'){
-    if (spec.src) return `url(${spec.src}) center/cover`;
+    if (spec.src) return `url(${assetUrl(spec.src)}) center/cover`;
     const fb = spec.fallback;
     return fb ? cssBg(fb) : '#101014';
   }
   return spec.type === 'solid' ? spec.c : `linear-gradient(${spec.a||0}deg, ${spec.c1}, ${spec.c2})`;
 }
 
+/* The template art — backdrops and product cutouts — is only needed by a
+   CANVAS render, which only happens inside the studio. Warmed once, on the
+   way in, so the landing page stays light on a phone. Idempotent. */
+let _tplAssetsWarmed = false;
+function warmTemplateAssets(){
+  if (_tplAssetsWarmed) return;
+  _tplAssetsWarmed = true;
+  try { preloadTplBgs(); } catch (e){}
+  try { preloadCutouts(); } catch (e){}
+}
 function showEasy(tplId){
+  warmTemplateAssets();
   buildEzStrip();   // pick up any photo thumbs that landed while on other pages
   $('page-landing').classList.add('hidden');
   $('page-editor').classList.remove('active');
@@ -7213,6 +8021,8 @@ function showEasy(tplId){
   window.scrollTo(0,0);
   ensureThumbs();
   bindEasyUI();
+  bindAreaDialog();
+  maybeAskArea();
   const b = getBrand();
   if (b){ if (!$('ez-phone').value) $('ez-phone').value = b.phone || ''; if (!$('ez-website').value) $('ez-website').value = b.website || ''; }
   selectEzTpl(tplId || ez.tpl || jget('pgfx_last', 'sell_iphone'));
@@ -7226,6 +8036,7 @@ function bindEasyUI(){
   $('ez-adv-link').onclick = () => openAdvancedFromEz();
   $('ez-open-adv').onclick = () => openAdvancedFromEz();
   $('ez-download').onclick = () => ezDownload();
+  buildEzSizes();
   const pk = $('ez-pack');
   if (pk) pk.onclick = exportCategoryPack;
   $('nobg-continue').onclick = () => { $('nobg-overlay').classList.remove('show'); ezDownload(true); };
@@ -7427,7 +8238,7 @@ function revealSelectedTpl(){
 function selectEzTpl(id){
   const want = TEMPLATES.find(t => t.id === id);
   if (want && tplLocked(want)){
-    openPlans('“' + want.name + '” is a premium template, unlock all 8 designs with Starter or Pro.');
+    openPlans('“' + want.name + '” is a premium template. Pro unlocks the whole library.');
     if (!ez.tpl || tplLocked(ezTpl())) id = firstFreeTplId();
     else return;
   }
@@ -7450,7 +8261,7 @@ function buildEzForm(){
   const hiddenNames = ezHiddenSet();
   tpl.layers.filter(l => (l.kind === 'text' || l.kind === 'textbox') && EZ_EDIT_ROLES.includes(l.role) && !hiddenNames.includes(l.name)).forEach(l => {
     const saved = (ez.vals[tpl.id] || {})[l.name];
-    const val = saved !== undefined ? saved : l.text;
+    const val = saved !== undefined ? saved : localizeText(l.text);
     const multi = l.text.includes('\n');
     const f = document.createElement('div');
     f.className = 'ez-field';
@@ -7557,11 +8368,17 @@ function placeholderBgImage(src){
   }
   try { return new fabric.Image(p); } catch (e){ return null; }
 }
-function renderEzCanvas(px, fmt, q, mode){
+function renderEzCanvas(px, fmt, q, mode, format, keep){
+  /* 2026-09-02: Easy Mode exports in every format the editor has. Layers are
+     built straight into the target document (buildLayer takes dw/dh, the same
+     remap the advanced editor uses), the photo covers it, alignPass runs on
+     it. `px` is the SHORT side, so plan caps keep meaning what they meant. */
+  const F = FORMATS[format || ez.format || 'square'] || FORMATS.square;
+  const DW = F.w, DH = F.h;
   // Easy Mode is deliberately square-only, the guided flow targets Marketplace
   // & Instagram posts; rectangular formats live in the advanced editor
   const tpl = ezTpl();
-  const sc = new fabric.StaticCanvas(null, { width:TPL_W, height:TPL_H, renderOnAddRemove:false });
+  const sc = new fabric.StaticCanvas(null, { width:DW, height:DH, renderOnAddRemove:false });
   // solid base first: guarantees no transparent pixels can ever export as black
   sc.setBackgroundColor('#101014', () => {});
   // Until a background is explicitly picked, the template photo previews as a
@@ -7576,8 +8393,8 @@ function renderEzCanvas(px, fmt, q, mode){
     } else {
       const tbg = ez.bgPicked ? freshBgImage(rawBg.src, rawBg.blur, rawBg.grade) : placeholderBgImage(rawBg.src);
       if (tbg){
-        sc.setBackgroundImage(coverImage(tbg, TPL_W, TPL_H), () => {});
-        if (rawBg.scrim) sc.add(scrimRect(rawBg.scrim, TPL_W, TPL_H, rawBg.scrimColor, rawBg.scrimMode));
+        sc.setBackgroundImage(coverImage(tbg, DW, DH), () => {});
+        if (rawBg.scrim) sc.add(scrimRect(rawBg.scrim, DW, DH, rawBg.scrimColor, rawBg.scrimMode));
         photoOk = true;
       } else bgSpec = rawBg.fallback || { type:'solid', c:'#101014' };
     }
@@ -7585,7 +8402,7 @@ function renderEzCanvas(px, fmt, q, mode){
   if (!photoOk && bgSpec.type === 'image'){
     const im = ez.bgImgObj;   // the user's own photo, always theirs to use
     if (im && im.width > 0 && im.height > 0){
-      sc.setBackgroundImage(coverImage(im, TPL_W, TPL_H), () => {});
+      sc.setBackgroundImage(coverImage(im, DW, DH), () => {});
       photoOk = true;
     }
   }
@@ -7593,9 +8410,9 @@ function renderEzCanvas(px, fmt, q, mode){
     // color/gradient backgrounds render as a locked bottom rect with a
     // percentage-unit gradient, unambiguous in fabric, identical at any export size
     const fb = bgSpec.type === 'image' ? { type:'solid', c:'#101014' } : bgSpec;
-    sc.add(bgRectFor(fb, TPL_W, TPL_H));
+    sc.add(bgRectFor(fb, DW, DH));
   }
-  const ov = ezOverlayRect(TPL_W, TPL_H);
+  const ov = ezOverlayRect(DW, DH);
   if (ov) sc.add(ov);
   const phone = $('ez-phone').value.trim();
   const site = $('ez-website').value.trim();
@@ -7607,13 +8424,13 @@ function renderEzCanvas(px, fmt, q, mode){
     if (l.role === 'badges'){
       hasBadgeLayer = true;
       if (!chips.length) return;
-      const o = buildLayer(l, tpl.id);
+      const o = buildLayer(l, tpl.id, DW, DH);
       o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
       sc.add(o);
       return;
     }
     if (l.role === 'website' && !site) return; // no site typed → leave it off the ad
-    const o = buildLayer(l, tpl.id);
+    const o = buildLayer(l, tpl.id, DW, DH);
     let retyped = false;
     if (l.role === 'phone' && phone){ o.set('text', formatPhone(phone)); retyped = true; }
     else if (l.role === 'website'){ o.set('text', cleanText(site, 'none', 'website')); retyped = true; }
@@ -7628,23 +8445,24 @@ function renderEzCanvas(px, fmt, q, mode){
        is the single most common thing anyone does in this product.
        Textboxes wrap and look after themselves; single-line text does not. */
     if (retyped && l.kind !== 'textbox' && (o.type === 'i-text' || o.type === 'text')){
-      fitToDoc(o, l.props, TPL_W);
+      fitToDoc(o, l.props, DW);
       if (l.pgOptical !== false) o.set('left', o.left - opticalLeftShift(o));
     }
     sc.add((l.kind === 'text' || l.kind === 'textbox') ? ezApplyStyle(o, l, tpl.id) : o);
   });
   if (!hasBadgeLayer && chips.length){
     const synth = { kind:'text', name:'Badges', role:'badges', casing:'upper',
-      props:{ left: TPL_W-30, top: 30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff',
+      props:{ left: DW-30, top: 30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff',
               fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3) } };
     const bo = new fabric.IText(chips.map(c => '\u2713 ' + c).join('\n'), Object.assign({}, synth.props, {
       paintFirst:'stroke', name:'Badges', pgRole:'badges', pgCasing:'upper', pgTplId: tpl.id,
     }));
     sc.add(ezApplyStyle(bo, synth, tpl.id));
   }
-  alignPass(sc, TPL_W, TPL_H);
+  alignPass(sc, DW, DH);
   sc.renderAll();
-  const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / TPL_W });
+  if (keep) return sc;          // the video export animates this exact scene, and disposes it
+  const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / Math.min(DW, DH) });
   sc.dispose();
   return url;
 }
@@ -7770,7 +8588,7 @@ async function ezDownload(skipBgCheck){
   catch (e){ toast('Export could not be recorded: ' + e.message, 'error'); return; }
   const a = document.createElement('a');
   a.href = url;
-  a.download = ezTpl().name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-ad-' + gate.px + '.png';
+  a.download = ezTpl().name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-ad-' + (ez.format && ez.format !== 'square' ? ez.format + '-' : '') + gate.px + '.png';
   document.body.appendChild(a); a.click(); a.remove();
   addHistory(a.download, gate.px, url, undefined, undefined, {
     kind: 'ez',
@@ -7897,7 +8715,8 @@ function bindEditorUI(){
   // brand modal
   $('bk-cancel').onclick = () => $('brand-overlay').classList.remove('show');
   $('bk-save').onclick = () => {
-    jset('pgfx_brand', { phone: $('bk-phone').value.trim(), website: $('bk-website').value.trim(), name: $('bk-name').value.trim() });
+    jset('pgfx_brand', Object.assign(getBrand() || {}, { phone: $('bk-phone').value.trim(), website: $('bk-website').value.trim(), name: $('bk-name').value.trim() }));
+    if ($('bk-area') && $('bk-area').value.trim() && $('bk-area').value.trim() !== areaLabel()) resolveArea($('bk-area').value.trim()).then(a => { if (a) setArea(a); else toast('Could not place that ZIP or city, try another', 'error'); });
     $('brand-overlay').classList.remove('show');
     applyBrandToCanvas(false);
     toast('Brand kit saved', 'success');
@@ -8066,7 +8885,7 @@ function selectAllObjects(){
 }
 
 // ═══════════════ BOOT ═══════════════
-const CSS_FALLBACK = "/* ═══════════════════════════════════════════════════════════════════════════\n   GRAPHICS STUDIO — Liquid Glass chrome\n\n   Unified with unified-crm and the iphones.la launcher: same field, same glass\n   recipe, same accent, same radii, same tabular-mono law. The templates this\n   app produces went Liquid Glass on Aug 24; the chrome around them was still\n   flat-black-and-orange 2021 SaaS. Now they are one material.\n\n   Laws, carried over from the CRM theme:\n   1. Chrome is glass. Running text is opaque. A blur is for panels, never\n      for paragraphs.\n   2. ONE accent (#ff7a1a). The site now matches the PRODUCT it sells, not\n      the CRM: a page selling loud buyback ads should not look like a SaaS\n      dashboard. Colour that is not the accent means state:\n      green good, amber caution, red stop, violet AI.\n   3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and\n      wordmark only, as --brand-1/--brand-2, so the accent can be retuned for\n      contrast without repainting the brand.\n   4. Anything the eye compares — prices, counts, percentages, quotas — is set\n      in tabular mono. This is a tool, not prose.\n\n   Legacy tokens (--orange, --surface2, --muted …) are kept as ALIASES onto the\n   new system because app.js writes them into generated markup in ~250 places.\n   Retargeting --orange to the accent is what repaints those call sites.\n   Do not delete an alias without grepping app.js first.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── HOUSE TYPE ──────────────────────────────────────────────────────────────\n   Clash Display for anything that declares, Satoshi for anything that is read,\n   Zodiak when a serif is the point. All three are Fontshare (Indian Type\n   Foundry), free for commercial use, and VENDORED into assets/fonts rather\n   than pulled from a CDN: no third-party dependency, no extra CSP origin, no\n   render-blocking round trip to someone else's server. 184KB for nine files.\n\n   Why these and not the previous set: the library ran on Bebas Neue, Anton,\n   Montserrat, Luckiest Guy, Titan One, Bungee, Monoton and Pacifico. Those are\n   the default free-font shelf every Canva template is already built from, and\n   half of them are novelty faces — the opposite of an ad that asks a stranger\n   to hand over a phone for cash. `font-display:swap` so text paints\n   immediately in the fallback and reflows once the face lands. */\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n/* Khand carries the long money-words (\"TEST STRIPS\", \"COLLECTIBLES\") that made\n   a wide face overflow; Melodrama is the high-contrast serif for gold, coins\n   and anything that wants to read as valuation rather than clearance. Two more\n   voices so the 153 templates are not all in one typeface. */\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n\n/* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>\n   before first paint by the inline script in index.html, so there is no white\n   flash. This rule matches both the explicit choice and the bare default, so\n   dark still applies if that script never runs. */\n:root,\n:root[data-theme='dark']{\n  color-scheme:dark;\n\n  /* Field */\n  --field:#141110;\n  --wash-a:rgba(255,138,40,.34);\n  --wash-b:rgba(255,80,30,.26);\n  --wash-c:rgba(255,196,60,.20);\n\n  /* Glass */\n  --glass-bg:rgba(34,27,23,.62);\n  --glass-bg-strong:rgba(34,27,23,.86);\n  --glass-edge:rgba(255,255,255,.13);\n  --glass-blur:blur(34px) saturate(190%) brightness(1.04);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 14px 38px -12px rgba(0,0,0,.6);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.11),0 24px 60px -14px rgba(0,0,0,.75);\n\n  /* Opaque content surfaces */\n  --surface-solid:#1d1815;\n  --surface-sunk:rgba(255,255,255,.055);\n  --surface-raise:#262019;\n\n  /* Ink — blue-biased neutrals, chosen not inherited */\n  --text:#f6efe8;\n  --text-2:#cfc2b6;\n  --text-dim:#9a8b7e;\n  --hairline:rgba(255,255,255,.09);\n  --hairline-strong:rgba(255,255,255,.16);\n\n  --accent:#ff7a1a;\n  --accent-ink:#1a0d04;\n  --accent-wash:rgba(255,122,26,.18);\n  --accent-deep:#e04e05;\n\n  --good:#30d68f;\n  --warn:#ffb03d;\n  --danger:#ff6259;\n  --ai:#a78bff;\n\n  /* Brand — the mark's own gradient, deliberately NOT the UI accent. */\n  --brand-1:#ff7a33;\n  --brand-2:#f5a623;\n\n  --r-pill:999px;\n  --r-lg:18px;\n  --r-md:13px;\n  --r-sm:9px;\n  --tap:44px;\n\n  --lift-1:0 1px 2px rgba(0,0,0,.4),0 4px 12px -4px rgba(0,0,0,.5);\n  --lift-2:0 2px 6px rgba(0,0,0,.45),0 18px 42px -14px rgba(0,0,0,.68),0 0 0 1px rgba(255,255,255,.045);\n  --lift-3:0 4px 12px rgba(0,0,0,.5),0 40px 90px -22px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);\n  --glow-accent:0 8px 30px -6px rgba(255,122,26,.5);\n\n  --stage-1:#1a1512;\n  --stage-2:#0d0a08;\n  --stage-dot:rgba(255,255,255,.045);\n  --scrim:rgba(14,9,6,.74);\n\n  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;\n  /* Satoshi runs the whole product, chrome included. The system stack stays\n     behind it as the fallback, so a failed font load degrades to exactly the\n     UI we shipped before rather than to Times. */\n  --ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;\n  --display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;\n  --serif:'Zodiak',Georgia,'Times New Roman',serif;\n\n  /* ── legacy aliases (app.js depends on every one of these) ── */\n  --bg:var(--field);\n  --surface:var(--surface-solid);\n  --surface2:var(--surface-raise);\n  --surface3:#33291f;\n  --border:var(--hairline);\n  --border2:var(--hairline-strong);\n  --orange:var(--accent);\n  --orange2:var(--accent-deep);\n  --gold:var(--warn);\n  --green:var(--good);\n  --red:var(--danger);\n  --muted:var(--text-dim);\n  --muted2:var(--text-2);\n  --panel:var(--surface-solid);\n  --panel2:var(--surface-raise);\n  --line:var(--hairline);\n  --r:var(--r-md);\n}\n\n/* LIGHT — opt-in, for daylight and for turning the screen toward someone.\n   Higher specificity than the bare :root above, so it wins wherever the dark\n   default set a value. Radii, faces and the mono stack are theme-independent. */\n:root[data-theme='light']{\n  color-scheme:light;\n  --field:#f6f1ea;\n  --wash-a:rgba(255,122,26,.16);\n  --wash-b:rgba(255,80,30,.11);\n  --wash-c:rgba(255,196,60,.12);\n  --glass-bg:rgba(255,255,255,.58);\n  --glass-bg-strong:rgba(255,255,255,.80);\n  --glass-edge:rgba(255,255,255,.9);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(9,18,38,.045),0 1px 2px rgba(9,18,38,.05),0 14px 38px -12px rgba(9,18,38,.16);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.95),0 24px 60px -14px rgba(9,18,38,.30);\n  --surface-solid:#ffffff;\n  --surface-sunk:rgba(9,18,38,.042);\n  --surface-raise:#faf4ec;\n  --text:#1a1310;\n  --text-2:#544639;\n  --text-dim:#6f5d4e;\n  --hairline:rgba(9,18,38,.09);\n  --hairline-strong:rgba(9,18,38,.16);\n  --accent:#c2410c;\n  --accent-ink:#ffffff;\n  --accent-wash:rgba(194,65,12,.13);\n  --accent-deep:#9a3412;\n  --good:#0f9d6b;\n  --warn:#c2751a;\n  --danger:#e0342a;\n  --ai:#6c4cff;\n  --brand-1:#f2600c;\n  --brand-2:#e09417;\n  --lift-1:0 1px 2px rgba(9,18,38,.06),0 4px 12px -4px rgba(9,18,38,.10);\n  --lift-2:0 2px 6px rgba(9,18,38,.07),0 18px 42px -14px rgba(9,18,38,.20),0 0 0 1px rgba(9,18,38,.05);\n  --lift-3:0 4px 12px rgba(9,18,38,.08),0 40px 90px -22px rgba(9,18,38,.28),0 0 0 1px rgba(9,18,38,.06);\n  --glow-accent:0 8px 30px -6px rgba(194,65,12,.34);\n  --stage-1:#f2ece4;\n  --stage-2:#e2d8cc;\n  --stage-dot:rgba(9,18,38,.07);\n  --scrim:rgba(120,132,155,.42);\n  --surface3:#efe6da;\n}\n\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}\nhtml{scroll-behavior:smooth}\nbody{\n  font-family:var(--ui);\n  font-size:15px;\n  line-height:1.45;\n  letter-spacing:-.006em;\n  background:var(--field);\n  color:var(--text);\n  overflow-x:hidden;\n  -webkit-font-smoothing:antialiased;\n}\n\n/* THE FIELD — three layers, because one gradient looks like a template.\n   1. Aurora: two large soft colour bodies, off-centre and different sizes, so\n      the eye reads atmosphere rather than wallpaper.\n   2. Geometry: thin arcs and a conic wedge, so a blurred panel moving over an\n      EDGE refracts visibly. Glass over flat colour is just tinted plastic.\n   3. Vignette + grain: corners fall away, and wide displays stop banding. */\nbody::before{\n  content:'';position:fixed;inset:-25%;z-index:-2;pointer-events:none;\n  background:\n    radial-gradient(circle at 78% 18%,transparent 27.4%,rgba(120,160,255,.055) 27.6%,rgba(120,160,255,.055) 28.4%,transparent 28.6%),\n    radial-gradient(circle at 16% 74%,transparent 33.4%,rgba(165,97,255,.05) 33.6%,rgba(165,97,255,.05) 34.3%,transparent 34.5%),\n    conic-gradient(from 210deg at 88% 82%,rgba(0,214,180,.05),transparent 38%),\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%);\n  animation:field-drift 48s ease-in-out infinite alternate;\n}\n@keyframes field-drift{\n  from{transform:translate3d(0,0,0) scale(1)}\n  to{transform:translate3d(-1.5%,1.2%,0) scale(1.04)}\n}\nbody::after{\n  content:'';position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;\n  background-image:\n    radial-gradient(120% 90% at 50% 45%,transparent 42%,rgba(0,0,0,.30) 100%),\n    url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.035'/></svg>\");\n}\n/* The editor is a full-height app shell that paints its own stage, so the\n   marketing field would only burn GPU behind it. Driven by :has() rather than\n   a body class, so app.js needs no change to page switching. */\nbody:has(#page-editor.active)::before,\nbody:has(#page-editor.active)::after{display:none}\n\nbutton{font-family:inherit}\ninput,textarea,select{font-family:inherit;color:var(--text)}\n::-webkit-scrollbar{width:10px;height:10px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px;border:3px solid transparent;background-clip:content-box}\n::-webkit-scrollbar-thumb:hover{background:var(--text-dim);background-clip:content-box}\n:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}\n@media (prefers-reduced-motion:reduce){\n  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}\n  body::before{animation:none}\n}\n\n/* ═══════════ HOUSE UTILITIES (shared vocabulary with the CRM) ═══════════ */\n.glass{\n  position:relative;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);\n  backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  box-shadow:var(--glass-shadow);\n}\n/* A single hairline all the way round reads as a border. Real glass catches\n   light on the edge facing the source and loses it on the far side, so this\n   paints a gradient rim: bright top-left, gone by bottom-right. Cheapest thing\n   that separates \"panel with a border\" from \"pane of glass\". */\n.glass::after{\n  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;\n  background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.05) 34%,transparent 60%);\n  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);\n  -webkit-mask-composite:xor;mask-composite:exclude;\n  pointer-events:none;z-index:0;\n}\n.glass>*{position:relative;z-index:1}\n.glass-strong{background:var(--glass-bg-strong)}\n/* Anything the eye compares. */\n.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}\n.label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}\n\n/* ═══════════ SHARED ═══════════ */\n.btn{\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;\n  min-height:36px;padding:9px 18px;\n  border-radius:var(--r-pill);\n  font-size:14px;font-weight:600;letter-spacing:-.01em;line-height:1.2;\n  cursor:pointer;border:none;text-decoration:none;white-space:nowrap;\n  transition:transform .08s cubic-bezier(.2,0,0,1),filter .15s ease,background .15s ease,border-color .15s ease,color .15s ease;\n}\n.btn:active{transform:scale(.968)}\n.btn-primary{\n  background:linear-gradient(180deg,var(--accent),var(--accent-deep));\n  color:var(--accent-ink);\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent);\n}\n.btn-primary:hover{filter:brightness(1.06)}\n.btn-ghost{background:transparent;color:var(--text-2)}\n.btn-ghost:hover{color:var(--text);background:var(--surface-sunk)}\n.btn-outline{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  color:var(--text);border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow);\n}\n.btn-outline:hover{background:var(--surface-raise);color:var(--text)}\n.btn-dark{background:var(--surface-sunk);color:var(--text);border:1px solid var(--hairline)}\n.btn-dark:hover{background:var(--surface-raise)}\n.btn-xl{padding:15px 30px;font-size:16px;min-height:52px}\n.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}\n\n/* Theme toggle — same control on every surface. */\n.theme-btn{\n  width:36px;height:36px;flex:none;display:inline-grid;place-items:center;\n  border-radius:var(--r-pill);background:transparent;border:none;cursor:pointer;\n  color:var(--text-2);font-size:15px;line-height:1;\n  transition:background .15s ease,color .15s ease;\n}\n.theme-btn:hover{background:var(--surface-sunk);color:var(--text)}\n\n.notif{\n  position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);color:var(--text);\n  padding:12px 20px;border-radius:var(--r-pill);font-size:14px;font-weight:600;\n  z-index:9500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;\n  box-shadow:var(--glass-shadow-lift);max-width:min(90vw,480px);text-align:center;\n}\n.notif.show{opacity:1;transform:translate(-50%,0)}\n.notif.success{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(48,214,143,.45)}\n.notif.error{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(255,98,89,.5)}\n\n/* modal */\n.modal-overlay{\n  position:fixed;inset:0;background:var(--scrim);\n  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);\n  z-index:8000;display:none;align-items:center;justify-content:center;padding:24px;\n}\n.modal-overlay.show{display:flex}\n.modal{\n  position:relative;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:22px;width:100%;max-width:520px;padding:26px;\n  box-shadow:var(--glass-shadow-lift);animation:pop .18s cubic-bezier(.2,0,0,1);\n}\n@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}\n.modal h3{font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:4px}\n.modal .modal-sub{font-size:13.5px;color:var(--text-dim);margin-bottom:18px;line-height:1.5}\n.modal label{display:block;font-size:10.5px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.09em}\n.modal input[type=text],.modal input[type=tel],.modal input[type=email],.modal input[type=password]{\n  width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);\n  border-radius:var(--r-md);padding:11px 13px;font-size:14px;color:var(--text);\n  transition:border-color .14s ease,box-shadow .14s ease;\n}\n.modal input::placeholder{color:var(--text-dim)}\n.modal input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}\n\n/* ═══════════ LANDING ═══════════ */\n#page-landing{min-height:100vh}\n.lp-nav{\n  position:fixed;top:0;left:0;right:0;z-index:300;height:64px;\n  display:flex;align-items:center;gap:8px;padding:0 clamp(16px,4vw,40px);\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n  box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -20px rgba(0,0,0,.6);\n}\n.logo{\n  font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:-.02em;\n  color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px;\n  cursor:pointer;background:none;border:none;\n}\n.logo .logo-mark{\n  width:30px;height:30px;border-radius:9px;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:#fff;\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 12px -4px rgba(242,96,12,.5);\n}\n/* Brand warmth lives here and nowhere else. */\n.logo em{\n  font-style:normal;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  -webkit-background-clip:text;background-clip:text;color:transparent;\n}\n.lp-nav-links{display:flex;gap:26px;margin-left:40px}\n.lp-nav-links a{font-size:14px;font-weight:550;color:var(--text-2);text-decoration:none;transition:color .15s}\n.lp-nav-links a:hover{color:var(--text)}\n.lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}\n@media(max-width:640px){\n  .lp-nav-links{display:none}\n  /* 343px of usable nav at 375 viewport cannot hold logo + 4 controls, and\n     overflow-x:hidden was silently clipping \"Make my ad\" off the right edge.\n     Log in / Sign up free stay reachable in the footer's Account column and\n     from the studio itself, so the one conversion button survives here. */\n  #lp-login,#lp-signup{display:none}\n  .lp-nav{gap:4px;padding:0 12px}\n  .lp-nav .btn{padding:9px 14px;font-size:13.5px}\n  .lp-nav .lp-caret{padding:9px 10px}\n  .logo{font-size:15px;gap:8px}\n  .logo .logo-mark{width:26px;height:26px;font-size:13px}\n}\n\n.hero{padding:120px clamp(16px,5vw,48px) 72px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(84vh,760px)}\n@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:120px;gap:44px;min-height:0}}\n.hero-eyebrow{\n  display:inline-flex;align-items:center;gap:8px;\n  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;\n  color:var(--accent);background:var(--accent-wash);\n  border:.5px solid rgba(255,122,26,.28);\n  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:22px;\n}\n/* The ceiling at which \"in under a minute.\" still sets on ONE line inside the\n   1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is face-specific and\n   has now caught two typefaces out: the system stack held one line to 68px,\n   Clash Display breaks at 66 (it runs ~8.4x its size for that string against\n   a 548px column at 1280). Re-measure this if --display ever changes again;\n   guessing produces a four-line ragged hero. */\n.hero h1{font-family:var(--display);font-size:clamp(34px,4.5vw,58px);line-height:1.06;letter-spacing:-.028em;margin-bottom:20px;font-weight:700}\n.hero h1 em{font-style:normal;color:var(--accent)}\n.hero p{font-size:17px;line-height:1.65;color:var(--text-2);max-width:480px;margin-bottom:32px}\n.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}\n.hero-note{margin-top:18px;font-size:13px;color:var(--text-dim)}\n\n/* Height is set by the fan's geometry, not by taste: the front card must start\n   BELOW the back cards' phone-number band or it buries the one element the ad\n   exists to deliver. At 460px with 52% cards it covered 53% and 54% of them. */\n.hero-stack{position:relative;height:500px}\n.hero-card{position:absolute;width:44%;aspect-ratio:1;border-radius:20px;overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-3);background:var(--surface-raise);transition:transform .4s cubic-bezier(.2,0,0,1)}\n.hero-card img{width:100%;height:100%;object-fit:cover;display:block}\n/* Fan geometry is measured, not eyeballed. At 57% wide the three cards came to\n   192% of the stack and the back card was 57% OCCLUDED — its headline was\n   sliced in half, which reads as a broken page rather than a designed stack.\n   At 52% the overlap is ~19%/~18% and, more importantly, all of it lands in\n   the LOWER band: hc3 starts at y=201 of a 460 stack, below where every\n   template puts its headline. Change these together, and re-measure the\n   occlusion if you touch the width. */\n.hero-card.hc1{top:0;left:0;transform:rotate(-8deg);z-index:1}\n.hero-card.hc2{top:4%;right:2%;transform:rotate(6deg);z-index:2}\n.hero-card.hc3{bottom:0;left:20%;transform:rotate(-1deg);z-index:3;box-shadow:var(--lift-3),0 30px 90px -20px rgba(255,122,26,.35)}\n/* Mobile fan. MUST come after the base .hero-card rules: at equal specificity\n   the later rule wins, and an earlier media query silently lost to the 52%\n   default — the block applied, the width did not.\n   Taller and narrower here because at 380px the three cards had nowhere to go\n   and the front one landed across the other two's phone numbers (measured 71%\n   and 55% of the number band covered), which is the one element the ad exists\n   to deliver. */\n@media(max-width:900px){\n  .hero-stack{height:446px;max-width:440px;margin:0 auto;width:100%}\n  .hero-card{width:46%}\n  /* Overlap SIDEWAYS, separate VERTICALLY. Pulling the cards fully apart cleared\n     the phone numbers but lost the stack entirely — three scattered squares, no\n     depth. Horizontal overlap gives the layered read back; the vertical gaps are\n     what keep each card's number band uncovered. */\n  .hero-card.hc1{top:0;left:0}\n  .hero-card.hc2{top:7%;right:4%}\n  .hero-card.hc3{bottom:0;left:17%}\n}\n/* Any card can be brought to the front — hover on a pointer device, press and\n   hold on touch. The whole stack dims slightly so the chosen one reads as\n   picked rather than merely bigger. */\n/* ═══════════ HERO ENTRANCE ═══════════\n   The three cards fly in from below-and-apart and settle into the fan, so the\n   stack assembles itself in front of the visitor instead of being there already.\n   Each card keeps its OWN resting transform, so the animation has to end on that\n   exact value or the card snaps when the keyframes hand back to CSS — hence a\n   per-card @keyframes rather than one shared one.\n   Staggered back-to-front so the card you are meant to read lands last.\n   `animation-fill-mode:both` holds the opening frame during the delay, which is\n   what stops all three flashing at their final position on first paint. */\n@keyframes heroIn1{\n  0%  {opacity:0; transform:translate3d(-38px,64px,0) rotate(-16deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-8deg) scale(1)}\n}\n@keyframes heroIn2{\n  0%  {opacity:0; transform:translate3d(38px,72px,0) rotate(14deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(6deg) scale(1)}\n}\n@keyframes heroIn3{\n  0%  {opacity:0; transform:translate3d(0,88px,0) rotate(6deg) scale(.86)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-1deg) scale(1)}\n}\n/* Cards default to VISIBLE. An earlier version set opacity:0 here and relied on\n   a JS class to reveal them — so the moment requestAnimationFrame did not run\n   (a background tab, a script error anywhere above) the hero was simply blank.\n   The animation supplies its own opening frame through fill-mode:both, so\n   nothing needs to be hidden up front for it to work. Fail visible. */\n.hero-stack.ready .hero-card.hc1{animation:heroIn1 .92s cubic-bezier(.16,.84,.28,1) .05s both}\n.hero-stack.ready .hero-card.hc2{animation:heroIn2 .92s cubic-bezier(.16,.84,.28,1) .17s both}\n.hero-stack.ready .hero-card.hc3{animation:heroIn3 1.0s cubic-bezier(.16,.84,.28,1) .30s both}\n/* Once the entrance has finished the animation is removed entirely, so the\n   hover transform is not fighting a finished animation for the same property.\n   Selector must be enumerated per card: `.hero-stack.settled .hero-card` is\n   three classes and LOSES to `.hero-stack.ready .hero-card.hc1`, which is four\n   — so `animation:none` silently never applied and the cards stayed frozen on\n   the animation's opening frame. Matching specificity, declared later, wins. */\n.hero-stack.settled .hero-card.hc1,\n.hero-stack.settled .hero-card.hc2,\n.hero-stack.settled .hero-card.hc3{animation:none;opacity:1}\n@media (prefers-reduced-motion:reduce){\n  .hero-card{opacity:1}\n  .hero-stack.ready .hero-card{animation:none}\n}\n.hero-card{cursor:pointer;will-change:transform}\n.hero-stack:hover .hero-card,.hero-stack.touching .hero-card{filter:brightness(.72) saturate(.9)}\n/* Hover pulls a card OUT of the stack: z-index above its siblings, straightened,\n   lifted and enlarged. Without the z-index the card grew but stayed underneath,\n   which read as a glitch rather than a pick-up. */\n.hero-card.hc1:hover,.hero-card.hc1.lifted,\n.hero-card.hc2:hover,.hero-card.hc2.lifted,\n.hero-card.hc3:hover,.hero-card.hc3.lifted{z-index:9}\n.hero-card.hc1:hover,.hero-card.hc1.lifted{transform:rotate(-2deg) translateY(-18px) scale(1.09)}\n.hero-card.hc2:hover,.hero-card.hc2.lifted{transform:rotate(1.5deg) translateY(-18px) scale(1.09)}\n.hero-card.hc3:hover,.hero-card.hc3.lifted{transform:rotate(0deg) translateY(-20px) scale(1.09)}\n.hero-card:hover,.hero-card.lifted{\n  z-index:9!important;filter:none!important;\n  box-shadow:var(--lift-3),0 34px 90px -18px rgba(255,122,26,.5);\n}\n.hero-card .hc-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n@keyframes shimmer{to{background-position:-200% 0}}\n\n.lp-section{max-width:1200px;margin:0 auto;padding:80px clamp(16px,5vw,48px)}\n.lp-section-head{margin-bottom:38px}\n.lp-kicker{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}\n.lp-section-head h2{font-family:var(--display);font-size:clamp(30px,4vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.08}\n.lp-section-head p{color:var(--text-dim);font-size:15px;margin-top:12px;max-width:560px;line-height:1.6}\n\n.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:20px}\n.tpl-card{position:relative;border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--glass-edge);background:var(--surface-raise);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s;aspect-ratio:1;box-shadow:var(--lift-1)}\n.tpl-card:hover{transform:translateY(-4px);box-shadow:var(--lift-2),0 16px 48px -14px rgba(255,122,26,.4)}\n.tpl-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}\n.tpl-card .tpl-veil{position:absolute;inset:0;backdrop-filter:blur(1.6px) brightness(.86);transition:backdrop-filter .25s,opacity .25s}\n.tpl-card:hover .tpl-veil{backdrop-filter:blur(0) brightness(1);opacity:0}\n.tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}\n.tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}\n.tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#ffd7a1;background:rgba(0,0,0,.55);border:.5px solid rgba(255,215,161,.35);border-radius:var(--r-pill);padding:4px 9px}\n.tpl-card .tpl-use{position:absolute;top:12px;right:12px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;box-shadow:var(--glow-accent)}\n.tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}\n.tpl-card .tpl-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n.tpl-card.tpl-saved-card .tpl-del{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:14px;opacity:0;transition:opacity .2s}\n.tpl-card.tpl-saved-card:hover .tpl-del{opacity:1}\n.tpl-card .tpl-del:hover{color:var(--danger);border-color:var(--danger)}\n\n.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n@media(max-width:820px){.flow{grid-template-columns:1fr}}\n.flow-step{\n  position:relative;background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.flow-step .fs-num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:14px}\n.flow-step h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:8px}\n.flow-step p{font-size:14px;color:var(--text-dim);line-height:1.6}\n\n.lp-cta{max-width:1200px;margin:0 auto 90px;padding:0 clamp(16px,5vw,48px)}\n.lp-cta-inner{\n  position:relative;overflow:hidden;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:26px;padding:56px 40px;text-align:center;\n  box-shadow:var(--glass-shadow-lift);\n}\n/* A wash of accent inside the pane so the CTA reads as lit rather than tinted. */\n.lp-cta-inner::before{\n  content:'';position:absolute;inset:0;pointer-events:none;\n  background:radial-gradient(70% 120% at 50% 0%,var(--accent-wash),transparent 70%);\n}\n.lp-cta-inner>*{position:relative}\n.lp-cta-inner h2{font-family:var(--display);font-size:clamp(30px,4.4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.06;margin-bottom:12px}\n.lp-cta-inner p{color:var(--text-2);margin-bottom:28px;font-size:15px}\n.lp-footer{border-top:1px solid var(--hairline);padding:26px clamp(16px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--text-dim);font-size:13px}\n\n\n/* ═══════════ EDITOR ═══════════ */\n#page-editor{display:none;height:100vh;flex-direction:column;overflow:hidden}\n#page-editor.active{display:flex}\n#page-landing.hidden{display:none}\n\n.topbar{\n  height:58px;flex:0 0 58px;display:flex;align-items:center;gap:10px;padding:0 14px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);z-index:100;\n}\n.topbar .logo{font-size:15px}\n.tb-sep{width:1px;height:26px;background:var(--hairline);margin:0 4px}\n.tb-tplname{font-size:13px;font-weight:600;color:var(--text-2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.tb-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;color:var(--text-2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:var(--r-pill);cursor:pointer;transition:background .15s,color .15s}\n.tb-btn:hover{background:var(--surface-sunk);color:var(--text)}\n.tb-btn:disabled{opacity:.35;cursor:default;background:transparent}\n.tb-btn svg{width:16px;height:16px}\n.tb-spacer{flex:1}\n/* AI is violet everywhere in the house, never the accent. */\n#enhance-btn{border:.5px solid rgba(167,139,255,.4);color:var(--ai);background:rgba(167,139,255,.10)}\n#enhance-btn:hover{background:rgba(167,139,255,.18);color:var(--ai)}\n#enhance-btn.busy{opacity:.6;pointer-events:none}\n#export-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n#export-btn:hover{filter:brightness(1.06)}\n@media(max-width:900px){.tb-label{display:none}}\n/* ── editor topbar below laptop width ─────────────────────────────────────\n   Twelve controls in one non-wrapping row is fine at 1280 and broken\n   everywhere else: at iPad portrait the EXPORT button sat at x=848 on an\n   820px screen, and on an iPhone half the bar was past the right edge with\n   no way to reach it. The bar now scrolls horizontally, every control keeps\n   its full size rather than being squeezed, and Export is pinned to the\n   right edge so the one button that matters is never the one you have to go\n   hunting for. */\n@media(max-width:1100px){\n  .topbar{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}\n  .topbar::-webkit-scrollbar{display:none}\n  .topbar > *{flex:none}\n  .topbar .tb-spacer{flex:1 0 8px}\n  #export-btn{\n    position:sticky;right:0;z-index:2;\n    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent),\n               -18px 0 18px -10px var(--glass-bg-strong);\n  }\n}\n/* Touch pointers get the 44px minimum. Height only — widening the nav pills\n   would push the row back off the edge, which is the problem we just fixed. */\n@media(pointer:coarse){\n  .btn,.tb-btn,.ez-adv-link,.view-item,.picker-filters button,.plans-close,.logo{min-height:44px}\n  .theme-btn{width:44px;height:44px}\n  .ez-chip,.chip{min-height:40px}\n}\n\n.editor-body{flex:1;display:flex;overflow:hidden;position:relative}\n\n/* panels as drawers */\n.panel{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  display:flex;flex-direction:column;position:relative;transition:margin .28s cubic-bezier(.2,0,0,1);z-index:50;\n}\n.panel-left{width:300px;flex:0 0 300px;border-right:.5px solid var(--glass-edge)}\n.panel-right{width:300px;flex:0 0 300px;border-left:.5px solid var(--glass-edge)}\n.panel-left.collapsed{margin-left:-300px}\n.panel-right.collapsed{margin-right:-300px}\n.drawer-tab{position:absolute;top:50%;transform:translateY(-50%);width:20px;height:64px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:60;transition:color .15s,background .15s}\n.drawer-tab:hover{color:var(--text);background:var(--surface-raise)}\n.panel-left .drawer-tab{right:-20px;border-left:none;border-radius:0 10px 10px 0}\n.panel-right .drawer-tab{left:-20px;border-right:none;border-radius:10px 0 0 10px}\n\n.panel-tabs{display:flex;border-bottom:1px solid var(--hairline);flex:0 0 auto}\n.panel-tabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:12.5px;font-weight:650;padding:13px 4px;cursor:pointer;transition:color .15s,border-color .15s;letter-spacing:-.01em}\n.panel-tabs button:hover{color:var(--text-2)}\n.panel-tabs button.active{color:var(--text);border-bottom-color:var(--accent)}\n.panel-scroll{flex:1;overflow-y:auto;padding:16px 14px 40px}\n.panel-tabview{display:none}\n.panel-tabview.active{display:block}\n\n.psec{margin-bottom:22px}\n.psec-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}\n.field{margin-bottom:11px}\n.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}\n.field input[type=text],.field input[type=tel],.field input[type=number],.field textarea,.field select{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;transition:border-color .14s,box-shadow .14s}\n.field textarea{resize:vertical;min-height:56px;line-height:1.4}\n.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.field input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}\n.field-row{display:flex;gap:8px}\n.field-row .field{flex:1}\ninput[type=color]{width:100%;height:34px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:var(--surface-raise);cursor:pointer;padding:3px}\ninput[type=range]{width:100%;accent-color:var(--accent)}\n\n.chips{display:flex;flex-wrap:wrap;gap:7px}\n.chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12px;font-weight:650;padding:7px 12px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s;letter-spacing:-.005em}\n.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n.seg{display:flex;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-pill);overflow:hidden;padding:3px;gap:3px}\n.seg button{flex:1;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:650;padding:7px 6px;cursor:pointer;border-radius:var(--r-pill);transition:background .13s,color .13s}\n.seg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.seg button:hover:not(.active){color:var(--text-2)}\n\n.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}\n.add-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-md);color:var(--text-2);font-size:12.5px;font-weight:600;padding:13px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .13s}\n.add-btn:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}\n.add-btn .ab-ico{font-size:19px;line-height:1}\n.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.emoji-grid button{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);font-size:21px;padding:8px 0;cursor:pointer;transition:all .13s}\n.emoji-grid button:hover{border-color:var(--accent);transform:scale(1.08)}\n\n.mini-tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}\n.mini-tpl{position:relative;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--hairline);cursor:pointer;aspect-ratio:1;background:var(--surface-raise);transition:box-shadow .15s,transform .15s}\n.mini-tpl:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.mini-tpl.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}\n.mini-tpl img{width:100%;height:100%;object-fit:cover;display:block}\n.mini-tpl .mt-name{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;font-weight:650;color:#fff;padding:14px 7px 5px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.mini-tpl .mt-del{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s}\n.mini-tpl:hover .mt-del{opacity:1}\n.mini-tpl .mt-del:hover{color:var(--danger);border-color:var(--danger)}\n.empty-hint{font-size:12.5px;color:var(--text-dim);line-height:1.55;background:var(--surface-sunk);border:1px dashed var(--hairline-strong);border-radius:var(--r-md);padding:14px;text-align:center}\n\n/* stage */\n.stage{flex:1;position:relative;display:flex;overflow:auto;padding:26px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,var(--stage-1) 0%,var(--stage-2) 100%)}\n.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(var(--stage-dot) 1px,transparent 1px);background-size:26px 26px;pointer-events:none}\n#canvas-holder{position:relative;box-shadow:var(--lift-3);border-radius:6px;overflow:hidden;margin:auto}\n#guide-v,#guide-h{position:absolute;background:var(--accent);opacity:0;pointer-events:none;transition:opacity .08s;z-index:20;box-shadow:0 0 6px rgba(255,122,26,.9)}\n#guide-v{top:0;bottom:0;left:50%;width:1px;transform:translateX(-.5px)}\n#guide-h{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px)}\n#guide-v.on,#guide-h.on{opacity:1}\n.zoombar{\n  position:absolute;right:18px;bottom:16px;display:flex;align-items:center;gap:2px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:4px;z-index:70;\n  box-shadow:var(--glass-shadow-lift);\n}\n.zoombar button{background:none;border:none;color:var(--text-2);width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:15px;font-weight:600}\n.zoombar button:hover{background:var(--surface-sunk);color:var(--text)}\n.zoombar .zb-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:600;color:var(--text-2);min-width:48px;text-align:center;cursor:pointer;border-radius:var(--r-pill);padding:6px 2px}\n.zoombar .zb-pct:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* layers */\n.layer-row{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:background .12s,border-color .12s;margin-bottom:3px}\n.layer-row:hover{background:var(--surface-sunk)}\n.layer-row.selected{background:var(--accent-wash);border-color:rgba(255,122,26,.4)}\n.layer-row.hidden-l{opacity:.4}\n.layer-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:var(--surface-sunk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-2)}\n.layer-row .li-text{color:var(--accent)}\n.layer-main{flex:1;min-width:0}\n.layer-name{font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.layer-prev{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}\n.layer-acts{display:flex;gap:2px;flex:0 0 auto}\n.layer-acts button{background:none;border:none;color:var(--text-dim);width:24px;height:24px;border-radius:var(--r-pill);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}\n.layer-acts button:hover{background:var(--surface-sunk);color:var(--text)}\n.layer-acts button.on{color:var(--accent)}\n\n.icon-row{display:flex;gap:7px}\n.icon-row button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);color:var(--text-2);padding:8px 4px;cursor:pointer;font-size:13px;font-weight:650;transition:all .13s}\n.icon-row button:hover{border-color:var(--hairline-strong);color:var(--text)}\n.icon-row button.active{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n/* template picker modal */\n.picker-modal{max-width:960px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}\n.picker-head{padding:22px 26px 16px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:14px;flex-wrap:wrap}\n.picker-head h3{font-size:20px;flex:1}\n.picker-filters{display:flex;gap:6px;flex-wrap:wrap}\n.picker-filters button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12.5px;font-weight:650;padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s}\n.picker-filters button.active{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.picker-body{flex:1;overflow-y:auto;padding:22px 26px 30px}\n.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:16px}\n.resume-card{grid-column:1/-1;display:flex;align-items:center;gap:16px;background:var(--accent-wash);border:.5px solid rgba(255,122,26,.35);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:border-color .15s}\n.resume-card:hover{border-color:var(--accent)}\n.resume-card img{width:64px;height:64px;border-radius:var(--r-md);object-fit:cover;border:.5px solid var(--hairline-strong)}\n.resume-card .rc-title{font-weight:700;font-size:14.5px}\n.resume-card .rc-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px}\n.picker-close{background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:var(--r-pill)}\n.picker-close:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* export modal */\n.export-preview{width:100%;max-height:340px;border-radius:var(--r-lg);border:.5px solid var(--hairline-strong);object-fit:contain;background:var(--surface-sunk);display:block;margin-bottom:16px}\n\n/* tutorial */\n#tut-overlay{position:fixed;inset:0;z-index:9000;display:none;pointer-events:none}\n#tut-bubble{pointer-events:auto}\n#tut-overlay.active{display:block}\n#tut-spot{position:fixed;border-radius:var(--r-lg);box-shadow:0 0 0 9999px var(--scrim),0 0 0 2px var(--accent),0 0 34px rgba(255,122,26,.5);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:9001}\n#tut-bubble{\n  position:fixed;width:308px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:18px;z-index:9002;\n  box-shadow:var(--glass-shadow-lift);transition:all .3s cubic-bezier(.4,0,.2,1);\n}\n#tut-bubble .tb-step{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}\n#tut-bubble h4{font-size:16px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n#tut-bubble p{font-size:13.5px;color:var(--text-2);line-height:1.55;margin-bottom:15px}\n.tut-dots{display:flex;gap:5px;margin-bottom:14px}\n.tut-dots span{width:7px;height:7px;border-radius:50%;background:var(--hairline-strong);transition:background .2s}\n.tut-dots span.on{background:var(--accent)}\n.tut-actions{display:flex;align-items:center;gap:9px}\n.tut-actions .tut-skip{background:none;border:none;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;padding:8px 4px}\n.tut-actions .tut-skip:hover{color:var(--text)}\n@media(max-width:1100px){.panel-left,.panel-right{position:absolute;top:0;bottom:0;box-shadow:var(--lift-3)}.panel-left{left:0}.panel-right{right:0}}\n\n/* ═══════════ EASY MODE ═══════════ */\n#page-easy{display:none;min-height:100vh}\n#page-easy.active{display:block}\n.ez-nav{\n  display:flex;align-items:center;justify-content:space-between;gap:8px;\n  padding:12px 26px;position:sticky;top:0;z-index:40;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n}\n.ez-adv-link{background:none;border:none;color:var(--text-dim);font:600 13px/1 var(--ui);cursor:pointer;padding:9px 12px;border-radius:var(--r-pill)}\n.ez-adv-link:hover{color:var(--text);background:var(--surface-sunk)}\n.ez-wrap{max-width:1160px;margin:0 auto;padding:26px 22px 90px}\n.ez-head h1{font:700 clamp(24px,3.5vw,34px)/1.1 var(--ui);letter-spacing:-.035em;margin:0 0 4px}\n.ez-head p{color:var(--text-dim);margin:0 0 22px;font-size:14px}\n.ez-stepline{display:flex;align-items:center;gap:10px;margin:26px 0 12px}\n/* NOTE: border-radius MUST stay exactly 50% — cssProbeOk() in app.js reads it\n   to decide whether this stylesheet loaded at all. */\n.ez-stepnum{width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font:700 13px/26px var(--mono);text-align:center;flex:none;box-shadow:var(--glow-accent)}\n.ez-stepline h2{font:650 17px/1 var(--ui);letter-spacing:-.02em;margin:0}\n.ez-stepline small{color:var(--text-dim);font-size:12px;margin-left:2px}\n.ez-strip{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}\n.ez-strip::-webkit-scrollbar{height:8px}\n.ez-strip::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px}\n\n/* ── horizontal scroller: pop-up arrows + edge fades ──────────────────────\n   The arrows are the only thing telling a visitor the row continues, so they\n   sit ON the thumbnails rather than outside the rail, and each one hides the\n   moment there is nothing more that way. */\n.strip-shell{position:relative}\n/* Fades are drawn over the rail, not the label row underneath it. */\n.strip-shell::before,.strip-shell::after{\n  content:'';position:absolute;top:0;bottom:22px;width:64px;pointer-events:none;z-index:2;\n  opacity:1;transition:opacity .18s ease;\n}\n.strip-shell::before{left:0;background:linear-gradient(90deg,var(--field),transparent)}\n.strip-shell::after{right:0;background:linear-gradient(270deg,var(--field),transparent)}\n.strip-shell.at-start::before,.strip-shell.at-end::after,\n.strip-shell.no-scroll::before,.strip-shell.no-scroll::after{opacity:0}\n.strip-arrow{\n  position:absolute;top:calc(50% - 11px);transform:translateY(-50%);z-index:3;\n  width:38px;height:38px;display:grid;place-items:center;\n  border-radius:var(--r-pill);cursor:pointer;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow-lift);\n  color:var(--text);font-size:20px;line-height:1;padding:0 0 3px;\n  transition:opacity .18s ease,transform .12s cubic-bezier(.2,0,0,1),background .15s ease;\n}\n.strip-arrow.left{left:-4px}\n.strip-arrow.right{right:-4px}\n.strip-arrow:hover{background:var(--surface-raise)}\n.strip-arrow:active{transform:translateY(-50%) scale(.92)}\n.strip-shell.at-start .strip-arrow.left,\n.strip-shell.at-end .strip-arrow.right{opacity:0;pointer-events:none}\n.strip-shell.no-scroll .strip-arrow{display:none}\n/* Coarse pointers get a bigger target and no hover-only reveal. */\n@media (pointer:coarse){\n  .strip-arrow{width:44px;height:44px;font-size:22px}\n}\n.ez-tpl{flex:none;width:132px;cursor:pointer;background:none;border:none;padding:0;scroll-snap-align:start;text-align:center;position:relative}\n.ez-tpl img{width:132px;height:132px;border-radius:var(--r-lg);display:block;border:3px solid transparent;transition:border-color .15s,transform .15s,box-shadow .15s;object-fit:cover}\n.ez-tpl span{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}\n.ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.ez-tpl.sel img{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-tpl.sel span{color:var(--text)}\n.ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start}\n.ez-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:20px;\n  box-shadow:var(--glass-shadow);\n}\n.ez-field{margin-bottom:14px}\n.ez-field label{display:block;font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}\n.ez-field input,.ez-field textarea{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:500 15px/1.35 var(--ui);padding:11px 13px;box-sizing:border-box;transition:border-color .14s,box-shadow .14s}\n.ez-field textarea{resize:vertical;min-height:64px}\n.ez-field input:focus,.ez-field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.ez-chiprow{display:flex;flex-wrap:wrap;gap:8px}\n.ez-chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);border-radius:var(--r-pill);padding:8px 14px;font:650 12px/1 var(--ui);cursor:pointer;transition:all .12s}\n.ez-chip:hover{color:var(--text);border-color:var(--hairline-strong)}\n.ez-chip.on{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.ez-swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}\n.ez-sw{width:40px;height:40px;border-radius:12px;border:3px solid transparent;cursor:pointer;padding:0;position:relative;box-shadow:var(--lift-1)}\n.ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}\n.ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}\n.ez-preview-card{position:sticky;top:84px}\n.ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}\n/* account dropdown (reuses .view-drop look) */\n.acct-drop{left:auto;right:0;min-width:240px}\n.am-email{font:650 12px/1.3 var(--ui);color:var(--text-dim);padding:8px 10px 10px;border-bottom:1px solid var(--hairline);margin-bottom:6px;word-break:break-all}\n/* project rows inside Export / Make-my-ad dropdowns */\n.caret{opacity:.6;font-size:11px;margin-left:2px}\n.xm-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-md)}\n.xm-row:hover{background:var(--surface-sunk)}\n.xm-row img{width:34px;height:34px;border-radius:var(--r-sm);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.xm-name{flex:1;font:600 12.5px/1.3 var(--ui);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.xm-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:6px 10px;cursor:pointer;font-size:12px;flex:none}\n.xm-btn:hover{border-color:var(--accent);color:var(--accent)}\n/* split Make-my-ad button on the landing nav */\n.lp-split{display:inline-flex}\n.lp-split #lp-open-studio{border-radius:var(--r-pill) 0 0 var(--r-pill);padding-right:14px}\n.lp-caret{border-radius:0 var(--r-pill) var(--r-pill) 0;padding:9px 13px 9px 11px;border-left:1px solid rgba(0,0,0,.22)}\n/* auth modal */\n.auth-modal{max-width:420px;text-align:left}\n.auth-brand{display:flex;justify-content:center;margin-bottom:12px}\n.auth-brand .logo-mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px -8px rgba(242,96,12,.6)}\n.auth-modal h3{text-align:center}\n.auth-modal .modal-sub{text-align:center}\n.auth-google{display:flex;justify-content:center;margin:14px 0 4px}\n.auth-or{display:flex;align-items:center;gap:12px;margin:14px 0 4px;color:var(--text-dim);font-size:12px}\n.auth-or::before,.auth-or::after{content:'';flex:1;height:1px;background:var(--hairline)}\n.auth-pass-wrap{position:relative}\n.auth-pass-wrap input{width:100%;padding-right:44px}\n.auth-pass-wrap #auth-pass-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;opacity:.55;padding:6px}\n.auth-pass-wrap #auth-pass-eye:hover{opacity:1}\n.auth-hint{color:var(--text-dim);font-size:11.5px;margin-top:8px}\n/* account-type chooser after signup */\n.at-card{display:block;width:100%;text-align:left;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:15px 17px;margin-top:12px;cursor:pointer;transition:border-color .15s,transform .12s,background .15s}\n.at-card:hover{border-color:var(--accent);transform:translateY(-1px)}\n.at-card.hot{border-color:rgba(255,122,26,.5);background:var(--accent-wash)}\n.at-card .at-name{display:flex;justify-content:space-between;align-items:baseline;font:700 15px/1 var(--ui);letter-spacing:-.02em;color:var(--text)}\n.at-card .at-name em{font-style:normal;color:var(--accent);font-size:12.5px}\n.at-card .at-desc{display:block;color:var(--text-dim);font-size:12.5px;margin-top:6px;line-height:1.45}\n/* pencil button in export history */\n.hist-edit{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:9px 13px;cursor:pointer;font:600 12.5px/1 var(--ui);margin-right:8px;flex:none}\n.hist-edit:hover{border-color:var(--accent);color:var(--accent)}\n/* big landing footer */\n.lp-footer-big{display:block;padding:46px clamp(16px,4vw,40px) 28px}\n.lpf-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;max-width:1100px;margin:0 auto}\n.lpf-brand p{color:var(--text-dim);font-size:13px;margin-top:10px;max-width:260px}\n.lpf-col h4{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}\n.lpf-col a{display:block;color:var(--text-2);text-decoration:none;font-size:13.5px;padding:5px 0}\n.lpf-col a:hover{color:var(--accent)}\n.lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}\n.ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}\n.ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.ez-dl:hover{filter:brightness(1.06)}\n.ez-dl:active{transform:scale(.985)}\n.ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}\n.ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}\n.ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}\n@media (max-width:920px){\n  .ez-main{grid-template-columns:1fr}\n  /* The preview used to be pulled above the form with order:-1, which made a\n     THREE-STEP guided flow read 1 -> 3 -> 2: the visitor was told \"step 2, type\n     your info\" and then had to scroll past an 1180px preview to find the\n     fields. Steps now stack in the order they are numbered.\n     The preview stays useful while typing by sticking to the bottom of the\n     viewport at a height that cannot swallow the page. */\n  .ez-preview-card{position:static;order:0}\n  .ez-preview-card img{max-height:52vh;width:auto;margin:0 auto;display:block}\n}\n/* Narrow phones: smaller thumbs so more than two fit, and the arrows pull in\n   off the very edge where a thumb-swipe would fight them. */\n@media (max-width:480px){\n  .ez-tpl,.ez-tpl img{width:104px}\n  .ez-tpl img{height:104px}\n  .strip-arrow.left{left:0}\n  .strip-arrow.right{right:0}\n  .strip-shell::before,.strip-shell::after{width:44px}\n}\n\n/* view menu */\n.view-menu{position:relative}\n.view-drop{\n  display:none;position:absolute;top:calc(100% + 8px);left:0;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:6px;min-width:220px;z-index:60;\n  box-shadow:var(--glass-shadow-lift);\n  animation:menu-in .16s cubic-bezier(.2,0,0,1);transform-origin:top left;\n}\n.view-drop.acct-drop{transform-origin:top right}\n@keyframes menu-in{from{opacity:0;transform:translateY(-6px) scale(.97)}}\n.view-drop.open{display:block}\n.view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}\n.view-item:hover{background:var(--accent-wash);color:var(--accent)}\n.view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}\n.view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}\n.view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}\n/* grid overlay */\n#grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:15;display:none;\n  background-image:linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px)}\n#grid-overlay.on{display:block}\n/* fill type seg */\n.fillseg{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:8px}\n.fillseg button{flex:1;background:none;border:none;color:var(--text-dim);font:600 12px/1 var(--ui);padding:8px;border-radius:var(--r-pill);cursor:pointer}\n.fillseg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n/* backgrounds tab */\n.bg-gen-box{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:12px;margin-bottom:14px}\n.bg-gen-box textarea{width:100%;box-sizing:border-box;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 13px/1.4 var(--ui);padding:9px;resize:vertical;min-height:56px}\n.bg-gen-row{display:flex;gap:8px;margin-top:8px}\n.bg-gen-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 12px/1 var(--ui);padding:8px;min-width:0}\n/* AI generation is violet, the house colour for \"a model did this\". */\n.btn-gen{background:linear-gradient(135deg,var(--ai),#7b5cff);color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}\n.btn-gen:hover{filter:brightness(1.06)}\n.btn-gen:disabled{opacity:.55;cursor:wait}\n.bg-result{margin-top:10px;display:none}\n.bg-result.show{display:block}\n.bg-result img{width:100%;border-radius:var(--r-md);display:block}\n.bg-result-acts{display:flex;gap:8px;margin-top:8px}\n.bg-result-acts button{flex:1;border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);border-radius:var(--r-pill);font:600 12px/1 var(--ui);padding:10px;cursor:pointer}\n.bg-result-acts button:hover{border-color:var(--accent);color:var(--accent)}\n.bg-lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.bg-lib-item{position:relative;border:none;background:var(--surface-sunk);border-radius:var(--r-md);padding:0;cursor:pointer;overflow:hidden;aspect-ratio:1}\n.bg-lib-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s}\n.bg-lib-item:hover img{transform:scale(1.06)}\n.bg-lib-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:var(--r-pill);border:none;background:rgba(0,0,0,.65);color:#fff;font-size:11px;cursor:pointer;display:none;line-height:20px;text-align:center}\n.bg-lib-item:hover .bg-lib-del{display:block}\n.bg-lib-badge{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#eee;font:600 9px/1 var(--ui);padding:3px 6px;border-radius:var(--r-pill);pointer-events:none}\n.gear-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:4px;font-family:var(--ui);font-weight:600}\n.gear-btn:hover{color:var(--text)}\n.ai-note{color:var(--text-dim);font-size:11.5px;line-height:1.45;margin-top:8px}\n\n\n/* easy recents + layers + star */\n.ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}\n#ez-recents{display:flex;flex-wrap:wrap;gap:10px}\n#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}\n.ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}\n.ez-recent img{width:100%;height:100%;object-fit:cover;display:block}\n.ez-recent.sel{border-color:var(--accent)}\n.star-btn{position:absolute;top:1px;right:1px;width:16px;height:16px;border:none;border-radius:5px;background:rgba(0,0,0,.65);color:var(--warn);font-size:10px;line-height:16px;text-align:center;cursor:pointer;display:none;padding:0}\n.ez-recent:hover .star-btn,.ez-lrow:hover .star-btn{display:block}\n.ez-lrow .star-btn{position:static;width:22px;height:22px;line-height:22px;border-radius:6px;flex:none}\n#star-pop{\n  position:fixed;z-index:9500;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:6px;display:none;min-width:210px;\n}\n#star-pop.open{display:block}\n#star-pop button{display:block;width:100%;background:none;border:none;color:var(--text);font:500 13px/1 var(--ui);padding:10px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left}\n#star-pop button:hover{background:var(--accent-wash);color:var(--accent)}\n/* easy layers list */\n.ez-layers{margin-top:14px;border-top:1px solid var(--hairline);padding-top:12px}\n.ez-lrow{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:var(--r-md);cursor:pointer}\n.ez-lrow:hover{background:var(--surface-sunk)}\n.ez-lswatch{width:26px;height:26px;border-radius:8px;flex:none;background:var(--surface-sunk);overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--text-dim)}\n.ez-lswatch img{width:100%;height:100%;object-fit:cover}\n.ez-lmain{flex:1;min-width:0}\n.ez-lname{font:650 12px/1.2 var(--ui);color:var(--text)}\n.ez-lprev{font:500 10.5px/1.2 var(--ui);color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}\n.ez-ldel{width:22px;height:22px;border:none;border-radius:var(--r-pill);background:none;color:var(--text-dim);cursor:pointer;font-size:12px;flex:none;line-height:22px;padding:0}\n.ez-ldel:hover{background:rgba(255,98,89,.15);color:var(--danger)}\n.ez-restore{background:none;border:none;color:var(--accent);font:600 11.5px/1 var(--ui);cursor:pointer;padding:6px;margin-top:2px}\n\n\n/* effects controls */\n.ez-fxrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}\n.ez-fxrow button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-pill);padding:8px 13px;font:600 11.5px/1 var(--ui);cursor:pointer}\n.ez-fxrow button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.ez-fxline{display:flex;align-items:center;gap:10px;margin-bottom:8px}\n.ez-fxline label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:64px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.ez-fxline input[type=range]{flex:1}\n.ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}\n.ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}\n/* account chip */\n.acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}\n.acct-chip:hover{background:var(--surface-raise)}\n.acct-plan{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border-radius:var(--r-pill);padding:3px 9px;font:700 9.5px/1.35 var(--ui);letter-spacing:.06em;text-transform:uppercase}\n.acct-plan.free{background:var(--surface-sunk);color:var(--text-dim)}\n/* auth + pay overlays reuse .modal-overlay/.modal */\n.auth-tabs{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:16px}\n.auth-tabs button{flex:1;background:none;border:none;color:var(--text-dim);font:650 13px/1 var(--ui);padding:10px;border-radius:var(--r-pill);cursor:pointer;transition:background .13s,color .13s}\n.auth-tabs button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.auth-err{color:var(--danger);font:500 12.5px/1.4 var(--ui);margin:8px 0 0;min-height:16px}\n.auth-ok{text-align:center;padding:18px 6px}\n.auth-ok .big{font-size:40px;margin-bottom:10px}\n.demo-note{background:rgba(255,176,61,.12);border:.5px solid rgba(255,176,61,.4);color:var(--warn);border-radius:var(--r-md);padding:10px 12px;font:500 11.5px/1.45 var(--ui);margin-top:12px}\n/* plans page */\n/* Fixed at z-index 8000, so it sits above the body's field pseudo-elements and\n   would otherwise be a flat slab. It carries its own copy of the aurora. */\n#page-plans{\n  display:none;position:fixed;inset:0;z-index:8000;overflow:auto;\n  background:\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%),\n    var(--field);\n}\n#page-plans.active{display:block}\n.plans-wrap{max-width:980px;margin:0 auto;padding:34px 22px 80px}\n.plans-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}\n.plans-head h1{font:700 28px/1.1 var(--ui);letter-spacing:-.035em;margin:0}\n.plans-close{background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text);border-radius:var(--r-pill);padding:10px 16px;font:600 13px/1 var(--ui);cursor:pointer}\n.plans-close:hover{background:var(--surface-raise)}\n.plans-sub{color:var(--text-dim);font:500 14px/1.5 var(--ui);margin:0 0 26px}\n.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}\n.plan-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:24px;\n  display:flex;flex-direction:column;box-shadow:var(--glass-shadow);\n}\n.plan-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(255,122,26,.5)}\n.plan-name{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin-bottom:4px}\n.plan-price{font:700 32px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:10px 0 2px}\n.plan-price small{font:600 13px/1 var(--ui);color:var(--text-dim)}\n.plan-feats{list-style:none;padding:0;margin:16px 0 20px;flex:1}\n.plan-feats li{font:500 13px/1.5 var(--ui);color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.plan-feats li::before{content:'✓';position:absolute;left:0;color:var(--good);font-weight:700}\n.plan-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);font:650 14px/1 var(--ui);padding:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.plan-btn:hover{filter:brightness(1.06)}\n.plan-btn.ghost{background:var(--surface-sunk);color:var(--text);border:.5px solid var(--hairline);box-shadow:none}\n.plan-btn:disabled{opacity:.5;cursor:default}\n.plan-current{font:650 10.5px/1 var(--ui);color:var(--good);text-transform:uppercase;letter-spacing:.09em;margin-top:10px;text-align:center}\n.ez-quota{color:var(--text-dim);font:600 11.5px/1 var(--ui);text-align:center;margin-top:8px}\n.ez-quota b{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums}\n.ez-quota .up{color:var(--accent);cursor:pointer;text-decoration:underline}\n\n\n/* premium template locks */\n.tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}\n.ez-tpl{position:relative}\n.ez-tpl .tpl-lock{top:6px;left:6px}\n.ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}\n.ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}\n.tpl-card.locked img{filter:grayscale(.35) brightness(.7)}\n\n\n/* category row + nav */\n.ez-catrow{display:flex;align-items:center;gap:12px;margin:0 0 12px}\n.ez-catrow label{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none}\n.cat-select{background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:600 14px/1 var(--ui);padding:11px 13px;min-width:210px;cursor:pointer}\n.cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.nav-upgrade{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);padding:9px 15px;font:700 12px/1 var(--ui);cursor:pointer;letter-spacing:-.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.nav-upgrade:hover{filter:brightness(1.06)}\n/* export history */\n.hist-list{max-height:380px;overflow:auto;margin-top:6px}\n.hist-row{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:var(--r-md)}\n.hist-row:hover{background:var(--surface-sunk)}\n.hist-row img{width:52px;height:52px;border-radius:var(--r-md);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.hist-main{flex:1;min-width:0}\n.hist-name{font:650 13px/1.2 var(--ui);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.hist-meta{font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim)}\n.hist-dl{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px 13px;cursor:pointer;flex:none}\n.hist-dl:hover{border-color:var(--accent);color:var(--accent)}\n.hist-empty{color:var(--text-dim);font:500 13px/1.5 var(--ui);text-align:center;padding:26px 0}\n@media (max-width:760px){ .ez-nav{flex-wrap:wrap;gap:8px} }\n/* The label plus a 210px select is wider than a phone, and overflow-x:hidden\n   was clipping the select's right edge instead of showing it. */\n@media (max-width:560px){\n  .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}\n  .ez-catrow label{margin-bottom:2px}\n  .cat-select{min-width:0;width:100%}\n  .ez-nav{padding:10px 14px}\n  .ez-adv-link{padding:8px;font-size:12.5px}\n  .ez-wrap{padding:20px 14px 80px}\n}\n\n.mini-tpl.locked img, .tpl-mini.locked img{filter:grayscale(.35) brightness(.7)}\n\n/* per-field quick styling */\n.ez-fieldrow{display:flex;gap:8px;align-items:stretch}\n.ez-fieldrow input,.ez-fieldrow textarea{flex:1;min-width:0}\n.ez-edit-btn{flex:none;width:44px;border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-dim);border-radius:var(--r-md);cursor:pointer;font-size:15px}\n.ez-edit-btn:hover{color:var(--accent);border-color:var(--accent)}\n#txt-pop{\n  position:fixed;z-index:9400;width:288px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:14px;display:none;\n}\n#txt-pop.open{display:block}\n#txt-pop .tp-title{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}\n#txt-pop .tp-title button{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px}\n.tp-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}\n.tp-row label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:52px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.tp-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:600 12.5px/1 var(--ui);padding:8px 9px}\n.tp-row input[type=range]{flex:1}\n.tp-row input[type=color]{width:32px;height:26px;border:1px solid var(--hairline-strong);border-radius:6px;background:none;padding:1px;flex:none}\n.tp-row .tp-val{font:600 10.5px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right;flex:none}\n.tp-biu{display:flex;gap:5px;flex:1}\n.tp-biu button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-sm);padding:7px 0;cursor:pointer;font:700 13px/1 Georgia}\n.tp-biu button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.tp-reset{width:100%;margin-top:4px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px;cursor:pointer}\n.tp-reset:hover{color:var(--text)}\n\n\n.ez-themes{display:flex;flex-wrap:wrap;gap:9px}\n.ez-theme{display:flex;border:2px solid var(--hairline-strong);border-radius:11px;overflow:hidden;padding:0;cursor:pointer;width:52px;height:32px;background:none;transition:border-color .13s,transform .13s}\n.ez-theme span{flex:1;display:block}\n.ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}\n\n\n.ez-chip-custom{border-style:dashed}\n.chip-x{opacity:.55;font-size:10px;margin-left:2px}\n.ez-chip-custom:hover .chip-x{opacity:1;color:var(--danger)}\n\n.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:720px}\n.lp-price-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-price-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(255,122,26,.5)}\n.lp-price-card h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n.lp-price{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:40px;font-weight:700;letter-spacing:-.04em;margin-bottom:12px}\n.lp-price small{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:-.01em}\n.lp-price-card ul{list-style:none;padding:0;margin:0 0 18px}\n.lp-price-card li{font-size:13.5px;color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.lp-price-card li::before{content:'\\2713';position:absolute;left:0;color:var(--good);font-weight:700}\n.lp-faq{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:0 20px;margin-bottom:10px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-faq summary{font-weight:650;font-size:15px;letter-spacing:-.015em;padding:17px 0;cursor:pointer;list-style:none}\n.lp-faq summary::-webkit-details-marker{display:none}\n.lp-faq summary::after{content:'+';float:right;color:var(--accent);font-size:18px;font-weight:600}\n.lp-faq[open] summary::after{content:'\\2013'}\n.lp-faq p{font-size:14px;color:var(--text-2);line-height:1.6;padding-bottom:17px;margin:0}\n\n/* ── canvas format picker ── */\n.tb-format{appearance:none;-webkit-appearance:none;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);max-width:190px;border-radius:var(--r-pill);padding:8px 28px 8px 13px;font-size:13px;font-weight:600;background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}\n.tb-format:hover{border-color:var(--accent)}\n\n/* ── order prints + posting ── */\n.btn-order{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:12px;background:rgba(48,214,143,.12);border:.5px solid rgba(48,214,143,.45);color:var(--good);font-weight:650;border-radius:var(--r-lg);padding:12px}\n.btn-order:hover{border-color:var(--good);background:rgba(48,214,143,.18)}\n.btn-order .order-sub{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.01em}\n.ez-order{display:block;width:100%;margin-top:10px;background:none;border:1px dashed rgba(48,214,143,.5);color:var(--good);font-size:13px;font-weight:650;padding:11px;border-radius:var(--r-lg);cursor:pointer}\n.ez-order:hover{background:rgba(48,214,143,.10)}\n\n/* ── QR layer ── */\n.ab-pro{position:absolute;top:6px;right:6px;background:var(--warn);color:#1a1206;font-size:9px;font-weight:800;padding:2px 6px;border-radius:var(--r-pill);letter-spacing:.04em}\n.add-btn{position:relative}\n.qr-help{font-size:12px;color:var(--text-2);line-height:1.5;margin-top:8px}\n.qr-help a{color:var(--good);font-weight:650;text-decoration:none}\n.qr-help a:hover{text-decoration:underline}\n\n/* ═══════════ VIDEO AD (video.js) ═══════════ */\n.btn-video{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:10px;background:var(--accent-wash);border:.5px solid var(--accent);color:var(--text);font-weight:650;border-radius:var(--r-lg);padding:12px}\n.btn-video:hover{background:var(--surface-raise)}\n.btn-video .order-sub{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.01em}\n.modal.vid-modal{max-width:880px;max-height:calc(100vh - 48px);overflow:auto}\n.vid-body{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:22px;align-items:start}\n.vid-stage{position:relative;background:var(--surface-sunk);border:.5px solid var(--hairline-strong);border-radius:var(--r-lg);overflow:hidden;cursor:pointer}\n.vid-stage canvas{display:block;width:100%;height:auto}\n.vid-stage.paused::after{content:'❚❚';position:absolute;top:10px;right:12px;font-size:12px;color:#fff;background:rgba(0,0,0,.55);padding:3px 7px;border-radius:var(--r-pill)}\n.vid-scrub{height:3px;background:var(--hairline)}\n.vid-scrub i{display:block;height:100%;width:0;background:var(--accent)}\n.vid-form label{margin-top:12px}\n.vid-form input[type=text]{padding:9px 11px;font-size:13px}\n.vid-form input[type=text] + input[type=text]{margin-top:6px}\n.vid-form input[type=file]{font-size:12px;color:var(--text-2)}\n.vid-row3{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px}\n.vid-hint{text-transform:none;letter-spacing:0;font-weight:500;color:var(--text-dim)}\n.vid-form label.vid-check{display:flex;align-items:center;gap:8px;margin-top:16px;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer}\n.vid-warn{margin-top:12px;font-size:12.5px;line-height:1.45;color:var(--warn)}\n.vid-warn p{margin:0 0 6px}\n.vid-status{display:none;align-items:center;gap:12px;margin-top:18px;font-size:12.5px;line-height:1.45;color:var(--text-2)}\n.vid-status.show{display:flex}\n.vid-status[data-kind=error]{color:var(--danger)}\n.vid-status[data-kind=ok]{color:var(--good)}\n.vid-bar{flex:0 0 140px;height:6px;border-radius:var(--r-pill);background:var(--surface-sunk);overflow:hidden}\n.vid-bar i{display:block;height:100%;width:0;background:var(--accent)}\n.vid-cover{display:inline-block;margin-top:10px;font-size:12.5px;font-weight:650;color:var(--good);text-decoration:none}\n.vid-cover:hover{text-decoration:underline}\n.vid-foot{margin-top:14px;font-size:12px;color:var(--text-dim);line-height:1.5}\n@media (max-width:720px){.vid-body{grid-template-columns:1fr}.vid-stage{max-width:260px;margin:0 auto}.vid-row3{grid-template-columns:1fr 1fr}}\n";
+const CSS_FALLBACK = "/* ═══════════════════════════════════════════════════════════════════════════\n   GRAPHICS STUDIO — Liquid Glass chrome\n\n   Unified with unified-crm and the iphones.la launcher: same field, same glass\n   recipe, same accent, same radii, same tabular-mono law. The templates this\n   app produces went Liquid Glass on Aug 24; the chrome around them was still\n   flat-black-and-orange 2021 SaaS. Now they are one material.\n\n   Laws, carried over from the CRM theme:\n   1. Chrome is glass. Running text is opaque. A blur is for panels, never\n      for paragraphs.\n   2. ONE accent (#ff7a1a). The site now matches the PRODUCT it sells, not\n      the CRM: a page selling loud buyback ads should not look like a SaaS\n      dashboard. Colour that is not the accent means state:\n      green good, amber caution, red stop, violet AI.\n   3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and\n      wordmark only, as --brand-1/--brand-2, so the accent can be retuned for\n      contrast without repainting the brand.\n   4. Anything the eye compares — prices, counts, percentages, quotas — is set\n      in tabular mono. This is a tool, not prose.\n\n   Legacy tokens (--orange, --surface2, --muted …) are kept as ALIASES onto the\n   new system because app.js writes them into generated markup in ~250 places.\n   Retargeting --orange to the accent is what repaints those call sites.\n   Do not delete an alias without grepping app.js first.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── HOUSE TYPE ──────────────────────────────────────────────────────────────\n   Clash Display for anything that declares, Satoshi for anything that is read,\n   Zodiak when a serif is the point. All three are Fontshare (Indian Type\n   Foundry), free for commercial use, and VENDORED into assets/fonts rather\n   than pulled from a CDN: no third-party dependency, no extra CSP origin, no\n   render-blocking round trip to someone else's server. 184KB for nine files.\n\n   Why these and not the previous set: the library ran on Bebas Neue, Anton,\n   Montserrat, Luckiest Guy, Titan One, Bungee, Monoton and Pacifico. Those are\n   the default free-font shelf every Canva template is already built from, and\n   half of them are novelty faces — the opposite of an ad that asks a stranger\n   to hand over a phone for cash. `font-display:swap` so text paints\n   immediately in the fallback and reflows once the face lands. */\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n/* Khand carries the long money-words (\"TEST STRIPS\", \"COLLECTIBLES\") that made\n   a wide face overflow; Melodrama is the high-contrast serif for gold, coins\n   and anything that wants to read as valuation rather than clearance. Two more\n   voices so the 153 templates are not all in one typeface. */\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n\n/* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>\n   before first paint by the inline script in index.html, so there is no white\n   flash. This rule matches both the explicit choice and the bare default, so\n   dark still applies if that script never runs. */\n:root,\n:root[data-theme='dark']{\n  color-scheme:dark;\n\n  /* GRAPHITE, the default ground since 2026-09-02. The field used to be a warm\n     near-black (#141110) with brown surfaces under an orange accent, and the\n     owner's verdict was \"orange on brown on grey\". The ground is now a cool\n     neutral graphite so ANY accent sits on it cleanly; the old warm set is\n     kept, whole, as data-skin='ember' below. Accent colour is a separate axis\n     (data-accent) so the two can be mixed from the Look menu. */\n\n  /* Field */\n  --field:#0f1116;\n  --wash-a:rgba(var(--accent-rgb),.26);\n  --wash-b:rgba(var(--accent2-rgb),.18);\n  --wash-c:rgba(0,214,180,.10);\n\n  /* Glass */\n  --glass-bg:rgba(24,27,34,.62);\n  --glass-bg-strong:rgba(24,27,34,.86);\n  --glass-edge:rgba(255,255,255,.12);\n  --glass-blur:blur(34px) saturate(190%) brightness(1.04);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 38px -12px rgba(0,0,0,.6);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.10),0 24px 60px -14px rgba(0,0,0,.75);\n\n  /* Opaque content surfaces */\n  --surface-solid:#171a21;\n  --surface-sunk:rgba(255,255,255,.055);\n  --surface-raise:#1f232c;\n\n  /* Ink — cool neutrals */\n  --text:#f2f4f8;\n  --text-2:#c3c9d6;\n  --text-dim:#8b94a7;\n  --hairline:rgba(255,255,255,.09);\n  --hairline-strong:rgba(255,255,255,.16);\n\n  /* Accent — BLUE MARKET by default (the palette the owner kept most often\n     in the template reviews). See the data-accent blocks for the others. */\n  --accent:#4d9cff;\n  --accent-ink:#061527;\n  --accent-wash:rgba(77,156,255,.16);\n  --accent-deep:#2b7de9;\n  --accent-soft:#cfe4ff;\n  --accent-rgb:77,156,255;\n  --accent2-rgb:120,90,255;\n\n  --good:#30d68f;\n  --warn:#ffb03d;\n  --danger:#ff6259;\n  --ai:#a78bff;\n\n  /* Brand — follows the accent now. The mark used to carry its own orange\n     regardless of the UI accent; that is the one place orange survived the\n     retune, so it is tied to the accent axis instead. */\n  --brand-1:var(--accent);\n  --brand-2:var(--accent-soft);\n  --brand-rgb:var(--accent-rgb);\n\n  --r-pill:999px;\n  --r-lg:18px;\n  --r-md:13px;\n  --r-sm:9px;\n  --tap:44px;\n\n  --lift-1:0 1px 2px rgba(0,0,0,.4),0 4px 12px -4px rgba(0,0,0,.5);\n  --lift-2:0 2px 6px rgba(0,0,0,.45),0 18px 42px -14px rgba(0,0,0,.68),0 0 0 1px rgba(255,255,255,.045);\n  --lift-3:0 4px 12px rgba(0,0,0,.5),0 40px 90px -22px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.5);\n\n  --stage-1:#14171d;\n  --stage-2:#0a0c10;\n  --stage-dot:rgba(255,255,255,.045);\n  --scrim:rgba(8,10,14,.74);\n\n  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;\n  /* Satoshi runs the whole product, chrome included. The system stack stays\n     behind it as the fallback, so a failed font load degrades to exactly the\n     UI we shipped before rather than to Times. */\n  --ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;\n  --display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;\n  --serif:'Zodiak',Georgia,'Times New Roman',serif;\n\n  /* ── legacy aliases (app.js depends on every one of these) ── */\n  --bg:var(--field);\n  --surface:var(--surface-solid);\n  --surface2:var(--surface-raise);\n  --surface3:#2a2f3a;\n  --border:var(--hairline);\n  --border2:var(--hairline-strong);\n  --orange:var(--accent);\n  --orange2:var(--accent-deep);\n  --gold:var(--warn);\n  --green:var(--good);\n  --red:var(--danger);\n  --muted:var(--text-dim);\n  --muted2:var(--text-2);\n  --panel:var(--surface-solid);\n  --panel2:var(--surface-raise);\n  --line:var(--hairline);\n  --r:var(--r-md);\n}\n\n/* EMBER — the pre-2026-09-02 warm look, kept as a selectable skin. */\n:root[data-theme='dark'][data-skin='ember']{\n  --field:#141110;\n  --wash-a:rgba(var(--accent-rgb),.34);\n  --wash-b:rgba(var(--accent2-rgb),.26);\n  --wash-c:rgba(255,196,60,.20);\n  --glass-bg:rgba(34,27,23,.62);\n  --glass-bg-strong:rgba(34,27,23,.86);\n  --glass-edge:rgba(255,255,255,.13);\n  --surface-solid:#1d1815;\n  --surface-raise:#262019;\n  --text:#f6efe8;\n  --text-2:#cfc2b6;\n  --text-dim:#9a8b7e;\n  --stage-1:#1a1512;\n  --stage-2:#0d0a08;\n  --scrim:rgba(14,9,6,.74);\n  --surface3:#33291f;\n}\n\n/* NIGHT — deep jewel ground, vivid washes, the Night Neon family's material. */\n:root[data-theme='dark'][data-skin='night']{\n  --field:#0a0913;\n  --wash-a:rgba(var(--accent-rgb),.44);\n  --wash-b:rgba(var(--accent2-rgb),.34);\n  --wash-c:rgba(0,214,180,.18);\n  --glass-bg:rgba(28,24,56,.58);\n  --glass-bg-strong:rgba(28,24,56,.84);\n  --glass-edge:rgba(255,255,255,.14);\n  --glass-blur:blur(40px) saturate(220%) brightness(1.06);\n  --surface-solid:#15132a;\n  --surface-raise:#1d1a36;\n  --surface-sunk:rgba(255,255,255,.06);\n  --text:#f3f0ff;\n  --text-2:#c9c3e8;\n  --text-dim:#8f88b8;\n  --hairline:rgba(255,255,255,.10);\n  --hairline-strong:rgba(255,255,255,.18);\n  --glow-accent:0 10px 40px -6px rgba(var(--accent-rgb),.7);\n  --stage-1:#14122a;\n  --stage-2:#08071a;\n  --scrim:rgba(6,5,16,.76);\n  --surface3:#26224a;\n}\n\n/* LIGHT — opt-in, for daylight and for turning the screen toward someone.\n   Higher specificity than the bare :root above, so it wins wherever the dark\n   default set a value. Radii, faces and the mono stack are theme-independent. */\n:root[data-theme='light']{\n  color-scheme:light;\n  --field:#f3f4f7;\n  --wash-a:rgba(var(--accent-rgb),.14);\n  --wash-b:rgba(var(--accent2-rgb),.10);\n  --wash-c:rgba(0,214,180,.08);\n  --glass-bg:rgba(255,255,255,.58);\n  --glass-bg-strong:rgba(255,255,255,.80);\n  --glass-edge:rgba(255,255,255,.9);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(9,18,38,.045),0 1px 2px rgba(9,18,38,.05),0 14px 38px -12px rgba(9,18,38,.16);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.95),0 24px 60px -14px rgba(9,18,38,.30);\n  --surface-solid:#ffffff;\n  --surface-sunk:rgba(9,18,38,.042);\n  --surface-raise:#f8f9fc;\n  --text:#14161c;\n  --text-2:#4a5060;\n  --text-dim:#6b7280;\n  --hairline:rgba(9,18,38,.09);\n  --hairline-strong:rgba(9,18,38,.16);\n  --accent:#1d63d8;\n  --accent-ink:#ffffff;\n  --accent-wash:rgba(29,99,216,.12);\n  --accent-deep:#174fae;\n  --accent-soft:#dbe8ff;\n  --accent-rgb:29,99,216;\n  --accent2-rgb:109,63,214;\n  --good:#0f9d6b;\n  --warn:#c2751a;\n  --danger:#e0342a;\n  --ai:#6c4cff;\n  --lift-1:0 1px 2px rgba(9,18,38,.06),0 4px 12px -4px rgba(9,18,38,.10);\n  --lift-2:0 2px 6px rgba(9,18,38,.07),0 18px 42px -14px rgba(9,18,38,.20),0 0 0 1px rgba(9,18,38,.05);\n  --lift-3:0 4px 12px rgba(9,18,38,.08),0 40px 90px -22px rgba(9,18,38,.28),0 0 0 1px rgba(9,18,38,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.34);\n  --stage-1:#eef0f4;\n  --stage-2:#dfe3ea;\n  --stage-dot:rgba(9,18,38,.07);\n  --scrim:rgba(120,132,155,.42);\n  --surface3:#e9ecf2;\n}\n\n/* PAPER — light, editorial: a warm paper ground, ink type, a serif display\n   face, hairlines instead of glass. The Paper and Chalk template families'\n   material, applied to the chrome. */\n:root[data-theme='light'][data-skin='paper']{\n  --field:#f7f4ee;\n  --wash-a:rgba(var(--accent-rgb),.07);\n  --wash-b:rgba(var(--accent2-rgb),.05);\n  --wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(251,249,244,.82);\n  --glass-bg-strong:rgba(251,249,244,.94);\n  --glass-edge:rgba(30,25,15,.10);\n  --glass-blur:blur(12px) saturate(120%);\n  --glass-shadow:0 1px 0 rgba(30,25,15,.05);\n  --glass-shadow-lift:0 20px 50px -18px rgba(30,25,15,.22);\n  --surface-solid:#fffdf9;\n  --surface-sunk:rgba(30,25,15,.045);\n  --surface-raise:#f1ece3;\n  --text:#1a1815;\n  --text-2:#4e4842;\n  --text-dim:#6d665e;\n  --hairline:rgba(30,25,15,.11);\n  --hairline-strong:rgba(30,25,15,.20);\n  --stage-1:#f1ece3;\n  --stage-2:#e4dccf;\n  --scrim:rgba(90,80,64,.42);\n  --surface3:#e9e2d6;\n  --r-lg:12px;\n  --r-md:9px;\n  --r-sm:6px;\n  --display:'Zodiak',Georgia,'Times New Roman',serif;\n}\n\n/* ACCENT AXIS. Five accents, each with a dark and a light value pair; the\n   ground (skin) never changes with the accent, which is what makes them\n   mixable. Blue is the default and lives in the base blocks above. */\n:root[data-accent='mint']{--accent:#3ddc97;--accent-ink:#04170e;--accent-wash:rgba(61,220,151,.16);--accent-deep:#1fb87a;--accent-soft:#c9f5e2;--accent-rgb:61,220,151;--accent2-rgb:77,156,255}\n:root[data-theme='light'][data-accent='mint']{--accent:#0f8f5f;--accent-ink:#ffffff;--accent-wash:rgba(15,143,95,.12);--accent-deep:#0b6f4a;--accent-soft:#d3f3e4;--accent-rgb:15,143,95;--accent2-rgb:29,99,216}\n:root[data-accent='orchid']{--accent:#b48cff;--accent-ink:#120a24;--accent-wash:rgba(180,140,255,.16);--accent-deep:#8f5cff;--accent-soft:#e6d8ff;--accent-rgb:180,140,255;--accent2-rgb:255,120,190}\n:root[data-theme='light'][data-accent='orchid']{--accent:#6d3fd6;--accent-ink:#ffffff;--accent-wash:rgba(109,63,214,.12);--accent-deep:#5530b0;--accent-soft:#e9dfff;--accent-rgb:109,63,214;--accent2-rgb:214,63,150}\n:root[data-accent='gold']{--accent:#f2c744;--accent-ink:#1a1300;--accent-wash:rgba(242,199,68,.16);--accent-deep:#d9a815;--accent-soft:#ffe9a8;--accent-rgb:242,199,68;--accent2-rgb:255,122,26}\n:root[data-theme='light'][data-accent='gold']{--accent:#a6700a;--accent-ink:#ffffff;--accent-wash:rgba(166,112,10,.12);--accent-deep:#8a5b06;--accent-soft:#f7e7b8;--accent-rgb:166,112,10;--accent2-rgb:194,65,12}\n:root[data-accent='orange']{--accent:#ff7a1a;--accent-ink:#1a0d04;--accent-wash:rgba(255,122,26,.18);--accent-deep:#e04e05;--accent-soft:#ffd7a1;--accent-rgb:255,122,26;--accent2-rgb:255,80,30;--brand-1:#ff7a33;--brand-2:#f5a623}\n:root[data-theme='light'][data-accent='orange']{--accent:#c2410c;--accent-ink:#ffffff;--accent-wash:rgba(194,65,12,.13);--accent-deep:#9a3412;--accent-soft:#ffd7a1;--accent-rgb:194,65,12;--accent2-rgb:255,80,30;--brand-1:#f2600c;--brand-2:#e09417}\n\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}\nhtml{scroll-behavior:smooth}\nbody{\n  font-family:var(--ui);\n  font-size:15px;\n  line-height:1.45;\n  letter-spacing:-.006em;\n  background:var(--field);\n  color:var(--text);\n  overflow-x:hidden;\n  -webkit-font-smoothing:antialiased;\n}\n\n/* THE FIELD — three layers, because one gradient looks like a template.\n   1. Aurora: two large soft colour bodies, off-centre and different sizes, so\n      the eye reads atmosphere rather than wallpaper.\n   2. Geometry: thin arcs and a conic wedge, so a blurred panel moving over an\n      EDGE refracts visibly. Glass over flat colour is just tinted plastic.\n   3. Vignette + grain: corners fall away, and wide displays stop banding. */\n/* How strongly the bokeh reads. A dark ground carries it as light in a room;\n   the light skins take a third, where the same alpha smudges the paper. */\n:root{--bokeh-a:.42}\n:root[data-theme='light']{--bokeh-a:.17}\n:root[data-skin='obsidian']{--bokeh-a:.30}\n:root[data-skin='night']{--bokeh-a:.52}\n:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.13}\n\n@media (max-width:700px){:root{--bokeh-a:.26}:root[data-skin='night']{--bokeh-a:.32}:root[data-theme='light']{--bokeh-a:.12}:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.09}}\n\n/* THE FIELD — the colour behind everything, in two parts.\n\n   BOKEH first (painted on top): eleven out-of-focus discs in the look's own\n   accent, ring and second hue. Each is a radial-gradient rather than a blurred\n   shape, because a gradient IS soft — no filter, no extra compositing layer,\n   nothing for a phone to blur every frame. The rim is a touch brighter than\n   the centre and the falloff runs long, which is what makes a defocused\n   highlight read as glass rather than as a flat circle.\n\n   Then the washes underneath. Every colour comes from a token, so all eight\n   grounds and thirteen accents get their own field for free, and --bokeh-a\n   turns the whole effect down on the light skins, where the same alpha would\n   read as smudges on paper rather than light in a room. */\nbody::before{\n  content:'';position:fixed;inset:-25%;z-index:-2;pointer-events:none;\n  /* HEAVY BOKEH, DISPERSED. Twenty defocused discs on a jittered grid, so the\n     colour is spread through the whole field rather than pooled in a corner.\n     Each is a smooth radial falloff with NO rim and no edge — which is not an\n     approximation of a heavy blur, it is what one is: blur a disc far enough\n     and you have a gaussian, which is a gradient. Doing it this way means no\n     filter, so nothing is re-blurred as the layer drifts, and a phone paints\n     it once. Radii are viewport-relative because the layer tracks the\n     viewport: in px they were tuned for a laptop and swamped a phone.\n     The thin rings and the conic that used to sit here are gone — at this\n     softness their hard 1%-wide edges were the only sharp thing on screen. */\n  background:\n    radial-gradient(circle clamp(91px,23.3vw,315px) at 8.5% 7.4%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.66)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.488)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.238)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.079)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 31.5% 10.9%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.9)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.666)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.324)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.108)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.5vw,140px) at 44.5% 11.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.67)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.496)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.241)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.08)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(54px,11.7vw,157px) at 69.9% 18.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.74)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.548)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.266)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.089)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(86px,21.7vw,293px) at 92.8% 20.2%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.84)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.622)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.302)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.101)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(106px,27.9vw,377px) at 17.7% 30.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.8vw,212px) at 26.0% 31.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.07)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.792)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.385)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.128)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(90px,23.1vw,311px) at 46.5% 39.3%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.82)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.607)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.295)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.098)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 71.7% 31.0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.73)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.54)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.263)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.088)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.9vw,214px) at 93.5% 36.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(101px,26.5vw,358px) at 10.3% 59.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.0)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.74)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.36)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.12)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(82px,20.6vw,277px) at 27.4% 64.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 1.1)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.814)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.396)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.132)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(114px,30.6vw,414px) at 54.2% 59.6%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.68)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.503)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.245)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.082)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(56px,12.3vw,165px) at 69.9% 67.1%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.89)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.659)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.32)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.107)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(99px,25.8vw,349px) at 84.5% 65.7%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(94px,24.3vw,328px) at 16.3% 85.0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.95)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.703)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.342)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.114)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(104px,27.5vw,371px) at 32.1% 87.3%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 1.14)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.844)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.41)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.137)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,138px) at 50.6% 90.6%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.01)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.747)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.364)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.121)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(103px,27.1vw,366px) at 73.1% 95.9%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(47px,9.5vw,126px) at 89.4% 90.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.87)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.644)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.313)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.104)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%);\n  animation:field-drift 48s ease-in-out infinite alternate;\n}\n@keyframes field-drift{\n  from{transform:translate3d(0,0,0) scale(1)}\n  to{transform:translate3d(-1.5%,1.2%,0) scale(1.04)}\n}\nbody::after{\n  content:'';position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;\n  background-image:\n    radial-gradient(120% 90% at 50% 45%,transparent 42%,rgba(0,0,0,.30) 100%),\n    url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.035'/></svg>\");\n}\n/* The editor is a full-height app shell that paints its own stage, so the\n   marketing field would only burn GPU behind it. Driven by :has() rather than\n   a body class, so app.js needs no change to page switching. */\nbody:has(#page-editor.active)::before,\nbody:has(#page-editor.active)::after{display:none}\n\nbutton{font-family:inherit}\ninput,textarea,select{font-family:inherit;color:var(--text)}\n::-webkit-scrollbar{width:10px;height:10px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px;border:3px solid transparent;background-clip:content-box}\n::-webkit-scrollbar-thumb:hover{background:var(--text-dim);background-clip:content-box}\n:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}\n@media (prefers-reduced-motion:reduce){\n  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}\n  body::before{animation:none}\n}\n\n/* ═══════════ HOUSE UTILITIES (shared vocabulary with the CRM) ═══════════ */\n.glass{\n  position:relative;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);\n  backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  box-shadow:var(--glass-shadow);\n}\n/* A single hairline all the way round reads as a border. Real glass catches\n   light on the edge facing the source and loses it on the far side, so this\n   paints a gradient rim: bright top-left, gone by bottom-right. Cheapest thing\n   that separates \"panel with a border\" from \"pane of glass\". */\n.glass::after{\n  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;\n  background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.05) 34%,transparent 60%);\n  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);\n  -webkit-mask-composite:xor;mask-composite:exclude;\n  pointer-events:none;z-index:0;\n}\n.glass>*{position:relative;z-index:1}\n.glass-strong{background:var(--glass-bg-strong)}\n/* Anything the eye compares. */\n.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}\n.label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}\n\n/* ═══════════ SHARED ═══════════ */\n.btn{\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;\n  min-height:36px;padding:9px 18px;\n  border-radius:var(--r-pill);\n  font-size:14px;font-weight:600;letter-spacing:-.01em;line-height:1.2;\n  cursor:pointer;border:none;text-decoration:none;white-space:nowrap;\n  transition:transform .08s cubic-bezier(.2,0,0,1),filter .15s ease,background .15s ease,border-color .15s ease,color .15s ease;\n}\n.btn:active{transform:scale(.968)}\n.btn-primary{\n  background:linear-gradient(180deg,var(--accent),var(--accent-deep));\n  color:var(--accent-ink);\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent);\n}\n.btn-primary:hover{filter:brightness(1.06)}\n.btn-ghost{background:transparent;color:var(--text-2)}\n.btn-ghost:hover{color:var(--text);background:var(--surface-sunk)}\n.btn-outline{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  color:var(--text);border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow);\n}\n.btn-outline:hover{background:var(--surface-raise);color:var(--text)}\n.btn-dark{background:var(--surface-sunk);color:var(--text);border:1px solid var(--hairline)}\n.btn-dark:hover{background:var(--surface-raise)}\n.btn-xl{padding:15px 30px;font-size:16px;min-height:52px}\n.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}\n\n/* Theme toggle — same control on every surface. */\n.theme-btn{\n  width:36px;height:36px;flex:none;display:inline-grid;place-items:center;\n  border-radius:var(--r-pill);background:transparent;border:none;cursor:pointer;\n  color:var(--text-2);font-size:15px;line-height:1;\n  transition:background .15s ease,color .15s ease;\n}\n.theme-btn:hover{background:var(--surface-sunk);color:var(--text)}\n\n.notif{\n  position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);color:var(--text);\n  padding:12px 20px;border-radius:var(--r-pill);font-size:14px;font-weight:600;\n  z-index:9500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;\n  box-shadow:var(--glass-shadow-lift);max-width:min(90vw,480px);text-align:center;\n}\n.notif.show{opacity:1;transform:translate(-50%,0)}\n.notif.success{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(48,214,143,.45)}\n.notif.error{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(255,98,89,.5)}\n\n/* modal */\n.modal-overlay{\n  position:fixed;inset:0;background:var(--scrim);\n  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);\n  z-index:8000;display:none;align-items:center;justify-content:center;padding:24px;\n}\n.modal-overlay.show{display:flex}\n.modal{\n  position:relative;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:22px;width:100%;max-width:520px;padding:26px;\n  box-shadow:var(--glass-shadow-lift);animation:pop .18s cubic-bezier(.2,0,0,1);\n}\n@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}\n.modal h3{font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:4px}\n.modal .modal-sub{font-size:13.5px;color:var(--text-dim);margin-bottom:18px;line-height:1.5}\n.modal label{display:block;font-size:10.5px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.09em}\n.modal input[type=text],.modal input[type=tel],.modal input[type=email],.modal input[type=password]{\n  width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);\n  border-radius:var(--r-md);padding:11px 13px;font-size:14px;color:var(--text);\n  transition:border-color .14s ease,box-shadow .14s ease;\n}\n.modal input::placeholder{color:var(--text-dim)}\n.modal input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}\n\n/* ═══════════ LANDING ═══════════ */\n#page-landing{min-height:100vh}\n.lp-nav{\n  position:fixed;top:0;left:0;right:0;z-index:300;height:64px;\n  display:flex;align-items:center;gap:8px;padding:0 clamp(16px,4vw,40px);\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n  box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -20px rgba(0,0,0,.6);\n}\n.logo{\n  font-family:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;\n  color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px;\n  cursor:pointer;background:none;border:none;\n}\n.logo .logo-mark{\n  width:30px;height:30px;border-radius:9px;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:#fff;\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 12px -4px rgba(var(--brand-rgb),.5);\n}\n/* Brand warmth lives here and nowhere else. */\n.logo em{\n  font-style:normal;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  -webkit-background-clip:text;background-clip:text;color:transparent;\n}\n.lp-nav-links{display:flex;gap:26px;margin-left:40px}\n.lp-nav-links a{font-size:14px;font-weight:550;color:var(--text-2);text-decoration:none;transition:color .15s;white-space:nowrap}\n.lp-nav-links a:hover{color:var(--text)}\n.lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}\n.lp-lab{white-space:nowrap}\n/* The bar measured about 1290px wide at every viewport, so from 1100 to 1439px\n   \"Make my ad\" (the one action the page exists for) was clipped off the right\n   edge. It gives ground in order of least use: tighter link spacing and the\n   \"Template\" word first, then the two links that are also reachable from the\n   page itself, then the link row. */\n@media(max-width:1380px){\n  .lp-nav-links{gap:18px;margin-left:24px}\n  .lp-lab-full{display:none}\n}\n@media(max-width:1200px){\n  .lp-nav-links a[href=\"#lp-themes\"],.lp-nav-links a[href=\"#faq\"]{display:none}\n}\n@media(max-width:1000px){\n  .lp-nav-links{display:none}\n}\n@media(max-width:640px){\n  .lp-nav-links{display:none}\n  /* The lab link is the one nav item that must survive on a phone (it is\n     reviewed from one). Measured at 375px: wordmark 186 + lab pill + toggle\n     + \"Make my ad\" overflowed by ~80px and the CTA clipped, so the logo\n     drops to its mark alone here; the mark keeps its own font-size below. */\n  .lp-nav .logo{font-size:0;gap:0}\n  .lp-lab{padding:9px 12px}\n  /* 343px of usable nav at 375 viewport cannot hold logo + 4 controls, and\n     overflow-x:hidden was silently clipping \"Make my ad\" off the right edge.\n     Log in / Sign up free stay reachable in the footer's Account column and\n     from the studio itself, so the one conversion button survives here. */\n  #lp-login,#lp-signup{display:none}\n  .lp-nav{gap:4px;padding:0 12px}\n  .lp-nav .btn{padding:9px 14px;font-size:13.5px}\n  .lp-nav .lp-caret{padding:9px 10px}\n  .logo{font-size:15px;gap:8px}\n  .logo .logo-mark{width:26px;height:26px;font-size:13px}\n}\n\n.hero{padding:120px clamp(16px,5vw,48px) 72px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(84vh,760px)}\n@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:120px;gap:44px;min-height:0}}\n.hero-eyebrow{\n  display:inline-flex;align-items:center;gap:8px;\n  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;\n  color:var(--accent);background:var(--accent-wash);\n  border:.5px solid rgba(var(--accent-rgb),.28);\n  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:22px;\n}\n/* The ceiling at which \"in under a minute.\" still sets on ONE line inside the\n   1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is face-specific and\n   has now caught two typefaces out: the system stack held one line to 68px,\n   Clash Display breaks at 66 (it runs ~8.4x its size for that string against\n   a 548px column at 1280). Re-measure this if --display ever changes again;\n   guessing produces a four-line ragged hero. */\n.hero h1{font-family:var(--display);font-size:clamp(34px,4.5vw,58px);line-height:1.06;letter-spacing:-.028em;margin-bottom:20px;font-weight:700}\n.hero h1 em{font-style:normal;color:var(--accent)}\n.hero p{font-size:17px;line-height:1.65;color:var(--text-2);max-width:480px;margin-bottom:32px}\n.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}\n.hero-note{margin-top:18px;font-size:13px;color:var(--text-dim)}\n\n/* Height is set by the fan's geometry, not by taste: the front card must start\n   BELOW the back cards' phone-number band or it buries the one element the ad\n   exists to deliver. At 460px with 52% cards it covered 53% and 54% of them. */\n.hero-stack{position:relative;height:500px}\n.hero-card{position:absolute;width:44%;aspect-ratio:1;border-radius:20px;overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-3);background:var(--surface-raise);transition:transform .4s cubic-bezier(.2,0,0,1)}\n.hero-card img{width:100%;height:100%;object-fit:cover;display:block}\n/* Fan geometry is measured, not eyeballed. At 57% wide the three cards came to\n   192% of the stack and the back card was 57% OCCLUDED — its headline was\n   sliced in half, which reads as a broken page rather than a designed stack.\n   At 52% the overlap is ~19%/~18% and, more importantly, all of it lands in\n   the LOWER band: hc3 starts at y=201 of a 460 stack, below where every\n   template puts its headline. Change these together, and re-measure the\n   occlusion if you touch the width. */\n.hero-card.hc1{top:0;left:0;transform:rotate(-8deg);z-index:1}\n.hero-card.hc2{top:4%;right:2%;transform:rotate(6deg);z-index:2}\n.hero-card.hc3{bottom:0;left:20%;transform:rotate(-1deg);z-index:3;box-shadow:var(--lift-3),0 30px 90px -20px rgba(var(--accent-rgb),.35)}\n/* Mobile fan. MUST come after the base .hero-card rules: at equal specificity\n   the later rule wins, and an earlier media query silently lost to the 52%\n   default — the block applied, the width did not.\n   Taller and narrower here because at 380px the three cards had nowhere to go\n   and the front one landed across the other two's phone numbers (measured 71%\n   and 55% of the number band covered), which is the one element the ad exists\n   to deliver. */\n@media(max-width:900px){\n  .hero-stack{height:446px;max-width:440px;margin:0 auto;width:100%}\n  .hero-card{width:46%}\n  /* Overlap SIDEWAYS, separate VERTICALLY. Pulling the cards fully apart cleared\n     the phone numbers but lost the stack entirely — three scattered squares, no\n     depth. Horizontal overlap gives the layered read back; the vertical gaps are\n     what keep each card's number band uncovered. */\n  .hero-card.hc1{top:0;left:0}\n  .hero-card.hc2{top:7%;right:4%}\n  .hero-card.hc3{bottom:0;left:17%}\n}\n/* Any card can be brought to the front — hover on a pointer device, press and\n   hold on touch. The whole stack dims slightly so the chosen one reads as\n   picked rather than merely bigger. */\n/* ═══════════ HERO ENTRANCE ═══════════\n   The three cards fly in from below-and-apart and settle into the fan, so the\n   stack assembles itself in front of the visitor instead of being there already.\n   Each card keeps its OWN resting transform, so the animation has to end on that\n   exact value or the card snaps when the keyframes hand back to CSS — hence a\n   per-card @keyframes rather than one shared one.\n   Staggered back-to-front so the card you are meant to read lands last.\n   `animation-fill-mode:both` holds the opening frame during the delay, which is\n   what stops all three flashing at their final position on first paint. */\n@keyframes heroIn1{\n  0%  {opacity:0; transform:translate3d(-38px,64px,0) rotate(-16deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-8deg) scale(1)}\n}\n@keyframes heroIn2{\n  0%  {opacity:0; transform:translate3d(38px,72px,0) rotate(14deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(6deg) scale(1)}\n}\n@keyframes heroIn3{\n  0%  {opacity:0; transform:translate3d(0,88px,0) rotate(6deg) scale(.86)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-1deg) scale(1)}\n}\n/* Cards default to VISIBLE. An earlier version set opacity:0 here and relied on\n   a JS class to reveal them — so the moment requestAnimationFrame did not run\n   (a background tab, a script error anywhere above) the hero was simply blank.\n   The animation supplies its own opening frame through fill-mode:both, so\n   nothing needs to be hidden up front for it to work. Fail visible. */\n.hero-stack.ready .hero-card.hc1{animation:heroIn1 .92s cubic-bezier(.16,.84,.28,1) .05s both}\n.hero-stack.ready .hero-card.hc2{animation:heroIn2 .92s cubic-bezier(.16,.84,.28,1) .17s both}\n.hero-stack.ready .hero-card.hc3{animation:heroIn3 1.0s cubic-bezier(.16,.84,.28,1) .30s both}\n/* Once the entrance has finished the animation is removed entirely, so the\n   hover transform is not fighting a finished animation for the same property.\n   Selector must be enumerated per card: `.hero-stack.settled .hero-card` is\n   three classes and LOSES to `.hero-stack.ready .hero-card.hc1`, which is four\n   — so `animation:none` silently never applied and the cards stayed frozen on\n   the animation's opening frame. Matching specificity, declared later, wins. */\n.hero-stack.settled .hero-card.hc1,\n.hero-stack.settled .hero-card.hc2,\n.hero-stack.settled .hero-card.hc3{animation:none;opacity:1}\n@media (prefers-reduced-motion:reduce){\n  .hero-card{opacity:1}\n  .hero-stack.ready .hero-card{animation:none}\n}\n.hero-card{cursor:pointer;will-change:transform}\n.hero-stack:hover .hero-card,.hero-stack.touching .hero-card{filter:brightness(.72) saturate(.9)}\n/* Hover pulls a card OUT of the stack: z-index above its siblings, straightened,\n   lifted and enlarged. Without the z-index the card grew but stayed underneath,\n   which read as a glitch rather than a pick-up. */\n.hero-card.hc1:hover,.hero-card.hc1.lifted,\n.hero-card.hc2:hover,.hero-card.hc2.lifted,\n.hero-card.hc3:hover,.hero-card.hc3.lifted{z-index:9}\n.hero-card.hc1:hover,.hero-card.hc1.lifted{transform:rotate(-2deg) translateY(-18px) scale(1.09)}\n.hero-card.hc2:hover,.hero-card.hc2.lifted{transform:rotate(1.5deg) translateY(-18px) scale(1.09)}\n.hero-card.hc3:hover,.hero-card.hc3.lifted{transform:rotate(0deg) translateY(-20px) scale(1.09)}\n.hero-card:hover,.hero-card.lifted{\n  z-index:9!important;filter:none!important;\n  box-shadow:var(--lift-3),0 34px 90px -18px rgba(var(--accent-rgb),.5);\n}\n.hero-card .hc-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n@keyframes shimmer{to{background-position:-200% 0}}\n\n.lp-section{max-width:1200px;margin:0 auto;padding:80px clamp(16px,5vw,48px)}\n.lp-section-head{margin-bottom:38px}\n.lp-kicker{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}\n.lp-section-head h2{font-family:var(--display);font-size:clamp(30px,4vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.08}\n.lp-section-head p{color:var(--text-dim);font-size:15px;margin-top:12px;max-width:560px;line-height:1.6}\n\n.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:20px}\n.tpl-card{position:relative;border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--glass-edge);background:var(--surface-raise);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s;aspect-ratio:1;box-shadow:var(--lift-1)}\n.tpl-card:hover{transform:translateY(-4px);box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.4)}\n.tpl-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}\n.tpl-card .tpl-veil{position:absolute;inset:0;backdrop-filter:blur(1.6px) brightness(.86);transition:backdrop-filter .25s,opacity .25s}\n.tpl-card:hover .tpl-veil{backdrop-filter:blur(0) brightness(1);opacity:0}\n.tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}\n.tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}\n.tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-soft);background:rgba(0,0,0,.55);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-pill);padding:4px 9px}\n.tpl-card .tpl-use{position:absolute;top:12px;right:12px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;box-shadow:var(--glow-accent)}\n.tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}\n.tpl-card .tpl-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n.tpl-card.tpl-saved-card .tpl-del{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:14px;opacity:0;transition:opacity .2s}\n.tpl-card.tpl-saved-card:hover .tpl-del{opacity:1}\n.tpl-card .tpl-del:hover{color:var(--danger);border-color:var(--danger)}\n\n.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n@media(max-width:820px){.flow{grid-template-columns:1fr}}\n.flow-step{\n  position:relative;background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.flow-step .fs-num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:14px}\n.flow-step h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:8px}\n.flow-step p{font-size:14px;color:var(--text-dim);line-height:1.6}\n\n.lp-cta{max-width:1200px;margin:0 auto 90px;padding:0 clamp(16px,5vw,48px)}\n.lp-cta-inner{\n  position:relative;overflow:hidden;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:26px;padding:56px 40px;text-align:center;\n  box-shadow:var(--glass-shadow-lift);\n}\n/* A wash of accent inside the pane so the CTA reads as lit rather than tinted. */\n.lp-cta-inner::before{\n  content:'';position:absolute;inset:0;pointer-events:none;\n  background:radial-gradient(70% 120% at 50% 0%,var(--accent-wash),transparent 70%);\n}\n.lp-cta-inner>*{position:relative}\n.lp-cta-inner h2{font-family:var(--display);font-size:clamp(30px,4.4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.06;margin-bottom:12px}\n.lp-cta-inner p{color:var(--text-2);margin-bottom:28px;font-size:15px}\n.lp-footer{border-top:1px solid var(--hairline);padding:26px clamp(16px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--text-dim);font-size:13px}\n\n\n/* ═══════════ EDITOR ═══════════ */\n#page-editor{display:none;height:100vh;flex-direction:column;overflow:hidden}\n#page-editor.active{display:flex}\n#page-landing.hidden{display:none}\n\n.topbar{\n  height:58px;flex:0 0 58px;display:flex;align-items:center;gap:10px;padding:0 14px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);z-index:100;\n}\n.topbar .logo{font-size:15px}\n.tb-sep{width:1px;height:26px;background:var(--hairline);margin:0 4px}\n.tb-tplname{font-size:13px;font-weight:600;color:var(--text-2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.tb-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;color:var(--text-2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:var(--r-pill);cursor:pointer;transition:background .15s,color .15s}\n.tb-btn:hover{background:var(--surface-sunk);color:var(--text)}\n.tb-btn:disabled{opacity:.35;cursor:default;background:transparent}\n.tb-btn svg{width:16px;height:16px}\n.tb-spacer{flex:1}\n/* AI is violet everywhere in the house, never the accent. */\n#enhance-btn{border:.5px solid rgba(167,139,255,.4);color:var(--ai);background:rgba(167,139,255,.10)}\n#enhance-btn:hover{background:rgba(167,139,255,.18);color:var(--ai)}\n#enhance-btn.busy{opacity:.6;pointer-events:none}\n#export-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n#export-btn:hover{filter:brightness(1.06)}\n@media(max-width:900px){.tb-label{display:none}}\n/* ── editor topbar below laptop width ─────────────────────────────────────\n   Twelve controls in one non-wrapping row is fine at 1280 and broken\n   everywhere else: at iPad portrait the EXPORT button sat at x=848 on an\n   820px screen, and on an iPhone half the bar was past the right edge with\n   no way to reach it. The bar now scrolls horizontally, every control keeps\n   its full size rather than being squeezed, and Export is pinned to the\n   right edge so the one button that matters is never the one you have to go\n   hunting for. */\n@media(max-width:1100px){\n  .topbar{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}\n  .topbar::-webkit-scrollbar{display:none}\n  .topbar > *{flex:none}\n  .topbar .tb-spacer{flex:1 0 8px}\n  #export-btn{\n    position:sticky;right:0;z-index:2;\n    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent),\n               -18px 0 18px -10px var(--glass-bg-strong);\n  }\n}\n/* Touch pointers get the 44px minimum. Height only — widening the nav pills\n   would push the row back off the edge, which is the problem we just fixed. */\n@media(pointer:coarse){\n  .btn,.tb-btn,.ez-adv-link,.view-item,.picker-filters button,.plans-close,.logo{min-height:44px}\n  .theme-btn{width:44px;height:44px}\n  .ez-chip,.chip{min-height:40px}\n}\n\n.editor-body{flex:1;display:flex;overflow:hidden;position:relative}\n\n/* panels as drawers */\n.panel{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  display:flex;flex-direction:column;position:relative;transition:margin .28s cubic-bezier(.2,0,0,1);z-index:50;\n}\n.panel-left{width:300px;flex:0 0 300px;border-right:.5px solid var(--glass-edge)}\n.panel-right{width:300px;flex:0 0 300px;border-left:.5px solid var(--glass-edge)}\n.panel-left.collapsed{margin-left:-300px}\n.panel-right.collapsed{margin-right:-300px}\n.drawer-tab{position:absolute;top:50%;transform:translateY(-50%);width:20px;height:64px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:60;transition:color .15s,background .15s}\n.drawer-tab:hover{color:var(--text);background:var(--surface-raise)}\n.panel-left .drawer-tab{right:-20px;border-left:none;border-radius:0 10px 10px 0}\n.panel-right .drawer-tab{left:-20px;border-right:none;border-radius:10px 0 0 10px}\n\n.panel-tabs{display:flex;border-bottom:1px solid var(--hairline);flex:0 0 auto}\n.panel-tabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:12.5px;font-weight:650;padding:13px 4px;cursor:pointer;transition:color .15s,border-color .15s;letter-spacing:-.01em}\n.panel-tabs button:hover{color:var(--text-2)}\n.panel-tabs button.active{color:var(--text);border-bottom-color:var(--accent)}\n.panel-scroll{flex:1;overflow-y:auto;padding:16px 14px 40px}\n.panel-tabview{display:none}\n.panel-tabview.active{display:block}\n\n.psec{margin-bottom:22px}\n.psec-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}\n.field{margin-bottom:11px}\n.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}\n.field input[type=text],.field input[type=tel],.field input[type=number],.field textarea,.field select{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;transition:border-color .14s,box-shadow .14s}\n.field textarea{resize:vertical;min-height:56px;line-height:1.4}\n.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.field input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}\n.field-row{display:flex;gap:8px}\n.field-row .field{flex:1}\ninput[type=color]{width:100%;height:34px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:var(--surface-raise);cursor:pointer;padding:3px}\ninput[type=range]{width:100%;accent-color:var(--accent)}\n\n.chips{display:flex;flex-wrap:wrap;gap:7px}\n.chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12px;font-weight:650;padding:7px 12px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s;letter-spacing:-.005em}\n.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n.seg{display:flex;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-pill);overflow:hidden;padding:3px;gap:3px}\n.seg button{flex:1;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:650;padding:7px 6px;cursor:pointer;border-radius:var(--r-pill);transition:background .13s,color .13s}\n.seg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.seg button:hover:not(.active){color:var(--text-2)}\n\n.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}\n.add-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-md);color:var(--text-2);font-size:12.5px;font-weight:600;padding:13px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .13s}\n.add-btn:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}\n.add-btn .ab-ico{font-size:19px;line-height:1}\n.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.emoji-grid button{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);font-size:21px;padding:8px 0;cursor:pointer;transition:all .13s}\n.emoji-grid button:hover{border-color:var(--accent);transform:scale(1.08)}\n\n.mini-tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}\n.mini-tpl{position:relative;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--hairline);cursor:pointer;aspect-ratio:1;background:var(--surface-raise);transition:box-shadow .15s,transform .15s}\n.mini-tpl:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.mini-tpl.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}\n.mini-tpl img{width:100%;height:100%;object-fit:cover;display:block}\n.mini-tpl .mt-name{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;font-weight:650;color:#fff;padding:14px 7px 5px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.mini-tpl .mt-del{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s}\n.mini-tpl:hover .mt-del{opacity:1}\n.mini-tpl .mt-del:hover{color:var(--danger);border-color:var(--danger)}\n.empty-hint{font-size:12.5px;color:var(--text-dim);line-height:1.55;background:var(--surface-sunk);border:1px dashed var(--hairline-strong);border-radius:var(--r-md);padding:14px;text-align:center}\n\n/* stage */\n.stage{flex:1;position:relative;display:flex;overflow:auto;padding:26px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,var(--stage-1) 0%,var(--stage-2) 100%)}\n.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(var(--stage-dot) 1px,transparent 1px);background-size:26px 26px;pointer-events:none}\n#canvas-holder{position:relative;box-shadow:var(--lift-3);border-radius:6px;overflow:hidden;margin:auto}\n#guide-v,#guide-h{position:absolute;background:var(--accent);opacity:0;pointer-events:none;transition:opacity .08s;z-index:20;box-shadow:0 0 6px rgba(var(--accent-rgb),.9)}\n#guide-v{top:0;bottom:0;left:50%;width:1px;transform:translateX(-.5px)}\n#guide-h{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px)}\n#guide-v.on,#guide-h.on{opacity:1}\n.zoombar{\n  position:absolute;right:18px;bottom:16px;display:flex;align-items:center;gap:2px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:4px;z-index:70;\n  box-shadow:var(--glass-shadow-lift);\n}\n.zoombar button{background:none;border:none;color:var(--text-2);width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:15px;font-weight:600}\n.zoombar button:hover{background:var(--surface-sunk);color:var(--text)}\n.zoombar .zb-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:600;color:var(--text-2);min-width:48px;text-align:center;cursor:pointer;border-radius:var(--r-pill);padding:6px 2px}\n.zoombar .zb-pct:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* layers */\n.layer-row{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:background .12s,border-color .12s;margin-bottom:3px}\n.layer-row:hover{background:var(--surface-sunk)}\n.layer-row.selected{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4)}\n.layer-row.hidden-l{opacity:.4}\n.layer-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:var(--surface-sunk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-2)}\n.layer-row .li-text{color:var(--accent)}\n.layer-main{flex:1;min-width:0}\n.layer-name{font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.layer-prev{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}\n.layer-acts{display:flex;gap:2px;flex:0 0 auto}\n.layer-acts button{background:none;border:none;color:var(--text-dim);width:24px;height:24px;border-radius:var(--r-pill);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}\n.layer-acts button:hover{background:var(--surface-sunk);color:var(--text)}\n.layer-acts button.on{color:var(--accent)}\n\n.icon-row{display:flex;gap:7px}\n.icon-row button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);color:var(--text-2);padding:8px 4px;cursor:pointer;font-size:13px;font-weight:650;transition:all .13s}\n.icon-row button:hover{border-color:var(--hairline-strong);color:var(--text)}\n.icon-row button.active{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n/* template picker modal */\n.picker-modal{max-width:960px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}\n.picker-head{padding:22px 26px 16px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:14px;flex-wrap:wrap}\n.picker-head h3{font-size:20px;flex:1}\n.picker-filters{display:flex;gap:6px;flex-wrap:wrap}\n.picker-filters button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12.5px;font-weight:650;padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s}\n.picker-filters button.active{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.picker-body{flex:1;overflow-y:auto;padding:22px 26px 30px}\n.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:16px}\n.resume-card{grid-column:1/-1;display:flex;align-items:center;gap:16px;background:var(--accent-wash);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:border-color .15s}\n.resume-card:hover{border-color:var(--accent)}\n.resume-card img{width:64px;height:64px;border-radius:var(--r-md);object-fit:cover;border:.5px solid var(--hairline-strong)}\n.resume-card .rc-title{font-weight:700;font-size:14.5px}\n.resume-card .rc-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px}\n.picker-close{background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:var(--r-pill)}\n.picker-close:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* export modal */\n.export-preview{width:100%;max-height:340px;border-radius:var(--r-lg);border:.5px solid var(--hairline-strong);object-fit:contain;background:var(--surface-sunk);display:block;margin-bottom:16px}\n\n/* tutorial */\n#tut-overlay{position:fixed;inset:0;z-index:9000;display:none;pointer-events:none}\n#tut-bubble{pointer-events:auto}\n#tut-overlay.active{display:block}\n#tut-spot{position:fixed;border-radius:var(--r-lg);box-shadow:0 0 0 9999px var(--scrim),0 0 0 2px var(--accent),0 0 34px rgba(var(--accent-rgb),.5);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:9001}\n#tut-bubble{\n  position:fixed;width:308px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:18px;z-index:9002;\n  box-shadow:var(--glass-shadow-lift);transition:all .3s cubic-bezier(.4,0,.2,1);\n}\n#tut-bubble .tb-step{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}\n#tut-bubble h4{font-size:16px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n#tut-bubble p{font-size:13.5px;color:var(--text-2);line-height:1.55;margin-bottom:15px}\n.tut-dots{display:flex;gap:5px;margin-bottom:14px}\n.tut-dots span{width:7px;height:7px;border-radius:50%;background:var(--hairline-strong);transition:background .2s}\n.tut-dots span.on{background:var(--accent)}\n.tut-actions{display:flex;align-items:center;gap:9px}\n.tut-actions .tut-skip{background:none;border:none;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;padding:8px 4px}\n.tut-actions .tut-skip:hover{color:var(--text)}\n@media(max-width:1100px){.panel-left,.panel-right{position:absolute;top:0;bottom:0;box-shadow:var(--lift-3)}.panel-left{left:0}.panel-right{right:0}}\n\n/* ═══════════ EASY MODE ═══════════ */\n#page-easy{display:none;min-height:100vh}\n#page-easy.active{display:block}\n.ez-nav{\n  display:flex;align-items:center;justify-content:space-between;gap:8px;\n  padding:12px 26px;position:sticky;top:0;z-index:40;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n}\n.ez-adv-link{background:none;border:none;color:var(--text-dim);font:600 13px/1 var(--ui);cursor:pointer;padding:9px 12px;border-radius:var(--r-pill)}\n.ez-adv-link:hover{color:var(--text);background:var(--surface-sunk)}\n.ez-wrap{max-width:1160px;margin:0 auto;padding:26px 22px 90px}\n.ez-head h1{font:700 clamp(24px,3.5vw,34px)/1.1 var(--ui);letter-spacing:-.035em;margin:0 0 4px}\n.ez-head p{color:var(--text-dim);margin:0 0 22px;font-size:14px}\n.ez-stepline{display:flex;align-items:center;gap:10px;margin:26px 0 12px}\n/* NOTE: border-radius MUST stay exactly 50% — cssProbeOk() in app.js reads it\n   to decide whether this stylesheet loaded at all. */\n.ez-stepnum{width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font:700 13px/26px var(--mono);text-align:center;flex:none;box-shadow:var(--glow-accent)}\n.ez-stepline h2{font:650 17px/1 var(--ui);letter-spacing:-.02em;margin:0}\n.ez-stepline small{color:var(--text-dim);font-size:12px;margin-left:2px}\n.ez-strip{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}\n.ez-strip::-webkit-scrollbar{height:8px}\n.ez-strip::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px}\n\n/* ── horizontal scroller: pop-up arrows + edge fades ──────────────────────\n   The arrows are the only thing telling a visitor the row continues, so they\n   sit ON the thumbnails rather than outside the rail, and each one hides the\n   moment there is nothing more that way. */\n.strip-shell{position:relative}\n/* Fades are drawn over the rail, not the label row underneath it. */\n.strip-shell::before,.strip-shell::after{\n  content:'';position:absolute;top:0;bottom:22px;width:64px;pointer-events:none;z-index:2;\n  opacity:1;transition:opacity .18s ease;\n}\n.strip-shell::before{left:0;background:linear-gradient(90deg,var(--field),transparent)}\n.strip-shell::after{right:0;background:linear-gradient(270deg,var(--field),transparent)}\n.strip-shell.at-start::before,.strip-shell.at-end::after,\n.strip-shell.no-scroll::before,.strip-shell.no-scroll::after{opacity:0}\n.strip-arrow{\n  position:absolute;top:calc(50% - 11px);transform:translateY(-50%);z-index:3;\n  width:38px;height:38px;display:grid;place-items:center;\n  border-radius:var(--r-pill);cursor:pointer;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow-lift);\n  color:var(--text);font-size:20px;line-height:1;padding:0 0 3px;\n  transition:opacity .18s ease,transform .12s cubic-bezier(.2,0,0,1),background .15s ease;\n}\n.strip-arrow.left{left:-4px}\n.strip-arrow.right{right:-4px}\n.strip-arrow:hover{background:var(--surface-raise)}\n.strip-arrow:active{transform:translateY(-50%) scale(.92)}\n.strip-shell.at-start .strip-arrow.left,\n.strip-shell.at-end .strip-arrow.right{opacity:0;pointer-events:none}\n.strip-shell.no-scroll .strip-arrow{display:none}\n/* Coarse pointers get a bigger target and no hover-only reveal. */\n@media (pointer:coarse){\n  .strip-arrow{width:44px;height:44px;font-size:22px}\n}\n.ez-tpl{flex:none;width:132px;cursor:pointer;background:none;border:none;padding:0;scroll-snap-align:start;text-align:center;position:relative}\n.ez-tpl img{width:132px;height:132px;border-radius:var(--r-lg);display:block;border:3px solid transparent;transition:border-color .15s,transform .15s,box-shadow .15s;object-fit:cover}\n.ez-tpl span{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}\n.ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.ez-tpl.sel img{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-tpl.sel span{color:var(--text)}\n.ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start}\n.ez-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:20px;\n  box-shadow:var(--glass-shadow);\n}\n.ez-field{margin-bottom:14px}\n.ez-field label{display:block;font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}\n.ez-field input,.ez-field textarea{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:500 15px/1.35 var(--ui);padding:11px 13px;box-sizing:border-box;transition:border-color .14s,box-shadow .14s}\n.ez-field textarea{resize:vertical;min-height:64px}\n.ez-field input:focus,.ez-field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.ez-chiprow{display:flex;flex-wrap:wrap;gap:8px}\n.ez-chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);border-radius:var(--r-pill);padding:8px 14px;font:650 12px/1 var(--ui);cursor:pointer;transition:all .12s}\n.ez-chip:hover{color:var(--text);border-color:var(--hairline-strong)}\n.ez-chip.on{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.ez-swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}\n.ez-sw{width:40px;height:40px;border-radius:12px;border:3px solid transparent;cursor:pointer;padding:0;position:relative;box-shadow:var(--lift-1)}\n.ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}\n.ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}\n.ez-preview-card{position:sticky;top:84px}\n.ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}\n/* account dropdown (reuses .view-drop look) */\n.acct-drop{left:auto;right:0;min-width:240px}\n.am-email{font:650 12px/1.3 var(--ui);color:var(--text-dim);padding:8px 10px 10px;border-bottom:1px solid var(--hairline);margin-bottom:6px;word-break:break-all}\n/* project rows inside Export / Make-my-ad dropdowns */\n.caret{opacity:.6;font-size:11px;margin-left:2px}\n.xm-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-md)}\n.xm-row:hover{background:var(--surface-sunk)}\n.xm-row img{width:34px;height:34px;border-radius:var(--r-sm);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.xm-name{flex:1;font:600 12.5px/1.3 var(--ui);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.xm-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:6px 10px;cursor:pointer;font-size:12px;flex:none}\n.xm-btn:hover{border-color:var(--accent);color:var(--accent)}\n/* split Make-my-ad button on the landing nav */\n.lp-split{display:inline-flex}\n.lp-split #lp-open-studio{border-radius:var(--r-pill) 0 0 var(--r-pill);padding-right:14px}\n.lp-caret{border-radius:0 var(--r-pill) var(--r-pill) 0;padding:9px 13px 9px 11px;border-left:1px solid rgba(0,0,0,.22)}\n/* auth modal */\n.auth-modal{max-width:420px;text-align:left}\n.auth-brand{display:flex;justify-content:center;margin-bottom:12px}\n.auth-brand .logo-mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px -8px rgba(var(--brand-rgb),.6)}\n.auth-modal h3{text-align:center}\n.auth-modal .modal-sub{text-align:center}\n.auth-google{display:flex;justify-content:center;margin:14px 0 4px}\n.auth-or{display:flex;align-items:center;gap:12px;margin:14px 0 4px;color:var(--text-dim);font-size:12px}\n.auth-or::before,.auth-or::after{content:'';flex:1;height:1px;background:var(--hairline)}\n.auth-pass-wrap{position:relative}\n.auth-pass-wrap input{width:100%;padding-right:44px}\n.auth-pass-wrap #auth-pass-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;opacity:.55;padding:6px}\n.auth-pass-wrap #auth-pass-eye:hover{opacity:1}\n.auth-hint{color:var(--text-dim);font-size:11.5px;margin-top:8px}\n/* account-type chooser after signup */\n.at-card{display:block;width:100%;text-align:left;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:15px 17px;margin-top:12px;cursor:pointer;transition:border-color .15s,transform .12s,background .15s}\n.at-card:hover{border-color:var(--accent);transform:translateY(-1px)}\n.at-card.hot{border-color:rgba(var(--accent-rgb),.5);background:var(--accent-wash)}\n.at-card .at-name{display:flex;justify-content:space-between;align-items:baseline;font:700 15px/1 var(--ui);letter-spacing:-.02em;color:var(--text)}\n.at-card .at-name em{font-style:normal;color:var(--accent);font-size:12.5px}\n.at-card .at-desc{display:block;color:var(--text-dim);font-size:12.5px;margin-top:6px;line-height:1.45}\n/* pencil button in export history */\n.hist-edit{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:9px 13px;cursor:pointer;font:600 12.5px/1 var(--ui);margin-right:8px;flex:none}\n.hist-edit:hover{border-color:var(--accent);color:var(--accent)}\n/* big landing footer */\n.lp-footer-big{display:block;padding:46px clamp(16px,4vw,40px) 28px}\n.lpf-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;max-width:1100px;margin:0 auto}\n.lpf-brand p{color:var(--text-dim);font-size:13px;margin-top:10px;max-width:260px}\n.lpf-col h4{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}\n.lpf-col a{display:block;color:var(--text-2);text-decoration:none;font-size:13.5px;padding:5px 0}\n.lpf-col a:hover{color:var(--accent)}\n.lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}\n.ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}\n.ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.ez-dl:hover{filter:brightness(1.06)}\n.ez-dl:active{transform:scale(.985)}\n.ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}\n.ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}\n.ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}\n@media (max-width:920px){\n  .ez-main{grid-template-columns:1fr}\n  /* The preview used to be pulled above the form with order:-1, which made a\n     THREE-STEP guided flow read 1 -> 3 -> 2: the visitor was told \"step 2, type\n     your info\" and then had to scroll past an 1180px preview to find the\n     fields. Steps now stack in the order they are numbered.\n     The preview stays useful while typing by sticking to the bottom of the\n     viewport at a height that cannot swallow the page. */\n  .ez-preview-card{position:static;order:0}\n  .ez-preview-card img{max-height:52vh;width:auto;margin:0 auto;display:block}\n}\n/* Narrow phones: smaller thumbs so more than two fit, and the arrows pull in\n   off the very edge where a thumb-swipe would fight them. */\n@media (max-width:480px){\n  .ez-tpl,.ez-tpl img{width:104px}\n  .ez-tpl img{height:104px}\n  .strip-arrow.left{left:0}\n  .strip-arrow.right{right:0}\n  .strip-shell::before,.strip-shell::after{width:44px}\n}\n\n/* view menu */\n.view-menu{position:relative}\n.view-drop{\n  display:none;position:absolute;top:calc(100% + 8px);left:0;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:6px;min-width:220px;z-index:60;\n  box-shadow:var(--glass-shadow-lift);\n  animation:menu-in .16s cubic-bezier(.2,0,0,1);transform-origin:top left;\n}\n.view-drop.acct-drop{transform-origin:top right}\n@keyframes menu-in{from{opacity:0;transform:translateY(-6px) scale(.97)}}\n.view-drop.open{display:block}\n.view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}\n.view-item:hover{background:var(--accent-wash);color:var(--accent)}\n.view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}\n.view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}\n.view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}\n/* grid overlay */\n#grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:15;display:none;\n  background-image:linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px)}\n#grid-overlay.on{display:block}\n/* fill type seg */\n.fillseg{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:8px}\n.fillseg button{flex:1;background:none;border:none;color:var(--text-dim);font:600 12px/1 var(--ui);padding:8px;border-radius:var(--r-pill);cursor:pointer}\n.fillseg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n/* backgrounds tab */\n.bg-gen-box{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:12px;margin-bottom:14px}\n.bg-gen-box textarea{width:100%;box-sizing:border-box;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 13px/1.4 var(--ui);padding:9px;resize:vertical;min-height:56px}\n.bg-gen-row{display:flex;gap:8px;margin-top:8px}\n.bg-gen-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 12px/1 var(--ui);padding:8px;min-width:0}\n/* AI generation is violet, the house colour for \"a model did this\". */\n.btn-gen{background:linear-gradient(135deg,var(--ai),#7b5cff);color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}\n.btn-gen:hover{filter:brightness(1.06)}\n.btn-gen:disabled{opacity:.55;cursor:wait}\n.bg-result{margin-top:10px;display:none}\n.bg-result.show{display:block}\n.bg-result img{width:100%;border-radius:var(--r-md);display:block}\n.bg-result-acts{display:flex;gap:8px;margin-top:8px}\n.bg-result-acts button{flex:1;border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);border-radius:var(--r-pill);font:600 12px/1 var(--ui);padding:10px;cursor:pointer}\n.bg-result-acts button:hover{border-color:var(--accent);color:var(--accent)}\n.bg-lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.bg-lib-item{position:relative;border:none;background:var(--surface-sunk);border-radius:var(--r-md);padding:0;cursor:pointer;overflow:hidden;aspect-ratio:1}\n.bg-lib-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s}\n.bg-lib-item:hover img{transform:scale(1.06)}\n.bg-lib-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:var(--r-pill);border:none;background:rgba(0,0,0,.65);color:#fff;font-size:11px;cursor:pointer;display:none;line-height:20px;text-align:center}\n.bg-lib-item:hover .bg-lib-del{display:block}\n.bg-lib-badge{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#eee;font:600 9px/1 var(--ui);padding:3px 6px;border-radius:var(--r-pill);pointer-events:none}\n.gear-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:4px;font-family:var(--ui);font-weight:600}\n.gear-btn:hover{color:var(--text)}\n.ai-note{color:var(--text-dim);font-size:11.5px;line-height:1.45;margin-top:8px}\n\n\n/* easy recents + layers + star */\n.ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}\n#ez-recents{display:flex;flex-wrap:wrap;gap:10px}\n#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}\n.ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}\n.ez-recent img{width:100%;height:100%;object-fit:cover;display:block}\n.ez-recent.sel{border-color:var(--accent)}\n.star-btn{position:absolute;top:1px;right:1px;width:16px;height:16px;border:none;border-radius:5px;background:rgba(0,0,0,.65);color:var(--warn);font-size:10px;line-height:16px;text-align:center;cursor:pointer;display:none;padding:0}\n.ez-recent:hover .star-btn,.ez-lrow:hover .star-btn{display:block}\n.ez-lrow .star-btn{position:static;width:22px;height:22px;line-height:22px;border-radius:6px;flex:none}\n#star-pop{\n  position:fixed;z-index:9500;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:6px;display:none;min-width:210px;\n}\n#star-pop.open{display:block}\n#star-pop button{display:block;width:100%;background:none;border:none;color:var(--text);font:500 13px/1 var(--ui);padding:10px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left}\n#star-pop button:hover{background:var(--accent-wash);color:var(--accent)}\n/* easy layers list */\n.ez-layers{margin-top:14px;border-top:1px solid var(--hairline);padding-top:12px}\n.ez-lrow{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:var(--r-md);cursor:pointer}\n.ez-lrow:hover{background:var(--surface-sunk)}\n.ez-lswatch{width:26px;height:26px;border-radius:8px;flex:none;background:var(--surface-sunk);overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--text-dim)}\n.ez-lswatch img{width:100%;height:100%;object-fit:cover}\n.ez-lmain{flex:1;min-width:0}\n.ez-lname{font:650 12px/1.2 var(--ui);color:var(--text)}\n.ez-lprev{font:500 10.5px/1.2 var(--ui);color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}\n.ez-ldel{width:22px;height:22px;border:none;border-radius:var(--r-pill);background:none;color:var(--text-dim);cursor:pointer;font-size:12px;flex:none;line-height:22px;padding:0}\n.ez-ldel:hover{background:rgba(255,98,89,.15);color:var(--danger)}\n.ez-restore{background:none;border:none;color:var(--accent);font:600 11.5px/1 var(--ui);cursor:pointer;padding:6px;margin-top:2px}\n\n\n/* effects controls */\n.ez-fxrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}\n.ez-fxrow button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-pill);padding:8px 13px;font:600 11.5px/1 var(--ui);cursor:pointer}\n.ez-fxrow button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.ez-fxline{display:flex;align-items:center;gap:10px;margin-bottom:8px}\n.ez-fxline label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:64px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.ez-fxline input[type=range]{flex:1}\n.ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}\n.ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}\n/* account chip */\n.acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}\n.acct-chip:hover{background:var(--surface-raise)}\n.acct-plan{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border-radius:var(--r-pill);padding:3px 9px;font:700 9.5px/1.35 var(--ui);letter-spacing:.06em;text-transform:uppercase}\n.acct-plan.free{background:var(--surface-sunk);color:var(--text-dim)}\n/* auth + pay overlays reuse .modal-overlay/.modal */\n.auth-tabs{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:16px}\n.auth-tabs button{flex:1;background:none;border:none;color:var(--text-dim);font:650 13px/1 var(--ui);padding:10px;border-radius:var(--r-pill);cursor:pointer;transition:background .13s,color .13s}\n.auth-tabs button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.auth-err{color:var(--danger);font:500 12.5px/1.4 var(--ui);margin:8px 0 0;min-height:16px}\n.auth-ok{text-align:center;padding:18px 6px}\n.auth-ok .big{font-size:40px;margin-bottom:10px}\n.demo-note{background:rgba(255,176,61,.12);border:.5px solid rgba(255,176,61,.4);color:var(--warn);border-radius:var(--r-md);padding:10px 12px;font:500 11.5px/1.45 var(--ui);margin-top:12px}\n/* plans page */\n/* Fixed at z-index 8000, so it sits above the body's field pseudo-elements and\n   would otherwise be a flat slab. It carries its own copy of the aurora. */\n#page-plans{\n  display:none;position:fixed;inset:0;z-index:8000;overflow:auto;\n  background:\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%),\n    var(--field);\n}\n#page-plans.active{display:block}\n.plans-wrap{max-width:980px;margin:0 auto;padding:34px 22px 80px}\n.plans-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}\n.plans-head h1{font:700 28px/1.1 var(--ui);letter-spacing:-.035em;margin:0}\n.plans-close{background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text);border-radius:var(--r-pill);padding:10px 16px;font:600 13px/1 var(--ui);cursor:pointer}\n.plans-close:hover{background:var(--surface-raise)}\n.plans-sub{color:var(--text-dim);font:500 14px/1.5 var(--ui);margin:0 0 26px}\n.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}\n.plan-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:24px;\n  display:flex;flex-direction:column;box-shadow:var(--glass-shadow);\n}\n.plan-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.plan-name{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin-bottom:4px}\n.plan-price{font:700 32px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:10px 0 2px}\n.plan-price small{font:600 13px/1 var(--ui);color:var(--text-dim)}\n.plan-feats{list-style:none;padding:0;margin:16px 0 20px;flex:1}\n.plan-feats li{font:500 13px/1.5 var(--ui);color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.plan-feats li::before{content:'✓';position:absolute;left:0;color:var(--good);font-weight:700}\n.plan-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);font:650 14px/1 var(--ui);padding:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.plan-btn:hover{filter:brightness(1.06)}\n.plan-btn.ghost{background:var(--surface-sunk);color:var(--text);border:.5px solid var(--hairline);box-shadow:none}\n.plan-btn:disabled{opacity:.5;cursor:default}\n.plan-current{font:650 10.5px/1 var(--ui);color:var(--good);text-transform:uppercase;letter-spacing:.09em;margin-top:10px;text-align:center}\n.ez-quota{color:var(--text-dim);font:600 11.5px/1 var(--ui);text-align:center;margin-top:8px}\n.ez-quota b{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums}\n.ez-quota .up{color:var(--accent);cursor:pointer;text-decoration:underline}\n\n\n/* premium template locks */\n.tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}\n.ez-tpl{position:relative}\n.ez-tpl .tpl-lock{top:6px;left:6px}\n.ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}\n.ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}\n.tpl-card.locked img{filter:grayscale(.35) brightness(.7)}\n\n\n/* category row + nav */\n.ez-catrow{display:flex;align-items:center;gap:12px;margin:0 0 12px}\n.ez-catrow label{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none}\n.cat-select{background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:600 14px/1 var(--ui);padding:11px 13px;min-width:210px;cursor:pointer}\n.cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.nav-upgrade{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);padding:9px 15px;font:700 12px/1 var(--ui);cursor:pointer;letter-spacing:-.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.nav-upgrade:hover{filter:brightness(1.06)}\n/* export history */\n.hist-list{max-height:380px;overflow:auto;margin-top:6px}\n.hist-row{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:var(--r-md)}\n.hist-row:hover{background:var(--surface-sunk)}\n.hist-row img{width:52px;height:52px;border-radius:var(--r-md);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.hist-main{flex:1;min-width:0}\n.hist-name{font:650 13px/1.2 var(--ui);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.hist-meta{font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim)}\n.hist-dl{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px 13px;cursor:pointer;flex:none}\n.hist-dl:hover{border-color:var(--accent);color:var(--accent)}\n.hist-empty{color:var(--text-dim);font:500 13px/1.5 var(--ui);text-align:center;padding:26px 0}\n@media (max-width:760px){ .ez-nav{flex-wrap:wrap;gap:8px} }\n/* The label plus a 210px select is wider than a phone, and overflow-x:hidden\n   was clipping the select's right edge instead of showing it. */\n@media (max-width:560px){\n  .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}\n  .ez-catrow label{margin-bottom:2px}\n  .cat-select{min-width:0;width:100%}\n  .ez-nav{padding:10px 14px}\n  .ez-adv-link{padding:8px;font-size:12.5px}\n  .ez-wrap{padding:20px 14px 80px}\n}\n\n.mini-tpl.locked img, .tpl-mini.locked img{filter:grayscale(.35) brightness(.7)}\n\n/* per-field quick styling */\n.ez-fieldrow{display:flex;gap:8px;align-items:stretch}\n.ez-fieldrow input,.ez-fieldrow textarea{flex:1;min-width:0}\n.ez-edit-btn{flex:none;width:44px;border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-dim);border-radius:var(--r-md);cursor:pointer;font-size:15px}\n.ez-edit-btn:hover{color:var(--accent);border-color:var(--accent)}\n#txt-pop{\n  position:fixed;z-index:9400;width:288px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:14px;display:none;\n}\n#txt-pop.open{display:block}\n#txt-pop .tp-title{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}\n#txt-pop .tp-title button{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px}\n.tp-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}\n.tp-row label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:52px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.tp-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:600 12.5px/1 var(--ui);padding:8px 9px}\n.tp-row input[type=range]{flex:1}\n.tp-row input[type=color]{width:32px;height:26px;border:1px solid var(--hairline-strong);border-radius:6px;background:none;padding:1px;flex:none}\n.tp-row .tp-val{font:600 10.5px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right;flex:none}\n.tp-biu{display:flex;gap:5px;flex:1}\n.tp-biu button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-sm);padding:7px 0;cursor:pointer;font:700 13px/1 Georgia}\n.tp-biu button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.tp-reset{width:100%;margin-top:4px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px;cursor:pointer}\n.tp-reset:hover{color:var(--text)}\n\n\n.ez-themes{display:flex;flex-wrap:wrap;gap:9px}\n.ez-theme{display:flex;border:2px solid var(--hairline-strong);border-radius:11px;overflow:hidden;padding:0;cursor:pointer;width:52px;height:32px;background:none;transition:border-color .13s,transform .13s}\n.ez-theme span{flex:1;display:block}\n.ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);transform:translateY(-1px)}\n.ez-theme:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n\n\n.ez-chip-custom{border-style:dashed}\n.chip-x{opacity:.55;font-size:10px;margin-left:2px}\n.ez-chip-custom:hover .chip-x{opacity:1;color:var(--danger)}\n\n.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:720px}\n.lp-price-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-price-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.lp-price-card h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n.lp-price{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:40px;font-weight:700;letter-spacing:-.04em;margin-bottom:12px}\n.lp-price small{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:-.01em}\n.lp-price-card ul{list-style:none;padding:0;margin:0 0 18px}\n.lp-price-card li{font-size:13.5px;color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.lp-price-card li::before{content:'\\2713';position:absolute;left:0;color:var(--good);font-weight:700}\n.lp-faq{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:0 20px;margin-bottom:10px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-faq summary{font-weight:650;font-size:15px;letter-spacing:-.015em;padding:17px 0;cursor:pointer;list-style:none}\n.lp-faq summary::-webkit-details-marker{display:none}\n.lp-faq summary::after{content:'+';float:right;color:var(--accent);font-size:18px;font-weight:600}\n.lp-faq[open] summary::after{content:'\\2013'}\n.lp-faq p{font-size:14px;color:var(--text-2);line-height:1.6;padding-bottom:17px;margin:0}\n\n/* ── canvas format picker ── */\n.tb-format{appearance:none;-webkit-appearance:none;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);max-width:190px;border-radius:var(--r-pill);padding:8px 28px 8px 13px;font-size:13px;font-weight:600;background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}\n.tb-format:hover{border-color:var(--accent)}\n\n/* ── order prints + posting ── */\n.btn-order{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:12px;background:rgba(48,214,143,.12);border:.5px solid rgba(48,214,143,.45);color:var(--good);font-weight:650;border-radius:var(--r-lg);padding:12px}\n.btn-order:hover{border-color:var(--good);background:rgba(48,214,143,.18)}\n.btn-order .order-sub{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.01em}\n.ez-order{display:block;width:100%;margin-top:10px;background:none;border:1px dashed rgba(48,214,143,.5);color:var(--good);font-size:13px;font-weight:650;padding:11px;border-radius:var(--r-lg);cursor:pointer}\n.ez-order:hover{background:rgba(48,214,143,.10)}\n\n/* ── QR layer ── */\n.ab-pro{position:absolute;top:6px;right:6px;background:var(--warn);color:#1a1206;font-size:9px;font-weight:800;padding:2px 6px;border-radius:var(--r-pill);letter-spacing:.04em}\n.add-btn{position:relative}\n.qr-help{font-size:12px;color:var(--text-2);line-height:1.5;margin-top:8px}\n.qr-help a{color:var(--good);font-weight:650;text-decoration:none}\n.qr-help a:hover{text-decoration:underline}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LANDING v2 — 2026-09-02. The hero fan of three canvas-rendered classics is\n   now a wall of the newest set's real renders (assets/showcase), the gallery\n   filters by category and theme family, and the chrome has a Look menu:\n   ground (graphite / night / paper / ember) x accent (blue / mint / orchid /\n   gold / orange) x light or dark. All of it is CSS custom properties on\n   <html>, so the studio and the editor inherit whatever is chosen.\n   ═══════════════════════════════════════════════════════════════════════════ */\n.hero-v2{grid-template-columns:1.02fr .98fr;gap:44px;min-height:min(86vh,800px);padding-top:112px;overflow:hidden}\n.hero-copy{position:relative;z-index:2}\n.hero-copy p{max-width:520px}\n.hero-wall{position:relative;height:580px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;\n  transform:rotate(-6deg) scale(1.08);transform-origin:50% 50%;\n  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);\n  mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%)}\n.wall-col{display:flex;flex-direction:column;gap:14px;will-change:transform}\n.wall-col[data-dir=up]{animation:wallUp 46s linear infinite}\n.wall-col[data-dir=down]{animation:wallDown 52s linear infinite}\n.wall-col:nth-child(3){animation-duration:58s}\n@keyframes wallUp{from{transform:translateY(0)}to{transform:translateY(-50%)}}\n@keyframes wallDown{from{transform:translateY(-50%)}to{transform:translateY(0)}}\n.wall-card{aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-2);background:var(--surface-raise);cursor:pointer;flex:none;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s}\n.wall-card:hover{transform:scale(1.04);box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.45);z-index:2}\n.wall-card img{width:100%;height:100%;object-fit:cover;display:block}\n.hero-wall:hover .wall-col{animation-play-state:paused}\n@media(prefers-reduced-motion:reduce){.wall-col{animation:none!important}}\n/* THE SCROLLER RUNS ON A PHONE TOO. It used to stop dead here — the animation\n   was killed and every card past the second was hidden, which also broke the\n   seamless loop, since each column is its own list twice over and the keyframe\n   travels -50%. It was disabled out of caution about phone performance, and\n   that caution was misplaced: the movement is a transform on three columns, so\n   it is composited on the GPU and costs no repaint. The wall is shorter here,\n   tilted less, and keeps its fade at top and bottom.\n   prefers-reduced-motion still stops it, above. */\n@media(max-width:900px){\n  .hero-v2{grid-template-columns:1fr;padding-top:92px;min-height:0;gap:26px}\n  .hero-wall{height:clamp(380px,54vh,470px);gap:9px;transform:rotate(-4deg) scale(1.07)}\n  .wall-col{gap:9px}\n  .wall-col[data-dir=up]{animation-duration:38s}\n  .wall-col[data-dir=down]{animation-duration:43s}\n  .wall-col:nth-child(3){animation-duration:48s}\n}\n@media(max-width:520px){\n  .hero-wall{height:clamp(330px,46vh,400px);gap:7px;transform:rotate(-3deg) scale(1.05)}\n  .wall-col{gap:7px}\n}\n.lp-stats{max-width:1200px;margin:0 auto;padding:22px clamp(16px,5vw,48px) 0;display:flex;flex-wrap:wrap;gap:10px 34px;border-top:.5px solid var(--hairline)}\n.stat{display:flex;align-items:baseline;gap:8px}\n.stat b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--text)}\n.stat span{font-size:13px;color:var(--text-dim)}\n\n/* theme families */\n.fam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}\n.fam-card{position:relative;text-align:left;background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:11px;cursor:pointer;color:var(--text);box-shadow:var(--glass-shadow);transition:transform .15s cubic-bezier(.2,0,0,1),border-color .15s,box-shadow .15s;font:inherit}\n.fam-card:hover{transform:translateY(-3px)}\n.fam-card.on{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent)}\n.fam-card.idle{cursor:default;opacity:.72}\n.fam-sw{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;height:56px;border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;border:.5px solid rgba(0,0,0,.18)}\n.fam-sw i{display:block}\n.fam-name{font-weight:650;font-size:14px;letter-spacing:-.01em}\n.fam-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-variant-numeric:tabular-nums}\n\n/* gallery filters */\n.lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}\n.chip{font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;min-height:36px}\n.chip:hover{color:var(--text);border-color:var(--text-dim)}\n.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:var(--glow-accent)}\n.chip .n{opacity:.65;font-family:var(--mono);font-size:11px;margin-left:6px;font-variant-numeric:tabular-nums}\n.tpl-more-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}\n.tpl-count{font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.tpl-card img{transition:transform .4s cubic-bezier(.2,0,0,1)}\n.tpl-card:hover img{transform:scale(1.035)}\n.tpl-card .tpl-lockpill{position:absolute;top:12px;left:12px;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);color:#fff;border:.5px solid rgba(255,255,255,.25)}\n\n/* Look menu */\n.look-wrap{position:relative}\n.look-btn{display:inline-flex;align-items:center;gap:8px;padding:0 12px 0 10px;width:auto;font-size:13px;font-weight:600;color:var(--text-2)}\n.look-btn:hover{color:var(--text)}\n.look-dot{width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-deep));box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 2px var(--surface-sunk)}\n.look-menu{position:absolute;right:0;top:44px;width:304px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);box-shadow:var(--glass-shadow-lift);padding:14px;z-index:400;display:none;text-align:left}\n.look-menu.open{display:block}\n.look-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}\n.look-label{width:100%;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}\n.look-chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-chip:hover{color:var(--text)}\n.look-chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}\n.look-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px -2px rgba(0,0,0,.5);padding:0}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--text)}\n.look-note{font-size:11.5px;color:var(--text-dim);line-height:1.45}\n.look-note code{font-family:var(--mono);font-size:11px;color:var(--text-2)}\n@media(max-width:640px){.look-btn span{display:none}.look-btn{padding:0 10px}.look-menu{position:fixed;left:12px;right:12px;top:70px;width:auto}}\n\n/* Skin-specific style, beyond colour. PAPER is editorial: a serif display\n   face, flat panels on hairlines, no drifting field. NIGHT is the opposite:\n   gradient ink on the money line, louder glows. */\n:root[data-skin='paper'] .hero h1{font-weight:500;letter-spacing:-.022em}\n:root[data-skin='paper'] .hero h1 em{font-style:italic;color:var(--accent)}\n:root[data-skin='paper'] .lp-section-head h2,:root[data-skin='paper'] .lp-cta-inner h2{font-weight:500;letter-spacing:-.015em}\n:root[data-skin='paper'] .flow-step,:root[data-skin='paper'] .fam-card,:root[data-skin='paper'] .lp-cta-inner,:root[data-skin='paper'] .lp-price-card,:root[data-skin='paper'] .look-menu{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface-solid);box-shadow:none;border:1px solid var(--hairline)}\n:root[data-skin='paper'] .lp-price-card.hot{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] .fam-card.on{box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] body::before{animation:none}\n:root[data-skin='paper'] body::after{opacity:.22}\n:root[data-skin='paper'] .hero-eyebrow{background:transparent;border-color:var(--hairline-strong);color:var(--text-2)}\n:root[data-skin='paper'] .lp-nav{box-shadow:none;border-bottom:1px solid var(--hairline)}\n:root[data-skin='paper'] .wall-card,:root[data-skin='paper'] .tpl-card{box-shadow:0 1px 2px rgba(30,25,15,.08),0 10px 24px -14px rgba(30,25,15,.25)}\n:root[data-skin='night'] .hero h1 em{background:linear-gradient(90deg,var(--accent),var(--accent-soft));-webkit-background-clip:text;background-clip:text;color:transparent}\n:root[data-skin='night'] .btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),var(--glow-accent)}\n:root[data-skin='night'] .lp-kicker{text-shadow:0 0 18px rgba(var(--accent-rgb),.6)}\n\n/* ── AREA dialog (location-aware copy) ── */\n.area-modal{max-width:560px}\n.area-inrow{display:flex;gap:8px;align-items:stretch}\n.area-inrow input{flex:1;min-width:0}\n.area-inrow .btn{white-space:nowrap;padding:9px 14px}\n.area-suggest{display:flex;flex-direction:column;gap:4px;margin-top:8px}\n.area-opt{display:flex;justify-content:space-between;align-items:center;gap:10px;font:inherit;font-size:14px;text-align:left;padding:9px 12px;border-radius:var(--r-sm);border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);cursor:pointer}\n.area-opt:hover{border-color:var(--accent);background:var(--accent-wash)}\n.area-opt span{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.area-none{font-size:13px;color:var(--text-dim);padding:8px 2px}\n.area-preview{margin-top:14px;display:flex;flex-direction:column;gap:10px}\n.area-preview:empty{display:none}\n.area-home{font-weight:650;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}\n.area-home em{font-style:normal;font-weight:500;font-size:12.5px;color:var(--text-dim)}\n.area-row b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}\n.area-chips{display:flex;flex-wrap:wrap;gap:6px}\n.area-chips span{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline-strong);color:var(--text-2)}\n.area-chips span:first-child{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4);color:var(--text)}\n#ez-area{cursor:pointer}\n\n/* Easy Mode export sizes */\n.ez-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}\n.ez-sizes .chip{font-size:12px;padding:6px 11px;min-height:30px}\n.stat-lead b{color:var(--accent)}\n@media(max-width:640px){.lp-stats{gap:8px 22px}.stat b{font-size:19px}}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LOOK MENU, ROUND TWO — 2026-09-02 evening. Owner: \"stick with graphite\n   purple ... add an extra accent colour or highlighting ring ... 2 to 3x more\n   themes and colour options as well as typography options\".\n   Three axes now carry more stops, and a fourth axis appears:\n     ground  graphite · night · slate · obsidian · forest · ember (dark)\n             paper · cream (light)\n     accent  twelve, each with a paired RING colour (--ring) that carries\n             focus, hover and selection so the chrome is two-tone\n     type    eight display/body pairings (data-type)\n   Curated presets in the menu are one of each, chosen by hand.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── extra grounds ── */\n:root[data-theme='dark'][data-skin='slate']{\n  --field:#121826;--glass-bg:rgba(28,36,51,.62);--glass-bg-strong:rgba(28,36,51,.86);\n  --surface-solid:#1a2233;--surface-raise:#232d40;--text:#eef2fa;--text-2:#bcc6da;--text-dim:#8391ab;\n  --stage-1:#182033;--stage-2:#0c1119;--scrim:rgba(8,12,20,.74);--surface3:#2c3850;\n}\n:root[data-theme='dark'][data-skin='obsidian']{\n  --field:#08090b;--wash-a:rgba(var(--accent-rgb),.18);--wash-b:rgba(var(--accent2-rgb),.12);--wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(18,19,23,.72);--glass-bg-strong:rgba(18,19,23,.92);--glass-edge:rgba(255,255,255,.10);\n  --surface-solid:#121317;--surface-raise:#1a1b20;--surface-sunk:rgba(255,255,255,.05);\n  --text:#f4f4f6;--text-2:#b9bcc6;--text-dim:#7f8391;--hairline:rgba(255,255,255,.08);\n  --stage-1:#101114;--stage-2:#050506;--scrim:rgba(0,0,0,.8);--surface3:#24262c;\n}\n:root[data-theme='dark'][data-skin='forest']{\n  --field:#0c1411;--wash-a:rgba(var(--accent-rgb),.22);--wash-b:rgba(60,200,140,.14);--wash-c:rgba(var(--accent2-rgb),.10);\n  --glass-bg:rgba(22,34,28,.62);--glass-bg-strong:rgba(22,34,28,.86);\n  --surface-solid:#142019;--surface-raise:#1b2a22;--text:#eef6f1;--text-2:#bfd1c6;--text-dim:#829a8c;\n  --stage-1:#142019;--stage-2:#080e0b;--scrim:rgba(6,12,9,.76);--surface3:#243a2e;\n}\n:root[data-theme='light'][data-skin='cream']{\n  --field:#f5efe2;--wash-a:rgba(var(--accent-rgb),.12);--wash-b:rgba(var(--accent2-rgb),.08);--wash-c:rgba(255,196,60,.10);\n  --glass-bg:rgba(255,251,243,.6);--glass-bg-strong:rgba(255,251,243,.84);\n  --surface-solid:#fffcf5;--surface-raise:#f3ecdc;--surface-sunk:rgba(60,45,20,.05);\n  --text:#1e1a12;--text-2:#55503f;--text-dim:#79725f;--hairline:rgba(60,45,20,.10);--hairline-strong:rgba(60,45,20,.18);\n  --stage-1:#f1eadb;--stage-2:#e3d9c4;--scrim:rgba(110,95,70,.42);--surface3:#eae1cd;\n}\n\n/* ── accents, with their RING. Ring = the second colour: it carries focus,\n   hover and selection, never fills. Pairings are a third of the wheel apart\n   so the two read as a scheme, not a clash. ── */\n:root{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='blue']{--ring:#f2c744;--ring-rgb:242,199,68}\n:root[data-theme='light'][data-accent='blue']{--ring:#b7830c;--ring-rgb:183,131,12}\n:root[data-accent='mint']{--ring:#b48cff;--ring-rgb:180,140,255}\n:root[data-theme='light'][data-accent='mint']{--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='orchid']{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='orchid']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='gold']{--ring:#4d9cff;--ring-rgb:77,156,255}\n:root[data-theme='light'][data-accent='gold']{--ring:#1d63d8;--ring-rgb:29,99,216}\n:root[data-accent='orange']{--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='orange']{--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='coral']{--accent:#ff6b6b;--accent-ink:#1f0707;--accent-wash:rgba(255,107,107,.16);--accent-deep:#e04848;--accent-soft:#ffd0d0;--accent-rgb:255,107,107;--accent2-rgb:61,220,151;--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='coral']{--accent:#c8383b;--accent-ink:#fff;--accent-wash:rgba(200,56,59,.12);--accent-deep:#a02a2c;--accent-soft:#f9d3d3;--accent-rgb:200,56,59;--accent2-rgb:15,143,95;--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='cyan']{--accent:#22d3ee;--accent-ink:#04191d;--accent-wash:rgba(34,211,238,.16);--accent-deep:#0ea5c4;--accent-soft:#c7f3fa;--accent-rgb:34,211,238;--accent2-rgb:251,113,133;--ring:#fb7185;--ring-rgb:251,113,133}\n:root[data-theme='light'][data-accent='cyan']{--accent:#0e7490;--accent-ink:#fff;--accent-wash:rgba(14,116,144,.12);--accent-deep:#0b5c72;--accent-soft:#cdeef5;--accent-rgb:14,116,144;--accent2-rgb:190,24,93;--ring:#be185d;--ring-rgb:190,24,93}\n:root[data-accent='lime']{--accent:#b9f24a;--accent-ink:#131a04;--accent-wash:rgba(185,242,74,.16);--accent-deep:#8fd11a;--accent-soft:#e6fbc0;--accent-rgb:185,242,74;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='lime']{--accent:#4d7c0f;--accent-ink:#fff;--accent-wash:rgba(77,124,15,.12);--accent-deep:#3f6212;--accent-soft:#e0f0c4;--accent-rgb:77,124,15;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='rose']{--accent:#fb7185;--accent-ink:#20070c;--accent-wash:rgba(251,113,133,.16);--accent-deep:#e11d48;--accent-soft:#ffd6dd;--accent-rgb:251,113,133;--accent2-rgb:34,211,238;--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='rose']{--accent:#be185d;--accent-ink:#fff;--accent-wash:rgba(190,24,93,.12);--accent-deep:#9d174d;--accent-soft:#f8d0de;--accent-rgb:190,24,93;--accent2-rgb:14,116,144;--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='sky']{--accent:#7dd3fc;--accent-ink:#06161f;--accent-wash:rgba(125,211,252,.16);--accent-deep:#38bdf8;--accent-soft:#e0f4ff;--accent-rgb:125,211,252;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='sky']{--accent:#0369a1;--accent-ink:#fff;--accent-wash:rgba(3,105,161,.12);--accent-deep:#075985;--accent-soft:#d3ecfb;--accent-rgb:3,105,161;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n:root[data-accent='amber']{--accent:#fbbf24;--accent-ink:#1c1200;--accent-wash:rgba(251,191,36,.16);--accent-deep:#d69e0b;--accent-soft:#ffeeba;--accent-rgb:251,191,36;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='amber']{--accent:#b45309;--accent-ink:#fff;--accent-wash:rgba(180,83,9,.12);--accent-deep:#92400e;--accent-soft:#f9e3bf;--accent-rgb:180,83,9;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='teal']{--accent:#2dd4bf;--accent-ink:#041a16;--accent-wash:rgba(45,212,191,.16);--accent-deep:#14b8a6;--accent-soft:#c9f5ee;--accent-rgb:45,212,191;--accent2-rgb:255,107,107;--ring:#ff6b6b;--ring-rgb:255,107,107}\n:root[data-theme='light'][data-accent='teal']{--accent:#0f766e;--accent-ink:#fff;--accent-wash:rgba(15,118,110,.12);--accent-deep:#115e59;--accent-soft:#cdeeea;--accent-rgb:15,118,110;--accent2-rgb:200,56,59;--ring:#c8383b;--ring-rgb:200,56,59}\n:root[data-accent='violet']{--accent:#8b5cf6;--accent-ink:#fff;--accent-wash:rgba(139,92,246,.18);--accent-deep:#6d3fd6;--accent-soft:#e4d9ff;--accent-rgb:139,92,246;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='violet']{--accent:#5b32c9;--accent-ink:#fff;--accent-wash:rgba(91,50,201,.12);--accent-deep:#4526a0;--accent-soft:#e2d8ff;--accent-rgb:91,50,201;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n\n/* where the ring shows: focus, hover, selection */\n:focus-visible{outline:2px solid var(--ring)}\n.tpl-card:hover{box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.35),0 0 0 2px var(--ring)}\n.wall-card:hover{box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.4),0 0 0 2px var(--ring)}\n.fam-card.on{border-color:transparent;box-shadow:var(--glass-shadow),0 0 0 2px var(--ring)}\n.chip.on{box-shadow:var(--glow-accent),0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-chip.on{box-shadow:0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--ring)}\n.lp-price-card.hot{box-shadow:var(--glass-shadow),0 0 0 2px var(--ring),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.hero-eyebrow{border-color:rgba(var(--ring-rgb),.45)}\n.ez-tpl.sel{outline:2px solid var(--ring);outline-offset:2px}\n.look-dot{background:linear-gradient(135deg,var(--accent) 0 55%,var(--ring) 55% 100%)}\n.stat-lead b{color:var(--accent)}\n.lp-kicker::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ring);margin-right:8px;vertical-align:1px}\n\n/* ── type pairings. Overrides any skin's face, so Paper + Unbounded is\n   possible. Google faces are loaded by the stamp script when picked. ── */\n:root[data-type='clash']{--display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif}\n:root[data-type='serif']{--display:'Zodiak',Georgia,'Times New Roman',serif}\n:root[data-type='melodrama']{--display:'Melodrama',Georgia,serif}\n:root[data-type='khand']{--display:'Khand','Satoshi',sans-serif}\n:root[data-type='unbounded']{--display:'Unbounded','Clash Display',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='syne']{--display:'Syne','Clash Display',sans-serif;--ui:'Sora','Satoshi',-apple-system,sans-serif}\n:root[data-type='grotesk']{--display:'Space Grotesk','Satoshi',sans-serif;--ui:'Space Grotesk','Satoshi',-apple-system,sans-serif}\n:root[data-type='manrope']{--display:'Manrope','Satoshi',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='khand'] .hero h1{letter-spacing:0;font-weight:700;font-size:clamp(40px,5.2vw,68px)}\n:root[data-type='unbounded'] .hero h1{letter-spacing:-.01em;font-weight:700;font-size:clamp(30px,4vw,52px)}\n:root[data-type='serif'] .hero h1,:root[data-type='melodrama'] .hero h1{font-weight:500;letter-spacing:-.02em}\n:root[data-type='serif'] .hero h1 em,:root[data-type='melodrama'] .hero h1 em{font-style:italic}\n\n/* the menu grew: keep it on screen */\n.look-menu{width:360px;max-height:min(78vh,720px);overflow:auto}\n.look-preset{display:flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;padding:6px 10px 6px 6px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-preset i{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--a) 0 55%,var(--b) 55% 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);flex:none}\n.look-preset:hover{color:var(--text);border-color:var(--text-dim)}\n@media(max-width:640px){.look-menu{width:auto}}\n\n/* the studio's own \"where are you\" pill, beside the category picker */\n.ez-wherelabel{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none;margin-left:6px}\n.ez-where{font:600 13.5px/1 var(--ui);color:var(--text);background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-pill);padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 0 var(--ring);transition:box-shadow .15s,border-color .15s}\n.ez-where:hover{border-color:var(--ring)}\n.ez-where.unset{border-color:var(--ring);box-shadow:0 0 0 3px rgba(var(--ring-rgb),.28);color:var(--text)}\n@media(max-width:640px){.ez-catrow{flex-wrap:wrap}.ez-wherelabel{display:none}}\n\n/* ── gallery cards: no blur veil (owner: \"way too much blur\"). The veil is\n   now a light darkening that lifts on hover, nothing else. ── */\n.tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(0,0,0,.14)}\n.tpl-card:hover .tpl-veil{background:rgba(0,0,0,0)}\n\n/* ── PRO GUARD. A locked preview stays sharp (a sharp card sells the plan)\n   but cannot be lifted: a repeating diagonal PRO · BUYBACK.AD pattern over\n   the whole card, a lock in the middle, and thumbnails that are 448px at\n   most. The pattern is an SVG data URI so it is text, not a blur. ── */\n.pro-guard{position:absolute;inset:0;pointer-events:none;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:220px 220px;mix-blend-mode:overlay;opacity:.9}\n.pro-guard::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;\n  background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}\n.wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}\n.ez-tpl.locked{position:relative}\n.ez-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n.flow-step .btn{margin-top:16px}\n\n/* locked mini cards in the editor's left panel and its picker */\n.mini-tpl.locked{position:relative}\n.mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n\n/* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's\n   default min-width:auto refuses to shrink below its content, so on a 390px\n   phone the cards stayed 481px wide and the whole page scrolled sideways by\n   105px (measured 2026-09-03). min-width:0 lets them fit; anything genuinely\n   too wide inside now scrolls in its own box instead of moving the page. */\n@media (max-width:920px){\n  .ez-main{min-width:0}\n  .ez-main > .ez-card{min-width:0;max-width:100%}\n  .ez-card{overflow-x:clip}\n}\n#ez-preview{max-width:100%;height:auto}\n\n/* ═══ 2026-09-22 UX/SEO pass (studio-ux branch) ═══\n   1. Clash Display's space is narrow and the hero sets -.028em tracking, so at\n      58px \"Buyback ads that\" read as one word. Word spacing puts the gaps back\n      without loosening the letters.\n   2. The footer gained an \"Ad templates\" column (links to the category pages),\n      so it is six blocks now: let the grid fit them instead of a fixed four. */\n.hero h1,.lp-section-head h2,.lp-cta h2{word-spacing:.1em}\n.lpf-cols{grid-template-columns:1.4fr repeat(5,minmax(0,1fr))}\n@media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.lp-faq p a{color:var(--accent);text-decoration:underline}\n\n/* THE LANDING GRID SHOWS EACH CARD AS IT WILL POST (2026-09-26). The number\n   was rebuilt big and sits at the foot of most cards; the caption strip (a\n   38px gradient with the palette and layout name) was drawn over exactly\n   that, and the veil blurred and dimmed every card until hover, which a phone\n   never sends. The section is headed \"exactly as it will post\": the card is\n   shown crisp, and its name appears on hover or keyboard focus. Scoped to the\n   landing grid; the studio's own template pickers keep their captions. */\n#lp-tpl-grid .tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none}\n#lp-tpl-grid .tpl-card .tpl-meta{opacity:0;transition:opacity .2s}\n#lp-tpl-grid .tpl-card:hover .tpl-meta,#lp-tpl-grid .tpl-card:focus-visible .tpl-meta{opacity:1}\n\n/* ── FONT PICKER ────────────────────────────────────────────────────────────\n   Every typeface shown in its own face (owner, 2026-09-27). A native <option>\n   ignores font-family in Safari, on Macs and on every phone, so the select is\n   hidden behind a button and list drawn here (app.js fontPicker). */\n.fp-btn{width:100%;flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;\n  background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);\n  padding:7px 11px;font-size:17px;line-height:1.2;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:38px}\n.fp-btn::after{content:'▾';font:600 12px/1 var(--ui);color:var(--text-dim);flex:none}\n.fp-btn:hover{border-color:var(--text-dim)}\n.fp-btn:focus-visible{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.fp-pop{position:fixed;z-index:2000;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-lg);\n  box-shadow:0 18px 50px -12px rgba(0,0,0,.6);padding:8px;display:flex;flex-direction:column;gap:6px}\n.fp-search{width:100%;background:var(--surface-sunk);border:1px solid var(--hairline);border-radius:var(--r-sm);color:var(--text);font:500 13px/1 var(--ui);padding:9px 10px}\n.fp-search:focus{border-color:var(--accent);outline:none}\n.fp-list{overflow-y:auto;overscroll-behavior:contain}\n.fp-group{font:700 10.5px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:10px 8px 6px}\n.fp-item{font-size:21px;line-height:1.25;color:var(--text);padding:7px 8px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.fp-item:hover,.fp-item.on{background:var(--surface-sunk)}\n.fp-item.sel{color:var(--accent)}\n";
 function cssProbeOk(){
   const t = document.createElement('div');
   t.className = 'ez-stepnum';
@@ -8124,10 +8943,14 @@ function boot(){
   $('lp-open-studio').onclick = () => showEasy(null);
   $('lp-cta-main').onclick = () => showEasy(null);
   $('lp-cta-bottom').onclick = () => showEasy(null);
-  bindEasyUI();
+  /* bindEasyUI() builds the whole Easy Mode panel — background swatches, the
+     layer rows, the template strip — and its swatches carry template photos as
+     CSS backgrounds and <img> tags. Run at boot it fetched ten backdrops for a
+     panel nobody was looking at yet. showEasy() calls it, and it is idempotent,
+     so the studio still builds itself on the way in. */
   // prefill brand modal
   const b = getBrand();
-  if (b){ $('bk-phone').value = b.phone || ''; $('bk-website').value = b.website || ''; $('bk-name').value = b.name || ''; }
+  if (b){ $('bk-phone').value = b.phone || ''; $('bk-website').value = b.website || ''; $('bk-name').value = b.name || ''; if ($('bk-area')) $('bk-area').value = areaLabel(); }
   // designer-library faces must be ready before the first thumbnail renders
   ensureTemplateFonts().then(() => {
     /* Order matters. buildLanding() renders 27 canvas thumbnails synchronously,
@@ -8135,8 +8958,13 @@ function boot(){
        queued behind it, the first backdrop request did not leave the browser
        until 4.1s. Start the NETWORK first and let it run while the CPU draws:
        the two no longer wait on each other. */
-    preloadTplBgs();          // photos start downloading immediately…
-    preloadCutouts();         // …as do the street family's product cutouts…
+    /* THE LANDING NO LONGER PAINTS TEMPLATES ON A CANVAS, so it does not need
+       the 153 backdrops (31.4 MB) or the product cutouts. Measured on a phone
+       2026-09-04: 33.6 MB over 207 requests and 13.6s to load, of which 31.4 MB
+       was /assets/bg — art the page never showed. The showcase ships its own
+       448px thumbnails. Those assets are warmed the moment somebody opens the
+       studio instead (warmTemplateAssets), which is the first time a canvas
+       render actually needs them. */
     buildLanding();
     try { refreshPlanFeats(); refreshCountCopy(); } catch (e){}   // copy states counts; make them true           // …while the CPU paints fallbacks, upgraded on arrival
   });
@@ -8183,6 +9011,659 @@ TEMPLATES.forEach(t => bodyPanel(t));
    the tint existed. Whatever colour the contrast work lands on, this is the
    final word on it. */
 TEMPLATES.forEach(t => warmTheWhites(t));
+
+/* ═══════════════ GRADIENT INK CONTRAST (rule 51) ═══════════════
+   Appended, not spliced (rule 42).
+
+   inkVsWash reads `l.props.fill` to decide whether type clears its ground. A
+   gradient-filled layer has no meaningful `fill` — the colour lives in
+   `props.grad` — so hexLum() returned null and EVERY gradient headline was
+   skipped by the one pass that exists to guarantee legibility.
+
+   Measured with scripts/legibility_audit.mjs, which renders each text layer
+   twice (with and without) and diffs the pixels: 151 headline/CTA layers across
+   102 of 243 templates were below WCAG for their size, and the two worst layer
+   names were "Headline 2" (52) and "CTA" (52) — precisely the two the library
+   fills with a gradient. This is the same class of bug as rule 45: a pass that
+   reads one property while the renderer paints another.
+
+   Fix: judge a gradient by its WORST stop, because the ink has to survive the
+   dark end of the ramp, not the average. Where it fails, walk BOTH stops toward
+   the tone the ground is not, keeping hue (rule 31) so the palette survives. */
+function gradInkContrast(t){
+  const groundOf = (l, plates, wash) => {
+    const x = l.props.left || 0;
+    const mid = (l.props.top || 0) + (l.props.fontSize || 40) * 0.5;
+    const p = plates.find(r => {
+      const L=r.props.left||0, T=r.props.top||0, W=r.props.width||0, H=r.props.height||0;
+      return W && H && x >= L-10 && x <= L+W+10 && mid >= T && mid <= T+H;
+    });
+    if (!p) return wash;
+    const g = p.props.grad;
+    if (g){
+      const a = hexLum(String(g.c1)), b = hexLum(String(g.c2));
+      if (a !== null && b !== null) return (a + b) / 2;
+    }
+    return hexLum(String(p.props.fill));
+  };
+
+  const plates = (t.layers||[]).filter(l => (l.kind==='rect'||l.kind==='rrect') && l.props);
+  const wash = (t.bg && t.bg.type === 'image') ? washGroundLum(t) : 0.12;
+  let fixed = 0;
+
+  (t.layers||[]).forEach(l => {
+    if (typeof l.text !== 'string' || !l.props || l.role === 'deco') return;
+    const g = l.props.grad;
+    if (!g || !g.c1 || !g.c2) return;                 // fill-only layers: inkVsWash owns them
+    const ground = groundOf(l, plates, wash);
+    if (ground === null || ground === undefined) return;
+
+    const fs = l.props.fontSize || 40;
+    // WCAG: 3:1 is the floor for large text, which every headline here is.
+    const want = fs >= 30 ? 3.0 : 4.5;
+    const l1 = hexLum(String(g.c1)), l2 = hexLum(String(g.c2));
+    if (l1 === null || l2 === null) return;
+    const crOf = a => (Math.max(a,ground)+0.05)/(Math.min(a,ground)+0.05);
+    const worst = Math.min(crOf(l1), crOf(l2));
+    if (worst >= want) return;
+
+    const up = ground < 0.4;
+    const tgt = up ? (want*(ground+0.05)-0.05) : ((ground+0.05)/want-0.05);
+    g.c1 = liftInk(String(g.c1), tgt, up);
+    g.c2 = liftInk(String(g.c2), tgt, up);
+    fixed++;
+  });
+  return fixed;
+}
+/* Runs AFTER warmTheWhites for the same reason warmTheWhites runs last: it is
+   the final word on the colour a layer ends up with. A contrast repair placed
+   before the tint gets undone by it. */
+TEMPLATES.forEach(t => gradInkContrast(t));
+
+/* ═══════════════ PANEL DIET (rule 52) ═══════════════
+   Appended, not spliced (rule 42).
+
+   The owner's read: "too much white background bubbles", "a lot of giant boxes
+   that extend beyond the image that leave a solid color or some sort of
+   gradient fill", "looking pretty cheesy".
+
+   Measured with scripts/cheese_audit.mjs:
+     - 17 templates where near-white panels cover >22% of the frame, worst 87.7%
+     - 24 templates with a large rect bleeding off the canvas edge
+     - 36 templates where flat colour covers >55% of the frame, worst 159%
+
+   All three are the same failure: the design stops being a PHOTOGRAPH with type
+   on it and becomes a coloured box with a photo peeking out. A buyback ad sells
+   trust by showing the actual goods, so burying the photograph is not a style
+   choice, it is the product going missing. HANDOFF section 6 already locks
+   "every template keeps a photograph"; nothing enforced it.
+
+   Three bounded corrections, in order of how loudly they read:
+
+   1. A near-white panel covering more than a third of the frame is knocked back
+      to a translucent version of itself. It still separates its type — that is
+      what the alpha is for — but the photograph shows through instead of being
+      replaced by a white slab.
+   2. A rect that bleeds off an edge AND covers a sixth of the frame is pulled
+      inside the margin. A band that runs to the bleed reads as a print artifact
+      on a feed post; the same band inset reads as deliberate.
+   3. Anything still opaque and enormous after those two gets an alpha so the
+      backdrop survives.
+
+   Deliberately does NOT touch small plates: the phone plate, chips, ticks and
+   badges are all doing legibility work that rules 21 and 45 depend on. The
+   threshold is area, because that is what the complaint was about. */
+const PANEL_MAX_WHITE = 0.34;   // fraction of frame a near-white panel may own
+const PANEL_MAX_ANY   = 0.55;   // fraction any single opaque plate may own
+function panelDiet(t){
+  if (!t.bg || t.bg.type !== 'image') return 0;   // flat-ground designs need their panels
+  const A = TPL_W * TPL_H;
+  const M = 26;                                   // margin the design already uses
+  let n = 0;
+
+  (t.layers||[]).forEach(l => {
+    if ((l.kind !== 'rect' && l.kind !== 'rrect') || !l.props) return;
+    const p = l.props;
+    const w = p.width || 0, h = p.height || 0;
+    if (!w || !h) return;
+    const frac = (w * h) / A;
+    if (frac < 0.16) return;                      // small plates are load-bearing, leave them
+
+    // 2. pull a big bleeding box back inside the frame
+    const bleeds = (p.left||0) < -6 || (p.top||0) < -6 ||
+                   (p.left||0) + w > TPL_W + 6 || (p.top||0) + h > TPL_H + 6;
+    if (bleeds){
+      const nl = Math.max(M, p.left || 0);
+      const nt = Math.max(M, p.top || 0);
+      const nr = Math.min(TPL_W - M, (p.left||0) + w);
+      const nb = Math.min(TPL_H - M, (p.top||0) + h);
+      if (nr - nl > 80 && nb - nt > 60){
+        p.left = nl; p.top = nt; p.width = nr - nl; p.height = nb - nt;
+        if (p.rx === undefined) { p.rx = 20; p.ry = 20; }
+        n++;
+      }
+    }
+
+    // 1 & 3. an enormous opaque slab gets an alpha so the photograph survives
+    const hex = String(p.fill || '');
+    const L = /^#[0-9a-f]{6}$/i.test(hex) ? hexLum(hex) : null;
+    const area = ((p.width||0) * (p.height||0)) / A;
+    const isWhite = L !== null && L > 0.55;
+    const tooMuch = isWhite ? area > PANEL_MAX_WHITE : area > PANEL_MAX_ANY;
+    if (tooMuch && /^#[0-9a-f]{6}$/i.test(hex)){
+      /* Translucent, not deleted. The panel is still the reason its type is
+         readable; it just stops being the whole picture. 0.80 keeps a
+         comfortable margin over the 4.5:1 the ink needs while letting the
+         backdrop read through. Solidity is dropped so enforcePlateSolidity's
+         guarantee is not silently claimed for a plate that no longer has it. */
+      const n2 = parseInt(hex.slice(1), 16);
+      p.fill = `rgba(${(n2>>16)&255},${(n2>>8)&255},${n2&255},0.80)`;
+      delete l.solid;
+      n++;
+    }
+  });
+  return n;
+}
+TEMPLATES.forEach(t => panelDiet(t));
+
+/* ═══════════════ LOCAL GROUND CONTRAST (rule 53) ═══════════════
+   Appended, not spliced (rule 42). THE LAST WORD ON INK COLOUR.
+
+   Every contrast pass before this one asks "what is the average luminance of
+   the backdrop" and compares the ink to that. On a banded gradient scrim, and
+   on any template carrying plates, that average is not the ground under any
+   particular layer. Measured on st_silver_topstrip:
+
+       washGroundLum() reports   0.0575
+       true frame average        0.1948
+       ground under the CTA      0.8892   <- the bright phone plate
+
+   So a near-white CTA (#eef5fb) was judged against 0.06 — a comfortable 15:1 —
+   while actually sitting on 0.89 and rendering at 1.02:1. White on white. The
+   pass was not wrong about its own arithmetic; it was answering a question
+   about the frame when the only question that matters is local.
+
+   This walks the FINAL layer stack in paint order and, for each text layer,
+   resolves the ground from the topmost thing actually beneath it — plate,
+   panel, or the wash — then repairs anything short of WCAG for its size,
+   preserving hue via liftInk (rule 31).
+
+   Rule: contrast is a property of a PLACE, not of a template. Anything that
+   compares ink to a frame-wide average will eventually put white on white. */
+function localGroundContrast(t){
+  const layers = t.layers || [];
+  const wash = (t.bg && t.bg.type === 'image') ? (washGroundLum(t) || 0.12) : 0.12;
+
+  const alphaOf = c => {
+    const m = String(c).match(/rgba?\([^)]*,\s*([\d.]+)\s*\)/);
+    return m ? parseFloat(m[1]) : 1;
+  };
+  const lumOfFill = c => {
+    const s = String(c || '');
+    if (/^#[0-9a-f]{6}$/i.test(s)) return { L: hexLum(s), a: 1 };
+    const m = s.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (!m) return null;
+    const hex = '#' + [1,2,3].map(i => (+m[i]).toString(16).padStart(2,'0')).join('');
+    return { L: hexLum(hex), a: alphaOf(s) };
+  };
+
+  let fixed = 0;
+  layers.forEach((l, li) => {
+    if (typeof l.text !== 'string' || !l.props || l.role === 'deco') return;
+    const p = l.props;
+    const fs = p.fontSize || 40;
+    const x  = p.left || 0;
+    const mid = (p.top || 0) + fs * 0.5;
+
+    /* The ground is the LAST plate painted before this text that contains its
+       middle — last, because that is the one on top. Searching from the start
+       finds a panel that something else has since covered. */
+    let ground = wash;
+    for (let i = 0; i < li; i++){
+      const r = layers[i];
+      if ((r.kind !== 'rect' && r.kind !== 'rrect') || !r.props) continue;
+      const q = r.props;
+      const L = q.left||0, T = q.top||0, W = q.width||0, H = q.height||0;
+      if (!W || !H) continue;
+      if (!(x >= L - 12 && x <= L + W + 12 && mid >= T && mid <= T + H)) continue;
+      const g = q.grad;
+      if (g && g.c1 && g.c2){
+        const a = hexLum(String(g.c1)), b = hexLum(String(g.c2));
+        if (a !== null && b !== null){ ground = (a + b) / 2; continue; }
+      }
+      const f = lumOfFill(q.fill);
+      if (!f || f.L === null) continue;
+      // a translucent panel only partly replaces what is under it
+      ground = f.a >= 0.95 ? f.L : (f.L * f.a + ground * (1 - f.a));
+    }
+
+    const want = fs >= 30 ? 3.0 : 4.5;
+    const crOf = a => (Math.max(a,ground)+0.05)/(Math.min(a,ground)+0.05);
+
+    const g = p.grad;
+    if (g && g.c1 && g.c2){
+      const a = hexLum(String(g.c1)), b = hexLum(String(g.c2));
+      if (a === null || b === null) return;
+      if (Math.min(crOf(a), crOf(b)) >= want) return;
+      const up = ground < 0.45;
+      const tgt = up ? (want*(ground+0.05)-0.05) : ((ground+0.05)/want-0.05);
+      g.c1 = liftInk(String(g.c1), tgt, up);
+      g.c2 = liftInk(String(g.c2), tgt, up);
+      fixed++;
+      return;
+    }
+
+    const f = lumOfFill(p.fill);
+    if (!f || f.L === null) return;
+    if (crOf(f.L) >= want) return;
+    const up = ground < 0.45;
+    const tgt = up ? (want*(ground+0.05)-0.05) : ((ground+0.05)/want-0.05);
+    /* liftInk only parses #rrggbb. Handing it an rgba() string made it return
+       its fallback (#f7f3ec / #141110), throwing the layer's hue away and
+       occasionally landing on exactly the tone it was trying to escape. Convert
+       first, and drop the alpha: a layer that fails contrast cannot afford to
+       be translucent, since the transparency is part of why it failed. */
+    const hexIn = /^#[0-9a-f]{6}$/i.test(String(p.fill))
+      ? String(p.fill)
+      : (() => { const m = String(p.fill).match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+                 return m ? '#' + [1,2,3].map(i=>(+m[i]).toString(16).padStart(2,'0')).join('') : null; })();
+    if (!hexIn) return;
+    p.fill = liftInk(hexIn, tgt, up);
+    fixed++;
+  });
+  return fixed;
+}
+TEMPLATES.forEach(t => localGroundContrast(t));
+
+/* ═══════════════ MEASURED CONTRAST REPAIR (rule 54) ═══════════════
+   Appended, not spliced (rule 42). THE ACTUAL last word on ink colour.
+
+   Every pass above this one MODELS the ground: washGroundLum() averages the
+   frame, localGroundContrast resolves the topmost plate. Both are arithmetic
+   on an estimate, and a photograph is not a single luminance. "SELL YOUR" at
+   240px spans a headlight, a shadow and a wall; the average of those describes
+   none of them. Measured on neon_sell: band-average said 5.20:1, the actual
+   glyph pixels said 1.15:1, because the letters land on the bright part.
+
+   DESIGN-LAW rule 34 says never model a blend, measure it. So the measurement
+   is done offline by scripts/bake_contrast.mjs — which renders every template,
+   diffs each text layer against its own absence to recover the true ink and the
+   true ground PER GLYPH, and takes the percentile of the ground nearest the ink
+   rather than its mean — and the result is shipped as assets/contrast-fix.json.
+   This pass applies that table.
+
+   Offline because the measurement costs two full canvas renders per text layer,
+   1,863 of them. That is fine in a build step and unacceptable on page load.
+
+   REGENERATE THE TABLE after any change to the passes, the palette, or the
+   backdrops: `node scripts/bake_contrast.mjs`. A stale table is not dangerous —
+   entries are matched by template id + layer name and simply miss if either
+   changed — but it will silently stop repairing things. */
+let CONTRAST_FIX = null;
+function applyMeasuredContrast(){
+  if (!CONTRAST_FIX || !CONTRAST_FIX.length) return 0;
+  const byId = {};
+  CONTRAST_FIX.forEach(f => { (byId[f.id] ||= {})[f.layer] = f; });
+  let fixed = 0;
+  TEMPLATES.forEach(t => {
+    const m = byId[t.id]; if (!m) return;
+    (t.layers||[]).forEach(l => {
+      const f = m[l.name]; if (!f || !l.props) return;
+      const want = (l.props.fontSize || f.fs || 40) >= 30 ? 3.0 : 4.5;
+      /* The table now names the ink outright. It used to carry a target
+         luminance and a direction, and this pass walked the existing colour
+         with liftInk() until it got there — which desaturates (white walked
+         down is grey, never a considered near-black) and, worse, cannot serve a
+         ground that is bright in one place and dark in another. On
+         st_sports_cutouthero that walk landed the phone number on #959393,
+         L=0.250, over a plate at L=0.256: 1.02:1, invisible, and it was the
+         repair that put it there. bake_contrast.mjs now scores candidate inks
+         against every glyph pixel and writes the winner. See its header. */
+      if (!f.inkFix || !/^#[0-9a-f]{6}$/i.test(f.inkFix)) return;
+      /* Rule 45: a pass that sets `fill` must delete `grad`, because
+         buildLayer prefers the gradient and would paint the colour we just
+         replaced. A repaired layer cannot afford a gradient it did not choose,
+         and it cannot afford alpha either — translucency is usually part of
+         why it failed. */
+      if (l.props.grad) delete l.props.grad;
+      l.props.fill = f.inkFix;
+      /* And the ALPHA. A repaired layer cannot afford to be translucent,
+         because the translucency is usually why it failed: dl_gold_duoSplit's
+         website line is #807f74 at opacity 0.6, so whatever ink this pass
+         chooses gets composited 60/40 with the ground it was chosen to stand
+         against, and lands most of the way back where it started. The previous
+         version of this pass understood the problem for rgba() fills and said
+         so in a comment, but only ever stripped alpha out of the fill string —
+         props.opacity, which is how the designer library actually dims a line,
+         went straight through. 26 of the surviving website failures were this
+         and nothing else. */
+      if (typeof l.props.opacity === 'number' && l.props.opacity < 1) l.props.opacity = 1;
+      /* Halo direction follows the INK now, not a single ground luminance:
+         light ink wants a dark ring, dark ink a light one. With a bimodal
+         ground `ground < 0.45` was picking the ring for the half of the frame
+         the glyphs were not on. */
+      const inkLum = hexLum(f.inkFix);
+      const up = inkLum !== null && inkLum > 0.4;
+      /* SEPARATION DEVICE, not just a hue change.
+         Measured after the ink repair converged: 33 of the 140 remaining
+         failures were >=1.0 short of their target, and no ink colour can close
+         that gap — the ground under one headline spans a headlight AND a
+         shadow, so "contrast against the average" is not contrast against every
+         pixel. Past that point the fix is to give the letterform its own edge
+         rather than keep walking its colour toward a wall it cannot reach.
+
+         Halo tone follows the GROUND, not the ink (rule 27): a ring of the tone
+         the ground is not. Scaled with the type, because a fixed 14px blur is
+         invisible behind a 240px headline and swamps a 28px CTA.
+
+         The stroke is reserved for large type that is badly short. DESIGN-LAW
+         warns that outlined type is an amateur signal (rule 3 in the clean
+         family) — it is the last resort here precisely because of that, gated
+         on >=60px and >=1.0 shortfall, so it lands on a handful of hero
+         headlines rather than becoming a house style. */
+      /* The halo used to be reserved for headline/phone/cta. That was right when
+         the alternative was decorating everything, but it left the small roles
+         with no move at all once ink ran out: 10 of the last 11 failures were
+         info/sub/website/badges at 18-28px on a mid-luminance ground, where
+         NEITHER near-white nor near-black reaches 4.5:1 and no amount of
+         re-colouring will. Those are exactly the layers that need an edge of
+         their own. So: heroes still always get the separation, and anything
+         else gets it only when the best available ink was measured short --
+         `forceHalo`, which converge_themes.mjs sets from the REAL render after
+         the previous ink landed, because the bake's own prediction always
+         claims the ink was enough. */
+      const isHero = l.role === 'headline' || l.role === 'phone' || l.role === 'cta';
+      if (!f.onPlate && (isHero || f.forceHalo || (f.cr || 99) < want)){
+        const fsz = l.props.fontSize || f.fs || 40;
+        if (!l.props.shadow){
+          l.props.shadow = { color: up ? 'rgba(0,0,0,0.62)' : 'rgba(255,255,255,0.50)',
+                             blur: Math.max(10, Math.round(fsz * 0.16)),
+                             offsetX: 0, offsetY: 2 };
+        }
+        // f.cr is what the CHOSEN ink achieves; if that is still short, the
+        // letterform needs an edge of its own, not another colour.
+        const shortfall = want - (f.cr || want);
+        if (shortfall >= 1.0 && !l.props.stroke && fsz >= 60){
+          l.props.stroke = up ? '#000000' : '#ffffff';
+          l.props.strokeWidth = Math.max(2, Math.round(fsz * 0.035));
+        }
+      }
+      fixed++;
+    });
+  });
+  return fixed;
+}
+/* ═══════════════ PLATE GRADIENT PURGE (rule 45, enforced) ═══════════════
+   Rule 45 says a pass that sets `fill` must delete `grad`, because buildLayer
+   prefers the gradient. highlightBudget was fixed to do that, but it is not the
+   only writer: plates authored with BOTH a solid fill and a gradient still ship
+   the gradient, and any pass that later reasons about `fill` is reasoning about
+   a colour that never paints.
+
+   Caught by eye, not by the audit: st_phones_splitcol's phone plate carries
+   fill #40d8a1 AND grad #a8dec5 -> #66bc97, so a mint number sat on a mint
+   plate and read as invisible — while the pixel audit scored it 6.74:1, because
+   averaging ink over a plate the ink MATCHES flatters the result. Two
+   instruments, both wrong in the same direction; only looking at the render
+   found it.
+
+   So: any plate that carries ink loses its gradient and keeps its solid fill.
+   Applied to every rect a text layer sits on, not just the ones one pass
+   happened to touch. */
+function purgePlateGradients(t){
+  const layers = t.layers || [];
+  let n = 0;
+  layers.forEach((l, li) => {
+    if (typeof l.text !== 'string' || !l.props) return;
+    const x = l.props.left || 0;
+    const mid = (l.props.top || 0) + (l.props.fontSize || 40) * 0.5;
+    for (let i = 0; i < li; i++){
+      const r = layers[i];
+      if ((r.kind !== 'rect' && r.kind !== 'rrect') || !r.props) continue;
+      const q = r.props;
+      if (!q.grad || !q.grad.c1) continue;
+      const L = q.left||0, T = q.top||0, W = q.width||0, H = q.height||0;
+      if (!W || !H) continue;
+      if (!(x >= L - 12 && x <= L + W + 12 && mid >= T && mid <= T + H)) continue;
+      /* Keep the gradient's own darker stop as the solid colour when there is
+         no usable fill, so the plate keeps its hue instead of snapping to a
+         default. The ink is repaired against whatever this lands on by the
+         measured pass below. */
+      const keep = /^#[0-9a-f]{6}$/i.test(String(q.fill)) ? String(q.fill) : String(q.grad.c2 || q.grad.c1);
+      delete q.grad;
+      q.fill = keep;
+      r.solid = true;
+      n++;
+    }
+  });
+  return n;
+}
+/* ═══════════════ PER-TEMPLATE FALLBACK GROUND ═══════════════
+   The fallback gradient is what paints when a backdrop photo does not load. It
+   has to work with the inks the template already has, because a template
+   carries one set of ink colours and cannot carry two.
+
+   It used to be one gradient per PALETTE, and that cannot be made to work.
+   Measured with scripts/tune_fallback.mjs: sweeping a lightness scale over the
+   palette stops moves the failure count hardly at all (arctic sits at 11, 11,
+   11, 10, 13, 13 across the whole range) because the inks were chosen per
+   TEMPLATE against a photograph, and one gradient cannot suit all of them.
+   Fifteen templates on the same palette can want fifteen different grounds.
+   Nothing in the palette knows that.
+
+   So derive it per template instead, from the inks that template actually
+   ended up with. No render needed: after the measured-contrast table has been
+   applied the fills are final, so this is arithmetic over ~10 colours. Text
+   sitting on a plate is excluded — a plate is its own ground and does not care
+   what the backdrop does.
+
+   This is why the palette's fb1/fb2 are a STARTING POINT rather than the
+   answer: they set the hue, this sets the level. */
+function tuneFallbacks(){
+  const HSL = hex => {
+    const n = parseInt(String(hex).replace('#',''),16);
+    const r=((n>>16)&255)/255, g=((n>>8)&255)/255, b=(n&255)/255;
+    const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn, l=(mx+mn)/2;
+    if (!d) return [0,0,l];
+    const sa = l > 0.5 ? d/(2-mx-mn) : d/(mx+mn);
+    let h = mx===r ? ((g-b)/d)%6 : mx===g ? (b-r)/d+2 : (r-g)/d+4;
+    h *= 60; return [h<0?h+360:h, sa, l];
+  };
+  const HEX = (h,sa,l) => {
+    const c=(1-Math.abs(2*l-1))*sa, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+    const [r,g,b]=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+    const q=v=>Math.round(Math.max(0,Math.min(255,(v+m)*255))).toString(16).padStart(2,'0');
+    return '#'+q(r)+q(g)+q(b);
+  };
+  const scaleL = (hex,k) => { const [h,sa,l] = HSL(hex); return HEX(h,sa,Math.max(0.010,Math.min(0.88,l*k))); };
+  const ratio = (a,b) => { const A=hexLum(a), B=hexLum(b);
+    if (A === null || B === null) return 21;
+    return (Math.max(A,B)+0.05)/(Math.min(A,B)+0.05); };
+
+  TEMPLATES.forEach(t => {
+    const fb = t.bg && t.bg.fallback;
+    if (!fb || fb.type !== 'grad' || !fb.c1 || !fb.c2) return;
+    /* EVERY ink on the background goes in, including the ones that are easy to
+       skip. The first version took only #rrggbb fills of non-deco layers, which
+       left rgba() fills and decorative marks unconstrained — and an ink this
+       function is not looking at is an ink it will happily park the ground
+       directly underneath. That turned 1 invisible layer into 13. A colour
+       that is not in the list does not get a lower standard, it gets no
+       standard at all. */
+    const inks = [];
+    const asHex = v => {
+      if (typeof v !== 'string') return null;
+      if (/^#[0-9a-f]{6}$/i.test(v)) return v;
+      const m = v.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+      return m ? '#' + [1,2,3].map(i => (+m[i]).toString(16).padStart(2,'0')).join('') : null;
+    };
+    (t.layers||[]).forEach(l => {
+      if (typeof l.text !== 'string' || !String(l.text).trim() || !l.props) return;
+      if (plateUnder(t, l)) return;                  // stands on a plate, not on us
+      const g = l.props.grad;
+      const cands = g && g.c1 ? [g.c1, g.c2] : [l.props.fill];
+      const want = l.role === 'deco' ? 2.5 : ((l.props.fontSize || 40) >= 30 ? 3.0 : 4.5);
+      cands.forEach(c => { const hex = asHex(c); if (hex) inks.push({ hex, want }); });
+    });
+    if (!inks.length) return;
+    /* Search ABSOLUTE lightness, not a multiple of the stop we start from.
+       Scaling the existing stop was the obvious way to write this and it cannot
+       work: the palette stops are already near-black, so even x1.9 stays
+       near-black and the search never reaches a ground a DARK ink could stand
+       on. dl_gold_checklistHero_gold's badges are #000000 — chosen for a bright
+       patch of the photograph — and the "best" ground the scaled search could
+       offer them was #060604. That is 1.03:1, which is why twelve layers went
+       to zero coverage. Sweep the whole range, keep the two stops' relationship
+       to each other, and let the inks decide the level. */
+    const l1 = HSL(fb.c1)[2], l2 = HSL(fb.c2)[2];
+    const mean0 = (l1 + l2) / 2 || 0.05;
+    let best = null;
+    for (let t = 0.02; t <= 0.86; t += 0.01){
+      const f = t / mean0;
+      const c1 = scaleL(fb.c1, f), c2 = scaleL(fb.c2, f);
+      let worst = Infinity;
+      for (let i = 0; i < inks.length; i++){
+        const m = Math.min(ratio(inks[i].hex, c1), ratio(inks[i].hex, c2)) / inks[i].want;
+        if (m < worst) worst = m;
+      }
+      /* Ties go to the DARKER ground: these are night-time cash ads, a light
+         fallback would read as a different product, and the house direction is
+         locked warm/dark (HANDOFF section 6). */
+      if (!best || worst > best.worst + 1e-9) best = { t, c1, c2, worst };
+    }
+    if (best){ fb.c1 = best.c1; fb.c2 = best.c2; }
+  });
+}
+TEMPLATES.forEach(t => purgePlateGradients(t));
+tuneFallbacks();
+
+/* Fetched, not inlined: the table is data, it changes on its own cadence, and
+   inlining 657 records into app.js would bloat the file every rebake. The app
+   renders correctly without it — this only ever improves contrast — so a failed
+   fetch degrades to the modelled passes above rather than breaking the page.
+
+   RELATIVE path, exactly like every backdrop in TEMPLATES ('assets/tplbg/...'),
+   which is what keeps the app mount-aware: it runs unmodified from '/' or from
+   '/gfx' with no base-path variable to get wrong. */
+(function loadContrastFix(){
+  try {
+    /* ?nofix=1 skips the table entirely. scripts/bake_contrast.mjs uses it to
+       measure the MODELLED state: it is the tool that produces this table, so
+       if it measured a page that had already applied the previous one it would
+       see repaired colours, find nothing wrong, and bake an empty file —
+       silently undoing every repair on the next deploy. */
+    if (typeof location !== 'undefined' && /[?&]nofix=1\b/.test(location.search)) return;
+    fetch('assets/contrast-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => {
+        if (!Array.isArray(j) || !j.length) return;
+        CONTRAST_FIX = j;
+        if (!applyMeasuredContrast()) return;
+        // the table just rewrote the inks; the fallback is derived FROM the inks
+        tuneFallbacks();
+        // recolouring invalidates cached thumbnails; THUMBS is a const object,
+        // so clear its keys rather than rebinding it.
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
+/* THE NUMBER TABLE, 2026-09-26. The phone number is how the people who stop
+   reach the seller, and 149 of the 243 classics set it under 72px on the 1080
+   canvas: in a 160px feed tile that is digits 7px tall. The video maker draws
+   the same number at up to 0.72x the headline, and the owner asked for "a
+   big/medium phone number" on everything. scripts/number_block.mjs --classics
+   measures every classic through buildLayer()/alignPass(), rebuilds the number
+   block (the number at 0.62x the headline, never under 72px, on one axis, its
+   plate hugging it, clear of every other line and product) and writes
+   assets/number-fix.json: one row per layer, with the layer's own words.
+
+   Same shape as the contrast table above: fetched, applied as a final pass,
+   and a failed fetch leaves the classics as the passes drew them. All or
+   nothing per template: if any row no longer matches a layer by name, role
+   and words (a template edited since the bake), that template keeps its own
+   layout rather than half of a new one. ?nonum=1 skips it, for the script. */
+(function loadNumberFix(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]nonum=1\b/.test(location.search)) return;
+    fetch('assets/number-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(rows => {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const byId = {};
+        rows.forEach(f => { if (f && f.id && f.layer && f.props) (byId[f.id] ||= []).push(f); });
+        let n = 0;
+        TEMPLATES.forEach(t => {
+          const list = byId[t.id]; if (!list) return;
+          const layers = t.layers || [];
+          const hits = list.map(f => {
+            const m = layers.filter(l => l.name === f.layer && (l.role || '') === (f.role || ''));
+            return m.length === 1 && (f.text == null || m[0].text === f.text) ? [m[0], f] : null;
+          });
+          if (hits.some(h => !h)) return;
+          hits.forEach(([l, f]) => { l.props = Object.assign({}, l.props, f.props); });
+          n++;
+        });
+        if (!n) return;
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
+/* THE GROUND TABLE, 2026-09-26. assignStyle() above paints 129 classics'
+   photographs as a duotone or a one-hue wash (the multiply/screen grade). The
+   owner: "not these ugly hideous overlaid colors and duotone background
+   images." The study session's layering ladder puts the photograph at rung 0
+   and atmosphere at rung 1, "light and shade, never an object": colour belongs
+   to the plate and the money word, not as a coat over the picture.
+
+   scripts/naturalize_classics.mjs renders each graded classic as the visitor
+   sees it (the contrast and number tables applied) and writes
+   assets/ground-fix.json: the photograph with no grade, and a neutral scrim in
+   the template's own gradient mode, solved on its own pixels to keep the worst
+   end of the ground under every line on the photograph at least as far from
+   the ink as the graded ground kept it (DESIGN-LAW rule 52). So the measured
+   inks stay right. Same shape as the tables above: a failed fetch leaves the
+   graded look, a row whose photograph changed since the bake is skipped, and
+   ?noground=1 skips it, for the script. */
+(function loadGroundFix(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]noground=1\b/.test(location.search)) return;
+    fetch('assets/ground-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(rows => {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const byId = {};
+        rows.forEach(f => { if (f && f.id && f.bg) byId[f.id] = f; });
+        let n = 0;
+        TEMPLATES.forEach(t => {
+          const f = byId[t.id], bg = t.bg;
+          if (!f || !bg || bg.type !== 'image' || bg.src !== f.src) return;
+          delete bg.grade;
+          bg.scrim = f.bg.scrim;
+          if (f.bg.scrimColor) bg.scrimColor = f.bg.scrimColor; else delete bg.scrimColor;
+          bg.scrimMode = f.bg.scrimMode || 'gradient';
+          t.style = 'photo';
+          n++;
+        });
+        if (!n) return;
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
 try {
   tplDims(TEMPLATES[0]);
   /* The old assertion called onAccent({a1:'#ffffff'}) here. onAccent is a const
@@ -8199,4 +9680,1499 @@ try {
   console.error('GraphicsStudio: init aborted before the passes ran — a const ' +
     'below a call site is in the temporal dead zone. Everything after that ' +
     'point is uninitialised.', e);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SHOWCASE — the newest Template Lab set, shipped as REAL templates.
+   2026-09-02.
+
+   Until today the landing page rendered 27 of the 243 pass-chain templates on
+   a canvas at boot (the old design language, ~3.5s of main thread) while the
+   work the owner had actually been approving — the retheme sets in the Lab —
+   lived only as pictures in lab/. scripts/retheme_lab.mjs now exports each
+   card's FINAL template record (LAB_EXPORT=1), and assets/showcase/ carries:
+     index.json          one row per card: theme, family, layout, category,
+                         base layout, faces, palette, approval affinity, thumb
+     <id>.webp           the card as the lab painted it, 448px
+     tpl/<id>.json       the full record: layers, backdrop, treatment
+   The landing shows the thumbs (no canvas work at boot) and a click fetches
+   the record, registers it in TEMPLATES under 'sc-<id>' and opens Easy Mode
+   with the photo, product and copy exactly as the card showed them. The
+   record was painted by this same engine (buildLayer/fabric) inside the lab,
+   so what opens is what was shown, not a cousin of it.
+
+   Everything here is additive and lives BELOW the pass block on purpose: a
+   showcase record is already finished, and the passes must not run on it.
+   If index.json is missing the old landing (buildLandingV1) takes over. */
+const SHOWCASE = { cards:null, byId:{}, records:{}, filter:{ cat:'all', fam:'all' }, shown:0, PAGE:16, built:false, list:[] };
+const SC_FAMILIES = [
+  /* every family in theme_specs.mjs with a representative swatch, so the
+     section says twelve and shows twelve even when a set left one out */
+  { family:'Jewel',        c1:'#1f3e7a', ink:'#d7deec', accent:'#fdc3a0', support:'#53b9e0' },
+  { family:'Duotone',      c1:'#e0677b', ink:'#371a1e', accent:'#61352a', support:'#02362d' },
+  { family:'Candy',        c1:'#fdb7bb', ink:'#4d2e30', accent:'#3c740b', support:'#176dcb' },
+  { family:'Paper',        c1:'#fef3f2', ink:'#4d2e2e', accent:'#d6143b', support:'#3b997d' },
+  { family:'Cool Air',     c1:'#baf8f1', ink:'#183f3c', accent:'#d9322b', support:'#2f9664' },
+  { family:'Pastel',       c1:'#ffe6e3', ink:'#4d2f2b', accent:'#019486', support:'#b66992' },
+  { family:'iOS Flat',     c1:'#e3f3fe', ink:'#213b4d', accent:'#0e89c7', support:'#d06962' },
+  { family:'Liquid Glass', c1:'#b7e8f1', ink:'#173e45', accent:'#d00159', support:'#17886d' },
+  { family:'Night Neon',   c1:'#0e253c', ink:'#d4dfeb', accent:'#fcaca5', support:'#5bbf43' },
+  { family:'Chalk',        c1:'#faf5f7', ink:'#4a2e3a', accent:'#a60a69', support:'#172e27' },
+  { family:'Sunlit',       c1:'#ffd9ce', ink:'#4c3027', accent:'#018283', support:'#af710e' },
+  { family:'Ink Pop',      c1:'#e5f3f6', ink:'#173e45', accent:'#c80b65', support:'#044048' },
+];
+/* THE OWNER'S OWN HERO. The wall can pick for itself — measured colourfulness,
+   one palette per card, a product in every one — and that is a decent machine
+   answer, not taste. assets/hero-picks.json lets a person overrule it: the
+   cards named there lead the wall, in the order they were picked, and the
+   algorithm fills only what is left. Entries may be a SKU (CHK-JW07-16, the
+   code shown on /lab/hero.html) or a raw card id. */
+const SC_LAY = { checklistHero:'CHK', reviewProof:'REV', trustSeal:'TRS', stepsFlow:'STP', bubblePop:'BUB',
+  voltStack:'VLT', neonNight:'NEO', slabPoster:'SLB', scriptRetro:'SCR', lowerThird:'LOW',
+  gradientWave:'GRD', ticketStub:'TKT', hudTech:'HUD', bandKnockout:'BND', arcCrown:'ARC', glassCard:'GLS' };
+function scSku(c){
+  const p = String(c.id).split('-');
+  return (SC_LAY[c.layout] || String(c.layout).slice(0, 3).toUpperCase()) + '-' + (p[1] || '').toUpperCase() + '-' + (p[2] || '0');
+}
+function scLoadPicks(){
+  if (SHOWCASE.picks) return Promise.resolve(SHOWCASE.picks);
+  return fetch('assets/hero-picks.json', { cache:'no-cache' })
+    .then(r => r.ok ? r.json() : null)
+    .then(j => (SHOWCASE.picks = (j && Array.isArray(j.picks)) ? j.picks : []))
+    .catch(() => (SHOWCASE.picks = []));
+}
+function scPickedCards(cards){
+  const want = SHOWCASE.picks || [];
+  if (!want.length) return [];
+  const byId = {}, bySku = {};
+  cards.forEach(c => { byId[c.id] = c; bySku[scSku(c)] = c; });
+  const out = [];
+  want.forEach(k => {
+    const c = byId[k] || bySku[String(k).trim().toUpperCase()];
+    if (c && out.indexOf(c) === -1) out.push(c);
+  });
+  return out;
+}
+function scLoadIndex(){
+  if (SHOWCASE.cards) return Promise.resolve(SHOWCASE.cards);
+  if (SHOWCASE._p) return SHOWCASE._p;
+  SHOWCASE._p = fetch('assets/showcase/index.json', { cache:'no-cache' })
+    .then(r => r.ok ? r.json() : [])
+    .then(j => {
+      /* A card with neither a product cutout nor a photograph is a headline
+         on a flat ground, and at thumbnail size it reads as a card that
+         failed to load rather than as a design (owner, 2026-09-02: "those
+         two lack the proper imagery, looks a little bit confusing"). The
+         records stay on disk; they are simply not offered. */
+      /* …and a card whose rendered thumbnail came out nearly colourless is a
+         washed-out one: a pale slab under pale type, legible in the layout but
+         invisible in a feed. Measured off the pixels, 7 of 721. */
+      /* …and nothing the audits condemned. `defect` is written onto the index
+         by scripts/audit_showcase_overlap.mjs and audit_showcase_content.mjs:
+         something drawn over the words, a product that does not belong to the
+         thing being sold, or the same line printed twice. Filtering on stamped
+         DATA rather than on a rule buried in here means the reason a card is
+         missing can be looked up. */
+      SHOWCASE.cards = (Array.isArray(j) ? j : [])
+        .filter(c => !c.defect)
+        .filter(c => c.imagery !== 'none')
+        .filter(c => typeof c.chroma !== 'number' || c.chroma >= 0.05);
+      SHOWCASE.cards.forEach(c => { SHOWCASE.byId[c.id] = c; });
+      return SHOWCASE.cards;
+    })
+    .catch(() => (SHOWCASE.cards = []));
+  return SHOWCASE._p;
+}
+/* Strongest first — the owner's approval count for this layout+palette pair
+   across every reviewed set, then the card's own edge density — and then
+   interleaved so no two neighbours share a category or a family. A straight
+   sort put six Jewel phones cards in a row and read as one template. */
+/* colour helpers for ordering: how light a ground is, how much chroma a
+   card carries. Both read from the index row, no rendering. */
+function scHexRgb(h){ const n = parseInt(String(h || '#888888').slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function scLum(h){ const [r, g, b] = scHexRgb(h).map(c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; }
+function scSat(h){ const [r, g, b] = scHexRgb(h); const mx = Math.max(r, g, b), mn = Math.min(r, g, b); return mx ? (mx - mn) / mx : 0; }
+function scVivid(c){
+  /* measured from the rendered thumbnail when the index carries it (a toned
+     photograph under a light tint reads grey whatever its palette says);
+     the palette is the fallback */
+  if (typeof c.chroma === 'number') return c.chroma * 2.2;
+  return scSat(c.c1) * 0.55 + scSat(c.accent) * 0.3 + scSat(c.support || c.accent) * 0.15;
+}
+function scOrder(list){
+  /* Strongest first — the owner's approval count for this layout+palette
+     pair, plus a vivid bonus so a saturated Candy or Duotone card outranks a
+     muted one with the same approvals — then interleaved so neighbours differ
+     in family AND in ground lightness. Approval-only order put six dark Jewel
+     cards side by side and the wall read as bland (owner, 2026-09-02). */
+  /* imagery outranks everything: a card with a real product first, a
+     photograph next, a bare ground last */
+  const img = c => c.imagery === 'product' ? 6 : c.imagery === 'photo' ? 3 : 0;
+  /* the design school's warnings (scripts/audit_showcase_school.mjs) rank a
+     card down, one step per warning, a soft term beside imagery and colour.
+     Not "every clean card first": small type and the 6% margin are warned on
+     most of the library, so no card is clean and that rule would sort by
+     nothing but the warning count */
+  const warned = c => { const w = c.school && c.school.warn; return w ? w.length : 0; };
+  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4 - warned(b)) - (img(a) + a.affinity + scVivid(a) * 4 - warned(a))) || (b.density - a.density));
+  const light = c => scLum(c.c1) > 0.22;
+  const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
+  const hueGap = (a, b) => { const x = Math.abs((hueOf(a) ?? 0) - (hueOf(b) ?? 0)) % 360; return x > 180 ? 360 - x : x; };
+  const out = [];
+  while (pool.length){
+    const prev = out[out.length - 1], prev2 = out[out.length - 2];
+    let k = -1;
+    if (prev){
+      /* first a different HUE (a quarter turn from the last card, an eighth
+         from the one before), then family and lightness, then category */
+      const farHue = c => hueGap(c, prev) >= 90 && (!prev2 || hueGap(c, prev2) >= 45);
+      k = pool.findIndex(c => farHue(c) && c.family !== prev.family && c.cat !== prev.cat);
+      if (k < 0) k = pool.findIndex(c => farHue(c) && c.family !== prev.family);
+      if (k < 0) k = pool.findIndex(c => hueGap(c, prev) >= 60 && c.family !== prev.family);
+      if (k < 0) k = pool.findIndex(c => c.family !== prev.family && light(c) !== light(prev));
+      if (k < 0) k = pool.findIndex(c => c.family !== prev.family);
+    }
+    if (k < 0) k = 0;
+    out.push(pool.splice(k, 1)[0]);
+  }
+  return out;
+}
+function scBaseOf(c){ return TEMPLATES.find(t => t.id === c.base) || null; }
+/* THE FIRST THREE OF EVERY CATEGORY ARE FREE — the same promise the classics
+   have always kept (freeFirst3) and the pricing copy makes out loud. Without
+   this the showcase locked everything outside Phones, so the gallery the
+   landing page leads with opened the plan modal on nearly every card. The
+   three are the STRONGEST three by the gallery's own order, so the free
+   sample is the good work, not the leftovers. */
+let _scFree = null;
+function scFreeSet(){
+  if (_scFree) return _scFree;
+  _scFree = {};
+  const cards = SHOWCASE.cards || [];
+  [...new Set(cards.map(c => c.cat))].forEach(cat => {
+    _scFree[cat] = new Set(scOrder(cards.filter(c => c.cat === cat)).slice(0, 3).map(c => c.id));
+  });
+  return _scFree;
+}
+function scIsFree(c){
+  if (c.cat === 'phones') return true;                       // every Phones design is free
+  const f = scFreeSet()[c.cat];
+  return !!(f && f.has(c.id));
+}
+function scLocked(c){
+  if (scIsFree(c)) return false;
+  const reg = TEMPLATES.find(t => t.id === 'sc-' + c.id);
+  if (reg) return tplLocked(reg);
+  const base = scBaseOf(c);
+  return base ? tplLocked(Object.assign({}, base, { cat: c.cat })) : false;
+}
+function scBuildWall(cards){
+  const wall = $('hero-wall');
+  if (!wall) return;
+  const cols = [...wall.querySelectorAll('.wall-col')];
+  if (!cols.length) return;
+  /* The wall is the first click anyone makes, and a first click that opens
+     a paywall is a bad one (the old hero fan had the same rule): unlocked
+     cards fill it, and only if there are too few do locked ones follow. */
+  /* Unlocked-only made the wall monochrome: every free card is a phones
+     card on a grey Apple studio photograph (owner, 2026-09-02: "literally 2
+     colors and the rest is greyscale"). The wall is the shop window for the
+     whole library, so it draws the most VIVID cards from all of it, measured
+     off the pixels, and keeps a third of the slots for free cards so the
+     first click still tends to open the editor rather than the plan page. */
+  /* ROUND-ROBIN ACROSS THE COLOUR WHEEL. Scoring by approvals and chroma
+     alone still filled the wall from the blue-green half of the set, because
+     that is where most of the set lives. So: six hue buckets of sixty degrees,
+     the most saturated cards first within each, and the wall takes one from
+     each bucket in turn, so warm and violet cards get their slots even when
+     the set has fewer of them. */
+  const want = cols.length * 6;
+  const chosenByHand = scPickedCards(cards);
+  /* owner: "some of these have way too much blur on the hero" — the lab's
+     heavier `natural` blur (15+) stays out of the shop window */
+  /* and only cards that SHOW something: a product cutout of real size.
+     Owner, on a plain green Pokémon card and a tiny mark on a sports one:
+     "those two lack the proper imagery, looks a little bit confusing". */
+  let vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product')
+    .filter(c => chosenByHand.indexOf(c) === -1);
+  /* the shop window prefers clean cards: with enough of them, a card with a
+     design-school warning stays in the library but off the wall (today small
+     type and the 6% margin are warned on nearly every card, so the wall
+     takes from all of them, and the ranking above orders by warning count) */
+  const cleanVivid = vivid.filter(c => !(c.school && c.school.warn && c.school.warn.length));
+  if (cleanVivid.length >= want) vivid = cleanVivid;
+  const buckets = {};
+  vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
+  Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
+  const order = Object.keys(buckets).sort((a, b) => buckets[b].length - buckets[a].length);
+  const chosen = [];
+  for (let round = 0; chosen.length < want && round < 40; round++){
+    for (const b of order){
+      const c = (buckets[b] || [])[round];
+      /* one PALETTE per card on the wall, never the same twice: the wall has
+         to show the range of the library, not six blues (owner, 2026-09-02) */
+      if (c && chosen.length < want && !chosen.some(x => x.theme === c.theme || (x.layout === c.layout && x.cat === c.cat))) chosen.push(c);
+    }
+  }
+  vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1 && !chosen.some(x => x.theme === c.theme)) chosen.push(c); });
+  vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1) chosen.push(c); });
+  /* a third of the wall stays free, so the first click usually opens the
+     editor rather than the plan page; the free pool is also walked by hue */
+  const freeVivid = vivid.filter(c => !scLocked(c)).sort((a, b) => b.chroma - a.chroma);
+  const quota = Math.round(want / 3);
+  let haveFree = chosen.filter(c => !scLocked(c)).length;
+  for (const c of freeVivid){
+    if (haveFree >= quota) break;
+    if (chosen.indexOf(c) !== -1 || chosen.some(x => x.theme === c.theme && x !== c)) continue;
+    const k = chosen.map((x, i) => [x, i]).reverse().find(([x]) => scLocked(x));
+    if (!k) break;
+    chosen[k[1]] = c; haveFree++;
+  }
+  /* hand-picked first, in the order they were picked, then the machine's
+     choices fill whatever is left — so a short list still gives a full wall */
+  const picks = chosenByHand.length
+    ? chosenByHand.concat(scOrder(chosen)).slice(0, want)
+    : scOrder(chosen);  cols.forEach((col, i) => {
+    col.innerHTML = '';
+    const mine = picks.filter((_, k) => k % cols.length === i);
+    /* each column is its list twice, so the -50% keyframe loops seamlessly */
+    mine.concat(mine).forEach((c, k) => {
+      const d = document.createElement('div');
+      d.className = 'wall-card';
+      d.title = c.name;
+      d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
+      d.onclick = () => openShowcase(c.id);
+      col.appendChild(d);
+    });
+  });
+}
+/* PALETTES, not families. A "family" is how the engine generates colour; a
+   palette — ground, ink, accent, support, with a name — is what a person
+   chooses. Owner, 2026-09-04: "I don't even know what families are for
+   colours." So this shows the palettes that are actually in the library, each
+   with its real swatches and a live count, strongest colour first, and a tap
+   filters the gallery to that palette. */
+function scBuildFamilies(cards){
+  const grid = $('fam-grid');
+  if (!grid) return;
+  const by = {};
+  cards.forEach(c => { (by[c.theme] = by[c.theme] || []).push(c); });
+  const pals = Object.keys(by).map(t => {
+    const list = by[t];
+    const chroma = list.reduce((a, c) => a + (c.chroma || 0), 0) / list.length;
+    /* the swatch comes from the card that shows this palette best */
+    const rep = list.slice().sort((x, y) => (y.chroma || 0) - (x.chroma || 0))[0];
+    return { theme: t, n: list.length, chroma, rep, family: rep.family };
+  }).sort((x, y) => y.chroma - x.chroma);
+  grid.innerHTML = '';
+  pals.forEach(p => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'fam-card';
+    b.dataset.fam = p.theme;
+    b.title = p.theme + ' · ' + p.family + ' · ' + p.n + ' cards';
+    b.innerHTML = `<div class="fam-sw"><i style="background:${p.rep.c1}"></i><i style="background:${p.rep.ink}"></i><i style="background:${p.rep.accent}"></i><i style="background:${p.rep.support}"></i></div>
+      <div class="fam-name">${escHtml(p.theme)}</div>
+      <div class="fam-meta">${p.n} card${p.n === 1 ? '' : 's'} &middot; ${escHtml(p.family)}</div>`;
+    b.onclick = () => {
+      SHOWCASE.filter.fam = SHOWCASE.filter.fam === p.theme ? 'all' : p.theme;
+      scSyncFilters();
+      scRenderGrid(true);
+      const sec = $('lp-templates');
+      if (sec && SHOWCASE.filter.fam !== 'all') sec.scrollIntoView({ behavior:'smooth', block:'start' });
+    };
+    grid.appendChild(b);
+  });
+  const n = $('lp-pal-count'); if (n) n.textContent = String(pals.length);
+  const n2 = $('lp-stat-pal'); if (n2) n2.textContent = String(pals.length);
+}
+function scBuildChips(cards){
+  const row = $('lp-chips');
+  if (!row) return;
+  const counts = {};
+  cards.forEach(c => { counts[c.cat] = (counts[c.cat] || 0) + 1; });
+  row.innerHTML = '';
+  const mk = (id, label, n) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.dataset.cat = id;
+    b.innerHTML = escHtml(label) + (n !== undefined ? `<span class="n">${n}</span>` : '');
+    b.onclick = () => { SHOWCASE.filter.cat = id; scSyncFilters(); scRenderGrid(true); };
+    row.appendChild(b);
+  };
+  mk('all', 'All', cards.length);
+  CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] || 0));
+  mk('classics', 'Classics', scClassics().length);
+  const more = $('lp-tpl-more');
+  if (more && !more.dataset.bound){ more.dataset.bound = '1'; more.onclick = () => scRenderGrid(false); }
+  const all = $('lp-tpl-all');
+  if (all && !all.dataset.bound){ all.dataset.bound = '1'; all.onclick = () => showEasy(null); }
+}
+function scSyncFilters(){
+  document.querySelectorAll('#lp-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.cat === SHOWCASE.filter.cat));
+  document.querySelectorAll('#fam-grid .fam-card').forEach(b => b.classList.toggle('on', b.dataset.fam === SHOWCASE.filter.fam));
+}
+/* The best of the old library, kept: the street family and the designer
+   layouts on real photographs. The eighteen hand-written classics are not
+   in the shop window any more; they are still in the studio. */
+function scClassics(){
+  const DECO_K = /^(vignette|grain|noise|grid|bokeh|beams|spot|diag)$/;
+  const complete = t => (t.layers || []).filter(l => !DECO_K.test(l.kind || '')).length >= 8;
+  const pool = TEMPLATES.filter(t => !/^sc-/.test(t.id) && (t.tag === 'street' || /^dl_/.test(t.id))
+    && t.bg && t.bg.type === 'image' && complete(t));
+  const ordered = varietyOrder(pool);
+  return ordered.filter(t => !tplLocked(t)).concat(ordered.filter(t => tplLocked(t))).slice(0, 32);
+}
+function scCard(c){
+  const card = document.createElement('div');
+  card.className = 'tpl-card';
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  const locked = scLocked(c);
+  card.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="lazy" decoding="async">
+    <div class="tpl-veil"></div>
+    ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
+    <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
+    <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.family)}</span></div>`;
+  const go = () => openShowcase(c.id);
+  card.onclick = go;
+  card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };
+  return card;
+}
+function scClassicCard(t){
+  const card = document.createElement('div');
+  card.className = 'tpl-card';
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.innerHTML = `<img src="${getThumb(t.id, 320)}" alt="${escHtml(t.name)} template">
+    <div class="tpl-veil"></div>
+    ${tplLocked(t) ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
+    <div class="tpl-use">Use template →</div>
+    <div class="tpl-meta"><span class="tpl-name">${escHtml(t.name)}</span><span class="tpl-tag">${escHtml(t.tag || 'classic')}</span></div>`;
+  const go = () => showEasy(t.id);
+  card.onclick = go;
+  card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };
+  return card;
+}
+function scRenderGrid(reset){
+  const grid = $('lp-tpl-grid');
+  if (!grid || !SHOWCASE.cards) return;
+  const f = SHOWCASE.filter;
+  if (reset !== false){
+    SHOWCASE.shown = 0;
+    grid.innerHTML = '';
+    if (f.cat === 'classics'){
+      SHOWCASE.list = scClassics().map(t => ({ classic:t }));
+    } else {
+      const sub = SHOWCASE.cards.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.theme === f.fam));
+      const ordered = scOrder(sub);
+      /* unlocked first, so the first cards anyone clicks open the editor */
+      SHOWCASE.list = ordered.filter(c => !scLocked(c)).concat(ordered.filter(c => scLocked(c)));
+    }
+  }
+  const slice = SHOWCASE.list.slice(SHOWCASE.shown, SHOWCASE.shown + SHOWCASE.PAGE);
+  slice.forEach(c => grid.appendChild(c.classic ? scClassicCard(c.classic) : scCard(c)));
+  SHOWCASE.shown += slice.length;
+  const more = $('lp-tpl-more');
+  if (more) more.style.display = SHOWCASE.shown < SHOWCASE.list.length ? '' : 'none';
+  const count = $('lp-tpl-count');
+  if (count) count.textContent = SHOWCASE.list.length
+    ? 'Showing ' + SHOWCASE.shown + ' of ' + SHOWCASE.list.length
+    : 'Nothing in this set matches both filters yet';
+}
+/* Open a showcase card: fetch its record once, make it a real template, and
+   land in Easy Mode with its photograph ON (the photo is part of the design,
+   so the greyscale "pick a background" placeholder would be wrong here). */
+async function openShowcase(id){
+  const c = SHOWCASE.byId[id];
+  if (!c) return;
+  const tid = 'sc-' + id;
+  if (!TEMPLATES.some(t => t.id === tid)){
+    let rec = SHOWCASE.records[id];
+    if (!rec){
+      try { rec = await fetch(assetUrl('assets/showcase/tpl/' + id + '.json')).then(r => r.ok ? r.json() : null); } catch (e){ rec = null; }
+      if (!rec || !rec.tpl){ toast('That design could not be loaded, opening its base layout instead', 'error'); showEasy(c.base); return; }
+      SHOWCASE.records[id] = rec;
+    }
+    const base = scBaseOf(c) || {};
+    const t = Object.assign({}, base, rec.tpl, { id: tid, name: c.name, cat: c.cat, tag: 'new',
+      tier: scIsFree(c) ? 'free' : base.tier, showcase: id });
+    const fams = new Set();
+    (t.layers || []).forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); });
+    const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
+    const loadCut = src => new Promise(res => {
+      if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res();
+      const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = assetUrl(src);
+    });
+    const loadBg = src => new Promise(res => {
+      if (!src || (TPL_BG_ELS[src] && TPL_BG_ELS[src].width)) return res();
+      const el = new Image(); el.onload = () => { TPL_BG_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = assetUrl(src);
+    });
+    await Promise.race([
+      Promise.all([...fams].map(f => ensureFont(f)).concat(cuts.map(loadCut), [loadBg(t.bg && t.bg.src)])),
+      new Promise(r => setTimeout(r, 7000)),      // never hold the click hostage
+    ]);
+    try { if (window.fabric && fabric.util && fabric.util.clearFabricFontCache) fabric.util.clearFabricFontCache(); } catch (e){}
+    TEMPLATES.push(t);
+    delete THUMBS[tid];
+  }
+  if (currentCat !== c.cat) setCategory(c.cat);
+  showEasy(tid);
+  /* selectEzTpl() resets bgPicked so a fresh template previews on the
+     placeholder; a showcase card's photograph is the design, so it stays on. */
+  if (ez.tpl === tid){
+    ez.bg = null; ez.bgRecId = null; ez.bgPicked = true;
+    syncEzSwatches(); schedEzPreview(0);
+  }
+}
+function buildLandingV2(){
+  Promise.all([scLoadIndex(), scLoadPicks()]).then(([cards]) => {
+    if (!cards.length){ warmTemplateAssets(); buildLandingV1(); return; }
+    if (SHOWCASE.built){
+      /* refreshPhotoThumb() re-calls buildLanding() as each old backdrop
+         decodes; only the classics view draws from those thumbnails */
+      if (SHOWCASE.filter.cat === 'classics') scRenderGrid(true);
+      return;
+    }
+    SHOWCASE.built = true;
+    scBuildWall(cards);
+    scBuildFamilies(cards);
+    scBuildChips(cards);
+    scSyncFilters();
+    scRenderGrid(true);
+    const n = $('lp-stat-new');
+    if (n) n.textContent = String(cards.length);
+  });
+  window.__PRIORITY_TPL_IDS = [];
+}
+const buildLandingV1 = buildLanding;
+buildLanding = buildLandingV2;
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AREA — location-aware copy. 2026-09-02.
+
+   The review templates carry social proof ("Marcus T. · Lakewood, CA"), the
+   info blocks carry a service-area line and an "ACROSS LA & OC" promise, and
+   all of it was written for Long Beach. A customer in San Diego posting that
+   ad is advertising somebody else's town. So the studio asks once where they
+   buy — a ZIP or a city — and every place-name in the library is re-pointed
+   at THEIR area before it is drawn.
+
+   The reach is decided by density, not by a fixed radius: population within
+   thirty miles sorts the area into metro / city / town / rural, and each tier
+   has its own radius, its own distance penalty and its own floor on how small
+   a place may be. A metro keeps the towns close and well-known (Oceanside,
+   Escondido, Spring Valley for San Diego); a rural area reaches ninety miles
+   and names the small towns, because those are the towns that exist there.
+
+   Data: assets/geo/us-zips.json (41k ZIP centroids) and us-places.json (17k
+   places with population 1000+), both from GeoNames (CC BY 4.0), fetched only
+   when an area is being resolved. Nothing leaves the browser: no geocoding
+   service, which the site's CSP would block anyway. */
+const GEO = { zips:null, places:null, _p:{} };
+/* the author's own tokens, exactly as they appear in the library */
+const AREA_TOKENS = {
+  towns:   ['Long Beach, CA','Lakewood, CA','Downey, CA','Carson, CA','Torrance, CA','Cerritos, CA','Bellflower, CA','Signal Hill, CA'],
+  region:  'LA & OC',
+  area:    'LONG BEACH · LAKEWOOD · DOWNEY · CARSON · TORRANCE',
+  address: 'LONG BEACH, CA 90813',
+};
+function geoLoad(){
+  if (GEO.zips && GEO.places) return Promise.resolve(GEO);
+  if (GEO._p.all) return GEO._p.all;
+  GEO._p.all = Promise.all([
+    fetch('assets/geo/us-zips.json').then(r => r.ok ? r.json() : {}),
+    fetch('assets/geo/us-places.json').then(r => r.ok ? r.json() : { places: [] }),
+  ]).then(([z, p]) => { GEO.zips = z || {}; GEO.places = (p && p.places) || []; return GEO; })
+    .catch(() => { GEO.zips = GEO.zips || {}; GEO.places = GEO.places || []; return GEO; });
+  return GEO._p.all;
+}
+function geoMiles(a, b, c, d){
+  const R = 3958.8, toR = x => x * Math.PI / 180;
+  const dLat = toR(c - a), dLon = toR(d - b);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toR(a)) * Math.cos(toR(c)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+/* rows are [name, state, lat, lon, population], biggest first */
+function geoNearest(lat, lon){
+  let best = null, bd = 1e9;
+  for (const p of GEO.places){
+    const d = geoMiles(lat, lon, p[2], p[3]);
+    if (d > 60) continue;
+    const adj = d - Math.log10(p[4]) * 1.2;    // a real town beats a hamlet next door
+    if (adj < bd){ bd = adj; best = p; }
+  }
+  return best;
+}
+function geoMatch(q, n){
+  q = String(q || '').trim().toLowerCase();
+  if (!q) return [];
+  let st = null;
+  const m = q.match(/^(.*?)[,\s]+([a-z]{2})$/);
+  if (m && m[1]){ q = m[1].trim(); st = m[2].toUpperCase(); }
+  const out = [];
+  for (const p of GEO.places){
+    if (st && p[1] !== st) continue;
+    const nm = p[0].toLowerCase();
+    if (nm.startsWith(q) || (q.length >= 4 && nm.indexOf(q) !== -1)){ out.push(p); if (out.length >= (n || 6) * 5) break; }
+  }
+  const pre = p => p[0].toLowerCase().startsWith(q) ? 1 : 0;
+  return out.sort((a, b) => (pre(b) - pre(a)) || (b[4] - a[4])).slice(0, n || 6);
+}
+function geoArea(lat, lon, home){
+  const rows = GEO.places.map(p => ({ p, d: geoMiles(lat, lon, p[2], p[3]) }));
+  const within30 = rows.reduce((s, r) => s + (r.d <= 30 ? r.p[4] : 0), 0);
+  const tier = within30 >= 2500000 ? 'metro' : within30 >= 600000 ? 'city' : within30 >= 150000 ? 'town' : 'rural';
+  const R      = { metro:22,   city:35,   town:55,   rural:95    }[tier];
+  const k      = { metro:0.14, city:0.08, town:0.05, rural:0.028 }[tier];
+  const minPop = { metro:8000, city:4000, town:1500, rural:1000  }[tier];
+  const isHome = p => home && p[0] === home[0] && p[1] === home[1];
+  /* composite census places ("Casa de Oro-Mount Helix", "Arden-Arcade"),
+     campuses and bases are not towns a reviewer says they live in */
+  const oddName = /-|\/|\bUniversity\b|\bCollege\b|\bAFB\b|\bBase\b|\bStation\b/;
+  const cand = rows.filter(r => r.d <= R && r.p[4] >= minPop && !isHome(r.p) && !oddName.test(r.p[0]))
+    .map(r => ({ p: r.p, d: r.d, s: Math.log(r.p[4]) - r.d * k }))
+    .sort((a, b) => b.s - a.s);
+  const seen = new Set();
+  const uniq = cand.filter(r => !seen.has(r.p[0]) && seen.add(r.p[0]));
+  const anchor = rows.filter(r => r.d <= R).sort((a, b) => b.p[4] - a.p[4])[0];
+  const cover = [];
+  if (anchor && !isHome(anchor.p)) cover.push(anchor.p);
+  uniq.forEach(r => { if (cover.length < 5 && cover.indexOf(r.p) === -1) cover.push(r.p); });
+  /* reviewers live in the suburbs and the smaller towns, not only downtown */
+  const bigCap = { metro:250000, city:150000, town:80000, rural:1e9 }[tier];
+  const towns = [];
+  uniq.forEach(r => { if (towns.length < 8 && r.p[4] <= bigCap) towns.push(r.p); });
+  uniq.forEach(r => { if (towns.length < 8 && towns.indexOf(r.p) === -1) towns.push(r.p); });
+  if (home && towns.length && towns.indexOf(home) === -1) towns.splice(Math.min(2, towns.length), 0, home);
+  const label = p => p[0] + ', ' + p[1];
+  const a = anchor ? anchor.p : home, b2 = cover.find(p => p !== a);
+  const region = !a ? 'YOUR AREA'
+    : (tier === 'metro' || tier === 'city') ? (a[0] + (b2 ? ' & ' + b2[0] : '')).toUpperCase()
+    : ((home ? home[0] : a[0]) + (b2 ? ', ' + b2[0] : '') + (cover[2] ? ' & ' + cover[2][0] : '')).toUpperCase();
+  return { tier, within30, cover: cover.map(label), towns: towns.slice(0, 8).map(label), region,
+           areaLine: cover.slice(0, 5).map(p => p[0].toUpperCase()).join(' · ') };
+}
+function getArea(){ const b = getBrand(); return b && b.area && b.area.home ? b.area : null; }
+function areaLabel(){ const a = getArea(); return a ? (a.zip ? a.zip + ' · ' : '') + a.home : ''; }
+function setArea(area){
+  jset('pgfx_brand', Object.assign(getBrand() || {}, { area }));
+  areaChanged();
+}
+function syncWherePill(){
+  const b = $('ez-where'), l = $('ez-where-label');
+  if (!b || !l) return;
+  const a = getArea();
+  l.textContent = a ? a.home : 'Set your area';
+  b.classList.toggle('unset', !a);
+}
+function areaChanged(){
+  Object.keys(THUMBS).forEach(k => delete THUMBS[k]);      // place-names are baked into thumbnails
+  syncWherePill();
+  const inp = $('ez-area'); if (inp) inp.value = areaLabel();
+  const bk = $('bk-area'); if (bk) bk.value = areaLabel();
+  try { buildEzStrip(); } catch (e){}
+  if ($('page-easy').classList.contains('active')){ try { buildEzForm(); schedEzPreview(0); } catch (e){} }
+}
+async function resolveArea(text){
+  await geoLoad();
+  text = String(text || '').trim();
+  if (!text) return null;
+  let lat, lon, home = null, zip = null;
+  const z = text.match(/^\d{5}/);
+  if (z && GEO.zips[z[0]]){ zip = z[0]; lat = GEO.zips[zip][0]; lon = GEO.zips[zip][1]; home = geoNearest(lat, lon); }
+  else { const m = geoMatch(text, 1)[0]; if (!m) return null; home = m; lat = m[2]; lon = m[3]; }
+  if (!home) return null;
+  return Object.assign({ zip, home: home[0] + ', ' + home[1], st: home[1], lat, lon, input: text }, geoArea(lat, lon, home));
+}
+/* THE SWAP. Exact tokens, so nothing else in a headline can be touched;
+   reviewer cities map by position, so the same reviewer keeps the same town
+   across every render of the same template. */
+function localizeText(text){
+  const a = getArea();
+  if (!a || typeof text !== 'string' || !text) return text;
+  let out = text;
+  if (a.towns && a.towns.length){
+    AREA_TOKENS.towns.forEach((tok, i) => { if (out.indexOf(tok) !== -1) out = out.split(tok).join(a.towns[i % a.towns.length]); });
+  }
+  if (out.indexOf(AREA_TOKENS.region) !== -1) out = out.split(AREA_TOKENS.region).join(a.region || AREA_TOKENS.region);
+  if (out.indexOf(AREA_TOKENS.area) !== -1) out = out.split(AREA_TOKENS.area).join(a.areaLine || AREA_TOKENS.area);
+  if (out.indexOf(AREA_TOKENS.address) !== -1) out = out.split(AREA_TOKENS.address).join((a.home.split(',')[0] + ', ' + a.st + (a.zip ? ' ' + a.zip : '')).toUpperCase());
+  return out;
+}
+/* ── the ask ── */
+let _areaPick = null, _areaTimer = null;
+function maybeAskArea(){
+  if (getArea() || jget('pgfx_area_asked', false)) return;
+  jset('pgfx_area_asked', true);
+  openAreaDialog();
+}
+function openAreaDialog(){
+  const ov = $('area-overlay');
+  if (!ov) return;
+  bindAreaDialog();
+  const a = getArea();
+  $('area-input').value = a ? (a.zip || a.home) : '';
+  _areaPick = a;
+  renderAreaPreview(a);
+  $('area-save').disabled = !a;
+  $('area-suggest').innerHTML = '';
+  ov.classList.add('show');
+  geoLoad();
+  setTimeout(() => { try { $('area-input').focus(); } catch (e){} }, 60);
+}
+function pickPlace(p){
+  _areaPick = Object.assign({ zip:null, home: p[0] + ', ' + p[1], st: p[1], lat: p[2], lon: p[3], input: p[0] }, geoArea(p[2], p[3], p));
+  renderAreaPreview(_areaPick);
+  $('area-save').disabled = false;
+}
+function bindAreaDialog(){
+  if (bindAreaDialog._done) return;
+  bindAreaDialog._done = true;
+  const inp = $('area-input');
+  inp.addEventListener('input', () => { clearTimeout(_areaTimer); _areaTimer = setTimeout(areaLookup, 200); });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); if (_areaPick) $('area-save').click(); } });
+  $('area-skip').onclick = () => $('area-overlay').classList.remove('show');
+  $('area-save').onclick = () => {
+    if (!_areaPick) return;
+    setArea(_areaPick);
+    $('area-overlay').classList.remove('show');
+    toast('Your ads now name ' + _areaPick.cover.slice(0, 3).map(s => s.split(',')[0]).join(', ') + ' and the towns around you', 'success');
+  };
+  $('area-locate').onclick = () => {
+    if (!navigator.geolocation){ toast('Location is not available here, type a ZIP instead', 'error'); return; }
+    $('area-locate').disabled = true;
+    navigator.geolocation.getCurrentPosition(pos => {
+      geoLoad().then(() => {
+        $('area-locate').disabled = false;
+        const home = geoNearest(pos.coords.latitude, pos.coords.longitude);
+        if (!home){ toast('Nothing in our list near you, type a ZIP instead', 'error'); return; }
+        _areaPick = Object.assign({ zip:null, home: home[0] + ', ' + home[1], st: home[1], lat: pos.coords.latitude, lon: pos.coords.longitude, input:'gps' }, geoArea(pos.coords.latitude, pos.coords.longitude, home));
+        inp.value = _areaPick.home;
+        $('area-suggest').innerHTML = '';
+        renderAreaPreview(_areaPick);
+        $('area-save').disabled = false;
+      });
+    }, () => { $('area-locate').disabled = false; toast('Location was not shared, type a ZIP instead', 'error'); }, { timeout: 8000, maximumAge: 600000 });
+  };
+  $('area-overlay').addEventListener('click', e => { if (e.target.id === 'area-overlay') $('area-overlay').classList.remove('show'); });
+  const ea = $('ez-edit-area'); if (ea) ea.onclick = openAreaDialog;
+  const ei = $('ez-area'); if (ei){ ei.onclick = openAreaDialog; ei.value = areaLabel(); }
+  const wp = $('ez-where'); if (wp) wp.onclick = openAreaDialog;
+  syncWherePill();
+}
+async function areaLookup(){
+  const inp = $('area-input'), sug = $('area-suggest');
+  const q = inp.value.trim();
+  if (!q){ sug.innerHTML = ''; _areaPick = null; renderAreaPreview(null); $('area-save').disabled = true; return; }
+  await geoLoad();
+  if (inp.value.trim() !== q) return;          // typed on
+  if (/^\d{5}$/.test(q)){
+    sug.innerHTML = '';
+    _areaPick = await resolveArea(q);
+    renderAreaPreview(_areaPick);
+    $('area-save').disabled = !_areaPick;
+    if (!_areaPick) sug.innerHTML = '<div class="area-none">That ZIP is not in our list, try the city name</div>';
+    return;
+  }
+  if (/^\d+$/.test(q)){ sug.innerHTML = ''; return; }
+  const ms = geoMatch(q, 6);
+  sug.innerHTML = ms.map((p, i) => `<button type="button" class="area-opt" data-i="${i}">${escHtml(p[0])}, ${p[1]}<span>${p[4].toLocaleString()}</span></button>`).join('')
+    || '<div class="area-none">No town by that name in our list</div>';
+  sug.querySelectorAll('.area-opt').forEach(b => b.onclick = () => { const p = ms[+b.dataset.i]; inp.value = p[0] + ', ' + p[1]; sug.innerHTML = ''; pickPlace(p); });
+  const exact = ms.find(p => (p[0] + ', ' + p[1]).toLowerCase() === q.toLowerCase() || p[0].toLowerCase() === q.toLowerCase());
+  if (exact) pickPlace(exact);
+  else if (ms.length === 1) pickPlace(ms[0]);
+  else { _areaPick = null; renderAreaPreview(null); $('area-save').disabled = true; }
+}
+function renderAreaPreview(a){
+  const el = $('area-preview');
+  if (!el) return;
+  if (!a){ el.innerHTML = ''; return; }
+  const why = { metro:'a big metro, so the towns stay close and well known',
+                city:'a city, so the nearby suburbs lead',
+                town:'a smaller area, so we reach a little further out',
+                rural:'a spread-out area, so we reach further and name more of the small towns' }[a.tier] || '';
+  const chips = list => list.map(t => '<span>' + escHtml(String(t).split(',')[0]) + '</span>').join('');
+  el.innerHTML = `<div class="area-home">📍 ${escHtml(a.home)} <em>${escHtml(why)}</em></div>
+    <div class="area-row"><b>Service-area lines will mention</b><div class="area-chips">${chips(a.towns || [])}</div></div>
+    <div class="area-row"><b>Service-area lines</b><div class="area-chips">${chips(a.cover || [])}</div></div>
+    <div class="area-row"><b>&ldquo;Across &hellip;&rdquo;</b><div class="area-chips"><span>${escHtml(a.region || '')}</span></div></div>`;
+}
+
+
+/* ═══ EASY MODE SIZES — square, story, wide, 4:3, 3:4, flyer ═══ */
+function buildEzSizes(){
+  const row = $('ez-sizes');
+  if (!row || row.dataset.built) return;
+  row.dataset.built = '1';
+  if (!FORMATS[ez.format]) ez.format = 'square';
+  Object.keys(FORMATS).forEach(id => {
+    const f = FORMATS[id];
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip ez-size' + (id === ez.format ? ' on' : '');
+    b.dataset.fmt = id;
+    b.title = f.hint + ' · ' + f.w + '×' + f.h;
+    b.innerHTML = escHtml(f.label);
+    b.onclick = () => {
+      ez.format = id;
+      jset('pgfx_ez_format', id);
+      row.querySelectorAll('.ez-size').forEach(x => x.classList.toggle('on', x.dataset.fmt === id));
+      const hint = $('ez-dl-hint');
+      if (hint) hint.textContent = f.w + ' × ' + f.h + ' PNG minimum, ' + f.hint;
+      schedEzPreview(0);
+    };
+    row.appendChild(b);
+  });
+}
+
+/* ═══════════════ DEVICE VARIANTS IN EASY MODE ═══════════════
+   Owner, 2026-09-27: "once a theme is perfect we can make unlimited variations
+   for all types of devices specifically." A Phones & Devices showcase card
+   that carries a product can be re-set for any device the shop buys: the
+   device family in the headline, that family's models as the selling points,
+   and the device's own cut-out in the finish nearest the card's accent,
+   fitted into the product's box. The theme is untouched, and alignPass keeps
+   a longer name or a wider device on its plate and inside the guides.
+   Variants are built on request, not stored: the library stays one card per
+   design (DESIGN-LAW rule 60). Same logic as scripts/device_variants.mjs;
+   the catalogue is assets/devices.json (scripts/device_catalog.py). */
+let SC_DEVICES = null;
+function scLoadDevices(){
+  if (SC_DEVICES) return Promise.resolve(SC_DEVICES);
+  return fetch(assetUrl('assets/devices.json')).then(r => r.ok ? r.json() : { models:{} })
+    .then(j => (SC_DEVICES = j.models || {})).catch(() => (SC_DEVICES = {}));
+}
+const SC_DEV_LINE = {
+  'IPAD AIR': 'iPad Air M2 • M3 • M4 • 11 & 13-inch', 'IPAD PRO': 'iPad Pro M4 • M5 • 11 & 13-inch',
+  'IPAD MINI': 'iPad mini 6 • mini (A17 Pro)', 'IPAD': 'iPad 10th gen • iPad (A16)',
+  'MACBOOK AIR': 'M1 to M5 • 13 & 15-inch • Every colour', 'MACBOOK PRO': 'M1 to M5 • 14 & 16-inch',
+  'MACBOOK NEO': 'MacBook Neo • Every colour', 'IMAC': 'iMac 24-inch • M1 • M3 • M4 • Every colour',
+  'APPLE WATCH': 'Series 11 • 10 • 9 • SE', 'WATCH ULTRA': 'Ultra • Ultra 2 • Ultra 3',
+  'AIRPODS': 'AirPods • AirPods Pro • AirPods Max', 'AIRPODS PRO': 'AirPods Pro 2 • Pro 3', 'AIRPODS MAX': 'AirPods Max • AirPods Pro',
+};
+/* WHOLE LINES (owner: "variations like categories. (sell your iphone)
+   showing multiple models … (sell your macbook air pro neo) with multiple"):
+   the category in the headline, several models lined up on the card */
+const SC_DEV_GROUPS = {
+  'group-iphone':  { family:'IPHONE',      label:'All iPhones',       models:['iphone-17-pro', 'iphone-17', 'iphone-16', 'iphone-16e'], line:'iPhone 17 • 16 • 15 • Pro & Pro Max' },
+  'group-ipad':    { family:'IPAD',        label:'All iPads',         models:['ipad-pro-13-m5', 'ipad-air-13-m4', 'ipad-mini-7-a17-pro'], line:'iPad Pro • Air • mini • iPad' },
+  'group-macbook': { family:'MACBOOK',     label:'All MacBooks',      models:['macbook-air-15', 'macbook-pro-14-m5', 'macbook-neo-13'], line:'MacBook Air • Pro • Neo • M1 to M5' },
+  'group-mac':     { family:'MAC',         label:'All Macs',          models:['imac-24-m4', 'macbook-air-15', 'macbook-pro-14-m5'], line:'iMac • MacBook Air • MacBook Pro' },
+  'group-watch':   { family:'APPLE WATCH', label:'All Apple Watches', models:['watch-ultra3', 'watch-s11', 'watch-se3'], line:'Ultra • Series 11 • 10 • SE' },
+  'group-airpods': { family:'AIRPODS',     label:'All AirPods',       models:['airpods-max', 'airpods-pro-3', 'airpods-3'], line:'AirPods • AirPods Pro • AirPods Max' },
+  'group-apple':   { family:'APPLE',       label:'Everything Apple',  models:['iphone-17-pro', 'ipad-air-13-m4', 'macbook-air-15', 'watch-s11'], line:'iPhone • iPad • Mac • Apple Watch' },
+};
+/* relative size in a lineup: a watch is not as tall as a MacBook, nor a
+   fifth of it (a compressed curve keeps every device recognisable) */
+const SC_DEV_WEIGHT = { iphone:0.95, ipad:1, mac:1, watch:0.62, airpods:0.66, other:0.72 };
+function scDeviceLine(D, fam){
+  if (SC_DEV_LINE[fam]) return SC_DEV_LINE[fam];
+  const names = Object.values(D).filter(m => m.family === fam).map(m => m.name).sort();
+  return names.length ? names.map((n, i) => i ? n.replace(/^iPhone /, '') : n).join(' • ') : fam;
+}
+function scDeviceLabel(fam){
+  return fam.split(' ').map(w => ({ IPHONE:'iPhone', IPAD:'iPad', MACBOOK:'MacBook', IMAC:'iMac', AIRPODS:'AirPods',
+    HOMEPOD:'HomePod', TV:'TV', PRO:'Pro', AIR:'Air', MAX:'Max', MINI:'mini', NEO:'Neo', WATCH:'Watch', ULTRA:'Ultra',
+    APPLE:'Apple', DUO:'Duo', VISION:'Vision', MAC:'Mac', STUDIO:'Studio' }[w] || w.replace(/^(\d+)E$/, '$1e'))).join(' ');
+}
+/* one entry per family, newest iPhones first, then iPad, Mac, Watch, AirPods */
+function scDeviceChoices(D){
+  const order = { iphone:0, ipad:1, mac:2, watch:3, airpods:4, other:5 }, best = {};
+  Object.entries(D).forEach(([k, m]) => {
+    if (!m.art && !Object.keys(m.colours || {}).length) return;
+    const score = Object.keys(m.colours || {}).length * 10 + (m.art ? 1 : 0) + (parseInt((k.match(/\d+/) || [0])[0], 10) || 0) / 100;
+    if (!best[m.family] || score > best[m.family].score) best[m.family] = { key:k, m, score };
+  });
+  const num = f => parseInt((f.match(/\d+/) || [0])[0], 10) || 0;
+  return Object.entries(best).map(([fam, b]) => ({ fam, key:b.key, line:b.m.line, label:scDeviceLabel(fam) }))
+    .sort((a, b) => (order[a.line] - order[b.line]) || (num(b.fam) - num(a.fam)) || a.fam.localeCompare(b.fam));
+}
+function scDeviceFinish(m, accent){
+  const fins = Object.values(m.colours || {}).filter(f => f.hex);
+  if (!fins.length) return m.art;
+  const hsv = h => { const n = parseInt(String(h || '#888888').slice(1), 16), r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let hu = 0;
+    if (d){ hu = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; hu *= 60; if (hu < 0) hu += 360; }
+    return { h:hu, s: mx ? d / mx : 0 }; };
+  const a = hsv(accent);
+  const score = f => { const c = hsv(f.hex); if (a.s < 0.18) return c.s;
+    const dh = Math.min(Math.abs(c.h - a.h), 360 - Math.abs(c.h - a.h)) / 180;
+    return dh + 0.6 * Math.abs(c.s - a.s) + (c.s < 0.12 ? 0.5 : 0); };
+  return fins.sort((x, y) => score(x) - score(y))[0].slug;
+}
+const scLoadImg = src => new Promise(res => {
+  if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res(CUTOUT_ELS[src]);
+  const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(el); }; el.onerror = () => res(null); el.src = assetUrl(src);
+});
+async function scDeviceVariant(baseId, key){
+  const D = await scLoadDevices(), grp = SC_DEV_GROUPS[key], base = TEMPLATES.find(t => t.id === baseId);
+  const m = grp ? { family: grp.family, line: 'group' } : D[key];
+  if (!m || !base) return null;
+  const id = baseId + '--' + key;
+  if (TEMPLATES.some(t => t.id === id)) return id;
+  const t = JSON.parse(JSON.stringify(base));
+  const by = n => t.layers.find(l => l.name === n);
+  const h1 = by('Headline 1'), h2 = by('Headline 2'), prod = t.layers.find(l => l.kind === 'cutout' && !l.__wall);
+  if (!h2 || !prod) return null;
+  if (h1 && !/^(WE BUY|SELL YOUR|CASH IN YOUR|CASH FOR)$/i.test(String(h1.text).trim())) h1.text = 'WE BUY';
+  h2.text = m.family;
+  const line = grp ? grp.line : scDeviceLine(D, m.family);
+  t.layers.forEach(l => {   // a line that lists models names this device's models instead
+    if (typeof l.text === 'string' && l !== h2 && (l.name === 'Items' ||
+        (/•/.test(l.text) && /iPhone|iPad|MacBook|iMac|Series \d|Watch|AirPods|Pro Max/i.test(l.text)))) l.text = line;
+  });
+  const card = SHOWCASE.byId[base.showcase] || {}, accent = card.accent || card.c1;
+  const oldEl = await scLoadImg(prod.props.src);
+  const ow = prod.props.w || 400, oh = oldEl && oldEl.width ? ow * oldEl.height / oldEl.width : ow;
+  const cx = (prod.props.left || 0) + ow / 2, cy = (prod.props.top || 0) + oh / 2;
+  if (!grp){
+    const src = 'assets/cutouts/' + scDeviceFinish(m, accent) + CUTOUT_EXT, newEl = await scLoadImg(src);
+    if (!newEl) return null;
+    const ar = newEl.width / newEl.height; let w = ow, h = w / ar; if (h > oh){ h = oh; w = h * ar; }
+    prod.props = Object.assign({}, prod.props, { src, w: Math.round(w), left: Math.round(cx - w / 2), top: Math.round(cy - h / 2) });
+  } else {
+    /* the line-up: every model at its weighted height, side by side with a
+       small gap, the whole row fitted into the product's box and centred */
+    const items = (await Promise.all(grp.models.filter(k => D[k]).map(async k => {
+      const src = 'assets/cutouts/' + scDeviceFinish(D[k], accent) + CUTOUT_EXT, el = await scLoadImg(src);
+      return el ? { src, ar: el.width / el.height, wt: SC_DEV_WEIGHT[D[k].line] || 0.8 } : null;
+    }))).filter(Boolean);
+    if (!items.length) return null;
+    /* a row has the width of the card it stands on, not of the one product it
+       replaces: fitted into a single device's width, three MacBooks came out
+       as stamps. Wide devices overlap a little, fan style; tall ones stand
+       apart. */
+    const rb = l => { const q = l.props || {}, w = q.width || 0, h = q.height || 0;
+      return { x: (q.left || 0) - (q.originX === 'center' ? w / 2 : 0), y: (q.top || 0) - (q.originY === 'center' ? h / 2 : 0), w, h }; };
+    const plate = t.layers.filter(l => l.kind === 'rect').map(rb).filter(b => cx > b.x && cx < b.x + b.w && cy > b.y && cy < b.y + b.h && b.w < TPL_W * 0.95)
+      .sort((a, b) => a.w * a.h - b.w * b.h)[0];
+    const roomW = plate ? plate.w - 2 * Math.max(36, plate.w * 0.06) : Math.max(ow, TPL_W * 0.7);
+    const wide = items.reduce((s, it) => s + it.ar, 0) / items.length > 1.2;
+    const gapK = wide ? -0.08 : 0.06;                    // gap (or overlap) as a share of the tallest device
+    const rowW = hh => items.reduce((s, it) => s + hh * it.wt * it.ar, 0) + gapK * hh * (items.length - 1);
+    let hh = Math.min(oh, roomW / rowW(1));              // the tallest device's height
+    let x = cx - rowW(hh) / 2;
+    const at = t.layers.indexOf(prod);
+    t.layers.splice(at, 1, ...items.map((it, i) => {
+      const h = hh * it.wt, w = h * it.ar, l = JSON.parse(JSON.stringify(prod));
+      l.name = i ? 'Hero Product ' + (i + 1) : prod.name;
+      l.props = Object.assign({}, prod.props, { src: it.src, w: Math.round(w), left: Math.round(x), top: Math.round(cy + hh / 2 - h) });
+      x += w + gapK * hh;
+      return l;
+    }));
+  }
+  Object.assign(t, { id, name: base.name + ' · ' + (grp ? grp.label : scDeviceLabel(m.family)), deviceOf: baseId, device: key });
+  TEMPLATES.push(t);
+  delete THUMBS[id];
+  return id;
+}
+/* Which cards can be re-set. The product must be the hero (a corner icon is
+   not what names the device) and the ground must not picture a device: a
+   Bubble Pop card set on a photograph of stacked MacBooks read SELL YOUR
+   APPLE WATCH over the MacBooks once re-set, the fault fixed on twelve watch
+   cards the same day. Money grounds, scenes and plain grounds qualify. */
+const SC_DEVICE_GROUND = /iphone|ipad|macbook|imac|mac-|watch|airpods|phone|device|tablet|laptop/i;
+function scDeviceReady(t){
+  if (!t || !t.showcase || t.cat !== 'phones' || !t.layers.some(l => l.name === 'Headline 2')) return false;
+  const prod = t.layers.find(l => l.kind === 'cutout' && !l.__wall);
+  if (!prod || (prod.props && (prod.props.w || 0) < 260)) return false;
+  const src = t.bg && t.bg.type === 'image' ? String(t.bg.src || '') : '';
+  return !src || /\/grounds\//.test(src) || !SC_DEVICE_GROUND.test(src.replace(/^.*\//, ''));
+}
+/* the picker: shown for a Phones & Devices showcase card with a product */
+async function ezDeviceSync(){
+  const field = $('ez-device-field'), sel = $('ez-device');
+  if (!field || !sel) return;
+  const t = ezTpl(), baseId = t && (t.deviceOf || t.id), base = TEMPLATES.find(x => x.id === baseId);
+  const ok = base && scDeviceReady(base);
+  field.hidden = !ok;
+  if (!ok) return;
+  const D = await scLoadDevices();
+  if (ezTpl() !== t) return;                                   // the user moved on while the catalogue loaded
+  /* the list is the same for every card: built once, so a template switch
+     never rebuilds it under a pick in progress */
+  if (!sel.dataset.built){
+    const groups = { iphone:'iPhone', ipad:'iPad', mac:'Mac', watch:'Apple Watch', airpods:'AirPods', other:'Home & other' };
+    const ch = scDeviceChoices(D);
+    sel.innerHTML = '<option value="">As designed</option>' +
+      '<optgroup label="Whole line">' + Object.entries(SC_DEV_GROUPS).map(([k, g]) => '<option value="' + k + '">' + escHtml(g.label) + '</option>').join('') + '</optgroup>' +
+      Object.keys(groups).map(g => {
+      const opts = ch.filter(c => c.line === g); if (!opts.length) return '';
+      return '<optgroup label="' + groups[g] + '">' + opts.map(c => '<option value="' + c.key + '">' + escHtml(c.label) + '</option>').join('') + '</optgroup>';
+    }).join('');
+    sel.dataset.built = '1';
+  }
+  sel.value = t.device || '';
+  sel.onchange = async () => {
+    const key = sel.value, target = key ? await scDeviceVariant(baseId, key) : baseId;
+    if (!target){ toast('That device could not be set on this design', 'error'); sel.value = t.device || ''; return; }
+    selectEzTpl(target);
+    ez.bg = null; ez.bgRecId = null; ez.bgPicked = true;         // a showcase photograph is part of the design
+    syncEzSwatches(); schedEzPreview(0);
+  };
+}
+{
+  const _buildEzForm = buildEzForm;
+  buildEzForm = function(){ const r = _buildEzForm.apply(this, arguments); ezDeviceSync(); return r; };
+}
+
+
+/* Ported 2026-09-27 from the superseded claude/fervent-pascal commit bf45814
+   (OPEN-ITEMS §J), at the owner's word: "make everything animateable". Every
+   design in the studio, showcase cards, classics and device variants alike,
+   exports as an 8-second video from Easy Mode or the editor. The engine is
+   unchanged; the Easy Mode entry takes its scene from renderEzCanvas(), the
+   editor's from the live canvas. */
+/* ═══════════════ MOTION: VIDEO ADS ═══════════════
+   An 8-second video of the same ad, for Reels, Stories and TikTok.
+
+   The motion is a LIVING STILL, not a reveal, and that is a design decision
+   with a reason. Feeds autoplay muted and people scroll past in a second or
+   two, so any frame that has not yet shown the phone number is a frame that
+   cannot convert. Frame 0 is the finished ad — the same pixels as the PNG
+   export — and so is every frame after it. What moves is EMPHASIS:
+
+   - the photograph breathes on a slow closed path, so the ad reads as alive
+     and the loop has no seam;
+   - three beats of SCALE, never colour, in reading order: the money word,
+     the selling points, the phone number. "Attention comes from contrast and
+     scale, not from saturation" holds in time as well as in space;
+   - every beat returns exactly to rest.
+
+   Deterministic in t: the landing-page clips are rendered by THIS code
+   (scripts/render_motion_clips.mjs, via motionBake/motionDraw), not by a
+   separate animation that could drift from what the product actually exports.
+
+   Appended, not spliced (rule 42). Nothing here runs at load: declarations
+   only, plus one DOMContentLoaded binder at the very bottom. */
+const MOTION = {
+  dur: 8, fps: 30,
+  beats: { money: [0.5, 1.5], points: [2.5, 3.5], phone: [4.5, 5.5] },
+  amp:   { money: 0.045,      points: 0.035,      phone: 0.06 },
+  breathe: 0.06,          // peak photo push-in at the loop's midpoint
+  maxShort: 1080,         // real-time recording above 1080p stutters on phones
+};
+const _bell = u => (u <= 0 || u >= 1) ? 0 : 0.5 - 0.5 * Math.cos(2 * Math.PI * u);  // 0 → 1 → 0, flat at both ends
+const _beat = (t, w) => _bell((t - w[0]) / (w[1] - w[0]));
+
+function motionIsText(o){
+  return !!o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && !!o.pgCurved));
+}
+function motionBox(o){ const r = o.getBoundingRect(true, true); return { x:r.left, y:r.top, w:r.width, h:r.height }; }
+
+/* The plate a text sits on, by the test rule 46 settled on: the rect must lie
+   behind the TEXT (≥75% of the text's own box), not merely near it — and it
+   must be a plate, not a panel. Scaling a full-width band with the number
+   would pulse half the ad. */
+function motionPlate(objs, o, W, H){
+  const t = motionBox(o);
+  let best = null, bestArea = Infinity;
+  objs.forEach(p => {
+    if (p === o || p.type !== 'rect' || p.pgBgRect || p.pgScrim) return;
+    if (p.name === 'Scrim' || p.name === 'BG' || p.name === 'Overlay') return;
+    const b = motionBox(p);
+    const ix = Math.max(0, Math.min(t.x + t.w, b.x + b.w) - Math.max(t.x, b.x));
+    const iy = Math.max(0, Math.min(t.y + t.h, b.y + b.h) - Math.max(t.y, b.y));
+    if (ix * iy < 0.75 * t.w * t.h) return;
+    if (b.w > 0.9 * W || b.w * b.h > 5 * t.w * t.h) return;   // a panel, not this text's plate
+    if (b.w * b.h < bestArea){ best = p; bestArea = b.w * b.h; }
+  });
+  return best;
+}
+
+/* Read the scene once and record every rest value the pose will touch, so
+   restoring is exact rather than "scale back by 1/s". */
+function motionRig(sc, W, H){
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const texts = objs.filter(o => motionIsText(o) && live(o));
+  const size = o => ((o.fontSize || 0) * (o.scaleY || 1)) || motionBox(o).h;
+  const phone = texts.filter(o => o.pgRole === 'phone').sort((a, b) => size(b) - size(a))[0] || null;
+  const money = texts.filter(o => o !== phone && !['phone','website','badges','deco'].includes(o.pgRole))
+                     .sort((a, b) => size(b) - size(a))[0] || null;
+  const points = texts.find(o => o.pgRole === 'badges' && o !== money)
+              || texts.find(o => o.pgRole === 'cta' && o !== money) || null;
+  const unit = o => {
+    if (!o) return null;
+    const plate = motionPlate(objs, o, W, H);
+    const members = plate ? [plate, o] : [o];
+    return { c: (plate || o).getCenterPoint(),
+             members: members.map(m => ({ o:m, sx:m.scaleX || 1, sy:m.scaleY || 1, left:m.left, top:m.top, c:m.getCenterPoint() })) };
+  };
+  const bg = sc.backgroundImage && sc.backgroundImage.type === 'image' ? sc.backgroundImage : null;
+  // product cutouts only: the film-grain overlay is an image too, and it must not bob
+  const cut = objs.filter(o => o.type === 'image' && live(o) && o.pgRole === 'photo');
+  if (!phone) console.warn('GraphicsStudio motion: no phone-number layer found, the last beat is skipped.');
+  return {
+    W, H,
+    bg: bg ? { o:bg, left:bg.left, top:bg.top, sx:bg.scaleX || 1, sy:bg.scaleY || 1 } : null,
+    cut: cut.map(o => ({ o, left:o.left, top:o.top })),
+    units: { money: unit(money), points: unit(points), phone: unit(phone) },
+  };
+}
+
+/* ── BAKE, THEN COMPOSITE ────────────────────────────────────────────────
+   The first version re-rendered the whole fabric scene every frame. Scaling
+   text invalidates fabric's object cache, so every frame re-drew shadowed
+   type from scratch, and the first real export came out at 1.6 fps — a
+   slideshow. Real-time recording turns every slow frame into a dropped one.
+
+   So the scene is rendered ONCE into bitmaps, in z-order: the photograph,
+   each run of layers that never moves, and each element that does (cropped to
+   its own bounds). A frame is then a dozen drawImage calls with a transform —
+   GPU work on every device, and cheap even in software.
+   Exactness: rest frames use a native-resolution photo, so frame 0 is the
+   still ad; the push-in draws from a copy baked at (1 + breathe)x, so the
+   photo is never upscaled. The one non-normal blend in the library (the
+   grain overlay) is drawn with its own blend mode at its own depth, which
+   reproduces it exactly. */
+function motionBake(sc, docW, docH, outW, outH){
+  const z = outW / docW;
+  sc.enableRetinaScaling = false;
+  sc.setDimensions({ width:outW, height:outH }); sc.setZoom(z);
+  const rig = motionRig(sc, docW, docH);
+  const objs = sc.getObjects();
+  const unitOf = new Map();
+  Object.entries(rig.units).forEach(([k, u]) => u && u.members.forEach(m => unitOf.set(m.o, k)));
+  const cutSet = new Set(rig.cut.map(c => c.o));
+  const saved = { img: sc.backgroundImage, col: sc.backgroundColor, vis: objs.map(o => o.visible) };
+  const copy = (w, h, crop) => {
+    sc.renderAll();
+    const c = document.createElement('canvas');
+    const r = crop || { x:0, y:0, w, h };
+    c.width = Math.max(1, r.w); c.height = Math.max(1, r.h);
+    c.getContext('2d').drawImage(sc.lowerCanvasEl, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+    return { bmp:c, x:r.x, y:r.y };
+  };
+  const only = set => objs.forEach((o, i) => { o.visible = saved.vis[i] !== false && set.has(o); });
+  const bake = { W:outW, H:outH, z, base: saved.col || '#101014', bg:null, bgHi:null, layers:[], rig };
+  try {
+    if (rig.bg){
+      objs.forEach(o => { o.visible = false; });
+      sc.backgroundColor = '';
+      bake.bg = copy(outW, outH).bmp;
+      const K = 1 + MOTION.breathe, hw = Math.round(outW * K), hh = Math.round(outH * K);
+      sc.setDimensions({ width:hw, height:hh }); sc.setZoom(z * K);
+      bake.bgHi = copy(hw, hh).bmp;
+      sc.setDimensions({ width:outW, height:outH }); sc.setZoom(z);
+    }
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    let run = [];
+    const flush = () => { if (run.length){ only(new Set(run)); bake.layers.push(Object.assign({ kind:'static' }, copy(outW, outH))); run = []; } };
+    objs.forEach((o, i) => {
+      if (saved.vis[i] === false) return;
+      const blend = o.globalCompositeOperation && o.globalCompositeOperation !== 'source-over' ? o.globalCompositeOperation : null;
+      if (!unitOf.has(o) && !cutSet.has(o) && !blend){ run.push(o); return; }
+      flush();
+      const op = o.globalCompositeOperation, alpha = o.opacity;
+      if (blend){ o.globalCompositeOperation = 'source-over'; o.opacity = 1; }
+      only(new Set([o]));
+      let crop = null;
+      if (!blend){
+        // crop to the element plus its shadow, so a phone's memory is not spent on empty canvas
+        const r = o.getBoundingRect(false, true), sh = o.shadow || {};
+        const pad = Math.ceil(((sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * z) + 6;
+        const x0 = Math.max(0, Math.floor(r.left - pad)), y0 = Math.max(0, Math.floor(r.top - pad));
+        const x1 = Math.min(outW, Math.ceil(r.left + r.width + pad)), y1 = Math.min(outH, Math.ceil(r.top + r.height + pad));
+        crop = { x:x0, y:y0, w:x1 - x0, h:y1 - y0 };
+      }
+      bake.layers.push(Object.assign({ kind: unitOf.has(o) ? 'unit' : cutSet.has(o) ? 'cut' : 'blend',
+        unit: unitOf.get(o), blend, alpha: blend ? alpha : 1 }, copy(outW, outH, crop)));
+      if (blend){ o.globalCompositeOperation = op; o.opacity = alpha; }
+    });
+    flush();
+  } finally {
+    sc.backgroundImage = saved.img; sc.backgroundColor = saved.col;
+    objs.forEach((o, i) => { o.visible = saved.vis[i]; });
+  }
+  return bake;
+}
+function motionDraw(x, b, t){
+  const W = b.W, H = b.H;
+  const th = 2 * Math.PI * (((t % MOTION.dur) + MOTION.dur) % MOTION.dur) / MOTION.dur;
+  const push = MOTION.breathe * (0.5 - 0.5 * Math.cos(th));        // 0 at t=0 and t=dur
+  x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  x.fillStyle = b.base; x.fillRect(0, 0, W, H);
+  if (b.bg){
+    if (push < 1e-4) x.drawImage(b.bg, 0, 0, W, H);
+    else {
+      // pan inside the headroom the push-in creates, so no edge is ever exposed
+      const k = 1 + push, dx = push * W * 0.35 * Math.sin(th), dy = -push * H * 0.25;
+      x.drawImage(b.bgHi, (W - W * k) / 2 + dx, (H - H * k) / 2 + dy, W * k, H * k);
+    }
+  }
+  for (const L of b.layers){
+    if (L.kind === 'static'){ x.drawImage(L.bmp, L.x, L.y); continue; }
+    x.save();
+    if (L.kind === 'unit'){
+      const s = 1 + MOTION.amp[L.unit] * _beat(t, MOTION.beats[L.unit]);
+      if (s !== 1){
+        const u = b.rig.units[L.unit], cx = u.c.x * b.z, cy = u.c.y * b.z;
+        x.translate(cx, cy); x.scale(s, s); x.translate(-cx, -cy);
+      }
+    } else if (L.kind === 'cut'){
+      x.translate(0, -H * 0.008 * Math.sin(th));                 // product floats against the drift
+    } else if (L.kind === 'blend'){
+      x.globalCompositeOperation = L.blend; x.globalAlpha = L.alpha;
+    }
+    x.drawImage(L.bmp, L.x, L.y);
+    x.restore();
+  }
+}
+
+/* ── SOUND ──────────────────────────────────────────────────────────────────
+   Designed to the same beats, rendered offline so it is identical on every
+   export: a soft pulse and shaker at 120 BPM (four bars = the eight seconds),
+   a two-chord pad, a whoosh into the money word, a wood tick on the selling
+   points and a two-note chime when the phone number lands. Every feed starts
+   it muted; it exists for the viewer who taps to hear. Seeded noise, so two
+   renders are sample-identical. */
+function motionSound(rate){
+  const sr = rate || 48000, T = MOTION.dur;
+  const ac = new OfflineAudioContext(2, Math.ceil(T * sr), sr);
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -20; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.005; comp.release.value = 0.2;
+  const master = ac.createGain(); master.gain.value = 1.3;
+  master.connect(comp); comp.connect(ac.destination);
+  // edge fades: the loop point must not click
+  master.gain.setValueAtTime(0, 0); master.gain.linearRampToValueAtTime(1.3, 0.012);
+  master.gain.setValueAtTime(1.3, T - 0.03); master.gain.linearRampToValueAtTime(0, T);
+
+  let seed = 20260926;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+  const noise = ac.createBuffer(1, sr, sr);
+  const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = rnd();
+  const env = (g, t0, a, peak, d) => {
+    g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(peak, t0 + a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + a + d);
+  };
+  const noiseHit = (t0, type, f, q, a, peak, d) => {
+    const s = ac.createBufferSource(); s.buffer = noise;
+    const f1 = ac.createBiquadFilter(); f1.type = type; f1.frequency.value = f; f1.Q.value = q;
+    const g = ac.createGain(); env(g, t0, a, peak, d);
+    s.connect(f1); f1.connect(g); g.connect(master); s.start(t0, (t0 * 0.37) % 0.5); s.stop(t0 + a + d + 0.05);
+  };
+  const tone = (t0, type, f0, f1, a, peak, d) => {
+    const o = ac.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(f0, t0); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t0 + Math.min(0.15, d));
+    const g = ac.createGain(); env(g, t0, a, peak, d);
+    o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + a + d + 0.05);
+  };
+  /* Pulse on every half-bar, shaker on the off-beats. Tuned for a PHONE
+     SPEAKER, which is where this is heard: the first mix put 91% of its energy
+     under 500Hz, which a phone barely reproduces. So the pulse carries a click
+     in the band a phone does play, and the shaker is loud enough to be heard. */
+  for (let t = 0; t < T - 0.01; t += 1.0){ tone(t, 'sine', 150, 55, 0.004, 0.2, 0.3); noiseHit(t, 'bandpass', 2600, 1.4, 0.002, 0.10, 0.025); }
+  for (let t = 0.25; t < T - 0.05; t += 0.5) noiseHit(t, 'highpass', 5200, 0.7, 0.002, (t % 1 === 0.25) ? 0.10 : 0.07, 0.06);
+  // pad: Am(add9) for two bars, Fmaj(add9) for two, spread voicings, soft attack
+  const pad = (t0, t1, freqs) => freqs.forEach(f => [-4, 4].forEach(cents => {
+    const o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = f; o.detune.value = cents;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; lp.Q.value = 0.5;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.024, t0 + 0.06);
+    g.gain.setValueAtTime(0.024, t1 - 0.12); g.gain.linearRampToValueAtTime(0, t1);
+    o.connect(lp); lp.connect(g); g.connect(master); o.start(t0); o.stop(t1 + 0.02);
+  }));
+  pad(0, 4.06, [110.00, 164.81, 261.63, 392.00, 493.88]);
+  pad(3.94, T, [87.31, 130.81, 220.00, 329.63, 392.00]);
+  // whoosh into the money word, then a soft low hit on its peak
+  {
+    const s = ac.createBufferSource(); s.buffer = noise; s.loop = true;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
+    bp.frequency.setValueAtTime(350, 0.55); bp.frequency.exponentialRampToValueAtTime(2800, 0.98);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, 0.55); g.gain.linearRampToValueAtTime(0.22, 0.97); g.gain.linearRampToValueAtTime(0.0001, 1.0);
+    s.connect(bp); bp.connect(g); g.connect(master); s.start(0.55); s.stop(1.02);
+  }
+  tone(1.0, 'sine', 84, 40, 0.004, 0.55, 0.5);
+  noiseHit(1.0, 'lowpass', 1200, 0.7, 0.002, 0.12, 0.12);
+  // selling points: a dry wood tick
+  tone(3.0, 'sine', 920, 920, 0.002, 0.22, 0.07); tone(3.0, 'sine', 1380, 1380, 0.002, 0.12, 0.05);
+  // phone number lands: two bell notes, inharmonic partials for a struck-metal read
+  const bell = (t0, f, peak) => [[1, 1, 1.5], [2.0, 0.35, 0.9], [2.76, 0.22, 0.6], [5.4, 0.1, 0.3]]
+    .forEach(([m, gm, d]) => tone(t0, 'sine', f * m, f * m, 0.003, peak * gm, d));
+  bell(5.0, 880.00, 0.17); bell(5.09, 1318.51, 0.15);
+  return ac.startRendering();
+}
+
+/* The four corner marks, shared by the PNG watermark and every video frame so
+   the two cannot drift apart. Satoshi 900 is vendored; the old "DM Sans" was
+   not, so every free export had been silently set in a fallback face. */
+function drawWatermarkMarks(x, w, h){
+  const base = Math.min(w, h);
+  const fs = Math.round(base * 0.032);
+  x.save();
+  x.font = '900 ' + fs + 'px Satoshi, sans-serif';
+  x.globalAlpha = 0.5;
+  x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
+  x.fillStyle = '#ffffff';
+  const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
+    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText(t, 0, 0); x.restore();
+  });
+  x.restore();
+}
+
+/* H.264 MP4 first: Instagram and TikTok reject WebM on upload. Chrome 126+
+   and Safari record it natively; Firefox falls back to WebM and the toast
+   says so.
+   A BARE 'video/mp4' is only trusted where the browser can also PLAY H.264.
+   An open-source Chromium build answers yes to 'video/mp4' and then writes
+   VP9 inside an MP4 box — a file named .mp4 that the platforms refuse, which
+   is worse than an honest .webm. Measured, not assumed: it is exactly what
+   the test browser here did. */
+function motionMime(withAudio){
+  if (typeof MediaRecorder === 'undefined' || !HTMLCanvasElement.prototype.captureStream) return null;
+  const ok = m => { try { return MediaRecorder.isTypeSupported(m); } catch (e){ return false; } };
+  let h264 = false;
+  try { h264 = !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'); } catch (e){}
+  const mp4 = withAudio
+    ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs="avc1.42E01E, mp4a.40.2"']
+    : ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1'];
+  const webm = withAudio ? ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'] : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  return mp4.find(ok) || (h264 && ok('video/mp4') ? 'video/mp4' : null) || webm.find(ok) || null;
+}
+const motionSoundOn = () => jget('pgfx_video_sound', true) !== false;
+/* Must be created inside the click: Safari will not start audio from a
+   context born after an await. */
+function motionAudioContext(){
+  try { const A = window.AudioContext || window.webkitAudioContext; return A ? new A() : null; } catch (e){ return null; }
+}
+
+/* Real-time capture. MediaRecorder timestamps frames by wall clock, so the
+   pose is computed from elapsed time, not frame count — a slow frame is a
+   dropped frame, never a slowed-down ad. A hidden tab throttles timers to
+   1 Hz (rule 38), so hiding the tab aborts rather than exporting a frozen video. */
+async function recordMotion(sc, o){
+  const out = document.createElement('canvas');
+  out.width = o.w; out.height = o.h;
+  const x = out.getContext('2d');
+  const bake = motionBake(sc, o.docW, o.docH, o.w, o.h);
+  const withAudio = !!(o.actx && o.sound);
+  const mime = motionMime(withAudio);
+  if (!mime) throw new Error('this browser cannot record video');
+  const stream = out.captureStream(MOTION.fps);
+  let src = null;
+  if (withAudio){
+    const dest = o.actx.createMediaStreamDestination();
+    src = o.actx.createBufferSource(); src.buffer = o.sound; src.connect(dest);
+    dest.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
+  }
+  const rec = new MediaRecorder(stream, { mimeType:mime, videoBitsPerSecond: Math.round(o.w * o.h * MOTION.fps * 0.12) });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  const done = new Promise((res, rej) => {
+    rec.onstop = () => res({ blob: new Blob(chunks, { type: mime.split(';')[0] }), mime });
+    rec.onerror = e => rej((e && e.error) || new Error('recording failed'));
+  });
+  let frames = 0;
+  const draw = t => {
+    motionDraw(x, bake, t); frames++;
+    if (o.watermark) drawWatermarkMarks(x, o.w, o.h);
+  };
+  let hidden = false, finish = null;
+  const onVis = () => { if (document.hidden){ hidden = true; if (finish) finish(); } };
+  document.addEventListener('visibilitychange', onVis);
+  /* Background work yields while this runs (ensureThumbs, refreshPhotoThumb).
+     Measured: during the first ~minute after load, thumbnail warm-up held the
+     main thread so completely that the recorder ticked at 2-3 Hz. */
+  window.__gfxRecording = true;
+  try {
+    draw(0);
+    rec.start(250);
+    if (src){ try { await o.actx.resume(); } catch (e){} src.start(); }
+    /* A 30 fps timer on absolute time, not requestAnimationFrame: rAF is paced
+       by the DISPLAY (60/120 Hz, and 2.5 Hz in a headless browser, which is
+       how the first export came out at 1.8 fps), while captureStream samples
+       at 30. Each tick is scheduled against t0 so timer jitter never
+       accumulates into drift. */
+    const t0 = performance.now(), step = 1000 / MOTION.fps;
+    await new Promise(res => {
+      finish = res;
+      let n = 0;
+      const tick = () => {
+        if (hidden) return;
+        const t = (performance.now() - t0) / 1000;
+        if (t >= MOTION.dur){ res(); return; }
+        draw(t);
+        if (o.onProgress) o.onProgress(t / MOTION.dur);
+        n = Math.max(n + 1, Math.floor((performance.now() - t0) / step) + 1);
+        setTimeout(tick, Math.max(0, t0 + n * step - performance.now()));
+      };
+      tick();
+    });
+    draw(MOTION.dur);
+  } finally {
+    window.__gfxRecording = false;
+    document.removeEventListener('visibilitychange', onVis);
+    try { rec.state !== 'inactive' && rec.stop(); } catch (e){}
+    if (src) try { src.stop(); } catch (e){}
+  }
+  const res = await done;
+  res.fps = frames / MOTION.dur;
+  stream.getTracks().forEach(tr => tr.stop());
+  if (hidden) throw new Error('recording stopped because this tab was hidden. Try again and keep this tab in front');
+  return res;
+}
+
+/* One path for both editors: gate → record → count the credit → download.
+   The credit is taken only after a video actually exists, same as a PNG. */
+async function runVideoExport(o){
+  const btn = o.btn, label = btn ? btn.innerHTML : '';
+  const setBtn = html => { if (btn) btn.innerHTML = html; };
+  if (btn) btn.disabled = true;
+  try {
+    let sound = null;
+    if (o.actx && motionSoundOn()){
+      setBtn('Preparing sound…');
+      try { sound = await motionSound(o.actx.sampleRate); } catch (e){ console.warn('GraphicsStudio motion: sound render failed, exporting silent.', e); }
+    }
+    const r = await recordMotion(o.sc, Object.assign({}, o, { sound,
+      onProgress: p => setBtn('Recording… ' + Math.max(1, Math.ceil(MOTION.dur * (1 - p))) + 's') }));
+    setBtn('Saving…');
+    try { await recordExport(); }
+    catch (e){ toast('Export could not be recorded: ' + e.message, 'error'); return; }
+    const ext = /mp4/.test(r.mime) ? 'mp4' : 'webm';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(r.blob);
+    a.download = (o.name || 'ad').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-video-' + o.w + 'x' + o.h + '.' + ext;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    toast(ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4', ext === 'mp4' ? 'success' : undefined);
+  } catch (e){
+    toast('Video export failed: ' + (e.message || 'unknown error'), 'error');
+  } finally {
+    try { o.sc.dispose(); } catch (e){}
+    if (o.actx) try { o.actx.close(); } catch (e){}
+    if (btn){ btn.disabled = false; btn.innerHTML = label; }
+  }
+}
+
+async function ezDownloadVideo(){
+  const actx = motionSoundOn() ? motionAudioContext() : null;   // inside the click, see motionAudioContext
+  const phone = $('ez-phone').value.trim();
+  if (!phone){
+    toast('Type your phone number first, buyers need to reach you', 'error');
+    $('ez-phone').focus(); $('ez-phone').scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  const gate = await gateExport(ezExportPx());
+  if (!gate) return;
+  /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
+     flattening it), so the video's frame 0 IS the still ad */
+  const sc = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true);
+  const docW = sc.width, docH = sc.height, k = Math.min(gate.px, MOTION.maxShort) / Math.min(docW, docH);
+  await runVideoExport({ sc, docW, docH, w: Math.round(docW * k), h: Math.round(docH * k), watermark:gate.watermark, actx, name:ezTpl().name, btn:$('ez-video') });
+}
+async function editorDownloadVideo(){
+  const actx = motionSoundOn() ? motionAudioContext() : null;
+  if (!canvas) return;
+  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  const gate = await gateExport(exportSize);
+  if (!gate) return;
+  const d = exportDims(Math.min(gate.px, MOTION.maxShort));
+  canvas.discardActiveObject(); canvas.renderAll();
+  const sc = new fabric.StaticCanvas(null, { width:CW, height:CH, renderOnAddRemove:false, enableRetinaScaling:false });
+  await new Promise(res => sc.loadFromJSON(canvas.toJSON(EXTRA_PROPS), res));
+  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, actx, name:currentTplName, btn:$('ex-video') });
+}
+
+/* the buttons (index.html: #ez-video beside Download my ad, #ex-video in the
+   editor's export panel) */
+(function bindMotionButtons(){
+  const bind = () => { const a = $('ez-video'), b = $('ex-video');
+    if (a) a.onclick = () => ezDownloadVideo(); if (b) b.onclick = () => editorDownloadVideo(); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+})();
+
+/* ═══════════════ FONT PICKER: EVERY NAME IN ITS OWN FACE ═══════════════
+   Owner, 2026-09-27: "make sure the type faces render as previews of their
+   name typed out so we can see what it looks like when selecting different/
+   new fonts". buildFontOptions() styled each <option> in its face, but only
+   some desktop Chrome builds honour that: Safari, Chrome on a Mac and every
+   phone draw a native menu in the system font, and the closed control always
+   showed the name in the UI font. So the <select> stays (hidden) as the
+   source of truth, value and change event unchanged for every caller, and a
+   button plus list stand in front of it: the button in the current face, each
+   name in its own face, faces loaded as their rows scroll into view, a search
+   field on top, keyboard to move and Enter to pick. */
+function fontPicker(sel){
+  if (!sel || sel.dataset.fpBuilt) return;
+  sel.dataset.fpBuilt = '1';
+  const face = f => "'" + String(f).replace(/'/g, '') + "', sans-serif";
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'fp-btn'; btn.setAttribute('aria-haspopup', 'listbox');
+  const sync = () => { const v = sel.value || ''; btn.textContent = v || 'Font'; btn.style.fontFamily = face(v); if (v) ensureFont(v); };
+  /* code sets sel.value directly (a new selection, a template load): mirror it */
+  const desc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+  Object.defineProperty(sel, 'value', { configurable: true,
+    get(){ return desc.get.call(this); }, set(v){ desc.set.call(this, v); sync(); } });
+  sel.style.display = 'none';
+  sel.parentNode.insertBefore(btn, sel.nextSibling);
+  let pop = null, io = null, rows = [], at = -1;
+  const close = () => { if (!pop) return; if (io) io.disconnect(); pop.remove(); pop = null; rows = []; at = -1;
+    document.removeEventListener('pointerdown', outside, true); btn.setAttribute('aria-expanded', 'false'); };
+  const outside = e => { if (pop && !pop.contains(e.target) && e.target !== btn) close(); };
+  const pick = f => { desc.set.call(sel, f); sync(); sel.dispatchEvent(new Event('change', { bubbles: true })); close(); btn.focus(); };
+  const mark = i => { rows.forEach(r => r.classList.remove('on')); const vis = rows.filter(r => !r.hidden);
+    if (!vis.length) return; at = Math.max(0, Math.min(vis.length - 1, i)); vis[at].classList.add('on'); vis[at].scrollIntoView({ block: 'nearest' }); };
+  const open = () => {
+    pop = document.createElement('div'); pop.className = 'fp-pop'; pop.setAttribute('role', 'listbox');
+    const q = document.createElement('input'); q.className = 'fp-search'; q.type = 'search'; q.placeholder = 'Search fonts';
+    const list = document.createElement('div'); list.className = 'fp-list';
+    pop.append(q, list);
+    io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting){ ensureFont(e.target.dataset.font); io.unobserve(e.target); } }), { root: list, rootMargin: '120px' }) : null;
+    [...sel.children].forEach(g => {
+      const opts = g.tagName === 'OPTGROUP' ? [...g.children] : [g];
+      if (g.tagName === 'OPTGROUP'){ const h = document.createElement('div'); h.className = 'fp-group'; h.textContent = g.label; list.appendChild(h); }
+      opts.forEach(o => {
+        const f = o.value || o.textContent, r = document.createElement('div');
+        r.className = 'fp-item' + (f === sel.value ? ' sel' : ''); r.setAttribute('role', 'option');
+        r.dataset.font = f; r.textContent = f; r.style.fontFamily = face(f);
+        r.onclick = () => pick(f);
+        list.appendChild(r); rows.push(r);
+        if (io) io.observe(r); else ensureFont(f);
+      });
+    });
+    q.oninput = () => { const s = q.value.trim().toLowerCase();
+      rows.forEach(r => { r.hidden = !!s && !r.dataset.font.toLowerCase().includes(s); });
+      list.querySelectorAll('.fp-group').forEach(h => { let n = h.nextElementSibling, any = false;
+        while (n && !n.classList.contains('fp-group')){ if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; });
+      mark(0); };
+    q.onkeydown = e => {
+      if (e.key === 'ArrowDown'){ e.preventDefault(); mark(at + 1); }
+      else if (e.key === 'ArrowUp'){ e.preventDefault(); mark(at - 1); }
+      else if (e.key === 'Enter'){ e.preventDefault(); const vis = rows.filter(r => !r.hidden); if (vis[at]) pick(vis[at].dataset.font); }
+      else if (e.key === 'Escape'){ e.preventDefault(); close(); btn.focus(); }
+    };
+    document.body.appendChild(pop);
+    const b = btn.getBoundingClientRect(), W = Math.max(240, b.width);
+    const below = window.innerHeight - b.bottom, H = Math.min(380, Math.max(200, below - 16));
+    pop.style.width = W + 'px';
+    pop.style.left = Math.max(8, Math.min(window.innerWidth - W - 8, b.left)) + 'px';
+    if (below >= 220) pop.style.top = (b.bottom + 6) + 'px';
+    else pop.style.bottom = (window.innerHeight - b.top + 6) + 'px';
+    list.style.maxHeight = H + 'px';
+    document.addEventListener('pointerdown', outside, true);
+    btn.setAttribute('aria-expanded', 'true');
+    const cur = rows.find(r => r.dataset.font === sel.value);
+    if (cur){ cur.scrollIntoView({ block: 'center' }); at = rows.indexOf(cur); }
+    q.focus({ preventScroll: true });
+  };
+  btn.onclick = () => (pop ? close() : open());
+  sync();
+}
+{
+  const _buildFontOptions = buildFontOptions;
+  buildFontOptions = function(sel){ const r = _buildFontOptions.apply(this, arguments); fontPicker(sel); return r; };
+  /* any picker already built before this ran */
+  const upgrade = () => document.querySelectorAll('select[data-fonts-built]').forEach(fontPicker);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', upgrade); else upgrade();
 }

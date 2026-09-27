@@ -1,0 +1,15 @@
+<linearGradient id="t1-shell" x1="0.16" y1="0.13" x2="0.84" y2="1"><stop offset="0" stop-color="#212b39"/><stop offset="0.42" stop-color="#050C18"/><stop offset="1" stop-color="#0f1724"/></linearGradient><linearGradient id="t1-rail" x1="0" y1="0" x2="1" y2="0.3"><stop offset="0" stop-color="#8FA6BE" stop-opacity="0.4"/><stop offset="0.3" stop-color="#8FA6BE" stop-opacity="0.1"/><stop offset="0.6" stop-color="#8FA6BE" stop-opacity="0.3"/><stop offset="1" stop-color="#8FA6BE" stop-opacity="0.1"/></linearGradient>
+
+<rect x="0.1" y="0.2" width="399.8" height="863.6" rx="60.1" fill="url(#t1-shell)"/>
+<rect x="2.8" y="3.0" width="394.3" height="858.1" rx="57.4" fill="none" stroke="url(#t1-rail)" stroke-width="5.2"/>
+<rect x="0.1" y="121.1" width="4.0" height="31.1" rx="2.0" fill="#8FA6BE" opacity="0.2"/>
+<rect x="0.1" y="177.2" width="4.0" height="53.5" rx="2.0" fill="#8FA6BE" opacity="0.2"/>
+<rect x="0.1" y="244.6" width="4.0" height="53.5" rx="2.0" fill="#8FA6BE" opacity="0.2"/>
+<rect x="395.9" y="203.2" width="4.0" height="84.6" rx="2.0" fill="#8FA6BE" opacity="0.2"/>
+<path d="M0.1 90.9H12.9M387.1 90.9H399.9" fill="none" stroke="#8FA6BE" stroke-opacity="0.2" stroke-width="2.4"/>
+<path d="M0.1 773.1H12.9M387.1 773.1H399.9" fill="none" stroke="#8FA6BE" stroke-opacity="0.2" stroke-width="2.4"/>
+<rect x="12.9" y="13.0" width="374.1" height="837.9" rx="47.3" fill="#091627"/>
+<rect x="11.5" y="11.6" width="376.9" height="840.7" rx="48.7" fill="none" stroke="#8FA6BE" stroke-opacity="0.2" stroke-width="2.8"/>
+<rect x="149.1" y="34.1" width="101.8" height="33.1" rx="16.5" fill="#050C18"/>
+<circle cx="232.4" cy="50.6" r="8.6" fill="#8FA6BE" opacity="0.2"/>
+<rect class="screen" x="12.9" y="13.0" width="374.1" height="837.9" rx="47.3" fill="none"/>

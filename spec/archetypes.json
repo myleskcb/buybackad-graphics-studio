@@ -1,0 +1,42 @@
+[
+  {
+    "key": "nightLot",
+    "name": "Night Lot",
+    "note": "one hero in a pool of light"
+  },
+  {
+    "key": "bandStack",
+    "name": "Band Stack",
+    "note": "knockout bands, product wedged between"
+  },
+  {
+    "key": "sunburstHero",
+    "name": "Sunburst Hero",
+    "note": "rays and an arc crown"
+  },
+  {
+    "key": "tornSplit",
+    "name": "Torn Split",
+    "note": "ragged paper divide"
+  },
+  {
+    "key": "priceBoard",
+    "name": "Price Board",
+    "note": "model rows resellers screenshot"
+  },
+  {
+    "key": "posterBleed",
+    "name": "Poster Bleed",
+    "note": "display type at maximum"
+  },
+  {
+    "key": "ticketOffer",
+    "name": "Ticket Offer",
+    "note": "perforated stub"
+  },
+  {
+    "key": "proofWall",
+    "name": "Proof Wall",
+    "note": "review card and numbered steps"
+  }
+]

@@ -1,0 +1,29 @@
+contribution · phones · 45 · 4 seeds × 8 archetypes
+
+  pts   group           device
+  19.55   Hero            Product hero
+  10.04   Chrome          Footer bar
+   4.08   Chrome          Call to action
+   4.07   Proof           Promise pills
+   3.77   Chrome          Corner lockup
+   2.99   Offer           Starburst seal
+   2.77   Proof           Proof block
+   2.43   Hero            Bleed off the edge
+   2.03   Offer           Ticket stub
+   2.00   Shape language  Knockout band
+   1.31   Shape language  Paint stroke
+   0.75   Proof           Price rows
+   0.71   Field           Diagonal split
+   0.43   Shape language  Arc crown
+   0.41   Display type    Fit to plate
+   0.31   Field           Sunburst rays
+   0.08   Shape language  Torn paper
+   0.00   Ground          Lit ground
+   0.00   Ground          Film grain
+   0.00   Field           Halftone ramp
+   0.00   Field           Checker field
+   0.00   Hero            Angle the hero
+   0.00   Hero            Cast shadow
+   0.00   Display type    Outline stroke
+   0.00   Display type    Hard shadow
+   0.00   Offer           Plate sheen

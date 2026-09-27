@@ -1,0 +1,10 @@
+import puppeteer from '/Users/admin/Downloads/gfxv23/node_modules/puppeteer-core/lib/puppeteer/puppeteer-core.js';
+import { readFileSync } from 'node:fs';
+const D='/Users/admin/Downloads/gfxv23/scratch_ws/';
+const b=await puppeteer.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--no-sandbox'],headless:true});
+const p=await b.newPage();
+const f=process.argv[2], w=+process.argv[3], h=+process.argv[4], d=+(process.argv[5]||2);
+await p.setViewport({width:w,height:h,deviceScaleFactor:d});
+await p.setContent(`<body style="margin:0;background:#888">${readFileSync(D+f,'utf8')}</body>`);
+await p.screenshot({path:D+f.replace('.svg','.png')});
+await b.close(); console.log('shot',f);

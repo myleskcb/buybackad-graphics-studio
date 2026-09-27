@@ -1,0 +1,56 @@
+[
+  {
+    "id": "tk",
+    "display": "Teko",
+    "body": "Sora",
+    "dw": 0.34,
+    "bw": 0.56,
+    "dweight": 700,
+    "note": "tall condensed over a soft geometric — reads modern, holds long model names"
+  },
+  {
+    "id": "sq",
+    "display": "Squada One",
+    "body": "Chivo",
+    "dw": 0.42,
+    "bw": 0.53,
+    "dweight": 400,
+    "note": "squared display over a grotesque — the forecourt default"
+  },
+  {
+    "id": "an",
+    "display": "Anton",
+    "body": "Barlow Condensed",
+    "dw": 0.42,
+    "bw": 0.42,
+    "dweight": 400,
+    "note": "maximum weight, minimum width — poster type, nothing else fits beside it"
+  },
+  {
+    "id": "ab",
+    "display": "Archivo Black",
+    "body": "Archivo",
+    "dw": 0.6,
+    "bw": 0.52,
+    "dweight": 400,
+    "note": "one family, two weights — the quiet, expensive-looking option"
+  },
+  {
+    "id": "bb",
+    "display": "Bebas Neue",
+    "body": "Chivo",
+    "dw": 0.36,
+    "bw": 0.53,
+    "dweight": 400,
+    "note": "all-caps ticket type, very narrow — good when the headline is four words"
+  },
+  {
+    "id": "os",
+    "display": "Oswald",
+    "body": "Sora",
+    "dw": 0.45,
+    "bw": 0.56,
+    "dweight": 700,
+    "note": "condensed gothic, slightly civic — trustworthy over loud"
+  }
+]

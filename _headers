@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-esZwCjDrfYRQIc4Rt2j2/B8EOsvPy1V6VvRYaeYexvc=' 'sha256-7geX2KnGfKPtGDFZCkTJa+x45ENTDw7jhhzwlWj7ixQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' data: blob: https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com; frame-src 'self' https://accounts.google.com; base-uri 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-e2y+6tieWhkDeXrT/SwKOXU+KbeKb1fsXpNgDwqPpBo=' 'sha256-odqV+xLe3gb2cRoeIs1ncr05FDstObypaf5YxEgeqsQ=' 'sha256-/tMeC9KL6889beR7t+xkH0NYDuLD66ZqUynwcjIEuOU=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' data: blob: https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com; base-uri 'self'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
@@ -21,6 +21,13 @@
 /assets/cutouts/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 
+# The showcase renders and the GeoNames tables change only on a redeploy.
+/assets/showcase/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+/assets/geo/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
 # Fontshare faces are versioned by name and genuinely never change.
 /assets/fonts/*
   Cache-Control: public, max-age=31536000, immutable
@@ -32,11 +39,26 @@
 /styles.css
   Cache-Control: public, max-age=0, must-revalidate
 
-# The video engine ships like the app: always revalidated, so a deploy reaches
-# everyone. Its encoder is vendored under a versioned filename, so it can be
-# cached for good; a new version gets a new name.
-/video.js
-  Cache-Control: public, max-age=0, must-revalidate
+# Owner tools that stay reachable by link but should never be in search:
+# the labs, the good/bad picker, the asset library and the old single-file build.
+# Mirrors netlify.toml.
+/lab/*
+  X-Robots-Tag: noindex, nofollow
 
+/pick.html
+  X-Robots-Tag: noindex, nofollow
+
+/library.html
+  X-Robots-Tag: noindex, nofollow
+
+/phonegfx-studio.html
+  X-Robots-Tag: noindex, nofollow
+
+# TEMPORARY: the ad review admin (admin-ads/). Remove with the folder.
+/admin-ads/*
+  X-Robots-Tag: noindex, nofollow
+
+# The video encoder is vendored under a versioned filename, so it can be cached
+# for good; a new version gets a new name.
 /vendor/*
   Cache-Control: public, max-age=31536000, immutable

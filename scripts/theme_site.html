@@ -1,0 +1,201 @@
+<title>Buyback Theme Library</title>
+<style>
+:root{
+  --ground:#f6f7f9; --panel:#ffffff; --line:#dfe3ea; --ink:#141821; --sub:#5d6675;
+  --accent:#1f6f5c; --accentInk:#ffffff; --keep:#12855f; --keepSoft:#e3f5ee;
+  --shadow:0 1px 2px rgba(16,20,28,.05), 0 8px 24px rgba(16,20,28,.06);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#0e1116; --panel:#161b23; --line:#272e39; --ink:#e9edf4; --sub:#9aa5b6;
+  --accent:#57d3ae; --accentInk:#08130e; --keep:#57d3ae; --keepSoft:#16241f;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+} }
+:root[data-theme="dark"]{
+  --ground:#0e1116; --panel:#161b23; --line:#272e39; --ink:#e9edf4; --sub:#9aa5b6;
+  --accent:#57d3ae; --accentInk:#08130e; --keep:#57d3ae; --keepSoft:#16241f;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink);
+  font:15px/1.55 "Satoshi",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+header{position:sticky; top:0; z-index:20; background:var(--ground); border-bottom:1px solid var(--line);
+  padding:18px 24px 0}
+h1{margin:0 0 4px; font-size:22px; letter-spacing:-.02em; font-weight:800}
+.lede{margin:0 0 14px; color:var(--sub); max-width:70ch}
+.nav{display:flex; gap:6px; overflow-x:auto; padding-bottom:12px; scrollbar-width:thin}
+.nav button{flex:0 0 auto; background:transparent; color:var(--sub); border:1px solid var(--line);
+  border-radius:999px; padding:6px 13px; font:inherit; font-size:13px; cursor:pointer; white-space:nowrap}
+.nav button:hover{color:var(--ink); border-color:var(--sub)}
+.nav button.on{background:var(--ink); color:var(--ground); border-color:var(--ink); font-weight:600}
+.nav button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.count{margin-left:auto; font-size:13px; color:var(--sub); align-self:center; padding-bottom:12px}
+main{padding:22px 24px 90px; display:grid; gap:22px;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); max-width:1680px; margin:0 auto}
+.theme{background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden;
+  box-shadow:var(--shadow); display:flex; flex-direction:column}
+.theme.on{border-color:var(--keep); box-shadow:0 0 0 1px var(--keep), var(--shadow)}
+.shots{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); cursor:pointer; position:relative}
+.shots img{display:block; width:100%; height:auto; background:var(--ground)}
+.tick{position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:50%;
+  background:var(--keep); color:var(--accentInk); display:none; place-items:center; font-size:15px; font-weight:800}
+.theme.on .tick{display:grid}
+.body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:9px; flex:1}
+.top{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+.nm{font-size:16px; font-weight:700; letter-spacing:-.01em}
+.col{font-size:11px; color:var(--sub); text-transform:uppercase; letter-spacing:.09em}
+.one{margin:0; color:var(--sub); font-size:13.5px}
+.spec{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:12.5px; align-items:baseline}
+.spec dt{color:var(--sub)}
+.spec dd{margin:0}
+.sw{display:inline-flex; gap:3px; vertical-align:-2px}
+.sw i{width:13px; height:13px; border-radius:3px; border:1px solid rgba(128,128,128,.35)}
+.tags{display:flex; flex-wrap:wrap; gap:5px; margin-top:2px}
+.tag{font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--sub)}
+.tag.g{border-color:var(--accent); color:var(--accent)}
+.vars{margin:0; padding-left:16px; color:var(--sub); font-size:12.5px}
+.vars li{margin:1px 0}
+.id{margin-top:auto; padding-top:8px; font-size:11px; color:var(--sub); word-break:break-all}
+.dock{position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--panel);
+  border-top:1px solid var(--line); padding:10px 24px; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.dock button{background:var(--ink); color:var(--ground); border:none; border-radius:9px; padding:9px 16px;
+  font:inherit; font-weight:600; cursor:pointer}
+.dock button.ghost{background:transparent; color:var(--sub); border:1px solid var(--line)}
+.dock .n{font-size:13px; color:var(--sub); margin-right:auto}
+.n b{color:var(--keep); font-size:15px}
+dialog{border:1px solid var(--line); border-radius:14px; background:var(--panel); color:var(--ink);
+  padding:0; max-width:min(720px,92vw); box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(8,10,14,.55)}
+dialog .dh{padding:14px 18px; border-bottom:1px solid var(--line); font-weight:700}
+dialog textarea{width:100%; height:44vh; border:none; background:transparent; color:var(--ink);
+  padding:14px 18px; font:12.5px/1.6 "JetBrains Mono",ui-monospace,monospace; resize:none}
+dialog textarea:focus{outline:none}
+dialog .df{padding:12px 18px; border-top:1px solid var(--line); display:flex; gap:9px; justify-content:flex-end}
+@media (max-width:520px){ main{padding:16px 14px 96px; grid-template-columns:1fr} header{padding:14px 14px 0} }
+</style>
+
+<header>
+  <h1>Buyback Theme Library</h1>
+  <p class="lede">One hundred locked themes in ten collections. Each one fixes its palette, its type pairing, its
+  background and the assets it is allowed to show, so every card built from it belongs to the same campaign.
+  Two sample cards per theme. Click a theme to keep it.</p>
+  <div class="nav" id="nav"></div>
+</header>
+
+<main id="grid"></main>
+
+<div class="dock">
+  <span class="n">kept <b id="nkept">0</b> of <span id="ntot">100</span></span>
+  <button class="ghost" id="all">Show all</button>
+  <button class="ghost" id="reset">Start over</button>
+  <button id="export">Export the kept list</button>
+</div>
+
+<dialog id="out">
+  <div class="dh">Kept themes</div>
+  <textarea id="outtext" readonly></textarea>
+  <div class="df"><button class="ghost" id="copy">Copy</button><button id="close">Close</button></div>
+</dialog>
+
+<script>
+const THEMES = /*__THEMES__*/[];
+const KEY = 'theme-library-v1';
+let st = { on:{} };
+try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.on) st = s; } catch(e){}
+
+let dbDoc = null, timer = null;
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){}
+  if (dbDoc){ clearTimeout(timer); timer = setTimeout(() => dbDoc.set({ on: st.on, count: Object.keys(st.on).length, set: KEY }).catch(() => {}), 600); } };
+(async () => {
+  try {
+    const db = window.claude && window.claude.use ? await window.claude.use('db') : null;
+    if (!db) return;
+    dbDoc = db.doc('sets/approvals-' + KEY);
+    const snap = await dbDoc.get();
+    const d = snap && snap.exists && snap.data ? snap.data() : null;
+    if (d && d.on){ let added = 0; Object.keys(d.on).forEach(k => { if (!st.on[k]){ st.on[k] = 1; added++; } });
+      if (added){ save(); render(); } }
+    save();
+  } catch(e){}
+})();
+
+const $ = id => document.getElementById(id);
+const COLS = [...new Set(THEMES.map(t => t.collection))];
+let filter = null;
+
+function nav(){
+  const n = $('nav'); n.innerHTML = '';
+  const mk = (label, key) => {
+    const b = document.createElement('button');
+    b.textContent = label; b.className = filter === key ? 'on' : '';
+    b.onclick = () => { filter = key; nav(); render(); };
+    n.appendChild(b);
+  };
+  mk('All ' + THEMES.length, null);
+  COLS.forEach(c => mk(c.replace(/-/g, ' ') + ' ' + THEMES.filter(t => t.collection === c).length, c));
+}
+
+function card(t){
+  const d = document.createElement('article');
+  d.className = 'theme' + (st.on[t.id] ? ' on' : '');
+  const shots = t.shots.map(s => '<img src="' + s + '" alt="' + t.name + ' sample" loading="lazy">').join('');
+  const sw = (t.colors || []).map(h => '<i style="background:' + h + '"></i>').join('');
+  d.innerHTML =
+    '<div class="shots"><div class="tick">&#10003;</div>' + shots + '</div>' +
+    '<div class="body">' +
+      '<div class="top"><span class="nm"></span><span class="col"></span></div>' +
+      '<p class="one"></p>' +
+      '<dl class="spec">' +
+        '<dt>Palette</dt><dd><span class="sw">' + sw + '</span> <span class="mono pal"></span></dd>' +
+        '<dt>Type</dt><dd class="faces"></dd>' +
+        '<dt>Ground</dt><dd><span class="tag g gr"></span></dd>' +
+      '</dl>' +
+      '<div class="tags cats"></div>' +
+      '<ul class="vars"></ul>' +
+      '<div class="id mono"></div>' +
+    '</div>';
+  d.querySelector('.nm').textContent = t.name;
+  d.querySelector('.col').textContent = t.collection.replace(/-/g, ' ');
+  d.querySelector('.one').textContent = t.oneLine || '';
+  d.querySelector('.pal').textContent = (t.palettes || []).join(' · ');
+  d.querySelector('.faces').textContent = [t.faces && t.faces.display, t.faces && t.faces.support].filter(Boolean).join(' + ');
+  d.querySelector('.gr').textContent = t.ground || '';
+  const cats = d.querySelector('.cats');
+  (t.categories || []).forEach(c => { const s = document.createElement('span'); s.className = 'tag'; s.textContent = c; cats.appendChild(s); });
+  const vl = d.querySelector('.vars');
+  (t.variations || []).slice(0, 4).forEach(v => { const li = document.createElement('li'); li.textContent = String(v).slice(0, 90); vl.appendChild(li); });
+  d.querySelector('.id').textContent = t.id;
+  d.querySelector('.shots').onclick = () => {
+    if (st.on[t.id]) delete st.on[t.id]; else st.on[t.id] = 1;
+    save(); d.classList.toggle('on', !!st.on[t.id]); count();
+  };
+  return d;
+}
+
+function count(){ $('nkept').textContent = Object.keys(st.on).length; }
+
+function render(){
+  const g = $('grid'); g.innerHTML = '';
+  THEMES.filter(t => !filter || t.collection === filter).forEach(t => g.appendChild(card(t)));
+  $('ntot').textContent = THEMES.length;
+  count();
+}
+
+$('all').onclick = () => { filter = null; nav(); render(); window.scrollTo({ top: 0 }); };
+$('reset').onclick = () => { st = { on:{} }; save(); render(); };
+$('export').onclick = () => {
+  const kept = THEMES.filter(t => st.on[t.id]);
+  $('outtext').value = kept.length
+    ? kept.map(t => t.id + '  ' + t.name + ' · ' + t.collection + ' · ' + t.ground + ' · ' + (t.palettes || []).join('/')).join('\n')
+    : 'Nothing kept yet.';
+  $('out').showModal();
+};
+$('close').onclick = () => $('out').close();
+$('copy').onclick = async () => {
+  try { await navigator.clipboard.writeText($('outtext').value); $('copy').textContent = 'Copied'; }
+  catch(e){ $('outtext').select(); $('copy').textContent = 'Select and copy'; }
+  setTimeout(() => $('copy').textContent = 'Copy', 1500);
+};
+nav(); render();
+</script>

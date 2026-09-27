@@ -1,0 +1,32 @@
+{
+  "batches": [
+    {
+      "id": "b1-first-cut",
+      "label": "First cut",
+      "commit": "1e5e8de",
+      "date": "2026-09-24",
+      "subject": "Add a phone video ad maker at /motion: moving We Buy Phones ads made in the browser"
+    },
+    {
+      "id": "b2-hook",
+      "label": "Hook in 3 seconds",
+      "commit": "3453ead",
+      "date": "2026-09-25",
+      "subject": "Hook the viewer in the first 3 seconds, and measure it on every look"
+    },
+    {
+      "id": "b3-la-looks",
+      "label": "LA looks",
+      "commit": "c5ea75e",
+      "date": "2026-09-26",
+      "subject": "Put the number under the phones, never on top of them"
+    },
+    {
+      "id": "b4-effects",
+      "label": "Effects (PR #3, not merged)",
+      "commit": "6144804",
+      "date": "2026-09-26",
+      "subject": "Widen the video ad maker: palettes, a colour grade, phone depth, transitions and an ending"
+    }
+  ]
+}

@@ -222,7 +222,7 @@ edge, **provided the number is specific and qualified, not "up to"**.
 
 ### Measured against our own library
 
-`scripts/copy_audit.mjs` (added with this file) loads the real library and
+`scripts/claims_audit.mjs` (added with this file) loads the real library and
 counts. On 2026-09-26: **48 of 243 templates carry "up to" pricing by default**
 (gold 12, cars 11, phones 9, coins 4, sports 4, strips 3, pokemon 3, silver 2),
 coming from the category decks — phones `UP TO $1,100 PAID TODAY`, cars
@@ -329,7 +329,7 @@ Meta Advertising Standards, when a post is boosted (O):
 - Ads must not *"assert or imply personal attributes… physical or mental health
   (including medical conditions), vulnerable financial status."* — so "Diabetic?
   Sell your strips" or "Behind on bills?" is rejected. **Measured: 0 of 243
-  templates carry such phrasing** (`scripts/copy_audit.mjs`).
+  templates carry such phrasing** (`scripts/claims_audit.mjs`).
 - There is **no text-percentage rule** in the current Ad Standards text; the
   nearest is *"Lower quality ads… may experience impacted performance."*
 
@@ -526,7 +526,7 @@ output, and there is no output to measure.
 | V2 | The phone number is on screen ≥70% of runtime, inside the safe box | per-frame layer visibility + bounding box against x 65–940, y 269–1248 (9:16) |
 | V3 | No text beat is shorter than it takes to read | timeline check: dwell ≥ max(1.2 s, chars ÷ 15 + 0.5 s) |
 | V4 | No flash risk | per-frame relative-luminance map; fail if any region ⅓ × ⅓ of the frame has more than 3 opposing luminance transitions in any 1 s (a proportional scaling of W3C's 341×256 box at 1024×768; read WCAG 2.3.1 before encoding the exact thresholds) |
-| V5 | A price is never shown without its qualifier on the same frame, and "up to" is never a default | copy + timeline check; `scripts/copy_audit.mjs` already measures the default copy |
+| V5 | A price is never shown without its qualifier on the same frame, and "up to" is never a default | copy + timeline check; `scripts/claims_audit.mjs` already measures the default copy |
 | V6 | Every word is readable muted | render diff with text layers hidden (the phone-audit method): every beat must change when its text is removed |
 | V7 | A render cannot be corrupted by the tab it runs in | frames are a pure function of t; render the same clip with the tab hidden and visible and compare frame hashes |
 

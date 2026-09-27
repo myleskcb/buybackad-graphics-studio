@@ -1,0 +1,121 @@
+<title>Buyback Theme Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{ --ground:#14161c; --panel:#1b1e26; --panel-2:#212530; --line:#2c313d; --ink:#e9ebf1; --dim:#8f95a5; --faint:#5f6675; --keep:#5ad1a5; --accent:#ffb03a; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden}
+.wrap{max-width:1900px; margin:0 auto; padding:18px 20px 120px; display:flex; flex-direction:column; gap:16px}
+header{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+h1{font-size:19px; font-weight:800; margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace; font-variant-numeric:tabular-nums}
+select{font:inherit; font-size:15px; font-weight:600; color:var(--ink); background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:10px 14px; min-width:320px}
+.premise{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px; display:grid; grid-template-columns:1fr auto; gap:10px 24px; align-items:start}
+.premise h2{margin:0 0 6px; font-size:20px; font-weight:800; letter-spacing:-.01em}
+.premise p{margin:0; color:var(--dim); font-size:14px; line-height:1.5; max-width:70ch}
+.tags{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end}
+.tag{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); border:1px solid rgba(255,176,58,.35); border-radius:999px; padding:3px 9px}
+.count{font-size:12px; color:var(--dim)}
+.count b{color:var(--ink)}
+.kept-n{color:var(--keep); font-weight:600}
+.grid{display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+.card{background:var(--panel); border:3px solid var(--line); border-radius:14px; overflow:hidden; cursor:pointer; position:relative; transition:border-color .12s ease, transform .12s ease}
+.card:hover{transform:translateY(-2px)}
+.card img{display:block; width:100%; height:auto; background:#0d0f14}
+.card.on{border-color:var(--keep); box-shadow:0 0 0 1px var(--keep), 0 14px 36px rgba(90,209,165,.18)}
+.card .tick{position:absolute; top:12px; right:12px; width:34px; height:34px; border-radius:50%; background:var(--keep); color:#0f1a15; display:none; align-items:center; justify-content:center; font-weight:900; font-size:18px}
+.card.on .tick{display:flex}
+.card .key{position:absolute; top:12px; left:12px; font-size:11px; padding:3px 7px; border-radius:6px; background:rgba(20,22,28,.78); color:var(--dim)}
+.meta{display:flex; align-items:center; gap:5px; flex-wrap:wrap; padding:6px 8px; border-top:1px solid var(--line)}
+.nm{font-size:11px; font-weight:800}
+.chip{font-size:10px; color:var(--dim); border:1px solid var(--line); border-radius:999px; padding:2px 8px; background:var(--panel-2)}
+.sw{display:flex; gap:4px}
+.sw i{width:14px; height:14px; border-radius:4px; display:block; border:1px solid rgba(255,255,255,.16)}
+.id{margin-left:auto; font-size:11px; color:var(--faint)}
+.dock{position:fixed; left:0; right:0; bottom:0; z-index:40; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); background:linear-gradient(to top, var(--ground) 62%, rgba(20,22,28,0)); display:flex; flex-direction:column; gap:6px; align-items:center; pointer-events:none}
+.dock > *{pointer-events:auto}
+.controls{display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap}
+button{font:inherit; color:var(--ink); background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:11px 20px; cursor:pointer; font-weight:600; font-size:14px; box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.btn-done{color:#0f1a15; background:var(--keep); border-color:var(--keep); min-width:140px}
+.ghost{background:none; border-color:transparent; color:var(--dim); box-shadow:none}
+.review{display:none; flex-direction:column; gap:16px}
+textarea{width:100%; min-height:96px; background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:11px; font-family:"IBM Plex Mono",monospace; font-size:12px; resize:vertical}
+@media (max-width:1400px){ .grid{grid-template-columns:repeat(4,1fr)} }
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(3,1fr)} .premise{grid-template-columns:1fr} .tags{justify-content:flex-start} }
+@media (max-width:640px){ .grid{grid-template-columns:repeat(2,1fr)} select{min-width:0; width:100%} }
+</style>
+<div class="wrap">
+  <header>
+    <h1>Buyback Theme Gallery</h1>
+    <select id="sel"></select>
+    <span class="count mono">approved <span class="kept-n" id="nkept">0</span> · this theme <span id="nthis">0</span></span>
+  </header>
+  <div class="premise" id="premise"></div>
+  <section id="pick"><div class="grid" id="grid"></div></section>
+  <section class="review" id="review">
+    <h2 style="margin:0;font-size:15px">Approved across all themes <span class="count" id="keptcount"></span></h2>
+    <div class="grid" id="keptgrid"></div>
+    <textarea id="out" readonly></textarea>
+  </section>
+</div>
+<div class="dock">
+  <div class="controls">
+    <button class="ghost" id="prev">&larr; Previous theme</button>
+    <button id="next">Next theme &rarr;</button>
+    <button class="btn-done" id="done">Done &mdash; review</button>
+    <button class="ghost" id="back" style="display:none">Back to themes</button>
+    <button class="ghost" id="copy" style="display:none">Copy list</button>
+    <button class="ghost" id="reset">Start over</button>
+  </div>
+</div>
+<script>
+const THEMES = /*__THEMES__*/;
+const CARDS = /*__CARDS__*/;
+const KEY = 'theme-gallery-v1';
+let st = { theme: THEMES[0].key, on: {} };
+try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.on) st = s; } catch(e){}
+let dbDoc = null, syncTimer = null;
+const syncNow = () => { if (!dbDoc) return; dbDoc.set({ on: st.on, theme: st.theme, count: Object.keys(st.on).length, updated: Date.now(), set: KEY }).catch(() => {}); };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} if (dbDoc){ clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 600); } };
+(async () => { try { const db = window.claude && window.claude.use ? await window.claude.use('db') : null; if (!db) return;
+  dbDoc = db.doc('sets/approvals-' + KEY); const snap = await dbDoc.get();
+  if (snap && snap.exists && snap.data && snap.data()){ const d = snap.data(); let added = 0; Object.keys(d.on || {}).forEach(id => { if (!st.on[id]){ st.on[id] = 1; added++; } }); if (added){ save(); render(); } }
+  syncNow(); const tag = document.createElement('span'); tag.className = 'chip'; tag.textContent = 'synced'; tag.style.color = 'var(--keep)'; document.querySelector('.count').appendChild(tag); } catch(e){} })();
+const $ = id => document.getElementById(id);
+THEMES.forEach(t => { const o = document.createElement('option'); o.value = t.key; o.textContent = t.name + '  ·  ' + t.style; $('sel').appendChild(o); });
+$('sel').value = st.theme;
+function chips(c){ return '<span class="sw">' + [c.c1, c.ink, c.accent, c.support].map(h => '<i style="background:'+h+'"></i>').join('') + '</span><span class="chip">'+c.family+'</span><span class="chip">'+c.cat+'</span>'; }
+function tile(c, idx){
+  const d = document.createElement('div'); d.className = 'card' + (st.on[c.id] ? ' on' : ''); d.tabIndex = 0;
+  d.innerHTML = (idx !== undefined ? '<span class="key mono">'+(idx+1)+'</span>' : '') + '<div class="tick">✓</div><img src="'+c.src+'" alt="'+c.name+'" loading="lazy">'
+    + '<div class="meta"><span class="nm">'+c.name.split(' · ')[0]+'</span>'+chips(c)+'<span class="id mono">'+c.id+'</span></div>';
+  const toggle = () => { if (st.on[c.id]) delete st.on[c.id]; else st.on[c.id] = 1; save(); d.classList.toggle('on', !!st.on[c.id]); count(); };
+  d.onclick = toggle; d.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggle(); } };
+  return d;
+}
+function count(){ $('nkept').textContent = Object.keys(st.on).length; $('nthis').textContent = CARDS.filter(c => c.layout === st.theme && st.on[c.id]).length + '/' + CARDS.filter(c => c.layout === st.theme).length; }
+function render(){
+  const t = THEMES.find(x => x.key === st.theme) || THEMES[0];
+  $('premise').innerHTML = '<div><h2>' + t.name + '</h2><p>' + t.premise + '</p></div><div class="tags">' + t.tags.map(x => '<span class="tag">' + x + '</span>').join('') + '</div>';
+  const g = $('grid'); g.innerHTML = '';
+  CARDS.filter(c => c.layout === st.theme).forEach((c, i) => g.appendChild(tile(c, i)));
+  count(); window.scrollTo({ top: 0 });
+}
+function showReview(){
+  $('pick').style.display = 'none'; $('review').style.display = 'flex';
+  ['prev','next','done'].forEach(id => $(id).style.display = 'none'); ['back','copy'].forEach(id => $(id).style.display = '');
+  const kg = $('keptgrid'); kg.innerHTML = ''; const kept = CARDS.filter(c => st.on[c.id]); kept.forEach(c => kg.appendChild(tile(c)));
+  $('keptcount').textContent = kept.length + ' approved';
+  $('out').value = kept.map(c => c.id + '  ' + c.name + ' · ' + c.family + ' · ' + c.layout + ' · ' + c.cat).join('\n') || 'Nothing approved yet.';
+}
+function showPick(){ $('review').style.display = 'none'; $('pick').style.display = ''; ['prev','next','done'].forEach(id => $(id).style.display = ''); ['back','copy'].forEach(id => $(id).style.display = 'none'); render(); }
+const step = d => { const i = THEMES.findIndex(t => t.key === st.theme); const j = Math.max(0, Math.min(THEMES.length - 1, i + d)); st.theme = THEMES[j].key; $('sel').value = st.theme; save(); render(); };
+$('sel').onchange = () => { st.theme = $('sel').value; save(); render(); };
+$('prev').onclick = () => step(-1); $('next').onclick = () => step(1);
+$('done').onclick = showReview; $('back').onclick = showPick;
+$('reset').onclick = () => { st = { theme: THEMES[0].key, on: {} }; save(); $('sel').value = st.theme; showPick(); };
+$('copy').onclick = async () => { try { await navigator.clipboard.writeText($('out').value); $('copy').textContent = 'Copied'; } catch(e){ $('out').select(); $('copy').textContent = 'Select and copy'; } setTimeout(() => $('copy').textContent = 'Copy list', 1600); };
+window.addEventListener('keydown', e => { if ($('review').style.display === 'flex') return; if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1); else if (e.key === 'Enter') showReview(); });
+render();
+</script>

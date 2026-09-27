@@ -25,6 +25,11 @@ const browser = await puppeteer.launch({ executablePath: CHROME, headless:'new',
 const page = await browser.newPage();
 await page.goto(BASE, { waitUntil:'networkidle2', timeout:60000 });
 await page.evaluate(() => document.fonts.ready);
+// Wait for the measured contrast table (assets/contrast-fix.json) to load and
+// apply. It is fetched asynchronously, so a harness that starts measuring too
+// early records the PRE-repair colours and reports failures that are already
+// fixed on screen.
+await page.waitForFunction(() => typeof CONTRAST_FIX !== 'undefined' && CONTRAST_FIX !== null, { timeout: 20000 }).catch(()=>{});
 await new Promise(r => setTimeout(r, 6000));
 
 const results = await page.evaluate(async () => {

@@ -1,0 +1,198 @@
+[
+  {
+    "group": "Ground",
+    "devices": [
+      {
+        "key": "groundGradient",
+        "name": "Lit ground",
+        "effect": "radial pool from ground2 → ground",
+        "purpose": "Gives the card a light source, so the hero looks placed rather than pasted."
+      },
+      {
+        "key": "grain",
+        "name": "Film grain",
+        "effect": "fractal noise at 5.5% overlay",
+        "purpose": "Stops large flat fills reading as plastic on a phone screen."
+      }
+    ]
+  },
+  {
+    "group": "Field",
+    "devices": [
+      {
+        "key": "sunburst",
+        "name": "Sunburst rays",
+        "effect": "24–32 alternating wedges behind the hero",
+        "purpose": "Radial energy. Points at the product without drawing a single arrow."
+      },
+      {
+        "key": "halftone",
+        "name": "Halftone ramp",
+        "effect": "dot grid with a quadratic density falloff",
+        "purpose": "Print texture. Reads as a real flyer, not a template export."
+      },
+      {
+        "key": "checker",
+        "name": "Checker field",
+        "effect": "8–12 cell warped checker at 8–14%",
+        "purpose": "Retail-poster ground. Fills the corners the composition never reaches."
+      },
+      {
+        "key": "diagonalSplit",
+        "name": "Diagonal split",
+        "effect": "angled two-tone divide",
+        "purpose": "Breaks the rectangle so the eye travels instead of scanning rows."
+      }
+    ]
+  },
+  {
+    "group": "Hero",
+    "devices": [
+      {
+        "key": "hero",
+        "name": "Product hero",
+        "effect": "device or vehicle art",
+        "purpose": "The subject. Without it the card is a price list."
+      },
+      {
+        "key": "heroBleed",
+        "name": "Bleed off the edge",
+        "effect": "crosses one edge by 6–14%",
+        "purpose": "The single biggest anti-blandness move — implies the product continues past the frame."
+      },
+      {
+        "key": "heroRotate",
+        "name": "Angle the hero",
+        "effect": "6–24° rotation",
+        "purpose": "Diagonal beats orthogonal. A straight product reads as a catalogue photo."
+      },
+      {
+        "key": "heroShadow",
+        "name": "Cast shadow",
+        "effect": "soft drop at 3.5% of hero height",
+        "purpose": "Separates the hero from the field so it sits above, not inside."
+      }
+    ]
+  },
+  {
+    "group": "Shape language",
+    "devices": [
+      {
+        "key": "paintStroke",
+        "name": "Paint stroke",
+        "effect": "rough brush quad, wobble on all four edges",
+        "purpose": "Puts a hand behind the headline. The opposite of a rounded plate."
+      },
+      {
+        "key": "tornPaper",
+        "name": "Torn paper",
+        "effect": "26-segment ragged edge, 16% amplitude",
+        "purpose": "Divides the card with an edge that looks made, not drawn."
+      },
+      {
+        "key": "knockoutBand",
+        "name": "Knockout band",
+        "effect": "full-bleed solid bar, text reversed",
+        "purpose": "Maximum contrast for one line. The loudest device that still looks composed."
+      },
+      {
+        "key": "arcCrown",
+        "name": "Arc crown",
+        "effect": "headline bent over the hero on a generated arc",
+        "purpose": "Wraps the type around the product instead of stacking above it."
+      }
+    ]
+  },
+  {
+    "group": "Display type",
+    "devices": [
+      {
+        "key": "outlineStroke",
+        "name": "Outline stroke",
+        "effect": "5% of size, paint-order stroke",
+        "purpose": "Holds the letterform against a busy field."
+      },
+      {
+        "key": "hardShadow",
+        "name": "Hard shadow",
+        "effect": "solid offset, no blur",
+        "purpose": "The reference-ad signature. Blur makes it a web button; offset makes it a poster."
+      },
+      {
+        "key": "fitToPlate",
+        "name": "Fit to plate",
+        "effect": "textLength snaps each line to its box",
+        "purpose": "Kills the ragged right edge and the empty half-line — the main source of dead space."
+      }
+    ]
+  },
+  {
+    "group": "Offer",
+    "devices": [
+      {
+        "key": "starburst",
+        "name": "Starburst seal",
+        "effect": "12–24 points, rotated −8° to −23°",
+        "purpose": "Turns a number into an object. Must overlap the hero or it floats."
+      },
+      {
+        "key": "ticket",
+        "name": "Ticket stub",
+        "effect": "side notches at 13% of height",
+        "purpose": "Makes the offer feel redeemable rather than announced."
+      },
+      {
+        "key": "sheen",
+        "name": "Plate sheen",
+        "effect": "inset 5% / top 7% / height 9% of its own plate",
+        "purpose": "Depth on flat colour. Measured from the plate, which is where it used to go wrong."
+      }
+    ]
+  },
+  {
+    "group": "Proof",
+    "devices": [
+      {
+        "key": "promisePills",
+        "name": "Promise pills",
+        "effect": "three check pills, evenly divided",
+        "purpose": "Answers the three objections before they are raised."
+      },
+      {
+        "key": "proofBlock",
+        "name": "Proof block",
+        "effect": "review card, stars, or numbered steps",
+        "purpose": "The reason a stranger calls a number on a flyer."
+      },
+      {
+        "key": "priceRows",
+        "name": "Price rows",
+        "effect": "alternating model / price bands",
+        "purpose": "The layout resellers actually screenshot and send on."
+      }
+    ]
+  },
+  {
+    "group": "Chrome",
+    "devices": [
+      {
+        "key": "cta",
+        "name": "Call to action",
+        "effect": "hot band or radiused button",
+        "purpose": "One instruction. Never two."
+      },
+      {
+        "key": "footerBar",
+        "name": "Footer bar",
+        "effect": "8.8% band, accent hairline, icon disc",
+        "purpose": "Anchors the number and the service area. Every reference ad has one."
+      },
+      {
+        "key": "cornerLockup",
+        "name": "Corner lockup",
+        "effect": "mark + wordmark + kicker at 4.8% margin",
+        "purpose": "Identity without a centred logo eating the top third."
+      }
+    ]
+  }
+]
