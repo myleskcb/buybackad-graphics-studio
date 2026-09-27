@@ -1,0 +1,1752 @@
+[
+ {
+  "n": 1,
+  "file": "social/01-iphone-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 84.8,
+  "ratio": 1.06,
+  "arrangement": "inline",
+  "bar_top": 1032,
+  "boxes": {
+   "verb": [
+    91,
+    1097,
+    176,
+    1127
+   ],
+   "number": [
+    188,
+    1054,
+    802,
+    1140
+   ],
+   "brand": [
+    878,
+    1104,
+    1109,
+    1126
+   ]
+  },
+  "contrast_number": 16.35,
+  "contrast_brand": 16.34,
+  "was_px": 40
+ },
+ {
+  "n": 2,
+  "file": "social/02-any-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 80.1,
+  "ratio": 1.0,
+  "arrangement": "stacked",
+  "bar_top": 1046,
+  "boxes": {
+   "number": [
+    91,
+    1068,
+    707,
+    1140
+   ],
+   "brand": [
+    880,
+    1110,
+    1109,
+    1136
+   ],
+   "verb": [
+    904,
+    1067,
+    1109,
+    1096
+   ]
+  },
+  "contrast_number": 16.35,
+  "contrast_brand": 16.24,
+  "was_px": 40
+ },
+ {
+  "n": 3,
+  "file": "social/03-macbook-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 84.8,
+  "ratio": 1.06,
+  "arrangement": "stacked",
+  "bar_top": 1032,
+  "boxes": {
+   "number": [
+    91,
+    1054,
+    705,
+    1140
+   ],
+   "brand": [
+    878,
+    1104,
+    1109,
+    1126
+   ],
+   "verb": [
+    894,
+    1059,
+    1109,
+    1090
+   ]
+  },
+  "contrast_number": 12.85,
+  "contrast_brand": 12.85,
+  "was_px": 40
+ },
+ {
+  "n": 4,
+  "file": "social/04-ipad-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 88.6,
+  "ratio": 1.11,
+  "arrangement": "inline",
+  "bar_top": null,
+  "boxes": {
+   "verb": [
+    91,
+    1089,
+    173,
+    1118
+   ],
+   "number": [
+    185,
+    1053,
+    801,
+    1125
+   ],
+   "brand": [
+    874,
+    1095,
+    1109,
+    1121
+   ]
+  },
+  "contrast_number": 4.71,
+  "contrast_brand": 16.33,
+  "was_px": 40
+ },
+ {
+  "n": 5,
+  "file": "social/05-watch-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 102.9,
+  "ratio": 1.29,
+  "arrangement": "stacked",
+  "bar_top": null,
+  "boxes": {
+   "number": [
+    91,
+    1053,
+    707,
+    1125
+   ],
+   "brand": [
+    874,
+    1095,
+    1109,
+    1121
+   ],
+   "verb": [
+    904,
+    1052,
+    1109,
+    1081
+   ]
+  },
+  "contrast_number": 11.9,
+  "contrast_brand": 16.96,
+  "was_px": 40
+ },
+ {
+  "n": 6,
+  "file": "social/06-mac-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Libre Franklin",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 77.1,
+  "ratio": 0.96,
+  "arrangement": "inline",
+  "bar_top": null,
+  "boxes": {
+   "verb": [
+    91,
+    1082,
+    176,
+    1112
+   ],
+   "number": [
+    188,
+    1052,
+    839,
+    1125
+   ],
+   "brand": [
+    883,
+    1090,
+    1109,
+    1112
+   ]
+  },
+  "contrast_number": 12.19,
+  "contrast_brand": 17.25,
+  "was_px": 40
+ },
+ {
+  "n": 7,
+  "file": "social/07-iphone-stage-list-social.jpg",
+  "layout": "Studio list",
+  "face": "Libre Franklin",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 99.6,
+  "ratio": 1.25,
+  "arrangement": "inline",
+  "bar_top": 1020,
+  "boxes": {
+   "verb": [
+    91,
+    1084,
+    176,
+    1114
+   ],
+   "number": [
+    188,
+    1054,
+    839,
+    1127
+   ],
+   "brand": [
+    883,
+    1092,
+    1109,
+    1114
+   ]
+  },
+  "contrast_number": 16.35,
+  "contrast_brand": 16.24,
+  "was_px": 40
+ },
+ {
+  "n": 8,
+  "file": "social/08-any-band-social.jpg",
+  "layout": "Photo band",
+  "face": "DM Mono",
+  "weight": 400,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "stacked",
+  "bar_top": null,
+  "boxes": {
+   "number": [
+    91,
+    1049,
+    763,
+    1130
+   ],
+   "brand": [
+    839,
+    1093,
+    1109,
+    1118
+   ],
+   "verb": [
+    1013,
+    1051,
+    1109,
+    1079
+   ]
+  },
+  "contrast_number": 11.8,
+  "contrast_brand": 17.35,
+  "was_px": 40
+ },
+ {
+  "n": 9,
+  "file": "social/09-macbook-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 83.8,
+  "ratio": 1.05,
+  "arrangement": "stacked",
+  "bar_top": 1046,
+  "boxes": {
+   "number": [
+    91,
+    1068,
+    707,
+    1140
+   ],
+   "brand": [
+    880,
+    1110,
+    1109,
+    1136
+   ],
+   "verb": [
+    904,
+    1067,
+    1109,
+    1096
+   ]
+  },
+  "contrast_number": 8.31,
+  "contrast_brand": 8.26,
+  "was_px": 40
+ },
+ {
+  "n": 10,
+  "file": "social/10-ipad-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Instrument Sans",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "inline",
+  "bar_top": null,
+  "boxes": {
+   "verb": [
+    91,
+    1086,
+    175,
+    1115
+   ],
+   "number": [
+    187,
+    1055,
+    792,
+    1124
+   ],
+   "brand": [
+    886,
+    1091,
+    1109,
+    1117
+   ]
+  },
+  "contrast_number": 12.19,
+  "contrast_brand": 17.25,
+  "was_px": 40
+ },
+ {
+  "n": 11,
+  "file": "social/11-watch-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Instrument Sans",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "stacked",
+  "bar_top": null,
+  "boxes": {
+   "number": [
+    91,
+    1055,
+    696,
+    1124
+   ],
+   "brand": [
+    886,
+    1091,
+    1109,
+    1117
+   ],
+   "verb": [
+    902,
+    1048,
+    1109,
+    1077
+   ]
+  },
+  "contrast_number": 11.9,
+  "contrast_brand": 16.96,
+  "was_px": 40
+ },
+ {
+  "n": 12,
+  "file": "social/12-mac-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 83.5,
+  "ratio": 1.04,
+  "arrangement": "inline",
+  "bar_top": 1032,
+  "boxes": {
+   "verb": [
+    91,
+    1097,
+    176,
+    1127
+   ],
+   "number": [
+    188,
+    1054,
+    802,
+    1140
+   ],
+   "brand": [
+    878,
+    1104,
+    1109,
+    1126
+   ]
+  },
+  "contrast_number": 13.4,
+  "contrast_brand": 13.4,
+  "was_px": 40
+ },
+ {
+  "n": 13,
+  "file": "social/13-iphone-band-social.jpg",
+  "layout": "Photo band",
+  "face": "DM Mono",
+  "weight": 400,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "stacked",
+  "bar_top": null,
+  "boxes": {
+   "number": [
+    91,
+    1049,
+    763,
+    1130
+   ],
+   "brand": [
+    839,
+    1093,
+    1109,
+    1118
+   ],
+   "verb": [
+    1013,
+    1051,
+    1109,
+    1079
+   ]
+  },
+  "contrast_number": 11.8,
+  "contrast_brand": 17.35,
+  "was_px": 40
+ },
+ {
+  "n": 14,
+  "file": "social/14-any-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "IBM Plex Mono",
+  "weight": 400,
+  "number_px": 80,
+  "headline_px": 91.0,
+  "ratio": 1.14,
+  "arrangement": "stacked",
+  "bar_top": 1046,
+  "boxes": {
+   "number": [
+    91,
+    1068,
+    763,
+    1140
+   ],
+   "brand": [
+    839,
+    1106,
+    1109,
+    1133
+   ],
+   "verb": [
+    821,
+    1062,
+    1109,
+    1092
+   ]
+  },
+  "contrast_number": 16.22,
+  "contrast_brand": 16.22,
+  "was_px": 40
+ },
+ {
+  "n": 15,
+  "file": "social/15-macbook-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "inline",
+  "bar_top": null,
+  "boxes": {
+   "verb": [
+    91,
+    1089,
+    173,
+    1118
+   ],
+   "number": [
+    185,
+    1053,
+    801,
+    1125
+   ],
+   "brand": [
+    874,
+    1095,
+    1109,
+    1121
+   ]
+  },
+  "contrast_number": 11.83,
+  "contrast_brand": 17.38,
+  "was_px": 40
+ },
+ {
+  "n": 16,
+  "file": "social/16-ipad-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 84.1,
+  "ratio": 1.05,
+  "arrangement": "inline",
+  "bar_top": 1046,
+  "boxes": {
+   "verb": [
+    91,
+    1104,
+    173,
+    1133
+   ],
+   "number": [
+    185,
+    1068,
+    801,
+    1140
+   ],
+   "brand": [
+    874,
+    1110,
+    1109,
+    1136
+   ]
+  },
+  "contrast_number": 7.59,
+  "contrast_brand": 7.55,
+  "was_px": 40
+ },
+ {
+  "n": 17,
+  "file": "social/17-watch-stage-list-social.jpg",
+  "layout": "Studio list",
+  "face": "Libre Franklin",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 99.4,
+  "ratio": 1.24,
+  "arrangement": "stacked",
+  "bar_top": 1020,
+  "boxes": {
+   "number": [
+    91,
+    1054,
+    742,
+    1127
+   ],
+   "brand": [
+    883,
+    1092,
+    1109,
+    1114
+   ],
+   "verb": [
+    898,
+    1048,
+    1109,
+    1078
+   ]
+  },
+  "contrast_number": 16.35,
+  "contrast_brand": 16.24,
+  "was_px": 40
+ },
+ {
+  "n": 18,
+  "file": "social/18-mac-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Libre Franklin",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 86.2,
+  "ratio": 1.08,
+  "arrangement": "stacked",
+  "bar_top": 1045,
+  "boxes": {
+   "number": [
+    91,
+    1067,
+    742,
+    1140
+   ],
+   "brand": [
+    883,
+    1105,
+    1109,
+    1127
+   ],
+   "verb": [
+    898,
+    1061,
+    1109,
+    1091
+   ]
+  },
+  "contrast_number": 9.14,
+  "contrast_brand": 9.08,
+  "was_px": 40
+ },
+ {
+  "n": 19,
+  "file": "social/19-iphone-stage-list-social.jpg",
+  "layout": "Studio list",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 96.4,
+  "ratio": 1.21,
+  "arrangement": "inline",
+  "bar_top": 1020,
+  "boxes": {
+   "verb": [
+    91,
+    1091,
+    176,
+    1121
+   ],
+   "number": [
+    188,
+    1048,
+    802,
+    1134
+   ],
+   "brand": [
+    878,
+    1098,
+    1109,
+    1120
+   ]
+  },
+  "contrast_number": 14.37,
+  "contrast_brand": 14.24,
+  "was_px": 40
+ },
+ {
+  "n": 20,
+  "file": "social/20-any-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Space Grotesk",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 79.0,
+  "ratio": 0.99,
+  "arrangement": "inline",
+  "bar_top": null,
+  "boxes": {
+   "verb": [
+    91,
+    1081,
+    174,
+    1111
+   ],
+   "number": [
+    186,
+    1049,
+    798,
+    1130
+   ],
+   "brand": [
+    890,
+    1089,
+    1109,
+    1116
+   ]
+  },
+  "contrast_number": 12.18,
+  "contrast_brand": 17.25,
+  "was_px": 40
+ },
+ {
+  "n": 21,
+  "file": "social/21-macbook-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Zilla Slab",
+  "weight": 600,
+  "number_px": 80,
+  "headline_px": 85.3,
+  "ratio": 1.07,
+  "arrangement": "inline",
+  "bar_top": 1045,
+  "boxes": {
+   "verb": [
+    91,
+    1099,
+    171,
+    1125
+   ],
+   "number": [
+    183,
+    1067,
+    698,
+    1140
+   ],
+   "brand": [
+    912,
+    1104,
+    1109,
+    1125
+   ]
+  },
+  "contrast_number": 15.21,
+  "contrast_brand": 15.05,
+  "was_px": 40
+ },
+ {
+  "n": 22,
+  "file": "social/22-ipad-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Libre Franklin",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 85.4,
+  "ratio": 1.07,
+  "arrangement": "inline",
+  "bar_top": 1045,
+  "boxes": {
+   "verb": [
+    91,
+    1097,
+    176,
+    1127
+   ],
+   "number": [
+    188,
+    1067,
+    839,
+    1140
+   ],
+   "brand": [
+    883,
+    1105,
+    1109,
+    1127
+   ]
+  },
+  "contrast_number": 16.35,
+  "contrast_brand": 16.25,
+  "was_px": 40
+ },
+ {
+  "n": 23,
+  "file": "social/23-watch-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Instrument Sans",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 84.7,
+  "ratio": 1.06,
+  "arrangement": "inline",
+  "bar_top": 1049,
+  "boxes": {
+   "verb": [
+    91,
+    1102,
+    175,
+    1131
+   ],
+   "number": [
+    187,
+    1071,
+    792,
+    1140
+   ],
+   "brand": [
+    886,
+    1107,
+    1109,
+    1133
+   ]
+  },
+  "contrast_number": 9.15,
+  "contrast_brand": 9.1,
+  "was_px": 40
+ },
+ {
+  "n": 24,
+  "file": "social/24-mac-band-social.jpg",
+  "layout": "Photo band",
+  "face": "DM Mono",
+  "weight": 400,
+  "number_px": 80,
+  "headline_px": 99.4,
+  "ratio": 1.24,
+  "arrangement": "stacked",
+  "bar_top": null,
+  "boxes": {
+   "number": [
+    91,
+    1049,
+    763,
+    1130
+   ],
+   "brand": [
+    839,
+    1093,
+    1109,
+    1118
+   ],
+   "verb": [
+    1013,
+    1051,
+    1109,
+    1079
+   ]
+  },
+  "contrast_number": 10.45,
+  "contrast_brand": 16.76,
+  "was_px": 40
+ },
+ {
+  "n": 25,
+  "file": "social/25-iphone-stage-list-social.jpg",
+  "layout": "Studio list",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 97.7,
+  "ratio": 1.22,
+  "arrangement": "stacked",
+  "bar_top": 1020,
+  "boxes": {
+   "number": [
+    91,
+    1048,
+    705,
+    1134
+   ],
+   "brand": [
+    878,
+    1098,
+    1109,
+    1120
+   ],
+   "verb": [
+    894,
+    1053,
+    1109,
+    1084
+   ]
+  },
+  "contrast_number": 9.14,
+  "contrast_brand": 9.14,
+  "was_px": 40
+ },
+ {
+  "n": 26,
+  "file": "social/26-any-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 83.8,
+  "ratio": 1.05,
+  "arrangement": "stacked",
+  "bar_top": null,
+  "boxes": {
+   "number": [
+    91,
+    1053,
+    707,
+    1125
+   ],
+   "brand": [
+    880,
+    1095,
+    1109,
+    1121
+   ],
+   "verb": [
+    904,
+    1052,
+    1109,
+    1081
+   ]
+  },
+  "contrast_number": 12.18,
+  "contrast_brand": 17.26,
+  "was_px": 40
+ },
+ {
+  "n": 27,
+  "file": "social/27-macbook-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 83.5,
+  "ratio": 1.04,
+  "arrangement": "inline",
+  "bar_top": 1046,
+  "boxes": {
+   "verb": [
+    91,
+    1104,
+    173,
+    1133
+   ],
+   "number": [
+    185,
+    1068,
+    801,
+    1140
+   ],
+   "brand": [
+    874,
+    1110,
+    1109,
+    1136
+   ]
+  },
+  "contrast_number": 7.58,
+  "contrast_brand": 7.55,
+  "was_px": 40
+ },
+ {
+  "n": 28,
+  "file": "social/28-ipad-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "stacked",
+  "bar_top": null,
+  "boxes": {
+   "number": [
+    91,
+    1053,
+    707,
+    1125
+   ],
+   "brand": [
+    874,
+    1095,
+    1109,
+    1121
+   ],
+   "verb": [
+    904,
+    1052,
+    1109,
+    1081
+   ]
+  },
+  "contrast_number": 10.46,
+  "contrast_brand": 16.89,
+  "was_px": 40
+ },
+ {
+  "n": 29,
+  "file": "social/29-watch-stage-list-social.jpg",
+  "layout": "Studio list",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 96.6,
+  "ratio": 1.21,
+  "arrangement": "inline",
+  "bar_top": 1020,
+  "boxes": {
+   "verb": [
+    91,
+    1091,
+    176,
+    1121
+   ],
+   "number": [
+    188,
+    1048,
+    802,
+    1134
+   ],
+   "brand": [
+    878,
+    1098,
+    1109,
+    1120
+   ]
+  },
+  "contrast_number": 15.24,
+  "contrast_brand": 15.24,
+  "was_px": 40
+ },
+ {
+  "n": 30,
+  "file": "social/30-iphone-stage-list-social.jpg",
+  "layout": "Studio list",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 99.5,
+  "ratio": 1.24,
+  "arrangement": "inline",
+  "bar_top": 1020,
+  "boxes": {
+   "verb": [
+    91,
+    1091,
+    173,
+    1120
+   ],
+   "number": [
+    185,
+    1055,
+    801,
+    1127
+   ],
+   "brand": [
+    880,
+    1097,
+    1109,
+    1123
+   ]
+  },
+  "contrast_number": 7.58,
+  "contrast_brand": 7.52,
+  "was_px": 40
+ },
+ {
+  "n": 31,
+  "file": "social/31-any-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Chivo",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 86.7,
+  "ratio": 1.08,
+  "arrangement": "inline",
+  "bar_top": 1049,
+  "boxes": {
+   "verb": [
+    91,
+    1099,
+    176,
+    1127
+   ],
+   "number": [
+    188,
+    1071,
+    775,
+    1140
+   ],
+   "brand": [
+    878,
+    1105,
+    1109,
+    1133
+   ]
+  },
+  "contrast_number": 8.32,
+  "contrast_brand": 8.31,
+  "was_px": 40
+ },
+ {
+  "n": 32,
+  "file": "social/32-macbook-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "DM Mono",
+  "weight": 400,
+  "number_px": 80,
+  "headline_px": 83.4,
+  "ratio": 1.04,
+  "arrangement": "stacked",
+  "bar_top": 1037,
+  "boxes": {
+   "number": [
+    91,
+    1059,
+    763,
+    1140
+   ],
+   "brand": [
+    839,
+    1103,
+    1109,
+    1128
+   ],
+   "verb": [
+    821,
+    1061,
+    1109,
+    1089
+   ]
+  },
+  "contrast_number": 13.39,
+  "contrast_brand": 13.39,
+  "was_px": 40
+ },
+ {
+  "n": 33,
+  "file": "social/33-ipad-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Space Grotesk",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 84.9,
+  "ratio": 1.06,
+  "arrangement": "stacked",
+  "bar_top": 1037,
+  "boxes": {
+   "number": [
+    91,
+    1059,
+    703,
+    1140
+   ],
+   "brand": [
+    890,
+    1099,
+    1109,
+    1126
+   ],
+   "verb": [
+    897,
+    1054,
+    1109,
+    1085
+   ]
+  },
+  "contrast_number": 8.31,
+  "contrast_brand": 8.31,
+  "was_px": 40
+ },
+ {
+  "n": 34,
+  "file": "social/34-iphone-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Libre Franklin",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 85.3,
+  "ratio": 1.07,
+  "arrangement": "inline",
+  "bar_top": 1045,
+  "boxes": {
+   "verb": [
+    91,
+    1097,
+    176,
+    1127
+   ],
+   "number": [
+    188,
+    1067,
+    839,
+    1140
+   ],
+   "brand": [
+    883,
+    1105,
+    1109,
+    1127
+   ]
+  },
+  "contrast_number": 13.4,
+  "contrast_brand": 13.39,
+  "was_px": 40
+ },
+ {
+  "n": 35,
+  "file": "social/35-any-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 104.8,
+  "ratio": 1.31,
+  "arrangement": "inline",
+  "bar_top": null,
+  "boxes": {
+   "verb": [
+    91,
+    1089,
+    173,
+    1118
+   ],
+   "number": [
+    185,
+    1053,
+    801,
+    1125
+   ],
+   "brand": [
+    874,
+    1095,
+    1109,
+    1121
+   ]
+  },
+  "contrast_number": 12.18,
+  "contrast_brand": 17.26,
+  "was_px": 40
+ },
+ {
+  "n": 36,
+  "file": "social/36-macbook-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "IBM Plex Mono",
+  "weight": 400,
+  "number_px": 80,
+  "headline_px": 84.4,
+  "ratio": 1.05,
+  "arrangement": "stacked",
+  "bar_top": 1046,
+  "boxes": {
+   "number": [
+    91,
+    1068,
+    763,
+    1140
+   ],
+   "brand": [
+    839,
+    1106,
+    1109,
+    1133
+   ],
+   "verb": [
+    1013,
+    1064,
+    1109,
+    1092
+   ]
+  },
+  "contrast_number": 15.21,
+  "contrast_brand": 15.08,
+  "was_px": 40
+ },
+ {
+  "n": 37,
+  "file": "social/37-iphone-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Chivo",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "inline",
+  "bar_top": null,
+  "boxes": {
+   "verb": [
+    91,
+    1082,
+    176,
+    1110
+   ],
+   "number": [
+    188,
+    1054,
+    775,
+    1123
+   ],
+   "brand": [
+    878,
+    1088,
+    1109,
+    1116
+   ]
+  },
+  "contrast_number": 10.46,
+  "contrast_brand": 16.9,
+  "was_px": 40
+ },
+ {
+  "n": 38,
+  "file": "social/38-any-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Space Grotesk",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 80.5,
+  "ratio": 1.01,
+  "arrangement": "inline",
+  "bar_top": 1037,
+  "boxes": {
+   "verb": [
+    91,
+    1091,
+    174,
+    1121
+   ],
+   "number": [
+    186,
+    1059,
+    798,
+    1140
+   ],
+   "brand": [
+    890,
+    1099,
+    1109,
+    1126
+   ]
+  },
+  "contrast_number": 11.74,
+  "contrast_brand": 11.72,
+  "was_px": 40
+ },
+ {
+  "n": 39,
+  "file": "social/39-iphone-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Zilla Slab",
+  "weight": 600,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "inline",
+  "bar_top": null,
+  "boxes": {
+   "verb": [
+    91,
+    1085,
+    171,
+    1111
+   ],
+   "number": [
+    183,
+    1053,
+    698,
+    1126
+   ],
+   "brand": [
+    912,
+    1090,
+    1109,
+    1111
+   ]
+  },
+  "contrast_number": 10.45,
+  "contrast_brand": 16.73,
+  "was_px": 40
+ },
+ {
+  "n": 40,
+  "file": "social/40-iphone-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Instrument Sans",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 85.1,
+  "ratio": 1.06,
+  "arrangement": "stacked",
+  "bar_top": 1049,
+  "boxes": {
+   "number": [
+    91,
+    1071,
+    696,
+    1140
+   ],
+   "brand": [
+    886,
+    1107,
+    1109,
+    1133
+   ],
+   "verb": [
+    902,
+    1064,
+    1109,
+    1093
+   ]
+  },
+  "contrast_number": 9.14,
+  "contrast_brand": 9.1,
+  "was_px": 40
+ },
+ {
+  "n": 41,
+  "file": "social/41-iphone-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 84.6,
+  "ratio": 1.06,
+  "arrangement": "stacked",
+  "bar_top": 1032,
+  "boxes": {
+   "number": [
+    91,
+    1054,
+    705,
+    1140
+   ],
+   "brand": [
+    878,
+    1104,
+    1109,
+    1126
+   ],
+   "verb": [
+    894,
+    1059,
+    1109,
+    1090
+   ]
+  },
+  "contrast_number": 14.37,
+  "contrast_brand": 14.24,
+  "was_px": 40
+ },
+ {
+  "n": 42,
+  "file": "social/42-iphone-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Instrument Sans",
+  "weight": 700,
+  "number_px": 80,
+  "headline_px": 85.2,
+  "ratio": 1.06,
+  "arrangement": "stacked",
+  "bar_top": 1049,
+  "boxes": {
+   "number": [
+    91,
+    1071,
+    696,
+    1140
+   ],
+   "brand": [
+    886,
+    1107,
+    1109,
+    1133
+   ],
+   "verb": [
+    902,
+    1064,
+    1109,
+    1093
+   ]
+  },
+  "contrast_number": 7.58,
+  "contrast_brand": 7.54,
+  "was_px": 40
+ },
+ {
+  "n": 43,
+  "file": "social/43-iphone-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 83.9,
+  "ratio": 1.05,
+  "arrangement": "stacked",
+  "bar_top": 1032,
+  "boxes": {
+   "number": [
+    91,
+    1054,
+    705,
+    1140
+   ],
+   "brand": [
+    878,
+    1104,
+    1109,
+    1126
+   ],
+   "verb": [
+    894,
+    1059,
+    1109,
+    1090
+   ]
+  },
+  "contrast_number": 12.85,
+  "contrast_brand": 12.85,
+  "was_px": 40
+ },
+ {
+  "n": 44,
+  "file": "social/44-iphone-band-social.jpg",
+  "layout": "Photo band",
+  "face": "IBM Plex Mono",
+  "weight": 400,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "stacked",
+  "bar_top": null,
+  "boxes": {
+   "number": [
+    91,
+    1054,
+    763,
+    1126
+   ],
+   "brand": [
+    839,
+    1092,
+    1109,
+    1119
+   ],
+   "verb": [
+    821,
+    1048,
+    1109,
+    1078
+   ]
+  },
+  "contrast_number": 10.45,
+  "contrast_brand": 16.87,
+  "was_px": 40
+ },
+ {
+  "n": 45,
+  "file": "social/45-iphone-stage-list-social.jpg",
+  "layout": "Studio list",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 96.5,
+  "ratio": 1.21,
+  "arrangement": "inline",
+  "bar_top": 1020,
+  "boxes": {
+   "verb": [
+    91,
+    1091,
+    176,
+    1121
+   ],
+   "number": [
+    188,
+    1048,
+    802,
+    1134
+   ],
+   "brand": [
+    878,
+    1098,
+    1109,
+    1120
+   ]
+  },
+  "contrast_number": 7.55,
+  "contrast_brand": 7.55,
+  "was_px": 40
+ },
+ {
+  "n": 46,
+  "file": "social/46-iphone-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Manrope",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 83.6,
+  "ratio": 1.05,
+  "arrangement": "inline",
+  "bar_top": 1032,
+  "boxes": {
+   "verb": [
+    91,
+    1097,
+    176,
+    1127
+   ],
+   "number": [
+    188,
+    1054,
+    802,
+    1140
+   ],
+   "brand": [
+    878,
+    1104,
+    1109,
+    1126
+   ]
+  },
+  "contrast_number": 9.15,
+  "contrast_brand": 9.14,
+  "was_px": 40
+ },
+ {
+  "n": 47,
+  "file": "social/47-iphone-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 100.0,
+  "ratio": 1.25,
+  "arrangement": "stacked",
+  "bar_top": null,
+  "boxes": {
+   "number": [
+    91,
+    1053,
+    707,
+    1125
+   ],
+   "brand": [
+    874,
+    1095,
+    1109,
+    1121
+   ],
+   "verb": [
+    904,
+    1052,
+    1109,
+    1081
+   ]
+  },
+  "contrast_number": 11.9,
+  "contrast_brand": 16.96,
+  "was_px": 40
+ },
+ {
+  "n": 48,
+  "file": "social/48-iphone-band-social.jpg",
+  "layout": "Photo band",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 99.0,
+  "ratio": 1.24,
+  "arrangement": "inline",
+  "bar_top": null,
+  "boxes": {
+   "verb": [
+    91,
+    1089,
+    173,
+    1118
+   ],
+   "number": [
+    185,
+    1053,
+    801,
+    1125
+   ],
+   "brand": [
+    874,
+    1095,
+    1109,
+    1121
+   ]
+  },
+  "contrast_number": 11.9,
+  "contrast_brand": 16.96,
+  "was_px": 40
+ },
+ {
+  "n": 49,
+  "file": "social/49-iphone-stage-row-social.jpg",
+  "layout": "Studio row",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 84.6,
+  "ratio": 1.06,
+  "arrangement": "inline",
+  "bar_top": 1046,
+  "boxes": {
+   "verb": [
+    91,
+    1104,
+    173,
+    1133
+   ],
+   "number": [
+    185,
+    1068,
+    801,
+    1140
+   ],
+   "brand": [
+    874,
+    1110,
+    1109,
+    1136
+   ]
+  },
+  "contrast_number": 16.35,
+  "contrast_brand": 16.25,
+  "was_px": 40
+ },
+ {
+  "n": 50,
+  "file": "social/50-iphone-stage-list-social.jpg",
+  "layout": "Studio list",
+  "face": "Inter",
+  "weight": 800,
+  "number_px": 80,
+  "headline_px": 99.5,
+  "ratio": 1.24,
+  "arrangement": "stacked",
+  "bar_top": 1020,
+  "boxes": {
+   "number": [
+    91,
+    1055,
+    707,
+    1127
+   ],
+   "brand": [
+    880,
+    1097,
+    1109,
+    1123
+   ],
+   "verb": [
+    904,
+    1054,
+    1109,
+    1083
+   ]
+  },
+  "contrast_number": 11.74,
+  "contrast_brand": 11.74,
+  "was_px": 40
+ }
+]
