@@ -12005,17 +12005,22 @@ async function motionPlan(w, h, sound){
    starts from the line's origin (off, a serif W can start 30px in), and the
    line's advance width lw, which is what fabric aligns within the box. */
 function plateAirInk(t){
+  /* fabric's own line widths are the truth (the letters are drawn at the
+     advances it laid out, and a width cached while a face was loading can run
+     12% wider than the face measures); measureText supplies only where the ink
+     starts and ends within a line, scaled onto fabric's advance */
   try {
     const ctx = plateAirInk.ctx || (plateAirInk.ctx = document.createElement('canvas').getContext('2d'));
     ctx.font = t._getFontDeclaration();
     const sp = (t.charSpacing || 0) / 1000 * (t.fontSize || 0);
     const lines = (t._textLines || [String(t.text || '').split('')]).map(l => (Array.isArray(l) ? l.join('') : String(l)));
     let best = null;
-    lines.forEach(s => {
+    lines.forEach((s, i) => {
       if (!s.trim()) return;
       const m = ctx.measureText(s), n = Math.max(0, s.length - 1);
-      const w = (m.actualBoundingBoxLeft || 0) + (m.actualBoundingBoxRight || m.width) + sp * n;
-      if (!best || w > best.w) best = { w, off: -(m.actualBoundingBoxLeft || 0), lw: m.width + sp * n };
+      const adv = m.width + sp * n, lw = typeof t.getLineWidth === 'function' ? t.getLineWidth(i) : adv, r = adv > 0 ? lw / adv : 1;
+      const w = ((m.actualBoundingBoxLeft || 0) + (m.actualBoundingBoxRight || m.width) + sp * n) * r;
+      if (!best || w > best.w) best = { w, off: -(m.actualBoundingBoxLeft || 0) * r, lw };
     });
     return best && best.w > 0 ? best : { w: t.width, off: 0, lw: t.width };
   } catch (e){ return { w: t.width, off: 0, lw: t.width }; }
@@ -12127,39 +12132,88 @@ function plateAir(sc, W, H){
   };
 }
 
-/* ═══ TAGLINE STYLES (experiment, not yet offered in the UI) ════════════════
+/* ═══ TAGLINE STYLES ═══════════════════════════════════════════════════════
    Owner, 2026-09-27: "who said the main tagline had to be one color? why not
    patterns, gradients, or color blocking?", "My favorite ads kept a cohesive
-   gradient on assets to make it look cool and unique", "We can also do white
-   with black outline?"
+   gradient on assets", "We can also do white with black outline?", a #1 BUYER
+   reference (one orange-to-lime sweep on every line that sells, heavy black
+   outlines, dark bands), then "add a glow and a 3-D theme with the red and
+   blue", "stripes, polkadots, money signs ... cracked text ... 3-D realism",
+   "any gradient, any amount of colors ... premade gradients", and "text made
+   of different colored letters".
 
-   Where one colour came from: DESIGN-LAW rule 5 and the MATTHEW study, where
-   a RAINBOW money word landed in "mid" every time and one saturated hue in
-   "good". It never tested a cohesive gradient: one signature gradient
-   repeated across the tagline, the number plate and the badges. These styles
-   let that be measured on the real cards instead of assumed.
+   Where one colour came from: DESIGN-LAW rule 5 and the MATTHEW study, where a
+   RAINBOW money word landed in "mid" every time. It never tested a cohesive
+   sweep repeated on every selling line and carried by an outline, which is
+   the owner's favourite. Rule 3 (no coloured glow) is the owner's to
+   overrule, and glow is offered as a choice, not a default.
 
-   Applied to a finished scene (after alignPass), so a style is a choice made
-   on any card. Gradients keep each element's own lightness and move only hue
-   and colourfulness (rule 52), so a plate keeps its contrast with the number
-   by construction; the tagline is re-measured by the critic after.
-
-   modes: 'solid' (as designed) · 'street' (the owner's reference: a 75°
-   sweep from the accent on the tagline, number and CTA, heavy black outline,
-   dark halo, their plates dark) · 'gradient' (signature: the accent's hue
-   +/-25°, on the tagline and every accent plate) · 'pair' (the theme's accent
-   into its support colour, same assets) · 'blocks' (each tagline line on its
-   own solid block) · 'pattern' (the tagline in diagonal stripes of two
-   tones) · 'outline' (white, black outline, tight dark shadow) */
-function taglineStyle(sc, mode, pal, W, H){
-  if (!mode || mode === 'solid') return { mode: 'solid', touched: 0 };
+   A style is a spec applied to a finished scene (after alignPass):
+     fill     'solid' | 'gradient' | 'multicolor' | 'texture'
+     gradient 'theme' (accent ±25° at each line's own lightness, so contrast
+              holds) | 'pair' (accent into support) | 'street' (a 75° sweep
+              toward yellow) | [hex, hex, ...] (any number of stops) | a
+              TAGLINE_GRADIENTS key
+     angle    degrees, CSS sense (90 = left to right)
+     texture  'stripes' | 'dots' | 'money' | 'cracked'
+     outline  'none' | 'black' | 'white'
+     effect   'none' | 'glow' | 'anaglyph' (red and blue 3-D) | 'extrude'
+     blocks   each tagline line on its own block in the theme's colours
+     scope    'tagline' (the headline lines) | 'selling' (+ number and CTA)
+     plates   'keep' | 'dark' (plates and bands under styled lines go dark)
+              | 'match' (accent plates take the gradient)
+   Every style is re-measured by the critic before it ships (rule 54). */
+const TAGLINE_GRADIENTS = {
+  street:  { name: 'Street',     stops: ['#ff7a3c', '#ffe13a', '#9be22a'] },
+  sunset:  { name: 'Sunset',     stops: ['#ff5f6d', '#ff9a5a', '#ffc371'] },
+  ocean:   { name: 'Ocean',      stops: ['#2e8bff', '#1ec8ff', '#5ff0e0'] },
+  neon:    { name: 'Neon',       stops: ['#ff2fd0', '#8a5bff', '#27e0ff'] },
+  gold:    { name: 'Gold foil',  stops: ['#b8862b', '#ffe29a', '#c8942e', '#fff0b8'] },
+  fire:    { name: 'Fire',       stops: ['#ff2d2d', '#ff7a1a', '#ffd23f'] },
+  miami:   { name: 'Miami',      stops: ['#ff4ecd', '#ff9f6b', '#35d0ff'] },
+  aurora:  { name: 'Aurora',     stops: ['#00e0b0', '#4d9cff', '#b86bff'] },
+  royal:   { name: 'Royal',      stops: ['#6a5cff', '#b06bff', '#ff6bd6'] },
+  citrus:  { name: 'Citrus',     stops: ['#ffe14d', '#a6ff4d', '#2ee88a'] },
+  candy:   { name: 'Candy',      stops: ['#ff7eb3', '#ffc2e2', '#8fd3ff'] },
+  mint:    { name: 'Mint',       stops: ['#1fd1a5', '#a8ff78'] },
+  chrome:  { name: 'Chrome',     stops: ['#f4f6f8', '#9aa3ad', '#ffffff', '#6b737c'] },
+  money:   { name: 'Money',      stops: ['#1f7a3a', '#9ff0a0', '#1f7a3a'] },
+  steel:   { name: 'Steel blue', stops: ['#e4eef8', '#7fa4c9'] },
+  rainbow: { name: 'Rainbow',    stops: ['#ff4d4d', '#ffa94d', '#ffe14d', '#4dff88', '#4dc3ff', '#b44dff'] },
+};
+/* the named looks the studio offers; each is just a spec */
+const TAGLINE_LOOKS = {
+  solid:     { name: 'Solid' },
+  street:    { name: 'Street', fill: 'gradient', gradient: 'street', outline: 'black', scope: 'selling', plates: 'dark' },
+  signature: { name: 'Signature gradient', fill: 'gradient', gradient: 'theme', plates: 'match' },
+  pair:      { name: 'Accent into support', fill: 'gradient', gradient: 'pair', plates: 'match' },
+  outline:   { name: 'White + black outline', fill: 'white', outline: 'black' },
+  blocks:    { name: 'Colour blocks', blocks: true },
+  multicolor:{ name: 'Multicolour letters', fill: 'multicolor', outline: 'black' },
+  glow:      { name: 'Glow', fill: 'white', effect: 'glow' },
+  anaglyph:  { name: '3-D red & blue', fill: 'white', effect: 'anaglyph' },
+  extrude:   { name: '3-D block', effect: 'extrude' },
+  stripes:   { name: 'Stripes', fill: 'texture', texture: 'stripes', outline: 'black' },
+  dots:      { name: 'Polka dots', fill: 'texture', texture: 'dots', outline: 'black' },
+  cash:      { name: 'Money signs', fill: 'texture', texture: 'money', outline: 'black' },
+  cracked:   { name: 'Cracked', fill: 'texture', texture: 'cracked', outline: 'black' },
+};
+function taglineGradientStops(g){
+  if (Array.isArray(g)) return g.filter(c => /^#[0-9a-f]{6}$/i.test(c));
+  return TAGLINE_GRADIENTS[g] ? TAGLINE_GRADIENTS[g].stops.slice() : null;
+}
+function taglineStyle(sc, spec, pal, W, H){
+  if (typeof spec === 'string') spec = TAGLINE_LOOKS[spec] || { name: spec };
+  spec = Object.assign({ fill: 'solid', outline: 'none', effect: 'none', scope: 'tagline', plates: 'keep', angle: 90 }, spec || {});
   const objs = sc.getObjects();
   const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
   const live = o => o && o.visible !== false && (o.opacity == null || o.opacity > 0.05);
   const fsOf = o => (o.fontSize || 30) * (o.scaleY || 1);
   const heads = objs.filter(o => live(o) && isText(o) && o.pgRole === 'headline' && /[A-Za-z0-9]/.test(o.text || ''));
-  if (!heads.length) return { mode, touched: 0, why: 'no headline' };
-  const main = heads.slice().sort((a, b) => fsOf(b) - fsOf(a))[0];
+  if (!heads.length) return { touched: 0, why: 'no headline' };
+  const lines = spec.scope === 'selling'
+    ? objs.filter(o => live(o) && isText(o) && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || ''))
+    : heads;
   const solidHex = f => {
     if (typeof f === 'string'){
       if (/^#[0-9a-f]{6}$/i.test(f)) return f;
@@ -12174,68 +12228,51 @@ function taglineStyle(sc, mode, pal, W, H){
   const acc = ok(pal.accent || '#4d9cff'), sup = ok(pal.support || pal.accent || '#4d9cff');
   const h0 = acc.C >= 0.04 ? acc.h : sup.h;
   const at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
-  // the tagline's own lightness, pushed into a range where colour can show and still read
-  const tagHex = solidHex(main.fill) || '#ffffff', tagL = ok(tagHex).L, lightTag = tagL >= 0.6;
-  const TL = lightTag ? Math.min(0.88, Math.max(0.74, tagL)) : Math.min(0.42, Math.max(0.26, tagL));
-  // accent plates: chromatic, mostly opaque, small (not panels, not the ground)
-  const plates = objs.filter(o => live(o) && o.type === 'rect' && (() => {
-    const hex = solidHex(o.fill), w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
-    return hex && ok(hex).C >= 0.06 && w * h < 0.12 * W * H && w < 0.93 * W;
-  })());
-  const sweep = (L, C, a, b) => ({ c1: at(L, C, a), c2: at(L, C, b), a: 110 });
+  const gradOf = (stops, angle, o) => {
+    const rad = (angle == null ? 90 : angle) * Math.PI / 180, vx = Math.sin(rad) * 0.5, vy = -Math.cos(rad) * 0.5;
+    return new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0.5 - vx, y1: 0.5 - vy, x2: 0.5 + vx, y2: 0.5 + vy },
+      colorStops: stops.map((c, i) => ({ offset: stops.length === 1 ? 0 : i / (stops.length - 1), color: c })) });
+  };
+  // a line's own lightness, pushed into a range where colour can show and still read
+  const lightOf = o => { const hex = solidHex(o.fill) || '#ffffff', L = ok(hex).L; return { L, light: L >= 0.6, TL: L >= 0.6 ? Math.min(0.88, Math.max(0.74, L)) : Math.min(0.42, Math.max(0.26, L)) }; };
+  const stopsFor = (o) => {
+    const g = spec.gradient || 'theme', { TL } = lightOf(o);
+    if (g === 'theme') return [at(TL, 0.15, h0 - 25), at(TL, 0.15, h0 + 25)];
+    if (g === 'pair') return [at(TL, 0.15, acc.h), at(TL, 0.15, sup.h)];
+    if (g === 'street'){
+      const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
+      return [[0.74, h0], [0.88, h0 + dir * 40], [0.84, h0 + dir * 75]].map(([L, h]) => at(L, 0.18, h));
+    }
+    return taglineGradientStops(g) || [at(TL, 0.15, h0 - 25), at(TL, 0.15, h0 + 25)];
+  };
   let touched = 0;
-  if (mode === 'gradient' || mode === 'pair'){
-    const ha = mode === 'gradient' ? h0 - 25 : acc.h, hb = mode === 'gradient' ? h0 + 25 : sup.h;
-    setObjGradient(main, sweep(TL, 0.15, ha, hb)); touched++;
-    plates.forEach(p => { const o = ok(solidHex(p.fill)); setObjGradient(p, sweep(o.L, Math.max(o.C, 0.12), ha, hb)); touched++; });
-  } else if (mode === 'pattern'){
-    // a seamless 45° stripe tile: the period (half the tile) divides the tile
-    const fs = fsOf(main), band = Math.max(5, Math.round(fs * 0.09)), S = band * 4;
-    const cv = document.createElement('canvas'); cv.width = cv.height = S;
-    const x = cv.getContext('2d');
-    x.fillStyle = at(TL, 0.06, h0); x.fillRect(0, 0, S, S);
-    x.strokeStyle = at(lightTag ? TL - 0.2 : TL + 0.2, 0.17, h0); x.lineWidth = band * Math.SQRT2 / 2 * 2;
-    for (let x0 = -S; x0 <= S; x0 += S / 2){ x.beginPath(); x.moveTo(x0, S); x.lineTo(x0 + S, 0); x.stroke(); }
-    main.set('fill', new fabric.Pattern({ source: cv, repeat: 'repeat' })); main.pgFillGrad = null; touched++;
-  } else if (mode === 'street'){
-    /* The owner's reference (2026-09-27, #1 BUYER): one warm-to-lime sweep,
-       left to right, on every line that sells (the product line, the
-       headline, the subline and the number), each in a heavy black outline
-       with a dark halo; the band under the subline dark and neutral. Here the
-       sweep starts at the theme's accent and runs 75° through its bright
-       neighbours; the plates that carry a swept line go dark, and the other
-       accent plates take the same sweep, so it reads as one system. */
-    /* the sweep travels toward yellow, the hue that is bright and vivid at
-       once: blue runs to azure and cyan, pink to coral and orange, orange to
-       yellow and lime (the reference). Toward violet a bright blue can only
-       go pastel. */
-    const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
-    const stops = [[0.74, h0], [0.88, h0 + dir * 40], [0.84, h0 + dir * 75]].map(([L, h], i) => ({ offset: i / 2, color: at(L, 0.18, h) }));
-    const sweep = () => new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0, y1: 0.5, x2: 1, y2: 0.5 }, colorStops: stops.map(c => Object.assign({}, c)) });
-    const lines = objs.filter(o => live(o) && isText(o) && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || ''));
-    const hosting = new Set();
-    // any small opaque rect under a swept line is its plate, whatever its colour (the mint number plate)
-    const rects = objs.filter(o => live(o) && o.type === 'rect' && o.width * (o.scaleX || 1) < 0.93 * W && o.width * (o.scaleX || 1) * o.height * (o.scaleY || 1) < 0.2 * W * H
-      && (typeof o.fill !== 'string' || !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(o.fill)));
-    lines.forEach(o => {
-      const c = o.getCenterPoint(), zo = objs.indexOf(o);
-      rects.forEach(p => { if (objs.indexOf(p) > zo) return; const b = p.getBoundingRect(true, true); if (c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height) hosting.add(p); });
-      const u = o.fontSize || 40;
-      o.set({ fill: sweep(), stroke: '#0b0b0d', strokeWidth: Math.max(3, u * 0.085), paintFirst: 'stroke', strokeLineJoin: 'round',
-        shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.12, offsetX: 0, offsetY: u * 0.03 }) });
-      o.pgFillGrad = null; touched++;
+  const clean = o => { o.pgFillGrad = null; };
+
+  // ── plates under the styled lines (and bands: the owner's reference sits its lines on dark bands)
+  const rects = objs.filter(o => live(o) && o.type === 'rect' && o.width * (o.scaleX || 1) <= W + 4
+    && o.width * (o.scaleX || 1) * o.height * (o.scaleY || 1) < 0.25 * W * H
+    && (typeof o.fill !== 'string' || !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(o.fill)));
+  const hostOf = o => { const c = o.getCenterPoint(), zo = objs.indexOf(o);
+    return rects.filter(p => objs.indexOf(p) < zo).filter(p => { const b = p.getBoundingRect(true, true); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })
+      .sort((a, b) => a.width * a.height * (a.scaleX || 1) * (a.scaleY || 1) - b.width * b.height * (b.scaleX || 1) * (b.scaleY || 1))[0] || null; };
+  const hosting = new Set(lines.map(hostOf).filter(Boolean));
+  if (spec.plates === 'dark') hosting.forEach(p => { p.set({ fill: 'rgba(12,12,14,0.86)', stroke: null }); clean(p); touched++; });
+  if (spec.plates === 'match'){
+    const accentPlates = objs.filter(o => live(o) && o.type === 'rect' && !hosting.has(o) && (() => {
+      const hex = solidHex(o.fill), w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
+      return hex && ok(hex).C >= 0.06 && w * h < 0.12 * W * H && w < 0.93 * W;
+    })());
+    accentPlates.concat([...hosting].filter(p => { const hex = solidHex(p.fill); return hex && ok(hex).C >= 0.06; })).forEach(p => {
+      const o = ok(solidHex(p.fill)), g = spec.gradient || 'theme';
+      const st = g === 'pair' ? [at(o.L, Math.max(o.C, 0.12), acc.h), at(o.L, Math.max(o.C, 0.12), sup.h)]
+        : g === 'theme' ? [at(o.L, Math.max(o.C, 0.12), h0 - 25), at(o.L, Math.max(o.C, 0.12), h0 + 25)]
+        : (taglineGradientStops(g) || []).map(c => { const q = ok(c); return at(o.L, Math.max(0.1, q.C), q.h); });   // the preset's hues at the plate's own lightness
+      if (st.length){ p.set('fill', gradOf(st, 110)); clean(p); touched++; }
     });
-    hosting.forEach(p => { p.set({ fill: 'rgba(12,12,14,0.84)', stroke: null }); p.pgFillGrad = null; touched++; });
-    plates.forEach(p => { if (hosting.has(p)) return; p.set('fill', sweep()); p.pgFillGrad = null; touched++; });
-  } else if (mode === 'outline'){
-    heads.forEach(o => {
-      const u = o.fontSize || 40;
-      o.set({ fill: '#ffffff', stroke: '#0b0b0d', strokeWidth: Math.max(3, u * 0.075), paintFirst: 'stroke', strokeLineJoin: 'round',
-        shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.55)', blur: u * 0.06, offsetX: 0, offsetY: u * 0.03 }) });
-      o.pgFillGrad = null; touched++;
-    });
-  } else if (mode === 'blocks'){
-    // each tagline line on its own block, alternating the theme's two colours; ink by contrast
+  }
+
+  // ── colour blocks: each tagline line on its own block, alternating the theme's two colours
+  if (spec.blocks){
     const cols = [pal.accent || '#4d9cff', pal.support || pal.accent || '#4d9cff'];
     const lumOf = hex => { const n = parseInt(hex.slice(1), 16), f = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
       return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255); };
@@ -12245,22 +12282,195 @@ function taglineStyle(sc, mode, pal, W, H){
       const ink = ratio(lumOf(fill), 1) >= ratio(lumOf(fill), lumOf('#0e0e10')) ? '#ffffff' : '#0e0e10';
       if (ratio(lumOf(fill), lumOf(ink)) < 4.5) fill = oklchFit({ L: ink === '#ffffff' ? 0.42 : 0.82, C: ok(fill).C, h: ok(fill).h });
       o.setCoords();
-      // the line's own box (letter-spacing included), padded; inside the 6% guides, the type comes down if it must
       const G = 0.06 * Math.min(W, H), fs = fsOf(o), padX = Math.max(14, fs * 0.3), padY = Math.max(6, fs * 0.1);
       let bw = o.width * (o.scaleX || 1) + 2 * padX;
       if (bw > W - 2 * G){ const k = (W - 2 * G - 2 * padX) / (o.width * (o.scaleX || 1)); const c0 = o.getCenterPoint();
         o.set({ scaleX: (o.scaleX || 1) * k, scaleY: (o.scaleY || 1) * k }); o.setPositionByOrigin(c0, 'center', 'center'); o.setCoords(); bw = W - 2 * G; }
-      const c = o.getCenterPoint(), half = bw / 2;
-      const cx = Math.min(W - G - half, Math.max(G + half, c.x));
+      const c = o.getCenterPoint(), half = bw / 2, cx = Math.min(W - G - half, Math.max(G + half, c.x));
       if (cx !== c.x){ o.setPositionByOrigin(new fabric.Point(cx, c.y), 'center', 'center'); o.setCoords(); }
-      const hTxt = o.height * (o.scaleY || 1) * 0.86;
-      const blk = new fabric.Rect({ width: bw, height: hTxt + 2 * padY, fill, rx: Math.round(fs * 0.08), ry: Math.round(fs * 0.08),
+      const blk = new fabric.Rect({ width: bw, height: o.height * (o.scaleY || 1) * 0.86 + 2 * padY, fill, rx: Math.round(fs * 0.08), ry: Math.round(fs * 0.08),
         angle: o.angle || 0, originX: 'center', originY: 'center', left: cx, top: c.y, selectable: false, evented: false, name: 'Tagline Block ' + (i + 1) });
       sc.insertAt(blk, sc.getObjects().indexOf(o));
-      o.set({ fill: ink, stroke: null, strokeWidth: 0, shadow: null }); o.pgFillGrad = null;
+      o.set({ fill: ink, stroke: null, strokeWidth: 0, shadow: null }); clean(o); touched++;
+    });
+  }
+
+  // ── fill
+  lines.forEach(o => {
+    if (spec.blocks && heads.indexOf(o) >= 0) return;
+    const { TL, light } = lightOf(o), u = o.fontSize || 40;
+    if (spec.fill === 'white'){ o.set('fill', '#ffffff'); clean(o); }
+    else if (spec.fill === 'gradient'){ o.set('fill', gradOf(stopsFor(o), spec.angle, o)); clean(o); }
+    else if (spec.fill === 'multicolor'){
+      /* each letter its own colour, cycling through the gradient's stops or
+         five hues spread from the accent at the line's own lightness */
+      const pool = Array.isArray(spec.gradient) || TAGLINE_GRADIENTS[spec.gradient] ? taglineGradientStops(spec.gradient)
+        : [0, 72, 144, 216, 288].map(d => at(TL, 0.17, h0 + d));
+      const styles = {}; let k = 0;
+      (o._textLines || [String(o.text).split('')]).forEach((ln, li) => {
+        styles[li] = {};
+        ln.forEach((ch, ci) => { if (!/\s/.test(ch)){ styles[li][ci] = { fill: pool[k % pool.length] }; k++; } });
+      });
+      o.set({ styles }); clean(o); o.dirty = true;
+    } else if (spec.fill === 'texture'){
+      o.set('fill', taglineTexture(spec.texture, TL, light, h0, fsOf(o))); clean(o);
+    }
+    // outline: heavy, painted first so the letters keep their full width
+    if (spec.outline === 'black' || spec.outline === 'white'){
+      o.set({ stroke: spec.outline === 'black' ? '#0b0b0d' : '#ffffff', strokeWidth: Math.max(3, u * 0.085), paintFirst: 'stroke', strokeLineJoin: 'round',
+        shadow: new fabric.Shadow({ color: spec.outline === 'black' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)', blur: u * 0.1, offsetX: 0, offsetY: u * 0.03 }) });
+    }
+    touched++;
+  });
+
+  // ── effects
+  const cloneText = (o, props) => {
+    const c = new o.constructor(o.text, Object.assign(o.toObject(), { fill: '#000000', stroke: null, strokeWidth: 0, shadow: null, styles: {} }, props));
+    c.set({ selectable: false, evented: false, name: (o.name || 'Tagline') + ' depth', pgRole: 'deco' });
+    return c;
+  };
+  if (spec.effect === 'glow'){
+    /* a neon tube: a hot core, a thin coloured edge, two passes of glow */
+    const glowHex = at(0.72, 0.2, h0);
+    lines.forEach(o => {
+      const u = o.fontSize || 40;
+      if (spec.fill === 'white' || spec.fill === 'solid') o.set('fill', '#ffffff');
+      o.set({ stroke: glowHex, strokeWidth: Math.max(2, u * 0.035), paintFirst: 'stroke', shadow: new fabric.Shadow({ color: glowHex, blur: u * 0.45, offsetX: 0, offsetY: 0 }) });
+      const halo = cloneText(o, { fill: glowHex, opacity: 0.85, shadow: new fabric.Shadow({ color: glowHex, blur: u * 0.9, offsetX: 0, offsetY: 0 }) });
+      sc.insertAt(halo, sc.getObjects().indexOf(o));
+      touched++;
+    });
+  } else if (spec.effect === 'anaglyph'){
+    /* the old 3-D print: red to one side, blue to the other, the letter on top */
+    lines.forEach(o => {
+      const u = o.fontSize || 40, d = u * 0.05 * (o.scaleX || 1), a = (o.angle || 0) * Math.PI / 180;
+      const red = cloneText(o, { fill: '#ff2a4f', left: o.left - d * Math.cos(a), top: o.top - d * Math.sin(a) });
+      const blue = cloneText(o, { fill: '#18b4ff', left: o.left + d * Math.cos(a), top: o.top + d * Math.sin(a) });
+      const i = sc.getObjects().indexOf(o);
+      sc.insertAt(blue, i); sc.insertAt(red, i);
+      if (spec.fill === 'white' || spec.fill === 'solid') o.set({ fill: '#ffffff' });
+      o.set({ stroke: null, strokeWidth: 0, shadow: null });
+      touched++;
+    });
+  } else if (spec.effect === 'extrude'){
+    /* depth: the letter stacked back on itself, darkening as it recedes, one soft shadow under it all */
+    /* the sides in the accent, deepening as they recede, so the depth shows on
+       a dark photograph as well as a light one; a thin dark edge on the face */
+    lines.forEach(o => {
+      // one layer per ~1.5px of depth, so the sides read as a solid block, not a stack of copies
+      const u = o.fontSize || 40, depth = u * 0.18 * (o.scaleX || 1), n = Math.min(28, Math.max(8, Math.ceil(depth / 1.5))), step = depth / n;
+      const i = sc.getObjects().indexOf(o);
+      for (let k = n; k >= 1; k--){
+        const side = at(0.52 - (k / n) * 0.24, 0.15, h0);
+        const layer = cloneText(o, { fill: side, left: o.left + step * k * 0.8, top: o.top + step * k,
+          shadow: k === n ? new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.16, offsetX: u * 0.03, offsetY: u * 0.06 }) : null });
+        sc.insertAt(layer, i);
+      }
+      if (!o.stroke || !o.strokeWidth) o.set({ stroke: 'rgba(10,10,14,0.85)', strokeWidth: Math.max(1.5, u * 0.03), paintFirst: 'stroke', strokeLineJoin: 'round' });
+      o.set({ shadow: null });
       touched++;
     });
   }
   sc.getObjects().forEach(o => o.setCoords && o.setCoords());
-  return { mode, touched, plates: plates.length, main: String(main.text).slice(0, 40) };
+  return { name: spec.name, touched };
+}
+/* Texture fills, drawn once per call as a repeating tile in two tones of the
+   line's own colour (so a light line stays light and reads), sized to the
+   type. Money signs sit on a lattice; the crack tile is seeded, so the same
+   card cracks the same way every time. */
+function taglineTexture(kind, TL, light, h0, fs){
+  const at = (L, C, h) => oklchFit({ L: Math.max(0.05, Math.min(0.98, L)), C, h: ((h % 360) + 360) % 360 });
+  const base = at(TL, 0.08, h0), ink = at(light ? TL - 0.24 : TL + 0.24, 0.17, h0);
+  const cv = document.createElement('canvas'), x = cv.getContext('2d');
+  if (kind === 'dots'){
+    const S = Math.max(10, Math.round(fs * 0.22)); cv.width = cv.height = S;
+    x.fillStyle = base; x.fillRect(0, 0, S, S); x.fillStyle = ink;
+    [[S / 4, S / 4], [3 * S / 4, 3 * S / 4]].forEach(([cx, cy]) => { x.beginPath(); x.arc(cx, cy, S * 0.17, 0, Math.PI * 2); x.fill(); });
+  } else if (kind === 'money'){
+    // money reads as money: green dollar signs, big enough to be seen as signs, on a pale mint
+    const S = Math.max(26, Math.round(fs * 0.52)); cv.width = cv.height = S;
+    x.fillStyle = at(light ? Math.max(TL, 0.86) : Math.min(TL, 0.34), 0.06, 150); x.fillRect(0, 0, S, S);
+    x.fillStyle = at(light ? 0.5 : 0.78, 0.16, 150);
+    x.font = '800 ' + Math.round(S * 0.62) + 'px "Satoshi", "Arial Black", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText('$', S * 0.25, S * 0.28); x.fillText('$', S * 0.75, S * 0.78);
+  } else if (kind === 'cracked'){
+    const S = Math.max(128, Math.round(fs * 2.4)); cv.width = cv.height = S;
+    x.fillStyle = base; x.fillRect(0, 0, S, S);
+    let seed = 7919; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const crack = (px, py, ang, len, w, depth) => {
+      x.strokeStyle = light ? 'rgba(10,10,12,0.85)' : 'rgba(255,255,255,0.8)'; x.lineWidth = w; x.lineCap = 'round';
+      x.beginPath(); x.moveTo(px, py);
+      let cx = px, cy = py;
+      for (let s = 0; s < 6; s++){ ang += (rnd() - 0.5) * 0.9; cx += Math.cos(ang) * len / 6; cy += Math.sin(ang) * len / 6; x.lineTo(cx, cy); }
+      x.stroke();
+      if (depth < 2) for (let b = 0; b < 2; b++) if (rnd() < 0.7) crack(px + (cx - px) * rnd(), py + (cy - py) * rnd(), ang + (rnd() - 0.5) * 2.2, len * 0.55, w * 0.6, depth + 1);
+    };
+    for (let k = 0; k < 7; k++) crack(rnd() * S, rnd() * S, rnd() * Math.PI * 2, S * (0.35 + rnd() * 0.3), Math.max(1.5, fs * 0.035), 0);
+  } else {
+    const band = Math.max(5, Math.round(fs * 0.09)), S = band * 4; cv.width = cv.height = S;
+    x.fillStyle = base; x.fillRect(0, 0, S, S);
+    x.strokeStyle = ink; x.lineWidth = band * Math.SQRT2;
+    for (let x0 = -S; x0 <= S; x0 += S / 2){ x.beginPath(); x.moveTo(x0, S); x.lineTo(x0 + S, 0); x.stroke(); }
+  }
+  return new fabric.Pattern({ source: cv, repeat: 'repeat' });
+}
+
+/* ═══ THE NUMBER FILLS ITS PLATE ═══════════════════════════════════════════
+   Owner, 2026-09-27, on the Steps Flow cards: "These CTA are very hard to read
+   and too small". stepsFlow-nn05-30 set its number at 80px on a 186px band
+   that runs the full width: a small line in a large empty plate. Rule 53's
+   0.62x-the-headline target keeps it small wherever the headline is small.
+   Now the number grows to fill its own plate: its box up to 78% of the plate's
+   height, its ink inside the plate's width with plate air (rule 64), a plate
+   narrower than that widening into clear space within the guides. It never
+   shrinks here, never grows onto other copy on its plate, and never past 2.2x. */
+function numberFill(sc, W, H){
+  if (window.__noNumberFill) return null;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  const ph = objs.filter(o => live(o) && isText(o) && o.pgRole === 'phone' && /\d/.test(o.text || ''))
+    .sort((a, b) => (b.fontSize || 0) * (b.scaleY || 1) - (a.fontSize || 0) * (a.scaleY || 1))[0];
+  if (!ph) return null;
+  ph.setCoords();
+  const c = ph.getCenterPoint(), zo = objs.indexOf(ph);
+  const host = objs.filter(o => live(o) && o.type === 'rect' && objs.indexOf(o) < zo && !o.angle
+      && o.width * (o.scaleX || 1) <= W + 4 && o.height * (o.scaleY || 1) < 0.4 * H
+      && (typeof o.fill !== 'string' || !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(o.fill)))
+    .filter(p => { const b = p.getBoundingRect(true, true); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })
+    .sort((a, b) => a.width * a.height * (a.scaleX || 1) * (a.scaleY || 1) - b.width * b.height * (b.scaleX || 1) * (b.scaleY || 1))[0];
+  if (!host || ph.angle) return null;
+  const G = 0.06 * Math.min(W, H);
+  const hb = host.getBoundingRect(true, true), full = hb.width >= W * 0.93;
+  const others = objs.filter(o => o !== ph && o !== host && live(o) && (isText(o) || o.type === 'image' || o.type === 'group'))
+    .map(o => ({ o, b: o.getBoundingRect(true, true) })).filter(x => x.b.width < W * 0.95 || x.o.type !== 'image');
+  const overlap = (a, b) => Math.max(0, Math.min(a.left + a.width, b.left + b.width) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.top + a.height, b.top + b.height) - Math.max(a.top, b.top));
+  const pb = ph.getBoundingRect(true, true), fs0 = (ph.fontSize || 40) * (ph.scaleY || 1);
+  const inkW = (typeof plateAirInk === 'function' ? plateAirInk(ph).w : ph.width) * (ph.scaleX || 1);
+  // what the plate's height allows, less anything else that lives on the plate
+  const mates = others.filter(x => { const xc = { x: x.b.left + x.b.width / 2, y: x.b.top + x.b.height / 2 };
+    return xc.x > hb.left && xc.x < hb.left + hb.width && xc.y > hb.top && xc.y < hb.top + hb.height; });
+  let top = hb.top, bot = hb.top + hb.height;
+  mates.forEach(x => { if (x.b.top + x.b.height <= pb.top + 2) top = Math.max(top, x.b.top + x.b.height); else if (x.b.top >= pb.top + pb.height - 2) bot = Math.min(bot, x.b.top); });
+  const kH = ((bot - top) * 0.78) / pb.height;
+  const maxW = (full ? W - 2 * G : W - 2 * G) - 2 * Math.max(12, 0.35 * fs0 * 1.5);
+  const kW = maxW / inkW;
+  let k = Math.min(kH, kW, 2.2);
+  if (!(k > 1.04)) return { k: 1, fs: Math.round(fs0) };
+  // the plate widens (never narrows) to hold the ink with air, into clear space only
+  const tryK = kk => {
+    const w = Math.max(hb.width, Math.min(W - 2 * G, inkW * kk + 2 * plateAirNeed(hb.width, fs0 * kk)));
+    const nb = { left: hb.left + hb.width / 2 - w / 2, top: hb.top, width: w, height: hb.height };
+    if (!full && others.some(x => mates.indexOf(x) < 0 && overlap(nb, x.b) > 4)) return null;
+    return w;
+  };
+  let w = full ? hb.width : tryK(k);
+  while (w == null && k > 1.04){ k -= 0.05; w = tryK(k); }
+  if (w == null || k <= 1.04) return { k: 1, fs: Math.round(fs0) };
+  if (!full && w > hb.width + 1){ const pc = host.getCenterPoint(); host.set({ width: w / (host.scaleX || 1) }); host.setPositionByOrigin(pc, 'center', 'center'); host.setCoords(); }
+  ph.set({ scaleX: (ph.scaleX || 1) * k, scaleY: (ph.scaleY || 1) * k });
+  // centred in the room between whatever sits above and below it on the plate
+  ph.setPositionByOrigin(new fabric.Point(c.x, (top + bot) / 2), 'center', 'center'); ph.setCoords();
+  if (typeof plateAir === 'function') plateAir(sc, W, H);
+  return { k: +k.toFixed(2), fs: Math.round(fs0 * k) };
 }

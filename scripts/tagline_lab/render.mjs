@@ -22,7 +22,13 @@ const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/M
 const BASE = process.env.GFX_BASE || 'http://localhost:8899/';
 const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf(k); return i < 0 ? d : argv[i + 1]; };
 const IDS = arg('--ids', '') ? arg('--ids', '').split(',') : null, PX = +arg('--px', 540);
-const STYLES = ['solid', 'street', 'gradient', 'outline', 'blocks', 'pair', 'pattern'];
+/* Ten slots per post (owner: "one category iPhones and five different posts
+   10 different styles each"). Two slots cycle across the posts so every look
+   is seen: gradient presets, and textures with the 3-D block. */
+const STYLES = ['solid', 'street', 'signature', 'preset', 'outline', 'blocks', 'multicolor', 'glow', 'anaglyph', 'texture'];
+const PRESET_CYCLE = ['pair', 'sunset', 'ocean', 'neon', 'gold'];
+const TEXTURE_CYCLE = ['stripes', 'dots', 'cash', 'cracked', 'extrude'];
+const IPHONE_POSTS = ['stepsFlow-nn05-30', 'bubblePop-io03-15', 'glassCard-nn01-20', 'slabPoster-pp04-15', 'neonNight-nn04-20'];
 const OUT = new URL('../../.render/tagline/', import.meta.url).pathname;
 mkdirSync(OUT, { recursive: true });
 const fab = process.env.FABRIC_JS ? readFileSync(process.env.FABRIC_JS) : null;
@@ -50,17 +56,25 @@ async function freshPage(){
 await freshPage();
 const cards = await page.evaluate(async (IDS) => {
   const all = await scLoadIndex(); await scLoadPicks();
-  if (IDS) return IDS.map(id => SHOWCASE.byId[id]).filter(Boolean).map(c => ({ id: c.id, name: c.name, cat: c.cat }));
-  const picked = scPickedCards(all), have = new Set(picked.map(c => c.cat)), extra = [];
+  const picked = new Set(scPickedCards(all).map(c => c.id));
+  if (IDS) return IDS.map(id => SHOWCASE.byId[id]).filter(Boolean).map(c => ({ id: c.id, name: c.name, cat: c.cat, hero: picked.has(c.id) }));
+  const hero = scPickedCards(all), have = new Set(hero.map(c => c.cat)), extra = [];
   all.forEach(c => { if (!have.has(c.cat)){ have.add(c.cat); extra.push(c); } });
-  return picked.concat(extra).map(c => ({ id: c.id, name: c.name, cat: c.cat, hero: picked.indexOf(c) >= 0 }));
-}, IDS);
+  return hero.concat(extra).map(c => ({ id: c.id, name: c.name, cat: c.cat, hero: hero.indexOf(c) >= 0 }));
+}, IDS || IPHONE_POSTS);
 console.log('cards', cards.length, '× styles', STYLES.length);
 
 const rows = [];
 for (const [n, c] of cards.entries()){
   if (n && n % 6 === 0) await freshPage();
-  const r = await page.evaluate(async (c, STYLES, PX) => {
+  // this post's spec for each slot; the cycles follow the post's place in the five, not the run
+  const slot = IPHONE_POSTS.indexOf(c.id) >= 0 ? IPHONE_POSTS.indexOf(c.id) : n;
+  const specs = STYLES.map(k => {
+    if (k === 'preset'){ const g = PRESET_CYCLE[slot % PRESET_CYCLE.length]; return g === 'pair' ? { key: k, look: 'pair' } : { key: k, spec: { name: 'Gradient · ' + g, fill: 'gradient', gradient: g, outline: 'black', plates: 'match' }, g }; }
+    if (k === 'texture') return { key: k, look: TEXTURE_CYCLE[slot % TEXTURE_CYCLE.length] };
+    return { key: k, look: k };
+  });
+  const r = await page.evaluate(async (c, specs, PX) => {
     await openShowcase(c.id);
     if (ez.tpl !== 'sc-' + c.id) throw new Error('opened ' + ez.tpl);
     $('ez-phone').value = '(562) 999-4994';
@@ -70,26 +84,39 @@ for (const [n, c] of cards.entries()){
       if ((!src || (TPL_BG_ELS[src] && TPL_BG_ELS[src].width)) && cuts.every(s => CUTOUT_ELS[s])) break;
       await new Promise(r => setTimeout(r, 100));
     }
+    // every face on the card loaded before anything is laid out (a width measured mid-load is cached)
+    const fams = [...new Set(ezTpl().layers.map(l => l.props && l.props.fontFamily).filter(Boolean))];
+    await Promise.race([Promise.all(fams.map(f => ensureFont(f).then(() => document.fonts.load('700 40px "' + f + '"').catch(() => {})))), new Promise(r => setTimeout(r, 8000))]);
+    try { fabric.util.clearFabricFontCache(); } catch (e){}
     await new Promise(r => setTimeout(r, 400));
     const rec = SHOWCASE.byId[c.id], pal = { accent: rec.accent, support: rec.support, ink: rec.ink, c1: rec.c1 };
     const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
     const lum = (d, k) => 0.2126 * lin(d[k]) + 0.7152 * lin(d[k + 1]) + 0.0722 * lin(d[k + 2]);
     const out = [];
-    for (const style of STYLES){
+    for (const sp of specs){
+      const style = sp.key;
+      const spec = sp.spec ? Object.assign({}, sp.spec, sp.g ? { name: 'Gradient · ' + TAGLINE_GRADIENTS[sp.g].name } : {}) : TAGLINE_LOOKS[sp.look];
       const sc = renderEzCanvas(1080, 'png', undefined, undefined, 'square', true);
       const W = sc.width, H = sc.height;
-      const info = taglineStyle(sc, style, pal, W, H);
+      const fill = numberFill(sc, W, H);
+      const info = taglineStyle(sc, spec, pal, W, H);
       plateAir(sc, W, H);
       sc.renderAll();
       const ctx = sc.lowerCanvasEl.getContext('2d'), full = ctx.getImageData(0, 0, W, H).data;
       // the critic (rule 54), per critical line
       const crit = [];
       sc.getObjects().filter(o => o.visible !== false && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || '')).forEach(o => {
-        const b = o.getBoundingRect(true, true);
+        const bs = [o].concat(sc.getObjects().filter(q => q !== o && q.name === (o.name || 'Tagline') + ' depth')).map(q => q.getBoundingRect(true, true));
+        const b = { left: Math.min(...bs.map(r => r.left)), top: Math.min(...bs.map(r => r.top)) };
+        b.width = Math.max(...bs.map(r => r.left + r.width)) - b.left; b.height = Math.max(...bs.map(r => r.top + r.height)) - b.top;
         const x0 = Math.max(0, Math.floor(b.left)), y0 = Math.max(0, Math.floor(b.top)), x1 = Math.min(W, Math.ceil(b.left + b.width)), y1 = Math.min(H, Math.ceil(b.top + b.height));
         if (x1 - x0 < 4 || y1 - y0 < 4) return;
-        o.visible = false; sc.renderAll();
-        const w = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data; o.visible = true;
+        /* a line and the layers its effect adds (glow halo, red and blue
+           offsets, 3-D depth) read as one mark, so they are measured as one:
+           hidden together, against what is really behind them */
+        const kin = sc.getObjects().filter(q => q !== o && q.name === (o.name || 'Tagline') + ' depth');
+        o.visible = false; kin.forEach(q => { q.visible = false; }); sc.renderAll();
+        const w = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data; o.visible = true; kin.forEach(q => { q.visible = true; });
         const px = [];
         for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++){
           const f = (y * W + x) * 4, g = ((y - y0) * (x1 - x0) + (x - x0)) * 4;
@@ -116,17 +143,17 @@ for (const [n, c] of cards.entries()){
       const url = sc.toDataURL({ format: 'jpeg', quality: 0.86, multiplier: PX / W });
       sc.dispose();
       const head = crit.filter(k => k.role === 'headline'), num = crit.find(k => k.role === 'phone');
-      out.push({ style, info, crit, faults, img: url.split(',')[1],
+      out.push({ style, label: spec.name, info, crit, faults, img: url.split(',')[1], numberPx: fill ? fill.fs : null,
         tagline: head.length ? Math.min(...head.map(k => k.q75)) : null, number: num ? num.q75 : null,
         worst: crit.length ? Math.min(...crit.map(k => k.q75)) : null });
     }
     return out;
-  }, c, STYLES, PX).catch(e => ({ err: String(e && e.message || e) }));
+  }, c, specs, PX).catch(e => ({ err: String(e && e.message || e) }));
   if (r.err){ console.log(`[${n + 1}/${cards.length}] ${c.id} ERROR ${r.err}`); continue; }
   const styles = r.map(s => {
     writeFileSync(`${OUT}${c.id}-${s.style}.jpg`, Buffer.from(s.img, 'base64'));
     const pass = s.worst != null && s.worst >= 3 && !s.faults.length;
-    return { style: s.style, img: `${c.id}-${s.style}.jpg`, tagline: s.tagline, number: s.number, worst: s.worst, faults: s.faults, pass, touched: s.info.touched };
+    return { style: s.style, label: s.label, img: `${c.id}-${s.style}.jpg`, tagline: s.tagline, number: s.number, numberPx: s.numberPx, worst: s.worst, faults: s.faults, pass, touched: s.info.touched };
   });
   rows.push(Object.assign({}, c, { styles }));
   console.log(`[${n + 1}/${cards.length}] ${c.id}  ` + styles.map(s => `${s.style} ${s.pass ? 'ok' : 'FAIL'} ${s.worst}${s.faults.length ? ' (' + s.faults.join('; ') + ')' : ''}`).join(' · '));
