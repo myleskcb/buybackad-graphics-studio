@@ -56,6 +56,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { openStudio } from './_showcase_harness.mjs';
+import { pictureId, pictureVerdict } from './picture_gate.mjs';
 import { PROOF, PRICE, HOURS, DASH, BANNED, COMPANY, LICENSE, CLAIM } from './refresh_copy.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
@@ -249,12 +250,11 @@ for (let i = 0; i < work.length; i += 6){
 await browser.close();
 
 /* the verdict, card by card */
-const FLAGS = JSON.parse(readFileSync(ROOT + 'assets/cutout-flags.json', 'utf8'));
 const verdict = (c, r) => {
   const fail = [], warn = [];
   if (r.err) return { fail: ['error'], warn };
-  /* a product picture that is flagged, missing, or stretched past 1.5x (2026-09-27) */
-  if ((r.cutScale || []).some(s => s > 1.5) || (r.cutouts || []).some(src => FLAGS[String(src || '').replace(/^.*\//, '').replace(/\.webp$/, '')])) fail.push('asset');
+  /* a product picture the owner rejected or that is flagged (picture_gate.mjs), missing, or stretched past 1.5x (2026-09-27) */
+  if ((r.cutScale || []).some(s => s > 1.5) || (r.cutouts || []).some(src => pictureVerdict(pictureId(src), c.cat))) fail.push('asset');
   if (r.num < T.number) fail.push('number');
   if (r.numInk != null && r.numInk < T.numInk) fail.push('numInk');
 

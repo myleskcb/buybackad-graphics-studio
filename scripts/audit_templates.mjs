@@ -23,8 +23,10 @@
  *                (audit_showcase_legibility.mjs)
  *     number, numInk, offPlate, onProduct, thumb, hierarchy, families, faux
  *                the design school (audit_showcase_school.mjs, same thresholds)
- *     asset      a product picture that is flagged (assets/cutout-flags.json:
- *                garbled lettering, the wrong product, cut off, broken), that
+ *     asset      a product picture the owner rejected or never approved
+ *                (assets/approved-assets.json), or one that is flagged
+ *                (assets/cutout-flags.json: garbled lettering, the wrong
+ *                product, cut off, broken; scripts/picture_gate.mjs), that
  *                did not load, or that is drawn at more than 1.5x its own
  *                pixels on the 1080 card (soft in a Free export, 3x in Pro)
  *     bg         a backdrop photograph the studio could not load
@@ -42,6 +44,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { openStudio } from './_showcase_harness.mjs';
+import { pictureVerdict } from './picture_gate.mjs';
 import { PROOF, PRICE, HOURS, DASH, BANNED, COMPANY, LICENSE, CLAIM, foreignWords } from './refresh_copy.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
@@ -61,6 +64,9 @@ const WEIGHTS = {
   'Satoshi': [400, 500, 700, 900], 'Clash Display': [500, 600, 700], 'Khand': [600, 700], 'Melodrama': [500, 700], 'Zodiak': [400, 700],
   'Manrope': [400, 500, 700], 'Chivo': [400, 500, 700, 900], 'Libre Franklin': [400, 500, 700, 900], 'Instrument Sans': [400, 500, 700],
   'Zilla Slab': [400, 700], 'DM Mono': [400], 'Sora': [400, 500, 700],
+  'Teko': [400, 600, 700], 'Oswald': [400, 600, 700], 'Saira Condensed': [400, 600, 700], 'Barlow Condensed': [400, 600, 700],
+  'Bungee': [400], 'Bangers': [400], 'Luckiest Guy': [400], 'Russo One': [400], 'Audiowide': [400], 'Squada One': [400], 'Rye': [400],
+  'Shrikhand': [400], 'Permanent Marker': [400], 'Cormorant Garamond': [400, 700], 'Nunito': [400, 700], 'Sniglet': [400], 'Knewave': [400],
 };
 const SAYS = s => { s = String(s).toUpperCase(); const o = [];
   if (/\bIPHONES?\b/.test(s)) o.push('iphone'); if (/\bIPADS?\b/.test(s)) o.push('ipad');
@@ -248,7 +254,7 @@ const verdict = r => {
   if (r.hierarchy < T.hierarchy) fail.push('hierarchy');
   if (r.families > T.families) fail.push('families');
   if (r.faux.length) fail.push('faux');
-  if (r.cuts.some(c => c.missing || FLAGS[c.src] || c.scale > UPSCALE.fail)) fail.push('asset');
+  if (r.cuts.some(c => c.missing || pictureVerdict(c.src, r.cat) || c.scale > UPSCALE.fail)) fail.push('asset');
   else if (r.cuts.some(c => c.scale > UPSCALE.warn)) warn.push('upscale');
   if (r.bgMissing) fail.push('bg');
   const words = r.words.join('\n');
@@ -275,7 +281,7 @@ const byFam = {}; rows.forEach(x => { const f = fam(x.id); byFam[f] ||= { all: 0
 console.log('pass by family: ' + Object.entries(byFam).map(([f, v]) => f + ' ' + v.pass + '/' + v.all).join(' · '));
 const held = rows.filter(x => x.fail.length);
 held.slice(0, 40).forEach(x => console.log('  held ' + x.id.padEnd(34) + x.fail.join('+') + (x.r.coverBy && x.fail.includes('cover') ? '  [' + x.r.coverBy + ']' : '')
-  + (x.fail.includes('asset') ? '  [' + x.r.cuts.map(c => c.src + (c.missing ? ' missing' : FLAGS[c.src] ? ' flagged' : ' x' + c.scale)).join(', ') + ']' : '')));
+  + (x.fail.includes('asset') ? '  [' + x.r.cuts.map(c => c.src + (c.missing ? ' missing' : pictureVerdict(c.src, x.r.cat) ? ' ' + pictureVerdict(c.src, x.r.cat) : ' x' + c.scale)).join(', ') + ']' : '')));
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify(Object.fromEntries(rows.map(x => [x.id, Object.assign({ fail: x.fail, warn: x.warn }, x.r)]))));
 if (WRITE){
   if (MATCH) { console.log('--write needs the whole set (no --match): the file is the complete list'); process.exit(1); }

@@ -19,9 +19,9 @@ import { COMPANY, LICENSE, foreignWords, PROOF, PRICE, HOURS, DASH, BANNED, CLAI
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
 const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
-/* product pictures that must not ship (garbled lettering, the wrong product,
-   cut off, broken): assets/cutout-flags.json, 2026-09-27 */
-const FLAGS = JSON.parse(readFileSync(ROOT + 'assets/cutout-flags.json', 'utf8'));
+/* product pictures that must not ship: the owner's rejects and anything
+   flagged since (scripts/picture_gate.mjs), 2026-09-27 */
+import { pictureId, pictureVerdict } from './picture_gate.mjs';
 
 /* what a category is allowed to show. The phones deck rotates across the Apple
    line, so it legitimately carries iPads, Macs and Watches. Nothing else does. */
@@ -31,7 +31,7 @@ const ALLOW = {
   phones:{iphone:1, ipad:1, watch:1, mac:1, macbook:1, own:1, device:1, group:1,
           sam:1, pix:1, phone:1, gen:1, hand:1, set:1, damage:1, sheet:1},
 };
-const family = p => String(p || '').replace(/^(qs-|ip-)/, '').split('-')[0];
+const family = p => String(p || '').replace(/^(qs-|ip-|ph-)/, '').split('-')[0];   // ph-: a placeholder of that family
 
 let n = { subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, school:0, asset:0, clean:0 };
 idx.forEach(c => {
@@ -60,8 +60,8 @@ idx.forEach(c => {
     /* invented facts (2026-09-27): a rank, a clock, a service, a policy, a
        reputation, or more than the reseller buys (refresh_copy.mjs CLAIM) */
     if (CLAIM.test(words)) why.push('copy');
-    /* a flagged product picture */
-    if (rec.tpl.layers.some(l => l.kind === 'cutout' && l.props && FLAGS[String(l.props.src || '').replace(/^.*\//, '').replace(/\.webp$/, '')])) why.push('asset');
+    /* a product picture the owner rejected, or one flagged since */
+    if (rec.tpl.layers.some(l => l.kind === 'cutout' && l.props && pictureVerdict(pictureId(l.props.src), c.cat))) why.push('asset');
   }
   /* LEGIBILITY (2026-09-22), written by audit_showcase_legibility.mjs: a
      headline, phone or CTA under 3:1 against the pixels behind it, or one that

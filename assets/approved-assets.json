@@ -349,7 +349,15 @@
    "watch-pair-bands",
    "watch-screen-on",
    "watch-single-angle",
-   "watch-stack-four"
+   "watch-stack-four",
+   "poke-psa-charizard",
+   "ph-sports-card-basketball",
+   "ph-sports-card-baseball",
+   "ph-sports-card-football",
+   "ph-sports-slab",
+   "ph-sports-slabs-fan",
+   "ph-sports-cards-fan",
+   "ph-sports-box"
   ],
   "rejected": [
    "apple-watch-pair",
@@ -776,6 +784,19 @@
    "macbook-open": "relic: tapered Intel-era body",
    "mac-air-open-angle": "relic: tapered Intel-era body",
    "mac-damaged-screen": "filed damage-heavy but left in the approved array, so it sat in the live MacBook wall"
-  }
+  },
+  "placeholders": [
+   "ph-sports-box",
+   "ph-sports-card-baseball",
+   "ph-sports-card-basketball",
+   "ph-sports-card-football",
+   "ph-sports-cards-fan",
+   "ph-sports-slab",
+   "ph-sports-slabs-fan"
+  ],
+  "sourced": [
+   "poke-psa-charizard"
+  ],
+  "placeholdersNote": "2026-09-27, the owner: \"give us a bare minimum of base images that we can start using as placeholders until we do a deep dive\". ph-* are drawn by scripts/make_card_assets.py; \"sourced\" are cut from freely licensed photographs (credit in assets/cutouts/ATTRIBUTION.json). Replace a ph-* when a real photograph lands."
  }
 }

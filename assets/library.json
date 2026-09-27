@@ -1,6 +1,6 @@
 {
- "built": 1788159496,
- "count": 708,
+ "built": 1790493986,
+ "count": 716,
  "assets": [
   {
    "slug": "airpods-buds-out",
@@ -9205,6 +9205,110 @@
    "bytes": 250503,
    "sha1": "",
    "url": "assets/scenes/scene-studio-teal-watch.jpg"
+  },
+  {
+   "slug": "poke-psa-charizard",
+   "file": "poke-psa-charizard.webp",
+   "kind": "cutout",
+   "category": "poke",
+   "prompt": "a PSA 10 graded 1999 Base Set Charizard holo, straight on, cut from a Wikimedia Commons photograph",
+   "source": "photo",
+   "w": 369,
+   "h": 610,
+   "bytes": 71668,
+   "sha1": "c56e388f72e9",
+   "url": "assets/cutouts/poke-psa-charizard.webp"
+  },
+  {
+   "slug": "ph-sports-card-basketball",
+   "file": "ph-sports-card-basketball.webp",
+   "kind": "cutout",
+   "category": "sports",
+   "prompt": "placeholder drawn by scripts/make_card_assets.py until a real photograph is sourced: card basketball",
+   "source": "placeholder",
+   "w": 712,
+   "h": 992,
+   "bytes": 64872,
+   "sha1": "e2f19db77618",
+   "url": "assets/cutouts/ph-sports-card-basketball.webp"
+  },
+  {
+   "slug": "ph-sports-card-baseball",
+   "file": "ph-sports-card-baseball.webp",
+   "kind": "cutout",
+   "category": "sports",
+   "prompt": "placeholder drawn by scripts/make_card_assets.py until a real photograph is sourced: card baseball",
+   "source": "placeholder",
+   "w": 712,
+   "h": 992,
+   "bytes": 56342,
+   "sha1": "3489f8b8bd50",
+   "url": "assets/cutouts/ph-sports-card-baseball.webp"
+  },
+  {
+   "slug": "ph-sports-card-football",
+   "file": "ph-sports-card-football.webp",
+   "kind": "cutout",
+   "category": "sports",
+   "prompt": "placeholder drawn by scripts/make_card_assets.py until a real photograph is sourced: card football",
+   "source": "placeholder",
+   "w": 712,
+   "h": 992,
+   "bytes": 62832,
+   "sha1": "263102a04bf9",
+   "url": "assets/cutouts/ph-sports-card-football.webp"
+  },
+  {
+   "slug": "ph-sports-slab",
+   "file": "ph-sports-slab.webp",
+   "kind": "cutout",
+   "category": "sports",
+   "prompt": "placeholder drawn by scripts/make_card_assets.py until a real photograph is sourced: slab",
+   "source": "placeholder",
+   "w": 727,
+   "h": 1207,
+   "bytes": 56610,
+   "sha1": "90731f88b714",
+   "url": "assets/cutouts/ph-sports-slab.webp"
+  },
+  {
+   "slug": "ph-sports-slabs-fan",
+   "file": "ph-sports-slabs-fan.webp",
+   "kind": "cutout",
+   "category": "sports",
+   "prompt": "placeholder drawn by scripts/make_card_assets.py until a real photograph is sourced: slabs fan",
+   "source": "placeholder",
+   "w": 1414,
+   "h": 1350,
+   "bytes": 128992,
+   "sha1": "d9645d737884",
+   "url": "assets/cutouts/ph-sports-slabs-fan.webp"
+  },
+  {
+   "slug": "ph-sports-cards-fan",
+   "file": "ph-sports-cards-fan.webp",
+   "kind": "cutout",
+   "category": "sports",
+   "prompt": "placeholder drawn by scripts/make_card_assets.py until a real photograph is sourced: cards fan",
+   "source": "placeholder",
+   "w": 1342,
+   "h": 1138,
+   "bytes": 128900,
+   "sha1": "9a100345860d",
+   "url": "assets/cutouts/ph-sports-cards-fan.webp"
+  },
+  {
+   "slug": "ph-sports-box",
+   "file": "ph-sports-box.webp",
+   "kind": "cutout",
+   "category": "sports",
+   "prompt": "placeholder drawn by scripts/make_card_assets.py until a real photograph is sourced: box",
+   "source": "placeholder",
+   "w": 1312,
+   "h": 832,
+   "bytes": 77248,
+   "sha1": "143bd563ec70",
+   "url": "assets/cutouts/ph-sports-box.webp"
   }
  ]
 }
