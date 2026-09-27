@@ -1290,7 +1290,7 @@ const TEMPLATES = [
       t('CTA', 'cta', 'upper', C.cta, { left:CX, top:966, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, fontWeight:'800', charSpacing:140 }),
     ],
     bubblePop: (P, T, C) => [
-      t('Headline 1', 'headline', 'upper', C.h1, { left:CX-40, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:282, originX:'center', fontFamily:T.d, fontSize:216, fill:P.a1, stroke:P.deep, strokeWidth:12, shadow:sh(P.a2, 0, 12, 12) }),
       ci('Sticker', { left:W-322, top:486, radius:112, fill:P.a2, shadow:sh('rgba(0,0,0,0.4)', 20, 0, 8) }),
       t('Sticker Text', 'deco', 'upper', 'CASH NOW', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:onAccent(P, P.a2), angle:10 }, { curve:32 }),
@@ -2203,6 +2203,32 @@ function alignPass(sc, W, H){
         c.b = bb(c.t.o) || c.b;
       }
     }
+  }
+
+  /* ── 2c. ONE AXIS ─────────────────────────────────────────────────────────
+     Owner, 2026-09-27, on WE BUY / POKÉMON: "alignment issues. Plus main text
+     doesn't seem to be centered." Bubble Pop set its first headline line 40px
+     left of centre as a stagger, and every record built on it carried the
+     offset; a stagger that small does not read as intent, it reads as a
+     line that slipped. Centred lines stacked in one column share ONE axis,
+     the widest line's own centre (a column set beside a product keeps its
+     place). Lines side by side (two columns) are not a stack. */
+  {
+    const col = texts.filter(t => t.o.visible !== false && (t.o.originX === 'center' || t.o.textAlign === 'center') &&
+        !/marquee|ticker/i.test(t.o.name || '')).map(t => ({ t, b: bb(t.o) })).filter(x => x.b)
+      .sort((a, c) => a.b.top - c.b.top);
+    const cx = b => b.left + b.width / 2;
+    const groups = [];
+    col.forEach(x => {
+      const g = groups.find(g => { const last = g[g.length - 1];
+        return Math.abs(cx(x.b) - cx(last.b)) <= 90 && x.b.top - (last.b.top + last.b.height) < 0.6 * Math.max(x.b.height, last.b.height); });
+      if (g) g.push(x); else groups.push([x]);
+    });
+    groups.filter(g => g.length > 1).forEach(g => {
+      const wide = g.reduce((m, x) => x.b.width > m.b.width ? x : m, g[0]);
+      const axis = cx(wide.b);
+      g.forEach(x => { const dx = axis - cx(x.b); if (Math.abs(dx) > 1.5){ x.t.o.set({ left: x.t.o.left + dx }); x.t.o.setCoords(); } });
+    });
   }
 
   /* ── 4. FIT A BOX TO ITS CONTENT ─────────────────────────────────────────
