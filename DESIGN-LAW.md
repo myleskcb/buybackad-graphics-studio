@@ -1325,3 +1325,38 @@ read as clutter.
 restages to itself, so re-running it is safe. A product WALL (ghosted cut-outs
 tiled over the ground, four records, three of them rejected strip photographs)
 is removed: under the money it is ground-rung clutter.
+
+## 60. The library shows each design once at its best, not every recolour of it
+
+Added 2026-09-27. The owner: "Of the 780 possible themes, take out at least
+half of them, the most redundant, similar to another one, poor design, so we
+have the 400 that showed the least mistakes."
+
+Measured first: 632 of 690 live cards sat in 91 (category, layout) groups of
+four or more, and one composition was shown in up to 17 palettes. A pixel
+similarity measure separated same-layout pairs from different-layout pairs by
+only 4.90 against 5.24, too weak to decide anything (rule 50), so **redundancy
+is structural: same category and same layout is the same design**, whatever
+its colours.
+
+`scripts/curate_showcase.mjs` decides, in this order:
+
+1. **Disqualified outright**: collides (rule 58, at least 6%), copy off the ad,
+   copy in the margin (rule 57).
+2. **Ranked by mistakes**, lower is better: the critic's warnings (rule 54),
+   line and letter contrast short of 4.5:1, the number's worst letter short of
+   7:1, measured overlaps, a product cut off or half on a panel. Ties go to the
+   owner's own approvals, then colour.
+3. **Kept in proportion** to what each category has live, and within a
+   category **round-robin across layouts**: every design's best card before
+   any design's second, and a design's next card must bring a new palette
+   family.
+4. **The owner's hero picks are kept** unless they collide: a person chose
+   them, and a score does not overrule that.
+
+Retiring is a stamp (`defect: "curated"` on the index row), not a deletion:
+the record and its thumbnail stay, and deleting the stamp brings a card back.
+
+After: 400 kept of 684 (52 disqualified, 232 retired as weaker recolours),
+115 of 118 designs still shown, the largest recolour group 17 -> 7, median
+mistake score 3.92 kept against 5.92 retired.

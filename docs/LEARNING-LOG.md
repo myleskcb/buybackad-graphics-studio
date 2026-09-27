@@ -376,3 +376,69 @@ RESUME HERE:
      from current code (main is an ancestor, so it is a fast-forward).
   2. The owner's reported card defects (overlaps; colour theory on the pale
      palettes), then OPEN-ITEMS §J items 5–9 (small, verified), then 1–2.
+
+## 2026-09-27 (later) — One design language: collisions, guides, the Glass Card, the curated 400
+
+Studied:
+  The owner's four asks after the reunification: overlaps and legibility
+  ("audit any overlapping elements, poor quality assets, or hard to read
+  designs"), the guides ("make sure everything fits within the guides"), the
+  Glass Card ("the asset should be on the inner card while a tile PNG of
+  money … in BG"), and "of the 780 possible themes, take out at least half …
+  so we have the 400 that showed the least mistakes". Plus the device art the
+  owner uploaded (devices, ad-backs, iPad, Mac, Watch), and "main text doesn't
+  seem to be centered".
+
+Measured:
+  - A bounding-box overlap audit could not see the faults (a box round italic
+    type is mostly air; rule 50). scripts/audit_collisions.mjs renders each
+    layer alone into an ink mask. Baseline: 285 of 684 live cards collided at
+    6% of the smaller party's ink, and copy sat in the 6% margin on 293.
+  - Each layout repeated ONE fault: the phone plate over the CTA line
+    (scriptRetro, hudTech, ticketStub), the website under the plate (arcCrown,
+    neonNight), the product under three step cards (47 stepsFlow), left-aligned
+    copy outside its ticket or glass panel, a sticker disc on the item line.
+  - My own first plate fix made 5 layouts collide that had been clean: a plate
+    grown about its centre reaches the line below it. The audit caught it on
+    the next run; growth is now limited to clear space.
+  - Redundancy: 632 of 690 live cards sat in 91 (category, layout) groups of
+    four or more, up to 17 recolours of one composition. Pixel similarity
+    separated same-layout from different-layout pairs by 4.90 vs 5.24, too
+    weak to decide anything, so redundancy is judged structurally.
+  - Device art: the site's renders are 640px squares with the device at 400
+    to 560px; the qs- copies had been capped at 400 and two were unusable
+    (Mac mini 155x62, Watch 47x55).
+
+Changed:
+  - alignPass: 2c one axis for centred stacks; 4 plates grow into clear space
+    only; 4b words stay on their plate (widen, slide in, then shrink, with a
+    72% floor); 4c decoration yields (a sticker is removed, never moved);
+    4d the product keeps clear of the copy; 5 fitInsideGuides moves the whole
+    composition into the 6% margin. After: live collisions 269 -> 52, copy in
+    the margin 293 -> 0.
+  - Glass Card restaged (53 records): money-fall ground, card solid enough
+    to read, product on the card between the headline and the selling points.
+  - 12 cards read WE BUY IPHONES over an Apple Watch photograph with watch
+    selling points: the headline was the slip, now WE BUY WATCHES.
+  - Curation (scripts/curate_showcase.mjs): 52 disqualified for collisions;
+    the rest ranked by the critic's warnings, contrast shortfalls and the
+    measured overlaps; kept in proportion per category, round-robin across
+    layouts so every design's best card comes before any design's second.
+    400 kept, 115 of 118 designs, largest recolour group 17 -> 7, the owner's
+    hero picks all kept.
+  - 165 device cutouts imported under the owner's floors, 26 upgraded in place,
+    assets/devices.json by model and colour.
+  - Chrome: the public Look menu removed (it offered the abandoned ember look),
+    the header fits 390 to 1440px, CSS_FALLBACK regenerated, ASSET_REV ported.
+
+Rejected:
+  - Moving a clashing sticker to the nearest clear spot: it landed as a bare
+    disc mid-photograph with its curved label dark on dark. Removed instead.
+  - Forcing a centred stack onto the card's centre: a column set beside a
+    product would slide into it. The widest line's axis is used.
+  - Restyling /motion here: it is synced from the phone ad engine's repo, and
+    the next sync would undo it. Listed in OPEN-ITEMS §K.
+
+RESUME HERE:
+  1. Owner decision: fast-forward `main` to this trunk.
+  2. OPEN-ITEMS §K.

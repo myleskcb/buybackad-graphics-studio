@@ -309,3 +309,42 @@ on *Blush & Cobalt · Bubble Pop*; the product over the headline on *Kiwi &
 Violet · Script Retro*; card captions laid over the number band), and colour
 theory on the pale palettes, where the ink washes into the ground. `/motion` is
 still in its own light chrome, unlike the rest of the site.
+
+## K. 2026-09-27 (later) — one design language: what is done, what is next
+
+Done on the trunk (DESIGN-LAW rules 57 to 60, LEARNING-LOG same date): the
+collision audit and the alignPass rules behind it, the 6% guides, the Glass
+Card with its product on the card over falling money, the curated 400, the
+storefront's device art, one house look in the chrome. The owner-reported
+list at the end of §J is covered: the CASH NOW disc (stickers on copy are
+removed), the appraisal pill over the number (plates grow only into clear
+space), the product over the headline (4d), and the centring of WE BUY /
+POKÉMON (one axis).
+
+Next, in order of what the owner will see:
+
+1. **Bump `ASSET_REV` in app.js whenever art changes** (assets/bg, cutouts,
+   grounds, showcase). Every assets/ URL carries it; without a bump a replaced
+   file stays cached for 30 days.
+2. **The 52 cards disqualified for collisions are retired, not fixed.** Three
+   layouts account for most: reviewProof's chat rows (the reply text is set
+   beside its bubble, not in it), neonNight's items line off its panel, and
+   trustSeal's tile wall. Fix the layout builders, re-run
+   `scripts/audit_collisions.mjs`, and a card that measures clean can be
+   brought back by deleting its `defect:"curated"` stamp.
+3. **Product colour could answer the palette.** `assets/devices.json` maps 58
+   models to 139 colour cut-outs; a Cobalt palette could carry the blue iPad
+   Air, an orange one the Cosmic Orange iPhone. Nothing reads it yet.
+4. **Art the upload did not contain:** the iPhone 17 Pro / 17 Pro Max / 18 Pro
+   / 18 Pro Max colour backs the ad-backs manifest reads "in place from the
+   storefront" (`file: null`; the owner pasted four of them as images). Relic
+   models (iPhone 7/8/X/SE, home-button iPads, Intel Macs, Watch Series 1 to 5)
+   were left out by the owner's floor; import them only if model-specific ads
+   for them are wanted.
+5. **`/motion` keeps its own light chrome** (53 faces, 121 palettes). It is
+   synced from the phone ad engine's repo, so restyle it there and re-sync;
+   an edit here would be overwritten.
+6. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
+   done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
+   predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
+   the three "Starter" prompts.
