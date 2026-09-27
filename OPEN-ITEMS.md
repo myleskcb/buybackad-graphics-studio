@@ -326,13 +326,20 @@ Next, in order of what the owner will see:
 1. **Bump `ASSET_REV` in app.js whenever art changes** (assets/bg, cutouts,
    grounds, showcase). Every assets/ URL carries it; without a bump a replaced
    file stays cached for 30 days.
-2. **The 52 cards disqualified for collisions are retired, not fixed.** Three
+2. **The 65 disqualified cards are retired, not fixed** (52 collisions, 17
+   critic rejects, most for a number the guides fit took under 72px). Three
    layouts account for most: reviewProof's chat rows (the reply text is set
    beside its bubble, not in it), neonNight's items line off its panel, and
    trustSeal's tile wall. Fix the layout builders, re-run
    `scripts/audit_collisions.mjs`, and a card that measures clean can be
    brought back by deleting its `defect:"curated"` stamp.
-3. **Device variants in the studio.** The owner: "once a theme is perfect we
+3. **48 of the 243 classic templates still collide** (was 112 before the
+   alignPass rules): mostly the `ribbon` layouts, whose headline sits half on
+   its ribbon, `diagonalRush`'s second band, and `lowerThird`'s product over
+   its kicker. The classics are not curated, so these still ship in the Easy
+   Mode strip: fix the builders, then re-run
+   `scripts/audit_collisions.mjs --classics`.
+4. **Device variants in the studio.** The owner: "once a theme is perfect we
    can make unlimited variations for all types of devices specifically."
    `assets/devices.json` (scripts/device_catalog.py: 118 models, 139 finishes,
    each finish's colour measured on the device body) and
@@ -341,16 +348,16 @@ Next, in order of what the owner will see:
    accent) exist and were proved on one Glass Card across 11 devices. Next: a
    device picker in Easy Mode that applies `variant()` to the open card, so a
    variant exists when someone asks for it rather than as more library cards.
-4. **Art the upload did not contain:** the iPhone 17 Pro / 17 Pro Max / 18 Pro
+5. **Art the upload did not contain:** the iPhone 17 Pro / 17 Pro Max / 18 Pro
    / 18 Pro Max colour backs the ad-backs manifest reads "in place from the
    storefront" (`file: null`; the owner pasted four of them as images). Relic
    models (iPhone 7/8/X/SE, home-button iPads, Intel Macs, Watch Series 1 to 5)
    were left out by the owner's floor; import them only if model-specific ads
    for them are wanted.
-5. **`/motion` keeps its own light chrome** (53 faces, 121 palettes). It is
+6. **`/motion` keeps its own light chrome** (53 faces, 121 palettes). It is
    synced from the phone ad engine's repo, so restyle it there and re-sync;
    an edit here would be overwritten.
-6. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
+7. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
    done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
    predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
    the three "Starter" prompts.

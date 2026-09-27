@@ -420,12 +420,13 @@ Changed:
     to read, product on the card between the headline and the selling points.
   - 12 cards read WE BUY IPHONES over an Apple Watch photograph with watch
     selling points: the headline was the slip, now WE BUY WATCHES.
-  - Curation (scripts/curate_showcase.mjs): 52 disqualified for collisions;
-    the rest ranked by the critic's warnings, contrast shortfalls and the
-    measured overlaps; kept in proportion per category, round-robin across
-    layouts so every design's best card comes before any design's second.
-    400 kept, 115 of 118 designs, largest recolour group 17 -> 7, the owner's
-    hero picks all kept.
+  - Curation (scripts/curate_showcase.mjs): 65 disqualified (collisions,
+    critic rejects, a critical line under 3:1); the rest ranked by the
+    critic's warnings, contrast shortfalls and the measured overlaps; kept in
+    proportion per category, round-robin across layouts so every design's
+    best card comes before any design's second. 400 kept, 114 of 118
+    designs, largest recolour group 17 -> 8, the owner's hero picks all kept.
+    Thumbnails of the 400 re-rendered through the new engine.
   - 165 device cutouts imported under the owner's floors, 26 upgraded in place.
   - Device catalogue (118 models, 139 finishes) and variants: one card re-set
     for any device, the finish chosen to answer the palette. A finish's colour

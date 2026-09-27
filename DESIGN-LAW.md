@@ -1360,9 +1360,11 @@ its colours.
 Retiring is a stamp (`defect: "curated"` on the index row), not a deletion:
 the record and its thumbnail stay, and deleting the stamp brings a card back.
 
-After: 400 kept of 684 (52 disqualified, 232 retired as weaker recolours),
-115 of 118 designs still shown, the largest recolour group 17 -> 7, median
-mistake score 3.92 kept against 5.92 retired.
+After: 400 kept of 684 (65 disqualified: 52 collisions, 17 critic rejects, 1
+critical line under 3:1, some cards on two counts; 219 retired as weaker
+recolours), 114 of 118 designs still shown, the largest recolour group 17 -> 8,
+median mistake score 3.16 kept against 5.15 retired, all 12 of the owner's
+live hero picks kept.
 
 ## 61. A perfected theme is re-set for a device, not redrawn
 
