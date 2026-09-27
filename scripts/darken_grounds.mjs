@@ -39,7 +39,10 @@ const recOf = id => JSON.parse(readFileSync(DIR + 'tpl/' + id + '.json', 'utf8')
 const live = c => !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05);
 const work = idx.filter(c => (only ? only.has(c.id) : live(c))).map(c => c.id).filter(id => {
   const bg = recOf(id).tpl.bg || {};
-  return bg.type === 'image' && bg.src && (bg.scrim || 0) > 0 && lum(bg.scrimColor) > 0.5;
+  /* by default the white-shaded cards; named cards (--ids) also when they
+     carry no shade at all (dark copy straight on a mid-tone photograph) */
+  const white = (bg.scrim || 0) > 0 && lum(bg.scrimColor) > 0.5, none = !(bg.scrim > 0);
+  return bg.type === 'image' && bg.src && (white || (only && none));
 });
 console.log('cards with a white shade on the photograph: ' + work.length);
 

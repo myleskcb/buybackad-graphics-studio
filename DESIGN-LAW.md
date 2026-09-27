@@ -1439,3 +1439,33 @@ solver (`__sc.naturalGround()`, prefer 'dark'):
   dark ink becomes solid in the colour it showed over the old shade, so that
   copy keeps exactly its contrast (rule 52). Missing either made a light line
   on a light band, or dark copy on a band gone mid-grey (about 2:1).
+
+The same pass also takes a card with NO shade whose critical line reads under
+4.5:1 with dark copy straight on a mid-tone photograph (nine cards, a blue
+SILVER DOLLARS on a teal halftone among them): a white veil was not their
+fault, but the dull read was the same.
+
+## 63. The support colour highlights the supporting copy, where it reads
+
+Added 2026-09-27. The owner: "Audit all new themes and make sure we use
+supportive highlights on some themes if it looks good."
+
+Rule 51 gives the support/trust colour its job: badges and supporting facts.
+Audited over the curated 400, it sat on 213 cards and always on frames,
+ribbons, plates or decoration, never on the supporting copy. The selling
+points read in the headline's ink, so nothing said "the reassurance, read it
+second".
+
+`scripts/support_highlights.mjs` gives the ONE line that backs the offer (the
+selling points, the item list, the price line) the support colour, only where
+it holds up on the card's own pixels:
+
+- **4.5:1 against the ground under that line**, rendered with the line hidden
+  and everything else in place;
+- **its own colour**: at least 25 DeltaE (CIE76) from the accent, which keeps
+  the money and the action, and from the ink, with real chroma (over 12);
+- **never one of a numbered set**: Step Micro 1 highlighted beside plain 2
+  and 3 reads as a mistake, not a system.
+
+61 cards qualified. 289 fail contrast on their own ground and keep their line
+as it was. "Some themes" is the measurement's answer, not a quota.
