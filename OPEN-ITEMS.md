@@ -257,9 +257,177 @@ Still open:
 - **Not verified here** (no route to them from the session): the live site,
   Stripe and sign-in, the Netlify headers as served. Draft-deploy and look.
 
-## J. 2026-09-27 — the offer family, new categories, and what must not ship
+## J. 2026-09-27 — the branches reunified, and what was ported rather than merged
 
-What landed (DESIGN-LAW 57-59, the log entry of the same date has the numbers):
+`main` had not moved since 2026-08-28 while the product moved on across a dozen
+branches, so three sessions on 2026-09-26 started from a month-old codebase and
+rebuilt things that no longer existed. The trunk is now one line:
+`claude/finished-copy-site-manf7r` + `claude/vibrant-hawking-htxrvn` (the study
+session, clean merge) + `claude/vibrant-lovelace-rze4rx` (video ad research; its
+`copy_audit.mjs` kept as `scripts/claims_audit.mjs`, since the study session's
+copy-rules audit already had the name).
+
+**Not merged, because they were cut from the stale August main.** Merging
+either would put August code over September work. Their still-useful parts
+are listed to port, each checked against the trunk on 2026-09-27:
+
+`claude/busy-allen-2d5iv1` (photo standard, 317597c):
+1. **`tplbg-data.js` is still a 635KB render-blocking base64 script** on the
+   trunk. Port: move the eight classic photos to `assets/tplbg/` files.
+2. **No asset cache-busting** (`ASSET_REV` absent) while art is cached 30 days,
+   so a replaced photo never reaches a returning visitor. Port the `?v=` revision.
+3. The photo standard itself (subject fill, tone band, 1200px) and
+   `standardize_photos.py` / `asset_usage_audit.mjs` were written against the
+   26 legacy PNG cut-outs, which the trunk replaced with 478 2K WebP cut-outs.
+   Re-derive against the WebP library before running anything; do not copy
+   its 97 rewritten files over the trunk's.
+4. Least-used photo picker (every photo appears before any repeats): the idea
+   ports, the code does not (`.png` names, old picker).
+
+`claude/fervent-pascal-w6mthe` before 2026-09-27 (bf45814, ee650df): a rebuilt
+landing in the abandoned warm/orange language and a second video engine that
+duplicated `/motion`. Both discarded. Verified still present on the trunk:
+5. **`CSS_FALLBACK` in app.js is out of sync with styles.css**, so a host that
+   blocks the stylesheet gets the OLD design. A regenerator
+   (`scripts/sync_css_fallback.mjs`, with `--check`) is in bf45814.
+6. Easy Mode's "PRO" badge reads `t.tier === 'premium'`, not `tplLocked(t)`, the
+   gate itself: measured on the August library it labelled 34 of 243 free
+   templates PRO (25 of them Phones).
+7. Easy Mode resets every template to a grey, blurred placeholder
+   (`ez.bgPicked = false`) and exports a flat fallback unless ORIG is clicked,
+   while ORIG already shows as selected.
+8. The Easy layers panel draws classic templates' photo from the raw
+   `assets/tplbg/…` path, which is not shipped: a 404 and a blank swatch.
+9. Three Pro prompts still say "unlock all 8 designs with Starter or Pro"; there
+   is no Starter plan.
+Already fixed on the trunk independently, so not ported: og:image, "Unlimited
+exports", the Starter sign-up card, the preload ordering, the 390px overflow.
+
+**Reported by the owner 2026-09-27, next:** overlapping elements on library
+cards (a "CASH NOW" disc on the item line and an appraisal pill over the number
+on *Blush & Cobalt · Bubble Pop*; the product over the headline on *Kiwi &
+Violet · Script Retro*; card captions laid over the number band), and colour
+theory on the pale palettes, where the ink washes into the ground. `/motion` is
+still in its own light chrome, unlike the rest of the site.
+
+## K. 2026-09-27 (later) — one design language: what is done, what is next
+
+Done on the trunk (DESIGN-LAW rules 57 to 60, LEARNING-LOG same date): the
+collision audit and the alignPass rules behind it, the 6% guides, the Glass
+Card with its product on the card over falling money, the curated 400, the
+storefront's device art, one house look in the chrome. The owner-reported
+list at the end of §J is covered: the CASH NOW disc (stickers on copy are
+removed), the appraisal pill over the number (plates grow only into clear
+space), the product over the headline (4d), and the centring of WE BUY /
+POKÉMON (one axis).
+
+Next, in order of what the owner will see:
+
+1. **Bump `ASSET_REV` in app.js whenever art changes** (assets/bg, cutouts,
+   grounds, showcase). Every assets/ URL carries it; without a bump a replaced
+   file stays cached for 30 days.
+2. **The 65 disqualified cards are retired, not fixed** (52 collisions, 17
+   critic rejects, most for a number the guides fit took under 72px). Three
+   layouts account for most: reviewProof's chat rows (the reply text is set
+   beside its bubble, not in it), neonNight's items line off its panel, and
+   trustSeal's tile wall. Fix the layout builders, re-run
+   `scripts/audit_collisions.mjs`, and a card that measures clean can be
+   brought back by deleting its `defect:"curated"` stamp.
+3. **48 of the 243 classic templates still collide** (was 112 before the
+   alignPass rules): mostly the `ribbon` layouts, whose headline sits half on
+   its ribbon, `diagonalRush`'s second band, and `lowerThird`'s product over
+   its kicker. The classics are not curated, so these still ship in the Easy
+   Mode strip: fix the builders, then re-run
+   `scripts/audit_collisions.mjs --classics`.
+4. **Device variants in the studio.** The owner: "once a theme is perfect we
+   can make unlimited variations for all types of devices specifically."
+   `assets/devices.json` (scripts/device_catalog.py: 118 models, 139 finishes,
+   each finish's colour measured on the device body) and
+   `scripts/device_variants.mjs` (re-set a card for a device: family headline,
+   that family's models as the selling points, the finish nearest the card's
+   accent) exist and were proved on one Glass Card across 11 devices. Next: a
+   device picker in Easy Mode that applies `variant()` to the open card, so a
+   variant exists when someone asks for it rather than as more library cards.
+5. **Art the upload did not contain:** the iPhone 17 Pro / 17 Pro Max / 18 Pro
+   / 18 Pro Max colour backs the ad-backs manifest reads "in place from the
+   storefront" (`file: null`; the owner pasted four of them as images). Relic
+   models (iPhone 7/8/X/SE, home-button iPads, Intel Macs, Watch Series 1 to 5)
+   were left out by the owner's floor; import them only if model-specific ads
+   for them are wanted.
+6. **`/motion` keeps its own light chrome** (53 faces, 121 palettes). It is
+   synced from the phone ad engine's repo, so restyle it there and re-sync;
+   an edit here would be overwritten.
+7. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
+   done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
+   predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
+   the three "Starter" prompts.
+
+## L. 2026-09-27 (night) — video on the new language, plate air
+
+Done (DESIGN-LAW rules 64 to 67, LEARNING-LOG same date): every design
+downloads as a 10 s video that opens on the finished ad and shifts to its own
+call to action; exact encoder, frame-0 and flash gates; words on a plate keep
+air at both ends (plateAir, and the collision audit measures it); the video
+scripts prove they opened the card they name.
+
+Next:
+
+1. **Export one MP4 from real Chrome or Safari and play it** (the test
+   container has no H.264 encoder; the WebM path is the one verified end to
+   end). Then upload it to a Reel and a TikTok draft.
+2. **9:16 across the curated set.** Square (all 641) and 3:4 (curated 398)
+   are audited clean; 9:16 has a 60-card sample, clean. Run
+   `scripts/motion_audit.mjs --set showcase --format story` when 9:16 ads are
+   next wanted.
+3. **Cards that keep the still** (no call to action passes its audit): five
+   classics. `neon_sell` (a plate no neutral shade serves, rule 56),
+   `silver_ster`, and dl_gold_voltStack_gold, dl_coins_voltStack_royal and
+   dl_sports_voltStack_crimson, whose action line reads 2.5 to 2.9:1 on its
+   own plate in every stack. Fix the voltStack plate colour in the builder
+   and they get one; the clip is a correct living still meanwhile.
+4. **One classic short of air**: dl_strips_duoSplit_emerald's TEST STRIPS is
+   1.26x its side panel, so the 72% floor leaves it 20px short. Fix the layout
+   builder (a smaller authored size or a wider panel), not the floor.
+5. **Decide the call to action once, at 1080.** Its legibility test reads the
+   export's own pixels, so a Pro 2160 download can choose a fuller stack than
+   the 1080 one (both are audited, so neither is wrong, but they can differ).
+   Bake the decision at 1080 and render the chosen stack at the export size;
+   the gallery already previews the 1080 decision.
+6. **The live site** may not carry alignPass step 4b yet (the owner's
+   screenshot of CALL FOR INSTANT OFFER over its badge is the unfitted,
+   authored state; every render path on this branch fits it). Deploy the
+   trunk to see the fix.
+
+## M. 2026-09-27 (night) — tagline styles, waiting on the owner's picks
+
+The owner: "who said the main tagline had to be one color? why not patterns,
+gradients, or color blocking?", "My favorite ads kept a cohesive gradient on
+assets", "We can also do white with black outline?", and a reference (#1
+BUYER: one orange-yellow-lime sweep on every line that sells, heavy black
+outlines, dark bands).
+
+Built as an option, not yet offered in the UI: `taglineStyle(sc, mode, pal)`
+in app.js (solid, street, gradient, outline, blocks, pair, pattern), applied
+to a finished scene. `scripts/tagline_lab/render.mjs` renders the curated
+cards in every style through Easy Mode and measures them with the critic;
+`scripts/tagline_lab/build.py` builds the review page, published as the
+Tagline Lab (artifact GDYju2JKXZhEEKCYN8XkUv, picks stored in its `picks`
+collection). First run, 21 cards: every style but pattern passes the critic
+on all 21 (pattern 18 of 21).
+
+Next:
+1. Read the picks (`ArtifactData list picks`), and offer the kept styles as a
+   Tagline style choice in Easy Mode and the editor.
+2. If street or the signature gradient is kept, amend DESIGN-LAW rule 5: the
+   MATTHEW evidence was a rainbow on ONE word; a cohesive sweep repeated on
+   every selling line, carried by an outline, is a different thing and the
+   owner's favourite.
+3. The reference's heavy italic display face is its own axis (a font choice);
+   the lab kept each card's face.
+
+## N. 2026-09-27 — the offer family, new categories, and what must not ship
+
+What landed (DESIGN-LAW 68-71, the log entry of the same date has the numbers):
 the offer family (`offer-library.js`, 161 cards over 35 buying lines, six
 layouts, twenty looks, twelve pairings, in all 13 categories, five of them
 new), the picture flags (`assets/cutout-flags.json`: garbled, wrong product,

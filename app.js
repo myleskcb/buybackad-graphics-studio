@@ -11,6 +11,16 @@
    temporal dead zone for anything above it — the documented failure mode in
    this codebase. */
 const CUTOUT_EXT = '.webp';
+/* ASSET_REV (ported from claude/busy-allen, OPEN-ITEMS §J). Photos, cut-outs
+   and showcase cards are served with a 30-day browser TTL (_headers), so a
+   file replaced under the same name stays stale for a returning visitor for
+   up to a month: the 2026-09-27 device art, restaged Glass Cards and curated
+   showcase would not have reached the owner's own browser. Every assets/ URL
+   the app requests carries this revision; bump it whenever assets/bg,
+   assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
+   by the bare path, which is what templates name. */
+const ASSET_REV = '20260927';
+function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
 const store = (() => {
@@ -1280,7 +1290,7 @@ const TEMPLATES = [
       t('CTA', 'cta', 'upper', C.cta, { left:CX, top:966, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, fontWeight:'800', charSpacing:140 }),
     ],
     bubblePop: (P, T, C) => [
-      t('Headline 1', 'headline', 'upper', C.h1, { left:CX-40, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:282, originX:'center', fontFamily:T.d, fontSize:216, fill:P.a1, stroke:P.deep, strokeWidth:12, shadow:sh(P.a2, 0, 12, 12) }),
       ci('Sticker', { left:W-322, top:486, radius:112, fill:P.a2, shadow:sh('rgba(0,0,0,0.4)', 20, 0, 8) }),
       t('Sticker Text', 'deco', 'upper', 'CASH NOW', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:onAccent(P, P.a2), angle:10 }, { curve:32 }),
@@ -2195,6 +2205,32 @@ function alignPass(sc, W, H){
     }
   }
 
+  /* ── 2c. ONE AXIS ─────────────────────────────────────────────────────────
+     Owner, 2026-09-27, on WE BUY / POKÉMON: "alignment issues. Plus main text
+     doesn't seem to be centered." Bubble Pop set its first headline line 40px
+     left of centre as a stagger, and every record built on it carried the
+     offset; a stagger that small does not read as intent, it reads as a
+     line that slipped. Centred lines stacked in one column share ONE axis,
+     the widest line's own centre (a column set beside a product keeps its
+     place). Lines side by side (two columns) are not a stack. */
+  {
+    const col = texts.filter(t => t.o.visible !== false && (t.o.originX === 'center' || t.o.textAlign === 'center') &&
+        !/marquee|ticker/i.test(t.o.name || '')).map(t => ({ t, b: bb(t.o) })).filter(x => x.b)
+      .sort((a, c) => a.b.top - c.b.top);
+    const cx = b => b.left + b.width / 2;
+    const groups = [];
+    col.forEach(x => {
+      const g = groups.find(g => { const last = g[g.length - 1];
+        return Math.abs(cx(x.b) - cx(last.b)) <= 90 && x.b.top - (last.b.top + last.b.height) < 0.6 * Math.max(x.b.height, last.b.height); });
+      if (g) g.push(x); else groups.push([x]);
+    });
+    groups.filter(g => g.length > 1).forEach(g => {
+      const wide = g.reduce((m, x) => x.b.width > m.b.width ? x : m, g[0]);
+      const axis = cx(wide.b);
+      g.forEach(x => { const dx = axis - cx(x.b); if (Math.abs(dx) > 1.5){ x.t.o.set({ left: x.t.o.left + dx }); x.t.o.setCoords(); } });
+    });
+  }
+
   /* ── 4. FIT A BOX TO ITS CONTENT ─────────────────────────────────────────
      Measured: the median plate was 1.38x the width of the text inside it, the
      upper quartile 2.05x, the worst a 941px panel around 69px of type — several
@@ -2216,16 +2252,285 @@ function alignPass(sc, W, H){
     const fs = (t2.o.fontSize || 34) * (t2.o.scaleY || 1);
     const padV = Math.round(fs * 0.44), padH = Math.round(fs * 0.66);
     const wantW = t2.b.width + padH * 2, wantH = t2.b.height + padV * 2;
-    if (wantW >= box.b.width - 10 && wantH >= box.b.height - 10) return;   // already snug
+    /* "Snug" means within 10px EITHER way. The first version tested
+       want >= box - 10 on both axes, which is also true when the words are
+       BIGGER than the plate, so exactly the plates that most needed to grow
+       were skipped: a 574px kicker on a 408px ribbon, pills and price strips
+       with their words hanging off both ends (collision audit, 2026-09-27). */
+    if (Math.abs(wantW - box.b.width) <= 10 && Math.abs(wantH - box.b.height) <= 10) return;   // already snug
     const cx = box.b.left + box.b.width / 2, cy = box.b.top + box.b.height / 2;
     const sx = box.o.scaleX || 1, sy = box.o.scaleY || 1;
-    const fw = Math.max(48, wantW), fh = Math.max(30, wantH);
+    let fw = Math.max(48, wantW), fh = Math.max(30, wantH);
+    /* Growing is allowed only into clear space. A phone plate grown to its
+       padding about its own centre reached down over the REQUEST AN
+       APPRAISAL line under it (scriptRetro, hudTech, ticketStub) and the
+       website line (arcCrown, neonNight): fixing one collision made another.
+       So each axis grows only as far as it stays off every other line. */
+    const others = texts.filter(x => x !== t2).map(x => bb(x.o)).filter(Boolean);   // fresh: steps 1-3 move lines
+    const hits = (w, h) => others.some(r => r.left < cx + w / 2 && r.left + r.width > cx - w / 2 &&
+                                          r.top < cy + h / 2 && r.top + r.height > cy - h / 2);
+    if (fh > box.b.height && hits(Math.min(fw, box.b.width), fh)){
+      let h = fh; while (h > box.b.height && hits(Math.min(fw, box.b.width), h)) h -= 2;
+      fh = Math.max(box.b.height, h);
+    }
+    if (fw > box.b.width && hits(fw, fh)){
+      let w = fw; while (w > box.b.width && hits(w, fh)) w -= 2;
+      fw = Math.max(box.b.width, w);
+    }
     box.o.set({ width: fw / sx, height: fh / sy,
                 left: cx - fw / 2, top: cy - fh / 2,
                 originX:'left', originY:'top' });
     box.o.setCoords();
     box.b = bb(box.o) || box.b;
   });
+
+  /* ── 4b. WORDS STAY ON THEIR PLATE ───────────────────────────────────────
+     A panel that holds several lines is not resized by step 4, so a headline
+     set wider than its panel hung off both sides ("SPORTS CARDS" on the glass
+     card). The panel widens first, up to the guides, keeping its centre; only
+     if that is not enough does the line's type come down, never below 72%
+     of itself, and the phone number never below 72px (rule 53). */
+  const G4 = Math.round(GUIDE * Math.min(W, H));
+  /* panels, not just plates: a 560px ticket is taller than the half-height
+     cap on `boxes`, so its headline found no host and stayed outside it */
+  const panels = objs.filter(o => o && o.type === 'rect' && o.visible !== false).map(o => ({ o, b: bb(o) }))
+    .filter(x => x.b && x.b.width > 0 && x.b.width < W * 0.93 && x.b.height < H * 0.9);
+  const slid = [];
+  texts.forEach(t => {
+    if (/marquee|ticker/i.test(t.o.name || '')) return;
+    const tb = bb(t.o); if (!tb) return;
+    const tcx = tb.left + tb.width / 2, tcy = tb.top + tb.height / 2;
+    const host = panels.map(x => ({ x, b: bb(x.o) })).filter(h => h.b &&
+        tcx > h.b.left && tcx < h.b.left + h.b.width && tcy > h.b.top && tcy < h.b.top + h.b.height)
+      .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
+    if (!host) return;
+    const pad = Math.max(12, Math.round(host.b.width * 0.045));
+    const over = () => { const b = bb(t.o); return b ? Math.max(0, (host.b.left + pad) - b.left, (b.left + b.width) - (host.b.left + host.b.width - pad)) : 0; };
+    if (over() <= 1) return;
+    // 1. widen the panel about its centre, within the guides
+    const cur = bb(t.o), want = Math.min(W - 2 * G4, cur.width + 2 * pad);
+    if (want > host.b.width){
+      const o = host.x.o, c = o.getCenterPoint();
+      o.set({ width: want / (o.scaleX || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+      host.b = bb(o) || host.b;
+    }
+    if (over() <= 1) return;
+    /* 2. a line that FITS but was set outside the panel: a left-aligned
+       variant put every line at x=72 while its ticket or glass panel starts
+       at 110 to 130, so ADMIT crossed the ticket's edge and the items line
+       hung off the glass. It slides in; lines that shared a left edge still
+       share one (they all land on the panel's left edge plus padding). */
+    { const b1 = bb(t.o), room1 = host.b.width - 2 * pad;
+      if (b1.width <= room1){
+        const lo = host.b.left + pad, hi = host.b.left + host.b.width - pad;
+        const dx = b1.left < lo ? lo - b1.left : (b1.left + b1.width > hi ? hi - (b1.left + b1.width) : 0);
+        if (dx){ slid.push({ t, from: b1.left, host }); t.o.set({ left: t.o.left + dx }); t.o.setCoords(); }
+        if (over() <= 1) return;
+      } }
+    // 3. then bring the type down to the panel
+    const b2 = bb(t.o), room = host.b.width - 2 * pad;
+    let k = Math.max(0.72, room / b2.width);
+    if (t.o.pgRole === 'phone'){
+      const px = (t.o.fontSize || 84) * (t.o.scaleY || 1);
+      k = Math.max(k, Math.min(1, 72 / px));
+    }
+    if (k < 1){
+      const c = t.o.getCenterPoint();
+      t.o.set({ scaleX: (t.o.scaleX || 1) * k, scaleY: (t.o.scaleY || 1) * k });
+      t.o.setPositionByOrigin(c, 'center', 'center'); t.o.setCoords();
+    }
+  });
+  // lines that shared a left edge before sliding share one after (the innermost)
+  slid.forEach(a => {
+    const mates = slid.filter(c => Math.abs(c.from - a.from) <= 3);
+    const edge = Math.max(...mates.map(c => bb(c.t.o).left));
+    mates.forEach(c => { const b = bb(c.t.o), dx = edge - b.left;
+      if (dx > 0 && b.left + b.width + dx <= c.host.b.left + c.host.b.width - 12){ c.t.o.set({ left: c.t.o.left + dx }); c.t.o.setCoords(); } });
+  });
+  /* and TALLER than its plate: a selling-point line wrapped to two lines on a
+     one-line pill, the second line hanging under it on the photograph. The
+     plate grows about its centre to hold every line; if that would put it on
+     other copy, the type comes down instead (not below 72%). */
+  texts.forEach(t => {
+    if (/marquee|ticker/i.test(t.o.name || '')) return;
+    const tb = bb(t.o); if (!tb) return;
+    const tcx = tb.left + tb.width / 2, tcy = tb.top + tb.height / 2;
+    const host = boxes.map(x => ({ x, b: bb(x.o) })).filter(h => h.b && h.b.width < W * 0.93 && h.b.height < H * 0.5 &&
+        tcx > h.b.left && tcx < h.b.left + h.b.width && tcy > h.b.top && tcy < h.b.top + h.b.height)
+      .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
+    if (!host) return;
+    const fs = (t.o.fontSize || 34) * (t.o.scaleY || 1), padV = Math.round(fs * 0.36);
+    /* only a line that is genuinely TALLER than its plate: the first version
+       also fired on padding shortfall, so a 76px number on its snug 108px
+       pill "overflowed", could not grow into the CTA above, and came down to
+       55px: 63 cards under rule 53's 72px floor */
+    if (tb.height <= host.b.height + 1) return;
+    const o = host.x.o, c = o.getCenterPoint(), h0 = o.height;
+    const others = texts.filter(x => x !== t).map(x => bb(x.o)).filter(Boolean);
+    const hits = b => others.some(r => r.left < b.left + b.width && r.left + r.width > b.left && r.top < b.top + b.height && r.top + r.height > b.top &&
+      !(r.left >= b.left && r.top >= b.top && r.left + r.width <= b.left + b.width && r.top + r.height <= b.top + b.height));
+    o.set({ height: (tb.height + 2 * padV) / (o.scaleY || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    const g = bb(o);
+    if (g && !hits(g) && g.top >= 0 && g.top + g.height <= H){
+      const tc = t.o.getCenterPoint(); t.o.setPositionByOrigin(new fabric.Point(tc.x, c.y), 'center', 'center'); t.o.setCoords();
+      host.b = g; return;
+    }
+    o.set({ height: h0 }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    if (t.o.pgRole === 'phone') return;                      // the number is never shrunk to fit (rule 53)
+    const k = Math.max(0.72, (host.b.height - 2 * padV) / tb.height);
+    if (k < 1){
+      const tc = t.o.getCenterPoint();
+      t.o.set({ scaleX: (t.o.scaleX || 1) * k, scaleY: (t.o.scaleY || 1) * k });
+      t.o.setPositionByOrigin(tc, 'center', 'center'); t.o.setCoords();
+    }
+  });
+
+  /* ── 4d. THE PRODUCT KEEPS CLEAR OF THE COPY ─────────────────────────────
+     Collision audit, 2026-09-27: on 47 live Steps Flow cards the product had
+     been dropped where the three full-width step cards run, so the cards and
+     the 3 STEPS headline sat on the coins; classics put a phone under a
+     kicker and under grid labels. A product that touches a line of copy, or
+     sits half on a plate and half off it, moves to the largest clear space:
+     open ground, or the inside of a card (on a card is a place; across its
+     edge is not). It is never enlarged, and if it would read at under 40%
+     of its authored size it is left out rather than shown as a speck. */
+  {
+    const G6 = Math.round(GUIDE * Math.min(W, H)), CELL = 12;
+    const live = o => o && o.visible !== false;
+    const words = objs.filter(o => live(o) && (isText(o) || (o.type === 'group' && o.pgCurved))).map(o => bb(o)).filter(Boolean);
+    const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
+    const plates = boxes.map(x => bb(x.o)).filter(b => b && words.some(w => inside({ x: w.left + w.width / 2, y: w.top + w.height / 2 }, b)));
+    const ov = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
+                         Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
+    const prods = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo');
+    const bad = b => words.some(w => ov(b, w) > 0.03 * Math.min(b.width * b.height, w.width * w.height)) ||
+                     plates.some(p => { const f = ov(b, p) / (b.width * b.height); return f > 0.10 && f < 0.90; });
+    /* largest empty rectangle of free cells inside a region (histogram method) */
+    const bestRect = (reg, blocked) => {
+      const x0 = Math.ceil(reg.left / CELL), y0 = Math.ceil(reg.top / CELL);
+      const nx = Math.floor((reg.left + reg.width) / CELL) - x0, ny = Math.floor((reg.top + reg.height) / CELL) - y0;
+      if (nx < 4 || ny < 4) return null;
+      const hgt = new Array(nx).fill(0); let best = null;
+      for (let j = 0; j < ny; j++){
+        for (let i = 0; i < nx; i++){
+          const cb = { left:(x0 + i) * CELL, top:(y0 + j) * CELL, width:CELL, height:CELL };
+          hgt[i] = blocked.some(r => ov(cb, r) > 0) ? 0 : hgt[i] + 1;
+        }
+        const st = [];
+        for (let i = 0; i <= nx; i++){
+          const h = i < nx ? hgt[i] : 0; let s0 = i;
+          while (st.length && st[st.length - 1].h >= h){
+            const top = st.pop(); const wcells = i - top.i;
+            const r = { left:(x0 + top.i) * CELL, top:(y0 + j - top.h + 1) * CELL, width:wcells * CELL, height:top.h * CELL };
+            if (top.h && (!best || r.width * r.height > best.width * best.height)) best = r;
+            s0 = top.i;
+          }
+          st.push({ i: s0, h });
+        }
+      }
+      return best;
+    };
+    prods.forEach(o => {
+      const b = bb(o); if (!b || b.width * b.height > W * H * 0.6) return;
+      if (!bad(b)) return;
+      const pad = 16;
+      const wordsPad = words.map(w => ({ left: w.left - pad, top: w.top - pad, width: w.width + 2 * pad, height: w.height + 2 * pad }));
+      const others = prods.filter(p => p !== o).map(p => bb(p)).filter(Boolean);
+      const guide = { left: G6, top: G6, width: W - 2 * G6, height: H - 2 * G6 };
+      const regions = [{ reg: guide, blocked: wordsPad.concat(plates.map(p => ({ left: p.left - 10, top: p.top - 10, width: p.width + 20, height: p.height + 20 })), others) }]
+        .concat(plates.map(p => ({ reg: { left: p.left + 14, top: p.top + 14, width: p.width - 28, height: p.height - 28 },
+                                   blocked: wordsPad.concat(others) })));
+      let pick = null;
+      regions.forEach(({ reg, blocked }) => {
+        const r = bestRect(reg, blocked); if (!r) return;
+        const k = Math.min(1, (r.width * 0.94) / b.width, (r.height * 0.94) / b.height);
+        const d = Math.hypot(r.left + r.width / 2 - (b.left + b.width / 2), r.top + r.height / 2 - (b.top + b.height / 2));
+        if (!pick || k > pick.k + 0.02 || (Math.abs(k - pick.k) <= 0.02 && d < pick.d)) pick = { r, k, d };
+      });
+      if (!pick || pick.k < 0.4){ o.visible = false; return; }
+      o.set({ scaleX: (o.scaleX || 1) * pick.k, scaleY: (o.scaleY || 1) * pick.k });
+      o.setPositionByOrigin(new fabric.Point(pick.r.left + pick.r.width / 2, pick.r.top + pick.r.height / 2), 'center', 'center');
+      o.setCoords();
+    });
+  }
+
+  /* ── 4c. DECORATION YIELDS TO COPY ───────────────────────────────────────
+     DESIGN-LAW rule 7, enforced at render (collision audit, 2026-09-27): a
+     sticker whose disc the item line ran through, a category mark on the
+     letters of CARD BUYER, a sparkle on the D of iPAD, a bolt across a tile's
+     edge. Decoration never outranks a word. A mark that touches copy, crosses
+     a plate that carries copy, or sits outside the guides moves to the nearest
+     clear place (down to 70% of its size) near where it was authored; if
+     there is none, it goes. A STICKER (a disc or burst with its own words) is
+     never moved, only removed: moved, one landed as a bare blue disc in the
+     middle of a photograph with its curved label left dark on dark
+     (bubblePop-jw07-15). A mark placed at random reads as a mistake.
+     A pointer cursor on a static ad imitates a link nobody can click, so it
+     goes everywhere. Checklist ticks are information, not decoration: kept. */
+  {
+    const G5 = Math.round(GUIDE * Math.min(W, H));
+    const live = o => o && o.visible !== false;
+    /* curved words are groups (textToCurved), and they are words: the first
+       version left them out, so a sticker moved and its curved CASH NOW label
+       stayed behind, dark type on a dark photograph */
+    const isWord = o => isText(o) || (o && o.type === 'group' && o.pgCurved);
+    const txt = objs.filter(o => live(o) && isWord(o)).map(o => ({ o, b: bb(o) })).filter(t => t.b);
+    const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
+    const ctr = b => ({ x: b.left + b.width / 2, y: b.top + b.height / 2 });
+    const plates = boxes.map(x => ({ o: x.o, b: bb(x.o) })).filter(x => x.b && txt.some(t => inside(ctr(t.b), x.b)));
+    const cuts = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo').map(o => ({ o, b: bb(o) })).filter(x => x.b);
+    const units = [];
+    objs.forEach(o => {
+      if (!live(o)) return;
+      if (o.name === 'Cursor'){ o.visible = false; return; }
+      const deco = o.pgRole === 'deco' && !/^Tick/.test(o.name || '');
+      const sticker = (o.type === 'circle' || o.type === 'rect') && /Sticker|Seal Disc|Burst/i.test(o.name || '');
+      if (!deco && !sticker) return;
+      const b = bb(o); if (!b || b.width * b.height > W * H * 0.08) return;
+      const label = sticker ? txt.filter(t => inside(ctr(t.b), b)) : [];
+      units.push({ parts: [o].concat(label.map(t => t.o)), own: new Set(label.map(t => t.o)), b, sticker });
+    });
+    const overlap = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
+                              Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
+    const clash = (u, b) => {
+      if (b.left < G5 || b.top < G5 || b.left + b.width > W - G5 || b.top + b.height > H - G5) return true;
+      const A = b.width * b.height;
+      if (txt.some(t => !u.own.has(t.o) && overlap(b, t.b) > 0.02 * Math.min(A, t.b.width * t.b.height))) return true;
+      if (plates.some(p => { const f = overlap(b, p.b) / A; return f > 0.05 && f < 0.95 && !u.parts.includes(p.o); })) return true;
+      if (cuts.some(c => overlap(b, c.b) > 0.15 * A)) return true;
+      return units.some(v => v !== u && v.b && overlap(b, v.b) > 0);
+    };
+    units.forEach(u => {
+      if (!clash(u, u.b)) return;
+      const c0 = ctr(u.b);
+      let best = null;
+      const reach = u.sticker ? 0 : Math.min(160, Math.max(48, 1.5 * Math.max(u.b.width, u.b.height)));
+      for (const k of [1, 0.85, 0.7]){
+        const w = u.b.width * k, h = u.b.height * k;
+        for (let r = 12; r <= reach && !best; r += 12){
+          for (let a = 0; a < 16 && !best; a++){
+            const x = c0.x + r * Math.cos(a * Math.PI / 8) - w / 2, y = c0.y + r * Math.sin(a * Math.PI / 8) - h / 2;
+            const b = { left: x, top: y, width: w, height: h };
+            if (!clash(u, b)) best = { k, dx: x + w / 2 - c0.x, dy: y + h / 2 - c0.y, b };
+          }
+        }
+        if (best) break;
+      }
+      if (!best){ u.parts.forEach(o => { o.visible = false; }); u.b = null; return; }
+      u.parts.forEach(o => {
+        const c = o.getCenterPoint();
+        const n = new fabric.Point(c0.x + (c.x - c0.x) * best.k + best.dx, c0.y + (c.y - c0.y) * best.k + best.dy);
+        o.set({ scaleX: (o.scaleX || 1) * best.k, scaleY: (o.scaleY || 1) * best.k });
+        o.setPositionByOrigin(n, 'center', 'center'); o.setCoords();
+      });
+      u.b = best.b;
+    });
+  }
+
+  /* ── 5. THE GUIDES ───────────────────────────────────────────────────────
+     Everything that carries the message sits inside the 6% safe margin. See
+     fitInsideGuides(); the per-line clamp below stays as a last resort. */
+  fitInsideGuides(sc, W, H);
 
   texts.forEach(t => {
     if (/marquee|ticker/i.test(t.o.name || '')) return;  // edge-hugging on purpose
@@ -2239,6 +2544,87 @@ function alignPass(sc, W, H){
     if (b.height > H - SAFE_EDGE * 2) dy = 0;
     if (dx || dy){ t.o.set({ left: t.o.left + dx, top: t.o.top + dy }); t.o.setCoords(); }
   });
+}
+
+/* THE GUIDES — DESIGN-LAW rule 57.
+   Owner, 2026-09-27: "make sure everything fits within the guides it needs
+   to." The study session's critic already WARNED at a 6% safe margin and
+   left it "an open decision"; measured on the live showcase, the website line
+   sat inside that margin on 293 of 684 cards, the selling-point badges on
+   106, a headline on 54, the phone number on 22 — and the engine's own clamp
+   was 24px (2.2%), one line at a time.
+
+   Moving one line at a time is how collisions are made: pull the website line
+   up and it lands on the number's plate. So the COMPOSITION moves as one:
+   copy, plates, stickers, icons and products are scaled and shifted together,
+   about their own centre, until the whole message is inside the guides. Every
+   spacing relationship survives, so nothing that was clear starts to collide.
+
+   Left alone: the ground (anything covering >= 85% of both dimensions:
+   photographs, scrims, beams, bokeh, grids, vignettes, grain, canvas frames),
+   frame and corner marks, and edge tickers. Kept attached: a band or a
+   product that touches an edge still touches it afterwards (a full-width band
+   keeps its full width; a product cut at the frame keeps its bleed). */
+const GUIDE = 0.06;
+function fitInsideGuides(sc, W, H){
+  W = W || TPL_W; H = H || TPL_H;
+  let objs;
+  try { objs = sc.getObjects(); } catch (e){ return 1; }
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
+  const TOUCH = 2;
+  const items = [];
+  objs.forEach(o => {
+    if (!o || o.visible === false || o.pgBgRect || o.pgScrim) return;
+    if (/^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '')) return;
+    if (o.pgRole === 'frame' || /Frame|Corner|Bracket|Border/.test(o.name || '') && !isText(o)) return;
+    if (/marquee|ticker/i.test(o.name || '')) return;
+    const b = bb(o); if (!b || b.width <= 0 || b.height <= 0) return;
+    if (b.width >= W * 0.85 && b.height >= H * 0.85) return;          // ground, not message
+    const edge = { l: b.left <= TOUCH, r: b.left + b.width >= W - TOUCH, t: b.top <= TOUCH, bo: b.top + b.height >= H - TOUCH };
+    const text = isText(o);
+    const bleed = !text && (edge.l || edge.r || edge.t || edge.bo);
+    items.push({ o, b, edge, text, bleed });
+  });
+  /* the message's extent: everything that is not attached to an edge */
+  const msg = items.filter(x => !x.bleed);
+  if (!msg.some(x => x.text)) return 1;
+  const U = msg.reduce((u, x) => ({ l: Math.min(u.l, x.b.left), t: Math.min(u.t, x.b.top),
+    r: Math.max(u.r, x.b.left + x.b.width), bo: Math.max(u.bo, x.b.top + x.b.height) }), { l: Infinity, t: Infinity, r: -Infinity, bo: -Infinity });
+  if (U.l >= G - 0.5 && U.t >= G - 0.5 && U.r <= W - G + 0.5 && U.bo <= H - G + 0.5) return 1;   // already inside
+  const uw = U.r - U.l, uh = U.bo - U.t;
+  const s = Math.min(1, (W - 2 * G) / uw, (H - 2 * G) / uh);
+  const ucx = (U.l + U.r) / 2, ucy = (U.t + U.bo) / 2;
+  // after scaling about the message's centre, shift it into the guides
+  const sl = ucx - uw * s / 2, sr = ucx + uw * s / 2, st = ucy - uh * s / 2, sb = ucy + uh * s / 2;
+  const dx = Math.max(0, G - sl) - Math.max(0, sr - (W - G));
+  const dy = Math.max(0, G - st) - Math.max(0, sb - (H - G));
+  items.forEach(x => {
+    const o = x.o, c = o.getCenterPoint();
+    const n = new fabric.Point((c.x - ucx) * s + ucx + dx, (c.y - ucy) * s + ucy + dy);
+    o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+    o.setPositionByOrigin(n, 'center', 'center');
+    o.setCoords();
+    if (!x.bleed) return;
+    /* keep what was attached to an edge attached: a full-width band keeps its
+       width, a band or product at an edge keeps reaching it */
+    const b = bb(o); if (!b) return;
+    if (o.type === 'rect'){
+      let L = b.left, T = b.top, R = b.left + b.width, B = b.top + b.height;
+      if (x.edge.l) L = x.b.left; if (x.edge.r) R = x.b.left + x.b.width;
+      if (x.edge.t) T = x.b.top;  if (x.edge.bo) B = x.b.top + x.b.height;
+      o.set({ originX:'left', originY:'top', left: L, top: T,
+              width: (R - L) / (o.scaleX || 1), height: (B - T) / (o.scaleY || 1) });
+    } else {
+      let ox = 0, oy = 0;
+      if (x.edge.l) ox = x.b.left - b.left; else if (x.edge.r) ox = (x.b.left + x.b.width) - (b.left + b.width);
+      if (x.edge.t) oy = x.b.top - b.top;   else if (x.edge.bo) oy = (x.b.top + x.b.height) - (b.top + b.height);
+      o.set({ left: o.left + ox, top: o.top + oy });
+    }
+    o.setCoords();
+  });
+  return s;
 }
 function buildLayer(l, tplId, dw, dh){
   /* AREA: copy that names a place is re-pointed at the customer's own towns
@@ -4287,7 +4673,7 @@ function preloadCutouts(){
     const el = new Image();
     el.onload = () => { CUTOUT_ELS[src] = el; res(); };
     el.onerror = () => { missing.push(src); res(); };
-    el.src = src;
+    el.src = assetUrl(src);
   }))).then(() => {
     if (missing.length) console.warn('GraphicsStudio: ' + missing.length + ' cutout(s) missing from assets/cutouts, those layers render empty:', missing.slice(0, 5));
     else console.log('GraphicsStudio: all ' + srcs.length + ' product cutouts ready.');
@@ -4338,7 +4724,7 @@ function preloadTplBgs(){
       else finish(null);
     };
     // embedded data first (cannot 404, works on file://); asset file is the backup
-    el.src = embedded[t.bg.src] || t.bg.src;
+    el.src = embedded[t.bg.src] || assetUrl(t.bg.src);
   });
   /* Wave 1 = what is on screen. Wave 2 = everything else, started only once
      wave 1 has settled, so the visible page is never competing with 130
@@ -5520,22 +5906,7 @@ function applyWatermark(dataUrl, w, h){
       cv.width = w; cv.height = h;
       const x = cv.getContext('2d');
       x.drawImage(im, 0, 0, w, h);
-      const base = Math.min(w, h);
-      const fs = Math.round(base * 0.032);
-      x.font = '800 ' + fs + 'px "DM Sans", sans-serif';
-      x.globalAlpha = 0.5;
-      x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
-      x.fillStyle = '#ffffff';
-      const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
-      x.textAlign = 'center'; x.textBaseline = 'middle';
-      // each corner mark rotated 45° along its corner→center diagonal
-      [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
-        x.save();
-        x.translate(cx, cy);
-        x.rotate(deg * Math.PI / 180);
-        x.fillText(t, 0, 0);
-        x.restore();
-      });
+      drawWatermarkMarks(x, w, h);          // the same marks every video frame carries (Satoshi, vendored)
       res(cv.toDataURL('image/png'));
     };
     im.onerror = () => res(dataUrl);
@@ -5800,7 +6171,7 @@ function refreshEzLayers(){
   const isPhoto = bgSpec.type === 'image' && ez.bgData;
   const isTplPhoto = bgSpec.type === 'image' && bgSpec.src;
   const sw = isPhoto ? `<img src="${ez.bgData}" alt="">`
-    : isTplPhoto ? `<img src="${bgSpec.src}" alt="">`
+    : isTplPhoto ? `<img src="${assetUrl(bgSpec.src)}" alt="">`
     : `<span style="width:100%;height:100%;display:block;background:${cssBg(bgSpec)}"></span>`;
   list.appendChild(ezLayerRow({
     swatchHtml: sw, name: 'Background',
@@ -7648,7 +8019,7 @@ function ezDefaultChips(tpl){
 function ezChips(){ return ez.chips !== null ? ez.chips : ezDefaultChips(ezTpl()); }
 function cssBg(spec){
   if (spec.type === 'image'){
-    if (spec.src) return `url(${spec.src}) center/cover`;
+    if (spec.src) return `url(${assetUrl(spec.src)}) center/cover`;
     const fb = spec.fallback;
     return fb ? cssBg(fb) : '#101014';
   }
@@ -8068,7 +8439,7 @@ function placeholderBgImage(src){
   }
   try { return new fabric.Image(p); } catch (e){ return null; }
 }
-function renderEzCanvas(px, fmt, q, mode, format){
+function renderEzCanvas(px, fmt, q, mode, format, keep){
   /* 2026-09-02: Easy Mode exports in every format the editor has. Layers are
      built straight into the target document (buildLayer takes dw/dh, the same
      remap the advanced editor uses), the photo covers it, alignPass runs on
@@ -8161,6 +8532,7 @@ function renderEzCanvas(px, fmt, q, mode, format){
   }
   alignPass(sc, DW, DH);
   sc.renderAll();
+  if (keep) return sc;          // the video export animates this exact scene, and disposes it
   const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / Math.min(DW, DH) });
   sc.dispose();
   return url;
@@ -8584,7 +8956,7 @@ function selectAllObjects(){
 }
 
 // ═══════════════ BOOT ═══════════════
-const CSS_FALLBACK = "/* ═══════════════════════════════════════════════════════════════════════════\n   GRAPHICS STUDIO — Liquid Glass chrome\n\n   Unified with unified-crm and the iphones.la launcher: same field, same glass\n   recipe, same accent, same radii, same tabular-mono law. The templates this\n   app produces went Liquid Glass on Aug 24; the chrome around them was still\n   flat-black-and-orange 2021 SaaS. Now they are one material.\n\n   Laws, carried over from the CRM theme:\n   1. Chrome is glass. Running text is opaque. A blur is for panels, never\n      for paragraphs.\n   2. ONE accent (#ff7a1a). The site now matches the PRODUCT it sells, not\n      the CRM: a page selling loud buyback ads should not look like a SaaS\n      dashboard. Colour that is not the accent means state:\n      green good, amber caution, red stop, violet AI.\n   3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and\n      wordmark only, as --brand-1/--brand-2, so the accent can be retuned for\n      contrast without repainting the brand.\n   4. Anything the eye compares — prices, counts, percentages, quotas — is set\n      in tabular mono. This is a tool, not prose.\n\n   Legacy tokens (--orange, --surface2, --muted …) are kept as ALIASES onto the\n   new system because app.js writes them into generated markup in ~250 places.\n   Retargeting --orange to the accent is what repaints those call sites.\n   Do not delete an alias without grepping app.js first.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── HOUSE TYPE ──────────────────────────────────────────────────────────────\n   Clash Display for anything that declares, Satoshi for anything that is read,\n   Zodiak when a serif is the point. All three are Fontshare (Indian Type\n   Foundry), free for commercial use, and VENDORED into assets/fonts rather\n   than pulled from a CDN: no third-party dependency, no extra CSP origin, no\n   render-blocking round trip to someone else's server. 184KB for nine files.\n\n   Why these and not the previous set: the library ran on Bebas Neue, Anton,\n   Montserrat, Luckiest Guy, Titan One, Bungee, Monoton and Pacifico. Those are\n   the default free-font shelf every Canva template is already built from, and\n   half of them are novelty faces — the opposite of an ad that asks a stranger\n   to hand over a phone for cash. `font-display:swap` so text paints\n   immediately in the fallback and reflows once the face lands. */\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n/* Khand carries the long money-words (\"TEST STRIPS\", \"COLLECTIBLES\") that made\n   a wide face overflow; Melodrama is the high-contrast serif for gold, coins\n   and anything that wants to read as valuation rather than clearance. Two more\n   voices so the 153 templates are not all in one typeface. */\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n\n/* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>\n   before first paint by the inline script in index.html, so there is no white\n   flash. This rule matches both the explicit choice and the bare default, so\n   dark still applies if that script never runs. */\n:root,\n:root[data-theme='dark']{\n  color-scheme:dark;\n\n  /* GRAPHITE, the default ground since 2026-09-02. The field used to be a warm\n     near-black (#141110) with brown surfaces under an orange accent, and the\n     owner's verdict was \"orange on brown on grey\". The ground is now a cool\n     neutral graphite so ANY accent sits on it cleanly; the old warm set is\n     kept, whole, as data-skin='ember' below. Accent colour is a separate axis\n     (data-accent) so the two can be mixed from the Look menu. */\n\n  /* Field */\n  --field:#0f1116;\n  --wash-a:rgba(var(--accent-rgb),.26);\n  --wash-b:rgba(var(--accent2-rgb),.18);\n  --wash-c:rgba(0,214,180,.10);\n\n  /* Glass */\n  --glass-bg:rgba(24,27,34,.62);\n  --glass-bg-strong:rgba(24,27,34,.86);\n  --glass-edge:rgba(255,255,255,.12);\n  --glass-blur:blur(34px) saturate(190%) brightness(1.04);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 38px -12px rgba(0,0,0,.6);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.10),0 24px 60px -14px rgba(0,0,0,.75);\n\n  /* Opaque content surfaces */\n  --surface-solid:#171a21;\n  --surface-sunk:rgba(255,255,255,.055);\n  --surface-raise:#1f232c;\n\n  /* Ink — cool neutrals */\n  --text:#f2f4f8;\n  --text-2:#c3c9d6;\n  --text-dim:#8b94a7;\n  --hairline:rgba(255,255,255,.09);\n  --hairline-strong:rgba(255,255,255,.16);\n\n  /* Accent — BLUE MARKET by default (the palette the owner kept most often\n     in the template reviews). See the data-accent blocks for the others. */\n  --accent:#4d9cff;\n  --accent-ink:#061527;\n  --accent-wash:rgba(77,156,255,.16);\n  --accent-deep:#2b7de9;\n  --accent-soft:#cfe4ff;\n  --accent-rgb:77,156,255;\n  --accent2-rgb:120,90,255;\n\n  --good:#30d68f;\n  --warn:#ffb03d;\n  --danger:#ff6259;\n  --ai:#a78bff;\n\n  /* Brand — follows the accent now. The mark used to carry its own orange\n     regardless of the UI accent; that is the one place orange survived the\n     retune, so it is tied to the accent axis instead. */\n  --brand-1:var(--accent);\n  --brand-2:var(--accent-soft);\n  --brand-rgb:var(--accent-rgb);\n\n  --r-pill:999px;\n  --r-lg:18px;\n  --r-md:13px;\n  --r-sm:9px;\n  --tap:44px;\n\n  --lift-1:0 1px 2px rgba(0,0,0,.4),0 4px 12px -4px rgba(0,0,0,.5);\n  --lift-2:0 2px 6px rgba(0,0,0,.45),0 18px 42px -14px rgba(0,0,0,.68),0 0 0 1px rgba(255,255,255,.045);\n  --lift-3:0 4px 12px rgba(0,0,0,.5),0 40px 90px -22px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.5);\n\n  --stage-1:#14171d;\n  --stage-2:#0a0c10;\n  --stage-dot:rgba(255,255,255,.045);\n  --scrim:rgba(8,10,14,.74);\n\n  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;\n  /* Satoshi runs the whole product, chrome included. The system stack stays\n     behind it as the fallback, so a failed font load degrades to exactly the\n     UI we shipped before rather than to Times. */\n  --ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;\n  --display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;\n  --serif:'Zodiak',Georgia,'Times New Roman',serif;\n\n  /* ── legacy aliases (app.js depends on every one of these) ── */\n  --bg:var(--field);\n  --surface:var(--surface-solid);\n  --surface2:var(--surface-raise);\n  --surface3:#2a2f3a;\n  --border:var(--hairline);\n  --border2:var(--hairline-strong);\n  --orange:var(--accent);\n  --orange2:var(--accent-deep);\n  --gold:var(--warn);\n  --green:var(--good);\n  --red:var(--danger);\n  --muted:var(--text-dim);\n  --muted2:var(--text-2);\n  --panel:var(--surface-solid);\n  --panel2:var(--surface-raise);\n  --line:var(--hairline);\n  --r:var(--r-md);\n}\n\n/* EMBER — the pre-2026-09-02 warm look, kept as a selectable skin. */\n:root[data-theme='dark'][data-skin='ember']{\n  --field:#141110;\n  --wash-a:rgba(var(--accent-rgb),.34);\n  --wash-b:rgba(var(--accent2-rgb),.26);\n  --wash-c:rgba(255,196,60,.20);\n  --glass-bg:rgba(34,27,23,.62);\n  --glass-bg-strong:rgba(34,27,23,.86);\n  --glass-edge:rgba(255,255,255,.13);\n  --surface-solid:#1d1815;\n  --surface-raise:#262019;\n  --text:#f6efe8;\n  --text-2:#cfc2b6;\n  --text-dim:#9a8b7e;\n  --stage-1:#1a1512;\n  --stage-2:#0d0a08;\n  --scrim:rgba(14,9,6,.74);\n  --surface3:#33291f;\n}\n\n/* NIGHT — deep jewel ground, vivid washes, the Night Neon family's material. */\n:root[data-theme='dark'][data-skin='night']{\n  --field:#0a0913;\n  --wash-a:rgba(var(--accent-rgb),.44);\n  --wash-b:rgba(var(--accent2-rgb),.34);\n  --wash-c:rgba(0,214,180,.18);\n  --glass-bg:rgba(28,24,56,.58);\n  --glass-bg-strong:rgba(28,24,56,.84);\n  --glass-edge:rgba(255,255,255,.14);\n  --glass-blur:blur(40px) saturate(220%) brightness(1.06);\n  --surface-solid:#15132a;\n  --surface-raise:#1d1a36;\n  --surface-sunk:rgba(255,255,255,.06);\n  --text:#f3f0ff;\n  --text-2:#c9c3e8;\n  --text-dim:#8f88b8;\n  --hairline:rgba(255,255,255,.10);\n  --hairline-strong:rgba(255,255,255,.18);\n  --glow-accent:0 10px 40px -6px rgba(var(--accent-rgb),.7);\n  --stage-1:#14122a;\n  --stage-2:#08071a;\n  --scrim:rgba(6,5,16,.76);\n  --surface3:#26224a;\n}\n\n/* LIGHT — opt-in, for daylight and for turning the screen toward someone.\n   Higher specificity than the bare :root above, so it wins wherever the dark\n   default set a value. Radii, faces and the mono stack are theme-independent. */\n:root[data-theme='light']{\n  color-scheme:light;\n  --field:#f3f4f7;\n  --wash-a:rgba(var(--accent-rgb),.14);\n  --wash-b:rgba(var(--accent2-rgb),.10);\n  --wash-c:rgba(0,214,180,.08);\n  --glass-bg:rgba(255,255,255,.58);\n  --glass-bg-strong:rgba(255,255,255,.80);\n  --glass-edge:rgba(255,255,255,.9);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(9,18,38,.045),0 1px 2px rgba(9,18,38,.05),0 14px 38px -12px rgba(9,18,38,.16);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.95),0 24px 60px -14px rgba(9,18,38,.30);\n  --surface-solid:#ffffff;\n  --surface-sunk:rgba(9,18,38,.042);\n  --surface-raise:#f8f9fc;\n  --text:#14161c;\n  --text-2:#4a5060;\n  --text-dim:#6b7280;\n  --hairline:rgba(9,18,38,.09);\n  --hairline-strong:rgba(9,18,38,.16);\n  --accent:#1d63d8;\n  --accent-ink:#ffffff;\n  --accent-wash:rgba(29,99,216,.12);\n  --accent-deep:#174fae;\n  --accent-soft:#dbe8ff;\n  --accent-rgb:29,99,216;\n  --accent2-rgb:109,63,214;\n  --good:#0f9d6b;\n  --warn:#c2751a;\n  --danger:#e0342a;\n  --ai:#6c4cff;\n  --lift-1:0 1px 2px rgba(9,18,38,.06),0 4px 12px -4px rgba(9,18,38,.10);\n  --lift-2:0 2px 6px rgba(9,18,38,.07),0 18px 42px -14px rgba(9,18,38,.20),0 0 0 1px rgba(9,18,38,.05);\n  --lift-3:0 4px 12px rgba(9,18,38,.08),0 40px 90px -22px rgba(9,18,38,.28),0 0 0 1px rgba(9,18,38,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.34);\n  --stage-1:#eef0f4;\n  --stage-2:#dfe3ea;\n  --stage-dot:rgba(9,18,38,.07);\n  --scrim:rgba(120,132,155,.42);\n  --surface3:#e9ecf2;\n}\n\n/* PAPER — light, editorial: a warm paper ground, ink type, a serif display\n   face, hairlines instead of glass. The Paper and Chalk template families'\n   material, applied to the chrome. */\n:root[data-theme='light'][data-skin='paper']{\n  --field:#f7f4ee;\n  --wash-a:rgba(var(--accent-rgb),.07);\n  --wash-b:rgba(var(--accent2-rgb),.05);\n  --wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(251,249,244,.82);\n  --glass-bg-strong:rgba(251,249,244,.94);\n  --glass-edge:rgba(30,25,15,.10);\n  --glass-blur:blur(12px) saturate(120%);\n  --glass-shadow:0 1px 0 rgba(30,25,15,.05);\n  --glass-shadow-lift:0 20px 50px -18px rgba(30,25,15,.22);\n  --surface-solid:#fffdf9;\n  --surface-sunk:rgba(30,25,15,.045);\n  --surface-raise:#f1ece3;\n  --text:#1a1815;\n  --text-2:#4e4842;\n  --text-dim:#6d665e;\n  --hairline:rgba(30,25,15,.11);\n  --hairline-strong:rgba(30,25,15,.20);\n  --stage-1:#f1ece3;\n  --stage-2:#e4dccf;\n  --scrim:rgba(90,80,64,.42);\n  --surface3:#e9e2d6;\n  --r-lg:12px;\n  --r-md:9px;\n  --r-sm:6px;\n  --display:'Zodiak',Georgia,'Times New Roman',serif;\n}\n\n/* ACCENT AXIS. Five accents, each with a dark and a light value pair; the\n   ground (skin) never changes with the accent, which is what makes them\n   mixable. Blue is the default and lives in the base blocks above. */\n:root[data-accent='mint']{--accent:#3ddc97;--accent-ink:#04170e;--accent-wash:rgba(61,220,151,.16);--accent-deep:#1fb87a;--accent-soft:#c9f5e2;--accent-rgb:61,220,151;--accent2-rgb:77,156,255}\n:root[data-theme='light'][data-accent='mint']{--accent:#0f8f5f;--accent-ink:#ffffff;--accent-wash:rgba(15,143,95,.12);--accent-deep:#0b6f4a;--accent-soft:#d3f3e4;--accent-rgb:15,143,95;--accent2-rgb:29,99,216}\n:root[data-accent='orchid']{--accent:#b48cff;--accent-ink:#120a24;--accent-wash:rgba(180,140,255,.16);--accent-deep:#8f5cff;--accent-soft:#e6d8ff;--accent-rgb:180,140,255;--accent2-rgb:255,120,190}\n:root[data-theme='light'][data-accent='orchid']{--accent:#6d3fd6;--accent-ink:#ffffff;--accent-wash:rgba(109,63,214,.12);--accent-deep:#5530b0;--accent-soft:#e9dfff;--accent-rgb:109,63,214;--accent2-rgb:214,63,150}\n:root[data-accent='gold']{--accent:#f2c744;--accent-ink:#1a1300;--accent-wash:rgba(242,199,68,.16);--accent-deep:#d9a815;--accent-soft:#ffe9a8;--accent-rgb:242,199,68;--accent2-rgb:255,122,26}\n:root[data-theme='light'][data-accent='gold']{--accent:#a6700a;--accent-ink:#ffffff;--accent-wash:rgba(166,112,10,.12);--accent-deep:#8a5b06;--accent-soft:#f7e7b8;--accent-rgb:166,112,10;--accent2-rgb:194,65,12}\n:root[data-accent='orange']{--accent:#ff7a1a;--accent-ink:#1a0d04;--accent-wash:rgba(255,122,26,.18);--accent-deep:#e04e05;--accent-soft:#ffd7a1;--accent-rgb:255,122,26;--accent2-rgb:255,80,30;--brand-1:#ff7a33;--brand-2:#f5a623}\n:root[data-theme='light'][data-accent='orange']{--accent:#c2410c;--accent-ink:#ffffff;--accent-wash:rgba(194,65,12,.13);--accent-deep:#9a3412;--accent-soft:#ffd7a1;--accent-rgb:194,65,12;--accent2-rgb:255,80,30;--brand-1:#f2600c;--brand-2:#e09417}\n\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}\nhtml{scroll-behavior:smooth}\nbody{\n  font-family:var(--ui);\n  font-size:15px;\n  line-height:1.45;\n  letter-spacing:-.006em;\n  background:var(--field);\n  color:var(--text);\n  overflow-x:hidden;\n  -webkit-font-smoothing:antialiased;\n}\n\n/* THE FIELD — three layers, because one gradient looks like a template.\n   1. Aurora: two large soft colour bodies, off-centre and different sizes, so\n      the eye reads atmosphere rather than wallpaper.\n   2. Geometry: thin arcs and a conic wedge, so a blurred panel moving over an\n      EDGE refracts visibly. Glass over flat colour is just tinted plastic.\n   3. Vignette + grain: corners fall away, and wide displays stop banding. */\nbody::before{\n  content:'';position:fixed;inset:-25%;z-index:-2;pointer-events:none;\n  background:\n    radial-gradient(circle at 78% 18%,transparent 27.4%,rgba(120,160,255,.055) 27.6%,rgba(120,160,255,.055) 28.4%,transparent 28.6%),\n    radial-gradient(circle at 16% 74%,transparent 33.4%,rgba(165,97,255,.05) 33.6%,rgba(165,97,255,.05) 34.3%,transparent 34.5%),\n    conic-gradient(from 210deg at 88% 82%,rgba(0,214,180,.05),transparent 38%),\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%);\n  animation:field-drift 48s ease-in-out infinite alternate;\n}\n@keyframes field-drift{\n  from{transform:translate3d(0,0,0) scale(1)}\n  to{transform:translate3d(-1.5%,1.2%,0) scale(1.04)}\n}\nbody::after{\n  content:'';position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;\n  background-image:\n    radial-gradient(120% 90% at 50% 45%,transparent 42%,rgba(0,0,0,.30) 100%),\n    url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.035'/></svg>\");\n}\n/* The editor is a full-height app shell that paints its own stage, so the\n   marketing field would only burn GPU behind it. Driven by :has() rather than\n   a body class, so app.js needs no change to page switching. */\nbody:has(#page-editor.active)::before,\nbody:has(#page-editor.active)::after{display:none}\n\nbutton{font-family:inherit}\ninput,textarea,select{font-family:inherit;color:var(--text)}\n::-webkit-scrollbar{width:10px;height:10px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px;border:3px solid transparent;background-clip:content-box}\n::-webkit-scrollbar-thumb:hover{background:var(--text-dim);background-clip:content-box}\n:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}\n@media (prefers-reduced-motion:reduce){\n  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}\n  body::before{animation:none}\n}\n\n/* ═══════════ HOUSE UTILITIES (shared vocabulary with the CRM) ═══════════ */\n.glass{\n  position:relative;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);\n  backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  box-shadow:var(--glass-shadow);\n}\n/* A single hairline all the way round reads as a border. Real glass catches\n   light on the edge facing the source and loses it on the far side, so this\n   paints a gradient rim: bright top-left, gone by bottom-right. Cheapest thing\n   that separates \"panel with a border\" from \"pane of glass\". */\n.glass::after{\n  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;\n  background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.05) 34%,transparent 60%);\n  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);\n  -webkit-mask-composite:xor;mask-composite:exclude;\n  pointer-events:none;z-index:0;\n}\n.glass>*{position:relative;z-index:1}\n.glass-strong{background:var(--glass-bg-strong)}\n/* Anything the eye compares. */\n.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}\n.label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}\n\n/* ═══════════ SHARED ═══════════ */\n.btn{\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;\n  min-height:36px;padding:9px 18px;\n  border-radius:var(--r-pill);\n  font-size:14px;font-weight:600;letter-spacing:-.01em;line-height:1.2;\n  cursor:pointer;border:none;text-decoration:none;white-space:nowrap;\n  transition:transform .08s cubic-bezier(.2,0,0,1),filter .15s ease,background .15s ease,border-color .15s ease,color .15s ease;\n}\n.btn:active{transform:scale(.968)}\n.btn-primary{\n  background:linear-gradient(180deg,var(--accent),var(--accent-deep));\n  color:var(--accent-ink);\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent);\n}\n.btn-primary:hover{filter:brightness(1.06)}\n.btn-ghost{background:transparent;color:var(--text-2)}\n.btn-ghost:hover{color:var(--text);background:var(--surface-sunk)}\n.btn-outline{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  color:var(--text);border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow);\n}\n.btn-outline:hover{background:var(--surface-raise);color:var(--text)}\n.btn-dark{background:var(--surface-sunk);color:var(--text);border:1px solid var(--hairline)}\n.btn-dark:hover{background:var(--surface-raise)}\n.btn-xl{padding:15px 30px;font-size:16px;min-height:52px}\n.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}\n\n/* Theme toggle — same control on every surface. */\n.theme-btn{\n  width:36px;height:36px;flex:none;display:inline-grid;place-items:center;\n  border-radius:var(--r-pill);background:transparent;border:none;cursor:pointer;\n  color:var(--text-2);font-size:15px;line-height:1;\n  transition:background .15s ease,color .15s ease;\n}\n.theme-btn:hover{background:var(--surface-sunk);color:var(--text)}\n\n.notif{\n  position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);color:var(--text);\n  padding:12px 20px;border-radius:var(--r-pill);font-size:14px;font-weight:600;\n  z-index:9500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;\n  box-shadow:var(--glass-shadow-lift);max-width:min(90vw,480px);text-align:center;\n}\n.notif.show{opacity:1;transform:translate(-50%,0)}\n.notif.success{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(48,214,143,.45)}\n.notif.error{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(255,98,89,.5)}\n\n/* modal */\n.modal-overlay{\n  position:fixed;inset:0;background:var(--scrim);\n  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);\n  z-index:8000;display:none;align-items:center;justify-content:center;padding:24px;\n}\n.modal-overlay.show{display:flex}\n.modal{\n  position:relative;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:22px;width:100%;max-width:520px;padding:26px;\n  box-shadow:var(--glass-shadow-lift);animation:pop .18s cubic-bezier(.2,0,0,1);\n}\n@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}\n.modal h3{font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:4px}\n.modal .modal-sub{font-size:13.5px;color:var(--text-dim);margin-bottom:18px;line-height:1.5}\n.modal label{display:block;font-size:10.5px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.09em}\n.modal input[type=text],.modal input[type=tel],.modal input[type=email],.modal input[type=password]{\n  width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);\n  border-radius:var(--r-md);padding:11px 13px;font-size:14px;color:var(--text);\n  transition:border-color .14s ease,box-shadow .14s ease;\n}\n.modal input::placeholder{color:var(--text-dim)}\n.modal input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}\n\n/* ═══════════ LANDING ═══════════ */\n#page-landing{min-height:100vh}\n.lp-nav{\n  position:fixed;top:0;left:0;right:0;z-index:300;height:64px;\n  display:flex;align-items:center;gap:8px;padding:0 clamp(16px,4vw,40px);\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n  box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -20px rgba(0,0,0,.6);\n}\n.logo{\n  font-family:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;\n  color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px;\n  cursor:pointer;background:none;border:none;\n}\n.logo .logo-mark{\n  width:30px;height:30px;border-radius:9px;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:#fff;\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 12px -4px rgba(var(--brand-rgb),.5);\n}\n/* Brand warmth lives here and nowhere else. */\n.logo em{\n  font-style:normal;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  -webkit-background-clip:text;background-clip:text;color:transparent;\n}\n.lp-nav-links{display:flex;gap:26px;margin-left:40px}\n.lp-nav-links a{font-size:14px;font-weight:550;color:var(--text-2);text-decoration:none;transition:color .15s;white-space:nowrap}\n.lp-nav-links a:hover{color:var(--text)}\n.lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}\n.lp-lab{white-space:nowrap}\n@media(max-width:640px){\n  .lp-nav-links{display:none}\n  /* The lab link is the one nav item that must survive on a phone (it is\n     reviewed from one). Measured at 375px: wordmark 186 + lab pill + toggle\n     + \"Make my ad\" overflowed by ~80px and the CTA clipped, so the logo\n     drops to its mark alone here; the mark keeps its own font-size below. */\n  .lp-nav .logo{font-size:0;gap:0}\n  .lp-lab{padding:9px 12px}\n  /* 343px of usable nav at 375 viewport cannot hold logo + 4 controls, and\n     overflow-x:hidden was silently clipping \"Make my ad\" off the right edge.\n     Log in / Sign up free stay reachable in the footer's Account column and\n     from the studio itself, so the one conversion button survives here. */\n  #lp-login,#lp-signup{display:none}\n  .lp-nav{gap:4px;padding:0 12px}\n  .lp-nav .btn{padding:9px 14px;font-size:13.5px}\n  .lp-nav .lp-caret{padding:9px 10px}\n  .logo{font-size:15px;gap:8px}\n  .logo .logo-mark{width:26px;height:26px;font-size:13px}\n}\n\n.hero{padding:120px clamp(16px,5vw,48px) 72px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(84vh,760px)}\n@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:120px;gap:44px;min-height:0}}\n.hero-eyebrow{\n  display:inline-flex;align-items:center;gap:8px;\n  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;\n  color:var(--accent);background:var(--accent-wash);\n  border:.5px solid rgba(var(--accent-rgb),.28);\n  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:22px;\n}\n/* The ceiling at which \"in under a minute.\" still sets on ONE line inside the\n   1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is face-specific and\n   has now caught two typefaces out: the system stack held one line to 68px,\n   Clash Display breaks at 66 (it runs ~8.4x its size for that string against\n   a 548px column at 1280). Re-measure this if --display ever changes again;\n   guessing produces a four-line ragged hero. */\n.hero h1{font-family:var(--display);font-size:clamp(34px,4.5vw,58px);line-height:1.06;letter-spacing:-.028em;margin-bottom:20px;font-weight:700}\n.hero h1 em{font-style:normal;color:var(--accent)}\n.hero p{font-size:17px;line-height:1.65;color:var(--text-2);max-width:480px;margin-bottom:32px}\n.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}\n.hero-note{margin-top:18px;font-size:13px;color:var(--text-dim)}\n\n/* Height is set by the fan's geometry, not by taste: the front card must start\n   BELOW the back cards' phone-number band or it buries the one element the ad\n   exists to deliver. At 460px with 52% cards it covered 53% and 54% of them. */\n.hero-stack{position:relative;height:500px}\n.hero-card{position:absolute;width:44%;aspect-ratio:1;border-radius:20px;overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-3);background:var(--surface-raise);transition:transform .4s cubic-bezier(.2,0,0,1)}\n.hero-card img{width:100%;height:100%;object-fit:cover;display:block}\n/* Fan geometry is measured, not eyeballed. At 57% wide the three cards came to\n   192% of the stack and the back card was 57% OCCLUDED — its headline was\n   sliced in half, which reads as a broken page rather than a designed stack.\n   At 52% the overlap is ~19%/~18% and, more importantly, all of it lands in\n   the LOWER band: hc3 starts at y=201 of a 460 stack, below where every\n   template puts its headline. Change these together, and re-measure the\n   occlusion if you touch the width. */\n.hero-card.hc1{top:0;left:0;transform:rotate(-8deg);z-index:1}\n.hero-card.hc2{top:4%;right:2%;transform:rotate(6deg);z-index:2}\n.hero-card.hc3{bottom:0;left:20%;transform:rotate(-1deg);z-index:3;box-shadow:var(--lift-3),0 30px 90px -20px rgba(var(--accent-rgb),.35)}\n/* Mobile fan. MUST come after the base .hero-card rules: at equal specificity\n   the later rule wins, and an earlier media query silently lost to the 52%\n   default — the block applied, the width did not.\n   Taller and narrower here because at 380px the three cards had nowhere to go\n   and the front one landed across the other two's phone numbers (measured 71%\n   and 55% of the number band covered), which is the one element the ad exists\n   to deliver. */\n@media(max-width:900px){\n  .hero-stack{height:446px;max-width:440px;margin:0 auto;width:100%}\n  .hero-card{width:46%}\n  /* Overlap SIDEWAYS, separate VERTICALLY. Pulling the cards fully apart cleared\n     the phone numbers but lost the stack entirely — three scattered squares, no\n     depth. Horizontal overlap gives the layered read back; the vertical gaps are\n     what keep each card's number band uncovered. */\n  .hero-card.hc1{top:0;left:0}\n  .hero-card.hc2{top:7%;right:4%}\n  .hero-card.hc3{bottom:0;left:17%}\n}\n/* Any card can be brought to the front — hover on a pointer device, press and\n   hold on touch. The whole stack dims slightly so the chosen one reads as\n   picked rather than merely bigger. */\n/* ═══════════ HERO ENTRANCE ═══════════\n   The three cards fly in from below-and-apart and settle into the fan, so the\n   stack assembles itself in front of the visitor instead of being there already.\n   Each card keeps its OWN resting transform, so the animation has to end on that\n   exact value or the card snaps when the keyframes hand back to CSS — hence a\n   per-card @keyframes rather than one shared one.\n   Staggered back-to-front so the card you are meant to read lands last.\n   `animation-fill-mode:both` holds the opening frame during the delay, which is\n   what stops all three flashing at their final position on first paint. */\n@keyframes heroIn1{\n  0%  {opacity:0; transform:translate3d(-38px,64px,0) rotate(-16deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-8deg) scale(1)}\n}\n@keyframes heroIn2{\n  0%  {opacity:0; transform:translate3d(38px,72px,0) rotate(14deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(6deg) scale(1)}\n}\n@keyframes heroIn3{\n  0%  {opacity:0; transform:translate3d(0,88px,0) rotate(6deg) scale(.86)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-1deg) scale(1)}\n}\n/* Cards default to VISIBLE. An earlier version set opacity:0 here and relied on\n   a JS class to reveal them — so the moment requestAnimationFrame did not run\n   (a background tab, a script error anywhere above) the hero was simply blank.\n   The animation supplies its own opening frame through fill-mode:both, so\n   nothing needs to be hidden up front for it to work. Fail visible. */\n.hero-stack.ready .hero-card.hc1{animation:heroIn1 .92s cubic-bezier(.16,.84,.28,1) .05s both}\n.hero-stack.ready .hero-card.hc2{animation:heroIn2 .92s cubic-bezier(.16,.84,.28,1) .17s both}\n.hero-stack.ready .hero-card.hc3{animation:heroIn3 1.0s cubic-bezier(.16,.84,.28,1) .30s both}\n/* Once the entrance has finished the animation is removed entirely, so the\n   hover transform is not fighting a finished animation for the same property.\n   Selector must be enumerated per card: `.hero-stack.settled .hero-card` is\n   three classes and LOSES to `.hero-stack.ready .hero-card.hc1`, which is four\n   — so `animation:none` silently never applied and the cards stayed frozen on\n   the animation's opening frame. Matching specificity, declared later, wins. */\n.hero-stack.settled .hero-card.hc1,\n.hero-stack.settled .hero-card.hc2,\n.hero-stack.settled .hero-card.hc3{animation:none;opacity:1}\n@media (prefers-reduced-motion:reduce){\n  .hero-card{opacity:1}\n  .hero-stack.ready .hero-card{animation:none}\n}\n.hero-card{cursor:pointer;will-change:transform}\n.hero-stack:hover .hero-card,.hero-stack.touching .hero-card{filter:brightness(.72) saturate(.9)}\n/* Hover pulls a card OUT of the stack: z-index above its siblings, straightened,\n   lifted and enlarged. Without the z-index the card grew but stayed underneath,\n   which read as a glitch rather than a pick-up. */\n.hero-card.hc1:hover,.hero-card.hc1.lifted,\n.hero-card.hc2:hover,.hero-card.hc2.lifted,\n.hero-card.hc3:hover,.hero-card.hc3.lifted{z-index:9}\n.hero-card.hc1:hover,.hero-card.hc1.lifted{transform:rotate(-2deg) translateY(-18px) scale(1.09)}\n.hero-card.hc2:hover,.hero-card.hc2.lifted{transform:rotate(1.5deg) translateY(-18px) scale(1.09)}\n.hero-card.hc3:hover,.hero-card.hc3.lifted{transform:rotate(0deg) translateY(-20px) scale(1.09)}\n.hero-card:hover,.hero-card.lifted{\n  z-index:9!important;filter:none!important;\n  box-shadow:var(--lift-3),0 34px 90px -18px rgba(var(--accent-rgb),.5);\n}\n.hero-card .hc-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n@keyframes shimmer{to{background-position:-200% 0}}\n\n.lp-section{max-width:1200px;margin:0 auto;padding:80px clamp(16px,5vw,48px)}\n.lp-section-head{margin-bottom:38px}\n.lp-kicker{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}\n.lp-section-head h2{font-family:var(--display);font-size:clamp(30px,4vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.08}\n.lp-section-head p{color:var(--text-dim);font-size:15px;margin-top:12px;max-width:560px;line-height:1.6}\n\n.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:20px}\n.tpl-card{position:relative;border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--glass-edge);background:var(--surface-raise);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s;aspect-ratio:1;box-shadow:var(--lift-1)}\n.tpl-card:hover{transform:translateY(-4px);box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.4)}\n.tpl-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}\n.tpl-card .tpl-veil{position:absolute;inset:0;backdrop-filter:blur(1.6px) brightness(.86);transition:backdrop-filter .25s,opacity .25s}\n.tpl-card:hover .tpl-veil{backdrop-filter:blur(0) brightness(1);opacity:0}\n.tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}\n.tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}\n.tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-soft);background:rgba(0,0,0,.55);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-pill);padding:4px 9px}\n.tpl-card .tpl-use{position:absolute;top:12px;right:12px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;box-shadow:var(--glow-accent)}\n.tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}\n.tpl-card .tpl-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n.tpl-card.tpl-saved-card .tpl-del{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:14px;opacity:0;transition:opacity .2s}\n.tpl-card.tpl-saved-card:hover .tpl-del{opacity:1}\n.tpl-card .tpl-del:hover{color:var(--danger);border-color:var(--danger)}\n\n.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n@media(max-width:820px){.flow{grid-template-columns:1fr}}\n.flow-step{\n  position:relative;background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.flow-step .fs-num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:14px}\n.flow-step h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:8px}\n.flow-step p{font-size:14px;color:var(--text-dim);line-height:1.6}\n\n.lp-cta{max-width:1200px;margin:0 auto 90px;padding:0 clamp(16px,5vw,48px)}\n.lp-cta-inner{\n  position:relative;overflow:hidden;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:26px;padding:56px 40px;text-align:center;\n  box-shadow:var(--glass-shadow-lift);\n}\n/* A wash of accent inside the pane so the CTA reads as lit rather than tinted. */\n.lp-cta-inner::before{\n  content:'';position:absolute;inset:0;pointer-events:none;\n  background:radial-gradient(70% 120% at 50% 0%,var(--accent-wash),transparent 70%);\n}\n.lp-cta-inner>*{position:relative}\n.lp-cta-inner h2{font-family:var(--display);font-size:clamp(30px,4.4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.06;margin-bottom:12px}\n.lp-cta-inner p{color:var(--text-2);margin-bottom:28px;font-size:15px}\n.lp-footer{border-top:1px solid var(--hairline);padding:26px clamp(16px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--text-dim);font-size:13px}\n\n\n/* ═══════════ EDITOR ═══════════ */\n#page-editor{display:none;height:100vh;flex-direction:column;overflow:hidden}\n#page-editor.active{display:flex}\n#page-landing.hidden{display:none}\n\n.topbar{\n  height:58px;flex:0 0 58px;display:flex;align-items:center;gap:10px;padding:0 14px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);z-index:100;\n}\n.topbar .logo{font-size:15px}\n.tb-sep{width:1px;height:26px;background:var(--hairline);margin:0 4px}\n.tb-tplname{font-size:13px;font-weight:600;color:var(--text-2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.tb-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;color:var(--text-2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:var(--r-pill);cursor:pointer;transition:background .15s,color .15s}\n.tb-btn:hover{background:var(--surface-sunk);color:var(--text)}\n.tb-btn:disabled{opacity:.35;cursor:default;background:transparent}\n.tb-btn svg{width:16px;height:16px}\n.tb-spacer{flex:1}\n/* AI is violet everywhere in the house, never the accent. */\n#enhance-btn{border:.5px solid rgba(167,139,255,.4);color:var(--ai);background:rgba(167,139,255,.10)}\n#enhance-btn:hover{background:rgba(167,139,255,.18);color:var(--ai)}\n#enhance-btn.busy{opacity:.6;pointer-events:none}\n#export-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n#export-btn:hover{filter:brightness(1.06)}\n@media(max-width:900px){.tb-label{display:none}}\n/* ── editor topbar below laptop width ─────────────────────────────────────\n   Twelve controls in one non-wrapping row is fine at 1280 and broken\n   everywhere else: at iPad portrait the EXPORT button sat at x=848 on an\n   820px screen, and on an iPhone half the bar was past the right edge with\n   no way to reach it. The bar now scrolls horizontally, every control keeps\n   its full size rather than being squeezed, and Export is pinned to the\n   right edge so the one button that matters is never the one you have to go\n   hunting for. */\n@media(max-width:1100px){\n  .topbar{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}\n  .topbar::-webkit-scrollbar{display:none}\n  .topbar > *{flex:none}\n  .topbar .tb-spacer{flex:1 0 8px}\n  #export-btn{\n    position:sticky;right:0;z-index:2;\n    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent),\n               -18px 0 18px -10px var(--glass-bg-strong);\n  }\n}\n/* Touch pointers get the 44px minimum. Height only — widening the nav pills\n   would push the row back off the edge, which is the problem we just fixed. */\n@media(pointer:coarse){\n  .btn,.tb-btn,.ez-adv-link,.view-item,.picker-filters button,.plans-close,.logo{min-height:44px}\n  .theme-btn{width:44px;height:44px}\n  .ez-chip,.chip{min-height:40px}\n}\n\n.editor-body{flex:1;display:flex;overflow:hidden;position:relative}\n\n/* panels as drawers */\n.panel{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  display:flex;flex-direction:column;position:relative;transition:margin .28s cubic-bezier(.2,0,0,1);z-index:50;\n}\n.panel-left{width:300px;flex:0 0 300px;border-right:.5px solid var(--glass-edge)}\n.panel-right{width:300px;flex:0 0 300px;border-left:.5px solid var(--glass-edge)}\n.panel-left.collapsed{margin-left:-300px}\n.panel-right.collapsed{margin-right:-300px}\n.drawer-tab{position:absolute;top:50%;transform:translateY(-50%);width:20px;height:64px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:60;transition:color .15s,background .15s}\n.drawer-tab:hover{color:var(--text);background:var(--surface-raise)}\n.panel-left .drawer-tab{right:-20px;border-left:none;border-radius:0 10px 10px 0}\n.panel-right .drawer-tab{left:-20px;border-right:none;border-radius:10px 0 0 10px}\n\n.panel-tabs{display:flex;border-bottom:1px solid var(--hairline);flex:0 0 auto}\n.panel-tabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:12.5px;font-weight:650;padding:13px 4px;cursor:pointer;transition:color .15s,border-color .15s;letter-spacing:-.01em}\n.panel-tabs button:hover{color:var(--text-2)}\n.panel-tabs button.active{color:var(--text);border-bottom-color:var(--accent)}\n.panel-scroll{flex:1;overflow-y:auto;padding:16px 14px 40px}\n.panel-tabview{display:none}\n.panel-tabview.active{display:block}\n\n.psec{margin-bottom:22px}\n.psec-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}\n.field{margin-bottom:11px}\n.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}\n.field input[type=text],.field input[type=tel],.field input[type=number],.field textarea,.field select{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;transition:border-color .14s,box-shadow .14s}\n.field textarea{resize:vertical;min-height:56px;line-height:1.4}\n.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.field input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}\n.field-row{display:flex;gap:8px}\n.field-row .field{flex:1}\ninput[type=color]{width:100%;height:34px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:var(--surface-raise);cursor:pointer;padding:3px}\ninput[type=range]{width:100%;accent-color:var(--accent)}\n\n.chips{display:flex;flex-wrap:wrap;gap:7px}\n.chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12px;font-weight:650;padding:7px 12px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s;letter-spacing:-.005em}\n.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n.seg{display:flex;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-pill);overflow:hidden;padding:3px;gap:3px}\n.seg button{flex:1;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:650;padding:7px 6px;cursor:pointer;border-radius:var(--r-pill);transition:background .13s,color .13s}\n.seg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.seg button:hover:not(.active){color:var(--text-2)}\n\n.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}\n.add-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-md);color:var(--text-2);font-size:12.5px;font-weight:600;padding:13px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .13s}\n.add-btn:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}\n.add-btn .ab-ico{font-size:19px;line-height:1}\n.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.emoji-grid button{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);font-size:21px;padding:8px 0;cursor:pointer;transition:all .13s}\n.emoji-grid button:hover{border-color:var(--accent);transform:scale(1.08)}\n\n.mini-tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}\n.mini-tpl{position:relative;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--hairline);cursor:pointer;aspect-ratio:1;background:var(--surface-raise);transition:box-shadow .15s,transform .15s}\n.mini-tpl:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.mini-tpl.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}\n.mini-tpl img{width:100%;height:100%;object-fit:cover;display:block}\n.mini-tpl .mt-name{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;font-weight:650;color:#fff;padding:14px 7px 5px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.mini-tpl .mt-del{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s}\n.mini-tpl:hover .mt-del{opacity:1}\n.mini-tpl .mt-del:hover{color:var(--danger);border-color:var(--danger)}\n.empty-hint{font-size:12.5px;color:var(--text-dim);line-height:1.55;background:var(--surface-sunk);border:1px dashed var(--hairline-strong);border-radius:var(--r-md);padding:14px;text-align:center}\n\n/* stage */\n.stage{flex:1;position:relative;display:flex;overflow:auto;padding:26px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,var(--stage-1) 0%,var(--stage-2) 100%)}\n.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(var(--stage-dot) 1px,transparent 1px);background-size:26px 26px;pointer-events:none}\n#canvas-holder{position:relative;box-shadow:var(--lift-3);border-radius:6px;overflow:hidden;margin:auto}\n#guide-v,#guide-h{position:absolute;background:var(--accent);opacity:0;pointer-events:none;transition:opacity .08s;z-index:20;box-shadow:0 0 6px rgba(var(--accent-rgb),.9)}\n#guide-v{top:0;bottom:0;left:50%;width:1px;transform:translateX(-.5px)}\n#guide-h{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px)}\n#guide-v.on,#guide-h.on{opacity:1}\n.zoombar{\n  position:absolute;right:18px;bottom:16px;display:flex;align-items:center;gap:2px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:4px;z-index:70;\n  box-shadow:var(--glass-shadow-lift);\n}\n.zoombar button{background:none;border:none;color:var(--text-2);width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:15px;font-weight:600}\n.zoombar button:hover{background:var(--surface-sunk);color:var(--text)}\n.zoombar .zb-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:600;color:var(--text-2);min-width:48px;text-align:center;cursor:pointer;border-radius:var(--r-pill);padding:6px 2px}\n.zoombar .zb-pct:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* layers */\n.layer-row{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:background .12s,border-color .12s;margin-bottom:3px}\n.layer-row:hover{background:var(--surface-sunk)}\n.layer-row.selected{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4)}\n.layer-row.hidden-l{opacity:.4}\n.layer-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:var(--surface-sunk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-2)}\n.layer-row .li-text{color:var(--accent)}\n.layer-main{flex:1;min-width:0}\n.layer-name{font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.layer-prev{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}\n.layer-acts{display:flex;gap:2px;flex:0 0 auto}\n.layer-acts button{background:none;border:none;color:var(--text-dim);width:24px;height:24px;border-radius:var(--r-pill);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}\n.layer-acts button:hover{background:var(--surface-sunk);color:var(--text)}\n.layer-acts button.on{color:var(--accent)}\n\n.icon-row{display:flex;gap:7px}\n.icon-row button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);color:var(--text-2);padding:8px 4px;cursor:pointer;font-size:13px;font-weight:650;transition:all .13s}\n.icon-row button:hover{border-color:var(--hairline-strong);color:var(--text)}\n.icon-row button.active{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n/* template picker modal */\n.picker-modal{max-width:960px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}\n.picker-head{padding:22px 26px 16px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:14px;flex-wrap:wrap}\n.picker-head h3{font-size:20px;flex:1}\n.picker-filters{display:flex;gap:6px;flex-wrap:wrap}\n.picker-filters button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12.5px;font-weight:650;padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s}\n.picker-filters button.active{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.picker-body{flex:1;overflow-y:auto;padding:22px 26px 30px}\n.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:16px}\n.resume-card{grid-column:1/-1;display:flex;align-items:center;gap:16px;background:var(--accent-wash);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:border-color .15s}\n.resume-card:hover{border-color:var(--accent)}\n.resume-card img{width:64px;height:64px;border-radius:var(--r-md);object-fit:cover;border:.5px solid var(--hairline-strong)}\n.resume-card .rc-title{font-weight:700;font-size:14.5px}\n.resume-card .rc-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px}\n.picker-close{background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:var(--r-pill)}\n.picker-close:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* export modal */\n.export-preview{width:100%;max-height:340px;border-radius:var(--r-lg);border:.5px solid var(--hairline-strong);object-fit:contain;background:var(--surface-sunk);display:block;margin-bottom:16px}\n\n/* tutorial */\n#tut-overlay{position:fixed;inset:0;z-index:9000;display:none;pointer-events:none}\n#tut-bubble{pointer-events:auto}\n#tut-overlay.active{display:block}\n#tut-spot{position:fixed;border-radius:var(--r-lg);box-shadow:0 0 0 9999px var(--scrim),0 0 0 2px var(--accent),0 0 34px rgba(var(--accent-rgb),.5);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:9001}\n#tut-bubble{\n  position:fixed;width:308px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:18px;z-index:9002;\n  box-shadow:var(--glass-shadow-lift);transition:all .3s cubic-bezier(.4,0,.2,1);\n}\n#tut-bubble .tb-step{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}\n#tut-bubble h4{font-size:16px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n#tut-bubble p{font-size:13.5px;color:var(--text-2);line-height:1.55;margin-bottom:15px}\n.tut-dots{display:flex;gap:5px;margin-bottom:14px}\n.tut-dots span{width:7px;height:7px;border-radius:50%;background:var(--hairline-strong);transition:background .2s}\n.tut-dots span.on{background:var(--accent)}\n.tut-actions{display:flex;align-items:center;gap:9px}\n.tut-actions .tut-skip{background:none;border:none;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;padding:8px 4px}\n.tut-actions .tut-skip:hover{color:var(--text)}\n@media(max-width:1100px){.panel-left,.panel-right{position:absolute;top:0;bottom:0;box-shadow:var(--lift-3)}.panel-left{left:0}.panel-right{right:0}}\n\n/* ═══════════ EASY MODE ═══════════ */\n#page-easy{display:none;min-height:100vh}\n#page-easy.active{display:block}\n.ez-nav{\n  display:flex;align-items:center;justify-content:space-between;gap:8px;\n  padding:12px 26px;position:sticky;top:0;z-index:40;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n}\n.ez-adv-link{background:none;border:none;color:var(--text-dim);font:600 13px/1 var(--ui);cursor:pointer;padding:9px 12px;border-radius:var(--r-pill)}\n.ez-adv-link:hover{color:var(--text);background:var(--surface-sunk)}\n.ez-wrap{max-width:1160px;margin:0 auto;padding:26px 22px 90px}\n.ez-head h1{font:700 clamp(24px,3.5vw,34px)/1.1 var(--ui);letter-spacing:-.035em;margin:0 0 4px}\n.ez-head p{color:var(--text-dim);margin:0 0 22px;font-size:14px}\n.ez-stepline{display:flex;align-items:center;gap:10px;margin:26px 0 12px}\n/* NOTE: border-radius MUST stay exactly 50% — cssProbeOk() in app.js reads it\n   to decide whether this stylesheet loaded at all. */\n.ez-stepnum{width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font:700 13px/26px var(--mono);text-align:center;flex:none;box-shadow:var(--glow-accent)}\n.ez-stepline h2{font:650 17px/1 var(--ui);letter-spacing:-.02em;margin:0}\n.ez-stepline small{color:var(--text-dim);font-size:12px;margin-left:2px}\n.ez-strip{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}\n.ez-strip::-webkit-scrollbar{height:8px}\n.ez-strip::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px}\n\n/* ── horizontal scroller: pop-up arrows + edge fades ──────────────────────\n   The arrows are the only thing telling a visitor the row continues, so they\n   sit ON the thumbnails rather than outside the rail, and each one hides the\n   moment there is nothing more that way. */\n.strip-shell{position:relative}\n/* Fades are drawn over the rail, not the label row underneath it. */\n.strip-shell::before,.strip-shell::after{\n  content:'';position:absolute;top:0;bottom:22px;width:64px;pointer-events:none;z-index:2;\n  opacity:1;transition:opacity .18s ease;\n}\n.strip-shell::before{left:0;background:linear-gradient(90deg,var(--field),transparent)}\n.strip-shell::after{right:0;background:linear-gradient(270deg,var(--field),transparent)}\n.strip-shell.at-start::before,.strip-shell.at-end::after,\n.strip-shell.no-scroll::before,.strip-shell.no-scroll::after{opacity:0}\n.strip-arrow{\n  position:absolute;top:calc(50% - 11px);transform:translateY(-50%);z-index:3;\n  width:38px;height:38px;display:grid;place-items:center;\n  border-radius:var(--r-pill);cursor:pointer;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow-lift);\n  color:var(--text);font-size:20px;line-height:1;padding:0 0 3px;\n  transition:opacity .18s ease,transform .12s cubic-bezier(.2,0,0,1),background .15s ease;\n}\n.strip-arrow.left{left:-4px}\n.strip-arrow.right{right:-4px}\n.strip-arrow:hover{background:var(--surface-raise)}\n.strip-arrow:active{transform:translateY(-50%) scale(.92)}\n.strip-shell.at-start .strip-arrow.left,\n.strip-shell.at-end .strip-arrow.right{opacity:0;pointer-events:none}\n.strip-shell.no-scroll .strip-arrow{display:none}\n/* Coarse pointers get a bigger target and no hover-only reveal. */\n@media (pointer:coarse){\n  .strip-arrow{width:44px;height:44px;font-size:22px}\n}\n.ez-tpl{flex:none;width:132px;cursor:pointer;background:none;border:none;padding:0;scroll-snap-align:start;text-align:center;position:relative}\n.ez-tpl img{width:132px;height:132px;border-radius:var(--r-lg);display:block;border:3px solid transparent;transition:border-color .15s,transform .15s,box-shadow .15s;object-fit:cover}\n.ez-tpl span{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}\n.ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.ez-tpl.sel img{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-tpl.sel span{color:var(--text)}\n.ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start}\n.ez-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:20px;\n  box-shadow:var(--glass-shadow);\n}\n.ez-field{margin-bottom:14px}\n.ez-field label{display:block;font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}\n.ez-field input,.ez-field textarea{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:500 15px/1.35 var(--ui);padding:11px 13px;box-sizing:border-box;transition:border-color .14s,box-shadow .14s}\n.ez-field textarea{resize:vertical;min-height:64px}\n.ez-field input:focus,.ez-field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.ez-chiprow{display:flex;flex-wrap:wrap;gap:8px}\n.ez-chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);border-radius:var(--r-pill);padding:8px 14px;font:650 12px/1 var(--ui);cursor:pointer;transition:all .12s}\n.ez-chip:hover{color:var(--text);border-color:var(--hairline-strong)}\n.ez-chip.on{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.ez-swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}\n.ez-sw{width:40px;height:40px;border-radius:12px;border:3px solid transparent;cursor:pointer;padding:0;position:relative;box-shadow:var(--lift-1)}\n.ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}\n.ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}\n.ez-preview-card{position:sticky;top:84px}\n.ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}\n/* account dropdown (reuses .view-drop look) */\n.acct-drop{left:auto;right:0;min-width:240px}\n.am-email{font:650 12px/1.3 var(--ui);color:var(--text-dim);padding:8px 10px 10px;border-bottom:1px solid var(--hairline);margin-bottom:6px;word-break:break-all}\n/* project rows inside Export / Make-my-ad dropdowns */\n.caret{opacity:.6;font-size:11px;margin-left:2px}\n.xm-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-md)}\n.xm-row:hover{background:var(--surface-sunk)}\n.xm-row img{width:34px;height:34px;border-radius:var(--r-sm);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.xm-name{flex:1;font:600 12.5px/1.3 var(--ui);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.xm-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:6px 10px;cursor:pointer;font-size:12px;flex:none}\n.xm-btn:hover{border-color:var(--accent);color:var(--accent)}\n/* split Make-my-ad button on the landing nav */\n.lp-split{display:inline-flex}\n.lp-split #lp-open-studio{border-radius:var(--r-pill) 0 0 var(--r-pill);padding-right:14px}\n.lp-caret{border-radius:0 var(--r-pill) var(--r-pill) 0;padding:9px 13px 9px 11px;border-left:1px solid rgba(0,0,0,.22)}\n/* auth modal */\n.auth-modal{max-width:420px;text-align:left}\n.auth-brand{display:flex;justify-content:center;margin-bottom:12px}\n.auth-brand .logo-mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px -8px rgba(var(--brand-rgb),.6)}\n.auth-modal h3{text-align:center}\n.auth-modal .modal-sub{text-align:center}\n.auth-google{display:flex;justify-content:center;margin:14px 0 4px}\n.auth-or{display:flex;align-items:center;gap:12px;margin:14px 0 4px;color:var(--text-dim);font-size:12px}\n.auth-or::before,.auth-or::after{content:'';flex:1;height:1px;background:var(--hairline)}\n.auth-pass-wrap{position:relative}\n.auth-pass-wrap input{width:100%;padding-right:44px}\n.auth-pass-wrap #auth-pass-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;opacity:.55;padding:6px}\n.auth-pass-wrap #auth-pass-eye:hover{opacity:1}\n.auth-hint{color:var(--text-dim);font-size:11.5px;margin-top:8px}\n/* account-type chooser after signup */\n.at-card{display:block;width:100%;text-align:left;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:15px 17px;margin-top:12px;cursor:pointer;transition:border-color .15s,transform .12s,background .15s}\n.at-card:hover{border-color:var(--accent);transform:translateY(-1px)}\n.at-card.hot{border-color:rgba(var(--accent-rgb),.5);background:var(--accent-wash)}\n.at-card .at-name{display:flex;justify-content:space-between;align-items:baseline;font:700 15px/1 var(--ui);letter-spacing:-.02em;color:var(--text)}\n.at-card .at-name em{font-style:normal;color:var(--accent);font-size:12.5px}\n.at-card .at-desc{display:block;color:var(--text-dim);font-size:12.5px;margin-top:6px;line-height:1.45}\n/* pencil button in export history */\n.hist-edit{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:9px 13px;cursor:pointer;font:600 12.5px/1 var(--ui);margin-right:8px;flex:none}\n.hist-edit:hover{border-color:var(--accent);color:var(--accent)}\n/* big landing footer */\n.lp-footer-big{display:block;padding:46px clamp(16px,4vw,40px) 28px}\n.lpf-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;max-width:1100px;margin:0 auto}\n.lpf-brand p{color:var(--text-dim);font-size:13px;margin-top:10px;max-width:260px}\n.lpf-col h4{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}\n.lpf-col a{display:block;color:var(--text-2);text-decoration:none;font-size:13.5px;padding:5px 0}\n.lpf-col a:hover{color:var(--accent)}\n.lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}\n.ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}\n.ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.ez-dl:hover{filter:brightness(1.06)}\n.ez-dl:active{transform:scale(.985)}\n.ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}\n.ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}\n.ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}\n@media (max-width:920px){\n  .ez-main{grid-template-columns:1fr}\n  /* The preview used to be pulled above the form with order:-1, which made a\n     THREE-STEP guided flow read 1 -> 3 -> 2: the visitor was told \"step 2, type\n     your info\" and then had to scroll past an 1180px preview to find the\n     fields. Steps now stack in the order they are numbered.\n     The preview stays useful while typing by sticking to the bottom of the\n     viewport at a height that cannot swallow the page. */\n  .ez-preview-card{position:static;order:0}\n  .ez-preview-card img{max-height:52vh;width:auto;margin:0 auto;display:block}\n}\n/* Narrow phones: smaller thumbs so more than two fit, and the arrows pull in\n   off the very edge where a thumb-swipe would fight them. */\n@media (max-width:480px){\n  .ez-tpl,.ez-tpl img{width:104px}\n  .ez-tpl img{height:104px}\n  .strip-arrow.left{left:0}\n  .strip-arrow.right{right:0}\n  .strip-shell::before,.strip-shell::after{width:44px}\n}\n\n/* view menu */\n.view-menu{position:relative}\n.view-drop{\n  display:none;position:absolute;top:calc(100% + 8px);left:0;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:6px;min-width:220px;z-index:60;\n  box-shadow:var(--glass-shadow-lift);\n  animation:menu-in .16s cubic-bezier(.2,0,0,1);transform-origin:top left;\n}\n.view-drop.acct-drop{transform-origin:top right}\n@keyframes menu-in{from{opacity:0;transform:translateY(-6px) scale(.97)}}\n.view-drop.open{display:block}\n.view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}\n.view-item:hover{background:var(--accent-wash);color:var(--accent)}\n.view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}\n.view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}\n.view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}\n/* grid overlay */\n#grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:15;display:none;\n  background-image:linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px)}\n#grid-overlay.on{display:block}\n/* fill type seg */\n.fillseg{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:8px}\n.fillseg button{flex:1;background:none;border:none;color:var(--text-dim);font:600 12px/1 var(--ui);padding:8px;border-radius:var(--r-pill);cursor:pointer}\n.fillseg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n/* backgrounds tab */\n.bg-gen-box{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:12px;margin-bottom:14px}\n.bg-gen-box textarea{width:100%;box-sizing:border-box;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 13px/1.4 var(--ui);padding:9px;resize:vertical;min-height:56px}\n.bg-gen-row{display:flex;gap:8px;margin-top:8px}\n.bg-gen-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 12px/1 var(--ui);padding:8px;min-width:0}\n/* AI generation is violet, the house colour for \"a model did this\". */\n.btn-gen{background:linear-gradient(135deg,var(--ai),#7b5cff);color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}\n.btn-gen:hover{filter:brightness(1.06)}\n.btn-gen:disabled{opacity:.55;cursor:wait}\n.bg-result{margin-top:10px;display:none}\n.bg-result.show{display:block}\n.bg-result img{width:100%;border-radius:var(--r-md);display:block}\n.bg-result-acts{display:flex;gap:8px;margin-top:8px}\n.bg-result-acts button{flex:1;border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);border-radius:var(--r-pill);font:600 12px/1 var(--ui);padding:10px;cursor:pointer}\n.bg-result-acts button:hover{border-color:var(--accent);color:var(--accent)}\n.bg-lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.bg-lib-item{position:relative;border:none;background:var(--surface-sunk);border-radius:var(--r-md);padding:0;cursor:pointer;overflow:hidden;aspect-ratio:1}\n.bg-lib-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s}\n.bg-lib-item:hover img{transform:scale(1.06)}\n.bg-lib-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:var(--r-pill);border:none;background:rgba(0,0,0,.65);color:#fff;font-size:11px;cursor:pointer;display:none;line-height:20px;text-align:center}\n.bg-lib-item:hover .bg-lib-del{display:block}\n.bg-lib-badge{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#eee;font:600 9px/1 var(--ui);padding:3px 6px;border-radius:var(--r-pill);pointer-events:none}\n.gear-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:4px;font-family:var(--ui);font-weight:600}\n.gear-btn:hover{color:var(--text)}\n.ai-note{color:var(--text-dim);font-size:11.5px;line-height:1.45;margin-top:8px}\n\n\n/* easy recents + layers + star */\n.ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}\n#ez-recents{display:flex;flex-wrap:wrap;gap:10px}\n#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}\n.ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}\n.ez-recent img{width:100%;height:100%;object-fit:cover;display:block}\n.ez-recent.sel{border-color:var(--accent)}\n.star-btn{position:absolute;top:1px;right:1px;width:16px;height:16px;border:none;border-radius:5px;background:rgba(0,0,0,.65);color:var(--warn);font-size:10px;line-height:16px;text-align:center;cursor:pointer;display:none;padding:0}\n.ez-recent:hover .star-btn,.ez-lrow:hover .star-btn{display:block}\n.ez-lrow .star-btn{position:static;width:22px;height:22px;line-height:22px;border-radius:6px;flex:none}\n#star-pop{\n  position:fixed;z-index:9500;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:6px;display:none;min-width:210px;\n}\n#star-pop.open{display:block}\n#star-pop button{display:block;width:100%;background:none;border:none;color:var(--text);font:500 13px/1 var(--ui);padding:10px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left}\n#star-pop button:hover{background:var(--accent-wash);color:var(--accent)}\n/* easy layers list */\n.ez-layers{margin-top:14px;border-top:1px solid var(--hairline);padding-top:12px}\n.ez-lrow{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:var(--r-md);cursor:pointer}\n.ez-lrow:hover{background:var(--surface-sunk)}\n.ez-lswatch{width:26px;height:26px;border-radius:8px;flex:none;background:var(--surface-sunk);overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--text-dim)}\n.ez-lswatch img{width:100%;height:100%;object-fit:cover}\n.ez-lmain{flex:1;min-width:0}\n.ez-lname{font:650 12px/1.2 var(--ui);color:var(--text)}\n.ez-lprev{font:500 10.5px/1.2 var(--ui);color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}\n.ez-ldel{width:22px;height:22px;border:none;border-radius:var(--r-pill);background:none;color:var(--text-dim);cursor:pointer;font-size:12px;flex:none;line-height:22px;padding:0}\n.ez-ldel:hover{background:rgba(255,98,89,.15);color:var(--danger)}\n.ez-restore{background:none;border:none;color:var(--accent);font:600 11.5px/1 var(--ui);cursor:pointer;padding:6px;margin-top:2px}\n\n\n/* effects controls */\n.ez-fxrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}\n.ez-fxrow button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-pill);padding:8px 13px;font:600 11.5px/1 var(--ui);cursor:pointer}\n.ez-fxrow button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.ez-fxline{display:flex;align-items:center;gap:10px;margin-bottom:8px}\n.ez-fxline label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:64px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.ez-fxline input[type=range]{flex:1}\n.ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}\n.ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}\n/* account chip */\n.acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}\n.acct-chip:hover{background:var(--surface-raise)}\n.acct-plan{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border-radius:var(--r-pill);padding:3px 9px;font:700 9.5px/1.35 var(--ui);letter-spacing:.06em;text-transform:uppercase}\n.acct-plan.free{background:var(--surface-sunk);color:var(--text-dim)}\n/* auth + pay overlays reuse .modal-overlay/.modal */\n.auth-tabs{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:16px}\n.auth-tabs button{flex:1;background:none;border:none;color:var(--text-dim);font:650 13px/1 var(--ui);padding:10px;border-radius:var(--r-pill);cursor:pointer;transition:background .13s,color .13s}\n.auth-tabs button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.auth-err{color:var(--danger);font:500 12.5px/1.4 var(--ui);margin:8px 0 0;min-height:16px}\n.auth-ok{text-align:center;padding:18px 6px}\n.auth-ok .big{font-size:40px;margin-bottom:10px}\n.demo-note{background:rgba(255,176,61,.12);border:.5px solid rgba(255,176,61,.4);color:var(--warn);border-radius:var(--r-md);padding:10px 12px;font:500 11.5px/1.45 var(--ui);margin-top:12px}\n/* plans page */\n/* Fixed at z-index 8000, so it sits above the body's field pseudo-elements and\n   would otherwise be a flat slab. It carries its own copy of the aurora. */\n#page-plans{\n  display:none;position:fixed;inset:0;z-index:8000;overflow:auto;\n  background:\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%),\n    var(--field);\n}\n#page-plans.active{display:block}\n.plans-wrap{max-width:980px;margin:0 auto;padding:34px 22px 80px}\n.plans-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}\n.plans-head h1{font:700 28px/1.1 var(--ui);letter-spacing:-.035em;margin:0}\n.plans-close{background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text);border-radius:var(--r-pill);padding:10px 16px;font:600 13px/1 var(--ui);cursor:pointer}\n.plans-close:hover{background:var(--surface-raise)}\n.plans-sub{color:var(--text-dim);font:500 14px/1.5 var(--ui);margin:0 0 26px}\n.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}\n.plan-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:24px;\n  display:flex;flex-direction:column;box-shadow:var(--glass-shadow);\n}\n.plan-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.plan-name{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin-bottom:4px}\n.plan-price{font:700 32px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:10px 0 2px}\n.plan-price small{font:600 13px/1 var(--ui);color:var(--text-dim)}\n.plan-feats{list-style:none;padding:0;margin:16px 0 20px;flex:1}\n.plan-feats li{font:500 13px/1.5 var(--ui);color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.plan-feats li::before{content:'✓';position:absolute;left:0;color:var(--good);font-weight:700}\n.plan-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);font:650 14px/1 var(--ui);padding:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.plan-btn:hover{filter:brightness(1.06)}\n.plan-btn.ghost{background:var(--surface-sunk);color:var(--text);border:.5px solid var(--hairline);box-shadow:none}\n.plan-btn:disabled{opacity:.5;cursor:default}\n.plan-current{font:650 10.5px/1 var(--ui);color:var(--good);text-transform:uppercase;letter-spacing:.09em;margin-top:10px;text-align:center}\n.ez-quota{color:var(--text-dim);font:600 11.5px/1 var(--ui);text-align:center;margin-top:8px}\n.ez-quota b{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums}\n.ez-quota .up{color:var(--accent);cursor:pointer;text-decoration:underline}\n\n\n/* premium template locks */\n.tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}\n.ez-tpl{position:relative}\n.ez-tpl .tpl-lock{top:6px;left:6px}\n.ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}\n.ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}\n.tpl-card.locked img{filter:grayscale(.35) brightness(.7)}\n\n\n/* category row + nav */\n.ez-catrow{display:flex;align-items:center;gap:12px;margin:0 0 12px}\n.ez-catrow label{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none}\n.cat-select{background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:600 14px/1 var(--ui);padding:11px 13px;min-width:210px;cursor:pointer}\n.cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.nav-upgrade{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);padding:9px 15px;font:700 12px/1 var(--ui);cursor:pointer;letter-spacing:-.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.nav-upgrade:hover{filter:brightness(1.06)}\n/* export history */\n.hist-list{max-height:380px;overflow:auto;margin-top:6px}\n.hist-row{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:var(--r-md)}\n.hist-row:hover{background:var(--surface-sunk)}\n.hist-row img{width:52px;height:52px;border-radius:var(--r-md);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.hist-main{flex:1;min-width:0}\n.hist-name{font:650 13px/1.2 var(--ui);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.hist-meta{font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim)}\n.hist-dl{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px 13px;cursor:pointer;flex:none}\n.hist-dl:hover{border-color:var(--accent);color:var(--accent)}\n.hist-empty{color:var(--text-dim);font:500 13px/1.5 var(--ui);text-align:center;padding:26px 0}\n@media (max-width:760px){ .ez-nav{flex-wrap:wrap;gap:8px} }\n/* The label plus a 210px select is wider than a phone, and overflow-x:hidden\n   was clipping the select's right edge instead of showing it. */\n@media (max-width:560px){\n  .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}\n  .ez-catrow label{margin-bottom:2px}\n  .cat-select{min-width:0;width:100%}\n  .ez-nav{padding:10px 14px}\n  .ez-adv-link{padding:8px;font-size:12.5px}\n  .ez-wrap{padding:20px 14px 80px}\n}\n\n.mini-tpl.locked img, .tpl-mini.locked img{filter:grayscale(.35) brightness(.7)}\n\n/* per-field quick styling */\n.ez-fieldrow{display:flex;gap:8px;align-items:stretch}\n.ez-fieldrow input,.ez-fieldrow textarea{flex:1;min-width:0}\n.ez-edit-btn{flex:none;width:44px;border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-dim);border-radius:var(--r-md);cursor:pointer;font-size:15px}\n.ez-edit-btn:hover{color:var(--accent);border-color:var(--accent)}\n#txt-pop{\n  position:fixed;z-index:9400;width:288px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:14px;display:none;\n}\n#txt-pop.open{display:block}\n#txt-pop .tp-title{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}\n#txt-pop .tp-title button{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px}\n.tp-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}\n.tp-row label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:52px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.tp-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:600 12.5px/1 var(--ui);padding:8px 9px}\n.tp-row input[type=range]{flex:1}\n.tp-row input[type=color]{width:32px;height:26px;border:1px solid var(--hairline-strong);border-radius:6px;background:none;padding:1px;flex:none}\n.tp-row .tp-val{font:600 10.5px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right;flex:none}\n.tp-biu{display:flex;gap:5px;flex:1}\n.tp-biu button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-sm);padding:7px 0;cursor:pointer;font:700 13px/1 Georgia}\n.tp-biu button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.tp-reset{width:100%;margin-top:4px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px;cursor:pointer}\n.tp-reset:hover{color:var(--text)}\n\n\n.ez-themes{display:flex;flex-wrap:wrap;gap:9px}\n.ez-theme{display:flex;border:2px solid var(--hairline-strong);border-radius:11px;overflow:hidden;padding:0;cursor:pointer;width:52px;height:32px;background:none;transition:border-color .13s,transform .13s}\n.ez-theme span{flex:1;display:block}\n.ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);transform:translateY(-1px)}\n.ez-theme:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n\n\n.ez-chip-custom{border-style:dashed}\n.chip-x{opacity:.55;font-size:10px;margin-left:2px}\n.ez-chip-custom:hover .chip-x{opacity:1;color:var(--danger)}\n\n.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:720px}\n.lp-price-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-price-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.lp-price-card h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n.lp-price{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:40px;font-weight:700;letter-spacing:-.04em;margin-bottom:12px}\n.lp-price small{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:-.01em}\n.lp-price-card ul{list-style:none;padding:0;margin:0 0 18px}\n.lp-price-card li{font-size:13.5px;color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.lp-price-card li::before{content:'\\2713';position:absolute;left:0;color:var(--good);font-weight:700}\n.lp-faq{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:0 20px;margin-bottom:10px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-faq summary{font-weight:650;font-size:15px;letter-spacing:-.015em;padding:17px 0;cursor:pointer;list-style:none}\n.lp-faq summary::-webkit-details-marker{display:none}\n.lp-faq summary::after{content:'+';float:right;color:var(--accent);font-size:18px;font-weight:600}\n.lp-faq[open] summary::after{content:'\\2013'}\n.lp-faq p{font-size:14px;color:var(--text-2);line-height:1.6;padding-bottom:17px;margin:0}\n\n/* ── canvas format picker ── */\n.tb-format{appearance:none;-webkit-appearance:none;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);max-width:190px;border-radius:var(--r-pill);padding:8px 28px 8px 13px;font-size:13px;font-weight:600;background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}\n.tb-format:hover{border-color:var(--accent)}\n\n/* ── order prints + posting ── */\n.btn-order{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:12px;background:rgba(48,214,143,.12);border:.5px solid rgba(48,214,143,.45);color:var(--good);font-weight:650;border-radius:var(--r-lg);padding:12px}\n.btn-order:hover{border-color:var(--good);background:rgba(48,214,143,.18)}\n.btn-order .order-sub{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.01em}\n.ez-order{display:block;width:100%;margin-top:10px;background:none;border:1px dashed rgba(48,214,143,.5);color:var(--good);font-size:13px;font-weight:650;padding:11px;border-radius:var(--r-lg);cursor:pointer}\n.ez-order:hover{background:rgba(48,214,143,.10)}\n\n/* ── QR layer ── */\n.ab-pro{position:absolute;top:6px;right:6px;background:var(--warn);color:#1a1206;font-size:9px;font-weight:800;padding:2px 6px;border-radius:var(--r-pill);letter-spacing:.04em}\n.add-btn{position:relative}\n.qr-help{font-size:12px;color:var(--text-2);line-height:1.5;margin-top:8px}\n.qr-help a{color:var(--good);font-weight:650;text-decoration:none}\n.qr-help a:hover{text-decoration:underline}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LANDING v2 — 2026-09-02. The hero fan of three canvas-rendered classics is\n   now a wall of the newest set's real renders (assets/showcase), the gallery\n   filters by category and theme family, and the chrome has a Look menu:\n   ground (graphite / night / paper / ember) x accent (blue / mint / orchid /\n   gold / orange) x light or dark. All of it is CSS custom properties on\n   <html>, so the studio and the editor inherit whatever is chosen.\n   ═══════════════════════════════════════════════════════════════════════════ */\n.hero-v2{grid-template-columns:1.02fr .98fr;gap:44px;min-height:min(86vh,800px);padding-top:112px;overflow:hidden}\n.hero-copy{position:relative;z-index:2}\n.hero-copy p{max-width:520px}\n.hero-wall{position:relative;height:580px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;\n  transform:rotate(-6deg) scale(1.08);transform-origin:50% 50%;\n  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);\n  mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%)}\n.wall-col{display:flex;flex-direction:column;gap:14px;will-change:transform}\n.wall-col[data-dir=up]{animation:wallUp 46s linear infinite}\n.wall-col[data-dir=down]{animation:wallDown 52s linear infinite}\n.wall-col:nth-child(3){animation-duration:58s}\n@keyframes wallUp{from{transform:translateY(0)}to{transform:translateY(-50%)}}\n@keyframes wallDown{from{transform:translateY(-50%)}to{transform:translateY(0)}}\n.wall-card{aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-2);background:var(--surface-raise);cursor:pointer;flex:none;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s}\n.wall-card:hover{transform:scale(1.04);box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.45);z-index:2}\n.wall-card img{width:100%;height:100%;object-fit:cover;display:block}\n.hero-wall:hover .wall-col{animation-play-state:paused}\n@media(prefers-reduced-motion:reduce){.wall-col{animation:none!important}}\n@media(max-width:900px){\n  .hero-v2{grid-template-columns:1fr;padding-top:92px;min-height:0;gap:28px}\n  .hero-wall{height:auto;transform:none;grid-template-columns:repeat(3,1fr);gap:10px;-webkit-mask-image:none;mask-image:none}\n  .wall-col{animation:none!important;gap:10px}\n  .wall-col .wall-card:nth-child(n+3){display:none}\n}\n.lp-stats{max-width:1200px;margin:0 auto;padding:22px clamp(16px,5vw,48px) 0;display:flex;flex-wrap:wrap;gap:10px 34px;border-top:.5px solid var(--hairline)}\n.stat{display:flex;align-items:baseline;gap:8px}\n.stat b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--text)}\n.stat span{font-size:13px;color:var(--text-dim)}\n\n/* theme families */\n.fam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}\n.fam-card{position:relative;text-align:left;background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:11px;cursor:pointer;color:var(--text);box-shadow:var(--glass-shadow);transition:transform .15s cubic-bezier(.2,0,0,1),border-color .15s,box-shadow .15s;font:inherit}\n.fam-card:hover{transform:translateY(-3px)}\n.fam-card.on{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent)}\n.fam-card.idle{cursor:default;opacity:.72}\n.fam-sw{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;height:56px;border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;border:.5px solid rgba(0,0,0,.18)}\n.fam-sw i{display:block}\n.fam-name{font-weight:650;font-size:14px;letter-spacing:-.01em}\n.fam-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-variant-numeric:tabular-nums}\n\n/* gallery filters */\n.lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}\n.chip{font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;min-height:36px}\n.chip:hover{color:var(--text);border-color:var(--text-dim)}\n.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:var(--glow-accent)}\n.chip .n{opacity:.65;font-family:var(--mono);font-size:11px;margin-left:6px;font-variant-numeric:tabular-nums}\n.tpl-more-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}\n.tpl-count{font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.tpl-card img{transition:transform .4s cubic-bezier(.2,0,0,1)}\n.tpl-card:hover img{transform:scale(1.035)}\n.tpl-card .tpl-lockpill{position:absolute;top:12px;left:12px;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);color:#fff;border:.5px solid rgba(255,255,255,.25)}\n\n/* Look menu */\n.look-wrap{position:relative}\n.look-btn{display:inline-flex;align-items:center;gap:8px;padding:0 12px 0 10px;width:auto;font-size:13px;font-weight:600;color:var(--text-2)}\n.look-btn:hover{color:var(--text)}\n.look-dot{width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-deep));box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 2px var(--surface-sunk)}\n.look-menu{position:absolute;right:0;top:44px;width:304px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);box-shadow:var(--glass-shadow-lift);padding:14px;z-index:400;display:none;text-align:left}\n.look-menu.open{display:block}\n.look-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}\n.look-label{width:100%;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}\n.look-chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-chip:hover{color:var(--text)}\n.look-chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}\n.look-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px -2px rgba(0,0,0,.5);padding:0}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--text)}\n.look-note{font-size:11.5px;color:var(--text-dim);line-height:1.45}\n.look-note code{font-family:var(--mono);font-size:11px;color:var(--text-2)}\n@media(max-width:640px){.look-btn span{display:none}.look-btn{padding:0 10px}.look-menu{position:fixed;left:12px;right:12px;top:70px;width:auto}}\n\n/* Skin-specific style, beyond colour. PAPER is editorial: a serif display\n   face, flat panels on hairlines, no drifting field. NIGHT is the opposite:\n   gradient ink on the money line, louder glows. */\n:root[data-skin='paper'] .hero h1{font-weight:500;letter-spacing:-.022em}\n:root[data-skin='paper'] .hero h1 em{font-style:italic;color:var(--accent)}\n:root[data-skin='paper'] .lp-section-head h2,:root[data-skin='paper'] .lp-cta-inner h2{font-weight:500;letter-spacing:-.015em}\n:root[data-skin='paper'] .flow-step,:root[data-skin='paper'] .fam-card,:root[data-skin='paper'] .lp-cta-inner,:root[data-skin='paper'] .lp-price-card,:root[data-skin='paper'] .look-menu{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface-solid);box-shadow:none;border:1px solid var(--hairline)}\n:root[data-skin='paper'] .lp-price-card.hot{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] .fam-card.on{box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] body::before{animation:none}\n:root[data-skin='paper'] body::after{opacity:.22}\n:root[data-skin='paper'] .hero-eyebrow{background:transparent;border-color:var(--hairline-strong);color:var(--text-2)}\n:root[data-skin='paper'] .lp-nav{box-shadow:none;border-bottom:1px solid var(--hairline)}\n:root[data-skin='paper'] .wall-card,:root[data-skin='paper'] .tpl-card{box-shadow:0 1px 2px rgba(30,25,15,.08),0 10px 24px -14px rgba(30,25,15,.25)}\n:root[data-skin='night'] .hero h1 em{background:linear-gradient(90deg,var(--accent),var(--accent-soft));-webkit-background-clip:text;background-clip:text;color:transparent}\n:root[data-skin='night'] .btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),var(--glow-accent)}\n:root[data-skin='night'] .lp-kicker{text-shadow:0 0 18px rgba(var(--accent-rgb),.6)}\n\n/* ── AREA dialog (location-aware copy) ── */\n.area-modal{max-width:560px}\n.area-inrow{display:flex;gap:8px;align-items:stretch}\n.area-inrow input{flex:1;min-width:0}\n.area-inrow .btn{white-space:nowrap;padding:9px 14px}\n.area-suggest{display:flex;flex-direction:column;gap:4px;margin-top:8px}\n.area-opt{display:flex;justify-content:space-between;align-items:center;gap:10px;font:inherit;font-size:14px;text-align:left;padding:9px 12px;border-radius:var(--r-sm);border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);cursor:pointer}\n.area-opt:hover{border-color:var(--accent);background:var(--accent-wash)}\n.area-opt span{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.area-none{font-size:13px;color:var(--text-dim);padding:8px 2px}\n.area-preview{margin-top:14px;display:flex;flex-direction:column;gap:10px}\n.area-preview:empty{display:none}\n.area-home{font-weight:650;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}\n.area-home em{font-style:normal;font-weight:500;font-size:12.5px;color:var(--text-dim)}\n.area-row b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}\n.area-chips{display:flex;flex-wrap:wrap;gap:6px}\n.area-chips span{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline-strong);color:var(--text-2)}\n.area-chips span:first-child{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4);color:var(--text)}\n#ez-area{cursor:pointer}\n\n/* Easy Mode export sizes */\n.ez-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}\n.ez-sizes .chip{font-size:12px;padding:6px 11px;min-height:30px}\n.stat-lead b{color:var(--accent)}\n@media(max-width:640px){.lp-stats{gap:8px 22px}.stat b{font-size:19px}}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LOOK MENU, ROUND TWO — 2026-09-02 evening. Owner: \"stick with graphite\n   purple ... add an extra accent colour or highlighting ring ... 2 to 3x more\n   themes and colour options as well as typography options\".\n   Three axes now carry more stops, and a fourth axis appears:\n     ground  graphite · night · slate · obsidian · forest · ember (dark)\n             paper · cream (light)\n     accent  twelve, each with a paired RING colour (--ring) that carries\n             focus, hover and selection so the chrome is two-tone\n     type    eight display/body pairings (data-type)\n   Curated presets in the menu are one of each, chosen by hand.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── extra grounds ── */\n:root[data-theme='dark'][data-skin='slate']{\n  --field:#121826;--glass-bg:rgba(28,36,51,.62);--glass-bg-strong:rgba(28,36,51,.86);\n  --surface-solid:#1a2233;--surface-raise:#232d40;--text:#eef2fa;--text-2:#bcc6da;--text-dim:#8391ab;\n  --stage-1:#182033;--stage-2:#0c1119;--scrim:rgba(8,12,20,.74);--surface3:#2c3850;\n}\n:root[data-theme='dark'][data-skin='obsidian']{\n  --field:#08090b;--wash-a:rgba(var(--accent-rgb),.18);--wash-b:rgba(var(--accent2-rgb),.12);--wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(18,19,23,.72);--glass-bg-strong:rgba(18,19,23,.92);--glass-edge:rgba(255,255,255,.10);\n  --surface-solid:#121317;--surface-raise:#1a1b20;--surface-sunk:rgba(255,255,255,.05);\n  --text:#f4f4f6;--text-2:#b9bcc6;--text-dim:#7f8391;--hairline:rgba(255,255,255,.08);\n  --stage-1:#101114;--stage-2:#050506;--scrim:rgba(0,0,0,.8);--surface3:#24262c;\n}\n:root[data-theme='dark'][data-skin='forest']{\n  --field:#0c1411;--wash-a:rgba(var(--accent-rgb),.22);--wash-b:rgba(60,200,140,.14);--wash-c:rgba(var(--accent2-rgb),.10);\n  --glass-bg:rgba(22,34,28,.62);--glass-bg-strong:rgba(22,34,28,.86);\n  --surface-solid:#142019;--surface-raise:#1b2a22;--text:#eef6f1;--text-2:#bfd1c6;--text-dim:#829a8c;\n  --stage-1:#142019;--stage-2:#080e0b;--scrim:rgba(6,12,9,.76);--surface3:#243a2e;\n}\n:root[data-theme='light'][data-skin='cream']{\n  --field:#f5efe2;--wash-a:rgba(var(--accent-rgb),.12);--wash-b:rgba(var(--accent2-rgb),.08);--wash-c:rgba(255,196,60,.10);\n  --glass-bg:rgba(255,251,243,.6);--glass-bg-strong:rgba(255,251,243,.84);\n  --surface-solid:#fffcf5;--surface-raise:#f3ecdc;--surface-sunk:rgba(60,45,20,.05);\n  --text:#1e1a12;--text-2:#55503f;--text-dim:#79725f;--hairline:rgba(60,45,20,.10);--hairline-strong:rgba(60,45,20,.18);\n  --stage-1:#f1eadb;--stage-2:#e3d9c4;--scrim:rgba(110,95,70,.42);--surface3:#eae1cd;\n}\n\n/* ── accents, with their RING. Ring = the second colour: it carries focus,\n   hover and selection, never fills. Pairings are a third of the wheel apart\n   so the two read as a scheme, not a clash. ── */\n:root{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='blue']{--ring:#f2c744;--ring-rgb:242,199,68}\n:root[data-theme='light'][data-accent='blue']{--ring:#b7830c;--ring-rgb:183,131,12}\n:root[data-accent='mint']{--ring:#b48cff;--ring-rgb:180,140,255}\n:root[data-theme='light'][data-accent='mint']{--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='orchid']{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='orchid']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='gold']{--ring:#4d9cff;--ring-rgb:77,156,255}\n:root[data-theme='light'][data-accent='gold']{--ring:#1d63d8;--ring-rgb:29,99,216}\n:root[data-accent='orange']{--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='orange']{--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='coral']{--accent:#ff6b6b;--accent-ink:#1f0707;--accent-wash:rgba(255,107,107,.16);--accent-deep:#e04848;--accent-soft:#ffd0d0;--accent-rgb:255,107,107;--accent2-rgb:61,220,151;--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='coral']{--accent:#c8383b;--accent-ink:#fff;--accent-wash:rgba(200,56,59,.12);--accent-deep:#a02a2c;--accent-soft:#f9d3d3;--accent-rgb:200,56,59;--accent2-rgb:15,143,95;--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='cyan']{--accent:#22d3ee;--accent-ink:#04191d;--accent-wash:rgba(34,211,238,.16);--accent-deep:#0ea5c4;--accent-soft:#c7f3fa;--accent-rgb:34,211,238;--accent2-rgb:251,113,133;--ring:#fb7185;--ring-rgb:251,113,133}\n:root[data-theme='light'][data-accent='cyan']{--accent:#0e7490;--accent-ink:#fff;--accent-wash:rgba(14,116,144,.12);--accent-deep:#0b5c72;--accent-soft:#cdeef5;--accent-rgb:14,116,144;--accent2-rgb:190,24,93;--ring:#be185d;--ring-rgb:190,24,93}\n:root[data-accent='lime']{--accent:#b9f24a;--accent-ink:#131a04;--accent-wash:rgba(185,242,74,.16);--accent-deep:#8fd11a;--accent-soft:#e6fbc0;--accent-rgb:185,242,74;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='lime']{--accent:#4d7c0f;--accent-ink:#fff;--accent-wash:rgba(77,124,15,.12);--accent-deep:#3f6212;--accent-soft:#e0f0c4;--accent-rgb:77,124,15;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='rose']{--accent:#fb7185;--accent-ink:#20070c;--accent-wash:rgba(251,113,133,.16);--accent-deep:#e11d48;--accent-soft:#ffd6dd;--accent-rgb:251,113,133;--accent2-rgb:34,211,238;--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='rose']{--accent:#be185d;--accent-ink:#fff;--accent-wash:rgba(190,24,93,.12);--accent-deep:#9d174d;--accent-soft:#f8d0de;--accent-rgb:190,24,93;--accent2-rgb:14,116,144;--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='sky']{--accent:#7dd3fc;--accent-ink:#06161f;--accent-wash:rgba(125,211,252,.16);--accent-deep:#38bdf8;--accent-soft:#e0f4ff;--accent-rgb:125,211,252;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='sky']{--accent:#0369a1;--accent-ink:#fff;--accent-wash:rgba(3,105,161,.12);--accent-deep:#075985;--accent-soft:#d3ecfb;--accent-rgb:3,105,161;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n:root[data-accent='amber']{--accent:#fbbf24;--accent-ink:#1c1200;--accent-wash:rgba(251,191,36,.16);--accent-deep:#d69e0b;--accent-soft:#ffeeba;--accent-rgb:251,191,36;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='amber']{--accent:#b45309;--accent-ink:#fff;--accent-wash:rgba(180,83,9,.12);--accent-deep:#92400e;--accent-soft:#f9e3bf;--accent-rgb:180,83,9;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='teal']{--accent:#2dd4bf;--accent-ink:#041a16;--accent-wash:rgba(45,212,191,.16);--accent-deep:#14b8a6;--accent-soft:#c9f5ee;--accent-rgb:45,212,191;--accent2-rgb:255,107,107;--ring:#ff6b6b;--ring-rgb:255,107,107}\n:root[data-theme='light'][data-accent='teal']{--accent:#0f766e;--accent-ink:#fff;--accent-wash:rgba(15,118,110,.12);--accent-deep:#115e59;--accent-soft:#cdeeea;--accent-rgb:15,118,110;--accent2-rgb:200,56,59;--ring:#c8383b;--ring-rgb:200,56,59}\n:root[data-accent='violet']{--accent:#8b5cf6;--accent-ink:#fff;--accent-wash:rgba(139,92,246,.18);--accent-deep:#6d3fd6;--accent-soft:#e4d9ff;--accent-rgb:139,92,246;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='violet']{--accent:#5b32c9;--accent-ink:#fff;--accent-wash:rgba(91,50,201,.12);--accent-deep:#4526a0;--accent-soft:#e2d8ff;--accent-rgb:91,50,201;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n\n/* where the ring shows: focus, hover, selection */\n:focus-visible{outline:2px solid var(--ring)}\n.tpl-card:hover{box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.35),0 0 0 2px var(--ring)}\n.wall-card:hover{box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.4),0 0 0 2px var(--ring)}\n.fam-card.on{border-color:transparent;box-shadow:var(--glass-shadow),0 0 0 2px var(--ring)}\n.chip.on{box-shadow:var(--glow-accent),0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-chip.on{box-shadow:0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--ring)}\n.lp-price-card.hot{box-shadow:var(--glass-shadow),0 0 0 2px var(--ring),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.hero-eyebrow{border-color:rgba(var(--ring-rgb),.45)}\n.ez-tpl.sel{outline:2px solid var(--ring);outline-offset:2px}\n.look-dot{background:linear-gradient(135deg,var(--accent) 0 55%,var(--ring) 55% 100%)}\n.stat-lead b{color:var(--accent)}\n.lp-kicker::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ring);margin-right:8px;vertical-align:1px}\n\n/* ── type pairings. Overrides any skin's face, so Paper + Unbounded is\n   possible. Google faces are loaded by the stamp script when picked. ── */\n:root[data-type='clash']{--display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif}\n:root[data-type='serif']{--display:'Zodiak',Georgia,'Times New Roman',serif}\n:root[data-type='melodrama']{--display:'Melodrama',Georgia,serif}\n:root[data-type='khand']{--display:'Khand','Satoshi',sans-serif}\n:root[data-type='unbounded']{--display:'Unbounded','Clash Display',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='syne']{--display:'Syne','Clash Display',sans-serif;--ui:'Sora','Satoshi',-apple-system,sans-serif}\n:root[data-type='grotesk']{--display:'Space Grotesk','Satoshi',sans-serif;--ui:'Space Grotesk','Satoshi',-apple-system,sans-serif}\n:root[data-type='manrope']{--display:'Manrope','Satoshi',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='khand'] .hero h1{letter-spacing:0;font-weight:700;font-size:clamp(40px,5.2vw,68px)}\n:root[data-type='unbounded'] .hero h1{letter-spacing:-.01em;font-weight:700;font-size:clamp(30px,4vw,52px)}\n:root[data-type='serif'] .hero h1,:root[data-type='melodrama'] .hero h1{font-weight:500;letter-spacing:-.02em}\n:root[data-type='serif'] .hero h1 em,:root[data-type='melodrama'] .hero h1 em{font-style:italic}\n\n/* the menu grew: keep it on screen */\n.look-menu{width:360px;max-height:min(78vh,720px);overflow:auto}\n.look-preset{display:flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;padding:6px 10px 6px 6px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-preset i{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--a) 0 55%,var(--b) 55% 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);flex:none}\n.look-preset:hover{color:var(--text);border-color:var(--text-dim)}\n@media(max-width:640px){.look-menu{width:auto}}\n\n/* the studio's own \"where are you\" pill, beside the category picker */\n.ez-wherelabel{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none;margin-left:6px}\n.ez-where{font:600 13.5px/1 var(--ui);color:var(--text);background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-pill);padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 0 var(--ring);transition:box-shadow .15s,border-color .15s}\n.ez-where:hover{border-color:var(--ring)}\n.ez-where.unset{border-color:var(--ring);box-shadow:0 0 0 3px rgba(var(--ring-rgb),.28);color:var(--text)}\n@media(max-width:640px){.ez-catrow{flex-wrap:wrap}.ez-wherelabel{display:none}}\n\n/* ── gallery cards: no blur veil (owner: \"way too much blur\"). The veil is\n   now a light darkening that lifts on hover, nothing else. ── */\n.tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(0,0,0,.14)}\n.tpl-card:hover .tpl-veil{background:rgba(0,0,0,0)}\n\n/* ── PRO GUARD. A locked preview stays sharp (a sharp card sells the plan)\n   but cannot be lifted: a repeating diagonal PRO · BUYBACK.AD pattern over\n   the whole card, a lock in the middle, and thumbnails that are 448px at\n   most. The pattern is an SVG data URI so it is text, not a blur. ── */\n.pro-guard{position:absolute;inset:0;pointer-events:none;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:220px 220px;mix-blend-mode:overlay;opacity:.9}\n.pro-guard::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;\n  background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}\n.wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}\n.ez-tpl.locked{position:relative}\n.ez-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n.flow-step .btn{margin-top:16px}\n\n/* locked mini cards in the editor's left panel and its picker */\n.mini-tpl.locked{position:relative}\n.mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n\n/* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's\n   default min-width:auto refuses to shrink below its content, so on a 390px\n   phone the cards stayed 481px wide and the whole page scrolled sideways by\n   105px (measured 2026-09-03). min-width:0 lets them fit; anything genuinely\n   too wide inside now scrolls in its own box instead of moving the page. */\n@media (max-width:920px){\n  .ez-main{min-width:0}\n  .ez-main > .ez-card{min-width:0;max-width:100%}\n  .ez-card{overflow-x:clip}\n}\n#ez-preview{max-width:100%;height:auto}\n";
+const CSS_FALLBACK = "/* ═══════════════════════════════════════════════════════════════════════════\n   GRAPHICS STUDIO — Liquid Glass chrome\n\n   Unified with unified-crm and the iphones.la launcher: same field, same glass\n   recipe, same accent, same radii, same tabular-mono law. The templates this\n   app produces went Liquid Glass on Aug 24; the chrome around them was still\n   flat-black-and-orange 2021 SaaS. Now they are one material.\n\n   Laws, carried over from the CRM theme:\n   1. Chrome is glass. Running text is opaque. A blur is for panels, never\n      for paragraphs.\n   2. ONE accent (#ff7a1a). The site now matches the PRODUCT it sells, not\n      the CRM: a page selling loud buyback ads should not look like a SaaS\n      dashboard. Colour that is not the accent means state:\n      green good, amber caution, red stop, violet AI.\n   3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and\n      wordmark only, as --brand-1/--brand-2, so the accent can be retuned for\n      contrast without repainting the brand.\n   4. Anything the eye compares — prices, counts, percentages, quotas — is set\n      in tabular mono. This is a tool, not prose.\n\n   Legacy tokens (--orange, --surface2, --muted …) are kept as ALIASES onto the\n   new system because app.js writes them into generated markup in ~250 places.\n   Retargeting --orange to the accent is what repaints those call sites.\n   Do not delete an alias without grepping app.js first.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── HOUSE TYPE ──────────────────────────────────────────────────────────────\n   Clash Display for anything that declares, Satoshi for anything that is read,\n   Zodiak when a serif is the point. All three are Fontshare (Indian Type\n   Foundry), free for commercial use, and VENDORED into assets/fonts rather\n   than pulled from a CDN: no third-party dependency, no extra CSP origin, no\n   render-blocking round trip to someone else's server. 184KB for nine files.\n\n   Why these and not the previous set: the library ran on Bebas Neue, Anton,\n   Montserrat, Luckiest Guy, Titan One, Bungee, Monoton and Pacifico. Those are\n   the default free-font shelf every Canva template is already built from, and\n   half of them are novelty faces — the opposite of an ad that asks a stranger\n   to hand over a phone for cash. `font-display:swap` so text paints\n   immediately in the fallback and reflows once the face lands. */\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n/* Khand carries the long money-words (\"TEST STRIPS\", \"COLLECTIBLES\") that made\n   a wide face overflow; Melodrama is the high-contrast serif for gold, coins\n   and anything that wants to read as valuation rather than clearance. Two more\n   voices so the 153 templates are not all in one typeface. */\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n\n/* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>\n   before first paint by the inline script in index.html, so there is no white\n   flash. This rule matches both the explicit choice and the bare default, so\n   dark still applies if that script never runs. */\n:root,\n:root[data-theme='dark']{\n  color-scheme:dark;\n\n  /* GRAPHITE, the default ground since 2026-09-02. The field used to be a warm\n     near-black (#141110) with brown surfaces under an orange accent, and the\n     owner's verdict was \"orange on brown on grey\". The ground is now a cool\n     neutral graphite so ANY accent sits on it cleanly; the old warm set is\n     kept, whole, as data-skin='ember' below. Accent colour is a separate axis\n     (data-accent) so the two can be mixed from the Look menu. */\n\n  /* Field */\n  --field:#0f1116;\n  --wash-a:rgba(var(--accent-rgb),.26);\n  --wash-b:rgba(var(--accent2-rgb),.18);\n  --wash-c:rgba(0,214,180,.10);\n\n  /* Glass */\n  --glass-bg:rgba(24,27,34,.62);\n  --glass-bg-strong:rgba(24,27,34,.86);\n  --glass-edge:rgba(255,255,255,.12);\n  --glass-blur:blur(34px) saturate(190%) brightness(1.04);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 38px -12px rgba(0,0,0,.6);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.10),0 24px 60px -14px rgba(0,0,0,.75);\n\n  /* Opaque content surfaces */\n  --surface-solid:#171a21;\n  --surface-sunk:rgba(255,255,255,.055);\n  --surface-raise:#1f232c;\n\n  /* Ink — cool neutrals */\n  --text:#f2f4f8;\n  --text-2:#c3c9d6;\n  --text-dim:#8b94a7;\n  --hairline:rgba(255,255,255,.09);\n  --hairline-strong:rgba(255,255,255,.16);\n\n  /* Accent — BLUE MARKET by default (the palette the owner kept most often\n     in the template reviews). See the data-accent blocks for the others. */\n  --accent:#4d9cff;\n  --accent-ink:#061527;\n  --accent-wash:rgba(77,156,255,.16);\n  --accent-deep:#2b7de9;\n  --accent-soft:#cfe4ff;\n  --accent-rgb:77,156,255;\n  --accent2-rgb:120,90,255;\n\n  --good:#30d68f;\n  --warn:#ffb03d;\n  --danger:#ff6259;\n  --ai:#a78bff;\n\n  /* Brand — follows the accent now. The mark used to carry its own orange\n     regardless of the UI accent; that is the one place orange survived the\n     retune, so it is tied to the accent axis instead. */\n  --brand-1:var(--accent);\n  --brand-2:var(--accent-soft);\n  --brand-rgb:var(--accent-rgb);\n\n  --r-pill:999px;\n  --r-lg:18px;\n  --r-md:13px;\n  --r-sm:9px;\n  --tap:44px;\n\n  --lift-1:0 1px 2px rgba(0,0,0,.4),0 4px 12px -4px rgba(0,0,0,.5);\n  --lift-2:0 2px 6px rgba(0,0,0,.45),0 18px 42px -14px rgba(0,0,0,.68),0 0 0 1px rgba(255,255,255,.045);\n  --lift-3:0 4px 12px rgba(0,0,0,.5),0 40px 90px -22px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.5);\n\n  --stage-1:#14171d;\n  --stage-2:#0a0c10;\n  --stage-dot:rgba(255,255,255,.045);\n  --scrim:rgba(8,10,14,.74);\n\n  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;\n  /* Satoshi runs the whole product, chrome included. The system stack stays\n     behind it as the fallback, so a failed font load degrades to exactly the\n     UI we shipped before rather than to Times. */\n  --ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;\n  --display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;\n  --serif:'Zodiak',Georgia,'Times New Roman',serif;\n\n  /* ── legacy aliases (app.js depends on every one of these) ── */\n  --bg:var(--field);\n  --surface:var(--surface-solid);\n  --surface2:var(--surface-raise);\n  --surface3:#2a2f3a;\n  --border:var(--hairline);\n  --border2:var(--hairline-strong);\n  --orange:var(--accent);\n  --orange2:var(--accent-deep);\n  --gold:var(--warn);\n  --green:var(--good);\n  --red:var(--danger);\n  --muted:var(--text-dim);\n  --muted2:var(--text-2);\n  --panel:var(--surface-solid);\n  --panel2:var(--surface-raise);\n  --line:var(--hairline);\n  --r:var(--r-md);\n}\n\n/* EMBER — the pre-2026-09-02 warm look, kept as a selectable skin. */\n:root[data-theme='dark'][data-skin='ember']{\n  --field:#141110;\n  --wash-a:rgba(var(--accent-rgb),.34);\n  --wash-b:rgba(var(--accent2-rgb),.26);\n  --wash-c:rgba(255,196,60,.20);\n  --glass-bg:rgba(34,27,23,.62);\n  --glass-bg-strong:rgba(34,27,23,.86);\n  --glass-edge:rgba(255,255,255,.13);\n  --surface-solid:#1d1815;\n  --surface-raise:#262019;\n  --text:#f6efe8;\n  --text-2:#cfc2b6;\n  --text-dim:#9a8b7e;\n  --stage-1:#1a1512;\n  --stage-2:#0d0a08;\n  --scrim:rgba(14,9,6,.74);\n  --surface3:#33291f;\n}\n\n/* NIGHT — deep jewel ground, vivid washes, the Night Neon family's material. */\n:root[data-theme='dark'][data-skin='night']{\n  --field:#0a0913;\n  --wash-a:rgba(var(--accent-rgb),.44);\n  --wash-b:rgba(var(--accent2-rgb),.34);\n  --wash-c:rgba(0,214,180,.18);\n  --glass-bg:rgba(28,24,56,.58);\n  --glass-bg-strong:rgba(28,24,56,.84);\n  --glass-edge:rgba(255,255,255,.14);\n  --glass-blur:blur(40px) saturate(220%) brightness(1.06);\n  --surface-solid:#15132a;\n  --surface-raise:#1d1a36;\n  --surface-sunk:rgba(255,255,255,.06);\n  --text:#f3f0ff;\n  --text-2:#c9c3e8;\n  --text-dim:#8f88b8;\n  --hairline:rgba(255,255,255,.10);\n  --hairline-strong:rgba(255,255,255,.18);\n  --glow-accent:0 10px 40px -6px rgba(var(--accent-rgb),.7);\n  --stage-1:#14122a;\n  --stage-2:#08071a;\n  --scrim:rgba(6,5,16,.76);\n  --surface3:#26224a;\n}\n\n/* LIGHT — opt-in, for daylight and for turning the screen toward someone.\n   Higher specificity than the bare :root above, so it wins wherever the dark\n   default set a value. Radii, faces and the mono stack are theme-independent. */\n:root[data-theme='light']{\n  color-scheme:light;\n  --field:#f3f4f7;\n  --wash-a:rgba(var(--accent-rgb),.14);\n  --wash-b:rgba(var(--accent2-rgb),.10);\n  --wash-c:rgba(0,214,180,.08);\n  --glass-bg:rgba(255,255,255,.58);\n  --glass-bg-strong:rgba(255,255,255,.80);\n  --glass-edge:rgba(255,255,255,.9);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(9,18,38,.045),0 1px 2px rgba(9,18,38,.05),0 14px 38px -12px rgba(9,18,38,.16);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.95),0 24px 60px -14px rgba(9,18,38,.30);\n  --surface-solid:#ffffff;\n  --surface-sunk:rgba(9,18,38,.042);\n  --surface-raise:#f8f9fc;\n  --text:#14161c;\n  --text-2:#4a5060;\n  --text-dim:#6b7280;\n  --hairline:rgba(9,18,38,.09);\n  --hairline-strong:rgba(9,18,38,.16);\n  --accent:#1d63d8;\n  --accent-ink:#ffffff;\n  --accent-wash:rgba(29,99,216,.12);\n  --accent-deep:#174fae;\n  --accent-soft:#dbe8ff;\n  --accent-rgb:29,99,216;\n  --accent2-rgb:109,63,214;\n  --good:#0f9d6b;\n  --warn:#c2751a;\n  --danger:#e0342a;\n  --ai:#6c4cff;\n  --lift-1:0 1px 2px rgba(9,18,38,.06),0 4px 12px -4px rgba(9,18,38,.10);\n  --lift-2:0 2px 6px rgba(9,18,38,.07),0 18px 42px -14px rgba(9,18,38,.20),0 0 0 1px rgba(9,18,38,.05);\n  --lift-3:0 4px 12px rgba(9,18,38,.08),0 40px 90px -22px rgba(9,18,38,.28),0 0 0 1px rgba(9,18,38,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.34);\n  --stage-1:#eef0f4;\n  --stage-2:#dfe3ea;\n  --stage-dot:rgba(9,18,38,.07);\n  --scrim:rgba(120,132,155,.42);\n  --surface3:#e9ecf2;\n}\n\n/* PAPER — light, editorial: a warm paper ground, ink type, a serif display\n   face, hairlines instead of glass. The Paper and Chalk template families'\n   material, applied to the chrome. */\n:root[data-theme='light'][data-skin='paper']{\n  --field:#f7f4ee;\n  --wash-a:rgba(var(--accent-rgb),.07);\n  --wash-b:rgba(var(--accent2-rgb),.05);\n  --wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(251,249,244,.82);\n  --glass-bg-strong:rgba(251,249,244,.94);\n  --glass-edge:rgba(30,25,15,.10);\n  --glass-blur:blur(12px) saturate(120%);\n  --glass-shadow:0 1px 0 rgba(30,25,15,.05);\n  --glass-shadow-lift:0 20px 50px -18px rgba(30,25,15,.22);\n  --surface-solid:#fffdf9;\n  --surface-sunk:rgba(30,25,15,.045);\n  --surface-raise:#f1ece3;\n  --text:#1a1815;\n  --text-2:#4e4842;\n  --text-dim:#6d665e;\n  --hairline:rgba(30,25,15,.11);\n  --hairline-strong:rgba(30,25,15,.20);\n  --stage-1:#f1ece3;\n  --stage-2:#e4dccf;\n  --scrim:rgba(90,80,64,.42);\n  --surface3:#e9e2d6;\n  --r-lg:12px;\n  --r-md:9px;\n  --r-sm:6px;\n  --display:'Zodiak',Georgia,'Times New Roman',serif;\n}\n\n/* ACCENT AXIS. Five accents, each with a dark and a light value pair; the\n   ground (skin) never changes with the accent, which is what makes them\n   mixable. Blue is the default and lives in the base blocks above. */\n:root[data-accent='mint']{--accent:#3ddc97;--accent-ink:#04170e;--accent-wash:rgba(61,220,151,.16);--accent-deep:#1fb87a;--accent-soft:#c9f5e2;--accent-rgb:61,220,151;--accent2-rgb:77,156,255}\n:root[data-theme='light'][data-accent='mint']{--accent:#0f8f5f;--accent-ink:#ffffff;--accent-wash:rgba(15,143,95,.12);--accent-deep:#0b6f4a;--accent-soft:#d3f3e4;--accent-rgb:15,143,95;--accent2-rgb:29,99,216}\n:root[data-accent='orchid']{--accent:#b48cff;--accent-ink:#120a24;--accent-wash:rgba(180,140,255,.16);--accent-deep:#8f5cff;--accent-soft:#e6d8ff;--accent-rgb:180,140,255;--accent2-rgb:255,120,190}\n:root[data-theme='light'][data-accent='orchid']{--accent:#6d3fd6;--accent-ink:#ffffff;--accent-wash:rgba(109,63,214,.12);--accent-deep:#5530b0;--accent-soft:#e9dfff;--accent-rgb:109,63,214;--accent2-rgb:214,63,150}\n:root[data-accent='gold']{--accent:#f2c744;--accent-ink:#1a1300;--accent-wash:rgba(242,199,68,.16);--accent-deep:#d9a815;--accent-soft:#ffe9a8;--accent-rgb:242,199,68;--accent2-rgb:255,122,26}\n:root[data-theme='light'][data-accent='gold']{--accent:#a6700a;--accent-ink:#ffffff;--accent-wash:rgba(166,112,10,.12);--accent-deep:#8a5b06;--accent-soft:#f7e7b8;--accent-rgb:166,112,10;--accent2-rgb:194,65,12}\n:root[data-accent='orange']{--accent:#ff7a1a;--accent-ink:#1a0d04;--accent-wash:rgba(255,122,26,.18);--accent-deep:#e04e05;--accent-soft:#ffd7a1;--accent-rgb:255,122,26;--accent2-rgb:255,80,30;--brand-1:#ff7a33;--brand-2:#f5a623}\n:root[data-theme='light'][data-accent='orange']{--accent:#c2410c;--accent-ink:#ffffff;--accent-wash:rgba(194,65,12,.13);--accent-deep:#9a3412;--accent-soft:#ffd7a1;--accent-rgb:194,65,12;--accent2-rgb:255,80,30;--brand-1:#f2600c;--brand-2:#e09417}\n\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}\nhtml{scroll-behavior:smooth}\nbody{\n  font-family:var(--ui);\n  font-size:15px;\n  line-height:1.45;\n  letter-spacing:-.006em;\n  background:var(--field);\n  color:var(--text);\n  overflow-x:hidden;\n  -webkit-font-smoothing:antialiased;\n}\n\n/* THE FIELD — three layers, because one gradient looks like a template.\n   1. Aurora: two large soft colour bodies, off-centre and different sizes, so\n      the eye reads atmosphere rather than wallpaper.\n   2. Geometry: thin arcs and a conic wedge, so a blurred panel moving over an\n      EDGE refracts visibly. Glass over flat colour is just tinted plastic.\n   3. Vignette + grain: corners fall away, and wide displays stop banding. */\n/* How strongly the bokeh reads. A dark ground carries it as light in a room;\n   the light skins take a third, where the same alpha smudges the paper. */\n:root{--bokeh-a:.42}\n:root[data-theme='light']{--bokeh-a:.17}\n:root[data-skin='obsidian']{--bokeh-a:.30}\n:root[data-skin='night']{--bokeh-a:.52}\n:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.13}\n\n@media (max-width:700px){:root{--bokeh-a:.26}:root[data-skin='night']{--bokeh-a:.32}:root[data-theme='light']{--bokeh-a:.12}:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.09}}\n\n/* THE FIELD — the colour behind everything, in two parts.\n\n   BOKEH first (painted on top): eleven out-of-focus discs in the look's own\n   accent, ring and second hue. Each is a radial-gradient rather than a blurred\n   shape, because a gradient IS soft — no filter, no extra compositing layer,\n   nothing for a phone to blur every frame. The rim is a touch brighter than\n   the centre and the falloff runs long, which is what makes a defocused\n   highlight read as glass rather than as a flat circle.\n\n   Then the washes underneath. Every colour comes from a token, so all eight\n   grounds and thirteen accents get their own field for free, and --bokeh-a\n   turns the whole effect down on the light skins, where the same alpha would\n   read as smudges on paper rather than light in a room. */\nbody::before{\n  content:'';position:fixed;inset:-25%;z-index:-2;pointer-events:none;\n  /* HEAVY BOKEH, DISPERSED. Twenty defocused discs on a jittered grid, so the\n     colour is spread through the whole field rather than pooled in a corner.\n     Each is a smooth radial falloff with NO rim and no edge — which is not an\n     approximation of a heavy blur, it is what one is: blur a disc far enough\n     and you have a gaussian, which is a gradient. Doing it this way means no\n     filter, so nothing is re-blurred as the layer drifts, and a phone paints\n     it once. Radii are viewport-relative because the layer tracks the\n     viewport: in px they were tuned for a laptop and swamped a phone.\n     The thin rings and the conic that used to sit here are gone — at this\n     softness their hard 1%-wide edges were the only sharp thing on screen. */\n  background:\n    radial-gradient(circle clamp(91px,23.3vw,315px) at 8.5% 7.4%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.66)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.488)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.238)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.079)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 31.5% 10.9%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.9)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.666)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.324)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.108)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.5vw,140px) at 44.5% 11.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.67)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.496)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.241)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.08)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(54px,11.7vw,157px) at 69.9% 18.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.74)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.548)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.266)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.089)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(86px,21.7vw,293px) at 92.8% 20.2%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.84)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.622)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.302)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.101)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(106px,27.9vw,377px) at 17.7% 30.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.8vw,212px) at 26.0% 31.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.07)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.792)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.385)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.128)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(90px,23.1vw,311px) at 46.5% 39.3%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.82)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.607)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.295)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.098)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 71.7% 31.0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.73)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.54)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.263)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.088)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.9vw,214px) at 93.5% 36.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(101px,26.5vw,358px) at 10.3% 59.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.0)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.74)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.36)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.12)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(82px,20.6vw,277px) at 27.4% 64.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 1.1)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.814)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.396)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.132)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(114px,30.6vw,414px) at 54.2% 59.6%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.68)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.503)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.245)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.082)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(56px,12.3vw,165px) at 69.9% 67.1%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.89)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.659)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.32)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.107)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(99px,25.8vw,349px) at 84.5% 65.7%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(94px,24.3vw,328px) at 16.3% 85.0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.95)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.703)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.342)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.114)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(104px,27.5vw,371px) at 32.1% 87.3%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 1.14)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.844)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.41)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.137)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,138px) at 50.6% 90.6%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.01)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.747)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.364)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.121)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(103px,27.1vw,366px) at 73.1% 95.9%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(47px,9.5vw,126px) at 89.4% 90.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.87)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.644)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.313)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.104)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%);\n  animation:field-drift 48s ease-in-out infinite alternate;\n}\n@keyframes field-drift{\n  from{transform:translate3d(0,0,0) scale(1)}\n  to{transform:translate3d(-1.5%,1.2%,0) scale(1.04)}\n}\nbody::after{\n  content:'';position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;\n  background-image:\n    radial-gradient(120% 90% at 50% 45%,transparent 42%,rgba(0,0,0,.30) 100%),\n    url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.035'/></svg>\");\n}\n/* The editor is a full-height app shell that paints its own stage, so the\n   marketing field would only burn GPU behind it. Driven by :has() rather than\n   a body class, so app.js needs no change to page switching. */\nbody:has(#page-editor.active)::before,\nbody:has(#page-editor.active)::after{display:none}\n\nbutton{font-family:inherit}\ninput,textarea,select{font-family:inherit;color:var(--text)}\n::-webkit-scrollbar{width:10px;height:10px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px;border:3px solid transparent;background-clip:content-box}\n::-webkit-scrollbar-thumb:hover{background:var(--text-dim);background-clip:content-box}\n:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}\n@media (prefers-reduced-motion:reduce){\n  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}\n  body::before{animation:none}\n}\n\n/* ═══════════ HOUSE UTILITIES (shared vocabulary with the CRM) ═══════════ */\n.glass{\n  position:relative;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);\n  backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  box-shadow:var(--glass-shadow);\n}\n/* A single hairline all the way round reads as a border. Real glass catches\n   light on the edge facing the source and loses it on the far side, so this\n   paints a gradient rim: bright top-left, gone by bottom-right. Cheapest thing\n   that separates \"panel with a border\" from \"pane of glass\". */\n.glass::after{\n  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;\n  background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.05) 34%,transparent 60%);\n  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);\n  -webkit-mask-composite:xor;mask-composite:exclude;\n  pointer-events:none;z-index:0;\n}\n.glass>*{position:relative;z-index:1}\n.glass-strong{background:var(--glass-bg-strong)}\n/* Anything the eye compares. */\n.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}\n.label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}\n\n/* ═══════════ SHARED ═══════════ */\n.btn{\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;\n  min-height:36px;padding:9px 18px;\n  border-radius:var(--r-pill);\n  font-size:14px;font-weight:600;letter-spacing:-.01em;line-height:1.2;\n  cursor:pointer;border:none;text-decoration:none;white-space:nowrap;\n  transition:transform .08s cubic-bezier(.2,0,0,1),filter .15s ease,background .15s ease,border-color .15s ease,color .15s ease;\n}\n.btn:active{transform:scale(.968)}\n.btn-primary{\n  background:linear-gradient(180deg,var(--accent),var(--accent-deep));\n  color:var(--accent-ink);\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent);\n}\n.btn-primary:hover{filter:brightness(1.06)}\n.btn-ghost{background:transparent;color:var(--text-2)}\n.btn-ghost:hover{color:var(--text);background:var(--surface-sunk)}\n.btn-outline{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  color:var(--text);border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow);\n}\n.btn-outline:hover{background:var(--surface-raise);color:var(--text)}\n.btn-dark{background:var(--surface-sunk);color:var(--text);border:1px solid var(--hairline)}\n.btn-dark:hover{background:var(--surface-raise)}\n.btn-xl{padding:15px 30px;font-size:16px;min-height:52px}\n.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}\n\n/* Theme toggle — same control on every surface. */\n.theme-btn{\n  width:36px;height:36px;flex:none;display:inline-grid;place-items:center;\n  border-radius:var(--r-pill);background:transparent;border:none;cursor:pointer;\n  color:var(--text-2);font-size:15px;line-height:1;\n  transition:background .15s ease,color .15s ease;\n}\n.theme-btn:hover{background:var(--surface-sunk);color:var(--text)}\n\n.notif{\n  position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);color:var(--text);\n  padding:12px 20px;border-radius:var(--r-pill);font-size:14px;font-weight:600;\n  z-index:9500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;\n  box-shadow:var(--glass-shadow-lift);max-width:min(90vw,480px);text-align:center;\n}\n.notif.show{opacity:1;transform:translate(-50%,0)}\n.notif.success{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(48,214,143,.45)}\n.notif.error{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(255,98,89,.5)}\n\n/* modal */\n.modal-overlay{\n  position:fixed;inset:0;background:var(--scrim);\n  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);\n  z-index:8000;display:none;align-items:center;justify-content:center;padding:24px;\n}\n.modal-overlay.show{display:flex}\n.modal{\n  position:relative;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:22px;width:100%;max-width:520px;padding:26px;\n  box-shadow:var(--glass-shadow-lift);animation:pop .18s cubic-bezier(.2,0,0,1);\n}\n@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}\n.modal h3{font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:4px}\n.modal .modal-sub{font-size:13.5px;color:var(--text-dim);margin-bottom:18px;line-height:1.5}\n.modal label{display:block;font-size:10.5px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.09em}\n.modal input[type=text],.modal input[type=tel],.modal input[type=email],.modal input[type=password]{\n  width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);\n  border-radius:var(--r-md);padding:11px 13px;font-size:14px;color:var(--text);\n  transition:border-color .14s ease,box-shadow .14s ease;\n}\n.modal input::placeholder{color:var(--text-dim)}\n.modal input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}\n\n/* ═══════════ LANDING ═══════════ */\n#page-landing{min-height:100vh}\n.lp-nav{\n  position:fixed;top:0;left:0;right:0;z-index:300;height:64px;\n  display:flex;align-items:center;gap:8px;padding:0 clamp(16px,4vw,40px);\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n  box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -20px rgba(0,0,0,.6);\n}\n.logo{\n  font-family:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;\n  color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px;\n  cursor:pointer;background:none;border:none;\n}\n.logo .logo-mark{\n  width:30px;height:30px;border-radius:9px;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:#fff;\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 12px -4px rgba(var(--brand-rgb),.5);\n}\n/* Brand warmth lives here and nowhere else. */\n.logo em{\n  font-style:normal;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  -webkit-background-clip:text;background-clip:text;color:transparent;\n}\n.lp-nav-links{display:flex;gap:26px;margin-left:40px}\n.lp-nav-links a{font-size:14px;font-weight:550;color:var(--text-2);text-decoration:none;transition:color .15s;white-space:nowrap}\n.lp-nav-links a:hover{color:var(--text)}\n.lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}\n.lp-lab{white-space:nowrap}\n/* The bar measured about 1290px wide at every viewport, so from 1100 to 1439px\n   \"Make my ad\" (the one action the page exists for) was clipped off the right\n   edge. It gives ground in order of least use: tighter link spacing and the\n   \"Template\" word first, then the two links that are also reachable from the\n   page itself, then the link row. */\n@media(max-width:1380px){\n  .lp-nav-links{gap:18px;margin-left:24px}\n  .lp-lab-full{display:none}\n}\n@media(max-width:1200px){\n  .lp-nav-links a[href=\"#lp-themes\"],.lp-nav-links a[href=\"#faq\"]{display:none}\n}\n@media(max-width:1000px){\n  .lp-nav-links{display:none}\n}\n@media(max-width:640px){\n  .lp-nav-links{display:none}\n  /* The lab link is the one nav item that must survive on a phone (it is\n     reviewed from one). Measured at 375px: wordmark 186 + lab pill + toggle\n     + \"Make my ad\" overflowed by ~80px and the CTA clipped, so the logo\n     drops to its mark alone here; the mark keeps its own font-size below. */\n  .lp-nav .logo{font-size:0;gap:0}\n  .lp-lab{padding:9px 12px}\n  /* 343px of usable nav at 375 viewport cannot hold logo + 4 controls, and\n     overflow-x:hidden was silently clipping \"Make my ad\" off the right edge.\n     Log in / Sign up free stay reachable in the footer's Account column and\n     from the studio itself, so the one conversion button survives here. */\n  #lp-login,#lp-signup{display:none}\n  .lp-nav{gap:4px;padding:0 12px}\n  .lp-nav .btn{padding:9px 14px;font-size:13.5px}\n  .lp-nav .lp-caret{padding:9px 10px}\n  .logo{font-size:15px;gap:8px}\n  .logo .logo-mark{width:26px;height:26px;font-size:13px}\n}\n\n.hero{padding:120px clamp(16px,5vw,48px) 72px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(84vh,760px)}\n@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:120px;gap:44px;min-height:0}}\n.hero-eyebrow{\n  display:inline-flex;align-items:center;gap:8px;\n  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;\n  color:var(--accent);background:var(--accent-wash);\n  border:.5px solid rgba(var(--accent-rgb),.28);\n  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:22px;\n}\n/* The ceiling at which \"in under a minute.\" still sets on ONE line inside the\n   1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is face-specific and\n   has now caught two typefaces out: the system stack held one line to 68px,\n   Clash Display breaks at 66 (it runs ~8.4x its size for that string against\n   a 548px column at 1280). Re-measure this if --display ever changes again;\n   guessing produces a four-line ragged hero. */\n.hero h1{font-family:var(--display);font-size:clamp(34px,4.5vw,58px);line-height:1.06;letter-spacing:-.028em;margin-bottom:20px;font-weight:700}\n.hero h1 em{font-style:normal;color:var(--accent)}\n.hero p{font-size:17px;line-height:1.65;color:var(--text-2);max-width:480px;margin-bottom:32px}\n.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}\n.hero-note{margin-top:18px;font-size:13px;color:var(--text-dim)}\n\n/* Height is set by the fan's geometry, not by taste: the front card must start\n   BELOW the back cards' phone-number band or it buries the one element the ad\n   exists to deliver. At 460px with 52% cards it covered 53% and 54% of them. */\n.hero-stack{position:relative;height:500px}\n.hero-card{position:absolute;width:44%;aspect-ratio:1;border-radius:20px;overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-3);background:var(--surface-raise);transition:transform .4s cubic-bezier(.2,0,0,1)}\n.hero-card img{width:100%;height:100%;object-fit:cover;display:block}\n/* Fan geometry is measured, not eyeballed. At 57% wide the three cards came to\n   192% of the stack and the back card was 57% OCCLUDED — its headline was\n   sliced in half, which reads as a broken page rather than a designed stack.\n   At 52% the overlap is ~19%/~18% and, more importantly, all of it lands in\n   the LOWER band: hc3 starts at y=201 of a 460 stack, below where every\n   template puts its headline. Change these together, and re-measure the\n   occlusion if you touch the width. */\n.hero-card.hc1{top:0;left:0;transform:rotate(-8deg);z-index:1}\n.hero-card.hc2{top:4%;right:2%;transform:rotate(6deg);z-index:2}\n.hero-card.hc3{bottom:0;left:20%;transform:rotate(-1deg);z-index:3;box-shadow:var(--lift-3),0 30px 90px -20px rgba(var(--accent-rgb),.35)}\n/* Mobile fan. MUST come after the base .hero-card rules: at equal specificity\n   the later rule wins, and an earlier media query silently lost to the 52%\n   default — the block applied, the width did not.\n   Taller and narrower here because at 380px the three cards had nowhere to go\n   and the front one landed across the other two's phone numbers (measured 71%\n   and 55% of the number band covered), which is the one element the ad exists\n   to deliver. */\n@media(max-width:900px){\n  .hero-stack{height:446px;max-width:440px;margin:0 auto;width:100%}\n  .hero-card{width:46%}\n  /* Overlap SIDEWAYS, separate VERTICALLY. Pulling the cards fully apart cleared\n     the phone numbers but lost the stack entirely — three scattered squares, no\n     depth. Horizontal overlap gives the layered read back; the vertical gaps are\n     what keep each card's number band uncovered. */\n  .hero-card.hc1{top:0;left:0}\n  .hero-card.hc2{top:7%;right:4%}\n  .hero-card.hc3{bottom:0;left:17%}\n}\n/* Any card can be brought to the front — hover on a pointer device, press and\n   hold on touch. The whole stack dims slightly so the chosen one reads as\n   picked rather than merely bigger. */\n/* ═══════════ HERO ENTRANCE ═══════════\n   The three cards fly in from below-and-apart and settle into the fan, so the\n   stack assembles itself in front of the visitor instead of being there already.\n   Each card keeps its OWN resting transform, so the animation has to end on that\n   exact value or the card snaps when the keyframes hand back to CSS — hence a\n   per-card @keyframes rather than one shared one.\n   Staggered back-to-front so the card you are meant to read lands last.\n   `animation-fill-mode:both` holds the opening frame during the delay, which is\n   what stops all three flashing at their final position on first paint. */\n@keyframes heroIn1{\n  0%  {opacity:0; transform:translate3d(-38px,64px,0) rotate(-16deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-8deg) scale(1)}\n}\n@keyframes heroIn2{\n  0%  {opacity:0; transform:translate3d(38px,72px,0) rotate(14deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(6deg) scale(1)}\n}\n@keyframes heroIn3{\n  0%  {opacity:0; transform:translate3d(0,88px,0) rotate(6deg) scale(.86)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-1deg) scale(1)}\n}\n/* Cards default to VISIBLE. An earlier version set opacity:0 here and relied on\n   a JS class to reveal them — so the moment requestAnimationFrame did not run\n   (a background tab, a script error anywhere above) the hero was simply blank.\n   The animation supplies its own opening frame through fill-mode:both, so\n   nothing needs to be hidden up front for it to work. Fail visible. */\n.hero-stack.ready .hero-card.hc1{animation:heroIn1 .92s cubic-bezier(.16,.84,.28,1) .05s both}\n.hero-stack.ready .hero-card.hc2{animation:heroIn2 .92s cubic-bezier(.16,.84,.28,1) .17s both}\n.hero-stack.ready .hero-card.hc3{animation:heroIn3 1.0s cubic-bezier(.16,.84,.28,1) .30s both}\n/* Once the entrance has finished the animation is removed entirely, so the\n   hover transform is not fighting a finished animation for the same property.\n   Selector must be enumerated per card: `.hero-stack.settled .hero-card` is\n   three classes and LOSES to `.hero-stack.ready .hero-card.hc1`, which is four\n   — so `animation:none` silently never applied and the cards stayed frozen on\n   the animation's opening frame. Matching specificity, declared later, wins. */\n.hero-stack.settled .hero-card.hc1,\n.hero-stack.settled .hero-card.hc2,\n.hero-stack.settled .hero-card.hc3{animation:none;opacity:1}\n@media (prefers-reduced-motion:reduce){\n  .hero-card{opacity:1}\n  .hero-stack.ready .hero-card{animation:none}\n}\n.hero-card{cursor:pointer;will-change:transform}\n.hero-stack:hover .hero-card,.hero-stack.touching .hero-card{filter:brightness(.72) saturate(.9)}\n/* Hover pulls a card OUT of the stack: z-index above its siblings, straightened,\n   lifted and enlarged. Without the z-index the card grew but stayed underneath,\n   which read as a glitch rather than a pick-up. */\n.hero-card.hc1:hover,.hero-card.hc1.lifted,\n.hero-card.hc2:hover,.hero-card.hc2.lifted,\n.hero-card.hc3:hover,.hero-card.hc3.lifted{z-index:9}\n.hero-card.hc1:hover,.hero-card.hc1.lifted{transform:rotate(-2deg) translateY(-18px) scale(1.09)}\n.hero-card.hc2:hover,.hero-card.hc2.lifted{transform:rotate(1.5deg) translateY(-18px) scale(1.09)}\n.hero-card.hc3:hover,.hero-card.hc3.lifted{transform:rotate(0deg) translateY(-20px) scale(1.09)}\n.hero-card:hover,.hero-card.lifted{\n  z-index:9!important;filter:none!important;\n  box-shadow:var(--lift-3),0 34px 90px -18px rgba(var(--accent-rgb),.5);\n}\n.hero-card .hc-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n@keyframes shimmer{to{background-position:-200% 0}}\n\n.lp-section{max-width:1200px;margin:0 auto;padding:80px clamp(16px,5vw,48px)}\n.lp-section-head{margin-bottom:38px}\n.lp-kicker{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}\n.lp-section-head h2{font-family:var(--display);font-size:clamp(30px,4vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.08}\n.lp-section-head p{color:var(--text-dim);font-size:15px;margin-top:12px;max-width:560px;line-height:1.6}\n\n.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:20px}\n.tpl-card{position:relative;border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--glass-edge);background:var(--surface-raise);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s;aspect-ratio:1;box-shadow:var(--lift-1)}\n.tpl-card:hover{transform:translateY(-4px);box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.4)}\n.tpl-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}\n.tpl-card .tpl-veil{position:absolute;inset:0;backdrop-filter:blur(1.6px) brightness(.86);transition:backdrop-filter .25s,opacity .25s}\n.tpl-card:hover .tpl-veil{backdrop-filter:blur(0) brightness(1);opacity:0}\n.tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}\n.tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}\n.tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-soft);background:rgba(0,0,0,.55);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-pill);padding:4px 9px}\n.tpl-card .tpl-use{position:absolute;top:12px;right:12px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;box-shadow:var(--glow-accent)}\n.tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}\n.tpl-card .tpl-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n.tpl-card.tpl-saved-card .tpl-del{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:14px;opacity:0;transition:opacity .2s}\n.tpl-card.tpl-saved-card:hover .tpl-del{opacity:1}\n.tpl-card .tpl-del:hover{color:var(--danger);border-color:var(--danger)}\n\n.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n@media(max-width:820px){.flow{grid-template-columns:1fr}}\n.flow-step{\n  position:relative;background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.flow-step .fs-num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:14px}\n.flow-step h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:8px}\n.flow-step p{font-size:14px;color:var(--text-dim);line-height:1.6}\n\n.lp-cta{max-width:1200px;margin:0 auto 90px;padding:0 clamp(16px,5vw,48px)}\n.lp-cta-inner{\n  position:relative;overflow:hidden;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:26px;padding:56px 40px;text-align:center;\n  box-shadow:var(--glass-shadow-lift);\n}\n/* A wash of accent inside the pane so the CTA reads as lit rather than tinted. */\n.lp-cta-inner::before{\n  content:'';position:absolute;inset:0;pointer-events:none;\n  background:radial-gradient(70% 120% at 50% 0%,var(--accent-wash),transparent 70%);\n}\n.lp-cta-inner>*{position:relative}\n.lp-cta-inner h2{font-family:var(--display);font-size:clamp(30px,4.4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.06;margin-bottom:12px}\n.lp-cta-inner p{color:var(--text-2);margin-bottom:28px;font-size:15px}\n.lp-footer{border-top:1px solid var(--hairline);padding:26px clamp(16px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--text-dim);font-size:13px}\n\n\n/* ═══════════ EDITOR ═══════════ */\n#page-editor{display:none;height:100vh;flex-direction:column;overflow:hidden}\n#page-editor.active{display:flex}\n#page-landing.hidden{display:none}\n\n.topbar{\n  height:58px;flex:0 0 58px;display:flex;align-items:center;gap:10px;padding:0 14px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);z-index:100;\n}\n.topbar .logo{font-size:15px}\n.tb-sep{width:1px;height:26px;background:var(--hairline);margin:0 4px}\n.tb-tplname{font-size:13px;font-weight:600;color:var(--text-2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.tb-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;color:var(--text-2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:var(--r-pill);cursor:pointer;transition:background .15s,color .15s}\n.tb-btn:hover{background:var(--surface-sunk);color:var(--text)}\n.tb-btn:disabled{opacity:.35;cursor:default;background:transparent}\n.tb-btn svg{width:16px;height:16px}\n.tb-spacer{flex:1}\n/* AI is violet everywhere in the house, never the accent. */\n#enhance-btn{border:.5px solid rgba(167,139,255,.4);color:var(--ai);background:rgba(167,139,255,.10)}\n#enhance-btn:hover{background:rgba(167,139,255,.18);color:var(--ai)}\n#enhance-btn.busy{opacity:.6;pointer-events:none}\n#export-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n#export-btn:hover{filter:brightness(1.06)}\n@media(max-width:900px){.tb-label{display:none}}\n/* ── editor topbar below laptop width ─────────────────────────────────────\n   Twelve controls in one non-wrapping row is fine at 1280 and broken\n   everywhere else: at iPad portrait the EXPORT button sat at x=848 on an\n   820px screen, and on an iPhone half the bar was past the right edge with\n   no way to reach it. The bar now scrolls horizontally, every control keeps\n   its full size rather than being squeezed, and Export is pinned to the\n   right edge so the one button that matters is never the one you have to go\n   hunting for. */\n@media(max-width:1100px){\n  .topbar{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}\n  .topbar::-webkit-scrollbar{display:none}\n  .topbar > *{flex:none}\n  .topbar .tb-spacer{flex:1 0 8px}\n  #export-btn{\n    position:sticky;right:0;z-index:2;\n    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent),\n               -18px 0 18px -10px var(--glass-bg-strong);\n  }\n}\n/* Touch pointers get the 44px minimum. Height only — widening the nav pills\n   would push the row back off the edge, which is the problem we just fixed. */\n@media(pointer:coarse){\n  .btn,.tb-btn,.ez-adv-link,.view-item,.picker-filters button,.plans-close,.logo{min-height:44px}\n  .theme-btn{width:44px;height:44px}\n  .ez-chip,.chip{min-height:40px}\n}\n\n.editor-body{flex:1;display:flex;overflow:hidden;position:relative}\n\n/* panels as drawers */\n.panel{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  display:flex;flex-direction:column;position:relative;transition:margin .28s cubic-bezier(.2,0,0,1);z-index:50;\n}\n.panel-left{width:300px;flex:0 0 300px;border-right:.5px solid var(--glass-edge)}\n.panel-right{width:300px;flex:0 0 300px;border-left:.5px solid var(--glass-edge)}\n.panel-left.collapsed{margin-left:-300px}\n.panel-right.collapsed{margin-right:-300px}\n.drawer-tab{position:absolute;top:50%;transform:translateY(-50%);width:20px;height:64px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:60;transition:color .15s,background .15s}\n.drawer-tab:hover{color:var(--text);background:var(--surface-raise)}\n.panel-left .drawer-tab{right:-20px;border-left:none;border-radius:0 10px 10px 0}\n.panel-right .drawer-tab{left:-20px;border-right:none;border-radius:10px 0 0 10px}\n\n.panel-tabs{display:flex;border-bottom:1px solid var(--hairline);flex:0 0 auto}\n.panel-tabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:12.5px;font-weight:650;padding:13px 4px;cursor:pointer;transition:color .15s,border-color .15s;letter-spacing:-.01em}\n.panel-tabs button:hover{color:var(--text-2)}\n.panel-tabs button.active{color:var(--text);border-bottom-color:var(--accent)}\n.panel-scroll{flex:1;overflow-y:auto;padding:16px 14px 40px}\n.panel-tabview{display:none}\n.panel-tabview.active{display:block}\n\n.psec{margin-bottom:22px}\n.psec-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}\n.field{margin-bottom:11px}\n.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}\n.field input[type=text],.field input[type=tel],.field input[type=number],.field textarea,.field select{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;transition:border-color .14s,box-shadow .14s}\n.field textarea{resize:vertical;min-height:56px;line-height:1.4}\n.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.field input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}\n.field-row{display:flex;gap:8px}\n.field-row .field{flex:1}\ninput[type=color]{width:100%;height:34px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:var(--surface-raise);cursor:pointer;padding:3px}\ninput[type=range]{width:100%;accent-color:var(--accent)}\n\n.chips{display:flex;flex-wrap:wrap;gap:7px}\n.chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12px;font-weight:650;padding:7px 12px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s;letter-spacing:-.005em}\n.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n.seg{display:flex;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-pill);overflow:hidden;padding:3px;gap:3px}\n.seg button{flex:1;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:650;padding:7px 6px;cursor:pointer;border-radius:var(--r-pill);transition:background .13s,color .13s}\n.seg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.seg button:hover:not(.active){color:var(--text-2)}\n\n.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}\n.add-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-md);color:var(--text-2);font-size:12.5px;font-weight:600;padding:13px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .13s}\n.add-btn:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}\n.add-btn .ab-ico{font-size:19px;line-height:1}\n.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.emoji-grid button{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);font-size:21px;padding:8px 0;cursor:pointer;transition:all .13s}\n.emoji-grid button:hover{border-color:var(--accent);transform:scale(1.08)}\n\n.mini-tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}\n.mini-tpl{position:relative;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--hairline);cursor:pointer;aspect-ratio:1;background:var(--surface-raise);transition:box-shadow .15s,transform .15s}\n.mini-tpl:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.mini-tpl.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}\n.mini-tpl img{width:100%;height:100%;object-fit:cover;display:block}\n.mini-tpl .mt-name{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;font-weight:650;color:#fff;padding:14px 7px 5px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.mini-tpl .mt-del{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s}\n.mini-tpl:hover .mt-del{opacity:1}\n.mini-tpl .mt-del:hover{color:var(--danger);border-color:var(--danger)}\n.empty-hint{font-size:12.5px;color:var(--text-dim);line-height:1.55;background:var(--surface-sunk);border:1px dashed var(--hairline-strong);border-radius:var(--r-md);padding:14px;text-align:center}\n\n/* stage */\n.stage{flex:1;position:relative;display:flex;overflow:auto;padding:26px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,var(--stage-1) 0%,var(--stage-2) 100%)}\n.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(var(--stage-dot) 1px,transparent 1px);background-size:26px 26px;pointer-events:none}\n#canvas-holder{position:relative;box-shadow:var(--lift-3);border-radius:6px;overflow:hidden;margin:auto}\n#guide-v,#guide-h{position:absolute;background:var(--accent);opacity:0;pointer-events:none;transition:opacity .08s;z-index:20;box-shadow:0 0 6px rgba(var(--accent-rgb),.9)}\n#guide-v{top:0;bottom:0;left:50%;width:1px;transform:translateX(-.5px)}\n#guide-h{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px)}\n#guide-v.on,#guide-h.on{opacity:1}\n.zoombar{\n  position:absolute;right:18px;bottom:16px;display:flex;align-items:center;gap:2px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:4px;z-index:70;\n  box-shadow:var(--glass-shadow-lift);\n}\n.zoombar button{background:none;border:none;color:var(--text-2);width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:15px;font-weight:600}\n.zoombar button:hover{background:var(--surface-sunk);color:var(--text)}\n.zoombar .zb-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:600;color:var(--text-2);min-width:48px;text-align:center;cursor:pointer;border-radius:var(--r-pill);padding:6px 2px}\n.zoombar .zb-pct:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* layers */\n.layer-row{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:background .12s,border-color .12s;margin-bottom:3px}\n.layer-row:hover{background:var(--surface-sunk)}\n.layer-row.selected{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4)}\n.layer-row.hidden-l{opacity:.4}\n.layer-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:var(--surface-sunk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-2)}\n.layer-row .li-text{color:var(--accent)}\n.layer-main{flex:1;min-width:0}\n.layer-name{font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.layer-prev{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}\n.layer-acts{display:flex;gap:2px;flex:0 0 auto}\n.layer-acts button{background:none;border:none;color:var(--text-dim);width:24px;height:24px;border-radius:var(--r-pill);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}\n.layer-acts button:hover{background:var(--surface-sunk);color:var(--text)}\n.layer-acts button.on{color:var(--accent)}\n\n.icon-row{display:flex;gap:7px}\n.icon-row button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);color:var(--text-2);padding:8px 4px;cursor:pointer;font-size:13px;font-weight:650;transition:all .13s}\n.icon-row button:hover{border-color:var(--hairline-strong);color:var(--text)}\n.icon-row button.active{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n/* template picker modal */\n.picker-modal{max-width:960px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}\n.picker-head{padding:22px 26px 16px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:14px;flex-wrap:wrap}\n.picker-head h3{font-size:20px;flex:1}\n.picker-filters{display:flex;gap:6px;flex-wrap:wrap}\n.picker-filters button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12.5px;font-weight:650;padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s}\n.picker-filters button.active{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.picker-body{flex:1;overflow-y:auto;padding:22px 26px 30px}\n.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:16px}\n.resume-card{grid-column:1/-1;display:flex;align-items:center;gap:16px;background:var(--accent-wash);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:border-color .15s}\n.resume-card:hover{border-color:var(--accent)}\n.resume-card img{width:64px;height:64px;border-radius:var(--r-md);object-fit:cover;border:.5px solid var(--hairline-strong)}\n.resume-card .rc-title{font-weight:700;font-size:14.5px}\n.resume-card .rc-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px}\n.picker-close{background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:var(--r-pill)}\n.picker-close:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* export modal */\n.export-preview{width:100%;max-height:340px;border-radius:var(--r-lg);border:.5px solid var(--hairline-strong);object-fit:contain;background:var(--surface-sunk);display:block;margin-bottom:16px}\n\n/* tutorial */\n#tut-overlay{position:fixed;inset:0;z-index:9000;display:none;pointer-events:none}\n#tut-bubble{pointer-events:auto}\n#tut-overlay.active{display:block}\n#tut-spot{position:fixed;border-radius:var(--r-lg);box-shadow:0 0 0 9999px var(--scrim),0 0 0 2px var(--accent),0 0 34px rgba(var(--accent-rgb),.5);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:9001}\n#tut-bubble{\n  position:fixed;width:308px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:18px;z-index:9002;\n  box-shadow:var(--glass-shadow-lift);transition:all .3s cubic-bezier(.4,0,.2,1);\n}\n#tut-bubble .tb-step{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}\n#tut-bubble h4{font-size:16px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n#tut-bubble p{font-size:13.5px;color:var(--text-2);line-height:1.55;margin-bottom:15px}\n.tut-dots{display:flex;gap:5px;margin-bottom:14px}\n.tut-dots span{width:7px;height:7px;border-radius:50%;background:var(--hairline-strong);transition:background .2s}\n.tut-dots span.on{background:var(--accent)}\n.tut-actions{display:flex;align-items:center;gap:9px}\n.tut-actions .tut-skip{background:none;border:none;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;padding:8px 4px}\n.tut-actions .tut-skip:hover{color:var(--text)}\n@media(max-width:1100px){.panel-left,.panel-right{position:absolute;top:0;bottom:0;box-shadow:var(--lift-3)}.panel-left{left:0}.panel-right{right:0}}\n\n/* ═══════════ EASY MODE ═══════════ */\n#page-easy{display:none;min-height:100vh}\n#page-easy.active{display:block}\n.ez-nav{\n  display:flex;align-items:center;justify-content:space-between;gap:8px;\n  padding:12px 26px;position:sticky;top:0;z-index:40;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n}\n.ez-adv-link{background:none;border:none;color:var(--text-dim);font:600 13px/1 var(--ui);cursor:pointer;padding:9px 12px;border-radius:var(--r-pill)}\n.ez-adv-link:hover{color:var(--text);background:var(--surface-sunk)}\n.ez-wrap{max-width:1160px;margin:0 auto;padding:26px 22px 90px}\n.ez-head h1{font:700 clamp(24px,3.5vw,34px)/1.1 var(--ui);letter-spacing:-.035em;margin:0 0 4px}\n.ez-head p{color:var(--text-dim);margin:0 0 22px;font-size:14px}\n.ez-stepline{display:flex;align-items:center;gap:10px;margin:26px 0 12px}\n/* NOTE: border-radius MUST stay exactly 50% — cssProbeOk() in app.js reads it\n   to decide whether this stylesheet loaded at all. */\n.ez-stepnum{width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font:700 13px/26px var(--mono);text-align:center;flex:none;box-shadow:var(--glow-accent)}\n.ez-stepline h2{font:650 17px/1 var(--ui);letter-spacing:-.02em;margin:0}\n.ez-stepline small{color:var(--text-dim);font-size:12px;margin-left:2px}\n.ez-strip{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}\n.ez-strip::-webkit-scrollbar{height:8px}\n.ez-strip::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px}\n\n/* ── horizontal scroller: pop-up arrows + edge fades ──────────────────────\n   The arrows are the only thing telling a visitor the row continues, so they\n   sit ON the thumbnails rather than outside the rail, and each one hides the\n   moment there is nothing more that way. */\n.strip-shell{position:relative}\n/* Fades are drawn over the rail, not the label row underneath it. */\n.strip-shell::before,.strip-shell::after{\n  content:'';position:absolute;top:0;bottom:22px;width:64px;pointer-events:none;z-index:2;\n  opacity:1;transition:opacity .18s ease;\n}\n.strip-shell::before{left:0;background:linear-gradient(90deg,var(--field),transparent)}\n.strip-shell::after{right:0;background:linear-gradient(270deg,var(--field),transparent)}\n.strip-shell.at-start::before,.strip-shell.at-end::after,\n.strip-shell.no-scroll::before,.strip-shell.no-scroll::after{opacity:0}\n.strip-arrow{\n  position:absolute;top:calc(50% - 11px);transform:translateY(-50%);z-index:3;\n  width:38px;height:38px;display:grid;place-items:center;\n  border-radius:var(--r-pill);cursor:pointer;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow-lift);\n  color:var(--text);font-size:20px;line-height:1;padding:0 0 3px;\n  transition:opacity .18s ease,transform .12s cubic-bezier(.2,0,0,1),background .15s ease;\n}\n.strip-arrow.left{left:-4px}\n.strip-arrow.right{right:-4px}\n.strip-arrow:hover{background:var(--surface-raise)}\n.strip-arrow:active{transform:translateY(-50%) scale(.92)}\n.strip-shell.at-start .strip-arrow.left,\n.strip-shell.at-end .strip-arrow.right{opacity:0;pointer-events:none}\n.strip-shell.no-scroll .strip-arrow{display:none}\n/* Coarse pointers get a bigger target and no hover-only reveal. */\n@media (pointer:coarse){\n  .strip-arrow{width:44px;height:44px;font-size:22px}\n}\n.ez-tpl{flex:none;width:132px;cursor:pointer;background:none;border:none;padding:0;scroll-snap-align:start;text-align:center;position:relative}\n.ez-tpl img{width:132px;height:132px;border-radius:var(--r-lg);display:block;border:3px solid transparent;transition:border-color .15s,transform .15s,box-shadow .15s;object-fit:cover}\n.ez-tpl span{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}\n.ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.ez-tpl.sel img{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-tpl.sel span{color:var(--text)}\n.ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start}\n.ez-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:20px;\n  box-shadow:var(--glass-shadow);\n}\n.ez-field{margin-bottom:14px}\n.ez-field label{display:block;font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}\n.ez-field input,.ez-field textarea{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:500 15px/1.35 var(--ui);padding:11px 13px;box-sizing:border-box;transition:border-color .14s,box-shadow .14s}\n.ez-field textarea{resize:vertical;min-height:64px}\n.ez-field input:focus,.ez-field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.ez-chiprow{display:flex;flex-wrap:wrap;gap:8px}\n.ez-chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);border-radius:var(--r-pill);padding:8px 14px;font:650 12px/1 var(--ui);cursor:pointer;transition:all .12s}\n.ez-chip:hover{color:var(--text);border-color:var(--hairline-strong)}\n.ez-chip.on{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.ez-swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}\n.ez-sw{width:40px;height:40px;border-radius:12px;border:3px solid transparent;cursor:pointer;padding:0;position:relative;box-shadow:var(--lift-1)}\n.ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}\n.ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}\n.ez-preview-card{position:sticky;top:84px}\n.ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}\n/* account dropdown (reuses .view-drop look) */\n.acct-drop{left:auto;right:0;min-width:240px}\n.am-email{font:650 12px/1.3 var(--ui);color:var(--text-dim);padding:8px 10px 10px;border-bottom:1px solid var(--hairline);margin-bottom:6px;word-break:break-all}\n/* project rows inside Export / Make-my-ad dropdowns */\n.caret{opacity:.6;font-size:11px;margin-left:2px}\n.xm-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-md)}\n.xm-row:hover{background:var(--surface-sunk)}\n.xm-row img{width:34px;height:34px;border-radius:var(--r-sm);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.xm-name{flex:1;font:600 12.5px/1.3 var(--ui);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.xm-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:6px 10px;cursor:pointer;font-size:12px;flex:none}\n.xm-btn:hover{border-color:var(--accent);color:var(--accent)}\n/* split Make-my-ad button on the landing nav */\n.lp-split{display:inline-flex}\n.lp-split #lp-open-studio{border-radius:var(--r-pill) 0 0 var(--r-pill);padding-right:14px}\n.lp-caret{border-radius:0 var(--r-pill) var(--r-pill) 0;padding:9px 13px 9px 11px;border-left:1px solid rgba(0,0,0,.22)}\n/* auth modal */\n.auth-modal{max-width:420px;text-align:left}\n.auth-brand{display:flex;justify-content:center;margin-bottom:12px}\n.auth-brand .logo-mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px -8px rgba(var(--brand-rgb),.6)}\n.auth-modal h3{text-align:center}\n.auth-modal .modal-sub{text-align:center}\n.auth-google{display:flex;justify-content:center;margin:14px 0 4px}\n.auth-or{display:flex;align-items:center;gap:12px;margin:14px 0 4px;color:var(--text-dim);font-size:12px}\n.auth-or::before,.auth-or::after{content:'';flex:1;height:1px;background:var(--hairline)}\n.auth-pass-wrap{position:relative}\n.auth-pass-wrap input{width:100%;padding-right:44px}\n.auth-pass-wrap #auth-pass-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;opacity:.55;padding:6px}\n.auth-pass-wrap #auth-pass-eye:hover{opacity:1}\n.auth-hint{color:var(--text-dim);font-size:11.5px;margin-top:8px}\n/* account-type chooser after signup */\n.at-card{display:block;width:100%;text-align:left;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:15px 17px;margin-top:12px;cursor:pointer;transition:border-color .15s,transform .12s,background .15s}\n.at-card:hover{border-color:var(--accent);transform:translateY(-1px)}\n.at-card.hot{border-color:rgba(var(--accent-rgb),.5);background:var(--accent-wash)}\n.at-card .at-name{display:flex;justify-content:space-between;align-items:baseline;font:700 15px/1 var(--ui);letter-spacing:-.02em;color:var(--text)}\n.at-card .at-name em{font-style:normal;color:var(--accent);font-size:12.5px}\n.at-card .at-desc{display:block;color:var(--text-dim);font-size:12.5px;margin-top:6px;line-height:1.45}\n/* pencil button in export history */\n.hist-edit{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:9px 13px;cursor:pointer;font:600 12.5px/1 var(--ui);margin-right:8px;flex:none}\n.hist-edit:hover{border-color:var(--accent);color:var(--accent)}\n/* big landing footer */\n.lp-footer-big{display:block;padding:46px clamp(16px,4vw,40px) 28px}\n.lpf-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;max-width:1100px;margin:0 auto}\n.lpf-brand p{color:var(--text-dim);font-size:13px;margin-top:10px;max-width:260px}\n.lpf-col h4{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}\n.lpf-col a{display:block;color:var(--text-2);text-decoration:none;font-size:13.5px;padding:5px 0}\n.lpf-col a:hover{color:var(--accent)}\n.lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}\n.ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}\n.ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.ez-dl:hover{filter:brightness(1.06)}\n.ez-dl:active{transform:scale(.985)}\n.ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}\n.ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}\n.ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}\n@media (max-width:920px){\n  .ez-main{grid-template-columns:1fr}\n  /* The preview used to be pulled above the form with order:-1, which made a\n     THREE-STEP guided flow read 1 -> 3 -> 2: the visitor was told \"step 2, type\n     your info\" and then had to scroll past an 1180px preview to find the\n     fields. Steps now stack in the order they are numbered.\n     The preview stays useful while typing by sticking to the bottom of the\n     viewport at a height that cannot swallow the page. */\n  .ez-preview-card{position:static;order:0}\n  .ez-preview-card img{max-height:52vh;width:auto;margin:0 auto;display:block}\n}\n/* Narrow phones: smaller thumbs so more than two fit, and the arrows pull in\n   off the very edge where a thumb-swipe would fight them. */\n@media (max-width:480px){\n  .ez-tpl,.ez-tpl img{width:104px}\n  .ez-tpl img{height:104px}\n  .strip-arrow.left{left:0}\n  .strip-arrow.right{right:0}\n  .strip-shell::before,.strip-shell::after{width:44px}\n}\n\n/* view menu */\n.view-menu{position:relative}\n.view-drop{\n  display:none;position:absolute;top:calc(100% + 8px);left:0;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:6px;min-width:220px;z-index:60;\n  box-shadow:var(--glass-shadow-lift);\n  animation:menu-in .16s cubic-bezier(.2,0,0,1);transform-origin:top left;\n}\n.view-drop.acct-drop{transform-origin:top right}\n@keyframes menu-in{from{opacity:0;transform:translateY(-6px) scale(.97)}}\n.view-drop.open{display:block}\n.view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}\n.view-item:hover{background:var(--accent-wash);color:var(--accent)}\n.view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}\n.view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}\n.view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}\n/* grid overlay */\n#grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:15;display:none;\n  background-image:linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px)}\n#grid-overlay.on{display:block}\n/* fill type seg */\n.fillseg{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:8px}\n.fillseg button{flex:1;background:none;border:none;color:var(--text-dim);font:600 12px/1 var(--ui);padding:8px;border-radius:var(--r-pill);cursor:pointer}\n.fillseg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n/* backgrounds tab */\n.bg-gen-box{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:12px;margin-bottom:14px}\n.bg-gen-box textarea{width:100%;box-sizing:border-box;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 13px/1.4 var(--ui);padding:9px;resize:vertical;min-height:56px}\n.bg-gen-row{display:flex;gap:8px;margin-top:8px}\n.bg-gen-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 12px/1 var(--ui);padding:8px;min-width:0}\n/* AI generation is violet, the house colour for \"a model did this\". */\n.btn-gen{background:linear-gradient(135deg,var(--ai),#7b5cff);color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}\n.btn-gen:hover{filter:brightness(1.06)}\n.btn-gen:disabled{opacity:.55;cursor:wait}\n.bg-result{margin-top:10px;display:none}\n.bg-result.show{display:block}\n.bg-result img{width:100%;border-radius:var(--r-md);display:block}\n.bg-result-acts{display:flex;gap:8px;margin-top:8px}\n.bg-result-acts button{flex:1;border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);border-radius:var(--r-pill);font:600 12px/1 var(--ui);padding:10px;cursor:pointer}\n.bg-result-acts button:hover{border-color:var(--accent);color:var(--accent)}\n.bg-lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.bg-lib-item{position:relative;border:none;background:var(--surface-sunk);border-radius:var(--r-md);padding:0;cursor:pointer;overflow:hidden;aspect-ratio:1}\n.bg-lib-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s}\n.bg-lib-item:hover img{transform:scale(1.06)}\n.bg-lib-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:var(--r-pill);border:none;background:rgba(0,0,0,.65);color:#fff;font-size:11px;cursor:pointer;display:none;line-height:20px;text-align:center}\n.bg-lib-item:hover .bg-lib-del{display:block}\n.bg-lib-badge{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#eee;font:600 9px/1 var(--ui);padding:3px 6px;border-radius:var(--r-pill);pointer-events:none}\n.gear-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:4px;font-family:var(--ui);font-weight:600}\n.gear-btn:hover{color:var(--text)}\n.ai-note{color:var(--text-dim);font-size:11.5px;line-height:1.45;margin-top:8px}\n\n\n/* easy recents + layers + star */\n.ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}\n#ez-recents{display:flex;flex-wrap:wrap;gap:10px}\n#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}\n.ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}\n.ez-recent img{width:100%;height:100%;object-fit:cover;display:block}\n.ez-recent.sel{border-color:var(--accent)}\n.star-btn{position:absolute;top:1px;right:1px;width:16px;height:16px;border:none;border-radius:5px;background:rgba(0,0,0,.65);color:var(--warn);font-size:10px;line-height:16px;text-align:center;cursor:pointer;display:none;padding:0}\n.ez-recent:hover .star-btn,.ez-lrow:hover .star-btn{display:block}\n.ez-lrow .star-btn{position:static;width:22px;height:22px;line-height:22px;border-radius:6px;flex:none}\n#star-pop{\n  position:fixed;z-index:9500;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:6px;display:none;min-width:210px;\n}\n#star-pop.open{display:block}\n#star-pop button{display:block;width:100%;background:none;border:none;color:var(--text);font:500 13px/1 var(--ui);padding:10px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left}\n#star-pop button:hover{background:var(--accent-wash);color:var(--accent)}\n/* easy layers list */\n.ez-layers{margin-top:14px;border-top:1px solid var(--hairline);padding-top:12px}\n.ez-lrow{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:var(--r-md);cursor:pointer}\n.ez-lrow:hover{background:var(--surface-sunk)}\n.ez-lswatch{width:26px;height:26px;border-radius:8px;flex:none;background:var(--surface-sunk);overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--text-dim)}\n.ez-lswatch img{width:100%;height:100%;object-fit:cover}\n.ez-lmain{flex:1;min-width:0}\n.ez-lname{font:650 12px/1.2 var(--ui);color:var(--text)}\n.ez-lprev{font:500 10.5px/1.2 var(--ui);color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}\n.ez-ldel{width:22px;height:22px;border:none;border-radius:var(--r-pill);background:none;color:var(--text-dim);cursor:pointer;font-size:12px;flex:none;line-height:22px;padding:0}\n.ez-ldel:hover{background:rgba(255,98,89,.15);color:var(--danger)}\n.ez-restore{background:none;border:none;color:var(--accent);font:600 11.5px/1 var(--ui);cursor:pointer;padding:6px;margin-top:2px}\n\n\n/* effects controls */\n.ez-fxrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}\n.ez-fxrow button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-pill);padding:8px 13px;font:600 11.5px/1 var(--ui);cursor:pointer}\n.ez-fxrow button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.ez-fxline{display:flex;align-items:center;gap:10px;margin-bottom:8px}\n.ez-fxline label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:64px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.ez-fxline input[type=range]{flex:1}\n.ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}\n.ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}\n/* account chip */\n.acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}\n.acct-chip:hover{background:var(--surface-raise)}\n.acct-plan{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border-radius:var(--r-pill);padding:3px 9px;font:700 9.5px/1.35 var(--ui);letter-spacing:.06em;text-transform:uppercase}\n.acct-plan.free{background:var(--surface-sunk);color:var(--text-dim)}\n/* auth + pay overlays reuse .modal-overlay/.modal */\n.auth-tabs{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:16px}\n.auth-tabs button{flex:1;background:none;border:none;color:var(--text-dim);font:650 13px/1 var(--ui);padding:10px;border-radius:var(--r-pill);cursor:pointer;transition:background .13s,color .13s}\n.auth-tabs button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.auth-err{color:var(--danger);font:500 12.5px/1.4 var(--ui);margin:8px 0 0;min-height:16px}\n.auth-ok{text-align:center;padding:18px 6px}\n.auth-ok .big{font-size:40px;margin-bottom:10px}\n.demo-note{background:rgba(255,176,61,.12);border:.5px solid rgba(255,176,61,.4);color:var(--warn);border-radius:var(--r-md);padding:10px 12px;font:500 11.5px/1.45 var(--ui);margin-top:12px}\n/* plans page */\n/* Fixed at z-index 8000, so it sits above the body's field pseudo-elements and\n   would otherwise be a flat slab. It carries its own copy of the aurora. */\n#page-plans{\n  display:none;position:fixed;inset:0;z-index:8000;overflow:auto;\n  background:\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%),\n    var(--field);\n}\n#page-plans.active{display:block}\n.plans-wrap{max-width:980px;margin:0 auto;padding:34px 22px 80px}\n.plans-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}\n.plans-head h1{font:700 28px/1.1 var(--ui);letter-spacing:-.035em;margin:0}\n.plans-close{background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text);border-radius:var(--r-pill);padding:10px 16px;font:600 13px/1 var(--ui);cursor:pointer}\n.plans-close:hover{background:var(--surface-raise)}\n.plans-sub{color:var(--text-dim);font:500 14px/1.5 var(--ui);margin:0 0 26px}\n.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}\n.plan-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:24px;\n  display:flex;flex-direction:column;box-shadow:var(--glass-shadow);\n}\n.plan-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.plan-name{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin-bottom:4px}\n.plan-price{font:700 32px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:10px 0 2px}\n.plan-price small{font:600 13px/1 var(--ui);color:var(--text-dim)}\n.plan-feats{list-style:none;padding:0;margin:16px 0 20px;flex:1}\n.plan-feats li{font:500 13px/1.5 var(--ui);color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.plan-feats li::before{content:'✓';position:absolute;left:0;color:var(--good);font-weight:700}\n.plan-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);font:650 14px/1 var(--ui);padding:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.plan-btn:hover{filter:brightness(1.06)}\n.plan-btn.ghost{background:var(--surface-sunk);color:var(--text);border:.5px solid var(--hairline);box-shadow:none}\n.plan-btn:disabled{opacity:.5;cursor:default}\n.plan-current{font:650 10.5px/1 var(--ui);color:var(--good);text-transform:uppercase;letter-spacing:.09em;margin-top:10px;text-align:center}\n.ez-quota{color:var(--text-dim);font:600 11.5px/1 var(--ui);text-align:center;margin-top:8px}\n.ez-quota b{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums}\n.ez-quota .up{color:var(--accent);cursor:pointer;text-decoration:underline}\n\n\n/* premium template locks */\n.tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}\n.ez-tpl{position:relative}\n.ez-tpl .tpl-lock{top:6px;left:6px}\n.ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}\n.ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}\n.tpl-card.locked img{filter:grayscale(.35) brightness(.7)}\n\n\n/* category row + nav */\n.ez-catrow{display:flex;align-items:center;gap:12px;margin:0 0 12px}\n.ez-catrow label{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none}\n.cat-select{background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:600 14px/1 var(--ui);padding:11px 13px;min-width:210px;cursor:pointer}\n.cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.nav-upgrade{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);padding:9px 15px;font:700 12px/1 var(--ui);cursor:pointer;letter-spacing:-.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.nav-upgrade:hover{filter:brightness(1.06)}\n/* export history */\n.hist-list{max-height:380px;overflow:auto;margin-top:6px}\n.hist-row{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:var(--r-md)}\n.hist-row:hover{background:var(--surface-sunk)}\n.hist-row img{width:52px;height:52px;border-radius:var(--r-md);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.hist-main{flex:1;min-width:0}\n.hist-name{font:650 13px/1.2 var(--ui);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.hist-meta{font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim)}\n.hist-dl{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px 13px;cursor:pointer;flex:none}\n.hist-dl:hover{border-color:var(--accent);color:var(--accent)}\n.hist-empty{color:var(--text-dim);font:500 13px/1.5 var(--ui);text-align:center;padding:26px 0}\n@media (max-width:760px){ .ez-nav{flex-wrap:wrap;gap:8px} }\n/* The label plus a 210px select is wider than a phone, and overflow-x:hidden\n   was clipping the select's right edge instead of showing it. */\n@media (max-width:560px){\n  .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}\n  .ez-catrow label{margin-bottom:2px}\n  .cat-select{min-width:0;width:100%}\n  .ez-nav{padding:10px 14px}\n  .ez-adv-link{padding:8px;font-size:12.5px}\n  .ez-wrap{padding:20px 14px 80px}\n}\n\n.mini-tpl.locked img, .tpl-mini.locked img{filter:grayscale(.35) brightness(.7)}\n\n/* per-field quick styling */\n.ez-fieldrow{display:flex;gap:8px;align-items:stretch}\n.ez-fieldrow input,.ez-fieldrow textarea{flex:1;min-width:0}\n.ez-edit-btn{flex:none;width:44px;border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-dim);border-radius:var(--r-md);cursor:pointer;font-size:15px}\n.ez-edit-btn:hover{color:var(--accent);border-color:var(--accent)}\n#txt-pop{\n  position:fixed;z-index:9400;width:288px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:14px;display:none;\n}\n#txt-pop.open{display:block}\n#txt-pop .tp-title{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}\n#txt-pop .tp-title button{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px}\n.tp-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}\n.tp-row label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:52px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.tp-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:600 12.5px/1 var(--ui);padding:8px 9px}\n.tp-row input[type=range]{flex:1}\n.tp-row input[type=color]{width:32px;height:26px;border:1px solid var(--hairline-strong);border-radius:6px;background:none;padding:1px;flex:none}\n.tp-row .tp-val{font:600 10.5px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right;flex:none}\n.tp-biu{display:flex;gap:5px;flex:1}\n.tp-biu button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-sm);padding:7px 0;cursor:pointer;font:700 13px/1 Georgia}\n.tp-biu button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.tp-reset{width:100%;margin-top:4px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px;cursor:pointer}\n.tp-reset:hover{color:var(--text)}\n\n\n.ez-themes{display:flex;flex-wrap:wrap;gap:9px}\n.ez-theme{display:flex;border:2px solid var(--hairline-strong);border-radius:11px;overflow:hidden;padding:0;cursor:pointer;width:52px;height:32px;background:none;transition:border-color .13s,transform .13s}\n.ez-theme span{flex:1;display:block}\n.ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);transform:translateY(-1px)}\n.ez-theme:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n\n\n.ez-chip-custom{border-style:dashed}\n.chip-x{opacity:.55;font-size:10px;margin-left:2px}\n.ez-chip-custom:hover .chip-x{opacity:1;color:var(--danger)}\n\n.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:720px}\n.lp-price-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-price-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.lp-price-card h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n.lp-price{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:40px;font-weight:700;letter-spacing:-.04em;margin-bottom:12px}\n.lp-price small{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:-.01em}\n.lp-price-card ul{list-style:none;padding:0;margin:0 0 18px}\n.lp-price-card li{font-size:13.5px;color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.lp-price-card li::before{content:'\\2713';position:absolute;left:0;color:var(--good);font-weight:700}\n.lp-faq{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:0 20px;margin-bottom:10px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-faq summary{font-weight:650;font-size:15px;letter-spacing:-.015em;padding:17px 0;cursor:pointer;list-style:none}\n.lp-faq summary::-webkit-details-marker{display:none}\n.lp-faq summary::after{content:'+';float:right;color:var(--accent);font-size:18px;font-weight:600}\n.lp-faq[open] summary::after{content:'\\2013'}\n.lp-faq p{font-size:14px;color:var(--text-2);line-height:1.6;padding-bottom:17px;margin:0}\n\n/* ── canvas format picker ── */\n.tb-format{appearance:none;-webkit-appearance:none;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);max-width:190px;border-radius:var(--r-pill);padding:8px 28px 8px 13px;font-size:13px;font-weight:600;background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}\n.tb-format:hover{border-color:var(--accent)}\n\n/* ── order prints + posting ── */\n.btn-order{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:12px;background:rgba(48,214,143,.12);border:.5px solid rgba(48,214,143,.45);color:var(--good);font-weight:650;border-radius:var(--r-lg);padding:12px}\n.btn-order:hover{border-color:var(--good);background:rgba(48,214,143,.18)}\n.btn-order .order-sub{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.01em}\n.ez-order{display:block;width:100%;margin-top:10px;background:none;border:1px dashed rgba(48,214,143,.5);color:var(--good);font-size:13px;font-weight:650;padding:11px;border-radius:var(--r-lg);cursor:pointer}\n.ez-order:hover{background:rgba(48,214,143,.10)}\n\n/* ── QR layer ── */\n.ab-pro{position:absolute;top:6px;right:6px;background:var(--warn);color:#1a1206;font-size:9px;font-weight:800;padding:2px 6px;border-radius:var(--r-pill);letter-spacing:.04em}\n.add-btn{position:relative}\n.qr-help{font-size:12px;color:var(--text-2);line-height:1.5;margin-top:8px}\n.qr-help a{color:var(--good);font-weight:650;text-decoration:none}\n.qr-help a:hover{text-decoration:underline}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LANDING v2 — 2026-09-02. The hero fan of three canvas-rendered classics is\n   now a wall of the newest set's real renders (assets/showcase), the gallery\n   filters by category and theme family, and the chrome has a Look menu:\n   ground (graphite / night / paper / ember) x accent (blue / mint / orchid /\n   gold / orange) x light or dark. All of it is CSS custom properties on\n   <html>, so the studio and the editor inherit whatever is chosen.\n   ═══════════════════════════════════════════════════════════════════════════ */\n.hero-v2{grid-template-columns:1.02fr .98fr;gap:44px;min-height:min(86vh,800px);padding-top:112px;overflow:hidden}\n.hero-copy{position:relative;z-index:2}\n.hero-copy p{max-width:520px}\n.hero-wall{position:relative;height:580px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;\n  transform:rotate(-6deg) scale(1.08);transform-origin:50% 50%;\n  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);\n  mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%)}\n.wall-col{display:flex;flex-direction:column;gap:14px;will-change:transform}\n.wall-col[data-dir=up]{animation:wallUp 46s linear infinite}\n.wall-col[data-dir=down]{animation:wallDown 52s linear infinite}\n.wall-col:nth-child(3){animation-duration:58s}\n@keyframes wallUp{from{transform:translateY(0)}to{transform:translateY(-50%)}}\n@keyframes wallDown{from{transform:translateY(-50%)}to{transform:translateY(0)}}\n.wall-card{aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-2);background:var(--surface-raise);cursor:pointer;flex:none;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s}\n.wall-card:hover{transform:scale(1.04);box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.45);z-index:2}\n.wall-card img{width:100%;height:100%;object-fit:cover;display:block}\n.hero-wall:hover .wall-col{animation-play-state:paused}\n@media(prefers-reduced-motion:reduce){.wall-col{animation:none!important}}\n/* THE SCROLLER RUNS ON A PHONE TOO. It used to stop dead here — the animation\n   was killed and every card past the second was hidden, which also broke the\n   seamless loop, since each column is its own list twice over and the keyframe\n   travels -50%. It was disabled out of caution about phone performance, and\n   that caution was misplaced: the movement is a transform on three columns, so\n   it is composited on the GPU and costs no repaint. The wall is shorter here,\n   tilted less, and keeps its fade at top and bottom.\n   prefers-reduced-motion still stops it, above. */\n@media(max-width:900px){\n  .hero-v2{grid-template-columns:1fr;padding-top:92px;min-height:0;gap:26px}\n  .hero-wall{height:clamp(380px,54vh,470px);gap:9px;transform:rotate(-4deg) scale(1.07)}\n  .wall-col{gap:9px}\n  .wall-col[data-dir=up]{animation-duration:38s}\n  .wall-col[data-dir=down]{animation-duration:43s}\n  .wall-col:nth-child(3){animation-duration:48s}\n}\n@media(max-width:520px){\n  .hero-wall{height:clamp(330px,46vh,400px);gap:7px;transform:rotate(-3deg) scale(1.05)}\n  .wall-col{gap:7px}\n}\n.lp-stats{max-width:1200px;margin:0 auto;padding:22px clamp(16px,5vw,48px) 0;display:flex;flex-wrap:wrap;gap:10px 34px;border-top:.5px solid var(--hairline)}\n.stat{display:flex;align-items:baseline;gap:8px}\n.stat b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--text)}\n.stat span{font-size:13px;color:var(--text-dim)}\n\n/* theme families */\n.fam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}\n.fam-card{position:relative;text-align:left;background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:11px;cursor:pointer;color:var(--text);box-shadow:var(--glass-shadow);transition:transform .15s cubic-bezier(.2,0,0,1),border-color .15s,box-shadow .15s;font:inherit}\n.fam-card:hover{transform:translateY(-3px)}\n.fam-card.on{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent)}\n.fam-card.idle{cursor:default;opacity:.72}\n.fam-sw{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;height:56px;border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;border:.5px solid rgba(0,0,0,.18)}\n.fam-sw i{display:block}\n.fam-name{font-weight:650;font-size:14px;letter-spacing:-.01em}\n.fam-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-variant-numeric:tabular-nums}\n\n/* gallery filters */\n.lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}\n.chip{font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;min-height:36px}\n.chip:hover{color:var(--text);border-color:var(--text-dim)}\n.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:var(--glow-accent)}\n.chip .n{opacity:.65;font-family:var(--mono);font-size:11px;margin-left:6px;font-variant-numeric:tabular-nums}\n.tpl-more-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}\n.tpl-count{font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.tpl-card img{transition:transform .4s cubic-bezier(.2,0,0,1)}\n.tpl-card:hover img{transform:scale(1.035)}\n.tpl-card .tpl-lockpill{position:absolute;top:12px;left:12px;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);color:#fff;border:.5px solid rgba(255,255,255,.25)}\n\n/* Look menu */\n.look-wrap{position:relative}\n.look-btn{display:inline-flex;align-items:center;gap:8px;padding:0 12px 0 10px;width:auto;font-size:13px;font-weight:600;color:var(--text-2)}\n.look-btn:hover{color:var(--text)}\n.look-dot{width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-deep));box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 2px var(--surface-sunk)}\n.look-menu{position:absolute;right:0;top:44px;width:304px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);box-shadow:var(--glass-shadow-lift);padding:14px;z-index:400;display:none;text-align:left}\n.look-menu.open{display:block}\n.look-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}\n.look-label{width:100%;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}\n.look-chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-chip:hover{color:var(--text)}\n.look-chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}\n.look-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px -2px rgba(0,0,0,.5);padding:0}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--text)}\n.look-note{font-size:11.5px;color:var(--text-dim);line-height:1.45}\n.look-note code{font-family:var(--mono);font-size:11px;color:var(--text-2)}\n@media(max-width:640px){.look-btn span{display:none}.look-btn{padding:0 10px}.look-menu{position:fixed;left:12px;right:12px;top:70px;width:auto}}\n\n/* Skin-specific style, beyond colour. PAPER is editorial: a serif display\n   face, flat panels on hairlines, no drifting field. NIGHT is the opposite:\n   gradient ink on the money line, louder glows. */\n:root[data-skin='paper'] .hero h1{font-weight:500;letter-spacing:-.022em}\n:root[data-skin='paper'] .hero h1 em{font-style:italic;color:var(--accent)}\n:root[data-skin='paper'] .lp-section-head h2,:root[data-skin='paper'] .lp-cta-inner h2{font-weight:500;letter-spacing:-.015em}\n:root[data-skin='paper'] .flow-step,:root[data-skin='paper'] .fam-card,:root[data-skin='paper'] .lp-cta-inner,:root[data-skin='paper'] .lp-price-card,:root[data-skin='paper'] .look-menu{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface-solid);box-shadow:none;border:1px solid var(--hairline)}\n:root[data-skin='paper'] .lp-price-card.hot{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] .fam-card.on{box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] body::before{animation:none}\n:root[data-skin='paper'] body::after{opacity:.22}\n:root[data-skin='paper'] .hero-eyebrow{background:transparent;border-color:var(--hairline-strong);color:var(--text-2)}\n:root[data-skin='paper'] .lp-nav{box-shadow:none;border-bottom:1px solid var(--hairline)}\n:root[data-skin='paper'] .wall-card,:root[data-skin='paper'] .tpl-card{box-shadow:0 1px 2px rgba(30,25,15,.08),0 10px 24px -14px rgba(30,25,15,.25)}\n:root[data-skin='night'] .hero h1 em{background:linear-gradient(90deg,var(--accent),var(--accent-soft));-webkit-background-clip:text;background-clip:text;color:transparent}\n:root[data-skin='night'] .btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),var(--glow-accent)}\n:root[data-skin='night'] .lp-kicker{text-shadow:0 0 18px rgba(var(--accent-rgb),.6)}\n\n/* ── AREA dialog (location-aware copy) ── */\n.area-modal{max-width:560px}\n.area-inrow{display:flex;gap:8px;align-items:stretch}\n.area-inrow input{flex:1;min-width:0}\n.area-inrow .btn{white-space:nowrap;padding:9px 14px}\n.area-suggest{display:flex;flex-direction:column;gap:4px;margin-top:8px}\n.area-opt{display:flex;justify-content:space-between;align-items:center;gap:10px;font:inherit;font-size:14px;text-align:left;padding:9px 12px;border-radius:var(--r-sm);border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);cursor:pointer}\n.area-opt:hover{border-color:var(--accent);background:var(--accent-wash)}\n.area-opt span{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.area-none{font-size:13px;color:var(--text-dim);padding:8px 2px}\n.area-preview{margin-top:14px;display:flex;flex-direction:column;gap:10px}\n.area-preview:empty{display:none}\n.area-home{font-weight:650;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}\n.area-home em{font-style:normal;font-weight:500;font-size:12.5px;color:var(--text-dim)}\n.area-row b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}\n.area-chips{display:flex;flex-wrap:wrap;gap:6px}\n.area-chips span{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline-strong);color:var(--text-2)}\n.area-chips span:first-child{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4);color:var(--text)}\n#ez-area{cursor:pointer}\n\n/* Easy Mode export sizes */\n.ez-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}\n.ez-sizes .chip{font-size:12px;padding:6px 11px;min-height:30px}\n.stat-lead b{color:var(--accent)}\n@media(max-width:640px){.lp-stats{gap:8px 22px}.stat b{font-size:19px}}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LOOK MENU, ROUND TWO — 2026-09-02 evening. Owner: \"stick with graphite\n   purple ... add an extra accent colour or highlighting ring ... 2 to 3x more\n   themes and colour options as well as typography options\".\n   Three axes now carry more stops, and a fourth axis appears:\n     ground  graphite · night · slate · obsidian · forest · ember (dark)\n             paper · cream (light)\n     accent  twelve, each with a paired RING colour (--ring) that carries\n             focus, hover and selection so the chrome is two-tone\n     type    eight display/body pairings (data-type)\n   Curated presets in the menu are one of each, chosen by hand.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── extra grounds ── */\n:root[data-theme='dark'][data-skin='slate']{\n  --field:#121826;--glass-bg:rgba(28,36,51,.62);--glass-bg-strong:rgba(28,36,51,.86);\n  --surface-solid:#1a2233;--surface-raise:#232d40;--text:#eef2fa;--text-2:#bcc6da;--text-dim:#8391ab;\n  --stage-1:#182033;--stage-2:#0c1119;--scrim:rgba(8,12,20,.74);--surface3:#2c3850;\n}\n:root[data-theme='dark'][data-skin='obsidian']{\n  --field:#08090b;--wash-a:rgba(var(--accent-rgb),.18);--wash-b:rgba(var(--accent2-rgb),.12);--wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(18,19,23,.72);--glass-bg-strong:rgba(18,19,23,.92);--glass-edge:rgba(255,255,255,.10);\n  --surface-solid:#121317;--surface-raise:#1a1b20;--surface-sunk:rgba(255,255,255,.05);\n  --text:#f4f4f6;--text-2:#b9bcc6;--text-dim:#7f8391;--hairline:rgba(255,255,255,.08);\n  --stage-1:#101114;--stage-2:#050506;--scrim:rgba(0,0,0,.8);--surface3:#24262c;\n}\n:root[data-theme='dark'][data-skin='forest']{\n  --field:#0c1411;--wash-a:rgba(var(--accent-rgb),.22);--wash-b:rgba(60,200,140,.14);--wash-c:rgba(var(--accent2-rgb),.10);\n  --glass-bg:rgba(22,34,28,.62);--glass-bg-strong:rgba(22,34,28,.86);\n  --surface-solid:#142019;--surface-raise:#1b2a22;--text:#eef6f1;--text-2:#bfd1c6;--text-dim:#829a8c;\n  --stage-1:#142019;--stage-2:#080e0b;--scrim:rgba(6,12,9,.76);--surface3:#243a2e;\n}\n:root[data-theme='light'][data-skin='cream']{\n  --field:#f5efe2;--wash-a:rgba(var(--accent-rgb),.12);--wash-b:rgba(var(--accent2-rgb),.08);--wash-c:rgba(255,196,60,.10);\n  --glass-bg:rgba(255,251,243,.6);--glass-bg-strong:rgba(255,251,243,.84);\n  --surface-solid:#fffcf5;--surface-raise:#f3ecdc;--surface-sunk:rgba(60,45,20,.05);\n  --text:#1e1a12;--text-2:#55503f;--text-dim:#79725f;--hairline:rgba(60,45,20,.10);--hairline-strong:rgba(60,45,20,.18);\n  --stage-1:#f1eadb;--stage-2:#e3d9c4;--scrim:rgba(110,95,70,.42);--surface3:#eae1cd;\n}\n\n/* ── accents, with their RING. Ring = the second colour: it carries focus,\n   hover and selection, never fills. Pairings are a third of the wheel apart\n   so the two read as a scheme, not a clash. ── */\n:root{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='blue']{--ring:#f2c744;--ring-rgb:242,199,68}\n:root[data-theme='light'][data-accent='blue']{--ring:#b7830c;--ring-rgb:183,131,12}\n:root[data-accent='mint']{--ring:#b48cff;--ring-rgb:180,140,255}\n:root[data-theme='light'][data-accent='mint']{--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='orchid']{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='orchid']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='gold']{--ring:#4d9cff;--ring-rgb:77,156,255}\n:root[data-theme='light'][data-accent='gold']{--ring:#1d63d8;--ring-rgb:29,99,216}\n:root[data-accent='orange']{--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='orange']{--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='coral']{--accent:#ff6b6b;--accent-ink:#1f0707;--accent-wash:rgba(255,107,107,.16);--accent-deep:#e04848;--accent-soft:#ffd0d0;--accent-rgb:255,107,107;--accent2-rgb:61,220,151;--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='coral']{--accent:#c8383b;--accent-ink:#fff;--accent-wash:rgba(200,56,59,.12);--accent-deep:#a02a2c;--accent-soft:#f9d3d3;--accent-rgb:200,56,59;--accent2-rgb:15,143,95;--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='cyan']{--accent:#22d3ee;--accent-ink:#04191d;--accent-wash:rgba(34,211,238,.16);--accent-deep:#0ea5c4;--accent-soft:#c7f3fa;--accent-rgb:34,211,238;--accent2-rgb:251,113,133;--ring:#fb7185;--ring-rgb:251,113,133}\n:root[data-theme='light'][data-accent='cyan']{--accent:#0e7490;--accent-ink:#fff;--accent-wash:rgba(14,116,144,.12);--accent-deep:#0b5c72;--accent-soft:#cdeef5;--accent-rgb:14,116,144;--accent2-rgb:190,24,93;--ring:#be185d;--ring-rgb:190,24,93}\n:root[data-accent='lime']{--accent:#b9f24a;--accent-ink:#131a04;--accent-wash:rgba(185,242,74,.16);--accent-deep:#8fd11a;--accent-soft:#e6fbc0;--accent-rgb:185,242,74;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='lime']{--accent:#4d7c0f;--accent-ink:#fff;--accent-wash:rgba(77,124,15,.12);--accent-deep:#3f6212;--accent-soft:#e0f0c4;--accent-rgb:77,124,15;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='rose']{--accent:#fb7185;--accent-ink:#20070c;--accent-wash:rgba(251,113,133,.16);--accent-deep:#e11d48;--accent-soft:#ffd6dd;--accent-rgb:251,113,133;--accent2-rgb:34,211,238;--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='rose']{--accent:#be185d;--accent-ink:#fff;--accent-wash:rgba(190,24,93,.12);--accent-deep:#9d174d;--accent-soft:#f8d0de;--accent-rgb:190,24,93;--accent2-rgb:14,116,144;--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='sky']{--accent:#7dd3fc;--accent-ink:#06161f;--accent-wash:rgba(125,211,252,.16);--accent-deep:#38bdf8;--accent-soft:#e0f4ff;--accent-rgb:125,211,252;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='sky']{--accent:#0369a1;--accent-ink:#fff;--accent-wash:rgba(3,105,161,.12);--accent-deep:#075985;--accent-soft:#d3ecfb;--accent-rgb:3,105,161;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n:root[data-accent='amber']{--accent:#fbbf24;--accent-ink:#1c1200;--accent-wash:rgba(251,191,36,.16);--accent-deep:#d69e0b;--accent-soft:#ffeeba;--accent-rgb:251,191,36;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='amber']{--accent:#b45309;--accent-ink:#fff;--accent-wash:rgba(180,83,9,.12);--accent-deep:#92400e;--accent-soft:#f9e3bf;--accent-rgb:180,83,9;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='teal']{--accent:#2dd4bf;--accent-ink:#041a16;--accent-wash:rgba(45,212,191,.16);--accent-deep:#14b8a6;--accent-soft:#c9f5ee;--accent-rgb:45,212,191;--accent2-rgb:255,107,107;--ring:#ff6b6b;--ring-rgb:255,107,107}\n:root[data-theme='light'][data-accent='teal']{--accent:#0f766e;--accent-ink:#fff;--accent-wash:rgba(15,118,110,.12);--accent-deep:#115e59;--accent-soft:#cdeeea;--accent-rgb:15,118,110;--accent2-rgb:200,56,59;--ring:#c8383b;--ring-rgb:200,56,59}\n:root[data-accent='violet']{--accent:#8b5cf6;--accent-ink:#fff;--accent-wash:rgba(139,92,246,.18);--accent-deep:#6d3fd6;--accent-soft:#e4d9ff;--accent-rgb:139,92,246;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='violet']{--accent:#5b32c9;--accent-ink:#fff;--accent-wash:rgba(91,50,201,.12);--accent-deep:#4526a0;--accent-soft:#e2d8ff;--accent-rgb:91,50,201;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n\n/* where the ring shows: focus, hover, selection */\n:focus-visible{outline:2px solid var(--ring)}\n.tpl-card:hover{box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.35),0 0 0 2px var(--ring)}\n.wall-card:hover{box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.4),0 0 0 2px var(--ring)}\n.fam-card.on{border-color:transparent;box-shadow:var(--glass-shadow),0 0 0 2px var(--ring)}\n.chip.on{box-shadow:var(--glow-accent),0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-chip.on{box-shadow:0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--ring)}\n.lp-price-card.hot{box-shadow:var(--glass-shadow),0 0 0 2px var(--ring),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.hero-eyebrow{border-color:rgba(var(--ring-rgb),.45)}\n.ez-tpl.sel{outline:2px solid var(--ring);outline-offset:2px}\n.look-dot{background:linear-gradient(135deg,var(--accent) 0 55%,var(--ring) 55% 100%)}\n.stat-lead b{color:var(--accent)}\n.lp-kicker::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ring);margin-right:8px;vertical-align:1px}\n\n/* ── type pairings. Overrides any skin's face, so Paper + Unbounded is\n   possible. Google faces are loaded by the stamp script when picked. ── */\n:root[data-type='clash']{--display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif}\n:root[data-type='serif']{--display:'Zodiak',Georgia,'Times New Roman',serif}\n:root[data-type='melodrama']{--display:'Melodrama',Georgia,serif}\n:root[data-type='khand']{--display:'Khand','Satoshi',sans-serif}\n:root[data-type='unbounded']{--display:'Unbounded','Clash Display',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='syne']{--display:'Syne','Clash Display',sans-serif;--ui:'Sora','Satoshi',-apple-system,sans-serif}\n:root[data-type='grotesk']{--display:'Space Grotesk','Satoshi',sans-serif;--ui:'Space Grotesk','Satoshi',-apple-system,sans-serif}\n:root[data-type='manrope']{--display:'Manrope','Satoshi',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='khand'] .hero h1{letter-spacing:0;font-weight:700;font-size:clamp(40px,5.2vw,68px)}\n:root[data-type='unbounded'] .hero h1{letter-spacing:-.01em;font-weight:700;font-size:clamp(30px,4vw,52px)}\n:root[data-type='serif'] .hero h1,:root[data-type='melodrama'] .hero h1{font-weight:500;letter-spacing:-.02em}\n:root[data-type='serif'] .hero h1 em,:root[data-type='melodrama'] .hero h1 em{font-style:italic}\n\n/* the menu grew: keep it on screen */\n.look-menu{width:360px;max-height:min(78vh,720px);overflow:auto}\n.look-preset{display:flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;padding:6px 10px 6px 6px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-preset i{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--a) 0 55%,var(--b) 55% 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);flex:none}\n.look-preset:hover{color:var(--text);border-color:var(--text-dim)}\n@media(max-width:640px){.look-menu{width:auto}}\n\n/* the studio's own \"where are you\" pill, beside the category picker */\n.ez-wherelabel{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none;margin-left:6px}\n.ez-where{font:600 13.5px/1 var(--ui);color:var(--text);background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-pill);padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 0 var(--ring);transition:box-shadow .15s,border-color .15s}\n.ez-where:hover{border-color:var(--ring)}\n.ez-where.unset{border-color:var(--ring);box-shadow:0 0 0 3px rgba(var(--ring-rgb),.28);color:var(--text)}\n@media(max-width:640px){.ez-catrow{flex-wrap:wrap}.ez-wherelabel{display:none}}\n\n/* ── gallery cards: no blur veil (owner: \"way too much blur\"). The veil is\n   now a light darkening that lifts on hover, nothing else. ── */\n.tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(0,0,0,.14)}\n.tpl-card:hover .tpl-veil{background:rgba(0,0,0,0)}\n\n/* ── PRO GUARD. A locked preview stays sharp (a sharp card sells the plan)\n   but cannot be lifted: a repeating diagonal PRO · BUYBACK.AD pattern over\n   the whole card, a lock in the middle, and thumbnails that are 448px at\n   most. The pattern is an SVG data URI so it is text, not a blur. ── */\n.pro-guard{position:absolute;inset:0;pointer-events:none;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:220px 220px;mix-blend-mode:overlay;opacity:.9}\n.pro-guard::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;\n  background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}\n.wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}\n.ez-tpl.locked{position:relative}\n.ez-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n.flow-step .btn{margin-top:16px}\n\n/* locked mini cards in the editor's left panel and its picker */\n.mini-tpl.locked{position:relative}\n.mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n\n/* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's\n   default min-width:auto refuses to shrink below its content, so on a 390px\n   phone the cards stayed 481px wide and the whole page scrolled sideways by\n   105px (measured 2026-09-03). min-width:0 lets them fit; anything genuinely\n   too wide inside now scrolls in its own box instead of moving the page. */\n@media (max-width:920px){\n  .ez-main{min-width:0}\n  .ez-main > .ez-card{min-width:0;max-width:100%}\n  .ez-card{overflow-x:clip}\n}\n#ez-preview{max-width:100%;height:auto}\n\n/* ═══ 2026-09-22 UX/SEO pass (studio-ux branch) ═══\n   1. Clash Display's space is narrow and the hero sets -.028em tracking, so at\n      58px \"Buyback ads that\" read as one word. Word spacing puts the gaps back\n      without loosening the letters.\n   2. The footer gained an \"Ad templates\" column (links to the category pages),\n      so it is six blocks now: let the grid fit them instead of a fixed four. */\n.hero h1,.lp-section-head h2,.lp-cta h2{word-spacing:.1em}\n.lpf-cols{grid-template-columns:1.4fr repeat(5,minmax(0,1fr))}\n@media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.lp-faq p a{color:var(--accent);text-decoration:underline}\n\n/* THE LANDING GRID SHOWS EACH CARD AS IT WILL POST (2026-09-26). The number\n   was rebuilt big and sits at the foot of most cards; the caption strip (a\n   38px gradient with the palette and layout name) was drawn over exactly\n   that, and the veil blurred and dimmed every card until hover, which a phone\n   never sends. The section is headed \"exactly as it will post\": the card is\n   shown crisp, and its name appears on hover or keyboard focus. Scoped to the\n   landing grid; the studio's own template pickers keep their captions. */\n#lp-tpl-grid .tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none}\n#lp-tpl-grid .tpl-card .tpl-meta{opacity:0;transition:opacity .2s}\n#lp-tpl-grid .tpl-card:hover .tpl-meta,#lp-tpl-grid .tpl-card:focus-visible .tpl-meta{opacity:1}\n\n/* ── FONT PICKER ────────────────────────────────────────────────────────────\n   Every typeface shown in its own face (owner, 2026-09-27). A native <option>\n   ignores font-family in Safari, on Macs and on every phone, so the select is\n   hidden behind a button and list drawn here (app.js fontPicker). */\n.fp-btn{width:100%;flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;\n  background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);\n  padding:7px 11px;font-size:17px;line-height:1.2;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:38px}\n.fp-btn::after{content:'▾';font:600 12px/1 var(--ui);color:var(--text-dim);flex:none}\n.fp-btn:hover{border-color:var(--text-dim)}\n.fp-btn:focus-visible{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.fp-pop{position:fixed;z-index:2000;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-lg);\n  box-shadow:0 18px 50px -12px rgba(0,0,0,.6);padding:8px;display:flex;flex-direction:column;gap:6px}\n.fp-search{width:100%;background:var(--surface-sunk);border:1px solid var(--hairline);border-radius:var(--r-sm);color:var(--text);font:500 13px/1 var(--ui);padding:9px 10px}\n.fp-search:focus{border-color:var(--accent);outline:none}\n.fp-list{overflow-y:auto;overscroll-behavior:contain}\n.fp-group{font:700 10.5px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:10px 8px 6px}\n.fp-item{font-size:21px;line-height:1.25;color:var(--text);padding:7px 8px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.fp-item:hover,.fp-item.on{background:var(--surface-sunk)}\n.fp-item.sel{color:var(--accent)}\n";
 function cssProbeOk(){
   const t = document.createElement('div');
   t.className = 'ez-stepnum';
@@ -9658,7 +10030,7 @@ function scBuildWall(cards){
       const d = document.createElement('div');
       d.className = 'wall-card';
       d.title = c.name;
-      d.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
+      d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
       d.onclick = () => openShowcase(c.id);
       col.appendChild(d);
     });
@@ -9761,7 +10133,7 @@ function scCard(c){
   card.setAttribute('role', 'button');
   card.setAttribute('tabindex', '0');
   const locked = scLocked(c);
-  card.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="lazy" decoding="async">
+  card.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="lazy" decoding="async">
     <div class="tpl-veil"></div>
     ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
@@ -9830,7 +10202,7 @@ async function openShowcase(id){
   if (!TEMPLATES.some(t => t.id === tid)){
     let rec = SHOWCASE.records[id];
     if (!rec){
-      try { rec = await fetch('assets/showcase/tpl/' + id + '.json').then(r => r.ok ? r.json() : null); } catch (e){ rec = null; }
+      try { rec = await fetch(assetUrl('assets/showcase/tpl/' + id + '.json')).then(r => r.ok ? r.json() : null); } catch (e){ rec = null; }
       if (!rec || !rec.tpl){ toast('That design could not be loaded, opening its base layout instead', 'error'); showEasy(c.base); return; }
       SHOWCASE.records[id] = rec;
     }
@@ -9842,11 +10214,11 @@ async function openShowcase(id){
     const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
     const loadCut = src => new Promise(res => {
       if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res();
-      const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = src;
+      const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = assetUrl(src);
     });
     const loadBg = src => new Promise(res => {
       if (!src || (TPL_BG_ELS[src] && TPL_BG_ELS[src].width)) return res();
-      const el = new Image(); el.onload = () => { TPL_BG_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = src;
+      const el = new Image(); el.onload = () => { TPL_BG_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = assetUrl(src);
     });
     await Promise.race([
       Promise.all([...fams].map(f => ensureFont(f)).concat(cuts.map(loadCut), [loadBg(t.bg && t.bg.src)])),
@@ -10166,4 +10538,1839 @@ function buildEzSizes(){
     };
     row.appendChild(b);
   });
+}
+
+/* ═══════════════ DEVICE VARIANTS IN EASY MODE ═══════════════
+   Owner, 2026-09-27: "once a theme is perfect we can make unlimited variations
+   for all types of devices specifically." A Phones & Devices showcase card
+   that carries a product can be re-set for any device the shop buys: the
+   device family in the headline, that family's models as the selling points,
+   and the device's own cut-out in the finish nearest the card's accent,
+   fitted into the product's box. The theme is untouched, and alignPass keeps
+   a longer name or a wider device on its plate and inside the guides.
+   Variants are built on request, not stored: the library stays one card per
+   design (DESIGN-LAW rule 60). Same logic as scripts/device_variants.mjs;
+   the catalogue is assets/devices.json (scripts/device_catalog.py). */
+let SC_DEVICES = null;
+function scLoadDevices(){
+  if (SC_DEVICES) return Promise.resolve(SC_DEVICES);
+  return fetch(assetUrl('assets/devices.json')).then(r => r.ok ? r.json() : { models:{} })
+    .then(j => (SC_DEVICES = j.models || {})).catch(() => (SC_DEVICES = {}));
+}
+const SC_DEV_LINE = {
+  'IPAD AIR': 'iPad Air M2 • M3 • M4 • 11 & 13-inch', 'IPAD PRO': 'iPad Pro M4 • M5 • 11 & 13-inch',
+  'IPAD MINI': 'iPad mini 6 • mini (A17 Pro)', 'IPAD': 'iPad 10th gen • iPad (A16)',
+  'MACBOOK AIR': 'M1 to M5 • 13 & 15-inch • Every colour', 'MACBOOK PRO': 'M1 to M5 • 14 & 16-inch',
+  'MACBOOK NEO': 'MacBook Neo • Every colour', 'IMAC': 'iMac 24-inch • M1 • M3 • M4 • Every colour',
+  'APPLE WATCH': 'Series 11 • 10 • 9 • SE', 'WATCH ULTRA': 'Ultra • Ultra 2 • Ultra 3',
+  'AIRPODS': 'AirPods • AirPods Pro • AirPods Max', 'AIRPODS PRO': 'AirPods Pro 2 • Pro 3', 'AIRPODS MAX': 'AirPods Max • AirPods Pro',
+};
+/* WHOLE LINES (owner: "variations like categories. (sell your iphone)
+   showing multiple models … (sell your macbook air pro neo) with multiple"):
+   the category in the headline, several models lined up on the card */
+const SC_DEV_GROUPS = {
+  'group-iphone':  { family:'IPHONE',      label:'All iPhones',       models:['iphone-17-pro', 'iphone-17', 'iphone-16', 'iphone-16e'], line:'iPhone 17 • 16 • 15 • Pro & Pro Max' },
+  'group-ipad':    { family:'IPAD',        label:'All iPads',         models:['ipad-pro-13-m5', 'ipad-air-13-m4', 'ipad-mini-7-a17-pro'], line:'iPad Pro • Air • mini • iPad' },
+  'group-macbook': { family:'MACBOOK',     label:'All MacBooks',      models:['macbook-air-15', 'macbook-pro-14-m5', 'macbook-neo-13'], line:'MacBook Air • Pro • Neo • M1 to M5' },
+  'group-mac':     { family:'MAC',         label:'All Macs',          models:['imac-24-m4', 'macbook-air-15', 'macbook-pro-14-m5'], line:'iMac • MacBook Air • MacBook Pro' },
+  'group-watch':   { family:'APPLE WATCH', label:'All Apple Watches', models:['watch-ultra3', 'watch-s11', 'watch-se3'], line:'Ultra • Series 11 • 10 • SE' },
+  'group-airpods': { family:'AIRPODS',     label:'All AirPods',       models:['airpods-max', 'airpods-pro-3', 'airpods-3'], line:'AirPods • AirPods Pro • AirPods Max' },
+  'group-apple':   { family:'APPLE',       label:'Everything Apple',  models:['iphone-17-pro', 'ipad-air-13-m4', 'macbook-air-15', 'watch-s11'], line:'iPhone • iPad • Mac • Apple Watch' },
+};
+/* relative size in a lineup: a watch is not as tall as a MacBook, nor a
+   fifth of it (a compressed curve keeps every device recognisable) */
+const SC_DEV_WEIGHT = { iphone:0.95, ipad:1, mac:1, watch:0.62, airpods:0.66, other:0.72 };
+function scDeviceLine(D, fam){
+  if (SC_DEV_LINE[fam]) return SC_DEV_LINE[fam];
+  const names = Object.values(D).filter(m => m.family === fam).map(m => m.name).sort();
+  return names.length ? names.map((n, i) => i ? n.replace(/^iPhone /, '') : n).join(' • ') : fam;
+}
+function scDeviceLabel(fam){
+  return fam.split(' ').map(w => ({ IPHONE:'iPhone', IPAD:'iPad', MACBOOK:'MacBook', IMAC:'iMac', AIRPODS:'AirPods',
+    HOMEPOD:'HomePod', TV:'TV', PRO:'Pro', AIR:'Air', MAX:'Max', MINI:'mini', NEO:'Neo', WATCH:'Watch', ULTRA:'Ultra',
+    APPLE:'Apple', DUO:'Duo', VISION:'Vision', MAC:'Mac', STUDIO:'Studio' }[w] || w.replace(/^(\d+)E$/, '$1e'))).join(' ');
+}
+/* one entry per family, newest iPhones first, then iPad, Mac, Watch, AirPods */
+function scDeviceChoices(D){
+  const order = { iphone:0, ipad:1, mac:2, watch:3, airpods:4, other:5 }, best = {};
+  Object.entries(D).forEach(([k, m]) => {
+    if (!m.art && !Object.keys(m.colours || {}).length) return;
+    const score = Object.keys(m.colours || {}).length * 10 + (m.art ? 1 : 0) + (parseInt((k.match(/\d+/) || [0])[0], 10) || 0) / 100;
+    if (!best[m.family] || score > best[m.family].score) best[m.family] = { key:k, m, score };
+  });
+  const num = f => parseInt((f.match(/\d+/) || [0])[0], 10) || 0;
+  return Object.entries(best).map(([fam, b]) => ({ fam, key:b.key, line:b.m.line, label:scDeviceLabel(fam) }))
+    .sort((a, b) => (order[a.line] - order[b.line]) || (num(b.fam) - num(a.fam)) || a.fam.localeCompare(b.fam));
+}
+function scDeviceFinish(m, accent){
+  const fins = Object.values(m.colours || {}).filter(f => f.hex);
+  if (!fins.length) return m.art;
+  const hsv = h => { const n = parseInt(String(h || '#888888').slice(1), 16), r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let hu = 0;
+    if (d){ hu = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; hu *= 60; if (hu < 0) hu += 360; }
+    return { h:hu, s: mx ? d / mx : 0 }; };
+  const a = hsv(accent);
+  const score = f => { const c = hsv(f.hex); if (a.s < 0.18) return c.s;
+    const dh = Math.min(Math.abs(c.h - a.h), 360 - Math.abs(c.h - a.h)) / 180;
+    return dh + 0.6 * Math.abs(c.s - a.s) + (c.s < 0.12 ? 0.5 : 0); };
+  return fins.sort((x, y) => score(x) - score(y))[0].slug;
+}
+const scLoadImg = src => new Promise(res => {
+  if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res(CUTOUT_ELS[src]);
+  const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(el); }; el.onerror = () => res(null); el.src = assetUrl(src);
+});
+async function scDeviceVariant(baseId, key){
+  const D = await scLoadDevices(), grp = SC_DEV_GROUPS[key], base = TEMPLATES.find(t => t.id === baseId);
+  const m = grp ? { family: grp.family, line: 'group' } : D[key];
+  if (!m || !base) return null;
+  const id = baseId + '--' + key;
+  if (TEMPLATES.some(t => t.id === id)) return id;
+  const t = JSON.parse(JSON.stringify(base));
+  const by = n => t.layers.find(l => l.name === n);
+  const h1 = by('Headline 1'), h2 = by('Headline 2'), prod = t.layers.find(l => l.kind === 'cutout' && !l.__wall);
+  if (!h2 || !prod) return null;
+  if (h1 && !/^(WE BUY|SELL YOUR|CASH IN YOUR|CASH FOR)$/i.test(String(h1.text).trim())) h1.text = 'WE BUY';
+  h2.text = m.family;
+  const line = grp ? grp.line : scDeviceLine(D, m.family);
+  t.layers.forEach(l => {   // a line that lists models names this device's models instead
+    if (typeof l.text === 'string' && l !== h2 && (l.name === 'Items' ||
+        (/•/.test(l.text) && /iPhone|iPad|MacBook|iMac|Series \d|Watch|AirPods|Pro Max/i.test(l.text)))) l.text = line;
+  });
+  const card = SHOWCASE.byId[base.showcase] || {}, accent = card.accent || card.c1;
+  const oldEl = await scLoadImg(prod.props.src);
+  const ow = prod.props.w || 400, oh = oldEl && oldEl.width ? ow * oldEl.height / oldEl.width : ow;
+  const cx = (prod.props.left || 0) + ow / 2, cy = (prod.props.top || 0) + oh / 2;
+  if (!grp){
+    const src = 'assets/cutouts/' + scDeviceFinish(m, accent) + CUTOUT_EXT, newEl = await scLoadImg(src);
+    if (!newEl) return null;
+    const ar = newEl.width / newEl.height; let w = ow, h = w / ar; if (h > oh){ h = oh; w = h * ar; }
+    prod.props = Object.assign({}, prod.props, { src, w: Math.round(w), left: Math.round(cx - w / 2), top: Math.round(cy - h / 2) });
+  } else {
+    /* the line-up: every model at its weighted height, side by side with a
+       small gap, the whole row fitted into the product's box and centred */
+    const items = (await Promise.all(grp.models.filter(k => D[k]).map(async k => {
+      const src = 'assets/cutouts/' + scDeviceFinish(D[k], accent) + CUTOUT_EXT, el = await scLoadImg(src);
+      return el ? { src, ar: el.width / el.height, wt: SC_DEV_WEIGHT[D[k].line] || 0.8 } : null;
+    }))).filter(Boolean);
+    if (!items.length) return null;
+    /* a row has the width of the card it stands on, not of the one product it
+       replaces: fitted into a single device's width, three MacBooks came out
+       as stamps. Wide devices overlap a little, fan style; tall ones stand
+       apart. */
+    const rb = l => { const q = l.props || {}, w = q.width || 0, h = q.height || 0;
+      return { x: (q.left || 0) - (q.originX === 'center' ? w / 2 : 0), y: (q.top || 0) - (q.originY === 'center' ? h / 2 : 0), w, h }; };
+    const plate = t.layers.filter(l => l.kind === 'rect').map(rb).filter(b => cx > b.x && cx < b.x + b.w && cy > b.y && cy < b.y + b.h && b.w < TPL_W * 0.95)
+      .sort((a, b) => a.w * a.h - b.w * b.h)[0];
+    const roomW = plate ? plate.w - 2 * Math.max(36, plate.w * 0.06) : Math.max(ow, TPL_W * 0.7);
+    const wide = items.reduce((s, it) => s + it.ar, 0) / items.length > 1.2;
+    const gapK = wide ? -0.08 : 0.06;                    // gap (or overlap) as a share of the tallest device
+    const rowW = hh => items.reduce((s, it) => s + hh * it.wt * it.ar, 0) + gapK * hh * (items.length - 1);
+    let hh = Math.min(oh, roomW / rowW(1));              // the tallest device's height
+    let x = cx - rowW(hh) / 2;
+    const at = t.layers.indexOf(prod);
+    t.layers.splice(at, 1, ...items.map((it, i) => {
+      const h = hh * it.wt, w = h * it.ar, l = JSON.parse(JSON.stringify(prod));
+      l.name = i ? 'Hero Product ' + (i + 1) : prod.name;
+      l.props = Object.assign({}, prod.props, { src: it.src, w: Math.round(w), left: Math.round(x), top: Math.round(cy + hh / 2 - h) });
+      x += w + gapK * hh;
+      return l;
+    }));
+  }
+  Object.assign(t, { id, name: base.name + ' · ' + (grp ? grp.label : scDeviceLabel(m.family)), deviceOf: baseId, device: key });
+  TEMPLATES.push(t);
+  delete THUMBS[id];
+  return id;
+}
+/* Which cards can be re-set. The product must be the hero (a corner icon is
+   not what names the device) and the ground must not picture a device: a
+   Bubble Pop card set on a photograph of stacked MacBooks read SELL YOUR
+   APPLE WATCH over the MacBooks once re-set, the fault fixed on twelve watch
+   cards the same day. Money grounds, scenes and plain grounds qualify. */
+const SC_DEVICE_GROUND = /iphone|ipad|macbook|imac|mac-|watch|airpods|phone|device|tablet|laptop/i;
+function scDeviceReady(t){
+  if (!t || !t.showcase || t.cat !== 'phones' || !t.layers.some(l => l.name === 'Headline 2')) return false;
+  const prod = t.layers.find(l => l.kind === 'cutout' && !l.__wall);
+  if (!prod || (prod.props && (prod.props.w || 0) < 260)) return false;
+  const src = t.bg && t.bg.type === 'image' ? String(t.bg.src || '') : '';
+  return !src || /\/grounds\//.test(src) || !SC_DEVICE_GROUND.test(src.replace(/^.*\//, ''));
+}
+/* the picker: shown for a Phones & Devices showcase card with a product */
+async function ezDeviceSync(){
+  const field = $('ez-device-field'), sel = $('ez-device');
+  if (!field || !sel) return;
+  const t = ezTpl(), baseId = t && (t.deviceOf || t.id), base = TEMPLATES.find(x => x.id === baseId);
+  const ok = base && scDeviceReady(base);
+  field.hidden = !ok;
+  if (!ok) return;
+  const D = await scLoadDevices();
+  if (ezTpl() !== t) return;                                   // the user moved on while the catalogue loaded
+  /* the list is the same for every card: built once, so a template switch
+     never rebuilds it under a pick in progress */
+  if (!sel.dataset.built){
+    const groups = { iphone:'iPhone', ipad:'iPad', mac:'Mac', watch:'Apple Watch', airpods:'AirPods', other:'Home & other' };
+    const ch = scDeviceChoices(D);
+    sel.innerHTML = '<option value="">As designed</option>' +
+      '<optgroup label="Whole line">' + Object.entries(SC_DEV_GROUPS).map(([k, g]) => '<option value="' + k + '">' + escHtml(g.label) + '</option>').join('') + '</optgroup>' +
+      Object.keys(groups).map(g => {
+      const opts = ch.filter(c => c.line === g); if (!opts.length) return '';
+      return '<optgroup label="' + groups[g] + '">' + opts.map(c => '<option value="' + c.key + '">' + escHtml(c.label) + '</option>').join('') + '</optgroup>';
+    }).join('');
+    sel.dataset.built = '1';
+  }
+  sel.value = t.device || '';
+  sel.onchange = async () => {
+    const key = sel.value, target = key ? await scDeviceVariant(baseId, key) : baseId;
+    if (!target){ toast('That device could not be set on this design', 'error'); sel.value = t.device || ''; return; }
+    selectEzTpl(target);
+    ez.bg = null; ez.bgRecId = null; ez.bgPicked = true;         // a showcase photograph is part of the design
+    syncEzSwatches(); schedEzPreview(0);
+  };
+}
+{
+  const _buildEzForm = buildEzForm;
+  buildEzForm = function(){ const r = _buildEzForm.apply(this, arguments); ezDeviceSync(); return r; };
+}
+
+
+/* Ported 2026-09-27 from the superseded claude/fervent-pascal commit bf45814
+   (OPEN-ITEMS §J), at the owner's word: "make everything animateable". Every
+   design in the studio, showcase cards, classics and device variants alike,
+   exports as an 8-second video from Easy Mode or the editor. The engine is
+   unchanged; the Easy Mode entry takes its scene from renderEzCanvas(), the
+   editor's from the live canvas. */
+/* ═══════════════ MOTION: VIDEO ADS ═══════════════
+   An 8-second video of the same ad, for Reels, Stories and TikTok.
+
+   The motion is a LIVING STILL, not a reveal, and that is a design decision
+   with a reason. Feeds autoplay muted and people scroll past in a second or
+   two, so any frame that has not yet shown the phone number is a frame that
+   cannot convert. Frame 0 is the finished ad — the same pixels as the PNG
+   export — and so is every frame after it. What moves is EMPHASIS:
+
+   - the photograph breathes on a slow closed path, so the ad reads as alive
+     and the loop has no seam;
+   - three beats of SCALE, never colour, in reading order: the money word,
+     the selling points, the phone number. "Attention comes from contrast and
+     scale, not from saturation" holds in time as well as in space;
+   - every beat returns exactly to rest.
+
+   Deterministic in t: the landing-page clips are rendered by THIS code
+   (scripts/render_motion_clips.mjs, via motionBake/motionDraw), not by a
+   separate animation that could drift from what the product actually exports.
+
+   Appended, not spliced (rule 42). Nothing here runs at load: declarations
+   only, plus one DOMContentLoaded binder at the very bottom. */
+const MOTION = {
+  dur: 8, fps: 30,
+  beats: { money: [0.5, 1.5], points: [2.5, 3.5], phone: [4.5, 5.5] },
+  amp:   { money: 0.045,      points: 0.035,      phone: 0.06 },
+  breathe: 0.06,          // peak photo push-in at the loop's midpoint
+  maxShort: 1080,         // real-time recording above 1080p stutters on phones
+};
+const _bell = u => (u <= 0 || u >= 1) ? 0 : 0.5 - 0.5 * Math.cos(2 * Math.PI * u);  // 0 → 1 → 0, flat at both ends
+const _beat = (t, w) => _bell((t - w[0]) / (w[1] - w[0]));
+
+function motionIsText(o){
+  return !!o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && !!o.pgCurved));
+}
+function motionBox(o){ const r = o.getBoundingRect(true, true); return { x:r.left, y:r.top, w:r.width, h:r.height }; }
+
+/* The plate a text sits on, by the test rule 46 settled on: the rect must lie
+   behind the TEXT (≥75% of the text's own box), not merely near it — and it
+   must be a plate, not a panel. Scaling a full-width band with the number
+   would pulse half the ad. */
+function motionPlate(objs, o, W, H){
+  const t = motionBox(o);
+  let best = null, bestArea = Infinity;
+  objs.forEach(p => {
+    if (p === o || p.type !== 'rect' || p.pgBgRect || p.pgScrim) return;
+    if (p.name === 'Scrim' || p.name === 'BG' || p.name === 'Overlay') return;
+    const b = motionBox(p);
+    const ix = Math.max(0, Math.min(t.x + t.w, b.x + b.w) - Math.max(t.x, b.x));
+    const iy = Math.max(0, Math.min(t.y + t.h, b.y + b.h) - Math.max(t.y, b.y));
+    if (ix * iy < 0.75 * t.w * t.h) return;
+    if (b.w > 0.9 * W || b.w * b.h > 5 * t.w * t.h) return;   // a panel, not this text's plate
+    if (b.w * b.h < bestArea){ best = p; bestArea = b.w * b.h; }
+  });
+  return best;
+}
+
+/* Read the scene once and record every rest value the pose will touch, so
+   restoring is exact rather than "scale back by 1/s". */
+function motionRig(sc, W, H){
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const texts = objs.filter(o => motionIsText(o) && live(o));
+  const size = o => ((o.fontSize || 0) * (o.scaleY || 1)) || motionBox(o).h;
+  const phone = texts.filter(o => o.pgRole === 'phone').sort((a, b) => size(b) - size(a))[0] || null;
+  const money = texts.filter(o => o !== phone && !['phone','website','badges','deco'].includes(o.pgRole))
+                     .sort((a, b) => size(b) - size(a))[0] || null;
+  const points = texts.find(o => o.pgRole === 'badges' && o !== money)
+              || texts.find(o => o.pgRole === 'cta' && o !== money) || null;
+  const unit = o => {
+    if (!o) return null;
+    const plate = motionPlate(objs, o, W, H);
+    const members = plate ? [plate, o] : [o];
+    return { c: (plate || o).getCenterPoint(),
+             members: members.map(m => ({ o:m, sx:m.scaleX || 1, sy:m.scaleY || 1, left:m.left, top:m.top, c:m.getCenterPoint() })) };
+  };
+  const bg = sc.backgroundImage && sc.backgroundImage.type === 'image' ? sc.backgroundImage : null;
+  // product cutouts only: the film-grain overlay is an image too, and it must not bob
+  const cut = objs.filter(o => o.type === 'image' && live(o) && o.pgRole === 'photo');
+  if (!phone) console.warn('GraphicsStudio motion: no phone-number layer found, the last beat is skipped.');
+  return {
+    W, H,
+    bg: bg ? { o:bg, left:bg.left, top:bg.top, sx:bg.scaleX || 1, sy:bg.scaleY || 1 } : null,
+    cut: cut.map(o => ({ o, left:o.left, top:o.top })),
+    units: { money: unit(money), points: unit(points), phone: unit(phone) },
+  };
+}
+
+/* ── BAKE, THEN COMPOSITE ────────────────────────────────────────────────
+   The first version re-rendered the whole fabric scene every frame. Scaling
+   text invalidates fabric's object cache, so every frame re-drew shadowed
+   type from scratch, and the first real export came out at 1.6 fps — a
+   slideshow. Real-time recording turns every slow frame into a dropped one.
+
+   So the scene is rendered ONCE into bitmaps, in z-order: the photograph,
+   each run of layers that never moves, and each element that does (cropped to
+   its own bounds). A frame is then a dozen drawImage calls with a transform —
+   GPU work on every device, and cheap even in software.
+   Exactness: rest frames use a native-resolution photo, so frame 0 is the
+   still ad; the push-in draws from a copy baked at (1 + breathe)x, so the
+   photo is never upscaled. The one non-normal blend in the library (the
+   grain overlay) is drawn with its own blend mode at its own depth, which
+   reproduces it exactly. */
+function motionBake(sc, docW, docH, outW, outH){
+  const z = outW / docW;
+  sc.enableRetinaScaling = false;
+  sc.setDimensions({ width:outW, height:outH }); sc.setZoom(z);
+  const rig = motionRig(sc, docW, docH);
+  const objs = sc.getObjects();
+  const unitOf = new Map();
+  Object.entries(rig.units).forEach(([k, u]) => u && u.members.forEach(m => unitOf.set(m.o, k)));
+  const cutSet = new Set(rig.cut.map(c => c.o));
+  const saved = { img: sc.backgroundImage, col: sc.backgroundColor, vis: objs.map(o => o.visible) };
+  const copy = (w, h, crop) => {
+    sc.renderAll();
+    const c = document.createElement('canvas');
+    const r = crop || { x:0, y:0, w, h };
+    c.width = Math.max(1, r.w); c.height = Math.max(1, r.h);
+    c.getContext('2d').drawImage(sc.lowerCanvasEl, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+    return { bmp:c, x:r.x, y:r.y };
+  };
+  const only = set => objs.forEach((o, i) => { o.visible = saved.vis[i] !== false && set.has(o); });
+  const bake = { W:outW, H:outH, z, base: saved.col || '#101014', bg:null, bgHi:null, layers:[], rig };
+  try {
+    if (rig.bg){
+      objs.forEach(o => { o.visible = false; });
+      sc.backgroundColor = '';
+      bake.bg = copy(outW, outH).bmp;
+      const K = 1 + MOTION.breathe, hw = Math.round(outW * K), hh = Math.round(outH * K);
+      sc.setDimensions({ width:hw, height:hh }); sc.setZoom(z * K);
+      bake.bgHi = copy(hw, hh).bmp;
+      sc.setDimensions({ width:outW, height:outH }); sc.setZoom(z);
+    }
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    let run = [];
+    const flush = () => { if (run.length){ only(new Set(run)); bake.layers.push(Object.assign({ kind:'static' }, copy(outW, outH))); run = []; } };
+    objs.forEach((o, i) => {
+      if (saved.vis[i] === false) return;
+      const blend = o.globalCompositeOperation && o.globalCompositeOperation !== 'source-over' ? o.globalCompositeOperation : null;
+      if (!unitOf.has(o) && !cutSet.has(o) && !blend){ run.push(o); return; }
+      flush();
+      const op = o.globalCompositeOperation, alpha = o.opacity;
+      if (blend){ o.globalCompositeOperation = 'source-over'; o.opacity = 1; }
+      only(new Set([o]));
+      let crop = null;
+      if (!blend){
+        // crop to the element plus its shadow, so a phone's memory is not spent on empty canvas.
+        // fabric scales a shadow with its object (a 2.6x product's 38px blur is ~100px) and a
+        // blur's tail runs to ~1.5x it: cropped shorter, frame 0 lost the shadow's edge (rule 65)
+        const r = o.getBoundingRect(false, true), sh = o.shadow || {}, os = sh.nonScaling ? 1 : Math.max(Math.abs(o.scaleX || 1), Math.abs(o.scaleY || 1));
+        const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z) + 6;
+        const x0 = Math.max(0, Math.floor(r.left - pad)), y0 = Math.max(0, Math.floor(r.top - pad));
+        const x1 = Math.min(outW, Math.ceil(r.left + r.width + pad)), y1 = Math.min(outH, Math.ceil(r.top + r.height + pad));
+        crop = { x:x0, y:y0, w:x1 - x0, h:y1 - y0 };
+      }
+      bake.layers.push(Object.assign({ kind: unitOf.has(o) ? 'unit' : cutSet.has(o) ? 'cut' : 'blend',
+        unit: unitOf.get(o), blend, alpha: blend ? alpha : 1 }, copy(outW, outH, crop)));
+      if (blend){ o.globalCompositeOperation = op; o.opacity = alpha; }
+    });
+    flush();
+  } finally {
+    sc.backgroundImage = saved.img; sc.backgroundColor = saved.col;
+    objs.forEach((o, i) => { o.visible = saved.vis[i]; });
+  }
+  return bake;
+}
+function motionDraw(x, b, t){
+  const W = b.W, H = b.H;
+  const th = 2 * Math.PI * (((t % MOTION.dur) + MOTION.dur) % MOTION.dur) / MOTION.dur;
+  const push = MOTION.breathe * (0.5 - 0.5 * Math.cos(th));        // 0 at t=0 and t=dur
+  x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  x.fillStyle = b.base; x.fillRect(0, 0, W, H);
+  if (b.bg){
+    if (push < 1e-4) x.drawImage(b.bg, 0, 0, W, H);
+    else {
+      // pan inside the headroom the push-in creates, so no edge is ever exposed
+      const k = 1 + push, dx = push * W * 0.35 * Math.sin(th), dy = -push * H * 0.25;
+      x.drawImage(b.bgHi, (W - W * k) / 2 + dx, (H - H * k) / 2 + dy, W * k, H * k);
+    }
+  }
+  for (const L of b.layers){
+    if (L.kind === 'static'){ x.drawImage(L.bmp, L.x, L.y); continue; }
+    x.save();
+    if (L.kind === 'unit'){
+      const s = 1 + MOTION.amp[L.unit] * _beat(t, MOTION.beats[L.unit]);
+      if (s !== 1){
+        const u = b.rig.units[L.unit], cx = u.c.x * b.z, cy = u.c.y * b.z;
+        x.translate(cx, cy); x.scale(s, s); x.translate(-cx, -cy);
+      }
+    } else if (L.kind === 'cut'){
+      x.translate(0, -H * 0.008 * Math.sin(th));                 // product floats against the drift
+    } else if (L.kind === 'blend'){
+      x.globalCompositeOperation = L.blend; x.globalAlpha = L.alpha;
+    }
+    x.drawImage(L.bmp, L.x, L.y);
+    x.restore();
+  }
+}
+
+/* ── SOUND ──────────────────────────────────────────────────────────────────
+   Designed to the same beats, rendered offline so it is identical on every
+   export: a soft pulse and shaker at 120 BPM (four bars = the eight seconds),
+   a two-chord pad, a whoosh into the money word, a wood tick on the selling
+   points and a two-note chime when the phone number lands. Every feed starts
+   it muted; it exists for the viewer who taps to hear. Seeded noise, so two
+   renders are sample-identical. */
+function motionSound(rate){
+  const sr = rate || 48000, T = MOTION.dur;
+  const ac = new OfflineAudioContext(2, Math.ceil(T * sr), sr);
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -20; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.005; comp.release.value = 0.2;
+  const master = ac.createGain(); master.gain.value = 1.3;
+  master.connect(comp); comp.connect(ac.destination);
+  // edge fades: the loop point must not click
+  master.gain.setValueAtTime(0, 0); master.gain.linearRampToValueAtTime(1.3, 0.012);
+  master.gain.setValueAtTime(1.3, T - 0.03); master.gain.linearRampToValueAtTime(0, T);
+
+  let seed = 20260926;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+  const noise = ac.createBuffer(1, sr, sr);
+  const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = rnd();
+  const env = (g, t0, a, peak, d) => {
+    g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(peak, t0 + a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + a + d);
+  };
+  const noiseHit = (t0, type, f, q, a, peak, d) => {
+    const s = ac.createBufferSource(); s.buffer = noise;
+    const f1 = ac.createBiquadFilter(); f1.type = type; f1.frequency.value = f; f1.Q.value = q;
+    const g = ac.createGain(); env(g, t0, a, peak, d);
+    s.connect(f1); f1.connect(g); g.connect(master); s.start(t0, (t0 * 0.37) % 0.5); s.stop(t0 + a + d + 0.05);
+  };
+  const tone = (t0, type, f0, f1, a, peak, d) => {
+    const o = ac.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(f0, t0); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t0 + Math.min(0.15, d));
+    const g = ac.createGain(); env(g, t0, a, peak, d);
+    o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + a + d + 0.05);
+  };
+  /* Pulse on every half-bar, shaker on the off-beats. Tuned for a PHONE
+     SPEAKER, which is where this is heard: the first mix put 91% of its energy
+     under 500Hz, which a phone barely reproduces. So the pulse carries a click
+     in the band a phone does play, and the shaker is loud enough to be heard. */
+  for (let t = 0; t < T - 0.01; t += 1.0){ tone(t, 'sine', 150, 55, 0.004, 0.2, 0.3); noiseHit(t, 'bandpass', 2600, 1.4, 0.002, 0.10, 0.025); }
+  for (let t = 0.25; t < T - 0.05; t += 0.5) noiseHit(t, 'highpass', 5200, 0.7, 0.002, (t % 1 === 0.25) ? 0.10 : 0.07, 0.06);
+  // pad: Am(add9) for two bars, Fmaj(add9) for two, spread voicings, soft attack
+  const pad = (t0, t1, freqs) => freqs.forEach(f => [-4, 4].forEach(cents => {
+    const o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = f; o.detune.value = cents;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; lp.Q.value = 0.5;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.024, t0 + 0.06);
+    g.gain.setValueAtTime(0.024, t1 - 0.12); g.gain.linearRampToValueAtTime(0, t1);
+    o.connect(lp); lp.connect(g); g.connect(master); o.start(t0); o.stop(t1 + 0.02);
+  }));
+  pad(0, 4.06, [110.00, 164.81, 261.63, 392.00, 493.88]);
+  pad(3.94, T, [87.31, 130.81, 220.00, 329.63, 392.00]);
+  // whoosh into the money word, then a soft low hit on its peak
+  {
+    const s = ac.createBufferSource(); s.buffer = noise; s.loop = true;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
+    bp.frequency.setValueAtTime(350, 0.55); bp.frequency.exponentialRampToValueAtTime(2800, 0.98);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, 0.55); g.gain.linearRampToValueAtTime(0.22, 0.97); g.gain.linearRampToValueAtTime(0.0001, 1.0);
+    s.connect(bp); bp.connect(g); g.connect(master); s.start(0.55); s.stop(1.02);
+  }
+  tone(1.0, 'sine', 84, 40, 0.004, 0.55, 0.5);
+  noiseHit(1.0, 'lowpass', 1200, 0.7, 0.002, 0.12, 0.12);
+  // selling points: a dry wood tick
+  tone(3.0, 'sine', 920, 920, 0.002, 0.22, 0.07); tone(3.0, 'sine', 1380, 1380, 0.002, 0.12, 0.05);
+  // phone number lands: two bell notes, inharmonic partials for a struck-metal read
+  const bell = (t0, f, peak) => [[1, 1, 1.5], [2.0, 0.35, 0.9], [2.76, 0.22, 0.6], [5.4, 0.1, 0.3]]
+    .forEach(([m, gm, d]) => tone(t0, 'sine', f * m, f * m, 0.003, peak * gm, d));
+  bell(5.0, 880.00, 0.17); bell(5.09, 1318.51, 0.15);
+  return ac.startRendering();
+}
+
+/* The four corner marks, shared by the PNG watermark and every video frame so
+   the two cannot drift apart. Satoshi 900 is vendored; the old "DM Sans" was
+   not, so every free export had been silently set in a fallback face. */
+function drawWatermarkMarks(x, w, h){
+  const base = Math.min(w, h);
+  const fs = Math.round(base * 0.032);
+  x.save();
+  x.font = '900 ' + fs + 'px Satoshi, sans-serif';
+  x.globalAlpha = 0.5;
+  x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
+  x.fillStyle = '#ffffff';
+  const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
+    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText(t, 0, 0); x.restore();
+  });
+  x.restore();
+}
+
+/* H.264 MP4 first: Instagram and TikTok reject WebM on upload. Chrome 126+
+   and Safari record it natively; Firefox falls back to WebM and the toast
+   says so.
+   A BARE 'video/mp4' is only trusted where the browser can also PLAY H.264.
+   An open-source Chromium build answers yes to 'video/mp4' and then writes
+   VP9 inside an MP4 box — a file named .mp4 that the platforms refuse, which
+   is worse than an honest .webm. Measured, not assumed: it is exactly what
+   the test browser here did. */
+function motionMime(withAudio){
+  if (typeof MediaRecorder === 'undefined' || !HTMLCanvasElement.prototype.captureStream) return null;
+  const ok = m => { try { return MediaRecorder.isTypeSupported(m); } catch (e){ return false; } };
+  let h264 = false;
+  try { h264 = !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'); } catch (e){}
+  const mp4 = withAudio
+    ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs="avc1.42E01E, mp4a.40.2"']
+    : ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1'];
+  const webm = withAudio ? ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'] : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  return mp4.find(ok) || (h264 && ok('video/mp4') ? 'video/mp4' : null) || webm.find(ok) || null;
+}
+const motionSoundOn = () => jget('pgfx_video_sound', true) !== false;
+/* Must be created inside the click: Safari will not start audio from a
+   context born after an await. */
+function motionAudioContext(){
+  try { const A = window.AudioContext || window.webkitAudioContext; return A ? new A() : null; } catch (e){ return null; }
+}
+
+/* Real-time capture. MediaRecorder timestamps frames by wall clock, so the
+   pose is computed from elapsed time, not frame count — a slow frame is a
+   dropped frame, never a slowed-down ad. A hidden tab throttles timers to
+   1 Hz (rule 38), so hiding the tab aborts rather than exporting a frozen video. */
+async function recordMotion(sc, o){
+  const out = document.createElement('canvas');
+  out.width = o.w; out.height = o.h;
+  const x = out.getContext('2d');
+  const bake = motionBake(sc, o.docW, o.docH, o.w, o.h);
+  const withAudio = !!(o.actx && o.sound);
+  const mime = motionMime(withAudio);
+  if (!mime) throw new Error('this browser cannot record video');
+  const stream = out.captureStream(MOTION.fps);
+  let src = null;
+  if (withAudio){
+    const dest = o.actx.createMediaStreamDestination();
+    src = o.actx.createBufferSource(); src.buffer = o.sound; src.connect(dest);
+    dest.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
+  }
+  const rec = new MediaRecorder(stream, { mimeType:mime, videoBitsPerSecond: Math.round(o.w * o.h * MOTION.fps * 0.12) });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  const done = new Promise((res, rej) => {
+    rec.onstop = () => res({ blob: new Blob(chunks, { type: mime.split(';')[0] }), mime });
+    rec.onerror = e => rej((e && e.error) || new Error('recording failed'));
+  });
+  let frames = 0;
+  const draw = t => {
+    motionDraw(x, bake, t); frames++;
+    if (o.watermark) drawWatermarkMarks(x, o.w, o.h);
+  };
+  let hidden = false, finish = null;
+  const onVis = () => { if (document.hidden){ hidden = true; if (finish) finish(); } };
+  document.addEventListener('visibilitychange', onVis);
+  /* Background work yields while this runs (ensureThumbs, refreshPhotoThumb).
+     Measured: during the first ~minute after load, thumbnail warm-up held the
+     main thread so completely that the recorder ticked at 2-3 Hz. */
+  window.__gfxRecording = true;
+  try {
+    draw(0);
+    rec.start(250);
+    if (src){ try { await o.actx.resume(); } catch (e){} src.start(); }
+    /* A 30 fps timer on absolute time, not requestAnimationFrame: rAF is paced
+       by the DISPLAY (60/120 Hz, and 2.5 Hz in a headless browser, which is
+       how the first export came out at 1.8 fps), while captureStream samples
+       at 30. Each tick is scheduled against t0 so timer jitter never
+       accumulates into drift. */
+    const t0 = performance.now(), step = 1000 / MOTION.fps;
+    await new Promise(res => {
+      finish = res;
+      let n = 0;
+      const tick = () => {
+        if (hidden) return;
+        const t = (performance.now() - t0) / 1000;
+        if (t >= MOTION.dur){ res(); return; }
+        draw(t);
+        if (o.onProgress) o.onProgress(t / MOTION.dur);
+        n = Math.max(n + 1, Math.floor((performance.now() - t0) / step) + 1);
+        setTimeout(tick, Math.max(0, t0 + n * step - performance.now()));
+      };
+      tick();
+    });
+    draw(MOTION.dur);
+  } finally {
+    window.__gfxRecording = false;
+    document.removeEventListener('visibilitychange', onVis);
+    try { rec.state !== 'inactive' && rec.stop(); } catch (e){}
+    if (src) try { src.stop(); } catch (e){}
+  }
+  const res = await done;
+  res.fps = frames / MOTION.dur;
+  stream.getTracks().forEach(tr => tr.stop());
+  if (hidden) throw new Error('recording stopped because this tab was hidden. Try again and keep this tab in front');
+  return res;
+}
+
+/* One path for both editors: gate → record → count the credit → download.
+   The credit is taken only after a video actually exists, same as a PNG. */
+async function runVideoExport(o){
+  const btn = o.btn, label = btn ? btn.innerHTML : '';
+  const setBtn = html => { if (btn) btn.innerHTML = html; };
+  if (btn) btn.disabled = true;
+  try {
+    let sound = null;
+    if (o.actx && motionSoundOn()){
+      setBtn('Preparing sound…');
+      try { sound = await motionSound(o.actx.sampleRate); } catch (e){ console.warn('GraphicsStudio motion: sound render failed, exporting silent.', e); }
+    }
+    const r = await recordMotion(o.sc, Object.assign({}, o, { sound,
+      onProgress: p => setBtn('Recording… ' + Math.max(1, Math.ceil(MOTION.dur * (1 - p))) + 's') }));
+    setBtn('Saving…');
+    try { await recordExport(); }
+    catch (e){ toast('Export could not be recorded: ' + e.message, 'error'); return; }
+    const ext = /mp4/.test(r.mime) ? 'mp4' : 'webm';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(r.blob);
+    a.download = (o.name || 'ad').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-video-' + o.w + 'x' + o.h + '.' + ext;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    toast(ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4', ext === 'mp4' ? 'success' : undefined);
+  } catch (e){
+    toast('Video export failed: ' + (e.message || 'unknown error'), 'error');
+  } finally {
+    try { o.sc.dispose(); } catch (e){}
+    if (o.actx) try { o.actx.close(); } catch (e){}
+    if (btn){ btn.disabled = false; btn.innerHTML = label; }
+  }
+}
+
+async function ezDownloadVideo(){
+  const actx = motionSoundOn() ? motionAudioContext() : null;   // inside the click, see motionAudioContext
+  const phone = $('ez-phone').value.trim();
+  if (!phone){
+    toast('Type your phone number first, buyers need to reach you', 'error');
+    $('ez-phone').focus(); $('ez-phone').scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  const gate = await gateExport(ezExportPx());
+  if (!gate) return;
+  /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
+     flattening it), so the video's frame 0 IS the still ad */
+  const sc = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true);
+  const docW = sc.width, docH = sc.height, k = Math.min(gate.px, MOTION.maxShort) / Math.min(docW, docH);
+  await runVideoExport({ sc, docW, docH, w: Math.round(docW * k), h: Math.round(docH * k), watermark:gate.watermark, actx, name:ezTpl().name, btn:$('ez-video') });
+}
+async function editorDownloadVideo(){
+  const actx = motionSoundOn() ? motionAudioContext() : null;
+  if (!canvas) return;
+  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  const gate = await gateExport(exportSize);
+  if (!gate) return;
+  const d = exportDims(Math.min(gate.px, MOTION.maxShort));
+  canvas.discardActiveObject(); canvas.renderAll();
+  const sc = new fabric.StaticCanvas(null, { width:CW, height:CH, renderOnAddRemove:false, enableRetinaScaling:false });
+  await new Promise(res => sc.loadFromJSON(canvas.toJSON(EXTRA_PROPS), res));
+  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, actx, name:currentTplName, btn:$('ex-video') });
+}
+
+/* the buttons (index.html: #ez-video beside Download my ad, #ex-video in the
+   editor's export panel) */
+(function bindMotionButtons(){
+  const bind = () => { const a = $('ez-video'), b = $('ex-video');
+    if (a) a.onclick = () => ezDownloadVideo(); if (b) b.onclick = () => editorDownloadVideo(); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+})();
+
+/* ═══════════════ FONT PICKER: EVERY NAME IN ITS OWN FACE ═══════════════
+   Owner, 2026-09-27: "make sure the type faces render as previews of their
+   name typed out so we can see what it looks like when selecting different/
+   new fonts". buildFontOptions() styled each <option> in its face, but only
+   some desktop Chrome builds honour that: Safari, Chrome on a Mac and every
+   phone draw a native menu in the system font, and the closed control always
+   showed the name in the UI font. So the <select> stays (hidden) as the
+   source of truth, value and change event unchanged for every caller, and a
+   button plus list stand in front of it: the button in the current face, each
+   name in its own face, faces loaded as their rows scroll into view, a search
+   field on top, keyboard to move and Enter to pick. */
+function fontPicker(sel){
+  if (!sel || sel.dataset.fpBuilt) return;
+  sel.dataset.fpBuilt = '1';
+  const face = f => "'" + String(f).replace(/'/g, '') + "', sans-serif";
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'fp-btn'; btn.setAttribute('aria-haspopup', 'listbox');
+  const sync = () => { const v = sel.value || ''; btn.textContent = v || 'Font'; btn.style.fontFamily = face(v); if (v) ensureFont(v); };
+  /* code sets sel.value directly (a new selection, a template load): mirror it */
+  const desc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+  Object.defineProperty(sel, 'value', { configurable: true,
+    get(){ return desc.get.call(this); }, set(v){ desc.set.call(this, v); sync(); } });
+  sel.style.display = 'none';
+  sel.parentNode.insertBefore(btn, sel.nextSibling);
+  let pop = null, io = null, rows = [], at = -1;
+  const close = () => { if (!pop) return; if (io) io.disconnect(); pop.remove(); pop = null; rows = []; at = -1;
+    document.removeEventListener('pointerdown', outside, true); btn.setAttribute('aria-expanded', 'false'); };
+  const outside = e => { if (pop && !pop.contains(e.target) && e.target !== btn) close(); };
+  const pick = f => { desc.set.call(sel, f); sync(); sel.dispatchEvent(new Event('change', { bubbles: true })); close(); btn.focus(); };
+  const mark = i => { rows.forEach(r => r.classList.remove('on')); const vis = rows.filter(r => !r.hidden);
+    if (!vis.length) return; at = Math.max(0, Math.min(vis.length - 1, i)); vis[at].classList.add('on'); vis[at].scrollIntoView({ block: 'nearest' }); };
+  const open = () => {
+    pop = document.createElement('div'); pop.className = 'fp-pop'; pop.setAttribute('role', 'listbox');
+    const q = document.createElement('input'); q.className = 'fp-search'; q.type = 'search'; q.placeholder = 'Search fonts';
+    const list = document.createElement('div'); list.className = 'fp-list';
+    pop.append(q, list);
+    io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting){ ensureFont(e.target.dataset.font); io.unobserve(e.target); } }), { root: list, rootMargin: '120px' }) : null;
+    [...sel.children].forEach(g => {
+      const opts = g.tagName === 'OPTGROUP' ? [...g.children] : [g];
+      if (g.tagName === 'OPTGROUP'){ const h = document.createElement('div'); h.className = 'fp-group'; h.textContent = g.label; list.appendChild(h); }
+      opts.forEach(o => {
+        const f = o.value || o.textContent, r = document.createElement('div');
+        r.className = 'fp-item' + (f === sel.value ? ' sel' : ''); r.setAttribute('role', 'option');
+        r.dataset.font = f; r.textContent = f; r.style.fontFamily = face(f);
+        r.onclick = () => pick(f);
+        list.appendChild(r); rows.push(r);
+        if (io) io.observe(r); else ensureFont(f);
+      });
+    });
+    q.oninput = () => { const s = q.value.trim().toLowerCase();
+      rows.forEach(r => { r.hidden = !!s && !r.dataset.font.toLowerCase().includes(s); });
+      list.querySelectorAll('.fp-group').forEach(h => { let n = h.nextElementSibling, any = false;
+        while (n && !n.classList.contains('fp-group')){ if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; });
+      mark(0); };
+    q.onkeydown = e => {
+      if (e.key === 'ArrowDown'){ e.preventDefault(); mark(at + 1); }
+      else if (e.key === 'ArrowUp'){ e.preventDefault(); mark(at - 1); }
+      else if (e.key === 'Enter'){ e.preventDefault(); const vis = rows.filter(r => !r.hidden); if (vis[at]) pick(vis[at].dataset.font); }
+      else if (e.key === 'Escape'){ e.preventDefault(); close(); btn.focus(); }
+    };
+    document.body.appendChild(pop);
+    const b = btn.getBoundingClientRect(), W = Math.max(240, b.width);
+    const below = window.innerHeight - b.bottom, H = Math.min(380, Math.max(200, below - 16));
+    pop.style.width = W + 'px';
+    pop.style.left = Math.max(8, Math.min(window.innerWidth - W - 8, b.left)) + 'px';
+    if (below >= 220) pop.style.top = (b.bottom + 6) + 'px';
+    else pop.style.bottom = (window.innerHeight - b.top + 6) + 'px';
+    list.style.maxHeight = H + 'px';
+    document.addEventListener('pointerdown', outside, true);
+    btn.setAttribute('aria-expanded', 'true');
+    const cur = rows.find(r => r.dataset.font === sel.value);
+    if (cur){ cur.scrollIntoView({ block: 'center' }); at = rows.indexOf(cur); }
+    q.focus({ preventScroll: true });
+  };
+  btn.onclick = () => (pop ? close() : open());
+  sync();
+}
+{
+  const _buildFontOptions = buildFontOptions;
+  buildFontOptions = function(sel){ const r = _buildFontOptions.apply(this, arguments); fontPicker(sel); return r; };
+  /* any picker already built before this ran */
+  const upgrade = () => document.querySelectorAll('select[data-fonts-built]').forEach(fontPicker);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', upgrade); else upgrade();
+}
+
+/* ═══════════════ MOTION, PART 2: THE SHIFT TO THE CALL TO ACTION ═══════════════
+   Owner, 2026-09-27, on the video: "a good theme for ads to then shift to a
+   CTA .. starts a fully made graphic image ad". Evidence for the arc is in
+   docs/VIDEO-AD-RESEARCH.md (the ad is judged in the first half second; the
+   close is the number, held long enough to act on).
+
+   0 to MOTION.cta.at is the living still above, untouched: the finished ad,
+   the photograph breathing, the three beats. Then the ad hands over to its
+   own call to action, and nothing in it is invented:
+
+   - the rest of the copy leaves the photograph. The photograph stays in its
+     own colour, with the card's own scrim, vignette and grain (rules 56, 62):
+     no blur, no tint, no new veil unless a line on the photograph needs one;
+   - the card's own CTA plate (the plate, the CTA line and the number on it)
+     glides to the centre and grows to fill the guides. fabric re-renders it at
+     the new size, so it is crisp, and its faces, colours and contrast are the
+     ones the critic already passed (rules 53, 54);
+   - the product settles in above the plate, never under the number (rule 53);
+   - one beat of scale on the plate, the way the living still does its beats.
+
+   Everything lands inside the guides (rule 57), and on 9:16 inside the box no
+   platform UI covers (research §7.3). A card whose call to action cannot be
+   built to that standard keeps the living still for the whole clip: the
+   measured reasons are logged, and nothing half-made ships.
+
+   Appended, not spliced (rule 42): the functions above are wrapped, never
+   edited, so everything before the shift is the living still byte for byte. */
+MOTION.dur = 10;
+MOTION.cta = { at: 5.8, fade: 0.5, move: 0.65, stagger: 0.06, prod: [5.85, 6.5], stamp: [6.75, 7.35], amp: 0.05 };
+
+const _ctaSeg = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+const _ctaEase = p => p <= 0 ? 0 : p >= 1 ? 1 : (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+/* rule 57's ground: anything covering at least 85% of both dimensions */
+function ctaIsGround(o, W, H){
+  if (o.pgBgRect || o.pgScrim) return true;
+  const r = o.getBoundingRect(true, true);
+  return r.width >= 0.85 * W && r.height >= 0.85 * H;
+}
+/* 6% guides; on 9:16 also the box Reels, Stories and TikTok leave clear
+   (top 14%, bottom 35%, left 6%, right 140px of 1080) */
+function ctaSafeBox(W, H){
+  const g = 0.06 * Math.min(W, H);
+  if (H / W >= 1.7) return { x0: Math.max(g, W * 65 / 1080), x1: Math.min(W - g, W * 940 / 1080), y0: Math.max(g, H * 269 / 1920), y1: Math.min(H - g, H * 1248 / 1920) };
+  return { x0: g, x1: W - g, y0: g, y1: H - g };
+}
+/* The CTA block: the number's plate and everything that lives on it (the CTA
+   line, a cursor mark), by the same "inside the plate" test motionPlate uses.
+   A number with no plate takes the CTA line directly above or below it. */
+function ctaBlock(sc, rig, W, H){
+  const u = rig.units.phone;
+  if (!u) return null;
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const own = u.members.map(m => m.o);
+  const phone = own.find(o => motionIsText(o));
+  if (!phone) return null;
+  const plate = own.find(o => o !== phone && o.type === 'rect') || null;
+  const area = b => b.w * b.h;
+  const inside = (o, b) => {
+    const r = motionBox(o);
+    const ix = Math.max(0, Math.min(r.x + r.w, b.x + b.w) - Math.max(r.x, b.x));
+    const iy = Math.max(0, Math.min(r.y + r.h, b.y + b.h) - Math.max(r.y, b.y));
+    return area(r) > 0 && ix * iy >= 0.75 * area(r);
+  };
+  let members;
+  if (plate){
+    const pb = motionBox(plate);
+    members = objs.filter(o => live(o) && !ctaIsGround(o, W, H) && (o === plate || (inside(o, pb) && area(motionBox(o)) < area(pb))));
+  } else {
+    members = [phone];
+    const pb = motionBox(phone);
+    const cta = objs.find(o => live(o) && o.pgRole === 'cta' && motionIsText(o));
+    if (cta){
+      const cb = motionBox(cta);
+      const gap = Math.max(cb.y - (pb.y + pb.h), pb.y - (cb.y + cb.h));
+      const ov = Math.min(cb.x + cb.w, pb.x + pb.w) - Math.max(cb.x, pb.x);
+      if (gap < 0.8 * pb.h && ov > 0.5 * Math.min(cb.w, pb.w)) members.push(cta);
+    }
+    members.sort((a, b) => objs.indexOf(a) - objs.indexOf(b));
+  }
+  const bx = members.map(motionBox);
+  const x0 = Math.min(...bx.map(b => b.x)), y0 = Math.min(...bx.map(b => b.y));
+  const x1 = Math.max(...bx.map(b => b.x + b.w)), y1 = Math.max(...bx.map(b => b.y + b.h));
+  return { members, plate, phone, box: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 } };
+}
+/* Where the call to action lands, in document units: the plate as wide as the
+   guides allow, its number capped where it stops reading as a number, the
+   product above it in what height is left. */
+/* Render a set of the scene's own objects, moved as one (scaled by s about
+   `from`, then carried to `to`, both in document units), alone, into a
+   bitmap cropped to them plus their shadows. Every property touched is
+   restored exactly. */
+function ctaRender(sc, set, s, from, to, z, outW, outH){
+  if (!set.size){ const e = document.createElement('canvas'); e.width = e.height = 1; return { bmp: e, x: 0, y: 0 }; }
+  const objs = sc.getObjects();
+  const keep = objs.map(o => ({ o, v: o.visible, left: o.left, top: o.top, sx: o.scaleX, sy: o.scaleY }));
+  const bgi = sc.backgroundImage, bgc = sc.backgroundColor;
+  try {
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    set.forEach(o => {
+      const c = o.getCenterPoint();
+      o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+      o.setPositionByOrigin(new fabric.Point(to.x + (c.x - from.x) * s, to.y + (c.y - from.y) * s), 'center', 'center');
+      o.setCoords();
+    });
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    keep.forEach(k => {
+      k.o.visible = k.v !== false && set.has(k.o);
+      if (!k.o.visible) return;
+      const r = k.o.getBoundingRect(false, true), sh = k.o.shadow || {}, os = sh.nonScaling ? 1 : Math.max(Math.abs(k.o.scaleX || 1), Math.abs(k.o.scaleY || 1));
+      const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z) + 6;
+      x0 = Math.min(x0, r.left - pad); y0 = Math.min(y0, r.top - pad);
+      x1 = Math.max(x1, r.left + r.width + pad); y1 = Math.max(y1, r.top + r.height + pad);
+    });
+    x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0));
+    x1 = Math.min(outW, Math.ceil(x1)); y1 = Math.min(outH, Math.ceil(y1));
+    sc.renderAll();
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, x1 - x0); c.height = Math.max(1, y1 - y0);
+    if (x1 > x0 && y1 > y0) c.getContext('2d').drawImage(sc.lowerCanvasEl, x0, y0, c.width, c.height, 0, 0, c.width, c.height);
+    return { bmp: c, x: Math.min(x0, outW), y: Math.min(y0, outH) };
+  } finally {
+    sc.backgroundImage = bgi; sc.backgroundColor = bgc;
+    keep.forEach(k => { k.o.visible = k.v; k.o.set({ left: k.left, top: k.top, scaleX: k.sx, scaleY: k.sy }); k.o.setCoords(); });
+  }
+}
+/* The ground the call to action stands on: the card's own full-cover layers
+   (scrim, vignette, grain, frame), in order, blends kept, so the photograph
+   reads exactly as it did under the ad. */
+function ctaGroundLayers(sc, W, H, outW, outH){
+  const objs = sc.getObjects(), vis = objs.map(o => o.visible);
+  const bgi = sc.backgroundImage, bgc = sc.backgroundColor;
+  const layers = [];
+  const snap = () => { sc.renderAll(); const c = document.createElement('canvas'); c.width = outW; c.height = outH; c.getContext('2d').drawImage(sc.lowerCanvasEl, 0, 0); return c; };
+  try {
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    let run = [];
+    const only = set => objs.forEach((o, i) => { o.visible = vis[i] !== false && set.has(o); });
+    const flush = () => { if (run.length){ only(new Set(run)); layers.push({ bmp: snap(), blend: null, alpha: 1 }); run = []; } };
+    objs.forEach((o, i) => {
+      if (vis[i] === false || !ctaIsGround(o, W, H)) return;
+      const blend = o.globalCompositeOperation && o.globalCompositeOperation !== 'source-over' ? o.globalCompositeOperation : null;
+      if (!blend){ run.push(o); return; }
+      flush();
+      const op = o.globalCompositeOperation, al = o.opacity;
+      o.globalCompositeOperation = 'source-over'; o.opacity = 1;
+      only(new Set([o]));
+      layers.push({ bmp: snap(), blend, alpha: al });
+      o.globalCompositeOperation = op; o.opacity = al;
+    });
+    flush();
+  } finally {
+    sc.backgroundImage = bgi; sc.backgroundColor = bgc;
+    objs.forEach((o, i) => { o.visible = vis[i]; });
+  }
+  return layers;
+}
+function ctaInkOf(o){
+  const f = o && o.fill;
+  if (typeof f === 'string') return f;
+  if (f && f.colorStops && f.colorStops.length){
+    // a gradient's worst case for a dark shade is its lightest stop's opposite: judge by the darkest stop
+    return f.colorStops.map(s => s.color).sort((a, b) => _ctaLum(..._ctaRgb(a)) - _ctaLum(..._ctaRgb(b)))[0];
+  }
+  return '#ffffff';
+}
+const _ctaLin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+const _ctaLum = (r, g, b) => 0.2126 * _ctaLin(r) + 0.7152 * _ctaLin(g) + 0.0722 * _ctaLin(b);
+const _ctaRatio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+function _ctaRgb(c){
+  const m = String(c).match(/#([0-9a-f]{6})\b|#([0-9a-f]{3})\b|rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i);
+  if (!m) return [255, 255, 255];
+  if (m[1]){ const n = parseInt(m[1], 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  if (m[2]) return m[2].split('').map(h => parseInt(h + h, 16));
+  return [+m[3], +m[4], +m[5]];
+}
+/* The parts of the card that make up its call to action, each moved as one
+   so its own internal arrangement survives: the product, the headline lines,
+   the CTA line when it is not on the plate, and the block. */
+function ctaUnits(sc, rig, W, H){
+  const block = ctaBlock(sc, rig, W, H);
+  if (!block) return null;
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const inBlock = new Set(block.members);
+  const unit = (key, members, extra) => {
+    const bx = members.map(motionBox);
+    const x0 = Math.min(...bx.map(q => q.x)), y0 = Math.min(...bx.map(q => q.y));
+    const x1 = Math.max(...bx.map(q => q.x + q.w)), y1 = Math.max(...bx.map(q => q.y + q.h));
+    return Object.assign({ key, members, box: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }, c: { x: (x0 + x1) / 2, y: (y0 + y1) / 2 } }, extra || {});
+  };
+  const heads = objs.filter(o => live(o) && motionIsText(o) && o.pgRole === 'headline' && !inBlock.has(o));
+  const cta = objs.find(o => live(o) && motionIsText(o) && o.pgRole === 'cta' && !inBlock.has(o)) || null;
+  const prod = (rig.cut || []).map(q => q.o).sort((a, q) => motionBox(q).w * motionBox(q).h - motionBox(a).w * motionBox(a).h)[0] || null;
+  /* a line travels with its own plate: CALL FOR INSTANT OFFER landed as bare
+     small type once its coral badge was left behind in the ad */
+  const withPlates = texts => {
+    const members = texts.slice(), plated = new Set();
+    texts.forEach(o => { const p = motionPlate(objs, o, W, H);
+      if (p && live(p) && !inBlock.has(p)){ plated.add(o); if (members.indexOf(p) < 0) members.push(p); } });
+    members.sort((a, q) => objs.indexOf(a) - objs.indexOf(q));
+    return { members, plated };
+  };
+  const hp = withPlates(heads), cp = cta ? withPlates([cta]) : null;
+  return {
+    block: unit('block', block.members, { plate: block.plate, phone: block.phone }),
+    head: heads.length ? unit('head', hp.members, { plated: hp.plated }) : null,
+    cta: cta ? unit('cta', cp.members, { plated: cp.plated }) : null,
+    prod: prod ? unit('prod', [prod]) : null,
+  };
+}
+/* Stack the chosen parts inside the guides. The text parts share ONE scale,
+   so the hierarchy the critic approved (headline over number, rule 53)
+   survives; the number is capped where it stops reading as a number; the
+   product takes what height is left. null when the card's own type would
+   have to shrink below 80% to fit. */
+function ctaLayout(W, H, U, use){
+  const B = ctaSafeBox(W, H), bw = B.x1 - B.x0, bh = B.y1 - B.y0, S = Math.min(W, H), gap = 0.045 * S;
+  const text = [use.head && U.head, use.cta && U.cta, U.block].filter(Boolean);
+  const widest = Math.max(...text.map(u => u.box.w)), textH = text.reduce((h, u) => h + u.box.h, 0);
+  const gaps = (text.length - 1) * gap;
+  const wantProd = !!(use.prod && U.prod), prodMin = wantProd ? 0.18 * bh : 0;
+  let s = Math.min(0.92 * bw / widest, 0.17 * S / motionBox(U.block.phone).h);
+  s = Math.min(s, (bh - gaps - (wantProd ? prodMin + gap : 0)) / textH);
+  if (s < 0.8) return null;
+  /* The number keeps 72px (rule 53) even when a wide headline brings the
+     shared scale down: its block takes its own scale, as long as it still
+     fits the width and the headline still outranks it. One shared scale sent
+     stepsFlow-cd10-20 to the number alone. */
+  const phone = U.block.phone, numPx = (phone.fontSize || 0) * (phone.scaleY || 1);
+  let sB = s;
+  if (numPx * s < 72 * S / 1080 && numPx > 0){
+    sB = Math.min(72.5 * S / 1080 / numPx, 0.92 * bw / U.block.box.w, 0.17 * S / motionBox(phone).h);
+    const heads = use.head && U.head ? U.head.members.filter(motionIsText) : [];
+    const headPx = Math.max(0, ...heads.map(o => (o.fontSize || 0) * (o.scaleY || 1)));
+    if (heads.length && headPx * s < numPx * sB) sB = s;           // the headline stays the biggest thing
+  }
+  const sOf = u => (u === U.block ? sB : s);
+  const textHs = text.reduce((h, u) => h + u.box.h * sOf(u), 0);
+  if (textHs + gaps + (wantProd ? prodMin + gap : 0) > bh) return null;
+  let prod = null;
+  if (wantProd){
+    const pb = U.prod.box, room = Math.min(bh - textHs - gaps - gap, 0.46 * bh);
+    const k = Math.min(0.62 * bw / pb.w, room / pb.h);
+    if (!(k > 0 && pb.h * k >= prodMin)) return null;
+    prod = { u: U.prod, k, w: pb.w * k, h: pb.h * k };
+  }
+  const total = textHs + gaps + (prod ? prod.h + gap : 0);
+  const cx = (B.x0 + B.x1) / 2;
+  let y = B.y0 + (bh - total) / 2;
+  if (prod){ prod.to = { x: cx, y: y + prod.h / 2 }; y += prod.h + gap; }
+  const place = text.map(u => { const su = sOf(u), to = { x: cx, y: y + u.box.h * su / 2 }; y += u.box.h * su + gap; return { u, s: su, to }; });
+  return { box: B, s, place, prod };
+}
+function ctaTextBox(o, u, s, to){
+  const r = motionBox(o);
+  return { x: to.x + (r.x - u.c.x) * s, y: to.y + (r.y - u.c.y) * s, w: r.w * s, h: r.h * s };
+}
+
+function ctaBake(sc, b, docW, docH, outW, outH){
+  const z = b.z, U = ctaUnits(sc, b.rig, docW, docH);
+  if (!U) return { off: 'no phone number layer' };
+  const ground = ctaGroundLayers(sc, docW, docH, outW, outH);
+  const at = {};   // each part exactly where it stood in the ad, to lift it out of the ad frame
+  ['block', 'head', 'cta', 'prod'].forEach(k => { if (U[k]) at[k] = ctaRender(sc, new Set(U[k].members), 1, U[k].c, U[k].c, z, outW, outH); });
+  /* leaner stacks, the words before the picture: what the shop buys and what
+     to do about it are the message, a picture of it without them is not */
+  const tries = [{ prod: 1, head: 1, cta: 1 }, { head: 1, cta: 1 }, { prod: 1, head: 1 }, { head: 1 }, { prod: 1 }, {}]
+    .filter((v, i, a) => (!v.prod || U.prod) && (!v.head || U.head) && (!v.cta || U.cta) && a.findIndex(w => JSON.stringify(w) === JSON.stringify(v)) === i);
+  const why = [];
+  for (const use of tries){
+    const L = ctaLayout(docW, docH, U, use);
+    if (!L){ why.push(JSON.stringify(use) + ': does not fit'); continue; }
+    const c = { L, z, docW, docH, ground, at, U, shade: 0, parts: [], texts: [] };
+    L.place.forEach((pl, i) => {
+      const set = new Set(pl.u.members);
+      const part = { key: pl.u.key, from: { x: pl.u.c.x * z, y: pl.u.c.y * z }, to: { x: pl.to.x * z, y: pl.to.y * z }, s: pl.s,
+        bmp: ctaRender(sc, set, pl.s, pl.u.c, pl.to, z, outW, outH), delay: i * MOTION.cta.stagger, set, u: pl.u, pto: pl.to };
+      if (pl.u.key === 'block') part.bare = ctaRender(sc, new Set(pl.u.members.filter(o => !motionIsText(o))), pl.s, pl.u.c, pl.to, z, outW, outH);
+      c.parts.push(part);
+      pl.u.members.filter(motionIsText).forEach(o => {
+        const r = ctaTextBox(o, pl.u, pl.s, pl.to);
+        c.texts.push({ o, role: o === U.block.phone ? 'number' : (o.pgRole || 'text'),
+          onPlate: (pl.u.key === 'block' && !!U.block.plate) || !!(pl.u.plated && pl.u.plated.has(o)),
+          size: (o.fontSize || 0) * (o.scaleY || 1) * pl.s, box: { x: r.x * z, y: r.y * z, w: r.w * z, h: r.h * z } });
+      });
+    });
+    if (L.prod){
+      const pu = L.prod.u;
+      c.prod = { from: { x: pu.c.x * z, y: pu.c.y * z }, to: { x: L.prod.to.x * z, y: L.prod.to.y * z }, s: L.prod.k,
+        bmp: ctaRender(sc, new Set(pu.members), L.prod.k, pu.c, L.prod.to, z, outW, outH),
+        box: { x: (L.prod.to.x - L.prod.w / 2) * z, y: (L.prod.to.y - L.prod.h / 2) * z, w: L.prod.w * z, h: L.prod.h * z } };
+    }
+    b.cta = c;
+    ctaTurnInk(sc, b, c);
+    const sh = ctaSolveShade(b);
+    if (sh == null){ why.push(JSON.stringify(use) + ': a line on the photograph cannot reach 4.5:1 with a dark shade'); continue; }
+    c.shade = sh;
+    ctaRecut(sc, b, c, outW, outH);
+    const bad = ctaAudit(b);
+    if (!bad.length){ c.passed = why.slice(); return c; }   // why the fuller stacks were not used
+    why.push(JSON.stringify(use) + ': ' + bad.join(', '));
+  }
+  b.cta = null;
+  return { off: why.join(' | ') };
+}
+/* Rule 62 for a line that lands on the shaded photograph in ink darker than
+   its own ground, or too dim for any dark shade to carry to 4.5:1 (under
+   0.3 luminance): neutral dark copy takes near-white ink and loses its
+   outline (the shade now separates it); coloured dark copy keeps its hue and
+   turns its lightness over (deep green to pale mint); its halo goes too,
+   since a light halo round now-light type is a haze. A line carried by a
+   light outline of real weight keeps its ink. The part is re-rendered
+   in the turned ink; its first render is kept as bmp0 so the ink crossfades
+   during the move rather than switching. A gradient fill is left as it is. */
+function ctaTurnInk(sc, b, c){
+  const W = b.W, H = b.H, lines = c.texts.filter(t => !t.onPlate);
+  if (!lines.length) return;
+  const g = document.createElement('canvas'); g.width = W; g.height = H;
+  const gx = g.getContext('2d', { willReadFrequently: true });
+  ctaDrawGround(gx, b, MOTION.dur - 2.4, 0);
+  const d = gx.getImageData(0, 0, W, H).data;
+  const turned = new Map();
+  lines.forEach(t => {
+    if (typeof t.o.fill !== 'string') return;
+    /* a light outline of real weight is what carries the line (the red CASH
+       with its white 16px outline): it is judged by that edge and keeps its
+       fill, which may be the money word's accent (rule 51) */
+    const fs = (t.o.fontSize || 30) * (t.o.scaleY || 1);
+    if (typeof t.o.stroke === 'string' && (t.o.strokeWidth || 0) * (t.o.scaleY || 1) >= 0.05 * fs && _ctaLum(..._ctaRgb(t.o.stroke)) >= 0.5){
+      t.ink = t.o.stroke; return;
+    }
+    const L = [];
+    for (let y = Math.max(0, t.box.y); y < Math.min(H, t.box.y + t.box.h); y += 3)
+      for (let x = Math.max(0, t.box.x); x < Math.min(W, t.box.x + t.box.w); x += 3){
+        const i = (Math.floor(y) * W + Math.floor(x)) * 4; L.push(_ctaLum(d[i], d[i + 1], d[i + 2]));
+      }
+    if (!L.length) return;
+    L.sort((p, q) => p - q);
+    const [r, gg, bb] = _ctaRgb(t.o.fill);
+    /* already light ink on this ground, and light enough that a dark shade can
+       carry it to 4.5:1 (a mid-tone like #d14200, at 0.175, reaches 4.5:1
+       only on pure black) */
+    const lum = _ctaLum(r, gg, bb);
+    if (lum >= L[L.length >> 1] && lum >= 0.3) return;
+    const mx = Math.max(r, gg, bb) / 255, mn = Math.min(r, gg, bb) / 255, l = (mx + mn) / 2;
+    const sat = mx === mn ? 0 : (mx - mn) / (1 - Math.abs(2 * l - 1));
+    let ink = '#f4f4f1';
+    if (sat >= 0.18){
+      let h = 0;
+      if (mx !== mn){
+        const R = r / 255, G = gg / 255, B = bb / 255, dd = mx - mn;
+        h = mx === R ? ((G - B) / dd) % 6 : mx === G ? (B - R) / dd + 2 : (R - G) / dd + 4;
+        h = (h * 60 + 360) % 360;
+      }
+      ink = 'hsl(' + Math.round(h) + ',' + Math.round(Math.min(1, sat) * 100) + '%,' + Math.round(Math.max(0.8, 1 - l) * 100) + '%)';
+    }
+    turned.set(t.o, ink); t.ink = ink;
+  });
+  c.turned = turned;
+}
+/* After the shade is solved: rule 27, a halo takes its tone from the ground.
+   The call to action lands its parts on the photograph shaded dark, so a
+   light glow the card keyed to its lighter ground (WE BUY GOLD JEWELRY, the
+   green number plate) reads as a haze there; it is re-cut dark, same blur
+   and offset. Then every part with a turned ink or a re-cut halo is
+   rendered again, its first render kept as bmp0 for the crossfade. */
+function ctaRecut(sc, b, c, outW, outH){
+  const W = b.W, H = b.H, turned = c.turned || new Map();
+  const g = document.createElement('canvas'); g.width = W; g.height = H;
+  const gx = g.getContext('2d', { willReadFrequently: true });
+  ctaDrawGround(gx, b, MOTION.dur - 2.4, c.shade);
+  const d = gx.getImageData(0, 0, W, H).data;
+  const groundLum = r => {
+    const L = [];
+    for (let y = Math.max(0, r.y); y < Math.min(H, r.y + r.h); y += 4)
+      for (let x = Math.max(0, r.x); x < Math.min(W, r.x + r.w); x += 4){
+        const i = (Math.floor(y) * W + Math.floor(x)) * 4; L.push(_ctaLum(d[i], d[i + 1], d[i + 2]));
+      }
+    L.sort((p, q) => p - q);
+    return L.length ? L[L.length >> 1] : 1;
+  };
+  c.parts.forEach(p => {
+    const set = p.set, halos = new Map();
+    const dark = groundLum({ x: p.bmp.x, y: p.bmp.y, w: p.bmp.bmp.width, h: p.bmp.bmp.height }) < 0.3;
+    if (dark) set.forEach(o => {
+      const sh = o.shadow;
+      if (sh && typeof sh.color === 'string' && (sh.blur || 0) > 0 && _ctaLum(..._ctaRgb(sh.color)) >= 0.5)
+        halos.set(o, new fabric.Shadow({ color: 'rgba(0,0,0,0.55)', blur: sh.blur, offsetX: sh.offsetX || 0, offsetY: sh.offsetY || 0, nonScaling: !!sh.nonScaling }));
+    });
+    if (!halos.size && ![...turned.keys()].some(o => set.has(o))) return;
+    const keep = [...set].map(o => ({ o, fill: o.fill, stroke: o.stroke, sw: o.strokeWidth, shadow: o.shadow }));
+    try {
+      halos.forEach((sh, o) => o.set({ shadow: sh }));
+      // the outline and the halo were tuned to the dark ink; the shade separates it now
+      turned.forEach((ink, o) => { if (set.has(o)) o.set({ fill: ink, stroke: null, strokeWidth: 0, shadow: null }); });
+      p.bmp0 = p.bmp;
+      p.bmp = ctaRender(sc, set, p.s, p.u.c, p.pto, c.z, outW, outH);
+    } finally {
+      keep.forEach(k => k.o.set({ fill: k.fill, stroke: k.stroke, strokeWidth: k.sw, shadow: k.shadow }));
+    }
+  });
+}
+/* Rules 56 and 62 for the lines that land on the photograph (not on a
+   plate): the lightest NEUTRAL DARK shade that brings every light line's worst
+   end of ground (90th percentile) to 4.5:1, while every dark line still clears
+   4.5:1 at its own worst end (10th). A line is light ink when it is lighter
+   than its own ground (rule 56), not by a fixed grey. Dark type is never
+   rescued with a pale veil: a photograph is shaded dark, never milky. The
+   shade is graded to the band the copy occupies (c.band), so the photograph
+   comes through above and below it (rule 62); every line's sample sits inside
+   the band, where the shade is at full strength. null when no shade serves
+   both. */
+function ctaSolveShade(b){
+  const c = b.cta, W = b.W, H = b.H;
+  const lines = c.texts.filter(t => !t.onPlate);
+  if (!lines.length) return 0;
+  const g = document.createElement('canvas'); g.width = W; g.height = H;
+  const gx = g.getContext('2d', { willReadFrequently: true });
+  ctaDrawGround(gx, b, MOTION.dur - 2.4, 0);
+  const d = gx.getImageData(0, 0, W, H).data, pad = 0.03 * Math.min(W, H);
+  c.band = { y0: Math.min(...lines.map(t => t.box.y)) - pad, y1: Math.max(...lines.map(t => t.box.y + t.box.h)) + pad, f: 0.14 * H };
+  const sets = lines.map(t => {
+    const ink = _ctaLum(..._ctaRgb(t.ink || ctaInkOf(t.o))), px = [];
+    for (let y = Math.max(0, t.box.y - pad); y < Math.min(H, t.box.y + t.box.h + pad); y += 3)
+      for (let x = Math.max(0, t.box.x - pad); x < Math.min(W, t.box.x + t.box.w + pad); x += 3){
+        const i = (Math.floor(y) * W + Math.floor(x)) * 4; px.push([d[i], d[i + 1], d[i + 2]]);
+      }
+    const L0 = px.map(([r, gg, bb]) => _ctaLum(r, gg, bb)).sort((p, q) => p - q);
+    return { ink, light: !L0.length || ink > L0[L0.length >> 1], px };
+  });
+  for (let a = 0; a <= 0.8 + 1e-9; a += 0.02){
+    const ok = sets.every(s => {
+      if (!s.px.length) return true;
+      const L = s.px.map(([r, gg, bb]) => _ctaLum(r * (1 - a), gg * (1 - a), bb * (1 - a))).sort((p, q) => p - q);
+      const worst = s.light ? L[Math.floor(L.length * 0.9)] : L[Math.floor(L.length * 0.1)];
+      return _ctaRatio(s.ink, worst) >= 4.5;
+    });
+    if (ok) return +a.toFixed(2);
+    if (sets.some(s => !s.light)) break;   // darkening only hurts a dark line: no shade will serve it
+  }
+  return null;
+}
+
+/* The photograph as motionDraw paints it at t, then the card's ground, then
+   the call-to-action shade at strength a. */
+function ctaDrawGround(x, b, t, a){
+  const W = b.W, H = b.H, c = b.cta;
+  const th = 2 * Math.PI * (((t % MOTION.dur) + MOTION.dur) % MOTION.dur) / MOTION.dur;
+  const push = MOTION.breathe * (0.5 - 0.5 * Math.cos(th));
+  x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  x.fillStyle = b.base; x.fillRect(0, 0, W, H);
+  if (b.bg){
+    if (push < 1e-4) x.drawImage(b.bg, 0, 0, W, H);
+    else {
+      const k = 1 + push, dx = push * W * 0.35 * Math.sin(th), dy = -push * H * 0.25;
+      x.drawImage(b.bgHi, (W - W * k) / 2 + dx, (H - H * k) / 2 + dy, W * k, H * k);
+    }
+  }
+  c.ground.forEach(g => {
+    if (g.blend){ x.globalCompositeOperation = g.blend; x.globalAlpha = g.alpha; }
+    x.drawImage(g.bmp, 0, 0);
+    x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  });
+  if (a > 0){
+    const B = c.band;
+    if (!B){ x.fillStyle = 'rgba(10,10,12,' + a + ')'; x.fillRect(0, 0, W, H); return th; }
+    // full strength over the copy band, easing to nothing a feather away
+    const al = y => { const o = y < B.y0 ? (B.y0 - y) / B.f : y > B.y1 ? (y - B.y1) / B.f : 0, u = Math.max(0, 1 - o); return a * u * u * (3 - 2 * u); };
+    const ys = [0, H];
+    for (let i = 0; i <= 6; i++){ ys.push(B.y0 - B.f * i / 6, B.y1 + B.f * i / 6); }
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    [...new Set(ys.map(y => Math.min(H, Math.max(0, y))))].sort((p, q) => p - q)
+      .forEach(y => gr.addColorStop(y / H, 'rgba(10,10,12,' + al(y).toFixed(4) + ')'));
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  }
+  return th;
+}
+function ctaMorph(x, bmp, from, to, s, e, dy){
+  const k = (1 / s) + (1 - 1 / s) * e;
+  const cx = from.x + (to.x - from.x) * e, cy = from.y + (to.y - from.y) * e;
+  x.save();
+  x.translate(cx, cy + (dy || 0)); x.scale(k, k); x.translate(-to.x, -to.y);
+  x.drawImage(bmp.bmp, bmp.x, bmp.y);
+  x.restore();
+}
+/* The shift. The ad frame is drawn whole by motionDraw, with every part that
+   travels lifted out of it by its own silhouette, and fades over the ground;
+   the parts then travel from where they stood to where they land, so nothing
+   is drawn twice and nothing jumps. Parts the call to action does not use
+   simply fade with the ad. */
+function ctaDraw(x, b, t){
+  const c = b.cta, C = MOTION.cta, W = b.W, H = b.H;
+  const m = _ctaEase(_ctaSeg(t, C.at, C.at + C.fade));
+  const th = ctaDrawGround(x, b, t, c.shade * m);
+  const float = -H * 0.008 * Math.sin(th);
+  if (m < 1){
+    if (!b._ad){ b._ad = document.createElement('canvas'); b._ad.width = W; b._ad.height = H; }
+    const ax = b._ad.getContext('2d');
+    _ctaDrawStill(ax, b, t);
+    ax.save(); ax.globalCompositeOperation = 'destination-out';
+    c.parts.forEach(p => { const a = c.at[p.key]; ax.drawImage(a.bmp, a.x, a.y); });
+    if (c.prod){ const a = c.at.prod; ax.drawImage(a.bmp, a.x, a.y + float); }
+    ax.restore();
+    x.globalAlpha = 1 - m; x.drawImage(b._ad, 0, 0); x.globalAlpha = 1;
+  }
+  if (c.prod) ctaMorph(x, c.prod.bmp, c.prod.from, c.prod.to, c.prod.s, _ctaEase(_ctaSeg(t, C.prod[0], C.prod[1])), float);
+  c.parts.forEach(p => {
+    const e = _ctaEase(_ctaSeg(t, C.at + p.delay, C.at + p.delay + C.move));
+    const st = p.key === 'block' ? 1 + C.amp * _bell(_ctaSeg(t, C.stamp[0], C.stamp[1])) : 1;
+    x.save();
+    if (st !== 1){ x.translate(p.to.x, p.to.y); x.scale(st, st); x.translate(-p.to.x, -p.to.y); }
+    if (p.bmp0 && e < 1){
+      x.globalAlpha = 1 - e; ctaMorph(x, p.bmp0, p.from, p.to, p.s, e, 0);
+      x.globalAlpha = e; ctaMorph(x, p.bmp, p.from, p.to, p.s, e, 0);
+      x.globalAlpha = 1;
+    } else ctaMorph(x, p.bmp, p.from, p.to, p.s, e, 0);
+    x.restore();
+  });
+}
+let _ctaDrawStill = null;
+{
+  const _motionBake = motionBake, _motionDraw = motionDraw;
+  _ctaDrawStill = _motionDraw;
+  motionBake = function(sc, docW, docH, outW, outH){
+    const b = _motionBake.apply(this, arguments);
+    b.cta = null;
+    try {
+      const c = ctaBake(sc, b, docW, docH, outW, outH);
+      if (c.off){ b.cta = null; b.ctaOff = c.off; console.warn('GraphicsStudio motion: no call-to-action card, the living still runs the whole clip. ' + c.off); }
+      else b.cta = c;
+    } catch (e){ b.cta = null; b.ctaOff = String(e && e.message || e); console.warn('GraphicsStudio motion: call-to-action card failed, the living still runs the whole clip.', e); }
+    return b;
+  };
+  motionDraw = function(x, b, t){
+    if (!b.cta || t < MOTION.cta.at) return _motionDraw(x, b, t);
+    return ctaDraw(x, b, t);
+  };
+}
+/* Measure the call to action before it can ship, on its own pixels:
+   - every part inside the guides, and on 9:16 inside the clear box;
+   - no two parts on each other;
+   - the number at least 72px on a 1080 frame (rule 53);
+   - every line at 3:1 or better, judged the way the critic judges it
+     (rule 54): the upper quartile of per-pixel contrast over the pixels the
+     line changes, on the landed frame drawn with and without the lines. */
+function ctaAudit(b){
+  const c = b.cta, bad = [], W = b.W, H = b.H, z = c.z;
+  const B = c.L.box, bx = { x0: B.x0 * z - 1, y0: B.y0 * z - 1, x1: B.x1 * z + 1, y1: B.y1 * z + 1 };
+  const inBox = r => r.x >= bx.x0 && r.y >= bx.y0 && r.x + r.w <= bx.x1 && r.y + r.h <= bx.y1;
+  const hit = (p, q) => Math.min(p.x + p.w, q.x + q.w) - Math.max(p.x, q.x) > 1 && Math.min(p.y + p.h, q.y + q.h) - Math.max(p.y, q.y) > 1;
+  c.texts.forEach(t => { if (!inBox(t.box)) bad.push(t.role + ' outside the guides'); });
+  if (c.prod){
+    if (!inBox(c.prod.box)) bad.push('product outside the guides');
+    if (c.texts.some(t => hit(t.box, c.prod.box))) bad.push('product on the copy');
+  }
+  const own = k => c.texts.filter(t => c.U[k] && c.U[k].members.includes(t.o));
+  c.parts.forEach((p, i) => c.parts.slice(i + 1).forEach(q => {
+    own(p.key).forEach(t1 => own(q.key).forEach(t2 => { if (hit(t1.box, t2.box)) bad.push(p.key + ' on ' + q.key); }));
+  }));
+  const num = c.texts.find(t => t.role === 'number');
+  if (!num || num.size < 72 * Math.min(c.docW, c.docH) / 1080) bad.push('number under 72px');
+  const f1 = document.createElement('canvas'); f1.width = W; f1.height = H;
+  const f0 = document.createElement('canvas'); f0.width = W; f0.height = H;
+  const x1 = f1.getContext('2d', { willReadFrequently: true }), x0 = f0.getContext('2d', { willReadFrequently: true });
+  const t = MOTION.dur - 0.25;
+  ctaDrawGround(x1, b, t, c.shade); ctaDrawGround(x0, b, t, c.shade);
+  if (c.prod){ x1.drawImage(c.prod.bmp.bmp, c.prod.bmp.x, c.prod.bmp.y); x0.drawImage(c.prod.bmp.bmp, c.prod.bmp.x, c.prod.bmp.y); }
+  c.parts.forEach(p => { x1.drawImage(p.bmp.bmp, p.bmp.x, p.bmp.y); if (p.bare) x0.drawImage(p.bare.bmp, p.bare.x, p.bare.y); });
+  const d1 = x1.getImageData(0, 0, W, H).data, d0 = x0.getImageData(0, 0, W, H).data;
+  c.legibility = c.texts.map(tx => {
+    const r = [];
+    for (let y = Math.max(0, Math.floor(tx.box.y)); y < Math.min(H, Math.ceil(tx.box.y + tx.box.h)); y++)
+      for (let x = Math.max(0, Math.floor(tx.box.x)); x < Math.min(W, Math.ceil(tx.box.x + tx.box.w)); x++){
+        const i = (y * W + x) * 4;
+        if (Math.abs(d1[i] - d0[i]) + Math.abs(d1[i + 1] - d0[i + 1]) + Math.abs(d1[i + 2] - d0[i + 2]) < 12) continue;
+        r.push(_ctaRatio(_ctaLum(d1[i], d1[i + 1], d1[i + 2]), _ctaLum(d0[i], d0[i + 1], d0[i + 2])));
+      }
+    r.sort((p, q) => p - q);
+    return { role: tx.role, q75: r.length ? +r[Math.floor(r.length * 0.75)].toFixed(2) : 0, px: r.length };
+  });
+  c.legibility.forEach(l => { if (l.px && l.q75 < 3) bad.push(l.role + ' at ' + l.q75 + ':1'); });
+  return bad;
+}
+/* ═══════════════ MOTION, PART 3: EXACT ENCODING AND THE EXPORT GATE ═══════════════
+   The recorder above captures in real time: a slow frame is a dropped frame,
+   and hiding the tab aborts the export (rule 38). Every frame here is already
+   a pure function of t (motionDraw), so where the browser has WebCodecs the
+   clip is encoded frame by frame with explicit timestamps, through the
+   vendored Mediabunny (vendor/, MPL-2.0): exact timing, faster than real time
+   on most machines, and indifferent to the tab being hidden. H.264 in MP4
+   first (Instagram and TikTok refuse WebM); VP9 in WebM only where the
+   browser cannot encode H.264, and the toast says so. No WebCodecs: the
+   real-time recorder above, unchanged.
+
+   Before a byte is kept, the clip is checked (docs/VIDEO-AD-RESEARCH.md §9):
+   - frame 0 is the still ad, measured against the scene rendered directly;
+   - no flashing, WCAG 2.3.1: more than six opposing luminance changes of
+     0.10 in any one second, over more than 25% of any region a third of the
+     frame wide and tall, refuses the clip. Luminance is averaged in LINEAR
+     light at full resolution: letting drawImage downscale first averaged in
+     gamma space and misread type edges by up to 0.29, three times the
+     threshold. Red flashes are counted the same way on (R-G-B)x320.
+   A refused clip is not downloaded and does not use an export. */
+const MOTION_MB_URL = new URL('vendor/mediabunny-1.60.0.min.mjs', document.baseURI).href;
+let _motionMB = null;
+const motionMB = () => _motionMB || (_motionMB = import(MOTION_MB_URL));
+
+class MotionFlashCheck {
+  constructor(W, H, fps){
+    this.W = W; this.H = H; this.fps = fps;
+    const cell = Math.max(1, Math.round(Math.min(W, H) / 36));
+    this.cell = cell; this.gw = Math.ceil(W / cell); this.gh = Math.ceil(H / cell);
+    const n = this.gw * this.gh;
+    this.col = new Uint16Array(W).map((_, x) => Math.floor(x / cell));
+    const st = () => ({ init: new Uint8Array(n), ext: new Float32Array(n), dir: new Int8Array(n), tr: Array.from({ length: n }, () => []) });
+    this.g = st(); this.r = st();
+    this.sy = new Float64Array(n); this.sr = new Float64Array(n); this.cnt = new Uint32Array(n);
+    this.LUT = new Float32Array(256).map((_, i) => _ctaLin(i));
+    this.frame = 0;
+  }
+  add(ctx){
+    const { W, H, gw, cell, col, sy, sr, cnt, LUT } = this;
+    const d = ctx.getImageData(0, 0, W, H).data;
+    sy.fill(0); sr.fill(0); cnt.fill(0);
+    for (let y = 0, i = 0; y < H; y++){
+      const row = Math.floor(y / cell) * gw;
+      for (let x = 0; x < W; x++, i += 4){
+        const R = LUT[d[i]], G = LUT[d[i + 1]], B = LUT[d[i + 2]], k = row + col[x], t = R + G + B;
+        sy[k] += 0.2126 * R + 0.7152 * G + 0.0722 * B;
+        if (t > 0 && R >= 0.8 * t) sr[k] += (R - G - B) * 320;
+        cnt[k]++;
+      }
+    }
+    for (let k = 0; k < cnt.length; k++){
+      if (!cnt[k]) continue;
+      this.step(this.g, k, sy[k] / cnt[k], 0.1, true);
+      this.step(this.r, k, sr[k] / cnt[k], 20, false);
+    }
+    this.frame++;
+  }
+  step(st, k, v, th, general){
+    if (!st.init[k]){ st.init[k] = 1; st.ext[k] = v; return; }
+    const e = st.ext[k], d = st.dir[k];
+    const rec = () => { if (!general || Math.min(e, v) < 0.8) st.tr[k].push(this.frame); };
+    if (d === 0){
+      if (v - e >= th){ rec(); st.dir[k] = 1; st.ext[k] = v; }
+      else if (e - v >= th){ rec(); st.dir[k] = -1; st.ext[k] = v; }
+    } else if (d === 1){
+      if (v > e) st.ext[k] = v; else if (e - v >= th){ rec(); st.dir[k] = -1; st.ext[k] = v; }
+    } else {
+      if (v < e) st.ext[k] = v; else if (v - e >= th){ rec(); st.dir[k] = 1; st.ext[k] = v; }
+    }
+  }
+  judge(st){
+    const { gw, gh } = this, hot = new Uint8Array(gw * gh);
+    let most = 0;
+    st.tr.forEach((ts, k) => {
+      let m = 0;
+      for (let j = 0, s = 0; j < ts.length; j++){ while (ts[j] - ts[s] >= this.fps) s++; m = Math.max(m, j - s + 1); }
+      most = Math.max(most, m);
+      if (m >= 7) hot[k] = 1;
+    });
+    const rw = Math.max(1, Math.ceil(gw / 3)), rh = Math.max(1, Math.ceil(gh / 3));
+    const P = new Uint32Array((gw + 1) * (gh + 1));
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++)
+      P[(y + 1) * (gw + 1) + x + 1] = hot[y * gw + x] + P[y * (gw + 1) + x + 1] + P[(y + 1) * (gw + 1) + x] - P[y * (gw + 1) + x];
+    let worst = 0;
+    for (let y = 0; y + rh <= gh; y++) for (let x = 0; x + rw <= gw; x++){
+      const s = P[(y + rh) * (gw + 1) + x + rw] - P[y * (gw + 1) + x + rw] - P[(y + rh) * (gw + 1) + x] + P[y * (gw + 1) + x];
+      worst = Math.max(worst, s / (rw * rh));
+    }
+    return { perSec: Math.floor(most / 2), area: worst };
+  }
+  result(){
+    const g = this.judge(this.g), r = this.judge(this.r);
+    return { pass: g.area <= 0.25 && r.area <= 0.25, general: g, red: r, frames: this.frame };
+  }
+}
+function motionFlashMessage(f){
+  const w = f.general.area >= f.red.area ? f.general : f.red;
+  return 'this video would flash ' + w.perSec + ' times a second over ' + Math.round(w.area * 100) + '% of an area, which breaks the flashing rules (WCAG 2.3.1, and Meta, Google and TikTok ad policy), so it was not saved';
+}
+/* Frame 0 against the scene itself, rendered directly at the export size. The
+   bake composites separately rendered layers, so a single level of rounding
+   on an anti-aliased edge is expected; anything more is a different picture. */
+function motionFrameZero(sc, bake, x){
+  sc.renderAll();
+  const W = bake.W, H = bake.H;
+  const ref = document.createElement('canvas'); ref.width = W; ref.height = H;
+  const rx = ref.getContext('2d', { willReadFrequently: true });
+  rx.drawImage(sc.lowerCanvasEl, 0, 0);
+  motionDraw(x, bake, 0);
+  const a = x.getImageData(0, 0, W, H).data, b = rx.getImageData(0, 0, W, H).data;
+  /* Judged on 8x8 blocks, not single pixels. A layer drawn onto a
+     transparent canvas and composited back is off by a few levels wherever it
+     is faint (8-bit premultiplied alpha): a light halo at 0.72 read up to 15
+     levels off on 1,769 scattered pixels, invisibly. A real mismatch is a
+     region: a clipped shadow put block means at 17 to 23 levels on hundreds
+     of blocks. Measured worst block for noise 4.9, for a clean card 1.9. */
+  const BS = 8, bw = Math.ceil(W / BS), bsum = new Float32Array(bw * Math.ceil(H / BS));
+  let off = 0, most = 0;
+  for (let i = 0, p = 0; i < a.length; i += 4, p++){
+    const d = Math.max(Math.abs(a[i] - b[i]), Math.abs(a[i + 1] - b[i + 1]), Math.abs(a[i + 2] - b[i + 2]));
+    if (d > most) most = d;
+    if (d > 8) off++;
+    bsum[Math.floor(Math.floor(p / W) / BS) * bw + Math.floor((p % W) / BS)] += d;
+  }
+  let block = 0;
+  for (let k = 0; k < bsum.length; k++) block = Math.max(block, bsum[k] / (BS * BS));
+  return { off, most, block: +block.toFixed(2), share: off / (W * H), ok: block <= 8 && off / (W * H) < 0.005 };
+}
+async function motionPlan(w, h, sound){
+  if (typeof VideoEncoder !== 'function') return null;
+  try {
+    const MB = await motionMB();
+    for (const p of [{ codec: 'avc', fmt: 'mp4', audio: 'aac' }, { codec: 'vp9', fmt: 'webm', audio: 'opus' }]){
+      if (!(await MB.canEncodeVideo(p.codec, { width: w, height: h, frameRate: MOTION.fps }))) continue;
+      let audio = null;
+      if (sound && typeof AudioEncoder === 'function' &&
+          await MB.canEncodeAudio(p.audio, { numberOfChannels: sound.numberOfChannels, sampleRate: sound.sampleRate })) audio = p.audio;
+      return Object.assign({ MB }, p, { audio });
+    }
+  } catch (e){ console.warn('GraphicsStudio motion: exact encoder unavailable, recording in real time.', e); }
+  return null;
+}
+{
+  const _recordMotion = recordMotion;
+  recordMotion = async function(sc, o){
+    const plan = await motionPlan(o.w, o.h, o.sound || null);
+    const out = document.createElement('canvas');
+    out.width = o.w; out.height = o.h;
+    const x = out.getContext('2d', { willReadFrequently: true });
+    const bake = motionBake(sc, o.docW, o.docH, o.w, o.h);
+    const z0 = motionFrameZero(sc, bake, x);
+    if (!z0.ok) throw new Error('the first frame did not match the still ad (' + z0.off + ' pixels differ), so nothing was saved');
+    const n = Math.round(MOTION.dur * MOTION.fps);
+    const fc = new MotionFlashCheck(o.w, o.h, MOTION.fps);
+    if (!plan){
+      // real-time fallback: check every frame first, then record as before
+      for (let i = 0; i < n; i++){ motionDraw(x, bake, i / MOTION.fps); fc.add(x); }
+      const f = fc.result();
+      if (!f.pass) throw new Error(motionFlashMessage(f));
+      return _recordMotion(sc, o);
+    }
+    const MB = plan.MB;
+    const format = plan.fmt === 'mp4' ? new MB.Mp4OutputFormat({ fastStart: 'in-memory' }) : new MB.WebMOutputFormat();
+    const output = new MB.Output({ format, target: new MB.BufferTarget() });
+    const vs = new MB.CanvasSource(out, { codec: plan.codec, quality: MB.QUALITY_HIGH, keyFrameInterval: 2 });
+    output.addVideoTrack(vs, { frameRate: MOTION.fps });
+    let as = null;
+    if (plan.audio){ as = new MB.AudioBufferSource({ codec: plan.audio, quality: MB.QUALITY_HIGH }); output.addAudioTrack(as); }
+    await output.start();
+    if (as) await as.add(o.sound);
+    window.__gfxRecording = true;
+    try {
+      for (let i = 0; i < n; i++){
+        const t = i / MOTION.fps;
+        motionDraw(x, bake, t);
+        fc.add(x);
+        if (o.watermark) drawWatermarkMarks(x, o.w, o.h);
+        await vs.add(t, 1 / MOTION.fps);
+        if (o.onProgress) o.onProgress((i + 1) / n);
+      }
+    } catch (e){ await output.cancel().catch(() => {}); throw e; }
+    finally { window.__gfxRecording = false; }
+    const f = fc.result();
+    if (!f.pass){ await output.cancel().catch(() => {}); throw new Error(motionFlashMessage(f)); }
+    await output.finalize();
+    const mime = plan.fmt === 'mp4' ? 'video/mp4' : 'video/webm';
+    return { blob: new Blob([output.target.buffer], { type: mime }), mime, fps: MOTION.fps, exact: true, flash: f, frameZero: z0, cta: !!bake.cta };
+  };
+}
+/* Sound for the shift, laid over the living still's own score (which now runs
+   the full ten seconds): a soft whoosh as the ad hands over, and the same
+   two-note bell as the number's beat when the plate lands. */
+{
+  const _motionSound = motionSound;
+  motionSound = async function(rate){
+    const base = await _motionSound(rate);
+    const sr = base.sampleRate, C = MOTION.cta;
+    const ac = new OfflineAudioContext(base.numberOfChannels, base.length, sr);
+    const src = ac.createBufferSource(); src.buffer = base; src.connect(ac.destination); src.start(0);
+    const out = ac.createGain(); out.gain.value = 1; out.connect(ac.destination);
+    let seed = 20260927;
+    const nb = ac.createBuffer(1, sr, sr), nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+    const w = ac.createBufferSource(); w.buffer = nb;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.1;
+    bp.frequency.setValueAtTime(420, C.at - 0.1); bp.frequency.exponentialRampToValueAtTime(2400, C.at + 0.35);
+    const wg = ac.createGain(); wg.gain.setValueAtTime(0.0001, C.at - 0.1); wg.gain.linearRampToValueAtTime(0.16, C.at + 0.25); wg.gain.linearRampToValueAtTime(0.0001, C.at + 0.5);
+    w.connect(bp); bp.connect(wg); wg.connect(out); w.start(C.at - 0.1); w.stop(C.at + 0.55);
+    const tone = (t0, f, peak, d) => { const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(peak, t0 + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      o.connect(g); g.connect(out); o.start(t0); o.stop(t0 + d + 0.05); };
+    const bell = (t0, f, peak) => [[1, 1, 1.5], [2.0, 0.35, 0.9], [2.76, 0.22, 0.6], [5.4, 0.1, 0.3]].forEach(([m, gm, d]) => tone(t0, f * m, peak * gm, d));
+    const land = (C.stamp[0] + C.stamp[1]) / 2;
+    bell(land, 880.00, 0.15); bell(land + 0.09, 1318.51, 0.13);
+    return ac.startRendering();
+  };
+}
+
+/* ═══ PLATE AIR (DESIGN-LAW rule 64) ═══════════════════════════════════════
+   Owner, 2026-09-27, on the Street price badge: "why can't we seem to catch
+   this? it would need to be shrunk 10-15% to make a minimum margin on the
+   sides". Words on a plate keep air at both ends.
+
+   Step 4b of alignPass fits a line to its plate on axis-aligned boxes, which a
+   tilted sticker defeats: the badge turns about its corner and its line about
+   its own top centre, so on the -4° badge CALL FOR INSTANT OFFER landed 8px
+   off centre, 5 to 7px from one end and 24px from the other, "inside" by the
+   box test and touching by eye. The collision audit only scored a line that
+   STRADDLES a plate (4 to 96% of its ink inside), so a line filling its plate
+   edge to edge, or a letter over it, passed as well.
+
+   This runs after alignPass, in each plate's own frame. The line's ink is
+   measured (measureText, not the text box: rule 50), a line authored centred
+   and alone on its plate is re-centred along the plate's axis, and then its
+   type comes down until both ends clear
+       max(12px, 4.5% of the plate, 0.35 of the type size)
+   never below 72% of itself, and the number never below 72px (rule 53).
+   window.__noPlateAir turns it off, so an audit can measure the before. */
+/* The widest line's ink, in the text's own units: its width w, where it
+   starts from the line's origin (off, a serif W can start 30px in), and the
+   line's advance width lw, which is what fabric aligns within the box. */
+function plateAirInk(t){
+  try {
+    const ctx = plateAirInk.ctx || (plateAirInk.ctx = document.createElement('canvas').getContext('2d'));
+    ctx.font = t._getFontDeclaration();
+    const sp = (t.charSpacing || 0) / 1000 * (t.fontSize || 0);
+    const lines = (t._textLines || [String(t.text || '').split('')]).map(l => (Array.isArray(l) ? l.join('') : String(l)));
+    let best = null;
+    lines.forEach(s => {
+      if (!s.trim()) return;
+      const m = ctx.measureText(s), n = Math.max(0, s.length - 1);
+      const w = (m.actualBoundingBoxLeft || 0) + (m.actualBoundingBoxRight || m.width) + sp * n;
+      if (!best || w > best.w) best = { w, off: -(m.actualBoundingBoxLeft || 0), lw: m.width + sp * n };
+    });
+    return best && best.w > 0 ? best : { w: t.width, off: 0, lw: t.width };
+  } catch (e){ return { w: t.width, off: 0, lw: t.width }; }
+}
+function plateAirNeed(plateW, fontPx){ return Math.max(12, 0.045 * plateW, 0.35 * fontPx); }
+function plateAir(sc, W, H){
+  if (window.__noPlateAir) return;
+  let objs;
+  try { objs = sc.getObjects(); } catch (e){ return; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  /* buildLayer washes most rects to 45% alpha, and a washed plate is still
+     the ground the line reads on: anything from 25% up counts */
+  const solid = f => f && typeof f === 'object' ? true
+    : !!f && f !== 'transparent' && !/rgba\([^)]*,\s*0(\.[01]\d*|\.2[0-4]\d*)?\)\s*$/.test(String(f));
+  const plates = objs.filter(o => live(o) && o.type === 'rect' && solid(o.fill)).filter(o => {
+    const w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
+    return w > 40 && h > 20 && w < W * 0.93 && h < H * 0.9;
+  });
+  if (!plates.length) return;
+  plates.forEach(p => p.setCoords());
+  const frame = p => {
+    const inv = fabric.util.invertTransform(p.calcTransformMatrix()), sx = p.scaleX || 1, sy = p.scaleY || 1;
+    return pt => { const q = fabric.util.transformPoint(pt, inv); return { x: q.x * sx, y: q.y * sy }; };
+  };
+  const frames = new Map(plates.map(p => [p, frame(p)]));
+  // a line's extent along a plate's axis, from its box corners
+  const span = (t, p) => {
+    t.setCoords();
+    const q = ['tl', 'tr', 'br', 'bl'].map(k => frames.get(p)(t.aCoords[k]));
+    const xs = q.map(v => v.x), ys = q.map(v => v.y);
+    return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+  };
+  /* the ink's extent along a plate's axis: the box, narrowed to the widest
+     line's measured ink and placed as the line is aligned (a textbox's box is
+     its wrap width, not its words) */
+  const inkSpan = (t, p) => {
+    const s = span(t, p), same = Math.abs(((((t.angle || 0) - (p.angle || 0)) % 360) + 540) % 360 - 180) < 10;
+    if (!same) return s;
+    // the box carries the stroke's width; the drawn ink reaches half a stroke past each glyph
+    const sw = (t.stroke && t.strokeWidth) || 0, k = (s.x1 - s.x0) / ((t.width || 1) + sw);
+    const I = plateAirInk(t), al = String(t.textAlign || 'left'), bl = s.x0 + sw / 2 * k, br = s.x1 - sw / 2 * k;
+    const start = al === 'right' ? br - I.lw * k : (al === 'center' || al.startsWith('justify')) ? (bl + br - I.lw * k) / 2 : bl;
+    return { x0: start + (I.off - sw / 2) * k, x1: start + (I.off + I.w + sw / 2) * k, y0: s.y0, y1: s.y1 };
+  };
+  const words = objs.filter(o => live(o) && isText(o) && /[A-Za-z0-9]/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
+  words.forEach(t => {
+    const zt = objs.indexOf(t);
+    const hosts = [];
+    plates.forEach(p => {
+      if (objs.indexOf(p) > zt) return;                       // a plate drawn over the line is not its ground
+      const PW = p.width * (p.scaleX || 1), PH = p.height * (p.scaleY || 1), s = inkSpan(t, p);
+      const cx = (s.x0 + s.x1) / 2, cy = (s.y0 + s.y1) / 2;
+      if (Math.abs(cx) > PW / 2 || Math.abs(cy) > PH / 2) return;
+      if (s.y1 - s.y0 > PH * 1.15 || s.x1 - s.x0 > PW * 1.4) return;   // bigger than the plate: not a line ON it
+      hosts.push({ p, PW, PH });
+    });
+    if (!hosts.length) return;
+    /* the smallest plate is the line's own; plates of the same fill that
+       overlap it are one shape (a ticket and its notched perforation, 780 and
+       866 wide), so the line reads against whichever gives it the most room */
+    hosts.sort((a, b) => a.PW * a.PH - b.PW * b.PH);
+    const f0 = String(hosts[0].p.fill), room = h => { const s = inkSpan(t, h.p); return Math.min(h.PW / 2 + s.x0, h.PW / 2 - s.x1); };
+    const host = hosts.filter(h => String(h.p.fill) === f0).sort((a, b) => room(b) - room(a))[0];
+    const p = host.p, PW = host.PW;
+    const aligned = Math.abs(((((t.angle || 0) - (p.angle || 0)) % 360) + 540) % 360 - 180) < 10;
+    const fs = (t.fontSize || 30) * (t.scaleY || 1);
+    const need = plateAirNeed(PW, fs);
+    const al = String(t.textAlign || 'left');
+    const ends = () => { const s = inkSpan(t, p); return { L: PW / 2 + s.x0, R: PW / 2 - s.x1, c: (s.x0 + s.x1) / 2, half: (s.x1 - s.x0) / 2 }; };
+    const ok = e => e.L >= need - 0.5 && e.R >= need - 0.5;
+    let e = ends();
+    if (ok(e)) return;
+    const centred = t.originX === 'center' || al === 'center';
+    const alone = !objs.some(o => o !== t && o !== p && live(o) && objs.indexOf(o) > objs.indexOf(p) && (() => {
+      const c = frames.get(p)(o.getCenterPoint());
+      return Math.abs(c.x) < host.PW / 2 && Math.abs(c.y) < host.PH / 2;
+    })());
+    const a = (p.angle || 0) * Math.PI / 180;
+    const slide = d => { t.set({ left: t.left + d * Math.cos(a), top: t.top + d * Math.sin(a) }); t.setCoords(); e = ends(); };
+    // the least change first: a centred line alone on its plate sits on its centre line;
+    // any other line moves by its shortfall, toward the end with room
+    const place = () => {
+      if (centred && alone && aligned){ if (Math.abs(e.c) > 1) slide(-e.c); return; }
+      if (e.L < need - 0.5 && e.R - (need - e.L) >= need - 0.5) slide(need - e.L);
+      else if (e.R < need - 0.5 && e.L - (need - e.R) >= need - 0.5) slide(-(need - e.R));
+    };
+    if (e.L + e.R >= 2 * need - 1){ place(); if (ok(e)) return; }
+    // then the type comes down until the ink fits between the two margins, about its anchor
+    const anchor = centred ? 'center' : (t.originX === 'right' || al === 'right') ? 'right' : 'left';
+    // (2px spare: a line 1px short of fitting both margins would otherwise come out at k = 1.0006 and never move)
+    let k = Math.min(1, Math.max(0.72, (PW - 2 * need - 2) / (2 * e.half)));
+    if (t.pgRole === 'phone') k = Math.max(k, Math.min(1, 72 / fs));
+    if (k < 1){
+      const pt = t.getPointByOrigin(anchor, 'center');
+      t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k });
+      t.setPositionByOrigin(pt, anchor, 'center'); t.setCoords();
+      e = ends();
+    }
+    place();
+  });
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){
+    const r = _alignPass.apply(this, arguments);
+    try { plateAir(sc, W || TPL_W, H || TPL_H); } catch (e){ console.warn('GraphicsStudio plateAir:', e); }
+    return r;
+  };
+}
+
+/* ═══ TAGLINE STYLES (experiment, not yet offered in the UI) ════════════════
+   Owner, 2026-09-27: "who said the main tagline had to be one color? why not
+   patterns, gradients, or color blocking?", "My favorite ads kept a cohesive
+   gradient on assets to make it look cool and unique", "We can also do white
+   with black outline?"
+
+   Where one colour came from: DESIGN-LAW rule 5 and the MATTHEW study, where
+   a RAINBOW money word landed in "mid" every time and one saturated hue in
+   "good". It never tested a cohesive gradient: one signature gradient
+   repeated across the tagline, the number plate and the badges. These styles
+   let that be measured on the real cards instead of assumed.
+
+   Applied to a finished scene (after alignPass), so a style is a choice made
+   on any card. Gradients keep each element's own lightness and move only hue
+   and colourfulness (rule 52), so a plate keeps its contrast with the number
+   by construction; the tagline is re-measured by the critic after.
+
+   modes: 'solid' (as designed) · 'street' (the owner's reference: a 75°
+   sweep from the accent on the tagline, number and CTA, heavy black outline,
+   dark halo, their plates dark) · 'gradient' (signature: the accent's hue
+   +/-25°, on the tagline and every accent plate) · 'pair' (the theme's accent
+   into its support colour, same assets) · 'blocks' (each tagline line on its
+   own solid block) · 'pattern' (the tagline in diagonal stripes of two
+   tones) · 'outline' (white, black outline, tight dark shadow) */
+function taglineStyle(sc, mode, pal, W, H){
+  if (!mode || mode === 'solid') return { mode: 'solid', touched: 0 };
+  const objs = sc.getObjects();
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity > 0.05);
+  const fsOf = o => (o.fontSize || 30) * (o.scaleY || 1);
+  const heads = objs.filter(o => live(o) && isText(o) && o.pgRole === 'headline' && /[A-Za-z0-9]/.test(o.text || ''));
+  if (!heads.length) return { mode, touched: 0, why: 'no headline' };
+  const main = heads.slice().sort((a, b) => fsOf(b) - fsOf(a))[0];
+  const solidHex = f => {
+    if (typeof f === 'string'){
+      if (/^#[0-9a-f]{6}$/i.test(f)) return f;
+      const m = f.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?/i);
+      if (m && (m[4] === undefined || +m[4] >= 0.8)) return '#' + [m[1], m[2], m[3]].map(v => Math.round(+v).toString(16).padStart(2, '0')).join('');
+      return null;
+    }
+    if (f && f.colorStops && f.colorStops.length) return solidHex(f.colorStops[0].color);
+    return null;
+  };
+  const ok = hex => hexToOklch(hex) || { L: 0.7, C: 0, h: 0 };
+  const acc = ok(pal.accent || '#4d9cff'), sup = ok(pal.support || pal.accent || '#4d9cff');
+  const h0 = acc.C >= 0.04 ? acc.h : sup.h;
+  const at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
+  // the tagline's own lightness, pushed into a range where colour can show and still read
+  const tagHex = solidHex(main.fill) || '#ffffff', tagL = ok(tagHex).L, lightTag = tagL >= 0.6;
+  const TL = lightTag ? Math.min(0.88, Math.max(0.74, tagL)) : Math.min(0.42, Math.max(0.26, tagL));
+  // accent plates: chromatic, mostly opaque, small (not panels, not the ground)
+  const plates = objs.filter(o => live(o) && o.type === 'rect' && (() => {
+    const hex = solidHex(o.fill), w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
+    return hex && ok(hex).C >= 0.06 && w * h < 0.12 * W * H && w < 0.93 * W;
+  })());
+  const sweep = (L, C, a, b) => ({ c1: at(L, C, a), c2: at(L, C, b), a: 110 });
+  let touched = 0;
+  if (mode === 'gradient' || mode === 'pair'){
+    const ha = mode === 'gradient' ? h0 - 25 : acc.h, hb = mode === 'gradient' ? h0 + 25 : sup.h;
+    setObjGradient(main, sweep(TL, 0.15, ha, hb)); touched++;
+    plates.forEach(p => { const o = ok(solidHex(p.fill)); setObjGradient(p, sweep(o.L, Math.max(o.C, 0.12), ha, hb)); touched++; });
+  } else if (mode === 'pattern'){
+    // a seamless 45° stripe tile: the period (half the tile) divides the tile
+    const fs = fsOf(main), band = Math.max(5, Math.round(fs * 0.09)), S = band * 4;
+    const cv = document.createElement('canvas'); cv.width = cv.height = S;
+    const x = cv.getContext('2d');
+    x.fillStyle = at(TL, 0.06, h0); x.fillRect(0, 0, S, S);
+    x.strokeStyle = at(lightTag ? TL - 0.2 : TL + 0.2, 0.17, h0); x.lineWidth = band * Math.SQRT2 / 2 * 2;
+    for (let x0 = -S; x0 <= S; x0 += S / 2){ x.beginPath(); x.moveTo(x0, S); x.lineTo(x0 + S, 0); x.stroke(); }
+    main.set('fill', new fabric.Pattern({ source: cv, repeat: 'repeat' })); main.pgFillGrad = null; touched++;
+  } else if (mode === 'street'){
+    /* The owner's reference (2026-09-27, #1 BUYER): one warm-to-lime sweep,
+       left to right, on every line that sells (the product line, the
+       headline, the subline and the number), each in a heavy black outline
+       with a dark halo; the band under the subline dark and neutral. Here the
+       sweep starts at the theme's accent and runs 75° through its bright
+       neighbours; the plates that carry a swept line go dark, and the other
+       accent plates take the same sweep, so it reads as one system. */
+    /* the sweep travels toward yellow, the hue that is bright and vivid at
+       once: blue runs to azure and cyan, pink to coral and orange, orange to
+       yellow and lime (the reference). Toward violet a bright blue can only
+       go pastel. */
+    const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
+    const stops = [[0.74, h0], [0.88, h0 + dir * 40], [0.84, h0 + dir * 75]].map(([L, h], i) => ({ offset: i / 2, color: at(L, 0.18, h) }));
+    const sweep = () => new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0, y1: 0.5, x2: 1, y2: 0.5 }, colorStops: stops.map(c => Object.assign({}, c)) });
+    const lines = objs.filter(o => live(o) && isText(o) && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || ''));
+    const hosting = new Set();
+    // any small opaque rect under a swept line is its plate, whatever its colour (the mint number plate)
+    const rects = objs.filter(o => live(o) && o.type === 'rect' && o.width * (o.scaleX || 1) < 0.93 * W && o.width * (o.scaleX || 1) * o.height * (o.scaleY || 1) < 0.2 * W * H
+      && (typeof o.fill !== 'string' || !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(o.fill)));
+    lines.forEach(o => {
+      const c = o.getCenterPoint(), zo = objs.indexOf(o);
+      rects.forEach(p => { if (objs.indexOf(p) > zo) return; const b = p.getBoundingRect(true, true); if (c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height) hosting.add(p); });
+      const u = o.fontSize || 40;
+      o.set({ fill: sweep(), stroke: '#0b0b0d', strokeWidth: Math.max(3, u * 0.085), paintFirst: 'stroke', strokeLineJoin: 'round',
+        shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.12, offsetX: 0, offsetY: u * 0.03 }) });
+      o.pgFillGrad = null; touched++;
+    });
+    hosting.forEach(p => { p.set({ fill: 'rgba(12,12,14,0.84)', stroke: null }); p.pgFillGrad = null; touched++; });
+    plates.forEach(p => { if (hosting.has(p)) return; p.set('fill', sweep()); p.pgFillGrad = null; touched++; });
+  } else if (mode === 'outline'){
+    heads.forEach(o => {
+      const u = o.fontSize || 40;
+      o.set({ fill: '#ffffff', stroke: '#0b0b0d', strokeWidth: Math.max(3, u * 0.075), paintFirst: 'stroke', strokeLineJoin: 'round',
+        shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.55)', blur: u * 0.06, offsetX: 0, offsetY: u * 0.03 }) });
+      o.pgFillGrad = null; touched++;
+    });
+  } else if (mode === 'blocks'){
+    // each tagline line on its own block, alternating the theme's two colours; ink by contrast
+    const cols = [pal.accent || '#4d9cff', pal.support || pal.accent || '#4d9cff'];
+    const lumOf = hex => { const n = parseInt(hex.slice(1), 16), f = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+      return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255); };
+    const ratio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    heads.slice().sort((a, b) => a.top - b.top).forEach((o, i) => {
+      let fill = solidHex(cols[i % 2]) || '#4d9cff';
+      const ink = ratio(lumOf(fill), 1) >= ratio(lumOf(fill), lumOf('#0e0e10')) ? '#ffffff' : '#0e0e10';
+      if (ratio(lumOf(fill), lumOf(ink)) < 4.5) fill = oklchFit({ L: ink === '#ffffff' ? 0.42 : 0.82, C: ok(fill).C, h: ok(fill).h });
+      o.setCoords();
+      // the line's own box (letter-spacing included), padded; inside the 6% guides, the type comes down if it must
+      const G = 0.06 * Math.min(W, H), fs = fsOf(o), padX = Math.max(14, fs * 0.3), padY = Math.max(6, fs * 0.1);
+      let bw = o.width * (o.scaleX || 1) + 2 * padX;
+      if (bw > W - 2 * G){ const k = (W - 2 * G - 2 * padX) / (o.width * (o.scaleX || 1)); const c0 = o.getCenterPoint();
+        o.set({ scaleX: (o.scaleX || 1) * k, scaleY: (o.scaleY || 1) * k }); o.setPositionByOrigin(c0, 'center', 'center'); o.setCoords(); bw = W - 2 * G; }
+      const c = o.getCenterPoint(), half = bw / 2;
+      const cx = Math.min(W - G - half, Math.max(G + half, c.x));
+      if (cx !== c.x){ o.setPositionByOrigin(new fabric.Point(cx, c.y), 'center', 'center'); o.setCoords(); }
+      const hTxt = o.height * (o.scaleY || 1) * 0.86;
+      const blk = new fabric.Rect({ width: bw, height: hTxt + 2 * padY, fill, rx: Math.round(fs * 0.08), ry: Math.round(fs * 0.08),
+        angle: o.angle || 0, originX: 'center', originY: 'center', left: cx, top: c.y, selectable: false, evented: false, name: 'Tagline Block ' + (i + 1) });
+      sc.insertAt(blk, sc.getObjects().indexOf(o));
+      o.set({ fill: ink, stroke: null, strokeWidth: 0, shadow: null }); o.pgFillGrad = null;
+      touched++;
+    });
+  }
+  sc.getObjects().forEach(o => o.setCoords && o.setCoords());
+  return { mode, touched, plates: plates.length, main: String(main.text).slice(0, 40) };
 }

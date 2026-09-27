@@ -42,9 +42,14 @@
    ring colour), data-type (display/body pairing). Defaults: graphite,
    orchid, clash, dark; Paper and Cream are light grounds and open light.
    A URL can set a look to share it: ?look=night-mint-unbounded (skin-accent-
-   type, any tail optional), ?skin=, ?accent=, ?type=, ?theme=. Anything
-   given in the URL is remembered. Type pairings that are not self-hosted
-   pull their faces from Google Fonts here, so the first paint has them. */
+   type, any tail optional), ?skin=, ?accent=, ?type=, ?theme=. One house
+   look for every visitor (owner, 2026-09-27: one unified design language):
+   the public Look menu is gone, a URL look applies to that page view only,
+   and a look a visitor saved from the old menu is no longer read, so nobody
+   is left in the abandoned warm (ember) look with no way out. Light or dark
+   is still the visitor's (the ◐ toggle). Type pairings that are not
+   self-hosted pull their faces from Google Fonts here, so the first paint
+   has them. */
 (function(){
   var d = document.documentElement, q = {};
   var S = ['graphite','night','slate','obsidian','forest','ember','paper','cream'];
@@ -57,9 +62,6 @@
   var skin = q.skin || look[0] || '', accent = q.accent || look[1] || '', type = q.type || look[2] || '', theme = q.theme || '';
   var fromUrl = { skin: !!skin, accent: !!accent, type: !!type, theme: !!theme };
   try {
-    if (!skin) skin = localStorage.getItem('pgfx_skin') || '';
-    if (!accent) accent = localStorage.getItem('pgfx_accent') || '';
-    if (!type) type = localStorage.getItem('pgfx_type') || '';
     if (!theme) theme = localStorage.getItem('pgfx_theme') || '';
   } catch(e){}
   if (S.indexOf(skin) < 0) skin = 'graphite';
@@ -68,10 +70,7 @@
   if (fromUrl.skin && !fromUrl.theme) theme = LIGHT[skin] ? 'light' : 'dark';
   if (theme !== 'light' && theme !== 'dark') theme = LIGHT[skin] ? 'light' : 'dark';
   try {
-    if (fromUrl.skin) localStorage.setItem('pgfx_skin', skin);
-    if (fromUrl.accent) localStorage.setItem('pgfx_accent', accent);
-    if (fromUrl.type) localStorage.setItem('pgfx_type', type);
-    if (fromUrl.skin || fromUrl.theme) localStorage.setItem('pgfx_theme', theme);
+    if (fromUrl.theme) localStorage.setItem('pgfx_theme', theme);
   } catch(e){}
   d.setAttribute('data-skin', skin);
   d.setAttribute('data-accent', accent);
@@ -127,62 +126,7 @@
     </div>
     <div class="lp-nav-right">
       <a class="btn btn-outline lp-lab" href="lab/" title="Template, theme, font and asset labs"><span class="lp-lab-full">Template </span>Lab</a>
-      <span class="look-wrap">
-        <button class="theme-btn look-btn" id="look-btn" title="Change the look of the site" aria-haspopup="true" aria-expanded="false"><i class="look-dot"></i><span>Look</span></button>
-        <div class="look-menu" id="look-menu" role="menu">
-          <div class="look-row"><div class="look-label">Curated</div>
-            <button class="look-preset" data-preset="graphite-orchid-clash" style="--a:#b48cff;--b:#3ddc97">Graphite Orchid</button>
-            <button class="look-preset" data-preset="night-mint-unbounded" style="--a:#3ddc97;--b:#b48cff">Night Mint</button>
-            <button class="look-preset" data-preset="obsidian-cyan-grotesk" style="--a:#22d3ee;--b:#fb7185">Obsidian Cyan</button>
-            <button class="look-preset" data-preset="paper-gold-serif" style="--a:#a6700a;--b:#1d63d8">Paper Gold</button>
-            <button class="look-preset" data-preset="forest-lime-syne" style="--a:#b9f24a;--b:#a78bff">Forest Lime</button>
-            <button class="look-preset" data-preset="slate-coral-manrope" style="--a:#ff6b6b;--b:#3ddc97">Slate Coral</button>
-            <button class="look-preset" data-preset="cream-rose-melodrama" style="--a:#be185d;--b:#0e7490">Cream Rose</button>
-            <button class="look-preset" data-preset="ember-orange-khand" style="--a:#ff7a1a;--b:#22d3ee">Ember Orange</button>
-          </div>
-          <div class="look-row"><div class="look-label">Ground</div>
-            <button class="look-chip" data-skin="graphite">Graphite</button>
-            <button class="look-chip" data-skin="night">Night</button>
-            <button class="look-chip" data-skin="slate">Slate</button>
-            <button class="look-chip" data-skin="obsidian">Obsidian</button>
-            <button class="look-chip" data-skin="forest">Forest</button>
-            <button class="look-chip" data-skin="ember">Ember</button>
-            <button class="look-chip" data-skin="paper">Paper</button>
-            <button class="look-chip" data-skin="cream">Cream</button>
-          </div>
-          <div class="look-row"><div class="look-label">Accent &middot; ring</div>
-            <button class="look-swatch" data-accent="orchid" style="--sw:linear-gradient(135deg,#b48cff 0 55%,#3ddc97 55% 100%)" title="Orchid + mint ring"></button>
-            <button class="look-swatch" data-accent="violet" style="--sw:linear-gradient(135deg,#8b5cf6 0 55%,#fbbf24 55% 100%)" title="Violet + amber ring"></button>
-            <button class="look-swatch" data-accent="blue" style="--sw:linear-gradient(135deg,#4d9cff 0 55%,#f2c744 55% 100%)" title="Blue + gold ring"></button>
-            <button class="look-swatch" data-accent="sky" style="--sw:linear-gradient(135deg,#7dd3fc 0 55%,#fbbf24 55% 100%)" title="Sky + amber ring"></button>
-            <button class="look-swatch" data-accent="cyan" style="--sw:linear-gradient(135deg,#22d3ee 0 55%,#fb7185 55% 100%)" title="Cyan + rose ring"></button>
-            <button class="look-swatch" data-accent="teal" style="--sw:linear-gradient(135deg,#2dd4bf 0 55%,#ff6b6b 55% 100%)" title="Teal + coral ring"></button>
-            <button class="look-swatch" data-accent="mint" style="--sw:linear-gradient(135deg,#3ddc97 0 55%,#b48cff 55% 100%)" title="Mint + orchid ring"></button>
-            <button class="look-swatch" data-accent="lime" style="--sw:linear-gradient(135deg,#b9f24a 0 55%,#a78bff 55% 100%)" title="Lime + violet ring"></button>
-            <button class="look-swatch" data-accent="gold" style="--sw:linear-gradient(135deg,#f2c744 0 55%,#4d9cff 55% 100%)" title="Gold + blue ring"></button>
-            <button class="look-swatch" data-accent="amber" style="--sw:linear-gradient(135deg,#fbbf24 0 55%,#a78bff 55% 100%)" title="Amber + violet ring"></button>
-            <button class="look-swatch" data-accent="orange" style="--sw:linear-gradient(135deg,#ff7a1a 0 55%,#22d3ee 55% 100%)" title="Orange + cyan ring"></button>
-            <button class="look-swatch" data-accent="coral" style="--sw:linear-gradient(135deg,#ff6b6b 0 55%,#3ddc97 55% 100%)" title="Coral + mint ring"></button>
-            <button class="look-swatch" data-accent="rose" style="--sw:linear-gradient(135deg,#fb7185 0 55%,#22d3ee 55% 100%)" title="Rose + cyan ring"></button>
-          </div>
-          <div class="look-row"><div class="look-label">Type</div>
-            <button class="look-chip" data-type="clash">Clash</button>
-            <button class="look-chip" data-type="unbounded">Unbounded</button>
-            <button class="look-chip" data-type="syne">Syne</button>
-            <button class="look-chip" data-type="grotesk">Grotesk</button>
-            <button class="look-chip" data-type="manrope">Manrope</button>
-            <button class="look-chip" data-type="khand">Khand</button>
-            <button class="look-chip" data-type="serif">Zodiak serif</button>
-            <button class="look-chip" data-type="melodrama">Melodrama</button>
-          </div>
-          <div class="look-row"><div class="look-label">Light</div>
-            <button class="look-chip" data-theme-set="dark">Dark</button>
-            <button class="look-chip" data-theme-set="light">Light</button>
-          </div>
-          <div class="look-note">Saved on this device. To share a look, add it to the address: <code>?look=night-mint-unbounded</code>.</div>
-        </div>
-      </span>
-      <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
+      <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
       <button class="btn btn-ghost" id="lp-login">Log in</button>
       <button class="btn btn-outline" id="lp-signup">Sign up free</button>
       <span class="view-menu lp-split">
@@ -211,7 +155,7 @@
     </div>
   </section>
   <div class="lp-stats" id="lp-stats">
-    <div class="stat stat-lead"><b id="lp-stat-new">684</b><span>designs ready to post &middot; each one checked on its own pixels</span></div>
+    <div class="stat stat-lead"><b id="lp-stat-new">398</b><span>designs ready to post &middot; each one checked on its own pixels</span></div>
     <div class="stat"><b>243</b><span>classic templates</span></div>
     <div class="stat"><b id="lp-stat-pal">29</b><span>colour palettes in the library</span></div>
     <div class="stat"><b>357</b><span>backdrops &amp; scenes</span></div>
@@ -410,7 +354,7 @@
   <nav class="ez-nav">
     <button class="logo" id="ez-logo"><span class="logo-mark">▰</span>GRAPHICS <em>STUDIO</em></button>
     <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-      <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
+      <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
       <button class="ez-adv-link" id="nav-community">🌐 Community</button>
       <span class="view-menu">
         <button class="ez-adv-link" id="nav-history">⬇ Export <span class="caret">▾</span></button>
@@ -462,6 +406,10 @@
           <label for="ez-area">Your area <span style="text-transform:none;font-weight:500">(names the towns near you)</span></label>
           <div class="ez-fieldrow"><input id="ez-area" type="text" placeholder="ZIP or city" readonly><button class="ez-edit-btn" id="ez-edit-area" title="Change your area">&#9678;</button></div>
         </div>
+        <div class="ez-field" id="ez-device-field" hidden>
+          <label for="ez-device">Your device <span style="text-transform:none;font-weight:500">(re-sets the headline, the models and the product)</span></label>
+          <select id="ez-device" class="cat-select"></select>
+        </div>
         <div id="ez-text-fields"></div>
         <div class="ez-field">
           <label style="display:flex;align-items:center;gap:8px">Selling points <span style="text-transform:none;font-weight:500">(pick up to 4)</span>
@@ -501,6 +449,7 @@
         <input type="file" id="ez-upload-bg-file" accept="image/*,.heic,.heif" style="display:none">
         <div class="ez-sizes" id="ez-sizes" title="Export size"></div>
         <button class="ez-dl" id="ez-download">⬇&nbsp; Download my ad</button>
+        <button class="ez-open-adv" id="ez-video" title="A 10-second video of this ad for Reels, Stories and TikTok: it opens as the finished ad, the photo breathes, the headline, selling points and number each get a beat, then it shifts to its call to action">🎬&nbsp; Download as video</button>
         <button class="ez-open-adv" id="ez-pack" style="display:none">📦&nbsp; Export category pack (zip)</button>
         <button class="ez-order" id="ez-order" style="display:none" title="Send this ad to SCANS.AD, printed, posted around town, every scan tracked">🖨&nbsp; Order prints + posting</button>
         <div class="ez-quota" id="ez-quota"></div>
@@ -539,7 +488,7 @@
     </div>
     <button class="tb-btn" id="enhance-btn" title="Restore template styling and clean up text">✦ <span class="tb-label">Enhance</span></button>
     <div class="tb-spacer"></div>
-    <button class="theme-btn" data-theme-toggle title="Switch between dark and light">◐</button>
+    <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
     <button class="tb-btn" id="help-btn" title="Replay the tour">?</button>
     <button class="tb-btn" id="brand-btn" title="Your saved number, website and city">👤 <span class="tb-label">Brand kit</span></button>
     <button class="tb-btn" id="save-tpl-btn" title="Save as reusable template (Ctrl+S)">💾 <span class="tb-label">Save template</span></button>
@@ -904,6 +853,7 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" id="ex-cancel">Cancel</button>
       <button class="btn btn-primary" id="ex-download">⬇ Download PNG</button>
+      <button class="btn btn-outline" id="ex-video" title="A 10-second video of this ad for Reels, Stories and TikTok: the finished ad, then its call to action">🎬 Video</button>
     </div>
     <button class="btn btn-order" id="ex-order" style="display:none" title="Send this ad to SCANS.AD, printed, posted around town, every scan tracked">🖨 Order prints + posting <span class="order-sub">printed &amp; posted via SCANS.AD</span></button>
   </div>

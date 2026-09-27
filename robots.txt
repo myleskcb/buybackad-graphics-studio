@@ -8,5 +8,6 @@ Disallow: /lab/
 Disallow: /pick.html
 Disallow: /library.html
 Disallow: /phonegfx-studio.html
+Disallow: /admin-ads/
 
 Sitemap: https://buybackad-graphics-studio.netlify.app/sitemap.xml

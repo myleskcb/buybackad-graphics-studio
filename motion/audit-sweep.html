@@ -1,0 +1,32 @@
+<!doctype html><meta charset=utf-8><title>Audit sweep</title><body><script type=module>
+// Many random looks through the attention audit, for judging a change to the
+// engine or the catalog before and after. Serve the repo root, open this page
+// and call sweep(n, firstSeed) from the console or a headless browser.
+// sweep(n, seed, { neutral: true }) turns the finishing passes (grade, phone
+// depth, hook transition, ending, the newer overlays) off on the same looks.
+import { randomize, harmonise, loadPhones, loadFonts, fontsFor } from "./engine.js";
+import { DEFAULT_STYLE } from "./catalog.js";
+import { auditLook, summarise } from "./audit.js";
+
+const KEYS = ["palette", "background", "text_fx", "grade", "overlay", "depth", "vibe", "board", "hook", "transition", "outro", "color_mode"];
+
+window.sweep = async (n, base = 1, opts = {}) => {
+  const a = await loadPhones("./phones/");
+  const idx = {}; a.index.forEach(m => idx[m.id] = m);
+  const pool = a.index.map(m => m.id), reps = [], rows = [];
+  for (let k = 0; k < n; k++) {
+    const st = harmonise(randomize({ ...DEFAULT_STYLE, number: "(323) 555-0199" }, base + k, new Set(), pool, true), new Set(), idx);
+    if (opts.neutral) {
+      Object.assign(st, { grade: "none", depth: "none", transition: "fade", outro: "none" });
+      if (["bokeh_drift", "light_rays", "dust", "shimmer", "bloom"].includes(st.overlay)) st.overlay = "none";
+    }
+    await loadFonts(fontsFor(st));
+    const rep = await auditLook(st, { phones: a.phones }, { size: 160, secs: 3.4, sound: false });
+    reps.push(rep);
+    rows.push({ seed: base + k, score: rep.score, contrast: rep.contrast, fails: rep.checks.filter(c => !c.ok).map(c => c.id).join(","),
+      st: Object.fromEntries(KEYS.map(x => [x, st[x]])) });
+  }
+  return { sum: summarise(reps), rows };
+};
+window.ready = true;
+</script>

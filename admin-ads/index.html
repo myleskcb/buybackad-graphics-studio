@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Ad review | temporary admin</title>
+<!-- TEMPORARY. The whole review section is this folder; delete admin-ads/ and its
+     block in netlify.toml to remove it. Nothing else on the site links here. -->
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../pages.css">
+<link rel="stylesheet" href="admin.css">
+<script type="module" src="app.js"></script>
+</head>
+<body class="ar">
+<header class="top">
+  <a class="brand" href="../motion/">GRAPHICS <em>STUDIO</em></a>
+  <span class="ar-badge">Temporary admin</span>
+</header>
+
+<main id="main" class="ar-main">
+  <div class="ar-head">
+    <h1>Ad review</h1>
+    <p class="ar-sub">The best video ads from every round of work, how each round improved, and the recipe behind every ad. Rate what you like; your ratings stay in this browser until you export them.</p>
+  </div>
+
+  <nav class="ar-tabs" role="tablist" aria-label="Views">
+    <button role="tab" data-tab="progress" aria-selected="true">Progress</button>
+    <button role="tab" data-tab="best" aria-selected="false">Best by category</button>
+    <button role="tab" data-tab="formula" aria-selected="false">My formula <b id="rated-count"></b></button>
+  </nav>
+
+  <section id="tab-progress" class="ar-tab" role="tabpanel">
+    <div class="ar-cards" id="batch-cards"></div>
+    <div class="ar-panel">
+      <h2>Scores by round</h2>
+      <p class="ar-note">Every round is drawn with its own code and scored by the same attention check, so a higher line means the ads got better. Median is the typical ad; best is the top one.</p>
+      <div id="chart"></div>
+      <div class="ar-table-wrap"><table class="ar-table" id="pass-table"></table></div>
+    </div>
+    <div class="ar-panel">
+      <h2>Best ad of each round, by category</h2>
+      <p class="ar-note">Side by side for the categories more than one round could make, then the categories each round added. Click any ad for its recipe and to rate it.</p>
+      <div class="ar-table-wrap"><table class="ar-matrix" id="matrix"></table></div>
+      <div id="added"></div>
+    </div>
+  </section>
+
+  <section id="tab-best" class="ar-tab" role="tabpanel" hidden>
+    <div class="ar-bar">
+      <label>Round <select id="batch-pick"></select></label>
+      <label>Show <select id="show-n"><option>4</option><option>6</option></select> per category</label>
+      <span class="ar-note" id="best-note"></span>
+    </div>
+    <div id="best"></div>
+  </section>
+
+  <section id="tab-formula" class="ar-tab" role="tabpanel" hidden>
+    <div class="ar-bar">
+      <button class="ar-btn" id="export">Export ratings</button>
+      <label class="ar-btn">Import ratings<input type="file" id="import" accept="application/json" hidden></label>
+      <button class="ar-btn" id="export-weights">Download suggested weights</button>
+      <span class="ar-note" id="formula-note"></span>
+    </div>
+    <div id="picks"></div>
+    <div id="formula"></div>
+  </section>
+</main>
+
+<dialog id="detail" class="ar-dialog" aria-label="Ad recipe">
+  <div class="ar-d-grid">
+    <div class="ar-d-left">
+      <canvas id="player" width="540" height="540"></canvas>
+      <div class="ar-transport">
+        <button class="ar-icon" id="d-play" aria-label="Pause">&#10074;&#10074;</button>
+        <input type="range" id="d-scrub" min="0" max="1000" value="0" aria-label="Position">
+        <div class="ar-seg" id="d-speed" role="radiogroup" aria-label="Speed">
+          <button data-speed="1" aria-pressed="true">1&times;</button><button data-speed="0.5" aria-pressed="false">&frac12;&times;</button><button data-speed="0.25" aria-pressed="false">&frac14;&times;</button>
+        </div>
+      </div>
+      <div class="ar-score-row"><b id="d-score"></b><span id="d-meta"></span></div>
+      <ul class="ar-checks" id="d-checks"></ul>
+    </div>
+    <div class="ar-d-right">
+      <div class="ar-d-head">
+        <h2 id="d-title"></h2>
+        <button class="ar-icon" id="d-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="ar-rate">
+        <div class="ar-stars" id="d-stars" role="radiogroup" aria-label="Your rating"></div>
+        <label class="ar-pick"><input type="checkbox" id="d-pick"> Favourite</label>
+        <a class="ar-btn" id="d-open" target="_blank" rel="noopener">Open in the maker</a>
+      </div>
+      <textarea id="d-notes" rows="2" placeholder="What works, what doesn't"></textarea>
+      <p class="ar-note">Thumbs up or down on any ingredient you have an opinion on. They add up in My formula.</p>
+      <div id="d-recipe"></div>
+    </div>
+  </div>
+</dialog>
+</body>
+</html>

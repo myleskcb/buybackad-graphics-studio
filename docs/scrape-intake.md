@@ -15,7 +15,7 @@ that turns the files into assets the Studio draws.
 4. `python3 scripts/ingest_assets.py --write`: lands the ones marked ok.
 5. `node scripts/audit_templates.mjs --write`: a picture that does not work
    on a card is held back. If a file replaced a placeholder, also run the
-   showcase chain (OPEN-ITEMS §J).
+   showcase chain (OPEN-ITEMS §N).
 
 Needs `pip install pillow numpy opencv-python-headless`.
 

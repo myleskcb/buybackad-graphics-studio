@@ -56,6 +56,9 @@ for (let i = 0; i < idx.length; i += 12){
           if (o){ sc.add(o); objs.push({ k, l, o }); }
         });
         alignPass(sc, TPL_W, TPL_H);
+        /* alignPass removes what may not stay (a sticker on copy, the cursor,
+           a product with no clear space): what it hid is not on the card */
+        for (let j = objs.length - 1; j >= 0; j--) if (objs[j].o.visible === false) objs.splice(j, 1);
         const box = o => { const b = o.getBoundingRect(true, true); return { x:b.left, y:b.top, w:b.width, h:b.height }; };
         const area = b => Math.max(0, b.w) * Math.max(0, b.h);
         const inter = (a, b) => {

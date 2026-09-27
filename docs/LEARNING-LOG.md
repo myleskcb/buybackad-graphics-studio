@@ -280,6 +280,374 @@ RESUME HERE:
   prompt in docs/handoff-offer-cards-number.md, and check its server accepts
   pictures that carry the number.
 
+---
+
+## 2026-09-26 — Video ad field research
+
+Studied:
+  The owner asked to "expand the video ad logic", then redirected: study
+  competitors, good "we buy" video ads and good commercials, and find what grabs
+  attention, keeps it and converts in short-form marketplace ads. Four parallel
+  research passes: platform creative guidance (Meta, TikTok, Google), 23 "we
+  buy" brands and formats, commercials and direct-response craft (System1,
+  Ehrenberg-Bass, Nielsen, IPA, DRTV, subtitle standards, flash regulation), and
+  marketplace mechanics (surfaces, formats, policy, browser encoding).
+  Output: docs/VIDEO-AD-RESEARCH.md.
+
+Measured:
+  - There is no video code to expand: app.js, index.html and
+    phonegfx-studio.html contain no video / MediaRecorder / captureStream / WebM
+    reference. The research file is the spec to build it from.
+  - 48 of 243 templates default to "up to" pricing (gold 12, cars 11, phones 9,
+    coins 4, sports 4, strips 3, pokemon 3, silver 2), from the category decks.
+    4 phone templates advertise iCloud-locked phones, 2 say "blacklisted".
+    0 carry health or financial-status phrasing. scripts/claims_audit.mjs.
+  - In the 16 national "we buy" ads with a usable description, only 2 show a
+    dollar figure, and both are "up to" store credit. 11 of 16 make a speed
+    claim; 14 of 16 send the viewer to a URL or app rather than a phone.
+
+Changed:
+  - docs/VIDEO-AD-RESEARCH.md (new), docs/README.md map entry.
+  - scripts/claims_audit.mjs (new) — counts flagged default copy in the loaded
+    library; exits non-zero on a page error. Takes CHROME and GFX_BASE.
+
+Rejected:
+  - Treating any figure as verified. The container's egress proxy blocked the
+    page fetcher on every help-centre and research domain, and the shared
+    search budget (200) ran out, so every figure is from a search extract
+    except GitHub-hosted sources. The file labels each one.
+  - TikTok's effect sizes (+152% / +280% / +312%) as magnitudes. They are
+    observational, self-published comparisons of top ads. Direction only.
+  - "More colours and effects" as decoration. No evidence found that glitch,
+    particles, flares or money rain help; flashing is prohibited by Meta,
+    Google, TikTok, WCAG 2.3.1 and the UK ASA. Colour as hierarchy and
+    information-carrying motion are what the evidence supports.
+  - Repainting the "up to" copy. That is an owner decision under rule 24; this
+    session names the defect and makes it countable.
+  - Adding rules V1–V7 to DESIGN-LAW. There is no video output to measure them
+    against yet.
+
+RESUME HERE:
+  Before building anything for Marketplace, read Facebook's Marketplace commerce
+  policy in full by hand — its help text (search excerpt only) says "in search
+  of" posts and services are not allowed, which a "we buy" post arguably is.
+  Then build the engine from section 8 of VIDEO-AD-RESEARCH.md, starting with
+  the rule that frame 0 is the static template and a frame-as-pure-function-of-t
+  renderer encoded through WebCodecs.
+
+
+---
+
+## 2026-09-27 — Reunifying the branches
+
+Studied:
+  Why three sessions on 2026-09-26 produced work the owner called "super old
+  design language": each started from `main`, which had not moved since
+  2026-08-28.
+
+Measured:
+  - 14 remote branches. `claude/finished-copy-site-manf7r` (2026-09-26 22:19)
+    already contained phone-ad-maker, live-2026-09-22, the three project
+    threads, the iPhones LA link, the 2K asset library and the 09-16 backup.
+  - Not contained: vibrant-hawking (26 commits, merges clean), vibrant-lovelace
+    (1 commit, stale base, 2 small conflicts), busy-allen (1 commit, stale
+    base, conflicts in app.js/index.html/headers and 25 modify/delete cut-outs
+    the trunk had replaced with 2K WebP), fervent-pascal (2 commits, stale base).
+  - The trunk after merging: 243 templates, landing, /motion and library.html
+    load with 0 page errors and 0 failed requests.
+
+Changed:
+  - Merged vibrant-hawking and vibrant-lovelace into the trunk.
+  - claude/fervent-pascal-w6mthe reset to the trunk (its two stale commits,
+    bf45814 and ee650df, superseded; see OPEN-ITEMS §J for what survives).
+  - OPEN-ITEMS §J: the verified port list. AGENT-BRIEF landmine 6: check that
+    `main` is current before building.
+
+Rejected:
+  - Merging busy-allen or the old fervent-pascal: both would lay August code
+    over September work (old default copy over the study session's honest
+    copy, `.png` cut-out names the trunk no longer has, a landing the owner
+    abandoned). Ported item by item instead.
+  - A `-s ours` merge to mark them "merged": it would claim work was
+    integrated when none of it was.
+
+RESUME HERE:
+  1. Owner decision: fast-forward `main` to this trunk so new sessions start
+     from current code (main is an ancestor, so it is a fast-forward).
+  2. The owner's reported card defects (overlaps; colour theory on the pale
+     palettes), then OPEN-ITEMS §J items 5–9 (small, verified), then 1–2.
+
+## 2026-09-27 (later) — One design language: collisions, guides, the Glass Card, the curated 400
+
+Studied:
+  The owner's four asks after the reunification: overlaps and legibility
+  ("audit any overlapping elements, poor quality assets, or hard to read
+  designs"), the guides ("make sure everything fits within the guides"), the
+  Glass Card ("the asset should be on the inner card while a tile PNG of
+  money … in BG"), and "of the 780 possible themes, take out at least half …
+  so we have the 400 that showed the least mistakes". Plus the device art the
+  owner uploaded (devices, ad-backs, iPad, Mac, Watch), and "main text doesn't
+  seem to be centered".
+
+Measured:
+  - A bounding-box overlap audit could not see the faults (a box round italic
+    type is mostly air; rule 50). scripts/audit_collisions.mjs renders each
+    layer alone into an ink mask. Baseline: 285 of 684 live cards collided at
+    6% of the smaller party's ink, and copy sat in the 6% margin on 293.
+  - Each layout repeated ONE fault: the phone plate over the CTA line
+    (scriptRetro, hudTech, ticketStub), the website under the plate (arcCrown,
+    neonNight), the product under three step cards (47 stepsFlow), left-aligned
+    copy outside its ticket or glass panel, a sticker disc on the item line.
+  - My own first plate fix made 5 layouts collide that had been clean: a plate
+    grown about its centre reaches the line below it. The audit caught it on
+    the next run; growth is now limited to clear space.
+  - Redundancy: 632 of 690 live cards sat in 91 (category, layout) groups of
+    four or more, up to 17 recolours of one composition. Pixel similarity
+    separated same-layout from different-layout pairs by 4.90 vs 5.24, too
+    weak to decide anything, so redundancy is judged structurally.
+  - Device art: the site's renders are 640px squares with the device at 400
+    to 560px; the qs- copies had been capped at 400 and two were unusable
+    (Mac mini 155x62, Watch 47x55).
+
+Changed:
+  - alignPass: 2c one axis for centred stacks; 4 plates grow into clear space
+    only; 4b words stay on their plate (widen, slide in, then shrink, with a
+    72% floor); 4c decoration yields (a sticker is removed, never moved);
+    4d the product keeps clear of the copy; 5 fitInsideGuides moves the whole
+    composition into the 6% margin. After: live collisions 269 -> 52, copy in
+    the margin 293 -> 0.
+  - Glass Card restaged (53 records): money-fall ground, card solid enough
+    to read, product on the card between the headline and the selling points.
+  - 12 cards read WE BUY IPHONES over an Apple Watch photograph with watch
+    selling points: the headline was the slip, now WE BUY WATCHES.
+  - Curation (scripts/curate_showcase.mjs): 65 disqualified (collisions,
+    critic rejects, a critical line under 3:1); the rest ranked by the
+    critic's warnings, contrast shortfalls and the measured overlaps; kept in
+    proportion per category, round-robin across layouts so every design's
+    best card comes before any design's second. 400 kept, 114 of 118
+    designs, largest recolour group 17 -> 8, the owner's hero picks all kept.
+    Thumbnails of the 400 re-rendered through the new engine.
+  - 165 device cutouts imported under the owner's floors, 26 upgraded in place.
+  - Device catalogue (118 models, 139 finishes) and variants: one card re-set
+    for any device, the finish chosen to answer the palette. A finish's colour
+    is measured where finishes DIFFER (the body), not over the whole cut-out:
+    the first measure read the shared wallpaper, five MacBook Air finishes as
+    one blue.
+  - Regression caught by the critic: the "taller than its plate" rule shrank
+    phone numbers on snug pills (76 -> 55px, 63 cards). Fixed to fire only on
+    real overflow and never on the number.
+  - Chrome: the public Look menu removed (it offered the abandoned ember look),
+    the header fits 390 to 1440px, CSS_FALLBACK regenerated, ASSET_REV ported.
+
+Rejected:
+  - Moving a clashing sticker to the nearest clear spot: it landed as a bare
+    disc mid-photograph with its curved label dark on dark. Removed instead.
+  - Forcing a centred stack onto the card's centre: a column set beside a
+    product would slide into it. The widest line's axis is used.
+  - Restyling /motion here: it is synced from the phone ad engine's repo, and
+    the next sync would undo it. Listed in OPEN-ITEMS §K.
+
+RESUME HERE:
+  1. Owner decision: fast-forward `main` to this trunk.
+  2. OPEN-ITEMS §K.
+
+## 2026-09-27 (evening) — Colour kept, everything moves, fonts you can see
+
+Studied:
+  The owner's notes on the curated library ("make sure it still keeps good
+  colors. a lot of these have a white haze overlay", "doesn't look great"),
+  then "make everything animateable", "make sure the type faces render as
+  previews of their name typed out", category variants ("sell your macbook
+  air pro neo … with multiple") and "use supportive highlights on some themes
+  if it looks good".
+
+Measured:
+  - 238 of the 400 kept cards shaded their photograph with white paper at
+    0.3 to 0.6 (rule 56 allowed paper under dark ink). On a photograph it is a
+    milky veil.
+  - First dark pass: 31 cards held back by coloured dark copy. Rendered, two
+    failures the solver could not see: a light line left on a pale
+    see-through band, and dark copy on a see-through plate that turned
+    mid-grey once the ground under it darkened (about 2:1).
+  - The studio had no animation at all; only /motion (phones, its own looks).
+  - Font menus: <option> font-family is honoured only by some desktop Chrome
+    builds, so on a Mac or a phone every name showed in the system font.
+  - The support colour was on 213 of 400 cards, always on frames, ribbons or
+    plates, never on the supporting copy rule 51 assigns it to.
+
+Changed:
+  - scripts/darken_grounds.mjs (rule 62): 224 of 226 hazed cards re-grounded
+    dark (128 graded, 96 flat, median 0.56), 826 lines re-inked light,
+    coloured lines keep their hue with the lightness turned over, 218 bands
+    under the copy follow what the eye saw.
+  - Video export on every design (the living-still engine, ported from the
+    superseded bf45814): Easy Mode "Download as video", the editor's "Video".
+  - Font picker: a button in the current face, a list with every name in its
+    own face, lazy-loaded, searchable.
+  - Whole-line variants: All iPhones / iPads / MacBooks / Macs / Watches /
+    AirPods / Everything Apple, the models side by side on the card.
+
+Rejected:
+  - Leaving coloured-ink cards in their haze (the first pass): the owner's
+    complaint was the haze.
+  - Re-inking coloured copy white: the palette would be gone.
+  - Sizing a line-up to the single product it replaced: three MacBooks as
+    stamps.
+
+---
+
+## 2026-09-27 — The video engine: built, self-audited, run against the library
+
+Studied:
+  Built the engine from docs/VIDEO-AD-RESEARCH.md §8 (`video.js`, loaded after
+  app.js; Export → Make it a video ad). Owner asked twice mid-build: does it
+  apply to all our ads, and is it self-audited so it only produces correct
+  graphics.
+
+Measured:
+  - Frame 0 and the last frame are byte-identical to the Export PNG on every
+    template audited (video_audit.mjs: 0 differing values at 6/10/15 s).
+  - A price that counts up at 30 fps FAILS the flash check: 10 flashes/s over
+    33% of a region. Built as a cascade instead.
+  - drawImage downscaling misreads cell luminance by up to 0.29 against an
+    exact linear-light average (0.05 at half resolution). The flash check
+    reads every pixel.
+  - The first self-audit run caught "UP TO" overlapping "$1,100" (a `$` rises
+    above cap height). Price layout now stacks on measured glyph bounds.
+  - The first library sweep crashed out of memory after 28 templates:
+    renderers held five or six frame-sized canvases each. Added dispose().
+  - Encoded files decode back to 300 frames, 10.0 s, frame 0 at 40 dB PSNR
+    against the still. Under the production CSP (injected, rule 49) the panel
+    produces a download with zero policy violations.
+  - Library sweep (243 templates x story + square, every length): IN PROGRESS
+    at this commit; 141/243 story templates passed with no failures so far.
+
+Changed:
+  - video.js (new), vendor/mediabunny-1.60.0.min.mjs (MPL-2.0, licence
+    beside it), index.html (button, panel, script tag), styles.css (+ the
+    regenerated CSS_FALLBACK line in app.js, nothing else in app.js), cache
+    rules in _headers and netlify.toml, README section.
+  - scripts/video_audit.mjs, scripts/video_library_audit.mjs,
+    scripts/video_gallery.mjs, scripts/gallery/ (playback gallery builder).
+  - Playback gallery for the owner: https://claude.ai/artifact/G9CVJtTGMTQBpYA3AyZQmj
+    (20 clips, posters only until a clip is played, one video loaded at a time).
+
+Rejected:
+  - A counting price (flash, above). A seamless-loop crossfade (the loop
+    already closes on the still).
+  - Blocking export on "up to" copy. It is a copy decision (rule 24), so the
+    panel warns and cites the FTC finding.
+  - Blocking export when the ad has no phone number: some sellers trade by
+    DM. The bar carries their call to action and the panel says so.
+
+Not verified here:
+  - The H.264 encoder itself: this container's Chromium has none, and Chrome
+    for Testing could not be downloaded (403). The MP4 muxer was exercised
+    with VP9 inside it.
+
+RESUME HERE:
+  Export one clip from real Chrome or Safari, play the MP4, and upload it to
+  a Reel and a TikTok draft before announcing the feature. Then read
+  Facebook's Marketplace commerce policy by hand (research §7.2).
+
+---
+
+## 2026-09-27 (later) — Library sweep result
+
+Measured:
+  scripts/video_library_audit.mjs, all 243 templates x story + square = 486
+  clips:
+  - frame 0 vs the Export PNG: 0 differing; last frame vs frame 0: 0 differing
+  - self-audit at 6, 10 and 15 s (1,458 runs): 0 failures
+  - whole-clip flash check: 0 failures (worst: 4 transitions/s over 6.9% of a
+    region; the limit is 25%)
+  - number on screen: at least 99% in every clip; contrast fix needed: 0 clips
+  - accent fell back to white: 66 of 486 clips
+
+Changed:
+  DESIGN-LAW rules 51-54 (appended, per rule 42).
+
+RESUME HERE:
+  Unchanged from the entry above: one real MP4 from Chrome or Safari, then the
+  Marketplace commerce policy. Colour lever for later: the 66 white-accent
+  clips could take a hue from their backdrop photo (OKLCH, rule 40) instead of
+  white. Measure the contrast before changing it.
+
+---
+
+## 2026-09-27 (night) — The video rebuilt on the new language; plate air
+
+Owner:
+  "this is still bound by our OLD design language", "the bg images / colors
+  don't look very good", "it is a good theme for ads to then shift to a CTA..
+  starts a fully made graphic image ad", "these colored hazes don't look
+  great. Unify with the new design language", "primarily 1:1 or 3:4 but
+  occasionally we will do the 9:16", "primarily design for the square
+  format", and, on CALL FOR INSTANT OFFER edge to edge on its badge, "why
+  can't we seem to catch this? it would need to be shrunk 10-15% to make a
+  minimum margin on the sides".
+
+Changed:
+  - video.js is gone. The video is the trunk's living still plus a shift to
+    the card's own call to action at 5.8 s (DESIGN-LAW rule 65): its own
+    parts on its own photograph, the shade near-black and graded to the copy,
+    dark lines turned light as rule 62 turns them, lines carried with their
+    plates, the words before the picture. Exact encoder, frame-0 gate and
+    flash gate on every download (rule 66).
+  - plateAir() after alignPass, and the same margin measured by
+    audit_collisions.mjs (rule 64).
+  - The three video scripts pin their stub account, assert the card that
+    opened, wait for the photograph, and take --format (rule 67).
+  - Merged the trunk (fervent-pascal: white haze lifted, supportive
+    highlights, rule 63) and the audit thread (vibrant-hawking: the 50 offer
+    cards' big number) before measuring.
+  - The rules this log cited as "51-54" in the two entries above were my
+    first build's drafts; the trunk's rules own those numbers. Their findings
+    are restated as rule 66.
+
+Measured:
+  scripts/motion_audit.mjs, merged trunk:
+  - square, curated 398: call to action on 398 (383 with the headline),
+    frame 0 fails 0, flash fails 0 (worst 13.9% of a region, limit 25%)
+  - square, classics 243: call to action on 238, frame 0 0, flash 0
+  - 3:4, curated 398: call to action on 398, flash 0; frame 0 refused one
+    card per pixel (faint-halo rounding, worst block 4.9 levels), which the
+    block gate passes; a clipped shadow blocks at 17 to 23
+  - 9:16, first 60 curated: 60 of 60, frame 0 0, flash 0
+  scripts/audit_collisions.mjs, --no-air-fix vs plateAir:
+  - classics short of air 25 -> 1, collisions 48 -> 48
+  - showcase records short of air 187 -> 1 (live 56 -> 0), collisions
+    102 -> 101 (live 0 -> 0)
+  scripts/motion_export_check.mjs: both buttons, production CSP, 10.0 s,
+  300 frames, VP9 + Opus, 0 violations, 0 errors.
+  Gallery v2: 26 clips (18 square, 6 at 3:4, 2 at 9:16), all pass.
+
+Learned:
+  - A straddle test cannot see a line that fills its plate: 97% inside is
+    "inside". Air is its own measurement, and it has to be taken in the
+    plate's frame and on ink.
+  - Fourteen "failures" of one shape on fourteen different cards were one
+    classic measured fourteen times (rule 67). Suspect the harness first.
+  - The second pass of the ink turn made a white halo round white type, the
+    haze the owner had just rejected. A treatment tuned to one ink is wrong
+    for the other: the halo goes with the outline. The cards' own light
+    glows (WE BUY GOLD JEWELRY, a green number plate) did the same once the
+    call to action shaded their ground: re-cut dark (rule 27).
+  - A gate turns a quiet flaw into a refused download. The living still had
+    always clipped the tail of a scaled product's shadow (fabric scales a
+    shadow with its object; the bake padded by the unscaled blur); frame 0
+    missed the still by 4,076 pixels on scriptRetro-cd06-15, and the new gate
+    refused it. Fixed at the cause, not by loosening the gate.
+  - A preview must be the download scaled down, not a smaller render: at 480px
+    the call to action re-decided on softer pixels and one card lost its
+    headline in the gallery while keeping it in the file.
+
+RESUME HERE:
+  Export one real MP4 from Chrome or Safari and play it. Then the 3:4 audit
+  of the curated set (scripts/motion_audit.mjs --format three4) if it has not
+  been run, and the one classic still short of air
+  (dl_strips_duoSplit_emerald: its headline is 1.26x its panel).
+
 ## 2026-09-27 — The offer cards in every category, and what must not ship
 
 Asked:
@@ -344,7 +712,7 @@ Changed:
   - docs/offer-cards-prompt-v2.md: the brief for the owner's generator, every
     axis doubled, the category banks, the new honesty rules, the review of the
     first 50.
-  - DESIGN-LAW 57-59.
+  - DESIGN-LAW 68-70 (57-59 when written; renumbered after the trunk's 57-67).
 
 Rejected:
   - Fetching product photos from Wikimedia Commons or the makers' sites (the
@@ -393,7 +761,7 @@ Changed:
     card face and no invented brand (scripts/make_card_assets.py).
   - The offer family on photographs of its goods with a solved neutral shade,
     the small type on panels, and seventeen vendored display faces assigned
-    by category (DESIGN-LAW 60). 161 of 161 pass the audit.
+    by category (DESIGN-LAW 71). 161 of 161 pass the audit.
   - scripts/picture_gate.mjs: the owner's list and the flags, one rule for
     every audit and the swap; 247 pictures on 162 showcase cards swapped
     again, none of them now rejected; 692 of 971 showcase cards live.
@@ -416,4 +784,3 @@ RESUME HERE:
   The owner scrapes; drop the files in incoming/ and run
   python3 scripts/ingest_assets.py, then --write, then the template audit.
   The ph-* placeholders go first (docs/scrape-intake.md).
-

@@ -1223,7 +1223,406 @@ direction, 344 neutral lines); classics 128 of 129 natural via
 a plate no neutral shade can serve); Easy Mode themes 21 of 21 pass, every hue
 kept.
 
-## 57. A product picture is a claim: it must be the product, whole, and legible
+## 57. Everything that carries the message sits inside the guides, and it moves as one
+
+Added 2026-09-27. The owner, on a "Sell Your iPhone" card: "make sure
+everything fits within the guides it needs to." The critic already WARNED at a
+6% safe margin and left it "an open decision". Measured on the live showcase,
+the website line sat inside that margin on 293 of 684 cards, the badges on 106,
+a headline on 54 and the number on 22. The engine's own clamp was 24px (2.2%),
+applied one line at a time.
+
+Moving one line at a time is how collisions are made: pull the website line up
+and it lands on the number's plate. So `fitInsideGuides()` (alignPass step 5)
+moves the whole COMPOSITION:
+
+- **The message is the union of** copy, plates, stickers, icons and products.
+  Left out: the ground (anything covering at least 85% of both dimensions),
+  frames and corner marks, and edge tickers.
+- **Scaled and shifted about its own centre** until the union is inside 6% of
+  the short side, so every spacing relationship survives.
+- **Bleed stays bleed.** A band or a product that touched an edge still touches
+  it after, and a full-width band keeps its full width.
+
+After: 0 lines of copy in the margin on the showcase and on the classics (was
+293 website lines, 106 badge rows).
+
+## 58. Copy is never touched: by copy, by a plate's edge, by decoration, or by the product
+
+Added 2026-09-27. The owner: "there's still major overlapping issues … audit
+any overlapping elements … for maximum legibility." The first overlap audit
+compared bounding boxes, and a box around italic type or a curved label is
+mostly air (rule 50). `scripts/audit_collisions.mjs` renders every layer alone
+into an ink mask at quarter scale and measures ink against ink:
+
+- **copy on copy** and **the product on copy**, as a share of the smaller
+  party's ink;
+- **a line across a plate's edge** (4 to 96% of its ink inside a plate that
+  carries copy);
+- **copy in the 6% margin**, **copy off the ad**, a **product cut by the
+  frame**, and a **product half on a panel and half off**.
+
+A card collides at 6%. Baseline: 285 of 684 live cards. Each layout repeated
+ONE fault, so each fix is a rule in `alignPass`, not a patch on a card:
+
+- **A plate grows only into clear space** (step 4). The snug test had skipped
+  exactly the plates whose words overflowed them. The first fix grew them about
+  their centre, and the phone plate then reached over the REQUEST AN APPRAISAL
+  line below it (scriptRetro, hudTech, ticketStub, arcCrown, neonNight): one
+  collision fixed, another made. Each axis now grows only while it stays off
+  every other line.
+- **Words stay on their plate** (4b). The panel widens first, within the
+  guides. A line set OUTSIDE its panel (a left-aligned variant at x=72 on a
+  ticket starting at 150) slides in, and lines that shared a left edge still
+  share one. Only then does type come down, never below 72%, never the number
+  below 72px (rule 53). A line wrapped taller than its pill grows the pill, or
+  shrinks if that would touch other copy. Hosts include tall panels: a 560px
+  ticket was above the plate list's half-height cap, so its headline had no
+  host.
+- **Decoration yields** (4c, rule 7). A mark that touches copy, crosses a plate
+  that carries copy or leaves the guides moves a short way (at most 1.5x its
+  size, down to 70%) or goes. **A sticker is never moved, only removed**:
+  moved, one landed as a bare disc mid-photograph with its curved CASH NOW
+  label dark on dark. A pointer cursor on a static ad imitates a link nobody
+  can click; it goes everywhere. Checklist ticks are information and stay.
+- **The product keeps clear of the copy** (4d). A product that touches a line,
+  or sits half on a plate, moves to the largest clear rectangle: open ground,
+  or the inside of a card. On a card is a place; across its edge is not. It is
+  never enlarged, and below 40% of its authored size it is left out rather than
+  shown as a speck. 47 Steps Flow cards had their product under the three
+  full-width step cards.
+
+The audit is the check, not the fix: it re-runs after every engine change,
+because the plate fix above is exactly the kind that trades one collision for
+another.
+
+## 59. The Glass Card: the product on the card, money on the ground
+
+Added 2026-09-27. The owner, on "Cherry & Aqua · Glass Card": "the asset
+should be on the inner card while a tile PNG of money or money falling,
+overlay in BG." The layout had put the product photograph BEHIND a near-opaque
+panel, so the panel hid the thing being bought and what showed round its edges
+read as clutter.
+
+- **Ground**: falling money (`assets/grounds/money-fall-{dark,paper}.webp`,
+  `scripts/build_money_grounds.py`), built from the library's own $100 bill in
+  three depth planes, far bills smaller, softer and darker. Natural colour,
+  never tinted (rule 56); the neutral shade sits on it as on any photograph.
+  This is the one sanctioned **object on the ground rung**, and only because
+  it is texture: no bill is legible as a subject behind the card. Dark or paper
+  follows the card's ink.
+- **Card**: taller (188 to 800), and at least 0.88 opaque, so no bill patterns
+  behind a letter. A see-through panel's colour is not what anyone saw (they
+  saw the photograph through it), so it takes the neutral that carries its ink.
+- **On the card**: the headline stacked from the top, sized under the number's
+  rank (72 / 120 / 56); the selling points and city line up from the foot;
+  **the product in the band between**, with a contact shadow. The product is
+  the record's own when still approved, otherwise the category's (an iPhone
+  headline always gets an iPhone set; strip boxes read as blank cartons, so
+  strips get the fan).
+
+53 records restaged by `scripts/restage_glasscards.mjs`; a restaged record
+restages to itself, so re-running it is safe. A product WALL (ghosted cut-outs
+tiled over the ground, four records, three of them rejected strip photographs)
+is removed: under the money it is ground-rung clutter.
+
+## 60. The library shows each design once at its best, not every recolour of it
+
+Added 2026-09-27. The owner: "Of the 780 possible themes, take out at least
+half of them, the most redundant, similar to another one, poor design, so we
+have the 400 that showed the least mistakes."
+
+Measured first: 632 of 690 live cards sat in 91 (category, layout) groups of
+four or more, and one composition was shown in up to 17 palettes. A pixel
+similarity measure separated same-layout pairs from different-layout pairs by
+only 4.90 against 5.24, too weak to decide anything (rule 50), so **redundancy
+is structural: same category and same layout is the same design**, whatever
+its colours.
+
+`scripts/curate_showcase.mjs` decides, in this order:
+
+1. **Disqualified outright**: collides (rule 58, at least 6%), copy off the ad,
+   copy in the margin (rule 57), the headline, number or CTA under 3:1 on the
+   card's own pixels, and anything the critic rejects (rule 54: a number under
+   72px, the number's worst letter under 3:1, a line off its plate, a broken
+   hierarchy).
+2. **Ranked by mistakes**, lower is better: the critic's warnings (rule 54),
+   line and letter contrast short of 4.5:1, the number's worst letter short of
+   7:1, measured overlaps, a product cut off or half on a panel. Ties go to the
+   owner's own approvals, then colour.
+3. **Kept in proportion** to what each category has live, and within a
+   category **round-robin across layouts**: every design's best card before
+   any design's second, and a design's next card must bring a new palette
+   family.
+4. **The owner's hero picks are kept** unless they collide: a person chose
+   them, and a score does not overrule that.
+
+Retiring is a stamp (`defect: "curated"` on the index row), not a deletion:
+the record and its thumbnail stay, and deleting the stamp brings a card back.
+
+After: 400 kept of 684 (65 disqualified: 52 collisions, 17 critic rejects, 1
+critical line under 3:1, some cards on two counts; 219 retired as weaker
+recolours), 114 of 118 designs still shown, the largest recolour group 17 -> 8,
+median mistake score 3.16 kept against 5.15 retired, all 12 of the owner's
+live hero picks kept.
+
+## 61. A perfected theme is re-set for a device, not redrawn
+
+Added 2026-09-27. The owner: "once a theme is perfect we can make unlimited
+variations for all types of devices specifically."
+
+A variant changes only what names the device, and nothing that makes the
+theme:
+
+- **the headline** takes the device family from `assets/devices.json` (IPAD
+  AIR, MACBOOK PRO), short enough to set large;
+- **the line that lists models** takes that family's models as the
+  storefront names them;
+- **the product** takes the device's own cut-out, in the finish whose colour
+  is nearest the card's accent (a neutral palette takes a neutral finish).
+  A finish's colour is measured where a model's finishes DIFFER, which is the
+  body; measured over the whole cut-out, it read the shared wallpaper. The
+  product is fitted into the original product's box.
+
+Layout, palette, faces and ground are the card's own, and alignPass (rules
+57, 58) keeps a longer name or a wider device on its plate and inside the
+guides.
+
+**A card can be re-set only when the product is the hero and the ground does
+not picture a device.** A card whose device is its photograph would put
+SELL YOUR APPLE WATCH over a stack of MacBooks, the mismatch fixed on twelve
+cards the same day. On 2026-09-27 that is the Glass Card (rule 59). Other
+themes qualify as they are finished with the product on a plain, scene or
+money ground.
+
+**A whole line** is a variant too (owner: "variations like categories.
+(sell your iphone) showing multiple models … (sell your macbook air pro neo)
+with multiple"): the category in the headline (IPHONE, MACBOOK, APPLE WATCH,
+APPLE), the line's models side by side, each in the finish nearest the
+palette. The row takes the width of the card it stands on (fitted into the one
+product it replaced, three MacBooks came out as stamps); devices are set at a
+compressed relative height (a watch 0.62 of a laptop, not a fifth of it);
+wide devices overlap a little, tall ones stand apart.
+
+Variants are generated when someone asks (the Easy Mode device picker;
+`scripts/device_variants.mjs` for a batch), never stored, so the library
+stays one card per design (rule 60).
+
+## 62. A photograph is shaded dark, never milky
+
+Added 2026-09-27. The owner, on the curated library: "make sure it still keeps
+good colors. a lot of these have a white haze overlay", then "doesn't look
+great". This replaces, for photographs, rule 56's "near-white (paper) under
+dark ink".
+
+Measured: 238 of the 400 kept cards shaded their photograph with near-white
+paper at 0.3 to 0.6, many over a blurred photograph too. A white veil turns
+every colour in a picture pastel, and a card reads as washed out however
+correct its contrast is.
+
+The rule, as `scripts/darken_grounds.mjs` applies it through the ground
+solver (`__sc.naturalGround()`, prefer 'dark'):
+
+- **The shade on a photograph is near-black**, graded top and bottom where
+  copy sits so the middle of the picture comes through, a flat veil only if
+  the grade cannot hold every line, at the lightest strength that clears 4.5:1.
+  A blur over 4px comes down to 4: detail and colour are the point.
+- **Neutral dark copy on the photograph takes near-white ink.** Its outline
+  goes, because the shade now separates it.
+- **Coloured dark copy keeps its hue and turns its lightness over**: a deep
+  green headline becomes pale mint, magenta light pink. Re-inked white, the
+  palette would be lost; left dark, the card kept its haze.
+- **The plates under the copy follow what the eye saw.** A pale band that is
+  see-through (or so large it counts as a veil) under a line now re-inked
+  light turns dark: same shape and opacity, a tinted band to a deep shade of
+  its own hue. A see-through plate (opacity 0.5 to 0.9) whose copy keeps its
+  dark ink becomes solid in the colour it showed over the old shade, so that
+  copy keeps exactly its contrast (rule 52). Missing either made a light line
+  on a light band, or dark copy on a band gone mid-grey (about 2:1).
+
+The same pass also takes a card with NO shade whose critical line reads under
+4.5:1 with dark copy straight on a mid-tone photograph (nine cards, a blue
+SILVER DOLLARS on a teal halftone among them): a white veil was not their
+fault, but the dull read was the same.
+
+## 63. The support colour highlights the supporting copy, where it reads
+
+Added 2026-09-27. The owner: "Audit all new themes and make sure we use
+supportive highlights on some themes if it looks good."
+
+Rule 51 gives the support/trust colour its job: badges and supporting facts.
+Audited over the curated 400, it sat on 213 cards and always on frames,
+ribbons, plates or decoration, never on the supporting copy. The selling
+points read in the headline's ink, so nothing said "the reassurance, read it
+second".
+
+`scripts/support_highlights.mjs` gives the ONE line that backs the offer (the
+selling points, the item list, the price line) the support colour, only where
+it holds up on the card's own pixels:
+
+- **4.5:1 against the ground under that line**, rendered with the line hidden
+  and everything else in place;
+- **its own colour**: at least 25 DeltaE (CIE76) from the accent, which keeps
+  the money and the action, and from the ink, with real chroma (over 12);
+- **never one of a numbered set**: Step Micro 1 highlighted beside plain 2
+  and 3 reads as a mistake, not a system.
+
+61 cards qualified. 289 fail contrast on their own ground and keep their line
+as it was. "Some themes" is the measurement's answer, not a quota.
+
+## 64. Words on a plate keep air at both ends, measured in the plate's own frame
+
+Added 2026-09-27. The owner, on CALL FOR INSTANT OFFER set edge to edge on the
+Street price badge: "why can't we seem to catch this? it would need to be
+shrunk 10-15% to make a minimum margin on the sides."
+
+Why it was not caught:
+
+- **The collision audit only scored a straddle** (rule 58: 4 to 96% of a
+  line's ink inside a plate, failing at 6%). A line that fills its plate end
+  to end, or pokes one letter over it, has 97 to 100% of its ink inside and
+  passed.
+- **alignPass step 4b fits on axis-aligned boxes.** On a tilted sticker the
+  badge turns about its corner and its line about its own top centre, so on
+  the -4° badge the line landed 8px off centre: 22px of air at one end and 37
+  at the other, "inside" by the box test.
+- **A box is not the ink** (rule 50). A serif W starts 33px into its box; a
+  textbox's box is its wrap width, not its words.
+
+The rule, as `plateAir()` applies it after alignPass (app.js) and
+`scripts/audit_collisions.mjs` measures it:
+
+- A line **on** a plate (its ink centred within the plate, no taller than
+  1.15x it, no wider than 1.4x it) needs, at each end, along the plate's own
+  axis, `max(12px, 4.5% of the plate, 0.35 of the type size)`.
+- The ink is measured (`measureText` bounds: where the ink starts in the line
+  and how wide it is), not the text box.
+- **The least change first.** A centred line alone on its plate goes back on
+  the plate's centre line; any other line slides by its shortfall toward the
+  end with room. Only when the total air is short does the type come down,
+  about the end it is anchored to, never below 72% of itself, and the number
+  never below 72px (rule 53).
+- A plate washed to 45% by buildLayer is still the ground the line reads on:
+  anything from 25% alpha up counts, and plates are taken as drawn (a
+  palette fill lives on the object, not in the layer's props).
+- **Plates of one fill that overlap are one shape**: a ticket and its notched
+  perforation (780 and 866 wide) read as one ticket, so the line is measured
+  against whichever gives it the most room. The smallest plate is otherwise
+  the line's own: a pill on a card is judged by the pill.
+
+Measured with `--no-air-fix` for the before: classics short of air **25 → 1**
+(the one left is a headline 1.26x its panel, held by the 72% floor), showcase
+records **187 → 1**, live cards **56 → 0**. Collisions did not rise (classics
+48 → 48, showcase records 102 → 101, live 0 → 0). The shrink the owner estimated, 10 to 15%, is
+what the rule gives a line on a tight sticker; a line that only sat off
+centre moves instead of shrinking.
+
+## 65. A video opens on the finished ad and shifts to the card's own call to action
+
+Added 2026-09-27. The owner, on the first video build: "this is still bound by
+our OLD design language", "the bg images / colors don't look very good", then
+"it is a good theme for ads to then shift to a CTA.. starts a fully made
+graphic image ad". And on formats: "primarily 1:1 or 3:4 but occasionally we
+will do the 9:16", "primarily design for the square format".
+
+The first engine (`video.js`) re-set the copy on its own tinted grounds and
+recoloured the ad, the look rules 56 and 62 retired. It is gone. The video is
+now the trunk's living still with one addition (app.js, MOTION parts 2 and 3):
+
+- **Frame 0 is the still**, so every grid, every cover image and every muted
+  autoplay shows the finished ad. It is judged on 8x8 blocks: no block more
+  than 8 levels off on average, and under 0.5% of pixels more than 8 off. A
+  faint layer composited back through 8-bit premultiplied alpha is off by a
+  few levels on scattered pixels (worst block 4.9); a real mismatch is a
+  region (a clipped shadow: blocks at 17 to 23). The per-pixel rule refused
+  one 3:4 card for rounding alone; the block rule passes it and still
+  refuses both simulated shadow clips.
+- **At 5.8s it shifts to a call to action built from the card's own parts**:
+  its headline, its call-to-action line, its number on its plate, its product
+  cut, on its own photograph. Nothing is added and nothing is recoloured,
+  except as rule 62 prescribes below. The parts travel from where they stood
+  in the ad; each line travels with its own plate (the badge under CALL FOR
+  INSTANT OFFER went with it).
+- **The words before the picture.** The stacks tried, in order: product +
+  headline + action line, headline + action line, product + headline,
+  headline, product, the number alone. What the shop buys and what to do
+  about it are the message; a picture without them is not.
+- **Rule 62 in motion.** The shade is near-black and graded to the band the
+  copy occupies, so the photograph comes through above and below; its
+  strength is solved per line to 4.5:1 on the frame's own pixels. A line that
+  lands dark on the photograph (or too dim for any dark shade, under 0.3
+  luminance) turns its ink as rule 62 does: neutral to near-white, coloured
+  to its own hue turned light, outline and halo dropped (a light halo round
+  now-light type is a haze). The ink crossfades during the move. A line
+  carried by a light outline of real weight (the red CASH with its white
+  outline) keeps its accent.
+- **Rule 27 in motion.** A part that lands on dark ground has any light glow
+  the card keyed to its old, lighter ground re-cut dark, same blur and
+  offset: on WE BUY GOLD JEWELRY and its green number plate that glow read
+  as a white haze once the ground was shaded.
+- **Every call to action is audited before it ships**: parts inside the 6%
+  guides (on 9:16, inside the clear box between the platform's own chrome),
+  the product off the copy, no two parts on each other, the number at least
+  72px at 1080, every line 3:1 or better by the critic's method (rule 54).
+  A card with no passing stack keeps the living still for the whole clip.
+- **Square is the design format**, 3:4 second, 9:16 occasional. Audits run
+  square across the library first.
+
+Measured (`scripts/motion_audit.mjs`, 2026-09-27, merged trunk):
+
+| | cards | call to action built | with the headline | frame 0 fails | flash fails |
+|---|---|---|---|---|---|
+| square, curated | 398 | 398 | 383 | 0 | 0 (worst 13.9% of a region; the limit is 25%) |
+| square, classics | 243 | 238 | 223 | 0 | 0 (worst 8.3%) |
+| 3:4, curated | 398 | 398 | 391 | 0 (1 under the per-pixel gate, below) | 0 (worst 19.4%) |
+| 9:16, first 60 curated | 60 | 60 | 56 | 0 | 0 (worst 5.8%) |
+
+The five classics that keep the living still: `neon_sell` (its number is
+carried by a plate no neutral shade serves, rule 56), `silver_ster`, and
+three voltStack classics whose action line reads 2.5 to 2.9:1 on its plate
+in every stack. Every call to action's worst line reads 3.05:1 or better
+square (3.02:1 at 3:4) by the critic's measure. 186 curated cards take a
+shade under the copy.
+
+## 66. A flash check reads linear light at full resolution, and a counting number is a flash
+
+Found building the first engine, and kept for every clip since (WCAG 2.3.1,
+`MotionFlashCheck`).
+
+- **Linear light, every pixel.** WCAG's thresholds are relative luminance.
+  Letting `drawImage` shrink a frame first averages in gamma space: against an
+  exact linear-light average of a real 1080×1920 frame that misread cell
+  luminance by up to **0.29**, three times the 0.10 transition threshold, and
+  the error sits on type edges, where an ad's motion is. A transition is a
+  swing of 0.10 in relative luminance with the darker state under 0.80; cells
+  are 1/36 of the short side; a cell with 7 transitions inside any one second
+  (more than three flashes) is hot; hot cells over 25% of any third-by-third
+  region fail the clip. Saturated red is checked on its own, the same way.
+- **A counting number is a flash.** A $1,100 count at 170px on a dark ground
+  at 30fps failed, 10 flashes a second over 33% of a region: each digit swaps
+  glyph in place many times a second. Numbers arrive once, whole.
+- The export is refused, not warned, when the check fails.
+
+## 67. An audit proves it opened the card it names
+
+Added 2026-09-27. The first run of the video audit reported 14 curated cards
+with no call to action. They were one classic, measured fourteen times.
+
+`showEasy()` runs `loadAccount()`, which with no token signs out whatever
+account a headless script set, synchronously; `selectEzTpl()` then swaps a
+premium template for the first free one without a word. So a card that "fell
+back" was `sell_iphone`, with its dark number on a cream band. The same trap
+opened classics as the wrong template, and a render taken before the
+photograph finished loading measured the plain ground.
+
+Every audit that opens a card through the app now pins its stub account
+(`loadAccount = async () => account`), **asserts** the template that opened
+is the one it names (an error row, not a silent substitute), and waits for the
+photograph and cutouts before it renders. An audit's first suspect is its own
+harness (rule 50), and a result that looks like a design failure on many
+different cards at once is a harness failure until proved otherwise.
+
+## 68. A product picture is a claim: it must be the product, whole, and legible
 
 Added 2026-09-27. The owner: "Audit any overlapping issues, bad assets, or
 inaccurate info / flaws. or bad copy gets removed." The library's product
@@ -1288,7 +1687,7 @@ live template draws:
   app.js). The layers were taken out; the audit no longer counts a `logo:`
   layer as a missing product picture.
 
-## 58. A headline claims no more than the picture shows and the shop buys
+## 69. A headline claims no more than the picture shows and the shop buys
 
 Added 2026-09-27, the same instruction. Rule 55 took out ratings, prices,
 hours and dashes. The same kind of claim was still there in other words:
@@ -1323,7 +1722,7 @@ The audits reject what is left. One star either side of a word is an ornament;
 a star row or a number with a star is a rating. A headline names only what the
 picture shows or the kind of thing it shows; "all three" needs three.
 
-## 59. Every template the studio builds meets the showcase's bar, or is held back
+## 70. Every template the studio builds meets the showcase's bar, or is held back
 
 Added 2026-09-27. The showcase was measured by four audits and the landing hid
 what they rejected; the 243 templates the studio builds at load were never
@@ -1336,7 +1735,7 @@ once every template-building script has run, before the page is drawn.
 `?noholds=1` keeps them, for the audit.
 A hold is data somebody can read: the id and the reasons.
 
-## 60. Every offer card stands on a photograph of its goods, and speaks in its category's voice
+## 71. Every offer card stands on a photograph of its goods, and speaks in its category's voice
 
 Added 2026-09-27. The owner, on the offer cards: "they are good designs, they
 are definitely lacking type faces that have personality or flavor and the
@@ -1360,4 +1759,3 @@ gray sections should have a background image".
   reading face for the steps and the number. When none of a category's faces
   can set a headline in a layout at 1.3x the number, the general faces do,
   rather than the card being dropped.
-

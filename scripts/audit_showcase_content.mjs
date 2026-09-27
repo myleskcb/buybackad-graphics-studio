@@ -33,7 +33,7 @@ const ALLOW = {
 };
 const family = p => String(p || '').replace(/^(qs-|ip-|ph-)/, '').split('-')[0];   // ph-: a placeholder of that family
 
-let n = { subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, school:0, asset:0, clean:0 };
+let n = { subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, school:0, asset:0, curated:0, clean:0 };
 idx.forEach(c => {
   const why = [];
   /* Only a card that actually SHOWS a product can show the wrong one. Most
@@ -77,6 +77,9 @@ idx.forEach(c => {
      a letter under 3:1, a headline that does not win or does not read as a
      thumbnail, a third typeface, a faux weight, a number on a product */
   if (c.school && c.school.fail && c.school.fail.length) why.push('school');
+  /* the owner's curation (scripts/curate_showcase.mjs: "take out at least half
+     of them"): a retired card stays retired, whatever this audit measures */
+  if (String(c.defect || '').split('+').includes('curated')) why.push('curated');
   const uniq = [...new Set(why)];
   uniq.forEach(w => n[w]++);
   if (uniq.length) c.defect = uniq.join('+'); else { delete c.defect; n.clean++; }
@@ -93,6 +96,7 @@ console.log('  shape over text   ' + n.shape);
 console.log('  backdrop missing  ' + n.bg);
 console.log('  design school     ' + n.school);
 console.log('  flagged picture   ' + n.asset);
+console.log('  retired (curated) ' + n.curated);
 console.log('  CLEAN            ' + n.clean);
 if (WRITE){ writeFileSync(ROOT + 'assets/showcase/index.json', JSON.stringify(idx)); console.log('wrote defect flags'); }
 else console.log('(dry run; pass --write)');
