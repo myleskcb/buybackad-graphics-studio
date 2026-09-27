@@ -11,6 +11,16 @@
    temporal dead zone for anything above it — the documented failure mode in
    this codebase. */
 const CUTOUT_EXT = '.webp';
+/* ASSET_REV (ported from claude/busy-allen, OPEN-ITEMS §J). Photos, cut-outs
+   and showcase cards are served with a 30-day browser TTL (_headers), so a
+   file replaced under the same name stays stale for a returning visitor for
+   up to a month: the 2026-09-27 device art, restaged Glass Cards and curated
+   showcase would not have reached the owner's own browser. Every assets/ URL
+   the app requests carries this revision; bump it whenever assets/bg,
+   assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
+   by the bare path, which is what templates name. */
+const ASSET_REV = '20260927';
+function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
 const store = (() => {
@@ -2216,16 +2226,280 @@ function alignPass(sc, W, H){
     const fs = (t2.o.fontSize || 34) * (t2.o.scaleY || 1);
     const padV = Math.round(fs * 0.44), padH = Math.round(fs * 0.66);
     const wantW = t2.b.width + padH * 2, wantH = t2.b.height + padV * 2;
-    if (wantW >= box.b.width - 10 && wantH >= box.b.height - 10) return;   // already snug
+    /* "Snug" means within 10px EITHER way. The first version tested
+       want >= box - 10 on both axes, which is also true when the words are
+       BIGGER than the plate, so exactly the plates that most needed to grow
+       were skipped: a 574px kicker on a 408px ribbon, pills and price strips
+       with their words hanging off both ends (collision audit, 2026-09-27). */
+    if (Math.abs(wantW - box.b.width) <= 10 && Math.abs(wantH - box.b.height) <= 10) return;   // already snug
     const cx = box.b.left + box.b.width / 2, cy = box.b.top + box.b.height / 2;
     const sx = box.o.scaleX || 1, sy = box.o.scaleY || 1;
-    const fw = Math.max(48, wantW), fh = Math.max(30, wantH);
+    let fw = Math.max(48, wantW), fh = Math.max(30, wantH);
+    /* Growing is allowed only into clear space. A phone plate grown to its
+       padding about its own centre reached down over the REQUEST AN
+       APPRAISAL line under it (scriptRetro, hudTech, ticketStub) and the
+       website line (arcCrown, neonNight): fixing one collision made another.
+       So each axis grows only as far as it stays off every other line. */
+    const others = texts.filter(x => x !== t2).map(x => bb(x.o)).filter(Boolean);   // fresh: steps 1-3 move lines
+    const hits = (w, h) => others.some(r => r.left < cx + w / 2 && r.left + r.width > cx - w / 2 &&
+                                          r.top < cy + h / 2 && r.top + r.height > cy - h / 2);
+    if (fh > box.b.height && hits(Math.min(fw, box.b.width), fh)){
+      let h = fh; while (h > box.b.height && hits(Math.min(fw, box.b.width), h)) h -= 2;
+      fh = Math.max(box.b.height, h);
+    }
+    if (fw > box.b.width && hits(fw, fh)){
+      let w = fw; while (w > box.b.width && hits(w, fh)) w -= 2;
+      fw = Math.max(box.b.width, w);
+    }
     box.o.set({ width: fw / sx, height: fh / sy,
                 left: cx - fw / 2, top: cy - fh / 2,
                 originX:'left', originY:'top' });
     box.o.setCoords();
     box.b = bb(box.o) || box.b;
   });
+
+  /* ── 4b. WORDS STAY ON THEIR PLATE ───────────────────────────────────────
+     A panel that holds several lines is not resized by step 4, so a headline
+     set wider than its panel hung off both sides ("SPORTS CARDS" on the glass
+     card). The panel widens first, up to the guides, keeping its centre; only
+     if that is not enough does the line's type come down, never below 72%
+     of itself, and the phone number never below 72px (rule 53). */
+  const G4 = Math.round(GUIDE * Math.min(W, H));
+  /* panels, not just plates: a 560px ticket is taller than the half-height
+     cap on `boxes`, so its headline found no host and stayed outside it */
+  const panels = objs.filter(o => o && o.type === 'rect' && o.visible !== false).map(o => ({ o, b: bb(o) }))
+    .filter(x => x.b && x.b.width > 0 && x.b.width < W * 0.93 && x.b.height < H * 0.9);
+  const slid = [];
+  texts.forEach(t => {
+    if (/marquee|ticker/i.test(t.o.name || '')) return;
+    const tb = bb(t.o); if (!tb) return;
+    const tcx = tb.left + tb.width / 2, tcy = tb.top + tb.height / 2;
+    const host = panels.map(x => ({ x, b: bb(x.o) })).filter(h => h.b &&
+        tcx > h.b.left && tcx < h.b.left + h.b.width && tcy > h.b.top && tcy < h.b.top + h.b.height)
+      .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
+    if (!host) return;
+    const pad = Math.max(12, Math.round(host.b.width * 0.045));
+    const over = () => { const b = bb(t.o); return b ? Math.max(0, (host.b.left + pad) - b.left, (b.left + b.width) - (host.b.left + host.b.width - pad)) : 0; };
+    if (over() <= 1) return;
+    // 1. widen the panel about its centre, within the guides
+    const cur = bb(t.o), want = Math.min(W - 2 * G4, cur.width + 2 * pad);
+    if (want > host.b.width){
+      const o = host.x.o, c = o.getCenterPoint();
+      o.set({ width: want / (o.scaleX || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+      host.b = bb(o) || host.b;
+    }
+    if (over() <= 1) return;
+    /* 2. a line that FITS but was set outside the panel: a left-aligned
+       variant put every line at x=72 while its ticket or glass panel starts
+       at 110 to 130, so ADMIT crossed the ticket's edge and the items line
+       hung off the glass. It slides in; lines that shared a left edge still
+       share one (they all land on the panel's left edge plus padding). */
+    { const b1 = bb(t.o), room1 = host.b.width - 2 * pad;
+      if (b1.width <= room1){
+        const lo = host.b.left + pad, hi = host.b.left + host.b.width - pad;
+        const dx = b1.left < lo ? lo - b1.left : (b1.left + b1.width > hi ? hi - (b1.left + b1.width) : 0);
+        if (dx){ slid.push({ t, from: b1.left, host }); t.o.set({ left: t.o.left + dx }); t.o.setCoords(); }
+        if (over() <= 1) return;
+      } }
+    // 3. then bring the type down to the panel
+    const b2 = bb(t.o), room = host.b.width - 2 * pad;
+    let k = Math.max(0.72, room / b2.width);
+    if (t.o.pgRole === 'phone'){
+      const px = (t.o.fontSize || 84) * (t.o.scaleY || 1);
+      k = Math.max(k, Math.min(1, 72 / px));
+    }
+    if (k < 1){
+      const c = t.o.getCenterPoint();
+      t.o.set({ scaleX: (t.o.scaleX || 1) * k, scaleY: (t.o.scaleY || 1) * k });
+      t.o.setPositionByOrigin(c, 'center', 'center'); t.o.setCoords();
+    }
+  });
+  // lines that shared a left edge before sliding share one after (the innermost)
+  slid.forEach(a => {
+    const mates = slid.filter(c => Math.abs(c.from - a.from) <= 3);
+    const edge = Math.max(...mates.map(c => bb(c.t.o).left));
+    mates.forEach(c => { const b = bb(c.t.o), dx = edge - b.left;
+      if (dx > 0 && b.left + b.width + dx <= c.host.b.left + c.host.b.width - 12){ c.t.o.set({ left: c.t.o.left + dx }); c.t.o.setCoords(); } });
+  });
+  /* and TALLER than its plate: a selling-point line wrapped to two lines on a
+     one-line pill, the second line hanging under it on the photograph. The
+     plate grows about its centre to hold every line; if that would put it on
+     other copy, the type comes down instead (not below 72%). */
+  texts.forEach(t => {
+    if (/marquee|ticker/i.test(t.o.name || '')) return;
+    const tb = bb(t.o); if (!tb) return;
+    const tcx = tb.left + tb.width / 2, tcy = tb.top + tb.height / 2;
+    const host = boxes.map(x => ({ x, b: bb(x.o) })).filter(h => h.b && h.b.width < W * 0.93 && h.b.height < H * 0.5 &&
+        tcx > h.b.left && tcx < h.b.left + h.b.width && tcy > h.b.top && tcy < h.b.top + h.b.height)
+      .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
+    if (!host) return;
+    const fs = (t.o.fontSize || 34) * (t.o.scaleY || 1), padV = Math.round(fs * 0.36);
+    if (tb.height + 2 * padV <= host.b.height + 1) return;
+    const o = host.x.o, c = o.getCenterPoint(), h0 = o.height;
+    const others = texts.filter(x => x !== t).map(x => bb(x.o)).filter(Boolean);
+    const hits = b => others.some(r => r.left < b.left + b.width && r.left + r.width > b.left && r.top < b.top + b.height && r.top + r.height > b.top &&
+      !(r.left >= b.left && r.top >= b.top && r.left + r.width <= b.left + b.width && r.top + r.height <= b.top + b.height));
+    o.set({ height: (tb.height + 2 * padV) / (o.scaleY || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    const g = bb(o);
+    if (g && !hits(g) && g.top >= 0 && g.top + g.height <= H){
+      const tc = t.o.getCenterPoint(); t.o.setPositionByOrigin(new fabric.Point(tc.x, c.y), 'center', 'center'); t.o.setCoords();
+      host.b = g; return;
+    }
+    o.set({ height: h0 }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    const k = Math.max(0.72, (host.b.height - 2 * padV) / tb.height);
+    if (k < 1){
+      const tc = t.o.getCenterPoint();
+      t.o.set({ scaleX: (t.o.scaleX || 1) * k, scaleY: (t.o.scaleY || 1) * k });
+      t.o.setPositionByOrigin(tc, 'center', 'center'); t.o.setCoords();
+    }
+  });
+
+  /* ── 4d. THE PRODUCT KEEPS CLEAR OF THE COPY ─────────────────────────────
+     Collision audit, 2026-09-27: on 47 live Steps Flow cards the product had
+     been dropped where the three full-width step cards run, so the cards and
+     the 3 STEPS headline sat on the coins; classics put a phone under a
+     kicker and under grid labels. A product that touches a line of copy, or
+     sits half on a plate and half off it, moves to the largest clear space:
+     open ground, or the inside of a card (on a card is a place; across its
+     edge is not). It is never enlarged, and if it would read at under 40%
+     of its authored size it is left out rather than shown as a speck. */
+  {
+    const G6 = Math.round(GUIDE * Math.min(W, H)), CELL = 12;
+    const live = o => o && o.visible !== false;
+    const words = objs.filter(o => live(o) && (isText(o) || (o.type === 'group' && o.pgCurved))).map(o => bb(o)).filter(Boolean);
+    const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
+    const plates = boxes.map(x => bb(x.o)).filter(b => b && words.some(w => inside({ x: w.left + w.width / 2, y: w.top + w.height / 2 }, b)));
+    const ov = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
+                         Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
+    const prods = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo');
+    const bad = b => words.some(w => ov(b, w) > 0.03 * Math.min(b.width * b.height, w.width * w.height)) ||
+                     plates.some(p => { const f = ov(b, p) / (b.width * b.height); return f > 0.10 && f < 0.90; });
+    /* largest empty rectangle of free cells inside a region (histogram method) */
+    const bestRect = (reg, blocked) => {
+      const x0 = Math.ceil(reg.left / CELL), y0 = Math.ceil(reg.top / CELL);
+      const nx = Math.floor((reg.left + reg.width) / CELL) - x0, ny = Math.floor((reg.top + reg.height) / CELL) - y0;
+      if (nx < 4 || ny < 4) return null;
+      const hgt = new Array(nx).fill(0); let best = null;
+      for (let j = 0; j < ny; j++){
+        for (let i = 0; i < nx; i++){
+          const cb = { left:(x0 + i) * CELL, top:(y0 + j) * CELL, width:CELL, height:CELL };
+          hgt[i] = blocked.some(r => ov(cb, r) > 0) ? 0 : hgt[i] + 1;
+        }
+        const st = [];
+        for (let i = 0; i <= nx; i++){
+          const h = i < nx ? hgt[i] : 0; let s0 = i;
+          while (st.length && st[st.length - 1].h >= h){
+            const top = st.pop(); const wcells = i - top.i;
+            const r = { left:(x0 + top.i) * CELL, top:(y0 + j - top.h + 1) * CELL, width:wcells * CELL, height:top.h * CELL };
+            if (top.h && (!best || r.width * r.height > best.width * best.height)) best = r;
+            s0 = top.i;
+          }
+          st.push({ i: s0, h });
+        }
+      }
+      return best;
+    };
+    prods.forEach(o => {
+      const b = bb(o); if (!b || b.width * b.height > W * H * 0.6) return;
+      if (!bad(b)) return;
+      const pad = 16;
+      const wordsPad = words.map(w => ({ left: w.left - pad, top: w.top - pad, width: w.width + 2 * pad, height: w.height + 2 * pad }));
+      const others = prods.filter(p => p !== o).map(p => bb(p)).filter(Boolean);
+      const guide = { left: G6, top: G6, width: W - 2 * G6, height: H - 2 * G6 };
+      const regions = [{ reg: guide, blocked: wordsPad.concat(plates.map(p => ({ left: p.left - 10, top: p.top - 10, width: p.width + 20, height: p.height + 20 })), others) }]
+        .concat(plates.map(p => ({ reg: { left: p.left + 14, top: p.top + 14, width: p.width - 28, height: p.height - 28 },
+                                   blocked: wordsPad.concat(others) })));
+      let pick = null;
+      regions.forEach(({ reg, blocked }) => {
+        const r = bestRect(reg, blocked); if (!r) return;
+        const k = Math.min(1, (r.width * 0.94) / b.width, (r.height * 0.94) / b.height);
+        const d = Math.hypot(r.left + r.width / 2 - (b.left + b.width / 2), r.top + r.height / 2 - (b.top + b.height / 2));
+        if (!pick || k > pick.k + 0.02 || (Math.abs(k - pick.k) <= 0.02 && d < pick.d)) pick = { r, k, d };
+      });
+      if (!pick || pick.k < 0.4){ o.visible = false; return; }
+      o.set({ scaleX: (o.scaleX || 1) * pick.k, scaleY: (o.scaleY || 1) * pick.k });
+      o.setPositionByOrigin(new fabric.Point(pick.r.left + pick.r.width / 2, pick.r.top + pick.r.height / 2), 'center', 'center');
+      o.setCoords();
+    });
+  }
+
+  /* ── 4c. DECORATION YIELDS TO COPY ───────────────────────────────────────
+     DESIGN-LAW rule 7, enforced at render (collision audit, 2026-09-27): a
+     sticker whose disc the item line ran through, a category mark on the
+     letters of CARD BUYER, a sparkle on the D of iPAD, a bolt across a tile's
+     edge. Decoration never outranks a word. A mark that touches copy, crosses
+     a plate that carries copy, or sits outside the guides moves to the nearest
+     clear place (down to 70% of its size) near where it was authored; if
+     there is none, it goes. A STICKER (a disc or burst with its own words) is
+     never moved, only removed: moved, one landed as a bare blue disc in the
+     middle of a photograph with its curved label left dark on dark
+     (bubblePop-jw07-15). A mark placed at random reads as a mistake.
+     A pointer cursor on a static ad imitates a link nobody can click, so it
+     goes everywhere. Checklist ticks are information, not decoration: kept. */
+  {
+    const G5 = Math.round(GUIDE * Math.min(W, H));
+    const live = o => o && o.visible !== false;
+    /* curved words are groups (textToCurved), and they are words: the first
+       version left them out, so a sticker moved and its curved CASH NOW label
+       stayed behind, dark type on a dark photograph */
+    const isWord = o => isText(o) || (o && o.type === 'group' && o.pgCurved);
+    const txt = objs.filter(o => live(o) && isWord(o)).map(o => ({ o, b: bb(o) })).filter(t => t.b);
+    const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
+    const ctr = b => ({ x: b.left + b.width / 2, y: b.top + b.height / 2 });
+    const plates = boxes.map(x => ({ o: x.o, b: bb(x.o) })).filter(x => x.b && txt.some(t => inside(ctr(t.b), x.b)));
+    const cuts = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo').map(o => ({ o, b: bb(o) })).filter(x => x.b);
+    const units = [];
+    objs.forEach(o => {
+      if (!live(o)) return;
+      if (o.name === 'Cursor'){ o.visible = false; return; }
+      const deco = o.pgRole === 'deco' && !/^Tick/.test(o.name || '');
+      const sticker = (o.type === 'circle' || o.type === 'rect') && /Sticker|Seal Disc|Burst/i.test(o.name || '');
+      if (!deco && !sticker) return;
+      const b = bb(o); if (!b || b.width * b.height > W * H * 0.08) return;
+      const label = sticker ? txt.filter(t => inside(ctr(t.b), b)) : [];
+      units.push({ parts: [o].concat(label.map(t => t.o)), own: new Set(label.map(t => t.o)), b, sticker });
+    });
+    const overlap = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
+                              Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
+    const clash = (u, b) => {
+      if (b.left < G5 || b.top < G5 || b.left + b.width > W - G5 || b.top + b.height > H - G5) return true;
+      const A = b.width * b.height;
+      if (txt.some(t => !u.own.has(t.o) && overlap(b, t.b) > 0.02 * Math.min(A, t.b.width * t.b.height))) return true;
+      if (plates.some(p => { const f = overlap(b, p.b) / A; return f > 0.05 && f < 0.95 && !u.parts.includes(p.o); })) return true;
+      if (cuts.some(c => overlap(b, c.b) > 0.15 * A)) return true;
+      return units.some(v => v !== u && v.b && overlap(b, v.b) > 0);
+    };
+    units.forEach(u => {
+      if (!clash(u, u.b)) return;
+      const c0 = ctr(u.b);
+      let best = null;
+      const reach = u.sticker ? 0 : Math.min(160, Math.max(48, 1.5 * Math.max(u.b.width, u.b.height)));
+      for (const k of [1, 0.85, 0.7]){
+        const w = u.b.width * k, h = u.b.height * k;
+        for (let r = 12; r <= reach && !best; r += 12){
+          for (let a = 0; a < 16 && !best; a++){
+            const x = c0.x + r * Math.cos(a * Math.PI / 8) - w / 2, y = c0.y + r * Math.sin(a * Math.PI / 8) - h / 2;
+            const b = { left: x, top: y, width: w, height: h };
+            if (!clash(u, b)) best = { k, dx: x + w / 2 - c0.x, dy: y + h / 2 - c0.y, b };
+          }
+        }
+        if (best) break;
+      }
+      if (!best){ u.parts.forEach(o => { o.visible = false; }); u.b = null; return; }
+      u.parts.forEach(o => {
+        const c = o.getCenterPoint();
+        const n = new fabric.Point(c0.x + (c.x - c0.x) * best.k + best.dx, c0.y + (c.y - c0.y) * best.k + best.dy);
+        o.set({ scaleX: (o.scaleX || 1) * best.k, scaleY: (o.scaleY || 1) * best.k });
+        o.setPositionByOrigin(n, 'center', 'center'); o.setCoords();
+      });
+      u.b = best.b;
+    });
+  }
+
+  /* ── 5. THE GUIDES ───────────────────────────────────────────────────────
+     Everything that carries the message sits inside the 6% safe margin. See
+     fitInsideGuides(); the per-line clamp below stays as a last resort. */
+  fitInsideGuides(sc, W, H);
 
   texts.forEach(t => {
     if (/marquee|ticker/i.test(t.o.name || '')) return;  // edge-hugging on purpose
@@ -2239,6 +2513,87 @@ function alignPass(sc, W, H){
     if (b.height > H - SAFE_EDGE * 2) dy = 0;
     if (dx || dy){ t.o.set({ left: t.o.left + dx, top: t.o.top + dy }); t.o.setCoords(); }
   });
+}
+
+/* THE GUIDES — DESIGN-LAW rule 57.
+   Owner, 2026-09-27: "make sure everything fits within the guides it needs
+   to." The study session's critic already WARNED at a 6% safe margin and
+   left it "an open decision"; measured on the live showcase, the website line
+   sat inside that margin on 293 of 684 cards, the selling-point badges on
+   106, a headline on 54, the phone number on 22 — and the engine's own clamp
+   was 24px (2.2%), one line at a time.
+
+   Moving one line at a time is how collisions are made: pull the website line
+   up and it lands on the number's plate. So the COMPOSITION moves as one:
+   copy, plates, stickers, icons and products are scaled and shifted together,
+   about their own centre, until the whole message is inside the guides. Every
+   spacing relationship survives, so nothing that was clear starts to collide.
+
+   Left alone: the ground (anything covering >= 85% of both dimensions:
+   photographs, scrims, beams, bokeh, grids, vignettes, grain, canvas frames),
+   frame and corner marks, and edge tickers. Kept attached: a band or a
+   product that touches an edge still touches it afterwards (a full-width band
+   keeps its full width; a product cut at the frame keeps its bleed). */
+const GUIDE = 0.06;
+function fitInsideGuides(sc, W, H){
+  W = W || TPL_W; H = H || TPL_H;
+  let objs;
+  try { objs = sc.getObjects(); } catch (e){ return 1; }
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
+  const TOUCH = 2;
+  const items = [];
+  objs.forEach(o => {
+    if (!o || o.visible === false || o.pgBgRect || o.pgScrim) return;
+    if (/^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '')) return;
+    if (o.pgRole === 'frame' || /Frame|Corner|Bracket|Border/.test(o.name || '') && !isText(o)) return;
+    if (/marquee|ticker/i.test(o.name || '')) return;
+    const b = bb(o); if (!b || b.width <= 0 || b.height <= 0) return;
+    if (b.width >= W * 0.85 && b.height >= H * 0.85) return;          // ground, not message
+    const edge = { l: b.left <= TOUCH, r: b.left + b.width >= W - TOUCH, t: b.top <= TOUCH, bo: b.top + b.height >= H - TOUCH };
+    const text = isText(o);
+    const bleed = !text && (edge.l || edge.r || edge.t || edge.bo);
+    items.push({ o, b, edge, text, bleed });
+  });
+  /* the message's extent: everything that is not attached to an edge */
+  const msg = items.filter(x => !x.bleed);
+  if (!msg.some(x => x.text)) return 1;
+  const U = msg.reduce((u, x) => ({ l: Math.min(u.l, x.b.left), t: Math.min(u.t, x.b.top),
+    r: Math.max(u.r, x.b.left + x.b.width), bo: Math.max(u.bo, x.b.top + x.b.height) }), { l: Infinity, t: Infinity, r: -Infinity, bo: -Infinity });
+  if (U.l >= G - 0.5 && U.t >= G - 0.5 && U.r <= W - G + 0.5 && U.bo <= H - G + 0.5) return 1;   // already inside
+  const uw = U.r - U.l, uh = U.bo - U.t;
+  const s = Math.min(1, (W - 2 * G) / uw, (H - 2 * G) / uh);
+  const ucx = (U.l + U.r) / 2, ucy = (U.t + U.bo) / 2;
+  // after scaling about the message's centre, shift it into the guides
+  const sl = ucx - uw * s / 2, sr = ucx + uw * s / 2, st = ucy - uh * s / 2, sb = ucy + uh * s / 2;
+  const dx = Math.max(0, G - sl) - Math.max(0, sr - (W - G));
+  const dy = Math.max(0, G - st) - Math.max(0, sb - (H - G));
+  items.forEach(x => {
+    const o = x.o, c = o.getCenterPoint();
+    const n = new fabric.Point((c.x - ucx) * s + ucx + dx, (c.y - ucy) * s + ucy + dy);
+    o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+    o.setPositionByOrigin(n, 'center', 'center');
+    o.setCoords();
+    if (!x.bleed) return;
+    /* keep what was attached to an edge attached: a full-width band keeps its
+       width, a band or product at an edge keeps reaching it */
+    const b = bb(o); if (!b) return;
+    if (o.type === 'rect'){
+      let L = b.left, T = b.top, R = b.left + b.width, B = b.top + b.height;
+      if (x.edge.l) L = x.b.left; if (x.edge.r) R = x.b.left + x.b.width;
+      if (x.edge.t) T = x.b.top;  if (x.edge.bo) B = x.b.top + x.b.height;
+      o.set({ originX:'left', originY:'top', left: L, top: T,
+              width: (R - L) / (o.scaleX || 1), height: (B - T) / (o.scaleY || 1) });
+    } else {
+      let ox = 0, oy = 0;
+      if (x.edge.l) ox = x.b.left - b.left; else if (x.edge.r) ox = (x.b.left + x.b.width) - (b.left + b.width);
+      if (x.edge.t) oy = x.b.top - b.top;   else if (x.edge.bo) oy = (x.b.top + x.b.height) - (b.top + b.height);
+      o.set({ left: o.left + ox, top: o.top + oy });
+    }
+    o.setCoords();
+  });
+  return s;
 }
 function buildLayer(l, tplId, dw, dh){
   /* AREA: copy that names a place is re-pointed at the customer's own towns
@@ -4281,7 +4636,7 @@ function preloadCutouts(){
     const el = new Image();
     el.onload = () => { CUTOUT_ELS[src] = el; res(); };
     el.onerror = () => { missing.push(src); res(); };
-    el.src = src;
+    el.src = assetUrl(src);
   }))).then(() => {
     if (missing.length) console.warn('GraphicsStudio: ' + missing.length + ' cutout(s) missing from assets/cutouts, those layers render empty:', missing.slice(0, 5));
     else console.log('GraphicsStudio: all ' + srcs.length + ' product cutouts ready.');
@@ -4332,7 +4687,7 @@ function preloadTplBgs(){
       else finish(null);
     };
     // embedded data first (cannot 404, works on file://); asset file is the backup
-    el.src = embedded[t.bg.src] || t.bg.src;
+    el.src = embedded[t.bg.src] || assetUrl(t.bg.src);
   });
   /* Wave 1 = what is on screen. Wave 2 = everything else, started only once
      wave 1 has settled, so the visible page is never competing with 130
@@ -5785,7 +6140,7 @@ function refreshEzLayers(){
   const isPhoto = bgSpec.type === 'image' && ez.bgData;
   const isTplPhoto = bgSpec.type === 'image' && bgSpec.src;
   const sw = isPhoto ? `<img src="${ez.bgData}" alt="">`
-    : isTplPhoto ? `<img src="${bgSpec.src}" alt="">`
+    : isTplPhoto ? `<img src="${assetUrl(bgSpec.src)}" alt="">`
     : `<span style="width:100%;height:100%;display:block;background:${cssBg(bgSpec)}"></span>`;
   list.appendChild(ezLayerRow({
     swatchHtml: sw, name: 'Background',
@@ -7624,7 +7979,7 @@ function ezDefaultChips(tpl){
 function ezChips(){ return ez.chips !== null ? ez.chips : ezDefaultChips(ezTpl()); }
 function cssBg(spec){
   if (spec.type === 'image'){
-    if (spec.src) return `url(${spec.src}) center/cover`;
+    if (spec.src) return `url(${assetUrl(spec.src)}) center/cover`;
     const fb = spec.fallback;
     return fb ? cssBg(fb) : '#101014';
   }
@@ -9569,7 +9924,7 @@ function scBuildWall(cards){
       const d = document.createElement('div');
       d.className = 'wall-card';
       d.title = c.name;
-      d.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
+      d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
       d.onclick = () => openShowcase(c.id);
       col.appendChild(d);
     });
@@ -9659,7 +10014,7 @@ function scCard(c){
   card.setAttribute('role', 'button');
   card.setAttribute('tabindex', '0');
   const locked = scLocked(c);
-  card.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="lazy" decoding="async">
+  card.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="lazy" decoding="async">
     <div class="tpl-veil"></div>
     ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
@@ -9720,7 +10075,7 @@ async function openShowcase(id){
   if (!TEMPLATES.some(t => t.id === tid)){
     let rec = SHOWCASE.records[id];
     if (!rec){
-      try { rec = await fetch('assets/showcase/tpl/' + id + '.json').then(r => r.ok ? r.json() : null); } catch (e){ rec = null; }
+      try { rec = await fetch(assetUrl('assets/showcase/tpl/' + id + '.json')).then(r => r.ok ? r.json() : null); } catch (e){ rec = null; }
       if (!rec || !rec.tpl){ toast('That design could not be loaded, opening its base layout instead', 'error'); showEasy(c.base); return; }
       SHOWCASE.records[id] = rec;
     }
@@ -9732,11 +10087,11 @@ async function openShowcase(id){
     const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
     const loadCut = src => new Promise(res => {
       if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res();
-      const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = src;
+      const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = assetUrl(src);
     });
     const loadBg = src => new Promise(res => {
       if (!src || (TPL_BG_ELS[src] && TPL_BG_ELS[src].width)) return res();
-      const el = new Image(); el.onload = () => { TPL_BG_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = src;
+      const el = new Image(); el.onload = () => { TPL_BG_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = assetUrl(src);
     });
     await Promise.race([
       Promise.all([...fams].map(f => ensureFont(f)).concat(cuts.map(loadCut), [loadBg(t.bg && t.bg.src)])),
