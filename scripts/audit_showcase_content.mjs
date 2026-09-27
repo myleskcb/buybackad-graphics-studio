@@ -15,7 +15,7 @@
  * usage: node scripts/audit_showcase_content.mjs [--write]
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { COMPANY, LICENSE, foreignWords } from './refresh_copy.mjs';
+import { COMPANY, LICENSE, foreignWords, PROOF, PRICE, HOURS, DASH, BANNED } from './refresh_copy.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
 const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
@@ -30,7 +30,7 @@ const ALLOW = {
 };
 const family = p => String(p || '').replace(/^(qs-|ip-)/, '').split('-')[0];
 
-let n = { subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, clean:0 };
+let n = { subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, school:0, clean:0 };
 idx.forEach(c => {
   const why = [];
   /* Only a card that actually SHOWS a product can show the wrong one. Most
@@ -51,6 +51,9 @@ idx.forEach(c => {
        may not be able to make, or words that sell another deck's goods */
     const words = rec.tpl.layers.filter(l => typeof l.text === 'string' && l.role !== 'website').map(l => l.text).join('\n');
     if (COMPANY.test(words) || LICENSE.test(words) || foreignWords(c.cat, words).length) why.push('copy');
+    /* the study session's copy rules (2026-09-26): invented proof, a price
+       figure, invented hours, a dash, a deadline or a "real person" claim */
+    if (PROOF.test(words) || PRICE.test(words) || HOURS.test(words) || DASH.test(words) || BANNED.test(words)) why.push('copy');
   }
   /* LEGIBILITY (2026-09-22), written by audit_showcase_legibility.mjs: a
      headline, phone or CTA under 3:1 against the pixels behind it, or one that
@@ -62,6 +65,10 @@ idx.forEach(c => {
   if ((c.shapeCover || 0) >= 0.12) why.push('shape');
   if ((c.cover || 0) >= 0.12) why.push('cover');
   if ((c.clip || 0) > 6) why.push('clip');            // a line running off the card
+  /* the design school's rejects (audit_showcase_school.mjs): a small number,
+     a letter under 3:1, a headline that does not win or does not read as a
+     thumbnail, a third typeface, a faux weight, a number on a product */
+  if (c.school && c.school.fail && c.school.fail.length) why.push('school');
   const uniq = [...new Set(why)];
   uniq.forEach(w => n[w]++);
   if (uniq.length) c.defect = uniq.join('+'); else { delete c.defect; n.clean++; }
@@ -76,6 +83,7 @@ console.log('  copy (company / licence / other deck) ' + n.copy);
 console.log('  critical text under 3:1 / invisible   ' + n.legib);
 console.log('  shape over text   ' + n.shape);
 console.log('  backdrop missing  ' + n.bg);
+console.log('  design school     ' + n.school);
 console.log('  CLEAN            ' + n.clean);
 if (WRITE){ writeFileSync(ROOT + 'assets/showcase/index.json', JSON.stringify(idx)); console.log('wrote defect flags'); }
 else console.log('(dry run; pass --write)');

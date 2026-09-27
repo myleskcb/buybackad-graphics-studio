@@ -84,7 +84,7 @@ const TEMPLATES = [
     {kind:'circle', name:'Ring Inner', role:'deco', props:{left:CW/2-360, top:CH/2-360, radius:360, fill:'', stroke:'#ff5000', strokeWidth:2, opacity:0.25, selectable:false, evented:false}},
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'WE BUY', props:{left:CW/2, top:120, originX:'center', fontFamily:F_DISPLAY, fontSize:180, fill:'#ffffff', stroke:'#000000', strokeWidth:7}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'iPHONES', props:{left:CW/2, top:278, originX:'center', fontFamily:F_DISPLAY, fontSize:255, fill:'#ff5000', stroke:'#000000', strokeWidth:9, shadow:sh('#ff5000',55)}},
-    {kind:'textbox', name:'Devices', role:'info', casing:'none', text:'iPads • MacBooks • Samsung\nANY CONDITION, TOP DOLLAR', props:{left:CW/2, top:605, width:CW-60, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#aaaaaa', fontWeight:'600', textAlign:'center', lineHeight:1.3}},
+    {kind:'textbox', name:'Devices', role:'info', casing:'none', text:'iPads • MacBooks • Samsung\nANY CONDITION, CASH PAID', props:{left:CW/2, top:605, width:CW-60, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#aaaaaa', fontWeight:'600', textAlign:'center', lineHeight:1.3}},
     {kind:'rect', name:'Phone Bar', props:{left:80, top:770, width:CW-160, height:180, fill:'#ff5000', rx:12}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CALL OR TEXT ANYTIME', props:{left:CW/2, top:785, originX:'center', fontFamily:F_COND, fontSize:30, fill:'rgba(0,0,0,0.65)', fontWeight:'900'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:825, originX:'center', fontFamily:F_DISPLAY, fontSize:100, fill:'#ffffff', stroke:'#c03000', strokeWidth:4}},
@@ -126,7 +126,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'CASH FOR', props:{left:CW/2, top:100, originX:'center', fontFamily:F_DISPLAY, fontSize:170, fill:'#ffffff', stroke:'#000000', strokeWidth:8}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'iPHONES', props:{left:CW/2, top:255, originX:'center', fontFamily:F_DISPLAY, fontSize:260, fill:'#ffffff', shadow:sh('rgba(0,0,0,0.3)',20,5,5)}},
-    {kind:'text', name:'Subline', role:'sub', casing:'upper', text:'WE PAY TOP DOLLAR', props:{left:CW/2, top:520, originX:'center', fontFamily:F_COND, fontSize:68, fill:'#ffffff', fontWeight:'900'}},
+    {kind:'text', name:'Subline', role:'sub', casing:'upper', text:'WE PAY CASH', props:{left:CW/2, top:520, originX:'center', fontFamily:F_COND, fontSize:68, fill:'#ffffff', fontWeight:'900'}},
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:680, width:CW, height:400, fill:'rgba(0,0,0,0.8)'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT FOR FREE QUOTE →', props:{left:CW/2, top:700, originX:'center', fontFamily:F_COND, fontSize:40, fill:'#ffffff', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:F_DISPLAY, fontSize:105, fill:'#ff1493', stroke:'#000000', strokeWidth:5, shadow:sh('#ff1493',30)}},
@@ -146,7 +146,7 @@ const TEMPLATES = [
   bg:{type:'grad', c1:'#141007', c2:'#2b2008', a:160},
   layers:[
     {kind:'rect', name:'Gold Band', props:{left:0, top:392, width:CW, height:300, fill:'rgba(245,183,0,0.12)'}},
-    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'PAYING UP TO 95% OF', props:{left:CW/2, top:120, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c9b27c', charSpacing:220, fontWeight:'600'}},
+    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'PRICED FROM', props:{left:CW/2, top:120, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c9b27c', charSpacing:220, fontWeight:'600'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'TODAYS GOLD PRICE', props:{left:CW/2, top:200, originX:'center', fontFamily:'Clash Display', fontSize:132, fill:'#f5b700', shadow:sh('rgba(245,183,0,0.45)',34)}},
     {kind:'textbox', name:'Items', role:'info', casing:'upper', text:'RINGS \u2022 CHAINS \u2022 COINS \u2022 DENTAL\nBROKEN JEWELRY WELCOME\n10K \u2022 14K \u2022 18K \u2022 24K', props:{left:CW/2, top:430, width:CW-140, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#ffffff', textAlign:'center', lineHeight:1.35, fontWeight:'600'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TESTED \u0026 PAID IN FRONT OF YOU', props:{left:CW/2, top:760, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#c9b27c', fontWeight:'700'}},
@@ -162,7 +162,7 @@ const TEMPLATES = [
     {kind:'text', name:'Line', role:'deco', text:'\u2500\u2500\u2500\u2500\u2500 \u25C6 \u2500\u2500\u2500\u2500\u2500', props:{left:CW/2, top:580, originX:'center', fontFamily:F_UI, fontSize:30, fill:'#c9a24b'}},
     {kind:'text', name:'Info', role:'info', casing:'title', text:'Estates, Inheritance \u0026 Fine Jewelry', props:{left:CW/2, top:660, originX:'center', fontFamily:'Zodiak', fontSize:42, fill:'#ffffff'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Satoshi', fontSize:72, fill:'#e8d9ae', fontWeight:'800'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BY APPOINTMENT \u2014 TEXT ANYTIME', props:{left:CW/2, top:905, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.55)', charSpacing:260, fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BY APPOINTMENT, TEXT ANYTIME', props:{left:CW/2, top:905, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.55)', charSpacing:260, fontWeight:'600'}},
   ]},
 { id:'gold_scale', name:'On The Scale', tag:'promo', cat:'gold', tier:'premium',
   bg:{type:'grad', c1:'#3a2b00', c2:'#0d0a02', a:180},
@@ -171,7 +171,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'YOUR GOLD IS', props:{left:CW/2, top:300, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'WORTH MORE', props:{left:CW/2, top:410, originX:'center', fontFamily:'Clash Display', fontSize:118, fill:'#f5b700', shadow:sh('#f5b700',40)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'THAN YOU THINK', props:{left:CW/2, top:555, originX:'center', fontFamily:'Khand', fontSize:60, fill:'#c9b27c', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free testing \u2022 No obligation quote\nWatch the scale \u2014 zero tricks', props:{left:CW/2, top:680, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', textAlign:'center', lineHeight:1.4}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free testing \u2022 No obligation quote\nWatch the scale, zero tricks', props:{left:CW/2, top:680, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', textAlign:'center', lineHeight:1.4}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:850, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#f5b700'}},
   ]},
 { id:'gold_cash_now', name:'Gold = Cash Now', tag:'sell', cat:'gold', tier:'premium',
@@ -180,10 +180,10 @@ const TEMPLATES = [
     {kind:'rect', name:'Ink Panel', props:{left:70, top:170, width:CW-140, height:740, fill:'#101010', rx:26, shadow:sh('rgba(0,0,0,0.45)',40,0,18)}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOLD IN.', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#f5b700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'CASH OUT.', props:{left:CW/2, top:395, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff'}},
-    {kind:'text', name:'Info', role:'info', casing:'upper', text:'5 MINUTE APPRAISAL \u2014 WALK OUT PAID', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#c9b27c', fontWeight:'600'}},
+    {kind:'text', name:'Info', role:'info', casing:'upper', text:'5 MINUTE APPRAISAL, WALK OUT PAID', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#c9b27c', fontWeight:'600'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO FOR AN INSTANT QUOTE', props:{left:CW/2, top:670, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#f5b700'}},
-    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713LICENSED  \u2713INSURED', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
+    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713NO FEES  \u2713FREE QUOTE', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
 { id:'gold_estate', name:'Estate Buyer Serif', tag:'buyer', cat:'gold', tier:'premium',
   bg:{type:'solid', c:'#f4ead2'},
@@ -202,7 +202,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'That old chain?', props:{left:CW/2, top:170, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff', angle:-3}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'none', text:'PAID.', props:{left:CW/2, top:330, originX:'center', fontFamily:'Clash Display', fontSize:210, fill:'#f5b700', angle:2, shadow:sh('rgba(245,183,0,0.5)',30)}},
     {kind:'text', name:'Arrow', role:'deco', text:'\u2935\uFE0F', props:{left:CW/2+250, top:520, fontSize:80, angle:15}},
-    {kind:'text', name:'Info', role:'info', casing:'none', text:'Broken, tangled, one earring \u2014 all of it counts.', props:{left:CW/2, top:640, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c'}},
+    {kind:'text', name:'Info', role:'info', casing:'none', text:'Broken, tangled, one earring, all of it counts.', props:{left:CW/2, top:640, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:104, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC \u2192 GET A NUMBER', props:{left:CW/2, top:900, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#f5b700'}},
   ]},
@@ -214,7 +214,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SELLING YOUR', props:{left:CW/2, top:130, originX:'center', fontFamily:'Khand', fontSize:84, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'SILVER STACK?', props:{left:CW/2, top:230, originX:'center', fontFamily:'Khand', fontSize:120, fill:'#c7d0dc', fontWeight:'700', shadow:sh('rgba(199,208,220,0.35)',28)}},
     {kind:'textbox', name:'Items', role:'info', casing:'upper', text:'EAGLES \u2022 BARS \u2022 JUNK SILVER\n90% COINS \u2022 STERLING FLATWARE', props:{left:CW/2, top:440, width:CW-140, originX:'center', fontFamily:F_COND, fontSize:52, fill:'#8fa3bb', textAlign:'center', lineHeight:1.4, fontWeight:'700'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRICED LIVE OFF SPOT \u2014 NO LOWBALLS', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRICED LIVE OFF SPOT, NO LOWBALLS', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#c7d0dc'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -222,11 +222,11 @@ const TEMPLATES = [
   bg:{type:'solid', c:'#e9edf2'},
   layers:[
     {kind:'rect', name:'Slab', props:{left:0, top:0, width:CW, height:340, fill:'#10141b'}},
-    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'TOP DOLLAR', props:{left:CW/2, top:80, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffffff'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PER OUNCE \u2014 EVERY OUNCE', props:{left:CW/2, top:225, originX:'center', fontFamily:'Khand', fontSize:48, fill:'#ffffff', fontWeight:'600', charSpacing:160}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring the whole box \u2014 tea sets, trays,\ncandlesticks, coins. We sort, weigh\nand pay on the spot.', props:{left:CW/2, top:430, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#2a3340', textAlign:'center', lineHeight:1.45}},
+    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'CASH PAID', props:{left:CW/2, top:80, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffffff'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PER OUNCE, EVERY OUNCE', props:{left:CW/2, top:225, originX:'center', fontFamily:'Khand', fontSize:48, fill:'#ffffff', fontWeight:'600', charSpacing:160}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring the whole box, tea sets, trays,\ncandlesticks, coins. We sort, weigh\nand pay on the spot.', props:{left:CW/2, top:430, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#2a3340', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:88, fill:'#10141b'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'OPEN 7 DAYS \u2014 WALK-INS WELCOME', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'#5a6b80', fontWeight:'600', charSpacing:200}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC, GET A PRICE', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'#5a6b80', fontWeight:'600', charSpacing:200}},
   ]},
 { id:'silver_mirror', name:'Mirror Shine', tag:'sell', cat:'silver', tier:'premium',
   bg:{type:'grad', c1:'#7c8899', c2:'#3f4b5c', a:135},
@@ -234,7 +234,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SILVER', props:{left:CW/2, top:150, originX:'center', fontFamily:'Clash Display', fontSize:250, fill:'#ffffff', stroke:'#10141b', strokeWidth:8, shadow:sh('rgba(0,0,0,0.35)',24,6,6)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'BOUGHT \u2022 WEIGHED \u2022 PAID', props:{left:CW/2, top:440, originX:'center', fontFamily:'Satoshi', fontSize:44, fill:'#10141b', fontWeight:'800', charSpacing:260}},
     {kind:'rect', name:'Panel', props:{left:120, top:560, width:CW-240, height:200, fill:'rgba(16,20,27,0.85)', rx:18}},
-    {kind:'text', name:'Info', role:'info', casing:'none', text:'Even tarnished pieces \u2014 shine does not matter, weight does.', props:{left:CW/2, top:600, originX:'center', fontFamily:F_UI, fontSize:34, fill:'#c7d0dc', width:CW-300, textAlign:'center'}},
+    {kind:'text', name:'Info', role:'info', casing:'none', text:'Even tarnished pieces, shine does not matter, weight does.', props:{left:CW/2, top:600, originX:'center', fontFamily:F_UI, fontSize:34, fill:'#c7d0dc', width:CW-300, textAlign:'center'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:670, originX:'center', fontFamily:'Clash Display', fontSize:76, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE EVALUATIONS DAILY', props:{left:CW/2, top:850, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#10141b', fontWeight:'700'}},
   ]},
@@ -247,14 +247,14 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'STERLING SILVER', props:{left:CW/2, top:250, originX:'center', fontFamily:'Zodiak', fontSize:100, fill:'#2b2416', fontWeight:'700'}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Flatware sets \u2022 Serving pieces \u2022 .925 marked\nGenerous reward paid in cash', props:{left:CW/2, top:430, width:CW-220, originX:'center', fontFamily:'Zodiak', fontSize:44, fill:'#443b2c', textAlign:'center', lineHeight:1.5, fontStyle:'italic'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:680, originX:'center', fontFamily:'Zodiak', fontSize:88, fill:'#2b2416', fontWeight:'700'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'INQUIRE WITHIN \u2014 OR JUST TEXT US', props:{left:CW/2, top:830, originX:'center', fontFamily:'Satoshi', fontSize:30, fill:'#8a2b1d', fontWeight:'700', charSpacing:180}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'INQUIRE WITHIN, OR JUST TEXT US', props:{left:CW/2, top:830, originX:'center', fontFamily:'Satoshi', fontSize:30, fill:'#8a2b1d', fontWeight:'700', charSpacing:180}},
   ]},
 { id:'silver_neon', name:'Second Place Pays', tag:'promo', cat:'silver', tier:'premium',
   bg:{type:'solid', c:'#07080c'},
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SECOND PLACE', props:{left:CW/2, top:170, originX:'center', fontFamily:'Khand', fontSize:140, fill:'rgba(0,0,0,0)', stroke:'#c7d0dc', strokeWidth:4, shadow:sh('#c7d0dc',26)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'STILL PAYS', props:{left:CW/2, top:330, originX:'center', fontFamily:'Khand', fontSize:190, fill:'#c7d0dc', shadow:sh('#8fa3bb',45)}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'SILVER BUYER \u2014 CASH TODAY', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'SILVER BUYER, CASH TODAY', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:720, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff', shadow:sh('#c7d0dc',20)}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BARS \u2022 ROUNDS \u2022 90% \u2022 STERLING', props:{left:CW/2, top:880, originX:'center', fontFamily:F_COND, fontSize:40, fill:'#8fa3bb', fontWeight:'700'}},
   ]},
@@ -274,9 +274,9 @@ const TEMPLATES = [
   bg:{type:'solid', c:'#10131a'},
   layers:[
     {kind:'rect', name:'Circle Halo', props:{left:CW/2-230, top:60, width:460, height:460, fill:'rgba(232,217,174,0.08)', rx:230}},
-    {kind:'text', name:'Year', role:'headline', casing:'none', text:'1878\u20131921', props:{left:CW/2, top:180, originX:'center', fontFamily:'Zodiak', fontSize:110, fill:'#e8d9ae', fontWeight:'700'}},
+    {kind:'text', name:'Year', role:'headline', casing:'none', text:'1878 TO 1921', props:{left:CW/2, top:180, originX:'center', fontFamily:'Zodiak', fontSize:110, fill:'#e8d9ae', fontWeight:'700'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'MORGAN DOLLARS', props:{left:CW/2, top:350, originX:'center', fontFamily:'Khand', fontSize:96, fill:'#ffffff', fontWeight:'700'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PAYING COLLECTOR PRICES \u2014 NOT MELT', props:{left:CW/2, top:490, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#c9a24b', fontWeight:'700', charSpacing:120}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PAYING COLLECTOR PRICES, NOT MELT', props:{left:CW/2, top:490, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#c9a24b', fontWeight:'700', charSpacing:120}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Carson City? Key dates? Toned beauties?\nWe know exactly what you have.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:'Zodiak', fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.5, fontStyle:'italic'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#e8d9ae'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT PHOTOS FOR A REAL OFFER', props:{left:CW/2, top:925, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:160}},
@@ -287,7 +287,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'Found a coin jar', props:{left:CW/2, top:150, originX:'center', fontFamily:'Clash Display', fontSize:90, fill:'#ffffff', angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'none', text:'in the attic?', props:{left:CW/2, top:280, originX:'center', fontFamily:'Clash Display', fontSize:90, fill:'#e8d9ae', angle:1}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'IT MIGHT PAY THE RENT.', props:{left:CW/2, top:450, originX:'center', fontFamily:'Clash Display', fontSize:74, fill:'#f5b700', shadow:sh('rgba(245,183,0,0.4)',26)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free sorting \u2022 We separate the treasure\nfrom the pocket change \u2014 honestly.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free sorting \u2022 We separate the treasure\nfrom the pocket change, honestly.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'HOUSE CALLS FOR BIG FINDS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Clash Display', fontSize:38, fill:'#e8d9ae'}},
   ]},
@@ -298,7 +298,7 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'\u26A0 CHECK YOUR CHANGE \u26A0', props:{left:CW/2, top:98, originX:'center', fontFamily:'Khand', fontSize:54, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'ERROR COINS', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'= REAL MONEY', props:{left:CW/2, top:400, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#f5b700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Double dies \u2022 Off-centers \u2022 Wrong planchets\nSome are worth thousands. We will tell you\nwhich \u2014 for free.', props:{left:CW/2, top:560, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Double dies \u2022 Off-centers \u2022 Wrong planchets\nSome are worth thousands. We will tell you\nwhich, for free.', props:{left:CW/2, top:560, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:94, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A CLOSE-UP PHOTO NOW', props:{left:CW/2, top:925, originX:'center', fontFamily:'Khand', fontSize:36, fill:'#f5b700', fontWeight:'700'}},
   ]},
@@ -308,7 +308,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Slab Frame', props:{left:CW/2-320, top:120, width:640, height:340, fill:'rgba(255,255,255,0.06)', rx:22, stroke:'#3a4a63', strokeWidth:3}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'PCGS \u2022 NGC', props:{left:CW/2, top:180, originX:'center', fontFamily:'Satoshi', fontSize:86, fill:'#ffffff', fontWeight:'900'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'GRADED COINS WANTED', props:{left:CW/2, top:310, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#8fb4ff', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pay for the grade, the strike and the eye appeal \u2014 registry-quality offers on registry-quality coins.', props:{left:CW/2, top:530, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pay for the grade, the strike and the eye appeal, registry-quality offers on registry-quality coins.', props:{left:CW/2, top:530, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:740, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#8fb4ff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CERT NUMBERS GET INSTANT QUOTES', props:{left:CW/2, top:890, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:140}},
   ]},
@@ -341,7 +341,7 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'DEALER OFFERED YOU WHAT?', props:{left:CW/2, top:110, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#8fb4ff', fontWeight:'600'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WE BEAT', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:140, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'TRADE-IN OFFERS', props:{left:CW/2, top:370, originX:'center', fontFamily:'Clash Display', fontSize:88, fill:'#4da3ff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring their written offer \u2014 we will top it\nor tell you to take it. Straight answers only.', props:{left:CW/2, top:530, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring their written offer.\nWe will give you ours. Straight answers only.', props:{left:CW/2, top:530, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'VIN + MILES = OFFER IN 10 MINUTES', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4da3ff'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
@@ -363,7 +363,7 @@ const TEMPLATES = [
     {kind:'text', name:'Plate State', role:'sub', casing:'upper', text:'\u2605 CASH \u2605', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#8a2b1d', fontWeight:'700', charSpacing:340}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'4-UR-CAR', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#10141b', charSpacing:80}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'ANY YEAR \u2022 ANY MAKE \u2022 ANY SHAPE', props:{left:CW/2, top:500, originX:'center', fontFamily:'Satoshi', fontSize:40, fill:'#2a3340', fontWeight:'800', charSpacing:120}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Licensed \u0026 bonded buyer \u2014 title handled,\nDMV paperwork done for you, zero fees.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#5a6b80', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Title handled and DMV paperwork\ndone for you, zero fees.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#5a6b80', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:86, fill:'#10141b'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT YOUR VIN \u2192 GET A NUMBER', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:36, fill:'#8a2b1d', fontWeight:'700'}},
   ]},
@@ -385,7 +385,7 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'CONTRACTORS \u2022 FLEETS', props:{left:CW/2, top:108, originX:'center', originY:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'700', angle:-1}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WORK TRUCKS', props:{left:CW/2, top:220, originX:'center', fontFamily:'Clash Display', fontSize:118, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'\u0026 VANS WANTED', props:{left:CW/2, top:355, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ff8a00'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Retiring units? Downsizing the yard?\nWe buy 1 or 20 \u2014 high miles fine,\nlettering \u0026 racks fine, diesel preferred.', props:{left:CW/2, top:520, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Retiring units? Downsizing the yard?\nWe buy 1 or 20, high miles fine,\nlettering \u0026 racks fine, diesel preferred.', props:{left:CW/2, top:520, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ff8a00'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BULK QUOTES IN WRITING SAME DAY', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:120}},
   ]},
@@ -395,7 +395,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Gauge Panel', props:{left:CW/2-350, top:140, width:700, height:260, fill:'#101318', rx:130, stroke:'#2a3340', strokeWidth:4}},
     {kind:'text', name:'Odometer', role:'headline', casing:'none', text:'246,801 mi', props:{left:CW/2, top:210, originX:'center', fontFamily:'Khand', fontSize:110, fill:'#4dff88', fontWeight:'600', shadow:sh('rgba(77,255,136,0.4)',24)}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'HIGH MILES? STILL PAYS.', props:{left:CW/2, top:480, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Hondas \u0026 Toyotas especially \u2014 the miles\nscare dealers, not us. Fair offers based\non what your car is actually worth.', props:{left:CW/2, top:620, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#8fa3bb', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Hondas \u0026 Toyotas especially, the miles\nscare dealers, not us. Fair offers based\non what your car is actually worth.', props:{left:CW/2, top:620, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#8fa3bb', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:830, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dff88'}},
   ]},
 
@@ -405,9 +405,9 @@ const TEMPLATES = [
   layers:[
     {kind:'rect', name:'Teal Header', solid:true, props:{left:0, top:0, width:CW, height:300, fill:'#0b5551'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EXTRA TEST STRIPS?', props:{left:CW/2, top:80, originX:'center', fontFamily:'Satoshi', fontSize:82, fill:'#ffffff', fontWeight:'900'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'TURN THEM INTO CASH \u2014 LEGALLY \u0026 SIMPLY', props:{left:CW/2, top:200, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Unopened \u2022 Unexpired \u2022 Factory sealed\nAll major brands \u2014 boxes checked\nand paid while you wait.', props:{left:CW/2, top:400, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:44, fill:'#1d3a38', textAlign:'center', lineHeight:1.5}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'MAIL-IN KITS AVAILABLE \u2014 FREE SHIPPING', props:{left:CW/2, top:680, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#0f6e6a', fontWeight:'800'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'TURN THEM INTO CASH, SIMPLY', props:{left:CW/2, top:200, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Unopened \u2022 Unexpired \u2022 Factory sealed\nAll major brands, boxes checked\nand paid while you wait.', props:{left:CW/2, top:400, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:44, fill:'#1d3a38', textAlign:'center', lineHeight:1.5}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'MAIL-IN KITS AVAILABLE, FREE SHIPPING', props:{left:CW/2, top:680, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#0f6e6a', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Satoshi', fontSize:84, fill:'#0f6e6a', fontWeight:'900'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:920, originX:'center', fontFamily:F_UI, fontSize:28, fill:'#5a8683'}},
   ]},
@@ -416,7 +416,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EVERY SEALED BOX', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'= MONEY', props:{left:CW/2, top:260, originX:'center', fontFamily:'Clash Display', fontSize:160, fill:'#4dd7ff', shadow:sh('rgba(77,215,255,0.4)',34)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Insurance sent too many? Switched meters?\nDo not let good boxes expire in a drawer.\nWe pay by brand \u0026 date \u2014 transparent list.', props:{left:CW/2, top:480, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7e4', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Insurance sent too many? Switched meters?\nDo not let good boxes expire in a drawer.\nWe pay by brand \u0026 date, transparent list.', props:{left:CW/2, top:480, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7e4', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO OF YOUR BOXES', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dd7ff'}},
   ]},
@@ -447,9 +447,9 @@ const TEMPLATES = [
     {kind:'text', name:'Clock', role:'deco', text:'\u23F3', props:{left:CW/2, top:70, originX:'center', fontSize:120}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EXPIRING BOXES', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffb020'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'LOSE VALUE DAILY', props:{left:CW/2, top:380, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'12+ months out pays the most.\nEven 6 months still pays \u2014 but the\nclock only runs one way. Sell now.', props:{left:CW/2, top:540, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#d8c9a3', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'12+ months out pays the most.\nEven 6 months still pays, but the\nclock only runs one way. Sell now.', props:{left:CW/2, top:540, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#d8c9a3', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffb020'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'QUOTE FROM ONE PHOTO \u2014 TRY IT', props:{left:CW/2, top:905, originX:'center', fontFamily:'Khand', fontSize:36, fill:'rgba(255,255,255,0.65)', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'QUOTE FROM ONE PHOTO, TRY IT', props:{left:CW/2, top:905, originX:'center', fontFamily:'Khand', fontSize:36, fill:'rgba(255,255,255,0.65)', fontWeight:'600'}},
   ]},
 
 /* ── POKEMON CARDS (7) ── */
@@ -459,7 +459,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'YOUR OLD BINDER', props:{left:CW/2, top:120, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffd200', charSpacing:60, shadow:sh('rgba(0,0,0,0.6)',14,5,5)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'MIGHT BE A GOLDMINE', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffffff', charSpacing:40, shadow:sh('rgba(0,0,0,0.6)',14,5,5)}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Base Set \u2022 Charizards \u2022 1st Editions\nShadowless \u2022 Japanese \u2022 Full binders\nWe grade-check for free, in front of you.', props:{left:CW/2, top:430, width:CW-150, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CASH \u2014 NOT STORE CREDIT', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffd200', fontWeight:'700'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CASH, NOT STORE CREDIT', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffd200', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -469,9 +469,9 @@ const TEMPLATES = [
     {kind:'text', name:'Fire', role:'deco', text:'\uD83D\uDD25', props:{left:CW/2, top:60, originX:'center', fontSize:130}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOT A ZARD?', props:{left:CW/2, top:240, originX:'center', fontFamily:'Clash Display', fontSize:180, fill:'#ffffff', stroke:'#000000', strokeWidth:6, shadow:sh('rgba(0,0,0,0.5)',18,6,6)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'HOLO \u2022 SHADOWLESS \u2022 GRADED \u2022 RAW', props:{left:CW/2, top:470, originX:'center', fontFamily:'Khand', fontSize:46, fill:'#ffd200', fontWeight:'700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Serious money for serious cards \u2014\nrecent comps shown with every offer.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#ffe3c2', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Serious money for serious cards,\nrecent comps shown with every offer.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#ffe3c2', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffd200', stroke:'#000000', strokeWidth:3}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC \u2014 OFFER IN MINUTES', props:{left:CW/2, top:905, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#ffffff', charSpacing:40}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC, OFFER IN MINUTES', props:{left:CW/2, top:905, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#ffffff', charSpacing:40}},
   ]},
 { id:'pkm_sealed', name:'Sealed Product Vault', tag:'buyer', cat:'pokemon', tier:'premium',
   bg:{type:'solid', c:'#0a0d18'},
@@ -480,7 +480,7 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'DO NOT OPEN THAT BOX', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:48, fill:'#ff5b5b', fontWeight:'700', charSpacing:120}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SEALED PRODUCT', props:{left:CW/2, top:260, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'PAYS PREMIUM', props:{left:CW/2, top:375, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffd200'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Booster boxes \u2022 ETBs \u2022 Collections\nVintage WOTC to modern \u2014 factory\nseal intact = top of market paid.', props:{left:CW/2, top:530, width:CW-220, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Booster boxes \u2022 ETBs \u2022 Collections\nVintage WOTC to modern, factory\nseal intact = top of market paid.', props:{left:CW/2, top:530, width:CW-220, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:750, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffd200'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BULK COLLECTIONS WELCOME', props:{left:CW/2, top:890, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:180}},
   ]},
@@ -489,8 +489,8 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'Remember 1999?', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd27a', angle:-2}},
     {kind:'text', name:'Sub', role:'sub', casing:'none', text:'Your childhood shoebox does.', props:{left:CW/2, top:290, originX:'center', fontFamily:'Zodiak', fontSize:52, fill:'#ffffff', fontStyle:'italic'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Those playground cards are adult money\nnow. Dig out the shoebox \u2014 we will sort\nit together and pay for the hits.', props:{left:CW/2, top:440, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d8c9a3', textAlign:'center', lineHeight:1.5}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK \u2014 ZERO PRESSURE', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffd27a', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Those playground cards are adult money\nnow. Dig out the shoebox, we will sort\nit together and pay for the hits.', props:{left:CW/2, top:440, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d8c9a3', textAlign:'center', lineHeight:1.5}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK, ZERO PRESSURE', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffd27a', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713LOCAL  \u2713TRUSTED', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
@@ -499,7 +499,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'PSA 9 vs PSA 10', props:{left:CW/2, top:130, originX:'center', fontFamily:'Satoshi', fontSize:96, fill:'#ffffff', fontWeight:'900'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'CAN BE A 5X PRICE GAP', props:{left:CW/2, top:270, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#ffd200', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pre-screen your raw cards with the\nsame checklist graders use \u2014 centering,\nedges, surface \u2014 and pay for the upside.', props:{left:CW/2, top:420, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bcd0ff', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pre-screen your raw cards with the\nsame checklist graders use, centering,\nedges, surface, and pay for the upside.', props:{left:CW/2, top:420, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bcd0ff', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'SLABS ALSO BOUGHT AT COMP PRICES', props:{left:CW/2, top:650, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd200'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
@@ -510,7 +510,7 @@ const TEMPLATES = [
     {kind:'text', name:'Rising Sun', role:'deco', text:'\u26E9\uFE0F', props:{left:CW/2, top:70, originX:'center', fontSize:110}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'JAPANESE CARDS', props:{left:CW/2, top:240, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'WANTED BADLY', props:{left:CW/2, top:365, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ffd200', shadow:sh('rgba(255,210,0,0.35)',26)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Promos \u2022 Trophy cards \u2022 Vending sheets\nOld Back anything \u2014 if it is from Japan\nand mint, we are your best offer.', props:{left:CW/2, top:530, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#ffd9e2', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Promos \u2022 Trophy cards \u2022 Vending sheets\nOld Back anything, if it is from Japan\nand mint, we are your best offer.', props:{left:CW/2, top:530, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#ffd9e2', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'COLLECTION MANAGERS: DM US FIRST', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.7)', fontWeight:'600', charSpacing:120}},
   ]},
@@ -519,7 +519,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'BULK CARDS', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#4dff88'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'BY THE POUND', props:{left:CW/2, top:290, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Commons, energies, whole tubs \u2014\nyes, even those. Weighed on a certified\nscale, paid per pound, hauled away free.', props:{left:CW/2, top:470, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7cd', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Commons, energies, whole tubs,\nyes, even those. Weighed on a certified\nscale, paid per pound, hauled away free.', props:{left:CW/2, top:470, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7cd', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'HITS PULLED \u0026 PAID SEPARATELY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#4dff88', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
   ]},
@@ -530,8 +530,8 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'ROOKIE CARDS', props:{left:CW/2, top:130, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff', fontStyle:'italic'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'BOUGHT AT COMPS', props:{left:CW/2, top:285, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#4dff88', fontStyle:'italic', shadow:sh('rgba(77,255,136,0.35)',24)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Prizm \u2022 Topps Chrome \u2022 Bowman 1sts\nAutos \u0026 numbered parallels \u2014 we track\nlive sales, you get the real number.', props:{left:CW/2, top:450, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bfe7cd', textAlign:'center', lineHeight:1.45}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'NO CONSIGNMENT WAIT \u2014 PAID TODAY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Prizm \u2022 Topps Chrome \u2022 Bowman 1sts\nAutos \u0026 numbered parallels, we track\nlive sales, you get the real number.', props:{left:CW/2, top:450, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bfe7cd', textAlign:'center', lineHeight:1.45}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'NO CONSIGNMENT WAIT, PAID TODAY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dff88'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -542,7 +542,7 @@ const TEMPLATES = [
     {kind:'text', name:'Score You', role:'headline', casing:'upper', text:'YOU: PAID', props:{left:CW/2, top:170, originX:'center', fontFamily:'Khand', fontSize:92, fill:'#ffd200', fontWeight:'700', shadow:sh('rgba(255,210,0,0.4)',20)}},
     {kind:'text', name:'Score Them', role:'headline', casing:'upper', text:'EBAY FEES: 0', props:{left:CW/2, top:300, originX:'center', fontFamily:'Khand', fontSize:70, fill:'#ff5b5b', fontWeight:'700'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'SKIP THE LISTINGS. SKIP THE FEES.', props:{left:CW/2, top:520, originX:'center', fontFamily:'Clash Display', fontSize:52, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Full card collections bought outright \u2014\nbasketball, football, baseball, soccer.', props:{left:CW/2, top:640, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Full card collections bought outright,\nbasketball, football, baseball, soccer.', props:{left:CW/2, top:640, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd200'}},
   ]},
 { id:'sports_goat', name:'GOAT Era Vintage', tag:'sell', cat:'sports', tier:'premium',
@@ -551,16 +551,16 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'JORDAN \u2022 BRADY \u2022 MANTLE \u2022 KOBE', props:{left:CW/2, top:110, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ff9d5c', fontWeight:'600', charSpacing:100}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOAT CARDS', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:160, fill:'#ffffff', shadow:sh('rgba(0,0,0,0.5)',20,6,6)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'DESERVE GOAT OFFERS', props:{left:CW/2, top:400, originX:'center', fontFamily:'Clash Display', fontSize:74, fill:'#ff9d5c'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Vintage to modern grails \u2014 if it hangs\nin a man cave, it cashes out here.\nAuthentication handled on the spot.', props:{left:CW/2, top:540, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#e8cdb8', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Vintage to modern grails, if it hangs\nin a man cave, it cashes out here.\nAuthentication handled on the spot.', props:{left:CW/2, top:540, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#e8cdb8', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRIVATE SALES \u2014 NO AUCTION CIRCUS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.65)', fontWeight:'600', charSpacing:120}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRIVATE SALES, NO AUCTION CIRCUS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.65)', fontWeight:'600', charSpacing:120}},
   ]},
 { id:'sports_break', name:'Breaker Overflow', tag:'buyer', cat:'sports', tier:'premium',
   bg:{type:'grad', c1:'#1d1040', c2:'#090418', a:160},
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'BREAKERS:', props:{left:CW/2, top:130, originX:'center', fontFamily:'Clash Display', fontSize:120, fill:'#b78bff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'SELL YOUR HITS', props:{left:CW/2, top:270, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Weekend breaks piling up? We buy\nyour pulled slabs, autos \u0026 parallels\nin bulk lots \u2014 one transfer, all gone.', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d9c9ff', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Weekend breaks piling up? We buy\nyour pulled slabs, autos \u0026 parallels\nin bulk lots, one transfer, all gone.', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d9c9ff', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'STANDING WEEKLY BUY-OUTS AVAILABLE', props:{left:CW/2, top:650, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#b78bff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713FAST PAY  \u2713BULK OK', props:{left:CW-30, top:30, originX:'right', fontFamily:F_COND, fontSize:32, fill:'#ffffff', fontWeight:'900', backgroundColor:'#b78bff', padding:6}},
@@ -581,7 +581,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'COMPLETE SETS', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:116, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'\u0026 WAX BOXES', props:{left:CW/2, top:290, originX:'center', fontFamily:'Khand', fontSize:116, fill:'#4da3ff', fontWeight:'700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'86 Fleer to 2024 releases \u2014 sealed wax,\nfactory sets, and the shoebox of doubles\nyou almost threw away. Bring it all.', props:{left:CW/2, top:470, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd7ff', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'86 Fleer to 2024 releases, sealed wax,\nfactory sets, and the shoebox of doubles\nyou almost threw away. Bring it all.', props:{left:CW/2, top:470, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd7ff', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'ESTATES \u0026 STORAGE UNITS: CALL FIRST', props:{left:CW/2, top:690, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4da3ff'}},
   ]},
@@ -785,21 +785,21 @@ const TEMPLATES = [
   /* exposed for scripts/theme_lab.mjs: the lab composes real ads and must use
      the real copy, not a paraphrase of it. */
   const DECKS = {
-    phones:  { k:'LICENSED BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT, EVERY TIME\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY OR YOU MAIL IT IN', cta:'GET YOUR OFFER', price:'UP TO $1,100 PAID TODAY', big:'$1,100', badges:['LICENSED','INSURED','LOCAL'],
+    phones:  { k:'LOCAL BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY OR YOU MAIL IT IN', cta:'GET YOUR OFFER', price:'CASH PAID TODAY', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
                scene:'extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh' },
-    gold:    { k:'LICENSED GOLD BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Earrings • Broken Gold', sub:'TESTED AND WEIGHED IN FRONT OF YOU\nWRITTEN OFFER BEFORE YOU DECIDE\nESTATES HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'TOP $', badges:['LICENSED','INSURED','PRIVATE'],
+    gold:    { k:'LOCAL GOLD BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Earrings • Broken Gold', sub:'TESTED AND WEIGHED IN FRONT OF YOU\nWRITTEN OFFER BEFORE YOU DECIDE\nESTATES HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','PRIVATE'],
                scene:'molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh' },
-    silver:  { k:'LICENSED BUYER', h1:'WE BUY', h2:'SILVER', alt2:'SILVER', items:'Coins • Bars • Silverware • Jewelry', sub:'WEIGHED IN FRONT OF YOU\nCOINS, BARS, SILVERWARE AND JEWELRY\nPAID BY WEIGHT AT CURRENT RATES', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['LICENSED','INSURED','LOCAL'],
+    silver:  { k:'LOCAL BUYER', h1:'WE BUY', h2:'SILVER', alt2:'SILVER', items:'Coins • Bars • Silverware • Jewelry', sub:'WEIGHED IN FRONT OF YOU\nCOINS, BARS, SILVERWARE AND JEWELRY\nPAID BY WEIGHT AT CURRENT RATES', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
                scene:'stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus' },
-    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nHOUSE CALLS FOR LARGE ESTATES', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'$25,000', badges:['LICENSED','INSURED','DISCREET'],
+    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nHOUSE CALLS FOR LARGE ESTATES', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'CASH', badges:['NO FEES','FREE QUOTE','DISCREET'],
                scene:'antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro' },
-    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nTITLE AND DMV PAPERWORK HANDLED\nSAME-DAY PICKUP ACROSS LA & OC', cta:'GET AN INSTANT OFFER', price:'UP TO $15,000 CASH', big:'$15,000', badges:['FREE TOW','SAME DAY','LICENSED'],
+    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nTITLE AND DMV PAPERWORK HANDLED\nSAME-DAY PICKUP ACROSS LA & OC', cta:'GET AN INSTANT OFFER', price:'CASH ON THE SPOT', big:'CASH', badges:['FREE TOW','SAME DAY','NO FEES'],
                scene:'dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze' },
-    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nLOCAL PICKUP OR PREPAID MAIL-IN\nPAID THE SAME DAY WE RECEIVE THEM', cta:'GET YOUR OFFER', price:'TOP BOX PRICES PAID', big:'TOP $', badges:['DISCREET','FAST','FAIR'],
+    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nLOCAL PICKUP OR PREPAID MAIL-IN\nPAID THE SAME DAY WE RECEIVE THEM', cta:'GET YOUR OFFER', price:'PAID SAME DAY', big:'CASH', badges:['DISCREET','FAST','FAIR'],
                scene:'clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur' },
-    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Single cards • Full binders • Sealed boxes', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE SORT AND VALUE EVERYTHING FOR YOU\nFREE APPRAISAL, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'TOP PRICES PAID', big:'$10,000', badges:['TRUSTED','INSURED','LOCAL'],
+    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Single cards • Full binders • Sealed boxes', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE SORT AND VALUE EVERYTHING FOR YOU\nFREE APPRAISAL, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['TRUSTED','NO FEES','LOCAL'],
                scene:'holographic trading card close-up with prismatic light refractions on dark felt, dreamy bokeh' },
-    sports:  { k:'COLLECTIONS WANTED', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Single cards • Full boxes • Collections', sub:'SINGLE CARDS OR FULL COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nWE BUY ENTIRE COLLECTIONS OUTRIGHT', cta:'REQUEST AN APPRAISAL', price:'TOP DOLLAR PAID', big:'$5,000', badges:['TRUSTED','INSURED','LOCAL'],
+    sports:  { k:'COLLECTIONS WANTED', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Single cards • Full boxes • Collections', sub:'SINGLE CARDS OR FULL COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nWE BUY ENTIRE COLLECTIONS OUTRIGHT', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['TRUSTED','NO FEES','LOCAL'],
                scene:'vintage baseball cards fanned on worn wood with stadium light bokeh, nostalgic warm grade' },
   };
 
@@ -810,7 +810,7 @@ const TEMPLATES = [
     t('Badges', 'badges', 'upper', badges.join('\n'), { left:W-56, top:40, originX:'right', fontFamily:T.s, fontSize:28, fill:P.ink, fontWeight:'800', lineHeight:1.52, charSpacing:110, opacity:0.95, shadow:P.paper ? null : sh('rgba(0,0,0,0.55)', 9, 0, 2) }),
   ];
   const ribbon = (P, T, text, y) => [
-    r('Kicker Ribbon', { left:CX, top:y+31, width:430, height:62, rx:14, originX:'center', originY:'center', angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
+    r('Kicker Ribbon', { left:CX, top:y+31, width:490, height:62,   /* 490: COLLECTIONS WANTED ran 17px past 430 */ rx:14, originX:'center', originY:'center', angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
     t('Kicker', 'sub', 'upper', text, { left:CX, top:y+31, originX:'center', originY:'center', fontFamily:T.s, fontStyle:'italic', fontSize:36, fill:onAccent(P), fontWeight:'900', angle:-3 }),
   ];
   const subBlock = (P, T, text, y, size) => tb('Info Text', 'info', 'upper', text, { left:CX, top:y, width:W-140, originX:'center', fontFamily:T.s, fontStyle:'italic', fontSize:size || 40, fill:P.ink, fontWeight:'800', textAlign:'center', lineHeight:1.34, stroke:P.paper ? undefined : '#000000', strokeWidth:P.paper ? 0 : 3, shadow:P.paper ? null : sh('rgba(0,0,0,0.6)', 10, 0, 3) });
@@ -829,14 +829,14 @@ const TEMPLATES = [
   try { window.DECKS_SNAPSHOT = DECKS; } catch(e){}
 
   const TRUST_COPY = {
-    phones:  { q:'"Texted photos at noon, had cash by 3pm. Easiest sale ever."',        w:'MARCUS D. • LONG BEACH' },
-    gold:    { q:'"Fair price for my grandmother\'s rings, paid on the spot."',         w:'ELENA R. • LAKEWOOD' },
-    silver:  { q:'"Weighed everything right in front of me. Honest start to finish."',  w:'PAUL S. • SIGNAL HILL' },
-    coins:   { q:'"Knew more about my collection than I did. Strong offer."',           w:'HOWARD B. • CERRITOS' },
-    cars:    { q:'"Picked up my old Civic the same day, cash in hand."',                w:'DENISE W. • CARSON' },
-    strips:  { q:'"Simple and discreet. Boxes gone, paid fairly."',                     w:'T.J. • NORWALK' },
-    pokemon: { q:'"Got real value for my binder, not pawn shop prices."',               w:'ALEX M. • DOWNEY' },
-    sports:  { q:'"My rookie cards finally found a fair, serious buyer."',              w:'RAY G. • TORRANCE' },
+    phones:  { q:'Text us a photo of the phone. We send a price, you decide.', w:'HOW IT WORKS' },
+    gold:    { q:'Send photos first. We weigh it in front of you and pay the same day.', w:'HOW IT WORKS' },
+    silver:  { q:'Send photos first. We weigh it in front of you and pay the same day.', w:'HOW IT WORKS' },
+    coins:   { q:'Send photos of the collection. We tell you what we see and what we pay.', w:'HOW IT WORKS' },
+    cars:    { q:'Send photos of the car. We make an offer, you decide.', w:'HOW IT WORKS' },
+    strips:  { q:'Sealed, unexpired boxes only. Text a photo for a price.', w:'HOW IT WORKS' },
+    pokemon: { q:'Send photos of the binder or the slabs. We make a cash offer.', w:'HOW IT WORKS' },
+    sports:  { q:'Send photos of the cards. We make a cash offer, you decide.', w:'HOW IT WORKS' },
   };
 
   /* Ink that actually reads ON the accent. Chip glyphs were hard-coded to
@@ -896,7 +896,7 @@ const TEMPLATES = [
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:168, originX:'center', fontFamily:T.d, fontSize:233, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:15, shadow:hard('rgba(0,0,0,0.5)', 12) }),
         rg('Claim Plate', { left:96, top:512, width:888, height:118, rx:16, fill:hexToRgba(P.deep,0.82), shadow:hard('rgba(0,0,0,0.28)', 6) }),
         t('Claim 1', 'info', 'upper', C.badges ? C.badges.join(' • ') : 'ANY CONDITION ANY CARRIER', { left:CX, top:534, originX:'center', fontFamily:'Khand', fontSize:41, fill:P.a2, fontWeight:'700', charSpacing:30 }),
-        t('Claim 2', 'info', 'upper', C.sub || 'TOP DOLLAR PAID TODAY', { left:CX, top:578, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:30 }),
+        t('Claim 2', 'info', 'upper', C.sub || 'CASH PAID TODAY', { left:CX, top:578, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:30 }),
         t('Area 1', 'info', 'upper', C.a1 || 'IE', { left:CX-268, top:672, originX:'center', fontFamily:T.d, fontSize:98, fill:'#2fbf4f', fontWeight:'700', stroke:ink, strokeWidth:7 }),
         t('Arrow 1', 'deco', 'none', '↓', { left:CX-134, top:686, originX:'center', fontFamily:'Satoshi', fontSize:78, fill:'#e8362c', fontWeight:'900' }),
         t('Area 2', 'info', 'upper', C.a2 || 'OC', { left:CX, top:672, originX:'center', fontFamily:T.d, fontSize:98, fill:'#2fbf4f', fontWeight:'700', stroke:ink, strokeWidth:7 }),
@@ -920,7 +920,7 @@ const TEMPLATES = [
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:54, top:78, fontFamily:T.d, fontSize:109, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:172, fontFamily:T.d, fontSize:187, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:13, shadow:hard('rgba(0,0,0,0.5)', 10) }),
         cut('Product', C.cut || 'cash-stack', { left:1032, top:398, originX:'right', w:505, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
-        ...row(1, 452, (C.badges && C.badges[0]) || 'TOP DOLLAR',   (C.subs && C.subs[0]) || 'Paid in cash, same day'),
+        ...row(1, 452, (C.badges && C.badges[0]) || 'CASH PAID',   (C.subs && C.subs[0]) || 'Paid in cash, same day'),
         ...row(2, 572, (C.badges && C.badges[1]) || 'FAST & EASY',  (C.subs && C.subs[1]) || 'Text photos, get an offer'),
         ...row(3, 692, (C.badges && C.badges[2]) || 'ANY CONDITION',(C.subs && C.subs[2]) || 'No appointment needed'),
         rg('Phone Plate', { left:54, top:836, width:940, height:132, rx:22, fill:P.a1, shadow:hard('rgba(0,0,0,0.4)', 9) }),
@@ -942,8 +942,13 @@ const TEMPLATES = [
         t('Headline 1', 'headline', 'upper', C.h1 || 'BUYING', { left:54, top:70, fontFamily:T.d, fontSize:100, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:154, fontFamily:T.d, fontSize:173, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:13, shadow:hard('rgba(0,0,0,0.5)', 10) }),
         cut('Product', C.cut || 'iphone-cracked', { left:1030, top:352, originX:'right', w:573, angle:6, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
-        ...chk(1, 372, pts[0]), ...chk(2, 462, pts[1]), ...chk(3, 552, pts[2]), ...chk(4, 642, pts[3] || 'ANY OTHER ISSUE'),
-        rg('CTA Bar', { left:0, top:846, width:W, height:150, fill:P.deep }),
+        /* rows from 420, not 372: the category word runs to ~405, and alignPass
+           pushed the first label clear of it but not its chip, so the first
+           check sat beside the wrong line. The bar runs to the foot of the
+           card: at height 150 it stopped 84px short and the number (Khand at
+           93px) hung its lower edge off it onto the photograph. */
+        ...chk(1, 420, pts[0]), ...chk(2, 510, pts[1]), ...chk(3, 600, pts[2]), ...chk(4, 690, pts[3] || 'ANY OTHER ISSUE'),
+        rg('CTA Bar', { left:0, top:846, width:W, height:W - 846, fill:P.deep }),   // square canvas: to the foot
         t('CTA', 'cta', 'upper', C.cta || 'TEXT A PHOTO FOR AN OFFER', { left:CX, top:872, originX:'center', fontFamily:'Khand', fontSize:38, fill:'rgba(255,255,255,0.88)', fontWeight:'700', charSpacing:44 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:906, originX:'center', fontFamily:T.d, fontSize:93, fill:ink, fontWeight:'700' }),
       ];
@@ -994,8 +999,11 @@ const TEMPLATES = [
         rg('Ribbon', { left:-40, top:120, width:1160, height:132, fill:P.a1, angle:tilt, shadow:hard('rgba(0,0,0,0.35)', 9) }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:100, fill:onAccent(P), fontWeight:'700', angle:tilt }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:308, originX:'center', fontFamily:T.d, fontSize:204, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:14, shadow:hard('rgba(0,0,0,0.5)', 12), angle:-3 }),
-        t('Sub', 'sub', 'upper', C.sub || 'TOP DOLLAR PAID TODAY', { left:CX, top:520, originX:'center', fontFamily:'Khand', fontSize:41, fill:ink, fontWeight:'700', charSpacing:30, stroke:P.deep, strokeWidth:3, angle:-2 }),
-        cut('Product', C.cut || 'cash-fan', { left:CX, top:534, originX:'center', w:353, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
+        t('Sub', 'sub', 'upper', C.sub || 'CASH PAID TODAY', { left:CX, top:520, originX:'center', fontFamily:'Khand', fontSize:41, fill:ink, fontWeight:'700', charSpacing:30, stroke:P.deep, strokeWidth:3, angle:-2 }),
+        /* in the band between the item line and the pills, never over the words:
+           the study session's layering ladder puts copy on the top rung, and
+           at top:534 the product hid 54-63% of the item line on every ribbon */
+        cut('Product', C.cut || 'cash-fan', { left:CX, top:648, originX:'center', w:353, maxH:176, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
         ...pill(0, 70, 280, b[0]), ...pill(1, 372, 300, b[1]), ...pill(2, 694, 316, b[2] || 'CASH NOW'),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:944, originX:'center', fontFamily:T.d, fontSize:104, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:9, shadow:hard('rgba(0,0,0,0.45)', 8) }),
       ];
@@ -1015,7 +1023,7 @@ const TEMPLATES = [
       };
       const pts = C.points || ['SEALED','GRADED','VINTAGE','BULK LOTS','SINGLES','COLLECTIONS'];
       return [
-        t('Kicker', 'sub', 'upper', C.kicker || 'PAYING UP TO', { left:CX, top:74, originX:'center', fontFamily:'Khand', fontSize:47, fill:ink, fontWeight:'700', charSpacing:50, stroke:P.deep, strokeWidth:3 }),
+        t('Kicker', 'sub', 'upper', C.kicker || 'WE PAY', { left:CX, top:74, originX:'center', fontFamily:'Khand', fontSize:47, fill:ink, fontWeight:'700', charSpacing:50, stroke:P.deep, strokeWidth:3 }),
         t('Price Line', 'headline', 'upper', C.price || '90%', { left:CX, top:116, originX:'center', fontFamily:T.d, fontSize:196, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:15, shadow:hard('rgba(0,0,0,0.5)', 12) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:334, originX:'center', fontFamily:T.d, fontSize:100, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         cut('Product', C.cut || 'cash-bundles', { left:1040, top:392, originX:'right', w:256, angle:5, shadow:sh('rgba(0,0,0,0.5)', 34, 0, 18) }),  // sits in the clear band between the price and the grid; a long price like $15,000 reaches x960 up top
@@ -1057,7 +1065,7 @@ const TEMPLATES = [
         t('Kicker', 'sub', 'upper', C.brand || 'LOCAL BUYER', { left:54, top:70, fontFamily:'Khand', fontSize:38, fill:ink, fontWeight:'700', charSpacing:44, stroke:P.deep, strokeWidth:3 }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:54, top:124, fontFamily:T.d, fontSize:87, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:7, shadow:hard('rgba(0,0,0,0.45)', 6) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:206, fontFamily:T.d, fontSize:141, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:10, shadow:hard('rgba(0,0,0,0.45)', 8) }),
-        t('Price Line', 'headline', 'upper', C.price || '$1,100', { left:54, top:392, fontFamily:T.d, fontSize:165, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13), angle:-4 }),
+        t('Price Line', 'headline', 'upper', C.price || 'CASH', { left:54, top:392, fontFamily:T.d, fontSize:165, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13), angle:-4 }),
         cut('Product', C.cut || 'iphone-front', { left:1048, top:132, originX:'right', w:366, angle:5, shadow:sh('rgba(0,0,0,0.5)', 38, 0, 20) }),
         ...roundel(0, 70, b[0]), ...roundel(1, 232, b[1]), ...roundel(2, 394, b[2] || 'NO HAGGLE'),
         rg('Badge', { left:620, top:762, width:390, height:104, rx:22, fill:P.a1, angle:-4, shadow:hard('rgba(0,0,0,0.35)', 8) }),
@@ -1096,10 +1104,12 @@ const TEMPLATES = [
     streetPriceTag: (P, T, C) => {
       const ink = '#ffffff';
       return [
-        t('Kicker', 'sub', 'upper', C.kicker || 'PAYING UP TO', { left:CX, top:96, originX:'center', fontFamily:'Khand', fontSize:51, fill:ink, fontWeight:'700', charSpacing:52, stroke:P.deep, strokeWidth:4 }),
-        t('Price Line', 'headline', 'upper', C.price || '$1,100', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:259, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13) }),
+        t('Kicker', 'sub', 'upper', C.kicker || 'WE PAY', { left:CX, top:96, originX:'center', fontFamily:'Khand', fontSize:51, fill:ink, fontWeight:'700', charSpacing:52, stroke:P.deep, strokeWidth:4 }),
+        t('Price Line', 'headline', 'upper', C.price || 'CASH', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:259, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:396, originX:'center', fontFamily:T.d, fontSize:109, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
-        cut('Product', C.cut || 'cash-bundles', { left:CX, top:474, originX:'center', w:409, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
+        /* below the category word, never over it: at top:474 the cash hid
+           37-53% of GOLD, SILVER, CARDS or STRIPS (the layering ladder) */
+        cut('Product', C.cut || 'cash-bundles', { left:CX, top:606, originX:'center', w:409, maxH:224, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
         rg('Claim Plate', { left:96, top:836, width:888, height:96, rx:16, fill:hexToRgba(P.deep,0.82) }),
         t('Claim 1', 'info', 'upper', C.badges ? C.badges.join('  •  ') : 'SAME DAY • CASH IN HAND • NO HAGGLING', { left:CX, top:862, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:22 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:908, originX:'center', fontFamily:T.d, fontSize:96, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
@@ -1120,9 +1130,11 @@ const TEMPLATES = [
         t('Chip Text ' + i, 'badges', 'upper', txt, { left:x+w/2, top:792, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:40 }),
       ];
       return [
-        ...panel('Rate Pill', CX-330, 82, 660, 92, 46),
-        t('Stars', 'deco', 'none', '★★★★★', { left:CX-286, top:104, fontFamily:'Satoshi', fontSize:42, fill:P.a1, charSpacing:60 }),
-        t('Rating Line', 'info', 'none', '4.9 · 200+ local sellers', { left:CX+52, top:110, fontFamily:'Satoshi', fontSize:33, fill:'#ffffff', fontWeight:'800' }),
+        /* 800 wide, not 660: the rating line ran 78px past the pill's right
+           end (it did with the old "4.9 · 200+ local sellers" too) */
+        ...panel('Rate Pill', CX-400, 82, 800, 92, 46),
+        t('Stars', 'deco', 'none', 'FREE QUOTE', { left:CX-356, top:104, fontFamily:'Satoshi', fontSize:30, fontWeight:'900', fill:P.a1, charSpacing:60 }),
+        t('Rating Line', 'info', 'none', 'No fees · no obligation', { left:CX+22, top:110, fontFamily:'Satoshi', fontSize:33, fill:'#ffffff', fontWeight:'800' }),
         ...panel('Quote Card', 70, 228, W-140, 336, 34),
         tb('Quote', 'info', 'none', C.quote, { left:CX, top:278, width:W-250, originX:'center', fontFamily:'Satoshi', fontSize:46, fill:'#ffffff', fontWeight:'700', textAlign:'center', lineHeight:1.32 }),
         t('Who', 'info', 'none', C.who, { left:CX, top:492, originX:'center', fontFamily:'Satoshi', fontSize:25, fill:'rgba(255,255,255,0.72)', charSpacing:90 }),
@@ -1151,13 +1163,13 @@ const TEMPLATES = [
       return [
         ...panel('Status Pill', CX-292, 78, 584, 78, 39),
         ci('Status Dot', { left:CX-252, top:104, radius:13, fill:'#22c55e', shadow:sh('rgba(34,197,94,0.8)', 14) }),
-        t('Status Text', 'info', 'upper', 'LICENSED & INSURED LOCAL BUYER', { left:CX+16, top:100, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:60 }),
+        t('Status Text', 'info', 'upper', 'NO FEES · FREE QUOTE · LOCAL BUYER', { left:CX+16, top:100, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:60 }),
         t('Headline 1', 'headline', 'upper', 'TRUSTED LOCAL', { left:CX, top:206, originX:'center', fontFamily:'Satoshi', fontSize:52, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:180 }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:262, originX:'center', fontFamily:'Clash Display', fontSize:158, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 26) }),
         t('Headline 3', 'headline', 'upper', 'BUYER', { left:CX, top:424, originX:'center', fontFamily:'Satoshi', fontSize:44, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:300 }),
-        ...tile(1, 84, 512, C.big || 'TOP $$$', 'PAID TODAY'),
-        ...tile(2, 554, 512, '4.9★', '200+ LOCAL REVIEWS'),
-        ...tile(3, 84, 682, 'SINCE 2015', '500+ DEALS CLOSED'),
+        ...tile(1, 84, 512, C.big || 'CASH NOW', 'PAID TODAY'),
+        ...tile(2, 554, 512, 'TEXT A PIC', 'GET A PRICE'),
+        ...tile(3, 84, 682, 'FREE QUOTE', 'NO OBLIGATION'),
         ...tile(4, 554, 682, 'SAME DAY', 'CASH OR TRANSFER'),
         t('Items', 'info', 'upper', C.items, { left:CX, top:860, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.7)', charSpacing:50 }),
         ...phoneBar(P, T, 912),
@@ -1271,7 +1283,7 @@ const TEMPLATES = [
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX-40, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:282, originX:'center', fontFamily:T.d, fontSize:216, fill:P.a1, stroke:P.deep, strokeWidth:12, shadow:sh(P.a2, 0, 12, 12) }),
       ci('Sticker', { left:W-322, top:486, radius:112, fill:P.a2, shadow:sh('rgba(0,0,0,0.4)', 20, 0, 8) }),
-      t('Sticker Text', 'deco', 'upper', 'TOP $$$', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:onAccent(P, P.a2), angle:10 }, { curve:32 }),
+      t('Sticker Text', 'deco', 'upper', 'CASH NOW', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:onAccent(P, P.a2), angle:10 }, { curve:32 }),
       subBlock(P, T, C.sub, 622), ...ctaCard(P, T, C.cta),
     ],
     slabPoster: (P, T, C) => [
@@ -1279,7 +1291,7 @@ const TEMPLATES = [
       t('Kicker', 'sub', 'upper', C.k, { left:CX, top:140, originX:'center', fontFamily:T.s, fontSize:32, fill:P.sub, charSpacing:400, fontWeight:'700' }),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:238, originX:'center', fontFamily:T.d, fontSize:110, fill:P.ink }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:356, originX:'center', fontFamily:T.d, fontSize:224, fill:P.ink, shadow:sh(P.glow, 0, 10, 10) }),
-      r('Price Strip', { left:CX-330, top:650, width:660, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),
+      r('Price Strip', { left:CX-410, top:650, width:820, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),   // 820: "PAID AT CURRENT MARKET RATES" ran 50px past 660
       t('Price Line', 'info', 'upper', C.price, { left:CX, top:668, originX:'center', fontFamily:T.s, fontSize:44, fill:onAccent(P), fontWeight:'900' }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:806, originX:'center', fontFamily:'Satoshi', fontSize:74, fill:P.ink, fontWeight:'900' }),
       t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:924, originX:'center', fontFamily:'Satoshi', fontSize:24, fill:P.sub }),
@@ -1337,7 +1349,9 @@ const TEMPLATES = [
       t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:130, fontFamily:T.d, fontSize:96, fill:'#ffffff' }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:60, top:236, fontFamily:T.d, fontSize:132, grad:{ c1:P.a1, c2:P.a2, a:115 }, shadow:sh(P.glow, 24) }),
       tb('Info Text', 'info', 'upper', C.sub, { left:64, top:462, width:372, fontFamily:T.s, fontSize:28, fill:'rgba(255,255,255,0.85)', fontWeight:'700', lineHeight:1.48 }),
-      t('Price Line', 'info', 'upper', C.price, { left:64, top:824, fontFamily:T.d, fontSize:40, fill:P.a1, shadow:sh(P.glow, 16) }),
+      /* a box the panel's width, so a long line wraps inside the panel:
+         "PAID AT CURRENT MARKET RATES" ran 289px past it onto the photograph */
+      tb('Price Line', 'info', 'upper', C.price, { left:64, top:764, width:400, fontFamily:T.d, fontSize:40, fill:P.a1, lineHeight:1.12, shadow:sh(P.glow, 16) }),
       t('Kicker', 'sub', 'upper', C.k, { left:770, top:120, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, charSpacing:200, fontWeight:'700', backgroundColor:'rgba(0,0,0,0.35)', padding:12 }),
       r('Phone Chip', { left:560, top:860, width:470, height:112, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 22) }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:795, top:884, originX:'center', fontFamily:'Satoshi', fontSize:47, fill:onAccent(P), fontWeight:'900' }),
@@ -1361,7 +1375,7 @@ const TEMPLATES = [
     t('Headline 2', 'headline', 'upper', C.h2, { left:64, top:366, fontFamily:T.d, fontSize:148, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
     r('Rule Mid', { left:70, top:594, width:W-140, height:2, rx:1, fill:P.ink, opacity:0.25 }),
     t('Items', 'info', 'upper', C.items, { left:70, top:628, fontFamily:T.s, fontSize:33, fill:P.sub, charSpacing:60 }),
-    t('Price Label', 'info', 'upper', 'PAYING UP TO', { left:70, top:756, fontFamily:T.s, fontSize:25, fill:P.sub, charSpacing:320, fontWeight:'600' }),
+    t('Price Label', 'info', 'upper', 'WE PAY', { left:70, top:756, fontFamily:T.s, fontSize:25, fill:P.sub, charSpacing:320, fontWeight:'600' }),
     t('Price Line', 'info', 'upper', C.big, { left:64, top:796, fontFamily:T.d, fontSize:124, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
     t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:W-64, top:820, originX:'right', fontFamily:'Satoshi', fontSize:42, fill:P.ink, fontWeight:'800' }),
     t('CTA', 'cta', 'upper', C.cta, { left:W-64, top:884, originX:'right', fontFamily:T.s, fontSize:25, fill:P.a1, charSpacing:130, fontWeight:'700' }),
@@ -1441,7 +1455,7 @@ const TEMPLATES = [
       ['arcCrown','emerald','passion','Care Arc'], ['hudTech','ocean','russo','Sensor HUD'], ['editorialLux','arctic','playfair','Quiet Serif'],
       ['duoSplit','emerald','right','Split Clinic'], ['gradientWave','emerald','titan','Mint Wave'], ['diagonalRush','ocean','rowdies','Priority Rush'],
       ['agencyGrid','arctic','right','Clinical Grid'], ['priceAnchor','emerald','titan','Box Price'], ['lowerThird','emerald','staat','Health Line'],
-      ['reviewProof','arctic','playfair','Verified Buyer'], ['trustSeal','emerald','cinzel','Care Seal'], ['stepsFlow','emerald','russo','Box Steps'],
+      ['reviewProof','arctic','playfair','Local Buyer'], ['trustSeal','emerald','cinzel','Care Seal'], ['stepsFlow','emerald','russo','Box Steps'],
     ],
     pokemon: [
       ['bubblePop','royal','lucky','Holo Pop',1], ['neonNight','royal','bungee','Neon Holo'], ['voltStack','volt','titan','Trainer Stack'],
@@ -1626,7 +1640,7 @@ const TEMPLATES = [
     BOOK[cat].forEach(row => {
       const [lay, pal, pair, label, feat] = row;
       const P = PAL[pal], T = { d:PAIRS[pair][0], s:PAIRS[pair][1] };
-      const C = Object.assign({}, D, { h2: (lay === 'duoSplit' || lay === 'checklistHero') ? D.h2 : D.h2, quote: (TRUST_COPY[cat]||{}).q || '"Great local buyer, fast and fair."', who: (TRUST_COPY[cat]||{}).w || 'A LOCAL SELLER' });
+      const C = Object.assign({}, D, { h2: (lay === 'duoSplit' || lay === 'checklistHero') ? D.h2 : D.h2, quote: (TRUST_COPY[cat]||{}).q || 'Text us a photo. We send a price, you decide.', who: (TRUST_COPY[cat]||{}).w || 'HOW IT WORKS' });
       const id = 'dl_' + cat + '_' + lay + '_' + pal;
       const file = 'assets/bg/' + id + '.jpg';
       /* Scrim compensates for how bright the BACKDROP is, which is a property
@@ -1755,28 +1769,28 @@ const TEMPLATES = [
   }
 
   const STREET_DECK = {
-    phones:  { h1:'CASH FOR', h2:'IPHONES',  kicker:'PAYING UP TO', price:'$1,100', cta:'TEXT US NOW',
+    phones:  { h1:'CASH FOR', h2:'IPHONES',  kicker:'WE PAY', price:'CASH', cta:'TEXT US NOW',
                badges:['ANY CONDITION','ANY CARRIER'], sub:'IPAD IPHONE MACBOOK BUYER',
                points:['CRACKED SCREEN',"WON'T TURN ON",'ICLOUD LOCKED','ANY OTHER ISSUE'], subs:['Paid in cash, same day','iCloud locked is fine','Text photos for an offer'] },
-    gold:    { h1:'CASH FOR', h2:'GOLD',     kicker:'PAYING UP TO', price:'95%',    cta:'GET A FREE QUOTE',
+    gold:    { h1:'CASH FOR', h2:'GOLD',     kicker:'WE PAY', price:'CASH', cta:'GET A FREE QUOTE',
                badges:['ANY KARAT','ANY CONDITION'], sub:'CHAINS RINGS COINS DENTAL',
                points:['BROKEN JEWELRY','SINGLE EARRINGS','DENTAL GOLD','ANY KARAT'], subs:['Tested and weighed in front of you','Broken pieces welcome','Paid on the spot'] },
-    silver:  { h1:'WE BUY',   h2:'SILVER',   kicker:'PAYING OVER',  price:'SPOT',   cta:'BRING IT IN TODAY',
+    silver:  { h1:'WE BUY',   h2:'SILVER',   kicker:'WE PAY', price:'CASH', cta:'BRING IT IN TODAY',
                badges:['ANY QUANTITY','WEIGHED IN FRONT OF YOU'], sub:'FLATWARE BARS COINS ROUNDS',
                points:['STERLING FLATWARE','BARS & ROUNDS','90% COINS','TARNISHED IS FINE'], subs:['Scale on the counter, you watch','Tarnish does not matter','No lowball offers'] },
-    coins:   { h1:'WE BUY',   h2:'COINS',    kicker:'PAYING UP TO', price:'95%',    cta:'TEXT PHOTOS FOR OFFER',
+    coins:   { h1:'WE BUY',   h2:'COINS',    kicker:'WE PAY', price:'CASH', cta:'TEXT PHOTOS FOR OFFER',
                badges:['SINGLES OR COLLECTIONS','HONEST GRADING'], sub:'MORGANS EAGLES PROOF SETS',
                points:['WHOLE COLLECTIONS','GRADED OR RAW','SILVER DOLLARS','HOUSE CALLS'], subs:['Singles or whole collections','Graded or raw, both fine','House calls for estates'] },
-    cars:    { h1:'WE BUY',   h2:'CARS',     kicker:'PAYING UP TO', price:'$15,000',cta:'CALL FOR INSTANT OFFER',
+    cars:    { h1:'WE BUY',   h2:'CARS',     kicker:'WE PAY', price:'CASH', cta:'CALL FOR INSTANT OFFER',
                badges:['RUNNING OR NOT','FREE TOW'], sub:'SAME DAY PICKUP CASH IN HAND',
                points:['RUNNING OR NOT','NO SMOG NEEDED','FREE TOWING','SAME DAY PICKUP'], subs:['Free tow, we come to you','Title in hand or not','Same day pickup'] },
-    strips:  { h1:'CASH FOR', h2:'STRIPS',   kicker:'PAYING UP TO', price:'$100',   cta:'TEXT A PHOTO NOW',
+    strips:  { h1:'CASH FOR', h2:'STRIPS',   kicker:'WE PAY', price:'CASH', cta:'TEXT A PHOTO NOW',
                badges:['SEALED BOXES ONLY','NOT EXPIRED'], sub:'TEST STRIPS LANCETS CGM',
                points:['UNEXPIRED ONLY','SEALED BOXES','ALL MAJOR BRANDS','MAIL IN WELCOME'], subs:['Sealed and unexpired only','All the major brands','Mail in kits available'] },
-    pokemon: { h1:'WE BUY',   h2:'POKEMON',  kicker:'PAYING UP TO', price:'90%',    cta:'DM TO SELL TODAY',
+    pokemon: { h1:'WE BUY',   h2:'POKEMON',  kicker:'WE PAY', price:'CASH', cta:'DM TO SELL TODAY',
                badges:['SEALED OR SINGLES','GRADED OR RAW'], sub:'BOOSTER BOXES SLABS BINDERS',
                points:['SEALED PRODUCT','GRADED SLABS','VINTAGE SETS','WHOLE COLLECTIONS'], subs:['Sealed product or singles','Graded slabs welcome','Real market pricing'] },
-    sports:  { h1:'WE BUY',   h2:'CARDS',    kicker:'PAYING UP TO', price:'90%',    cta:'TEXT YOUR HITS',
+    sports:  { h1:'WE BUY',   h2:'CARDS',    kicker:'WE PAY', price:'CASH', cta:'TEXT YOUR HITS',
                badges:['ROOKIES SLABS WAX','FAIR COMP PRICING'], sub:'ROOKIES SLABS WAX VINTAGE',
                points:['GRADED SLABS','ROOKIE AUTOS','SEALED WAX','WHOLE COLLECTIONS'], subs:['Rookies, autos and wax','Graded or raw','Priced off real comps'] },
   };
@@ -1896,7 +1910,7 @@ TEMPLATES.forEach(t => {
   });
 });
 
-const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','5 MINUTES','HASSLE FREE','SAME DAY','TOP $$$','ANY CONDITION','INSTANT CASH','NO GAMES','CALL NOW'];
+const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','5 MINUTES','HASSLE FREE','SAME DAY','CASH PAID','ANY CONDITION','INSTANT CASH','NO GAMES','CALL NOW'];
 const EMOJIS = ['📱','💰','💵','✅','✔️','👉','🔥','⭐','📲','🤝'];
 
 // ---------- gradient helper (CSS-angle semantics) ----------
@@ -1923,7 +1937,11 @@ function applyBgSpec(cv, bg){
       let s = (cv.getObjects ? cv.getObjects() : []).find(o => o.pgScrim);
       if (bg.scrim){
         if (!s){ s = scrimRect(bg.scrim, CW, CH, bg.scrimColor, bg.scrimMode); s.pgScrim = true; cv.add(s); }
-        else s.set({ left:0, top:0, width:CW, height:CH, fill:(bg.scrimColor === '#ffffff' ? 'rgba(255,255,255,' : 'rgba(0,0,0,') + bg.scrim + ')' });
+        /* the same fill scrimRect() draws: any hex and the gradient mode. This
+           read `scrimColor === '#ffffff' ? white : black`, so a paper-white
+           wash ('#f4f1ec', '#f6f6f4') turned black the second time it was
+           applied, under the dark ink it was chosen for. */
+        else s.set({ left:0, top:0, width:CW, height:CH, fill:scrimRect(bg.scrim, CW, CH, bg.scrimColor, bg.scrimMode).fill });
         if (cv.sendToBack) cv.sendToBack(s);
       } else if (s) cv.remove(s);
       cv.renderAll();
@@ -2276,7 +2294,10 @@ function buildLayer(l, tplId, dw, dh){
     }
     const u = (dw || TPL_W) / TPL_W;
     const img = new fabric.Image(el);
-    const s = ((l.props.w || 420) * u) / el.width;
+    /* maxH caps the height as well: a layout with a fixed band for the product
+       (the street ribbon and price tag, 2026-09-26) cannot know each cutout's
+       aspect, and a tall one ran up over the words above it */
+    const s = Math.min(((l.props.w || 420) * u) / el.width, p.maxH ? (p.maxH * u) / el.height : Infinity);
     img.set({
       left:p.left, top:p.top,
       originX:p.originX || 'left', originY:p.originY || 'top',
@@ -4452,7 +4473,22 @@ function coverImage(im, w, h){
    those three were nudged to clear the same bar: #fbbf24 -> #f4bb2a,
    #ffc247 -> #f9b939, #5fd8f0 -> #54d4ee. Sub-1% moves in lightness, invisible
    side by side, and the whole set now passes one rule instead of two.
-   Floor is 1.7. Checked by scripts/theme_law.mjs. */
+   Floor is 1.7. Checked by scripts/theme_law.mjs.
+
+   2026-09-26: the twelve rows that came from scripts/theme_specs.mjs failed
+   that same audit (12 of 21 themes). Five Jewel and Night Neon rows set a
+   pastel accent beside a pale tinted ink, 1.12 to 1.34:1 apart, so the money
+   word was not a different colour; four light rows put a phone-number accent
+   under 4.5:1 on their own ground; two Duotone rows stood dark ink on a
+   mid-tone cyan or blue, under 4.5:1 for everything. The study session's
+   design language gives every colour one job, near-black or near-white ink,
+   one accent, and a ground that is clearly light or clearly dark, so each row
+   was re-solved in OKLCH keeping every hue: inks to near-black or near-white
+   with a breath of the ground's hue; mid-tone grounds to a pale tint of their
+   own hue (dark ink) or kept deep (light ink); accents placed in the one
+   luminance band that clears 4.5:1 on both stops and 1.75:1 against the ink,
+   at the most chroma the gamut allows, yellows and ambers at the light end of
+   that band so they stay gold rather than olive or brown. 21 of 21 pass. */
 const COLOR_THEMES = [
   /* 2026-09-02: the row used to be ten dark grounds, four of them brown or
      amber under an orange accent — the old design language. Five of the old
@@ -4461,18 +4497,18 @@ const COLOR_THEMES = [
      painted with, so a theme picked here matches a theme seen there. Light
      grounds carry DARK ink, which applyColorTheme() already handles because
      it maps by role rather than by assuming white type. */
-  { name:'Blue Market',   family:'Duotone',    bg:{type:'grad', c1:'#1ba3c7', c2:'#198ab5', a:170}, accent:'#254b69', ink:'#092e39' },
-  { name:'Blue Ticket',   family:'Jewel',      bg:{type:'grad', c1:'#044a51', c2:'#01363f', a:170}, accent:'#febbd3', ink:'#d0e2e4' },
-  { name:'Mint Market',   family:'Jewel',      bg:{type:'grad', c1:'#054e2f', c2:'#003928', a:170}, accent:'#e1c2fe', ink:'#d4e2d9' },
-  { name:'Orchid Payday', family:'Jewel',      bg:{type:'grad', c1:'#532d6b', c2:'#481057', a:170}, accent:'#e7d358', ink:'#e2dbe8' },
-  { name:'Indigo Cash',   family:'Night Neon', bg:{type:'grad', c1:'#0e253c', c2:'#02132e', a:170}, accent:'#fcaca5', ink:'#d4dfeb' },
-  { name:'Indigo Trade',  family:'Duotone',    bg:{type:'grad', c1:'#5593ef', c2:'#4d76e5', a:170}, accent:'#3c3e65', ink:'#1b293f' },
-  { name:'Blue Deal',     family:'Candy',      bg:{type:'grad', c1:'#80dafd', c2:'#45c4ff', a:170}, accent:'#ab117d', ink:'#1b3d49' },
-  { name:'Sky Market',    family:'Cool Air',   bg:{type:'grad', c1:'#b9f7f6', c2:'#99e1e7', a:170}, accent:'#d8360a', ink:'#173f3f' },
-  { name:'Violet Payday', family:'iOS Flat',   bg:{type:'grad', c1:'#ecefff', c2:'#d5d7ef', a:170}, accent:'#616cf8', ink:'#31364f' },
-  { name:'Gold Offer',    family:'Paper',      bg:{type:'grad', c1:'#fdf4ee', c2:'#e5ddd5', a:170}, accent:'#ac5d05', ink:'#4a3220' },
-  { name:'Mint Counter',  family:'Paper',      bg:{type:'grad', c1:'#f2f8ef', c2:'#d9e1d8', a:170}, accent:'#4a8704', ink:'#2e3d25' },
-  { name:'Red Cash',      family:'Chalk',      bg:{type:'grad', c1:'#faf5f7', c2:'#e4dedf', a:170}, accent:'#a60a69', ink:'#4a2e3a' },
+  { name:'Blue Market',   family:'Duotone',    bg:{type:'grad', c1:'#aae8ff', c2:'#99dbfb', a:170}, accent:'#005284', ink:'#0a2026' },
+  { name:'Blue Ticket',   family:'Jewel',      bg:{type:'grad', c1:'#02383e', c2:'#002e36', a:170}, accent:'#ff83b6', ink:'#eaf5f7' },
+  { name:'Mint Market',   family:'Jewel',      bg:{type:'grad', c1:'#003a21', c2:'#003021', a:170}, accent:'#cd92ff', ink:'#edf5f0' },
+  { name:'Orchid Payday', family:'Jewel',      bg:{type:'grad', c1:'#47205e', c2:'#481057', a:170}, accent:'#d1b906', ink:'#f7f2fa' },
+  { name:'Indigo Cash',   family:'Night Neon', bg:{type:'grad', c1:'#0e253c', c2:'#02132e', a:170}, accent:'#fe7f78', ink:'#eef5fc' },
+  { name:'Indigo Trade',  family:'Duotone',    bg:{type:'grad', c1:'#cde1ff', c2:'#bdd2fe', a:170}, accent:'#4839b8', ink:'#141d2b' },
+  { name:'Blue Deal',     family:'Candy',      bg:{type:'grad', c1:'#afe7ff', c2:'#9bdafc', a:170}, accent:'#98056e', ink:'#0b2027' },
+  { name:'Sky Market',    family:'Cool Air',   bg:{type:'grad', c1:'#b9f7f6', c2:'#99e1e7', a:170}, accent:'#9b2000', ink:'#082021' },
+  { name:'Violet Payday', family:'iOS Flat',   bg:{type:'grad', c1:'#ecefff', c2:'#d5d7ef', a:170}, accent:'#3d40bc', ink:'#181c2b' },
+  { name:'Gold Offer',    family:'Paper',      bg:{type:'grad', c1:'#fdf4ee', c2:'#e5ddd5', a:170}, accent:'#904d03', ink:'#281a0f' },
+  { name:'Mint Counter',  family:'Paper',      bg:{type:'grad', c1:'#f2f8ef', c2:'#d9e1d8', a:170}, accent:'#325f01', ink:'#162011' },
+  { name:'Red Cash',      family:'Chalk',      bg:{type:'grad', c1:'#faf5f7', c2:'#e4dedf', a:170}, accent:'#a10966', ink:'#29171f' },
   { name:'Cash Green',    family:'Classic',    bg:{type:'grad', c1:'#123123', c2:'#050f0a', a:170}, accent:'#4ade80', ink:'#ffffff' },
   { name:'Night Blue',    family:'Classic',    bg:{type:'grad', c1:'#0f1b3d', c2:'#050916', a:170}, accent:'#ffa62b', ink:'#ffffff' },
   { name:'Deep Red',      family:'Classic',    bg:{type:'grad', c1:'#2a0a0e', c2:'#0d0305', a:170}, accent:'#ff6b57', ink:'#ffffff' },
@@ -5151,9 +5187,9 @@ const API_BASE = (window.PGFX_API || '').replace(/\/$/, '');
 const DEMO = !API_BASE;
 const PLANS = {
   free: { label:'Free', price:0, priceLabel:'$0', per:'forever', maxPx:1080, watermark:true, weekly:3, monthly:null,
-          feats:['3 exports per week',FEAT_FREE_TPL,'1080 × 1080 downloads','BUYBACK.AD watermark'] },
+          feats:['3 exports per week',FEAT_FREE_TPL,'1080px downloads (short side)','BUYBACK.AD watermark'] },
   pro:  { label:'Pro', price:15, priceLabel:'$15', per:'/month', maxPx:2160, watermark:false, weekly:null, monthly:100,
-          feats:['100 exports per month',FEAT_PRO_TPL,'Up to 2160px, no watermark, every format','Export history & re-downloads'], hot:true },
+          feats:['100 exports per month',FEAT_PRO_TPL,'Up to 2160px (short side), no watermark','Scannable QR code layer'], hot:true },
 };
 function isoWeek(){ const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
@@ -5526,7 +5562,7 @@ function bindSaasUI(){
     syncAcctUI();
     jset('pgfx_tut_done', false);   // brand-new account always gets the tour
     if (pro){
-      openPlans('Pro unlocks all 160+ templates, 2160p exports and no watermark.');
+      openPlans('Pro unlocks every design, 2160px exports and no watermark.');
       return;
     }
     showEditor();
@@ -6408,7 +6444,7 @@ const COPY_FIX = {
   cars_plate:    { Headline:'WE BUY CARS', Sub:'ANY YEAR • ANY MAKE • RUNNING OR NOT' },
   pkm_attic:     { Headline:'WE BUY VINTAGE POKÉMON', Sub:'1999 BASE SET • WOTC • BOOSTER BOXES' },
   silver_neon:   { Headline:'WE BUY SILVER', 'Headline 2':'PAID TODAY' },
-  silver_ounce:  { Headline:'TOP DOLLAR FOR SILVER' },
+  silver_ounce:  { Headline:'CASH FOR SILVER' },
   silver_mirror: { Headline:'WE BUY SILVER' },
   coins_graded:  { Headline:'WE BUY GRADED COINS', Sub:'PCGS • NGC • RAW COLLECTIONS WELCOME' },
   strips_pickup: { Headline:'WE BUY TEST STRIPS', Sub:'PRIVATE • DISCREET • PAID ON PICKUP' },
@@ -9164,6 +9200,98 @@ tuneFallbacks();
   } catch(e){}
 })();
 
+/* THE NUMBER TABLE, 2026-09-26. The phone number is how the people who stop
+   reach the seller, and 149 of the 243 classics set it under 72px on the 1080
+   canvas: in a 160px feed tile that is digits 7px tall. The video maker draws
+   the same number at up to 0.72x the headline, and the owner asked for "a
+   big/medium phone number" on everything. scripts/number_block.mjs --classics
+   measures every classic through buildLayer()/alignPass(), rebuilds the number
+   block (the number at 0.62x the headline, never under 72px, on one axis, its
+   plate hugging it, clear of every other line and product) and writes
+   assets/number-fix.json: one row per layer, with the layer's own words.
+
+   Same shape as the contrast table above: fetched, applied as a final pass,
+   and a failed fetch leaves the classics as the passes drew them. All or
+   nothing per template: if any row no longer matches a layer by name, role
+   and words (a template edited since the bake), that template keeps its own
+   layout rather than half of a new one. ?nonum=1 skips it, for the script. */
+(function loadNumberFix(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]nonum=1\b/.test(location.search)) return;
+    fetch('assets/number-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(rows => {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const byId = {};
+        rows.forEach(f => { if (f && f.id && f.layer && f.props) (byId[f.id] ||= []).push(f); });
+        let n = 0;
+        TEMPLATES.forEach(t => {
+          const list = byId[t.id]; if (!list) return;
+          const layers = t.layers || [];
+          const hits = list.map(f => {
+            const m = layers.filter(l => l.name === f.layer && (l.role || '') === (f.role || ''));
+            return m.length === 1 && (f.text == null || m[0].text === f.text) ? [m[0], f] : null;
+          });
+          if (hits.some(h => !h)) return;
+          hits.forEach(([l, f]) => { l.props = Object.assign({}, l.props, f.props); });
+          n++;
+        });
+        if (!n) return;
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
+/* THE GROUND TABLE, 2026-09-26. assignStyle() above paints 129 classics'
+   photographs as a duotone or a one-hue wash (the multiply/screen grade). The
+   owner: "not these ugly hideous overlaid colors and duotone background
+   images." The study session's layering ladder puts the photograph at rung 0
+   and atmosphere at rung 1, "light and shade, never an object": colour belongs
+   to the plate and the money word, not as a coat over the picture.
+
+   scripts/naturalize_classics.mjs renders each graded classic as the visitor
+   sees it (the contrast and number tables applied) and writes
+   assets/ground-fix.json: the photograph with no grade, and a neutral scrim in
+   the template's own gradient mode, solved on its own pixels to keep the worst
+   end of the ground under every line on the photograph at least as far from
+   the ink as the graded ground kept it (DESIGN-LAW rule 52). So the measured
+   inks stay right. Same shape as the tables above: a failed fetch leaves the
+   graded look, a row whose photograph changed since the bake is skipped, and
+   ?noground=1 skips it, for the script. */
+(function loadGroundFix(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]noground=1\b/.test(location.search)) return;
+    fetch('assets/ground-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(rows => {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const byId = {};
+        rows.forEach(f => { if (f && f.id && f.bg) byId[f.id] = f; });
+        let n = 0;
+        TEMPLATES.forEach(t => {
+          const f = byId[t.id], bg = t.bg;
+          if (!f || !bg || bg.type !== 'image' || bg.src !== f.src) return;
+          delete bg.grade;
+          bg.scrim = f.bg.scrim;
+          if (f.bg.scrimColor) bg.scrimColor = f.bg.scrimColor; else delete bg.scrimColor;
+          bg.scrimMode = f.bg.scrimMode || 'gradient';
+          t.style = 'photo';
+          n++;
+        });
+        if (!n) return;
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
 try {
   tplDims(TEMPLATES[0]);
   /* The old assertion called onAccent({a1:'#ffffff'}) here. onAccent is a const
@@ -9309,7 +9437,13 @@ function scOrder(list){
   /* imagery outranks everything: a card with a real product first, a
      photograph next, a bare ground last */
   const img = c => c.imagery === 'product' ? 6 : c.imagery === 'photo' ? 3 : 0;
-  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4) - (img(a) + a.affinity + scVivid(a) * 4)) || (b.density - a.density));
+  /* the design school's warnings (scripts/audit_showcase_school.mjs) rank a
+     card down, one step per warning, a soft term beside imagery and colour.
+     Not "every clean card first": small type and the 6% margin are warned on
+     most of the library, so no card is clean and that rule would sort by
+     nothing but the warning count */
+  const warned = c => { const w = c.school && c.school.warn; return w ? w.length : 0; };
+  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4 - warned(b)) - (img(a) + a.affinity + scVivid(a) * 4 - warned(a))) || (b.density - a.density));
   const light = c => scLum(c.c1) > 0.22;
   const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
   const hueGap = (a, b) => { const x = Math.abs((hueOf(a) ?? 0) - (hueOf(b) ?? 0)) % 360; return x > 180 ? 360 - x : x; };
@@ -9388,8 +9522,14 @@ function scBuildWall(cards){
   /* and only cards that SHOW something: a product cutout of real size.
      Owner, on a plain green Pokémon card and a tiny mark on a sports one:
      "those two lack the proper imagery, looks a little bit confusing". */
-  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product')
+  let vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product')
     .filter(c => chosenByHand.indexOf(c) === -1);
+  /* the shop window prefers clean cards: with enough of them, a card with a
+     design-school warning stays in the library but off the wall (today small
+     type and the 6% margin are warned on nearly every card, so the wall
+     takes from all of them, and the ranking above orders by warning count) */
+  const cleanVivid = vivid.filter(c => !(c.school && c.school.warn && c.school.warn.length));
+  if (cleanVivid.length >= want) vivid = cleanVivid;
   const buckets = {};
   vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
   Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
@@ -9886,7 +10026,7 @@ function renderAreaPreview(a){
                 rural:'a spread-out area, so we reach further and name more of the small towns' }[a.tier] || '';
   const chips = list => list.map(t => '<span>' + escHtml(String(t).split(',')[0]) + '</span>').join('');
   el.innerHTML = `<div class="area-home">📍 ${escHtml(a.home)} <em>${escHtml(why)}</em></div>
-    <div class="area-row"><b>Reviews will mention</b><div class="area-chips">${chips(a.towns || [])}</div></div>
+    <div class="area-row"><b>Service-area lines will mention</b><div class="area-chips">${chips(a.towns || [])}</div></div>
     <div class="area-row"><b>Service-area lines</b><div class="area-chips">${chips(a.cover || [])}</div></div>
     <div class="area-row"><b>&ldquo;Across &hellip;&rdquo;</b><div class="area-chips"><span>${escHtml(a.region || '')}</span></div></div>`;
 }

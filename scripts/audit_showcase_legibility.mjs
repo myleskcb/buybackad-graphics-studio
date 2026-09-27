@@ -7,13 +7,23 @@
  * studio's own buildLayer()/alignPass()/freshBgImage().
  *
  * Per card it records:
- *   legib      worst mean contrast of a headline / phone / CTA layer
- *   legibMin   worst mean contrast of any other reading layer
+ *   legib      worst contrast of a headline / phone / CTA layer (core, below)
+ *   legibMin   worst contrast of any other reading layer
  *   ghost      reading layers that barely marked the canvas (<1.2% of box)
  *   bgMissing  the record names a photograph the studio could not load
  *
- * Thresholds: a CRITICAL layer under 3:1 (WCAG AA large text; these are all
- * >= 30px) is a defect; minor layers are reported, not stamped.
+ * Thresholds: a CRITICAL layer under 3:1 (WCAG AA large text) is a defect;
+ * minor layers are reported, not stamped.
+ *
+ * A layer's contrast is the CORE of its strokes, the upper quartile of the
+ * per-pixel contrast over the pixels it changes, not their mean (2026-09-26).
+ * The changed pixels are the ink AND its soft shadow, glow and anti-aliased
+ * edge, and on a 26px label with a soft shadow more than half of them are
+ * shadow: "GET YOUR OFFER", #101014 on a cyan plate at 6:1 by colour, measured
+ * a mean of 2.85 (median pixel 1.3, upper quartile 5.6) and was held back as
+ * unreadable. A line that is truly unreadable has no core either: white on a
+ * pale photograph measured 1.36 mean and 1.45 upper quartile. The mean is
+ * still recorded per layer (`mean`), so the change can be seen.
  *
  * usage: node scripts/audit_showcase_legibility.mjs [--write] [--json out.json]
  */
@@ -52,15 +62,18 @@ for (let i = 0; i < work.length; i += 8){
           const w = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data;
           o.visible = true;
           let changed = 0, total = 0, sum = 0;
+          const px = [];
           for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++){
             const f = (y * W + x) * 4, g = ((y - y0) * (x1 - x0) + (x - x0)) * 4; total++;
             if (Math.abs(full[f] - w[g]) + Math.abs(full[f + 1] - w[g + 1]) + Math.abs(full[f + 2] - w[g + 2]) < 24) continue;
             changed++;
-            const a = lum(full, f), c = lum(w, g);
-            sum += (Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05);
+            const a = lum(full, f), c = lum(w, g), k = (Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05);
+            sum += k; px.push(k);
           }
-          const cov = total ? changed / total : 0, cr = changed ? sum / changed : 0;
-          layers.push({ role:l.role, text:l.text.slice(0, 30), cr:+cr.toFixed(2), cov:+(cov * 100).toFixed(1) });
+          px.sort((p, q) => p - q);
+          const cov = total ? changed / total : 0, mean = changed ? sum / changed : 0;
+          const cr = changed ? px[Math.min(px.length - 1, Math.floor(px.length * 0.75))] : 0;   // the core of the strokes
+          layers.push({ role:l.role, text:l.text.slice(0, 30), cr:+cr.toFixed(2), mean:+mean.toFixed(2), cov:+(cov * 100).toFixed(1) });
           if (cov < 0.012){ if (CRIT[l.role]) ghost++; return; }
           if (CRIT[l.role]){ if (cr < legib){ legib = cr; worst = l.role + ' "' + l.text.slice(0, 24).replace(/\n/g, ' / ') + '"'; } }
           else legibMin = Math.min(legibMin, cr);

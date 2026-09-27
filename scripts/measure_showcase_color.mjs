@@ -6,7 +6,7 @@ import puppeteer from 'puppeteer-core';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 const DIR = new URL('../assets/showcase/', import.meta.url).pathname;
 const idx = JSON.parse(readFileSync(DIR + 'index.json', 'utf8'));
-const b = await puppeteer.launch({ executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:'new', args:['--no-sandbox'] });
+const b = await puppeteer.launch({ executablePath: process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:'new', args:['--no-sandbox'] });
 const p = await b.newPage(); await p.goto('about:blank');
 const rows = idx.map(c => ({ id: c.id, b64: readFileSync(DIR + c.id + '.webp').toString('base64') }));
 const out = {};
