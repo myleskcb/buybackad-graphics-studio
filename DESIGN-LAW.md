@@ -1222,3 +1222,106 @@ direction, 344 neutral lines); classics 128 of 129 natural via
 `assets/ground-fix.json` (neon_sell keeps its grade: its number is carried by
 a plate no neutral shade can serve); Easy Mode themes 21 of 21 pass, every hue
 kept.
+
+## 57. Everything that carries the message sits inside the guides, and it moves as one
+
+Added 2026-09-27. The owner, on a "Sell Your iPhone" card: "make sure
+everything fits within the guides it needs to." The critic already WARNED at a
+6% safe margin and left it "an open decision". Measured on the live showcase,
+the website line sat inside that margin on 293 of 684 cards, the badges on 106,
+a headline on 54 and the number on 22. The engine's own clamp was 24px (2.2%),
+applied one line at a time.
+
+Moving one line at a time is how collisions are made: pull the website line up
+and it lands on the number's plate. So `fitInsideGuides()` (alignPass step 5)
+moves the whole COMPOSITION:
+
+- **The message is the union of** copy, plates, stickers, icons and products.
+  Left out: the ground (anything covering at least 85% of both dimensions),
+  frames and corner marks, and edge tickers.
+- **Scaled and shifted about its own centre** until the union is inside 6% of
+  the short side, so every spacing relationship survives.
+- **Bleed stays bleed.** A band or a product that touched an edge still touches
+  it after, and a full-width band keeps its full width.
+
+After: 0 lines of copy in the margin on the showcase and on the classics (was
+293 website lines, 106 badge rows).
+
+## 58. Copy is never touched: by copy, by a plate's edge, by decoration, or by the product
+
+Added 2026-09-27. The owner: "there's still major overlapping issues … audit
+any overlapping elements … for maximum legibility." The first overlap audit
+compared bounding boxes, and a box around italic type or a curved label is
+mostly air (rule 50). `scripts/audit_collisions.mjs` renders every layer alone
+into an ink mask at quarter scale and measures ink against ink:
+
+- **copy on copy** and **the product on copy**, as a share of the smaller
+  party's ink;
+- **a line across a plate's edge** (4 to 96% of its ink inside a plate that
+  carries copy);
+- **copy in the 6% margin**, **copy off the ad**, a **product cut by the
+  frame**, and a **product half on a panel and half off**.
+
+A card collides at 6%. Baseline: 285 of 684 live cards. Each layout repeated
+ONE fault, so each fix is a rule in `alignPass`, not a patch on a card:
+
+- **A plate grows only into clear space** (step 4). The snug test had skipped
+  exactly the plates whose words overflowed them. The first fix grew them about
+  their centre, and the phone plate then reached over the REQUEST AN APPRAISAL
+  line below it (scriptRetro, hudTech, ticketStub, arcCrown, neonNight): one
+  collision fixed, another made. Each axis now grows only while it stays off
+  every other line.
+- **Words stay on their plate** (4b). The panel widens first, within the
+  guides. A line set OUTSIDE its panel (a left-aligned variant at x=72 on a
+  ticket starting at 150) slides in, and lines that shared a left edge still
+  share one. Only then does type come down, never below 72%, never the number
+  below 72px (rule 53). A line wrapped taller than its pill grows the pill, or
+  shrinks if that would touch other copy. Hosts include tall panels: a 560px
+  ticket was above the plate list's half-height cap, so its headline had no
+  host.
+- **Decoration yields** (4c, rule 7). A mark that touches copy, crosses a plate
+  that carries copy or leaves the guides moves a short way (at most 1.5x its
+  size, down to 70%) or goes. **A sticker is never moved, only removed**:
+  moved, one landed as a bare disc mid-photograph with its curved CASH NOW
+  label dark on dark. A pointer cursor on a static ad imitates a link nobody
+  can click; it goes everywhere. Checklist ticks are information and stay.
+- **The product keeps clear of the copy** (4d). A product that touches a line,
+  or sits half on a plate, moves to the largest clear rectangle: open ground,
+  or the inside of a card. On a card is a place; across its edge is not. It is
+  never enlarged, and below 40% of its authored size it is left out rather than
+  shown as a speck. 47 Steps Flow cards had their product under the three
+  full-width step cards.
+
+The audit is the check, not the fix: it re-runs after every engine change,
+because the plate fix above is exactly the kind that trades one collision for
+another.
+
+## 59. The Glass Card: the product on the card, money on the ground
+
+Added 2026-09-27. The owner, on "Cherry & Aqua · Glass Card": "the asset
+should be on the inner card while a tile PNG of money or money falling,
+overlay in BG." The layout had put the product photograph BEHIND a near-opaque
+panel, so the panel hid the thing being bought and what showed round its edges
+read as clutter.
+
+- **Ground**: falling money (`assets/grounds/money-fall-{dark,paper}.webp`,
+  `scripts/build_money_grounds.py`), built from the library's own $100 bill in
+  three depth planes, far bills smaller, softer and darker. Natural colour,
+  never tinted (rule 56); the neutral shade sits on it as on any photograph.
+  This is the one sanctioned **object on the ground rung**, and only because
+  it is texture: no bill is legible as a subject behind the card. Dark or paper
+  follows the card's ink.
+- **Card**: taller (188 to 800), and at least 0.88 opaque, so no bill patterns
+  behind a letter. A see-through panel's colour is not what anyone saw (they
+  saw the photograph through it), so it takes the neutral that carries its ink.
+- **On the card**: the headline stacked from the top, sized under the number's
+  rank (72 / 120 / 56); the selling points and city line up from the foot;
+  **the product in the band between**, with a contact shadow. The product is
+  the record's own when still approved, otherwise the category's (an iPhone
+  headline always gets an iPhone set; strip boxes read as blank cartons, so
+  strips get the fan).
+
+53 records restaged by `scripts/restage_glasscards.mjs`; a restaged record
+restages to itself, so re-running it is safe. A product WALL (ghosted cut-outs
+tiled over the ground, four records, three of them rejected strip photographs)
+is removed: under the money it is ground-rung clutter.

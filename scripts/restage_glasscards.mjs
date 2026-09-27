@@ -56,6 +56,9 @@ function restage(rec, id, cat){
   const by = n => L.find(l => l.name === n);
   const panel = by('Glass Panel'), h1 = by('Headline 1'), h2 = by('Headline 2'), items = by('Items');
   if (!panel || !h2) return null;
+  /* a product WALL (ghosted cut-outs tiled over the ground) is ground-rung
+     clutter under the money, and four walls used rejected strip photographs */
+  for (let i = L.length - 1; i >= 0; i--) if (L[i].kind === 'cutout' && (L[i].__wall || /^Wall /.test(L[i].name || ''))) L.splice(i, 1);
   const heroIdx = L.findIndex(l => l.kind === 'cutout');
   const hero = heroIdx >= 0 ? L[heroIdx] : null;
   const words = L.filter(l => typeof l.text === 'string').map(l => l.text.toUpperCase()).join(' ');
@@ -82,7 +85,7 @@ function restage(rec, id, cat){
      photograph through it), so it takes the neutral that carries its ink */
   const f = rgba(panel.props.fill) || { r:18, g:18, b:20, a:0.9 };
   const fill = f.a >= 0.5 ? 'rgba(' + f.r + ',' + f.g + ',' + f.b + ',' + Math.max(0.88, f.a) + ')'
-             : dark ? 'rgba(16,16,19,0.86)' : 'rgba(250,248,244,0.9)';
+             : dark ? 'rgba(16,16,19,0.88)' : 'rgba(250,248,244,0.9)';
   panel.props = Object.assign({}, panel.props, CARD, { originX:'left', originY:'top', fill });
 
   /* 4. copy stacked and centred on the card, under the number's rank: the
