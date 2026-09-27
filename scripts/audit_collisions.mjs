@@ -112,11 +112,17 @@ for (let i = 0; i < ids.length; i += 8){
            along its tilt): both ends need plateAirNeed() of air, the same
            margin the engine's plateAir() fits to. */
         let air = 0, airBy = null;
-        { const plates = carriers.filter(cz => cz.o && cz.o.type === 'rect');
+        /* plates as drawn, by the engine's own test (plateAir): a fill set by
+           the palette is on the object, not in the layer's props, so the coral
+           chip under a step number was not a carrier here */
+        { const drawnFill = f => f && typeof f === 'object' ? true
+            : !!f && f !== 'transparent' && !/rgba\([^)]*,\s*0(\.[01]\d*|\.2[0-4]\d*)?\)\s*$/.test(String(f));
+          const plates = all.map((o, k) => ({ o, k, l: { name: o.name } }))
+            .filter(z => z.o.type === 'rect' && vis[z.k] !== false && (z.o.opacity == null || z.o.opacity >= 0.5) && drawnFill(z.o.fill));
           texts.forEach(tz => { const T = get(tz); if (T.n < 20) return;
             const pts = [];
             for (let p = 0; p < T.m.length; p++) if (T.m[p]) pts.push(p);
-            let host = null;
+            const hosts = [];
             plates.forEach(cz => { const o = cz.o;
               if (all.indexOf(o) > all.indexOf(tz.o)) return;          // a plate over the line is not its ground
               const PW = o.width * (o.scaleX || 1), PH = o.height * (o.scaleY || 1);
@@ -129,9 +135,15 @@ for (let i = 0; i < ids.length; i += 8){
               const cx = sx / pts.length, cy = sy / pts.length;
               if (Math.abs(cx) > PW / 2 || Math.abs(cy) > PH / 2) return;
               if (y1 - y0 > PH * 1.15 || x1 - x0 > PW * 1.4) return;        // bigger than the plate: not a line on it
-              if (!host || PW * PH < host.PW * host.PH) host = { cz, PW, L: PW / 2 + x0 - S / 2, R: PW / 2 - x1 - S / 2 };
+              hosts.push({ cz, PW, PH, L: PW / 2 + x0 - S / 2, R: PW / 2 - x1 - S / 2 });
             });
-            if (!host) return;
+            if (!hosts.length) return;
+            /* the smallest plate is the line's own; plates of the same fill that
+               overlap it are one shape (a ticket and its notched perforation), so
+               the line reads against whichever of them gives it the most room */
+            hosts.sort((a, b) => a.PW * a.PH - b.PW * b.PH);
+            const f0 = String(hosts[0].cz.o.fill);
+            const host = hosts.filter(h => String(h.cz.o.fill) === f0).sort((a, b) => Math.min(b.L, b.R) - Math.min(a.L, a.R))[0];
             const fs = (tz.o.fontSize || 30) * (tz.o.scaleY || 1), need = plateAirNeed(host.PW, fs);
             const short = need - Math.min(host.L, host.R);
             if (short > air){ air = short; airBy = name(tz) + ' on ' + name(host.cz) + ': ' + Math.round(host.L) + ' / ' + Math.round(host.R) + 'px, needs ' + Math.round(need); }

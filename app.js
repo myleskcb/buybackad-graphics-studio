@@ -11473,10 +11473,11 @@ function ctaBake(sc, b, docW, docH, outW, outH){
         box: { x: (L.prod.to.x - L.prod.w / 2) * z, y: (L.prod.to.y - L.prod.h / 2) * z, w: L.prod.w * z, h: L.prod.h * z } };
     }
     b.cta = c;
-    ctaTurnInk(sc, b, c, outW, outH);
+    ctaTurnInk(sc, b, c);
     const sh = ctaSolveShade(b);
     if (sh == null){ why.push(JSON.stringify(use) + ': a line on the photograph cannot reach 4.5:1 with a dark shade'); continue; }
     c.shade = sh;
+    ctaRecut(sc, b, c, outW, outH);
     const bad = ctaAudit(b);
     if (!bad.length){ c.passed = why.slice(); return c; }   // why the fuller stacks were not used
     why.push(JSON.stringify(use) + ': ' + bad.join(', '));
@@ -11493,7 +11494,7 @@ function ctaBake(sc, b, docW, docH, outW, outH){
    light outline of real weight keeps its ink. The part is re-rendered
    in the turned ink; its first render is kept as bmp0 so the ink crossfades
    during the move rather than switching. A gradient fill is left as it is. */
-function ctaTurnInk(sc, b, c, outW, outH){
+function ctaTurnInk(sc, b, c){
   const W = b.W, H = b.H, lines = c.texts.filter(t => !t.onPlate);
   if (!lines.length) return;
   const g = document.createElement('canvas'); g.width = W; g.height = H;
@@ -11537,12 +11538,41 @@ function ctaTurnInk(sc, b, c, outW, outH){
     }
     turned.set(t.o, ink); t.ink = ink;
   });
-  if (!turned.size) return;
+  c.turned = turned;
+}
+/* After the shade is solved: rule 27, a halo takes its tone from the ground.
+   The call to action lands its parts on the photograph shaded dark, so a
+   light glow the card keyed to its lighter ground (WE BUY GOLD JEWELRY, the
+   green number plate) reads as a haze there; it is re-cut dark, same blur
+   and offset. Then every part with a turned ink or a re-cut halo is
+   rendered again, its first render kept as bmp0 for the crossfade. */
+function ctaRecut(sc, b, c, outW, outH){
+  const W = b.W, H = b.H, turned = c.turned || new Map();
+  const g = document.createElement('canvas'); g.width = W; g.height = H;
+  const gx = g.getContext('2d', { willReadFrequently: true });
+  ctaDrawGround(gx, b, MOTION.dur - 2.4, c.shade);
+  const d = gx.getImageData(0, 0, W, H).data;
+  const groundLum = r => {
+    const L = [];
+    for (let y = Math.max(0, r.y); y < Math.min(H, r.y + r.h); y += 4)
+      for (let x = Math.max(0, r.x); x < Math.min(W, r.x + r.w); x += 4){
+        const i = (Math.floor(y) * W + Math.floor(x)) * 4; L.push(_ctaLum(d[i], d[i + 1], d[i + 2]));
+      }
+    L.sort((p, q) => p - q);
+    return L.length ? L[L.length >> 1] : 1;
+  };
   c.parts.forEach(p => {
-    const set = p.set;
-    if (![...turned.keys()].some(o => set.has(o))) return;
+    const set = p.set, halos = new Map();
+    const dark = groundLum({ x: p.bmp.x, y: p.bmp.y, w: p.bmp.bmp.width, h: p.bmp.bmp.height }) < 0.3;
+    if (dark) set.forEach(o => {
+      const sh = o.shadow;
+      if (sh && typeof sh.color === 'string' && (sh.blur || 0) > 0 && _ctaLum(..._ctaRgb(sh.color)) >= 0.5)
+        halos.set(o, new fabric.Shadow({ color: 'rgba(0,0,0,0.55)', blur: sh.blur, offsetX: sh.offsetX || 0, offsetY: sh.offsetY || 0, nonScaling: !!sh.nonScaling }));
+    });
+    if (!halos.size && ![...turned.keys()].some(o => set.has(o))) return;
     const keep = [...set].map(o => ({ o, fill: o.fill, stroke: o.stroke, sw: o.strokeWidth, shadow: o.shadow }));
     try {
+      halos.forEach((sh, o) => o.set({ shadow: sh }));
       // the outline and the halo were tuned to the dark ink; the shade separates it now
       turned.forEach((ink, o) => { if (set.has(o)) o.set({ fill: ink, stroke: null, strokeWidth: 0, shadow: null }); });
       p.bmp0 = p.bmp;
@@ -12024,16 +12054,22 @@ function plateAir(sc, W, H){
   const words = objs.filter(o => live(o) && isText(o) && /[A-Za-z0-9]/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
   words.forEach(t => {
     const zt = objs.indexOf(t);
-    let host = null;
+    const hosts = [];
     plates.forEach(p => {
       if (objs.indexOf(p) > zt) return;                       // a plate drawn over the line is not its ground
       const PW = p.width * (p.scaleX || 1), PH = p.height * (p.scaleY || 1), s = inkSpan(t, p);
       const cx = (s.x0 + s.x1) / 2, cy = (s.y0 + s.y1) / 2;
       if (Math.abs(cx) > PW / 2 || Math.abs(cy) > PH / 2) return;
       if (s.y1 - s.y0 > PH * 1.15 || s.x1 - s.x0 > PW * 1.4) return;   // bigger than the plate: not a line ON it
-      if (!host || PW * PH < host.PW * host.PH) host = { p, PW, PH };
+      hosts.push({ p, PW, PH });
     });
-    if (!host) return;
+    if (!hosts.length) return;
+    /* the smallest plate is the line's own; plates of the same fill that
+       overlap it are one shape (a ticket and its notched perforation, 780 and
+       866 wide), so the line reads against whichever gives it the most room */
+    hosts.sort((a, b) => a.PW * a.PH - b.PW * b.PH);
+    const f0 = String(hosts[0].p.fill), room = h => { const s = inkSpan(t, h.p); return Math.min(h.PW / 2 + s.x0, h.PW / 2 - s.x1); };
+    const host = hosts.filter(h => String(h.p.fill) === f0).sort((a, b) => room(b) - room(a))[0];
     const p = host.p, PW = host.PW;
     const aligned = Math.abs(((((t.angle || 0) - (p.angle || 0)) % 360) + 540) % 360 - 180) < 10;
     const fs = (t.fontSize || 30) * (t.scaleY || 1);

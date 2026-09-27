@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /* Render a round of the "Video Ad Cuts" playback gallery from the living-still
-   engine (app.js MOTION, parts 1 to 3), through the same recordMotion() a
-   download uses: frame-0 gate, exact encode, flash gate, sound.
+   engine (app.js MOTION, parts 1 to 3): the download's bake, frame-0 check,
+   exact encode (motionPlan, Mediabunny), flash check and sound.
 
    Clips are previews: PREVIEW px wide (480 by default), so the gallery stays
-   light to play. The call-to-action facts (stack, shade, legibility, number
-   size) are taken from a bake at the full 1080 export size, which is the size
-   the owner downloads.
+   light to play, but every frame is the 1080 download's frame scaled down:
+   the call to action is decided once, at the size the owner downloads, and
+   its facts (stack, shade, legibility, number size) are that bake's. The
+   frame-0 check runs at 1080, the flash check on the preview's own frames.
 
    Cards: the owner's hero picks (assets/hero-picks.json) first, then one card
    from each category the picks leave out, then a few classics. Every card is
@@ -103,18 +104,45 @@ for (const [n, j] of jobs.entries()){
       parts: c ? c.parts.map(p => p.key).concat(c.prod ? ['prod'] : []) : [],
       shade: c ? c.shade : null, legib: c ? Math.min(...c.legibility.filter(l => l.px).map(l => l.q75)) : null,
       number: num ? Math.round(num.size) : null, numberMin: Math.round(72 * Math.min(1080, even(1080)) / 1080) };
-    // the clip, through the download's own path, at preview size
-    const w = PREVIEW, h = even(PREVIEW);
+    /* the clip is the 1080 download, scaled down frame by frame. A bake at
+       preview size re-decides the call to action on softer pixels, and a
+       borderline card (stepsFlow-jw01-20, 3.12:1 at 1080) previewed as the
+       number alone while the download keeps its headline. */
+    const w = PREVIEW, h = even(PREVIEW), BW = 1080, BH = even(1080);
     let sound = null;
     try { sound = await motionSound(48000); } catch (e){}
-    const rec = await recordMotion(sc, { w, h, docW, docH, sound });
-    const b64 = blob => new Promise(res => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.readAsDataURL(blob); });
-    // posters: the still it opens on, and where the call to action lands
-    const small = motionBake(sc, docW, docH, w, h);
+    const bigCv = document.createElement('canvas'); bigCv.width = BW; bigCv.height = BH;
+    const bx = bigCv.getContext('2d', { willReadFrequently: true });
+    const z0 = motionFrameZero(sc, big, bx);
+    const plan = await motionPlan(w, h, sound);
+    if (!plan) throw new Error('no encoder for the preview');
+    const MB = plan.MB;
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-    const x = cv.getContext('2d');
-    motionDraw(x, small, 0); const poster = cv.toDataURL('image/jpeg', 0.84).split(',')[1];
-    motionDraw(x, small, MOTION.dur - 0.25); const end = cv.toDataURL('image/jpeg', 0.84).split(',')[1];
+    const x = cv.getContext('2d', { willReadFrequently: true });
+    const output = new MB.Output({ format: plan.fmt === 'mp4' ? new MB.Mp4OutputFormat({ fastStart: 'in-memory' }) : new MB.WebMOutputFormat(), target: new MB.BufferTarget() });
+    const vs = new MB.CanvasSource(cv, { codec: plan.codec, quality: MB.QUALITY_HIGH, keyFrameInterval: 2 });
+    output.addVideoTrack(vs, { frameRate: MOTION.fps });
+    let as = null;
+    if (plan.audio){ as = new MB.AudioBufferSource({ codec: plan.audio, quality: MB.QUALITY_HIGH }); output.addAudioTrack(as); }
+    await output.start();
+    if (as) await as.add(sound);
+    const fc = new MotionFlashCheck(w, h, MOTION.fps), n = Math.round(MOTION.dur * MOTION.fps);
+    x.imageSmoothingQuality = 'high';
+    let poster = null, end = null;
+    for (let i = 0; i < n; i++){
+      const t = i / MOTION.fps;
+      motionDraw(bx, big, t);
+      x.drawImage(bigCv, 0, 0, w, h);
+      fc.add(x);
+      await vs.add(t, 1 / MOTION.fps);
+      if (i === 0) poster = cv.toDataURL('image/jpeg', 0.84).split(',')[1];
+      if (i === n - 8) end = cv.toDataURL('image/jpeg', 0.84).split(',')[1];   // 0.25 s before the loop
+    }
+    const fl = fc.result();
+    await output.finalize();
+    const blob = new Blob([output.target.buffer], { type: plan.fmt === 'mp4' ? 'video/mp4' : 'video/webm' });
+    const rec = { mime: blob.type, blob, frameZero: z0, flash: fl };
+    const b64 = bl => new Promise(res => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.readAsDataURL(bl); });
     sc.dispose();
     return { W: 1080, H: even(1080), sw: w, sh: h, fmt: j.fmt,
       mime: rec.mime, clip: await b64(rec.blob), bytes: rec.blob.size, poster, end, audio: !!sound,
