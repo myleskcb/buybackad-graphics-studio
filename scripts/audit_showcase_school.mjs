@@ -56,7 +56,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { openStudio } from './_showcase_harness.mjs';
-import { PROOF, PRICE, HOURS, DASH, BANNED, COMPANY, LICENSE } from './refresh_copy.mjs';
+import { PROOF, PRICE, HOURS, DASH, BANNED, COMPANY, LICENSE, CLAIM } from './refresh_copy.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
@@ -213,6 +213,11 @@ for (let i = 0; i < work.length; i += 6){
         });
         let used = 0; for (let q = 0; q < occ.length; q++) used += occ[q];
         const cut = t.layers.filter((l, k) => l.kind === 'cutout' && refs[k] && !l.__wall && !((l.props && l.props.opacity !== undefined ? l.props.opacity : 1) < 0.5)).map(l => l.props && l.props.src);
+        /* each product picture's drawn size against its own pixels, and whether it
+           loaded at all (2026-09-27): a picture stretched past 1.5x is soft on a
+           Free export and 3x on Pro */
+        const cutScale = t.layers.map((l, k) => ({ l, o: refs[k] })).filter(z => z.l.kind === 'cutout' && z.l.props && z.l.props.src)
+          .map(z => (!z.o || z.o.type !== 'image') ? 99 : +(z.o.scaleX || 1).toFixed(2));
         const worstOf = a => { const v = a.map(x => x.worst).filter(v => v != null); return v.length ? Math.min(...v) : null; };
         R[id] = {
           num: phone ? +phone.px.toFixed(1) : 0,
@@ -232,7 +237,7 @@ for (let i = 0; i < work.length; i += 6){
           margin, widow, align: anchors.size,
           empty: +(1 - used / occ.length).toFixed(3),
           heads: heads.map(x => x.l.text).join(' / '),
-          cutouts: cut,
+          cutouts: cut, cutScale,
         };
         sc.dispose();
       } catch (e){ R[id] = { err: String(e).slice(0, 160) }; }
@@ -244,9 +249,12 @@ for (let i = 0; i < work.length; i += 6){
 await browser.close();
 
 /* the verdict, card by card */
+const FLAGS = JSON.parse(readFileSync(ROOT + 'assets/cutout-flags.json', 'utf8'));
 const verdict = (c, r) => {
   const fail = [], warn = [];
   if (r.err) return { fail: ['error'], warn };
+  /* a product picture that is flagged, missing, or stretched past 1.5x (2026-09-27) */
+  if ((r.cutScale || []).some(s => s > 1.5) || (r.cutouts || []).some(src => FLAGS[String(src || '').replace(/^.*\//, '').replace(/\.webp$/, '')])) fail.push('asset');
   if (r.num < T.number) fail.push('number');
   if (r.numInk != null && r.numInk < T.numInk) fail.push('numInk');
 
@@ -259,7 +267,7 @@ const verdict = (c, r) => {
   let rec = null; try { rec = JSON.parse(readFileSync(ROOT + 'assets/showcase/tpl/' + c.id + '.json', 'utf8')); } catch (e){}
   if (rec){
     const words = rec.tpl.layers.filter(l => typeof l.text === 'string' && l.role !== 'website').map(l => l.text).join('\n');
-    if (PROOF.test(words) || PRICE.test(words) || HOURS.test(words) || DASH.test(words) || BANNED.test(words) || COMPANY.test(words) || LICENSE.test(words)) fail.push('copy');
+    if (PROOF.test(words) || PRICE.test(words) || HOURS.test(words) || DASH.test(words) || BANNED.test(words) || COMPANY.test(words) || LICENSE.test(words) || CLAIM.test(words)) fail.push('copy');
     /* say what is bought: a phones card whose headline names a device that none of its products is */
     const says = SAYS(r.heads), shows = [...new Set(r.cutouts.map(SHOWS).filter(Boolean))];
     if (c.cat === 'phones' && says.length && shows.length && !says.some(d => shows.includes(d))) fail.push('device');
@@ -277,7 +285,7 @@ const count = (key, list) => rows.filter(x => x[list].includes(key)).length;
 const live = x => !x.c.defect;
 console.log(`\naudited ${rows.length} · page errors ${errors.length} · errors ${rows.filter(x => x.r.err).length}`);
 console.log('REJECT (all cards / cards live before this audit)');
-['number', 'numInk', 'offPlate', 'onProduct', 'thumb', 'hierarchy', 'families', 'faux', 'copy', 'device'].forEach(k =>
+['number', 'numInk', 'offPlate', 'onProduct', 'thumb', 'hierarchy', 'families', 'faux', 'copy', 'device', 'asset'].forEach(k =>
   console.log('  ' + k.padEnd(10) + String(count(k, 'fail')).padStart(4) + ' / ' + String(rows.filter(x => live(x) && x.fail.includes(k)).length).padStart(4)));
 console.log('WARN');
 ['small', 'margin', 'widow', 'align', 'crowded', 'contrast'].forEach(k => console.log('  ' + k.padEnd(10) + String(count(k, 'warn')).padStart(4)));

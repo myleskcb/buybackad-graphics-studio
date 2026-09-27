@@ -15,10 +15,13 @@
  * usage: node scripts/audit_showcase_content.mjs [--write]
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { COMPANY, LICENSE, foreignWords, PROOF, PRICE, HOURS, DASH, BANNED } from './refresh_copy.mjs';
+import { COMPANY, LICENSE, foreignWords, PROOF, PRICE, HOURS, DASH, BANNED, CLAIM } from './refresh_copy.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
 const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
+/* product pictures that must not ship (garbled lettering, the wrong product,
+   cut off, broken): assets/cutout-flags.json, 2026-09-27 */
+const FLAGS = JSON.parse(readFileSync(ROOT + 'assets/cutout-flags.json', 'utf8'));
 
 /* what a category is allowed to show. The phones deck rotates across the Apple
    line, so it legitimately carries iPads, Macs and Watches. Nothing else does. */
@@ -30,7 +33,7 @@ const ALLOW = {
 };
 const family = p => String(p || '').replace(/^(qs-|ip-)/, '').split('-')[0];
 
-let n = { subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, school:0, clean:0 };
+let n = { subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, school:0, asset:0, clean:0 };
 idx.forEach(c => {
   const why = [];
   /* Only a card that actually SHOWS a product can show the wrong one. Most
@@ -54,6 +57,11 @@ idx.forEach(c => {
     /* the study session's copy rules (2026-09-26): invented proof, a price
        figure, invented hours, a dash, a deadline or a "real person" claim */
     if (PROOF.test(words) || PRICE.test(words) || HOURS.test(words) || DASH.test(words) || BANNED.test(words)) why.push('copy');
+    /* invented facts (2026-09-27): a rank, a clock, a service, a policy, a
+       reputation, or more than the reseller buys (refresh_copy.mjs CLAIM) */
+    if (CLAIM.test(words)) why.push('copy');
+    /* a flagged product picture */
+    if (rec.tpl.layers.some(l => l.kind === 'cutout' && l.props && FLAGS[String(l.props.src || '').replace(/^.*\//, '').replace(/\.webp$/, '')])) why.push('asset');
   }
   /* LEGIBILITY (2026-09-22), written by audit_showcase_legibility.mjs: a
      headline, phone or CTA under 3:1 against the pixels behind it, or one that
@@ -84,6 +92,7 @@ console.log('  critical text under 3:1 / invisible   ' + n.legib);
 console.log('  shape over text   ' + n.shape);
 console.log('  backdrop missing  ' + n.bg);
 console.log('  design school     ' + n.school);
+console.log('  flagged picture   ' + n.asset);
 console.log('  CLEAN            ' + n.clean);
 if (WRITE){ writeFileSync(ROOT + 'assets/showcase/index.json', JSON.stringify(idx)); console.log('wrote defect flags'); }
 else console.log('(dry run; pass --write)');
