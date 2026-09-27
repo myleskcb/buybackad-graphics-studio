@@ -11404,18 +11404,33 @@ function ctaLayout(W, H, U, use){
   let s = Math.min(0.92 * bw / widest, 0.17 * S / motionBox(U.block.phone).h);
   s = Math.min(s, (bh - gaps - (wantProd ? prodMin + gap : 0)) / textH);
   if (s < 0.8) return null;
+  /* The number keeps 72px (rule 53) even when a wide headline brings the
+     shared scale down: its block takes its own scale, as long as it still
+     fits the width and the headline still outranks it. One shared scale sent
+     stepsFlow-cd10-20 to the number alone. */
+  const phone = U.block.phone, numPx = (phone.fontSize || 0) * (phone.scaleY || 1);
+  let sB = s;
+  if (numPx * s < 72 * S / 1080 && numPx > 0){
+    sB = Math.min(72.5 * S / 1080 / numPx, 0.92 * bw / U.block.box.w, 0.17 * S / motionBox(phone).h);
+    const heads = use.head && U.head ? U.head.members.filter(motionIsText) : [];
+    const headPx = Math.max(0, ...heads.map(o => (o.fontSize || 0) * (o.scaleY || 1)));
+    if (heads.length && headPx * s < numPx * sB) sB = s;           // the headline stays the biggest thing
+  }
+  const sOf = u => (u === U.block ? sB : s);
+  const textHs = text.reduce((h, u) => h + u.box.h * sOf(u), 0);
+  if (textHs + gaps + (wantProd ? prodMin + gap : 0) > bh) return null;
   let prod = null;
   if (wantProd){
-    const pb = U.prod.box, room = Math.min(bh - textH * s - gaps - gap, 0.46 * bh);
+    const pb = U.prod.box, room = Math.min(bh - textHs - gaps - gap, 0.46 * bh);
     const k = Math.min(0.62 * bw / pb.w, room / pb.h);
     if (!(k > 0 && pb.h * k >= prodMin)) return null;
     prod = { u: U.prod, k, w: pb.w * k, h: pb.h * k };
   }
-  const total = textH * s + gaps + (prod ? prod.h + gap : 0);
+  const total = textHs + gaps + (prod ? prod.h + gap : 0);
   const cx = (B.x0 + B.x1) / 2;
   let y = B.y0 + (bh - total) / 2;
   if (prod){ prod.to = { x: cx, y: y + prod.h / 2 }; y += prod.h + gap; }
-  const place = text.map(u => { const to = { x: cx, y: y + u.box.h * s / 2 }; y += u.box.h * s + gap; return { u, s, to }; });
+  const place = text.map(u => { const su = sOf(u), to = { x: cx, y: y + u.box.h * su / 2 }; y += u.box.h * su + gap; return { u, s: su, to }; });
   return { box: B, s, place, prod };
 }
 function ctaTextBox(o, u, s, to){
