@@ -450,3 +450,46 @@ Rejected:
 RESUME HERE:
   1. Owner decision: fast-forward `main` to this trunk.
   2. OPEN-ITEMS §K.
+
+## 2026-09-27 (evening) — Colour kept, everything moves, fonts you can see
+
+Studied:
+  The owner's notes on the curated library ("make sure it still keeps good
+  colors. a lot of these have a white haze overlay", "doesn't look great"),
+  then "make everything animateable", "make sure the type faces render as
+  previews of their name typed out", category variants ("sell your macbook
+  air pro neo … with multiple") and "use supportive highlights on some themes
+  if it looks good".
+
+Measured:
+  - 238 of the 400 kept cards shaded their photograph with white paper at
+    0.3 to 0.6 (rule 56 allowed paper under dark ink). On a photograph it is a
+    milky veil.
+  - First dark pass: 31 cards held back by coloured dark copy. Rendered, two
+    failures the solver could not see: a light line left on a pale
+    see-through band, and dark copy on a see-through plate that turned
+    mid-grey once the ground under it darkened (about 2:1).
+  - The studio had no animation at all; only /motion (phones, its own looks).
+  - Font menus: <option> font-family is honoured only by some desktop Chrome
+    builds, so on a Mac or a phone every name showed in the system font.
+  - The support colour was on 213 of 400 cards, always on frames, ribbons or
+    plates, never on the supporting copy rule 51 assigns it to.
+
+Changed:
+  - scripts/darken_grounds.mjs (rule 62): 224 of 226 hazed cards re-grounded
+    dark (128 graded, 96 flat, median 0.56), 826 lines re-inked light,
+    coloured lines keep their hue with the lightness turned over, 218 bands
+    under the copy follow what the eye saw.
+  - Video export on every design (the living-still engine, ported from the
+    superseded bf45814): Easy Mode "Download as video", the editor's "Video".
+  - Font picker: a button in the current face, a list with every name in its
+    own face, lazy-loaded, searchable.
+  - Whole-line variants: All iPhones / iPads / MacBooks / Macs / Watches /
+    AirPods / Everything Apple, the models side by side on the card.
+
+Rejected:
+  - Leaving coloured-ink cards in their haze (the first pass): the owner's
+    complaint was the haze.
+  - Re-inking coloured copy white: the palette would be gone.
+  - Sizing a line-up to the single product it replaced: three MacBooks as
+    stamps.
