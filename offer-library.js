@@ -34,9 +34,15 @@
  *     over the wrong device;
  *   - product pictures only from the clean list: drawn at no more than their
  *     own pixels, none in assets/cutout-flags.json;
- *   - the photo band uses public-domain NASA photographs (assets/bg-web,
- *     ATTRIBUTION.json), the photograph in its own colour under a neutral
- *     shade (DESIGN-LAW 56).
+ *   - every card stands on a photograph of its own goods, in its own colour
+ *     under a neutral shade solved for its white type (DESIGN-LAW 56); the
+ *     steps sit on a solid panel in the look's colour (2026-09-27, the owner:
+ *     "the gray sections should have a background image");
+ *   - each category speaks in its own display faces (FLAVOR), paired with a
+ *     plain reading face (the owner: "type faces that have personality");
+ *   - the card categories show real cards: a PSA 10 Charizard cut from a
+ *     Commons photograph, and ph-* placeholders for sports until real
+ *     photographs are sourced (scripts/make_card_assets.py).
  */
 (function offerLibrary(){
   if (typeof TEMPLATES === 'undefined' || typeof CUTOUT_EXT === 'undefined') return;
@@ -100,22 +106,63 @@
     { key:'khand',    d:'Khand',                      dw:700, lh:0.92, em:0.44, r:'Manrope',           rw:700, cond:1 },
     { key:'chivo',    d:'Chivo',                      dw:900, lh:0.98, em:0.59, r:'Chivo',             rw:700 },
     { key:'franklin', d:'Libre Franklin',             dw:900, lh:0.98, em:0.59, r:'Libre Franklin',    rw:500 },
+    /* the flavour faces (2026-09-27, the owner: the cards are "definitely
+       lacking type faces that have personality or flavor"): display faces
+       with a voice, each paired with a plain reading face for the steps and
+       the number. OFL, vendored in assets/fonts. */
+    { key:'teko',     d:'Teko',                       dw:700, lh:0.86, em:0.47, r:'Chivo',             rw:700, cond:1 },
+    { key:'oswald',   d:'Oswald',                     dw:700, lh:1.0,  em:0.49, r:'Libre Franklin',    rw:700, cond:1 },
+    { key:'sairac',   d:'Saira Condensed',            dw:700, lh:0.95, em:0.42, r:'Chivo',             rw:700, cond:1 },
+    { key:'barlowc',  d:'Barlow Condensed',           dw:700, lh:0.95, em:0.435, r:'Libre Franklin',    rw:700, cond:1 },
+    { key:'marker',   d:'Permanent Marker',           dw:400, lh:1.06, em:0.615, r:'Manrope',           rw:700 },
+    { key:'bangers',  d:'Bangers',                    dw:400, lh:0.98, em:0.45, r:'Chivo',             rw:700, cond:1 },
+    { key:'luckiest', d:'Luckiest Guy',               dw:400, lh:1.02, em:0.6, r:'Manrope',           rw:700 },
+    { key:'bungee',   d:'Bungee',                     dw:400, lh:1.0,  em:0.745, r:'Manrope',           rw:700 },
+    { key:'russo',    d:'Russo One',                  dw:400, lh:1.0,  em:0.605, r:'Instrument Sans',   rw:700 },
+    { key:'audiowide',d:'Audiowide',                  dw:400, lh:1.06, em:0.675, r:'Sora',              rw:700 },
+    { key:'squada',   d:'Squada One',                 dw:400, lh:0.95, em:0.435, r:'Chivo',             rw:700, cond:1 },
+    { key:'rye',      d:'Rye',                        dw:400, lh:1.06, em:0.625, r:'Libre Franklin',    rw:700 },
+    { key:'shrikhand',d:'Shrikhand',                  dw:400, lh:1.1,  em:0.63, r:'Manrope',           rw:700 },
+    { key:'cormorant',d:'Cormorant Garamond',         dw:700, lh:1.0,  em:0.485, r:'Manrope',           rw:700 },
+    { key:'nunito',   d:'Nunito',                     dw:700, lh:1.02, em:0.56, r:'Nunito',            rw:700 },
+    { key:'sniglet',  d:'Sniglet',                    dw:400, lh:1.02, em:0.525, r:'Nunito',            rw:700 },
+    { key:'knewave',  d:'Knewave',                    dw:400, lh:1.04, em:0.56, r:'Chivo',             rw:700 },
   ];
+  const FACE = Object.fromEntries(FACES.map(F => [F.key, F]));
+  /* a category's voice: the headline faces its cards rotate through */
+  const FLAVOR = {
+    sports:    ['teko', 'marker', 'oswald', 'bangers', 'sairac'],
+    pokemon:   ['luckiest', 'bangers', 'sniglet', 'knewave'],
+    gaming:    ['russo', 'audiowide', 'squada', 'sairac'],
+    audio:     ['audiowide', 'shrikhand', 'bungee', 'barlowc'],
+    computers: ['russo', 'squada', 'barlowc', 'oswald'],
+    wearables: ['audiowide', 'shrikhand', 'sniglet', 'sairac'],
+    cameras:   ['shrikhand', 'cormorant', 'oswald', 'barlowc'],
+    gold:      ['rye', 'cormorant', 'shrikhand', 'gloock'],
+    silver:    ['cormorant', 'rye', 'gloock', 'serif'],
+    coins:     ['rye', 'cormorant', 'slab', 'gloock'],
+    cars:      ['teko', 'bungee', 'knewave', 'oswald', 'barlowc'],
+    strips:    ['nunito', 'sniglet', 'bric', 'franklin'],
+    phones:    ['bric', 'bounded', 'shrikhand', 'audiowide', 'clash'],
+  };
 
   /* native pixel sizes of the pictures used (trimmed to the product), so a
      layout can place them at build time and never draw one past its pixels */
-  const SIZE = { 'iphone-fan-four':[1771,1770], 'iphone-17-pro-back-black':[1008,1837], 'iphone-15-pro-back-gold':[542,1297], 'ipad-back-camera':[606,1404], 'watch-single-angle':[1069,1355], 'pix-trio-lineup':[1394,1648],
-    'gold-jewelry-mixed':[2048,1734], 'gold-coins-pile':[1212,859], 'gold-scrap-mixed':[1752,1748], 'gold-necklace-single':[1314,1591], 'silver-flatware-set':[1989,1919], 'silver-tea-set':[1921,1950], 'silver-coins-spill':[1714,1223], 'silver-jewelry-mixed':[2048,1681],
+  const SIZE = { 'iphone-17-pro-back-black':[1008,1837], 'iphone-15-pro-back-gold':[542,1297], 'ipad-back-camera':[606,1404], 'watch-single-angle':[1069,1355], 'pix-trio-lineup':[1394,1648],
+    'gold-jewelry-mixed':[2048,1734], 'gold-coins-pile':[1212,859], 'gold-scrap-mixed':[1752,1748], 'gold-necklace-single':[1314,1591], 'silver-flatware-set':[1989,1919], 'silver-coins-spill':[1714,1223], 'silver-jewelry-mixed':[2048,1681],
     'coin-graded-fan-three':[1950,1865], 'coin-slabs-stack':[1849,1314], 'coin-silver-dollar-pair':[1759,1902], 'coin-loose-pile':[1935,1383], 'car-sedan-rear':[1937,840], 'car-suv-side':[1517,618], 'car-damaged-front':[1661,1017],
-    'strip-boxes-stack':[1828,1779], 'strip-boxes-row-five':[1636,1273], 'strip-vials-pile':[1829,1090], 'strip-box-single':[1460,1476], 'poke-slabs-trio':[1794,1831], 'poke-booster-packs-fan':[1857,1245], 'poke-booster-box':[1050,1420],
-    'sports-slabs-stack':[1843,1328], 'sports-slabs-fan-five':[1592,1411], 'sports-box-sealed':[1775,876], 'sports-cards-stack-loose':[1574,1025], 'iphone-15-pro-back-white':[1430,1634], 'iphone-15-pro-back-blue':[678,1580], 'iphone-17-pro-back-silver':[799,1668],
-    'ipad-front':[1186,1658], 'ipad-pair-sizes':[982,1786], 'mac-pro-open-front':[1894,1286], 'mac-open-screen-on':[1811,996], 'mac-air-open-angle':[1736,1534],
-    'apple-watch-pair':[1634,1350], 'apple-watch-stack-three':[1981,1489], 'sam-s24-ultra-back':[768,1904], 'sam-s24-ultra-front':[777,1662], 'samsung-galaxy-back':[556,1568],
+        'iphone-15-pro-back-white':[1430,1634], 'iphone-15-pro-back-blue':[678,1580], 'iphone-17-pro-back-silver':[799,1668],
+    'ipad-pair-sizes':[982,1786], 'mac-pro-open-front':[1894,1286],     'apple-watch-stack-three':[1981,1489], 'sam-s24-ultra-back':[768,1904], 'sam-s24-ultra-front':[777,1662], 'samsung-galaxy-back':[556,1568],
     'pix-9-back-green':[802,1728], 'pix-9-back-obsidian':[590,1464], 'pix-fold-open':[1929,1117], 'sam-fold-half':[1446,1403], 'sam-flip-open':[1295,1544], 'sam-fold-open-flat':[1468,1064],
-    'tablet-android-back':[968,1523], 'pix-tablet-back':[822,1609], 'game-console-pair':[1404,1406], 'console-handheld-pair':[1458,784], 'gaming-handheld':[1854,1273], 'controller-pair':[1830,929],
-    'laptop-gaming-open':[1694,1131], 'vr-headset':[1823,1082], 'buds-overear-headphones':[1284,1760], 'airpods-case-open':[1262,1234], 'sam-buds-case':[1613,1294], 'pix-buds-case':[1751,1600],
+    'pix-tablet-back':[822,1609], 'game-console-pair':[1404,1406], 'console-handheld-pair':[1458,784], 'gaming-handheld':[1854,1273], 'controller-pair':[1830,929],
+    'laptop-gaming-open':[1694,1131], 'vr-headset':[1823,1082], 'buds-overear-headphones':[1284,1760], 'airpods-case-open':[1262,1234], 'pix-buds-case':[1751,1600],
     'speaker-portable':[646,1560], 'smart-tv-stand':[1298,860], 'tv-flatscreen':[1356,941], 'laptop-windows-open':[1928,1827], 'sam-watch-pair':[1816,1368], 
-    'camera-mirrorless':[1966,1524], 'camera-dslr-body':[1930,1716], 'drone-folded':[1603,1121], };
+    'camera-mirrorless':[1966,1524], 'camera-dslr-body':[1930,1716], 'drone-folded':[1603,1121],
+    /* 2026-09-27: approved pictures that replace the owner's rejects, the real
+       PSA Charizard and the card placeholders (scripts/make_card_assets.py) */
+    'ip-group-colour-lineup':[1752,1042], 'ipad-front-screen-off':[1323,1593], 'macbook-open-angle':[1764,1276], 'mac-half-open-glow':[1720,1499],
+    'watch-pair-bands':[863,1226], 'buds-pair-loose':[1286,1517], 'silver-candlesticks':[1314,1640], 'strip-boxes':[444,418],
+    'poke-psa-charizard':[369,610], 'ph-sports-slabs-fan':[1414,1350], 'ph-sports-cards-fan':[1342,1138], 'ph-sports-slab':[727,1207], 'ph-sports-box':[1312,832], };
 
   /* ── THE STEPS, in the owner's words. What to send changes per line; the
      meeting and the pay do not. "Nearby" rather than the owner's "In Long
@@ -134,19 +181,19 @@
     { key:'iphone', cat:'phones', label:'iPhone', models:'iPhone 11 and newer, every size',
       heads:['Your old iPhone, cash in hand.', 'Spare iPhone? Spare cash.', 'Upgraded? Sell the old iPhone.', 'Two iPhones, one pocket?', 'Your old iPhone is cash.'],
       ask:'Model, storage and carrier', check:['Cracked screens too', 'Unlocked or on a carrier', NOSHIP],
-      sets:[[['iphone-fan-four', 1]], [['iphone-15-pro-back-white', 1], ['iphone-15-pro-back-blue', 0.97]], [['iphone-17-pro-back-silver', 1], ['iphone-15-pro-back-white', 0.94]], [['iphone-17-pro-back-black', 1], ['iphone-15-pro-back-gold', 0.95]]] },
+      sets:[[['ip-group-colour-lineup', 1]], [['iphone-15-pro-back-white', 1], ['iphone-15-pro-back-blue', 0.97]], [['iphone-17-pro-back-silver', 1], ['iphone-15-pro-back-white', 0.94]], [['iphone-17-pro-back-black', 1], ['iphone-15-pro-back-gold', 0.95]]] },
     { key:'ipad', cat:'phones', label:'iPad', models:'iPad, iPad mini, iPad Air and iPad Pro',
       heads:['Old iPad. New money.', 'iPad in a drawer? Sell it.', 'Upgraded? Sell the old iPad.'],
       ask:'Model, size and storage', check:['Cracked screens too', 'Wi-Fi or cellular', NOSHIP],
-      sets:[[['ipad-front', 1]], [['ipad-pair-sizes', 1]], [['ipad-back-camera', 1], ['ipad-front', 0.92]]] },
+      sets:[[['ipad-front-screen-off', 1]], [['ipad-pair-sizes', 1]], [['ipad-back-camera', 1], ['ipad-front-screen-off', 0.92]]] },
     { key:'mac', cat:'phones', label:'MacBook', models:'MacBook Air and MacBook Pro, M1 and newer',
       heads:['Old MacBook. New money.', 'MacBook in the closet? Sell it.', 'Your old MacBook is cash.'],
       ask:'The year, chip and memory', check:['Bring the charger if you have it', 'Signed out of iCloud', NOSHIP],
-      sets:[[['mac-pro-open-front', 1]], [['mac-open-screen-on', 1]], [['mac-air-open-angle', 1]]] },
+      sets:[[['mac-pro-open-front', 1]], [['macbook-open-angle', 1]], [['mac-half-open-glow', 1]]] },
     { key:'watch', cat:'phones', label:'Apple Watch', models:'Apple Watch Series, SE and Ultra',
       heads:['Your old Apple Watch is cash.', 'New watch? Sell the old one.', 'Apple Watch in a drawer? Sell it.'],
       ask:'Series, size, GPS or cellular', check:['Bring the charger if you have it', 'Unpaired and reset', NOSHIP],
-      sets:[[['apple-watch-pair', 1]], [['watch-single-angle', 1]], [['apple-watch-stack-three', 1]]] },
+      sets:[[['watch-pair-bands', 1]], [['watch-single-angle', 1]], [['apple-watch-stack-three', 1]]] },
     { key:'galaxy', cat:'phones', label:'Samsung Galaxy', models:'Galaxy S21 and newer, Ultra too',
       heads:['Your old Galaxy is cash.', 'Upgraded? Sell the old Galaxy.', 'Galaxy in a drawer? Sell it.'],
       ask:'Model, storage and carrier', check:['Unlocked or on a carrier', 'Signed out of Google', NOSHIP],
@@ -162,7 +209,7 @@
     { key:'tablet', cat:'phones', label:'Android tablets', models:'Galaxy Tab and Pixel Tablet',
       heads:['Android tablet? We buy it.', 'Tablet in a drawer? Sell it.'],
       ask:'Model, size and storage', check:['Bring the charger if you have it', 'Signed out of Google', NOSHIP],
-      sets:[[['tablet-android-back', 1], ['pix-tablet-back', 0.95]]] },
+      sets:[[['pix-tablet-back', 1]]] },
     // Gaming
     { key:'console', cat:'gaming', label:'Consoles', models:'PS5, PS5 Pro, Xbox Series X and S',
       heads:['PS5 or Xbox? We buy both.', 'Console in the closet? Sell it.', 'Your old console is cash.'],
@@ -200,7 +247,7 @@
     { key:'earbuds', cat:'audio', label:'Earbuds', models:'AirPods Pro, Galaxy Buds and Pixel Buds',
       heads:['Spare earbuds? Get cash.', 'Earbuds in a drawer? Sell them.'],
       ask:'Brand, model and the case', check:['Both buds and the case', 'Unpaired and reset', NOSHIP],
-      sets:[[['airpods-case-open', 1]], [['sam-buds-case', 1]], [['pix-buds-case', 1]]] },
+      sets:[[['airpods-case-open', 1]], [['buds-pair-loose', 1]], [['pix-buds-case', 1]]] },
     { key:'headset', cat:'audio', label:'Gaming headsets', models:'Astro A50 X, Turtle Beach Stealth, SteelSeries Arctis',
       heads:['Gaming headset? Get cash for it.', 'A50 X or Stealth? We buy both.'],
       ask:'Brand, model and the base', check:['Bring the base station', 'Worn pads, say so', NOSHIP],
@@ -247,7 +294,7 @@
     { key:'silver', cat:'silver', label:'Silver', models:'Coins, bars, silverware and jewelry',
       heads:['Old silverware? Sell it.', 'Silver in a drawer? Sell it.', 'Your old silver is cash.'],
       ask:'Photos, and any marks on it', meet:'Nearby, weighed with you', check:['Tarnish does not matter', 'Sterling, coins and bars', NOSHIP],
-      sets:[[['silver-flatware-set', 1]], [['silver-tea-set', 1]], [['silver-coins-spill', 1]], [['silver-jewelry-mixed', 1]]] },
+      sets:[[['silver-flatware-set', 1]], [['silver-candlesticks', 1]], [['silver-coins-spill', 1]], [['silver-jewelry-mixed', 1]]] },
     { key:'coins', cat:'coins', label:'Coins', models:'Old coins, silver dollars and collections',
       heads:['Old coins in a jar? Sell them.', 'Your coin collection is cash.', 'Old coins? We buy them.', 'Coin collection in a closet? Sell it.'],
       ask:'Photos of both sides', meet:'Nearby, looked over with you', check:['Singles or whole collections', 'Graded or raw', NOSHIP],
@@ -259,15 +306,15 @@
     { key:'strips', cat:'strips', label:'Test strips', models:'Sealed, unexpired test strip boxes',
       heads:['Extra test strips? Sell them.', 'Sealed boxes? Get cash.', 'Unused test strips are cash.'],
       ask:'Brand, count and expiry date', check:['Sealed and unexpired only', 'All the major brands', NOSHIP],
-      sets:[[['strip-boxes-stack', 1]], [['strip-boxes-row-five', 1]], [['strip-vials-pile', 1]], [['strip-box-single', 1]]] },
+      sets:[[['strip-boxes', 1]]] },
     { key:'pokemon', cat:'pokemon', label:'Pok\u00e9mon cards', models:'Singles, slabs, binders and sealed boxes',
       heads:['Pok\u00e9mon cards? We buy them.', 'Your old Pok\u00e9mon cards are cash.', 'Pok\u00e9mon collection? Get cash.'],
       ask:'Photos of the cards or the slabs', check:['Singles or whole collections', 'Graded or raw', NOSHIP],
-      sets:[[['poke-slabs-trio', 1]], [['poke-booster-packs-fan', 1]], [['poke-booster-box', 1]]] },
+      sets:[[['poke-psa-charizard', 1]]] },
     { key:'sports', cat:'sports', label:'Sports cards', models:'Rookies, autos, slabs and sealed wax',
       heads:['Sports cards? We buy them.', 'Your old sports cards are cash.', 'Card collection in a closet? Sell it.'],
       ask:'Photos of the cards or the slabs', check:['Singles or whole collections', 'Graded or raw', NOSHIP],
-      sets:[[['sports-slabs-stack', 1]], [['sports-slabs-fan-five', 1]], [['sports-box-sealed', 1]], [['sports-cards-stack-loose', 1]]] },
+      sets:[[['ph-sports-slabs-fan', 1]], [['ph-sports-cards-fan', 1]], [['ph-sports-slab', 1]], [['ph-sports-box', 1]]] },
     // Cameras & Drones
     { key:'camera', cat:'cameras', label:'Cameras', models:'Mirrorless and DSLR bodies and lenses',
       heads:['Camera in a bag? Sell it.', 'Upgraded your camera? Sell the old one.'],
@@ -279,11 +326,31 @@
       sets:[[['drone-folded', 1]]] },
   ];
 
-  /* public-domain NASA photographs for the photo band, dark and calm at the top
-     where the headline stands: assets/bg-offer (re-encoded from assets/bg-web,
-     credits in assets/bg-offer/ATTRIBUTION.json) */
-  const PHOTOS = ['space-earth-from-iss-night-1', 'space-earth-from-iss-night-3', 'space-moon-surface-nasa-4',
-    'space-earth-from-iss-night-4', 'space-aurora-from-space-3', 'space-galaxy-hubble-telescope-1'];
+  /* ── THE PHOTOGRAPHS. The owner, 2026-09-27: "the gray sections should have a
+     background image". Every card now stands on a photograph of its own goods
+     (scripts/make_offer_grounds.py: the Commons photographs in assets/bg-web,
+     the studio's own card scenes for the card categories, NASA pictures for
+     the lines the library has no photograph of yet), in its own colour.
+     p90 = the 90th percentile luminance of the upper two thirds, where the
+     headline stands: the neutral shade is solved from it (DESIGN-LAW 56) so
+     white type over it clears 4.5:1, and no picture is darker than it needs. */
+  const GROUNDS = {
+    sports: [{ file:'dl_sports_arcCrown_crimson', p90:198 }, { file:'dl_sports_agencyGrid_mono', p90:170 }, { file:'dl_sports_glassCard_mono', p90:224 }],
+    pokemon: [{ file:'dl_pokemon_arcCrown_royal', p90:227 }, { file:'dl_pokemon_bubblePop_royal', p90:222 }, { file:'dl_pokemon_agencyGrid_royal', p90:170 }],
+    strips: [{ file:'strips-contour-next-test-strips-2', p90:171 }, { file:'strips-blood-glucose-test-strips-2', p90:241 }, { file:'strips-blood-glucose-meter-1', p90:203 }],
+    coins: [{ file:'coins-coin-collection-album-1', p90:184 }, { file:'coins-morgan-silver-dollar-1', p90:220 }, { file:'coins-american-gold-eagle-coin-1', p90:239 }],
+    gold: [{ file:'gold-gold-jewelry-rings-3', p90:254 }, { file:'gold-gold-bracelet-2', p90:178 }, { file:'gold-gold-necklace-chain-close-3', p90:137 }],
+    silver: [{ file:'silver-silverware-set-1', p90:206 }, { file:'silver-silver-cutlery-1', p90:183 }, { file:'silver-silver-jewelry-rings-2', p90:248 }],
+    cars: [{ file:'cars-used-car-dealership-lot-1', p90:189 }, { file:'trucks-pickup-truck-1', p90:198 }, { file:'cars-classic-car-chrome-grille-1', p90:251 }],
+    iphone: [{ file:'phones-iphone-15-pro-back-camera-1', p90:166 }, { file:'phones-iphone-14-pro-1', p90:118 }, { file:'phones-apple-iphone-15-1', p90:181 }],
+    mac: [{ file:'macbook-macbook-on-desk-1', p90:208 }, { file:'macbook-macbook-pro-m3-1', p90:198 }, { file:'macbook-macbook-air-2', p90:34 }],
+    space: [{ file:'space-earth-from-iss-night-1', p90:130 }, { file:'space-earth-from-iss-night-3', p90:22 }, { file:'space-moon-surface-nasa-4', p90:99 }, { file:'space-earth-from-iss-night-4', p90:99 }, { file:'space-aurora-from-space-3', p90:172 }, { file:'space-galaxy-hubble-telescope-1', p90:170 }],
+  };
+  const GROUND_OF = { iphone:'iphone', ipad:'iphone', mac:'mac', gold:'gold', silver:'silver', coins:'coins', car:'cars',
+    strips:'strips', pokemon:'pokemon', sports:'sports' };
+  /* white on black-shaded pixels of luminance v: v * (1 - a) <= 118 is 4.5:1;
+     110 and 0.05 are the margin */
+  const shadeFor = p90 => +Math.max(0.2, Math.min(0.82, 1 - 110 / Math.max(1, p90) + 0.05)).toFixed(2);
 
   /* ── fitting a headline at build time (no font is loaded yet): a width
      estimate per character class, scaled by the face's own em, with a margin */
@@ -401,7 +468,24 @@
         : { left:M, top:top + 60, fontFamily:F.r, fontSize:NUM_PX, fontWeight:w, fill:ink }),
     ];
   };
-  const vignette = L => ({ kind:'vignette', name:'Vignette', props:{ strength: L.dark ? 0.26 : 0.1 } });
+  const vignette = () => ({ kind:'vignette', name:'Vignette', props:{ strength: 0.22 } });
+  /* the shade: solid neutral black from the top to under the last line of
+     type on the photograph, then fading toward the product, which stands on
+     the photograph as it was shot */
+  const shade = (G, textBottom, floor) => {
+    const a = G.alpha, tb = Math.round(textBottom), out = [r('Shade', { left:0, top:0, width:W, height:tb, fill:'rgba(0,0,0,' + a + ')' })];
+    if (floor > tb + 4) out.push({ kind:'rect', name:'Shade Fade', solid:true, props:{ left:0, top:tb, width:W, height:Math.round(floor - tb),
+      fill:'rgba(0,0,0,' + a + ')', grad:{ c1:'rgba(0,0,0,' + a + ')', c2:'rgba(0,0,0,' + (a * 0.3).toFixed(2) + ')', a:180 } } });
+    return out;
+  };
+  /* type on the photograph is white (the shade is solved for it); the look's
+     colour lives on the panels, the markers and the band */
+  const PH = { ink:'#ffffff', sub:'rgba(255,255,255,0.86)', acc:'#ffffff' };
+  const PHL = { ink:'#ffffff', sub:'rgba(255,255,255,0.5)' };
+  const PANEL = 692;                           // the steps' panel under the stage
+  const panelFill = L => L.dark ? L.g2 : L.g1;
+  const stepsPanel = (L, top) => r('Steps Panel', { left:0, top, width:W, height:BT - top, fill:panelFill(L) });
+  const ON_PHOTO = { dark:1 };                 // products on a photograph take the deep shadow
   /* a type-only card's picture: the model names, set large with rules between */
   const ledger = (L, F, names, x, y, w, align) => {
     const out = [], rows = Math.ceil(names.length / 2), colW = w / 2;
@@ -422,46 +506,47 @@
      1.3x the number in the room the layout has, so the builder tries the next
      headline or face instead of shipping a cramped card. */
   const LAYOUTS = {
-    /* the owner's "Studio row": models line, headline, the product on the
-       sweep, three steps in a row, the band */
-    row(L, F, line, head, set, style){
+    /* the owner's "Studio row": models line and headline on the photograph,
+       the product standing on it, three steps on the panel, the band */
+    row(L, F, line, head, set, style, G){
       const fit = fitHead(head, F, W - 2 * M, 2, 112); if (!fit) return null;
-      const top = 110, prodTop = top + fit.h + 26, floor = 690;
+      const top = 110, prodTop = top + fit.h + 26, floor = PANEL;
       if (floor - prodTop < 250) return null;
-      return [vignette(L), models(L, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M),
-        ...arrange(set, { x:M, y:prodTop, w:W - 2 * M, h:floor - prodTop }, L),
-        ...stepsRow(L, F, line, 712, style), ...band(L, F, BT)];
+      return [...shade(G, top + fit.h + 18, floor), vignette(), models(PH, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
+        ...arrange(set, { x:M, y:prodTop, w:W - 2 * M, h:floor - prodTop }, ON_PHOTO),
+        stepsPanel(L, PANEL), ...stepsRow(L, F, line, PANEL + 20, style), ...band(L, F, BT)];
     },
-    /* "Studio list": the steps down the left with the ticks under them, the
-       product on the right */
-    list(L, F, line, head, set, style){
+    /* "Studio list": the headline across the photograph, the steps and the
+       ticks on a panel down the left, the product on the right */
+    list(L, F, line, head, set, style, G){
       const fit = fitHead(head, F, W - 2 * M, 2, 108); if (!fit) return null;
-      const top = 110, y0 = top + fit.h + 40;
+      const top = 110, y0 = top + fit.h + 40, pTop = y0 - 30;
       if (y0 + 3 * 104 + 3 * 46 + 16 > BT - 20) return null;
-      return [vignette(L), models(L, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M),
-        ...arrange(set, { x:560, y:y0 - 10, w:W - M - 560, h:BT - 36 - y0 }, L),
+      return [...shade(G, top + fit.h + 18, BT), vignette(), models(PH, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
+        r('Steps Panel', { left:M - 36, top:pTop, width:460 + 72, height:BT - pTop, fill:panelFill(L) }),
+        ...arrange(set, { x:600, y:y0 - 10, w:W - M - 600, h:BT - 36 - y0 }, ON_PHOTO),
         ...stepsList(L, F, line, M, y0, 460, style, L.ink, L.sub, L.acc, L.g1),
         ...checks(L, F, line.check, M, y0 + 3 * 104 + 8), ...band(L, F, BT)];
     },
-    /* "Photo band": a public-domain NASA photograph with the headline on it and
-       the product beside it; the steps and the number on a band below */
-    band(L, F, line, head, set, style){
+    /* "Photo band": the headline on the photograph with the product beside
+       it; the steps and the number on a panel below */
+    band(L, F, line, head, set, style, G){
       const colW = set ? 560 : W - 2 * M;
       const fit = fitHead(head, F, colW, 3, 112); if (!fit) return null;
       if (70 + fit.h > 540) return null;
-      const P = Object.assign({}, L, { ink:L.ink, sub:L.sub });
       return [
+        ...shade(G, 70 + fit.h + 18, 568),
         r('Lower Panel', { left:0, top:568, width:W, height:1080 - 568, fill:L.g2 }),
-        headline(L, F, fit, M, 70, colW, 'left', '#ffffff'),
+        headline(L, F, fit, M, 70, colW, 'left', PH.ink),
         /* 40px of photograph between the headline's column and the product */
-        ...(set ? arrange(set, { x:colW + M + 40, y:110, w:W - M - (colW + M + 40), h:420 }, L) : []),
-        models(P, F, line.models, M, 602),
-        ...stepsRow(P, F, line, 652, style), ...band(L, F, BT, 'left', true),
+        ...(set ? arrange(set, { x:colW + M + 40, y:110, w:W - M - (colW + M + 40), h:420 }, ON_PHOTO) : []),
+        models(L, F, line.models, M, 602),
+        ...stepsRow(L, F, line, 652, style), ...band(L, F, BT, 'left', true),
       ];
     },
     /* "Split": the headline and the steps on a solid column, the product on
-       the sweep beside it */
-    split(L, F, line, head, set, style){
+       the photograph beside it (no type on the photograph, so no shade) */
+    split(L, F, line, head, set, style, G){
       const colX = 600, colW = colX - M - 40;
       const fit = fitHead(head, F, colW, 3, 108); if (!fit) return null;
       /* a models line wider than the column wraps inside it, and the rest of
@@ -470,38 +555,41 @@
       const top = 110 + drop, y0 = top + fit.h + 44;
       if (y0 + 3 * 104 > BT - 30) return null;
       const P = { ink:L.bandInk, sub:L.bandSub, acc:L.bandInk };
-      return [vignette(L),
+      return [vignette(),
         r('Column', { left:0, top:0, width:colX, height:BT, fill:L.band }),
         tb('Models', 'sub', 'none', line.models, { left:M, top:64, width:colW, fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:L.bandSub, lineHeight:1.12 }),
         headline(L, F, fit, M, top, colW, 'left', L.bandInk),
         ...stepsList(L, F, line, M, y0, colW, style, P.ink, P.sub, P.acc, L.band),
-        ...arrange(set, { x:colX + 40, y:150, w:W - colX - 40 - 50, h:BT - 150 - 60 }, L),
+        ...arrange(set, { x:colX + 40, y:150, w:W - colX - 40 - 50, h:BT - 150 - 60 }, ON_PHOTO),
         ...band(L, F, BT)];
     },
     /* "Centre": everything on one axis */
-    center(L, F, line, head, set, style){
+    center(L, F, line, head, set, style, G){
       const fit = fitHead(head, F, W - 2 * M - 40, 2, 112); if (!fit) return null;
-      const top = 110, prodTop = top + fit.h + 26, floor = 690;
+      const top = 110, prodTop = top + fit.h + 26, floor = PANEL;
       if (floor - prodTop < 250) return null;
-      return [vignette(L), models(L, F, line.models, CX, 64, 'center'), headline(L, F, fit, CX, top, W - 2 * M - 40, 'center'),
-        ...arrange(set, { x:M + 60, y:prodTop, w:W - 2 * M - 120, h:floor - prodTop }, L),
-        ...stepsRow(L, F, line, 712, style, 'center'), ...band(L, F, BT, 'center')];
+      return [...shade(G, top + fit.h + 18, floor), vignette(), models(PH, F, line.models, CX, 64, 'center'),
+        headline(L, F, fit, CX, top, W - 2 * M - 40, 'center', PH.ink),
+        ...arrange(set, { x:M + 60, y:prodTop, w:W - 2 * M - 120, h:floor - prodTop }, ON_PHOTO),
+        stepsPanel(L, PANEL), ...stepsRow(L, F, line, PANEL + 20, style, 'center'), ...band(L, F, BT, 'center')];
     },
     /* "Type": no picture the library can vouch for, so the model names are the
-       picture, set large between rules */
-    type(L, F, line, head, set, style){
+       picture, set large between rules on the photograph */
+    type(L, F, line, head, set, style, G){
       const fit = fitHead(head, F, W - 2 * M, 3, 116); if (!fit) return null;
       const top = 110, y0 = top + fit.h + 40, rows = Math.ceil(line.ledger.length / 2);
-      if (y0 + rows * 74 > 690) return null;
-      return [vignette(L), models(L, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M),
-        ...ledger(L, F, line.ledger, M, y0, W - 2 * M), ...stepsRow(L, F, line, 712, style), ...band(L, F, BT)];
+      if (y0 + rows * 74 > PANEL - 10) return null;
+      return [...shade(G, y0 + rows * 74 + 16, PANEL), vignette(), models(PH, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
+        ...ledger(PHL, F, line.ledger, M, y0, W - 2 * M), stepsPanel(L, PANEL), ...stepsRow(L, F, line, PANEL + 20, style), ...band(L, F, BT)];
     },
-    typeCenter(L, F, line, head, set, style){
+    typeCenter(L, F, line, head, set, style, G){
       const fit = fitHead(head, F, W - 2 * M - 40, 3, 116); if (!fit) return null;
       const top = 110, y0 = top + fit.h + 40, rows = Math.ceil(line.ledger.length / 2);
-      if (y0 + rows * 74 > 690) return null;
-      return [vignette(L), models(L, F, line.models, CX, 64, 'center'), headline(L, F, fit, CX, top, W - 2 * M - 40, 'center'),
-        ...ledger(L, F, line.ledger, M, y0, W - 2 * M, 'center'), ...stepsRow(L, F, line, 712, style, 'center'), ...band(L, F, BT, 'center')];
+      if (y0 + rows * 74 > PANEL - 10) return null;
+      return [...shade(G, y0 + rows * 74 + 16, PANEL), vignette(), models(PH, F, line.models, CX, 64, 'center'),
+        headline(L, F, fit, CX, top, W - 2 * M - 40, 'center', PH.ink),
+        ...ledger(PHL, F, line.ledger, M, y0, W - 2 * M, 'center'), stepsPanel(L, PANEL), ...stepsRow(L, F, line, PANEL + 20, style, 'center'),
+        ...band(L, F, BT, 'center')];
     },
   };
   const LAYOUT_NAME = { row:'Studio row', list:'Studio list', band:'Photo band', split:'Split', center:'Centre', type:'Type', typeCenter:'Type, centred' };
@@ -509,35 +597,59 @@
   /* ── THE BOOK: every line in every layout it can carry. The look, the face,
      the headline and the picture set rotate with a stride per line, so two
      neighbours never share a look and a category reads as a range. */
+  /* owner-sourced pictures and grounds (scripts/ingest_assets.py writes
+     offer-assets.js): a line's new pictures go first, a type-only line gets
+     picture layouts once it has one, and a placeholder that a real picture
+     replaces is not drawn again */
+  const EXTRA = (typeof window !== 'undefined' && window.OFFER_ASSETS) || {};
+  Object.assign(SIZE, EXTRA.size || {});
+  const real = n => (EXTRA.replaces || {})[n] || n;
+  LINES.forEach(line => {
+    const add = (EXTRA.sets || {})[line.key] || [];
+    if (add.length){ line.sets = add.concat(line.sets || []); delete line.ledger; }
+    if (line.sets){
+      const seen = new Set();
+      line.sets = line.sets.map(set => set.map(([n, k]) => [real(n), k]))
+        .filter(set => set.every(([n]) => SIZE[n]) && !seen.has(JSON.stringify(set)) && seen.add(JSON.stringify(set)));
+    }
+  });
+  Object.entries(EXTRA.grounds || {}).forEach(([key, list]) => {
+    GROUNDS[key] = list.concat(GROUNDS[key] || []);
+    if (LINES.some(l => l.key === key)) GROUND_OF[key] = key;
+  });
+
   const made = [];
   LINES.forEach((line, li) => {
     const lays = line.ledger ? ['type', 'typeCenter', 'band'] : ['row', 'list', 'band', 'split', 'center'];
+    const grounds = GROUNDS[GROUND_OF[line.key] || GROUND_OF[line.cat] || 'space'];
+    const flavor = (FLAVOR[line.cat] || []).map(k => FACE[k]).filter(Boolean);
     lays.forEach((lay, k) => {
-      const looks = lay === 'band' ? DARK_KEYS : LOOK_KEYS;
       const faceOk = F => (lay === 'split' || lay === 'band') ? F.cond || F.em <= 0.56 : true;
+      const pool = flavor.filter(faceOk).length ? flavor.filter(faceOk) : FACES.filter(faceOk);
       const style = (li + k) % 2 ? 'num' : 'dot';
+      const g = grounds[(li + k) % grounds.length];
+      const G = { src:'assets/bg-offer/' + g.file + '.jpg', alpha: shadeFor(g.p90) };
+      /* the category's own faces first; when none of them can set any of the
+         line's headlines in this layout, the general ones */
+      const general = FACES.filter(faceOk);
       let built = null;
-      for (let a = 0; a < 60 && !built; a++){
-        const look = looks[(li * 7 + k * 3 + a) % looks.length];
-        const F = FACES[(li * 5 + k * 7 + a * 5) % FACES.length];     // 5 is coprime with 12: every face gets its turn
-        if (!faceOk(F)) continue;
+      for (let a = 0; a < 120 && !built; a++){
+        const look = LOOK_KEYS[(li * 7 + k * 3 + a) % LOOK_KEYS.length];
+        const F = a < 60 ? pool[(li + k * 2 + a) % pool.length] : general[(li * 5 + k * 7 + a) % general.length];
         const head = line.heads[(k + a) % line.heads.length];
         const set = line.sets ? line.sets[(k + a) % line.sets.length] : null;
         const L = LOOKS[look];
-        const layers = LAYOUTS[lay](L, F, line, head, set, style);
+        const layers = LAYOUTS[lay](L, F, line, head, set, style, G);
         if (layers) built = { look, F, head, layers, L };
       }
       if (!built) return;
-      const { look, F, layers, L } = built;
-      const photo = lay === 'band' ? 'assets/bg-offer/' + PHOTOS[(li + k) % PHOTOS.length] + '.jpg' : null;
+      const { look, F, layers } = built;
       made.push({
         id: 'of_' + line.key + '_' + lay + '_' + look,
         name: line.label + ' · ' + LAYOUT_NAME[lay],
         tag: 'offer', cat: line.cat, tier: 'premium', line: line.key, layout: lay, look, faces: [F.d, F.r],
-        bg: photo
-          ? { type:'image', src:photo, scrim:0.36, scrimMode:'gradient', fallback:{ type:'grad', c1:L.g1, c2:L.g2, a:180 } }
-          : { type:'grad', c1:L.g1, c2:L.g2, a:180 },
-        photoIsDesign: !!photo,
+        bg: { type:'image', src:G.src, fallback:{ type:'grad', c1:'#1b1e24', c2:'#0b0d10', a:180 } },
+        photoIsDesign: true,
         layers,
       });
     });
@@ -561,5 +673,5 @@
     });
   }
   /* for the lab and the prompt: what this family is made of */
-  try { window.OFFER_LIBRARY = { looks: LOOKS, faces: FACES, lines: LINES, layouts: Object.keys(LAYOUTS), photos: PHOTOS, count: made.length }; } catch (e){}
+  try { window.OFFER_LIBRARY = { looks: LOOKS, faces: FACES, flavor: FLAVOR, lines: LINES, layouts: Object.keys(LAYOUTS), grounds: GROUNDS, count: made.length }; } catch (e){}
 })();

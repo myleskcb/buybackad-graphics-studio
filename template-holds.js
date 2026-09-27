@@ -100,14 +100,13 @@ window.TEMPLATE_HOLDS = {
   "st_silver_pricetag":"cover+offPlate",
   "st_coins_splitcol":"number",
   "st_cars_topstrip":"cover",
-  "st_strips_icongrid":"onProduct",
   "st_strips_splitcol":"number+families",
   "st_strips_pricetag":"cover+numInk+offPlate",
-  "st_pokemon_icongrid":"cover+onProduct",
+  "st_pokemon_icongrid":"cover+onProduct+asset",
   "st_pokemon_pricebadge":"cover",
-  "st_pokemon_cutouthero":"families",
+  "st_pokemon_cutouthero":"onProduct+families",
   "st_sports_splitcol":"number",
   "st_sports_cutouthero":"families",
-  "st_sports_topstrip":"cover",
+  "st_sports_topstrip":"cover+onProduct",
   "st_sports_pricetag":"cover+offPlate+families"
 };

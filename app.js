@@ -941,7 +941,7 @@ const TEMPLATES = [
       return [
         t('Headline 1', 'headline', 'upper', C.h1 || 'BUYING', { left:54, top:70, fontFamily:T.d, fontSize:100, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:154, fontFamily:T.d, fontSize:173, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:13, shadow:hard('rgba(0,0,0,0.5)', 10) }),
-        cut('Product', C.cut || 'iphone-cracked', { left:1030, top:352, originX:'right', w:573, angle:6, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
+        cut('Product', C.cut || 'iphone-cracked-corner', { left:1030, top:352, originX:'right', w:573, angle:6, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
         /* rows from 420, not 372: the category word runs to ~405, and alignPass
            pushed the first label clear of it but not its chip, so the first
            check sat beside the wrong line. The bar runs to the foot of the
@@ -1045,7 +1045,7 @@ const TEMPLATES = [
         t('Strip 3', 'badges', 'upper', b[2] || 'SAME DAY', { left:900, top:30, originX:'center', fontFamily:'Khand', fontSize:34, fill:hexToRgba(P.ink || "#ffffff", 0.92), fontWeight:'700', charSpacing:18 }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:CX, top:146, originX:'center', fontFamily:T.d, fontSize:98, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:236, originX:'center', fontFamily:T.d, fontSize:198, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:14, shadow:hard('rgba(0,0,0,0.5)', 11) }),
-        cut('Product', C.cut || 'iphones-trio', { left:CX, top:446, originX:'center', w:453, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
+        cut('Product', C.cut || 'ip-group-colour-lineup', { left:CX, top:446, originX:'center', w:453, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
         rg('Banner', { left:0, top:846, width:W, height:150, fill:P.a1, shadow:hard('rgba(0,0,0,0.35)', 8) }),
         t('CTA', 'cta', 'upper', C.cta || 'CALL OR TEXT TODAY', { left:CX, top:868, originX:'center', fontFamily:'Khand', fontSize:36, fill:onAccent(P), fontWeight:'700', charSpacing:46 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:904, originX:'center', fontFamily:T.d, fontSize:93, fill:onAccent(P), fontWeight:'700' }),
@@ -1091,7 +1091,7 @@ const TEMPLATES = [
         rg('Split Rule', { left:midX-3, top:0, width:6, height:W, fill:P.a1 }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:54, top:86, fontFamily:T.d, fontSize:69, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:6, shadow:hard('rgba(0,0,0,0.45)', 6) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:152, fontFamily:T.d, fontSize:104, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:11, shadow:hard('rgba(0,0,0,0.5)', 9) }),
-        cut('Product', C.cut || 'iphones-trio', { left:54, top:352, w:488, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
+        cut('Product', C.cut || 'ip-group-colour-lineup', { left:54, top:352, w:488, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
         t('Panel Title', 'sub', 'upper', C.gridTitle || 'WE TAKE', { left:midX+34, top:250, fontFamily:'Khand', fontSize:38, fill:P.a1, fontWeight:'700', charSpacing:32 }),
         ...row(0,pts[0]), ...row(1,pts[1]), ...row(2,pts[2]), ...row(3,pts[3]||'SAME DAY'),
         rg('Phone Plate', { left:midX+34, top:760, width:456, height:106, rx:18, fill:P.a1 }),
@@ -1856,14 +1856,14 @@ const TEMPLATES = [
     cars:    [['streetPriceBadge','crimson','Car Payout','car-front'], ['streetCutoutHero','sunset','Car Lineup','car-title-docs'],
               ['streetTopStrip','ocean','Car Strip','car-front'], ['streetTwoCol','emerald','Car Checklist','car-title-docs'],
               ['streetCashFor','volt','Car Street','car-front']],
-    strips:  [['streetIconGrid','emerald','Strip Grid','strip-boxes-stack'], ['streetRibbon','arctic','Strip Ribbon','strip-vials-pile'],
-              ['streetSpecCheck','ocean','Strip Checklist','strip-boxes-stack'], ['streetSplitCol','volt','Strip Split','strip-vials-pile'],
+    strips:  [['streetIconGrid','emerald','Strip Grid','strip-boxes'], ['streetRibbon','arctic','Strip Ribbon','strip-boxes'],
+              ['streetSpecCheck','ocean','Strip Checklist','strip-boxes'], ['streetSplitCol','volt','Strip Split','strip-boxes'],
               ['streetPriceTag','volt','Strip Payout','cash-stack-banded']],
-    pokemon: [['streetRibbon','royal','Poke Ribbon','poke-booster-packs-fan'], ['streetTwoCol','volt','Poke Checklist','poke-slab'],
-              ['streetIconGrid','crimson','Poke Grid','poke-booster-box'], ['streetPriceBadge','ocean','Poke Payout','poke-slab'],
-              ['streetCutoutHero','sunset','Poke Lineup','poke-booster-packs-fan']],
-    sports:  [['streetSplitCol','crimson','Card Split','sports-cards-stack-loose'], ['streetCutoutHero','emerald','Card Lineup','sports-slab'],
-              ['streetTwoCol','crimson','Card Checklist','sports-cards-stack-loose'], ['streetTopStrip','royal','Card Strip','sports-slab'],
+    pokemon: [['streetRibbon','royal','Poke Ribbon','poke-psa-charizard'], ['streetTwoCol','volt','Poke Checklist','poke-psa-charizard'],
+              ['streetIconGrid','crimson','Poke Grid','poke-psa-charizard'], ['streetPriceBadge','ocean','Poke Payout','poke-psa-charizard'],
+              ['streetCutoutHero','sunset','Poke Lineup','poke-psa-charizard']],
+    sports:  [['streetSplitCol','crimson','Card Split','ph-sports-cards-fan'], ['streetCutoutHero','emerald','Card Lineup','ph-sports-slabs-fan'],
+              ['streetTwoCol','crimson','Card Checklist','ph-sports-cards-fan'], ['streetTopStrip','royal','Card Strip','ph-sports-slab'],
               ['streetPriceTag','royal','Card Payout','cash-stack-banded']],
   };;
   Object.keys(STREET_BOOK).forEach(cat => {
@@ -2432,7 +2432,9 @@ function ensureThumbs(){
   if (ensureThumbs._running) return;
   ensureThumbs._running = true;
   const step = () => {
-    const batch = TEMPLATES.filter(t => !THUMBS[t.id]).slice(0, 6);
+    /* the offer family waits for the studio: its cards are drawn on demand on
+       the landing (scClassicCard), with their own pictures and faces */
+    const batch = TEMPLATES.filter(t => !THUMBS[t.id] && (_tplAssetsWarmed || t.tag !== 'offer')).slice(0, 6);
     if (!batch.length){ ensureThumbs._running = false; return; }
     batch.forEach(t => getThumb(t.id, 320));
     setTimeout(step, 60);
@@ -2440,9 +2442,11 @@ function ensureThumbs(){
   setTimeout(step, 0);
 }
 // every font family the template library paints with, loaded before thumbs render
-function ensureTemplateFonts(){
+// (at boot without the offer family's seventeen faces: the landing does not draw
+// those cards until a chip asks for them, and a phone should not pay for them)
+function ensureTemplateFonts(all){
   const fams = new Set();
-  TEMPLATES.forEach(t => t.layers.forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); }));
+  TEMPLATES.forEach(t => { if (!all && t.tag === 'offer') return; t.layers.forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); }); });
   return Promise.race([
     Promise.all([...fams].map(f => ensureFont(f))),
     new Promise(res => setTimeout(res, 5000)),   // never hold the page hostage
@@ -4641,7 +4645,11 @@ const HOUSE_FACES = ['Clash Display', 'Satoshi', 'Khand', 'Melodrama', 'Zodiak']
 const LOCAL_FACES = ['Unbounded', 'Bricolage Grotesque', 'Sofia Sans Extra Condensed', 'Schibsted Grotesk', 'Gloock', 'Young Serif', 'Tilt Warp', 'JetBrains Mono', 'Big Shoulders Display',
   /* the offer family's reading faces (offer-library.js), the ones the owner's
      own offer cards are set in; OFL, files already in assets/fonts */
-  'Manrope', 'Chivo', 'Libre Franklin', 'Instrument Sans', 'Zilla Slab', 'DM Mono', 'Sora'];
+  'Manrope', 'Chivo', 'Libre Franklin', 'Instrument Sans', 'Zilla Slab', 'DM Mono', 'Sora',
+  /* and their flavour faces, one set per category (the owner: "type faces that
+     have personality or flavor") */
+  'Teko', 'Oswald', 'Saira Condensed', 'Barlow Condensed', 'Bungee', 'Bangers', 'Luckiest Guy', 'Russo One', 'Audiowide',
+  'Squada One', 'Rye', 'Shrikhand', 'Permanent Marker', 'Cormorant Garamond', 'Nunito', 'Sniglet', 'Knewave'];
 let _localFacesCss = null;
 function ensureFont(name){
   if (_fontLoaded.has(name)) return Promise.resolve();
@@ -4666,8 +4674,8 @@ function ensureFont(name){
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     /* versioned: /assets/fonts/* is served immutable for a year, and the
-       2026-09-27 edition adds the offer family's faces */
-    link.href = local ? 'assets/fonts/faces.css?v=20260927'
+       2026-09-27 editions add the offer family's faces, then their flavour faces */
+    link.href = local ? 'assets/fonts/faces.css?v=20260927b'
       : 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
     if (local) _localFacesCss = new Promise(r => { link.addEventListener('load', r); link.addEventListener('error', r); });
     const done = () => {
@@ -7337,14 +7345,14 @@ function refreshCountCopy(){
    empty rectangle is found, and the product is fitted inside it with a margin.
    Below 300px of clear space there is no cutout at all. */
 const CAT_CUTOUTS = {
-  phones:  ['iphone-15-pro-back-white','iphone-cracked-corner','iphone-15-pro-front-on','iphone-17-pro-back-silver','macbook-open-front','apple-watch-pair'],
+  phones:  ['iphone-15-pro-back-white','iphone-cracked-corner','iphone-15-pro-front-on','iphone-17-pro-back-silver','macbook-open-angle','apple-watch-stack-three'],
   gold:    ['gold-coins-pile','gold-jewelry-mixed','gold-scrap-mixed'],
   silver:  ['silver-coins-spill','silver-flatware-set'],
   coins:   ['coin-loose-pile','coin-graded-fan-three'],
   cars:    ['car-sedan-rear','car-title-docs'],
-  strips:  ['strip-boxes-stack','strip-vials-pile'],
-  pokemon: ['poke-booster-box','poke-slabs-trio','poke-booster-packs-fan'],
-  sports:  ['sports-cards-stack-loose','sports-slabs-stack'],
+  strips:  ['strip-boxes'],
+  pokemon: ['poke-psa-charizard'],
+  sports:  ['ph-sports-slabs-fan','ph-sports-cards-fan','ph-sports-slab'],
 };
 /* Width of a text layer, estimated from its own metrics. Build time has no
    font loaded, so this is deliberately GENEROUS — over-reserving space costs a
@@ -7656,6 +7664,8 @@ function warmTemplateAssets(){
   _tplAssetsWarmed = true;
   try { preloadTplBgs(); } catch (e){}
   try { preloadCutouts(); } catch (e){}
+  /* the offer family's faces, then its thumbnails drawn again with them */
+  try { ensureTemplateFonts(true).then(() => { TEMPLATES.forEach(t => { if (t.tag === 'offer') delete THUMBS[t.id]; }); ensureThumbs(); }); } catch (e){}
 }
 function showEasy(tplId){
   warmTemplateAssets();
