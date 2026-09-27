@@ -398,7 +398,7 @@ Next:
    authored state; every render path on this branch fits it). Deploy the
    trunk to see the fix.
 
-## M. 2026-09-27 (night) — tagline styles, waiting on the owner's picks
+## M. 2026-09-27 (night) — tagline styles (picked, and on every template: §O)
 
 The owner: "who said the main tagline had to be one color? why not patterns,
 gradients, or color blocking?", "My favorite ads kept a cohesive gradient on
@@ -415,15 +415,19 @@ Tagline Lab (artifact GDYju2JKXZhEEKCYN8XkUv, picks stored in its `picks`
 collection). First run, 21 cards: every style but pattern passes the critic
 on all 21 (pattern 18 of 21).
 
-Next:
-1. Read the picks (`ArtifactData list picks`), and offer the kept styles as a
-   Tagline style choice in Easy Mode and the editor.
-2. If street or the signature gradient is kept, amend DESIGN-LAW rule 5: the
-   MATTHEW evidence was a rainbow on ONE word; a cohesive sweep repeated on
-   every selling line, carried by an outline, is a different thing and the
-   owner's favourite.
-3. The reference's heavy italic display face is its own axis (a font choice);
-   the lab kept each card's face.
+Done (2026-09-27, later; DESIGN-LAW 72): the owner kept solid, street,
+gradient, blocks, pair and outline (pattern dropped). They are one Tagline
+style row in Easy Mode and in the editor, for every template in every family
+and category, in the picture, the download and the video; rules 1 and 5 are
+amended for them. `scripts/tagline_audit.mjs` measures them on every family:
+every style passes on all 82 sampled templates.
+
+Still open:
+1. The reference's heavy italic display face is its own axis (a font choice);
+   the styles keep each card's face.
+2. Easy Mode's template strip shows each card as designed, not in the chosen
+   style (the preview, the downloads and the video carry it). Re-thumbing the
+   strip per style would cost a render per card per change.
 
 ## N. 2026-09-27 — the offer family, new categories, and what must not ship
 
@@ -481,3 +485,56 @@ Still open:
 - **Not verified here**: the live site and the Netlify headers as served (the
   two new scripts are revalidated like app.js; faces.css is versioned in its
   URL because /assets/fonts/* is immutable for a year). Draft-deploy and look.
+
+## O. 2026-09-27 (late) — one engine: the tagline everywhere, products off the subject, gaming rooms
+
+What landed (DESIGN-LAW 72-73; the log entry of the same date has the numbers):
+
+- **Tagline styles on every template** (§M done): `TAGLINE_STYLES` in app.js,
+  applied in `renderEzCanvas` and on the editor canvas, colours from
+  `tplPalette`, switchable (`taglineReset`), ground-aware, measured by
+  `scripts/tagline_audit.mjs`. The video engine's crop now allows for letters
+  that reach past their box (it cut an italic T off on a tagline block).
+- **Products off the photograph's subject**: `scripts/photo_subjects.py` ->
+  `photo-subjects.js` (loaded before app.js), `productYield` with alignPass,
+  measured by `scripts/subject_audit.mjs`. A new or replaced ground needs
+  `python3 scripts/photo_subjects.py` run after it (docs/scrape-intake.md).
+- **Gaming rooms**: `scripts/make_gaming_grounds.py` draws three placeholders
+  (an RGB desk setup, a bedroom at night, a living room with the TV) that the
+  gaming lines, gaming headsets and monitors stand on instead of the NASA
+  pictures. Real photographs are item 5 of docs/scrape-intake.md.
+- **The trunk's showcase re-cleaned**: the gated picture swap (157 pictures on
+  111 cards) and the invented-claim rewrite (198 lines on 145 cards) applied
+  again after the merge, then the §I measurements and the re-thumb. Content
+  audit after: flagged pictures 0 (102 before), invented copy 0 (145
+  before), 415 of 971 cards live; held: 284 retired by the curation (§K),
+  270 the design school, 17 words covered by other words, 8 under 3:1, 5 the
+  same words twice, 2 a shape over the words (a card can fail more than one).
+
+After a change to a style, a pass, a ground or a template family, add these to
+the §N order (after the showcase chain, before `audit_templates.mjs`):
+
+    python3 scripts/photo_subjects.py                  # a new or replaced photograph: map its subject
+    node scripts/subject_audit.mjs --sheet             # products off their subjects, every family
+    node scripts/tagline_audit.mjs --per 2 --sheet     # every style on every family, picture and video
+
+The video maker (`motion/`, mirrored from the phone ad engine: do not edit
+here) has its own vocabulary for the same ideas. The Studio's styles, in its
+terms, so the two can be joined in that repo:
+
+| Studio tagline style | motion/ `text_fx` / `color_mode` |
+|---|---|
+| as designed | the card's own |
+| street | `gradient` + `outline`, on every line (`color_mode` split) |
+| gradient | `gradient` |
+| pair | `gradient` (two-colour) |
+| blocks | `box` / `highlighter` |
+| outline | `outline` |
+
+What the video maker has that the Studio's templates do not, for the owner to
+pick from before any is built here: the number styles (`number_style`: pill,
+box, sticker, ticket, tag, neon, split, stacked, chrome, gold), the urgency
+elements (ticker, caution tape, stamp, arrows, flash border) and the sign
+boards. Built as Studio choices they would go where the tagline style went: in
+`renderEzCanvas`, for every template, never one family.
+

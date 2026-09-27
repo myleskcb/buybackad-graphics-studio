@@ -784,3 +784,89 @@ RESUME HERE:
   The owner scrapes; drop the files in incoming/ and run
   python3 scripts/ingest_assets.py, then --write, then the template audit.
   The ph-* placeholders go first (docs/scrape-intake.md).
+
+## 2026-09-27 (late) — One engine: the tagline everywhere, products off the subject, gaming rooms
+
+The owner: "Make sure that the latest tagline update that we are currently
+building gets implemented to these graphics for final unification. You don't
+build anything in this repo if it's not 100% unified into all design language
+not just portions ... we don't have logic that only applies to one type of ad
+or worse, one type of category only". Then: "keep in mind where the
+background subject is in relation to the secondary asset", and "particularly
+for these game consoles ... gamer bedrooms, gamer living rooms, aesthetic
+gaming set ups".
+
+Found:
+  - The tagline styles existed only as a lab experiment (taglineStyle, called
+    by scripts/tagline_lab after a render). No surface offered them; the
+    offer family had no palette to give them; the editor could not switch one
+    back off.
+  - Measured on every family (scripts/tagline_audit.mjs, 82 templates, every
+    style, the critic on every line and the video's frame zero), the lab's
+    styles failed 1 to 8 cards each: gradient and pair took a pure-white line
+    to a pastel at 0.88 (2.8:1 on a mid-grey photograph), and read a red line
+    on a dark panel as "dark" and made it darker (2.2:1); street put a 3px rim
+    on a 20px label, swept a number on its own orange band, and could not tell
+    a translucent glass panel from a dark photograph; outline read by its rim
+    alone on a cream ticket; blocks fell back on every offer "band" card
+    (their tagline sits on the 6% guide).
+  - The video cut the end off an italic T on a tagline block: the bake crops a
+    moving line to its box plus 6px, and a line's shadow had always widened
+    that crop. A block takes the shadow away. Not a style bug: an engine bug
+    that only a style without a shadow could show.
+  - The owner's two examples (coins centred on the ring photograph, the strip
+    fan on the Contour bottle) were not "covering" by a share-of-subject
+    measure: the coins hide a fifth of three rings, and all of the one that
+    matters. Covering has to include sitting on the centre of a concentrated
+    subject.
+  - No photograph of a gaming room exists in the repo, and every image host is
+    still denied here.
+
+Changed:
+  - TAGLINE_STYLES (app.js): one choice for every template, applied in
+    renderEzCanvas (preview, download, pack, video) and on the editor canvas;
+    colours from tplPalette (theme, family palette, scene, reference sweep);
+    ground-aware (gradient and pair solve their lightness on the measured
+    ground; street darkens plates and mid-toned bands, sweeps deep on large
+    light panels, leaves type under 34px alone; outline rims harder on light
+    grounds; the design's ink breaks a tie); blocks measured from the drawn
+    ink with shared padding in a tight stack; switchable (pgTagRest,
+    taglineReset), blocks follow their lines in the editor. Every style passes
+    on all 82 audited templates.
+  - motionBake: a moving text's crop allows a third of its size.
+  - photo_subjects.py -> photo-subjects.js (330 photographs, 16x16 maps) and
+    productYield with alignPass: products step off a covered subject without
+    touching words, plates or other products. Over the 427 cards that stand a
+    product on a photograph: designer 0 of 30 covered, street 1 of 37 (moved),
+    offer 7 of 140 (4 moved, 3 still cover a little), showcase 0 of 220 (its
+    products hide at most 12% of a subject).
+  - make_gaming_grounds.py: three drawn rooms (an RGB desk setup, a bedroom at
+    night, a living room with the TV) for the gaming lines, gaming headsets and
+    monitors, marked placeholders, on the scrape list.
+  - The trunk's showcase: the gated swap (157 pictures on 111 cards) and the
+    claim rewrite (198 lines on 145 cards) applied again after the merge, and
+    re-measured: no flagged picture and no invented claim left (102 and 145
+    before), 415 of 971 cards live, 9 lines repaired to 3:1 on 4 cards.
+
+Rejected:
+  - A box per photograph for the subject: the ring photograph is rings edge to
+    edge; a coarse saliency map shares a room's weight over its screens and
+    strips, and holds a ring's in the middle.
+  - Moving the photograph instead of the product: it would change what lies
+    under every line of type the legibility audit already passed.
+  - A nudge that only crosses the threshold (a laptop moved 27px, 0.13 to
+    0.11): a move has to show the subject, 40% less hidden or clear of its
+    centre by 6% of the card.
+  - Each gaming room's screen as its subject: 13 of 30 gaming cards moved,
+    most into a corner or onto a band. A console in front of a room's TV
+    reads as a console in a room. (Found on the way: a full-width band was
+    not a plate to the move, so a product could slide onto the steps band;
+    it is now.)
+  - Styling the thumbnails in Easy Mode's strip per style: a render per card
+    per change for a preview the big picture already shows.
+
+RESUME HERE:
+  The owner picks from what the video maker (motion/) has that templates do
+  not (OPEN-ITEMS §O: number styles, urgency elements, sign boards); each is
+  built where the tagline style went, for every template. The gaming rooms
+  and the ph-* pictures wait on photographs (docs/scrape-intake.md).

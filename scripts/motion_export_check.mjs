@@ -10,7 +10,7 @@
    first decoded frame against the still scene (PSNR).
 
    usage:  npx http-server -p 8899 -s .   then
-           CHROME=/path/to/chrome node scripts/motion_export_check.mjs [cardId]
+           CHROME=/path/to/chrome [TAGLINE=street] node scripts/motion_export_check.mjs [cardId]
    Exits non-zero on any failure. */
 import puppeteer from 'puppeteer-core';
 import { mkdirSync, readFileSync, readdirSync, statSync, rmSync } from 'node:fs';
@@ -32,6 +32,10 @@ await page.evaluateOnNewDocument(() => {
   window.__csp = [];
   document.addEventListener('securitypolicyviolation', e => window.__csp.push(e.violatedDirective + ' ' + e.blockedURI));
 });
+/* TAGLINE=street (or any TAGLINE_STYLES key): the visitor's tagline style,
+   set the way the Tagline style row keeps it, so the check covers the video
+   of a styled card too (DESIGN-LAW 72) */
+if (process.env.TAGLINE) await page.evaluateOnNewDocument(t => { try { localStorage.setItem('pgfx_tagline', JSON.stringify(t)); } catch (e){} }, process.env.TAGLINE);
 await page.setRequestInterception(true);
 page.on('request', async q => {
   const u = q.url();
