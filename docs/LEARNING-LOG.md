@@ -212,3 +212,59 @@ RESUME HERE:
   Then build the engine from section 8 of VIDEO-AD-RESEARCH.md, starting with
   the rule that frame 0 is the static template and a frame-as-pure-function-of-t
   renderer encoded through WebCodecs.
+
+---
+
+## 2026-09-27 — The video engine: built, self-audited, run against the library
+
+Studied:
+  Built the engine from docs/VIDEO-AD-RESEARCH.md §8 (`video.js`, loaded after
+  app.js; Export → Make it a video ad). Owner asked twice mid-build: does it
+  apply to all our ads, and is it self-audited so it only produces correct
+  graphics.
+
+Measured:
+  - Frame 0 and the last frame are byte-identical to the Export PNG on every
+    template audited (video_audit.mjs: 0 differing values at 6/10/15 s).
+  - A price that counts up at 30 fps FAILS the flash check: 10 flashes/s over
+    33% of a region. Built as a cascade instead.
+  - drawImage downscaling misreads cell luminance by up to 0.29 against an
+    exact linear-light average (0.05 at half resolution). The flash check
+    reads every pixel.
+  - The first self-audit run caught "UP TO" overlapping "$1,100" (a `$` rises
+    above cap height). Price layout now stacks on measured glyph bounds.
+  - The first library sweep crashed out of memory after 28 templates:
+    renderers held five or six frame-sized canvases each. Added dispose().
+  - Encoded files decode back to 300 frames, 10.0 s, frame 0 at 40 dB PSNR
+    against the still. Under the production CSP (injected, rule 49) the panel
+    produces a download with zero policy violations.
+  - Library sweep (243 templates x story + square, every length): IN PROGRESS
+    at this commit; 141/243 story templates passed with no failures so far.
+
+Changed:
+  - video.js (new), vendor/mediabunny-1.60.0.min.mjs (MPL-2.0, licence
+    beside it), index.html (button, panel, script tag), styles.css (+ the
+    regenerated CSS_FALLBACK line in app.js, nothing else in app.js), cache
+    rules in _headers and netlify.toml, README section.
+  - scripts/video_audit.mjs, scripts/video_library_audit.mjs,
+    scripts/video_gallery.mjs, scripts/gallery/ (playback gallery builder).
+  - Playback gallery for the owner: https://claude.ai/artifact/G9CVJtTGMTQBpYA3AyZQmj
+    (20 clips, posters only until a clip is played, one video loaded at a time).
+
+Rejected:
+  - A counting price (flash, above). A seamless-loop crossfade (the loop
+    already closes on the still).
+  - Blocking export on "up to" copy. It is a copy decision (rule 24), so the
+    panel warns and cites the FTC finding.
+  - Blocking export when the ad has no phone number: some sellers trade by
+    DM. The bar carries their call to action and the panel says so.
+
+Not verified here:
+  - The H.264 encoder itself: this container's Chromium has none, and Chrome
+    for Testing could not be downloaded (403). The MP4 muxer was exercised
+    with VP9 inside it.
+
+RESUME HERE:
+  Export one clip from real Chrome or Safari, play the MP4, and upload it to
+  a Reel and a TikTok draft before announcing the feature. Then read
+  Facebook's Marketplace commerce policy by hand (research §7.2).

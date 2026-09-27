@@ -45,6 +45,18 @@ authored square and re-flow into the chosen format; switching back is lossless.
 Plan pixel caps apply to the short side, so rectangular exports keep their
 aspect. Easy Mode stays square by design.
 
+## Video ads
+Export → **Make it a video ad** turns the open design into a 6, 10 or 15 s
+clip (`video.js`). It opens and ends on the ad exactly as designed, and the
+phone number stays on screen throughout. The clip is H.264 MP4, encoded in the
+browser through WebCodecs by the vendored Mediabunny
+(`vendor/`, MPL-2.0). Browsers without an H.264 encoder get a labelled WebM.
+Every download is self-audited first (first frame, number on screen, reading
+time, layout, contrast, flashing), and a clip that fails is refused without
+spending an export. The video counts as one export and follows the plan's
+watermark rule. Its short side is capped at 1080 px, the size every platform
+re-encodes to. Evidence and spec: `docs/VIDEO-AD-RESEARCH.md`.
+
 ## SCANS.AD (ScanMap) integration — optional
 Graphics Studio runs 100% standalone. The integration is also **invisible to
 single-product users**: every SCANS.AD surface (order buttons, tracked-link

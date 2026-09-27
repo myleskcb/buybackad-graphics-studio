@@ -672,6 +672,53 @@
       <button class="btn btn-primary" id="ex-download">⬇ Download PNG</button>
     </div>
     <button class="btn btn-order" id="ex-order" style="display:none" title="Send this ad to SCANS.AD, printed, posted around town, every scan tracked">🖨 Order prints + posting <span class="order-sub">printed &amp; posted via SCANS.AD</span></button>
+    <button class="btn btn-video" id="ex-video" title="Turn this ad into a short video that opens and ends on the design above">🎬 Make it a video ad <span class="order-sub">6, 10 or 15 s for Reels, Stories, TikTok &amp; groups</span></button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="video-overlay">
+  <div class="modal vid-modal" role="dialog" aria-modal="true" aria-labelledby="vid-title">
+    <h3 id="vid-title">Video ad</h3>
+    <div class="modal-sub">Opens and ends on your ad exactly as designed, with your price, how it works and your number in between. Your number stays on screen the whole time.</div>
+    <div class="vid-body">
+      <div class="vid-stage" id="vid-stage" title="Click to pause">
+        <canvas id="vid-preview" aria-label="Video preview"></canvas>
+        <div class="vid-scrub"><i id="vid-scrub-bar"></i></div>
+      </div>
+      <div class="vid-form">
+        <div class="seg" id="vid-len-seg" role="group" aria-label="Length">
+          <button data-len="6">6 s</button><button data-len="10" class="active">10 s</button><button data-len="15">15 s</button>
+        </div>
+        <label for="vid-kicker">What you buy</label>
+        <input type="text" id="vid-kicker" maxlength="28" placeholder="WE BUY iPHONES">
+        <div class="vid-row3">
+          <div><label for="vid-lead">Lead</label><input type="text" id="vid-lead" maxlength="16" placeholder="WE PAY"></div>
+          <div><label for="vid-price">Price or offer</label><input type="text" id="vid-price" maxlength="24" placeholder="$640"></div>
+          <div><label for="vid-qual">For what</label><input type="text" id="vid-qual" maxlength="32" placeholder="iPHONE 15 PRO · UNLOCKED"></div>
+        </div>
+        <label for="vid-step1">How it works</label>
+        <input type="text" id="vid-step1" maxlength="24">
+        <input type="text" id="vid-step2" maxlength="24" aria-label="Step 2">
+        <input type="text" id="vid-step3" maxlength="24" aria-label="Step 3">
+        <div id="vid-proof-sec" hidden>
+          <label for="vid-proof1">Why sell to you <span class="vid-hint">only claims you can stand behind</span></label>
+          <input type="text" id="vid-proof1" maxlength="28">
+          <input type="text" id="vid-proof2" maxlength="28" aria-label="Reason 2">
+          <input type="text" id="vid-proof3" maxlength="28" aria-label="Reason 3">
+          <label for="vid-photo">A real photo <span class="vid-hint">your counter, your shop, you</span></label>
+          <input type="file" id="vid-photo" accept="image/*">
+        </div>
+        <label class="vid-check"><input type="checkbox" id="vid-sound" checked> Soft sound: ticks and stamps</label>
+        <div class="vid-warn" id="vid-warn" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="vid-status" id="vid-status" aria-live="polite"><div class="vid-bar"><i id="vid-bar-fill"></i></div><span id="vid-status-txt"></span></div>
+    <a class="vid-cover" id="vid-cover" hidden>⬇ Cover image (PNG), for Marketplace and anywhere that shows a still</a>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="vid-cancel">Close</button>
+      <button class="btn btn-primary" id="vid-export">⬇ Download video</button>
+    </div>
+    <div class="vid-foot">Video plays automatically in Facebook groups and feed, Reels, Stories and TikTok. Marketplace shows listings as a still, so use the cover image there.</div>
   </div>
 </div>
 
@@ -951,5 +998,6 @@
 <script src="config.js"></script>
 <script src="tplbg-data.js"></script>
 <script src="app.js"></script>
+<script src="video.js"></script>
 </body>
 </html>

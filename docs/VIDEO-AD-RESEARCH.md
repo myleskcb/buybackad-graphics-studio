@@ -433,7 +433,7 @@ still thumbnail. So:
 |---|---|---|
 | 0.0 s | **the finished ad**, still | all |
 | 0.0–0.5 s | wake: cutout rises 3–5% with decelerate easing; background begins a slow push-in (≤5% over the clip) and parallax against the cutout; one light sweep across the product | cutout, photo |
-| 0.5–3.5 s | **price scene**: price scales to hero, counter rolls up and lands with a small overshoot "stamp" by ~2.0 s, qualifier on the *same frame*, business badge in frame; holds ≥1.5 s after landing | price / headline, badges |
+| 0.5–3.5 s | **price scene**: price scales to hero, counter rolls up (built as a cascade — §10) and lands with a small overshoot "stamp" by ~2.0 s, qualifier on the *same frame*, business badge in frame; holds ≥1.5 s after landing | price / headline, badges |
 | 3.5–7.0 s | **how it works**: three steps or selling points, one at a time, ≤4 words each, each ≥1.2 s | info, sub |
 | 7.0–10.0 s | **end card**: back to the full composition; phone number emphasised, CTA verb ("Call" / "Text"), name; still for ≥3 s | phone, cta |
 | throughout | phone bar pinned in the same place inside the safe box | phone |
@@ -475,7 +475,7 @@ still thumbnail. So:
 | product wake (rise + ease-out) | "this is what we buy" | 300–500 ms; the first motion. Motion *onset* is what captures attention (Abrams & Christ) — prefer discrete onsets over constant drift |
 | single light sweep across the cutout | product quality (Apple hero shot) | one pass, low luminance change — never a flash |
 | parallax photo ↔ cutout, slow push-in | depth; keeps the frame "dynamic" (TikTok's static cap) | ≤5% scale over the whole clip |
-| price counter + overshoot stamp | the reveal — the beat card-buying and Opendoor videos are built on | lands with brand in frame; qualifier on the same frame |
+| price counter + overshoot stamp (built as a cascade — §10) | the reveal — the beat card-buying and Opendoor videos are built on | lands with brand in frame; qualifier on the same frame |
 | three-step process strip | the most portable device in the category (Photo → Price → Paid) | one icon at a time; uses the existing icon system (rule 17) |
 | persistent phone bar | the DRTV phone bar | never animated off screen |
 | brand badge (colour + shape) | an owned asset across every export | fixed per business |
@@ -532,7 +532,63 @@ output, and there is no output to measure.
 
 ---
 
-## 10. Sources
+## 10. Built — 2026-09-27
+
+The engine is `video.js`, loaded after `app.js`; the panel opens from
+**Export → Make it a video ad**. It reads whatever is on the canvas, so every
+template, every edit and every saved design has a video without any
+per-template authoring.
+
+**What the export refuses.** Download runs a self-audit before a single frame
+is encoded, and the flash check over every encoded frame. Any failure refuses
+the file and does not spend an export:
+
+| gate | how it is checked | where |
+|---|---|---|
+| V1 frame 0 is the still | frame 0 rendered by the engine vs the PNG the Export button makes, byte for byte | `frameZeroMatches()` |
+| V2 number on screen | share of frames with the phone in the template or the phone bar, ≥ 70% | `phoneShare()` |
+| V3 time to read | every line: onset to scene end ≥ max(1.2 s, chars ÷ 15 + 0.5 s) | `dwell()` |
+| layout | every recorded line and shape inside the safe box; no two lines overlapping (against the smaller box, rule 35); nothing on the product or photo; nothing under 22 px at 1080 | `measure()` |
+| contrast | each line against the backdrop **measured on the real frame with the text removed** (rule 22): 4.5:1, or 3:1 at ≥ 52 px | `measure()` |
+| V4 flashing | WCAG 2.3.1 general + red flash over every frame | `FlashCheck` |
+
+Contrast failures are fixed before they are reported: `harden()` darkens the
+backdrop against measured contrast, or turns an accent that cannot hold 3:1
+white. Only what still fails reaches the user, with the line named.
+
+**Three measured departures from this spec:**
+
+1. **No counter.** A price counting up at 30 fps swaps glyphs in place many
+   times a second. Tested against the flash check with a synthetic clip — a
+   $1,100 count at 170 px on a dark ground — it **fails: 10 flashes a second
+   over 33% of a region**. The figure is built as a cascade instead: each
+   character rises once from behind its own baseline, then one stamp. Each
+   glyph region changes state once.
+2. **Flash analysis at full resolution.** Letting `drawImage` downscale the
+   frame first averages in gamma space; against an exact linear-light average
+   it misread cell luminance by up to **0.29** — three times the 0.10 flash
+   threshold. A half-resolution pass still erred by 0.05. The check reads every
+   pixel (~41 ms a frame here) and skips frames the renderer knows are
+   unchanged.
+3. **The layout is stacked on measured glyph bounds.** The first self-audit run
+   caught "UP TO" colliding with "$1,100": a `$` rises above cap height and the
+   layout had estimated glyph heights from ratios of the font size. It now
+   stacks on `measureText` bounds, and the cascade's clip sits on the measured
+   descent.
+
+**Not verified in this environment:** the H.264 encoder itself. The container's
+Chromium is an open-source build without H.264 or AAC encoders, and Chrome for
+Testing could not be downloaded (egress 403). Everything around it was
+exercised — rendering, timing, the MP4 muxer (with VP9 inside), audio (Opus),
+decoding the file back — and Mediabunny selects H.264 by codec name. **Export
+one clip from Chrome or Safari and play it before announcing the feature.**
+
+`scripts/video_audit.mjs` checks V1–V4 and V7 on real renders, encodes and
+decodes real files, and drives the panel under the production CSP.
+`scripts/video_library_audit.mjs` runs every template. Library results: see the
+learning log entry for 2026-09-27.
+
+## 11. Sources
 
 Every URL below was read via search-engine extract, except those marked (O),
 which were opened (section "How far to trust this file").
