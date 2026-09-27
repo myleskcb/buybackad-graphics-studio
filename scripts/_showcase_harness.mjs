@@ -169,12 +169,29 @@ export async function openStudio(query = ''){
           const neutralDark = x => { const p = x.props || {}, m = /^#?([0-9a-f]{6})$/i.exec(String(p.fill || '')); if (!m || p.grad) return false;
             const n = parseInt(m[1], 16), c = [(n >> 16) & 255, (n >> 8) & 255, n & 255]; return (Math.max(...c) - Math.min(...c)) / 255 < 0.12; };
           const darks = live.filter(x => !x.light);
-          const coloured = darks.filter(x => !neutralDark(x));
-          if (coloured.length) return { skip: 'coloured dark ink on the photograph', lines: coloured.map(x => x.name) };
-          const il = hexLum(o.flip.light);
-          darks.forEach(x => { x.light = true; x.lum = il; x.allow = (il + 0.05) / want - 0.05; });
+          /* a COLOURED dark line keeps its hue and turns its lightness over: a
+             deep green headline becomes a pale mint one, a magenta word a light
+             pink. Re-inked white, the palette would be lost; left dark, the card
+             kept its haze (31 cards on the first pass). */
+          const tintOf = x => { const p = x.props || {};
+            let m = /^#?([0-9a-f]{6})$/i.exec(String(p.fill || '')), r, g, b;
+            if (m){ const n = parseInt(m[1], 16); r = n >> 16; g = (n >> 8) & 255; b = n & 255; }
+            else { m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(String(p.fill || '')); if (!m) return null; r = +m[1]; g = +m[2]; b = +m[3]; }
+            r /= 255; g /= 255; b /= 255;
+            const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let h = 0;
+            if (d){ h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
+            const sat = Math.min(0.75, d ? d / (1 - Math.abs(mx + mn - 1)) : 0);
+            for (let L = 0.8; L <= 0.95; L += 0.03){   // the least washed-out tint that still reads
+              const C = (1 - Math.abs(2 * L - 1)) * sat, X = C * (1 - Math.abs((h / 60) % 2 - 1)), mm = L - C / 2;
+              const [a1, a2, a3] = h < 60 ? [C, X, 0] : h < 120 ? [X, C, 0] : h < 180 ? [0, C, X] : h < 240 ? [0, X, C] : h < 300 ? [X, 0, C] : [C, 0, X];
+              const hx = '#' + [a1, a2, a3].map(v => Math.round((v + mm) * 255).toString(16).padStart(2, '0')).join('');
+              if (hexLum(hx) >= 0.55) return hx;
+            }
+            return o.flip.light; };
+          flipped = [];
+          darks.forEach(x => { const ink = neutralDark(x) ? o.flip.light : (tintOf(x) || o.flip.light), il = hexLum(ink);
+            x.light = true; x.lum = il; x.allow = (il + 0.05) / want - 0.05; flipped.push({ name: x.name, fill: ink }); });
           light = true;
-          flipped = darks.map(x => ({ name: x.name, fill: o.flip.light }));
         }
         for (const mode of o.modes){ spec = solve(mode); if (spec) break; }
         /* ONE INK DIRECTION PER GROUND. A card that sets white badges beside a

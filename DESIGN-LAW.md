@@ -1407,3 +1407,35 @@ wide devices overlap a little, tall ones stand apart.
 Variants are generated when someone asks (the Easy Mode device picker;
 `scripts/device_variants.mjs` for a batch), never stored, so the library
 stays one card per design (rule 60).
+
+## 62. A photograph is shaded dark, never milky
+
+Added 2026-09-27. The owner, on the curated library: "make sure it still keeps
+good colors. a lot of these have a white haze overlay", then "doesn't look
+great". This replaces, for photographs, rule 56's "near-white (paper) under
+dark ink".
+
+Measured: 238 of the 400 kept cards shaded their photograph with near-white
+paper at 0.3 to 0.6, many over a blurred photograph too. A white veil turns
+every colour in a picture pastel, and a card reads as washed out however
+correct its contrast is.
+
+The rule, as `scripts/darken_grounds.mjs` applies it through the ground
+solver (`__sc.naturalGround()`, prefer 'dark'):
+
+- **The shade on a photograph is near-black**, graded top and bottom where
+  copy sits so the middle of the picture comes through, a flat veil only if
+  the grade cannot hold every line, at the lightest strength that clears 4.5:1.
+  A blur over 4px comes down to 4: detail and colour are the point.
+- **Neutral dark copy on the photograph takes near-white ink.** Its outline
+  goes, because the shade now separates it.
+- **Coloured dark copy keeps its hue and turns its lightness over**: a deep
+  green headline becomes pale mint, magenta light pink. Re-inked white, the
+  palette would be lost; left dark, the card kept its haze.
+- **The plates under the copy follow what the eye saw.** A pale band that is
+  see-through (or so large it counts as a veil) under a line now re-inked
+  light turns dark: same shape and opacity, a tinted band to a deep shade of
+  its own hue. A see-through plate (opacity 0.5 to 0.9) whose copy keeps its
+  dark ink becomes solid in the colour it showed over the old shade, so that
+  copy keeps exactly its contrast (rule 52). Missing either made a light line
+  on a light band, or dark copy on a band gone mid-grey (about 2:1).
