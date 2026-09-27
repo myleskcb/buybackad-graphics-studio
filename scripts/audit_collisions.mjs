@@ -16,11 +16,14 @@
  *                     its job (a plate, a pill, a disc); fully outside is
  *                     unrelated. Half in is a collision, whichever is on top.
  *   product × text  — a cutout's opaque pixels over or under a line's ink.
+ *   air             — a line ON a plate needs air at both ends, measured in the
+ *                     plate's own frame (rule 64): the straddle test cannot see
+ *                     a line that fills its plate end to end.
  *
  * Every layer is rendered alone through buildLayer()/alignPass() (the path
  * renderThumb() takes) at quarter scale and its alpha taken as a mask.
  *
- * usage: node scripts/audit_collisions.mjs [--classics] [--ids a,b] [--json out.json]
+ * usage: node scripts/audit_collisions.mjs [--classics] [--ids a,b] [--json out.json] [--no-air-fix]
  *   default: every showcase record. --classics: the 243 built-in templates.
  * env: GFX_BASE, CHROME, FABRIC_JS (see _showcase_harness.mjs).
  * Exits 1 if any LIVE (undefected) showcase card collides past the threshold.
@@ -36,8 +39,14 @@ const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8')
 /* A collision is scored as the share of the SMALLER party's ink involved
    (rule 35: overlap is measured against the smaller box). */
 const FAIL = 0.06;          // 6% of a line's ink shared with another element
+/* air is measured on quarter-scale masks, so a shortfall inside one mask
+   pixel (4px) is not a finding */
+const AIR_TOL = 4;
+/* --no-air-fix renders without the engine's plateAir() step, to measure the before */
+const NO_AIR_FIX = argv.includes('--no-air-fix');
 
 const { browser, page, errors } = await openStudio();
+if (NO_AIR_FIX) await page.evaluate(() => { window.__noPlateAir = true; });
 const ids = arg('--ids') ? arg('--ids').split(',')
   : CLASSICS ? await page.evaluate(() => TEMPLATES.map(t => t.id)) : idx.map(c => c.id);
 
@@ -94,6 +103,40 @@ for (let i = 0; i < ids.length; i += 8){
             if (inside > 0.04 && inside < 0.96) hit(Math.min(inside, 1 - inside), 'straddles ' + name(cz) + ': ' + name(tz) + ' ' + Math.round(inside * 100) + '% inside');
           });
         });
+        /* AIR ON A PLATE (rule 64; owner, 2026-09-27, on CALL FOR INSTANT
+           OFFER edge to edge on a tilted badge: "why can't we seem to catch
+           this?"). The straddle test above only scores a line PART in and part
+           out, and passes one that fills its plate end to end or pokes a
+           letter over it. A line whose ink sits on a rectangular plate is
+           measured in the plate's own frame (so a tilted sticker is judged
+           along its tilt): both ends need plateAirNeed() of air, the same
+           margin the engine's plateAir() fits to. */
+        let air = 0, airBy = null;
+        { const plates = carriers.filter(cz => cz.o && cz.o.type === 'rect');
+          texts.forEach(tz => { const T = get(tz); if (T.n < 20) return;
+            const pts = [];
+            for (let p = 0; p < T.m.length; p++) if (T.m[p]) pts.push(p);
+            let host = null;
+            plates.forEach(cz => { const o = cz.o;
+              if (all.indexOf(o) > all.indexOf(tz.o)) return;          // a plate over the line is not its ground
+              const PW = o.width * (o.scaleX || 1), PH = o.height * (o.scaleY || 1);
+              if (PW < 40 || PH < 20 || PW > TPL_W * 0.93 || PH > TPL_H * 0.9) return;
+              const inv = fabric.util.invertTransform(o.calcTransformMatrix());
+              let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, sx = 0, sy = 0;
+              pts.forEach(p => { const q = fabric.util.transformPoint(new fabric.Point((p % W + 0.5) * S, (Math.floor(p / W) + 0.5) * S), inv);
+                const lx = q.x * (o.scaleX || 1), ly = q.y * (o.scaleY || 1);
+                x0 = Math.min(x0, lx); x1 = Math.max(x1, lx); y0 = Math.min(y0, ly); y1 = Math.max(y1, ly); sx += lx; sy += ly; });
+              const cx = sx / pts.length, cy = sy / pts.length;
+              if (Math.abs(cx) > PW / 2 || Math.abs(cy) > PH / 2) return;
+              if (y1 - y0 > PH * 1.15 || x1 - x0 > PW * 1.4) return;        // bigger than the plate: not a line on it
+              if (!host || PW * PH < host.PW * host.PH) host = { cz, PW, L: PW / 2 + x0 - S / 2, R: PW / 2 - x1 - S / 2 };
+            });
+            if (!host) return;
+            const fs = (tz.o.fontSize || 30) * (tz.o.scaleY || 1), need = plateAirNeed(host.PW, fs);
+            const short = need - Math.min(host.L, host.R);
+            if (short > air){ air = short; airBy = name(tz) + ' on ' + name(host.cz) + ': ' + Math.round(host.L) + ' / ' + Math.round(host.R) + 'px, needs ' + Math.round(need); }
+          });
+        }
         // product × text, either order
         texts.forEach(tz => { const T = get(tz); if (T.n < 20) return;
           cuts.forEach(cz => { const C = get(cz); if (C.n < 20) return; hit(shared(T, C) / T.n, 'product×text: ' + name(cz) + ' / ' + name(tz)); });
@@ -135,7 +178,8 @@ for (let i = 0; i < ids.length; i += 8){
         all.forEach((x, n) => { x.visible = vis[n]; });
         sc.dispose();
         R[id] = { collide: +worst.toFixed(3), what, clip: +clipOut.toFixed(3), half: +half.toFixed(3), halfBy,
-                  guide: +guide.toFixed(3), guideBy, off: Math.round(Math.max(0, off)), offBy };
+                  guide: +guide.toFixed(3), guideBy, off: Math.round(Math.max(0, off)), offBy,
+                  air: Math.round(air), airBy };
       } catch (e){ R[id] = { err: String(e).slice(0, 90) }; }
     }
     return R;
@@ -160,9 +204,12 @@ const inMargin = ok.filter(x => x.r.guide >= 0.02), offCard = ok.filter(x => x.r
 console.log('\ncopy inside the 6% safe margin (>=2% of a line\'s ink): all ' + inMargin.length + (CLASSICS ? '' : '  live ' + inMargin.filter(x => x.live).length));
 console.log('copy running off the ad (>2px):                     all ' + offCard.length + (CLASSICS ? '' : '  live ' + offCard.filter(x => x.live).length));
 inMargin.sort((a, b) => b.r.guide - a.r.guide).slice(0, 6).forEach(x => console.log('  ' + String(Math.round(x.r.guide * 100)).padStart(3) + '%  ' + (x.live ? 'LIVE ' : '     ') + x.id.padEnd(26) + x.r.guideBy));
+const airless = ok.filter(x => x.r.air > AIR_TOL);
+console.log('\ncopy without air at the ends of its plate (>' + AIR_TOL + 'px short): all ' + airless.length + (CLASSICS ? '' : '  live ' + airless.filter(x => x.live).length));
+airless.sort((a, b) => b.r.air - a.r.air).slice(0, 12).forEach(x => console.log('  ' + String(x.r.air).padStart(3) + 'px  ' + (x.live ? 'LIVE ' : '     ') + x.id.padEnd(26) + x.r.airBy));
 const clipped = ok.filter(x => x.r.clip >= 0.08), halves = ok.filter(x => x.r.half >= 0.10);
 console.log('\nproduct cut off by the edge of the ad (>=8% of it): all ' + clipped.length + (CLASSICS ? '' : '  live ' + clipped.filter(x => x.live).length));
 console.log('product half on a panel, half off (>=10%):         all ' + halves.length + (CLASSICS ? '' : '  live ' + halves.filter(x => x.live).length));
 halves.sort((a, b) => b.r.half - a.r.half).slice(0, 8).forEach(x => console.log('  ' + (x.live ? 'LIVE ' : '     ') + x.id.padEnd(26) + x.r.halfBy));
 if (arg('--json')) writeFileSync(arg('--json'), JSON.stringify(out));
-process.exit(ok.some(x => x.live && x.r.collide >= FAIL) ? 1 : 0);
+process.exit(ok.some(x => x.live && (x.r.collide >= FAIL || x.r.air > AIR_TOL)) ? 1 : 0);

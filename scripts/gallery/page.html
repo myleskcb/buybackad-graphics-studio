@@ -5,13 +5,15 @@
 @font-face{font-family:"Clash Display";font-weight:600;font-display:swap;src:url(data:font/woff2;base64,__CLASH600__) format("woff2")}
 /* One dark screening room by choice: clips are judged on a dark surround, as
    in an edit suite. Every colour is set explicitly, so the page looks the same
-   on a light or dark host. Accent is the app's own #ff7a1a. */
+   on a light or dark host. Tokens are the app's own (styles.css): graphite
+   field and the blue accent; the warm orange was retired with the old
+   language. */
 :root{
   color-scheme:dark;
-  --ground:#0f0f12;--panel:#17171b;--raise:#212127;--sunk:#0a0a0c;
-  --line:#2b2b32;--line-2:#3a3a43;
-  --text:#f2efe9;--text-2:#cfccd4;--dim:#9a98a3;
-  --accent:#ff7a1a;--accent-ink:#1a0d03;--accent-wash:rgba(255,122,26,.14);
+  --ground:#0f1116;--panel:#171a21;--raise:#1f232c;--sunk:#0a0c10;
+  --line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.16);
+  --text:#f2f4f8;--text-2:#c9cfdb;--dim:#8b94a7;
+  --accent:#4d9cff;--accent-ink:#061527;--accent-wash:rgba(77,156,255,.16);
   --good:#30d68f;--warn:#ffb03d;--bad:#ff6259;
   --sans:"Satoshi",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --display:"Clash Display","Satoshi",ui-sans-serif,system-ui,sans-serif;
@@ -43,7 +45,6 @@ h1{font:600 clamp(28px,4vw,40px)/1.05 var(--display);letter-spacing:-.01em;margi
 .player{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}
 @media (max-width:820px){.player{position:static}}
 .stage{position:relative;background:var(--sunk);border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-height:66vh;width:100%;margin:0 auto;display:grid;place-items:center}
-.stage.sq{aspect-ratio:1/1}
 .stage img,.stage video{width:100%;height:100%;object-fit:contain;display:block;grid-area:1/1}
 .stage video[hidden]{display:none}
 .play{grid-area:1/1;z-index:2;display:grid;place-items:center;width:74px;height:74px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.45)}
@@ -64,6 +65,11 @@ h1{font:600 clamp(28px,4vw,40px)/1.05 var(--display);letter-spacing:-.01em;margi
 .checks .val{font:600 12px var(--mono);font-variant-numeric:tabular-nums;color:var(--text)}
 .dwell{white-space:pre-wrap;font:500 11.5px var(--mono);color:var(--dim);font-variant-numeric:tabular-nums;display:grid;gap:2px;padding-left:22px}
 .cmp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--dim)}
+.frames{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frames figure{margin:0;display:grid;gap:5px}
+.frames img{width:100%;max-width:100%;border-radius:8px;border:1px solid var(--line);background:var(--sunk);display:block}
+.frames figcaption{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.notes{font-size:12px;color:var(--warn);line-height:1.5}
 
 /* grid */
 .filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
@@ -87,7 +93,7 @@ h1{font:600 clamp(28px,4vw,40px)/1.05 var(--display);letter-spacing:-.01em;margi
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">BUYBACK.AD Graphics Studio · video.js</div>
+      <div class="eyebrow">BUYBACK.AD Graphics Studio · video rounds</div>
       <h1>Video Ad Cuts</h1>
     </div>
     <div class="versions" id="versions" role="group" aria-label="Render round"></div>
@@ -112,7 +118,9 @@ h1{font:600 clamp(28px,4vw,40px)/1.05 var(--display);letter-spacing:-.01em;margi
       <div class="meta"><h2 id="title"></h2><div class="sub" id="sub"></div></div>
       <div class="cmp" id="cmp"></div>
       <div class="copy" id="copy"></div>
+      <div class="frames" id="frames" hidden></div>
       <ul class="checks" id="checks"></ul>
+      <div class="notes" id="notes" hidden></div>
     </section>
 
     <section aria-label="Clips">
@@ -121,7 +129,7 @@ h1{font:600 clamp(28px,4vw,40px)/1.05 var(--display);letter-spacing:-.01em;margi
     </section>
   </div>
 
-  <p class="foot">Each clip is a 360 px preview made by the same engine and timeline as a real download. The checks beside it ran at the full 1080 export size: the first frame against the still PNG, reading time for every line, layout and contrast measured on the rendered frames, and a WCAG 2.3.1 flash test over every frame. The grid shows still posters only. A clip downloads when you press play, and the previous one is released, so only one video is ever loaded.</p>
+  <p class="foot" id="foot"></p>
 </div>
 
 <script>

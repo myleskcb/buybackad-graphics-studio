@@ -48,6 +48,8 @@ await page.goto(BASE, { waitUntil: 'load', timeout: 120000 });
 await page.evaluate(() => document.fonts.ready);
 await new Promise(r => setTimeout(r, 6000));
 await page.exposeFunction('__toast', m => toasts.push(m));
+// no backend: loadAccount() would sign the stub out (showEasy runs it)
+await page.evaluate(() => { loadAccount = async () => account; });
 
 const results = [];
 for (const where of ['easy', 'editor']){

@@ -11371,10 +11371,20 @@ function ctaUnits(sc, rig, W, H){
   const heads = objs.filter(o => live(o) && motionIsText(o) && o.pgRole === 'headline' && !inBlock.has(o));
   const cta = objs.find(o => live(o) && motionIsText(o) && o.pgRole === 'cta' && !inBlock.has(o)) || null;
   const prod = (rig.cut || []).map(q => q.o).sort((a, q) => motionBox(q).w * motionBox(q).h - motionBox(a).w * motionBox(a).h)[0] || null;
+  /* a line travels with its own plate: CALL FOR INSTANT OFFER landed as bare
+     small type once its coral badge was left behind in the ad */
+  const withPlates = texts => {
+    const members = texts.slice(), plated = new Set();
+    texts.forEach(o => { const p = motionPlate(objs, o, W, H);
+      if (p && live(p) && !inBlock.has(p)){ plated.add(o); if (members.indexOf(p) < 0) members.push(p); } });
+    members.sort((a, q) => objs.indexOf(a) - objs.indexOf(q));
+    return { members, plated };
+  };
+  const hp = withPlates(heads), cp = cta ? withPlates([cta]) : null;
   return {
     block: unit('block', block.members, { plate: block.plate, phone: block.phone }),
-    head: heads.length ? unit('head', heads) : null,
-    cta: cta ? unit('cta', [cta]) : null,
+    head: heads.length ? unit('head', hp.members, { plated: hp.plated }) : null,
+    cta: cta ? unit('cta', cp.members, { plated: cp.plated }) : null,
     prod: prod ? unit('prod', [prod]) : null,
   };
 }
@@ -11417,7 +11427,9 @@ function ctaBake(sc, b, docW, docH, outW, outH){
   const ground = ctaGroundLayers(sc, docW, docH, outW, outH);
   const at = {};   // each part exactly where it stood in the ad, to lift it out of the ad frame
   ['block', 'head', 'cta', 'prod'].forEach(k => { if (U[k]) at[k] = ctaRender(sc, new Set(U[k].members), 1, U[k].c, U[k].c, z, outW, outH); });
-  const tries = [{ prod: 1, head: 1, cta: 1 }, { prod: 1, head: 1 }, { prod: 1 }, { head: 1, cta: 1 }, { head: 1 }, {}]
+  /* leaner stacks, the words before the picture: what the shop buys and what
+     to do about it are the message, a picture of it without them is not */
+  const tries = [{ prod: 1, head: 1, cta: 1 }, { head: 1, cta: 1 }, { prod: 1, head: 1 }, { head: 1 }, { prod: 1 }, {}]
     .filter((v, i, a) => (!v.prod || U.prod) && (!v.head || U.head) && (!v.cta || U.cta) && a.findIndex(w => JSON.stringify(w) === JSON.stringify(v)) === i);
   const why = [];
   for (const use of tries){
@@ -11427,12 +11439,13 @@ function ctaBake(sc, b, docW, docH, outW, outH){
     L.place.forEach((pl, i) => {
       const set = new Set(pl.u.members);
       const part = { key: pl.u.key, from: { x: pl.u.c.x * z, y: pl.u.c.y * z }, to: { x: pl.to.x * z, y: pl.to.y * z }, s: pl.s,
-        bmp: ctaRender(sc, set, pl.s, pl.u.c, pl.to, z, outW, outH), delay: i * MOTION.cta.stagger };
+        bmp: ctaRender(sc, set, pl.s, pl.u.c, pl.to, z, outW, outH), delay: i * MOTION.cta.stagger, set, u: pl.u, pto: pl.to };
       if (pl.u.key === 'block') part.bare = ctaRender(sc, new Set(pl.u.members.filter(o => !motionIsText(o))), pl.s, pl.u.c, pl.to, z, outW, outH);
       c.parts.push(part);
       pl.u.members.filter(motionIsText).forEach(o => {
         const r = ctaTextBox(o, pl.u, pl.s, pl.to);
-        c.texts.push({ o, role: o === U.block.phone ? 'number' : (o.pgRole || 'text'), onPlate: pl.u.key === 'block' && !!U.block.plate,
+        c.texts.push({ o, role: o === U.block.phone ? 'number' : (o.pgRole || 'text'),
+          onPlate: (pl.u.key === 'block' && !!U.block.plate) || !!(pl.u.plated && pl.u.plated.has(o)),
           size: (o.fontSize || 0) * (o.scaleY || 1) * pl.s, box: { x: r.x * z, y: r.y * z, w: r.w * z, h: r.h * z } });
       });
     });
@@ -11443,22 +11456,95 @@ function ctaBake(sc, b, docW, docH, outW, outH){
         box: { x: (L.prod.to.x - L.prod.w / 2) * z, y: (L.prod.to.y - L.prod.h / 2) * z, w: L.prod.w * z, h: L.prod.h * z } };
     }
     b.cta = c;
+    ctaTurnInk(sc, b, c, outW, outH);
     const sh = ctaSolveShade(b);
     if (sh == null){ why.push(JSON.stringify(use) + ': a line on the photograph cannot reach 4.5:1 with a dark shade'); continue; }
     c.shade = sh;
     const bad = ctaAudit(b);
-    if (!bad.length) return c;
+    if (!bad.length){ c.passed = why.slice(); return c; }   // why the fuller stacks were not used
     why.push(JSON.stringify(use) + ': ' + bad.join(', '));
   }
   b.cta = null;
   return { off: why.join(' | ') };
 }
-/* Rule 56 for the lines that land on the photograph (not on a plate): the
-   lightest NEUTRAL DARK shade that brings every light line's worst end of
-   ground (90th percentile) to 4.5:1, while every dark line still clears 4.5:1
-   at its own worst end (10th). Dark type is never rescued with a pale veil:
-   rule 62, a photograph is shaded dark, never milky. null when no shade
-   serves both. */
+/* Rule 62 for a line that lands on the shaded photograph in ink darker than
+   its own ground, or too dim for any dark shade to carry to 4.5:1 (under
+   0.3 luminance): neutral dark copy takes near-white ink and loses its
+   outline (the shade now separates it); coloured dark copy keeps its hue and
+   turns its lightness over (deep green to pale mint); its halo goes too,
+   since a light halo round now-light type is a haze. A line carried by a
+   light outline of real weight keeps its ink. The part is re-rendered
+   in the turned ink; its first render is kept as bmp0 so the ink crossfades
+   during the move rather than switching. A gradient fill is left as it is. */
+function ctaTurnInk(sc, b, c, outW, outH){
+  const W = b.W, H = b.H, lines = c.texts.filter(t => !t.onPlate);
+  if (!lines.length) return;
+  const g = document.createElement('canvas'); g.width = W; g.height = H;
+  const gx = g.getContext('2d', { willReadFrequently: true });
+  ctaDrawGround(gx, b, MOTION.dur - 2.4, 0);
+  const d = gx.getImageData(0, 0, W, H).data;
+  const turned = new Map();
+  lines.forEach(t => {
+    if (typeof t.o.fill !== 'string') return;
+    /* a light outline of real weight is what carries the line (the red CASH
+       with its white 16px outline): it is judged by that edge and keeps its
+       fill, which may be the money word's accent (rule 51) */
+    const fs = (t.o.fontSize || 30) * (t.o.scaleY || 1);
+    if (typeof t.o.stroke === 'string' && (t.o.strokeWidth || 0) * (t.o.scaleY || 1) >= 0.05 * fs && _ctaLum(..._ctaRgb(t.o.stroke)) >= 0.5){
+      t.ink = t.o.stroke; return;
+    }
+    const L = [];
+    for (let y = Math.max(0, t.box.y); y < Math.min(H, t.box.y + t.box.h); y += 3)
+      for (let x = Math.max(0, t.box.x); x < Math.min(W, t.box.x + t.box.w); x += 3){
+        const i = (Math.floor(y) * W + Math.floor(x)) * 4; L.push(_ctaLum(d[i], d[i + 1], d[i + 2]));
+      }
+    if (!L.length) return;
+    L.sort((p, q) => p - q);
+    const [r, gg, bb] = _ctaRgb(t.o.fill);
+    /* already light ink on this ground, and light enough that a dark shade can
+       carry it to 4.5:1 (a mid-tone like #d14200, at 0.175, reaches 4.5:1
+       only on pure black) */
+    const lum = _ctaLum(r, gg, bb);
+    if (lum >= L[L.length >> 1] && lum >= 0.3) return;
+    const mx = Math.max(r, gg, bb) / 255, mn = Math.min(r, gg, bb) / 255, l = (mx + mn) / 2;
+    const sat = mx === mn ? 0 : (mx - mn) / (1 - Math.abs(2 * l - 1));
+    let ink = '#f4f4f1';
+    if (sat >= 0.18){
+      let h = 0;
+      if (mx !== mn){
+        const R = r / 255, G = gg / 255, B = bb / 255, dd = mx - mn;
+        h = mx === R ? ((G - B) / dd) % 6 : mx === G ? (B - R) / dd + 2 : (R - G) / dd + 4;
+        h = (h * 60 + 360) % 360;
+      }
+      ink = 'hsl(' + Math.round(h) + ',' + Math.round(Math.min(1, sat) * 100) + '%,' + Math.round(Math.max(0.8, 1 - l) * 100) + '%)';
+    }
+    turned.set(t.o, ink); t.ink = ink;
+  });
+  if (!turned.size) return;
+  c.parts.forEach(p => {
+    const set = p.set;
+    if (![...turned.keys()].some(o => set.has(o))) return;
+    const keep = [...set].map(o => ({ o, fill: o.fill, stroke: o.stroke, sw: o.strokeWidth, shadow: o.shadow }));
+    try {
+      // the outline and the halo were tuned to the dark ink; the shade separates it now
+      turned.forEach((ink, o) => { if (set.has(o)) o.set({ fill: ink, stroke: null, strokeWidth: 0, shadow: null }); });
+      p.bmp0 = p.bmp;
+      p.bmp = ctaRender(sc, set, p.s, p.u.c, p.pto, c.z, outW, outH);
+    } finally {
+      keep.forEach(k => k.o.set({ fill: k.fill, stroke: k.stroke, strokeWidth: k.sw, shadow: k.shadow }));
+    }
+  });
+}
+/* Rules 56 and 62 for the lines that land on the photograph (not on a
+   plate): the lightest NEUTRAL DARK shade that brings every light line's worst
+   end of ground (90th percentile) to 4.5:1, while every dark line still clears
+   4.5:1 at its own worst end (10th). A line is light ink when it is lighter
+   than its own ground (rule 56), not by a fixed grey. Dark type is never
+   rescued with a pale veil: a photograph is shaded dark, never milky. The
+   shade is graded to the band the copy occupies (c.band), so the photograph
+   comes through above and below it (rule 62); every line's sample sits inside
+   the band, where the shade is at full strength. null when no shade serves
+   both. */
 function ctaSolveShade(b){
   const c = b.cta, W = b.W, H = b.H;
   const lines = c.texts.filter(t => !t.onPlate);
@@ -11467,13 +11553,15 @@ function ctaSolveShade(b){
   const gx = g.getContext('2d', { willReadFrequently: true });
   ctaDrawGround(gx, b, MOTION.dur - 2.4, 0);
   const d = gx.getImageData(0, 0, W, H).data, pad = 0.03 * Math.min(W, H);
+  c.band = { y0: Math.min(...lines.map(t => t.box.y)) - pad, y1: Math.max(...lines.map(t => t.box.y + t.box.h)) + pad, f: 0.14 * H };
   const sets = lines.map(t => {
-    const ink = _ctaLum(..._ctaRgb(ctaInkOf(t.o))), px = [];
+    const ink = _ctaLum(..._ctaRgb(t.ink || ctaInkOf(t.o))), px = [];
     for (let y = Math.max(0, t.box.y - pad); y < Math.min(H, t.box.y + t.box.h + pad); y += 3)
       for (let x = Math.max(0, t.box.x - pad); x < Math.min(W, t.box.x + t.box.w + pad); x += 3){
         const i = (Math.floor(y) * W + Math.floor(x)) * 4; px.push([d[i], d[i + 1], d[i + 2]]);
       }
-    return { ink, light: ink > 0.18, px };
+    const L0 = px.map(([r, gg, bb]) => _ctaLum(r, gg, bb)).sort((p, q) => p - q);
+    return { ink, light: !L0.length || ink > L0[L0.length >> 1], px };
   });
   for (let a = 0; a <= 0.8 + 1e-9; a += 0.02){
     const ok = sets.every(s => {
@@ -11508,7 +11596,18 @@ function ctaDrawGround(x, b, t, a){
     x.drawImage(g.bmp, 0, 0);
     x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
   });
-  if (a > 0){ x.fillStyle = 'rgba(10,10,12,' + a + ')'; x.fillRect(0, 0, W, H); }
+  if (a > 0){
+    const B = c.band;
+    if (!B){ x.fillStyle = 'rgba(10,10,12,' + a + ')'; x.fillRect(0, 0, W, H); return th; }
+    // full strength over the copy band, easing to nothing a feather away
+    const al = y => { const o = y < B.y0 ? (B.y0 - y) / B.f : y > B.y1 ? (y - B.y1) / B.f : 0, u = Math.max(0, 1 - o); return a * u * u * (3 - 2 * u); };
+    const ys = [0, H];
+    for (let i = 0; i <= 6; i++){ ys.push(B.y0 - B.f * i / 6, B.y1 + B.f * i / 6); }
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    [...new Set(ys.map(y => Math.min(H, Math.max(0, y))))].sort((p, q) => p - q)
+      .forEach(y => gr.addColorStop(y / H, 'rgba(10,10,12,' + al(y).toFixed(4) + ')'));
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  }
   return th;
 }
 function ctaMorph(x, bmp, from, to, s, e, dy){
@@ -11545,7 +11644,11 @@ function ctaDraw(x, b, t){
     const st = p.key === 'block' ? 1 + C.amp * _bell(_ctaSeg(t, C.stamp[0], C.stamp[1])) : 1;
     x.save();
     if (st !== 1){ x.translate(p.to.x, p.to.y); x.scale(st, st); x.translate(-p.to.x, -p.to.y); }
-    ctaMorph(x, p.bmp, p.from, p.to, p.s, e, 0);
+    if (p.bmp0 && e < 1){
+      x.globalAlpha = 1 - e; ctaMorph(x, p.bmp0, p.from, p.to, p.s, e, 0);
+      x.globalAlpha = e; ctaMorph(x, p.bmp, p.from, p.to, p.s, e, 0);
+      x.globalAlpha = 1;
+    } else ctaMorph(x, p.bmp, p.from, p.to, p.s, e, 0);
     x.restore();
   });
 }
@@ -11818,5 +11921,144 @@ async function motionPlan(w, h, sound){
     const land = (C.stamp[0] + C.stamp[1]) / 2;
     bell(land, 880.00, 0.15); bell(land + 0.09, 1318.51, 0.13);
     return ac.startRendering();
+  };
+}
+
+/* ═══ PLATE AIR (DESIGN-LAW rule 64) ═══════════════════════════════════════
+   Owner, 2026-09-27, on the Street price badge: "why can't we seem to catch
+   this? it would need to be shrunk 10-15% to make a minimum margin on the
+   sides". Words on a plate keep air at both ends.
+
+   Step 4b of alignPass fits a line to its plate on axis-aligned boxes, which a
+   tilted sticker defeats: the badge turns about its corner and its line about
+   its own top centre, so on the -4° badge CALL FOR INSTANT OFFER landed 8px
+   off centre, 5 to 7px from one end and 24px from the other, "inside" by the
+   box test and touching by eye. The collision audit only scored a line that
+   STRADDLES a plate (4 to 96% of its ink inside), so a line filling its plate
+   edge to edge, or a letter over it, passed as well.
+
+   This runs after alignPass, in each plate's own frame. The line's ink is
+   measured (measureText, not the text box: rule 50), a line authored centred
+   and alone on its plate is re-centred along the plate's axis, and then its
+   type comes down until both ends clear
+       max(12px, 4.5% of the plate, 0.35 of the type size)
+   never below 72% of itself, and the number never below 72px (rule 53).
+   window.__noPlateAir turns it off, so an audit can measure the before. */
+/* The widest line's ink, in the text's own units: its width w, where it
+   starts from the line's origin (off, a serif W can start 30px in), and the
+   line's advance width lw, which is what fabric aligns within the box. */
+function plateAirInk(t){
+  try {
+    const ctx = plateAirInk.ctx || (plateAirInk.ctx = document.createElement('canvas').getContext('2d'));
+    ctx.font = t._getFontDeclaration();
+    const sp = (t.charSpacing || 0) / 1000 * (t.fontSize || 0);
+    const lines = (t._textLines || [String(t.text || '').split('')]).map(l => (Array.isArray(l) ? l.join('') : String(l)));
+    let best = null;
+    lines.forEach(s => {
+      if (!s.trim()) return;
+      const m = ctx.measureText(s), n = Math.max(0, s.length - 1);
+      const w = (m.actualBoundingBoxLeft || 0) + (m.actualBoundingBoxRight || m.width) + sp * n;
+      if (!best || w > best.w) best = { w, off: -(m.actualBoundingBoxLeft || 0), lw: m.width + sp * n };
+    });
+    return best && best.w > 0 ? best : { w: t.width, off: 0, lw: t.width };
+  } catch (e){ return { w: t.width, off: 0, lw: t.width }; }
+}
+function plateAirNeed(plateW, fontPx){ return Math.max(12, 0.045 * plateW, 0.35 * fontPx); }
+function plateAir(sc, W, H){
+  if (window.__noPlateAir) return;
+  let objs;
+  try { objs = sc.getObjects(); } catch (e){ return; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  /* buildLayer washes most rects to 45% alpha, and a washed plate is still
+     the ground the line reads on: anything from 25% up counts */
+  const solid = f => f && typeof f === 'object' ? true
+    : !!f && f !== 'transparent' && !/rgba\([^)]*,\s*0(\.[01]\d*|\.2[0-4]\d*)?\)\s*$/.test(String(f));
+  const plates = objs.filter(o => live(o) && o.type === 'rect' && solid(o.fill)).filter(o => {
+    const w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
+    return w > 40 && h > 20 && w < W * 0.93 && h < H * 0.9;
+  });
+  if (!plates.length) return;
+  plates.forEach(p => p.setCoords());
+  const frame = p => {
+    const inv = fabric.util.invertTransform(p.calcTransformMatrix()), sx = p.scaleX || 1, sy = p.scaleY || 1;
+    return pt => { const q = fabric.util.transformPoint(pt, inv); return { x: q.x * sx, y: q.y * sy }; };
+  };
+  const frames = new Map(plates.map(p => [p, frame(p)]));
+  // a line's extent along a plate's axis, from its box corners
+  const span = (t, p) => {
+    t.setCoords();
+    const q = ['tl', 'tr', 'br', 'bl'].map(k => frames.get(p)(t.aCoords[k]));
+    const xs = q.map(v => v.x), ys = q.map(v => v.y);
+    return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+  };
+  /* the ink's extent along a plate's axis: the box, narrowed to the widest
+     line's measured ink and placed as the line is aligned (a textbox's box is
+     its wrap width, not its words) */
+  const inkSpan = (t, p) => {
+    const s = span(t, p), same = Math.abs(((((t.angle || 0) - (p.angle || 0)) % 360) + 540) % 360 - 180) < 10;
+    if (!same) return s;
+    const k = (s.x1 - s.x0) / (t.width || 1), I = plateAirInk(t), al = String(t.textAlign || 'left');
+    const start = al === 'right' ? s.x1 - I.lw * k : (al === 'center' || al.startsWith('justify')) ? (s.x0 + s.x1 - I.lw * k) / 2 : s.x0;
+    const x0 = start + I.off * k;
+    return { x0, x1: x0 + I.w * k, y0: s.y0, y1: s.y1 };
+  };
+  const words = objs.filter(o => live(o) && isText(o) && /[A-Za-z0-9]/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
+  words.forEach(t => {
+    const zt = objs.indexOf(t);
+    let host = null;
+    plates.forEach(p => {
+      if (objs.indexOf(p) > zt) return;                       // a plate drawn over the line is not its ground
+      const PW = p.width * (p.scaleX || 1), PH = p.height * (p.scaleY || 1), s = inkSpan(t, p);
+      const cx = (s.x0 + s.x1) / 2, cy = (s.y0 + s.y1) / 2;
+      if (Math.abs(cx) > PW / 2 || Math.abs(cy) > PH / 2) return;
+      if (s.y1 - s.y0 > PH * 1.15 || s.x1 - s.x0 > PW * 1.4) return;   // bigger than the plate: not a line ON it
+      if (!host || PW * PH < host.PW * host.PH) host = { p, PW, PH };
+    });
+    if (!host) return;
+    const p = host.p, PW = host.PW;
+    const aligned = Math.abs(((((t.angle || 0) - (p.angle || 0)) % 360) + 540) % 360 - 180) < 10;
+    const fs = (t.fontSize || 30) * (t.scaleY || 1);
+    const need = plateAirNeed(PW, fs);
+    const al = String(t.textAlign || 'left');
+    const ends = () => { const s = inkSpan(t, p); return { L: PW / 2 + s.x0, R: PW / 2 - s.x1, c: (s.x0 + s.x1) / 2, half: (s.x1 - s.x0) / 2 }; };
+    const ok = e => e.L >= need - 0.5 && e.R >= need - 0.5;
+    let e = ends();
+    if (ok(e)) return;
+    const centred = t.originX === 'center' || al === 'center';
+    const alone = !objs.some(o => o !== t && o !== p && live(o) && objs.indexOf(o) > objs.indexOf(p) && (() => {
+      const c = frames.get(p)(o.getCenterPoint());
+      return Math.abs(c.x) < host.PW / 2 && Math.abs(c.y) < host.PH / 2;
+    })());
+    const a = (p.angle || 0) * Math.PI / 180;
+    const slide = d => { t.set({ left: t.left + d * Math.cos(a), top: t.top + d * Math.sin(a) }); t.setCoords(); e = ends(); };
+    // the least change first: a centred line alone on its plate sits on its centre line;
+    // any other line moves by its shortfall, toward the end with room
+    const place = () => {
+      if (centred && alone && aligned){ if (Math.abs(e.c) > 1) slide(-e.c); return; }
+      if (e.L < need - 0.5 && e.R - (need - e.L) >= need - 0.5) slide(need - e.L);
+      else if (e.R < need - 0.5 && e.L - (need - e.R) >= need - 0.5) slide(-(need - e.R));
+    };
+    if (e.L + e.R >= 2 * need - 1){ place(); if (ok(e)) return; }
+    // then the type comes down until the ink fits between the two margins, about its anchor
+    const anchor = centred ? 'center' : (t.originX === 'right' || al === 'right') ? 'right' : 'left';
+    // (2px spare: a line 1px short of fitting both margins would otherwise come out at k = 1.0006 and never move)
+    let k = Math.min(1, Math.max(0.72, (PW - 2 * need - 2) / (2 * e.half)));
+    if (t.pgRole === 'phone') k = Math.max(k, Math.min(1, 72 / fs));
+    if (k < 1){
+      const pt = t.getPointByOrigin(anchor, 'center');
+      t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k });
+      t.setPositionByOrigin(pt, anchor, 'center'); t.setCoords();
+      e = ends();
+    }
+    place();
+  });
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){
+    const r = _alignPass.apply(this, arguments);
+    try { plateAir(sc, W || TPL_W, H || TPL_H); } catch (e){ console.warn('GraphicsStudio plateAir:', e); }
+    return r;
   };
 }
