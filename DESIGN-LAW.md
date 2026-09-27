@@ -1395,6 +1395,15 @@ cards the same day. On 2026-09-27 that is the Glass Card (rule 59). Other
 themes qualify as they are finished with the product on a plain, scene or
 money ground.
 
+**A whole line** is a variant too (owner: "variations like categories.
+(sell your iphone) showing multiple models … (sell your macbook air pro neo)
+with multiple"): the category in the headline (IPHONE, MACBOOK, APPLE WATCH,
+APPLE), the line's models side by side, each in the finish nearest the
+palette. The row takes the width of the card it stands on (fitted into the one
+product it replaced, three MacBooks came out as stamps); devices are set at a
+compressed relative height (a watch 0.62 of a laptop, not a fifth of it);
+wide devices overlap a little, tall ones stand apart.
+
 Variants are generated when someone asks (the Easy Mode device picker;
 `scripts/device_variants.mjs` for a batch), never stored, so the library
 stays one card per design (rule 60).

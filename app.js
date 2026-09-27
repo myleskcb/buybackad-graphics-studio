@@ -10469,6 +10469,21 @@ const SC_DEV_LINE = {
   'APPLE WATCH': 'Series 11 • 10 • 9 • SE', 'WATCH ULTRA': 'Ultra • Ultra 2 • Ultra 3',
   'AIRPODS': 'AirPods • AirPods Pro • AirPods Max', 'AIRPODS PRO': 'AirPods Pro 2 • Pro 3', 'AIRPODS MAX': 'AirPods Max • AirPods Pro',
 };
+/* WHOLE LINES (owner: "variations like categories. (sell your iphone)
+   showing multiple models … (sell your macbook air pro neo) with multiple"):
+   the category in the headline, several models lined up on the card */
+const SC_DEV_GROUPS = {
+  'group-iphone':  { family:'IPHONE',      label:'All iPhones',       models:['iphone-17-pro', 'iphone-17', 'iphone-16', 'iphone-16e'], line:'iPhone 17 • 16 • 15 • Pro & Pro Max' },
+  'group-ipad':    { family:'IPAD',        label:'All iPads',         models:['ipad-pro-13-m5', 'ipad-air-13-m4', 'ipad-mini-7-a17-pro'], line:'iPad Pro • Air • mini • iPad' },
+  'group-macbook': { family:'MACBOOK',     label:'All MacBooks',      models:['macbook-air-15', 'macbook-pro-14-m5', 'macbook-neo-13'], line:'MacBook Air • Pro • Neo • M1 to M5' },
+  'group-mac':     { family:'MAC',         label:'All Macs',          models:['imac-24-m4', 'macbook-air-15', 'macbook-pro-14-m5'], line:'iMac • MacBook Air • MacBook Pro' },
+  'group-watch':   { family:'APPLE WATCH', label:'All Apple Watches', models:['watch-ultra3', 'watch-s11', 'watch-se3'], line:'Ultra • Series 11 • 10 • SE' },
+  'group-airpods': { family:'AIRPODS',     label:'All AirPods',       models:['airpods-max', 'airpods-pro-3', 'airpods-3'], line:'AirPods • AirPods Pro • AirPods Max' },
+  'group-apple':   { family:'APPLE',       label:'Everything Apple',  models:['iphone-17-pro', 'ipad-air-13-m4', 'macbook-air-15', 'watch-s11'], line:'iPhone • iPad • Mac • Apple Watch' },
+};
+/* relative size in a lineup: a watch is not as tall as a MacBook, nor a
+   fifth of it (a compressed curve keeps every device recognisable) */
+const SC_DEV_WEIGHT = { iphone:0.95, ipad:1, mac:1, watch:0.62, airpods:0.66, other:0.72 };
 function scDeviceLine(D, fam){
   if (SC_DEV_LINE[fam]) return SC_DEV_LINE[fam];
   const names = Object.values(D).filter(m => m.family === fam).map(m => m.name).sort();
@@ -10509,7 +10524,8 @@ const scLoadImg = src => new Promise(res => {
   const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(el); }; el.onerror = () => res(null); el.src = assetUrl(src);
 });
 async function scDeviceVariant(baseId, key){
-  const D = await scLoadDevices(), m = D[key], base = TEMPLATES.find(t => t.id === baseId);
+  const D = await scLoadDevices(), grp = SC_DEV_GROUPS[key], base = TEMPLATES.find(t => t.id === baseId);
+  const m = grp ? { family: grp.family, line: 'group' } : D[key];
   if (!m || !base) return null;
   const id = baseId + '--' + key;
   if (TEMPLATES.some(t => t.id === id)) return id;
@@ -10519,20 +10535,52 @@ async function scDeviceVariant(baseId, key){
   if (!h2 || !prod) return null;
   if (h1 && !/^(WE BUY|SELL YOUR|CASH IN YOUR|CASH FOR)$/i.test(String(h1.text).trim())) h1.text = 'WE BUY';
   h2.text = m.family;
-  const line = scDeviceLine(D, m.family);
+  const line = grp ? grp.line : scDeviceLine(D, m.family);
   t.layers.forEach(l => {   // a line that lists models names this device's models instead
     if (typeof l.text === 'string' && l !== h2 && (l.name === 'Items' ||
         (/•/.test(l.text) && /iPhone|iPad|MacBook|iMac|Series \d|Watch|AirPods|Pro Max/i.test(l.text)))) l.text = line;
   });
-  const card = SHOWCASE.byId[base.showcase] || {};
-  const slug = scDeviceFinish(m, card.accent || card.c1), src = 'assets/cutouts/' + slug + CUTOUT_EXT;
-  const [oldEl, newEl] = await Promise.all([scLoadImg(prod.props.src), scLoadImg(src)]);
-  if (!newEl) return null;
+  const card = SHOWCASE.byId[base.showcase] || {}, accent = card.accent || card.c1;
+  const oldEl = await scLoadImg(prod.props.src);
   const ow = prod.props.w || 400, oh = oldEl && oldEl.width ? ow * oldEl.height / oldEl.width : ow;
   const cx = (prod.props.left || 0) + ow / 2, cy = (prod.props.top || 0) + oh / 2;
-  const ar = newEl.width / newEl.height; let w = ow, h = w / ar; if (h > oh){ h = oh; w = h * ar; }
-  prod.props = Object.assign({}, prod.props, { src, w: Math.round(w), left: Math.round(cx - w / 2), top: Math.round(cy - h / 2) });
-  Object.assign(t, { id, name: base.name + ' · ' + scDeviceLabel(m.family), deviceOf: baseId, device: key });
+  if (!grp){
+    const src = 'assets/cutouts/' + scDeviceFinish(m, accent) + CUTOUT_EXT, newEl = await scLoadImg(src);
+    if (!newEl) return null;
+    const ar = newEl.width / newEl.height; let w = ow, h = w / ar; if (h > oh){ h = oh; w = h * ar; }
+    prod.props = Object.assign({}, prod.props, { src, w: Math.round(w), left: Math.round(cx - w / 2), top: Math.round(cy - h / 2) });
+  } else {
+    /* the line-up: every model at its weighted height, side by side with a
+       small gap, the whole row fitted into the product's box and centred */
+    const items = (await Promise.all(grp.models.filter(k => D[k]).map(async k => {
+      const src = 'assets/cutouts/' + scDeviceFinish(D[k], accent) + CUTOUT_EXT, el = await scLoadImg(src);
+      return el ? { src, ar: el.width / el.height, wt: SC_DEV_WEIGHT[D[k].line] || 0.8 } : null;
+    }))).filter(Boolean);
+    if (!items.length) return null;
+    /* a row has the width of the card it stands on, not of the one product it
+       replaces: fitted into a single device's width, three MacBooks came out
+       as stamps. Wide devices overlap a little, fan style; tall ones stand
+       apart. */
+    const rb = l => { const q = l.props || {}, w = q.width || 0, h = q.height || 0;
+      return { x: (q.left || 0) - (q.originX === 'center' ? w / 2 : 0), y: (q.top || 0) - (q.originY === 'center' ? h / 2 : 0), w, h }; };
+    const plate = t.layers.filter(l => l.kind === 'rect').map(rb).filter(b => cx > b.x && cx < b.x + b.w && cy > b.y && cy < b.y + b.h && b.w < TPL_W * 0.95)
+      .sort((a, b) => a.w * a.h - b.w * b.h)[0];
+    const roomW = plate ? plate.w - 2 * Math.max(36, plate.w * 0.06) : Math.max(ow, TPL_W * 0.7);
+    const wide = items.reduce((s, it) => s + it.ar, 0) / items.length > 1.2;
+    const gapK = wide ? -0.08 : 0.06;                    // gap (or overlap) as a share of the tallest device
+    const rowW = hh => items.reduce((s, it) => s + hh * it.wt * it.ar, 0) + gapK * hh * (items.length - 1);
+    let hh = Math.min(oh, roomW / rowW(1));              // the tallest device's height
+    let x = cx - rowW(hh) / 2;
+    const at = t.layers.indexOf(prod);
+    t.layers.splice(at, 1, ...items.map((it, i) => {
+      const h = hh * it.wt, w = h * it.ar, l = JSON.parse(JSON.stringify(prod));
+      l.name = i ? 'Hero Product ' + (i + 1) : prod.name;
+      l.props = Object.assign({}, prod.props, { src: it.src, w: Math.round(w), left: Math.round(x), top: Math.round(cy + hh / 2 - h) });
+      x += w + gapK * hh;
+      return l;
+    }));
+  }
+  Object.assign(t, { id, name: base.name + ' · ' + (grp ? grp.label : scDeviceLabel(m.family)), deviceOf: baseId, device: key });
   TEMPLATES.push(t);
   delete THUMBS[id];
   return id;
@@ -10565,7 +10613,9 @@ async function ezDeviceSync(){
   if (!sel.dataset.built){
     const groups = { iphone:'iPhone', ipad:'iPad', mac:'Mac', watch:'Apple Watch', airpods:'AirPods', other:'Home & other' };
     const ch = scDeviceChoices(D);
-    sel.innerHTML = '<option value="">As designed</option>' + Object.keys(groups).map(g => {
+    sel.innerHTML = '<option value="">As designed</option>' +
+      '<optgroup label="Whole line">' + Object.entries(SC_DEV_GROUPS).map(([k, g]) => '<option value="' + k + '">' + escHtml(g.label) + '</option>').join('') + '</optgroup>' +
+      Object.keys(groups).map(g => {
       const opts = ch.filter(c => c.line === g); if (!opts.length) return '';
       return '<optgroup label="' + groups[g] + '">' + opts.map(c => '<option value="' + c.key + '">' + escHtml(c.label) + '</option>').join('') + '</optgroup>';
     }).join('');

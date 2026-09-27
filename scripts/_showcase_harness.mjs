@@ -158,6 +158,24 @@ export async function openStudio(query = ''){
           return make(hi, mode);
         };
         let spec = null, flipped = null;
+        /* PREFER A DARK GROUND (owner, 2026-09-27: "make sure it still keeps
+           good colors. a lot of these have a white haze overlay"). A paper
+           shade over a photograph is a milky veil: every colour in the picture
+           goes pastel. With o.prefer 'dark', every NEUTRAL dark line on the
+           photograph takes the light ink and the shade is solved dark. A
+           coloured dark line cannot be re-inked without redesigning the card,
+           so such a card is reported and keeps its ground. */
+        if (o.prefer === 'dark' && o.flip && !light){
+          const neutralDark = x => { const p = x.props || {}, m = /^#?([0-9a-f]{6})$/i.exec(String(p.fill || '')); if (!m || p.grad) return false;
+            const n = parseInt(m[1], 16), c = [(n >> 16) & 255, (n >> 8) & 255, n & 255]; return (Math.max(...c) - Math.min(...c)) / 255 < 0.12; };
+          const darks = live.filter(x => !x.light);
+          const coloured = darks.filter(x => !neutralDark(x));
+          if (coloured.length) return { skip: 'coloured dark ink on the photograph', lines: coloured.map(x => x.name) };
+          const il = hexLum(o.flip.light);
+          darks.forEach(x => { x.light = true; x.lum = il; x.allow = (il + 0.05) / want - 0.05; });
+          light = true;
+          flipped = darks.map(x => ({ name: x.name, fill: o.flip.light }));
+        }
         for (const mode of o.modes){ spec = solve(mode); if (spec) break; }
         /* ONE INK DIRECTION PER GROUND. A card that sets white badges beside a
            black headline on the same photograph asks one scrim to darken and
@@ -178,7 +196,7 @@ export async function openStudio(query = ''){
             flips.forEach(x => { x.light = dir; x.lum = il; x.allow = dir ? (il + 0.05) / want - 0.05 : want * (il + 0.05) - 0.05; });
             light = dir;
             for (const mode of o.modes){ spec = solve(mode); if (spec) break; }
-            if (spec){ flipped = flips.map(x => ({ name: x.name, fill: ink })); break; }
+            if (spec){ flipped = (flipped || []).concat(flips.map(x => ({ name: x.name, fill: ink }))); break; }
             light = was; save.forEach(v => Object.assign(v.x, { light: v.light, lum: v.lum, allow: v.allow }));
           }
         }
