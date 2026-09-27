@@ -61,7 +61,9 @@ for (const where of ['easy', 'editor']){
       window.__toastWrapped = true;
     }
     await scLoadIndex();
+    account = { email: 'audit@local', role: 'admin', plan: 'pro' };   // before opening: a premium card opens as a free one otherwise (rule 67)
     await openShowcase(card);
+    if (ez.tpl !== 'sc-' + card) throw new Error('opened ' + ez.tpl + ', not ' + card);
     $('ez-phone').value = '(562) 999-4994';
     await new Promise(r => setTimeout(r, 800));
     /* set last: the page's own account check can resolve during the awaits
