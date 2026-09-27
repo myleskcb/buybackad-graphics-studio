@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Backgrounds lab: every ground style in scripts/grounds.js, rendered in a few
+/* Backgrounds lab: every ground style in grounds.js, rendered in a few
    palettes with a sample headline over it, as a click-to-approve page. */
 import puppeteer from 'puppeteer-core';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -9,7 +9,7 @@ const { THEMES } = await import(ROOT + 'scripts/theme_specs.mjs');
 const PALS = ['jw05','du08','pp02','cd06','ca07','jw07'].map(id => THEMES.find(t => t.id === id)).filter(Boolean);
 const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: 'new', args: ['--no-sandbox'], protocolTimeout: 0 });
 const page = await browser.newPage();
-await page.goto('about:blank'); await page.addScriptTag({ path: ROOT + 'scripts/grounds.js' });
+await page.goto('about:blank'); await page.addScriptTag({ path: ROOT + 'grounds.js' });
 const tiles = await page.evaluate(async (PALS) => {
   const out = [];
   for (const k of window.GROUNDS.list){

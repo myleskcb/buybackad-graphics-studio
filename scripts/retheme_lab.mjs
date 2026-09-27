@@ -390,7 +390,7 @@ page.on('pageerror', e => console.log('PAGEERROR ' + e.message));
 const perr = [];
 page.on('pageerror', e => perr.push(String(e).slice(0,200)));
 await page.goto(BASE, { waitUntil:'networkidle2', timeout:120000 });
-await page.addScriptTag({ path: ROOT + 'scripts/grounds.js' });
+await page.addScriptTag({ path: ROOT + 'grounds.js' });
 await page.evaluate(() => document.fonts.ready);
 await new Promise(r => setTimeout(r, 5000));
 /* THE TYPE SYSTEM: the 56 faces the owner approved in the gallery
@@ -643,7 +643,7 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
   function abstractGround(kind, th, seed){
     const key = 'abs:' + kind + ':' + th.id + ':' + (seed % 4);
     if (TPL_BG_ELS[key]) return key;
-    if (window.GROUNDS && window.GROUNDS.kinds.includes(kind)){   // the shared catalogue (scripts/grounds.js)
+    if (window.GROUNDS && window.GROUNDS.kinds.includes(kind)){   // the shared catalogue (grounds.js)
       drawGround(key, (g, W, H) => window.GROUNDS.draw(kind, g, W, H, th, seed));
       return key;
     }

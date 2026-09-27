@@ -1537,3 +1537,58 @@ of type against its own authored box, so every step digit, quote mark and
 star row "collided" with itself and was pushed about its own width: on all 44
 live Steps Flow cards the digits sat 23 to 60px right of their boxes' centre.
 A mark is no longer tested against itself; all 44 now sit centred.
+
+## 65. Every kind of ground, each on the card's own palette and judged on its pixels
+
+Added 2026-09-27. The owner: "We need to use backgrounds that are solid
+colors, sunburst all sorts of styles even patterns overlays so we have all
+varieties some images some blurred images. That way we have the most amount
+of options or we can always use a photo of the Apple Store background that is
+a good one."
+
+Measured on the 400 live cards before: 373 on a photograph, 27 on the
+money-fall ground, not one solid, gradient, sunburst or pattern. The owner
+had ticked 115 drawn grounds in 33 styles on 2026-09-03
+(`assets/approved-grounds.json`); the catalogue (`grounds.js`) lived only in
+the lab. And the 84 "blurred" cards were not blurred: the Template Lab stored
+blur in pixels on the 1080 card (4, 9, 15, 22), `blurredEl()` read it as a
+fraction of the photograph's width, and a blur of four widths is a flat smear
+of colour. The lab painted with the same function, so the smear is what was
+approved.
+
+The rule:
+
+- **Grounds come in kinds, and the library shows all of them**: photographs,
+  blurred photographs, solids, gradients, sunbursts, patterns and textures,
+  and a neutral pattern over a photograph. A drawn ground is a background
+  source (`ground:<kind>/<palette>/<seed>`, `overlay:<kind>/<tone>|<photo>`)
+  painted once by `grounds.js`, so the thumbnail, the editor, Easy Mode,
+  export and video draw it like any photograph.
+- **A drawn ground carries the card's own palette**, its theme ground fitted
+  to the copy on it: deepened (or lifted) until that ink clears 6:1, so a ray
+  or a pattern still leaves every line above 4.5:1.
+- **A drawn ground needs a product.** Only a card whose subject is its hero
+  cut-out (220px and more) leaves its photograph; a headline on a flat ground
+  was the owner's "lack the proper imagery" (2026-09-02). A card whose subject
+  is the photograph keeps it, and may take a pattern over it.
+- **A pattern over a photograph is black or white at a low strength**, never
+  a hue (rule 56): dots, halftone, grid, stripes, rays, scanlines, grain.
+- **A blurred photograph is visibly blurred**: 14 to 24px on the 1080 card,
+  the photograph's colour and shapes still there, its shade re-solved so every
+  line on it clears 4.5:1 (`darken_grounds.mjs --resolve`, the solver's
+  strict mode; the old ground it would otherwise have held was the smear).
+- **Judged on the pixels.** Every line's ground is measured before and after;
+  a card that loses a line on its new ground, and on a plain solid of the same
+  palette too, keeps its photograph. So does a card whose copy on the ground
+  reads both light and dark: one ground cannot serve both.
+
+After: 100 cards re-grounded by `scripts/vary_grounds.mjs` (69 drawn: 14
+solid, 13 sunburst, 13 gradient, 14 pattern, 15 texture; 31 photographs under
+a pattern), 84 blurred cards really blurred. Easy Mode's Background field has
+"More grounds" (Photos, Blurred photos, Solid, Gradient, Sunburst, Pattern,
+Texture, each swatch painted in the card's or the chosen theme's palette) and
+a "Pattern on top" row under Effects that lays any overlay over any ground.
+
+The Apple Store photograph the owner mentions is not in the repo, and this
+session's network policy refused every free-photo host. It goes in as a
+photograph like any other once the owner supplies one (OPEN-ITEMS §K).

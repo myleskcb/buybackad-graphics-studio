@@ -428,6 +428,9 @@
           <label>Background</label>
           <div class="ez-swatches" id="ez-swatches"></div>
           <input type="file" id="ez-bg-file" accept="image/*,.heic,.heif" style="display:none">
+          <div class="ez-subttl">More grounds</div>
+          <div class="ez-fxrow ez-bgstyles" id="ez-bgstyles"></div>
+          <div class="ez-swatches ez-drawn" id="ez-drawn"></div>
           <div class="ez-subttl">Effects</div>
           <div class="ez-fxline"><label>Blur</label><input type="range" id="fx-blur" min="0" max="20" value="0"><span class="fxval" id="fx-blur-val">0</span></div>
           <div class="ez-fxrow" id="fx-ov-seg">
@@ -437,6 +440,8 @@
             <button data-ov="tint">Tint</button>
           </div>
           <div class="ez-fxline" id="fx-ov-opts" style="display:none"><label>Overlay</label><input type="color" id="fx-oc" value="#000000"><input type="range" id="fx-os" min="10" max="85" value="45"><span class="fxval" id="fx-os-val">45%</span></div>
+          <div class="ez-subttl">Pattern on top</div>
+          <div class="ez-fxrow" id="fx-pat-seg"></div>
           <div class="ez-subttl">Recent photos</div>
           <div id="ez-recents"></div>
         </div>
@@ -1180,6 +1185,7 @@
 </script>
 <script src="config.js"></script>
 <script src="tplbg-data.js"></script>
+<script src="grounds.js"></script>
 <script src="app.js"></script>
 <script src="iphonesla-link.js"></script>
 <script src="site-ux.js"></script>

@@ -1040,6 +1040,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}
 .ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}
 .ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+/* "More grounds": drawn grounds and category photos, each swatch painted in the card's palette */
+.ez-drawn{gap:8px;margin-top:2px}
+.ez-gsw{background-size:cover;background-position:center;background-color:var(--surface-sunk)}
+.ez-gnone{font:500 12px/1.3 var(--ui);color:var(--text-dim)}
 .ez-preview-card{position:sticky;top:84px}
 .ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}
 /* account dropdown (reuses .view-drop look) */

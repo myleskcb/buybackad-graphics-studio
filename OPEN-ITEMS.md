@@ -224,6 +224,7 @@ longer paints duotones; the natural pass must run after it:
     node scripts/darken_grounds.mjs --write                # shade dark, never milky (rule 62)
     node scripts/support_highlights.mjs --write            # support colour on the selling points (rule 63)
     node scripts/neutral_panels.mjs --write                # no hue over the photograph (rule 64)
+    node scripts/vary_grounds.mjs --write                  # every kind of ground (rule 65)
     node scripts/clear_number.mjs --write                  # nothing drawn on the number
     node scripts/audit_showcase_overlap.mjs --write
     node scripts/audit_showcase_legibility.mjs --write --json .render/legib.json
@@ -366,7 +367,19 @@ Next, in order of what the owner will see:
    measured for tinted panels, pale glows or light halos on light ink. Run the
    same census on them (`scripts/neutral_panels.mjs` reads the showcase
    records; the classics need their builders changed, not their records).
-8. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
+8. **The Apple Store photograph** (owner: "we can always use a photo of the
+   Apple Store background that is a good one"). Not in the repo, and the
+   session's network policy refused every free-photo host (Wikimedia,
+   Unsplash, Pexels, Pixabay, Flickr). Supply one (or allow one of those hosts
+   and run `scripts/fetch_backdrops.mjs` with an Apple Store query), save it to
+   `assets/bg-web/` with its ATTRIBUTION row, and it becomes a photograph like
+   any other: a record's `bg.src`, a "Photos" swatch in Easy Mode for its
+   category. Mind the logo: a store interior with the Apple mark reads as
+   Apple's own ad; blurred (the "Blurred photos" style), it is atmosphere.
+9. **The advanced editor's Background** is still Solid / Gradient / Image. A
+   drawn ground opened from Easy Mode carries over (applyBgSpec draws it), but
+   the editor has no picker of its own for them yet.
+10. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
    done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
    predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
    the three "Starter" prompts.

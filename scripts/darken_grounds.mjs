@@ -29,6 +29,12 @@ import { openStudio } from './_showcase_harness.mjs';
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/showcase/';
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const WRITE = process.argv.includes('--write'), OUT = argv('--out');
+/* --resolve (with --ids): re-solve the shade on named cards whatever it is
+   now, keeping their blur. For the blurred showcase cards, whose shade had
+   been solved against a flat smear: the blur was read in the wrong unit
+   (app.js blurredEl), so once fixed their real photograph came through under
+   copy that no longer cleared 4.5:1. */
+const RESOLVE = process.argv.includes('--resolve');
 const DARK = '#0b0b0d', LIGHT = '#f6f6f4', MAX_BLUR = 4;
 const idx = JSON.parse(readFileSync(DIR + 'index.json', 'utf8'));
 const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
@@ -42,9 +48,9 @@ const work = idx.filter(c => (only ? only.has(c.id) : live(c))).map(c => c.id).f
   /* by default the white-shaded cards; named cards (--ids) also when they
      carry no shade at all (dark copy straight on a mid-tone photograph) */
   const white = (bg.scrim || 0) > 0 && lum(bg.scrimColor) > 0.5, none = !(bg.scrim > 0);
-  return bg.type === 'image' && bg.src && (white || (only && none));
+  return bg.type === 'image' && bg.src && (white || (only && (none || RESOLVE)));
 });
-console.log('cards with a white shade on the photograph: ' + work.length);
+console.log((RESOLVE ? 'cards to re-solve: ' : 'cards with a white shade on the photograph: ') + work.length);
 
 const { browser, page, errors } = await openStudio();
 const out = {};
@@ -59,7 +65,7 @@ for (let i = 0; i < work.length; i += 6){
         const orig = Object.assign({}, t.bg);
         if ((t.bg.blur || 0) > MAX_BLUR) t.bg = Object.assign({}, t.bg, { blur: MAX_BLUR });
         const r = __sc.naturalGround(t, { grade: { treat: 'natural' }, dark: DARK, light: LIGHT, modes: ['gradient', 'normal'],
-                                          flip: { dark: DARK, light: LIGHT }, prefer: 'dark' });
+                                          flip: { dark: DARK, light: LIGHT }, prefer: 'dark', strict: MAX_BLUR === Infinity });
         r.was = was;
         /* a line re-inked light may stand on a pale band the solver does not
            see as a plate (see-through, or so large it counts as a veil): the
@@ -129,7 +135,7 @@ for (let i = 0; i < work.length; i += 6){
       } catch (e){ R[id] = { err: String(e).slice(0, 160) }; }
     }
     return R;
-  }, ids, DARK, LIGHT, MAX_BLUR));
+  }, ids, DARK, LIGHT, RESOLVE ? Infinity : MAX_BLUR));
   if (i % 60 === 0) console.log('…' + (i + ids.length) + '/' + work.length);
 }
 await browser.close();

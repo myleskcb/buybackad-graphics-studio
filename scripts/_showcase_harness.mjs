@@ -40,7 +40,8 @@ export async function openStudio(query = ''){
         const t = Object.assign({}, base, rec.tpl, { id:'hx-' + id, name:id, cat:rec.tpl.cat });
         const fams = new Set(); (t.layers || []).forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); });
         const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
-        const load = (src, store) => new Promise(r => { if (!src || (store[src] && store[src].width)) return r();
+        const load = (src, store) => new Promise(r => { if (store === TPL_BG_ELS && isDrawnSrc(src)) return loadDrawnBg(src).then(r);
+          if (!src || (store[src] && store[src].width)) return r();
           const el = new Image(); el.onload = () => { store[src] = el; r(); }; el.onerror = () => r();
           /* the first classics' photographs ship inside tplbg-data.js, not as files */
           el.src = (store === TPL_BG_ELS && window.TPL_BG_DATA && TPL_BG_DATA[src]) || src; });
@@ -140,6 +141,9 @@ export async function openStudio(query = ''){
           if (x.lum == null){ x.allow = x.old; return; }
           const need = x.light ? (x.lum + 0.05) / want - 0.05 : want * (x.lum + 0.05) - 0.05;
           x.allow = x.light ? Math.max(x.old, need) : (need > 1 ? x.old : Math.min(x.old, need));
+          /* o.strict: every line clears o.want, whatever the old ground let it
+             get away with (the blurred cards, whose old ground was a smear) */
+          if (o.strict && !(!x.light && need > 1)) x.allow = need;
         });
         /* a line under 1.5:1 against the middle of its old ground was never
            read off the photograph: an outline, a glow or a plate the finder

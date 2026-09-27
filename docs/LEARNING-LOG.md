@@ -537,3 +537,40 @@ Rejected:
     the yellow money word pale.
   - A light halo behind dark copy on a coloured plate: rule 27 says the plate
     is the separation; a glow there fuzzes the number.
+
+## 2026-09-27 (late night) — Every kind of ground
+
+Studied:
+  The owner: "backgrounds that are solid colors, sunburst all sorts of styles
+  even patterns overlays so we have all varieties some images some blurred
+  images … or we can always use a photo of the Apple Store background".
+
+Measured:
+  - 400 live cards: 373 photographs (84 "blurred"), 27 money-fall, 0 drawn.
+    grounds.js (115 ticked tiles, 33 styles) was never loaded by the studio,
+    and /scripts/* is 404'd at Netlify's edge, so it could not have been.
+  - The 84 blurred cards were flat smears. Showcase records store blur in
+    pixels on the 1080 card, blurredEl() read it as a fraction of the width:
+    4 meant four widths. The lab rendered through the same function, so the
+    smear is what everyone saw and approved.
+  - Once really blurred, 55 of the 84 fell under 4.5:1: their shade had been
+    solved against the smear. The solver's "never worse than the old ground"
+    let them stay worse, because the old ground was the smear.
+
+Changed:
+  - grounds.js moved to the site root, loaded by index.html; it paints a
+    ground or a photo-with-pattern as a background source, so every render
+    path draws it. New kinds: solid, sunburst, accent sunburst, light from
+    above; neutral overlays: dots, halftone, grid, stripes, rays, scanlines,
+    grain.
+  - blurredEl reads pixels as pixels. Blurred cards set at 14 to 24px and
+    re-solved strictly: 0 under 3:1, median worst line 6.13.
+  - scripts/vary_grounds.mjs: 100 cards re-grounded, all on their own
+    palette, each gated line by line on its pixels.
+  - Easy Mode: "More grounds" and "Pattern on top".
+
+Rejected:
+  - Drawn grounds under photo-led cards: the owner called headline-on-flat
+    "lacking imagery"; only cards with a hero cut-out moved.
+  - Keeping the smear and calling it blur: the owner asked for blurred images.
+  - A hue in a pattern overlay (rule 56).
