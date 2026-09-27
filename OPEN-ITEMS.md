@@ -397,3 +397,30 @@ Next:
    screenshot of CALL FOR INSTANT OFFER over its badge is the unfitted,
    authored state; every render path on this branch fits it). Deploy the
    trunk to see the fix.
+
+## M. 2026-09-27 (night) — tagline styles, waiting on the owner's picks
+
+The owner: "who said the main tagline had to be one color? why not patterns,
+gradients, or color blocking?", "My favorite ads kept a cohesive gradient on
+assets", "We can also do white with black outline?", and a reference (#1
+BUYER: one orange-yellow-lime sweep on every line that sells, heavy black
+outlines, dark bands).
+
+Built as an option, not yet offered in the UI: `taglineStyle(sc, mode, pal)`
+in app.js (solid, street, gradient, outline, blocks, pair, pattern), applied
+to a finished scene. `scripts/tagline_lab/render.mjs` renders the curated
+cards in every style through Easy Mode and measures them with the critic;
+`scripts/tagline_lab/build.py` builds the review page, published as the
+Tagline Lab (artifact GDYju2JKXZhEEKCYN8XkUv, picks stored in its `picks`
+collection). First run, 21 cards: every style but pattern passes the critic
+on all 21 (pattern 18 of 21).
+
+Next:
+1. Read the picks (`ArtifactData list picks`), and offer the kept styles as a
+   Tagline style choice in Easy Mode and the editor.
+2. If street or the signature gradient is kept, amend DESIGN-LAW rule 5: the
+   MATTHEW evidence was a rainbow on ONE word; a cohesive sweep repeated on
+   every selling line, carried by an outline, is a different thing and the
+   owner's favourite.
+3. The reference's heavy italic display face is its own axis (a font choice);
+   the lab kept each card's face.

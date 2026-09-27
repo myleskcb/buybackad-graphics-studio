@@ -12126,3 +12126,141 @@ function plateAir(sc, W, H){
     return r;
   };
 }
+
+/* ═══ TAGLINE STYLES (experiment, not yet offered in the UI) ════════════════
+   Owner, 2026-09-27: "who said the main tagline had to be one color? why not
+   patterns, gradients, or color blocking?", "My favorite ads kept a cohesive
+   gradient on assets to make it look cool and unique", "We can also do white
+   with black outline?"
+
+   Where one colour came from: DESIGN-LAW rule 5 and the MATTHEW study, where
+   a RAINBOW money word landed in "mid" every time and one saturated hue in
+   "good". It never tested a cohesive gradient: one signature gradient
+   repeated across the tagline, the number plate and the badges. These styles
+   let that be measured on the real cards instead of assumed.
+
+   Applied to a finished scene (after alignPass), so a style is a choice made
+   on any card. Gradients keep each element's own lightness and move only hue
+   and colourfulness (rule 52), so a plate keeps its contrast with the number
+   by construction; the tagline is re-measured by the critic after.
+
+   modes: 'solid' (as designed) · 'street' (the owner's reference: a 75°
+   sweep from the accent on the tagline, number and CTA, heavy black outline,
+   dark halo, their plates dark) · 'gradient' (signature: the accent's hue
+   +/-25°, on the tagline and every accent plate) · 'pair' (the theme's accent
+   into its support colour, same assets) · 'blocks' (each tagline line on its
+   own solid block) · 'pattern' (the tagline in diagonal stripes of two
+   tones) · 'outline' (white, black outline, tight dark shadow) */
+function taglineStyle(sc, mode, pal, W, H){
+  if (!mode || mode === 'solid') return { mode: 'solid', touched: 0 };
+  const objs = sc.getObjects();
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity > 0.05);
+  const fsOf = o => (o.fontSize || 30) * (o.scaleY || 1);
+  const heads = objs.filter(o => live(o) && isText(o) && o.pgRole === 'headline' && /[A-Za-z0-9]/.test(o.text || ''));
+  if (!heads.length) return { mode, touched: 0, why: 'no headline' };
+  const main = heads.slice().sort((a, b) => fsOf(b) - fsOf(a))[0];
+  const solidHex = f => {
+    if (typeof f === 'string'){
+      if (/^#[0-9a-f]{6}$/i.test(f)) return f;
+      const m = f.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?/i);
+      if (m && (m[4] === undefined || +m[4] >= 0.8)) return '#' + [m[1], m[2], m[3]].map(v => Math.round(+v).toString(16).padStart(2, '0')).join('');
+      return null;
+    }
+    if (f && f.colorStops && f.colorStops.length) return solidHex(f.colorStops[0].color);
+    return null;
+  };
+  const ok = hex => hexToOklch(hex) || { L: 0.7, C: 0, h: 0 };
+  const acc = ok(pal.accent || '#4d9cff'), sup = ok(pal.support || pal.accent || '#4d9cff');
+  const h0 = acc.C >= 0.04 ? acc.h : sup.h;
+  const at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
+  // the tagline's own lightness, pushed into a range where colour can show and still read
+  const tagHex = solidHex(main.fill) || '#ffffff', tagL = ok(tagHex).L, lightTag = tagL >= 0.6;
+  const TL = lightTag ? Math.min(0.88, Math.max(0.74, tagL)) : Math.min(0.42, Math.max(0.26, tagL));
+  // accent plates: chromatic, mostly opaque, small (not panels, not the ground)
+  const plates = objs.filter(o => live(o) && o.type === 'rect' && (() => {
+    const hex = solidHex(o.fill), w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
+    return hex && ok(hex).C >= 0.06 && w * h < 0.12 * W * H && w < 0.93 * W;
+  })());
+  const sweep = (L, C, a, b) => ({ c1: at(L, C, a), c2: at(L, C, b), a: 110 });
+  let touched = 0;
+  if (mode === 'gradient' || mode === 'pair'){
+    const ha = mode === 'gradient' ? h0 - 25 : acc.h, hb = mode === 'gradient' ? h0 + 25 : sup.h;
+    setObjGradient(main, sweep(TL, 0.15, ha, hb)); touched++;
+    plates.forEach(p => { const o = ok(solidHex(p.fill)); setObjGradient(p, sweep(o.L, Math.max(o.C, 0.12), ha, hb)); touched++; });
+  } else if (mode === 'pattern'){
+    // a seamless 45° stripe tile: the period (half the tile) divides the tile
+    const fs = fsOf(main), band = Math.max(5, Math.round(fs * 0.09)), S = band * 4;
+    const cv = document.createElement('canvas'); cv.width = cv.height = S;
+    const x = cv.getContext('2d');
+    x.fillStyle = at(TL, 0.06, h0); x.fillRect(0, 0, S, S);
+    x.strokeStyle = at(lightTag ? TL - 0.2 : TL + 0.2, 0.17, h0); x.lineWidth = band * Math.SQRT2 / 2 * 2;
+    for (let x0 = -S; x0 <= S; x0 += S / 2){ x.beginPath(); x.moveTo(x0, S); x.lineTo(x0 + S, 0); x.stroke(); }
+    main.set('fill', new fabric.Pattern({ source: cv, repeat: 'repeat' })); main.pgFillGrad = null; touched++;
+  } else if (mode === 'street'){
+    /* The owner's reference (2026-09-27, #1 BUYER): one warm-to-lime sweep,
+       left to right, on every line that sells (the product line, the
+       headline, the subline and the number), each in a heavy black outline
+       with a dark halo; the band under the subline dark and neutral. Here the
+       sweep starts at the theme's accent and runs 75° through its bright
+       neighbours; the plates that carry a swept line go dark, and the other
+       accent plates take the same sweep, so it reads as one system. */
+    /* the sweep travels toward yellow, the hue that is bright and vivid at
+       once: blue runs to azure and cyan, pink to coral and orange, orange to
+       yellow and lime (the reference). Toward violet a bright blue can only
+       go pastel. */
+    const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
+    const stops = [[0.74, h0], [0.88, h0 + dir * 40], [0.84, h0 + dir * 75]].map(([L, h], i) => ({ offset: i / 2, color: at(L, 0.18, h) }));
+    const sweep = () => new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0, y1: 0.5, x2: 1, y2: 0.5 }, colorStops: stops.map(c => Object.assign({}, c)) });
+    const lines = objs.filter(o => live(o) && isText(o) && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || ''));
+    const hosting = new Set();
+    // any small opaque rect under a swept line is its plate, whatever its colour (the mint number plate)
+    const rects = objs.filter(o => live(o) && o.type === 'rect' && o.width * (o.scaleX || 1) < 0.93 * W && o.width * (o.scaleX || 1) * o.height * (o.scaleY || 1) < 0.2 * W * H
+      && (typeof o.fill !== 'string' || !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(o.fill)));
+    lines.forEach(o => {
+      const c = o.getCenterPoint(), zo = objs.indexOf(o);
+      rects.forEach(p => { if (objs.indexOf(p) > zo) return; const b = p.getBoundingRect(true, true); if (c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height) hosting.add(p); });
+      const u = o.fontSize || 40;
+      o.set({ fill: sweep(), stroke: '#0b0b0d', strokeWidth: Math.max(3, u * 0.085), paintFirst: 'stroke', strokeLineJoin: 'round',
+        shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.12, offsetX: 0, offsetY: u * 0.03 }) });
+      o.pgFillGrad = null; touched++;
+    });
+    hosting.forEach(p => { p.set({ fill: 'rgba(12,12,14,0.84)', stroke: null }); p.pgFillGrad = null; touched++; });
+    plates.forEach(p => { if (hosting.has(p)) return; p.set('fill', sweep()); p.pgFillGrad = null; touched++; });
+  } else if (mode === 'outline'){
+    heads.forEach(o => {
+      const u = o.fontSize || 40;
+      o.set({ fill: '#ffffff', stroke: '#0b0b0d', strokeWidth: Math.max(3, u * 0.075), paintFirst: 'stroke', strokeLineJoin: 'round',
+        shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.55)', blur: u * 0.06, offsetX: 0, offsetY: u * 0.03 }) });
+      o.pgFillGrad = null; touched++;
+    });
+  } else if (mode === 'blocks'){
+    // each tagline line on its own block, alternating the theme's two colours; ink by contrast
+    const cols = [pal.accent || '#4d9cff', pal.support || pal.accent || '#4d9cff'];
+    const lumOf = hex => { const n = parseInt(hex.slice(1), 16), f = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+      return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255); };
+    const ratio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    heads.slice().sort((a, b) => a.top - b.top).forEach((o, i) => {
+      let fill = solidHex(cols[i % 2]) || '#4d9cff';
+      const ink = ratio(lumOf(fill), 1) >= ratio(lumOf(fill), lumOf('#0e0e10')) ? '#ffffff' : '#0e0e10';
+      if (ratio(lumOf(fill), lumOf(ink)) < 4.5) fill = oklchFit({ L: ink === '#ffffff' ? 0.42 : 0.82, C: ok(fill).C, h: ok(fill).h });
+      o.setCoords();
+      // the line's own box (letter-spacing included), padded; inside the 6% guides, the type comes down if it must
+      const G = 0.06 * Math.min(W, H), fs = fsOf(o), padX = Math.max(14, fs * 0.3), padY = Math.max(6, fs * 0.1);
+      let bw = o.width * (o.scaleX || 1) + 2 * padX;
+      if (bw > W - 2 * G){ const k = (W - 2 * G - 2 * padX) / (o.width * (o.scaleX || 1)); const c0 = o.getCenterPoint();
+        o.set({ scaleX: (o.scaleX || 1) * k, scaleY: (o.scaleY || 1) * k }); o.setPositionByOrigin(c0, 'center', 'center'); o.setCoords(); bw = W - 2 * G; }
+      const c = o.getCenterPoint(), half = bw / 2;
+      const cx = Math.min(W - G - half, Math.max(G + half, c.x));
+      if (cx !== c.x){ o.setPositionByOrigin(new fabric.Point(cx, c.y), 'center', 'center'); o.setCoords(); }
+      const hTxt = o.height * (o.scaleY || 1) * 0.86;
+      const blk = new fabric.Rect({ width: bw, height: hTxt + 2 * padY, fill, rx: Math.round(fs * 0.08), ry: Math.round(fs * 0.08),
+        angle: o.angle || 0, originX: 'center', originY: 'center', left: cx, top: c.y, selectable: false, evented: false, name: 'Tagline Block ' + (i + 1) });
+      sc.insertAt(blk, sc.getObjects().indexOf(o));
+      o.set({ fill: ink, stroke: null, strokeWidth: 0, shadow: null }); o.pgFillGrad = null;
+      touched++;
+    });
+  }
+  sc.getObjects().forEach(o => o.setCoords && o.setCoords());
+  return { mode, touched, plates: plates.length, main: String(main.text).slice(0, 40) };
+}
