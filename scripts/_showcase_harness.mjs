@@ -139,7 +139,7 @@ export async function openStudio(query = ''){
           const b = box(refs[k]), c = { x: b.x + b.w / 2, y: b.y + b.h / 2 };
           if (b.w < 2 || b.h < 2 || plates.some(p => p.k < k && inside(c, p.b))) return;
           const p = l.props || {}, lum = hexLum(p.fill) ?? (p.grad ? ((hexLum(p.grad.c1) || 0) + (hexLum(p.grad.c2) || 0)) / 2 : null);
-          lines.push({ b, lum, a: b.w * b.h, name: l.name, props: p });
+          lines.push({ b, lum, a: b.w * b.h, name: l.name, props: p, role: l.role || '' });
         });
         sc.dispose();
         const pixels = (d, x) => { const v = [], b = x.b;
@@ -168,9 +168,16 @@ export async function openStudio(query = ''){
         lines.forEach(x => { if (x.light === undefined) x.light = light; });
         const inkLum = known.length ? known.reduce((s, x) => s + x.lum * x.a, 0) / known.reduce((s, x) => s + x.a, 0) : null;
         const want = o.want || 4.5;
+        /* per role (2026-09-28, "make sure the backgrounds are visible"): the
+           headline, the number and the CTA clear o.want (4.5:1); supporting
+           copy clears o.wantMinor when given (3.5:1, above the gate's 3:1
+           floor), so the shade is the lightest that serves the message rather
+           than the lightest that lifts every footnote to 4.5 */
+        const wantOf = x => (PG_CRIT[x.role] || o.wantMinor == null) ? want : o.wantMinor;
         lines.forEach(x => {
-          x.old = stat(old, x);
+          x.old = stat(old, x); x.want = wantOf(x);
           if (x.lum == null){ x.allow = x.old; return; }
+          const want = x.want;
           const need = x.light ? (x.lum + 0.05) / want - 0.05 : want * (x.lum + 0.05) - 0.05;
           x.allow = x.light ? Math.max(x.old, need) : (need > 1 ? x.old : Math.min(x.old, need));
           /* o.strict: every line clears o.want, whatever the old ground let it
@@ -226,7 +233,7 @@ export async function openStudio(query = ''){
             return o.flip.light; };
           flipped = [];
           darks.forEach(x => { const ink = neutralDark(x) ? o.flip.light : (tintOf(x) || o.flip.light), il = hexLum(ink);
-            x.light = true; x.lum = il; x.allow = (il + 0.05) / want - 0.05; flipped.push({ name: x.name, fill: ink }); });
+            x.light = true; x.lum = il; x.allow = (il + 0.05) / (x.want || want) - 0.05; flipped.push({ name: x.name, fill: ink }); });
           light = true;
         }
         for (const mode of o.modes){ spec = solve(mode); if (spec) break; }
@@ -246,7 +253,7 @@ export async function openStudio(query = ''){
             if (!flips.length || flips.some(x => !neutralInk(x))) continue;
             const save = flips.map(x => ({ x, light: x.light, lum: x.lum, allow: x.allow })), was = light;
             const ink = dir ? o.flip.light : o.flip.dark, il = hexLum(ink);
-            flips.forEach(x => { x.light = dir; x.lum = il; x.allow = dir ? (il + 0.05) / want - 0.05 : want * (il + 0.05) - 0.05; });
+            flips.forEach(x => { const w = x.want || want; x.light = dir; x.lum = il; x.allow = dir ? (il + 0.05) / w - 0.05 : w * (il + 0.05) - 0.05; });
             light = dir;
             for (const mode of o.modes){ spec = solve(mode); if (spec) break; }
             if (spec){ flipped = (flipped || []).concat(flips.map(x => ({ name: x.name, fill: ink }))); break; }
@@ -263,7 +270,7 @@ export async function openStudio(query = ''){
         if (!spec.scrimColor) delete spec.scrimColor;
         if (spec.grade == null) delete spec.grade;
         return { bg: spec, light, flipped, inkLum: inkLum == null ? null : +inkLum.toFixed(3), lines: live.length,
-                 shortBefore: live.filter(x => x.lum != null && x.allow === x.old && (x.light ? x.old > (x.lum + 0.05) / want - 0.05 : x.old < want * (x.lum + 0.05) - 0.05)).length };
+                 shortBefore: live.filter(x => { const w = x.want || want; return x.lum != null && x.allow === x.old && (x.light ? x.old > (x.lum + 0.05) / w - 0.05 : x.old < w * (x.lum + 0.05) - 0.05); }).length };
       },
     };
   });

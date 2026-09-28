@@ -69,7 +69,7 @@ for (let i = 0; i < work.length; i += 6){
         const orig = Object.assign({}, t.bg);
         if ((t.bg.blur || 0) > MAX_BLUR) t.bg = Object.assign({}, t.bg, { blur: MAX_BLUR });
         const r = __sc.naturalGround(t, { grade: { treat: 'natural' }, dark: DARK, light: LIGHT, modes: ['gradient', 'normal'],
-                                          flip: { dark: DARK, light: LIGHT }, prefer: 'dark', strict: MAX_BLUR === Infinity, core: CORE });
+                                          flip: { dark: DARK, light: LIGHT }, prefer: 'dark', strict: MAX_BLUR === Infinity, core: CORE, wantMinor: CORE ? 3.5 : null });
         r.was = was;
         /* a line re-inked light may stand on a pale band the solver does not
            see as a plate (see-through, or so large it counts as a veil): the
