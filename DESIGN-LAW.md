@@ -1703,7 +1703,7 @@ The rule:
   it adds in Easy Mode and the editor as bands derived from the scene after
   the layout (`pgShadeBands`, `pgShadeFit`), so a generated card is shaded
   as the library is.
-- **Measured after** (@@AFTER@@).
+- **Measured after** (2026-09-28, after the bands pass: the library's photo cards show a median 62% of their photograph (26% before; 4 cards under 30%, from 48), shade median 0.44 from 0.55, 264 of 273 re-solved, 5 held back by the gate, 399 of 399 pass; the classics 72% (49% before; 1 under 30%), shade median 0.27 from 0.48, 230 of 235 bands, 227 of 243 pass, the same 16 held back).
 
 
 the ground table undid a second later (rule 56); the Easy Mode overlay is

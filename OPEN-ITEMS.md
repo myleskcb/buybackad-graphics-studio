@@ -465,7 +465,7 @@ Still open, from the audit (numbers in docs/COHESION-AUDIT.md):
    TEMPLATES, so the Easy strip is held to the same measure as the library.
    (Done 2026-09-28.)
 6. **Backgrounds visible** (2026-09-28, "make sure the backgrounds are
-   visible"): done as the bands shade (rule 66): @@AFTER@@. Still whole-card:
+   visible"): done as the bands shade (rule 66): library median 62% of the photograph showing (26% before), classics 72% (49%). Still whole-card:
    the Easy photo swatches' base scrim (0.36 to 0.42 graded) before the gate
    shades further; `naturalize_showcase.mjs` still solves 'normal' only (it
    runs before darken, which re-solves).

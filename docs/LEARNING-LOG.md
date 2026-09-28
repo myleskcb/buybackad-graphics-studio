@@ -678,7 +678,7 @@ Learned:
     on a plate" the plate has to hold the line's centre, or the headline is
     left out of the bands and the studio's gate opens its modal instead of
     shading.
-  - After: @@AFTER@@
+  - After: library median 62% (p25 50%), 4 cards under 30% (from 48), shade median 0.44 (from 0.55); classics median 72%, 1 under 30%, shade median 0.27 (from 0.48). 264 of 273 photo cards re-solved (5 held back: a line would have lost contrast), 399 of 399 pass the gate; 230 of 235 classics bands, 227 of 243 pass, the same 16 held back.
 
 Changed:
   - scrimRect draws `bands:a-b,c-d` (scrimBands parses, SCRIM_FEATHER 0.06);
