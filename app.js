@@ -2055,9 +2055,10 @@ function grainTile(){
    "OKÉMO" straight back on screen in the advanced editor). */
 function fitToDoc(obj, p, docW){
   if (!obj || !obj.width) return;
-  const fs      = (p && p.fontSize) !== undefined ? p.fontSize : obj.fontSize;
-  const left    = (p && p.left)     !== undefined ? p.left     : obj.left;
-  const originX = (p && p.originX)  !== undefined ? p.originX  : obj.originX;
+  // (p may be null: Enhance re-fits against the layer itself, and `(null && x) !== undefined` is true)
+  const fs      = p && p.fontSize !== undefined ? p.fontSize : obj.fontSize;
+  const left    = p && p.left     !== undefined ? p.left     : obj.left;
+  const originX = p && p.originX  !== undefined ? p.originX  : obj.originX;
   if (!fs || left === undefined) return;
   const margin = Math.round(docW * 0.035);
   // How much room the anchor actually leaves, which depends on the origin.
@@ -4516,7 +4517,7 @@ function drawProcBg(spec, px){
   return cv.toDataURL('image/jpeg', 0.88);
 }
 
-function setBgFromDataUrl(url, silentHist, blur){
+function setBgFromDataUrl(url, silentHist, blur, done){
   fabric.Image.fromURL(url, img => {
     if (!img || !img.width || !img.height){ toast('That image could not be read', 'error'); return; }
     if (blur > 0){
@@ -4525,7 +4526,7 @@ function setBgFromDataUrl(url, silentHist, blur){
     }
     const sc = Math.max(CW / img.width, CH / img.height);
     img.set({ originX:'left', originY:'top', left:(CW - img.width * sc) / 2, top:(CH - img.height * sc) / 2, scaleX:sc, scaleY:sc });
-    canvas.setBackgroundImage(img, () => { canvas.renderAll(); if (!silentHist) pushHist(); });
+    canvas.setBackgroundImage(img, () => { canvas.renderAll(); if (!silentHist) pushHist(); if (done) done(); });
   });
 }
 
@@ -5281,6 +5282,8 @@ function applyEzSnapshot(p){
   ez.styles = st.styles || {};
   ez.fx = Object.assign({ blur:0, overlay:'none', oc:'#000000', os:45 }, st.fx || {});
   ez.hidden = st.hidden || {};
+  ez.themes = st.themes || {};                  // the colours and the tagline style it was made with
+  if (st.tagline) taglinePick(st.tagline);
   ez.bg = st.bg || null;
   ez.bgData = null; ez.bgImgObj = null; ez.bgRecId = null;
   jset('pgfx_ez_state', st);
@@ -5297,7 +5300,7 @@ function applyEzSnapshot(p){
 // Fresh start: clears the easy-mode working state back to defaults.
 function resetEzProject(){
   jset('pgfx_ez_state', null);
-  ez.vals = {}; ez.chips = null; ez.styles = {}; ez.hidden = {};
+  ez.vals = {}; ez.chips = null; ez.styles = {}; ez.hidden = {}; ez.themes = {};
   ez.fx = { blur:0, overlay:'none', oc:'#000000', os:45 };
   ez.bg = null; ez.bgData = null; ez.bgImgObj = null; ez.bgRecId = null; ez.bgPicked = false;
   showEasy(jget('pgfx_last', 'sell_iphone'));
@@ -8672,6 +8675,7 @@ async function ezDownload(skipBgCheck){
   addHistory(a.download, gate.px, url, undefined, undefined, {
     kind: 'ez',
     st: { tpl: ez.tpl, vals: ez.vals, chips: ez.chips, styles: ez.styles, fx: ez.fx, hidden: ez.hidden,
+          themes: ez.themes, tagline: tagMode(),
           bgPicked: ez.bgPicked === true,
           bg: (ez.bg && ez.bg.type !== 'image') ? ez.bg : null },
     bgData: (ez.bg && ez.bg.type === 'image' && ez.bgData) ? ez.bgData : null,
@@ -8709,7 +8713,15 @@ function openAdvancedFromEz(){
       if (stOv.curve) textToCurved(o, stOv.curve);
     }
   });
-  if (ez.bg && ez.bg.type === 'image' && ez.bgData) setBgFromDataUrl(ez.bgData, false, ez.fx.blur);
+  /* the visitor's own photograph loads after this function returns: the
+     tagline style is solved again on it once it lands (it reads its ground) */
+  if (ez.bg && ez.bg.type === 'image' && ez.bgData) setBgFromDataUrl(ez.bgData, true, ez.fx.blur, () => {
+    if (!canvas) return;
+    canvas.discardActiveObject();
+    taglineReset(canvas);
+    taglineShow(taglineApply(canvas, tpl, CW, CH), 'ed-tagnote');
+    canvas.renderAll(); pushHist();
+  });
   else if (ez.bg){ bgState = Object.assign({}, ez.bg); applyBgSpec(canvas, bgState); syncBgControls(); }
   const ovAdv = ezOverlayRect();
   if (ovAdv){ canvas.add(ovAdv); canvas.sendToBack(ovAdv); }
@@ -12294,25 +12306,19 @@ function taglineStyle(sc, mode, pal, W, H, as){
   /* what a style changes is recorded once, before the first change, so
      taglineReset() can put the designed card back and another style can be
      tried on the same scene (the editor keeps its scene; Easy Mode builds a
-     new one for every picture) */
-  const keep = (o, geo) => {
+     new one for every picture): the paint as it was, and the move as a move
+     (blocks: the shrink k and the shift, in card widths), never as a
+     position, so a line the visitor has since dragged, resized or carried to
+     another format keeps what they did */
+  const keep = o => {
     if (o.pgTagRest) return;
     const r = { mode: as || mode };
-    (isText(o) ? ['fill', 'stroke', 'strokeWidth', 'paintFirst', 'strokeLineJoin', 'shadow'].concat(geo ? ['left', 'top', 'scaleX', 'scaleY'] : []) : ['fill', 'stroke', 'strokeWidth'])
+    (isText(o) ? ['fill', 'stroke', 'strokeWidth', 'paintFirst', 'strokeLineJoin', 'shadow'] : ['fill', 'stroke', 'strokeWidth'])
       .forEach(k => { const v = o[k]; r[k] = v && typeof v === 'object' && typeof v.toObject === 'function' ? v.toObject() : (v === undefined ? null : v); });
     r.pgFillGrad = o.pgFillGrad || null;
     o.pgTagRest = r;
   };
-  const solidHex = f => {
-    if (typeof f === 'string'){
-      if (/^#[0-9a-f]{6}$/i.test(f)) return f;
-      const m = f.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?/i);
-      if (m && (m[4] === undefined || +m[4] >= 0.8)) return '#' + [m[1], m[2], m[3]].map(v => Math.round(+v).toString(16).padStart(2, '0')).join('');
-      return null;
-    }
-    if (f && f.colorStops && f.colorStops.length) return solidHex(f.colorStops[0].color);
-    return null;
-  };
+  const solidHex = f => tagHexOf(f, 0.8);
   const ok = hex => hexToOklch(hex) || { L: 0.7, C: 0, h: 0 };
   const acc = ok(pal.accent || '#4d9cff'), sup = ok(pal.support || pal.accent || '#4d9cff');
   const h0 = acc.C >= 0.04 ? acc.h : sup.h;
@@ -12328,9 +12334,7 @@ function taglineStyle(sc, mode, pal, W, H, as){
   const sweep = (L, C, a, b) => ({ c1: at(L, C, a), c2: at(L, C, b), a: 110 });
   let touched = 0;
   // WCAG luminance and contrast, for keeping a restyled line as readable as it was designed
-  const Y = hex => { const n = parseInt(hex.slice(1), 16), f = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
-    return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255); };
-  const cr = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  const Y = tagY, cr = tagCr;
   if (mode === 'gradient' || mode === 'pair'){
     const ha = mode === 'gradient' ? h0 - 25 : acc.h, hb = mode === 'gradient' ? h0 + 25 : sup.h;
     /* the sweep's lightness is solved on the line's own ground, not assumed:
@@ -12459,9 +12463,7 @@ function taglineStyle(sc, mode, pal, W, H, as){
        57: copy is never touched), so that card takes the outline instead and
        says so (info.fallback). */
     const cols = [pal.accent || '#4d9cff', pal.support || pal.accent || '#4d9cff'];
-    const lumOf = hex => { const n = parseInt(hex.slice(1), 16), f = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
-      return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255); };
-    const ratio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    const lumOf = tagY, ratio = tagCr;
     const G = 0.06 * Math.min(W, H), faults = [];
     const plan = heads.slice().sort((a, b) => a.top - b.top).map((o, i) => {
       let fill = solidHex(cols[i % 2]) || '#4d9cff';
@@ -12524,15 +12526,18 @@ function taglineStyle(sc, mode, pal, W, H, as){
     // each block right under its own line (a plate between them would hide it); none reaches another line's letters
     plan.forEach(b => {
       const o = b.o, id = 'tb' + Math.random().toString(36).slice(2, 9);
-      keep(o, true);
+      keep(o);
       o.pgTagRest.block = id;
       if (b.padY != null) o.pgTagRest.padY = b.padY;
+      if (b.k < 1) o.pgTagRest.k = b.k;
+      if (b.shift) o.pgTagRest.shift = b.shift / W;
       const c0 = o.getCenterPoint();
       if (b.k < 1) o.set({ scaleX: (o.scaleX || 1) * b.k, scaleY: (o.scaleY || 1) * b.k });
       o.setPositionByOrigin(new fabric.Point(c0.x + b.shift, c0.y), 'center', 'center');
       o.setCoords();
+      // the block belongs to its line: it follows it and is not picked or dragged on its own
       const blk = new fabric.Rect({ fill: b.fill, rx: Math.round(b.g.fs * 0.08), ry: Math.round(b.g.fs * 0.08),
-        name: 'Tagline Block ' + (b.i + 1), pgTagBlock: id });
+        name: 'Tagline Block ' + (b.i + 1), pgTagBlock: id, selectable: false, evented: false });
       taglineFitBlock(blk, o);
       sc.insertAt(blk, sc.getObjects().indexOf(o));
       o.set({ fill: b.ink, stroke: null, strokeWidth: 0, shadow: null }); o.pgFillGrad = null;
@@ -12570,17 +12575,27 @@ function tagMode(){
   const m = ez.tagline;
   return TAGLINE_STYLES.some(s => s[0] === m) ? m : 'solid';
 }
-function tagHexOf(f){
+/* One colour parser for the whole feature (the palette and the styles read a
+   fill the same way): #rgb, #rrggbb, rgb() and rgba() at least minAlpha
+   opaque, a gradient by its first stop; null otherwise. */
+function tagHexOf(f, minAlpha){
+  const least = minAlpha == null ? 0.6 : minAlpha;
   if (typeof f === 'string'){
     if (/^#[0-9a-f]{6}$/i.test(f)) return f.toLowerCase();
     if (/^#[0-9a-f]{3}$/i.test(f)) return '#' + f.slice(1).split('').map(c => c + c).join('').toLowerCase();
     const m = f.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?/i);
-    if (m && (m[4] === undefined || +m[4] >= 0.6)) return '#' + [m[1], m[2], m[3]].map(v => Math.round(+v).toString(16).padStart(2, '0')).join('');
+    if (m && (m[4] === undefined || +m[4] >= least)) return '#' + [m[1], m[2], m[3]].map(v => Math.round(+v).toString(16).padStart(2, '0')).join('');
     return null;
   }
-  if (f && f.colorStops && f.colorStops.length) return tagHexOf(f.colorStops[0].color);
+  if (f && f.colorStops && f.colorStops.length) return tagHexOf(f.colorStops[0].color, least);
   return null;
 }
+// WCAG relative luminance of a #rrggbb, and the contrast of two luminances
+function tagY(hex){
+  const n = parseInt(String(hex).slice(1), 16);
+  return 0.2126 * _srgbToLin((n >> 16 & 255) / 255) + 0.7152 * _srgbToLin((n >> 8 & 255) / 255) + 0.0722 * _srgbToLin((n & 255) / 255);
+}
+function tagCr(a, b){ return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); }
 function tagChroma(hex){ const o = hex && hexToOklch(hex); return o ? o.C : 0; }
 /* the most colourful as the accent, the next of a different hue (30° or more)
    as the support; with none, the accent's neighbour */
@@ -12594,19 +12609,20 @@ function palFromColors(cols){
   const acc = list[0], sup = list.find(c => hd(c.o.h, acc.o.h) >= 30);
   return { accent: acc.hex, support: sup ? sup.hex : oklchFit({ L: acc.o.L, C: acc.o.C, h: (acc.o.h + 40) % 360 }) };
 }
-// the scene's own inks and plates, the lines that sell counting double
-function scenePalette(sc){
+// the scene's own inks and plates, the lines that sell counting double (W: the document's width, not the zoomed canvas's)
+function scenePalette(sc, W){
+  W = W || sc.width / ((sc.getZoom && sc.getZoom()) || 1);
   const cols = [];
   sc.getObjects().forEach(o => {
     if (o.visible === false || (o.opacity != null && o.opacity < 0.3) || o.pgTagBlock) return;
     const isT = o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
     if (!isT && o.type !== 'rect') return;
-    if (!isT && o.width * (o.scaleX || 1) >= 0.93 * sc.width) return;       // the ground, not an accent
+    if (!isT && o.width * (o.scaleX || 1) >= 0.93 * W) return;              // the ground, not an accent
     cols.push({ hex: o.fill, w: isT && ['headline', 'phone', 'cta'].includes(o.pgRole) ? 2 : 1 });
   });
   return palFromColors(cols);
 }
-function tplPalette(tpl, sc){
+function tplPalette(tpl, sc, W){
   const colourful = p => !!p && (tagChroma(p.accent) >= 0.04 || tagChroma(p.support) >= 0.04);
   let p = null;
   const th = tpl && ez.themes && ez.themes[tpl.id];
@@ -12616,7 +12632,7 @@ function tplPalette(tpl, sc){
   if (!colourful(p) && tpl && tpl.palette) p = tpl.palette;
   const P = tpl && typeof tpl.pal === 'string' && window.TPL_PAL && TPL_PAL[tpl.pal];
   if (!colourful(p) && P) p = { accent: P.a1, support: P.a2, ink: P.ink, c1: P.bg1 };
-  if (!colourful(p) && sc) p = scenePalette(sc);
+  if (!colourful(p) && sc) p = scenePalette(sc, W);
   return colourful(p) ? p : Object.assign({}, TAG_FALLBACK);
 }
 /* The mean luminance of the ground under each of `lines`: the scene painted
@@ -12632,7 +12648,7 @@ function tagGroundLum(sc, lines){
   finally { lines.forEach((o, i) => { o.visible = vis[i]; }); }
   if (!el) return out;
   const w = el.width, h = el.height, d = el.getContext('2d').getImageData(0, 0, w, h).data;
-  const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const lin = v => _srgbToLin(v / 255);
   lines.forEach(o => {
     const b = o.getBoundingRect(true, true);
     const x0 = Math.max(0, Math.floor(b.left * k)), y0 = Math.max(0, Math.floor(b.top * k));
@@ -12696,16 +12712,26 @@ function taglineModeOf(sc){
 // the designed card back: recorded paint (and, for blocks, place) restored, blocks removed
 function taglineReset(sc){
   if (!sc) return;
+  const Z = (sc.getZoom && sc.getZoom()) || 1, W = sc.width / Z, H = sc.height / Z;
+  const undo = (o, k, dx, dy) => {
+    const c = o.getCenterPoint();
+    if (k && k !== 1) o.set({ scaleX: (o.scaleX || 1) / k, scaleY: (o.scaleY || 1) / k });
+    o.setPositionByOrigin(new fabric.Point(c.x - (dx || 0) * W, c.y - (dy || 0) * H), 'center', 'center');
+  };
   sc.getObjects().slice().forEach(o => {
     if (o.pgTagBlock){ sc.remove(o); return; }
     const r = o.pgTagRest;
     if (!r) return;
-    const p = Object.assign({}, r);
-    ['mode', 'block', 'pgFillGrad'].forEach(k => delete p[k]);
-    if (p.shadow && typeof p.shadow === 'object') p.shadow = new fabric.Shadow(p.shadow);
-    ['fill', 'stroke'].forEach(k => { if (p[k] && typeof p[k] === 'object' && p[k].colorStops) p[k] = new fabric.Gradient(p[k]); });
-    o.set(p);
-    o.pgFillGrad = r.pgFillGrad || null;
+    if (!r.geoOnly){
+      const p = {};
+      ['fill', 'stroke', 'strokeWidth', 'paintFirst', 'strokeLineJoin', 'shadow'].forEach(k => { if (k in r) p[k] = r[k]; });
+      if (p.shadow && typeof p.shadow === 'object') p.shadow = new fabric.Shadow(p.shadow);
+      ['fill', 'stroke'].forEach(k => { if (p[k] && typeof p[k] === 'object' && p[k].colorStops) p[k] = new fabric.Gradient(p[k]); });
+      o.set(p);
+      o.pgFillGrad = r.pgFillGrad || null;
+    }
+    if (r.air) undo(o, r.air.k, r.air.dx, r.air.dy);
+    if (r.k || r.shift) undo(o, r.k, r.shift, 0);
     o.pgTagRest = null;
     o.setCoords && o.setCoords();
   });
@@ -12716,11 +12742,18 @@ function taglineReset(sc){
 function taglineApply(sc, tpl, W, H, mode){
   mode = mode || tagMode();
   let pal;
-  try { pal = tplPalette(tpl, sc); } catch (e){ pal = Object.assign({}, TAG_FALLBACK); }
+  try { pal = tplPalette(tpl, sc, W); } catch (e){ pal = Object.assign({}, TAG_FALLBACK); }
   if (mode === 'solid' || !TAGLINE_STYLES.some(s => s[0] === mode)) return { mode: 'solid', pal };
   try {
     const info = taglineStyle(sc, mode, pal, W, H) || { mode };
+    const isText = o => o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
+    const before = new Map(sc.getObjects().filter(isText).map(o => [o, { c: o.getCenterPoint(), s: o.scaleX || 1 }]));
     plateAir(sc, W, H);
+    before.forEach((g, o) => {
+      const c = o.getCenterPoint(), k = (o.scaleX || 1) / g.s, dx = (c.x - g.c.x) / W, dy = (c.y - g.c.y) / H;
+      if (Math.abs(k - 1) < 1e-4 && Math.abs(dx) < 1e-5 && Math.abs(dy) < 1e-5) return;
+      (o.pgTagRest || (o.pgTagRest = { mode, geoOnly: true })).air = { k, dx, dy };
+    });
     info.pal = pal;
     return info;
   } catch (e){
@@ -12810,27 +12843,29 @@ function taglinePick(k){
 function taglineEditorApply(k){
   if (!canvas) return;
   const tpl = TEMPLATES.find(t => t.id === currentTplId) || null;
+  canvas.discardActiveObject();      // a selection's members hold coordinates relative to it (setFormat does the same)
   taglineReset(canvas);
   const info = taglineApply(canvas, tpl, CW, CH, k);
   canvas.renderAll();
   pushHist(); refreshLayers(); refreshProps();
   taglineShow(info, 'ed-tagnote');
 }
-/* In the editor a block follows its line: dragged, scaled, retyped or after a
-   format switch it is refitted, and a line the visitor places keeps that
-   place when the style is switched or reset. Deleting a line takes its block. */
-function taglineFollow(t, placed){
-  if (!canvas || !t || !t.pgTagRest || !t.pgTagRest.block) return;
-  if (placed && 'left' in t.pgTagRest) Object.assign(t.pgTagRest, { left: t.left, top: t.top, scaleX: t.scaleX, scaleY: t.scaleY });
-  const blk = canvas.getObjects().find(o => o.pgTagBlock === t.pgTagRest.block);
-  if (blk) taglineFitBlock(blk, t);
-}
+/* In the editor a block follows its line, whatever moved it: a drag, a snap,
+   a resize, typing on the canvas, Quick Edit, the properties panel, undo or a
+   format switch. Every draw first refits a block whose line has changed (its
+   place, size, words or face), so there is no path that can leave a line off
+   its block. Deleting a line takes its block. */
 function taglineRefitAll(sc){
   const objs = sc.getObjects();
   objs.forEach(b => {
     if (!b.pgTagBlock) return;
     const t = objs.find(o => o.pgTagRest && o.pgTagRest.block === b.pgTagBlock);
-    if (t) taglineFitBlock(b, t);
+    if (!t) return;
+    const sig = [t.left, t.top, t.scaleX, t.scaleY, t.angle, t.width, t.height, t.text, t.fontSize, t.fontFamily, t.fontWeight, t.fontStyle,
+      t.charSpacing, t.lineHeight, t.textAlign, t.originX, t.originY, t.pgTagRest.padY].join('|');
+    if (b.__tagSig === sig) return;
+    taglineFitBlock(b, t);
+    b.__tagSig = sig;
   });
 }
 {
@@ -12856,11 +12891,23 @@ function taglineRefitAll(sc){
   };
   const _bindCanvasEvents = bindCanvasEvents;
   bindCanvasEvents = function(){
-    canvas.on('object:moving', e => taglineFollow(e.target));
-    canvas.on('object:scaling', e => taglineFollow(e.target));
-    canvas.on('object:rotating', e => taglineFollow(e.target));
-    canvas.on('object:modified', e => taglineFollow(e.target, true));
-    canvas.on('text:changed', e => taglineFollow(e.target));
+    canvas.on('before:render', () => { try { taglineRefitAll(canvas); } catch (e){} });
+    /* a duplicated or pasted line gets a block of its own, like the one it was
+       copied from; a pasted block alone is a plain shape */
+    canvas.on('object:added', e => {
+      const o = e.target;
+      if (histLock || !o) return;
+      const objs = canvas.getObjects();
+      if (o.pgTagBlock && objs.some(x => x !== o && x.pgTagBlock === o.pgTagBlock)){ o.pgTagBlock = null; return; }
+      const id = o.pgTagRest && o.pgTagRest.block;
+      if (!id || !objs.some(x => x !== o && x.pgTagRest && x.pgTagRest.block === id)) return;
+      const src = objs.find(x => x.pgTagBlock === id), nid = 'tb' + Math.random().toString(36).slice(2, 9);
+      o.pgTagRest = Object.assign({}, o.pgTagRest, { block: nid });
+      if (!src) return;
+      const blk = new fabric.Rect({ fill: src.fill, rx: src.rx, ry: src.ry, name: src.name, pgTagBlock: nid, selectable: false, evented: false });
+      taglineFitBlock(blk, o);
+      canvas.insertAt(blk, canvas.getObjects().indexOf(o));
+    });
     canvas.on('object:removed', e => {
       const t = e.target, id = t && t.pgTagRest && t.pgTagRest.block;
       if (!id || histLock) return;
@@ -12882,14 +12929,18 @@ function taglineRefitAll(sc){
   const _enhance = enhance;
   enhance = async function(){
     const mode = canvas ? taglineModeOf(canvas) : null;
-    if (mode) taglineReset(canvas);
-    const r = await _enhance.apply(this, arguments);
-    if (mode && canvas){
+    if (!mode) return _enhance.apply(this, arguments);
+    canvas.discardActiveObject();
+    taglineReset(canvas);
+    const lock = histLock;
+    histLock = true;
+    try { return await _enhance.apply(this, arguments); }
+    finally {
+      histLock = lock;
       const info = taglineApply(canvas, TEMPLATES.find(t => t.id === currentTplId) || null, CW, CH, mode);
       canvas.renderAll(); pushHist();
-      taglineNote(info, 'ed-tagnote');
+      taglineShow(info, 'ed-tagnote');
     }
-    return r;
   };
 }
 

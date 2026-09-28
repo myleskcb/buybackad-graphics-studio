@@ -1802,8 +1802,14 @@ gonna be one engine inside of the GFX studio site".
   that card to the outline, and the row says why.
 - **A style can be switched on a canvas someone has edited.** What a style
   changes is recorded on the object (`pgTagRest`, kept through undo, autosave
-  and saved designs) and `taglineReset` puts the designed card back first; a
-  block follows its line through a drag, a retype and a format switch.
+  and saved designs): the paint as it was, and every move as a move (a
+  block's shrink and shift, plateAir's slide), never as a position, so
+  `taglineReset` puts the designed card back without undoing a drag, a resize
+  or a format switch the visitor made since. Every draw refits a block whose
+  line changed (a drag, a snap, Quick Edit, the properties panel, undo), a
+  duplicated line gets a block of its own, a block cannot be picked apart
+  from its line, and Enhance keeps the style (one step in the history). The
+  audit that found these (2026-09-28) drove each case in the editor.
 - **It is measured on every family.** `scripts/tagline_audit.mjs` opens two
   templates of every family and category the way a visitor does, picks each
   style the way the row does, and runs the critic (rule 54) on every line and
@@ -1863,8 +1869,8 @@ photograph, the strip fan over the Contour bottle).
   the bands.
 - `scripts/subject_audit.mjs` paints every card with a product on a mapped
   photograph with the pass off and on, and lists what moved and what still
-  covers. 2026-09-27, 427 cards: designer 0 of 30 cover their photograph's
+  covers. 2026-09-28, 437 cards: designer 0 of 30 cover their photograph's
   subject; street 1 of 37 (moved); offer 7 of 140 (4 moved, 3 still cover a
   little: cameras over city lights, a laptop over the moon, the strip fan in
-  the narrow split layout); showcase 0 of 220 (its products hide at most 12%
-  of a subject).
+  the narrow split layout); showcase 0 of the 230 live cards with a product
+  (they hide at most 12% of a subject).

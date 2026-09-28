@@ -870,3 +870,53 @@ RESUME HERE:
   not (OPEN-ITEMS §O: number styles, urgency elements, sign boards); each is
   built where the tagline style went, for every template. The gaming rooms
   and the ph-* pictures wait on photographs (docs/scrape-intake.md).
+
+## 2026-09-28 — Audit and validation of the branch
+
+The owner: "audit and validate".
+
+Checked, all passing on the branch as pushed after this entry:
+  - Every shipped script and every script in scripts/ and tools/gfx parses
+    (143); the Python scripts compile (13); all 1,028 JSON files are valid.
+  - Every file a card names exists: 971 showcase records, their thumbnails,
+    backdrops and pictures; the offer grounds; every photograph in
+    photo-subjects.js. None of the 382 pictures on live showcase cards is
+    flagged or refused by the owner's list.
+  - The landing (390 and 1440px): no failed request, no console or page
+    error, no sideways scroll. The release gate (tools/gfx/gate.mjs, 8 seeds):
+    1152 asked, 1152 clean.
+  - The template audit (dry run) agrees with template-holds.js (119 of 404
+    held, the offer family 161/161); the subject audit repeats its moves (437
+    cards); the tagline audit passes every style on all 82 sampled templates,
+    picture and video (5 blocks give way to the outline, each because a block
+    would cover the product).
+  - The real video buttons under the production CSP, as designed and with
+    blocks, from Easy Mode and the editor: 10s, 300 frames, audio, no
+    violation.
+
+Found and fixed:
+  - One inline script's hash (the FAQ JSON-LD) was missing from the CSP in
+    netlify.toml and _headers, from before this branch. JSON-LD is never
+    executed, so nothing broke, but scripts/verify_csp.mjs counts it; the
+    hashes were rewritten with scripts/csp_hashes.mjs.
+  - A code review of the branch, each case then driven in the editor, found
+    the tagline styles' editor side unsound: Enhance threw on every text (an
+    older fitToDoc bug: `(null && p.fontSize) !== undefined` is true) and,
+    wrapped by the style, took the style away with it; a style switched while
+    several objects were selected wrote absolute positions into a selection's
+    relative frame; the recorded positions went stale after a format switch or
+    a nudge (a line kept the block's shrink as its "designed" size); Quick Edit
+    and the properties panel left a line off its block; a duplicated line
+    shared its original's block; opening the editor from Easy Mode with the
+    visitor's own photograph solved the style on the template's photograph;
+    Fresh start and a History re-download kept or lost the theme the styles
+    read; the scene palette read the zoomed canvas width. All fixed: moves are
+    recorded as moves, blocks refit before every draw, copies get a block of
+    their own, blocks are not layers of their own, the selection is dropped
+    first, Enhance runs inside the style as one history step, and the style is
+    solved again when the visitor's photograph lands. Switching through every
+    style and back restores the designed card exactly (four templates).
+
+Not verifiable from a cloud session: what is live. Its network policy denies
+*.netlify.app, and the Netlify connector attached there sees a different
+project (buybackad-finished-copy). OPEN-ITEMS §O.

@@ -518,6 +518,20 @@ the §N order (after the showcase chain, before `audit_templates.mjs`):
     node scripts/subject_audit.mjs --sheet             # products off their subjects, every family
     node scripts/tagline_audit.mjs --per 2 --sheet     # every style on every family, picture and video
 
+Audited 2026-09-28 (the log entry of that date): every check below passes
+on the branch, and the editor's tagline cases a code review found are fixed.
+Open from that audit:
+
+- **What is live is unknown from a cloud session.** Its network policy
+  denies `*.netlify.app`, and the Netlify connector attached there sees one
+  project, `buybackad-finished-copy`, not `buybackad-graphics-studio` (the
+  one AGENT-BRIEF deploys). Deploy from the Mac as the brief says, or give the
+  connector the right team before deploying through it.
+- **photo-subjects.js loads with every page** (107 KB, 28 KB compressed),
+  the landing included, because a render must never run before it (a product
+  would stand differently in the first thumbnails than in the Studio). Loading
+  it with the backdrops would need every early render re-drawn once it lands.
+
 The video maker (`motion/`, mirrored from the phone ad engine: do not edit
 here) has its own vocabulary for the same ideas. The Studio's styles, in its
 terms, so the two can be joined in that repo:
