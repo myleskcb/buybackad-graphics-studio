@@ -20,9 +20,11 @@
  * left out: the plate owns its ground. So no line loses contrast and the
  * measured inks (contrast-fix.json) stay right.
  *
- * The page is opened with ?noground=1, so it measures the graded state this
- * replaces, with the contrast and number tables applied (the inks and the
- * number block the visitor sees).
+ * The page is opened with ?noground=1, so it measures the state without this
+ * table (since 2026-09-28 ungraded: the photograph as shot under the
+ * template's own scrim), with the contrast and number tables applied (the
+ * inks and the number block the visitor sees). It covers EVERY image-backed
+ * classic, not only the ones that used to be graded.
  *
  * usage: node scripts/naturalize_classics.mjs [--write] [--ids a,b] [--json out.json]
  */
@@ -39,7 +41,10 @@ const { browser, page, errors } = await openStudio('&noground=1');
 await page.waitForFunction(() => Array.isArray(CONTRAST_FIX) && CONTRAST_FIX.length, { timeout: 60000 }).catch(() => {});
 await new Promise(r => setTimeout(r, 3000));
 const ids = (await page.evaluate(() => TEMPLATES
-  .filter(t => !/^(sc|hx)-/.test(t.id) && t.bg && t.bg.type === 'image' && t.bg.grade && t.bg.grade.shadow)
+  /* every image-backed classic, graded or not: since 2026-09-28 assignStyle()
+     grades nothing (rule 56), and this table is what supplies each classic's
+     solved neutral shade. Selecting only graded ones wrote an empty table. */
+  .filter(t => !/^(sc|hx)-/.test(t.id) && !t.showcase && t.bg && t.bg.type === 'image')
   .map(t => t.id))).filter(id => !only || only.has(id));
 const out = {};
 for (let i = 0; i < ids.length; i += 6){
