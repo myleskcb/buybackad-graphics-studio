@@ -34,7 +34,12 @@ const WRITE = process.argv.includes('--write'), OUT = argv('--out');
    been solved against a flat smear: the blur was read in the wrong unit
    (app.js blurredEl), so once fixed their real photograph came through under
    copy that no longer cleared 4.5:1. */
-const RESOLVE = process.argv.includes('--resolve');
+const RESOLVE = process.argv.includes('--resolve') || process.argv.includes('--lighten');
+/* --lighten (with --ids): re-solve to the LIGHTEST shade that still holds every
+   line's core at 4.5:1 (the gate's measure: o.core), blur kept, so the
+   photograph shows through wherever the copy allows. The gate (gateRecords)
+   keeps only what leaves no line under what it had or under 4.5:1. */
+const LIGHTEN = process.argv.includes('--lighten');
 const DARK = '#0b0b0d', LIGHT = '#f6f6f4', MAX_BLUR = 4;
 const idx = JSON.parse(readFileSync(DIR + 'index.json', 'utf8'));
 const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
@@ -55,7 +60,7 @@ const { browser, page, errors } = await openStudio();
 const out = {};
 for (let i = 0; i < work.length; i += 6){
   const ids = work.slice(i, i + 6);
-  Object.assign(out, await page.evaluate(async (ids, DARK, LIGHT, MAX_BLUR) => {
+  Object.assign(out, await page.evaluate(async (ids, DARK, LIGHT, MAX_BLUR, CORE) => {
     const R = {};
     for (const id of ids){
       try {
@@ -64,7 +69,7 @@ for (let i = 0; i < work.length; i += 6){
         const orig = Object.assign({}, t.bg);
         if ((t.bg.blur || 0) > MAX_BLUR) t.bg = Object.assign({}, t.bg, { blur: MAX_BLUR });
         const r = __sc.naturalGround(t, { grade: { treat: 'natural' }, dark: DARK, light: LIGHT, modes: ['gradient', 'normal'],
-                                          flip: { dark: DARK, light: LIGHT }, prefer: 'dark', strict: MAX_BLUR === Infinity });
+                                          flip: { dark: DARK, light: LIGHT }, prefer: 'dark', strict: MAX_BLUR === Infinity, core: CORE });
         r.was = was;
         /* a line re-inked light may stand on a pale band the solver does not
            see as a plate (see-through, or so large it counts as a veil): the
@@ -134,7 +139,7 @@ for (let i = 0; i < work.length; i += 6){
       } catch (e){ R[id] = { err: String(e).slice(0, 160) }; }
     }
     return R;
-  }, ids, DARK, LIGHT, RESOLVE ? Infinity : MAX_BLUR));
+  }, ids, DARK, LIGHT, RESOLVE ? Infinity : MAX_BLUR, LIGHTEN));
   if (i % 60 === 0) console.log('…' + (i + ids.length) + '/' + work.length);
 }
 const rows = Object.entries(out);

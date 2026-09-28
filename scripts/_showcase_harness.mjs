@@ -147,7 +147,13 @@ export async function openStudio(query = ''){
             for (let xx = Math.max(0, Math.floor(b.x)); xx < Math.min(W, b.x + b.w); xx += 3){ const q = (y * W + xx) * 4; v.push(0.2126 * lin(d[q]) + 0.7152 * lin(d[q + 1]) + 0.0722 * lin(d[q + 2])); }
           return v.sort((p, q) => p - q); };
         const pct = (v, p) => v[Math.min(v.length - 1, Math.floor(v.length * p))];
-        const stat = (d, x) => { const v = pixels(d, x); return v.length ? pct(v, x.light ? 0.9 : 0.1) : null; };
+        /* the worst end of the ground under a line: the 90th/10th percentile
+           of its box, or with o.core the 75th/25th, the core of the strokes
+           the gate judges (pgCheck), so the shade is the lightest that passes
+           the gate rather than the lightest that darkens every last pixel
+           (owner, 2026-09-28: "make sure the backgrounds are visible") */
+        const hiP = o.core ? 0.75 : 0.9, loP = o.core ? 0.25 : 0.1;
+        const stat = (d, x) => { const v = pixels(d, x); return v.length ? pct(v, x.light ? hiP : loP) : null; };
         const old = ground(bg);
         if (!old) return { skip: 'photograph did not load' };
         /* a line is light ink if it is lighter than the ground it stands on,

@@ -11370,7 +11370,7 @@ function ezGroundSpecs(st){
   if (st.key === 'photo' || st.key === 'blurred'){
     const blur = st.key === 'blurred' ? 16 : 0, light = scLum(P.ink) > 0.4;
     return ezCategoryPhotos().map(src => ({ title: blur ? 'Blurred photo' : 'Photo', thumb: thumbOf(src, blur),
-      bg: { type:'image', src, blur, grade:{ treat:'natural' }, scrim: blur ? 0.52 : 0.58, scrimColor: light ? '#0b0b0d' : '#f6f6f4', scrimMode:'gradient' } }));
+      bg: { type:'image', src, blur, grade:{ treat:'natural' }, scrim: blur ? 0.36 : 0.42, scrimColor: light ? '#0b0b0d' : '#f6f6f4', scrimMode:'gradient' } }));   // light: the gate shades further only if a line needs it
   }
   let list;
   if (st.key === 'solid'){
