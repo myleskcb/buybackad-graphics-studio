@@ -46,7 +46,8 @@
  */
 import puppeteer from 'puppeteer-core';
 import { writeFileSync } from 'node:fs';
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+import { offline } from './_showcase_harness.mjs';
+const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';   // CHROME=… off the owner's Mac
 /* ?nofix=1 — measure the MODELLED state, never a page that has already applied
    the previous table. Baking from repaired colours finds nothing wrong and
    writes an empty file, silently undoing every repair on the next deploy. */
@@ -58,6 +59,7 @@ const browser = await puppeteer.launch({ executablePath: CHROME, headless:'new',
 const page = await browser.newPage();
 const perr = [];
 page.on('pageerror', e => perr.push(String(e)));
+await offline(page);                                  // FABRIC_JS=… where the CDN is unreachable
 await page.goto(BASE, { waitUntil:'networkidle2', timeout:60000 });
 await page.evaluate(() => document.fonts.ready);
 await new Promise(r => setTimeout(r, 6000));

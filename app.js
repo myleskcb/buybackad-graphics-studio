@@ -2064,7 +2064,8 @@ function fitToDoc(obj, p, docW){
              : originX === 'right'  ? left - margin
              :                        docW - left - margin;
   if (room <= 0 || obj.width <= room) return;
-  obj.set('fontSize', Math.max(8, Math.floor(fs * (room / obj.width))));
+  const floor = obj.pgRole === 'phone' ? Math.round(PG_T.number * docW / TPL_W) : 8;   // the number never fits down under 72px (rule 53)
+  obj.set('fontSize', Math.max(floor, Math.floor(fs * (room / obj.width))));
   if (obj.initDimensions) obj.initDimensions();
   if (obj.setCoords) obj.setCoords();
 }
@@ -2727,10 +2728,17 @@ function buildLayer(l, tplId, dw, dh){
   }
   let obj;
   if (l.kind === 'rect'){
-    // color blocks go glassy (45%) so background photos stay visible;
-    // stroke-only frames, rgba fills, and layers marked solid:true pass
-    // through as designed (bands, CTA cards, seals need full-strength ink)
-    if (!l.solid && typeof p.fill === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(p.fill)) p.fill = hexToRgba(p.fill, 0.45);
+    /* A hex colour block used to go glassy (45%) so the photograph showed
+       through it. Over a photograph that is a tinted veil (rule 64, the
+       owner's "colored hazes"). A block big enough to carry copy is a PLATE
+       and keeps its colour solid (rule 64: a solid accent plate keeps its
+       colour); a thin rule or stripe is decoration and stays see-through.
+       Stroke-only frames, rgba fills and layers marked solid:true pass
+       through as designed. (2026-09-28; measured on 14 classics, 66 rects.) */
+    if (!l.solid && typeof p.fill === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(p.fill)){
+      const plate = (p.height || 0) >= 40 && (p.width || 0) >= 80;
+      p.fill = hexToRgba(p.fill, plate ? 0.92 : 0.45);
+    }
     obj = new fabric.Rect(p);
   }
   else if (l.kind === 'circle') obj = new fabric.Circle(p);
@@ -7996,7 +8004,7 @@ function varietyOrder(list, seed){
 // One ordering, used by both the views and the free-tier rule, so "the first
 // three you see are free" stays literally true.
 function orderedCatList(cat){
-  const list = TEMPLATES.filter(t => t.cat === cat);
+  const list = TEMPLATES.filter(t => t.cat === cat && !t.gated);   // a classic that fails the gate is not offered (rule 66)
   const isPhoto = t => !!(t.bg && t.bg.type === 'image');
   // Photo backdrops still lead (the placeholder-bg flow depends on it); the
   // variety pass runs inside each group, and the second group is seeded with
@@ -8021,7 +8029,7 @@ function tplLocked(t){
   if (freeFirst3()[t.cat] && freeFirst3()[t.cat].has(t.id)) return false;
   return !account || (account.plan || 'free') === 'free';
 }
-function firstFreeTplId(){ return (TEMPLATES.find(t => !tplLocked(t)) || TEMPLATES[0]).id; }
+function firstFreeTplId(){ return (TEMPLATES.find(t => !tplLocked(t) && !t.gated) || TEMPLATES[0]).id; }
 function refreshTplLocks(){
   document.querySelectorAll('.ez-tpl').forEach(b => {
     const t = TEMPLATES.find(x => x.id === b.dataset.tpl);
@@ -8691,13 +8699,29 @@ function openAdvancedFromEz(){
       else canvas.remove(o);
     }
     else if (vals[o.name] !== undefined) o.set('text', cleanText(vals[o.name], o.pgCasing || 'none', o.pgRole));
+    /* REFIT, as Easy Mode does (renderEzCanvas): the fit was computed for the
+       authored words, and these are the visitor's. Single-line text only;
+       textboxes wrap. (2026-09-28: the editor used to keep the authored fit,
+       so a longer headline ran off the card.) */
+    const baseL = tpl.layers.find(x => x.name === o.name);
+    if (baseL && o.text !== undefined && baseL.kind !== 'textbox' && (o.type === 'i-text' || o.type === 'text')){
+      fitToDoc(o, baseL.props, CW);
+      if (baseL.pgOptical !== false && typeof opticalLeftShift === 'function') o.set('left', o.left - opticalLeftShift(o));
+    }
     const stOv = (ez.styles[tpl.id] || {})[o.name];
     if (stOv && o.text !== undefined){
-      const baseL = tpl.layers.find(x => x.name === o.name);
       o.set(ezStyleProps(stOv, (baseL && baseL.props) || {}));
       if (stOv.curve) textToCurved(o, stOv.curve);
     }
   });
+  /* the selling points Easy Mode synthesises when the template has no Badges layer */
+  if (chips.length && !canvas.getObjects().some(o => o.pgRole === 'badges')){
+    const bo = new fabric.IText(chips.map(c => '\u2713 ' + c).join('\n'), {
+      left: CW - 30, top: 30, originX: 'right', fontFamily: 'Satoshi', fontSize: 29, fill: '#ffffff', fontWeight: '800', charSpacing: 70, lineHeight: 1.5,
+      shadow: sh('rgba(0,0,0,0.6)', 10, 0, 3), paintFirst: 'stroke', name: 'Badges', pgRole: 'badges', pgCasing: 'upper', pgTplId: tpl.id });
+    canvas.add(bo);
+  }
+  alignPass(canvas, CW, CH);                       // the layout rules, on the visitor's words
   if (ez.bg && ez.bg.type === 'image' && ez.bgData) setBgFromDataUrl(ez.bgData, false, ez.fx.blur);
   else if (ez.bg){ bgState = Object.assign({}, ez.bg); applyBgSpec(canvas, bgState); syncBgControls(); }
   const patAdv = ezPatternObj();
@@ -11671,3 +11695,71 @@ async function pgGate(kind, makeScene, opts){
   }
   return pgGateAsk(r);
 }
+
+/* ── the number's floor, after the layout (rule 53) ───────────────────────
+   fitInsideGuides scales the whole composition to fit the 6% guides, and a
+   lowerThird card scaled by 0.92 took its 72px number to 66 (15 classics,
+   2026-09-28). The number is never under 72px on the 1080 basis: after the
+   pass it is brought back to 72 about its own centre, its plate with it, and
+   the pair is kept inside the guides. Wrapped, not spliced (AGENT-BRIEF 1). */
+function pgNumberFloor(sc, W, H){
+  W = W || TPL_W; H = H || TPL_H;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return; }
+  const k = TPL_W / Math.min(W, H), G = Math.round(GUIDE * Math.min(W, H));
+  const phone = objs.find(o => o && o.visible !== false && o.pgRole === 'phone' && typeof o.text === 'string' && o.fontSize);
+  if (!phone) return;
+  const px = phone.fontSize * (phone.scaleY || 1) * k;
+  if (px >= PG_T.number - 0.5) return;
+  const f = PG_T.number / px;
+  phone.setCoords();
+  const b = phone.getBoundingRect(true, true), cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+  const plate = objs.filter(o => o && o.type === 'rect' && !o.pgBgRect && !o.pgScrim && !o.pgShade && o.visible !== false && objs.indexOf(o) < objs.indexOf(phone))
+    .map(o => { o.setCoords(); return { o, b: o.getBoundingRect(true, true) }; })
+    .filter(x => x.b.width * x.b.height < 0.6 * W * H && cx > x.b.left && cx < x.b.left + x.b.width && cy > x.b.top && cy < x.b.top + x.b.height)
+    .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
+  const about = plate ? new fabric.Point(plate.b.left + plate.b.width / 2, plate.b.top + plate.b.height / 2) : new fabric.Point(cx, cy);
+  /* the plate grows with the number only as far as the guides allow; past
+     that the number alone grows and the gate reports it off its plate */
+  const fp = plate ? Math.min(f, (W - 2 * G) / plate.b.width, (H - 2 * G) / plate.b.height) : f;
+  [[phone, f]].concat(plate ? [[plate.o, fp]] : []).forEach(([o, k2]) => {
+    const c = o.getCenterPoint();
+    o.set({ scaleX: (o.scaleX || 1) * k2, scaleY: (o.scaleY || 1) * k2 });
+    o.setPositionByOrigin(new fabric.Point(about.x + (c.x - about.x) * k2, about.y + (c.y - about.y) * k2), 'center', 'center');
+    o.setCoords();
+  });
+  // keep the pair inside the guides
+  const union = [phone].concat(plate ? [plate.o] : []).map(o => o.getBoundingRect(true, true))
+    .reduce((u, r) => ({ left: Math.min(u.left, r.left), top: Math.min(u.top, r.top), right: Math.max(u.right, r.left + r.width), bottom: Math.max(u.bottom, r.top + r.height) }), { left: 1e9, top: 1e9, right: -1e9, bottom: -1e9 });
+  const dx = union.left < G ? G - union.left : union.right > W - G ? W - G - union.right : 0;
+  const dy = union.top < G ? G - union.top : union.bottom > H - G ? H - G - union.bottom : 0;
+  if (dx || dy) [phone].concat(plate ? [plate.o] : []).forEach(o => { o.set({ left: o.left + dx, top: o.top + dy }); o.setCoords(); });
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); try { pgNumberFloor(sc, W, H); } catch (e){ console.warn('number floor:', e); } return r; };
+}
+
+/* THE CLASSICS' GATE TABLE (rule 66). scripts/verify_showcase.mjs --classics
+   --write measures the 243 classics with the one measure and writes the ids
+   that fail to assets/classics-gate.json. A card that fails the measure is
+   not offered (rule 60 for the library; the same for the strip): it stays in
+   TEMPLATES for a draft that already uses it, but no list shows it. Same
+   shape as the fix tables: a failed fetch offers everything, ?nogate=1 skips
+   it for the scripts. */
+(function loadClassicsGate(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]nogate=1\b/.test(location.search)) return;
+    fetch('assets/classics-gate.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => {
+        const ids = j && Array.isArray(j.ids) ? new Set(j.ids) : null;
+        if (!ids || !ids.size) return;
+        let n = 0;
+        TEMPLATES.forEach(t => { if (!t.showcase && ids.has(t.id)){ t.gated = true; n++; } });
+        if (!n) return;
+        try { if (typeof buildEzStrip === 'function' && document.readyState !== 'loading') buildEzStrip(); } catch (e){}
+        try { if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding(); } catch (e){}
+      })
+      .catch(() => {});
+  } catch (e){}
+})();

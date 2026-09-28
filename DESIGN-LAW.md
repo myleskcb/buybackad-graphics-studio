@@ -474,7 +474,7 @@ its plate's own lightness, not on whatever photograph happens to sit behind it.
 If a rect carries dark ink, it is opaque. 283 plates across 172 templates were
 wrong on this one point.
 
-> Superseded in part (rule 66): a see-through tinted rect over a photograph is a haze and becomes smoke, paper or grey at the same luminance (rule 64). The 45% wash still applies to the classics until they are re-baked (OPEN-ITEMS §L).
+> Superseded in part (rule 66): a see-through tinted rect over a photograph is a haze and becomes smoke, paper or grey at the same luminance (rule 64). On the classics (2026-09-28) a hex block big enough to carry copy is drawn solid in its colour and only thin rules and stripes stay at 45%.
 
 ## 22. Measure against the real backdrop, or do not measure
 
