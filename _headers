@@ -31,3 +31,12 @@
 
 /styles.css
   Cache-Control: public, max-age=0, must-revalidate
+
+/flags.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/console.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/console.js
+  Cache-Control: public, max-age=0, must-revalidate

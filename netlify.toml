@@ -95,3 +95,21 @@
   for = "/styles.css"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# The design console and its flag registry ship with the app and must never
+# be served stale: a cached flags.js would boot the studio on yesterday's set
+# of switches.
+[[headers]]
+  for = "/flags.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/console.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/console.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

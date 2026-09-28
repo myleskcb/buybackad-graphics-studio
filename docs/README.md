@@ -28,6 +28,9 @@ post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 | `FIELD-RESEARCH.md` | How to study real competitor ads legally and usefully |
 | `OPERATIONS.md` | Hosting, deploy, URLs, DNS state, repo hygiene |
 | `LEARNING-LOG.md` | Append-only record of every session and what changed |
+| `../CHANGELOG.md` | What shipped, newest first, one entry per change, with the measured numbers |
+| `../OPEN-QUESTIONS.md` | The contradictions between the forks of the design language, each with a proposed resolution and a status |
+| `../console.html` | The design console: every procedural pass as a switch, live preview, last-run log, and both logs above rendered in tabs |
 
 ## The prime directive
 

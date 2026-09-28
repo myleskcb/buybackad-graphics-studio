@@ -181,3 +181,23 @@ Append to `docs/LEARNING-LOG.md` at the end of every session, including a
 - Add a rule sourced from a textbook rather than from the library.
 - Change DNS, registrar settings, Stripe products, or plan limits unattended.
 - Treat a green audit as proof the property is safe. Ask what it did not check.
+
+## The design console (added 2026-09-28)
+
+`console.html` (with `flags.js` and `console.js`) turns every procedural
+design decision into a switch: the 18-pass chain at the end of `app.js`, the
+house type law, accent deepening, the money-word colour fix, the Easy Mode
+colour-theme row, the CSS fallback. Switches persist in this browser only
+(`localStorage` key `pgfx_flags`) and `index.html?flags=id:0,…` reproduces a
+configuration for one load. Nothing here changes the product for anyone else.
+
+Rules for it:
+- **Adding a pass?** Register it in `flags.js` and call it through
+  `runPass('id', fn)` in the chain. A pass that bypasses `runPass` is invisible
+  to the console and to the run log, which is the rule-42 failure mode again.
+- **Changing what a pass does?** Add a line to `CHANGELOG.md`.
+- **Found two parts of the repo disagreeing?** Append to `OPEN-QUESTIONS.md`
+  with a status line. Do not resolve it silently in one place.
+- The default of every switch must stay the shipped behaviour. The console is
+  for seeing and deciding, not for shipping a configuration; when a decision
+  is made, change the code and delete the switch.

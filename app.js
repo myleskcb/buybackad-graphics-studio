@@ -11,6 +11,16 @@ const store = (() => {
 const jget = (k, fb) => { try { const v = store.getItem(k); return v==null ? fb : JSON.parse(v); } catch(e){ return fb; } };
 const jset = (k, v) => { try { store.setItem(k, JSON.stringify(v)); } catch(e){} };
 
+/* ---------- design flags (flags.js) ----------
+   Every procedural design decision below asks pgfxFlag(id) before it runs, so
+   the console (console.html) can switch it off or force it. flags.js is loaded
+   before this file by index.html; if it is missing, every flag reads as ON and
+   the shipped behaviour is unchanged. `styleForce` is the one non-boolean. */
+const pgfxFlag = (typeof window !== 'undefined' && typeof window.pgfxFlag === 'function')
+  ? window.pgfxFlag
+  : (id => id === 'styleForce' ? 'mix' : true);
+const PGFX_PASS_LOG = (typeof window !== 'undefined' && window.PGFX_FLAGS) ? window.PGFX_FLAGS.log : [];
+
 const $ = id => document.getElementById(id);
 // Template design space: every built-in layout is authored on a 1080×1080 grid.
 // CW/CH are the LIVE document size, they change with the chosen format, and
@@ -629,6 +639,7 @@ const TEMPLATES = [
      deepened into a rich version of itself. The lightness floor keeps every
      accent bright enough to hold contrast against a near-black ground. */
   (function tameAccents(){
+    if (!pgfxFlag('tameAccents')) return;            // flag: Rule 8
     const toHsl = hex => {
       const n = parseInt(hex.slice(1), 16);
       const r=((n>>16)&255)/255, g=((n>>8)&255)/255, b=(n&255)/255;
@@ -1429,6 +1440,7 @@ const TEMPLATES = [
       Math.max(4, Math.round(fs * 0.09)), 0, Math.max(1, Math.round(fs * 0.015)));
   };
   function houseType(layers, P){
+    if (!pgfxFlag('houseType')) return;              // flag: Rules 1-5
     layers.forEach(l => {
       const p = l.props;
       if (!p) return;
@@ -1778,7 +1790,7 @@ const TEMPLATES = [
   // Runs after BOTH libraries are built: COLOUR_FIX is a const declared below
   // the designer loop, so calling it from inside that loop would hit the
   // temporal dead zone. It only sets a fill, so order is otherwise irrelevant.
-  TEMPLATES.forEach(t => applyColourFix(t.id, t.layers));
+  if (pgfxFlag('applyColourFix')) TEMPLATES.forEach(t => applyColourFix(t.id, t.layers));   // flag: Rule 14
 })();
 
 // traits: per-template, per-layer canonical styling, this is what Enhance restores
@@ -4279,6 +4291,11 @@ function buildThemeRow(){
   const row = $('ez-themes');
   if (!row || row.dataset.built) return;
   row.dataset.built = '1';
+  if (!pgfxFlag('easyColorThemes')){                 // flag: see OPEN-QUESTIONS.md
+    const wrap = row.closest('.ez-field') || row;
+    wrap.style.display = 'none';
+    return;
+  }
   COLOR_THEMES.forEach(th => {
     const b = document.createElement('button');
     b.className = 'ez-theme';
@@ -6777,7 +6794,10 @@ function assignStyle(t){
   if (!t.bg || !t.cat) return 0;
   const C = CAT_COLOUR[t.cat]; if (!C) return 0;
   let h = 0; for (let i = 0; i < t.id.length; i++) h = (h * 33 + t.id.charCodeAt(i)) >>> 0;
-  const style = STYLE_MIX[h % STYLE_MIX.length];
+  // flag `styleForce`: the console can hand every template one family instead
+  // of the hashed split (HANDOFF section 4 is the argument for why you would).
+  const forced = pgfxFlag('styleForce');
+  const style = (forced === 'photo' || forced === 'duotone' || forced === 'wash') ? forced : STYLE_MIX[h % STYLE_MIX.length];
   t.style = style;
   if (style === 'duotone' && t.bg.type === 'image' && !t.bg.scrimColor){
     /* Shadows to a deep version of the category hue, highlights to the
@@ -8081,6 +8101,7 @@ function ensureCss(){
   try {
     console.log('PhoneGFX build ' + PGFX_BUILD);
     if (cssProbeOk()){ console.log('PhoneGFX: styles OK via normal <style> tags.'); return; }
+    if (!pgfxFlag('cssFallback')){ console.warn('PhoneGFX: styles did not apply and the cssFallback flag is off; leaving the page unstyled.'); return; }
     console.warn('PhoneGFX: <style> tags did not apply, trying re-injection.');
     // Route 1: <style> blocks were stripped by the host, re-inject them
     const st = document.createElement('style');
@@ -8160,29 +8181,40 @@ if (document.readyState === 'loading'){
    thumbnail render, because thumbnails only need code defined above the break,
    so it passed a 243/243 check while tplDims() was dead. Hence the assertion. */
 const _BGP = bgPoolByCat();
-TEMPLATES.forEach(t => completeTemplate(t, _BGP));
-TEMPLATES.forEach(t => applyCategoryMarks(t));
-TEMPLATES.forEach(t => applyBrandVocab(t));
-TEMPLATES.forEach(t => enforceTypeWeight(t));
-TEMPLATES.forEach(t => enforcePlateSolidity(t));
-TEMPLATES.forEach(t => enforceInkOnPlate(t));
-TEMPLATES.forEach(t => stackBulletRuns(t));
-TEMPLATES.forEach(t => addProductCutout(t));
-TEMPLATES.forEach(t => assignStyle(t));
-TEMPLATES.forEach(t => colourTheory(t));
-TEMPLATES.forEach(t => displayFaceFix(t));
-TEMPLATES.forEach(t => enrichFills(t));
-TEMPLATES.forEach(t => opticalTracking(t));
-TEMPLATES.forEach(t => normaliseBackdrop(t));
-TEMPLATES.forEach(t => inkVsWash(t));
-TEMPLATES.forEach(t => highlightBudget(t));
-TEMPLATES.forEach(t => bodyPanel(t));
+/* Every pass goes through runPass so the console can switch it off and see
+   what ran. A skipped pass is logged, not silently absent — the exact failure
+   mode rule 42 describes is a pass that vanished without anyone knowing. */
+function runPass(id, fn){
+  const on = pgfxFlag(id);
+  const t0 = (typeof performance !== 'undefined') ? performance.now() : Date.now();
+  let touched = 0;
+  if (on) TEMPLATES.forEach(t => { const r = fn(t); if (typeof r === 'number') touched += r; });
+  const t1 = (typeof performance !== 'undefined') ? performance.now() : Date.now();
+  PGFX_PASS_LOG.push({ id, ran: !!on, ms: Math.round((t1 - t0) * 10) / 10, touched });
+}
+runPass('completeTemplate',    t => completeTemplate(t, _BGP));
+runPass('applyCategoryMarks',  t => applyCategoryMarks(t));
+runPass('applyBrandVocab',     t => applyBrandVocab(t));
+runPass('enforceTypeWeight',   t => enforceTypeWeight(t));
+runPass('enforcePlateSolidity',t => enforcePlateSolidity(t));
+runPass('enforceInkOnPlate',   t => enforceInkOnPlate(t));
+runPass('stackBulletRuns',     t => stackBulletRuns(t));
+runPass('addProductCutout',    t => addProductCutout(t));
+runPass('assignStyle',         t => assignStyle(t));
+runPass('colourTheory',        t => colourTheory(t));
+runPass('displayFaceFix',      t => displayFaceFix(t));
+runPass('enrichFills',         t => enrichFills(t));
+runPass('opticalTracking',     t => opticalTracking(t));
+runPass('normaliseBackdrop',   t => normaliseBackdrop(t));
+runPass('inkVsWash',           t => inkVsWash(t));
+runPass('highlightBudget',     t => highlightBudget(t));
+runPass('bodyPanel',           t => bodyPanel(t));
 /* LAST. Run before the contrast passes it went straight back to white: liftInk
    walks a near-neutral toward pure white to buy contrast, so tinting first and
    correcting after put 49% of the type back to plain white — worse than before
    the tint existed. Whatever colour the contrast work lands on, this is the
    final word on it. */
-TEMPLATES.forEach(t => warmTheWhites(t));
+runPass('warmTheWhites',       t => warmTheWhites(t));
 try {
   tplDims(TEMPLATES[0]);
   /* The old assertion called onAccent({a1:'#ffffff'}) here. onAccent is a const
@@ -8200,3 +8232,17 @@ try {
     'below a call site is in the temporal dead zone. Everything after that ' +
     'point is uninitialised.', e);
 }
+
+/* What console.html reads out of the studio iframe after boot: build, counts,
+   the pass log above, and the style split the hashed assignment produced. */
+try {
+  const styles = {};
+  TEMPLATES.forEach(t => { const k = t.style || 'none'; styles[k] = (styles[k] || 0) + 1; });
+  const cats = {};
+  TEMPLATES.forEach(t => { cats[t.cat] = (cats[t.cat] || 0) + 1; });
+  window.PGFX_CONSOLE = {
+    build: PGFX_BUILD, templates: TEMPLATES.length, styles, cats,
+    passes: PGFX_PASS_LOG, flags: (window.PGFX_FLAGS ? window.PGFX_FLAGS.all() : null),
+    cutouts: TEMPLATES.filter(t => (t.layers || []).some(l => l.kind === 'cutout')).length,
+  };
+} catch (e){ console.warn('GraphicsStudio: console summary failed', e); }

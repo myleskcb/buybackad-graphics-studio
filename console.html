@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Design console — Graphics Studio</title>
+<meta name="description" content="Internal: switch every procedural design decision on or off and watch the studio rebuild.">
+<style>
+/* Self-contained on purpose. It borrows the house tokens from styles.css by
+   value rather than by <link>, so a broken stylesheet in the product never
+   takes the tool that diagnoses it down with it. No inline script anywhere:
+   the site CSP hashes inline scripts and this page must never need a hash. */
+:root, :root[data-theme='dark']{
+  --field:#141110; --surface:#1d1815; --raise:#262019; --sunk:rgba(255,255,255,.055);
+  --text:#f6efe8; --text-2:#cfc2b6; --dim:#9a8b7e;
+  --hair:rgba(255,255,255,.09); --hair-2:rgba(255,255,255,.16);
+  --accent:#ff7a1a; --accent-ink:#1a0d04; --accent-wash:rgba(255,122,26,.18); --accent-deep:#e04e05;
+  --good:#30d68f; --warn:#ffb03d; --danger:#ff6259; --ai:#a78bff;
+  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
+  --ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:dark;
+}
+:root[data-theme='light']{
+  --field:#f3ede6; --surface:#ffffff; --raise:#faf6f1; --sunk:rgba(0,0,0,.045);
+  --text:#1a130e; --text-2:#4a3d33; --dim:#7a6a5d;
+  --hair:rgba(0,0,0,.09); --hair-2:rgba(0,0,0,.16);
+  --accent:#c2410c; --accent-ink:#ffffff; --accent-wash:rgba(194,65,12,.13); --accent-deep:#9a3412;
+  --good:#15803d; --warn:#b45309; --danger:#b91c1c; --ai:#6d28d9;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:14px/1.5 var(--ui);background:var(--field);color:var(--text);display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+button,select,input{font:inherit;color:inherit}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.92em;background:var(--sunk);padding:1px 5px;border-radius:5px}
+
+/* ── top bar ─────────────────────────────────────────────────────────── */
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--hair);background:var(--surface);flex-wrap:wrap}
+header h1{font-size:15px;font-weight:700;margin:0;letter-spacing:-.01em}
+header h1 small{font-weight:500;color:var(--dim);margin-left:8px}
+.pill{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:999px;background:var(--sunk);color:var(--text-2);border:1px solid var(--hair)}
+.pill.warn{color:var(--warn);border-color:var(--warn)}
+.pill.good{color:var(--good);border-color:var(--good)}
+.spacer{flex:1}
+.btn{border:1px solid var(--hair-2);background:var(--raise);border-radius:999px;padding:6px 13px;cursor:pointer;font-weight:600;font-size:13px;min-height:32px}
+.btn:hover{border-color:var(--accent);background:var(--accent-wash)}
+.btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border-color:transparent}
+.btn.danger:hover{border-color:var(--danger);color:var(--danger);background:transparent}
+.btn.icon{padding:6px 10px}
+
+/* ── two panes ───────────────────────────────────────────────────────── */
+main{display:grid;grid-template-columns:minmax(340px,440px) 1fr;min-height:0}
+aside{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--hair);background:var(--surface)}
+.tabs{display:flex;border-bottom:1px solid var(--hair);padding:0 10px}
+.tabs button{background:none;border:none;border-bottom:2px solid transparent;padding:10px 10px;cursor:pointer;color:var(--dim);font-weight:600;font-size:13px}
+.tabs button.active{color:var(--text);border-bottom-color:var(--accent)}
+.tabs button .n{font-family:var(--mono);font-size:10px;margin-left:5px;color:var(--accent)}
+.pane{display:none;overflow:auto;padding:14px 16px 40px;min-height:0}
+.pane.active{display:block}
+
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.presets .btn{font-size:12px;padding:4px 10px;min-height:28px}
+.group{margin:0 0 18px}
+.group h2{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.group h2 .n{font-family:var(--mono);font-weight:500;letter-spacing:0;text-transform:none}
+.flag{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0;border-top:1px solid var(--hair);align-items:start}
+.flag:first-of-type{border-top:none}
+.flag.changed{background:linear-gradient(90deg,var(--accent-wash),transparent 60%);margin:0 -16px;padding-left:16px;padding-right:16px}
+.flag .name{font-weight:650;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.flag .rule{font-family:var(--mono);font-size:10.5px;color:var(--dim);border:1px solid var(--hair);border-radius:5px;padding:0 5px}
+.flag .desc{grid-column:1;color:var(--text-2);font-size:12.5px;line-height:1.45}
+.flag .ctl{grid-column:2;grid-row:1 / span 2;align-self:center}
+.sw{position:relative;width:40px;height:24px;border-radius:999px;border:none;background:var(--hair-2);cursor:pointer;padding:0;transition:background .15s}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.sw[aria-checked='true']{background:var(--accent)}
+.sw[aria-checked='true']::after{transform:translateX(16px)}
+select.choice{border:1px solid var(--hair-2);background:var(--raise);border-radius:8px;padding:5px 8px;max-width:190px}
+.hint{font-size:12px;color:var(--dim);margin:0 0 12px}
+
+/* ── run log ─────────────────────────────────────────────────────────── */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--hair);vertical-align:top}
+th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.off td{color:var(--dim)}
+tr.off td:first-child::after{content:' skipped';color:var(--warn);font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:0 0 14px}
+.stat{background:var(--raise);border:1px solid var(--hair);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-family:var(--mono);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+
+/* ── markdown panes ──────────────────────────────────────────────────── */
+.md h1{font-size:20px;margin:0 0 10px;letter-spacing:-.01em}
+.md h2{font-size:15px;margin:22px 0 6px;padding-top:12px;border-top:1px solid var(--hair)}
+.md h3{font-size:13.5px;margin:16px 0 4px}
+.md p,.md li{color:var(--text-2);font-size:13px;line-height:1.55}
+.md li{margin:2px 0}
+.md strong{color:var(--text)}
+.md pre{background:var(--sunk);border:1px solid var(--hair);border-radius:8px;padding:10px 12px;overflow:auto;font-family:var(--mono);font-size:12px;line-height:1.45}
+.md pre code{background:none;padding:0}
+.md blockquote{margin:8px 0;padding:6px 12px;border-left:3px solid var(--accent);color:var(--text-2);background:var(--accent-wash);border-radius:0 8px 8px 0}
+.md table{margin:8px 0 12px}
+.md hr{border:none;border-top:1px solid var(--hair);margin:16px 0}
+.md .status{font-family:var(--mono);font-size:10.5px;border-radius:5px;padding:0 6px;border:1px solid currentColor}
+
+/* ── preview ─────────────────────────────────────────────────────────── */
+section.preview{display:grid;grid-template-rows:auto 1fr;min-height:0;background:#0d0a08}
+.preview-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--hair);background:var(--surface);font-size:12.5px;color:var(--dim)}
+.preview-bar select{border:1px solid var(--hair-2);background:var(--raise);border-radius:8px;padding:4px 8px}
+iframe{width:100%;height:100%;border:none;background:#141110}
+.preview.busy iframe{opacity:.5;transition:opacity .2s}
+
+@media (max-width:900px){
+  body{overflow:auto}
+  main{grid-template-columns:1fr;grid-template-rows:auto auto}
+  aside{border-right:none;border-bottom:1px solid var(--hair);max-height:60vh}
+  section.preview{height:70vh}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Design console <small>Graphics Studio</small></h1>
+  <span class="pill" id="build">build …</span>
+  <span class="pill" id="diff">shipped configuration</span>
+  <span class="spacer"></span>
+  <button class="btn" id="open-studio" title="Open the studio in a new tab with the current switches in its URL">Open studio ↗</button>
+  <button class="btn" id="copy-link" title="Copy a link that reproduces this configuration">Copy share link</button>
+  <button class="btn danger" id="reset" title="Back to exactly what ships">Reset all</button>
+  <button class="btn icon" id="theme" title="Dark / light">◐</button>
+</header>
+
+<main>
+  <aside>
+    <div class="tabs" role="tablist">
+      <button class="active" data-tab="flags" role="tab">Switches</button>
+      <button data-tab="run" role="tab">Last run</button>
+      <button data-tab="changelog" role="tab">Change log</button>
+      <button data-tab="questions" role="tab">Open questions <span class="n" id="q-count"></span></button>
+    </div>
+
+    <div class="pane active" id="pane-flags">
+      <p class="hint">Each switch is one procedural decision the engine makes on every template. Changes save in this browser and the preview rebuilds. Nothing here changes the product for anyone else.</p>
+      <div class="presets" id="presets"></div>
+      <div id="flag-groups"></div>
+    </div>
+
+    <div class="pane" id="pane-run">
+      <p class="hint">What actually executed on the preview’s last boot, read from the studio itself, not from the switches.</p>
+      <div class="stats" id="stats"></div>
+      <table>
+        <thead><tr><th>pass</th><th class="num">changes</th><th class="num">ms</th></tr></thead>
+        <tbody id="run-rows"><tr><td colspan="3" style="color:var(--dim)">waiting for the preview to boot…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="pane md" id="pane-changelog"><p class="hint">Loading CHANGELOG.md…</p></div>
+    <div class="pane md" id="pane-questions"><p class="hint">Loading OPEN-QUESTIONS.md…</p></div>
+  </aside>
+
+  <section class="preview" id="preview">
+    <div class="preview-bar">
+      <span>Preview</span>
+      <select id="scope">
+        <option value="index.html#lp-templates">Template gallery</option>
+        <option value="index.html">Landing page</option>
+      </select>
+      <button class="btn" id="reload" style="min-height:28px;padding:3px 10px;font-size:12px">Rebuild</button>
+      <span id="preview-state"></span>
+    </div>
+    <iframe id="frame" title="Graphics Studio preview" src="about:blank"></iframe>
+  </section>
+</main>
+
+<script src="flags.js"></script>
+<script src="console.js"></script>
+</body>
+</html>

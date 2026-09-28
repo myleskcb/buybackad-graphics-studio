@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+Disallow: /console.html
 Sitemap: https://buyback.ad/sitemap.xml

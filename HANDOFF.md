@@ -169,6 +169,15 @@ it beat Nano Banana Pro at 5× the price in a measured bakeoff). fal key lives i
 - Emoji: pictorial ones removed; the owner has asked twice for emoji as a
   deliberate LARGE-format style. Not built.
 
+## 6b. Added 2026-09-28 — the console
+
+Every pass in section 4's chain is now a switch in `console.html`, with a live
+preview and a run log that reads back what executed. `styleForce` hands every
+template one family instead of the hashed split. This is the first step toward
+the template editor in section 7 item 1, not a replacement for it. The
+contradictions this handoff describes are itemised with proposals in
+`OPEN-QUESTIONS.md`; shipped changes go in `CHANGELOG.md`.
+
 ## 7. Open, in priority order
 
 1. **Template editor / explicit design records** (section 4) — the real fix.
