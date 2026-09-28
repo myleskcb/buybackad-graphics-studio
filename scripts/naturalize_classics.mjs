@@ -28,7 +28,7 @@
  *
  * usage: node scripts/naturalize_classics.mjs [--write] [--ids a,b] [--json out.json]
  */
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { openStudio } from './_showcase_harness.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
@@ -79,7 +79,17 @@ skips.forEach(([id, r]) => console.log('  SKIP', id, r.skip));
 errs.slice(0, 4).forEach(([id, r]) => console.log('  ERR', id, r.err));
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify(out));
 if (WRITE){
-  const table = done.map(([id, r]) => ({ id, src: r.src, bg: { scrim: r.bg.scrim, scrimColor: r.bg.scrimColor, scrimMode: r.bg.scrimMode } })).sort((a, b) => a.id < b.id ? -1 : 1);
+  let table = done.map(([id, r]) => ({ id, src: r.src, bg: { scrim: r.bg.scrim, scrimColor: r.bg.scrimColor, scrimMode: r.bg.scrimMode } }));
+  /* a template no neutral scrim can hold keeps its previous row (a solve
+     that fails must not drop a shade that was holding): 2026-09-28, nine
+     skipped rows fell out of the table and their inks lost their ground */
+  try {
+    const prev = JSON.parse(readFileSync(ROOT + 'assets/ground-fix.json', 'utf8')), have = new Set(table.map(x => x.id));
+    const kept = prev.filter(x => !have.has(x.id) && skips.some(([id]) => id === x.id));
+    table = table.concat(kept);
+    if (kept.length) console.log('kept the previous row for ' + kept.length + ' skipped templates: ' + kept.map(x => x.id).join(', '));
+  } catch (e){}
+  table.sort((a, b) => a.id < b.id ? -1 : 1);
   writeFileSync(ROOT + 'assets/ground-fix.json', JSON.stringify(table));
   console.log('wrote assets/ground-fix.json: ' + table.length + ' templates');
 }

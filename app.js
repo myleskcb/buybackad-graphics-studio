@@ -11471,6 +11471,23 @@ function pgRgb(f){ let m = /^#?([0-9a-f]{6})$/i.exec(String(f || '').trim()); if
   m = /^#?([0-9a-f]{3})$/i.exec(String(f || '').trim()); if (m) return [parseInt(m[1][0] + m[1][0], 16), parseInt(m[1][1] + m[1][1], 16), parseInt(m[1][2] + m[1][2], 16), 1];
   m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(String(f || '')); return m ? [+m[1], +m[2], +m[3], m[4] == null ? 1 : +m[4]] : null; }
 function pgLum(f){ const c = pgRgb(f); return c ? 0.2126 * pgLin(c[0]) + 0.7152 * pgLin(c[1]) + 0.0722 * pgLin(c[2]) : null; }
+/* THE PLATE UNDER THE NUMBER, one finder for the gate and the floor: the
+   last solid rect drawn before the number whose x-span holds the number's
+   centre; among those, one that holds the number's vertical centre wins over
+   one that merely overlaps it (a claim strip above the number is not its
+   plate: three street price tags measured 98% "off plate" for that). */
+function pgPlateUnder(objs, phone, b, W, H){
+  const solid = o => { const f = o.fill; return f && f !== 'transparent' && !(typeof f === 'string' && /rgba\([^)]*,\s*0(\.[0-4]\d*)?\)$/.test(f)); };
+  const cx = b.x + b.w / 2, cy = b.y + b.h / 2, k = objs.indexOf(phone), hits = [];
+  objs.forEach((o, j) => {
+    if (j >= k || !o || o.visible === false || o.type !== 'rect' || o.pgBgRect || o.pgScrim || o.pgShade || !solid(o)) return;
+    o.setCoords(); const r = o.getBoundingRect(true, true), c = { o, x: r.left, y: r.top, w: r.width, h: r.height };
+    if (c.w * c.h > 0.6 * W * H) return;
+    if (cx >= c.x && cx <= c.x + c.w && c.y < b.y + b.h && c.y + c.h > b.y) hits.push(c);
+  });
+  const inside = hits.filter(c => cy >= c.y && cy <= c.y + c.h);
+  return (inside.length ? inside : hits).pop() || null;
+}
 function pgCheck(sc, opts){
   opts = opts || {};
   const W = sc.getWidth(), H = sc.getHeight(), k1080 = TPL_W / Math.min(W, H);
@@ -11542,17 +11559,12 @@ function pgCheck(sc, opts){
   if (phone){
     if (phone.px < PG_T.number) F('number', phone, phone.px, PG_T.number);
     if (phone.letters != null && phone.letters < PG_T.numInk) F('numInk', phone, phone.letters, PG_T.numInk);
-    let plate = null;
-    const b = phone.b, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    const b = phone.b;
     objs.forEach((o, j) => {
       if (j >= phone.k || !o || o.visible === false) return;
       if (o.type === 'image' && o.pgRole === 'photo' && !o.pgBgRect && (o.opacity == null || o.opacity >= 0.5)) onProduct = Math.max(onProduct, inter(b, box(o)) / Math.max(1, b.w * b.h));
-      if (o.type === 'rect' && !o.pgBgRect && !o.pgScrim){
-        const f = o.fill; if (!f || f === 'transparent' || (typeof f === 'string' && /rgba\([^)]*,\s*0(\.[0-4]\d*)?\)$/.test(f))) return;
-        const c = box(o); if (c.w * c.h > 0.6 * W * H) return;
-        if (cx >= c.x && cx <= c.x + c.w && c.y < b.y + b.h && c.y + c.h > b.y) plate = c;
-      }
     });
+    const plate = pgPlateUnder(objs, phone.o, b, W, H);
     if (onProduct > PG_T.onProduct) F('onProduct', phone, onProduct, PG_T.onProduct);
     if (plate){
       const x0 = Math.max(0, Math.floor(b.x)), y0 = Math.max(0, Math.floor(b.y)), w = Math.min(W, Math.ceil(b.x + b.w)) - x0, h = Math.min(H, Math.ceil(b.y + b.h)) - y0;
@@ -11711,28 +11723,25 @@ function pgNumberFloor(sc, W, H){
   const px = phone.fontSize * (phone.scaleY || 1) * k;
   if (px >= PG_T.number - 0.5) return;
   const f = PG_T.number / px;
-  phone.setCoords();
-  const b = phone.getBoundingRect(true, true), cx = b.left + b.width / 2, cy = b.top + b.height / 2;
-  const plate = objs.filter(o => o && o.type === 'rect' && !o.pgBgRect && !o.pgScrim && !o.pgShade && o.visible !== false && objs.indexOf(o) < objs.indexOf(phone))
-    .map(o => { o.setCoords(); return { o, b: o.getBoundingRect(true, true) }; })
-    .filter(x => x.b.width * x.b.height < 0.6 * W * H && cx > x.b.left && cx < x.b.left + x.b.width && cy > x.b.top && cy < x.b.top + x.b.height)
-    .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
-  const about = plate ? new fabric.Point(plate.b.left + plate.b.width / 2, plate.b.top + plate.b.height / 2) : new fabric.Point(cx, cy);
-  /* the plate grows with the number only as far as the guides allow; past
-     that the number alone grows and the gate reports it off its plate */
-  const fp = plate ? Math.min(f, (W - 2 * G) / plate.b.width, (H - 2 * G) / plate.b.height) : f;
-  [[phone, f]].concat(plate ? [[plate.o, fp]] : []).forEach(([o, k2]) => {
-    const c = o.getCenterPoint();
-    o.set({ scaleX: (o.scaleX || 1) * k2, scaleY: (o.scaleY || 1) * k2 });
-    o.setPositionByOrigin(new fabric.Point(about.x + (c.x - about.x) * k2, about.y + (c.y - about.y) * k2), 'center', 'center');
-    o.setCoords();
-  });
-  // keep the pair inside the guides
-  const union = [phone].concat(plate ? [plate.o] : []).map(o => o.getBoundingRect(true, true))
-    .reduce((u, r) => ({ left: Math.min(u.left, r.left), top: Math.min(u.top, r.top), right: Math.max(u.right, r.left + r.width), bottom: Math.max(u.bottom, r.top + r.height) }), { left: 1e9, top: 1e9, right: -1e9, bottom: -1e9 });
-  const dx = union.left < G ? G - union.left : union.right > W - G ? W - G - union.right : 0;
-  const dy = union.top < G ? G - union.top : union.bottom > H - G ? H - G - union.bottom : 0;
-  if (dx || dy) [phone].concat(plate ? [plate.o] : []).forEach(o => { o.set({ left: o.left + dx, top: o.top + dy }); o.setCoords(); });
+  const bb = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const plate = pgPlateUnder(objs, phone, bb(phone), W, H);
+  // the number grows about its own centre
+  { const c = phone.getCenterPoint(); phone.set({ scaleX: (phone.scaleX || 1) * f, scaleY: (phone.scaleY || 1) * f }); phone.setPositionByOrigin(c, 'center', 'center'); phone.setCoords(); }
+  let nb = bb(phone);
+  if (plate){
+    const o = plate.o, pad = Math.max(12, Math.round(plate.w * 0.045)), need = nb.w + 2 * pad;
+    if (need > plate.w){                              // a pill grows to hold it, as far as the guides allow
+      const want = Math.min(W - 2 * G, need), c = o.getCenterPoint();
+      o.set({ width: want / (o.scaleX || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    }
+    const pb = bb(o), lo = pb.x + pad, hi = pb.x + pb.w - pad;   // then the number slides inside it (a band does not grow)
+    const dx = nb.x < lo ? lo - nb.x : (nb.x + nb.w > hi ? hi - (nb.x + nb.w) : 0);
+    if (dx && nb.w <= hi - lo + 1){ phone.set({ left: phone.left + dx }); phone.setCoords(); nb = bb(phone); }
+  }
+  // and stays inside the guides
+  const dx = nb.x < G ? G - nb.x : nb.x + nb.w > W - G ? W - G - (nb.x + nb.w) : 0;
+  const dy = nb.y < G ? G - nb.y : nb.y + nb.h > H - G ? H - G - (nb.y + nb.h) : 0;
+  if (dx || dy){ phone.set({ left: phone.left + dx, top: phone.top + dy }); phone.setCoords(); }
 }
 {
   const _alignPass = alignPass;
