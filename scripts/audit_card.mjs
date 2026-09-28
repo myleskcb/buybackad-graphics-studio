@@ -42,6 +42,9 @@ const ROOT = new URL('../', import.meta.url).pathname;
 const OUT = ROOT + '.render/audit-card/';
 mkdirSync(OUT, { recursive: true });
 const ids = process.argv.slice(2).filter(a => !a.startsWith('--'));
+/* --lab: the ids are lab records (.render/restage/lab/<id>.json, written by
+   restage_steps_flow.mjs --as=…), audited through the same three paths */
+const LAB = process.argv.includes('--lab');
 if (!ids.length){ console.error('usage: node scripts/audit_card.mjs <cardId…>'); process.exit(2); }
 
 const { browser, page } = await openStudio();
@@ -222,9 +225,37 @@ await page.evaluate(() => {
         const lastPlate = [3, 2, 1].map(i => named('Step Card ' + i)).find(Boolean), LP = lastPlate && I(lastPlate);
         // square: it stands on the band; a tall card centres its middle block, and the phone ends with the steps
         const onBand = Pr.b >= B.t - 4 && Pr.b <= B.t + 60, withSteps = tall && LP && Math.abs(Pr.b - LP.b) <= 6;
-        check(73, tall ? 'product stands on the band or ends with the steps' : 'product stands on the band', onBand || withSteps,
-          r1(Pr.b - B.t) + 'px into the band' + (LP ? ', ' + r1(Pr.b - LP.b) + 'px past the last step' : ''), tall ? '0-60px into the band, or within 6px of the last step' : '0-60px');
-        if (tall && LP){
+        const fill = sc.__fill || {}, FP = named('Step Card 1') && I(named('Step Card 1'));
+        const firstInk = FP ? Math.min(...words.filter(o => { const c = o.getCenterPoint(); return c.x > FP.l && c.x < FP.r && c.y > FP.t && c.y < FP.b; }).map(o => I(o) ? I(o).t : 1e9)) : null;
+        // grown: it stands on the list, its foot in plate 1's empty top strip
+        const onList = tall && fill.decision === 'grow' && FP && Pr.b >= FP.t - 2 && Pr.b <= firstInk - 4;
+        check(73, tall ? 'product stands on the band, ends with the steps, or stands on the list' : 'product stands on the band', onBand || withSteps || onList,
+          r1(Pr.b - B.t) + 'px into the band' + (LP ? ', ' + r1(Pr.b - LP.b) + 'px past the last step' : '') + (FP ? ', foot ' + r1(Pr.b - FP.t) + 'px into plate 1 (words at ' + r1(firstInk - FP.t) + ')' : ''),
+          tall ? 'on the band, with the steps, or on plate 1 above its words' : '0-60px');
+        if (tall){
+          /* the tall-format call, re-measured here rather than taken from the engine: the
+             photograph's subject rows (at least half its peak detail) are left to it */
+          const q = 4, cw = Math.round(W / q), ch = Math.round(H / q), cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+          const saved = objs.map(o => o.visible), col = sc.backgroundColor; objs.forEach(o => { o.visible = false; }); sc.backgroundColor = '';
+          cv.getContext('2d').drawImage(sc.toCanvasElement(1 / q), 0, 0, cw, ch);
+          objs.forEach((o, i) => { o.visible = saved[i]; }); sc.backgroundColor = col; sc.renderAll();
+          const dd = cv.getContext('2d').getImageData(0, 0, cw, ch).data, Lm = new Float32Array(cw * ch);
+          for (let i = 0; i < cw * ch; i++) Lm[i] = 0.2126 * dd[i * 4] + 0.7152 * dd[i * 4 + 1] + 0.0722 * dd[i * 4 + 2];
+          const rows = [];
+          for (let y0 = 0; y0 < ch; y0 += 24){ let sm = 0, n = 0; for (let y = y0; y < Math.min(ch - 1, y0 + 24); y++) for (let x = 0; x < cw - 1; x++){ const i = y * cw + x; sm += Math.abs(Lm[i + 1] - Lm[i]) + Math.abs(Lm[i + cw] - Lm[i]); n++; } rows.push({ t: y0 * q, b: Math.min(ch, y0 + 24) * q, v: n ? sm / n : 0 }); }
+          const peak = Math.max(...rows.map(r => r.v)), subj = rows.filter(r => r.v >= 0.5 * peak && r.v >= 3);
+          const claimBot = Math.max(...heads.map(h => I(h) ? I(h).b : 0), pill ? I(pill).b : 0);
+          const plates = [1, 2, 3].map(i => named('Step Card ' + i)).filter(Boolean).map(I);
+          const cTop = Math.min(Pr.t, ...plates.map(p => p.t)), cBot = Math.max(Pr.b, ...plates.map(p => p.b));
+          const covered = subj.filter(r => r.t >= claimBot && r.b > cTop + 8 && r.t < cBot - 8);
+          out.push({ where, rule: 0, name: 'tall-format call (reported)', pass: true, got: (fill.decision || 'none') + ': ' + (fill.reason || ''), want: 'info' });
+          check(0, 'the design leaves the photograph\u2019s subject rows to it', !covered.length || !['grow', 'fit'].includes(fill.decision),
+            covered.length ? covered.map(r => r.t + '-' + r.b).join(', ') : 'none covered', 'no subject row under grown content');
+          if (fill.decision === 'grow'){
+            check(0, 'the list grew', (fill.scale || 1) >= 1.05, 'x' + (fill.scale || 1), '>= 1.05');
+          }
+        }
+        if (tall && LP && !['grow', 'fit'].includes((sc.__fill || {}).decision)){
           /* the middle block centred between the claim and the band (owner, 2026-09-28: "have the
              center content scooted up in order to properly center it otherwise there is a large gap") */
           const plates = [1, 2, 3].map(i => named('Step Card ' + i)).filter(Boolean).map(I);
@@ -279,11 +310,16 @@ await page.evaluate(() => {
 const report = [];
 let allPass = true;
 for (const id of ids){
-  const rec = JSON.parse(readFileSync(ROOT + 'assets/showcase/tpl/' + id + '.json', 'utf8'));
-  const r = await page.evaluate(async (id, rec) => {
+  const labRec = LAB ? JSON.parse(readFileSync(ROOT + '.render/restage/lab/' + id + '.json', 'utf8')) : null;
+  const rec = LAB ? labRec.rec : JSON.parse(readFileSync(ROOT + 'assets/showcase/tpl/' + id + '.json', 'utf8'));
+  const r = await page.evaluate(async (id, rec, lab) => {
     const res = [];
+    if (lab){                                   // a lab record opens like any showcase card
+      await scLoadIndex();
+      SHOWCASE.byId[id] = lab.card; SHOWCASE.records[id] = lab.rec;
+    }
     // 1. the gallery painter
-    const t = await __sc.load(id);
+    const t = lab ? await __sc.prep(lab.rec, id) : await __sc.load(id);
     // renderThumb's sequence, with each layer's built position recorded before the layout passes
     const sc = new fabric.StaticCanvas(null, { width: TPL_W, height: TPL_H, renderOnAddRemove: false });
     const bgi = t.bg.type === 'image' ? freshBgImage(t.bg.src, t.bg.blur, t.bg.grade) : null;
@@ -321,7 +357,7 @@ for (const id of ids){
       s2.dispose();
     }
     return { res, png, pngs };
-  }, id, rec).catch(e => ({ res: [{ where: 'harness', rule: 0, name: 'ran', pass: false, got: String(e).slice(0, 300), want: 'no error' }] }));
+  }, id, rec, labRec).catch(e => ({ res: [{ where: 'harness', rule: 0, name: 'ran', pass: false, got: String(e).slice(0, 300), want: 'no error' }] }));
   if (r.png) writeFileSync(OUT + id + '.png', Buffer.from(r.png.split(',')[1], 'base64'));
   Object.entries(r.pngs || {}).forEach(([f, u]) => writeFileSync(OUT + id + '-easy-' + f + '.png', Buffer.from(u.split(',')[1], 'base64')));
   const checks = r.res;

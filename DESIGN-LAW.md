@@ -1793,3 +1793,40 @@ validating and extensively auditing your designs until fixed and PERFECT."
   half off. With the flag, the classics audit is identical and no live
   showcase card changes. The library moves over card by card, each through
   audit_card. The numeral fix (4c) applies everywhere; it only removes a bug.
+
+## 77. A tall card grows into what the photograph leaves plain
+
+Added 2026-09-28, the owner on the 9:16: "we could enlarge the steps and
+possibly layer the phone over top of the steps thus extending the UI … we
+don't split text obviously but we could split something like selling
+points/steps and the image to fill blank space … show me that you understand
+that and five examples … where you make the correct decision in a row."
+
+A tall format has more height than the square design uses. Where it goes is a
+call the engine makes from the photograph (`tallFill()`), and the audit
+re-measures it:
+
+- The photograph's **subject** is its rows with at least half its peak detail
+  (the laptop's keys and lenses, a lineup of phones). It keeps its space.
+- The **plain run** is the rows between the subject and the CTA band.
+- **Grow** when the plain run is well taller than the content (1.25x): the
+  list (steps, selling points) grows as a unit, one line still one line and
+  never re-wrapped, its plates widening to the margin, up to 1.45x. The
+  product then either **stands on the list** (layered over the first plate's
+  empty top strip) when there is room above it, or sits **beside** it,
+  layered over the plates' empty right ends, clear of the longest line by
+  16px, ending with the steps. Never over a word.
+- **Fit** when the plain run holds the content but not more: the content moves
+  into it, off the subject, unchanged. Centred on the card it had covered the
+  subject's lower half and left the plain run empty.
+- **Centre** when the photograph is subject top to bottom: nothing moves over
+  it that need not; the content stays centred between claim and band.
+- A product layered over plates on purpose is marked (`pgLayered`) so the
+  product-clearance pass does not "rescue" it up into the photograph.
+
+What the card generator decides with it (restage_steps_flow.mjs): the claim's
+ink direction (a light ground takes dark ink and a deep accent; a dark shade
+strong enough for white type on a white photograph would smother it), and a
+band colour lifted in lightness until the number reads 7:1. A photograph that
+can carry neither (a mid-grey flat-lay of other phones: 2.8:1 either way) is
+not used for a claim set on the photograph.

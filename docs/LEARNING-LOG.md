@@ -684,3 +684,17 @@ the bank in the CTA's colour, two faces, flat uniform steps, a real phone
 standing on the band, the accent read off the photograph), and
 `scripts/audit_card.mjs` passes it 154/154 in the gallery painter, Easy Mode
 square and 3:4, and the video. DESIGN-LAW 68-76.
+
+## 2026-09-28 — tall formats: centred, then grown, and the call made from the photograph
+
+The owner asked for the 3:4 content to be centred (a phone standing on the band
+had joined the steps to the band, pinning all of it to the bottom), then for
+the 9:16 to fill its blank space by growing the steps and layering the phone
+over them, and for five examples of the right call. The rule became a
+decision the engine takes from the photograph: grow into plain rows, fit into
+them, or stay centred where the photograph is subject all the way down
+(DESIGN-LAW 77). Two of the first six calls were wrong — "keep centred" on
+photographs whose subject ended mid-card, which left the plain run empty and
+set the steps on the subject — and the fix was a third outcome, fit. The audit
+caught two engine faults on the way: the full-canvas scrim taken for the CTA
+band, and a deliberately layered phone "rescued" by the product-clearance pass.

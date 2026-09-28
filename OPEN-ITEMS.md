@@ -476,3 +476,14 @@ it, keep it only if nothing regresses. The ungated run's diff (2026-09-27)
 named what to fix first: authored straddles the box push had been hiding
 (scriptRetro and trustSeal phone numbers half off their bands), and
 stepsFlow-du01-30's number wedged 3px between step 3 and the website.
+
+### N.3 Tall formats (2026-09-28)
+
+DESIGN-LAW 77. Lab records for the five examples are in .render/restage/lab/
+(`restage_steps_flow.mjs --as=… --bg=… --product=… --variant=…`, audited with
+`audit_card.mjs --lab <id>`). stepsFlow-nn01-30 was restaged for real (its bare
+"iPHONE" headline): FAST CASH FOR iPHONES + EZ BUYER, silver 17 Pro Max, 210/210.
+Backgrounds: many scenes show older iPhones (13-16) behind the product, and
+the green studio trio and the titanium photograph do too; a background
+catalog like devices.json (what each photograph shows, its model year) should
+let the engine prefer photographs without older devices.

@@ -44,6 +44,14 @@ const OUT = ROOT + '.render/restage/';
 mkdirSync(OUT, { recursive: true });
 const args = process.argv.slice(2), DRY = args.includes('--dry');
 const ids = args.filter(a => !a.startsWith('--'));
+/* lab mode: the same design on another photograph and device, written to
+   .render/restage/lab/<as>.json for review and audit, never to the gallery
+     --as=<labId> --bg=<photo src> --product=<cutout src> */
+const opt = k => { const a = args.find(x => x.startsWith('--' + k + '=')); return a ? a.slice(k.length + 3) : null; };
+const LAB = opt('as'), LAB_BG = opt('bg'), LAB_PRODUCT = opt('product');
+const VARIANT = opt('variant') != null ? +opt('variant') : null;   // which claim + badge pairing, accent read off the photo
+const LABDIR = OUT + 'lab/';
+if (LAB) mkdirSync(LABDIR, { recursive: true });
 if (!ids.length){ console.error('usage: node scripts/restage_steps_flow.mjs <cardId…> [--dry]'); process.exit(2); }
 
 /* the claim bank: everyone can say they buy; ranking claims earn the click.
@@ -82,8 +90,12 @@ const { browser, page } = await openStudio();
 const results = [];
 const index = JSON.parse(readFileSync(DIR + 'index.json', 'utf8'));
 for (const id of ids)
-for (const [v, V] of VARIANTS.entries()){
+for (const [v, V0] of VARIANTS.entries()){
+  if ((LAB || VARIANT != null) && v > 0) break;             // a lab record (or a chosen variant) is written alone
+  const Vpick = VARIANT != null ? VARIANTS[VARIANT] : V0;
+  const V = LAB_PRODUCT ? Object.assign({}, Vpick, { product: { src: LAB_PRODUCT } }, VARIANT == null ? {} : { accent: 'photo' }) : Object.assign({}, Vpick, VARIANT == null ? {} : { accent: 'photo' });
   const rec = JSON.parse(readFileSync(DIR + 'tpl/' + id + '.json', 'utf8'));
+  if (LAB_BG) rec.tpl.bg = Object.assign({}, rec.tpl.bg, { src: LAB_BG });
   const r = await page.evaluate(async (rec, id, V, MICRO) => {
     const claim = V.claim;
     const L0 = rec.tpl.layers, get = nm => L0.find(l => l.name === nm);
@@ -108,12 +120,40 @@ for (const [v, V] of VARIANTS.entries()){
     }
     const pickNeon = h => NEONS.map(n => { const o = hexToOklch(n), dh = Math.abs(((o.h - h) % 360 + 540) % 360 - 180); return { n, score: -Math.abs(dh - 170) }; })
       .sort((a, b) => b.score - a.score)[0].n;
-    const ACCENT = V.accent === 'photo' ? (photoHue == null ? get('Phone Plate').props.fill : pickNeon(photoHue))
-      : (V.accent || get('Phone Plate').props.fill), ON_ACCENT = get('Phone Number').props.fill;
+    let ACCENT = V.accent === 'photo' ? (photoHue == null ? get('Phone Plate').props.fill : pickNeon(photoHue))
+      : (V.accent || get('Phone Plate').props.fill);
+    const ON_ACCENT = get('Phone Number').props.fill;
+    /* the number reads at 7:1 on its band (rules 53, 74): a mid neon (pink,
+       violet) under dark digits read 5.4-5.8:1, so the accent is lifted in
+       lightness, hue and colourfulness kept, until it does */
+    {
+      const lum = hex => { const n = parseInt(hex.slice(1), 16), f = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+        return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255); };
+      const cr = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+      const o = hexToOklch(ACCENT);
+      for (let L = o.L; cr(ACCENT, ON_ACCENT) < 7 && L < 0.95; L += 0.02) ACCENT = oklchFit({ L, C: o.C, h: o.h });
+    }
     const PLATE = get('Step Card 1').props.fill;
-    const INK = '#ffffff', INK2 = (get('Step Micro 1') && /^#/.test(get('Step Micro 1').props.fill) && get('Step Micro 1').props.fill !== '#ffffff')
+    const INK_ON_PLATE = '#ffffff', INK2 = (get('Step Micro 1') && /^#/.test(get('Step Micro 1').props.fill) && get('Step Micro 1').props.fill !== '#ffffff')
       ? get('Step Micro 1').props.fill : '#dfe7ea';
     const W = TPL_W, H = TPL_H, M = 84, GUIDE = Math.round(0.06 * Math.min(W, H));
+    /* ink direction: the claim sits on the photograph's top 40%. A light ground
+       takes dark ink and a deep accent (a dark shade strong enough for white type
+       on a white photograph would smother it); a dark or mid ground keeps white
+       ink and the neon accent. Measured on the square's own crop. */
+    let lightGround = false;
+    {
+      const src = rec.tpl.bg && rec.tpl.bg.src;
+      const el = src && await new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+      if (el){
+        const c = document.createElement('canvas'); c.width = c.height = 108; const x = c.getContext('2d');
+        const k = Math.max(108 / el.width, 108 / el.height); x.drawImage(el, (108 - el.width * k) / 2, (108 - el.height * k) / 2, el.width * k, el.height * k);
+        const d = x.getImageData(0, 6, 108, 38).data, L = [];
+        const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+        for (let i = 0; i < d.length; i += 4) L.push(0.2126 * lin(d[i]) + 0.7152 * lin(d[i + 1]) + 0.0722 * lin(d[i + 2]));
+        L.sort((a, b) => a - b); lightGround = L[L.length >> 1] > 0.3;
+      }
+    }
     const kick = V.badge[0];
     const shared = new Set(claim.join(' ').toUpperCase().split(/[^A-Z0-9#]+/).filter(w => w.length > 1));
     if (kick.toUpperCase().split(/[^A-Z0-9#]+/).some(w => w.length > 1 && shared.has(w))) return { err: 'badge ' + kick + ' repeats a word of the claim' };
@@ -135,8 +175,10 @@ for (const [v, V] of VARIANTS.entries()){
     const text = (name, role, casing, t, props) => ({ kind: 'text', name, role, casing, text: t, props: Object.assign({ opacity: 1 }, props) });
 
     // ── the claim, as large as the margins allow (rule 68)
-    const headStyle = { fontFamily: DISPLAY, fontWeight: 800, fill: INK, charSpacing: -10,
-      shadow: { color: 'rgba(0,0,0,0.55)', blur: 22, offsetX: 0, offsetY: 4 } };
+    const headStyle = lightGround
+      ? { fontFamily: DISPLAY, fontWeight: 800, fill: '#0e0e12', charSpacing: -10 }
+      : { fontFamily: DISPLAY, fontWeight: 800, fill: '#ffffff', charSpacing: -10, shadow: { color: 'rgba(0,0,0,0.55)', blur: 22, offsetX: 0, offsetY: 4 } };
+    const deep = hex => { const o = hexToOklch(hex); return o ? oklchFit({ L: 0.46, C: Math.max(0.12, o.C), h: o.h }) : hex; };
     /* both lines as large as the width inside the margins and the height above
        the steps allow, set tight as display type is set: 10% of the size
        between the letters (alignPass judges stacked lines by their ink, so it
@@ -154,7 +196,7 @@ for (const [v, V] of VARIANTS.entries()){
       // line 1's ink starts at the margin, whatever the face's side bearing
       h1.props.left = M - (i1.x0 - M); h1.props.top = M - (i1.y0 - M) + 6;
       i1 = inkBox(h1);
-      h2 = text('Headline 2', 'headline', 'upper', claim[1], Object.assign({ left: M, top: 0, fontSize: S }, headStyle, { fill: ACCENT }));
+      h2 = text('Headline 2', 'headline', 'upper', claim[1], Object.assign({ left: M, top: 0, fontSize: S }, headStyle, { fill: lightGround ? deep(ACCENT) : ACCENT }));
       i2 = inkBox(h2);
       h2.props.top = (i1.y1 + Math.round(S * 0.1)) - i2.y0; h2.props.left = M - (i2.x0 - M);
       i2 = inkBox(h2);
@@ -193,7 +235,7 @@ for (const [v, V] of VARIANTS.entries()){
       const num = text('Step Num ' + i, 'deco', 'none', String(i), { left: 0, top: 0, originX: 'left', fontFamily: DISPLAY, fontSize: 96, fontWeight: 800, fill: ACCENT, charSpacing: 0 });
       const iN = inkBox(num);
       num.props.left = M + 64 - iN.w / 2 - iN.x0; num.props.top = y + cardH / 2 - iN.h / 2 - iN.y0;
-      const lab = text('Step Lab ' + i, 'info', 'upper', labs[k], { left: 0, top: 0, fontFamily: SUPPORT, fontSize: 36, fontWeight: 800, fill: INK, charSpacing: 40 });
+      const lab = text('Step Lab ' + i, 'info', 'upper', labs[k], { left: 0, top: 0, fontFamily: SUPPORT, fontSize: 36, fontWeight: 800, fill: INK_ON_PLATE, charSpacing: 40 });
       const mic = text('Step Micro ' + i, 'info', 'none', MICRO[k], { left: 0, top: 0, fontFamily: SUPPORT, fontSize: 26, fontWeight: 600, fill: INK2, charSpacing: 0 });
       const iL = inkBox(lab), iM = inkBox(mic);
       const gap = 14, block = iL.h + gap + iM.h, top = y + (cardH - block) / 2, tx = M + 134;
@@ -284,6 +326,13 @@ for (const [v, V] of VARIANTS.entries()){
   }, rec, id, V, MICRO).catch(e => ({ err: String(e) }));
   if (r.err){ console.log(id, V.tag, 'FAILED', r.err); results.push({ id, v, err: r.err }); continue; }
   writeFileSync(OUT + id + '-v' + (v + 1) + '.png', Buffer.from(r.png.split(',')[1], 'base64'));
+  if (LAB){
+    const card = Object.assign({}, index.find(x => x.id === id), { id: LAB, accent: r.accent, name: LAB + ' (lab)' });
+    writeFileSync(LABDIR + LAB + '.json', JSON.stringify({ card, rec: Object.assign({}, r.rec, { id: LAB }) }));
+    writeFileSync(LABDIR + LAB + '.png', Buffer.from(r.png.split(',')[1], 'base64'));
+    console.log(LAB, 'lab record written', 'accent ' + r.accent, 'critic ' + r.crit.map(c => c.text + ' ' + c.q75).join(' | '));
+    continue;
+  }
   if (!DRY && v === 0){
     writeFileSync(DIR + 'tpl/' + id + '.json', JSON.stringify(r.rec));
     writeFileSync(DIR + id + '.webp', Buffer.from(r.webp.split(',')[1], 'base64'));
@@ -295,7 +344,7 @@ for (const [v, V] of VARIANTS.entries()){
   results.push({ id, v: v + 1, tag: V.tag, S: r.S, faces: r.faces, crit: r.crit, ink: r.ink, boxes: r.boxes });
   writeFileSync(OUT + id + '-v' + (v + 1) + '.json', JSON.stringify(r.rec));
 }
-if (!DRY) writeFileSync(DIR + 'index.json', JSON.stringify(index));
+if (!DRY && !LAB) writeFileSync(DIR + 'index.json', JSON.stringify(index));
 writeFileSync(OUT + 'report.json', JSON.stringify(results, null, 1));
 await browser.close();
 process.exit(results.some(r => r.err) ? 1 : 0);

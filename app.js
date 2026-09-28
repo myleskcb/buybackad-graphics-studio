@@ -2472,6 +2472,7 @@ function alignPass(sc, W, H){
     };
     prods.forEach(o => {
       const b = bb(o); if (!b || b.width * b.height > W * H * 0.6) return;
+      if (INK && o.pgLayered && !words.some(w => ov(b, w) > 0)) return;   // layered over the plates on purpose (tallFill), clear of every word
       if (!bad(b)) return;
       const pad = 16;
       const wordsPad = words.map(w => ({ left: w.left - pad, top: w.top - pad, width: w.width + 2 * pad, height: w.height + 2 * pad }));
@@ -2597,6 +2598,7 @@ function alignPass(sc, W, H){
 
   /* ── 6. NO LINE ON A PLATE'S EDGE (rule 58), last, after the guides ────── */
   if (INK) linesOffEdges(sc, W, H);
+  if (INK && typeof claimShade === 'function') claimShade(sc, W, H);   // the thumbnail shows the card that opens
 }
 
 /* THE GUIDES — DESIGN-LAW rule 57.
@@ -8525,6 +8527,7 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
     sc.add(ezApplyStyle(bo, synth, tpl.id));
   }
   if (typeof blockRemap === 'function') blockRemap(sc, DW, DH);    // tall formats: blocks move whole, plates keep their words
+  if (typeof tallFill === 'function') tallFill(sc, DW, DH);        // …and grow into what the photograph leaves plain
   alignPass(sc, DW, DH);
   if (typeof ezApplyTagline === 'function') ezApplyTagline(sc, DW, DH, !keep && fmt === 'jpeg');   // tagline style + number fill
   sc.renderAll();
@@ -13152,15 +13155,176 @@ function claimShade(sc, W, H){
   if (!weak().length) return 0;
   const bottom = Math.max(...heads.map(o => { const r = textInkRect(o); return r ? r.top + r.height : 0; }));
   const reach = Math.min(H, bottom + 0.12 * H), fade = bottom / reach;
-  const shade = new fabric.Rect({ left: 0, top: 0, width: W, height: reach, selectable: false, evented: false, name: 'Claim Shade', pgScrim: true });
-  // just above the photograph and its scrim, under every layer of the design
-  let at = 0; objs.forEach((o, i) => { if (o.pgScrim || o.pgBgRect || /^(BG|Scrim|Overlay)$/.test(o.name || '')) at = i + 1; });
-  sc.insertAt(shade, at);
-  for (let a = 0.15; a <= 0.6 + 1e-9; a += 0.05){
+  // one shade, however often it is asked for (the gallery painter and Easy Mode both call this)
+  let shade = objs.find(o => o.name === 'Claim Shade'), a0 = 0.15;
+  if (shade) a0 = (shade.pgShadeA || 0.15) + 0.05;
+  else {
+    shade = new fabric.Rect({ left: 0, top: 0, width: W, height: reach, selectable: false, evented: false, name: 'Claim Shade', pgScrim: true });
+    // just above the photograph and its scrim, under every layer of the design
+    let at = 0; objs.forEach((o, i) => { if (o.pgScrim || o.pgBgRect || /^(BG|Scrim|Overlay)$/.test(o.name || '')) at = i + 1; });
+    sc.insertAt(shade, at);
+  }
+  for (let a = a0; a <= 0.6 + 1e-9; a += 0.05){
+    shade.pgShadeA = a;
     shade.set('fill', new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0, y1: 0, x2: 0, y2: 1 },
       colorStops: [{ offset: 0, color: 'rgba(8,8,10,' + a.toFixed(2) + ')' }, { offset: Math.max(0.3, Math.min(0.9, fade)), color: 'rgba(8,8,10,' + (a * 0.85).toFixed(2) + ')' }, { offset: 1, color: 'rgba(8,8,10,0)' }] }));
     shade.dirty = true;
     if (!weak().length) return a;
   }
   return 0.6;
+}
+
+/* ═══ A TALL CARD GROWS INTO WHAT THE PHOTOGRAPH LEAVES PLAIN ═════════════
+   Owner, 2026-09-28, on the 9:16: "we could enlarge the steps and possibly
+   layer the phone over top of the steps thus extending the UI … we don't split
+   text obviously but we could split something like selling points/steps and
+   the image to fill blank space."
+
+   The rule. A tall format has more height than the square design uses. The
+   photograph's SUBJECT (rows with at least half its peak detail: the keys and
+   lenses of the laptop, a lineup of phones) keeps its space. The plain rows
+   between the subject and the CTA band go to the design, not to empty
+   gradient: the list (steps, selling points) grows, one line still one line,
+   never re-wrapped, its plates widening across the card, up to 1.45x; then
+   the product stands on top of the list, layered over the first plate's empty
+   strip, never over a word. When the plain run is not much taller than the
+   content already is, nothing grows: the content stays centred (blockRemap).
+   The call and its reason are left on the scene (sc.__fill) for the audit. */
+function tallFill(sc, W, H){
+  const sx = W / TPL_W, sy = H / TPL_H;
+  if (!(sy > sx * 1.02)) return null;
+  const objs = sc.getObjects();
+  if (!objs.some(o => o && o.pgInk)) return null;
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity > 0.05);
+  const bb = o => { o.setCoords(); return o.getBoundingRect(true, true); };
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const inside = (o, b) => { const c = o.getCenterPoint(); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; };
+  const ground = o => o.pgScrim || o.pgBgRect || /^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '');
+  const band = objs.filter(o => live(o) && o.type === 'rect' && !ground(o) && bb(o).width >= W * 0.9 && bb(o).height < H * 0.35 && bb(o).top + bb(o).height >= H - 2)
+    .sort((a, b) => bb(a).top - bb(b).top)[0];
+  const prod = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo').sort((a, b) => bb(b).width * bb(b).height - bb(a).width * bb(a).height)[0];
+  const heads = objs.filter(o => live(o) && isText(o) && o.pgRole === 'headline');
+  // the list: two or more plates of one width and one left edge, each holding words
+  const cands = objs.filter(o => live(o) && o.type === 'rect' && o !== band && bb(o).width >= W * 0.3 && bb(o).width < W * 0.9 && objs.some(t => isText(t) && live(t) && inside(t, bb(o))));
+  const groups = {};
+  cands.forEach(o => { const b = bb(o), k = Math.round(b.left / 6) + ':' + Math.round(b.width / 6); (groups[k] = groups[k] || []).push(o); });
+  const plates = (Object.values(groups).sort((a, b) => b.length - a.length)[0] || []).sort((a, b) => bb(a).top - bb(b).top);
+  const why = r => (sc.__fill = r);
+  if (!band || !heads.length) return why({ decision: 'none', reason: 'no CTA band or no claim' });
+  if (plates.length < 2) return why({ decision: 'none', reason: 'no list of plates to grow' });
+  const members = objs.filter(o => live(o) && o !== band && o.type !== 'image' && (plates.includes(o) || plates.some(p => inside(o, bb(p)))));
+  // where the claim ends (headline and anything hung on it, like a badge)
+  const listTop0 = Math.min(...plates.map(p => bb(p).top));
+  const claimObjs = objs.filter(o => live(o) && !members.includes(o) && o !== prod && o !== band && !o.pgScrim && !o.pgBgRect && o.type !== 'image'
+    && !/^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '') && bb(o).top + bb(o).height < listTop0 && bb(o).width < W * 0.95);
+  const claimBot = Math.max(...claimObjs.map(o => { const r = isText(o) ? textInkRect(o) : bb(o); return r.top + r.height; }));
+  const bandTop = bb(band).top, gap = Math.round(0.03 * H);
+  // the photograph's detail, row by row (96px rows at 1920)
+  const bgi = sc.backgroundImage;
+  if (!bgi) return why({ decision: 'keep', reason: 'no photograph to read' });
+  const q = 4, cw = Math.round(W / q), ch = Math.round(H / q), cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+  { const saved = objs.map(o => o.visible), col = sc.backgroundColor; objs.forEach(o => { o.visible = false; }); sc.backgroundColor = '';
+    const el = sc.toCanvasElement(1 / q); cv.getContext('2d').drawImage(el, 0, 0, cw, ch);
+    objs.forEach((o, i) => { o.visible = saved[i]; }); sc.backgroundColor = col; }
+  const d = cv.getContext('2d').getImageData(0, 0, cw, ch).data, Lum = new Float32Array(cw * ch);
+  for (let i = 0; i < cw * ch; i++) Lum[i] = 0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2];
+  const rowH = 24, rows = [];
+  for (let y0 = 0; y0 < ch; y0 += rowH){ let s = 0, n = 0;
+    for (let y = y0; y < Math.min(ch - 1, y0 + rowH); y++) for (let x = 0; x < cw - 1; x++){ const i = y * cw + x; s += Math.abs(Lum[i + 1] - Lum[i]) + Math.abs(Lum[i + cw] - Lum[i]); n++; }
+    rows.push({ top: y0 * q, bot: Math.min(ch, y0 + rowH) * q, v: n ? s / n : 0 }); }
+  const peak = Math.max(...rows.map(r => r.v)), subject = r => r.v >= 0.5 * peak && r.v >= 3;
+  // the plain run: up from the band until the first subject row
+  const bottom = bandTop - gap;
+  let runTop = claimBot + gap;
+  rows.filter(r => r.bot > claimBot + gap && r.top < bottom).forEach(r => { if (subject(r)) runTop = Math.max(runTop, r.bot + gap / 2); });
+  const runH = bottom - runTop;
+  const Lb = { top: listTop0, bot: Math.max(...plates.map(p => bb(p).top + bb(p).height)), left: Math.min(...plates.map(p => bb(p).left)) };
+  const listH = Lb.bot - Lb.top;
+  const pb = prod ? bb(prod) : null, contentH = Math.max(listH, pb ? pb.height : 0);
+  const info = { runTop: Math.round(runTop), runH: Math.round(runH), peak: +peak.toFixed(1), rows: rows.map(r => +r.v.toFixed(1)) };
+  if (runH < contentH * 1.25){
+    /* not room to grow, but room to sit in the plain run: the content moves off
+       the photograph's subject into it (centred there) instead of centring on
+       the card over the subject's lower half with the plain run left empty */
+    const blockTop = Math.min(Lb.top, pb ? pb.top : Lb.top), blockBot = Math.max(Lb.bot, pb ? pb.top + pb.height : Lb.bot);
+    if (runH >= (blockBot - blockTop) + 8){
+      const dy = (runTop + bottom) / 2 - (blockTop + blockBot) / 2;
+      members.concat(prod ? [prod] : []).forEach(o => { o.set('top', o.top + dy); o.setCoords(); });
+      return why(Object.assign({ decision: 'fit', reason: 'the plain run (' + Math.round(runH) + 'px) holds the content (' + Math.round(blockBot - blockTop) + 'px) but not grown: it moved there, off the photograph\u2019s subject' }, info));
+    }
+    return why(Object.assign({ decision: 'centre', reason: 'the spare height is the photograph\u2019s: its plain run (' + Math.round(runH) + 'px) cannot hold the content (' + Math.round(contentH) + 'px), which stays centred' }, info));
+  }
+  // how far the words reach, relative to the list's left edge
+  const words = members.filter(isText), textRight = Math.max(...words.map(t => { const r = textInkRect(t); return r.left + r.width; })) - Lb.left;
+  const plate1 = plates[0], p1 = bb(plate1);
+  const firstInk = Math.min(...words.filter(t => inside(t, p1)).map(t => textInkRect(t).top)) - p1.top;   // plate 1's empty top strip
+  const aspect = prod ? prod.width / prod.height : 0.8;
+  const maxW = W - G - Lb.left;
+  // the list: as big as the run allows once the product has at least its own size above it, the words inside the margins
+  let best = null;
+  for (let s = 1.45; s >= 1.05; s -= 0.05){
+    if (Lb.left + textRight * s > W - G - 4) continue;
+    const lh = listH * s, overlap = Math.max(0, firstInk * s - 8) * 0.8;
+    const ph = runH - lh + overlap;                       // the product fills what is above the list
+    if (prod && ph < pb.height * 0.98) continue;          // never smaller than it was
+    const pw = Math.min(ph * aspect, W - 2 * G);
+    best = { s, lh, overlap, ph: pw / aspect, pw };
+    break;
+  }
+  /* arrangement B: the list grows in place and the product stays beside it,
+     layered over the plates' empty right ends (they run on under it), its left
+     edge clear of the longest line */
+  let beside = null;
+  if (!best && prod){
+    for (let s = 1.45; s >= 1.05; s -= 0.05){
+      const lh = listH * s; if (lh > runH) continue;
+      const room = (W - G) - (Lb.left + textRight * s + 16);
+      const ph = Math.min(lh * 1.05, runH), pw = ph * aspect;
+      const k = pw > room ? room / pw : 1;
+      if (ph * k < pb.height * 0.98) continue;
+      beside = { s, lh, ph: ph * k, pw: pw * k };
+      break;
+    }
+  }
+  if (!best && !beside){
+    // cannot grow with the words kept clear: it still sits in the plain run
+    const blockTop = Math.min(Lb.top, pb ? pb.top : Lb.top), blockBot = Math.max(Lb.bot, pb ? pb.top + pb.height : Lb.bot);
+    const dy = (runTop + bottom) / 2 - (blockTop + blockBot) / 2;
+    members.concat(prod ? [prod] : []).forEach(o => { o.set('top', o.top + dy); o.setCoords(); });
+    return why(Object.assign({ decision: 'fit', reason: 'the list and the product cannot both grow and keep their words clear: the content moved into the plain run unchanged' }, info));
+  }
+  const { s } = best || beside;
+  if (beside) best = Object.assign({ overlap: 0 }, beside);
+  // scale the list about its top-left, widen the plates to the margin, and set it on the band
+  const listBottomNew = bottom, listTopNew = listBottomNew - best.lh;
+  members.forEach(o => {
+    const b = bb(o), nl = Lb.left + (b.left - Lb.left) * s, nt = listTopNew + (b.top - Lb.top) * s;
+    if (o.type === 'rect'){ o.set({ width: o.width * s, height: o.height * s }); if (o.rx) o.set({ rx: o.rx * s, ry: (o.ry || o.rx) * s }); }
+    else o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+    o.setCoords(); const b2 = bb(o);
+    o.set({ left: o.left + (nl - b2.left), top: o.top + (nt - b2.top) }); o.setCoords();
+  });
+  plates.forEach(p => { const b = bb(p); const extra = (W - G - b.left) - b.width; if (extra > 0){ p.set('width', p.width + extra / (p.scaleX || 1)); p.setCoords(); } });
+  // the product stands on the list, over plate 1's empty strip, right-aligned on the margin
+  if (prod && beside){
+    const k = best.ph / pb.height;
+    prod.set({ scaleX: (prod.scaleX || 1) * k, scaleY: (prod.scaleY || 1) * k }); prod.setCoords();
+    const b = bb(prod);
+    // ends with the steps, right on the margin
+    prod.set({ left: prod.left + ((W - G - b.width) - b.left), top: prod.top + ((listBottomNew - b.height) - b.top) }); prod.setCoords();
+    sc.moveTo(prod, Math.max(...plates.map(p => sc.getObjects().indexOf(p))));
+    prod.pgLayered = true;
+  } else if (prod){
+    const k = best.ph / pb.height;
+    prod.set({ scaleX: (prod.scaleX || 1) * k, scaleY: (prod.scaleY || 1) * k }); prod.setCoords();
+    const b = bb(prod), footY = listTopNew + best.overlap;
+    prod.set({ left: prod.left + ((W - G - b.width) - b.left), top: prod.top + ((footY - b.height) - b.top) }); prod.setCoords();
+    // layered above the plates, under nothing it could cover
+    const lastPlate = Math.max(...plates.map(p => sc.getObjects().indexOf(p)));
+    sc.moveTo(prod, lastPlate);
+    prod.pgLayered = true;
+  }
+  return why(Object.assign({ decision: 'grow', arrangement: beside ? 'beside' : 'on top',
+    reason: 'the rows between the photograph\u2019s subject and the band are plain: the steps grew ' + s.toFixed(2) + 'x and the phone ' + (beside ? 'sits beside them, layered over their plates' : 'stands on them'), scale: +s.toFixed(2) }, info));
 }
