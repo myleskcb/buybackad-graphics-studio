@@ -12708,6 +12708,7 @@ function taglineCritic(sc, W, H){
 }
 function ezApplyTagline(sc, W, H, preview){
   try { if (typeof numberFill === 'function') numberFill(sc, W, H); } catch (e){ console.warn('GraphicsStudio numberFill:', e); }
+  try { if (typeof claimShade === 'function') claimShade(sc, W, H); } catch (e){ console.warn('GraphicsStudio claimShade:', e); }
   const spec = ezTagSpec();
   let weak = [];
   if (spec){
@@ -12932,12 +12933,45 @@ function blockRemap(sc, W, H){
   };
   const block = items.map((_, i) => i);
   const find = i => { while (block[i] !== i) i = block[i] = block[block[i]]; return i; };
-  for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++)
+  /* a full-width band pinned to the top or bottom edge is a block of its own
+     with what sits on it: joined to the steps through the phone standing on it,
+     the whole lower card was anchored to the bottom and every spare pixel of the
+     tall format went above the steps ("a large gap", owner, 2026-09-28) */
+  const cin = (a, b) => { const x = a.left + a.width / 2, y = a.top + a.height / 2; return x > b.left && x < b.left + b.width && y > b.top && y < b.top + b.height; };
+  const bandOf = items.map(() => -1);
+  items.forEach((it, i) => {
+    const b = it.box;
+    if (it.o.type !== 'rect' || b.width < 0.9 * TPL_W || b.height >= 0.35 * TPL_H || !(b.top <= 2 || b.top + b.height >= TPL_H - 2)) return;
+    bandOf[i] = i;
+    items.forEach((q, j) => { if (j !== i && bandOf[j] < 0 && q.o.type !== 'image' && cin(q.key, b)) bandOf[j] = i; });
+  });
+  items.forEach((it, i) => { if (bandOf[i] >= 0) block[find(i)] = find(bandOf[i]); });
+  for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++){
+    if ((bandOf[i] >= 0 || bandOf[j] >= 0) && bandOf[i] !== bandOf[j]) continue;   // a band's block takes nothing that is not on it
     if (near(items[i].key, items[j].key)) block[find(i)] = find(j);
+  }
+  /* a product that stood on such a band, now in the block above it, ends
+     where its block ends instead of hanging below the steps (never under 70%) */
+  const bands = items.filter((_, i) => bandOf[i] === i).map(it => it.box);
+  items.forEach((it, i) => {
+    if (it.o.type !== 'image' || it.o.pgRole !== 'photo' || bandOf[i] >= 0) return;
+    const foot = it.box.top + it.box.height;
+    if (!bands.some(b => foot > b.top - 10 && foot < b.top + 80)) return;
+    const mates = items.filter((q, j) => j !== i && find(j) === find(i));
+    if (!mates.length) return;
+    const bottom = Math.max(...mates.map(q => q.box.top + q.box.height));
+    if (bottom >= foot) return;
+    const k = (bottom - it.box.top) / it.box.height;
+    if (k < 0.7) return;
+    it.reseat = k;
+    it.box = { left: it.box.left + it.box.width * (1 - k) / 2, top: it.box.top, width: it.box.width * k, height: it.box.height * k };
+  });
   const groups = new Map();
   items.forEach((it, i) => { const g = find(i); if (!groups.has(g)) groups.set(g, []); groups.get(g).push(it); });
+  // a block's extent is its letters' (a 204px headline's box hangs ~50px under its caps) and its shapes'
+  const ext = it => it.reseat ? it.box : it.key;
   const B = [...groups.values()].map(g => {
-    const t0 = Math.min(...g.map(it => it.box.top)), b0 = Math.max(...g.map(it => it.box.top + it.box.height));
+    const t0 = Math.min(...g.map(it => ext(it).top)), b0 = Math.max(...g.map(it => ext(it).top + ext(it).height));
     return { g, t0, b0, h: (b0 - t0) * u };
   }).sort((a, b) => a.t0 - b.t0);
   // anchors: near the top keeps its distance from the top, near the bottom from the bottom
@@ -12945,7 +12979,7 @@ function blockRemap(sc, W, H){
     if (b.t0 <= 0.14 * TPL_H) b.top = b.t0 * u;
     else if (b.b0 >= 0.86 * TPL_H) b.top = H - (TPL_H - b.t0) * u;
   });
-  // the blocks between two anchored ones share the space in proportion to their old gaps
+  // the blocks between two anchored ones sit centred: the free space is shared equally
   for (let i = 0; i < B.length; i++){
     if (B[i].top != null) continue;
     let a = i - 1; while (a >= 0 && B[a].top == null) a--;
@@ -12953,8 +12987,8 @@ function blockRemap(sc, W, H){
     const lo = a >= 0 ? B[a].top + B[a].h : 0, loSq = a >= 0 ? B[a].b0 : 0;
     const hi = z < B.length ? B[z].top : H, hiSq = z < B.length ? B[z].t0 : TPL_H;
     const run = B.slice(i, z), used = run.reduce((s, b) => s + b.h, 0);
-    const gaps = [run[0].t0 - loSq].concat(run.slice(1).map((b, k) => b.t0 - run[k].b0), [hiSq - run[run.length - 1].b0]).map(v => Math.max(0, v));
-    const gsum = gaps.reduce((s, v) => s + v, 0) || 1, free = Math.max(0, hi - lo - used);
+    const gaps = new Array(run.length + 1).fill(1);
+    const gsum = gaps.length, free = Math.max(0, hi - lo - used);
     let y = lo;
     run.forEach((b, k) => { y += free * gaps[k] / gsum; b.top = y; y += b.h; });
     i = z - 1;
@@ -12962,6 +12996,10 @@ function blockRemap(sc, W, H){
   let moved = 0;
   B.forEach(b => b.g.forEach(it => {
     const o = it.o, wantTop = b.top + (it.box.top - b.t0) * u, wantH = it.box.height * u;
+    if (it.reseat){
+      const c0 = o.getCenterPoint();
+      o.set({ scaleX: (o.scaleX || 1) * it.reseat, scaleY: (o.scaleY || 1) * it.reseat }); o.setPositionByOrigin(c0, 'center', 'center'); o.setCoords();
+    }
     if (o.type === 'rect' && Math.abs(it.bb.height - wantH) > 0.5){ o.set('height', o.height * wantH / it.bb.height); o.setCoords(); }
     const now = o.getBoundingRect(true, true);
     if (Math.abs(now.top - wantTop) > 0.25){ o.set('top', o.top + (wantTop - now.top)); o.setCoords(); moved++; }
@@ -13096,4 +13134,33 @@ function linesOffEdges(sc, W, H){
     t.set('top', t.top + dy); t.setCoords(); moved++;
   });
   return moved;
+}
+
+/* THE CLAIM READS ON ANY CROP (DESIGN-LAW 62, 68). A photograph is cropped
+   differently in every format: at 9:16 the laptop's bright rim came up behind
+   TOP iPHONE and it read 4.27:1 where the square read 20:1. When a headline
+   line reads under 4.5:1 on its photograph, a dark neutral shade fades down
+   from the top edge behind the claim, just strong enough (0.15 to 0.6) for
+   every line to pass; where it already reads, nothing is added. Audited
+   records only (rule 76). */
+function claimShade(sc, W, H){
+  const objs = sc.getObjects();
+  if (!objs.some(o => o && o.pgInk) || typeof taglineCritic !== 'function') return 0;
+  const heads = objs.filter(o => o.visible !== false && o.pgRole === 'headline' && (o.type === 'i-text' || o.type === 'textbox'));
+  if (!heads.length) return 0;
+  const weak = () => taglineCritic(sc, W, H).filter(r => r.role === 'headline' && r.q75 < 4.5);
+  if (!weak().length) return 0;
+  const bottom = Math.max(...heads.map(o => { const r = textInkRect(o); return r ? r.top + r.height : 0; }));
+  const reach = Math.min(H, bottom + 0.12 * H), fade = bottom / reach;
+  const shade = new fabric.Rect({ left: 0, top: 0, width: W, height: reach, selectable: false, evented: false, name: 'Claim Shade', pgScrim: true });
+  // just above the photograph and its scrim, under every layer of the design
+  let at = 0; objs.forEach((o, i) => { if (o.pgScrim || o.pgBgRect || /^(BG|Scrim|Overlay)$/.test(o.name || '')) at = i + 1; });
+  sc.insertAt(shade, at);
+  for (let a = 0.15; a <= 0.6 + 1e-9; a += 0.05){
+    shade.set('fill', new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0, y1: 0, x2: 0, y2: 1 },
+      colorStops: [{ offset: 0, color: 'rgba(8,8,10,' + a.toFixed(2) + ')' }, { offset: Math.max(0.3, Math.min(0.9, fade)), color: 'rgba(8,8,10,' + (a * 0.85).toFixed(2) + ')' }, { offset: 1, color: 'rgba(8,8,10,0)' }] }));
+    shade.dirty = true;
+    if (!weak().length) return a;
+  }
+  return 0.6;
 }

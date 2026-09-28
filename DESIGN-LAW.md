@@ -1771,7 +1771,18 @@ validating and extensively auditing your designs until fixed and PERFECT."
   that moves a placed layer is second-guessing the design.
 - Tall formats move blocks, not layers (`blockRemap()`): a claim and its badge,
   a stack of steps, a band and the phone on it each stay rigid; the extra
-  height goes between them.
+  height goes between them. A full-width band pinned to an edge is a block of
+  its own (joined to the steps through the phone standing on it, the whole
+  lower card was pinned to the bottom and all the spare height sat above the
+  steps: "can I have the center content scooted up … otherwise there is a
+  large gap", 2026-09-28). Blocks between the anchored ones sit centred, with
+  equal space above and below, measured by their letters; a phone that stood on
+  the band ends with its block instead. audit_card checks 3:4 and 9:16 for it.
+- The claim reads on every crop (`claimShade()`): a photograph crops
+  differently at 9:16, where the laptop's bright rim came up behind TOP iPHONE
+  (4.27:1). A headline line under 4.5:1 gets a dark neutral shade fading down
+  from the top, solved to the least that passes; where it reads, nothing is
+  added.
 - How it ships: the letter passes (above, plus `linesOffEdges()`: a line mostly
   on a plate goes all the way on, a band pinned to an edge grows to hold its
   line, a line grazing a plate's edge moves clear) and the number-fill and

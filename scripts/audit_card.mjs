@@ -6,7 +6,7 @@
  *
  * Every check is measured on pixels the studio itself painted: the gallery
  * painter (renderThumb's sequence), the Easy Mode scene a visitor downloads
- * (openShowcase + renderEzCanvas, square and 3:4), and the video bake.
+ * (openShowcase + renderEzCanvas, square, 3:4 and 9:16), and the video bake.
  * Each check names its DESIGN-LAW rule. A card ships only at 100%.
  *
  *   copy      the headline is a claim (68); the badge is from the bank and
@@ -28,7 +28,9 @@
  *             painter moved nothing more than 2px from where it was placed;
  *             at least a third of the photograph shows (the background is a
  *             design asset); the accent reads as neon (reported)
- *   paths     Easy Mode square and 3:4 pass the card checks; the video's
+ *   tall      3:4 and 9:16 centre the middle block between the claim and the
+ *             band (equal space, 8px), and the phone ends with the steps
+ *   paths     Easy Mode square, 3:4 and 9:16 pass the card checks; the video's
  *             frame 0 is the still and its CTA shift passes its own audit (65)
  *
  *   node scripts/audit_card.mjs <cardId…>      (needs :8899; CHROME=, FABRIC_JS=)
@@ -215,7 +217,23 @@ await page.evaluate(() => {
         const ox = Math.min(w.r, Pr.r) - Math.max(w.l, Pr.l), oy = Math.min(w.b, Pr.b) - Math.max(w.t, Pr.t); return ox > 2 && oy > 2; });
       [pill].filter(Boolean).forEach(p => { const w = I(p); const ox = Math.min(w.r, Pr.r) - Math.max(w.l, Pr.l), oy = Math.min(w.b, Pr.b) - Math.max(w.t, Pr.t); if (ox > 2 && oy > 2) hit.push(p); });
       check(73, 'product clear of every word', !hit.length, hit.map(o => o.name).join(', ') || 'clear', 'clear');
-      if (band){ const B = I(band); check(73, 'product stands on the band', Pr.b >= B.t - 4 && Pr.b <= B.t + 60, r1(Pr.b - B.t) + 'px into the band', '0-60px'); }
+      if (band){
+        const B = I(band), tall = H > W * 1.02;
+        const lastPlate = [3, 2, 1].map(i => named('Step Card ' + i)).find(Boolean), LP = lastPlate && I(lastPlate);
+        // square: it stands on the band; a tall card centres its middle block, and the phone ends with the steps
+        const onBand = Pr.b >= B.t - 4 && Pr.b <= B.t + 60, withSteps = tall && LP && Math.abs(Pr.b - LP.b) <= 6;
+        check(73, tall ? 'product stands on the band or ends with the steps' : 'product stands on the band', onBand || withSteps,
+          r1(Pr.b - B.t) + 'px into the band' + (LP ? ', ' + r1(Pr.b - LP.b) + 'px past the last step' : ''), tall ? '0-60px into the band, or within 6px of the last step' : '0-60px');
+        if (tall && LP){
+          /* the middle block centred between the claim and the band (owner, 2026-09-28: "have the
+             center content scooted up in order to properly center it otherwise there is a large gap") */
+          const plates = [1, 2, 3].map(i => named('Step Card ' + i)).filter(Boolean).map(I);
+          const top = Math.min(Pr.t, ...plates.map(p => p.t)), bot = Math.max(Pr.b, ...plates.map(p => p.b));
+          const claimBot = Math.max(...heads.map(h => I(h) ? I(h).b : 0), pill ? I(pill).b : 0);
+          const above = top - claimBot, below = B.t - bot;
+          check(0, 'middle block centred between the claim and the band', Math.abs(above - below) <= 8, r1(above) + ' above / ' + r1(below) + ' below', 'within 8px');
+        }
+      }
       check(73, 'product inside the guides', Pr.l >= G - 2 && Pr.r <= W - G + 2 && Pr.t >= G - 2, [Pr.l, Pr.r].map(r1).join('-'), G + '-' + (W - G));
     }
     } catch (e){ out.push({ where, rule: 0, name: 'section product measured', pass: false, got: String(e).slice(0, 160), want: 'no error' }); }
@@ -286,7 +304,7 @@ for (const id of ids){
     await new Promise(r => setTimeout(r, 600));
     ez.tag = { look: 'solid', gradient: null, angle: 90, outline: 'auto', effect: 'auto' };
     const pngs = {};
-    for (const fmt of ['square', 'three4']){
+    for (const fmt of ['square', 'three4', 'story']){
       if (!FORMATS[fmt]) continue;
       const s2 = renderEzCanvas(1080, 'png', undefined, undefined, fmt, true);
       const W = s2.width, H = s2.height;
