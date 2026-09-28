@@ -13318,13 +13318,22 @@ function tallFill(sc, W, H){
   } else if (prod){
     const k = best.ph / pb.height;
     prod.set({ scaleX: (prod.scaleX || 1) * k, scaleY: (prod.scaleY || 1) * k }); prod.setCoords();
-    const b = bb(prod), footY = listTopNew + best.overlap;
-    prod.set({ left: prod.left + ((W - G - b.width) - b.left), top: prod.top + ((footY - b.height) - b.top) }); prod.setCoords();
-    // layered above the plates, under nothing it could cover
-    const lastPlate = Math.max(...plates.map(p => sc.getObjects().indexOf(p)));
-    sc.moveTo(prod, lastPlate);
-    prod.pgLayered = true;
+    /* centred on the card and raised a tenth of the card's height off the list
+       it would have stood on (owner, 2026-09-28, on the 9:16: "can you center
+       the asset and scoot it up 10%?"): it clears the first plate's words, so
+       centring cannot put it over them. Never onto the claim: where the room
+       above runs short it comes down in size (not under 80%) to fit. */
+    let b = bb(prod), footY = listTopNew + best.overlap - 0.10 * H;
+    const ceiling = claimBot + gap;
+    if (footY - b.height < ceiling){
+      const room = footY - ceiling, kk = room / b.height;
+      if (kk >= 0.8){ prod.set({ scaleX: prod.scaleX * kk, scaleY: prod.scaleY * kk }); prod.setCoords(); b = bb(prod); }
+      else footY = ceiling + b.height;
+    }
+    footY = Math.min(footY, listTopNew - 8);                // always clear of the first plate
+    prod.set({ left: prod.left + ((W / 2 - b.width / 2) - b.left), top: prod.top + ((footY - b.height) - b.top) }); prod.setCoords();
+    prod.pgFloat = true;
   }
   return why(Object.assign({ decision: 'grow', arrangement: beside ? 'beside' : 'on top',
-    reason: 'the rows between the photograph\u2019s subject and the band are plain: the steps grew ' + s.toFixed(2) + 'x and the phone ' + (beside ? 'sits beside them, layered over their plates' : 'stands on them'), scale: +s.toFixed(2) }, info));
+    reason: 'the rows between the photograph\u2019s subject and the band are plain: the steps grew ' + s.toFixed(2) + 'x and the phone ' + (beside ? 'sits beside them, layered over their plates' : 'floats centred above them'), scale: +s.toFixed(2) }, info));
 }

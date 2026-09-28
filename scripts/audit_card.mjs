@@ -228,8 +228,13 @@ await page.evaluate(() => {
         const fill = sc.__fill || {}, FP = named('Step Card 1') && I(named('Step Card 1'));
         const firstInk = FP ? Math.min(...words.filter(o => { const c = o.getCenterPoint(); return c.x > FP.l && c.x < FP.r && c.y > FP.t && c.y < FP.b; }).map(o => I(o) ? I(o).t : 1e9)) : null;
         // grown: it stands on the list, its foot in plate 1's empty top strip
-        const onList = tall && fill.decision === 'grow' && FP && Pr.b >= FP.t - 2 && Pr.b <= firstInk - 4;
-        check(73, tall ? 'product stands on the band, ends with the steps, or stands on the list' : 'product stands on the band', onBand || withSteps || onList,
+        const onList = tall && fill.decision === 'grow' && fill.arrangement !== 'on top' && FP && Pr.b >= FP.t - 2 && Pr.b <= firstInk - 4;
+        /* on top: centred on the card, clear above the first plate, clear below the claim
+           (owner, 2026-09-28: "center the asset and scoot it up 10%") */
+        const claimB = Math.max(...heads.map(h => I(h) ? I(h).b : 0), pill ? I(pill).b : 0);
+        const floating = tall && fill.decision === 'grow' && fill.arrangement === 'on top' && FP
+          && Math.abs(cx(Pr) - W / 2) <= 4 && Pr.b <= FP.t - 4 && Pr.t >= claimB + 8;
+        check(73, tall ? 'product stands on the band, ends with the steps, stands on the list, or floats centred above it' : 'product stands on the band', onBand || withSteps || onList || floating,
           r1(Pr.b - B.t) + 'px into the band' + (LP ? ', ' + r1(Pr.b - LP.b) + 'px past the last step' : '') + (FP ? ', foot ' + r1(Pr.b - FP.t) + 'px into plate 1 (words at ' + r1(firstInk - FP.t) + ')' : ''),
           tall ? 'on the band, with the steps, or on plate 1 above its words' : '0-60px');
         if (tall){
@@ -246,7 +251,9 @@ await page.evaluate(() => {
           const peak = Math.max(...rows.map(r => r.v)), subj = rows.filter(r => r.v >= 0.5 * peak && r.v >= 3);
           const claimBot = Math.max(...heads.map(h => I(h) ? I(h).b : 0), pill ? I(pill).b : 0);
           const plates = [1, 2, 3].map(i => named('Step Card ' + i)).filter(Boolean).map(I);
-          const cTop = Math.min(Pr.t, ...plates.map(p => p.t)), cBot = Math.max(Pr.b, ...plates.map(p => p.b));
+          // a phone floated over the photograph by the owner's call is the ad's hero; the list stays off the subject
+          const withProd = fill.arrangement !== 'on top';
+          const cTop = Math.min(withProd ? Pr.t : 1e9, ...plates.map(p => p.t)), cBot = Math.max(withProd ? Pr.b : 0, ...plates.map(p => p.b));
           const covered = subj.filter(r => r.t >= claimBot && r.b > cTop + 8 && r.t < cBot - 8);
           out.push({ where, rule: 0, name: 'tall-format call (reported)', pass: true, got: (fill.decision || 'none') + ': ' + (fill.reason || ''), want: 'info' });
           check(0, 'the design leaves the photograph\u2019s subject rows to it', !covered.length || !['grow', 'fit'].includes(fill.decision),

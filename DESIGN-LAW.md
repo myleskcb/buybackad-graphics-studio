@@ -1812,10 +1812,14 @@ re-measures it:
 - **Grow** when the plain run is well taller than the content (1.25x): the
   list (steps, selling points) grows as a unit, one line still one line and
   never re-wrapped, its plates widening to the margin, up to 1.45x. The
-  product then either **stands on the list** (layered over the first plate's
-  empty top strip) when there is room above it, or sits **beside** it,
-  layered over the plates' empty right ends, clear of the longest line by
-  16px, ending with the steps. Never over a word.
+  product then either **floats centred above the list** when there is room
+  above it — centred on the card and raised a tenth of the card's height off
+  the list, clear of the first plate's words and of the claim (owner,
+  2026-09-28: "can you center the asset and scoot it up 10%?"; standing on
+  the first plate's corner it read as off to one side) — or sits **beside**
+  it, layered over the plates' empty right ends, clear of the longest line by
+  16px, ending with the steps. Never over a word. The list stays off the
+  photograph's subject; a floated product may sit over it, as the ad's hero.
 - **Fit** when the plain run holds the content but not more: the content moves
   into it, off the subject, unchanged. Centred on the card it had covered the
   subject's lower half and left the plain run empty.
