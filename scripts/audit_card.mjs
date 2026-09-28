@@ -50,6 +50,10 @@ if (!ids.length){ console.error('usage: node scripts/audit_card.mjs <cardId…>'
 const { browser, page } = await openStudio();
 const DEVICES = JSON.parse(readFileSync(ROOT + 'assets/cutouts/devices.json', 'utf8')).devices;
 await page.evaluate(d => { window.__devices = d; }, DEVICES);
+/* renders the owner has approved (assets/approved/approved.json): a card that no
+   longer matches its approved render in that format fails until re-approved */
+const APPROVED = (() => { try { return JSON.parse(readFileSync(ROOT + 'assets/approved/approved.json', 'utf8')); } catch (e){ return {}; } })();
+await page.evaluate(a => { window.__approved = a; }, APPROVED);
 const pageErrors = [];
 page.on('pageerror', e => pageErrors.push(String(e).slice(0, 200)));
 await page.evaluate(() => { loadAccount = async () => account; });
@@ -361,6 +365,26 @@ for (const id of ids){
         res.push({ where: 'video', rule: 65, name: 'the CTA shift passes its audit', pass: !!bake.cta, got: bake.cta ? bake.cta.parts.map(p => p.key).join('+') + ', legibility ' + Math.min(...bake.cta.legibility.map(l => l.q75)).toFixed(2) : String(bake.ctaOff).slice(0, 160), want: 'a CTA' });
       }
       pngs[fmt] = s2.toDataURL({ format: 'png' });
+      const ap = ((window.__approved || {})[id] || {})[fmt];
+      if (ap){
+        const ref = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = ap.image + '?' + Date.now(); });
+        const now = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = pngs[fmt]; });
+        let got = 'approved image missing', pass = false;
+        if (ref && now){
+          // at a quarter of the approved image: the film grain is random on every render and averages out; a moved element does not
+          const w = Math.round(ref.width / 4), h = Math.round(ref.height / 4), a = document.createElement('canvas'), b = document.createElement('canvas');
+          a.width = b.width = w; a.height = b.height = h;
+          const xa = a.getContext('2d'), xb = b.getContext('2d'); xa.imageSmoothingQuality = xb.imageSmoothingQuality = 'high';
+          xa.drawImage(ref, 0, 0, w, h); xb.drawImage(now, 0, 0, w, h);
+          const da = xa.getImageData(0, 0, w, h).data, db = xb.getImageData(0, 0, w, h).data;
+          let off = 0, sum = 0;
+          for (let i = 0; i < da.length; i += 4){ const d = Math.max(Math.abs(da[i] - db[i]), Math.abs(da[i + 1] - db[i + 1]), Math.abs(da[i + 2] - db[i + 2])); sum += d; if (d > 40) off++; }
+          const frac = off / (w * h), mean = sum / (w * h);
+          pass = frac < 0.005 && mean < 2.5;
+          got = (100 * frac).toFixed(2) + '% of pixels moved, mean difference ' + mean.toFixed(2) + ' (approved ' + ap.approved + ': "' + ap.owner + '")';
+        }
+        res.push({ where: 'easy ' + fmt, rule: 0, name: 'matches the owner-approved render', pass, got, want: 'under 0.5% of pixels changed, mean under 2.5 (at a quarter scale)' });
+      }
       s2.dispose();
     }
     return { res, png, pngs };

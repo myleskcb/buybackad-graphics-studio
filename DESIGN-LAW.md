@@ -1820,6 +1820,22 @@ re-measures it:
   it, layered over the plates' empty right ends, clear of the longest line by
   16px, ending with the steps. Never over a word. The list stays off the
   photograph's subject; a floated product may sit over it, as the ad's hero.
+- **The reference 9:16** is stepsFlow-nn05-30's, approved by the owner on
+  2026-09-28 ("Yes, that would be the ideal 9:16"): the claim top-left, the
+  steps grown to the margin above the band, the phone centred and floating
+  between them. It is kept at `assets/approved/stepsFlow-nn05-30-story.webp`.
+
+## 78. An approved render stays approved
+
+Added 2026-09-28. When the owner approves a render, it is saved in
+`assets/approved/` with the owner's words and the commit
+(`approved.json`), and `audit_card.mjs` compares the card against it in that
+format at a quarter of its size (the film grain is random on every render and
+averages out there; a moved element does not): more than 0.5% of pixels moved,
+or a mean difference over 2.5, fails the card. Tested: raising the phone 8%
+instead of 10% (38px) moves 2.91% of pixels and fails. An engine change that
+alters an approved card is shown to the owner and re-approved, or undone; it
+is never shipped silently.
 - **Fit** when the plain run holds the content but not more: the content moves
   into it, off the subject, unchanged. Centred on the card it had covered the
   subject's lower half and left the plain run empty.
