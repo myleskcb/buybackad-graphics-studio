@@ -612,3 +612,42 @@ Rejected:
     were baked with them; consolidation belongs to the classics' re-bake.
   - A gate that blocks: an ad is never held hostage; it is measured, shaded
     when shade fixes it, and otherwise named, with "Download anyway".
+
+## 2026-09-28 — The classics under the gate
+
+Studied:
+  The owner: "fix and push all redesigns, audited before pushing." The
+  open items of the cohesion audit, taken in order, each measured by the
+  gate before the push.
+
+Measured:
+  - Baseline: 38 of 243 classics failed the gate (22 legib, 15 numbers
+    under 72px, 4 off their plate, 2 numInk, 1 thumb). The 15 small numbers
+    were the guides fit: fitInsideGuides scaled a lowerThird card by 0.92
+    and took its 72px number to 66.
+  - The 45% wash sat on 14 classics, 66 rects (item chips, rules, hazard
+    stripes); no live showcase card has one.
+  - naturalize_classics selected only graded templates; with no grade
+    assigned it wrote an empty table and every classic lost its shade.
+  - The critic's plate finder took a claim strip above the number for its
+    plate: three street price tags at 98% "off plate".
+  - After the re-bake: 16 of 243 fail; they are held back by the gate table.
+    The first floor grew the plate with the number and pushed a band's
+    number 412px off; grown about its own centre, a pill grows to hold it
+    and a band lets it slide.
+
+Changed:
+  - pgNumberFloor after alignPass; fitToDoc floors the number at 72; one
+    plate finder (pgPlateUnder) for the gate and the floor; solid hex plates,
+    see-through rules; the editor hand-off refits, adds Badges, re-aligns.
+  - verify --classics (--write -> assets/classics-gate.json, read by
+    loadClassicsGate); bake_contrast takes CHROME and FABRIC_JS;
+    naturalize_classics covers every image-backed classic and keeps a
+    skipped template's previous row.
+  - 20 superseded scripts removed; FAQ copy for shade, patterns and neutral
+    panels; the stat reads 399.
+
+Rejected:
+  - Scaling the plate with the number: a full-width band is not a pill.
+  - Shipping the 16 that still fail: rule 60's "not offered" now applies to
+    the strip as it does to the library.

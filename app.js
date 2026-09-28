@@ -11557,7 +11557,7 @@ function pgCheck(sc, opts){
   const phone = read.find(x => x.role === 'phone');
   let onProduct = 0, offPlate = 0;
   if (phone){
-    if (phone.px < PG_T.number) F('number', phone, phone.px, PG_T.number);
+    if (phone.px < PG_T.number - 0.5) F('number', phone, phone.px, PG_T.number);   // half a pixel of rounding, the same tolerance the floor uses
     if (phone.letters != null && phone.letters < PG_T.numInk) F('numInk', phone, phone.letters, PG_T.numInk);
     const b = phone.b;
     objs.forEach((o, j) => {

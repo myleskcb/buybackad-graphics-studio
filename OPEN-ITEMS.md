@@ -421,9 +421,32 @@ Never after darken: `supply_backgrounds.mjs` (it writes a tinted tone scrim;
 retire it or rewrite it on the gate). Never on the showcase: `decollide_text`,
 `replace_cutouts` (alignPass 4b/4d and number_block do their jobs).
 
+Done on 2026-09-28 ("fix and push all redesigns, audited before pushing"):
+the classics re-baked under the gate. `assignStyle` grades nothing; the
+contrast table (289 layers), the number table (509 layers on 162 classics,
+median number 64 -> 109px) and the ground table (235 classics, every
+image-backed one, a skipped solve keeps its previous row) re-solved in that
+order; the engine floors the number at 72px after the guides fit
+(`pgNumberFloor`: a pill grows, a band lets it slide); a hex block big enough
+to carry copy is drawn solid, thin rules stay at 45%; the editor hand-off
+refits the visitor's words and re-runs alignPass. Measured: classics 38 ->
+16 failing the gate (of 243); the 16 are held back from every list by
+`assets/classics-gate.json` (`verify_showcase.mjs --classics --write`).
+Showcase 399 pass. Superseded scripts removed (20 files).
+
 Still open, from the audit (numbers in docs/COHESION-AUDIT.md):
 
-1. **The classics' re-bake.** `assignStyle` no longer grades, so the 129
+0. **The 16 gated classics**, each a layout that the tables cannot fix:
+   `neon_sell` (its number on a plate no shade serves: rebuild the layout);
+   `reviewProof` x4 and `editorialLux` (the number's ink on a paper plate at
+   2 to 2.9:1: the paper palette's number plate needs its own ink rule);
+   `agencyGrid` x2, `trustSeal`, `arcCrown`, `voltStack`, `slabPoster`
+   (headline or CTA on the photograph under 3:1 with no neutral scrim that
+   holds every line: re-set the copy on a plate); `pkm_attic` (headline too
+   small as a tile); `splitcol` x2 (the number off its column plate). Fix the
+   layout builders, run `verify --classics --write`, and a card that passes
+   leaves the gate table by itself.
+1. **The classics' re-bake** (done above; kept for the order): `assignStyle` no longer grades, so the 129
    rows of ground-fix.json now only supply the shade; three dark-ink
    classics stand on 0.86 paper, every hex plate is drawn at 45% (rule 21 vs
    64), nine designer layouts author the number under 72px. Re-bake with

@@ -222,6 +222,11 @@ produced." DESIGN-LAW rule 66. In practice:
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the
   harness is the one live-card predicate.
+- **Before a commit that touches the classics' passes or tables:**
+  `node scripts/verify_showcase.mjs --classics --write` (writes
+  assets/classics-gate.json; a classic that fails is not offered). The
+  re-bake order is bake_contrast, number_block --classics --write,
+  naturalize_classics --write, then verify.
 - **Before a commit that touches assets/showcase:**
   `node scripts/verify_showcase.mjs --write` (exit 1 on any failure; it
   stamps legib / num / numInk / gate / blur / ground on the index). Then

@@ -50,6 +50,15 @@ failure); today: 400 live cards, 0 failures.
 - The rulebook: 19 rules that a later rule replaced now say so in place;
   rule 66 lists the precedence.
 
+## Fixed the next day (2026-09-28), measured
+
+The classics' re-bake: contrast, number and ground tables re-solved in order
+with `assignStyle` grading nothing; the number floored at 72px after the
+guides fit; hex plates solid, rules see-through; the editor hand-off refits
+and re-aligns; `verify --classics` and the gate table (`classics-gate.json`,
+16 held back of 243, from 38 failing); 20 superseded scripts removed.
+Remaining per-layout work is listed in OPEN-ITEMS §L item 0.
+
 ## What was found and is left (with the numbers)
 
 **app.js, duplicated helpers.** 11 luminance helpers (two sRGB knees, 0.03928
