@@ -1,0 +1,32 @@
+{
+ "about": "Classics that fail the gate (scripts/verify_showcase.mjs --classics --write): app.js loadClassicsGate() keeps them out of every list. Rule 66.",
+ "date": "2026-09-28",
+ "ids": [
+  "dl_cars_lowerThird_sunset",
+  "dl_coins_agencyGrid_paper",
+  "dl_coins_lowerThird_royal",
+  "dl_coins_reviewProof_paper",
+  "dl_gold_agencyGrid_gold",
+  "dl_gold_arcCrown_gold",
+  "dl_gold_editorialLux_gold",
+  "dl_gold_lowerThird_gold",
+  "dl_gold_reviewProof_gold",
+  "dl_gold_trustSeal_gold",
+  "dl_phones_lowerThird_ocean",
+  "dl_phones_reviewProof_ocean",
+  "dl_phones_slabPoster_mono",
+  "dl_pokemon_lowerThird_royal",
+  "dl_silver_agencyGrid_arctic",
+  "dl_silver_lowerThird_ocean",
+  "dl_silver_voltStack_mono",
+  "dl_sports_lowerThird_emerald",
+  "dl_sports_reviewProof_paper",
+  "dl_strips_lowerThird_emerald",
+  "neon_sell",
+  "pkm_attic",
+  "st_gold_pricetag",
+  "st_silver_pricetag",
+  "st_sports_pricetag",
+  "st_strips_pricetag"
+ ]
+}
