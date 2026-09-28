@@ -1481,7 +1481,7 @@ The same pass also takes a card with NO shade whose critical line reads under
 SILVER DOLLARS on a teal halftone among them): a white veil was not their
 fault, but the dull read was the same.
 
-> Superseded in part (rule 66): a band under a re-inked line is smoke, never a deep shade of its hue, and a see-through plate becomes neutral (rule 64); a blurred photograph is 14 to 24px, not 4 (rule 65).
+> Superseded in part (rule 66): a band under a re-inked line is smoke, never a deep shade of its hue, and a see-through plate becomes neutral (rule 64); a blurred photograph is 14 to 24px, not 4 (rule 65); the shade stands only where the copy stands (`bands`), not graded top and bottom (rule 66).
 
 ## 63. The support colour highlights the supporting copy, where it reads
 
@@ -1680,7 +1680,32 @@ The rule:
   7 (no review stars). Where a threshold differs between rules, `PG_T` is
   the number.
 
-Fixed with it: the classics no longer load with a duotone or wash grade that
+**The shade stands where the copy stands** (added 2026-09-28; the owner:
+"just make sure the backgrounds are visible if possible"). Measured before:
+the library's photo cards showed a median 26% of their photograph through
+the shade (197 of 273 under a flat veil, median strength 0.55), the classics
+49%. Two passes that only lightened the veil (aiming at the core of the
+strokes, then 3.5:1 for supporting copy) reached 29% and 50%: a shade over
+the whole card must be as strong everywhere as the copy needs it anywhere.
+The rule:
+
+- **A shade on a photograph is `bands`**: full strength across each band of
+  the card's height that holds a line of copy standing on the photograph
+  (a line on its own plate is left out: the plate owns its ground), feathered
+  over 6% of the height on either side, and nothing at all between the bands.
+  The picture shows through wherever no line needs the ground. Its strength
+  is still the lightest that passes the gate. Written as
+  `scrimMode: 'bands:a-b,c-d'` in fractions of the height, drawn by
+  `scrimRect`, so the card, its thumbnail, the editor and the gate see the
+  same shade; solved by `naturalGround` with 'bands' first, 'gradient' and
+  'normal' only when the bands cannot hold every line.
+- **The studio's own shade is the same shade.** `pgGate` steps the shade
+  it adds in Easy Mode and the editor as bands derived from the scene after
+  the layout (`pgShadeBands`, `pgShadeFit`), so a generated card is shaded
+  as the library is.
+- **Measured after** (@@AFTER@@).
+
+
 the ground table undid a second later (rule 56); the Easy Mode overlay is
 shade, never the visitor's colour (rules 56, 64); a theme recolours the copy
 and keeps a photo-led card's photograph (rule 65); a halo's tone follows the

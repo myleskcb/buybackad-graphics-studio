@@ -107,8 +107,9 @@ export async function openStudio(query = ''){
          where it clears o.want (4.5:1) against its ink, or where the old ground
          kept it if that was further: the lightest scrim that does both. So no
          line loses contrast, and none is shaded darker than it needs.
-         o.modes: the scrim modes to try in order ('gradient' keeps the middle
-         of the photograph alive; 'normal' is even). */
+         o.modes: the scrim modes to try in order ('bands' shades only where
+         copy stands, see below; 'gradient' keeps the middle of the photograph
+         alive; 'normal' is even). */
       naturalGround(t, o){
         const W = TPL_W, H = TPL_H, bg = t.bg;
         const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
@@ -189,8 +190,19 @@ export async function openStudio(query = ''){
            did not see carries it, and no scrim is its business */
         const cr = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
         const live = lines.filter(x => x.old != null && !(x.lum != null && x.mid != null && cr(x.lum, x.mid) < 1.5));
+        /* 'bands' (rule 66, 2026-09-28: "make sure the backgrounds are visible"):
+           the shade only across the bands of the height that hold copy on the
+           photograph (every line, live or not, padded a little for descenders
+           and shadows), nothing between them, so the picture shows through
+           wherever no line needs the ground. Bands whose feathers would meet
+           are one band. The renderer (app.js scrimRect) draws the same string. */
+        const PAD = 0.015, FEATHER = 0.06;
+        const spans = lines.map(x => [Math.max(0, x.b.y / H - PAD), Math.min(1, (x.b.y + x.b.h) / H + PAD)]).sort((p, q) => p[0] - q[0]);
+        const merged = []; spans.forEach(sp => { const l = merged[merged.length - 1]; if (l && sp[0] <= l[1] + 2 * FEATHER) l[1] = Math.max(l[1], sp[1]); else merged.push(sp.slice()); });
+        const bandsMode = merged.length ? 'bands:' + merged.map(sp => sp.map(v => v.toFixed(3)).join('-')).join(',') : 'normal';
+        const modeOf = mode => mode === 'bands' ? bandsMode : mode;
         const make = (a, mode) => Object.assign({}, bg, { grade: o.grade, scrim: +a.toFixed(3),
-          scrimColor: light ? o.dark : o.light, scrimMode: mode });
+          scrimColor: light ? o.dark : o.light, scrimMode: modeOf(mode) });
         const ok = spec => { if (!live.length) return true; const d = ground(spec); if (!d) return false;
           return live.every(x => { const v = stat(d, x); return x.light ? v <= x.allow * 1.02 + 0.002 : v >= x.allow * 0.98 - 0.002; }); };
         const solve = mode => {

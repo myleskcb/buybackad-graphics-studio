@@ -651,3 +651,47 @@ Rejected:
   - Scaling the plate with the number: a full-width band is not a pill.
   - Shipping the 16 that still fail: rule 60's "not offered" now applies to
     the strip as it does to the library.
+
+## 2026-09-28 (later) — The shade stands where the copy stands
+
+Owner: "just make sure the backgrounds are visible if possible."
+
+Learned:
+  - How much of a photograph shows through is a number: the shaded ground's
+    mean luminance against the bare photograph's (scratch visibility.mjs).
+    Baseline: median 26% on the library's photo cards (197 of 273 under a
+    flat veil at 0.55), 49% on the classics.
+  - Lightening a whole-card veil barely moves it. Solving for the core of
+    the strokes instead of the worst tenth, then 3.5:1 for supporting copy,
+    took the library from 26% to 29% and the classics from 49% to 50%: the
+    veil must be as strong everywhere as the copy needs it anywhere, and one
+    line at the bottom holds the whole picture dark.
+  - The shade that shows the picture is the one that stands only where the
+    copy stands: full strength across the bands of the height that hold a
+    line on the photograph, feathered 6% of the height, nothing between
+    them. At the same strength it holds every line the flat veil held (the
+    line's box is inside its band), so the solver tries it first and falls
+    back to the graded and the even veil only when the bands cannot hold
+    every line.
+  - The gate's plate finder returns a plate the line merely overlaps (a
+    headline whose last line touches the panel below it); for "is this line
+    on a plate" the plate has to hold the line's centre, or the headline is
+    left out of the bands and the studio's gate opens its modal instead of
+    shading.
+  - After: @@AFTER@@
+
+Changed:
+  - scrimRect draws `bands:a-b,c-d` (scrimBands parses, SCRIM_FEATHER 0.06);
+    normaliseBackdrop keeps a bands mode; naturalGround solves 'bands' first
+    (darken_grounds --lighten, naturalize_classics); the studio's own shade
+    is bands from the scene after the layout (pgShadeBands, pgShadeFit,
+    ezShadeRect, advShade); ASSET_REV 20260928a.
+  - DESIGN-LAW rule 66 (the shade stands where the copy stands), rule 62
+    pointer; AGENT-BRIEF; OPEN-ITEMS §L.
+
+Rejected:
+  - A floor of shade between the bands (a faint veil "for cohesion"): it is
+    the haze the owner asked to lift, and the gate does not need it.
+  - Shading by the copy's boxes rather than by bands: a patchwork of
+    rectangles reads as plates that are not there; a horizontal band reads
+    as light falling on the picture.

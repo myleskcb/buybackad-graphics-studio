@@ -68,7 +68,7 @@ for (let i = 0; i < work.length; i += 6){
         const was = { scrim: t.bg.scrim, scrimColor: t.bg.scrimColor, blur: t.bg.blur || 0, mode: t.bg.scrimMode };
         const orig = Object.assign({}, t.bg);
         if ((t.bg.blur || 0) > MAX_BLUR) t.bg = Object.assign({}, t.bg, { blur: MAX_BLUR });
-        const r = __sc.naturalGround(t, { grade: { treat: 'natural' }, dark: DARK, light: LIGHT, modes: ['gradient', 'normal'],
+        const r = __sc.naturalGround(t, { grade: { treat: 'natural' }, dark: DARK, light: LIGHT, modes: ['bands', 'gradient', 'normal'],
                                           flip: { dark: DARK, light: LIGHT }, prefer: 'dark', strict: MAX_BLUR === Infinity, core: CORE, wantMinor: CORE ? 3.5 : null });
         r.was = was;
         /* a line re-inked light may stand on a pale band the solver does not
@@ -146,7 +146,7 @@ const rows = Object.entries(out);
 let done = rows.filter(([, r]) => r.bg && r.light), skips = rows.filter(([, r]) => !r.bg || !r.light), errs = rows.filter(([, r]) => r.err);
 const med = a => { const s = a.slice().sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : 0; };
 console.log(`re-grounded dark: ${done.length} · left alone: ${skips.length} · errors ${errs.length} · page errors ${errors.length}`);
-console.log(`shade: ${JSON.stringify(done.reduce((m, [, r]) => (m[r.bg.scrimMode] = (m[r.bg.scrimMode] || 0) + 1, m), {}))}, strength median ${med(done.map(([, r]) => r.bg.scrim))} (white was ${med(done.map(([, r]) => r.was.scrim || 0))})`);
+console.log(`shade: ${JSON.stringify(done.reduce((m, [, r]) => { const k = String(r.bg.scrimMode).split(':')[0]; m[k] = (m[k] || 0) + 1; return m; }, {}))}, strength median ${med(done.map(([, r]) => r.bg.scrim))} (white was ${med(done.map(([, r]) => r.was.scrim || 0))})`);
 console.log(`lines re-inked light: ${done.reduce((s, [, r]) => s + (r.flipped ? r.flipped.length : 0), 0)} · pale bands under them turned dark: ${done.reduce((s, [, r]) => s + (r.plates ? r.plates.length : 0), 0)}`);
 const why = {}; skips.forEach(([, r]) => { const k = r.skip || (r.err ? 'error' : 'kept light'); why[k] = (why[k] || 0) + 1; });
 console.log('left alone because: ' + JSON.stringify(why));

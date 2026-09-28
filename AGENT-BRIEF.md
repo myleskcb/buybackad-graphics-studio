@@ -218,6 +218,13 @@ produced." DESIGN-LAW rule 66. In practice:
   order. It shades a failing ground (neutral, in the direction the lines
   need) and otherwise names the problem in a modal. Do not add an export
   path that bypasses it.
+- **The shade is bands** (rule 66, 2026-09-28): `scrimMode: 'bands:a-b,c-d'`
+  shades only the bands of the height that hold copy on the photograph.
+  `scrimRect` draws it (`scrimBands` parses it); `naturalGround` solves it
+  with modes `['bands', 'gradient', 'normal']`; the studio derives its own
+  from the scene (`pgShadeBands`). Never write a whole-card veil where a
+  bands shade would hold the lines, and never treat a bands mode as
+  'gradient' (normaliseBackdrop keeps it).
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

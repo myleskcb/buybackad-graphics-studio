@@ -57,7 +57,7 @@ for (let i = 0; i < ids.length; i += 6){
         /* the classics keep their gradient scrim (strong where the type is, the
            middle of the photograph left alive); an even one only if the
            gradient cannot hold every line at any strength */
-        const r = __sc.naturalGround(t, { grade: null, dark: null, light: PAPER, modes: [t.bg.scrimMode || 'gradient', 'normal'], core: true, wantMinor: 3.5 });   // the lightest shade that holds the core (rule 66's measure)
+        const r = __sc.naturalGround(t, { grade: null, dark: null, light: PAPER, modes: ['bands', 'gradient', 'normal'], core: true, wantMinor: 3.5 });   // the lightest shade that holds the core (rule 66's measure)
         if (r.bg) Object.assign(r, { src: t.bg.src, was });
         R[id] = r;
       } catch (e){ R[id] = { err: String(e).slice(0, 160) }; }
@@ -73,7 +73,7 @@ const med = a => { const s = a.slice().sort((p, q) => p - q); return s.length ? 
 console.log(`\ngraded classics ${rows.length} · natural ${done.length} · skipped ${skips.length} · errors ${errs.length} · page errors ${errors.length}`);
 console.log(`was: ${JSON.stringify(done.reduce((m, [, r]) => (m[r.was.style] = (m[r.was.style] || 0) + 1, m), {}))}`);
 console.log(`scrim: black under light ink ${done.filter(([, r]) => r.light).length}, paper under dark ink ${done.filter(([, r]) => !r.light).length}; `
-  + `even ${done.filter(([, r]) => r.bg.scrimMode === 'normal').length}; strength median ${med(done.map(([, r]) => r.bg.scrim))} (was ${med(done.map(([, r]) => r.was.scrim))}), max ${Math.max(0, ...done.map(([, r]) => r.bg.scrim))}`);
+  + `bands ${done.filter(([, r]) => /^bands:/.test(r.bg.scrimMode)).length}, even ${done.filter(([, r]) => r.bg.scrimMode === 'normal').length}; strength median ${med(done.map(([, r]) => r.bg.scrim))} (was ${med(done.map(([, r]) => r.was.scrim))}), max ${Math.max(0, ...done.map(([, r]) => r.bg.scrim))}`);
 console.log(`lines held at an old ground already under 4.5:1: ${done.reduce((s, [, r]) => s + (r.shortBefore || 0), 0)}`);
 skips.forEach(([id, r]) => console.log('  SKIP', id, r.skip));
 errs.slice(0, 4).forEach(([id, r]) => console.log('  ERR', id, r.err));

@@ -402,6 +402,7 @@ step is measured by the gate before it writes):
     node scripts/restage_glasscards.mjs --write            # Glass Card: product on the card (rule 59)
     node scripts/darken_grounds.mjs --write                # shade dark, never milky (rule 62)
     node scripts/darken_grounds.mjs --resolve --ids <blurred ids> --write   # blurred cards: strict shade (rule 65)
+    node scripts/darken_grounds.mjs --lighten --ids <live photo ids> --write   # bands, the lightest shade that passes the gate (rule 66)
     node scripts/clear_number.mjs --write                  # nothing drawn on the number
     node scripts/support_highlights.mjs --write            # support colour on the selling points (rule 63); BEFORE neutral_panels
     node scripts/neutral_panels.mjs --write                # no hue over the photograph (rule 64)
@@ -452,9 +453,8 @@ Still open, from the audit (numbers in docs/COHESION-AUDIT.md):
    64), nine designer layouts author the number under 72px. Re-bake with
    `naturalize_classics --prefer dark`, `number_block --classics`, then run
    the gate over TEMPLATES (a classics `verify` is the missing script).
-2. **The editor path** does not refit retyped text or re-run alignPass, and
-   drops the synthesised Badges line; the gate catches the results, the fix
-   is to route `openAdvancedFromEz` through the same refit Easy Mode uses.
+2. **The editor path** (done 2026-09-28: the hand-off refits and re-aligns;
+   the editor's gate shade is bands from the scene, like Easy Mode's).
 3. **The classics' passes** (inkVsWash, gradInkContrast, localGroundContrast,
    applyMeasuredContrast) each carry their own luminance, contrast and plate
    finder and each claims to be final. Fold them onto `pgCheck` at the
@@ -463,3 +463,9 @@ Still open, from the audit (numbers in docs/COHESION-AUDIT.md):
    .render depends on them.
 5. **A classics verify** (`verify_showcase.mjs --classics`): the gate over
    TEMPLATES, so the Easy strip is held to the same measure as the library.
+   (Done 2026-09-28.)
+6. **Backgrounds visible** (2026-09-28, "make sure the backgrounds are
+   visible"): done as the bands shade (rule 66): @@AFTER@@. Still whole-card:
+   the Easy photo swatches' base scrim (0.36 to 0.42 graded) before the gate
+   shades further; `naturalize_showcase.mjs` still solves 'normal' only (it
+   runs before darken, which re-solves).

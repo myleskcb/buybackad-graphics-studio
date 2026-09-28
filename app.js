@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20260927c';
+const ASSET_REV = '20260928a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -4827,7 +4827,24 @@ function scrimRect(alpha, w, h, color, mode){
     }
   }
   let fill = 'rgba(' + c + ',' + alpha + ')';
-  if (mode === 'gradient'){
+  const bands = scrimBands(mode);
+  if (bands){
+    /* BANDS (rule 66, 2026-09-28: "make sure the backgrounds are visible").
+       The shade stands only where copy stands on the photograph: full
+       strength across each band of the card's height that holds a line,
+       feathered over SCRIM_FEATHER of the height on either side, and nothing
+       at all between the bands, so the picture shows through wherever no
+       line needs the ground. Written by the solver (naturalGround, 'bands')
+       as `bands:a-b,c-d` in fractions of the height; every render path
+       comes through here, so the card, its thumbnail, the editor and the
+       gate all see the same shade. */
+    const st = [], at = (o, k) => st.push({ offset: +Math.min(1, Math.max(0, o)).toFixed(4), color: 'rgba(' + c + ',' + (alpha * k).toFixed(3) + ')' });
+    const F = SCRIM_FEATHER;
+    if (bands[0][0] - F > 0) at(0, 0);
+    bands.forEach(([p, q]) => { if (p - F > 0) at(p - F, 0); at(p, 1); at(q, 1); if (q + F < 1) at(q + F, 0); });
+    if (bands[bands.length - 1][1] + F < 1) at(1, 0);
+    fill = new fabric.Gradient({ type:'linear', coords:{ x1:0, y1:0, x2:0, y2:h }, colorStops: st });
+  } else if (mode === 'gradient'){
     fill = new fabric.Gradient({
       type:'linear', coords:{ x1:0, y1:0, x2:0, y2:h },
       colorStops:[
@@ -4843,6 +4860,20 @@ function scrimRect(alpha, w, h, color, mode){
       ]});
   }
   return new fabric.Rect({ left:0, top:0, width:w, height:h, fill:fill, selectable:false, evented:false, name:'Scrim' });
+}
+/* the feather of a bands shade, as a fraction of the card's height, and the
+   parser: `bands:0.100-0.420,0.700-0.940` -> [[0.1,0.42],[0.7,0.94]], sorted,
+   bands whose feathers would meet merged into one, or null when the mode is
+   not a bands mode */
+const SCRIM_FEATHER = 0.06;
+function scrimBands(mode){
+  if (typeof mode !== 'string' || mode.slice(0, 6) !== 'bands:') return null;
+  const raw = mode.slice(6).split(',').map(s => s.split('-').map(Number))
+    .filter(s => s.length === 2 && s.every(v => Number.isFinite(v) && v >= 0 && v <= 1) && s[1] > s[0])
+    .sort((p, q) => p[0] - q[0]);
+  const out = [];
+  raw.forEach(s => { const l = out[out.length - 1]; if (l && s[0] <= l[1] + 2 * SCRIM_FEATHER) l[1] = Math.max(l[1], s[1]); else out.push(s.slice()); });
+  return out.length ? out : null;
 }
 function coverImage(im, w, h){
   w = w || CW; h = h || CH;
@@ -7165,7 +7196,7 @@ function normaliseBackdrop(t){
   if (!t.bg || t.bg.type !== 'image') return 0;
   let n = 0;
   if ((t.bg.blur || 0) > MAX_BG_BLUR && t.bg.blur < 1){ t.bg.blur = MAX_BG_BLUR; n++; }   // a blur of 1 and more is pixels on the card (rule 65), its own unit
-  if (t.bg.scrimMode !== 'gradient'){ t.bg.scrimMode = 'gradient'; n++; }
+  if (t.bg.scrimMode !== 'gradient' && !scrimBands(t.bg.scrimMode)){ t.bg.scrimMode = 'gradient'; n++; }   // a bands shade (rule 66) is its own mode
   /* Do NOT boost the value when switching to a gradient. Reasoning that "a
      gradient's middle is clear so the peak can go up" and multiplying by 1.55
      double-counted: median dark share went 47% -> 82% and the photo drowned
@@ -11642,17 +11673,22 @@ function ezInkLight(tpl){
 function ezShadeRect(w, h, tpl){
   const a = ez.shade || 0; if (!(a > 0)) return null;
   const dark = ez.shadeTone ? ez.shadeTone === 'dark' : ezInkLight(tpl);
-  const r = scrimRect(Math.min(0.9, a), w, h, dark ? '#0b0b0d' : '#f6f6f4', 'normal');
-  r.pgShade = true; r.selectable = false; r.evented = false;
+  const tone = dark ? '#0b0b0d' : '#f6f6f4';
+  const r = scrimRect(Math.min(0.9, a), w, h, tone, 'normal');
+  r.pgShade = true; r.pgShadeA = Math.min(0.9, a); r.pgShadeTone = tone; r.pgShadeMode = 'normal';   // pgShadeFit sets its bands after the layout
+  r.selectable = false; r.evented = false;
   return r;
 }
 function advShade(a, tone){
   const old = canvas.getObjects().find(o => o.pgShade); if (old) canvas.remove(old);
   if (!(a > 0)) return;
-  const r = scrimRect(Math.min(0.9, a), CW, CH, tone === 'light' ? '#f6f6f4' : '#0b0b0d', 'normal');
-  r.pgShade = true; r.selectable = false; r.evented = false;
+  const c = tone === 'light' ? '#f6f6f4' : '#0b0b0d';
+  const r = scrimRect(Math.min(0.9, a), CW, CH, c, 'normal');
+  r.pgShade = true; r.pgShadeA = Math.min(0.9, a); r.pgShadeTone = c; r.pgShadeMode = 'normal';
+  r.selectable = false; r.evented = false;
   canvas.add(r);
   canvas.moveTo(r, canvas.getObjects().filter(o => o.pgBgRect || o.pgScrim).length);   // above the ground, under everything drawn
+  try { pgShadeFit(canvas, CW, CH); } catch (e){}
 }
 function pgGateAsk(r){
   return new Promise(res => {
@@ -11772,3 +11808,46 @@ function pgNumberFloor(sc, W, H){
       .catch(() => {});
   } catch (e){}
 })();
+
+/* ── the shade stands where the copy stands (rule 66, bands) ──────────────
+   The studio's own shade (ezShadeRect for the Easy preview, advShade for the
+   editor) is the same shade the solver writes on the library: full strength
+   across the bands of the card's height that hold copy on the photograph,
+   feathered, and nothing between them, so the picture shows through wherever
+   no line needs the ground (owner, 2026-09-28: "make sure the backgrounds
+   are visible"). A line on its own plate is left out: the plate owns its
+   ground. Derived from the scene after the layout, since the layout moves
+   the lines; the editor derives it when the shade is set. */
+function pgShadeBands(objs, W, H){
+  W = W || TPL_W; H = H || TPL_H;
+  const PAD = 0.015, spans = [];
+  objs.forEach(o => {
+    if (!o || o.visible === false || o.pgRole === 'deco' || (o.opacity != null && o.opacity < 0.5)) return;
+    const text = typeof o.text === 'string' ? o.text : (o.type === 'group' && o.pgCurved && typeof o.pgCurved.text === 'string') ? o.pgCurved.text : '';
+    if (!/[A-Za-z0-9]/.test(text)) return;
+    o.setCoords(); const r = o.getBoundingRect(true, true), b = { x: r.left, y: r.top, w: r.width, h: r.height };
+    if (b.w < 2 || b.h < 2) return;
+    /* on a plate only when the plate holds the line's centre: the finder also
+       returns a plate the line merely overlaps (a headline whose last line
+       touches the panel below it), and that line still stands on the photograph */
+    const pl = pgPlateUnder(objs, o, b, W, H), cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    if (pl && cx >= pl.x && cx <= pl.x + pl.w && cy >= pl.y && cy <= pl.y + pl.h) return;
+    spans.push([Math.max(0, b.y / H - PAD), Math.min(1, (b.y + b.h) / H + PAD)]);
+  });
+  spans.sort((p, q) => p[0] - q[0]);
+  const out = [];
+  spans.forEach(sp => { const l = out[out.length - 1]; if (l && sp[0] <= l[1] + 2 * SCRIM_FEATHER) l[1] = Math.max(l[1], sp[1]); else out.push(sp.slice()); });
+  return out.length ? 'bands:' + out.map(sp => sp.map(v => v.toFixed(3)).join('-')).join(',') : 'normal';
+}
+function pgShadeFit(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return; }
+  const sh = objs.find(o => o && o.pgShade); if (!sh || !(sh.pgShadeA > 0)) return;
+  const mode = pgShadeBands(objs, W || sh.width, H || sh.height);
+  if (mode === sh.pgShadeMode) return;
+  sh.set({ fill: scrimRect(sh.pgShadeA, sh.width, sh.height, sh.pgShadeTone, mode).fill });
+  sh.pgShadeMode = mode;
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); try { pgShadeFit(sc, W, H); } catch (e){ console.warn('shade bands:', e); } return r; };
+}
