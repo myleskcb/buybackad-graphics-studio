@@ -41,6 +41,20 @@
     { id:'applyColourFix', group:'build', label:'Money-word colour fix',
       desc:'Recolours the four money words the hue-gap audit flagged as discordant, from the reference hue vocabulary.',
       rule:'14', def:true },
+    { id:'separateHero', group:'build', label:'Hero separating shadow',
+      desc:'A hero headline with no shadow of its own gets the one tight, dense, neutral shadow that separates type from a photograph.',
+      rule:'2', def:true },
+    { id:'snapColumns', group:'build', label:'Snap columns',
+      desc:'Left edges within a small tolerance are snapped to one measured column, so alignment is optical and never hand-tuned.',
+      rule:'9b, 19', def:true },
+    { id:'compDirection', group:'build', label:'Split-complement direction', type:'choice',
+      options:[['parity','By category-name length (shipped)'],['plus','+160\u00b0 for every category'],['minus','\u2212160\u00b0 for every category']],
+      desc:'Which side of the wheel the accent complement sits on. As shipped it is decided by whether the category name has an odd number of letters, which is not a design decision; see OPEN-QUESTIONS.md.',
+      rule:'41', def:'parity' },
+    { id:'hashSalt', group:'build', label:'Reshuffle hashed choices', type:'choice',
+      options:[['none','As shipped'],['a','Reshuffle A'],['b','Reshuffle B'],['c','Reshuffle C']],
+      desc:'Backdrop photo, display face, style family and cutout are each chosen by hashing the template id. This salts every one of those hashes at once. If a reshuffle looks as good as shipped, those choices were never decisions.',
+      rule:'HANDOFF \u00a74', def:'none' },
 
     /* ── The template pass chain, in run order ───────────────────────── */
     { id:'completeTemplate', group:'chain', label:'Complete template',
@@ -101,6 +115,17 @@
     { id:'warmTheWhites', group:'chain', label:'Warm the whites',
       desc:'Last word on colour: pure-white type on a photograph is tinted to the category off-white.',
       rule:'12', def:true },
+
+    /* ── At render time ──────────────────────────────────────────────── */
+    { id:'alignPass', group:'render', label:'Align pass',
+      desc:'On every render: corrects alignment on the real fabric objects (clipped text, text-on-text) rather than on the spec. Runs for thumbnails, the editor and Easy Mode.',
+      rule:'19, 28', def:true },
+    { id:'varietyOrder', group:'render', label:'Gallery variety ordering',
+      desc:'Orders each category and the landing gallery so that layout, family and palette do not repeat within four cards. Off = authored order.',
+      rule:'—', def:true },
+    { id:'traitsAfterChain', group:'render', label:'Enhance restores the finished look',
+      desc:'OFF AS SHIPPED. The snapshot that the Enhance button restores is taken before the pass chain runs, so Enhance reverts a layer to its pre-law styling. On = snapshot again after the chain. See OPEN-QUESTIONS.md.',
+      rule:'—', def:false },
 
     /* ── Studio UI ───────────────────────────────────────────────────── */
     { id:'easyColorThemes', group:'ui', label:'Easy Mode colour themes',

@@ -51,6 +51,34 @@ Conventions: **Added** / **Changed** / **Fixed** / **Removed**, and a
   assertion at the end of `app.js` passes in both states (see the verification
   in the commit).
 
+### Later the same day — coverage audit of the console
+
+**Added**
+- Seven switches the first pass left out: the hero separating shadow (rule 2),
+  column snapping (9b, 19), the render-time align pass (19, 28), gallery
+  variety ordering, the split-complement direction (41), a salt that
+  reshuffles all four hashed choices at once, and `traitsAfterChain` (off as
+  shipped) which makes Enhance restore the finished look instead of the
+  pre-law snapshot. A *Reshuffle* preset and an *At render time* group.
+- `scripts/flag_audit.mjs`: static check that every switch is consulted by
+  `app.js`, every registered chain pass runs through `runPass()` in registry
+  order, every chain function has a definition, and every template-id hash
+  takes the salt. Exits non-zero on any finding, like the other audits.
+- The console's *Last run* tab now lists every registered switch, and paints
+  red any switch the studio never consulted or any pass the registry does not
+  know. That is the audit, live, on every rebuild.
+- `OPEN-QUESTIONS.md` items 15–25: Enhance reverting the phone-number fix,
+  the category-name-parity complement, the four hashes, `PLANS` ×4, the CSP
+  ×2, two background libraries, off-law backgrounds and AI prompts, five
+  deploy docs, superseded colours in the editor defaults, the orphan icon
+  sheet, and the pass count.
+
+**Measured**
+- 31 switches registered, 31 consulted, 18 chain passes in registry order,
+  0 hashes bypassing the salt. Reshuffle moves the style split from
+  121/76/46 to 116/89/38. `traitsAfterChain` changes the Enhance snapshot on
+  the sampled template from `#ffffff` to `#141110` for the darkened ink.
+
 ---
 
 ## 2026-08-28 — Design law rules 45–50; "good is busier" corrected

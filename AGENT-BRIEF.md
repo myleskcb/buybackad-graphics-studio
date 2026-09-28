@@ -195,6 +195,7 @@ Rules for it:
 - **Adding a pass?** Register it in `flags.js` and call it through
   `runPass('id', fn)` in the chain. A pass that bypasses `runPass` is invisible
   to the console and to the run log, which is the rule-42 failure mode again.
+  `node scripts/flag_audit.mjs` checks this statically; run it before a push.
 - **Changing what a pass does?** Add a line to `CHANGELOG.md`.
 - **Found two parts of the repo disagreeing?** Append to `OPEN-QUESTIONS.md`
   with a status line. Do not resolve it silently in one place.

@@ -20,6 +20,11 @@ const pgfxFlag = (typeof window !== 'undefined' && typeof window.pgfxFlag === 'f
   ? window.pgfxFlag
   : (id => id === 'styleForce' ? 'mix' : true);
 const PGFX_PASS_LOG = (typeof window !== 'undefined' && window.PGFX_FLAGS) ? window.PGFX_FLAGS.log : [];
+/* Four passes choose by hashing the template id (backdrop, display face, style
+   family, cutout). `hashSalt` reshuffles every one of those choices at once,
+   which is the quickest way to see how much of the library's look is the hash
+   rather than a decision. */
+const pgfxHashId = id => { const s = pgfxFlag('hashSalt'); return (s && s !== 'none') ? id + '|' + s : id; };
 
 const $ = id => document.getElementById(id);
 // Template design space: every built-in layout is authored on a 1080×1080 grid.
@@ -1515,6 +1520,7 @@ const TEMPLATES = [
      second column (an indent, a nested list) is never swallowed. */
   const COL_TOL = 8;
   function snapColumns(layers){
+    if (!pgfxFlag('snapColumns')) return;            // flag: Rules 9b, 19
     const items = layers.filter(l =>
       (l.kind === 'text' || l.kind === 'textbox' || (!l.kind && l.text !== undefined)) &&
       l.props && typeof l.props.left === 'number' &&
@@ -1586,7 +1592,7 @@ const TEMPLATES = [
         if (/^Check(\s+Circle)?$/.test(layers[i].name || '')) layers.splice(i, 1);
       }
       // A hero with no separation of its own gets the house one.
-      if (hero && !hero.props.shadow) separate(hero.props, P);
+      if (hero && !hero.props.shadow && pgfxFlag('separateHero')) separate(hero.props, P);   // flag: Rule 2
       houseType(layers, P);
       snapColumns(layers);
       // Long money-words used to be shrunk here by character count. That is
@@ -1791,11 +1797,16 @@ const TEMPLATES = [
   // the designer loop, so calling it from inside that loop would hit the
   // temporal dead zone. It only sets a fill, so order is otherwise irrelevant.
   if (pgfxFlag('applyColourFix')) TEMPLATES.forEach(t => applyColourFix(t.id, t.layers));   // flag: Rule 14
+  // The build-phase switches ran inside this closure; record them so the
+  // console's run log covers every switch, not only the chain.
+  ['tameAccents','houseType','separateHero','snapColumns','applyColourFix','hashSalt','compDirection']
+    .forEach(id => { const v = pgfxFlag(id); PGFX_PASS_LOG.push({ id, ran: v !== false, ms: 0, touched: typeof v === 'string' ? v : null, phase: 'build' }); });
 })();
 
 // traits: per-template, per-layer canonical styling, this is what Enhance restores
 const TRAIT_KEYS = ['fontFamily','fontSize','fill','stroke','strokeWidth','fontWeight','textAlign','lineHeight','backgroundColor','angle','opacity','fontStyle','charSpacing'];
 const TRAITS = {};
+function snapshotTraits(){
 TEMPLATES.forEach(t => {
   TRAITS[t.id] = {};
   t.layers.forEach(l => {
@@ -1807,6 +1818,8 @@ TEMPLATES.forEach(t => {
     TRAITS[t.id][l.name] = tr;
   });
 });
+}
+snapshotTraits();
 
 const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','5 MINUTES','HASSLE FREE','SAME DAY','TOP $$$','ANY CONDITION','INSTANT CASH','NO GAMES','CALL NOW'];
 const EMOJIS = ['📱','💰','💵','✅','✔️','👉','🔥','⭐','📲','🤝'];
@@ -2003,6 +2016,7 @@ function opticalLeftShift(obj){
       Marquee strips are edge-hugging BY DESIGN and are exempt. */
 const SAFE_EDGE = 24;
 function alignPass(sc, W, H){
+  if (!pgfxFlag('alignPass')) return;                // flag: Rule 19
   W = W || TPL_W; H = H || TPL_H;
   let objs;
   try { objs = sc.getObjects(); } catch (e){ return; }
@@ -6093,7 +6107,8 @@ function completeTemplate(t, pool){
     const list = pool[t.cat];
     if (list && list.length){
       let h = 0;
-      for (let i = 0; i < t.id.length; i++) h = (h * 31 + t.id.charCodeAt(i)) >>> 0;
+      const hid = pgfxHashId(t.id);
+      for (let i = 0; i < hid.length; i++) h = (h * 31 + hid.charCodeAt(i)) >>> 0;
       const darkInk = inkLuminance(t) < 0.42;
       t.bg = { type:'image', src:list[h % list.length],
                scrim: darkInk ? CLASSIC_SCRIM_LIGHT : CLASSIC_SCRIM_DARK,
@@ -6694,7 +6709,11 @@ const CAT_COLOUR = (() => {
   const out = {};
   Object.keys(CAT_HUE).forEach(k => {
     const money = oklchFit(CAT_HUE[k]);
-    out[k] = { money, comp: splitComp(money, k.length % 2 ? 1 : -1) };
+    // Shipped: the direction of the split comes from the PARITY OF THE CATEGORY
+    // NAME'S LENGTH, which is not a design decision. The console can force it.
+    const cd = pgfxFlag('compDirection');
+    const dir = cd === 'plus' ? 1 : cd === 'minus' ? -1 : (k.length % 2 ? 1 : -1);
+    out[k] = { money, comp: splitComp(money, dir) };
   });
   return out;
 })();
@@ -6734,7 +6753,8 @@ function displayFaceFix(t){
     .sort((a,b)=>(b.props.fontSize||0)-(a.props.fontSize||0));
   const h=heads[0]; if(!h) return 0;
   if ((h.props.fontFamily||'') !== 'Satoshi') return 0;
-  let k=0; for (let i=0;i<t.id.length;i++) k=(k*31+t.id.charCodeAt(i))>>>0;
+  const hid = pgfxHashId(t.id);
+  let k=0; for (let i=0;i<hid.length;i++) k=(k*31+hid.charCodeAt(i))>>>0;
   const face = (typeof STREET_FACE!=='undefined' && STREET_FACE[t.id])
     || DISPLAY_FACES[k % DISPLAY_FACES.length];
   heads.forEach(l => { if ((l.props.fontFamily||'')==='Satoshi') l.props.fontFamily = face; });
@@ -6793,7 +6813,8 @@ const STYLE_MIX = ['duotone','wash','duotone','photo','wash','duotone'];
 function assignStyle(t){
   if (!t.bg || !t.cat) return 0;
   const C = CAT_COLOUR[t.cat]; if (!C) return 0;
-  let h = 0; for (let i = 0; i < t.id.length; i++) h = (h * 33 + t.id.charCodeAt(i)) >>> 0;
+  const hid = pgfxHashId(t.id);
+  let h = 0; for (let i = 0; i < hid.length; i++) h = (h * 33 + hid.charCodeAt(i)) >>> 0;
   // flag `styleForce`: the console can hand every template one family instead
   // of the hashed split (HANDOFF section 4 is the argument for why you would).
   const forced = pgfxFlag('styleForce');
@@ -6978,7 +6999,8 @@ function addProductCutout(t){
   const SIZE = Math.min(560, px - 26);
   if (SIZE < 300) return 0;                             // too cramped to read as a product
 
-  let h = 0; for (let i = 0; i < t.id.length; i++) h = (h * 31 + t.id.charCodeAt(i)) >>> 0;
+  const hid = pgfxHashId(t.id);
+  let h = 0; for (let i = 0; i < hid.length; i++) h = (h * 31 + hid.charCodeAt(i)) >>> 0;
   const src = 'assets/cutouts/' + pool[h % pool.length] + '.png';
   const left = best.x * cell + (px - SIZE) / 2;
   const top  = best.y * cell + (px - SIZE) / 2;
@@ -7148,6 +7170,7 @@ const VAR_RECENCY = [1, 0.6, 0.35, 0.2];
    when ordering a second group stops a repeat landing exactly on the seam
    between them, which is otherwise the one place the greedy cannot see. */
 function varietyOrder(list, seed){
+  if (!pgfxFlag('varietyOrder')) return list.slice();   // flag: authored order
   if (list.length < 3) return list.slice();
   const rest = list.slice();
   const hist = seed ? seed.slice(-VAR_RECENCY.length) : [];
@@ -8201,6 +8224,7 @@ runPass('enforceInkOnPlate',   t => enforceInkOnPlate(t));
 runPass('stackBulletRuns',     t => stackBulletRuns(t));
 runPass('addProductCutout',    t => addProductCutout(t));
 runPass('assignStyle',         t => assignStyle(t));
+PGFX_PASS_LOG.push({ id:'styleForce', ran:true, ms:0, touched: String(pgfxFlag('styleForce')), phase:'chain' });
 runPass('colourTheory',        t => colourTheory(t));
 runPass('displayFaceFix',      t => displayFaceFix(t));
 runPass('enrichFills',         t => enrichFills(t));
@@ -8215,6 +8239,11 @@ runPass('bodyPanel',           t => bodyPanel(t));
    the tint existed. Whatever colour the contrast work lands on, this is the
    final word on it. */
 runPass('warmTheWhites',       t => warmTheWhites(t));
+/* TRAITS (what Enhance restores) was snapshotted BEFORE this chain ran, so
+   Enhance puts a layer back to its pre-law look. See OPEN-QUESTIONS.md; this
+   flag tests the fix without shipping it. */
+if (pgfxFlag('traitsAfterChain')) snapshotTraits();
+PGFX_PASS_LOG.push({ id:'traitsAfterChain', ran: !!pgfxFlag('traitsAfterChain'), ms:0, touched:null, phase:'chain' });
 try {
   tplDims(TEMPLATES[0]);
   /* The old assertion called onAccent({a1:'#ffffff'}) here. onAccent is a const

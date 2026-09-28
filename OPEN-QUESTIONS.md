@@ -309,3 +309,193 @@ written; recreation not started. HANDOFF §7 item 2 puts cutout coverage
 - 8 text collisions with no vertical room to resolve.
 
 **Status:** OPEN
+
+---
+
+*Items 15 onward were found by the coverage audit of the console on
+2026-09-28 (later the same day): a sweep of every hash, every template-mutating
+loop, every design data table, every duplicated definition across files, and
+every count the docs state.*
+
+## 15. Enhance restores the pre-law look, including the unreadable phone number
+
+**Where.** `TRAITS` (what the Enhance button restores) is snapshotted at
+`app.js` ~1799, right after the library is built and **before** the pass chain
+at the end of the file runs. The chain then darkens inks on bright plates,
+bans Satoshi from headlines, warms whites, tints plates. Enhance puts every
+layer back to the snapshot.
+
+**Measured.** Template 101's fills, snapshot vs after the chain:
+`#ffffff` → `#f6f2ea` (warmed white), `#ffffff` → `#141110` (ink darkened on a
+bright plate by `enforceInkOnPlate` / `highlightBudget`). Enhance reverts that
+second one, which is exactly the "82 templates ship the phone number
+unreadable" bug of 08-28, re-introduced by the button whose tooltip promises
+to "snap every layer back to the template's look".
+
+**Options.** (a) Snapshot after the chain (the `traitsAfterChain` switch does
+this; off as shipped). (b) Enhance re-runs the chain on the one template
+instead of restoring a snapshot. (c) Remove Enhance.
+
+**Proposed.** (a) now, it is one line; (b) when the template editor exists.
+
+**Status:** PROPOSED
+
+---
+
+## 16. The split-complement direction comes from the length of the category name
+
+**Where.** `app.js` `CAT_COLOUR`: `splitComp(money, k.length % 2 ? 1 : -1)`.
+"phones" (6 letters) gets −160°, "gold" (4) gets −160°, "silver" (6) −160°,
+"coins" (5) +160°, "cars" (4) −160°, "strips" (6) −160°, "pokemon" (7) +160°,
+"sports" (6) −160°. Rename a category and its accent moves to the other side
+of the wheel.
+
+**Proposed.** Choose per category and write it into `CAT_HUE` as a field. The
+`compDirection` switch shows both sides for every category.
+
+**Status:** PROPOSED
+
+---
+
+## 17. Four hashed choices, and a reshuffle looks like a different library
+
+**Where.** Backdrop photo (`completeTemplate`), display face
+(`displayFaceFix`), style family (`assignStyle`) and cutout
+(`addProductCutout`) are each `hash(id) % n`. The console's *Reshuffle* preset
+salts all four.
+
+**Measured.** With salt "a": duotone 121 → 116, wash 76 → 89, photo 46 → 38,
+and the backdrop, face and cutout move on most templates. Nothing else
+changed. If the reshuffled library is as good as the shipped one, none of
+those four were decisions; if it is worse, the shipped one is a lucky draw
+that a stored record should freeze (item 6).
+
+**Status:** OPEN — the owner should look at *Shipped* next to *Reshuffle* in
+the console and say which is better and why.
+
+---
+
+## 18. `PLANS` is defined four times
+
+**Where.** `app.js` 4858, `worker.js` 9, `netlify/functions/api.mjs` 30,
+`phonegfx-studio.html` 3757. `README.md` says "change in ONE place each side"
+(two places); there are four, and the worker's copy carries a `starter` plan
+the others do not.
+
+**Proposed.** Delete with items 1 and 9; then it is two, as the README says.
+
+**Status:** PROPOSED
+
+---
+
+## 19. The Content-Security-Policy is defined twice
+
+**Where.** `_headers` and `netlify.toml` both carry the full CSP, including the
+two inline-script hashes. Netlify reads both; whichever is wrong wins somewhere.
+The 08-28 theme-toggle fix had to be applied to both.
+
+**Proposed.** One source: keep `netlify.toml` (it also carries the redirects),
+delete the CSP line from `_headers`, and have `scripts/csp_hashes.mjs` write
+into one file.
+
+**Status:** PROPOSED
+
+---
+
+## 20. Two background libraries
+
+**Where.** `assets/bg/` holds 154 designer backdrops (files, cached 30 days).
+`tplbg-data.js` (635 KB) embeds 8 classic backdrops as base64 "so they can
+never 404". They are loaded in different ways, sized differently, and the
+`og:image` in `index.html` points at the embedded set's *file path*, which
+does not exist on disk (item 5).
+
+**Proposed.** Move the 8 classics to `assets/bg/` as files, delete
+`tplbg-data.js`, and let the same preload path handle all of them. Rule 44's
+2160px recreation (item 13) then covers both sets in one pass.
+
+**Status:** PROPOSED
+
+---
+
+## 21. Backgrounds and AI prompts that the law forbids on templates
+
+**Where.**
+- `PROC_BGS` (procedural backgrounds, Backgrounds tab): beams from
+  `#b01030` red to `#7b2d9e` violet, `#0d0d12` to `#2563eb`; and `BG_PRESETS`
+  (Easy Mode): red → violet again. Hue-travelling gradients, which rule 5
+  strips from type and `houseType` would flatten.
+- `MOOD` (AI background prompt per palette): volt = "electric lime + cyan
+  accents on deep navy", ocean = "deep teal-blue with cyan glow". That is the
+  neon that rule 8 and `tameAccents` remove from the same palettes.
+- `ADMIN_PAL_BACKDROP` (a second AI prompt table for the same palettes):
+  volt = "cool deep blue tones", ocean = "airy teal and sky blue tones". The
+  two prompt tables disagree with each other about what a palette is.
+
+**Why it matters.** A customer can put a rule-5 gradient or a rule-8 neon
+backdrop under a rule-abiding template in two clicks, and the AI service is
+prompted toward the look the law was written to remove.
+
+**Proposed.** Derive `MOOD` and `ADMIN_PAL_BACKDROP` from `PAL` (one table),
+after `tameAccents`; rewrite `PROC_BGS` / `BG_PRESETS` as single-hue
+gradients from the same palettes. Same move as item 3.
+
+**Status:** PROPOSED
+
+---
+
+## 22. Five deploy documents, one of which describes a different repository
+
+**Where.** `README.md` (Cloudflare Worker path), `SETUP.md` ("BUYBACK.AD
+monorepo, new machine setup": zips, an `orchard` photo engine, `129
+backdrops`, a `buyback-monorepo` that this repo is not), `deploy-notes/README.md`
+(domains + Worker), `docs/OPERATIONS.md` (hosting, DNS, hygiene), `HANDOFF.md`
+§8b (hosting). `SETUP.md` also notes the zips carry API keys.
+
+**Proposed.** `docs/OPERATIONS.md` becomes the one deploy doc; the other four
+link to it. `SETUP.md` moves out of this repo (it is about the monorepo).
+
+**Status:** PROPOSED
+
+---
+
+## 23. Superseded colours still in the code
+
+| colour | meaning | where it survives |
+|---|---|---|
+| `#3b9bff` | the blue of the superseded liquid-glass direction | `app.js` 2529 and `index.html` 893, as the fallback when `--accent` cannot be read |
+| `#ff4d00` | the pre-law orange from `phonegfx-studio.html` | default fill for a new rectangle (`app.js` 3365) and the properties-panel colour input (`app.js` 3149, `index.html` 531) |
+
+A new rectangle in the editor is drawn in a colour that appears nowhere else
+in the design language.
+
+**Proposed.** Both fall back to `#ff7a1a`; the rectangle default takes the
+template's own accent.
+
+**Status:** PROPOSED
+
+---
+
+## 24. `assets/icon-set.svg` is an orphan contact sheet
+
+**Where.** A 950×840 sheet titled "BUYBACK.AD category marks, 20 icons". The
+live icon system is the `ICONS` table in `app.js` (20 entries, drawn as paths).
+Nothing references the SVG. If the two ever differ, the sheet is the fork.
+
+**Proposed.** Either generate the sheet from `ICONS` with a script (so it is
+documentation, not a source), or delete it.
+
+**Status:** PROPOSED
+
+---
+
+## 25. How many passes there are depends on who is counting
+
+HANDOFF §4 says 19: the 18 in the chain plus the money-word colour fix that
+runs inside the library closure. The console shows 31 switches: 18 chain,
+7 build-time (including two choices), 3 render-time, 2 UI, plus the forced
+style. Neither number is wrong; they count different things. When the
+template editor lands (item 6), the chain becomes *defaults for new
+templates* and the count stops mattering.
+
+**Status:** DONE — recorded here so the next reader does not reconcile it again.

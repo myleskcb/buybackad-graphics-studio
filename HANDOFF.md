@@ -64,6 +64,7 @@ Run these before believing anything about template quality. All live in
 | `render_sheet.mjs` | real PNG contact sheets — `--singles` for one file per template |
 | `verify_csp.mjs` | would any inline script be blocked in production? |
 | `csp_hashes.mjs` | recompute CSP hashes after editing an inline script |
+| `flag_audit.mjs` | does every design pass go through the console's registry? (added 2026-09-28) |
 
 Measured, before → after, all 243 templates:
 

@@ -38,6 +38,7 @@
   var GROUPS = [
     ['build', 'Built into the library', 'Run once while the 243 templates are constructed.'],
     ['chain', 'Template pass chain', 'Run in this order over every template after the library is built.'],
+    ['render', 'At render time', 'Run on the canvas or the gallery on every render, not once at boot.'],
     ['ui', 'Studio UI', 'Not design passes; product surfaces with a design opinion in them.'],
   ];
 
@@ -125,14 +126,15 @@
     ['Shipped', function () { F.reset(); }],
     ['Authored only', function () {
       F.reset(); CHAIN.forEach(function (id) { if (id !== 'completeTemplate') F.set(id, false); });
-      F.set('houseType', false); F.set('tameAccents', false); F.set('applyColourFix', false);
-    }, 'Just the layouts as written plus their photograph. Everything procedural off.'],
+      ['houseType','tameAccents','applyColourFix','separateHero','snapColumns','varietyOrder'].forEach(function (id) { F.set(id, false); });
+    }, 'Just the layouts as written plus their photograph, in authored order. Everything procedural off.'],
     ['No colour work', function () { F.reset(); COLOUR.forEach(function (id) { F.set(id, false); }); },
       'Layout and type passes on, every pass that decides a colour off.'],
     ['All photo', function () { F.reset(); F.set('styleForce', 'photo'); }],
     ['All duotone', function () { F.reset(); F.set('styleForce', 'duotone'); }],
     ['All wash', function () { F.reset(); F.set('styleForce', 'wash'); }],
     ['No cutouts / icons', function () { F.reset(); F.set('addProductCutout', false); F.set('applyCategoryMarks', false); }],
+    ['Reshuffle', function () { F.reset(); F.set('hashSalt', 'a'); }, 'Same passes, different hash: every hashed choice lands elsewhere.'],
   ];
   PRESETS.forEach(function (p) {
     var b = document.createElement('button');
@@ -204,12 +206,24 @@
     var total = c.passes.reduce(function (a, p) { return a + p.ms; }, 0);
     stat(Math.round(total), 'ms in passes');
     var tb = $('run-rows'); tb.innerHTML = '';
-    c.passes.forEach(function (p) {
-      var tr = document.createElement('tr');
-      tr.className = p.ran ? '' : 'off';
-      tr.innerHTML = '<td>' + p.id + '</td><td class="num">' + (p.ran ? (p.touched || '·') : '—') + '</td><td class="num">' + (p.ran ? p.ms : '—') + '</td>';
+    var logged = {};
+    c.passes.forEach(function (p) { logged[p.id] = p; });
+    /* Every registered switch gets a row, whether or not the studio logged
+       it, so a switch that no code consults shows up as exactly that. */
+    var seen = {};
+    var row = function (id, cls, a, b) {
+      var tr = document.createElement('tr'); tr.className = cls;
+      tr.innerHTML = '<td>' + id + '</td><td class="num">' + a + '</td><td class="num">' + b + '</td>';
       tb.appendChild(tr);
+    };
+    F.registry.forEach(function (f) {
+      var p = logged[f.id]; seen[f.id] = true;
+      if (p) row(f.id, p.ran ? '' : 'off', p.ran ? (p.touched === null ? '·' : (p.touched || '·')) : '—', p.ran ? (p.ms || '·') : '—');
+      else if (f.group === 'render') row(f.id, 'render', F.get(f.id) === false ? 'off' : 'per render', '—');
+      else if (f.group === 'ui') row(f.id, 'render', F.get(f.id) === false ? 'off' : 'ui', '—');
+      else row(f.id, 'missing', 'NOT CONSULTED', '—');
     });
+    c.passes.forEach(function (p) { if (!seen[p.id]) row(p.id, 'missing', 'UNREGISTERED', p.ms); });
   }
 
   /* ── markdown panes ───────────────────────────────────────────────── */
