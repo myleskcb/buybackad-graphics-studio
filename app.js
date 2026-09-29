@@ -5139,7 +5139,7 @@ const FONT_PAIRS = [
   { key: 'luxe',    name: 'Luxe',    display: ['Gloock', 400], support: ['Schibsted Grotesk', 700, 500] },
   { key: 'modern',  name: 'Modern',  display: ['Unbounded', 800], support: ['Instrument Sans', 700, 500] },
   { key: 'warp',    name: 'Warp',    display: ['Tilt Warp', 400], support: ['Sora', 700, 500] },
-  { key: 'stencil', name: 'Stencil', display: ['Big Shoulders Stencil Display', 700], support: ['Chivo', 700, 500] },
+  { key: 'stencil', name: 'Stencil', display: ['Big Shoulders Stencil Display', 700], support: ['Barlow Condensed', 700, 600] },
   { key: 'grotesk', name: 'Grotesk', display: ['Bricolage Grotesque', 800], support: ['Instrument Sans', 700, 500] },
   { key: 'serif',   name: 'Serif',   display: ['Young Serif', 400], support: ['Manrope', 700, 500] },
 ];
@@ -13507,6 +13507,50 @@ function claimShade(sc, W, H){
    strip, never over a word. When the plain run is not much taller than the
    content already is, nothing grows: the content stays centred (blockRemap).
    The call and its reason are left on the scene (sc.__fill) for the audit. */
+/* THE ROWS AS THEY ARE SEEN (the variant board, 2026-09-29). tallFill grows the
+   list about its corner; the letters scale with it but their drawn pixels do not
+   land where their metrics scale to (a label's drawn top sat 0.7px under its
+   metric top in the square, 1.6px under it at 1.45x), so a row the composer had
+   centred to the pixel came out 37/35 in 3:4 and 38/34 in 9:16 ("the inner text
+   isn't aligned", owner, 2026-09-27). Each plate's numeral is set on the plate's
+   centre line and its words centred in it by what is drawn: each object alone,
+   alpha over 90, the audit's own measure. */
+function centreRowsSeen(sc, plates, texts){
+  const cv = sc && sc.lowerCanvasEl, ctx = cv && cv.getContext('2d');
+  if (!ctx || !plates.length || !texts.length) return 0;
+  const z = cv.width / sc.width, objs = sc.getObjects(), vis = objs.map(o => o.visible), bgI = sc.backgroundImage, bgC = sc.backgroundColor;
+  const ink = o => {
+    sc.backgroundImage = null; sc.backgroundColor = ''; objs.forEach(q => { q.visible = q === o; });
+    const sh = o.shadow; o.shadow = null; sc.renderAll(); o.shadow = sh;
+    o.setCoords(); const b = o.getBoundingRect(true, true);
+    const x0 = Math.max(0, Math.floor((b.left - 4) * z)), y0 = Math.max(0, Math.floor((b.top - 4) * z));
+    const w = Math.min(cv.width - x0, Math.ceil((b.width + 8) * z)), h = Math.min(cv.height - y0, Math.ceil((b.height + 8) * z));
+    if (w <= 0 || h <= 0) return null;
+    const d = ctx.getImageData(x0, y0, w, h).data; let t = h, bo = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 90){ if (y < t) t = y; bo = y; break; }
+    return bo < 0 ? null : { t: (y0 + t) / z, b: (y0 + bo + 1) / z };
+  };
+  const inside = (o, b) => { const c = o.getCenterPoint(); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; };
+  let moved = 0;
+  try {
+    plates.forEach(p => {
+      p.setCoords(); const pb = p.getBoundingRect(true, true);
+      const mine = texts.filter(o => o.visible !== false && inside(o, pb));
+      if (!mine.length) return;
+      const C = ink(p); if (!C) return;
+      const num = mine.find(o => /^\d$/.test(String(o.text || '').trim())), words = mine.filter(o => o !== num);
+      if (num){ const n = ink(num); if (n){ const d = (C.t + C.b) / 2 - (n.t + n.b) / 2; if (Math.abs(d) >= 0.5){ num.set('top', num.top + d); num.setCoords(); moved++; } } }
+      const ws = words.map(ink).filter(Boolean);
+      if (ws.length){
+        const top = Math.min(...ws.map(r => r.t)), bot = Math.max(...ws.map(r => r.b)), d = ((C.b - bot) - (top - C.t)) / 2;
+        if (Math.abs(d) >= 0.5){ words.forEach(o => { o.set('top', o.top + d); o.setCoords(); }); moved++; }
+      }
+    });
+  } finally {
+    objs.forEach((q, i) => { q.visible = vis[i]; }); sc.backgroundImage = bgI; sc.backgroundColor = bgC;
+  }
+  return moved;
+}
 function tallFill(sc, W, H){
   const sx = W / TPL_W, sy = H / TPL_H;
   if (!(sy > sx * 1.02)) return null;
@@ -13627,6 +13671,7 @@ function tallFill(sc, W, H){
     o.set({ left: o.left + (nl - b2.left), top: o.top + (nt - b2.top) }); o.setCoords();
   });
   plates.forEach(p => { const b = bb(p); const extra = (W - G - b.left) - b.width; if (extra > 0){ p.set('width', p.width + extra / (p.scaleX || 1)); p.setCoords(); } });
+  centreRowsSeen(sc, plates, members.filter(isText));
   // the product stands on the list, over plate 1's empty strip, right-aligned on the margin
   if (prod && beside){
     const k = best.ph / pb.height;

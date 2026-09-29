@@ -1902,7 +1902,11 @@ own. The engine chooses (rule 75):
   inside the guides and the phone stands on its top edge.
 - **Measured the way the audit measures.** After composing, the painted card
   is measured as the audit does (ink over 90 alpha, the look applied) and the
-  badge, numerals and step rows are set right to the pixel.
+  badge, numerals and step rows are set right to the pixel. In 3:4 and 9:16 the
+  list grows about its corner and drawn letters do not land where their metrics
+  scale to (a row centred to the pixel came out 37/35 in 3:4, 38/34 in 9:16), so
+  after it grows each plate's numeral and words are centred again by what is
+  drawn (`centreRowsSeen`).
 - **The claim is spelled as the owner writes it.** "iPHONE" has a lowercase
   i and "#1" has a one. A caps-only face has no lowercase, so its "i" is a
   capital and the claim read "IPHONE" (Bangers, Permanent Marker, Bungee,
@@ -1912,7 +1916,9 @@ own. The engine chooses (rule 75):
   gives a face only the claims it can spell, and the audit fails a claim
   whose face cannot (rule 71). The Comic voice is set in Knewave and the
   Marker voice in Sedgwick Ave Display, both from the approved list; Marker
-  sets the number in its support face (Sedgwick's 9 reads as a g).
+  sets the number in its support face (Sedgwick's 9 reads as a g), and so
+  does Stencil, now paired with Barlow Condensed (the stencil's 4 left its
+  bridge as a stray dot: "4·994").
 - **Easy to read beats a clever look.** Camo is not on the board: its four
   fixed military darks are the dark ground's own, and the letters dissolved
   into it (the contrast measure passed it on its light patches). A ground

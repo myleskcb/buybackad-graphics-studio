@@ -83,7 +83,9 @@ const GRADS = [['midnight', '#04060c', '#1a2444', 160], ['plum', '#0b0510', '#3b
    the claim (badge and CTA wear it too, rule 74); P: a pattern on the claim.
    Not camo: its four fixed military darks are the dark ground's own, and the
    letters dissolved into it. num 'support': the display face's figures are
-   weak for a phone number (Sedgwick's 9 reads as a g) */
+   weak for a phone number (Sedgwick's 9 reads as a g; the stencil's 4 leaves
+   its bridge as a stray dot, "4·994", so Stencil's support is Barlow Condensed,
+   narrow enough to hold the number) */
 const G = g => ({ fill: 'gradient', gradient: g, outline: 'black', plates: 'match', name: 'gradient ' + g });
 const P = p => ({ fill: 'texture', texture: p, outline: 'black', name: 'pattern ' + p });
 const NEON = { cyan: '#1ff0ff', lime: '#c6ff1a', yellow: '#ffe81a', pink: '#ff3fa4', violet: '#b45cff', green: '#39ff88', orange: '#ff6a1a' };
@@ -102,7 +104,7 @@ const VOICES = [
   { key: 'retro', fonts: 'serif', plates: ['sharp', 'rounded'], ctas: ['card', 'band'], looks: ['anaglyph', 'extrude', G('miami'), G('sunset')], accent: [NEON.pink, NEON.orange, NEON.yellow] },
   { key: 'luxe', fonts: 'luxe', plates: ['sharp'], fill: 'smoked', ctas: ['card', 'band'], looks: [G('gold'), G('rosegold'), G('chrome'), 'solid'], accent: ['#ffcf4a', PASTEL.butter, PASTEL.blush] },
   { key: 'warp', fonts: 'warp', plates: ['pill', 'rounded'], ctas: ['pill'], looks: [G('dreamsicle'), G('peach'), G('citrus'), 'solid'], accent: [NEON.orange, NEON.yellow, PASTEL.butter] },
-  { key: 'stencil', fonts: 'stencil', plates: ['sharp'], ctas: ['band', 'card'], looks: ['solid', 'extrude', P('stripes')], accent: [NEON.lime, NEON.orange] },
+  { key: 'stencil', fonts: 'stencil', plates: ['sharp'], ctas: ['band', 'card'], looks: ['solid', 'extrude', P('stripes')], accent: [NEON.lime, NEON.orange], num: 'support' },
   { key: 'aesthetic', fonts: ['bold', 'stadium', 'street', 'tech'], plates: ['pill', 'rounded'], fill: 'smoked', ctas: ['pill', 'card'],
     looks: [G('holo'), G('iridescent'), G('opal'), G('vaporwave'), G('mermaid'), G('y2k'), G('cottoncandy'), G('lavender'), G('oilslick'), G('prism'),
       G('ultraviolet'), G('aqua'), G('sherbet'), G('peach')],

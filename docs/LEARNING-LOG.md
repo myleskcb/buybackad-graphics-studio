@@ -805,3 +805,10 @@ grey phones, which reads plainly by its colour. Measured both ways on real
 cards, the difference is a pixel that neither lightness nor colour separates:
 the mosaic lost 26% of its letters, every other card 3% at most, the pink none.
 The gate is on that, not on a threshold picked from one bad card.
+The first audits then showed 3:4 and 9:16 rows off by 2 and 4px on cards the
+composer had centred to the pixel. Traced pass by pass, no pass moved them: the
+tall formats scale the list 1.45x, and a label's drawn top sat 0.7px under its
+metric top in the square and 1.6px under it scaled. The approved card had the
+same drift and passed only because it started a pixel the other way. The rows
+are now re-centred by their drawn letters after the list grows; the approved
+9:16 still matches the owner's render (0.04% of pixels moved).
