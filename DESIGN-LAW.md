@@ -593,6 +593,8 @@ the type.
 
 Drop a gesture rather than translating it.
 
+> Extended (rule 67): a hand from the emoji set is placed only pointing at the number or the call to action.
+
 ## 30. Tracking runs opposite ways at the two ends of the scale
 
 `charSpacing` was 0 on all 243 templates at every size, and that single default
@@ -1713,3 +1715,46 @@ ink's own ground where the bake measured it (rule 27); the watermark keeps a
 story or wide ad's shape; the content audit never clears a curation stamp; a
 wall cut-out is not a hero. Left for the classics' re-bake (OPEN-ITEMS §L):
 the 45% wash on their hex plates, and paper scrims on three dark-ink cards.
+
+## 67. Emoji are accents beside the words, drawn from one set, and not on every card
+
+Added 2026-09-29. The owner: "use emojis as attention grabbing assets in
+extra spaces (not overlapping.. and not all need it), relevant emojis or
+general purpose emojis like cash or arrows." Asked twice before (OPEN-ITEMS
+§A 1); pictorial emoji had been removed as the cheapest-looking thing on a
+page, and what made them cheap was that they were system-font characters:
+a different drawing on every phone, a blank box in some exports, and dropped
+anywhere as filler.
+
+The rule, as `pgEmojiPass` in app.js applies it after the layout (so it
+follows the visitor's words in every render: the card, its thumbnail, Easy
+Mode, the editor, the PNG and the video):
+
+- **One art set, drawn as pictures**: 48 Fluent 3D emoji (Microsoft, MIT) in
+  one sheet, `assets/emoji/fluent-3d.webp`. Never a system-font emoji as
+  artwork; the editor's Add > Emoji places the same drawings.
+- **Beside the words, never on them.** An emoji stands beside a line of copy,
+  centred on its caps, at the largest size that fits between the line's end
+  and the guides (at most 150px on the 1080 card, 0.9 of a headline line)
+  with nothing within 18px: not copy, a plate, a product, a sparkle or
+  another emoji. One per row. A free-floating emoji in the nearest empty
+  square was tried and rejected: away from the words it reads as clutter,
+  and on a photograph it covers the picture the shade was lifted for (rule 66).
+- **Relevant first.** The topic is read off the headline, never the website
+  or the number (every card's website names iPhones): a truck for trucks, a
+  ring for jewelry, a coin for coins, a bolt or a flame for Pokémon, a trophy
+  for sports cards. A supporting line takes a general accent from what the
+  card promises: money, speed, a free quote.
+- **A hand points at the number** (rule 29): from its left, its right, or
+  above either end of its plate, or it is not placed.
+- **Not every card.** A third get none, half one, a fifth two, by the card's
+  id, so a card always shows the same accents and a card with no room gets
+  none. Easy Mode's Emoji row sets Auto, Shuffle (always at least one where
+  there is room) or None, remembered per visitor. In the editor an accent the
+  visitor moves or deletes is theirs, and the pass stops placing on that
+  canvas.
+- **The gate measures them** (rule 66): an emoji on copy, a plate or a
+  product, or past the guides, fails, whoever placed it.
+
+Measured on the library (399 cards): 170 none, 186 one, 43 two; 0 emoji
+overlaps; the library and the classics pass the gate as before.
