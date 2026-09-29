@@ -827,3 +827,50 @@ Open:
    The pattern now sits over a card's own shade and vignette as it does on
    every other card (ezGroundStack). Decide: a denser pattern where little
    ground shows, or the audit measures the change over the ground that shows.
+
+## T. 2026-09-29 — the theme, background and effects controls do what they show
+
+Lettered P on the colour-theme branch; T here, after §P to §S merged before
+it (its references follow).
+
+Done (DESIGN-LAW rule 90, `scripts/ez_theme_audit.mjs`): a colour theme
+repaints every plate, mark and line and solves each line on its own pixels; an
+ORIG chip; the theme follows the visitor and its chip stays in step; the
+selling points' ✎ style works on a card's own list; blur adds to the
+photograph's own, says why when it is off, and reaches the editor; ORIG is lit
+only over a real photograph; the Layers row's background swatch is the photo
+that loaded (§J 8, fixed); the overlay takes the tone the copy on the
+photograph needs; the six swatches are the theme's; the copy follows a ground
+the visitor picks, theme or none. The audit reads 1148 problems on the live
+build and none here (20 cards, 21 themes).
+
+Still open:
+
+1. **Three heads.** This branch is `claude/fervent-pascal-w6mthe` (what
+   production serves) plus this work; `claude/vibrant-lovelace-rze4rx` (the
+   trunk: tagline styles, tall formats, patterns) and
+   `claude/vibrant-hawking-htxrvn` diverged from it. When they meet,
+   themeScene runs before ezApplyTagline (the tagline reads the scene's
+   palette), and DESIGN-LAW's 67 exists twice (emoji accents here, a different
+   rule on the trunk).
+2. **Seventeen of the twenty-one themes have no support colour**, so a card's
+   support plates (kicker ribbons, price strips, phone pills) take the theme's
+   ink: a white pill on a dark theme, a near-black one on a light theme. They
+   read (the audit measures them), but a support colour per theme, chosen the
+   way rule 51 chose the four GFX Grammar ones, would give those plates a job
+   of their own. The owner's call which hues.
+3. **The grey placeholder** (§J 7): Easy Mode still previews a classic's
+   photograph grey and blurred until a background is picked, and exports the
+   flat fallback in that state. The swatch row no longer says ORIG is chosen
+   while it does; whether to keep the placeholder at all is the owner's.
+4. **Themed thumbnails.** The strip and the landing show each card in its own
+   colours; a theme is seen in the preview only. Re-rendering the strip in the
+   theme costs a render per card per pick.
+5. **Easy Mode and the editor lay some cards out differently.** On Sell Your
+   iPhone, Easy's product list is larger (937 by 146 against 809 by 125) and
+   hangs off its smoke panel onto the paper band. There no single ink serves
+   all three lines, and the theme treats it as standing on the ground. The
+   editor keeps it on the panel. This predates the theme work; both read.
+6. **Photographs the visitor uploads** are not re-inked (a shade does that
+   job, rule 62), so white copy on a bright photo of their own still depends
+   on the gate's shade at download.

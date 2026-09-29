@@ -1424,3 +1424,115 @@ would have dropped good cards from the board. The board's audit now runs a
 crashed audit once more in a fresh browser, and collect reports crashes apart
 from designs that failed.
 
+## 2026-09-29 (later) — The theme, background and effects controls do what they show
+
+Owner, with two screenshots of Easy Mode (the Reef lower third, Indigo Trade
+picked, the green background swatch on): "make sure we build all features to
+be completely relevant or at least make them work to redesign the theme."
+
+Studied:
+  What each control under "Suggested color themes", "Background" and
+  "Effects" actually does to the scene it draws, card by card, through the
+  real UI. Which branch the owner is looking at: the Netlify connector's
+  deploy record names `claude/fervent-pascal-w6mthe` (47ec573a, then 26037de3
+  an hour later) as production for buybackad-finished-copy; `main` was a
+  month behind and the trunk and vibrant-hawking had diverged from it.
+
+Measured (scripts/ez_theme_audit.mjs, new; one live card per layout, four
+classics, the screenshot card; every theme; grounds with no theme and under a
+light and a dark theme; blur; overlays; patterns; ORIG; the chip; the
+swatches):
+  live build (26037de3): 1148 problems. Every plate that carries words kept
+    its old colour under every theme (420 of 420 pairs), 378 pairs left the
+    card's own accent beside the theme's, 32 changed under 1% of the picture;
+    176 pairs and the grounds 125 more took lines under the gate or 3:1; blur
+    did nothing over a flat colour (20 cards) or on 4 photographs; Shade was
+    a white veil failing Sell Your iPhone's headlines; no ORIG; the chip
+    disagreed after a template switch; the swatches ignored the theme.
+    This branch: no problems over the same 20 cards and 21 themes, no page
+    errors. The first full run here read 16. Some were the audit's own: it
+    leaked the previous card's saved draft (Shade on) through localStorage,
+    and it measured a classic before its photograph had arrived. The rest
+    were real: Shade's white veil, and lines under 3:1 on the magenta and
+    amber swatches. The next run read 2, both on grounds picked with no theme
+    (a see-through panel, a light outline); then none.
+
+Changed:
+  - themeScene() (appended to app.js, "A THEME OWNS THE CARD'S COLOUR"): plates,
+    marks and lines repainted by the job their colour had in the card's
+    palette, every line solved on its own pixels; runs after the layout in
+    renderEzCanvas and in the editor hand-off. Built on pgRgb, pgLum, pgCr and
+    pgPlateUnder (rule 87).
+  - applyColorTheme no longer writes per-line colours into ez.styles (it takes
+    back any line colour on a theme or ORIG pick); ORIG chip; the theme
+    persists (state, history, projects), follows the visitor across cards,
+    and its chip is kept in step (syncEzThemes); ezThemeGround keeps rule 86's
+    photo-led / product-led ground and redraws a drawn ground in the theme.
+  - The selling points' ✎ style reaches a card's own badge list (Easy Mode and
+    the editor hand-off).
+  - Blur adds to the photograph's own (ezBlurOn), is switched off with its
+    reason over a flat colour or the placeholder (ezSyncFx), and reaches the
+    editor for a template or drawn ground.
+  - ORIG lit only when the photograph is really drawn; the Layers row shows
+    the photo that loaded (ezBgThumbSrc; OPEN-ITEMS §J 8) and names a
+    theme's ground; openShowcase refreshes it.
+  - The overlay's tone: ezOverlayPre from the ground before the copy is
+    solved, ezOverlayFit from the lines on the photograph after. It used to
+    come from ezInkLight over the template's record, and Shade was white over
+    Sell Your iPhone's dark photograph. In the editor it sits above the ground.
+  - The six quick swatches follow the theme: ezPresetSpecs, drawn by
+    ezSyncPresets. A pick follows the next theme and leaves with ORIG (a
+    slot tag, ezThemeGround). The lit swatch is found by value (ezSameGround).
+  - The copy follows a flat or drawn ground the visitor picks with no theme
+    on (ezCopyFollowsGround): lightness only; lines on plates and ✎ colours
+    are left alone; a see-through panel thickens until its copy reads;
+    see-through backings are dropped.
+  - A line's ring follows its ink (thRingFit), in the theme and in that
+    pass; with no photograph under it, a ring of the ink's own tone goes, as
+    on a plate. A theme's see-through backing is neutral. A line whose side
+    cannot reach 3:1 goes whichever way reads.
+  - The audit:
+    - a fresh browser context per card; the previous card's draft in
+      localStorage had Shade on before a card's own no-overlay base, and
+      Shade then "changed nothing" on it;
+    - each card's own photograph is awaited;
+    - patterns and their tone are measured at full size;
+    - no overlay may take a critical line under the gate;
+    - the grounds run with no theme as well;
+    - the six swatches must follow the theme.
+  - DESIGN-LAW rule 90; AGENT-BRIEF landmine 6 (the live branch is not always
+    the newest); OPEN-ITEMS §T.
+
+Rejected:
+  - Leaving rule 51 as it was and only lifting its skip: the line on a plate
+    would have taken the theme's colour for the theme's ground while its plate
+    kept the card's old colour (cyan on magenta, the screenshot).
+  - Rule 52's luminance-locked re-hue for everything: it keeps every contrast
+    by construction but cannot turn a dark card light, so a cream theme drew
+    dark brown panels. Kept only for marks in the card's ground colour.
+  - A tint of the theme's hue over the photograph (rule 56; the owner's "ugly
+    hideous overlaid colors"), and replacing every photograph with the theme's
+    gradient (rule 86 keeps a photo-led card's photograph).
+  - The worst tenth of the ground as the measure of a line: a spec list that
+    half crosses a paper band came out #6f6f6f. Three quarters of the ground.
+  - A backdrop of the ground plus word plates only: it left out the smoke panel
+    a line merely crosses and solved that line against bare photograph.
+  - Fitting the theme's swatches only to 6:1, as "More grounds" does: under
+    dark ink the support colour came out mid-tone (0.35), and a headline that
+    crosses the smoke panel read 2.3:1 either way. They sit on the theme's own
+    side, well clear of the ink.
+  - Turning a chip's see-through backing to paper on a flat ground: the chips
+    still read 1.7:1 on the orange swatch. The backing only calms a
+    photograph, so on a flat colour it goes.
+  - Deciding the overlay's tone only after the copy: the theme had already
+    solved the lines against a dark provisional shade.
+  - Reunifying the three heads in this session (conflicts in app.js, the
+    DESIGN-LAW numbering and binary showcase assets): the owner's call.
+
+RESUME HERE:
+  Bring the branches together: this branch is claude/fervent-pascal-w6mthe
+  (with its emoji accents, 26037de3) plus the theme work. On the trunk the
+  tagline styles run after the layout too (ezApplyTagline reads the scene's
+  palette): themeScene must run BEFORE it, so a tagline look takes the
+  theme's colours. Then run `node scripts/ez_theme_audit.mjs` (exit 0) and
+  `scripts/verify_showcase.mjs` on the merged build.

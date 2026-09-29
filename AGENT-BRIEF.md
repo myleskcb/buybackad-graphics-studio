@@ -263,6 +263,16 @@ produced." DESIGN-LAW rule 87. In practice:
   from the scene (`pgShadeBands`). Never write a whole-card veil where a
   bands shade would hold the lines, and never treat a bands mode as
   'gradient' (normaliseBackdrop keeps it).
+- **Easy Mode's themes, grounds and effects** (rule 90, 2026-09-29): after
+  the layout, `themeScene` repaints plates, marks and lines. With no theme,
+  `ezCopyFollowsGround` answers for a flat ground the visitor picks. The
+  overlay's tone is set by `ezOverlayPre`, then `ezOverlayFit`. Before a
+  commit that touches any of them, or the Easy Mode controls, run
+  `node scripts/ez_theme_audit.mjs`. It exits 1 on any problem and takes
+  about 70 minutes for its 20-card sample (`--quick` runs a quarter).
+  Measure each card in a fresh browser context: the studio keeps the
+  visitor's draft in localStorage, and a shared context leaks it into the
+  next card.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the
