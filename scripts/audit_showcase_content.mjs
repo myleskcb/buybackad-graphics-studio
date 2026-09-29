@@ -33,7 +33,12 @@ const ALLOW = {
 };
 const family = p => String(p || '').replace(/^(qs-|ip-|ph-)/, '').split('-')[0];   // ph-: a placeholder of that family
 
-let n = { subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, school:0, asset:0, curated:0, clean:0 };
+/* the renders the owner approved (assets/approved/approved.json): the owner's
+   own words on an approved card stand (DESIGN-LAW 78 over 80), and a record
+   restaged and passed by audit_card (its layers carry __ink) is judged by its
+   letters there, not by these boxes (DESIGN-LAW 76) */
+const APPROVED_CARDS = (() => { try { return new Set(Object.keys(JSON.parse(readFileSync(ROOT + 'assets/approved/approved.json', 'utf8'))).filter(k => k[0] !== '_')); } catch (e){ return new Set(); } })();
+let n = { gate:0, subject:0, repeat:0, cover:0, clip:0, copy:0, legib:0, shape:0, bg:0, school:0, asset:0, curated:0, clean:0 };
 idx.forEach(c => {
   const why = [];
   /* Only a card that actually SHOWS a product can show the wrong one. Most
@@ -59,7 +64,7 @@ idx.forEach(c => {
     if (PROOF.test(words) || PRICE.test(words) || HOURS.test(words) || DASH.test(words) || BANNED.test(words)) why.push('copy');
     /* invented facts (2026-09-27): a rank, a clock, a service, a policy, a
        reputation, or more than the reseller buys (refresh_copy.mjs CLAIM) */
-    if (CLAIM.test(words)) why.push('copy');
+    if (CLAIM.test(words) && !APPROVED_CARDS.has(c.id)) why.push('copy');
     /* a product picture the owner rejected, or one flagged since */
     if (rec.tpl.layers.some(l => l.kind === 'cutout' && l.props && pictureVerdict(pictureId(l.props.src), c.cat))) why.push('asset');
   }
@@ -70,13 +75,17 @@ idx.forEach(c => {
   if (c.ghost) why.push('legib');
   if (c.bgMissing) why.push('bg');
   /* a solid shape drawn over the words (audit_showcase_overlap.mjs) */
-  if ((c.shapeCover || 0) >= 0.12) why.push('shape');
-  if ((c.cover || 0) >= 0.12) why.push('cover');
-  if ((c.clip || 0) > 6) why.push('clip');            // a line running off the card
+  const inked = !!(rec && rec.tpl.layers.some(l => l.__ink));
+  if (!inked && (c.shapeCover || 0) >= 0.12) why.push('shape');
+  if (!inked && (c.cover || 0) >= 0.12) why.push('cover');
+  if (!inked && (c.clip || 0) > 6) why.push('clip');            // a line running off the card
   /* the design school's rejects (audit_showcase_school.mjs): a small number,
      a letter under 3:1, a headline that does not win or does not read as a
      thumbnail, a third typeface, a faux weight, a number on a product */
   if (c.school && c.school.fail && c.school.fail.length) why.push('school');
+  /* the gate (verify_showcase.mjs --all --write, DESIGN-LAW 87): a card that
+     fails the one measure is not offered, whatever the older audits said */
+  if (Array.isArray(c.gate) && c.gate.length) why.push('gate');
   /* the owner's curation (scripts/curate_showcase.mjs: "take out at least half
      of them"): a retired card stays retired, whatever this audit measures */
   if (String(c.defect || '').split('+').includes('curated')) why.push('curated');

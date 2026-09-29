@@ -12481,7 +12481,15 @@ function plateAir(sc, W, H){
     const fs = (t.fontSize || 30) * (t.scaleY || 1);
     const need = plateAirNeed(PW, fs);
     const al = String(t.textAlign || 'left');
-    const ends = () => { const s = inkSpan(t, p); return { L: PW / 2 + s.x0, R: PW / 2 - s.x1, c: (s.x0 + s.x1) / 2, half: (s.x1 - s.x0) / 2 }; };
+    /* the room a line has on its plate: the plate less its air at both ends,
+       and never past the card's 6% guides (rule 57), which a plate running off
+       the card reaches beyond: an air slide that only looked at the plate put
+       a 940px info line 28px into the margin (bubblePop-du02-30, 2026-09-29) */
+    const G = 0.06 * Math.min(W, H), pc = p.getCenterPoint();
+    const flat = aligned && Math.abs(((((p.angle || 0) % 360) + 540) % 360) - 180) < 1;
+    const lo = flat ? Math.max(-PW / 2 + need, G - pc.x) : -PW / 2 + need;
+    const hi = flat ? Math.min(PW / 2 - need, W - G - pc.x) : PW / 2 - need;
+    const ends = () => { const s = inkSpan(t, p); return { L: s.x0 - lo + need, R: hi - s.x1 + need, c: (s.x0 + s.x1) / 2, half: (s.x1 - s.x0) / 2 }; };
     const ok = e => e.L >= need - 0.5 && e.R >= need - 0.5;
     let e = ends();
     if (ok(e)) return;
@@ -12495,7 +12503,12 @@ function plateAir(sc, W, H){
     // the least change first: a centred line alone on its plate sits on its centre line;
     // any other line moves by its shortfall, toward the end with room
     const place = () => {
-      if (centred && alone && aligned){ if (Math.abs(e.c) > 1) slide(-e.c); return; }
+      if (centred && alone && aligned){
+        // on its plate's centre line, as near to it as the room allows
+        const target = Math.min(Math.max(0, lo + e.half), hi - e.half);
+        if (Math.abs(e.c - target) > 1) slide(target - e.c);
+        return;
+      }
       if (e.L < need - 0.5 && e.R - (need - e.L) >= need - 0.5) slide(need - e.L);
       else if (e.R < need - 0.5 && e.L - (need - e.R) >= need - 0.5) slide(-(need - e.R));
     };
@@ -12503,7 +12516,7 @@ function plateAir(sc, W, H){
     // then the type comes down until the ink fits between the two margins, about its anchor
     const anchor = centred ? 'center' : (t.originX === 'right' || al === 'right') ? 'right' : 'left';
     // (2px spare: a line 1px short of fitting both margins would otherwise come out at k = 1.0006 and never move)
-    let k = Math.min(1, Math.max(0.72, (PW - 2 * need - 2) / (2 * e.half)));
+    let k = Math.min(1, Math.max(0.72, (hi - lo - 2) / (2 * e.half)));
     if (t.pgRole === 'phone') k = Math.max(k, Math.min(1, 72 / fs));
     if (k < 1){
       const pt = t.getPointByOrigin(anchor, 'center');

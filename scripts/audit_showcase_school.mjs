@@ -58,6 +58,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { openStudio } from './_showcase_harness.mjs';
 import { pictureId, pictureVerdict } from './picture_gate.mjs';
 import { PROOF, PRICE, HOURS, DASH, BANNED, COMPANY, LICENSE, CLAIM } from './refresh_copy.mjs';
+const APPROVED_CARDS = (() => { try { return new Set(Object.keys(JSON.parse(readFileSync(new URL('../assets/approved/approved.json', import.meta.url), 'utf8'))).filter(k => k[0] !== '_')); } catch (e){ return new Set(); } })();
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
@@ -205,7 +206,8 @@ const verdict = (c, r) => {
   let rec = null; try { rec = JSON.parse(readFileSync(ROOT + 'assets/showcase/tpl/' + c.id + '.json', 'utf8')); } catch (e){}
   if (rec){
     const words = rec.tpl.layers.filter(l => typeof l.text === 'string' && l.role !== 'website').map(l => l.text).join('\n');
-    if (PROOF.test(words) || PRICE.test(words) || HOURS.test(words) || DASH.test(words) || BANNED.test(words) || COMPANY.test(words) || LICENSE.test(words) || CLAIM.test(words)) fail.push('copy');
+    // the owner's own words on a render the owner approved stand (DESIGN-LAW 78 over 80)
+    if (PROOF.test(words) || PRICE.test(words) || HOURS.test(words) || DASH.test(words) || BANNED.test(words) || COMPANY.test(words) || LICENSE.test(words) || (CLAIM.test(words) && !APPROVED_CARDS.has(c.id))) fail.push('copy');
     /* say what is bought: a phones card whose headline names a device that none of its products is */
     const says = SAYS(r.heads), shows = [...new Set(r.cutouts.map(SHOWS).filter(Boolean))];
     if (c.cat === 'phones' && says.length && shows.length && !says.some(d => shows.includes(d))) fail.push('device');
