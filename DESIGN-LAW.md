@@ -1796,6 +1796,15 @@ that runs off the canvas is seen to the edge), as far as the guides let the
 letters go. The website line leaves the band when it would hold the number
 small (Easy Mode already leaves it off unless one is typed).
 
+On every card, not only a restaged one (2026-09-29): sized to a band that runs
+off the canvas, the number's box left the guides, and grown about its centre, a
+number set on the left guide ran off the card (x = -40 on an offer card). In
+Easy Mode the gate stopped 7 of 20 street cards and the offer cards. A card's
+number is sized inside the guides (a restaged record by its letters, any other
+by its box, as the gate measures it), keeps the edge it was set on unless it
+was centred on its band, and keeps its letters inside the guides: no offered
+template's number leaves them now (261 swept).
+
 A tagline look that treats plates treats the badge and the CTA together
 (2026-09-29): a gradient that paints the badge paints the band in the same
 stops, and Street's dark bands take the badge with them, its words and mark
@@ -2071,10 +2080,19 @@ gonna be one engine inside of the GFX studio site".
   (MOTION animates that same scene), and on the editor's canvas
   (`loadTemplate`, the hand-off from Easy Mode, the editor's own row). No
   code path styles one family or one category.
-- **A card's colours come from the card** (`tplPalette`): the theme the
-  visitor picked on it, else its family's own palette (a showcase record, a
-  designer or street PAL, an offer look), else the scene's most colourful ink,
-  else the owner's reference sweep (orange into yellow).
+- **A card's colours come from the card** (`tplPalette`): the colour theme
+  the visitor picked, when it is on the scene (`sc.__theme`: Easy Mode and
+  the editor it hands off to), else its family's own palette (a showcase
+  record, a designer or street PAL, an offer look), else the scene's most
+  colourful ink, else the owner's reference sweep (orange into yellow).
+- **The theme first, the look last** (2026-09-29, the colour-theme session's
+  merge): a colour theme owns the card's colour (`themeScene`), so it
+  repaints the laid-out scene and the look is then
+  solved on the themed card, in its palette, in Easy Mode, the download, the
+  video and the editor alike. A card the editor opens from anywhere else
+  wears its own colours, and ORIG gives them back to the look as well. When
+  the visitor's own photograph loads after the hand-off, the theme and the
+  look are both solved once it lands.
 - **A style reads the ground it lands on, and keeps the contrast the line was
   designed with** (3.2:1 at the least, 4.5:1 asked at the most). The gradient
   and pair sweeps solve their lightness on the line's measured ground; street

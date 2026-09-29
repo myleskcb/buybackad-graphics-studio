@@ -1222,6 +1222,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-fxline input[type=range]{flex:1}
 .ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}
 .ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}
+/* an effect with nothing to act on says so instead of moving and doing nothing */
+.ez-fxline.off label,.ez-fxline.off .fxval{opacity:.45}
+.ez-fxline input[type=range]:disabled{opacity:.35;cursor:not-allowed}
+.ez-fxnote{margin:-4px 0 10px 74px;font:500 11.5px/1.35 var(--ui);color:var(--text-dim)}
 /* account chip */
 .acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}
 .acct-chip:hover{background:var(--surface-raise)}
@@ -1360,6 +1364,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-tagstyle.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);color:var(--text)}
 .ez-tagstyle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .ez-tagnote{margin-top:8px;font:500 12px/1.4 var(--ui);color:var(--text-2)}
+/* ORIG: the card's own colours, the way back from a theme */
+.ez-theme.orig{align-items:center;justify-content:center;background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1 var(--ui);letter-spacing:.06em}
 
 
 .ez-chip-custom{border-style:dashed}

@@ -766,17 +766,18 @@ Found on the way, and done:
   (rule 76).
 
 Open:
-0. **Bring the 24 classics back.** Re-solve their shade with the corrected
+0. **Bring the held classics back** (57 of 404 fail the gate measured
+   whole; 24 of them the live branch still offered). Re-solve their shade with the corrected
    measure (naturalize_classics / darken_grounds --lighten, both under the
    gate, which now loads each card whole), then verify --classics --write and
    audit_templates --write: a card that passes leaves both tables by itself.
-1. **Other sessions keep building on their own branches.** The colour-theme
-   session (`claude/eloquent-euler-7jvzfd`, "Colour themes repaint the whole
-   card", branched from the live branch at 26037de, three commits by 02:33)
-   is not in this merge: it was mid-work. Its next production deploy must
-   merge this branch first, or it takes this work off the site; merge it here
-   when it is done. `claude/quirky-ritchie-f0zuc8` (the design console) is cut
-   from the August `main`: port its console, do not merge it.
+1. **Other sessions keep building on their own branches.** Merged here
+   later the same day: the trunk to 2653d81 (the variant board) and the
+   colour-theme session (`claude/eloquent-euler-7jvzfd`) to 9aa5ed0; both
+   were still committing. Whichever of the three deploys next must merge the
+   other two first (AGENT-BRIEF landmine 7), or it takes their work off the
+   site. `claude/quirky-ritchie-f0zuc8` (the design console) is cut from the
+   August `main`: port its console, do not merge it.
 2. **The number fill ignores deco.** `numberFill` grows the number to fill
    its plate and keeps it off other copy and products, not off a drawn mark:
    on checklistHero-du07-15 the number now reaches the sparkle on the plate's
@@ -807,3 +808,22 @@ Open:
    subject), of_strips_split_bone (25.1%) and of_camera_row_sand (30.1%).
    The product could not move off it inside the guides. Neither table holds
    them; hold them or give them a photograph whose subject leaves room.
+9. **Two readers of a card's palette.** The looks read it with `tplPalette`
+   (the showcase record, the family PAL, the scene), the colour themes with
+   `thSourcePalette` (the record, else the scene by the jobs its colours
+   do). They agree on showcase cards and can differ on a classic. One
+   reader, used by both, is the unification left to do.
+10. **Easy Mode and the gate's own path draw different cards.** The classics
+   gate prepares a template the gallery's way and measured the offer card
+   of_gold_row_cobalt's number at 76.5px; Easy Mode grows it to 109px
+   (numberFill), and ran it off the card until today. Two templates the gate
+   passes fail it in Easy Mode (dl_gold_priceAnchor_gold "Price Line",
+   dl_strips_arcCrown_emerald "Headline 2", legibility). The sweep that found
+   it (every offered template through renderEzCanvas and pgCheck) belongs in
+   verify_showcase --classics.
+11. **Sparse patterns on a card with little open ground.** The theme audit's
+   pattern check fails dots (0.5% of pixels) and grid (0.8%) on
+   of_gold_row_cobalt, whose photograph, copy and bands leave little ground.
+   The pattern now sits over a card's own shade and vignette as it does on
+   every other card (ezGroundStack). Decide: a denser pattern where little
+   ground shows, or the audit measures the change over the ground that shows.
