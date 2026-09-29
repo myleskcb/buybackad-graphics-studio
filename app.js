@@ -11962,7 +11962,9 @@ function pgEmojiObj(name, cx, cy, s, angle, auto){
 /* the lines of a text object as boxes, so the room beside a short line of a
    centred headline is room (the object's own box spans its widest line) */
 function pgTextLineBoxes(o, b){
-  if (!o._textLines || o._textLines.length <= 1 || Math.abs(o.angle || 0) > 0.5 || typeof o.getLineWidth !== 'function') return [b];
+  /* a one-line headline in a fixed-width text box is as wide as its box, so
+     the line's own width counts for one line too */
+  if (!o._textLines || !o._textLines.length || Math.abs(o.angle || 0) > 0.5 || typeof o.getLineWidth !== 'function') return [b];
   const sx = o.scaleX || 1, sy = o.scaleY || 1, out = []; let y = b.y;
   const al = String(o.textAlign || 'left');
   for (let i = 0; i < o._textLines.length; i++){
@@ -12023,6 +12025,9 @@ function pgEmojiPass(sc, W, H){
       return;
     }
     if (big && o.pgRole !== 'photo') return;                              // a panel or a texture the size of the card is ground
+    /* a ghosted picture (a wall of products at 16%) is texture: the gate
+       (pgEmojiCheck) ignores anything under 0.3 as well */
+    if (o.type === 'image' && o.opacity != null && o.opacity < 0.3) return;
     occ.push(b);
   });
   const hit = (a, b, pad) => a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
@@ -12052,7 +12057,6 @@ function pgEmojiPass(sc, W, H){
   /* the places. Beside a line: the largest size that fits between the line's
      end and the guides with nothing in the way, centred on the line's caps
      (a text box carries its descender room at the bottom) */
-  const size = x => (x.o && x.o.fontSize ? x.o.fontSize * (x.o.scaleY || 1) : x.h);
   const beside = (ls, sMin, sMax, k) => {
     const sideFirst = seed % 3 === 0 ? -1 : 1;
     for (const l of ls){
@@ -12069,8 +12073,11 @@ function pgEmojiPass(sc, W, H){
     }
     return null;
   };
-  const heads = lines.filter(l => /^(headline|offer)$/.test(role(l.o))).sort((a, b) => size(b) - size(a)).slice(0, 4);
-  const minor = lines.filter(l => /^(sub|cta|info)$/.test(role(l.o)) && l.h >= 38 * u).sort((a, b) => size(b) - size(a)).slice(0, 4);
+  /* the biggest LINE first, by its own height: a two-line headline is one
+     object, and ranking by the object put the emoji beside a small "WE BUY"
+     rather than the big product word under it */
+  const heads = lines.filter(l => /^(headline|offer)$/.test(role(l.o))).sort((a, b) => b.h - a.h).slice(0, 4);
+  const minor = lines.filter(l => /^(sub|cta|info)$/.test(role(l.o)) && l.h >= 38 * u).sort((a, b) => b.h - a.h).slice(0, 4);
   /* pointing AT the number (or the call to action): from the left, from the
      right, or from above either end of its plate */
   const pointAt = () => {
