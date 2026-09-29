@@ -541,6 +541,21 @@ input,textarea,select{font-family:inherit;color:var(--text)}
 .lp-nav-links a:hover{color:var(--text)}
 .lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
 .lp-lab{white-space:nowrap}
+/* The bar measured about 1290px wide at every viewport, so from 1100 to 1439px
+   "Make my ad" (the one action the page exists for) was clipped off the right
+   edge. It gives ground in order of least use: tighter link spacing and the
+   "Template" word first, then the two links that are also reachable from the
+   page itself, then the link row. */
+@media(max-width:1380px){
+  .lp-nav-links{gap:18px;margin-left:24px}
+  .lp-lab-full{display:none}
+}
+@media(max-width:1200px){
+  .lp-nav-links a[href="#lp-themes"],.lp-nav-links a[href="#faq"]{display:none}
+}
+@media(max-width:1000px){
+  .lp-nav-links{display:none}
+}
 @media(max-width:640px){
   .lp-nav-links{display:none}
   /* The lab link is the one nav item that must survive on a phone (it is
@@ -1025,6 +1040,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}
 .ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}
 .ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+/* "More grounds": drawn grounds and category photos, each swatch painted in the card's palette */
+.ez-drawn{gap:8px;margin-top:2px}
+.ez-gsw{background-size:cover;background-position:center;background-color:var(--surface-sunk)}
+.ez-gnone{font:500 12px/1.3 var(--ui);color:var(--text-dim)}
+/* the gate's reasons, in the visitor's words */
+.gate-list{margin:10px 0 4px;padding-left:18px;font:500 13.5px/1.45 var(--ui);color:var(--text)}
+.gate-list li{margin:4px 0}
 .ez-preview-card{position:sticky;top:84px}
 .ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}
 /* account dropdown (reuses .view-drop look) */
@@ -1200,6 +1222,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-fxline input[type=range]{flex:1}
 .ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}
 .ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}
+/* an effect with nothing to act on says so instead of moving and doing nothing */
+.ez-fxline.off label,.ez-fxline.off .fxval{opacity:.45}
+.ez-fxline input[type=range]:disabled{opacity:.35;cursor:not-allowed}
+.ez-fxnote{margin:-4px 0 10px 74px;font:500 11.5px/1.35 var(--ui);color:var(--text-dim)}
 /* account chip */
 .acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}
 .acct-chip:hover{background:var(--surface-raise)}
@@ -1330,6 +1356,16 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}
 .ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);transform:translateY(-1px)}
 .ez-theme:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+/* tagline style (app.js TAGLINE_STYLES): one row in Easy Mode and one in the editor, samples in the card's own colours */
+.ez-tagstyles{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}
+.ez-tagstyle{display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:5px 5px 7px;border:2px solid var(--hairline-strong);border-radius:11px;background:var(--surface-sunk);color:var(--text-2);font:650 11px/1.1 var(--ui);cursor:pointer;transition:border-color .13s,transform .13s,color .13s}
+.ez-tagstyle svg{display:block;width:100%;height:30px;border-radius:7px;background:#34363d}
+.ez-tagstyle:hover{border-color:var(--accent);color:var(--text);transform:translateY(-1px)}
+.ez-tagstyle.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);color:var(--text)}
+.ez-tagstyle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.ez-tagnote{margin-top:8px;font:500 12px/1.4 var(--ui);color:var(--text-2)}
+/* ORIG: the card's own colours, the way back from a theme */
+.ez-theme.orig{align-items:center;justify-content:center;background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1 var(--ui);letter-spacing:.06em}
 
 
 .ez-chip-custom{border-style:dashed}
@@ -1682,3 +1718,69 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 @media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}
 .lp-faq p a{color:var(--accent);text-decoration:underline}
+
+/* THE LANDING GRID SHOWS EACH CARD AS IT WILL POST (2026-09-26). The number
+   was rebuilt big and sits at the foot of most cards; the caption strip (a
+   38px gradient with the palette and layout name) was drawn over exactly
+   that, and the veil blurred and dimmed every card until hover, which a phone
+   never sends. The section is headed "exactly as it will post": the card is
+   shown crisp, and its name appears on hover or keyboard focus. Scoped to the
+   landing grid; the studio's own template pickers keep their captions. */
+#lp-tpl-grid .tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none}
+#lp-tpl-grid .tpl-card .tpl-meta{opacity:0;transition:opacity .2s}
+#lp-tpl-grid .tpl-card:hover .tpl-meta,#lp-tpl-grid .tpl-card:focus-visible .tpl-meta{opacity:1}
+
+/* ── FONT PICKER ────────────────────────────────────────────────────────────
+   Every typeface shown in its own face (owner, 2026-09-27). A native <option>
+   ignores font-family in Safari, on Macs and on every phone, so the select is
+   hidden behind a button and list drawn here (app.js fontPicker). */
+.fp-btn{width:100%;flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;
+  background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);
+  padding:7px 11px;font-size:17px;line-height:1.2;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:38px}
+.fp-btn::after{content:'▾';font:600 12px/1 var(--ui);color:var(--text-dim);flex:none}
+.fp-btn:hover{border-color:var(--text-dim)}
+.fp-btn:focus-visible{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}
+.fp-pop{position:fixed;z-index:2000;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-lg);
+  box-shadow:0 18px 50px -12px rgba(0,0,0,.6);padding:8px;display:flex;flex-direction:column;gap:6px}
+.fp-search{width:100%;background:var(--surface-sunk);border:1px solid var(--hairline);border-radius:var(--r-sm);color:var(--text);font:500 13px/1 var(--ui);padding:9px 10px}
+.fp-search:focus{border-color:var(--accent);outline:none}
+.fp-list{overflow-y:auto;overscroll-behavior:contain}
+.fp-group{font:700 10.5px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:10px 8px 6px}
+.fp-item{font-size:21px;line-height:1.25;color:var(--text);padding:7px 8px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fp-item:hover,.fp-item.on{background:var(--surface-sunk)}
+.fp-item.sel{color:var(--accent)}
+
+/* Tagline style (Easy Mode): premade gradients as swatches, the stops as colour chips */
+.ez-tag-presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.ez-tag-preset{width:46px;height:26px;border-radius:999px;border:2px solid var(--hairline-strong);cursor:pointer;padding:0;transition:border-color .13s,transform .13s}
+.ez-tag-preset:hover{border-color:var(--accent);transform:translateY(-1px)}
+.ez-tag-preset.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}
+.ez-tag-preset:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.ez-tag-stops{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:8px}
+.ez-tag-stops input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px;cursor:pointer}
+.ez-tag-stops button{min-width:28px;height:28px;border-radius:var(--r-sm);border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);font:700 14px/1 var(--ui);cursor:pointer}
+.ez-tag-stops button:disabled{opacity:.4;cursor:default}
+.ez-tag-preset.auto{background:conic-gradient(from 200deg,var(--accent),#ff7a1a,var(--accent));position:relative}
+.ez-tag-preset.auto::after{content:'Auto';position:absolute;inset:0;display:grid;place-items:center;font:700 9.5px/1 var(--ui);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.ez-phonepick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:7px;margin-bottom:8px}
+.ez-phonepick-more{max-height:320px;overflow:auto;padding-right:2px}
+.ez-phonepick-grp{grid-column:1/-1;font:700 9.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin:6px 0 0}
+.ez-phonepick-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px 7px;border-radius:10px;border:2px solid var(--hairline-strong);background:var(--surface-sunk);cursor:pointer;transition:border-color .13s,transform .13s;min-width:0}
+.ez-phonepick-item img{width:100%;height:56px;object-fit:contain;display:block;pointer-events:none}
+.ez-phonepick-item span{font:600 10.5px/1.2 var(--ui);color:var(--text-2);text-align:center;overflow-wrap:anywhere}
+.ez-phonepick-item:hover{border-color:var(--accent);transform:translateY(-1px)}
+.ez-phonepick-item.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}
+.ez-phonepick-item:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+#ez-phonepick-reset:disabled{opacity:.45;cursor:default}
+.ez-tag-pats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.ez-tag-patgrp{flex-basis:100%;font:700 9.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin:6px 0 1px}
+.ez-tag-pat{width:44px;height:44px;padding:0;box-sizing:border-box;border-radius:10px;border:2px solid var(--hairline-strong);overflow:hidden;cursor:pointer;background:var(--surface-sunk);transition:border-color .13s,transform .13s}
+.ez-tag-pat canvas{width:100%;height:100%;display:block}
+.ez-tag-pat:hover{border-color:var(--accent);transform:translateY(-1px)}
+.ez-tag-pat.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}
+.ez-tag-pat:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.ez-tag-pathint{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font:500 11.5px/1.4 var(--ui);color:var(--text-dim);margin:2px 0 8px}
+.ez-tag-pathint button{background:none;border:0;padding:0;color:var(--accent);font:600 11.5px/1.4 var(--ui);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.ez-preview-card img.ez-pat-drag{cursor:grab;touch-action:none;user-select:none}
+.ez-preview-card img.ez-pat-drag.dragging{cursor:grabbing}
+.ez-tag-note{font:500 12px/1.45 var(--ui);color:var(--text-2);background:var(--surface-sunk);border:1px solid var(--hairline);border-left:3px solid #f5b53d;border-radius:var(--r-sm);padding:8px 10px;margin-top:4px}

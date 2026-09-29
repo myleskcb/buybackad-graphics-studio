@@ -11,6 +11,16 @@
    temporal dead zone for anything above it — the documented failure mode in
    this codebase. */
 const CUTOUT_EXT = '.webp';
+/* ASSET_REV (ported from claude/busy-allen, OPEN-ITEMS §J). Photos, cut-outs
+   and showcase cards are served with a 30-day browser TTL (_headers), so a
+   file replaced under the same name stays stale for a returning visitor for
+   up to a month: the 2026-09-27 device art, restaged Glass Cards and curated
+   showcase would not have reached the owner's own browser. Every assets/ URL
+   the app requests carries this revision; bump it whenever assets/bg,
+   assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
+   by the bare path, which is what templates name. */
+const ASSET_REV = '20260929u';
+function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
 const store = (() => {
@@ -43,7 +53,7 @@ function exportDims(shortPx){
   const s = shortPx / Math.min(CW, CH);
   return { w: Math.round(CW * s), h: Math.round(CH * s) };
 }
-const EXTRA_PROPS = ['name','pgRole','pgCasing','pgTplId','selectable','evented','padding','paintFirst','pgLocked','pgAdj','underline','fontStyle','pgFillGrad','pgCurved','pgBgRect','pgScrim','pgQrData','crossOrigin'];
+const EXTRA_PROPS = ['pgTagRest','pgTagBlock','pgTagId','pgKinId','name','pgRole','pgCasing','pgTplId','selectable','evented','padding','paintFirst','pgLocked','pgAdj','underline','fontStyle','pgFillGrad','pgCurved','pgBgRect','pgScrim','pgQrData','crossOrigin'];
 
 function toast(msg, type){ const n=$('notif'); n.textContent=msg; n.className='notif show'+(type?' '+type:''); clearTimeout(n._t); n._t=setTimeout(()=>n.classList.remove('show'), 2800); }
 
@@ -58,7 +68,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:820, width:CW, height:260, fill:'rgba(0,0,0,0.85)'}},
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'SELL YOUR', props:{left:CW/2, top:115, originX:'center', fontFamily:F_DISPLAY, fontSize:185, fill:'#ffffff', stroke:'#000000', strokeWidth:9, textAlign:'center', shadow:sh('rgba(0,0,0,0.5)',20,4,4)}},
     {kind:'rect', name:'Top Banner', props:{left:CW/2, top:80, width:260, height:50, originX:'center', originY:'center', fill:'#ff5000', rx:4, angle:-2}},
-    {kind:'text', name:'Banner Text', role:'sub', casing:'upper', text:'TOP BUYER', props:{left:CW/2, top:80, originX:'center', originY:'center', fontFamily:F_DISPLAY, fontSize:36, fill:'#ffffff', stroke:'#000000', strokeWidth:2, angle:-2}},
+    {kind:'text', name:'Banner Text', role:'sub', casing:'upper', text:'CASH BUYER', props:{left:CW/2, top:80, originX:'center', originY:'center', fontFamily:F_DISPLAY, fontSize:36, fill:'#ffffff', stroke:'#000000', strokeWidth:2, angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'IPHONE', props:{left:CW/2, top:282, originX:'center', fontFamily:F_DISPLAY, fontSize:258, fill:'#ff5000', stroke:'#000000', strokeWidth:12, textAlign:'center', shadow:sh('rgba(0,0,0,0.6)',28,6,6)}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'✓SAFE  ✓QUICK  ✓EASY', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
     {kind:'textbox', name:'Info Text', role:'info', casing:'upper', text:'SAME DAY CASH, NO HASSLE EASY MEETUP\niCLOUD LOCK, BROKEN, BLACKLIST...\nANY CONDITION ANY CARRIER', props:{left:CW/2, top:615, width:CW-80, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', stroke:'#000000', strokeWidth:2, textAlign:'center', fontWeight:'700', lineHeight:1.3, shadow:sh('rgba(0,0,0,0.9)',8,2,2)}},
@@ -67,10 +77,10 @@ const TEMPLATES = [
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2+20, top:885, originX:'center', fontFamily:F_COND, fontSize:90, fill:'#ff5000', fontWeight:'900', shadow:sh('rgba(255,80,0,0.4)',22)}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.45)'}},
   ]},
-{ id:'top_buyer', name:'#1 Top Buyer', tag:'buyer', cat:'phones',
+{ id:'top_buyer', name:'Local Cash Buyer', tag:'buyer', cat:'phones',
   bg:{type:'image', src:'assets/tplbg/top_buyer.jpg', scrim:0.5, fallback:{type:'grad', c1:'#1a1a2e', c2:'#16213e', a:180}},
   layers:[
-    {kind:'text', name:'Title', role:'headline', casing:'upper', text:'#1 TOP BUYER', props:{left:CW/2, top:80, originX:'center', fontFamily:F_DISPLAY, fontSize:155, fill:'#ffb800', stroke:'#000000', strokeWidth:6, textAlign:'center', shadow:sh('#ff8c00',45)}},
+    {kind:'text', name:'Title', role:'headline', casing:'upper', text:'CASH BUYER', props:{left:CW/2, top:80, originX:'center', fontFamily:F_DISPLAY, fontSize:155, fill:'#ffb800', stroke:'#000000', strokeWidth:6, textAlign:'center', shadow:sh('#ff8c00',45)}},
     {kind:'textbox', name:'Main Headline', role:'headline', casing:'upper', text:'WE BUY\niPHONES', props:{left:CW/2, top:260, width:CW-60, originX:'center', fontFamily:F_DISPLAY, fontSize:205, fill:'#ffffff', stroke:'#000000', strokeWidth:9, textAlign:'center', lineHeight:0.88}},
     {kind:'textbox', name:'Subline', role:'sub', casing:'upper', text:'CASH IN HAND TODAY\nALL MODELS • ALL CONDITIONS', props:{left:CW/2, top:672, width:CW-80, originX:'center', fontFamily:F_COND, fontSize:46, fill:'#ffb800', fontWeight:'800', textAlign:'center', lineHeight:1.3}},
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:800, width:CW, height:280, fill:'#ff5000'}},
@@ -84,15 +94,15 @@ const TEMPLATES = [
     {kind:'circle', name:'Ring Inner', role:'deco', props:{left:CW/2-360, top:CH/2-360, radius:360, fill:'', stroke:'#ff5000', strokeWidth:2, opacity:0.25, selectable:false, evented:false}},
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'WE BUY', props:{left:CW/2, top:120, originX:'center', fontFamily:F_DISPLAY, fontSize:180, fill:'#ffffff', stroke:'#000000', strokeWidth:7}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'iPHONES', props:{left:CW/2, top:278, originX:'center', fontFamily:F_DISPLAY, fontSize:255, fill:'#ff5000', stroke:'#000000', strokeWidth:9, shadow:sh('#ff5000',55)}},
-    {kind:'textbox', name:'Devices', role:'info', casing:'none', text:'iPads • MacBooks • Samsung\nANY CONDITION, TOP DOLLAR', props:{left:CW/2, top:605, width:CW-60, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#aaaaaa', fontWeight:'600', textAlign:'center', lineHeight:1.3}},
+    {kind:'textbox', name:'Devices', role:'info', casing:'none', text:'iPads • MacBooks • Samsung\nANY CONDITION, CASH PAID', props:{left:CW/2, top:605, width:CW-60, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#aaaaaa', fontWeight:'600', textAlign:'center', lineHeight:1.3}},
     {kind:'rect', name:'Phone Bar', props:{left:80, top:770, width:CW-160, height:180, fill:'#ff5000', rx:12}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CALL OR TEXT ANYTIME', props:{left:CW/2, top:785, originX:'center', fontFamily:F_COND, fontSize:30, fill:'rgba(0,0,0,0.65)', fontWeight:'900'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:825, originX:'center', fontFamily:F_DISPLAY, fontSize:100, fill:'#ffffff', stroke:'#c03000', strokeWidth:4}},
   ]},
-{ id:'cash_offer', name:'Instant Cash Offer', tag:'promo', cat:'phones',
+{ id:'cash_offer', name:'Cash Offer', tag:'promo', cat:'phones',
   bg:{type:'image', src:'assets/tplbg/cash_offer.jpg', scrim:0.5, fallback:{type:'grad', c1:'#f7971e', c2:'#ffd200', a:135}},
   layers:[
-    {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'INSTANT', props:{left:CW/2, top:100, originX:'center', fontFamily:F_DISPLAY, fontSize:170, fill:'#ffffff'}},
+    {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'GET A', props:{left:CW/2, top:100, originX:'center', fontFamily:F_DISPLAY, fontSize:170, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'CASH OFFER', props:{left:CW/2, top:255, originX:'center', fontFamily:F_DISPLAY, fontSize:155, fill:'#ffffff', stroke:'#ff5000', strokeWidth:4}},
     {kind:'text', name:'Headline 3', role:'sub', casing:'upper', text:'FOR YOUR iPHONE', props:{left:CW/2, top:440, originX:'center', fontFamily:F_COND, fontSize:72, fill:'#ffffff', fontWeight:'900'}},
     {kind:'rect', name:'Phone Plate', props:{left:CW/2-245, top:558, width:490, height:135, fill:'#000000', rx:8}},
@@ -126,7 +136,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline 1', role:'headline', casing:'upper', text:'CASH FOR', props:{left:CW/2, top:100, originX:'center', fontFamily:F_DISPLAY, fontSize:170, fill:'#ffffff', stroke:'#000000', strokeWidth:8}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'iPHONES', props:{left:CW/2, top:255, originX:'center', fontFamily:F_DISPLAY, fontSize:260, fill:'#ffffff', shadow:sh('rgba(0,0,0,0.3)',20,5,5)}},
-    {kind:'text', name:'Subline', role:'sub', casing:'upper', text:'WE PAY TOP DOLLAR', props:{left:CW/2, top:520, originX:'center', fontFamily:F_COND, fontSize:68, fill:'#ffffff', fontWeight:'900'}},
+    {kind:'text', name:'Subline', role:'sub', casing:'upper', text:'WE PAY CASH', props:{left:CW/2, top:520, originX:'center', fontFamily:F_COND, fontSize:68, fill:'#ffffff', fontWeight:'900'}},
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:680, width:CW, height:400, fill:'rgba(0,0,0,0.8)'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT FOR FREE QUOTE →', props:{left:CW/2, top:700, originX:'center', fontFamily:F_COND, fontSize:40, fill:'#ffffff', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:F_DISPLAY, fontSize:105, fill:'#ff1493', stroke:'#000000', strokeWidth:5, shadow:sh('#ff1493',30)}},
@@ -139,14 +149,14 @@ const TEMPLATES = [
     {kind:'text', name:'Headline 3', role:'headline', casing:'upper', text:'iPHONE', props:{left:CW/2, top:500, originX:'center', fontFamily:F_DISPLAY, fontSize:200, fill:'rgba(0,0,0,0)', stroke:'#ff0066', strokeWidth:4, shadow:sh('#ff0066',35)}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:755, originX:'center', fontFamily:F_COND, fontSize:72, fill:'#ffffff', fontWeight:'900'}},
     {kind:'rect', name:'Bottom Bar', props:{left:0, top:870, width:CW, height:210, fill:'rgba(255,255,255,0.04)'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT NOW FOR INSTANT CASH', props:{left:CW/2, top:900, originX:'center', fontFamily:F_COND, fontSize:38, fill:'rgba(255,255,255,0.5)', fontWeight:'700'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT NOW FOR A CASH OFFER', props:{left:CW/2, top:900, originX:'center', fontFamily:F_COND, fontSize:38, fill:'rgba(255,255,255,0.5)', fontWeight:'700'}},
   ]},
 /* ── GOLD (6) ── */
 { id:'gold_spot', name:'Spot Price Payout', tag:'buyer', cat:'gold',
   bg:{type:'grad', c1:'#141007', c2:'#2b2008', a:160},
   layers:[
     {kind:'rect', name:'Gold Band', props:{left:0, top:392, width:CW, height:300, fill:'rgba(245,183,0,0.12)'}},
-    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'PAYING UP TO 95% OF', props:{left:CW/2, top:120, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c9b27c', charSpacing:220, fontWeight:'600'}},
+    {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'PRICED FROM', props:{left:CW/2, top:120, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c9b27c', charSpacing:220, fontWeight:'600'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'TODAYS GOLD PRICE', props:{left:CW/2, top:200, originX:'center', fontFamily:'Clash Display', fontSize:132, fill:'#f5b700', shadow:sh('rgba(245,183,0,0.45)',34)}},
     {kind:'textbox', name:'Items', role:'info', casing:'upper', text:'RINGS \u2022 CHAINS \u2022 COINS \u2022 DENTAL\nBROKEN JEWELRY WELCOME\n10K \u2022 14K \u2022 18K \u2022 24K', props:{left:CW/2, top:430, width:CW-140, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#ffffff', textAlign:'center', lineHeight:1.35, fontWeight:'600'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TESTED \u0026 PAID IN FRONT OF YOU', props:{left:CW/2, top:760, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#c9b27c', fontWeight:'700'}},
@@ -162,7 +172,7 @@ const TEMPLATES = [
     {kind:'text', name:'Line', role:'deco', text:'\u2500\u2500\u2500\u2500\u2500 \u25C6 \u2500\u2500\u2500\u2500\u2500', props:{left:CW/2, top:580, originX:'center', fontFamily:F_UI, fontSize:30, fill:'#c9a24b'}},
     {kind:'text', name:'Info', role:'info', casing:'title', text:'Estates, Inheritance \u0026 Fine Jewelry', props:{left:CW/2, top:660, originX:'center', fontFamily:'Zodiak', fontSize:42, fill:'#ffffff'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Satoshi', fontSize:72, fill:'#e8d9ae', fontWeight:'800'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BY APPOINTMENT \u2014 TEXT ANYTIME', props:{left:CW/2, top:905, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.55)', charSpacing:260, fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BY APPOINTMENT, TEXT ANYTIME', props:{left:CW/2, top:905, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.55)', charSpacing:260, fontWeight:'600'}},
   ]},
 { id:'gold_scale', name:'On The Scale', tag:'promo', cat:'gold', tier:'premium',
   bg:{type:'grad', c1:'#3a2b00', c2:'#0d0a02', a:180},
@@ -171,7 +181,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'YOUR GOLD IS', props:{left:CW/2, top:300, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'WORTH MORE', props:{left:CW/2, top:410, originX:'center', fontFamily:'Clash Display', fontSize:118, fill:'#f5b700', shadow:sh('#f5b700',40)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'THAN YOU THINK', props:{left:CW/2, top:555, originX:'center', fontFamily:'Khand', fontSize:60, fill:'#c9b27c', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free testing \u2022 No obligation quote\nWatch the scale \u2014 zero tricks', props:{left:CW/2, top:680, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', textAlign:'center', lineHeight:1.4}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free testing \u2022 No obligation quote\nWatch the scale, zero tricks', props:{left:CW/2, top:680, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', textAlign:'center', lineHeight:1.4}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:850, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#f5b700'}},
   ]},
 { id:'gold_cash_now', name:'Gold = Cash Now', tag:'sell', cat:'gold', tier:'premium',
@@ -180,18 +190,18 @@ const TEMPLATES = [
     {kind:'rect', name:'Ink Panel', props:{left:70, top:170, width:CW-140, height:740, fill:'#101010', rx:26, shadow:sh('rgba(0,0,0,0.45)',40,0,18)}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOLD IN.', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#f5b700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'CASH OUT.', props:{left:CW/2, top:395, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff'}},
-    {kind:'text', name:'Info', role:'info', casing:'upper', text:'5 MINUTE APPRAISAL \u2014 WALK OUT PAID', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#c9b27c', fontWeight:'600'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO FOR AN INSTANT QUOTE', props:{left:CW/2, top:670, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', fontWeight:'700'}},
+    {kind:'text', name:'Info', role:'info', casing:'upper', text:'FREE APPRAISAL, PAID ON THE SPOT', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#c9b27c', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO FOR A QUOTE', props:{left:CW/2, top:670, originX:'center', fontFamily:F_COND, fontSize:38, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#f5b700'}},
-    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713LICENSED  \u2713INSURED', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
+    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713NO FEES  \u2713FREE QUOTE', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
 { id:'gold_estate', name:'Estate Buyer Serif', tag:'buyer', cat:'gold', tier:'premium',
   bg:{type:'solid', c:'#f4ead2'},
   layers:[
     {kind:'rect', name:'Rule Top', props:{left:90, top:120, width:CW-180, height:6, fill:'#1c1710'}},
     {kind:'text', name:'Headline', role:'headline', casing:'title', text:'Settling An Estate?', props:{left:CW/2, top:190, originX:'center', fontFamily:'Zodiak', fontSize:96, fill:'#1c1710'}},
-    {kind:'textbox', name:'Body', role:'info', casing:'none', text:'We purchase entire gold and jewelry\ncollections with dignity, discretion\nand documented fair-market offers.', props:{left:CW/2, top:360, width:CW-200, originX:'center', fontFamily:'Zodiak', fontSize:44, fill:'#443b2c', textAlign:'center', lineHeight:1.45, fontStyle:'italic'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'HOUSE CALLS AVAILABLE', props:{left:CW/2, top:640, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#8a6d1f', charSpacing:340, fontWeight:'700'}},
+    {kind:'textbox', name:'Body', role:'info', casing:'none', text:'We purchase entire gold and jewelry\ncollections with dignity, discretion\nand an offer before you decide.', props:{left:CW/2, top:360, width:CW-200, originX:'center', fontFamily:'Zodiak', fontSize:44, fill:'#443b2c', textAlign:'center', lineHeight:1.45, fontStyle:'italic'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'FREE APPRAISAL', props:{left:CW/2, top:640, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#8a6d1f', charSpacing:340, fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:740, originX:'center', fontFamily:'Zodiak', fontSize:84, fill:'#1c1710', fontWeight:'700'}},
     {kind:'rect', name:'Rule Bottom', props:{left:90, top:900, width:CW-180, height:6, fill:'#1c1710'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'#8a6d1f', fontWeight:'600'}},
@@ -202,7 +212,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'That old chain?', props:{left:CW/2, top:170, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff', angle:-3}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'none', text:'PAID.', props:{left:CW/2, top:330, originX:'center', fontFamily:'Clash Display', fontSize:210, fill:'#f5b700', angle:2, shadow:sh('rgba(245,183,0,0.5)',30)}},
     {kind:'text', name:'Arrow', role:'deco', text:'\u2935\uFE0F', props:{left:CW/2+250, top:520, fontSize:80, angle:15}},
-    {kind:'text', name:'Info', role:'info', casing:'none', text:'Broken, tangled, one earring \u2014 all of it counts.', props:{left:CW/2, top:640, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c'}},
+    {kind:'text', name:'Info', role:'info', casing:'none', text:'Broken, tangled, one earring, all of it counts.', props:{left:CW/2, top:640, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:104, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC \u2192 GET A NUMBER', props:{left:CW/2, top:900, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#f5b700'}},
   ]},
@@ -214,7 +224,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SELLING YOUR', props:{left:CW/2, top:130, originX:'center', fontFamily:'Khand', fontSize:84, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'SILVER STACK?', props:{left:CW/2, top:230, originX:'center', fontFamily:'Khand', fontSize:120, fill:'#c7d0dc', fontWeight:'700', shadow:sh('rgba(199,208,220,0.35)',28)}},
     {kind:'textbox', name:'Items', role:'info', casing:'upper', text:'EAGLES \u2022 BARS \u2022 JUNK SILVER\n90% COINS \u2022 STERLING FLATWARE', props:{left:CW/2, top:440, width:CW-140, originX:'center', fontFamily:F_COND, fontSize:52, fill:'#8fa3bb', textAlign:'center', lineHeight:1.4, fontWeight:'700'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRICED LIVE OFF SPOT \u2014 NO LOWBALLS', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRICED LIVE OFF SPOT', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#c7d0dc'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -222,11 +232,11 @@ const TEMPLATES = [
   bg:{type:'solid', c:'#e9edf2'},
   layers:[
     {kind:'rect', name:'Slab', props:{left:0, top:0, width:CW, height:340, fill:'#10141b'}},
-    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'TOP DOLLAR', props:{left:CW/2, top:80, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffffff'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PER OUNCE \u2014 EVERY OUNCE', props:{left:CW/2, top:225, originX:'center', fontFamily:'Khand', fontSize:48, fill:'#ffffff', fontWeight:'600', charSpacing:160}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring the whole box \u2014 tea sets, trays,\ncandlesticks, coins. We sort, weigh\nand pay on the spot.', props:{left:CW/2, top:430, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#2a3340', textAlign:'center', lineHeight:1.45}},
+    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'CASH PAID', props:{left:CW/2, top:80, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffffff'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PER OUNCE, EVERY OUNCE', props:{left:CW/2, top:225, originX:'center', fontFamily:'Khand', fontSize:48, fill:'#ffffff', fontWeight:'600', charSpacing:160}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring the whole box, tea sets, trays,\ncandlesticks, coins. We sort, weigh\nand pay on the spot.', props:{left:CW/2, top:430, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#2a3340', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:88, fill:'#10141b'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'OPEN 7 DAYS \u2014 WALK-INS WELCOME', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'#5a6b80', fontWeight:'600', charSpacing:200}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC, GET A PRICE', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'#5a6b80', fontWeight:'600', charSpacing:200}},
   ]},
 { id:'silver_mirror', name:'Mirror Shine', tag:'sell', cat:'silver', tier:'premium',
   bg:{type:'grad', c1:'#7c8899', c2:'#3f4b5c', a:135},
@@ -234,9 +244,9 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SILVER', props:{left:CW/2, top:150, originX:'center', fontFamily:'Clash Display', fontSize:250, fill:'#ffffff', stroke:'#10141b', strokeWidth:8, shadow:sh('rgba(0,0,0,0.35)',24,6,6)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'BOUGHT \u2022 WEIGHED \u2022 PAID', props:{left:CW/2, top:440, originX:'center', fontFamily:'Satoshi', fontSize:44, fill:'#10141b', fontWeight:'800', charSpacing:260}},
     {kind:'rect', name:'Panel', props:{left:120, top:560, width:CW-240, height:200, fill:'rgba(16,20,27,0.85)', rx:18}},
-    {kind:'text', name:'Info', role:'info', casing:'none', text:'Even tarnished pieces \u2014 shine does not matter, weight does.', props:{left:CW/2, top:600, originX:'center', fontFamily:F_UI, fontSize:34, fill:'#c7d0dc', width:CW-300, textAlign:'center'}},
+    {kind:'text', name:'Info', role:'info', casing:'none', text:'Even tarnished pieces, shine does not matter, weight does.', props:{left:CW/2, top:600, originX:'center', fontFamily:F_UI, fontSize:34, fill:'#c7d0dc', width:CW-300, textAlign:'center'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:670, originX:'center', fontFamily:'Clash Display', fontSize:76, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE EVALUATIONS DAILY', props:{left:CW/2, top:850, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#10141b', fontWeight:'700'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE EVALUATIONS', props:{left:CW/2, top:850, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#10141b', fontWeight:'700'}},
   ]},
 { id:'silver_ster', name:'Sterling Wanted Poster', tag:'buyer', cat:'silver', tier:'premium',
   bg:{type:'solid', c:'#f7f1e3'},
@@ -247,14 +257,14 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'STERLING SILVER', props:{left:CW/2, top:250, originX:'center', fontFamily:'Zodiak', fontSize:100, fill:'#2b2416', fontWeight:'700'}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Flatware sets \u2022 Serving pieces \u2022 .925 marked\nGenerous reward paid in cash', props:{left:CW/2, top:430, width:CW-220, originX:'center', fontFamily:'Zodiak', fontSize:44, fill:'#443b2c', textAlign:'center', lineHeight:1.5, fontStyle:'italic'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:680, originX:'center', fontFamily:'Zodiak', fontSize:88, fill:'#2b2416', fontWeight:'700'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'INQUIRE WITHIN \u2014 OR JUST TEXT US', props:{left:CW/2, top:830, originX:'center', fontFamily:'Satoshi', fontSize:30, fill:'#8a2b1d', fontWeight:'700', charSpacing:180}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'INQUIRE WITHIN, OR JUST TEXT US', props:{left:CW/2, top:830, originX:'center', fontFamily:'Satoshi', fontSize:30, fill:'#8a2b1d', fontWeight:'700', charSpacing:180}},
   ]},
 { id:'silver_neon', name:'Second Place Pays', tag:'promo', cat:'silver', tier:'premium',
   bg:{type:'solid', c:'#07080c'},
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SECOND PLACE', props:{left:CW/2, top:170, originX:'center', fontFamily:'Khand', fontSize:140, fill:'rgba(0,0,0,0)', stroke:'#c7d0dc', strokeWidth:4, shadow:sh('#c7d0dc',26)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'STILL PAYS', props:{left:CW/2, top:330, originX:'center', fontFamily:'Khand', fontSize:190, fill:'#c7d0dc', shadow:sh('#8fa3bb',45)}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'SILVER BUYER \u2014 CASH TODAY', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'SILVER BUYER, CASH TODAY', props:{left:CW/2, top:580, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:720, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff', shadow:sh('#c7d0dc',20)}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BARS \u2022 ROUNDS \u2022 90% \u2022 STERLING', props:{left:CW/2, top:880, originX:'center', fontFamily:F_COND, fontSize:40, fill:'#8fa3bb', fontWeight:'700'}},
   ]},
@@ -274,9 +284,9 @@ const TEMPLATES = [
   bg:{type:'solid', c:'#10131a'},
   layers:[
     {kind:'rect', name:'Circle Halo', props:{left:CW/2-230, top:60, width:460, height:460, fill:'rgba(232,217,174,0.08)', rx:230}},
-    {kind:'text', name:'Year', role:'headline', casing:'none', text:'1878\u20131921', props:{left:CW/2, top:180, originX:'center', fontFamily:'Zodiak', fontSize:110, fill:'#e8d9ae', fontWeight:'700'}},
+    {kind:'text', name:'Year', role:'headline', casing:'none', text:'1878 TO 1921', props:{left:CW/2, top:180, originX:'center', fontFamily:'Zodiak', fontSize:110, fill:'#e8d9ae', fontWeight:'700'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'MORGAN DOLLARS', props:{left:CW/2, top:350, originX:'center', fontFamily:'Khand', fontSize:96, fill:'#ffffff', fontWeight:'700'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'PAYING COLLECTOR PRICES \u2014 NOT MELT', props:{left:CW/2, top:490, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#c9a24b', fontWeight:'700', charSpacing:120}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'WE LOOK AT EVERY COIN', props:{left:CW/2, top:490, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#c9a24b', fontWeight:'700', charSpacing:120}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Carson City? Key dates? Toned beauties?\nWe know exactly what you have.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:'Zodiak', fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.5, fontStyle:'italic'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#e8d9ae'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT PHOTOS FOR A REAL OFFER', props:{left:CW/2, top:925, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:160}},
@@ -287,9 +297,9 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'Found a coin jar', props:{left:CW/2, top:150, originX:'center', fontFamily:'Clash Display', fontSize:90, fill:'#ffffff', angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'none', text:'in the attic?', props:{left:CW/2, top:280, originX:'center', fontFamily:'Clash Display', fontSize:90, fill:'#e8d9ae', angle:1}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'IT MIGHT PAY THE RENT.', props:{left:CW/2, top:450, originX:'center', fontFamily:'Clash Display', fontSize:74, fill:'#f5b700', shadow:sh('rgba(245,183,0,0.4)',26)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free sorting \u2022 We separate the treasure\nfrom the pocket change \u2014 honestly.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Free sorting \u2022 We separate the treasure\nfrom the pocket change, honestly.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'HOUSE CALLS FOR BIG FINDS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Clash Display', fontSize:38, fill:'#e8d9ae'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK, NO OBLIGATION', props:{left:CW/2, top:910, originX:'center', fontFamily:'Clash Display', fontSize:38, fill:'#e8d9ae'}},
   ]},
 { id:'coins_error', name:'Error Coin Hunter', tag:'promo', cat:'coins', tier:'premium',
   bg:{type:'solid', c:'#0d0d10'},
@@ -298,7 +308,7 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'\u26A0 CHECK YOUR CHANGE \u26A0', props:{left:CW/2, top:98, originX:'center', fontFamily:'Khand', fontSize:54, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'ERROR COINS', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'= REAL MONEY', props:{left:CW/2, top:400, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#f5b700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Double dies \u2022 Off-centers \u2022 Wrong planchets\nSome are worth thousands. We will tell you\nwhich \u2014 for free.', props:{left:CW/2, top:560, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Double dies \u2022 Off-centers \u2022 Wrong planchets\nSome are worth thousands. We will tell you\nwhich, for free.', props:{left:CW/2, top:560, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:94, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A CLOSE-UP PHOTO NOW', props:{left:CW/2, top:925, originX:'center', fontFamily:'Khand', fontSize:36, fill:'#f5b700', fontWeight:'700'}},
   ]},
@@ -308,9 +318,9 @@ const TEMPLATES = [
     {kind:'rect', name:'Slab Frame', props:{left:CW/2-320, top:120, width:640, height:340, fill:'rgba(255,255,255,0.06)', rx:22, stroke:'#3a4a63', strokeWidth:3}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'PCGS \u2022 NGC', props:{left:CW/2, top:180, originX:'center', fontFamily:'Satoshi', fontSize:86, fill:'#ffffff', fontWeight:'900'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'GRADED COINS WANTED', props:{left:CW/2, top:310, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#8fb4ff', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pay for the grade, the strike and the eye appeal \u2014 registry-quality offers on registry-quality coins.', props:{left:CW/2, top:530, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pay for the grade, the strike and the eye appeal, registry-quality offers on registry-quality coins.', props:{left:CW/2, top:530, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:740, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#8fb4ff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CERT NUMBERS GET INSTANT QUOTES', props:{left:CW/2, top:890, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:140}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'SEND CERT NUMBERS FOR A QUOTE', props:{left:CW/2, top:890, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:140}},
   ]},
 { id:'coins_ticket', name:'Gold Rush Ticket', tag:'sell', cat:'coins', tier:'premium',
   bg:{type:'solid', c:'#c9a24b'},
@@ -331,18 +341,18 @@ const TEMPLATES = [
     {kind:'rect', name:'Hazard Bottom', props:{left:0, top:CH-44, width:CW, height:44, fill:'#f5b700'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WE BUY CARS', props:{left:CW/2, top:130, originX:'center', fontFamily:'Clash Display', fontSize:150, fill:'#ffffff', stroke:'#000000', strokeWidth:6}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'RUNNING OR NOT', props:{left:CW/2, top:310, originX:'center', fontFamily:'Clash Display', fontSize:104, fill:'#f5b700', shadow:sh('rgba(245,183,0,0.4)',24)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'upper', text:'BLOWN ENGINE \u2022 SALVAGE \u2022 NO TITLE?\nWRECKED \u2022 FLOODED \u2022 JUST OLD?\nWE STILL WANT IT.', props:{left:CW/2, top:480, width:CW-140, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c7d0dc', textAlign:'center', lineHeight:1.35, fontWeight:'600'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE TOW \u2022 PAID ON PICKUP', props:{left:CW/2, top:760, originX:'center', fontFamily:F_COND, fontSize:48, fill:'#ffffff', fontWeight:'800'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'upper', text:'BLOWN ENGINE \u2022 SALVAGE \u2022 RUSTED?\nWRECKED \u2022 FLOODED \u2022 JUST OLD?\nWE STILL WANT IT.', props:{left:CW/2, top:480, width:CW-140, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#c7d0dc', textAlign:'center', lineHeight:1.35, fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'NO FEES \u2022 CASH ON THE SPOT', props:{left:CW/2, top:760, originX:'center', fontFamily:F_COND, fontSize:48, fill:'#ffffff', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:860, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#f5b700'}},
   ]},
 { id:'cars_kbb', name:'Beat The Trade-In', tag:'promo', cat:'cars',
   bg:{type:'grad', c1:'#0b2340', c2:'#050d18', a:160},
   layers:[
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'DEALER OFFERED YOU WHAT?', props:{left:CW/2, top:110, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#8fb4ff', fontWeight:'600'}},
-    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WE BEAT', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:140, fill:'#ffffff'}},
+    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'COMPARE', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:140, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'TRADE-IN OFFERS', props:{left:CW/2, top:370, originX:'center', fontFamily:'Clash Display', fontSize:88, fill:'#4da3ff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring their written offer \u2014 we will top it\nor tell you to take it. Straight answers only.', props:{left:CW/2, top:530, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'VIN + MILES = OFFER IN 10 MINUTES', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring their written offer.\nWe will give you ours. Straight answers only.', props:{left:CW/2, top:530, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'VIN + MILES = A CASH OFFER', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4da3ff'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -352,9 +362,9 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'That car is not', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:84, fill:'#c7d0dc', angle:-2}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'none', text:'a lawn ornament.', props:{left:CW/2, top:260, originX:'center', fontFamily:'Clash Display', fontSize:84, fill:'#ffffff', angle:1}},
     {kind:'text', name:'Big', role:'headline', casing:'upper', text:'CASH FOR JUNKERS', props:{left:CW/2, top:430, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ff5000', shadow:sh('rgba(255,80,0,0.45)',28)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Dead battery? Flat tires? Wasp nest\nin the glovebox? We tow it free\nand hand you cash before we leave.', props:{left:CW/2, top:580, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Dead battery? Flat tires? Wasp nest\nin the glovebox? Text us a photo\nand get paid cash when we meet.', props:{left:CW/2, top:580, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c9b27c', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'SAME-DAY PICKUP MOST AREAS', props:{left:CW/2, top:930, originX:'center', fontFamily:'Clash Display', fontSize:36, fill:'#ff5000'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO FOR AN OFFER', props:{left:CW/2, top:930, originX:'center', fontFamily:'Clash Display', fontSize:36, fill:'#ff5000'}},
   ]},
 { id:'cars_plate', name:'License Plate Split', tag:'promo', cat:'cars', tier:'premium',
   bg:{type:'solid', c:'#e9edf2'},
@@ -363,7 +373,7 @@ const TEMPLATES = [
     {kind:'text', name:'Plate State', role:'sub', casing:'upper', text:'\u2605 CASH \u2605', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#8a2b1d', fontWeight:'700', charSpacing:340}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'4-UR-CAR', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#10141b', charSpacing:80}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'ANY YEAR \u2022 ANY MAKE \u2022 ANY SHAPE', props:{left:CW/2, top:500, originX:'center', fontFamily:'Satoshi', fontSize:40, fill:'#2a3340', fontWeight:'800', charSpacing:120}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Licensed \u0026 bonded buyer \u2014 title handled,\nDMV paperwork done for you, zero fees.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#5a6b80', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring the title and the keys.\nNo fees, no obligation.', props:{left:CW/2, top:600, width:CW-200, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#5a6b80', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:86, fill:'#10141b'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT YOUR VIN \u2192 GET A NUMBER', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:36, fill:'#8a2b1d', fontWeight:'700'}},
   ]},
@@ -374,9 +384,9 @@ const TEMPLATES = [
     {kind:'rect', name:'Stripe 2', props:{left:-100, top:730, width:CW+200, height:26, fill:'rgba(255,255,255,0.5)', angle:-6}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SELL IT', props:{left:CW/2, top:110, originX:'center', fontFamily:'Clash Display', fontSize:210, fill:'#ffffff', fontStyle:'italic', shadow:sh('rgba(0,0,0,0.4)',20,8,8)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'TODAY.', props:{left:CW/2, top:350, originX:'center', fontFamily:'Clash Display', fontSize:210, fill:'#ffffff', fontStyle:'italic', stroke:'#ffffff', strokeWidth:5}},
-    {kind:'text', name:'Info', role:'info', casing:'upper', text:'OFFER \u2192 INSPECTION \u2192 PAID. 60 MINUTES.', props:{left:CW/2, top:655, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'700', angle:-6}},
+    {kind:'text', name:'Info', role:'info', casing:'upper', text:'OFFER \u2192 INSPECTION \u2192 PAID.', props:{left:CW/2, top:655, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'700', angle:-6}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:820, originX:'center', fontFamily:'Clash Display', fontSize:104, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'7 DAYS \u2022 WE COME TO YOU', props:{left:CW/2, top:950, originX:'center', fontFamily:F_COND, fontSize:38, fill:'rgba(255,255,255,0.75)', fontWeight:'700'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'WE COME TO YOU', props:{left:CW/2, top:950, originX:'center', fontFamily:F_COND, fontSize:38, fill:'rgba(255,255,255,0.75)', fontWeight:'700'}},
   ]},
 { id:'cars_fleet', name:'Fleet + Work Trucks', tag:'buyer', cat:'cars', tier:'premium',
   bg:{type:'grad', c1:'#1c2229', c2:'#0a0d11', a:180},
@@ -385,9 +395,9 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'CONTRACTORS \u2022 FLEETS', props:{left:CW/2, top:108, originX:'center', originY:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'700', angle:-1}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'WORK TRUCKS', props:{left:CW/2, top:220, originX:'center', fontFamily:'Clash Display', fontSize:118, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'\u0026 VANS WANTED', props:{left:CW/2, top:355, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ff8a00'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Retiring units? Downsizing the yard?\nWe buy 1 or 20 \u2014 high miles fine,\nlettering \u0026 racks fine, diesel preferred.', props:{left:CW/2, top:520, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Retiring units? Downsizing the yard?\nWe buy 1 or 20, high miles fine,\nlettering \u0026 racks fine, diesel preferred.', props:{left:CW/2, top:520, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ff8a00'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BULK QUOTES IN WRITING SAME DAY', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:120}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BULK LOTS QUOTED SAME DAY', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:120}},
   ]},
 { id:'cars_odometer', name:'Odometer Honest', tag:'promo', cat:'cars', tier:'premium',
   bg:{type:'solid', c:'#08090b'},
@@ -395,7 +405,7 @@ const TEMPLATES = [
     {kind:'rect', name:'Gauge Panel', props:{left:CW/2-350, top:140, width:700, height:260, fill:'#101318', rx:130, stroke:'#2a3340', strokeWidth:4}},
     {kind:'text', name:'Odometer', role:'headline', casing:'none', text:'246,801 mi', props:{left:CW/2, top:210, originX:'center', fontFamily:'Khand', fontSize:110, fill:'#4dff88', fontWeight:'600', shadow:sh('rgba(77,255,136,0.4)',24)}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'HIGH MILES? STILL PAYS.', props:{left:CW/2, top:480, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Hondas \u0026 Toyotas especially \u2014 the miles\nscare dealers, not us. Fair offers based\non what your car is actually worth.', props:{left:CW/2, top:620, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#8fa3bb', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Hondas \u0026 Toyotas especially, the miles\nscare dealers, not us. Fair offers based\non what your car is actually worth.', props:{left:CW/2, top:620, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#8fa3bb', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:830, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dff88'}},
   ]},
 
@@ -405,18 +415,18 @@ const TEMPLATES = [
   layers:[
     {kind:'rect', name:'Teal Header', solid:true, props:{left:0, top:0, width:CW, height:300, fill:'#0b5551'}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EXTRA TEST STRIPS?', props:{left:CW/2, top:80, originX:'center', fontFamily:'Satoshi', fontSize:82, fill:'#ffffff', fontWeight:'900'}},
-    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'TURN THEM INTO CASH \u2014 LEGALLY \u0026 SIMPLY', props:{left:CW/2, top:200, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Unopened \u2022 Unexpired \u2022 Factory sealed\nAll major brands \u2014 boxes checked\nand paid while you wait.', props:{left:CW/2, top:400, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:44, fill:'#1d3a38', textAlign:'center', lineHeight:1.5}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'MAIL-IN KITS AVAILABLE \u2014 FREE SHIPPING', props:{left:CW/2, top:680, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#0f6e6a', fontWeight:'800'}},
+    {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'TURN THEM INTO CASH, SIMPLY', props:{left:CW/2, top:200, originX:'center', fontFamily:F_UI, fontSize:36, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Unopened \u2022 Unexpired \u2022 Factory sealed\nAll major brands, boxes checked\nand paid while you wait.', props:{left:CW/2, top:400, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:44, fill:'#1d3a38', textAlign:'center', lineHeight:1.5}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO OF THE BOXES', props:{left:CW/2, top:680, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#0f6e6a', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Satoshi', fontSize:84, fill:'#0f6e6a', fontWeight:'900'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:920, originX:'center', fontFamily:F_UI, fontSize:28, fill:'#5a8683'}},
   ]},
 { id:'strips_box', name:'Box Count Bold', tag:'promo', cat:'strips', tier:'premium',
   bg:{type:'grad', c1:'#123c5e', c2:'#071726', a:170},
   layers:[
-    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EVERY SEALED BOX', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
+    {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SEALED BOXES', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'= MONEY', props:{left:CW/2, top:260, originX:'center', fontFamily:'Clash Display', fontSize:160, fill:'#4dd7ff', shadow:sh('rgba(77,215,255,0.4)',34)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Insurance sent too many? Switched meters?\nDo not let good boxes expire in a drawer.\nWe pay by brand \u0026 date \u2014 transparent list.', props:{left:CW/2, top:480, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7e4', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Insurance sent too many? Switched meters?\nDo not let good boxes expire in a drawer.\nWe pay by brand \u0026 date, transparent list.', props:{left:CW/2, top:480, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7e4', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO OF YOUR BOXES', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dd7ff'}},
   ]},
@@ -425,10 +435,10 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Lock', role:'deco', text:'\uD83E\uDD10', props:{left:CW/2, top:80, originX:'center', fontSize:110}},
     {kind:'text', name:'Headline', role:'headline', casing:'title', text:'Private. Discreet. Paid.', props:{left:CW/2, top:250, originX:'center', fontFamily:'Zodiak', fontSize:86, fill:'#ffffff', fontStyle:'italic'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Curbside pickup \u2022 No questions beyond\nthe expiration date \u2022 Cash or instant transfer', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#9fc3c0', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Curbside pickup \u2022 Sealed, in-date\nboxes only \u2022 Cash or instant transfer', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#9fc3c0', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'STRIPS \u2022 SENSORS \u2022 LANCETS', props:{left:CW/2, top:640, originX:'center', fontFamily:'Satoshi', fontSize:36, fill:'#4dd7ff', fontWeight:'800', charSpacing:200}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Satoshi', fontSize:88, fill:'#ffffff', fontWeight:'900'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'REPLIES IN MINUTES, NOT DAYS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:32, fill:'rgba(255,255,255,0.55)', fontWeight:'600', charSpacing:180}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO, GET A PRICE', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:32, fill:'rgba(255,255,255,0.55)', fontWeight:'600', charSpacing:180}},
   ]},
 { id:'strips_cgm', name:'CGM Sensor Buyer', tag:'buyer', cat:'strips', tier:'premium',
   bg:{type:'grad', c1:'#0e2e2c', c2:'#04100f', a:160},
@@ -447,9 +457,9 @@ const TEMPLATES = [
     {kind:'text', name:'Clock', role:'deco', text:'\u23F3', props:{left:CW/2, top:70, originX:'center', fontSize:120}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'EXPIRING BOXES', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffb020'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'LOSE VALUE DAILY', props:{left:CW/2, top:380, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'12+ months out pays the most.\nEven 6 months still pays \u2014 but the\nclock only runs one way. Sell now.', props:{left:CW/2, top:540, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#d8c9a3', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'12+ months out pays the most.\nEven 6 months still pays, but the\nclock only runs one way. Sell now.', props:{left:CW/2, top:540, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#d8c9a3', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffb020'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'QUOTE FROM ONE PHOTO \u2014 TRY IT', props:{left:CW/2, top:905, originX:'center', fontFamily:'Khand', fontSize:36, fill:'rgba(255,255,255,0.65)', fontWeight:'600'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'QUOTE FROM ONE PHOTO, TRY IT', props:{left:CW/2, top:905, originX:'center', fontFamily:'Khand', fontSize:36, fill:'rgba(255,255,255,0.65)', fontWeight:'600'}},
   ]},
 
 /* ── POKEMON CARDS (7) ── */
@@ -459,7 +469,7 @@ const TEMPLATES = [
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'YOUR OLD BINDER', props:{left:CW/2, top:120, originX:'center', fontFamily:'Clash Display', fontSize:110, fill:'#ffd200', charSpacing:60, shadow:sh('rgba(0,0,0,0.6)',14,5,5)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'MIGHT BE A GOLDMINE', props:{left:CW/2, top:250, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffffff', charSpacing:40, shadow:sh('rgba(0,0,0,0.6)',14,5,5)}},
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Base Set \u2022 Charizards \u2022 1st Editions\nShadowless \u2022 Japanese \u2022 Full binders\nWe grade-check for free, in front of you.', props:{left:CW/2, top:430, width:CW-150, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CASH \u2014 NOT STORE CREDIT', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffd200', fontWeight:'700'}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CASH, NOT STORE CREDIT', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffd200', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -469,9 +479,9 @@ const TEMPLATES = [
     {kind:'text', name:'Fire', role:'deco', text:'\uD83D\uDD25', props:{left:CW/2, top:60, originX:'center', fontSize:130}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOT A ZARD?', props:{left:CW/2, top:240, originX:'center', fontFamily:'Clash Display', fontSize:180, fill:'#ffffff', stroke:'#000000', strokeWidth:6, shadow:sh('rgba(0,0,0,0.5)',18,6,6)}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'HOLO \u2022 SHADOWLESS \u2022 GRADED \u2022 RAW', props:{left:CW/2, top:470, originX:'center', fontFamily:'Khand', fontSize:46, fill:'#ffd200', fontWeight:'700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Serious money for serious cards \u2014\nrecent comps shown with every offer.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#ffe3c2', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Serious money for serious cards,\nsend photos for a cash offer.', props:{left:CW/2, top:590, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#ffe3c2', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffd200', stroke:'#000000', strokeWidth:3}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC \u2014 OFFER IN MINUTES', props:{left:CW/2, top:905, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#ffffff', charSpacing:40}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PIC, GET AN OFFER', props:{left:CW/2, top:905, originX:'center', fontFamily:'Clash Display', fontSize:44, fill:'#ffffff', charSpacing:40}},
   ]},
 { id:'pkm_sealed', name:'Sealed Product Vault', tag:'buyer', cat:'pokemon', tier:'premium',
   bg:{type:'solid', c:'#0a0d18'},
@@ -480,7 +490,7 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'DO NOT OPEN THAT BOX', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:48, fill:'#ff5b5b', fontWeight:'700', charSpacing:120}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'SEALED PRODUCT', props:{left:CW/2, top:260, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'PAYS PREMIUM', props:{left:CW/2, top:375, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffd200'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Booster boxes \u2022 ETBs \u2022 Collections\nVintage WOTC to modern \u2014 factory\nseal intact = top of market paid.', props:{left:CW/2, top:530, width:CW-220, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Booster boxes \u2022 ETBs \u2022 Collections\nVintage WOTC to modern, factory\nseal intact = top of market paid.', props:{left:CW/2, top:530, width:CW-220, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:750, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#ffd200'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'BULK COLLECTIONS WELCOME', props:{left:CW/2, top:890, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.6)', fontWeight:'600', charSpacing:180}},
   ]},
@@ -489,17 +499,17 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'none', text:'Remember 1999?', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd27a', angle:-2}},
     {kind:'text', name:'Sub', role:'sub', casing:'none', text:'Your childhood shoebox does.', props:{left:CW/2, top:290, originX:'center', fontFamily:'Zodiak', fontSize:52, fill:'#ffffff', fontStyle:'italic'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Those playground cards are adult money\nnow. Dig out the shoebox \u2014 we will sort\nit together and pay for the hits.', props:{left:CW/2, top:440, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d8c9a3', textAlign:'center', lineHeight:1.5}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK \u2014 ZERO PRESSURE', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffd27a', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Those playground cards are adult money\nnow. Dig out the shoebox, we will sort\nit together and pay for the hits.', props:{left:CW/2, top:440, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d8c9a3', textAlign:'center', lineHeight:1.5}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'FREE LOOK, ZERO PRESSURE', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:44, fill:'#ffd27a', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
-    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713LOCAL  \u2713TRUSTED', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
+    {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713LOCAL  \u2713CASH', props:{left:CW-30, top:30, originX:'right', fontFamily:'Satoshi', fontSize:29, fill:'#ffffff', fontWeight:'800', charSpacing:70, lineHeight:1.5, shadow:sh('rgba(0,0,0,0.6)',10,0,3)}},
   ]},
 { id:'pkm_grade', name:'Grade Gap Explainer', tag:'promo', cat:'pokemon', tier:'premium',
   bg:{type:'solid', c:'#101014'},
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'PSA 9 vs PSA 10', props:{left:CW/2, top:130, originX:'center', fontFamily:'Satoshi', fontSize:96, fill:'#ffffff', fontWeight:'900'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'CAN BE A 5X PRICE GAP', props:{left:CW/2, top:270, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#ffd200', fontWeight:'600'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pre-screen your raw cards with the\nsame checklist graders use \u2014 centering,\nedges, surface \u2014 and pay for the upside.', props:{left:CW/2, top:420, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bcd0ff', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pre-screen your raw cards with the\nsame checklist graders use, centering,\nedges, surface, and pay for the upside.', props:{left:CW/2, top:420, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bcd0ff', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'SLABS ALSO BOUGHT AT COMP PRICES', props:{left:CW/2, top:650, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd200'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
@@ -510,7 +520,7 @@ const TEMPLATES = [
     {kind:'text', name:'Rising Sun', role:'deco', text:'\u26E9\uFE0F', props:{left:CW/2, top:70, originX:'center', fontSize:110}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'JAPANESE CARDS', props:{left:CW/2, top:240, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ffffff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'WANTED BADLY', props:{left:CW/2, top:365, originX:'center', fontFamily:'Clash Display', fontSize:108, fill:'#ffd200', shadow:sh('rgba(255,210,0,0.35)',26)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Promos \u2022 Trophy cards \u2022 Vending sheets\nOld Back anything \u2014 if it is from Japan\nand mint, we are your best offer.', props:{left:CW/2, top:530, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#ffd9e2', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Promos \u2022 Trophy cards \u2022 Vending sheets\nOld Back anything, if it is from Japan\nand mint, send us a photo.', props:{left:CW/2, top:530, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:38, fill:'#ffd9e2', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:760, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'COLLECTION MANAGERS: DM US FIRST', props:{left:CW/2, top:900, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.7)', fontWeight:'600', charSpacing:120}},
   ]},
@@ -519,7 +529,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'BULK CARDS', props:{left:CW/2, top:140, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#4dff88'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'BY THE POUND', props:{left:CW/2, top:290, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Commons, energies, whole tubs \u2014\nyes, even those. Weighed on a certified\nscale, paid per pound, hauled away free.', props:{left:CW/2, top:470, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7cd', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Commons, energies, whole tubs,\nyes, even those. Weighed on a certified\nscale, paid per pound, hauled away free.', props:{left:CW/2, top:470, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bfe7cd', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'HITS PULLED \u0026 PAID SEPARATELY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#4dff88', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
   ]},
@@ -530,8 +540,8 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'ROOKIE CARDS', props:{left:CW/2, top:130, originX:'center', fontFamily:'Clash Display', fontSize:130, fill:'#ffffff', fontStyle:'italic'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'BOUGHT AT COMPS', props:{left:CW/2, top:285, originX:'center', fontFamily:'Clash Display', fontSize:92, fill:'#4dff88', fontStyle:'italic', shadow:sh('rgba(77,255,136,0.35)',24)}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Prizm \u2022 Topps Chrome \u2022 Bowman 1sts\nAutos \u0026 numbered parallels \u2014 we track\nlive sales, you get the real number.', props:{left:CW/2, top:450, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bfe7cd', textAlign:'center', lineHeight:1.45}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'NO CONSIGNMENT WAIT \u2014 PAID TODAY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Prizm \u2022 Topps Chrome \u2022 Bowman 1sts\nAutos \u0026 numbered parallels, we track\nlive sales, you get the real number.', props:{left:CW/2, top:450, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bfe7cd', textAlign:'center', lineHeight:1.45}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'NO CONSIGNMENT WAIT, PAID TODAY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dff88'}},
     {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
@@ -542,7 +552,7 @@ const TEMPLATES = [
     {kind:'text', name:'Score You', role:'headline', casing:'upper', text:'YOU: PAID', props:{left:CW/2, top:170, originX:'center', fontFamily:'Khand', fontSize:92, fill:'#ffd200', fontWeight:'700', shadow:sh('rgba(255,210,0,0.4)',20)}},
     {kind:'text', name:'Score Them', role:'headline', casing:'upper', text:'EBAY FEES: 0', props:{left:CW/2, top:300, originX:'center', fontFamily:'Khand', fontSize:70, fill:'#ff5b5b', fontWeight:'700'}},
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'SKIP THE LISTINGS. SKIP THE FEES.', props:{left:CW/2, top:520, originX:'center', fontFamily:'Clash Display', fontSize:52, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Full card collections bought outright \u2014\nbasketball, football, baseball, soccer.', props:{left:CW/2, top:640, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Full card collections bought outright,\nbasketball, football, baseball, soccer.', props:{left:CW/2, top:640, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd200'}},
   ]},
 { id:'sports_goat', name:'GOAT Era Vintage', tag:'sell', cat:'sports', tier:'premium',
@@ -551,16 +561,16 @@ const TEMPLATES = [
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'JORDAN \u2022 BRADY \u2022 MANTLE \u2022 KOBE', props:{left:CW/2, top:110, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ff9d5c', fontWeight:'600', charSpacing:100}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'GOAT CARDS', props:{left:CW/2, top:210, originX:'center', fontFamily:'Clash Display', fontSize:160, fill:'#ffffff', shadow:sh('rgba(0,0,0,0.5)',20,6,6)}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'DESERVE GOAT OFFERS', props:{left:CW/2, top:400, originX:'center', fontFamily:'Clash Display', fontSize:74, fill:'#ff9d5c'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Vintage to modern grails \u2014 if it hangs\nin a man cave, it cashes out here.\nAuthentication handled on the spot.', props:{left:CW/2, top:540, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#e8cdb8', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Vintage to modern grails, if it hangs\nin a man cave, it cashes out here.\nAuthentication handled on the spot.', props:{left:CW/2, top:540, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#e8cdb8', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:770, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#ffffff'}},
-    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRIVATE SALES \u2014 NO AUCTION CIRCUS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.65)', fontWeight:'600', charSpacing:120}},
+    {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRIVATE SALES, NO AUCTION CIRCUS', props:{left:CW/2, top:910, originX:'center', fontFamily:'Khand', fontSize:34, fill:'rgba(255,255,255,0.65)', fontWeight:'600', charSpacing:120}},
   ]},
 { id:'sports_break', name:'Breaker Overflow', tag:'buyer', cat:'sports', tier:'premium',
   bg:{type:'grad', c1:'#1d1040', c2:'#090418', a:160},
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'BREAKERS:', props:{left:CW/2, top:130, originX:'center', fontFamily:'Clash Display', fontSize:120, fill:'#b78bff'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'SELL YOUR HITS', props:{left:CW/2, top:270, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Weekend breaks piling up? We buy\nyour pulled slabs, autos \u0026 parallels\nin bulk lots \u2014 one transfer, all gone.', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d9c9ff', textAlign:'center', lineHeight:1.45}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Weekend breaks piling up? We buy\nyour pulled slabs, autos \u0026 parallels\nin bulk lots, one transfer, all gone.', props:{left:CW/2, top:430, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#d9c9ff', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'STANDING WEEKLY BUY-OUTS AVAILABLE', props:{left:CW/2, top:650, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#b78bff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
     {kind:'text', name:'Badges', role:'badges', casing:'upper', text:'\u2713FAST PAY  \u2713BULK OK', props:{left:CW-30, top:30, originX:'right', fontFamily:F_COND, fontSize:32, fill:'#ffffff', fontWeight:'900', backgroundColor:'#b78bff', padding:6}},
@@ -572,8 +582,8 @@ const TEMPLATES = [
     {kind:'rect', name:'Perforation', props:{left:CW-300, top:250, width:6, height:560, fill:'rgba(244,239,228,0.5)'}},
     {kind:'text', name:'Kicker', role:'sub', casing:'upper', text:'ADMIT: YOUR COLLECTION', props:{left:100, top:300, fontFamily:'Khand', fontSize:38, fill:'#fca311', fontWeight:'600', charSpacing:160}},
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'CARD SHOW', props:{left:100, top:370, fontFamily:'Clash Display', fontSize:120, fill:'#ffffff'}},
-    {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'PRICES DAILY', props:{left:100, top:510, fontFamily:'Clash Display', fontSize:96, fill:'#fca311'}},
-    {kind:'text', name:'Info', role:'info', casing:'none', text:'Why wait for the convention? Show rates, every single day.', props:{left:100, top:650, fontFamily:F_UI, fontSize:34, fill:'#e5e5e5', width:CW-420}},
+    {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'PRICES BY TEXT', props:{left:100, top:510, fontFamily:'Clash Display', fontSize:96, fill:'#fca311'}},
+    {kind:'text', name:'Info', role:'info', casing:'none', text:'Why wait for the convention? Text a photo for a price.', props:{left:100, top:650, fontFamily:F_UI, fontSize:34, fill:'#e5e5e5', width:CW-420}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:880, originX:'center', fontFamily:'Clash Display', fontSize:88, fill:'#14213d'}},
   ]},
 { id:'sports_setbuild', name:'Set Builder Wanted', tag:'sell', cat:'sports', tier:'premium',
@@ -581,7 +591,7 @@ const TEMPLATES = [
   layers:[
     {kind:'text', name:'Headline', role:'headline', casing:'upper', text:'COMPLETE SETS', props:{left:CW/2, top:150, originX:'center', fontFamily:'Khand', fontSize:116, fill:'#ffffff', fontWeight:'700'}},
     {kind:'text', name:'Headline 2', role:'headline', casing:'upper', text:'\u0026 WAX BOXES', props:{left:CW/2, top:290, originX:'center', fontFamily:'Khand', fontSize:116, fill:'#4da3ff', fontWeight:'700'}},
-    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'86 Fleer to 2024 releases \u2014 sealed wax,\nfactory sets, and the shoebox of doubles\nyou almost threw away. Bring it all.', props:{left:CW/2, top:470, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd7ff', textAlign:'center', lineHeight:1.5}},
+    {kind:'textbox', name:'Info', role:'info', casing:'none', text:'86 Fleer to 2024 releases, sealed wax,\nfactory sets, and the shoebox of doubles\nyou almost threw away. Bring it all.', props:{left:CW/2, top:470, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd7ff', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'ESTATES \u0026 STORAGE UNITS: CALL FIRST', props:{left:CW/2, top:690, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4da3ff'}},
   ]},
@@ -693,6 +703,7 @@ const TEMPLATES = [
       });
     });
   })();
+  window.TPL_PAL = PAL;      // by name, for the tagline styles (tplPalette)
 
   /* ── locked font pairings [display, support] ──────────────────────────────
      The old set was the free-font shelf: Passion One, Titan One, Lilita One,
@@ -785,21 +796,21 @@ const TEMPLATES = [
   /* exposed for scripts/theme_lab.mjs: the lab composes real ads and must use
      the real copy, not a paraphrase of it. */
   const DECKS = {
-    phones:  { k:'LICENSED BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT, EVERY TIME\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY OR YOU MAIL IT IN', cta:'GET YOUR OFFER', price:'UP TO $1,100 PAID TODAY', big:'$1,100', badges:['LICENSED','INSURED','LOCAL'],
+    phones:  { k:'LOCAL BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY', cta:'GET YOUR OFFER', price:'CASH PAID TODAY', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
                scene:'extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh' },
-    gold:    { k:'LICENSED GOLD BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Earrings • Broken Gold', sub:'TESTED AND WEIGHED IN FRONT OF YOU\nWRITTEN OFFER BEFORE YOU DECIDE\nESTATES HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'TOP $', badges:['LICENSED','INSURED','PRIVATE'],
+    gold:    { k:'LOCAL GOLD BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Earrings • Broken Gold', sub:'TESTED AND WEIGHED IN FRONT OF YOU\nWRITTEN OFFER BEFORE YOU DECIDE\nESTATES HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','PRIVATE'],
                scene:'molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh' },
-    silver:  { k:'LICENSED BUYER', h1:'WE BUY', h2:'SILVER', alt2:'SILVER', items:'Coins • Bars • Silverware • Jewelry', sub:'WEIGHED IN FRONT OF YOU\nCOINS, BARS, SILVERWARE AND JEWELRY\nPAID BY WEIGHT AT CURRENT RATES', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['LICENSED','INSURED','LOCAL'],
+    silver:  { k:'LOCAL BUYER', h1:'WE BUY', h2:'SILVER', alt2:'SILVER', items:'Coins • Bars • Silverware • Jewelry', sub:'WEIGHED IN FRONT OF YOU\nCOINS, BARS, SILVERWARE AND JEWELRY\nPAID BY WEIGHT AT CURRENT RATES', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
                scene:'stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus' },
-    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nHOUSE CALLS FOR LARGE ESTATES', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'$25,000', badges:['LICENSED','INSURED','DISCREET'],
+    coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nNO FEES, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'CASH', badges:['NO FEES','FREE QUOTE','DISCREET'],
                scene:'antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro' },
-    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • Same-day pickup • Free tow', sub:'CASH IN HAND BEFORE WE TOW\nTITLE AND DMV PAPERWORK HANDLED\nSAME-DAY PICKUP ACROSS LA & OC', cta:'GET AN INSTANT OFFER', price:'UP TO $15,000 CASH', big:'$15,000', badges:['FREE TOW','SAME DAY','LICENSED'],
+    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • High miles • Any make', sub:'CASH IN HAND WHEN WE MEET\nBRING THE TITLE AND THE KEYS\nAN OFFER BEFORE YOU DECIDE', cta:'GET A CASH OFFER', price:'CASH ON THE SPOT', big:'CASH', badges:['AS-IS','SAME DAY','NO FEES'],
                scene:'dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze' },
-    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nLOCAL PICKUP OR PREPAID MAIL-IN\nPAID THE SAME DAY WE RECEIVE THEM', cta:'GET YOUR OFFER', price:'TOP BOX PRICES PAID', big:'TOP $', badges:['DISCREET','FAST','FAIR'],
+    strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nWE MEET YOU LOCALLY\nPAID THE SAME DAY WE MEET', cta:'GET YOUR OFFER', price:'PAID SAME DAY', big:'CASH', badges:['DISCREET','FAST','FAIR'],
                scene:'clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur' },
-    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Single cards • Full binders • Sealed boxes', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE SORT AND VALUE EVERYTHING FOR YOU\nFREE APPRAISAL, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'TOP PRICES PAID', big:'$10,000', badges:['TRUSTED','INSURED','LOCAL'],
+    pokemon: { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'POKÉMON', alt2:'CARD LOTS', items:'Single cards • Full binders • Sealed boxes', sub:'SINGLE CARDS OR FULL COLLECTIONS\nWE SORT AND VALUE EVERYTHING FOR YOU\nFREE APPRAISAL, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['CASH','NO FEES','LOCAL'],
                scene:'holographic trading card close-up with prismatic light refractions on dark felt, dreamy bokeh' },
-    sports:  { k:'COLLECTIONS WANTED', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Single cards • Full boxes • Collections', sub:'SINGLE CARDS OR FULL COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nWE BUY ENTIRE COLLECTIONS OUTRIGHT', cta:'REQUEST AN APPRAISAL', price:'TOP DOLLAR PAID', big:'$5,000', badges:['TRUSTED','INSURED','LOCAL'],
+    sports:  { k:'COLLECTIONS WANTED', h1:'SPORTS', h2:'CARDS', alt2:'CARD LOTS', items:'Single cards • Full boxes • Collections', sub:'SINGLE CARDS OR FULL COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nWE BUY ENTIRE COLLECTIONS OUTRIGHT', cta:'REQUEST AN APPRAISAL', price:'PAID PER CARD', big:'CASH', badges:['CASH','NO FEES','LOCAL'],
                scene:'vintage baseball cards fanned on worn wood with stadium light bokeh, nostalgic warm grade' },
   };
 
@@ -810,7 +821,7 @@ const TEMPLATES = [
     t('Badges', 'badges', 'upper', badges.join('\n'), { left:W-56, top:40, originX:'right', fontFamily:T.s, fontSize:28, fill:P.ink, fontWeight:'800', lineHeight:1.52, charSpacing:110, opacity:0.95, shadow:P.paper ? null : sh('rgba(0,0,0,0.55)', 9, 0, 2) }),
   ];
   const ribbon = (P, T, text, y) => [
-    r('Kicker Ribbon', { left:CX, top:y+31, width:430, height:62, rx:14, originX:'center', originY:'center', angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
+    r('Kicker Ribbon', { left:CX, top:y+31, width:490, height:62,   /* 490: COLLECTIONS WANTED ran 17px past 430 */ rx:14, originX:'center', originY:'center', angle:-3, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh('rgba(0,0,0,0.35)', 14, 0, 6) }),
     t('Kicker', 'sub', 'upper', text, { left:CX, top:y+31, originX:'center', originY:'center', fontFamily:T.s, fontStyle:'italic', fontSize:36, fill:onAccent(P), fontWeight:'900', angle:-3 }),
   ];
   const subBlock = (P, T, text, y, size) => tb('Info Text', 'info', 'upper', text, { left:CX, top:y, width:W-140, originX:'center', fontFamily:T.s, fontStyle:'italic', fontSize:size || 40, fill:P.ink, fontWeight:'800', textAlign:'center', lineHeight:1.34, stroke:P.paper ? undefined : '#000000', strokeWidth:P.paper ? 0 : 3, shadow:P.paper ? null : sh('rgba(0,0,0,0.6)', 10, 0, 3) });
@@ -829,14 +840,14 @@ const TEMPLATES = [
   try { window.DECKS_SNAPSHOT = DECKS; } catch(e){}
 
   const TRUST_COPY = {
-    phones:  { q:'"Texted photos at noon, had cash by 3pm. Easiest sale ever."',        w:'MARCUS D. • LONG BEACH' },
-    gold:    { q:'"Fair price for my grandmother\'s rings, paid on the spot."',         w:'ELENA R. • LAKEWOOD' },
-    silver:  { q:'"Weighed everything right in front of me. Honest start to finish."',  w:'PAUL S. • SIGNAL HILL' },
-    coins:   { q:'"Knew more about my collection than I did. Strong offer."',           w:'HOWARD B. • CERRITOS' },
-    cars:    { q:'"Picked up my old Civic the same day, cash in hand."',                w:'DENISE W. • CARSON' },
-    strips:  { q:'"Simple and discreet. Boxes gone, paid fairly."',                     w:'T.J. • NORWALK' },
-    pokemon: { q:'"Got real value for my binder, not pawn shop prices."',               w:'ALEX M. • DOWNEY' },
-    sports:  { q:'"My rookie cards finally found a fair, serious buyer."',              w:'RAY G. • TORRANCE' },
+    phones:  { q:'Text us a photo of the phone. We send a price, you decide.', w:'HOW IT WORKS' },
+    gold:    { q:'Send photos first. We weigh it in front of you and pay the same day.', w:'HOW IT WORKS' },
+    silver:  { q:'Send photos first. We weigh it in front of you and pay the same day.', w:'HOW IT WORKS' },
+    coins:   { q:'Send photos of the collection. We tell you what we see and what we pay.', w:'HOW IT WORKS' },
+    cars:    { q:'Send photos of the car. We make an offer, you decide.', w:'HOW IT WORKS' },
+    strips:  { q:'Sealed, unexpired boxes only. Text a photo for a price.', w:'HOW IT WORKS' },
+    pokemon: { q:'Send photos of the binder or the slabs. We make a cash offer.', w:'HOW IT WORKS' },
+    sports:  { q:'Send photos of the cards. We make a cash offer, you decide.', w:'HOW IT WORKS' },
   };
 
   /* Ink that actually reads ON the accent. Chip glyphs were hard-coded to
@@ -896,7 +907,7 @@ const TEMPLATES = [
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:168, originX:'center', fontFamily:T.d, fontSize:233, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:15, shadow:hard('rgba(0,0,0,0.5)', 12) }),
         rg('Claim Plate', { left:96, top:512, width:888, height:118, rx:16, fill:hexToRgba(P.deep,0.82), shadow:hard('rgba(0,0,0,0.28)', 6) }),
         t('Claim 1', 'info', 'upper', C.badges ? C.badges.join(' • ') : 'ANY CONDITION ANY CARRIER', { left:CX, top:534, originX:'center', fontFamily:'Khand', fontSize:41, fill:P.a2, fontWeight:'700', charSpacing:30 }),
-        t('Claim 2', 'info', 'upper', C.sub || 'TOP DOLLAR PAID TODAY', { left:CX, top:578, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:30 }),
+        t('Claim 2', 'info', 'upper', C.sub || 'CASH PAID TODAY', { left:CX, top:578, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:30 }),
         t('Area 1', 'info', 'upper', C.a1 || 'IE', { left:CX-268, top:672, originX:'center', fontFamily:T.d, fontSize:98, fill:'#2fbf4f', fontWeight:'700', stroke:ink, strokeWidth:7 }),
         t('Arrow 1', 'deco', 'none', '↓', { left:CX-134, top:686, originX:'center', fontFamily:'Satoshi', fontSize:78, fill:'#e8362c', fontWeight:'900' }),
         t('Area 2', 'info', 'upper', C.a2 || 'OC', { left:CX, top:672, originX:'center', fontFamily:T.d, fontSize:98, fill:'#2fbf4f', fontWeight:'700', stroke:ink, strokeWidth:7 }),
@@ -920,9 +931,9 @@ const TEMPLATES = [
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:54, top:78, fontFamily:T.d, fontSize:109, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:172, fontFamily:T.d, fontSize:187, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:13, shadow:hard('rgba(0,0,0,0.5)', 10) }),
         cut('Product', C.cut || 'cash-stack', { left:1032, top:398, originX:'right', w:505, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
-        ...row(1, 452, (C.badges && C.badges[0]) || 'TOP DOLLAR',   (C.subs && C.subs[0]) || 'Paid in cash, same day'),
+        ...row(1, 452, (C.badges && C.badges[0]) || 'CASH PAID',   (C.subs && C.subs[0]) || 'Paid in cash, same day'),
         ...row(2, 572, (C.badges && C.badges[1]) || 'FAST & EASY',  (C.subs && C.subs[1]) || 'Text photos, get an offer'),
-        ...row(3, 692, (C.badges && C.badges[2]) || 'ANY CONDITION',(C.subs && C.subs[2]) || 'No appointment needed'),
+        ...row(3, 692, (C.badges && C.badges[2]) || ['ANY CONDITION', 'NO FEES', 'FREE QUOTE'].find(w => !(C.badges || []).concat(C.subs || []).some(x => String(x).toUpperCase() === w)),(C.subs && C.subs[2]) || 'No appointment needed'),
         rg('Phone Plate', { left:54, top:836, width:940, height:132, rx:22, fill:P.a1, shadow:hard('rgba(0,0,0,0.4)', 9) }),
         t('CTA', 'cta', 'upper', C.cta || 'CALL OR TEXT', { left:CX, top:856, originX:'center', fontFamily:'Khand', fontSize:36, fill:onAccent(P), fontWeight:'700', charSpacing:60 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:892, originX:'center', fontFamily:T.d, fontSize:82, fill:onAccent(P), fontWeight:'700' }),
@@ -941,9 +952,14 @@ const TEMPLATES = [
       return [
         t('Headline 1', 'headline', 'upper', C.h1 || 'BUYING', { left:54, top:70, fontFamily:T.d, fontSize:100, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:154, fontFamily:T.d, fontSize:173, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:13, shadow:hard('rgba(0,0,0,0.5)', 10) }),
-        cut('Product', C.cut || 'iphone-cracked', { left:1030, top:352, originX:'right', w:573, angle:6, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
-        ...chk(1, 372, pts[0]), ...chk(2, 462, pts[1]), ...chk(3, 552, pts[2]), ...chk(4, 642, pts[3] || 'ANY OTHER ISSUE'),
-        rg('CTA Bar', { left:0, top:846, width:W, height:150, fill:P.deep }),
+        cut('Product', C.cut || 'iphone-cracked-corner', { left:1030, top:352, originX:'right', w:573, angle:6, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
+        /* rows from 420, not 372: the category word runs to ~405, and alignPass
+           pushed the first label clear of it but not its chip, so the first
+           check sat beside the wrong line. The bar runs to the foot of the
+           card: at height 150 it stopped 84px short and the number (Khand at
+           93px) hung its lower edge off it onto the photograph. */
+        ...chk(1, 420, pts[0]), ...chk(2, 510, pts[1]), ...chk(3, 600, pts[2]), ...chk(4, 690, pts[3] || 'ANY OTHER ISSUE'),
+        rg('CTA Bar', { left:0, top:846, width:W, height:W - 846, fill:P.deep }),   // square canvas: to the foot
         t('CTA', 'cta', 'upper', C.cta || 'TEXT A PHOTO FOR AN OFFER', { left:CX, top:872, originX:'center', fontFamily:'Khand', fontSize:38, fill:'rgba(255,255,255,0.88)', fontWeight:'700', charSpacing:44 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:906, originX:'center', fontFamily:T.d, fontSize:93, fill:ink, fontWeight:'700' }),
       ];
@@ -994,8 +1010,11 @@ const TEMPLATES = [
         rg('Ribbon', { left:-40, top:120, width:1160, height:132, fill:P.a1, angle:tilt, shadow:hard('rgba(0,0,0,0.35)', 9) }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:100, fill:onAccent(P), fontWeight:'700', angle:tilt }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:308, originX:'center', fontFamily:T.d, fontSize:204, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:14, shadow:hard('rgba(0,0,0,0.5)', 12), angle:-3 }),
-        t('Sub', 'sub', 'upper', C.sub || 'TOP DOLLAR PAID TODAY', { left:CX, top:520, originX:'center', fontFamily:'Khand', fontSize:41, fill:ink, fontWeight:'700', charSpacing:30, stroke:P.deep, strokeWidth:3, angle:-2 }),
-        cut('Product', C.cut || 'cash-fan', { left:CX, top:534, originX:'center', w:353, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
+        t('Sub', 'sub', 'upper', C.sub || 'CASH PAID TODAY', { left:CX, top:520, originX:'center', fontFamily:'Khand', fontSize:41, fill:ink, fontWeight:'700', charSpacing:30, stroke:P.deep, strokeWidth:3, angle:-2 }),
+        /* in the band between the item line and the pills, never over the words:
+           the study session's layering ladder puts copy on the top rung, and
+           at top:534 the product hid 54-63% of the item line on every ribbon */
+        cut('Product', C.cut || 'cash-fan', { left:CX, top:648, originX:'center', w:353, maxH:176, angle:4, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
         ...pill(0, 70, 280, b[0]), ...pill(1, 372, 300, b[1]), ...pill(2, 694, 316, b[2] || 'CASH NOW'),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:944, originX:'center', fontFamily:T.d, fontSize:104, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:9, shadow:hard('rgba(0,0,0,0.45)', 8) }),
       ];
@@ -1015,7 +1034,7 @@ const TEMPLATES = [
       };
       const pts = C.points || ['SEALED','GRADED','VINTAGE','BULK LOTS','SINGLES','COLLECTIONS'];
       return [
-        t('Kicker', 'sub', 'upper', C.kicker || 'PAYING UP TO', { left:CX, top:74, originX:'center', fontFamily:'Khand', fontSize:47, fill:ink, fontWeight:'700', charSpacing:50, stroke:P.deep, strokeWidth:3 }),
+        t('Kicker', 'sub', 'upper', C.kicker || 'WE PAY', { left:CX, top:74, originX:'center', fontFamily:'Khand', fontSize:47, fill:ink, fontWeight:'700', charSpacing:50, stroke:P.deep, strokeWidth:3 }),
         t('Price Line', 'headline', 'upper', C.price || '90%', { left:CX, top:116, originX:'center', fontFamily:T.d, fontSize:196, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:15, shadow:hard('rgba(0,0,0,0.5)', 12) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:334, originX:'center', fontFamily:T.d, fontSize:100, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         cut('Product', C.cut || 'cash-bundles', { left:1040, top:392, originX:'right', w:256, angle:5, shadow:sh('rgba(0,0,0,0.5)', 34, 0, 18) }),  // sits in the clear band between the price and the grid; a long price like $15,000 reaches x960 up top
@@ -1037,7 +1056,7 @@ const TEMPLATES = [
         t('Strip 3', 'badges', 'upper', b[2] || 'SAME DAY', { left:900, top:30, originX:'center', fontFamily:'Khand', fontSize:34, fill:hexToRgba(P.ink || "#ffffff", 0.92), fontWeight:'700', charSpacing:18 }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:CX, top:146, originX:'center', fontFamily:T.d, fontSize:98, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:236, originX:'center', fontFamily:T.d, fontSize:198, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:14, shadow:hard('rgba(0,0,0,0.5)', 11) }),
-        cut('Product', C.cut || 'iphones-trio', { left:CX, top:446, originX:'center', w:453, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
+        cut('Product', C.cut || 'ip-group-colour-lineup', { left:CX, top:446, originX:'center', w:453, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
         rg('Banner', { left:0, top:846, width:W, height:150, fill:P.a1, shadow:hard('rgba(0,0,0,0.35)', 8) }),
         t('CTA', 'cta', 'upper', C.cta || 'CALL OR TEXT TODAY', { left:CX, top:868, originX:'center', fontFamily:'Khand', fontSize:36, fill:onAccent(P), fontWeight:'700', charSpacing:46 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:904, originX:'center', fontFamily:T.d, fontSize:93, fill:onAccent(P), fontWeight:'700' }),
@@ -1057,7 +1076,7 @@ const TEMPLATES = [
         t('Kicker', 'sub', 'upper', C.brand || 'LOCAL BUYER', { left:54, top:70, fontFamily:'Khand', fontSize:38, fill:ink, fontWeight:'700', charSpacing:44, stroke:P.deep, strokeWidth:3 }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:54, top:124, fontFamily:T.d, fontSize:87, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:7, shadow:hard('rgba(0,0,0,0.45)', 6) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:206, fontFamily:T.d, fontSize:141, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:10, shadow:hard('rgba(0,0,0,0.45)', 8) }),
-        t('Price Line', 'headline', 'upper', C.price || '$1,100', { left:54, top:392, fontFamily:T.d, fontSize:165, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13), angle:-4 }),
+        t('Price Line', 'headline', 'upper', C.price || 'CASH', { left:54, top:392, fontFamily:T.d, fontSize:165, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13), angle:-4 }),
         cut('Product', C.cut || 'iphone-front', { left:1048, top:132, originX:'right', w:366, angle:5, shadow:sh('rgba(0,0,0,0.5)', 38, 0, 20) }),
         ...roundel(0, 70, b[0]), ...roundel(1, 232, b[1]), ...roundel(2, 394, b[2] || 'NO HAGGLE'),
         rg('Badge', { left:620, top:762, width:390, height:104, rx:22, fill:P.a1, angle:-4, shadow:hard('rgba(0,0,0,0.35)', 8) }),
@@ -1083,7 +1102,7 @@ const TEMPLATES = [
         rg('Split Rule', { left:midX-3, top:0, width:6, height:W, fill:P.a1 }),
         t('Headline 1', 'headline', 'upper', C.h1 || 'WE BUY', { left:54, top:86, fontFamily:T.d, fontSize:69, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:6, shadow:hard('rgba(0,0,0,0.45)', 6) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:54, top:152, fontFamily:T.d, fontSize:104, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:11, shadow:hard('rgba(0,0,0,0.5)', 9) }),
-        cut('Product', C.cut || 'iphones-trio', { left:54, top:352, w:488, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
+        cut('Product', C.cut || 'ip-group-colour-lineup', { left:54, top:352, w:488, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 20) }),
         t('Panel Title', 'sub', 'upper', C.gridTitle || 'WE TAKE', { left:midX+34, top:250, fontFamily:'Khand', fontSize:38, fill:P.a1, fontWeight:'700', charSpacing:32 }),
         ...row(0,pts[0]), ...row(1,pts[1]), ...row(2,pts[2]), ...row(3,pts[3]||'SAME DAY'),
         rg('Phone Plate', { left:midX+34, top:760, width:456, height:106, rx:18, fill:P.a1 }),
@@ -1096,10 +1115,12 @@ const TEMPLATES = [
     streetPriceTag: (P, T, C) => {
       const ink = '#ffffff';
       return [
-        t('Kicker', 'sub', 'upper', C.kicker || 'PAYING UP TO', { left:CX, top:96, originX:'center', fontFamily:'Khand', fontSize:51, fill:ink, fontWeight:'700', charSpacing:52, stroke:P.deep, strokeWidth:4 }),
-        t('Price Line', 'headline', 'upper', C.price || '$1,100', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:259, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13) }),
+        t('Kicker', 'sub', 'upper', C.kicker || 'WE PAY', { left:CX, top:96, originX:'center', fontFamily:'Khand', fontSize:51, fill:ink, fontWeight:'700', charSpacing:52, stroke:P.deep, strokeWidth:4 }),
+        t('Price Line', 'headline', 'upper', C.price || 'CASH', { left:CX, top:150, originX:'center', fontFamily:T.d, fontSize:259, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:16, shadow:hard('rgba(0,0,0,0.5)', 13) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:396, originX:'center', fontFamily:T.d, fontSize:109, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
-        cut('Product', C.cut || 'cash-bundles', { left:CX, top:474, originX:'center', w:409, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
+        /* below the category word, never over it: at top:474 the cash hid
+           37-53% of GOLD, SILVER, CARDS or STRIPS (the layering ladder) */
+        cut('Product', C.cut || 'cash-bundles', { left:CX, top:606, originX:'center', w:409, maxH:224, shadow:sh('rgba(0,0,0,0.5)', 42, 0, 24) }),
         rg('Claim Plate', { left:96, top:836, width:888, height:96, rx:16, fill:hexToRgba(P.deep,0.82) }),
         t('Claim 1', 'info', 'upper', C.badges ? C.badges.join('  •  ') : 'SAME DAY • CASH IN HAND • NO HAGGLING', { left:CX, top:862, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:22 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:908, originX:'center', fontFamily:T.d, fontSize:96, fill:ink, fontWeight:'700', stroke:P.deep, strokeWidth:8, shadow:hard('rgba(0,0,0,0.45)', 7) }),
@@ -1120,9 +1141,11 @@ const TEMPLATES = [
         t('Chip Text ' + i, 'badges', 'upper', txt, { left:x+w/2, top:792, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:40 }),
       ];
       return [
-        ...panel('Rate Pill', CX-330, 82, 660, 92, 46),
-        t('Stars', 'deco', 'none', '★★★★★', { left:CX-286, top:104, fontFamily:'Satoshi', fontSize:42, fill:P.a1, charSpacing:60 }),
-        t('Rating Line', 'info', 'none', '4.9 · 200+ local sellers', { left:CX+52, top:110, fontFamily:'Satoshi', fontSize:33, fill:'#ffffff', fontWeight:'800' }),
+        /* 800 wide, not 660: the rating line ran 78px past the pill's right
+           end (it did with the old "4.9 · 200+ local sellers" too) */
+        ...panel('Rate Pill', CX-400, 82, 800, 92, 46),
+        t('Stars', 'deco', 'none', 'FREE QUOTE', { left:CX-356, top:104, fontFamily:'Satoshi', fontSize:30, fontWeight:'900', fill:P.a1, charSpacing:60 }),
+        t('Rating Line', 'info', 'none', 'No fees · no obligation', { left:CX+22, top:110, fontFamily:'Satoshi', fontSize:33, fill:'#ffffff', fontWeight:'800' }),
         ...panel('Quote Card', 70, 228, W-140, 336, 34),
         tb('Quote', 'info', 'none', C.quote, { left:CX, top:278, width:W-250, originX:'center', fontFamily:'Satoshi', fontSize:46, fill:'#ffffff', fontWeight:'700', textAlign:'center', lineHeight:1.32 }),
         t('Who', 'info', 'none', C.who, { left:CX, top:492, originX:'center', fontFamily:'Satoshi', fontSize:25, fill:'rgba(255,255,255,0.72)', charSpacing:90 }),
@@ -1151,13 +1174,13 @@ const TEMPLATES = [
       return [
         ...panel('Status Pill', CX-292, 78, 584, 78, 39),
         ci('Status Dot', { left:CX-252, top:104, radius:13, fill:'#22c55e', shadow:sh('rgba(34,197,94,0.8)', 14) }),
-        t('Status Text', 'info', 'upper', 'LICENSED & INSURED LOCAL BUYER', { left:CX+16, top:100, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:60 }),
-        t('Headline 1', 'headline', 'upper', 'TRUSTED LOCAL', { left:CX, top:206, originX:'center', fontFamily:'Satoshi', fontSize:52, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:180 }),
+        t('Status Text', 'info', 'upper', 'NO FEES · FREE QUOTE · LOCAL BUYER', { left:CX+16, top:100, originX:'center', fontFamily:'Satoshi', fontSize:27, fill:'#ffffff', fontWeight:'800', charSpacing:60 }),
+        t('Headline 1', 'headline', 'upper', 'YOUR LOCAL', { left:CX, top:206, originX:'center', fontFamily:'Satoshi', fontSize:52, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:180 }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:262, originX:'center', fontFamily:'Clash Display', fontSize:158, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 26) }),
         t('Headline 3', 'headline', 'upper', 'BUYER', { left:CX, top:424, originX:'center', fontFamily:'Satoshi', fontSize:44, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:300 }),
-        ...tile(1, 84, 512, C.big || 'TOP $$$', 'PAID TODAY'),
-        ...tile(2, 554, 512, '4.9★', '200+ LOCAL REVIEWS'),
-        ...tile(3, 84, 682, 'SINCE 2015', '500+ DEALS CLOSED'),
+        ...tile(1, 84, 512, C.big || 'CASH NOW', 'PAID TODAY'),
+        ...tile(2, 554, 512, 'TEXT A PIC', 'GET A PRICE'),
+        ...tile(3, 84, 682, 'FREE QUOTE', 'NO OBLIGATION'),
         ...tile(4, 554, 682, 'SAME DAY', 'CASH OR TRANSFER'),
         t('Items', 'info', 'upper', C.items, { left:CX, top:860, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.7)', charSpacing:50 }),
         ...phoneBar(P, T, 912),
@@ -1179,8 +1202,8 @@ const TEMPLATES = [
         t('Kicker', 'sub', 'upper', 'HOW IT WORKS', { left:234, top:102, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'#ffffff', fontWeight:'800', charSpacing:120 }),
         t('Headline 1', 'headline', 'upper', 'CASH IN', { left:84, top:172, fontFamily:'Clash Display', fontSize:104, fill:P.ink }),
         t('Headline 2', 'headline', 'upper', '3 STEPS', { left:84, top:274, fontFamily:'Clash Display', fontSize:142, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 24) }),
-        ...row(1, 452, '1', 'TEXT PICS', 'Snap photos, text them over. 30 seconds.'),
-        ...row(2, 606, '2', 'GET OFFER', 'Firm quote in minutes. Zero obligation.'),
+        ...row(1, 452, '1', 'TEXT PICS', 'Snap photos and text them over.'),
+        ...row(2, 606, '2', 'GET OFFER', 'A firm quote by text. Zero obligation.'),
         ...row(3, 760, '3', 'GET PAID', 'Cash or instant transfer, same day.'),
         ...phoneBar(P, T, 924),
       ];
@@ -1241,7 +1264,7 @@ const TEMPLATES = [
     ticketStub: (P, T, C) => [
       r('Ticket', { left:CX-390, top:150, width:780, height:560, rx:32, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 36, 0, 14) }),
       rg('Ticket Perf', { left:CX-362, top:178, width:724, height:504, rx:24, fill:'rgba(0,0,0,0)', stroke:P.a1, strokeWidth:2.5, strokeDashArray:[16,11], opacity:0.9 }),
-      t('Admit', 'sub', 'upper', 'ADMIT: INSTANT CASH', { left:CX, top:224, originX:'center', fontFamily:T.s, fontSize:30, fill:P.a2, charSpacing:260, fontWeight:'700' }),
+      t('Admit', 'sub', 'upper', 'ADMIT: CASH OFFER', { left:CX, top:224, originX:'center', fontFamily:T.s, fontSize:30, fill:P.a2, charSpacing:260, fontWeight:'700' }),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:290, originX:'center', fontFamily:T.d, fontSize:92, fill:'#ffffff' }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:388, originX:'center', fontFamily:T.d, fontSize:150, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 24) }),
       t('Price Line', 'info', 'upper', C.price, { left:CX, top:576, originX:'center', fontFamily:T.s, fontSize:42, fill:'#ffffff', fontWeight:'800', charSpacing:40 }),
@@ -1268,10 +1291,10 @@ const TEMPLATES = [
       t('CTA', 'cta', 'upper', C.cta, { left:CX, top:966, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, fontWeight:'800', charSpacing:140 }),
     ],
     bubblePop: (P, T, C) => [
-      t('Headline 1', 'headline', 'upper', C.h1, { left:CX-40, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
+      t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:140, originX:'center', fontFamily:T.d, fontSize:126, fill:P.ink, stroke:P.deep, strokeWidth:10, shadow:sh(P.a2, 0, 9, 9) }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:282, originX:'center', fontFamily:T.d, fontSize:216, fill:P.a1, stroke:P.deep, strokeWidth:12, shadow:sh(P.a2, 0, 12, 12) }),
       ci('Sticker', { left:W-322, top:486, radius:112, fill:P.a2, shadow:sh('rgba(0,0,0,0.4)', 20, 0, 8) }),
-      t('Sticker Text', 'deco', 'upper', 'TOP $$$', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:onAccent(P, P.a2), angle:10 }, { curve:32 }),
+      t('Sticker Text', 'deco', 'upper', 'CASH NOW', { left:W-210, top:598, fontFamily:T.d, fontSize:44, fill:onAccent(P, P.a2), angle:10 }, { curve:32 }),
       subBlock(P, T, C.sub, 622), ...ctaCard(P, T, C.cta),
     ],
     slabPoster: (P, T, C) => [
@@ -1279,7 +1302,7 @@ const TEMPLATES = [
       t('Kicker', 'sub', 'upper', C.k, { left:CX, top:140, originX:'center', fontFamily:T.s, fontSize:32, fill:P.sub, charSpacing:400, fontWeight:'700' }),
       t('Headline 1', 'headline', 'upper', C.h1, { left:CX, top:238, originX:'center', fontFamily:T.d, fontSize:110, fill:P.ink }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:356, originX:'center', fontFamily:T.d, fontSize:224, fill:P.ink, shadow:sh(P.glow, 0, 10, 10) }),
-      r('Price Strip', { left:CX-330, top:650, width:660, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),
+      r('Price Strip', { left:CX-410, top:650, width:820, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),   // 820: "PAID AT CURRENT MARKET RATES" ran 50px past 660
       t('Price Line', 'info', 'upper', C.price, { left:CX, top:668, originX:'center', fontFamily:T.s, fontSize:44, fill:onAccent(P), fontWeight:'900' }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:806, originX:'center', fontFamily:'Satoshi', fontSize:74, fill:P.ink, fontWeight:'900' }),
       t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:924, originX:'center', fontFamily:'Satoshi', fontSize:24, fill:P.sub }),
@@ -1337,7 +1360,9 @@ const TEMPLATES = [
       t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:130, fontFamily:T.d, fontSize:96, fill:'#ffffff' }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:60, top:236, fontFamily:T.d, fontSize:132, grad:{ c1:P.a1, c2:P.a2, a:115 }, shadow:sh(P.glow, 24) }),
       tb('Info Text', 'info', 'upper', C.sub, { left:64, top:462, width:372, fontFamily:T.s, fontSize:28, fill:'rgba(255,255,255,0.85)', fontWeight:'700', lineHeight:1.48 }),
-      t('Price Line', 'info', 'upper', C.price, { left:64, top:824, fontFamily:T.d, fontSize:40, fill:P.a1, shadow:sh(P.glow, 16) }),
+      /* a box the panel's width, so a long line wraps inside the panel:
+         "PAID AT CURRENT MARKET RATES" ran 289px past it onto the photograph */
+      tb('Price Line', 'info', 'upper', C.price, { left:64, top:764, width:400, fontFamily:T.d, fontSize:40, fill:P.a1, lineHeight:1.12, shadow:sh(P.glow, 16) }),
       t('Kicker', 'sub', 'upper', C.k, { left:770, top:120, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, charSpacing:200, fontWeight:'700', backgroundColor:'rgba(0,0,0,0.35)', padding:12 }),
       r('Phone Chip', { left:560, top:860, width:470, height:112, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 22) }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:795, top:884, originX:'center', fontFamily:'Satoshi', fontSize:47, fill:onAccent(P), fontWeight:'900' }),
@@ -1361,7 +1386,7 @@ const TEMPLATES = [
     t('Headline 2', 'headline', 'upper', C.h2, { left:64, top:366, fontFamily:T.d, fontSize:148, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
     r('Rule Mid', { left:70, top:594, width:W-140, height:2, rx:1, fill:P.ink, opacity:0.25 }),
     t('Items', 'info', 'upper', C.items, { left:70, top:628, fontFamily:T.s, fontSize:33, fill:P.sub, charSpacing:60 }),
-    t('Price Label', 'info', 'upper', 'PAYING UP TO', { left:70, top:756, fontFamily:T.s, fontSize:25, fill:P.sub, charSpacing:320, fontWeight:'600' }),
+    t('Price Label', 'info', 'upper', 'WE PAY', { left:70, top:756, fontFamily:T.s, fontSize:25, fill:P.sub, charSpacing:320, fontWeight:'600' }),
     t('Price Line', 'info', 'upper', C.big, { left:64, top:796, fontFamily:T.d, fontSize:124, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
     t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:W-64, top:820, originX:'right', fontFamily:'Satoshi', fontSize:42, fill:P.ink, fontWeight:'800' }),
     t('CTA', 'cta', 'upper', C.cta, { left:W-64, top:884, originX:'right', fontFamily:T.s, fontSize:25, fill:P.a1, charSpacing:130, fontWeight:'700' }),
@@ -1441,7 +1466,7 @@ const TEMPLATES = [
       ['arcCrown','emerald','passion','Care Arc'], ['hudTech','ocean','russo','Sensor HUD'], ['editorialLux','arctic','playfair','Quiet Serif'],
       ['duoSplit','emerald','right','Split Clinic'], ['gradientWave','emerald','titan','Mint Wave'], ['diagonalRush','ocean','rowdies','Priority Rush'],
       ['agencyGrid','arctic','right','Clinical Grid'], ['priceAnchor','emerald','titan','Box Price'], ['lowerThird','emerald','staat','Health Line'],
-      ['reviewProof','arctic','playfair','Verified Buyer'], ['trustSeal','emerald','cinzel','Care Seal'], ['stepsFlow','emerald','russo','Box Steps'],
+      ['reviewProof','arctic','playfair','Local Buyer'], ['trustSeal','emerald','cinzel','Care Seal'], ['stepsFlow','emerald','russo','Box Steps'],
     ],
     pokemon: [
       ['bubblePop','royal','lucky','Holo Pop',1], ['neonNight','royal','bungee','Neon Holo'], ['voltStack','volt','titan','Trainer Stack'],
@@ -1626,7 +1651,7 @@ const TEMPLATES = [
     BOOK[cat].forEach(row => {
       const [lay, pal, pair, label, feat] = row;
       const P = PAL[pal], T = { d:PAIRS[pair][0], s:PAIRS[pair][1] };
-      const C = Object.assign({}, D, { h2: (lay === 'duoSplit' || lay === 'checklistHero') ? D.h2 : D.h2, quote: (TRUST_COPY[cat]||{}).q || '"Great local buyer, fast and fair."', who: (TRUST_COPY[cat]||{}).w || 'A LOCAL SELLER' });
+      const C = Object.assign({}, D, { h2: (lay === 'duoSplit' || lay === 'checklistHero') ? D.h2 : D.h2, quote: (TRUST_COPY[cat]||{}).q || 'Text us a photo. We send a price, you decide.', who: (TRUST_COPY[cat]||{}).w || 'HOW IT WORKS' });
       const id = 'dl_' + cat + '_' + lay + '_' + pal;
       const file = 'assets/bg/' + id + '.jpg';
       /* Scrim compensates for how bright the BACKDROP is, which is a property
@@ -1755,28 +1780,28 @@ const TEMPLATES = [
   }
 
   const STREET_DECK = {
-    phones:  { h1:'CASH FOR', h2:'IPHONES',  kicker:'PAYING UP TO', price:'$1,100', cta:'TEXT US NOW',
+    phones:  { h1:'CASH FOR', h2:'IPHONES',  kicker:'WE PAY', price:'CASH', cta:'TEXT US NOW',
                badges:['ANY CONDITION','ANY CARRIER'], sub:'IPAD IPHONE MACBOOK BUYER',
                points:['CRACKED SCREEN',"WON'T TURN ON",'ICLOUD LOCKED','ANY OTHER ISSUE'], subs:['Paid in cash, same day','iCloud locked is fine','Text photos for an offer'] },
-    gold:    { h1:'CASH FOR', h2:'GOLD',     kicker:'PAYING UP TO', price:'95%',    cta:'GET A FREE QUOTE',
+    gold:    { h1:'CASH FOR', h2:'GOLD',     kicker:'WE PAY', price:'CASH', cta:'GET A FREE QUOTE',
                badges:['ANY KARAT','ANY CONDITION'], sub:'CHAINS RINGS COINS DENTAL',
                points:['BROKEN JEWELRY','SINGLE EARRINGS','DENTAL GOLD','ANY KARAT'], subs:['Tested and weighed in front of you','Broken pieces welcome','Paid on the spot'] },
-    silver:  { h1:'WE BUY',   h2:'SILVER',   kicker:'PAYING OVER',  price:'SPOT',   cta:'BRING IT IN TODAY',
+    silver:  { h1:'WE BUY',   h2:'SILVER',   kicker:'WE PAY', price:'CASH', cta:'BRING IT IN TODAY',
                badges:['ANY QUANTITY','WEIGHED IN FRONT OF YOU'], sub:'FLATWARE BARS COINS ROUNDS',
-               points:['STERLING FLATWARE','BARS & ROUNDS','90% COINS','TARNISHED IS FINE'], subs:['Scale on the counter, you watch','Tarnish does not matter','No lowball offers'] },
-    coins:   { h1:'WE BUY',   h2:'COINS',    kicker:'PAYING UP TO', price:'95%',    cta:'TEXT PHOTOS FOR OFFER',
-               badges:['SINGLES OR COLLECTIONS','HONEST GRADING'], sub:'MORGANS EAGLES PROOF SETS',
-               points:['WHOLE COLLECTIONS','GRADED OR RAW','SILVER DOLLARS','HOUSE CALLS'], subs:['Singles or whole collections','Graded or raw, both fine','House calls for estates'] },
-    cars:    { h1:'WE BUY',   h2:'CARS',     kicker:'PAYING UP TO', price:'$15,000',cta:'CALL FOR INSTANT OFFER',
-               badges:['RUNNING OR NOT','FREE TOW'], sub:'SAME DAY PICKUP CASH IN HAND',
-               points:['RUNNING OR NOT','NO SMOG NEEDED','FREE TOWING','SAME DAY PICKUP'], subs:['Free tow, we come to you','Title in hand or not','Same day pickup'] },
-    strips:  { h1:'CASH FOR', h2:'STRIPS',   kicker:'PAYING UP TO', price:'$100',   cta:'TEXT A PHOTO NOW',
+               points:['STERLING FLATWARE','BARS & ROUNDS','90% COINS','TARNISHED IS FINE'], subs:['Scale on the counter, you watch','Tarnish does not matter','No pressure to sell'] },
+    coins:   { h1:'WE BUY',   h2:'COINS',    kicker:'WE PAY', price:'CASH', cta:'TEXT PHOTOS FOR OFFER',
+               badges:['SINGLES OR COLLECTIONS','FREE APPRAISAL'], sub:'MORGANS EAGLES PROOF SETS',
+               points:['WHOLE COLLECTIONS','GRADED OR RAW','SILVER DOLLARS','FULL ESTATES'], subs:['Singles or whole collections','Graded or raw, both fine','Estates handled discreetly'] },
+    cars:    { h1:'WE BUY',   h2:'CARS',     kicker:'WE PAY', price:'CASH', cta:'CALL FOR A CASH OFFER',
+               badges:['RUNNING OR NOT','NO FEES'], sub:'SAME DAY CASH IN HAND',
+               points:['RUNNING OR NOT','HIGH MILES','ANY MAKE','SAME DAY CASH'], subs:['We meet you locally','Bring the title and keys','Cash the same day'] },
+    strips:  { h1:'CASH FOR', h2:'STRIPS',   kicker:'WE PAY', price:'CASH', cta:'TEXT A PHOTO NOW',
                badges:['SEALED BOXES ONLY','NOT EXPIRED'], sub:'TEST STRIPS LANCETS CGM',
-               points:['UNEXPIRED ONLY','SEALED BOXES','ALL MAJOR BRANDS','MAIL IN WELCOME'], subs:['Sealed and unexpired only','All the major brands','Mail in kits available'] },
-    pokemon: { h1:'WE BUY',   h2:'POKEMON',  kicker:'PAYING UP TO', price:'90%',    cta:'DM TO SELL TODAY',
+               points:['UNEXPIRED ONLY','SEALED BOXES','ALL MAJOR BRANDS','LOCAL MEETUP'], subs:['Sealed and unexpired only','All the major brands','We meet you locally'] },
+    pokemon: { h1:'WE BUY',   h2:'POKEMON',  kicker:'WE PAY', price:'CASH', cta:'DM TO SELL TODAY',
                badges:['SEALED OR SINGLES','GRADED OR RAW'], sub:'BOOSTER BOXES SLABS BINDERS',
                points:['SEALED PRODUCT','GRADED SLABS','VINTAGE SETS','WHOLE COLLECTIONS'], subs:['Sealed product or singles','Graded slabs welcome','Real market pricing'] },
-    sports:  { h1:'WE BUY',   h2:'CARDS',    kicker:'PAYING UP TO', price:'90%',    cta:'TEXT YOUR HITS',
+    sports:  { h1:'WE BUY',   h2:'CARDS',    kicker:'WE PAY', price:'CASH', cta:'TEXT YOUR HITS',
                badges:['ROOKIES SLABS WAX','FAIR COMP PRICING'], sub:'ROOKIES SLABS WAX VINTAGE',
                points:['GRADED SLABS','ROOKIE AUTOS','SEALED WAX','WHOLE COLLECTIONS'], subs:['Rookies, autos and wax','Graded or raw','Priced off real comps'] },
   };
@@ -1827,30 +1852,30 @@ const TEMPLATES = [
     st_sports_pricetag: 'Satoshi',
   };
   const STREET_BOOK = {
-    phones:  [['streetCashFor','volt','Street Cash','iphones-trio'], ['streetIconGrid','ocean','Device Grid','iphones-cash'],
-              ['streetSpecCheck','crimson','Street Broken','iphone-cracked'], ['streetPriceBadge','sunset','Payout Badge','iphone-front'],
-              ['streetSplitCol','emerald','Split Buyer','iphones-trio']],
-    gold:    [['streetRibbon','gold','Gold Ribbon','gold-chains'], ['streetCutoutHero','coral','Gold Lineup','gold-bars'],
-              ['streetTwoCol','royal','Gold Checklist','gold-jewelry'], ['streetTopStrip','gold','Gold Strip','gold-chains'],
-              ['streetPriceTag','crimson','Gold Payout','cash-bundles']],
-    silver:  [['streetTopStrip','arctic','Silver Strip','silver-bars'], ['streetCutoutHero','ocean','Silver Lineup','silver-flatware'],
-              ['streetSpecCheck','ocean','Silver Checklist','coin-stack'], ['streetIconGrid','emerald','Silver Grid','silver-bars'],
-              ['streetPriceTag','emerald','Silver Payout','cash-stack']],
-    coins:   [['streetTwoCol','gold','Coin Checklist','coin-stack'], ['streetRibbon','royal','Coin Ribbon','coin-slab'],
-              ['streetSplitCol','gold','Coin Split','gold-bars'], ['streetPriceBadge','crimson','Coin Payout','cash-fan'],
+    phones:  [['streetCashFor','volt','Street Cash','iphone-15-pro-back-white'], ['streetIconGrid','ocean','Device Grid','iphone-17-pro-back-silver'],
+              ['streetSpecCheck','crimson','Street Broken','iphone-cracked-corner'], ['streetPriceBadge','sunset','Payout Badge','iphone-15-pro-front-on'],
+              ['streetSplitCol','emerald','Split Buyer','iphone-15-pro-back-white']],
+    gold:    [['streetRibbon','gold','Gold Ribbon','gold-jewelry-mixed'], ['streetCutoutHero','coral','Gold Lineup','gold-coins-pile'],
+              ['streetTwoCol','royal','Gold Checklist','gold-jewelry-mixed'], ['streetTopStrip','gold','Gold Strip','gold-jewelry-mixed'],
+              ['streetPriceTag','crimson','Gold Payout','cash-stack-banded']],
+    silver:  [['streetTopStrip','arctic','Silver Strip','silver-coins-spill'], ['streetCutoutHero','ocean','Silver Lineup','silver-flatware-set'],
+              ['streetSpecCheck','ocean','Silver Checklist','coin-stack'], ['streetIconGrid','emerald','Silver Grid','silver-coins-spill'],
+              ['streetPriceTag','emerald','Silver Payout','cash-stack-banded']],
+    coins:   [['streetTwoCol','gold','Coin Checklist','coin-stack'], ['streetRibbon','royal','Coin Ribbon','coin-graded-fan-three'],
+              ['streetSplitCol','gold','Coin Split','gold-coins-pile'], ['streetPriceBadge','crimson','Coin Payout','cash-stack-banded'],
               ['streetCashFor','coral','Coin Street','coin-stack']],
-    cars:    [['streetPriceBadge','crimson','Car Payout','car-front'], ['streetCutoutHero','sunset','Car Lineup','car-keys'],
-              ['streetTopStrip','ocean','Car Strip','car-front'], ['streetTwoCol','emerald','Car Checklist','car-keys'],
+    cars:    [['streetPriceBadge','crimson','Car Payout','car-front'], ['streetCutoutHero','sunset','Car Lineup','car-title-docs'],
+              ['streetTopStrip','ocean','Car Strip','car-front'], ['streetTwoCol','emerald','Car Checklist','car-title-docs'],
               ['streetCashFor','volt','Car Street','car-front']],
-    strips:  [['streetIconGrid','emerald','Strip Grid','strip-boxes'], ['streetRibbon','arctic','Strip Ribbon','strip-kit'],
-              ['streetSpecCheck','ocean','Strip Checklist','strip-boxes'], ['streetSplitCol','volt','Strip Split','strip-kit'],
-              ['streetPriceTag','volt','Strip Payout','cash-stack']],
-    pokemon: [['streetRibbon','royal','Poke Ribbon','poke-booster'], ['streetTwoCol','volt','Poke Checklist','poke-slab'],
-              ['streetIconGrid','crimson','Poke Grid','poke-cards-fan'], ['streetPriceBadge','ocean','Poke Payout','poke-slab'],
-              ['streetCutoutHero','sunset','Poke Lineup','poke-booster']],
-    sports:  [['streetSplitCol','crimson','Card Split','sports-cards'], ['streetCutoutHero','emerald','Card Lineup','sports-slab'],
-              ['streetTwoCol','crimson','Card Checklist','sports-cards'], ['streetTopStrip','royal','Card Strip','sports-slab'],
-              ['streetPriceTag','royal','Card Payout','cash-bundles']],
+    strips:  [['streetIconGrid','emerald','Strip Grid','strip-boxes'], ['streetRibbon','arctic','Strip Ribbon','strip-boxes'],
+              ['streetSpecCheck','ocean','Strip Checklist','strip-boxes'], ['streetSplitCol','volt','Strip Split','strip-boxes'],
+              ['streetPriceTag','volt','Strip Payout','cash-stack-banded']],
+    pokemon: [['streetRibbon','royal','Poke Ribbon','poke-psa-charizard'], ['streetTwoCol','volt','Poke Checklist','poke-psa-charizard'],
+              ['streetIconGrid','crimson','Poke Grid','poke-psa-charizard'], ['streetPriceBadge','ocean','Poke Payout','poke-psa-charizard'],
+              ['streetCutoutHero','sunset','Poke Lineup','poke-psa-charizard']],
+    sports:  [['streetSplitCol','crimson','Card Split','ph-sports-cards-fan'], ['streetCutoutHero','emerald','Card Lineup','ph-sports-slabs-fan'],
+              ['streetTwoCol','crimson','Card Checklist','ph-sports-cards-fan'], ['streetTopStrip','royal','Card Strip','ph-sports-slab'],
+              ['streetPriceTag','royal','Card Payout','cash-stack-banded']],
   };;
   Object.keys(STREET_BOOK).forEach(cat => {
     const D = Object.assign({}, DECKS[cat], STREET_DECK[cat]);
@@ -1896,7 +1921,7 @@ TEMPLATES.forEach(t => {
   });
 });
 
-const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','5 MINUTES','HASSLE FREE','SAME DAY','TOP $$$','ANY CONDITION','INSTANT CASH','NO GAMES','CALL NOW'];
+const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','NO FEES','HASSLE FREE','SAME DAY','CASH PAID','ANY CONDITION','FREE QUOTE','NO GAMES','CALL NOW'];
 const EMOJIS = ['📱','💰','💵','✅','✔️','👉','🔥','⭐','📲','🤝'];
 
 // ---------- gradient helper (CSS-angle semantics) ----------
@@ -1923,7 +1948,11 @@ function applyBgSpec(cv, bg){
       let s = (cv.getObjects ? cv.getObjects() : []).find(o => o.pgScrim);
       if (bg.scrim){
         if (!s){ s = scrimRect(bg.scrim, CW, CH, bg.scrimColor, bg.scrimMode); s.pgScrim = true; cv.add(s); }
-        else s.set({ left:0, top:0, width:CW, height:CH, fill:(bg.scrimColor === '#ffffff' ? 'rgba(255,255,255,' : 'rgba(0,0,0,') + bg.scrim + ')' });
+        /* the same fill scrimRect() draws: any hex and the gradient mode. This
+           read `scrimColor === '#ffffff' ? white : black`, so a paper-white
+           wash ('#f4f1ec', '#f6f6f4') turned black the second time it was
+           applied, under the dark ink it was chosen for. */
+        else s.set({ left:0, top:0, width:CW, height:CH, fill:scrimRect(bg.scrim, CW, CH, bg.scrimColor, bg.scrimMode).fill });
         if (cv.sendToBack) cv.sendToBack(s);
       } else if (s) cv.remove(s);
       cv.renderAll();
@@ -2026,9 +2055,10 @@ function grainTile(){
    "OKÉMO" straight back on screen in the advanced editor). */
 function fitToDoc(obj, p, docW){
   if (!obj || !obj.width) return;
-  const fs      = (p && p.fontSize) !== undefined ? p.fontSize : obj.fontSize;
-  const left    = (p && p.left)     !== undefined ? p.left     : obj.left;
-  const originX = (p && p.originX)  !== undefined ? p.originX  : obj.originX;
+  // (p may be null: Enhance re-fits against the layer itself, and `(null && x) !== undefined` is true)
+  const fs      = p && p.fontSize !== undefined ? p.fontSize : obj.fontSize;
+  const left    = p && p.left     !== undefined ? p.left     : obj.left;
+  const originX = p && p.originX  !== undefined ? p.originX  : obj.originX;
   if (!fs || left === undefined) return;
   const margin = Math.round(docW * 0.035);
   // How much room the anchor actually leaves, which depends on the origin.
@@ -2036,7 +2066,8 @@ function fitToDoc(obj, p, docW){
              : originX === 'right'  ? left - margin
              :                        docW - left - margin;
   if (room <= 0 || obj.width <= room) return;
-  obj.set('fontSize', Math.max(8, Math.floor(fs * (room / obj.width))));
+  const floor = obj.pgRole === 'phone' ? Math.round(PG_T.number * docW / TPL_W) : 8;   // the number never fits down under 72px (rule 53)
+  obj.set('fontSize', Math.max(floor, Math.floor(fs * (room / obj.width))));
   if (obj.initDimensions) obj.initDimensions();
   if (obj.setCoords) obj.setCoords();
 }
@@ -2094,6 +2125,10 @@ function alignPass(sc, W, H){
   W = W || TPL_W; H = H || TPL_H;
   let objs;
   try { objs = sc.getObjects(); } catch (e){ return; }
+  /* Letters, not boxes (DESIGN-LAW 76) is how an audited, restaged card is laid
+     out; the rest of the library was tuned against the box passes and moves to
+     the letter passes card by card, each through scripts/audit_card.mjs */
+  const INK = objs.some(o => o && o.pgInk);
   const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
   const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
 
@@ -2127,8 +2162,18 @@ function alignPass(sc, W, H){
       b.top  < u.b.top  + u.b.height && b.top  + b.height > u.b.top);
     host.forEach((h, t) => {
       if (tally.get(h.o) !== 1) return;                 // shared box → a row, leave it
-      const dx = (h.b.left + h.b.width  / 2) - (t.b.left + t.b.width  / 2);
-      const dy = (h.b.top  + h.b.height / 2) - (t.b.top  + t.b.height / 2);
+      if (INK && plateHoldsMark(objs, h.b)) return;     // words beside a mark: composed as a unit (see step 4)
+      /* the LETTERS on the plate's centre, and a band that runs off the canvas
+         counted only inside the guides: a box has more room under its baseline
+         than over its caps, so box-centred type sat high (5.5px at a 170px
+         number, restaged stepsFlow-nn05-30) */
+      const tr = (INK && textInkRect(t.o)) || t.b;
+      const Gc = Math.round(GUIDE * Math.min(W, H));
+      const hy0 = h.b.top <= 2 ? Math.max(h.b.top, Gc + 3) : h.b.top, hy1 = h.b.top + h.b.height >= H - 2 ? Math.min(h.b.top + h.b.height, H - Gc - 3) : h.b.top + h.b.height;
+      const dx = (h.b.left + h.b.width  / 2) - (tr.left + tr.width  / 2);
+      // centred on the plate as it is seen, as far as the guides let the letters go (numberCentreY)
+      const dy = INK ? numberCentreY(h.b, hy0, hy1, tr.height, H, Gc) - (tr.top + tr.height / 2)
+                     : (h.b.top + h.b.height / 2) - (t.b.top + t.b.height / 2);
       if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
       const before = { left: t.o.left, top: t.o.top }, wasClear = !hits(t.b, t);
       t.o.set({ left: t.o.left + dx, top: t.o.top + dy });
@@ -2153,6 +2198,19 @@ function alignPass(sc, W, H){
      correctly into whatever sits beneath it instead of creating a new clash.
      Never pushes past the safe area — if there is no room the overlap stays and
      the edge clamp below wins, because type outside the frame is worse. */
+  /* …and a line's box is not its letters. A single line of caps fills about
+     60% of its box (the rest is the face's ascent and descent room), so two
+     display lines set as display type is set, 10% of a size apart, overlapped
+     by 40% of a box and were pushed a line-space apart (owner, 2026-09-27, on
+     TOP iPHONE / BUYER: "too wide of line spacing"). Where both lines are one
+     unrotated line each, the test is their INK: they collide when the letters
+     come closer than 4% of the smaller size, and are pushed only that far. */
+  const inkV = o => {
+    if (!o || o.angle || /\n/.test(o.text || '')) return null;
+    const r = textInkRect(o), b = bb(o);
+    if (!r || !b || r === b || (r.top === b.top && r.height === b.height)) return null;
+    return { top: r.top, bottom: r.top + r.height, fs: (o.fontSize || 40) * (o.scaleY || 1) };
+  };
   const stack = texts.filter(t => !/marquee|ticker/i.test(t.o.name || ''))
     .map(t => ({ t, b: bb(t.o) })).filter(x => x.b && x.b.height > 0)
     .sort((a, c) => a.b.top - c.b.top);
@@ -2163,9 +2221,17 @@ function alignPass(sc, W, H){
         const ox = Math.min(a.b.left + a.b.width,  c.b.left + c.b.width)  - Math.max(a.b.left, c.b.left);
         const oy = Math.min(a.b.top  + a.b.height, c.b.top  + c.b.height) - Math.max(a.b.top,  c.b.top);
         if (ox <= 2 || oy <= 2) continue;
-        const smaller = Math.min(a.b.width * a.b.height, c.b.width * c.b.height);
-        if ((ox * oy) / smaller <= 0.18) continue;        // a kiss, not a collision
-        const need = (a.b.top + a.b.height + 6) - c.b.top;
+        const ia = INK && inkV(a.t.o), ic = INK && inkV(c.t.o);
+        let need;
+        if (ia && ic && ic.top >= ia.top){
+          const gap = Math.max(4, 0.04 * Math.min(ia.fs, ic.fs));
+          need = (ia.bottom + gap) - ic.top;             // letters closer than the gap: push by the shortfall
+          if (need <= 0) continue;
+        } else {
+          const smaller = Math.min(a.b.width * a.b.height, c.b.width * c.b.height);
+          if ((ox * oy) / smaller <= 0.18) continue;        // a kiss, not a collision
+          need = (a.b.top + a.b.height + 6) - c.b.top;
+        }
         if (need <= 0) continue;
         const room = (H - SAFE_EDGE) - (c.b.top + c.b.height);
         const shift = Math.min(need, Math.max(0, room));
@@ -2175,6 +2241,32 @@ function alignPass(sc, W, H){
         c.b = bb(c.t.o) || c.b;
       }
     }
+  }
+
+  /* ── 2c. ONE AXIS ─────────────────────────────────────────────────────────
+     Owner, 2026-09-27, on WE BUY / POKÉMON: "alignment issues. Plus main text
+     doesn't seem to be centered." Bubble Pop set its first headline line 40px
+     left of centre as a stagger, and every record built on it carried the
+     offset; a stagger that small does not read as intent, it reads as a
+     line that slipped. Centred lines stacked in one column share ONE axis,
+     the widest line's own centre (a column set beside a product keeps its
+     place). Lines side by side (two columns) are not a stack. */
+  {
+    const col = texts.filter(t => t.o.visible !== false && (t.o.originX === 'center' || t.o.textAlign === 'center') &&
+        !/marquee|ticker/i.test(t.o.name || '')).map(t => ({ t, b: bb(t.o) })).filter(x => x.b)
+      .sort((a, c) => a.b.top - c.b.top);
+    const cx = b => b.left + b.width / 2;
+    const groups = [];
+    col.forEach(x => {
+      const g = groups.find(g => { const last = g[g.length - 1];
+        return Math.abs(cx(x.b) - cx(last.b)) <= 90 && x.b.top - (last.b.top + last.b.height) < 0.6 * Math.max(x.b.height, last.b.height); });
+      if (g) g.push(x); else groups.push([x]);
+    });
+    groups.filter(g => g.length > 1).forEach(g => {
+      const wide = g.reduce((m, x) => x.b.width > m.b.width ? x : m, g[0]);
+      const axis = cx(wide.b);
+      g.forEach(x => { const dx = axis - cx(x.b); if (Math.abs(dx) > 1.5){ x.t.o.set({ left: x.t.o.left + dx }); x.t.o.setCoords(); } });
+    });
   }
 
   /* ── 4. FIT A BOX TO ITS CONTENT ─────────────────────────────────────────
@@ -2194,14 +2286,42 @@ function alignPass(sc, W, H){
              cy > box.b.top  && cy < box.b.top  + box.b.height;
     });
     if (held.length !== 1) return;                       // a row or a band: leave it
+    /* a plate that carries a mark as well as its words (a shield-tick badge) is
+       a composed unit: fitted to the words alone about its own centre, the mark
+       fell off its left end (restaged stepsFlow-nn05-30, 2026-09-27) */
+    if (INK && plateHoldsMark(objs, box.b)) return;
     const t2 = held[0];
+    /* the number and its plate were sized together (numberFill, DESIGN-LAW 74): snugged to
+       the number's box, an inset CTA card grew 30px into the steps and lifted the phone */
+    if (INK && t2.o.pgRole === 'phone') return;
     const fs = (t2.o.fontSize || 34) * (t2.o.scaleY || 1);
     const padV = Math.round(fs * 0.44), padH = Math.round(fs * 0.66);
     const wantW = t2.b.width + padH * 2, wantH = t2.b.height + padV * 2;
-    if (wantW >= box.b.width - 10 && wantH >= box.b.height - 10) return;   // already snug
+    /* "Snug" means within 10px EITHER way. The first version tested
+       want >= box - 10 on both axes, which is also true when the words are
+       BIGGER than the plate, so exactly the plates that most needed to grow
+       were skipped: a 574px kicker on a 408px ribbon, pills and price strips
+       with their words hanging off both ends (collision audit, 2026-09-27). */
+    if (Math.abs(wantW - box.b.width) <= 10 && Math.abs(wantH - box.b.height) <= 10) return;   // already snug
     const cx = box.b.left + box.b.width / 2, cy = box.b.top + box.b.height / 2;
     const sx = box.o.scaleX || 1, sy = box.o.scaleY || 1;
-    const fw = Math.max(48, wantW), fh = Math.max(30, wantH);
+    let fw = Math.max(48, wantW), fh = Math.max(30, wantH);
+    /* Growing is allowed only into clear space. A phone plate grown to its
+       padding about its own centre reached down over the REQUEST AN
+       APPRAISAL line under it (scriptRetro, hudTech, ticketStub) and the
+       website line (arcCrown, neonNight): fixing one collision made another.
+       So each axis grows only as far as it stays off every other line. */
+    const others = texts.filter(x => x !== t2).map(x => bb(x.o)).filter(Boolean);   // fresh: steps 1-3 move lines
+    const hits = (w, h) => others.some(r => r.left < cx + w / 2 && r.left + r.width > cx - w / 2 &&
+                                          r.top < cy + h / 2 && r.top + r.height > cy - h / 2);
+    if (fh > box.b.height && hits(Math.min(fw, box.b.width), fh)){
+      let h = fh; while (h > box.b.height && hits(Math.min(fw, box.b.width), h)) h -= 2;
+      fh = Math.max(box.b.height, h);
+    }
+    if (fw > box.b.width && hits(fw, fh)){
+      let w = fw; while (w > box.b.width && hits(w, fh)) w -= 2;
+      fw = Math.max(box.b.width, w);
+    }
     box.o.set({ width: fw / sx, height: fh / sy,
                 left: cx - fw / 2, top: cy - fh / 2,
                 originX:'left', originY:'top' });
@@ -2209,9 +2329,276 @@ function alignPass(sc, W, H){
     box.b = bb(box.o) || box.b;
   });
 
+  /* ── 4b. WORDS STAY ON THEIR PLATE ───────────────────────────────────────
+     A panel that holds several lines is not resized by step 4, so a headline
+     set wider than its panel hung off both sides ("SPORTS CARDS" on the glass
+     card). The panel widens first, up to the guides, keeping its centre; only
+     if that is not enough does the line's type come down, never below 72%
+     of itself, and the phone number never below 72px (rule 53). */
+  const G4 = Math.round(GUIDE * Math.min(W, H));
+  /* panels, not just plates: a 560px ticket is taller than the half-height
+     cap on `boxes`, so its headline found no host and stayed outside it */
+  const panels = objs.filter(o => o && o.type === 'rect' && o.visible !== false).map(o => ({ o, b: bb(o) }))
+    .filter(x => x.b && x.b.width > 0 && x.b.width < W * 0.93 && x.b.height < H * 0.9);
+  const slid = [];
+  texts.forEach(t => {
+    if (/marquee|ticker/i.test(t.o.name || '')) return;
+    const tb = bb(t.o); if (!tb) return;
+    const tcx = tb.left + tb.width / 2, tcy = tb.top + tb.height / 2;
+    const host = panels.map(x => ({ x, b: bb(x.o) })).filter(h => h.b &&
+        tcx > h.b.left && tcx < h.b.left + h.b.width && tcy > h.b.top && tcy < h.b.top + h.b.height)
+      .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
+    if (!host) return;
+    const pad = Math.max(12, Math.round(host.b.width * 0.045));
+    const over = () => { const b = bb(t.o); return b ? Math.max(0, (host.b.left + pad) - b.left, (b.left + b.width) - (host.b.left + host.b.width - pad)) : 0; };
+    if (over() <= 1) return;
+    // 1. widen the panel about its centre, within the guides
+    const cur = bb(t.o), want = Math.min(W - 2 * G4, cur.width + 2 * pad);
+    if (want > host.b.width){
+      const o = host.x.o, c = o.getCenterPoint();
+      o.set({ width: want / (o.scaleX || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+      host.b = bb(o) || host.b;
+    }
+    if (over() <= 1) return;
+    /* 2. a line that FITS but was set outside the panel: a left-aligned
+       variant put every line at x=72 while its ticket or glass panel starts
+       at 110 to 130, so ADMIT crossed the ticket's edge and the items line
+       hung off the glass. It slides in; lines that shared a left edge still
+       share one (they all land on the panel's left edge plus padding). */
+    { const b1 = bb(t.o), room1 = host.b.width - 2 * pad;
+      if (b1.width <= room1){
+        const lo = host.b.left + pad, hi = host.b.left + host.b.width - pad;
+        const dx = b1.left < lo ? lo - b1.left : (b1.left + b1.width > hi ? hi - (b1.left + b1.width) : 0);
+        if (dx){ slid.push({ t, from: b1.left, host }); t.o.set({ left: t.o.left + dx }); t.o.setCoords(); }
+        if (over() <= 1) return;
+      } }
+    // 3. then bring the type down to the panel
+    const b2 = bb(t.o), room = host.b.width - 2 * pad;
+    let k = Math.max(0.72, room / b2.width);
+    if (t.o.pgRole === 'phone'){
+      const px = (t.o.fontSize || 84) * (t.o.scaleY || 1);
+      k = Math.max(k, Math.min(1, 72 / px));
+    }
+    if (k < 1){
+      const c = t.o.getCenterPoint();
+      t.o.set({ scaleX: (t.o.scaleX || 1) * k, scaleY: (t.o.scaleY || 1) * k });
+      t.o.setPositionByOrigin(c, 'center', 'center'); t.o.setCoords();
+    }
+  });
+  // lines that shared a left edge before sliding share one after (the innermost)
+  slid.forEach(a => {
+    const mates = slid.filter(c => Math.abs(c.from - a.from) <= 3);
+    const edge = Math.max(...mates.map(c => bb(c.t.o).left));
+    mates.forEach(c => { const b = bb(c.t.o), dx = edge - b.left;
+      if (dx > 0 && b.left + b.width + dx <= c.host.b.left + c.host.b.width - 12){ c.t.o.set({ left: c.t.o.left + dx }); c.t.o.setCoords(); } });
+  });
+  /* and TALLER than its plate: a selling-point line wrapped to two lines on a
+     one-line pill, the second line hanging under it on the photograph. The
+     plate grows about its centre to hold every line; if that would put it on
+     other copy, the type comes down instead (not below 72%). */
+  texts.forEach(t => {
+    if (/marquee|ticker/i.test(t.o.name || '')) return;
+    const tb = bb(t.o); if (!tb) return;
+    const tcx = tb.left + tb.width / 2, tcy = tb.top + tb.height / 2;
+    const host = boxes.map(x => ({ x, b: bb(x.o) })).filter(h => h.b && h.b.width < W * 0.93 && h.b.height < H * 0.5 &&
+        tcx > h.b.left && tcx < h.b.left + h.b.width && tcy > h.b.top && tcy < h.b.top + h.b.height)
+      .sort((a, c) => a.b.width * a.b.height - c.b.width * c.b.height)[0];
+    if (!host) return;
+    const fs = (t.o.fontSize || 34) * (t.o.scaleY || 1), padV = Math.round(fs * 0.36);
+    /* only a line that is genuinely TALLER than its plate: the first version
+       also fired on padding shortfall, so a 76px number on its snug 108px
+       pill "overflowed", could not grow into the CTA above, and came down to
+       55px: 63 cards under rule 53's 72px floor */
+    if (tb.height <= host.b.height + 1) return;
+    const o = host.x.o, c = o.getCenterPoint(), h0 = o.height;
+    const others = texts.filter(x => x !== t).map(x => bb(x.o)).filter(Boolean);
+    const hits = b => others.some(r => r.left < b.left + b.width && r.left + r.width > b.left && r.top < b.top + b.height && r.top + r.height > b.top &&
+      !(r.left >= b.left && r.top >= b.top && r.left + r.width <= b.left + b.width && r.top + r.height <= b.top + b.height));
+    o.set({ height: (tb.height + 2 * padV) / (o.scaleY || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    const g = bb(o);
+    if (g && !hits(g) && g.top >= 0 && g.top + g.height <= H){
+      const tc = t.o.getCenterPoint(); t.o.setPositionByOrigin(new fabric.Point(tc.x, c.y), 'center', 'center'); t.o.setCoords();
+      host.b = g; return;
+    }
+    o.set({ height: h0 }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    if (t.o.pgRole === 'phone') return;                      // the number is never shrunk to fit (rule 53)
+    const k = Math.max(0.72, (host.b.height - 2 * padV) / tb.height);
+    if (k < 1){
+      const tc = t.o.getCenterPoint();
+      t.o.set({ scaleX: (t.o.scaleX || 1) * k, scaleY: (t.o.scaleY || 1) * k });
+      t.o.setPositionByOrigin(tc, 'center', 'center'); t.o.setCoords();
+    }
+  });
+
+  /* ── 4d. THE PRODUCT KEEPS CLEAR OF THE COPY ─────────────────────────────
+     Collision audit, 2026-09-27: on 47 live Steps Flow cards the product had
+     been dropped where the three full-width step cards run, so the cards and
+     the 3 STEPS headline sat on the coins; classics put a phone under a
+     kicker and under grid labels. A product that touches a line of copy, or
+     sits half on a plate and half off it, moves to the largest clear space:
+     open ground, or the inside of a card (on a card is a place; across its
+     edge is not). It is never enlarged, and if it would read at under 40%
+     of its authored size it is left out rather than shown as a speck. */
+  {
+    const G6 = Math.round(GUIDE * Math.min(W, H)), CELL = 12;
+    const live = o => o && o.visible !== false;
+    // words by their letters: a 170px number's box reaches 30px over its digits, where a phone stands on the band
+    const words = objs.filter(o => live(o) && (isText(o) || (o.type === 'group' && o.pgCurved))).map(o => INK && isText(o) ? textInkRect(o) : bb(o)).filter(Boolean);
+    const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
+    const plates = boxes.map(x => bb(x.o)).filter(b => b && words.some(w => inside({ x: w.left + w.width / 2, y: w.top + w.height / 2 }, b)));
+    const ov = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
+                         Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
+    const prods = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo');
+    const bad = b => words.some(w => ov(b, w) > 0.03 * Math.min(b.width * b.height, w.width * w.height)) ||
+                     plates.some(p => { const f = ov(b, p) / (b.width * b.height); return f > 0.10 && f < 0.90; });
+    /* largest empty rectangle of free cells inside a region (histogram method) */
+    const bestRect = (reg, blocked) => {
+      const x0 = Math.ceil(reg.left / CELL), y0 = Math.ceil(reg.top / CELL);
+      const nx = Math.floor((reg.left + reg.width) / CELL) - x0, ny = Math.floor((reg.top + reg.height) / CELL) - y0;
+      if (nx < 4 || ny < 4) return null;
+      const hgt = new Array(nx).fill(0); let best = null;
+      for (let j = 0; j < ny; j++){
+        for (let i = 0; i < nx; i++){
+          const cb = { left:(x0 + i) * CELL, top:(y0 + j) * CELL, width:CELL, height:CELL };
+          hgt[i] = blocked.some(r => ov(cb, r) > 0) ? 0 : hgt[i] + 1;
+        }
+        const st = [];
+        for (let i = 0; i <= nx; i++){
+          const h = i < nx ? hgt[i] : 0; let s0 = i;
+          while (st.length && st[st.length - 1].h >= h){
+            const top = st.pop(); const wcells = i - top.i;
+            const r = { left:(x0 + top.i) * CELL, top:(y0 + j - top.h + 1) * CELL, width:wcells * CELL, height:top.h * CELL };
+            if (top.h && (!best || r.width * r.height > best.width * best.height)) best = r;
+            s0 = top.i;
+          }
+          st.push({ i: s0, h });
+        }
+      }
+      return best;
+    };
+    prods.forEach(o => {
+      const b = bb(o); if (!b || b.width * b.height > W * H * 0.6) return;
+      if (INK && o.pgLayered && !words.some(w => ov(b, w) > 0)) return;   // layered over the plates on purpose (tallFill), clear of every word
+      if (!bad(b)) return;
+      const pad = 16;
+      const wordsPad = words.map(w => ({ left: w.left - pad, top: w.top - pad, width: w.width + 2 * pad, height: w.height + 2 * pad }));
+      const others = prods.filter(p => p !== o).map(p => bb(p)).filter(Boolean);
+      const guide = { left: G6, top: G6, width: W - 2 * G6, height: H - 2 * G6 };
+      const regions = [{ reg: guide, blocked: wordsPad.concat(plates.map(p => ({ left: p.left - 10, top: p.top - 10, width: p.width + 20, height: p.height + 20 })), others) }]
+        .concat(plates.map(p => ({ reg: { left: p.left + 14, top: p.top + 14, width: p.width - 28, height: p.height - 28 },
+                                   blocked: wordsPad.concat(others) })));
+      let pick = null;
+      regions.forEach(({ reg, blocked }) => {
+        const r = bestRect(reg, blocked); if (!r) return;
+        const k = Math.min(1, (r.width * 0.94) / b.width, (r.height * 0.94) / b.height);
+        const d = Math.hypot(r.left + r.width / 2 - (b.left + b.width / 2), r.top + r.height / 2 - (b.top + b.height / 2));
+        if (!pick || k > pick.k + 0.02 || (Math.abs(k - pick.k) <= 0.02 && d < pick.d)) pick = { r, k, d };
+      });
+      if (!pick || pick.k < 0.4){ o.visible = false; return; }
+      o.set({ scaleX: (o.scaleX || 1) * pick.k, scaleY: (o.scaleY || 1) * pick.k });
+      o.setPositionByOrigin(new fabric.Point(pick.r.left + pick.r.width / 2, pick.r.top + pick.r.height / 2), 'center', 'center');
+      o.setCoords();
+    });
+  }
+
+  /* ── 4c. DECORATION YIELDS TO COPY ───────────────────────────────────────
+     DESIGN-LAW rule 7, enforced at render (collision audit, 2026-09-27): a
+     sticker whose disc the item line ran through, a category mark on the
+     letters of CARD BUYER, a sparkle on the D of iPAD, a bolt across a tile's
+     edge. Decoration never outranks a word. A mark that touches copy, crosses
+     a plate that carries copy, or sits outside the guides moves to the nearest
+     clear place (down to 70% of its size) near where it was authored; if
+     there is none, it goes. A STICKER (a disc or burst with its own words) is
+     never moved, only removed: moved, one landed as a bare blue disc in the
+     middle of a photograph with its curved label left dark on dark
+     (bubblePop-jw07-15). A mark placed at random reads as a mistake.
+     A pointer cursor on a static ad imitates a link nobody can click, so it
+     goes everywhere. Checklist ticks are information, not decoration: kept. */
+  {
+    const G5 = Math.round(GUIDE * Math.min(W, H));
+    const live = o => o && o.visible !== false;
+    /* curved words are groups (textToCurved), and they are words: the first
+       version left them out, so a sticker moved and its curved CASH NOW label
+       stayed behind, dark type on a dark photograph */
+    const isWord = o => isText(o) || (o && o.type === 'group' && o.pgCurved);
+    // words by their letters: TOP iPHONE's box reached 44px below its caps and pushed a badge's bolt away
+    const txt = objs.filter(o => live(o) && isWord(o)).map(o => ({ o, b: INK && isText(o) ? textInkRect(o) : bb(o) })).filter(t => t.b);
+    const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
+    const ctr = b => ({ x: b.left + b.width / 2, y: b.top + b.height / 2 });
+    const plates = boxes.map(x => ({ o: x.o, b: bb(x.o) })).filter(x => x.b && txt.some(t => inside(ctr(t.b), x.b)));
+    const cuts = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo').map(o => ({ o, b: bb(o) })).filter(x => x.b);
+    const units = [];
+    objs.forEach(o => {
+      if (!live(o)) return;
+      if (o.name === 'Cursor'){ o.visible = false; return; }
+      const deco = o.pgRole === 'deco' && !/^Tick/.test(o.name || '');
+      const sticker = (o.type === 'circle' || o.type === 'rect') && /Sticker|Seal Disc|Burst/i.test(o.name || '');
+      if (!deco && !sticker) return;
+      /* on a card laid out by its letters, a numeral is judged by its letters too:
+         by its box, Oswald's "2" hung 5px under its plate and was moved (variant board, 2026-09-29) */
+      const b = INK && isText(o) ? (textInkRect(o) || bb(o)) : bb(o); if (!b || b.width * b.height > W * H * 0.08) return;
+      const label = sticker ? txt.filter(t => inside(ctr(t.b), b)) : [];
+      /* a mark is never in its own way: a step numeral is decoration AND a word, and
+         counted against itself it always "touched copy" and was pushed out of its
+         box (stepsFlow-nn05-30, "number three isn't even centered", 2026-09-27) */
+      units.push({ parts: [o].concat(label.map(t => t.o)), own: new Set([o].concat(label.map(t => t.o))), b, sticker });
+    });
+    const overlap = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
+                              Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
+    const clash = (u, b) => {
+      if (b.left < G5 || b.top < G5 || b.left + b.width > W - G5 || b.top + b.height > H - G5) return true;
+      const A = b.width * b.height;
+      /* a mark made of type (a step's digit, a quote mark, a star row) is in
+         txt itself: the first version tested it against its own authored box,
+         so every one of them "collided" with itself and was pushed about its
+         own width off where it was set (44 live Steps Flow cards, every digit
+         23 to 60px off the centre of its box) */
+      if (txt.some(t => !u.parts.includes(t.o) && overlap(b, t.b) > 0.02 * Math.min(A, t.b.width * t.b.height))) return true;
+      if (plates.some(p => { const f = overlap(b, p.b) / A; return f > 0.05 && f < 0.95 && !u.parts.includes(p.o); })) return true;
+      if (cuts.some(c => overlap(b, c.b) > 0.15 * A)) return true;
+      return units.some(v => v !== u && v.b && overlap(b, v.b) > 0);
+    };
+    units.forEach(u => {
+      if (!clash(u, u.b)) return;
+      const c0 = ctr(u.b);
+      let best = null;
+      const reach = u.sticker ? 0 : Math.min(160, Math.max(48, 1.5 * Math.max(u.b.width, u.b.height)));
+      for (const k of [1, 0.85, 0.7]){
+        const w = u.b.width * k, h = u.b.height * k;
+        for (let r = 12; r <= reach && !best; r += 12){
+          for (let a = 0; a < 16 && !best; a++){
+            const x = c0.x + r * Math.cos(a * Math.PI / 8) - w / 2, y = c0.y + r * Math.sin(a * Math.PI / 8) - h / 2;
+            const b = { left: x, top: y, width: w, height: h };
+            if (!clash(u, b)) best = { k, dx: x + w / 2 - c0.x, dy: y + h / 2 - c0.y, b };
+          }
+        }
+        if (best) break;
+      }
+      if (!best){ u.parts.forEach(o => { o.visible = false; }); u.b = null; return; }
+      /* an outline mark drawn to sit on its plate, moved off it, is dark ink on a
+         photograph: it takes its plate's colour instead (owner, 2026-09-27, on a
+         bolt beside the QUICK CASH pill: "floating makes it really hard to even
+         discern, match the blue of the bubble") */
+      const home = plates.find(p => inside(c0, p.b) && typeof p.o.fill === 'string' && !u.parts.includes(p.o));
+      u.parts.forEach(o => {
+        const c = o.getCenterPoint();
+        const n = new fabric.Point(c0.x + (c.x - c0.x) * best.k + best.dx, c0.y + (c.y - c0.y) * best.k + best.dy);
+        o.set({ scaleX: (o.scaleX || 1) * best.k, scaleY: (o.scaleY || 1) * best.k });
+        o.setPositionByOrigin(n, 'center', 'center'); o.setCoords();
+        if (INK && home && o.type === 'path' && !inside(o.getCenterPoint(), home.b)) o.set('stroke', home.o.fill);
+      });
+      u.b = best.b;
+    });
+  }
+
+  /* ── 5. THE GUIDES ───────────────────────────────────────────────────────
+     Everything that carries the message sits inside the 6% safe margin. See
+     fitInsideGuides(); the per-line clamp below stays as a last resort. */
+  fitInsideGuides(sc, W, H);
+
   texts.forEach(t => {
     if (/marquee|ticker/i.test(t.o.name || '')) return;  // edge-hugging on purpose
-    const b = bb(t.o); if (!b) return;
+    const b = INK ? inkClear(textInkRect(t.o)) : bb(t.o); if (!b) return;
     let dx = 0, dy = 0;
     if (b.left < SAFE_EDGE) dx = SAFE_EDGE - b.left;
     else if (b.left + b.width > W - SAFE_EDGE) dx = (W - SAFE_EDGE) - (b.left + b.width);
@@ -2221,6 +2608,104 @@ function alignPass(sc, W, H){
     if (b.height > H - SAFE_EDGE * 2) dy = 0;
     if (dx || dy){ t.o.set({ left: t.o.left + dx, top: t.o.top + dy }); t.o.setCoords(); }
   });
+
+  /* ── 6. NO LINE ON A PLATE'S EDGE (rule 58), last, after the guides ────── */
+  if (INK) linesOffEdges(sc, W, H);
+  if (INK && typeof claimShade === 'function') claimShade(sc, W, H);   // the thumbnail shows the card that opens
+}
+
+/* THE GUIDES — DESIGN-LAW rule 57.
+   Owner, 2026-09-27: "make sure everything fits within the guides it needs
+   to." The study session's critic already WARNED at a 6% safe margin and
+   left it "an open decision"; measured on the live showcase, the website line
+   sat inside that margin on 293 of 684 cards, the selling-point badges on
+   106, a headline on 54, the phone number on 22 — and the engine's own clamp
+   was 24px (2.2%), one line at a time.
+
+   Moving one line at a time is how collisions are made: pull the website line
+   up and it lands on the number's plate. So the COMPOSITION moves as one:
+   copy, plates, stickers, icons and products are scaled and shifted together,
+   about their own centre, until the whole message is inside the guides. Every
+   spacing relationship survives, so nothing that was clear starts to collide.
+
+   Left alone: the ground (anything covering >= 85% of both dimensions:
+   photographs, scrims, beams, bokeh, grids, vignettes, grain, canvas frames),
+   frame and corner marks, and edge tickers. Kept attached: a band or a
+   product that touches an edge still touches it afterwards (a full-width band
+   keeps its full width; a product cut at the frame keeps its bleed). */
+const GUIDE = 0.06;
+function fitInsideGuides(sc, W, H){
+  W = W || TPL_W; H = H || TPL_H;
+  let objs;
+  try { objs = sc.getObjects(); } catch (e){ return 1; }
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
+  const TOUCH = 2;
+  const INK = objs.some(o => o && o.pgInk);
+  const items = [];
+  objs.forEach(o => {
+    if (!o || o.visible === false || o.pgBgRect || o.pgScrim) return;
+    if (/^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '')) return;
+    /* a frame that holds words is their plate and moves with them (neonNight's
+       "Neon Frame" holds the number: left behind, the website slid onto its
+       edge); a frame that holds nothing is a border and stays */
+    const holdsWords = o2 => { let b2; try { b2 = o2.getBoundingRect(true, true); } catch (e){ return false; }
+      return objs.some(q => q !== o2 && q.visible !== false && isText(q) && (() => { const c = q.getCenterPoint();
+        return c.x > b2.left && c.x < b2.left + b2.width && c.y > b2.top && c.y < b2.top + b2.height; })()); };
+    if (o.pgRole === 'frame' || /Frame|Corner|Bracket|Border/.test(o.name || '') && !isText(o) && !(INK && holdsWords(o))) return;
+    if (/marquee|ticker/i.test(o.name || '')) return;
+    const text = isText(o);
+    /* a line is judged by its letters, not its box: a 192px headline's box
+       reaches 44px above its caps, and read as "outside the guides" it shrank
+       the whole card 1% and slid it 5px (restaged stepsFlow-nn05-30) */
+    const b = text && INK ? inkClear(textInkRect(o)) : bb(o); if (!b || b.width <= 0 || b.height <= 0) return;
+    if (b.width >= W * 0.85 && b.height >= H * 0.85) return;          // ground, not message
+    const edge = { l: b.left <= TOUCH, r: b.left + b.width >= W - TOUCH, t: b.top <= TOUCH, bo: b.top + b.height >= H - TOUCH };
+    const bleed = !text && (edge.l || edge.r || edge.t || edge.bo);
+    items.push({ o, b, edge, text, bleed });
+  });
+  /* the message's extent: everything that is not attached to an edge */
+  const msg = items.filter(x => !x.bleed);
+  if (!msg.some(x => x.text)) return 1;
+  const U = msg.reduce((u, x) => ({ l: Math.min(u.l, x.b.left), t: Math.min(u.t, x.b.top),
+    r: Math.max(u.r, x.b.left + x.b.width), bo: Math.max(u.bo, x.b.top + x.b.height) }), { l: Infinity, t: Infinity, r: -Infinity, bo: -Infinity });
+  if (U.l >= G - 0.5 && U.t >= G - 0.5 && U.r <= W - G + 0.5 && U.bo <= H - G + 0.5) return 1;   // already inside
+  const uw = U.r - U.l, uh = U.bo - U.t;
+  const s = Math.min(1, (W - 2 * G) / uw, (H - 2 * G) / uh);
+  const ucx = (U.l + U.r) / 2, ucy = (U.t + U.bo) / 2;
+  // after scaling about the message's centre, shift it into the guides
+  const sl = ucx - uw * s / 2, sr = ucx + uw * s / 2, st = ucy - uh * s / 2, sb = ucy + uh * s / 2;
+  const dx = Math.max(0, G - sl) - Math.max(0, sr - (W - G));
+  const dy = Math.max(0, G - st) - Math.max(0, sb - (H - G));
+  items.forEach(x => {
+    const o = x.o, c = o.getCenterPoint();
+    const n = new fabric.Point((c.x - ucx) * s + ucx + dx, (c.y - ucy) * s + ucy + dy);
+    o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+    o.setPositionByOrigin(n, 'center', 'center');
+    o.setCoords();
+    if (!x.bleed) return;
+    /* keep what was attached to an edge attached: a full-width band keeps its
+       width, a band or product at an edge keeps reaching it */
+    const b = bb(o); if (!b) return;
+    if (o.type === 'rect'){
+      let L = b.left, T = b.top, R = b.left + b.width, B = b.top + b.height;
+      if (x.edge.l) L = x.b.left; if (x.edge.r) R = x.b.left + x.b.width;
+      if (x.edge.t) T = x.b.top;  if (x.edge.bo) B = x.b.top + x.b.height;
+      /* the box counts the outline, the rect's own width does not: set from the box,
+         an outlined band grew by its stroke on every pass (variant board, 2026-09-29) */
+      const sw = o.stroke && o.strokeWidth && !o.strokeUniform ? o.strokeWidth : 0;
+      o.set({ originX:'left', originY:'top', left: L, top: T,
+              width: (R - L) / (o.scaleX || 1) - sw, height: (B - T) / (o.scaleY || 1) - sw });
+    } else {
+      let ox = 0, oy = 0;
+      if (x.edge.l) ox = x.b.left - b.left; else if (x.edge.r) ox = (x.b.left + x.b.width) - (b.left + b.width);
+      if (x.edge.t) oy = x.b.top - b.top;   else if (x.edge.bo) oy = (x.b.top + x.b.height) - (b.top + b.height);
+      o.set({ left: o.left + ox, top: o.top + oy });
+    }
+    o.setCoords();
+  });
+  return s;
 }
 function buildLayer(l, tplId, dw, dh){
   /* AREA: copy that names a place is re-pointed at the customer's own towns
@@ -2276,11 +2761,14 @@ function buildLayer(l, tplId, dw, dh){
     }
     const u = (dw || TPL_W) / TPL_W;
     const img = new fabric.Image(el);
-    const s = ((l.props.w || 420) * u) / el.width;
+    /* maxH caps the height as well: a layout with a fixed band for the product
+       (the street ribbon and price tag, 2026-09-26) cannot know each cutout's
+       aspect, and a tall one ran up over the words above it */
+    const s = Math.min(((l.props.w || 420) * u) / el.width, p.maxH ? (p.maxH * u) / el.height : Infinity);
     img.set({
       left:p.left, top:p.top,
       originX:p.originX || 'left', originY:p.originY || 'top',
-      scaleX:s, scaleY:s, angle:p.angle || 0,
+      scaleX:s, scaleY:s, angle:p.angle || 0, flipX: !!p.flipX,    // a product faces into the layout (rule 73)
       opacity:p.opacity !== undefined ? p.opacity : 1,
     });
     if (p.shadow) img.set('shadow', p.shadow);
@@ -2315,10 +2803,17 @@ function buildLayer(l, tplId, dw, dh){
   }
   let obj;
   if (l.kind === 'rect'){
-    // color blocks go glassy (45%) so background photos stay visible;
-    // stroke-only frames, rgba fills, and layers marked solid:true pass
-    // through as designed (bands, CTA cards, seals need full-strength ink)
-    if (!l.solid && typeof p.fill === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(p.fill)) p.fill = hexToRgba(p.fill, 0.45);
+    /* A hex colour block used to go glassy (45%) so the photograph showed
+       through it. Over a photograph that is a tinted veil (rule 85, the
+       owner's "colored hazes"). A block big enough to carry copy is a PLATE
+       and keeps its colour solid (rule 85: a solid accent plate keeps its
+       colour); a thin rule or stripe is decoration and stays see-through.
+       Stroke-only frames, rgba fills and layers marked solid:true pass
+       through as designed. (2026-09-28; measured on 14 classics, 66 rects.) */
+    if (!l.solid && typeof p.fill === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(p.fill)){
+      const plate = (p.height || 0) >= 40 && (p.width || 0) >= 80;
+      p.fill = hexToRgba(p.fill, plate ? 0.92 : 0.45);
+    }
     obj = new fabric.Rect(p);
   }
   else if (l.kind === 'circle') obj = new fabric.Circle(p);
@@ -2355,6 +2850,7 @@ function buildLayer(l, tplId, dw, dh){
   }
   if (gradSpec){ obj.set('fill', objGrad(gradSpec)); obj.pgFillGrad = gradSpec; }
   obj.set({ name:l.name, pgRole:l.role||'', pgCasing:l.casing||'none', pgTplId:tplId });
+  if (l.__ink) obj.pgInk = true;            // laid out by its letters (DESIGN-LAW 76): restaged, audited records
   return obj;
 }
 
@@ -2372,6 +2868,7 @@ function renderThumb(tpl, px){
   }
   tpl.layers.forEach(l => sc.add(buildLayer(l, tpl.id)));
   alignPass(sc, TPL_W, TPL_H);
+  if (typeof applyCardLook === 'function') applyCardLook(sc, tpl, TPL_W, TPL_H, (px || 300) / TPL_W);   // the card's own tagline look
   sc.renderAll();
   const url = sc.toDataURL({ format:'jpeg', quality:0.82, multiplier:(px||300)/TPL_W });
   sc.dispose();
@@ -2411,7 +2908,9 @@ function ensureThumbs(){
   if (ensureThumbs._running) return;
   ensureThumbs._running = true;
   const step = () => {
-    const batch = TEMPLATES.filter(t => !THUMBS[t.id]).slice(0, 6);
+    /* the offer family waits for the studio: its cards are drawn on demand on
+       the landing (scClassicCard), with their own pictures and faces */
+    const batch = TEMPLATES.filter(t => !THUMBS[t.id] && (_tplAssetsWarmed || t.tag !== 'offer')).slice(0, 6);
     if (!batch.length){ ensureThumbs._running = false; return; }
     batch.forEach(t => getThumb(t.id, 320));
     setTimeout(step, 60);
@@ -2419,9 +2918,11 @@ function ensureThumbs(){
   setTimeout(step, 0);
 }
 // every font family the template library paints with, loaded before thumbs render
-function ensureTemplateFonts(){
+// (at boot without the offer family's seventeen faces: the landing does not draw
+// those cards until a chip asks for them, and a phone should not pay for them)
+function ensureTemplateFonts(all){
   const fams = new Set();
-  TEMPLATES.forEach(t => t.layers.forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); }));
+  TEMPLATES.forEach(t => { if (!all && t.tag === 'offer') return; t.layers.forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); }); });
   return Promise.race([
     Promise.all([...fams].map(f => ensureFont(f))),
     new Promise(res => setTimeout(res, 5000)),   // never hold the page hostage
@@ -2558,7 +3059,9 @@ function buildLanding(){
     const scored = fan.map(t => ({ t, s: strength(t) })).sort((a, b) => a.s - b.s);
     fan = scored.map(x => x.t);          // weakest first -> strongest lands in hc3
   }
-  const heroIds = fan.length === 3 ? fan.map(t => t.id) : ['sell_iphone','icloud_ok','top_buyer'];
+  const has = id => TEMPLATES.some(t => t.id === id);
+  const heroIds = fan.length === 3 ? fan.map(t => t.id)
+    : ['sell_iphone','icloud_ok','top_buyer'].filter(has).concat(TEMPLATES.filter(t => !tplLocked(t)).map(t => t.id)).filter((v, i, a) => a.indexOf(v) === i).slice(0, 3);
   document.querySelectorAll('#hero-stack .hero-card').forEach((card, i) => {
     card.innerHTML = '';
     const img = new Image();
@@ -2793,17 +3296,21 @@ function scheduleAutosave(){
 }
 
 // ═══════════════ TEMPLATE LOAD ═══════════════
-function loadTemplate(id){
+function loadTemplate(id, opts){
   const _t = TEMPLATES.find(t => t.id === id);
   if (_t && tplLocked(_t)){ openPlans('“' + _t.name + '” is a premium template, unlock all 8 designs with Starter or Pro.'); return; }
   const tpl = TEMPLATES.find(t => t.id === id);
   if (!tpl || !canvas) return;
   histLock = true;
   canvas.clear();
+  canvas.__theme = null;              // Easy Mode's colour theme comes with its hand-off (openAdvancedFromEz), not here
   bgState = tpl.bg.type === 'solid' ? {type:'solid', c:tpl.bg.c} : Object.assign({}, tpl.bg);
   applyBgSpec(canvas, tpl.bg);
   tpl.layers.forEach(l => canvas.add(buildLayer(l, tpl.id, CW, CH)));
   alignPass(canvas, CW, CH);
+  /* the card finished as Easy Mode finishes it, and the chosen tagline look
+     (ez.tag); the hand-off from Easy Mode applies them after the visitor's words */
+  if (!(opts && opts.noTagline)){ taglineFinish(canvas, CW, CH); taglineShow(taglineApply(canvas, tpl, CW, CH), 'ed-tagnote'); }
   canvas.renderAll();
   histLock = false;
   currentTplId = id; currentTplName = tpl.name;
@@ -2818,6 +3325,7 @@ function loadSavedTemplate(saved){
   if (!canvas) return;
   setFormat(saved.fmt || 'square', { skipRemap:true, silent:true });
   histLock = true;
+  canvas.__theme = null;
   canvas.loadFromJSON(saved.json, () => {
     canvas.renderAll(); histLock = false;
     currentTplId = saved.baseTpl || null;
@@ -3507,11 +4015,7 @@ function addElement(kind){
   canvas.add(o); canvas.setActiveObject(o); canvas.renderAll();
   pushHist(); refreshLayers(); refreshQuickFields(); refreshProps();
 }
-function addEmoji(em){
-  const o = new fabric.IText(em, {left:CW/2, top:CH/2, originX:'center', originY:'center', fontSize:110, name:'Emoji', pgRole:'deco'});
-  canvas.add(o); canvas.setActiveObject(o); canvas.renderAll();
-  pushHist(); refreshLayers();
-}
+/* addEmoji: see EMOJI ACCENTS (rule 88), where it places the emoji art */
 async function addImageFromFile(f){
   let dataUrl;
   try { dataUrl = await fileToDataUrl(f); }
@@ -3644,6 +4148,7 @@ function openExport(){
 async function doExport(){
   const gate = await gateExport(exportSize);
   if (!gate) return;
+  if (!await pgGate('adv', () => canvas, { live: true })) return;
   const d = exportDims(gate.px);
   let url = snapshotPng(d.w, 'png');
   if (gate.watermark) url = await applyWatermark(url, d.w, d.h);
@@ -3695,7 +4200,7 @@ async function orderPrints(fromEz){
   if (!gate) return;
   let png, w, h, name;
   if (fromEz){
-    w = h = gate.px; name = ezTpl().name;
+    { const PF = FORMATS[ez.format || 'square'] || FORMATS.square, pk = gate.px / Math.min(PF.w, PF.h); w = Math.round(PF.w * pk); h = Math.round(PF.h * pk); } name = ezTpl().name;
     png = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined);
   } else {
     const d = exportDims(gate.px); w = d.w; h = d.h; name = currentTplName || 'My ad';
@@ -4100,7 +4605,7 @@ function drawProcBg(spec, px){
   return cv.toDataURL('image/jpeg', 0.88);
 }
 
-function setBgFromDataUrl(url, silentHist, blur){
+function setBgFromDataUrl(url, silentHist, blur, done){
   fabric.Image.fromURL(url, img => {
     if (!img || !img.width || !img.height){ toast('That image could not be read', 'error'); return; }
     if (blur > 0){
@@ -4109,7 +4614,7 @@ function setBgFromDataUrl(url, silentHist, blur){
     }
     const sc = Math.max(CW / img.width, CH / img.height);
     img.set({ originX:'left', originY:'top', left:(CW - img.width * sc) / 2, top:(CH - img.height * sc) / 2, scaleX:sc, scaleY:sc });
-    canvas.setBackgroundImage(img, () => { canvas.renderAll(); if (!silentHist) pushHist(); });
+    canvas.setBackgroundImage(img, () => { canvas.renderAll(); if (!silentHist) pushHist(); if (done) done(); });
   });
 }
 
@@ -4168,14 +4673,30 @@ const _BLUR_ELS = {};
 function blurredEl(src, radius){
   const key = src + '|' + radius;
   if (_BLUR_ELS[key]) return _BLUR_ELS[key];
+  /* a pattern over a blurred photograph: the photograph is blurred, the
+     pattern stays crisp on top of it */
+  const q = isDrawnSrc(src) && window.GROUNDS ? GROUNDS.parse(src) : null;
+  if (q && q.type === 'overlay'){
+    const b = blurredEl(q.base, radius), c = b && GROUNDS.canvasFor(src, b);
+    if (c) _BLUR_ELS[key] = c;
+    return c || null;
+  }
+  if (q) drawnBgEl(src);
   const el = TPL_BG_ELS[src];
   if (!el || !el.width) return null;
   try {
     const c = document.createElement('canvas');
     c.width = el.width; c.height = el.height;
     const x = c.getContext('2d');
-    // scale the blur with the source so it looks the same at any asset size
-    x.filter = 'blur(' + Math.max(6, Math.round(el.width * (radius || 0.022))) + 'px)';
+    /* scale the blur with the source so it looks the same at any asset size.
+       Two units reach here: the classics store a FRACTION of the width
+       (MAX_BG_BLUR 0.004), the showcase records PIXELS on the 1080 card (4, 9,
+       15, 22, as the Template Lab set them). Read as a fraction, 4 meant four
+       times the width: every "blurred" showcase card rendered as a flat smear
+       of colour, the photograph gone (84 live cards, 2026-09-27). */
+    const px = radius >= 1 ? radius * Math.min(el.width, el.height) / TPL_W   // the photo's short side covers the card
+                           : el.width * (radius || 0.022);
+    x.filter = 'blur(' + Math.max(radius >= 1 ? 1 : 6, Math.round(px)) + 'px)';
     // draw slightly overscanned, or the blur pulls transparent edges inward
     const o = Math.round(el.width * 0.06);
     x.drawImage(el, -o, -o, el.width + o * 2, el.height + o * 2);
@@ -4241,6 +4762,7 @@ function _freshBgImageRaw(src){
   // Every render gets its OWN fabric.Image wrapper. Sharing one instance across
   // canvases was the photo-killer: canvas.dispose() gutted the shared object, so
   // the first render worked and every later one silently painted nothing.
+  if (isDrawnSrc(src)) drawnBgEl(src);          // a drawn ground paints on first use
   const el = TPL_BG_ELS[src];
   if (!el || !el.width) return null;
   try { return new fabric.Image(el); } catch (e){ return null; }
@@ -4260,7 +4782,7 @@ function preloadCutouts(){
     const el = new Image();
     el.onload = () => { CUTOUT_ELS[src] = el; res(); };
     el.onerror = () => { missing.push(src); res(); };
-    el.src = src;
+    el.src = assetUrl(src);
   }))).then(() => {
     if (missing.length) console.warn('GraphicsStudio: ' + missing.length + ' cutout(s) missing from assets/cutouts, those layers render empty:', missing.slice(0, 5));
     else console.log('GraphicsStudio: all ' + srcs.length + ' product cutouts ready.');
@@ -4311,7 +4833,7 @@ function preloadTplBgs(){
       else finish(null);
     };
     // embedded data first (cannot 404, works on file://); asset file is the backup
-    el.src = embedded[t.bg.src] || t.bg.src;
+    el.src = embedded[t.bg.src] || assetUrl(t.bg.src);
   });
   /* Wave 1 = what is on screen. Wave 2 = everything else, started only once
      wave 1 has settled, so the visible page is never competing with 130
@@ -4389,7 +4911,24 @@ function scrimRect(alpha, w, h, color, mode){
     }
   }
   let fill = 'rgba(' + c + ',' + alpha + ')';
-  if (mode === 'gradient'){
+  const bands = scrimBands(mode);
+  if (bands){
+    /* BANDS (rule 87, 2026-09-28: "make sure the backgrounds are visible").
+       The shade stands only where copy stands on the photograph: full
+       strength across each band of the card's height that holds a line,
+       feathered over SCRIM_FEATHER of the height on either side, and nothing
+       at all between the bands, so the picture shows through wherever no
+       line needs the ground. Written by the solver (naturalGround, 'bands')
+       as `bands:a-b,c-d` in fractions of the height; every render path
+       comes through here, so the card, its thumbnail, the editor and the
+       gate all see the same shade. */
+    const st = [], at = (o, k) => st.push({ offset: +Math.min(1, Math.max(0, o)).toFixed(4), color: 'rgba(' + c + ',' + (alpha * k).toFixed(3) + ')' });
+    const F = SCRIM_FEATHER;
+    if (bands[0][0] - F > 0) at(0, 0);
+    bands.forEach(([p, q]) => { if (p - F > 0) at(p - F, 0); at(p, 1); at(q, 1); if (q + F < 1) at(q + F, 0); });
+    if (bands[bands.length - 1][1] + F < 1) at(1, 0);
+    fill = new fabric.Gradient({ type:'linear', coords:{ x1:0, y1:0, x2:0, y2:h }, colorStops: st });
+  } else if (mode === 'gradient'){
     fill = new fabric.Gradient({
       type:'linear', coords:{ x1:0, y1:0, x2:0, y2:h },
       colorStops:[
@@ -4405,6 +4944,20 @@ function scrimRect(alpha, w, h, color, mode){
       ]});
   }
   return new fabric.Rect({ left:0, top:0, width:w, height:h, fill:fill, selectable:false, evented:false, name:'Scrim' });
+}
+/* the feather of a bands shade, as a fraction of the card's height, and the
+   parser: `bands:0.100-0.420,0.700-0.940` -> [[0.1,0.42],[0.7,0.94]], sorted,
+   bands whose feathers would meet merged into one, or null when the mode is
+   not a bands mode */
+const SCRIM_FEATHER = 0.06;
+function scrimBands(mode){
+  if (typeof mode !== 'string' || mode.slice(0, 6) !== 'bands:') return null;
+  const raw = mode.slice(6).split(',').map(s => s.split('-').map(Number))
+    .filter(s => s.length === 2 && s.every(v => Number.isFinite(v) && v >= 0 && v <= 1) && s[1] > s[0])
+    .sort((p, q) => p[0] - q[0]);
+  const out = [];
+  raw.forEach(s => { const l = out[out.length - 1]; if (l && s[0] <= l[1] + 2 * SCRIM_FEATHER) l[1] = Math.max(l[1], s[1]); else out.push(s.slice()); });
+  return out.length ? out : null;
 }
 function coverImage(im, w, h){
   w = w || CW; h = h || CH;
@@ -4452,7 +5005,22 @@ function coverImage(im, w, h){
    those three were nudged to clear the same bar: #fbbf24 -> #f4bb2a,
    #ffc247 -> #f9b939, #5fd8f0 -> #54d4ee. Sub-1% moves in lightness, invisible
    side by side, and the whole set now passes one rule instead of two.
-   Floor is 1.7. Checked by scripts/theme_law.mjs. */
+   Floor is 1.7. Checked by scripts/theme_law.mjs.
+
+   2026-09-26: the twelve rows that came from scripts/theme_specs.mjs failed
+   that same audit (12 of 21 themes). Five Jewel and Night Neon rows set a
+   pastel accent beside a pale tinted ink, 1.12 to 1.34:1 apart, so the money
+   word was not a different colour; four light rows put a phone-number accent
+   under 4.5:1 on their own ground; two Duotone rows stood dark ink on a
+   mid-tone cyan or blue, under 4.5:1 for everything. The study session's
+   design language gives every colour one job, near-black or near-white ink,
+   one accent, and a ground that is clearly light or clearly dark, so each row
+   was re-solved in OKLCH keeping every hue: inks to near-black or near-white
+   with a breath of the ground's hue; mid-tone grounds to a pale tint of their
+   own hue (dark ink) or kept deep (light ink); accents placed in the one
+   luminance band that clears 4.5:1 on both stops and 1.75:1 against the ink,
+   at the most chroma the gamut allows, yellows and ambers at the light end of
+   that band so they stay gold rather than olive or brown. 21 of 21 pass. */
 const COLOR_THEMES = [
   /* 2026-09-02: the row used to be ten dark grounds, four of them brown or
      amber under an orange accent — the old design language. Five of the old
@@ -4461,18 +5029,18 @@ const COLOR_THEMES = [
      painted with, so a theme picked here matches a theme seen there. Light
      grounds carry DARK ink, which applyColorTheme() already handles because
      it maps by role rather than by assuming white type. */
-  { name:'Blue Market',   family:'Duotone',    bg:{type:'grad', c1:'#1ba3c7', c2:'#198ab5', a:170}, accent:'#254b69', ink:'#092e39' },
-  { name:'Blue Ticket',   family:'Jewel',      bg:{type:'grad', c1:'#044a51', c2:'#01363f', a:170}, accent:'#febbd3', ink:'#d0e2e4' },
-  { name:'Mint Market',   family:'Jewel',      bg:{type:'grad', c1:'#054e2f', c2:'#003928', a:170}, accent:'#e1c2fe', ink:'#d4e2d9' },
-  { name:'Orchid Payday', family:'Jewel',      bg:{type:'grad', c1:'#532d6b', c2:'#481057', a:170}, accent:'#e7d358', ink:'#e2dbe8' },
-  { name:'Indigo Cash',   family:'Night Neon', bg:{type:'grad', c1:'#0e253c', c2:'#02132e', a:170}, accent:'#fcaca5', ink:'#d4dfeb' },
-  { name:'Indigo Trade',  family:'Duotone',    bg:{type:'grad', c1:'#5593ef', c2:'#4d76e5', a:170}, accent:'#3c3e65', ink:'#1b293f' },
-  { name:'Blue Deal',     family:'Candy',      bg:{type:'grad', c1:'#80dafd', c2:'#45c4ff', a:170}, accent:'#ab117d', ink:'#1b3d49' },
-  { name:'Sky Market',    family:'Cool Air',   bg:{type:'grad', c1:'#b9f7f6', c2:'#99e1e7', a:170}, accent:'#d8360a', ink:'#173f3f' },
-  { name:'Violet Payday', family:'iOS Flat',   bg:{type:'grad', c1:'#ecefff', c2:'#d5d7ef', a:170}, accent:'#616cf8', ink:'#31364f' },
-  { name:'Gold Offer',    family:'Paper',      bg:{type:'grad', c1:'#fdf4ee', c2:'#e5ddd5', a:170}, accent:'#ac5d05', ink:'#4a3220' },
-  { name:'Mint Counter',  family:'Paper',      bg:{type:'grad', c1:'#f2f8ef', c2:'#d9e1d8', a:170}, accent:'#4a8704', ink:'#2e3d25' },
-  { name:'Red Cash',      family:'Chalk',      bg:{type:'grad', c1:'#faf5f7', c2:'#e4dedf', a:170}, accent:'#a60a69', ink:'#4a2e3a' },
+  { name:'Blue Market',   family:'Pastel',    bg:{type:'grad', c1:'#aae8ff', c2:'#99dbfb', a:170}, accent:'#005284', ink:'#0a2026' },
+  { name:'Blue Ticket',   family:'Jewel',      bg:{type:'grad', c1:'#02383e', c2:'#002e36', a:170}, accent:'#ff83b6', ink:'#eaf5f7' },
+  { name:'Mint Market',   family:'Jewel',      bg:{type:'grad', c1:'#003a21', c2:'#003021', a:170}, accent:'#cd92ff', ink:'#edf5f0' },
+  { name:'Orchid Payday', family:'Jewel',      bg:{type:'grad', c1:'#47205e', c2:'#481057', a:170}, accent:'#d1b906', ink:'#f7f2fa' },
+  { name:'Indigo Cash',   family:'Night Neon', bg:{type:'grad', c1:'#0e253c', c2:'#02132e', a:170}, accent:'#fe7f78', ink:'#eef5fc' },
+  { name:'Indigo Trade',  family:'Pastel',    bg:{type:'grad', c1:'#cde1ff', c2:'#bdd2fe', a:170}, accent:'#4839b8', ink:'#141d2b' },
+  { name:'Blue Deal',     family:'Candy',      bg:{type:'grad', c1:'#afe7ff', c2:'#9bdafc', a:170}, accent:'#98056e', ink:'#0b2027' },
+  { name:'Sky Market',    family:'Cool Air',   bg:{type:'grad', c1:'#b9f7f6', c2:'#99e1e7', a:170}, accent:'#9b2000', ink:'#082021' },
+  { name:'Violet Payday', family:'iOS Flat',   bg:{type:'grad', c1:'#ecefff', c2:'#d5d7ef', a:170}, accent:'#3d40bc', ink:'#181c2b' },
+  { name:'Gold Offer',    family:'Paper',      bg:{type:'grad', c1:'#fdf4ee', c2:'#e5ddd5', a:170}, accent:'#904d03', ink:'#281a0f' },
+  { name:'Mint Counter',  family:'Paper',      bg:{type:'grad', c1:'#f2f8ef', c2:'#d9e1d8', a:170}, accent:'#325f01', ink:'#162011' },
+  { name:'Red Cash',      family:'Chalk',      bg:{type:'grad', c1:'#faf5f7', c2:'#e4dedf', a:170}, accent:'#a10966', ink:'#29171f' },
   { name:'Cash Green',    family:'Classic',    bg:{type:'grad', c1:'#123123', c2:'#050f0a', a:170}, accent:'#4ade80', ink:'#ffffff' },
   { name:'Night Blue',    family:'Classic',    bg:{type:'grad', c1:'#0f1b3d', c2:'#050916', a:170}, accent:'#ffa62b', ink:'#ffffff' },
   { name:'Deep Red',      family:'Classic',    bg:{type:'grad', c1:'#2a0a0e', c2:'#0d0305', a:170}, accent:'#ff6b57', ink:'#ffffff' },
@@ -4494,11 +5062,13 @@ const COLOR_THEMES = [
   { name:'Night Neon',     family:'GFX Grammar', intent:'after-hours scroll stop',
     bg:{type:'grad', c1:'#121212', c2:'#050505', a:170}, accent:'#ff8b3d', ink:'#f7f0e6', support:'#c5d63b' },
 ];
-/* Which text is standing on the THEME's background, and which is standing on a
-   plate of its own? Picking a theme repaints the background; it does not repaint
-   the plates, so a line sitting on one has a ground the theme does not control
-   and must be left alone. Same geometry test as purgePlateGradients(): a rect
-   earlier in the stack whose box contains the text's vertical middle. */
+/* Which text is standing on the card's ground, and which is standing on a
+   plate of its own? A line on a plate takes its contrast from the plate, not
+   from the ground, so the fallback ground (tuneFallbacks) leaves it alone.
+   Same geometry test as purgePlateGradients(): a rect earlier in the stack
+   whose box contains the text's vertical middle. (Colour themes used to skip
+   these lines too, and left every plate in the card's old colours; they now
+   repaint the plates and answer for the lines on them: themeScene.) */
 function plateUnder(tpl, layer){
   const layers = tpl.layers || [];
   const li = layers.indexOf(layer);
@@ -4532,66 +5102,80 @@ function plateUnder(tpl, layer){
   }
   return null;
 }
+/* Picking a theme hands the card's colour to it: themeScene() repaints every
+   plate, mark and line on the finished scene (see "A THEME OWNS THE CARD'S
+   COLOUR" at the end of this file), so the preview, the download, the video
+   and the editor hand-off draw the same thing. `null` is the card's own
+   colours. The theme follows the visitor from card to card. */
 function applyColorTheme(th){
-  ez.bg = { type:'grad', c1: th.bg.c1, c2: th.bg.c2, a: th.bg.a };
-  ez.bgRecId = null;
-  const tpl = ezTpl();
-  /* The library uses nine roles. This used to repaint three of them —
-     headline, cta, sub — so picking a theme recoloured part of the ad and left
-     badges, info, phone and website on whatever the PREVIOUS theme had made
-     them. That is the "illusion of choice" ask failing at the first click: the
-     visitor picks Cash Green and half the type stays amber.
-     Now every reading role follows the ink and the two money roles follow the
-     accent, except where the layer sits on a plate the theme does not own. */
-  const heads = tpl.layers.filter(l => l.role === 'headline');
-  const last = heads[heads.length - 1];
-  const ACCENT_ROLES = { cta:1, phone:1 };
-  const SUPPORT_ROLES = { info:1, badges:1 };
-  const INK_ROLES = { sub:1, website:1 };
-  tpl.layers.forEach(l => {
-    if (typeof l.text !== 'string' || !l.props) return;
-    if (l.role === 'deco' || l.role === 'photo') return;      // texture, not message
-    if (plateUnder(tpl, l)) return;                            // not the theme's ground
-    if (l.role === 'headline') { ezSetStyle(l.name, { fill: l === last ? th.accent : th.ink }); return; }
-    if (ACCENT_ROLES[l.role]) { ezSetStyle(l.name, { fill: th.accent }); return; }
-    if (SUPPORT_ROLES[l.role]) { ezSetStyle(l.name, { fill: th.support || th.ink }); return; }
-    if (INK_ROLES[l.role])    { ezSetStyle(l.name, { fill: th.ink }); return; }
-  });
+  ez.theme = th || null; ez.shade = 0;           // "More grounds" draw in this palette; the gate's shade belonged to the old one
+  /* A colour set on a line was the visitor's until they picked a whole
+     palette: a theme, or ORIG, takes every line's colour back, on every card
+     (the theme follows them from card to card). Face, size, outline and curve
+     stay theirs. Earlier builds also wrote each theme's colours in here as if
+     the visitor had, which this clears. */
+  Object.values(ez.styles || {}).forEach(t => Object.values(t || {}).forEach(s => { if (s) delete s.fill; }));
+  ezThemeGround(ez.theme);
+  syncEzThemes();
   syncEzSwatches();
   refreshEzRecents();
   refreshEzLayers();
+  ezDrawnSync();
   schedEzPreview(0);
-  toast(th.name + ' applied' + (th.intent ? ' · ' + th.intent : ''), 'success');
+  toast(th ? th.name + ' on the whole card' + (th.intent ? ' · ' + th.intent : '') : 'The card’s own colours', 'success');
 }
 function buildThemeRow(){
   const row = $('ez-themes');
   if (!row || row.dataset.built) return;
   row.dataset.built = '1';
+  const orig = document.createElement('button');
+  orig.type = 'button';
+  orig.className = 'ez-theme orig'; orig.dataset.theme = '';
+  orig.textContent = 'ORIG';
+  orig.title = 'The card’s own colours'; orig.setAttribute('aria-label', orig.title);
+  orig.onclick = () => applyColorTheme(null);
+  row.appendChild(orig);
   COLOR_THEMES.forEach(th => {
     const b = document.createElement('button');
-    b.className = 'ez-theme';
-    b.title = [th.name, th.family, th.intent].filter(Boolean).join(' \u00b7 ');
+    b.type = 'button';
+    b.className = 'ez-theme'; b.dataset.theme = th.name;
+    b.title = [th.name, th.family, th.intent].filter(Boolean).join(' · ');
     b.setAttribute('aria-label', b.title);
-    b.setAttribute('aria-pressed', 'false');
     b.innerHTML = `<span style="background:linear-gradient(135deg, ${th.bg.c1}, ${th.bg.c2})"></span><span style="background:${th.accent}"></span>${th.support ? `<span style="background:${th.support}"></span>` : ''}`;
-    b.onclick = () => {
-      row.querySelectorAll('.ez-theme').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-pressed', 'false'); });
-      b.classList.add('active');
-      b.setAttribute('aria-pressed', 'true');
-      applyColorTheme(th);
-    };
+    b.onclick = () => applyColorTheme(th);
     row.appendChild(b);
   });
+  syncEzThemes();
 }
 
 // ═══════════════ FONT LIBRARY (lazy-loaded from Google Fonts on first use) ═══════════════
+/* The owner's approved faces (assets/approved-fonts.json: a review of 151,
+   2026-09-01), by role, self-hosted in assets/fonts (faces.css, written by
+   scripts/fetch_fonts.mjs): the studio never waits on a font server for them,
+   and a render is the same on every machine. Satoshi, approved as well, is a
+   house face. The picker lists the rest of its old Google faces under More. */
+const APPROVED_FACES = {
+  condensed:   ['Oswald','Big Shoulders Display','Barlow Condensed','Teko','Saira Condensed','Russo One','Squada One'],
+  grotesque:   ['Manrope','Sora','Chivo','Libre Franklin','Instrument Sans'],
+  handwritten: ['Permanent Marker','Kalam','Patrick Hand','Shadows Into Light','Gloria Hallelujah','Nanum Pen Script','Architects Daughter','Amatic SC','Cabin Sketch'],
+  script:      ['Kaushan Script','Knewave','Bangers'],
+  graffiti:    ['Sedgwick Ave','Sedgwick Ave Display','Rubik Wet Paint','Rubik Marker Hatch','Rubik Dirt','Rubik Iso','Rubik Doodle Shadow','Wallpoet','Faster One','Freckle Face','Nosifer','Creepster','Big Shoulders Stencil Display'],
+  retro:       ['Bungee','Bungee Shade','Rye','Fascinate','Luckiest Guy','Shrikhand','Special Elite','Press Start 2P','Pirata One'],
+  serif:       ['Instrument Serif','Cormorant Garamond','Zilla Slab','Roboto Slab'],
+  rounded:     ['Nunito','Sniglet'],
+  numerals:    ['JetBrains Mono','DM Mono','Audiowide'],
+};
 const FONT_GROUPS = [
   ['House faces', ['Clash Display','Satoshi','Khand','Melodrama','Zodiak']],
   ['Showcase faces', ['Unbounded','Bricolage Grotesque','Sofia Sans Extra Condensed','Schibsted Grotesk','Gloock','Young Serif','Tilt Warp']],
-  ['Display & impact', ['Alfa Slab One','Abril Fatface','Bakbak One','Big Shoulders Display','Black Ops One','Bowlby One SC','Bungee','Chango','Concert One','Days One','Fjalla One','Francois One','Graduate','Hammersmith One','Lilita One','Luckiest Guy','Monoton','Passion One','Patua One','Paytone One','Press Start 2P','Racing Sans One','Righteous','Rowdies','Russo One','Secular One','Shrikhand','Sigmar One','Squada One','Staatliches','Titan One','Ultra','Unbounded','Vast Shadow']],
-  ['Script & fun', ['Creepster','Fredoka','Gloria Hallelujah','Great Vibes','Knewave','Lobster','Pacifico','Special Elite','Yellowtail']],
-  ['Clean & modern', ['Changa','Exo 2','Inter','Josefin Sans','Kanit','Lato','League Spartan','Nunito','Plus Jakarta Sans','Poppins','Prompt','Raleway','Rubik','Saira Condensed','Teko']],
-  ['Serif', ['Cinzel','Cormorant Garamond','DM Serif Display','Merriweather','Playfair Display','Zilla Slab']],
+  ['Condensed', APPROVED_FACES.condensed],
+  ['Grotesque', APPROVED_FACES.grotesque],
+  ['Handwritten & script', APPROVED_FACES.handwritten.concat(APPROVED_FACES.script)],
+  ['Graffiti & stencil', APPROVED_FACES.graffiti],
+  ['Retro', APPROVED_FACES.retro],
+  ['Serif & slab', APPROVED_FACES.serif],
+  ['Rounded & numerals', APPROVED_FACES.rounded.concat(APPROVED_FACES.numerals)],
+  ['More', ['Alfa Slab One','Abril Fatface','Bakbak One','Black Ops One','Bowlby One SC','Chango','Concert One','Days One','Fjalla One','Francois One','Graduate','Hammersmith One','Lilita One','Monoton','Passion One','Patua One','Paytone One','Racing Sans One','Righteous','Rowdies','Secular One','Sigmar One','Staatliches','Titan One','Ultra','Vast Shadow','Fredoka','Great Vibes','Lobster','Pacifico','Yellowtail','Changa','Exo 2','Inter','Josefin Sans','Kanit','Lato','League Spartan','Plus Jakarta Sans','Poppins','Prompt','Raleway','Rubik','Cinzel','DM Serif Display','Merriweather','Playfair Display']],
   ['System', ['Georgia','Impact','Arial Black']],
 ];
 const CORE_FONTS = new Set(FONT_GROUPS[0][1].concat(FONT_GROUPS[FONT_GROUPS.length - 1][1]));
@@ -4600,7 +5184,69 @@ const _fontLoaded = new Set(CORE_FONTS);
 // be requested from Google — that lookup 404s and costs a round trip before
 // the harmless onerror fires.
 const HOUSE_FACES = ['Clash Display', 'Satoshi', 'Khand', 'Melodrama', 'Zodiak'];
-const LOCAL_FACES = ['Unbounded', 'Bricolage Grotesque', 'Sofia Sans Extra Condensed', 'Schibsted Grotesk', 'Gloock', 'Young Serif', 'Tilt Warp', 'JetBrains Mono', 'Big Shoulders Display'];
+const LOCAL_FACES = FONT_GROUPS[1][1].concat(Object.values(APPROVED_FACES).flat());   // faces.css
+/* TYPE PAIRS BY VOICE (DESIGN-LAW 70: two faces, two weights each). A display
+   face for the claim, the step numerals and the number; a support face for the
+   badge, the step titles and their lines. Every face is the owner's approved
+   or showcase set, self-hosted. The weights are the ones each family ships
+   (a static family has no 800: asking for one would be synthesised). */
+const FONT_PAIRS = [
+  { key: 'street',  name: 'Street',  display: ['Sofia Sans Extra Condensed', 800], support: ['Schibsted Grotesk', 800, 600] },
+  { key: 'bold',    name: 'Bold',    display: ['Oswald', 700], support: ['Satoshi', 700, 500] },
+  { key: 'stadium', name: 'Stadium', display: ['Big Shoulders Display', 700], support: ['Manrope', 700, 500] },
+  { key: 'sport',   name: 'Sport',   display: ['Teko', 700], support: ['Chivo', 700, 500] },
+  { key: 'tech',    name: 'Tech',    display: ['Saira Condensed', 700], support: ['Sora', 700, 500] },
+  { key: 'block',   name: 'Block',   display: ['Barlow Condensed', 700], support: ['Libre Franklin', 700, 500] },
+  { key: 'arcade',  name: 'Arcade',  display: ['Russo One', 400], support: ['Sora', 700, 500] },
+  { key: 'squad',   name: 'Squad',   display: ['Squada One', 400], support: ['Instrument Sans', 700, 500] },
+  { key: 'comic',   name: 'Comic',   display: ['Knewave', 400], support: ['Nunito', 700, 700] },
+  { key: 'marker',  name: 'Marker',  display: ['Sedgwick Ave Display', 400], support: ['Manrope', 700, 500] },
+  { key: 'retro',   name: 'Retro',   display: ['Bungee', 400], support: ['Instrument Sans', 700, 500] },
+  { key: 'pop',     name: 'Pop',     display: ['Luckiest Guy', 400], support: ['Nunito', 700, 700] },
+  { key: 'luxe',    name: 'Luxe',    display: ['Gloock', 400], support: ['Schibsted Grotesk', 700, 500] },
+  { key: 'modern',  name: 'Modern',  display: ['Unbounded', 800], support: ['Instrument Sans', 700, 500] },
+  { key: 'warp',    name: 'Warp',    display: ['Tilt Warp', 400], support: ['Sora', 700, 500] },
+  { key: 'stencil', name: 'Stencil', display: ['Big Shoulders Stencil Display', 700], support: ['Barlow Condensed', 700, 600] },
+  { key: 'grotesk', name: 'Grotesk', display: ['Bricolage Grotesque', 800], support: ['Instrument Sans', 700, 500] },
+  { key: 'serif',   name: 'Serif',   display: ['Young Serif', 400], support: ['Manrope', 700, 500] },
+];
+/* WHAT A FACE CAN SPELL (the variant board, 2026-09-29). The owner writes the
+   claim "iPHONE"; a caps-only face has no lowercase, so its "i" is a capital
+   and the claim reads "IPHONE" (Bangers, Permanent Marker, Bungee, Luckiest
+   Guy). A face whose 1 is a bare bar set "#1" as "#I" (Squada One). Measured
+   on the glyphs: the i has a dot (ink, a gap, ink again down its height), and
+   the 1 is not the I (their ink, aligned at the top left, differs by oneVsI
+   of what either covers). The face must be loaded first. */
+const _faceGlyphs = {};
+function faceGlyphs(family, weight, style){
+  const key = [family, weight || 400, style || 'normal'].join('|');
+  if (_faceGlyphs[key]) return _faceGlyphs[key];
+  const N = 220, c = document.createElement('canvas'); c.width = c.height = N;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.font = (style || 'normal') + ' ' + (weight || 400) + ' 150px "' + family + '"';
+  const ink = ch => {
+    x.clearRect(0, 0, N, N); x.fillText(ch, 40, 180);
+    const d = x.getImageData(0, 0, N, N).data, m = new Uint8Array(N * N);
+    let l = N, t = N, r = -1, b = -1;
+    for (let y = 0; y < N; y++) for (let k = 0; k < N; k++) if (d[(y * N + k) * 4 + 3] > 90){ m[y * N + k] = 1; if (k < l) l = k; if (k > r) r = k; if (y < t) t = y; if (y > b) b = y; }
+    return { m, l, t, r, b };
+  };
+  const i = ink('i');
+  let dotI = false;
+  for (let y = i.t, seen = false, gap = false; i.r >= 0 && y <= i.b; y++){
+    let on = false; for (let k = i.l; k <= i.r; k++) if (i.m[y * N + k]){ on = true; break; }
+    if (on && gap){ dotI = true; break; }
+    if (on) seen = true; else if (seen) gap = true;
+  }
+  const one = ink('1'), eye = ink('I');
+  let xor = 0, uni = 0;
+  if (one.r >= 0 && eye.r >= 0){
+    const w = Math.max(one.r - one.l, eye.r - eye.l) + 1, h = Math.max(one.b - one.t, eye.b - eye.t) + 1;
+    const at = (g, dx, dy) => g.l + dx < N && g.t + dy < N ? g.m[(g.t + dy) * N + g.l + dx] : 0;
+    for (let dy = 0; dy < h; dy++) for (let dx = 0; dx < w; dx++){ const a = at(one, dx, dy), e = at(eye, dx, dy); if (a || e) uni++; if (a !== e) xor++; }
+  }
+  return _faceGlyphs[key] = { dotI, oneVsI: uni ? +(xor / uni).toFixed(3) : 1 };
+}
 let _localFacesCss = null;
 function ensureFont(name){
   if (_fontLoaded.has(name)) return Promise.resolve();
@@ -4619,12 +5265,17 @@ function ensureFont(name){
      written by scripts/fetch_fonts.mjs): one same-origin stylesheet for all of
      them, so a showcase card never waits on a third-party font server. */
   const local = LOCAL_FACES.indexOf(name) !== -1;
-  if (local && _localFacesCss) return _localFacesCss.then(() => document.fonts.load('400 24px "' + name + '"').catch(() => {}))
+  /* a static family ships one file per weight: load them all, or a 700
+     headline paints in the fallback first and fabric keeps its widths */
+  const allWeights = () => Promise.all([400, 500, 600, 700, 800, 900].map(w => document.fonts.load(w + ' 24px "' + name + '"').catch(() => {})));
+  if (local && _localFacesCss) return _localFacesCss.then(allWeights)
     .then(() => { try { fabric.util.clearFabricFontCache(); } catch (e){} });
   return new Promise(res => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = local ? 'assets/fonts/faces.css'
+    /* versioned: /assets/fonts/* is served immutable for a year, and the
+       2026-09-27 editions add the offer family's faces, then their flavour faces */
+    link.href = local ? 'assets/fonts/faces.css?v=20260927b'
       : 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
     if (local) _localFacesCss = new Promise(r => { link.addEventListener('load', r); link.addEventListener('error', r); });
     const done = () => {
@@ -4635,7 +5286,7 @@ function ensureFont(name){
       res();
     };
     link.onload = () => {
-      const l = (document.fonts && document.fonts.load) ? document.fonts.load('400 24px "' + name + '"').catch(() => {}) : Promise.resolve();
+      const l = (document.fonts && document.fonts.load) ? (local ? allWeights() : document.fonts.load('400 24px "' + name + '"').catch(() => {})) : Promise.resolve();
       Promise.race([l, new Promise(r => setTimeout(r, 3000))]).then(done, done);
     };
     link.onerror = done;
@@ -4725,7 +5376,7 @@ function openTxtPop(anchor, layerName){
   $('tp-b').classList.toggle('active', st.bold !== undefined ? st.bold : baseBold);
   $('tp-i').classList.toggle('active', st.italic !== undefined ? st.italic : tpTarget.base.fontStyle === 'italic');
   $('tp-u').classList.toggle('active', !!st.underline);
-  $('tp-fill').value = st.fill || toHex(tpTarget.base.fill, '#ffffff');
+  $('tp-fill').value = st.fill || (ez._themed && ez._themed[tpTarget.layerName]) || toHex(tpTarget.base.fill, '#ffffff');
   $('tp-stroke').value = st.stroke || toHex(tpTarget.base.stroke, '#000000');
   $('tp-sw').value = st.sw !== undefined ? st.sw : (tpTarget.base.strokeWidth || 0);
   $('tp-sw-val').textContent = $('tp-sw').value;
@@ -4841,7 +5492,9 @@ function applyEzSnapshot(p){
   ez.styles = st.styles || {};
   ez.fx = Object.assign({ blur:0, overlay:'none', oc:'#000000', os:45 }, st.fx || {});
   ez.hidden = st.hidden || {};
-  ez.bg = st.bg || null;
+  taglineRestore(st);                            // the tagline look it was made with (its colours: st.theme)
+  ez.bg = st.bg || null; ez.shade = st.shade || 0; ez.shadeTone = st.shadeTone || null;
+  ez.theme = ezThemeByName(st.theme);
   ez.bgData = null; ez.bgImgObj = null; ez.bgRecId = null;
   jset('pgfx_ez_state', st);
   // land on the project's category so the strip highlights the right card
@@ -4860,6 +5513,7 @@ function resetEzProject(){
   ez.vals = {}; ez.chips = null; ez.styles = {}; ez.hidden = {};
   ez.fx = { blur:0, overlay:'none', oc:'#000000', os:45 };
   ez.bg = null; ez.bgData = null; ez.bgImgObj = null; ez.bgRecId = null; ez.bgPicked = false;
+  ez.theme = null;
   showEasy(jget('pgfx_last', 'sell_iphone'));
   schedEzPreview(0);
 }
@@ -5140,7 +5794,7 @@ function refreshPlanFeats(){
        here described a different set from the one visitors click. (2026-09-22) */
     void c;
     FEAT_FREE_TPL = 'Every Phones design, plus the top 3 in every other category';
-    FEAT_PRO_TPL  = 'Every design in all 8 categories';
+    FEAT_PRO_TPL  = 'Every design in all 13 categories';
     if (typeof PLANS === 'object' && PLANS){
       PLANS.free.feats[1] = FEAT_FREE_TPL;
       PLANS.pro.feats[1]  = FEAT_PRO_TPL;
@@ -5151,9 +5805,9 @@ const API_BASE = (window.PGFX_API || '').replace(/\/$/, '');
 const DEMO = !API_BASE;
 const PLANS = {
   free: { label:'Free', price:0, priceLabel:'$0', per:'forever', maxPx:1080, watermark:true, weekly:3, monthly:null,
-          feats:['3 exports per week',FEAT_FREE_TPL,'1080 × 1080 downloads','BUYBACK.AD watermark'] },
+          feats:['3 exports per week',FEAT_FREE_TPL,'1080px downloads (short side)','BUYBACK.AD watermark'] },
   pro:  { label:'Pro', price:15, priceLabel:'$15', per:'/month', maxPx:2160, watermark:false, weekly:null, monthly:100,
-          feats:['100 exports per month',FEAT_PRO_TPL,'Up to 2160px, no watermark, every format','Export history & re-downloads'], hot:true },
+          feats:['100 exports per month',FEAT_PRO_TPL,'Up to 2160px (short side), no watermark','Scannable QR code layer'], hot:true },
 };
 function isoWeek(){ const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
@@ -5469,22 +6123,7 @@ function applyWatermark(dataUrl, w, h){
       cv.width = w; cv.height = h;
       const x = cv.getContext('2d');
       x.drawImage(im, 0, 0, w, h);
-      const base = Math.min(w, h);
-      const fs = Math.round(base * 0.032);
-      x.font = '800 ' + fs + 'px "DM Sans", sans-serif';
-      x.globalAlpha = 0.5;
-      x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
-      x.fillStyle = '#ffffff';
-      const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
-      x.textAlign = 'center'; x.textBaseline = 'middle';
-      // each corner mark rotated 45° along its corner→center diagonal
-      [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
-        x.save();
-        x.translate(cx, cy);
-        x.rotate(deg * Math.PI / 180);
-        x.fillText(t, 0, 0);
-        x.restore();
-      });
+      drawWatermarkMarks(x, w, h);          // the same marks every video frame carries (Satoshi, vendored)
       res(cv.toDataURL('image/png'));
     };
     im.onerror = () => res(dataUrl);
@@ -5526,7 +6165,7 @@ function bindSaasUI(){
     syncAcctUI();
     jset('pgfx_tut_done', false);   // brand-new account always gets the tour
     if (pro){
-      openPlans('Pro unlocks all 160+ templates, 2160p exports and no watermark.');
+      openPlans('Pro unlocks every design, 2160px exports and no watermark.');
       return;
     }
     showEditor();
@@ -5749,11 +6388,11 @@ function refreshEzLayers(){
   const isPhoto = bgSpec.type === 'image' && ez.bgData;
   const isTplPhoto = bgSpec.type === 'image' && bgSpec.src;
   const sw = isPhoto ? `<img src="${ez.bgData}" alt="">`
-    : isTplPhoto ? `<img src="${bgSpec.src}" alt="">`
+    : isTplPhoto ? `<img src="${ezBgThumbSrc(bgSpec.src)}" alt="">`
     : `<span style="width:100%;height:100%;display:block;background:${cssBg(bgSpec)}"></span>`;
   list.appendChild(ezLayerRow({
     swatchHtml: sw, name: 'Background',
-    prev: isPhoto ? 'Your photo, tap to change' : (ez.bg === null ? (isTplPhoto ? 'Template photo, tap to change' : 'Template original, tap to change') : 'Color, tap to change'),
+    prev: isPhoto ? 'Your photo, tap to change' : (ez.bg === null ? (isTplPhoto ? 'Template photo, tap to change' : 'Template original, tap to change') : ez.bg.theme ? ez.bg.theme + ' ground, tap to change' : 'Color, tap to change'),
     onClick: () => {
       const el = $('ez-swatches');
       el.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -5978,6 +6617,13 @@ const CATS = [
   { id:'strips',  label:'\uD83E\uDE78 Diabetic Supplies' },
   { id:'pokemon', label:'\u26A1 Pok\u00e9mon Cards' },
   { id:'sports',  label:'\uD83C\uDFC0 Sports Cards' },
+  /* 2026-09-27, the owner: "this is alternate media and we will create some
+     alternate categories for" it. Their templates come from offer-library.js. */
+  { id:'gaming',    label:'\uD83C\uDFAE Gaming & Consoles' },
+  { id:'audio',     label:'\uD83C\uDFA7 Headphones & Audio' },
+  { id:'computers', label:'\uD83D\uDCBB Computers & Parts' },
+  { id:'wearables', label:'\u231A Wearables & Glasses' },
+  { id:'cameras',   label:'\uD83D\uDCF7 Cameras & Drones' },
 ];
 let currentCat = jget('pgfx_cat', 'phones');
 function setCategory(cat){
@@ -6408,7 +7054,7 @@ const COPY_FIX = {
   cars_plate:    { Headline:'WE BUY CARS', Sub:'ANY YEAR • ANY MAKE • RUNNING OR NOT' },
   pkm_attic:     { Headline:'WE BUY VINTAGE POKÉMON', Sub:'1999 BASE SET • WOTC • BOOSTER BOXES' },
   silver_neon:   { Headline:'WE BUY SILVER', 'Headline 2':'PAID TODAY' },
-  silver_ounce:  { Headline:'TOP DOLLAR FOR SILVER' },
+  silver_ounce:  { Headline:'CASH FOR SILVER' },
   silver_mirror: { Headline:'WE BUY SILVER' },
   coins_graded:  { Headline:'WE BUY GRADED COINS', Sub:'PCGS • NGC • RAW COLLECTIONS WELCOME' },
   strips_pickup: { Headline:'WE BUY TEST STRIPS', Sub:'PRIVATE • DISCREET • PAID ON PICKUP' },
@@ -6718,8 +7364,8 @@ const MAX_BG_BLUR = 0.004;
 function normaliseBackdrop(t){
   if (!t.bg || t.bg.type !== 'image') return 0;
   let n = 0;
-  if ((t.bg.blur || 0) > MAX_BG_BLUR){ t.bg.blur = MAX_BG_BLUR; n++; }
-  if (t.bg.scrimMode !== 'gradient'){ t.bg.scrimMode = 'gradient'; n++; }
+  if ((t.bg.blur || 0) > MAX_BG_BLUR && t.bg.blur < 1){ t.bg.blur = MAX_BG_BLUR; n++; }   // a blur of 1 and more is pixels on the card (rule 86), its own unit
+  if (t.bg.scrimMode !== 'gradient' && !scrimBands(t.bg.scrimMode)){ t.bg.scrimMode = 'gradient'; n++; }   // a bands shade (rule 87) is its own mode
   /* Do NOT boost the value when switching to a gradient. Reasoning that "a
      gradient's middle is clear so the peak can go up" and multiplying by 1.55
      double-counted: median dark share went 47% -> 82% and the photo drowned
@@ -7162,8 +7808,18 @@ const STYLE_BY_CAT = {
   strips:  ['photo','photo','wash','photo'],
 };
 const STYLE_MIX = ['duotone','wash','duotone','photo','wash','duotone'];  // fallback only
+const PG_LEGACY_GRADES = false;   // rule 56: photographs are never graded; see assignStyle()
 function assignStyle(t){
   if (!t.bg || !t.cat) return 0;
+  /* 2026-09-27, cohesion audit: the duotone and wash grades below were still
+     assigned to every classic on load and only undone, asynchronously, by
+     assets/ground-fix.json (128 of 129 rows), so the strip and the first
+     preview showed duotones the rule had retired, and neon_sell kept its
+     grade for good. Rule 56: the photograph keeps its own colour. No grade is
+     assigned; the ground table supplies the neutral shade, the classics not in
+     it stand on the photograph as shot under their own scrim. The measured
+     record below (the 0.18 to 0.58 story) stays as history. */
+  if (!PG_LEGACY_GRADES){ t.style = 'photo'; return 1; }
   const C = CAT_COLOUR[t.cat]; if (!C) return 0;
   let h = 0; for (let i = 0; i < t.id.length; i++) h = (h * 33 + t.id.charCodeAt(i)) >>> 0;
   const mix = STYLE_BY_CAT[t.cat] || STYLE_MIX;
@@ -7287,14 +7943,14 @@ function refreshCountCopy(){
    empty rectangle is found, and the product is fitted inside it with a margin.
    Below 300px of clear space there is no cutout at all. */
 const CAT_CUTOUTS = {
-  phones:  ['iphones-trio','iphone-cracked','iphone-front','iphones-cash','macbook-open','tablet-watch'],
-  gold:    ['gold-bars','gold-chains','gold-jewelry'],
-  silver:  ['silver-bars','silver-flatware'],
-  coins:   ['coin-stack','coin-slab'],
-  cars:    ['car-front','car-keys'],
-  strips:  ['strip-boxes','strip-kit'],
-  pokemon: ['poke-cards-fan','poke-slab','poke-booster'],
-  sports:  ['sports-cards','sports-slab'],
+  phones:  ['iphone-15-pro-back-white','iphone-cracked-corner','iphone-15-pro-front-on','iphone-17-pro-back-silver','macbook-open-angle','apple-watch-stack-three'],
+  gold:    ['gold-coins-pile','gold-jewelry-mixed','gold-scrap-mixed'],
+  silver:  ['silver-coins-spill','silver-flatware-set'],
+  coins:   ['coin-loose-pile','coin-graded-fan-three'],
+  cars:    ['car-sedan-rear','car-title-docs'],
+  strips:  ['strip-boxes'],
+  pokemon: ['poke-psa-charizard'],
+  sports:  ['ph-sports-slabs-fan','ph-sports-cards-fan','ph-sports-slab'],
 };
 /* Width of a text layer, estimated from its own metrics. Build time has no
    font loaded, so this is deliberately GENEROUS — over-reserving space costs a
@@ -7357,7 +8013,7 @@ function addProductCutout(t){
   while (at < t.layers.length && /^(vignette|grain|noise|grid|bokeh|beams|spot|diag)$/.test(t.layers[at].kind || '')) at++;
   t.layers.splice(at, 0, {
     kind:'cutout', name:'Product', role:'photo',
-    props:{ src: src, left: left, top: top, w: SIZE, opacity: 0.97,
+    props:{ src: src, left: left, top: top, w: SIZE, maxH: SIZE, opacity: 0.97,
             shadow:{ color:'rgba(0,0,0,0.6)', blur:46, offsetX:-10, offsetY:16 } }
   });
   return 1;
@@ -7498,12 +8154,14 @@ function tplDims(t){
   // hand-authored classic, which takes its tag as its family.
   const m = /^dl_([a-z]+)_([A-Za-z]+)_([a-z]+)$/.exec(t.id);
   const classic = 'classic:' + (t.tag || '');
+  /* the offer family (offer-library.js) carries its layout and look outright */
+  const o = !m && t.tag === 'offer' && t.layout ? t : null;
   d = {
     cat:    t.cat,
-    layout: m ? m[2] : classic,
-    pal:    m ? m[3] : classic,
+    layout: m ? m[2] : o ? 'offer:' + o.layout : classic,
+    pal:    m ? m[3] : o ? 'offer:' + o.look : classic,
     tag:    t.tag || '',
-    fam:    m ? (LAYOUT_FAMILY[m[2]] || m[2]) : classic,
+    fam:    m ? (LAYOUT_FAMILY[m[2]] || m[2]) : o ? 'offer:' + o.layout : classic,
   };
   _DIMS_CACHE.set(t.id, d);
   return d;
@@ -7548,7 +8206,7 @@ function varietyOrder(list, seed){
 // One ordering, used by both the views and the free-tier rule, so "the first
 // three you see are free" stays literally true.
 function orderedCatList(cat){
-  const list = TEMPLATES.filter(t => t.cat === cat);
+  const list = TEMPLATES.filter(t => t.cat === cat && !t.gated);   // a classic that fails the gate is not offered (rule 87)
   const isPhoto = t => !!(t.bg && t.bg.type === 'image');
   // Photo backdrops still lead (the placeholder-bg flow depends on it); the
   // variety pass runs inside each group, and the second group is seeded with
@@ -7573,7 +8231,7 @@ function tplLocked(t){
   if (freeFirst3()[t.cat] && freeFirst3()[t.cat].has(t.id)) return false;
   return !account || (account.plan || 'free') === 'free';
 }
-function firstFreeTplId(){ return (TEMPLATES.find(t => !tplLocked(t)) || TEMPLATES[0]).id; }
+function firstFreeTplId(){ return (TEMPLATES.find(t => !tplLocked(t) && !t.gated) || TEMPLATES[0]).id; }
 function refreshTplLocks(){
   document.querySelectorAll('.ez-tpl').forEach(b => {
     const t = TEMPLATES.find(x => x.id === b.dataset.tpl);
@@ -7588,7 +8246,7 @@ function ezDefaultChips(tpl){
 function ezChips(){ return ez.chips !== null ? ez.chips : ezDefaultChips(ezTpl()); }
 function cssBg(spec){
   if (spec.type === 'image'){
-    if (spec.src) return `url(${spec.src}) center/cover`;
+    if (spec.src) return `url(${assetUrl(spec.src)}) center/cover`;
     const fb = spec.fallback;
     return fb ? cssBg(fb) : '#101014';
   }
@@ -7604,6 +8262,8 @@ function warmTemplateAssets(){
   _tplAssetsWarmed = true;
   try { preloadTplBgs(); } catch (e){}
   try { preloadCutouts(); } catch (e){}
+  /* the offer family's faces, then its thumbnails drawn again with them */
+  try { ensureTemplateFonts(true).then(() => { TEMPLATES.forEach(t => { if (t.tag === 'offer') delete THUMBS[t.id]; }); ensureThumbs(); }); } catch (e){}
 }
 function showEasy(tplId){
   warmTemplateAssets();
@@ -7677,12 +8337,12 @@ function bindEasyUI(){
   const sw = $('ez-swatches');
   const orig = document.createElement('button');
   orig.className = 'ez-sw orig'; orig.textContent = 'ORIG'; orig.title = "Template's original background";
-  orig.onclick = () => { ez.bg = null; ez.bgRecId = null; ez.bgPicked = true; syncEzSwatches(); refreshEzRecents(); refreshEzLayers(); schedEzPreview(); };
+  orig.onclick = () => { ez.bg = null; ez.bgRecId = null; ez.bgPicked = true; ez.shade = 0; syncEzSwatches(); refreshEzRecents(); refreshEzLayers(); schedEzPreview(); };
   sw.appendChild(orig);
   BG_PRESETS.forEach((p, i) => {
     const b = document.createElement('button');
     b.className = 'ez-sw'; b.style.background = cssBg(p); b.dataset.i = i; b.title = 'Background ' + (i+1);
-    b.onclick = () => { ez.bg = p; ez.bgRecId = null; syncEzSwatches(); refreshEzRecents(); refreshEzLayers(); schedEzPreview(); };
+    b.onclick = () => { ez.bg = Object.assign({}, ezPresetSpecs()[i] || p); ez.bgRecId = null; ez.shade = 0; syncEzSwatches(); refreshEzRecents(); refreshEzLayers(); schedEzPreview(); };   // the six follow the theme
     sw.appendChild(b);
   });
   const photo = document.createElement('button');
@@ -7712,7 +8372,7 @@ function bindEasyUI(){
     ez.custom = e.target.value;
     cust.style.background = ez.custom;
     ez.bg = { type:'solid', c: ez.custom };
-    ez.bgRecId = null;
+    ez.bgRecId = null; ez.shade = 0;
     syncEzSwatches();
     refreshEzRecents();
     refreshEzLayers();
@@ -7741,6 +8401,8 @@ function bindEasyUI(){
   document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => b.dataset.goto === 'plans' ? openPlans() : showEasy(null));
   bindTxtPop();
   buildThemeRow();
+  if (typeof buildEzTagline === 'function') buildEzTagline();
+  if (typeof buildEzPhonePick === 'function') buildEzPhonePick();
 
   // star popover
   $('star-personal').onclick = () => starSave(false);
@@ -7838,13 +8500,66 @@ function selectEzTpl(id){
   ez.tpl = TEMPLATES.some(t => t.id === id) ? id : firstFreeTplId();
   ez.chips = null; // back to this template's default points
   ez.bgPicked = false; // fresh template → background is a placeholder again
+  ez.shade = 0;        // the gate's shade belongs to one background
+  /* ...unless the photograph IS the design (the offer family's photo band):
+     then it previews and exports as drawn, like an opened showcase card */
+  const designPhoto = (TEMPLATES.find(t => t.id === ez.tpl) || {}).photoIsDesign;
+  if (designPhoto){ ez.bg = null; ez.bgRecId = null; ez.bgPicked = true; }
+  /* a colour theme follows the visitor to the next card (it used to be dropped
+     here while its chip stayed lit); the ground it brought is decided again for
+     this card, a ground the visitor picked is kept */
+  else if (ez.theme) ezThemeGround(ez.theme, true);
   jset('pgfx_last', ez.tpl);
   document.querySelectorAll('.ez-tpl').forEach(b => b.classList.toggle('sel', b.dataset.tpl === ez.tpl));
   buildEzForm();
   syncEzChips();
+  syncEzThemes();
   syncEzSwatches();
   refreshEzLayers();
+  if (typeof ezPhonePickSync === 'function') ezPhonePickSync();
   schedEzPreview(0);
+  /* The background waves load photographs and product pictures in their own
+     order, and a template opened before its own arrived previewed without
+     them (the product missing, the photo on its gradient) until the next
+     keystroke. Fetch this template's own now, and redraw when they land. */
+  const picked = ez.tpl;
+  ensureTplAssets(ezTpl()).then(n => { if (n && ez.tpl === picked) schedEzPreview(0); });
+}
+/* this template's product pictures, photograph and faces; resolves with how
+   many had to be fetched (0: nothing to redraw). Never waits past 7s. A face
+   counts when it is not loaded yet at the weight the template sets it in:
+   ensureFont() returns at once for a face already asked for, loaded or not,
+   and a canvas drawn before the face lands keeps the fallback. */
+function ensureTplAssets(t){
+  if (!t) return Promise.resolve(0);
+  let n = 0;
+  const faceLoads = [];
+  (t.layers || []).forEach(l => {
+    const f = l.props && l.props.fontFamily;
+    if (!f || !document.fonts || !document.fonts.check) return;
+    const spec = (l.props.fontWeight || 400) + ' 24px "' + f + '"';
+    let ready = true;
+    try { ready = _fontLoaded.has(f) && document.fonts.check(spec); } catch (e){}
+    if (!ready){ n++; faceLoads.push(ensureFont(f).then(() => document.fonts.load(spec)).catch(() => {})); }
+  });
+  const load = (src, store, embedded) => new Promise(res => {
+    if (!src || (store[src] && store[src].width)) return res();
+    n++;
+    const el = new Image();
+    el.onload = () => { store[src] = el; res(); };
+    el.onerror = () => res();
+    el.src = (embedded && embedded[src]) || src;
+  });
+  const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
+  const fams = [...new Set((t.layers || []).map(l => l.props && l.props.fontFamily).filter(Boolean))];
+  const bg = t.bg && t.bg.type === 'image' ? t.bg.src : null;
+  return Promise.race([
+    Promise.all(cuts.map(src => load(src, CUTOUT_ELS)).concat([load(bg, TPL_BG_ELS, window.TPL_BG_DATA || {})], fams.map(f => ensureFont(f).catch(() => {})), faceLoads)),
+    new Promise(r => setTimeout(r, 7000)),
+  ]).then(() => {
+    if (n){ try { fabric.util.clearFabricFontCache(); } catch (e){} delete THUMBS[t.id]; }
+    return n;
+  });
 }
 
 function buildEzForm(){
@@ -7936,10 +8651,24 @@ function syncEzChips(){
 }
 function syncEzSwatches(){
   document.querySelectorAll('.ez-sw').forEach(b => b.classList.remove('sel'));
-  if (ez.bg === null) document.querySelector('.ez-sw.orig').classList.add('sel');
+  const t0 = ezTpl() || {};
+  ezSyncFx();
+  const presets = ezSyncPresets();                          // the six follow the theme (rule 86)
+  if (ez.bg === null){
+    /* the greyed-out placeholder is not a choice yet: ORIG lights only once
+       the template's own photograph is really drawn */
+    if (ez.bgPicked || !(t0.bg && t0.bg.type === 'image')) document.querySelector('.ez-sw.orig').classList.add('sel');
+  }
+  else if (ez.bg.slot != null && !ez.bg.src){ const b = document.querySelector(`.ez-sw[data-i="${ez.bg.slot}"]`); if (b) b.classList.add('sel'); }
+  else if (ez.bg.theme){ /* the colour theme's own ground: not a swatch of this row */ }
+  else if (ez.bg.type === 'image' && ez.bg.src){           // a ground or a photograph from "More grounds"
+    const b = [...document.querySelectorAll('.ez-gsw')].find(x => x.dataset.src === ez.bg.src && +x.dataset.blur === +(ez.bg.blur || 0));
+    if (b) b.classList.add('sel');
+  }
   else if (ez.bg.type === 'image') $('ez-sw-photo').classList.add('sel');
   else {
-    const idx = BG_PRESETS.indexOf(ez.bg);
+    /* by value: a draft restored from storage is a copy, never the same object */
+    const idx = presets.findIndex(p => ezSameGround(p, ez.bg));
     if (idx >= 0) document.querySelector(`.ez-sw[data-i="${idx}"]`).classList.add('sel');
     else $('ez-sw-custom').classList.add('sel');
   }
@@ -7961,7 +8690,7 @@ function placeholderBgImage(src){
   }
   try { return new fabric.Image(p); } catch (e){ return null; }
 }
-function renderEzCanvas(px, fmt, q, mode, format){
+function renderEzCanvas(px, fmt, q, mode, format, keep){
   /* 2026-09-02: Easy Mode exports in every format the editor has. Layers are
      built straight into the target document (buildLayer takes dw/dh, the same
      remap the advanced editor uses), the photo covers it, alignPass runs on
@@ -7984,13 +8713,22 @@ function renderEzCanvas(px, fmt, q, mode, format){
     if (mode === 'export' && !ez.bgPicked){
       bgSpec = rawBg.fallback || { type:'solid', c:'#101014' };
     } else {
-      const tbg = ez.bgPicked ? freshBgImage(rawBg.src, rawBg.blur, rawBg.grade) : placeholderBgImage(rawBg.src);
+      const tbg = ez.bgPicked ? freshBgImage(rawBg.src, ezBlurOn(rawBg.blur), rawBg.grade) : placeholderBgImage(rawBg.src);
       if (tbg){
         sc.setBackgroundImage(coverImage(tbg, DW, DH), () => {});
         if (rawBg.scrim) sc.add(scrimRect(rawBg.scrim, DW, DH, rawBg.scrimColor, rawBg.scrimMode));
         photoOk = true;
       } else bgSpec = rawBg.fallback || { type:'solid', c:'#101014' };
     }
+  }
+  /* a ground or a photograph picked under "More grounds" (ezGroundSpecs) */
+  if (!photoOk && ez.bg && ez.bg.type === 'image' && ez.bg.src){
+    const pb = ez.bg, im = freshBgImage(pb.src, ezBlurOn(pb.blur), pb.grade);
+    if (im){
+      sc.setBackgroundImage(coverImage(im, DW, DH), () => {});
+      if (pb.scrim) sc.add(scrimRect(pb.scrim, DW, DH, pb.scrimColor, pb.scrimMode));
+      photoOk = true;
+    } else bgSpec = (tpl.bg && tpl.bg.fallback) || { type:'solid', c:'#101014' };
   }
   if (!photoOk && bgSpec.type === 'image'){
     const im = ez.bgImgObj;   // the user's own photo, always theirs to use
@@ -8005,6 +8743,10 @@ function renderEzCanvas(px, fmt, q, mode, format){
     const fb = bgSpec.type === 'image' ? { type:'solid', c:'#101014' } : bgSpec;
     sc.add(bgRectFor(fb, DW, DH));
   }
+  const shade = ezShadeRect(DW, DH, tpl);       // the gate's fix: neutral shade until every line reads
+  if (shade) sc.add(shade);
+  const pat = ezPatternObj(DW, DH);
+  if (pat) sc.add(pat);
   const ov = ezOverlayRect(DW, DH);
   if (ov) sc.add(ov);
   const phone = $('ez-phone').value.trim();
@@ -8012,14 +8754,16 @@ function renderEzCanvas(px, fmt, q, mode, format){
   const chips = ezChips();
   let hasBadgeLayer = false;
   const hiddenNames = (ez.hidden && ez.hidden[tpl.id]) || [];
+  const swap = typeof ezPhoneSwap === 'function' ? ezPhoneSwap(tpl) : null;   // the phone the visitor picked
   tpl.layers.forEach(l => {
     if (hiddenNames.includes(l.name)) return;
+    if (swap && l === swap.from) l = swap.layer;
     if (l.role === 'badges'){
       hasBadgeLayer = true;
       if (!chips.length) return;
       const o = buildLayer(l, tpl.id, DW, DH);
       o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
-      sc.add(o);
+      sc.add(ezApplyStyle(o, l, tpl.id));   // the ✎ beside "Selling points" styles them (it used to do nothing on a card with its own list)
       return;
     }
     if (l.role === 'website' && !site) return; // no site typed → leave it off the ad
@@ -8052,8 +8796,33 @@ function renderEzCanvas(px, fmt, q, mode, format){
     }));
     sc.add(ezApplyStyle(bo, synth, tpl.id));
   }
+  sc.__look = (typeof ezTagSpec === 'function' && ezTagSpec()) || (typeof cardLookSpec === 'function' && cardLookSpec(tpl)) || null;   // what will paint the claim
+  ezGroundStack(sc, [pat, ov]);
+  if (typeof blockRemap === 'function') blockRemap(sc, DW, DH);    // tall formats: blocks move whole, plates keep their words
+  if (typeof tallFill === 'function') tallFill(sc, DW, DH);        // …and grow into what the photograph leaves plain
   alignPass(sc, DW, DH);
+  /* the colour theme, on the scene as laid out: plates, marks and lines, each
+     line solved against what it now stands on (themeScene). A colour the
+     visitor set on a line with ✎ stays theirs. */
+  const preview = !keep && !mode && (fmt || 'jpeg') === 'jpeg';
+  let themed = null;
+  try { ezOverlayPre(sc, DW, DH); } catch (e){ console.warn('GraphicsStudio overlay tone:', e); }
+  sc.__theme = ez.theme || null;     // the palette the tagline look takes (tplPalette)
+  if (ez.theme){
+    try { themed = themeScene(sc, ez.theme, DW, DH, { tpl, keep: o => { const st = ezStyleOf(o.name); return !!(st && st.fill); } }); }
+    catch (e){ console.warn('GraphicsStudio theme:', e); }
+  }
+  let followed = null;
+  if (!ez.theme && ezGroundIsFlat(ez.bg)){ try { followed = ezCopyFollowsGround(sc, DW, DH); } catch (e){ console.warn('GraphicsStudio copy on ground:', e); } }
+  try { ezOverlayFit(sc, DW, DH); } catch (e){ console.warn('GraphicsStudio overlay tone:', e); }
+  if (preview) ez._themed = themed ? themed.fills : followed;
+  /* the card finished and themed, then the tagline look the visitor picked
+     (or the card's own), on whichever template this is: last, so the look is
+     solved on the colours and the ground the card ends with, and the preview,
+     the download and the video are the same picture (DESIGN-LAW 83) */
+  ez.tagInfo = ezApplyTagline(sc, DW, DH, !keep && fmt === 'jpeg', (px || 560) / Math.min(DW, DH), tpl);
   sc.renderAll();
+  if (keep) return sc;          // the video export animates this exact scene, and disposes it
   const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / Math.min(DW, DH) });
   sc.dispose();
   return url;
@@ -8078,14 +8847,14 @@ function ezOverlayRect(w, h){
   const f = ez.fx;
   if (f.overlay === 'none' || !f.os) return null;
   const a = f.os / 100;
-  let fill;
-  if (f.overlay === 'tint') fill = hexToRgba(f.oc, a * 0.75);
-  else fill = new fabric.Gradient({
-    type:'linear', gradientUnits:'percentage',
-    coords: f.overlay === 'down' ? { x1:0.5, y1:0, x2:0.5, y2:1 } : { x1:0.5, y1:1, x2:0.5, y2:0 },
-    colorStops:[ { offset:0, color:'rgba(0,0,0,0)' }, { offset:0.45, color: hexToRgba(f.oc, a * 0.25) }, { offset:1, color: hexToRgba(f.oc, a) } ],
-  });
-  return new fabric.Rect({ left:0, top:0, width:w || CW, height:h || CH, fill, selectable:false, evented:false, name:'Overlay' });
+  /* 2026-09-27: the overlay is SHADE, never a hue (rules 56 and 85): the
+     visitor's colour picker used to lay a tint over the photograph, which is
+     the coloured haze the owner rejected. 'tint' saved in old drafts reads as
+     'shade'. Drawn dark (rule 62) until ezOverlayPre sets its tone from the
+     ground and ezOverlayFit confirms it from the copy on the photograph. */
+  const r = new fabric.Rect({ left:0, top:0, width:w || CW, height:h || CH, fill: ezOverlayFill(f.overlay, a, '#000000'), selectable:false, evented:false, name:'Overlay' });
+  r.pgOv = { kind: f.overlay, a, tone: '#000000' };
+  return r;
 }
 let _ezSaveT = null;
 function persistEzState(){
@@ -8094,7 +8863,9 @@ function persistEzState(){
     jset('pgfx_ez_state', {
       tpl: ez.tpl, vals: ez.vals, chips: ez.chips, styles: ez.styles, fx: ez.fx, hidden: ez.hidden,
       bgPicked: ez.bgPicked === true,
-      bg: (ez.bg && ez.bg.type !== 'image') ? ez.bg : null,   // photos live in Recents; specs persist
+      bg: (ez.bg && (ez.bg.type !== 'image' || isDrawnSrc(ez.bg.src))) ? ez.bg : null,   // photos live in Recents; specs (and drawn grounds) persist
+      shade: ez.shade || 0, shadeTone: ez.shadeTone || null,
+      theme: ez.theme ? ez.theme.name : null,
     });
   }, 400);
 }
@@ -8106,8 +8877,9 @@ function restoreEzState(){
   if (st.styles) ez.styles = st.styles;
   if (st.fx) ez.fx = Object.assign(ez.fx, st.fx);
   if (st.hidden) ez.hidden = st.hidden;
-  if (st.bg) ez.bg = st.bg;
+  if (st.bg) ez.bg = st.bg; ez.shade = st.shade || 0; ez.shadeTone = st.shadeTone || null;
   ez.bgPicked = st.bgPicked === true;
+  ez.theme = ezThemeByName(st.theme);
 }
 function schedEzPreview(delay){
   persistEzState();
@@ -8174,19 +8946,23 @@ async function ezDownload(skipBgCheck){
   }
   const gate = await gateExport(ezExportPx());
   if (!gate) return;
+  if (!await pgGate('ez', () => renderEzCanvas(1080, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true))) return;
   let url = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined);
-  if (gate.watermark) url = await applyWatermark(url, gate.px);
+  const EF = FORMATS[ez.format || 'square'] || FORMATS.square, ek = gate.px / Math.min(EF.w, EF.h), ew = Math.round(EF.w * ek), eh = Math.round(EF.h * ek);
+  if (gate.watermark) url = await applyWatermark(url, ew, eh);      // a story or a wide ad keeps its shape
   try { await recordExport(); }
   catch (e){ toast('Export could not be recorded: ' + e.message, 'error'); return; }
   const a = document.createElement('a');
   a.href = url;
   a.download = ezTpl().name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-ad-' + (ez.format && ez.format !== 'square' ? ez.format + '-' : '') + gate.px + '.png';
   document.body.appendChild(a); a.click(); a.remove();
-  addHistory(a.download, gate.px, url, undefined, undefined, {
+  addHistory(a.download, gate.px, url, ew, eh, {
     kind: 'ez',
     st: { tpl: ez.tpl, vals: ez.vals, chips: ez.chips, styles: ez.styles, fx: ez.fx, hidden: ez.hidden,
+          tag: Object.assign({}, ez.tag),
           bgPicked: ez.bgPicked === true,
-          bg: (ez.bg && ez.bg.type !== 'image') ? ez.bg : null },
+          bg: (ez.bg && (ez.bg.type !== 'image' || isDrawnSrc(ez.bg.src))) ? ez.bg : null, shade: ez.shade || 0, shadeTone: ez.shadeTone || null,
+          theme: ez.theme ? ez.theme.name : null },
     bgData: (ez.bg && ez.bg.type === 'image' && ez.bgData) ? ez.bgData : null,
   });
   toast('Downloaded, go post it!', 'success');
@@ -8195,7 +8971,13 @@ async function ezDownload(skipBgCheck){
 function openAdvancedFromEz(){
   const tpl = ezTpl();
   showEditor();
-  loadTemplate(tpl.id);
+  loadTemplate(tpl.id, { noTagline: true });
+  /* the phone picked in Easy Mode goes with the design */
+  const swap = typeof ezPhoneSwap === 'function' ? ezPhoneSwap(tpl) : null;
+  if (swap){
+    const objs = canvas.getObjects(), i = objs.findIndex(o => o.name === swap.from.name && o.type === 'image');
+    if (i >= 0){ canvas.remove(objs[i]); canvas.insertAt(buildLayer(swap.layer, tpl.id, CW, CH), i); }
+  }
   // carry the simple-mode choices onto the live canvas
   const phone = $('ez-phone').value.trim();
   const site = $('ez-website').value.trim();
@@ -8205,8 +8987,10 @@ function openAdvancedFromEz(){
   canvas.getObjects().slice().forEach(o => {
     if (hiddenNames.includes(o.name)){ canvas.remove(o); return; }
     if (o.pgRole === 'badges'){
-      if (chips.length) o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
-      else canvas.remove(o);
+      if (!chips.length){ canvas.remove(o); return; }
+      o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
+      const stB = (ez.styles[tpl.id] || {})[o.name], baseB = tpl.layers.find(x => x.name === o.name);
+      if (stB) o.set(ezStyleProps(stB, (baseB && baseB.props) || {}));   // the selling points' ✎ style, as Easy Mode drew it
       return;
     }
     if (o.pgRole === 'phone' && phone) o.set('text', formatPhone(phone));
@@ -8215,17 +8999,63 @@ function openAdvancedFromEz(){
       else canvas.remove(o);
     }
     else if (vals[o.name] !== undefined) o.set('text', cleanText(vals[o.name], o.pgCasing || 'none', o.pgRole));
+    /* REFIT, as Easy Mode does (renderEzCanvas): the fit was computed for the
+       authored words, and these are the visitor's. Single-line text only;
+       textboxes wrap. (2026-09-28: the editor used to keep the authored fit,
+       so a longer headline ran off the card.) */
+    const baseL = tpl.layers.find(x => x.name === o.name);
+    if (baseL && o.text !== undefined && baseL.kind !== 'textbox' && (o.type === 'i-text' || o.type === 'text')){
+      fitToDoc(o, baseL.props, CW);
+      if (baseL.pgOptical !== false && typeof opticalLeftShift === 'function') o.set('left', o.left - opticalLeftShift(o));
+    }
     const stOv = (ez.styles[tpl.id] || {})[o.name];
     if (stOv && o.text !== undefined){
-      const baseL = tpl.layers.find(x => x.name === o.name);
       o.set(ezStyleProps(stOv, (baseL && baseL.props) || {}));
       if (stOv.curve) textToCurved(o, stOv.curve);
     }
   });
-  if (ez.bg && ez.bg.type === 'image' && ez.bgData) setBgFromDataUrl(ez.bgData, false, ez.fx.blur);
-  else if (ez.bg){ bgState = Object.assign({}, ez.bg); applyBgSpec(canvas, bgState); syncBgControls(); }
-  const ovAdv = ezOverlayRect();
-  if (ovAdv){ canvas.add(ovAdv); canvas.sendToBack(ovAdv); }
+  /* the selling points Easy Mode synthesises when the template has no Badges layer */
+  if (chips.length && !canvas.getObjects().some(o => o.pgRole === 'badges')){
+    const bo = new fabric.IText(chips.map(c => '\u2713 ' + c).join('\n'), {
+      left: CW - 30, top: 30, originX: 'right', fontFamily: 'Satoshi', fontSize: 29, fill: '#ffffff', fontWeight: '800', charSpacing: 70, lineHeight: 1.5,
+      shadow: sh('rgba(0,0,0,0.6)', 10, 0, 3), paintFirst: 'stroke', name: 'Badges', pgRole: 'badges', pgCasing: 'upper', pgTplId: tpl.id });
+    canvas.add(bo);
+  }
+  alignPass(canvas, CW, CH);                       // the layout rules, on the visitor's words
+  /* the visitor's photograph, the pattern, the overlay; then the colour
+     theme and the tagline look, as Easy Mode drew them: the same passes over
+     the editor's own objects, against the editor's own ground. A photograph
+     of the visitor's own loads after this function returns, so both are
+     solved once it lands (they read what they stand on). */
+  const finish = () => {
+    try { ezOverlayPre(canvas, CW, CH); } catch (e){ console.warn('GraphicsStudio overlay tone (editor):', e); }
+    canvas.__theme = ez.theme || null;          // the palette the tagline look takes (tplPalette)
+    if (ez.theme){
+      try { themeScene(canvas, ez.theme, CW, CH, { tpl, keep: o => { const st = (ez.styles[tpl.id] || {})[o.name]; return !!(st && st.fill); } }); }
+      catch (e){ console.warn('GraphicsStudio theme (editor):', e); }
+    }
+    if (!ez.theme && ezGroundIsFlat(ez.bg)){ try { ezCopyFollowsGround(canvas, CW, CH); } catch (e){ console.warn('GraphicsStudio copy on ground (editor):', e); } }
+    try { ezOverlayFit(canvas, CW, CH); } catch (e){ console.warn('GraphicsStudio overlay tone (editor):', e); }
+    taglineFinish(canvas, CW, CH);
+    taglineShow(taglineApply(canvas, tpl, CW, CH), 'ed-tagnote');
+  };
+  const own = ez.bg && ez.bg.type === 'image' && ez.bgData;
+  if (own) setBgFromDataUrl(ez.bgData, true, ez.fx.blur, () => {
+    if (!canvas) return;
+    canvas.discardActiveObject();
+    finish();
+    canvas.renderAll(); pushHist();
+  });
+  else if (ez.bg){ bgState = Object.assign({}, ez.bg, ez.bg.src ? { blur: ezBlurOn(ez.bg.blur) } : {}); applyBgSpec(canvas, bgState); syncBgControls(); }
+  else if (ez.fx.blur > 0 && ez.bgPicked && tpl.bg && tpl.bg.type === 'image' && tpl.bg.src){   // the Easy blur reaches the template's own photograph too
+    bgState = Object.assign({}, tpl.bg, { blur: ezBlurOn(tpl.bg.blur) }); applyBgSpec(canvas, bgState); syncBgControls();
+  }
+  /* the pattern and the overlay above the ground, as Easy Mode draws them:
+     sent to the back, the overlay sat under a drawn or flat ground's own rect
+     and vanished (ezGroundStack) */
+  const patAdv = ezPatternObj(), ovAdv = ezOverlayRect();
+  ezGroundStack(canvas, [patAdv, ovAdv]);
+  if (!own) finish();
   canvas.renderAll();
   pushHist();
   refreshQuickFields();
@@ -8477,7 +9307,7 @@ function selectAllObjects(){
 }
 
 // ═══════════════ BOOT ═══════════════
-const CSS_FALLBACK = "/* ═══════════════════════════════════════════════════════════════════════════\n   GRAPHICS STUDIO — Liquid Glass chrome\n\n   Unified with unified-crm and the iphones.la launcher: same field, same glass\n   recipe, same accent, same radii, same tabular-mono law. The templates this\n   app produces went Liquid Glass on Aug 24; the chrome around them was still\n   flat-black-and-orange 2021 SaaS. Now they are one material.\n\n   Laws, carried over from the CRM theme:\n   1. Chrome is glass. Running text is opaque. A blur is for panels, never\n      for paragraphs.\n   2. ONE accent (#ff7a1a). The site now matches the PRODUCT it sells, not\n      the CRM: a page selling loud buyback ads should not look like a SaaS\n      dashboard. Colour that is not the accent means state:\n      green good, amber caution, red stop, violet AI.\n   3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and\n      wordmark only, as --brand-1/--brand-2, so the accent can be retuned for\n      contrast without repainting the brand.\n   4. Anything the eye compares — prices, counts, percentages, quotas — is set\n      in tabular mono. This is a tool, not prose.\n\n   Legacy tokens (--orange, --surface2, --muted …) are kept as ALIASES onto the\n   new system because app.js writes them into generated markup in ~250 places.\n   Retargeting --orange to the accent is what repaints those call sites.\n   Do not delete an alias without grepping app.js first.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── HOUSE TYPE ──────────────────────────────────────────────────────────────\n   Clash Display for anything that declares, Satoshi for anything that is read,\n   Zodiak when a serif is the point. All three are Fontshare (Indian Type\n   Foundry), free for commercial use, and VENDORED into assets/fonts rather\n   than pulled from a CDN: no third-party dependency, no extra CSP origin, no\n   render-blocking round trip to someone else's server. 184KB for nine files.\n\n   Why these and not the previous set: the library ran on Bebas Neue, Anton,\n   Montserrat, Luckiest Guy, Titan One, Bungee, Monoton and Pacifico. Those are\n   the default free-font shelf every Canva template is already built from, and\n   half of them are novelty faces — the opposite of an ad that asks a stranger\n   to hand over a phone for cash. `font-display:swap` so text paints\n   immediately in the fallback and reflows once the face lands. */\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n/* Khand carries the long money-words (\"TEST STRIPS\", \"COLLECTIBLES\") that made\n   a wide face overflow; Melodrama is the high-contrast serif for gold, coins\n   and anything that wants to read as valuation rather than clearance. Two more\n   voices so the 153 templates are not all in one typeface. */\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n\n/* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>\n   before first paint by the inline script in index.html, so there is no white\n   flash. This rule matches both the explicit choice and the bare default, so\n   dark still applies if that script never runs. */\n:root,\n:root[data-theme='dark']{\n  color-scheme:dark;\n\n  /* GRAPHITE, the default ground since 2026-09-02. The field used to be a warm\n     near-black (#141110) with brown surfaces under an orange accent, and the\n     owner's verdict was \"orange on brown on grey\". The ground is now a cool\n     neutral graphite so ANY accent sits on it cleanly; the old warm set is\n     kept, whole, as data-skin='ember' below. Accent colour is a separate axis\n     (data-accent) so the two can be mixed from the Look menu. */\n\n  /* Field */\n  --field:#0f1116;\n  --wash-a:rgba(var(--accent-rgb),.26);\n  --wash-b:rgba(var(--accent2-rgb),.18);\n  --wash-c:rgba(0,214,180,.10);\n\n  /* Glass */\n  --glass-bg:rgba(24,27,34,.62);\n  --glass-bg-strong:rgba(24,27,34,.86);\n  --glass-edge:rgba(255,255,255,.12);\n  --glass-blur:blur(34px) saturate(190%) brightness(1.04);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 38px -12px rgba(0,0,0,.6);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.10),0 24px 60px -14px rgba(0,0,0,.75);\n\n  /* Opaque content surfaces */\n  --surface-solid:#171a21;\n  --surface-sunk:rgba(255,255,255,.055);\n  --surface-raise:#1f232c;\n\n  /* Ink — cool neutrals */\n  --text:#f2f4f8;\n  --text-2:#c3c9d6;\n  --text-dim:#8b94a7;\n  --hairline:rgba(255,255,255,.09);\n  --hairline-strong:rgba(255,255,255,.16);\n\n  /* Accent — BLUE MARKET by default (the palette the owner kept most often\n     in the template reviews). See the data-accent blocks for the others. */\n  --accent:#4d9cff;\n  --accent-ink:#061527;\n  --accent-wash:rgba(77,156,255,.16);\n  --accent-deep:#2b7de9;\n  --accent-soft:#cfe4ff;\n  --accent-rgb:77,156,255;\n  --accent2-rgb:120,90,255;\n\n  --good:#30d68f;\n  --warn:#ffb03d;\n  --danger:#ff6259;\n  --ai:#a78bff;\n\n  /* Brand — follows the accent now. The mark used to carry its own orange\n     regardless of the UI accent; that is the one place orange survived the\n     retune, so it is tied to the accent axis instead. */\n  --brand-1:var(--accent);\n  --brand-2:var(--accent-soft);\n  --brand-rgb:var(--accent-rgb);\n\n  --r-pill:999px;\n  --r-lg:18px;\n  --r-md:13px;\n  --r-sm:9px;\n  --tap:44px;\n\n  --lift-1:0 1px 2px rgba(0,0,0,.4),0 4px 12px -4px rgba(0,0,0,.5);\n  --lift-2:0 2px 6px rgba(0,0,0,.45),0 18px 42px -14px rgba(0,0,0,.68),0 0 0 1px rgba(255,255,255,.045);\n  --lift-3:0 4px 12px rgba(0,0,0,.5),0 40px 90px -22px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.5);\n\n  --stage-1:#14171d;\n  --stage-2:#0a0c10;\n  --stage-dot:rgba(255,255,255,.045);\n  --scrim:rgba(8,10,14,.74);\n\n  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;\n  /* Satoshi runs the whole product, chrome included. The system stack stays\n     behind it as the fallback, so a failed font load degrades to exactly the\n     UI we shipped before rather than to Times. */\n  --ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;\n  --display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;\n  --serif:'Zodiak',Georgia,'Times New Roman',serif;\n\n  /* ── legacy aliases (app.js depends on every one of these) ── */\n  --bg:var(--field);\n  --surface:var(--surface-solid);\n  --surface2:var(--surface-raise);\n  --surface3:#2a2f3a;\n  --border:var(--hairline);\n  --border2:var(--hairline-strong);\n  --orange:var(--accent);\n  --orange2:var(--accent-deep);\n  --gold:var(--warn);\n  --green:var(--good);\n  --red:var(--danger);\n  --muted:var(--text-dim);\n  --muted2:var(--text-2);\n  --panel:var(--surface-solid);\n  --panel2:var(--surface-raise);\n  --line:var(--hairline);\n  --r:var(--r-md);\n}\n\n/* EMBER — the pre-2026-09-02 warm look, kept as a selectable skin. */\n:root[data-theme='dark'][data-skin='ember']{\n  --field:#141110;\n  --wash-a:rgba(var(--accent-rgb),.34);\n  --wash-b:rgba(var(--accent2-rgb),.26);\n  --wash-c:rgba(255,196,60,.20);\n  --glass-bg:rgba(34,27,23,.62);\n  --glass-bg-strong:rgba(34,27,23,.86);\n  --glass-edge:rgba(255,255,255,.13);\n  --surface-solid:#1d1815;\n  --surface-raise:#262019;\n  --text:#f6efe8;\n  --text-2:#cfc2b6;\n  --text-dim:#9a8b7e;\n  --stage-1:#1a1512;\n  --stage-2:#0d0a08;\n  --scrim:rgba(14,9,6,.74);\n  --surface3:#33291f;\n}\n\n/* NIGHT — deep jewel ground, vivid washes, the Night Neon family's material. */\n:root[data-theme='dark'][data-skin='night']{\n  --field:#0a0913;\n  --wash-a:rgba(var(--accent-rgb),.44);\n  --wash-b:rgba(var(--accent2-rgb),.34);\n  --wash-c:rgba(0,214,180,.18);\n  --glass-bg:rgba(28,24,56,.58);\n  --glass-bg-strong:rgba(28,24,56,.84);\n  --glass-edge:rgba(255,255,255,.14);\n  --glass-blur:blur(40px) saturate(220%) brightness(1.06);\n  --surface-solid:#15132a;\n  --surface-raise:#1d1a36;\n  --surface-sunk:rgba(255,255,255,.06);\n  --text:#f3f0ff;\n  --text-2:#c9c3e8;\n  --text-dim:#8f88b8;\n  --hairline:rgba(255,255,255,.10);\n  --hairline-strong:rgba(255,255,255,.18);\n  --glow-accent:0 10px 40px -6px rgba(var(--accent-rgb),.7);\n  --stage-1:#14122a;\n  --stage-2:#08071a;\n  --scrim:rgba(6,5,16,.76);\n  --surface3:#26224a;\n}\n\n/* LIGHT — opt-in, for daylight and for turning the screen toward someone.\n   Higher specificity than the bare :root above, so it wins wherever the dark\n   default set a value. Radii, faces and the mono stack are theme-independent. */\n:root[data-theme='light']{\n  color-scheme:light;\n  --field:#f3f4f7;\n  --wash-a:rgba(var(--accent-rgb),.14);\n  --wash-b:rgba(var(--accent2-rgb),.10);\n  --wash-c:rgba(0,214,180,.08);\n  --glass-bg:rgba(255,255,255,.58);\n  --glass-bg-strong:rgba(255,255,255,.80);\n  --glass-edge:rgba(255,255,255,.9);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(9,18,38,.045),0 1px 2px rgba(9,18,38,.05),0 14px 38px -12px rgba(9,18,38,.16);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.95),0 24px 60px -14px rgba(9,18,38,.30);\n  --surface-solid:#ffffff;\n  --surface-sunk:rgba(9,18,38,.042);\n  --surface-raise:#f8f9fc;\n  --text:#14161c;\n  --text-2:#4a5060;\n  --text-dim:#6b7280;\n  --hairline:rgba(9,18,38,.09);\n  --hairline-strong:rgba(9,18,38,.16);\n  --accent:#1d63d8;\n  --accent-ink:#ffffff;\n  --accent-wash:rgba(29,99,216,.12);\n  --accent-deep:#174fae;\n  --accent-soft:#dbe8ff;\n  --accent-rgb:29,99,216;\n  --accent2-rgb:109,63,214;\n  --good:#0f9d6b;\n  --warn:#c2751a;\n  --danger:#e0342a;\n  --ai:#6c4cff;\n  --lift-1:0 1px 2px rgba(9,18,38,.06),0 4px 12px -4px rgba(9,18,38,.10);\n  --lift-2:0 2px 6px rgba(9,18,38,.07),0 18px 42px -14px rgba(9,18,38,.20),0 0 0 1px rgba(9,18,38,.05);\n  --lift-3:0 4px 12px rgba(9,18,38,.08),0 40px 90px -22px rgba(9,18,38,.28),0 0 0 1px rgba(9,18,38,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.34);\n  --stage-1:#eef0f4;\n  --stage-2:#dfe3ea;\n  --stage-dot:rgba(9,18,38,.07);\n  --scrim:rgba(120,132,155,.42);\n  --surface3:#e9ecf2;\n}\n\n/* PAPER — light, editorial: a warm paper ground, ink type, a serif display\n   face, hairlines instead of glass. The Paper and Chalk template families'\n   material, applied to the chrome. */\n:root[data-theme='light'][data-skin='paper']{\n  --field:#f7f4ee;\n  --wash-a:rgba(var(--accent-rgb),.07);\n  --wash-b:rgba(var(--accent2-rgb),.05);\n  --wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(251,249,244,.82);\n  --glass-bg-strong:rgba(251,249,244,.94);\n  --glass-edge:rgba(30,25,15,.10);\n  --glass-blur:blur(12px) saturate(120%);\n  --glass-shadow:0 1px 0 rgba(30,25,15,.05);\n  --glass-shadow-lift:0 20px 50px -18px rgba(30,25,15,.22);\n  --surface-solid:#fffdf9;\n  --surface-sunk:rgba(30,25,15,.045);\n  --surface-raise:#f1ece3;\n  --text:#1a1815;\n  --text-2:#4e4842;\n  --text-dim:#6d665e;\n  --hairline:rgba(30,25,15,.11);\n  --hairline-strong:rgba(30,25,15,.20);\n  --stage-1:#f1ece3;\n  --stage-2:#e4dccf;\n  --scrim:rgba(90,80,64,.42);\n  --surface3:#e9e2d6;\n  --r-lg:12px;\n  --r-md:9px;\n  --r-sm:6px;\n  --display:'Zodiak',Georgia,'Times New Roman',serif;\n}\n\n/* ACCENT AXIS. Five accents, each with a dark and a light value pair; the\n   ground (skin) never changes with the accent, which is what makes them\n   mixable. Blue is the default and lives in the base blocks above. */\n:root[data-accent='mint']{--accent:#3ddc97;--accent-ink:#04170e;--accent-wash:rgba(61,220,151,.16);--accent-deep:#1fb87a;--accent-soft:#c9f5e2;--accent-rgb:61,220,151;--accent2-rgb:77,156,255}\n:root[data-theme='light'][data-accent='mint']{--accent:#0f8f5f;--accent-ink:#ffffff;--accent-wash:rgba(15,143,95,.12);--accent-deep:#0b6f4a;--accent-soft:#d3f3e4;--accent-rgb:15,143,95;--accent2-rgb:29,99,216}\n:root[data-accent='orchid']{--accent:#b48cff;--accent-ink:#120a24;--accent-wash:rgba(180,140,255,.16);--accent-deep:#8f5cff;--accent-soft:#e6d8ff;--accent-rgb:180,140,255;--accent2-rgb:255,120,190}\n:root[data-theme='light'][data-accent='orchid']{--accent:#6d3fd6;--accent-ink:#ffffff;--accent-wash:rgba(109,63,214,.12);--accent-deep:#5530b0;--accent-soft:#e9dfff;--accent-rgb:109,63,214;--accent2-rgb:214,63,150}\n:root[data-accent='gold']{--accent:#f2c744;--accent-ink:#1a1300;--accent-wash:rgba(242,199,68,.16);--accent-deep:#d9a815;--accent-soft:#ffe9a8;--accent-rgb:242,199,68;--accent2-rgb:255,122,26}\n:root[data-theme='light'][data-accent='gold']{--accent:#a6700a;--accent-ink:#ffffff;--accent-wash:rgba(166,112,10,.12);--accent-deep:#8a5b06;--accent-soft:#f7e7b8;--accent-rgb:166,112,10;--accent2-rgb:194,65,12}\n:root[data-accent='orange']{--accent:#ff7a1a;--accent-ink:#1a0d04;--accent-wash:rgba(255,122,26,.18);--accent-deep:#e04e05;--accent-soft:#ffd7a1;--accent-rgb:255,122,26;--accent2-rgb:255,80,30;--brand-1:#ff7a33;--brand-2:#f5a623}\n:root[data-theme='light'][data-accent='orange']{--accent:#c2410c;--accent-ink:#ffffff;--accent-wash:rgba(194,65,12,.13);--accent-deep:#9a3412;--accent-soft:#ffd7a1;--accent-rgb:194,65,12;--accent2-rgb:255,80,30;--brand-1:#f2600c;--brand-2:#e09417}\n\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}\nhtml{scroll-behavior:smooth}\nbody{\n  font-family:var(--ui);\n  font-size:15px;\n  line-height:1.45;\n  letter-spacing:-.006em;\n  background:var(--field);\n  color:var(--text);\n  overflow-x:hidden;\n  -webkit-font-smoothing:antialiased;\n}\n\n/* THE FIELD — three layers, because one gradient looks like a template.\n   1. Aurora: two large soft colour bodies, off-centre and different sizes, so\n      the eye reads atmosphere rather than wallpaper.\n   2. Geometry: thin arcs and a conic wedge, so a blurred panel moving over an\n      EDGE refracts visibly. Glass over flat colour is just tinted plastic.\n   3. Vignette + grain: corners fall away, and wide displays stop banding. */\nbody::before{\n  content:'';position:fixed;inset:-25%;z-index:-2;pointer-events:none;\n  background:\n    radial-gradient(circle at 78% 18%,transparent 27.4%,rgba(120,160,255,.055) 27.6%,rgba(120,160,255,.055) 28.4%,transparent 28.6%),\n    radial-gradient(circle at 16% 74%,transparent 33.4%,rgba(165,97,255,.05) 33.6%,rgba(165,97,255,.05) 34.3%,transparent 34.5%),\n    conic-gradient(from 210deg at 88% 82%,rgba(0,214,180,.05),transparent 38%),\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%);\n  animation:field-drift 48s ease-in-out infinite alternate;\n}\n@keyframes field-drift{\n  from{transform:translate3d(0,0,0) scale(1)}\n  to{transform:translate3d(-1.5%,1.2%,0) scale(1.04)}\n}\nbody::after{\n  content:'';position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;\n  background-image:\n    radial-gradient(120% 90% at 50% 45%,transparent 42%,rgba(0,0,0,.30) 100%),\n    url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.035'/></svg>\");\n}\n/* The editor is a full-height app shell that paints its own stage, so the\n   marketing field would only burn GPU behind it. Driven by :has() rather than\n   a body class, so app.js needs no change to page switching. */\nbody:has(#page-editor.active)::before,\nbody:has(#page-editor.active)::after{display:none}\n\nbutton{font-family:inherit}\ninput,textarea,select{font-family:inherit;color:var(--text)}\n::-webkit-scrollbar{width:10px;height:10px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px;border:3px solid transparent;background-clip:content-box}\n::-webkit-scrollbar-thumb:hover{background:var(--text-dim);background-clip:content-box}\n:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}\n@media (prefers-reduced-motion:reduce){\n  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}\n  body::before{animation:none}\n}\n\n/* ═══════════ HOUSE UTILITIES (shared vocabulary with the CRM) ═══════════ */\n.glass{\n  position:relative;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);\n  backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  box-shadow:var(--glass-shadow);\n}\n/* A single hairline all the way round reads as a border. Real glass catches\n   light on the edge facing the source and loses it on the far side, so this\n   paints a gradient rim: bright top-left, gone by bottom-right. Cheapest thing\n   that separates \"panel with a border\" from \"pane of glass\". */\n.glass::after{\n  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;\n  background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.05) 34%,transparent 60%);\n  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);\n  -webkit-mask-composite:xor;mask-composite:exclude;\n  pointer-events:none;z-index:0;\n}\n.glass>*{position:relative;z-index:1}\n.glass-strong{background:var(--glass-bg-strong)}\n/* Anything the eye compares. */\n.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}\n.label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}\n\n/* ═══════════ SHARED ═══════════ */\n.btn{\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;\n  min-height:36px;padding:9px 18px;\n  border-radius:var(--r-pill);\n  font-size:14px;font-weight:600;letter-spacing:-.01em;line-height:1.2;\n  cursor:pointer;border:none;text-decoration:none;white-space:nowrap;\n  transition:transform .08s cubic-bezier(.2,0,0,1),filter .15s ease,background .15s ease,border-color .15s ease,color .15s ease;\n}\n.btn:active{transform:scale(.968)}\n.btn-primary{\n  background:linear-gradient(180deg,var(--accent),var(--accent-deep));\n  color:var(--accent-ink);\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent);\n}\n.btn-primary:hover{filter:brightness(1.06)}\n.btn-ghost{background:transparent;color:var(--text-2)}\n.btn-ghost:hover{color:var(--text);background:var(--surface-sunk)}\n.btn-outline{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  color:var(--text);border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow);\n}\n.btn-outline:hover{background:var(--surface-raise);color:var(--text)}\n.btn-dark{background:var(--surface-sunk);color:var(--text);border:1px solid var(--hairline)}\n.btn-dark:hover{background:var(--surface-raise)}\n.btn-xl{padding:15px 30px;font-size:16px;min-height:52px}\n.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}\n\n/* Theme toggle — same control on every surface. */\n.theme-btn{\n  width:36px;height:36px;flex:none;display:inline-grid;place-items:center;\n  border-radius:var(--r-pill);background:transparent;border:none;cursor:pointer;\n  color:var(--text-2);font-size:15px;line-height:1;\n  transition:background .15s ease,color .15s ease;\n}\n.theme-btn:hover{background:var(--surface-sunk);color:var(--text)}\n\n.notif{\n  position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);color:var(--text);\n  padding:12px 20px;border-radius:var(--r-pill);font-size:14px;font-weight:600;\n  z-index:9500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;\n  box-shadow:var(--glass-shadow-lift);max-width:min(90vw,480px);text-align:center;\n}\n.notif.show{opacity:1;transform:translate(-50%,0)}\n.notif.success{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(48,214,143,.45)}\n.notif.error{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(255,98,89,.5)}\n\n/* modal */\n.modal-overlay{\n  position:fixed;inset:0;background:var(--scrim);\n  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);\n  z-index:8000;display:none;align-items:center;justify-content:center;padding:24px;\n}\n.modal-overlay.show{display:flex}\n.modal{\n  position:relative;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:22px;width:100%;max-width:520px;padding:26px;\n  box-shadow:var(--glass-shadow-lift);animation:pop .18s cubic-bezier(.2,0,0,1);\n}\n@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}\n.modal h3{font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:4px}\n.modal .modal-sub{font-size:13.5px;color:var(--text-dim);margin-bottom:18px;line-height:1.5}\n.modal label{display:block;font-size:10.5px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.09em}\n.modal input[type=text],.modal input[type=tel],.modal input[type=email],.modal input[type=password]{\n  width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);\n  border-radius:var(--r-md);padding:11px 13px;font-size:14px;color:var(--text);\n  transition:border-color .14s ease,box-shadow .14s ease;\n}\n.modal input::placeholder{color:var(--text-dim)}\n.modal input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}\n\n/* ═══════════ LANDING ═══════════ */\n#page-landing{min-height:100vh}\n.lp-nav{\n  position:fixed;top:0;left:0;right:0;z-index:300;height:64px;\n  display:flex;align-items:center;gap:8px;padding:0 clamp(16px,4vw,40px);\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n  box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -20px rgba(0,0,0,.6);\n}\n.logo{\n  font-family:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;\n  color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px;\n  cursor:pointer;background:none;border:none;\n}\n.logo .logo-mark{\n  width:30px;height:30px;border-radius:9px;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:#fff;\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 12px -4px rgba(var(--brand-rgb),.5);\n}\n/* Brand warmth lives here and nowhere else. */\n.logo em{\n  font-style:normal;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  -webkit-background-clip:text;background-clip:text;color:transparent;\n}\n.lp-nav-links{display:flex;gap:26px;margin-left:40px}\n.lp-nav-links a{font-size:14px;font-weight:550;color:var(--text-2);text-decoration:none;transition:color .15s;white-space:nowrap}\n.lp-nav-links a:hover{color:var(--text)}\n.lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}\n.lp-lab{white-space:nowrap}\n@media(max-width:640px){\n  .lp-nav-links{display:none}\n  /* The lab link is the one nav item that must survive on a phone (it is\n     reviewed from one). Measured at 375px: wordmark 186 + lab pill + toggle\n     + \"Make my ad\" overflowed by ~80px and the CTA clipped, so the logo\n     drops to its mark alone here; the mark keeps its own font-size below. */\n  .lp-nav .logo{font-size:0;gap:0}\n  .lp-lab{padding:9px 12px}\n  /* 343px of usable nav at 375 viewport cannot hold logo + 4 controls, and\n     overflow-x:hidden was silently clipping \"Make my ad\" off the right edge.\n     Log in / Sign up free stay reachable in the footer's Account column and\n     from the studio itself, so the one conversion button survives here. */\n  #lp-login,#lp-signup{display:none}\n  .lp-nav{gap:4px;padding:0 12px}\n  .lp-nav .btn{padding:9px 14px;font-size:13.5px}\n  .lp-nav .lp-caret{padding:9px 10px}\n  .logo{font-size:15px;gap:8px}\n  .logo .logo-mark{width:26px;height:26px;font-size:13px}\n}\n\n.hero{padding:120px clamp(16px,5vw,48px) 72px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(84vh,760px)}\n@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:120px;gap:44px;min-height:0}}\n.hero-eyebrow{\n  display:inline-flex;align-items:center;gap:8px;\n  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;\n  color:var(--accent);background:var(--accent-wash);\n  border:.5px solid rgba(var(--accent-rgb),.28);\n  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:22px;\n}\n/* The ceiling at which \"in under a minute.\" still sets on ONE line inside the\n   1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is face-specific and\n   has now caught two typefaces out: the system stack held one line to 68px,\n   Clash Display breaks at 66 (it runs ~8.4x its size for that string against\n   a 548px column at 1280). Re-measure this if --display ever changes again;\n   guessing produces a four-line ragged hero. */\n.hero h1{font-family:var(--display);font-size:clamp(34px,4.5vw,58px);line-height:1.06;letter-spacing:-.028em;margin-bottom:20px;font-weight:700}\n.hero h1 em{font-style:normal;color:var(--accent)}\n.hero p{font-size:17px;line-height:1.65;color:var(--text-2);max-width:480px;margin-bottom:32px}\n.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}\n.hero-note{margin-top:18px;font-size:13px;color:var(--text-dim)}\n\n/* Height is set by the fan's geometry, not by taste: the front card must start\n   BELOW the back cards' phone-number band or it buries the one element the ad\n   exists to deliver. At 460px with 52% cards it covered 53% and 54% of them. */\n.hero-stack{position:relative;height:500px}\n.hero-card{position:absolute;width:44%;aspect-ratio:1;border-radius:20px;overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-3);background:var(--surface-raise);transition:transform .4s cubic-bezier(.2,0,0,1)}\n.hero-card img{width:100%;height:100%;object-fit:cover;display:block}\n/* Fan geometry is measured, not eyeballed. At 57% wide the three cards came to\n   192% of the stack and the back card was 57% OCCLUDED — its headline was\n   sliced in half, which reads as a broken page rather than a designed stack.\n   At 52% the overlap is ~19%/~18% and, more importantly, all of it lands in\n   the LOWER band: hc3 starts at y=201 of a 460 stack, below where every\n   template puts its headline. Change these together, and re-measure the\n   occlusion if you touch the width. */\n.hero-card.hc1{top:0;left:0;transform:rotate(-8deg);z-index:1}\n.hero-card.hc2{top:4%;right:2%;transform:rotate(6deg);z-index:2}\n.hero-card.hc3{bottom:0;left:20%;transform:rotate(-1deg);z-index:3;box-shadow:var(--lift-3),0 30px 90px -20px rgba(var(--accent-rgb),.35)}\n/* Mobile fan. MUST come after the base .hero-card rules: at equal specificity\n   the later rule wins, and an earlier media query silently lost to the 52%\n   default — the block applied, the width did not.\n   Taller and narrower here because at 380px the three cards had nowhere to go\n   and the front one landed across the other two's phone numbers (measured 71%\n   and 55% of the number band covered), which is the one element the ad exists\n   to deliver. */\n@media(max-width:900px){\n  .hero-stack{height:446px;max-width:440px;margin:0 auto;width:100%}\n  .hero-card{width:46%}\n  /* Overlap SIDEWAYS, separate VERTICALLY. Pulling the cards fully apart cleared\n     the phone numbers but lost the stack entirely — three scattered squares, no\n     depth. Horizontal overlap gives the layered read back; the vertical gaps are\n     what keep each card's number band uncovered. */\n  .hero-card.hc1{top:0;left:0}\n  .hero-card.hc2{top:7%;right:4%}\n  .hero-card.hc3{bottom:0;left:17%}\n}\n/* Any card can be brought to the front — hover on a pointer device, press and\n   hold on touch. The whole stack dims slightly so the chosen one reads as\n   picked rather than merely bigger. */\n/* ═══════════ HERO ENTRANCE ═══════════\n   The three cards fly in from below-and-apart and settle into the fan, so the\n   stack assembles itself in front of the visitor instead of being there already.\n   Each card keeps its OWN resting transform, so the animation has to end on that\n   exact value or the card snaps when the keyframes hand back to CSS — hence a\n   per-card @keyframes rather than one shared one.\n   Staggered back-to-front so the card you are meant to read lands last.\n   `animation-fill-mode:both` holds the opening frame during the delay, which is\n   what stops all three flashing at their final position on first paint. */\n@keyframes heroIn1{\n  0%  {opacity:0; transform:translate3d(-38px,64px,0) rotate(-16deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-8deg) scale(1)}\n}\n@keyframes heroIn2{\n  0%  {opacity:0; transform:translate3d(38px,72px,0) rotate(14deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(6deg) scale(1)}\n}\n@keyframes heroIn3{\n  0%  {opacity:0; transform:translate3d(0,88px,0) rotate(6deg) scale(.86)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-1deg) scale(1)}\n}\n/* Cards default to VISIBLE. An earlier version set opacity:0 here and relied on\n   a JS class to reveal them — so the moment requestAnimationFrame did not run\n   (a background tab, a script error anywhere above) the hero was simply blank.\n   The animation supplies its own opening frame through fill-mode:both, so\n   nothing needs to be hidden up front for it to work. Fail visible. */\n.hero-stack.ready .hero-card.hc1{animation:heroIn1 .92s cubic-bezier(.16,.84,.28,1) .05s both}\n.hero-stack.ready .hero-card.hc2{animation:heroIn2 .92s cubic-bezier(.16,.84,.28,1) .17s both}\n.hero-stack.ready .hero-card.hc3{animation:heroIn3 1.0s cubic-bezier(.16,.84,.28,1) .30s both}\n/* Once the entrance has finished the animation is removed entirely, so the\n   hover transform is not fighting a finished animation for the same property.\n   Selector must be enumerated per card: `.hero-stack.settled .hero-card` is\n   three classes and LOSES to `.hero-stack.ready .hero-card.hc1`, which is four\n   — so `animation:none` silently never applied and the cards stayed frozen on\n   the animation's opening frame. Matching specificity, declared later, wins. */\n.hero-stack.settled .hero-card.hc1,\n.hero-stack.settled .hero-card.hc2,\n.hero-stack.settled .hero-card.hc3{animation:none;opacity:1}\n@media (prefers-reduced-motion:reduce){\n  .hero-card{opacity:1}\n  .hero-stack.ready .hero-card{animation:none}\n}\n.hero-card{cursor:pointer;will-change:transform}\n.hero-stack:hover .hero-card,.hero-stack.touching .hero-card{filter:brightness(.72) saturate(.9)}\n/* Hover pulls a card OUT of the stack: z-index above its siblings, straightened,\n   lifted and enlarged. Without the z-index the card grew but stayed underneath,\n   which read as a glitch rather than a pick-up. */\n.hero-card.hc1:hover,.hero-card.hc1.lifted,\n.hero-card.hc2:hover,.hero-card.hc2.lifted,\n.hero-card.hc3:hover,.hero-card.hc3.lifted{z-index:9}\n.hero-card.hc1:hover,.hero-card.hc1.lifted{transform:rotate(-2deg) translateY(-18px) scale(1.09)}\n.hero-card.hc2:hover,.hero-card.hc2.lifted{transform:rotate(1.5deg) translateY(-18px) scale(1.09)}\n.hero-card.hc3:hover,.hero-card.hc3.lifted{transform:rotate(0deg) translateY(-20px) scale(1.09)}\n.hero-card:hover,.hero-card.lifted{\n  z-index:9!important;filter:none!important;\n  box-shadow:var(--lift-3),0 34px 90px -18px rgba(var(--accent-rgb),.5);\n}\n.hero-card .hc-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n@keyframes shimmer{to{background-position:-200% 0}}\n\n.lp-section{max-width:1200px;margin:0 auto;padding:80px clamp(16px,5vw,48px)}\n.lp-section-head{margin-bottom:38px}\n.lp-kicker{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}\n.lp-section-head h2{font-family:var(--display);font-size:clamp(30px,4vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.08}\n.lp-section-head p{color:var(--text-dim);font-size:15px;margin-top:12px;max-width:560px;line-height:1.6}\n\n.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:20px}\n.tpl-card{position:relative;border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--glass-edge);background:var(--surface-raise);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s;aspect-ratio:1;box-shadow:var(--lift-1)}\n.tpl-card:hover{transform:translateY(-4px);box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.4)}\n.tpl-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}\n.tpl-card .tpl-veil{position:absolute;inset:0;backdrop-filter:blur(1.6px) brightness(.86);transition:backdrop-filter .25s,opacity .25s}\n.tpl-card:hover .tpl-veil{backdrop-filter:blur(0) brightness(1);opacity:0}\n.tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}\n.tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}\n.tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-soft);background:rgba(0,0,0,.55);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-pill);padding:4px 9px}\n.tpl-card .tpl-use{position:absolute;top:12px;right:12px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;box-shadow:var(--glow-accent)}\n.tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}\n.tpl-card .tpl-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n.tpl-card.tpl-saved-card .tpl-del{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:14px;opacity:0;transition:opacity .2s}\n.tpl-card.tpl-saved-card:hover .tpl-del{opacity:1}\n.tpl-card .tpl-del:hover{color:var(--danger);border-color:var(--danger)}\n\n.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n@media(max-width:820px){.flow{grid-template-columns:1fr}}\n.flow-step{\n  position:relative;background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.flow-step .fs-num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:14px}\n.flow-step h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:8px}\n.flow-step p{font-size:14px;color:var(--text-dim);line-height:1.6}\n\n.lp-cta{max-width:1200px;margin:0 auto 90px;padding:0 clamp(16px,5vw,48px)}\n.lp-cta-inner{\n  position:relative;overflow:hidden;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:26px;padding:56px 40px;text-align:center;\n  box-shadow:var(--glass-shadow-lift);\n}\n/* A wash of accent inside the pane so the CTA reads as lit rather than tinted. */\n.lp-cta-inner::before{\n  content:'';position:absolute;inset:0;pointer-events:none;\n  background:radial-gradient(70% 120% at 50% 0%,var(--accent-wash),transparent 70%);\n}\n.lp-cta-inner>*{position:relative}\n.lp-cta-inner h2{font-family:var(--display);font-size:clamp(30px,4.4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.06;margin-bottom:12px}\n.lp-cta-inner p{color:var(--text-2);margin-bottom:28px;font-size:15px}\n.lp-footer{border-top:1px solid var(--hairline);padding:26px clamp(16px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--text-dim);font-size:13px}\n\n\n/* ═══════════ EDITOR ═══════════ */\n#page-editor{display:none;height:100vh;flex-direction:column;overflow:hidden}\n#page-editor.active{display:flex}\n#page-landing.hidden{display:none}\n\n.topbar{\n  height:58px;flex:0 0 58px;display:flex;align-items:center;gap:10px;padding:0 14px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);z-index:100;\n}\n.topbar .logo{font-size:15px}\n.tb-sep{width:1px;height:26px;background:var(--hairline);margin:0 4px}\n.tb-tplname{font-size:13px;font-weight:600;color:var(--text-2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.tb-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;color:var(--text-2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:var(--r-pill);cursor:pointer;transition:background .15s,color .15s}\n.tb-btn:hover{background:var(--surface-sunk);color:var(--text)}\n.tb-btn:disabled{opacity:.35;cursor:default;background:transparent}\n.tb-btn svg{width:16px;height:16px}\n.tb-spacer{flex:1}\n/* AI is violet everywhere in the house, never the accent. */\n#enhance-btn{border:.5px solid rgba(167,139,255,.4);color:var(--ai);background:rgba(167,139,255,.10)}\n#enhance-btn:hover{background:rgba(167,139,255,.18);color:var(--ai)}\n#enhance-btn.busy{opacity:.6;pointer-events:none}\n#export-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n#export-btn:hover{filter:brightness(1.06)}\n@media(max-width:900px){.tb-label{display:none}}\n/* ── editor topbar below laptop width ─────────────────────────────────────\n   Twelve controls in one non-wrapping row is fine at 1280 and broken\n   everywhere else: at iPad portrait the EXPORT button sat at x=848 on an\n   820px screen, and on an iPhone half the bar was past the right edge with\n   no way to reach it. The bar now scrolls horizontally, every control keeps\n   its full size rather than being squeezed, and Export is pinned to the\n   right edge so the one button that matters is never the one you have to go\n   hunting for. */\n@media(max-width:1100px){\n  .topbar{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}\n  .topbar::-webkit-scrollbar{display:none}\n  .topbar > *{flex:none}\n  .topbar .tb-spacer{flex:1 0 8px}\n  #export-btn{\n    position:sticky;right:0;z-index:2;\n    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent),\n               -18px 0 18px -10px var(--glass-bg-strong);\n  }\n}\n/* Touch pointers get the 44px minimum. Height only — widening the nav pills\n   would push the row back off the edge, which is the problem we just fixed. */\n@media(pointer:coarse){\n  .btn,.tb-btn,.ez-adv-link,.view-item,.picker-filters button,.plans-close,.logo{min-height:44px}\n  .theme-btn{width:44px;height:44px}\n  .ez-chip,.chip{min-height:40px}\n}\n\n.editor-body{flex:1;display:flex;overflow:hidden;position:relative}\n\n/* panels as drawers */\n.panel{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  display:flex;flex-direction:column;position:relative;transition:margin .28s cubic-bezier(.2,0,0,1);z-index:50;\n}\n.panel-left{width:300px;flex:0 0 300px;border-right:.5px solid var(--glass-edge)}\n.panel-right{width:300px;flex:0 0 300px;border-left:.5px solid var(--glass-edge)}\n.panel-left.collapsed{margin-left:-300px}\n.panel-right.collapsed{margin-right:-300px}\n.drawer-tab{position:absolute;top:50%;transform:translateY(-50%);width:20px;height:64px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:60;transition:color .15s,background .15s}\n.drawer-tab:hover{color:var(--text);background:var(--surface-raise)}\n.panel-left .drawer-tab{right:-20px;border-left:none;border-radius:0 10px 10px 0}\n.panel-right .drawer-tab{left:-20px;border-right:none;border-radius:10px 0 0 10px}\n\n.panel-tabs{display:flex;border-bottom:1px solid var(--hairline);flex:0 0 auto}\n.panel-tabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:12.5px;font-weight:650;padding:13px 4px;cursor:pointer;transition:color .15s,border-color .15s;letter-spacing:-.01em}\n.panel-tabs button:hover{color:var(--text-2)}\n.panel-tabs button.active{color:var(--text);border-bottom-color:var(--accent)}\n.panel-scroll{flex:1;overflow-y:auto;padding:16px 14px 40px}\n.panel-tabview{display:none}\n.panel-tabview.active{display:block}\n\n.psec{margin-bottom:22px}\n.psec-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}\n.field{margin-bottom:11px}\n.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}\n.field input[type=text],.field input[type=tel],.field input[type=number],.field textarea,.field select{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;transition:border-color .14s,box-shadow .14s}\n.field textarea{resize:vertical;min-height:56px;line-height:1.4}\n.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.field input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}\n.field-row{display:flex;gap:8px}\n.field-row .field{flex:1}\ninput[type=color]{width:100%;height:34px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:var(--surface-raise);cursor:pointer;padding:3px}\ninput[type=range]{width:100%;accent-color:var(--accent)}\n\n.chips{display:flex;flex-wrap:wrap;gap:7px}\n.chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12px;font-weight:650;padding:7px 12px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s;letter-spacing:-.005em}\n.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n.seg{display:flex;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-pill);overflow:hidden;padding:3px;gap:3px}\n.seg button{flex:1;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:650;padding:7px 6px;cursor:pointer;border-radius:var(--r-pill);transition:background .13s,color .13s}\n.seg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.seg button:hover:not(.active){color:var(--text-2)}\n\n.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}\n.add-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-md);color:var(--text-2);font-size:12.5px;font-weight:600;padding:13px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .13s}\n.add-btn:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}\n.add-btn .ab-ico{font-size:19px;line-height:1}\n.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.emoji-grid button{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);font-size:21px;padding:8px 0;cursor:pointer;transition:all .13s}\n.emoji-grid button:hover{border-color:var(--accent);transform:scale(1.08)}\n\n.mini-tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}\n.mini-tpl{position:relative;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--hairline);cursor:pointer;aspect-ratio:1;background:var(--surface-raise);transition:box-shadow .15s,transform .15s}\n.mini-tpl:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.mini-tpl.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}\n.mini-tpl img{width:100%;height:100%;object-fit:cover;display:block}\n.mini-tpl .mt-name{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;font-weight:650;color:#fff;padding:14px 7px 5px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.mini-tpl .mt-del{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s}\n.mini-tpl:hover .mt-del{opacity:1}\n.mini-tpl .mt-del:hover{color:var(--danger);border-color:var(--danger)}\n.empty-hint{font-size:12.5px;color:var(--text-dim);line-height:1.55;background:var(--surface-sunk);border:1px dashed var(--hairline-strong);border-radius:var(--r-md);padding:14px;text-align:center}\n\n/* stage */\n.stage{flex:1;position:relative;display:flex;overflow:auto;padding:26px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,var(--stage-1) 0%,var(--stage-2) 100%)}\n.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(var(--stage-dot) 1px,transparent 1px);background-size:26px 26px;pointer-events:none}\n#canvas-holder{position:relative;box-shadow:var(--lift-3);border-radius:6px;overflow:hidden;margin:auto}\n#guide-v,#guide-h{position:absolute;background:var(--accent);opacity:0;pointer-events:none;transition:opacity .08s;z-index:20;box-shadow:0 0 6px rgba(var(--accent-rgb),.9)}\n#guide-v{top:0;bottom:0;left:50%;width:1px;transform:translateX(-.5px)}\n#guide-h{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px)}\n#guide-v.on,#guide-h.on{opacity:1}\n.zoombar{\n  position:absolute;right:18px;bottom:16px;display:flex;align-items:center;gap:2px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:4px;z-index:70;\n  box-shadow:var(--glass-shadow-lift);\n}\n.zoombar button{background:none;border:none;color:var(--text-2);width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:15px;font-weight:600}\n.zoombar button:hover{background:var(--surface-sunk);color:var(--text)}\n.zoombar .zb-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:600;color:var(--text-2);min-width:48px;text-align:center;cursor:pointer;border-radius:var(--r-pill);padding:6px 2px}\n.zoombar .zb-pct:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* layers */\n.layer-row{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:background .12s,border-color .12s;margin-bottom:3px}\n.layer-row:hover{background:var(--surface-sunk)}\n.layer-row.selected{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4)}\n.layer-row.hidden-l{opacity:.4}\n.layer-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:var(--surface-sunk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-2)}\n.layer-row .li-text{color:var(--accent)}\n.layer-main{flex:1;min-width:0}\n.layer-name{font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.layer-prev{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}\n.layer-acts{display:flex;gap:2px;flex:0 0 auto}\n.layer-acts button{background:none;border:none;color:var(--text-dim);width:24px;height:24px;border-radius:var(--r-pill);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}\n.layer-acts button:hover{background:var(--surface-sunk);color:var(--text)}\n.layer-acts button.on{color:var(--accent)}\n\n.icon-row{display:flex;gap:7px}\n.icon-row button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);color:var(--text-2);padding:8px 4px;cursor:pointer;font-size:13px;font-weight:650;transition:all .13s}\n.icon-row button:hover{border-color:var(--hairline-strong);color:var(--text)}\n.icon-row button.active{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n/* template picker modal */\n.picker-modal{max-width:960px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}\n.picker-head{padding:22px 26px 16px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:14px;flex-wrap:wrap}\n.picker-head h3{font-size:20px;flex:1}\n.picker-filters{display:flex;gap:6px;flex-wrap:wrap}\n.picker-filters button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12.5px;font-weight:650;padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s}\n.picker-filters button.active{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.picker-body{flex:1;overflow-y:auto;padding:22px 26px 30px}\n.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:16px}\n.resume-card{grid-column:1/-1;display:flex;align-items:center;gap:16px;background:var(--accent-wash);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:border-color .15s}\n.resume-card:hover{border-color:var(--accent)}\n.resume-card img{width:64px;height:64px;border-radius:var(--r-md);object-fit:cover;border:.5px solid var(--hairline-strong)}\n.resume-card .rc-title{font-weight:700;font-size:14.5px}\n.resume-card .rc-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px}\n.picker-close{background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:var(--r-pill)}\n.picker-close:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* export modal */\n.export-preview{width:100%;max-height:340px;border-radius:var(--r-lg);border:.5px solid var(--hairline-strong);object-fit:contain;background:var(--surface-sunk);display:block;margin-bottom:16px}\n\n/* tutorial */\n#tut-overlay{position:fixed;inset:0;z-index:9000;display:none;pointer-events:none}\n#tut-bubble{pointer-events:auto}\n#tut-overlay.active{display:block}\n#tut-spot{position:fixed;border-radius:var(--r-lg);box-shadow:0 0 0 9999px var(--scrim),0 0 0 2px var(--accent),0 0 34px rgba(var(--accent-rgb),.5);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:9001}\n#tut-bubble{\n  position:fixed;width:308px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:18px;z-index:9002;\n  box-shadow:var(--glass-shadow-lift);transition:all .3s cubic-bezier(.4,0,.2,1);\n}\n#tut-bubble .tb-step{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}\n#tut-bubble h4{font-size:16px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n#tut-bubble p{font-size:13.5px;color:var(--text-2);line-height:1.55;margin-bottom:15px}\n.tut-dots{display:flex;gap:5px;margin-bottom:14px}\n.tut-dots span{width:7px;height:7px;border-radius:50%;background:var(--hairline-strong);transition:background .2s}\n.tut-dots span.on{background:var(--accent)}\n.tut-actions{display:flex;align-items:center;gap:9px}\n.tut-actions .tut-skip{background:none;border:none;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;padding:8px 4px}\n.tut-actions .tut-skip:hover{color:var(--text)}\n@media(max-width:1100px){.panel-left,.panel-right{position:absolute;top:0;bottom:0;box-shadow:var(--lift-3)}.panel-left{left:0}.panel-right{right:0}}\n\n/* ═══════════ EASY MODE ═══════════ */\n#page-easy{display:none;min-height:100vh}\n#page-easy.active{display:block}\n.ez-nav{\n  display:flex;align-items:center;justify-content:space-between;gap:8px;\n  padding:12px 26px;position:sticky;top:0;z-index:40;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n}\n.ez-adv-link{background:none;border:none;color:var(--text-dim);font:600 13px/1 var(--ui);cursor:pointer;padding:9px 12px;border-radius:var(--r-pill)}\n.ez-adv-link:hover{color:var(--text);background:var(--surface-sunk)}\n.ez-wrap{max-width:1160px;margin:0 auto;padding:26px 22px 90px}\n.ez-head h1{font:700 clamp(24px,3.5vw,34px)/1.1 var(--ui);letter-spacing:-.035em;margin:0 0 4px}\n.ez-head p{color:var(--text-dim);margin:0 0 22px;font-size:14px}\n.ez-stepline{display:flex;align-items:center;gap:10px;margin:26px 0 12px}\n/* NOTE: border-radius MUST stay exactly 50% — cssProbeOk() in app.js reads it\n   to decide whether this stylesheet loaded at all. */\n.ez-stepnum{width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font:700 13px/26px var(--mono);text-align:center;flex:none;box-shadow:var(--glow-accent)}\n.ez-stepline h2{font:650 17px/1 var(--ui);letter-spacing:-.02em;margin:0}\n.ez-stepline small{color:var(--text-dim);font-size:12px;margin-left:2px}\n.ez-strip{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}\n.ez-strip::-webkit-scrollbar{height:8px}\n.ez-strip::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px}\n\n/* ── horizontal scroller: pop-up arrows + edge fades ──────────────────────\n   The arrows are the only thing telling a visitor the row continues, so they\n   sit ON the thumbnails rather than outside the rail, and each one hides the\n   moment there is nothing more that way. */\n.strip-shell{position:relative}\n/* Fades are drawn over the rail, not the label row underneath it. */\n.strip-shell::before,.strip-shell::after{\n  content:'';position:absolute;top:0;bottom:22px;width:64px;pointer-events:none;z-index:2;\n  opacity:1;transition:opacity .18s ease;\n}\n.strip-shell::before{left:0;background:linear-gradient(90deg,var(--field),transparent)}\n.strip-shell::after{right:0;background:linear-gradient(270deg,var(--field),transparent)}\n.strip-shell.at-start::before,.strip-shell.at-end::after,\n.strip-shell.no-scroll::before,.strip-shell.no-scroll::after{opacity:0}\n.strip-arrow{\n  position:absolute;top:calc(50% - 11px);transform:translateY(-50%);z-index:3;\n  width:38px;height:38px;display:grid;place-items:center;\n  border-radius:var(--r-pill);cursor:pointer;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow-lift);\n  color:var(--text);font-size:20px;line-height:1;padding:0 0 3px;\n  transition:opacity .18s ease,transform .12s cubic-bezier(.2,0,0,1),background .15s ease;\n}\n.strip-arrow.left{left:-4px}\n.strip-arrow.right{right:-4px}\n.strip-arrow:hover{background:var(--surface-raise)}\n.strip-arrow:active{transform:translateY(-50%) scale(.92)}\n.strip-shell.at-start .strip-arrow.left,\n.strip-shell.at-end .strip-arrow.right{opacity:0;pointer-events:none}\n.strip-shell.no-scroll .strip-arrow{display:none}\n/* Coarse pointers get a bigger target and no hover-only reveal. */\n@media (pointer:coarse){\n  .strip-arrow{width:44px;height:44px;font-size:22px}\n}\n.ez-tpl{flex:none;width:132px;cursor:pointer;background:none;border:none;padding:0;scroll-snap-align:start;text-align:center;position:relative}\n.ez-tpl img{width:132px;height:132px;border-radius:var(--r-lg);display:block;border:3px solid transparent;transition:border-color .15s,transform .15s,box-shadow .15s;object-fit:cover}\n.ez-tpl span{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}\n.ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.ez-tpl.sel img{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-tpl.sel span{color:var(--text)}\n.ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start}\n.ez-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:20px;\n  box-shadow:var(--glass-shadow);\n}\n.ez-field{margin-bottom:14px}\n.ez-field label{display:block;font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}\n.ez-field input,.ez-field textarea{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:500 15px/1.35 var(--ui);padding:11px 13px;box-sizing:border-box;transition:border-color .14s,box-shadow .14s}\n.ez-field textarea{resize:vertical;min-height:64px}\n.ez-field input:focus,.ez-field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.ez-chiprow{display:flex;flex-wrap:wrap;gap:8px}\n.ez-chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);border-radius:var(--r-pill);padding:8px 14px;font:650 12px/1 var(--ui);cursor:pointer;transition:all .12s}\n.ez-chip:hover{color:var(--text);border-color:var(--hairline-strong)}\n.ez-chip.on{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.ez-swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}\n.ez-sw{width:40px;height:40px;border-radius:12px;border:3px solid transparent;cursor:pointer;padding:0;position:relative;box-shadow:var(--lift-1)}\n.ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}\n.ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}\n.ez-preview-card{position:sticky;top:84px}\n.ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}\n/* account dropdown (reuses .view-drop look) */\n.acct-drop{left:auto;right:0;min-width:240px}\n.am-email{font:650 12px/1.3 var(--ui);color:var(--text-dim);padding:8px 10px 10px;border-bottom:1px solid var(--hairline);margin-bottom:6px;word-break:break-all}\n/* project rows inside Export / Make-my-ad dropdowns */\n.caret{opacity:.6;font-size:11px;margin-left:2px}\n.xm-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-md)}\n.xm-row:hover{background:var(--surface-sunk)}\n.xm-row img{width:34px;height:34px;border-radius:var(--r-sm);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.xm-name{flex:1;font:600 12.5px/1.3 var(--ui);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.xm-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:6px 10px;cursor:pointer;font-size:12px;flex:none}\n.xm-btn:hover{border-color:var(--accent);color:var(--accent)}\n/* split Make-my-ad button on the landing nav */\n.lp-split{display:inline-flex}\n.lp-split #lp-open-studio{border-radius:var(--r-pill) 0 0 var(--r-pill);padding-right:14px}\n.lp-caret{border-radius:0 var(--r-pill) var(--r-pill) 0;padding:9px 13px 9px 11px;border-left:1px solid rgba(0,0,0,.22)}\n/* auth modal */\n.auth-modal{max-width:420px;text-align:left}\n.auth-brand{display:flex;justify-content:center;margin-bottom:12px}\n.auth-brand .logo-mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px -8px rgba(var(--brand-rgb),.6)}\n.auth-modal h3{text-align:center}\n.auth-modal .modal-sub{text-align:center}\n.auth-google{display:flex;justify-content:center;margin:14px 0 4px}\n.auth-or{display:flex;align-items:center;gap:12px;margin:14px 0 4px;color:var(--text-dim);font-size:12px}\n.auth-or::before,.auth-or::after{content:'';flex:1;height:1px;background:var(--hairline)}\n.auth-pass-wrap{position:relative}\n.auth-pass-wrap input{width:100%;padding-right:44px}\n.auth-pass-wrap #auth-pass-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;opacity:.55;padding:6px}\n.auth-pass-wrap #auth-pass-eye:hover{opacity:1}\n.auth-hint{color:var(--text-dim);font-size:11.5px;margin-top:8px}\n/* account-type chooser after signup */\n.at-card{display:block;width:100%;text-align:left;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:15px 17px;margin-top:12px;cursor:pointer;transition:border-color .15s,transform .12s,background .15s}\n.at-card:hover{border-color:var(--accent);transform:translateY(-1px)}\n.at-card.hot{border-color:rgba(var(--accent-rgb),.5);background:var(--accent-wash)}\n.at-card .at-name{display:flex;justify-content:space-between;align-items:baseline;font:700 15px/1 var(--ui);letter-spacing:-.02em;color:var(--text)}\n.at-card .at-name em{font-style:normal;color:var(--accent);font-size:12.5px}\n.at-card .at-desc{display:block;color:var(--text-dim);font-size:12.5px;margin-top:6px;line-height:1.45}\n/* pencil button in export history */\n.hist-edit{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:9px 13px;cursor:pointer;font:600 12.5px/1 var(--ui);margin-right:8px;flex:none}\n.hist-edit:hover{border-color:var(--accent);color:var(--accent)}\n/* big landing footer */\n.lp-footer-big{display:block;padding:46px clamp(16px,4vw,40px) 28px}\n.lpf-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;max-width:1100px;margin:0 auto}\n.lpf-brand p{color:var(--text-dim);font-size:13px;margin-top:10px;max-width:260px}\n.lpf-col h4{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}\n.lpf-col a{display:block;color:var(--text-2);text-decoration:none;font-size:13.5px;padding:5px 0}\n.lpf-col a:hover{color:var(--accent)}\n.lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}\n.ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}\n.ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.ez-dl:hover{filter:brightness(1.06)}\n.ez-dl:active{transform:scale(.985)}\n.ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}\n.ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}\n.ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}\n@media (max-width:920px){\n  .ez-main{grid-template-columns:1fr}\n  /* The preview used to be pulled above the form with order:-1, which made a\n     THREE-STEP guided flow read 1 -> 3 -> 2: the visitor was told \"step 2, type\n     your info\" and then had to scroll past an 1180px preview to find the\n     fields. Steps now stack in the order they are numbered.\n     The preview stays useful while typing by sticking to the bottom of the\n     viewport at a height that cannot swallow the page. */\n  .ez-preview-card{position:static;order:0}\n  .ez-preview-card img{max-height:52vh;width:auto;margin:0 auto;display:block}\n}\n/* Narrow phones: smaller thumbs so more than two fit, and the arrows pull in\n   off the very edge where a thumb-swipe would fight them. */\n@media (max-width:480px){\n  .ez-tpl,.ez-tpl img{width:104px}\n  .ez-tpl img{height:104px}\n  .strip-arrow.left{left:0}\n  .strip-arrow.right{right:0}\n  .strip-shell::before,.strip-shell::after{width:44px}\n}\n\n/* view menu */\n.view-menu{position:relative}\n.view-drop{\n  display:none;position:absolute;top:calc(100% + 8px);left:0;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:6px;min-width:220px;z-index:60;\n  box-shadow:var(--glass-shadow-lift);\n  animation:menu-in .16s cubic-bezier(.2,0,0,1);transform-origin:top left;\n}\n.view-drop.acct-drop{transform-origin:top right}\n@keyframes menu-in{from{opacity:0;transform:translateY(-6px) scale(.97)}}\n.view-drop.open{display:block}\n.view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}\n.view-item:hover{background:var(--accent-wash);color:var(--accent)}\n.view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}\n.view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}\n.view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}\n/* grid overlay */\n#grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:15;display:none;\n  background-image:linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px)}\n#grid-overlay.on{display:block}\n/* fill type seg */\n.fillseg{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:8px}\n.fillseg button{flex:1;background:none;border:none;color:var(--text-dim);font:600 12px/1 var(--ui);padding:8px;border-radius:var(--r-pill);cursor:pointer}\n.fillseg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n/* backgrounds tab */\n.bg-gen-box{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:12px;margin-bottom:14px}\n.bg-gen-box textarea{width:100%;box-sizing:border-box;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 13px/1.4 var(--ui);padding:9px;resize:vertical;min-height:56px}\n.bg-gen-row{display:flex;gap:8px;margin-top:8px}\n.bg-gen-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 12px/1 var(--ui);padding:8px;min-width:0}\n/* AI generation is violet, the house colour for \"a model did this\". */\n.btn-gen{background:linear-gradient(135deg,var(--ai),#7b5cff);color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}\n.btn-gen:hover{filter:brightness(1.06)}\n.btn-gen:disabled{opacity:.55;cursor:wait}\n.bg-result{margin-top:10px;display:none}\n.bg-result.show{display:block}\n.bg-result img{width:100%;border-radius:var(--r-md);display:block}\n.bg-result-acts{display:flex;gap:8px;margin-top:8px}\n.bg-result-acts button{flex:1;border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);border-radius:var(--r-pill);font:600 12px/1 var(--ui);padding:10px;cursor:pointer}\n.bg-result-acts button:hover{border-color:var(--accent);color:var(--accent)}\n.bg-lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.bg-lib-item{position:relative;border:none;background:var(--surface-sunk);border-radius:var(--r-md);padding:0;cursor:pointer;overflow:hidden;aspect-ratio:1}\n.bg-lib-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s}\n.bg-lib-item:hover img{transform:scale(1.06)}\n.bg-lib-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:var(--r-pill);border:none;background:rgba(0,0,0,.65);color:#fff;font-size:11px;cursor:pointer;display:none;line-height:20px;text-align:center}\n.bg-lib-item:hover .bg-lib-del{display:block}\n.bg-lib-badge{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#eee;font:600 9px/1 var(--ui);padding:3px 6px;border-radius:var(--r-pill);pointer-events:none}\n.gear-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:4px;font-family:var(--ui);font-weight:600}\n.gear-btn:hover{color:var(--text)}\n.ai-note{color:var(--text-dim);font-size:11.5px;line-height:1.45;margin-top:8px}\n\n\n/* easy recents + layers + star */\n.ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}\n#ez-recents{display:flex;flex-wrap:wrap;gap:10px}\n#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}\n.ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}\n.ez-recent img{width:100%;height:100%;object-fit:cover;display:block}\n.ez-recent.sel{border-color:var(--accent)}\n.star-btn{position:absolute;top:1px;right:1px;width:16px;height:16px;border:none;border-radius:5px;background:rgba(0,0,0,.65);color:var(--warn);font-size:10px;line-height:16px;text-align:center;cursor:pointer;display:none;padding:0}\n.ez-recent:hover .star-btn,.ez-lrow:hover .star-btn{display:block}\n.ez-lrow .star-btn{position:static;width:22px;height:22px;line-height:22px;border-radius:6px;flex:none}\n#star-pop{\n  position:fixed;z-index:9500;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:6px;display:none;min-width:210px;\n}\n#star-pop.open{display:block}\n#star-pop button{display:block;width:100%;background:none;border:none;color:var(--text);font:500 13px/1 var(--ui);padding:10px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left}\n#star-pop button:hover{background:var(--accent-wash);color:var(--accent)}\n/* easy layers list */\n.ez-layers{margin-top:14px;border-top:1px solid var(--hairline);padding-top:12px}\n.ez-lrow{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:var(--r-md);cursor:pointer}\n.ez-lrow:hover{background:var(--surface-sunk)}\n.ez-lswatch{width:26px;height:26px;border-radius:8px;flex:none;background:var(--surface-sunk);overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--text-dim)}\n.ez-lswatch img{width:100%;height:100%;object-fit:cover}\n.ez-lmain{flex:1;min-width:0}\n.ez-lname{font:650 12px/1.2 var(--ui);color:var(--text)}\n.ez-lprev{font:500 10.5px/1.2 var(--ui);color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}\n.ez-ldel{width:22px;height:22px;border:none;border-radius:var(--r-pill);background:none;color:var(--text-dim);cursor:pointer;font-size:12px;flex:none;line-height:22px;padding:0}\n.ez-ldel:hover{background:rgba(255,98,89,.15);color:var(--danger)}\n.ez-restore{background:none;border:none;color:var(--accent);font:600 11.5px/1 var(--ui);cursor:pointer;padding:6px;margin-top:2px}\n\n\n/* effects controls */\n.ez-fxrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}\n.ez-fxrow button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-pill);padding:8px 13px;font:600 11.5px/1 var(--ui);cursor:pointer}\n.ez-fxrow button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.ez-fxline{display:flex;align-items:center;gap:10px;margin-bottom:8px}\n.ez-fxline label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:64px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.ez-fxline input[type=range]{flex:1}\n.ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}\n.ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}\n/* account chip */\n.acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}\n.acct-chip:hover{background:var(--surface-raise)}\n.acct-plan{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border-radius:var(--r-pill);padding:3px 9px;font:700 9.5px/1.35 var(--ui);letter-spacing:.06em;text-transform:uppercase}\n.acct-plan.free{background:var(--surface-sunk);color:var(--text-dim)}\n/* auth + pay overlays reuse .modal-overlay/.modal */\n.auth-tabs{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:16px}\n.auth-tabs button{flex:1;background:none;border:none;color:var(--text-dim);font:650 13px/1 var(--ui);padding:10px;border-radius:var(--r-pill);cursor:pointer;transition:background .13s,color .13s}\n.auth-tabs button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.auth-err{color:var(--danger);font:500 12.5px/1.4 var(--ui);margin:8px 0 0;min-height:16px}\n.auth-ok{text-align:center;padding:18px 6px}\n.auth-ok .big{font-size:40px;margin-bottom:10px}\n.demo-note{background:rgba(255,176,61,.12);border:.5px solid rgba(255,176,61,.4);color:var(--warn);border-radius:var(--r-md);padding:10px 12px;font:500 11.5px/1.45 var(--ui);margin-top:12px}\n/* plans page */\n/* Fixed at z-index 8000, so it sits above the body's field pseudo-elements and\n   would otherwise be a flat slab. It carries its own copy of the aurora. */\n#page-plans{\n  display:none;position:fixed;inset:0;z-index:8000;overflow:auto;\n  background:\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%),\n    var(--field);\n}\n#page-plans.active{display:block}\n.plans-wrap{max-width:980px;margin:0 auto;padding:34px 22px 80px}\n.plans-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}\n.plans-head h1{font:700 28px/1.1 var(--ui);letter-spacing:-.035em;margin:0}\n.plans-close{background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text);border-radius:var(--r-pill);padding:10px 16px;font:600 13px/1 var(--ui);cursor:pointer}\n.plans-close:hover{background:var(--surface-raise)}\n.plans-sub{color:var(--text-dim);font:500 14px/1.5 var(--ui);margin:0 0 26px}\n.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}\n.plan-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:24px;\n  display:flex;flex-direction:column;box-shadow:var(--glass-shadow);\n}\n.plan-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.plan-name{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin-bottom:4px}\n.plan-price{font:700 32px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:10px 0 2px}\n.plan-price small{font:600 13px/1 var(--ui);color:var(--text-dim)}\n.plan-feats{list-style:none;padding:0;margin:16px 0 20px;flex:1}\n.plan-feats li{font:500 13px/1.5 var(--ui);color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.plan-feats li::before{content:'✓';position:absolute;left:0;color:var(--good);font-weight:700}\n.plan-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);font:650 14px/1 var(--ui);padding:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.plan-btn:hover{filter:brightness(1.06)}\n.plan-btn.ghost{background:var(--surface-sunk);color:var(--text);border:.5px solid var(--hairline);box-shadow:none}\n.plan-btn:disabled{opacity:.5;cursor:default}\n.plan-current{font:650 10.5px/1 var(--ui);color:var(--good);text-transform:uppercase;letter-spacing:.09em;margin-top:10px;text-align:center}\n.ez-quota{color:var(--text-dim);font:600 11.5px/1 var(--ui);text-align:center;margin-top:8px}\n.ez-quota b{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums}\n.ez-quota .up{color:var(--accent);cursor:pointer;text-decoration:underline}\n\n\n/* premium template locks */\n.tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}\n.ez-tpl{position:relative}\n.ez-tpl .tpl-lock{top:6px;left:6px}\n.ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}\n.ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}\n.tpl-card.locked img{filter:grayscale(.35) brightness(.7)}\n\n\n/* category row + nav */\n.ez-catrow{display:flex;align-items:center;gap:12px;margin:0 0 12px}\n.ez-catrow label{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none}\n.cat-select{background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:600 14px/1 var(--ui);padding:11px 13px;min-width:210px;cursor:pointer}\n.cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.nav-upgrade{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);padding:9px 15px;font:700 12px/1 var(--ui);cursor:pointer;letter-spacing:-.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.nav-upgrade:hover{filter:brightness(1.06)}\n/* export history */\n.hist-list{max-height:380px;overflow:auto;margin-top:6px}\n.hist-row{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:var(--r-md)}\n.hist-row:hover{background:var(--surface-sunk)}\n.hist-row img{width:52px;height:52px;border-radius:var(--r-md);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.hist-main{flex:1;min-width:0}\n.hist-name{font:650 13px/1.2 var(--ui);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.hist-meta{font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim)}\n.hist-dl{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px 13px;cursor:pointer;flex:none}\n.hist-dl:hover{border-color:var(--accent);color:var(--accent)}\n.hist-empty{color:var(--text-dim);font:500 13px/1.5 var(--ui);text-align:center;padding:26px 0}\n@media (max-width:760px){ .ez-nav{flex-wrap:wrap;gap:8px} }\n/* The label plus a 210px select is wider than a phone, and overflow-x:hidden\n   was clipping the select's right edge instead of showing it. */\n@media (max-width:560px){\n  .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}\n  .ez-catrow label{margin-bottom:2px}\n  .cat-select{min-width:0;width:100%}\n  .ez-nav{padding:10px 14px}\n  .ez-adv-link{padding:8px;font-size:12.5px}\n  .ez-wrap{padding:20px 14px 80px}\n}\n\n.mini-tpl.locked img, .tpl-mini.locked img{filter:grayscale(.35) brightness(.7)}\n\n/* per-field quick styling */\n.ez-fieldrow{display:flex;gap:8px;align-items:stretch}\n.ez-fieldrow input,.ez-fieldrow textarea{flex:1;min-width:0}\n.ez-edit-btn{flex:none;width:44px;border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-dim);border-radius:var(--r-md);cursor:pointer;font-size:15px}\n.ez-edit-btn:hover{color:var(--accent);border-color:var(--accent)}\n#txt-pop{\n  position:fixed;z-index:9400;width:288px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:14px;display:none;\n}\n#txt-pop.open{display:block}\n#txt-pop .tp-title{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}\n#txt-pop .tp-title button{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px}\n.tp-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}\n.tp-row label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:52px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.tp-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:600 12.5px/1 var(--ui);padding:8px 9px}\n.tp-row input[type=range]{flex:1}\n.tp-row input[type=color]{width:32px;height:26px;border:1px solid var(--hairline-strong);border-radius:6px;background:none;padding:1px;flex:none}\n.tp-row .tp-val{font:600 10.5px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right;flex:none}\n.tp-biu{display:flex;gap:5px;flex:1}\n.tp-biu button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-sm);padding:7px 0;cursor:pointer;font:700 13px/1 Georgia}\n.tp-biu button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.tp-reset{width:100%;margin-top:4px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px;cursor:pointer}\n.tp-reset:hover{color:var(--text)}\n\n\n.ez-themes{display:flex;flex-wrap:wrap;gap:9px}\n.ez-theme{display:flex;border:2px solid var(--hairline-strong);border-radius:11px;overflow:hidden;padding:0;cursor:pointer;width:52px;height:32px;background:none;transition:border-color .13s,transform .13s}\n.ez-theme span{flex:1;display:block}\n.ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);transform:translateY(-1px)}\n.ez-theme:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n\n\n.ez-chip-custom{border-style:dashed}\n.chip-x{opacity:.55;font-size:10px;margin-left:2px}\n.ez-chip-custom:hover .chip-x{opacity:1;color:var(--danger)}\n\n.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:720px}\n.lp-price-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-price-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.lp-price-card h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n.lp-price{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:40px;font-weight:700;letter-spacing:-.04em;margin-bottom:12px}\n.lp-price small{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:-.01em}\n.lp-price-card ul{list-style:none;padding:0;margin:0 0 18px}\n.lp-price-card li{font-size:13.5px;color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.lp-price-card li::before{content:'\\2713';position:absolute;left:0;color:var(--good);font-weight:700}\n.lp-faq{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:0 20px;margin-bottom:10px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-faq summary{font-weight:650;font-size:15px;letter-spacing:-.015em;padding:17px 0;cursor:pointer;list-style:none}\n.lp-faq summary::-webkit-details-marker{display:none}\n.lp-faq summary::after{content:'+';float:right;color:var(--accent);font-size:18px;font-weight:600}\n.lp-faq[open] summary::after{content:'\\2013'}\n.lp-faq p{font-size:14px;color:var(--text-2);line-height:1.6;padding-bottom:17px;margin:0}\n\n/* ── canvas format picker ── */\n.tb-format{appearance:none;-webkit-appearance:none;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);max-width:190px;border-radius:var(--r-pill);padding:8px 28px 8px 13px;font-size:13px;font-weight:600;background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}\n.tb-format:hover{border-color:var(--accent)}\n\n/* ── order prints + posting ── */\n.btn-order{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:12px;background:rgba(48,214,143,.12);border:.5px solid rgba(48,214,143,.45);color:var(--good);font-weight:650;border-radius:var(--r-lg);padding:12px}\n.btn-order:hover{border-color:var(--good);background:rgba(48,214,143,.18)}\n.btn-order .order-sub{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.01em}\n.ez-order{display:block;width:100%;margin-top:10px;background:none;border:1px dashed rgba(48,214,143,.5);color:var(--good);font-size:13px;font-weight:650;padding:11px;border-radius:var(--r-lg);cursor:pointer}\n.ez-order:hover{background:rgba(48,214,143,.10)}\n\n/* ── QR layer ── */\n.ab-pro{position:absolute;top:6px;right:6px;background:var(--warn);color:#1a1206;font-size:9px;font-weight:800;padding:2px 6px;border-radius:var(--r-pill);letter-spacing:.04em}\n.add-btn{position:relative}\n.qr-help{font-size:12px;color:var(--text-2);line-height:1.5;margin-top:8px}\n.qr-help a{color:var(--good);font-weight:650;text-decoration:none}\n.qr-help a:hover{text-decoration:underline}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LANDING v2 — 2026-09-02. The hero fan of three canvas-rendered classics is\n   now a wall of the newest set's real renders (assets/showcase), the gallery\n   filters by category and theme family, and the chrome has a Look menu:\n   ground (graphite / night / paper / ember) x accent (blue / mint / orchid /\n   gold / orange) x light or dark. All of it is CSS custom properties on\n   <html>, so the studio and the editor inherit whatever is chosen.\n   ═══════════════════════════════════════════════════════════════════════════ */\n.hero-v2{grid-template-columns:1.02fr .98fr;gap:44px;min-height:min(86vh,800px);padding-top:112px;overflow:hidden}\n.hero-copy{position:relative;z-index:2}\n.hero-copy p{max-width:520px}\n.hero-wall{position:relative;height:580px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;\n  transform:rotate(-6deg) scale(1.08);transform-origin:50% 50%;\n  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);\n  mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%)}\n.wall-col{display:flex;flex-direction:column;gap:14px;will-change:transform}\n.wall-col[data-dir=up]{animation:wallUp 46s linear infinite}\n.wall-col[data-dir=down]{animation:wallDown 52s linear infinite}\n.wall-col:nth-child(3){animation-duration:58s}\n@keyframes wallUp{from{transform:translateY(0)}to{transform:translateY(-50%)}}\n@keyframes wallDown{from{transform:translateY(-50%)}to{transform:translateY(0)}}\n.wall-card{aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-2);background:var(--surface-raise);cursor:pointer;flex:none;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s}\n.wall-card:hover{transform:scale(1.04);box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.45);z-index:2}\n.wall-card img{width:100%;height:100%;object-fit:cover;display:block}\n.hero-wall:hover .wall-col{animation-play-state:paused}\n@media(prefers-reduced-motion:reduce){.wall-col{animation:none!important}}\n@media(max-width:900px){\n  .hero-v2{grid-template-columns:1fr;padding-top:92px;min-height:0;gap:28px}\n  .hero-wall{height:auto;transform:none;grid-template-columns:repeat(3,1fr);gap:10px;-webkit-mask-image:none;mask-image:none}\n  .wall-col{animation:none!important;gap:10px}\n  .wall-col .wall-card:nth-child(n+3){display:none}\n}\n.lp-stats{max-width:1200px;margin:0 auto;padding:22px clamp(16px,5vw,48px) 0;display:flex;flex-wrap:wrap;gap:10px 34px;border-top:.5px solid var(--hairline)}\n.stat{display:flex;align-items:baseline;gap:8px}\n.stat b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--text)}\n.stat span{font-size:13px;color:var(--text-dim)}\n\n/* theme families */\n.fam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}\n.fam-card{position:relative;text-align:left;background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:11px;cursor:pointer;color:var(--text);box-shadow:var(--glass-shadow);transition:transform .15s cubic-bezier(.2,0,0,1),border-color .15s,box-shadow .15s;font:inherit}\n.fam-card:hover{transform:translateY(-3px)}\n.fam-card.on{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent)}\n.fam-card.idle{cursor:default;opacity:.72}\n.fam-sw{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;height:56px;border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;border:.5px solid rgba(0,0,0,.18)}\n.fam-sw i{display:block}\n.fam-name{font-weight:650;font-size:14px;letter-spacing:-.01em}\n.fam-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-variant-numeric:tabular-nums}\n\n/* gallery filters */\n.lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}\n.chip{font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;min-height:36px}\n.chip:hover{color:var(--text);border-color:var(--text-dim)}\n.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:var(--glow-accent)}\n.chip .n{opacity:.65;font-family:var(--mono);font-size:11px;margin-left:6px;font-variant-numeric:tabular-nums}\n.tpl-more-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}\n.tpl-count{font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.tpl-card img{transition:transform .4s cubic-bezier(.2,0,0,1)}\n.tpl-card:hover img{transform:scale(1.035)}\n.tpl-card .tpl-lockpill{position:absolute;top:12px;left:12px;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);color:#fff;border:.5px solid rgba(255,255,255,.25)}\n\n/* Look menu */\n.look-wrap{position:relative}\n.look-btn{display:inline-flex;align-items:center;gap:8px;padding:0 12px 0 10px;width:auto;font-size:13px;font-weight:600;color:var(--text-2)}\n.look-btn:hover{color:var(--text)}\n.look-dot{width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-deep));box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 2px var(--surface-sunk)}\n.look-menu{position:absolute;right:0;top:44px;width:304px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);box-shadow:var(--glass-shadow-lift);padding:14px;z-index:400;display:none;text-align:left}\n.look-menu.open{display:block}\n.look-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}\n.look-label{width:100%;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}\n.look-chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-chip:hover{color:var(--text)}\n.look-chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}\n.look-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px -2px rgba(0,0,0,.5);padding:0}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--text)}\n.look-note{font-size:11.5px;color:var(--text-dim);line-height:1.45}\n.look-note code{font-family:var(--mono);font-size:11px;color:var(--text-2)}\n@media(max-width:640px){.look-btn span{display:none}.look-btn{padding:0 10px}.look-menu{position:fixed;left:12px;right:12px;top:70px;width:auto}}\n\n/* Skin-specific style, beyond colour. PAPER is editorial: a serif display\n   face, flat panels on hairlines, no drifting field. NIGHT is the opposite:\n   gradient ink on the money line, louder glows. */\n:root[data-skin='paper'] .hero h1{font-weight:500;letter-spacing:-.022em}\n:root[data-skin='paper'] .hero h1 em{font-style:italic;color:var(--accent)}\n:root[data-skin='paper'] .lp-section-head h2,:root[data-skin='paper'] .lp-cta-inner h2{font-weight:500;letter-spacing:-.015em}\n:root[data-skin='paper'] .flow-step,:root[data-skin='paper'] .fam-card,:root[data-skin='paper'] .lp-cta-inner,:root[data-skin='paper'] .lp-price-card,:root[data-skin='paper'] .look-menu{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface-solid);box-shadow:none;border:1px solid var(--hairline)}\n:root[data-skin='paper'] .lp-price-card.hot{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] .fam-card.on{box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] body::before{animation:none}\n:root[data-skin='paper'] body::after{opacity:.22}\n:root[data-skin='paper'] .hero-eyebrow{background:transparent;border-color:var(--hairline-strong);color:var(--text-2)}\n:root[data-skin='paper'] .lp-nav{box-shadow:none;border-bottom:1px solid var(--hairline)}\n:root[data-skin='paper'] .wall-card,:root[data-skin='paper'] .tpl-card{box-shadow:0 1px 2px rgba(30,25,15,.08),0 10px 24px -14px rgba(30,25,15,.25)}\n:root[data-skin='night'] .hero h1 em{background:linear-gradient(90deg,var(--accent),var(--accent-soft));-webkit-background-clip:text;background-clip:text;color:transparent}\n:root[data-skin='night'] .btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),var(--glow-accent)}\n:root[data-skin='night'] .lp-kicker{text-shadow:0 0 18px rgba(var(--accent-rgb),.6)}\n\n/* ── AREA dialog (location-aware copy) ── */\n.area-modal{max-width:560px}\n.area-inrow{display:flex;gap:8px;align-items:stretch}\n.area-inrow input{flex:1;min-width:0}\n.area-inrow .btn{white-space:nowrap;padding:9px 14px}\n.area-suggest{display:flex;flex-direction:column;gap:4px;margin-top:8px}\n.area-opt{display:flex;justify-content:space-between;align-items:center;gap:10px;font:inherit;font-size:14px;text-align:left;padding:9px 12px;border-radius:var(--r-sm);border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);cursor:pointer}\n.area-opt:hover{border-color:var(--accent);background:var(--accent-wash)}\n.area-opt span{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.area-none{font-size:13px;color:var(--text-dim);padding:8px 2px}\n.area-preview{margin-top:14px;display:flex;flex-direction:column;gap:10px}\n.area-preview:empty{display:none}\n.area-home{font-weight:650;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}\n.area-home em{font-style:normal;font-weight:500;font-size:12.5px;color:var(--text-dim)}\n.area-row b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}\n.area-chips{display:flex;flex-wrap:wrap;gap:6px}\n.area-chips span{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline-strong);color:var(--text-2)}\n.area-chips span:first-child{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4);color:var(--text)}\n#ez-area{cursor:pointer}\n\n/* Easy Mode export sizes */\n.ez-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}\n.ez-sizes .chip{font-size:12px;padding:6px 11px;min-height:30px}\n.stat-lead b{color:var(--accent)}\n@media(max-width:640px){.lp-stats{gap:8px 22px}.stat b{font-size:19px}}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LOOK MENU, ROUND TWO — 2026-09-02 evening. Owner: \"stick with graphite\n   purple ... add an extra accent colour or highlighting ring ... 2 to 3x more\n   themes and colour options as well as typography options\".\n   Three axes now carry more stops, and a fourth axis appears:\n     ground  graphite · night · slate · obsidian · forest · ember (dark)\n             paper · cream (light)\n     accent  twelve, each with a paired RING colour (--ring) that carries\n             focus, hover and selection so the chrome is two-tone\n     type    eight display/body pairings (data-type)\n   Curated presets in the menu are one of each, chosen by hand.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── extra grounds ── */\n:root[data-theme='dark'][data-skin='slate']{\n  --field:#121826;--glass-bg:rgba(28,36,51,.62);--glass-bg-strong:rgba(28,36,51,.86);\n  --surface-solid:#1a2233;--surface-raise:#232d40;--text:#eef2fa;--text-2:#bcc6da;--text-dim:#8391ab;\n  --stage-1:#182033;--stage-2:#0c1119;--scrim:rgba(8,12,20,.74);--surface3:#2c3850;\n}\n:root[data-theme='dark'][data-skin='obsidian']{\n  --field:#08090b;--wash-a:rgba(var(--accent-rgb),.18);--wash-b:rgba(var(--accent2-rgb),.12);--wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(18,19,23,.72);--glass-bg-strong:rgba(18,19,23,.92);--glass-edge:rgba(255,255,255,.10);\n  --surface-solid:#121317;--surface-raise:#1a1b20;--surface-sunk:rgba(255,255,255,.05);\n  --text:#f4f4f6;--text-2:#b9bcc6;--text-dim:#7f8391;--hairline:rgba(255,255,255,.08);\n  --stage-1:#101114;--stage-2:#050506;--scrim:rgba(0,0,0,.8);--surface3:#24262c;\n}\n:root[data-theme='dark'][data-skin='forest']{\n  --field:#0c1411;--wash-a:rgba(var(--accent-rgb),.22);--wash-b:rgba(60,200,140,.14);--wash-c:rgba(var(--accent2-rgb),.10);\n  --glass-bg:rgba(22,34,28,.62);--glass-bg-strong:rgba(22,34,28,.86);\n  --surface-solid:#142019;--surface-raise:#1b2a22;--text:#eef6f1;--text-2:#bfd1c6;--text-dim:#829a8c;\n  --stage-1:#142019;--stage-2:#080e0b;--scrim:rgba(6,12,9,.76);--surface3:#243a2e;\n}\n:root[data-theme='light'][data-skin='cream']{\n  --field:#f5efe2;--wash-a:rgba(var(--accent-rgb),.12);--wash-b:rgba(var(--accent2-rgb),.08);--wash-c:rgba(255,196,60,.10);\n  --glass-bg:rgba(255,251,243,.6);--glass-bg-strong:rgba(255,251,243,.84);\n  --surface-solid:#fffcf5;--surface-raise:#f3ecdc;--surface-sunk:rgba(60,45,20,.05);\n  --text:#1e1a12;--text-2:#55503f;--text-dim:#79725f;--hairline:rgba(60,45,20,.10);--hairline-strong:rgba(60,45,20,.18);\n  --stage-1:#f1eadb;--stage-2:#e3d9c4;--scrim:rgba(110,95,70,.42);--surface3:#eae1cd;\n}\n\n/* ── accents, with their RING. Ring = the second colour: it carries focus,\n   hover and selection, never fills. Pairings are a third of the wheel apart\n   so the two read as a scheme, not a clash. ── */\n:root{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='blue']{--ring:#f2c744;--ring-rgb:242,199,68}\n:root[data-theme='light'][data-accent='blue']{--ring:#b7830c;--ring-rgb:183,131,12}\n:root[data-accent='mint']{--ring:#b48cff;--ring-rgb:180,140,255}\n:root[data-theme='light'][data-accent='mint']{--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='orchid']{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='orchid']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='gold']{--ring:#4d9cff;--ring-rgb:77,156,255}\n:root[data-theme='light'][data-accent='gold']{--ring:#1d63d8;--ring-rgb:29,99,216}\n:root[data-accent='orange']{--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='orange']{--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='coral']{--accent:#ff6b6b;--accent-ink:#1f0707;--accent-wash:rgba(255,107,107,.16);--accent-deep:#e04848;--accent-soft:#ffd0d0;--accent-rgb:255,107,107;--accent2-rgb:61,220,151;--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='coral']{--accent:#c8383b;--accent-ink:#fff;--accent-wash:rgba(200,56,59,.12);--accent-deep:#a02a2c;--accent-soft:#f9d3d3;--accent-rgb:200,56,59;--accent2-rgb:15,143,95;--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='cyan']{--accent:#22d3ee;--accent-ink:#04191d;--accent-wash:rgba(34,211,238,.16);--accent-deep:#0ea5c4;--accent-soft:#c7f3fa;--accent-rgb:34,211,238;--accent2-rgb:251,113,133;--ring:#fb7185;--ring-rgb:251,113,133}\n:root[data-theme='light'][data-accent='cyan']{--accent:#0e7490;--accent-ink:#fff;--accent-wash:rgba(14,116,144,.12);--accent-deep:#0b5c72;--accent-soft:#cdeef5;--accent-rgb:14,116,144;--accent2-rgb:190,24,93;--ring:#be185d;--ring-rgb:190,24,93}\n:root[data-accent='lime']{--accent:#b9f24a;--accent-ink:#131a04;--accent-wash:rgba(185,242,74,.16);--accent-deep:#8fd11a;--accent-soft:#e6fbc0;--accent-rgb:185,242,74;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='lime']{--accent:#4d7c0f;--accent-ink:#fff;--accent-wash:rgba(77,124,15,.12);--accent-deep:#3f6212;--accent-soft:#e0f0c4;--accent-rgb:77,124,15;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='rose']{--accent:#fb7185;--accent-ink:#20070c;--accent-wash:rgba(251,113,133,.16);--accent-deep:#e11d48;--accent-soft:#ffd6dd;--accent-rgb:251,113,133;--accent2-rgb:34,211,238;--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='rose']{--accent:#be185d;--accent-ink:#fff;--accent-wash:rgba(190,24,93,.12);--accent-deep:#9d174d;--accent-soft:#f8d0de;--accent-rgb:190,24,93;--accent2-rgb:14,116,144;--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='sky']{--accent:#7dd3fc;--accent-ink:#06161f;--accent-wash:rgba(125,211,252,.16);--accent-deep:#38bdf8;--accent-soft:#e0f4ff;--accent-rgb:125,211,252;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='sky']{--accent:#0369a1;--accent-ink:#fff;--accent-wash:rgba(3,105,161,.12);--accent-deep:#075985;--accent-soft:#d3ecfb;--accent-rgb:3,105,161;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n:root[data-accent='amber']{--accent:#fbbf24;--accent-ink:#1c1200;--accent-wash:rgba(251,191,36,.16);--accent-deep:#d69e0b;--accent-soft:#ffeeba;--accent-rgb:251,191,36;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='amber']{--accent:#b45309;--accent-ink:#fff;--accent-wash:rgba(180,83,9,.12);--accent-deep:#92400e;--accent-soft:#f9e3bf;--accent-rgb:180,83,9;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='teal']{--accent:#2dd4bf;--accent-ink:#041a16;--accent-wash:rgba(45,212,191,.16);--accent-deep:#14b8a6;--accent-soft:#c9f5ee;--accent-rgb:45,212,191;--accent2-rgb:255,107,107;--ring:#ff6b6b;--ring-rgb:255,107,107}\n:root[data-theme='light'][data-accent='teal']{--accent:#0f766e;--accent-ink:#fff;--accent-wash:rgba(15,118,110,.12);--accent-deep:#115e59;--accent-soft:#cdeeea;--accent-rgb:15,118,110;--accent2-rgb:200,56,59;--ring:#c8383b;--ring-rgb:200,56,59}\n:root[data-accent='violet']{--accent:#8b5cf6;--accent-ink:#fff;--accent-wash:rgba(139,92,246,.18);--accent-deep:#6d3fd6;--accent-soft:#e4d9ff;--accent-rgb:139,92,246;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='violet']{--accent:#5b32c9;--accent-ink:#fff;--accent-wash:rgba(91,50,201,.12);--accent-deep:#4526a0;--accent-soft:#e2d8ff;--accent-rgb:91,50,201;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n\n/* where the ring shows: focus, hover, selection */\n:focus-visible{outline:2px solid var(--ring)}\n.tpl-card:hover{box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.35),0 0 0 2px var(--ring)}\n.wall-card:hover{box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.4),0 0 0 2px var(--ring)}\n.fam-card.on{border-color:transparent;box-shadow:var(--glass-shadow),0 0 0 2px var(--ring)}\n.chip.on{box-shadow:var(--glow-accent),0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-chip.on{box-shadow:0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--ring)}\n.lp-price-card.hot{box-shadow:var(--glass-shadow),0 0 0 2px var(--ring),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.hero-eyebrow{border-color:rgba(var(--ring-rgb),.45)}\n.ez-tpl.sel{outline:2px solid var(--ring);outline-offset:2px}\n.look-dot{background:linear-gradient(135deg,var(--accent) 0 55%,var(--ring) 55% 100%)}\n.stat-lead b{color:var(--accent)}\n.lp-kicker::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ring);margin-right:8px;vertical-align:1px}\n\n/* ── type pairings. Overrides any skin's face, so Paper + Unbounded is\n   possible. Google faces are loaded by the stamp script when picked. ── */\n:root[data-type='clash']{--display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif}\n:root[data-type='serif']{--display:'Zodiak',Georgia,'Times New Roman',serif}\n:root[data-type='melodrama']{--display:'Melodrama',Georgia,serif}\n:root[data-type='khand']{--display:'Khand','Satoshi',sans-serif}\n:root[data-type='unbounded']{--display:'Unbounded','Clash Display',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='syne']{--display:'Syne','Clash Display',sans-serif;--ui:'Sora','Satoshi',-apple-system,sans-serif}\n:root[data-type='grotesk']{--display:'Space Grotesk','Satoshi',sans-serif;--ui:'Space Grotesk','Satoshi',-apple-system,sans-serif}\n:root[data-type='manrope']{--display:'Manrope','Satoshi',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='khand'] .hero h1{letter-spacing:0;font-weight:700;font-size:clamp(40px,5.2vw,68px)}\n:root[data-type='unbounded'] .hero h1{letter-spacing:-.01em;font-weight:700;font-size:clamp(30px,4vw,52px)}\n:root[data-type='serif'] .hero h1,:root[data-type='melodrama'] .hero h1{font-weight:500;letter-spacing:-.02em}\n:root[data-type='serif'] .hero h1 em,:root[data-type='melodrama'] .hero h1 em{font-style:italic}\n\n/* the menu grew: keep it on screen */\n.look-menu{width:360px;max-height:min(78vh,720px);overflow:auto}\n.look-preset{display:flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;padding:6px 10px 6px 6px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-preset i{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--a) 0 55%,var(--b) 55% 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);flex:none}\n.look-preset:hover{color:var(--text);border-color:var(--text-dim)}\n@media(max-width:640px){.look-menu{width:auto}}\n\n/* the studio's own \"where are you\" pill, beside the category picker */\n.ez-wherelabel{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none;margin-left:6px}\n.ez-where{font:600 13.5px/1 var(--ui);color:var(--text);background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-pill);padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 0 var(--ring);transition:box-shadow .15s,border-color .15s}\n.ez-where:hover{border-color:var(--ring)}\n.ez-where.unset{border-color:var(--ring);box-shadow:0 0 0 3px rgba(var(--ring-rgb),.28);color:var(--text)}\n@media(max-width:640px){.ez-catrow{flex-wrap:wrap}.ez-wherelabel{display:none}}\n\n/* ── gallery cards: no blur veil (owner: \"way too much blur\"). The veil is\n   now a light darkening that lifts on hover, nothing else. ── */\n.tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(0,0,0,.14)}\n.tpl-card:hover .tpl-veil{background:rgba(0,0,0,0)}\n\n/* ── PRO GUARD. A locked preview stays sharp (a sharp card sells the plan)\n   but cannot be lifted: a repeating diagonal PRO · BUYBACK.AD pattern over\n   the whole card, a lock in the middle, and thumbnails that are 448px at\n   most. The pattern is an SVG data URI so it is text, not a blur. ── */\n.pro-guard{position:absolute;inset:0;pointer-events:none;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:220px 220px;mix-blend-mode:overlay;opacity:.9}\n.pro-guard::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;\n  background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}\n.wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}\n.ez-tpl.locked{position:relative}\n.ez-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n.flow-step .btn{margin-top:16px}\n\n/* locked mini cards in the editor's left panel and its picker */\n.mini-tpl.locked{position:relative}\n.mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n\n/* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's\n   default min-width:auto refuses to shrink below its content, so on a 390px\n   phone the cards stayed 481px wide and the whole page scrolled sideways by\n   105px (measured 2026-09-03). min-width:0 lets them fit; anything genuinely\n   too wide inside now scrolls in its own box instead of moving the page. */\n@media (max-width:920px){\n  .ez-main{min-width:0}\n  .ez-main > .ez-card{min-width:0;max-width:100%}\n  .ez-card{overflow-x:clip}\n}\n#ez-preview{max-width:100%;height:auto}\n";
+const CSS_FALLBACK = "/* ═══════════════════════════════════════════════════════════════════════════\n   GRAPHICS STUDIO — Liquid Glass chrome\n\n   Unified with unified-crm and the iphones.la launcher: same field, same glass\n   recipe, same accent, same radii, same tabular-mono law. The templates this\n   app produces went Liquid Glass on Aug 24; the chrome around them was still\n   flat-black-and-orange 2021 SaaS. Now they are one material.\n\n   Laws, carried over from the CRM theme:\n   1. Chrome is glass. Running text is opaque. A blur is for panels, never\n      for paragraphs.\n   2. ONE accent (#ff7a1a). The site now matches the PRODUCT it sells, not\n      the CRM: a page selling loud buyback ads should not look like a SaaS\n      dashboard. Colour that is not the accent means state:\n      green good, amber caution, red stop, violet AI.\n   3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and\n      wordmark only, as --brand-1/--brand-2, so the accent can be retuned for\n      contrast without repainting the brand.\n   4. Anything the eye compares — prices, counts, percentages, quotas — is set\n      in tabular mono. This is a tool, not prose.\n\n   Legacy tokens (--orange, --surface2, --muted …) are kept as ALIASES onto the\n   new system because app.js writes them into generated markup in ~250 places.\n   Retargeting --orange to the accent is what repaints those call sites.\n   Do not delete an alias without grepping app.js first.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── HOUSE TYPE ──────────────────────────────────────────────────────────────\n   Clash Display for anything that declares, Satoshi for anything that is read,\n   Zodiak when a serif is the point. All three are Fontshare (Indian Type\n   Foundry), free for commercial use, and VENDORED into assets/fonts rather\n   than pulled from a CDN: no third-party dependency, no extra CSP origin, no\n   render-blocking round trip to someone else's server. 184KB for nine files.\n\n   Why these and not the previous set: the library ran on Bebas Neue, Anton,\n   Montserrat, Luckiest Guy, Titan One, Bungee, Monoton and Pacifico. Those are\n   the default free-font shelf every Canva template is already built from, and\n   half of them are novelty faces — the opposite of an ad that asks a stranger\n   to hand over a phone for cash. `font-display:swap` so text paints\n   immediately in the fallback and reflows once the face lands. */\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n/* Khand carries the long money-words (\"TEST STRIPS\", \"COLLECTIBLES\") that made\n   a wide face overflow; Melodrama is the high-contrast serif for gold, coins\n   and anything that wants to read as valuation rather than clearance. Two more\n   voices so the 153 templates are not all in one typeface. */\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n\n/* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>\n   before first paint by the inline script in index.html, so there is no white\n   flash. This rule matches both the explicit choice and the bare default, so\n   dark still applies if that script never runs. */\n:root,\n:root[data-theme='dark']{\n  color-scheme:dark;\n\n  /* GRAPHITE, the default ground since 2026-09-02. The field used to be a warm\n     near-black (#141110) with brown surfaces under an orange accent, and the\n     owner's verdict was \"orange on brown on grey\". The ground is now a cool\n     neutral graphite so ANY accent sits on it cleanly; the old warm set is\n     kept, whole, as data-skin='ember' below. Accent colour is a separate axis\n     (data-accent) so the two can be mixed from the Look menu. */\n\n  /* Field */\n  --field:#0f1116;\n  --wash-a:rgba(var(--accent-rgb),.26);\n  --wash-b:rgba(var(--accent2-rgb),.18);\n  --wash-c:rgba(0,214,180,.10);\n\n  /* Glass */\n  --glass-bg:rgba(24,27,34,.62);\n  --glass-bg-strong:rgba(24,27,34,.86);\n  --glass-edge:rgba(255,255,255,.12);\n  --glass-blur:blur(34px) saturate(190%) brightness(1.04);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 38px -12px rgba(0,0,0,.6);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.10),0 24px 60px -14px rgba(0,0,0,.75);\n\n  /* Opaque content surfaces */\n  --surface-solid:#171a21;\n  --surface-sunk:rgba(255,255,255,.055);\n  --surface-raise:#1f232c;\n\n  /* Ink — cool neutrals */\n  --text:#f2f4f8;\n  --text-2:#c3c9d6;\n  --text-dim:#8b94a7;\n  --hairline:rgba(255,255,255,.09);\n  --hairline-strong:rgba(255,255,255,.16);\n\n  /* Accent — BLUE MARKET by default (the palette the owner kept most often\n     in the template reviews). See the data-accent blocks for the others. */\n  --accent:#4d9cff;\n  --accent-ink:#061527;\n  --accent-wash:rgba(77,156,255,.16);\n  --accent-deep:#2b7de9;\n  --accent-soft:#cfe4ff;\n  --accent-rgb:77,156,255;\n  --accent2-rgb:120,90,255;\n\n  --good:#30d68f;\n  --warn:#ffb03d;\n  --danger:#ff6259;\n  --ai:#a78bff;\n\n  /* Brand — follows the accent now. The mark used to carry its own orange\n     regardless of the UI accent; that is the one place orange survived the\n     retune, so it is tied to the accent axis instead. */\n  --brand-1:var(--accent);\n  --brand-2:var(--accent-soft);\n  --brand-rgb:var(--accent-rgb);\n\n  --r-pill:999px;\n  --r-lg:18px;\n  --r-md:13px;\n  --r-sm:9px;\n  --tap:44px;\n\n  --lift-1:0 1px 2px rgba(0,0,0,.4),0 4px 12px -4px rgba(0,0,0,.5);\n  --lift-2:0 2px 6px rgba(0,0,0,.45),0 18px 42px -14px rgba(0,0,0,.68),0 0 0 1px rgba(255,255,255,.045);\n  --lift-3:0 4px 12px rgba(0,0,0,.5),0 40px 90px -22px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.5);\n\n  --stage-1:#14171d;\n  --stage-2:#0a0c10;\n  --stage-dot:rgba(255,255,255,.045);\n  --scrim:rgba(8,10,14,.74);\n\n  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;\n  /* Satoshi runs the whole product, chrome included. The system stack stays\n     behind it as the fallback, so a failed font load degrades to exactly the\n     UI we shipped before rather than to Times. */\n  --ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;\n  --display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;\n  --serif:'Zodiak',Georgia,'Times New Roman',serif;\n\n  /* ── legacy aliases (app.js depends on every one of these) ── */\n  --bg:var(--field);\n  --surface:var(--surface-solid);\n  --surface2:var(--surface-raise);\n  --surface3:#2a2f3a;\n  --border:var(--hairline);\n  --border2:var(--hairline-strong);\n  --orange:var(--accent);\n  --orange2:var(--accent-deep);\n  --gold:var(--warn);\n  --green:var(--good);\n  --red:var(--danger);\n  --muted:var(--text-dim);\n  --muted2:var(--text-2);\n  --panel:var(--surface-solid);\n  --panel2:var(--surface-raise);\n  --line:var(--hairline);\n  --r:var(--r-md);\n}\n\n/* EMBER — the pre-2026-09-02 warm look, kept as a selectable skin. */\n:root[data-theme='dark'][data-skin='ember']{\n  --field:#141110;\n  --wash-a:rgba(var(--accent-rgb),.34);\n  --wash-b:rgba(var(--accent2-rgb),.26);\n  --wash-c:rgba(255,196,60,.20);\n  --glass-bg:rgba(34,27,23,.62);\n  --glass-bg-strong:rgba(34,27,23,.86);\n  --glass-edge:rgba(255,255,255,.13);\n  --surface-solid:#1d1815;\n  --surface-raise:#262019;\n  --text:#f6efe8;\n  --text-2:#cfc2b6;\n  --text-dim:#9a8b7e;\n  --stage-1:#1a1512;\n  --stage-2:#0d0a08;\n  --scrim:rgba(14,9,6,.74);\n  --surface3:#33291f;\n}\n\n/* NIGHT — deep jewel ground, vivid washes, the Night Neon family's material. */\n:root[data-theme='dark'][data-skin='night']{\n  --field:#0a0913;\n  --wash-a:rgba(var(--accent-rgb),.44);\n  --wash-b:rgba(var(--accent2-rgb),.34);\n  --wash-c:rgba(0,214,180,.18);\n  --glass-bg:rgba(28,24,56,.58);\n  --glass-bg-strong:rgba(28,24,56,.84);\n  --glass-edge:rgba(255,255,255,.14);\n  --glass-blur:blur(40px) saturate(220%) brightness(1.06);\n  --surface-solid:#15132a;\n  --surface-raise:#1d1a36;\n  --surface-sunk:rgba(255,255,255,.06);\n  --text:#f3f0ff;\n  --text-2:#c9c3e8;\n  --text-dim:#8f88b8;\n  --hairline:rgba(255,255,255,.10);\n  --hairline-strong:rgba(255,255,255,.18);\n  --glow-accent:0 10px 40px -6px rgba(var(--accent-rgb),.7);\n  --stage-1:#14122a;\n  --stage-2:#08071a;\n  --scrim:rgba(6,5,16,.76);\n  --surface3:#26224a;\n}\n\n/* LIGHT — opt-in, for daylight and for turning the screen toward someone.\n   Higher specificity than the bare :root above, so it wins wherever the dark\n   default set a value. Radii, faces and the mono stack are theme-independent. */\n:root[data-theme='light']{\n  color-scheme:light;\n  --field:#f3f4f7;\n  --wash-a:rgba(var(--accent-rgb),.14);\n  --wash-b:rgba(var(--accent2-rgb),.10);\n  --wash-c:rgba(0,214,180,.08);\n  --glass-bg:rgba(255,255,255,.58);\n  --glass-bg-strong:rgba(255,255,255,.80);\n  --glass-edge:rgba(255,255,255,.9);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(9,18,38,.045),0 1px 2px rgba(9,18,38,.05),0 14px 38px -12px rgba(9,18,38,.16);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.95),0 24px 60px -14px rgba(9,18,38,.30);\n  --surface-solid:#ffffff;\n  --surface-sunk:rgba(9,18,38,.042);\n  --surface-raise:#f8f9fc;\n  --text:#14161c;\n  --text-2:#4a5060;\n  --text-dim:#6b7280;\n  --hairline:rgba(9,18,38,.09);\n  --hairline-strong:rgba(9,18,38,.16);\n  --accent:#1d63d8;\n  --accent-ink:#ffffff;\n  --accent-wash:rgba(29,99,216,.12);\n  --accent-deep:#174fae;\n  --accent-soft:#dbe8ff;\n  --accent-rgb:29,99,216;\n  --accent2-rgb:109,63,214;\n  --good:#0f9d6b;\n  --warn:#c2751a;\n  --danger:#e0342a;\n  --ai:#6c4cff;\n  --lift-1:0 1px 2px rgba(9,18,38,.06),0 4px 12px -4px rgba(9,18,38,.10);\n  --lift-2:0 2px 6px rgba(9,18,38,.07),0 18px 42px -14px rgba(9,18,38,.20),0 0 0 1px rgba(9,18,38,.05);\n  --lift-3:0 4px 12px rgba(9,18,38,.08),0 40px 90px -22px rgba(9,18,38,.28),0 0 0 1px rgba(9,18,38,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.34);\n  --stage-1:#eef0f4;\n  --stage-2:#dfe3ea;\n  --stage-dot:rgba(9,18,38,.07);\n  --scrim:rgba(120,132,155,.42);\n  --surface3:#e9ecf2;\n}\n\n/* PAPER — light, editorial: a warm paper ground, ink type, a serif display\n   face, hairlines instead of glass. The Paper and Chalk template families'\n   material, applied to the chrome. */\n:root[data-theme='light'][data-skin='paper']{\n  --field:#f7f4ee;\n  --wash-a:rgba(var(--accent-rgb),.07);\n  --wash-b:rgba(var(--accent2-rgb),.05);\n  --wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(251,249,244,.82);\n  --glass-bg-strong:rgba(251,249,244,.94);\n  --glass-edge:rgba(30,25,15,.10);\n  --glass-blur:blur(12px) saturate(120%);\n  --glass-shadow:0 1px 0 rgba(30,25,15,.05);\n  --glass-shadow-lift:0 20px 50px -18px rgba(30,25,15,.22);\n  --surface-solid:#fffdf9;\n  --surface-sunk:rgba(30,25,15,.045);\n  --surface-raise:#f1ece3;\n  --text:#1a1815;\n  --text-2:#4e4842;\n  --text-dim:#6d665e;\n  --hairline:rgba(30,25,15,.11);\n  --hairline-strong:rgba(30,25,15,.20);\n  --stage-1:#f1ece3;\n  --stage-2:#e4dccf;\n  --scrim:rgba(90,80,64,.42);\n  --surface3:#e9e2d6;\n  --r-lg:12px;\n  --r-md:9px;\n  --r-sm:6px;\n  --display:'Zodiak',Georgia,'Times New Roman',serif;\n}\n\n/* ACCENT AXIS. Five accents, each with a dark and a light value pair; the\n   ground (skin) never changes with the accent, which is what makes them\n   mixable. Blue is the default and lives in the base blocks above. */\n:root[data-accent='mint']{--accent:#3ddc97;--accent-ink:#04170e;--accent-wash:rgba(61,220,151,.16);--accent-deep:#1fb87a;--accent-soft:#c9f5e2;--accent-rgb:61,220,151;--accent2-rgb:77,156,255}\n:root[data-theme='light'][data-accent='mint']{--accent:#0f8f5f;--accent-ink:#ffffff;--accent-wash:rgba(15,143,95,.12);--accent-deep:#0b6f4a;--accent-soft:#d3f3e4;--accent-rgb:15,143,95;--accent2-rgb:29,99,216}\n:root[data-accent='orchid']{--accent:#b48cff;--accent-ink:#120a24;--accent-wash:rgba(180,140,255,.16);--accent-deep:#8f5cff;--accent-soft:#e6d8ff;--accent-rgb:180,140,255;--accent2-rgb:255,120,190}\n:root[data-theme='light'][data-accent='orchid']{--accent:#6d3fd6;--accent-ink:#ffffff;--accent-wash:rgba(109,63,214,.12);--accent-deep:#5530b0;--accent-soft:#e9dfff;--accent-rgb:109,63,214;--accent2-rgb:214,63,150}\n:root[data-accent='gold']{--accent:#f2c744;--accent-ink:#1a1300;--accent-wash:rgba(242,199,68,.16);--accent-deep:#d9a815;--accent-soft:#ffe9a8;--accent-rgb:242,199,68;--accent2-rgb:255,122,26}\n:root[data-theme='light'][data-accent='gold']{--accent:#a6700a;--accent-ink:#ffffff;--accent-wash:rgba(166,112,10,.12);--accent-deep:#8a5b06;--accent-soft:#f7e7b8;--accent-rgb:166,112,10;--accent2-rgb:194,65,12}\n:root[data-accent='orange']{--accent:#ff7a1a;--accent-ink:#1a0d04;--accent-wash:rgba(255,122,26,.18);--accent-deep:#e04e05;--accent-soft:#ffd7a1;--accent-rgb:255,122,26;--accent2-rgb:255,80,30;--brand-1:#ff7a33;--brand-2:#f5a623}\n:root[data-theme='light'][data-accent='orange']{--accent:#c2410c;--accent-ink:#ffffff;--accent-wash:rgba(194,65,12,.13);--accent-deep:#9a3412;--accent-soft:#ffd7a1;--accent-rgb:194,65,12;--accent2-rgb:255,80,30;--brand-1:#f2600c;--brand-2:#e09417}\n\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}\nhtml{scroll-behavior:smooth}\nbody{\n  font-family:var(--ui);\n  font-size:15px;\n  line-height:1.45;\n  letter-spacing:-.006em;\n  background:var(--field);\n  color:var(--text);\n  overflow-x:hidden;\n  -webkit-font-smoothing:antialiased;\n}\n\n/* THE FIELD — three layers, because one gradient looks like a template.\n   1. Aurora: two large soft colour bodies, off-centre and different sizes, so\n      the eye reads atmosphere rather than wallpaper.\n   2. Geometry: thin arcs and a conic wedge, so a blurred panel moving over an\n      EDGE refracts visibly. Glass over flat colour is just tinted plastic.\n   3. Vignette + grain: corners fall away, and wide displays stop banding. */\n/* How strongly the bokeh reads. A dark ground carries it as light in a room;\n   the light skins take a third, where the same alpha smudges the paper. */\n:root{--bokeh-a:.42}\n:root[data-theme='light']{--bokeh-a:.17}\n:root[data-skin='obsidian']{--bokeh-a:.30}\n:root[data-skin='night']{--bokeh-a:.52}\n:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.13}\n\n@media (max-width:700px){:root{--bokeh-a:.26}:root[data-skin='night']{--bokeh-a:.32}:root[data-theme='light']{--bokeh-a:.12}:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.09}}\n\n/* THE FIELD — the colour behind everything, in two parts.\n\n   BOKEH first (painted on top): eleven out-of-focus discs in the look's own\n   accent, ring and second hue. Each is a radial-gradient rather than a blurred\n   shape, because a gradient IS soft — no filter, no extra compositing layer,\n   nothing for a phone to blur every frame. The rim is a touch brighter than\n   the centre and the falloff runs long, which is what makes a defocused\n   highlight read as glass rather than as a flat circle.\n\n   Then the washes underneath. Every colour comes from a token, so all eight\n   grounds and thirteen accents get their own field for free, and --bokeh-a\n   turns the whole effect down on the light skins, where the same alpha would\n   read as smudges on paper rather than light in a room. */\nbody::before{\n  content:'';position:fixed;inset:-25%;z-index:-2;pointer-events:none;\n  /* HEAVY BOKEH, DISPERSED. Twenty defocused discs on a jittered grid, so the\n     colour is spread through the whole field rather than pooled in a corner.\n     Each is a smooth radial falloff with NO rim and no edge — which is not an\n     approximation of a heavy blur, it is what one is: blur a disc far enough\n     and you have a gaussian, which is a gradient. Doing it this way means no\n     filter, so nothing is re-blurred as the layer drifts, and a phone paints\n     it once. Radii are viewport-relative because the layer tracks the\n     viewport: in px they were tuned for a laptop and swamped a phone.\n     The thin rings and the conic that used to sit here are gone — at this\n     softness their hard 1%-wide edges were the only sharp thing on screen. */\n  background:\n    radial-gradient(circle clamp(91px,23.3vw,315px) at 8.5% 7.4%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.66)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.488)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.238)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.079)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 31.5% 10.9%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.9)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.666)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.324)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.108)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.5vw,140px) at 44.5% 11.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.67)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.496)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.241)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.08)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(54px,11.7vw,157px) at 69.9% 18.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.74)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.548)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.266)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.089)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(86px,21.7vw,293px) at 92.8% 20.2%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.84)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.622)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.302)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.101)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(106px,27.9vw,377px) at 17.7% 30.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.8vw,212px) at 26.0% 31.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.07)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.792)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.385)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.128)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(90px,23.1vw,311px) at 46.5% 39.3%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.82)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.607)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.295)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.098)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 71.7% 31.0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.73)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.54)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.263)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.088)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.9vw,214px) at 93.5% 36.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(101px,26.5vw,358px) at 10.3% 59.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.0)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.74)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.36)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.12)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(82px,20.6vw,277px) at 27.4% 64.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 1.1)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.814)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.396)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.132)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(114px,30.6vw,414px) at 54.2% 59.6%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.68)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.503)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.245)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.082)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(56px,12.3vw,165px) at 69.9% 67.1%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.89)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.659)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.32)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.107)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(99px,25.8vw,349px) at 84.5% 65.7%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(94px,24.3vw,328px) at 16.3% 85.0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.95)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.703)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.342)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.114)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(104px,27.5vw,371px) at 32.1% 87.3%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 1.14)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.844)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.41)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.137)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,138px) at 50.6% 90.6%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.01)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.747)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.364)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.121)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(103px,27.1vw,366px) at 73.1% 95.9%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(47px,9.5vw,126px) at 89.4% 90.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.87)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.644)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.313)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.104)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%);\n  animation:field-drift 48s ease-in-out infinite alternate;\n}\n@keyframes field-drift{\n  from{transform:translate3d(0,0,0) scale(1)}\n  to{transform:translate3d(-1.5%,1.2%,0) scale(1.04)}\n}\nbody::after{\n  content:'';position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;\n  background-image:\n    radial-gradient(120% 90% at 50% 45%,transparent 42%,rgba(0,0,0,.30) 100%),\n    url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.035'/></svg>\");\n}\n/* The editor is a full-height app shell that paints its own stage, so the\n   marketing field would only burn GPU behind it. Driven by :has() rather than\n   a body class, so app.js needs no change to page switching. */\nbody:has(#page-editor.active)::before,\nbody:has(#page-editor.active)::after{display:none}\n\nbutton{font-family:inherit}\ninput,textarea,select{font-family:inherit;color:var(--text)}\n::-webkit-scrollbar{width:10px;height:10px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px;border:3px solid transparent;background-clip:content-box}\n::-webkit-scrollbar-thumb:hover{background:var(--text-dim);background-clip:content-box}\n:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}\n@media (prefers-reduced-motion:reduce){\n  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}\n  body::before{animation:none}\n}\n\n/* ═══════════ HOUSE UTILITIES (shared vocabulary with the CRM) ═══════════ */\n.glass{\n  position:relative;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);\n  backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  box-shadow:var(--glass-shadow);\n}\n/* A single hairline all the way round reads as a border. Real glass catches\n   light on the edge facing the source and loses it on the far side, so this\n   paints a gradient rim: bright top-left, gone by bottom-right. Cheapest thing\n   that separates \"panel with a border\" from \"pane of glass\". */\n.glass::after{\n  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;\n  background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.05) 34%,transparent 60%);\n  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);\n  -webkit-mask-composite:xor;mask-composite:exclude;\n  pointer-events:none;z-index:0;\n}\n.glass>*{position:relative;z-index:1}\n.glass-strong{background:var(--glass-bg-strong)}\n/* Anything the eye compares. */\n.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}\n.label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}\n\n/* ═══════════ SHARED ═══════════ */\n.btn{\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;\n  min-height:36px;padding:9px 18px;\n  border-radius:var(--r-pill);\n  font-size:14px;font-weight:600;letter-spacing:-.01em;line-height:1.2;\n  cursor:pointer;border:none;text-decoration:none;white-space:nowrap;\n  transition:transform .08s cubic-bezier(.2,0,0,1),filter .15s ease,background .15s ease,border-color .15s ease,color .15s ease;\n}\n.btn:active{transform:scale(.968)}\n.btn-primary{\n  background:linear-gradient(180deg,var(--accent),var(--accent-deep));\n  color:var(--accent-ink);\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent);\n}\n.btn-primary:hover{filter:brightness(1.06)}\n.btn-ghost{background:transparent;color:var(--text-2)}\n.btn-ghost:hover{color:var(--text);background:var(--surface-sunk)}\n.btn-outline{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  color:var(--text);border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow);\n}\n.btn-outline:hover{background:var(--surface-raise);color:var(--text)}\n.btn-dark{background:var(--surface-sunk);color:var(--text);border:1px solid var(--hairline)}\n.btn-dark:hover{background:var(--surface-raise)}\n.btn-xl{padding:15px 30px;font-size:16px;min-height:52px}\n.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}\n\n/* Theme toggle — same control on every surface. */\n.theme-btn{\n  width:36px;height:36px;flex:none;display:inline-grid;place-items:center;\n  border-radius:var(--r-pill);background:transparent;border:none;cursor:pointer;\n  color:var(--text-2);font-size:15px;line-height:1;\n  transition:background .15s ease,color .15s ease;\n}\n.theme-btn:hover{background:var(--surface-sunk);color:var(--text)}\n\n.notif{\n  position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);color:var(--text);\n  padding:12px 20px;border-radius:var(--r-pill);font-size:14px;font-weight:600;\n  z-index:9500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;\n  box-shadow:var(--glass-shadow-lift);max-width:min(90vw,480px);text-align:center;\n}\n.notif.show{opacity:1;transform:translate(-50%,0)}\n.notif.success{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(48,214,143,.45)}\n.notif.error{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(255,98,89,.5)}\n\n/* modal */\n.modal-overlay{\n  position:fixed;inset:0;background:var(--scrim);\n  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);\n  z-index:8000;display:none;align-items:center;justify-content:center;padding:24px;\n}\n.modal-overlay.show{display:flex}\n.modal{\n  position:relative;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:22px;width:100%;max-width:520px;padding:26px;\n  box-shadow:var(--glass-shadow-lift);animation:pop .18s cubic-bezier(.2,0,0,1);\n}\n@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}\n.modal h3{font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:4px}\n.modal .modal-sub{font-size:13.5px;color:var(--text-dim);margin-bottom:18px;line-height:1.5}\n.modal label{display:block;font-size:10.5px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.09em}\n.modal input[type=text],.modal input[type=tel],.modal input[type=email],.modal input[type=password]{\n  width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);\n  border-radius:var(--r-md);padding:11px 13px;font-size:14px;color:var(--text);\n  transition:border-color .14s ease,box-shadow .14s ease;\n}\n.modal input::placeholder{color:var(--text-dim)}\n.modal input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}\n\n/* ═══════════ LANDING ═══════════ */\n#page-landing{min-height:100vh}\n.lp-nav{\n  position:fixed;top:0;left:0;right:0;z-index:300;height:64px;\n  display:flex;align-items:center;gap:8px;padding:0 clamp(16px,4vw,40px);\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n  box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -20px rgba(0,0,0,.6);\n}\n.logo{\n  font-family:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;\n  color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px;\n  cursor:pointer;background:none;border:none;\n}\n.logo .logo-mark{\n  width:30px;height:30px;border-radius:9px;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:#fff;\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 12px -4px rgba(var(--brand-rgb),.5);\n}\n/* Brand warmth lives here and nowhere else. */\n.logo em{\n  font-style:normal;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  -webkit-background-clip:text;background-clip:text;color:transparent;\n}\n.lp-nav-links{display:flex;gap:26px;margin-left:40px}\n.lp-nav-links a{font-size:14px;font-weight:550;color:var(--text-2);text-decoration:none;transition:color .15s;white-space:nowrap}\n.lp-nav-links a:hover{color:var(--text)}\n.lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}\n.lp-lab{white-space:nowrap}\n/* The bar measured about 1290px wide at every viewport, so from 1100 to 1439px\n   \"Make my ad\" (the one action the page exists for) was clipped off the right\n   edge. It gives ground in order of least use: tighter link spacing and the\n   \"Template\" word first, then the two links that are also reachable from the\n   page itself, then the link row. */\n@media(max-width:1380px){\n  .lp-nav-links{gap:18px;margin-left:24px}\n  .lp-lab-full{display:none}\n}\n@media(max-width:1200px){\n  .lp-nav-links a[href=\"#lp-themes\"],.lp-nav-links a[href=\"#faq\"]{display:none}\n}\n@media(max-width:1000px){\n  .lp-nav-links{display:none}\n}\n@media(max-width:640px){\n  .lp-nav-links{display:none}\n  /* The lab link is the one nav item that must survive on a phone (it is\n     reviewed from one). Measured at 375px: wordmark 186 + lab pill + toggle\n     + \"Make my ad\" overflowed by ~80px and the CTA clipped, so the logo\n     drops to its mark alone here; the mark keeps its own font-size below. */\n  .lp-nav .logo{font-size:0;gap:0}\n  .lp-lab{padding:9px 12px}\n  /* 343px of usable nav at 375 viewport cannot hold logo + 4 controls, and\n     overflow-x:hidden was silently clipping \"Make my ad\" off the right edge.\n     Log in / Sign up free stay reachable in the footer's Account column and\n     from the studio itself, so the one conversion button survives here. */\n  #lp-login,#lp-signup{display:none}\n  .lp-nav{gap:4px;padding:0 12px}\n  .lp-nav .btn{padding:9px 14px;font-size:13.5px}\n  .lp-nav .lp-caret{padding:9px 10px}\n  .logo{font-size:15px;gap:8px}\n  .logo .logo-mark{width:26px;height:26px;font-size:13px}\n}\n\n.hero{padding:120px clamp(16px,5vw,48px) 72px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(84vh,760px)}\n@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:120px;gap:44px;min-height:0}}\n.hero-eyebrow{\n  display:inline-flex;align-items:center;gap:8px;\n  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;\n  color:var(--accent);background:var(--accent-wash);\n  border:.5px solid rgba(var(--accent-rgb),.28);\n  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:22px;\n}\n/* The ceiling at which \"in under a minute.\" still sets on ONE line inside the\n   1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is face-specific and\n   has now caught two typefaces out: the system stack held one line to 68px,\n   Clash Display breaks at 66 (it runs ~8.4x its size for that string against\n   a 548px column at 1280). Re-measure this if --display ever changes again;\n   guessing produces a four-line ragged hero. */\n.hero h1{font-family:var(--display);font-size:clamp(34px,4.5vw,58px);line-height:1.06;letter-spacing:-.028em;margin-bottom:20px;font-weight:700}\n.hero h1 em{font-style:normal;color:var(--accent)}\n.hero p{font-size:17px;line-height:1.65;color:var(--text-2);max-width:480px;margin-bottom:32px}\n.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}\n.hero-note{margin-top:18px;font-size:13px;color:var(--text-dim)}\n\n/* Height is set by the fan's geometry, not by taste: the front card must start\n   BELOW the back cards' phone-number band or it buries the one element the ad\n   exists to deliver. At 460px with 52% cards it covered 53% and 54% of them. */\n.hero-stack{position:relative;height:500px}\n.hero-card{position:absolute;width:44%;aspect-ratio:1;border-radius:20px;overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-3);background:var(--surface-raise);transition:transform .4s cubic-bezier(.2,0,0,1)}\n.hero-card img{width:100%;height:100%;object-fit:cover;display:block}\n/* Fan geometry is measured, not eyeballed. At 57% wide the three cards came to\n   192% of the stack and the back card was 57% OCCLUDED — its headline was\n   sliced in half, which reads as a broken page rather than a designed stack.\n   At 52% the overlap is ~19%/~18% and, more importantly, all of it lands in\n   the LOWER band: hc3 starts at y=201 of a 460 stack, below where every\n   template puts its headline. Change these together, and re-measure the\n   occlusion if you touch the width. */\n.hero-card.hc1{top:0;left:0;transform:rotate(-8deg);z-index:1}\n.hero-card.hc2{top:4%;right:2%;transform:rotate(6deg);z-index:2}\n.hero-card.hc3{bottom:0;left:20%;transform:rotate(-1deg);z-index:3;box-shadow:var(--lift-3),0 30px 90px -20px rgba(var(--accent-rgb),.35)}\n/* Mobile fan. MUST come after the base .hero-card rules: at equal specificity\n   the later rule wins, and an earlier media query silently lost to the 52%\n   default — the block applied, the width did not.\n   Taller and narrower here because at 380px the three cards had nowhere to go\n   and the front one landed across the other two's phone numbers (measured 71%\n   and 55% of the number band covered), which is the one element the ad exists\n   to deliver. */\n@media(max-width:900px){\n  .hero-stack{height:446px;max-width:440px;margin:0 auto;width:100%}\n  .hero-card{width:46%}\n  /* Overlap SIDEWAYS, separate VERTICALLY. Pulling the cards fully apart cleared\n     the phone numbers but lost the stack entirely — three scattered squares, no\n     depth. Horizontal overlap gives the layered read back; the vertical gaps are\n     what keep each card's number band uncovered. */\n  .hero-card.hc1{top:0;left:0}\n  .hero-card.hc2{top:7%;right:4%}\n  .hero-card.hc3{bottom:0;left:17%}\n}\n/* Any card can be brought to the front — hover on a pointer device, press and\n   hold on touch. The whole stack dims slightly so the chosen one reads as\n   picked rather than merely bigger. */\n/* ═══════════ HERO ENTRANCE ═══════════\n   The three cards fly in from below-and-apart and settle into the fan, so the\n   stack assembles itself in front of the visitor instead of being there already.\n   Each card keeps its OWN resting transform, so the animation has to end on that\n   exact value or the card snaps when the keyframes hand back to CSS — hence a\n   per-card @keyframes rather than one shared one.\n   Staggered back-to-front so the card you are meant to read lands last.\n   `animation-fill-mode:both` holds the opening frame during the delay, which is\n   what stops all three flashing at their final position on first paint. */\n@keyframes heroIn1{\n  0%  {opacity:0; transform:translate3d(-38px,64px,0) rotate(-16deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-8deg) scale(1)}\n}\n@keyframes heroIn2{\n  0%  {opacity:0; transform:translate3d(38px,72px,0) rotate(14deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(6deg) scale(1)}\n}\n@keyframes heroIn3{\n  0%  {opacity:0; transform:translate3d(0,88px,0) rotate(6deg) scale(.86)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-1deg) scale(1)}\n}\n/* Cards default to VISIBLE. An earlier version set opacity:0 here and relied on\n   a JS class to reveal them — so the moment requestAnimationFrame did not run\n   (a background tab, a script error anywhere above) the hero was simply blank.\n   The animation supplies its own opening frame through fill-mode:both, so\n   nothing needs to be hidden up front for it to work. Fail visible. */\n.hero-stack.ready .hero-card.hc1{animation:heroIn1 .92s cubic-bezier(.16,.84,.28,1) .05s both}\n.hero-stack.ready .hero-card.hc2{animation:heroIn2 .92s cubic-bezier(.16,.84,.28,1) .17s both}\n.hero-stack.ready .hero-card.hc3{animation:heroIn3 1.0s cubic-bezier(.16,.84,.28,1) .30s both}\n/* Once the entrance has finished the animation is removed entirely, so the\n   hover transform is not fighting a finished animation for the same property.\n   Selector must be enumerated per card: `.hero-stack.settled .hero-card` is\n   three classes and LOSES to `.hero-stack.ready .hero-card.hc1`, which is four\n   — so `animation:none` silently never applied and the cards stayed frozen on\n   the animation's opening frame. Matching specificity, declared later, wins. */\n.hero-stack.settled .hero-card.hc1,\n.hero-stack.settled .hero-card.hc2,\n.hero-stack.settled .hero-card.hc3{animation:none;opacity:1}\n@media (prefers-reduced-motion:reduce){\n  .hero-card{opacity:1}\n  .hero-stack.ready .hero-card{animation:none}\n}\n.hero-card{cursor:pointer;will-change:transform}\n.hero-stack:hover .hero-card,.hero-stack.touching .hero-card{filter:brightness(.72) saturate(.9)}\n/* Hover pulls a card OUT of the stack: z-index above its siblings, straightened,\n   lifted and enlarged. Without the z-index the card grew but stayed underneath,\n   which read as a glitch rather than a pick-up. */\n.hero-card.hc1:hover,.hero-card.hc1.lifted,\n.hero-card.hc2:hover,.hero-card.hc2.lifted,\n.hero-card.hc3:hover,.hero-card.hc3.lifted{z-index:9}\n.hero-card.hc1:hover,.hero-card.hc1.lifted{transform:rotate(-2deg) translateY(-18px) scale(1.09)}\n.hero-card.hc2:hover,.hero-card.hc2.lifted{transform:rotate(1.5deg) translateY(-18px) scale(1.09)}\n.hero-card.hc3:hover,.hero-card.hc3.lifted{transform:rotate(0deg) translateY(-20px) scale(1.09)}\n.hero-card:hover,.hero-card.lifted{\n  z-index:9!important;filter:none!important;\n  box-shadow:var(--lift-3),0 34px 90px -18px rgba(var(--accent-rgb),.5);\n}\n.hero-card .hc-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n@keyframes shimmer{to{background-position:-200% 0}}\n\n.lp-section{max-width:1200px;margin:0 auto;padding:80px clamp(16px,5vw,48px)}\n.lp-section-head{margin-bottom:38px}\n.lp-kicker{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}\n.lp-section-head h2{font-family:var(--display);font-size:clamp(30px,4vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.08}\n.lp-section-head p{color:var(--text-dim);font-size:15px;margin-top:12px;max-width:560px;line-height:1.6}\n\n.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:20px}\n.tpl-card{position:relative;border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--glass-edge);background:var(--surface-raise);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s;aspect-ratio:1;box-shadow:var(--lift-1)}\n.tpl-card:hover{transform:translateY(-4px);box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.4)}\n.tpl-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}\n.tpl-card .tpl-veil{position:absolute;inset:0;backdrop-filter:blur(1.6px) brightness(.86);transition:backdrop-filter .25s,opacity .25s}\n.tpl-card:hover .tpl-veil{backdrop-filter:blur(0) brightness(1);opacity:0}\n.tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}\n.tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}\n.tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-soft);background:rgba(0,0,0,.55);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-pill);padding:4px 9px}\n.tpl-card .tpl-use{position:absolute;top:12px;right:12px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;box-shadow:var(--glow-accent)}\n.tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}\n.tpl-card .tpl-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n.tpl-card.tpl-saved-card .tpl-del{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:14px;opacity:0;transition:opacity .2s}\n.tpl-card.tpl-saved-card:hover .tpl-del{opacity:1}\n.tpl-card .tpl-del:hover{color:var(--danger);border-color:var(--danger)}\n\n.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n@media(max-width:820px){.flow{grid-template-columns:1fr}}\n.flow-step{\n  position:relative;background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.flow-step .fs-num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:14px}\n.flow-step h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:8px}\n.flow-step p{font-size:14px;color:var(--text-dim);line-height:1.6}\n\n.lp-cta{max-width:1200px;margin:0 auto 90px;padding:0 clamp(16px,5vw,48px)}\n.lp-cta-inner{\n  position:relative;overflow:hidden;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:26px;padding:56px 40px;text-align:center;\n  box-shadow:var(--glass-shadow-lift);\n}\n/* A wash of accent inside the pane so the CTA reads as lit rather than tinted. */\n.lp-cta-inner::before{\n  content:'';position:absolute;inset:0;pointer-events:none;\n  background:radial-gradient(70% 120% at 50% 0%,var(--accent-wash),transparent 70%);\n}\n.lp-cta-inner>*{position:relative}\n.lp-cta-inner h2{font-family:var(--display);font-size:clamp(30px,4.4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.06;margin-bottom:12px}\n.lp-cta-inner p{color:var(--text-2);margin-bottom:28px;font-size:15px}\n.lp-footer{border-top:1px solid var(--hairline);padding:26px clamp(16px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--text-dim);font-size:13px}\n\n\n/* ═══════════ EDITOR ═══════════ */\n#page-editor{display:none;height:100vh;flex-direction:column;overflow:hidden}\n#page-editor.active{display:flex}\n#page-landing.hidden{display:none}\n\n.topbar{\n  height:58px;flex:0 0 58px;display:flex;align-items:center;gap:10px;padding:0 14px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);z-index:100;\n}\n.topbar .logo{font-size:15px}\n.tb-sep{width:1px;height:26px;background:var(--hairline);margin:0 4px}\n.tb-tplname{font-size:13px;font-weight:600;color:var(--text-2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.tb-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;color:var(--text-2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:var(--r-pill);cursor:pointer;transition:background .15s,color .15s}\n.tb-btn:hover{background:var(--surface-sunk);color:var(--text)}\n.tb-btn:disabled{opacity:.35;cursor:default;background:transparent}\n.tb-btn svg{width:16px;height:16px}\n.tb-spacer{flex:1}\n/* AI is violet everywhere in the house, never the accent. */\n#enhance-btn{border:.5px solid rgba(167,139,255,.4);color:var(--ai);background:rgba(167,139,255,.10)}\n#enhance-btn:hover{background:rgba(167,139,255,.18);color:var(--ai)}\n#enhance-btn.busy{opacity:.6;pointer-events:none}\n#export-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n#export-btn:hover{filter:brightness(1.06)}\n@media(max-width:900px){.tb-label{display:none}}\n/* ── editor topbar below laptop width ─────────────────────────────────────\n   Twelve controls in one non-wrapping row is fine at 1280 and broken\n   everywhere else: at iPad portrait the EXPORT button sat at x=848 on an\n   820px screen, and on an iPhone half the bar was past the right edge with\n   no way to reach it. The bar now scrolls horizontally, every control keeps\n   its full size rather than being squeezed, and Export is pinned to the\n   right edge so the one button that matters is never the one you have to go\n   hunting for. */\n@media(max-width:1100px){\n  .topbar{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}\n  .topbar::-webkit-scrollbar{display:none}\n  .topbar > *{flex:none}\n  .topbar .tb-spacer{flex:1 0 8px}\n  #export-btn{\n    position:sticky;right:0;z-index:2;\n    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent),\n               -18px 0 18px -10px var(--glass-bg-strong);\n  }\n}\n/* Touch pointers get the 44px minimum. Height only — widening the nav pills\n   would push the row back off the edge, which is the problem we just fixed. */\n@media(pointer:coarse){\n  .btn,.tb-btn,.ez-adv-link,.view-item,.picker-filters button,.plans-close,.logo{min-height:44px}\n  .theme-btn{width:44px;height:44px}\n  .ez-chip,.chip{min-height:40px}\n}\n\n.editor-body{flex:1;display:flex;overflow:hidden;position:relative}\n\n/* panels as drawers */\n.panel{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  display:flex;flex-direction:column;position:relative;transition:margin .28s cubic-bezier(.2,0,0,1);z-index:50;\n}\n.panel-left{width:300px;flex:0 0 300px;border-right:.5px solid var(--glass-edge)}\n.panel-right{width:300px;flex:0 0 300px;border-left:.5px solid var(--glass-edge)}\n.panel-left.collapsed{margin-left:-300px}\n.panel-right.collapsed{margin-right:-300px}\n.drawer-tab{position:absolute;top:50%;transform:translateY(-50%);width:20px;height:64px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:60;transition:color .15s,background .15s}\n.drawer-tab:hover{color:var(--text);background:var(--surface-raise)}\n.panel-left .drawer-tab{right:-20px;border-left:none;border-radius:0 10px 10px 0}\n.panel-right .drawer-tab{left:-20px;border-right:none;border-radius:10px 0 0 10px}\n\n.panel-tabs{display:flex;border-bottom:1px solid var(--hairline);flex:0 0 auto}\n.panel-tabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:12.5px;font-weight:650;padding:13px 4px;cursor:pointer;transition:color .15s,border-color .15s;letter-spacing:-.01em}\n.panel-tabs button:hover{color:var(--text-2)}\n.panel-tabs button.active{color:var(--text);border-bottom-color:var(--accent)}\n.panel-scroll{flex:1;overflow-y:auto;padding:16px 14px 40px}\n.panel-tabview{display:none}\n.panel-tabview.active{display:block}\n\n.psec{margin-bottom:22px}\n.psec-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}\n.field{margin-bottom:11px}\n.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}\n.field input[type=text],.field input[type=tel],.field input[type=number],.field textarea,.field select{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;transition:border-color .14s,box-shadow .14s}\n.field textarea{resize:vertical;min-height:56px;line-height:1.4}\n.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.field input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}\n.field-row{display:flex;gap:8px}\n.field-row .field{flex:1}\ninput[type=color]{width:100%;height:34px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:var(--surface-raise);cursor:pointer;padding:3px}\ninput[type=range]{width:100%;accent-color:var(--accent)}\n\n.chips{display:flex;flex-wrap:wrap;gap:7px}\n.chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12px;font-weight:650;padding:7px 12px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s;letter-spacing:-.005em}\n.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n.seg{display:flex;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-pill);overflow:hidden;padding:3px;gap:3px}\n.seg button{flex:1;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:650;padding:7px 6px;cursor:pointer;border-radius:var(--r-pill);transition:background .13s,color .13s}\n.seg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.seg button:hover:not(.active){color:var(--text-2)}\n\n.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}\n.add-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-md);color:var(--text-2);font-size:12.5px;font-weight:600;padding:13px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .13s}\n.add-btn:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}\n.add-btn .ab-ico{font-size:19px;line-height:1}\n.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.emoji-grid button{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);font-size:21px;padding:8px 0;cursor:pointer;transition:all .13s}\n.emoji-grid button:hover{border-color:var(--accent);transform:scale(1.08)}\n\n.mini-tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}\n.mini-tpl{position:relative;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--hairline);cursor:pointer;aspect-ratio:1;background:var(--surface-raise);transition:box-shadow .15s,transform .15s}\n.mini-tpl:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.mini-tpl.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}\n.mini-tpl img{width:100%;height:100%;object-fit:cover;display:block}\n.mini-tpl .mt-name{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;font-weight:650;color:#fff;padding:14px 7px 5px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.mini-tpl .mt-del{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s}\n.mini-tpl:hover .mt-del{opacity:1}\n.mini-tpl .mt-del:hover{color:var(--danger);border-color:var(--danger)}\n.empty-hint{font-size:12.5px;color:var(--text-dim);line-height:1.55;background:var(--surface-sunk);border:1px dashed var(--hairline-strong);border-radius:var(--r-md);padding:14px;text-align:center}\n\n/* stage */\n.stage{flex:1;position:relative;display:flex;overflow:auto;padding:26px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,var(--stage-1) 0%,var(--stage-2) 100%)}\n.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(var(--stage-dot) 1px,transparent 1px);background-size:26px 26px;pointer-events:none}\n#canvas-holder{position:relative;box-shadow:var(--lift-3);border-radius:6px;overflow:hidden;margin:auto}\n#guide-v,#guide-h{position:absolute;background:var(--accent);opacity:0;pointer-events:none;transition:opacity .08s;z-index:20;box-shadow:0 0 6px rgba(var(--accent-rgb),.9)}\n#guide-v{top:0;bottom:0;left:50%;width:1px;transform:translateX(-.5px)}\n#guide-h{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px)}\n#guide-v.on,#guide-h.on{opacity:1}\n.zoombar{\n  position:absolute;right:18px;bottom:16px;display:flex;align-items:center;gap:2px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:4px;z-index:70;\n  box-shadow:var(--glass-shadow-lift);\n}\n.zoombar button{background:none;border:none;color:var(--text-2);width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:15px;font-weight:600}\n.zoombar button:hover{background:var(--surface-sunk);color:var(--text)}\n.zoombar .zb-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:600;color:var(--text-2);min-width:48px;text-align:center;cursor:pointer;border-radius:var(--r-pill);padding:6px 2px}\n.zoombar .zb-pct:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* layers */\n.layer-row{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:background .12s,border-color .12s;margin-bottom:3px}\n.layer-row:hover{background:var(--surface-sunk)}\n.layer-row.selected{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4)}\n.layer-row.hidden-l{opacity:.4}\n.layer-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:var(--surface-sunk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-2)}\n.layer-row .li-text{color:var(--accent)}\n.layer-main{flex:1;min-width:0}\n.layer-name{font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.layer-prev{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}\n.layer-acts{display:flex;gap:2px;flex:0 0 auto}\n.layer-acts button{background:none;border:none;color:var(--text-dim);width:24px;height:24px;border-radius:var(--r-pill);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}\n.layer-acts button:hover{background:var(--surface-sunk);color:var(--text)}\n.layer-acts button.on{color:var(--accent)}\n\n.icon-row{display:flex;gap:7px}\n.icon-row button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);color:var(--text-2);padding:8px 4px;cursor:pointer;font-size:13px;font-weight:650;transition:all .13s}\n.icon-row button:hover{border-color:var(--hairline-strong);color:var(--text)}\n.icon-row button.active{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n/* template picker modal */\n.picker-modal{max-width:960px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}\n.picker-head{padding:22px 26px 16px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:14px;flex-wrap:wrap}\n.picker-head h3{font-size:20px;flex:1}\n.picker-filters{display:flex;gap:6px;flex-wrap:wrap}\n.picker-filters button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12.5px;font-weight:650;padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s}\n.picker-filters button.active{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.picker-body{flex:1;overflow-y:auto;padding:22px 26px 30px}\n.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:16px}\n.resume-card{grid-column:1/-1;display:flex;align-items:center;gap:16px;background:var(--accent-wash);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:border-color .15s}\n.resume-card:hover{border-color:var(--accent)}\n.resume-card img{width:64px;height:64px;border-radius:var(--r-md);object-fit:cover;border:.5px solid var(--hairline-strong)}\n.resume-card .rc-title{font-weight:700;font-size:14.5px}\n.resume-card .rc-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px}\n.picker-close{background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:var(--r-pill)}\n.picker-close:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* export modal */\n.export-preview{width:100%;max-height:340px;border-radius:var(--r-lg);border:.5px solid var(--hairline-strong);object-fit:contain;background:var(--surface-sunk);display:block;margin-bottom:16px}\n\n/* tutorial */\n#tut-overlay{position:fixed;inset:0;z-index:9000;display:none;pointer-events:none}\n#tut-bubble{pointer-events:auto}\n#tut-overlay.active{display:block}\n#tut-spot{position:fixed;border-radius:var(--r-lg);box-shadow:0 0 0 9999px var(--scrim),0 0 0 2px var(--accent),0 0 34px rgba(var(--accent-rgb),.5);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:9001}\n#tut-bubble{\n  position:fixed;width:308px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:18px;z-index:9002;\n  box-shadow:var(--glass-shadow-lift);transition:all .3s cubic-bezier(.4,0,.2,1);\n}\n#tut-bubble .tb-step{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}\n#tut-bubble h4{font-size:16px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n#tut-bubble p{font-size:13.5px;color:var(--text-2);line-height:1.55;margin-bottom:15px}\n.tut-dots{display:flex;gap:5px;margin-bottom:14px}\n.tut-dots span{width:7px;height:7px;border-radius:50%;background:var(--hairline-strong);transition:background .2s}\n.tut-dots span.on{background:var(--accent)}\n.tut-actions{display:flex;align-items:center;gap:9px}\n.tut-actions .tut-skip{background:none;border:none;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;padding:8px 4px}\n.tut-actions .tut-skip:hover{color:var(--text)}\n@media(max-width:1100px){.panel-left,.panel-right{position:absolute;top:0;bottom:0;box-shadow:var(--lift-3)}.panel-left{left:0}.panel-right{right:0}}\n\n/* ═══════════ EASY MODE ═══════════ */\n#page-easy{display:none;min-height:100vh}\n#page-easy.active{display:block}\n.ez-nav{\n  display:flex;align-items:center;justify-content:space-between;gap:8px;\n  padding:12px 26px;position:sticky;top:0;z-index:40;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n}\n.ez-adv-link{background:none;border:none;color:var(--text-dim);font:600 13px/1 var(--ui);cursor:pointer;padding:9px 12px;border-radius:var(--r-pill)}\n.ez-adv-link:hover{color:var(--text);background:var(--surface-sunk)}\n.ez-wrap{max-width:1160px;margin:0 auto;padding:26px 22px 90px}\n.ez-head h1{font:700 clamp(24px,3.5vw,34px)/1.1 var(--ui);letter-spacing:-.035em;margin:0 0 4px}\n.ez-head p{color:var(--text-dim);margin:0 0 22px;font-size:14px}\n.ez-stepline{display:flex;align-items:center;gap:10px;margin:26px 0 12px}\n/* NOTE: border-radius MUST stay exactly 50% — cssProbeOk() in app.js reads it\n   to decide whether this stylesheet loaded at all. */\n.ez-stepnum{width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font:700 13px/26px var(--mono);text-align:center;flex:none;box-shadow:var(--glow-accent)}\n.ez-stepline h2{font:650 17px/1 var(--ui);letter-spacing:-.02em;margin:0}\n.ez-stepline small{color:var(--text-dim);font-size:12px;margin-left:2px}\n.ez-strip{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}\n.ez-strip::-webkit-scrollbar{height:8px}\n.ez-strip::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px}\n\n/* ── horizontal scroller: pop-up arrows + edge fades ──────────────────────\n   The arrows are the only thing telling a visitor the row continues, so they\n   sit ON the thumbnails rather than outside the rail, and each one hides the\n   moment there is nothing more that way. */\n.strip-shell{position:relative}\n/* Fades are drawn over the rail, not the label row underneath it. */\n.strip-shell::before,.strip-shell::after{\n  content:'';position:absolute;top:0;bottom:22px;width:64px;pointer-events:none;z-index:2;\n  opacity:1;transition:opacity .18s ease;\n}\n.strip-shell::before{left:0;background:linear-gradient(90deg,var(--field),transparent)}\n.strip-shell::after{right:0;background:linear-gradient(270deg,var(--field),transparent)}\n.strip-shell.at-start::before,.strip-shell.at-end::after,\n.strip-shell.no-scroll::before,.strip-shell.no-scroll::after{opacity:0}\n.strip-arrow{\n  position:absolute;top:calc(50% - 11px);transform:translateY(-50%);z-index:3;\n  width:38px;height:38px;display:grid;place-items:center;\n  border-radius:var(--r-pill);cursor:pointer;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow-lift);\n  color:var(--text);font-size:20px;line-height:1;padding:0 0 3px;\n  transition:opacity .18s ease,transform .12s cubic-bezier(.2,0,0,1),background .15s ease;\n}\n.strip-arrow.left{left:-4px}\n.strip-arrow.right{right:-4px}\n.strip-arrow:hover{background:var(--surface-raise)}\n.strip-arrow:active{transform:translateY(-50%) scale(.92)}\n.strip-shell.at-start .strip-arrow.left,\n.strip-shell.at-end .strip-arrow.right{opacity:0;pointer-events:none}\n.strip-shell.no-scroll .strip-arrow{display:none}\n/* Coarse pointers get a bigger target and no hover-only reveal. */\n@media (pointer:coarse){\n  .strip-arrow{width:44px;height:44px;font-size:22px}\n}\n.ez-tpl{flex:none;width:132px;cursor:pointer;background:none;border:none;padding:0;scroll-snap-align:start;text-align:center;position:relative}\n.ez-tpl img{width:132px;height:132px;border-radius:var(--r-lg);display:block;border:3px solid transparent;transition:border-color .15s,transform .15s,box-shadow .15s;object-fit:cover}\n.ez-tpl span{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}\n.ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.ez-tpl.sel img{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-tpl.sel span{color:var(--text)}\n.ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start}\n.ez-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:20px;\n  box-shadow:var(--glass-shadow);\n}\n.ez-field{margin-bottom:14px}\n.ez-field label{display:block;font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}\n.ez-field input,.ez-field textarea{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:500 15px/1.35 var(--ui);padding:11px 13px;box-sizing:border-box;transition:border-color .14s,box-shadow .14s}\n.ez-field textarea{resize:vertical;min-height:64px}\n.ez-field input:focus,.ez-field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.ez-chiprow{display:flex;flex-wrap:wrap;gap:8px}\n.ez-chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);border-radius:var(--r-pill);padding:8px 14px;font:650 12px/1 var(--ui);cursor:pointer;transition:all .12s}\n.ez-chip:hover{color:var(--text);border-color:var(--hairline-strong)}\n.ez-chip.on{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.ez-swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}\n.ez-sw{width:40px;height:40px;border-radius:12px;border:3px solid transparent;cursor:pointer;padding:0;position:relative;box-shadow:var(--lift-1)}\n.ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}\n.ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}\n/* \"More grounds\": drawn grounds and category photos, each swatch painted in the card's palette */\n.ez-drawn{gap:8px;margin-top:2px}\n.ez-gsw{background-size:cover;background-position:center;background-color:var(--surface-sunk)}\n.ez-gnone{font:500 12px/1.3 var(--ui);color:var(--text-dim)}\n/* the gate's reasons, in the visitor's words */\n.gate-list{margin:10px 0 4px;padding-left:18px;font:500 13.5px/1.45 var(--ui);color:var(--text)}\n.gate-list li{margin:4px 0}\n.ez-preview-card{position:sticky;top:84px}\n.ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}\n/* account dropdown (reuses .view-drop look) */\n.acct-drop{left:auto;right:0;min-width:240px}\n.am-email{font:650 12px/1.3 var(--ui);color:var(--text-dim);padding:8px 10px 10px;border-bottom:1px solid var(--hairline);margin-bottom:6px;word-break:break-all}\n/* project rows inside Export / Make-my-ad dropdowns */\n.caret{opacity:.6;font-size:11px;margin-left:2px}\n.xm-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-md)}\n.xm-row:hover{background:var(--surface-sunk)}\n.xm-row img{width:34px;height:34px;border-radius:var(--r-sm);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.xm-name{flex:1;font:600 12.5px/1.3 var(--ui);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.xm-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:6px 10px;cursor:pointer;font-size:12px;flex:none}\n.xm-btn:hover{border-color:var(--accent);color:var(--accent)}\n/* split Make-my-ad button on the landing nav */\n.lp-split{display:inline-flex}\n.lp-split #lp-open-studio{border-radius:var(--r-pill) 0 0 var(--r-pill);padding-right:14px}\n.lp-caret{border-radius:0 var(--r-pill) var(--r-pill) 0;padding:9px 13px 9px 11px;border-left:1px solid rgba(0,0,0,.22)}\n/* auth modal */\n.auth-modal{max-width:420px;text-align:left}\n.auth-brand{display:flex;justify-content:center;margin-bottom:12px}\n.auth-brand .logo-mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px -8px rgba(var(--brand-rgb),.6)}\n.auth-modal h3{text-align:center}\n.auth-modal .modal-sub{text-align:center}\n.auth-google{display:flex;justify-content:center;margin:14px 0 4px}\n.auth-or{display:flex;align-items:center;gap:12px;margin:14px 0 4px;color:var(--text-dim);font-size:12px}\n.auth-or::before,.auth-or::after{content:'';flex:1;height:1px;background:var(--hairline)}\n.auth-pass-wrap{position:relative}\n.auth-pass-wrap input{width:100%;padding-right:44px}\n.auth-pass-wrap #auth-pass-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;opacity:.55;padding:6px}\n.auth-pass-wrap #auth-pass-eye:hover{opacity:1}\n.auth-hint{color:var(--text-dim);font-size:11.5px;margin-top:8px}\n/* account-type chooser after signup */\n.at-card{display:block;width:100%;text-align:left;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:15px 17px;margin-top:12px;cursor:pointer;transition:border-color .15s,transform .12s,background .15s}\n.at-card:hover{border-color:var(--accent);transform:translateY(-1px)}\n.at-card.hot{border-color:rgba(var(--accent-rgb),.5);background:var(--accent-wash)}\n.at-card .at-name{display:flex;justify-content:space-between;align-items:baseline;font:700 15px/1 var(--ui);letter-spacing:-.02em;color:var(--text)}\n.at-card .at-name em{font-style:normal;color:var(--accent);font-size:12.5px}\n.at-card .at-desc{display:block;color:var(--text-dim);font-size:12.5px;margin-top:6px;line-height:1.45}\n/* pencil button in export history */\n.hist-edit{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:9px 13px;cursor:pointer;font:600 12.5px/1 var(--ui);margin-right:8px;flex:none}\n.hist-edit:hover{border-color:var(--accent);color:var(--accent)}\n/* big landing footer */\n.lp-footer-big{display:block;padding:46px clamp(16px,4vw,40px) 28px}\n.lpf-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;max-width:1100px;margin:0 auto}\n.lpf-brand p{color:var(--text-dim);font-size:13px;margin-top:10px;max-width:260px}\n.lpf-col h4{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}\n.lpf-col a{display:block;color:var(--text-2);text-decoration:none;font-size:13.5px;padding:5px 0}\n.lpf-col a:hover{color:var(--accent)}\n.lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}\n.ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}\n.ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.ez-dl:hover{filter:brightness(1.06)}\n.ez-dl:active{transform:scale(.985)}\n.ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}\n.ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}\n.ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}\n@media (max-width:920px){\n  .ez-main{grid-template-columns:1fr}\n  /* The preview used to be pulled above the form with order:-1, which made a\n     THREE-STEP guided flow read 1 -> 3 -> 2: the visitor was told \"step 2, type\n     your info\" and then had to scroll past an 1180px preview to find the\n     fields. Steps now stack in the order they are numbered.\n     The preview stays useful while typing by sticking to the bottom of the\n     viewport at a height that cannot swallow the page. */\n  .ez-preview-card{position:static;order:0}\n  .ez-preview-card img{max-height:52vh;width:auto;margin:0 auto;display:block}\n}\n/* Narrow phones: smaller thumbs so more than two fit, and the arrows pull in\n   off the very edge where a thumb-swipe would fight them. */\n@media (max-width:480px){\n  .ez-tpl,.ez-tpl img{width:104px}\n  .ez-tpl img{height:104px}\n  .strip-arrow.left{left:0}\n  .strip-arrow.right{right:0}\n  .strip-shell::before,.strip-shell::after{width:44px}\n}\n\n/* view menu */\n.view-menu{position:relative}\n.view-drop{\n  display:none;position:absolute;top:calc(100% + 8px);left:0;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:6px;min-width:220px;z-index:60;\n  box-shadow:var(--glass-shadow-lift);\n  animation:menu-in .16s cubic-bezier(.2,0,0,1);transform-origin:top left;\n}\n.view-drop.acct-drop{transform-origin:top right}\n@keyframes menu-in{from{opacity:0;transform:translateY(-6px) scale(.97)}}\n.view-drop.open{display:block}\n.view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}\n.view-item:hover{background:var(--accent-wash);color:var(--accent)}\n.view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}\n.view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}\n.view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}\n/* grid overlay */\n#grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:15;display:none;\n  background-image:linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px)}\n#grid-overlay.on{display:block}\n/* fill type seg */\n.fillseg{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:8px}\n.fillseg button{flex:1;background:none;border:none;color:var(--text-dim);font:600 12px/1 var(--ui);padding:8px;border-radius:var(--r-pill);cursor:pointer}\n.fillseg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n/* backgrounds tab */\n.bg-gen-box{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:12px;margin-bottom:14px}\n.bg-gen-box textarea{width:100%;box-sizing:border-box;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 13px/1.4 var(--ui);padding:9px;resize:vertical;min-height:56px}\n.bg-gen-row{display:flex;gap:8px;margin-top:8px}\n.bg-gen-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 12px/1 var(--ui);padding:8px;min-width:0}\n/* AI generation is violet, the house colour for \"a model did this\". */\n.btn-gen{background:linear-gradient(135deg,var(--ai),#7b5cff);color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}\n.btn-gen:hover{filter:brightness(1.06)}\n.btn-gen:disabled{opacity:.55;cursor:wait}\n.bg-result{margin-top:10px;display:none}\n.bg-result.show{display:block}\n.bg-result img{width:100%;border-radius:var(--r-md);display:block}\n.bg-result-acts{display:flex;gap:8px;margin-top:8px}\n.bg-result-acts button{flex:1;border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);border-radius:var(--r-pill);font:600 12px/1 var(--ui);padding:10px;cursor:pointer}\n.bg-result-acts button:hover{border-color:var(--accent);color:var(--accent)}\n.bg-lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.bg-lib-item{position:relative;border:none;background:var(--surface-sunk);border-radius:var(--r-md);padding:0;cursor:pointer;overflow:hidden;aspect-ratio:1}\n.bg-lib-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s}\n.bg-lib-item:hover img{transform:scale(1.06)}\n.bg-lib-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:var(--r-pill);border:none;background:rgba(0,0,0,.65);color:#fff;font-size:11px;cursor:pointer;display:none;line-height:20px;text-align:center}\n.bg-lib-item:hover .bg-lib-del{display:block}\n.bg-lib-badge{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#eee;font:600 9px/1 var(--ui);padding:3px 6px;border-radius:var(--r-pill);pointer-events:none}\n.gear-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:4px;font-family:var(--ui);font-weight:600}\n.gear-btn:hover{color:var(--text)}\n.ai-note{color:var(--text-dim);font-size:11.5px;line-height:1.45;margin-top:8px}\n\n\n/* easy recents + layers + star */\n.ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}\n#ez-recents{display:flex;flex-wrap:wrap;gap:10px}\n#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}\n.ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}\n.ez-recent img{width:100%;height:100%;object-fit:cover;display:block}\n.ez-recent.sel{border-color:var(--accent)}\n.star-btn{position:absolute;top:1px;right:1px;width:16px;height:16px;border:none;border-radius:5px;background:rgba(0,0,0,.65);color:var(--warn);font-size:10px;line-height:16px;text-align:center;cursor:pointer;display:none;padding:0}\n.ez-recent:hover .star-btn,.ez-lrow:hover .star-btn{display:block}\n.ez-lrow .star-btn{position:static;width:22px;height:22px;line-height:22px;border-radius:6px;flex:none}\n#star-pop{\n  position:fixed;z-index:9500;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:6px;display:none;min-width:210px;\n}\n#star-pop.open{display:block}\n#star-pop button{display:block;width:100%;background:none;border:none;color:var(--text);font:500 13px/1 var(--ui);padding:10px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left}\n#star-pop button:hover{background:var(--accent-wash);color:var(--accent)}\n/* easy layers list */\n.ez-layers{margin-top:14px;border-top:1px solid var(--hairline);padding-top:12px}\n.ez-lrow{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:var(--r-md);cursor:pointer}\n.ez-lrow:hover{background:var(--surface-sunk)}\n.ez-lswatch{width:26px;height:26px;border-radius:8px;flex:none;background:var(--surface-sunk);overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--text-dim)}\n.ez-lswatch img{width:100%;height:100%;object-fit:cover}\n.ez-lmain{flex:1;min-width:0}\n.ez-lname{font:650 12px/1.2 var(--ui);color:var(--text)}\n.ez-lprev{font:500 10.5px/1.2 var(--ui);color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}\n.ez-ldel{width:22px;height:22px;border:none;border-radius:var(--r-pill);background:none;color:var(--text-dim);cursor:pointer;font-size:12px;flex:none;line-height:22px;padding:0}\n.ez-ldel:hover{background:rgba(255,98,89,.15);color:var(--danger)}\n.ez-restore{background:none;border:none;color:var(--accent);font:600 11.5px/1 var(--ui);cursor:pointer;padding:6px;margin-top:2px}\n\n\n/* effects controls */\n.ez-fxrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}\n.ez-fxrow button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-pill);padding:8px 13px;font:600 11.5px/1 var(--ui);cursor:pointer}\n.ez-fxrow button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.ez-fxline{display:flex;align-items:center;gap:10px;margin-bottom:8px}\n.ez-fxline label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:64px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.ez-fxline input[type=range]{flex:1}\n.ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}\n.ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}\n/* an effect with nothing to act on says so instead of moving and doing nothing */\n.ez-fxline.off label,.ez-fxline.off .fxval{opacity:.45}\n.ez-fxline input[type=range]:disabled{opacity:.35;cursor:not-allowed}\n.ez-fxnote{margin:-4px 0 10px 74px;font:500 11.5px/1.35 var(--ui);color:var(--text-dim)}\n/* account chip */\n.acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}\n.acct-chip:hover{background:var(--surface-raise)}\n.acct-plan{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border-radius:var(--r-pill);padding:3px 9px;font:700 9.5px/1.35 var(--ui);letter-spacing:.06em;text-transform:uppercase}\n.acct-plan.free{background:var(--surface-sunk);color:var(--text-dim)}\n/* auth + pay overlays reuse .modal-overlay/.modal */\n.auth-tabs{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:16px}\n.auth-tabs button{flex:1;background:none;border:none;color:var(--text-dim);font:650 13px/1 var(--ui);padding:10px;border-radius:var(--r-pill);cursor:pointer;transition:background .13s,color .13s}\n.auth-tabs button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.auth-err{color:var(--danger);font:500 12.5px/1.4 var(--ui);margin:8px 0 0;min-height:16px}\n.auth-ok{text-align:center;padding:18px 6px}\n.auth-ok .big{font-size:40px;margin-bottom:10px}\n.demo-note{background:rgba(255,176,61,.12);border:.5px solid rgba(255,176,61,.4);color:var(--warn);border-radius:var(--r-md);padding:10px 12px;font:500 11.5px/1.45 var(--ui);margin-top:12px}\n/* plans page */\n/* Fixed at z-index 8000, so it sits above the body's field pseudo-elements and\n   would otherwise be a flat slab. It carries its own copy of the aurora. */\n#page-plans{\n  display:none;position:fixed;inset:0;z-index:8000;overflow:auto;\n  background:\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%),\n    var(--field);\n}\n#page-plans.active{display:block}\n.plans-wrap{max-width:980px;margin:0 auto;padding:34px 22px 80px}\n.plans-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}\n.plans-head h1{font:700 28px/1.1 var(--ui);letter-spacing:-.035em;margin:0}\n.plans-close{background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text);border-radius:var(--r-pill);padding:10px 16px;font:600 13px/1 var(--ui);cursor:pointer}\n.plans-close:hover{background:var(--surface-raise)}\n.plans-sub{color:var(--text-dim);font:500 14px/1.5 var(--ui);margin:0 0 26px}\n.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}\n.plan-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:24px;\n  display:flex;flex-direction:column;box-shadow:var(--glass-shadow);\n}\n.plan-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.plan-name{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin-bottom:4px}\n.plan-price{font:700 32px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:10px 0 2px}\n.plan-price small{font:600 13px/1 var(--ui);color:var(--text-dim)}\n.plan-feats{list-style:none;padding:0;margin:16px 0 20px;flex:1}\n.plan-feats li{font:500 13px/1.5 var(--ui);color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.plan-feats li::before{content:'✓';position:absolute;left:0;color:var(--good);font-weight:700}\n.plan-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);font:650 14px/1 var(--ui);padding:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.plan-btn:hover{filter:brightness(1.06)}\n.plan-btn.ghost{background:var(--surface-sunk);color:var(--text);border:.5px solid var(--hairline);box-shadow:none}\n.plan-btn:disabled{opacity:.5;cursor:default}\n.plan-current{font:650 10.5px/1 var(--ui);color:var(--good);text-transform:uppercase;letter-spacing:.09em;margin-top:10px;text-align:center}\n.ez-quota{color:var(--text-dim);font:600 11.5px/1 var(--ui);text-align:center;margin-top:8px}\n.ez-quota b{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums}\n.ez-quota .up{color:var(--accent);cursor:pointer;text-decoration:underline}\n\n\n/* premium template locks */\n.tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}\n.ez-tpl{position:relative}\n.ez-tpl .tpl-lock{top:6px;left:6px}\n.ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}\n.ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}\n.tpl-card.locked img{filter:grayscale(.35) brightness(.7)}\n\n\n/* category row + nav */\n.ez-catrow{display:flex;align-items:center;gap:12px;margin:0 0 12px}\n.ez-catrow label{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none}\n.cat-select{background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:600 14px/1 var(--ui);padding:11px 13px;min-width:210px;cursor:pointer}\n.cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.nav-upgrade{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);padding:9px 15px;font:700 12px/1 var(--ui);cursor:pointer;letter-spacing:-.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.nav-upgrade:hover{filter:brightness(1.06)}\n/* export history */\n.hist-list{max-height:380px;overflow:auto;margin-top:6px}\n.hist-row{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:var(--r-md)}\n.hist-row:hover{background:var(--surface-sunk)}\n.hist-row img{width:52px;height:52px;border-radius:var(--r-md);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.hist-main{flex:1;min-width:0}\n.hist-name{font:650 13px/1.2 var(--ui);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.hist-meta{font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim)}\n.hist-dl{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px 13px;cursor:pointer;flex:none}\n.hist-dl:hover{border-color:var(--accent);color:var(--accent)}\n.hist-empty{color:var(--text-dim);font:500 13px/1.5 var(--ui);text-align:center;padding:26px 0}\n@media (max-width:760px){ .ez-nav{flex-wrap:wrap;gap:8px} }\n/* The label plus a 210px select is wider than a phone, and overflow-x:hidden\n   was clipping the select's right edge instead of showing it. */\n@media (max-width:560px){\n  .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}\n  .ez-catrow label{margin-bottom:2px}\n  .cat-select{min-width:0;width:100%}\n  .ez-nav{padding:10px 14px}\n  .ez-adv-link{padding:8px;font-size:12.5px}\n  .ez-wrap{padding:20px 14px 80px}\n}\n\n.mini-tpl.locked img, .tpl-mini.locked img{filter:grayscale(.35) brightness(.7)}\n\n/* per-field quick styling */\n.ez-fieldrow{display:flex;gap:8px;align-items:stretch}\n.ez-fieldrow input,.ez-fieldrow textarea{flex:1;min-width:0}\n.ez-edit-btn{flex:none;width:44px;border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-dim);border-radius:var(--r-md);cursor:pointer;font-size:15px}\n.ez-edit-btn:hover{color:var(--accent);border-color:var(--accent)}\n#txt-pop{\n  position:fixed;z-index:9400;width:288px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:14px;display:none;\n}\n#txt-pop.open{display:block}\n#txt-pop .tp-title{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}\n#txt-pop .tp-title button{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px}\n.tp-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}\n.tp-row label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:52px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.tp-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:600 12.5px/1 var(--ui);padding:8px 9px}\n.tp-row input[type=range]{flex:1}\n.tp-row input[type=color]{width:32px;height:26px;border:1px solid var(--hairline-strong);border-radius:6px;background:none;padding:1px;flex:none}\n.tp-row .tp-val{font:600 10.5px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right;flex:none}\n.tp-biu{display:flex;gap:5px;flex:1}\n.tp-biu button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-sm);padding:7px 0;cursor:pointer;font:700 13px/1 Georgia}\n.tp-biu button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.tp-reset{width:100%;margin-top:4px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px;cursor:pointer}\n.tp-reset:hover{color:var(--text)}\n\n\n.ez-themes{display:flex;flex-wrap:wrap;gap:9px}\n.ez-theme{display:flex;border:2px solid var(--hairline-strong);border-radius:11px;overflow:hidden;padding:0;cursor:pointer;width:52px;height:32px;background:none;transition:border-color .13s,transform .13s}\n.ez-theme span{flex:1;display:block}\n.ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);transform:translateY(-1px)}\n.ez-theme:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n/* tagline style (app.js TAGLINE_STYLES): one row in Easy Mode and one in the editor, samples in the card's own colours */\n.ez-tagstyles{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}\n.ez-tagstyle{display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:5px 5px 7px;border:2px solid var(--hairline-strong);border-radius:11px;background:var(--surface-sunk);color:var(--text-2);font:650 11px/1.1 var(--ui);cursor:pointer;transition:border-color .13s,transform .13s,color .13s}\n.ez-tagstyle svg{display:block;width:100%;height:30px;border-radius:7px;background:#34363d}\n.ez-tagstyle:hover{border-color:var(--accent);color:var(--text);transform:translateY(-1px)}\n.ez-tagstyle.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);color:var(--text)}\n.ez-tagstyle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n.ez-tagnote{margin-top:8px;font:500 12px/1.4 var(--ui);color:var(--text-2)}\n/* ORIG: the card's own colours, the way back from a theme */\n.ez-theme.orig{align-items:center;justify-content:center;background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1 var(--ui);letter-spacing:.06em}\n\n\n.ez-chip-custom{border-style:dashed}\n.chip-x{opacity:.55;font-size:10px;margin-left:2px}\n.ez-chip-custom:hover .chip-x{opacity:1;color:var(--danger)}\n\n.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:720px}\n.lp-price-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-price-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.lp-price-card h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n.lp-price{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:40px;font-weight:700;letter-spacing:-.04em;margin-bottom:12px}\n.lp-price small{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:-.01em}\n.lp-price-card ul{list-style:none;padding:0;margin:0 0 18px}\n.lp-price-card li{font-size:13.5px;color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.lp-price-card li::before{content:'\\2713';position:absolute;left:0;color:var(--good);font-weight:700}\n.lp-faq{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:0 20px;margin-bottom:10px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-faq summary{font-weight:650;font-size:15px;letter-spacing:-.015em;padding:17px 0;cursor:pointer;list-style:none}\n.lp-faq summary::-webkit-details-marker{display:none}\n.lp-faq summary::after{content:'+';float:right;color:var(--accent);font-size:18px;font-weight:600}\n.lp-faq[open] summary::after{content:'\\2013'}\n.lp-faq p{font-size:14px;color:var(--text-2);line-height:1.6;padding-bottom:17px;margin:0}\n\n/* ── canvas format picker ── */\n.tb-format{appearance:none;-webkit-appearance:none;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);max-width:190px;border-radius:var(--r-pill);padding:8px 28px 8px 13px;font-size:13px;font-weight:600;background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}\n.tb-format:hover{border-color:var(--accent)}\n\n/* ── order prints + posting ── */\n.btn-order{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:12px;background:rgba(48,214,143,.12);border:.5px solid rgba(48,214,143,.45);color:var(--good);font-weight:650;border-radius:var(--r-lg);padding:12px}\n.btn-order:hover{border-color:var(--good);background:rgba(48,214,143,.18)}\n.btn-order .order-sub{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.01em}\n.ez-order{display:block;width:100%;margin-top:10px;background:none;border:1px dashed rgba(48,214,143,.5);color:var(--good);font-size:13px;font-weight:650;padding:11px;border-radius:var(--r-lg);cursor:pointer}\n.ez-order:hover{background:rgba(48,214,143,.10)}\n\n/* ── QR layer ── */\n.ab-pro{position:absolute;top:6px;right:6px;background:var(--warn);color:#1a1206;font-size:9px;font-weight:800;padding:2px 6px;border-radius:var(--r-pill);letter-spacing:.04em}\n.add-btn{position:relative}\n.qr-help{font-size:12px;color:var(--text-2);line-height:1.5;margin-top:8px}\n.qr-help a{color:var(--good);font-weight:650;text-decoration:none}\n.qr-help a:hover{text-decoration:underline}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LANDING v2 — 2026-09-02. The hero fan of three canvas-rendered classics is\n   now a wall of the newest set's real renders (assets/showcase), the gallery\n   filters by category and theme family, and the chrome has a Look menu:\n   ground (graphite / night / paper / ember) x accent (blue / mint / orchid /\n   gold / orange) x light or dark. All of it is CSS custom properties on\n   <html>, so the studio and the editor inherit whatever is chosen.\n   ═══════════════════════════════════════════════════════════════════════════ */\n.hero-v2{grid-template-columns:1.02fr .98fr;gap:44px;min-height:min(86vh,800px);padding-top:112px;overflow:hidden}\n.hero-copy{position:relative;z-index:2}\n.hero-copy p{max-width:520px}\n.hero-wall{position:relative;height:580px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;\n  transform:rotate(-6deg) scale(1.08);transform-origin:50% 50%;\n  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);\n  mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%)}\n.wall-col{display:flex;flex-direction:column;gap:14px;will-change:transform}\n.wall-col[data-dir=up]{animation:wallUp 46s linear infinite}\n.wall-col[data-dir=down]{animation:wallDown 52s linear infinite}\n.wall-col:nth-child(3){animation-duration:58s}\n@keyframes wallUp{from{transform:translateY(0)}to{transform:translateY(-50%)}}\n@keyframes wallDown{from{transform:translateY(-50%)}to{transform:translateY(0)}}\n.wall-card{aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-2);background:var(--surface-raise);cursor:pointer;flex:none;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s}\n.wall-card:hover{transform:scale(1.04);box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.45);z-index:2}\n.wall-card img{width:100%;height:100%;object-fit:cover;display:block}\n.hero-wall:hover .wall-col{animation-play-state:paused}\n@media(prefers-reduced-motion:reduce){.wall-col{animation:none!important}}\n/* THE SCROLLER RUNS ON A PHONE TOO. It used to stop dead here — the animation\n   was killed and every card past the second was hidden, which also broke the\n   seamless loop, since each column is its own list twice over and the keyframe\n   travels -50%. It was disabled out of caution about phone performance, and\n   that caution was misplaced: the movement is a transform on three columns, so\n   it is composited on the GPU and costs no repaint. The wall is shorter here,\n   tilted less, and keeps its fade at top and bottom.\n   prefers-reduced-motion still stops it, above. */\n@media(max-width:900px){\n  .hero-v2{grid-template-columns:1fr;padding-top:92px;min-height:0;gap:26px}\n  .hero-wall{height:clamp(380px,54vh,470px);gap:9px;transform:rotate(-4deg) scale(1.07)}\n  .wall-col{gap:9px}\n  .wall-col[data-dir=up]{animation-duration:38s}\n  .wall-col[data-dir=down]{animation-duration:43s}\n  .wall-col:nth-child(3){animation-duration:48s}\n}\n@media(max-width:520px){\n  .hero-wall{height:clamp(330px,46vh,400px);gap:7px;transform:rotate(-3deg) scale(1.05)}\n  .wall-col{gap:7px}\n}\n.lp-stats{max-width:1200px;margin:0 auto;padding:22px clamp(16px,5vw,48px) 0;display:flex;flex-wrap:wrap;gap:10px 34px;border-top:.5px solid var(--hairline)}\n.stat{display:flex;align-items:baseline;gap:8px}\n.stat b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--text)}\n.stat span{font-size:13px;color:var(--text-dim)}\n\n/* theme families */\n.fam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}\n.fam-card{position:relative;text-align:left;background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:11px;cursor:pointer;color:var(--text);box-shadow:var(--glass-shadow);transition:transform .15s cubic-bezier(.2,0,0,1),border-color .15s,box-shadow .15s;font:inherit}\n.fam-card:hover{transform:translateY(-3px)}\n.fam-card.on{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent)}\n.fam-card.idle{cursor:default;opacity:.72}\n.fam-sw{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;height:56px;border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;border:.5px solid rgba(0,0,0,.18)}\n.fam-sw i{display:block}\n.fam-name{font-weight:650;font-size:14px;letter-spacing:-.01em}\n.fam-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-variant-numeric:tabular-nums}\n\n/* gallery filters */\n.lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}\n.chip{font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;min-height:36px}\n.chip:hover{color:var(--text);border-color:var(--text-dim)}\n.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:var(--glow-accent)}\n.chip .n{opacity:.65;font-family:var(--mono);font-size:11px;margin-left:6px;font-variant-numeric:tabular-nums}\n.tpl-more-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}\n.tpl-count{font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.tpl-card img{transition:transform .4s cubic-bezier(.2,0,0,1)}\n.tpl-card:hover img{transform:scale(1.035)}\n.tpl-card .tpl-lockpill{position:absolute;top:12px;left:12px;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);color:#fff;border:.5px solid rgba(255,255,255,.25)}\n\n/* Look menu */\n.look-wrap{position:relative}\n.look-btn{display:inline-flex;align-items:center;gap:8px;padding:0 12px 0 10px;width:auto;font-size:13px;font-weight:600;color:var(--text-2)}\n.look-btn:hover{color:var(--text)}\n.look-dot{width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-deep));box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 2px var(--surface-sunk)}\n.look-menu{position:absolute;right:0;top:44px;width:304px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);box-shadow:var(--glass-shadow-lift);padding:14px;z-index:400;display:none;text-align:left}\n.look-menu.open{display:block}\n.look-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}\n.look-label{width:100%;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}\n.look-chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-chip:hover{color:var(--text)}\n.look-chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}\n.look-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px -2px rgba(0,0,0,.5);padding:0}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--text)}\n.look-note{font-size:11.5px;color:var(--text-dim);line-height:1.45}\n.look-note code{font-family:var(--mono);font-size:11px;color:var(--text-2)}\n@media(max-width:640px){.look-btn span{display:none}.look-btn{padding:0 10px}.look-menu{position:fixed;left:12px;right:12px;top:70px;width:auto}}\n\n/* Skin-specific style, beyond colour. PAPER is editorial: a serif display\n   face, flat panels on hairlines, no drifting field. NIGHT is the opposite:\n   gradient ink on the money line, louder glows. */\n:root[data-skin='paper'] .hero h1{font-weight:500;letter-spacing:-.022em}\n:root[data-skin='paper'] .hero h1 em{font-style:italic;color:var(--accent)}\n:root[data-skin='paper'] .lp-section-head h2,:root[data-skin='paper'] .lp-cta-inner h2{font-weight:500;letter-spacing:-.015em}\n:root[data-skin='paper'] .flow-step,:root[data-skin='paper'] .fam-card,:root[data-skin='paper'] .lp-cta-inner,:root[data-skin='paper'] .lp-price-card,:root[data-skin='paper'] .look-menu{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface-solid);box-shadow:none;border:1px solid var(--hairline)}\n:root[data-skin='paper'] .lp-price-card.hot{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] .fam-card.on{box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] body::before{animation:none}\n:root[data-skin='paper'] body::after{opacity:.22}\n:root[data-skin='paper'] .hero-eyebrow{background:transparent;border-color:var(--hairline-strong);color:var(--text-2)}\n:root[data-skin='paper'] .lp-nav{box-shadow:none;border-bottom:1px solid var(--hairline)}\n:root[data-skin='paper'] .wall-card,:root[data-skin='paper'] .tpl-card{box-shadow:0 1px 2px rgba(30,25,15,.08),0 10px 24px -14px rgba(30,25,15,.25)}\n:root[data-skin='night'] .hero h1 em{background:linear-gradient(90deg,var(--accent),var(--accent-soft));-webkit-background-clip:text;background-clip:text;color:transparent}\n:root[data-skin='night'] .btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),var(--glow-accent)}\n:root[data-skin='night'] .lp-kicker{text-shadow:0 0 18px rgba(var(--accent-rgb),.6)}\n\n/* ── AREA dialog (location-aware copy) ── */\n.area-modal{max-width:560px}\n.area-inrow{display:flex;gap:8px;align-items:stretch}\n.area-inrow input{flex:1;min-width:0}\n.area-inrow .btn{white-space:nowrap;padding:9px 14px}\n.area-suggest{display:flex;flex-direction:column;gap:4px;margin-top:8px}\n.area-opt{display:flex;justify-content:space-between;align-items:center;gap:10px;font:inherit;font-size:14px;text-align:left;padding:9px 12px;border-radius:var(--r-sm);border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);cursor:pointer}\n.area-opt:hover{border-color:var(--accent);background:var(--accent-wash)}\n.area-opt span{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.area-none{font-size:13px;color:var(--text-dim);padding:8px 2px}\n.area-preview{margin-top:14px;display:flex;flex-direction:column;gap:10px}\n.area-preview:empty{display:none}\n.area-home{font-weight:650;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}\n.area-home em{font-style:normal;font-weight:500;font-size:12.5px;color:var(--text-dim)}\n.area-row b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}\n.area-chips{display:flex;flex-wrap:wrap;gap:6px}\n.area-chips span{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline-strong);color:var(--text-2)}\n.area-chips span:first-child{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4);color:var(--text)}\n#ez-area{cursor:pointer}\n\n/* Easy Mode export sizes */\n.ez-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}\n.ez-sizes .chip{font-size:12px;padding:6px 11px;min-height:30px}\n.stat-lead b{color:var(--accent)}\n@media(max-width:640px){.lp-stats{gap:8px 22px}.stat b{font-size:19px}}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LOOK MENU, ROUND TWO — 2026-09-02 evening. Owner: \"stick with graphite\n   purple ... add an extra accent colour or highlighting ring ... 2 to 3x more\n   themes and colour options as well as typography options\".\n   Three axes now carry more stops, and a fourth axis appears:\n     ground  graphite · night · slate · obsidian · forest · ember (dark)\n             paper · cream (light)\n     accent  twelve, each with a paired RING colour (--ring) that carries\n             focus, hover and selection so the chrome is two-tone\n     type    eight display/body pairings (data-type)\n   Curated presets in the menu are one of each, chosen by hand.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── extra grounds ── */\n:root[data-theme='dark'][data-skin='slate']{\n  --field:#121826;--glass-bg:rgba(28,36,51,.62);--glass-bg-strong:rgba(28,36,51,.86);\n  --surface-solid:#1a2233;--surface-raise:#232d40;--text:#eef2fa;--text-2:#bcc6da;--text-dim:#8391ab;\n  --stage-1:#182033;--stage-2:#0c1119;--scrim:rgba(8,12,20,.74);--surface3:#2c3850;\n}\n:root[data-theme='dark'][data-skin='obsidian']{\n  --field:#08090b;--wash-a:rgba(var(--accent-rgb),.18);--wash-b:rgba(var(--accent2-rgb),.12);--wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(18,19,23,.72);--glass-bg-strong:rgba(18,19,23,.92);--glass-edge:rgba(255,255,255,.10);\n  --surface-solid:#121317;--surface-raise:#1a1b20;--surface-sunk:rgba(255,255,255,.05);\n  --text:#f4f4f6;--text-2:#b9bcc6;--text-dim:#7f8391;--hairline:rgba(255,255,255,.08);\n  --stage-1:#101114;--stage-2:#050506;--scrim:rgba(0,0,0,.8);--surface3:#24262c;\n}\n:root[data-theme='dark'][data-skin='forest']{\n  --field:#0c1411;--wash-a:rgba(var(--accent-rgb),.22);--wash-b:rgba(60,200,140,.14);--wash-c:rgba(var(--accent2-rgb),.10);\n  --glass-bg:rgba(22,34,28,.62);--glass-bg-strong:rgba(22,34,28,.86);\n  --surface-solid:#142019;--surface-raise:#1b2a22;--text:#eef6f1;--text-2:#bfd1c6;--text-dim:#829a8c;\n  --stage-1:#142019;--stage-2:#080e0b;--scrim:rgba(6,12,9,.76);--surface3:#243a2e;\n}\n:root[data-theme='light'][data-skin='cream']{\n  --field:#f5efe2;--wash-a:rgba(var(--accent-rgb),.12);--wash-b:rgba(var(--accent2-rgb),.08);--wash-c:rgba(255,196,60,.10);\n  --glass-bg:rgba(255,251,243,.6);--glass-bg-strong:rgba(255,251,243,.84);\n  --surface-solid:#fffcf5;--surface-raise:#f3ecdc;--surface-sunk:rgba(60,45,20,.05);\n  --text:#1e1a12;--text-2:#55503f;--text-dim:#79725f;--hairline:rgba(60,45,20,.10);--hairline-strong:rgba(60,45,20,.18);\n  --stage-1:#f1eadb;--stage-2:#e3d9c4;--scrim:rgba(110,95,70,.42);--surface3:#eae1cd;\n}\n\n/* ── accents, with their RING. Ring = the second colour: it carries focus,\n   hover and selection, never fills. Pairings are a third of the wheel apart\n   so the two read as a scheme, not a clash. ── */\n:root{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='blue']{--ring:#f2c744;--ring-rgb:242,199,68}\n:root[data-theme='light'][data-accent='blue']{--ring:#b7830c;--ring-rgb:183,131,12}\n:root[data-accent='mint']{--ring:#b48cff;--ring-rgb:180,140,255}\n:root[data-theme='light'][data-accent='mint']{--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='orchid']{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='orchid']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='gold']{--ring:#4d9cff;--ring-rgb:77,156,255}\n:root[data-theme='light'][data-accent='gold']{--ring:#1d63d8;--ring-rgb:29,99,216}\n:root[data-accent='orange']{--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='orange']{--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='coral']{--accent:#ff6b6b;--accent-ink:#1f0707;--accent-wash:rgba(255,107,107,.16);--accent-deep:#e04848;--accent-soft:#ffd0d0;--accent-rgb:255,107,107;--accent2-rgb:61,220,151;--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='coral']{--accent:#c8383b;--accent-ink:#fff;--accent-wash:rgba(200,56,59,.12);--accent-deep:#a02a2c;--accent-soft:#f9d3d3;--accent-rgb:200,56,59;--accent2-rgb:15,143,95;--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='cyan']{--accent:#22d3ee;--accent-ink:#04191d;--accent-wash:rgba(34,211,238,.16);--accent-deep:#0ea5c4;--accent-soft:#c7f3fa;--accent-rgb:34,211,238;--accent2-rgb:251,113,133;--ring:#fb7185;--ring-rgb:251,113,133}\n:root[data-theme='light'][data-accent='cyan']{--accent:#0e7490;--accent-ink:#fff;--accent-wash:rgba(14,116,144,.12);--accent-deep:#0b5c72;--accent-soft:#cdeef5;--accent-rgb:14,116,144;--accent2-rgb:190,24,93;--ring:#be185d;--ring-rgb:190,24,93}\n:root[data-accent='lime']{--accent:#b9f24a;--accent-ink:#131a04;--accent-wash:rgba(185,242,74,.16);--accent-deep:#8fd11a;--accent-soft:#e6fbc0;--accent-rgb:185,242,74;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='lime']{--accent:#4d7c0f;--accent-ink:#fff;--accent-wash:rgba(77,124,15,.12);--accent-deep:#3f6212;--accent-soft:#e0f0c4;--accent-rgb:77,124,15;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='rose']{--accent:#fb7185;--accent-ink:#20070c;--accent-wash:rgba(251,113,133,.16);--accent-deep:#e11d48;--accent-soft:#ffd6dd;--accent-rgb:251,113,133;--accent2-rgb:34,211,238;--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='rose']{--accent:#be185d;--accent-ink:#fff;--accent-wash:rgba(190,24,93,.12);--accent-deep:#9d174d;--accent-soft:#f8d0de;--accent-rgb:190,24,93;--accent2-rgb:14,116,144;--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='sky']{--accent:#7dd3fc;--accent-ink:#06161f;--accent-wash:rgba(125,211,252,.16);--accent-deep:#38bdf8;--accent-soft:#e0f4ff;--accent-rgb:125,211,252;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='sky']{--accent:#0369a1;--accent-ink:#fff;--accent-wash:rgba(3,105,161,.12);--accent-deep:#075985;--accent-soft:#d3ecfb;--accent-rgb:3,105,161;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n:root[data-accent='amber']{--accent:#fbbf24;--accent-ink:#1c1200;--accent-wash:rgba(251,191,36,.16);--accent-deep:#d69e0b;--accent-soft:#ffeeba;--accent-rgb:251,191,36;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='amber']{--accent:#b45309;--accent-ink:#fff;--accent-wash:rgba(180,83,9,.12);--accent-deep:#92400e;--accent-soft:#f9e3bf;--accent-rgb:180,83,9;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='teal']{--accent:#2dd4bf;--accent-ink:#041a16;--accent-wash:rgba(45,212,191,.16);--accent-deep:#14b8a6;--accent-soft:#c9f5ee;--accent-rgb:45,212,191;--accent2-rgb:255,107,107;--ring:#ff6b6b;--ring-rgb:255,107,107}\n:root[data-theme='light'][data-accent='teal']{--accent:#0f766e;--accent-ink:#fff;--accent-wash:rgba(15,118,110,.12);--accent-deep:#115e59;--accent-soft:#cdeeea;--accent-rgb:15,118,110;--accent2-rgb:200,56,59;--ring:#c8383b;--ring-rgb:200,56,59}\n:root[data-accent='violet']{--accent:#8b5cf6;--accent-ink:#fff;--accent-wash:rgba(139,92,246,.18);--accent-deep:#6d3fd6;--accent-soft:#e4d9ff;--accent-rgb:139,92,246;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='violet']{--accent:#5b32c9;--accent-ink:#fff;--accent-wash:rgba(91,50,201,.12);--accent-deep:#4526a0;--accent-soft:#e2d8ff;--accent-rgb:91,50,201;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n\n/* where the ring shows: focus, hover, selection */\n:focus-visible{outline:2px solid var(--ring)}\n.tpl-card:hover{box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.35),0 0 0 2px var(--ring)}\n.wall-card:hover{box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.4),0 0 0 2px var(--ring)}\n.fam-card.on{border-color:transparent;box-shadow:var(--glass-shadow),0 0 0 2px var(--ring)}\n.chip.on{box-shadow:var(--glow-accent),0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-chip.on{box-shadow:0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--ring)}\n.lp-price-card.hot{box-shadow:var(--glass-shadow),0 0 0 2px var(--ring),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.hero-eyebrow{border-color:rgba(var(--ring-rgb),.45)}\n.ez-tpl.sel{outline:2px solid var(--ring);outline-offset:2px}\n.look-dot{background:linear-gradient(135deg,var(--accent) 0 55%,var(--ring) 55% 100%)}\n.stat-lead b{color:var(--accent)}\n.lp-kicker::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ring);margin-right:8px;vertical-align:1px}\n\n/* ── type pairings. Overrides any skin's face, so Paper + Unbounded is\n   possible. Google faces are loaded by the stamp script when picked. ── */\n:root[data-type='clash']{--display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif}\n:root[data-type='serif']{--display:'Zodiak',Georgia,'Times New Roman',serif}\n:root[data-type='melodrama']{--display:'Melodrama',Georgia,serif}\n:root[data-type='khand']{--display:'Khand','Satoshi',sans-serif}\n:root[data-type='unbounded']{--display:'Unbounded','Clash Display',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='syne']{--display:'Syne','Clash Display',sans-serif;--ui:'Sora','Satoshi',-apple-system,sans-serif}\n:root[data-type='grotesk']{--display:'Space Grotesk','Satoshi',sans-serif;--ui:'Space Grotesk','Satoshi',-apple-system,sans-serif}\n:root[data-type='manrope']{--display:'Manrope','Satoshi',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='khand'] .hero h1{letter-spacing:0;font-weight:700;font-size:clamp(40px,5.2vw,68px)}\n:root[data-type='unbounded'] .hero h1{letter-spacing:-.01em;font-weight:700;font-size:clamp(30px,4vw,52px)}\n:root[data-type='serif'] .hero h1,:root[data-type='melodrama'] .hero h1{font-weight:500;letter-spacing:-.02em}\n:root[data-type='serif'] .hero h1 em,:root[data-type='melodrama'] .hero h1 em{font-style:italic}\n\n/* the menu grew: keep it on screen */\n.look-menu{width:360px;max-height:min(78vh,720px);overflow:auto}\n.look-preset{display:flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;padding:6px 10px 6px 6px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-preset i{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--a) 0 55%,var(--b) 55% 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);flex:none}\n.look-preset:hover{color:var(--text);border-color:var(--text-dim)}\n@media(max-width:640px){.look-menu{width:auto}}\n\n/* the studio's own \"where are you\" pill, beside the category picker */\n.ez-wherelabel{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none;margin-left:6px}\n.ez-where{font:600 13.5px/1 var(--ui);color:var(--text);background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-pill);padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 0 var(--ring);transition:box-shadow .15s,border-color .15s}\n.ez-where:hover{border-color:var(--ring)}\n.ez-where.unset{border-color:var(--ring);box-shadow:0 0 0 3px rgba(var(--ring-rgb),.28);color:var(--text)}\n@media(max-width:640px){.ez-catrow{flex-wrap:wrap}.ez-wherelabel{display:none}}\n\n/* ── gallery cards: no blur veil (owner: \"way too much blur\"). The veil is\n   now a light darkening that lifts on hover, nothing else. ── */\n.tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(0,0,0,.14)}\n.tpl-card:hover .tpl-veil{background:rgba(0,0,0,0)}\n\n/* ── PRO GUARD. A locked preview stays sharp (a sharp card sells the plan)\n   but cannot be lifted: a repeating diagonal PRO · BUYBACK.AD pattern over\n   the whole card, a lock in the middle, and thumbnails that are 448px at\n   most. The pattern is an SVG data URI so it is text, not a blur. ── */\n.pro-guard{position:absolute;inset:0;pointer-events:none;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:220px 220px;mix-blend-mode:overlay;opacity:.9}\n.pro-guard::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;\n  background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}\n.wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}\n.ez-tpl.locked{position:relative}\n.ez-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n.flow-step .btn{margin-top:16px}\n\n/* locked mini cards in the editor's left panel and its picker */\n.mini-tpl.locked{position:relative}\n.mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n\n/* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's\n   default min-width:auto refuses to shrink below its content, so on a 390px\n   phone the cards stayed 481px wide and the whole page scrolled sideways by\n   105px (measured 2026-09-03). min-width:0 lets them fit; anything genuinely\n   too wide inside now scrolls in its own box instead of moving the page. */\n@media (max-width:920px){\n  .ez-main{min-width:0}\n  .ez-main > .ez-card{min-width:0;max-width:100%}\n  .ez-card{overflow-x:clip}\n}\n#ez-preview{max-width:100%;height:auto}\n\n/* ═══ 2026-09-22 UX/SEO pass (studio-ux branch) ═══\n   1. Clash Display's space is narrow and the hero sets -.028em tracking, so at\n      58px \"Buyback ads that\" read as one word. Word spacing puts the gaps back\n      without loosening the letters.\n   2. The footer gained an \"Ad templates\" column (links to the category pages),\n      so it is six blocks now: let the grid fit them instead of a fixed four. */\n.hero h1,.lp-section-head h2,.lp-cta h2{word-spacing:.1em}\n.lpf-cols{grid-template-columns:1.4fr repeat(5,minmax(0,1fr))}\n@media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.lp-faq p a{color:var(--accent);text-decoration:underline}\n\n/* THE LANDING GRID SHOWS EACH CARD AS IT WILL POST (2026-09-26). The number\n   was rebuilt big and sits at the foot of most cards; the caption strip (a\n   38px gradient with the palette and layout name) was drawn over exactly\n   that, and the veil blurred and dimmed every card until hover, which a phone\n   never sends. The section is headed \"exactly as it will post\": the card is\n   shown crisp, and its name appears on hover or keyboard focus. Scoped to the\n   landing grid; the studio's own template pickers keep their captions. */\n#lp-tpl-grid .tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none}\n#lp-tpl-grid .tpl-card .tpl-meta{opacity:0;transition:opacity .2s}\n#lp-tpl-grid .tpl-card:hover .tpl-meta,#lp-tpl-grid .tpl-card:focus-visible .tpl-meta{opacity:1}\n\n/* ── FONT PICKER ────────────────────────────────────────────────────────────\n   Every typeface shown in its own face (owner, 2026-09-27). A native <option>\n   ignores font-family in Safari, on Macs and on every phone, so the select is\n   hidden behind a button and list drawn here (app.js fontPicker). */\n.fp-btn{width:100%;flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;\n  background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);\n  padding:7px 11px;font-size:17px;line-height:1.2;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:38px}\n.fp-btn::after{content:'▾';font:600 12px/1 var(--ui);color:var(--text-dim);flex:none}\n.fp-btn:hover{border-color:var(--text-dim)}\n.fp-btn:focus-visible{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.fp-pop{position:fixed;z-index:2000;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-lg);\n  box-shadow:0 18px 50px -12px rgba(0,0,0,.6);padding:8px;display:flex;flex-direction:column;gap:6px}\n.fp-search{width:100%;background:var(--surface-sunk);border:1px solid var(--hairline);border-radius:var(--r-sm);color:var(--text);font:500 13px/1 var(--ui);padding:9px 10px}\n.fp-search:focus{border-color:var(--accent);outline:none}\n.fp-list{overflow-y:auto;overscroll-behavior:contain}\n.fp-group{font:700 10.5px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:10px 8px 6px}\n.fp-item{font-size:21px;line-height:1.25;color:var(--text);padding:7px 8px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.fp-item:hover,.fp-item.on{background:var(--surface-sunk)}\n.fp-item.sel{color:var(--accent)}\n\n/* Tagline style (Easy Mode): premade gradients as swatches, the stops as colour chips */\n.ez-tag-presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}\n.ez-tag-preset{width:46px;height:26px;border-radius:999px;border:2px solid var(--hairline-strong);cursor:pointer;padding:0;transition:border-color .13s,transform .13s}\n.ez-tag-preset:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-tag-preset.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}\n.ez-tag-preset:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n.ez-tag-stops{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:8px}\n.ez-tag-stops input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px;cursor:pointer}\n.ez-tag-stops button{min-width:28px;height:28px;border-radius:var(--r-sm);border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);font:700 14px/1 var(--ui);cursor:pointer}\n.ez-tag-stops button:disabled{opacity:.4;cursor:default}\n.ez-tag-preset.auto{background:conic-gradient(from 200deg,var(--accent),#ff7a1a,var(--accent));position:relative}\n.ez-tag-preset.auto::after{content:'Auto';position:absolute;inset:0;display:grid;place-items:center;font:700 9.5px/1 var(--ui);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7)}\n.ez-phonepick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:7px;margin-bottom:8px}\n.ez-phonepick-more{max-height:320px;overflow:auto;padding-right:2px}\n.ez-phonepick-grp{grid-column:1/-1;font:700 9.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin:6px 0 0}\n.ez-phonepick-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px 7px;border-radius:10px;border:2px solid var(--hairline-strong);background:var(--surface-sunk);cursor:pointer;transition:border-color .13s,transform .13s;min-width:0}\n.ez-phonepick-item img{width:100%;height:56px;object-fit:contain;display:block;pointer-events:none}\n.ez-phonepick-item span{font:600 10.5px/1.2 var(--ui);color:var(--text-2);text-align:center;overflow-wrap:anywhere}\n.ez-phonepick-item:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-phonepick-item.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}\n.ez-phonepick-item:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n#ez-phonepick-reset:disabled{opacity:.45;cursor:default}\n.ez-tag-pats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}\n.ez-tag-patgrp{flex-basis:100%;font:700 9.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin:6px 0 1px}\n.ez-tag-pat{width:44px;height:44px;padding:0;box-sizing:border-box;border-radius:10px;border:2px solid var(--hairline-strong);overflow:hidden;cursor:pointer;background:var(--surface-sunk);transition:border-color .13s,transform .13s}\n.ez-tag-pat canvas{width:100%;height:100%;display:block}\n.ez-tag-pat:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-tag-pat.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}\n.ez-tag-pat:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n.ez-tag-pathint{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font:500 11.5px/1.4 var(--ui);color:var(--text-dim);margin:2px 0 8px}\n.ez-tag-pathint button{background:none;border:0;padding:0;color:var(--accent);font:600 11.5px/1.4 var(--ui);cursor:pointer;text-decoration:underline;text-underline-offset:2px}\n.ez-preview-card img.ez-pat-drag{cursor:grab;touch-action:none;user-select:none}\n.ez-preview-card img.ez-pat-drag.dragging{cursor:grabbing}\n.ez-tag-note{font:500 12px/1.45 var(--ui);color:var(--text-2);background:var(--surface-sunk);border:1px solid var(--hairline);border-left:3px solid #f5b53d;border-radius:var(--r-sm);padding:8px 10px;margin-top:4px}\n";
 function cssProbeOk(){
   const t = document.createElement('div');
   t.className = 'ez-stepnum';
@@ -8935,7 +9765,12 @@ function applyMeasuredContrast(){
          ground `ground < 0.45` was picking the ring for the half of the frame
          the glyphs were not on. */
       const inkLum = hexLum(f.inkFix);
-      const up = inkLum !== null && inkLum > 0.4;
+      /* rule 27: the ring is the tone the ink's own ground is not, i.e. dark
+         behind ink lighter than its ground, light behind ink darker. The
+         table carries the ground when the bake measured it; a fixed 0.4 on
+         the ink alone drew light rings round mid greys on pale washes. */
+      const gL = typeof f.ground === 'number' ? f.ground : (typeof f.g50 === 'number' ? f.g50 : null);
+      const up = inkLum !== null && (gL !== null ? inkLum > gL : inkLum > 0.4);
       /* SEPARATION DEVICE, not just a hue change.
          Measured after the ink repair converged: 33 of the 140 remaining
          failures were >=1.0 short of their target, and no ink colour can close
@@ -9164,6 +9999,116 @@ tuneFallbacks();
   } catch(e){}
 })();
 
+/* THE NUMBER TABLE, 2026-09-26. The phone number is how the people who stop
+   reach the seller, and 149 of the 243 classics set it under 72px on the 1080
+   canvas: in a 160px feed tile that is digits 7px tall. The video maker draws
+   the same number at up to 0.72x the headline, and the owner asked for "a
+   big/medium phone number" on everything. scripts/number_block.mjs --classics
+   measures every classic through buildLayer()/alignPass(), rebuilds the number
+   block (the number at 0.62x the headline, never under 72px, on one axis, its
+   plate hugging it, clear of every other line and product) and writes
+   assets/number-fix.json: one row per layer, with the layer's own words.
+
+   Same shape as the contrast table above: fetched, applied as a final pass,
+   and a failed fetch leaves the classics as the passes drew them. All or
+   nothing per template: if any row no longer matches a layer by name, role
+   and words (a template edited since the bake), that template keeps its own
+   layout rather than half of a new one. ?nonum=1 skips it, for the script. */
+(function loadNumberFix(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]nonum=1\b/.test(location.search)) return;
+    fetch('assets/number-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(rows => {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const byId = {};
+        rows.forEach(f => { if (f && f.id && f.layer && f.props) (byId[f.id] ||= []).push(f); });
+        let n = 0;
+        TEMPLATES.forEach(t => {
+          const list = byId[t.id]; if (!list) return;
+          const layers = t.layers || [];
+          const hits = list.map(f => {
+            const m = layers.filter(l => l.name === f.layer && (l.role || '') === (f.role || ''));
+            return m.length === 1 && (f.text == null || m[0].text === f.text) ? [m[0], f] : null;
+          });
+          if (hits.some(h => !h)) return;
+          hits.forEach(([l, f]) => { l.props = Object.assign({}, l.props, f.props); });
+          n++;
+        });
+        if (!n) return;
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
+/* THE GROUND TABLE, 2026-09-26. assignStyle() above paints 129 classics'
+   photographs as a duotone or a one-hue wash (the multiply/screen grade). The
+   owner: "not these ugly hideous overlaid colors and duotone background
+   images." The study session's layering ladder puts the photograph at rung 0
+   and atmosphere at rung 1, "light and shade, never an object": colour belongs
+   to the plate and the money word, not as a coat over the picture.
+
+   scripts/naturalize_classics.mjs renders each graded classic as the visitor
+   sees it (the contrast and number tables applied) and writes
+   assets/ground-fix.json: the photograph with no grade, and a neutral scrim in
+   the template's own gradient mode, solved on its own pixels to keep the worst
+   end of the ground under every line on the photograph at least as far from
+   the ink as the graded ground kept it (DESIGN-LAW rule 52). So the measured
+   inks stay right. Same shape as the tables above: a failed fetch leaves the
+   graded look, a row whose photograph changed since the bake is skipped, and
+   ?noground=1 skips it, for the script. */
+(function loadGroundFix(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]noground=1\b/.test(location.search)) return;
+    fetch('assets/ground-fix.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(rows => {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const byId = {};
+        rows.forEach(f => { if (f && f.id && f.bg) byId[f.id] = f; });
+        let n = 0;
+        TEMPLATES.forEach(t => {
+          const f = byId[t.id], bg = t.bg;
+          if (!f || !bg || bg.type !== 'image' || bg.src !== f.src) return;
+          delete bg.grade;
+          bg.scrim = f.bg.scrim;
+          if (f.bg.scrimColor) bg.scrimColor = f.bg.scrimColor; else delete bg.scrimColor;
+          bg.scrimMode = f.bg.scrimMode || 'gradient';
+          t.style = 'photo';
+          n++;
+        });
+        if (!n) return;
+        try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch(e){}
+        try {
+          if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding();
+        } catch(e){}
+      })
+      .catch(()=>{});
+  } catch(e){}
+})();
+
+/* HELD BACK (2026-09-27). scripts/audit_templates.mjs holds every template the
+   studio builds at load to the showcase's bar (overlap, legibility, the design
+   school, a flagged or stretched product picture, invented copy) and writes
+   the ones that fail to template-holds.js, loaded before this file. They leave
+   TEMPLATES here, and again after offer-library.js adds its cards. Idempotent.
+   ?noholds=1 keeps them, for the audit that decides. */
+function applyTemplateHolds(){
+  try {
+    if (/[?&]noholds=1\b/.test(location.search)) return 0;
+    const H = (typeof window !== 'undefined' && window.TEMPLATE_HOLDS) || {};
+    let n = 0;
+    for (let i = TEMPLATES.length - 1; i >= 0; i--) if (H[TEMPLATES[i].id]){ TEMPLATES.splice(i, 1); n++; }
+    if (n) _freeFirst3 = null;
+    return n;
+  } catch (e){ return 0; }
+}
+applyTemplateHolds();
+
 try {
   tplDims(TEMPLATES[0]);
   /* The old assertion called onAccent({a1:'#ffffff'}) here. onAccent is a const
@@ -9210,7 +10155,7 @@ const SC_FAMILIES = [
   /* every family in theme_specs.mjs with a representative swatch, so the
      section says twelve and shows twelve even when a set left one out */
   { family:'Jewel',        c1:'#1f3e7a', ink:'#d7deec', accent:'#fdc3a0', support:'#53b9e0' },
-  { family:'Duotone',      c1:'#e0677b', ink:'#371a1e', accent:'#61352a', support:'#02362d' },
+  { family:'Pastel',       c1:'#e0677b', ink:'#371a1e', accent:'#61352a', support:'#02362d' },
   { family:'Candy',        c1:'#fdb7bb', ink:'#4d2e30', accent:'#3c740b', support:'#176dcb' },
   { family:'Paper',        c1:'#fef3f2', ink:'#4d2e2e', accent:'#d6143b', support:'#3b997d' },
   { family:'Cool Air',     c1:'#baf8f1', ink:'#183f3c', accent:'#d9322b', support:'#2f9664' },
@@ -9254,6 +10199,9 @@ function scPickedCards(cards){
   });
   return out;
 }
+/* THE ONE "LIVE" PREDICATE: not condemned, with imagery, with colour. The
+   scripts import the same test from scripts/_showcase_harness.mjs (live()). */
+function scIsLive(c){ return !!c && !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05); }
 function scLoadIndex(){
   if (SHOWCASE.cards) return Promise.resolve(SHOWCASE.cards);
   if (SHOWCASE._p) return SHOWCASE._p;
@@ -9274,10 +10222,7 @@ function scLoadIndex(){
          thing being sold, or the same line printed twice. Filtering on stamped
          DATA rather than on a rule buried in here means the reason a card is
          missing can be looked up. */
-      SHOWCASE.cards = (Array.isArray(j) ? j : [])
-        .filter(c => !c.defect)
-        .filter(c => c.imagery !== 'none')
-        .filter(c => typeof c.chroma !== 'number' || c.chroma >= 0.05);
+      SHOWCASE.cards = (Array.isArray(j) ? j : []).filter(scIsLive);
       SHOWCASE.cards.forEach(c => { SHOWCASE.byId[c.id] = c; });
       return SHOWCASE.cards;
     })
@@ -9309,7 +10254,13 @@ function scOrder(list){
   /* imagery outranks everything: a card with a real product first, a
      photograph next, a bare ground last */
   const img = c => c.imagery === 'product' ? 6 : c.imagery === 'photo' ? 3 : 0;
-  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4) - (img(a) + a.affinity + scVivid(a) * 4)) || (b.density - a.density));
+  /* the design school's warnings (scripts/audit_showcase_school.mjs) rank a
+     card down, one step per warning, a soft term beside imagery and colour.
+     Not "every clean card first": small type and the 6% margin are warned on
+     most of the library, so no card is clean and that rule would sort by
+     nothing but the warning count */
+  const warned = c => { const w = c.school && c.school.warn; return w ? w.length : 0; };
+  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4 - warned(b)) - (img(a) + a.affinity + scVivid(a) * 4 - warned(a))) || (b.density - a.density));
   const light = c => scLum(c.c1) > 0.22;
   const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
   const hueGap = (a, b) => { const x = Math.abs((hueOf(a) ?? 0) - (hueOf(b) ?? 0)) % 360; return x > 180 ? 360 - x : x; };
@@ -9388,8 +10339,14 @@ function scBuildWall(cards){
   /* and only cards that SHOW something: a product cutout of real size.
      Owner, on a plain green Pokémon card and a tiny mark on a sports one:
      "those two lack the proper imagery, looks a little bit confusing". */
-  const vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product')
+  let vivid = cards.filter(c => typeof c.chroma === 'number' && c.chroma >= 0.12 && !(c.blur >= 15) && c.imagery === 'product')
     .filter(c => chosenByHand.indexOf(c) === -1);
+  /* the shop window prefers clean cards: with enough of them, a card with a
+     design-school warning stays in the library but off the wall (today small
+     type and the 6% margin are warned on nearly every card, so the wall
+     takes from all of them, and the ranking above orders by warning count) */
+  const cleanVivid = vivid.filter(c => !(c.school && c.school.warn && c.school.warn.length));
+  if (cleanVivid.length >= want) vivid = cleanVivid;
   const buckets = {};
   vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
   Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
@@ -9429,7 +10386,7 @@ function scBuildWall(cards){
       const d = document.createElement('div');
       d.className = 'wall-card';
       d.title = c.name;
-      d.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
+      d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
       d.onclick = () => openShowcase(c.id);
       col.appendChild(d);
     });
@@ -9491,12 +10448,25 @@ function scBuildChips(cards){
     row.appendChild(b);
   };
   mk('all', 'All', cards.length);
-  CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] || 0));
+  /* a category the showcase has no cards for yet (the 2026-09-27 ones) shows
+     the studio's own templates for it, so its chip is never an empty room */
+  CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] || scStudioCat(c.id).length));
+  mk('offer', 'Offer cards', scOffers().length);
   mk('classics', 'Classics', scClassics().length);
   const more = $('lp-tpl-more');
   if (more && !more.dataset.bound){ more.dataset.bound = '1'; more.onclick = () => scRenderGrid(false); }
   const all = $('lp-tpl-all');
   if (all && !all.dataset.bound){ all.dataset.bound = '1'; all.onclick = () => showEasy(null); }
+}
+/* the offer family (offer-library.js), unlocked first */
+function scOffers(){
+  const pool = varietyOrder(TEMPLATES.filter(t => t.tag === 'offer'));
+  return pool.filter(t => !tplLocked(t)).concat(pool.filter(t => tplLocked(t)));
+}
+function scStudioCat(cat){
+  if (SHOWCASE.cards && SHOWCASE.cards.some(c => c.cat === cat)) return [];
+  const pool = orderedCatList(cat);
+  return pool.filter(t => !tplLocked(t)).concat(pool.filter(t => tplLocked(t)));
 }
 function scSyncFilters(){
   document.querySelectorAll('#lp-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.cat === SHOWCASE.filter.cat));
@@ -9519,7 +10489,7 @@ function scCard(c){
   card.setAttribute('role', 'button');
   card.setAttribute('tabindex', '0');
   const locked = scLocked(c);
-  card.innerHTML = `<img src="${c.thumb}" alt="${escHtml(c.name)} template" loading="lazy" decoding="async">
+  card.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="lazy" decoding="async">
     <div class="tpl-veil"></div>
     ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
@@ -9542,6 +10512,10 @@ function scClassicCard(t){
   const go = () => showEasy(t.id);
   card.onclick = go;
   card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };
+  /* The landing does not warm the template library (a phone would pay for
+     all of it), so a Studio card is first drawn without its product picture,
+     photograph or face. Fetch just this card's, then draw it again. */
+  ensureTplAssets(t).then(n => { const img = card.querySelector('img'); if (n && img) img.src = getThumb(t.id, 320); });
   return card;
 }
 function scRenderGrid(reset){
@@ -9553,6 +10527,10 @@ function scRenderGrid(reset){
     grid.innerHTML = '';
     if (f.cat === 'classics'){
       SHOWCASE.list = scClassics().map(t => ({ classic:t }));
+    } else if (f.cat === 'offer'){
+      SHOWCASE.list = scOffers().map(t => ({ classic:t }));
+    } else if (f.cat !== 'all' && scStudioCat(f.cat).length){
+      SHOWCASE.list = scStudioCat(f.cat).map(t => ({ classic:t }));
     } else {
       const sub = SHOWCASE.cards.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.theme === f.fam));
       const ordered = scOrder(sub);
@@ -9580,7 +10558,7 @@ async function openShowcase(id){
   if (!TEMPLATES.some(t => t.id === tid)){
     let rec = SHOWCASE.records[id];
     if (!rec){
-      try { rec = await fetch('assets/showcase/tpl/' + id + '.json').then(r => r.ok ? r.json() : null); } catch (e){ rec = null; }
+      try { rec = await fetch(assetUrl('assets/showcase/tpl/' + id + '.json')).then(r => r.ok ? r.json() : null); } catch (e){ rec = null; }
       if (!rec || !rec.tpl){ toast('That design could not be loaded, opening its base layout instead', 'error'); showEasy(c.base); return; }
       SHOWCASE.records[id] = rec;
     }
@@ -9592,11 +10570,12 @@ async function openShowcase(id){
     const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
     const loadCut = src => new Promise(res => {
       if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res();
-      const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = src;
+      const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = assetUrl(src);
     });
     const loadBg = src => new Promise(res => {
+      if (isDrawnSrc(src)) return loadDrawnBg(src).then(res);
       if (!src || (TPL_BG_ELS[src] && TPL_BG_ELS[src].width)) return res();
-      const el = new Image(); el.onload = () => { TPL_BG_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = src;
+      const el = new Image(); el.onload = () => { TPL_BG_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = assetUrl(src);
     });
     await Promise.race([
       Promise.all([...fams].map(f => ensureFont(f)).concat(cuts.map(loadCut), [loadBg(t.bg && t.bg.src)])),
@@ -9612,7 +10591,8 @@ async function openShowcase(id){
      placeholder; a showcase card's photograph is the design, so it stays on. */
   if (ez.tpl === tid){
     ez.bg = null; ez.bgRecId = null; ez.bgPicked = true;
-    syncEzSwatches(); schedEzPreview(0);
+    if (ez.theme) ezThemeGround(ez.theme);            // a product-led card takes the theme's ground, as it does from the strip
+    syncEzSwatches(); refreshEzLayers(); schedEzPreview(0);   // the layers list said "Color" over a photograph until the next change
   }
 }
 function buildLandingV2(){
@@ -9886,7 +10866,7 @@ function renderAreaPreview(a){
                 rural:'a spread-out area, so we reach further and name more of the small towns' }[a.tier] || '';
   const chips = list => list.map(t => '<span>' + escHtml(String(t).split(',')[0]) + '</span>').join('');
   el.innerHTML = `<div class="area-home">📍 ${escHtml(a.home)} <em>${escHtml(why)}</em></div>
-    <div class="area-row"><b>Reviews will mention</b><div class="area-chips">${chips(a.towns || [])}</div></div>
+    <div class="area-row"><b>Service-area lines will mention</b><div class="area-chips">${chips(a.towns || [])}</div></div>
     <div class="area-row"><b>Service-area lines</b><div class="area-chips">${chips(a.cover || [])}</div></div>
     <div class="area-row"><b>&ldquo;Across &hellip;&rdquo;</b><div class="area-chips"><span>${escHtml(a.region || '')}</span></div></div>`;
 }
@@ -9916,4 +10896,6065 @@ function buildEzSizes(){
     };
     row.appendChild(b);
   });
+}
+
+/* ═══════════════ DEVICE VARIANTS IN EASY MODE ═══════════════
+   Owner, 2026-09-27: "once a theme is perfect we can make unlimited variations
+   for all types of devices specifically." A Phones & Devices showcase card
+   that carries a product can be re-set for any device the shop buys: the
+   device family in the headline, that family's models as the selling points,
+   and the device's own cut-out in the finish nearest the card's accent,
+   fitted into the product's box. The theme is untouched, and alignPass keeps
+   a longer name or a wider device on its plate and inside the guides.
+   Variants are built on request, not stored: the library stays one card per
+   design (DESIGN-LAW rule 60). Same logic as scripts/device_variants.mjs;
+   the catalogue is assets/devices.json (scripts/device_catalog.py). */
+let SC_DEVICES = null;
+function scLoadDevices(){
+  if (SC_DEVICES) return Promise.resolve(SC_DEVICES);
+  return fetch(assetUrl('assets/devices.json')).then(r => r.ok ? r.json() : { models:{} })
+    .then(j => (SC_DEVICES = j.models || {})).catch(() => (SC_DEVICES = {}));
+}
+const SC_DEV_LINE = {
+  'IPAD AIR': 'iPad Air M2 • M3 • M4 • 11 & 13-inch', 'IPAD PRO': 'iPad Pro M4 • M5 • 11 & 13-inch',
+  'IPAD MINI': 'iPad mini 6 • mini (A17 Pro)', 'IPAD': 'iPad 10th gen • iPad (A16)',
+  'MACBOOK AIR': 'M1 to M5 • 13 & 15-inch • Every colour', 'MACBOOK PRO': 'M1 to M5 • 14 & 16-inch',
+  'MACBOOK NEO': 'MacBook Neo • Every colour', 'IMAC': 'iMac 24-inch • M1 • M3 • M4 • Every colour',
+  'APPLE WATCH': 'Series 11 • 10 • 9 • SE', 'WATCH ULTRA': 'Ultra • Ultra 2 • Ultra 3',
+  'AIRPODS': 'AirPods • AirPods Pro • AirPods Max', 'AIRPODS PRO': 'AirPods Pro 2 • Pro 3', 'AIRPODS MAX': 'AirPods Max • AirPods Pro',
+};
+/* WHOLE LINES (owner: "variations like categories. (sell your iphone)
+   showing multiple models … (sell your macbook air pro neo) with multiple"):
+   the category in the headline, several models lined up on the card */
+const SC_DEV_GROUPS = {
+  'group-iphone':  { family:'IPHONE',      label:'All iPhones',       models:['iphone-17-pro', 'iphone-17', 'iphone-16', 'iphone-16e'], line:'iPhone 17 • 16 • 15 • Pro & Pro Max' },
+  'group-ipad':    { family:'IPAD',        label:'All iPads',         models:['ipad-pro-13-m5', 'ipad-air-13-m4', 'ipad-mini-7-a17-pro'], line:'iPad Pro • Air • mini • iPad' },
+  'group-macbook': { family:'MACBOOK',     label:'All MacBooks',      models:['macbook-air-15', 'macbook-pro-14-m5', 'macbook-neo-13'], line:'MacBook Air • Pro • Neo • M1 to M5' },
+  'group-mac':     { family:'MAC',         label:'All Macs',          models:['imac-24-m4', 'macbook-air-15', 'macbook-pro-14-m5'], line:'iMac • MacBook Air • MacBook Pro' },
+  'group-watch':   { family:'APPLE WATCH', label:'All Apple Watches', models:['watch-ultra3', 'watch-s11', 'watch-se3'], line:'Ultra • Series 11 • 10 • SE' },
+  'group-airpods': { family:'AIRPODS',     label:'All AirPods',       models:['airpods-max', 'airpods-pro-3', 'airpods-3'], line:'AirPods • AirPods Pro • AirPods Max' },
+  'group-apple':   { family:'APPLE',       label:'Everything Apple',  models:['iphone-17-pro', 'ipad-air-13-m4', 'macbook-air-15', 'watch-s11'], line:'iPhone • iPad • Mac • Apple Watch' },
+};
+/* relative size in a lineup: a watch is not as tall as a MacBook, nor a
+   fifth of it (a compressed curve keeps every device recognisable) */
+const SC_DEV_WEIGHT = { iphone:0.95, ipad:1, mac:1, watch:0.62, airpods:0.66, other:0.72 };
+function scDeviceLine(D, fam){
+  if (SC_DEV_LINE[fam]) return SC_DEV_LINE[fam];
+  const names = Object.values(D).filter(m => m.family === fam).map(m => m.name).sort();
+  return names.length ? names.map((n, i) => i ? n.replace(/^iPhone /, '') : n).join(' • ') : fam;
+}
+function scDeviceLabel(fam){
+  return fam.split(' ').map(w => ({ IPHONE:'iPhone', IPAD:'iPad', MACBOOK:'MacBook', IMAC:'iMac', AIRPODS:'AirPods',
+    HOMEPOD:'HomePod', TV:'TV', PRO:'Pro', AIR:'Air', MAX:'Max', MINI:'mini', NEO:'Neo', WATCH:'Watch', ULTRA:'Ultra',
+    APPLE:'Apple', DUO:'Duo', VISION:'Vision', MAC:'Mac', STUDIO:'Studio' }[w] || w.replace(/^(\d+)E$/, '$1e'))).join(' ');
+}
+/* one entry per family, newest iPhones first, then iPad, Mac, Watch, AirPods */
+function scDeviceChoices(D){
+  const order = { iphone:0, ipad:1, mac:2, watch:3, airpods:4, other:5 }, best = {};
+  Object.entries(D).forEach(([k, m]) => {
+    if (!m.art && !Object.keys(m.colours || {}).length) return;
+    const score = Object.keys(m.colours || {}).length * 10 + (m.art ? 1 : 0) + (parseInt((k.match(/\d+/) || [0])[0], 10) || 0) / 100;
+    if (!best[m.family] || score > best[m.family].score) best[m.family] = { key:k, m, score };
+  });
+  const num = f => parseInt((f.match(/\d+/) || [0])[0], 10) || 0;
+  return Object.entries(best).map(([fam, b]) => ({ fam, key:b.key, line:b.m.line, label:scDeviceLabel(fam) }))
+    .sort((a, b) => (order[a.line] - order[b.line]) || (num(b.fam) - num(a.fam)) || a.fam.localeCompare(b.fam));
+}
+function scDeviceFinish(m, accent){
+  const fins = Object.values(m.colours || {}).filter(f => f.hex);
+  if (!fins.length) return m.art;
+  const hsv = h => { const n = parseInt(String(h || '#888888').slice(1), 16), r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let hu = 0;
+    if (d){ hu = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; hu *= 60; if (hu < 0) hu += 360; }
+    return { h:hu, s: mx ? d / mx : 0 }; };
+  const a = hsv(accent);
+  const score = f => { const c = hsv(f.hex); if (a.s < 0.18) return c.s;
+    const dh = Math.min(Math.abs(c.h - a.h), 360 - Math.abs(c.h - a.h)) / 180;
+    return dh + 0.6 * Math.abs(c.s - a.s) + (c.s < 0.12 ? 0.5 : 0); };
+  return fins.sort((x, y) => score(x) - score(y))[0].slug;
+}
+const scLoadImg = src => new Promise(res => {
+  if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res(CUTOUT_ELS[src]);
+  const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(el); }; el.onerror = () => res(null); el.src = assetUrl(src);
+});
+async function scDeviceVariant(baseId, key){
+  const D = await scLoadDevices(), grp = SC_DEV_GROUPS[key], base = TEMPLATES.find(t => t.id === baseId);
+  const m = grp ? { family: grp.family, line: 'group' } : D[key];
+  if (!m || !base) return null;
+  const id = baseId + '--' + key;
+  if (TEMPLATES.some(t => t.id === id)) return id;
+  const t = JSON.parse(JSON.stringify(base));
+  const by = n => t.layers.find(l => l.name === n);
+  const h1 = by('Headline 1'), h2 = by('Headline 2'), prod = t.layers.find(l => l.kind === 'cutout' && !l.__wall);
+  if (!h2 || !prod) return null;
+  if (h1 && !/^(WE BUY|SELL YOUR|CASH IN YOUR|CASH FOR)$/i.test(String(h1.text).trim())) h1.text = 'WE BUY';
+  h2.text = m.family;
+  const line = grp ? grp.line : scDeviceLine(D, m.family);
+  t.layers.forEach(l => {   // a line that lists models names this device's models instead
+    if (typeof l.text === 'string' && l !== h2 && (l.name === 'Items' ||
+        (/•/.test(l.text) && /iPhone|iPad|MacBook|iMac|Series \d|Watch|AirPods|Pro Max/i.test(l.text)))) l.text = line;
+  });
+  const card = SHOWCASE.byId[base.showcase] || {}, accent = card.accent || card.c1;
+  const oldEl = await scLoadImg(prod.props.src);
+  const ow = prod.props.w || 400, oh = oldEl && oldEl.width ? ow * oldEl.height / oldEl.width : ow;
+  const cx = (prod.props.left || 0) + ow / 2, cy = (prod.props.top || 0) + oh / 2;
+  if (!grp){
+    const src = 'assets/cutouts/' + scDeviceFinish(m, accent) + CUTOUT_EXT, newEl = await scLoadImg(src);
+    if (!newEl) return null;
+    const ar = newEl.width / newEl.height; let w = ow, h = w / ar; if (h > oh){ h = oh; w = h * ar; }
+    prod.props = Object.assign({}, prod.props, { src, w: Math.round(w), left: Math.round(cx - w / 2), top: Math.round(cy - h / 2) });
+  } else {
+    /* the line-up: every model at its weighted height, side by side with a
+       small gap, the whole row fitted into the product's box and centred */
+    const items = (await Promise.all(grp.models.filter(k => D[k]).map(async k => {
+      const src = 'assets/cutouts/' + scDeviceFinish(D[k], accent) + CUTOUT_EXT, el = await scLoadImg(src);
+      return el ? { src, ar: el.width / el.height, wt: SC_DEV_WEIGHT[D[k].line] || 0.8 } : null;
+    }))).filter(Boolean);
+    if (!items.length) return null;
+    /* a row has the width of the card it stands on, not of the one product it
+       replaces: fitted into a single device's width, three MacBooks came out
+       as stamps. Wide devices overlap a little, fan style; tall ones stand
+       apart. */
+    const rb = l => { const q = l.props || {}, w = q.width || 0, h = q.height || 0;
+      return { x: (q.left || 0) - (q.originX === 'center' ? w / 2 : 0), y: (q.top || 0) - (q.originY === 'center' ? h / 2 : 0), w, h }; };
+    const plate = t.layers.filter(l => l.kind === 'rect').map(rb).filter(b => cx > b.x && cx < b.x + b.w && cy > b.y && cy < b.y + b.h && b.w < TPL_W * 0.95)
+      .sort((a, b) => a.w * a.h - b.w * b.h)[0];
+    const roomW = plate ? plate.w - 2 * Math.max(36, plate.w * 0.06) : Math.max(ow, TPL_W * 0.7);
+    const wide = items.reduce((s, it) => s + it.ar, 0) / items.length > 1.2;
+    const gapK = wide ? -0.08 : 0.06;                    // gap (or overlap) as a share of the tallest device
+    const rowW = hh => items.reduce((s, it) => s + hh * it.wt * it.ar, 0) + gapK * hh * (items.length - 1);
+    let hh = Math.min(oh, roomW / rowW(1));              // the tallest device's height
+    let x = cx - rowW(hh) / 2;
+    const at = t.layers.indexOf(prod);
+    t.layers.splice(at, 1, ...items.map((it, i) => {
+      const h = hh * it.wt, w = h * it.ar, l = JSON.parse(JSON.stringify(prod));
+      l.name = i ? 'Hero Product ' + (i + 1) : prod.name;
+      l.props = Object.assign({}, prod.props, { src: it.src, w: Math.round(w), left: Math.round(x), top: Math.round(cy + hh / 2 - h) });
+      x += w + gapK * hh;
+      return l;
+    }));
+  }
+  Object.assign(t, { id, name: base.name + ' · ' + (grp ? grp.label : scDeviceLabel(m.family)), deviceOf: baseId, device: key });
+  TEMPLATES.push(t);
+  delete THUMBS[id];
+  return id;
+}
+/* Which cards can be re-set. The product must be the hero (a corner icon is
+   not what names the device) and the ground must not picture a device: a
+   Bubble Pop card set on a photograph of stacked MacBooks read SELL YOUR
+   APPLE WATCH over the MacBooks once re-set, the fault fixed on twelve watch
+   cards the same day. Money grounds, scenes and plain grounds qualify. */
+const SC_DEVICE_GROUND = /iphone|ipad|macbook|imac|mac-|watch|airpods|phone|device|tablet|laptop/i;
+function scDeviceReady(t){
+  if (!t || !t.showcase || t.cat !== 'phones' || !t.layers.some(l => l.name === 'Headline 2')) return false;
+  const prod = t.layers.find(l => l.kind === 'cutout' && !l.__wall);
+  if (!prod || (prod.props && (prod.props.w || 0) < 260)) return false;
+  const src = t.bg && t.bg.type === 'image' ? String(t.bg.src || '') : '';
+  return !src || /\/grounds\//.test(src) || !SC_DEVICE_GROUND.test(src.replace(/^.*\//, ''));
+}
+/* the picker: shown for a Phones & Devices showcase card with a product */
+async function ezDeviceSync(){
+  const field = $('ez-device-field'), sel = $('ez-device');
+  if (!field || !sel) return;
+  const t = ezTpl(), baseId = t && (t.deviceOf || t.id), base = TEMPLATES.find(x => x.id === baseId);
+  const ok = base && scDeviceReady(base);
+  field.hidden = !ok;
+  if (!ok) return;
+  const D = await scLoadDevices();
+  if (ezTpl() !== t) return;                                   // the user moved on while the catalogue loaded
+  /* the list is the same for every card: built once, so a template switch
+     never rebuilds it under a pick in progress */
+  if (!sel.dataset.built){
+    const groups = { iphone:'iPhone', ipad:'iPad', mac:'Mac', watch:'Apple Watch', airpods:'AirPods', other:'Home & other' };
+    const ch = scDeviceChoices(D);
+    sel.innerHTML = '<option value="">As designed</option>' +
+      '<optgroup label="Whole line">' + Object.entries(SC_DEV_GROUPS).map(([k, g]) => '<option value="' + k + '">' + escHtml(g.label) + '</option>').join('') + '</optgroup>' +
+      Object.keys(groups).map(g => {
+      const opts = ch.filter(c => c.line === g); if (!opts.length) return '';
+      return '<optgroup label="' + groups[g] + '">' + opts.map(c => '<option value="' + c.key + '">' + escHtml(c.label) + '</option>').join('') + '</optgroup>';
+    }).join('');
+    sel.dataset.built = '1';
+  }
+  sel.value = t.device || '';
+  sel.onchange = async () => {
+    const key = sel.value, target = key ? await scDeviceVariant(baseId, key) : baseId;
+    if (!target){ toast('That device could not be set on this design', 'error'); sel.value = t.device || ''; return; }
+    selectEzTpl(target);
+    ez.bg = null; ez.bgRecId = null; ez.bgPicked = true;         // a showcase photograph is part of the design
+    syncEzSwatches(); schedEzPreview(0);
+  };
+}
+{
+  const _buildEzForm = buildEzForm;
+  buildEzForm = function(){ const r = _buildEzForm.apply(this, arguments); ezDeviceSync();
+    try { if (typeof ezPatternRow === 'function'){ ezPatternRow(); ezDrawnSync(); } } catch (e){ console.warn('grounds picker:', e); }   // "More grounds" and "Pattern on top"
+    return r; };
+}
+
+
+/* Ported 2026-09-27 from the superseded claude/fervent-pascal commit bf45814
+   (OPEN-ITEMS §J), at the owner's word: "make everything animateable". Every
+   design in the studio, showcase cards, classics and device variants alike,
+   exports as an 8-second video from Easy Mode or the editor. The engine is
+   unchanged; the Easy Mode entry takes its scene from renderEzCanvas(), the
+   editor's from the live canvas. */
+/* ═══════════════ MOTION: VIDEO ADS ═══════════════
+   An 8-second video of the same ad, for Reels, Stories and TikTok.
+
+   The motion is a LIVING STILL, not a reveal, and that is a design decision
+   with a reason. Feeds autoplay muted and people scroll past in a second or
+   two, so any frame that has not yet shown the phone number is a frame that
+   cannot convert. Frame 0 is the finished ad — the same pixels as the PNG
+   export — and so is every frame after it. What moves is EMPHASIS:
+
+   - the photograph breathes on a slow closed path, so the ad reads as alive
+     and the loop has no seam;
+   - three beats of SCALE, never colour, in reading order: the money word,
+     the selling points, the phone number. "Attention comes from contrast and
+     scale, not from saturation" holds in time as well as in space;
+   - every beat returns exactly to rest.
+
+   Deterministic in t: the landing-page clips are rendered by THIS code
+   (scripts/render_motion_clips.mjs, via motionBake/motionDraw), not by a
+   separate animation that could drift from what the product actually exports.
+
+   Appended, not spliced (rule 42). Nothing here runs at load: declarations
+   only, plus one DOMContentLoaded binder at the very bottom. */
+const MOTION = {
+  dur: 8, fps: 30,
+  beats: { money: [0.5, 1.5], points: [2.5, 3.5], phone: [4.5, 5.5] },
+  amp:   { money: 0.045,      points: 0.035,      phone: 0.06 },
+  breathe: 0.06,          // peak photo push-in at the loop's midpoint
+  maxShort: 1080,         // real-time recording above 1080p stutters on phones
+};
+const _bell = u => (u <= 0 || u >= 1) ? 0 : 0.5 - 0.5 * Math.cos(2 * Math.PI * u);  // 0 → 1 → 0, flat at both ends
+const _beat = (t, w) => _bell((t - w[0]) / (w[1] - w[0]));
+
+function motionIsText(o){
+  return !!o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && !!o.pgCurved));
+}
+function motionBox(o){ const r = o.getBoundingRect(true, true); return { x:r.left, y:r.top, w:r.width, h:r.height }; }
+
+/* The plate a text sits on, by the test rule 46 settled on: the rect must lie
+   behind the TEXT (≥75% of the text's own box), not merely near it — and it
+   must be a plate, not a panel. Scaling a full-width band with the number
+   would pulse half the ad. */
+function motionPlate(objs, o, W, H){
+  const t = motionBox(o);
+  let best = null, bestArea = Infinity;
+  objs.forEach(p => {
+    if (p === o || p.type !== 'rect' || p.pgBgRect || p.pgScrim) return;
+    if (p.name === 'Scrim' || p.name === 'BG' || p.name === 'Overlay') return;
+    const b = motionBox(p);
+    const ix = Math.max(0, Math.min(t.x + t.w, b.x + b.w) - Math.max(t.x, b.x));
+    const iy = Math.max(0, Math.min(t.y + t.h, b.y + b.h) - Math.max(t.y, b.y));
+    if (ix * iy < 0.75 * t.w * t.h) return;
+    if (b.w > 0.9 * W || b.w * b.h > 5 * t.w * t.h) return;   // a panel, not this text's plate
+    if (b.w * b.h < bestArea){ best = p; bestArea = b.w * b.h; }
+  });
+  return best;
+}
+
+/* Read the scene once and record every rest value the pose will touch, so
+   restoring is exact rather than "scale back by 1/s". */
+function motionRig(sc, W, H){
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const texts = objs.filter(o => motionIsText(o) && live(o));
+  const size = o => ((o.fontSize || 0) * (o.scaleY || 1)) || motionBox(o).h;
+  const phone = texts.filter(o => o.pgRole === 'phone').sort((a, b) => size(b) - size(a))[0] || null;
+  const money = texts.filter(o => o !== phone && !['phone','website','badges','deco'].includes(o.pgRole))
+                     .sort((a, b) => size(b) - size(a))[0] || null;
+  const points = texts.find(o => o.pgRole === 'badges' && o !== money)
+              || texts.find(o => o.pgRole === 'cta' && o !== money) || null;
+  const unit = o => {
+    if (!o) return null;
+    const plate = motionPlate(objs, o, W, H);
+    const members = (plate ? [plate, o] : [o]).concat(objs.filter(q => q.pgKin === o && live(q)));
+    return { c: (plate || o).getCenterPoint(),
+             members: members.map(m => ({ o:m, sx:m.scaleX || 1, sy:m.scaleY || 1, left:m.left, top:m.top, c:m.getCenterPoint() })) };
+  };
+  const bg = sc.backgroundImage && sc.backgroundImage.type === 'image' ? sc.backgroundImage : null;
+  // product cutouts only: the film-grain overlay is an image too, and it must not bob
+  const cut = objs.filter(o => o.type === 'image' && live(o) && o.pgRole === 'photo');
+  if (!phone) console.warn('GraphicsStudio motion: no phone-number layer found, the last beat is skipped.');
+  return {
+    W, H,
+    bg: bg ? { o:bg, left:bg.left, top:bg.top, sx:bg.scaleX || 1, sy:bg.scaleY || 1 } : null,
+    cut: cut.map(o => ({ o, left:o.left, top:o.top })),
+    units: { money: unit(money), points: unit(points), phone: unit(phone) },
+  };
+}
+
+/* ── BAKE, THEN COMPOSITE ────────────────────────────────────────────────
+   The first version re-rendered the whole fabric scene every frame. Scaling
+   text invalidates fabric's object cache, so every frame re-drew shadowed
+   type from scratch, and the first real export came out at 1.6 fps — a
+   slideshow. Real-time recording turns every slow frame into a dropped one.
+
+   So the scene is rendered ONCE into bitmaps, in z-order: the photograph,
+   each run of layers that never moves, and each element that does (cropped to
+   its own bounds). A frame is then a dozen drawImage calls with a transform —
+   GPU work on every device, and cheap even in software.
+   Exactness: rest frames use a native-resolution photo, so frame 0 is the
+   still ad; the push-in draws from a copy baked at (1 + breathe)x, so the
+   photo is never upscaled. The one non-normal blend in the library (the
+   grain overlay) is drawn with its own blend mode at its own depth, which
+   reproduces it exactly. */
+function motionBake(sc, docW, docH, outW, outH){
+  const z = outW / docW;
+  sc.enableRetinaScaling = false;
+  sc.setDimensions({ width:outW, height:outH }); sc.setZoom(z);
+  const rig = motionRig(sc, docW, docH);
+  const objs = sc.getObjects();
+  const unitOf = new Map();
+  Object.entries(rig.units).forEach(([k, u]) => u && u.members.forEach(m => unitOf.set(m.o, k)));
+  const cutSet = new Set(rig.cut.map(c => c.o));
+  const saved = { img: sc.backgroundImage, col: sc.backgroundColor, vis: objs.map(o => o.visible) };
+  const copy = (w, h, crop) => {
+    sc.renderAll();
+    const c = document.createElement('canvas');
+    const r = crop || { x:0, y:0, w, h };
+    c.width = Math.max(1, r.w); c.height = Math.max(1, r.h);
+    c.getContext('2d').drawImage(sc.lowerCanvasEl, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+    return { bmp:c, x:r.x, y:r.y };
+  };
+  const only = set => objs.forEach((o, i) => { o.visible = saved.vis[i] !== false && set.has(o); });
+  const bake = { W:outW, H:outH, z, base: saved.col || '#101014', bg:null, bgHi:null, layers:[], rig };
+  try {
+    if (rig.bg){
+      objs.forEach(o => { o.visible = false; });
+      sc.backgroundColor = '';
+      bake.bg = copy(outW, outH).bmp;
+      const K = 1 + MOTION.breathe, hw = Math.round(outW * K), hh = Math.round(outH * K);
+      sc.setDimensions({ width:hw, height:hh }); sc.setZoom(z * K);
+      bake.bgHi = copy(hw, hh).bmp;
+      sc.setDimensions({ width:outW, height:outH }); sc.setZoom(z);
+    }
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    let run = [];
+    const flush = () => { if (run.length){ only(new Set(run)); bake.layers.push(Object.assign({ kind:'static' }, copy(outW, outH))); run = []; } };
+    objs.forEach((o, i) => {
+      if (saved.vis[i] === false) return;
+      const blend = o.globalCompositeOperation && o.globalCompositeOperation !== 'source-over' ? o.globalCompositeOperation : null;
+      if (!unitOf.has(o) && !cutSet.has(o) && !blend){ run.push(o); return; }
+      flush();
+      const op = o.globalCompositeOperation, alpha = o.opacity;
+      if (blend){ o.globalCompositeOperation = 'source-over'; o.opacity = 1; }
+      only(new Set([o]));
+      let crop = null;
+      if (!blend){
+        // crop to the element plus its shadow, so a phone's memory is not spent on empty canvas.
+        // fabric scales a shadow with its object (a 2.6x product's 38px blur is ~100px) and a
+        // blur's tail runs to ~1.5x it: cropped shorter, frame 0 lost the shadow's edge (rule 65)
+        const r = o.getBoundingRect(false, true), sh = o.shadow || {}, os = sh.nonScaling ? 1 : Math.max(Math.abs(o.scaleX || 1), Math.abs(o.scaleY || 1));
+        /* and a line's letters can reach past its box: an italic T's bar, a
+           swash, a slanted face (Bangers' last letter ran 15px over it).
+           Without a shadow to widen the crop (a line on a tagline block has
+           none) the heavy italic "SELL IT" lost the end of its T in the
+           video and nowhere else, so a text gets a third of its size. */
+        const reach = motionIsText(o) ? 0.34 * (o.fontSize || 0) * Math.abs(o.scaleY || 1) * z : 0;
+        const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z + reach) + 6;
+        const x0 = Math.max(0, Math.floor(r.left - pad)), y0 = Math.max(0, Math.floor(r.top - pad));
+        const x1 = Math.min(outW, Math.ceil(r.left + r.width + pad)), y1 = Math.min(outH, Math.ceil(r.top + r.height + pad));
+        crop = { x:x0, y:y0, w:x1 - x0, h:y1 - y0 };
+      }
+      bake.layers.push(Object.assign({ kind: unitOf.has(o) ? 'unit' : cutSet.has(o) ? 'cut' : 'blend',
+        unit: unitOf.get(o), blend, alpha: blend ? alpha : 1 }, copy(outW, outH, crop)));
+      if (blend){ o.globalCompositeOperation = op; o.opacity = alpha; }
+    });
+    flush();
+  } finally {
+    sc.backgroundImage = saved.img; sc.backgroundColor = saved.col;
+    objs.forEach((o, i) => { o.visible = saved.vis[i]; });
+  }
+  return bake;
+}
+function motionDraw(x, b, t){
+  const W = b.W, H = b.H;
+  const th = 2 * Math.PI * (((t % MOTION.dur) + MOTION.dur) % MOTION.dur) / MOTION.dur;
+  const push = MOTION.breathe * (0.5 - 0.5 * Math.cos(th));        // 0 at t=0 and t=dur
+  x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  x.fillStyle = b.base; x.fillRect(0, 0, W, H);
+  if (b.bg){
+    if (push < 1e-4) x.drawImage(b.bg, 0, 0, W, H);
+    else {
+      // pan inside the headroom the push-in creates, so no edge is ever exposed
+      const k = 1 + push, dx = push * W * 0.35 * Math.sin(th), dy = -push * H * 0.25;
+      x.drawImage(b.bgHi, (W - W * k) / 2 + dx, (H - H * k) / 2 + dy, W * k, H * k);
+    }
+  }
+  for (const L of b.layers){
+    if (L.kind === 'static'){ x.drawImage(L.bmp, L.x, L.y); continue; }
+    x.save();
+    if (L.kind === 'unit'){
+      const s = 1 + MOTION.amp[L.unit] * _beat(t, MOTION.beats[L.unit]);
+      if (s !== 1){
+        const u = b.rig.units[L.unit], cx = u.c.x * b.z, cy = u.c.y * b.z;
+        x.translate(cx, cy); x.scale(s, s); x.translate(-cx, -cy);
+      }
+    } else if (L.kind === 'cut'){
+      x.translate(0, -H * 0.008 * Math.sin(th));                 // product floats against the drift
+    } else if (L.kind === 'blend'){
+      x.globalCompositeOperation = L.blend; x.globalAlpha = L.alpha;
+    }
+    x.drawImage(L.bmp, L.x, L.y);
+    x.restore();
+  }
+}
+
+/* ── SOUND ──────────────────────────────────────────────────────────────────
+   Designed to the same beats, rendered offline so it is identical on every
+   export: a soft pulse and shaker at 120 BPM (four bars = the eight seconds),
+   a two-chord pad, a whoosh into the money word, a wood tick on the selling
+   points and a two-note chime when the phone number lands. Every feed starts
+   it muted; it exists for the viewer who taps to hear. Seeded noise, so two
+   renders are sample-identical. */
+function motionSound(rate){
+  const sr = rate || 48000, T = MOTION.dur;
+  const ac = new OfflineAudioContext(2, Math.ceil(T * sr), sr);
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -20; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.005; comp.release.value = 0.2;
+  const master = ac.createGain(); master.gain.value = 1.3;
+  master.connect(comp); comp.connect(ac.destination);
+  // edge fades: the loop point must not click
+  master.gain.setValueAtTime(0, 0); master.gain.linearRampToValueAtTime(1.3, 0.012);
+  master.gain.setValueAtTime(1.3, T - 0.03); master.gain.linearRampToValueAtTime(0, T);
+
+  let seed = 20260926;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+  const noise = ac.createBuffer(1, sr, sr);
+  const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = rnd();
+  const env = (g, t0, a, peak, d) => {
+    g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(peak, t0 + a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + a + d);
+  };
+  const noiseHit = (t0, type, f, q, a, peak, d) => {
+    const s = ac.createBufferSource(); s.buffer = noise;
+    const f1 = ac.createBiquadFilter(); f1.type = type; f1.frequency.value = f; f1.Q.value = q;
+    const g = ac.createGain(); env(g, t0, a, peak, d);
+    s.connect(f1); f1.connect(g); g.connect(master); s.start(t0, (t0 * 0.37) % 0.5); s.stop(t0 + a + d + 0.05);
+  };
+  const tone = (t0, type, f0, f1, a, peak, d) => {
+    const o = ac.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(f0, t0); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t0 + Math.min(0.15, d));
+    const g = ac.createGain(); env(g, t0, a, peak, d);
+    o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + a + d + 0.05);
+  };
+  /* Pulse on every half-bar, shaker on the off-beats. Tuned for a PHONE
+     SPEAKER, which is where this is heard: the first mix put 91% of its energy
+     under 500Hz, which a phone barely reproduces. So the pulse carries a click
+     in the band a phone does play, and the shaker is loud enough to be heard. */
+  for (let t = 0; t < T - 0.01; t += 1.0){ tone(t, 'sine', 150, 55, 0.004, 0.2, 0.3); noiseHit(t, 'bandpass', 2600, 1.4, 0.002, 0.10, 0.025); }
+  for (let t = 0.25; t < T - 0.05; t += 0.5) noiseHit(t, 'highpass', 5200, 0.7, 0.002, (t % 1 === 0.25) ? 0.10 : 0.07, 0.06);
+  // pad: Am(add9) for two bars, Fmaj(add9) for two, spread voicings, soft attack
+  const pad = (t0, t1, freqs) => freqs.forEach(f => [-4, 4].forEach(cents => {
+    const o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = f; o.detune.value = cents;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; lp.Q.value = 0.5;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.024, t0 + 0.06);
+    g.gain.setValueAtTime(0.024, t1 - 0.12); g.gain.linearRampToValueAtTime(0, t1);
+    o.connect(lp); lp.connect(g); g.connect(master); o.start(t0); o.stop(t1 + 0.02);
+  }));
+  pad(0, 4.06, [110.00, 164.81, 261.63, 392.00, 493.88]);
+  pad(3.94, T, [87.31, 130.81, 220.00, 329.63, 392.00]);
+  // whoosh into the money word, then a soft low hit on its peak
+  {
+    const s = ac.createBufferSource(); s.buffer = noise; s.loop = true;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
+    bp.frequency.setValueAtTime(350, 0.55); bp.frequency.exponentialRampToValueAtTime(2800, 0.98);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, 0.55); g.gain.linearRampToValueAtTime(0.22, 0.97); g.gain.linearRampToValueAtTime(0.0001, 1.0);
+    s.connect(bp); bp.connect(g); g.connect(master); s.start(0.55); s.stop(1.02);
+  }
+  tone(1.0, 'sine', 84, 40, 0.004, 0.55, 0.5);
+  noiseHit(1.0, 'lowpass', 1200, 0.7, 0.002, 0.12, 0.12);
+  // selling points: a dry wood tick
+  tone(3.0, 'sine', 920, 920, 0.002, 0.22, 0.07); tone(3.0, 'sine', 1380, 1380, 0.002, 0.12, 0.05);
+  // phone number lands: two bell notes, inharmonic partials for a struck-metal read
+  const bell = (t0, f, peak) => [[1, 1, 1.5], [2.0, 0.35, 0.9], [2.76, 0.22, 0.6], [5.4, 0.1, 0.3]]
+    .forEach(([m, gm, d]) => tone(t0, 'sine', f * m, f * m, 0.003, peak * gm, d));
+  bell(5.0, 880.00, 0.17); bell(5.09, 1318.51, 0.15);
+  return ac.startRendering();
+}
+
+/* The four corner marks, shared by the PNG watermark and every video frame so
+   the two cannot drift apart. Satoshi 900 is vendored; the old "DM Sans" was
+   not, so every free export had been silently set in a fallback face. */
+function drawWatermarkMarks(x, w, h){
+  const base = Math.min(w, h);
+  const fs = Math.round(base * 0.032);
+  x.save();
+  x.font = '900 ' + fs + 'px Satoshi, sans-serif';
+  x.globalAlpha = 0.5;
+  x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
+  x.fillStyle = '#ffffff';
+  const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
+    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText(t, 0, 0); x.restore();
+  });
+  x.restore();
+}
+
+/* H.264 MP4 first: Instagram and TikTok reject WebM on upload. Chrome 126+
+   and Safari record it natively; Firefox falls back to WebM and the toast
+   says so.
+   A BARE 'video/mp4' is only trusted where the browser can also PLAY H.264.
+   An open-source Chromium build answers yes to 'video/mp4' and then writes
+   VP9 inside an MP4 box — a file named .mp4 that the platforms refuse, which
+   is worse than an honest .webm. Measured, not assumed: it is exactly what
+   the test browser here did. */
+function motionMime(withAudio){
+  if (typeof MediaRecorder === 'undefined' || !HTMLCanvasElement.prototype.captureStream) return null;
+  const ok = m => { try { return MediaRecorder.isTypeSupported(m); } catch (e){ return false; } };
+  let h264 = false;
+  try { h264 = !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'); } catch (e){}
+  const mp4 = withAudio
+    ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs="avc1.42E01E, mp4a.40.2"']
+    : ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1'];
+  const webm = withAudio ? ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'] : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  return mp4.find(ok) || (h264 && ok('video/mp4') ? 'video/mp4' : null) || webm.find(ok) || null;
+}
+const motionSoundOn = () => jget('pgfx_video_sound', true) !== false;
+/* Must be created inside the click: Safari will not start audio from a
+   context born after an await. */
+function motionAudioContext(){
+  try { const A = window.AudioContext || window.webkitAudioContext; return A ? new A() : null; } catch (e){ return null; }
+}
+
+/* Real-time capture. MediaRecorder timestamps frames by wall clock, so the
+   pose is computed from elapsed time, not frame count — a slow frame is a
+   dropped frame, never a slowed-down ad. A hidden tab throttles timers to
+   1 Hz (rule 38), so hiding the tab aborts rather than exporting a frozen video. */
+async function recordMotion(sc, o){
+  const out = document.createElement('canvas');
+  out.width = o.w; out.height = o.h;
+  const x = out.getContext('2d');
+  const bake = motionBake(sc, o.docW, o.docH, o.w, o.h);
+  const withAudio = !!(o.actx && o.sound);
+  const mime = motionMime(withAudio);
+  if (!mime) throw new Error('this browser cannot record video');
+  const stream = out.captureStream(MOTION.fps);
+  let src = null;
+  if (withAudio){
+    const dest = o.actx.createMediaStreamDestination();
+    src = o.actx.createBufferSource(); src.buffer = o.sound; src.connect(dest);
+    dest.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
+  }
+  const rec = new MediaRecorder(stream, { mimeType:mime, videoBitsPerSecond: Math.round(o.w * o.h * MOTION.fps * 0.12) });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  const done = new Promise((res, rej) => {
+    rec.onstop = () => res({ blob: new Blob(chunks, { type: mime.split(';')[0] }), mime });
+    rec.onerror = e => rej((e && e.error) || new Error('recording failed'));
+  });
+  let frames = 0;
+  const draw = t => {
+    motionDraw(x, bake, t); frames++;
+    if (o.watermark) drawWatermarkMarks(x, o.w, o.h);
+  };
+  let hidden = false, finish = null;
+  const onVis = () => { if (document.hidden){ hidden = true; if (finish) finish(); } };
+  document.addEventListener('visibilitychange', onVis);
+  /* Background work yields while this runs (ensureThumbs, refreshPhotoThumb).
+     Measured: during the first ~minute after load, thumbnail warm-up held the
+     main thread so completely that the recorder ticked at 2-3 Hz. */
+  window.__gfxRecording = true;
+  try {
+    draw(0);
+    rec.start(250);
+    if (src){ try { await o.actx.resume(); } catch (e){} src.start(); }
+    /* A 30 fps timer on absolute time, not requestAnimationFrame: rAF is paced
+       by the DISPLAY (60/120 Hz, and 2.5 Hz in a headless browser, which is
+       how the first export came out at 1.8 fps), while captureStream samples
+       at 30. Each tick is scheduled against t0 so timer jitter never
+       accumulates into drift. */
+    const t0 = performance.now(), step = 1000 / MOTION.fps;
+    await new Promise(res => {
+      finish = res;
+      let n = 0;
+      const tick = () => {
+        if (hidden) return;
+        const t = (performance.now() - t0) / 1000;
+        if (t >= MOTION.dur){ res(); return; }
+        draw(t);
+        if (o.onProgress) o.onProgress(t / MOTION.dur);
+        n = Math.max(n + 1, Math.floor((performance.now() - t0) / step) + 1);
+        setTimeout(tick, Math.max(0, t0 + n * step - performance.now()));
+      };
+      tick();
+    });
+    draw(MOTION.dur);
+  } finally {
+    window.__gfxRecording = false;
+    document.removeEventListener('visibilitychange', onVis);
+    try { rec.state !== 'inactive' && rec.stop(); } catch (e){}
+    if (src) try { src.stop(); } catch (e){}
+  }
+  const res = await done;
+  res.fps = frames / MOTION.dur;
+  stream.getTracks().forEach(tr => tr.stop());
+  if (hidden) throw new Error('recording stopped because this tab was hidden. Try again and keep this tab in front');
+  return res;
+}
+
+/* One path for both editors: gate → record → count the credit → download.
+   The credit is taken only after a video actually exists, same as a PNG. */
+async function runVideoExport(o){
+  const btn = o.btn, label = btn ? btn.innerHTML : '';
+  const setBtn = html => { if (btn) btn.innerHTML = html; };
+  if (btn) btn.disabled = true;
+  try {
+    let sound = null;
+    if (o.actx && motionSoundOn()){
+      setBtn('Preparing sound…');
+      try { sound = await motionSound(o.actx.sampleRate); } catch (e){ console.warn('GraphicsStudio motion: sound render failed, exporting silent.', e); }
+    }
+    const r = await recordMotion(o.sc, Object.assign({}, o, { sound,
+      onProgress: p => setBtn('Recording… ' + Math.max(1, Math.ceil(MOTION.dur * (1 - p))) + 's') }));
+    setBtn('Saving…');
+    try { await recordExport(); }
+    catch (e){ toast('Export could not be recorded: ' + e.message, 'error'); return; }
+    const ext = /mp4/.test(r.mime) ? 'mp4' : 'webm';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(r.blob);
+    a.download = (o.name || 'ad').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-video-' + o.w + 'x' + o.h + '.' + ext;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    toast(ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4', ext === 'mp4' ? 'success' : undefined);
+  } catch (e){
+    toast('Video export failed: ' + (e.message || 'unknown error'), 'error');
+  } finally {
+    try { o.sc.dispose(); } catch (e){}
+    if (o.actx) try { o.actx.close(); } catch (e){}
+    if (btn){ btn.disabled = false; btn.innerHTML = label; }
+  }
+}
+
+async function ezDownloadVideo(){
+  const actx = motionSoundOn() ? motionAudioContext() : null;   // inside the click, see motionAudioContext
+  const phone = $('ez-phone').value.trim();
+  if (!phone){
+    toast('Type your phone number first, buyers need to reach you', 'error');
+    $('ez-phone').focus(); $('ez-phone').scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  const gate = await gateExport(ezExportPx());
+  if (!gate) return;
+  /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
+     flattening it), so the video's frame 0 IS the still ad */
+  if (!await pgGate('ez', () => renderEzCanvas(1080, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true))) return;
+  const sc = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true);
+  const docW = sc.width, docH = sc.height, k = Math.min(gate.px, MOTION.maxShort) / Math.min(docW, docH);
+  await runVideoExport({ sc, docW, docH, w: Math.round(docW * k), h: Math.round(docH * k), watermark:gate.watermark, actx, name:ezTpl().name, btn:$('ez-video') });
+}
+async function editorDownloadVideo(){
+  const actx = motionSoundOn() ? motionAudioContext() : null;
+  if (!canvas) return;
+  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  const gate = await gateExport(exportSize);
+  if (!gate) return;
+  const d = exportDims(Math.min(gate.px, MOTION.maxShort));
+  canvas.discardActiveObject(); canvas.renderAll();
+  const sc = new fabric.StaticCanvas(null, { width:CW, height:CH, renderOnAddRemove:false, enableRetinaScaling:false });
+  await new Promise(res => sc.loadFromJSON(canvas.toJSON(EXTRA_PROPS), res));
+  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, actx, name:currentTplName, btn:$('ex-video') });
+}
+
+/* the buttons (index.html: #ez-video beside Download my ad, #ex-video in the
+   editor's export panel) */
+(function bindMotionButtons(){
+  const bind = () => { const a = $('ez-video'), b = $('ex-video');
+    if (a) a.onclick = () => ezDownloadVideo(); if (b) b.onclick = () => editorDownloadVideo(); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+})();
+
+/* ═══════════════ FONT PICKER: EVERY NAME IN ITS OWN FACE ═══════════════
+   Owner, 2026-09-27: "make sure the type faces render as previews of their
+   name typed out so we can see what it looks like when selecting different/
+   new fonts". buildFontOptions() styled each <option> in its face, but only
+   some desktop Chrome builds honour that: Safari, Chrome on a Mac and every
+   phone draw a native menu in the system font, and the closed control always
+   showed the name in the UI font. So the <select> stays (hidden) as the
+   source of truth, value and change event unchanged for every caller, and a
+   button plus list stand in front of it: the button in the current face, each
+   name in its own face, faces loaded as their rows scroll into view, a search
+   field on top, keyboard to move and Enter to pick. */
+function fontPicker(sel){
+  if (!sel || sel.dataset.fpBuilt) return;
+  sel.dataset.fpBuilt = '1';
+  const face = f => "'" + String(f).replace(/'/g, '') + "', sans-serif";
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'fp-btn'; btn.setAttribute('aria-haspopup', 'listbox');
+  const sync = () => { const v = sel.value || ''; btn.textContent = v || 'Font'; btn.style.fontFamily = face(v); if (v) ensureFont(v); };
+  /* code sets sel.value directly (a new selection, a template load): mirror it */
+  const desc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+  Object.defineProperty(sel, 'value', { configurable: true,
+    get(){ return desc.get.call(this); }, set(v){ desc.set.call(this, v); sync(); } });
+  sel.style.display = 'none';
+  sel.parentNode.insertBefore(btn, sel.nextSibling);
+  let pop = null, io = null, rows = [], at = -1;
+  const close = () => { if (!pop) return; if (io) io.disconnect(); pop.remove(); pop = null; rows = []; at = -1;
+    document.removeEventListener('pointerdown', outside, true); btn.setAttribute('aria-expanded', 'false'); };
+  const outside = e => { if (pop && !pop.contains(e.target) && e.target !== btn) close(); };
+  const pick = f => { desc.set.call(sel, f); sync(); sel.dispatchEvent(new Event('change', { bubbles: true })); close(); btn.focus(); };
+  const mark = i => { rows.forEach(r => r.classList.remove('on')); const vis = rows.filter(r => !r.hidden);
+    if (!vis.length) return; at = Math.max(0, Math.min(vis.length - 1, i)); vis[at].classList.add('on'); vis[at].scrollIntoView({ block: 'nearest' }); };
+  const open = () => {
+    pop = document.createElement('div'); pop.className = 'fp-pop'; pop.setAttribute('role', 'listbox');
+    const q = document.createElement('input'); q.className = 'fp-search'; q.type = 'search'; q.placeholder = 'Search fonts';
+    const list = document.createElement('div'); list.className = 'fp-list';
+    pop.append(q, list);
+    io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting){ ensureFont(e.target.dataset.font); io.unobserve(e.target); } }), { root: list, rootMargin: '120px' }) : null;
+    [...sel.children].forEach(g => {
+      const opts = g.tagName === 'OPTGROUP' ? [...g.children] : [g];
+      if (g.tagName === 'OPTGROUP'){ const h = document.createElement('div'); h.className = 'fp-group'; h.textContent = g.label; list.appendChild(h); }
+      opts.forEach(o => {
+        const f = o.value || o.textContent, r = document.createElement('div');
+        r.className = 'fp-item' + (f === sel.value ? ' sel' : ''); r.setAttribute('role', 'option');
+        r.dataset.font = f; r.textContent = f; r.style.fontFamily = face(f);
+        r.onclick = () => pick(f);
+        list.appendChild(r); rows.push(r);
+        if (io) io.observe(r); else ensureFont(f);
+      });
+    });
+    q.oninput = () => { const s = q.value.trim().toLowerCase();
+      rows.forEach(r => { r.hidden = !!s && !r.dataset.font.toLowerCase().includes(s); });
+      list.querySelectorAll('.fp-group').forEach(h => { let n = h.nextElementSibling, any = false;
+        while (n && !n.classList.contains('fp-group')){ if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; });
+      mark(0); };
+    q.onkeydown = e => {
+      if (e.key === 'ArrowDown'){ e.preventDefault(); mark(at + 1); }
+      else if (e.key === 'ArrowUp'){ e.preventDefault(); mark(at - 1); }
+      else if (e.key === 'Enter'){ e.preventDefault(); const vis = rows.filter(r => !r.hidden); if (vis[at]) pick(vis[at].dataset.font); }
+      else if (e.key === 'Escape'){ e.preventDefault(); close(); btn.focus(); }
+    };
+    document.body.appendChild(pop);
+    const b = btn.getBoundingClientRect(), W = Math.max(240, b.width);
+    const below = window.innerHeight - b.bottom, H = Math.min(380, Math.max(200, below - 16));
+    pop.style.width = W + 'px';
+    pop.style.left = Math.max(8, Math.min(window.innerWidth - W - 8, b.left)) + 'px';
+    if (below >= 220) pop.style.top = (b.bottom + 6) + 'px';
+    else pop.style.bottom = (window.innerHeight - b.top + 6) + 'px';
+    list.style.maxHeight = H + 'px';
+    document.addEventListener('pointerdown', outside, true);
+    btn.setAttribute('aria-expanded', 'true');
+    const cur = rows.find(r => r.dataset.font === sel.value);
+    if (cur){ cur.scrollIntoView({ block: 'center' }); at = rows.indexOf(cur); }
+    q.focus({ preventScroll: true });
+  };
+  btn.onclick = () => (pop ? close() : open());
+  sync();
+}
+{
+  const _buildFontOptions = buildFontOptions;
+  buildFontOptions = function(sel){ const r = _buildFontOptions.apply(this, arguments); fontPicker(sel); return r; };
+  /* any picker already built before this ran */
+  const upgrade = () => document.querySelectorAll('select[data-fonts-built]').forEach(fontPicker);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', upgrade); else upgrade();
+}
+
+/* ═══════════════ MOTION, PART 2: THE SHIFT TO THE CALL TO ACTION ═══════════════
+   Owner, 2026-09-27, on the video: "a good theme for ads to then shift to a
+   CTA .. starts a fully made graphic image ad". Evidence for the arc is in
+   docs/VIDEO-AD-RESEARCH.md (the ad is judged in the first half second; the
+   close is the number, held long enough to act on).
+
+   0 to MOTION.cta.at is the living still above, untouched: the finished ad,
+   the photograph breathing, the three beats. Then the ad hands over to its
+   own call to action, and nothing in it is invented:
+
+   - the rest of the copy leaves the photograph. The photograph stays in its
+     own colour, with the card's own scrim, vignette and grain (rules 56, 62):
+     no blur, no tint, no new veil unless a line on the photograph needs one;
+   - the card's own CTA plate (the plate, the CTA line and the number on it)
+     glides to the centre and grows to fill the guides. fabric re-renders it at
+     the new size, so it is crisp, and its faces, colours and contrast are the
+     ones the critic already passed (rules 53, 54);
+   - the product settles in above the plate, never under the number (rule 53);
+   - one beat of scale on the plate, the way the living still does its beats.
+
+   Everything lands inside the guides (rule 57), and on 9:16 inside the box no
+   platform UI covers (research §7.3). A card whose call to action cannot be
+   built to that standard keeps the living still for the whole clip: the
+   measured reasons are logged, and nothing half-made ships.
+
+   Appended, not spliced (rule 42): the functions above are wrapped, never
+   edited, so everything before the shift is the living still byte for byte. */
+MOTION.dur = 10;
+MOTION.cta = { at: 5.8, fade: 0.5, move: 0.65, stagger: 0.06, prod: [5.85, 6.5], stamp: [6.75, 7.35], amp: 0.05 };
+
+const _ctaSeg = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+const _ctaEase = p => p <= 0 ? 0 : p >= 1 ? 1 : (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+/* rule 57's ground: anything covering at least 85% of both dimensions */
+function ctaIsGround(o, W, H){
+  if (o.pgBgRect || o.pgScrim) return true;
+  const r = o.getBoundingRect(true, true);
+  return r.width >= 0.85 * W && r.height >= 0.85 * H;
+}
+/* 6% guides; on 9:16 also the box Reels, Stories and TikTok leave clear
+   (top 14%, bottom 35%, left 6%, right 140px of 1080) */
+function ctaSafeBox(W, H){
+  const g = 0.06 * Math.min(W, H);
+  if (H / W >= 1.7) return { x0: Math.max(g, W * 65 / 1080), x1: Math.min(W - g, W * 940 / 1080), y0: Math.max(g, H * 269 / 1920), y1: Math.min(H - g, H * 1248 / 1920) };
+  return { x0: g, x1: W - g, y0: g, y1: H - g };
+}
+/* The CTA block: the number's plate and everything that lives on it (the CTA
+   line, a cursor mark), by the same "inside the plate" test motionPlate uses.
+   A number with no plate takes the CTA line directly above or below it. */
+function ctaBlock(sc, rig, W, H){
+  const u = rig.units.phone;
+  if (!u) return null;
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const own = u.members.map(m => m.o);
+  const phone = own.find(o => motionIsText(o) && !o.pgKin);
+  if (!phone) return null;
+  const plate = own.find(o => o !== phone && o.type === 'rect') || null;
+  const area = b => b.w * b.h;
+  const inside = (o, b) => {
+    const r = motionBox(o);
+    const ix = Math.max(0, Math.min(r.x + r.w, b.x + b.w) - Math.max(r.x, b.x));
+    const iy = Math.max(0, Math.min(r.y + r.h, b.y + b.h) - Math.max(r.y, b.y));
+    return area(r) > 0 && ix * iy >= 0.75 * area(r);
+  };
+  let members;
+  if (plate){
+    const pb = motionBox(plate);
+    members = objs.filter(o => live(o) && !ctaIsGround(o, W, H) && (o === plate || (inside(o, pb) && area(motionBox(o)) < area(pb))));
+  } else {
+    members = [phone];
+    const pb = motionBox(phone);
+    const cta = objs.find(o => live(o) && o.pgRole === 'cta' && motionIsText(o));
+    if (cta){
+      const cb = motionBox(cta);
+      const gap = Math.max(cb.y - (pb.y + pb.h), pb.y - (cb.y + cb.h));
+      const ov = Math.min(cb.x + cb.w, pb.x + pb.w) - Math.max(cb.x, pb.x);
+      if (gap < 0.8 * pb.h && ov > 0.5 * Math.min(cb.w, pb.w)) members.push(cta);
+    }
+    members.sort((a, b) => objs.indexOf(a) - objs.indexOf(b));
+  }
+  const bx = members.map(motionBox);
+  const x0 = Math.min(...bx.map(b => b.x)), y0 = Math.min(...bx.map(b => b.y));
+  const x1 = Math.max(...bx.map(b => b.x + b.w)), y1 = Math.max(...bx.map(b => b.y + b.h));
+  return { members, plate, phone, box: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 } };
+}
+/* Where the call to action lands, in document units: the plate as wide as the
+   guides allow, its number capped where it stops reading as a number, the
+   product above it in what height is left. */
+/* Render a set of the scene's own objects, moved as one (scaled by s about
+   `from`, then carried to `to`, both in document units), alone, into a
+   bitmap cropped to them plus their shadows. Every property touched is
+   restored exactly. */
+function ctaRender(sc, set, s, from, to, z, outW, outH){
+  if (!set.size){ const e = document.createElement('canvas'); e.width = e.height = 1; return { bmp: e, x: 0, y: 0 }; }
+  const objs = sc.getObjects();
+  const keep = objs.map(o => ({ o, v: o.visible, left: o.left, top: o.top, sx: o.scaleX, sy: o.scaleY }));
+  const bgi = sc.backgroundImage, bgc = sc.backgroundColor;
+  try {
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    set.forEach(o => {
+      const c = o.getCenterPoint();
+      o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+      o.setPositionByOrigin(new fabric.Point(to.x + (c.x - from.x) * s, to.y + (c.y - from.y) * s), 'center', 'center');
+      o.setCoords();
+    });
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    keep.forEach(k => {
+      k.o.visible = k.v !== false && set.has(k.o);
+      if (!k.o.visible) return;
+      const r = k.o.getBoundingRect(false, true), sh = k.o.shadow || {}, os = sh.nonScaling ? 1 : Math.max(Math.abs(k.o.scaleX || 1), Math.abs(k.o.scaleY || 1));
+      const reach = motionIsText(k.o) ? 0.34 * (k.o.fontSize || 0) * Math.abs(k.o.scaleY || 1) * z : 0;   // letters past their box, as motionBake crops them
+      const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z + reach) + 6;
+      x0 = Math.min(x0, r.left - pad); y0 = Math.min(y0, r.top - pad);
+      x1 = Math.max(x1, r.left + r.width + pad); y1 = Math.max(y1, r.top + r.height + pad);
+    });
+    x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0));
+    x1 = Math.min(outW, Math.ceil(x1)); y1 = Math.min(outH, Math.ceil(y1));
+    sc.renderAll();
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, x1 - x0); c.height = Math.max(1, y1 - y0);
+    if (x1 > x0 && y1 > y0) c.getContext('2d').drawImage(sc.lowerCanvasEl, x0, y0, c.width, c.height, 0, 0, c.width, c.height);
+    return { bmp: c, x: Math.min(x0, outW), y: Math.min(y0, outH) };
+  } finally {
+    sc.backgroundImage = bgi; sc.backgroundColor = bgc;
+    keep.forEach(k => { k.o.visible = k.v; k.o.set({ left: k.left, top: k.top, scaleX: k.sx, scaleY: k.sy }); k.o.setCoords(); });
+  }
+}
+/* The ground the call to action stands on: the card's own full-cover layers
+   (scrim, vignette, grain, frame), in order, blends kept, so the photograph
+   reads exactly as it did under the ad. */
+function ctaGroundLayers(sc, W, H, outW, outH){
+  const objs = sc.getObjects(), vis = objs.map(o => o.visible);
+  const bgi = sc.backgroundImage, bgc = sc.backgroundColor;
+  const layers = [];
+  const snap = () => { sc.renderAll(); const c = document.createElement('canvas'); c.width = outW; c.height = outH; c.getContext('2d').drawImage(sc.lowerCanvasEl, 0, 0); return c; };
+  try {
+    sc.backgroundImage = null; sc.backgroundColor = '';
+    let run = [];
+    const only = set => objs.forEach((o, i) => { o.visible = vis[i] !== false && set.has(o); });
+    const flush = () => { if (run.length){ only(new Set(run)); layers.push({ bmp: snap(), blend: null, alpha: 1 }); run = []; } };
+    objs.forEach((o, i) => {
+      if (vis[i] === false || !ctaIsGround(o, W, H)) return;
+      const blend = o.globalCompositeOperation && o.globalCompositeOperation !== 'source-over' ? o.globalCompositeOperation : null;
+      if (!blend){ run.push(o); return; }
+      flush();
+      const op = o.globalCompositeOperation, al = o.opacity;
+      o.globalCompositeOperation = 'source-over'; o.opacity = 1;
+      only(new Set([o]));
+      layers.push({ bmp: snap(), blend, alpha: al });
+      o.globalCompositeOperation = op; o.opacity = al;
+    });
+    flush();
+  } finally {
+    sc.backgroundImage = bgi; sc.backgroundColor = bgc;
+    objs.forEach((o, i) => { o.visible = vis[i]; });
+  }
+  return layers;
+}
+function ctaInkOf(o){
+  const f = o && o.fill;
+  if (typeof f === 'string') return f;
+  if (f && f.colorStops && f.colorStops.length){
+    // a gradient's worst case for a dark shade is its lightest stop's opposite: judge by the darkest stop
+    return f.colorStops.map(s => s.color).sort((a, b) => _ctaLum(..._ctaRgb(a)) - _ctaLum(..._ctaRgb(b)))[0];
+  }
+  return '#ffffff';
+}
+const _ctaLin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+const _ctaLum = (r, g, b) => 0.2126 * _ctaLin(r) + 0.7152 * _ctaLin(g) + 0.0722 * _ctaLin(b);
+const _ctaRatio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+function _ctaRgb(c){
+  const m = String(c).match(/#([0-9a-f]{6})\b|#([0-9a-f]{3})\b|rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i);
+  if (!m) return [255, 255, 255];
+  if (m[1]){ const n = parseInt(m[1], 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  if (m[2]) return m[2].split('').map(h => parseInt(h + h, 16));
+  return [+m[3], +m[4], +m[5]];
+}
+/* The parts of the card that make up its call to action, each moved as one
+   so its own internal arrangement survives: the product, the headline lines,
+   the CTA line when it is not on the plate, and the block. */
+function ctaUnits(sc, rig, W, H){
+  const block = ctaBlock(sc, rig, W, H);
+  if (!block) return null;
+  const objs = sc.getObjects();
+  const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
+  const inBlock = new Set(block.members);
+  const unit = (key, members, extra) => {
+    members = members.concat(objs.filter(q => q.pgKin && members.indexOf(q.pgKin) >= 0 && members.indexOf(q) < 0 && live(q)))
+      .sort((a, q) => objs.indexOf(a) - objs.indexOf(q));
+    const bx = members.map(motionBox);
+    const x0 = Math.min(...bx.map(q => q.x)), y0 = Math.min(...bx.map(q => q.y));
+    const x1 = Math.max(...bx.map(q => q.x + q.w)), y1 = Math.max(...bx.map(q => q.y + q.h));
+    return Object.assign({ key, members, box: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }, c: { x: (x0 + x1) / 2, y: (y0 + y1) / 2 } }, extra || {});
+  };
+  const heads = objs.filter(o => live(o) && motionIsText(o) && o.pgRole === 'headline' && !inBlock.has(o));
+  const cta = objs.find(o => live(o) && motionIsText(o) && o.pgRole === 'cta' && !inBlock.has(o)) || null;
+  const prod = (rig.cut || []).map(q => q.o).sort((a, q) => motionBox(q).w * motionBox(q).h - motionBox(a).w * motionBox(a).h)[0] || null;
+  /* a line travels with its own plate: CALL FOR INSTANT OFFER landed as bare
+     small type once its coral badge was left behind in the ad */
+  const withPlates = texts => {
+    const members = texts.slice(), plated = new Set();
+    texts.forEach(o => { const p = motionPlate(objs, o, W, H);
+      if (p && live(p) && !inBlock.has(p)){ plated.add(o); if (members.indexOf(p) < 0) members.push(p); } });
+    members.sort((a, q) => objs.indexOf(a) - objs.indexOf(q));
+    return { members, plated };
+  };
+  const hp = withPlates(heads), cp = cta ? withPlates([cta]) : null;
+  return {
+    block: unit('block', block.members, { plate: block.plate, phone: block.phone }),
+    head: heads.length ? unit('head', hp.members, { plated: hp.plated }) : null,
+    cta: cta ? unit('cta', cp.members, { plated: cp.plated }) : null,
+    prod: prod ? unit('prod', [prod]) : null,
+  };
+}
+/* Stack the chosen parts inside the guides. The text parts share ONE scale,
+   so the hierarchy the critic approved (headline over number, rule 53)
+   survives; the number is capped where it stops reading as a number; the
+   product takes what height is left. null when the card's own type would
+   have to shrink below 80% to fit. */
+function ctaLayout(W, H, U, use){
+  const B = ctaSafeBox(W, H), bw = B.x1 - B.x0, bh = B.y1 - B.y0, S = Math.min(W, H), gap = 0.045 * S;
+  const text = [use.head && U.head, use.cta && U.cta, U.block].filter(Boolean);
+  const widest = Math.max(...text.map(u => u.box.w)), textH = text.reduce((h, u) => h + u.box.h, 0);
+  const gaps = (text.length - 1) * gap;
+  const wantProd = !!(use.prod && U.prod), prodMin = wantProd ? 0.18 * bh : 0;
+  let s = Math.min(0.92 * bw / widest, 0.17 * S / motionBox(U.block.phone).h);
+  s = Math.min(s, (bh - gaps - (wantProd ? prodMin + gap : 0)) / textH);
+  if (s < 0.8) return null;
+  /* The number keeps 72px (rule 53) even when a wide headline brings the
+     shared scale down: its block takes its own scale, as long as it still
+     fits the width and the headline still outranks it. One shared scale sent
+     stepsFlow-cd10-20 to the number alone. */
+  const phone = U.block.phone, numPx = (phone.fontSize || 0) * (phone.scaleY || 1);
+  let sB = s;
+  if (numPx * s < 72 * S / 1080 && numPx > 0){
+    sB = Math.min(72.5 * S / 1080 / numPx, 0.92 * bw / U.block.box.w, 0.17 * S / motionBox(phone).h);
+    const heads = use.head && U.head ? U.head.members.filter(motionIsText) : [];
+    const headPx = Math.max(0, ...heads.map(o => (o.fontSize || 0) * (o.scaleY || 1)));
+    if (heads.length && headPx * s < numPx * sB) sB = s;           // the headline stays the biggest thing
+  }
+  const sOf = u => (u === U.block ? sB : s);
+  const textHs = text.reduce((h, u) => h + u.box.h * sOf(u), 0);
+  if (textHs + gaps + (wantProd ? prodMin + gap : 0) > bh) return null;
+  let prod = null;
+  if (wantProd){
+    const pb = U.prod.box, room = Math.min(bh - textHs - gaps - gap, 0.46 * bh);
+    const k = Math.min(0.62 * bw / pb.w, room / pb.h);
+    if (!(k > 0 && pb.h * k >= prodMin)) return null;
+    prod = { u: U.prod, k, w: pb.w * k, h: pb.h * k };
+  }
+  const total = textHs + gaps + (prod ? prod.h + gap : 0);
+  const cx = (B.x0 + B.x1) / 2;
+  let y = B.y0 + (bh - total) / 2;
+  if (prod){ prod.to = { x: cx, y: y + prod.h / 2 }; y += prod.h + gap; }
+  const place = text.map(u => { const su = sOf(u), to = { x: cx, y: y + u.box.h * su / 2 }; y += u.box.h * su + gap; return { u, s: su, to }; });
+  return { box: B, s, place, prod };
+}
+function ctaTextBox(o, u, s, to){
+  const r = motionBox(o);
+  return { x: to.x + (r.x - u.c.x) * s, y: to.y + (r.y - u.c.y) * s, w: r.w * s, h: r.h * s };
+}
+
+function ctaBake(sc, b, docW, docH, outW, outH){
+  const z = b.z, U = ctaUnits(sc, b.rig, docW, docH);
+  if (!U) return { off: 'no phone number layer' };
+  const ground = ctaGroundLayers(sc, docW, docH, outW, outH);
+  const at = {};   // each part exactly where it stood in the ad, to lift it out of the ad frame
+  ['block', 'head', 'cta', 'prod'].forEach(k => { if (U[k]) at[k] = ctaRender(sc, new Set(U[k].members), 1, U[k].c, U[k].c, z, outW, outH); });
+  /* leaner stacks, the words before the picture: what the shop buys and what
+     to do about it are the message, a picture of it without them is not */
+  const tries = [{ prod: 1, head: 1, cta: 1 }, { head: 1, cta: 1 }, { prod: 1, head: 1 }, { head: 1 }, { prod: 1 }, {}]
+    .filter((v, i, a) => (!v.prod || U.prod) && (!v.head || U.head) && (!v.cta || U.cta) && a.findIndex(w => JSON.stringify(w) === JSON.stringify(v)) === i);
+  const why = [];
+  for (const use of tries){
+    const L = ctaLayout(docW, docH, U, use);
+    if (!L){ why.push(JSON.stringify(use) + ': does not fit'); continue; }
+    const c = { L, z, docW, docH, ground, at, U, shade: 0, parts: [], texts: [] };
+    L.place.forEach((pl, i) => {
+      const set = new Set(pl.u.members);
+      const part = { key: pl.u.key, from: { x: pl.u.c.x * z, y: pl.u.c.y * z }, to: { x: pl.to.x * z, y: pl.to.y * z }, s: pl.s,
+        bmp: ctaRender(sc, set, pl.s, pl.u.c, pl.to, z, outW, outH), delay: i * MOTION.cta.stagger, set, u: pl.u, pto: pl.to };
+      if (pl.u.key === 'block') part.bare = ctaRender(sc, new Set(pl.u.members.filter(o => !motionIsText(o))), pl.s, pl.u.c, pl.to, z, outW, outH);
+      c.parts.push(part);
+      pl.u.members.filter(o => motionIsText(o) && !o.pgKin).forEach(o => {
+        const r = ctaTextBox(o, pl.u, pl.s, pl.to);
+        c.texts.push({ o, role: o === U.block.phone ? 'number' : (o.pgRole || 'text'),
+          onPlate: (pl.u.key === 'block' && !!U.block.plate) || !!(pl.u.plated && pl.u.plated.has(o)),
+          size: (o.fontSize || 0) * (o.scaleY || 1) * pl.s, box: { x: r.x * z, y: r.y * z, w: r.w * z, h: r.h * z } });
+      });
+    });
+    if (L.prod){
+      const pu = L.prod.u;
+      c.prod = { from: { x: pu.c.x * z, y: pu.c.y * z }, to: { x: L.prod.to.x * z, y: L.prod.to.y * z }, s: L.prod.k,
+        bmp: ctaRender(sc, new Set(pu.members), L.prod.k, pu.c, L.prod.to, z, outW, outH),
+        box: { x: (L.prod.to.x - L.prod.w / 2) * z, y: (L.prod.to.y - L.prod.h / 2) * z, w: L.prod.w * z, h: L.prod.h * z } };
+    }
+    b.cta = c;
+    ctaTurnInk(sc, b, c);
+    const sh = ctaSolveShade(b);
+    if (sh == null){ why.push(JSON.stringify(use) + ': a line on the photograph cannot reach 4.5:1 with a dark shade'); continue; }
+    c.shade = sh;
+    ctaRecut(sc, b, c, outW, outH);
+    const bad = ctaAudit(b);
+    if (!bad.length){ c.passed = why.slice(); return c; }   // why the fuller stacks were not used
+    why.push(JSON.stringify(use) + ': ' + bad.join(', '));
+  }
+  b.cta = null;
+  return { off: why.join(' | ') };
+}
+/* Rule 62 for a line that lands on the shaded photograph in ink darker than
+   its own ground, or too dim for any dark shade to carry to 4.5:1 (under
+   0.3 luminance): neutral dark copy takes near-white ink and loses its
+   outline (the shade now separates it); coloured dark copy keeps its hue and
+   turns its lightness over (deep green to pale mint); its halo goes too,
+   since a light halo round now-light type is a haze. A line carried by a
+   light outline of real weight keeps its ink. The part is re-rendered
+   in the turned ink; its first render is kept as bmp0 so the ink crossfades
+   during the move rather than switching. A gradient fill is left as it is. */
+function ctaTurnInk(sc, b, c){
+  const W = b.W, H = b.H, lines = c.texts.filter(t => !t.onPlate);
+  if (!lines.length) return;
+  const g = document.createElement('canvas'); g.width = W; g.height = H;
+  const gx = g.getContext('2d', { willReadFrequently: true });
+  ctaDrawGround(gx, b, MOTION.dur - 2.4, 0);
+  const d = gx.getImageData(0, 0, W, H).data;
+  const turned = new Map();
+  lines.forEach(t => {
+    /* a gradient is judged by its darkest stop (ctaInkOf): a look can set a
+       line deep to read on a light plate (Street's number on a pale band), and
+       carried onto the photograph under a dark shade it must turn light, as a
+       flat ink does; a pattern keeps its own */
+    const grad = t.o.fill && typeof t.o.fill === 'object' && Array.isArray(t.o.fill.colorStops) && t.o.fill.colorStops.length;
+    if (typeof t.o.fill !== 'string' && !grad) return;
+    /* a light outline of real weight is what carries the line (the red CASH
+       with its white 16px outline): it is judged by that edge and keeps its
+       fill, which may be the money word's accent (rule 51) */
+    const fs = (t.o.fontSize || 30) * (t.o.scaleY || 1);
+    if (typeof t.o.stroke === 'string' && (t.o.strokeWidth || 0) * (t.o.scaleY || 1) >= 0.05 * fs && _ctaLum(..._ctaRgb(t.o.stroke)) >= 0.5){
+      t.ink = t.o.stroke; return;
+    }
+    const L = [];
+    for (let y = Math.max(0, t.box.y); y < Math.min(H, t.box.y + t.box.h); y += 3)
+      for (let x = Math.max(0, t.box.x); x < Math.min(W, t.box.x + t.box.w); x += 3){
+        const i = (Math.floor(y) * W + Math.floor(x)) * 4; L.push(_ctaLum(d[i], d[i + 1], d[i + 2]));
+      }
+    if (!L.length) return;
+    L.sort((p, q) => p - q);
+    const [r, gg, bb] = _ctaRgb(ctaInkOf(t.o));
+    /* already light ink on this ground, and light enough that a dark shade can
+       carry it to 4.5:1 (a mid-tone like #d14200, at 0.175, reaches 4.5:1
+       only on pure black) */
+    const lum = _ctaLum(r, gg, bb);
+    if (lum >= L[L.length >> 1] && lum >= 0.3) return;
+    const mx = Math.max(r, gg, bb) / 255, mn = Math.min(r, gg, bb) / 255, l = (mx + mn) / 2;
+    const sat = mx === mn ? 0 : (mx - mn) / (1 - Math.abs(2 * l - 1));
+    let ink = '#f4f4f1';
+    if (sat >= 0.18){
+      let h = 0;
+      if (mx !== mn){
+        const R = r / 255, G = gg / 255, B = bb / 255, dd = mx - mn;
+        h = mx === R ? ((G - B) / dd) % 6 : mx === G ? (B - R) / dd + 2 : (R - G) / dd + 4;
+        h = (h * 60 + 360) % 360;
+      }
+      ink = 'hsl(' + Math.round(h) + ',' + Math.round(Math.min(1, sat) * 100) + '%,' + Math.round(Math.max(0.8, 1 - l) * 100) + '%)';
+    }
+    turned.set(t.o, ink); t.ink = ink;
+  });
+  c.turned = turned;
+}
+/* After the shade is solved: rule 27, a halo takes its tone from the ground.
+   The call to action lands its parts on the photograph shaded dark, so a
+   light glow the card keyed to its lighter ground (WE BUY GOLD JEWELRY, the
+   green number plate) reads as a haze there; it is re-cut dark, same blur
+   and offset. Then every part with a turned ink or a re-cut halo is
+   rendered again, its first render kept as bmp0 for the crossfade. */
+function ctaRecut(sc, b, c, outW, outH){
+  const W = b.W, H = b.H, turned = c.turned || new Map();
+  const g = document.createElement('canvas'); g.width = W; g.height = H;
+  const gx = g.getContext('2d', { willReadFrequently: true });
+  ctaDrawGround(gx, b, MOTION.dur - 2.4, c.shade);
+  const d = gx.getImageData(0, 0, W, H).data;
+  const groundLum = r => {
+    const L = [];
+    for (let y = Math.max(0, r.y); y < Math.min(H, r.y + r.h); y += 4)
+      for (let x = Math.max(0, r.x); x < Math.min(W, r.x + r.w); x += 4){
+        const i = (Math.floor(y) * W + Math.floor(x)) * 4; L.push(_ctaLum(d[i], d[i + 1], d[i + 2]));
+      }
+    L.sort((p, q) => p - q);
+    return L.length ? L[L.length >> 1] : 1;
+  };
+  c.parts.forEach(p => {
+    const set = p.set, halos = new Map();
+    const dark = groundLum({ x: p.bmp.x, y: p.bmp.y, w: p.bmp.bmp.width, h: p.bmp.bmp.height }) < 0.3;
+    if (dark) set.forEach(o => {
+      const sh = o.shadow;
+      if (sh && typeof sh.color === 'string' && (sh.blur || 0) > 0 && _ctaLum(..._ctaRgb(sh.color)) >= 0.5)
+        halos.set(o, new fabric.Shadow({ color: 'rgba(0,0,0,0.55)', blur: sh.blur, offsetX: sh.offsetX || 0, offsetY: sh.offsetY || 0, nonScaling: !!sh.nonScaling }));
+    });
+    if (!halos.size && ![...turned.keys()].some(o => set.has(o))) return;
+    const keep = [...set].map(o => ({ o, fill: o.fill, stroke: o.stroke, sw: o.strokeWidth, shadow: o.shadow, left: o.left, top: o.top }));
+    try {
+      halos.forEach((sh, o) => o.set({ shadow: sh }));
+      /* the outline and the halo were tuned to the dark ink; the shade separates
+         it now. Taken off about the line's centre, as a look puts it on
+         (keepGlyphs), or the letters slip half a stroke in the last frames */
+      turned.forEach((ink, o) => { if (!set.has(o)) return; const c0 = o.getCenterPoint();
+        o.set({ fill: ink, stroke: null, strokeWidth: 0, shadow: null }); o.setPositionByOrigin(c0, 'center', 'center'); });
+      p.bmp0 = p.bmp;
+      p.bmp = ctaRender(sc, set, p.s, p.u.c, p.pto, c.z, outW, outH);
+    } finally {
+      keep.forEach(k => { k.o.set({ fill: k.fill, stroke: k.stroke, strokeWidth: k.sw, shadow: k.shadow, left: k.left, top: k.top }); k.o.setCoords(); });
+    }
+  });
+}
+/* Rules 56 and 62 for the lines that land on the photograph (not on a
+   plate): the lightest NEUTRAL DARK shade that brings every light line's worst
+   end of ground (90th percentile) to 4.5:1, while every dark line still clears
+   4.5:1 at its own worst end (10th). A line is light ink when it is lighter
+   than its own ground (rule 56), not by a fixed grey. Dark type is never
+   rescued with a pale veil: a photograph is shaded dark, never milky. The
+   shade is graded to the band the copy occupies (c.band), so the photograph
+   comes through above and below it (rule 62); every line's sample sits inside
+   the band, where the shade is at full strength. null when no shade serves
+   both. */
+function ctaSolveShade(b){
+  const c = b.cta, W = b.W, H = b.H;
+  const lines = c.texts.filter(t => !t.onPlate);
+  if (!lines.length) return 0;
+  const g = document.createElement('canvas'); g.width = W; g.height = H;
+  const gx = g.getContext('2d', { willReadFrequently: true });
+  ctaDrawGround(gx, b, MOTION.dur - 2.4, 0);
+  const d = gx.getImageData(0, 0, W, H).data, pad = 0.03 * Math.min(W, H);
+  c.band = { y0: Math.min(...lines.map(t => t.box.y)) - pad, y1: Math.max(...lines.map(t => t.box.y + t.box.h)) + pad, f: 0.14 * H };
+  const sets = lines.map(t => {
+    const ink = _ctaLum(..._ctaRgb(t.ink || ctaInkOf(t.o))), px = [];
+    for (let y = Math.max(0, t.box.y - pad); y < Math.min(H, t.box.y + t.box.h + pad); y += 3)
+      for (let x = Math.max(0, t.box.x - pad); x < Math.min(W, t.box.x + t.box.w + pad); x += 3){
+        const i = (Math.floor(y) * W + Math.floor(x)) * 4; px.push([d[i], d[i + 1], d[i + 2]]);
+      }
+    const L0 = px.map(([r, gg, bb]) => _ctaLum(r, gg, bb)).sort((p, q) => p - q);
+    return { ink, light: !L0.length || ink > L0[L0.length >> 1], px };
+  });
+  for (let a = 0; a <= 0.8 + 1e-9; a += 0.02){
+    const ok = sets.every(s => {
+      if (!s.px.length) return true;
+      const L = s.px.map(([r, gg, bb]) => _ctaLum(r * (1 - a), gg * (1 - a), bb * (1 - a))).sort((p, q) => p - q);
+      const worst = s.light ? L[Math.floor(L.length * 0.9)] : L[Math.floor(L.length * 0.1)];
+      return _ctaRatio(s.ink, worst) >= 4.5;
+    });
+    if (ok) return +a.toFixed(2);
+    if (sets.some(s => !s.light)) break;   // darkening only hurts a dark line: no shade will serve it
+  }
+  return null;
+}
+
+/* The photograph as motionDraw paints it at t, then the card's ground, then
+   the call-to-action shade at strength a. */
+function ctaDrawGround(x, b, t, a){
+  const W = b.W, H = b.H, c = b.cta;
+  const th = 2 * Math.PI * (((t % MOTION.dur) + MOTION.dur) % MOTION.dur) / MOTION.dur;
+  const push = MOTION.breathe * (0.5 - 0.5 * Math.cos(th));
+  x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  x.fillStyle = b.base; x.fillRect(0, 0, W, H);
+  if (b.bg){
+    if (push < 1e-4) x.drawImage(b.bg, 0, 0, W, H);
+    else {
+      const k = 1 + push, dx = push * W * 0.35 * Math.sin(th), dy = -push * H * 0.25;
+      x.drawImage(b.bgHi, (W - W * k) / 2 + dx, (H - H * k) / 2 + dy, W * k, H * k);
+    }
+  }
+  c.ground.forEach(g => {
+    if (g.blend){ x.globalCompositeOperation = g.blend; x.globalAlpha = g.alpha; }
+    x.drawImage(g.bmp, 0, 0);
+    x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  });
+  if (a > 0){
+    const B = c.band;
+    if (!B){ x.fillStyle = 'rgba(10,10,12,' + a + ')'; x.fillRect(0, 0, W, H); return th; }
+    // full strength over the copy band, easing to nothing a feather away
+    const al = y => { const o = y < B.y0 ? (B.y0 - y) / B.f : y > B.y1 ? (y - B.y1) / B.f : 0, u = Math.max(0, 1 - o); return a * u * u * (3 - 2 * u); };
+    const ys = [0, H];
+    for (let i = 0; i <= 6; i++){ ys.push(B.y0 - B.f * i / 6, B.y1 + B.f * i / 6); }
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    [...new Set(ys.map(y => Math.min(H, Math.max(0, y))))].sort((p, q) => p - q)
+      .forEach(y => gr.addColorStop(y / H, 'rgba(10,10,12,' + al(y).toFixed(4) + ')'));
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  }
+  return th;
+}
+function ctaMorph(x, bmp, from, to, s, e, dy){
+  const k = (1 / s) + (1 - 1 / s) * e;
+  const cx = from.x + (to.x - from.x) * e, cy = from.y + (to.y - from.y) * e;
+  x.save();
+  x.translate(cx, cy + (dy || 0)); x.scale(k, k); x.translate(-to.x, -to.y);
+  x.drawImage(bmp.bmp, bmp.x, bmp.y);
+  x.restore();
+}
+/* The shift. The ad frame is drawn whole by motionDraw, with every part that
+   travels lifted out of it by its own silhouette, and fades over the ground;
+   the parts then travel from where they stood to where they land, so nothing
+   is drawn twice and nothing jumps. Parts the call to action does not use
+   simply fade with the ad. */
+function ctaDraw(x, b, t){
+  const c = b.cta, C = MOTION.cta, W = b.W, H = b.H;
+  const m = _ctaEase(_ctaSeg(t, C.at, C.at + C.fade));
+  const th = ctaDrawGround(x, b, t, c.shade * m);
+  const float = -H * 0.008 * Math.sin(th);
+  if (m < 1){
+    if (!b._ad){ b._ad = document.createElement('canvas'); b._ad.width = W; b._ad.height = H; }
+    const ax = b._ad.getContext('2d');
+    _ctaDrawStill(ax, b, t);
+    ax.save(); ax.globalCompositeOperation = 'destination-out';
+    c.parts.forEach(p => { const a = c.at[p.key]; ax.drawImage(a.bmp, a.x, a.y); });
+    if (c.prod){ const a = c.at.prod; ax.drawImage(a.bmp, a.x, a.y + float); }
+    ax.restore();
+    x.globalAlpha = 1 - m; x.drawImage(b._ad, 0, 0); x.globalAlpha = 1;
+  }
+  if (c.prod) ctaMorph(x, c.prod.bmp, c.prod.from, c.prod.to, c.prod.s, _ctaEase(_ctaSeg(t, C.prod[0], C.prod[1])), float);
+  c.parts.forEach(p => {
+    const e = _ctaEase(_ctaSeg(t, C.at + p.delay, C.at + p.delay + C.move));
+    const st = p.key === 'block' ? 1 + C.amp * _bell(_ctaSeg(t, C.stamp[0], C.stamp[1])) : 1;
+    x.save();
+    if (st !== 1){ x.translate(p.to.x, p.to.y); x.scale(st, st); x.translate(-p.to.x, -p.to.y); }
+    if (p.bmp0 && e < 1){
+      x.globalAlpha = 1 - e; ctaMorph(x, p.bmp0, p.from, p.to, p.s, e, 0);
+      x.globalAlpha = e; ctaMorph(x, p.bmp, p.from, p.to, p.s, e, 0);
+      x.globalAlpha = 1;
+    } else ctaMorph(x, p.bmp, p.from, p.to, p.s, e, 0);
+    x.restore();
+  });
+}
+let _ctaDrawStill = null;
+{
+  const _motionBake = motionBake, _motionDraw = motionDraw;
+  _ctaDrawStill = _motionDraw;
+  motionBake = function(sc, docW, docH, outW, outH){
+    const b = _motionBake.apply(this, arguments);
+    b.cta = null;
+    try {
+      const c = ctaBake(sc, b, docW, docH, outW, outH);
+      if (c.off){ b.cta = null; b.ctaOff = c.off; console.warn('GraphicsStudio motion: no call-to-action card, the living still runs the whole clip. ' + c.off); }
+      else b.cta = c;
+    } catch (e){ b.cta = null; b.ctaOff = String(e && e.message || e); console.warn('GraphicsStudio motion: call-to-action card failed, the living still runs the whole clip.', e); }
+    return b;
+  };
+  motionDraw = function(x, b, t){
+    if (!b.cta || t < MOTION.cta.at) return _motionDraw(x, b, t);
+    return ctaDraw(x, b, t);
+  };
+}
+/* Measure the call to action before it can ship, on its own pixels:
+   - every part inside the guides, and on 9:16 inside the clear box;
+   - no two parts on each other;
+   - the number at least 72px on a 1080 frame (rule 53);
+   - every line at 3:1 or better, judged the way the critic judges it
+     (rule 54): the upper quartile of per-pixel contrast over the pixels the
+     line changes, on the landed frame drawn with and without the lines. */
+function ctaAudit(b){
+  const c = b.cta, bad = [], W = b.W, H = b.H, z = c.z;
+  const B = c.L.box, bx = { x0: B.x0 * z - 1, y0: B.y0 * z - 1, x1: B.x1 * z + 1, y1: B.y1 * z + 1 };
+  const inBox = r => r.x >= bx.x0 && r.y >= bx.y0 && r.x + r.w <= bx.x1 && r.y + r.h <= bx.y1;
+  const hit = (p, q) => Math.min(p.x + p.w, q.x + q.w) - Math.max(p.x, q.x) > 1 && Math.min(p.y + p.h, q.y + q.h) - Math.max(p.y, q.y) > 1;
+  c.texts.forEach(t => { if (!inBox(t.box)) bad.push(t.role + ' outside the guides'); });
+  if (c.prod){
+    if (!inBox(c.prod.box)) bad.push('product outside the guides');
+    if (c.texts.some(t => hit(t.box, c.prod.box))) bad.push('product on the copy');
+  }
+  const own = k => c.texts.filter(t => c.U[k] && c.U[k].members.includes(t.o));
+  c.parts.forEach((p, i) => c.parts.slice(i + 1).forEach(q => {
+    own(p.key).forEach(t1 => own(q.key).forEach(t2 => { if (hit(t1.box, t2.box)) bad.push(p.key + ' on ' + q.key); }));
+  }));
+  const num = c.texts.find(t => t.role === 'number');
+  if (!num || num.size < 72 * Math.min(c.docW, c.docH) / 1080) bad.push('number under 72px');
+  const f1 = document.createElement('canvas'); f1.width = W; f1.height = H;
+  const f0 = document.createElement('canvas'); f0.width = W; f0.height = H;
+  const x1 = f1.getContext('2d', { willReadFrequently: true }), x0 = f0.getContext('2d', { willReadFrequently: true });
+  const t = MOTION.dur - 0.25;
+  ctaDrawGround(x1, b, t, c.shade); ctaDrawGround(x0, b, t, c.shade);
+  if (c.prod){ x1.drawImage(c.prod.bmp.bmp, c.prod.bmp.x, c.prod.bmp.y); x0.drawImage(c.prod.bmp.bmp, c.prod.bmp.x, c.prod.bmp.y); }
+  c.parts.forEach(p => { x1.drawImage(p.bmp.bmp, p.bmp.x, p.bmp.y); if (p.bare) x0.drawImage(p.bare.bmp, p.bare.x, p.bare.y); });
+  const d1 = x1.getImageData(0, 0, W, H).data, d0 = x0.getImageData(0, 0, W, H).data;
+  c.legibility = c.texts.map(tx => {
+    const r = [];
+    for (let y = Math.max(0, Math.floor(tx.box.y)); y < Math.min(H, Math.ceil(tx.box.y + tx.box.h)); y++)
+      for (let x = Math.max(0, Math.floor(tx.box.x)); x < Math.min(W, Math.ceil(tx.box.x + tx.box.w)); x++){
+        const i = (y * W + x) * 4;
+        if (Math.abs(d1[i] - d0[i]) + Math.abs(d1[i + 1] - d0[i + 1]) + Math.abs(d1[i + 2] - d0[i + 2]) < 12) continue;
+        r.push(_ctaRatio(_ctaLum(d1[i], d1[i + 1], d1[i + 2]), _ctaLum(d0[i], d0[i + 1], d0[i + 2])));
+      }
+    r.sort((p, q) => p - q);
+    return { role: tx.role, q75: r.length ? +r[Math.floor(r.length * 0.75)].toFixed(2) : 0, px: r.length };
+  });
+  c.legibility.forEach(l => { if (l.px && l.q75 < 3) bad.push(l.role + ' at ' + l.q75 + ':1'); });
+  return bad;
+}
+/* ═══════════════ MOTION, PART 3: EXACT ENCODING AND THE EXPORT GATE ═══════════════
+   The recorder above captures in real time: a slow frame is a dropped frame,
+   and hiding the tab aborts the export (rule 38). Every frame here is already
+   a pure function of t (motionDraw), so where the browser has WebCodecs the
+   clip is encoded frame by frame with explicit timestamps, through the
+   vendored Mediabunny (vendor/, MPL-2.0): exact timing, faster than real time
+   on most machines, and indifferent to the tab being hidden. H.264 in MP4
+   first (Instagram and TikTok refuse WebM); VP9 in WebM only where the
+   browser cannot encode H.264, and the toast says so. No WebCodecs: the
+   real-time recorder above, unchanged.
+
+   Before a byte is kept, the clip is checked (docs/VIDEO-AD-RESEARCH.md §9):
+   - frame 0 is the still ad, measured against the scene rendered directly;
+   - no flashing, WCAG 2.3.1: more than six opposing luminance changes of
+     0.10 in any one second, over more than 25% of any region a third of the
+     frame wide and tall, refuses the clip. Luminance is averaged in LINEAR
+     light at full resolution: letting drawImage downscale first averaged in
+     gamma space and misread type edges by up to 0.29, three times the
+     threshold. Red flashes are counted the same way on (R-G-B)x320.
+   A refused clip is not downloaded and does not use an export. */
+const MOTION_MB_URL = new URL('vendor/mediabunny-1.60.0.min.mjs', document.baseURI).href;
+let _motionMB = null;
+const motionMB = () => _motionMB || (_motionMB = import(MOTION_MB_URL));
+
+class MotionFlashCheck {
+  constructor(W, H, fps){
+    this.W = W; this.H = H; this.fps = fps;
+    const cell = Math.max(1, Math.round(Math.min(W, H) / 36));
+    this.cell = cell; this.gw = Math.ceil(W / cell); this.gh = Math.ceil(H / cell);
+    const n = this.gw * this.gh;
+    this.col = new Uint16Array(W).map((_, x) => Math.floor(x / cell));
+    const st = () => ({ init: new Uint8Array(n), ext: new Float32Array(n), dir: new Int8Array(n), tr: Array.from({ length: n }, () => []) });
+    this.g = st(); this.r = st();
+    this.sy = new Float64Array(n); this.sr = new Float64Array(n); this.cnt = new Uint32Array(n);
+    this.LUT = new Float32Array(256).map((_, i) => _ctaLin(i));
+    this.frame = 0;
+  }
+  add(ctx){
+    const { W, H, gw, cell, col, sy, sr, cnt, LUT } = this;
+    const d = ctx.getImageData(0, 0, W, H).data;
+    sy.fill(0); sr.fill(0); cnt.fill(0);
+    for (let y = 0, i = 0; y < H; y++){
+      const row = Math.floor(y / cell) * gw;
+      for (let x = 0; x < W; x++, i += 4){
+        const R = LUT[d[i]], G = LUT[d[i + 1]], B = LUT[d[i + 2]], k = row + col[x], t = R + G + B;
+        sy[k] += 0.2126 * R + 0.7152 * G + 0.0722 * B;
+        if (t > 0 && R >= 0.8 * t) sr[k] += (R - G - B) * 320;
+        cnt[k]++;
+      }
+    }
+    for (let k = 0; k < cnt.length; k++){
+      if (!cnt[k]) continue;
+      this.step(this.g, k, sy[k] / cnt[k], 0.1, true);
+      this.step(this.r, k, sr[k] / cnt[k], 20, false);
+    }
+    this.frame++;
+  }
+  step(st, k, v, th, general){
+    if (!st.init[k]){ st.init[k] = 1; st.ext[k] = v; return; }
+    const e = st.ext[k], d = st.dir[k];
+    const rec = () => { if (!general || Math.min(e, v) < 0.8) st.tr[k].push(this.frame); };
+    if (d === 0){
+      if (v - e >= th){ rec(); st.dir[k] = 1; st.ext[k] = v; }
+      else if (e - v >= th){ rec(); st.dir[k] = -1; st.ext[k] = v; }
+    } else if (d === 1){
+      if (v > e) st.ext[k] = v; else if (e - v >= th){ rec(); st.dir[k] = -1; st.ext[k] = v; }
+    } else {
+      if (v < e) st.ext[k] = v; else if (v - e >= th){ rec(); st.dir[k] = 1; st.ext[k] = v; }
+    }
+  }
+  judge(st){
+    const { gw, gh } = this, hot = new Uint8Array(gw * gh);
+    let most = 0;
+    st.tr.forEach((ts, k) => {
+      let m = 0;
+      for (let j = 0, s = 0; j < ts.length; j++){ while (ts[j] - ts[s] >= this.fps) s++; m = Math.max(m, j - s + 1); }
+      most = Math.max(most, m);
+      if (m >= 7) hot[k] = 1;
+    });
+    const rw = Math.max(1, Math.ceil(gw / 3)), rh = Math.max(1, Math.ceil(gh / 3));
+    const P = new Uint32Array((gw + 1) * (gh + 1));
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++)
+      P[(y + 1) * (gw + 1) + x + 1] = hot[y * gw + x] + P[y * (gw + 1) + x + 1] + P[(y + 1) * (gw + 1) + x] - P[y * (gw + 1) + x];
+    let worst = 0;
+    for (let y = 0; y + rh <= gh; y++) for (let x = 0; x + rw <= gw; x++){
+      const s = P[(y + rh) * (gw + 1) + x + rw] - P[y * (gw + 1) + x + rw] - P[(y + rh) * (gw + 1) + x] + P[y * (gw + 1) + x];
+      worst = Math.max(worst, s / (rw * rh));
+    }
+    return { perSec: Math.floor(most / 2), area: worst };
+  }
+  result(){
+    const g = this.judge(this.g), r = this.judge(this.r);
+    return { pass: g.area <= 0.25 && r.area <= 0.25, general: g, red: r, frames: this.frame };
+  }
+}
+function motionFlashMessage(f){
+  const w = f.general.area >= f.red.area ? f.general : f.red;
+  return 'this video would flash ' + w.perSec + ' times a second over ' + Math.round(w.area * 100) + '% of an area, which breaks the flashing rules (WCAG 2.3.1, and Meta, Google and TikTok ad policy), so it was not saved';
+}
+/* Frame 0 against the scene itself, rendered directly at the export size. The
+   bake composites separately rendered layers, so a single level of rounding
+   on an anti-aliased edge is expected; anything more is a different picture. */
+function motionFrameZero(sc, bake, x){
+  sc.renderAll();
+  const W = bake.W, H = bake.H;
+  const ref = document.createElement('canvas'); ref.width = W; ref.height = H;
+  const rx = ref.getContext('2d', { willReadFrequently: true });
+  rx.drawImage(sc.lowerCanvasEl, 0, 0);
+  motionDraw(x, bake, 0);
+  const a = x.getImageData(0, 0, W, H).data, b = rx.getImageData(0, 0, W, H).data;
+  /* Judged on 8x8 blocks, not single pixels. A layer drawn onto a
+     transparent canvas and composited back is off by a few levels wherever it
+     is faint (8-bit premultiplied alpha): a light halo at 0.72 read up to 15
+     levels off on 1,769 scattered pixels, invisibly. A real mismatch is a
+     region: a clipped shadow put block means at 17 to 23 levels on hundreds
+     of blocks. Measured worst block for noise 4.9, for a clean card 1.9. */
+  const BS = 8, bw = Math.ceil(W / BS), bsum = new Float32Array(bw * Math.ceil(H / BS));
+  let off = 0, most = 0;
+  for (let i = 0, p = 0; i < a.length; i += 4, p++){
+    const d = Math.max(Math.abs(a[i] - b[i]), Math.abs(a[i + 1] - b[i + 1]), Math.abs(a[i + 2] - b[i + 2]));
+    if (d > most) most = d;
+    if (d > 8) off++;
+    bsum[Math.floor(Math.floor(p / W) / BS) * bw + Math.floor((p % W) / BS)] += d;
+  }
+  let block = 0;
+  for (let k = 0; k < bsum.length; k++) block = Math.max(block, bsum[k] / (BS * BS));
+  return { off, most, block: +block.toFixed(2), share: off / (W * H), ok: block <= 8 && off / (W * H) < 0.005 };
+}
+async function motionPlan(w, h, sound){
+  if (typeof VideoEncoder !== 'function') return null;
+  try {
+    const MB = await motionMB();
+    for (const p of [{ codec: 'avc', fmt: 'mp4', audio: 'aac' }, { codec: 'vp9', fmt: 'webm', audio: 'opus' }]){
+      if (!(await MB.canEncodeVideo(p.codec, { width: w, height: h, frameRate: MOTION.fps }))) continue;
+      let audio = null;
+      if (sound && typeof AudioEncoder === 'function' &&
+          await MB.canEncodeAudio(p.audio, { numberOfChannels: sound.numberOfChannels, sampleRate: sound.sampleRate })) audio = p.audio;
+      return Object.assign({ MB }, p, { audio });
+    }
+  } catch (e){ console.warn('GraphicsStudio motion: exact encoder unavailable, recording in real time.', e); }
+  return null;
+}
+{
+  const _recordMotion = recordMotion;
+  recordMotion = async function(sc, o){
+    const plan = await motionPlan(o.w, o.h, o.sound || null);
+    const out = document.createElement('canvas');
+    out.width = o.w; out.height = o.h;
+    const x = out.getContext('2d', { willReadFrequently: true });
+    const bake = motionBake(sc, o.docW, o.docH, o.w, o.h);
+    const z0 = motionFrameZero(sc, bake, x);
+    if (!z0.ok) throw new Error('the first frame did not match the still ad (' + z0.off + ' pixels differ), so nothing was saved');
+    const n = Math.round(MOTION.dur * MOTION.fps);
+    const fc = new MotionFlashCheck(o.w, o.h, MOTION.fps);
+    if (!plan){
+      // real-time fallback: check every frame first, then record as before
+      for (let i = 0; i < n; i++){ motionDraw(x, bake, i / MOTION.fps); fc.add(x); }
+      const f = fc.result();
+      if (!f.pass) throw new Error(motionFlashMessage(f));
+      return _recordMotion(sc, o);
+    }
+    const MB = plan.MB;
+    const format = plan.fmt === 'mp4' ? new MB.Mp4OutputFormat({ fastStart: 'in-memory' }) : new MB.WebMOutputFormat();
+    const output = new MB.Output({ format, target: new MB.BufferTarget() });
+    const vs = new MB.CanvasSource(out, { codec: plan.codec, quality: MB.QUALITY_HIGH, keyFrameInterval: 2 });
+    output.addVideoTrack(vs, { frameRate: MOTION.fps });
+    let as = null;
+    if (plan.audio){ as = new MB.AudioBufferSource({ codec: plan.audio, quality: MB.QUALITY_HIGH }); output.addAudioTrack(as); }
+    await output.start();
+    if (as) await as.add(o.sound);
+    window.__gfxRecording = true;
+    try {
+      for (let i = 0; i < n; i++){
+        const t = i / MOTION.fps;
+        motionDraw(x, bake, t);
+        fc.add(x);
+        if (o.watermark) drawWatermarkMarks(x, o.w, o.h);
+        await vs.add(t, 1 / MOTION.fps);
+        if (o.onProgress) o.onProgress((i + 1) / n);
+      }
+    } catch (e){ await output.cancel().catch(() => {}); throw e; }
+    finally { window.__gfxRecording = false; }
+    const f = fc.result();
+    if (!f.pass){ await output.cancel().catch(() => {}); throw new Error(motionFlashMessage(f)); }
+    await output.finalize();
+    const mime = plan.fmt === 'mp4' ? 'video/mp4' : 'video/webm';
+    return { blob: new Blob([output.target.buffer], { type: mime }), mime, fps: MOTION.fps, exact: true, flash: f, frameZero: z0, cta: !!bake.cta };
+  };
+}
+/* Sound for the shift, laid over the living still's own score (which now runs
+   the full ten seconds): a soft whoosh as the ad hands over, and the same
+   two-note bell as the number's beat when the plate lands. */
+{
+  const _motionSound = motionSound;
+  motionSound = async function(rate){
+    const base = await _motionSound(rate);
+    const sr = base.sampleRate, C = MOTION.cta;
+    const ac = new OfflineAudioContext(base.numberOfChannels, base.length, sr);
+    const src = ac.createBufferSource(); src.buffer = base; src.connect(ac.destination); src.start(0);
+    const out = ac.createGain(); out.gain.value = 1; out.connect(ac.destination);
+    let seed = 20260927;
+    const nb = ac.createBuffer(1, sr, sr), nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+    const w = ac.createBufferSource(); w.buffer = nb;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.1;
+    bp.frequency.setValueAtTime(420, C.at - 0.1); bp.frequency.exponentialRampToValueAtTime(2400, C.at + 0.35);
+    const wg = ac.createGain(); wg.gain.setValueAtTime(0.0001, C.at - 0.1); wg.gain.linearRampToValueAtTime(0.16, C.at + 0.25); wg.gain.linearRampToValueAtTime(0.0001, C.at + 0.5);
+    w.connect(bp); bp.connect(wg); wg.connect(out); w.start(C.at - 0.1); w.stop(C.at + 0.55);
+    const tone = (t0, f, peak, d) => { const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(peak, t0 + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      o.connect(g); g.connect(out); o.start(t0); o.stop(t0 + d + 0.05); };
+    const bell = (t0, f, peak) => [[1, 1, 1.5], [2.0, 0.35, 0.9], [2.76, 0.22, 0.6], [5.4, 0.1, 0.3]].forEach(([m, gm, d]) => tone(t0, f * m, peak * gm, d));
+    const land = (C.stamp[0] + C.stamp[1]) / 2;
+    bell(land, 880.00, 0.15); bell(land + 0.09, 1318.51, 0.13);
+    return ac.startRendering();
+  };
+}
+
+/* ═══ PLATE AIR (DESIGN-LAW rule 64) ═══════════════════════════════════════
+   Owner, 2026-09-27, on the Street price badge: "why can't we seem to catch
+   this? it would need to be shrunk 10-15% to make a minimum margin on the
+   sides". Words on a plate keep air at both ends.
+
+   Step 4b of alignPass fits a line to its plate on axis-aligned boxes, which a
+   tilted sticker defeats: the badge turns about its corner and its line about
+   its own top centre, so on the -4° badge CALL FOR INSTANT OFFER landed 8px
+   off centre, 5 to 7px from one end and 24px from the other, "inside" by the
+   box test and touching by eye. The collision audit only scored a line that
+   STRADDLES a plate (4 to 96% of its ink inside), so a line filling its plate
+   edge to edge, or a letter over it, passed as well.
+
+   This runs after alignPass, in each plate's own frame. The line's ink is
+   measured (measureText, not the text box: rule 50), a line authored centred
+   and alone on its plate is re-centred along the plate's axis, and then its
+   type comes down until both ends clear
+       max(12px, 4.5% of the plate, 0.35 of the type size)
+   never below 72% of itself, and the number never below 72px (rule 53).
+   window.__noPlateAir turns it off, so an audit can measure the before. */
+/* The widest line's ink, in the text's own units: its width w, where it
+   starts from the line's origin (off, a serif W can start 30px in), and the
+   line's advance width lw, which is what fabric aligns within the box. */
+function plateAirInk(t){
+  /* fabric's own line widths are the truth (the letters are drawn at the
+     advances it laid out, and a width cached while a face was loading can run
+     12% wider than the face measures); measureText supplies only where the ink
+     starts and ends within a line, scaled onto fabric's advance */
+  try {
+    const ctx = plateAirInk.ctx || (plateAirInk.ctx = document.createElement('canvas').getContext('2d'));
+    ctx.font = t._getFontDeclaration();
+    const sp = (t.charSpacing || 0) / 1000 * (t.fontSize || 0);
+    const lines = (t._textLines || [String(t.text || '').split('')]).map(l => (Array.isArray(l) ? l.join('') : String(l)));
+    let best = null;
+    lines.forEach((s, i) => {
+      if (!s.trim()) return;
+      const m = ctx.measureText(s), n = Math.max(0, s.length - 1);
+      const adv = m.width + sp * n, lw = typeof t.getLineWidth === 'function' ? t.getLineWidth(i) : adv, r = adv > 0 ? lw / adv : 1;
+      const w = ((m.actualBoundingBoxLeft || 0) + (m.actualBoundingBoxRight || m.width) + sp * n) * r;
+      if (!best || w > best.w) best = { w, off: -(m.actualBoundingBoxLeft || 0) * r, lw };
+    });
+    return best && best.w > 0 ? best : { w: t.width, off: 0, lw: t.width };
+  } catch (e){ return { w: t.width, off: 0, lw: t.width }; }
+}
+function plateAirNeed(plateW, fontPx){ return Math.max(12, 0.045 * plateW, 0.35 * fontPx); }
+function plateAir(sc, W, H){
+  if (window.__noPlateAir) return;
+  let objs;
+  try { objs = sc.getObjects(); } catch (e){ return; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  /* buildLayer washes most rects to 45% alpha, and a washed plate is still
+     the ground the line reads on: anything from 25% up counts */
+  const solid = f => f && typeof f === 'object' ? true
+    : !!f && f !== 'transparent' && !/rgba\([^)]*,\s*0(\.[01]\d*|\.2[0-4]\d*)?\)\s*$/.test(String(f));
+  const plates = objs.filter(o => live(o) && o.type === 'rect' && solid(o.fill)).filter(o => {
+    const w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
+    return w > 40 && h > 20 && w < W * 0.93 && h < H * 0.9;
+  });
+  if (!plates.length) return;
+  plates.forEach(p => p.setCoords());
+  const frame = p => {
+    const inv = fabric.util.invertTransform(p.calcTransformMatrix()), sx = p.scaleX || 1, sy = p.scaleY || 1;
+    return pt => { const q = fabric.util.transformPoint(pt, inv); return { x: q.x * sx, y: q.y * sy }; };
+  };
+  const frames = new Map(plates.map(p => [p, frame(p)]));
+  // a line's extent along a plate's axis, from its box corners
+  const span = (t, p) => {
+    t.setCoords();
+    const q = ['tl', 'tr', 'br', 'bl'].map(k => frames.get(p)(t.aCoords[k]));
+    const xs = q.map(v => v.x), ys = q.map(v => v.y);
+    return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+  };
+  /* the ink's extent along a plate's axis: the box, narrowed to the widest
+     line's measured ink and placed as the line is aligned (a textbox's box is
+     its wrap width, not its words) */
+  const inkSpan = (t, p) => {
+    const s = span(t, p), same = Math.abs(((((t.angle || 0) - (p.angle || 0)) % 360) + 540) % 360 - 180) < 10;
+    if (!same) return s;
+    // the box carries the stroke's width; the drawn ink reaches half a stroke past each glyph
+    const sw = (t.stroke && t.strokeWidth) || 0, k = (s.x1 - s.x0) / ((t.width || 1) + sw);
+    const I = plateAirInk(t), al = String(t.textAlign || 'left'), bl = s.x0 + sw / 2 * k, br = s.x1 - sw / 2 * k;
+    const start = al === 'right' ? br - I.lw * k : (al === 'center' || al.startsWith('justify')) ? (bl + br - I.lw * k) / 2 : bl;
+    return { x0: start + (I.off - sw / 2) * k, x1: start + (I.off + I.w + sw / 2) * k, y0: s.y0, y1: s.y1 };
+  };
+  const words = objs.filter(o => live(o) && isText(o) && !o.pgKin && /[A-Za-z0-9]/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
+  const rest = new Map(words.map(t => [t, t.calcTransformMatrix()]));
+  words.forEach(t => {
+    const zt = objs.indexOf(t);
+    const hosts = [];
+    plates.forEach(p => {
+      if (objs.indexOf(p) > zt) return;                       // a plate drawn over the line is not its ground
+      const PW = p.width * (p.scaleX || 1), PH = p.height * (p.scaleY || 1), s = inkSpan(t, p);
+      const cx = (s.x0 + s.x1) / 2, cy = (s.y0 + s.y1) / 2;
+      if (Math.abs(cx) > PW / 2 || Math.abs(cy) > PH / 2) return;
+      if (s.y1 - s.y0 > PH * 1.15 || s.x1 - s.x0 > PW * 1.4) return;   // bigger than the plate: not a line ON it
+      hosts.push({ p, PW, PH });
+    });
+    if (!hosts.length) return;
+    /* the smallest plate is the line's own; plates of the same fill that
+       overlap it are one shape (a ticket and its notched perforation, 780 and
+       866 wide), so the line reads against whichever gives it the most room */
+    hosts.sort((a, b) => a.PW * a.PH - b.PW * b.PH);
+    const f0 = String(hosts[0].p.fill), room = h => { const s = inkSpan(t, h.p); return Math.min(h.PW / 2 + s.x0, h.PW / 2 - s.x1); };
+    const host = hosts.filter(h => String(h.p.fill) === f0).sort((a, b) => room(b) - room(a))[0];
+    const p = host.p, PW = host.PW;
+    const aligned = Math.abs(((((t.angle || 0) - (p.angle || 0)) % 360) + 540) % 360 - 180) < 10;
+    const fs = (t.fontSize || 30) * (t.scaleY || 1);
+    const need = plateAirNeed(PW, fs);
+    const al = String(t.textAlign || 'left');
+    /* the room a line has on its plate: the plate less its air at both ends,
+       and never past the card's 6% guides (rule 57), which a plate running off
+       the card reaches beyond: an air slide that only looked at the plate put
+       a 940px info line 28px into the margin (bubblePop-du02-30, 2026-09-29) */
+    const G = 0.06 * Math.min(W, H), pc = p.getCenterPoint();
+    const flat = aligned && Math.abs(((((p.angle || 0) % 360) + 540) % 360) - 180) < 1;
+    const lo = flat ? Math.max(-PW / 2 + need, G - pc.x) : -PW / 2 + need;
+    const hi = flat ? Math.min(PW / 2 - need, W - G - pc.x) : PW / 2 - need;
+    const ends = () => { const s = inkSpan(t, p); return { L: s.x0 - lo + need, R: hi - s.x1 + need, c: (s.x0 + s.x1) / 2, half: (s.x1 - s.x0) / 2 }; };
+    const ok = e => e.L >= need - 0.5 && e.R >= need - 0.5;
+    let e = ends();
+    if (ok(e)) return;
+    const centred = t.originX === 'center' || al === 'center';
+    const alone = !objs.some(o => o !== t && o !== p && live(o) && objs.indexOf(o) > objs.indexOf(p) && (() => {
+      const c = frames.get(p)(o.getCenterPoint());
+      return Math.abs(c.x) < host.PW / 2 && Math.abs(c.y) < host.PH / 2;
+    })());
+    const a = (p.angle || 0) * Math.PI / 180;
+    const slide = d => { t.set({ left: t.left + d * Math.cos(a), top: t.top + d * Math.sin(a) }); t.setCoords(); e = ends(); };
+    // the least change first: a centred line alone on its plate sits on its centre line;
+    // any other line moves by its shortfall, toward the end with room
+    const place = () => {
+      if (centred && alone && aligned){
+        // on its plate's centre line, as near to it as the room allows
+        const target = Math.min(Math.max(0, lo + e.half), hi - e.half);
+        if (Math.abs(e.c - target) > 1) slide(target - e.c);
+        return;
+      }
+      if (e.L < need - 0.5 && e.R - (need - e.L) >= need - 0.5) slide(need - e.L);
+      else if (e.R < need - 0.5 && e.L - (need - e.R) >= need - 0.5) slide(-(need - e.R));
+    };
+    if (e.L + e.R >= 2 * need - 1){ place(); if (ok(e)) return; }
+    // then the type comes down until the ink fits between the two margins, about its anchor
+    const anchor = centred ? 'center' : (t.originX === 'right' || al === 'right') ? 'right' : 'left';
+    // (2px spare: a line 1px short of fitting both margins would otherwise come out at k = 1.0006 and never move)
+    let k = Math.min(1, Math.max(0.72, (hi - lo - 2) / (2 * e.half)));
+    if (t.pgRole === 'phone') k = Math.max(k, Math.min(1, 72 / fs));
+    if (k < 1){
+      const pt = t.getPointByOrigin(anchor, 'center');
+      t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k });
+      t.setPositionByOrigin(pt, anchor, 'center'); t.setCoords();
+      e = ends();
+    }
+    place();
+  });
+  kinFollow(objs, rest);
+}
+/* A styled line's effect layers (glow halo, red and blue offsets, 3-D depth)
+   take whatever move or scale the line took since `rest` was recorded */
+function kinFollow(objs, rest){
+  const U = fabric.util;
+  objs.forEach(q => {
+    const t = q.pgKin, M0 = t && rest.get(t);
+    if (!M0) return;
+    const M1 = t.calcTransformMatrix();
+    if (M1.every((v, i) => Math.abs(v - M0[i]) < 1e-6)) return;
+    const D = U.multiplyTransformMatrices(M1, U.invertTransform(M0));
+    const d = U.qrDecompose(U.multiplyTransformMatrices(D, q.calcTransformMatrix()));
+    q.set({ scaleX: d.scaleX, scaleY: d.scaleY, angle: d.angle, skewX: d.skewX, skewY: 0 });
+    q.setPositionByOrigin(new fabric.Point(d.translateX, d.translateY), 'center', 'center');
+    q.setCoords();
+  });
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){
+    const r = _alignPass.apply(this, arguments);
+    try { plateAir(sc, W || TPL_W, H || TPL_H); } catch (e){ console.warn('GraphicsStudio plateAir:', e); }
+    return r;
+  };
+}
+
+/* ═══ TAGLINE STYLES ═══════════════════════════════════════════════════════
+   Owner, 2026-09-27: "who said the main tagline had to be one color? why not
+   patterns, gradients, or color blocking?", "My favorite ads kept a cohesive
+   gradient on assets", "We can also do white with black outline?", a #1 BUYER
+   reference (one orange-to-lime sweep on every line that sells, heavy black
+   outlines, dark bands), then "add a glow and a 3-D theme with the red and
+   blue", "stripes, polkadots, money signs ... cracked text ... 3-D realism",
+   "any gradient, any amount of colors ... premade gradients", and "text made
+   of different colored letters".
+
+   Where one colour came from: DESIGN-LAW rule 5 and the MATTHEW study, where a
+   RAINBOW money word landed in "mid" every time. It never tested a cohesive
+   sweep repeated on every selling line and carried by an outline, which is
+   the owner's favourite. Rule 3 (no coloured glow) is the owner's to
+   overrule, and glow is offered as a choice, not a default.
+
+   A style is a spec applied to a finished scene (after alignPass):
+     fill     'solid' | 'gradient' | 'multicolor' | 'texture'
+     gradient 'theme' (accent ±25° at each line's own lightness, so contrast
+              holds) | 'pair' (accent into support) | 'street' (a 75° sweep
+              toward yellow) | [hex, hex, ...] (any number of stops) | a
+              TAGLINE_GRADIENTS key
+     angle    degrees, CSS sense (90 = left to right)
+     texture  a TAGLINE_PATTERNS key (36: stripes, money, leopard, …), with
+              patScale (tile size, 0.25-3), patX / patY (the slide, 0-1 of a
+              tile) and patRes (the render's px per design px)
+     outline  'none' | 'black' | 'white'
+     effect   'none' | 'glow' | 'anaglyph' (red and blue 3-D) | 'extrude'
+     blocks   each tagline line on its own block in the theme's colours
+     scope    'tagline' (the headline lines) | 'selling' (+ number and CTA)
+     plates   'keep' | 'dark' (plates and bands under styled lines go dark)
+              | 'match' (accent plates take the gradient)
+   Every style is re-measured by the critic before it ships (rule 54).
+
+   One engine (2026-09-29: the looks above joined with the work that put the
+   first six on every template, DESIGN-LAW 83). What a look does is solved on
+   the card it lands on, so it holds on every template in every family, the
+   picture, the download and the video (scripts/tagline_audit.mjs):
+   - a gradient in the card's own colours ('theme', 'pair') takes its
+     lightness from the line's measured ground, as far as it takes to keep the
+     contrast the line was designed with (3.2:1 at the least, 4.5:1 asked at
+     the most): at a fixed 0.88 a white line on a mid-grey photograph went
+     pastel and read 2.8:1, and a red line on a dark panel went darker, 2.2:1;
+   - 'selling' leaves type under 34px alone (a 3px rim on a 20px label is a
+     smudge); a line on a large light panel, or off any plate on a light
+     ground, keeps the panel and sweeps deep instead of bright-in-a-rim, and
+     a word left dark on a plate the look darkened turns light;
+   - white letters in a black outline rim harder on a light ground;
+   - colour blocks are measured from the drawn ink before anything moves; a
+     card where one would land on other words, cover the product or run to
+     the card's edge takes the outline instead, and says so (info.fallback);
+   - everything a look changes is recorded first (pgTagRest) and every layer
+     it adds is marked (pgTagBlock, pgKin/pgKinId), so taglineReset() puts the
+     designed card back and the editor can switch looks on an edited canvas. */
+const TAGLINE_GRADIENTS = {
+  street:  { name: 'Street',     stops: ['#ff7a3c', '#ffe13a', '#9be22a'] },
+  sunset:  { name: 'Sunset',     stops: ['#ff5f6d', '#ff9a5a', '#ffc371'] },
+  ocean:   { name: 'Ocean',      stops: ['#2e8bff', '#1ec8ff', '#5ff0e0'] },
+  neon:    { name: 'Neon',       stops: ['#ff2fd0', '#8a5bff', '#27e0ff'] },
+  gold:    { name: 'Gold foil',  stops: ['#b8862b', '#ffe29a', '#c8942e', '#fff0b8'] },
+  fire:    { name: 'Fire',       stops: ['#ff2d2d', '#ff7a1a', '#ffd23f'] },
+  miami:   { name: 'Miami',      stops: ['#ff4ecd', '#ff9f6b', '#35d0ff'] },
+  aurora:  { name: 'Aurora',     stops: ['#00e0b0', '#4d9cff', '#b86bff'] },
+  royal:   { name: 'Royal',      stops: ['#6a5cff', '#b06bff', '#ff6bd6'] },
+  citrus:  { name: 'Citrus',     stops: ['#ffe14d', '#a6ff4d', '#2ee88a'] },
+  candy:   { name: 'Candy',      stops: ['#ff7eb3', '#ffc2e2', '#8fd3ff'] },
+  mint:    { name: 'Mint',       stops: ['#1fd1a5', '#a8ff78'] },
+  chrome:  { name: 'Chrome',     stops: ['#f4f6f8', '#9aa3ad', '#ffffff', '#6b737c'] },
+  money:   { name: 'Money',      stops: ['#1f7a3a', '#9ff0a0', '#1f7a3a'] },
+  steel:   { name: 'Steel blue', stops: ['#e4eef8', '#7fa4c9'] },
+  rainbow: { name: 'Rainbow',    stops: ['#ff4d4d', '#ffa94d', '#ffe14d', '#4dff88', '#4dc3ff', '#b44dff'] },
+};
+/* the named looks the studio offers; each is just a spec */
+const TAGLINE_LOOKS = {
+  solid:     { name: 'Solid' },
+  street:    { name: 'Street', fill: 'gradient', gradient: 'street', outline: 'black', scope: 'selling', plates: 'dark' },
+  signature: { name: 'Signature gradient', fill: 'gradient', gradient: 'theme', plates: 'match' },
+  pair:      { name: 'Accent into support', fill: 'gradient', gradient: 'pair', plates: 'match' },
+  outline:   { name: 'White + black outline', fill: 'white', outline: 'black' },
+  blocks:    { name: 'Colour blocks', blocks: true },
+  multicolor:{ name: 'Multicolour letters', fill: 'multicolor', outline: 'black' },
+  glow:      { name: 'Glow', fill: 'white', effect: 'glow' },
+  anaglyph:  { name: '3-D red & blue', fill: 'white', effect: 'anaglyph' },
+  extrude:   { name: '3-D block', effect: 'extrude' },
+  stripes:   { name: 'Stripes', fill: 'texture', texture: 'stripes', outline: 'black' },
+  dots:      { name: 'Polka dots', fill: 'texture', texture: 'dots', outline: 'black' },
+  cash:      { name: 'Money signs', fill: 'texture', texture: 'money', outline: 'black' },
+  cracked:   { name: 'Cracked', fill: 'texture', texture: 'cracked', outline: 'black' },
+};
+function taglineGradientStops(g){
+  if (Array.isArray(g)) return g.filter(c => /^#[0-9a-f]{6}$/i.test(c));
+  return TAGLINE_GRADIENTS[g] ? TAGLINE_GRADIENTS[g].stops.slice() : null;
+}
+function taglineStyle(sc, spec, pal, W, H, as){
+  const key = as || (typeof spec === 'string' ? spec : (spec && spec.look) || null);
+  if (typeof spec === 'string') spec = TAGLINE_LOOKS[spec] || { name: spec };
+  spec = Object.assign({ fill: 'solid', outline: 'none', effect: 'none', scope: 'tagline', plates: 'keep', angle: 90 }, spec || {});
+  pal = pal || TAG_FALLBACK;
+  const objs = sc.getObjects();
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity > 0.05);
+  const fsOf = o => (o.fontSize || 30) * (o.scaleY || 1);
+  const heads = objs.filter(o => live(o) && isText(o) && o.pgRole === 'headline' && /[A-Za-z0-9]/.test(o.text || ''));
+  if (!heads.length) return { name: spec.name, look: key, touched: 0, why: 'no headline' };
+  /* what a look changes is recorded once, before the first change, so
+     taglineReset() can put the designed card back and another look can be
+     tried on the same scene (the editor keeps its scene; Easy Mode builds a
+     new one for every picture): the paint as it was, and a move as a move
+     (blocks: the shrink k and the shift, in card widths), never as a
+     position, so a line the visitor has since dragged, resized or carried to
+     another format keeps what they did */
+  const keep = o => {
+    if (o.pgTagRest) return;
+    const r = { mode: key || spec.name || 'custom' };
+    (isText(o) ? ['fill', 'stroke', 'strokeWidth', 'paintFirst', 'strokeLineJoin', 'shadow'] : ['fill', 'stroke', 'strokeWidth'])
+      .forEach(k => { const v = o[k]; r[k] = v && typeof v === 'object' && typeof v.toObject === 'function' ? v.toObject() : (v === undefined ? null : v); });
+    if (isText(o)) r.styles = o.styles && Object.keys(o.styles).length ? JSON.parse(JSON.stringify(o.styles)) : null;
+    r.pgFillGrad = o.pgFillGrad || null;
+    o.pgTagRest = r;
+  };
+  const solidHex = f => tagHexOf(f, 0.8);
+  const ok = hex => hexToOklch(hex) || { L: 0.7, C: 0, h: 0 };
+  const acc = ok(pal.accent || '#4d9cff'), sup = ok(pal.support || pal.accent || '#4d9cff');
+  const h0 = acc.C >= 0.04 ? acc.h : sup.h;
+  const at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
+  const Y = tagY, cr = tagCr;
+  /* the lines the look styles: the headline, or every line that sells, where
+     the type is big enough to carry an outline (a 20px "Call or text" in a
+     3px rim is a smudge: those keep their design) */
+  const minFs = Math.max(34, 0.032 * Math.min(W, H));
+  const lines = spec.scope === 'selling'
+    ? objs.filter(o => live(o) && isText(o) && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || '') && fsOf(o) >= minFs)
+    : heads;
+  const gradOf = (stops, angle) => {
+    const rad = (angle == null ? 90 : angle) * Math.PI / 180, vx = Math.sin(rad) * 0.5, vy = -Math.cos(rad) * 0.5;
+    return new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0.5 - vx, y1: 0.5 - vy, x2: 0.5 + vx, y2: 0.5 + vy },
+      colorStops: stops.map((c, i) => ({ offset: stops.length === 1 ? 0 : i / (stops.length - 1), color: c })) });
+  };
+  // a line's own lightness, pushed into a range where colour can show and still read
+  const lightOf = o => { const hex = solidHex(o.fill) || '#ffffff', L = ok(hex).L; return { L, light: L >= 0.6, TL: L >= 0.6 ? Math.min(0.88, Math.max(0.74, L)) : Math.min(0.42, Math.max(0.26, L)) }; };
+  // the ground under each styled line, painted once before anything changes (its plate, or the photograph)
+  const ground = tagGroundLum(sc, lines);
+  const wantOn = (inkHex, gY) => Math.min(4.5, Math.max(3.2, 0.95 * cr(Y(inkHex), gY)));
+  /* a gradient in the card's own colours takes its lightness from the line's
+     ground: light on a dark ground, dark on a light one, as far as it takes
+     to hold the contrast the line was designed with. The design's own ink
+     says which ground it was set on (a translucent glass panel over a
+     photograph measures mid-grey), unless the ground clearly says otherwise. */
+  const solveL = (o, hues, C) => {
+    const inkHex = solidHex(o.fill) || '#ffffff', inkL = ok(inkHex).L, gY = ground.get(o);
+    if (gY == null) return lightOf(o).TL;
+    const up = inkL >= 0.5 ? gY < 0.55 : gY < 0.3, want = wantOn(inkHex, gY);
+    let L = up ? Math.max(0.74, Math.min(0.88, inkL)) : Math.min(0.42, Math.max(0.26, inkL));
+    for (let i = 0; i < 40 && !hues.every(h => cr(Y(at(L, C, h)), gY) >= want); i++) L = up ? Math.min(0.99, L + 0.01) : Math.max(0.12, L - 0.01);
+    return L;
+  };
+  /* the street sweep travels toward yellow, the hue that is bright and vivid
+     at once: blue runs to azure and cyan, pink to coral and orange, orange to
+     yellow and lime (the reference). Toward violet a bright blue can only go
+     pastel. */
+  const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
+  const streetBright = () => [[0.74, h0], [0.88, h0 + dir * 40], [0.84, h0 + dir * 75]].map(([L, h]) => at(L, 0.18, h));
+  /* on a light ground the same sweep turns deep and runs the other way round
+     the wheel (a dark yellow is mud), as dark as that ground needs; a preset
+     keeps its own hues at that depth */
+  const deepStops = (o, gY) => {
+    const want = wantOn(solidHex(o.fill) || '#0e0e10', gY);
+    const preset = spec.gradient !== 'street' && taglineGradientStops(spec.gradient);
+    const hues = preset ? preset.map(c => ok(c)).map(q => [q.h, Math.max(0.1, q.C)]) : [[h0, 0.17], [h0 - dir * 40, 0.17], [h0 - dir * 75, 0.17]];
+    const dL = preset ? hues.map(() => 0) : [0, 0.05, 0.03];
+    let L = 0.4;
+    for (let i = 0; i < 30 && !hues.every(([h, C], k) => cr(Y(at(L + dL[k], C, h)), gY) >= want); i++) L = Math.max(0.12, L - 0.01);
+    return hues.map(([h, C], k) => at(L + dL[k], C, h));
+  };
+  /* a premade or picked gradient: its colours as they are where they read on
+     the line's ground; where they do not (a sunset on a paper panel read
+     2.8:1), every stop moves together, lighter on a dark ground and deeper on
+     a light one, as far as the ground needs, keeping its hues */
+  const onGround = (o, st) => {
+    const gY = ground.get(o);
+    if (gY == null || !st.length) return st;
+    const want = wantOn(solidHex(o.fill) || '#ffffff', gY), q = st.map(c => ok(c));
+    const at2 = (s, d) => at(Math.max(0.05, Math.min(0.98, s.L + d)), s.C, s.h);
+    const least = d => Math.min(...q.map(s => cr(Y(at2(s, d)), gY)));
+    if (least(0) >= want) return st;
+    const step = gY < 0.18 ? 0.01 : -0.01;
+    let d = 0;
+    for (let i = 0; i < 90 && least(d) < want; i++) d += step;
+    return q.map(s => at2(s, d));
+  };
+  const stopsFor = o => {
+    const g = spec.gradient || 'theme';
+    if (g === 'theme'){ const L = solveL(o, [h0 - 25, h0 + 25], 0.15); return [at(L, 0.15, h0 - 25), at(L, 0.15, h0 + 25)]; }
+    if (g === 'pair'){ const L = solveL(o, [acc.h, sup.h], 0.15); return [at(L, 0.15, acc.h), at(L, 0.15, sup.h)]; }
+    if (g === 'street') return streetBright();
+    const st = taglineGradientStops(g);
+    if (st) return spec.plates === 'dark' ? st : onGround(o, st);
+    const L = solveL(o, [h0 - 25, h0 + 25], 0.15);
+    return [at(L, 0.15, h0 - 25), at(L, 0.15, h0 + 25)];
+  };
+  let touched = 0;
+  const clean = o => { o.pgFillGrad = null; };
+  const lumOf = tagY, ratio = tagCr;
+
+  /* ── colour blocks, measured before anything moves: each tagline line on
+     its own block, alternating the theme's two colours, ink by contrast. One
+     that would land on other copy, cover more of the product than its line
+     already does, or leave the 6% guides would break the card (rule 57: copy
+     is never touched), so that card takes the outline instead and says so. */
+  let blockPlan = null;
+  if (spec.blocks){
+    const cols = [pal.accent || '#4d9cff', pal.support || pal.accent || '#4d9cff'];
+    const G = 0.06 * Math.min(W, H), E = 0.025 * Math.min(W, H), faults = [];
+    // a block as it stands on the card: a turned line's block is wider than its own width
+    const boxOf = g => {
+      const cs = Math.abs(Math.cos(g.a)), sn = Math.abs(Math.sin(g.a)), w = g.bw * cs + g.bh * sn, h = g.bw * sn + g.bh * cs;
+      return { left: g.cx - w / 2, top: g.cy - h / 2, width: w, height: h };
+    };
+    const plan = heads.slice().sort((a, b) => a.top - b.top).map((o, i) => {
+      let fill = solidHex(cols[i % 2]) || '#4d9cff';
+      const ink = ratio(lumOf(fill), 1) >= ratio(lumOf(fill), lumOf('#0e0e10')) ? '#ffffff' : '#0e0e10';
+      if (ratio(lumOf(fill), lumOf(ink)) < 4.5) fill = oklchFit({ L: ink === '#ffffff' ? 0.42 : 0.82, C: ok(fill).C, h: ok(fill).h });
+      o.setCoords();
+      /* the type comes down only as far as the card needs, then the block moves
+         in from the edge: a block is a plate, so its padding may pass the 6%
+         guides (the letters stay inside them), never to within 2.5% of the
+         edge. Held inside the guides, a claim set on the guide slid its block a
+         whole padding sideways, onto the badge beside it (stepsFlow-nn05-30) */
+      const E1 = E + 1, room = W - 2 * E1;   // a pixel inside the line, not on it
+      let k = 1, g = tagBlockGeom(o, 1, 0);
+      for (let n = 0; n < 6 && boxOf(g).width > room - 0.5; n++){ k *= (room - 1) / boxOf(g).width; g = tagBlockGeom(o, k, 0); }
+      if (k < 0.6){ faults.push('long: too long for a block'); k = 0.6; g = tagBlockGeom(o, k, 0); }
+      const hw = boxOf(g).width / 2, nx = Math.min(W - E1 - hw, Math.max(E1 + hw, g.cx)), shift = nx - g.cx;
+      return { o, i, fill, ink, k, shift, padY: null, g: tagBlockGeom(o, k, shift) };
+    });
+    /* the claim moves as one, so its lines keep the edge or the centre they share */
+    const most = plan.reduce((m, b) => Math.abs(b.shift) > Math.abs(m) ? b.shift : m, 0);
+    if (plan.length > 1 && most && plan.every(b => b.shift * most >= 0))
+      plan.forEach(b => { if (b.shift !== most){ b.shift = most; b.g = tagBlockGeom(b.o, b.k, most); } });
+    const inkOf = g => ({ left: g.ink.cx - g.ink.w / 2, top: g.ink.cy - g.ink.h / 2, width: g.ink.w, height: g.ink.h });
+    const inter = (p, q) => Math.max(0, Math.min(p.left + p.width, q.left + q.width) - Math.max(p.left, q.left))
+                          * Math.max(0, Math.min(p.top + p.height, q.top + q.height) - Math.max(p.top, q.top));
+    /* a tight stack: the padding between two lines is shared, so neither block
+       reaches the other line's letters (the blocks may meet) */
+    for (let n = 0; n + 1 < plan.length; n++){
+      const A = plan[n], B = plan[n + 1], ia = inkOf(A.g), ib = inkOf(B.g);
+      if (Math.min(ia.left + ia.width, ib.left + ib.width) - Math.max(ia.left, ib.left) <= 0) continue;
+      const gap = ib.top - (ia.top + ia.height);
+      if (gap < A.g.padY + B.g.padY){
+        const py = Math.max(2, gap / 2 - 1);
+        [A, B].forEach(P => { P.padY = P.padY == null ? py : Math.min(P.padY, py); P.g = tagBlockGeom(P.o, P.k, P.shift, P.padY); });
+      }
+    }
+    const others = objs.filter(o => live(o) && (o.opacity == null || o.opacity >= 0.5) && isText(o) && /[A-Za-z0-9]/.test(o.text || '') && !heads.includes(o) && !o.pgKin);
+    // the products (an emoji accent is placed again after the look: tagEmojiAgain)
+    const images = objs.filter(o => live(o) && o.type === 'image' && !o.pgEmoji && (o.opacity == null || o.opacity >= 0.5) && o.width * (o.scaleX || 1) < 0.93 * W);
+    plan.forEach(b => {
+      const B = boxOf(b.g), area = B.width * B.height;
+      /* a block is a plate, not copy: it may reach past the 6% guide by its
+         padding (the offer band's tagline sits on the guide), never to within
+         2.5% of the card's edge */
+      const E = 0.025 * Math.min(W, H), I = inkOf(b.g);
+      if (B.top < E || B.top + B.height > H - E || B.left < E || B.left + B.width > W - E) faults.push('edge: at the edge of the card');
+      if (I.top < G - 2 || I.top + I.height > H - G + 2 || I.left < G - 2 || I.left + I.width > W - G + 2) faults.push('edge: leaves the guides');
+      others.forEach(t => {
+        const T = t.getBoundingRect(true, true);
+        if (inter(B, T) > 0.03 * Math.min(area, T.width * T.height)) faults.push('words: on ' + (t.name || t.pgRole));
+      });
+      plan.forEach(q => {
+        if (q === b) return;
+        const T = inkOf(q.g);
+        if (inter(B, T) > 0.02 * T.width * T.height) faults.push('words: on ' + (q.o.name || 'the tagline'));
+      });
+      images.forEach(im => {
+        const R = im.getBoundingRect(true, true), was = inter(b.o.getBoundingRect(true, true), R);
+        if (inter(B, R) - was > 0.04 * R.width * R.height) faults.push('product: on ' + (im.name || 'the product'));
+      });
+    });
+    if (faults.length){
+      const r = taglineStyle(sc, Object.assign({}, spec, TAGLINE_LOOKS.outline, { blocks: false, name: TAGLINE_LOOKS.outline.name }), pal, W, H, key || 'blocks');
+      return Object.assign(r, { look: key || 'blocks', fallback: 'outline', why: faults[0], faults: faults.slice(0, 8) });
+    }
+    blockPlan = plan;
+  }
+
+  // ── plates under the styled lines (and bands: the owner's reference sits its lines on dark bands)
+  const rects = objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && !o.pgBgRect && !o.pgScrim && !/^(BG|Overlay|Scrim|Grain)$/i.test(o.name || '')
+    && o.width * (o.scaleX || 1) <= W + 4
+    && o.width * (o.scaleX || 1) * o.height * (o.scaleY || 1) < 0.25 * W * H
+    && (typeof o.fill !== 'string' || !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(o.fill)));
+  const hostOf = o => { const c = o.getCenterPoint(), zo = objs.indexOf(o);
+    return rects.filter(p => objs.indexOf(p) < zo).filter(p => { const b = p.getBoundingRect(true, true); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })
+      .sort((a, b) => a.width * a.height * (a.scaleX || 1) * (a.scaleY || 1) - b.width * b.height * (b.scaleX || 1) * (b.scaleY || 1))[0] || null; };
+  /* a line's panel: the smallest opaque shape under it, a full-width band or
+     a large panel included; a large light one (a cream panel, a lime band)
+     keeps its colour under a look that would darken plates */
+  const panels = objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && !o.pgBgRect && !o.pgScrim && !/^(BG|Overlay|Scrim|Grain)$/i.test(o.name || '')
+    && o.height * (o.scaleY || 1) < 0.45 * H && (!!solidHex(o.fill) || !!(o.fill && o.fill.colorStops)));
+  const panelOf = o => { const c = o.getCenterPoint(), zo = objs.indexOf(o);
+    return panels.filter(p => objs.indexOf(p) < zo).filter(p => { const b = p.getBoundingRect(true, true); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })
+      .sort((a, b) => a.width * a.height * (a.scaleX || 1) * (a.scaleY || 1) - b.width * b.height * (b.scaleX || 1) * (b.scaleY || 1))[0] || null; };
+  const keepsColour = p => {
+    const w = p.width * (p.scaleX || 1), h = p.height * (p.scaleY || 1), hex = solidHex(p.fill);
+    return (w >= 0.93 * W || w * h >= 0.12 * W * H) && !!hex && ok(hex).L >= 0.72;
+  };
+  /* one colour, one treatment: a plate in the colour of a plate the look treats
+     gets the same treatment, so the badge keeps wearing the CTA's colour
+     (DESIGN-LAW 69, 74) whatever the look does to either */
+  const hueD = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); };
+  const sameHex = (a, b) => { const p = ok(a), q = ok(b); return Math.abs(p.L - q.L) < 0.05 && Math.abs(p.C - q.C) < 0.05 && hueD(p.h, q.h) < 10; };
+  const colourKin = treated => {
+    const hexes = treated.map(p => solidHex(p.fill)).filter(h => h && ok(h).C >= 0.06);
+    return objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && !treated.includes(o) && o.width * (o.scaleX || 1) * o.height * (o.scaleY || 1) < 0.3 * W * H
+      && (() => { const hex = solidHex(o.fill); return hex && hexes.some(b => sameHex(b, hex)); })());
+  };
+  // the words and marks that sit on a plate, in front of it
+  const onPlate = p => { const b = p.getBoundingRect(true, true), zo = objs.indexOf(p);
+    return objs.filter(t => live(t) && (isText(t) || t.type === 'path') && objs.indexOf(t) > zo && !lines.includes(t) && !t.pgKin
+      && (() => { const c = t.getCenterPoint(); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })()); };
+  /* lines swept deep on a light ground, in no rim: a look that darkens plates
+     leaves a light panel's colour alone, and a line off any plate on a light
+     photograph reads dark rather than bright-in-a-rim */
+  const deep = new Set();
+  const hosting = new Set();
+  lines.forEach(o => {
+    const h = hostOf(o);
+    if (spec.plates !== 'dark' || spec.fill !== 'gradient'){ if (h) hosting.add(h); return; }
+    const p = panelOf(o), inkL = ok(solidHex(o.fill) || '#ffffff').L, g = ground.get(o) || 0;
+    if (p ? keepsColour(p) : (inkL < 0.5 ? g >= 0.12 : g >= 0.6)){ deep.add(o); return; }
+    if (h) hosting.add(h);
+  });
+  if (spec.plates === 'dark'){
+    const fam = colourKin([...hosting]), dark = [...hosting].concat(fam);
+    dark.forEach(p => { keep(p); p.set({ fill: 'rgba(12,12,14,0.86)', stroke: null }); clean(p); touched++; });
+    // the words and marks on a darkened plate turn light where they would vanish (a line icon is all stroke)
+    dark.forEach(p => onPlate(p).forEach(t => ['fill', 'stroke'].forEach(k => {
+      const hex = solidHex(t[k]);
+      if (hex && ratio(lumOf(hex), lumOf('#0c0c0e')) < 4.5){ keep(t); t.set(k, '#ffffff'); clean(t); touched++; }
+    })));
+  }
+  if (spec.plates === 'match'){
+    const accentPlates = objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && !hosting.has(o) && (() => {
+      const hex = solidHex(o.fill), w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
+      return hex && ok(hex).C >= 0.06 && w * h < 0.12 * W * H && w < 0.93 * W;
+    })());
+    const hostsC = [...hosting].filter(p => { const hex = solidHex(p.fill); return hex && ok(hex).C >= 0.06; });
+    const painted = accentPlates.concat(hostsC), fam = colourKin(painted).filter(p => !hosting.has(p));
+    /* each stop keeps the words on its plate readable: 7:1 under the number, 4.5:1 under the rest */
+    const guard = (p, st) => {
+      const inks = onPlate(p).concat(lines.filter(t => hostOf(t) === p)).map(t => solidHex(t.fill)).filter(Boolean);
+      if (!inks.length) return st;
+      const need = onPlate(p).concat(lines.filter(t => hostOf(t) === p)).some(t => t.pgRole === 'phone' && solidHex(t.fill)) ? 7 : 4.5;
+      const dark = inks.every(h => lumOf(h) < 0.18);
+      return st.map(c => { const q = ok(c); let L = q.L, hex = c;
+        for (let i = 0; i < 60 && inks.some(h => ratio(lumOf(hex), lumOf(h)) < need); i++){ L = Math.max(0.05, Math.min(0.98, L + (dark ? 0.012 : -0.012))); hex = at(L, q.C, q.h); }
+        return hex; });
+    };
+    painted.concat(fam).forEach(p => {
+      const o = ok(solidHex(p.fill)), g = spec.gradient || 'theme';
+      const st = g === 'pair' ? [at(o.L, Math.max(o.C, 0.12), acc.h), at(o.L, Math.max(o.C, 0.12), sup.h)]
+        : g === 'theme' ? [at(o.L, Math.max(o.C, 0.12), h0 - 25), at(o.L, Math.max(o.C, 0.12), h0 + 25)]
+        : (taglineGradientStops(g) || []).map(c => { const q = ok(c); return at(o.L, Math.max(0.1, q.C), q.h); });   // the preset's hues at the plate's own lightness
+      if (st.length){ keep(p); p.set('fill', gradOf(guard(p, st), 110)); clean(p); touched++; }
+    });
+  }
+
+  /* A stroke grows a text's box by its width, and fabric keeps the box's top-left:
+     an outline drawn on a left/top-anchored line moved its letters half a stroke
+     down and right (8px on a 196px claim, off its margin and its badge). Every
+     stroke change keeps the line's centre, so the letters stay where they were set
+     (the variant board, 2026-09-29), and so does every variant a look tries. */
+  const keepGlyphs = (o, props) => { const c0 = o.getCenterPoint(); o.set(props); o.setPositionByOrigin(c0, 'center', 'center'); o.setCoords(); };
+  // ── the blocks, as measured: each right under its own line (a plate between them would hide it)
+  if (blockPlan){
+    blockPlan.forEach(b => {
+      const o = b.o, id = 'tb' + Math.random().toString(36).slice(2, 9);
+      keep(o);
+      o.pgTagRest.block = id;
+      if (b.padY != null) o.pgTagRest.padY = b.padY;
+      if (b.k < 1) o.pgTagRest.k = b.k;
+      if (b.shift) o.pgTagRest.shift = b.shift / W;
+      const c0 = o.getCenterPoint();
+      if (b.k < 1) o.set({ scaleX: (o.scaleX || 1) * b.k, scaleY: (o.scaleY || 1) * b.k });
+      o.setPositionByOrigin(new fabric.Point(c0.x + b.shift, c0.y), 'center', 'center');
+      o.setCoords();
+      // the block belongs to its line: it follows it and is not picked or dragged on its own
+      const blk = new fabric.Rect({ fill: b.fill, rx: Math.round(b.g.fs * 0.08), ry: Math.round(b.g.fs * 0.08),
+        name: 'Tagline Block ' + (b.i + 1), pgTagBlock: id, selectable: false, evented: false });
+      taglineFitBlock(blk, o);
+      sc.insertAt(blk, sc.getObjects().indexOf(o));
+      keepGlyphs(o, { fill: b.ink, stroke: null, strokeWidth: 0, shadow: null }); clean(o);
+      touched++;
+    });
+  }
+
+  /* An effect's strength and a fill's side are chosen on the card, by the
+     critic (rule 54): each variant, from the look as drawn to the tamest, is
+     put on the line and measured on the scene at half size (the line and its
+     layers, with and without them), and the first that reads at `need` stays;
+     with none, the one that read best. A wide soft glow on a mid-grey
+     photograph, a paper panel or a gold band read 1.3 to 2.9:1 as drawn
+     (tagline audit, 2026-09-29): its letters read, its faint halo did not;
+     multicolour and pattern letters kept a light line light on a cream
+     ticket (1.4 to 2.5:1). */
+  const choose = (o, variants, put, take, need) => {
+    need = need || 3.5;
+    let best = null;
+    for (let v = 0; v < variants.length; v++){
+      const marks = put(variants[v]);
+      const q = tagMarkQ75(sc, [o].concat(marks), W, H);
+      if (!best || q > best.q) best = { v, q };
+      if (q >= need || v === variants.length - 1){ if (best.v === v) return best; }
+      take(marks);
+    }
+    put(variants[best.v]);
+    return best;
+  };
+  const paintOf = o => ({ fill: o.fill, stroke: o.stroke, strokeWidth: o.strokeWidth, paintFirst: o.paintFirst, shadow: o.shadow, styles: o.styles && Object.keys(o.styles).length ? JSON.parse(JSON.stringify(o.styles)) : {} });
+  const drop = marks => marks.forEach(m => sc.remove(m));
+  // the other side of the ground: a light line's colours made deep, a deep line's light
+  const flipL = L => L >= 0.6 ? 0.34 : 0.84;
+  const flipStops = stops => {
+    const q = stops.map(c => ok(c)), mean = q.reduce((s, x) => s + x.L, 0) / (q.length || 1), d = flipL(mean) - mean;
+    return q.map(x => at(Math.max(0.06, Math.min(0.97, x.L + d)), Math.max(0.1, x.C), x.h));
+  };
+  const multiStyles = (o, TLx, preset) => {
+    const pool = preset ? preset : [0, 72, 144, 216, 288].map(d => at(TLx, 0.17, h0 + d));
+    const styles = {}; let k = 0;
+    (o._textLines || [String(o.text).split('')]).forEach((ln, li) => {
+      styles[li] = {};
+      ln.forEach((ch, ci) => { if (!/\s/.test(ch)){ styles[li][ci] = { fill: pool[k % pool.length] }; k++; } });
+    });
+    return styles;
+  };
+  /* outline: heavy, painted first so the letters keep their full width;
+     white letters rim harder on a light ground (a cream ticket), where they
+     read by their rim alone; a line swept deep needs none */
+  const rimOn = (o, gY) => {
+    if (spec.outline !== 'black' && spec.outline !== 'white') return;
+    const u = o.fontSize || 40, hard = spec.outline === 'black' && spec.fill === 'white' && gY >= 0.45;
+    keepGlyphs(o, { stroke: spec.outline === 'black' ? '#0b0b0d' : '#ffffff', strokeWidth: Math.max(3, u * (hard ? 0.11 : 0.085)), paintFirst: 'stroke', strokeLineJoin: 'round',
+      shadow: new fabric.Shadow(hard ? { color: 'rgba(0,0,0,0.5)', blur: u * 0.14, offsetX: 0, offsetY: u * 0.02 }
+        : { color: spec.outline === 'black' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)', blur: u * 0.1, offsetX: 0, offsetY: u * 0.03 }) });
+  };
+
+  // ── fill: as solved on the line's ground, and where that does not read, the other side of it
+  const sheetFs = Math.max(...heads.map(fsOf)), patMemo = {};
+  lines.forEach(o => {
+    if (spec.blocks && heads.indexOf(o) >= 0) return;
+    keep(o);
+    const { TL, light } = lightOf(o), gY = ground.get(o) || 0, p0 = paintOf(o);
+    const preset = (Array.isArray(spec.gradient) || TAGLINE_GRADIENTS[spec.gradient]) ? taglineGradientStops(spec.gradient) : null;
+    const V = [];
+    if (spec.fill === 'white') V.push({ fill: '#ffffff', rim: true });
+    else if (spec.fill === 'gradient'){
+      const street = spec.gradient === 'street' && spec.plates === 'dark', isDeep = deep.has(o);
+      const first = isDeep ? deepStops(o, gY) : stopsFor(o);
+      V.push({ stops: first, rim: !isDeep });
+      V.push(street ? { stops: isDeep ? streetBright() : deepStops(o, gY), rim: isDeep } : { stops: flipStops(first), rim: true });
+    }
+    else if (spec.fill === 'multicolor') V.push({ multi: TL, rim: true }, { multi: flipL(TL), flip: true, rim: true });
+    else if (spec.fill === 'texture') V.push({ tex: [TL, light], rim: true }, { tex: [flipL(TL), !light], rim: true },
+      { tex: [light ? 0.93 : 0.2, light], rim: true }, { tex: [light ? 0.2 : 0.93, !light], rim: true });   // then each side pushed further from the ground
+    else V.push({ rim: true });                                   // the card's own fill, with the outline the visitor chose
+    const put = v => {
+      keepGlyphs(o, p0);
+      if (v.fill) o.set('fill', v.fill);
+      else if (v.stops) o.set('fill', gradOf(v.stops, spec.angle));
+      else if (v.multi != null){ o.set({ styles: multiStyles(o, v.multi, preset && (v.flip ? flipStops(preset) : preset)) }); o.dirty = true; }
+      else if (v.tex){ const p = taglinePattern(spec.texture, v.tex[0], v.tex[1], h0, sheetFs, { scale: spec.patScale, x: spec.patX, y: spec.patY, res: spec.patRes, obj: o, memo: patMemo }); o.set('fill', p); sc.__patTile = p.pgTile; }
+      clean(o);
+      if (v.rim) rimOn(o, gY);
+      return [];
+    };
+    /* the fill as solved stays wherever it reads (the critic's 3:1 and a
+       little); only then the other side. A pattern's fine detail blurs at the
+       half size it is measured at, so it is asked for more (a stripe read
+       3.2:1 there and 2.99:1 at full size) */
+    if (V.length > 1) choose(o, V, put, () => {}, spec.fill === 'texture' ? 3.5 : 3.2); else put(V[0]);
+    touched++;
+  });
+
+  // ── effects
+  const cloneText = (o, props) => {
+    const dx = props.dx || 0, dy = props.dy || 0; props = Object.assign({}, props); delete props.dx; delete props.dy;
+    const c = new o.constructor(o.text, Object.assign(o.toObject(), { fill: '#000000', stroke: null, strokeWidth: 0, shadow: null, styles: {} }, props));
+    /* by its line's centre: an unstroked copy of a stroked line, placed by its top-left, sat half a stroke off the letters */
+    const oc = o.getCenterPoint(); c.setPositionByOrigin(new fabric.Point(oc.x + dx, oc.y + dy), 'center', 'center'); c.setCoords();
+    c.set({ selectable: false, evented: false, name: (o.name || 'Tagline') + ' depth', pgRole: 'deco' });
+    c.pgKin = o;          // its line: plate air, the critic, the editor and the video move, hide and measure them together
+    c.pgKinId = o.pgTagId || (o.pgTagId = 'tl' + Math.random().toString(36).slice(2, 9));
+    c.pgTagRest = null; c.pgTagBlock = null;
+    return c;
+  };
+  if (spec.effect === 'glow'){
+    /* a neon tube: a hot core, a thin coloured edge, two passes of glow; where
+       the ground will not carry that, a tighter glow, a deeper one, the tube
+       in the colour itself on a light ground, and at the last a white letter
+       in a thin deep rim */
+    lines.forEach(o => {
+      const u = o.fontSize || 40, gY = ground.get(o), paper = gY != null && gY >= 0.45;
+      keep(o);
+      const p0 = paintOf(o), white = spec.fill === 'white' || spec.fill === 'solid';
+      const deepL = (() => { let L = 0.4; if (gY != null) for (let i = 0; i < 40 && cr(Y(at(L, 0.2, h0)), gY) < 4.5; i++) L = Math.max(0.14, L - 0.01); return L; })();
+      const V = [
+        { core: '#ffffff', L: 0.72, blur: 0.45, halo: 0.85, hb: 0.9 },                 // the neon as drawn
+        { core: '#ffffff', L: 0.8, blur: 0.3, halo: 0.75, hb: 0.5 },                   // tighter, paler
+        { core: '#ffffff', L: deepL, blur: 0.22, halo: 0.8, hb: 0.3 },                 // a deep glow round a white core
+        { core: 'glow', L: deepL, blur: 0.25, halo: 0.45, hb: 0.35 },                  // the colour itself, softly glowing (paper)
+        { core: '#ffffff', L: deepL, blur: 0.1, halo: 0, hb: 0, rim: 0.06 },           // a white letter in a thin deep rim
+        { core: '#ffffff', L: deepL, blur: 0.12, halo: 0, hb: 0, rim: 0.085 },         // ...a heavier one
+        { core: '#ffffff', ink: '#0b0b0d', blur: 0.1, halo: 0, hb: 0, rim: 0.085 },    // the outline look's rim, which holds on every card
+      ];
+      const order = paper ? [0, 3, 1, 2, 4, 5, 6] : [0, 1, 2, 4, 3, 5, 6];
+      choose(o, order.map(k => V[k]), c => {
+        const g = c.ink || at(c.L, 0.2, h0);
+        keepGlyphs(o, p0);
+        if (white) o.set('fill', c.core === 'glow' ? g : c.core);
+        keepGlyphs(o, { stroke: g, strokeWidth: Math.max(2, u * (c.rim || 0.035)), paintFirst: 'stroke', strokeLineJoin: 'round',
+          shadow: new fabric.Shadow(c.ink ? { color: 'rgba(0,0,0,0.6)', blur: u * c.blur, offsetX: 0, offsetY: u * 0.03 } : { color: g, blur: u * c.blur, offsetX: 0, offsetY: 0 }) });
+        if (!c.halo) return [];
+        const halo = cloneText(o, { fill: g, opacity: c.halo, shadow: new fabric.Shadow({ color: g, blur: u * c.hb, offsetX: 0, offsetY: 0 }) });
+        sc.insertAt(halo, sc.getObjects().indexOf(o));
+        return [halo];
+      }, drop);
+      touched++;
+    });
+  } else if (spec.effect === 'anaglyph'){
+    /* the old 3-D print: red to one side, blue to the other, the letter on
+       top, white on a dark ground and ink on a light one, as it was on paper */
+    lines.forEach(o => {
+      const u = o.fontSize || 40, d = u * 0.05 * (o.scaleX || 1), a = (o.angle || 0) * Math.PI / 180, gY = ground.get(o) || 0;
+      keep(o);
+      const p0 = paintOf(o), white = spec.fill === 'white' || spec.fill === 'solid';
+      const inks = gY >= 0.45 ? ['#141418', '#ffffff'] : ['#ffffff', '#141418'];
+      choose(o, white ? inks : [null], ink => {
+        keepGlyphs(o, p0);
+        const red = cloneText(o, { fill: '#ff2a4f', dx: -d * Math.cos(a), dy: -d * Math.sin(a) });
+        const blue = cloneText(o, { fill: '#18b4ff', dx: d * Math.cos(a), dy: d * Math.sin(a) });
+        const i = sc.getObjects().indexOf(o);
+        sc.insertAt(blue, i); sc.insertAt(red, i);
+        if (ink) o.set({ fill: ink });
+        keepGlyphs(o, { stroke: null, strokeWidth: 0, shadow: null });
+        return [red, blue];
+      }, drop);
+      touched++;
+    });
+  } else if (spec.effect === 'extrude'){
+    /* depth: the letter stacked back on itself, darkening as it recedes, one soft shadow under it all */
+    /* the sides in the accent, deepening as they recede, so the depth shows on
+       a dark photograph as well as a light one; a thin dark edge on the face */
+    lines.forEach(o => {
+      // one layer per ~1.5px of depth, so the sides read as a solid block, not a stack of copies
+      const u = o.fontSize || 40, depth = u * 0.18 * (o.scaleX || 1), n = Math.min(28, Math.max(8, Math.ceil(depth / 1.5))), step = depth / n;
+      keep(o);
+      const p0 = paintOf(o);
+      /* as drawn; where the face does not read against its sides and ground,
+         deeper sides and a firmer edge, then the outline's rim on the face */
+      const V = [{ top: 0.52, span: 0.24, edge: 0.03 }, { top: 0.4, span: 0.26, edge: 0.05 }, { top: 0.36, span: 0.24, edge: 0.085, ink: '#0b0b0d' }];
+      choose(o, V, v => {
+        keepGlyphs(o, p0);
+        const i = sc.getObjects().indexOf(o), made = [];
+        for (let k = n; k >= 1; k--){
+          const side = at(v.top - (k / n) * v.span, 0.15, h0);
+          const layer = cloneText(o, { fill: side, dx: step * k * 0.8, dy: step * k,
+            shadow: k === n ? new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.16, offsetX: u * 0.03, offsetY: u * 0.06 }) : null });
+          sc.insertAt(layer, i); made.push(layer);
+        }
+        if (v.ink || !p0.stroke || !p0.strokeWidth) keepGlyphs(o, { stroke: v.ink || 'rgba(10,10,14,0.85)', strokeWidth: Math.max(1.5, u * v.edge), paintFirst: 'stroke', strokeLineJoin: 'round' });
+        o.set({ shadow: null });
+        return made;
+      }, drop, 3.3);
+      touched++;
+    });
+  }
+  sc.getObjects().forEach(o => o.setCoords && o.setCoords());
+  return { name: spec.name, look: key, touched, deep: deep.size, main: String(heads[0].text).slice(0, 40) };
+}
+/* ═══ THE NUMBER FILLS ITS PLATE ═══════════════════════════════════════════
+   Owner, 2026-09-27, on the Steps Flow cards: "These CTA are very hard to read
+   and too small". stepsFlow-nn05-30 set its number at 80px on a 186px band
+   that runs the full width: a small line in a large empty plate. Rule 53's
+   0.62x-the-headline target keeps it small wherever the headline is small.
+   Now the number grows to fill its own plate: its box up to 78% of the plate's
+   height, its ink inside the plate's width with plate air (rule 64), a plate
+   narrower than that widening into clear space within the guides. It never
+   shrinks here, never grows onto other copy on its plate, and never past 2.2x. */
+function numberFill(sc, W, H){
+  if (window.__noNumberFill) return null;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  const ph = objs.filter(o => live(o) && isText(o) && o.pgRole === 'phone' && /\d/.test(o.text || ''))
+    .sort((a, b) => (b.fontSize || 0) * (b.scaleY || 1) - (a.fontSize || 0) * (a.scaleY || 1))[0];
+  if (!ph) return null;
+  ph.setCoords();
+  const c = ph.getCenterPoint(), zo = objs.indexOf(ph);
+  const host = objs.filter(o => live(o) && o.type === 'rect' && objs.indexOf(o) < zo && !o.angle
+      && o.width * (o.scaleX || 1) <= W + 4 && o.height * (o.scaleY || 1) < 0.4 * H
+      && (typeof o.fill !== 'string' || !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(o.fill)))
+    .filter(p => { const b = p.getBoundingRect(true, true); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })
+    .sort((a, b) => a.width * a.height * (a.scaleX || 1) * (a.scaleY || 1) - b.width * b.height * (b.scaleX || 1) * (b.scaleY || 1))[0];
+  if (!host || ph.angle) return null;
+  const G = 0.06 * Math.min(W, H);
+  const hb = host.getBoundingRect(true, true), full = hb.width >= W * 0.93;
+  const others = objs.filter(o => o !== ph && o !== host && live(o) && (isText(o) || o.type === 'image' || o.type === 'group'))
+    .map(o => ({ o, b: o.getBoundingRect(true, true) })).filter(x => x.b.width < W * 0.95 || x.o.type !== 'image');
+  const overlap = (a, b) => Math.max(0, Math.min(a.left + a.width, b.left + b.width) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.top + a.height, b.top + b.height) - Math.max(a.top, b.top));
+  const pb = ph.getBoundingRect(true, true), fs0 = (ph.fontSize || 40) * (ph.scaleY || 1);
+  const inkW = (typeof plateAirInk === 'function' ? plateAirInk(ph).w : ph.width) * (ph.scaleX || 1);
+  // what the plate's height allows, less anything else that lives on the plate
+  const mates = others.filter(x => { const xc = { x: x.b.left + x.b.width / 2, y: x.b.top + x.b.height / 2 };
+    return xc.x > hb.left && xc.x < hb.left + hb.width && xc.y > hb.top && xc.y < hb.top + hb.height; });
+  /* a band that runs off the canvas holds the number only inside the guides:
+     a restaged, audited record by its letters (DESIGN-LAW 74, 76), every
+     other card by its box, which is what the gate measures (rule 57). Sized
+     to a band that ran to the card's edge, the number's box left the guides
+     on 7 of 20 street cards and on the offer cards in Easy Mode, and the gate
+     stopped their download */
+  const INK = objs.some(o => o && o.pgInk);
+  let top = Math.max(hb.top, INK ? G + 3 : G), bot = Math.min(hb.top + hb.height, INK ? H - G - 3 : H - G);   // 3px: the letters' clearance off a guide (inkClear)
+  /* a look that will outline the number after this pass (Street, sc.__look) grows its letters by half the stroke */
+  const LKn = INK && sc.__look, npad = LKn && LKn.scope === 'selling' && (LKn.outline === 'black' || LKn.outline === 'white') ? 0.0425 * (ph.fontSize || 40) * (ph.scaleY || 1) : 0;
+  top += npad; bot -= npad;
+  mates.forEach(x => { if (x.b.top + x.b.height <= pb.top + 2) top = Math.max(top, x.b.top + x.b.height); else if (x.b.top >= pb.top + pb.height - 2) bot = Math.min(bot, x.b.top); });
+  /* the DIGITS fill 74% of the room: sized by its box, the number's letters
+     filled 45% of a 184px band ("the CTA is way too small", 2026-09-27) */
+  const pI = (INK && textInkRect(ph)) || pb;
+  const kH = INK ? ((bot - top) * 0.74) / pI.height : ((bot - top) * 0.78) / pb.height;
+  const maxW = (full ? W - 2 * G : W - 2 * G) - 2 * Math.max(12, 0.35 * fs0 * 1.5);
+  const kW = maxW / inkW;
+  let k = Math.min(kH, kW, 2.2);
+  /* already big enough: still set its LETTERS on the room's centre when it was
+     meant to be centred there (its box within 10px of it) — box-centred, a
+     170px number sat 5.5px low */
+  const inkCentre = () => {
+    const r = textInkRect(ph); if (!r) return;
+    const d = numberCentreY(hb, top, bot, r.height, H, G) - (r.top + r.height / 2);
+    if (Math.abs(d) > 0.5 && Math.abs(d) < Math.max(12, 0.15 * (bot - top))){ ph.set('top', ph.top + d); ph.setCoords(); }
+  };
+  if (!(k > 1.04)){ if (INK) inkCentre(); return { k: 1, fs: Math.round(fs0) }; }
+  // the plate widens (never narrows) to hold the ink with air, into clear space only
+  const tryK = kk => {
+    const w = Math.max(hb.width, Math.min(W - 2 * G, inkW * kk + 2 * plateAirNeed(hb.width, fs0 * kk)));
+    const nb = { left: hb.left + hb.width / 2 - w / 2, top: hb.top, width: w, height: hb.height };
+    if (!full && others.some(x => mates.indexOf(x) < 0 && overlap(nb, x.b) > 4)) return null;
+    return w;
+  };
+  let w = full ? hb.width : tryK(k);
+  while (w == null && k > 1.04){ k -= 0.05; w = tryK(k); }
+  if (w == null || k <= 1.04) return { k: 1, fs: Math.round(fs0) };
+  if (!full && w > hb.width + 1){ const pc = host.getCenterPoint(); host.set({ width: w / (host.scaleX || 1) }); host.setPositionByOrigin(pc, 'center', 'center'); host.setCoords(); }
+  const r0 = textInkRect(ph) || pb;          // where its letters were set
+  ph.set({ scaleX: (ph.scaleX || 1) * k, scaleY: (ph.scaleY || 1) * k });
+  // its letters centred in the room between whatever sits above and below it on the plate
+  ph.setPositionByOrigin(new fabric.Point(c.x, (top + bot) / 2), 'center', 'center'); ph.setCoords();
+  /* ...and across it, on the edge it was set on. Grown about its centre, a
+     number set on the left guide of a full band ran off the card (an offer
+     card in Easy Mode: its letters from x = -32). A number centred on its
+     plate stays centred; either way its letters stay inside the guides. */
+  const r1 = textInkRect(ph);
+  if (r1){
+    const lg = r0.left - hb.left, rg = hb.left + hb.width - (r0.left + r0.width);
+    let dx = Math.abs(lg - rg) < 0.1 * hb.width ? 0 : lg < rg ? r0.left - r1.left : (r0.left + r0.width) - (r1.left + r1.width);
+    const L = r1.left + dx, R = r1.left + r1.width + dx;
+    if (L < G) dx += G - L; else if (R > W - G) dx -= R - (W - G);
+    if (Math.abs(dx) > 0.5){ ph.set('left', ph.left + dx); ph.setCoords(); }
+  }
+  if (INK){ const r = textInkRect(ph); if (r){ ph.set('top', ph.top + (numberCentreY(hb, top, bot, r.height, H, G) - (r.top + r.height / 2))); ph.setCoords(); } }
+  if (typeof plateAir === 'function') plateAir(sc, W, H);
+  return { k: +k.toFixed(2), fs: Math.round(fs0 * k) };
+}
+
+/* ═══ TAGLINE STYLE IN EASY MODE ═══════════════════════════════════════════
+   Owner, 2026-09-27: "make sure we have any gradient, selectable any amount of
+   colors in the gradient any premade gradient patterns that maybe are common
+   or good color schemes", and on the Tagline Lab: "the variation of colors and
+   sheer amount of variations are very good". The looks the lab proved are on
+   every card in the studio: a row of looks, the sixteen premade gradients as
+   swatches (plus Auto, from the ad's own colours), the stops themselves (two
+   to eight, each a colour you can pick), the angle, and outline and effect
+   overrides that combine with any look (a Street gradient in 3-D block, a
+   custom gradient that glows). renderEzCanvas applies it after layout, so the
+   preview, the PNG and the video carry the same style. The number fills its
+   plate on every card, styled or not (numberFill). One style for every card,
+   remembered: the owner's favourite ads kept one gradient across their assets.
+   The preview re-measures the styled lines (rule 54) and says so when one
+   reads under 3:1 on this card; it never blocks, the owner decides. */
+TAGLINE_LOOKS.gradient = { name: 'Gradient', fill: 'gradient', gradient: 'sunset', outline: 'black', plates: 'match' };
+TAGLINE_LOOKS.pattern = { name: 'Pattern', fill: 'texture', texture: 'money', outline: 'black' };
+const EZ_TAG_LOOKS = [
+  ['solid', 'Solid', 'The card as designed'],
+  ['street', 'Street', 'A hot gradient on the headline, number and CTA, a heavy black outline, dark bands under them'],
+  ['signature', 'Signature', 'A gradient in the ad’s own accent; its plates take it too'],
+  ['gradient', 'Gradient', 'Any premade or custom gradient, black outline'],
+  ['pair', 'Accent → support', 'The accent melting into the support colour'],
+  ['outline', 'White + outline', 'White letters, heavy black outline'],
+  ['blocks', 'Colour blocks', 'Each headline line on its own block of the theme’s colours'],
+  ['multicolor', 'Multicolour', 'Every letter its own colour'],
+  ['glow', 'Glow', 'A neon tube: white core, coloured glow'],
+  ['anaglyph', 'Red & blue 3-D', 'The old 3-D print: red to one side, blue to the other'],
+  ['extrude', '3-D block', 'Letters with solid depth'],
+  ['pattern', 'Pattern', 'Fill the headline with a pattern: 36 to choose from, sized and slid to taste'],
+];
+const EZ_TAG_GRAD_LOOKS = new Set(['street', 'signature', 'gradient', 'pair', 'multicolor']);
+const EZ_TAG_MAX_STOPS = 8;
+ez.tag = Object.assign({ look: 'solid', gradient: null, angle: 90, outline: 'auto', effect: 'auto', texture: 'money', patScale: 1, patX: 0, patY: 0 }, jget('pgfx_tag', null) || {});
+// a visitor who picked one of the first six looks (pgfx_tagline, before the panel) keeps it
+if (!jget('pgfx_tag', null) && jget('pgfx_tagline', null)) ez.tag.look = ({ gradient: 'signature' })[jget('pgfx_tagline', 'solid')] || jget('pgfx_tagline', 'solid');
+if (!EZ_TAG_LOOKS.some(l => l[0] === ez.tag.look) && !['stripes', 'dots', 'cash', 'cracked'].includes(ez.tag.look)) ez.tag.look = 'solid';
+if (['stripes', 'dots', 'cash', 'cracked'].includes(ez.tag.look)){ ez.tag.texture = TAGLINE_LOOKS[ez.tag.look].texture; ez.tag.look = 'pattern'; }
+
+function ezTagSpec(){
+  const t = ez.tag || {}, base = TAGLINE_LOOKS[t.look] || TAGLINE_LOOKS.solid, spec = Object.assign({ look: TAGLINE_LOOKS[t.look] ? t.look : 'solid' }, base);
+  if (t.gradient && EZ_TAG_GRAD_LOOKS.has(t.look)) spec.gradient = Array.isArray(t.gradient) ? t.gradient.slice() : t.gradient;
+  if (t.angle != null) spec.angle = t.angle;
+  if (t.outline && t.outline !== 'auto') spec.outline = t.outline;
+  if (t.effect && t.effect !== 'auto') spec.effect = t.effect;
+  if (spec.fill === 'texture'){
+    if (t.look === 'pattern' && t.texture) spec.texture = t.texture;
+    spec.patScale = t.patScale || 1; spec.patX = t.patX || 0; spec.patY = t.patY || 0;
+  }
+  const plain = (t.look || 'solid') === 'solid' && (!spec.outline || spec.outline === 'none') && (!spec.effect || spec.effect === 'none');
+  return plain ? null : spec;
+}
+/* the stops a look draws on its own, shown in the editor so they can be
+   edited from where they are (at a light line's lightness, as most lines are) */
+function ezTagAutoStops(look){
+  const pal = ez._tagPal || { accent: '#4d9cff', support: '#ff7a1a' };
+  const g = (TAGLINE_LOOKS[look] || {}).gradient || 'theme';
+  if (TAGLINE_GRADIENTS[g]) return TAGLINE_GRADIENTS[g].stops.slice();
+  const acc = hexToOklch(pal.accent) || { L: 0.7, C: 0.15, h: 250 }, sup = hexToOklch(pal.support || pal.accent) || acc;
+  const h0 = acc.C >= 0.04 ? acc.h : sup.h, at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
+  if (look === 'multicolor') return [0, 72, 144, 216, 288].map(d => at(0.8, 0.17, h0 + d));
+  if (g === 'pair') return [at(0.8, 0.15, acc.h), at(0.8, 0.15, sup.h)];
+  if (g === 'street'){
+    const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
+    return [[0.74, h0], [0.88, h0 + dir * 40], [0.84, h0 + dir * 75]].map(([L, h]) => at(L, 0.18, h));
+  }
+  return [at(0.8, 0.15, h0 - 25), at(0.8, 0.15, h0 + 25)];
+}
+function ezTagStops(){
+  const t = ez.tag;
+  if (Array.isArray(t.gradient)) return t.gradient.slice();
+  if (t.gradient && TAGLINE_GRADIENTS[t.gradient]) return TAGLINE_GRADIENTS[t.gradient].stops.slice();
+  return ezTagAutoStops(t.look);
+}
+/* rule 54 on the styled lines: each line and the layers its effect adds,
+   hidden together, against what is really behind them; the 75th percentile
+   of the changed pixels' contrast */
+function taglineCritic(sc, W, H){
+  const ctx = sc.lowerCanvasEl && sc.lowerCanvasEl.getContext('2d');
+  if (!ctx) return [];
+  const z = sc.getZoom ? sc.getZoom() : 1, CW = sc.lowerCanvasEl.width, CH = sc.lowerCanvasEl.height;
+  const lum = (d, i) => { const f = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(d[i]) + 0.7152 * f(d[i + 1]) + 0.0722 * f(d[i + 2]); };
+  sc.renderAll();
+  const full = ctx.getImageData(0, 0, CW, CH).data, out = [];
+  const objs = sc.getObjects();
+  objs.filter(o => o.visible !== false && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || '')).forEach(o => {
+    const kin = objs.filter(q => q.pgKin === o);
+    const bs = [o].concat(kin).map(q => q.getBoundingRect(true, true));
+    const x0 = Math.max(0, Math.floor(Math.min(...bs.map(r => r.left)) * z)), y0 = Math.max(0, Math.floor(Math.min(...bs.map(r => r.top)) * z));
+    const x1 = Math.min(CW, Math.ceil(Math.max(...bs.map(r => r.left + r.width)) * z)), y1 = Math.min(CH, Math.ceil(Math.max(...bs.map(r => r.top + r.height)) * z));
+    if (x1 - x0 < 4 || y1 - y0 < 4) return;
+    o.visible = false; kin.forEach(q => { q.visible = false; }); sc.renderAll();
+    const w = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data;
+    o.visible = true; kin.forEach(q => { q.visible = true; });
+    const px = [], step = Math.max(1, Math.round(Math.sqrt((x1 - x0) * (y1 - y0) / 40000)));
+    for (let y = y0; y < y1; y += step) for (let x = x0; x < x1; x += step){
+      const f = (y * CW + x) * 4, g = ((y - y0) * (x1 - x0) + (x - x0)) * 4;
+      if (Math.abs(full[f] - w[g]) + Math.abs(full[f + 1] - w[g + 1]) + Math.abs(full[f + 2] - w[g + 2]) < 24) continue;
+      const a = lum(full, f), q = lum(w, g); px.push((Math.max(a, q) + 0.05) / (Math.min(a, q) + 0.05));
+    }
+    px.sort((p, q) => p - q);
+    out.push({ role: o.pgRole, text: String(o.text).replace(/\s+/g, ' ').trim().slice(0, 28), q75: px.length ? +px[Math.floor(px.length * 0.75)].toFixed(2) : 0 });
+  });
+  sc.renderAll();
+  return out;
+}
+/* THE LETTERS THEMSELVES (the variant board, 2026-09-29). taglineCritic takes
+   the upper quartile of every pixel a line changes, which a two-tone fill or a
+   busy photograph passes on its light patches while the letters dissolve (camo
+   on a dark ground; a black claim on a bright mosaic read 1.1:1 under most of
+   its letters and passed). Here the line's FILL is held against the ground
+   under it, pixel by pixel: g25 is the contrast three quarters of the fill
+   clears. An outline that draws the letters (a stroke painted first, 3px or
+   more) is counted too: o50, the fill against it. score: the better of the two.
+   The stroke is made clear rather than removed, so the letters stay put. */
+function fillLegibility(sc, o){
+  const cv = sc && sc.lowerCanvasEl, ctx = cv && cv.getContext('2d');
+  if (!ctx || !o) return null;
+  const CW = cv.width, CH = cv.height, z = CW / sc.width, objs = sc.getObjects();
+  const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const lum = (d, i) => 0.2126 * lin(d[i]) + 0.7152 * lin(d[i + 1]) + 0.0722 * lin(d[i + 2]);
+  const cr = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  const kin = objs.filter(q => q.pgKin === o);
+  const rs = [o].concat(kin).map(q => q.getBoundingRect(true, true));
+  const x0 = Math.max(0, Math.floor(Math.min(...rs.map(r => r.left)) * z)), y0 = Math.max(0, Math.floor(Math.min(...rs.map(r => r.top)) * z));
+  const x1 = Math.min(CW, Math.ceil(Math.max(...rs.map(r => r.left + r.width)) * z)), y1 = Math.min(CH, Math.ceil(Math.max(...rs.map(r => r.top + r.height)) * z));
+  if (x1 - x0 < 4 || y1 - y0 < 4) return null;
+  const vis = objs.map(q => q.visible), bgI = sc.backgroundImage, bgC = sc.backgroundColor;
+  const restore = () => { objs.forEach((q, i) => { q.visible = vis[i]; }); sc.backgroundImage = bgI; sc.backgroundColor = bgC; };
+  const grab = () => { sc.renderAll(); return ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data; };
+  const F = grab();
+  o.visible = false; kin.forEach(q => { q.visible = false; });
+  const G = grab();
+  restore();
+  sc.backgroundImage = null; sc.backgroundColor = ''; objs.forEach(q => { q.visible = q === o; });
+  const st = { stroke: o.stroke, shadow: o.shadow };
+  o.set({ stroke: 'rgba(0,0,0,0)', shadow: null });
+  const M = grab();
+  o.set(st); restore(); sc.renderAll();
+  const ol = typeof st.stroke === 'string' && (o.strokeWidth || 0) * (o.scaleY || 1) >= 3 && o.paintFirst === 'stroke';
+  let oL = null;
+  if (ol){ const c = document.createElement('canvas').getContext('2d'); c.fillStyle = st.stroke; c.fillRect(0, 0, 1, 1); const d = c.getImageData(0, 0, 1, 1).data; if (d[3] > 200) oL = lum(d, 0); }
+  /* OKLab, for the colour a pixel differs by when its lightness does not */
+  const lab = (d, i) => { const r = lin(d[i]), g = lin(d[i + 1]), b = lin(d[i + 2]);
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s2 = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+    return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s2, 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s2, 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s2]; };
+  const vsG = [], vsO = [], dEs = [], step = Math.max(1, Math.round(Math.sqrt((x1 - x0) * (y1 - y0) / 60000)));
+  let lost = 0;
+  for (let y = 0; y < y1 - y0; y += step) for (let x = 0; x < x1 - x0; x += step){
+    const i = (y * (x1 - x0) + x) * 4;
+    if (M[i + 3] < 200) continue;
+    const f = lum(F, i), c = cr(f, lum(G, i)); vsG.push(c); if (oL != null) vsO.push(cr(f, oL));
+    const a = lab(F, i), b = lab(G, i), dE = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]); dEs.push(dE);
+    if (c < 1.5 && dE < 0.12) lost++;                // neither lightness nor colour sets it apart
+  }
+  if (!vsG.length) return null;
+  vsG.sort((a, b) => a - b); vsO.sort((a, b) => a - b); dEs.sort((a, b) => a - b);
+  const q = (a, p) => a.length ? +a[Math.floor((a.length - 1) * p)].toFixed(2) : null;
+  const g25 = q(vsG, 0.25), o50 = q(vsO, 0.5);
+  return { g10: q(vsG, 0.1), g25, g50: q(vsG, 0.5), o50, dE10: q(dEs, 0.1), dE25: q(dEs, 0.25), lost: +(lost / vsG.length).toFixed(3),
+    score: o50 != null ? Math.max(g25, o50) : g25, n: vsG.length };
+}
+/* A CARD'S OWN LOOK. A record may carry a tagline look of its own (tpl.look:
+   a TAGLINE_LOOKS key or a taglineStyle spec), chosen by the engine for that
+   card. The gallery painter paints it; Easy Mode shows it under Solid ("the
+   card as designed") until the visitor picks another; the video bakes it. */
+function cardLookSpec(tpl){
+  const L = tpl && tpl.look;
+  if (!L) return null;
+  return Object.assign({ look: typeof L === 'string' ? L : 'card' }, typeof L === 'string' ? TAGLINE_LOOKS[L] || { name: L } : L);
+}
+function applyCardLook(sc, tpl, W, H, res){
+  const spec = cardLookSpec(tpl);
+  if (!spec) return null;
+  return taglineApply(sc, tpl, W, H, spec, { res });
+}
+/* Easy Mode's picture (renderEzCanvas: the preview, every download and the
+   video): the card finished (taglineFinish), then the visitor's look, or the
+   card's own under Solid, through the one entry point (taglineApply); on the
+   preview, the critic's weak lines and any look that gave way are said */
+function ezApplyTagline(sc, W, H, preview, mult, tpl){
+  if (tpl === undefined) tpl = typeof ezTpl === 'function' ? ezTpl() : null;
+  taglineFinish(sc, W, H);
+  const spec = ezTagSpec() || cardLookSpec(tpl);   // Solid: the card as designed
+  const dragging = preview && ez._patDrag;          // sliding the pattern: the critic waits for the drop
+  let info = { look: 'solid' };
+  if (spec){
+    info = taglineApply(sc, tpl, W, H, spec, { res: mult || 1 });
+    if (preview) ez._patTile = sc.__patTile;
+    if (preview && !dragging) try { info.weak = taglineCritic(sc, W, H).filter(r => r.q75 < 3); } catch (e){ console.warn('GraphicsStudio tagline critic:', e); }
+  }
+  if (preview){ try { ez._tagPal = info.pal || ezTagPalette(sc, tpl, W); } catch (e){} }
+  if (preview && !dragging){
+    taglineNote(info, 'ez-tag-note');
+    if (!Array.isArray(ez.tag.gradient) && !ez.tag.gradient) ezTagDrawStops();   // Auto follows the card
+    ezTagDrawPats();                                                              // the chips wear the card's hue
+  }
+  return info;
+}
+function ezTagSave(){ jset('pgfx_tag', ez.tag); schedEzPreview(0); }
+function ezTagSync(){
+  const t = ez.tag;
+  document.querySelectorAll('#ez-tag-looks button').forEach(b => { const on = b.dataset.look === t.look; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  document.querySelectorAll('#ez-tag-outline button').forEach(b => { const on = b.dataset.v === (t.outline || 'auto'); b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  document.querySelectorAll('#ez-tag-effect button').forEach(b => { const on = b.dataset.v === (t.effect || 'auto'); b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  const key = Array.isArray(t.gradient) ? null : (t.gradient || 'auto');
+  document.querySelectorAll('#ez-tag-presets button').forEach(b => { const on = b.dataset.g === key; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  const gw = $('ez-tag-grad'); if (gw) gw.hidden = !EZ_TAG_GRAD_LOOKS.has(t.look);
+  const ang = $('ez-tag-angle'), av = $('ez-tag-angle-val');
+  if (ang) ang.value = t.angle == null ? 90 : t.angle;
+  if (av) av.textContent = (t.angle == null ? 90 : t.angle) + '°';
+  const pw = $('ez-tag-pat'); if (pw) pw.hidden = t.look !== 'pattern';
+  const tex = PATTERN_ALIAS[t.texture] || t.texture || 'money';
+  document.querySelectorAll('#ez-tag-pats button').forEach(b => { const on = b.dataset.p === tex; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  [['ez-tag-pscale', t.patScale || 1], ['ez-tag-px', t.patX || 0], ['ez-tag-py', t.patY || 0]].forEach(([id, v]) => {
+    const el = $(id), tv = $(id + '-val'), pc = Math.round(v * 100);
+    if (el) el.value = pc; if (tv) tv.textContent = pc + '%';
+  });
+  const img = $('ez-preview'); if (img) img.classList.toggle('ez-pat-drag', t.look === 'pattern');
+  ezTagDrawStops();
+  ezTagDrawPats();
+}
+/* the pattern chips, in the card's own hue at a white line's lightness (most headlines are white) */
+function ezTagDrawPats(){
+  const box = $('ez-tag-pats'), host = $('ez-tag-pat');
+  if (!box || !host || host.hidden) return;
+  const acc = hexToOklch((ez._tagPal && ez._tagPal.accent) || '#4d9cff') || { h: 250 };
+  const h0 = Math.round(acc.h / 10) * 10, dpr = Math.min(2, window.devicePixelRatio || 1), sig = h0 + '|' + dpr;
+  if (box.dataset.sig === sig) return;
+  box.dataset.sig = sig;
+  const C = taglinePatternColours(0.86, true, h0);
+  box.querySelectorAll('button[data-p]').forEach(b => {
+    const cv = b.querySelector('canvas'), def = taglinePatternDef(b.dataset.p), px = Math.round(40 * dpr);
+    cv.width = cv.height = px;
+    const tile = taglinePatternTile(b.dataset.p, Math.round(Math.max(13, Math.min(40, def.size * 55)) * dpr), C), x = cv.getContext('2d');
+    x.fillStyle = x.createPattern(tile, 'repeat'); x.fillRect(0, 0, px, px);
+  });
+}
+/* drag the preview to slide the pattern: the sheet follows the pointer */
+function ezPatDragBind(){
+  const img = $('ez-preview');
+  if (!img || img.dataset.patDrag) return;
+  img.dataset.patDrag = '1';
+  let d = null, raf = 0;
+  const on = () => ez.tag.look === 'pattern' && ez._patTile;
+  img.addEventListener('dragstart', e => { if (on()) e.preventDefault(); });
+  img.addEventListener('pointerdown', e => {
+    if (!on() || e.button !== 0) return;
+    const F = FORMATS[ez.format] || FORMATS.square;
+    d = { x: e.clientX, y: e.clientY, px: ez.tag.patX || 0, py: ez.tag.patY || 0, tile: ez._patTile,
+      kx: F.w / Math.max(1, img.clientWidth), ky: F.h / Math.max(1, img.clientHeight), sc: null };
+    ez._patDrag = true;
+    try { d.sc = renderEzCanvas(560, 'jpeg', undefined, undefined, undefined, true); } catch (_){ d.sc = null; }
+    try { img.setPointerCapture(e.pointerId); } catch (_){}
+    img.classList.add('dragging');
+    e.preventDefault();
+  });
+  img.addEventListener('pointermove', e => {
+    if (!d) return;
+    const w1 = v => +(((v % 1) + 1) % 1).toFixed(3);
+    ez.tag.patX = w1(d.px + (e.clientX - d.x) * d.kx / d.tile.w);
+    ez.tag.patY = w1(d.py + (e.clientY - d.y) * d.ky / d.tile.h);
+    if (!raf) raf = requestAnimationFrame(() => {
+      raf = 0; if (!d) return;
+      ezTagSync();
+      const sc = d.sc;
+      if (!sc){ img.src = renderEzCanvas(560, 'jpeg'); return; }
+      sc.getObjects().forEach(o => { if (o.fill && o.fill.pgSlide){ o.fill.pgSlide(ez.tag.patX, ez.tag.patY, o); o.dirty = true; } });
+      sc.renderAll();
+      img.src = sc.toDataURL({ format: 'jpeg', quality: 0.85, multiplier: 560 / Math.min(sc.width, sc.height) });
+    });
+  });
+  const end = () => {
+    if (!d) return;
+    if (d.sc) try { d.sc.dispose(); } catch (_){}
+    d = null; ez._patDrag = false; img.classList.remove('dragging');
+    if (raf){ cancelAnimationFrame(raf); raf = 0; }
+    ezTagSync(); ezTagSave();          // the full preview, critic and all, on the drop
+  };
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => img.addEventListener(ev, end));
+}
+function ezTagDrawStops(){
+  const box = $('ez-tag-stops');
+  if (!box) return;
+  const stops = ezTagStops(), t = ez.tag, sig = stops.join(',');
+  if (box.dataset.sig === sig) return;             // the preview redraws Auto's stops only when the card changes them
+  box.dataset.sig = sig;
+  box.innerHTML = '';
+  stops.forEach((c, i) => {
+    const inp = document.createElement('input');
+    inp.type = 'color'; inp.value = /^#[0-9a-f]{6}$/i.test(c) ? c : '#ffffff';
+    inp.title = 'Colour ' + (i + 1) + ' of ' + stops.length;
+    inp.setAttribute('aria-label', inp.title);
+    inp.addEventListener('input', () => { const s = ezTagStops(); s[i] = inp.value; t.gradient = s; box.dataset.sig = s.join(','); ezTagSyncPresets(); jset('pgfx_tag', t); schedEzPreview(); });
+    box.appendChild(inp);
+  });
+  const btn = (label, title, dis, fn) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.title = title; b.setAttribute('aria-label', title); b.disabled = dis; b.onclick = fn; box.appendChild(b); };
+  btn('+', 'Add a colour', stops.length >= EZ_TAG_MAX_STOPS, () => { const s = ezTagStops(); s.push(s[s.length - 1]); t.gradient = s; ezTagSync(); ezTagSave(); });
+  btn('−', 'Remove the last colour', stops.length <= 2, () => { const s = ezTagStops(); s.pop(); t.gradient = s; ezTagSync(); ezTagSave(); });
+  btn('⇄', 'Reverse the gradient', false, () => { t.gradient = ezTagStops().reverse(); ezTagSync(); ezTagSave(); });
+}
+function ezTagSyncPresets(){
+  const key = Array.isArray(ez.tag.gradient) ? null : (ez.tag.gradient || 'auto');
+  document.querySelectorAll('#ez-tag-presets button').forEach(b => { const on = b.dataset.g === key; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+}
+function buildEzTagline(){
+  const looks = $('ez-tag-looks');
+  if (!looks || looks.dataset.built) return;
+  looks.dataset.built = '1';
+  const t = ez.tag;
+  EZ_TAG_LOOKS.forEach(([k, label, title]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.look = k; b.textContent = label; b.title = title;
+    b.onclick = () => { t.look = k; ezTagSync(); ezTagSave(); };
+    looks.appendChild(b);
+  });
+  const pr = $('ez-tag-presets');
+  const auto = document.createElement('button');
+  auto.type = 'button'; auto.className = 'ez-tag-preset auto'; auto.dataset.g = 'auto';
+  auto.title = 'Auto: from this ad’s own colours'; auto.setAttribute('aria-label', auto.title);
+  auto.onclick = () => { t.gradient = null; ezTagSync(); ezTagSave(); };
+  pr.appendChild(auto);
+  Object.entries(TAGLINE_GRADIENTS).forEach(([k, g]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'ez-tag-preset'; b.dataset.g = k; b.title = g.name; b.setAttribute('aria-label', g.name + ' gradient');
+    b.style.background = 'linear-gradient(90deg,' + g.stops.join(',') + ')';
+    b.onclick = () => { t.gradient = k; if (!EZ_TAG_GRAD_LOOKS.has(t.look)) t.look = 'gradient'; ezTagSync(); ezTagSave(); };
+    pr.appendChild(b);
+  });
+  const ang = $('ez-tag-angle');
+  if (ang) ang.addEventListener('input', () => { t.angle = +ang.value; $('ez-tag-angle-val').textContent = t.angle + '°'; jset('pgfx_tag', t); schedEzPreview(); });
+  const seg = (id, opts, field) => {
+    const row = $(id);
+    opts.forEach(([v, label, title]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.v = v; b.textContent = label; if (title) b.title = title;
+      b.onclick = () => { t[field] = v; ezTagSync(); ezTagSave(); };
+      row.appendChild(b);
+    });
+  };
+  seg('ez-tag-outline', [['auto', 'Auto', 'What the look uses'], ['none', 'None'], ['black', 'Black'], ['white', 'White']], 'outline');
+  seg('ez-tag-effect', [['auto', 'Auto', 'What the look uses'], ['none', 'None'], ['glow', 'Glow'], ['anaglyph', 'Red & blue 3-D'], ['extrude', '3-D block']], 'effect');
+  const pats = $('ez-tag-pats');
+  if (pats){
+    let group = null;
+    Object.entries(TAGLINE_PATTERNS).forEach(([k, def]) => {
+      if (def.group !== group){ group = def.group; const g = document.createElement('div'); g.className = 'ez-tag-patgrp'; g.textContent = group; pats.appendChild(g); }
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'ez-tag-pat'; b.dataset.p = k; b.title = def.name; b.setAttribute('aria-label', def.name + ' pattern');
+      b.appendChild(document.createElement('canvas'));
+      b.onclick = () => { t.texture = k; t.look = 'pattern'; ezTagSync(); ezTagSave(); };
+      pats.appendChild(b);
+    });
+  }
+  const slide = (id, field, lo) => { const el = $(id); if (!el) return;
+    el.addEventListener('input', () => { t[field] = Math.max(lo, +el.value / 100); $(id + '-val').textContent = el.value + '%'; jset('pgfx_tag', t); schedEzPreview(); }); };
+  slide('ez-tag-pscale', 'patScale', 0.25); slide('ez-tag-px', 'patX', 0); slide('ez-tag-py', 'patY', 0);
+  const rs = $('ez-tag-patreset');
+  if (rs) rs.onclick = () => { t.patScale = 1; t.patX = 0; t.patY = 0; ezTagSync(); ezTagSave(); };
+  ezPatDragBind();
+  ezTagSync();
+}
+
+/* ═══ BADGE WORDS AND THEIR MARKS ══════════════════════════════════════════
+   Owner, 2026-09-27: "for 'ez buyer' each variation could say different things
+   like #1 BUYER or FAST BUYER or EZ BUYER or QUICK CASH or MEET NOW or
+   AVAILABLE NOW or TOP BUYER or BEST BUYER or TOP OFFER or LA, OC, IE or
+   LA / OC". The badge is a selling point with a mark that says what kind of
+   point it is: a shield for a trust claim, a bolt for speed, a tag for money,
+   a live signal for availability, a pin for where. It never repeats a word
+   of the headline beside it (TOP iPHONE BUYER + EZ BUYER reads BUYER BUYER),
+   and it wears the CTA's colour (DESIGN-LAW 69, 74). */
+ICONS.pin     = { d:'M50 90 C50 90 22 60 22 39 A28 28 0 0 1 78 39 C78 60 50 90 50 90 Z M50 29 A10 10 0 1 0 50 49 A10 10 0 1 0 50 29 Z', min:28 };
+ICONS.liveDot = { d:'M50 40 A10 10 0 1 0 50 60 A10 10 0 1 0 50 40 Z M31 29 A29 29 0 0 0 31 71 M69 29 A29 29 0 0 1 69 71 M17 16 A47 47 0 0 0 17 84 M83 16 A47 47 0 0 1 83 84', min:28 };
+const BADGE_WORDS = [
+  ['#1 BUYER', 'shieldTick'], ['TOP BUYER', 'shieldTick'], ['BEST BUYER', 'shieldTick'], ['EZ BUYER', 'shieldTick'],
+  ['FAST BUYER', 'boltFast'], ['QUICK CASH', 'boltFast'], ['TOP OFFER', 'cashTag'],
+  ['MEET NOW', 'liveDot'], ['AVAILABLE NOW', 'liveDot'], ['LA · OC · IE', 'pin'], ['LA / OC', 'pin'],
+];
+/* the badges that can sit beside a headline: no shared word */
+function badgeWordsFor(headline){
+  const words = new Set(String(headline || '').toUpperCase().split(/[^A-Z0-9#]+/).filter(w => w.length > 1));
+  return BADGE_WORDS.filter(([t]) => !t.toUpperCase().split(/[^A-Z0-9#]+/).some(w => w.length > 1 && words.has(w)));
+}
+
+/* THE LETTERS OF A LINE. A text's box carries the face's ascent and descent
+   room (a line of caps fills about 60% of it) and, with an outline, half the
+   stroke; judged by the box, a display line "left the guides" or "hit" the
+   line under it with clear air between the letters. This is the ink's own
+   rectangle, read off the pixels: the line drawn once, alone, without its
+   shadow, and cached by everything that shapes its ink. Measured from the
+   face's metrics instead, a "✓" the face does not carry (drawn from a
+   fallback font) read 22px tall where it paints 39px, and three selling-point
+   lines were let into the margin (collision audit, 2026-09-27). Rotated text
+   keeps its box. */
+function textInkRect(o){
+  let b;
+  try { o.setCoords(); b = o.getBoundingRect(true, true); } catch (e){ return null; }
+  if (!o || o.angle || !(o.type === 'i-text' || o.type === 'text' || o.type === 'textbox')) return b;
+  const I = textInkOffsets(o);
+  if (!I) return b;
+  const c = o.getCenterPoint(), sx = o.scaleX || 1, sy = o.scaleY || 1;
+  const x0 = o.flipX ? -I.x1 : I.x0, x1 = o.flipX ? -I.x0 : I.x1, y0 = o.flipY ? -I.y1 : I.y0, y1 = o.flipY ? -I.y0 : I.y1;
+  return { left: c.x + x0 * sx, top: c.y + y0 * sy, width: (x1 - x0) * sx, height: (y1 - y0) * sy };
+}
+/* the ink's extent in the object's own units, from its centre */
+function textInkOffsets(o){
+  let key;
+  try {
+    key = [o.type, o.text, o._getFontDeclaration ? o._getFontDeclaration() : o.fontFamily, o.charSpacing, typeof o.fill === 'string' ? o.fill : 'g',
+      o.stroke, o.strokeWidth, o.paintFirst, o.textAlign, o.lineHeight, o.type === 'textbox' ? o.width : '', o.styles && Object.keys(o.styles).length ? JSON.stringify(o.styles) : '',
+      o.underline, o.linethrough, o.overline].join('|');
+  } catch (e){ return null; }
+  const C = textInkOffsets.cache || (textInkOffsets.cache = new Map());
+  if (C.has(key)) return C.get(key);
+  let res = null;
+  try {
+    const cv = o.toCanvasElement({ withoutShadow: true, withoutTransform: true, enableRetinaScaling: false });
+    const w = cv.width, h = cv.height;
+    if (w > 0 && h > 0){
+      const d = cv.getContext('2d').getImageData(0, 0, w, h).data;
+      let x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (let y = 0; y < h; y++){ const row = y * w * 4; for (let x = 0; x < w; x++) if (d[row + x * 4 + 3] > 40){ if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+      if (x1 >= 0) res = { x0: x0 - w / 2, y0: y0 - h / 2, x1: x1 + 1 - w / 2, y1: y1 + 1 - h / 2 };
+    }
+  } catch (e){ res = null; }
+  if (C.size > 2000) C.clear();
+  C.set(key, res);
+  return res;
+}
+
+/* a plate that carries an icon mark as well as words (a shield-tick badge): the
+   layout passes treat it as composed, not as words to centre or a box to fit */
+function plateHoldsMark(objs, b){
+  return objs.some(o => { if (!o || o.type !== 'path' || o.visible === false) return false;
+    let r; try { o.setCoords(); r = o.getBoundingRect(true, true); } catch (e){ return false; }
+    const px = r.left + r.width / 2, py = r.top + r.height / 2;
+    return px > b.left && px < b.left + b.width && py > b.top && py < b.top + b.height; });
+}
+
+/* ═══ TALL FORMATS MOVE BLOCKS, NOT LAYERS ═════════════════════════════════
+   The square card is the design (owner: "primarily design for the square
+   format"); 3:4 and 9:16 are the same card with more height. mapSpecToDoc()
+   stretches every position and every rect's height by the extra height and
+   scales type by the short side, so a plate grew a third taller than its
+   words and they slid off its centre (a step's numeral 18px high on its
+   plate), and two headline lines 29px apart ended 80px apart
+   (audit_card.mjs, restaged stepsFlow-nn05-30, 2026-09-27).
+   A designer keeps each block rigid and gives the extra height to the space
+   between blocks. So the square layout is read back out of the stretched one,
+   clustered into blocks (anything within 3.5% of the width of something else:
+   a claim and its badge, a stack of steps, a band and the phone standing on
+   it), and each block is placed whole: a block near the top keeps its
+   distance from the top, a block at the bottom its distance from the bottom,
+   and the blocks between share the rest in proportion to the gaps they had. */
+function blockRemap(sc, W, H){
+  const sx = W / TPL_W, sy = H / TPL_H;
+  if (!(sy > sx * 1.02)) return 0;              // tall formats only; the square is untouched
+  const u = Math.min(sx, sy);
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  if (!objs.some(o => o && o.pgInk)) return 0;  // restaged, audited records first (DESIGN-LAW 76)
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const ground = o => !o || o.pgBgRect || o.pgScrim || /^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '') || (() => {
+    try { const b = o.getBoundingRect(true, true); return b.width >= W * 0.85 && b.height >= H * 0.85; } catch (e){ return true; } })();
+  const items = [];
+  objs.forEach(o => {
+    if (o.visible === false || ground(o)) return;
+    let bb; try { o.setCoords(); bb = o.getBoundingRect(true, true); } catch (e){ return; }
+    if (!bb || bb.width <= 0 || bb.height <= 0 || bb.left < -2000) return;
+    const k = o.type === 'rect' ? sy : u;          // rect heights were stretched; everything else scaled by the short side
+    // icons and circles were placed by their centre; everything else by its origin
+    const oy = (o.type === 'path' || o.type === 'circle') ? o.getCenterPoint().y : o.top;
+    let r = isText(o) && typeof textInkRect === 'function' ? textInkRect(o) : bb;
+    /* the claim as it will be seen: the look painted after layout (sc.__look) outlines it and may hang depth under it */
+    if (r && isText(o) && o.pgRole === 'headline' && sc.__look){
+      const L = sc.__look, u2 = (o.fontSize || 40), s2 = o.scaleY || 1;
+      const sw = (L.outline === 'black' || L.outline === 'white') ? Math.max(3, u2 * 0.085) : L.effect === 'glow' ? Math.max(2, u2 * 0.035) : L.effect === 'extrude' ? Math.max(1.5, u2 * 0.03) : 0;
+      const dp = L.effect === 'extrude' ? u2 * 0.18 : 0, pad = sw / 2 * s2;
+      if (pad || dp) r = { left: r.left - pad, top: r.top - pad, width: r.width + 2 * pad + dp * 0.8 * s2, height: r.height + 2 * pad + dp * s2 };
+    }
+    const sq = b => ({ left: b.left / sx, top: oy / sy + (b.top - oy) / k, width: b.width / sx, height: b.height / k });
+    items.push({ o, bb, k, box: sq(bb), key: sq(r) });
+  });
+  if (!items.length) return 0;
+  // blocks: connected by a gap of at most 3.5% of the width, in square space
+  const T = 0.035 * TPL_W;
+  const near = (a, b) => {
+    const dx = Math.max(a.left - (b.left + b.width), b.left - (a.left + a.width));
+    const dy = Math.max(a.top - (b.top + b.height), b.top - (a.top + a.height));
+    return Math.max(dx, dy) <= T;
+  };
+  const block = items.map((_, i) => i);
+  const find = i => { while (block[i] !== i) i = block[i] = block[block[i]]; return i; };
+  /* a full-width band pinned to the top or bottom edge is a block of its own
+     with what sits on it: joined to the steps through the phone standing on it,
+     the whole lower card was anchored to the bottom and every spare pixel of the
+     tall format went above the steps ("a large gap", owner, 2026-09-28) */
+  const cin = (a, b) => { const x = a.left + a.width / 2, y = a.top + a.height / 2; return x > b.left && x < b.left + b.width && y > b.top && y < b.top + b.height; };
+  const bandOf = items.map(() => -1);
+  const phoneIt = items.find(q => q.o.pgRole === 'phone');
+  const INKC = items.some(it => it.o.pgRole === 'headline') && items.some(it => /^Badge Pill$/.test(it.o.name || ''));   // a composed Steps Flow card
+  items.forEach((it, i) => {
+    const b = it.box;
+    /* an inset CTA card or pill (inside the guides, not touching the edge) is the band too */
+    const cta = it.o.type === 'rect' && phoneIt && cin(phoneIt.key, b) && b.width >= 0.8 * TPL_W && b.height < 0.35 * TPL_H && b.top + b.height >= 0.9 * TPL_H;
+    if (!cta && (it.o.type !== 'rect' || b.width < 0.9 * TPL_W || b.height >= 0.35 * TPL_H || !(b.top <= 2 || b.top + b.height >= TPL_H - 2))) return;
+    bandOf[i] = i;
+    items.forEach((q, j) => { if (j !== i && bandOf[j] < 0 && q.o.type !== 'image' && cin(q.key, b)) bandOf[j] = i; });
+  });
+  items.forEach((it, i) => { if (bandOf[i] >= 0) block[find(i)] = find(bandOf[i]); });
+  /* the claim (its lines and the badge hung on it) is a block of its own: an
+     outline or a 3-D depth brings it within the joining gap of the steps, and
+     joined, the steps were pinned under the claim with the spare room below */
+  const inClaim = it => it.o.pgRole === 'headline' || /^Badge( Pill| Icon)?$/.test(it.o.name || '');
+  for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++){
+    if ((bandOf[i] >= 0 || bandOf[j] >= 0) && bandOf[i] !== bandOf[j]) continue;   // a band's block takes nothing that is not on it
+    if (INKC && inClaim(items[i]) !== inClaim(items[j])) continue;
+    if (near(items[i].key, items[j].key)) block[find(i)] = find(j);
+  }
+  /* the claim is one block, however far apart a 3-D depth sets its lines */
+  const headIx = items.map((it, i) => it.o.pgRole === 'headline' ? i : -1).filter(i => i >= 0);
+  headIx.slice(1).forEach(i => { block[find(i)] = find(headIx[0]); });
+  /* side by side is one row: a photo beside the steps rides with them. A
+     narrow phone (one back, not a back and front pair) left 95px between itself
+     and the plates, more than the joining gap, and was stacked above them as a
+     block of its own (2026-09-29, the Easy Mode phone picker) */
+  for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++){
+    if (bandOf[i] >= 0 || bandOf[j] >= 0 || find(i) === find(j)) continue;
+    if (items[i].o.type !== 'image' && items[j].o.type !== 'image') continue;
+    const p = items[i].key, q = items[j].key, ov = Math.min(p.top + p.height, q.top + q.height) - Math.max(p.top, q.top);
+    if (ov >= 0.5 * Math.min(p.height, q.height)) block[find(i)] = find(j);
+  }
+  /* a product that stood on such a band, now in the block above it, ends
+     where its block ends instead of hanging below the steps (never under 70%) */
+  const bands = items.filter((_, i) => bandOf[i] === i).map(it => it.box);
+  items.forEach((it, i) => {
+    if (it.o.type !== 'image' || it.o.pgRole !== 'photo' || bandOf[i] >= 0) return;
+    const foot = it.box.top + it.box.height;
+    if (!bands.some(b => foot > b.top - 10 && foot < b.top + 80)) return;
+    const mates = items.filter((q, j) => j !== i && find(j) === find(i));
+    if (!mates.length) return;
+    const bottom = Math.max(...mates.map(q => q.box.top + q.box.height));
+    if (bottom >= foot) return;
+    const k = (bottom - it.box.top) / it.box.height;
+    if (k < 0.7) return;
+    it.reseat = k;
+    it.box = { left: it.box.left + it.box.width * (1 - k) / 2, top: it.box.top, width: it.box.width * k, height: it.box.height * k };
+  });
+  const groups = new Map();
+  items.forEach((it, i) => { const g = find(i); if (!groups.has(g)) groups.set(g, []); groups.get(g).push(it); });
+  // a block's extent is its letters' (a 204px headline's box hangs ~50px under its caps) and its shapes'
+  const ext = it => it.reseat ? it.box : it.key;
+  const B = [...groups.values()].map(g => {
+    const t0 = Math.min(...g.map(it => ext(it).top)), b0 = Math.max(...g.map(it => ext(it).top + ext(it).height));
+    return { g, t0, b0, h: (b0 - t0) * u };
+  }).sort((a, b) => a.t0 - b.t0);
+  // anchors: near the top keeps its distance from the top, near the bottom from the bottom
+  B.forEach(b => {
+    if (b.t0 <= 0.14 * TPL_H) b.top = b.t0 * u;
+    else if (b.b0 >= 0.86 * TPL_H) b.top = H - (TPL_H - b.t0) * u;
+  });
+  // the blocks between two anchored ones sit centred: the free space is shared equally
+  for (let i = 0; i < B.length; i++){
+    if (B[i].top != null) continue;
+    let a = i - 1; while (a >= 0 && B[a].top == null) a--;
+    let z = i; while (z < B.length && B[z].top == null) z++;
+    const lo = a >= 0 ? B[a].top + B[a].h : 0, loSq = a >= 0 ? B[a].b0 : 0;
+    const hi = z < B.length ? B[z].top : H, hiSq = z < B.length ? B[z].t0 : TPL_H;
+    const run = B.slice(i, z), used = run.reduce((s, b) => s + b.h, 0);
+    const gaps = new Array(run.length + 1).fill(1);
+    const gsum = gaps.length, free = Math.max(0, hi - lo - used);
+    let y = lo;
+    run.forEach((b, k) => { y += free * gaps[k] / gsum; b.top = y; y += b.h; });
+    i = z - 1;
+  }
+  let moved = 0;
+  B.forEach(b => b.g.forEach(it => {
+    const o = it.o, wantTop = b.top + (it.box.top - b.t0) * u, wantH = it.box.height * u;
+    if (it.reseat){
+      const c0 = o.getCenterPoint();
+      o.set({ scaleX: (o.scaleX || 1) * it.reseat, scaleY: (o.scaleY || 1) * it.reseat }); o.setPositionByOrigin(c0, 'center', 'center'); o.setCoords();
+    }
+    if (o.type === 'rect' && Math.abs(it.bb.height - wantH) > 0.5){ o.set('height', o.height * wantH / it.bb.height); o.setCoords(); }
+    const now = o.getBoundingRect(true, true);
+    if (Math.abs(now.top - wantTop) > 0.25){ o.set('top', o.top + (wantTop - now.top)); o.setCoords(); moved++; }
+  }));
+  return moved;
+}
+
+/* where a number's letters centre on its plate: on the plate as it is SEEN
+   (a band that runs off the canvas is seen to the edge, so centred only
+   inside the guides a number read as sitting high in its cyan), as far as the
+   letters can go and stay inside the guides and the room its mates leave */
+function numberCentreY(hb, top, bot, inkH, H, G){
+  const seen = (Math.max(hb.top, 0) + Math.min(hb.top + hb.height, H)) / 2;
+  return Math.max(top + inkH / 2, Math.min(seen, bot - inkH / 2));
+}
+
+/* letters kept off a line get 3px of clearance: set exactly on the guide, a
+   line's anti-aliased edge fell a pixel inside the margin, 4% of a thin line */
+function inkClear(r){ return r ? { left: r.left - 3, top: r.top - 3, width: r.width + 6, height: r.height + 6 } : r; }
+
+/* A line is never cut by a plate's edge (DESIGN-LAW 58). Letters, not boxes
+   (rule 76) took away an accident: step 3's box-based push used to shove a
+   phone number 30px down, which happened to land it on a plate it had been
+   authored half off (scriptRetro, trustSeal); and the guides' uniform scale
+   keeps a full-bleed band pinned to its edge while the words move, so a line
+   can end a few pixels over an edge. Last of all, so nothing undoes it:
+   a line whose letters are mostly on a plate (half or more, not all) moves
+   up or down until they are all on it with air; a line that only grazes a
+   plate (a fifth or less) moves up or down just clear of it. Never sideways,
+   never onto another line, never out of the guides. */
+function linesOffEdges(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const solid = f => f && typeof f === 'object' ? true : !!f && f !== 'transparent' && !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(String(f));
+  const lines = objs.filter(o => live(o) && isText(o) && !o.angle && !o.pgKin && /\S/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
+  const plates = objs.filter(o => live(o) && o.type === 'rect' && !o.angle && !o.pgBgRect && !o.pgScrim && (solid(o.fill) || (o.stroke && o.strokeWidth))
+      && !/^(BG|Scrim|Overlay)$/.test(o.name || ''))
+    .map(o => ({ o, b: bb(o) })).filter(x => x.b && x.b.width <= W + 8 && x.b.height < H * 0.6);
+  let moved = 0;
+  lines.forEach(t => {
+    const r = textInkRect(t); if (!r || r.width <= 0 || r.height <= 0) return;
+    const zo = objs.indexOf(t);
+    const over = plates.filter(p => objs.indexOf(p.o) < zo).map(p => {
+      const ix = Math.max(0, Math.min(r.left + r.width, p.b.left + p.b.width) - Math.max(r.left, p.b.left));
+      const iy = Math.max(0, Math.min(r.top + r.height, p.b.top + p.b.height) - Math.max(r.top, p.b.top));
+      return { p, f: (ix * iy) / (r.width * r.height), fx: ix / r.width };
+    }).filter(c => c.f > 0.003 && c.f < 0.995 && c.fx >= 0.5)
+      .sort((a, c) => a.p.b.width * a.p.b.height - c.p.b.width * c.p.b.height);
+    /* within 8px of an edge counts as touching it: at a feed's scale a 6px gap
+       between a chip's edge and the line under it reads as the line on the edge */
+    const near = plates.filter(p => objs.indexOf(p.o) < zo && !over.some(c => c.p === p)).map(p => {
+      const ix = Math.max(0, Math.min(r.left + r.width, p.b.left + p.b.width) - Math.max(r.left, p.b.left));
+      const gap = r.top >= p.b.top + p.b.height ? r.top - (p.b.top + p.b.height) : p.b.top >= r.top + r.height ? p.b.top - (r.top + r.height) : -1;
+      return { p, f: 0, fx: ix / r.width, gap };
+    }).filter(c => c.gap >= 0 && c.gap < 8 && c.fx >= 0.5);
+    const onto = over.find(c => c.f >= 0.5 && c.fx >= 0.98), graze = over.find(c => c.f <= 0.2) || near[0];
+    let dy = 0, k = 1;
+    if (onto){
+      /* the plate's room inside the guides; a line a little too tall for it
+         comes down to fit (never under 85%, a number never under 72px, rule 53) */
+      let P = onto.p.b, top = Math.max(P.top, G), bot = Math.min(P.top + P.height, H - G), room = bot - top;
+      /* a band pinned to the top or bottom edge grows on its inner side to hold
+         its line, when nothing is in the way: the guides' uniform scale had
+         shortened one to 71px under a 79px number */
+      if (room < r.height + 8){
+        const atBottom = P.top + P.height >= H - 2, atTop = P.top <= 2, need = r.height + 8 - room;
+        const clearOf = (y0, y1) => !lines.some(u => u !== t && (() => { const q = textInkRect(u); return q && q.top < y1 && q.top + q.height > y0 &&
+          Math.min(P.left + P.width, q.left + q.width) - Math.max(P.left, q.left) > 1; })());
+        if (atBottom && clearOf(P.top - need - 4, P.top)){
+          const o = onto.p.o; o.set({ top: o.top - need, height: o.height + need / (o.scaleY || 1) }); o.setCoords();
+          onto.p.b = P = bb(o); top = Math.max(P.top, G); room = bot - top;
+        } else if (atTop && clearOf(P.top + P.height, P.top + P.height + need + 4)){
+          const o = onto.p.o; o.set({ height: o.height + need / (o.scaleY || 1) }); o.setCoords();
+          onto.p.b = P = bb(o); bot = Math.min(P.top + P.height, H - G); room = bot - top;
+        }
+      }
+      let pad = Math.max(3, Math.min(0.12 * r.height, (room - r.height) / 2));
+      if (room < r.height + 6){
+        k = (room - 6) / r.height;
+        const fs = (t.fontSize || 40) * (t.scaleY || 1);
+        if (k < 0.85 || (t.pgRole === 'phone' && fs * k < 72)) return;
+        pad = 3;
+      }
+      const h = r.height * k, c = r.top + r.height / 2;
+      const t0 = c - h / 2;
+      if (t0 < top + pad) dy = top + pad - t0;
+      else if (t0 + h > bot - pad) dy = (bot - pad) - (t0 + h);
+      if (k !== 1){
+        const m = { left: r.left + r.width * (1 - k) / 2, top: t0 + dy, width: r.width * k, height: h };
+        if (lines.some(u => u !== t && (() => { const q = textInkRect(u); return q && Math.min(m.left + m.width, q.left + q.width) - Math.max(m.left, q.left) > 1 &&
+            Math.min(m.top + m.height, q.top + q.height) - Math.max(m.top, q.top) > 1; })())) return;
+        const pt = t.getCenterPoint();
+        t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k }); t.setPositionByOrigin(pt, 'center', 'center');
+        t.set('top', t.top + dy); t.setCoords(); moved++;
+        return;
+      }
+    } else if (graze){
+      const P = graze.p.b, cy = r.top + r.height / 2, below = cy >= P.top + P.height / 2;
+      dy = below ? (P.top + P.height + 8) - r.top : (P.top - 8) - (r.top + r.height);
+      /* blocked by the line beyond it: come down up to 8% (a number never under
+         72px) so the line clears both */
+      const beyond = lines.filter(u => u !== t).map(u => textInkRect(u)).filter(q => q && Math.min(r.left + r.width, q.left + q.width) - Math.max(r.left, q.left) > 1)
+        .filter(q => below ? q.top >= r.top + r.height - 2 : q.top + q.height <= r.top + 2)
+        .sort((a, b) => below ? a.top - b.top : (b.top + b.height) - (a.top + a.height))[0];
+      if (beyond){
+        const lo = below ? P.top + P.height + 8 : beyond.top + beyond.height + 4, hi = below ? beyond.top - 4 : P.top - 8;
+        if (hi - lo < r.height){
+          const kk = (hi - lo) / r.height, fs = (t.fontSize || 40) * (t.scaleY || 1);
+          if (kk < 0.92 || (t.pgRole === 'phone' && fs * kk < 72)) return;
+          const pt = t.getCenterPoint();
+          t.set({ scaleX: (t.scaleX || 1) * kk, scaleY: (t.scaleY || 1) * kk }); t.setPositionByOrigin(pt, 'center', 'center'); t.setCoords();
+          const r2 = textInkRect(t); t.set('top', t.top + (lo - r2.top)); t.setCoords(); moved++;
+          return;
+        }
+      }
+    }
+    if (!dy || Math.abs(dy) > 0.4 * r.height + 12) return;
+    const m = { left: r.left, top: r.top + dy, width: r.width, height: r.height };
+    if (m.top < G || m.top + m.height > H - G) return;
+    const hitLine = lines.some(u => u !== t && (() => { const q = textInkRect(u); if (!q) return false;
+      return Math.min(m.left + m.width, q.left + q.width) - Math.max(m.left, q.left) > 1 &&
+             Math.min(m.top + m.height, q.top + q.height) - Math.max(m.top, q.top) > 1; })());
+    // and it must not land across another plate's edge
+    const hitEdge = plates.some(p => p !== (onto || graze).p && objs.indexOf(p.o) < zo && (() => {
+      const ix = Math.max(0, Math.min(m.left + m.width, p.b.left + p.b.width) - Math.max(m.left, p.b.left));
+      const iy = Math.max(0, Math.min(m.top + m.height, p.b.top + p.b.height) - Math.max(m.top, p.b.top));
+      const f = (ix * iy) / (m.width * m.height); return f > 0.003 && f < 0.995; })());
+    if (hitLine || hitEdge) return;
+    t.set('top', t.top + dy); t.setCoords(); moved++;
+  });
+  return moved;
+}
+
+/* THE CLAIM READS ON ANY CROP (DESIGN-LAW 62, 68). A photograph is cropped
+   differently in every format: at 9:16 the laptop's bright rim came up behind
+   TOP iPHONE and it read 4.27:1 where the square read 20:1. When a headline
+   line reads under 4.5:1 on its photograph, a dark neutral shade fades down
+   from the top edge behind the claim, just strong enough (0.15 to 0.6) for
+   every line to pass; where it already reads, nothing is added. Audited
+   records only (rule 76). */
+function claimShade(sc, W, H){
+  const objs = sc.getObjects();
+  if (!objs.some(o => o && o.pgInk) || typeof taglineCritic !== 'function') return 0;
+  const heads = objs.filter(o => o.visible !== false && o.pgRole === 'headline' && (o.type === 'i-text' || o.type === 'textbox'));
+  if (!heads.length) return 0;
+  const weak = () => taglineCritic(sc, W, H).filter(r => r.role === 'headline' && r.q75 < 4.5);
+  if (!weak().length) return 0;
+  const bottom = Math.max(...heads.map(o => { const r = textInkRect(o); return r ? r.top + r.height : 0; }));
+  const reach = Math.min(H, bottom + 0.12 * H), fade = bottom / reach;
+  // one shade, however often it is asked for (the gallery painter and Easy Mode both call this)
+  let shade = objs.find(o => o.name === 'Claim Shade'), a0 = 0.15;
+  if (shade) a0 = (shade.pgShadeA || 0.15) + 0.05;
+  else {
+    shade = new fabric.Rect({ left: 0, top: 0, width: W, height: reach, selectable: false, evented: false, name: 'Claim Shade', pgScrim: true });
+    // just above the photograph and its scrim, under every layer of the design
+    let at = 0; objs.forEach((o, i) => { if (o.pgScrim || o.pgBgRect || /^(BG|Scrim|Overlay)$/.test(o.name || '')) at = i + 1; });
+    sc.insertAt(shade, at);
+  }
+  for (let a = a0; a <= 0.6 + 1e-9; a += 0.05){
+    shade.pgShadeA = a;
+    shade.set('fill', new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0, y1: 0, x2: 0, y2: 1 },
+      colorStops: [{ offset: 0, color: 'rgba(8,8,10,' + a.toFixed(2) + ')' }, { offset: Math.max(0.3, Math.min(0.9, fade)), color: 'rgba(8,8,10,' + (a * 0.85).toFixed(2) + ')' }, { offset: 1, color: 'rgba(8,8,10,0)' }] }));
+    shade.dirty = true;
+    if (!weak().length) return a;
+  }
+  return 0.6;
+}
+
+/* ═══ A TALL CARD GROWS INTO WHAT THE PHOTOGRAPH LEAVES PLAIN ═════════════
+   Owner, 2026-09-28, on the 9:16: "we could enlarge the steps and possibly
+   layer the phone over top of the steps thus extending the UI … we don't split
+   text obviously but we could split something like selling points/steps and
+   the image to fill blank space."
+
+   The rule. A tall format has more height than the square design uses. The
+   photograph's SUBJECT (rows with at least half its peak detail: the keys and
+   lenses of the laptop, a lineup of phones) keeps its space. The plain rows
+   between the subject and the CTA band go to the design, not to empty
+   gradient: the list (steps, selling points) grows, one line still one line,
+   never re-wrapped, its plates widening across the card, up to 1.45x; then
+   the product stands on top of the list, layered over the first plate's empty
+   strip, never over a word. When the plain run is not much taller than the
+   content already is, nothing grows: the content stays centred (blockRemap).
+   The call and its reason are left on the scene (sc.__fill) for the audit. */
+/* THE ROWS AS THEY ARE SEEN (the variant board, 2026-09-29). tallFill grows the
+   list about its corner; the letters scale with it but their drawn pixels do not
+   land where their metrics scale to (a label's drawn top sat 0.7px under its
+   metric top in the square, 1.6px under it at 1.45x), so a row the composer had
+   centred to the pixel came out 37/35 in 3:4 and 38/34 in 9:16 ("the inner text
+   isn't aligned", owner, 2026-09-27). Each plate's numeral is set on the plate's
+   centre line and its words centred in it by what is drawn: each object alone,
+   alpha over 90, the audit's own measure. */
+function centreRowsSeen(sc, plates, texts){
+  const cv = sc && sc.lowerCanvasEl, ctx = cv && cv.getContext('2d');
+  if (!ctx || !plates.length || !texts.length) return 0;
+  const z = cv.width / sc.width, objs = sc.getObjects(), vis = objs.map(o => o.visible), bgI = sc.backgroundImage, bgC = sc.backgroundColor;
+  const ink = o => {
+    sc.backgroundImage = null; sc.backgroundColor = ''; objs.forEach(q => { q.visible = q === o; });
+    const sh = o.shadow; o.shadow = null; sc.renderAll(); o.shadow = sh;
+    o.setCoords(); const b = o.getBoundingRect(true, true);
+    const x0 = Math.max(0, Math.floor((b.left - 4) * z)), y0 = Math.max(0, Math.floor((b.top - 4) * z));
+    const w = Math.min(cv.width - x0, Math.ceil((b.width + 8) * z)), h = Math.min(cv.height - y0, Math.ceil((b.height + 8) * z));
+    if (w <= 0 || h <= 0) return null;
+    const d = ctx.getImageData(x0, y0, w, h).data; let t = h, bo = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 90){ if (y < t) t = y; bo = y; break; }
+    return bo < 0 ? null : { t: (y0 + t) / z, b: (y0 + bo + 1) / z };
+  };
+  const inside = (o, b) => { const c = o.getCenterPoint(); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; };
+  /* each plate's words, chosen before anything is measured: measuring draws one
+     object alone, so a visibility test after the first plate found no words on
+     the others and rows 2 and 3 were left off centre */
+  const rows = plates.map(p => { p.setCoords(); const pb = p.getBoundingRect(true, true); return { p, mine: texts.filter(o => o.visible !== false && inside(o, pb)) }; });
+  let moved = 0;
+  try {
+    rows.forEach(({ p, mine }) => {
+      if (!mine.length) return;
+      const C = ink(p); if (!C) return;
+      const num = mine.find(o => /^\d$/.test(String(o.text || '').trim())), words = mine.filter(o => o !== num);
+      if (num){ const n = ink(num); if (n){ const d = (C.t + C.b) / 2 - (n.t + n.b) / 2; if (Math.abs(d) >= 0.5){ num.set('top', num.top + d); num.setCoords(); moved++; } } }
+      const ws = words.map(ink).filter(Boolean);
+      if (ws.length){
+        const top = Math.min(...ws.map(r => r.t)), bot = Math.max(...ws.map(r => r.b)), d = ((C.b - bot) - (top - C.t)) / 2;
+        if (Math.abs(d) >= 0.5){ words.forEach(o => { o.set('top', o.top + d); o.setCoords(); }); moved++; }
+      }
+    });
+  } finally {
+    objs.forEach((q, i) => { q.visible = vis[i]; }); sc.backgroundImage = bgI; sc.backgroundColor = bgC;
+  }
+  return moved;
+}
+function tallFill(sc, W, H){
+  const sx = W / TPL_W, sy = H / TPL_H;
+  if (!(sy > sx * 1.02)) return null;
+  const objs = sc.getObjects();
+  if (!objs.some(o => o && o.pgInk)) return null;
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity > 0.05);
+  const bb = o => { o.setCoords(); return o.getBoundingRect(true, true); };
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const inside = (o, b) => { const c = o.getCenterPoint(); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; };
+  const ground = o => o.pgScrim || o.pgBgRect || /^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '');
+  /* the CTA band: full width at the foot, or an inset card or pill that holds the number near the foot */
+  const phoneT = objs.find(o => live(o) && isText(o) && o.pgRole === 'phone');
+  const band = objs.filter(o => live(o) && o.type === 'rect' && !ground(o) && bb(o).height < H * 0.35 && (
+      (bb(o).width >= W * 0.9 && bb(o).top + bb(o).height >= H - 2) ||
+      (phoneT && inside(phoneT, bb(o)) && bb(o).width >= W * 0.8 && bb(o).top + bb(o).height >= H * 0.9)))
+    .sort((a, b) => bb(a).top - bb(b).top)[0];
+  const prod = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo').sort((a, b) => bb(b).width * bb(b).height - bb(a).width * bb(a).height)[0];
+  const heads = objs.filter(o => live(o) && isText(o) && o.pgRole === 'headline');
+  // the list: two or more plates of one width and one left edge, each holding words
+  const cands = objs.filter(o => live(o) && o.type === 'rect' && o !== band && bb(o).width >= W * 0.3 && bb(o).width < W * 0.9 && objs.some(t => isText(t) && live(t) && inside(t, bb(o))));
+  const groups = {};
+  cands.forEach(o => { const b = bb(o), k = Math.round(b.left / 6) + ':' + Math.round(b.width / 6); (groups[k] = groups[k] || []).push(o); });
+  const plates = (Object.values(groups).sort((a, b) => b.length - a.length)[0] || []).sort((a, b) => bb(a).top - bb(b).top);
+  const why = r => (sc.__fill = r);
+  if (!band || !heads.length) return why({ decision: 'none', reason: 'no CTA band or no claim' });
+  if (plates.length < 2) return why({ decision: 'none', reason: 'no list of plates to grow' });
+  const members = objs.filter(o => live(o) && o !== band && o.type !== 'image' && (plates.includes(o) || plates.some(p => inside(o, bb(p)))));
+  // where the claim ends (headline and anything hung on it, like a badge)
+  const listTop0 = Math.min(...plates.map(p => bb(p).top));
+  const claimObjs = objs.filter(o => live(o) && !members.includes(o) && o !== prod && o !== band && !o.pgScrim && !o.pgBgRect && o.type !== 'image'
+    && !/^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '') && bb(o).top + bb(o).height < listTop0 && bb(o).width < W * 0.95);
+  const claimBot = Math.max(...claimObjs.map(o => { const r = isText(o) ? textInkRect(o) : bb(o); return r.top + r.height; }));
+  const bandTop = bb(band).top, gap = Math.round(0.03 * H);
+  // the photograph's detail, row by row (96px rows at 1920)
+  const bgi = sc.backgroundImage;
+  if (!bgi) return why({ decision: 'keep', reason: 'no photograph to read' });
+  const q = 4, cw = Math.round(W / q), ch = Math.round(H / q), cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+  { const saved = objs.map(o => o.visible), col = sc.backgroundColor; objs.forEach(o => { o.visible = false; }); sc.backgroundColor = '';
+    const el = sc.toCanvasElement(1 / q); cv.getContext('2d').drawImage(el, 0, 0, cw, ch);
+    objs.forEach((o, i) => { o.visible = saved[i]; }); sc.backgroundColor = col; }
+  const d = cv.getContext('2d').getImageData(0, 0, cw, ch).data, Lum = new Float32Array(cw * ch);
+  for (let i = 0; i < cw * ch; i++) Lum[i] = 0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2];
+  const rowH = 24, rows = [];
+  for (let y0 = 0; y0 < ch; y0 += rowH){ let s = 0, n = 0;
+    for (let y = y0; y < Math.min(ch - 1, y0 + rowH); y++) for (let x = 0; x < cw - 1; x++){ const i = y * cw + x; s += Math.abs(Lum[i + 1] - Lum[i]) + Math.abs(Lum[i + cw] - Lum[i]); n++; }
+    rows.push({ top: y0 * q, bot: Math.min(ch, y0 + rowH) * q, v: n ? s / n : 0 }); }
+  const peak = Math.max(...rows.map(r => r.v)), subject = r => r.v >= 0.5 * peak && r.v >= 3;
+  // the plain run: up from the band until the first subject row
+  const bottom = bandTop - gap;
+  let runTop = claimBot + gap;
+  rows.filter(r => r.bot > claimBot + gap && r.top < bottom).forEach(r => { if (subject(r)) runTop = Math.max(runTop, r.bot + gap / 2); });
+  const runH = bottom - runTop;
+  const Lb = { top: listTop0, bot: Math.max(...plates.map(p => bb(p).top + bb(p).height)), left: Math.min(...plates.map(p => bb(p).left)) };
+  const listH = Lb.bot - Lb.top;
+  const pb = prod ? bb(prod) : null, contentH = Math.max(listH, pb ? pb.height : 0);
+  const info = { runTop: Math.round(runTop), runH: Math.round(runH), peak: +peak.toFixed(1), rows: rows.map(r => +r.v.toFixed(1)) };
+  if (runH < contentH * 1.25){
+    /* not room to grow, but room to sit in the plain run: the content moves off
+       the photograph's subject into it (centred there) instead of centring on
+       the card over the subject's lower half with the plain run left empty */
+    const blockTop = Math.min(Lb.top, pb ? pb.top : Lb.top), blockBot = Math.max(Lb.bot, pb ? pb.top + pb.height : Lb.bot);
+    if (runH >= (blockBot - blockTop) + 8){
+      const dy = (runTop + bottom) / 2 - (blockTop + blockBot) / 2;
+      members.concat(prod ? [prod] : []).forEach(o => { o.set('top', o.top + dy); o.setCoords(); });
+      return why(Object.assign({ decision: 'fit', reason: 'the plain run (' + Math.round(runH) + 'px) holds the content (' + Math.round(blockBot - blockTop) + 'px) but not grown: it moved there, off the photograph\u2019s subject' }, info));
+    }
+    return why(Object.assign({ decision: 'centre', reason: 'the spare height is the photograph\u2019s: its plain run (' + Math.round(runH) + 'px) cannot hold the content (' + Math.round(contentH) + 'px), which stays centred' }, info));
+  }
+  // how far the words reach, relative to the list's left edge
+  const words = members.filter(isText), textRight = Math.max(...words.map(t => { const r = textInkRect(t); return r.left + r.width; })) - Lb.left;
+  const plate1 = plates[0], p1 = bb(plate1);
+  const firstInk = Math.min(...words.filter(t => inside(t, p1)).map(t => textInkRect(t).top)) - p1.top;   // plate 1's empty top strip
+  const aspect = prod ? prod.width / prod.height : 0.8;
+  const maxW = W - G - Lb.left;
+  // the list: as big as the run allows once the product has at least its own size above it, the words inside the margins
+  let best = null;
+  for (let s = 1.45; s >= 1.05; s -= 0.05){
+    if (Lb.left + textRight * s > W - G - 4) continue;
+    const lh = listH * s, overlap = Math.max(0, firstInk * s - 8) * 0.8;
+    const ph = runH - lh + overlap;                       // the product fills what is above the list
+    if (prod && ph < pb.height * 0.98) continue;          // never smaller than it was
+    const pw = Math.min(ph * aspect, W - 2 * G);
+    best = { s, lh, overlap, ph: pw / aspect, pw };
+    break;
+  }
+  /* arrangement B: the list grows in place and the product stays beside it,
+     layered over the plates' empty right ends (they run on under it), its left
+     edge clear of the longest line */
+  let beside = null;
+  if (!best && prod){
+    for (let s = 1.45; s >= 1.05; s -= 0.05){
+      const lh = listH * s; if (lh > runH) continue;
+      const room = (W - G) - (Lb.left + textRight * s + 16);
+      const ph = Math.min(lh * 1.05, runH), pw = ph * aspect;
+      const k = pw > room ? room / pw : 1;
+      if (ph * k < pb.height * 0.98) continue;
+      beside = { s, lh, ph: ph * k, pw: pw * k };
+      break;
+    }
+  }
+  if (!best && !beside){
+    // cannot grow with the words kept clear: it still sits in the plain run
+    const blockTop = Math.min(Lb.top, pb ? pb.top : Lb.top), blockBot = Math.max(Lb.bot, pb ? pb.top + pb.height : Lb.bot);
+    const dy = (runTop + bottom) / 2 - (blockTop + blockBot) / 2;
+    members.concat(prod ? [prod] : []).forEach(o => { o.set('top', o.top + dy); o.setCoords(); });
+    return why(Object.assign({ decision: 'fit', reason: 'the list and the product cannot both grow and keep their words clear: the content moved into the plain run unchanged' }, info));
+  }
+  const { s } = best || beside;
+  if (beside) best = Object.assign({ overlap: 0 }, beside);
+  // scale the list about its top-left, widen the plates to the margin, and set it on the band
+  const listBottomNew = bottom, listTopNew = listBottomNew - best.lh;
+  members.forEach(o => {
+    const b = bb(o), nl = Lb.left + (b.left - Lb.left) * s, nt = listTopNew + (b.top - Lb.top) * s;
+    if (o.type === 'rect'){ o.set({ width: o.width * s, height: o.height * s }); if (o.rx) o.set({ rx: o.rx * s, ry: (o.ry || o.rx) * s }); }
+    else o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+    o.setCoords(); const b2 = bb(o);
+    o.set({ left: o.left + (nl - b2.left), top: o.top + (nt - b2.top) }); o.setCoords();
+  });
+  plates.forEach(p => { const b = bb(p); const extra = (W - G - b.left) - b.width; if (extra > 0){ p.set('width', p.width + extra / (p.scaleX || 1)); p.setCoords(); } });
+  centreRowsSeen(sc, plates, members.filter(isText));
+  // the product stands on the list, over plate 1's empty strip, right-aligned on the margin
+  if (prod && beside){
+    const k = best.ph / pb.height;
+    prod.set({ scaleX: (prod.scaleX || 1) * k, scaleY: (prod.scaleY || 1) * k }); prod.setCoords();
+    const b = bb(prod);
+    // ends with the steps, right on the margin
+    prod.set({ left: prod.left + ((W - G - b.width) - b.left), top: prod.top + ((listBottomNew - b.height) - b.top) }); prod.setCoords();
+    sc.moveTo(prod, Math.max(...plates.map(p => sc.getObjects().indexOf(p))));
+    prod.pgLayered = true;
+  } else if (prod){
+    const k = best.ph / pb.height;
+    prod.set({ scaleX: (prod.scaleX || 1) * k, scaleY: (prod.scaleY || 1) * k }); prod.setCoords();
+    /* centred on the card and raised a tenth of the card's height off the list
+       it would have stood on (owner, 2026-09-28, on the 9:16: "can you center
+       the asset and scoot it up 10%?"): it clears the first plate's words, so
+       centring cannot put it over them. Never onto the claim: where the room
+       above runs short it comes down in size (not under 80%) to fit. */
+    let b = bb(prod), footY = listTopNew + best.overlap - 0.10 * H;
+    const ceiling = claimBot + gap;
+    if (footY - b.height < ceiling){
+      const room = footY - ceiling, kk = room / b.height;
+      if (kk >= 0.8){ prod.set({ scaleX: prod.scaleX * kk, scaleY: prod.scaleY * kk }); prod.setCoords(); b = bb(prod); }
+      else footY = ceiling + b.height;
+    }
+    footY = Math.min(footY, listTopNew - 8);                // always clear of the first plate
+    prod.set({ left: prod.left + ((W / 2 - b.width / 2) - b.left), top: prod.top + ((footY - b.height) - b.top) }); prod.setCoords();
+    prod.pgFloat = true;
+  }
+  return why(Object.assign({ decision: 'grow', arrangement: beside ? 'beside' : 'on top',
+    reason: 'the rows between the photograph\u2019s subject and the band are plain: the steps grew ' + s.toFixed(2) + 'x and the phone ' + (beside ? 'sits beside them, layered over their plates' : 'floats centred above them'), scale: +s.toFixed(2) }, info));
+}
+
+/* ═══ AESTHETIC GRADIENTS ══════════════════════════════════════════════════
+   Owner, 2026-09-27: "Can we see more color examples? Aesthetic ones", with a
+   holographic WE BUY IPHONES for reference. Sixteen more presets: the pearly,
+   oil-on-water and Y2K families next to the neon ones. The engine still
+   chooses among them for cohesion (DESIGN-LAW 75); the panel offers all. */
+Object.assign(TAGLINE_GRADIENTS, {
+  holo:        { name: 'Holographic',   stops: ['#a8edea', '#fed6e3', '#c3b1ff', '#9be7ff', '#fbc2eb'] },
+  iridescent:  { name: 'Iridescent',    stops: ['#7ef9ff', '#a18cff', '#ff8cd9', '#ffe98c'] },
+  opal:        { name: 'Opal',          stops: ['#fdfcfb', '#e2d1c3', '#c2e9fb', '#a1c4fd', '#fbc2eb'] },
+  vaporwave:   { name: 'Vaporwave',     stops: ['#ff71ce', '#01cdfe', '#05ffa1', '#b967ff'] },
+  sherbet:     { name: 'Sherbet',       stops: ['#ff9a8b', '#ff6a88', '#ff99ac', '#fcb69f'] },
+  y2k:         { name: 'Y2K chrome',    stops: ['#e6e9f0', '#8e9eab', '#ffffff', '#b8c6db', '#6d7b8d'] },
+  cottoncandy: { name: 'Cotton candy',  stops: ['#fbc2eb', '#a6c1ee'] },
+  peach:       { name: 'Peach fuzz',    stops: ['#ffbe98', '#ff9a76', '#ffd3b6'] },
+  lavender:    { name: 'Lavender haze', stops: ['#e0c3fc', '#8ec5fc'] },
+  mermaid:     { name: 'Mermaid',       stops: ['#00f5d4', '#00bbf9', '#9b5de5', '#f15bb5'] },
+  oilslick:    { name: 'Oil slick',     stops: ['#6a3df0', '#d76d77', '#ffaf7b', '#2bc0e4', '#a8ff78'] },
+  prism:       { name: 'Prism',         stops: ['#ff0080', '#ff8c00', '#ffe600', '#00ff85', '#00c3ff', '#8a2be2'] },
+  dreamsicle:  { name: 'Dreamsicle',    stops: ['#ff9966', '#ffcc99', '#fff1e6'] },
+  aqua:        { name: 'Aqua glass',    stops: ['#43e97b', '#38f9d7', '#4facfe'] },
+  ultraviolet: { name: 'Ultraviolet',   stops: ['#a24dff', '#d94dff', '#ff4fd8'] },
+  rosegold:    { name: 'Rose gold',     stops: ['#b76e79', '#f7cac9', '#e8b4b8', '#c9a0a6'] },
+});
+
+/* ═══ THE PATTERN LIBRARY ══════════════════════════════════════════════════
+   Owner, 2026-09-27: "how many patterns could we come up with just so we can
+   have them … we should be able to scale the tile up or down so we can see
+   the money larger or see more money visible or less, and … slide it around
+   in the actual editor". Thirty-six seamless tiles in five families. Each is
+   drawn in the line's OWN lightness (a light line stays light, so it still
+   reads) and the card's hue, except where the pattern is its colours (money
+   is green, zebra is black and white).
+   One sheet per card: every styled line shows the same tile, anchored to the
+   card, so the pattern runs on from one line to the next as if the words
+   were cut from one sheet, and dragging the preview slides the whole sheet.
+   opt.scale sizes the tile (0.25-3), opt.x / opt.y slide it (0-1 of a tile).
+   Seamless: a mark that crosses a tile edge is drawn on the far side too
+   (wrap) or runs past it; the field-like ones are periodic in the tile.
+   Tiles are drawn at the render's own pixel density (opt.res) and scaled
+   into the line, so a 2160px download is as sharp as the preview. */
+const TAGLINE_PATTERNS = {};
+(() => {
+  const TAU = Math.PI * 2;
+  /* size: the tile's width as a share of the claim's font size; aspect: height / width; bg: its ground */
+  const P = (key, name, group, size, draw, more) => { TAGLINE_PATTERNS[key] = Object.assign({ name, group, size, draw, aspect: 1 }, more || {}); };
+  const wrap = (x, S, H, f, n) => { n = n || 1; for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++){ x.save(); x.translate(i * S, j * H); f(); x.restore(); } };
+  const rng = seed => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const poly = (x, pts) => { x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); };
+  const star = (x, cx, cy, r, n, inner) => { x.beginPath(); for (let i = 0; i < n * 2; i++){ const a = -Math.PI / 2 + i * Math.PI / n, rr = i % 2 ? r * inner : r; x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } x.closePath(); x.fill(); };
+  const heart = (x, cx, cy, s) => { x.beginPath(); x.moveTo(cx, cy + s * 0.35); x.bezierCurveTo(cx - s * 0.6, cy - s * 0.1, cx - s * 0.35, cy - s * 0.6, cx, cy - s * 0.25); x.bezierCurveTo(cx + s * 0.35, cy - s * 0.6, cx + s * 0.6, cy - s * 0.1, cx, cy + s * 0.35); x.fill(); };
+  const rrect = (x, a, b, w, h, r) => { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); };
+  const rgb = hex => { const n = parseInt(hex.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  /* a periodic field, one colour per pixel; a smooth one is computed small and scaled up */
+  const field = (x, S, H, fn, smooth) => {
+    const k = smooth ? Math.min(1, 256 / Math.max(S, H)) : 1, w = Math.max(1, Math.round(S * k)), h = Math.max(1, Math.round(H * k));
+    const cv = k < 1 ? document.createElement('canvas') : null;
+    if (cv){ cv.width = w; cv.height = h; }
+    const y = cv ? cv.getContext('2d') : x, im = y.createImageData(w, h);
+    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++){ const c = fn(i / w, j / h), o = (j * w + i) * 4; im.data[o] = c[0]; im.data[o + 1] = c[1]; im.data[o + 2] = c[2]; im.data[o + 3] = 255; }
+    y.putImageData(im, 0, 0);
+    if (cv){ x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(cv, 0, 0, S, H); }
+  };
+
+  // ── geometric
+  P('stripes', 'Stripes', 'Geometric', 0.36, (x, S, C) => {        // 45°, two to a tile, the ink half the period
+    x.strokeStyle = C.ink; x.lineWidth = S / (4 * Math.SQRT2);
+    for (let c = -S / 2; c <= 2.5 * S; c += S / 2){ x.beginPath(); x.moveTo(c + S, -S); x.lineTo(c - 2 * S, 2 * S); x.stroke(); } });
+  P('pinstripe', 'Pinstripe', 'Geometric', 0.18, (x, S, C, H) => { x.fillStyle = C.ink; x.fillRect(Math.round(S * 0.45), 0, Math.max(1, S * 0.09), H); });
+  P('bands', 'Bands', 'Geometric', 0.34, (x, S, C) => { x.fillStyle = C.ink; x.fillRect(0, S / 2, S, S / 2); });
+  P('dots', 'Polka dots', 'Geometric', 0.22, (x, S, C) => { x.fillStyle = C.ink; [[S / 4, S / 4], [3 * S / 4, 3 * S / 4]].forEach(([a, b]) => { x.beginPath(); x.arc(a, b, S * 0.17, 0, TAU); x.fill(); }); });
+  P('halftone', 'Halftone', 'Geometric', 0.3, (x, S, C) => { x.fillStyle = C.ink; const n = 4;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++){ const r = S / n * 0.5 * (0.25 + 0.75 * Math.abs(Math.sin((i + j) / (2 * n) * TAU))); x.beginPath(); x.arc((i + 0.5) * S / n, (j + 0.5) * S / n, r, 0, TAU); x.fill(); } });
+  P('checker', 'Checker', 'Geometric', 0.3, (x, S, C) => { x.fillStyle = C.ink; x.fillRect(0, 0, S / 2, S / 2); x.fillRect(S / 2, S / 2, S / 2, S / 2); });
+  P('gingham', 'Gingham', 'Geometric', 0.32, (x, S, C) => { x.globalAlpha = 0.55; x.fillStyle = C.ink; x.fillRect(0, 0, S / 2, S); x.fillRect(0, 0, S, S / 2); x.globalAlpha = 1; });
+  P('plaid', 'Plaid', 'Geometric', 0.6, (x, S, C) => { x.globalAlpha = 0.5; x.fillStyle = C.ink; x.fillRect(S * 0.1, 0, S * 0.3, S); x.fillRect(0, S * 0.1, S, S * 0.3);
+    x.fillStyle = C.ink2; x.fillRect(S * 0.62, 0, S * 0.06, S); x.fillRect(0, S * 0.62, S, S * 0.06); x.globalAlpha = 1; });
+  P('chevron', 'Chevron', 'Geometric', 0.36, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = S * 0.16; x.lineJoin = 'miter';
+    for (const y0 of [-S / 2, 0, S / 2, S]){ poly(x, [[-S / 2, y0], [0, y0 + S / 2], [S / 2, y0], [S, y0 + S / 2], [1.5 * S, y0]]); x.stroke(); } });
+  P('zigzag', 'Zigzag', 'Geometric', 0.3, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.07); x.lineJoin = 'miter';
+    for (const y0 of [S * 0.3, S * 0.8]){ const pts = []; for (let i = -1; i <= 5; i++) pts.push([i * S / 4, i % 2 ? y0 - S * 0.12 : y0]); poly(x, pts); x.stroke(); } });
+  P('argyle', 'Argyle', 'Geometric', 0.5, (x, S, C, H) => { x.fillStyle = C.ink; poly(x, [[S / 2, 0], [S, H / 2], [S / 2, H], [0, H / 2]]); x.closePath(); x.fill();
+    x.strokeStyle = C.ink2; x.lineWidth = Math.max(1, S * 0.025); wrap(x, S, H, () => { x.beginPath(); x.moveTo(0, 0); x.lineTo(S, H); x.moveTo(S, 0); x.lineTo(0, H); x.stroke(); }); }, { aspect: 1.4 });
+  P('honeycomb', 'Honeycomb', 'Geometric', 0.34, (x, S, C, H) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.07); x.lineJoin = 'round';
+    const r = S / Math.sqrt(3), hex = (cx, cy) => { x.beginPath(); for (let i = 0; i < 6; i++){ const a = Math.PI / 6 + i * Math.PI / 3; x.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a)); } x.closePath(); x.stroke(); };
+    wrap(x, S, H, () => { hex(0, 0); hex(S / 2, H / 2); }); }, { aspect: Math.sqrt(3) });
+  P('triangles', 'Triangles', 'Geometric', 0.34, (x, S, C) => { x.fillStyle = C.ink; x.beginPath(); x.moveTo(0, S / 2); x.lineTo(S / 4, 0); x.lineTo(S / 2, S / 2); x.closePath();
+    x.moveTo(S / 2, S); x.lineTo(3 * S / 4, S / 2); x.lineTo(S, S); x.closePath(); x.fill(); });
+  P('bricks', 'Bricks', 'Geometric', 0.44, (x, S, C) => { x.fillStyle = C.ink; const w = Math.max(1.5, S * 0.06);
+    wrap(x, S, S, () => { x.fillRect(0, -w / 2, S, w); x.fillRect(0, S / 2 - w / 2, S, w); x.fillRect(-w / 2, 0, w, S / 2); x.fillRect(S / 2 - w / 2, S / 2, w, S / 2); }); });
+  P('grid', 'Grid', 'Geometric', 0.28, (x, S, C) => { x.fillStyle = C.ink; const w = Math.max(1.5, S * 0.07); wrap(x, S, S, () => { x.fillRect(0, -w / 2, S, w); x.fillRect(-w / 2, 0, w, S); }); });
+  P('waves', 'Waves', 'Geometric', 0.4, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.09); x.lineJoin = 'round';
+    for (const y0 of [S * 0.25, S * 0.75]){ x.beginPath(); for (let i = -Math.ceil(S * 0.15); i <= Math.ceil(S * 1.15); i++) x.lineTo(i, y0 + Math.sin(i / S * TAU) * S * 0.1); x.stroke(); } });
+
+  // ── themed
+  P('money', 'Money signs', 'Themed', 0.52, (x, S, C) => { x.fillStyle = C.money; x.font = '800 ' + Math.round(S * 0.62) + 'px "Satoshi", "Arial Black", sans-serif';
+    x.textAlign = 'center'; x.textBaseline = 'middle'; wrap(x, S, S, () => { x.fillText('$', S * 0.25, S * 0.28); x.fillText('$', S * 0.75, S * 0.78); }); }, { bg: C => C.moneyBase });
+  P('stars', 'Stars', 'Themed', 0.42, (x, S, C) => { x.fillStyle = C.ink; star(x, S * 0.25, S * 0.28, S * 0.17, 5, 0.45); star(x, S * 0.75, S * 0.78, S * 0.17, 5, 0.45); });
+  P('sparkles', 'Sparkles', 'Themed', 0.42, (x, S, C) => { x.fillStyle = C.ink; star(x, S * 0.28, S * 0.3, S * 0.2, 4, 0.22); star(x, S * 0.76, S * 0.74, S * 0.12, 4, 0.22); });
+  P('hearts', 'Hearts', 'Themed', 0.42, (x, S, C) => { x.fillStyle = C.ink; wrap(x, S, S, () => { heart(x, S * 0.27, S * 0.3, S * 0.34); heart(x, S * 0.77, S * 0.8, S * 0.34); }); });
+  P('bolts', 'Bolts', 'Themed', 0.44, (x, S, C) => { x.fillStyle = C.ink;
+    const bolt = (cx, cy, s) => { poly(x, [[0.1, -0.5], [-0.25, 0.05], [0, 0.05], [-0.1, 0.5], [0.25, -0.05], [0, -0.05]].map(([a, b]) => [cx + a * s, cy + b * s])); x.closePath(); x.fill(); };
+    bolt(S * 0.27, S * 0.3, S * 0.42); bolt(S * 0.77, S * 0.8, S * 0.42); });
+  P('confetti', 'Confetti', 'Themed', 0.7, (x, S, C) => { const r = rng(4241), cols = [C.ink, C.ink2, C.ink3, C.money];
+    for (let i = 0; i < 26; i++){ const cx = r() * S, cy = r() * S, a = r() * Math.PI, c = cols[i % cols.length];
+      wrap(x, S, S, () => { x.save(); x.translate(cx, cy); x.rotate(a); x.fillStyle = c; x.fillRect(-S * 0.045, -S * 0.015, S * 0.09, S * 0.03); x.restore(); }); } });
+  P('phones', 'Phones', 'Themed', 0.44, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.035);
+    const ph = (cx, cy) => { const w = S * 0.18, h = S * 0.34; rrect(x, cx - w / 2, cy - h / 2, w, h, w * 0.25); x.stroke(); x.beginPath(); x.moveTo(cx - w * 0.2, cy - h * 0.38); x.lineTo(cx + w * 0.2, cy - h * 0.38); x.stroke(); };
+    ph(S * 0.27, S * 0.3); ph(S * 0.77, S * 0.8); });
+
+  // ── material
+  P('carbon', 'Carbon fibre', 'Material', 0.2, (x, S, C) => { const g = (x0, y0, w, h, v) => { const gr = v ? x.createLinearGradient(x0, y0, x0 + w, y0) : x.createLinearGradient(x0, y0, x0, y0 + h);
+    gr.addColorStop(0, C.ink); gr.addColorStop(0.5, C.base); gr.addColorStop(1, C.ink); x.fillStyle = gr; x.fillRect(x0, y0, w, h); };
+    g(0, 0, S / 2, S / 2, true); g(S / 2, 0, S / 2, S / 2, false); g(0, S / 2, S / 2, S / 2, false); g(S / 2, S / 2, S / 2, S / 2, true); });
+  P('brushed', 'Brushed metal', 'Material', 0.9, (x, S, C) => { const r = rng(9001); for (let y = 0; y < S; y++){ x.globalAlpha = 0.05 + r() * 0.12; x.fillStyle = r() < 0.5 ? C.ink : '#ffffff'; x.fillRect(0, y, S, 1); } x.globalAlpha = 1; });
+  P('glitter', 'Glitter', 'Material', 0.5, (x, S, C) => { const r = rng(777);
+    for (let i = 0; i < 90; i++){ const cx = r() * S, cy = r() * S, s = S * (0.008 + r() * 0.02); x.fillStyle = i % 3 ? C.ink : (C.light ? '#ffffff' : C.ink2); wrap(x, S, S, () => { x.beginPath(); x.arc(cx, cy, s, 0, TAU); x.fill(); }); } });
+  P('circuit', 'Circuit', 'Material', 0.6, (x, S, C) => { x.strokeStyle = C.ink; x.fillStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.03); x.lineJoin = 'round';
+    const pad = ([a, b]) => { x.beginPath(); x.arc(a * S, b * S, Math.max(2, S * 0.035), 0, TAU); x.fill(); };
+    const trace = (pts, a, b) => { poly(x, pts.map(([u, v]) => [u * S, v * S])); x.stroke(); if (a) pad(pts[0]); if (b) pad(pts[pts.length - 1]); };
+    // every trace that leaves an edge comes back in on the opposite edge at the same place
+    trace([[0, 0.2], [0.35, 0.2], [0.5, 0.35], [0.5, 0.55]], false, true); trace([[1, 0.2], [0.8, 0.2], [0.8, 0.45]], false, true);
+    trace([[0.65, 0], [0.65, 0.1], [0.9, 0.1]], false, true); trace([[0.65, 1], [0.65, 0.9], [0.75, 0.8], [1, 0.8]], false, false);
+    trace([[0, 0.8], [0.2, 0.8], [0.3, 0.7]], false, true); trace([[0.3, 0.42], [0.15, 0.57], [0.15, 0.66]], true, true);
+    trace([[0.4, 1], [0.4, 0.88]], false, true); trace([[0.4, 0], [0.4, 0.06]], false, true); });
+  P('scales', 'Scales', 'Material', 0.3, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.06);
+    const arc = (cx, cy) => { x.beginPath(); x.arc(cx, cy, S / 2, 0, Math.PI); x.stroke(); }; wrap(x, S, S, () => { arc(S / 2, 0); arc(0, S / 2); arc(S, S / 2); }); });
+  P('marble', 'Marble', 'Material', 1.0, (x, S, C, H) => { const a = rgb(C.light ? '#f4f2ef' : '#2a2a2e'), b = rgb(C.light ? '#8f8f98' : '#c4c4cc');
+    field(x, S, H, (u, v) => { const t = Math.abs(Math.sin(TAU * (u * 2 + v) + 2.2 * Math.sin(TAU * (u + v * 2)) + 0.9 * Math.sin(TAU * (u * 3 - v)))); return mix(a, b, Math.pow(1 - t, 6)); }, true); });
+
+  // ── animal
+  P('leopard', 'Leopard', 'Animal', 0.9, (x, S, C) => { const r = rng(1313);
+    for (let i = 0; i < 16; i++){ const cx = r() * S, cy = r() * S, s = S * (0.05 + r() * 0.04), a = r() * TAU;
+      wrap(x, S, S, () => { x.save(); x.translate(cx, cy); x.rotate(a); x.fillStyle = C.leo2; x.beginPath(); x.ellipse(0, 0, s * 1.3, s, 0, 0, TAU); x.fill();
+        x.strokeStyle = '#1a120b'; x.lineWidth = s * 0.45; x.beginPath(); x.arc(0, 0, s * 1.25, 0.3, 2.2); x.stroke(); x.beginPath(); x.arc(0, 0, s * 1.25, 3.3, 5.0); x.stroke(); x.restore(); }); } },
+    { bg: C => C.leo1 });
+  P('zebra', 'Zebra', 'Animal', 0.8, (x, S, C, H) => { field(x, S, H, (u, v) => { const t = Math.sin((u * 3 + Math.sin(v * TAU) * 0.35 + Math.sin(u * TAU * 2) * 0.08) * TAU); return t > 0.1 ? [245, 245, 240] : [18, 18, 20]; }); });
+  P('tiger', 'Tiger', 'Animal', 0.8, (x, S, C, H) => { const o = rgb(C.tiger);
+    /* wavy near-vertical stripes, three to a tile, that taper and break as the threshold drifts down the tile */
+    field(x, S, H, (u, v) => { const s = Math.sin(TAU * (u * 3 + 0.22 * Math.sin(TAU * (v * 2 + u)) + 0.08 * Math.sin(TAU * v * 5) + 0.1 * Math.sin(TAU * (v + u * 2))));
+      const th = 0.5 + 0.62 * Math.sin(TAU * (v * 2 - u * 3)) * Math.cos(TAU * (v + u)); return s > th ? [22, 16, 12] : o; }); });
+  P('camo', 'Camo', 'Animal', 0.9, (x, S, C, H) => { const cols = [[74, 83, 54], [110, 116, 76], [46, 50, 36], [140, 130, 92]];
+    field(x, S, H, (u, v) => { const n = Math.sin(TAU * (u * 2 + v)) + Math.sin(TAU * (v * 3 - u)) * 0.8 + Math.sin(TAU * (u * 5 + v * 2)) * 0.4; return cols[Math.max(0, Math.min(3, Math.floor((n + 2.2) / 1.1)))]; }); });
+
+  // ── street
+  P('tiedye', 'Tie-dye', 'Street', 1.0, (x, S, C, H) => { const L = C.light ? 0.82 : 0.5, lut = [];
+    for (let d = 0; d < 360; d += 2) lut.push(rgb(oklchFit({ L, C: 0.15, h: (d + C.h0) % 360 })));
+    field(x, S, H, (u, v) => { const t = (Math.sin(TAU * (u + v)) + Math.sin(TAU * (u * 2 - v)) + Math.sin(TAU * (v * 2 + u))) / 3; return lut[Math.floor((t + 1) * 90) % 180]; }, true); });
+  P('grunge', 'Grunge', 'Street', 0.9, (x, S, C) => { const r = rng(2025); x.fillStyle = C.ink;
+    for (let i = 0; i < 140; i++){ const cx = r() * S, cy = r() * S, s = S * (0.003 + r() * 0.012), a = 0.4 + r() * 0.5, w = s * (1 + r() * 5);
+      x.globalAlpha = a; wrap(x, S, S, () => x.fillRect(cx, cy, w, s)); } x.globalAlpha = 1; });
+  P('cracked', 'Cracked', 'Street', 2.4, (x, S, C) => { const r = rng(7919), segs = [];
+    const crack = (px, py, ang, len, w, depth) => { const pts = [[px, py]]; let cx = px, cy = py;
+      for (let s = 0; s < 6; s++){ ang += (r() - 0.5) * 0.9; cx += Math.cos(ang) * len / 6; cy += Math.sin(ang) * len / 6; pts.push([cx, cy]); }
+      segs.push({ pts, w });
+      if (depth < 2) for (let b = 0; b < 2; b++) if (r() < 0.7) crack(px + (cx - px) * r(), py + (cy - py) * r(), ang + (r() - 0.5) * 2.2, len * 0.55, w * 0.6, depth + 1); };
+    for (let k = 0; k < 7; k++) crack(r() * S, r() * S, r() * TAU, S * (0.35 + r() * 0.3), Math.max(1.5, S * 0.015), 0);
+    x.strokeStyle = C.light ? 'rgba(10,10,12,0.85)' : 'rgba(255,255,255,0.8)'; x.lineCap = 'round'; x.lineJoin = 'round';
+    wrap(x, S, S, () => segs.forEach(g => { x.lineWidth = g.w; poly(x, g.pts); x.stroke(); }), 2); });
+})();
+/* the names older looks and saved choices used */
+const PATTERN_ALIAS = { cash: 'money' };
+const PATTERN_XFORM = (() => { try { const c = document.createElement('canvas'); c.width = c.height = 1;
+  const p = c.getContext('2d').createPattern(c, 'repeat'); return !!(p && p.setTransform && typeof DOMMatrix === 'function'); } catch (e){ return false; } })();
+/* a pattern's colours at a line's lightness TL (light: the line reads light) in the card's hue h0 */
+function taglinePatternColours(TL, light, h0){
+  const at = (L, C, h) => oklchFit({ L: Math.max(0.05, Math.min(0.98, L)), C, h: ((h % 360) + 360) % 360 });
+  return { light, TL, h0, base: at(TL, 0.08, h0), ink: at(light ? TL - 0.24 : TL + 0.24, 0.17, h0),
+    ink2: at(light ? TL - 0.2 : TL + 0.2, 0.17, h0 + 70), ink3: at(light ? TL - 0.2 : TL + 0.2, 0.17, h0 - 70),
+    money: at(light ? 0.5 : 0.78, 0.16, 150), moneyBase: at(light ? Math.max(TL, 0.86) : Math.min(TL, 0.34), 0.06, 150),
+    leo1: at(light ? 0.78 : 0.62, 0.11, 70), leo2: at(light ? 0.55 : 0.42, 0.1, 55), tiger: at(light ? 0.72 : 0.64, 0.17, 55) };
+}
+function taglinePatternDef(kind){ return TAGLINE_PATTERNS[PATTERN_ALIAS[kind] || kind] || TAGLINE_PATTERNS.stripes; }
+/* one tile, S px wide */
+function taglinePatternTile(kind, S, C){
+  const def = taglinePatternDef(kind), H = Math.max(1, Math.round(S * def.aspect)), cv = document.createElement('canvas');
+  cv.width = S; cv.height = H;
+  const x = cv.getContext('2d');
+  x.fillStyle = def.bg ? def.bg(C) : C.base; x.fillRect(0, 0, S, H);
+  try { def.draw(x, S, C, H); } catch (e){ console.warn('GraphicsStudio pattern ' + kind + ':', e); }
+  return cv;
+}
+/* the fill for one line. fs: the sheet's font size (the claim's, design px);
+   opt: scale, x, y (the slide), res (render px per design px), obj (the line,
+   so the sheet is anchored to the card), memo (tiles shared across lines) */
+function taglinePattern(kind, TL, light, h0, fs, opt){
+  opt = opt || {};
+  const def = taglinePatternDef(kind);
+  const scale = Math.max(0.25, Math.min(3, +opt.scale || 1));
+  const Sd = Math.max(8, fs * def.size * scale);                                  // one tile on the card, design px
+  const o = opt.obj, sX = o ? Math.abs(o.scaleX || 1) : 1, sY = o ? Math.abs(o.scaleY || 1) : 1;
+  const res = PATTERN_XFORM ? Math.max(0.25, Math.min(3, +opt.res || 1)) : 1 / sX;
+  const Spx = Math.max(8, Math.min(2048, Math.round(Sd * res)));                   // …as drawn, at the render's density
+  const C = taglinePatternColours(TL, light, h0), memo = opt.memo || {};
+  const key = [kind, Spx, C.base, C.ink, C.light].join('|');
+  const cv = memo[key] || (memo[key] = taglinePatternTile(kind, Spx, C));
+  const kx = PATTERN_XFORM ? Sd / sX / Spx : 1, ky = PATTERN_XFORM ? Sd / sY / Spx : 1;   // tile px → the line's own units
+  const Pw = cv.width * kx, Ph = cv.height * ky;                                   // one period in the line's units
+  const mod = (v, m) => ((v % m) + m) % m;
+  let ox = mod(+opt.x || 0, 1), oy = mod(+opt.y || 0, 1);
+  const p = new fabric.Pattern({ source: cv, repeat: 'repeat', offsetX: ox * Pw, offsetY: oy * Ph });
+  /* the tile's corner at the same place on the card for every line: fabric
+     starts a text's pattern at its top-left plus the offset */
+  p.pgAnchor = q => {
+    if (!q || q.angle) return;
+    const c = q.getCenterPoint();
+    p.offsetX = mod((ox * Pw * sX - c.x) / sX + q.width / 2, Pw);
+    p.offsetY = mod((oy * Ph * sY - c.y) / sY + q.height / 2, Ph);
+  };
+  p.pgAnchor(o);
+  p.pgSlide = (x, y, q) => { ox = mod(+x || 0, 1); oy = mod(+y || 0, 1); if (q && !q.angle) p.pgAnchor(q); else { p.offsetX = ox * Pw; p.offsetY = oy * Ph; } };
+  if (kx !== 1 || ky !== 1){
+    const m = [kx, 0, 0, ky, 0, 0];
+    p.toLive = function(ctx){ const pat = ctx.createPattern(this.source, this.repeat); if (pat) pat.setTransform(new DOMMatrix(m)); return pat; };
+  }
+  p.pgTile = { w: Pw * sX, h: Ph * sY };                                          // for the preview's drag
+  return p;
+}
+
+/* ═══ PHONE SWAP IN EASY MODE ══════════════════════════════════════════════
+   Owner, 2026-09-27: "if these were real graphics, we would want to be able to
+   switch the phones out like we can with the video engine, randomize the
+   phones, or recommended phones which are popular models, like 18 or 17 Pro
+   Max to maximize profits". A card whose product is a phone from the device
+   catalog (assets/cutouts/devices.json) can wear any other phone in it: the
+   popular high-value models first, every factory photo from the shop's own
+   catalog after them, a Surprise me among the popular ones, and As designed.
+   Only factory photos are offered (DESIGN-LAW 73: never a re-skin, never a
+   mirror). The new photo is fitted to the old one's box and re-seated by its
+   INK: its foot where the old phone's foot stood, its centre where the old
+   phone's centre was, whatever transparent margin each photo carries. */
+let PHONE_CATALOG = null;
+const PHONE_INK = {};
+ez.phonePick = jget('pgfx_phonepick', null);
+const devKey = src => String(src || '').split('?')[0];
+function loadPhoneCatalog(){
+  if (loadPhoneCatalog._p) return loadPhoneCatalog._p;
+  const json = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
+  /* the owner's approval list and the flags found since (scripts/picture_gate.mjs,
+     DESIGN-LAW 79): a picture must pass both to reach a card, and the picker
+     is a card's picture chosen at run time, so it asks the same two lists */
+  return (loadPhoneCatalog._p = Promise.all([json('assets/cutouts/devices.json'), json('assets/approved-assets.json'), json('assets/cutout-flags.json')])
+    .then(([d, a, f]) => {
+      PHONE_CATALOG = (d && d.devices) || {};
+      const g = a && a['asset-grid-v1'];
+      PHONE_GATE = g ? { approved: new Set(g.approved || []), rejected: new Set(g.rejected || []), flags: f || {} } : null;
+      return PHONE_CATALOG;
+    }));
+}
+let PHONE_GATE = null;
+// pictureVerdict (scripts/picture_gate.mjs) for the picker: a phone is offered only when the owner approved it and nothing flagged it since
+function phoneApproved(src){
+  if (!PHONE_GATE) return false;
+  const id = String(src || '').replace(/^.*\//, '').replace(/\.[a-z0-9]+$/i, '');
+  return !PHONE_GATE.flags[id] && !PHONE_GATE.rejected.has(id) && PHONE_GATE.approved.has(id);
+}
+/* the phones the picker and the engine may use: factory photos from the shop's catalog */
+function phonePool(){
+  return Object.entries(PHONE_CATALOG || {}).filter(([src, d]) => d.authentic !== false && /^quote-site/.test(d.source || '') && phoneApproved(src))
+    .map(([src, d]) => Object.assign({ src }, d))
+    .sort((a, b) => (b.recommended ? 1 : 0) - (a.recommended ? 1 : 0) || (a.rank == null ? 99 : a.rank) - (b.rank == null ? 99 : b.rank) || String(a.model).localeCompare(String(b.model)));
+}
+/* where a photo's ink sits, as fractions of its width and height */
+function cutoutInk(el){
+  const k = el && (el.currentSrc || el.src);
+  if (!el || !el.width) return { x0: 0, y0: 0, x1: 1, y1: 1 };
+  if (PHONE_INK[k]) return PHONE_INK[k];
+  const s = Math.min(1, 256 / Math.max(el.width, el.height)), w = Math.max(1, Math.round(el.width * s)), h = Math.max(1, Math.round(el.height * s));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(el, 0, 0, w, h);
+  let d; try { d = x.getImageData(0, 0, w, h).data; } catch (e){ return (PHONE_INK[k] = { x0: 0, y0: 0, x1: 1, y1: 1 }); }
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) if (d[(j * w + i) * 4 + 3] > 40){ if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j; }
+  return (PHONE_INK[k] = x1 < 0 ? { x0: 0, y0: 0, x1: 1, y1: 1 } : { x0: x0 / w, y0: y0 / h, x1: (x1 + 1) / w, y1: (y1 + 1) / h });
+}
+/* the card's phone layer, when its photo is one of the catalog's phones */
+function ezPhoneLayer(tpl){
+  if (!PHONE_CATALOG || !tpl) return null;
+  return (tpl.layers || []).find(l => l.kind === 'cutout' && l.name === 'Product' && l.props && PHONE_CATALOG[devKey(l.props.src)]) || null;
+}
+function ezLoadCutout(src){
+  if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return Promise.resolve(CUTOUT_ELS[src]);
+  return new Promise(res => { const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(el); }; el.onerror = () => res(null); el.src = src; });
+}
+/* the layer as it renders with the chosen phone: same box, re-seated by ink */
+function ezPhoneSwap(tpl){
+  const src = ez.phonePick, l = src && ezPhoneLayer(tpl);
+  if (!l || devKey(l.props.src) === src || !phoneApproved(src)) return null;   // a pick saved before the picture was refused is not drawn
+  const elN = CUTOUT_ELS[src], elO = CUTOUT_ELS[l.props.src];
+  if (!elN || !elN.width){ ezLoadCutout(src).then(el => { if (el) schedEzPreview(0); }); return null; }
+  const p = Object.assign({}, l.props, { src, flipX: false });
+  if (elO && elO.width){
+    const fit = el => Math.min((l.props.w || 420) / el.width, l.props.maxH ? l.props.maxH / el.height : Infinity);
+    const sO = fit(elO), sN = fit(elN), iO = cutoutInk(elO), iN = cutoutInk(elN);
+    const oy = p.originY || 'top', ox = p.originX || 'left';
+    if (oy === 'bottom') p.top = l.props.top - (1 - iO.y1) * elO.height * sO + (1 - iN.y1) * elN.height * sN;
+    else if (oy === 'top') p.top = l.props.top + iO.y0 * elO.height * sO - iN.y0 * elN.height * sN;
+    if (ox === 'center') p.left = l.props.left + ((iO.x0 + iO.x1) / 2 - 0.5) * elO.width * sO - ((iN.x0 + iN.x1) / 2 - 0.5) * elN.width * sN;
+    else if (ox === 'left') p.left = l.props.left + iO.x0 * elO.width * sO - iN.x0 * elN.width * sN;
+  }
+  return { from: l, layer: Object.assign({}, l, { props: p }) };
+}
+function ezPhonePickSave(){ jset('pgfx_phonepick', ez.phonePick); ezPhonePickSync(); schedEzPreview(0); }
+function ezPhonePickChip(d){
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'ez-phonepick-item'; b.dataset.src = d.src;
+  const name = String(d.model).replace(/^iPhone /, '') + (d.color && d.color !== 'as pictured' ? ' ' + d.color : '');
+  b.title = d.model + (d.color && d.color !== 'as pictured' ? ', ' + d.color : '') + (d.verify ? '. Newest model: check the photo against Apple before you post.' : '');
+  b.setAttribute('aria-label', b.title);
+  const im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.decoding = 'async'; im.src = d.src; im.draggable = false;
+  const t = document.createElement('span'); t.textContent = name;
+  b.append(im, t);
+  b.onclick = () => { ez.phonePick = d.src; ezLoadCutout(d.src).then(ezPhonePickSave); };
+  return b;
+}
+function buildEzPhonePick(){
+  const box = $('ez-phonepick');
+  if (!box || box.dataset.built) return;
+  box.dataset.built = '1';
+  loadPhoneCatalog().then(() => {
+    const pool = phonePool(), top = pool.filter(d => d.recommended), rest = pool.filter(d => !d.recommended);
+    top.forEach(d => box.appendChild(ezPhonePickChip(d)));
+    const more = $('ez-phonepick-more');
+    if (more){
+      const series = d => (String(d.model).match(/iPhone (\d+|X[RS]?)/) || [, 'Other'])[1];
+      let g = null;
+      rest.sort((a, b) => (parseInt(series(b)) || 0) - (parseInt(series(a)) || 0) || String(a.model).localeCompare(String(b.model)))
+        .forEach(d => { const s = series(d); if (s !== g){ g = s; const h = document.createElement('div'); h.className = 'ez-phonepick-grp'; h.textContent = 'iPhone ' + s; more.appendChild(h); } more.appendChild(ezPhonePickChip(d)); });
+    }
+    const sp = $('ez-phonepick-surprise');
+    if (sp) sp.onclick = () => { const cur = ez.phonePick || devKey((ezPhoneLayer(ezTpl()) || { props: {} }).props.src);
+      const pick = top.filter(d => d.src !== cur); if (!pick.length) return;
+      ez.phonePick = pick[Math.floor(Math.random() * pick.length)].src; ezLoadCutout(ez.phonePick).then(ezPhonePickSave); };
+    const mb = $('ez-phonepick-toggle');
+    if (mb) mb.onclick = () => { const m = $('ez-phonepick-more'); m.hidden = !m.hidden; mb.textContent = m.hidden ? 'More models' : 'Fewer models'; mb.setAttribute('aria-expanded', m.hidden ? 'false' : 'true'); };
+    const rs = $('ez-phonepick-reset');
+    if (rs) rs.onclick = () => { ez.phonePick = null; ezPhonePickSave(); };
+    ezPhonePickSync();
+    if (ez.phonePick) ezLoadCutout(ez.phonePick).then(() => schedEzPreview(0));   // a phone picked last visit
+  });
+}
+/* the field shows on a card whose product is a catalog phone; the chip in use is marked */
+function ezPhonePickSync(){
+  const f = $('ez-phonepick-field');
+  if (!f) return;
+  const l = typeof ezTpl === 'function' && ezPhoneLayer(ezTpl());
+  f.hidden = !l;
+  if (!l) return;
+  const cur = ez.phonePick || devKey(l.props.src);
+  document.querySelectorAll('#ez-phonepick-field .ez-phonepick-item').forEach(b => { const on = b.dataset.src === cur; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  const rs = $('ez-phonepick-reset'); if (rs) rs.disabled = !ez.phonePick;
+}
+
+/* ═══ TAGLINE STYLE: ONE CHOICE FOR EVERY TEMPLATE ═══════════════════════════
+   The owner, 2026-09-27: "have it as a possibility in all possible templates
+   so video elements could be possible in templates and vice versa so we don't
+   have logic that only applies to one type of ad or worse, one type of
+   category only".
+
+   So a tagline look is one choice, kept for the visitor (ez.tag, pgfx_tag:
+   the look and the panel's gradient, angle, outline, effect and pattern),
+   that holds for every template in every family (the classics, designer,
+   street, showcase and offer cards) and every category. It is applied where
+   the pictures come from, never per family:
+   - renderEzCanvas() through ezApplyTagline(): Easy Mode's preview, every
+     download, the category pack and the video, which animates that same scene
+     (MOTION);
+   - the editor's canvas: loadTemplate(), the hand-off from Easy Mode, Enhance
+     and the editor's own Tagline style row, which can switch looks on a
+     canvas that has been edited (taglineReset puts the designed paint back
+     first);
+   - the gallery painter, for a card that carries a look of its own.
+   The colours are the card's own (tplPalette): a theme the visitor picked,
+   else the family's palette, else the scene's most colourful ink, else the
+   owner's reference sweep (orange into yellow). */
+const TAG_FALLBACK = { accent: '#ff7a1a', support: '#ffd23f' };
+// the first six looks' old names (pgfx_tagline, saved projects), in the looks they became
+const TAG_LEGACY = { solid: 'solid', street: 'street', gradient: 'signature', pair: 'pair', blocks: 'blocks', outline: 'outline', pattern: 'pattern' };
+function tagLookKey(k){
+  if (typeof EZ_TAG_LOOKS !== 'undefined' && EZ_TAG_LOOKS.some(l => l[0] === k)) return k;
+  return TAG_LEGACY[k] || 'solid';
+}
+/* One colour parser for the whole feature (the palette and the looks read a
+   fill the same way): #rgb, #rrggbb, rgb() and rgba() at least minAlpha
+   opaque, a gradient by its first stop; null otherwise. */
+function tagHexOf(f, minAlpha){
+  const least = minAlpha == null ? 0.6 : minAlpha;
+  if (typeof f === 'string'){
+    if (/^#[0-9a-f]{6}$/i.test(f)) return f.toLowerCase();
+    if (/^#[0-9a-f]{3}$/i.test(f)) return '#' + f.slice(1).split('').map(c => c + c).join('').toLowerCase();
+    const m = f.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?/i);
+    if (m && (m[4] === undefined || +m[4] >= least)) return '#' + [m[1], m[2], m[3]].map(v => Math.round(+v).toString(16).padStart(2, '0')).join('');
+    return null;
+  }
+  if (f && f.colorStops && f.colorStops.length) return tagHexOf(f.colorStops[0].color, least);
+  return null;
+}
+// WCAG relative luminance of a #rrggbb, and the contrast of two luminances
+function tagY(hex){
+  const n = parseInt(String(hex).slice(1), 16);
+  return 0.2126 * _srgbToLin((n >> 16 & 255) / 255) + 0.7152 * _srgbToLin((n >> 8 & 255) / 255) + 0.0722 * _srgbToLin((n & 255) / 255);
+}
+function tagCr(a, b){ return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); }
+function tagChroma(hex){ const o = hex && hexToOklch(hex); return o ? o.C : 0; }
+/* the most colourful as the accent, the next of a different hue (30° or more)
+   as the support; with none, the accent's neighbour */
+function palFromColors(cols){
+  const hd = (a, b) => Math.abs(((a - b) % 360 + 540) % 360 - 180);
+  const list = cols.map(c => typeof c === 'string' ? { hex: c } : c)
+    .map(c => Object.assign({}, c, { hex: tagHexOf(c.hex) })).filter(c => c.hex)
+    .map(c => Object.assign(c, { o: hexToOklch(c.hex) })).filter(c => c.o && c.o.C >= 0.06);
+  if (!list.length) return null;
+  list.sort((a, b) => b.o.C * (b.w || 1) - a.o.C * (a.w || 1));
+  const acc = list[0], sup = list.find(c => hd(c.o.h, acc.o.h) >= 30);
+  return { accent: acc.hex, support: sup ? sup.hex : oklchFit({ L: acc.o.L, C: acc.o.C, h: (acc.o.h + 40) % 360 }) };
+}
+// the scene's own inks and plates, the lines that sell counting double (W: the document's width, not the zoomed canvas's)
+function scenePalette(sc, W){
+  W = W || sc.width / ((sc.getZoom && sc.getZoom()) || 1);
+  const cols = [];
+  sc.getObjects().forEach(o => {
+    if (o.visible === false || (o.opacity != null && o.opacity < 0.3) || o.pgTagBlock || o.pgKin) return;
+    const isT = o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
+    if (!isT && o.type !== 'rect') return;
+    if (!isT && o.width * (o.scaleX || 1) >= 0.93 * W) return;              // the ground, not an accent
+    cols.push({ hex: o.fill, w: isT && ['headline', 'phone', 'cta'].includes(o.pgRole) ? 2 : 1 });
+  });
+  return palFromColors(cols);
+}
+function tplPalette(tpl, sc, W){
+  const colourful = p => !!p && (tagChroma(p.accent) >= 0.04 || tagChroma(p.support) >= 0.04);
+  let p = null;
+  const th = sc && sc.__theme;                    // a colour theme on this scene (themeScene): the look wears it too
+  if (th) p = { accent: th.accent, support: th.support || th.accent, ink: th.ink, c1: th.bg && th.bg.c1 };
+  const rec = tpl && tpl.showcase && typeof SHOWCASE !== 'undefined' && SHOWCASE.byId && SHOWCASE.byId[tpl.showcase];
+  if (!colourful(p) && rec) p = { accent: rec.accent, support: rec.support, ink: rec.ink, c1: rec.c1 };
+  if (!colourful(p) && tpl && tpl.palette) p = tpl.palette;
+  const P = tpl && typeof tpl.pal === 'string' && window.TPL_PAL && TPL_PAL[tpl.pal];
+  if (!colourful(p) && P) p = { accent: P.a1, support: P.a2, ink: P.ink, c1: P.bg1 };
+  if (!colourful(p) && sc) p = scenePalette(sc, W);
+  return colourful(p) ? p : Object.assign({}, TAG_FALLBACK);
+}
+/* the card's own two colours, for the looks and for the panel's Auto stops:
+   one palette for every surface (tplPalette), the template named or, in Easy
+   Mode, the one on screen */
+function ezTagPalette(sc, tpl, W){
+  if (tpl === undefined) tpl = typeof ezTpl === 'function' ? ezTpl() : null;
+  return tplPalette(tpl, sc, W);
+}
+/* The mean luminance of the ground under each of `lines`: the scene painted
+   at a quarter size without them (the photograph, the plates, everything
+   else), then read inside each line's box. */
+function tagGroundLum(sc, lines){
+  const out = new Map();
+  if (!lines.length) return out;
+  const vis = lines.map(o => o.visible), k = 0.25, z = (sc.getZoom && sc.getZoom()) || 1;
+  let el = null;
+  try { lines.forEach(o => { o.visible = false; }); el = sc.toCanvasElement(k / z); }
+  catch (e){ el = null; }
+  finally { lines.forEach((o, i) => { o.visible = vis[i]; }); }
+  if (!el) return out;
+  const w = el.width, h = el.height, d = el.getContext('2d').getImageData(0, 0, w, h).data;
+  const lin = v => _srgbToLin(v / 255);
+  lines.forEach(o => {
+    const b = o.getBoundingRect(true, true);
+    const x0 = Math.max(0, Math.floor(b.left * k)), y0 = Math.max(0, Math.floor(b.top * k));
+    const x1 = Math.min(w, Math.ceil((b.left + b.width) * k)), y1 = Math.min(h, Math.ceil((b.top + b.height) * k));
+    let sum = 0, n = 0;
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++){ const i = (y * w + x) * 4; sum += 0.2126 * lin(d[i]) + 0.7152 * lin(d[i + 1]) + 0.0722 * lin(d[i + 2]); n++; }
+    out.set(o, n ? sum / n : 0);
+  });
+  return out;
+}
+/* The drawn ink of a line, in its own unscaled frame about its centre: the
+   line painted alone, unrotated and unscaled, at half size, and its pixels
+   read (measureText knows the advance, not where a serif W or a descender
+   actually lands). Cached on the line until its words, face or size change,
+   so a block can follow a line being dragged. */
+function tagInk(o){
+  const key = [o.text, o._getFontDeclaration ? o._getFontDeclaration() : '', o.width, o.height, o.charSpacing, o.textAlign, o.lineHeight, o.stroke ? o.strokeWidth : 0].join('|');
+  if (o.__tagInk && o.__tagInk.key === key) return o.__tagInk.ink;
+  let ink = null;
+  try {
+    const m = 0.5, el = o.toCanvasElement({ withoutShadow: true, withoutTransform: true, multiplier: m });
+    const w = el.width, h = el.height, d = el.getContext('2d').getImageData(0, 0, w, h).data;
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){
+      if (d[(y * w + x) * 4 + 3] > 60){ if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    }
+    if (x1 >= 0) ink = { x0: x0 / m - w / (2 * m), x1: (x1 + 1) / m - w / (2 * m), y0: y0 / m - h / (2 * m), y1: (y1 + 1) / m - h / (2 * m) };
+  } catch (e){}
+  if (!ink){ const I = plateAirInk(o); ink = { x0: -I.lw / 2, x1: I.lw / 2, y0: -o.height * 0.36, y1: o.height * 0.36 }; }
+  o.__tagInk = { key, ink };
+  return ink;
+}
+/* A block's size and place for its line, scaled by k about the line's centre
+   and moved by `shift` along the width: the line's ink, padded so plateAir's
+   margin is met by construction (the line keeps its size on its block).
+   padY, when given, is the vertical padding a tight stack leaves room for. */
+function tagBlockGeom(o, k, shift, padY){
+  k = k || 1; shift = shift || 0;
+  const sx = (o.scaleX || 1) * k, sy = (o.scaleY || 1) * k, fs = (o.fontSize || 30) * sy, I = tagInk(o);
+  const lw = (I.x1 - I.x0) * sx, lh = (I.y1 - I.y0) * sy;
+  const padX = Math.max(14, fs * 0.36, lw * 0.052) + 2;
+  const py = padY != null ? padY : Math.max(6, fs * 0.12);
+  const a = (o.angle || 0) * Math.PI / 180, c = o.getCenterPoint();
+  const lx = (I.x0 + I.x1) / 2 * sx, ly = (I.y0 + I.y1) / 2 * sy;
+  return { fs, lw, lh, padX, padY: py, a, bw: lw + 2 * padX, bh: lh + 2 * py,
+    cx: c.x + lx * Math.cos(a) - ly * Math.sin(a) + shift, cy: c.y + lx * Math.sin(a) + ly * Math.cos(a),
+    // the ink itself, for keeping other blocks off it
+    ink: { cx: c.x + lx * Math.cos(a) - ly * Math.sin(a) + shift, cy: c.y + lx * Math.sin(a) + ly * Math.cos(a), w: lw, h: lh } };
+}
+function taglineFitBlock(blk, o){
+  const g = tagBlockGeom(o, 1, 0, o.pgTagRest && o.pgTagRest.padY != null ? o.pgTagRest.padY : undefined);
+  blk.set({ width: g.bw, height: g.bh, scaleX: 1, scaleY: 1, angle: o.angle || 0, originX: 'center', originY: 'center', left: g.cx, top: g.cy });
+  blk.setCoords();
+}
+// the layer a look added for a line (a glow halo, a red or blue offset, a slice of 3-D depth)
+function tagIsKin(o){ return !!(o && (o.pgKin || o.pgKinId)); }
+function tagKinLine(sc, q){
+  if (q.pgKin && q.pgKin.canvas === sc) return q.pgKin;
+  if (q.pgKinId){ const t = sc.getObjects().find(o => o !== q && o.pgTagId === q.pgKinId && !tagIsKin(o)); if (t){ q.pgKin = t; return t; } }
+  return null;
+}
+// the look on a scene, by what it recorded (null: as designed)
+function taglineModeOf(sc){
+  if (!sc) return null;
+  const o = sc.getObjects().find(x => x.pgTagRest);
+  return o ? (o.pgTagRest.mode || 'solid') : (sc.getObjects().some(x => x.pgTagBlock) ? 'blocks' : sc.getObjects().some(tagIsKin) ? 'custom' : null);
+}
+// the designed card back: recorded paint (and, for blocks, place) restored, the look's own layers removed
+function taglineReset(sc){
+  if (!sc) return;
+  const Z = (sc.getZoom && sc.getZoom()) || 1, W = sc.width / Z, H = sc.height / Z;
+  const undo = (o, k, dx, dy) => {
+    const c = o.getCenterPoint();
+    if (k && k !== 1) o.set({ scaleX: (o.scaleX || 1) / k, scaleY: (o.scaleY || 1) / k });
+    o.setPositionByOrigin(new fabric.Point(c.x - (dx || 0) * W, c.y - (dy || 0) * H), 'center', 'center');
+  };
+  sc.getObjects().slice().forEach(o => {
+    if (o.pgTagBlock || tagIsKin(o)){ sc.remove(o); return; }
+    const r = o.pgTagRest;
+    if (!r) return;
+    if (!r.geoOnly){
+      const p = {};
+      ['fill', 'stroke', 'strokeWidth', 'paintFirst', 'strokeLineJoin', 'shadow'].forEach(k => { if (k in r) p[k] = r[k]; });
+      if (p.shadow && typeof p.shadow === 'object') p.shadow = new fabric.Shadow(p.shadow);
+      ['fill', 'stroke'].forEach(k => { if (p[k] && typeof p[k] === 'object' && p[k].colorStops) p[k] = new fabric.Gradient(p[k]); });
+      if ('styles' in r) p.styles = r.styles ? JSON.parse(JSON.stringify(r.styles)) : {};
+      const c0 = o.getCenterPoint();
+      o.set(p);
+      o.setPositionByOrigin(c0, 'center', 'center');   // a look's stroke kept the letters in place; so does taking it off
+      o.pgFillGrad = r.pgFillGrad || null;
+      o.dirty = true;
+    }
+    if (r.air) undo(o, r.air.k, r.air.dx, r.air.dy);
+    if (r.k || r.shift) undo(o, r.k, r.shift, 0);
+    o.pgTagRest = null;
+    o.setCoords && o.setCoords();
+  });
+  sc.__patTile = null;
+}
+/* The one entry point for a look on a finished scene: the visitor's choice
+   (ezTagSpec) or else the card's own look (spec undefined), a look key, a
+   spec, or null for the card as designed. Then plateAir, since a heavier
+   outline or a new block changes what a line needs around it; its moves are
+   recorded as moves, so a reset undoes them. Returns what happened, with the
+   palette it used. */
+function taglineApply(sc, tpl, W, H, spec, opts){
+  if (spec === undefined) spec = (typeof ezTagSpec === 'function' && ezTagSpec()) || (typeof cardLookSpec === 'function' ? cardLookSpec(tpl) : null);
+  let pal;
+  try { pal = ezTagPalette(sc, tpl || null, W); } catch (e){ pal = Object.assign({}, TAG_FALLBACK); }
+  if (typeof spec === 'string'){ const k = tagLookKey(spec); spec = k === 'solid' ? null : Object.assign({ look: k }, TAGLINE_LOOKS[k]); }
+  if (!spec) return { look: 'solid', pal };
+  spec = Object.assign({}, spec);
+  if (spec.fill === 'texture') spec.patRes = (opts && opts.res) || spec.patRes || 1;
+  const look = spec.look || 'custom';
+  try {
+    sc.__patTile = null;
+    const info = taglineStyle(sc, spec, pal, W, H, look) || { look };
+    const isText = o => o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
+    const before = new Map(sc.getObjects().filter(o => isText(o) && !tagIsKin(o)).map(o => [o, { c: o.getCenterPoint(), s: o.scaleX || 1 }]));
+    plateAir(sc, W, H);
+    before.forEach((g, o) => {
+      const c = o.getCenterPoint(), k = (o.scaleX || 1) / g.s, dx = (c.x - g.c.x) / W, dy = (c.y - g.c.y) / H;
+      if (Math.abs(k - 1) < 1e-4 && Math.abs(dx) < 1e-5 && Math.abs(dy) < 1e-5) return;
+      (o.pgTagRest || (o.pgTagRest = { mode: look, geoOnly: true })).air = { k, dx, dy };
+    });
+    // plate air may have moved a line: a pattern's sheet stays put on the card
+    sc.getObjects().forEach(o => { if (o.fill && o.fill.pgAnchor) o.fill.pgAnchor(o); });
+    if (info.touched) tagEmojiAgain(sc, W, H);
+    info.pal = pal; info.look = info.look || look;
+    return info;
+  } catch (e){
+    console.warn('GraphicsStudio tagline style:', e);
+    try { taglineReset(sc); } catch (e2){}
+    return { look: 'solid', pal, error: String(e && e.message || e) };
+  }
+}
+/* The critic (rule 54) on some marks, cheaply: the scene painted at a small
+   scale with and without them, and the upper quartile of the contrast of
+   every pixel they change, inside their box. A look uses it to choose an
+   effect's strength on the card it lands on. */
+function tagMarkQ75(sc, marks, W, H){
+  const z = (sc.getZoom && sc.getZoom()) || 1, k = Math.min(0.6, 540 / Math.max(W, H));
+  let on = null, off = null;
+  const vis = marks.map(m => m.visible);
+  try {
+    on = sc.toCanvasElement(k / z);
+    marks.forEach(m => { m.visible = false; });
+    off = sc.toCanvasElement(k / z);
+  } catch (e){ return 0; }
+  finally { marks.forEach((m, i) => { m.visible = vis[i]; }); }
+  const bs = marks.map(m => { m.setCoords(); return m.getBoundingRect(true, true); });
+  const x0 = Math.max(0, Math.floor(Math.min(...bs.map(b => b.left)) * k)), y0 = Math.max(0, Math.floor(Math.min(...bs.map(b => b.top)) * k));
+  const x1 = Math.min(on.width, Math.ceil(Math.max(...bs.map(b => b.left + b.width)) * k)), y1 = Math.min(on.height, Math.ceil(Math.max(...bs.map(b => b.top + b.height)) * k));
+  if (x1 - x0 < 2 || y1 - y0 < 2) return 0;
+  const a = on.getContext('2d').getImageData(x0, y0, x1 - x0, y1 - y0).data, b = off.getContext('2d').getImageData(x0, y0, x1 - x0, y1 - y0).data;
+  const lin = v => _srgbToLin(v / 255), px = [];
+  for (let i = 0; i < a.length; i += 4){
+    if (Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]) < 24) continue;
+    const la = 0.2126 * lin(a[i]) + 0.7152 * lin(a[i + 1]) + 0.0722 * lin(a[i + 2]), lb = 0.2126 * lin(b[i]) + 0.7152 * lin(b[i + 1]) + 0.0722 * lin(b[i + 2]);
+    px.push((Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05));
+  }
+  if (!px.length) return 0;
+  px.sort((p, q) => p - q);
+  return px[Math.floor(px.length * 0.75)];
+}
+/* The emoji accents (pgEmojiPass) are placed beside the words after the
+   layout; a look can move a line (a block), widen its ink (a rim, a glow) or
+   add depth beside it, so they are placed again on the scene as the look
+   left it. The pass owns only the accents it placed, so this is safe to
+   repeat. */
+function tagEmojiAgain(sc, W, H){
+  try { if (typeof pgEmojiPass === 'function') pgEmojiPass(sc, W, H); } catch (e){ console.warn('GraphicsStudio emoji after the look:', e); }
+}
+/* The number fills its plate and the claim reads on its crop (numberFill,
+   claimShade): every surface that shows a card finishes it the same way, the
+   editor as well as Easy Mode, before the look goes on. */
+function taglineFinish(sc, W, H){
+  try { if (typeof numberFill === 'function') numberFill(sc, W, H); } catch (e){ console.warn('GraphicsStudio numberFill:', e); }
+  try { if (typeof claimShade === 'function') claimShade(sc, W, H); } catch (e){ console.warn('GraphicsStudio claimShade:', e); }
+}
+
+/* ── the choice, in the editor (Easy Mode has the full panel: buildEzTagline) ── */
+function taglineSampleSvg(look, pal, id){
+  pal = pal || TAG_FALLBACK;
+  const A = hexToOklch(pal.accent) || { L: 0.7, C: 0.15, h: 50 }, S = hexToOklch(pal.support || pal.accent) || A;
+  const h0 = A.C >= 0.04 ? A.h : S.h, at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
+  const grad = cs => `<defs><linearGradient id="${id}" x1="0" x2="1" y1="0" y2="0">${cs.map((c, i) => `<stop offset="${i / (cs.length - 1)}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`;
+  const T = (attrs, x, y) => `<text x="${x || 40}" y="${y || 22}" text-anchor="middle" font-family="Clash Display, Satoshi, sans-serif" font-weight="700" font-size="19" ${attrs}>Aa</text>`;
+  const rim = 'stroke="#0b0b0d" stroke-width="3" paint-order="stroke" stroke-linejoin="round"';
+  const preset = typeof ez !== 'undefined' && ez.tag && ez.tag.gradient ? taglineGradientStops(ez.tag.gradient) : null;
+  if (look === 'street'){
+    const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
+    return grad([at(0.74, 0.18, h0), at(0.88, 0.18, h0 + dir * 40), at(0.84, 0.18, h0 + dir * 75)]) + T(`fill="url(#${id})" ${rim}`);
+  }
+  if (look === 'signature' || look === 'gradient' && !preset) return grad([at(0.8, 0.15, h0 - 25), at(0.8, 0.15, h0 + 25)]) + T(`fill="url(#${id})"`);
+  if (look === 'gradient') return grad(preset.length > 1 ? preset : [preset[0], preset[0]]) + T(`fill="url(#${id})" ${rim}`);
+  if (look === 'pair') return grad([at(0.8, 0.15, A.h), at(0.8, 0.15, S.h)]) + T(`fill="url(#${id})"`);
+  if (look === 'blocks') return `<rect x="17" y="5" width="46" height="21" rx="3" fill="${pal.accent}"/>` + T(`fill="${A.L > 0.62 ? '#0e0e10' : '#ffffff'}"`);
+  if (look === 'outline') return T(`fill="#ffffff" ${rim}`);
+  if (look === 'multicolor'){
+    const c = [0, 72, 144].map(d => at(0.8, 0.17, h0 + d));
+    return `<text x="40" y="22" text-anchor="middle" font-family="Clash Display, Satoshi, sans-serif" font-weight="700" font-size="19" ${rim}><tspan fill="${c[0]}">A</tspan><tspan fill="${c[1]}">b</tspan><tspan fill="${c[2]}">c</tspan></text>`;
+  }
+  if (look === 'glow'){ const g = at(0.72, 0.2, h0); return `<defs><filter id="${id}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>` + T(`fill="${g}" filter="url(#${id})"`) + T(`fill="#ffffff" stroke="${g}" stroke-width="1" paint-order="stroke"`); }
+  if (look === 'anaglyph') return T('fill="#ff2a4f"', 38.5, 21) + T('fill="#18b4ff"', 41.5, 23) + T('fill="#ffffff"');
+  if (look === 'extrude') return [3, 2, 1].map(k => T(`fill="${at(0.52 - k * 0.08, 0.15, h0)}"`, 40 + k * 0.9, 22 + k * 1.1)).join('') + T(`fill="${pal.accent}" stroke="rgba(10,10,14,0.85)" stroke-width="0.8" paint-order="stroke"`);
+  if (look === 'pattern'){
+    const a = at(0.86, 0.06, h0), b = at(0.62, 0.17, h0);
+    return `<defs><pattern id="${id}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="${a}"/><rect width="3" height="6" fill="${b}"/></pattern></defs>` + T(`fill="url(#${id})" ${rim}`);
+  }
+  return T(`fill="${pal.accent}"`);
+}
+function buildTaglineRow(rowId, onPick){
+  const row = $(rowId);
+  if (!row || row.dataset.built) return;
+  row.dataset.built = '1';
+  EZ_TAG_LOOKS.forEach(([k, label, title]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'ez-tagstyle'; b.dataset.tag = k;
+    b.setAttribute('aria-pressed', 'false');
+    b.title = title + (k === 'solid' ? '' : ': on the picture, the download and the video, with the gradient, outline and effect set in Easy Mode');
+    b.innerHTML = `<svg viewBox="0 0 80 30" aria-hidden="true">${taglineSampleSvg(k, null, rowId + '-' + k)}</svg><span>${label}</span>`;
+    b.onclick = () => onPick(k);
+    row.appendChild(b);
+  });
+  delete row.dataset.pal;
+  taglineRowSync();
+}
+function taglineRowSync(){
+  const m = tagLookKey(ez.tag && ez.tag.look);
+  document.querySelectorAll('.ez-tagstyle').forEach(b => {
+    const on = b.dataset.tag === m;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+// the samples take the card's own colours (each row keeps its own, since rows are built at different times)
+function taglineRowPaint(pal){
+  const g = ez.tag && ez.tag.gradient, key = pal ? pal.accent + '|' + pal.support + '|' + (Array.isArray(g) ? g.join(',') : g || '') : '';
+  if (!key) return;
+  document.querySelectorAll('.ez-tagstyles').forEach(row => {
+    if (row.dataset.pal === key || !row.querySelector('.ez-tagstyle')) return;   // a row not built yet is painted when it is
+    row.dataset.pal = key;
+    row.querySelectorAll('.ez-tagstyle').forEach(b => {
+      const svg = b.querySelector('svg');
+      if (svg) svg.innerHTML = taglineSampleSvg(b.dataset.tag, pal, row.id + '-' + b.dataset.tag);
+    });
+  });
+}
+/* why a look gave way on this card, and which styled lines read weak on it
+   (the critic, rule 54: it never blocks, the owner decides) */
+function taglineNoteText(info){
+  if (!info) return '';
+  const WHY = { words: 'would sit on other words', product: 'would cover the product', edge: 'would run to the edge of the card', long: 'would need the tagline set too small' };
+  const parts = [];
+  if (info.fallback) parts.push('Colour blocks ' + (WHY[String(info.why || '').split(':')[0]] || 'do not fit') + ' on this design, so the tagline is outlined instead.');
+  else if (info.why === 'no headline') parts.push('This design has no tagline line to style.');
+  if (info.weak && info.weak.length) parts.push('Reads weak on this card: ' + info.weak.map(r => '“' + r.text + '” ' + r.q75.toFixed(1) + ':1').join(', ')
+    + '. Try an outline, a lighter gradient, or another look.');
+  return parts.join(' ');
+}
+function taglineNote(info, id){
+  const el = $(id || 'ez-tag-note');
+  if (!el) return;
+  const msg = taglineNoteText(info);
+  el.textContent = msg;
+  el.hidden = !msg;
+}
+// what the editor's row shows for a card: its colours in the samples, and why a look gave way
+function taglineShow(info, noteId){
+  taglineRowPaint(info && info.pal);
+  taglineNote(info, noteId);
+  return info;
+}
+// one choice: picked in the editor, it is Easy Mode's look too
+function taglinePick(k){
+  ez.tag = Object.assign(ez.tag || {}, { look: tagLookKey(k) });
+  jset('pgfx_tag', ez.tag);
+  if (typeof ezTagSync === 'function') try { ezTagSync(); } catch (e){}
+  taglineRowSync();
+}
+// a saved project's look (a download re-opened from History): the new record, or the first six's name
+function taglineRestore(st){
+  if (st && st.tag && typeof st.tag === 'object'){ ez.tag = Object.assign({}, ez.tag, st.tag, { look: tagLookKey(st.tag.look) }); jset('pgfx_tag', ez.tag); if (typeof ezTagSync === 'function') try { ezTagSync(); } catch (e){} taglineRowSync(); }
+  else if (st && st.tagline) taglinePick(st.tagline);
+}
+// the editor: the chosen look on the canvas as it stands
+function taglineEditorApply(){
+  if (!canvas) return;
+  const tpl = TEMPLATES.find(t => t.id === currentTplId) || null;
+  canvas.discardActiveObject();      // a selection's members hold coordinates relative to it (setFormat does the same)
+  const was = !!taglineModeOf(canvas);
+  taglineReset(canvas);
+  const info = taglineApply(canvas, tpl, CW, CH);
+  if (was && !info.touched) tagEmojiAgain(canvas, CW, CH);     // back to the design: the accents go back beside its words
+  canvas.renderAll();
+  pushHist(); refreshLayers(); refreshProps();
+  taglineShow(info, 'ed-tagnote');
+}
+/* In the editor a look's own layers follow their line, whatever moved it: a
+   drag, a snap, a resize, typing on the canvas, Quick Edit, the properties
+   panel, undo or a format switch. Every draw first refits a block whose line
+   has changed (its place, size, words or face), and carries a glow, an offset
+   or a slice of depth to where its line now is, with its words, so there is
+   no path that can leave a line off its block or its depth behind. Deleting a
+   line takes its layers. */
+function taglineRefitAll(sc){
+  const objs = sc.getObjects(), U = fabric.util;
+  const sigOf = t => [t.left, t.top, t.scaleX, t.scaleY, t.angle, t.skewX, t.flipX, t.flipY, t.width, t.height, t.text, t.fontSize, t.fontFamily, t.fontWeight,
+    t.fontStyle, t.charSpacing, t.lineHeight, t.textAlign, t.originX, t.originY].join('|');
+  objs.forEach(b => {
+    if (b.pgTagBlock){
+      const t = objs.find(o => o.pgTagRest && o.pgTagRest.block === b.pgTagBlock);
+      if (!t) return;
+      const sig = sigOf(t) + '|' + t.pgTagRest.padY;
+      if (b.__tagSig === sig) return;
+      taglineFitBlock(b, t);
+      b.__tagSig = sig;
+      return;
+    }
+    if (!tagIsKin(b)) return;
+    const t = tagKinLine(sc, b);
+    if (!t) return;
+    const sig = sigOf(t);
+    if (b.__kinSig === sig) return;
+    if (b.__kinSig && b.__kinRel){
+      ['text', 'fontSize', 'fontFamily', 'fontWeight', 'fontStyle', 'charSpacing', 'lineHeight', 'textAlign'].forEach(k => { if (b[k] !== t[k]) b.set(k, t[k]); });
+      if (t.type === 'textbox' && b.width !== t.width) b.set('width', t.width);
+      const d = U.qrDecompose(U.multiplyTransformMatrices(t.calcTransformMatrix(), b.__kinRel));
+      b.set({ scaleX: d.scaleX, scaleY: d.scaleY, angle: d.angle, skewX: d.skewX, skewY: 0 });
+      b.setPositionByOrigin(new fabric.Point(d.translateX, d.translateY), 'center', 'center');
+      b.setCoords();
+    }
+    b.__kinRel = U.multiplyTransformMatrices(U.invertTransform(t.calcTransformMatrix()), b.calcTransformMatrix());
+    b.__kinSig = sig;
+  });
+}
+{
+  // the editor's row, and its canvas events (registered before the history ones, so a refit is in the snapshot)
+  const _bindEditorUI = bindEditorUI;
+  bindEditorUI = function(){
+    const r = _bindEditorUI.apply(this, arguments);
+    buildTaglineRow('ed-tagstyles', k => { taglinePick(k); taglineEditorApply(); });
+    return r;
+  };
+  const _bindCanvasEvents = bindCanvasEvents;
+  bindCanvasEvents = function(){
+    canvas.on('before:render', () => { try { taglineRefitAll(canvas); } catch (e){} });
+    /* a duplicated or pasted line gets a block of its own, like the one it was
+       copied from; a pasted block, or a pasted look layer, alone is a plain
+       shape; a copied line is a line of its own (its look's layers stay with
+       the original) */
+    canvas.on('object:added', e => {
+      const o = e.target;
+      if (histLock || !o) return;
+      const objs = canvas.getObjects();
+      if (o.pgTagBlock && objs.some(x => x !== o && x.pgTagBlock === o.pgTagBlock)){ o.pgTagBlock = null; return; }
+      if (tagIsKin(o) && objs.some(x => x !== o && tagIsKin(x) && x.pgKinId === o.pgKinId && x.__kinSig && !o.__kinSig && x.left === o.left && x.top === o.top)){ o.pgKin = null; o.pgKinId = null; return; }
+      if (o.pgTagId && !tagIsKin(o) && objs.some(x => x !== o && !tagIsKin(x) && x.pgTagId === o.pgTagId)) o.pgTagId = 'tl' + Math.random().toString(36).slice(2, 9);
+      const id = o.pgTagRest && o.pgTagRest.block;
+      if (!id || !objs.some(x => x !== o && x.pgTagRest && x.pgTagRest.block === id)) return;
+      const src = objs.find(x => x.pgTagBlock === id), nid = 'tb' + Math.random().toString(36).slice(2, 9);
+      o.pgTagRest = Object.assign({}, o.pgTagRest, { block: nid });
+      if (!src) return;
+      const blk = new fabric.Rect({ fill: src.fill, rx: src.rx, ry: src.ry, name: src.name, pgTagBlock: nid, selectable: false, evented: false });
+      taglineFitBlock(blk, o);
+      canvas.insertAt(blk, canvas.getObjects().indexOf(o));
+    });
+    canvas.on('object:removed', e => {
+      const t = e.target;
+      if (!t || histLock || tagIsKin(t) || t.pgTagBlock) return;
+      const id = t.pgTagRest && t.pgTagRest.block;
+      canvas.getObjects().filter(o => (id && o.pgTagBlock === id) || (tagIsKin(o) && (o.pgKin === t || (t.pgTagId && o.pgKinId === t.pgTagId))))
+        .forEach(o => canvas.remove(o));
+    });
+    return _bindCanvasEvents.apply(this, arguments);
+  };
+  // the editor's row follows a look picked in Easy Mode's panel
+  const _ezTagSync = ezTagSync;
+  ezTagSync = function(){ const r = _ezTagSync.apply(this, arguments); try { taglineRowSync(); } catch (e){} return r; };
+  // a format switch stretches rects per axis: blocks are refitted to their lines, look layers carried with them
+  const _remapObjects = remapObjects;
+  remapObjects = function(){
+    const r = _remapObjects.apply(this, arguments);
+    try { taglineRefitAll(canvas); } catch (e){ console.warn('GraphicsStudio tagline refit:', e); }
+    return r;
+  };
+  /* Enhance restores each layer's designed paint and size; the look is taken
+     off first and put back after, so a line never ends up in its designed
+     colour on a block of the same colour */
+  const _enhance = enhance;
+  enhance = async function(){
+    const mode = canvas ? taglineModeOf(canvas) : null;
+    if (!mode) return _enhance.apply(this, arguments);
+    canvas.discardActiveObject();
+    taglineReset(canvas);
+    const lock = histLock;
+    histLock = true;
+    try { return await _enhance.apply(this, arguments); }
+    finally {
+      histLock = lock;
+      const info = taglineApply(canvas, TEMPLATES.find(t => t.id === currentTplId) || null, CW, CH);
+      canvas.renderAll(); pushHist();
+      taglineShow(info, 'ed-tagnote');
+    }
+  };
+}
+
+/* ═══ A PRODUCT STANDS OFF ITS PHOTOGRAPH'S SUBJECT ═══════════════════════════
+   The owner, 2026-09-27: "keep in mind where the background subject is in
+   relation to the secondary asset to show another version/view of the
+   product ... we don't want it to entirely cover the content of our
+   background subject, if possible sometimes it's OK or a little bit but
+   consistently starts to look bad or confusing, especially when we're talking
+   about centered images and then we happen to center something on top of it"
+   (the gold coins over the ring photograph, the strips over the Contour
+   bottle).
+
+   photo-subjects.js maps where each photograph draws the eye (16 x 16 cells,
+   scripts/photo_subjects.py). Here, on any finished scene whose photograph is
+   mapped (every family: designer, street, offer, showcase; Easy Mode, the
+   editor, the thumbnails and the video, since it runs with alignPass), a
+   product that covers the subject (coversSubject: much of it, or the centre
+   of a concentrated one) looks for the smallest move, and then the least
+   shrink, that takes it off. The move never
+   puts the product on a word, a plate or another product it was not already
+   on, never out of its 6% guides (or its designed bleed), never off the plate
+   it stands on; a glow, podium or shadow drawn under it goes with it. Where
+   no such place exists it stays: a little cover is fine, a broken card is
+   not. window.__noProductYield turns it off, so an audit can measure the
+   before. */
+function photoSubjectGrid(src){
+  const T = window.PHOTO_SUBJECTS;
+  if (!T || !T.photos || !src) return null;
+  const rec = T.photos[String(src).replace(/^\.?\//, '').replace(/[?#].*$/, '')];
+  if (!rec || !rec.g) return null;
+  if (!rec._w){
+    const w = new Float32Array(T.n * T.n);
+    let sum = 0;
+    for (let i = 0; i < w.length; i++){ w[i] = +rec.g[i] || 0; sum += w[i]; }
+    rec._w = w; rec._sum = sum;
+  }
+  return rec._sum > 0 ? { n: T.n, w: rec._w } : null;
+}
+/* the subject under any box on the card, as a share of all of it on the card */
+function subjectMass(sc, W, H){
+  const bg = sc.backgroundImage;
+  if (!bg || !bg.pgSrc || !bg.width || !bg.height) return null;
+  const S = photoSubjectGrid(bg.pgSrc);
+  if (!S) return null;
+  // the grid on the card, through the photograph's cover crop
+  const n = S.n, pw = bg.width * (bg.scaleX || 1), ph = bg.height * (bg.scaleY || 1);
+  const cw = pw / n, ch = ph / n, x0 = bg.left || 0, y0 = bg.top || 0;
+  const mass = b => {
+    const B = { left: Math.max(0, b.left), top: Math.max(0, b.top), width: 0, height: 0 };
+    B.width = Math.min(W, b.left + b.width) - B.left; B.height = Math.min(H, b.top + b.height) - B.top;
+    if (B.width <= 0 || B.height <= 0) return 0;
+    const i0 = Math.max(0, Math.floor((B.top - y0) / ch)), i1 = Math.min(n - 1, Math.floor((B.top + B.height - y0) / ch));
+    const j0 = Math.max(0, Math.floor((B.left - x0) / cw)), j1 = Math.min(n - 1, Math.floor((B.left + B.width - x0) / cw));
+    let m = 0;
+    for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++){
+      const w = S.w[i * n + j];
+      if (!w) continue;
+      const cx = x0 + j * cw, cy = y0 + i * ch;
+      m += w * Math.max(0, Math.min(B.left + B.width, cx + cw) - Math.max(B.left, cx)) * Math.max(0, Math.min(B.top + B.height, cy + ch) - Math.max(B.top, cy)) / (cw * ch);
+    }
+    return m;
+  };
+  const total = mass({ left: 0, top: 0, width: W, height: H });
+  if (!(total > 0)) return null;
+  // where the subject is centred on the card, and how tightly (its spread, in card widths)
+  let sx = 0, sy = 0, sxx = 0, syy = 0, sw = 0;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++){
+    const w = S.w[i * n + j], cx = x0 + (j + 0.5) * cw, cy = y0 + (i + 0.5) * ch;
+    if (!w || cx < 0 || cx > W || cy < 0 || cy > H) continue;
+    sw += w; sx += w * cx; sy += w * cy; sxx += w * cx * cx; syy += w * cy * cy;
+  }
+  const mx = sw ? sx / sw : W / 2, my = sw ? sy / sw : H / 2;
+  // its spread: the geometric mean of the two axes, in card sizes (a tall ring is still one place)
+  const spread = sw ? Math.sqrt(Math.sqrt(Math.max(0, sxx / sw - mx * mx)) / W * Math.sqrt(Math.max(0, syy / sw - my * my)) / H) : 1;
+  /* concentrated: a subject a product can be centred on (a ring, a bottle, a
+     coin), not one that fills the frame (an even frame spreads 0.29) */
+  return { share: b => mass(b) / total, centre: { x: mx, y: my }, concentrated: spread < 0.19 };
+}
+/* A product covers its photograph's subject when it hides much of it (at
+   least 30%, and 1.35 times its share of the card), or when it sits on the
+   centre of a concentrated one (the owner: "centered images and then we
+   happen to center something on top of it"), hiding at least 12% of it. */
+function coversSubject(S, B, A, margin){
+  const M = S.share(B), c = S.centre, m = margin || 0;
+  const onCentre = S.concentrated && c.x > B.left - m && c.x < B.left + B.width + m && c.y > B.top - m && c.y < B.top + B.height + m;
+  const much = M >= 0.3 && M >= 1.35 * A;
+  return { M, onCentre, much, covers: much || (onCentre && M >= 0.12) };
+}
+// a product's own box, less the picture's soft edge and shadow
+function productBox(p){
+  p.setCoords();
+  const R = p.getBoundingRect(true, true), k = 0.08;
+  return { left: R.left + R.width * k, top: R.top + R.height * k, width: R.width * (1 - 2 * k), height: R.height * (1 - 2 * k), R };
+}
+function sceneProducts(sc, W){
+  return sc.getObjects().filter(o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5) && o.type === 'image' && o.pgRole === 'photo' && o.width * (o.scaleX || 1) < 0.9 * W);
+}
+/* each product: the share of the subject under it (M), its share of the card
+   (A), and whether that is covering it (M >= 0.3 and M >= 1.35 A) */
+function subjectCover(sc, W, H){
+  const S = subjectMass(sc, W, H);
+  if (!S) return null;
+  return sceneProducts(sc, W).map(p => {
+    const B = productBox(p), A = Math.max(0, Math.min(W, B.left + B.width) - Math.max(0, B.left)) * Math.max(0, Math.min(H, B.top + B.height) - Math.max(0, B.top)) / (W * H);
+    const v = coversSubject(S, B, A);
+    return { name: p.name, M: +v.M.toFixed(3), A: +A.toFixed(3), onCentre: v.onCentre, covers: v.covers };
+  });
+}
+function productYield(sc, W, H){
+  if (window.__noProductYield) return null;
+  const S = subjectMass(sc, W, H);
+  if (!S) return null;
+  const inter = (p, q) => Math.max(0, Math.min(p.left + p.width, q.left + q.width) - Math.max(p.left, q.left))
+                        * Math.max(0, Math.min(p.top + p.height, q.top + q.height) - Math.max(p.top, q.top));
+  const card = { left: 0, top: 0, width: W, height: H };
+  const objs = sc.getObjects();
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  const prods = sceneProducts(sc, W);
+  if (!prods.length) return null;
+  const isText = o => /^(i-text|text|textbox)$/.test(o.type) || (o.type === 'group' && !!o.pgCurved);
+  const texts = objs.filter(o => live(o) && isText(o) && /[A-Za-z0-9]/.test(o.text || (o.pgCurved && o.pgCurved.text) || 'x'));
+  const shapeOK = o => live(o) && !o.pgBgRect && !o.pgScrim && !/^(BG|Overlay|Scrim|Grain)$/i.test(o.name || '') && o.width * (o.scaleX || 1) < 0.93 * W;
+  /* the plates a product must not slide onto: any opaque shape that is not
+     the ground, full-width bands included (the steps, the number), not a
+     shade that fades to nothing */
+  const seeThrough = c => /rgba?\([^)]*,\s*(0|0?\.[0-7]\d*)\s*\)\s*$/.test(String(c)) || c === 'transparent';
+  const opaque = f => typeof f === 'string' ? !seeThrough(f)
+    : !!(f && f.colorStops && f.colorStops.every(c => !seeThrough(c.color) && (c.opacity == null || c.opacity >= 0.8)));
+  const plates = objs.filter(o => live(o) && o.type === 'rect' && !o.pgBgRect && !o.pgScrim && !/^(BG|Overlay|Scrim|Grain)$/i.test(o.name || '')
+    && o.width * (o.scaleX || 1) * o.height * (o.scaleY || 1) < 0.85 * W * H && opaque(o.fill));
+  const G = 0.06 * Math.min(W, H), moved = [];
+  prods.forEach(p => {
+    const B0 = productBox(p), R = B0.R;
+    const A0 = inter(B0, card) / (W * H), v0 = coversSubject(S, B0, A0), M0 = v0.M;
+    if (!v0.covers) return;
+    const zp = objs.indexOf(p), c0 = p.getCenterPoint();
+    // what travels with it: a glow, a podium, a shadow drawn under it, about its size
+    const with_ = objs.filter(o => o !== p && live(o) && !isText(o) && objs.indexOf(o) < zp && shapeOK(o) && (() => {
+      const b = o.getBoundingRect(true, true), c = o.getCenterPoint();
+      return c.x > B0.left && c.x < B0.left + B0.width && c.y > B0.top && c.y < B0.top + B0.height && b.width * b.height < 1.6 * R.width * R.height;
+    })());
+    const fixed = x => !with_.includes(x);
+    const tb = texts.map(t => t.getBoundingRect(true, true)), t0 = tb.map(T => inter(B0, T));
+    const others = prods.filter(q => q !== p).map(q => q.getBoundingRect(true, true)), o0 = others.map(Q => inter(B0, Q));
+    const pl = plates.filter(fixed), pb = pl.map(x => x.getBoundingRect(true, true)), p0 = pb.map(P => inter(B0, P));
+    // the plate it stands on, if any: it stays on it
+    const home = pl.filter((x, i) => objs.indexOf(x) < zp && c0.x > pb[i].left && c0.x < pb[i].left + pb[i].width && c0.y > pb[i].top && c0.y < pb[i].top + pb[i].height)
+      .sort((a, b) => a.width * a.scaleX * a.height * a.scaleY - b.width * b.scaleX * b.height * b.scaleY)[0];
+    const hb = home ? home.getBoundingRect(true, true) : null;
+    // the whole picture stays inside the 6% guides, or inside the bleed it was designed with
+    const lim = { l: Math.min(R.left, G), t: Math.min(R.top, G), r: Math.max(R.left + R.width, W - G), b: Math.max(R.top + R.height, H - G) };
+    let best = null;
+    for (const s of [1, 0.92, 0.85]) for (let dx = -0.3; dx <= 0.3001; dx += 0.025) for (let dy = -0.2; dy <= 0.2001; dy += 0.025){
+      const cx = B0.left + B0.width / 2 + dx * W, cy = B0.top + B0.height / 2 + dy * H;
+      const B = { left: cx - B0.width * s / 2, top: cy - B0.height * s / 2, width: B0.width * s, height: B0.height * s };
+      const Rl = cx - R.width * s / 2, Rt = cy - R.height * s / 2;
+      if (Rl < lim.l - 1 || Rt < lim.t - 1 || Rl + R.width * s > lim.r + 1 || Rt + R.height * s > lim.b + 1) continue;
+      if (hb && (cx < hb.left || cx > hb.left + hb.width || cy < hb.top || cy > hb.top + hb.height)) continue;
+      if (tb.some((T, i) => inter(B, T) > t0[i] + 0.01 * T.width * T.height)) continue;
+      if (others.some((Q, i) => inter(B, Q) > o0[i] + 0.02 * B.width * B.height)) continue;
+      if (pb.some((P, i) => pl[i] !== home && inter(B, P) > p0[i] + 0.02 * B.width * B.height)) continue;
+      // off the centre means clear of it by 6% of the card, not a pixel past it
+      const v = coversSubject(S, B, inter(B, card) / (W * H), G);
+      const cost = v.M + (v.onCentre ? 0.5 : 0) + 0.25 * (Math.abs(dx) + Math.abs(dy)) + 0.6 * (1 - s);
+      if (!best || cost < best.cost) best = { cost, M: v.M, onCentre: v.onCentre, much: v.much, dx, dy, s };
+    }
+    /* a move is worth making when it shows the subject: the product hides 40%
+       less of it, or it leaves the centre, clear by the margin, hiding a fifth
+       less. A nudge that only crosses a threshold is not one. */
+    const worth = best && (best.M <= 0.6 * M0 || (!best.onCentre && !best.much && best.M <= 0.8 * M0));
+    if (!worth || (Math.abs(best.dx) < 1e-6 && Math.abs(best.dy) < 1e-6 && best.s === 1)) return;
+    const DX = best.dx * W, DY = best.dy * H;
+    [p].concat(with_).forEach(o => {
+      const c = o.getCenterPoint();
+      if (best.s !== 1) o.set({ scaleX: (o.scaleX || 1) * best.s, scaleY: (o.scaleY || 1) * best.s });
+      // about the product's centre, then moved with it
+      o.setPositionByOrigin(new fabric.Point(c0.x + (c.x - c0.x) * best.s + DX, c0.y + (c.y - c0.y) * best.s + DY), 'center', 'center');
+      o.setCoords();
+    });
+    moved.push({ name: p.name, from: +M0.toFixed(2), to: +best.M.toFixed(2), dx: Math.round(DX), dy: Math.round(DY), s: best.s, with: with_.length });
+  });
+  sc.pgYield = moved;
+  return moved;
+}
+{
+  // the photograph a background image was made from, so productYield can find its map
+  const _freshBgImage = freshBgImage;
+  freshBgImage = function(src){ const im = _freshBgImage.apply(this, arguments); if (im) im.pgSrc = src; return im; };
+  const _placeholderBgImage = placeholderBgImage;
+  placeholderBgImage = function(src){ const im = _placeholderBgImage.apply(this, arguments); if (im) im.pgSrc = src; return im; };
+  // with alignPass (after plateAir), so every surface gets the same card
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){
+    const r = _alignPass.apply(this, arguments);
+    try { productYield(sc, W || TPL_W, H || TPL_H); } catch (e){ console.warn('GraphicsStudio productYield:', e); }
+    return r;
+  };
+}
+
+// ═══════════════ DRAWN GROUNDS AND PATTERN OVERLAYS ═══════════════
+/* Owner, 2026-09-27: "backgrounds that are solid colors, sunburst all sorts of
+   styles even patterns overlays so we have all varieties some images some
+   blurred images". grounds.js (the catalogue the owner ticked 115 tiles of on
+   2026-09-03, plus solid and sunbursts) paints a ground from a palette, and a
+   neutral pattern over a photograph. Either is a background SOURCE:
+     ground:<kind>/<c1>/<c2>/<accent>/<support>/<ink>/<seed>
+     overlay:<kind>/<dark|light>|<photo src>
+   painted once into TPL_BG_ELS, so every path that draws a photograph (the
+   thumbnail, the editor, Easy Mode, export, video) draws these unchanged. */
+function isDrawnSrc(src){ return /^(ground|overlay):/.test(String(src || '')); }
+function drawnBgEl(src){
+  if (TPL_BG_ELS[src] && TPL_BG_ELS[src].width) return TPL_BG_ELS[src];
+  if (!window.GROUNDS || !GROUNDS.parse) return null;
+  const q = GROUNDS.parse(src); if (!q) return null;
+  const base = q.type === 'overlay' ? TPL_BG_ELS[q.base] : null;
+  if (q.type === 'overlay' && !(base && base.width)) return null;
+  let c = null;
+  try { c = GROUNDS.canvasFor(src, base); } catch (e){ console.warn('ground failed:', src, e); }
+  if (c) TPL_BG_ELS[src] = c;
+  return c;
+}
+/* an overlay needs its photograph first; a ground paints at once */
+function loadDrawnBg(src){
+  const q = window.GROUNDS && GROUNDS.parse ? GROUNDS.parse(src) : null;
+  if (!q || q.type === 'ground'){ drawnBgEl(src); return Promise.resolve(); }
+  return new Promise(res => {
+    const done = () => { drawnBgEl(src); res(); };
+    if (TPL_BG_ELS[q.base] && TPL_BG_ELS[q.base].width) return done();
+    const el = new Image();
+    el.onload = () => { TPL_BG_ELS[q.base] = el; done(); };
+    el.onerror = () => res();
+    el.src = (window.TPL_BG_DATA && TPL_BG_DATA[q.base]) || assetUrl(q.base);
+  });
+}
+
+// ═══════════════ EASY MODE: MORE GROUNDS ═══════════════
+/* The owner's variety, in the picker: photos, blurred photos, solids,
+   gradients, sunbursts, patterns and textures, every swatch drawn in the
+   card's (or the chosen theme's) own palette, and a neutral pattern that can
+   go over any of them. The ground is fitted to the ink first: deepened (or
+   lifted) until the reading ink clears 6:1 on it, so a pattern or a ray
+   still leaves the copy above 4.5:1. */
+const EZ_GROUND_STYLES = [
+  { key:'photo',    label:'Photos' },
+  { key:'blurred',  label:'Blurred photos' },
+  { key:'solid',    label:'Solid' },
+  { key:'gradient', label:'Gradient', kinds:['linear','duo','mesh','sweep','glow','vignetteG','aurora','blobs'] },
+  { key:'sunburst', label:'Sunburst', kinds:['sunburst','burst','burstTop','rays','rings','arcs'] },
+  { key:'pattern',  label:'Pattern',  kinds:['dotgrid','finegrid','halftone','stripes','bands','chevron','topo','lowpoly','confetti','waves','curves'] },
+  { key:'texture',  label:'Texture',  kinds:['grainy','paperTex','brushed','carbon','velvet','frost','bokeh','stars','skyline','duneshade','split','blinds'] },
+];
+let ezGroundStyle = 'sunburst';
+function ezMixHex(a, b, t){ const A = scHexRgb(a), B = scHexRgb(b); return '#' + [0, 1, 2].map(i => Math.round(A[i] + (B[i] - A[i]) * t).toString(16).padStart(2, '0')).join(''); }
+function ezCr(a, b){ return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); }
+function ezPalette(){
+  const th = ez.theme, tpl = ezTpl() || {};
+  const hex = v => /^#[0-9a-f]{6}$/i.test(String(v || '')) ? v : null;
+  const card = tpl.showcase && SHOWCASE.byId ? SHOWCASE.byId[tpl.showcase] : null;
+  const fb = tpl.bg ? (tpl.bg.type === 'image' ? (tpl.bg.fallback || {}) : tpl.bg) : {};
+  const L = tpl.layers || [];
+  const roleFill = r => { const l = L.find(x => x.role === r && x.props && hex(x.props.fill)); return l ? l.props.fill : null; };
+  const ink = (th && th.ink) || (card && hex(card.ink)) || roleFill('sub') || roleFill('website') || roleFill('badges') || '#f6f6f4';
+  const accent = (th && th.accent) || (card && hex(card.accent)) || roleFill('phone') || roleFill('cta') || '#f5a623';
+  const support = (th && th.support) || (card && hex(card.support)) || accent;
+  const inkL = scLum(ink), toward = inkL > 0.4 ? '#000000' : '#ffffff';
+  const fit = c => { c = hex(c) || (toward === '#000000' ? '#14161c' : '#f4f1ea');
+    for (let t = 0; t <= 1.0001; t += 0.08){ const m = ezMixHex(c, toward, Math.min(1, t)); if (ezCr(scLum(m), inkL) >= 6) return m; }
+    return toward === '#000000' ? '#0e0f13' : '#f6f4ef'; };
+  const c1 = fit(th ? th.bg.c1 : (fb.c1 || fb.c)), c2 = fit(th ? th.bg.c2 : (fb.c2 || fb.c1 || fb.c));
+  return { c1, c2, accent, support, ink, fit };
+}
+function ezCategoryPhotos(){
+  const tpl = ezTpl() || {}, cat = tpl.cat || currentCat, seen = new Set(), out = [];
+  const add = src => { if (src && !isDrawnSrc(src) && !seen.has(src) && TPL_BG_ELS[src] && TPL_BG_ELS[src].width){ seen.add(src); out.push(src); } };
+  if (tpl.bg && tpl.bg.type === 'image') add(tpl.bg.src);
+  TEMPLATES.filter(t => t.cat === cat && t.bg && t.bg.type === 'image').forEach(t => add(t.bg.src));
+  return out.slice(0, 18);
+}
+function ezGroundSpecs(st){
+  const P = ezPalette();
+  const thumbOf = (src, blur) => { const el = TPL_BG_ELS[src] || drawnBgEl(src); if (!el) return null;
+    const c = document.createElement('canvas'); c.width = c.height = 96; const g = c.getContext('2d');
+    const w = el.naturalWidth || el.width, h = el.naturalHeight || el.height, k = 96 / Math.min(w, h);
+    if (blur) g.filter = 'blur(' + Math.max(1, blur * 96 / 1080) + 'px)';
+    g.drawImage(el, (96 - w * k) / 2, (96 - h * k) / 2, w * k, h * k);
+    try { return c.toDataURL('image/jpeg', 0.8); } catch (e){ return null; } };
+  if (st.key === 'photo' || st.key === 'blurred'){
+    const blur = st.key === 'blurred' ? 16 : 0, light = scLum(P.ink) > 0.4;
+    return ezCategoryPhotos().map(src => ({ title: blur ? 'Blurred photo' : 'Photo', thumb: thumbOf(src, blur),
+      bg: { type:'image', src, blur, grade:{ treat:'natural' }, scrim: blur ? 0.36 : 0.42, scrimColor: light ? '#0b0b0d' : '#f6f6f4', scrimMode:'gradient' } }));   // light: the gate shades further only if a line needs it
+  }
+  let list;
+  if (st.key === 'solid'){
+    const seen = new Set();
+    list = [P.c1, P.c2, P.fit(ezMixHex(P.accent, '#000000', 0.45)), P.fit(ezMixHex(P.support, '#000000', 0.45)), P.fit('#101114'), P.fit('#1d2733'), P.fit('#2b1d17'), P.fit('#f4f1ea')]
+      .filter(c => !seen.has(c) && seen.add(c)).map(c => ({ kind:'solid', P: Object.assign({}, P, { c1: c, c2: c }), title: 'Solid ' + c }));
+  } else list = st.kinds.filter(k => GROUNDS.kinds.includes(k)).map(k => ({ kind: k, P, title: (GROUNDS.list.find(x => x.key === k) || {}).name || k }));
+  return list.map(x => { const src = GROUNDS.src(x.kind, x.P, 3);
+    return { title: x.title, thumb: thumbOf(src, 0), bg: { type:'image', src, scrim:0, blur:0, grade:{ treat:'raw' } } }; });
+}
+function ezUseGround(bg){
+  ez.bg = Object.assign({}, bg); ez.bgRecId = null; ez.bgPicked = true; ez.shade = 0;
+  if (isDrawnSrc(bg.src)) drawnBgEl(bg.src);
+  syncEzSwatches(); refreshEzRecents(); refreshEzLayers(); schedEzPreview(0);
+}
+function ezDrawnSync(){
+  const row = $('ez-bgstyles'), box = $('ez-drawn');
+  if (!row || !box || !window.GROUNDS || !GROUNDS.src) return;
+  if (!row.dataset.built){
+    row.dataset.built = '1';
+    EZ_GROUND_STYLES.forEach(st => { const b = document.createElement('button'); b.type = 'button'; b.textContent = st.label; b.dataset.style = st.key;
+      b.onclick = () => { ezGroundStyle = st.key; ezDrawnSync(); }; row.appendChild(b); });
+  }
+  row.querySelectorAll('button').forEach(b => { const on = b.dataset.style === ezGroundStyle; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  box.innerHTML = '';
+  const st = EZ_GROUND_STYLES.find(x => x.key === ezGroundStyle) || EZ_GROUND_STYLES[0];
+  const specs = ezGroundSpecs(st);
+  if (!specs.length){ box.innerHTML = '<span class="ez-gnone">No photos for this category yet</span>'; return; }
+  specs.forEach(sp => { const b = document.createElement('button'); b.type = 'button';
+    b.className = 'ez-sw ez-gsw'; b.title = sp.title; b.setAttribute('aria-label', sp.title);
+    b.dataset.src = sp.bg.src; b.dataset.blur = sp.bg.blur || 0;
+    if (sp.thumb) b.style.backgroundImage = 'url("' + sp.thumb + '")';
+    b.onclick = () => ezUseGround(sp.bg); box.appendChild(b); });
+  syncEzSwatches();
+}
+/* a neutral pattern over whatever the background is (grounds.js overlays:
+   black or white at a low strength, never a hue, DESIGN-LAW rule 56) */
+/* A pattern and an overlay go on top of the card's own ground and under
+   everything else: the ground rect, the gate's shade, and the scrims, shades
+   and vignettes a template draws over its photograph as layers of its own
+   (the offer family's Shade, Shade Fade and Vignette). Under those, a pattern
+   changed half a percent of an offer card (ez_theme_audit). `add` are the new
+   objects, in stacking order; any already on the scene are moved. */
+function ezGroundStack(sc, add){
+  add = (add || []).filter(Boolean);
+  if (!sc || !add.length) return;
+  add.forEach(o => { if (sc.getObjects().includes(o)) sc.remove(o); });
+  const ground = o => o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern || /^(BG|Scrim|Overlay|Vignette|Grain|Claim Shade|Shade|Shade Fade)$/.test(o.name || '');
+  const objs = sc.getObjects();
+  let k = 0; while (k < objs.length && ground(objs[k])) k++;
+  add.forEach((o, i) => sc.insertAt(o, k + i));
+}
+function ezPatternObj(w, h){
+  const f = ez.fx || {};
+  if (!f.pattern || f.pattern === 'none' || !window.GROUNDS || !GROUNDS.overlay) return null;
+  w = w || CW; h = h || CH;
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'), k = Math.min(w, h) / 1080; g.scale(k, k);
+  GROUNDS.overlay(f.pattern, g, w / k, h / k, f.ptone || 'dark');
+  try { return new fabric.Image(c, { left:0, top:0, selectable:false, evented:false, name:'Pattern', pgPattern:true }); } catch (e){ return null; }
+}
+function ezPatternRow(){
+  const row = $('fx-pat-seg');
+  if (!row || row.dataset.built || !window.GROUNDS || !GROUNDS.overlays) return;
+  row.dataset.built = '1';
+  const opts = [['none', 'None']].concat(GROUNDS.overlays, [['__tone', 'Light']]);
+  opts.forEach(([key, label]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.pat = key;
+    b.onclick = () => {
+      if (key === '__tone'){ ez.fx.ptone = ez.fx.ptone === 'light' ? 'dark' : 'light'; }
+      else ez.fx.pattern = key;
+      row.querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.pat === '__tone' ? ez.fx.ptone === 'light' : x.dataset.pat === (ez.fx.pattern || 'none')));
+      schedEzPreview(0);
+    };
+    row.appendChild(b); });
+  row.querySelector('[data-pat="none"]').classList.add('active');
+}
+
+// ═══════════════ THE GATE: one measure, before anything is produced ═══════════════
+/* Owner, 2026-09-27: "every generation has a self audit process and a check
+   before they're produced." Until now the checks lived in scripts (the
+   legibility audit, the critic, the collision audit) and ran over the library
+   after the fact; the studio itself exported whatever the visitor's own words
+   and background made of a card, unmeasured. Each script also carried its own
+   copy of the measure (five luminance helpers in this file alone, thirty in
+   scripts/), so two checks could disagree about one card.
+
+   This is the one measure. It takes a rendered scene (a StaticCanvas after
+   alignPass, at any size) and returns numbers, never an opinion, with the
+   thresholds in PG_T (the critic's table). The scripts call it through the
+   harness (__sc.check) and refuse to write a record that fails it; the studio
+   calls it before a download, a video or a variant (pgGate) and darkens the
+   ground or says exactly what is wrong.
+
+   Definitions, unchanged from the audits so old and new numbers compare:
+     core     a line's contrast is the upper quartile of the per-pixel
+              contrast over the pixels it changes (paint with it, paint
+              without it): the core of its strokes, not its shadow
+              (audit_showcase_legibility.mjs, 2026-09-26)
+     letters  the same, per letter-wide column, the worst column
+              (audit_showcase_school.mjs numInk)
+     number   the phone number's size on the 1080 basis; 72px is the floor
+              (rule 53); its ink off the plate it stands on; over a product
+     guides   reading ink inside the 6% margin (rule 57)
+     touch    two lines whose boxes overlap by more than a kiss (rule 58)
+   FAIL holds a card back (the landing's `defect`, the studio's gate); WARN
+   is shown and ranks a card down. */
+const PG_T = { number: 72, legib: 3, numInk: 3, contrast: 4.5, onProduct: 0.12, offPlate: 0.08, thumb: 8, margin: 0.06, touch: 0.18, cut: 0.08, tile: 160 };
+const PG_READ = { headline:1, phone:1, cta:1, info:1, badges:1, sub:1, website:1, offer:1 }, PG_CRIT = { headline:1, phone:1, cta:1 };
+const pgLin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+const pgLumAt = (d, k) => 0.2126 * pgLin(d[k]) + 0.7152 * pgLin(d[k + 1]) + 0.0722 * pgLin(d[k + 2]);
+const pgCr = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+function pgRgb(f){ let m = /^#?([0-9a-f]{6})$/i.exec(String(f || '').trim()); if (m){ const n = parseInt(m[1], 16); return [n >> 16, (n >> 8) & 255, n & 255, 1]; }
+  m = /^#?([0-9a-f]{3})$/i.exec(String(f || '').trim()); if (m) return [parseInt(m[1][0] + m[1][0], 16), parseInt(m[1][1] + m[1][1], 16), parseInt(m[1][2] + m[1][2], 16), 1];
+  m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(String(f || '')); return m ? [+m[1], +m[2], +m[3], m[4] == null ? 1 : +m[4]] : null; }
+function pgLum(f){ const c = pgRgb(f); return c ? 0.2126 * pgLin(c[0]) + 0.7152 * pgLin(c[1]) + 0.0722 * pgLin(c[2]) : null; }
+/* THE PLATE UNDER THE NUMBER, one finder for the gate and the floor: the
+   last solid rect drawn before the number whose x-span holds the number's
+   centre; among those, one that holds the number's vertical centre wins over
+   one that merely overlaps it (a claim strip above the number is not its
+   plate: three street price tags measured 98% "off plate" for that). */
+function pgPlateUnder(objs, phone, b, W, H){
+  const solid = o => { const f = o.fill; return f && f !== 'transparent' && !(typeof f === 'string' && /rgba\([^)]*,\s*0(\.[0-4]\d*)?\)$/.test(f)); };
+  const cx = b.x + b.w / 2, cy = b.y + b.h / 2, k = objs.indexOf(phone), hits = [];
+  objs.forEach((o, j) => {
+    if (j >= k || !o || o.visible === false || o.type !== 'rect' || o.pgBgRect || o.pgScrim || o.pgShade || !solid(o)) return;
+    o.setCoords(); const r = o.getBoundingRect(true, true), c = { o, x: r.left, y: r.top, w: r.width, h: r.height };
+    if (c.w * c.h > 0.6 * W * H) return;
+    if (cx >= c.x && cx <= c.x + c.w && c.y < b.y + b.h && c.y + c.h > b.y) hits.push(c);
+  });
+  const inside = hits.filter(c => cy >= c.y && cy <= c.y + c.h);
+  return (inside.length ? inside : hits).pop() || null;
+}
+function pgCheck(sc, opts){
+  opts = opts || {};
+  const W = sc.getWidth(), H = sc.getHeight(), k1080 = TPL_W / Math.min(W, H);
+  const ctx = sc.lowerCanvasEl.getContext('2d');
+  sc.renderAll();
+  const full = ctx.getImageData(0, 0, W, H).data;
+  const objs = sc.getObjects();
+  const box = o => { o.setCoords(); const b = o.getBoundingRect(true, true); return { x: b.left, y: b.top, w: b.width, h: b.height }; };
+  const inter = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  /* a curved word is a group (textToCurved) and it is a word: its text and
+     size ride on pgCurved */
+  const curved = o => o && o.type === 'group' && o.pgCurved && typeof o.pgCurved.text === 'string';
+  /* a tagline look's own layers (a glow halo, the red and blue offsets, the
+     3-D depth: pgKin) are part of their line's mark, not words of their own:
+     they are measured with it, hidden with it, and never "touch" it */
+  const kinOf = o => objs.filter(q => q && q !== o && (q.pgKin === o || (o.pgTagId && q.pgKinId === o.pgTagId)));
+  const isWord = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5) && !o.pgKin && !o.pgKinId &&
+    (((o.type === 'i-text' || o.type === 'text' || o.type === 'textbox') && typeof o.text === 'string' && /[A-Za-z0-9]/.test(o.text)) || (curved(o) && /[A-Za-z0-9]/.test(o.pgCurved.text)));
+  const words = objs.map((o, k) => ({ o, k })).filter(x => isWord(x.o)).map(x => Object.assign(x, {
+    name: x.o.name || '', role: x.o.pgRole || '', b: box(x.o),
+    px: ((curved(x.o) ? (x.o.pgCurved.style && x.o.pgCurved.style.fontSize) || x.o.height : x.o.fontSize) || 0) * (x.o.scaleY || 1) * k1080 }));
+  const read = words.filter(x => PG_READ[x.role]);
+  /* paint without the line: the pixels that change are its footprint, each
+     against the very pixel that was behind it */
+  const footprint = x => {
+    const kin = kinOf(x.o), bs = [x.b].concat(kin.map(box));
+    const b = { x: Math.min(...bs.map(r => r.x)), y: Math.min(...bs.map(r => r.y)) };
+    b.w = Math.max(...bs.map(r => r.x + r.w)) - b.x; b.h = Math.max(...bs.map(r => r.y + r.h)) - b.y;
+    const pad = 2;
+    const x0 = Math.max(0, Math.floor(b.x) - pad), y0 = Math.max(0, Math.floor(b.y) - pad);
+    const x1 = Math.min(W, Math.ceil(b.x + b.w) + pad), y1 = Math.min(H, Math.ceil(b.y + b.h) + pad);
+    const w = x1 - x0, h = y1 - y0; if (w < 4 || h < 4) return null;
+    x.o.visible = false; kin.forEach(q => { q.visible = false; }); sc.renderAll();
+    const wo = ctx.getImageData(x0, y0, w, h).data;
+    x.o.visible = true; kin.forEach(q => { q.visible = true; });
+    return { x0, y0, w, h, wo };
+  };
+  const measure = x => {
+    const f = footprint(x); if (!f) return { core: null, letters: null, cov: 0, ink: null, ground: null };
+    const { x0, y0, w, h, wo } = f, all = [], cols = [], step = Math.max(8, 0.55 * x.px / k1080), gl = [], il = [];
+    let changed = 0;
+    for (let c0 = 0; c0 < w; c0 += step){
+      const c1 = Math.min(w, c0 + step), v = [];
+      for (let y = 0; y < h; y++) for (let xx = Math.floor(c0); xx < Math.ceil(c1); xx++){
+        const p = ((y + y0) * W + (xx + x0)) * 4, g = (y * w + xx) * 4;
+        if (Math.abs(full[p] - wo[g]) + Math.abs(full[p + 1] - wo[g + 1]) + Math.abs(full[p + 2] - wo[g + 2]) < 24) continue;
+        const cr = pgCr(pgLumAt(full, p), pgLumAt(wo, g)); v.push(cr); all.push(cr); changed++; if (changed % 7 === 0){ gl.push(pgLumAt(wo, g)); il.push(pgLumAt(full, p)); }
+      }
+      if (v.length < Math.max(12, 0.03 * step * h)) continue;                 // a gap between letters
+      v.sort((p, q) => p - q); cols.push(v[Math.floor(v.length * 0.75)]);
+    }
+    all.sort((p, q) => p - q); gl.sort((p, q) => p - q); il.sort((p, q) => p - q);
+    /* the ink: its fill; a gradient's stops; failing both, the line's own pixels */
+    let inkL = typeof x.o.fill === 'string' ? pgLum(x.o.fill) : null;
+    if (inkL == null && x.o.fill && Array.isArray(x.o.fill.colorStops)){ const st = x.o.fill.colorStops.map(c => pgLum(c.color)).filter(v => v != null); if (st.length) inkL = st.reduce((a, b) => a + b, 0) / st.length; }
+    if (inkL == null && il.length) inkL = il[il.length >> 1];
+    return { core: all.length ? all[Math.min(all.length - 1, Math.floor(all.length * 0.75))] : null,
+             letters: cols.length ? Math.min(...cols) : null, cov: changed / (w * h),
+             ink: inkL, ground: gl.length ? gl[gl.length >> 1] : null };
+  };
+  read.forEach(x => Object.assign(x, measure(x)));
+  sc.renderAll();
+  const fails = [], warns = [];
+  const F = (code, x, value, need) => fails.push({ code, line: x ? x.name : null, role: x ? x.role : null, value: value == null ? null : +(+value).toFixed(2), need });
+  const Wn = (code, x, value, need) => warns.push({ code, line: x ? x.name : null, role: x ? x.role : null, value: value == null ? null : +(+value).toFixed(2), need });
+  // contrast: a critical line's core under 3:1 fails; its worst letter under 4.5:1 warns
+  read.forEach(x => {
+    if (x.cov < 0.012 && PG_CRIT[x.role]){ F('ghost', x, x.cov, 0.012); return; }
+    if (x.core == null) return;
+    if (PG_CRIT[x.role]){ if (x.core < PG_T.legib) F('legib', x, x.core, PG_T.legib); else if (x.letters != null && x.letters < PG_T.contrast) Wn('contrast', x, x.letters, PG_T.contrast); }
+    else if (x.core < PG_T.legib) Wn('legibMin', x, x.core, PG_T.legib);
+  });
+  // the number: big, its letters readable, on its plate, off the product
+  const phone = read.find(x => x.role === 'phone');
+  let onProduct = 0, offPlate = 0;
+  if (phone){
+    if (phone.px < PG_T.number - 0.5) F('number', phone, phone.px, PG_T.number);   // half a pixel of rounding, the same tolerance the floor uses
+    if (phone.letters != null && phone.letters < PG_T.numInk) F('numInk', phone, phone.letters, PG_T.numInk);
+    const b = phone.b;
+    objs.forEach((o, j) => {
+      if (j >= phone.k || !o || o.visible === false) return;
+      if (o.type === 'image' && o.pgRole === 'photo' && !o.pgBgRect && (o.opacity == null || o.opacity >= 0.5)) onProduct = Math.max(onProduct, inter(b, box(o)) / Math.max(1, b.w * b.h));
+    });
+    const plate = pgPlateUnder(objs, phone.o, b, W, H);
+    if (onProduct > PG_T.onProduct) F('onProduct', phone, onProduct, PG_T.onProduct);
+    if (plate){
+      const x0 = Math.max(0, Math.floor(b.x)), y0 = Math.max(0, Math.floor(b.y)), w = Math.min(W, Math.ceil(b.x + b.w)) - x0, h = Math.min(H, Math.ceil(b.y + b.h)) - y0;
+      if (w > 0 && h > 0){
+        const on = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = false; sc.renderAll();
+        const off = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = true; sc.renderAll();
+        let ink = 0, out = 0;
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){ const q = (y * w + x) * 4;
+          if (Math.abs(on[q] - off[q]) + Math.abs(on[q + 1] - off[q + 1]) + Math.abs(on[q + 2] - off[q + 2]) < 90) continue;
+          ink++; const X = x + x0, Y = y + y0; if (X < plate.x || X > plate.x + plate.w || Y < plate.y || Y > plate.y + plate.h) out++; }
+        offPlate = ink ? out / ink : 0;
+        if (offPlate > PG_T.offPlate) F('offPlate', phone, offPlate, PG_T.offPlate);
+      }
+    }
+  } else if (!opts.noPhone) Wn('noNumber', null, null, null);
+  // the headline in a feed tile
+  const heads = read.filter(x => x.role === 'headline');
+  const headPx = heads.length ? Math.max(...heads.map(x => x.px)) : 0, headTile = headPx * 0.7 * PG_T.tile / TPL_W;   // the critic's tile measure: cap height at 0.7em
+  if (heads.length && headTile < PG_T.thumb) F('thumb', heads[0], headTile, PG_T.thumb);
+  // the guides: reading ink inside the margin (rule 57)
+  const M = PG_T.margin * Math.min(W, H);
+  read.forEach(x => { const over = Math.max(M - x.b.x, M - x.b.y, x.b.x + x.b.w - (W - M), x.b.y + x.b.h - (H - M));
+    if (over > 2 * Math.min(W, H) / TPL_W) (over > 0.02 * Math.min(W, H) ? F : Wn)('margin', x, over * k1080, 0); });
+  /* copy touching copy (rule 58): overlap as a share of the smaller, measured
+     by the letters (rule 76: a box carries the face's ascent and descent room,
+     so a badge hung on the claim's cap line "touched" it by its box alone) */
+  const letters = x => { if (x.inkBox) return x.inkBox; let r = null;
+    try { if (typeof textInkRect === 'function' && !curved(x.o)) r = textInkRect(x.o); } catch (e){}
+    return (x.inkBox = r ? { x: r.left, y: r.top, w: r.width, h: r.height } : x.b); };
+  for (let i = 0; i < words.length; i++) for (let j = i + 1; j < words.length; j++){
+    const a = words[i], c = words[j]; if (/marquee|ticker/i.test(a.name + c.name)) continue;
+    if (inter(a.b, c.b) <= 0) continue;
+    const A = letters(a), C = letters(c);
+    const ov = inter(A, C) / Math.max(1, Math.min(A.w * A.h, C.w * C.h));
+    if (ov > PG_T.touch) (ov > 0.5 ? F : Wn)('touch', a, ov, PG_T.touch);
+  }
+  // the product cut off by the edge (rule 57)
+  objs.forEach(o => { if (!o || o.visible === false || o.type !== 'image' || o.pgRole !== 'photo' || o.pgBgRect) return;
+    const c = box(o), inside = inter(c, { x: 0, y: 0, w: W, h: H }) / Math.max(1, c.w * c.h);
+    if (1 - inside > PG_T.cut) Wn('cut', { name: o.name || 'Product', role: 'photo' }, 1 - inside, PG_T.cut); });
+  const legib = Math.min(99, ...read.filter(x => PG_CRIT[x.role] && x.core != null).map(x => x.core));
+  const legibMin = Math.min(99, ...read.filter(x => !PG_CRIT[x.role] && x.core != null).map(x => x.core));
+  const crit = read.filter(x => PG_CRIT[x.role] && x.letters != null).map(x => x.letters), minorL = read.filter(x => !PG_CRIT[x.role] && x.px >= 18 && x.letters != null).map(x => x.letters);
+  return { ok: !fails.length, fails, warns, legib: +legib.toFixed(2), legibMin: +legibMin.toFixed(2), number: phone ? +phone.px.toFixed(1) : null,
+           numInk: phone && phone.letters != null ? +phone.letters.toFixed(2) : null,
+           letters: crit.length ? +Math.min(...crit).toFixed(2) : null, minorInk: minorL.length ? +Math.min(...minorL).toFixed(2) : null,
+           onProduct: +onProduct.toFixed(3), offPlate: +offPlate.toFixed(3), headPx: +headPx.toFixed(1), headTile: +headTile.toFixed(1),
+           ghost: read.filter(x => PG_CRIT[x.role] && x.cov < 0.012).length,
+           lines: read.map(x => ({ name: x.name, role: x.role, px: +x.px.toFixed(1), core: x.core == null ? null : +x.core.toFixed(2), letters: x.letters == null ? null : +x.letters.toFixed(2), cov: +(x.cov * 100).toFixed(1),
+                                   ink: x.ink == null ? null : +x.ink.toFixed(3), ground: x.ground == null ? null : +x.ground.toFixed(3) })) };
+}
+/* what a failure means, in the visitor's words */
+function pgExplain(f){
+  const L = f.line ? '“' + String(f.line).replace(/\s\d+$/, '') + '”' : 'a line';
+  switch (f.code){
+    case 'legib': return L + ' reads ' + f.value + ':1 against its background; it needs 3:1 to be readable';
+    case 'ghost': return L + ' is almost invisible on this background';
+    case 'number': return 'the phone number is ' + Math.round(f.value) + 'px; it needs 72px to read in a feed';
+    case 'numInk': return 'part of the phone number reads ' + f.value + ':1; every digit needs 3:1';
+    case 'offPlate': return 'the phone number runs off its plate';
+    case 'onProduct': return 'the phone number sits on the product';
+    case 'thumb': return 'the headline is too small to read as a thumbnail';
+    case 'margin': return L + ' runs into the edge';
+    case 'touch': return L + ' overlaps another line';
+    default: return f.code;
+  }
+}
+
+/* ── the gate in the studio ─────────────────────────────────────────────
+   Before a download, a video or a print order the finished scene is measured
+   (pgCheck). A contrast failure is fixed first: a neutral shade (near-black
+   under light ink, paper under dark: rule 56) is laid over the background and
+   raised in steps until every line reads, and the visitor is told. Anything
+   the shade cannot fix is named in the visitor's words, with the choice to go
+   back or download anyway: an ad is never held hostage, but none goes out
+   unmeasured. */
+function ezInkLight(tpl){
+  const L = ((tpl && tpl.layers) || []).filter(l => PG_CRIT[l.role] && l.props && pgLum(l.props.fill) != null);
+  if (!L.length) return true;
+  return L.filter(l => pgLum(l.props.fill) > 0.4).length * 2 >= L.length;
+}
+function ezShadeRect(w, h, tpl){
+  const a = ez.shade || 0; if (!(a > 0)) return null;
+  const dark = ez.shadeTone ? ez.shadeTone === 'dark' : ezInkLight(tpl);
+  const tone = dark ? '#0b0b0d' : '#f6f6f4';
+  const r = scrimRect(Math.min(0.9, a), w, h, tone, 'normal');
+  r.pgShade = true; r.pgShadeA = Math.min(0.9, a); r.pgShadeTone = tone; r.pgShadeMode = 'normal';   // pgShadeFit sets its bands after the layout
+  r.selectable = false; r.evented = false;
+  return r;
+}
+function advShade(a, tone){
+  const old = canvas.getObjects().find(o => o.pgShade); if (old) canvas.remove(old);
+  if (!(a > 0)) return;
+  const c = tone === 'light' ? '#f6f6f4' : '#0b0b0d';
+  const r = scrimRect(Math.min(0.9, a), CW, CH, c, 'normal');
+  r.pgShade = true; r.pgShadeA = Math.min(0.9, a); r.pgShadeTone = c; r.pgShadeMode = 'normal';
+  r.selectable = false; r.evented = false;
+  canvas.add(r);
+  canvas.moveTo(r, canvas.getObjects().filter(o => o.pgBgRect || o.pgScrim).length);   // above the ground, under everything drawn
+  try { pgShadeFit(canvas, CW, CH); } catch (e){}
+}
+function pgGateAsk(r){
+  return new Promise(res => {
+    const ov = $('gate-overlay'); if (!ov){ res(true); return; }
+    const list = $('gate-list'); list.innerHTML = '';
+    r.fails.slice(0, 5).forEach(f => { const li = document.createElement('li'); li.textContent = pgExplain(f); list.appendChild(li); });
+    const done = v => { ov.classList.remove('show'); res(v); };
+    $('gate-back').onclick = () => done(false);
+    $('gate-anyway').onclick = () => done(true);
+    ov.onclick = e => { if (e.target === ov) done(false); };
+    ov.classList.add('show');
+  });
+}
+async function pgGate(kind, makeScene, opts){
+  opts = opts || {};
+  const run = () => { let sc = null, r = null, live = null;
+    try { sc = makeScene(); if (!sc) return null;
+      /* the editor's own canvas is zoomed to fit the screen (710px for a
+         1080 document) and its objects sit in document space: measure it at
+         document size, then put the view back */
+      if (opts.live){ live = { w: sc.getWidth(), h: sc.getHeight(), vpt: sc.viewportTransform.slice(), ret: sc.enableRetinaScaling, sel: sc.getActiveObject && sc.getActiveObject() };
+        if (sc.discardActiveObject) sc.discardActiveObject();
+        sc.enableRetinaScaling = false; sc.setDimensions({ width: CW, height: CH }); sc.setViewportTransform([1, 0, 0, 1, 0, 0]); }
+      r = pgCheck(sc); }
+    catch (e){ console.warn('gate could not measure:', e); return null; }
+    finally {
+      if (live && sc){ sc.enableRetinaScaling = live.ret; sc.setDimensions({ width: live.w, height: live.h }); sc.setViewportTransform(live.vpt); if (live.sel && sc.setActiveObject) sc.setActiveObject(live.sel); sc.renderAll(); }
+      if (sc && !opts.live){ try { sc.dispose(); } catch (e){} } }
+    return r; };
+  let r = run();
+  if (!r) return true;                                       // a measure that cannot run never blocks an ad
+  if (r.ok) return true;
+  /* a contrast failure is fixed by shade in the direction the failing lines
+     can be served (rule 56): a dark ground reaches 3:1 under any ink lighter
+     than about 0.25 in luminance (mid tones included: a 0.5 ink on a pale
+     ground needs the ground DARK, a lighter one can never get far enough
+     away), paper only under ink darker than that. Lines that need opposite
+     shades cannot be served by one ground. */
+  const fixable = r.fails.every(f => /^(legib|numInk|ghost)$/.test(f.code));
+  const need = [...new Set(r.fails.map(f => r.lines.find(l => l.name === f.line)).filter(l => l && l.ink != null).map(l => l.ink > 0.25 ? 'dark' : 'light'))];
+  if (fixable && need.length === 1){
+    const tone = need[0];
+    if (kind === 'adv'){
+      for (let a = 0.1; a <= 0.7; a += 0.1){ advShade(a, tone); canvas.renderAll(); const r2 = run(); if (r2 && r2.ok){ pushHist(); toast('Background shaded so every line reads', 'success'); return true; } }
+      advShade(0); canvas.renderAll();
+    } else {
+      const was = ez.shade || 0, wasTone = ez.shadeTone;
+      ez.shadeTone = tone;
+      for (let a = was + 0.1; a <= 0.7; a += 0.1){ ez.shade = a; const r2 = run(); if (r2 && r2.ok){ toast('Background shaded so every line reads', 'success'); schedEzPreview(0); return true; } }
+      ez.shade = was; ez.shadeTone = wasTone;
+    }
+  }
+  return pgGateAsk(r);
+}
+
+/* ── the number's floor, after the layout (rule 53) ───────────────────────
+   fitInsideGuides scales the whole composition to fit the 6% guides, and a
+   lowerThird card scaled by 0.92 took its 72px number to 66 (15 classics,
+   2026-09-28). The number is never under 72px on the 1080 basis: after the
+   pass it is brought back to 72 about its own centre, its plate with it, and
+   the pair is kept inside the guides. Wrapped, not spliced (AGENT-BRIEF 1). */
+function pgNumberFloor(sc, W, H){
+  W = W || TPL_W; H = H || TPL_H;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return; }
+  const k = TPL_W / Math.min(W, H), G = Math.round(GUIDE * Math.min(W, H));
+  const phone = objs.find(o => o && o.visible !== false && o.pgRole === 'phone' && typeof o.text === 'string' && o.fontSize);
+  if (!phone) return;
+  const px = phone.fontSize * (phone.scaleY || 1) * k;
+  if (px >= PG_T.number - 0.5) return;
+  const f = PG_T.number / px;
+  const bb = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const plate = pgPlateUnder(objs, phone, bb(phone), W, H);
+  // the number grows about its own centre
+  { const c = phone.getCenterPoint(); phone.set({ scaleX: (phone.scaleX || 1) * f, scaleY: (phone.scaleY || 1) * f }); phone.setPositionByOrigin(c, 'center', 'center'); phone.setCoords(); }
+  let nb = bb(phone);
+  if (plate){
+    const o = plate.o, pad = Math.max(12, Math.round(plate.w * 0.045)), need = nb.w + 2 * pad;
+    if (need > plate.w){                              // a pill grows to hold it, as far as the guides allow
+      const want = Math.min(W - 2 * G, need), c = o.getCenterPoint();
+      o.set({ width: want / (o.scaleX || 1) }); o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+    }
+    const pb = bb(o), lo = pb.x + pad, hi = pb.x + pb.w - pad;   // then the number slides inside it (a band does not grow)
+    const dx = nb.x < lo ? lo - nb.x : (nb.x + nb.w > hi ? hi - (nb.x + nb.w) : 0);
+    if (dx && nb.w <= hi - lo + 1){ phone.set({ left: phone.left + dx }); phone.setCoords(); nb = bb(phone); }
+  }
+  // and stays inside the guides
+  const dx = nb.x < G ? G - nb.x : nb.x + nb.w > W - G ? W - G - (nb.x + nb.w) : 0;
+  const dy = nb.y < G ? G - nb.y : nb.y + nb.h > H - G ? H - G - (nb.y + nb.h) : 0;
+  if (dx || dy){ phone.set({ left: phone.left + dx, top: phone.top + dy }); phone.setCoords(); }
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); try { pgNumberFloor(sc, W, H); } catch (e){ console.warn('number floor:', e); } return r; };
+}
+
+/* THE CLASSICS' GATE TABLE (rule 87). scripts/verify_showcase.mjs --classics
+   --write measures the 243 classics with the one measure and writes the ids
+   that fail to assets/classics-gate.json. A card that fails the measure is
+   not offered (rule 60 for the library; the same for the strip): it stays in
+   TEMPLATES for a draft that already uses it, but no list shows it. Same
+   shape as the fix tables: a failed fetch offers everything, ?nogate=1 skips
+   it for the scripts. */
+(function loadClassicsGate(){
+  try {
+    if (typeof location !== 'undefined' && /[?&]nogate=1\b/.test(location.search)) return;
+    fetch('assets/classics-gate.json', { cache:'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => {
+        const ids = j && Array.isArray(j.ids) ? new Set(j.ids) : null;
+        if (!ids || !ids.size) return;
+        let n = 0;
+        TEMPLATES.forEach(t => { if (!t.showcase && ids.has(t.id)){ t.gated = true; n++; } });
+        if (!n) return;
+        try { if (typeof buildEzStrip === 'function' && document.readyState !== 'loading') buildEzStrip(); } catch (e){}
+        try { if (typeof buildLanding === 'function' && document.readyState !== 'loading') buildLanding(); } catch (e){}
+      })
+      .catch(() => {});
+  } catch (e){}
+})();
+
+/* ── the shade stands where the copy stands (rule 87, bands) ──────────────
+   The studio's own shade (ezShadeRect for the Easy preview, advShade for the
+   editor) is the same shade the solver writes on the library: full strength
+   across the bands of the card's height that hold copy on the photograph,
+   feathered, and nothing between them, so the picture shows through wherever
+   no line needs the ground (owner, 2026-09-28: "make sure the backgrounds
+   are visible"). A line on its own plate is left out: the plate owns its
+   ground. Derived from the scene after the layout, since the layout moves
+   the lines; the editor derives it when the shade is set. */
+function pgShadeBands(objs, W, H){
+  W = W || TPL_W; H = H || TPL_H;
+  const PAD = 0.015, spans = [];
+  objs.forEach(o => {
+    if (!o || o.visible === false || o.pgRole === 'deco' || (o.opacity != null && o.opacity < 0.5)) return;
+    const text = typeof o.text === 'string' ? o.text : (o.type === 'group' && o.pgCurved && typeof o.pgCurved.text === 'string') ? o.pgCurved.text : '';
+    if (!/[A-Za-z0-9]/.test(text)) return;
+    o.setCoords(); const r = o.getBoundingRect(true, true), b = { x: r.left, y: r.top, w: r.width, h: r.height };
+    if (b.w < 2 || b.h < 2) return;
+    /* on a plate only when the plate holds the line's centre: the finder also
+       returns a plate the line merely overlaps (a headline whose last line
+       touches the panel below it), and that line still stands on the photograph */
+    const pl = pgPlateUnder(objs, o, b, W, H), cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    if (pl && cx >= pl.x && cx <= pl.x + pl.w && cy >= pl.y && cy <= pl.y + pl.h) return;
+    spans.push([Math.max(0, b.y / H - PAD), Math.min(1, (b.y + b.h) / H + PAD)]);
+  });
+  spans.sort((p, q) => p[0] - q[0]);
+  const out = [];
+  spans.forEach(sp => { const l = out[out.length - 1]; if (l && sp[0] <= l[1] + 2 * SCRIM_FEATHER) l[1] = Math.max(l[1], sp[1]); else out.push(sp.slice()); });
+  return out.length ? 'bands:' + out.map(sp => sp.map(v => v.toFixed(3)).join('-')).join(',') : 'normal';
+}
+function pgShadeFit(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return; }
+  const sh = objs.find(o => o && o.pgShade); if (!sh || !(sh.pgShadeA > 0)) return;
+  const mode = pgShadeBands(objs, W || sh.width, H || sh.height);
+  if (mode === sh.pgShadeMode) return;
+  sh.set({ fill: scrimRect(sh.pgShadeA, sh.width, sh.height, sh.pgShadeTone, mode).fill });
+  sh.pgShadeMode = mode;
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); try { pgShadeFit(sc, W, H); } catch (e){ console.warn('shade bands:', e); } return r; };
+}
+
+/* ── EMOJI ACCENTS (rule 88) ──────────────────────────────────────────────
+   Owner, 2026-09-29: "use emojis as attention grabbing assets in extra spaces
+   (not overlapping.. and not all need it), relevant emojis or general purpose
+   emojis like cash or arrows."
+
+   One art set, drawn as images: 48 Fluent 3D emoji (Microsoft, MIT) packed in
+   assets/emoji/fluent-3d.webp. A system-font emoji is a different drawing on
+   every phone and a blank box on some exports (rule 17's "cheapest-looking
+   thing on a page" was that); a picture is the same everywhere, the card, its
+   thumbnail, the video and the PNG.
+
+   Placed after the layout (alignPass) by pgEmojiPass, on the scene as it
+   stands, so it follows the visitor's words: never on copy, a plate, a
+   product or another mark, always inside the guides, and only where there is
+   room. Two kinds of place, both attached to the copy:
+   - beside a line: the topic (the product the card buys, read off the
+     headline) beside a headline line, a general accent (money, speed, a
+     free quote) beside a supporting line, at the largest size that fits
+     between the line's end and the guides;
+   - pointing AT the number or the call to action (rule 29: a hand points at
+     something, or it is not placed), from either side or from above its plate.
+   A free-floating emoji in the nearest empty square was tried first and
+   rejected: away from the words it reads as clutter, and on a photograph it
+   covers the picture the shade was lifted for.
+   Not every card: a third get none, most one, a few two, decided by the card's
+   id, so a card always shows the same accents; Easy Mode's Emoji row turns
+   them off or shuffles them. Appended, not spliced (AGENT-BRIEF 1). */
+const PG_EMOJI = { src: 'assets/emoji/fluent-3d.webp', cell: 256, cols: 8,
+  names: ['cash','money-wings','moneybag','money-face','coin','gem','ring','crown',
+          'phone','phone-arrow','laptop','watch','headphones','game','car','suv',
+          'pickup','truck','motorcycle','key','trophy','basketball','baseball','football',
+          'gold-medal','silver-medal','flower-cards','joker','bolt','fire','sparkles','hundred',
+          'check','point-right','point-left','point-down','arrow-right','arrow-down','receiver','speech',
+          'pin','stopwatch','rocket','handshake','package','tag','fork-knife','target'],
+  /* the character each drawing stands for (the editor's picker, alt text) */
+  chars: { 'cash':'💵','money-wings':'💸','moneybag':'💰','money-face':'🤑','coin':'🪙','gem':'💎','ring':'💍','crown':'👑',
+    'phone':'📱','phone-arrow':'📲','laptop':'💻','watch':'⌚','headphones':'🎧','game':'🎮','car':'🚗','suv':'🚙',
+    'pickup':'🛻','truck':'🚚','motorcycle':'🏍️','key':'🔑','trophy':'🏆','basketball':'🏀','baseball':'⚾','football':'🏈',
+    'gold-medal':'🥇','silver-medal':'🥈','flower-cards':'🎴','joker':'🃏','bolt':'⚡','fire':'🔥','sparkles':'✨','hundred':'💯',
+    'check':'✅','point-right':'👉','point-left':'👈','point-down':'👇','arrow-right':'➡️','arrow-down':'⬇️','receiver':'📞','speech':'💬',
+    'pin':'📍','stopwatch':'⏱️','rocket':'🚀','handshake':'🤝','package':'📦','tag':'🏷️','fork-knife':'🍴','target':'🎯' },
+};
+/* what the card buys, read off its own words (so a device switch or the
+   visitor's retyping re-picks), first match wins; then the template's
+   category; then the general set */
+const PG_EMOJI_TOPICS = [
+  [/pok[eé]mon|charizard|pikachu|\btcg\b/i, ['bolt', 'fire', 'flower-cards', 'sparkles']],
+  [/sports?\s*cards?|\bslabs?\b|\bpsa\b|rookies?|baseball|basketball|football/i, ['trophy', 'baseball', 'basketball', 'football']],
+  [/test\s*strips?|\bcgms?\b|diabetic|dexcom|freestyle|one\s*touch|\bstrips\b/i, ['package', 'check', 'cash']],
+  [/macbooks?|laptops?|\bmacs?\b|computers?/i, ['laptop']],
+  [/\bi?pads?\b|tablets?/i, ['phone']],
+  [/watch(es)?\b/i, ['watch']],
+  [/airpods|headphones|\bbeats\b/i, ['headphones']],
+  [/playstation|\bps[45]\b|xbox|nintendo|consoles?|gaming/i, ['game']],
+  [/iphones?|samsung|galaxy|\bpixel\b|\bphones?\b|\bcells?\b/i, ['phone', 'phone-arrow']],
+  [/motorcycles?|dirt\s*bikes?/i, ['motorcycle']],
+  [/trucks?|pickups?|tacomas?|f-?150|silverado|tundra|\bvans?\b/i, ['pickup', 'truck', 'key']],
+  [/\bcars?\b|\bautos?\b|vehicles?|\bsuvs?\b|hondas?|toyotas?|junk/i, ['car', 'suv', 'key']],
+  [/silverware|flatware|sterling/i, ['fork-knife', 'coin', 'moneybag']],
+  [/diamonds?/i, ['gem', 'ring']],
+  [/jewel|rings?\b|chains?|bracelets?|karat|\b1[048]k\b/i, ['ring', 'gem', 'crown']],
+  [/\bgold\b/i, ['crown', 'moneybag', 'ring', 'gem']],
+  [/coins?|morgans?|eagles?|dollars?|numismatic/i, ['coin', 'moneybag']],
+  [/\bsilver\b|bullion|\bbars?\b/i, ['coin', 'moneybag', 'gem']],
+];
+const PG_EMOJI_CAT = { phones: ['phone', 'phone-arrow'], gold: ['crown', 'ring', 'moneybag'], silver: ['coin', 'moneybag'],
+  coins: ['coin', 'moneybag'], cars: ['car', 'key'], sports: ['trophy', 'baseball'], pokemon: ['bolt', 'fire'], strips: ['package', 'check'] };
+/* general purpose: what the offer promises, then money */
+const PG_EMOJI_GENERAL = [
+  [/cash|paid|\bpay|\$|money|offer/i, ['cash', 'money-wings', 'moneybag', 'money-face', 'cash']],
+  [/same\s*day|today|instant|fast|quick|minutes?|\bnow\b/i, ['stopwatch', 'rocket', 'bolt']],
+  [/free\s*quote|appraisal|no\s*fees/i, ['handshake', 'hundred']],
+]
+const PG_EMOJI_ANY = ['cash', 'money-wings', 'fire', 'hundred', 'sparkles', 'handshake'];
+
+let PG_EMOJI_EL = null, PG_EMOJI_CTX = null;
+// the cards the owner approved as rendered (rule 78), which the accents leave as approved
+let PG_APPROVED = null;
+try { fetch('assets/approved/approved.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { PG_APPROVED = new Set(Object.keys(j || {}).filter(k => k[0] !== '_')); }).catch(() => {}); } catch (e){}
+function pgEmojiLoad(){
+  if (pgEmojiLoad.p) return pgEmojiLoad.p;
+  pgEmojiLoad.p = new Promise(res => {
+    const el = new Image();
+    el.onload = () => {
+      PG_EMOJI_EL = el; res(el);
+      /* anything painted before the sheet landed lacks its accents */
+      try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch (e){}
+      try { if (document.readyState !== 'loading'){
+        if (typeof buildEzStrip === 'function' && $('page-easy') && $('page-easy').classList.contains('active')) buildEzStrip();
+        if (typeof ez === 'object' && ez && ez.tpl && typeof schedEzPreview === 'function') schedEzPreview(0);
+      } } catch (e){}
+    };
+    el.onerror = () => { console.warn('GraphicsStudio: the emoji sheet did not load; cards render without their accents.'); res(null); };
+    el.src = assetUrl(PG_EMOJI.src);
+  });
+  return pgEmojiLoad.p;
+}
+function pgHash(s){ let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+/* one emoji as a fabric image, centred at (cx, cy), s px square */
+function pgEmojiObj(name, cx, cy, s, angle, auto){
+  const k = PG_EMOJI.names.indexOf(name), C = PG_EMOJI.cell;
+  if (k < 0 || !PG_EMOJI_EL) return null;
+  const u = s / 150;
+  return new fabric.Image(PG_EMOJI_EL, {
+    left: cx, top: cy, originX: 'center', originY: 'center', width: C, height: C,
+    cropX: (k % PG_EMOJI.cols) * C, cropY: Math.floor(k / PG_EMOJI.cols) * C,
+    scaleX: s / C, scaleY: s / C, angle: angle || 0,
+    /* a soft contact shadow, never a hard offset (rule 4) */
+    shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.30)', blur: Math.round(14 * u), offsetX: 0, offsetY: Math.round(5 * u) }),
+    name: 'Emoji ' + (PG_EMOJI.chars[name] || name), pgRole: 'deco', pgEmoji: name, pgEmojiAuto: !!auto,
+  });
+}
+
+/* the lines of a text object as boxes, so the room beside a short line of a
+   centred headline is room (the object's own box spans its widest line) */
+function pgTextLineBoxes(o, b){
+  /* a one-line headline in a fixed-width text box is as wide as its box, so
+     the line's own width counts for one line too */
+  if (!o._textLines || !o._textLines.length || Math.abs(o.angle || 0) > 0.5 || typeof o.getLineWidth !== 'function') return [b];
+  const sx = o.scaleX || 1, sy = o.scaleY || 1, out = []; let y = b.y;
+  const al = String(o.textAlign || 'left');
+  for (let i = 0; i < o._textLines.length; i++){
+    const lh = o.getHeightOfLine(i) * sy, lw = Math.min(b.w, o.getLineWidth(i) * sx);
+    const x = /center/.test(al) ? b.x + (b.w - lw) / 2 : /right/.test(al) ? b.x + b.w - lw : b.x;
+    if (lw > 1) out.push({ x, y, w: lw, h: lh, o });
+    y += lh;
+  }
+  return out.length ? out : [b];
+}
+
+function pgEmojiPass(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return; }
+  W = W || sc.getWidth(); H = H || sc.getHeight();
+  /* the pass owns only the accents it placed; one the visitor placed or moved
+     is theirs */
+  const old = objs.filter(o => o && o.pgEmojiAuto);
+  if (old.length){ sc.__pgEmojiBusy = true; old.forEach(o => sc.remove(o)); sc.__pgEmojiBusy = false; objs = sc.getObjects(); }
+  pgEmojiHook(sc);
+  const why = w => { sc.pgEmojiWhy = w; };            // for the scripts and tests: why a card has none
+  if (sc.pgEmojiManual) return why('the visitor placed their own');
+  /* the editor's canvas follows the visitor's Easy Mode choice on every later
+     pass (a format switch, Enhance); a thumbnail is always the card's own */
+  const ctx = PG_EMOJI_CTX || ((sc instanceof fabric.Canvas) && typeof ez === 'object' && ez ? { mode: ez.emoji || 'auto', seed: ez.emojiSeed || 0 } : {});
+  if (ctx.mode === 'off') return why('off');
+  if (!PG_EMOJI_EL){ pgEmojiLoad(); return why('sheet not loaded'); }
+  /* the card's own id, the same in the app (sc-), the scripts (hx-) and a gated candidate */
+  const tplId = String((objs.find(o => o && o.pgTplId) || {}).pgTplId || '').replace(/^(sc|hx)-/, '').replace(/__candidate$/, '');
+  if (!tplId && !ctx.seed) return why('no card id');
+  const seed = pgHash(tplId + '|emoji|' + (ctx.seed || 0));
+  /* not every card needs one: 3 in 10 get none, 5 one, 2 two; a shuffle the
+     visitor asked for always tries to place at least one */
+  const PLANS = [[], [], [], ['topic'], ['topic'], ['topic'], ['point'], ['topic', 'point'], ['topic', 'general'], ['general']];
+  const ASKED = [['topic'], ['point'], ['topic', 'point'], ['general'], ['topic', 'general'], ['general', 'point']];
+  const plan = ctx.seed ? ASKED[seed % ASKED.length] : PLANS[seed % PLANS.length];
+  if (!plan.length) return why('not this card');
+  /* a card the owner approved as rendered keeps that render (DESIGN-LAW 78,
+     assets/approved/approved.json): no accent is added to it unless the
+     visitor asks for one (Shuffle) */
+  if (!ctx.seed && PG_APPROVED && PG_APPROVED.has(tplId)) return why('an approved render');
+
+  const m = Math.min(W, H), u = m / TPL_W, G = Math.round(GUIDE * m), P = Math.round(0.018 * m);
+  const box = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height, o }; };
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
+  const hollow = o => { const f = o.fill; return !f || f === 'transparent' || (typeof f === 'string' && /rgba\([^)]*,\s*0(\.0+)?\)$/.test(f)); };
+  const occ = [], lines = [];
+  objs.forEach(o => {
+    if (!o || o.visible === false || (o.opacity != null && o.opacity < 0.08)) return;
+    if (o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern) return;
+    if (/^(Scrim|BG|Overlay|Pattern|Vignette|Grain)$/.test(o.name || '')) return;
+    const b = box(o); if (b.w < 1 || b.h < 1) return;
+    if (isText(o)){
+      const ls = o.type === 'group' ? [b] : pgTextLineBoxes(o, b);
+      const reads = typeof o.text === 'string' ? /[A-Za-z0-9]/.test(o.text) : true;
+      ls.forEach(l => { l.o = o; occ.push(l); if (reads) lines.push(l); });
+      return;
+    }
+    const big = b.w * b.h >= 0.6 * W * H;
+    if (hollow(o) && o.stroke && (big || b.w * b.h >= 0.25 * W * H)){   // a frame: only its rule is in the way
+      const t = Math.max(6 * u, (o.strokeWidth || 1) * 2);
+      occ.push({ x: b.x, y: b.y, w: b.w, h: t }, { x: b.x, y: b.y + b.h - t, w: b.w, h: t }, { x: b.x, y: b.y, w: t, h: b.h }, { x: b.x + b.w - t, y: b.y, w: t, h: b.h });
+      return;
+    }
+    if (big && o.pgRole !== 'photo') return;                              // a panel or a texture the size of the card is ground
+    /* a ghosted picture (a wall of products at 16%) is texture: the gate
+       (pgEmojiCheck) ignores anything under 0.3 as well */
+    if (o.type === 'image' && o.opacity != null && o.opacity < 0.3) return;
+    occ.push(b);
+  });
+  const hit = (a, b, pad) => a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
+  const inside = r => r.x >= G && r.y >= G && r.x + r.w <= W - G && r.y + r.h <= H - G;
+  const rows = [];
+  const free = r => inside(r) && !occ.some(b => hit(r, b, P)) && !rows.some(y => r.y < y.y + y.h && r.y + r.h > y.y);
+  const sq = (cx, cy, s) => ({ x: cx - s / 2, y: cy - s / 2, w: s, h: s });
+  const role = o => o.pgRole || '';
+  const textOf = o => typeof o.text === 'string' ? o.text : (o.pgCurved && o.pgCurved.text) || '';
+
+  /* the topic, from the headline first; never from the website or the
+     number (every card's website is iphones.LA, which named every card a
+     phone card on the first run) */
+  const texts = objs.filter(o => isText(o) && o.visible !== false && !/^(website|phone)$/.test(role(o)));
+  const headWords = texts.filter(o => /^(headline|offer)$/.test(role(o))).map(textOf).join(' \n ');
+  const restWords = texts.filter(o => !/^(headline|offer)$/.test(role(o))).map(textOf).join(' \n ');
+  const tpl = (typeof TEMPLATES !== 'undefined' && TEMPLATES.find(t => t.id === tplId || t.id === 'sc-' + tplId)) || null;
+  const pick = (list, salt) => list[pgHash(tplId + salt + (ctx.seed || 0)) % list.length];
+  let topics = null;
+  for (const words of [headWords, restWords]){ for (const [re, list] of PG_EMOJI_TOPICS) if (re.test(words)){ topics = list; break; } if (topics) break; }
+  if (!topics) topics = (tpl && PG_EMOJI_CAT[tpl.cat]) || PG_EMOJI_ANY;
+  /* general purpose: every promise the card makes, money most of all */
+  let general = [];
+  PG_EMOJI_GENERAL.forEach(([re, list]) => { if (re.test(headWords + ' ' + restWords)) general = general.concat(list); });
+  if (!general.length) general = PG_EMOJI_ANY;
+
+  /* the places. Beside a line: the largest size that fits between the line's
+     end and the guides with nothing in the way, centred on the line's caps
+     (a text box carries its descender room at the bottom) */
+  const beside = (ls, sMin, sMax, k) => {
+    const sideFirst = seed % 3 === 0 ? -1 : 1;
+    for (const l of ls){
+      const cy = l.y + l.h * 0.46;
+      for (const side of [sideFirst, -sideFirst]){
+        for (let s = Math.min(sMax, l.h * k); s >= sMin; s -= 8 * u){
+          const g0 = Math.max(0.25 * s, P + 4 * u);
+          for (const gap of [g0, g0 + 0.3 * s, g0 + 0.6 * s]){
+            const cx = side > 0 ? l.x + l.w + gap + s / 2 : l.x - gap - s / 2, r = sq(cx, cy, s);
+            if (free(r)) return { r, s, cx, cy, side };
+          }
+        }
+      }
+    }
+    return null;
+  };
+  /* the biggest LINE first, by its own height: a two-line headline is one
+     object, and ranking by the object put the emoji beside a small "WE BUY"
+     rather than the big product word under it */
+  const heads = lines.filter(l => /^(headline|offer)$/.test(role(l.o))).sort((a, b) => b.h - a.h).slice(0, 4);
+  const minor = lines.filter(l => /^(sub|cta|info)$/.test(role(l.o)) && l.h >= 38 * u).sort((a, b) => b.h - a.h).slice(0, 4);
+  /* pointing AT the number (or the call to action): from the left, from the
+     right, or from above either end of its plate */
+  const pointAt = () => {
+    const targets = lines.filter(l => role(l.o) === 'phone').concat(lines.filter(l => role(l.o) === 'cta'));
+    for (const l of targets){
+      const pl = (typeof pgPlateUnder === 'function') ? pgPlateUnder(objs, l.o, l, W, H) : null;
+      const T = pl && l.x + l.w / 2 >= pl.x && l.x + l.w / 2 <= pl.x + pl.w && l.y + l.h / 2 >= pl.y && l.y + l.h / 2 <= pl.y + pl.h ? pl : l;
+      for (let s = Math.max(64 * u, Math.min(124 * u, T.h * 0.85)); s >= 64 * u; s -= 10 * u){
+        const gap = Math.max(0.2 * s, P + 4 * u), cy = T.y + T.h / 2, up = T.y - gap - s / 2;
+        const opts = [
+          { name: 'point-right', cx: T.x - gap - s / 2, cy },
+          { name: 'point-left', cx: T.x + T.w + gap + s / 2, cy },
+          { name: 'point-down', cx: T.x + Math.max(s * 0.6, T.w * 0.14), cy: up },
+          { name: 'point-down', cx: T.x + T.w - Math.max(s * 0.6, T.w * 0.14), cy: up },
+        ];
+        for (const o of opts){ const r = sq(o.cx, o.cy, s); if (free(r)) return Object.assign({ r, s }, o); }
+      }
+    }
+    return null;
+  };
+
+  const placed = [], usedNames = new Set();
+  const put = (name, at) => { const o = pgEmojiObj(name, at.cx, at.cy, at.s, 0, true); if (!o) return false;
+    sc.add(o); occ.push(at.r); rows.push(at.r); placed.push(name); usedNames.add(name); return true; };
+  const choose = (list, salt) => { const l = list.filter(n => !usedNames.has(n)); return pick(l.length ? l : list, salt); };
+  plan.forEach((kind, i) => {
+    if (placed.length >= 2) return;
+    if (kind === 'point'){ const at = pointAt(); if (at){ put(at.name, at); return; } kind = 'general'; }
+    const at = kind === 'topic' ? (beside(heads, 64 * u, 150 * u, 0.9) || beside(minor, 60 * u, 110 * u, 1.2))
+                                : (beside(minor, 56 * u, 110 * u, 1.2) || beside(heads, 64 * u, 150 * u, 0.9));
+    if (at) put(choose(kind === 'topic' ? topics : general, '#' + kind + i), at);
+  });
+  why(placed.length ? 'placed ' + placed.join(', ') : 'no room beside the copy');
+}
+/* in the editor, an accent the visitor moves or deletes is theirs: the pass
+   stops placing on that canvas until it is cleared for another design */
+function pgEmojiHook(sc){
+  if (!sc || sc.__pgEmojiHooked || typeof sc.on !== 'function' || !(sc instanceof fabric.Canvas)) return;
+  sc.__pgEmojiHooked = true;
+  sc.on('object:modified', e => { const o = e && e.target; if (o && o.pgEmojiAuto){ o.pgEmojiAuto = false; sc.pgEmojiManual = true; } });
+  sc.on('object:removed', e => { const o = e && e.target; if (o && o.pgEmojiAuto && !sc.__pgEmojiBusy && !sc.__pgClearing) sc.pgEmojiManual = true; });
+  const _clear = sc.clear;
+  sc.clear = function(){ sc.__pgClearing = true; try { return _clear.apply(this, arguments); } finally { sc.__pgClearing = false; sc.pgEmojiManual = false; } };
+}
+try { EXTRA_PROPS.push('pgEmoji', 'pgEmojiAuto'); } catch (e){}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); try { pgEmojiPass(sc, W, H); } catch (e){ console.warn('emoji accents:', e); } return r; };
+}
+
+/* the gate (rule 87) measures the accents too: an emoji on copy, a plate or
+   a product fails, one past the guides fails, whoever placed it */
+function pgEmojiCheck(sc, r){
+  const objs = sc.getObjects(), W = sc.getWidth(), H = sc.getHeight(), m = Math.min(W, H);
+  const ems = objs.filter(o => o && o.pgEmoji && o.visible !== false);
+  if (!ems.length) return;
+  const box = o => { o.setCoords(); const b = o.getBoundingRect(true, true); return { x: b.left, y: b.top, w: b.width, h: b.height }; };
+  const inter = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
+  const solid = o => { const f = o.fill; return f && f !== 'transparent' && !(typeof f === 'string' && /rgba\([^)]*,\s*0(\.[0-4]\d*)?\)$/.test(f)); };
+  const others = objs.filter(o => o && !o.pgEmoji && o.visible !== false && !(o.opacity != null && o.opacity < 0.3) && !o.pgBgRect && !o.pgScrim && !o.pgShade && !o.pgPattern &&
+    (isText(o) ? true : (o.type === 'image' && o.pgRole === 'photo') || (o.type === 'rect' && solid(o))));
+  const M = PG_T.margin * m;
+  ems.forEach(e => {
+    const b0 = box(e), k = 0.08, b = { x: b0.x + b0.w * k, y: b0.y + b0.h * k, w: b0.w * (1 - 2 * k), h: b0.h * (1 - 2 * k) };   // the drawing, not its transparent margin or shadow
+    const name = e.name || 'Emoji';
+    let worst = null, share = 0;
+    others.forEach(o => { const ob = box(o); if (!isText(o) && ob.w * ob.h >= 0.6 * W * H) return;
+      const lines = isText(o) && o.type !== 'group' ? pgTextLineBoxes(o, ob) : [ob];
+      lines.forEach(l => { const s = inter(b, l) / Math.max(1, b.w * b.h); if (s > share){ share = s; worst = o; } }); });
+    if (share > 0.02) r.fails.push({ code: 'emoji', line: worst.name || null, role: worst.pgRole || null, value: +share.toFixed(2), need: 0, emoji: name });
+    const over = Math.max(M - b.x, M - b.y, b.x + b.w - (W - M), b.y + b.h - (H - M));
+    if (over > 2 * m / TPL_W) r.fails.push({ code: 'emojiEdge', line: name, role: 'deco', value: +(over * TPL_W / m).toFixed(1), need: 0 });
+  });
+  r.ok = !r.fails.length;
+}
+{
+  const _pgCheck = pgCheck;
+  pgCheck = function(sc){ const r = _pgCheck.apply(this, arguments); try { pgEmojiCheck(sc, r); } catch (e){ console.warn('emoji check:', e); } return r; };
+  const _pgExplain = pgExplain;
+  pgExplain = function(f){
+    if (f && f.code === 'emoji') return 'an emoji covers ' + (f.line ? '“' + String(f.line).replace(/\s\d+$/, '') + '”' : 'part of the ad');
+    if (f && f.code === 'emojiEdge') return 'an emoji runs into the edge';
+    return _pgExplain.apply(this, arguments);
+  };
+}
+
+/* Easy Mode's Emoji row (index.html #ez-emoji-seg): Auto, Shuffle, None. The
+   choice rides on the Easy render and the hand-off to the editor; a
+   thumbnail is always the card's own accents. Remembered per visitor. */
+{
+  const EZK = 'pg-ez-emoji';
+  const wrapCtx = fn => function(){
+    const prev = PG_EMOJI_CTX;
+    PG_EMOJI_CTX = (typeof ez === 'object' && ez) ? { mode: ez.emoji || 'auto', seed: ez.emojiSeed || 0 } : null;
+    try { return fn.apply(this, arguments); } finally { PG_EMOJI_CTX = prev; }
+  };
+  if (typeof renderEzCanvas === 'function') renderEzCanvas = wrapCtx(renderEzCanvas);
+  if (typeof openAdvancedFromEz === 'function') openAdvancedFromEz = wrapCtx(openAdvancedFromEz);
+  const sync = () => { document.querySelectorAll('#ez-emoji-seg [data-em]').forEach(b => {
+    const k = b.dataset.em; b.classList.toggle('active', k === 'off' ? ez.emoji === 'off' : k === 'shuffle' ? ez.emoji !== 'off' && ez.emojiSeed > 0 : ez.emoji !== 'off' && !(ez.emojiSeed > 0)); }); };
+  const bind = () => {
+    if (typeof ez !== 'object' || !ez) return;
+    try { const v = JSON.parse(localStorage.getItem(EZK) || 'null'); if (v){ ez.emoji = v.mode === 'off' ? 'off' : 'auto'; ez.emojiSeed = v.seed | 0; } } catch (e){}
+    document.querySelectorAll('#ez-emoji-seg [data-em]').forEach(b => b.onclick = () => {
+      const k = b.dataset.em;
+      if (k === 'off') ez.emoji = 'off';
+      else if (k === 'shuffle'){ ez.emoji = 'auto'; ez.emojiSeed = (ez.emojiSeed || 0) + 1; }
+      else { ez.emoji = 'auto'; ez.emojiSeed = 0; }
+      try { localStorage.setItem(EZK, JSON.stringify({ mode: ez.emoji, seed: ez.emojiSeed || 0 })); } catch (e){}
+      sync(); if (typeof schedEzPreview === 'function') schedEzPreview(0);
+    });
+    sync();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+}
+
+/* the editor's Add > Emoji: the same drawings, placed in the middle of the
+   card for the visitor to move (their own, never moved by the pass) */
+function addEmoji(em){
+  const name = Object.keys(PG_EMOJI.chars).find(k => PG_EMOJI.chars[k] === em) || (PG_EMOJI.names.includes(em) ? em : null);
+  const o = name && PG_EMOJI_EL ? pgEmojiObj(name, CW / 2, CH / 2, 150 * Math.min(CW, CH) / TPL_W, 0, false)
+    : new fabric.IText(em, { left: CW / 2, top: CH / 2, originX: 'center', originY: 'center', fontSize: 110, name: 'Emoji', pgRole: 'deco' });
+  if (!o) return;
+  canvas.add(o); canvas.setActiveObject(o); canvas.renderAll();
+  pushHist(); refreshLayers();
+}
+{
+  const fill = () => {
+    const eg = $('emoji-grid'); if (!eg) return;
+    const C = PG_EMOJI.cell, cols = PG_EMOJI.cols, rows = Math.ceil(PG_EMOJI.names.length / cols), px = 34;
+    eg.innerHTML = '';
+    PG_EMOJI.names.forEach((n, k) => {
+      const b = document.createElement('button'); b.type = 'button'; b.title = n.replace(/-/g, ' ');
+      b.setAttribute('aria-label', 'Add ' + b.title + ' emoji');
+      const i = document.createElement('span'); i.className = 'pg-emoji-sw';
+      i.style.cssText = 'display:inline-block;width:' + px + 'px;height:' + px + 'px;background:url(' + assetUrl(PG_EMOJI.src) + ') no-repeat;background-size:' + (cols * px) + 'px ' + (rows * px) + 'px;background-position:-' + ((k % cols) * px) + 'px -' + (Math.floor(k / cols) * px) + 'px';
+      b.appendChild(i); b.onclick = () => addEmoji(n); eg.appendChild(b);
+    });
+  };
+  /* the grid is built when the editor first opens (bindEditorUI); refill it after */
+  if (typeof bindEditorUI === 'function'){ const _b = bindEditorUI; bindEditorUI = function(){ const r = _b.apply(this, arguments); try { fill(); } catch (e){} return r; }; }
+}
+pgEmojiLoad();
+
+/* ═══ A THEME OWNS THE CARD'S COLOUR ═══════════════════════════════════════
+   Owner, 2026-09-29, on the colour themes, backgrounds and effects: "make sure
+   we build all features to be completely relevant or at least make them work
+   to redesign the theme."
+
+   Measured before (scripts/ez_theme_audit.mjs): a theme repainted the ground
+   and the lines standing on it, and nothing else. Rule 51 left every line on
+   a plate alone because the plate owns its contrast, and nothing repainted a
+   plate, so on the 403 live cards a theme never reached the phone number (on
+   a plate on all 403), the CTA on 180 of 239, or any ribbon, pill, frame or
+   icon: the card's old accent sat beside the theme's new one. Several themes
+   also left the copy they did repaint under 3:1 on its own photograph.
+
+   A theme now owns the card's colour, and keeps rule 51's reason: whatever it
+   repaints, it answers for.
+     plates  every plate that carries words takes the job its colour did in
+             the card's own palette (the showcase record's, or read off the
+             scene for a classic): the accent's plates take the theme's accent,
+             the support's its support (or its ink), every other plate (the
+             card's ground colour, paper and smoke panels) the theme's ground,
+             solid (rule 45), opaque where it carries dark ink (rule 21), and
+             kept apart from whatever it stands on.
+     marks   ribbons, rules, frames, icons, dots and sheens take the theme
+             colour of their job at their own opacity; neutral black and white
+             stay neutral; a mark on a plate stays visible on it.
+     lines   each takes its job's colour (the accent's, the support's, or the
+             theme's reading colours: its ink, and its ground where the ink is
+             on the wrong side of what the line stands on), then is solved
+             against the pixels behind it as drawn: 4.5:1, or the best its side
+             allows. Only the lightness moves (rule 31); a line that read on the
+             photograph keeps its side (light stays light), so the shade under
+             it still serves it (rule 56); a line on a coloured plate takes
+             whichever theme colour reads best there. A colour the visitor set
+             on a line (✎) stays theirs.
+     ground  the photograph keeps its colour (rule 56). The theme's gradient
+             is the ground only on a product-led card or a flat ground
+             (ezThemeGround), and a drawn ground is redrawn in the theme.
+   Runs on the finished scene after the layout, so the preview, the download,
+   the video and the editor hand-off are one picture. Appended, not spliced
+   (AGENT-BRIEF 1). */
+const TH_GROUND_NAME = /^(BG|Scrim|Overlay|Vignette|Grain|Claim Shade|Pattern)$/;
+function thIsGround(o){ return !!(o && (o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern || TH_GROUND_NAME.test(o.name || ''))); }
+function thIsWords(o){
+  if (!o) return false;
+  if (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox') return /\S/.test(o.text || '');
+  return o.type === 'group' && !!o.pgCurved;
+}
+/* a colour as { hex, a }, read by the house parser (pgRgb, rule 87) */
+function thParse(c){
+  const v = pgRgb(c); if (!v) return null;
+  return { hex: '#' + v.slice(0, 3).map(n => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0')).join(''), a: v[3] == null ? 1 : +v[3] };
+}
+function thHexA(hex, a){ return a == null || a >= 0.999 ? hex : hexToRgba(hex, Math.round(a * 1000) / 1000); }
+/* the colours a fill paints: a string, or a gradient's stops */
+function thStops(f){
+  if (typeof f === 'string') return [f];
+  if (f && Array.isArray(f.colorStops)) return f.colorStops.map(s => s.color).filter(c => typeof c === 'string');
+  return [];
+}
+function thGap(a, b){ const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; }
+function thLumOf(hex){ return pgLum(hex) || 0; }             // the house luminance (rule 87); 0 for what does not parse
+function thPalette(th){
+  if (!th || !th.bg) return null;
+  return { name: th.name, g1: th.bg.c1, g2: th.bg.c2 || th.bg.c1, ink: th.ink, accent: th.accent, support: th.support || null,
+    lightInk: thLumOf(th.ink) > thLumOf(th.bg.c1) };
+}
+/* THE CARD'S OWN PALETTE, the jobs its colours did. A showcase card carries
+   it on its index row. A classic does not, so it is read off the scene: the
+   accent is the family of hues the action wears (the number's plate or ink,
+   then the CTA's, then the heaviest family on the words), the support the
+   heaviest family at least 40 degrees from it, the ground colour the largest
+   coloured plate of neither family. */
+function thSourcePalette(sc, tpl, W, H){
+  const hx = v => { const p = thParse(v); return p ? p.hex : null; };
+  const card = tpl && tpl.showcase && typeof SHOWCASE !== 'undefined' && SHOWCASE.byId ? SHOWCASE.byId[tpl.showcase] : null;
+  if (card && hx(card.accent)) return { c1: hx(card.c1), ink: hx(card.ink), accent: hx(card.accent), support: hx(card.support) };
+  const objs = sc.getObjects(), fams = [];
+  const famOf = hex => { const o = hexToOklch(hex); if (!o || o.C < 0.05) return null;
+    let f = fams.find(q => thGap(q.h, o.h) < 28); if (!f){ f = { h: o.h, w: 0, top: 0, hex }; fams.push(f); } return { f, o }; };
+  const add = (c, w) => { const p = thParse(c); if (!p || p.a < 0.3) return null; const r = famOf(p.hex); if (!r) return null;
+    r.f.w += w; if (w > r.f.top){ r.f.top = w; r.f.hex = p.hex; } return r.f; };
+  const box = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return { width: 0, height: 0 }; } };
+  let big = null, bigA = 0;
+  objs.forEach(o => {
+    if (!o || o.visible === false || thIsGround(o) || o.type === 'image') return;
+    const b = box(o), area = Math.max(1, b.width * b.height);
+    if (thIsWords(o)){ thStops(o.fill).forEach(c => add(c, area * 0.6)); return; }
+    thStops(o.fill).forEach(c => { const f = add(c, area * 0.25); if (f && area > bigA && o.type !== 'path'){ big = f; bigA = area; } });
+    if (o.stroke && o.strokeWidth) add(o.stroke, (b.width + b.height) * 2 * o.strokeWidth);
+  });
+  const plateOf = role => { const t = objs.find(o => thIsWords(o) && o.pgRole === role && o.visible !== false); return t ? thPlateOfLine(objs, t, W || TPL_W, H || TPL_H) : null; };
+  const famIn = f => { for (const c of thStops(f)){ const p = thParse(c); const o = p && hexToOklch(p.hex); if (o && o.C >= 0.05) return fams.find(q => thGap(q.h, o.h) < 28) || null; } return null; };
+  let acc = null;
+  for (const role of ['phone', 'cta']){
+    const pl = plateOf(role); acc = acc || (pl && famIn(pl.fill));
+    const t = objs.find(o => thIsWords(o) && o.pgRole === role); acc = acc || (t && famIn(t.fill));
+  }
+  fams.sort((a, b) => b.w - a.w);
+  acc = acc || fams[0] || null;
+  const sup = fams.find(f => acc && f !== acc && thGap(f.h, acc.h) >= 40) || null;
+  const grd = big && big !== acc && big !== sup ? big : null;
+  const fb = tpl && tpl.bg ? (tpl.bg.type === 'image' ? (tpl.bg.fallback || {}) : tpl.bg) : {};
+  return { c1: grd ? grd.hex : hx(fb.c1 || fb.c), ink: null, accent: acc ? acc.hex : null, support: sup ? sup.hex : null };
+}
+/* THE PLATE A LINE STANDS ON, by the house's one finder (pgPlateUnder, rule
+   66) with the test pgShadeBands uses: the plate must hold the line's centre,
+   or a headline whose last line touches the panel below it is "on" it */
+function thPlateOfLine(objs, t, W, H){
+  let r; try { t.setCoords(); r = t.getBoundingRect(true, true); } catch (e){ return null; }
+  const b = { x: r.left, y: r.top, w: r.width, h: r.height }, pl = pgPlateUnder(objs, t, b, W, H);
+  if (!pl) return null;
+  const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+  return cx >= pl.x && cx <= pl.x + pl.w && cy >= pl.y && cy <= pl.y + pl.h ? pl.o : null;
+}
+/* the job a colour did: hue first, lightness to tell apart two jobs of one hue */
+function thRoleOf(hex, src){
+  const o = hexToOklch(hex);
+  if (!o || o.C < 0.035) return 'neutral';
+  let best = 'accent', bd = Infinity;
+  [['accent', src.accent], ['support', src.support], ['ground', src.c1], ['ink', src.ink]].forEach(([r, h]) => {
+    const q = h && hexToOklch(h); if (!q || q.C < 0.035) return;
+    const d = thGap(o.h, q.h) + 40 * Math.abs(o.L - q.L);
+    if (d < bd){ bd = d; best = r; }
+  });
+  return best;
+}
+/* a colour's job in the theme, at the colour's own opacity */
+function thRecolour(c, src, T, lockL){
+  const p = thParse(c); if (!p) return c;
+  const role = thRoleOf(p.hex, src);
+  if (role === 'neutral') return c;
+  let hex = role === 'accent' ? T.accent : role === 'support' ? (T.support || T.ink) : role === 'ground' ? T.g1 : T.ink;
+  /* a mark in the card's ground colour keeps its own lightness in the theme's
+     ground hue, so a pale ornament does not turn into a dark one on the photo */
+  if (lockL && role === 'ground'){ const o = hexToOklch(p.hex), q = hexToOklch(hex); if (o && q) hex = oklchFit({ L: o.L, C: Math.max(q.C, Math.min(o.C, 0.12)), h: q.h }); }
+  return thHexA(hex, p.a);
+}
+/* draw only the objects `show` keeps, small, and hand back the pixels with the
+   map from the scene's own units to them (the editor's canvas is zoomed) */
+function thBackdrop(sc, show, m){
+  const objs = sc.getObjects(), saved = objs.map(o => o.visible);
+  objs.forEach((o, i) => { o.visible = saved[i] !== false && !!show(o); });
+  let el = null;
+  try { el = sc.toCanvasElement(m); }
+  finally { objs.forEach((o, i) => { o.visible = saved[i]; }); }
+  const vp = sc.viewportTransform || [1, 0, 0, 1, 0, 0];
+  return { d: el.getContext('2d').getImageData(0, 0, el.width, el.height).data, w: el.width, h: el.height, m, vp };
+}
+function thStats(bd, b){
+  const X = x => (x * bd.vp[0] + bd.vp[4]) * bd.m, Y = y => (y * bd.vp[3] + bd.vp[5]) * bd.m;
+  const x0 = Math.max(0, Math.floor(X(b.x))), y0 = Math.max(0, Math.floor(Y(b.y)));
+  const x1 = Math.min(bd.w, Math.ceil(X(b.x + b.w))), y1 = Math.min(bd.h, Math.ceil(Y(b.y + b.h)));
+  if (x1 - x0 < 1 || y1 - y0 < 1) return null;
+  const step = Math.max(1, Math.round(Math.sqrt((x1 - x0) * (y1 - y0) / 4000))), ls = [];
+  for (let y = y0; y < y1; y += step) for (let x = x0; x < x1; x += step) ls.push(pgLumAt(bd.d, (y * bd.w + x) * 4));
+  ls.sort((p, q) => p - q);
+  const at = f => ls[Math.min(ls.length - 1, Math.floor(ls.length * f))];
+  return { p10: at(0.1), p50: at(0.5), p90: at(0.9), mean: ls.reduce((s, v) => s + v, 0) / ls.length, lx: ls.map(v => Math.log(v + 0.05)) };
+}
+/* HOW WELL A COLOUR READS ON WHAT IS BEHIND IT: the contrast that three
+   quarters of that ground gives it. Taking the worst of the ground's darkest
+   and lightest tenth instead rewarded a mid grey on any mixed ground (equally
+   poor against both) over white on a mostly dark one: a spec list that half
+   crosses a paper band came out #6f6f6f. Contrast is a distance in log
+   luminance, so this is the distance to the nearest quarter of the samples. */
+function thWorst(hex, st){
+  if (!st) return 21;
+  const a = Math.log(thLumOf(hex) + 0.05);
+  if (!st.lx || !st.lx.length) return Math.exp(Math.abs(a - Math.log(st.p50 + 0.05)));
+  const xs = st.lx, n = xs.length, k = Math.max(1, Math.ceil(n * 0.25));
+  const bound = (v, upper) => { let lo = 0, hi = n; while (lo < hi){ const m = (lo + hi) >> 1; if (upper ? xs[m] <= v : xs[m] < v) lo = m + 1; else hi = m; } return lo; };
+  let lo = 0, hi = Math.max(Math.abs(a - xs[0]), Math.abs(a - xs[n - 1])) + 1e-9;
+  for (let it = 0; it < 30; it++){ const r = (lo + hi) / 2; if (bound(a + r, true) - bound(a - r, false) >= k) hi = r; else lo = r; }
+  return Math.exp(hi);
+}
+/* move a colour's lightness, keeping its hue, until it reads `need` on its
+   ground; `side` ('light' | 'dark') is the side of its ground it must stay on.
+   Nothing reaches `need`: the best that side can do. */
+function thSolve(hex, st, need, side){
+  if (!st || thWorst(hex, st) >= need) return hex;
+  const o = hexToOklch(hex) || { L: 0.5, C: 0, h: 0 };
+  let best = hex, bestW = thWorst(hex, st), hit = null;
+  [1, -1].forEach(dir => {
+    if ((side === 'light' && dir < 0) || (side === 'dark' && dir > 0)) return;
+    for (let k = 1; k <= 50; k++){
+      const L = o.L + dir * 0.02 * k; if (L < 0.02 || L > 0.995) break;
+      const c = oklchFit({ L, C: o.C, h: o.h }), w = thWorst(c, st);
+      if (w > bestW){ bestW = w; best = c; }
+      if (w >= need){ if (!hit || k < hit.k) hit = { k, c }; break; }
+    }
+  });
+  return hit ? hit.c : best;
+}
+function themeScene(sc, th, W, H, opts){
+  const T = thPalette(th);
+  if (!T || !sc) return null;
+  opts = opts || {};
+  let objs; try { objs = sc.getObjects().slice(); } catch (e){ return null; }
+  const tpl = opts.tpl || (typeof ezTpl === 'function' ? ezTpl() : null);
+  const src = thSourcePalette(sc, tpl, W, H);
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity > 0.05);
+  const boxes = new Map();
+  const box = o => { if (!boxes.has(o)){ o.setCoords(); const r = o.getBoundingRect(true, true); boxes.set(o, { x: r.left, y: r.top, w: r.width, h: r.height }); } return boxes.get(o); };
+  const holds = (p, o) => { const b = box(p), c = o.getCenterPoint(); return c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h; };
+  const words = objs.filter(o => live(o) && thIsWords(o));
+  const shapes = objs.filter(o => live(o) && !thIsGround(o) && ['rect', 'circle', 'ellipse', 'polygon', 'path'].includes(o.type));
+  const paintA = o => Math.max(0, ...thStops(o.fill).map(c => { const p = thParse(c); return p ? p.a : 0; }));
+  const plateLike = shapes.filter(o => o.type !== 'path' && paintA(o) >= 0.5 && box(o).w * box(o).h < 0.6 * W * H);
+  /* what a shape is drawn on (a tick on its disc, a number box on its card):
+     the smallest solid shape before it that holds its centre. Not a finder
+     for lines: a line's plate is thPlateOfLine, the house's (rule 87) */
+  const hostOf = o => { const k = objs.indexOf(o);
+    return plateLike.filter(p => objs.indexOf(p) < k && holds(p, o)).sort((a, b) => box(a).w * box(a).h - box(b).w * box(b).h)[0] || null; };
+  const host = new Map(); words.forEach(t => { const p = thPlateOfLine(objs, t, W, H); host.set(t, p && plateLike.includes(p) ? p : null); });
+  const plates = plateLike.filter(p => words.some(t => host.get(t) === p));
+  const plateSet = new Set(plates);
+  const isGround = o => thIsGround(o) || (o.type === 'image' && o.pgRole !== 'photo' && !o.pgEmoji);   // grain and patterns are ground; a product or an emoji accent is not
+  const M = Math.min(0.5, 540 / Math.max(W, H));
+  /* what a plate stands on (the ground alone), and what the lines stand on as
+     the card drew them: everything but the words, panels a line merely
+     crosses included (a spec list half on a smoke panel read as if on bare
+     photograph, and was solved to grey) */
+  const notWords = o => !thIsWords(o);
+  const bd0 = thBackdrop(sc, isGround, M);
+  const bd1 = thBackdrop(sc, notWords, M);
+  const inkOf = t => { const f = t.type === 'group' ? ((t._objects || [])[0] || {}).fill : t.fill;
+    const cs = thStops(f).map(thParse).filter(Boolean); if (!cs.length) return null;
+    if (cs.length === 1) return cs[0].hex;
+    const L = cs.reduce((s, p) => s + thLumOf(p.hex), 0) / cs.length;          // a gradient reads as its stops' mean
+    return cs.slice().sort((p, q) => Math.abs(thLumOf(p.hex) - L) - Math.abs(thLumOf(q.hex) - L))[0].hex; };
+  const flat = hex => { const L = thLumOf(hex); return { p10: L, p50: L, p90: L, mean: L }; };
+  const before = new Map();
+  words.forEach(t => { const ink = inkOf(t); if (!ink) return;
+    const own = thParse(t.backgroundColor), st0 = thStats(bd1, box(t));
+    const st1 = own && own.a >= 0.5 ? flat(own.hex) : st0;
+    before.set(t, { ink, worst: thWorst(ink, st1), mid: st0 ? pgCr(thLumOf(ink), st0.p50) : 0,
+      side: st0 ? (thLumOf(ink) >= st0.p50 ? 'light' : 'dark') : null }); });
+
+  /* 1. plates, outermost first so a plate on a plate knows its host's colour */
+  const done = new Map(), roleOfPlate = new Map();
+  const count = { plates: 0, marks: 0, lines: 0 };
+  plates.slice().sort((a, b) => objs.indexOf(a) - objs.indexOf(b)).forEach(p => {
+    const cs = thStops(p.fill).map(thParse).filter(Boolean);
+    const lead = cs.slice().sort((a, b) => ((hexToOklch(b.hex) || { C: 0 }).C) - ((hexToOklch(a.hex) || { C: 0 }).C))[0];
+    if (!lead) return;
+    let role = thRoleOf(lead.hex, src);
+    if ((role === 'accent' || role === 'support') && box(p).w * box(p).h > 0.25 * W * H) role = 'ground';   // a panel that big is a surface, not a highlight
+    const outer = hostOf(p), outerRole = outer ? roleOfPlate.get(outer) : null;
+    let hex = role === 'accent' ? T.accent : role === 'support' ? (T.support || T.ink) : (outerRole === 'surface' && done.get(outer) === T.g1 ? T.g2 : T.g1);
+    const kind = role === 'accent' || role === 'support' ? role : 'surface';
+    let a = Math.max(0.5, Math.min(1, Math.max(...cs.map(q => q.a))));
+    if (kind === 'surface' && !T.lightInk) a = 1;                            // a plate carrying dark ink is opaque (rule 21)
+    /* kept apart from what it stands on: 1.3:1 against the ground under it, or
+       its host plate, moving away from the ink it will carry first */
+    const under = outer ? { mean: thLumOf(done.get(outer) || T.g1) } : thStats(bd0, box(p));
+    if (under && a >= 0.9 && pgCr(thLumOf(hex), under.mean) < 1.3){
+      const o = hexToOklch(hex), inkUp = thLumOf(T.ink) > thLumOf(hex);
+      for (const dir of (inkUp ? [-1, 1] : [1, -1])){
+        let got = null;
+        for (let k = 1; k <= 14; k++){ const L = o.L + dir * 0.025 * k; if (L < 0.04 || L > 0.99) break;
+          const c = oklchFit({ L, C: o.C, h: o.h }); if (pgCr(thLumOf(c), under.mean) >= 1.3){ got = c; break; } }
+        if (got){ hex = got; break; }
+      }
+    }
+    p.set('fill', thHexA(hex, a)); p.pgFillGrad = null;
+    if (p.stroke && p.strokeWidth) p.set('stroke', thRecolour(p.stroke, src, T));
+    if (p.shadow && p.shadow.color) p.shadow.color = thRecolour(p.shadow.color, src, T);
+    p.dirty = true;
+    done.set(p, hex); roleOfPlate.set(p, kind); count.plates++;
+  });
+
+  /* 2. marks: every other shape, at its own opacity, in drawing order; a mark
+     stays visible on whatever it is drawn on (a tick on a disc the theme just
+     darkened was left dark on dark) */
+  const painted = new Map(done);
+  const colourOf = o => painted.get(o) || (() => { const p = thParse(typeof o.fill === 'string' ? o.fill : ''); return p && p.a >= 0.5 ? p.hex : null; })();
+  shapes.filter(o => !plateSet.has(o)).forEach(o => {
+    const on = hostOf(o), onHex = on ? colourOf(on) : null;
+    let changed = false;
+    const fix = c => {
+      let out = thRecolour(c, src, T, true);
+      if (onHex){
+        const p = thParse(out);
+        if (p && p.a >= 0.5 && pgCr(thLumOf(p.hex), thLumOf(onHex)) < 2){
+          const pool = [T.accent, T.support, T.ink, T.g1, T.g2, '#ffffff', '#0e0f13'].filter(Boolean);
+          const pick = pool.find(h => pgCr(thLumOf(h), thLumOf(onHex)) >= 3) || pool.sort((x, y) => pgCr(thLumOf(y), thLumOf(onHex)) - pgCr(thLumOf(x), thLumOf(onHex)))[0];
+          out = thHexA(pick, p.a);
+        }
+      }
+      if (out !== c) changed = true;
+      return out;
+    };
+    if (typeof o.fill === 'string' && thParse(o.fill) && thParse(o.fill).a > 0) o.set('fill', fix(o.fill));
+    else if (o.fill && Array.isArray(o.fill.colorStops) && o.type !== 'path'){
+      o.fill.colorStops.forEach(s => { s.color = thRecolour(s.color, src, T, true); }); changed = true; o.pgFillGrad = null;
+    }
+    if (o.stroke && o.strokeWidth && typeof o.stroke === 'string') o.set('stroke', fix(o.stroke));
+    if (o.shadow && o.shadow.color) o.shadow.color = thRecolour(o.shadow.color, src, T);
+    const f = thParse(typeof o.fill === 'string' ? o.fill : '');
+    if (f && f.a >= 0.5) painted.set(o, f.hex);
+    if (changed){ o.dirty = true; count.marks++; }
+  });
+
+  /* 3. lines, against the plates and marks as they now are */
+  const bd2 = thBackdrop(sc, notWords, M);
+  const fills = {};
+  const READ = { headline: 1, phone: 1, cta: 1, info: 1, badges: 1, sub: 1, website: 1, offer: 1, user: 1 };
+  words.forEach(t => {
+    const was = before.get(t);
+    if (!was || (opts.keep && opts.keep(t))) return;
+    const pl = host.get(t), plHex = pl ? done.get(pl) : null, plKind = pl ? roleOfPlate.get(pl) : null;
+    // a line's own highlight (a text background) is a plate of its own
+    let bgHex = null;
+    const own = thParse(t.backgroundColor);
+    if (own && own.a >= 0.5){ bgHex = thParse(thRecolour(t.backgroundColor, src, T)).hex; t.set('backgroundColor', thHexA(bgHex, own.a)); }
+    const st = bgHex ? flat(bgHex) : thStats(bd2, box(t));
+    const role = thRoleOf(was.ink, src);
+    /* a line on the photograph keeps its side of the ground (light stays light,
+       so the shade and the outline under it still serve it) when it read on
+       most of what it stands on (a white spec list whose last row crosses a
+       paper band was flipped dark over the rest of it); a line on a plate, or
+       one that never read on this ground, goes whichever way reads */
+    const side = !pl && !bgHex && was.mid >= 3 ? was.side : null;
+    const onSide = h => !side || !st || ((thLumOf(h) >= st.p50) === (side === 'light'));
+    const reading = [T.ink, T.g1, T.g2];            // the theme's own colours for words: its ink, and its ground where the ink is on the wrong side
+    const bestOf = list => list.slice().sort((x, y) => thWorst(y, st) - thWorst(x, st))[0];
+    const g = bgHex || (plKind === 'accent' || plKind === 'support' ? plHex : null);
+    let want;
+    if (g) want = reading.slice().sort((x, y) => pgCr(thLumOf(y), thLumOf(g)) - pgCr(thLumOf(x), thLumOf(g)))[0];   // on a coloured plate: whichever reads best on it
+    else if (role === 'accent') want = T.accent;
+    else if (role === 'support' && T.support) want = T.support;
+    else want = bestOf(reading.filter(onSide).length ? reading.filter(onSide) : reading);
+    const need = READ[t.pgRole] ? 4.5 : 3;
+    // only the lightness moves (rule 31): an accent on the wrong side is lifted, or deepened, in its own hue
+    let out = thSolve(want, st, need, side);
+    /* the side it read on cannot read on this ground at all (a light line over
+       a mid-tone swatch the visitor picked, 2.3:1 at best): whichever way reads */
+    if (side && st && thWorst(out, st) < 3){ const free = thSolve(bestOf(reading), st, need, null); if (thWorst(free, st) > thWorst(out, st)) out = free; }
+    if (t.type === 'group') (t._objects || []).forEach(c => c.set('fill', out));
+    else t.set('fill', out);
+    t.pgFillGrad = null;
+    /* a see-through backing (a chip's 0.12 tint) is judged like any see-through
+       panel (rule 85): neutral, the tone the ink is not, at its own strength.
+       It kept the old palette's green behind a light theme's dark chips. */
+    if (own && own.a > 0 && own.a < 0.5) t.set('backgroundColor', thHexA(thLumOf(out) >= 0.18 ? '#080604' : '#fffdf8', own.a));
+    /* with no photograph under it the ground is even, like a plate: a ring
+       of the ink's own tone goes rather than turning light */
+    const plLum = bgHex ? thLumOf(bgHex) : pl ? (h => h ? thLumOf(h) : null)(plHex || (thParse(typeof pl.fill === 'string' ? pl.fill : '') || {}).hex) : null;
+    if (!thRingFit(t, out, plLum != null ? plLum : st ? st.p50 : null, !!(pl || bgHex || !sc.backgroundImage))) t.set('stroke', thRecolour(t.stroke, src, T, true));
+    t.dirty = true;
+    if (t.name) fills[t.name] = out;
+    count.lines++;
+  });
+  return Object.assign(count, { fills, src });
+}
+
+/* ── the theme in Easy Mode ─────────────────────────────────────────────── */
+function ezThemeByName(n){ return n ? COLOR_THEMES.find(t => t.name === n) || null : null; }
+/* the ground a theme brings: none on a photo-led card (the photograph is the
+   design, rule 86), its gradient on a product-led one or over a flat colour;
+   a ground the visitor picked (their photo, a photograph or a drawn ground
+   from "More grounds") stays theirs, and a drawn ground is redrawn in the
+   theme's colours. On a template switch only a ground the theme brought is
+   decided again; a colour the visitor picked follows them unchanged. */
+function ezThemeGround(th, onSwitch){
+  const tpl = ezTpl() || {};
+  const bg = ez.bg;
+  /* one of the six quick swatches in a theme's palette: the same swatch in
+     this one; it leaves with the theme (ORIG) and stays across a template
+     switch (ezPresetSpecs) */
+  if (bg && bg.slot != null && bg.theme && !bg.src){
+    if (!th){ ez.bg = null; ez.bgRecId = null; return; }
+    const s = ezPresetSpecs()[bg.slot]; if (s){ ez.bg = Object.assign({}, s); ez.bgRecId = null; }
+    return;
+  }
+  if (onSwitch && bg && !bg.theme) return;
+  if (bg && bg.type === 'image'){
+    if (bg.src && /^ground:/.test(bg.src) && window.GROUNDS && GROUNDS.parse){
+      const q = GROUNDS.parse(bg.src);
+      if (q && q.type === 'ground'){ ez.bg = Object.assign({}, bg, { src: GROUNDS.src(q.kind, ezPalette(), q.seed) }); drawnBgEl(ez.bg.src); }
+    }
+    return;
+  }
+  if (!th){ if (bg && bg.theme){ ez.bg = null; ez.bgRecId = null; } return; }
+  const photoLed = !!tpl.photoIsDesign || (tpl.bg && tpl.bg.type === 'image' && tpl.bg.src && !isDrawnSrc(tpl.bg.src) &&
+    !(tpl.layers || []).some(l => l.kind === 'cutout' && !l.__wall && l.props && (l.props.w || 0) >= 220));
+  if (photoLed && (!bg || bg.theme)){ ez.bg = null; ez.bgRecId = null; ez.bgPicked = true; return; }
+  if (!photoLed || (bg && !bg.src)){ ez.bg = { type:'grad', c1: th.bg.c1, c2: th.bg.c2, a: th.bg.a, theme: th.name }; ez.bgRecId = null; }
+}
+/* the chip that shows as chosen is the theme that is drawn */
+function syncEzThemes(){
+  const row = $('ez-themes'); if (!row) return;
+  const on = ez.theme ? ez.theme.name : '';
+  row.querySelectorAll('.ez-theme').forEach(b => { const x = b.dataset.theme === on; b.classList.toggle('active', x); b.setAttribute('aria-pressed', x ? 'true' : 'false'); });
+}
+/* blur softens a photograph; over a flat colour there is nothing to soften,
+   so the slider says so instead of moving and doing nothing */
+function ezSyncFx(){
+  const s = $('fx-blur'); if (!s) return;
+  const tpl = ezTpl() || {}, bg = ez.bg || tpl.bg || {};
+  const flatDrawn = bg.src && /^ground:solid\//.test(bg.src);
+  const placeholder = !ez.bg && bg.type === 'image' && !!bg.src && !ez.bgPicked;
+  const photo = bg.type === 'image' && !flatDrawn && !placeholder && (!!bg.src || !!ez.bgImgObj);
+  const why = photo ? '' : placeholder ? 'Pick a background first. Blur softens a photo.' : 'Blur softens a photo. This background is a flat colour.';
+  s.disabled = !photo;
+  const line = s.closest('.ez-fxline');
+  if (line){ line.classList.toggle('off', !photo); line.title = why; }
+  const note = $('fx-blur-note'); if (note){ note.hidden = photo; note.textContent = why; }
+}
+/* the Layers list's picture of the background: the image that actually
+   loaded, small. It pointed at assets/tplbg/<id>.jpg, which does not ship (the
+   first classics' photographs live inside tplbg-data.js), so the row showed a
+   broken image beside "Template photo"; a drawn ground is a canvas, not a file */
+const _ezBgThumbs = new Map();
+function ezBgThumbSrc(src){
+  if (!src) return '';
+  if (_ezBgThumbs.has(src)) return _ezBgThumbs.get(src);
+  const el = TPL_BG_ELS[src] || (isDrawnSrc(src) ? drawnBgEl(src) : null);
+  let out = (window.TPL_BG_DATA && TPL_BG_DATA[src]) || null;
+  if (!out && el && (el.width || el.naturalWidth)){
+    try { const c = document.createElement('canvas'); c.width = c.height = 64; const w = el.naturalWidth || el.width, h = el.naturalHeight || el.height, k = 64 / Math.min(w, h);
+      c.getContext('2d').drawImage(el, (64 - w * k) / 2, (64 - h * k) / 2, w * k, h * k); out = c.toDataURL('image/jpeg', 0.7); } catch (e){ out = null; }
+  }
+  if (!out) return assetUrl(src);                  // not loaded yet: the next refresh asks again
+  _ezBgThumbs.set(src, out);
+  return out;
+}
+/* THE BLUR SLIDER ADDS TO THE PHOTOGRAPH'S OWN. It used to replace it: a card
+   designed on a photograph blurred at 14 (the blurred-photo grounds, rule 86)
+   went SHARP at the slider's first step (1.5) and only passed its own blur at
+   step 10, so the first half of the slider did the opposite of its name and
+   the audit measured "changes nothing" at 12. 0 is the photograph as designed;
+   every step right is softer. */
+function ezBlurOn(own){
+  const add = ez.fx && ez.fx.blur > 0 ? ez.fx.blur * 1.5 : 0;
+  if (!add) return own;                                        // as designed, and the same cache key as ever
+  own = +own || 0;
+  return (own >= 1 ? own : own * TPL_W) + add;                 // blurredEl reads under 1 as a fraction of the width (the classics), 1 and up as 1080-card pixels
+}
+
+/* ── THE OVERLAY'S TONE FOLLOWS THE COPY ON THE PHOTOGRAPH ─────────────────
+   Shade, Fade ↓ and Fade ↑ took their tone from ezInkLight(), which counts
+   every critical line in the template's record. On Sell Your iPhone the
+   number's dark ink on its paper band, and a mid orange, outvoted the white
+   headline. So Shade laid a white veil (0.34) over a dark photograph under
+   light copy: rule 62's milky haze, and the headline lost contrast.
+   The tone is now read from the scene as drawn. First it comes from the
+   ground (ezOverlayPre), before the theme and the copy are solved against it.
+   Then, once the lines are drawn (ezOverlayFit), it is confirmed from those
+   standing on the photograph, in the ink they are painted. A line on its own
+   plate is left out, as pgShadeBands leaves it, because the plate owns its
+   ground. When a critical line (headline, number, CTA) stands on the
+   photograph, those lines decide.
+   - Dark when any counted line is lighter than 0.25 in luminance (the gate's
+     line, pgGate), or when no copy stands on the photograph (rule 62).
+   - Paper only when every counted line is dark ink (rule 87: "paper under
+     darker"). */
+function ezOverlayFill(kind, a, tone){
+  if (kind === 'tint' || kind === 'shade') return hexToRgba(tone, a * 0.75);
+  return new fabric.Gradient({
+    type:'linear', gradientUnits:'percentage',
+    coords: kind === 'down' ? { x1:0.5, y1:0, x2:0.5, y2:1 } : { x1:0.5, y1:1, x2:0.5, y2:0 },
+    colorStops:[ { offset:0, color: hexToRgba(tone, 0) }, { offset:0.45, color: hexToRgba(tone, a * 0.25) }, { offset:1, color: hexToRgba(tone, a) } ],
+  });
+}
+function ezOverlaySet(ov, tone){
+  if (tone !== ov.pgOv.tone){ ov.set('fill', ezOverlayFill(ov.pgOv.kind, ov.pgOv.a, tone)); ov.pgOv.tone = tone; }
+  return tone;
+}
+/* before the copy is solved: the tone its ground asks for. A theme or the
+   copy pass solves the lines against the overlay as it stands, so a dark
+   shade over a light theme's cream (0.34 of black) made a mid-tone ground,
+   the headline was kept light on it, and the lines then kept the shade dark.
+   Paper over a light ground, dark over the rest; ezOverlayFit confirms it
+   from the lines once they are drawn. */
+function ezOverlayPre(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  const ov = objs.find(o => o && o.pgOv); if (!ov) return null;
+  const bd = thBackdrop(sc, o => thIsGround(o) && !o.pgOv && o.name !== 'Pattern', Math.min(0.25, 270 / Math.max(W, H)));
+  const st = thStats(bd, { x: 0, y: 0, w: W, h: H });
+  return ezOverlaySet(ov, st && st.p50 > 0.4 ? '#ffffff' : '#000000');
+}
+function ezOverlayFit(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  const ov = objs.find(o => o && o.pgOv); if (!ov) return null;
+  const all = { light: 0, dark: 0 }, crit = { light: 0, dark: 0 };
+  objs.forEach(o => {
+    if (!thIsWords(o) || o.visible === false || o.pgRole === 'deco' || (o.opacity != null && o.opacity < 0.5)) return;
+    const text = typeof o.text === 'string' ? o.text : (o.pgCurved && o.pgCurved.text) || '';
+    if (!/[A-Za-z0-9]/.test(text) || thPlateOfLine(objs, o, W, H)) return;
+    const ink = o.type === 'group' ? ((o._objects || [])[0] || {}).fill || (o.pgCurved.style || {}).fill : o.fill;
+    const ls = thStops(ink).map(c => pgLum(c)).filter(v => v != null);
+    if (!ls.length) return;
+    const k = ls.reduce((s, v) => s + v, 0) / ls.length > 0.25 ? 'light' : 'dark';
+    all[k]++; if (PG_CRIT[o.pgRole]) crit[k]++;
+  });
+  const n = crit.light + crit.dark ? crit : all;
+  return ezOverlaySet(ov, n.dark && !n.light ? '#ffffff' : '#000000');
+}
+
+/* ── THE QUICK SWATCHES FOLLOW THE THEME ───────────────────────────────────
+   The six swatches beside ORIG were fixed colours from before the themes
+   (red to purple, navy, black, green, orange, amber). With a theme chosen
+   they had nothing to do with it: Gold Offer's cream card offered a magenta
+   ground next to it, which is a recolour the visitor then has to undo.
+   Rule 86 says a ground carries the card's own palette, or the chosen
+   theme's, fitted to the copy on it; "More grounds" already painted its
+   swatches that way (ezPalette). With a theme on, the six are that palette:
+     - its ground, as a gradient and as a solid;
+     - its accent and its support colour, deep under light ink and pale
+       under dark, clearing 6:1 against it;
+     - a neutral: near-black under light ink, paper under dark;
+     - the ground into the support colour.
+   A swatch picked under one theme becomes the same swatch in the next theme's
+   palette, and leaves with the theme (ORIG). No theme: the six classics. */
+function ezPresetSpecs(){
+  const th = ez.theme;
+  if (!th || !th.bg) return BG_PRESETS;
+  /* on the theme's own side of the ink, well clear of it: a deep tone under
+     light ink, a pale tint under dark. Fitted only to 6:1, a support colour
+     under dark ink came out mid-tone (0.35), where a line that crosses the
+     card's smoke panel reads neither light nor dark. */
+  const P = ezPalette(), lightInk = scLum(P.ink) > 0.4;
+  const tone = c => P.fit(lightInk ? ezMixHex(c, '#000000', 0.55) : ezMixHex(c, '#ffffff', 0.7));
+  const acc = tone(P.accent), sup = tone(P.support), neutral = P.fit(lightInk ? '#101114' : '#f4f1ea');
+  return [
+    { type:'grad', c1:P.c1, c2:P.c2, a:135, label:'ground' },
+    { type:'solid', c:P.c1, label:'ground, flat' },
+    { type:'grad', c1:acc, c2:P.c1, a:160, label:'accent' },
+    { type:'solid', c:sup, label:'support colour' },
+    { type:'solid', c:neutral, label:'neutral' },
+    { type:'grad', c1:P.c2, c2:sup, a:180, label:'ground into support' },
+  ].map((s, i) => Object.assign(s, { theme: th.name, slot: i }));
+}
+function ezSameGround(a, b){
+  if (!a || !b || a.type !== b.type) return false;
+  return a.type === 'solid' ? String(a.c).toLowerCase() === String(b.c).toLowerCase()
+    : String(a.c1).toLowerCase() === String(b.c1).toLowerCase() && String(a.c2).toLowerCase() === String(b.c2).toLowerCase() && (+a.a || 0) === (+b.a || 0);
+}
+function ezSyncPresets(){
+  const specs = ezPresetSpecs();
+  document.querySelectorAll('#ez-swatches .ez-sw[data-i]').forEach(b => {
+    const s = specs[+b.dataset.i]; if (!s) return;
+    b.style.background = cssBg(s);
+    b.title = s.theme ? s.theme + ' ' + s.label : 'Background ' + (+b.dataset.i + 1);
+    b.setAttribute('aria-label', b.title);
+  });
+  return specs;
+}
+
+/* A LINE'S RING TAKES THE TONE ITS GROUND IS NOT. A line's outline and halo
+   separate it from its ground: a ring of the tone the ground is not, and
+   neutral (rules 27 and 85). The dark glow of a white headline stayed round
+   the dark ink a light theme gave it on a light ground, and smeared the
+   letters. On a plate the plate is the separation: a ring of the ink's own
+   tone goes, and none is turned light. Returns false for a coloured outline;
+   that is part of the design, and the caller colours it by its role. */
+function thRingFit(t, ink, gl, onPlate){
+  const inkUp = gl == null || thLumOf(ink) > gl, tone = inkUp ? '#080604' : '#fffdf8';
+  const ring = c => { const q = thParse(c); if (!q || !(q.a > 0)) return { c };
+    if ((thLumOf(q.hex) < thLumOf(ink)) === inkUp) return { c: thHexA(tone, q.a) };   // it separates: neutral, at its own strength
+    return onPlate ? { drop: true } : { c: thHexA(tone, q.a) }; };                    // it does not: turned over, or gone on a plate
+  let coloured = false;
+  if (t.stroke && t.strokeWidth && typeof t.stroke === 'string'){
+    const q = thParse(t.stroke), o = q && hexToOklch(q.hex);
+    if (o && o.C < 0.035){ const r = ring(t.stroke); if (r.drop) t.set({ stroke: null, strokeWidth: 0 }); else t.set('stroke', r.c); }
+    else coloured = true;
+  }
+  if (t.shadow && t.shadow.color){ const r = ring(t.shadow.color); if (r.drop) t.set('shadow', null); else t.shadow.color = r.c; }
+  return !coloured;
+}
+
+/* ── THE COPY FOLLOWS A GROUND THE VISITOR PICKS ───────────────────────────
+   With a theme on, the copy is solved against whatever ground is under it.
+   With none, a quick swatch or a custom colour changed the ground and nothing
+   else: Sell Your iPhone's orange IPHONE on the amber swatch read 2.2:1, and
+   its white headline 1.7:1. The download gate would then shade the
+   flat colour to rescue it.
+   On a flat or drawn ground the visitor chose (not the card's own, not a
+   photograph, where the shade does this job, rule 62), each reading line
+   standing on it that falls under 4.5:1 moves its lightness until it reads,
+   keeping its hue (rule 31). A gradient's stops move together, to the side
+   that reads. The ring then follows the ink (thRingFit), as on a plate: an
+   even ground needs no separation device. A see-through backing behind a
+   line is dropped. A line on a plate is left alone (rule 51), and so is a
+   colour the visitor set; a see-through plate thickens until its copy reads. */
+function ezGroundIsFlat(bg){
+  return !!bg && (bg.type === 'solid' || bg.type === 'grad' || (bg.type === 'image' && /^ground:/.test(bg.src || '')));
+}
+function ezCopyFollowsGround(sc, W, H){
+  let objs; try { objs = sc.getObjects().slice(); } catch (e){ return null; }
+  const words = objs.filter(o => o && o.visible !== false && thIsWords(o) && PG_READ[o.pgRole] && !((ezStyleOf(o.name) || {}).fill));
+  if (!words.length) return null;
+  const M = Math.min(0.5, 540 / Math.max(W, H)), boxOf = t => { t.setCoords(); const r = t.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const inkOf = t => { const k = t.type === 'group' ? (t._objects || [])[0] : t, cs = thStops(k && k.fill).map(thParse).filter(Boolean);
+    return cs.length ? cs.slice().sort((p, q) => thLumOf(p.hex) - thLumOf(q.hex))[cs.length >> 1].hex : null; };
+  /* a see-through panel under copy was set on the photograph: smoke at 0.62
+     is near-black there, and mid-grey over a white swatch, where
+     scriptRetro's pink items read 2.3:1 on it. It thickens in its own colour
+     until the copy on it reads, up to solid: the plate keeps what the eye saw
+     (rule 52), and its lines stay the plate's (rule 51) */
+  const onPlate = new Map();
+  words.forEach(t => { const p = thPlateOfLine(objs, t, W, H); if (p) { if (!onPlate.has(p)) onPlate.set(p, []); onPlate.get(p).push(t); } });
+  onPlate.forEach((lines, p) => {
+    const f = thParse(typeof p.fill === 'string' ? p.fill : ''); if (!f) return;
+    const a0 = f.a * (p.opacity == null ? 1 : p.opacity); if (a0 >= 0.95 || a0 <= 0) return;
+    const reads = () => { const bd = thBackdrop(sc, o => !thIsWords(o), M);
+      return lines.every(t => { const st = thStats(bd, boxOf(t)), ink = inkOf(t); return !st || !ink || thWorst(ink, st) >= 4.5; }); };
+    if (reads()) return;
+    for (let a = Math.min(1, a0 + 0.12); ; a = Math.min(1, a + 0.12)){
+      p.set({ fill: thHexA(f.hex, a), opacity: 1 }); p.dirty = true;
+      if (a >= 1 || reads()) break;
+    }
+  });
+  const bd = thBackdrop(sc, o => !thIsWords(o), M);
+  const fills = {};
+  words.forEach(t => {
+    const own = thParse(t.backgroundColor);
+    if ((own && own.a >= 0.5) || onPlate.has(thPlateOfLine(objs, t, W, H))) return;
+    /* a see-through backing calms a photograph behind a line; on a flat
+       ground it calms nothing and only sits round the letters as a faint box
+       (bandKnockout's chips read 2.6:1 with it, 7:1 without) */
+    if (own && own.a > 0){ t.set('backgroundColor', ''); t.dirty = true; }
+    const st = thStats(bd, boxOf(t)), mean = inkOf(t);
+    if (!st || !mean || thWorst(mean, st) >= 4.5) return;
+    const kids = t.type === 'group' ? (t._objects || []) : [t];
+    const up = thSolve(mean, st, 4.5, 'light'), dn = thSolve(mean, st, 4.5, 'dark');
+    const side = thWorst(up, st) >= thWorst(dn, st) ? 'light' : 'dark';
+    const solve = c => { const q = thParse(c); return q ? thHexA(thSolve(q.hex, st, 4.5, side), q.a) : c; };
+    kids.forEach(k => {
+      if (typeof k.fill === 'string') k.set('fill', solve(k.fill));
+      else if (k.fill && Array.isArray(k.fill.colorStops)) k.fill.colorStops.forEach(s => { s.color = solve(s.color); });
+      k.dirty = true;
+    });
+    t.pgFillGrad = null;
+    /* a flat ground is even, like a plate: a ring of the ink's own tone goes
+       and none is turned light (a light outline round gradientWave's dark
+       selling points on the amber swatch read as part of the line, 2.7:1) */
+    const ink = side === 'light' ? up : dn;
+    thRingFit(t, ink, st.p50, true);
+    t.dirty = true;
+    if (t.name) fills[t.name] = ink;
+  });
+  return Object.keys(fills).length ? fills : null;
 }

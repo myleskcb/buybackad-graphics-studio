@@ -13,7 +13,8 @@
       that same click, so it can only do what clicking outside already does.
    ═══════════════════════════════════════════════════════ */
 (() => {
-  const CATS = ['phones', 'gold', 'silver', 'coins', 'cars', 'strips', 'pokemon', 'sports', 'classics'];
+  const CATS = ['phones', 'gold', 'silver', 'coins', 'cars', 'strips', 'pokemon', 'sports',
+    'gaming', 'audio', 'computers', 'wearables', 'cameras', 'offer', 'classics'];
 
   let cat = '';
   try { cat = new URLSearchParams(location.search).get('cat') || ''; } catch (e) {}

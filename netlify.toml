@@ -138,6 +138,45 @@
   status = 404
   force = true
 
+# 2026-09-26: the dot-prefixed folders (screenshots, scratch working dirs and
+# the agent settings) are committed too and were not covered above.
+
+[[redirects]]
+  from = "/.shot/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.scratch-wd/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.scratch-tablet/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.scratch-frame-desktop/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.scratch-frame-phone/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.claude/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 [[redirects]]
   from = "/worker.js"
   to = "/404.html"
@@ -175,7 +214,7 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-ODK2ZfEUVoTpQgLszBHiafkd5oqpW4jRH9fW2znM4bQ=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' data: blob: https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com; base-uri 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-e2y+6tieWhkDeXrT/SwKOXU+KbeKb1fsXpNgDwqPpBo=' 'sha256-odqV+xLe3gb2cRoeIs1ncr05FDstObypaf5YxEgeqsQ=' 'sha256-id2WFAgkFUxyxD3rIbx8eYO9DCpAQ/Pd+X65hppoPzU=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' data: blob: https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com; base-uri 'self'; frame-ancestors 'none'"
     X-Content-Type-Options = "nosniff"
 
 [[headers]]
@@ -216,7 +255,32 @@
     Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
+  for = "/offer-library.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/template-holds.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/offer-assets.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/photo-subjects.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
   for = "/styles.css"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/grounds.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
@@ -254,3 +318,8 @@
   to = "/404.html"
   status = 404
   force = true
+
+[[headers]]
+  for = "/vendor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

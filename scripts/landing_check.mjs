@@ -14,18 +14,25 @@
  */
 import puppeteer from 'puppeteer-core';
 import { writeFileSync } from 'node:fs';
+import { offline } from './_showcase_harness.mjs';
 const BASE = process.argv[2] || 'http://localhost:8899/';
-const b = await puppeteer.launch({ executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:'new', args:['--no-sandbox'] });
+/* CHROME and FABRIC_JS as in _showcase_harness.mjs: off the owner's Mac, and
+   with no route to the CDNs, off-origin requests are aborted by design and
+   are not counted as failures; only the site's own requests are judged. */
+const OFFLINE = !!process.env.FABRIC_JS;
+const b = await puppeteer.launch({ executablePath:process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:'new', args:['--no-sandbox'] });
 const report = {};
 let bad = 0;
 for (const [label, w, h, mobile] of [['phone-390', 390, 844, true], ['desktop-1440', 1440, 900, false]]){
   const p = await b.newPage();
+  await offline(p);
   await p.setViewport({ width:w, height:h, isMobile:mobile, hasTouch:mobile, deviceScaleFactor:mobile ? 3 : 1 });
   const cdp = await p.createCDPSession(); await cdp.send('Network.enable'); await cdp.send('Network.setCacheDisabled', { cacheDisabled:true });
   const reqs = new Map(); let bytes = 0;
   cdp.on('Network.responseReceived', e => { const r = reqs.get(e.requestId) || {}; r.url = e.response.url; r.status = e.response.status; r.type = e.type; reqs.set(e.requestId, r); });
   cdp.on('Network.loadingFinished', e => { const r = reqs.get(e.requestId) || {}; r.bytes = e.encodedDataLength; bytes += e.encodedDataLength; reqs.set(e.requestId, r); });
-  cdp.on('Network.loadingFailed', e => { const r = reqs.get(e.requestId) || {}; r.failed = e.errorText; reqs.set(e.requestId, r); });
+  cdp.on('Network.loadingFailed', e => { const r = reqs.get(e.requestId) || {}; r.failed = e.errorText; r.url = r.url || urls.get(e.requestId); reqs.set(e.requestId, r); });
+  const urls = new Map(); cdp.on('Network.requestWillBeSent', e => urls.set(e.requestId, e.request.url));   // names a failure that never got a response
   const cons = [], perr = [];
   p.on('console', m => { if (m.type() === 'error') cons.push(m.text().slice(0, 200)); });
   p.on('pageerror', e => perr.push(String(e).slice(0, 200)));
@@ -45,7 +52,8 @@ for (const [label, w, h, mobile] of [['phone-390', 390, 844, true], ['desktop-14
   await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 600){ window.scrollTo(0, y); await new Promise(r => setTimeout(r, 120)); } });
   await new Promise(r => setTimeout(r, 2500));
   const list = [...reqs.values()];
-  const errs = list.filter(r => r.failed || (r.status >= 400));
+  const own = r => !OFFLINE || String(r.url || '').startsWith(new URL(BASE).origin);
+  const errs = list.filter(r => (r.failed || (r.status >= 400)) && own(r));
   const byType = {}; list.forEach(r => { byType[r.type || '?'] = (byType[r.type || '?'] || 0) + (r.bytes || 0); });
   const heavy = list.filter(r => r.bytes).sort((x, y) => y.bytes - x.bytes).slice(0, 6).map(r => (r.bytes / 1024).toFixed(0) + ' KB ' + r.url.replace(BASE, ''));
   report[label] = { loadMs, first:{ requests:firstReqs, MB:+(firstBytes / 1048576).toFixed(2) }, afterScroll:{ requests:reqs.size, MB:+(bytes / 1048576).toFixed(2) },

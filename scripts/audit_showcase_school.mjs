@@ -1,0 +1,246 @@
+#!/usr/bin/env node
+/* THE DESIGN SCHOOL, RUN OVER THE SHOWCASE.
+ *
+ * The study session of 2026-09-24..26 ("Teaching the Engine Design", in the
+ * iPhones.LA repo) wrote the rules of a WE BUY ad down as numbers and said how
+ * the Studio should take them: "the critic runs through the existing
+ * audit_showcase_*.mjs pass and stamps `defect` on assets/showcase/index.json,
+ * which the landing already filters on". This is that critic. Every check is
+ * measured through the studio's own buildLayer()/alignPass() on the pixels a
+ * visitor sees, and every one returns a number, so a card gets a score and a
+ * list, not an opinion.
+ *
+ *   REJECT (the card is held back; audit_showcase_content.mjs turns it into
+ *   `defect`, which the landing filters on)
+ *     number     the phone number under 72px on the 1080 canvas: in a 160px
+ *                feed tile its digits are under 7.5px, present and unreadable.
+ *                The owner, 2026-09-26: the number must be big or medium.
+ *     numInk     the number's worst LETTER under 3:1 against what is behind it.
+ *                Judged letter by letter, not per line: averaged over a line,
+ *                white type passed at 5:1 while two words sat on a light
+ *                patch at about 2:1 (the study session's own finding), and on
+ *                2026-09-26 it caught numbers half off their own plate (1.2 to
+ *                2.2 per letter) that the line average passed.
+ *     offPlate   more than 8% of the number's ink outside the plate it stands
+ *                on: a number half on its plate and half on the photograph
+ *                (alignPass moved the number and not the plate)
+ *     onProduct  the number drawn over a product (the video engine's lesson of
+ *                the same week: the number never sits on the phones)
+ *     thumb      the headline's largest line under 8px tall in a 160px tile
+ *                (the study's thumbnail test, at the size of an OfferUp tile)
+ *     hierarchy  the headline under 1.3x the next biggest line: it does not win
+ *     families   more than two type families
+ *     faux       a weight heavier than any file the face ships (rule 20): the
+ *                browser fakes it
+ *     copy       invented proof, a price figure, invented hours, a dash, a
+ *                deadline or a "real person" claim (refresh_copy.mjs)
+ *     device     the headline names a device the card does not show (an
+ *                iPhone headline over three Apple Watches): say what is bought
+ *   WARN (shown; each warning ranks a card one step down, and the hero wall
+ *   prefers cards with none when there are enough of them)
+ *     small      reading text under 25px (the study's 28px at 1200)
+ *     margin     reading ink inside the 6% safe margin (an open decision in
+ *                the study plan: raise 5% to 6%?)
+ *     widow      one word alone on the last line of a block
+ *     align      more than four distinct alignment positions
+ *     crowded    under 25% of the card left empty
+ *     contrast   a headline, CTA or support line whose worst letter is under
+ *                4.5:1. A warning, not a reject: on outlined, shadowed display
+ *                type the letter is ambiguous (fill, stroke and a 19px shadow
+ *                all change the pixels), and a measure that cannot tell the
+ *                fill from the halo must not hold a readable card back. The
+ *                line-level gate (audit_showcase_legibility.mjs, under 3:1 is a
+ *                defect) still applies to every headline, number and CTA.
+ *
+ * usage: node scripts/audit_showcase_school.mjs [--write] [--ids a,b] [--json out.json]
+ */
+import { readFileSync, writeFileSync } from 'node:fs';
+import { openStudio } from './_showcase_harness.mjs';
+import { pictureId, pictureVerdict } from './picture_gate.mjs';
+import { PROOF, PRICE, HOURS, DASH, BANNED, COMPANY, LICENSE, CLAIM } from './refresh_copy.mjs';
+const APPROVED_CARDS = (() => { try { return new Set(Object.keys(JSON.parse(readFileSync(new URL('../assets/approved/approved.json', import.meta.url), 'utf8'))).filter(k => k[0] !== '_')); } catch (e){ return new Set(); } })();
+const ROOT = new URL('../', import.meta.url).pathname;
+const WRITE = process.argv.includes('--write');
+const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
+const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
+const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
+const work = idx.filter(c => !only || only.has(c.id));
+/* thresholds: app.js PG_T (the one table every generation is judged by) plus
+   the critic's own for hierarchy, families, small, align and empty */
+export const T = { number: 72, numInk: 3, onProduct: 0.12, offPlate: 0.08, thumb: 8, hierarchy: 1.3, families: 2,
+  small: 25.2, margin: 0.06, align: 4, empty: 0.25, contrast: 4.5, tile: 160 };
+
+/* weights each face ships: assets/fonts/faces.css and the house faces */
+const WEIGHTS = {
+  'Unbounded': [500, 900], 'Bricolage Grotesque': [500, 800], 'Sofia Sans Extra Condensed': [500, 900], 'Schibsted Grotesk': [400, 900],
+  'Gloock': [400], 'Young Serif': [400], 'Tilt Warp': [400], 'JetBrains Mono': [400, 700], 'Big Shoulders Display': [600, 700],
+  'Satoshi': [400, 500, 700, 900], 'Clash Display': [500, 600, 700], 'Khand': [600, 700], 'Melodrama': [500, 700], 'Zodiak': [400, 700],
+};
+
+/* the device a line names, and the device a product picture shows */
+const SAYS = s => { s = String(s).toUpperCase(); const o = [];
+  if (/\bIPHONES?\b/.test(s)) o.push('iphone'); if (/\bIPADS?\b/.test(s)) o.push('ipad');
+  if (/\bMACBOOKS?\b|\bMACS?\b|\bIMACS?\b/.test(s)) o.push('mac'); if (/\bWATCH(ES)?\b/.test(s)) o.push('watch'); return o; };
+const SHOWS = src => { const f = String(src || '').toLowerCase().replace(/^.*\//, '');
+  return /watch/.test(f) ? 'watch' : /ipad/.test(f) ? 'ipad' : /macbook|imac|mac-/.test(f) ? 'mac' : /iphone|ip-|qs-/.test(f) ? 'iphone' : null; };
+
+const { browser, page, errors } = await openStudio();
+Object.assign(T, await page.evaluate(() => ({ number: PG_T.number, numInk: PG_T.numInk, onProduct: PG_T.onProduct, offPlate: PG_T.offPlate, thumb: PG_T.thumb, margin: PG_T.margin, contrast: PG_T.contrast, tile: PG_T.tile })));
+await page.evaluate(T => { window.__T = T; }, T);
+const out = {};
+for (let i = 0; i < work.length; i += 6){
+  const ids = work.slice(i, i + 6).map(c => c.id);
+  Object.assign(out, await page.evaluate(async (ids, WEIGHTS) => {
+    const T = window.__T, R = {};
+    const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    const lum = (d, k) => 0.2126 * lin(d[k]) + 0.7152 * lin(d[k + 1]) + 0.0722 * lin(d[k + 2]);
+    const READ = { headline:1, phone:1, cta:1, info:1, badges:1, sub:1, website:1, offer:1 };
+    const CRIT = { headline:1, phone:1, cta:1 };
+    for (const id of ids){
+      try {
+        const t = await __sc.load(id);
+        const { sc, refs } = __sc.paint(t);
+        const W = TPL_W, H = TPL_H, ctx = sc.lowerCanvasEl.getContext('2d');
+        /* the one measure (app.js pgCheck): every line's core and worst
+           letter, the number's size, its ink off the plate, over the product,
+           the headline in a tile. The critic's own checks (hierarchy,
+           families, faux, copy, device, widow, align, empty) follow. */
+        const GATE = pgCheck(sc), GL = Object.fromEntries(GATE.lines.map(l => [l.name, l]));
+        const box = o => { const b = o.getBoundingRect(true, true); return { x: b.left, y: b.top, w: b.width, h: b.height }; };
+        const inter = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+        const texts = [];
+        t.layers.forEach((l, k) => {
+          const o = refs[k];
+          if (!o || typeof l.text !== 'string' || !/[A-Za-z0-9]/.test(l.text) || o.visible === false) return;
+          const op = l.props && l.props.opacity !== undefined ? l.props.opacity : 1;
+          if (op < 0.5) return;
+          texts.push({ k, l, o, b: box(o), px: (o.fontSize || (l.props && l.props.fontSize) || 0) * (o.scaleY || 1), role: l.role || '', fam: o.fontFamily || (l.props && l.props.fontFamily) || null });
+        });
+        const read = texts.filter(x => READ[x.role]);
+        const crit = read.filter(x => CRIT[x.role]), minor = read.filter(x => !CRIT[x.role] && x.px >= 18);
+        read.forEach(x => { const g = GL[x.l.name]; x.worst = g ? g.letters : null; });
+        const phone = read.find(x => x.role === 'phone');
+        const heads = read.filter(x => x.role === 'headline');
+        const headPx = heads.length ? Math.max(...heads.map(x => x.px)) : 0;
+        const nextPx = Math.max(0, ...read.filter(x => x.role !== 'headline' && (String(x.l.text).match(/[A-Za-z0-9]/g) || []).length >= 3).map(x => x.px));  // a lone grade numeral is a graphic, not a level
+        const onProduct = GATE.onProduct, offPlate = GATE.offPlate;
+        const fams = new Set(texts.filter(x => /[A-Za-z0-9]{2}/.test(x.l.text) && x.fam).map(x => x.fam));
+        /* faux = a weight HEAVIER than any file the face ships: that is the case
+           the browser fakes (synthetic bold) or silently draws lighter than
+           designed. A lighter ask resolves to a real, heavier file and fakes
+           nothing. The weight comes from the layer when the object has none
+           (a curved line is a group of letters): reading it off the group gave
+           400 and flagged 93 cards whose type was drawn from a real file. */
+        const faux = texts.filter(x => { const w = WEIGHTS[x.fam]; if (!w) return false;
+          const fw = x.o.fontWeight ?? (x.l.props && x.l.props.fontWeight) ?? 400;
+          const ask = fw === 'bold' ? 700 : fw === 'normal' ? 400 : +fw || 400;
+          return ask > Math.max(...w) + 50; }).map(x => x.fam + ' ' + (x.o.fontWeight ?? (x.l.props && x.l.props.fontWeight)));
+        const M = T.margin * W;
+        const margin = read.filter(x => x.b.x < M - 2 || x.b.y < M - 2 || x.b.x + x.b.w > W - M + 2 || x.b.y + x.b.h > H - M + 2).length;
+        const widow = read.filter(x => { const lines = (x.o._textLines || String(x.l.text).split('\n').map(s => s.split(''))).map(a => (Array.isArray(a) ? a.join('') : String(a)).trim()).filter(Boolean);
+          const words = lines.join(' ').split(/\s+/).filter(Boolean); return lines.length >= 2 && words.length >= 3 && lines[lines.length - 1].split(/\s+/).length === 1; }).map(x => x.l.name);
+        const anchors = new Set(read.map(x => { const ox = x.o.originX || 'left'; const ax = ox === 'center' ? x.b.x + x.b.w / 2 : ox === 'right' ? x.b.x + x.b.w : x.b.x; return ox + Math.round(ax / 12); }));
+        /* empty: a 20px grid, marked by every visible thing that is not the ground */
+        const G = 20, gw = Math.ceil(W / G), gh = Math.ceil(H / G), occ = new Uint8Array(gw * gh);
+        t.layers.forEach((l, k) => {
+          const o = refs[k]; if (!o || o.visible === false) return;
+          const op = l.props && l.props.opacity !== undefined ? l.props.opacity : 1;
+          if (op < 0.35 || ['vignette', 'grain', 'scrim'].includes(l.kind)) return;
+          const b = box(o); if (b.w * b.h > 0.6 * W * H) return;
+          if (typeof l.text === 'string' && !l.text.trim()) return;
+          for (let gy = Math.max(0, Math.floor(b.y / G)); gy < Math.min(gh, Math.ceil((b.y + b.h) / G)); gy++)
+            for (let gx = Math.max(0, Math.floor(b.x / G)); gx < Math.min(gw, Math.ceil((b.x + b.w) / G)); gx++) occ[gy * gw + gx] = 1;
+        });
+        let used = 0; for (let q = 0; q < occ.length; q++) used += occ[q];
+        const cut = t.layers.filter((l, k) => l.kind === 'cutout' && refs[k] && !l.__wall && !((l.props && l.props.opacity !== undefined ? l.props.opacity : 1) < 0.5)).map(l => l.props && l.props.src);
+        /* each product picture's drawn size against its own pixels, and whether it
+           loaded at all (2026-09-27): a picture stretched past 1.5x is soft on a
+           Free export and 3x on Pro */
+        const cutScale = t.layers.map((l, k) => ({ l, o: refs[k] })).filter(z => z.l.kind === 'cutout' && z.l.props && z.l.props.src && !/^logo:/.test(z.l.props.src))
+          .map(z => (!z.o || z.o.type !== 'image') ? 99 : +(z.o.scaleX || 1).toFixed(2));
+        const worstOf = a => { const v = a.map(x => x.worst).filter(v => v != null); return v.length ? Math.min(...v) : null; };
+        R[id] = {
+          num: phone ? +phone.px.toFixed(1) : 0,
+          numTile: phone ? +(phone.px * 0.7 * T.tile / W).toFixed(1) : 0,
+          numInk: phone ? phone.worst : null,
+          letters: worstOf(crit),
+          lines: crit.concat(minor).map(x => [x.l.name, x.role, x.worst, Math.round(x.px)]),
+          ctaInk: worstOf(crit.filter(x => x.role === 'cta')),
+          minorInk: worstOf(minor),
+          onProduct: +onProduct.toFixed(3),
+          offPlate: +offPlate.toFixed(3),
+          headTile: +(headPx * 0.7 * T.tile / W).toFixed(1),
+          hierarchy: nextPx ? +(headPx / nextPx).toFixed(2) : 9,
+          families: fams.size, famList: [...fams],
+          faux,
+          minPx: read.length ? +Math.min(...read.map(x => x.px)).toFixed(1) : 0,
+          margin, widow, align: anchors.size,
+          empty: +(1 - used / occ.length).toFixed(3),
+          heads: heads.map(x => x.l.text).join(' / '),
+          cutouts: cut, cutScale,
+        };
+        sc.dispose();
+      } catch (e){ R[id] = { err: String(e).slice(0, 160) }; }
+    }
+    return R;
+  }, ids, WEIGHTS));
+  if (i % 120 === 0) console.log('…' + (i + ids.length) + '/' + work.length);
+}
+await browser.close();
+
+/* the verdict, card by card */
+const verdict = (c, r) => {
+  const fail = [], warn = [];
+  if (r.err) return { fail: ['error'], warn };
+  /* a product picture the owner rejected or that is flagged (picture_gate.mjs), missing, or stretched past 1.5x (2026-09-27) */
+  if ((r.cutScale || []).some(s => s > 1.5) || (r.cutouts || []).some(src => pictureVerdict(pictureId(src), c.cat))) fail.push('asset');
+  if (r.num < T.number) fail.push('number');
+  if (r.numInk != null && r.numInk < T.numInk) fail.push('numInk');
+
+  if (r.onProduct > T.onProduct) fail.push('onProduct');
+  if (r.offPlate > T.offPlate) fail.push('offPlate');
+  if (r.headTile < T.thumb) fail.push('thumb');
+  if (r.hierarchy < T.hierarchy) fail.push('hierarchy');
+  if (r.families > T.families) fail.push('families');
+  if (r.faux.length) fail.push('faux');
+  let rec = null; try { rec = JSON.parse(readFileSync(ROOT + 'assets/showcase/tpl/' + c.id + '.json', 'utf8')); } catch (e){}
+  if (rec){
+    const words = rec.tpl.layers.filter(l => typeof l.text === 'string' && l.role !== 'website').map(l => l.text).join('\n');
+    // the owner's own words on a render the owner approved stand (DESIGN-LAW 78 over 80)
+    if (PROOF.test(words) || PRICE.test(words) || HOURS.test(words) || DASH.test(words) || BANNED.test(words) || COMPANY.test(words) || LICENSE.test(words) || (CLAIM.test(words) && !APPROVED_CARDS.has(c.id))) fail.push('copy');
+    /* say what is bought: a phones card whose headline names a device that none of its products is */
+    const says = SAYS(r.heads), shows = [...new Set(r.cutouts.map(SHOWS).filter(Boolean))];
+    if (c.cat === 'phones' && says.length && shows.length && !says.some(d => shows.includes(d))) fail.push('device');
+  }
+  if (r.minPx < T.small) warn.push('small');
+  if (r.margin) warn.push('margin');
+  if (r.widow.length) warn.push('widow');
+  if (r.align > T.align) warn.push('align');
+  if (r.empty < T.empty) warn.push('crowded');
+  if ((r.letters != null && r.letters < T.contrast) || (r.minorInk != null && r.minorInk < T.contrast)) warn.push('contrast');
+  return { fail, warn };
+};
+const rows = work.map(c => ({ c, r: out[c.id] || { err: 'none' } })).map(x => Object.assign(x, verdict(x.c, x.r)));
+const count = (key, list) => rows.filter(x => x[list].includes(key)).length;
+const live = x => !x.c.defect;
+console.log(`\naudited ${rows.length} · page errors ${errors.length} · errors ${rows.filter(x => x.r.err).length}`);
+console.log('REJECT (all cards / cards live before this audit)');
+['number', 'numInk', 'offPlate', 'onProduct', 'thumb', 'hierarchy', 'families', 'faux', 'copy', 'device', 'asset'].forEach(k =>
+  console.log('  ' + k.padEnd(10) + String(count(k, 'fail')).padStart(4) + ' / ' + String(rows.filter(x => live(x) && x.fail.includes(k)).length).padStart(4)));
+console.log('WARN');
+['small', 'margin', 'widow', 'align', 'crowded', 'contrast'].forEach(k => console.log('  ' + k.padEnd(10) + String(count(k, 'warn')).padStart(4)));
+const clean = rows.filter(x => !x.fail.length), pure = clean.filter(x => !x.warn.length);
+console.log(`pass ${clean.length} (${pure.length} with no warning) · held back ${rows.length - clean.length}`);
+const med = a => { const s = a.filter(v => v != null).sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : null; };
+console.log(`median number ${med(rows.map(x => x.r.num))}px (${med(rows.map(x => x.r.numTile))}px in a ${T.tile}px tile) · median worst letter: number ${med(rows.map(x => x.r.numInk))}, critical ${med(rows.map(x => x.r.letters))}`);
+if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify(out));
+if (WRITE){
+  const by = Object.fromEntries(rows.map(x => [x.c.id, x]));
+  idx.forEach(c => { const x = by[c.id]; if (!x || x.r.err) return;
+    c.num = x.r.num; c.numInk = x.r.numInk; c.letters = x.r.letters;
+    c.school = { fail: x.fail, warn: x.warn };
+  });
+  writeFileSync(ROOT + 'assets/showcase/index.json', JSON.stringify(idx));
+  console.log('wrote num / numInk / letters / school onto ' + rows.length + ' index rows');
+}
+if (errors.length) console.log('page errors:', errors.slice(0, 3));

@@ -18,17 +18,19 @@
  *   --write records `cover` (worst fraction) and `coverBy` on each index row.
  */
 import puppeteer from 'puppeteer-core';
+import { offline } from './_showcase_harness.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
 const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
 
-const browser = await puppeteer.launch({ executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:'new', args:['--no-sandbox'], protocolTimeout: 0 });
+const browser = await puppeteer.launch({ executablePath: process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:'new', args:['--no-sandbox'], protocolTimeout: 0 });
 const page = await browser.newPage();
 await page.setViewport({ width: 1280, height: 900 });
 const perr = [];
 page.on('pageerror', e => perr.push(String(e).slice(0, 120)));
-await page.goto('http://localhost:8899/', { waitUntil:'networkidle2', timeout: 90000 });
+await offline(page);
+await page.goto((process.env.GFX_BASE || 'http://localhost:8899/'), { waitUntil:'networkidle2', timeout: 90000 });
 await page.evaluate(() => document.fonts.ready);
 await page.waitForFunction(() => typeof buildLayer === 'function' && typeof alignPass === 'function', { timeout: 30000 });
 
@@ -54,6 +56,9 @@ for (let i = 0; i < idx.length; i += 12){
           if (o){ sc.add(o); objs.push({ k, l, o }); }
         });
         alignPass(sc, TPL_W, TPL_H);
+        /* alignPass removes what may not stay (a sticker on copy, the cursor,
+           a product with no clear space): what it hid is not on the card */
+        for (let j = objs.length - 1; j >= 0; j--) if (objs[j].o.visible === false) objs.splice(j, 1);
         const box = o => { const b = o.getBoundingRect(true, true); return { x:b.left, y:b.top, w:b.width, h:b.height }; };
         const area = b => Math.max(0, b.w) * Math.max(0, b.h);
         const inter = (a, b) => {

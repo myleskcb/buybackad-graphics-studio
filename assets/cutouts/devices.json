@@ -1,0 +1,677 @@
+{
+ "_doc": "Device photos the design engine may use as a product. Owner, 2026-09-27: never re-skin a device colour; every device must look factory original (camera module and plateau, lens count and layout, buttons incl. Action button and Camera Control, Dynamic Island vs notch, rail material and colour — e.g. Pacific Blue's shiny chrome-blue rail). authentic:false entries are re-skins or mislabels and are refused by scripts/audit_card.mjs. faces: which way the device leans or looks ('left' suits a product on the right of a layout, 'front' suits either side). The qs-iphone-* entries are the shop's quote-site catalog (real product imagery), ranked newest first; 'recommended' marks the popular high-value models the engine and the Easy Mode picker offer first (owner: 'popular models, like 18 or 17 Pro Max, to maximize profits').",
+ "devices": {
+  "assets/cutouts/qs-iphone-17-pro.webp": {
+   "model": "iPhone 17 Pro",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 3,
+   "recommended": true
+  },
+  "assets/cutouts/qs-iphone-17-pro-max.webp": {
+   "model": "iPhone 17 Pro Max",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 2,
+   "recommended": true
+  },
+  "assets/cutouts/ip-gen17-plateau-white.webp": {
+   "model": "iPhone 17 Pro",
+   "color": "Silver",
+   "view": "back",
+   "faces": "front",
+   "authentic": true
+  },
+  "assets/cutouts/ip-gen17-plateau-blue.webp": {
+   "model": "iPhone 17 Pro",
+   "color": "Deep Blue",
+   "view": "side",
+   "faces": "front",
+   "authentic": true
+  },
+  "assets/cutouts/ip-gen17-plateau-black.webp": {
+   "model": "mislabelled",
+   "color": "unknown",
+   "view": "camera close-up, cropped",
+   "faces": "left",
+   "authentic": false,
+   "note": "a crop of a square camera bump that stops short of the far edge: the 16 Pro design, not the 17 Pro plateau"
+  },
+  "assets/cutouts/own-apple-cosmic-orange-02.webp": {
+   "model": "re-skin",
+   "authentic": false,
+   "note": "16 Pro-style square camera bump painted orange; the 17 Pro has the full-width plateau"
+  },
+  "assets/cutouts/own-apple-cosmic-orange-07.webp": {
+   "model": "re-skin",
+   "authentic": false,
+   "note": "16 Pro-style square camera bump painted orange"
+  },
+  "assets/cutouts/own-apple-cosmic-orange-17.webp": {
+   "model": "re-skin",
+   "authentic": false,
+   "note": "16 Pro-style square camera bump painted orange"
+  },
+  "assets/cutouts/own-apple-cosmic-orange-20.webp": {
+   "model": "re-skin",
+   "authentic": false
+  },
+  "assets/cutouts/own-apple-cosmic-orange-21.webp": {
+   "model": "re-skin",
+   "authentic": false
+  },
+  "assets/cutouts/own-apple-deep-blue-14.webp": {
+   "model": "re-skin",
+   "authentic": false,
+   "note": "an orange 16-style phone filed as deep blue"
+  },
+  "assets/cutouts/iphone-17-pro-back-black.webp": {
+   "model": "mislabelled",
+   "authentic": false,
+   "note": "square camera bump: not the 17 Pro design"
+  },
+  "assets/cutouts/iphone-17-pro-back-silver.webp": {
+   "model": "mislabelled",
+   "authentic": false,
+   "note": "square camera bump: not the 17 Pro design"
+  },
+  "assets/cutouts/qs-iphone-11-pro-max.webp": {
+   "model": "iPhone 11 Pro Max",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 28,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-11-pro.webp": {
+   "model": "iPhone 11 Pro",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 29,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-11.webp": {
+   "model": "iPhone 11",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 30,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-back--blue.webp": {
+   "model": "iPhone 12",
+   "color": "Blue",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 26,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-back--green.webp": {
+   "model": "iPhone 12",
+   "color": "Green",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 26,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-back--purple.webp": {
+   "model": "iPhone 12",
+   "color": "Purple",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 26,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-back--white.webp": {
+   "model": "iPhone 12",
+   "color": "White",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 26,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-mini.webp": {
+   "model": "iPhone 12 mini",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 27,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-pro-back--gold.webp": {
+   "model": "iPhone 12 Pro",
+   "color": "Gold",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 25,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-pro-back--graphite.webp": {
+   "model": "iPhone 12 Pro",
+   "color": "Graphite",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 25,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-pro-back--pacific-blue.webp": {
+   "model": "iPhone 12 Pro",
+   "color": "Pacific Blue",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 25,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-pro-max.webp": {
+   "model": "iPhone 12 Pro Max",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 24,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12-pro.webp": {
+   "model": "iPhone 12 Pro",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 25,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-12.webp": {
+   "model": "iPhone 12",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 26,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-back--blue.webp": {
+   "model": "iPhone 13",
+   "color": "Blue",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 22,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-back--green.webp": {
+   "model": "iPhone 13",
+   "color": "Green",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 22,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-back--midnight.webp": {
+   "model": "iPhone 13",
+   "color": "Midnight",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 22,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-back--pink.webp": {
+   "model": "iPhone 13",
+   "color": "Pink",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 22,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-back--starlight.webp": {
+   "model": "iPhone 13",
+   "color": "Starlight",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 22,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-mini.webp": {
+   "model": "iPhone 13 mini",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 23,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-pro-back--alpine-green.webp": {
+   "model": "iPhone 13 Pro",
+   "color": "Alpine Green",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 21,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-pro-back--gold.webp": {
+   "model": "iPhone 13 Pro",
+   "color": "Gold",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 21,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-pro-back--graphite.webp": {
+   "model": "iPhone 13 Pro",
+   "color": "Graphite",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 21,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-pro-back--sierra-blue.webp": {
+   "model": "iPhone 13 Pro",
+   "color": "Sierra Blue",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 21,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-pro-max.webp": {
+   "model": "iPhone 13 Pro Max",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 20,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13-pro.webp": {
+   "model": "iPhone 13 Pro",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 21,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-13.webp": {
+   "model": "iPhone 13",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 22,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-14-plus.webp": {
+   "model": "iPhone 14 Plus",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 18,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-14-pro-max.webp": {
+   "model": "iPhone 14 Pro Max",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 16,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-14-pro.webp": {
+   "model": "iPhone 14 Pro",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 17,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-14.webp": {
+   "model": "iPhone 14",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 19,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-15-plus.webp": {
+   "model": "iPhone 15 Plus",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 14,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-15-pro-max.webp": {
+   "model": "iPhone 15 Pro Max",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 12,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-15-pro.webp": {
+   "model": "iPhone 15 Pro",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 13,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-15.webp": {
+   "model": "iPhone 15",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 15,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16-back--black.webp": {
+   "model": "iPhone 16",
+   "color": "Black",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 10,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16-back--pink.webp": {
+   "model": "iPhone 16",
+   "color": "Pink",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 10,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16-back--teal.webp": {
+   "model": "iPhone 16",
+   "color": "Teal",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 10,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16-back--ultramarine.webp": {
+   "model": "iPhone 16",
+   "color": "Ultramarine",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 10,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16-back--white.webp": {
+   "model": "iPhone 16",
+   "color": "White",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 10,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16-plus-back--white.webp": {
+   "model": "iPhone 16 Plus",
+   "color": "White",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 9,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16-plus.webp": {
+   "model": "iPhone 16 Plus",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 9,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16-pro-max.webp": {
+   "model": "iPhone 16 Pro Max",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 7,
+   "recommended": true
+  },
+  "assets/cutouts/qs-iphone-16-pro.webp": {
+   "model": "iPhone 16 Pro",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 8,
+   "recommended": true
+  },
+  "assets/cutouts/qs-iphone-16.webp": {
+   "model": "iPhone 16",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 10,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16e-back--black.webp": {
+   "model": "iPhone 16E",
+   "color": "Black",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 11,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16e-back--white.webp": {
+   "model": "iPhone 16E",
+   "color": "White",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 11,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-16e.webp": {
+   "model": "iPhone 16E",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 11,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-17-air.webp": {
+   "model": "iPhone 17 Air",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 4,
+   "recommended": true
+  },
+  "assets/cutouts/qs-iphone-17.webp": {
+   "model": "iPhone 17",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 5,
+   "recommended": true
+  },
+  "assets/cutouts/qs-iphone-17e-back--black.webp": {
+   "model": "iPhone 17E",
+   "color": "Black",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 6,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-17e-back--soft-pink.webp": {
+   "model": "iPhone 17E",
+   "color": "Soft Pink",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 6,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-17e-back--white.webp": {
+   "model": "iPhone 17E",
+   "color": "White",
+   "view": "back",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 6,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-17e.webp": {
+   "model": "iPhone 17E",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 6,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-18-pro-max.webp": {
+   "model": "iPhone 18 Pro Max",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 0,
+   "recommended": true,
+   "verify": "newest model: design not checked against Apple by Claude (training predates it); owner to confirm"
+  },
+  "assets/cutouts/qs-iphone-18-pro.webp": {
+   "model": "iPhone 18 Pro",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 1,
+   "recommended": true,
+   "verify": "newest model: design not checked against Apple by Claude (training predates it); owner to confirm"
+  },
+  "assets/cutouts/qs-iphone-xr.webp": {
+   "model": "iPhone XR",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 33,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-xs-max.webp": {
+   "model": "iPhone XS Max",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 31,
+   "recommended": false
+  },
+  "assets/cutouts/qs-iphone-xs.webp": {
+   "model": "iPhone XS",
+   "color": "as pictured",
+   "view": "back+front pair",
+   "faces": "front",
+   "authentic": true,
+   "source": "quote-site catalog (qs-)",
+   "rank": 32,
+   "recommended": false
+  }
+ }
+}
