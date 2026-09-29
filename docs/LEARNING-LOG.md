@@ -728,3 +728,32 @@ What the checks found on the way:
   pill had hidden the badge's bolt, which is all stroke.
 - The first dialog a new visitor sees (service area) caught the test's pointer.
   The check now proves the pointer lands on the preview before it drags.
+
+## 2026-09-29 — the owner's fonts, the phone picker, and a picker that hid itself
+
+More fonts: the owner reviewed 151 faces on 2026-09-01 and approved 56, all
+already in assets/fonts, yet Easy Mode fetched most faces from Google. faces.css
+now declares every approved face (scripts/fetch_fonts.mjs reads the approved
+list), the picker lists them by role, and FONT_PAIRS pairs them by voice
+(street, bold, stadium, sport, tech, block, arcade, squad, comic, marker,
+retro, pop, luxe, modern, warp, stencil). The sheet check found a real bug:
+the loader asked only for weight 400, so a 700 headline in a static family
+(Oswald, Teko, Manrope…) painted in the fallback and fabric kept those widths.
+Every weight now loads. Nanum Pen Script has no middle dot (LA · OC · IE).
+
+The phone picker: the popular models first (18 Pro Max, 18 Pro, 17 Pro Max,
+17 Pro, 17 Air, 17, 16 Pro Max, 16 Pro), Surprise me, the rest of the shop's
+factory catalog by series, As designed. Two faults, both caught before
+shipping:
+- A narrow single-back photo left 95px between itself and the steps, more
+  than blockRemap's joining gap, so in 3:4 and 9:16 the phone was stacked
+  above the steps as its own block. Side by side is now one row.
+- My first version reused the page's existing id ez-device-field and the
+  function name ezDeviceSync, which belong to the "Your device" select (re-set
+  a card to iPad, Watch…). The later declaration silently replaced the old
+  one, and the check passed because it read the other element. A screenshot
+  showed it. The picker has its own names now; the check asserts the field is
+  laid out on screen and unique, and the old select was re-verified
+  (glassCard-nn01-20 re-set to All iPads).
+The ip-gen17-plateau-black crop is a square camera bump (16 Pro design), not
+the 17 Pro plateau: marked not authentic.

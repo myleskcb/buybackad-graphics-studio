@@ -45,6 +45,10 @@ const ids = process.argv.slice(2).filter(a => !a.startsWith('--'));
 /* --lab: the ids are lab records (.render/restage/lab/<id>.json, written by
    restage_steps_flow.mjs --as=…), audited through the same three paths */
 const LAB = process.argv.includes('--lab');
+/* --device=<src>: Easy Mode with the visitor's phone swapped in (the picker), the
+   card checks on that phone; the approved-render comparison is skipped (the
+   approved render has the card's own phone) */
+const DEVICE = (process.argv.find(a => a.startsWith('--device=')) || '').slice(9) || null;
 if (!ids.length){ console.error('usage: node scripts/audit_card.mjs <cardId…>'); process.exit(2); }
 
 const { browser, page } = await openStudio();
@@ -323,7 +327,7 @@ let allPass = true;
 for (const id of ids){
   const labRec = LAB ? JSON.parse(readFileSync(ROOT + '.render/restage/lab/' + id + '.json', 'utf8')) : null;
   const rec = LAB ? labRec.rec : JSON.parse(readFileSync(ROOT + 'assets/showcase/tpl/' + id + '.json', 'utf8'));
-  const r = await page.evaluate(async (id, rec, lab) => {
+  const r = await page.evaluate(async (id, rec, lab, device) => {
     const res = [];
     if (lab){                                   // a lab record opens like any showcase card
       await scLoadIndex();
@@ -337,7 +341,9 @@ for (const id of ids){
     if (bgi){ sc.setBackgroundImage(coverImage(bgi, TPL_W, TPL_H), () => {}); if (t.bg.scrim) sc.add(scrimRect(t.bg.scrim, TPL_W, TPL_H, t.bg.scrimColor, t.bg.scrimMode)); }
     const built = {};
     t.layers.forEach(l => { const o = buildLayer(l, t.id); sc.add(o); o.setCoords(); const c = o.getCenterPoint(); built[o.name] = [c.x, c.y, o.scaleX || 1]; });
-    alignPass(sc, TPL_W, TPL_H); sc.renderAll();
+    alignPass(sc, TPL_W, TPL_H);
+    if (typeof applyCardLook === 'function') applyCardLook(sc, t, TPL_W, TPL_H, 1);   // the card's own look, as renderThumb paints it
+    sc.renderAll();
     res.push(...__audit(sc, TPL_W, TPL_H, { built }, 'gallery'));
     const png = sc.toDataURL({ format: 'png' });
     sc.dispose();
@@ -350,6 +356,13 @@ for (const id of ids){
     await document.fonts.ready; try { fabric.util.clearFabricFontCache(); } catch (e){}
     await new Promise(r => setTimeout(r, 600));
     ez.tag = { look: 'solid', gradient: null, angle: 90, outline: 'auto', effect: 'auto' };
+    ez.phonePick = device || null;
+    if (device){
+      await loadPhoneCatalog(); await ezLoadCutout(device);
+      const sw = ezPhoneSwap(ezTpl()), own = ezPhoneLayer(ezTpl());
+      const wears = !!sw || (own && devKey(own.props.src) === device);     // picking the card's own phone is As designed
+      res.push({ where: 'easy', rule: 73, name: 'the picked phone is the one on the card', pass: wears, got: sw ? device.replace(/^.*\//, '') + ' swapped in' : wears ? 'the card\u2019s own phone' : 'no swap', want: 'the card wears ' + device });
+    }
     const pngs = {};
     for (const fmt of ['square', 'three4', 'story']){
       if (!FORMATS[fmt]) continue;
@@ -365,7 +378,7 @@ for (const id of ids){
         res.push({ where: 'video', rule: 65, name: 'the CTA shift passes its audit', pass: !!bake.cta, got: bake.cta ? bake.cta.parts.map(p => p.key).join('+') + ', legibility ' + Math.min(...bake.cta.legibility.map(l => l.q75)).toFixed(2) : String(bake.ctaOff).slice(0, 160), want: 'a CTA' });
       }
       pngs[fmt] = s2.toDataURL({ format: 'png' });
-      const ap = ((window.__approved || {})[id] || {})[fmt];
+      const ap = !device && ((window.__approved || {})[id] || {})[fmt];
       if (ap){
         const ref = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = ap.image + '?' + Date.now(); });
         const now = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = pngs[fmt]; });
@@ -388,17 +401,18 @@ for (const id of ids){
       s2.dispose();
     }
     return { res, png, pngs };
-  }, id, rec, labRec).catch(e => ({ res: [{ where: 'harness', rule: 0, name: 'ran', pass: false, got: String(e).slice(0, 300), want: 'no error' }] }));
+  }, id, rec, labRec, DEVICE).catch(e => ({ res: [{ where: 'harness', rule: 0, name: 'ran', pass: false, got: String(e).slice(0, 300), want: 'no error' }] }));
+  const tag = DEVICE ? '--' + DEVICE.replace(/^.*\//, '').replace(/\.[a-z]+$/, '') : '';
   if (r.png) writeFileSync(OUT + id + '.png', Buffer.from(r.png.split(',')[1], 'base64'));
-  Object.entries(r.pngs || {}).forEach(([f, u]) => writeFileSync(OUT + id + '-easy-' + f + '.png', Buffer.from(u.split(',')[1], 'base64')));
+  Object.entries(r.pngs || {}).forEach(([f, u]) => writeFileSync(OUT + id + tag + '-easy-' + f + '.png', Buffer.from(u.split(',')[1], 'base64')));
   const checks = r.res;
   if (pageErrors.length) checks.push({ where: 'page', rule: 0, name: 'no page errors', pass: false, got: pageErrors.join(' | '), want: 'none' });
   const failed = checks.filter(c => !c.pass);
   allPass = allPass && !failed.length;
-  console.log('\n' + id + ': ' + (checks.length - failed.length) + '/' + checks.length + ' checks pass' + (failed.length ? '' : '  (100%)'));
+  console.log('\n' + id + (DEVICE ? ' with ' + DEVICE : '') + ': ' + (checks.length - failed.length) + '/' + checks.length + ' checks pass' + (failed.length ? '' : '  (100%)'));
   checks.forEach(c => console.log((c.pass ? '  ok   ' : '  FAIL ') + (c.where + '        ').slice(0, 13) + (c.rule ? 'r' + c.rule + ' ' : '    ') + c.name + ': ' + c.got + (c.pass ? '' : '   (want ' + c.want + ')')));
   report.push({ id, pass: !failed.length, checks });
-  writeFileSync(OUT + id + '.json', JSON.stringify({ id, checks }, null, 1));
+  writeFileSync(OUT + id + tag + '.json', JSON.stringify({ id, device: DEVICE, checks }, null, 1));
 }
 await browser.close();
 process.exit(allPass ? 0 : 1);

@@ -67,6 +67,7 @@ export async function openStudio(query = ''){
         } else sc.add(bgRectFor(t.bg.type === 'image' ? (t.bg.fallback || { type:'solid', c:'#101014' }) : t.bg, W, H));
         const refs = t.layers.map(l => { const o = buildLayer(l, t.id); sc.add(o); return o; });
         alignPass(sc, W, H);
+        if (typeof applyCardLook === 'function') applyCardLook(sc, t, W, H, 1);
         sc.renderAll();
         return { sc, refs, bgMissing: t.bg.type === 'image' && !bgi };
       },

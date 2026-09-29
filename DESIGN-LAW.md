@@ -1680,6 +1680,13 @@ restaged card's step titles had been fitted per row to 33.8, 36.8 and 35.1px,
 which reads as three different styles. The library measured 297 live cards on
 two families, 98 on three, 3 on four; the audit fails over two.
 
+The faces come from the owner's approved set (assets/approved-fonts.json, a
+review of 151, 2026-09-01) and the showcase faces, all self-hosted, in the pairs
+by voice in FONT_PAIRS (app.js): a display face for the claim, the numerals and
+the number; a support face for the badge and the steps. Every weight a family
+ships is loaded before a card is painted with it (2026-09-29: a 700 headline in
+a static family painted in the fallback first).
+
 ## 71. Small type on a plate is crisp
 
 Added 2026-09-27: "it looks a bit blurry for the subtext in each bubble."
@@ -1723,6 +1730,12 @@ magic to make the phone flipped the correct way around instead of mirrored?"
   entry. Model details that give a fake away: the camera module and plateau,
   lens count and layout, the Action button and Camera Control, Dynamic Island
   or notch, the rail's material and colour.
+
+A visitor may swap the phone (2026-09-29, the Easy Mode picker): only factory
+photos from the shop's own catalog are offered, the popular high-value models
+first; the new photo takes the old one's box and is re-seated by its ink (its
+foot where the old foot stood), and a phone beside the steps is one row with
+them in every format, however narrow the photo.
 
 ## 74. One accent carries the card; the badge wears the CTA's colour
 
