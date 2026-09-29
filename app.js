@@ -12087,6 +12087,14 @@ const PG_EMOJI_CAT = { phones: ['📱', '📲'], gold: ['👑', '💍', '💰'],
   sports: ['🏆', '⚾'], pokemon: ['⚡', '🔥'], strips: ['📦', '✅'] };
 const PG_EMOJI_GENERAL = ['💵', '💸', '💰', '🤑', '🔥', '💯'];
 let PG_EMOJI_CTX = null;
+/* a line that is nothing but pictorial emoji (not a tick, a star, a bullet or
+   a divider arrow, which are typographic and belong to the type) */
+function pgIsEmojiText(txt){
+  const t = String(txt || '').replace(/[\s\uFE0F\u200D]/g, '');
+  if (!t) return false;
+  const typo = /^[✓✔✗✘★☆✦✧◆◇▶►◀◄•·→←↑↓✱✳❖]+$/u;
+  return !typo.test(t) && [...t].every(ch => /\p{Extended_Pictographic}|[\u{1F3FB}-\u{1F3FF}]/u.test(ch)) && /\p{Extended_Pictographic}/u.test(t);
+}
 function pgHash(s){ let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 /* the lines of a text object as boxes, so the room beside a short line of a
    centred headline is room (the object's own box spans its widest line) */
@@ -12122,8 +12130,12 @@ function pgEmojiPass(sc, W, H){
   pgEmojiStrip(sc); objs = sc.getObjects();
   pgEmojiHook(sc);
   const why = w => { sc.pgEmojiWhy = w; };
-  if (!PG_IOS_EMOJI) return why('not an Apple device');
+  /* emoji typed into a design (28 library cards carry one as a deco line)
+     follow the same rule: shown only where they are iOS style */
+  const authored = objs.filter(o => o && o.pgRole === 'deco' && !o.pgEmoji && typeof o.text === 'string' && pgIsEmojiText(o.text));
+  if (!PG_IOS_EMOJI){ authored.forEach(o => o.set({ visible: false })); return why('not an Apple device'); }
   if (sc.pgEmojiManual) return why('the visitor placed their own');
+  if (authored.some(o => o.visible !== false)) return why('the design has its own emoji');
   const ctx = PG_EMOJI_CTX || ((sc instanceof fabric.Canvas) && typeof ez === 'object' && ez ? { mode: ez.emoji || 'auto', seed: ez.emojiSeed || 0 } : {});
   if (ctx.mode === 'off') return why('off');
   const tplId = String((objs.find(o => o && o.pgTplId) || {}).pgTplId || '').replace(/^(sc|hx)-/, '').replace(/__candidate$/, '');

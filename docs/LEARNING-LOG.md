@@ -714,6 +714,12 @@ Learned:
     that had been offered all along.
   - A status dot under the first letters of a chip reads as a typo; a small
     mark on words moves in front of them.
+  - 28 library cards had emoji typed into the design, drawn in Google's style
+    on the server's thumbnails: the iOS-only rule covers them too.
+  - Re-rendering every thumbnail shows every one changed: the grain layer is
+    random per render. Only thumbnails that changed materially (over 400
+    pixels by more than 24 levels) are worth committing; 567 of the 570 that
+    did were retired cards nobody sees.
 
 Changed:
   - The Fluent set and its thumbnails reverted; ASSET_REV 20260929b.

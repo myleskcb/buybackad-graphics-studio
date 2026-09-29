@@ -1736,6 +1736,9 @@ an iPhone, an iPad or a Mac is Apple's. So (`pgEmojiPass`, app.js):
   (by the card's id, so a card always shows the same one), and a card gets
   one only where there is room. Easy Mode's Emoji row (Apple devices only):
   Auto, Shuffle (always one where there is room), None.
+- **Emoji typed into a design follow the same rule.** 28 library cards carry
+  one as a deco line (a ⚡ between headline lines, a 🏁 beside "WE BUY"):
+  it shows only on Apple devices, and such a card gets no extra one.
 - **Beside the words, never on them**: beside the largest headline line,
   the topic read off the headline (never the website or the number), or a
   hand pointing AT the number (rule 29). Never on copy, a plate, a product
@@ -1769,4 +1772,7 @@ and nothing asked whether a shape was drawn over copy.
 The new checks found seven broken classics already in the Easy strip (a CTA
 under the number's pill on the review layouts, the item list under the
 number's plate on the trust-seal layouts, a line inked the colour of its
-plate); the resolver fixed the first two kinds, the gate holds back the rest.
+plate); the resolver fixed the first two kinds, the gate holds back the
+last (classics: 226 of 243 pass, 17 held back). One library card whose tick
+circles the layout had left a row out of step with its lines
+(checklistHero-du08-20, the only one of 30 tick lists) was retired: 398 live.
