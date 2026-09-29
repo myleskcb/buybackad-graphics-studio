@@ -34,6 +34,8 @@ export async function openStudio(query = ''){
   await offline(page);
   await page.goto(BASE + '?look=graphite-orchid' + query, { waitUntil:'networkidle2', timeout:120000 });
   await page.waitForFunction(() => typeof buildLayer === 'function' && typeof renderThumb === 'function' && typeof SHOWCASE !== 'undefined', { timeout:60000 });
+  /* the emoji sheet (rule 67) before anything is painted, or the first cards come out without their accents */
+  await page.evaluate(() => typeof pgEmojiLoad === 'function' ? pgEmojiLoad().then(() => true) : true);
   await page.evaluate(() => {
     window.__sc = {
       /* record -> template, every face, cutout and backdrop loaded */

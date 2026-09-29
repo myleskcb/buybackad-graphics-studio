@@ -695,3 +695,41 @@ Rejected:
   - Shading by the copy's boxes rather than by bands: a patchwork of
     rectangles reads as plates that are not there; a horizontal band reads
     as light falling on the picture.
+
+## 2026-09-29 — Emoji beside the words
+
+Owner: "use emojis as attention grabbing assets in extra spaces (not
+overlapping.. and not all need it), relevant emojis or general purpose emojis
+like cash or arrows."
+
+Learned:
+  - The earlier removal was about system-font emoji: a different drawing per
+    device and a blank box in some exports. One art set as pictures (Fluent
+    3D, MIT, 48 in one 195 KB sheet) is the same everywhere.
+  - Every card's website is iphones.LA, so reading the topic off all the
+    words named every card a phone card. The headline decides; the website
+    and the number never do.
+  - An emoji in the nearest empty square floats: it reads as clutter away
+    from the words and covers the photograph. Beside a line, centred on its
+    caps, it reads as part of the message.
+  - Two emoji flanking one line look busy; one per row.
+  - Number plates are wide, so a hand beside them rarely fits; above either
+    end of the plate, pointing down, usually does.
+  - A Pro card opened signed-out lands on the plans page and the free
+    default; a test of a library card in Easy Mode has to use a free card.
+  - Ranking lines by their object's font size put the emoji beside a small
+    "WE BUY" in a two-line headline; each line ranks by its own height.
+  - A wall of ghosted products at 16% opacity counted as occupied and pushed
+    the emoji off the big product word; a picture under 0.3 is texture, as
+    the gate already treated it.
+
+Changed:
+  - pgEmojiPass after alignPass (wrapped); pgEmojiCheck in pgCheck
+    (wrapped), explained in the gate's words; Easy Mode's Emoji row (Auto,
+    Shuffle, None); the editor's picker shows the sheet and addEmoji places
+    pictures; the harness waits for the sheet; 399 thumbnails re-rendered.
+  - DESIGN-LAW rule 67, a pointer on rule 29; AGENT-BRIEF; OPEN-ITEMS §A 1.
+
+Rejected:
+  - System-font emoji (see above); an Apple emoji set (not licensed for
+    this); emoji on every card (the owner: "not all need it").
