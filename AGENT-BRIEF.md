@@ -218,13 +218,6 @@ produced." DESIGN-LAW rule 66. In practice:
   order. It shades a failing ground (neutral, in the direction the lines
   need) and otherwise names the problem in a modal. Do not add an export
   path that bypasses it.
-- **Emoji accents** (rule 67, 2026-09-29): `pgEmojiPass` runs after
-  alignPass on every render and places 0 to 2 emoji from
-  assets/emoji/fluent-3d.webp beside the copy; the gate fails one on copy.
-  A script that paints must wait for `pgEmojiLoad()` (openStudio does), or
-  it paints cards without their accents. After a change to the pass,
-  re-render every library thumbnail (`rethumb_showcase.mjs`) and bump
-  ASSET_REV. Never add a system-font emoji as artwork.
 - **The shade is bands** (rule 66, 2026-09-28): `scrimMode: 'bands:a-b,c-d'`
   shades only the bands of the height that hold copy on the photograph.
   `scrimRect` draws it (`scrimBands` parses it); `naturalGround` solves it

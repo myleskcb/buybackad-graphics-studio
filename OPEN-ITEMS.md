@@ -26,9 +26,6 @@ hash identical (`226169392f04c437d94c49f9844cf561`).
    emojis sometimes can look good", "use icons emojis everything that could
    catch your eye"). Pictorial emoji were *removed* earlier as cheesy; the ask
    is to bring them back as an intentional oversized treatment, not filler.
-   **Done in part 2026-09-29** (DESIGN-LAW rule 67): emoji accents from one
-   3D art set, beside the words, on some cards, with an Easy Mode control.
-   Still open: a layout built around one oversized emoji as the hero.
 2. **Colourable / editable vectors.** "Maybe the vectors can have colors applied
    to them, make it as creative as possible with as much free rein to edit as a
    customer would like." The 20-mark icon set exists and renders, but `path`
