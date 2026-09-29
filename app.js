@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20260929a';
+const ASSET_REV = '20260929u';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -15417,10 +15417,17 @@ function pgCheck(sc, opts){
   const M = PG_T.margin * Math.min(W, H);
   read.forEach(x => { const over = Math.max(M - x.b.x, M - x.b.y, x.b.x + x.b.w - (W - M), x.b.y + x.b.h - (H - M));
     if (over > 2 * Math.min(W, H) / TPL_W) (over > 0.02 * Math.min(W, H) ? F : Wn)('margin', x, over * k1080, 0); });
-  // copy touching copy (rule 58): overlap as a share of the smaller box
+  /* copy touching copy (rule 58): overlap as a share of the smaller, measured
+     by the letters (rule 76: a box carries the face's ascent and descent room,
+     so a badge hung on the claim's cap line "touched" it by its box alone) */
+  const letters = x => { if (x.inkBox) return x.inkBox; let r = null;
+    try { if (typeof textInkRect === 'function' && !curved(x.o)) r = textInkRect(x.o); } catch (e){}
+    return (x.inkBox = r ? { x: r.left, y: r.top, w: r.width, h: r.height } : x.b); };
   for (let i = 0; i < words.length; i++) for (let j = i + 1; j < words.length; j++){
     const a = words[i], c = words[j]; if (/marquee|ticker/i.test(a.name + c.name)) continue;
-    const ov = inter(a.b, c.b) / Math.max(1, Math.min(a.b.w * a.b.h, c.b.w * c.b.h));
+    if (inter(a.b, c.b) <= 0) continue;
+    const A = letters(a), C = letters(c);
+    const ov = inter(A, C) / Math.max(1, Math.min(A.w * A.h, C.w * C.h));
     if (ov > PG_T.touch) (ov > 0.5 ? F : Wn)('touch', a, ov, PG_T.touch);
   }
   // the product cut off by the edge (rule 57)

@@ -725,3 +725,85 @@ Still open, from the audit (numbers in docs/COHESION-AUDIT.md):
    the Easy photo swatches' base scrim (0.36 to 0.42 graded) before the gate
    shades further; `naturalize_showcase.mjs` still solves 'normal' only (it
    runs before darken, which re-solves).
+
+## S. 2026-09-29 — three lines of work made one
+
+The owner: "ok work around push and commit" (the live site could not be seen
+from the cloud session, and the Netlify connector sees only the
+finished-copy project). What the connector showed: production on
+`buybackad-finished-copy` was `claude/fervent-pascal-w6mthe` (26037de, the
+gate, the bands shade, emoji accents), deployed by another session at 01:37;
+the trunk (`claude/vibrant-lovelace-rze4rx`) had nine commits past this
+branch's last merge (the tagline looks v2 and their panel, the number fill,
+patterns, the phone picker, the owner's fonts); and this branch held the
+one-engine work neither had. A deploy of any one would have taken the other
+two off the site.
+
+Done (DESIGN-LAW 83 amended; the log entry of the same date has the numbers):
+- Merged the trunk, then the live branch, into this one (merge commits, no
+  rebase). One tagline engine: the trunk's looks and panel with this
+  branch's every-template machinery; every look solved on the card; the
+  gate, the shade and the emoji on every card with the looks after them.
+- Rule numbers: the trunk keeps 64-78; this branch's are 79-84; the live
+  branch's 64-67 are 85-88. OPEN-ITEMS: this branch's N/O are P/Q, the live
+  branch's L is R.
+- AGENT-BRIEF landmine 7: a production deploy must contain what is live.
+
+Found on the way, and done:
+- The live branch's classics gate measured each classic before its faces and
+  photograph had loaded, and passed cards that do not read: measured whole,
+  24 classics read under 3:1 on the live branch itself (we_buy's "iPHONES"
+  2.54:1). verify_showcase --classics prepares each card now, and both tables
+  hold the 24 back (classics-gate.json and template-holds.js agree).
+- The trunk's phone picker offered ten phones outside the owner's approval
+  list; it asks the list now.
+- The live branch's emoji accents changed the owner-approved 9:16 render; a
+  card in assets/approved/ gets no accent unless the visitor shuffles.
+- The trunk's plate air slid a line past the 6% guides on a plate running
+  off the card; its room now stops at the guides.
+- The content and school audits hold a card that fails the gate, and honour
+  the owner's approved copy (rule 78 over 80) and letter-audited records
+  (rule 76).
+
+Open:
+0. **Bring the 24 classics back.** Re-solve their shade with the corrected
+   measure (naturalize_classics / darken_grounds --lighten, both under the
+   gate, which now loads each card whole), then verify --classics --write and
+   audit_templates --write: a card that passes leaves both tables by itself.
+1. **Other sessions keep building on their own branches.** The colour-theme
+   session (`claude/eloquent-euler-7jvzfd`, "Colour themes repaint the whole
+   card", branched from the live branch at 26037de, three commits by 02:33)
+   is not in this merge: it was mid-work. Its next production deploy must
+   merge this branch first, or it takes this work off the site; merge it here
+   when it is done. `claude/quirky-ritchie-f0zuc8` (the design console) is cut
+   from the August `main`: port its console, do not merge it.
+2. **The number fill ignores deco.** `numberFill` grows the number to fill
+   its plate and keeps it off other copy and products, not off a drawn mark:
+   on checklistHero-du07-15 the number now reaches the sparkle on the plate's
+   left edge. Teach it the deco marks (paths) on its plate.
+3. **The synthesised badges ignore deco too** (on the live branch before the
+   merge): Easy Mode writes the selling points at a fixed spot (top right),
+   where some cards draw a sparkle (checklistHero-du07-15 shows "CA$H").
+4. **Badge words and rule 80.** The owner's own badge list (BADGE_WORDS:
+   #1 BUYER, TOP BUYER, BEST BUYER) is a rank, which rule 80 takes out of
+   headlines; the owner-approved Steps Flow cards say TOP iPHONE BUYER. The
+   owner decides which stands.
+5. **Two tables hold classics back**: template-holds.js (this branch's
+   template audit: 143 of 404, the whole design school) and
+   assets/classics-gate.json (the live branch's gate, which now measures every
+   classic: 57 fail, all of them among the 143). One table and one measure is
+   the unification left to do.
+6. **Looks choose a variant on the card**: glow, the red and blue print, 3-D
+   block and the fills (street, multicolour, pattern, a gradient's side) are
+   measured by the critic and can end tamer than drawn on a hard ground (a
+   glow as a deep rim, a pattern pushed deep). If the owner would rather see
+   the look as drawn and a note, the critic's note is the place for it (the
+   variants are in taglineStyle).
+7. **Not verifiable from a cloud session**: the live site. The environment's
+   network policy denies api.netlify.com, app.netlify.com and *.netlify.app,
+   so neither a look nor a deploy reaches Netlify from here.
+8. **Three offer cards still cover their photograph's subject** (rule 84;
+   the subject audit, 438 templates): of_laptop_row_midnight (12.6% of the
+   subject), of_strips_split_bone (25.1%) and of_camera_row_sand (30.1%).
+   The product could not move off it inside the guides. Neither table holds
+   them; hold them or give them a photograph whose subject leaves room.

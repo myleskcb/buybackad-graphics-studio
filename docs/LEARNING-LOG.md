@@ -1271,3 +1271,89 @@ Rejected:
 
 ---
 
+## 2026-09-29 — Three lines made one: the trunk, the live branch and the one engine
+
+The owner: "ok work around pusha aqnd commit" (after the live site could not
+be seen from the cloud session, and the Netlify connector saw only the
+finished-copy project).
+
+Found:
+  - What was live was none of the three lines on its own. The connector showed
+    production on buybackad-finished-copy as claude/fervent-pascal-w6mthe
+    (26037de: the gate, the bands shade, emoji accents), deployed by another
+    session at 01:37. The trunk had nine commits past this branch's last merge,
+    among them the tagline looks v2 and their panel: this branch's six-style
+    row was a first draft of a feature the trunk had since rebuilt. Deploying
+    any one line would have taken the other two off the site.
+  - The trunk's looks v2 kept v1's lightness bug (a white line at 0.88 on a
+    mid-grey photograph, a red line on a dark panel made darker), and its
+    newer looks failed the critic on the 82 audited templates: a premade
+    gradient on 5, glow on 15, the red and blue print on 3.
+  - The live branch's gate read a glow's halo, the red and blue offsets and a
+    3-D depth as words touching their line: every effect look would have
+    failed it. Colour blocks took an emoji accent for a product and gave way on
+    every card that had one. The emoji are placed in alignPass, before a look
+    could move a line.
+  - The trunk's phone picker offered ten phones (iPhone 11, 12, XR, XS) that
+    are not in the owner's approval list: the list was enforced where cards are
+    built and audited, and the picker chooses a picture at run time.
+  - photo_subjects.py was not reproducible (k-means from random centres): a
+    run with no photograph changed rewrote 65 maps.
+  - Rule numbers collided three ways (the trunk's 64-78, this branch's 68-73,
+    the live branch's 64-67), OPEN-ITEMS letters two ways.
+
+Changed:
+  - Merged the trunk, then the live branch (merge commits, nobody's history
+    rewritten). The card records both sides touched (281) merged field by field:
+    words and pictures here, colours, shade and grounds there, no field changed
+    by both; the index and number-fix.json per entry; the two owner-approved
+    Steps Flow cards kept as approved; the trunk's faces (a superset).
+  - One tagline engine: the trunk's looks, gradients, patterns, effects, panel
+    and card looks, through one entry point (taglineApply) on every surface,
+    with this branch's reset records, ground-aware solving, fitted blocks, the
+    editor row (now all twelve looks) and a look's layers that follow their
+    line in the editor and survive undo. DESIGN-LAW 83, amended.
+  - Every look solved on the card: a preset moves its stops together where
+    they do not read; glow and the red and blue print choose their strength by
+    the critic at half size, first to read at 3.5:1.
+  - The gate measures a look's layers with their line; blocks ignore emoji; the
+    emoji are placed again after the look; the editor finishes a card as Easy
+    Mode does (number fill, claim shade) before the look.
+  - The phone picker asks the owner's approval list and the flags (61 phones in
+    its pool, 51 after), and a saved pick of a refused phone is not drawn.
+  - photo_subjects.py seeds its k-means; 315 photographs mapped.
+  - Rules renumbered (this branch's 79-84, the live branch's 85-88) with every
+    reference in the lines each side wrote; AGENT-BRIEF landmine 7.
+
+Measured (the merged build, before the push):
+  - Tagline looks: all twelve on the 81 audited templates, the picture and
+    the video's frames, 81/81 each by the critic (blocks: 6 gave way to the
+    outline where a block would have covered a product).
+  - The owner-approved Steps Flow cards: stepsFlow-nn05-30 212/212 and
+    stepsFlow-nn01-30 210/210 (audit_card), and the approved 9:16 matches the
+    owner's render (0.00% of pixels moved).
+  - Showcase: 971 records measured by the gate; 418 live and none of them
+    failing it. The 125 that fail are held back (a headline too small as a
+    thumbnail 93, legibility 18, the number off its plate 19); content audit
+    CLEAN 422, retired 284. Every thumbnail re-rendered (ASSET_REV 20260929u).
+  - Classics: all 404 measured whole (?noholds=1), 347 pass; 57 held back,
+    in classics-gate.json and template-holds.js alike (the live branch held
+    16, by a measure taken before the faces and photographs loaded).
+  - Template audit: offer 161/161, street 22/40, designer 70/153, hand 8/50.
+    Subject audit: of 438 templates with a product on a photograph, 3 offer
+    cards still cover the photograph's subject (of_laptop_row_midnight,
+    of_strips_split_bone, of_camera_row_sand: OPEN-ITEMS §S).
+  - Static: CSS_FALLBACK in sync, CSP hashes unchanged, every script and JSON
+    file parses, every record's pictures resolve (971 of 971, 0 missing).
+
+Rejected:
+  - Deploying this branch alone, or the trunk and this branch without the live
+    branch: either would have rolled the site back.
+  - Picking one of the two tagline engines: the trunk's had the looks and the
+    owner's panel, this branch's had what made six styles hold on every
+    family; each alone lost something.
+  - A dark glow round a white core on a mid ground (it read worse, 2.0 to
+    2.9:1), and guessing an effect's parameters from the mean ground: chosen
+    by measuring instead.
+  - Merging the colour-theme session (claude/eloquent-euler-7jvzfd): minutes
+    old and mid-work. Re-running curate_showcase: it re-picks the owner's cut.

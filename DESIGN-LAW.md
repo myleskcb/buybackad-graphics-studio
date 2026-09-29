@@ -2128,12 +2128,16 @@ looks, the gate session's shade and emoji, this rule's engine):
 - **Every look is solved on the card, not only the first six.** A premade
   or picked gradient keeps its colours where they read on the line's ground
   and moves them together, lighter or deeper, where they do not (a sunset on
-  a paper panel read 2.8:1). An effect's strength is chosen by the critic on
-  the card: glow tries the neon as drawn, then tighter, deeper, the colour
-  itself on paper, and at the last a thin deep rim, and keeps the first that
-  reads at 3.3:1 (as drawn, a wide soft glow read 1.3 to 2.9:1 on 15 of 82
-  templates); the red and blue print sets its letter white or ink the same
-  way.
+  a paper panel read 2.8:1). What cannot be solved from the mean ground is
+  chosen by the critic on the card, at half size: a fill stays as solved
+  where it reads and goes to the ground's other side where it does not
+  (street bright in a rim or deep without, multicolour and pattern at the
+  other lightness: on a cream ticket they read 1.4 to 2.5:1); glow tries the
+  neon as drawn, then tighter, deeper, the colour itself on paper, a deep
+  rim and the outline's rim, and keeps the first that reads at 3.5:1 (as
+  drawn, a wide soft glow read 1.3 to 2.9:1 on 15 of 82 templates); 3-D
+  block tries deeper sides and a firmer edge; the red and blue print sets
+  its letter white or ink.
 - **A look's own layers belong to their line.** A glow, the red and blue
   offsets and the depth are marked (`pgKin`, `pgKinId`), so they are reset
   with the look, measured with their line by the critic and by the gate
