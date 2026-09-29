@@ -169,6 +169,32 @@ export const PALETTES = {
   "spray_night": P("#1b1b1f", "#3a3a44", "#ffffff", "#39ff14", "#ff2bd6", "#111111"),
   "marquee_red": P("#3b0a0a", "#7a1414", "#ffffff", "#ffd166", "#c1121f", "#ffffff"),
   "marquee_night": P("#0f0f14", "#2b2b36", "#ffffff", "#ffd166", "#c1121f", "#ffffff"),
+  // jewel tones, soft pastels with dark ink, one-hue metals (2026-09-26). Every
+  // one keeps its headline ink 4.5:1 or more off the ground it sits on.
+  "emerald": P("#0b5d4b", "#1f8f74", "#ffffff", "#ffd166", "#ffd166", "#0b3d31"),
+  "sapphire": P("#0f2c6b", "#2753b8", "#ffffff", "#7fd3ff", "#7fd3ff", "#0a1f4d"),
+  "amethyst": P("#3d1f6b", "#6b44b3", "#ffffff", "#ffd6f2", "#ffd6f2", "#2a1450"),
+  "ruby": P("#7a0f24", "#b8243f", "#ffffff", "#ffe08a", "#ffe08a", "#4a0816"),
+  "onyx_gold": P("#24211c", "#3d372d", "#ffffff", "#e9c46a", "#e9c46a", "#1a1712"),
+  "pearl": P("#efeae4", "#ffffff", "#1b1b1f", "#9a7440", "#1b1b1f", "#ffffff"),
+  "powder": P("#cfe0f5", "#f1f6fd", "#10243f", "#2f6fde", "#10243f", "#ffffff"),
+  "pistachio": P("#cfe3b5", "#eef6e2", "#1d2e12", "#3f7d20", "#1d2e12", "#eef6e2"),
+  "apricot": P("#f6c7a4", "#fde8d8", "#3a1a08", "#c2410c", "#3a1a08", "#fde8d8"),
+  "lilac": P("#d8cdf0", "#f3eefc", "#251447", "#6d28d9", "#251447", "#f3eefc"),
+  "rose_quartz": P("#f2c9cf", "#fdecef", "#3d0e1a", "#be123c", "#3d0e1a", "#fdecef"),
+  "seafoam": P("#bfe8dd", "#e9f8f4", "#0b3b31", "#0f766e", "#0b3b31", "#e9f8f4"),
+  "titanium": P("#4a4d52", "#7a7e85", "#ffffff", "#f5f5f7", "#f5f5f7", "#1d1d1f"),
+  "rose_gold": P("#8e5253", "#b67a74", "#ffffff", "#fff1e6", "#3a1d1d", "#fff1e6"),
+  "bronze": P("#5e3b1e", "#a8743f", "#ffffff", "#ffe0b0", "#ffe0b0", "#3d2512"),
+  "platinum": P("#d9dbe0", "#f4f5f7", "#16181d", "#4b5563", "#16181d", "#ffffff"),
+  "midnight_teal": P("#062a30", "#0e5561", "#ffffff", "#5eead4", "#5eead4", "#062a30"),
+  "ink_blue": P("#0b1a33", "#1f3a66", "#ffffff", "#f9c74f", "#f9c74f", "#0b1a33"),
+  "oxblood": P("#3b0d11", "#6e1a22", "#ffffff", "#f4d6b0", "#f4d6b0", "#3b0d11"),
+  "pine": P("#12302a", "#2a5a4c", "#ffffff", "#e9f5a1", "#e9f5a1", "#12302a"),
+  "signal_red": P("#c81e33", "#ec4a5e", "#ffffff", "#fff3b0", "#111111", "#ffffff"),
+  "klein": P("#1f3fbf", "#4c6ef5", "#ffffff", "#fff275", "#fff275", "#10206b"),
+  "cream_black": P("#f4efe6", "#fffaf2", "#111111", "#d0342c", "#111111", "#f4efe6"),
+  "storm": P("#2e3440", "#4c566a", "#eceff4", "#88c0d0", "#88c0d0", "#2e3440"),
 };
 
 // a phone's finish -> the palette painted in it (palette "match")
@@ -327,15 +353,17 @@ export const OPTIONS = {
   tracking: [-0.02, 0, 0.02, 0.05, 0.1],
   skew: [0, 0, 0, 8, 12, -8],
   text_fx: ["shadow", "hard_shadow", "outline", "sticker", "extrude", "box", "glow", "flat",
-    "neon", "gradient", "chrome", "gold", "long_shadow", "highlighter", "double_outline", "rgb_split", "cutout"],
+    "neon", "gradient", "chrome", "gold", "long_shadow", "highlighter", "double_outline", "rgb_split", "cutout",
+    "block3d", "glass", "foil"],
   color_mode: ["mono", "accent_word", "split_lines", "accent_line"],
   text_in: ["slide", "skew_slide", "slide_letters", "wipe", "slam", "drop_letters",
-    "typewriter", "word_pop", "blur_in", "rise_mask", "flip_in", "stomp", "scramble", "spin_letters"],
+    "typewriter", "word_pop", "blur_in", "rise_mask", "flip_in", "stomp", "scramble", "spin_letters",
+    "mask_words", "zoom_blur", "elastic"],
   text_pos: ["top-left", "top-center", "middle-left", "bottom-left", "center", "top-right"],
   number_style: ["plain", "pill", "box", "outline", "underline", "sticker", "ticket", "tag", "neon", "split", "stacked", "chrome", "gold"],
   number_format: ["raw", "dashed", "dotted", "parens", "spaced"],
   number_pos: ["bottom-center", "bottom-left", "bottom-right", "under-headline"],
-  number_in: ["pop", "slide_up", "type", "wipe", "flip", "roll", "slide_left", "drop"],
+  number_in: ["pop", "slide_up", "type", "wipe", "flip", "roll", "slide_left", "drop", "slot", "glow_on"],
   arrangement: ["row", "fan", "pile", "diagonal", "arc", "grid", "hero", "cascade",
     "tower", "spiral", "vee", "ring", "staircase", "crossed", "giants", "pairs"],
   entry: ["fly_spin", "drop", "conveyor", "zoom", "orbit", "deal", "pop", "rain", "boomerang", "split", "spiral_in", "whip"],
@@ -343,7 +371,8 @@ export const OPTIONS = {
   front_glimpse: ["spin", "hold"],
   background: ["radial", "flat", "linear", "split", "rays", "dots", "stripes", "spotlight", "bigword", "grid",
     "mesh", "rings", "checker", "waves", "bokeh", "confetti", "duotone", "halftone", "beams", "frame", "sunburst", "noise",
-    "sunset_sky", "sky_day", "stucco", "concrete", "brick_night", "candy_flake", "cork", "fluoro", "asphalt", "beach", "mural_wall", "velvet"],
+    "sunset_sky", "sky_day", "stucco", "concrete", "brick_night", "candy_flake", "cork", "fluoro", "asphalt", "beach", "mural_wall", "velvet",
+    "tonal", "aurora", "drift"],
   palette: [...Object.keys(PALETTES), "match", "match", "match"],
   camera: ["push_in", "push_out", "still", "drift", "punch", "tilt", "whip_in", "handheld"],
   shake: [0, 1, 2],
@@ -352,7 +381,16 @@ export const OPTIONS = {
   number_sfx: ["pop", "register", "ticks", "coin", "chime", "whoosh_ding"],
   glare: [0.5, 1, 1, 1.5],
   hook: ["hook_line", "hook_line", "word_beat", "word_beat", "crash_zoom", "flash_cut", "punch_in", "cold_open"],
-  overlay: ["none", "none", "confetti", "light_leak", "vignette_pulse", "lens_flare", "glitch", "grain_live", "sparkle_field"],
+  overlay: ["none", "none", "confetti", "light_leak", "vignette_pulse", "lens_flare", "glitch", "grain_live", "sparkle_field",
+    "bokeh_drift", "light_rays", "dust", "shimmer", "bloom"],
+  // the whole frame's colour, as a last pass
+  grade: ["none", "clean", "warm", "cool", "punchy", "matte", "film"],
+  // what gives the phones weight on the ground
+  depth: ["none", "soft_floor", "reflection", "dof"],
+  // how the opening words hand over to the scene
+  transition: ["fade", "flash", "zoom_through", "whip", "iris", "slice", "block"],
+  // the last second
+  outro: ["none", "settle", "end_card"],
 };
 
 // The BACK is what makes a model recognisable: every drawn cut ends on the backs,
@@ -366,6 +404,11 @@ export const WEIGHTS = {
   end_face: { back: 1, front: 0, mixed: 0 },
   front_glimpse: { spin: 3, hold: 1 },
   text_in: { slide: 3, skew_slide: 3, slide_letters: 3, wipe: 3 },
+  overlay: { none: 4 },
+  grade: { none: 2, clean: 3 },
+  depth: { none: 3, soft_floor: 3, reflection: 2 },
+  transition: { fade: 2 },
+  outro: { none: 3, settle: 2, end_card: 2 },
 };
 
 export const FLAGS = { flash: 0.6, shine: 0.5, rgb_hit: 0.3, speed_lines: 0.35, sparkles: 0.35 };
@@ -382,6 +425,7 @@ export const DEFAULT_STYLE = {
   sound_kit: "house", bpm: 118, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
   overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",
+  grade: "none", depth: "none", transition: "fade", outro: "none",
 };
 
 // The first ad's look, as a starting point.
@@ -401,15 +445,16 @@ export const LABELS = {
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
   sound_kit: "Music", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
   vibe: "LA vibe", board: "Sign board", urgency: "Urgency",
+  grade: "Colour grade", depth: "Phone depth", transition: "Hook transition", outro: "Ending",
 };
 
 export const GROUPS = [
   ["LA vibe and urgency", ["vibe", "board", "urgency"]],
   ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
-  ["Opening", ["hook", "text_in", "text_pos"]],
+  ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
-  ["Phones", ["arrangement", "entry", "end_face", "front_glimpse", "glare"]],
-  ["Scene", ["background", "palette", "camera", "shake", "overlay"]],
+  ["Phones", ["arrangement", "entry", "end_face", "front_glimpse", "glare", "depth"]],
+  ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
   ["Sound", ["sound_kit", "hit", "number_sfx"]],
 ];
 

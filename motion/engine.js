@@ -49,6 +49,13 @@ export const lum = h => { const [r, g, b] = typeof h === "string" ? hexRgb(h) : 
 export const rgba = (h, a = 1) => { const [r, g, b] = hexRgb(h); return `rgba(${r},${g},${b},${a})`; };
 export const mix = (h1, h2, k) => { const a = hexRgb(h1), b = hexRgb(h2); return "#" + a.map((v, i) => Math.round(v + (b[i] - v) * k).toString(16).padStart(2, "0")).join(""); };
 const shade = (h, k) => mix(h, k < 0 ? "#000000" : "#ffffff", Math.abs(k));
+/** WCAG contrast between two colours (1 to 21). */
+export const contrastOf = (a, b) => {
+  const L = h => hexRgb(h).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0);
+  const x = L(a), y = L(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05);
+};
+/** Of near-black and white, whichever stands further off c. */
+const inkOn = c => contrastOf(c, "#111111") >= contrastOf(c, "#ffffff") ? "#111111" : "#ffffff";
 
 export function canvas(w, h) {
   const c = document.createElement("canvas");
@@ -219,17 +226,19 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
     st.skew = 0;
   } else {
     // dark type crosses black glass somewhere in almost every layout (a spray halo carries it instead)
-    const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline"];
+    const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline", "glass"];
     if (darkInk && !halo && !onPlate.includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = ["sticker", "box", "highlighter", "double_outline"][st.seed % 4];
     if (darkInk && st.text_fx === "neon") st.text_fx = "sticker";
     if (!darkInk && lum(p.accent) < 0.42 && st.color_mode !== "mono" && st.text_fx !== "box" && !locked.has("color_mode")) st.color_mode = "mono";
     // an outline or a neon tube only reads on a darker ground
     if (lum(p.ground) > .5 && ["outline", "neon"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = st.text_fx === "outline" ? "double_outline" : "shadow";
+    // a hairline outline only holds on a truly dark ground; elsewhere it gets the tight shadow
+    if (lum(p.ground) > .25 && st.text_fx === "outline" && !locked.has("text_fx")) st.text_fx = "shadow";
   }
   if (lum(p.ground) > .4 && st.number_style === "neon" && !locked.has("number_style")) st.number_style = "pill";
   // one "quote" is enough: a tag and a label must not say the same thing twice
   if (st.tag && st.number_label && /QUOTE/i.test(st.tag) && /QUOTE/i.test(st.number_label) && !locked.has("number_label")) st.number_label = "";
-  if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
+  if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow", "block3d"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
   if (st.case === "title" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.05);
   if ((FONTS[st.font] || [])[3] === "wide" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.01);
   if (st.decor.includes("sparkle")) st.sparkles = true;
@@ -328,19 +337,21 @@ export class Phone {
   }
 }
 
-function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint) {
+function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = false) {
   const c = Math.cos(flip), ac = Math.abs(c), front = c >= 0;
   const w = p.w * scale, h = p.h * scale;
   const zz = clamp(z, 0, 1);
   // shadow: tight when it lies flat, big and soft in the air
   const si = zz < .33 ? 0 : zz < .66 ? 1 : 2, sh = p.shadows[si];
-  ctx.save();
-  ctx.globalAlpha = op * .42 * (1 - .55 * zz);
-  ctx.translate(x + W * (.006 + .03 * zz), y + W * (.010 + .045 * zz));
-  ctx.rotate(-rot * Math.PI / 180);
-  ctx.scale(scale * Math.max(ac, .12), scale);
-  ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
-  ctx.restore();
+  if (!noShadow) {                                  // a reflection casts none
+    ctx.save();
+    ctx.globalAlpha = op * .42 * (1 - .55 * zz);
+    ctx.translate(x + W * (.006 + .03 * zz), y + W * (.010 + .045 * zz));
+    ctx.rotate(-rot * Math.PI / 180);
+    ctx.scale(scale * Math.max(ac, .12), scale);
+    ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
+    ctx.restore();
+  }
 
   ctx.save();
   ctx.globalAlpha = op;
@@ -658,14 +669,14 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .13; ctx.shadowOffsetY = size * .045; fillAll(); break;
     case "hard_shadow": {
       const d = Math.max(2, size * .06); ctx.save(); ctx.translate(d, d);
-      each((ch, cx, cy, c0) => { ctx.fillStyle = Math.abs(lum(c0) - lum(accent)) < .2 ? shade(c0, lum(c0) > .5 ? -.62 : .55) : accent; ctx.fillText(ch, cx, cy); });
+      each((ch, cx, cy, c0) => { ctx.fillStyle = contrastOf(c0, accent) < 2.5 ? shade(c0, lum(c0) > .5 ? -.62 : .55) : accent; ctx.fillText(ch, cx, cy); });
       ctx.restore(); fillAll(); break;
     }
     case "outline":
       ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .08; strokeAll(null, Math.max(2, size * .05)); break;
     case "sticker": {
-      const plate = darkInk ? "#ffffff" : (Math.abs(lum(p.plate) - lum(ink)) < .25 ? "#111111" : p.plate);
-      const plateFor = c0 => Math.abs(lum(c0) - lum(plate)) < .22 ? (lum(c0) > .5 ? "#111111" : "#ffffff") : plate;
+      const plate = darkInk ? "#ffffff" : (contrastOf(p.plate, ink) < 3 ? "#111111" : p.plate);
+      const plateFor = c0 => contrastOf(c0, plate) < 3 ? inkOn(c0) : plate;
       ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = size * .1; ctx.shadowOffsetY = size * .04;
       ctx.lineWidth = size * .24; each((ch, cx, cy, c0) => { ctx.strokeStyle = plateFor(c0); ctx.strokeText(ch, cx, cy); });
       noShadow(); fillAll(); break;
@@ -673,7 +684,7 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
     case "extrude": {
       const depth = Math.max(3, Math.round(size * .08));
       const col = Math.abs(lum(accent) - lum(ink)) < .2 ? shade(ink, darkInk ? .6 : -.65) : accent;
-      const depthFor = c0 => Math.abs(lum(c0) - lum(col)) < .2 ? shade(c0, lum(c0) > .5 ? -.62 : .55) : col;
+      const depthFor = c0 => contrastOf(c0, col) < 2.5 ? shade(c0, lum(c0) > .5 ? -.62 : .55) : col;
       ctx.shadowColor = "rgba(0,0,0,.3)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .03;
       for (let k = depth; k >= 1; k--) {
         ctx.save(); ctx.translate(k, k); each((ch, cx, cy, c0) => { ctx.fillStyle = depthFor(c0); ctx.fillText(ch, cx, cy); }); ctx.restore();
@@ -721,12 +732,13 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       // the marker covers the whole letter: dark type half on the bar and half on a dark scene loses its top
       ctx.beginPath(); ctx.moveTo(pad - size * .1, by - asc * .9); ctx.lineTo(pad + inkW + size * .12, by - asc * .96);
       ctx.lineTo(pad + inkW + size * .08, by + desc * .35); ctx.lineTo(pad - size * .14, by + desc * .45); ctx.closePath(); ctx.fill(); ctx.restore();
-      each((ch, cx, cy, c0) => { ctx.fillStyle = Math.abs(lum(c0) - lum(barCol)) < .3 ? (lum(barCol) > .5 ? "#111111" : "#ffffff") : c0; ctx.fillText(ch, cx, cy); });
+      each((ch, cx, cy, c0) => { ctx.fillStyle = contrastOf(c0, barCol) < 3 ? inkOn(barCol) : c0; ctx.fillText(ch, cx, cy); });
       break;
     }
     case "double_outline": {
       strokeAll(lum(accent) > .35 ? accent : "#ffffff", size * .26);
-      strokeAll(p.ground, size * .14); fillAll(); break;
+      const inner = contrastOf(p.ground, ink) >= 3 ? p.ground : inkOn(ink);
+      strokeAll(inner, size * .14); each((ch, cx, cy, c0) => { ctx.fillStyle = contrastOf(c0, inner) < 3 ? inkOn(inner) : c0; ctx.fillText(ch, cx, cy); }); break;
     }
     case "rgb_split": {
       const d = Math.max(2, size * .035);
@@ -740,6 +752,34 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       rrect(ctx, pad - size * .18, pad + asc * .05, inkW + size * .36, asc * .98 + desc * .4, size * .08);
       ctx.fillStyle = plateCol; ctx.fill();
       ctx.globalCompositeOperation = "destination-out"; fillAll("#000"); ctx.globalCompositeOperation = "source-over"; break;
+    }
+    case "block3d": {
+      // a soft solid block: the depth falls from the ground's own mid shade into its dark, straight down and a touch right
+      const depth = Math.max(3, Math.round(size * .1)), far = shade(p.ground, darkInk ? .7 : -.62), near = shade(p.ground, darkInk ? .45 : -.35);
+      ctx.shadowColor = "rgba(0,0,0,.32)"; ctx.shadowBlur = size * .1; ctx.shadowOffsetY = size * .05;
+      for (let k = depth; k >= 1; k--) {
+        ctx.save(); ctx.translate(k * .35, k); fillAll(mix(near, far, k / depth)); ctx.restore();
+        if (k === depth) noShadow();
+      }
+      fillAll(); break;
+    }
+    case "glass": {
+      // a pane of tinted glass behind the words, lit along its top edge
+      const gx = pad - size * .2, gy = pad + asc * .02, gw = inkW + size * .4, gh = asc * .98 + desc * .38, gr = size * .14;
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,.22)"; ctx.shadowBlur = size * .18; ctx.shadowOffsetY = size * .05;
+      rrect(ctx, gx, gy, gw, gh, gr); ctx.fillStyle = darkInk ? "rgba(255,255,255,.66)" : "rgba(10,12,18,.46)"; ctx.fill(); ctx.restore();
+      const hl = ctx.createLinearGradient(0, gy, 0, gy + gh);
+      hl.addColorStop(0, "rgba(255,255,255,.42)"); hl.addColorStop(.25, "rgba(255,255,255,.06)"); hl.addColorStop(1, "rgba(255,255,255,.02)");
+      rrect(ctx, gx, gy, gw, gh, gr); ctx.strokeStyle = hl; ctx.lineWidth = Math.max(1, size * .014); ctx.stroke();
+      if (!darkInk) { ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = size * .06; ctx.shadowOffsetY = size * .02; }
+      fillAll(); break;
+    }
+    case "foil": {
+      // one hue, lit like pressed metal foil: light, the colour, a dark fold, a bright edge
+      const base = !darkInk && contrastOf(accent, p.ground) >= 4.5 ? accent : ink;
+      const g5 = ctx.createLinearGradient(0, pad, 0, pad + asc);
+      [[0, shade(base, .55)], [.44, base], [.52, shade(base, -.28)], [.6, shade(base, .3)], [1, shade(base, -.08)]].forEach(([o, c2]) => g5.addColorStop(o, c2));
+      ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04; fillAll(g5); break;
     }
     default: fillAll();
   }
@@ -787,7 +827,7 @@ function headlineLines(st, p, size, nLines) {
       if (st.color_mode === "split_lines") col = li % 2 ? p.accent : ink;
       else if (st.color_mode === "accent_line") col = li === lines.length - 1 ? p.accent : ink;
       else if (st.color_mode === "accent_word" && wi === aw && st.text_fx !== "box") col = p.accent;
-      if (st.text_fx === "box" && Math.abs(lum(col) - lum(p.plate)) < .25) col = lum(p.plate) > .5 ? "#111111" : "#ffffff";   // never the colour of its own box
+      if (st.text_fx === "box" && contrastOf(col, p.plate) < 3.5) col = inkOn(p.plate);   // never lost in its own box
       for (let k = 0; k < wd.length; k++) cols.push(col);
       cols.push(col); wi++;
     });
@@ -816,11 +856,11 @@ function numberSprite(st, p, size, cta) {
   let font = st.number_font === "same" ? st.font : st.number_font;
   if (FINE_FACES.has(font) || !FONTS[font]) font = "oswald";
   const style = st.number_style;
-  const fxFor = { plain: ["hard_shadow", "extrude", "glow", "chrome", "gold", "neon", "long_shadow"].includes(st.text_fx) ? st.text_fx : "shadow",
+  const fxFor = { plain: ["hard_shadow", "extrude", "glow", "chrome", "gold", "neon", "long_shadow", "block3d", "foil"].includes(st.text_fx) ? st.text_fx : "shadow",
     sticker: "sticker", outline: "shadow", underline: "shadow", neon: "neon", chrome: "chrome", gold: "gold", split: "shadow", stacked: "flat" };
   const fx = fxFor[style] || "flat";
   const onPlate = ["pill", "box", "ticket", "tag", "stacked"].includes(style);
-  const col = onPlate ? p.plate_ink : p.ink;
+  const col = onPlate ? (contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : inkOn(p.plate)) : p.ink;
   let colors = text.split("").map(() => col);
   if (style === "split") { const cut = text.search(/\d{3}\D*\d/) >= 0 ? text.replace(/\D/g, "").length === 10 ? text.length - 8 : 3 : 3; colors = text.split("").map((_, i) => i < cut ? (lum(p.accent) > .35 ? p.accent : "#ffffff") : col); }
   const sp = inkSprite(text, colors, font, size, st.tracking * .5, fx, p, 0);
@@ -1030,6 +1070,14 @@ function background(st, p, W, H, sc, r) {
       const gr = x.createLinearGradient(0, 0, W, H); gr.addColorStop(0, shade(g, -.15)); gr.addColorStop(1, l); x.fillStyle = gr; x.fillRect(0, 0, W, H);
       const nc = noiseTile(256, st.seed, 34); x.globalAlpha = .5; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; break;
     }
+    // one hue from its shadow to its light, the way a lit studio wall falls off: depth without colour travel
+    case "tonal": case "aurora": case "drift": {
+      const gr = x.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, shade(g, -.28)); gr.addColorStop(.55, g); gr.addColorStop(1, shade(g, -.12)); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      const hz = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * .5);
+      hz.addColorStop(0, rgba(l, .75)); hz.addColorStop(1, rgba(l, 0)); x.fillStyle = hz; x.fillRect(0, 0, W, H);
+      break;                                                     // aurora and drift move on top of this every frame
+    }
     default: x.fillStyle = radial(); x.fillRect(0, 0, W, H);
   }
   sceneryOver(x, st, p, W, H, r);
@@ -1090,6 +1138,15 @@ export class Ad {
     this._typeTimeline();
     this._buildDecor();
     this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1));
+    this.liveGround = ["sunburst", "aurora", "drift"].includes(st.background);
+    this._softFloor();
+    this.dofBlur = 0;
+    if (st.depth === "dof") {
+      // a shallow focus: the ground and any phone standing further back go soft
+      this.dofBlur = Math.max(1, this.W * .004); this.dofSize = Math.max(1, ...this.phones.map(p => p.size));
+      const b = canvas(this.W, this.H), bx = b.getContext("2d");
+      if ("filter" in bx) { bx.filter = `blur(${Math.max(1, this.W * .006)}px)`; bx.drawImage(this.bg, 0, 0); bx.filter = "none"; bx.globalAlpha = .35; bx.drawImage(this.bg, 0, 0); this.bg = b; }
+    }
     const ls = lumStats(this.bg);
     this.bgLum = ls.mean; this.bgDark = ls.dark;
     this._scrim();
@@ -1176,7 +1233,7 @@ export class Ad {
     let pos = null, lines, lineH, blockH, tag, num, firstFit = null, dropLabel = false;
     for (let attempt = 0; attempt < 18; attempt++) {
       lines = headlineLines(st, this.pHead, size, bestN);
-      const gap = size * (["box", "sticker", "highlighter", "cutout", "double_outline"].includes(st.text_fx) ? .14 : B ? .09 : .02);
+      const gap = size * (["box", "sticker", "highlighter", "cutout", "double_outline", "glass"].includes(st.text_fx) ? .14 : B ? .09 : .02);
       lineH = lines[0].asc * .98 + gap;
       const widest = Math.max(...lines.map(L => L.inkW));
       blockH = lineH * (lines.length - 1) + lines[0].asc;
@@ -1251,6 +1308,9 @@ export class Ad {
     this.tl.hit = this.tl.text + (["slam", "stomp"].includes(st.text_in) ? .42 : .3);
     this.tl.tag = last + .12; this.tl.number = last + .25; this.tl.shine = this.tl.number + .5; this.tl.sparkle = this.tl.number + .35;
     this.tl.still = Math.max(this.tl.still, this.tl.revealEnd + .25);
+    // an ending only where the number has had its time on screen first
+    const tO = st.duration - 1.1;
+    this.tOutro = st.outro && st.outro !== "none" && st.duration >= 4.5 && tO >= this.tl.number + 1.4 ? tO : null;
   }
 
   /** The number never sits on a phone. Where it shares the phones' width it goes UNDER
@@ -1340,7 +1400,7 @@ export class Ad {
   _place(lines, lineH, blockH, tag, num, m, size) {
     const st = this.st, W = this.W, H = this.H, pos = st.text_pos, B = this.boardDef;
     const center = ["top-center", "center"].includes(pos), right = pos === "top-right";
-    const tagGap = size * (["box", "sticker", "highlighter", "cutout"].includes(st.text_fx) ? .34 : .14);
+    const tagGap = size * (["box", "sticker", "highlighter", "cutout", "glass"].includes(st.text_fx) ? .34 : .14);
     const tagH = tag ? tag.height + tagGap : 0;
     const padX = B ? B.pad * size : 0, padY = B ? B.pad * .8 * size : 0, tabs = B ? (B.tabs || 0) * size : 0;
     const outerH = blockH + tagH + padY * 2 + tabs;
@@ -1495,7 +1555,7 @@ export class Ad {
     const c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true });
     const [bx0, by0, bx1, by1] = this.pos.block;
     const ink = hexRgb(this.st.text_fx === "box" ? this.p.plate_ink : this.p.ink);
-    if (["box", "sticker", "cutout", "highlighter"].includes(this.st.text_fx)) return;   // carried by their own plate
+    if (["box", "sticker", "cutout", "highlighter", "glass"].includes(this.st.text_fx)) return;   // carried by their own plate
     if (this.board) return;                                                              // carried by the sign
     const L = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
     const Li = .2126 * L(ink[0]) + .7152 * L(ink[1]) + .0722 * L(ink[2]);
@@ -1519,7 +1579,7 @@ export class Ad {
   _scrim() {
     const st = this.st, W = this.W, H = this.H;
     let s = st.scrim;
-    if (s < 0) s = { box: 0, sticker: .25, cutout: .3, highlighter: .2, double_outline: .3, outline: .8, neon: .8 }[st.text_fx] ?? .65;
+    if (s < 0) s = { box: 0, sticker: .25, cutout: .3, highlighter: .2, double_outline: .3, glass: .15, outline: .8, neon: .8 }[st.text_fx] ?? .65;
     s = Math.min(1.9, s * (this.scrimBoost || 1));
     this.scrimC = null;
     if (s <= 0) return;
@@ -1550,8 +1610,70 @@ export class Ad {
     ctx.restore();
   }
 
+  /** Grounds that keep moving after the phones land: soft light that never stops the frame going dead. */
+  _drawLiveGround(ctx, t) {
+    const st = this.st, W = this.W, H = this.H, p = this.p, D = Math.hypot(W, H);
+    if (st.background === "aurora") {
+      // three ribbons of the ground's own light, slow and wide, one faintly in the accent
+      const cols = [p.light, p.light, lum(p.accent) > .3 ? p.accent : p.light];
+      ctx.save(); ctx.globalCompositeOperation = "screen";
+      for (let i = 0; i < 3; i++) {
+        const ph = st.seed % 11 + i * 2.1, yc = H * (.22 + .18 * i) + Math.sin(t * .45 + ph) * H * .05, thick = H * (.09 + .03 * i);
+        const gr = ctx.createLinearGradient(0, yc - thick, 0, yc + thick);
+        const a = i === 2 ? .12 : .2;
+        gr.addColorStop(0, rgba(cols[i], 0)); gr.addColorStop(.5, rgba(cols[i], a)); gr.addColorStop(1, rgba(cols[i], 0));
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(0, yc + thick);
+        for (let xx = 0; xx <= W; xx += W / 24) ctx.lineTo(xx, yc - thick + Math.sin(xx / W * 5 + t * .7 + ph) * thick * .5);
+        ctx.lineTo(W, yc + thick * 2); ctx.lineTo(0, yc + thick * 2); ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+    } else if (st.background === "drift") {
+      // two big soft pools of light and shade circling slowly
+      for (const [k, col, a] of [[0, p.light, .38], [1, shade(p.ground, -.4), .35]]) {
+        const th = t * .35 + k * Math.PI + (st.seed % 7), bx = W / 2 + Math.cos(th) * W * .32, by = H / 2 + Math.sin(th * .8) * H * .28;
+        const gr = ctx.createRadialGradient(bx, by, 0, bx, by, D * .42);
+        gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+      }
+    }
+  }
+
+  /** What stands the phones on the ground: a soft pool under the group (drawn once, in the ground). */
+  _softFloor() {
+    if (this.st.depth !== "soft_floor" || !this.phones.length) return;
+    const outs = this.phones.map(landedOutline);
+    let x0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const P of outs) for (const [x, y] of P) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    const x = this.bg.getContext("2d"), cx = (x0 + x1) / 2, rx = (x1 - x0) * .62, ry = Math.max(this.H * .03, rx * .12);
+    x.save(); x.translate(cx, Math.min(y1, this.H * .98)); x.scale(1, ry / rx);
+    const g = x.createRadialGradient(0, 0, 0, 0, 0, rx);
+    g.addColorStop(0, "rgba(0,0,0,.34)"); g.addColorStop(.6, "rgba(0,0,0,.12)"); g.addColorStop(1, "rgba(0,0,0,0)");
+    x.fillStyle = g; x.fillRect(-rx, -rx, rx * 2, rx * 2); x.restore();
+  }
+
+  /** A phone's mirror image in a glossy floor, under its lowest edge, fading out fast. */
+  _reflect(target, p, stt) {
+    const [x, y, scale, rot, flip, z, op] = stt;
+    if (z > .05 || Math.abs(rot) > 24 || op < .99) return;
+    const w = p.w * scale * Math.max(Math.abs(Math.cos(flip)), .02), h = p.h * scale, a = rot * Math.PI / 180;
+    const yb = y + Math.abs(w / 2 * Math.sin(a)) + Math.abs(h / 2 * Math.cos(a));
+    const depth = h * .32, half = Math.hypot(w, h) / 2 + 4;
+    if (yb + 4 > this.H) return;
+    const c = this._reflC || (this._reflC = canvas(8, 8));
+    const cw = Math.ceil(half * 2), ch = Math.ceil(depth);
+    if (c.width < cw || c.height < ch) { c.width = Math.max(c.width, cw); c.height = Math.max(c.height, ch); }
+    const rx = c.getContext("2d"); rx.clearRect(0, 0, c.width, c.height);
+    rx.save(); rx.translate(half - x, -yb); rx.translate(0, 2 * yb); rx.scale(1, -1);
+    drawPhone(rx, p, x, y, scale, rot, flip, 0, 1, this.W, null, true);
+    rx.restore();
+    rx.globalCompositeOperation = "destination-in";
+    const g = rx.createLinearGradient(0, 0, 0, ch); g.addColorStop(0, "rgba(0,0,0,.26)"); g.addColorStop(1, "rgba(0,0,0,0)");
+    rx.fillStyle = g; rx.fillRect(0, 0, cw, ch); rx.globalCompositeOperation = "source-over";
+    if (this.numBox) { const [a0, b0, a1, b1] = this.numBox; rx.clearRect(a0 - (x - half) - 8, b0 - yb - 8, a1 - a0 + 16, b1 - b0 + 16); }   // never under the number
+    target.drawImage(c, 0, 0, cw, ch, x - half, yb, cw, ch);
+  }
+
   _phonesLayer(t, dt, quality) {
-    if (this.still && !["sunburst"].includes(this.st.background)) return this.still;
+    if (this.still && !this.liveGround) return this.still;
     const flying = t < this.tl.landed + .02, moving = t < this.tl.revealEnd + .05;
     const subs = flying ? quality.subsFly : moving ? quality.subsMove : 1;
     const ax = this.acc.getContext("2d"), tx = this.tmp.getContext("2d");
@@ -1560,13 +1682,20 @@ export class Ad {
       const target = s === 0 ? ax : tx;
       target.globalAlpha = 1; target.drawImage(this.bg, 0, 0);
       this._drawRays(target, ts);
+      if (this.liveGround) this._drawLiveGround(target, ts);
+      const refl = this.st.depth === "reflection";
       for (const i of this.drawOrder) {
         const p = this.phones[i], stt = phoneState(p, ts, this.st);
-        if (stt) drawPhone(target, p, ...stt, this.W);
+        if (!stt) continue;
+        if (refl) this._reflect(target, p, stt);
+        const soft = this.dofBlur && p.size < this.dofSize * .93 && "filter" in target;
+        if (soft) target.filter = `blur(${this.dofBlur}px)`;
+        drawPhone(target, p, ...stt, this.W);
+        if (soft) target.filter = "none";
       }
       if (s > 0) { ax.globalAlpha = 1 / (s + 1); ax.drawImage(this.tmp, 0, 0); ax.globalAlpha = 1; }
     }
-    if (t > this.tl.still && this.st.background !== "sunburst") {
+    if (t > this.tl.still && !this.liveGround) {
       this.still = canvas(this.W, this.H); this.still.getContext("2d").drawImage(this.acc, 0, 0);
       return this.still;
     }
@@ -1598,8 +1727,8 @@ export class Ad {
     return c;
   }
 
-  _hookLine(ctx, t) {
-    const W = this.W, H = this.H, s0 = outCubic(prog(t, 0, .14)), out = prog(t, this.hookEnd - .04, .22);
+  _hookLine(ctx, t, hold = false) {
+    const W = this.W, H = this.H, s0 = outCubic(prog(t, 0, .14)), out = hold ? 0 : prog(t, this.hookEnd - .04, .22);
     // the wash behind the opening words is dark for contrast; over a scene that is already dark
     // it is the look's loud colour instead, so the thumbnail is neither black nor bare
     // (a scene with large dark areas, a dusk sky, gets a lighter wash for the same reason)
@@ -1621,6 +1750,104 @@ export class Ad {
     ctx.save(); ctx.globalAlpha = a; ctx.translate(W / 2, H / 2); ctx.scale(s, s);
     this.hookLines.forEach((L, i) => ctx.drawImage(L.c, -L.inkW / 2 - L.pad, -total / 2 + i * lh - L.pad));
     ctx.restore();
+  }
+
+  /** The opening words hand over to the scene: the whole opening (wash and words) is
+   *  drawn as it last stood, then cut away by the look's transition. */
+  _transition(ctx, t) {
+    const W = this.W, H = this.H, tr = this.st.transition, t0 = this.hookEnd - .04, u = prog(t, t0, .26);
+    if (tr === "flash") {                                  // a white frame hides the cut
+      if (t < t0 + .05) this._hookLine(ctx, Math.min(t, this.hookEnd - .05), true);
+      const f = t - t0; if (f >= 0 && f < .2) { ctx.fillStyle = `rgba(255,255,255,${.55 * (f < .05 ? f / .05 : 1 - (f - .05) / .15)})`; ctx.fillRect(0, 0, W, H); }
+      return;
+    }
+    if (u >= 1) return;
+    const c = this._trC || (this._trC = canvas(W, H)), x = c.getContext("2d");
+    x.clearRect(0, 0, W, H); this._hookLine(x, Math.min(t, this.hookEnd - .05), true);
+    const inE = u * u;                                      // leaves accelerating, like a cut on the beat
+    ctx.save();
+    switch (tr) {
+      case "zoom_through": { const s = 1 + 2.6 * inE; ctx.globalAlpha = 1 - outCubic(u); ctx.translate(W / 2, H / 2); ctx.scale(s, s); ctx.drawImage(c, -W / 2, -H / 2); break; }
+      case "whip": {
+        const dx = -W * 1.25 * inE;
+        for (let k = 3; k >= 0; k--) { ctx.globalAlpha = k ? .22 * (1 - u) : 1; ctx.drawImage(c, dx + k * W * .05 * u, 0); }
+        break;
+      }
+      case "iris": {
+        const [cx, cy] = this.stageC, R = Math.hypot(W, H) * outCubic(u);
+        x.globalCompositeOperation = "destination-out"; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.fill(); x.globalCompositeOperation = "source-over";
+        ctx.drawImage(c, 0, 0);
+        ctx.strokeStyle = rgba("#ffffff", .5 * (1 - u)); ctx.lineWidth = Math.max(2, W * .006); ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
+        break;
+      }
+      case "slice": {
+        const n = 4, bh = H / n;
+        for (let i = 0; i < n; i++) { const q = prog(u, i * .1, .7), dx = (i % 2 ? 1 : -1) * W * 1.1 * q * q; ctx.drawImage(c, 0, i * bh, W, bh + 1, dx, i * bh, W, bh + 1); }
+        break;
+      }
+      case "block": {
+        const bw = W * .45, e = lerp(0, W + bw, outCubic(u));   // a bar of the look's loud colour wipes the words away
+        ctx.save(); ctx.beginPath(); ctx.rect(e, 0, W, H); ctx.clip(); ctx.drawImage(c, 0, 0); ctx.restore();
+        ctx.fillStyle = this.hot; ctx.fillRect(e - bw, 0, bw, H);
+        break;
+      }
+      default: ctx.globalAlpha = 1 - u; ctx.drawImage(c, 0, 0);
+    }
+    ctx.restore();
+  }
+
+  /** The last second: the number is what the viewer is left holding. */
+  _outro(ctx, t) {
+    const T = this.tOutro; if (T == null || t < T) return;
+    const st = this.st, W = this.W, H = this.H, c = this.num.c, [nx, ny] = this.pos.num;
+    if (st.outro === "settle") {
+      // everything but the number steps back into shade
+      const u = outCubic(prog(t, T, .5)), [a0, b0, a1, b1] = this.numBox, g = this.size * .2;
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); if (ctx.roundRect) ctx.roundRect(a0 - g, b0 - g, a1 - a0 + 2 * g, b1 - b0 + 2 * g, g); else ctx.rect(a0 - g, b0 - g, a1 - a0 + 2 * g, b1 - b0 + 2 * g);
+      ctx.fillStyle = `rgba(0,0,0,${.34 * u})`; ctx.fill("evenodd"); ctx.restore();
+      const sp = prog(t, T + .35, .7); if (sp > 0 && sp < 1) this._shine(ctx, nx, ny, c.width, c.height, sp, c);
+      return;
+    }
+    // end card: a calm wash, and the number alone, big and centred
+    const u = outCubic(prog(t, T, .4)), ink = lum(this.p.ink) > .5, wash = mix(this.p.ground, ink ? "#000000" : "#ffffff", .35);
+    ctx.fillStyle = rgba(wash, u); ctx.fillRect(0, 0, W, H);
+    const gl = ctx.createRadialGradient(W / 2, H * .52, 0, W / 2, H * .52, Math.max(W, H) * .6);
+    gl.addColorStop(0, rgba(this.p.light, .3 * u)); gl.addColorStop(1, rgba(this.p.light, 0)); ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H);
+    const k = Math.min(W * .8 / c.width, H * .2 / c.height, 1.9), s = lerp(1, k, u);
+    const cx = lerp(nx + c.width / 2, W / 2, u), cy = lerp(ny + c.height / 2, H * .52, u);
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(s, s); ctx.drawImage(c, -c.width / 2, -c.height / 2); ctx.restore();
+    const Lc = this.num.label;
+    if (Lc) { const ls = Math.min(s * .8, W * .8 / Lc.width); ctx.save(); ctx.globalAlpha = u; ctx.translate(cx, cy - c.height * s / 2 - Lc.height * ls * .75); ctx.scale(ls, ls); ctx.drawImage(Lc, -Lc.width / 2, -Lc.height / 2); ctx.restore(); }
+    const sp = prog(t, T + .45, .7);
+    if (sp > 0 && sp < 1) { ctx.save(); ctx.translate(cx - c.width * s / 2, cy - c.height * s / 2); ctx.scale(s, s); this._shine(ctx, 0, 0, c.width, c.height, sp, c); ctx.restore(); }
+  }
+
+  /** The whole frame's colour, last of all: one grade across every layer, the way a finished film has one. */
+  _grade(ctx, t) {
+    const g = this.st.grade; if (!g || g === "none") return;
+    const W = this.W, H = this.H;
+    const tint = (col, a, op) => { ctx.save(); ctx.globalCompositeOperation = op; ctx.fillStyle = rgba(col, a); ctx.fillRect(0, 0, W, H); ctx.restore(); };
+    const filt = f => {
+      if (!("filter" in ctx)) return;
+      const s = this._gradeC || (this._gradeC = canvas(W, H)), sx = s.getContext("2d");
+      sx.clearRect(0, 0, W, H); sx.drawImage(ctx.canvas, 0, 0);
+      ctx.save(); ctx.filter = f; ctx.drawImage(s, 0, 0); ctx.filter = "none"; ctx.restore();
+    };
+    const dark = (this.bgLum ?? .5) < .3;                    // a dark scene is lifted, never pushed further into black
+    switch (g) {
+      case "clean": filt(dark ? "saturate(1.06) brightness(1.05)" : "contrast(1.06) saturate(1.06)"); break;
+      case "warm": tint("#ff9a3c", .12, "soft-light"); break;
+      case "cool": tint("#3c8cff", .12, "soft-light"); break;
+      case "punchy": filt(dark ? "saturate(1.2) brightness(1.06)" : "contrast(1.12) saturate(1.2)"); break;
+      case "matte": tint("#15151a", 1, "lighten"); filt("saturate(.92)"); break;
+      case "film": {
+        tint("#ff9a3c", .08, "soft-light"); tint("#111115", 1, "lighten");
+        this._filmNoise = this._filmNoise || noiseTile(256, this.st.seed + 9, 30);
+        ctx.save(); ctx.globalAlpha = .16; ctx.translate(Math.floor(t * 83) % 256, Math.floor(t * 57) % 256);
+        ctx.fillStyle = ctx.createPattern(this._filmNoise, "repeat"); ctx.fillRect(-256, -256, W + 512, H + 512); ctx.restore();
+        break;
+      }
+    }
   }
 
   _camera0(t) {
@@ -1649,7 +1876,10 @@ export class Ad {
     ctx.restore();
 
     if (this.awningH) drawAwning(ctx, W, this.awningH, this.awningColors, t);
-    if (this.hookLines && t < this.hookEnd + .3) this._hookLine(ctx, t);
+    if (this.hookLines && t < this.hookEnd + .3) {
+      if ((st.transition || "fade") === "fade" || t < this.hookEnd - .04) this._hookLine(ctx, t);
+      else this._transition(ctx, t);
+    }
     if (st.hook === "flash_cut") for (const p of this.phones) { if (!p.flashIn) continue; const f = t - p.tIn; if (f >= 0 && f < .09) { ctx.fillStyle = `rgba(255,255,255,${.6 * (1 - f / .09)})`; ctx.fillRect(0, 0, W, H); } }
     if (this.scrimC) { const k = prog(t, tl.text - .1, .4); if (k > 0) { ctx.globalAlpha = k; ctx.drawImage(this.scrimC, 0, 0, W, H); ctx.globalAlpha = 1; } }
     if (this.spray) drawSpray(ctx, this.spray, this.pos.block, t, tl.text);
@@ -1666,6 +1896,8 @@ export class Ad {
     if (st.urgency === "flash_border") drawFlashBorder(ctx, W, H, this.hot, t, tl.hit, st.bpm || 118);
     if (st.flash) { const f = t - tl.hit; if (f >= 0 && f < .12) { ctx.fillStyle = `rgba(255,255,255,${.27 * (1 - f / .12)})`; ctx.fillRect(0, 0, W, H); } }
     if (st.rgb_hit) { const d = t - tl.hit; if (d >= 0 && d < .16) this._rgbShift(ctx, Math.round(W * .006 * (1 - d / .16))); }
+    this._outro(ctx, t);
+    this._grade(ctx, t);
   }
 
   _headline(ctx, t, dt) {
@@ -1711,6 +1943,23 @@ export class Ad {
           drawLine(xEnd, y + (1 - e) * (L.asc + this.size * .3)); ctx.restore(); break;
         }
         case "flip_in": { const e = outBack(q, 1.8); drawLine(xEnd, y, clamp(q * 3), 1, Math.max(.01, e)); break; }
+        case "zoom_blur": { const e = outQuint(q), s = lerp(1.6, 1, e); drawLine(xEnd, y, clamp(q * 2.5), s, s, 0, (1 - e) * this.size * .2); break; }
+        case "elastic": drawLine(xEnd, y, clamp(q * 4), Math.max(.01, outElastic(q)), lerp(1.3, 1, outCubic(clamp(q * 2)))); break;
+        case "mask_words": {
+          // each word rises out of the line it sits on, one after another
+          const words = []; let cur = null;
+          L.text.split("").forEach((ch, k) => { if (ch === " ") { cur = null; return; } if (!cur) { cur = { a: k, b: k }; words.push(cur); } else cur.b = k; });
+          ctx.save(); ctx.beginPath(); ctx.rect(0, y, W, L.c.height - L.pad * .6); ctx.clip();
+          words.forEach((wd, wi) => {
+            const qw = prog(t, t0 + wi * .07, .42); if (qw <= 0) return;
+            const e = outQuint(qw), x0 = Math.max(0, L.xs[wd.a] + L.pad - this.size * .12);
+            const x1 = Math.min(L.c.width, (wd.b + 1 < L.xs.length ? L.xs[wd.b + 1] : L.inkW) + L.pad + this.size * .12);
+            ctx.drawImage(L.c, x0, 0, x1 - x0, L.c.height, xEnd + x0, y + (1 - e) * L.c.height * .85, x1 - x0, L.c.height);
+          });
+          ctx.restore();
+          if (shineP > 0 && shineP < 1) this._shine(ctx, xEnd, y, L.c.width, L.c.height, shineP, L.c);
+          break;
+        }
         case "word_pop": {
           // words as groups of glyph positions: pop each word from its centre
           const words = []; let cur = null;
@@ -1789,6 +2038,25 @@ export class Ad {
       case "slide_up": draw(nx, ny + (1 - outBack(q, 1.2)) * H * .14, clamp(q * 2.5)); break;
       case "slide_left": draw(lerp(W + 20, nx, outBack(q, 1.2)), ny); break;
       case "drop": draw(nx, lerp(-c.height, ny, outBounce(q))); break;
+      case "glow_on": {
+        // it comes up out of a white glow that burns off
+        const k = 1 - outCubic(q), s = lerp(1.08, 1, outCubic(q));
+        ctx.save(); ctx.globalAlpha = clamp(q * 2.5); ctx.translate(nx + c.width / 2, ny + c.height / 2); ctx.scale(s * pump, s * pump);
+        if (k > .02) { ctx.shadowColor = `rgba(255,255,255,${.9 * k})`; ctx.shadowBlur = this.size * .8 * k; }
+        ctx.drawImage(c, -c.width / 2, -c.height / 2); ctx.restore(); break;
+      }
+      case "slot": {
+        // each slice spins down like a slot reel and stops, left to right
+        const n = Math.max(6, Math.min(12, this.num.text.length));
+        for (let i = 0; i < n; i++) {
+          const qi = prog(t, tl.number + i * .045, .5); if (qi <= 0) continue;
+          const x0 = c.width * i / n, w = c.width / n + 1, e = outCubic(qi), off = ((1 - e) * 3 * c.height) % c.height;
+          ctx.save(); ctx.beginPath(); ctx.rect(nx + x0, ny, w, c.height); ctx.clip(); ctx.globalAlpha = qi < 1 ? .85 : 1;
+          ctx.drawImage(c, nx, ny + off); if (off > .5) ctx.drawImage(c, nx, ny + off - c.height);
+          ctx.restore();
+        }
+        break;
+      }
       case "flip": draw(nx, ny, clamp(q * 3), 1, Math.max(.01, outBack(q, 1.8))); break;
       case "type": {
         const n = this.num.text.length, k = Math.floor(prog(t, tl.number, .06 * n) * n + .001);
@@ -1902,6 +2170,54 @@ export class Ad {
         ctx.save(); ctx.globalAlpha = .28; ctx.translate(Math.floor(t * 97) % 256, Math.floor(t * 61) % 256);
         ctx.fillStyle = ctx.createPattern(this._noise, "repeat"); ctx.fillRect(-256, -256, W + 512, H + 512); ctx.restore(); break;
       }
+      case "bokeh_drift": {
+        // soft discs of light rising slowly, kept off the words and the number
+        const r = rng(st.seed * 17), col = lum(this.p.light) > .6 ? this.p.light : "#ffffff", keep = [this.pos.outer, this.numBox].filter(Boolean);
+        ctx.save(); ctx.globalCompositeOperation = "screen";
+        for (let i = 0; i < 16; i++) {
+          const rad = r.uniform(.03, .08) * W, sp = r.uniform(.03, .07) * H, x = r() * W + Math.sin(t * .5 + i) * W * .02;
+          const y = ((r() * (H + 2 * rad) - t * sp) % (H + 2 * rad) + H + 2 * rad) % (H + 2 * rad) - rad, a = r.uniform(.1, .22);
+          if (keep.some(b => x > b[0] - rad && x < b[2] + rad && y > b[1] - rad && y < b[3] + rad)) continue;
+          const g = ctx.createRadialGradient(x, y, 0, x, y, rad); g.addColorStop(0, rgba(col, a)); g.addColorStop(.7, rgba(col, a * .5)); g.addColorStop(1, rgba(col, 0));
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.fill();
+        }
+        ctx.restore(); break;
+      }
+      case "light_rays": {
+        // a few wide shafts from a top corner, turning a little
+        const side = st.seed % 2 ? 1 : -1, ox = side > 0 ? W * 1.05 : -W * .05, oy = -H * .08, R = Math.hypot(W, H) * 1.3;
+        const base = Math.atan2(H * .6, (W / 2 - ox)) , r = rng(st.seed * 23);
+        ctx.save(); ctx.globalCompositeOperation = "screen";
+        for (let i = 0; i < 5; i++) {
+          const a = base + (i - 2) * .16 + Math.sin(t * .4 + i) * .025, wd = r.uniform(.03, .07);
+          const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, R); g.addColorStop(0, "rgba(255,248,230,.2)"); g.addColorStop(1, "rgba(255,248,230,0)");
+          ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.arc(ox, oy, R, a - wd, a + wd); ctx.closePath(); ctx.fill();
+        }
+        ctx.restore(); break;
+      }
+      case "dust": {
+        const r = rng(st.seed * 29), s0 = Math.max(1, W / 900);
+        ctx.save(); ctx.fillStyle = "#ffffff";
+        for (let i = 0; i < 46; i++) {
+          const x = (r() * W + t * r.uniform(-12, 12) * s0 + W) % W, y = (r() * H - t * r.uniform(4, 16) * s0 + H * 4) % H;
+          ctx.globalAlpha = r.uniform(.25, .55) * (.6 + .4 * Math.sin(t * 2 + i)); ctx.beginPath(); ctx.arc(x, y, r.uniform(.8, 2.4) * s0, 0, 7); ctx.fill();
+        }
+        ctx.restore(); break;
+      }
+      case "shimmer": {
+        // once the number is up, one soft sheen crosses the whole frame
+        const u = prog(t, tl.number + .6, 1); if (u <= 0 || u >= 1) return;
+        const x = lerp(-W * .6, W * 1.6, u), g = ctx.createLinearGradient(x - W * .25, 0, x + W * .25, H * .4);
+        g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(.5, "rgba(255,255,255,.16)"); g.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.save(); ctx.globalCompositeOperation = "screen"; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore(); break;
+      }
+      case "bloom": {
+        // the brightest parts spill a little light: a blurred copy laid on in screen
+        if (!("filter" in ctx)) return;
+        const s = this._bloomC || (this._bloomC = canvas(W, H)), sx = s.getContext("2d");
+        sx.clearRect(0, 0, W, H); sx.filter = `blur(${Math.max(2, W * .012)}px) brightness(.9)`; sx.drawImage(ctx.canvas, 0, 0); sx.filter = "none";
+        ctx.save(); ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = .2; ctx.drawImage(s, 0, 0); ctx.restore(); break;
+      }
       case "sparkle_field": {
         const r = rng(st.seed * 5), col = lum(this.p.accent) > .5 ? this.p.accent : "#ffffff";
         for (let i = 0; i < 22; i++) {
@@ -1922,7 +2238,7 @@ export class Ad {
   }
 
   /** A still of the finished ad, for galleries. */
-  stillAt(ctx, t) { this.still = null; this.frame(ctx, t ?? this.st.duration - .1, { subsFly: 1, subsMove: 1 }); }
+  stillAt(ctx, t) { this.still = null; this.frame(ctx, t ?? (this.tOutro != null ? this.tOutro - .05 : this.st.duration - .1), { subsFly: 1, subsMove: 1 }); }
 }
 
 export function star(ctx, x, y, s, col) {
