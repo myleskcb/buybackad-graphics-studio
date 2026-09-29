@@ -9,7 +9,8 @@
  *
  *   node scripts/fetch_fonts.mjs          (network: fonts.googleapis.com, fonts.gstatic.com)
  */
-import { writeFileSync, existsSync, statSync } from 'node:fs';
+import { writeFileSync, existsSync, statSync, readFileSync } from 'node:fs';
+import { FONT_FILES } from '../engine/fonts.mjs';
 const DIR = new URL('../assets/fonts/', import.meta.url).pathname;
 export const FACES = [
   { family:'Unbounded',                  slug:'unbounded',           w:[500, 900] },
@@ -38,59 +39,20 @@ for (const f of FACES){
   css.push(`@font-face{font-family:'${f.family}';src:url('${file}') format('woff2');font-weight:${f.w.join(' ')};font-style:normal;font-display:swap;unicode-range:${range ? range[1].trim() : 'U+0000-00FF'}}`);
   console.log(f.family.padEnd(28) + file.padEnd(34) + (statSync(DIR + file).size / 1024).toFixed(0) + ' KB');
 }
-/* the two mono/serif support faces already vendored here */
-css.push(`@font-face{font-family:'JetBrains Mono';src:url('jetbrains-mono-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'JetBrains Mono';src:url('jetbrains-mono-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Big Shoulders Display';src:url('big-shoulders-display-600.woff2') format('woff2');font-weight:600;font-display:swap}`);
-css.push(`@font-face{font-family:'Big Shoulders Display';src:url('big-shoulders-display-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-/* the offer family's reading faces (offer-library.js), static files already in assets/fonts */
-css.push(`@font-face{font-family:'Manrope';src:url('manrope-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Manrope';src:url('manrope-500.woff2') format('woff2');font-weight:500;font-display:swap}`);
-css.push(`@font-face{font-family:'Manrope';src:url('manrope-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Chivo';src:url('chivo-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Chivo';src:url('chivo-500.woff2') format('woff2');font-weight:500;font-display:swap}`);
-css.push(`@font-face{font-family:'Chivo';src:url('chivo-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Chivo';src:url('chivo-900.woff2') format('woff2');font-weight:900;font-display:swap}`);
-css.push(`@font-face{font-family:'Libre Franklin';src:url('libre-franklin-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Libre Franklin';src:url('libre-franklin-500.woff2') format('woff2');font-weight:500;font-display:swap}`);
-css.push(`@font-face{font-family:'Libre Franklin';src:url('libre-franklin-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Libre Franklin';src:url('libre-franklin-900.woff2') format('woff2');font-weight:900;font-display:swap}`);
-css.push(`@font-face{font-family:'Instrument Sans';src:url('instrument-sans-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Instrument Sans';src:url('instrument-sans-500.woff2') format('woff2');font-weight:500;font-display:swap}`);
-css.push(`@font-face{font-family:'Instrument Sans';src:url('instrument-sans-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Zilla Slab';src:url('zilla-slab-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Zilla Slab';src:url('zilla-slab-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'DM Mono';src:url('dm-mono-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Sora';src:url('sora-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Sora';src:url('sora-500.woff2') format('woff2');font-weight:500;font-display:swap}`);
-css.push(`@font-face{font-family:'Sora';src:url('sora-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-/* the offer family's flavour faces (2026-09-27, the owner: "type faces that have personality or flavor"), static files already in assets/fonts */
-css.push(`@font-face{font-family:'Teko';src:url('teko-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Teko';src:url('teko-600.woff2') format('woff2');font-weight:600;font-display:swap}`);
-css.push(`@font-face{font-family:'Teko';src:url('teko-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Oswald';src:url('oswald-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Oswald';src:url('oswald-600.woff2') format('woff2');font-weight:600;font-display:swap}`);
-css.push(`@font-face{font-family:'Oswald';src:url('oswald-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Saira Condensed';src:url('saira-condensed-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Saira Condensed';src:url('saira-condensed-600.woff2') format('woff2');font-weight:600;font-display:swap}`);
-css.push(`@font-face{font-family:'Saira Condensed';src:url('saira-condensed-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Barlow Condensed';src:url('barlow-condensed-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Barlow Condensed';src:url('barlow-condensed-600.woff2') format('woff2');font-weight:600;font-display:swap}`);
-css.push(`@font-face{font-family:'Barlow Condensed';src:url('barlow-condensed-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Bungee';src:url('bungee-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Bangers';src:url('bangers-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Luckiest Guy';src:url('luckiest-guy-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Russo One';src:url('russo-one-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Audiowide';src:url('audiowide-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Squada One';src:url('squada-one-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Rye';src:url('rye-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Shrikhand';src:url('shrikhand-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Permanent Marker';src:url('permanent-marker-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Cormorant Garamond';src:url('cormorant-garamond-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Cormorant Garamond';src:url('cormorant-garamond-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Nunito';src:url('nunito-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Nunito';src:url('nunito-700.woff2') format('woff2');font-weight:700;font-display:swap}`);
-css.push(`@font-face{font-family:'Sniglet';src:url('sniglet-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
-css.push(`@font-face{font-family:'Knewave';src:url('knewave-400.woff2') format('woff2');font-weight:400;font-display:swap}`);
+/* the owner's approved faces (assets/approved-fonts.json, a review of 151),
+   already vendored as static latin woff2 files (engine/fonts.mjs lists them):
+   the studio loads them from here, never from a font server. Satoshi is a
+   house face, declared in styles.css. */
+const APPROVED = JSON.parse(readFileSync(new URL('../assets/approved-fonts.json', import.meta.url), 'utf8')).faces.map(f => f.name);
+for (const fam of APPROVED){
+  if (fam === 'Satoshi' || FACES.some(f => f.family === fam)) continue;
+  const files = FONT_FILES[fam];
+  if (!files) throw new Error('approved face not vendored: ' + fam);
+  for (const [w, file] of Object.entries(files)){
+    if (!existsSync(DIR + file)) throw new Error('missing ' + file);
+    css.push(`@font-face{font-family:'${fam}';src:url('${file}') format('woff2');font-weight:${w};font-style:normal;font-display:swap}`);
+  }
+}
+console.log(APPROVED.length + ' approved faces declared');
 writeFileSync(DIR + 'faces.css', '/* generated by scripts/fetch_fonts.mjs — OFL 1.1 faces, self-hosted */\n' + css.join('\n') + '\n');
 console.log('wrote assets/fonts/faces.css');

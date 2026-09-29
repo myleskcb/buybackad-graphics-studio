@@ -424,10 +424,38 @@
           <label>Suggested color themes <span style="text-transform:none;font-weight:500">(role-safe palettes for offer, trust, and action)</span></label>
           <div class="ez-themes" id="ez-themes"></div>
         </div>
-        <div class="ez-field">
-          <label id="ez-tagstyles-label">Tagline style <span style="text-transform:none;font-weight:500">(the same on the picture, the download and the video)</span></label>
-          <div class="ez-tagstyles" id="ez-tagstyles" role="group" aria-labelledby="ez-tagstyles-label"></div>
-          <div class="ez-tagnote" id="ez-tagnote" role="status" hidden></div>
+        <div class="ez-field" id="ez-phonepick-field" hidden>
+          <label>Phone <span style="text-transform:none;font-weight:500">(factory photos only; the popular, high-value models first)</span></label>
+          <div class="ez-phonepick-grid" id="ez-phonepick" role="group" aria-label="Phone model"></div>
+          <div class="ez-fxrow">
+            <button type="button" id="ez-phonepick-surprise" title="A different popular model">🎲 Surprise me</button>
+            <button type="button" id="ez-phonepick-toggle" aria-expanded="false" aria-controls="ez-phonepick-more">More models</button>
+            <button type="button" id="ez-phonepick-reset" title="The phone the card was designed with">As designed</button>
+          </div>
+          <div class="ez-phonepick-grid ez-phonepick-more" id="ez-phonepick-more" role="group" aria-label="More phone models" hidden></div>
+        </div>
+        <div class="ez-field" id="ez-tag-field">
+          <label>Tagline style <span style="text-transform:none;font-weight:500">(gradients, patterns, outlines, glow and 3-D on the headline)</span></label>
+          <div class="ez-fxrow" id="ez-tag-looks" role="group" aria-label="Tagline look"></div>
+          <div id="ez-tag-grad" hidden>
+            <div class="ez-subttl">Gradient</div>
+            <div class="ez-tag-presets" id="ez-tag-presets" role="group" aria-label="Premade gradients"></div>
+            <div class="ez-tag-stops" id="ez-tag-stops" aria-label="Gradient colours"></div>
+            <div class="ez-fxline"><label for="ez-tag-angle">Angle</label><input type="range" id="ez-tag-angle" min="0" max="360" step="5" value="90"><span class="fxval" id="ez-tag-angle-val">90°</span></div>
+          </div>
+          <div id="ez-tag-pat" hidden>
+            <div class="ez-subttl">Pattern</div>
+            <div class="ez-tag-pats" id="ez-tag-pats" role="group" aria-label="Patterns"></div>
+            <div class="ez-fxline"><label for="ez-tag-pscale">Size</label><input type="range" id="ez-tag-pscale" min="25" max="300" step="5" value="100"><span class="fxval" id="ez-tag-pscale-val">100%</span></div>
+            <div class="ez-fxline"><label for="ez-tag-px">Slide ↔</label><input type="range" id="ez-tag-px" min="0" max="100" step="1" value="0"><span class="fxval" id="ez-tag-px-val">0%</span></div>
+            <div class="ez-fxline"><label for="ez-tag-py">Slide ↕</label><input type="range" id="ez-tag-py" min="0" max="100" step="1" value="0"><span class="fxval" id="ez-tag-py-val">0%</span></div>
+            <div class="ez-tag-pathint">Or drag the preview to slide it. <button type="button" id="ez-tag-patreset">Reset size and slide</button></div>
+          </div>
+          <div class="ez-subttl">Outline</div>
+          <div class="ez-fxrow" id="ez-tag-outline" role="group" aria-label="Tagline outline"></div>
+          <div class="ez-subttl">Effect</div>
+          <div class="ez-fxrow" id="ez-tag-effect" role="group" aria-label="Tagline effect"></div>
+          <div class="ez-tag-note" id="ez-tag-note" role="status" hidden></div>
         </div>
         <div class="ez-field" style="margin-bottom:0">
           <label>Background</label>

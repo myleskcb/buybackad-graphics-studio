@@ -92,8 +92,8 @@ h1{font:600 clamp(30px,4.4vw,46px)/1.04 var(--display);letter-spacing:-.01em;mar
   <header>
     <div class="eyebrow">BUYBACK.AD Graphics Studio · tagline styles</div>
     <h1>Tagline Lab</h1>
-    <p class="lede">The same <b id="n-cards">21</b> ads in <b>seven tagline styles</b>, rendered by the studio's own engine and measured by the critic that decides what the live library shows. <b>Keep</b> every style you would use and mark the <b>best</b> one for each ad. Your picks are saved on this page and read back to decide which styles become real theme options.</p>
-    <p class="note">Street is modelled on your #1 BUYER reference: one sweep from the theme's accent toward yellow on every line that sells, a heavy black outline, and dark plates under it. Numbers under each ad are the critic's worst contrast for the tagline and the phone number; 3:1 is the bar.</p>
+    <p class="lede"><b id="n-cards">5</b> iPhone posts, <b>ten tagline styles</b> each, rendered by the studio's own engine and measured by the critic that decides what the live library shows. <b>Keep</b> every style you would use and mark the <b>best</b> one for each post. Your picks are saved here and read back to decide which styles the studio offers.</p>
+    <p class="note">New this round: the phone number fills its plate (on the Steps Flow post it went from 80px to fill its band), glow, 3-D red &amp; blue, multicolour letters, and textures. Gradient presets and textures each show a different variant per post. Under each ad: the critic's worst contrast for the tagline, and the number's size and contrast; 3:1 is the bar.</p>
     <div class="status" id="status"><span class="dot"></span><span id="status-t">Connecting to your saved picks…</span></div>
   </header>
 
@@ -129,13 +129,16 @@ h1{font:600 clamp(30px,4.4vw,46px)/1.04 var(--display);letter-spacing:-.01em;mar
 <script>
 const LAB = __DATA__;
 const STYLES = {
-  solid:    ['Solid', 'As designed today: the tagline in one colour.'],
-  street:   ['Street', 'Your reference: one sweep toward yellow on every line that sells, heavy black outline, dark plates.'],
-  gradient: ['Signature gradient', "The accent's hue ±25°, on the tagline and repeated on every accent plate."],
-  outline:  ['White + black outline', 'White tagline, heavy black outline, tight dark shadow.'],
-  blocks:   ['Colour blocks', "Each tagline line on its own block in the theme's two colours."],
-  pair:     ['Accent into support', "The theme's accent running into its support colour, tagline and plates."],
-  pattern:  ['Pattern', 'The tagline in diagonal stripes of two tones of the accent.'],
+  solid:      ['Solid', 'As designed: the tagline in one colour.'],
+  street:     ['Street', 'Your #1 BUYER reference: one sweep toward yellow on every line that sells, heavy black outline, dark plates.'],
+  signature:  ['Signature gradient', "The accent's hue ±25°, repeated on every accent plate."],
+  preset:     ['Gradient presets', 'A different premade gradient on each post: accent into support, Sunset, Ocean, Neon, Gold foil. Sixteen are built in, and any colours can be chosen.'],
+  outline:    ['White + black outline', 'White tagline, heavy black outline, tight dark shadow.'],
+  blocks:     ['Colour blocks', "Each tagline line on its own block in the theme's two colours."],
+  multicolor: ['Multicolour letters', 'Each letter its own colour, black outline.'],
+  glow:       ['Glow', 'A neon tube: white core, coloured edge, two passes of glow.'],
+  anaglyph:   ['3-D red & blue', 'The classic 3-D print: red to one side, blue to the other.'],
+  texture:    ['Textures & depth', 'A different one on each post: stripes, polka dots, money signs, cracked, and a 3-D block.'],
 };
 const CAT = { phones:'Phones', gold:'Gold', silver:'Silver', coins:'Coins', cars:'Cars', strips:'Test strips', pokemon:'Pokémon', sports:'Sports cards' };
 const $ = id => document.getElementById(id);
@@ -181,7 +184,7 @@ function toggleBest(id, style){
 }
 
 function fmt(v){ return v == null ? 'n/a' : v.toFixed(1) + ':1'; }
-function metrics(s){ return 'tagline ' + fmt(s.tagline) + ' · number ' + fmt(s.number); }
+function metrics(s){ return 'tagline ' + fmt(s.tagline) + ' · number ' + (s.numberPx ? s.numberPx + 'px ' : '') + fmt(s.number); }
 function tally(){
   const t = {}; order.forEach(k => { t[k] = { keep: 0, best: 0 }; });
   Object.values(picks).forEach(p => { p.keep.forEach(k => t[k] && t[k].keep++); if (p.best && t[p.best]) t[p.best].best++; });
@@ -196,7 +199,7 @@ function renderLegend(){
 }
 function tileHtml(c, s, byStyle){
   const p = picks[c.id], kept = p.keep.indexOf(s.style) >= 0, best = p.best === s.style;
-  const label = byStyle ? esc(c.name) : esc(STYLES[s.style][0]);
+  const label = byStyle ? esc(c.name) + (s.label && s.label !== STYLES[s.style][0] ? ' · ' + esc(s.label) : '') : esc(s.label || STYLES[s.style][0]);
   return `<div class="tile${kept ? ' kept' : ''}${best ? ' best' : ''}">
       <button class="shot" data-c="${esc(c.id)}" data-s="${s.style}" aria-label="${esc(c.name)} in ${esc(STYLES[s.style][0])}, larger"><img src="img/${esc(s.img)}" alt="" loading="lazy" decoding="async"></button>
       <div class="meta"><span class="s">${label}</span><span class="m${s.pass ? '' : ' no'}">${esc(metrics(s))}</span></div>
@@ -234,7 +237,7 @@ function paintBox(){
   const [cid, st] = S.box, c = cards.find(x => x.id === cid), s = c && c.styles.find(x => x.style === st);
   if (!s) return;
   $('box-img').src = 'img/' + s.img; $('box-img').alt = c.name + ' in ' + STYLES[st][0];
-  $('box-t').textContent = STYLES[st][0] + ' · ' + c.name;
+  $('box-t').textContent = (s.label || STYLES[st][0]) + ' · ' + c.name;
   $('box-m').textContent = metrics(s) + (s.pass ? '' : ' · under the bar');
   const p = picks[cid];
   $('box-keep').setAttribute('aria-pressed', String(p.keep.indexOf(st) >= 0)); $('box-keep').textContent = p.keep.indexOf(st) >= 0 ? 'Kept' : 'Keep';

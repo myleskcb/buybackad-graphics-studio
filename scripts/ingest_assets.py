@@ -17,7 +17,7 @@ Two kinds of file:
           WebP that already has transparency is kept as it is. Then it is
           trimmed, given a margin, and checked:
             - whole: the product must not touch the edge of the photograph
-              (a crop is refused, DESIGN-LAW 68);
+              (a crop is refused, DESIGN-LAW 79);
             - big enough: 1000px on the long side is the aim, under 600 is
               refused (the offer cards draw products up to ~600px);
             - a busy background (a desk, a hand, a shop) is refused with a
@@ -93,7 +93,7 @@ def cut_out(im):
         sides = {'top': rgb[:3].reshape(-1, 3), 'bottom': rgb[-3:].reshape(-1, 3), 'left': rgb[:, :3].reshape(-1, 3), 'right': rgb[:, -3:].reshape(-1, 3)}
         off = [k for k, v in sides.items() if (np.linalg.norm(v - bg, axis=1) < 24).mean() < 0.9]
         if len(off) <= 2 and flat >= 0.5:
-            return None, 'the product runs off the ' + ' and '.join(off) + ' edge: cut off (DESIGN-LAW 68), find a photograph of the whole thing'
+            return None, 'the product runs off the ' + ' and '.join(off) + ' edge: cut off (DESIGN-LAW 79), find a photograph of the whole thing'
         return None, f'busy background ({flat:.0%} of the frame is one colour): cut it out by hand'
     d = np.linalg.norm(rgb - bg, axis=2)
     LO, HI = 16.0, 48.0

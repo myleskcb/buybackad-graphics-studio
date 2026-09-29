@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-/* TAGLINE AUDIT: every family and category, in every tagline style the Studio
-   offers (app.js TAGLINE_STYLES), through the product's own path.
+/* TAGLINE AUDIT: every family and category, in every tagline look the Studio
+   offers (app.js EZ_TAG_LOOKS: the panel's looks, each with its own defaults),
+   through the product's own path.
 
    The owner, 2026-09-27: "have it as a possibility in all possible templates
    so video elements could be possible in templates and vice versa so we don't
@@ -8,10 +9,12 @@
    category only".
 
    Per template it opens the card the way a visitor does (showEasy, or
-   openShowcase for a showcase card), picks each style the way the Tagline
-   style row does (ez.tagline), renders renderEzCanvas()'s scene and measures:
+   openShowcase for a showcase card), picks each look the way the Tagline
+   style panel does (ez.tag), renders renderEzCanvas()'s scene and measures:
    - the critic (rule 54): the upper quartile of per-pixel contrast over the
-     pixels each line changes, painted with and without it; a line under 3:1
+     pixels each line changes, painted with and without it (and without the
+     layers its look added: a glow, the red and blue offsets, the depth, which
+     read as one mark with it); a line under 3:1
      fails, unless it was already under 3:1 as designed (that is the
      template's own finding);
    - whether the style took (touched), or fell back (blocks -> outline) and why;
@@ -52,7 +55,7 @@ const pick = async () => page.evaluate(async (PER, IDS) => {
 }, PER, IDS);
 await page.evaluate(() => { loadAccount = async () => account; account = { email: 'audit@local', role: 'admin', plan: 'pro' }; });
 const cards = await pick();
-const STYLES = await page.evaluate(() => TAGLINE_STYLES.map(s => s[0]));
+const STYLES = await page.evaluate(() => EZ_TAG_LOOKS.map(s => s[0]));
 console.log('templates', cards.length, '× styles', STYLES.join(' '));
 
 const rows = [];
@@ -70,7 +73,7 @@ for (const [n, c] of cards.entries()){
     const lum = (d, k) => 0.2126 * lin(d[k]) + 0.7152 * lin(d[k + 1]) + 0.0722 * lin(d[k + 2]);
     const out = [], strip = [];
     for (const style of STYLES){
-      ez.tagline = style;
+      ez.tag = Object.assign({}, ez.tag, { look: style, gradient: null, angle: 90, outline: 'auto', effect: 'auto', texture: 'money', patScale: 1, patX: 0, patY: 0 });
       const sc = renderEzCanvas(1080, 'png', undefined, undefined, 'square', true);
       const info = ez.tagInfo || {};
       const W = sc.width, H = sc.height, ctx = sc.lowerCanvasEl.getContext('2d');
@@ -80,11 +83,14 @@ for (const [n, c] of cards.entries()){
       // every line that is read (a style can darken a plate under a label as well as recolour the tagline)
       sc.getObjects().filter(o => o.visible !== false && (o.opacity == null || o.opacity >= 0.5) && /^(i-text|text|textbox)$/.test(o.type) && o.pgRole !== 'deco'
         && !/marquee|ticker/i.test(o.name || '') && /[A-Za-z0-9]/.test(o.text || '')).forEach(o => {
-        const b = o.getBoundingRect(true, true);
+        const kin = sc.getObjects().filter(q => q.pgKin === o);
+        const bs = [o].concat(kin).map(q => q.getBoundingRect(true, true));
+        const b = { left: Math.min(...bs.map(r => r.left)), top: Math.min(...bs.map(r => r.top)) };
+        b.width = Math.max(...bs.map(r => r.left + r.width)) - b.left; b.height = Math.max(...bs.map(r => r.top + r.height)) - b.top;
         const x0 = Math.max(0, Math.floor(b.left)), y0 = Math.max(0, Math.floor(b.top)), x1 = Math.min(W, Math.ceil(b.left + b.width)), y1 = Math.min(H, Math.ceil(b.top + b.height));
         if (x1 - x0 < 4 || y1 - y0 < 4) return;
-        o.visible = false; sc.renderAll();
-        const w = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data; o.visible = true;
+        o.visible = false; kin.forEach(q => { q.visible = false; }); sc.renderAll();
+        const w = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data; o.visible = true; kin.forEach(q => { q.visible = true; });
         const px = [];
         for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++){
           const f = (y * W + x) * 4, g = ((y - y0) * (x1 - x0) + (x - x0)) * 4;
@@ -119,9 +125,9 @@ for (const [n, c] of cards.entries()){
         }
       }
       sc.dispose();
-      out.push({ style, touched: info.touched || 0, fallback: info.fallback || null, why: info.why || null, error: info.error || null, crit, video });
+      out.push({ style, touched: info.touched || 0, fallback: info.fallback || null, why: info.why || null, error: info.error || null, crit, video, weak: (info.weak || []).length });
     }
-    ez.tagline = 'solid';
+    ez.tag = Object.assign({}, ez.tag, { look: 'solid', gradient: null, outline: 'auto', effect: 'auto' });
     return { out, strip };
   }, c, STYLES, SHEET).catch(e => ({ err: String(e && e.message || e) }));
   if (r.err){ console.log(`[${n + 1}/${cards.length}] ${c.id} ERROR ${r.err}`); rows.push(Object.assign({}, c, { err: r.err })); continue; }

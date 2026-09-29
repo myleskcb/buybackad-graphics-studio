@@ -53,7 +53,7 @@ function exportDims(shortPx){
   const s = shortPx / Math.min(CW, CH);
   return { w: Math.round(CW * s), h: Math.round(CH * s) };
 }
-const EXTRA_PROPS = ['pgTagRest','pgTagBlock','name','pgRole','pgCasing','pgTplId','selectable','evented','padding','paintFirst','pgLocked','pgAdj','underline','fontStyle','pgFillGrad','pgCurved','pgBgRect','pgScrim','pgQrData','crossOrigin'];
+const EXTRA_PROPS = ['pgTagRest','pgTagBlock','pgTagId','pgKinId','name','pgRole','pgCasing','pgTplId','selectable','evented','padding','paintFirst','pgLocked','pgAdj','underline','fontStyle','pgFillGrad','pgCurved','pgBgRect','pgScrim','pgQrData','crossOrigin'];
 
 function toast(msg, type){ const n=$('notif'); n.textContent=msg; n.className='notif show'+(type?' '+type:''); clearTimeout(n._t); n._t=setTimeout(()=>n.classList.remove('show'), 2800); }
 
@@ -2124,6 +2124,10 @@ function alignPass(sc, W, H){
   W = W || TPL_W; H = H || TPL_H;
   let objs;
   try { objs = sc.getObjects(); } catch (e){ return; }
+  /* Letters, not boxes (DESIGN-LAW 76) is how an audited, restaged card is laid
+     out; the rest of the library was tuned against the box passes and moves to
+     the letter passes card by card, each through scripts/audit_card.mjs */
+  const INK = objs.some(o => o && o.pgInk);
   const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
   const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
 
@@ -2157,8 +2161,18 @@ function alignPass(sc, W, H){
       b.top  < u.b.top  + u.b.height && b.top  + b.height > u.b.top);
     host.forEach((h, t) => {
       if (tally.get(h.o) !== 1) return;                 // shared box → a row, leave it
-      const dx = (h.b.left + h.b.width  / 2) - (t.b.left + t.b.width  / 2);
-      const dy = (h.b.top  + h.b.height / 2) - (t.b.top  + t.b.height / 2);
+      if (INK && plateHoldsMark(objs, h.b)) return;     // words beside a mark: composed as a unit (see step 4)
+      /* the LETTERS on the plate's centre, and a band that runs off the canvas
+         counted only inside the guides: a box has more room under its baseline
+         than over its caps, so box-centred type sat high (5.5px at a 170px
+         number, restaged stepsFlow-nn05-30) */
+      const tr = (INK && textInkRect(t.o)) || t.b;
+      const Gc = Math.round(GUIDE * Math.min(W, H));
+      const hy0 = h.b.top <= 2 ? Math.max(h.b.top, Gc + 3) : h.b.top, hy1 = h.b.top + h.b.height >= H - 2 ? Math.min(h.b.top + h.b.height, H - Gc - 3) : h.b.top + h.b.height;
+      const dx = (h.b.left + h.b.width  / 2) - (tr.left + tr.width  / 2);
+      // centred on the plate as it is seen, as far as the guides let the letters go (numberCentreY)
+      const dy = INK ? numberCentreY(h.b, hy0, hy1, tr.height, H, Gc) - (tr.top + tr.height / 2)
+                     : (h.b.top + h.b.height / 2) - (t.b.top + t.b.height / 2);
       if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
       const before = { left: t.o.left, top: t.o.top }, wasClear = !hits(t.b, t);
       t.o.set({ left: t.o.left + dx, top: t.o.top + dy });
@@ -2183,6 +2197,19 @@ function alignPass(sc, W, H){
      correctly into whatever sits beneath it instead of creating a new clash.
      Never pushes past the safe area — if there is no room the overlap stays and
      the edge clamp below wins, because type outside the frame is worse. */
+  /* …and a line's box is not its letters. A single line of caps fills about
+     60% of its box (the rest is the face's ascent and descent room), so two
+     display lines set as display type is set, 10% of a size apart, overlapped
+     by 40% of a box and were pushed a line-space apart (owner, 2026-09-27, on
+     TOP iPHONE / BUYER: "too wide of line spacing"). Where both lines are one
+     unrotated line each, the test is their INK: they collide when the letters
+     come closer than 4% of the smaller size, and are pushed only that far. */
+  const inkV = o => {
+    if (!o || o.angle || /\n/.test(o.text || '')) return null;
+    const r = textInkRect(o), b = bb(o);
+    if (!r || !b || r === b || (r.top === b.top && r.height === b.height)) return null;
+    return { top: r.top, bottom: r.top + r.height, fs: (o.fontSize || 40) * (o.scaleY || 1) };
+  };
   const stack = texts.filter(t => !/marquee|ticker/i.test(t.o.name || ''))
     .map(t => ({ t, b: bb(t.o) })).filter(x => x.b && x.b.height > 0)
     .sort((a, c) => a.b.top - c.b.top);
@@ -2193,9 +2220,17 @@ function alignPass(sc, W, H){
         const ox = Math.min(a.b.left + a.b.width,  c.b.left + c.b.width)  - Math.max(a.b.left, c.b.left);
         const oy = Math.min(a.b.top  + a.b.height, c.b.top  + c.b.height) - Math.max(a.b.top,  c.b.top);
         if (ox <= 2 || oy <= 2) continue;
-        const smaller = Math.min(a.b.width * a.b.height, c.b.width * c.b.height);
-        if ((ox * oy) / smaller <= 0.18) continue;        // a kiss, not a collision
-        const need = (a.b.top + a.b.height + 6) - c.b.top;
+        const ia = INK && inkV(a.t.o), ic = INK && inkV(c.t.o);
+        let need;
+        if (ia && ic && ic.top >= ia.top){
+          const gap = Math.max(4, 0.04 * Math.min(ia.fs, ic.fs));
+          need = (ia.bottom + gap) - ic.top;             // letters closer than the gap: push by the shortfall
+          if (need <= 0) continue;
+        } else {
+          const smaller = Math.min(a.b.width * a.b.height, c.b.width * c.b.height);
+          if ((ox * oy) / smaller <= 0.18) continue;        // a kiss, not a collision
+          need = (a.b.top + a.b.height + 6) - c.b.top;
+        }
         if (need <= 0) continue;
         const room = (H - SAFE_EDGE) - (c.b.top + c.b.height);
         const shift = Math.min(need, Math.max(0, room));
@@ -2250,6 +2285,10 @@ function alignPass(sc, W, H){
              cy > box.b.top  && cy < box.b.top  + box.b.height;
     });
     if (held.length !== 1) return;                       // a row or a band: leave it
+    /* a plate that carries a mark as well as its words (a shield-tick badge) is
+       a composed unit: fitted to the words alone about its own centre, the mark
+       fell off its left end (restaged stepsFlow-nn05-30, 2026-09-27) */
+    if (INK && plateHoldsMark(objs, box.b)) return;
     const t2 = held[0];
     const fs = (t2.o.fontSize || 34) * (t2.o.scaleY || 1);
     const padV = Math.round(fs * 0.44), padH = Math.round(fs * 0.66);
@@ -2399,7 +2438,8 @@ function alignPass(sc, W, H){
   {
     const G6 = Math.round(GUIDE * Math.min(W, H)), CELL = 12;
     const live = o => o && o.visible !== false;
-    const words = objs.filter(o => live(o) && (isText(o) || (o.type === 'group' && o.pgCurved))).map(o => bb(o)).filter(Boolean);
+    // words by their letters: a 170px number's box reaches 30px over its digits, where a phone stands on the band
+    const words = objs.filter(o => live(o) && (isText(o) || (o.type === 'group' && o.pgCurved))).map(o => INK && isText(o) ? textInkRect(o) : bb(o)).filter(Boolean);
     const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
     const plates = boxes.map(x => bb(x.o)).filter(b => b && words.some(w => inside({ x: w.left + w.width / 2, y: w.top + w.height / 2 }, b)));
     const ov = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
@@ -2434,6 +2474,7 @@ function alignPass(sc, W, H){
     };
     prods.forEach(o => {
       const b = bb(o); if (!b || b.width * b.height > W * H * 0.6) return;
+      if (INK && o.pgLayered && !words.some(w => ov(b, w) > 0)) return;   // layered over the plates on purpose (tallFill), clear of every word
       if (!bad(b)) return;
       const pad = 16;
       const wordsPad = words.map(w => ({ left: w.left - pad, top: w.top - pad, width: w.width + 2 * pad, height: w.height + 2 * pad }));
@@ -2476,7 +2517,8 @@ function alignPass(sc, W, H){
        version left them out, so a sticker moved and its curved CASH NOW label
        stayed behind, dark type on a dark photograph */
     const isWord = o => isText(o) || (o && o.type === 'group' && o.pgCurved);
-    const txt = objs.filter(o => live(o) && isWord(o)).map(o => ({ o, b: bb(o) })).filter(t => t.b);
+    // words by their letters: TOP iPHONE's box reached 44px below its caps and pushed a badge's bolt away
+    const txt = objs.filter(o => live(o) && isWord(o)).map(o => ({ o, b: INK && isText(o) ? textInkRect(o) : bb(o) })).filter(t => t.b);
     const inside = (p, b) => p.x > b.left && p.x < b.left + b.width && p.y > b.top && p.y < b.top + b.height;
     const ctr = b => ({ x: b.left + b.width / 2, y: b.top + b.height / 2 });
     const plates = boxes.map(x => ({ o: x.o, b: bb(x.o) })).filter(x => x.b && txt.some(t => inside(ctr(t.b), x.b)));
@@ -2490,7 +2532,10 @@ function alignPass(sc, W, H){
       if (!deco && !sticker) return;
       const b = bb(o); if (!b || b.width * b.height > W * H * 0.08) return;
       const label = sticker ? txt.filter(t => inside(ctr(t.b), b)) : [];
-      units.push({ parts: [o].concat(label.map(t => t.o)), own: new Set(label.map(t => t.o)), b, sticker });
+      /* a mark is never in its own way: a step numeral is decoration AND a word, and
+         counted against itself it always "touched copy" and was pushed out of its
+         box (stepsFlow-nn05-30, "number three isn't even centered", 2026-09-27) */
+      units.push({ parts: [o].concat(label.map(t => t.o)), own: new Set([o].concat(label.map(t => t.o))), b, sticker });
     });
     const overlap = (a, c) => Math.max(0, Math.min(a.left + a.width, c.left + c.width) - Math.max(a.left, c.left)) *
                               Math.max(0, Math.min(a.top + a.height, c.top + c.height) - Math.max(a.top, c.top));
@@ -2519,11 +2564,17 @@ function alignPass(sc, W, H){
         if (best) break;
       }
       if (!best){ u.parts.forEach(o => { o.visible = false; }); u.b = null; return; }
+      /* an outline mark drawn to sit on its plate, moved off it, is dark ink on a
+         photograph: it takes its plate's colour instead (owner, 2026-09-27, on a
+         bolt beside the QUICK CASH pill: "floating makes it really hard to even
+         discern, match the blue of the bubble") */
+      const home = plates.find(p => inside(c0, p.b) && typeof p.o.fill === 'string' && !u.parts.includes(p.o));
       u.parts.forEach(o => {
         const c = o.getCenterPoint();
         const n = new fabric.Point(c0.x + (c.x - c0.x) * best.k + best.dx, c0.y + (c.y - c0.y) * best.k + best.dy);
         o.set({ scaleX: (o.scaleX || 1) * best.k, scaleY: (o.scaleY || 1) * best.k });
         o.setPositionByOrigin(n, 'center', 'center'); o.setCoords();
+        if (INK && home && o.type === 'path' && !inside(o.getCenterPoint(), home.b)) o.set('stroke', home.o.fill);
       });
       u.b = best.b;
     });
@@ -2536,7 +2587,7 @@ function alignPass(sc, W, H){
 
   texts.forEach(t => {
     if (/marquee|ticker/i.test(t.o.name || '')) return;  // edge-hugging on purpose
-    const b = bb(t.o); if (!b) return;
+    const b = INK ? inkClear(textInkRect(t.o)) : bb(t.o); if (!b) return;
     let dx = 0, dy = 0;
     if (b.left < SAFE_EDGE) dx = SAFE_EDGE - b.left;
     else if (b.left + b.width > W - SAFE_EDGE) dx = (W - SAFE_EDGE) - (b.left + b.width);
@@ -2546,6 +2597,10 @@ function alignPass(sc, W, H){
     if (b.height > H - SAFE_EDGE * 2) dy = 0;
     if (dx || dy){ t.o.set({ left: t.o.left + dx, top: t.o.top + dy }); t.o.setCoords(); }
   });
+
+  /* ── 6. NO LINE ON A PLATE'S EDGE (rule 58), last, after the guides ────── */
+  if (INK) linesOffEdges(sc, W, H);
+  if (INK && typeof claimShade === 'function') claimShade(sc, W, H);   // the thumbnail shows the card that opens
 }
 
 /* THE GUIDES — DESIGN-LAW rule 57.
@@ -2576,16 +2631,26 @@ function fitInsideGuides(sc, W, H){
   const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
   const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
   const TOUCH = 2;
+  const INK = objs.some(o => o && o.pgInk);
   const items = [];
   objs.forEach(o => {
     if (!o || o.visible === false || o.pgBgRect || o.pgScrim) return;
     if (/^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '')) return;
-    if (o.pgRole === 'frame' || /Frame|Corner|Bracket|Border/.test(o.name || '') && !isText(o)) return;
+    /* a frame that holds words is their plate and moves with them (neonNight's
+       "Neon Frame" holds the number: left behind, the website slid onto its
+       edge); a frame that holds nothing is a border and stays */
+    const holdsWords = o2 => { let b2; try { b2 = o2.getBoundingRect(true, true); } catch (e){ return false; }
+      return objs.some(q => q !== o2 && q.visible !== false && isText(q) && (() => { const c = q.getCenterPoint();
+        return c.x > b2.left && c.x < b2.left + b2.width && c.y > b2.top && c.y < b2.top + b2.height; })()); };
+    if (o.pgRole === 'frame' || /Frame|Corner|Bracket|Border/.test(o.name || '') && !isText(o) && !(INK && holdsWords(o))) return;
     if (/marquee|ticker/i.test(o.name || '')) return;
-    const b = bb(o); if (!b || b.width <= 0 || b.height <= 0) return;
+    const text = isText(o);
+    /* a line is judged by its letters, not its box: a 192px headline's box
+       reaches 44px above its caps, and read as "outside the guides" it shrank
+       the whole card 1% and slid it 5px (restaged stepsFlow-nn05-30) */
+    const b = text && INK ? inkClear(textInkRect(o)) : bb(o); if (!b || b.width <= 0 || b.height <= 0) return;
     if (b.width >= W * 0.85 && b.height >= H * 0.85) return;          // ground, not message
     const edge = { l: b.left <= TOUCH, r: b.left + b.width >= W - TOUCH, t: b.top <= TOUCH, bo: b.top + b.height >= H - TOUCH };
-    const text = isText(o);
     const bleed = !text && (edge.l || edge.r || edge.t || edge.bo);
     items.push({ o, b, edge, text, bleed });
   });
@@ -2689,7 +2754,7 @@ function buildLayer(l, tplId, dw, dh){
     img.set({
       left:p.left, top:p.top,
       originX:p.originX || 'left', originY:p.originY || 'top',
-      scaleX:s, scaleY:s, angle:p.angle || 0,
+      scaleX:s, scaleY:s, angle:p.angle || 0, flipX: !!p.flipX,    // a product faces into the layout (rule 73)
       opacity:p.opacity !== undefined ? p.opacity : 1,
     });
     if (p.shadow) img.set('shadow', p.shadow);
@@ -2764,6 +2829,7 @@ function buildLayer(l, tplId, dw, dh){
   }
   if (gradSpec){ obj.set('fill', objGrad(gradSpec)); obj.pgFillGrad = gradSpec; }
   obj.set({ name:l.name, pgRole:l.role||'', pgCasing:l.casing||'none', pgTplId:tplId });
+  if (l.__ink) obj.pgInk = true;            // laid out by its letters (DESIGN-LAW 76): restaged, audited records
   return obj;
 }
 
@@ -2781,6 +2847,7 @@ function renderThumb(tpl, px){
   }
   tpl.layers.forEach(l => sc.add(buildLayer(l, tpl.id)));
   alignPass(sc, TPL_W, TPL_H);
+  if (typeof applyCardLook === 'function') applyCardLook(sc, tpl, TPL_W, TPL_H, (px || 300) / TPL_W);   // the card's own tagline look
   sc.renderAll();
   const url = sc.toDataURL({ format:'jpeg', quality:0.82, multiplier:(px||300)/TPL_W });
   sc.dispose();
@@ -3219,8 +3286,9 @@ function loadTemplate(id, opts){
   applyBgSpec(canvas, tpl.bg);
   tpl.layers.forEach(l => canvas.add(buildLayer(l, tpl.id, CW, CH)));
   alignPass(canvas, CW, CH);
-  // the chosen tagline style (TAGLINE_STYLES); the hand-off from Easy Mode applies it after the visitor's words
-  if (!(opts && opts.noTagline)) taglineShow(taglineApply(canvas, tpl, CW, CH), 'ed-tagnote');
+  /* the card finished as Easy Mode finishes it, and the chosen tagline look
+     (ez.tag); the hand-off from Easy Mode applies them after the visitor's words */
+  if (!(opts && opts.noTagline)){ taglineFinish(canvas, CW, CH); taglineShow(taglineApply(canvas, tpl, CW, CH), 'ed-tagnote'); }
   canvas.renderAll();
   histLock = false;
   currentTplId = id; currentTplName = tpl.name;
@@ -5017,13 +5085,33 @@ function buildThemeRow(){
 }
 
 // ═══════════════ FONT LIBRARY (lazy-loaded from Google Fonts on first use) ═══════════════
+/* The owner's approved faces (assets/approved-fonts.json: a review of 151,
+   2026-09-01), by role, self-hosted in assets/fonts (faces.css, written by
+   scripts/fetch_fonts.mjs): the studio never waits on a font server for them,
+   and a render is the same on every machine. Satoshi, approved as well, is a
+   house face. The picker lists the rest of its old Google faces under More. */
+const APPROVED_FACES = {
+  condensed:   ['Oswald','Big Shoulders Display','Barlow Condensed','Teko','Saira Condensed','Russo One','Squada One'],
+  grotesque:   ['Manrope','Sora','Chivo','Libre Franklin','Instrument Sans'],
+  handwritten: ['Permanent Marker','Kalam','Patrick Hand','Shadows Into Light','Gloria Hallelujah','Nanum Pen Script','Architects Daughter','Amatic SC','Cabin Sketch'],
+  script:      ['Kaushan Script','Knewave','Bangers'],
+  graffiti:    ['Sedgwick Ave','Sedgwick Ave Display','Rubik Wet Paint','Rubik Marker Hatch','Rubik Dirt','Rubik Iso','Rubik Doodle Shadow','Wallpoet','Faster One','Freckle Face','Nosifer','Creepster','Big Shoulders Stencil Display'],
+  retro:       ['Bungee','Bungee Shade','Rye','Fascinate','Luckiest Guy','Shrikhand','Special Elite','Press Start 2P','Pirata One'],
+  serif:       ['Instrument Serif','Cormorant Garamond','Zilla Slab','Roboto Slab'],
+  rounded:     ['Nunito','Sniglet'],
+  numerals:    ['JetBrains Mono','DM Mono','Audiowide'],
+};
 const FONT_GROUPS = [
   ['House faces', ['Clash Display','Satoshi','Khand','Melodrama','Zodiak']],
   ['Showcase faces', ['Unbounded','Bricolage Grotesque','Sofia Sans Extra Condensed','Schibsted Grotesk','Gloock','Young Serif','Tilt Warp']],
-  ['Display & impact', ['Alfa Slab One','Abril Fatface','Bakbak One','Big Shoulders Display','Black Ops One','Bowlby One SC','Bungee','Chango','Concert One','Days One','Fjalla One','Francois One','Graduate','Hammersmith One','Lilita One','Luckiest Guy','Monoton','Passion One','Patua One','Paytone One','Press Start 2P','Racing Sans One','Righteous','Rowdies','Russo One','Secular One','Shrikhand','Sigmar One','Squada One','Staatliches','Titan One','Ultra','Unbounded','Vast Shadow']],
-  ['Script & fun', ['Creepster','Fredoka','Gloria Hallelujah','Great Vibes','Knewave','Lobster','Pacifico','Special Elite','Yellowtail']],
-  ['Clean & modern', ['Changa','Exo 2','Inter','Josefin Sans','Kanit','Lato','League Spartan','Nunito','Plus Jakarta Sans','Poppins','Prompt','Raleway','Rubik','Saira Condensed','Teko']],
-  ['Serif', ['Cinzel','Cormorant Garamond','DM Serif Display','Merriweather','Playfair Display','Zilla Slab']],
+  ['Condensed', APPROVED_FACES.condensed],
+  ['Grotesque', APPROVED_FACES.grotesque],
+  ['Handwritten & script', APPROVED_FACES.handwritten.concat(APPROVED_FACES.script)],
+  ['Graffiti & stencil', APPROVED_FACES.graffiti],
+  ['Retro', APPROVED_FACES.retro],
+  ['Serif & slab', APPROVED_FACES.serif],
+  ['Rounded & numerals', APPROVED_FACES.rounded.concat(APPROVED_FACES.numerals)],
+  ['More', ['Alfa Slab One','Abril Fatface','Bakbak One','Black Ops One','Bowlby One SC','Chango','Concert One','Days One','Fjalla One','Francois One','Graduate','Hammersmith One','Lilita One','Monoton','Passion One','Patua One','Paytone One','Racing Sans One','Righteous','Rowdies','Secular One','Sigmar One','Staatliches','Titan One','Ultra','Vast Shadow','Fredoka','Great Vibes','Lobster','Pacifico','Yellowtail','Changa','Exo 2','Inter','Josefin Sans','Kanit','Lato','League Spartan','Plus Jakarta Sans','Poppins','Prompt','Raleway','Rubik','Cinzel','DM Serif Display','Merriweather','Playfair Display']],
   ['System', ['Georgia','Impact','Arial Black']],
 ];
 const CORE_FONTS = new Set(FONT_GROUPS[0][1].concat(FONT_GROUPS[FONT_GROUPS.length - 1][1]));
@@ -5032,14 +5120,30 @@ const _fontLoaded = new Set(CORE_FONTS);
 // be requested from Google — that lookup 404s and costs a round trip before
 // the harmless onerror fires.
 const HOUSE_FACES = ['Clash Display', 'Satoshi', 'Khand', 'Melodrama', 'Zodiak'];
-const LOCAL_FACES = ['Unbounded', 'Bricolage Grotesque', 'Sofia Sans Extra Condensed', 'Schibsted Grotesk', 'Gloock', 'Young Serif', 'Tilt Warp', 'JetBrains Mono', 'Big Shoulders Display',
-  /* the offer family's reading faces (offer-library.js), the ones the owner's
-     own offer cards are set in; OFL, files already in assets/fonts */
-  'Manrope', 'Chivo', 'Libre Franklin', 'Instrument Sans', 'Zilla Slab', 'DM Mono', 'Sora',
-  /* and their flavour faces, one set per category (the owner: "type faces that
-     have personality or flavor") */
-  'Teko', 'Oswald', 'Saira Condensed', 'Barlow Condensed', 'Bungee', 'Bangers', 'Luckiest Guy', 'Russo One', 'Audiowide',
-  'Squada One', 'Rye', 'Shrikhand', 'Permanent Marker', 'Cormorant Garamond', 'Nunito', 'Sniglet', 'Knewave'];
+const LOCAL_FACES = FONT_GROUPS[1][1].concat(Object.values(APPROVED_FACES).flat());   // faces.css
+/* TYPE PAIRS BY VOICE (DESIGN-LAW 70: two faces, two weights each). A display
+   face for the claim, the step numerals and the number; a support face for the
+   badge, the step titles and their lines. Every face is the owner's approved
+   or showcase set, self-hosted. The weights are the ones each family ships
+   (a static family has no 800: asking for one would be synthesised). */
+const FONT_PAIRS = [
+  { key: 'street',  name: 'Street',  display: ['Sofia Sans Extra Condensed', 800], support: ['Schibsted Grotesk', 800, 600] },
+  { key: 'bold',    name: 'Bold',    display: ['Oswald', 700], support: ['Satoshi', 700, 500] },
+  { key: 'stadium', name: 'Stadium', display: ['Big Shoulders Display', 700], support: ['Manrope', 700, 500] },
+  { key: 'sport',   name: 'Sport',   display: ['Teko', 700], support: ['Chivo', 700, 500] },
+  { key: 'tech',    name: 'Tech',    display: ['Saira Condensed', 700], support: ['Sora', 700, 500] },
+  { key: 'block',   name: 'Block',   display: ['Barlow Condensed', 700], support: ['Libre Franklin', 700, 500] },
+  { key: 'arcade',  name: 'Arcade',  display: ['Russo One', 400], support: ['Sora', 700, 500] },
+  { key: 'squad',   name: 'Squad',   display: ['Squada One', 400], support: ['Instrument Sans', 700, 500] },
+  { key: 'comic',   name: 'Comic',   display: ['Bangers', 400], support: ['Nunito', 700, 700] },
+  { key: 'marker',  name: 'Marker',  display: ['Permanent Marker', 400], support: ['Manrope', 700, 500] },
+  { key: 'retro',   name: 'Retro',   display: ['Bungee', 400], support: ['Instrument Sans', 700, 500] },
+  { key: 'pop',     name: 'Pop',     display: ['Luckiest Guy', 400], support: ['Nunito', 700, 700] },
+  { key: 'luxe',    name: 'Luxe',    display: ['Gloock', 400], support: ['Schibsted Grotesk', 700, 500] },
+  { key: 'modern',  name: 'Modern',  display: ['Unbounded', 800], support: ['Instrument Sans', 700, 500] },
+  { key: 'warp',    name: 'Warp',    display: ['Tilt Warp', 400], support: ['Sora', 700, 500] },
+  { key: 'stencil', name: 'Stencil', display: ['Big Shoulders Stencil Display', 700], support: ['Chivo', 700, 500] },
+];
 let _localFacesCss = null;
 function ensureFont(name){
   if (_fontLoaded.has(name)) return Promise.resolve();
@@ -5058,7 +5162,10 @@ function ensureFont(name){
      written by scripts/fetch_fonts.mjs): one same-origin stylesheet for all of
      them, so a showcase card never waits on a third-party font server. */
   const local = LOCAL_FACES.indexOf(name) !== -1;
-  if (local && _localFacesCss) return _localFacesCss.then(() => document.fonts.load('400 24px "' + name + '"').catch(() => {}))
+  /* a static family ships one file per weight: load them all, or a 700
+     headline paints in the fallback first and fabric keeps its widths */
+  const allWeights = () => Promise.all([400, 500, 600, 700, 800, 900].map(w => document.fonts.load(w + ' 24px "' + name + '"').catch(() => {})));
+  if (local && _localFacesCss) return _localFacesCss.then(allWeights)
     .then(() => { try { fabric.util.clearFabricFontCache(); } catch (e){} });
   return new Promise(res => {
     const link = document.createElement('link');
@@ -5076,7 +5183,7 @@ function ensureFont(name){
       res();
     };
     link.onload = () => {
-      const l = (document.fonts && document.fonts.load) ? document.fonts.load('400 24px "' + name + '"').catch(() => {}) : Promise.resolve();
+      const l = (document.fonts && document.fonts.load) ? (local ? allWeights() : document.fonts.load('400 24px "' + name + '"').catch(() => {})) : Promise.resolve();
       Promise.race([l, new Promise(r => setTimeout(r, 3000))]).then(done, done);
     };
     link.onerror = done;
@@ -5283,7 +5390,7 @@ function applyEzSnapshot(p){
   ez.fx = Object.assign({ blur:0, overlay:'none', oc:'#000000', os:45 }, st.fx || {});
   ez.hidden = st.hidden || {};
   ez.themes = st.themes || {};                  // the colours and the tagline style it was made with
-  if (st.tagline) taglinePick(st.tagline);
+  taglineRestore(st);
   ez.bg = st.bg || null;
   ez.bgData = null; ez.bgImgObj = null; ez.bgRecId = null;
   jset('pgfx_ez_state', st);
@@ -6393,7 +6500,7 @@ const BG_PRESETS = [
   {type:'grad', c1:'#f5b700', c2:'#ff8a00', a:135},
 ];
 const EZ_EDIT_ROLES = ['headline','sub','cta','info','user','offer'];
-let ez = { tpl: null, format: jget('pgfx_ez_format', 'square'), tagline: jget('pgfx_tagline', 'solid'), themes: {}, vals:{}, chips:null, bg:null, bgPicked:false, custom:'#2563eb', hidden:{}, bgRecId:null, bgData:null, bgImgObj:null, fx:{ blur:0, overlay:'none', oc:'#000000', os:45 }, styles:{}, customPoints: jget('pgfx_custom_points', []) };
+let ez = { tpl: null, format: jget('pgfx_ez_format', 'square'), themes: {}, vals:{}, chips:null, bg:null, bgPicked:false, custom:'#2563eb', hidden:{}, bgRecId:null, bgData:null, bgImgObj:null, fx:{ blur:0, overlay:'none', oc:'#000000', os:45 }, styles:{}, customPoints: jget('pgfx_custom_points', []) };
 let ezBound = false, ezPrevTimer = null;
 
 function ezTpl(){ return TEMPLATES.find(t => t.id === ez.tpl) || TEMPLATES[0]; }
@@ -8180,6 +8287,8 @@ function bindEasyUI(){
   document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => b.dataset.goto === 'plans' ? openPlans() : showEasy(null));
   bindTxtPop();
   buildThemeRow();
+  if (typeof buildEzTagline === 'function') buildEzTagline();
+  if (typeof buildEzPhonePick === 'function') buildEzPhonePick();
 
   // star popover
   $('star-personal').onclick = () => starSave(false);
@@ -8286,6 +8395,7 @@ function selectEzTpl(id){
   syncEzChips();
   syncEzSwatches();
   refreshEzLayers();
+  if (typeof ezPhonePickSync === 'function') ezPhonePickSync();
   schedEzPreview(0);
   /* The background waves load photographs and product pictures in their own
      order, and a template opened before its own arrived previewed without
@@ -8496,8 +8606,10 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
   const chips = ezChips();
   let hasBadgeLayer = false;
   const hiddenNames = (ez.hidden && ez.hidden[tpl.id]) || [];
+  const swap = typeof ezPhoneSwap === 'function' ? ezPhoneSwap(tpl) : null;   // the phone the visitor picked
   tpl.layers.forEach(l => {
     if (hiddenNames.includes(l.name)) return;
+    if (swap && l === swap.from) l = swap.layer;
     if (l.role === 'badges'){
       hasBadgeLayer = true;
       if (!chips.length) return;
@@ -8536,11 +8648,13 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
     }));
     sc.add(ezApplyStyle(bo, synth, tpl.id));
   }
+  if (typeof blockRemap === 'function') blockRemap(sc, DW, DH);    // tall formats: blocks move whole, plates keep their words
+  if (typeof tallFill === 'function') tallFill(sc, DW, DH);        // …and grow into what the photograph leaves plain
   alignPass(sc, DW, DH);
-  /* the tagline style the visitor picked, on whichever template this is
-     (TAGLINE_STYLES): here, so the preview, the download and the video are
-     the same picture */
-  ez.tagInfo = taglineShow(taglineApply(sc, tpl, DW, DH));
+  /* the card finished and the tagline look the visitor picked (or the card's
+     own), on whichever template this is: here, so the preview, the download
+     and the video are the same picture (DESIGN-LAW 83) */
+  ez.tagInfo = ezApplyTagline(sc, DW, DH, !keep && fmt === 'jpeg', (px || 560) / Math.min(DW, DH), tpl);
   sc.renderAll();
   if (keep) return sc;          // the video export animates this exact scene, and disposes it
   const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / Math.min(DW, DH) });
@@ -8675,7 +8789,7 @@ async function ezDownload(skipBgCheck){
   addHistory(a.download, gate.px, url, undefined, undefined, {
     kind: 'ez',
     st: { tpl: ez.tpl, vals: ez.vals, chips: ez.chips, styles: ez.styles, fx: ez.fx, hidden: ez.hidden,
-          themes: ez.themes, tagline: tagMode(),
+          themes: ez.themes, tag: Object.assign({}, ez.tag),
           bgPicked: ez.bgPicked === true,
           bg: (ez.bg && ez.bg.type !== 'image') ? ez.bg : null },
     bgData: (ez.bg && ez.bg.type === 'image' && ez.bgData) ? ez.bgData : null,
@@ -8687,6 +8801,12 @@ function openAdvancedFromEz(){
   const tpl = ezTpl();
   showEditor();
   loadTemplate(tpl.id, { noTagline: true });
+  /* the phone picked in Easy Mode goes with the design */
+  const swap = typeof ezPhoneSwap === 'function' ? ezPhoneSwap(tpl) : null;
+  if (swap){
+    const objs = canvas.getObjects(), i = objs.findIndex(o => o.name === swap.from.name && o.type === 'image');
+    if (i >= 0){ canvas.remove(objs[i]); canvas.insertAt(buildLayer(swap.layer, tpl.id, CW, CH), i); }
+  }
   // carry the simple-mode choices onto the live canvas
   const phone = $('ez-phone').value.trim();
   const site = $('ez-website').value.trim();
@@ -8719,12 +8839,14 @@ function openAdvancedFromEz(){
     if (!canvas) return;
     canvas.discardActiveObject();
     taglineReset(canvas);
+    taglineFinish(canvas, CW, CH);
     taglineShow(taglineApply(canvas, tpl, CW, CH), 'ed-tagnote');
     canvas.renderAll(); pushHist();
   });
   else if (ez.bg){ bgState = Object.assign({}, ez.bg); applyBgSpec(canvas, bgState); syncBgControls(); }
   const ovAdv = ezOverlayRect();
   if (ovAdv){ canvas.add(ovAdv); canvas.sendToBack(ovAdv); }
+  taglineFinish(canvas, CW, CH);
   taglineShow(taglineApply(canvas, tpl, CW, CH), 'ed-tagnote');
   canvas.renderAll();
   pushHist();
@@ -8977,7 +9099,7 @@ function selectAllObjects(){
 }
 
 // ═══════════════ BOOT ═══════════════
-const CSS_FALLBACK = "/* ═══════════════════════════════════════════════════════════════════════════\n   GRAPHICS STUDIO — Liquid Glass chrome\n\n   Unified with unified-crm and the iphones.la launcher: same field, same glass\n   recipe, same accent, same radii, same tabular-mono law. The templates this\n   app produces went Liquid Glass on Aug 24; the chrome around them was still\n   flat-black-and-orange 2021 SaaS. Now they are one material.\n\n   Laws, carried over from the CRM theme:\n   1. Chrome is glass. Running text is opaque. A blur is for panels, never\n      for paragraphs.\n   2. ONE accent (#ff7a1a). The site now matches the PRODUCT it sells, not\n      the CRM: a page selling loud buyback ads should not look like a SaaS\n      dashboard. Colour that is not the accent means state:\n      green good, amber caution, red stop, violet AI.\n   3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and\n      wordmark only, as --brand-1/--brand-2, so the accent can be retuned for\n      contrast without repainting the brand.\n   4. Anything the eye compares — prices, counts, percentages, quotas — is set\n      in tabular mono. This is a tool, not prose.\n\n   Legacy tokens (--orange, --surface2, --muted …) are kept as ALIASES onto the\n   new system because app.js writes them into generated markup in ~250 places.\n   Retargeting --orange to the accent is what repaints those call sites.\n   Do not delete an alias without grepping app.js first.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── HOUSE TYPE ──────────────────────────────────────────────────────────────\n   Clash Display for anything that declares, Satoshi for anything that is read,\n   Zodiak when a serif is the point. All three are Fontshare (Indian Type\n   Foundry), free for commercial use, and VENDORED into assets/fonts rather\n   than pulled from a CDN: no third-party dependency, no extra CSP origin, no\n   render-blocking round trip to someone else's server. 184KB for nine files.\n\n   Why these and not the previous set: the library ran on Bebas Neue, Anton,\n   Montserrat, Luckiest Guy, Titan One, Bungee, Monoton and Pacifico. Those are\n   the default free-font shelf every Canva template is already built from, and\n   half of them are novelty faces — the opposite of an ad that asks a stranger\n   to hand over a phone for cash. `font-display:swap` so text paints\n   immediately in the fallback and reflows once the face lands. */\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n/* Khand carries the long money-words (\"TEST STRIPS\", \"COLLECTIBLES\") that made\n   a wide face overflow; Melodrama is the high-contrast serif for gold, coins\n   and anything that wants to read as valuation rather than clearance. Two more\n   voices so the 153 templates are not all in one typeface. */\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n\n/* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>\n   before first paint by the inline script in index.html, so there is no white\n   flash. This rule matches both the explicit choice and the bare default, so\n   dark still applies if that script never runs. */\n:root,\n:root[data-theme='dark']{\n  color-scheme:dark;\n\n  /* GRAPHITE, the default ground since 2026-09-02. The field used to be a warm\n     near-black (#141110) with brown surfaces under an orange accent, and the\n     owner's verdict was \"orange on brown on grey\". The ground is now a cool\n     neutral graphite so ANY accent sits on it cleanly; the old warm set is\n     kept, whole, as data-skin='ember' below. Accent colour is a separate axis\n     (data-accent) so the two can be mixed from the Look menu. */\n\n  /* Field */\n  --field:#0f1116;\n  --wash-a:rgba(var(--accent-rgb),.26);\n  --wash-b:rgba(var(--accent2-rgb),.18);\n  --wash-c:rgba(0,214,180,.10);\n\n  /* Glass */\n  --glass-bg:rgba(24,27,34,.62);\n  --glass-bg-strong:rgba(24,27,34,.86);\n  --glass-edge:rgba(255,255,255,.12);\n  --glass-blur:blur(34px) saturate(190%) brightness(1.04);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 38px -12px rgba(0,0,0,.6);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.10),0 24px 60px -14px rgba(0,0,0,.75);\n\n  /* Opaque content surfaces */\n  --surface-solid:#171a21;\n  --surface-sunk:rgba(255,255,255,.055);\n  --surface-raise:#1f232c;\n\n  /* Ink — cool neutrals */\n  --text:#f2f4f8;\n  --text-2:#c3c9d6;\n  --text-dim:#8b94a7;\n  --hairline:rgba(255,255,255,.09);\n  --hairline-strong:rgba(255,255,255,.16);\n\n  /* Accent — BLUE MARKET by default (the palette the owner kept most often\n     in the template reviews). See the data-accent blocks for the others. */\n  --accent:#4d9cff;\n  --accent-ink:#061527;\n  --accent-wash:rgba(77,156,255,.16);\n  --accent-deep:#2b7de9;\n  --accent-soft:#cfe4ff;\n  --accent-rgb:77,156,255;\n  --accent2-rgb:120,90,255;\n\n  --good:#30d68f;\n  --warn:#ffb03d;\n  --danger:#ff6259;\n  --ai:#a78bff;\n\n  /* Brand — follows the accent now. The mark used to carry its own orange\n     regardless of the UI accent; that is the one place orange survived the\n     retune, so it is tied to the accent axis instead. */\n  --brand-1:var(--accent);\n  --brand-2:var(--accent-soft);\n  --brand-rgb:var(--accent-rgb);\n\n  --r-pill:999px;\n  --r-lg:18px;\n  --r-md:13px;\n  --r-sm:9px;\n  --tap:44px;\n\n  --lift-1:0 1px 2px rgba(0,0,0,.4),0 4px 12px -4px rgba(0,0,0,.5);\n  --lift-2:0 2px 6px rgba(0,0,0,.45),0 18px 42px -14px rgba(0,0,0,.68),0 0 0 1px rgba(255,255,255,.045);\n  --lift-3:0 4px 12px rgba(0,0,0,.5),0 40px 90px -22px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.5);\n\n  --stage-1:#14171d;\n  --stage-2:#0a0c10;\n  --stage-dot:rgba(255,255,255,.045);\n  --scrim:rgba(8,10,14,.74);\n\n  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;\n  /* Satoshi runs the whole product, chrome included. The system stack stays\n     behind it as the fallback, so a failed font load degrades to exactly the\n     UI we shipped before rather than to Times. */\n  --ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;\n  --display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;\n  --serif:'Zodiak',Georgia,'Times New Roman',serif;\n\n  /* ── legacy aliases (app.js depends on every one of these) ── */\n  --bg:var(--field);\n  --surface:var(--surface-solid);\n  --surface2:var(--surface-raise);\n  --surface3:#2a2f3a;\n  --border:var(--hairline);\n  --border2:var(--hairline-strong);\n  --orange:var(--accent);\n  --orange2:var(--accent-deep);\n  --gold:var(--warn);\n  --green:var(--good);\n  --red:var(--danger);\n  --muted:var(--text-dim);\n  --muted2:var(--text-2);\n  --panel:var(--surface-solid);\n  --panel2:var(--surface-raise);\n  --line:var(--hairline);\n  --r:var(--r-md);\n}\n\n/* EMBER — the pre-2026-09-02 warm look, kept as a selectable skin. */\n:root[data-theme='dark'][data-skin='ember']{\n  --field:#141110;\n  --wash-a:rgba(var(--accent-rgb),.34);\n  --wash-b:rgba(var(--accent2-rgb),.26);\n  --wash-c:rgba(255,196,60,.20);\n  --glass-bg:rgba(34,27,23,.62);\n  --glass-bg-strong:rgba(34,27,23,.86);\n  --glass-edge:rgba(255,255,255,.13);\n  --surface-solid:#1d1815;\n  --surface-raise:#262019;\n  --text:#f6efe8;\n  --text-2:#cfc2b6;\n  --text-dim:#9a8b7e;\n  --stage-1:#1a1512;\n  --stage-2:#0d0a08;\n  --scrim:rgba(14,9,6,.74);\n  --surface3:#33291f;\n}\n\n/* NIGHT — deep jewel ground, vivid washes, the Night Neon family's material. */\n:root[data-theme='dark'][data-skin='night']{\n  --field:#0a0913;\n  --wash-a:rgba(var(--accent-rgb),.44);\n  --wash-b:rgba(var(--accent2-rgb),.34);\n  --wash-c:rgba(0,214,180,.18);\n  --glass-bg:rgba(28,24,56,.58);\n  --glass-bg-strong:rgba(28,24,56,.84);\n  --glass-edge:rgba(255,255,255,.14);\n  --glass-blur:blur(40px) saturate(220%) brightness(1.06);\n  --surface-solid:#15132a;\n  --surface-raise:#1d1a36;\n  --surface-sunk:rgba(255,255,255,.06);\n  --text:#f3f0ff;\n  --text-2:#c9c3e8;\n  --text-dim:#8f88b8;\n  --hairline:rgba(255,255,255,.10);\n  --hairline-strong:rgba(255,255,255,.18);\n  --glow-accent:0 10px 40px -6px rgba(var(--accent-rgb),.7);\n  --stage-1:#14122a;\n  --stage-2:#08071a;\n  --scrim:rgba(6,5,16,.76);\n  --surface3:#26224a;\n}\n\n/* LIGHT — opt-in, for daylight and for turning the screen toward someone.\n   Higher specificity than the bare :root above, so it wins wherever the dark\n   default set a value. Radii, faces and the mono stack are theme-independent. */\n:root[data-theme='light']{\n  color-scheme:light;\n  --field:#f3f4f7;\n  --wash-a:rgba(var(--accent-rgb),.14);\n  --wash-b:rgba(var(--accent2-rgb),.10);\n  --wash-c:rgba(0,214,180,.08);\n  --glass-bg:rgba(255,255,255,.58);\n  --glass-bg-strong:rgba(255,255,255,.80);\n  --glass-edge:rgba(255,255,255,.9);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(9,18,38,.045),0 1px 2px rgba(9,18,38,.05),0 14px 38px -12px rgba(9,18,38,.16);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.95),0 24px 60px -14px rgba(9,18,38,.30);\n  --surface-solid:#ffffff;\n  --surface-sunk:rgba(9,18,38,.042);\n  --surface-raise:#f8f9fc;\n  --text:#14161c;\n  --text-2:#4a5060;\n  --text-dim:#6b7280;\n  --hairline:rgba(9,18,38,.09);\n  --hairline-strong:rgba(9,18,38,.16);\n  --accent:#1d63d8;\n  --accent-ink:#ffffff;\n  --accent-wash:rgba(29,99,216,.12);\n  --accent-deep:#174fae;\n  --accent-soft:#dbe8ff;\n  --accent-rgb:29,99,216;\n  --accent2-rgb:109,63,214;\n  --good:#0f9d6b;\n  --warn:#c2751a;\n  --danger:#e0342a;\n  --ai:#6c4cff;\n  --lift-1:0 1px 2px rgba(9,18,38,.06),0 4px 12px -4px rgba(9,18,38,.10);\n  --lift-2:0 2px 6px rgba(9,18,38,.07),0 18px 42px -14px rgba(9,18,38,.20),0 0 0 1px rgba(9,18,38,.05);\n  --lift-3:0 4px 12px rgba(9,18,38,.08),0 40px 90px -22px rgba(9,18,38,.28),0 0 0 1px rgba(9,18,38,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.34);\n  --stage-1:#eef0f4;\n  --stage-2:#dfe3ea;\n  --stage-dot:rgba(9,18,38,.07);\n  --scrim:rgba(120,132,155,.42);\n  --surface3:#e9ecf2;\n}\n\n/* PAPER — light, editorial: a warm paper ground, ink type, a serif display\n   face, hairlines instead of glass. The Paper and Chalk template families'\n   material, applied to the chrome. */\n:root[data-theme='light'][data-skin='paper']{\n  --field:#f7f4ee;\n  --wash-a:rgba(var(--accent-rgb),.07);\n  --wash-b:rgba(var(--accent2-rgb),.05);\n  --wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(251,249,244,.82);\n  --glass-bg-strong:rgba(251,249,244,.94);\n  --glass-edge:rgba(30,25,15,.10);\n  --glass-blur:blur(12px) saturate(120%);\n  --glass-shadow:0 1px 0 rgba(30,25,15,.05);\n  --glass-shadow-lift:0 20px 50px -18px rgba(30,25,15,.22);\n  --surface-solid:#fffdf9;\n  --surface-sunk:rgba(30,25,15,.045);\n  --surface-raise:#f1ece3;\n  --text:#1a1815;\n  --text-2:#4e4842;\n  --text-dim:#6d665e;\n  --hairline:rgba(30,25,15,.11);\n  --hairline-strong:rgba(30,25,15,.20);\n  --stage-1:#f1ece3;\n  --stage-2:#e4dccf;\n  --scrim:rgba(90,80,64,.42);\n  --surface3:#e9e2d6;\n  --r-lg:12px;\n  --r-md:9px;\n  --r-sm:6px;\n  --display:'Zodiak',Georgia,'Times New Roman',serif;\n}\n\n/* ACCENT AXIS. Five accents, each with a dark and a light value pair; the\n   ground (skin) never changes with the accent, which is what makes them\n   mixable. Blue is the default and lives in the base blocks above. */\n:root[data-accent='mint']{--accent:#3ddc97;--accent-ink:#04170e;--accent-wash:rgba(61,220,151,.16);--accent-deep:#1fb87a;--accent-soft:#c9f5e2;--accent-rgb:61,220,151;--accent2-rgb:77,156,255}\n:root[data-theme='light'][data-accent='mint']{--accent:#0f8f5f;--accent-ink:#ffffff;--accent-wash:rgba(15,143,95,.12);--accent-deep:#0b6f4a;--accent-soft:#d3f3e4;--accent-rgb:15,143,95;--accent2-rgb:29,99,216}\n:root[data-accent='orchid']{--accent:#b48cff;--accent-ink:#120a24;--accent-wash:rgba(180,140,255,.16);--accent-deep:#8f5cff;--accent-soft:#e6d8ff;--accent-rgb:180,140,255;--accent2-rgb:255,120,190}\n:root[data-theme='light'][data-accent='orchid']{--accent:#6d3fd6;--accent-ink:#ffffff;--accent-wash:rgba(109,63,214,.12);--accent-deep:#5530b0;--accent-soft:#e9dfff;--accent-rgb:109,63,214;--accent2-rgb:214,63,150}\n:root[data-accent='gold']{--accent:#f2c744;--accent-ink:#1a1300;--accent-wash:rgba(242,199,68,.16);--accent-deep:#d9a815;--accent-soft:#ffe9a8;--accent-rgb:242,199,68;--accent2-rgb:255,122,26}\n:root[data-theme='light'][data-accent='gold']{--accent:#a6700a;--accent-ink:#ffffff;--accent-wash:rgba(166,112,10,.12);--accent-deep:#8a5b06;--accent-soft:#f7e7b8;--accent-rgb:166,112,10;--accent2-rgb:194,65,12}\n:root[data-accent='orange']{--accent:#ff7a1a;--accent-ink:#1a0d04;--accent-wash:rgba(255,122,26,.18);--accent-deep:#e04e05;--accent-soft:#ffd7a1;--accent-rgb:255,122,26;--accent2-rgb:255,80,30;--brand-1:#ff7a33;--brand-2:#f5a623}\n:root[data-theme='light'][data-accent='orange']{--accent:#c2410c;--accent-ink:#ffffff;--accent-wash:rgba(194,65,12,.13);--accent-deep:#9a3412;--accent-soft:#ffd7a1;--accent-rgb:194,65,12;--accent2-rgb:255,80,30;--brand-1:#f2600c;--brand-2:#e09417}\n\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}\nhtml{scroll-behavior:smooth}\nbody{\n  font-family:var(--ui);\n  font-size:15px;\n  line-height:1.45;\n  letter-spacing:-.006em;\n  background:var(--field);\n  color:var(--text);\n  overflow-x:hidden;\n  -webkit-font-smoothing:antialiased;\n}\n\n/* THE FIELD — three layers, because one gradient looks like a template.\n   1. Aurora: two large soft colour bodies, off-centre and different sizes, so\n      the eye reads atmosphere rather than wallpaper.\n   2. Geometry: thin arcs and a conic wedge, so a blurred panel moving over an\n      EDGE refracts visibly. Glass over flat colour is just tinted plastic.\n   3. Vignette + grain: corners fall away, and wide displays stop banding. */\n/* How strongly the bokeh reads. A dark ground carries it as light in a room;\n   the light skins take a third, where the same alpha smudges the paper. */\n:root{--bokeh-a:.42}\n:root[data-theme='light']{--bokeh-a:.17}\n:root[data-skin='obsidian']{--bokeh-a:.30}\n:root[data-skin='night']{--bokeh-a:.52}\n:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.13}\n\n@media (max-width:700px){:root{--bokeh-a:.26}:root[data-skin='night']{--bokeh-a:.32}:root[data-theme='light']{--bokeh-a:.12}:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.09}}\n\n/* THE FIELD — the colour behind everything, in two parts.\n\n   BOKEH first (painted on top): eleven out-of-focus discs in the look's own\n   accent, ring and second hue. Each is a radial-gradient rather than a blurred\n   shape, because a gradient IS soft — no filter, no extra compositing layer,\n   nothing for a phone to blur every frame. The rim is a touch brighter than\n   the centre and the falloff runs long, which is what makes a defocused\n   highlight read as glass rather than as a flat circle.\n\n   Then the washes underneath. Every colour comes from a token, so all eight\n   grounds and thirteen accents get their own field for free, and --bokeh-a\n   turns the whole effect down on the light skins, where the same alpha would\n   read as smudges on paper rather than light in a room. */\nbody::before{\n  content:'';position:fixed;inset:-25%;z-index:-2;pointer-events:none;\n  /* HEAVY BOKEH, DISPERSED. Twenty defocused discs on a jittered grid, so the\n     colour is spread through the whole field rather than pooled in a corner.\n     Each is a smooth radial falloff with NO rim and no edge — which is not an\n     approximation of a heavy blur, it is what one is: blur a disc far enough\n     and you have a gaussian, which is a gradient. Doing it this way means no\n     filter, so nothing is re-blurred as the layer drifts, and a phone paints\n     it once. Radii are viewport-relative because the layer tracks the\n     viewport: in px they were tuned for a laptop and swamped a phone.\n     The thin rings and the conic that used to sit here are gone — at this\n     softness their hard 1%-wide edges were the only sharp thing on screen. */\n  background:\n    radial-gradient(circle clamp(91px,23.3vw,315px) at 8.5% 7.4%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.66)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.488)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.238)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.079)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 31.5% 10.9%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.9)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.666)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.324)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.108)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.5vw,140px) at 44.5% 11.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.67)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.496)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.241)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.08)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(54px,11.7vw,157px) at 69.9% 18.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.74)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.548)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.266)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.089)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(86px,21.7vw,293px) at 92.8% 20.2%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.84)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.622)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.302)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.101)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(106px,27.9vw,377px) at 17.7% 30.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.8vw,212px) at 26.0% 31.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.07)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.792)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.385)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.128)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(90px,23.1vw,311px) at 46.5% 39.3%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.82)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.607)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.295)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.098)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 71.7% 31.0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.73)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.54)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.263)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.088)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.9vw,214px) at 93.5% 36.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(101px,26.5vw,358px) at 10.3% 59.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.0)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.74)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.36)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.12)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(82px,20.6vw,277px) at 27.4% 64.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 1.1)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.814)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.396)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.132)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(114px,30.6vw,414px) at 54.2% 59.6%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.68)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.503)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.245)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.082)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(56px,12.3vw,165px) at 69.9% 67.1%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.89)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.659)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.32)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.107)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(99px,25.8vw,349px) at 84.5% 65.7%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(94px,24.3vw,328px) at 16.3% 85.0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.95)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.703)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.342)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.114)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(104px,27.5vw,371px) at 32.1% 87.3%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 1.14)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.844)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.41)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.137)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,138px) at 50.6% 90.6%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.01)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.747)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.364)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.121)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(103px,27.1vw,366px) at 73.1% 95.9%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(47px,9.5vw,126px) at 89.4% 90.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.87)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.644)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.313)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.104)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%);\n  animation:field-drift 48s ease-in-out infinite alternate;\n}\n@keyframes field-drift{\n  from{transform:translate3d(0,0,0) scale(1)}\n  to{transform:translate3d(-1.5%,1.2%,0) scale(1.04)}\n}\nbody::after{\n  content:'';position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;\n  background-image:\n    radial-gradient(120% 90% at 50% 45%,transparent 42%,rgba(0,0,0,.30) 100%),\n    url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.035'/></svg>\");\n}\n/* The editor is a full-height app shell that paints its own stage, so the\n   marketing field would only burn GPU behind it. Driven by :has() rather than\n   a body class, so app.js needs no change to page switching. */\nbody:has(#page-editor.active)::before,\nbody:has(#page-editor.active)::after{display:none}\n\nbutton{font-family:inherit}\ninput,textarea,select{font-family:inherit;color:var(--text)}\n::-webkit-scrollbar{width:10px;height:10px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px;border:3px solid transparent;background-clip:content-box}\n::-webkit-scrollbar-thumb:hover{background:var(--text-dim);background-clip:content-box}\n:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}\n@media (prefers-reduced-motion:reduce){\n  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}\n  body::before{animation:none}\n}\n\n/* ═══════════ HOUSE UTILITIES (shared vocabulary with the CRM) ═══════════ */\n.glass{\n  position:relative;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);\n  backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  box-shadow:var(--glass-shadow);\n}\n/* A single hairline all the way round reads as a border. Real glass catches\n   light on the edge facing the source and loses it on the far side, so this\n   paints a gradient rim: bright top-left, gone by bottom-right. Cheapest thing\n   that separates \"panel with a border\" from \"pane of glass\". */\n.glass::after{\n  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;\n  background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.05) 34%,transparent 60%);\n  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);\n  -webkit-mask-composite:xor;mask-composite:exclude;\n  pointer-events:none;z-index:0;\n}\n.glass>*{position:relative;z-index:1}\n.glass-strong{background:var(--glass-bg-strong)}\n/* Anything the eye compares. */\n.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}\n.label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}\n\n/* ═══════════ SHARED ═══════════ */\n.btn{\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;\n  min-height:36px;padding:9px 18px;\n  border-radius:var(--r-pill);\n  font-size:14px;font-weight:600;letter-spacing:-.01em;line-height:1.2;\n  cursor:pointer;border:none;text-decoration:none;white-space:nowrap;\n  transition:transform .08s cubic-bezier(.2,0,0,1),filter .15s ease,background .15s ease,border-color .15s ease,color .15s ease;\n}\n.btn:active{transform:scale(.968)}\n.btn-primary{\n  background:linear-gradient(180deg,var(--accent),var(--accent-deep));\n  color:var(--accent-ink);\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent);\n}\n.btn-primary:hover{filter:brightness(1.06)}\n.btn-ghost{background:transparent;color:var(--text-2)}\n.btn-ghost:hover{color:var(--text);background:var(--surface-sunk)}\n.btn-outline{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  color:var(--text);border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow);\n}\n.btn-outline:hover{background:var(--surface-raise);color:var(--text)}\n.btn-dark{background:var(--surface-sunk);color:var(--text);border:1px solid var(--hairline)}\n.btn-dark:hover{background:var(--surface-raise)}\n.btn-xl{padding:15px 30px;font-size:16px;min-height:52px}\n.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}\n\n/* Theme toggle — same control on every surface. */\n.theme-btn{\n  width:36px;height:36px;flex:none;display:inline-grid;place-items:center;\n  border-radius:var(--r-pill);background:transparent;border:none;cursor:pointer;\n  color:var(--text-2);font-size:15px;line-height:1;\n  transition:background .15s ease,color .15s ease;\n}\n.theme-btn:hover{background:var(--surface-sunk);color:var(--text)}\n\n.notif{\n  position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);color:var(--text);\n  padding:12px 20px;border-radius:var(--r-pill);font-size:14px;font-weight:600;\n  z-index:9500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;\n  box-shadow:var(--glass-shadow-lift);max-width:min(90vw,480px);text-align:center;\n}\n.notif.show{opacity:1;transform:translate(-50%,0)}\n.notif.success{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(48,214,143,.45)}\n.notif.error{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(255,98,89,.5)}\n\n/* modal */\n.modal-overlay{\n  position:fixed;inset:0;background:var(--scrim);\n  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);\n  z-index:8000;display:none;align-items:center;justify-content:center;padding:24px;\n}\n.modal-overlay.show{display:flex}\n.modal{\n  position:relative;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:22px;width:100%;max-width:520px;padding:26px;\n  box-shadow:var(--glass-shadow-lift);animation:pop .18s cubic-bezier(.2,0,0,1);\n}\n@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}\n.modal h3{font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:4px}\n.modal .modal-sub{font-size:13.5px;color:var(--text-dim);margin-bottom:18px;line-height:1.5}\n.modal label{display:block;font-size:10.5px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.09em}\n.modal input[type=text],.modal input[type=tel],.modal input[type=email],.modal input[type=password]{\n  width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);\n  border-radius:var(--r-md);padding:11px 13px;font-size:14px;color:var(--text);\n  transition:border-color .14s ease,box-shadow .14s ease;\n}\n.modal input::placeholder{color:var(--text-dim)}\n.modal input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}\n\n/* ═══════════ LANDING ═══════════ */\n#page-landing{min-height:100vh}\n.lp-nav{\n  position:fixed;top:0;left:0;right:0;z-index:300;height:64px;\n  display:flex;align-items:center;gap:8px;padding:0 clamp(16px,4vw,40px);\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n  box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -20px rgba(0,0,0,.6);\n}\n.logo{\n  font-family:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;\n  color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px;\n  cursor:pointer;background:none;border:none;\n}\n.logo .logo-mark{\n  width:30px;height:30px;border-radius:9px;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:#fff;\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 12px -4px rgba(var(--brand-rgb),.5);\n}\n/* Brand warmth lives here and nowhere else. */\n.logo em{\n  font-style:normal;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  -webkit-background-clip:text;background-clip:text;color:transparent;\n}\n.lp-nav-links{display:flex;gap:26px;margin-left:40px}\n.lp-nav-links a{font-size:14px;font-weight:550;color:var(--text-2);text-decoration:none;transition:color .15s;white-space:nowrap}\n.lp-nav-links a:hover{color:var(--text)}\n.lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}\n.lp-lab{white-space:nowrap}\n/* The bar measured about 1290px wide at every viewport, so from 1100 to 1439px\n   \"Make my ad\" (the one action the page exists for) was clipped off the right\n   edge. It gives ground in order of least use: tighter link spacing and the\n   \"Template\" word first, then the two links that are also reachable from the\n   page itself, then the link row. */\n@media(max-width:1380px){\n  .lp-nav-links{gap:18px;margin-left:24px}\n  .lp-lab-full{display:none}\n}\n@media(max-width:1200px){\n  .lp-nav-links a[href=\"#lp-themes\"],.lp-nav-links a[href=\"#faq\"]{display:none}\n}\n@media(max-width:1000px){\n  .lp-nav-links{display:none}\n}\n@media(max-width:640px){\n  .lp-nav-links{display:none}\n  /* The lab link is the one nav item that must survive on a phone (it is\n     reviewed from one). Measured at 375px: wordmark 186 + lab pill + toggle\n     + \"Make my ad\" overflowed by ~80px and the CTA clipped, so the logo\n     drops to its mark alone here; the mark keeps its own font-size below. */\n  .lp-nav .logo{font-size:0;gap:0}\n  .lp-lab{padding:9px 12px}\n  /* 343px of usable nav at 375 viewport cannot hold logo + 4 controls, and\n     overflow-x:hidden was silently clipping \"Make my ad\" off the right edge.\n     Log in / Sign up free stay reachable in the footer's Account column and\n     from the studio itself, so the one conversion button survives here. */\n  #lp-login,#lp-signup{display:none}\n  .lp-nav{gap:4px;padding:0 12px}\n  .lp-nav .btn{padding:9px 14px;font-size:13.5px}\n  .lp-nav .lp-caret{padding:9px 10px}\n  .logo{font-size:15px;gap:8px}\n  .logo .logo-mark{width:26px;height:26px;font-size:13px}\n}\n\n.hero{padding:120px clamp(16px,5vw,48px) 72px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(84vh,760px)}\n@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:120px;gap:44px;min-height:0}}\n.hero-eyebrow{\n  display:inline-flex;align-items:center;gap:8px;\n  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;\n  color:var(--accent);background:var(--accent-wash);\n  border:.5px solid rgba(var(--accent-rgb),.28);\n  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:22px;\n}\n/* The ceiling at which \"in under a minute.\" still sets on ONE line inside the\n   1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is face-specific and\n   has now caught two typefaces out: the system stack held one line to 68px,\n   Clash Display breaks at 66 (it runs ~8.4x its size for that string against\n   a 548px column at 1280). Re-measure this if --display ever changes again;\n   guessing produces a four-line ragged hero. */\n.hero h1{font-family:var(--display);font-size:clamp(34px,4.5vw,58px);line-height:1.06;letter-spacing:-.028em;margin-bottom:20px;font-weight:700}\n.hero h1 em{font-style:normal;color:var(--accent)}\n.hero p{font-size:17px;line-height:1.65;color:var(--text-2);max-width:480px;margin-bottom:32px}\n.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}\n.hero-note{margin-top:18px;font-size:13px;color:var(--text-dim)}\n\n/* Height is set by the fan's geometry, not by taste: the front card must start\n   BELOW the back cards' phone-number band or it buries the one element the ad\n   exists to deliver. At 460px with 52% cards it covered 53% and 54% of them. */\n.hero-stack{position:relative;height:500px}\n.hero-card{position:absolute;width:44%;aspect-ratio:1;border-radius:20px;overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-3);background:var(--surface-raise);transition:transform .4s cubic-bezier(.2,0,0,1)}\n.hero-card img{width:100%;height:100%;object-fit:cover;display:block}\n/* Fan geometry is measured, not eyeballed. At 57% wide the three cards came to\n   192% of the stack and the back card was 57% OCCLUDED — its headline was\n   sliced in half, which reads as a broken page rather than a designed stack.\n   At 52% the overlap is ~19%/~18% and, more importantly, all of it lands in\n   the LOWER band: hc3 starts at y=201 of a 460 stack, below where every\n   template puts its headline. Change these together, and re-measure the\n   occlusion if you touch the width. */\n.hero-card.hc1{top:0;left:0;transform:rotate(-8deg);z-index:1}\n.hero-card.hc2{top:4%;right:2%;transform:rotate(6deg);z-index:2}\n.hero-card.hc3{bottom:0;left:20%;transform:rotate(-1deg);z-index:3;box-shadow:var(--lift-3),0 30px 90px -20px rgba(var(--accent-rgb),.35)}\n/* Mobile fan. MUST come after the base .hero-card rules: at equal specificity\n   the later rule wins, and an earlier media query silently lost to the 52%\n   default — the block applied, the width did not.\n   Taller and narrower here because at 380px the three cards had nowhere to go\n   and the front one landed across the other two's phone numbers (measured 71%\n   and 55% of the number band covered), which is the one element the ad exists\n   to deliver. */\n@media(max-width:900px){\n  .hero-stack{height:446px;max-width:440px;margin:0 auto;width:100%}\n  .hero-card{width:46%}\n  /* Overlap SIDEWAYS, separate VERTICALLY. Pulling the cards fully apart cleared\n     the phone numbers but lost the stack entirely — three scattered squares, no\n     depth. Horizontal overlap gives the layered read back; the vertical gaps are\n     what keep each card's number band uncovered. */\n  .hero-card.hc1{top:0;left:0}\n  .hero-card.hc2{top:7%;right:4%}\n  .hero-card.hc3{bottom:0;left:17%}\n}\n/* Any card can be brought to the front — hover on a pointer device, press and\n   hold on touch. The whole stack dims slightly so the chosen one reads as\n   picked rather than merely bigger. */\n/* ═══════════ HERO ENTRANCE ═══════════\n   The three cards fly in from below-and-apart and settle into the fan, so the\n   stack assembles itself in front of the visitor instead of being there already.\n   Each card keeps its OWN resting transform, so the animation has to end on that\n   exact value or the card snaps when the keyframes hand back to CSS — hence a\n   per-card @keyframes rather than one shared one.\n   Staggered back-to-front so the card you are meant to read lands last.\n   `animation-fill-mode:both` holds the opening frame during the delay, which is\n   what stops all three flashing at their final position on first paint. */\n@keyframes heroIn1{\n  0%  {opacity:0; transform:translate3d(-38px,64px,0) rotate(-16deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-8deg) scale(1)}\n}\n@keyframes heroIn2{\n  0%  {opacity:0; transform:translate3d(38px,72px,0) rotate(14deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(6deg) scale(1)}\n}\n@keyframes heroIn3{\n  0%  {opacity:0; transform:translate3d(0,88px,0) rotate(6deg) scale(.86)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-1deg) scale(1)}\n}\n/* Cards default to VISIBLE. An earlier version set opacity:0 here and relied on\n   a JS class to reveal them — so the moment requestAnimationFrame did not run\n   (a background tab, a script error anywhere above) the hero was simply blank.\n   The animation supplies its own opening frame through fill-mode:both, so\n   nothing needs to be hidden up front for it to work. Fail visible. */\n.hero-stack.ready .hero-card.hc1{animation:heroIn1 .92s cubic-bezier(.16,.84,.28,1) .05s both}\n.hero-stack.ready .hero-card.hc2{animation:heroIn2 .92s cubic-bezier(.16,.84,.28,1) .17s both}\n.hero-stack.ready .hero-card.hc3{animation:heroIn3 1.0s cubic-bezier(.16,.84,.28,1) .30s both}\n/* Once the entrance has finished the animation is removed entirely, so the\n   hover transform is not fighting a finished animation for the same property.\n   Selector must be enumerated per card: `.hero-stack.settled .hero-card` is\n   three classes and LOSES to `.hero-stack.ready .hero-card.hc1`, which is four\n   — so `animation:none` silently never applied and the cards stayed frozen on\n   the animation's opening frame. Matching specificity, declared later, wins. */\n.hero-stack.settled .hero-card.hc1,\n.hero-stack.settled .hero-card.hc2,\n.hero-stack.settled .hero-card.hc3{animation:none;opacity:1}\n@media (prefers-reduced-motion:reduce){\n  .hero-card{opacity:1}\n  .hero-stack.ready .hero-card{animation:none}\n}\n.hero-card{cursor:pointer;will-change:transform}\n.hero-stack:hover .hero-card,.hero-stack.touching .hero-card{filter:brightness(.72) saturate(.9)}\n/* Hover pulls a card OUT of the stack: z-index above its siblings, straightened,\n   lifted and enlarged. Without the z-index the card grew but stayed underneath,\n   which read as a glitch rather than a pick-up. */\n.hero-card.hc1:hover,.hero-card.hc1.lifted,\n.hero-card.hc2:hover,.hero-card.hc2.lifted,\n.hero-card.hc3:hover,.hero-card.hc3.lifted{z-index:9}\n.hero-card.hc1:hover,.hero-card.hc1.lifted{transform:rotate(-2deg) translateY(-18px) scale(1.09)}\n.hero-card.hc2:hover,.hero-card.hc2.lifted{transform:rotate(1.5deg) translateY(-18px) scale(1.09)}\n.hero-card.hc3:hover,.hero-card.hc3.lifted{transform:rotate(0deg) translateY(-20px) scale(1.09)}\n.hero-card:hover,.hero-card.lifted{\n  z-index:9!important;filter:none!important;\n  box-shadow:var(--lift-3),0 34px 90px -18px rgba(var(--accent-rgb),.5);\n}\n.hero-card .hc-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n@keyframes shimmer{to{background-position:-200% 0}}\n\n.lp-section{max-width:1200px;margin:0 auto;padding:80px clamp(16px,5vw,48px)}\n.lp-section-head{margin-bottom:38px}\n.lp-kicker{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}\n.lp-section-head h2{font-family:var(--display);font-size:clamp(30px,4vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.08}\n.lp-section-head p{color:var(--text-dim);font-size:15px;margin-top:12px;max-width:560px;line-height:1.6}\n\n.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:20px}\n.tpl-card{position:relative;border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--glass-edge);background:var(--surface-raise);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s;aspect-ratio:1;box-shadow:var(--lift-1)}\n.tpl-card:hover{transform:translateY(-4px);box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.4)}\n.tpl-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}\n.tpl-card .tpl-veil{position:absolute;inset:0;backdrop-filter:blur(1.6px) brightness(.86);transition:backdrop-filter .25s,opacity .25s}\n.tpl-card:hover .tpl-veil{backdrop-filter:blur(0) brightness(1);opacity:0}\n.tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}\n.tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}\n.tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-soft);background:rgba(0,0,0,.55);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-pill);padding:4px 9px}\n.tpl-card .tpl-use{position:absolute;top:12px;right:12px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;box-shadow:var(--glow-accent)}\n.tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}\n.tpl-card .tpl-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n.tpl-card.tpl-saved-card .tpl-del{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:14px;opacity:0;transition:opacity .2s}\n.tpl-card.tpl-saved-card:hover .tpl-del{opacity:1}\n.tpl-card .tpl-del:hover{color:var(--danger);border-color:var(--danger)}\n\n.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n@media(max-width:820px){.flow{grid-template-columns:1fr}}\n.flow-step{\n  position:relative;background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.flow-step .fs-num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:14px}\n.flow-step h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:8px}\n.flow-step p{font-size:14px;color:var(--text-dim);line-height:1.6}\n\n.lp-cta{max-width:1200px;margin:0 auto 90px;padding:0 clamp(16px,5vw,48px)}\n.lp-cta-inner{\n  position:relative;overflow:hidden;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:26px;padding:56px 40px;text-align:center;\n  box-shadow:var(--glass-shadow-lift);\n}\n/* A wash of accent inside the pane so the CTA reads as lit rather than tinted. */\n.lp-cta-inner::before{\n  content:'';position:absolute;inset:0;pointer-events:none;\n  background:radial-gradient(70% 120% at 50% 0%,var(--accent-wash),transparent 70%);\n}\n.lp-cta-inner>*{position:relative}\n.lp-cta-inner h2{font-family:var(--display);font-size:clamp(30px,4.4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.06;margin-bottom:12px}\n.lp-cta-inner p{color:var(--text-2);margin-bottom:28px;font-size:15px}\n.lp-footer{border-top:1px solid var(--hairline);padding:26px clamp(16px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--text-dim);font-size:13px}\n\n\n/* ═══════════ EDITOR ═══════════ */\n#page-editor{display:none;height:100vh;flex-direction:column;overflow:hidden}\n#page-editor.active{display:flex}\n#page-landing.hidden{display:none}\n\n.topbar{\n  height:58px;flex:0 0 58px;display:flex;align-items:center;gap:10px;padding:0 14px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);z-index:100;\n}\n.topbar .logo{font-size:15px}\n.tb-sep{width:1px;height:26px;background:var(--hairline);margin:0 4px}\n.tb-tplname{font-size:13px;font-weight:600;color:var(--text-2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.tb-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;color:var(--text-2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:var(--r-pill);cursor:pointer;transition:background .15s,color .15s}\n.tb-btn:hover{background:var(--surface-sunk);color:var(--text)}\n.tb-btn:disabled{opacity:.35;cursor:default;background:transparent}\n.tb-btn svg{width:16px;height:16px}\n.tb-spacer{flex:1}\n/* AI is violet everywhere in the house, never the accent. */\n#enhance-btn{border:.5px solid rgba(167,139,255,.4);color:var(--ai);background:rgba(167,139,255,.10)}\n#enhance-btn:hover{background:rgba(167,139,255,.18);color:var(--ai)}\n#enhance-btn.busy{opacity:.6;pointer-events:none}\n#export-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n#export-btn:hover{filter:brightness(1.06)}\n@media(max-width:900px){.tb-label{display:none}}\n/* ── editor topbar below laptop width ─────────────────────────────────────\n   Twelve controls in one non-wrapping row is fine at 1280 and broken\n   everywhere else: at iPad portrait the EXPORT button sat at x=848 on an\n   820px screen, and on an iPhone half the bar was past the right edge with\n   no way to reach it. The bar now scrolls horizontally, every control keeps\n   its full size rather than being squeezed, and Export is pinned to the\n   right edge so the one button that matters is never the one you have to go\n   hunting for. */\n@media(max-width:1100px){\n  .topbar{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}\n  .topbar::-webkit-scrollbar{display:none}\n  .topbar > *{flex:none}\n  .topbar .tb-spacer{flex:1 0 8px}\n  #export-btn{\n    position:sticky;right:0;z-index:2;\n    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent),\n               -18px 0 18px -10px var(--glass-bg-strong);\n  }\n}\n/* Touch pointers get the 44px minimum. Height only — widening the nav pills\n   would push the row back off the edge, which is the problem we just fixed. */\n@media(pointer:coarse){\n  .btn,.tb-btn,.ez-adv-link,.view-item,.picker-filters button,.plans-close,.logo{min-height:44px}\n  .theme-btn{width:44px;height:44px}\n  .ez-chip,.chip{min-height:40px}\n}\n\n.editor-body{flex:1;display:flex;overflow:hidden;position:relative}\n\n/* panels as drawers */\n.panel{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  display:flex;flex-direction:column;position:relative;transition:margin .28s cubic-bezier(.2,0,0,1);z-index:50;\n}\n.panel-left{width:300px;flex:0 0 300px;border-right:.5px solid var(--glass-edge)}\n.panel-right{width:300px;flex:0 0 300px;border-left:.5px solid var(--glass-edge)}\n.panel-left.collapsed{margin-left:-300px}\n.panel-right.collapsed{margin-right:-300px}\n.drawer-tab{position:absolute;top:50%;transform:translateY(-50%);width:20px;height:64px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:60;transition:color .15s,background .15s}\n.drawer-tab:hover{color:var(--text);background:var(--surface-raise)}\n.panel-left .drawer-tab{right:-20px;border-left:none;border-radius:0 10px 10px 0}\n.panel-right .drawer-tab{left:-20px;border-right:none;border-radius:10px 0 0 10px}\n\n.panel-tabs{display:flex;border-bottom:1px solid var(--hairline);flex:0 0 auto}\n.panel-tabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:12.5px;font-weight:650;padding:13px 4px;cursor:pointer;transition:color .15s,border-color .15s;letter-spacing:-.01em}\n.panel-tabs button:hover{color:var(--text-2)}\n.panel-tabs button.active{color:var(--text);border-bottom-color:var(--accent)}\n.panel-scroll{flex:1;overflow-y:auto;padding:16px 14px 40px}\n.panel-tabview{display:none}\n.panel-tabview.active{display:block}\n\n.psec{margin-bottom:22px}\n.psec-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}\n.field{margin-bottom:11px}\n.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}\n.field input[type=text],.field input[type=tel],.field input[type=number],.field textarea,.field select{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;transition:border-color .14s,box-shadow .14s}\n.field textarea{resize:vertical;min-height:56px;line-height:1.4}\n.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.field input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}\n.field-row{display:flex;gap:8px}\n.field-row .field{flex:1}\ninput[type=color]{width:100%;height:34px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:var(--surface-raise);cursor:pointer;padding:3px}\ninput[type=range]{width:100%;accent-color:var(--accent)}\n\n.chips{display:flex;flex-wrap:wrap;gap:7px}\n.chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12px;font-weight:650;padding:7px 12px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s;letter-spacing:-.005em}\n.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n.seg{display:flex;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-pill);overflow:hidden;padding:3px;gap:3px}\n.seg button{flex:1;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:650;padding:7px 6px;cursor:pointer;border-radius:var(--r-pill);transition:background .13s,color .13s}\n.seg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.seg button:hover:not(.active){color:var(--text-2)}\n\n.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}\n.add-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-md);color:var(--text-2);font-size:12.5px;font-weight:600;padding:13px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .13s}\n.add-btn:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}\n.add-btn .ab-ico{font-size:19px;line-height:1}\n.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.emoji-grid button{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);font-size:21px;padding:8px 0;cursor:pointer;transition:all .13s}\n.emoji-grid button:hover{border-color:var(--accent);transform:scale(1.08)}\n\n.mini-tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}\n.mini-tpl{position:relative;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--hairline);cursor:pointer;aspect-ratio:1;background:var(--surface-raise);transition:box-shadow .15s,transform .15s}\n.mini-tpl:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.mini-tpl.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}\n.mini-tpl img{width:100%;height:100%;object-fit:cover;display:block}\n.mini-tpl .mt-name{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;font-weight:650;color:#fff;padding:14px 7px 5px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.mini-tpl .mt-del{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s}\n.mini-tpl:hover .mt-del{opacity:1}\n.mini-tpl .mt-del:hover{color:var(--danger);border-color:var(--danger)}\n.empty-hint{font-size:12.5px;color:var(--text-dim);line-height:1.55;background:var(--surface-sunk);border:1px dashed var(--hairline-strong);border-radius:var(--r-md);padding:14px;text-align:center}\n\n/* stage */\n.stage{flex:1;position:relative;display:flex;overflow:auto;padding:26px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,var(--stage-1) 0%,var(--stage-2) 100%)}\n.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(var(--stage-dot) 1px,transparent 1px);background-size:26px 26px;pointer-events:none}\n#canvas-holder{position:relative;box-shadow:var(--lift-3);border-radius:6px;overflow:hidden;margin:auto}\n#guide-v,#guide-h{position:absolute;background:var(--accent);opacity:0;pointer-events:none;transition:opacity .08s;z-index:20;box-shadow:0 0 6px rgba(var(--accent-rgb),.9)}\n#guide-v{top:0;bottom:0;left:50%;width:1px;transform:translateX(-.5px)}\n#guide-h{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px)}\n#guide-v.on,#guide-h.on{opacity:1}\n.zoombar{\n  position:absolute;right:18px;bottom:16px;display:flex;align-items:center;gap:2px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:4px;z-index:70;\n  box-shadow:var(--glass-shadow-lift);\n}\n.zoombar button{background:none;border:none;color:var(--text-2);width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:15px;font-weight:600}\n.zoombar button:hover{background:var(--surface-sunk);color:var(--text)}\n.zoombar .zb-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:600;color:var(--text-2);min-width:48px;text-align:center;cursor:pointer;border-radius:var(--r-pill);padding:6px 2px}\n.zoombar .zb-pct:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* layers */\n.layer-row{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:background .12s,border-color .12s;margin-bottom:3px}\n.layer-row:hover{background:var(--surface-sunk)}\n.layer-row.selected{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4)}\n.layer-row.hidden-l{opacity:.4}\n.layer-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:var(--surface-sunk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-2)}\n.layer-row .li-text{color:var(--accent)}\n.layer-main{flex:1;min-width:0}\n.layer-name{font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.layer-prev{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}\n.layer-acts{display:flex;gap:2px;flex:0 0 auto}\n.layer-acts button{background:none;border:none;color:var(--text-dim);width:24px;height:24px;border-radius:var(--r-pill);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}\n.layer-acts button:hover{background:var(--surface-sunk);color:var(--text)}\n.layer-acts button.on{color:var(--accent)}\n\n.icon-row{display:flex;gap:7px}\n.icon-row button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);color:var(--text-2);padding:8px 4px;cursor:pointer;font-size:13px;font-weight:650;transition:all .13s}\n.icon-row button:hover{border-color:var(--hairline-strong);color:var(--text)}\n.icon-row button.active{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n/* template picker modal */\n.picker-modal{max-width:960px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}\n.picker-head{padding:22px 26px 16px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:14px;flex-wrap:wrap}\n.picker-head h3{font-size:20px;flex:1}\n.picker-filters{display:flex;gap:6px;flex-wrap:wrap}\n.picker-filters button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12.5px;font-weight:650;padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s}\n.picker-filters button.active{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.picker-body{flex:1;overflow-y:auto;padding:22px 26px 30px}\n.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:16px}\n.resume-card{grid-column:1/-1;display:flex;align-items:center;gap:16px;background:var(--accent-wash);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:border-color .15s}\n.resume-card:hover{border-color:var(--accent)}\n.resume-card img{width:64px;height:64px;border-radius:var(--r-md);object-fit:cover;border:.5px solid var(--hairline-strong)}\n.resume-card .rc-title{font-weight:700;font-size:14.5px}\n.resume-card .rc-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px}\n.picker-close{background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:var(--r-pill)}\n.picker-close:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* export modal */\n.export-preview{width:100%;max-height:340px;border-radius:var(--r-lg);border:.5px solid var(--hairline-strong);object-fit:contain;background:var(--surface-sunk);display:block;margin-bottom:16px}\n\n/* tutorial */\n#tut-overlay{position:fixed;inset:0;z-index:9000;display:none;pointer-events:none}\n#tut-bubble{pointer-events:auto}\n#tut-overlay.active{display:block}\n#tut-spot{position:fixed;border-radius:var(--r-lg);box-shadow:0 0 0 9999px var(--scrim),0 0 0 2px var(--accent),0 0 34px rgba(var(--accent-rgb),.5);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:9001}\n#tut-bubble{\n  position:fixed;width:308px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:18px;z-index:9002;\n  box-shadow:var(--glass-shadow-lift);transition:all .3s cubic-bezier(.4,0,.2,1);\n}\n#tut-bubble .tb-step{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}\n#tut-bubble h4{font-size:16px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n#tut-bubble p{font-size:13.5px;color:var(--text-2);line-height:1.55;margin-bottom:15px}\n.tut-dots{display:flex;gap:5px;margin-bottom:14px}\n.tut-dots span{width:7px;height:7px;border-radius:50%;background:var(--hairline-strong);transition:background .2s}\n.tut-dots span.on{background:var(--accent)}\n.tut-actions{display:flex;align-items:center;gap:9px}\n.tut-actions .tut-skip{background:none;border:none;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;padding:8px 4px}\n.tut-actions .tut-skip:hover{color:var(--text)}\n@media(max-width:1100px){.panel-left,.panel-right{position:absolute;top:0;bottom:0;box-shadow:var(--lift-3)}.panel-left{left:0}.panel-right{right:0}}\n\n/* ═══════════ EASY MODE ═══════════ */\n#page-easy{display:none;min-height:100vh}\n#page-easy.active{display:block}\n.ez-nav{\n  display:flex;align-items:center;justify-content:space-between;gap:8px;\n  padding:12px 26px;position:sticky;top:0;z-index:40;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n}\n.ez-adv-link{background:none;border:none;color:var(--text-dim);font:600 13px/1 var(--ui);cursor:pointer;padding:9px 12px;border-radius:var(--r-pill)}\n.ez-adv-link:hover{color:var(--text);background:var(--surface-sunk)}\n.ez-wrap{max-width:1160px;margin:0 auto;padding:26px 22px 90px}\n.ez-head h1{font:700 clamp(24px,3.5vw,34px)/1.1 var(--ui);letter-spacing:-.035em;margin:0 0 4px}\n.ez-head p{color:var(--text-dim);margin:0 0 22px;font-size:14px}\n.ez-stepline{display:flex;align-items:center;gap:10px;margin:26px 0 12px}\n/* NOTE: border-radius MUST stay exactly 50% — cssProbeOk() in app.js reads it\n   to decide whether this stylesheet loaded at all. */\n.ez-stepnum{width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font:700 13px/26px var(--mono);text-align:center;flex:none;box-shadow:var(--glow-accent)}\n.ez-stepline h2{font:650 17px/1 var(--ui);letter-spacing:-.02em;margin:0}\n.ez-stepline small{color:var(--text-dim);font-size:12px;margin-left:2px}\n.ez-strip{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}\n.ez-strip::-webkit-scrollbar{height:8px}\n.ez-strip::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px}\n\n/* ── horizontal scroller: pop-up arrows + edge fades ──────────────────────\n   The arrows are the only thing telling a visitor the row continues, so they\n   sit ON the thumbnails rather than outside the rail, and each one hides the\n   moment there is nothing more that way. */\n.strip-shell{position:relative}\n/* Fades are drawn over the rail, not the label row underneath it. */\n.strip-shell::before,.strip-shell::after{\n  content:'';position:absolute;top:0;bottom:22px;width:64px;pointer-events:none;z-index:2;\n  opacity:1;transition:opacity .18s ease;\n}\n.strip-shell::before{left:0;background:linear-gradient(90deg,var(--field),transparent)}\n.strip-shell::after{right:0;background:linear-gradient(270deg,var(--field),transparent)}\n.strip-shell.at-start::before,.strip-shell.at-end::after,\n.strip-shell.no-scroll::before,.strip-shell.no-scroll::after{opacity:0}\n.strip-arrow{\n  position:absolute;top:calc(50% - 11px);transform:translateY(-50%);z-index:3;\n  width:38px;height:38px;display:grid;place-items:center;\n  border-radius:var(--r-pill);cursor:pointer;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow-lift);\n  color:var(--text);font-size:20px;line-height:1;padding:0 0 3px;\n  transition:opacity .18s ease,transform .12s cubic-bezier(.2,0,0,1),background .15s ease;\n}\n.strip-arrow.left{left:-4px}\n.strip-arrow.right{right:-4px}\n.strip-arrow:hover{background:var(--surface-raise)}\n.strip-arrow:active{transform:translateY(-50%) scale(.92)}\n.strip-shell.at-start .strip-arrow.left,\n.strip-shell.at-end .strip-arrow.right{opacity:0;pointer-events:none}\n.strip-shell.no-scroll .strip-arrow{display:none}\n/* Coarse pointers get a bigger target and no hover-only reveal. */\n@media (pointer:coarse){\n  .strip-arrow{width:44px;height:44px;font-size:22px}\n}\n.ez-tpl{flex:none;width:132px;cursor:pointer;background:none;border:none;padding:0;scroll-snap-align:start;text-align:center;position:relative}\n.ez-tpl img{width:132px;height:132px;border-radius:var(--r-lg);display:block;border:3px solid transparent;transition:border-color .15s,transform .15s,box-shadow .15s;object-fit:cover}\n.ez-tpl span{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}\n.ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.ez-tpl.sel img{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-tpl.sel span{color:var(--text)}\n.ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start}\n.ez-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:20px;\n  box-shadow:var(--glass-shadow);\n}\n.ez-field{margin-bottom:14px}\n.ez-field label{display:block;font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}\n.ez-field input,.ez-field textarea{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:500 15px/1.35 var(--ui);padding:11px 13px;box-sizing:border-box;transition:border-color .14s,box-shadow .14s}\n.ez-field textarea{resize:vertical;min-height:64px}\n.ez-field input:focus,.ez-field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.ez-chiprow{display:flex;flex-wrap:wrap;gap:8px}\n.ez-chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);border-radius:var(--r-pill);padding:8px 14px;font:650 12px/1 var(--ui);cursor:pointer;transition:all .12s}\n.ez-chip:hover{color:var(--text);border-color:var(--hairline-strong)}\n.ez-chip.on{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.ez-swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}\n.ez-sw{width:40px;height:40px;border-radius:12px;border:3px solid transparent;cursor:pointer;padding:0;position:relative;box-shadow:var(--lift-1)}\n.ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}\n.ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}\n.ez-preview-card{position:sticky;top:84px}\n.ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}\n/* account dropdown (reuses .view-drop look) */\n.acct-drop{left:auto;right:0;min-width:240px}\n.am-email{font:650 12px/1.3 var(--ui);color:var(--text-dim);padding:8px 10px 10px;border-bottom:1px solid var(--hairline);margin-bottom:6px;word-break:break-all}\n/* project rows inside Export / Make-my-ad dropdowns */\n.caret{opacity:.6;font-size:11px;margin-left:2px}\n.xm-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-md)}\n.xm-row:hover{background:var(--surface-sunk)}\n.xm-row img{width:34px;height:34px;border-radius:var(--r-sm);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.xm-name{flex:1;font:600 12.5px/1.3 var(--ui);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.xm-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:6px 10px;cursor:pointer;font-size:12px;flex:none}\n.xm-btn:hover{border-color:var(--accent);color:var(--accent)}\n/* split Make-my-ad button on the landing nav */\n.lp-split{display:inline-flex}\n.lp-split #lp-open-studio{border-radius:var(--r-pill) 0 0 var(--r-pill);padding-right:14px}\n.lp-caret{border-radius:0 var(--r-pill) var(--r-pill) 0;padding:9px 13px 9px 11px;border-left:1px solid rgba(0,0,0,.22)}\n/* auth modal */\n.auth-modal{max-width:420px;text-align:left}\n.auth-brand{display:flex;justify-content:center;margin-bottom:12px}\n.auth-brand .logo-mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px -8px rgba(var(--brand-rgb),.6)}\n.auth-modal h3{text-align:center}\n.auth-modal .modal-sub{text-align:center}\n.auth-google{display:flex;justify-content:center;margin:14px 0 4px}\n.auth-or{display:flex;align-items:center;gap:12px;margin:14px 0 4px;color:var(--text-dim);font-size:12px}\n.auth-or::before,.auth-or::after{content:'';flex:1;height:1px;background:var(--hairline)}\n.auth-pass-wrap{position:relative}\n.auth-pass-wrap input{width:100%;padding-right:44px}\n.auth-pass-wrap #auth-pass-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;opacity:.55;padding:6px}\n.auth-pass-wrap #auth-pass-eye:hover{opacity:1}\n.auth-hint{color:var(--text-dim);font-size:11.5px;margin-top:8px}\n/* account-type chooser after signup */\n.at-card{display:block;width:100%;text-align:left;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:15px 17px;margin-top:12px;cursor:pointer;transition:border-color .15s,transform .12s,background .15s}\n.at-card:hover{border-color:var(--accent);transform:translateY(-1px)}\n.at-card.hot{border-color:rgba(var(--accent-rgb),.5);background:var(--accent-wash)}\n.at-card .at-name{display:flex;justify-content:space-between;align-items:baseline;font:700 15px/1 var(--ui);letter-spacing:-.02em;color:var(--text)}\n.at-card .at-name em{font-style:normal;color:var(--accent);font-size:12.5px}\n.at-card .at-desc{display:block;color:var(--text-dim);font-size:12.5px;margin-top:6px;line-height:1.45}\n/* pencil button in export history */\n.hist-edit{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:9px 13px;cursor:pointer;font:600 12.5px/1 var(--ui);margin-right:8px;flex:none}\n.hist-edit:hover{border-color:var(--accent);color:var(--accent)}\n/* big landing footer */\n.lp-footer-big{display:block;padding:46px clamp(16px,4vw,40px) 28px}\n.lpf-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;max-width:1100px;margin:0 auto}\n.lpf-brand p{color:var(--text-dim);font-size:13px;margin-top:10px;max-width:260px}\n.lpf-col h4{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}\n.lpf-col a{display:block;color:var(--text-2);text-decoration:none;font-size:13.5px;padding:5px 0}\n.lpf-col a:hover{color:var(--accent)}\n.lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}\n.ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}\n.ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.ez-dl:hover{filter:brightness(1.06)}\n.ez-dl:active{transform:scale(.985)}\n.ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}\n.ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}\n.ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}\n@media (max-width:920px){\n  .ez-main{grid-template-columns:1fr}\n  /* The preview used to be pulled above the form with order:-1, which made a\n     THREE-STEP guided flow read 1 -> 3 -> 2: the visitor was told \"step 2, type\n     your info\" and then had to scroll past an 1180px preview to find the\n     fields. Steps now stack in the order they are numbered.\n     The preview stays useful while typing by sticking to the bottom of the\n     viewport at a height that cannot swallow the page. */\n  .ez-preview-card{position:static;order:0}\n  .ez-preview-card img{max-height:52vh;width:auto;margin:0 auto;display:block}\n}\n/* Narrow phones: smaller thumbs so more than two fit, and the arrows pull in\n   off the very edge where a thumb-swipe would fight them. */\n@media (max-width:480px){\n  .ez-tpl,.ez-tpl img{width:104px}\n  .ez-tpl img{height:104px}\n  .strip-arrow.left{left:0}\n  .strip-arrow.right{right:0}\n  .strip-shell::before,.strip-shell::after{width:44px}\n}\n\n/* view menu */\n.view-menu{position:relative}\n.view-drop{\n  display:none;position:absolute;top:calc(100% + 8px);left:0;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:6px;min-width:220px;z-index:60;\n  box-shadow:var(--glass-shadow-lift);\n  animation:menu-in .16s cubic-bezier(.2,0,0,1);transform-origin:top left;\n}\n.view-drop.acct-drop{transform-origin:top right}\n@keyframes menu-in{from{opacity:0;transform:translateY(-6px) scale(.97)}}\n.view-drop.open{display:block}\n.view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}\n.view-item:hover{background:var(--accent-wash);color:var(--accent)}\n.view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}\n.view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}\n.view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}\n/* grid overlay */\n#grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:15;display:none;\n  background-image:linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px)}\n#grid-overlay.on{display:block}\n/* fill type seg */\n.fillseg{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:8px}\n.fillseg button{flex:1;background:none;border:none;color:var(--text-dim);font:600 12px/1 var(--ui);padding:8px;border-radius:var(--r-pill);cursor:pointer}\n.fillseg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n/* backgrounds tab */\n.bg-gen-box{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:12px;margin-bottom:14px}\n.bg-gen-box textarea{width:100%;box-sizing:border-box;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 13px/1.4 var(--ui);padding:9px;resize:vertical;min-height:56px}\n.bg-gen-row{display:flex;gap:8px;margin-top:8px}\n.bg-gen-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 12px/1 var(--ui);padding:8px;min-width:0}\n/* AI generation is violet, the house colour for \"a model did this\". */\n.btn-gen{background:linear-gradient(135deg,var(--ai),#7b5cff);color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}\n.btn-gen:hover{filter:brightness(1.06)}\n.btn-gen:disabled{opacity:.55;cursor:wait}\n.bg-result{margin-top:10px;display:none}\n.bg-result.show{display:block}\n.bg-result img{width:100%;border-radius:var(--r-md);display:block}\n.bg-result-acts{display:flex;gap:8px;margin-top:8px}\n.bg-result-acts button{flex:1;border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);border-radius:var(--r-pill);font:600 12px/1 var(--ui);padding:10px;cursor:pointer}\n.bg-result-acts button:hover{border-color:var(--accent);color:var(--accent)}\n.bg-lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.bg-lib-item{position:relative;border:none;background:var(--surface-sunk);border-radius:var(--r-md);padding:0;cursor:pointer;overflow:hidden;aspect-ratio:1}\n.bg-lib-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s}\n.bg-lib-item:hover img{transform:scale(1.06)}\n.bg-lib-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:var(--r-pill);border:none;background:rgba(0,0,0,.65);color:#fff;font-size:11px;cursor:pointer;display:none;line-height:20px;text-align:center}\n.bg-lib-item:hover .bg-lib-del{display:block}\n.bg-lib-badge{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#eee;font:600 9px/1 var(--ui);padding:3px 6px;border-radius:var(--r-pill);pointer-events:none}\n.gear-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:4px;font-family:var(--ui);font-weight:600}\n.gear-btn:hover{color:var(--text)}\n.ai-note{color:var(--text-dim);font-size:11.5px;line-height:1.45;margin-top:8px}\n\n\n/* easy recents + layers + star */\n.ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}\n#ez-recents{display:flex;flex-wrap:wrap;gap:10px}\n#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}\n.ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}\n.ez-recent img{width:100%;height:100%;object-fit:cover;display:block}\n.ez-recent.sel{border-color:var(--accent)}\n.star-btn{position:absolute;top:1px;right:1px;width:16px;height:16px;border:none;border-radius:5px;background:rgba(0,0,0,.65);color:var(--warn);font-size:10px;line-height:16px;text-align:center;cursor:pointer;display:none;padding:0}\n.ez-recent:hover .star-btn,.ez-lrow:hover .star-btn{display:block}\n.ez-lrow .star-btn{position:static;width:22px;height:22px;line-height:22px;border-radius:6px;flex:none}\n#star-pop{\n  position:fixed;z-index:9500;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:6px;display:none;min-width:210px;\n}\n#star-pop.open{display:block}\n#star-pop button{display:block;width:100%;background:none;border:none;color:var(--text);font:500 13px/1 var(--ui);padding:10px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left}\n#star-pop button:hover{background:var(--accent-wash);color:var(--accent)}\n/* easy layers list */\n.ez-layers{margin-top:14px;border-top:1px solid var(--hairline);padding-top:12px}\n.ez-lrow{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:var(--r-md);cursor:pointer}\n.ez-lrow:hover{background:var(--surface-sunk)}\n.ez-lswatch{width:26px;height:26px;border-radius:8px;flex:none;background:var(--surface-sunk);overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--text-dim)}\n.ez-lswatch img{width:100%;height:100%;object-fit:cover}\n.ez-lmain{flex:1;min-width:0}\n.ez-lname{font:650 12px/1.2 var(--ui);color:var(--text)}\n.ez-lprev{font:500 10.5px/1.2 var(--ui);color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}\n.ez-ldel{width:22px;height:22px;border:none;border-radius:var(--r-pill);background:none;color:var(--text-dim);cursor:pointer;font-size:12px;flex:none;line-height:22px;padding:0}\n.ez-ldel:hover{background:rgba(255,98,89,.15);color:var(--danger)}\n.ez-restore{background:none;border:none;color:var(--accent);font:600 11.5px/1 var(--ui);cursor:pointer;padding:6px;margin-top:2px}\n\n\n/* effects controls */\n.ez-fxrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}\n.ez-fxrow button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-pill);padding:8px 13px;font:600 11.5px/1 var(--ui);cursor:pointer}\n.ez-fxrow button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.ez-fxline{display:flex;align-items:center;gap:10px;margin-bottom:8px}\n.ez-fxline label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:64px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.ez-fxline input[type=range]{flex:1}\n.ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}\n.ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}\n/* account chip */\n.acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}\n.acct-chip:hover{background:var(--surface-raise)}\n.acct-plan{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border-radius:var(--r-pill);padding:3px 9px;font:700 9.5px/1.35 var(--ui);letter-spacing:.06em;text-transform:uppercase}\n.acct-plan.free{background:var(--surface-sunk);color:var(--text-dim)}\n/* auth + pay overlays reuse .modal-overlay/.modal */\n.auth-tabs{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:16px}\n.auth-tabs button{flex:1;background:none;border:none;color:var(--text-dim);font:650 13px/1 var(--ui);padding:10px;border-radius:var(--r-pill);cursor:pointer;transition:background .13s,color .13s}\n.auth-tabs button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.auth-err{color:var(--danger);font:500 12.5px/1.4 var(--ui);margin:8px 0 0;min-height:16px}\n.auth-ok{text-align:center;padding:18px 6px}\n.auth-ok .big{font-size:40px;margin-bottom:10px}\n.demo-note{background:rgba(255,176,61,.12);border:.5px solid rgba(255,176,61,.4);color:var(--warn);border-radius:var(--r-md);padding:10px 12px;font:500 11.5px/1.45 var(--ui);margin-top:12px}\n/* plans page */\n/* Fixed at z-index 8000, so it sits above the body's field pseudo-elements and\n   would otherwise be a flat slab. It carries its own copy of the aurora. */\n#page-plans{\n  display:none;position:fixed;inset:0;z-index:8000;overflow:auto;\n  background:\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%),\n    var(--field);\n}\n#page-plans.active{display:block}\n.plans-wrap{max-width:980px;margin:0 auto;padding:34px 22px 80px}\n.plans-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}\n.plans-head h1{font:700 28px/1.1 var(--ui);letter-spacing:-.035em;margin:0}\n.plans-close{background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text);border-radius:var(--r-pill);padding:10px 16px;font:600 13px/1 var(--ui);cursor:pointer}\n.plans-close:hover{background:var(--surface-raise)}\n.plans-sub{color:var(--text-dim);font:500 14px/1.5 var(--ui);margin:0 0 26px}\n.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}\n.plan-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:24px;\n  display:flex;flex-direction:column;box-shadow:var(--glass-shadow);\n}\n.plan-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.plan-name{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin-bottom:4px}\n.plan-price{font:700 32px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:10px 0 2px}\n.plan-price small{font:600 13px/1 var(--ui);color:var(--text-dim)}\n.plan-feats{list-style:none;padding:0;margin:16px 0 20px;flex:1}\n.plan-feats li{font:500 13px/1.5 var(--ui);color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.plan-feats li::before{content:'✓';position:absolute;left:0;color:var(--good);font-weight:700}\n.plan-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);font:650 14px/1 var(--ui);padding:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.plan-btn:hover{filter:brightness(1.06)}\n.plan-btn.ghost{background:var(--surface-sunk);color:var(--text);border:.5px solid var(--hairline);box-shadow:none}\n.plan-btn:disabled{opacity:.5;cursor:default}\n.plan-current{font:650 10.5px/1 var(--ui);color:var(--good);text-transform:uppercase;letter-spacing:.09em;margin-top:10px;text-align:center}\n.ez-quota{color:var(--text-dim);font:600 11.5px/1 var(--ui);text-align:center;margin-top:8px}\n.ez-quota b{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums}\n.ez-quota .up{color:var(--accent);cursor:pointer;text-decoration:underline}\n\n\n/* premium template locks */\n.tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}\n.ez-tpl{position:relative}\n.ez-tpl .tpl-lock{top:6px;left:6px}\n.ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}\n.ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}\n.tpl-card.locked img{filter:grayscale(.35) brightness(.7)}\n\n\n/* category row + nav */\n.ez-catrow{display:flex;align-items:center;gap:12px;margin:0 0 12px}\n.ez-catrow label{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none}\n.cat-select{background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:600 14px/1 var(--ui);padding:11px 13px;min-width:210px;cursor:pointer}\n.cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.nav-upgrade{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);padding:9px 15px;font:700 12px/1 var(--ui);cursor:pointer;letter-spacing:-.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.nav-upgrade:hover{filter:brightness(1.06)}\n/* export history */\n.hist-list{max-height:380px;overflow:auto;margin-top:6px}\n.hist-row{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:var(--r-md)}\n.hist-row:hover{background:var(--surface-sunk)}\n.hist-row img{width:52px;height:52px;border-radius:var(--r-md);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.hist-main{flex:1;min-width:0}\n.hist-name{font:650 13px/1.2 var(--ui);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.hist-meta{font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim)}\n.hist-dl{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px 13px;cursor:pointer;flex:none}\n.hist-dl:hover{border-color:var(--accent);color:var(--accent)}\n.hist-empty{color:var(--text-dim);font:500 13px/1.5 var(--ui);text-align:center;padding:26px 0}\n@media (max-width:760px){ .ez-nav{flex-wrap:wrap;gap:8px} }\n/* The label plus a 210px select is wider than a phone, and overflow-x:hidden\n   was clipping the select's right edge instead of showing it. */\n@media (max-width:560px){\n  .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}\n  .ez-catrow label{margin-bottom:2px}\n  .cat-select{min-width:0;width:100%}\n  .ez-nav{padding:10px 14px}\n  .ez-adv-link{padding:8px;font-size:12.5px}\n  .ez-wrap{padding:20px 14px 80px}\n}\n\n.mini-tpl.locked img, .tpl-mini.locked img{filter:grayscale(.35) brightness(.7)}\n\n/* per-field quick styling */\n.ez-fieldrow{display:flex;gap:8px;align-items:stretch}\n.ez-fieldrow input,.ez-fieldrow textarea{flex:1;min-width:0}\n.ez-edit-btn{flex:none;width:44px;border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-dim);border-radius:var(--r-md);cursor:pointer;font-size:15px}\n.ez-edit-btn:hover{color:var(--accent);border-color:var(--accent)}\n#txt-pop{\n  position:fixed;z-index:9400;width:288px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:14px;display:none;\n}\n#txt-pop.open{display:block}\n#txt-pop .tp-title{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}\n#txt-pop .tp-title button{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px}\n.tp-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}\n.tp-row label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:52px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.tp-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:600 12.5px/1 var(--ui);padding:8px 9px}\n.tp-row input[type=range]{flex:1}\n.tp-row input[type=color]{width:32px;height:26px;border:1px solid var(--hairline-strong);border-radius:6px;background:none;padding:1px;flex:none}\n.tp-row .tp-val{font:600 10.5px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right;flex:none}\n.tp-biu{display:flex;gap:5px;flex:1}\n.tp-biu button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-sm);padding:7px 0;cursor:pointer;font:700 13px/1 Georgia}\n.tp-biu button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.tp-reset{width:100%;margin-top:4px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px;cursor:pointer}\n.tp-reset:hover{color:var(--text)}\n\n\n.ez-themes{display:flex;flex-wrap:wrap;gap:9px}\n.ez-theme{display:flex;border:2px solid var(--hairline-strong);border-radius:11px;overflow:hidden;padding:0;cursor:pointer;width:52px;height:32px;background:none;transition:border-color .13s,transform .13s}\n.ez-theme span{flex:1;display:block}\n.ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);transform:translateY(-1px)}\n.ez-theme:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n/* tagline style (app.js TAGLINE_STYLES): one row in Easy Mode and one in the editor, samples in the card's own colours */\n.ez-tagstyles{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}\n.ez-tagstyle{display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:5px 5px 7px;border:2px solid var(--hairline-strong);border-radius:11px;background:var(--surface-sunk);color:var(--text-2);font:650 11px/1.1 var(--ui);cursor:pointer;transition:border-color .13s,transform .13s,color .13s}\n.ez-tagstyle svg{display:block;width:100%;height:30px;border-radius:7px;background:#34363d}\n.ez-tagstyle:hover{border-color:var(--accent);color:var(--text);transform:translateY(-1px)}\n.ez-tagstyle.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);color:var(--text)}\n.ez-tagstyle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n.ez-tagnote{margin-top:8px;font:500 12px/1.4 var(--ui);color:var(--text-2)}\n\n\n.ez-chip-custom{border-style:dashed}\n.chip-x{opacity:.55;font-size:10px;margin-left:2px}\n.ez-chip-custom:hover .chip-x{opacity:1;color:var(--danger)}\n\n.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:720px}\n.lp-price-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-price-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.lp-price-card h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n.lp-price{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:40px;font-weight:700;letter-spacing:-.04em;margin-bottom:12px}\n.lp-price small{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:-.01em}\n.lp-price-card ul{list-style:none;padding:0;margin:0 0 18px}\n.lp-price-card li{font-size:13.5px;color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.lp-price-card li::before{content:'\\2713';position:absolute;left:0;color:var(--good);font-weight:700}\n.lp-faq{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:0 20px;margin-bottom:10px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-faq summary{font-weight:650;font-size:15px;letter-spacing:-.015em;padding:17px 0;cursor:pointer;list-style:none}\n.lp-faq summary::-webkit-details-marker{display:none}\n.lp-faq summary::after{content:'+';float:right;color:var(--accent);font-size:18px;font-weight:600}\n.lp-faq[open] summary::after{content:'\\2013'}\n.lp-faq p{font-size:14px;color:var(--text-2);line-height:1.6;padding-bottom:17px;margin:0}\n\n/* ── canvas format picker ── */\n.tb-format{appearance:none;-webkit-appearance:none;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);max-width:190px;border-radius:var(--r-pill);padding:8px 28px 8px 13px;font-size:13px;font-weight:600;background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}\n.tb-format:hover{border-color:var(--accent)}\n\n/* ── order prints + posting ── */\n.btn-order{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:12px;background:rgba(48,214,143,.12);border:.5px solid rgba(48,214,143,.45);color:var(--good);font-weight:650;border-radius:var(--r-lg);padding:12px}\n.btn-order:hover{border-color:var(--good);background:rgba(48,214,143,.18)}\n.btn-order .order-sub{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.01em}\n.ez-order{display:block;width:100%;margin-top:10px;background:none;border:1px dashed rgba(48,214,143,.5);color:var(--good);font-size:13px;font-weight:650;padding:11px;border-radius:var(--r-lg);cursor:pointer}\n.ez-order:hover{background:rgba(48,214,143,.10)}\n\n/* ── QR layer ── */\n.ab-pro{position:absolute;top:6px;right:6px;background:var(--warn);color:#1a1206;font-size:9px;font-weight:800;padding:2px 6px;border-radius:var(--r-pill);letter-spacing:.04em}\n.add-btn{position:relative}\n.qr-help{font-size:12px;color:var(--text-2);line-height:1.5;margin-top:8px}\n.qr-help a{color:var(--good);font-weight:650;text-decoration:none}\n.qr-help a:hover{text-decoration:underline}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LANDING v2 — 2026-09-02. The hero fan of three canvas-rendered classics is\n   now a wall of the newest set's real renders (assets/showcase), the gallery\n   filters by category and theme family, and the chrome has a Look menu:\n   ground (graphite / night / paper / ember) x accent (blue / mint / orchid /\n   gold / orange) x light or dark. All of it is CSS custom properties on\n   <html>, so the studio and the editor inherit whatever is chosen.\n   ═══════════════════════════════════════════════════════════════════════════ */\n.hero-v2{grid-template-columns:1.02fr .98fr;gap:44px;min-height:min(86vh,800px);padding-top:112px;overflow:hidden}\n.hero-copy{position:relative;z-index:2}\n.hero-copy p{max-width:520px}\n.hero-wall{position:relative;height:580px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;\n  transform:rotate(-6deg) scale(1.08);transform-origin:50% 50%;\n  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);\n  mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%)}\n.wall-col{display:flex;flex-direction:column;gap:14px;will-change:transform}\n.wall-col[data-dir=up]{animation:wallUp 46s linear infinite}\n.wall-col[data-dir=down]{animation:wallDown 52s linear infinite}\n.wall-col:nth-child(3){animation-duration:58s}\n@keyframes wallUp{from{transform:translateY(0)}to{transform:translateY(-50%)}}\n@keyframes wallDown{from{transform:translateY(-50%)}to{transform:translateY(0)}}\n.wall-card{aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-2);background:var(--surface-raise);cursor:pointer;flex:none;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s}\n.wall-card:hover{transform:scale(1.04);box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.45);z-index:2}\n.wall-card img{width:100%;height:100%;object-fit:cover;display:block}\n.hero-wall:hover .wall-col{animation-play-state:paused}\n@media(prefers-reduced-motion:reduce){.wall-col{animation:none!important}}\n/* THE SCROLLER RUNS ON A PHONE TOO. It used to stop dead here — the animation\n   was killed and every card past the second was hidden, which also broke the\n   seamless loop, since each column is its own list twice over and the keyframe\n   travels -50%. It was disabled out of caution about phone performance, and\n   that caution was misplaced: the movement is a transform on three columns, so\n   it is composited on the GPU and costs no repaint. The wall is shorter here,\n   tilted less, and keeps its fade at top and bottom.\n   prefers-reduced-motion still stops it, above. */\n@media(max-width:900px){\n  .hero-v2{grid-template-columns:1fr;padding-top:92px;min-height:0;gap:26px}\n  .hero-wall{height:clamp(380px,54vh,470px);gap:9px;transform:rotate(-4deg) scale(1.07)}\n  .wall-col{gap:9px}\n  .wall-col[data-dir=up]{animation-duration:38s}\n  .wall-col[data-dir=down]{animation-duration:43s}\n  .wall-col:nth-child(3){animation-duration:48s}\n}\n@media(max-width:520px){\n  .hero-wall{height:clamp(330px,46vh,400px);gap:7px;transform:rotate(-3deg) scale(1.05)}\n  .wall-col{gap:7px}\n}\n.lp-stats{max-width:1200px;margin:0 auto;padding:22px clamp(16px,5vw,48px) 0;display:flex;flex-wrap:wrap;gap:10px 34px;border-top:.5px solid var(--hairline)}\n.stat{display:flex;align-items:baseline;gap:8px}\n.stat b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--text)}\n.stat span{font-size:13px;color:var(--text-dim)}\n\n/* theme families */\n.fam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}\n.fam-card{position:relative;text-align:left;background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:11px;cursor:pointer;color:var(--text);box-shadow:var(--glass-shadow);transition:transform .15s cubic-bezier(.2,0,0,1),border-color .15s,box-shadow .15s;font:inherit}\n.fam-card:hover{transform:translateY(-3px)}\n.fam-card.on{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent)}\n.fam-card.idle{cursor:default;opacity:.72}\n.fam-sw{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;height:56px;border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;border:.5px solid rgba(0,0,0,.18)}\n.fam-sw i{display:block}\n.fam-name{font-weight:650;font-size:14px;letter-spacing:-.01em}\n.fam-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-variant-numeric:tabular-nums}\n\n/* gallery filters */\n.lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}\n.chip{font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;min-height:36px}\n.chip:hover{color:var(--text);border-color:var(--text-dim)}\n.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:var(--glow-accent)}\n.chip .n{opacity:.65;font-family:var(--mono);font-size:11px;margin-left:6px;font-variant-numeric:tabular-nums}\n.tpl-more-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}\n.tpl-count{font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.tpl-card img{transition:transform .4s cubic-bezier(.2,0,0,1)}\n.tpl-card:hover img{transform:scale(1.035)}\n.tpl-card .tpl-lockpill{position:absolute;top:12px;left:12px;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);color:#fff;border:.5px solid rgba(255,255,255,.25)}\n\n/* Look menu */\n.look-wrap{position:relative}\n.look-btn{display:inline-flex;align-items:center;gap:8px;padding:0 12px 0 10px;width:auto;font-size:13px;font-weight:600;color:var(--text-2)}\n.look-btn:hover{color:var(--text)}\n.look-dot{width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-deep));box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 2px var(--surface-sunk)}\n.look-menu{position:absolute;right:0;top:44px;width:304px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);box-shadow:var(--glass-shadow-lift);padding:14px;z-index:400;display:none;text-align:left}\n.look-menu.open{display:block}\n.look-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}\n.look-label{width:100%;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}\n.look-chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-chip:hover{color:var(--text)}\n.look-chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}\n.look-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px -2px rgba(0,0,0,.5);padding:0}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--text)}\n.look-note{font-size:11.5px;color:var(--text-dim);line-height:1.45}\n.look-note code{font-family:var(--mono);font-size:11px;color:var(--text-2)}\n@media(max-width:640px){.look-btn span{display:none}.look-btn{padding:0 10px}.look-menu{position:fixed;left:12px;right:12px;top:70px;width:auto}}\n\n/* Skin-specific style, beyond colour. PAPER is editorial: a serif display\n   face, flat panels on hairlines, no drifting field. NIGHT is the opposite:\n   gradient ink on the money line, louder glows. */\n:root[data-skin='paper'] .hero h1{font-weight:500;letter-spacing:-.022em}\n:root[data-skin='paper'] .hero h1 em{font-style:italic;color:var(--accent)}\n:root[data-skin='paper'] .lp-section-head h2,:root[data-skin='paper'] .lp-cta-inner h2{font-weight:500;letter-spacing:-.015em}\n:root[data-skin='paper'] .flow-step,:root[data-skin='paper'] .fam-card,:root[data-skin='paper'] .lp-cta-inner,:root[data-skin='paper'] .lp-price-card,:root[data-skin='paper'] .look-menu{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface-solid);box-shadow:none;border:1px solid var(--hairline)}\n:root[data-skin='paper'] .lp-price-card.hot{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] .fam-card.on{box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] body::before{animation:none}\n:root[data-skin='paper'] body::after{opacity:.22}\n:root[data-skin='paper'] .hero-eyebrow{background:transparent;border-color:var(--hairline-strong);color:var(--text-2)}\n:root[data-skin='paper'] .lp-nav{box-shadow:none;border-bottom:1px solid var(--hairline)}\n:root[data-skin='paper'] .wall-card,:root[data-skin='paper'] .tpl-card{box-shadow:0 1px 2px rgba(30,25,15,.08),0 10px 24px -14px rgba(30,25,15,.25)}\n:root[data-skin='night'] .hero h1 em{background:linear-gradient(90deg,var(--accent),var(--accent-soft));-webkit-background-clip:text;background-clip:text;color:transparent}\n:root[data-skin='night'] .btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),var(--glow-accent)}\n:root[data-skin='night'] .lp-kicker{text-shadow:0 0 18px rgba(var(--accent-rgb),.6)}\n\n/* ── AREA dialog (location-aware copy) ── */\n.area-modal{max-width:560px}\n.area-inrow{display:flex;gap:8px;align-items:stretch}\n.area-inrow input{flex:1;min-width:0}\n.area-inrow .btn{white-space:nowrap;padding:9px 14px}\n.area-suggest{display:flex;flex-direction:column;gap:4px;margin-top:8px}\n.area-opt{display:flex;justify-content:space-between;align-items:center;gap:10px;font:inherit;font-size:14px;text-align:left;padding:9px 12px;border-radius:var(--r-sm);border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);cursor:pointer}\n.area-opt:hover{border-color:var(--accent);background:var(--accent-wash)}\n.area-opt span{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.area-none{font-size:13px;color:var(--text-dim);padding:8px 2px}\n.area-preview{margin-top:14px;display:flex;flex-direction:column;gap:10px}\n.area-preview:empty{display:none}\n.area-home{font-weight:650;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}\n.area-home em{font-style:normal;font-weight:500;font-size:12.5px;color:var(--text-dim)}\n.area-row b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}\n.area-chips{display:flex;flex-wrap:wrap;gap:6px}\n.area-chips span{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline-strong);color:var(--text-2)}\n.area-chips span:first-child{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4);color:var(--text)}\n#ez-area{cursor:pointer}\n\n/* Easy Mode export sizes */\n.ez-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}\n.ez-sizes .chip{font-size:12px;padding:6px 11px;min-height:30px}\n.stat-lead b{color:var(--accent)}\n@media(max-width:640px){.lp-stats{gap:8px 22px}.stat b{font-size:19px}}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LOOK MENU, ROUND TWO — 2026-09-02 evening. Owner: \"stick with graphite\n   purple ... add an extra accent colour or highlighting ring ... 2 to 3x more\n   themes and colour options as well as typography options\".\n   Three axes now carry more stops, and a fourth axis appears:\n     ground  graphite · night · slate · obsidian · forest · ember (dark)\n             paper · cream (light)\n     accent  twelve, each with a paired RING colour (--ring) that carries\n             focus, hover and selection so the chrome is two-tone\n     type    eight display/body pairings (data-type)\n   Curated presets in the menu are one of each, chosen by hand.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── extra grounds ── */\n:root[data-theme='dark'][data-skin='slate']{\n  --field:#121826;--glass-bg:rgba(28,36,51,.62);--glass-bg-strong:rgba(28,36,51,.86);\n  --surface-solid:#1a2233;--surface-raise:#232d40;--text:#eef2fa;--text-2:#bcc6da;--text-dim:#8391ab;\n  --stage-1:#182033;--stage-2:#0c1119;--scrim:rgba(8,12,20,.74);--surface3:#2c3850;\n}\n:root[data-theme='dark'][data-skin='obsidian']{\n  --field:#08090b;--wash-a:rgba(var(--accent-rgb),.18);--wash-b:rgba(var(--accent2-rgb),.12);--wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(18,19,23,.72);--glass-bg-strong:rgba(18,19,23,.92);--glass-edge:rgba(255,255,255,.10);\n  --surface-solid:#121317;--surface-raise:#1a1b20;--surface-sunk:rgba(255,255,255,.05);\n  --text:#f4f4f6;--text-2:#b9bcc6;--text-dim:#7f8391;--hairline:rgba(255,255,255,.08);\n  --stage-1:#101114;--stage-2:#050506;--scrim:rgba(0,0,0,.8);--surface3:#24262c;\n}\n:root[data-theme='dark'][data-skin='forest']{\n  --field:#0c1411;--wash-a:rgba(var(--accent-rgb),.22);--wash-b:rgba(60,200,140,.14);--wash-c:rgba(var(--accent2-rgb),.10);\n  --glass-bg:rgba(22,34,28,.62);--glass-bg-strong:rgba(22,34,28,.86);\n  --surface-solid:#142019;--surface-raise:#1b2a22;--text:#eef6f1;--text-2:#bfd1c6;--text-dim:#829a8c;\n  --stage-1:#142019;--stage-2:#080e0b;--scrim:rgba(6,12,9,.76);--surface3:#243a2e;\n}\n:root[data-theme='light'][data-skin='cream']{\n  --field:#f5efe2;--wash-a:rgba(var(--accent-rgb),.12);--wash-b:rgba(var(--accent2-rgb),.08);--wash-c:rgba(255,196,60,.10);\n  --glass-bg:rgba(255,251,243,.6);--glass-bg-strong:rgba(255,251,243,.84);\n  --surface-solid:#fffcf5;--surface-raise:#f3ecdc;--surface-sunk:rgba(60,45,20,.05);\n  --text:#1e1a12;--text-2:#55503f;--text-dim:#79725f;--hairline:rgba(60,45,20,.10);--hairline-strong:rgba(60,45,20,.18);\n  --stage-1:#f1eadb;--stage-2:#e3d9c4;--scrim:rgba(110,95,70,.42);--surface3:#eae1cd;\n}\n\n/* ── accents, with their RING. Ring = the second colour: it carries focus,\n   hover and selection, never fills. Pairings are a third of the wheel apart\n   so the two read as a scheme, not a clash. ── */\n:root{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='blue']{--ring:#f2c744;--ring-rgb:242,199,68}\n:root[data-theme='light'][data-accent='blue']{--ring:#b7830c;--ring-rgb:183,131,12}\n:root[data-accent='mint']{--ring:#b48cff;--ring-rgb:180,140,255}\n:root[data-theme='light'][data-accent='mint']{--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='orchid']{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='orchid']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='gold']{--ring:#4d9cff;--ring-rgb:77,156,255}\n:root[data-theme='light'][data-accent='gold']{--ring:#1d63d8;--ring-rgb:29,99,216}\n:root[data-accent='orange']{--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='orange']{--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='coral']{--accent:#ff6b6b;--accent-ink:#1f0707;--accent-wash:rgba(255,107,107,.16);--accent-deep:#e04848;--accent-soft:#ffd0d0;--accent-rgb:255,107,107;--accent2-rgb:61,220,151;--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='coral']{--accent:#c8383b;--accent-ink:#fff;--accent-wash:rgba(200,56,59,.12);--accent-deep:#a02a2c;--accent-soft:#f9d3d3;--accent-rgb:200,56,59;--accent2-rgb:15,143,95;--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='cyan']{--accent:#22d3ee;--accent-ink:#04191d;--accent-wash:rgba(34,211,238,.16);--accent-deep:#0ea5c4;--accent-soft:#c7f3fa;--accent-rgb:34,211,238;--accent2-rgb:251,113,133;--ring:#fb7185;--ring-rgb:251,113,133}\n:root[data-theme='light'][data-accent='cyan']{--accent:#0e7490;--accent-ink:#fff;--accent-wash:rgba(14,116,144,.12);--accent-deep:#0b5c72;--accent-soft:#cdeef5;--accent-rgb:14,116,144;--accent2-rgb:190,24,93;--ring:#be185d;--ring-rgb:190,24,93}\n:root[data-accent='lime']{--accent:#b9f24a;--accent-ink:#131a04;--accent-wash:rgba(185,242,74,.16);--accent-deep:#8fd11a;--accent-soft:#e6fbc0;--accent-rgb:185,242,74;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='lime']{--accent:#4d7c0f;--accent-ink:#fff;--accent-wash:rgba(77,124,15,.12);--accent-deep:#3f6212;--accent-soft:#e0f0c4;--accent-rgb:77,124,15;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='rose']{--accent:#fb7185;--accent-ink:#20070c;--accent-wash:rgba(251,113,133,.16);--accent-deep:#e11d48;--accent-soft:#ffd6dd;--accent-rgb:251,113,133;--accent2-rgb:34,211,238;--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='rose']{--accent:#be185d;--accent-ink:#fff;--accent-wash:rgba(190,24,93,.12);--accent-deep:#9d174d;--accent-soft:#f8d0de;--accent-rgb:190,24,93;--accent2-rgb:14,116,144;--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='sky']{--accent:#7dd3fc;--accent-ink:#06161f;--accent-wash:rgba(125,211,252,.16);--accent-deep:#38bdf8;--accent-soft:#e0f4ff;--accent-rgb:125,211,252;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='sky']{--accent:#0369a1;--accent-ink:#fff;--accent-wash:rgba(3,105,161,.12);--accent-deep:#075985;--accent-soft:#d3ecfb;--accent-rgb:3,105,161;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n:root[data-accent='amber']{--accent:#fbbf24;--accent-ink:#1c1200;--accent-wash:rgba(251,191,36,.16);--accent-deep:#d69e0b;--accent-soft:#ffeeba;--accent-rgb:251,191,36;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='amber']{--accent:#b45309;--accent-ink:#fff;--accent-wash:rgba(180,83,9,.12);--accent-deep:#92400e;--accent-soft:#f9e3bf;--accent-rgb:180,83,9;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='teal']{--accent:#2dd4bf;--accent-ink:#041a16;--accent-wash:rgba(45,212,191,.16);--accent-deep:#14b8a6;--accent-soft:#c9f5ee;--accent-rgb:45,212,191;--accent2-rgb:255,107,107;--ring:#ff6b6b;--ring-rgb:255,107,107}\n:root[data-theme='light'][data-accent='teal']{--accent:#0f766e;--accent-ink:#fff;--accent-wash:rgba(15,118,110,.12);--accent-deep:#115e59;--accent-soft:#cdeeea;--accent-rgb:15,118,110;--accent2-rgb:200,56,59;--ring:#c8383b;--ring-rgb:200,56,59}\n:root[data-accent='violet']{--accent:#8b5cf6;--accent-ink:#fff;--accent-wash:rgba(139,92,246,.18);--accent-deep:#6d3fd6;--accent-soft:#e4d9ff;--accent-rgb:139,92,246;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='violet']{--accent:#5b32c9;--accent-ink:#fff;--accent-wash:rgba(91,50,201,.12);--accent-deep:#4526a0;--accent-soft:#e2d8ff;--accent-rgb:91,50,201;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n\n/* where the ring shows: focus, hover, selection */\n:focus-visible{outline:2px solid var(--ring)}\n.tpl-card:hover{box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.35),0 0 0 2px var(--ring)}\n.wall-card:hover{box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.4),0 0 0 2px var(--ring)}\n.fam-card.on{border-color:transparent;box-shadow:var(--glass-shadow),0 0 0 2px var(--ring)}\n.chip.on{box-shadow:var(--glow-accent),0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-chip.on{box-shadow:0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--ring)}\n.lp-price-card.hot{box-shadow:var(--glass-shadow),0 0 0 2px var(--ring),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.hero-eyebrow{border-color:rgba(var(--ring-rgb),.45)}\n.ez-tpl.sel{outline:2px solid var(--ring);outline-offset:2px}\n.look-dot{background:linear-gradient(135deg,var(--accent) 0 55%,var(--ring) 55% 100%)}\n.stat-lead b{color:var(--accent)}\n.lp-kicker::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ring);margin-right:8px;vertical-align:1px}\n\n/* ── type pairings. Overrides any skin's face, so Paper + Unbounded is\n   possible. Google faces are loaded by the stamp script when picked. ── */\n:root[data-type='clash']{--display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif}\n:root[data-type='serif']{--display:'Zodiak',Georgia,'Times New Roman',serif}\n:root[data-type='melodrama']{--display:'Melodrama',Georgia,serif}\n:root[data-type='khand']{--display:'Khand','Satoshi',sans-serif}\n:root[data-type='unbounded']{--display:'Unbounded','Clash Display',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='syne']{--display:'Syne','Clash Display',sans-serif;--ui:'Sora','Satoshi',-apple-system,sans-serif}\n:root[data-type='grotesk']{--display:'Space Grotesk','Satoshi',sans-serif;--ui:'Space Grotesk','Satoshi',-apple-system,sans-serif}\n:root[data-type='manrope']{--display:'Manrope','Satoshi',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='khand'] .hero h1{letter-spacing:0;font-weight:700;font-size:clamp(40px,5.2vw,68px)}\n:root[data-type='unbounded'] .hero h1{letter-spacing:-.01em;font-weight:700;font-size:clamp(30px,4vw,52px)}\n:root[data-type='serif'] .hero h1,:root[data-type='melodrama'] .hero h1{font-weight:500;letter-spacing:-.02em}\n:root[data-type='serif'] .hero h1 em,:root[data-type='melodrama'] .hero h1 em{font-style:italic}\n\n/* the menu grew: keep it on screen */\n.look-menu{width:360px;max-height:min(78vh,720px);overflow:auto}\n.look-preset{display:flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;padding:6px 10px 6px 6px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-preset i{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--a) 0 55%,var(--b) 55% 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);flex:none}\n.look-preset:hover{color:var(--text);border-color:var(--text-dim)}\n@media(max-width:640px){.look-menu{width:auto}}\n\n/* the studio's own \"where are you\" pill, beside the category picker */\n.ez-wherelabel{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none;margin-left:6px}\n.ez-where{font:600 13.5px/1 var(--ui);color:var(--text);background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-pill);padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 0 var(--ring);transition:box-shadow .15s,border-color .15s}\n.ez-where:hover{border-color:var(--ring)}\n.ez-where.unset{border-color:var(--ring);box-shadow:0 0 0 3px rgba(var(--ring-rgb),.28);color:var(--text)}\n@media(max-width:640px){.ez-catrow{flex-wrap:wrap}.ez-wherelabel{display:none}}\n\n/* ── gallery cards: no blur veil (owner: \"way too much blur\"). The veil is\n   now a light darkening that lifts on hover, nothing else. ── */\n.tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(0,0,0,.14)}\n.tpl-card:hover .tpl-veil{background:rgba(0,0,0,0)}\n\n/* ── PRO GUARD. A locked preview stays sharp (a sharp card sells the plan)\n   but cannot be lifted: a repeating diagonal PRO · BUYBACK.AD pattern over\n   the whole card, a lock in the middle, and thumbnails that are 448px at\n   most. The pattern is an SVG data URI so it is text, not a blur. ── */\n.pro-guard{position:absolute;inset:0;pointer-events:none;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:220px 220px;mix-blend-mode:overlay;opacity:.9}\n.pro-guard::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;\n  background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}\n.wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}\n.ez-tpl.locked{position:relative}\n.ez-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n.flow-step .btn{margin-top:16px}\n\n/* locked mini cards in the editor's left panel and its picker */\n.mini-tpl.locked{position:relative}\n.mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n\n/* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's\n   default min-width:auto refuses to shrink below its content, so on a 390px\n   phone the cards stayed 481px wide and the whole page scrolled sideways by\n   105px (measured 2026-09-03). min-width:0 lets them fit; anything genuinely\n   too wide inside now scrolls in its own box instead of moving the page. */\n@media (max-width:920px){\n  .ez-main{min-width:0}\n  .ez-main > .ez-card{min-width:0;max-width:100%}\n  .ez-card{overflow-x:clip}\n}\n#ez-preview{max-width:100%;height:auto}\n\n/* ═══ 2026-09-22 UX/SEO pass (studio-ux branch) ═══\n   1. Clash Display's space is narrow and the hero sets -.028em tracking, so at\n      58px \"Buyback ads that\" read as one word. Word spacing puts the gaps back\n      without loosening the letters.\n   2. The footer gained an \"Ad templates\" column (links to the category pages),\n      so it is six blocks now: let the grid fit them instead of a fixed four. */\n.hero h1,.lp-section-head h2,.lp-cta h2{word-spacing:.1em}\n.lpf-cols{grid-template-columns:1.4fr repeat(5,minmax(0,1fr))}\n@media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.lp-faq p a{color:var(--accent);text-decoration:underline}\n\n/* THE LANDING GRID SHOWS EACH CARD AS IT WILL POST (2026-09-26). The number\n   was rebuilt big and sits at the foot of most cards; the caption strip (a\n   38px gradient with the palette and layout name) was drawn over exactly\n   that, and the veil blurred and dimmed every card until hover, which a phone\n   never sends. The section is headed \"exactly as it will post\": the card is\n   shown crisp, and its name appears on hover or keyboard focus. Scoped to the\n   landing grid; the studio's own template pickers keep their captions. */\n#lp-tpl-grid .tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none}\n#lp-tpl-grid .tpl-card .tpl-meta{opacity:0;transition:opacity .2s}\n#lp-tpl-grid .tpl-card:hover .tpl-meta,#lp-tpl-grid .tpl-card:focus-visible .tpl-meta{opacity:1}\n\n/* ── FONT PICKER ────────────────────────────────────────────────────────────\n   Every typeface shown in its own face (owner, 2026-09-27). A native <option>\n   ignores font-family in Safari, on Macs and on every phone, so the select is\n   hidden behind a button and list drawn here (app.js fontPicker). */\n.fp-btn{width:100%;flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;\n  background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);\n  padding:7px 11px;font-size:17px;line-height:1.2;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:38px}\n.fp-btn::after{content:'▾';font:600 12px/1 var(--ui);color:var(--text-dim);flex:none}\n.fp-btn:hover{border-color:var(--text-dim)}\n.fp-btn:focus-visible{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.fp-pop{position:fixed;z-index:2000;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-lg);\n  box-shadow:0 18px 50px -12px rgba(0,0,0,.6);padding:8px;display:flex;flex-direction:column;gap:6px}\n.fp-search{width:100%;background:var(--surface-sunk);border:1px solid var(--hairline);border-radius:var(--r-sm);color:var(--text);font:500 13px/1 var(--ui);padding:9px 10px}\n.fp-search:focus{border-color:var(--accent);outline:none}\n.fp-list{overflow-y:auto;overscroll-behavior:contain}\n.fp-group{font:700 10.5px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:10px 8px 6px}\n.fp-item{font-size:21px;line-height:1.25;color:var(--text);padding:7px 8px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.fp-item:hover,.fp-item.on{background:var(--surface-sunk)}\n.fp-item.sel{color:var(--accent)}\n";
+const CSS_FALLBACK = "/* ═══════════════════════════════════════════════════════════════════════════\n   GRAPHICS STUDIO — Liquid Glass chrome\n\n   Unified with unified-crm and the iphones.la launcher: same field, same glass\n   recipe, same accent, same radii, same tabular-mono law. The templates this\n   app produces went Liquid Glass on Aug 24; the chrome around them was still\n   flat-black-and-orange 2021 SaaS. Now they are one material.\n\n   Laws, carried over from the CRM theme:\n   1. Chrome is glass. Running text is opaque. A blur is for panels, never\n      for paragraphs.\n   2. ONE accent (#ff7a1a). The site now matches the PRODUCT it sells, not\n      the CRM: a page selling loud buyback ads should not look like a SaaS\n      dashboard. Colour that is not the accent means state:\n      green good, amber caution, red stop, violet AI.\n   3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and\n      wordmark only, as --brand-1/--brand-2, so the accent can be retuned for\n      contrast without repainting the brand.\n   4. Anything the eye compares — prices, counts, percentages, quotas — is set\n      in tabular mono. This is a tool, not prose.\n\n   Legacy tokens (--orange, --surface2, --muted …) are kept as ALIASES onto the\n   new system because app.js writes them into generated markup in ~250 places.\n   Retargeting --orange to the accent is what repaints those call sites.\n   Do not delete an alias without grepping app.js first.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── HOUSE TYPE ──────────────────────────────────────────────────────────────\n   Clash Display for anything that declares, Satoshi for anything that is read,\n   Zodiak when a serif is the point. All three are Fontshare (Indian Type\n   Foundry), free for commercial use, and VENDORED into assets/fonts rather\n   than pulled from a CDN: no third-party dependency, no extra CSP origin, no\n   render-blocking round trip to someone else's server. 184KB for nine files.\n\n   Why these and not the previous set: the library ran on Bebas Neue, Anton,\n   Montserrat, Luckiest Guy, Titan One, Bungee, Monoton and Pacifico. Those are\n   the default free-font shelf every Canva template is already built from, and\n   half of them are novelty faces — the opposite of an ad that asks a stranger\n   to hand over a phone for cash. `font-display:swap` so text paints\n   immediately in the fallback and reflows once the face lands. */\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}\n@font-face{font-family:'Zodiak';src:url('assets/fonts/zodiak-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n/* Khand carries the long money-words (\"TEST STRIPS\", \"COLLECTIBLES\") that made\n   a wide face overflow; Melodrama is the high-contrast serif for gold, coins\n   and anything that wants to read as valuation rather than clearance. Two more\n   voices so the 153 templates are not all in one typeface. */\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-600.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}\n@font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}\n@font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}\n\n/* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>\n   before first paint by the inline script in index.html, so there is no white\n   flash. This rule matches both the explicit choice and the bare default, so\n   dark still applies if that script never runs. */\n:root,\n:root[data-theme='dark']{\n  color-scheme:dark;\n\n  /* GRAPHITE, the default ground since 2026-09-02. The field used to be a warm\n     near-black (#141110) with brown surfaces under an orange accent, and the\n     owner's verdict was \"orange on brown on grey\". The ground is now a cool\n     neutral graphite so ANY accent sits on it cleanly; the old warm set is\n     kept, whole, as data-skin='ember' below. Accent colour is a separate axis\n     (data-accent) so the two can be mixed from the Look menu. */\n\n  /* Field */\n  --field:#0f1116;\n  --wash-a:rgba(var(--accent-rgb),.26);\n  --wash-b:rgba(var(--accent2-rgb),.18);\n  --wash-c:rgba(0,214,180,.10);\n\n  /* Glass */\n  --glass-bg:rgba(24,27,34,.62);\n  --glass-bg-strong:rgba(24,27,34,.86);\n  --glass-edge:rgba(255,255,255,.12);\n  --glass-blur:blur(34px) saturate(190%) brightness(1.04);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 38px -12px rgba(0,0,0,.6);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.10),0 24px 60px -14px rgba(0,0,0,.75);\n\n  /* Opaque content surfaces */\n  --surface-solid:#171a21;\n  --surface-sunk:rgba(255,255,255,.055);\n  --surface-raise:#1f232c;\n\n  /* Ink — cool neutrals */\n  --text:#f2f4f8;\n  --text-2:#c3c9d6;\n  --text-dim:#8b94a7;\n  --hairline:rgba(255,255,255,.09);\n  --hairline-strong:rgba(255,255,255,.16);\n\n  /* Accent — BLUE MARKET by default (the palette the owner kept most often\n     in the template reviews). See the data-accent blocks for the others. */\n  --accent:#4d9cff;\n  --accent-ink:#061527;\n  --accent-wash:rgba(77,156,255,.16);\n  --accent-deep:#2b7de9;\n  --accent-soft:#cfe4ff;\n  --accent-rgb:77,156,255;\n  --accent2-rgb:120,90,255;\n\n  --good:#30d68f;\n  --warn:#ffb03d;\n  --danger:#ff6259;\n  --ai:#a78bff;\n\n  /* Brand — follows the accent now. The mark used to carry its own orange\n     regardless of the UI accent; that is the one place orange survived the\n     retune, so it is tied to the accent axis instead. */\n  --brand-1:var(--accent);\n  --brand-2:var(--accent-soft);\n  --brand-rgb:var(--accent-rgb);\n\n  --r-pill:999px;\n  --r-lg:18px;\n  --r-md:13px;\n  --r-sm:9px;\n  --tap:44px;\n\n  --lift-1:0 1px 2px rgba(0,0,0,.4),0 4px 12px -4px rgba(0,0,0,.5);\n  --lift-2:0 2px 6px rgba(0,0,0,.45),0 18px 42px -14px rgba(0,0,0,.68),0 0 0 1px rgba(255,255,255,.045);\n  --lift-3:0 4px 12px rgba(0,0,0,.5),0 40px 90px -22px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.5);\n\n  --stage-1:#14171d;\n  --stage-2:#0a0c10;\n  --stage-dot:rgba(255,255,255,.045);\n  --scrim:rgba(8,10,14,.74);\n\n  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;\n  /* Satoshi runs the whole product, chrome included. The system stack stays\n     behind it as the fallback, so a failed font load degrades to exactly the\n     UI we shipped before rather than to Times. */\n  --ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;\n  --display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;\n  --serif:'Zodiak',Georgia,'Times New Roman',serif;\n\n  /* ── legacy aliases (app.js depends on every one of these) ── */\n  --bg:var(--field);\n  --surface:var(--surface-solid);\n  --surface2:var(--surface-raise);\n  --surface3:#2a2f3a;\n  --border:var(--hairline);\n  --border2:var(--hairline-strong);\n  --orange:var(--accent);\n  --orange2:var(--accent-deep);\n  --gold:var(--warn);\n  --green:var(--good);\n  --red:var(--danger);\n  --muted:var(--text-dim);\n  --muted2:var(--text-2);\n  --panel:var(--surface-solid);\n  --panel2:var(--surface-raise);\n  --line:var(--hairline);\n  --r:var(--r-md);\n}\n\n/* EMBER — the pre-2026-09-02 warm look, kept as a selectable skin. */\n:root[data-theme='dark'][data-skin='ember']{\n  --field:#141110;\n  --wash-a:rgba(var(--accent-rgb),.34);\n  --wash-b:rgba(var(--accent2-rgb),.26);\n  --wash-c:rgba(255,196,60,.20);\n  --glass-bg:rgba(34,27,23,.62);\n  --glass-bg-strong:rgba(34,27,23,.86);\n  --glass-edge:rgba(255,255,255,.13);\n  --surface-solid:#1d1815;\n  --surface-raise:#262019;\n  --text:#f6efe8;\n  --text-2:#cfc2b6;\n  --text-dim:#9a8b7e;\n  --stage-1:#1a1512;\n  --stage-2:#0d0a08;\n  --scrim:rgba(14,9,6,.74);\n  --surface3:#33291f;\n}\n\n/* NIGHT — deep jewel ground, vivid washes, the Night Neon family's material. */\n:root[data-theme='dark'][data-skin='night']{\n  --field:#0a0913;\n  --wash-a:rgba(var(--accent-rgb),.44);\n  --wash-b:rgba(var(--accent2-rgb),.34);\n  --wash-c:rgba(0,214,180,.18);\n  --glass-bg:rgba(28,24,56,.58);\n  --glass-bg-strong:rgba(28,24,56,.84);\n  --glass-edge:rgba(255,255,255,.14);\n  --glass-blur:blur(40px) saturate(220%) brightness(1.06);\n  --surface-solid:#15132a;\n  --surface-raise:#1d1a36;\n  --surface-sunk:rgba(255,255,255,.06);\n  --text:#f3f0ff;\n  --text-2:#c9c3e8;\n  --text-dim:#8f88b8;\n  --hairline:rgba(255,255,255,.10);\n  --hairline-strong:rgba(255,255,255,.18);\n  --glow-accent:0 10px 40px -6px rgba(var(--accent-rgb),.7);\n  --stage-1:#14122a;\n  --stage-2:#08071a;\n  --scrim:rgba(6,5,16,.76);\n  --surface3:#26224a;\n}\n\n/* LIGHT — opt-in, for daylight and for turning the screen toward someone.\n   Higher specificity than the bare :root above, so it wins wherever the dark\n   default set a value. Radii, faces and the mono stack are theme-independent. */\n:root[data-theme='light']{\n  color-scheme:light;\n  --field:#f3f4f7;\n  --wash-a:rgba(var(--accent-rgb),.14);\n  --wash-b:rgba(var(--accent2-rgb),.10);\n  --wash-c:rgba(0,214,180,.08);\n  --glass-bg:rgba(255,255,255,.58);\n  --glass-bg-strong:rgba(255,255,255,.80);\n  --glass-edge:rgba(255,255,255,.9);\n  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(9,18,38,.045),0 1px 2px rgba(9,18,38,.05),0 14px 38px -12px rgba(9,18,38,.16);\n  --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.95),0 24px 60px -14px rgba(9,18,38,.30);\n  --surface-solid:#ffffff;\n  --surface-sunk:rgba(9,18,38,.042);\n  --surface-raise:#f8f9fc;\n  --text:#14161c;\n  --text-2:#4a5060;\n  --text-dim:#6b7280;\n  --hairline:rgba(9,18,38,.09);\n  --hairline-strong:rgba(9,18,38,.16);\n  --accent:#1d63d8;\n  --accent-ink:#ffffff;\n  --accent-wash:rgba(29,99,216,.12);\n  --accent-deep:#174fae;\n  --accent-soft:#dbe8ff;\n  --accent-rgb:29,99,216;\n  --accent2-rgb:109,63,214;\n  --good:#0f9d6b;\n  --warn:#c2751a;\n  --danger:#e0342a;\n  --ai:#6c4cff;\n  --lift-1:0 1px 2px rgba(9,18,38,.06),0 4px 12px -4px rgba(9,18,38,.10);\n  --lift-2:0 2px 6px rgba(9,18,38,.07),0 18px 42px -14px rgba(9,18,38,.20),0 0 0 1px rgba(9,18,38,.05);\n  --lift-3:0 4px 12px rgba(9,18,38,.08),0 40px 90px -22px rgba(9,18,38,.28),0 0 0 1px rgba(9,18,38,.06);\n  --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.34);\n  --stage-1:#eef0f4;\n  --stage-2:#dfe3ea;\n  --stage-dot:rgba(9,18,38,.07);\n  --scrim:rgba(120,132,155,.42);\n  --surface3:#e9ecf2;\n}\n\n/* PAPER — light, editorial: a warm paper ground, ink type, a serif display\n   face, hairlines instead of glass. The Paper and Chalk template families'\n   material, applied to the chrome. */\n:root[data-theme='light'][data-skin='paper']{\n  --field:#f7f4ee;\n  --wash-a:rgba(var(--accent-rgb),.07);\n  --wash-b:rgba(var(--accent2-rgb),.05);\n  --wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(251,249,244,.82);\n  --glass-bg-strong:rgba(251,249,244,.94);\n  --glass-edge:rgba(30,25,15,.10);\n  --glass-blur:blur(12px) saturate(120%);\n  --glass-shadow:0 1px 0 rgba(30,25,15,.05);\n  --glass-shadow-lift:0 20px 50px -18px rgba(30,25,15,.22);\n  --surface-solid:#fffdf9;\n  --surface-sunk:rgba(30,25,15,.045);\n  --surface-raise:#f1ece3;\n  --text:#1a1815;\n  --text-2:#4e4842;\n  --text-dim:#6d665e;\n  --hairline:rgba(30,25,15,.11);\n  --hairline-strong:rgba(30,25,15,.20);\n  --stage-1:#f1ece3;\n  --stage-2:#e4dccf;\n  --scrim:rgba(90,80,64,.42);\n  --surface3:#e9e2d6;\n  --r-lg:12px;\n  --r-md:9px;\n  --r-sm:6px;\n  --display:'Zodiak',Georgia,'Times New Roman',serif;\n}\n\n/* ACCENT AXIS. Five accents, each with a dark and a light value pair; the\n   ground (skin) never changes with the accent, which is what makes them\n   mixable. Blue is the default and lives in the base blocks above. */\n:root[data-accent='mint']{--accent:#3ddc97;--accent-ink:#04170e;--accent-wash:rgba(61,220,151,.16);--accent-deep:#1fb87a;--accent-soft:#c9f5e2;--accent-rgb:61,220,151;--accent2-rgb:77,156,255}\n:root[data-theme='light'][data-accent='mint']{--accent:#0f8f5f;--accent-ink:#ffffff;--accent-wash:rgba(15,143,95,.12);--accent-deep:#0b6f4a;--accent-soft:#d3f3e4;--accent-rgb:15,143,95;--accent2-rgb:29,99,216}\n:root[data-accent='orchid']{--accent:#b48cff;--accent-ink:#120a24;--accent-wash:rgba(180,140,255,.16);--accent-deep:#8f5cff;--accent-soft:#e6d8ff;--accent-rgb:180,140,255;--accent2-rgb:255,120,190}\n:root[data-theme='light'][data-accent='orchid']{--accent:#6d3fd6;--accent-ink:#ffffff;--accent-wash:rgba(109,63,214,.12);--accent-deep:#5530b0;--accent-soft:#e9dfff;--accent-rgb:109,63,214;--accent2-rgb:214,63,150}\n:root[data-accent='gold']{--accent:#f2c744;--accent-ink:#1a1300;--accent-wash:rgba(242,199,68,.16);--accent-deep:#d9a815;--accent-soft:#ffe9a8;--accent-rgb:242,199,68;--accent2-rgb:255,122,26}\n:root[data-theme='light'][data-accent='gold']{--accent:#a6700a;--accent-ink:#ffffff;--accent-wash:rgba(166,112,10,.12);--accent-deep:#8a5b06;--accent-soft:#f7e7b8;--accent-rgb:166,112,10;--accent2-rgb:194,65,12}\n:root[data-accent='orange']{--accent:#ff7a1a;--accent-ink:#1a0d04;--accent-wash:rgba(255,122,26,.18);--accent-deep:#e04e05;--accent-soft:#ffd7a1;--accent-rgb:255,122,26;--accent2-rgb:255,80,30;--brand-1:#ff7a33;--brand-2:#f5a623}\n:root[data-theme='light'][data-accent='orange']{--accent:#c2410c;--accent-ink:#ffffff;--accent-wash:rgba(194,65,12,.13);--accent-deep:#9a3412;--accent-soft:#ffd7a1;--accent-rgb:194,65,12;--accent2-rgb:255,80,30;--brand-1:#f2600c;--brand-2:#e09417}\n\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}\nhtml{scroll-behavior:smooth}\nbody{\n  font-family:var(--ui);\n  font-size:15px;\n  line-height:1.45;\n  letter-spacing:-.006em;\n  background:var(--field);\n  color:var(--text);\n  overflow-x:hidden;\n  -webkit-font-smoothing:antialiased;\n}\n\n/* THE FIELD — three layers, because one gradient looks like a template.\n   1. Aurora: two large soft colour bodies, off-centre and different sizes, so\n      the eye reads atmosphere rather than wallpaper.\n   2. Geometry: thin arcs and a conic wedge, so a blurred panel moving over an\n      EDGE refracts visibly. Glass over flat colour is just tinted plastic.\n   3. Vignette + grain: corners fall away, and wide displays stop banding. */\n/* How strongly the bokeh reads. A dark ground carries it as light in a room;\n   the light skins take a third, where the same alpha smudges the paper. */\n:root{--bokeh-a:.42}\n:root[data-theme='light']{--bokeh-a:.17}\n:root[data-skin='obsidian']{--bokeh-a:.30}\n:root[data-skin='night']{--bokeh-a:.52}\n:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.13}\n\n@media (max-width:700px){:root{--bokeh-a:.26}:root[data-skin='night']{--bokeh-a:.32}:root[data-theme='light']{--bokeh-a:.12}:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.09}}\n\n/* THE FIELD — the colour behind everything, in two parts.\n\n   BOKEH first (painted on top): eleven out-of-focus discs in the look's own\n   accent, ring and second hue. Each is a radial-gradient rather than a blurred\n   shape, because a gradient IS soft — no filter, no extra compositing layer,\n   nothing for a phone to blur every frame. The rim is a touch brighter than\n   the centre and the falloff runs long, which is what makes a defocused\n   highlight read as glass rather than as a flat circle.\n\n   Then the washes underneath. Every colour comes from a token, so all eight\n   grounds and thirteen accents get their own field for free, and --bokeh-a\n   turns the whole effect down on the light skins, where the same alpha would\n   read as smudges on paper rather than light in a room. */\nbody::before{\n  content:'';position:fixed;inset:-25%;z-index:-2;pointer-events:none;\n  /* HEAVY BOKEH, DISPERSED. Twenty defocused discs on a jittered grid, so the\n     colour is spread through the whole field rather than pooled in a corner.\n     Each is a smooth radial falloff with NO rim and no edge — which is not an\n     approximation of a heavy blur, it is what one is: blur a disc far enough\n     and you have a gaussian, which is a gradient. Doing it this way means no\n     filter, so nothing is re-blurred as the layer drifts, and a phone paints\n     it once. Radii are viewport-relative because the layer tracks the\n     viewport: in px they were tuned for a laptop and swamped a phone.\n     The thin rings and the conic that used to sit here are gone — at this\n     softness their hard 1%-wide edges were the only sharp thing on screen. */\n  background:\n    radial-gradient(circle clamp(91px,23.3vw,315px) at 8.5% 7.4%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.66)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.488)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.238)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.079)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 31.5% 10.9%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.9)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.666)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.324)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.108)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.5vw,140px) at 44.5% 11.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.67)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.496)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.241)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.08)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(54px,11.7vw,157px) at 69.9% 18.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.74)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.548)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.266)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.089)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(86px,21.7vw,293px) at 92.8% 20.2%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.84)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.622)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.302)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.101)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(106px,27.9vw,377px) at 17.7% 30.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.8vw,212px) at 26.0% 31.9%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.07)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.792)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.385)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.128)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(90px,23.1vw,311px) at 46.5% 39.3%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.82)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.607)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.295)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.098)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,137px) at 71.7% 31.0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.73)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.54)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.263)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.088)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(67px,15.9vw,214px) at 93.5% 36.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(101px,26.5vw,358px) at 10.3% 59.8%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.0)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.74)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.36)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.12)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(82px,20.6vw,277px) at 27.4% 64.2%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 1.1)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.814)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.396)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.132)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(114px,30.6vw,414px) at 54.2% 59.6%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.68)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.503)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.245)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.082)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(56px,12.3vw,165px) at 69.9% 67.1%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.89)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.659)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.32)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.107)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(99px,25.8vw,349px) at 84.5% 65.7%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.94)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.696)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.338)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.113)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(94px,24.3vw,328px) at 16.3% 85.0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.95)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.703)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.342)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.114)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(104px,27.5vw,371px) at 32.1% 87.3%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 1.14)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.844)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.41)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.137)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(circle clamp(50px,10.3vw,138px) at 50.6% 90.6%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 1.01)) 0%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.747)) 24%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.364)) 52%,rgba(var(--ring-rgb),calc(var(--bokeh-a) * 0.121)) 76%,rgba(var(--ring-rgb),0) 100%),\n    radial-gradient(circle clamp(103px,27.1vw,366px) at 73.1% 95.9%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.78)) 0%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.577)) 24%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.281)) 52%,rgba(var(--accent-rgb),calc(var(--bokeh-a) * 0.094)) 76%,rgba(var(--accent-rgb),0) 100%),\n    radial-gradient(circle clamp(47px,9.5vw,126px) at 89.4% 90.7%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.87)) 0%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.644)) 24%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.313)) 52%,rgba(var(--accent2-rgb),calc(var(--bokeh-a) * 0.104)) 76%,rgba(var(--accent2-rgb),0) 100%),\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%);\n  animation:field-drift 48s ease-in-out infinite alternate;\n}\n@keyframes field-drift{\n  from{transform:translate3d(0,0,0) scale(1)}\n  to{transform:translate3d(-1.5%,1.2%,0) scale(1.04)}\n}\nbody::after{\n  content:'';position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;\n  background-image:\n    radial-gradient(120% 90% at 50% 45%,transparent 42%,rgba(0,0,0,.30) 100%),\n    url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.035'/></svg>\");\n}\n/* The editor is a full-height app shell that paints its own stage, so the\n   marketing field would only burn GPU behind it. Driven by :has() rather than\n   a body class, so app.js needs no change to page switching. */\nbody:has(#page-editor.active)::before,\nbody:has(#page-editor.active)::after{display:none}\n\nbutton{font-family:inherit}\ninput,textarea,select{font-family:inherit;color:var(--text)}\n::-webkit-scrollbar{width:10px;height:10px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px;border:3px solid transparent;background-clip:content-box}\n::-webkit-scrollbar-thumb:hover{background:var(--text-dim);background-clip:content-box}\n:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}\n@media (prefers-reduced-motion:reduce){\n  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}\n  body::before{animation:none}\n}\n\n/* ═══════════ HOUSE UTILITIES (shared vocabulary with the CRM) ═══════════ */\n.glass{\n  position:relative;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);\n  backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  box-shadow:var(--glass-shadow);\n}\n/* A single hairline all the way round reads as a border. Real glass catches\n   light on the edge facing the source and loses it on the far side, so this\n   paints a gradient rim: bright top-left, gone by bottom-right. Cheapest thing\n   that separates \"panel with a border\" from \"pane of glass\". */\n.glass::after{\n  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;\n  background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.05) 34%,transparent 60%);\n  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);\n  -webkit-mask-composite:xor;mask-composite:exclude;\n  pointer-events:none;z-index:0;\n}\n.glass>*{position:relative;z-index:1}\n.glass-strong{background:var(--glass-bg-strong)}\n/* Anything the eye compares. */\n.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}\n.label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}\n\n/* ═══════════ SHARED ═══════════ */\n.btn{\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;\n  min-height:36px;padding:9px 18px;\n  border-radius:var(--r-pill);\n  font-size:14px;font-weight:600;letter-spacing:-.01em;line-height:1.2;\n  cursor:pointer;border:none;text-decoration:none;white-space:nowrap;\n  transition:transform .08s cubic-bezier(.2,0,0,1),filter .15s ease,background .15s ease,border-color .15s ease,color .15s ease;\n}\n.btn:active{transform:scale(.968)}\n.btn-primary{\n  background:linear-gradient(180deg,var(--accent),var(--accent-deep));\n  color:var(--accent-ink);\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent);\n}\n.btn-primary:hover{filter:brightness(1.06)}\n.btn-ghost{background:transparent;color:var(--text-2)}\n.btn-ghost:hover{color:var(--text);background:var(--surface-sunk)}\n.btn-outline{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  color:var(--text);border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow);\n}\n.btn-outline:hover{background:var(--surface-raise);color:var(--text)}\n.btn-dark{background:var(--surface-sunk);color:var(--text);border:1px solid var(--hairline)}\n.btn-dark:hover{background:var(--surface-raise)}\n.btn-xl{padding:15px 30px;font-size:16px;min-height:52px}\n.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}\n\n/* Theme toggle — same control on every surface. */\n.theme-btn{\n  width:36px;height:36px;flex:none;display:inline-grid;place-items:center;\n  border-radius:var(--r-pill);background:transparent;border:none;cursor:pointer;\n  color:var(--text-2);font-size:15px;line-height:1;\n  transition:background .15s ease,color .15s ease;\n}\n.theme-btn:hover{background:var(--surface-sunk);color:var(--text)}\n\n.notif{\n  position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);color:var(--text);\n  padding:12px 20px;border-radius:var(--r-pill);font-size:14px;font-weight:600;\n  z-index:9500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;\n  box-shadow:var(--glass-shadow-lift);max-width:min(90vw,480px);text-align:center;\n}\n.notif.show{opacity:1;transform:translate(-50%,0)}\n.notif.success{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(48,214,143,.45)}\n.notif.error{box-shadow:var(--glass-shadow-lift),0 0 0 1px rgba(255,98,89,.5)}\n\n/* modal */\n.modal-overlay{\n  position:fixed;inset:0;background:var(--scrim);\n  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);\n  z-index:8000;display:none;align-items:center;justify-content:center;padding:24px;\n}\n.modal-overlay.show{display:flex}\n.modal{\n  position:relative;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:22px;width:100%;max-width:520px;padding:26px;\n  box-shadow:var(--glass-shadow-lift);animation:pop .18s cubic-bezier(.2,0,0,1);\n}\n@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}\n.modal h3{font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:4px}\n.modal .modal-sub{font-size:13.5px;color:var(--text-dim);margin-bottom:18px;line-height:1.5}\n.modal label{display:block;font-size:10.5px;font-weight:700;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.09em}\n.modal input[type=text],.modal input[type=tel],.modal input[type=email],.modal input[type=password]{\n  width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);\n  border-radius:var(--r-md);padding:11px 13px;font-size:14px;color:var(--text);\n  transition:border-color .14s ease,box-shadow .14s ease;\n}\n.modal input::placeholder{color:var(--text-dim)}\n.modal input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}\n\n/* ═══════════ LANDING ═══════════ */\n#page-landing{min-height:100vh}\n.lp-nav{\n  position:fixed;top:0;left:0;right:0;z-index:300;height:64px;\n  display:flex;align-items:center;gap:8px;padding:0 clamp(16px,4vw,40px);\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n  box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -20px rgba(0,0,0,.6);\n}\n.logo{\n  font-family:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;\n  color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px;\n  cursor:pointer;background:none;border:none;\n}\n.logo .logo-mark{\n  width:30px;height:30px;border-radius:9px;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:#fff;\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 12px -4px rgba(var(--brand-rgb),.5);\n}\n/* Brand warmth lives here and nowhere else. */\n.logo em{\n  font-style:normal;\n  background:linear-gradient(135deg,var(--brand-1),var(--brand-2));\n  -webkit-background-clip:text;background-clip:text;color:transparent;\n}\n.lp-nav-links{display:flex;gap:26px;margin-left:40px}\n.lp-nav-links a{font-size:14px;font-weight:550;color:var(--text-2);text-decoration:none;transition:color .15s;white-space:nowrap}\n.lp-nav-links a:hover{color:var(--text)}\n.lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}\n.lp-lab{white-space:nowrap}\n/* The bar measured about 1290px wide at every viewport, so from 1100 to 1439px\n   \"Make my ad\" (the one action the page exists for) was clipped off the right\n   edge. It gives ground in order of least use: tighter link spacing and the\n   \"Template\" word first, then the two links that are also reachable from the\n   page itself, then the link row. */\n@media(max-width:1380px){\n  .lp-nav-links{gap:18px;margin-left:24px}\n  .lp-lab-full{display:none}\n}\n@media(max-width:1200px){\n  .lp-nav-links a[href=\"#lp-themes\"],.lp-nav-links a[href=\"#faq\"]{display:none}\n}\n@media(max-width:1000px){\n  .lp-nav-links{display:none}\n}\n@media(max-width:640px){\n  .lp-nav-links{display:none}\n  /* The lab link is the one nav item that must survive on a phone (it is\n     reviewed from one). Measured at 375px: wordmark 186 + lab pill + toggle\n     + \"Make my ad\" overflowed by ~80px and the CTA clipped, so the logo\n     drops to its mark alone here; the mark keeps its own font-size below. */\n  .lp-nav .logo{font-size:0;gap:0}\n  .lp-lab{padding:9px 12px}\n  /* 343px of usable nav at 375 viewport cannot hold logo + 4 controls, and\n     overflow-x:hidden was silently clipping \"Make my ad\" off the right edge.\n     Log in / Sign up free stay reachable in the footer's Account column and\n     from the studio itself, so the one conversion button survives here. */\n  #lp-login,#lp-signup{display:none}\n  .lp-nav{gap:4px;padding:0 12px}\n  .lp-nav .btn{padding:9px 14px;font-size:13.5px}\n  .lp-nav .lp-caret{padding:9px 10px}\n  .logo{font-size:15px;gap:8px}\n  .logo .logo-mark{width:26px;height:26px;font-size:13px}\n}\n\n.hero{padding:120px clamp(16px,5vw,48px) 72px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;min-height:min(84vh,760px)}\n@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:120px;gap:44px;min-height:0}}\n.hero-eyebrow{\n  display:inline-flex;align-items:center;gap:8px;\n  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;\n  color:var(--accent);background:var(--accent-wash);\n  border:.5px solid rgba(var(--accent-rgb),.28);\n  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:22px;\n}\n/* The ceiling at which \"in under a minute.\" still sets on ONE line inside the\n   1.05fr column, MEASURED FOR THE FACE THAT SHIPS. This is face-specific and\n   has now caught two typefaces out: the system stack held one line to 68px,\n   Clash Display breaks at 66 (it runs ~8.4x its size for that string against\n   a 548px column at 1280). Re-measure this if --display ever changes again;\n   guessing produces a four-line ragged hero. */\n.hero h1{font-family:var(--display);font-size:clamp(34px,4.5vw,58px);line-height:1.06;letter-spacing:-.028em;margin-bottom:20px;font-weight:700}\n.hero h1 em{font-style:normal;color:var(--accent)}\n.hero p{font-size:17px;line-height:1.65;color:var(--text-2);max-width:480px;margin-bottom:32px}\n.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}\n.hero-note{margin-top:18px;font-size:13px;color:var(--text-dim)}\n\n/* Height is set by the fan's geometry, not by taste: the front card must start\n   BELOW the back cards' phone-number band or it buries the one element the ad\n   exists to deliver. At 460px with 52% cards it covered 53% and 54% of them. */\n.hero-stack{position:relative;height:500px}\n.hero-card{position:absolute;width:44%;aspect-ratio:1;border-radius:20px;overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-3);background:var(--surface-raise);transition:transform .4s cubic-bezier(.2,0,0,1)}\n.hero-card img{width:100%;height:100%;object-fit:cover;display:block}\n/* Fan geometry is measured, not eyeballed. At 57% wide the three cards came to\n   192% of the stack and the back card was 57% OCCLUDED — its headline was\n   sliced in half, which reads as a broken page rather than a designed stack.\n   At 52% the overlap is ~19%/~18% and, more importantly, all of it lands in\n   the LOWER band: hc3 starts at y=201 of a 460 stack, below where every\n   template puts its headline. Change these together, and re-measure the\n   occlusion if you touch the width. */\n.hero-card.hc1{top:0;left:0;transform:rotate(-8deg);z-index:1}\n.hero-card.hc2{top:4%;right:2%;transform:rotate(6deg);z-index:2}\n.hero-card.hc3{bottom:0;left:20%;transform:rotate(-1deg);z-index:3;box-shadow:var(--lift-3),0 30px 90px -20px rgba(var(--accent-rgb),.35)}\n/* Mobile fan. MUST come after the base .hero-card rules: at equal specificity\n   the later rule wins, and an earlier media query silently lost to the 52%\n   default — the block applied, the width did not.\n   Taller and narrower here because at 380px the three cards had nowhere to go\n   and the front one landed across the other two's phone numbers (measured 71%\n   and 55% of the number band covered), which is the one element the ad exists\n   to deliver. */\n@media(max-width:900px){\n  .hero-stack{height:446px;max-width:440px;margin:0 auto;width:100%}\n  .hero-card{width:46%}\n  /* Overlap SIDEWAYS, separate VERTICALLY. Pulling the cards fully apart cleared\n     the phone numbers but lost the stack entirely — three scattered squares, no\n     depth. Horizontal overlap gives the layered read back; the vertical gaps are\n     what keep each card's number band uncovered. */\n  .hero-card.hc1{top:0;left:0}\n  .hero-card.hc2{top:7%;right:4%}\n  .hero-card.hc3{bottom:0;left:17%}\n}\n/* Any card can be brought to the front — hover on a pointer device, press and\n   hold on touch. The whole stack dims slightly so the chosen one reads as\n   picked rather than merely bigger. */\n/* ═══════════ HERO ENTRANCE ═══════════\n   The three cards fly in from below-and-apart and settle into the fan, so the\n   stack assembles itself in front of the visitor instead of being there already.\n   Each card keeps its OWN resting transform, so the animation has to end on that\n   exact value or the card snaps when the keyframes hand back to CSS — hence a\n   per-card @keyframes rather than one shared one.\n   Staggered back-to-front so the card you are meant to read lands last.\n   `animation-fill-mode:both` holds the opening frame during the delay, which is\n   what stops all three flashing at their final position on first paint. */\n@keyframes heroIn1{\n  0%  {opacity:0; transform:translate3d(-38px,64px,0) rotate(-16deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-8deg) scale(1)}\n}\n@keyframes heroIn2{\n  0%  {opacity:0; transform:translate3d(38px,72px,0) rotate(14deg) scale(.9)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(6deg) scale(1)}\n}\n@keyframes heroIn3{\n  0%  {opacity:0; transform:translate3d(0,88px,0) rotate(6deg) scale(.86)}\n  60% {opacity:1}\n  100%{opacity:1; transform:translate3d(0,0,0) rotate(-1deg) scale(1)}\n}\n/* Cards default to VISIBLE. An earlier version set opacity:0 here and relied on\n   a JS class to reveal them — so the moment requestAnimationFrame did not run\n   (a background tab, a script error anywhere above) the hero was simply blank.\n   The animation supplies its own opening frame through fill-mode:both, so\n   nothing needs to be hidden up front for it to work. Fail visible. */\n.hero-stack.ready .hero-card.hc1{animation:heroIn1 .92s cubic-bezier(.16,.84,.28,1) .05s both}\n.hero-stack.ready .hero-card.hc2{animation:heroIn2 .92s cubic-bezier(.16,.84,.28,1) .17s both}\n.hero-stack.ready .hero-card.hc3{animation:heroIn3 1.0s cubic-bezier(.16,.84,.28,1) .30s both}\n/* Once the entrance has finished the animation is removed entirely, so the\n   hover transform is not fighting a finished animation for the same property.\n   Selector must be enumerated per card: `.hero-stack.settled .hero-card` is\n   three classes and LOSES to `.hero-stack.ready .hero-card.hc1`, which is four\n   — so `animation:none` silently never applied and the cards stayed frozen on\n   the animation's opening frame. Matching specificity, declared later, wins. */\n.hero-stack.settled .hero-card.hc1,\n.hero-stack.settled .hero-card.hc2,\n.hero-stack.settled .hero-card.hc3{animation:none;opacity:1}\n@media (prefers-reduced-motion:reduce){\n  .hero-card{opacity:1}\n  .hero-stack.ready .hero-card{animation:none}\n}\n.hero-card{cursor:pointer;will-change:transform}\n.hero-stack:hover .hero-card,.hero-stack.touching .hero-card{filter:brightness(.72) saturate(.9)}\n/* Hover pulls a card OUT of the stack: z-index above its siblings, straightened,\n   lifted and enlarged. Without the z-index the card grew but stayed underneath,\n   which read as a glitch rather than a pick-up. */\n.hero-card.hc1:hover,.hero-card.hc1.lifted,\n.hero-card.hc2:hover,.hero-card.hc2.lifted,\n.hero-card.hc3:hover,.hero-card.hc3.lifted{z-index:9}\n.hero-card.hc1:hover,.hero-card.hc1.lifted{transform:rotate(-2deg) translateY(-18px) scale(1.09)}\n.hero-card.hc2:hover,.hero-card.hc2.lifted{transform:rotate(1.5deg) translateY(-18px) scale(1.09)}\n.hero-card.hc3:hover,.hero-card.hc3.lifted{transform:rotate(0deg) translateY(-20px) scale(1.09)}\n.hero-card:hover,.hero-card.lifted{\n  z-index:9!important;filter:none!important;\n  box-shadow:var(--lift-3),0 34px 90px -18px rgba(var(--accent-rgb),.5);\n}\n.hero-card .hc-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n@keyframes shimmer{to{background-position:-200% 0}}\n\n.lp-section{max-width:1200px;margin:0 auto;padding:80px clamp(16px,5vw,48px)}\n.lp-section-head{margin-bottom:38px}\n.lp-kicker{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}\n.lp-section-head h2{font-family:var(--display);font-size:clamp(30px,4vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.08}\n.lp-section-head p{color:var(--text-dim);font-size:15px;margin-top:12px;max-width:560px;line-height:1.6}\n\n.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:20px}\n.tpl-card{position:relative;border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--glass-edge);background:var(--surface-raise);cursor:pointer;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s;aspect-ratio:1;box-shadow:var(--lift-1)}\n.tpl-card:hover{transform:translateY(-4px);box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.4)}\n.tpl-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}\n.tpl-card .tpl-veil{position:absolute;inset:0;backdrop-filter:blur(1.6px) brightness(.86);transition:backdrop-filter .25s,opacity .25s}\n.tpl-card:hover .tpl-veil{backdrop-filter:blur(0) brightness(1);opacity:0}\n.tpl-card .tpl-meta{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}\n.tpl-card .tpl-name{font-weight:650;font-size:14.5px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}\n.tpl-card .tpl-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-soft);background:rgba(0,0,0,.55);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-pill);padding:4px 9px}\n.tpl-card .tpl-use{position:absolute;top:12px;right:12px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--r-pill);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;box-shadow:var(--glow-accent)}\n.tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}\n.tpl-card .tpl-skel{position:absolute;inset:0;background:linear-gradient(110deg,var(--surface-raise) 40%,var(--surface-sunk) 50%,var(--surface-raise) 60%);background-size:200% 100%;animation:shimmer 1.4s infinite}\n.tpl-card.tpl-saved-card .tpl-del{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:14px;opacity:0;transition:opacity .2s}\n.tpl-card.tpl-saved-card:hover .tpl-del{opacity:1}\n.tpl-card .tpl-del:hover{color:var(--danger);border-color:var(--danger)}\n\n.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n@media(max-width:820px){.flow{grid-template-columns:1fr}}\n.flow-step{\n  position:relative;background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.flow-step .fs-num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:14px}\n.flow-step h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:8px}\n.flow-step p{font-size:14px;color:var(--text-dim);line-height:1.6}\n\n.lp-cta{max-width:1200px;margin:0 auto 90px;padding:0 clamp(16px,5vw,48px)}\n.lp-cta-inner{\n  position:relative;overflow:hidden;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);\n  border-radius:26px;padding:56px 40px;text-align:center;\n  box-shadow:var(--glass-shadow-lift);\n}\n/* A wash of accent inside the pane so the CTA reads as lit rather than tinted. */\n.lp-cta-inner::before{\n  content:'';position:absolute;inset:0;pointer-events:none;\n  background:radial-gradient(70% 120% at 50% 0%,var(--accent-wash),transparent 70%);\n}\n.lp-cta-inner>*{position:relative}\n.lp-cta-inner h2{font-family:var(--display);font-size:clamp(30px,4.4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.06;margin-bottom:12px}\n.lp-cta-inner p{color:var(--text-2);margin-bottom:28px;font-size:15px}\n.lp-footer{border-top:1px solid var(--hairline);padding:26px clamp(16px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--text-dim);font-size:13px}\n\n\n/* ═══════════ EDITOR ═══════════ */\n#page-editor{display:none;height:100vh;flex-direction:column;overflow:hidden}\n#page-editor.active{display:flex}\n#page-landing.hidden{display:none}\n\n.topbar{\n  height:58px;flex:0 0 58px;display:flex;align-items:center;gap:10px;padding:0 14px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);z-index:100;\n}\n.topbar .logo{font-size:15px}\n.tb-sep{width:1px;height:26px;background:var(--hairline);margin:0 4px}\n.tb-tplname{font-size:13px;font-weight:600;color:var(--text-2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.tb-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;color:var(--text-2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:var(--r-pill);cursor:pointer;transition:background .15s,color .15s}\n.tb-btn:hover{background:var(--surface-sunk);color:var(--text)}\n.tb-btn:disabled{opacity:.35;cursor:default;background:transparent}\n.tb-btn svg{width:16px;height:16px}\n.tb-spacer{flex:1}\n/* AI is violet everywhere in the house, never the accent. */\n#enhance-btn{border:.5px solid rgba(167,139,255,.4);color:var(--ai);background:rgba(167,139,255,.10)}\n#enhance-btn:hover{background:rgba(167,139,255,.18);color:var(--ai)}\n#enhance-btn.busy{opacity:.6;pointer-events:none}\n#export-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n#export-btn:hover{filter:brightness(1.06)}\n@media(max-width:900px){.tb-label{display:none}}\n/* ── editor topbar below laptop width ─────────────────────────────────────\n   Twelve controls in one non-wrapping row is fine at 1280 and broken\n   everywhere else: at iPad portrait the EXPORT button sat at x=848 on an\n   820px screen, and on an iPhone half the bar was past the right edge with\n   no way to reach it. The bar now scrolls horizontally, every control keeps\n   its full size rather than being squeezed, and Export is pinned to the\n   right edge so the one button that matters is never the one you have to go\n   hunting for. */\n@media(max-width:1100px){\n  .topbar{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}\n  .topbar::-webkit-scrollbar{display:none}\n  .topbar > *{flex:none}\n  .topbar .tb-spacer{flex:1 0 8px}\n  #export-btn{\n    position:sticky;right:0;z-index:2;\n    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent),\n               -18px 0 18px -10px var(--glass-bg-strong);\n  }\n}\n/* Touch pointers get the 44px minimum. Height only — widening the nav pills\n   would push the row back off the edge, which is the problem we just fixed. */\n@media(pointer:coarse){\n  .btn,.tb-btn,.ez-adv-link,.view-item,.picker-filters button,.plans-close,.logo{min-height:44px}\n  .theme-btn{width:44px;height:44px}\n  .ez-chip,.chip{min-height:40px}\n}\n\n.editor-body{flex:1;display:flex;overflow:hidden;position:relative}\n\n/* panels as drawers */\n.panel{\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  display:flex;flex-direction:column;position:relative;transition:margin .28s cubic-bezier(.2,0,0,1);z-index:50;\n}\n.panel-left{width:300px;flex:0 0 300px;border-right:.5px solid var(--glass-edge)}\n.panel-right{width:300px;flex:0 0 300px;border-left:.5px solid var(--glass-edge)}\n.panel-left.collapsed{margin-left:-300px}\n.panel-right.collapsed{margin-right:-300px}\n.drawer-tab{position:absolute;top:50%;transform:translateY(-50%);width:20px;height:64px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:60;transition:color .15s,background .15s}\n.drawer-tab:hover{color:var(--text);background:var(--surface-raise)}\n.panel-left .drawer-tab{right:-20px;border-left:none;border-radius:0 10px 10px 0}\n.panel-right .drawer-tab{left:-20px;border-right:none;border-radius:10px 0 0 10px}\n\n.panel-tabs{display:flex;border-bottom:1px solid var(--hairline);flex:0 0 auto}\n.panel-tabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:12.5px;font-weight:650;padding:13px 4px;cursor:pointer;transition:color .15s,border-color .15s;letter-spacing:-.01em}\n.panel-tabs button:hover{color:var(--text-2)}\n.panel-tabs button.active{color:var(--text);border-bottom-color:var(--accent)}\n.panel-scroll{flex:1;overflow-y:auto;padding:16px 14px 40px}\n.panel-tabview{display:none}\n.panel-tabview.active{display:block}\n\n.psec{margin-bottom:22px}\n.psec-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}\n.field{margin-bottom:11px}\n.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}\n.field input[type=text],.field input[type=tel],.field input[type=number],.field textarea,.field select{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;transition:border-color .14s,box-shadow .14s}\n.field textarea{resize:vertical;min-height:56px;line-height:1.4}\n.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.field input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}\n.field-row{display:flex;gap:8px}\n.field-row .field{flex:1}\ninput[type=color]{width:100%;height:34px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:var(--surface-raise);cursor:pointer;padding:3px}\ninput[type=range]{width:100%;accent-color:var(--accent)}\n\n.chips{display:flex;flex-wrap:wrap;gap:7px}\n.chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12px;font-weight:650;padding:7px 12px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s;letter-spacing:-.005em}\n.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n.seg{display:flex;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-pill);overflow:hidden;padding:3px;gap:3px}\n.seg button{flex:1;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:650;padding:7px 6px;cursor:pointer;border-radius:var(--r-pill);transition:background .13s,color .13s}\n.seg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.seg button:hover:not(.active){color:var(--text-2)}\n\n.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}\n.add-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-md);color:var(--text-2);font-size:12.5px;font-weight:600;padding:13px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .13s}\n.add-btn:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}\n.add-btn .ab-ico{font-size:19px;line-height:1}\n.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.emoji-grid button{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);font-size:21px;padding:8px 0;cursor:pointer;transition:all .13s}\n.emoji-grid button:hover{border-color:var(--accent);transform:scale(1.08)}\n\n.mini-tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}\n.mini-tpl{position:relative;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--hairline);cursor:pointer;aspect-ratio:1;background:var(--surface-raise);transition:box-shadow .15s,transform .15s}\n.mini-tpl:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.mini-tpl.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}\n.mini-tpl img{width:100%;height:100%;object-fit:cover;display:block}\n.mini-tpl .mt-name{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;font-weight:650;color:#fff;padding:14px 7px 5px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.mini-tpl .mt-del{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);border:.5px solid rgba(255,255,255,.25);color:#fff;font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s}\n.mini-tpl:hover .mt-del{opacity:1}\n.mini-tpl .mt-del:hover{color:var(--danger);border-color:var(--danger)}\n.empty-hint{font-size:12.5px;color:var(--text-dim);line-height:1.55;background:var(--surface-sunk);border:1px dashed var(--hairline-strong);border-radius:var(--r-md);padding:14px;text-align:center}\n\n/* stage */\n.stage{flex:1;position:relative;display:flex;overflow:auto;padding:26px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,var(--stage-1) 0%,var(--stage-2) 100%)}\n.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(var(--stage-dot) 1px,transparent 1px);background-size:26px 26px;pointer-events:none}\n#canvas-holder{position:relative;box-shadow:var(--lift-3);border-radius:6px;overflow:hidden;margin:auto}\n#guide-v,#guide-h{position:absolute;background:var(--accent);opacity:0;pointer-events:none;transition:opacity .08s;z-index:20;box-shadow:0 0 6px rgba(var(--accent-rgb),.9)}\n#guide-v{top:0;bottom:0;left:50%;width:1px;transform:translateX(-.5px)}\n#guide-h{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px)}\n#guide-v.on,#guide-h.on{opacity:1}\n.zoombar{\n  position:absolute;right:18px;bottom:16px;display:flex;align-items:center;gap:2px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:4px;z-index:70;\n  box-shadow:var(--glass-shadow-lift);\n}\n.zoombar button{background:none;border:none;color:var(--text-2);width:30px;height:30px;border-radius:var(--r-pill);cursor:pointer;font-size:15px;font-weight:600}\n.zoombar button:hover{background:var(--surface-sunk);color:var(--text)}\n.zoombar .zb-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:600;color:var(--text-2);min-width:48px;text-align:center;cursor:pointer;border-radius:var(--r-pill);padding:6px 2px}\n.zoombar .zb-pct:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* layers */\n.layer-row{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;transition:background .12s,border-color .12s;margin-bottom:3px}\n.layer-row:hover{background:var(--surface-sunk)}\n.layer-row.selected{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4)}\n.layer-row.hidden-l{opacity:.4}\n.layer-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:var(--surface-sunk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-2)}\n.layer-row .li-text{color:var(--accent)}\n.layer-main{flex:1;min-width:0}\n.layer-name{font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.layer-prev{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}\n.layer-acts{display:flex;gap:2px;flex:0 0 auto}\n.layer-acts button{background:none;border:none;color:var(--text-dim);width:24px;height:24px;border-radius:var(--r-pill);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}\n.layer-acts button:hover{background:var(--surface-sunk);color:var(--text)}\n.layer-acts button.on{color:var(--accent)}\n\n.icon-row{display:flex;gap:7px}\n.icon-row button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-sm);color:var(--text-2);padding:8px 4px;cursor:pointer;font-size:13px;font-weight:650;transition:all .13s}\n.icon-row button:hover{border-color:var(--hairline-strong);color:var(--text)}\n.icon-row button.active{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}\n\n/* template picker modal */\n.picker-modal{max-width:960px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}\n.picker-head{padding:22px 26px 16px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:14px;flex-wrap:wrap}\n.picker-head h3{font-size:20px;flex:1}\n.picker-filters{display:flex;gap:6px;flex-wrap:wrap}\n.picker-filters button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);font-size:12.5px;font-weight:650;padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all .13s}\n.picker-filters button.active{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.picker-body{flex:1;overflow-y:auto;padding:22px 26px 30px}\n.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:16px}\n.resume-card{grid-column:1/-1;display:flex;align-items:center;gap:16px;background:var(--accent-wash);border:.5px solid rgba(var(--accent-rgb),.35);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:border-color .15s}\n.resume-card:hover{border-color:var(--accent)}\n.resume-card img{width:64px;height:64px;border-radius:var(--r-md);object-fit:cover;border:.5px solid var(--hairline-strong)}\n.resume-card .rc-title{font-weight:700;font-size:14.5px}\n.resume-card .rc-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px}\n.picker-close{background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:var(--r-pill)}\n.picker-close:hover{background:var(--surface-sunk);color:var(--text)}\n\n/* export modal */\n.export-preview{width:100%;max-height:340px;border-radius:var(--r-lg);border:.5px solid var(--hairline-strong);object-fit:contain;background:var(--surface-sunk);display:block;margin-bottom:16px}\n\n/* tutorial */\n#tut-overlay{position:fixed;inset:0;z-index:9000;display:none;pointer-events:none}\n#tut-bubble{pointer-events:auto}\n#tut-overlay.active{display:block}\n#tut-spot{position:fixed;border-radius:var(--r-lg);box-shadow:0 0 0 9999px var(--scrim),0 0 0 2px var(--accent),0 0 34px rgba(var(--accent-rgb),.5);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:9001}\n#tut-bubble{\n  position:fixed;width:308px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:18px;z-index:9002;\n  box-shadow:var(--glass-shadow-lift);transition:all .3s cubic-bezier(.4,0,.2,1);\n}\n#tut-bubble .tb-step{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}\n#tut-bubble h4{font-size:16px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n#tut-bubble p{font-size:13.5px;color:var(--text-2);line-height:1.55;margin-bottom:15px}\n.tut-dots{display:flex;gap:5px;margin-bottom:14px}\n.tut-dots span{width:7px;height:7px;border-radius:50%;background:var(--hairline-strong);transition:background .2s}\n.tut-dots span.on{background:var(--accent)}\n.tut-actions{display:flex;align-items:center;gap:9px}\n.tut-actions .tut-skip{background:none;border:none;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;padding:8px 4px}\n.tut-actions .tut-skip:hover{color:var(--text)}\n@media(max-width:1100px){.panel-left,.panel-right{position:absolute;top:0;bottom:0;box-shadow:var(--lift-3)}.panel-left{left:0}.panel-right{right:0}}\n\n/* ═══════════ EASY MODE ═══════════ */\n#page-easy{display:none;min-height:100vh}\n#page-easy.active{display:block}\n.ez-nav{\n  display:flex;align-items:center;justify-content:space-between;gap:8px;\n  padding:12px 26px;position:sticky;top:0;z-index:40;\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border-bottom:.5px solid var(--glass-edge);\n}\n.ez-adv-link{background:none;border:none;color:var(--text-dim);font:600 13px/1 var(--ui);cursor:pointer;padding:9px 12px;border-radius:var(--r-pill)}\n.ez-adv-link:hover{color:var(--text);background:var(--surface-sunk)}\n.ez-wrap{max-width:1160px;margin:0 auto;padding:26px 22px 90px}\n.ez-head h1{font:700 clamp(24px,3.5vw,34px)/1.1 var(--ui);letter-spacing:-.035em;margin:0 0 4px}\n.ez-head p{color:var(--text-dim);margin:0 0 22px;font-size:14px}\n.ez-stepline{display:flex;align-items:center;gap:10px;margin:26px 0 12px}\n/* NOTE: border-radius MUST stay exactly 50% — cssProbeOk() in app.js reads it\n   to decide whether this stylesheet loaded at all. */\n.ez-stepnum{width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);font:700 13px/26px var(--mono);text-align:center;flex:none;box-shadow:var(--glow-accent)}\n.ez-stepline h2{font:650 17px/1 var(--ui);letter-spacing:-.02em;margin:0}\n.ez-stepline small{color:var(--text-dim);font-size:12px;margin-left:2px}\n.ez-strip{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}\n.ez-strip::-webkit-scrollbar{height:8px}\n.ez-strip::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:999px}\n\n/* ── horizontal scroller: pop-up arrows + edge fades ──────────────────────\n   The arrows are the only thing telling a visitor the row continues, so they\n   sit ON the thumbnails rather than outside the rail, and each one hides the\n   moment there is nothing more that way. */\n.strip-shell{position:relative}\n/* Fades are drawn over the rail, not the label row underneath it. */\n.strip-shell::before,.strip-shell::after{\n  content:'';position:absolute;top:0;bottom:22px;width:64px;pointer-events:none;z-index:2;\n  opacity:1;transition:opacity .18s ease;\n}\n.strip-shell::before{left:0;background:linear-gradient(90deg,var(--field),transparent)}\n.strip-shell::after{right:0;background:linear-gradient(270deg,var(--field),transparent)}\n.strip-shell.at-start::before,.strip-shell.at-end::after,\n.strip-shell.no-scroll::before,.strip-shell.no-scroll::after{opacity:0}\n.strip-arrow{\n  position:absolute;top:calc(50% - 11px);transform:translateY(-50%);z-index:3;\n  width:38px;height:38px;display:grid;place-items:center;\n  border-radius:var(--r-pill);cursor:pointer;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);box-shadow:var(--glass-shadow-lift);\n  color:var(--text);font-size:20px;line-height:1;padding:0 0 3px;\n  transition:opacity .18s ease,transform .12s cubic-bezier(.2,0,0,1),background .15s ease;\n}\n.strip-arrow.left{left:-4px}\n.strip-arrow.right{right:-4px}\n.strip-arrow:hover{background:var(--surface-raise)}\n.strip-arrow:active{transform:translateY(-50%) scale(.92)}\n.strip-shell.at-start .strip-arrow.left,\n.strip-shell.at-end .strip-arrow.right{opacity:0;pointer-events:none}\n.strip-shell.no-scroll .strip-arrow{display:none}\n/* Coarse pointers get a bigger target and no hover-only reveal. */\n@media (pointer:coarse){\n  .strip-arrow{width:44px;height:44px;font-size:22px}\n}\n.ez-tpl{flex:none;width:132px;cursor:pointer;background:none;border:none;padding:0;scroll-snap-align:start;text-align:center;position:relative}\n.ez-tpl img{width:132px;height:132px;border-radius:var(--r-lg);display:block;border:3px solid transparent;transition:border-color .15s,transform .15s,box-shadow .15s;object-fit:cover}\n.ez-tpl span{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}\n.ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2)}\n.ez-tpl.sel img{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-tpl.sel span{color:var(--text)}\n.ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start}\n.ez-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:20px;\n  box-shadow:var(--glass-shadow);\n}\n.ez-field{margin-bottom:14px}\n.ez-field label{display:block;font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}\n.ez-field input,.ez-field textarea{width:100%;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:500 15px/1.35 var(--ui);padding:11px 13px;box-sizing:border-box;transition:border-color .14s,box-shadow .14s}\n.ez-field textarea{resize:vertical;min-height:64px}\n.ez-field input:focus,.ez-field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.ez-chiprow{display:flex;flex-wrap:wrap;gap:8px}\n.ez-chip{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-2);border-radius:var(--r-pill);padding:8px 14px;font:650 12px/1 var(--ui);cursor:pointer;transition:all .12s}\n.ez-chip:hover{color:var(--text);border-color:var(--hairline-strong)}\n.ez-chip.on{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}\n.ez-swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}\n.ez-sw{width:40px;height:40px;border-radius:12px;border:3px solid transparent;cursor:pointer;padding:0;position:relative;box-shadow:var(--lift-1)}\n.ez-sw.sel{border-color:var(--accent);box-shadow:var(--glow-accent)}\n.ez-sw.orig{background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1.1 var(--ui)}\n.ez-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}\n.ez-preview-card{position:sticky;top:84px}\n.ez-preview-card img{width:100%;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}\n/* account dropdown (reuses .view-drop look) */\n.acct-drop{left:auto;right:0;min-width:240px}\n.am-email{font:650 12px/1.3 var(--ui);color:var(--text-dim);padding:8px 10px 10px;border-bottom:1px solid var(--hairline);margin-bottom:6px;word-break:break-all}\n/* project rows inside Export / Make-my-ad dropdowns */\n.caret{opacity:.6;font-size:11px;margin-left:2px}\n.xm-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-md)}\n.xm-row:hover{background:var(--surface-sunk)}\n.xm-row img{width:34px;height:34px;border-radius:var(--r-sm);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.xm-name{flex:1;font:600 12.5px/1.3 var(--ui);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.xm-btn{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:6px 10px;cursor:pointer;font-size:12px;flex:none}\n.xm-btn:hover{border-color:var(--accent);color:var(--accent)}\n/* split Make-my-ad button on the landing nav */\n.lp-split{display:inline-flex}\n.lp-split #lp-open-studio{border-radius:var(--r-pill) 0 0 var(--r-pill);padding-right:14px}\n.lp-caret{border-radius:0 var(--r-pill) var(--r-pill) 0;padding:9px 13px 9px 11px;border-left:1px solid rgba(0,0,0,.22)}\n/* auth modal */\n.auth-modal{max-width:420px;text-align:left}\n.auth-brand{display:flex;justify-content:center;margin-bottom:12px}\n.auth-brand .logo-mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px -8px rgba(var(--brand-rgb),.6)}\n.auth-modal h3{text-align:center}\n.auth-modal .modal-sub{text-align:center}\n.auth-google{display:flex;justify-content:center;margin:14px 0 4px}\n.auth-or{display:flex;align-items:center;gap:12px;margin:14px 0 4px;color:var(--text-dim);font-size:12px}\n.auth-or::before,.auth-or::after{content:'';flex:1;height:1px;background:var(--hairline)}\n.auth-pass-wrap{position:relative}\n.auth-pass-wrap input{width:100%;padding-right:44px}\n.auth-pass-wrap #auth-pass-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;opacity:.55;padding:6px}\n.auth-pass-wrap #auth-pass-eye:hover{opacity:1}\n.auth-hint{color:var(--text-dim);font-size:11.5px;margin-top:8px}\n/* account-type chooser after signup */\n.at-card{display:block;width:100%;text-align:left;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:15px 17px;margin-top:12px;cursor:pointer;transition:border-color .15s,transform .12s,background .15s}\n.at-card:hover{border-color:var(--accent);transform:translateY(-1px)}\n.at-card.hot{border-color:rgba(var(--accent-rgb),.5);background:var(--accent-wash)}\n.at-card .at-name{display:flex;justify-content:space-between;align-items:baseline;font:700 15px/1 var(--ui);letter-spacing:-.02em;color:var(--text)}\n.at-card .at-name em{font-style:normal;color:var(--accent);font-size:12.5px}\n.at-card .at-desc{display:block;color:var(--text-dim);font-size:12.5px;margin-top:6px;line-height:1.45}\n/* pencil button in export history */\n.hist-edit{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);padding:9px 13px;cursor:pointer;font:600 12.5px/1 var(--ui);margin-right:8px;flex:none}\n.hist-edit:hover{border-color:var(--accent);color:var(--accent)}\n/* big landing footer */\n.lp-footer-big{display:block;padding:46px clamp(16px,4vw,40px) 28px}\n.lpf-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;max-width:1100px;margin:0 auto}\n.lpf-brand p{color:var(--text-dim);font-size:13px;margin-top:10px;max-width:260px}\n.lpf-col h4{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}\n.lpf-col a{display:block;color:var(--text-2);text-decoration:none;font-size:13.5px;padding:5px 0}\n.lpf-col a:hover{color:var(--accent)}\n.lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}\n.ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}\n.ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.ez-dl:hover{filter:brightness(1.06)}\n.ez-dl:active{transform:scale(.985)}\n.ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}\n.ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}\n.ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}\n@media (max-width:920px){\n  .ez-main{grid-template-columns:1fr}\n  /* The preview used to be pulled above the form with order:-1, which made a\n     THREE-STEP guided flow read 1 -> 3 -> 2: the visitor was told \"step 2, type\n     your info\" and then had to scroll past an 1180px preview to find the\n     fields. Steps now stack in the order they are numbered.\n     The preview stays useful while typing by sticking to the bottom of the\n     viewport at a height that cannot swallow the page. */\n  .ez-preview-card{position:static;order:0}\n  .ez-preview-card img{max-height:52vh;width:auto;margin:0 auto;display:block}\n}\n/* Narrow phones: smaller thumbs so more than two fit, and the arrows pull in\n   off the very edge where a thumb-swipe would fight them. */\n@media (max-width:480px){\n  .ez-tpl,.ez-tpl img{width:104px}\n  .ez-tpl img{height:104px}\n  .strip-arrow.left{left:0}\n  .strip-arrow.right{right:0}\n  .strip-shell::before,.strip-shell::after{width:44px}\n}\n\n/* view menu */\n.view-menu{position:relative}\n.view-drop{\n  display:none;position:absolute;top:calc(100% + 8px);left:0;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:6px;min-width:220px;z-index:60;\n  box-shadow:var(--glass-shadow-lift);\n  animation:menu-in .16s cubic-bezier(.2,0,0,1);transform-origin:top left;\n}\n.view-drop.acct-drop{transform-origin:top right}\n@keyframes menu-in{from{opacity:0;transform:translateY(-6px) scale(.97)}}\n.view-drop.open{display:block}\n.view-item{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font:500 13.5px/1 var(--ui);padding:11px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left;transition:background .12s,color .12s}\n.view-item:hover{background:var(--accent-wash);color:var(--accent)}\n.view-item .vi-check{width:16px;height:16px;border:1.5px solid var(--text-dim);border-radius:5px;flex:none;display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}\n.view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}\n.view-item.on .vi-check::after{content:'✓';color:var(--accent-ink)}\n/* grid overlay */\n#grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:15;display:none;\n  background-image:linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px)}\n#grid-overlay.on{display:block}\n/* fill type seg */\n.fillseg{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:8px}\n.fillseg button{flex:1;background:none;border:none;color:var(--text-dim);font:600 12px/1 var(--ui);padding:8px;border-radius:var(--r-pill);cursor:pointer}\n.fillseg button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n/* backgrounds tab */\n.bg-gen-box{background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-lg);padding:12px;margin-bottom:14px}\n.bg-gen-box textarea{width:100%;box-sizing:border-box;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 13px/1.4 var(--ui);padding:9px;resize:vertical;min-height:56px}\n.bg-gen-row{display:flex;gap:8px;margin-top:8px}\n.bg-gen-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 12px/1 var(--ui);padding:8px;min-width:0}\n/* AI generation is violet, the house colour for \"a model did this\". */\n.btn-gen{background:linear-gradient(135deg,var(--ai),#7b5cff);color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}\n.btn-gen:hover{filter:brightness(1.06)}\n.btn-gen:disabled{opacity:.55;cursor:wait}\n.bg-result{margin-top:10px;display:none}\n.bg-result.show{display:block}\n.bg-result img{width:100%;border-radius:var(--r-md);display:block}\n.bg-result-acts{display:flex;gap:8px;margin-top:8px}\n.bg-result-acts button{flex:1;border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);border-radius:var(--r-pill);font:600 12px/1 var(--ui);padding:10px;cursor:pointer}\n.bg-result-acts button:hover{border-color:var(--accent);color:var(--accent)}\n.bg-lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.bg-lib-item{position:relative;border:none;background:var(--surface-sunk);border-radius:var(--r-md);padding:0;cursor:pointer;overflow:hidden;aspect-ratio:1}\n.bg-lib-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s}\n.bg-lib-item:hover img{transform:scale(1.06)}\n.bg-lib-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:var(--r-pill);border:none;background:rgba(0,0,0,.65);color:#fff;font-size:11px;cursor:pointer;display:none;line-height:20px;text-align:center}\n.bg-lib-item:hover .bg-lib-del{display:block}\n.bg-lib-badge{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#eee;font:600 9px/1 var(--ui);padding:3px 6px;border-radius:var(--r-pill);pointer-events:none}\n.gear-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:4px;font-family:var(--ui);font-weight:600}\n.gear-btn:hover{color:var(--text)}\n.ai-note{color:var(--text-dim);font-size:11.5px;line-height:1.45;margin-top:8px}\n\n\n/* easy recents + layers + star */\n.ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}\n#ez-recents{display:flex;flex-wrap:wrap;gap:10px}\n#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}\n.ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}\n.ez-recent img{width:100%;height:100%;object-fit:cover;display:block}\n.ez-recent.sel{border-color:var(--accent)}\n.star-btn{position:absolute;top:1px;right:1px;width:16px;height:16px;border:none;border-radius:5px;background:rgba(0,0,0,.65);color:var(--warn);font-size:10px;line-height:16px;text-align:center;cursor:pointer;display:none;padding:0}\n.ez-recent:hover .star-btn,.ez-lrow:hover .star-btn{display:block}\n.ez-lrow .star-btn{position:static;width:22px;height:22px;line-height:22px;border-radius:6px;flex:none}\n#star-pop{\n  position:fixed;z-index:9500;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:6px;display:none;min-width:210px;\n}\n#star-pop.open{display:block}\n#star-pop button{display:block;width:100%;background:none;border:none;color:var(--text);font:500 13px/1 var(--ui);padding:10px 11px;border-radius:var(--r-md);cursor:pointer;text-align:left}\n#star-pop button:hover{background:var(--accent-wash);color:var(--accent)}\n/* easy layers list */\n.ez-layers{margin-top:14px;border-top:1px solid var(--hairline);padding-top:12px}\n.ez-lrow{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:var(--r-md);cursor:pointer}\n.ez-lrow:hover{background:var(--surface-sunk)}\n.ez-lswatch{width:26px;height:26px;border-radius:8px;flex:none;background:var(--surface-sunk);overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--text-dim)}\n.ez-lswatch img{width:100%;height:100%;object-fit:cover}\n.ez-lmain{flex:1;min-width:0}\n.ez-lname{font:650 12px/1.2 var(--ui);color:var(--text)}\n.ez-lprev{font:500 10.5px/1.2 var(--ui);color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}\n.ez-ldel{width:22px;height:22px;border:none;border-radius:var(--r-pill);background:none;color:var(--text-dim);cursor:pointer;font-size:12px;flex:none;line-height:22px;padding:0}\n.ez-ldel:hover{background:rgba(255,98,89,.15);color:var(--danger)}\n.ez-restore{background:none;border:none;color:var(--accent);font:600 11.5px/1 var(--ui);cursor:pointer;padding:6px;margin-top:2px}\n\n\n/* effects controls */\n.ez-fxrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}\n.ez-fxrow button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-pill);padding:8px 13px;font:600 11.5px/1 var(--ui);cursor:pointer}\n.ez-fxrow button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.ez-fxline{display:flex;align-items:center;gap:10px;margin-bottom:8px}\n.ez-fxline label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:64px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.ez-fxline input[type=range]{flex:1}\n.ez-fxline input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px}\n.ez-fxline .fxval{font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right}\n/* account chip */\n.acct-chip{display:flex;align-items:center;gap:8px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-pill);padding:7px 13px;font:600 12px/1 var(--ui);color:var(--text);cursor:pointer;box-shadow:var(--glass-shadow)}\n.acct-chip:hover{background:var(--surface-raise)}\n.acct-plan{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border-radius:var(--r-pill);padding:3px 9px;font:700 9.5px/1.35 var(--ui);letter-spacing:.06em;text-transform:uppercase}\n.acct-plan.free{background:var(--surface-sunk);color:var(--text-dim)}\n/* auth + pay overlays reuse .modal-overlay/.modal */\n.auth-tabs{display:flex;gap:3px;background:var(--surface-sunk);border-radius:var(--r-pill);padding:3px;margin-bottom:16px}\n.auth-tabs button{flex:1;background:none;border:none;color:var(--text-dim);font:650 13px/1 var(--ui);padding:10px;border-radius:var(--r-pill);cursor:pointer;transition:background .13s,color .13s}\n.auth-tabs button.active{background:var(--surface-raise);color:var(--text);box-shadow:var(--lift-1)}\n.auth-err{color:var(--danger);font:500 12.5px/1.4 var(--ui);margin:8px 0 0;min-height:16px}\n.auth-ok{text-align:center;padding:18px 6px}\n.auth-ok .big{font-size:40px;margin-bottom:10px}\n.demo-note{background:rgba(255,176,61,.12);border:.5px solid rgba(255,176,61,.4);color:var(--warn);border-radius:var(--r-md);padding:10px 12px;font:500 11.5px/1.45 var(--ui);margin-top:12px}\n/* plans page */\n/* Fixed at z-index 8000, so it sits above the body's field pseudo-elements and\n   would otherwise be a flat slab. It carries its own copy of the aurora. */\n#page-plans{\n  display:none;position:fixed;inset:0;z-index:8000;overflow:auto;\n  background:\n    radial-gradient(58% 46% at 12% 4%,var(--wash-a),transparent 66%),\n    radial-gradient(50% 50% at 92% 10%,var(--wash-b),transparent 68%),\n    radial-gradient(64% 52% at 58% 104%,var(--wash-c),transparent 70%),\n    var(--field);\n}\n#page-plans.active{display:block}\n.plans-wrap{max-width:980px;margin:0 auto;padding:34px 22px 80px}\n.plans-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}\n.plans-head h1{font:700 28px/1.1 var(--ui);letter-spacing:-.035em;margin:0}\n.plans-close{background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text);border-radius:var(--r-pill);padding:10px 16px;font:600 13px/1 var(--ui);cursor:pointer}\n.plans-close:hover{background:var(--surface-raise)}\n.plans-sub{color:var(--text-dim);font:500 14px/1.5 var(--ui);margin:0 0 26px}\n.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}\n.plan-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:24px;\n  display:flex;flex-direction:column;box-shadow:var(--glass-shadow);\n}\n.plan-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.plan-name{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin-bottom:4px}\n.plan-price{font:700 32px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:10px 0 2px}\n.plan-price small{font:600 13px/1 var(--ui);color:var(--text-dim)}\n.plan-feats{list-style:none;padding:0;margin:16px 0 20px;flex:1}\n.plan-feats li{font:500 13px/1.5 var(--ui);color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.plan-feats li::before{content:'✓';position:absolute;left:0;color:var(--good);font-weight:700}\n.plan-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);font:650 14px/1 var(--ui);padding:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.plan-btn:hover{filter:brightness(1.06)}\n.plan-btn.ghost{background:var(--surface-sunk);color:var(--text);border:.5px solid var(--hairline);box-shadow:none}\n.plan-btn:disabled{opacity:.5;cursor:default}\n.plan-current{font:650 10.5px/1 var(--ui);color:var(--good);text-transform:uppercase;letter-spacing:.09em;margin-top:10px;text-align:center}\n.ez-quota{color:var(--text-dim);font:600 11.5px/1 var(--ui);text-align:center;margin-top:8px}\n.ez-quota b{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums}\n.ez-quota .up{color:var(--accent);cursor:pointer;text-decoration:underline}\n\n\n/* premium template locks */\n.tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}\n.ez-tpl{position:relative}\n.ez-tpl .tpl-lock{top:6px;left:6px}\n.ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}\n.ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}\n.tpl-card.locked img{filter:grayscale(.35) brightness(.7)}\n\n\n/* category row + nav */\n.ez-catrow{display:flex;align-items:center;gap:12px;margin:0 0 12px}\n.ez-catrow label{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none}\n.cat-select{background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-md);color:var(--text);font:600 14px/1 var(--ui);padding:11px 13px;min-width:210px;cursor:pointer}\n.cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}\n.nav-upgrade{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-pill);padding:9px 15px;font:700 12px/1 var(--ui);cursor:pointer;letter-spacing:-.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}\n.nav-upgrade:hover{filter:brightness(1.06)}\n/* export history */\n.hist-list{max-height:380px;overflow:auto;margin-top:6px}\n.hist-row{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:var(--r-md)}\n.hist-row:hover{background:var(--surface-sunk)}\n.hist-row img{width:52px;height:52px;border-radius:var(--r-md);object-fit:cover;flex:none;background:var(--surface-sunk)}\n.hist-main{flex:1;min-width:0}\n.hist-name{font:650 13px/1.2 var(--ui);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.hist-meta{font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim)}\n.hist-dl{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px 13px;cursor:pointer;flex:none}\n.hist-dl:hover{border-color:var(--accent);color:var(--accent)}\n.hist-empty{color:var(--text-dim);font:500 13px/1.5 var(--ui);text-align:center;padding:26px 0}\n@media (max-width:760px){ .ez-nav{flex-wrap:wrap;gap:8px} }\n/* The label plus a 210px select is wider than a phone, and overflow-x:hidden\n   was clipping the select's right edge instead of showing it. */\n@media (max-width:560px){\n  .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}\n  .ez-catrow label{margin-bottom:2px}\n  .cat-select{min-width:0;width:100%}\n  .ez-nav{padding:10px 14px}\n  .ez-adv-link{padding:8px;font-size:12.5px}\n  .ez-wrap{padding:20px 14px 80px}\n}\n\n.mini-tpl.locked img, .tpl-mini.locked img{filter:grayscale(.35) brightness(.7)}\n\n/* per-field quick styling */\n.ez-fieldrow{display:flex;gap:8px;align-items:stretch}\n.ez-fieldrow input,.ez-fieldrow textarea{flex:1;min-width:0}\n.ez-edit-btn{flex:none;width:44px;border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-dim);border-radius:var(--r-md);cursor:pointer;font-size:15px}\n.ez-edit-btn:hover{color:var(--accent);border-color:var(--accent)}\n#txt-pop{\n  position:fixed;z-index:9400;width:288px;\n  background:var(--glass-bg-strong);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);\n  box-shadow:var(--glass-shadow-lift);padding:14px;display:none;\n}\n#txt-pop.open{display:block}\n#txt-pop .tp-title{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}\n#txt-pop .tp-title button{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px}\n.tp-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}\n.tp-row label{font:600 10.5px/1 var(--ui);color:var(--text-dim);width:52px;flex:none;text-transform:uppercase;letter-spacing:.08em}\n.tp-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:600 12.5px/1 var(--ui);padding:8px 9px}\n.tp-row input[type=range]{flex:1}\n.tp-row input[type=color]{width:32px;height:26px;border:1px solid var(--hairline-strong);border-radius:6px;background:none;padding:1px;flex:none}\n.tp-row .tp-val{font:600 10.5px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--text-dim);width:34px;text-align:right;flex:none}\n.tp-biu{display:flex;gap:5px;flex:1}\n.tp-biu button{flex:1;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-sm);padding:7px 0;cursor:pointer;font:700 13px/1 Georgia}\n.tp-biu button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}\n.tp-reset{width:100%;margin-top:4px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px;cursor:pointer}\n.tp-reset:hover{color:var(--text)}\n\n\n.ez-themes{display:flex;flex-wrap:wrap;gap:9px}\n.ez-theme{display:flex;border:2px solid var(--hairline-strong);border-radius:11px;overflow:hidden;padding:0;cursor:pointer;width:52px;height:32px;background:none;transition:border-color .13s,transform .13s}\n.ez-theme span{flex:1;display:block}\n.ez-theme:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);transform:translateY(-1px)}\n.ez-theme:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n/* tagline style (app.js TAGLINE_STYLES): one row in Easy Mode and one in the editor, samples in the card's own colours */\n.ez-tagstyles{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}\n.ez-tagstyle{display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:5px 5px 7px;border:2px solid var(--hairline-strong);border-radius:11px;background:var(--surface-sunk);color:var(--text-2);font:650 11px/1.1 var(--ui);cursor:pointer;transition:border-color .13s,transform .13s,color .13s}\n.ez-tagstyle svg{display:block;width:100%;height:30px;border-radius:7px;background:#34363d}\n.ez-tagstyle:hover{border-color:var(--accent);color:var(--text);transform:translateY(-1px)}\n.ez-tagstyle.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);color:var(--text)}\n.ez-tagstyle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n.ez-tagnote{margin-top:8px;font:500 12px/1.4 var(--ui);color:var(--text-2)}\n\n\n.ez-chip-custom{border-style:dashed}\n.chip-x{opacity:.55;font-size:10px;margin-left:2px}\n.ez-chip-custom:hover .chip-x{opacity:1;color:var(--danger)}\n\n.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:720px}\n.lp-price-card{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:22px;padding:26px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-price-card.hot{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.lp-price-card h3{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-bottom:6px}\n.lp-price{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:40px;font-weight:700;letter-spacing:-.04em;margin-bottom:12px}\n.lp-price small{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:-.01em}\n.lp-price-card ul{list-style:none;padding:0;margin:0 0 18px}\n.lp-price-card li{font-size:13.5px;color:var(--text-2);padding:5px 0 5px 22px;position:relative}\n.lp-price-card li::before{content:'\\2713';position:absolute;left:0;color:var(--good);font-weight:700}\n.lp-faq{\n  background:var(--glass-bg);\n  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);\n  border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:0 20px;margin-bottom:10px;\n  box-shadow:var(--glass-shadow);\n}\n.lp-faq summary{font-weight:650;font-size:15px;letter-spacing:-.015em;padding:17px 0;cursor:pointer;list-style:none}\n.lp-faq summary::-webkit-details-marker{display:none}\n.lp-faq summary::after{content:'+';float:right;color:var(--accent);font-size:18px;font-weight:600}\n.lp-faq[open] summary::after{content:'\\2013'}\n.lp-faq p{font-size:14px;color:var(--text-2);line-height:1.6;padding-bottom:17px;margin:0}\n\n/* ── canvas format picker ── */\n.tb-format{appearance:none;-webkit-appearance:none;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);max-width:190px;border-radius:var(--r-pill);padding:8px 28px 8px 13px;font-size:13px;font-weight:600;background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}\n.tb-format:hover{border-color:var(--accent)}\n\n/* ── order prints + posting ── */\n.btn-order{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:12px;background:rgba(48,214,143,.12);border:.5px solid rgba(48,214,143,.45);color:var(--good);font-weight:650;border-radius:var(--r-lg);padding:12px}\n.btn-order:hover{border-color:var(--good);background:rgba(48,214,143,.18)}\n.btn-order .order-sub{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.01em}\n.ez-order{display:block;width:100%;margin-top:10px;background:none;border:1px dashed rgba(48,214,143,.5);color:var(--good);font-size:13px;font-weight:650;padding:11px;border-radius:var(--r-lg);cursor:pointer}\n.ez-order:hover{background:rgba(48,214,143,.10)}\n\n/* ── QR layer ── */\n.ab-pro{position:absolute;top:6px;right:6px;background:var(--warn);color:#1a1206;font-size:9px;font-weight:800;padding:2px 6px;border-radius:var(--r-pill);letter-spacing:.04em}\n.add-btn{position:relative}\n.qr-help{font-size:12px;color:var(--text-2);line-height:1.5;margin-top:8px}\n.qr-help a{color:var(--good);font-weight:650;text-decoration:none}\n.qr-help a:hover{text-decoration:underline}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LANDING v2 — 2026-09-02. The hero fan of three canvas-rendered classics is\n   now a wall of the newest set's real renders (assets/showcase), the gallery\n   filters by category and theme family, and the chrome has a Look menu:\n   ground (graphite / night / paper / ember) x accent (blue / mint / orchid /\n   gold / orange) x light or dark. All of it is CSS custom properties on\n   <html>, so the studio and the editor inherit whatever is chosen.\n   ═══════════════════════════════════════════════════════════════════════════ */\n.hero-v2{grid-template-columns:1.02fr .98fr;gap:44px;min-height:min(86vh,800px);padding-top:112px;overflow:hidden}\n.hero-copy{position:relative;z-index:2}\n.hero-copy p{max-width:520px}\n.hero-wall{position:relative;height:580px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;\n  transform:rotate(-6deg) scale(1.08);transform-origin:50% 50%;\n  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);\n  mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%)}\n.wall-col{display:flex;flex-direction:column;gap:14px;will-change:transform}\n.wall-col[data-dir=up]{animation:wallUp 46s linear infinite}\n.wall-col[data-dir=down]{animation:wallDown 52s linear infinite}\n.wall-col:nth-child(3){animation-duration:58s}\n@keyframes wallUp{from{transform:translateY(0)}to{transform:translateY(-50%)}}\n@keyframes wallDown{from{transform:translateY(-50%)}to{transform:translateY(0)}}\n.wall-card{aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;border:.5px solid var(--glass-edge);box-shadow:var(--lift-2);background:var(--surface-raise);cursor:pointer;flex:none;transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s}\n.wall-card:hover{transform:scale(1.04);box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.45);z-index:2}\n.wall-card img{width:100%;height:100%;object-fit:cover;display:block}\n.hero-wall:hover .wall-col{animation-play-state:paused}\n@media(prefers-reduced-motion:reduce){.wall-col{animation:none!important}}\n/* THE SCROLLER RUNS ON A PHONE TOO. It used to stop dead here — the animation\n   was killed and every card past the second was hidden, which also broke the\n   seamless loop, since each column is its own list twice over and the keyframe\n   travels -50%. It was disabled out of caution about phone performance, and\n   that caution was misplaced: the movement is a transform on three columns, so\n   it is composited on the GPU and costs no repaint. The wall is shorter here,\n   tilted less, and keeps its fade at top and bottom.\n   prefers-reduced-motion still stops it, above. */\n@media(max-width:900px){\n  .hero-v2{grid-template-columns:1fr;padding-top:92px;min-height:0;gap:26px}\n  .hero-wall{height:clamp(380px,54vh,470px);gap:9px;transform:rotate(-4deg) scale(1.07)}\n  .wall-col{gap:9px}\n  .wall-col[data-dir=up]{animation-duration:38s}\n  .wall-col[data-dir=down]{animation-duration:43s}\n  .wall-col:nth-child(3){animation-duration:48s}\n}\n@media(max-width:520px){\n  .hero-wall{height:clamp(330px,46vh,400px);gap:7px;transform:rotate(-3deg) scale(1.05)}\n  .wall-col{gap:7px}\n}\n.lp-stats{max-width:1200px;margin:0 auto;padding:22px clamp(16px,5vw,48px) 0;display:flex;flex-wrap:wrap;gap:10px 34px;border-top:.5px solid var(--hairline)}\n.stat{display:flex;align-items:baseline;gap:8px}\n.stat b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--text)}\n.stat span{font-size:13px;color:var(--text-dim)}\n\n/* theme families */\n.fam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}\n.fam-card{position:relative;text-align:left;background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);padding:11px;cursor:pointer;color:var(--text);box-shadow:var(--glass-shadow);transition:transform .15s cubic-bezier(.2,0,0,1),border-color .15s,box-shadow .15s;font:inherit}\n.fam-card:hover{transform:translateY(-3px)}\n.fam-card.on{border-color:var(--accent);box-shadow:var(--glass-shadow),0 0 0 1px var(--accent)}\n.fam-card.idle{cursor:default;opacity:.72}\n.fam-sw{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;height:56px;border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;border:.5px solid rgba(0,0,0,.18)}\n.fam-sw i{display:block}\n.fam-name{font-weight:650;font-size:14px;letter-spacing:-.01em}\n.fam-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-variant-numeric:tabular-nums}\n\n/* gallery filters */\n.lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}\n.chip{font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;min-height:36px}\n.chip:hover{color:var(--text);border-color:var(--text-dim)}\n.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:var(--glow-accent)}\n.chip .n{opacity:.65;font-family:var(--mono);font-size:11px;margin-left:6px;font-variant-numeric:tabular-nums}\n.tpl-more-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}\n.tpl-count{font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.tpl-card img{transition:transform .4s cubic-bezier(.2,0,0,1)}\n.tpl-card:hover img{transform:scale(1.035)}\n.tpl-card .tpl-lockpill{position:absolute;top:12px;left:12px;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:var(--r-pill);background:rgba(0,0,0,.6);color:#fff;border:.5px solid rgba(255,255,255,.25)}\n\n/* Look menu */\n.look-wrap{position:relative}\n.look-btn{display:inline-flex;align-items:center;gap:8px;padding:0 12px 0 10px;width:auto;font-size:13px;font-weight:600;color:var(--text-2)}\n.look-btn:hover{color:var(--text)}\n.look-dot{width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-deep));box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 2px var(--surface-sunk)}\n.look-menu{position:absolute;right:0;top:44px;width:304px;background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:var(--r-lg);box-shadow:var(--glass-shadow-lift);padding:14px;z-index:400;display:none;text-align:left}\n.look-menu.open{display:block}\n.look-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}\n.look-label{width:100%;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}\n.look-chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-chip:hover{color:var(--text)}\n.look-chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}\n.look-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px -2px rgba(0,0,0,.5);padding:0}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--text)}\n.look-note{font-size:11.5px;color:var(--text-dim);line-height:1.45}\n.look-note code{font-family:var(--mono);font-size:11px;color:var(--text-2)}\n@media(max-width:640px){.look-btn span{display:none}.look-btn{padding:0 10px}.look-menu{position:fixed;left:12px;right:12px;top:70px;width:auto}}\n\n/* Skin-specific style, beyond colour. PAPER is editorial: a serif display\n   face, flat panels on hairlines, no drifting field. NIGHT is the opposite:\n   gradient ink on the money line, louder glows. */\n:root[data-skin='paper'] .hero h1{font-weight:500;letter-spacing:-.022em}\n:root[data-skin='paper'] .hero h1 em{font-style:italic;color:var(--accent)}\n:root[data-skin='paper'] .lp-section-head h2,:root[data-skin='paper'] .lp-cta-inner h2{font-weight:500;letter-spacing:-.015em}\n:root[data-skin='paper'] .flow-step,:root[data-skin='paper'] .fam-card,:root[data-skin='paper'] .lp-cta-inner,:root[data-skin='paper'] .lp-price-card,:root[data-skin='paper'] .look-menu{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface-solid);box-shadow:none;border:1px solid var(--hairline)}\n:root[data-skin='paper'] .lp-price-card.hot{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] .fam-card.on{box-shadow:0 0 0 1px var(--accent)}\n:root[data-skin='paper'] body::before{animation:none}\n:root[data-skin='paper'] body::after{opacity:.22}\n:root[data-skin='paper'] .hero-eyebrow{background:transparent;border-color:var(--hairline-strong);color:var(--text-2)}\n:root[data-skin='paper'] .lp-nav{box-shadow:none;border-bottom:1px solid var(--hairline)}\n:root[data-skin='paper'] .wall-card,:root[data-skin='paper'] .tpl-card{box-shadow:0 1px 2px rgba(30,25,15,.08),0 10px 24px -14px rgba(30,25,15,.25)}\n:root[data-skin='night'] .hero h1 em{background:linear-gradient(90deg,var(--accent),var(--accent-soft));-webkit-background-clip:text;background-clip:text;color:transparent}\n:root[data-skin='night'] .btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),var(--glow-accent)}\n:root[data-skin='night'] .lp-kicker{text-shadow:0 0 18px rgba(var(--accent-rgb),.6)}\n\n/* ── AREA dialog (location-aware copy) ── */\n.area-modal{max-width:560px}\n.area-inrow{display:flex;gap:8px;align-items:stretch}\n.area-inrow input{flex:1;min-width:0}\n.area-inrow .btn{white-space:nowrap;padding:9px 14px}\n.area-suggest{display:flex;flex-direction:column;gap:4px;margin-top:8px}\n.area-opt{display:flex;justify-content:space-between;align-items:center;gap:10px;font:inherit;font-size:14px;text-align:left;padding:9px 12px;border-radius:var(--r-sm);border:.5px solid var(--hairline);background:var(--surface-sunk);color:var(--text);cursor:pointer}\n.area-opt:hover{border-color:var(--accent);background:var(--accent-wash)}\n.area-opt span{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);font-variant-numeric:tabular-nums}\n.area-none{font-size:13px;color:var(--text-dim);padding:8px 2px}\n.area-preview{margin-top:14px;display:flex;flex-direction:column;gap:10px}\n.area-preview:empty{display:none}\n.area-home{font-weight:650;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}\n.area-home em{font-style:normal;font-weight:500;font-size:12.5px;color:var(--text-dim)}\n.area-row b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}\n.area-chips{display:flex;flex-wrap:wrap;gap:6px}\n.area-chips span{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline-strong);color:var(--text-2)}\n.area-chips span:first-child{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4);color:var(--text)}\n#ez-area{cursor:pointer}\n\n/* Easy Mode export sizes */\n.ez-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}\n.ez-sizes .chip{font-size:12px;padding:6px 11px;min-height:30px}\n.stat-lead b{color:var(--accent)}\n@media(max-width:640px){.lp-stats{gap:8px 22px}.stat b{font-size:19px}}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   LOOK MENU, ROUND TWO — 2026-09-02 evening. Owner: \"stick with graphite\n   purple ... add an extra accent colour or highlighting ring ... 2 to 3x more\n   themes and colour options as well as typography options\".\n   Three axes now carry more stops, and a fourth axis appears:\n     ground  graphite · night · slate · obsidian · forest · ember (dark)\n             paper · cream (light)\n     accent  twelve, each with a paired RING colour (--ring) that carries\n             focus, hover and selection so the chrome is two-tone\n     type    eight display/body pairings (data-type)\n   Curated presets in the menu are one of each, chosen by hand.\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n/* ── extra grounds ── */\n:root[data-theme='dark'][data-skin='slate']{\n  --field:#121826;--glass-bg:rgba(28,36,51,.62);--glass-bg-strong:rgba(28,36,51,.86);\n  --surface-solid:#1a2233;--surface-raise:#232d40;--text:#eef2fa;--text-2:#bcc6da;--text-dim:#8391ab;\n  --stage-1:#182033;--stage-2:#0c1119;--scrim:rgba(8,12,20,.74);--surface3:#2c3850;\n}\n:root[data-theme='dark'][data-skin='obsidian']{\n  --field:#08090b;--wash-a:rgba(var(--accent-rgb),.18);--wash-b:rgba(var(--accent2-rgb),.12);--wash-c:rgba(0,0,0,0);\n  --glass-bg:rgba(18,19,23,.72);--glass-bg-strong:rgba(18,19,23,.92);--glass-edge:rgba(255,255,255,.10);\n  --surface-solid:#121317;--surface-raise:#1a1b20;--surface-sunk:rgba(255,255,255,.05);\n  --text:#f4f4f6;--text-2:#b9bcc6;--text-dim:#7f8391;--hairline:rgba(255,255,255,.08);\n  --stage-1:#101114;--stage-2:#050506;--scrim:rgba(0,0,0,.8);--surface3:#24262c;\n}\n:root[data-theme='dark'][data-skin='forest']{\n  --field:#0c1411;--wash-a:rgba(var(--accent-rgb),.22);--wash-b:rgba(60,200,140,.14);--wash-c:rgba(var(--accent2-rgb),.10);\n  --glass-bg:rgba(22,34,28,.62);--glass-bg-strong:rgba(22,34,28,.86);\n  --surface-solid:#142019;--surface-raise:#1b2a22;--text:#eef6f1;--text-2:#bfd1c6;--text-dim:#829a8c;\n  --stage-1:#142019;--stage-2:#080e0b;--scrim:rgba(6,12,9,.76);--surface3:#243a2e;\n}\n:root[data-theme='light'][data-skin='cream']{\n  --field:#f5efe2;--wash-a:rgba(var(--accent-rgb),.12);--wash-b:rgba(var(--accent2-rgb),.08);--wash-c:rgba(255,196,60,.10);\n  --glass-bg:rgba(255,251,243,.6);--glass-bg-strong:rgba(255,251,243,.84);\n  --surface-solid:#fffcf5;--surface-raise:#f3ecdc;--surface-sunk:rgba(60,45,20,.05);\n  --text:#1e1a12;--text-2:#55503f;--text-dim:#79725f;--hairline:rgba(60,45,20,.10);--hairline-strong:rgba(60,45,20,.18);\n  --stage-1:#f1eadb;--stage-2:#e3d9c4;--scrim:rgba(110,95,70,.42);--surface3:#eae1cd;\n}\n\n/* ── accents, with their RING. Ring = the second colour: it carries focus,\n   hover and selection, never fills. Pairings are a third of the wheel apart\n   so the two read as a scheme, not a clash. ── */\n:root{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='blue']{--ring:#f2c744;--ring-rgb:242,199,68}\n:root[data-theme='light'][data-accent='blue']{--ring:#b7830c;--ring-rgb:183,131,12}\n:root[data-accent='mint']{--ring:#b48cff;--ring-rgb:180,140,255}\n:root[data-theme='light'][data-accent='mint']{--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='orchid']{--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='orchid']{--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='gold']{--ring:#4d9cff;--ring-rgb:77,156,255}\n:root[data-theme='light'][data-accent='gold']{--ring:#1d63d8;--ring-rgb:29,99,216}\n:root[data-accent='orange']{--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='orange']{--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='coral']{--accent:#ff6b6b;--accent-ink:#1f0707;--accent-wash:rgba(255,107,107,.16);--accent-deep:#e04848;--accent-soft:#ffd0d0;--accent-rgb:255,107,107;--accent2-rgb:61,220,151;--ring:#3ddc97;--ring-rgb:61,220,151}\n:root[data-theme='light'][data-accent='coral']{--accent:#c8383b;--accent-ink:#fff;--accent-wash:rgba(200,56,59,.12);--accent-deep:#a02a2c;--accent-soft:#f9d3d3;--accent-rgb:200,56,59;--accent2-rgb:15,143,95;--ring:#0f8f5f;--ring-rgb:15,143,95}\n:root[data-accent='cyan']{--accent:#22d3ee;--accent-ink:#04191d;--accent-wash:rgba(34,211,238,.16);--accent-deep:#0ea5c4;--accent-soft:#c7f3fa;--accent-rgb:34,211,238;--accent2-rgb:251,113,133;--ring:#fb7185;--ring-rgb:251,113,133}\n:root[data-theme='light'][data-accent='cyan']{--accent:#0e7490;--accent-ink:#fff;--accent-wash:rgba(14,116,144,.12);--accent-deep:#0b5c72;--accent-soft:#cdeef5;--accent-rgb:14,116,144;--accent2-rgb:190,24,93;--ring:#be185d;--ring-rgb:190,24,93}\n:root[data-accent='lime']{--accent:#b9f24a;--accent-ink:#131a04;--accent-wash:rgba(185,242,74,.16);--accent-deep:#8fd11a;--accent-soft:#e6fbc0;--accent-rgb:185,242,74;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='lime']{--accent:#4d7c0f;--accent-ink:#fff;--accent-wash:rgba(77,124,15,.12);--accent-deep:#3f6212;--accent-soft:#e0f0c4;--accent-rgb:77,124,15;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='rose']{--accent:#fb7185;--accent-ink:#20070c;--accent-wash:rgba(251,113,133,.16);--accent-deep:#e11d48;--accent-soft:#ffd6dd;--accent-rgb:251,113,133;--accent2-rgb:34,211,238;--ring:#22d3ee;--ring-rgb:34,211,238}\n:root[data-theme='light'][data-accent='rose']{--accent:#be185d;--accent-ink:#fff;--accent-wash:rgba(190,24,93,.12);--accent-deep:#9d174d;--accent-soft:#f8d0de;--accent-rgb:190,24,93;--accent2-rgb:14,116,144;--ring:#0e7490;--ring-rgb:14,116,144}\n:root[data-accent='sky']{--accent:#7dd3fc;--accent-ink:#06161f;--accent-wash:rgba(125,211,252,.16);--accent-deep:#38bdf8;--accent-soft:#e0f4ff;--accent-rgb:125,211,252;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='sky']{--accent:#0369a1;--accent-ink:#fff;--accent-wash:rgba(3,105,161,.12);--accent-deep:#075985;--accent-soft:#d3ecfb;--accent-rgb:3,105,161;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n:root[data-accent='amber']{--accent:#fbbf24;--accent-ink:#1c1200;--accent-wash:rgba(251,191,36,.16);--accent-deep:#d69e0b;--accent-soft:#ffeeba;--accent-rgb:251,191,36;--accent2-rgb:167,139,255;--ring:#a78bff;--ring-rgb:167,139,255}\n:root[data-theme='light'][data-accent='amber']{--accent:#b45309;--accent-ink:#fff;--accent-wash:rgba(180,83,9,.12);--accent-deep:#92400e;--accent-soft:#f9e3bf;--accent-rgb:180,83,9;--accent2-rgb:109,63,214;--ring:#6d3fd6;--ring-rgb:109,63,214}\n:root[data-accent='teal']{--accent:#2dd4bf;--accent-ink:#041a16;--accent-wash:rgba(45,212,191,.16);--accent-deep:#14b8a6;--accent-soft:#c9f5ee;--accent-rgb:45,212,191;--accent2-rgb:255,107,107;--ring:#ff6b6b;--ring-rgb:255,107,107}\n:root[data-theme='light'][data-accent='teal']{--accent:#0f766e;--accent-ink:#fff;--accent-wash:rgba(15,118,110,.12);--accent-deep:#115e59;--accent-soft:#cdeeea;--accent-rgb:15,118,110;--accent2-rgb:200,56,59;--ring:#c8383b;--ring-rgb:200,56,59}\n:root[data-accent='violet']{--accent:#8b5cf6;--accent-ink:#fff;--accent-wash:rgba(139,92,246,.18);--accent-deep:#6d3fd6;--accent-soft:#e4d9ff;--accent-rgb:139,92,246;--accent2-rgb:251,191,36;--ring:#fbbf24;--ring-rgb:251,191,36}\n:root[data-theme='light'][data-accent='violet']{--accent:#5b32c9;--accent-ink:#fff;--accent-wash:rgba(91,50,201,.12);--accent-deep:#4526a0;--accent-soft:#e2d8ff;--accent-rgb:91,50,201;--accent2-rgb:180,83,9;--ring:#b45309;--ring-rgb:180,83,9}\n\n/* where the ring shows: focus, hover, selection */\n:focus-visible{outline:2px solid var(--ring)}\n.tpl-card:hover{box-shadow:var(--lift-2),0 16px 48px -14px rgba(var(--accent-rgb),.35),0 0 0 2px var(--ring)}\n.wall-card:hover{box-shadow:var(--lift-3),0 20px 60px -16px rgba(var(--accent-rgb),.4),0 0 0 2px var(--ring)}\n.fam-card.on{border-color:transparent;box-shadow:var(--glass-shadow),0 0 0 2px var(--ring)}\n.chip.on{box-shadow:var(--glow-accent),0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-chip.on{box-shadow:0 0 0 2px var(--field),0 0 0 3.5px var(--ring)}\n.look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--ring)}\n.lp-price-card.hot{box-shadow:var(--glass-shadow),0 0 0 2px var(--ring),0 18px 50px -20px rgba(var(--accent-rgb),.5)}\n.hero-eyebrow{border-color:rgba(var(--ring-rgb),.45)}\n.ez-tpl.sel{outline:2px solid var(--ring);outline-offset:2px}\n.look-dot{background:linear-gradient(135deg,var(--accent) 0 55%,var(--ring) 55% 100%)}\n.stat-lead b{color:var(--accent)}\n.lp-kicker::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ring);margin-right:8px;vertical-align:1px}\n\n/* ── type pairings. Overrides any skin's face, so Paper + Unbounded is\n   possible. Google faces are loaded by the stamp script when picked. ── */\n:root[data-type='clash']{--display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif}\n:root[data-type='serif']{--display:'Zodiak',Georgia,'Times New Roman',serif}\n:root[data-type='melodrama']{--display:'Melodrama',Georgia,serif}\n:root[data-type='khand']{--display:'Khand','Satoshi',sans-serif}\n:root[data-type='unbounded']{--display:'Unbounded','Clash Display',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='syne']{--display:'Syne','Clash Display',sans-serif;--ui:'Sora','Satoshi',-apple-system,sans-serif}\n:root[data-type='grotesk']{--display:'Space Grotesk','Satoshi',sans-serif;--ui:'Space Grotesk','Satoshi',-apple-system,sans-serif}\n:root[data-type='manrope']{--display:'Manrope','Satoshi',sans-serif;--ui:'Manrope','Satoshi',-apple-system,sans-serif}\n:root[data-type='khand'] .hero h1{letter-spacing:0;font-weight:700;font-size:clamp(40px,5.2vw,68px)}\n:root[data-type='unbounded'] .hero h1{letter-spacing:-.01em;font-weight:700;font-size:clamp(30px,4vw,52px)}\n:root[data-type='serif'] .hero h1,:root[data-type='melodrama'] .hero h1{font-weight:500;letter-spacing:-.02em}\n:root[data-type='serif'] .hero h1 em,:root[data-type='melodrama'] .hero h1 em{font-style:italic}\n\n/* the menu grew: keep it on screen */\n.look-menu{width:360px;max-height:min(78vh,720px);overflow:auto}\n.look-preset{display:flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;padding:6px 10px 6px 6px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}\n.look-preset i{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--a) 0 55%,var(--b) 55% 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);flex:none}\n.look-preset:hover{color:var(--text);border-color:var(--text-dim)}\n@media(max-width:640px){.look-menu{width:auto}}\n\n/* the studio's own \"where are you\" pill, beside the category picker */\n.ez-wherelabel{font:700 10.5px/1 var(--ui);color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;flex:none;margin-left:6px}\n.ez-where{font:600 13.5px/1 var(--ui);color:var(--text);background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-pill);padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 0 0 var(--ring);transition:box-shadow .15s,border-color .15s}\n.ez-where:hover{border-color:var(--ring)}\n.ez-where.unset{border-color:var(--ring);box-shadow:0 0 0 3px rgba(var(--ring-rgb),.28);color:var(--text)}\n@media(max-width:640px){.ez-catrow{flex-wrap:wrap}.ez-wherelabel{display:none}}\n\n/* ── gallery cards: no blur veil (owner: \"way too much blur\"). The veil is\n   now a light darkening that lifts on hover, nothing else. ── */\n.tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(0,0,0,.14)}\n.tpl-card:hover .tpl-veil{background:rgba(0,0,0,0)}\n\n/* ── PRO GUARD. A locked preview stays sharp (a sharp card sells the plan)\n   but cannot be lifted: a repeating diagonal PRO · BUYBACK.AD pattern over\n   the whole card, a lock in the middle, and thumbnails that are 448px at\n   most. The pattern is an SVG data URI so it is text, not a blur. ── */\n.pro-guard{position:absolute;inset:0;pointer-events:none;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:220px 220px;mix-blend-mode:overlay;opacity:.9}\n.pro-guard::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;\n  background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}\n.wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}\n.ez-tpl.locked{position:relative}\n.ez-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n.flow-step .btn{margin-top:16px}\n\n/* locked mini cards in the editor's left panel and its picker */\n.mini-tpl.locked{position:relative}\n.mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;\n  background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>\");\n  background-size:120px 120px;mix-blend-mode:overlay}\n\n/* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's\n   default min-width:auto refuses to shrink below its content, so on a 390px\n   phone the cards stayed 481px wide and the whole page scrolled sideways by\n   105px (measured 2026-09-03). min-width:0 lets them fit; anything genuinely\n   too wide inside now scrolls in its own box instead of moving the page. */\n@media (max-width:920px){\n  .ez-main{min-width:0}\n  .ez-main > .ez-card{min-width:0;max-width:100%}\n  .ez-card{overflow-x:clip}\n}\n#ez-preview{max-width:100%;height:auto}\n\n/* ═══ 2026-09-22 UX/SEO pass (studio-ux branch) ═══\n   1. Clash Display's space is narrow and the hero sets -.028em tracking, so at\n      58px \"Buyback ads that\" read as one word. Word spacing puts the gaps back\n      without loosening the letters.\n   2. The footer gained an \"Ad templates\" column (links to the category pages),\n      so it is six blocks now: let the grid fit them instead of a fixed four. */\n.hero h1,.lp-section-head h2,.lp-cta h2{word-spacing:.1em}\n.lpf-cols{grid-template-columns:1.4fr repeat(5,minmax(0,1fr))}\n@media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}\n@media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}\n.lp-faq p a{color:var(--accent);text-decoration:underline}\n\n/* THE LANDING GRID SHOWS EACH CARD AS IT WILL POST (2026-09-26). The number\n   was rebuilt big and sits at the foot of most cards; the caption strip (a\n   38px gradient with the palette and layout name) was drawn over exactly\n   that, and the veil blurred and dimmed every card until hover, which a phone\n   never sends. The section is headed \"exactly as it will post\": the card is\n   shown crisp, and its name appears on hover or keyboard focus. Scoped to the\n   landing grid; the studio's own template pickers keep their captions. */\n#lp-tpl-grid .tpl-card .tpl-veil{backdrop-filter:none;-webkit-backdrop-filter:none}\n#lp-tpl-grid .tpl-card .tpl-meta{opacity:0;transition:opacity .2s}\n#lp-tpl-grid .tpl-card:hover .tpl-meta,#lp-tpl-grid .tpl-card:focus-visible .tpl-meta{opacity:1}\n\n/* ── FONT PICKER ────────────────────────────────────────────────────────────\n   Every typeface shown in its own face (owner, 2026-09-27). A native <option>\n   ignores font-family in Safari, on Macs and on every phone, so the select is\n   hidden behind a button and list drawn here (app.js fontPicker). */\n.fp-btn{width:100%;flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;\n  background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);\n  padding:7px 11px;font-size:17px;line-height:1.2;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:38px}\n.fp-btn::after{content:'▾';font:600 12px/1 var(--ui);color:var(--text-dim);flex:none}\n.fp-btn:hover{border-color:var(--text-dim)}\n.fp-btn:focus-visible{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}\n.fp-pop{position:fixed;z-index:2000;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-lg);\n  box-shadow:0 18px 50px -12px rgba(0,0,0,.6);padding:8px;display:flex;flex-direction:column;gap:6px}\n.fp-search{width:100%;background:var(--surface-sunk);border:1px solid var(--hairline);border-radius:var(--r-sm);color:var(--text);font:500 13px/1 var(--ui);padding:9px 10px}\n.fp-search:focus{border-color:var(--accent);outline:none}\n.fp-list{overflow-y:auto;overscroll-behavior:contain}\n.fp-group{font:700 10.5px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:10px 8px 6px}\n.fp-item{font-size:21px;line-height:1.25;color:var(--text);padding:7px 8px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.fp-item:hover,.fp-item.on{background:var(--surface-sunk)}\n.fp-item.sel{color:var(--accent)}\n\n/* Tagline style (Easy Mode): premade gradients as swatches, the stops as colour chips */\n.ez-tag-presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}\n.ez-tag-preset{width:46px;height:26px;border-radius:999px;border:2px solid var(--hairline-strong);cursor:pointer;padding:0;transition:border-color .13s,transform .13s}\n.ez-tag-preset:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-tag-preset.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}\n.ez-tag-preset:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n.ez-tag-stops{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:8px}\n.ez-tag-stops input[type=color]{width:34px;height:28px;border:1px solid var(--hairline-strong);border-radius:var(--r-sm);background:none;padding:2px;cursor:pointer}\n.ez-tag-stops button{min-width:28px;height:28px;border-radius:var(--r-sm);border:1px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);font:700 14px/1 var(--ui);cursor:pointer}\n.ez-tag-stops button:disabled{opacity:.4;cursor:default}\n.ez-tag-preset.auto{background:conic-gradient(from 200deg,var(--accent),#ff7a1a,var(--accent));position:relative}\n.ez-tag-preset.auto::after{content:'Auto';position:absolute;inset:0;display:grid;place-items:center;font:700 9.5px/1 var(--ui);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7)}\n.ez-phonepick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:7px;margin-bottom:8px}\n.ez-phonepick-more{max-height:320px;overflow:auto;padding-right:2px}\n.ez-phonepick-grp{grid-column:1/-1;font:700 9.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin:6px 0 0}\n.ez-phonepick-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px 7px;border-radius:10px;border:2px solid var(--hairline-strong);background:var(--surface-sunk);cursor:pointer;transition:border-color .13s,transform .13s;min-width:0}\n.ez-phonepick-item img{width:100%;height:56px;object-fit:contain;display:block;pointer-events:none}\n.ez-phonepick-item span{font:600 10.5px/1.2 var(--ui);color:var(--text-2);text-align:center;overflow-wrap:anywhere}\n.ez-phonepick-item:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-phonepick-item.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}\n.ez-phonepick-item:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n#ez-phonepick-reset:disabled{opacity:.45;cursor:default}\n.ez-tag-pats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}\n.ez-tag-patgrp{flex-basis:100%;font:700 9.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin:6px 0 1px}\n.ez-tag-pat{width:44px;height:44px;padding:0;box-sizing:border-box;border-radius:10px;border:2px solid var(--hairline-strong);overflow:hidden;cursor:pointer;background:var(--surface-sunk);transition:border-color .13s,transform .13s}\n.ez-tag-pat canvas{width:100%;height:100%;display:block}\n.ez-tag-pat:hover{border-color:var(--accent);transform:translateY(-1px)}\n.ez-tag-pat.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}\n.ez-tag-pat:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n.ez-tag-pathint{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font:500 11.5px/1.4 var(--ui);color:var(--text-dim);margin:2px 0 8px}\n.ez-tag-pathint button{background:none;border:0;padding:0;color:var(--accent);font:600 11.5px/1.4 var(--ui);cursor:pointer;text-decoration:underline;text-underline-offset:2px}\n.ez-preview-card img.ez-pat-drag{cursor:grab;touch-action:none;user-select:none}\n.ez-preview-card img.ez-pat-drag.dragging{cursor:grabbing}\n.ez-tag-note{font:500 12px/1.45 var(--ui);color:var(--text-2);background:var(--surface-sunk);border:1px solid var(--hairline);border-left:3px solid #f5b53d;border-radius:var(--r-sm);padding:8px 10px;margin-top:4px}\n";
 function cssProbeOk(){
   const t = document.createElement('div');
   t.className = 'ez-stepnum';
@@ -10831,7 +10953,7 @@ function motionRig(sc, W, H){
   const unit = o => {
     if (!o) return null;
     const plate = motionPlate(objs, o, W, H);
-    const members = plate ? [plate, o] : [o];
+    const members = (plate ? [plate, o] : [o]).concat(objs.filter(q => q.pgKin === o && live(q)));
     return { c: (plate || o).getCenterPoint(),
              members: members.map(m => ({ o:m, sx:m.scaleX || 1, sy:m.scaleY || 1, left:m.left, top:m.top, c:m.getCenterPoint() })) };
   };
@@ -11369,7 +11491,7 @@ function ctaBlock(sc, rig, W, H){
   const objs = sc.getObjects();
   const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
   const own = u.members.map(m => m.o);
-  const phone = own.find(o => motionIsText(o));
+  const phone = own.find(o => motionIsText(o) && !o.pgKin);
   if (!phone) return null;
   const plate = own.find(o => o !== phone && o.type === 'rect') || null;
   const area = b => b.w * b.h;
@@ -11501,6 +11623,8 @@ function ctaUnits(sc, rig, W, H){
   const live = o => o.visible !== false && (o.opacity == null || o.opacity > 0);
   const inBlock = new Set(block.members);
   const unit = (key, members, extra) => {
+    members = members.concat(objs.filter(q => q.pgKin && members.indexOf(q.pgKin) >= 0 && members.indexOf(q) < 0 && live(q)))
+      .sort((a, q) => objs.indexOf(a) - objs.indexOf(q));
     const bx = members.map(motionBox);
     const x0 = Math.min(...bx.map(q => q.x)), y0 = Math.min(...bx.map(q => q.y));
     const x1 = Math.max(...bx.map(q => q.x + q.w)), y1 = Math.max(...bx.map(q => q.y + q.h));
@@ -11595,7 +11719,7 @@ function ctaBake(sc, b, docW, docH, outW, outH){
         bmp: ctaRender(sc, set, pl.s, pl.u.c, pl.to, z, outW, outH), delay: i * MOTION.cta.stagger, set, u: pl.u, pto: pl.to };
       if (pl.u.key === 'block') part.bare = ctaRender(sc, new Set(pl.u.members.filter(o => !motionIsText(o))), pl.s, pl.u.c, pl.to, z, outW, outH);
       c.parts.push(part);
-      pl.u.members.filter(motionIsText).forEach(o => {
+      pl.u.members.filter(o => motionIsText(o) && !o.pgKin).forEach(o => {
         const r = ctaTextBox(o, pl.u, pl.s, pl.to);
         c.texts.push({ o, role: o === U.block.phone ? 'number' : (o.pgRole || 'text'),
           onPlate: (pl.u.key === 'block' && !!U.block.plate) || !!(pl.u.plated && pl.u.plated.has(o)),
@@ -12141,17 +12265,22 @@ async function motionPlan(w, h, sound){
    starts from the line's origin (off, a serif W can start 30px in), and the
    line's advance width lw, which is what fabric aligns within the box. */
 function plateAirInk(t){
+  /* fabric's own line widths are the truth (the letters are drawn at the
+     advances it laid out, and a width cached while a face was loading can run
+     12% wider than the face measures); measureText supplies only where the ink
+     starts and ends within a line, scaled onto fabric's advance */
   try {
     const ctx = plateAirInk.ctx || (plateAirInk.ctx = document.createElement('canvas').getContext('2d'));
     ctx.font = t._getFontDeclaration();
     const sp = (t.charSpacing || 0) / 1000 * (t.fontSize || 0);
     const lines = (t._textLines || [String(t.text || '').split('')]).map(l => (Array.isArray(l) ? l.join('') : String(l)));
     let best = null;
-    lines.forEach(s => {
+    lines.forEach((s, i) => {
       if (!s.trim()) return;
       const m = ctx.measureText(s), n = Math.max(0, s.length - 1);
-      const w = (m.actualBoundingBoxLeft || 0) + (m.actualBoundingBoxRight || m.width) + sp * n;
-      if (!best || w > best.w) best = { w, off: -(m.actualBoundingBoxLeft || 0), lw: m.width + sp * n };
+      const adv = m.width + sp * n, lw = typeof t.getLineWidth === 'function' ? t.getLineWidth(i) : adv, r = adv > 0 ? lw / adv : 1;
+      const w = ((m.actualBoundingBoxLeft || 0) + (m.actualBoundingBoxRight || m.width) + sp * n) * r;
+      if (!best || w > best.w) best = { w, off: -(m.actualBoundingBoxLeft || 0) * r, lw };
     });
     return best && best.w > 0 ? best : { w: t.width, off: 0, lw: t.width };
   } catch (e){ return { w: t.width, off: 0, lw: t.width }; }
@@ -12197,7 +12326,8 @@ function plateAir(sc, W, H){
     const start = al === 'right' ? br - I.lw * k : (al === 'center' || al.startsWith('justify')) ? (bl + br - I.lw * k) / 2 : bl;
     return { x0: start + (I.off - sw / 2) * k, x1: start + (I.off + I.w + sw / 2) * k, y0: s.y0, y1: s.y1 };
   };
-  const words = objs.filter(o => live(o) && isText(o) && /[A-Za-z0-9]/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
+  const words = objs.filter(o => live(o) && isText(o) && !o.pgKin && /[A-Za-z0-9]/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
+  const rest = new Map(words.map(t => [t, t.calcTransformMatrix()]));
   words.forEach(t => {
     const zt = objs.indexOf(t);
     const hosts = [];
@@ -12253,6 +12383,23 @@ function plateAir(sc, W, H){
     }
     place();
   });
+  kinFollow(objs, rest);
+}
+/* A styled line's effect layers (glow halo, red and blue offsets, 3-D depth)
+   take whatever move or scale the line took since `rest` was recorded */
+function kinFollow(objs, rest){
+  const U = fabric.util;
+  objs.forEach(q => {
+    const t = q.pgKin, M0 = t && rest.get(t);
+    if (!M0) return;
+    const M1 = t.calcTransformMatrix();
+    if (M1.every((v, i) => Math.abs(v - M0[i]) < 1e-6)) return;
+    const D = U.multiplyTransformMatrices(M1, U.invertTransform(M0));
+    const d = U.qrDecompose(U.multiplyTransformMatrices(D, q.calcTransformMatrix()));
+    q.set({ scaleX: d.scaleX, scaleY: d.scaleY, angle: d.angle, skewX: d.skewX, skewY: 0 });
+    q.setPositionByOrigin(new fabric.Point(d.translateX, d.translateY), 'center', 'center');
+    q.setCoords();
+  });
 }
 {
   const _alignPass = alignPass;
@@ -12263,58 +12410,123 @@ function plateAir(sc, W, H){
   };
 }
 
-/* ═══ TAGLINE STYLES ════════════════════════════════════════════════════════
+/* ═══ TAGLINE STYLES ═══════════════════════════════════════════════════════
    Owner, 2026-09-27: "who said the main tagline had to be one color? why not
    patterns, gradients, or color blocking?", "My favorite ads kept a cohesive
-   gradient on assets to make it look cool and unique", "We can also do white
-   with black outline?"
+   gradient on assets", "We can also do white with black outline?", a #1 BUYER
+   reference (one orange-to-lime sweep on every line that sells, heavy black
+   outlines, dark bands), then "add a glow and a 3-D theme with the red and
+   blue", "stripes, polkadots, money signs ... cracked text ... 3-D realism",
+   "any gradient, any amount of colors ... premade gradients", and "text made
+   of different colored letters".
 
-   Where one colour came from: DESIGN-LAW rule 5 and the MATTHEW study, where
-   a RAINBOW money word landed in "mid" every time and one saturated hue in
-   "good". It never tested a cohesive gradient: one signature gradient
-   repeated across the tagline, the number plate and the badges. These styles
-   let that be measured on the real cards instead of assumed.
+   Where one colour came from: DESIGN-LAW rule 5 and the MATTHEW study, where a
+   RAINBOW money word landed in "mid" every time. It never tested a cohesive
+   sweep repeated on every selling line and carried by an outline, which is
+   the owner's favourite. Rule 3 (no coloured glow) is the owner's to
+   overrule, and glow is offered as a choice, not a default.
 
-   Applied to a finished scene (after alignPass), so a style is a choice made
-   on any card. Gradients keep each element's own lightness and move only hue
-   and colourfulness (rule 52), so a plate keeps its contrast with the number
-   by construction; the tagline is re-measured by the critic after.
+   A style is a spec applied to a finished scene (after alignPass):
+     fill     'solid' | 'gradient' | 'multicolor' | 'texture'
+     gradient 'theme' (accent ±25° at each line's own lightness, so contrast
+              holds) | 'pair' (accent into support) | 'street' (a 75° sweep
+              toward yellow) | [hex, hex, ...] (any number of stops) | a
+              TAGLINE_GRADIENTS key
+     angle    degrees, CSS sense (90 = left to right)
+     texture  a TAGLINE_PATTERNS key (36: stripes, money, leopard, …), with
+              patScale (tile size, 0.25-3), patX / patY (the slide, 0-1 of a
+              tile) and patRes (the render's px per design px)
+     outline  'none' | 'black' | 'white'
+     effect   'none' | 'glow' | 'anaglyph' (red and blue 3-D) | 'extrude'
+     blocks   each tagline line on its own block in the theme's colours
+     scope    'tagline' (the headline lines) | 'selling' (+ number and CTA)
+     plates   'keep' | 'dark' (plates and bands under styled lines go dark)
+              | 'match' (accent plates take the gradient)
+   Every style is re-measured by the critic before it ships (rule 54).
 
-   modes: 'solid' (as designed) · 'street' (the owner's reference: a 75°
-   sweep from the accent on the tagline, number and CTA, heavy black outline,
-   dark halo, their plates dark) · 'gradient' (signature: the accent's hue
-   +/-25°, on the tagline and every accent plate) · 'pair' (the theme's accent
-   into its support colour, same assets) · 'blocks' (each tagline line on its
-   own solid block) · 'pattern' (the tagline in diagonal stripes of two
-   tones) · 'outline' (white, black outline, tight dark shadow)
-
-   The owner's picks from the Tagline Lab (2026-09-27): solid, street,
-   gradient, blocks, pair and outline are offered; pattern is not. They are
-   one choice for every template in every family and category, applied in
-   the one place every picture comes from (renderEzCanvas: the preview, the
-   download and the video) and on the editor's canvas; see TAGLINE_STYLES
-   below. */
-function taglineStyle(sc, mode, pal, W, H, as){
-  if (!mode || mode === 'solid') return { mode: 'solid', touched: 0 };
+   One engine (2026-09-29: the looks above joined with the work that put the
+   first six on every template, DESIGN-LAW 83). What a look does is solved on
+   the card it lands on, so it holds on every template in every family, the
+   picture, the download and the video (scripts/tagline_audit.mjs):
+   - a gradient in the card's own colours ('theme', 'pair') takes its
+     lightness from the line's measured ground, as far as it takes to keep the
+     contrast the line was designed with (3.2:1 at the least, 4.5:1 asked at
+     the most): at a fixed 0.88 a white line on a mid-grey photograph went
+     pastel and read 2.8:1, and a red line on a dark panel went darker, 2.2:1;
+   - 'selling' leaves type under 34px alone (a 3px rim on a 20px label is a
+     smudge); a line on a large light panel, or off any plate on a light
+     ground, keeps the panel and sweeps deep instead of bright-in-a-rim, and
+     a word left dark on a plate the look darkened turns light;
+   - white letters in a black outline rim harder on a light ground;
+   - colour blocks are measured from the drawn ink before anything moves; a
+     card where one would land on other words, cover the product or run to
+     the card's edge takes the outline instead, and says so (info.fallback);
+   - everything a look changes is recorded first (pgTagRest) and every layer
+     it adds is marked (pgTagBlock, pgKin/pgKinId), so taglineReset() puts the
+     designed card back and the editor can switch looks on an edited canvas. */
+const TAGLINE_GRADIENTS = {
+  street:  { name: 'Street',     stops: ['#ff7a3c', '#ffe13a', '#9be22a'] },
+  sunset:  { name: 'Sunset',     stops: ['#ff5f6d', '#ff9a5a', '#ffc371'] },
+  ocean:   { name: 'Ocean',      stops: ['#2e8bff', '#1ec8ff', '#5ff0e0'] },
+  neon:    { name: 'Neon',       stops: ['#ff2fd0', '#8a5bff', '#27e0ff'] },
+  gold:    { name: 'Gold foil',  stops: ['#b8862b', '#ffe29a', '#c8942e', '#fff0b8'] },
+  fire:    { name: 'Fire',       stops: ['#ff2d2d', '#ff7a1a', '#ffd23f'] },
+  miami:   { name: 'Miami',      stops: ['#ff4ecd', '#ff9f6b', '#35d0ff'] },
+  aurora:  { name: 'Aurora',     stops: ['#00e0b0', '#4d9cff', '#b86bff'] },
+  royal:   { name: 'Royal',      stops: ['#6a5cff', '#b06bff', '#ff6bd6'] },
+  citrus:  { name: 'Citrus',     stops: ['#ffe14d', '#a6ff4d', '#2ee88a'] },
+  candy:   { name: 'Candy',      stops: ['#ff7eb3', '#ffc2e2', '#8fd3ff'] },
+  mint:    { name: 'Mint',       stops: ['#1fd1a5', '#a8ff78'] },
+  chrome:  { name: 'Chrome',     stops: ['#f4f6f8', '#9aa3ad', '#ffffff', '#6b737c'] },
+  money:   { name: 'Money',      stops: ['#1f7a3a', '#9ff0a0', '#1f7a3a'] },
+  steel:   { name: 'Steel blue', stops: ['#e4eef8', '#7fa4c9'] },
+  rainbow: { name: 'Rainbow',    stops: ['#ff4d4d', '#ffa94d', '#ffe14d', '#4dff88', '#4dc3ff', '#b44dff'] },
+};
+/* the named looks the studio offers; each is just a spec */
+const TAGLINE_LOOKS = {
+  solid:     { name: 'Solid' },
+  street:    { name: 'Street', fill: 'gradient', gradient: 'street', outline: 'black', scope: 'selling', plates: 'dark' },
+  signature: { name: 'Signature gradient', fill: 'gradient', gradient: 'theme', plates: 'match' },
+  pair:      { name: 'Accent into support', fill: 'gradient', gradient: 'pair', plates: 'match' },
+  outline:   { name: 'White + black outline', fill: 'white', outline: 'black' },
+  blocks:    { name: 'Colour blocks', blocks: true },
+  multicolor:{ name: 'Multicolour letters', fill: 'multicolor', outline: 'black' },
+  glow:      { name: 'Glow', fill: 'white', effect: 'glow' },
+  anaglyph:  { name: '3-D red & blue', fill: 'white', effect: 'anaglyph' },
+  extrude:   { name: '3-D block', effect: 'extrude' },
+  stripes:   { name: 'Stripes', fill: 'texture', texture: 'stripes', outline: 'black' },
+  dots:      { name: 'Polka dots', fill: 'texture', texture: 'dots', outline: 'black' },
+  cash:      { name: 'Money signs', fill: 'texture', texture: 'money', outline: 'black' },
+  cracked:   { name: 'Cracked', fill: 'texture', texture: 'cracked', outline: 'black' },
+};
+function taglineGradientStops(g){
+  if (Array.isArray(g)) return g.filter(c => /^#[0-9a-f]{6}$/i.test(c));
+  return TAGLINE_GRADIENTS[g] ? TAGLINE_GRADIENTS[g].stops.slice() : null;
+}
+function taglineStyle(sc, spec, pal, W, H, as){
+  const key = as || (typeof spec === 'string' ? spec : (spec && spec.look) || null);
+  if (typeof spec === 'string') spec = TAGLINE_LOOKS[spec] || { name: spec };
+  spec = Object.assign({ fill: 'solid', outline: 'none', effect: 'none', scope: 'tagline', plates: 'keep', angle: 90 }, spec || {});
+  pal = pal || TAG_FALLBACK;
   const objs = sc.getObjects();
   const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
   const live = o => o && o.visible !== false && (o.opacity == null || o.opacity > 0.05);
   const fsOf = o => (o.fontSize || 30) * (o.scaleY || 1);
   const heads = objs.filter(o => live(o) && isText(o) && o.pgRole === 'headline' && /[A-Za-z0-9]/.test(o.text || ''));
-  if (!heads.length) return { mode, touched: 0, why: 'no headline' };
-  const main = heads.slice().sort((a, b) => fsOf(b) - fsOf(a))[0];
-  /* what a style changes is recorded once, before the first change, so
-     taglineReset() can put the designed card back and another style can be
+  if (!heads.length) return { name: spec.name, look: key, touched: 0, why: 'no headline' };
+  /* what a look changes is recorded once, before the first change, so
+     taglineReset() can put the designed card back and another look can be
      tried on the same scene (the editor keeps its scene; Easy Mode builds a
-     new one for every picture): the paint as it was, and the move as a move
+     new one for every picture): the paint as it was, and a move as a move
      (blocks: the shrink k and the shift, in card widths), never as a
      position, so a line the visitor has since dragged, resized or carried to
      another format keeps what they did */
   const keep = o => {
     if (o.pgTagRest) return;
-    const r = { mode: as || mode };
+    const r = { mode: key || spec.name || 'custom' };
     (isText(o) ? ['fill', 'stroke', 'strokeWidth', 'paintFirst', 'strokeLineJoin', 'shadow'] : ['fill', 'stroke', 'strokeWidth'])
       .forEach(k => { const v = o[k]; r[k] = v && typeof v === 'object' && typeof v.toObject === 'function' ? v.toObject() : (v === undefined ? null : v); });
+    if (isText(o)) r.styles = o.styles && Object.keys(o.styles).length ? JSON.parse(JSON.stringify(o.styles)) : null;
     r.pgFillGrad = o.pgFillGrad || null;
     o.pgTagRest = r;
   };
@@ -12323,147 +12535,77 @@ function taglineStyle(sc, mode, pal, W, H, as){
   const acc = ok(pal.accent || '#4d9cff'), sup = ok(pal.support || pal.accent || '#4d9cff');
   const h0 = acc.C >= 0.04 ? acc.h : sup.h;
   const at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
-  // the tagline's own lightness, pushed into a range where colour can show and still read
-  const tagHex = solidHex(main.fill) || '#ffffff', tagL = ok(tagHex).L, lightTag = tagL >= 0.6;
-  const TL = lightTag ? Math.min(0.88, Math.max(0.74, tagL)) : Math.min(0.42, Math.max(0.26, tagL));
-  // accent plates: chromatic, mostly opaque, small (not panels, not the ground)
-  const plates = objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && (() => {
-    const hex = solidHex(o.fill), w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
-    return hex && ok(hex).C >= 0.06 && w * h < 0.12 * W * H && w < 0.93 * W;
-  })());
-  const sweep = (L, C, a, b) => ({ c1: at(L, C, a), c2: at(L, C, b), a: 110 });
-  let touched = 0;
-  // WCAG luminance and contrast, for keeping a restyled line as readable as it was designed
   const Y = tagY, cr = tagCr;
-  if (mode === 'gradient' || mode === 'pair'){
-    const ha = mode === 'gradient' ? h0 - 25 : acc.h, hb = mode === 'gradient' ? h0 + 25 : sup.h;
-    /* the sweep's lightness is solved on the line's own ground, not assumed:
-       a white line on a mid-grey photograph went to a pastel at 0.88 and lost
-       its contrast (2.8:1), and a red line on a dark panel read as "dark" and
-       went darker (2.2:1). It goes light on a dark ground and dark on a light
-       one, as far as it takes to hold the contrast it was designed with
-       (3.2:1 at the least, 4.5:1 asked at the most). */
-    const gY = tagGroundLum(sc, [main]).get(main);
-    let L = TL;
-    if (gY != null){
-      /* the design's own ink says which ground it was set on (a translucent
-         glass panel over a photograph measures mid-grey): it keeps its side
-         unless the ground clearly says otherwise */
-      const up = tagL >= 0.5 ? gY < 0.55 : gY < 0.3, want = Math.min(4.5, Math.max(3.2, 0.95 * cr(Y(tagHex), gY)));
-      L = up ? Math.max(0.74, Math.min(0.88, tagL)) : Math.min(0.42, Math.max(0.26, tagL));
-      for (let i = 0; i < 40; i++){
-        const g = sweep(L, 0.15, ha, hb);
-        if (Math.min(cr(Y(g.c1), gY), cr(Y(g.c2), gY)) >= want) break;
-        L = up ? Math.min(0.99, L + 0.01) : Math.max(0.12, L - 0.01);
-      }
-    }
-    keep(main); setObjGradient(main, sweep(L, 0.15, ha, hb)); touched++;
-    plates.forEach(p => { const o = ok(solidHex(p.fill)); keep(p); setObjGradient(p, sweep(o.L, Math.max(o.C, 0.12), ha, hb)); touched++; });
-  } else if (mode === 'pattern'){
-    // a seamless 45° stripe tile: the period (half the tile) divides the tile
-    const fs = fsOf(main), band = Math.max(5, Math.round(fs * 0.09)), S = band * 4;
-    const cv = document.createElement('canvas'); cv.width = cv.height = S;
-    const x = cv.getContext('2d');
-    x.fillStyle = at(TL, 0.06, h0); x.fillRect(0, 0, S, S);
-    x.strokeStyle = at(lightTag ? TL - 0.2 : TL + 0.2, 0.17, h0); x.lineWidth = band * Math.SQRT2 / 2 * 2;
-    for (let x0 = -S; x0 <= S; x0 += S / 2){ x.beginPath(); x.moveTo(x0, S); x.lineTo(x0 + S, 0); x.stroke(); }
-    keep(main); main.set('fill', new fabric.Pattern({ source: cv, repeat: 'repeat' })); main.pgFillGrad = null; touched++;
-  } else if (mode === 'street'){
-    /* The owner's reference (2026-09-27, #1 BUYER): one warm-to-lime sweep,
-       left to right, on every line that sells (the product line, the
-       headline, the subline and the number), each in a heavy black outline
-       with a dark halo; the band under the subline dark and neutral. Here the
-       sweep starts at the theme's accent and runs 75° through its bright
-       neighbours; the plates that carry a swept line go dark, and the other
-       accent plates take the same sweep, so it reads as one system. */
-    /* the sweep travels toward yellow, the hue that is bright and vivid at
-       once: blue runs to azure and cyan, pink to coral and orange, orange to
-       yellow and lime (the reference). Toward violet a bright blue can only
-       go pastel. */
-    const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
-    const grad = (spec, C) => new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0, y1: 0.5, x2: 1, y2: 0.5 },
-      colorStops: spec.map(([L, h], i) => ({ offset: i / (spec.length - 1), color: at(L, C || 0.18, h) })) });
-    const bright = [[0.74, h0], [0.88, h0 + dir * 40], [0.84, h0 + dir * 75]];
-    /* on a light ground (a cream panel, a lime band) the same sweep turns deep
-       and runs the other way round the wheel, since a dark yellow is mud: it
-       reads without the outline, and the card keeps one system */
-    /* ...as dark as its ground needs to hold the contrast the line was
-       designed with (3.2:1 at the least, 4.5:1 asked at the most) */
-    const deepAt = L => [[L, h0], [L + 0.05, h0 - dir * 40], [L + 0.03, h0 - dir * 75]];
-    const deepFor = (gY, inkHex) => {
-      const want = Math.min(4.5, Math.max(3.2, 0.95 * cr(Y(inkHex), gY)));
-      let L = 0.4;
-      for (let i = 0; i < 30 && !deepAt(L).every(([l, h]) => cr(Y(at(l, 0.17, h)), gY) >= want); i++) L = Math.max(0.12, L - 0.01);
-      return deepAt(L);
-    };
-    /* the lines that sell, where the type is big enough to carry an outline
-       (a 20px "Call or text" in a 3px rim is a smudge: those keep their design) */
-    const minFs = Math.max(34, 0.032 * Math.min(W, H));
-    const lines = objs.filter(o => live(o) && isText(o) && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || '') && fsOf(o) >= minFs);
-    /* a line's plate is the smallest opaque shape under it, a full-width band
-       included. A plate, or a band that is not light, goes dark and neutral
-       (the reference's dark bands) and its line takes the bright sweep in a
-       black outline; a large light panel (a cream panel, a lime band) keeps
-       its colour and its line takes the deep sweep. */
-    const under = objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && !o.pgBgRect && !o.pgScrim && !/^(BG|Overlay|Scrim)$/.test(o.name || '')
-      && o.height * (o.scaleY || 1) < 0.45 * H && (() => { const hx = solidHex(o.fill); return !!hx || (o.fill && o.fill.colorStops); })());
-    const inside = (o, p) => { const c = o.getCenterPoint(), b = p.getBoundingRect(true, true); return objs.indexOf(p) < objs.indexOf(o) && c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; };
-    const plateOf = new Map(), hosting = new Set();
-    lines.forEach(o => {
-      const p = under.filter(q => inside(o, q)).sort((a, b) => a.width * a.scaleX * a.height * a.scaleY - b.width * b.scaleX * b.height * b.scaleY)[0];
-      if (p) plateOf.set(o, p);
-    });
-    const keepsColour = p => {
-      const w = p.width * (p.scaleX || 1), h = p.height * (p.scaleY || 1), hex = solidHex(p.fill);
-      return (w >= 0.93 * W || w * h >= 0.12 * W * H) && hex && ok(hex).L >= 0.72;
-    };
-    const ground = tagGroundLum(sc, lines.filter(o => !plateOf.has(o)));
-    lines.forEach(o => {
-      const u = o.fontSize || 40, p = plateOf.get(o), inkHex = solidHex(o.fill) || '#ffffff', inkL = ok(inkHex).L, g = ground.get(o) || 0;
-      keep(o);
-      // off a plate, the design's own ink says which ground it was set on, unless the ground clearly disagrees
-      const deepHere = p ? keepsColour(p) : (inkL < 0.5 ? g >= 0.12 : g >= 0.6);
-      if (p && !deepHere) hosting.add(p);
-      if (deepHere) o.set({ fill: grad(deepFor(p ? Y(solidHex(p.fill)) : g, inkHex), 0.17) });
-      else o.set({ fill: grad(bright), stroke: '#0b0b0d', strokeWidth: Math.max(3, u * 0.085), paintFirst: 'stroke', strokeLineJoin: 'round',
-        shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.12, offsetX: 0, offsetY: u * 0.03 }) });
-      o.pgFillGrad = null; touched++;
-    });
-    hosting.forEach(p => {
-      keep(p); p.set({ fill: 'rgba(12,12,14,0.84)', stroke: null }); p.pgFillGrad = null; touched++;
-      // the other words on a plate that turned dark: dark ink turns light
-      objs.forEach(t => {
-        if (!live(t) || !isText(t) || lines.includes(t) || !inside(t, p)) return;
-        const hex = solidHex(t.fill);
-        if (hex && ok(hex).L < 0.6){ keep(t); t.set('fill', '#f4f4f6'); t.pgFillGrad = null; touched++; }
-      });
-    });
-    // the other accent plates take the sweep's hues at their own lightness, so what is written on them still reads
-    plates.forEach(p => {
-      if (hosting.has(p)) return;
-      const q = ok(solidHex(p.fill));
-      keep(p); p.set('fill', grad(bright.map(([, h]) => [q.L, h]), Math.max(q.C, 0.12))); p.pgFillGrad = null; touched++;
-    });
-  } else if (mode === 'outline'){
-    // on a light ground (a cream ticket) white letters read by their rim alone: it gets heavier, with a soft dark halo
-    const gl = tagGroundLum(sc, heads);
-    heads.forEach(o => {
-      const u = o.fontSize || 40, light = gl.get(o) >= 0.45;
-      keep(o);
-      o.set({ fill: '#ffffff', stroke: '#0b0b0d', strokeWidth: Math.max(3, u * (light ? 0.11 : 0.075)), paintFirst: 'stroke', strokeLineJoin: 'round',
-        shadow: new fabric.Shadow(light ? { color: 'rgba(0,0,0,0.5)', blur: u * 0.14, offsetX: 0, offsetY: u * 0.02 }
-                                        : { color: 'rgba(0,0,0,0.55)', blur: u * 0.06, offsetX: 0, offsetY: u * 0.03 }) });
-      o.pgFillGrad = null; touched++;
-    });
-  } else if (mode === 'blocks'){
-    /* each tagline line on its own block, alternating the theme's two
-       colours, ink by contrast. Every block is measured before anything moves:
-       one that would land on other copy, cover more of the product than its
-       line already does, or leave the 6% guides would break the card (rule
-       57: copy is never touched), so that card takes the outline instead and
-       says so (info.fallback). */
+  /* the lines the look styles: the headline, or every line that sells, where
+     the type is big enough to carry an outline (a 20px "Call or text" in a
+     3px rim is a smudge: those keep their design) */
+  const minFs = Math.max(34, 0.032 * Math.min(W, H));
+  const lines = spec.scope === 'selling'
+    ? objs.filter(o => live(o) && isText(o) && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || '') && fsOf(o) >= minFs)
+    : heads;
+  const gradOf = (stops, angle) => {
+    const rad = (angle == null ? 90 : angle) * Math.PI / 180, vx = Math.sin(rad) * 0.5, vy = -Math.cos(rad) * 0.5;
+    return new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0.5 - vx, y1: 0.5 - vy, x2: 0.5 + vx, y2: 0.5 + vy },
+      colorStops: stops.map((c, i) => ({ offset: stops.length === 1 ? 0 : i / (stops.length - 1), color: c })) });
+  };
+  // a line's own lightness, pushed into a range where colour can show and still read
+  const lightOf = o => { const hex = solidHex(o.fill) || '#ffffff', L = ok(hex).L; return { L, light: L >= 0.6, TL: L >= 0.6 ? Math.min(0.88, Math.max(0.74, L)) : Math.min(0.42, Math.max(0.26, L)) }; };
+  // the ground under each styled line, painted once before anything changes (its plate, or the photograph)
+  const ground = tagGroundLum(sc, lines);
+  const wantOn = (inkHex, gY) => Math.min(4.5, Math.max(3.2, 0.95 * cr(Y(inkHex), gY)));
+  /* a gradient in the card's own colours takes its lightness from the line's
+     ground: light on a dark ground, dark on a light one, as far as it takes
+     to hold the contrast the line was designed with. The design's own ink
+     says which ground it was set on (a translucent glass panel over a
+     photograph measures mid-grey), unless the ground clearly says otherwise. */
+  const solveL = (o, hues, C) => {
+    const inkHex = solidHex(o.fill) || '#ffffff', inkL = ok(inkHex).L, gY = ground.get(o);
+    if (gY == null) return lightOf(o).TL;
+    const up = inkL >= 0.5 ? gY < 0.55 : gY < 0.3, want = wantOn(inkHex, gY);
+    let L = up ? Math.max(0.74, Math.min(0.88, inkL)) : Math.min(0.42, Math.max(0.26, inkL));
+    for (let i = 0; i < 40 && !hues.every(h => cr(Y(at(L, C, h)), gY) >= want); i++) L = up ? Math.min(0.99, L + 0.01) : Math.max(0.12, L - 0.01);
+    return L;
+  };
+  /* the street sweep travels toward yellow, the hue that is bright and vivid
+     at once: blue runs to azure and cyan, pink to coral and orange, orange to
+     yellow and lime (the reference). Toward violet a bright blue can only go
+     pastel. */
+  const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
+  const streetBright = () => [[0.74, h0], [0.88, h0 + dir * 40], [0.84, h0 + dir * 75]].map(([L, h]) => at(L, 0.18, h));
+  /* on a light ground the same sweep turns deep and runs the other way round
+     the wheel (a dark yellow is mud), as dark as that ground needs; a preset
+     keeps its own hues at that depth */
+  const deepStops = (o, gY) => {
+    const want = wantOn(solidHex(o.fill) || '#0e0e10', gY);
+    const preset = spec.gradient !== 'street' && taglineGradientStops(spec.gradient);
+    const hues = preset ? preset.map(c => ok(c)).map(q => [q.h, Math.max(0.1, q.C)]) : [[h0, 0.17], [h0 - dir * 40, 0.17], [h0 - dir * 75, 0.17]];
+    const dL = preset ? hues.map(() => 0) : [0, 0.05, 0.03];
+    let L = 0.4;
+    for (let i = 0; i < 30 && !hues.every(([h, C], k) => cr(Y(at(L + dL[k], C, h)), gY) >= want); i++) L = Math.max(0.12, L - 0.01);
+    return hues.map(([h, C], k) => at(L + dL[k], C, h));
+  };
+  const stopsFor = o => {
+    const g = spec.gradient || 'theme';
+    if (g === 'theme'){ const L = solveL(o, [h0 - 25, h0 + 25], 0.15); return [at(L, 0.15, h0 - 25), at(L, 0.15, h0 + 25)]; }
+    if (g === 'pair'){ const L = solveL(o, [acc.h, sup.h], 0.15); return [at(L, 0.15, acc.h), at(L, 0.15, sup.h)]; }
+    if (g === 'street') return streetBright();
+    const st = taglineGradientStops(g);
+    if (st) return st;
+    const L = solveL(o, [h0 - 25, h0 + 25], 0.15);
+    return [at(L, 0.15, h0 - 25), at(L, 0.15, h0 + 25)];
+  };
+  let touched = 0;
+  const clean = o => { o.pgFillGrad = null; };
+  const lumOf = tagY, ratio = tagCr;
+
+  /* ── colour blocks, measured before anything moves: each tagline line on
+     its own block, alternating the theme's two colours, ink by contrast. One
+     that would land on other copy, cover more of the product than its line
+     already does, or leave the 6% guides would break the card (rule 57: copy
+     is never touched), so that card takes the outline instead and says so. */
+  let blockPlan = null;
+  if (spec.blocks){
     const cols = [pal.accent || '#4d9cff', pal.support || pal.accent || '#4d9cff'];
-    const lumOf = tagY, ratio = tagCr;
     const G = 0.06 * Math.min(W, H), faults = [];
     const plan = heads.slice().sort((a, b) => a.top - b.top).map((o, i) => {
       let fill = solidHex(cols[i % 2]) || '#4d9cff';
@@ -12495,7 +12637,7 @@ function taglineStyle(sc, mode, pal, W, H, as){
         [A, B].forEach(P => { P.padY = P.padY == null ? py : Math.min(P.padY, py); P.g = tagBlockGeom(P.o, P.k, P.shift, P.padY); });
       }
     }
-    const others = objs.filter(o => live(o) && (o.opacity == null || o.opacity >= 0.5) && isText(o) && /[A-Za-z0-9]/.test(o.text || '') && !heads.includes(o));
+    const others = objs.filter(o => live(o) && (o.opacity == null || o.opacity >= 0.5) && isText(o) && /[A-Za-z0-9]/.test(o.text || '') && !heads.includes(o) && !o.pgKin);
     const images = objs.filter(o => live(o) && o.type === 'image' && (o.opacity == null || o.opacity >= 0.5) && o.width * (o.scaleX || 1) < 0.93 * W);
     plan.forEach(b => {
       const B = boxOf(b.g), area = B.width * B.height;
@@ -12520,11 +12662,96 @@ function taglineStyle(sc, mode, pal, W, H, as){
       });
     });
     if (faults.length){
-      const r = taglineStyle(sc, 'outline', pal, W, H, as || 'blocks');
-      return Object.assign(r, { mode: as || 'blocks', fallback: 'outline', why: faults[0] });
+      const r = taglineStyle(sc, Object.assign({}, spec, TAGLINE_LOOKS.outline, { blocks: false, name: TAGLINE_LOOKS.outline.name }), pal, W, H, key || 'blocks');
+      return Object.assign(r, { look: key || 'blocks', fallback: 'outline', why: faults[0] });
     }
-    // each block right under its own line (a plate between them would hide it); none reaches another line's letters
-    plan.forEach(b => {
+    blockPlan = plan;
+  }
+
+  // ── plates under the styled lines (and bands: the owner's reference sits its lines on dark bands)
+  const rects = objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && !o.pgBgRect && !o.pgScrim && !/^(BG|Overlay|Scrim|Grain)$/i.test(o.name || '')
+    && o.width * (o.scaleX || 1) <= W + 4
+    && o.width * (o.scaleX || 1) * o.height * (o.scaleY || 1) < 0.25 * W * H
+    && (typeof o.fill !== 'string' || !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(o.fill)));
+  const hostOf = o => { const c = o.getCenterPoint(), zo = objs.indexOf(o);
+    return rects.filter(p => objs.indexOf(p) < zo).filter(p => { const b = p.getBoundingRect(true, true); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })
+      .sort((a, b) => a.width * a.height * (a.scaleX || 1) * (a.scaleY || 1) - b.width * b.height * (b.scaleX || 1) * (b.scaleY || 1))[0] || null; };
+  /* a line's panel: the smallest opaque shape under it, a full-width band or
+     a large panel included; a large light one (a cream panel, a lime band)
+     keeps its colour under a look that would darken plates */
+  const panels = objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && !o.pgBgRect && !o.pgScrim && !/^(BG|Overlay|Scrim|Grain)$/i.test(o.name || '')
+    && o.height * (o.scaleY || 1) < 0.45 * H && (!!solidHex(o.fill) || !!(o.fill && o.fill.colorStops)));
+  const panelOf = o => { const c = o.getCenterPoint(), zo = objs.indexOf(o);
+    return panels.filter(p => objs.indexOf(p) < zo).filter(p => { const b = p.getBoundingRect(true, true); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })
+      .sort((a, b) => a.width * a.height * (a.scaleX || 1) * (a.scaleY || 1) - b.width * b.height * (b.scaleX || 1) * (b.scaleY || 1))[0] || null; };
+  const keepsColour = p => {
+    const w = p.width * (p.scaleX || 1), h = p.height * (p.scaleY || 1), hex = solidHex(p.fill);
+    return (w >= 0.93 * W || w * h >= 0.12 * W * H) && !!hex && ok(hex).L >= 0.72;
+  };
+  /* one colour, one treatment: a plate in the colour of a plate the look treats
+     gets the same treatment, so the badge keeps wearing the CTA's colour
+     (DESIGN-LAW 69, 74) whatever the look does to either */
+  const hueD = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); };
+  const sameHex = (a, b) => { const p = ok(a), q = ok(b); return Math.abs(p.L - q.L) < 0.05 && Math.abs(p.C - q.C) < 0.05 && hueD(p.h, q.h) < 10; };
+  const colourKin = treated => {
+    const hexes = treated.map(p => solidHex(p.fill)).filter(h => h && ok(h).C >= 0.06);
+    return objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && !treated.includes(o) && o.width * (o.scaleX || 1) * o.height * (o.scaleY || 1) < 0.3 * W * H
+      && (() => { const hex = solidHex(o.fill); return hex && hexes.some(b => sameHex(b, hex)); })());
+  };
+  // the words and marks that sit on a plate, in front of it
+  const onPlate = p => { const b = p.getBoundingRect(true, true), zo = objs.indexOf(p);
+    return objs.filter(t => live(t) && (isText(t) || t.type === 'path') && objs.indexOf(t) > zo && !lines.includes(t) && !t.pgKin
+      && (() => { const c = t.getCenterPoint(); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })()); };
+  /* lines swept deep on a light ground, in no rim: a look that darkens plates
+     leaves a light panel's colour alone, and a line off any plate on a light
+     photograph reads dark rather than bright-in-a-rim */
+  const deep = new Set();
+  const hosting = new Set();
+  lines.forEach(o => {
+    const h = hostOf(o);
+    if (spec.plates !== 'dark' || spec.fill !== 'gradient'){ if (h) hosting.add(h); return; }
+    const p = panelOf(o), inkL = ok(solidHex(o.fill) || '#ffffff').L, g = ground.get(o) || 0;
+    if (p ? keepsColour(p) : (inkL < 0.5 ? g >= 0.12 : g >= 0.6)){ deep.add(o); return; }
+    if (h) hosting.add(h);
+  });
+  if (spec.plates === 'dark'){
+    const fam = colourKin([...hosting]), dark = [...hosting].concat(fam);
+    dark.forEach(p => { keep(p); p.set({ fill: 'rgba(12,12,14,0.86)', stroke: null }); clean(p); touched++; });
+    // the words and marks on a darkened plate turn light where they would vanish (a line icon is all stroke)
+    dark.forEach(p => onPlate(p).forEach(t => ['fill', 'stroke'].forEach(k => {
+      const hex = solidHex(t[k]);
+      if (hex && ratio(lumOf(hex), lumOf('#0c0c0e')) < 4.5){ keep(t); t.set(k, '#ffffff'); clean(t); touched++; }
+    })));
+  }
+  if (spec.plates === 'match'){
+    const accentPlates = objs.filter(o => live(o) && o.type === 'rect' && !o.pgTagBlock && !hosting.has(o) && (() => {
+      const hex = solidHex(o.fill), w = o.width * (o.scaleX || 1), h = o.height * (o.scaleY || 1);
+      return hex && ok(hex).C >= 0.06 && w * h < 0.12 * W * H && w < 0.93 * W;
+    })());
+    const hostsC = [...hosting].filter(p => { const hex = solidHex(p.fill); return hex && ok(hex).C >= 0.06; });
+    const painted = accentPlates.concat(hostsC), fam = colourKin(painted).filter(p => !hosting.has(p));
+    /* each stop keeps the words on its plate readable: 7:1 under the number, 4.5:1 under the rest */
+    const guard = (p, st) => {
+      const inks = onPlate(p).concat(lines.filter(t => hostOf(t) === p)).map(t => solidHex(t.fill)).filter(Boolean);
+      if (!inks.length) return st;
+      const need = onPlate(p).concat(lines.filter(t => hostOf(t) === p)).some(t => t.pgRole === 'phone' && solidHex(t.fill)) ? 7 : 4.5;
+      const dark = inks.every(h => lumOf(h) < 0.18);
+      return st.map(c => { const q = ok(c); let L = q.L, hex = c;
+        for (let i = 0; i < 60 && inks.some(h => ratio(lumOf(hex), lumOf(h)) < need); i++){ L = Math.max(0.05, Math.min(0.98, L + (dark ? 0.012 : -0.012))); hex = at(L, q.C, q.h); }
+        return hex; });
+    };
+    painted.concat(fam).forEach(p => {
+      const o = ok(solidHex(p.fill)), g = spec.gradient || 'theme';
+      const st = g === 'pair' ? [at(o.L, Math.max(o.C, 0.12), acc.h), at(o.L, Math.max(o.C, 0.12), sup.h)]
+        : g === 'theme' ? [at(o.L, Math.max(o.C, 0.12), h0 - 25), at(o.L, Math.max(o.C, 0.12), h0 + 25)]
+        : (taglineGradientStops(g) || []).map(c => { const q = ok(c); return at(o.L, Math.max(0.1, q.C), q.h); });   // the preset's hues at the plate's own lightness
+      if (st.length){ keep(p); p.set('fill', gradOf(guard(p, st), 110)); clean(p); touched++; }
+    });
+  }
+
+  // ── the blocks, as measured: each right under its own line (a plate between them would hide it)
+  if (blockPlan){
+    blockPlan.forEach(b => {
       const o = b.o, id = 'tb' + Math.random().toString(36).slice(2, 9);
       keep(o);
       o.pgTagRest.block = id;
@@ -12540,12 +12767,1357 @@ function taglineStyle(sc, mode, pal, W, H, as){
         name: 'Tagline Block ' + (b.i + 1), pgTagBlock: id, selectable: false, evented: false });
       taglineFitBlock(blk, o);
       sc.insertAt(blk, sc.getObjects().indexOf(o));
-      o.set({ fill: b.ink, stroke: null, strokeWidth: 0, shadow: null }); o.pgFillGrad = null;
+      o.set({ fill: b.ink, stroke: null, strokeWidth: 0, shadow: null }); clean(o);
+      touched++;
+    });
+  }
+
+  // ── fill
+  const sheetFs = Math.max(...heads.map(fsOf)), patMemo = {};
+  lines.forEach(o => {
+    if (spec.blocks && heads.indexOf(o) >= 0) return;
+    keep(o);
+    const { TL, light } = lightOf(o), u = o.fontSize || 40, gY = ground.get(o) || 0;
+    if (spec.fill === 'white'){ o.set('fill', '#ffffff'); clean(o); }
+    else if (spec.fill === 'gradient'){ o.set('fill', gradOf(deep.has(o) ? deepStops(o, gY) : stopsFor(o), spec.angle)); clean(o); }
+    else if (spec.fill === 'multicolor'){
+      /* each letter its own colour, cycling through the gradient's stops or
+         five hues spread from the accent at the line's own lightness */
+      const pool = Array.isArray(spec.gradient) || TAGLINE_GRADIENTS[spec.gradient] ? taglineGradientStops(spec.gradient)
+        : [0, 72, 144, 216, 288].map(d => at(TL, 0.17, h0 + d));
+      const styles = {}; let k = 0;
+      (o._textLines || [String(o.text).split('')]).forEach((ln, li) => {
+        styles[li] = {};
+        ln.forEach((ch, ci) => { if (!/\s/.test(ch)){ styles[li][ci] = { fill: pool[k % pool.length] }; k++; } });
+      });
+      o.set({ styles }); clean(o); o.dirty = true;
+    } else if (spec.fill === 'texture'){
+      /* one sheet for the card: the claim sets the tile's size and every line shows the same tile, anchored to the card */
+      const p = taglinePattern(spec.texture, TL, light, h0, sheetFs, { scale: spec.patScale, x: spec.patX, y: spec.patY, res: spec.patRes, obj: o, memo: patMemo });
+      o.set('fill', p); clean(o); sc.__patTile = p.pgTile;
+    }
+    /* outline: heavy, painted first so the letters keep their full width;
+       white letters rim harder on a light ground (a cream ticket), where
+       they read by their rim alone; a line swept deep needs none */
+    if ((spec.outline === 'black' || spec.outline === 'white') && !deep.has(o)){
+      const hard = spec.outline === 'black' && spec.fill === 'white' && gY >= 0.45;
+      o.set({ stroke: spec.outline === 'black' ? '#0b0b0d' : '#ffffff', strokeWidth: Math.max(3, u * (hard ? 0.11 : 0.085)), paintFirst: 'stroke', strokeLineJoin: 'round',
+        shadow: new fabric.Shadow(hard ? { color: 'rgba(0,0,0,0.5)', blur: u * 0.14, offsetX: 0, offsetY: u * 0.02 }
+          : { color: spec.outline === 'black' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)', blur: u * 0.1, offsetX: 0, offsetY: u * 0.03 }) });
+    }
+    touched++;
+  });
+
+  // ── effects
+  const cloneText = (o, props) => {
+    const c = new o.constructor(o.text, Object.assign(o.toObject(), { fill: '#000000', stroke: null, strokeWidth: 0, shadow: null, styles: {} }, props));
+    c.set({ selectable: false, evented: false, name: (o.name || 'Tagline') + ' depth', pgRole: 'deco' });
+    c.pgKin = o;          // its line: plate air, the critic, the editor and the video move, hide and measure them together
+    c.pgKinId = o.pgTagId || (o.pgTagId = 'tl' + Math.random().toString(36).slice(2, 9));
+    c.pgTagRest = null; c.pgTagBlock = null;
+    return c;
+  };
+  if (spec.effect === 'glow'){
+    /* a neon tube: a hot core, a thin coloured edge, two passes of glow */
+    const glowHex = at(0.72, 0.2, h0);
+    lines.forEach(o => {
+      const u = o.fontSize || 40;
+      keep(o);
+      if (spec.fill === 'white' || spec.fill === 'solid') o.set('fill', '#ffffff');
+      o.set({ stroke: glowHex, strokeWidth: Math.max(2, u * 0.035), paintFirst: 'stroke', shadow: new fabric.Shadow({ color: glowHex, blur: u * 0.45, offsetX: 0, offsetY: 0 }) });
+      const halo = cloneText(o, { fill: glowHex, opacity: 0.85, shadow: new fabric.Shadow({ color: glowHex, blur: u * 0.9, offsetX: 0, offsetY: 0 }) });
+      sc.insertAt(halo, sc.getObjects().indexOf(o));
+      touched++;
+    });
+  } else if (spec.effect === 'anaglyph'){
+    /* the old 3-D print: red to one side, blue to the other, the letter on top */
+    lines.forEach(o => {
+      const u = o.fontSize || 40, d = u * 0.05 * (o.scaleX || 1), a = (o.angle || 0) * Math.PI / 180;
+      keep(o);
+      const red = cloneText(o, { fill: '#ff2a4f', left: o.left - d * Math.cos(a), top: o.top - d * Math.sin(a) });
+      const blue = cloneText(o, { fill: '#18b4ff', left: o.left + d * Math.cos(a), top: o.top + d * Math.sin(a) });
+      const i = sc.getObjects().indexOf(o);
+      sc.insertAt(blue, i); sc.insertAt(red, i);
+      if (spec.fill === 'white' || spec.fill === 'solid') o.set({ fill: '#ffffff' });
+      o.set({ stroke: null, strokeWidth: 0, shadow: null });
+      touched++;
+    });
+  } else if (spec.effect === 'extrude'){
+    /* depth: the letter stacked back on itself, darkening as it recedes, one soft shadow under it all */
+    /* the sides in the accent, deepening as they recede, so the depth shows on
+       a dark photograph as well as a light one; a thin dark edge on the face */
+    lines.forEach(o => {
+      // one layer per ~1.5px of depth, so the sides read as a solid block, not a stack of copies
+      const u = o.fontSize || 40, depth = u * 0.18 * (o.scaleX || 1), n = Math.min(28, Math.max(8, Math.ceil(depth / 1.5))), step = depth / n;
+      keep(o);
+      const i = sc.getObjects().indexOf(o);
+      for (let k = n; k >= 1; k--){
+        const side = at(0.52 - (k / n) * 0.24, 0.15, h0);
+        const layer = cloneText(o, { fill: side, left: o.left + step * k * 0.8, top: o.top + step * k,
+          shadow: k === n ? new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.16, offsetX: u * 0.03, offsetY: u * 0.06 }) : null });
+        sc.insertAt(layer, i);
+      }
+      if (!o.stroke || !o.strokeWidth) o.set({ stroke: 'rgba(10,10,14,0.85)', strokeWidth: Math.max(1.5, u * 0.03), paintFirst: 'stroke', strokeLineJoin: 'round' });
+      o.set({ shadow: null });
       touched++;
     });
   }
   sc.getObjects().forEach(o => o.setCoords && o.setCoords());
-  return { mode, touched, plates: plates.length, main: String(main.text).slice(0, 40) };
+  return { name: spec.name, look: key, touched, deep: deep.size, main: String(heads[0].text).slice(0, 40) };
+}
+/* ═══ THE NUMBER FILLS ITS PLATE ═══════════════════════════════════════════
+   Owner, 2026-09-27, on the Steps Flow cards: "These CTA are very hard to read
+   and too small". stepsFlow-nn05-30 set its number at 80px on a 186px band
+   that runs the full width: a small line in a large empty plate. Rule 53's
+   0.62x-the-headline target keeps it small wherever the headline is small.
+   Now the number grows to fill its own plate: its box up to 78% of the plate's
+   height, its ink inside the plate's width with plate air (rule 64), a plate
+   narrower than that widening into clear space within the guides. It never
+   shrinks here, never grows onto other copy on its plate, and never past 2.2x. */
+function numberFill(sc, W, H){
+  if (window.__noNumberFill) return null;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  const ph = objs.filter(o => live(o) && isText(o) && o.pgRole === 'phone' && /\d/.test(o.text || ''))
+    .sort((a, b) => (b.fontSize || 0) * (b.scaleY || 1) - (a.fontSize || 0) * (a.scaleY || 1))[0];
+  if (!ph) return null;
+  ph.setCoords();
+  const c = ph.getCenterPoint(), zo = objs.indexOf(ph);
+  const host = objs.filter(o => live(o) && o.type === 'rect' && objs.indexOf(o) < zo && !o.angle
+      && o.width * (o.scaleX || 1) <= W + 4 && o.height * (o.scaleY || 1) < 0.4 * H
+      && (typeof o.fill !== 'string' || !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(o.fill)))
+    .filter(p => { const b = p.getBoundingRect(true, true); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; })
+    .sort((a, b) => a.width * a.height * (a.scaleX || 1) * (a.scaleY || 1) - b.width * b.height * (b.scaleX || 1) * (b.scaleY || 1))[0];
+  if (!host || ph.angle) return null;
+  const G = 0.06 * Math.min(W, H);
+  const hb = host.getBoundingRect(true, true), full = hb.width >= W * 0.93;
+  const others = objs.filter(o => o !== ph && o !== host && live(o) && (isText(o) || o.type === 'image' || o.type === 'group'))
+    .map(o => ({ o, b: o.getBoundingRect(true, true) })).filter(x => x.b.width < W * 0.95 || x.o.type !== 'image');
+  const overlap = (a, b) => Math.max(0, Math.min(a.left + a.width, b.left + b.width) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.top + a.height, b.top + b.height) - Math.max(a.top, b.top));
+  const pb = ph.getBoundingRect(true, true), fs0 = (ph.fontSize || 40) * (ph.scaleY || 1);
+  const inkW = (typeof plateAirInk === 'function' ? plateAirInk(ph).w : ph.width) * (ph.scaleX || 1);
+  // what the plate's height allows, less anything else that lives on the plate
+  const mates = others.filter(x => { const xc = { x: x.b.left + x.b.width / 2, y: x.b.top + x.b.height / 2 };
+    return xc.x > hb.left && xc.x < hb.left + hb.width && xc.y > hb.top && xc.y < hb.top + hb.height; });
+  /* a band that runs off the canvas holds the number only inside the guides
+     (restaged, audited records: DESIGN-LAW 74, 76; the rest keep the box fill) */
+  const INK = objs.some(o => o && o.pgInk);
+  let top = INK ? Math.max(hb.top, G + 3) : hb.top, bot = INK ? Math.min(hb.top + hb.height, H - G - 3) : hb.top + hb.height;   // 3px: the letters' clearance off a guide (inkClear)
+  mates.forEach(x => { if (x.b.top + x.b.height <= pb.top + 2) top = Math.max(top, x.b.top + x.b.height); else if (x.b.top >= pb.top + pb.height - 2) bot = Math.min(bot, x.b.top); });
+  /* the DIGITS fill 74% of the room: sized by its box, the number's letters
+     filled 45% of a 184px band ("the CTA is way too small", 2026-09-27) */
+  const pI = (INK && textInkRect(ph)) || pb;
+  const kH = INK ? ((bot - top) * 0.74) / pI.height : ((bot - top) * 0.78) / pb.height;
+  const maxW = (full ? W - 2 * G : W - 2 * G) - 2 * Math.max(12, 0.35 * fs0 * 1.5);
+  const kW = maxW / inkW;
+  let k = Math.min(kH, kW, 2.2);
+  /* already big enough: still set its LETTERS on the room's centre when it was
+     meant to be centred there (its box within 10px of it) — box-centred, a
+     170px number sat 5.5px low */
+  const inkCentre = () => {
+    const r = textInkRect(ph); if (!r) return;
+    const d = numberCentreY(hb, top, bot, r.height, H, G) - (r.top + r.height / 2);
+    if (Math.abs(d) > 0.5 && Math.abs(d) < Math.max(12, 0.15 * (bot - top))){ ph.set('top', ph.top + d); ph.setCoords(); }
+  };
+  if (!(k > 1.04)){ if (INK) inkCentre(); return { k: 1, fs: Math.round(fs0) }; }
+  // the plate widens (never narrows) to hold the ink with air, into clear space only
+  const tryK = kk => {
+    const w = Math.max(hb.width, Math.min(W - 2 * G, inkW * kk + 2 * plateAirNeed(hb.width, fs0 * kk)));
+    const nb = { left: hb.left + hb.width / 2 - w / 2, top: hb.top, width: w, height: hb.height };
+    if (!full && others.some(x => mates.indexOf(x) < 0 && overlap(nb, x.b) > 4)) return null;
+    return w;
+  };
+  let w = full ? hb.width : tryK(k);
+  while (w == null && k > 1.04){ k -= 0.05; w = tryK(k); }
+  if (w == null || k <= 1.04) return { k: 1, fs: Math.round(fs0) };
+  if (!full && w > hb.width + 1){ const pc = host.getCenterPoint(); host.set({ width: w / (host.scaleX || 1) }); host.setPositionByOrigin(pc, 'center', 'center'); host.setCoords(); }
+  ph.set({ scaleX: (ph.scaleX || 1) * k, scaleY: (ph.scaleY || 1) * k });
+  // its letters centred in the room between whatever sits above and below it on the plate
+  ph.setPositionByOrigin(new fabric.Point(c.x, (top + bot) / 2), 'center', 'center'); ph.setCoords();
+  if (INK){ const r = textInkRect(ph); if (r){ ph.set('top', ph.top + (numberCentreY(hb, top, bot, r.height, H, G) - (r.top + r.height / 2))); ph.setCoords(); } }
+  if (typeof plateAir === 'function') plateAir(sc, W, H);
+  return { k: +k.toFixed(2), fs: Math.round(fs0 * k) };
+}
+
+/* ═══ TAGLINE STYLE IN EASY MODE ═══════════════════════════════════════════
+   Owner, 2026-09-27: "make sure we have any gradient, selectable any amount of
+   colors in the gradient any premade gradient patterns that maybe are common
+   or good color schemes", and on the Tagline Lab: "the variation of colors and
+   sheer amount of variations are very good". The looks the lab proved are on
+   every card in the studio: a row of looks, the sixteen premade gradients as
+   swatches (plus Auto, from the ad's own colours), the stops themselves (two
+   to eight, each a colour you can pick), the angle, and outline and effect
+   overrides that combine with any look (a Street gradient in 3-D block, a
+   custom gradient that glows). renderEzCanvas applies it after layout, so the
+   preview, the PNG and the video carry the same style. The number fills its
+   plate on every card, styled or not (numberFill). One style for every card,
+   remembered: the owner's favourite ads kept one gradient across their assets.
+   The preview re-measures the styled lines (rule 54) and says so when one
+   reads under 3:1 on this card; it never blocks, the owner decides. */
+TAGLINE_LOOKS.gradient = { name: 'Gradient', fill: 'gradient', gradient: 'sunset', outline: 'black', plates: 'match' };
+TAGLINE_LOOKS.pattern = { name: 'Pattern', fill: 'texture', texture: 'money', outline: 'black' };
+const EZ_TAG_LOOKS = [
+  ['solid', 'Solid', 'The card as designed'],
+  ['street', 'Street', 'A hot gradient on the headline, number and CTA, a heavy black outline, dark bands under them'],
+  ['signature', 'Signature', 'A gradient in the ad’s own accent; its plates take it too'],
+  ['gradient', 'Gradient', 'Any premade or custom gradient, black outline'],
+  ['pair', 'Accent → support', 'The accent melting into the support colour'],
+  ['outline', 'White + outline', 'White letters, heavy black outline'],
+  ['blocks', 'Colour blocks', 'Each headline line on its own block of the theme’s colours'],
+  ['multicolor', 'Multicolour', 'Every letter its own colour'],
+  ['glow', 'Glow', 'A neon tube: white core, coloured glow'],
+  ['anaglyph', 'Red & blue 3-D', 'The old 3-D print: red to one side, blue to the other'],
+  ['extrude', '3-D block', 'Letters with solid depth'],
+  ['pattern', 'Pattern', 'Fill the headline with a pattern: 36 to choose from, sized and slid to taste'],
+];
+const EZ_TAG_GRAD_LOOKS = new Set(['street', 'signature', 'gradient', 'pair', 'multicolor']);
+const EZ_TAG_MAX_STOPS = 8;
+ez.tag = Object.assign({ look: 'solid', gradient: null, angle: 90, outline: 'auto', effect: 'auto', texture: 'money', patScale: 1, patX: 0, patY: 0 }, jget('pgfx_tag', null) || {});
+// a visitor who picked one of the first six looks (pgfx_tagline, before the panel) keeps it
+if (!jget('pgfx_tag', null) && jget('pgfx_tagline', null)) ez.tag.look = ({ gradient: 'signature' })[jget('pgfx_tagline', 'solid')] || jget('pgfx_tagline', 'solid');
+if (!EZ_TAG_LOOKS.some(l => l[0] === ez.tag.look) && !['stripes', 'dots', 'cash', 'cracked'].includes(ez.tag.look)) ez.tag.look = 'solid';
+if (['stripes', 'dots', 'cash', 'cracked'].includes(ez.tag.look)){ ez.tag.texture = TAGLINE_LOOKS[ez.tag.look].texture; ez.tag.look = 'pattern'; }
+
+function ezTagSpec(){
+  const t = ez.tag || {}, base = TAGLINE_LOOKS[t.look] || TAGLINE_LOOKS.solid, spec = Object.assign({ look: TAGLINE_LOOKS[t.look] ? t.look : 'solid' }, base);
+  if (t.gradient && EZ_TAG_GRAD_LOOKS.has(t.look)) spec.gradient = Array.isArray(t.gradient) ? t.gradient.slice() : t.gradient;
+  if (t.angle != null) spec.angle = t.angle;
+  if (t.outline && t.outline !== 'auto') spec.outline = t.outline;
+  if (t.effect && t.effect !== 'auto') spec.effect = t.effect;
+  if (spec.fill === 'texture'){
+    if (t.look === 'pattern' && t.texture) spec.texture = t.texture;
+    spec.patScale = t.patScale || 1; spec.patX = t.patX || 0; spec.patY = t.patY || 0;
+  }
+  const plain = (t.look || 'solid') === 'solid' && (!spec.outline || spec.outline === 'none') && (!spec.effect || spec.effect === 'none');
+  return plain ? null : spec;
+}
+/* the stops a look draws on its own, shown in the editor so they can be
+   edited from where they are (at a light line's lightness, as most lines are) */
+function ezTagAutoStops(look){
+  const pal = ez._tagPal || { accent: '#4d9cff', support: '#ff7a1a' };
+  const g = (TAGLINE_LOOKS[look] || {}).gradient || 'theme';
+  if (TAGLINE_GRADIENTS[g]) return TAGLINE_GRADIENTS[g].stops.slice();
+  const acc = hexToOklch(pal.accent) || { L: 0.7, C: 0.15, h: 250 }, sup = hexToOklch(pal.support || pal.accent) || acc;
+  const h0 = acc.C >= 0.04 ? acc.h : sup.h, at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
+  if (look === 'multicolor') return [0, 72, 144, 216, 288].map(d => at(0.8, 0.17, h0 + d));
+  if (g === 'pair') return [at(0.8, 0.15, acc.h), at(0.8, 0.15, sup.h)];
+  if (g === 'street'){
+    const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
+    return [[0.74, h0], [0.88, h0 + dir * 40], [0.84, h0 + dir * 75]].map(([L, h]) => at(L, 0.18, h));
+  }
+  return [at(0.8, 0.15, h0 - 25), at(0.8, 0.15, h0 + 25)];
+}
+function ezTagStops(){
+  const t = ez.tag;
+  if (Array.isArray(t.gradient)) return t.gradient.slice();
+  if (t.gradient && TAGLINE_GRADIENTS[t.gradient]) return TAGLINE_GRADIENTS[t.gradient].stops.slice();
+  return ezTagAutoStops(t.look);
+}
+/* rule 54 on the styled lines: each line and the layers its effect adds,
+   hidden together, against what is really behind them; the 75th percentile
+   of the changed pixels' contrast */
+function taglineCritic(sc, W, H){
+  const ctx = sc.lowerCanvasEl && sc.lowerCanvasEl.getContext('2d');
+  if (!ctx) return [];
+  const z = sc.getZoom ? sc.getZoom() : 1, CW = sc.lowerCanvasEl.width, CH = sc.lowerCanvasEl.height;
+  const lum = (d, i) => { const f = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(d[i]) + 0.7152 * f(d[i + 1]) + 0.0722 * f(d[i + 2]); };
+  sc.renderAll();
+  const full = ctx.getImageData(0, 0, CW, CH).data, out = [];
+  const objs = sc.getObjects();
+  objs.filter(o => o.visible !== false && ['headline', 'phone', 'cta'].includes(o.pgRole) && /[A-Za-z0-9]/.test(o.text || '')).forEach(o => {
+    const kin = objs.filter(q => q.pgKin === o);
+    const bs = [o].concat(kin).map(q => q.getBoundingRect(true, true));
+    const x0 = Math.max(0, Math.floor(Math.min(...bs.map(r => r.left)) * z)), y0 = Math.max(0, Math.floor(Math.min(...bs.map(r => r.top)) * z));
+    const x1 = Math.min(CW, Math.ceil(Math.max(...bs.map(r => r.left + r.width)) * z)), y1 = Math.min(CH, Math.ceil(Math.max(...bs.map(r => r.top + r.height)) * z));
+    if (x1 - x0 < 4 || y1 - y0 < 4) return;
+    o.visible = false; kin.forEach(q => { q.visible = false; }); sc.renderAll();
+    const w = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data;
+    o.visible = true; kin.forEach(q => { q.visible = true; });
+    const px = [], step = Math.max(1, Math.round(Math.sqrt((x1 - x0) * (y1 - y0) / 40000)));
+    for (let y = y0; y < y1; y += step) for (let x = x0; x < x1; x += step){
+      const f = (y * CW + x) * 4, g = ((y - y0) * (x1 - x0) + (x - x0)) * 4;
+      if (Math.abs(full[f] - w[g]) + Math.abs(full[f + 1] - w[g + 1]) + Math.abs(full[f + 2] - w[g + 2]) < 24) continue;
+      const a = lum(full, f), q = lum(w, g); px.push((Math.max(a, q) + 0.05) / (Math.min(a, q) + 0.05));
+    }
+    px.sort((p, q) => p - q);
+    out.push({ role: o.pgRole, text: String(o.text).replace(/\s+/g, ' ').trim().slice(0, 28), q75: px.length ? +px[Math.floor(px.length * 0.75)].toFixed(2) : 0 });
+  });
+  sc.renderAll();
+  return out;
+}
+/* A CARD'S OWN LOOK. A record may carry a tagline look of its own (tpl.look:
+   a TAGLINE_LOOKS key or a taglineStyle spec), chosen by the engine for that
+   card. The gallery painter paints it; Easy Mode shows it under Solid ("the
+   card as designed") until the visitor picks another; the video bakes it. */
+function cardLookSpec(tpl){
+  const L = tpl && tpl.look;
+  if (!L) return null;
+  return Object.assign({ look: typeof L === 'string' ? L : 'card' }, typeof L === 'string' ? TAGLINE_LOOKS[L] || { name: L } : L);
+}
+function applyCardLook(sc, tpl, W, H, res){
+  const spec = cardLookSpec(tpl);
+  if (!spec) return null;
+  return taglineApply(sc, tpl, W, H, spec, { res });
+}
+/* Easy Mode's picture (renderEzCanvas: the preview, every download and the
+   video): the card finished (taglineFinish), then the visitor's look, or the
+   card's own under Solid, through the one entry point (taglineApply); on the
+   preview, the critic's weak lines and any look that gave way are said */
+function ezApplyTagline(sc, W, H, preview, mult, tpl){
+  if (tpl === undefined) tpl = typeof ezTpl === 'function' ? ezTpl() : null;
+  taglineFinish(sc, W, H);
+  const spec = ezTagSpec() || cardLookSpec(tpl);   // Solid: the card as designed
+  const dragging = preview && ez._patDrag;          // sliding the pattern: the critic waits for the drop
+  let info = { look: 'solid' };
+  if (spec){
+    info = taglineApply(sc, tpl, W, H, spec, { res: mult || 1 });
+    if (preview) ez._patTile = sc.__patTile;
+    if (preview && !dragging) try { info.weak = taglineCritic(sc, W, H).filter(r => r.q75 < 3); } catch (e){ console.warn('GraphicsStudio tagline critic:', e); }
+  }
+  if (preview){ try { ez._tagPal = info.pal || ezTagPalette(sc, tpl, W); } catch (e){} }
+  if (preview && !dragging){
+    taglineNote(info, 'ez-tag-note');
+    if (!Array.isArray(ez.tag.gradient) && !ez.tag.gradient) ezTagDrawStops();   // Auto follows the card
+    ezTagDrawPats();                                                              // the chips wear the card's hue
+  }
+  return info;
+}
+function ezTagSave(){ jset('pgfx_tag', ez.tag); schedEzPreview(0); }
+function ezTagSync(){
+  const t = ez.tag;
+  document.querySelectorAll('#ez-tag-looks button').forEach(b => { const on = b.dataset.look === t.look; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  document.querySelectorAll('#ez-tag-outline button').forEach(b => { const on = b.dataset.v === (t.outline || 'auto'); b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  document.querySelectorAll('#ez-tag-effect button').forEach(b => { const on = b.dataset.v === (t.effect || 'auto'); b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  const key = Array.isArray(t.gradient) ? null : (t.gradient || 'auto');
+  document.querySelectorAll('#ez-tag-presets button').forEach(b => { const on = b.dataset.g === key; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  const gw = $('ez-tag-grad'); if (gw) gw.hidden = !EZ_TAG_GRAD_LOOKS.has(t.look);
+  const ang = $('ez-tag-angle'), av = $('ez-tag-angle-val');
+  if (ang) ang.value = t.angle == null ? 90 : t.angle;
+  if (av) av.textContent = (t.angle == null ? 90 : t.angle) + '°';
+  const pw = $('ez-tag-pat'); if (pw) pw.hidden = t.look !== 'pattern';
+  const tex = PATTERN_ALIAS[t.texture] || t.texture || 'money';
+  document.querySelectorAll('#ez-tag-pats button').forEach(b => { const on = b.dataset.p === tex; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  [['ez-tag-pscale', t.patScale || 1], ['ez-tag-px', t.patX || 0], ['ez-tag-py', t.patY || 0]].forEach(([id, v]) => {
+    const el = $(id), tv = $(id + '-val'), pc = Math.round(v * 100);
+    if (el) el.value = pc; if (tv) tv.textContent = pc + '%';
+  });
+  const img = $('ez-preview'); if (img) img.classList.toggle('ez-pat-drag', t.look === 'pattern');
+  ezTagDrawStops();
+  ezTagDrawPats();
+}
+/* the pattern chips, in the card's own hue at a white line's lightness (most headlines are white) */
+function ezTagDrawPats(){
+  const box = $('ez-tag-pats'), host = $('ez-tag-pat');
+  if (!box || !host || host.hidden) return;
+  const acc = hexToOklch((ez._tagPal && ez._tagPal.accent) || '#4d9cff') || { h: 250 };
+  const h0 = Math.round(acc.h / 10) * 10, dpr = Math.min(2, window.devicePixelRatio || 1), sig = h0 + '|' + dpr;
+  if (box.dataset.sig === sig) return;
+  box.dataset.sig = sig;
+  const C = taglinePatternColours(0.86, true, h0);
+  box.querySelectorAll('button[data-p]').forEach(b => {
+    const cv = b.querySelector('canvas'), def = taglinePatternDef(b.dataset.p), px = Math.round(40 * dpr);
+    cv.width = cv.height = px;
+    const tile = taglinePatternTile(b.dataset.p, Math.round(Math.max(13, Math.min(40, def.size * 55)) * dpr), C), x = cv.getContext('2d');
+    x.fillStyle = x.createPattern(tile, 'repeat'); x.fillRect(0, 0, px, px);
+  });
+}
+/* drag the preview to slide the pattern: the sheet follows the pointer */
+function ezPatDragBind(){
+  const img = $('ez-preview');
+  if (!img || img.dataset.patDrag) return;
+  img.dataset.patDrag = '1';
+  let d = null, raf = 0;
+  const on = () => ez.tag.look === 'pattern' && ez._patTile;
+  img.addEventListener('dragstart', e => { if (on()) e.preventDefault(); });
+  img.addEventListener('pointerdown', e => {
+    if (!on() || e.button !== 0) return;
+    const F = FORMATS[ez.format] || FORMATS.square;
+    d = { x: e.clientX, y: e.clientY, px: ez.tag.patX || 0, py: ez.tag.patY || 0, tile: ez._patTile,
+      kx: F.w / Math.max(1, img.clientWidth), ky: F.h / Math.max(1, img.clientHeight), sc: null };
+    ez._patDrag = true;
+    try { d.sc = renderEzCanvas(560, 'jpeg', undefined, undefined, undefined, true); } catch (_){ d.sc = null; }
+    try { img.setPointerCapture(e.pointerId); } catch (_){}
+    img.classList.add('dragging');
+    e.preventDefault();
+  });
+  img.addEventListener('pointermove', e => {
+    if (!d) return;
+    const w1 = v => +(((v % 1) + 1) % 1).toFixed(3);
+    ez.tag.patX = w1(d.px + (e.clientX - d.x) * d.kx / d.tile.w);
+    ez.tag.patY = w1(d.py + (e.clientY - d.y) * d.ky / d.tile.h);
+    if (!raf) raf = requestAnimationFrame(() => {
+      raf = 0; if (!d) return;
+      ezTagSync();
+      const sc = d.sc;
+      if (!sc){ img.src = renderEzCanvas(560, 'jpeg'); return; }
+      sc.getObjects().forEach(o => { if (o.fill && o.fill.pgSlide){ o.fill.pgSlide(ez.tag.patX, ez.tag.patY, o); o.dirty = true; } });
+      sc.renderAll();
+      img.src = sc.toDataURL({ format: 'jpeg', quality: 0.85, multiplier: 560 / Math.min(sc.width, sc.height) });
+    });
+  });
+  const end = () => {
+    if (!d) return;
+    if (d.sc) try { d.sc.dispose(); } catch (_){}
+    d = null; ez._patDrag = false; img.classList.remove('dragging');
+    if (raf){ cancelAnimationFrame(raf); raf = 0; }
+    ezTagSync(); ezTagSave();          // the full preview, critic and all, on the drop
+  };
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => img.addEventListener(ev, end));
+}
+function ezTagDrawStops(){
+  const box = $('ez-tag-stops');
+  if (!box) return;
+  const stops = ezTagStops(), t = ez.tag, sig = stops.join(',');
+  if (box.dataset.sig === sig) return;             // the preview redraws Auto's stops only when the card changes them
+  box.dataset.sig = sig;
+  box.innerHTML = '';
+  stops.forEach((c, i) => {
+    const inp = document.createElement('input');
+    inp.type = 'color'; inp.value = /^#[0-9a-f]{6}$/i.test(c) ? c : '#ffffff';
+    inp.title = 'Colour ' + (i + 1) + ' of ' + stops.length;
+    inp.setAttribute('aria-label', inp.title);
+    inp.addEventListener('input', () => { const s = ezTagStops(); s[i] = inp.value; t.gradient = s; box.dataset.sig = s.join(','); ezTagSyncPresets(); jset('pgfx_tag', t); schedEzPreview(); });
+    box.appendChild(inp);
+  });
+  const btn = (label, title, dis, fn) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.title = title; b.setAttribute('aria-label', title); b.disabled = dis; b.onclick = fn; box.appendChild(b); };
+  btn('+', 'Add a colour', stops.length >= EZ_TAG_MAX_STOPS, () => { const s = ezTagStops(); s.push(s[s.length - 1]); t.gradient = s; ezTagSync(); ezTagSave(); });
+  btn('−', 'Remove the last colour', stops.length <= 2, () => { const s = ezTagStops(); s.pop(); t.gradient = s; ezTagSync(); ezTagSave(); });
+  btn('⇄', 'Reverse the gradient', false, () => { t.gradient = ezTagStops().reverse(); ezTagSync(); ezTagSave(); });
+}
+function ezTagSyncPresets(){
+  const key = Array.isArray(ez.tag.gradient) ? null : (ez.tag.gradient || 'auto');
+  document.querySelectorAll('#ez-tag-presets button').forEach(b => { const on = b.dataset.g === key; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+}
+function buildEzTagline(){
+  const looks = $('ez-tag-looks');
+  if (!looks || looks.dataset.built) return;
+  looks.dataset.built = '1';
+  const t = ez.tag;
+  EZ_TAG_LOOKS.forEach(([k, label, title]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.look = k; b.textContent = label; b.title = title;
+    b.onclick = () => { t.look = k; ezTagSync(); ezTagSave(); };
+    looks.appendChild(b);
+  });
+  const pr = $('ez-tag-presets');
+  const auto = document.createElement('button');
+  auto.type = 'button'; auto.className = 'ez-tag-preset auto'; auto.dataset.g = 'auto';
+  auto.title = 'Auto: from this ad’s own colours'; auto.setAttribute('aria-label', auto.title);
+  auto.onclick = () => { t.gradient = null; ezTagSync(); ezTagSave(); };
+  pr.appendChild(auto);
+  Object.entries(TAGLINE_GRADIENTS).forEach(([k, g]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'ez-tag-preset'; b.dataset.g = k; b.title = g.name; b.setAttribute('aria-label', g.name + ' gradient');
+    b.style.background = 'linear-gradient(90deg,' + g.stops.join(',') + ')';
+    b.onclick = () => { t.gradient = k; if (!EZ_TAG_GRAD_LOOKS.has(t.look)) t.look = 'gradient'; ezTagSync(); ezTagSave(); };
+    pr.appendChild(b);
+  });
+  const ang = $('ez-tag-angle');
+  if (ang) ang.addEventListener('input', () => { t.angle = +ang.value; $('ez-tag-angle-val').textContent = t.angle + '°'; jset('pgfx_tag', t); schedEzPreview(); });
+  const seg = (id, opts, field) => {
+    const row = $(id);
+    opts.forEach(([v, label, title]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.v = v; b.textContent = label; if (title) b.title = title;
+      b.onclick = () => { t[field] = v; ezTagSync(); ezTagSave(); };
+      row.appendChild(b);
+    });
+  };
+  seg('ez-tag-outline', [['auto', 'Auto', 'What the look uses'], ['none', 'None'], ['black', 'Black'], ['white', 'White']], 'outline');
+  seg('ez-tag-effect', [['auto', 'Auto', 'What the look uses'], ['none', 'None'], ['glow', 'Glow'], ['anaglyph', 'Red & blue 3-D'], ['extrude', '3-D block']], 'effect');
+  const pats = $('ez-tag-pats');
+  if (pats){
+    let group = null;
+    Object.entries(TAGLINE_PATTERNS).forEach(([k, def]) => {
+      if (def.group !== group){ group = def.group; const g = document.createElement('div'); g.className = 'ez-tag-patgrp'; g.textContent = group; pats.appendChild(g); }
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'ez-tag-pat'; b.dataset.p = k; b.title = def.name; b.setAttribute('aria-label', def.name + ' pattern');
+      b.appendChild(document.createElement('canvas'));
+      b.onclick = () => { t.texture = k; t.look = 'pattern'; ezTagSync(); ezTagSave(); };
+      pats.appendChild(b);
+    });
+  }
+  const slide = (id, field, lo) => { const el = $(id); if (!el) return;
+    el.addEventListener('input', () => { t[field] = Math.max(lo, +el.value / 100); $(id + '-val').textContent = el.value + '%'; jset('pgfx_tag', t); schedEzPreview(); }); };
+  slide('ez-tag-pscale', 'patScale', 0.25); slide('ez-tag-px', 'patX', 0); slide('ez-tag-py', 'patY', 0);
+  const rs = $('ez-tag-patreset');
+  if (rs) rs.onclick = () => { t.patScale = 1; t.patX = 0; t.patY = 0; ezTagSync(); ezTagSave(); };
+  ezPatDragBind();
+  ezTagSync();
+}
+
+/* ═══ BADGE WORDS AND THEIR MARKS ══════════════════════════════════════════
+   Owner, 2026-09-27: "for 'ez buyer' each variation could say different things
+   like #1 BUYER or FAST BUYER or EZ BUYER or QUICK CASH or MEET NOW or
+   AVAILABLE NOW or TOP BUYER or BEST BUYER or TOP OFFER or LA, OC, IE or
+   LA / OC". The badge is a selling point with a mark that says what kind of
+   point it is: a shield for a trust claim, a bolt for speed, a tag for money,
+   a live signal for availability, a pin for where. It never repeats a word
+   of the headline beside it (TOP iPHONE BUYER + EZ BUYER reads BUYER BUYER),
+   and it wears the CTA's colour (DESIGN-LAW 69, 74). */
+ICONS.pin     = { d:'M50 90 C50 90 22 60 22 39 A28 28 0 0 1 78 39 C78 60 50 90 50 90 Z M50 29 A10 10 0 1 0 50 49 A10 10 0 1 0 50 29 Z', min:28 };
+ICONS.liveDot = { d:'M50 40 A10 10 0 1 0 50 60 A10 10 0 1 0 50 40 Z M31 29 A29 29 0 0 0 31 71 M69 29 A29 29 0 0 1 69 71 M17 16 A47 47 0 0 0 17 84 M83 16 A47 47 0 0 1 83 84', min:28 };
+const BADGE_WORDS = [
+  ['#1 BUYER', 'shieldTick'], ['TOP BUYER', 'shieldTick'], ['BEST BUYER', 'shieldTick'], ['EZ BUYER', 'shieldTick'],
+  ['FAST BUYER', 'boltFast'], ['QUICK CASH', 'boltFast'], ['TOP OFFER', 'cashTag'],
+  ['MEET NOW', 'liveDot'], ['AVAILABLE NOW', 'liveDot'], ['LA · OC · IE', 'pin'], ['LA / OC', 'pin'],
+];
+/* the badges that can sit beside a headline: no shared word */
+function badgeWordsFor(headline){
+  const words = new Set(String(headline || '').toUpperCase().split(/[^A-Z0-9#]+/).filter(w => w.length > 1));
+  return BADGE_WORDS.filter(([t]) => !t.toUpperCase().split(/[^A-Z0-9#]+/).some(w => w.length > 1 && words.has(w)));
+}
+
+/* THE LETTERS OF A LINE. A text's box carries the face's ascent and descent
+   room (a line of caps fills about 60% of it) and, with an outline, half the
+   stroke; judged by the box, a display line "left the guides" or "hit" the
+   line under it with clear air between the letters. This is the ink's own
+   rectangle, read off the pixels: the line drawn once, alone, without its
+   shadow, and cached by everything that shapes its ink. Measured from the
+   face's metrics instead, a "✓" the face does not carry (drawn from a
+   fallback font) read 22px tall where it paints 39px, and three selling-point
+   lines were let into the margin (collision audit, 2026-09-27). Rotated text
+   keeps its box. */
+function textInkRect(o){
+  let b;
+  try { o.setCoords(); b = o.getBoundingRect(true, true); } catch (e){ return null; }
+  if (!o || o.angle || !(o.type === 'i-text' || o.type === 'text' || o.type === 'textbox')) return b;
+  const I = textInkOffsets(o);
+  if (!I) return b;
+  const c = o.getCenterPoint(), sx = o.scaleX || 1, sy = o.scaleY || 1;
+  const x0 = o.flipX ? -I.x1 : I.x0, x1 = o.flipX ? -I.x0 : I.x1, y0 = o.flipY ? -I.y1 : I.y0, y1 = o.flipY ? -I.y0 : I.y1;
+  return { left: c.x + x0 * sx, top: c.y + y0 * sy, width: (x1 - x0) * sx, height: (y1 - y0) * sy };
+}
+/* the ink's extent in the object's own units, from its centre */
+function textInkOffsets(o){
+  let key;
+  try {
+    key = [o.type, o.text, o._getFontDeclaration ? o._getFontDeclaration() : o.fontFamily, o.charSpacing, typeof o.fill === 'string' ? o.fill : 'g',
+      o.stroke, o.strokeWidth, o.paintFirst, o.textAlign, o.lineHeight, o.type === 'textbox' ? o.width : '', o.styles && Object.keys(o.styles).length ? JSON.stringify(o.styles) : '',
+      o.underline, o.linethrough, o.overline].join('|');
+  } catch (e){ return null; }
+  const C = textInkOffsets.cache || (textInkOffsets.cache = new Map());
+  if (C.has(key)) return C.get(key);
+  let res = null;
+  try {
+    const cv = o.toCanvasElement({ withoutShadow: true, withoutTransform: true, enableRetinaScaling: false });
+    const w = cv.width, h = cv.height;
+    if (w > 0 && h > 0){
+      const d = cv.getContext('2d').getImageData(0, 0, w, h).data;
+      let x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (let y = 0; y < h; y++){ const row = y * w * 4; for (let x = 0; x < w; x++) if (d[row + x * 4 + 3] > 40){ if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+      if (x1 >= 0) res = { x0: x0 - w / 2, y0: y0 - h / 2, x1: x1 + 1 - w / 2, y1: y1 + 1 - h / 2 };
+    }
+  } catch (e){ res = null; }
+  if (C.size > 2000) C.clear();
+  C.set(key, res);
+  return res;
+}
+
+/* a plate that carries an icon mark as well as words (a shield-tick badge): the
+   layout passes treat it as composed, not as words to centre or a box to fit */
+function plateHoldsMark(objs, b){
+  return objs.some(o => { if (!o || o.type !== 'path' || o.visible === false) return false;
+    let r; try { o.setCoords(); r = o.getBoundingRect(true, true); } catch (e){ return false; }
+    const px = r.left + r.width / 2, py = r.top + r.height / 2;
+    return px > b.left && px < b.left + b.width && py > b.top && py < b.top + b.height; });
+}
+
+/* ═══ TALL FORMATS MOVE BLOCKS, NOT LAYERS ═════════════════════════════════
+   The square card is the design (owner: "primarily design for the square
+   format"); 3:4 and 9:16 are the same card with more height. mapSpecToDoc()
+   stretches every position and every rect's height by the extra height and
+   scales type by the short side, so a plate grew a third taller than its
+   words and they slid off its centre (a step's numeral 18px high on its
+   plate), and two headline lines 29px apart ended 80px apart
+   (audit_card.mjs, restaged stepsFlow-nn05-30, 2026-09-27).
+   A designer keeps each block rigid and gives the extra height to the space
+   between blocks. So the square layout is read back out of the stretched one,
+   clustered into blocks (anything within 3.5% of the width of something else:
+   a claim and its badge, a stack of steps, a band and the phone standing on
+   it), and each block is placed whole: a block near the top keeps its
+   distance from the top, a block at the bottom its distance from the bottom,
+   and the blocks between share the rest in proportion to the gaps they had. */
+function blockRemap(sc, W, H){
+  const sx = W / TPL_W, sy = H / TPL_H;
+  if (!(sy > sx * 1.02)) return 0;              // tall formats only; the square is untouched
+  const u = Math.min(sx, sy);
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  if (!objs.some(o => o && o.pgInk)) return 0;  // restaged, audited records first (DESIGN-LAW 76)
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const ground = o => !o || o.pgBgRect || o.pgScrim || /^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '') || (() => {
+    try { const b = o.getBoundingRect(true, true); return b.width >= W * 0.85 && b.height >= H * 0.85; } catch (e){ return true; } })();
+  const items = [];
+  objs.forEach(o => {
+    if (o.visible === false || ground(o)) return;
+    let bb; try { o.setCoords(); bb = o.getBoundingRect(true, true); } catch (e){ return; }
+    if (!bb || bb.width <= 0 || bb.height <= 0 || bb.left < -2000) return;
+    const k = o.type === 'rect' ? sy : u;          // rect heights were stretched; everything else scaled by the short side
+    // icons and circles were placed by their centre; everything else by its origin
+    const oy = (o.type === 'path' || o.type === 'circle') ? o.getCenterPoint().y : o.top;
+    const r = isText(o) && typeof textInkRect === 'function' ? textInkRect(o) : bb;
+    const sq = b => ({ left: b.left / sx, top: oy / sy + (b.top - oy) / k, width: b.width / sx, height: b.height / k });
+    items.push({ o, bb, k, box: sq(bb), key: sq(r) });
+  });
+  if (!items.length) return 0;
+  // blocks: connected by a gap of at most 3.5% of the width, in square space
+  const T = 0.035 * TPL_W;
+  const near = (a, b) => {
+    const dx = Math.max(a.left - (b.left + b.width), b.left - (a.left + a.width));
+    const dy = Math.max(a.top - (b.top + b.height), b.top - (a.top + a.height));
+    return Math.max(dx, dy) <= T;
+  };
+  const block = items.map((_, i) => i);
+  const find = i => { while (block[i] !== i) i = block[i] = block[block[i]]; return i; };
+  /* a full-width band pinned to the top or bottom edge is a block of its own
+     with what sits on it: joined to the steps through the phone standing on it,
+     the whole lower card was anchored to the bottom and every spare pixel of the
+     tall format went above the steps ("a large gap", owner, 2026-09-28) */
+  const cin = (a, b) => { const x = a.left + a.width / 2, y = a.top + a.height / 2; return x > b.left && x < b.left + b.width && y > b.top && y < b.top + b.height; };
+  const bandOf = items.map(() => -1);
+  items.forEach((it, i) => {
+    const b = it.box;
+    if (it.o.type !== 'rect' || b.width < 0.9 * TPL_W || b.height >= 0.35 * TPL_H || !(b.top <= 2 || b.top + b.height >= TPL_H - 2)) return;
+    bandOf[i] = i;
+    items.forEach((q, j) => { if (j !== i && bandOf[j] < 0 && q.o.type !== 'image' && cin(q.key, b)) bandOf[j] = i; });
+  });
+  items.forEach((it, i) => { if (bandOf[i] >= 0) block[find(i)] = find(bandOf[i]); });
+  for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++){
+    if ((bandOf[i] >= 0 || bandOf[j] >= 0) && bandOf[i] !== bandOf[j]) continue;   // a band's block takes nothing that is not on it
+    if (near(items[i].key, items[j].key)) block[find(i)] = find(j);
+  }
+  /* side by side is one row: a photo beside the steps rides with them. A
+     narrow phone (one back, not a back and front pair) left 95px between itself
+     and the plates, more than the joining gap, and was stacked above them as a
+     block of its own (2026-09-29, the Easy Mode phone picker) */
+  for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++){
+    if (bandOf[i] >= 0 || bandOf[j] >= 0 || find(i) === find(j)) continue;
+    if (items[i].o.type !== 'image' && items[j].o.type !== 'image') continue;
+    const p = items[i].key, q = items[j].key, ov = Math.min(p.top + p.height, q.top + q.height) - Math.max(p.top, q.top);
+    if (ov >= 0.5 * Math.min(p.height, q.height)) block[find(i)] = find(j);
+  }
+  /* a product that stood on such a band, now in the block above it, ends
+     where its block ends instead of hanging below the steps (never under 70%) */
+  const bands = items.filter((_, i) => bandOf[i] === i).map(it => it.box);
+  items.forEach((it, i) => {
+    if (it.o.type !== 'image' || it.o.pgRole !== 'photo' || bandOf[i] >= 0) return;
+    const foot = it.box.top + it.box.height;
+    if (!bands.some(b => foot > b.top - 10 && foot < b.top + 80)) return;
+    const mates = items.filter((q, j) => j !== i && find(j) === find(i));
+    if (!mates.length) return;
+    const bottom = Math.max(...mates.map(q => q.box.top + q.box.height));
+    if (bottom >= foot) return;
+    const k = (bottom - it.box.top) / it.box.height;
+    if (k < 0.7) return;
+    it.reseat = k;
+    it.box = { left: it.box.left + it.box.width * (1 - k) / 2, top: it.box.top, width: it.box.width * k, height: it.box.height * k };
+  });
+  const groups = new Map();
+  items.forEach((it, i) => { const g = find(i); if (!groups.has(g)) groups.set(g, []); groups.get(g).push(it); });
+  // a block's extent is its letters' (a 204px headline's box hangs ~50px under its caps) and its shapes'
+  const ext = it => it.reseat ? it.box : it.key;
+  const B = [...groups.values()].map(g => {
+    const t0 = Math.min(...g.map(it => ext(it).top)), b0 = Math.max(...g.map(it => ext(it).top + ext(it).height));
+    return { g, t0, b0, h: (b0 - t0) * u };
+  }).sort((a, b) => a.t0 - b.t0);
+  // anchors: near the top keeps its distance from the top, near the bottom from the bottom
+  B.forEach(b => {
+    if (b.t0 <= 0.14 * TPL_H) b.top = b.t0 * u;
+    else if (b.b0 >= 0.86 * TPL_H) b.top = H - (TPL_H - b.t0) * u;
+  });
+  // the blocks between two anchored ones sit centred: the free space is shared equally
+  for (let i = 0; i < B.length; i++){
+    if (B[i].top != null) continue;
+    let a = i - 1; while (a >= 0 && B[a].top == null) a--;
+    let z = i; while (z < B.length && B[z].top == null) z++;
+    const lo = a >= 0 ? B[a].top + B[a].h : 0, loSq = a >= 0 ? B[a].b0 : 0;
+    const hi = z < B.length ? B[z].top : H, hiSq = z < B.length ? B[z].t0 : TPL_H;
+    const run = B.slice(i, z), used = run.reduce((s, b) => s + b.h, 0);
+    const gaps = new Array(run.length + 1).fill(1);
+    const gsum = gaps.length, free = Math.max(0, hi - lo - used);
+    let y = lo;
+    run.forEach((b, k) => { y += free * gaps[k] / gsum; b.top = y; y += b.h; });
+    i = z - 1;
+  }
+  let moved = 0;
+  B.forEach(b => b.g.forEach(it => {
+    const o = it.o, wantTop = b.top + (it.box.top - b.t0) * u, wantH = it.box.height * u;
+    if (it.reseat){
+      const c0 = o.getCenterPoint();
+      o.set({ scaleX: (o.scaleX || 1) * it.reseat, scaleY: (o.scaleY || 1) * it.reseat }); o.setPositionByOrigin(c0, 'center', 'center'); o.setCoords();
+    }
+    if (o.type === 'rect' && Math.abs(it.bb.height - wantH) > 0.5){ o.set('height', o.height * wantH / it.bb.height); o.setCoords(); }
+    const now = o.getBoundingRect(true, true);
+    if (Math.abs(now.top - wantTop) > 0.25){ o.set('top', o.top + (wantTop - now.top)); o.setCoords(); moved++; }
+  }));
+  return moved;
+}
+
+/* where a number's letters centre on its plate: on the plate as it is SEEN
+   (a band that runs off the canvas is seen to the edge, so centred only
+   inside the guides a number read as sitting high in its cyan), as far as the
+   letters can go and stay inside the guides and the room its mates leave */
+function numberCentreY(hb, top, bot, inkH, H, G){
+  const seen = (Math.max(hb.top, 0) + Math.min(hb.top + hb.height, H)) / 2;
+  return Math.max(top + inkH / 2, Math.min(seen, bot - inkH / 2));
+}
+
+/* letters kept off a line get 3px of clearance: set exactly on the guide, a
+   line's anti-aliased edge fell a pixel inside the margin, 4% of a thin line */
+function inkClear(r){ return r ? { left: r.left - 3, top: r.top - 3, width: r.width + 6, height: r.height + 6 } : r; }
+
+/* A line is never cut by a plate's edge (DESIGN-LAW 58). Letters, not boxes
+   (rule 76) took away an accident: step 3's box-based push used to shove a
+   phone number 30px down, which happened to land it on a plate it had been
+   authored half off (scriptRetro, trustSeal); and the guides' uniform scale
+   keeps a full-bleed band pinned to its edge while the words move, so a line
+   can end a few pixels over an edge. Last of all, so nothing undoes it:
+   a line whose letters are mostly on a plate (half or more, not all) moves
+   up or down until they are all on it with air; a line that only grazes a
+   plate (a fifth or less) moves up or down just clear of it. Never sideways,
+   never onto another line, never out of the guides. */
+function linesOffEdges(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity >= 0.5);
+  const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const solid = f => f && typeof f === 'object' ? true : !!f && f !== 'transparent' && !/rgba\([^)]*,\s*0(\.[0-4]\d*)?\)\s*$/.test(String(f));
+  const lines = objs.filter(o => live(o) && isText(o) && !o.angle && !o.pgKin && /\S/.test(o.text || '') && !/marquee|ticker/i.test(o.name || ''));
+  const plates = objs.filter(o => live(o) && o.type === 'rect' && !o.angle && !o.pgBgRect && !o.pgScrim && (solid(o.fill) || (o.stroke && o.strokeWidth))
+      && !/^(BG|Scrim|Overlay)$/.test(o.name || ''))
+    .map(o => ({ o, b: bb(o) })).filter(x => x.b && x.b.width <= W + 8 && x.b.height < H * 0.6);
+  let moved = 0;
+  lines.forEach(t => {
+    const r = textInkRect(t); if (!r || r.width <= 0 || r.height <= 0) return;
+    const zo = objs.indexOf(t);
+    const over = plates.filter(p => objs.indexOf(p.o) < zo).map(p => {
+      const ix = Math.max(0, Math.min(r.left + r.width, p.b.left + p.b.width) - Math.max(r.left, p.b.left));
+      const iy = Math.max(0, Math.min(r.top + r.height, p.b.top + p.b.height) - Math.max(r.top, p.b.top));
+      return { p, f: (ix * iy) / (r.width * r.height), fx: ix / r.width };
+    }).filter(c => c.f > 0.003 && c.f < 0.995 && c.fx >= 0.5)
+      .sort((a, c) => a.p.b.width * a.p.b.height - c.p.b.width * c.p.b.height);
+    /* within 8px of an edge counts as touching it: at a feed's scale a 6px gap
+       between a chip's edge and the line under it reads as the line on the edge */
+    const near = plates.filter(p => objs.indexOf(p.o) < zo && !over.some(c => c.p === p)).map(p => {
+      const ix = Math.max(0, Math.min(r.left + r.width, p.b.left + p.b.width) - Math.max(r.left, p.b.left));
+      const gap = r.top >= p.b.top + p.b.height ? r.top - (p.b.top + p.b.height) : p.b.top >= r.top + r.height ? p.b.top - (r.top + r.height) : -1;
+      return { p, f: 0, fx: ix / r.width, gap };
+    }).filter(c => c.gap >= 0 && c.gap < 8 && c.fx >= 0.5);
+    const onto = over.find(c => c.f >= 0.5 && c.fx >= 0.98), graze = over.find(c => c.f <= 0.2) || near[0];
+    let dy = 0, k = 1;
+    if (onto){
+      /* the plate's room inside the guides; a line a little too tall for it
+         comes down to fit (never under 85%, a number never under 72px, rule 53) */
+      let P = onto.p.b, top = Math.max(P.top, G), bot = Math.min(P.top + P.height, H - G), room = bot - top;
+      /* a band pinned to the top or bottom edge grows on its inner side to hold
+         its line, when nothing is in the way: the guides' uniform scale had
+         shortened one to 71px under a 79px number */
+      if (room < r.height + 8){
+        const atBottom = P.top + P.height >= H - 2, atTop = P.top <= 2, need = r.height + 8 - room;
+        const clearOf = (y0, y1) => !lines.some(u => u !== t && (() => { const q = textInkRect(u); return q && q.top < y1 && q.top + q.height > y0 &&
+          Math.min(P.left + P.width, q.left + q.width) - Math.max(P.left, q.left) > 1; })());
+        if (atBottom && clearOf(P.top - need - 4, P.top)){
+          const o = onto.p.o; o.set({ top: o.top - need, height: o.height + need / (o.scaleY || 1) }); o.setCoords();
+          onto.p.b = P = bb(o); top = Math.max(P.top, G); room = bot - top;
+        } else if (atTop && clearOf(P.top + P.height, P.top + P.height + need + 4)){
+          const o = onto.p.o; o.set({ height: o.height + need / (o.scaleY || 1) }); o.setCoords();
+          onto.p.b = P = bb(o); bot = Math.min(P.top + P.height, H - G); room = bot - top;
+        }
+      }
+      let pad = Math.max(3, Math.min(0.12 * r.height, (room - r.height) / 2));
+      if (room < r.height + 6){
+        k = (room - 6) / r.height;
+        const fs = (t.fontSize || 40) * (t.scaleY || 1);
+        if (k < 0.85 || (t.pgRole === 'phone' && fs * k < 72)) return;
+        pad = 3;
+      }
+      const h = r.height * k, c = r.top + r.height / 2;
+      const t0 = c - h / 2;
+      if (t0 < top + pad) dy = top + pad - t0;
+      else if (t0 + h > bot - pad) dy = (bot - pad) - (t0 + h);
+      if (k !== 1){
+        const m = { left: r.left + r.width * (1 - k) / 2, top: t0 + dy, width: r.width * k, height: h };
+        if (lines.some(u => u !== t && (() => { const q = textInkRect(u); return q && Math.min(m.left + m.width, q.left + q.width) - Math.max(m.left, q.left) > 1 &&
+            Math.min(m.top + m.height, q.top + q.height) - Math.max(m.top, q.top) > 1; })())) return;
+        const pt = t.getCenterPoint();
+        t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k }); t.setPositionByOrigin(pt, 'center', 'center');
+        t.set('top', t.top + dy); t.setCoords(); moved++;
+        return;
+      }
+    } else if (graze){
+      const P = graze.p.b, cy = r.top + r.height / 2, below = cy >= P.top + P.height / 2;
+      dy = below ? (P.top + P.height + 8) - r.top : (P.top - 8) - (r.top + r.height);
+      /* blocked by the line beyond it: come down up to 8% (a number never under
+         72px) so the line clears both */
+      const beyond = lines.filter(u => u !== t).map(u => textInkRect(u)).filter(q => q && Math.min(r.left + r.width, q.left + q.width) - Math.max(r.left, q.left) > 1)
+        .filter(q => below ? q.top >= r.top + r.height - 2 : q.top + q.height <= r.top + 2)
+        .sort((a, b) => below ? a.top - b.top : (b.top + b.height) - (a.top + a.height))[0];
+      if (beyond){
+        const lo = below ? P.top + P.height + 8 : beyond.top + beyond.height + 4, hi = below ? beyond.top - 4 : P.top - 8;
+        if (hi - lo < r.height){
+          const kk = (hi - lo) / r.height, fs = (t.fontSize || 40) * (t.scaleY || 1);
+          if (kk < 0.92 || (t.pgRole === 'phone' && fs * kk < 72)) return;
+          const pt = t.getCenterPoint();
+          t.set({ scaleX: (t.scaleX || 1) * kk, scaleY: (t.scaleY || 1) * kk }); t.setPositionByOrigin(pt, 'center', 'center'); t.setCoords();
+          const r2 = textInkRect(t); t.set('top', t.top + (lo - r2.top)); t.setCoords(); moved++;
+          return;
+        }
+      }
+    }
+    if (!dy || Math.abs(dy) > 0.4 * r.height + 12) return;
+    const m = { left: r.left, top: r.top + dy, width: r.width, height: r.height };
+    if (m.top < G || m.top + m.height > H - G) return;
+    const hitLine = lines.some(u => u !== t && (() => { const q = textInkRect(u); if (!q) return false;
+      return Math.min(m.left + m.width, q.left + q.width) - Math.max(m.left, q.left) > 1 &&
+             Math.min(m.top + m.height, q.top + q.height) - Math.max(m.top, q.top) > 1; })());
+    // and it must not land across another plate's edge
+    const hitEdge = plates.some(p => p !== (onto || graze).p && objs.indexOf(p.o) < zo && (() => {
+      const ix = Math.max(0, Math.min(m.left + m.width, p.b.left + p.b.width) - Math.max(m.left, p.b.left));
+      const iy = Math.max(0, Math.min(m.top + m.height, p.b.top + p.b.height) - Math.max(m.top, p.b.top));
+      const f = (ix * iy) / (m.width * m.height); return f > 0.003 && f < 0.995; })());
+    if (hitLine || hitEdge) return;
+    t.set('top', t.top + dy); t.setCoords(); moved++;
+  });
+  return moved;
+}
+
+/* THE CLAIM READS ON ANY CROP (DESIGN-LAW 62, 68). A photograph is cropped
+   differently in every format: at 9:16 the laptop's bright rim came up behind
+   TOP iPHONE and it read 4.27:1 where the square read 20:1. When a headline
+   line reads under 4.5:1 on its photograph, a dark neutral shade fades down
+   from the top edge behind the claim, just strong enough (0.15 to 0.6) for
+   every line to pass; where it already reads, nothing is added. Audited
+   records only (rule 76). */
+function claimShade(sc, W, H){
+  const objs = sc.getObjects();
+  if (!objs.some(o => o && o.pgInk) || typeof taglineCritic !== 'function') return 0;
+  const heads = objs.filter(o => o.visible !== false && o.pgRole === 'headline' && (o.type === 'i-text' || o.type === 'textbox'));
+  if (!heads.length) return 0;
+  const weak = () => taglineCritic(sc, W, H).filter(r => r.role === 'headline' && r.q75 < 4.5);
+  if (!weak().length) return 0;
+  const bottom = Math.max(...heads.map(o => { const r = textInkRect(o); return r ? r.top + r.height : 0; }));
+  const reach = Math.min(H, bottom + 0.12 * H), fade = bottom / reach;
+  // one shade, however often it is asked for (the gallery painter and Easy Mode both call this)
+  let shade = objs.find(o => o.name === 'Claim Shade'), a0 = 0.15;
+  if (shade) a0 = (shade.pgShadeA || 0.15) + 0.05;
+  else {
+    shade = new fabric.Rect({ left: 0, top: 0, width: W, height: reach, selectable: false, evented: false, name: 'Claim Shade', pgScrim: true });
+    // just above the photograph and its scrim, under every layer of the design
+    let at = 0; objs.forEach((o, i) => { if (o.pgScrim || o.pgBgRect || /^(BG|Scrim|Overlay)$/.test(o.name || '')) at = i + 1; });
+    sc.insertAt(shade, at);
+  }
+  for (let a = a0; a <= 0.6 + 1e-9; a += 0.05){
+    shade.pgShadeA = a;
+    shade.set('fill', new fabric.Gradient({ type: 'linear', gradientUnits: 'percentage', coords: { x1: 0, y1: 0, x2: 0, y2: 1 },
+      colorStops: [{ offset: 0, color: 'rgba(8,8,10,' + a.toFixed(2) + ')' }, { offset: Math.max(0.3, Math.min(0.9, fade)), color: 'rgba(8,8,10,' + (a * 0.85).toFixed(2) + ')' }, { offset: 1, color: 'rgba(8,8,10,0)' }] }));
+    shade.dirty = true;
+    if (!weak().length) return a;
+  }
+  return 0.6;
+}
+
+/* ═══ A TALL CARD GROWS INTO WHAT THE PHOTOGRAPH LEAVES PLAIN ═════════════
+   Owner, 2026-09-28, on the 9:16: "we could enlarge the steps and possibly
+   layer the phone over top of the steps thus extending the UI … we don't split
+   text obviously but we could split something like selling points/steps and
+   the image to fill blank space."
+
+   The rule. A tall format has more height than the square design uses. The
+   photograph's SUBJECT (rows with at least half its peak detail: the keys and
+   lenses of the laptop, a lineup of phones) keeps its space. The plain rows
+   between the subject and the CTA band go to the design, not to empty
+   gradient: the list (steps, selling points) grows, one line still one line,
+   never re-wrapped, its plates widening across the card, up to 1.45x; then
+   the product stands on top of the list, layered over the first plate's empty
+   strip, never over a word. When the plain run is not much taller than the
+   content already is, nothing grows: the content stays centred (blockRemap).
+   The call and its reason are left on the scene (sc.__fill) for the audit. */
+function tallFill(sc, W, H){
+  const sx = W / TPL_W, sy = H / TPL_H;
+  if (!(sy > sx * 1.02)) return null;
+  const objs = sc.getObjects();
+  if (!objs.some(o => o && o.pgInk)) return null;
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const live = o => o && o.visible !== false && (o.opacity == null || o.opacity > 0.05);
+  const bb = o => { o.setCoords(); return o.getBoundingRect(true, true); };
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const inside = (o, b) => { const c = o.getCenterPoint(); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; };
+  const ground = o => o.pgScrim || o.pgBgRect || /^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '');
+  const band = objs.filter(o => live(o) && o.type === 'rect' && !ground(o) && bb(o).width >= W * 0.9 && bb(o).height < H * 0.35 && bb(o).top + bb(o).height >= H - 2)
+    .sort((a, b) => bb(a).top - bb(b).top)[0];
+  const prod = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo').sort((a, b) => bb(b).width * bb(b).height - bb(a).width * bb(a).height)[0];
+  const heads = objs.filter(o => live(o) && isText(o) && o.pgRole === 'headline');
+  // the list: two or more plates of one width and one left edge, each holding words
+  const cands = objs.filter(o => live(o) && o.type === 'rect' && o !== band && bb(o).width >= W * 0.3 && bb(o).width < W * 0.9 && objs.some(t => isText(t) && live(t) && inside(t, bb(o))));
+  const groups = {};
+  cands.forEach(o => { const b = bb(o), k = Math.round(b.left / 6) + ':' + Math.round(b.width / 6); (groups[k] = groups[k] || []).push(o); });
+  const plates = (Object.values(groups).sort((a, b) => b.length - a.length)[0] || []).sort((a, b) => bb(a).top - bb(b).top);
+  const why = r => (sc.__fill = r);
+  if (!band || !heads.length) return why({ decision: 'none', reason: 'no CTA band or no claim' });
+  if (plates.length < 2) return why({ decision: 'none', reason: 'no list of plates to grow' });
+  const members = objs.filter(o => live(o) && o !== band && o.type !== 'image' && (plates.includes(o) || plates.some(p => inside(o, bb(p)))));
+  // where the claim ends (headline and anything hung on it, like a badge)
+  const listTop0 = Math.min(...plates.map(p => bb(p).top));
+  const claimObjs = objs.filter(o => live(o) && !members.includes(o) && o !== prod && o !== band && !o.pgScrim && !o.pgBgRect && o.type !== 'image'
+    && !/^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '') && bb(o).top + bb(o).height < listTop0 && bb(o).width < W * 0.95);
+  const claimBot = Math.max(...claimObjs.map(o => { const r = isText(o) ? textInkRect(o) : bb(o); return r.top + r.height; }));
+  const bandTop = bb(band).top, gap = Math.round(0.03 * H);
+  // the photograph's detail, row by row (96px rows at 1920)
+  const bgi = sc.backgroundImage;
+  if (!bgi) return why({ decision: 'keep', reason: 'no photograph to read' });
+  const q = 4, cw = Math.round(W / q), ch = Math.round(H / q), cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+  { const saved = objs.map(o => o.visible), col = sc.backgroundColor; objs.forEach(o => { o.visible = false; }); sc.backgroundColor = '';
+    const el = sc.toCanvasElement(1 / q); cv.getContext('2d').drawImage(el, 0, 0, cw, ch);
+    objs.forEach((o, i) => { o.visible = saved[i]; }); sc.backgroundColor = col; }
+  const d = cv.getContext('2d').getImageData(0, 0, cw, ch).data, Lum = new Float32Array(cw * ch);
+  for (let i = 0; i < cw * ch; i++) Lum[i] = 0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2];
+  const rowH = 24, rows = [];
+  for (let y0 = 0; y0 < ch; y0 += rowH){ let s = 0, n = 0;
+    for (let y = y0; y < Math.min(ch - 1, y0 + rowH); y++) for (let x = 0; x < cw - 1; x++){ const i = y * cw + x; s += Math.abs(Lum[i + 1] - Lum[i]) + Math.abs(Lum[i + cw] - Lum[i]); n++; }
+    rows.push({ top: y0 * q, bot: Math.min(ch, y0 + rowH) * q, v: n ? s / n : 0 }); }
+  const peak = Math.max(...rows.map(r => r.v)), subject = r => r.v >= 0.5 * peak && r.v >= 3;
+  // the plain run: up from the band until the first subject row
+  const bottom = bandTop - gap;
+  let runTop = claimBot + gap;
+  rows.filter(r => r.bot > claimBot + gap && r.top < bottom).forEach(r => { if (subject(r)) runTop = Math.max(runTop, r.bot + gap / 2); });
+  const runH = bottom - runTop;
+  const Lb = { top: listTop0, bot: Math.max(...plates.map(p => bb(p).top + bb(p).height)), left: Math.min(...plates.map(p => bb(p).left)) };
+  const listH = Lb.bot - Lb.top;
+  const pb = prod ? bb(prod) : null, contentH = Math.max(listH, pb ? pb.height : 0);
+  const info = { runTop: Math.round(runTop), runH: Math.round(runH), peak: +peak.toFixed(1), rows: rows.map(r => +r.v.toFixed(1)) };
+  if (runH < contentH * 1.25){
+    /* not room to grow, but room to sit in the plain run: the content moves off
+       the photograph's subject into it (centred there) instead of centring on
+       the card over the subject's lower half with the plain run left empty */
+    const blockTop = Math.min(Lb.top, pb ? pb.top : Lb.top), blockBot = Math.max(Lb.bot, pb ? pb.top + pb.height : Lb.bot);
+    if (runH >= (blockBot - blockTop) + 8){
+      const dy = (runTop + bottom) / 2 - (blockTop + blockBot) / 2;
+      members.concat(prod ? [prod] : []).forEach(o => { o.set('top', o.top + dy); o.setCoords(); });
+      return why(Object.assign({ decision: 'fit', reason: 'the plain run (' + Math.round(runH) + 'px) holds the content (' + Math.round(blockBot - blockTop) + 'px) but not grown: it moved there, off the photograph\u2019s subject' }, info));
+    }
+    return why(Object.assign({ decision: 'centre', reason: 'the spare height is the photograph\u2019s: its plain run (' + Math.round(runH) + 'px) cannot hold the content (' + Math.round(contentH) + 'px), which stays centred' }, info));
+  }
+  // how far the words reach, relative to the list's left edge
+  const words = members.filter(isText), textRight = Math.max(...words.map(t => { const r = textInkRect(t); return r.left + r.width; })) - Lb.left;
+  const plate1 = plates[0], p1 = bb(plate1);
+  const firstInk = Math.min(...words.filter(t => inside(t, p1)).map(t => textInkRect(t).top)) - p1.top;   // plate 1's empty top strip
+  const aspect = prod ? prod.width / prod.height : 0.8;
+  const maxW = W - G - Lb.left;
+  // the list: as big as the run allows once the product has at least its own size above it, the words inside the margins
+  let best = null;
+  for (let s = 1.45; s >= 1.05; s -= 0.05){
+    if (Lb.left + textRight * s > W - G - 4) continue;
+    const lh = listH * s, overlap = Math.max(0, firstInk * s - 8) * 0.8;
+    const ph = runH - lh + overlap;                       // the product fills what is above the list
+    if (prod && ph < pb.height * 0.98) continue;          // never smaller than it was
+    const pw = Math.min(ph * aspect, W - 2 * G);
+    best = { s, lh, overlap, ph: pw / aspect, pw };
+    break;
+  }
+  /* arrangement B: the list grows in place and the product stays beside it,
+     layered over the plates' empty right ends (they run on under it), its left
+     edge clear of the longest line */
+  let beside = null;
+  if (!best && prod){
+    for (let s = 1.45; s >= 1.05; s -= 0.05){
+      const lh = listH * s; if (lh > runH) continue;
+      const room = (W - G) - (Lb.left + textRight * s + 16);
+      const ph = Math.min(lh * 1.05, runH), pw = ph * aspect;
+      const k = pw > room ? room / pw : 1;
+      if (ph * k < pb.height * 0.98) continue;
+      beside = { s, lh, ph: ph * k, pw: pw * k };
+      break;
+    }
+  }
+  if (!best && !beside){
+    // cannot grow with the words kept clear: it still sits in the plain run
+    const blockTop = Math.min(Lb.top, pb ? pb.top : Lb.top), blockBot = Math.max(Lb.bot, pb ? pb.top + pb.height : Lb.bot);
+    const dy = (runTop + bottom) / 2 - (blockTop + blockBot) / 2;
+    members.concat(prod ? [prod] : []).forEach(o => { o.set('top', o.top + dy); o.setCoords(); });
+    return why(Object.assign({ decision: 'fit', reason: 'the list and the product cannot both grow and keep their words clear: the content moved into the plain run unchanged' }, info));
+  }
+  const { s } = best || beside;
+  if (beside) best = Object.assign({ overlap: 0 }, beside);
+  // scale the list about its top-left, widen the plates to the margin, and set it on the band
+  const listBottomNew = bottom, listTopNew = listBottomNew - best.lh;
+  members.forEach(o => {
+    const b = bb(o), nl = Lb.left + (b.left - Lb.left) * s, nt = listTopNew + (b.top - Lb.top) * s;
+    if (o.type === 'rect'){ o.set({ width: o.width * s, height: o.height * s }); if (o.rx) o.set({ rx: o.rx * s, ry: (o.ry || o.rx) * s }); }
+    else o.set({ scaleX: (o.scaleX || 1) * s, scaleY: (o.scaleY || 1) * s });
+    o.setCoords(); const b2 = bb(o);
+    o.set({ left: o.left + (nl - b2.left), top: o.top + (nt - b2.top) }); o.setCoords();
+  });
+  plates.forEach(p => { const b = bb(p); const extra = (W - G - b.left) - b.width; if (extra > 0){ p.set('width', p.width + extra / (p.scaleX || 1)); p.setCoords(); } });
+  // the product stands on the list, over plate 1's empty strip, right-aligned on the margin
+  if (prod && beside){
+    const k = best.ph / pb.height;
+    prod.set({ scaleX: (prod.scaleX || 1) * k, scaleY: (prod.scaleY || 1) * k }); prod.setCoords();
+    const b = bb(prod);
+    // ends with the steps, right on the margin
+    prod.set({ left: prod.left + ((W - G - b.width) - b.left), top: prod.top + ((listBottomNew - b.height) - b.top) }); prod.setCoords();
+    sc.moveTo(prod, Math.max(...plates.map(p => sc.getObjects().indexOf(p))));
+    prod.pgLayered = true;
+  } else if (prod){
+    const k = best.ph / pb.height;
+    prod.set({ scaleX: (prod.scaleX || 1) * k, scaleY: (prod.scaleY || 1) * k }); prod.setCoords();
+    /* centred on the card and raised a tenth of the card's height off the list
+       it would have stood on (owner, 2026-09-28, on the 9:16: "can you center
+       the asset and scoot it up 10%?"): it clears the first plate's words, so
+       centring cannot put it over them. Never onto the claim: where the room
+       above runs short it comes down in size (not under 80%) to fit. */
+    let b = bb(prod), footY = listTopNew + best.overlap - 0.10 * H;
+    const ceiling = claimBot + gap;
+    if (footY - b.height < ceiling){
+      const room = footY - ceiling, kk = room / b.height;
+      if (kk >= 0.8){ prod.set({ scaleX: prod.scaleX * kk, scaleY: prod.scaleY * kk }); prod.setCoords(); b = bb(prod); }
+      else footY = ceiling + b.height;
+    }
+    footY = Math.min(footY, listTopNew - 8);                // always clear of the first plate
+    prod.set({ left: prod.left + ((W / 2 - b.width / 2) - b.left), top: prod.top + ((footY - b.height) - b.top) }); prod.setCoords();
+    prod.pgFloat = true;
+  }
+  return why(Object.assign({ decision: 'grow', arrangement: beside ? 'beside' : 'on top',
+    reason: 'the rows between the photograph\u2019s subject and the band are plain: the steps grew ' + s.toFixed(2) + 'x and the phone ' + (beside ? 'sits beside them, layered over their plates' : 'floats centred above them'), scale: +s.toFixed(2) }, info));
+}
+
+/* ═══ AESTHETIC GRADIENTS ══════════════════════════════════════════════════
+   Owner, 2026-09-27: "Can we see more color examples? Aesthetic ones", with a
+   holographic WE BUY IPHONES for reference. Sixteen more presets: the pearly,
+   oil-on-water and Y2K families next to the neon ones. The engine still
+   chooses among them for cohesion (DESIGN-LAW 75); the panel offers all. */
+Object.assign(TAGLINE_GRADIENTS, {
+  holo:        { name: 'Holographic',   stops: ['#a8edea', '#fed6e3', '#c3b1ff', '#9be7ff', '#fbc2eb'] },
+  iridescent:  { name: 'Iridescent',    stops: ['#7ef9ff', '#a18cff', '#ff8cd9', '#ffe98c'] },
+  opal:        { name: 'Opal',          stops: ['#fdfcfb', '#e2d1c3', '#c2e9fb', '#a1c4fd', '#fbc2eb'] },
+  vaporwave:   { name: 'Vaporwave',     stops: ['#ff71ce', '#01cdfe', '#05ffa1', '#b967ff'] },
+  sherbet:     { name: 'Sherbet',       stops: ['#ff9a8b', '#ff6a88', '#ff99ac', '#fcb69f'] },
+  y2k:         { name: 'Y2K chrome',    stops: ['#e6e9f0', '#8e9eab', '#ffffff', '#b8c6db', '#6d7b8d'] },
+  cottoncandy: { name: 'Cotton candy',  stops: ['#fbc2eb', '#a6c1ee'] },
+  peach:       { name: 'Peach fuzz',    stops: ['#ffbe98', '#ff9a76', '#ffd3b6'] },
+  lavender:    { name: 'Lavender haze', stops: ['#e0c3fc', '#8ec5fc'] },
+  mermaid:     { name: 'Mermaid',       stops: ['#00f5d4', '#00bbf9', '#9b5de5', '#f15bb5'] },
+  oilslick:    { name: 'Oil slick',     stops: ['#6a3df0', '#d76d77', '#ffaf7b', '#2bc0e4', '#a8ff78'] },
+  prism:       { name: 'Prism',         stops: ['#ff0080', '#ff8c00', '#ffe600', '#00ff85', '#00c3ff', '#8a2be2'] },
+  dreamsicle:  { name: 'Dreamsicle',    stops: ['#ff9966', '#ffcc99', '#fff1e6'] },
+  aqua:        { name: 'Aqua glass',    stops: ['#43e97b', '#38f9d7', '#4facfe'] },
+  ultraviolet: { name: 'Ultraviolet',   stops: ['#a24dff', '#d94dff', '#ff4fd8'] },
+  rosegold:    { name: 'Rose gold',     stops: ['#b76e79', '#f7cac9', '#e8b4b8', '#c9a0a6'] },
+});
+
+/* ═══ THE PATTERN LIBRARY ══════════════════════════════════════════════════
+   Owner, 2026-09-27: "how many patterns could we come up with just so we can
+   have them … we should be able to scale the tile up or down so we can see
+   the money larger or see more money visible or less, and … slide it around
+   in the actual editor". Thirty-six seamless tiles in five families. Each is
+   drawn in the line's OWN lightness (a light line stays light, so it still
+   reads) and the card's hue, except where the pattern is its colours (money
+   is green, zebra is black and white).
+   One sheet per card: every styled line shows the same tile, anchored to the
+   card, so the pattern runs on from one line to the next as if the words
+   were cut from one sheet, and dragging the preview slides the whole sheet.
+   opt.scale sizes the tile (0.25-3), opt.x / opt.y slide it (0-1 of a tile).
+   Seamless: a mark that crosses a tile edge is drawn on the far side too
+   (wrap) or runs past it; the field-like ones are periodic in the tile.
+   Tiles are drawn at the render's own pixel density (opt.res) and scaled
+   into the line, so a 2160px download is as sharp as the preview. */
+const TAGLINE_PATTERNS = {};
+(() => {
+  const TAU = Math.PI * 2;
+  /* size: the tile's width as a share of the claim's font size; aspect: height / width; bg: its ground */
+  const P = (key, name, group, size, draw, more) => { TAGLINE_PATTERNS[key] = Object.assign({ name, group, size, draw, aspect: 1 }, more || {}); };
+  const wrap = (x, S, H, f, n) => { n = n || 1; for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++){ x.save(); x.translate(i * S, j * H); f(); x.restore(); } };
+  const rng = seed => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const poly = (x, pts) => { x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); };
+  const star = (x, cx, cy, r, n, inner) => { x.beginPath(); for (let i = 0; i < n * 2; i++){ const a = -Math.PI / 2 + i * Math.PI / n, rr = i % 2 ? r * inner : r; x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } x.closePath(); x.fill(); };
+  const heart = (x, cx, cy, s) => { x.beginPath(); x.moveTo(cx, cy + s * 0.35); x.bezierCurveTo(cx - s * 0.6, cy - s * 0.1, cx - s * 0.35, cy - s * 0.6, cx, cy - s * 0.25); x.bezierCurveTo(cx + s * 0.35, cy - s * 0.6, cx + s * 0.6, cy - s * 0.1, cx, cy + s * 0.35); x.fill(); };
+  const rrect = (x, a, b, w, h, r) => { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); };
+  const rgb = hex => { const n = parseInt(hex.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  /* a periodic field, one colour per pixel; a smooth one is computed small and scaled up */
+  const field = (x, S, H, fn, smooth) => {
+    const k = smooth ? Math.min(1, 256 / Math.max(S, H)) : 1, w = Math.max(1, Math.round(S * k)), h = Math.max(1, Math.round(H * k));
+    const cv = k < 1 ? document.createElement('canvas') : null;
+    if (cv){ cv.width = w; cv.height = h; }
+    const y = cv ? cv.getContext('2d') : x, im = y.createImageData(w, h);
+    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++){ const c = fn(i / w, j / h), o = (j * w + i) * 4; im.data[o] = c[0]; im.data[o + 1] = c[1]; im.data[o + 2] = c[2]; im.data[o + 3] = 255; }
+    y.putImageData(im, 0, 0);
+    if (cv){ x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(cv, 0, 0, S, H); }
+  };
+
+  // ── geometric
+  P('stripes', 'Stripes', 'Geometric', 0.36, (x, S, C) => {        // 45°, two to a tile, the ink half the period
+    x.strokeStyle = C.ink; x.lineWidth = S / (4 * Math.SQRT2);
+    for (let c = -S / 2; c <= 2.5 * S; c += S / 2){ x.beginPath(); x.moveTo(c + S, -S); x.lineTo(c - 2 * S, 2 * S); x.stroke(); } });
+  P('pinstripe', 'Pinstripe', 'Geometric', 0.18, (x, S, C, H) => { x.fillStyle = C.ink; x.fillRect(Math.round(S * 0.45), 0, Math.max(1, S * 0.09), H); });
+  P('bands', 'Bands', 'Geometric', 0.34, (x, S, C) => { x.fillStyle = C.ink; x.fillRect(0, S / 2, S, S / 2); });
+  P('dots', 'Polka dots', 'Geometric', 0.22, (x, S, C) => { x.fillStyle = C.ink; [[S / 4, S / 4], [3 * S / 4, 3 * S / 4]].forEach(([a, b]) => { x.beginPath(); x.arc(a, b, S * 0.17, 0, TAU); x.fill(); }); });
+  P('halftone', 'Halftone', 'Geometric', 0.3, (x, S, C) => { x.fillStyle = C.ink; const n = 4;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++){ const r = S / n * 0.5 * (0.25 + 0.75 * Math.abs(Math.sin((i + j) / (2 * n) * TAU))); x.beginPath(); x.arc((i + 0.5) * S / n, (j + 0.5) * S / n, r, 0, TAU); x.fill(); } });
+  P('checker', 'Checker', 'Geometric', 0.3, (x, S, C) => { x.fillStyle = C.ink; x.fillRect(0, 0, S / 2, S / 2); x.fillRect(S / 2, S / 2, S / 2, S / 2); });
+  P('gingham', 'Gingham', 'Geometric', 0.32, (x, S, C) => { x.globalAlpha = 0.55; x.fillStyle = C.ink; x.fillRect(0, 0, S / 2, S); x.fillRect(0, 0, S, S / 2); x.globalAlpha = 1; });
+  P('plaid', 'Plaid', 'Geometric', 0.6, (x, S, C) => { x.globalAlpha = 0.5; x.fillStyle = C.ink; x.fillRect(S * 0.1, 0, S * 0.3, S); x.fillRect(0, S * 0.1, S, S * 0.3);
+    x.fillStyle = C.ink2; x.fillRect(S * 0.62, 0, S * 0.06, S); x.fillRect(0, S * 0.62, S, S * 0.06); x.globalAlpha = 1; });
+  P('chevron', 'Chevron', 'Geometric', 0.36, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = S * 0.16; x.lineJoin = 'miter';
+    for (const y0 of [-S / 2, 0, S / 2, S]){ poly(x, [[-S / 2, y0], [0, y0 + S / 2], [S / 2, y0], [S, y0 + S / 2], [1.5 * S, y0]]); x.stroke(); } });
+  P('zigzag', 'Zigzag', 'Geometric', 0.3, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.07); x.lineJoin = 'miter';
+    for (const y0 of [S * 0.3, S * 0.8]){ const pts = []; for (let i = -1; i <= 5; i++) pts.push([i * S / 4, i % 2 ? y0 - S * 0.12 : y0]); poly(x, pts); x.stroke(); } });
+  P('argyle', 'Argyle', 'Geometric', 0.5, (x, S, C, H) => { x.fillStyle = C.ink; poly(x, [[S / 2, 0], [S, H / 2], [S / 2, H], [0, H / 2]]); x.closePath(); x.fill();
+    x.strokeStyle = C.ink2; x.lineWidth = Math.max(1, S * 0.025); wrap(x, S, H, () => { x.beginPath(); x.moveTo(0, 0); x.lineTo(S, H); x.moveTo(S, 0); x.lineTo(0, H); x.stroke(); }); }, { aspect: 1.4 });
+  P('honeycomb', 'Honeycomb', 'Geometric', 0.34, (x, S, C, H) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.07); x.lineJoin = 'round';
+    const r = S / Math.sqrt(3), hex = (cx, cy) => { x.beginPath(); for (let i = 0; i < 6; i++){ const a = Math.PI / 6 + i * Math.PI / 3; x.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a)); } x.closePath(); x.stroke(); };
+    wrap(x, S, H, () => { hex(0, 0); hex(S / 2, H / 2); }); }, { aspect: Math.sqrt(3) });
+  P('triangles', 'Triangles', 'Geometric', 0.34, (x, S, C) => { x.fillStyle = C.ink; x.beginPath(); x.moveTo(0, S / 2); x.lineTo(S / 4, 0); x.lineTo(S / 2, S / 2); x.closePath();
+    x.moveTo(S / 2, S); x.lineTo(3 * S / 4, S / 2); x.lineTo(S, S); x.closePath(); x.fill(); });
+  P('bricks', 'Bricks', 'Geometric', 0.44, (x, S, C) => { x.fillStyle = C.ink; const w = Math.max(1.5, S * 0.06);
+    wrap(x, S, S, () => { x.fillRect(0, -w / 2, S, w); x.fillRect(0, S / 2 - w / 2, S, w); x.fillRect(-w / 2, 0, w, S / 2); x.fillRect(S / 2 - w / 2, S / 2, w, S / 2); }); });
+  P('grid', 'Grid', 'Geometric', 0.28, (x, S, C) => { x.fillStyle = C.ink; const w = Math.max(1.5, S * 0.07); wrap(x, S, S, () => { x.fillRect(0, -w / 2, S, w); x.fillRect(-w / 2, 0, w, S); }); });
+  P('waves', 'Waves', 'Geometric', 0.4, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.09); x.lineJoin = 'round';
+    for (const y0 of [S * 0.25, S * 0.75]){ x.beginPath(); for (let i = -Math.ceil(S * 0.15); i <= Math.ceil(S * 1.15); i++) x.lineTo(i, y0 + Math.sin(i / S * TAU) * S * 0.1); x.stroke(); } });
+
+  // ── themed
+  P('money', 'Money signs', 'Themed', 0.52, (x, S, C) => { x.fillStyle = C.money; x.font = '800 ' + Math.round(S * 0.62) + 'px "Satoshi", "Arial Black", sans-serif';
+    x.textAlign = 'center'; x.textBaseline = 'middle'; wrap(x, S, S, () => { x.fillText('$', S * 0.25, S * 0.28); x.fillText('$', S * 0.75, S * 0.78); }); }, { bg: C => C.moneyBase });
+  P('stars', 'Stars', 'Themed', 0.42, (x, S, C) => { x.fillStyle = C.ink; star(x, S * 0.25, S * 0.28, S * 0.17, 5, 0.45); star(x, S * 0.75, S * 0.78, S * 0.17, 5, 0.45); });
+  P('sparkles', 'Sparkles', 'Themed', 0.42, (x, S, C) => { x.fillStyle = C.ink; star(x, S * 0.28, S * 0.3, S * 0.2, 4, 0.22); star(x, S * 0.76, S * 0.74, S * 0.12, 4, 0.22); });
+  P('hearts', 'Hearts', 'Themed', 0.42, (x, S, C) => { x.fillStyle = C.ink; wrap(x, S, S, () => { heart(x, S * 0.27, S * 0.3, S * 0.34); heart(x, S * 0.77, S * 0.8, S * 0.34); }); });
+  P('bolts', 'Bolts', 'Themed', 0.44, (x, S, C) => { x.fillStyle = C.ink;
+    const bolt = (cx, cy, s) => { poly(x, [[0.1, -0.5], [-0.25, 0.05], [0, 0.05], [-0.1, 0.5], [0.25, -0.05], [0, -0.05]].map(([a, b]) => [cx + a * s, cy + b * s])); x.closePath(); x.fill(); };
+    bolt(S * 0.27, S * 0.3, S * 0.42); bolt(S * 0.77, S * 0.8, S * 0.42); });
+  P('confetti', 'Confetti', 'Themed', 0.7, (x, S, C) => { const r = rng(4241), cols = [C.ink, C.ink2, C.ink3, C.money];
+    for (let i = 0; i < 26; i++){ const cx = r() * S, cy = r() * S, a = r() * Math.PI, c = cols[i % cols.length];
+      wrap(x, S, S, () => { x.save(); x.translate(cx, cy); x.rotate(a); x.fillStyle = c; x.fillRect(-S * 0.045, -S * 0.015, S * 0.09, S * 0.03); x.restore(); }); } });
+  P('phones', 'Phones', 'Themed', 0.44, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.035);
+    const ph = (cx, cy) => { const w = S * 0.18, h = S * 0.34; rrect(x, cx - w / 2, cy - h / 2, w, h, w * 0.25); x.stroke(); x.beginPath(); x.moveTo(cx - w * 0.2, cy - h * 0.38); x.lineTo(cx + w * 0.2, cy - h * 0.38); x.stroke(); };
+    ph(S * 0.27, S * 0.3); ph(S * 0.77, S * 0.8); });
+
+  // ── material
+  P('carbon', 'Carbon fibre', 'Material', 0.2, (x, S, C) => { const g = (x0, y0, w, h, v) => { const gr = v ? x.createLinearGradient(x0, y0, x0 + w, y0) : x.createLinearGradient(x0, y0, x0, y0 + h);
+    gr.addColorStop(0, C.ink); gr.addColorStop(0.5, C.base); gr.addColorStop(1, C.ink); x.fillStyle = gr; x.fillRect(x0, y0, w, h); };
+    g(0, 0, S / 2, S / 2, true); g(S / 2, 0, S / 2, S / 2, false); g(0, S / 2, S / 2, S / 2, false); g(S / 2, S / 2, S / 2, S / 2, true); });
+  P('brushed', 'Brushed metal', 'Material', 0.9, (x, S, C) => { const r = rng(9001); for (let y = 0; y < S; y++){ x.globalAlpha = 0.05 + r() * 0.12; x.fillStyle = r() < 0.5 ? C.ink : '#ffffff'; x.fillRect(0, y, S, 1); } x.globalAlpha = 1; });
+  P('glitter', 'Glitter', 'Material', 0.5, (x, S, C) => { const r = rng(777);
+    for (let i = 0; i < 90; i++){ const cx = r() * S, cy = r() * S, s = S * (0.008 + r() * 0.02); x.fillStyle = i % 3 ? C.ink : (C.light ? '#ffffff' : C.ink2); wrap(x, S, S, () => { x.beginPath(); x.arc(cx, cy, s, 0, TAU); x.fill(); }); } });
+  P('circuit', 'Circuit', 'Material', 0.6, (x, S, C) => { x.strokeStyle = C.ink; x.fillStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.03); x.lineJoin = 'round';
+    const pad = ([a, b]) => { x.beginPath(); x.arc(a * S, b * S, Math.max(2, S * 0.035), 0, TAU); x.fill(); };
+    const trace = (pts, a, b) => { poly(x, pts.map(([u, v]) => [u * S, v * S])); x.stroke(); if (a) pad(pts[0]); if (b) pad(pts[pts.length - 1]); };
+    // every trace that leaves an edge comes back in on the opposite edge at the same place
+    trace([[0, 0.2], [0.35, 0.2], [0.5, 0.35], [0.5, 0.55]], false, true); trace([[1, 0.2], [0.8, 0.2], [0.8, 0.45]], false, true);
+    trace([[0.65, 0], [0.65, 0.1], [0.9, 0.1]], false, true); trace([[0.65, 1], [0.65, 0.9], [0.75, 0.8], [1, 0.8]], false, false);
+    trace([[0, 0.8], [0.2, 0.8], [0.3, 0.7]], false, true); trace([[0.3, 0.42], [0.15, 0.57], [0.15, 0.66]], true, true);
+    trace([[0.4, 1], [0.4, 0.88]], false, true); trace([[0.4, 0], [0.4, 0.06]], false, true); });
+  P('scales', 'Scales', 'Material', 0.3, (x, S, C) => { x.strokeStyle = C.ink; x.lineWidth = Math.max(1.5, S * 0.06);
+    const arc = (cx, cy) => { x.beginPath(); x.arc(cx, cy, S / 2, 0, Math.PI); x.stroke(); }; wrap(x, S, S, () => { arc(S / 2, 0); arc(0, S / 2); arc(S, S / 2); }); });
+  P('marble', 'Marble', 'Material', 1.0, (x, S, C, H) => { const a = rgb(C.light ? '#f4f2ef' : '#2a2a2e'), b = rgb(C.light ? '#8f8f98' : '#c4c4cc');
+    field(x, S, H, (u, v) => { const t = Math.abs(Math.sin(TAU * (u * 2 + v) + 2.2 * Math.sin(TAU * (u + v * 2)) + 0.9 * Math.sin(TAU * (u * 3 - v)))); return mix(a, b, Math.pow(1 - t, 6)); }, true); });
+
+  // ── animal
+  P('leopard', 'Leopard', 'Animal', 0.9, (x, S, C) => { const r = rng(1313);
+    for (let i = 0; i < 16; i++){ const cx = r() * S, cy = r() * S, s = S * (0.05 + r() * 0.04), a = r() * TAU;
+      wrap(x, S, S, () => { x.save(); x.translate(cx, cy); x.rotate(a); x.fillStyle = C.leo2; x.beginPath(); x.ellipse(0, 0, s * 1.3, s, 0, 0, TAU); x.fill();
+        x.strokeStyle = '#1a120b'; x.lineWidth = s * 0.45; x.beginPath(); x.arc(0, 0, s * 1.25, 0.3, 2.2); x.stroke(); x.beginPath(); x.arc(0, 0, s * 1.25, 3.3, 5.0); x.stroke(); x.restore(); }); } },
+    { bg: C => C.leo1 });
+  P('zebra', 'Zebra', 'Animal', 0.8, (x, S, C, H) => { field(x, S, H, (u, v) => { const t = Math.sin((u * 3 + Math.sin(v * TAU) * 0.35 + Math.sin(u * TAU * 2) * 0.08) * TAU); return t > 0.1 ? [245, 245, 240] : [18, 18, 20]; }); });
+  P('tiger', 'Tiger', 'Animal', 0.8, (x, S, C, H) => { const o = rgb(C.tiger);
+    /* wavy near-vertical stripes, three to a tile, that taper and break as the threshold drifts down the tile */
+    field(x, S, H, (u, v) => { const s = Math.sin(TAU * (u * 3 + 0.22 * Math.sin(TAU * (v * 2 + u)) + 0.08 * Math.sin(TAU * v * 5) + 0.1 * Math.sin(TAU * (v + u * 2))));
+      const th = 0.5 + 0.62 * Math.sin(TAU * (v * 2 - u * 3)) * Math.cos(TAU * (v + u)); return s > th ? [22, 16, 12] : o; }); });
+  P('camo', 'Camo', 'Animal', 0.9, (x, S, C, H) => { const cols = [[74, 83, 54], [110, 116, 76], [46, 50, 36], [140, 130, 92]];
+    field(x, S, H, (u, v) => { const n = Math.sin(TAU * (u * 2 + v)) + Math.sin(TAU * (v * 3 - u)) * 0.8 + Math.sin(TAU * (u * 5 + v * 2)) * 0.4; return cols[Math.max(0, Math.min(3, Math.floor((n + 2.2) / 1.1)))]; }); });
+
+  // ── street
+  P('tiedye', 'Tie-dye', 'Street', 1.0, (x, S, C, H) => { const L = C.light ? 0.82 : 0.5, lut = [];
+    for (let d = 0; d < 360; d += 2) lut.push(rgb(oklchFit({ L, C: 0.15, h: (d + C.h0) % 360 })));
+    field(x, S, H, (u, v) => { const t = (Math.sin(TAU * (u + v)) + Math.sin(TAU * (u * 2 - v)) + Math.sin(TAU * (v * 2 + u))) / 3; return lut[Math.floor((t + 1) * 90) % 180]; }, true); });
+  P('grunge', 'Grunge', 'Street', 0.9, (x, S, C) => { const r = rng(2025); x.fillStyle = C.ink;
+    for (let i = 0; i < 140; i++){ const cx = r() * S, cy = r() * S, s = S * (0.003 + r() * 0.012), a = 0.4 + r() * 0.5, w = s * (1 + r() * 5);
+      x.globalAlpha = a; wrap(x, S, S, () => x.fillRect(cx, cy, w, s)); } x.globalAlpha = 1; });
+  P('cracked', 'Cracked', 'Street', 2.4, (x, S, C) => { const r = rng(7919), segs = [];
+    const crack = (px, py, ang, len, w, depth) => { const pts = [[px, py]]; let cx = px, cy = py;
+      for (let s = 0; s < 6; s++){ ang += (r() - 0.5) * 0.9; cx += Math.cos(ang) * len / 6; cy += Math.sin(ang) * len / 6; pts.push([cx, cy]); }
+      segs.push({ pts, w });
+      if (depth < 2) for (let b = 0; b < 2; b++) if (r() < 0.7) crack(px + (cx - px) * r(), py + (cy - py) * r(), ang + (r() - 0.5) * 2.2, len * 0.55, w * 0.6, depth + 1); };
+    for (let k = 0; k < 7; k++) crack(r() * S, r() * S, r() * TAU, S * (0.35 + r() * 0.3), Math.max(1.5, S * 0.015), 0);
+    x.strokeStyle = C.light ? 'rgba(10,10,12,0.85)' : 'rgba(255,255,255,0.8)'; x.lineCap = 'round'; x.lineJoin = 'round';
+    wrap(x, S, S, () => segs.forEach(g => { x.lineWidth = g.w; poly(x, g.pts); x.stroke(); }), 2); });
+})();
+/* the names older looks and saved choices used */
+const PATTERN_ALIAS = { cash: 'money' };
+const PATTERN_XFORM = (() => { try { const c = document.createElement('canvas'); c.width = c.height = 1;
+  const p = c.getContext('2d').createPattern(c, 'repeat'); return !!(p && p.setTransform && typeof DOMMatrix === 'function'); } catch (e){ return false; } })();
+/* a pattern's colours at a line's lightness TL (light: the line reads light) in the card's hue h0 */
+function taglinePatternColours(TL, light, h0){
+  const at = (L, C, h) => oklchFit({ L: Math.max(0.05, Math.min(0.98, L)), C, h: ((h % 360) + 360) % 360 });
+  return { light, TL, h0, base: at(TL, 0.08, h0), ink: at(light ? TL - 0.24 : TL + 0.24, 0.17, h0),
+    ink2: at(light ? TL - 0.2 : TL + 0.2, 0.17, h0 + 70), ink3: at(light ? TL - 0.2 : TL + 0.2, 0.17, h0 - 70),
+    money: at(light ? 0.5 : 0.78, 0.16, 150), moneyBase: at(light ? Math.max(TL, 0.86) : Math.min(TL, 0.34), 0.06, 150),
+    leo1: at(light ? 0.78 : 0.62, 0.11, 70), leo2: at(light ? 0.55 : 0.42, 0.1, 55), tiger: at(light ? 0.72 : 0.64, 0.17, 55) };
+}
+function taglinePatternDef(kind){ return TAGLINE_PATTERNS[PATTERN_ALIAS[kind] || kind] || TAGLINE_PATTERNS.stripes; }
+/* one tile, S px wide */
+function taglinePatternTile(kind, S, C){
+  const def = taglinePatternDef(kind), H = Math.max(1, Math.round(S * def.aspect)), cv = document.createElement('canvas');
+  cv.width = S; cv.height = H;
+  const x = cv.getContext('2d');
+  x.fillStyle = def.bg ? def.bg(C) : C.base; x.fillRect(0, 0, S, H);
+  try { def.draw(x, S, C, H); } catch (e){ console.warn('GraphicsStudio pattern ' + kind + ':', e); }
+  return cv;
+}
+/* the fill for one line. fs: the sheet's font size (the claim's, design px);
+   opt: scale, x, y (the slide), res (render px per design px), obj (the line,
+   so the sheet is anchored to the card), memo (tiles shared across lines) */
+function taglinePattern(kind, TL, light, h0, fs, opt){
+  opt = opt || {};
+  const def = taglinePatternDef(kind);
+  const scale = Math.max(0.25, Math.min(3, +opt.scale || 1));
+  const Sd = Math.max(8, fs * def.size * scale);                                  // one tile on the card, design px
+  const o = opt.obj, sX = o ? Math.abs(o.scaleX || 1) : 1, sY = o ? Math.abs(o.scaleY || 1) : 1;
+  const res = PATTERN_XFORM ? Math.max(0.25, Math.min(3, +opt.res || 1)) : 1 / sX;
+  const Spx = Math.max(8, Math.min(2048, Math.round(Sd * res)));                   // …as drawn, at the render's density
+  const C = taglinePatternColours(TL, light, h0), memo = opt.memo || {};
+  const key = [kind, Spx, C.base, C.ink, C.light].join('|');
+  const cv = memo[key] || (memo[key] = taglinePatternTile(kind, Spx, C));
+  const kx = PATTERN_XFORM ? Sd / sX / Spx : 1, ky = PATTERN_XFORM ? Sd / sY / Spx : 1;   // tile px → the line's own units
+  const Pw = cv.width * kx, Ph = cv.height * ky;                                   // one period in the line's units
+  const mod = (v, m) => ((v % m) + m) % m;
+  let ox = mod(+opt.x || 0, 1), oy = mod(+opt.y || 0, 1);
+  const p = new fabric.Pattern({ source: cv, repeat: 'repeat', offsetX: ox * Pw, offsetY: oy * Ph });
+  /* the tile's corner at the same place on the card for every line: fabric
+     starts a text's pattern at its top-left plus the offset */
+  p.pgAnchor = q => {
+    if (!q || q.angle) return;
+    const c = q.getCenterPoint();
+    p.offsetX = mod((ox * Pw * sX - c.x) / sX + q.width / 2, Pw);
+    p.offsetY = mod((oy * Ph * sY - c.y) / sY + q.height / 2, Ph);
+  };
+  p.pgAnchor(o);
+  p.pgSlide = (x, y, q) => { ox = mod(+x || 0, 1); oy = mod(+y || 0, 1); if (q && !q.angle) p.pgAnchor(q); else { p.offsetX = ox * Pw; p.offsetY = oy * Ph; } };
+  if (kx !== 1 || ky !== 1){
+    const m = [kx, 0, 0, ky, 0, 0];
+    p.toLive = function(ctx){ const pat = ctx.createPattern(this.source, this.repeat); if (pat) pat.setTransform(new DOMMatrix(m)); return pat; };
+  }
+  p.pgTile = { w: Pw * sX, h: Ph * sY };                                          // for the preview's drag
+  return p;
+}
+
+/* ═══ PHONE SWAP IN EASY MODE ══════════════════════════════════════════════
+   Owner, 2026-09-27: "if these were real graphics, we would want to be able to
+   switch the phones out like we can with the video engine, randomize the
+   phones, or recommended phones which are popular models, like 18 or 17 Pro
+   Max to maximize profits". A card whose product is a phone from the device
+   catalog (assets/cutouts/devices.json) can wear any other phone in it: the
+   popular high-value models first, every factory photo from the shop's own
+   catalog after them, a Surprise me among the popular ones, and As designed.
+   Only factory photos are offered (DESIGN-LAW 73: never a re-skin, never a
+   mirror). The new photo is fitted to the old one's box and re-seated by its
+   INK: its foot where the old phone's foot stood, its centre where the old
+   phone's centre was, whatever transparent margin each photo carries. */
+let PHONE_CATALOG = null;
+const PHONE_INK = {};
+ez.phonePick = jget('pgfx_phonepick', null);
+const devKey = src => String(src || '').split('?')[0];
+function loadPhoneCatalog(){
+  if (loadPhoneCatalog._p) return loadPhoneCatalog._p;
+  return (loadPhoneCatalog._p = fetch('assets/cutouts/devices.json').then(r => r.json()).then(j => { PHONE_CATALOG = j.devices || {}; return PHONE_CATALOG; })
+    .catch(() => { PHONE_CATALOG = {}; return PHONE_CATALOG; }));
+}
+/* the phones the picker and the engine may use: factory photos from the shop's catalog */
+function phonePool(){
+  return Object.entries(PHONE_CATALOG || {}).filter(([, d]) => d.authentic !== false && /^quote-site/.test(d.source || ''))
+    .map(([src, d]) => Object.assign({ src }, d))
+    .sort((a, b) => (b.recommended ? 1 : 0) - (a.recommended ? 1 : 0) || (a.rank == null ? 99 : a.rank) - (b.rank == null ? 99 : b.rank) || String(a.model).localeCompare(String(b.model)));
+}
+/* where a photo's ink sits, as fractions of its width and height */
+function cutoutInk(el){
+  const k = el && (el.currentSrc || el.src);
+  if (!el || !el.width) return { x0: 0, y0: 0, x1: 1, y1: 1 };
+  if (PHONE_INK[k]) return PHONE_INK[k];
+  const s = Math.min(1, 256 / Math.max(el.width, el.height)), w = Math.max(1, Math.round(el.width * s)), h = Math.max(1, Math.round(el.height * s));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(el, 0, 0, w, h);
+  let d; try { d = x.getImageData(0, 0, w, h).data; } catch (e){ return (PHONE_INK[k] = { x0: 0, y0: 0, x1: 1, y1: 1 }); }
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) if (d[(j * w + i) * 4 + 3] > 40){ if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j; }
+  return (PHONE_INK[k] = x1 < 0 ? { x0: 0, y0: 0, x1: 1, y1: 1 } : { x0: x0 / w, y0: y0 / h, x1: (x1 + 1) / w, y1: (y1 + 1) / h });
+}
+/* the card's phone layer, when its photo is one of the catalog's phones */
+function ezPhoneLayer(tpl){
+  if (!PHONE_CATALOG || !tpl) return null;
+  return (tpl.layers || []).find(l => l.kind === 'cutout' && l.name === 'Product' && l.props && PHONE_CATALOG[devKey(l.props.src)]) || null;
+}
+function ezLoadCutout(src){
+  if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return Promise.resolve(CUTOUT_ELS[src]);
+  return new Promise(res => { const el = new Image(); el.onload = () => { CUTOUT_ELS[src] = el; res(el); }; el.onerror = () => res(null); el.src = src; });
+}
+/* the layer as it renders with the chosen phone: same box, re-seated by ink */
+function ezPhoneSwap(tpl){
+  const src = ez.phonePick, l = src && ezPhoneLayer(tpl);
+  if (!l || devKey(l.props.src) === src) return null;
+  const elN = CUTOUT_ELS[src], elO = CUTOUT_ELS[l.props.src];
+  if (!elN || !elN.width){ ezLoadCutout(src).then(el => { if (el) schedEzPreview(0); }); return null; }
+  const p = Object.assign({}, l.props, { src, flipX: false });
+  if (elO && elO.width){
+    const fit = el => Math.min((l.props.w || 420) / el.width, l.props.maxH ? l.props.maxH / el.height : Infinity);
+    const sO = fit(elO), sN = fit(elN), iO = cutoutInk(elO), iN = cutoutInk(elN);
+    const oy = p.originY || 'top', ox = p.originX || 'left';
+    if (oy === 'bottom') p.top = l.props.top - (1 - iO.y1) * elO.height * sO + (1 - iN.y1) * elN.height * sN;
+    else if (oy === 'top') p.top = l.props.top + iO.y0 * elO.height * sO - iN.y0 * elN.height * sN;
+    if (ox === 'center') p.left = l.props.left + ((iO.x0 + iO.x1) / 2 - 0.5) * elO.width * sO - ((iN.x0 + iN.x1) / 2 - 0.5) * elN.width * sN;
+    else if (ox === 'left') p.left = l.props.left + iO.x0 * elO.width * sO - iN.x0 * elN.width * sN;
+  }
+  return { from: l, layer: Object.assign({}, l, { props: p }) };
+}
+function ezPhonePickSave(){ jset('pgfx_phonepick', ez.phonePick); ezPhonePickSync(); schedEzPreview(0); }
+function ezPhonePickChip(d){
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'ez-phonepick-item'; b.dataset.src = d.src;
+  const name = String(d.model).replace(/^iPhone /, '') + (d.color && d.color !== 'as pictured' ? ' ' + d.color : '');
+  b.title = d.model + (d.color && d.color !== 'as pictured' ? ', ' + d.color : '') + (d.verify ? '. Newest model: check the photo against Apple before you post.' : '');
+  b.setAttribute('aria-label', b.title);
+  const im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.decoding = 'async'; im.src = d.src; im.draggable = false;
+  const t = document.createElement('span'); t.textContent = name;
+  b.append(im, t);
+  b.onclick = () => { ez.phonePick = d.src; ezLoadCutout(d.src).then(ezPhonePickSave); };
+  return b;
+}
+function buildEzPhonePick(){
+  const box = $('ez-phonepick');
+  if (!box || box.dataset.built) return;
+  box.dataset.built = '1';
+  loadPhoneCatalog().then(() => {
+    const pool = phonePool(), top = pool.filter(d => d.recommended), rest = pool.filter(d => !d.recommended);
+    top.forEach(d => box.appendChild(ezPhonePickChip(d)));
+    const more = $('ez-phonepick-more');
+    if (more){
+      const series = d => (String(d.model).match(/iPhone (\d+|X[RS]?)/) || [, 'Other'])[1];
+      let g = null;
+      rest.sort((a, b) => (parseInt(series(b)) || 0) - (parseInt(series(a)) || 0) || String(a.model).localeCompare(String(b.model)))
+        .forEach(d => { const s = series(d); if (s !== g){ g = s; const h = document.createElement('div'); h.className = 'ez-phonepick-grp'; h.textContent = 'iPhone ' + s; more.appendChild(h); } more.appendChild(ezPhonePickChip(d)); });
+    }
+    const sp = $('ez-phonepick-surprise');
+    if (sp) sp.onclick = () => { const cur = ez.phonePick || devKey((ezPhoneLayer(ezTpl()) || { props: {} }).props.src);
+      const pick = top.filter(d => d.src !== cur); if (!pick.length) return;
+      ez.phonePick = pick[Math.floor(Math.random() * pick.length)].src; ezLoadCutout(ez.phonePick).then(ezPhonePickSave); };
+    const mb = $('ez-phonepick-toggle');
+    if (mb) mb.onclick = () => { const m = $('ez-phonepick-more'); m.hidden = !m.hidden; mb.textContent = m.hidden ? 'More models' : 'Fewer models'; mb.setAttribute('aria-expanded', m.hidden ? 'false' : 'true'); };
+    const rs = $('ez-phonepick-reset');
+    if (rs) rs.onclick = () => { ez.phonePick = null; ezPhonePickSave(); };
+    ezPhonePickSync();
+    if (ez.phonePick) ezLoadCutout(ez.phonePick).then(() => schedEzPreview(0));   // a phone picked last visit
+  });
+}
+/* the field shows on a card whose product is a catalog phone; the chip in use is marked */
+function ezPhonePickSync(){
+  const f = $('ez-phonepick-field');
+  if (!f) return;
+  const l = typeof ezTpl === 'function' && ezPhoneLayer(ezTpl());
+  f.hidden = !l;
+  if (!l) return;
+  const cur = ez.phonePick || devKey(l.props.src);
+  document.querySelectorAll('#ez-phonepick-field .ez-phonepick-item').forEach(b => { const on = b.dataset.src === cur; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  const rs = $('ez-phonepick-reset'); if (rs) rs.disabled = !ez.phonePick;
 }
 
 /* ═══ TAGLINE STYLE: ONE CHOICE FOR EVERY TEMPLATE ═══════════════════════════
@@ -12554,28 +14126,30 @@ function taglineStyle(sc, mode, pal, W, H, as){
    have logic that only applies to one type of ad or worse, one type of
    category only".
 
-   So a tagline style is one choice, kept for the visitor (pgfx_tagline), that
-   holds for every template in every family (the classics, designer, street,
-   showcase and offer cards) and every category. It is applied where the
-   pictures come from, never per family:
-   - renderEzCanvas(): Easy Mode's preview, every download, the category pack
-     and the video, which animates that same scene (MOTION);
-   - the editor's canvas: loadTemplate(), the hand-off from Easy Mode, and the
-     editor's own Tagline style row, which can switch styles on a canvas that
-     has been edited (taglineReset puts the designed paint back first).
+   So a tagline look is one choice, kept for the visitor (ez.tag, pgfx_tag:
+   the look and the panel's gradient, angle, outline, effect and pattern),
+   that holds for every template in every family (the classics, designer,
+   street, showcase and offer cards) and every category. It is applied where
+   the pictures come from, never per family:
+   - renderEzCanvas() through ezApplyTagline(): Easy Mode's preview, every
+     download, the category pack and the video, which animates that same scene
+     (MOTION);
+   - the editor's canvas: loadTemplate(), the hand-off from Easy Mode, Enhance
+     and the editor's own Tagline style row, which can switch looks on a
+     canvas that has been edited (taglineReset puts the designed paint back
+     first);
+   - the gallery painter, for a card that carries a look of its own.
    The colours are the card's own (tplPalette): a theme the visitor picked,
    else the family's palette, else the scene's most colourful ink, else the
    owner's reference sweep (orange into yellow). */
-const TAGLINE_STYLES = [
-  ['solid', 'As designed'], ['street', 'Street'], ['gradient', 'Gradient'],
-  ['blocks', 'Blocks'], ['pair', 'Pair'], ['outline', 'Outline'],
-];
 const TAG_FALLBACK = { accent: '#ff7a1a', support: '#ffd23f' };
-function tagMode(){
-  const m = ez.tagline;
-  return TAGLINE_STYLES.some(s => s[0] === m) ? m : 'solid';
+// the first six looks' old names (pgfx_tagline, saved projects), in the looks they became
+const TAG_LEGACY = { solid: 'solid', street: 'street', gradient: 'signature', pair: 'pair', blocks: 'blocks', outline: 'outline', pattern: 'pattern' };
+function tagLookKey(k){
+  if (typeof EZ_TAG_LOOKS !== 'undefined' && EZ_TAG_LOOKS.some(l => l[0] === k)) return k;
+  return TAG_LEGACY[k] || 'solid';
 }
-/* One colour parser for the whole feature (the palette and the styles read a
+/* One colour parser for the whole feature (the palette and the looks read a
    fill the same way): #rgb, #rrggbb, rgb() and rgba() at least minAlpha
    opaque, a gradient by its first stop; null otherwise. */
 function tagHexOf(f, minAlpha){
@@ -12614,7 +14188,7 @@ function scenePalette(sc, W){
   W = W || sc.width / ((sc.getZoom && sc.getZoom()) || 1);
   const cols = [];
   sc.getObjects().forEach(o => {
-    if (o.visible === false || (o.opacity != null && o.opacity < 0.3) || o.pgTagBlock) return;
+    if (o.visible === false || (o.opacity != null && o.opacity < 0.3) || o.pgTagBlock || o.pgKin) return;
     const isT = o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
     if (!isT && o.type !== 'rect') return;
     if (!isT && o.width * (o.scaleX || 1) >= 0.93 * W) return;              // the ground, not an accent
@@ -12634,6 +14208,13 @@ function tplPalette(tpl, sc, W){
   if (!colourful(p) && P) p = { accent: P.a1, support: P.a2, ink: P.ink, c1: P.bg1 };
   if (!colourful(p) && sc) p = scenePalette(sc, W);
   return colourful(p) ? p : Object.assign({}, TAG_FALLBACK);
+}
+/* the card's own two colours, for the looks and for the panel's Auto stops:
+   one palette for every surface (tplPalette), the template named or, in Easy
+   Mode, the one on screen */
+function ezTagPalette(sc, tpl, W){
+  if (tpl === undefined) tpl = typeof ezTpl === 'function' ? ezTpl() : null;
+  return tplPalette(tpl, sc, W);
 }
 /* The mean luminance of the ground under each of `lines`: the scene painted
    at a quarter size without them (the photograph, the plates, everything
@@ -12703,13 +14284,20 @@ function taglineFitBlock(blk, o){
   blk.set({ width: g.bw, height: g.bh, scaleX: 1, scaleY: 1, angle: o.angle || 0, originX: 'center', originY: 'center', left: g.cx, top: g.cy });
   blk.setCoords();
 }
-// the style on a scene, by what it recorded (null: as designed)
+// the layer a look added for a line (a glow halo, a red or blue offset, a slice of 3-D depth)
+function tagIsKin(o){ return !!(o && (o.pgKin || o.pgKinId)); }
+function tagKinLine(sc, q){
+  if (q.pgKin && q.pgKin.canvas === sc) return q.pgKin;
+  if (q.pgKinId){ const t = sc.getObjects().find(o => o !== q && o.pgTagId === q.pgKinId && !tagIsKin(o)); if (t){ q.pgKin = t; return t; } }
+  return null;
+}
+// the look on a scene, by what it recorded (null: as designed)
 function taglineModeOf(sc){
   if (!sc) return null;
   const o = sc.getObjects().find(x => x.pgTagRest);
-  return o ? (o.pgTagRest.mode || 'solid') : (sc.getObjects().some(x => x.pgTagBlock) ? 'blocks' : null);
+  return o ? (o.pgTagRest.mode || 'solid') : (sc.getObjects().some(x => x.pgTagBlock) ? 'blocks' : sc.getObjects().some(tagIsKin) ? 'custom' : null);
 }
-// the designed card back: recorded paint (and, for blocks, place) restored, blocks removed
+// the designed card back: recorded paint (and, for blocks, place) restored, the look's own layers removed
 function taglineReset(sc){
   if (!sc) return;
   const Z = (sc.getZoom && sc.getZoom()) || 1, W = sc.width / Z, H = sc.height / Z;
@@ -12719,7 +14307,7 @@ function taglineReset(sc){
     o.setPositionByOrigin(new fabric.Point(c.x - (dx || 0) * W, c.y - (dy || 0) * H), 'center', 'center');
   };
   sc.getObjects().slice().forEach(o => {
-    if (o.pgTagBlock){ sc.remove(o); return; }
+    if (o.pgTagBlock || tagIsKin(o)){ sc.remove(o); return; }
     const r = o.pgTagRest;
     if (!r) return;
     if (!r.geoOnly){
@@ -12727,69 +14315,102 @@ function taglineReset(sc){
       ['fill', 'stroke', 'strokeWidth', 'paintFirst', 'strokeLineJoin', 'shadow'].forEach(k => { if (k in r) p[k] = r[k]; });
       if (p.shadow && typeof p.shadow === 'object') p.shadow = new fabric.Shadow(p.shadow);
       ['fill', 'stroke'].forEach(k => { if (p[k] && typeof p[k] === 'object' && p[k].colorStops) p[k] = new fabric.Gradient(p[k]); });
+      if ('styles' in r) p.styles = r.styles ? JSON.parse(JSON.stringify(r.styles)) : {};
       o.set(p);
       o.pgFillGrad = r.pgFillGrad || null;
+      o.dirty = true;
     }
     if (r.air) undo(o, r.air.k, r.air.dx, r.air.dy);
     if (r.k || r.shift) undo(o, r.k, r.shift, 0);
     o.pgTagRest = null;
     o.setCoords && o.setCoords();
   });
+  sc.__patTile = null;
 }
-/* The one entry point: the chosen style (or `mode`) on a finished scene, then
-   plateAir, since a heavier outline or a new block changes what a line needs
-   around it. Returns what happened, with the palette it used. */
-function taglineApply(sc, tpl, W, H, mode){
-  mode = mode || tagMode();
+/* The one entry point for a look on a finished scene: the visitor's choice
+   (ezTagSpec) or else the card's own look (spec undefined), a look key, a
+   spec, or null for the card as designed. Then plateAir, since a heavier
+   outline or a new block changes what a line needs around it; its moves are
+   recorded as moves, so a reset undoes them. Returns what happened, with the
+   palette it used. */
+function taglineApply(sc, tpl, W, H, spec, opts){
+  if (spec === undefined) spec = (typeof ezTagSpec === 'function' && ezTagSpec()) || (typeof cardLookSpec === 'function' ? cardLookSpec(tpl) : null);
   let pal;
-  try { pal = tplPalette(tpl, sc, W); } catch (e){ pal = Object.assign({}, TAG_FALLBACK); }
-  if (mode === 'solid' || !TAGLINE_STYLES.some(s => s[0] === mode)) return { mode: 'solid', pal };
+  try { pal = ezTagPalette(sc, tpl || null, W); } catch (e){ pal = Object.assign({}, TAG_FALLBACK); }
+  if (typeof spec === 'string'){ const k = tagLookKey(spec); spec = k === 'solid' ? null : Object.assign({ look: k }, TAGLINE_LOOKS[k]); }
+  if (!spec) return { look: 'solid', pal };
+  spec = Object.assign({}, spec);
+  if (spec.fill === 'texture') spec.patRes = (opts && opts.res) || spec.patRes || 1;
+  const look = spec.look || 'custom';
   try {
-    const info = taglineStyle(sc, mode, pal, W, H) || { mode };
+    sc.__patTile = null;
+    const info = taglineStyle(sc, spec, pal, W, H, look) || { look };
     const isText = o => o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
-    const before = new Map(sc.getObjects().filter(isText).map(o => [o, { c: o.getCenterPoint(), s: o.scaleX || 1 }]));
+    const before = new Map(sc.getObjects().filter(o => isText(o) && !tagIsKin(o)).map(o => [o, { c: o.getCenterPoint(), s: o.scaleX || 1 }]));
     plateAir(sc, W, H);
     before.forEach((g, o) => {
       const c = o.getCenterPoint(), k = (o.scaleX || 1) / g.s, dx = (c.x - g.c.x) / W, dy = (c.y - g.c.y) / H;
       if (Math.abs(k - 1) < 1e-4 && Math.abs(dx) < 1e-5 && Math.abs(dy) < 1e-5) return;
-      (o.pgTagRest || (o.pgTagRest = { mode, geoOnly: true })).air = { k, dx, dy };
+      (o.pgTagRest || (o.pgTagRest = { mode: look, geoOnly: true })).air = { k, dx, dy };
     });
-    info.pal = pal;
+    // plate air may have moved a line: a pattern's sheet stays put on the card
+    sc.getObjects().forEach(o => { if (o.fill && o.fill.pgAnchor) o.fill.pgAnchor(o); });
+    info.pal = pal; info.look = info.look || look;
     return info;
   } catch (e){
     console.warn('GraphicsStudio tagline style:', e);
     try { taglineReset(sc); } catch (e2){}
-    return { mode: 'solid', pal, error: String(e && e.message || e) };
+    return { look: 'solid', pal, error: String(e && e.message || e) };
   }
 }
+/* The number fills its plate and the claim reads on its crop (numberFill,
+   claimShade): every surface that shows a card finishes it the same way, the
+   editor as well as Easy Mode, before the look goes on. */
+function taglineFinish(sc, W, H){
+  try { if (typeof numberFill === 'function') numberFill(sc, W, H); } catch (e){ console.warn('GraphicsStudio numberFill:', e); }
+  try { if (typeof claimShade === 'function') claimShade(sc, W, H); } catch (e){ console.warn('GraphicsStudio claimShade:', e); }
+}
 
-/* ── the choice, in Easy Mode and in the editor ─────────────────────────── */
-function taglineSampleSvg(mode, pal, id){
+/* ── the choice, in the editor (Easy Mode has the full panel: buildEzTagline) ── */
+function taglineSampleSvg(look, pal, id){
   pal = pal || TAG_FALLBACK;
   const A = hexToOklch(pal.accent) || { L: 0.7, C: 0.15, h: 50 }, S = hexToOklch(pal.support || pal.accent) || A;
   const h0 = A.C >= 0.04 ? A.h : S.h, at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
   const grad = cs => `<defs><linearGradient id="${id}" x1="0" x2="1" y1="0" y2="0">${cs.map((c, i) => `<stop offset="${i / (cs.length - 1)}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`;
-  const T = attrs => `<text x="40" y="22" text-anchor="middle" font-family="Clash Display, Satoshi, sans-serif" font-weight="700" font-size="19" ${attrs}>Aa</text>`;
+  const T = (attrs, x, y) => `<text x="${x || 40}" y="${y || 22}" text-anchor="middle" font-family="Clash Display, Satoshi, sans-serif" font-weight="700" font-size="19" ${attrs}>Aa</text>`;
   const rim = 'stroke="#0b0b0d" stroke-width="3" paint-order="stroke" stroke-linejoin="round"';
-  if (mode === 'street'){
+  const preset = typeof ez !== 'undefined' && ez.tag && ez.tag.gradient ? taglineGradientStops(ez.tag.gradient) : null;
+  if (look === 'street'){
     const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
     return grad([at(0.74, 0.18, h0), at(0.88, 0.18, h0 + dir * 40), at(0.84, 0.18, h0 + dir * 75)]) + T(`fill="url(#${id})" ${rim}`);
   }
-  if (mode === 'gradient') return grad([at(0.8, 0.15, h0 - 25), at(0.8, 0.15, h0 + 25)]) + T(`fill="url(#${id})"`);
-  if (mode === 'pair') return grad([at(0.8, 0.15, A.h), at(0.8, 0.15, S.h)]) + T(`fill="url(#${id})"`);
-  if (mode === 'blocks') return `<rect x="17" y="5" width="46" height="21" rx="3" fill="${pal.accent}"/>` + T(`fill="${A.L > 0.62 ? '#0e0e10' : '#ffffff'}"`);
-  if (mode === 'outline') return T(`fill="#ffffff" ${rim}`);
+  if (look === 'signature' || look === 'gradient' && !preset) return grad([at(0.8, 0.15, h0 - 25), at(0.8, 0.15, h0 + 25)]) + T(`fill="url(#${id})"`);
+  if (look === 'gradient') return grad(preset.length > 1 ? preset : [preset[0], preset[0]]) + T(`fill="url(#${id})" ${rim}`);
+  if (look === 'pair') return grad([at(0.8, 0.15, A.h), at(0.8, 0.15, S.h)]) + T(`fill="url(#${id})"`);
+  if (look === 'blocks') return `<rect x="17" y="5" width="46" height="21" rx="3" fill="${pal.accent}"/>` + T(`fill="${A.L > 0.62 ? '#0e0e10' : '#ffffff'}"`);
+  if (look === 'outline') return T(`fill="#ffffff" ${rim}`);
+  if (look === 'multicolor'){
+    const c = [0, 72, 144].map(d => at(0.8, 0.17, h0 + d));
+    return `<text x="40" y="22" text-anchor="middle" font-family="Clash Display, Satoshi, sans-serif" font-weight="700" font-size="19" ${rim}><tspan fill="${c[0]}">A</tspan><tspan fill="${c[1]}">b</tspan><tspan fill="${c[2]}">c</tspan></text>`;
+  }
+  if (look === 'glow'){ const g = at(0.72, 0.2, h0); return `<defs><filter id="${id}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>` + T(`fill="${g}" filter="url(#${id})"`) + T(`fill="#ffffff" stroke="${g}" stroke-width="1" paint-order="stroke"`); }
+  if (look === 'anaglyph') return T('fill="#ff2a4f"', 38.5, 21) + T('fill="#18b4ff"', 41.5, 23) + T('fill="#ffffff"');
+  if (look === 'extrude') return [3, 2, 1].map(k => T(`fill="${at(0.52 - k * 0.08, 0.15, h0)}"`, 40 + k * 0.9, 22 + k * 1.1)).join('') + T(`fill="${pal.accent}" stroke="rgba(10,10,14,0.85)" stroke-width="0.8" paint-order="stroke"`);
+  if (look === 'pattern'){
+    const a = at(0.86, 0.06, h0), b = at(0.62, 0.17, h0);
+    return `<defs><pattern id="${id}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="${a}"/><rect width="3" height="6" fill="${b}"/></pattern></defs>` + T(`fill="url(#${id})" ${rim}`);
+  }
   return T(`fill="${pal.accent}"`);
 }
 function buildTaglineRow(rowId, onPick){
   const row = $(rowId);
   if (!row || row.dataset.built) return;
   row.dataset.built = '1';
-  TAGLINE_STYLES.forEach(([k, label]) => {
+  EZ_TAG_LOOKS.forEach(([k, label, title]) => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'ez-tagstyle'; b.dataset.tag = k;
     b.setAttribute('aria-pressed', 'false');
-    b.title = k === 'solid' ? 'The tagline as the design has it' : label + ': the tagline in this style, on the picture, the download and the video';
+    b.title = title + (k === 'solid' ? '' : ': on the picture, the download and the video, with the gradient, outline and effect set in Easy Mode');
     b.innerHTML = `<svg viewBox="0 0 80 30" aria-hidden="true">${taglineSampleSvg(k, null, rowId + '-' + k)}</svg><span>${label}</span>`;
     b.onclick = () => onPick(k);
     row.appendChild(b);
@@ -12798,16 +14419,16 @@ function buildTaglineRow(rowId, onPick){
   taglineRowSync();
 }
 function taglineRowSync(){
-  const m = tagMode();
+  const m = tagLookKey(ez.tag && ez.tag.look);
   document.querySelectorAll('.ez-tagstyle').forEach(b => {
     const on = b.dataset.tag === m;
     b.classList.toggle('active', on);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
 }
-// the samples take the card's own colours (each row keeps its own, since the editor's is built later)
+// the samples take the card's own colours (each row keeps its own, since rows are built at different times)
 function taglineRowPaint(pal){
-  const key = pal ? pal.accent + '|' + pal.support : '';
+  const g = ez.tag && ez.tag.gradient, key = pal ? pal.accent + '|' + pal.support + '|' + (Array.isArray(g) ? g.join(',') : g || '') : '';
   if (!key) return;
   document.querySelectorAll('.ez-tagstyles').forEach(row => {
     if (row.dataset.pal === key || !row.querySelector('.ez-tagstyle')) return;   // a row not built yet is painted when it is
@@ -12818,65 +14439,94 @@ function taglineRowPaint(pal){
     });
   });
 }
-function taglineNote(info, id){
-  const el = $(id || 'ez-tagnote');
-  if (!el) return;
+/* why a look gave way on this card, and which styled lines read weak on it
+   (the critic, rule 54: it never blocks, the owner decides) */
+function taglineNoteText(info){
+  if (!info) return '';
   const WHY = { words: 'would sit on other words', product: 'would cover the product', edge: 'would run to the edge of the card', long: 'would need the tagline set too small' };
-  const msg = info && info.fallback
-    ? 'Blocks ' + (WHY[String(info.why || '').split(':')[0]] || 'do not fit') + ' on this design, so the tagline is outlined instead.'
-    : info && info.why === 'no headline' ? 'This design has no tagline line to style.' : '';
+  const parts = [];
+  if (info.fallback) parts.push('Colour blocks ' + (WHY[String(info.why || '').split(':')[0]] || 'do not fit') + ' on this design, so the tagline is outlined instead.');
+  else if (info.why === 'no headline') parts.push('This design has no tagline line to style.');
+  if (info.weak && info.weak.length) parts.push('Reads weak on this card: ' + info.weak.map(r => '“' + r.text + '” ' + r.q75.toFixed(1) + ':1').join(', ')
+    + '. Try an outline, a lighter gradient, or another look.');
+  return parts.join(' ');
+}
+function taglineNote(info, id){
+  const el = $(id || 'ez-tag-note');
+  if (!el) return;
+  const msg = taglineNoteText(info);
   el.textContent = msg;
   el.hidden = !msg;
 }
-// what the row shows for a card: its colours in the samples, and why a style gave way
+// what the editor's row shows for a card: its colours in the samples, and why a look gave way
 function taglineShow(info, noteId){
   taglineRowPaint(info && info.pal);
   taglineNote(info, noteId);
   return info;
 }
+// one choice: picked in the editor, it is Easy Mode's look too
 function taglinePick(k){
-  ez.tagline = TAGLINE_STYLES.some(s => s[0] === k) ? k : 'solid';
-  jset('pgfx_tagline', ez.tagline);
+  ez.tag = Object.assign(ez.tag || {}, { look: tagLookKey(k) });
+  jset('pgfx_tag', ez.tag);
+  if (typeof ezTagSync === 'function') try { ezTagSync(); } catch (e){}
   taglineRowSync();
 }
-// the editor: switch the style on the canvas as it stands
-function taglineEditorApply(k){
+// a saved project's look (a download re-opened from History): the new record, or the first six's name
+function taglineRestore(st){
+  if (st && st.tag && typeof st.tag === 'object'){ ez.tag = Object.assign({}, ez.tag, st.tag, { look: tagLookKey(st.tag.look) }); jset('pgfx_tag', ez.tag); if (typeof ezTagSync === 'function') try { ezTagSync(); } catch (e){} taglineRowSync(); }
+  else if (st && st.tagline) taglinePick(st.tagline);
+}
+// the editor: the chosen look on the canvas as it stands
+function taglineEditorApply(){
   if (!canvas) return;
   const tpl = TEMPLATES.find(t => t.id === currentTplId) || null;
   canvas.discardActiveObject();      // a selection's members hold coordinates relative to it (setFormat does the same)
   taglineReset(canvas);
-  const info = taglineApply(canvas, tpl, CW, CH, k);
+  const info = taglineApply(canvas, tpl, CW, CH);
   canvas.renderAll();
   pushHist(); refreshLayers(); refreshProps();
   taglineShow(info, 'ed-tagnote');
 }
-/* In the editor a block follows its line, whatever moved it: a drag, a snap,
-   a resize, typing on the canvas, Quick Edit, the properties panel, undo or a
-   format switch. Every draw first refits a block whose line has changed (its
-   place, size, words or face), so there is no path that can leave a line off
-   its block. Deleting a line takes its block. */
+/* In the editor a look's own layers follow their line, whatever moved it: a
+   drag, a snap, a resize, typing on the canvas, Quick Edit, the properties
+   panel, undo or a format switch. Every draw first refits a block whose line
+   has changed (its place, size, words or face), and carries a glow, an offset
+   or a slice of depth to where its line now is, with its words, so there is
+   no path that can leave a line off its block or its depth behind. Deleting a
+   line takes its layers. */
 function taglineRefitAll(sc){
-  const objs = sc.getObjects();
+  const objs = sc.getObjects(), U = fabric.util;
+  const sigOf = t => [t.left, t.top, t.scaleX, t.scaleY, t.angle, t.skewX, t.flipX, t.flipY, t.width, t.height, t.text, t.fontSize, t.fontFamily, t.fontWeight,
+    t.fontStyle, t.charSpacing, t.lineHeight, t.textAlign, t.originX, t.originY].join('|');
   objs.forEach(b => {
-    if (!b.pgTagBlock) return;
-    const t = objs.find(o => o.pgTagRest && o.pgTagRest.block === b.pgTagBlock);
+    if (b.pgTagBlock){
+      const t = objs.find(o => o.pgTagRest && o.pgTagRest.block === b.pgTagBlock);
+      if (!t) return;
+      const sig = sigOf(t) + '|' + t.pgTagRest.padY;
+      if (b.__tagSig === sig) return;
+      taglineFitBlock(b, t);
+      b.__tagSig = sig;
+      return;
+    }
+    if (!tagIsKin(b)) return;
+    const t = tagKinLine(sc, b);
     if (!t) return;
-    const sig = [t.left, t.top, t.scaleX, t.scaleY, t.angle, t.width, t.height, t.text, t.fontSize, t.fontFamily, t.fontWeight, t.fontStyle,
-      t.charSpacing, t.lineHeight, t.textAlign, t.originX, t.originY, t.pgTagRest.padY].join('|');
-    if (b.__tagSig === sig) return;
-    taglineFitBlock(b, t);
-    b.__tagSig = sig;
+    const sig = sigOf(t);
+    if (b.__kinSig === sig) return;
+    if (b.__kinSig && b.__kinRel){
+      ['text', 'fontSize', 'fontFamily', 'fontWeight', 'fontStyle', 'charSpacing', 'lineHeight', 'textAlign'].forEach(k => { if (b[k] !== t[k]) b.set(k, t[k]); });
+      if (t.type === 'textbox' && b.width !== t.width) b.set('width', t.width);
+      const d = U.qrDecompose(U.multiplyTransformMatrices(t.calcTransformMatrix(), b.__kinRel));
+      b.set({ scaleX: d.scaleX, scaleY: d.scaleY, angle: d.angle, skewX: d.skewX, skewY: 0 });
+      b.setPositionByOrigin(new fabric.Point(d.translateX, d.translateY), 'center', 'center');
+      b.setCoords();
+    }
+    b.__kinRel = U.multiplyTransformMatrices(U.invertTransform(t.calcTransformMatrix()), b.calcTransformMatrix());
+    b.__kinSig = sig;
   });
 }
 {
-  // Easy Mode's row, built with the theme row
-  const _buildThemeRow = buildThemeRow;
-  buildThemeRow = function(){
-    const r = _buildThemeRow.apply(this, arguments);
-    buildTaglineRow('ez-tagstyles', k => { taglinePick(k); schedEzPreview(0); });
-    return r;
-  };
-  // a theme the visitor picks is the palette the styles use on that card
+  // a theme the visitor picks is the palette the looks use on that card
   const _applyColorTheme = applyColorTheme;
   applyColorTheme = function(th){
     try { const t = ezTpl(); (ez.themes || (ez.themes = {}))[t.id] = { accent: th.accent, support: th.support || th.accent, ink: th.ink, bg: th.bg }; } catch (e){}
@@ -12886,19 +14536,23 @@ function taglineRefitAll(sc){
   const _bindEditorUI = bindEditorUI;
   bindEditorUI = function(){
     const r = _bindEditorUI.apply(this, arguments);
-    buildTaglineRow('ed-tagstyles', k => { taglinePick(k); taglineEditorApply(k); });
+    buildTaglineRow('ed-tagstyles', k => { taglinePick(k); taglineEditorApply(); });
     return r;
   };
   const _bindCanvasEvents = bindCanvasEvents;
   bindCanvasEvents = function(){
     canvas.on('before:render', () => { try { taglineRefitAll(canvas); } catch (e){} });
     /* a duplicated or pasted line gets a block of its own, like the one it was
-       copied from; a pasted block alone is a plain shape */
+       copied from; a pasted block, or a pasted look layer, alone is a plain
+       shape; a copied line is a line of its own (its look's layers stay with
+       the original) */
     canvas.on('object:added', e => {
       const o = e.target;
       if (histLock || !o) return;
       const objs = canvas.getObjects();
       if (o.pgTagBlock && objs.some(x => x !== o && x.pgTagBlock === o.pgTagBlock)){ o.pgTagBlock = null; return; }
+      if (tagIsKin(o) && objs.some(x => x !== o && tagIsKin(x) && x.pgKinId === o.pgKinId && x.__kinSig && !o.__kinSig && x.left === o.left && x.top === o.top)){ o.pgKin = null; o.pgKinId = null; return; }
+      if (o.pgTagId && !tagIsKin(o) && objs.some(x => x !== o && !tagIsKin(x) && x.pgTagId === o.pgTagId)) o.pgTagId = 'tl' + Math.random().toString(36).slice(2, 9);
       const id = o.pgTagRest && o.pgTagRest.block;
       if (!id || !objs.some(x => x !== o && x.pgTagRest && x.pgTagRest.block === id)) return;
       const src = objs.find(x => x.pgTagBlock === id), nid = 'tb' + Math.random().toString(36).slice(2, 9);
@@ -12909,21 +14563,25 @@ function taglineRefitAll(sc){
       canvas.insertAt(blk, canvas.getObjects().indexOf(o));
     });
     canvas.on('object:removed', e => {
-      const t = e.target, id = t && t.pgTagRest && t.pgTagRest.block;
-      if (!id || histLock) return;
-      const blk = canvas.getObjects().find(o => o.pgTagBlock === id);
-      if (blk) canvas.remove(blk);
+      const t = e.target;
+      if (!t || histLock || tagIsKin(t) || t.pgTagBlock) return;
+      const id = t.pgTagRest && t.pgTagRest.block;
+      canvas.getObjects().filter(o => (id && o.pgTagBlock === id) || (tagIsKin(o) && (o.pgKin === t || (t.pgTagId && o.pgKinId === t.pgTagId))))
+        .forEach(o => canvas.remove(o));
     });
     return _bindCanvasEvents.apply(this, arguments);
   };
-  // a format switch stretches rects per axis: blocks are refitted to their lines
+  // the editor's row follows a look picked in Easy Mode's panel
+  const _ezTagSync = ezTagSync;
+  ezTagSync = function(){ const r = _ezTagSync.apply(this, arguments); try { taglineRowSync(); } catch (e){} return r; };
+  // a format switch stretches rects per axis: blocks are refitted to their lines, look layers carried with them
   const _remapObjects = remapObjects;
   remapObjects = function(){
     const r = _remapObjects.apply(this, arguments);
     try { taglineRefitAll(canvas); } catch (e){ console.warn('GraphicsStudio tagline refit:', e); }
     return r;
   };
-  /* Enhance restores each layer's designed paint and size; the style is taken
+  /* Enhance restores each layer's designed paint and size; the look is taken
      off first and put back after, so a line never ends up in its designed
      colour on a block of the same colour */
   const _enhance = enhance;
@@ -12937,7 +14595,7 @@ function taglineRefitAll(sc){
     try { return await _enhance.apply(this, arguments); }
     finally {
       histLock = lock;
-      const info = taglineApply(canvas, TEMPLATES.find(t => t.id === currentTplId) || null, CW, CH, mode);
+      const info = taglineApply(canvas, TEMPLATES.find(t => t.id === currentTplId) || null, CW, CH);
       canvas.renderAll(); pushHist();
       taglineShow(info, 'ed-tagnote');
     }

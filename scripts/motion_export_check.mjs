@@ -32,10 +32,10 @@ await page.evaluateOnNewDocument(() => {
   window.__csp = [];
   document.addEventListener('securitypolicyviolation', e => window.__csp.push(e.violatedDirective + ' ' + e.blockedURI));
 });
-/* TAGLINE=street (or any TAGLINE_STYLES key): the visitor's tagline style,
-   set the way the Tagline style row keeps it, so the check covers the video
-   of a styled card too (DESIGN-LAW 72) */
-if (process.env.TAGLINE) await page.evaluateOnNewDocument(t => { try { localStorage.setItem('pgfx_tagline', JSON.stringify(t)); } catch (e){} }, process.env.TAGLINE);
+/* TAGLINE=street (or any EZ_TAG_LOOKS key: blocks, glow, extrude, pattern…):
+   the visitor's tagline look, kept the way the Tagline style panel keeps it,
+   so the check covers the video of a styled card too (DESIGN-LAW 83) */
+if (process.env.TAGLINE) await page.evaluateOnNewDocument(t => { try { localStorage.setItem('pgfx_tag', JSON.stringify({ look: t })); } catch (e){} }, process.env.TAGLINE);
 await page.setRequestInterception(true);
 page.on('request', async q => {
   const u = q.url();

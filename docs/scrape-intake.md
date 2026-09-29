@@ -31,7 +31,7 @@ What the script does with each kind:
   and measured so the shade under its white type is exactly as strong as it
   needs to be (DESIGN-LAW 56). Then run `python3 scripts/photo_subjects.py`:
   it maps where the photograph draws the eye, so a product drawn over it
-  stands off its subject (DESIGN-LAW 73).
+  stands off its subject (DESIGN-LAW 84).
 
 Everything landed is credited (`assets/cutouts/ATTRIBUTION.json`,
 `assets/bg-offer/ATTRIBUTION.json`), registered in `assets/library.json`,

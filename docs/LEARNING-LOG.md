@@ -712,7 +712,7 @@ Changed:
   - docs/offer-cards-prompt-v2.md: the brief for the owner's generator, every
     axis doubled, the category banks, the new honesty rules, the review of the
     first 50.
-  - DESIGN-LAW 68-70 (57-59 when written; renumbered after the trunk's 57-67).
+  - DESIGN-LAW 79-81 (57-59 when written; renumbered after the trunk's 57-67, then after its 68-78).
 
 Rejected:
   - Fetching product photos from Wikimedia Commons or the makers' sites (the
@@ -761,7 +761,7 @@ Changed:
     card face and no invented brand (scripts/make_card_assets.py).
   - The offer family on photographs of its goods with a solved neutral shade,
     the small type on panels, and seventeen vendored display faces assigned
-    by category (DESIGN-LAW 71). 161 of 161 pass the audit.
+    by category (DESIGN-LAW 82). 161 of 161 pass the audit.
   - scripts/picture_gate.mjs: the owner's list and the flags, one rule for
     every audit and the swap; 247 pictures on 162 showcase cards swapped
     again, none of them now rejected; 692 of 971 showcase cards live.
@@ -867,9 +867,46 @@ Rejected:
 
 RESUME HERE:
   The owner picks from what the video maker (motion/) has that templates do
-  not (OPEN-ITEMS §O: number styles, urgency elements, sign boards); each is
+  not (OPEN-ITEMS §Q: number styles, urgency elements, sign boards); each is
   built where the tagline style went, for every template. The gaming rooms
   and the ph-* pictures wait on photographs (docs/scrape-intake.md).
+
+## 2026-09-27 (late) — "the worst ad I've ever seen you make": a card rebuilt, and an audit that says so first
+
+The owner took stepsFlow-nn05-30 apart: a headline that was only the item
+word, a trust word posing as the headline, too many typefaces, cheesy glossy
+pills, blurred small type, a "3" outside its box, a phone covering the
+photograph they loved, a CTA too small. Then, three renders in: "not put out
+another without 100% validating and self auditing."
+
+What was wrong under the hood was mostly one thing: **the engine judged type
+by its box, not its letters.** A 192px line's box reaches 44px above its caps
+and 50px under its baseline. So the guides pass thought the headline had left
+the canvas and shrank the whole card 1%; the collision pass thought two
+display lines 19px apart overlapped and pushed the second onto the first step;
+the decoration pass thought a bolt touched the headline and moved it off its
+pill; the product pass thought the number's box touched the phone and lifted
+the phone off the band; plates centred their words by the box and big type
+sat high. One helper, `textInkRect()`, and five passes switched to it.
+
+The "3" was its own bug: a step numeral is decoration and a word, and the
+decoration pass counted it as colliding with itself. The first dry render
+showed the "1" doing it too, pushed by the headline above.
+
+Two harness lessons. Measuring ink with the drop shadow on shifts a line's
+bearing by a different amount per glyph; and an auditor that uses the canvas
+width as its height sees nothing below 1080 on a 3:4 card. Both were mine and
+the audit caught the second itself (rule 50: suspect the harness first).
+
+Mirroring the phone, which the owner suggested, was the owner's own next
+catch: a mirrored iPhone has its cameras on the wrong side. The library had
+the same phone photographed leaning the other way.
+
+Result: `scripts/restage_steps_flow.mjs` rebuilds the card (claim, badge from
+the bank in the CTA's colour, two faces, flat uniform steps, a real phone
+standing on the band, the accent read off the photograph), and
+`scripts/audit_card.mjs` passes it 154/154 in the gallery painter, Easy Mode
+square and 3:4, and the video. DESIGN-LAW 68-76.
 
 ## 2026-09-28 — Audit and validation of the branch
 
@@ -919,4 +956,78 @@ Found and fixed:
 
 Not verifiable from a cloud session: what is live. Its network policy denies
 *.netlify.app, and the Netlify connector attached there sees a different
-project (buybackad-finished-copy). OPEN-ITEMS §O.
+project (buybackad-finished-copy). OPEN-ITEMS §Q.
+
+## 2026-09-28 — tall formats: centred, then grown, and the call made from the photograph
+
+The owner asked for the 3:4 content to be centred (a phone standing on the band
+had joined the steps to the band, pinning all of it to the bottom), then for
+the 9:16 to fill its blank space by growing the steps and layering the phone
+over them, and for five examples of the right call. The rule became a
+decision the engine takes from the photograph: grow into plain rows, fit into
+them, or stay centred where the photograph is subject all the way down
+(DESIGN-LAW 77). Two of the first six calls were wrong — "keep centred" on
+photographs whose subject ended mid-card, which left the plain run empty and
+set the steps on the subject — and the fix was a third outcome, fit. The audit
+caught two engine faults on the way: the full-canvas scrim taken for the CTA
+band, and a deliberately layered phone "rescued" by the product-clearance pass.
+
+## 2026-09-29 — thirty-six patterns, sixteen aesthetic gradients, one sheet
+
+The owner asked for as many patterns as we could make, sized up and down and
+slid around in the editor, and for aesthetic colours (a holographic WE BUY
+IPHONES). The Easy Mode tagline panel now has one Pattern look with 36
+seamless tiles in five families (geometric, themed, material, animal, street),
+a size slider (25-300%), two slide sliders, and a drag on the preview itself.
+Sixteen gradients join the presets: holographic, iridescent, opal, vaporwave,
+Y2K chrome, oil slick, prism and the rest.
+
+What the checks found on the way:
+- The old stripes tile was solid ink: its stripes were exactly as wide as
+  their spacing. Nobody saw it because the panel check only asked whether the
+  preview changed.
+- Strokes ended at the tile edge left notches at every seam (chevron, zigzag,
+  waves, argyle); lines now run past the tile or are drawn wrapped, and a seam
+  metric (the step across the edge against the largest step inside) checks all 36.
+- A tile drawn at the design's density is soft in a 2160px download. Tiles
+  are now drawn at the render's own density and scaled into the line.
+- Per-line tiles made the money signs jump between lines. One sheet per card,
+  anchored to the card, and plate air re-anchors any line it moves.
+- A full preview takes about a second, too slow to drag. The drag slides the
+  sheet on the scene it built once, and its last frame is pixel-identical to
+  the full render it settles to (the panel check drags a real pointer).
+- The gradient look painted the badge and left the CTA cyan, breaking rule 74.
+  Plates of one colour now take one treatment (DESIGN-LAW 74). Street's dark
+  pill had hidden the badge's bolt, which is all stroke.
+- The first dialog a new visitor sees (service area) caught the test's pointer.
+  The check now proves the pointer lands on the preview before it drags.
+
+## 2026-09-29 — the owner's fonts, the phone picker, and a picker that hid itself
+
+More fonts: the owner reviewed 151 faces on 2026-09-01 and approved 56, all
+already in assets/fonts, yet Easy Mode fetched most faces from Google. faces.css
+now declares every approved face (scripts/fetch_fonts.mjs reads the approved
+list), the picker lists them by role, and FONT_PAIRS pairs them by voice
+(street, bold, stadium, sport, tech, block, arcade, squad, comic, marker,
+retro, pop, luxe, modern, warp, stencil). The sheet check found a real bug:
+the loader asked only for weight 400, so a 700 headline in a static family
+(Oswald, Teko, Manrope…) painted in the fallback and fabric kept those widths.
+Every weight now loads. Nanum Pen Script has no middle dot (LA · OC · IE).
+
+The phone picker: the popular models first (18 Pro Max, 18 Pro, 17 Pro Max,
+17 Pro, 17 Air, 17, 16 Pro Max, 16 Pro), Surprise me, the rest of the shop's
+factory catalog by series, As designed. Two faults, both caught before
+shipping:
+- A narrow single-back photo left 95px between itself and the steps, more
+  than blockRemap's joining gap, so in 3:4 and 9:16 the phone was stacked
+  above the steps as its own block. Side by side is now one row.
+- My first version reused the page's existing id ez-device-field and the
+  function name ezDeviceSync, which belong to the "Your device" select (re-set
+  a card to iPad, Watch…). The later declaration silently replaced the old
+  one, and the check passed because it read the other element. A screenshot
+  showed it. The picker has its own names now; the check asserts the field is
+  laid out on screen and unique, and the old select was re-verified
+  (glassCard-nn01-20 re-set to All iPads).
+The ip-gen17-plateau-black crop is a square camera bump (16 Pro design), not
+the 17 Pro plateau: marked not authentic.
+

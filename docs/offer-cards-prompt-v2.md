@@ -99,7 +99,7 @@ FOR THE GAMING CARDS (consoles, Switch, controllers, handhelds, gaming PCs and l
 gaming headsets, monitors) a gamer's room instead of space (the owner, 2026-09-27: "gamer
 bedrooms, gamer living rooms, aesthetic gaming set ups"): an RGB desk setup, a bedroom at
 night, a living room with the TV and the console under it. Wide, soft focus, nothing branded
-in the middle: the room is the setting the product stands in (DESIGN-LAW 73).
+in the middle: the room is the setting the product stands in (DESIGN-LAW 84).
 Never a table in perspective under a flat product picture. The photograph keeps its own
 colour: no duotone, no tint; shade is black and even, only as strong as the words need.
 
