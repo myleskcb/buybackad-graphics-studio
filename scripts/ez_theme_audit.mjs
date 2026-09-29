@@ -14,13 +14,18 @@
  *             critical line under 3:1 that was not already, and "Original"
  *             puts back every colour exactly.
  *   grounds   ORIG, the presets, the custom colour, a drawn ground: each
- *             changes the picture, and with a theme on, none of them may push
- *             a critical line under 3:1 (the copy follows its ground).
+ *             changes the picture. With no theme, a light one or a dark one,
+ *             none may fail a critical line the card passed or take another
+ *             reading line under 3:1 (the copy follows its ground).
  *   effects   blur changes a photograph and is switched off, with a reason,
- *             where there is no photograph to blur; each overlay changes the
- *             picture.
+ *             where there is no photograph to blur; each overlay and each
+ *             pattern changes the picture, and no overlay takes a critical
+ *             line under 3:1 that read before (the shade takes the tone the
+ *             copy on the photograph needs, rules 62 and 66).
  *   state     the chip that shows as chosen is the theme that is drawn, after
- *             a template switch too.
+ *             a template switch too; with a theme on, the six swatches are
+ *             the theme's, and a swatch picked under one theme becomes the
+ *             same swatch of the next.
  *
  * usage:  npx http-server -p 8899 -s .   then
  *         CHROME=/path/to/chrome [FABRIC_JS=/path/to/fabric.min.js] \
@@ -51,7 +56,7 @@ const browser = await puppeteer.launch({ executablePath: process.env.CHROME || '
    starved the machine); a fresh page per card keeps each measurement
    independent of the last and the run bounded. */
 const pageErrors = [];
-let page = null;
+let page = null, ctx = null;
 const installHelpers = () => {
   loadAccount = async () => account;
   account = { email: 'audit@local', role: 'user', plan: 'pro' };          // every card opens; nothing is exported
@@ -76,6 +81,21 @@ const installHelpers = () => {
       }
       document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
       $('ez-phone').value = '(562) 999-4994';
+      /* the card's own photograph and cut-outs, waited for as a visitor waits
+         for them: a classic's photograph arrives in the studio's second
+         preload wave, and measured before it the card is its fallback
+         gradient, on which blur and every overlay "change nothing" */
+      const t = ezTpl();
+      const load = (src, store) => new Promise(r => { if (!src) return r();
+        if (store === TPL_BG_ELS && isDrawnSrc(src)) return loadDrawnBg(src).then(r);
+        if (store[src] && store[src].width) return r();
+        const el = new Image(); el.onload = () => { store[src] = el; r(); }; el.onerror = () => r();
+        el.src = (store === TPL_BG_ELS && window.TPL_BG_DATA && TPL_BG_DATA[src]) || assetUrl(src); });
+      await Promise.race([
+        Promise.all([load(t.bg && t.bg.type === 'image' && t.bg.src, TPL_BG_ELS)]
+          .concat((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => load(l.props.src, CUTOUT_ELS)))),
+        new Promise(r => setTimeout(r, 12000)),
+      ]);
       await Promise.all(Object.values(TPL_BG_ELS).map(i => i && i.decode ? i.decode().catch(() => {}) : 0));
       await document.fonts.ready;
       try { fabric.util.clearFabricFontCache(); } catch (e){}
@@ -128,9 +148,15 @@ const installHelpers = () => {
     drawnTheme(){ return ez.theme ? (ez.theme.name || ez.theme) : ''; },
   };
 };
+/* ...in its own browser context: the studio keeps the visitor's draft (the
+   overlay, the blur, the theme) in localStorage, and a page opened in the
+   same context inherited the previous card's, so a card could start with
+   Shade already on and measure Shade as changing nothing. */
 async function openPage(){
   if (page) await page.close().catch(() => {});
-  page = await browser.newPage();
+  if (ctx) await ctx.close().catch(() => {});
+  ctx = await browser.createBrowserContext();
+  page = await ctx.newPage();
   await page.setViewport({ width: 1400, height: 1000 });
   page.on('pageerror', e => pageErrors.push(String(e).slice(0, 200)));
   await offline(page);
@@ -195,8 +221,10 @@ for (const card of cards){
     const st = await page.evaluate(() => ({ chip: __ez.chosenChip(), drawn: __ez.drawnTheme() }));
     if (st.chip !== name || st.drawn !== name) P(card, 'theme ' + name + ': chip and drawing disagree', JSON.stringify(st));
   }
-  // grounds, under a light theme and a dark one: the copy has to follow its ground
-  for (const name of [THEMES.find(n => /Gold Offer/.test(n)), THEMES.find(n => /Cash Green/.test(n))].filter(Boolean)){
+  /* grounds, with no theme, under a light theme and under a dark one: the
+     copy has to follow its ground either way (with a theme on, the six
+     swatches are the theme's own) */
+  for (const name of [hasOriginal ? '' : null, THEMES.find(n => /Gold Offer/.test(n)), THEMES.find(n => /Cash Green/.test(n))].filter(n => n != null)){
     await page.evaluate(n => __ez.chip(n).click(), name);
     let prev = await sceneOf(`document.querySelector('.ez-sw.orig').click();`);
     const grounds = [['preset 1', `document.querySelector('.ez-sw[data-i="0"]').click();`], ['preset 3', `document.querySelector('.ez-sw[data-i="2"]').click();`],
@@ -205,10 +233,11 @@ for (const card of cards){
       ['ORIG', `document.querySelector('.ez-sw.orig').click();`]];
     for (const [g, act] of grounds){
       const r = await sceneOf(act);
-      save(card + '-' + name.replace(/\W+/g, '_') + '-' + g.replace(/\W+/g, '_'), r);
+      const label = name || 'No theme';
+      save(card + '-' + label.replace(/\W+/g, '_') + '-' + g.replace(/\W+/g, '_'), r);
       const reg = regress(base, r), d = diffPct(prev.px, r.px);
-      row['ground ' + name + ' / ' + g] = { changed: d, legib: r.gate.legib, reg: reg.length };
-      if (reg.length) P(card, name + ' on ' + g + ': legibility regressions', reg.join(', '));
+      row['ground ' + label + ' / ' + g] = { changed: d, legib: r.gate.legib, reg: reg.length };
+      if (reg.length) P(card, label + ' on ' + g + ': legibility regressions', reg.join(', '));
       prev = r;
     }
   }
@@ -224,16 +253,37 @@ for (const card of cards){
   const f0 = await sceneOf(''), f1 = await sceneOf(`const s = $('fx-blur'); if (!s.disabled){ s.value = 12; s.dispatchEvent(new Event('input')); }`);
   row.blurFlat = flat.disabled ? 'off' : diffPct(f0.px, f1.px);
   if (!flat.disabled && row.blurFlat < 1) P(card, 'blur on a flat ground is live and changes nothing', row.blurFlat + '%');
-  await page.evaluate(() => { const s = $('fx-blur'); s.disabled = false; s.value = 0; s.dispatchEvent(new Event('input')); document.querySelector('.ez-sw.orig').click(); });
+  await page.evaluate(() => { const s = $('fx-blur'); s.disabled = false; s.value = 0; s.dispatchEvent(new Event('input')); document.querySelector('.ez-sw.orig').click();
+    document.querySelector('#fx-ov-seg [data-ov="none"]').click(); });
   prev = await sceneOf('');
   for (const ov of ['down', 'up', 'shade', 'tint']){
     const has = await page.evaluate(ov => !!document.querySelector('#fx-ov-seg [data-ov="' + ov + '"]'), ov);
     if (!has) continue;
     const r = await sceneOf(`document.querySelector('#fx-ov-seg [data-ov="${ov}"]').click();`);
+    save(card + '-overlay-' + ov, r);
     row['overlay ' + ov] = diffPct(prev.px, r.px);
     if (row['overlay ' + ov] < 1) P(card, 'overlay ' + ov + ' changes nothing', row['overlay ' + ov] + '%');
+    const reg = regress(prev, r).filter(f => !/^minor\|/.test(f));
+    if (reg.length) P(card, 'overlay ' + ov + ': legibility regressions', reg.join(', '));
   }
   await page.evaluate(() => document.querySelector('#fx-ov-seg [data-ov="none"]').click());
+  /* the patterns are fine lines and dots (a 1.5px grid at 0.14): measured at
+     full size, in the page, since a quarter-size render blurs them away */
+  row.patterns = await page.evaluate(async () => {
+    const seg = document.getElementById('fx-pat-seg'); if (!seg) return null;
+    const keys = [...seg.querySelectorAll('[data-pat]')].map(b => b.dataset.pat).filter(k => k !== 'none' && k !== '__tone');
+    if (!keys.length) return null;
+    const px = () => { const sc = __ez.scene(), c = sc.toCanvasElement(1), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; sc.dispose(); return d; };
+    const diff = (a, b) => { let n = 0; for (let i = 0; i < a.length; i += 4) if (Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]) > 24) n++; return +(100 * n / (a.length / 4)).toFixed(1); };
+    const press = k => seg.querySelector('[data-pat="' + k + '"]').click();
+    press('none'); const p0 = px(), out = {};
+    for (const k of keys){ press(k); out[k] = diff(p0, px()); }
+    press(keys[0]); const d0 = px(); press('__tone'); out.__tone = diff(d0, px());   // "Light" turns the pattern's ink over
+    if (ez.fx.ptone === 'light') press('__tone');
+    press('none');
+    return out;
+  });
+  if (row.patterns) Object.entries(row.patterns).forEach(([k, v]) => { if (v < 1) P(card, (k === '__tone' ? 'pattern tone "Light"' : 'pattern ' + k) + ' changes nothing', v + '%'); });
   // "Original" puts every colour back
   if (hasOriginal){
     await page.evaluate(n => __ez.chip(n).click(), THEMES[THEMES.length - 1]);
@@ -256,11 +306,26 @@ for (const card of cards){
   const st = await page.evaluate(() => ({ chip: __ez.chosenChip(), drawn: __ez.drawnTheme() }));
   if ((st.chip || '') !== (st.drawn || '')) P(b, 'after a template switch the chip and the drawing disagree', JSON.stringify(st));
 }
+// the six swatches are the theme's, and a swatch picked under one theme is the same swatch of the next
+{
+  const [a, b] = [THEMES.find(n => /Gold Offer/.test(n)) || THEMES[0], THEMES.find(n => /Cash Green/.test(n)) || THEMES[1]];
+  await openPage();
+  await page.evaluate(id => __ez.open(id), cards[0]);
+  const st = await page.evaluate((a, b) => {
+    const bgs = () => [...document.querySelectorAll('#ez-swatches .ez-sw[data-i]')].map(x => x.style.background).join('|');
+    if (__ez.chip('')) __ez.chip('').click();
+    const none = bgs(); __ez.chip(a).click(); const A = bgs();
+    document.querySelector('.ez-sw[data-i="2"]').click(); __ez.chip(b).click();
+    return { none, A, B: bgs(), sel: !!document.querySelector('.ez-sw[data-i="2"].sel'), theme: ez.bg && ez.bg.theme, slot: ez.bg && ez.bg.slot };
+  }, a, b);
+  if (st.A === st.none || st.B === st.A) P('swatches', 'the six swatches do not follow the theme', JSON.stringify({ none: st.none.slice(0, 60), A: st.A.slice(0, 60) }));
+  if (!st.sel || st.theme !== b || st.slot !== 2) P('swatches', 'a swatch picked under one theme is not the same swatch of the next', JSON.stringify(st).slice(0, 200));
+}
 await browser.close();
 
 console.log('\n' + (problems.length ? problems.length + ' problems' : 'no problems') + ` over ${rows.length} cards × ${themes.length} themes · page errors ${pageErrors.length}`);
 const byWhat = {};
-problems.forEach(p => { const k = p.what.replace(/^theme [^:]+: /, 'theme: ').replace(/^(Gold Offer|Cash Green) on [^:]+: /, 'ground: '); (byWhat[k] = byWhat[k] || []).push(p.card); });
+problems.forEach(p => { const k = p.what.replace(/^theme [^:]+: /, 'theme: ').replace(/^(No theme|Gold Offer|Cash Green) on [^:]+: /, 'ground: '); (byWhat[k] = byWhat[k] || []).push(p.card); });
 Object.entries(byWhat).forEach(([k, v]) => console.log('  ' + String(v.length).padStart(4) + '  ' + k + '  (' + [...new Set(v)].slice(0, 6).join(', ') + ([...new Set(v)].length > 6 ? ', …' : '') + ')'));
 pageErrors.slice(0, 5).forEach(e => console.log('  page error: ' + e));
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify({ rows, problems, pageErrors }, null, 1));

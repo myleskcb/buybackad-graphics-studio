@@ -8155,7 +8155,7 @@ function bindEasyUI(){
   BG_PRESETS.forEach((p, i) => {
     const b = document.createElement('button');
     b.className = 'ez-sw'; b.style.background = cssBg(p); b.dataset.i = i; b.title = 'Background ' + (i+1);
-    b.onclick = () => { ez.bg = p; ez.bgRecId = null; ez.shade = 0; syncEzSwatches(); refreshEzRecents(); refreshEzLayers(); schedEzPreview(); };
+    b.onclick = () => { ez.bg = Object.assign({}, ezPresetSpecs()[i] || p); ez.bgRecId = null; ez.shade = 0; syncEzSwatches(); refreshEzRecents(); refreshEzLayers(); schedEzPreview(); };   // the six follow the theme
     sw.appendChild(b);
   });
   const photo = document.createElement('button');
@@ -8417,11 +8417,13 @@ function syncEzSwatches(){
   document.querySelectorAll('.ez-sw').forEach(b => b.classList.remove('sel'));
   const t0 = ezTpl() || {};
   ezSyncFx();
+  const presets = ezSyncPresets();                          // the six follow the theme (rule 65)
   if (ez.bg === null){
     /* the greyed-out placeholder is not a choice yet: ORIG lights only once
        the template's own photograph is really drawn */
     if (ez.bgPicked || !(t0.bg && t0.bg.type === 'image')) document.querySelector('.ez-sw.orig').classList.add('sel');
   }
+  else if (ez.bg.slot != null && !ez.bg.src){ const b = document.querySelector(`.ez-sw[data-i="${ez.bg.slot}"]`); if (b) b.classList.add('sel'); }
   else if (ez.bg.theme){ /* the colour theme's own ground: not a swatch of this row */ }
   else if (ez.bg.type === 'image' && ez.bg.src){           // a ground or a photograph from "More grounds"
     const b = [...document.querySelectorAll('.ez-gsw')].find(x => x.dataset.src === ez.bg.src && +x.dataset.blur === +(ez.bg.blur || 0));
@@ -8429,7 +8431,8 @@ function syncEzSwatches(){
   }
   else if (ez.bg.type === 'image') $('ez-sw-photo').classList.add('sel');
   else {
-    const idx = BG_PRESETS.indexOf(ez.bg);
+    /* by value: a draft restored from storage is a copy, never the same object */
+    const idx = presets.findIndex(p => ezSameGround(p, ez.bg));
     if (idx >= 0) document.querySelector(`.ez-sw[data-i="${idx}"]`).classList.add('sel');
     else $('ez-sw-custom').classList.add('sel');
   }
@@ -8561,11 +8564,15 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
      visitor set on a line with ✎ stays theirs. */
   const preview = !keep && !mode && (fmt || 'jpeg') === 'jpeg';
   let themed = null;
+  try { ezOverlayPre(sc, DW, DH); } catch (e){ console.warn('GraphicsStudio overlay tone:', e); }
   if (ez.theme){
     try { themed = themeScene(sc, ez.theme, DW, DH, { tpl, keep: o => { const st = ezStyleOf(o.name); return !!(st && st.fill); } }); }
     catch (e){ console.warn('GraphicsStudio theme:', e); }
   }
-  if (preview) ez._themed = themed ? themed.fills : null;
+  let followed = null;
+  if (!ez.theme && ezGroundIsFlat(ez.bg)){ try { followed = ezCopyFollowsGround(sc, DW, DH); } catch (e){ console.warn('GraphicsStudio copy on ground:', e); } }
+  try { ezOverlayFit(sc, DW, DH); } catch (e){ console.warn('GraphicsStudio overlay tone:', e); }
+  if (preview) ez._themed = themed ? themed.fills : followed;
   sc.renderAll();
   if (keep) return sc;          // the video export animates this exact scene, and disposes it
   const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / Math.min(DW, DH) });
@@ -8594,17 +8601,12 @@ function ezOverlayRect(w, h){
   const a = f.os / 100;
   /* 2026-09-27: the overlay is SHADE, never a hue (rules 56 and 64): the
      visitor's colour picker used to lay a tint over the photograph, which is
-     the coloured haze the owner rejected. Black under light ink, paper under
-     dark, at the strength chosen. 'tint' saved in old drafts reads as 'shade'. */
-  const oc = ezInkLight(ezTpl()) ? '#000000' : '#ffffff';
-  let fill;
-  if (f.overlay === 'tint' || f.overlay === 'shade') fill = hexToRgba(oc, a * 0.75);
-  else fill = new fabric.Gradient({
-    type:'linear', gradientUnits:'percentage',
-    coords: f.overlay === 'down' ? { x1:0.5, y1:0, x2:0.5, y2:1 } : { x1:0.5, y1:1, x2:0.5, y2:0 },
-    colorStops:[ { offset:0, color:'rgba(0,0,0,0)' }, { offset:0.45, color: hexToRgba(oc, a * 0.25) }, { offset:1, color: hexToRgba(oc, a) } ],
-  });
-  return new fabric.Rect({ left:0, top:0, width:w || CW, height:h || CH, fill, selectable:false, evented:false, name:'Overlay' });
+     the coloured haze the owner rejected. 'tint' saved in old drafts reads as
+     'shade'. Drawn dark (rule 62) until ezOverlayFit, after the layout and the
+     theme, reads its tone off the copy standing on the photograph. */
+  const r = new fabric.Rect({ left:0, top:0, width:w || CW, height:h || CH, fill: ezOverlayFill(f.overlay, a, '#000000'), selectable:false, evented:false, name:'Overlay' });
+  r.pgOv = { kind: f.overlay, a, tone: '#000000' };
+  return r;
 }
 let _ezSaveT = null;
 function persistEzState(){
@@ -8773,13 +8775,18 @@ function openAdvancedFromEz(){
   const patAdv = ezPatternObj();
   if (patAdv){ canvas.add(patAdv); canvas.moveTo(patAdv, canvas.getObjects().filter(o => o.pgBgRect || o.pgScrim).length); }
   const ovAdv = ezOverlayRect();
-  if (ovAdv){ canvas.add(ovAdv); canvas.sendToBack(ovAdv); }
+  /* above the ground, as Easy Mode draws it: sent to the back it sat under a
+     drawn or flat ground's own rect and vanished */
+  if (ovAdv){ canvas.add(ovAdv); canvas.moveTo(ovAdv, canvas.getObjects().filter(o => o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern).length); }
   /* the colour theme, as Easy Mode drew it: the same pass over the editor's
      own objects, against the editor's own ground */
+  try { ezOverlayPre(canvas, CW, CH); } catch (e){ console.warn('GraphicsStudio overlay tone (editor):', e); }
   if (ez.theme){
     try { themeScene(canvas, ez.theme, CW, CH, { tpl, keep: o => { const st = (ez.styles[tpl.id] || {})[o.name]; return !!(st && st.fill); } }); }
     catch (e){ console.warn('GraphicsStudio theme (editor):', e); }
   }
+  if (!ez.theme && ezGroundIsFlat(ez.bg)){ try { ezCopyFollowsGround(canvas, CW, CH); } catch (e){ console.warn('GraphicsStudio copy on ground (editor):', e); } }
+  try { ezOverlayFit(canvas, CW, CH); } catch (e){ console.warn('GraphicsStudio overlay tone (editor):', e); }
   canvas.renderAll();
   pushHist();
   refreshQuickFields();
@@ -12583,12 +12590,19 @@ function themeScene(sc, th, W, H, opts){
     else want = bestOf(reading.filter(onSide).length ? reading.filter(onSide) : reading);
     const need = READ[t.pgRole] ? 4.5 : 3;
     // only the lightness moves (rule 31): an accent on the wrong side is lifted, or deepened, in its own hue
-    const out = thSolve(want, st, need, side);
+    let out = thSolve(want, st, need, side);
+    /* the side it read on cannot read on this ground at all (a light line over
+       a mid-tone swatch the visitor picked, 2.3:1 at best): whichever way reads */
+    if (side && st && thWorst(out, st) < 3){ const free = thSolve(bestOf(reading), st, need, null); if (thWorst(free, st) > thWorst(out, st)) out = free; }
     if (t.type === 'group') (t._objects || []).forEach(c => c.set('fill', out));
     else t.set('fill', out);
     t.pgFillGrad = null;
-    if (t.stroke && t.strokeWidth && typeof t.stroke === 'string') t.set('stroke', thRecolour(t.stroke, src, T, true));
-    if (t.shadow && t.shadow.color) t.shadow.color = thRecolour(t.shadow.color, src, T, true);
+    /* a see-through backing (a chip's 0.12 tint) is judged like any see-through
+       panel (rule 64): neutral, the tone the ink is not, at its own strength.
+       It kept the old palette's green behind a light theme's dark chips. */
+    if (own && own.a > 0 && own.a < 0.5) t.set('backgroundColor', thHexA(thLumOf(out) >= 0.18 ? '#080604' : '#fffdf8', own.a));
+    const plLum = bgHex ? thLumOf(bgHex) : pl ? (h => h ? thLumOf(h) : null)(plHex || (thParse(typeof pl.fill === 'string' ? pl.fill : '') || {}).hex) : null;
+    if (!thRingFit(t, out, plLum != null ? plLum : st ? st.p50 : null, !!(pl || bgHex))) t.set('stroke', thRecolour(t.stroke, src, T, true));
     t.dirty = true;
     if (t.name) fills[t.name] = out;
     count.lines++;
@@ -12607,6 +12621,14 @@ function ezThemeByName(n){ return n ? COLOR_THEMES.find(t => t.name === n) || nu
 function ezThemeGround(th, onSwitch){
   const tpl = ezTpl() || {};
   const bg = ez.bg;
+  /* one of the six quick swatches in a theme's palette: the same swatch in
+     this one; it leaves with the theme (ORIG) and stays across a template
+     switch (ezPresetSpecs) */
+  if (bg && bg.slot != null && bg.theme && !bg.src){
+    if (!th){ ez.bg = null; ez.bgRecId = null; return; }
+    const s = ezPresetSpecs()[bg.slot]; if (s){ ez.bg = Object.assign({}, s); ez.bgRecId = null; }
+    return;
+  }
   if (onSwitch && bg && !bg.theme) return;
   if (bg && bg.type === 'image'){
     if (bg.src && /^ground:/.test(bg.src) && window.GROUNDS && GROUNDS.parse){
@@ -12670,4 +12692,187 @@ function ezBlurOn(own){
   if (!add) return own;                                        // as designed, and the same cache key as ever
   own = +own || 0;
   return (own >= 1 ? own : own * TPL_W) + add;                 // blurredEl reads under 1 as a fraction of the width (the classics), 1 and up as 1080-card pixels
+}
+
+/* ── THE OVERLAY'S TONE FOLLOWS THE COPY ON THE PHOTOGRAPH ─────────────────
+   Shade, Fade ↓ and Fade ↑ took their tone from ezInkLight(), which counts
+   every critical line in the template's record. On Sell Your iPhone the
+   number's dark ink on its paper band, and a mid orange, outvoted the white
+   headline. So Shade laid a white veil (0.34) over a dark photograph under
+   light copy: rule 62's milky haze, and the headline lost contrast.
+   The tone is now read from the scene as drawn, after the layout and the
+   theme. It counts the lines standing on the photograph, in the ink they are
+   painted; a line on its own plate is left out, as pgShadeBands leaves it,
+   because the plate owns its ground. When a critical line (headline, number,
+   CTA) stands on the photograph, those lines decide.
+   - Dark when any counted line is lighter than 0.25 in luminance (the gate's
+     line, pgGate), or when no copy stands on the photograph (rule 62).
+   - Paper only when every counted line is dark ink (rule 66: "paper under
+     darker"). */
+function ezOverlayFill(kind, a, tone){
+  if (kind === 'tint' || kind === 'shade') return hexToRgba(tone, a * 0.75);
+  return new fabric.Gradient({
+    type:'linear', gradientUnits:'percentage',
+    coords: kind === 'down' ? { x1:0.5, y1:0, x2:0.5, y2:1 } : { x1:0.5, y1:1, x2:0.5, y2:0 },
+    colorStops:[ { offset:0, color: hexToRgba(tone, 0) }, { offset:0.45, color: hexToRgba(tone, a * 0.25) }, { offset:1, color: hexToRgba(tone, a) } ],
+  });
+}
+function ezOverlaySet(ov, tone){
+  if (tone !== ov.pgOv.tone){ ov.set('fill', ezOverlayFill(ov.pgOv.kind, ov.pgOv.a, tone)); ov.pgOv.tone = tone; }
+  return tone;
+}
+/* before the copy is solved: the tone its ground asks for. A theme or the
+   copy pass solves the lines against the overlay as it stands, so a dark
+   shade over a light theme's cream (0.34 of black) made a mid-tone ground,
+   the headline was kept light on it, and the lines then kept the shade dark.
+   Paper over a light ground, dark over the rest; ezOverlayFit confirms it
+   from the lines once they are drawn. */
+function ezOverlayPre(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  const ov = objs.find(o => o && o.pgOv); if (!ov) return null;
+  const bd = thBackdrop(sc, o => thIsGround(o) && !o.pgOv && o.name !== 'Pattern', Math.min(0.25, 270 / Math.max(W, H)));
+  const st = thStats(bd, { x: 0, y: 0, w: W, h: H });
+  return ezOverlaySet(ov, st && st.p50 > 0.4 ? '#ffffff' : '#000000');
+}
+function ezOverlayFit(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  const ov = objs.find(o => o && o.pgOv); if (!ov) return null;
+  const all = { light: 0, dark: 0 }, crit = { light: 0, dark: 0 };
+  objs.forEach(o => {
+    if (!thIsWords(o) || o.visible === false || o.pgRole === 'deco' || (o.opacity != null && o.opacity < 0.5)) return;
+    const text = typeof o.text === 'string' ? o.text : (o.pgCurved && o.pgCurved.text) || '';
+    if (!/[A-Za-z0-9]/.test(text) || thPlateOfLine(objs, o, W, H)) return;
+    const ink = o.type === 'group' ? ((o._objects || [])[0] || {}).fill || (o.pgCurved.style || {}).fill : o.fill;
+    const ls = thStops(ink).map(c => pgLum(c)).filter(v => v != null);
+    if (!ls.length) return;
+    const k = ls.reduce((s, v) => s + v, 0) / ls.length > 0.25 ? 'light' : 'dark';
+    all[k]++; if (PG_CRIT[o.pgRole]) crit[k]++;
+  });
+  const n = crit.light + crit.dark ? crit : all;
+  return ezOverlaySet(ov, n.dark && !n.light ? '#ffffff' : '#000000');
+}
+
+/* ── THE QUICK SWATCHES FOLLOW THE THEME ───────────────────────────────────
+   The six swatches beside ORIG were fixed colours from before the themes
+   (red to purple, navy, black, green, orange, amber). With a theme chosen
+   they had nothing to do with it: Gold Offer's cream card offered a magenta
+   ground next to it, which is a recolour the visitor then has to undo.
+   Rule 65 says a ground carries the card's own palette, or the chosen
+   theme's, fitted to the copy on it; "More grounds" already painted its
+   swatches that way (ezPalette). With a theme on, the six are that palette:
+     - its ground, as a gradient and as a solid;
+     - its accent and its support colour, deep under light ink and pale
+       under dark, clearing 6:1 against it;
+     - a neutral: near-black under light ink, paper under dark;
+     - the ground into the support colour.
+   A swatch picked under one theme becomes the same swatch in the next theme's
+   palette, and leaves with the theme (ORIG). No theme: the six classics. */
+function ezPresetSpecs(){
+  const th = ez.theme;
+  if (!th || !th.bg) return BG_PRESETS;
+  /* on the theme's own side of the ink, well clear of it: a deep tone under
+     light ink, a pale tint under dark. Fitted only to 6:1, a support colour
+     under dark ink came out mid-tone (0.35), where a line that crosses the
+     card's smoke panel reads neither light nor dark. */
+  const P = ezPalette(), lightInk = scLum(P.ink) > 0.4;
+  const tone = c => P.fit(lightInk ? ezMixHex(c, '#000000', 0.55) : ezMixHex(c, '#ffffff', 0.7));
+  const acc = tone(P.accent), sup = tone(P.support), neutral = P.fit(lightInk ? '#101114' : '#f4f1ea');
+  return [
+    { type:'grad', c1:P.c1, c2:P.c2, a:135, label:'ground' },
+    { type:'solid', c:P.c1, label:'ground, flat' },
+    { type:'grad', c1:acc, c2:P.c1, a:160, label:'accent' },
+    { type:'solid', c:sup, label:'support colour' },
+    { type:'solid', c:neutral, label:'neutral' },
+    { type:'grad', c1:P.c2, c2:sup, a:180, label:'ground into support' },
+  ].map((s, i) => Object.assign(s, { theme: th.name, slot: i }));
+}
+function ezSameGround(a, b){
+  if (!a || !b || a.type !== b.type) return false;
+  return a.type === 'solid' ? String(a.c).toLowerCase() === String(b.c).toLowerCase()
+    : String(a.c1).toLowerCase() === String(b.c1).toLowerCase() && String(a.c2).toLowerCase() === String(b.c2).toLowerCase() && (+a.a || 0) === (+b.a || 0);
+}
+function ezSyncPresets(){
+  const specs = ezPresetSpecs();
+  document.querySelectorAll('#ez-swatches .ez-sw[data-i]').forEach(b => {
+    const s = specs[+b.dataset.i]; if (!s) return;
+    b.style.background = cssBg(s);
+    b.title = s.theme ? s.theme + ' ' + s.label : 'Background ' + (+b.dataset.i + 1);
+    b.setAttribute('aria-label', b.title);
+  });
+  return specs;
+}
+
+/* A LINE'S RING TAKES THE TONE ITS GROUND IS NOT. A line's outline and halo
+   separate it from its ground: a ring of the tone the ground is not, and
+   neutral (rules 27 and 64). The dark glow of a white headline stayed round
+   the dark ink a light theme gave it on a light ground, and smeared the
+   letters. On a plate the plate is the separation: a ring of the ink's own
+   tone goes, and none is turned light. Returns false for a coloured outline;
+   that is part of the design, and the caller colours it by its role. */
+function thRingFit(t, ink, gl, onPlate){
+  const inkUp = gl == null || thLumOf(ink) > gl, tone = inkUp ? '#080604' : '#fffdf8';
+  const ring = c => { const q = thParse(c); if (!q || !(q.a > 0)) return { c };
+    if ((thLumOf(q.hex) < thLumOf(ink)) === inkUp) return { c: thHexA(tone, q.a) };   // it separates: neutral, at its own strength
+    return onPlate ? { drop: true } : { c: thHexA(tone, q.a) }; };                    // it does not: turned over, or gone on a plate
+  let coloured = false;
+  if (t.stroke && t.strokeWidth && typeof t.stroke === 'string'){
+    const q = thParse(t.stroke), o = q && hexToOklch(q.hex);
+    if (o && o.C < 0.035){ const r = ring(t.stroke); if (r.drop) t.set({ stroke: null, strokeWidth: 0 }); else t.set('stroke', r.c); }
+    else coloured = true;
+  }
+  if (t.shadow && t.shadow.color){ const r = ring(t.shadow.color); if (r.drop) t.set('shadow', null); else t.shadow.color = r.c; }
+  return !coloured;
+}
+
+/* ── THE COPY FOLLOWS A GROUND THE VISITOR PICKS ───────────────────────────
+   With a theme on, the copy is solved against whatever ground is under it.
+   With none, a quick swatch or a custom colour changed the ground and nothing
+   else: Sell Your iPhone's orange IPHONE on the amber swatch read 2.2:1, and
+   its white headline 1.7:1. The download gate would then shade the
+   flat colour to rescue it.
+   On a flat or drawn ground the visitor chose (not the card's own, not a
+   photograph, where the shade does this job, rule 62), each reading line
+   standing on it that falls under 4.5:1 moves its lightness until it reads,
+   keeping its hue (rule 31). A gradient's stops move together, to the side
+   that reads. The ring then follows the ink (thRingFit). A see-through
+   backing behind a line is dropped. A line on a plate is left alone
+   (rule 51), and so is a colour the visitor set. */
+function ezGroundIsFlat(bg){
+  return !!bg && (bg.type === 'solid' || bg.type === 'grad' || (bg.type === 'image' && /^ground:/.test(bg.src || '')));
+}
+function ezCopyFollowsGround(sc, W, H){
+  let objs; try { objs = sc.getObjects().slice(); } catch (e){ return null; }
+  const words = objs.filter(o => o && o.visible !== false && thIsWords(o) && PG_READ[o.pgRole] && !((ezStyleOf(o.name) || {}).fill));
+  if (!words.length) return null;
+  const bd = thBackdrop(sc, o => !thIsWords(o), Math.min(0.5, 540 / Math.max(W, H)));
+  const fills = {};
+  words.forEach(t => {
+    const own = thParse(t.backgroundColor);
+    if ((own && own.a >= 0.5) || thPlateOfLine(objs, t, W, H)) return;
+    /* a see-through backing calms a photograph behind a line; on a flat
+       ground it calms nothing and only sits round the letters as a faint box
+       (bandKnockout's chips read 2.6:1 with it, 7:1 without) */
+    if (own && own.a > 0){ t.set('backgroundColor', ''); t.dirty = true; }
+    t.setCoords(); const r = t.getBoundingRect(true, true), st = thStats(bd, { x: r.left, y: r.top, w: r.width, h: r.height });
+    if (!st) return;
+    const kids = t.type === 'group' ? (t._objects || []) : [t];
+    const f = kids[0] && kids[0].fill, stops = thStops(f).map(thParse).filter(Boolean);
+    if (!stops.length) return;
+    const mean = stops.slice().sort((p, q) => thLumOf(p.hex) - thLumOf(q.hex))[stops.length >> 1].hex;
+    if (thWorst(mean, st) >= 4.5) return;
+    const up = thSolve(mean, st, 4.5, 'light'), dn = thSolve(mean, st, 4.5, 'dark');
+    const side = thWorst(up, st) >= thWorst(dn, st) ? 'light' : 'dark';
+    const solve = c => { const q = thParse(c); return q ? thHexA(thSolve(q.hex, st, 4.5, side), q.a) : c; };
+    kids.forEach(k => {
+      if (typeof k.fill === 'string') k.set('fill', solve(k.fill));
+      else if (k.fill && Array.isArray(k.fill.colorStops)) k.fill.colorStops.forEach(s => { s.color = solve(s.color); });
+      k.dirty = true;
+    });
+    t.pgFillGrad = null;
+    const ink = side === 'light' ? up : dn;
+    thRingFit(t, ink, st.p50, false);
+    t.dirty = true;
+    if (t.name) fills[t.name] = ink;
+  });
+  return Object.keys(fills).length ? fills : null;
 }
