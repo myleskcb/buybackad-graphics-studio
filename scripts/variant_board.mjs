@@ -291,7 +291,8 @@ if (cmd === 'audit'){
   // in batches, so one stuck page cannot sink the shard
   for (let i = 0; i < ids.length; i += 20){
     const batch = ids.slice(i, i + 20);
-    try { execFileSync('node', [ROOT + 'scripts/audit_card.mjs', '--lab', ...batch], { stdio: 'ignore', timeout: 20 * 90000 }); } catch (e){ /* exit 1: some failed; the JSONs say which */ }
+    /* --fail-fast unless --full: a failing card is dropped, so its audit stops at the first failing view; a passing card is always audited in every view */
+    try { execFileSync('node', [ROOT + 'scripts/audit_card.mjs', '--lab', ...(args.includes('--full') ? [] : ['--fail-fast']), ...batch], { stdio: 'ignore', timeout: 20 * 90000 }); } catch (e){ /* exit 1: some failed; the JSONs say which */ }
     console.log('shard ' + SHARD + ': audited ' + Math.min(i + 20, ids.length) + '/' + ids.length);
   }
   process.exit(0);
