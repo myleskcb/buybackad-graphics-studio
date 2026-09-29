@@ -12,9 +12,12 @@
  *   copy      the headline is a claim (68); the badge is from the bank and
  *             shares no word with the claim (69)
  *   type      two faces (three at most), two weights a face; nothing under
- *             26px; no blurred shadow on small type that sits on a plate (70, 71)
+ *             26px; no blurred shadow on small type that sits on a plate; the
+ *             claim's face spells "iPHONE" with a lowercase i and a 1 that is
+ *             not an I (70, 71)
  *   headline  caps at least 10% of the canvas; stacked lines 4-16% of a size
- *             apart; left edges within 2px; 4.5:1 on its ground (54, 68)
+ *             apart; left edges within 2px; 4.5:1 on its ground, and no more
+ *             than 5% of its letters dissolved into the ground (54, 68)
  *   badge     hangs from the claim's cap line; mark and words centred on the
  *             pill, padding balanced; the CTA's own colour (69, 74)
  *   steps     plates one width, one height, one gap; numerals centred in their
@@ -104,6 +107,10 @@ await page.evaluate(() => {
     const badge = named('Badge'), pill = named('Badge Pill'), mark = named('Badge Icon'), band = named('Phone Plate');
     let crit = [];
     const capOf = o => { const c = document.createElement('canvas').getContext('2d'); c.font = o._getFontDeclaration(); return c.measureText('H').actualBoundingBoxAscent * (o.scaleY || 1); };
+    const h2sw = o => o && o.stroke && o.strokeWidth && o.paintFirst === 'stroke' ? o.strokeWidth * (o.scaleY || 1) : 0;
+    /* a line with a 3-D depth (its kin, drawn under it) is as deep as its depth */
+    const inkU = o => { const r = [o].concat(objs.filter(q => q.pgKin === o && live(q))).map(q => ink.get(q)).filter(Boolean);
+      return r.length ? { l: Math.min(...r.map(x => x.l)), t: Math.min(...r.map(x => x.t)), r: Math.max(...r.map(x => x.r)), b: Math.max(...r.map(x => x.b)) } : null; };
 
     try {
     // ── copy
@@ -130,6 +137,13 @@ await page.evaluate(() => {
     const onPlate = o => { const c = o.getCenterPoint(); return plates.some(p => { const b = p.getBoundingRect(true, true); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; }); };
     const blurred = words.filter(o => fsOf(o) < 48 && onPlate(o) && o.shadow && (o.shadow.blur || 0) > 2);
     check(71, 'no blurred shadow on small plated type', !blurred.length, blurred.map(o => o.name).join(', ') || 'none', 'none');
+    /* the claim spelled as the owner writes it: a caps-only face set "iPHONE" as
+       "IPHONE" (Bangers), a bar-shaped 1 set "#1" as "#I" (Squada One) */
+    if (typeof faceGlyphs === 'function') heads.forEach(o => {
+      const t = String(o.text || ''), g = faceGlyphs(o.fontFamily, o.fontWeight, o.fontStyle);
+      if (/i/.test(t)) check(71, 'the claim face has a lowercase i ("' + t + '")', g.dotI, o.fontFamily + (g.dotI ? ': a dotted i' : ': a capital I only'), '"iPHONE", not "IPHONE"');
+      if (/1/.test(t)) check(71, 'the claim face’s 1 is not its I ("' + t + '")', g.oneVsI >= 0.2, o.fontFamily + ' ' + g.oneVsI, '>= 0.2 of their ink apart');
+    });
     } catch (e){ out.push({ where, rule: 0, name: 'section type measured', pass: false, got: String(e).slice(0, 160), want: 'no error' }); }
     try {
     // ── headline
@@ -138,9 +152,9 @@ await page.evaluate(() => {
       const S0 = Math.min(W, H);   // the short side: a 3:4 card is as wide as the square
       check(68, 'headline cap height', cap >= 0.10 * S0, r1(cap) + 'px', '>= ' + r1(0.10 * S0) + 'px');
       for (let k = 1; k < heads.length; k++){
-        const a = I(heads[k - 1]), b = I(heads[k]), s = Math.min(fsOf(heads[k - 1]), fsOf(heads[k]));
+        const a = I(heads[k - 1]), aU = inkU(heads[k - 1]) || a, b = I(heads[k]), s = Math.min(fsOf(heads[k - 1]), fsOf(heads[k]));
         if (!a || !b) continue;
-        const gap = b.t - a.b;
+        const gap = b.t - aU.b;                 // under the upper line's depth, if it has one
         check(68, 'headline line gap ' + k, gap >= 0.04 * s && gap <= 0.16 * s, r1(gap) + 'px (' + r1(100 * gap / s) + '%)', '4-16% of the size');
         if ((heads[k].textAlign || 'left') === 'left' && heads[k].originX !== 'center')
           check(68, 'headline left edges ' + k, Math.abs(a.l - b.l) <= 2, r1(a.l) + ' / ' + r1(b.l), 'within 2px');
@@ -149,12 +163,25 @@ await page.evaluate(() => {
     crit = typeof taglineCritic === 'function' ? taglineCritic(sc, W, H) : [];
     restore();
     crit.filter(c => c.role === 'headline').forEach(c => check(54, 'headline contrast "' + c.text + '"', c.q75 >= 4.5, c.q75 + ':1', '>= 4.5:1'));
+    /* the letters themselves read (fillLegibility): the upper quartile above passed
+       camo and a black claim on a bright mosaic on their light patches. Here no
+       more than 5% of each line's letters may dissolve into the ground under them
+       (under 1.5:1 in lightness AND under 0.12 apart in colour, OKLab: the black
+       claim on the mosaic lost 26%, every other card 3% at most; a saturated pink
+       on grey reads by its colour and loses none), or an outline that draws the
+       letters stands 4.5:1 off the fill */
+    if (typeof fillLegibility === 'function') heads.forEach(o => {
+      const m = fillLegibility(sc, o); if (!m) return;
+      check(54, 'the letters read on their ground "' + String(o.text).slice(0, 28) + '"', m.lost <= 0.05 || (m.o50 != null && m.o50 >= 4.5),
+        r1(100 * m.lost) + '% lost (fill ' + m.g25 + ':1' + (m.o50 != null ? ', outline ' + m.o50 + ':1' : '') + ')', 'at most 5% of the letters lost, or an outline at 4.5:1');
+    });
     } catch (e){ out.push({ where, rule: 0, name: 'section headline measured', pass: false, got: String(e).slice(0, 160), want: 'no error' }); }
     try {
     // ── badge
     if (badge && pill && heads.length > 1){
       const P = I(pill), T = I(badge), M = mark && I(mark);
-      const h2 = heads[heads.length - 1], capTop = I(h2) ? I(h2).b - capOf(h2) : null;
+      const sw2 = h2sw(heads[heads.length - 1]);
+      const h2 = heads[heads.length - 1], capTop = I(h2) ? I(h2).b - capOf(h2) - sw2 : null;   // an outline adds half its width above the caps and below the baseline
       if (capTop != null) check(69, 'badge hangs from the cap line', Math.abs(P.t - capTop) <= 3, r1(P.t) + ' vs cap ' + r1(capTop), 'within 3px');
       if (M){
         check(69, 'mark inside the pill', M.l >= P.l + 10 && M.r <= P.r - 10 && M.t >= P.t + 6 && M.b <= P.b - 6, [M.l, M.t, M.r, M.b].map(r1).join(','), 'inside with air');
@@ -275,7 +302,7 @@ await page.evaluate(() => {
              center content scooted up in order to properly center it otherwise there is a large gap") */
           const plates = [1, 2, 3].map(i => named('Step Card ' + i)).filter(Boolean).map(I);
           const top = Math.min(Pr.t, ...plates.map(p => p.t)), bot = Math.max(Pr.b, ...plates.map(p => p.b));
-          const claimBot = Math.max(...heads.map(h => I(h) ? I(h).b : 0), pill ? I(pill).b : 0);
+          const claimBot = Math.max(...heads.map(h => inkU(h) ? inkU(h).b : 0), pill ? I(pill).b : 0);   // a 3-D claim ends under its depth
           const above = top - claimBot, below = B.t - bot;
           check(0, 'middle block centred between the claim and the band', Math.abs(above - below) <= 8, r1(above) + ' above / ' + r1(below) + ' below', 'within 8px');
         }
@@ -299,7 +326,8 @@ await page.evaluate(() => {
          a pass that moves a placed layer is second-guessing the design */
       const drift = [];
       objs.forEach(o => { const b0 = rec.built[o.name]; if (!b0 || o.pgRole === 'phone') return;
-        const c = o.getCenterPoint(), d = Math.hypot(c.x - b0[0], c.y - b0[1]), s = (o.scaleX || 1) / b0[2];
+        const s1 = rec.settled && rec.settled[o.name];   // where the passes left it, before a look re-strokes it
+        const c = s1 ? { x: s1[0], y: s1[1] } : o.getCenterPoint(), d = Math.hypot(c.x - b0[0], c.y - b0[1]), s = (s1 ? s1[2] : (o.scaleX || 1)) / b0[2];
         if (d > 2 || Math.abs(s - 1) > 0.01) drift.push(o.name + ' ' + r1(d) + 'px (' + r1(c.x - b0[0]) + ',' + r1(c.y - b0[1]) + ')' + (Math.abs(s - 1) > 0.01 ? ' x' + s.toFixed(3) : '')); });
       check(0, 'the layout passes moved nothing', !drift.length, drift.join(', ') || 'none', 'every layer within 2px of where it was built');
     }
@@ -342,9 +370,11 @@ for (const id of ids){
     const built = {};
     t.layers.forEach(l => { const o = buildLayer(l, t.id); sc.add(o); o.setCoords(); const c = o.getCenterPoint(); built[o.name] = [c.x, c.y, o.scaleX || 1]; });
     alignPass(sc, TPL_W, TPL_H);
+    const settled = {};
+    sc.getObjects().forEach(o => { if (!o.name) return; o.setCoords(); const c = o.getCenterPoint(); settled[o.name] = [c.x, c.y, o.scaleX || 1]; });
     if (typeof applyCardLook === 'function') applyCardLook(sc, t, TPL_W, TPL_H, 1);   // the card's own look, as renderThumb paints it
     sc.renderAll();
-    res.push(...__audit(sc, TPL_W, TPL_H, { built }, 'gallery'));
+    res.push(...__audit(sc, TPL_W, TPL_H, { built, settled }, 'gallery'));
     const png = sc.toDataURL({ format: 'png' });
     sc.dispose();
     // 2. Easy Mode, the scene a visitor downloads, square and 3:4

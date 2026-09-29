@@ -1357,3 +1357,58 @@ Rejected:
     by measuring instead.
   - Merging the colour-theme session (claude/eloquent-euler-7jvzfd): minutes
     old and mid-work. Re-running curate_showcase: it re-picks the owner's cut.
+
+## 2026-09-29 — the variant board: what 150 pilot cards taught the engine
+
+The first pilot passed 2 of 30. The audit was right each time, and most of the
+failures were engine bugs that the approved card had never exercised:
+- **An outline moved the letters.** fabric grows a stroked text's box and keeps
+  its top-left, so every outline look shifted the claim half a stroke down and
+  right (8px on a 196px line), and every effect copy (glow halo, red and blue,
+  3-D depth) sat half a stroke off its letters. Strokes now keep the centre;
+  copies are placed by their line's centre. This was live in the Easy Mode
+  panel.
+- **An outlined band grew on every pass.** fitInsideGuides re-attached a
+  full-bleed band from its bounding box, which counts the stroke.
+- **A numeral was judged by its box.** Oswald's "2" box hung 5px under its
+  plate and section 4c moved it; on letter-laid cards numerals are now judged
+  by their letters.
+- **An inset CTA card was snugged to the number's box** and grew 30px into the
+  steps, lifting the phone; the composer's CTA plate is left alone.
+- **The claim merged with the steps** in 3:4 and 9:16 when an outline or a 3-D
+  depth brought it within the joining gap; the claim is its own block, and the
+  tall-format passes know the look that will paint it.
+- **The video clipped a slanted face.** Bangers draws its last letter past its
+  advance box; the video's layer crops now keep a quarter em for text.
+- **Street's number** was re-centred by numberFill before its outline was drawn
+  and left the guides; numberFill now allows for the pending outline.
+- **A fixed "deep" accent** read 1.1:1 on a mauve ground; the second line's
+  colour on a light ground is solved against the darker fifth of the ground.
+Planning mistakes, caught by the numbers: the planner counted rejected
+attempts toward coverage (claims came out 64 to 145), and planned faces that
+could not set a claim or a number at the rules' sizes. The planner now
+measures every face first and counts only what it keeps.
+Then a look at the cards themselves, before the full run was a quarter done,
+found what no check measured yet: the Comic and Marker voices set "iPHONE" as
+"IPHONE" (Bangers and Permanent Marker have no lowercase), Squada One set "#1"
+as "#I", and the camo pattern dissolved into every dark ground while its light
+patches passed the contrast measure. The run was stopped and re-planned: the
+glyphs are measured (`faceGlyphs`), the audit fails a claim its face cannot
+spell, Comic and Marker moved to Knewave and Sedgwick Ave Display, camo and
+the open-MacBook ground left the board. Lesson: the audit is the floor, not
+the review. Contact sheets of the first cards, looked at as the owner would,
+catch what the rules have not yet named, and they are cheapest before the run.
+The same sheets showed a black claim on a bright mosaic that the contrast check
+passed (its upper quartile sat on the light tiles). A luminance-only floor on
+the letters' fill failed it, and also failed the owner's own pink "iPHONES" on
+grey phones, which reads plainly by its colour. Measured both ways on real
+cards, the difference is a pixel that neither lightness nor colour separates:
+the mosaic lost 26% of its letters, every other card 3% at most, the pink none.
+The gate is on that, not on a threshold picked from one bad card.
+The first audits then showed 3:4 and 9:16 rows off by 2 and 4px on cards the
+composer had centred to the pixel. Traced pass by pass, no pass moved them: the
+tall formats scale the list 1.45x, and a label's drawn top sat 0.7px under its
+metric top in the square and 1.6px under it scaled. The approved card had the
+same drift and passed only because it started a pixel the other way. The rows
+are now re-centred by their drawn letters after the list grows; the approved
+9:16 still matches the owner's render (0.04% of pixels moved).
