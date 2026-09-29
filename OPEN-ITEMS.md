@@ -26,6 +26,9 @@ hash identical (`226169392f04c437d94c49f9844cf561`).
    emojis sometimes can look good", "use icons emojis everything that could
    catch your eye"). Pictorial emoji were *removed* earlier as cheesy; the ask
    is to bring them back as an intentional oversized treatment, not filler.
+   **Done in part 2026-09-29** (DESIGN-LAW rule 88): emoji accents from one
+   3D art set, beside the words, on some cards, with an Easy Mode control.
+   Still open: a layout built around one oversized emoji as the hero.
 2. **Colourable / editable vectors.** "Maybe the vectors can have colors applied
    to them, make it as creative as possible with as much free rein to edit as a
    customer would like." The 20-mark icon set exists and renders, but `path`
@@ -220,6 +223,11 @@ longer paints duotones; the natural pass must run after it:
     node scripts/refresh_showcase.mjs                      # palettes, faces, copy rules, bake
     node scripts/number_block.mjs --write                  # the number, big (rule 53)
     node scripts/naturalize_showcase.mjs --write           # photo in its own colour (rule 56)
+    node scripts/restage_glasscards.mjs --write            # Glass Card: product on the card (rule 59)
+    node scripts/darken_grounds.mjs --write                # shade dark, never milky (rule 62)
+    node scripts/support_highlights.mjs --write            # support colour on the selling points (rule 63)
+    node scripts/neutral_panels.mjs --write                # no hue over the photograph (rule 85)
+    node scripts/vary_grounds.mjs --write                  # every kind of ground (rule 86)
     node scripts/clear_number.mjs --write                  # nothing drawn on the number
     node scripts/audit_showcase_overlap.mjs --write
     node scripts/audit_showcase_legibility.mjs --write --json .render/legib.json
@@ -357,7 +365,24 @@ Next, in order of what the owner will see:
 6. **`/motion` keeps its own light chrome** (53 faces, 121 palettes). It is
    synced from the phone ad engine's repo, so restyle it there and re-sync;
    an edit here would be overwritten.
-7. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
+7. **Colour hazes (rule 85) are cleared on the showcase only.** The classics
+   (243, built at runtime by `assignStyle()`) and the Easy Mode themes were not
+   measured for tinted panels, pale glows or light halos on light ink. Run the
+   same census on them (`scripts/neutral_panels.mjs` reads the showcase
+   records; the classics need their builders changed, not their records).
+8. **The Apple Store photograph** (owner: "we can always use a photo of the
+   Apple Store background that is a good one"). Not in the repo, and the
+   session's network policy refused every free-photo host (Wikimedia,
+   Unsplash, Pexels, Pixabay, Flickr). Supply one (or allow one of those hosts
+   and run `scripts/fetch_backdrops.mjs` with an Apple Store query), save it to
+   `assets/bg-web/` with its ATTRIBUTION row, and it becomes a photograph like
+   any other: a record's `bg.src`, a "Photos" swatch in Easy Mode for its
+   category. Mind the logo: a store interior with the Apple mark reads as
+   Apple's own ad; blurred (the "Blurred photos" style), it is atmosphere.
+9. **The advanced editor's Background** is still Solid / Gradient / Image. A
+   drawn ground opened from Easy Mode carries over (applyBgSpec draws it), but
+   the editor has no picker of its own for them yet.
+10. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
    done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
    predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
    the three "Starter" prompts.
@@ -615,3 +640,88 @@ elements (ticker, caution tape, stamp, arrows, flash border) and the sign
 boards. Built as Studio choices they would go where the tagline style went: in
 `renderEzCanvas`, for every template, never one family.
 
+## R. 2026-09-27 (night) — one measure, one gate, the pipeline in one place
+
+Done (DESIGN-LAW rule 87, docs/COHESION-AUDIT.md): `pgCheck` is the measure,
+`pgGate` runs before every export, `gateRecords` before every record write,
+`verify_showcase.mjs` before a commit; the classics no longer load graded;
+the Easy overlay is shade; a theme keeps a photo-led card's photograph; the
+content audit keeps curation stamps; one live predicate.
+
+**The showcase pipeline, in order** (replaces the §H, §I and §K lists; each
+step is measured by the gate before it writes):
+
+    node scripts/refresh_showcase.mjs                      # palettes, faces, copy rules, from git HEAD: FIRST, or it discards everything after
+    node scripts/import_lab_export.mjs                     # new records from the lab (restores the tone grade: before naturalize)
+    node scripts/number_block.mjs --write                  # the number, big (rule 53)
+    node scripts/naturalize_showcase.mjs --write           # photo in its own colour (rule 56)
+    node scripts/restage_glasscards.mjs --write            # Glass Card: product on the card (rule 59)
+    node scripts/darken_grounds.mjs --write                # shade dark, never milky (rule 62)
+    node scripts/darken_grounds.mjs --resolve --ids <blurred ids> --write   # blurred cards: strict shade (rule 86)
+    node scripts/darken_grounds.mjs --lighten --ids <live photo ids> --write   # bands, the lightest shade that passes the gate (rule 87)
+    node scripts/clear_number.mjs --write                  # nothing drawn on the number
+    node scripts/support_highlights.mjs --write            # support colour on the selling points (rule 63); BEFORE neutral_panels
+    node scripts/neutral_panels.mjs --write                # no hue over the photograph (rule 85)
+    node scripts/vary_grounds.mjs --write                  # every kind of ground (rule 86)
+    node scripts/audit_showcase_overlap.mjs --write        # cover / clip stamps (before content)
+    node scripts/audit_showcase_legibility.mjs --write     # legib stamps (the one measure)
+    node scripts/audit_showcase_school.mjs --write         # the critic (the one measure + its own checks)
+    node scripts/audit_collisions.mjs --json .render/collide.json
+    node scripts/audit_showcase_content.mjs --write        # `defect` from the stamps (keeps `curated`)
+    node scripts/curate_showcase.mjs --write               # the owner's cut, LAST
+    node scripts/verify_showcase.mjs --write               # the gate over the library: exit 1 stops the commit
+    node scripts/rethumb_showcase.mjs                      # then bump ASSET_REV in app.js
+    node scripts/measure_showcase_color.mjs
+    node scripts/landing_check.mjs
+
+Never after darken: `supply_backgrounds.mjs` (it writes a tinted tone scrim;
+retire it or rewrite it on the gate). Never on the showcase: `decollide_text`,
+`replace_cutouts` (alignPass 4b/4d and number_block do their jobs).
+
+Done on 2026-09-28 ("fix and push all redesigns, audited before pushing"):
+the classics re-baked under the gate. `assignStyle` grades nothing; the
+contrast table (289 layers), the number table (509 layers on 162 classics,
+median number 64 -> 109px) and the ground table (235 classics, every
+image-backed one, a skipped solve keeps its previous row) re-solved in that
+order; the engine floors the number at 72px after the guides fit
+(`pgNumberFloor`: a pill grows, a band lets it slide); a hex block big enough
+to carry copy is drawn solid, thin rules stay at 45%; the editor hand-off
+refits the visitor's words and re-runs alignPass. Measured: classics 38 ->
+16 failing the gate (of 243); the 16 are held back from every list by
+`assets/classics-gate.json` (`verify_showcase.mjs --classics --write`).
+Showcase 399 pass. Superseded scripts removed (20 files).
+
+Still open, from the audit (numbers in docs/COHESION-AUDIT.md):
+
+0. **The 16 gated classics**, each a layout that the tables cannot fix:
+   `neon_sell` (its number on a plate no shade serves: rebuild the layout);
+   `reviewProof` x4 and `editorialLux` (the number's ink on a paper plate at
+   2 to 2.9:1: the paper palette's number plate needs its own ink rule);
+   `agencyGrid` x2, `trustSeal`, `arcCrown`, `voltStack`, `slabPoster`
+   (headline or CTA on the photograph under 3:1 with no neutral scrim that
+   holds every line: re-set the copy on a plate); `pkm_attic` (headline too
+   small as a tile); `splitcol` x2 (the number off its column plate). Fix the
+   layout builders, run `verify --classics --write`, and a card that passes
+   leaves the gate table by itself.
+1. **The classics' re-bake** (done above; kept for the order): `assignStyle` no longer grades, so the 129
+   rows of ground-fix.json now only supply the shade; three dark-ink
+   classics stand on 0.86 paper, every hex plate is drawn at 45% (rule 21 vs
+   64), nine designer layouts author the number under 72px. Re-bake with
+   `naturalize_classics --prefer dark`, `number_block --classics`, then run
+   the gate over TEMPLATES (a classics `verify` is the missing script).
+2. **The editor path** (done 2026-09-28: the hand-off refits and re-aligns;
+   the editor's gate shade is bands from the scene, like Easy Mode's).
+3. **The classics' passes** (inkVsWash, gradInkContrast, localGroundContrast,
+   applyMeasuredContrast) each carry their own luminance, contrast and plate
+   finder and each claims to be final. Fold them onto `pgCheck` at the
+   re-bake; until then they are frozen.
+4. **Retire the superseded scripts** listed in the audit once nothing in
+   .render depends on them.
+5. **A classics verify** (`verify_showcase.mjs --classics`): the gate over
+   TEMPLATES, so the Easy strip is held to the same measure as the library.
+   (Done 2026-09-28.)
+6. **Backgrounds visible** (2026-09-28, "make sure the backgrounds are
+   visible"): done as the bands shade (rule 87): library median 62% of the photograph showing (26% before), classics 72% (49%). Still whole-card:
+   the Easy photo swatches' base scrim (0.36 to 0.42 graded) before the gate
+   shades further; `naturalize_showcase.mjs` still solves 'normal' only (it
+   runs before darken, which re-solves).

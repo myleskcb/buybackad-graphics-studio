@@ -6,6 +6,8 @@
 import puppeteer from 'puppeteer-core';
 import { readFileSync } from 'node:fs';
 export const BASE = process.env.GFX_BASE || 'http://localhost:8899/';
+/* THE ONE "LIVE" PREDICATE (= scIsLive in app.js): not condemned, with imagery, with colour */
+export const live = c => !!c && !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05);
 /* A machine that cannot reach cdnjs (a sandbox, CI) can still run the audits:
  * FABRIC_JS=/path/to/fabric.min.js serves that file for the page's fabric
  * <script>, and every other off-origin request is aborted instead of left
@@ -32,6 +34,8 @@ export async function openStudio(query = ''){
   await offline(page);
   await page.goto(BASE + '?look=graphite-orchid' + query, { waitUntil:'networkidle2', timeout:120000 });
   await page.waitForFunction(() => typeof buildLayer === 'function' && typeof renderThumb === 'function' && typeof SHOWCASE !== 'undefined', { timeout:60000 });
+  /* the emoji sheet (rule 88) before anything is painted, or the first cards come out without their accents */
+  await page.evaluate(() => typeof pgEmojiLoad === 'function' ? pgEmojiLoad().then(() => true) : true);
   await page.evaluate(() => {
     window.__sc = {
       /* record -> template, every face, cutout and backdrop loaded */
@@ -40,7 +44,8 @@ export async function openStudio(query = ''){
         const t = Object.assign({}, base, rec.tpl, { id:'hx-' + id, name:id, cat:rec.tpl.cat });
         const fams = new Set(); (t.layers || []).forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); });
         const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
-        const load = (src, store) => new Promise(r => { if (!src || (store[src] && store[src].width)) return r();
+        const load = (src, store) => new Promise(r => { if (store === TPL_BG_ELS && isDrawnSrc(src)) return loadDrawnBg(src).then(r);
+          if (!src || (store[src] && store[src].width)) return r();
           const el = new Image(); el.onload = () => { store[src] = el; r(); }; el.onerror = () => r();
           /* the first classics' photographs ship inside tplbg-data.js, not as files */
           el.src = (store === TPL_BG_ELS && window.TPL_BG_DATA && TPL_BG_DATA[src]) || src; });
@@ -56,6 +61,30 @@ export async function openStudio(query = ''){
         const rec = await fetch('assets/showcase/tpl/' + id + '.json', { cache:'no-store' }).then(r => r.json());
         return this.prep(rec, id);
       },
+      /* THE GATE (app.js pgCheck): the one measure every generation passes
+         before it is produced. Paints the card the way renderThumb() does and
+         returns the numbers: fails (legib, number, numInk, offPlate,
+         onProduct, thumb, margin, touch), warns, and every reading line's
+         core and worst letter. A writer script keeps a change only when
+         accept(before, after) says so. */
+      check(t, opts){
+        const { sc, refs, bgMissing } = this.paint(t);
+        const r = pgCheck(sc, opts); r.bgMissing = bgMissing;
+        sc.dispose();
+        return r;
+      },
+      /* a change is kept when it leaves no failure that was not there before,
+         and no critical line under what it had (rule 52), by the same measure */
+      accept(before, after, opts){
+        const tol = (opts && opts.tol) || 0.05;
+        const was = new Set(before.fails.map(f => f.code + '|' + f.line));
+        const fresh = after.fails.filter(f => !was.has(f.code + '|' + f.line));
+        const B = Object.fromEntries(before.lines.map(x => [x.name, x]));
+        const lost = after.lines.filter(x => PG_CRIT[x.role] && B[x.name] && x.core != null && B[x.name].core != null && x.core < Math.min(B[x.name].core, PG_T.contrast) - tol)
+          .map(x => ({ line: x.name, was: B[x.name].core, now: x.core }));
+        return { ok: !fresh.length && !lost.length, fresh, lost };
+      },
+      colour: { lin: pgLin, lum: pgLum, rgb: pgRgb, cr: pgCr },
       /* renderThumb()'s own sequence, kept open so layers can be toggled */
       paint(t){
         const W = TPL_W, H = TPL_H;
@@ -81,8 +110,9 @@ export async function openStudio(query = ''){
          where it clears o.want (4.5:1) against its ink, or where the old ground
          kept it if that was further: the lightest scrim that does both. So no
          line loses contrast, and none is shaded darker than it needs.
-         o.modes: the scrim modes to try in order ('gradient' keeps the middle
-         of the photograph alive; 'normal' is even). */
+         o.modes: the scrim modes to try in order ('bands' shades only where
+         copy stands, see below; 'gradient' keeps the middle of the photograph
+         alive; 'normal' is even). */
       naturalGround(t, o){
         const W = TPL_W, H = TPL_H, bg = t.bg;
         const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
@@ -113,7 +143,7 @@ export async function openStudio(query = ''){
           const b = box(refs[k]), c = { x: b.x + b.w / 2, y: b.y + b.h / 2 };
           if (b.w < 2 || b.h < 2 || plates.some(p => p.k < k && inside(c, p.b))) return;
           const p = l.props || {}, lum = hexLum(p.fill) ?? (p.grad ? ((hexLum(p.grad.c1) || 0) + (hexLum(p.grad.c2) || 0)) / 2 : null);
-          lines.push({ b, lum, a: b.w * b.h, name: l.name, props: p });
+          lines.push({ b, lum, a: b.w * b.h, name: l.name, props: p, role: l.role || '' });
         });
         sc.dispose();
         const pixels = (d, x) => { const v = [], b = x.b;
@@ -121,7 +151,13 @@ export async function openStudio(query = ''){
             for (let xx = Math.max(0, Math.floor(b.x)); xx < Math.min(W, b.x + b.w); xx += 3){ const q = (y * W + xx) * 4; v.push(0.2126 * lin(d[q]) + 0.7152 * lin(d[q + 1]) + 0.0722 * lin(d[q + 2])); }
           return v.sort((p, q) => p - q); };
         const pct = (v, p) => v[Math.min(v.length - 1, Math.floor(v.length * p))];
-        const stat = (d, x) => { const v = pixels(d, x); return v.length ? pct(v, x.light ? 0.9 : 0.1) : null; };
+        /* the worst end of the ground under a line: the 90th/10th percentile
+           of its box, or with o.core the 75th/25th, the core of the strokes
+           the gate judges (pgCheck), so the shade is the lightest that passes
+           the gate rather than the lightest that darkens every last pixel
+           (owner, 2026-09-28: "make sure the backgrounds are visible") */
+        const hiP = o.core ? 0.75 : 0.9, loP = o.core ? 0.25 : 0.1;
+        const stat = (d, x) => { const v = pixels(d, x); return v.length ? pct(v, x.light ? hiP : loP) : null; };
         const old = ground(bg);
         if (!old) return { skip: 'photograph did not load' };
         /* a line is light ink if it is lighter than the ground it stands on,
@@ -136,19 +172,40 @@ export async function openStudio(query = ''){
         lines.forEach(x => { if (x.light === undefined) x.light = light; });
         const inkLum = known.length ? known.reduce((s, x) => s + x.lum * x.a, 0) / known.reduce((s, x) => s + x.a, 0) : null;
         const want = o.want || 4.5;
+        /* per role (2026-09-28, "make sure the backgrounds are visible"): the
+           headline, the number and the CTA clear o.want (4.5:1); supporting
+           copy clears o.wantMinor when given (3.5:1, above the gate's 3:1
+           floor), so the shade is the lightest that serves the message rather
+           than the lightest that lifts every footnote to 4.5 */
+        const wantOf = x => (PG_CRIT[x.role] || o.wantMinor == null) ? want : o.wantMinor;
         lines.forEach(x => {
-          x.old = stat(old, x);
+          x.old = stat(old, x); x.want = wantOf(x);
           if (x.lum == null){ x.allow = x.old; return; }
+          const want = x.want;
           const need = x.light ? (x.lum + 0.05) / want - 0.05 : want * (x.lum + 0.05) - 0.05;
           x.allow = x.light ? Math.max(x.old, need) : (need > 1 ? x.old : Math.min(x.old, need));
+          /* o.strict: every line clears o.want, whatever the old ground let it
+             get away with (the blurred cards, whose old ground was a smear) */
+          if (o.strict && !(!x.light && need > 1)) x.allow = need;
         });
         /* a line under 1.5:1 against the middle of its old ground was never
            read off the photograph: an outline, a glow or a plate the finder
            did not see carries it, and no scrim is its business */
         const cr = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
         const live = lines.filter(x => x.old != null && !(x.lum != null && x.mid != null && cr(x.lum, x.mid) < 1.5));
+        /* 'bands' (rule 87, 2026-09-28: "make sure the backgrounds are visible"):
+           the shade only across the bands of the height that hold copy on the
+           photograph (every line, live or not, padded a little for descenders
+           and shadows), nothing between them, so the picture shows through
+           wherever no line needs the ground. Bands whose feathers would meet
+           are one band. The renderer (app.js scrimRect) draws the same string. */
+        const PAD = 0.015, FEATHER = 0.06;
+        const spans = lines.map(x => [Math.max(0, x.b.y / H - PAD), Math.min(1, (x.b.y + x.b.h) / H + PAD)]).sort((p, q) => p[0] - q[0]);
+        const merged = []; spans.forEach(sp => { const l = merged[merged.length - 1]; if (l && sp[0] <= l[1] + 2 * FEATHER) l[1] = Math.max(l[1], sp[1]); else merged.push(sp.slice()); });
+        const bandsMode = merged.length ? 'bands:' + merged.map(sp => sp.map(v => v.toFixed(3)).join('-')).join(',') : 'normal';
+        const modeOf = mode => mode === 'bands' ? bandsMode : mode;
         const make = (a, mode) => Object.assign({}, bg, { grade: o.grade, scrim: +a.toFixed(3),
-          scrimColor: light ? o.dark : o.light, scrimMode: mode });
+          scrimColor: light ? o.dark : o.light, scrimMode: modeOf(mode) });
         const ok = spec => { if (!live.length) return true; const d = ground(spec); if (!d) return false;
           return live.every(x => { const v = stat(d, x); return x.light ? v <= x.allow * 1.02 + 0.002 : v >= x.allow * 0.98 - 0.002; }); };
         const solve = mode => {
@@ -191,7 +248,7 @@ export async function openStudio(query = ''){
             return o.flip.light; };
           flipped = [];
           darks.forEach(x => { const ink = neutralDark(x) ? o.flip.light : (tintOf(x) || o.flip.light), il = hexLum(ink);
-            x.light = true; x.lum = il; x.allow = (il + 0.05) / want - 0.05; flipped.push({ name: x.name, fill: ink }); });
+            x.light = true; x.lum = il; x.allow = (il + 0.05) / (x.want || want) - 0.05; flipped.push({ name: x.name, fill: ink }); });
           light = true;
         }
         for (const mode of o.modes){ spec = solve(mode); if (spec) break; }
@@ -211,7 +268,7 @@ export async function openStudio(query = ''){
             if (!flips.length || flips.some(x => !neutralInk(x))) continue;
             const save = flips.map(x => ({ x, light: x.light, lum: x.lum, allow: x.allow })), was = light;
             const ink = dir ? o.flip.light : o.flip.dark, il = hexLum(ink);
-            flips.forEach(x => { x.light = dir; x.lum = il; x.allow = dir ? (il + 0.05) / want - 0.05 : want * (il + 0.05) - 0.05; });
+            flips.forEach(x => { const w = x.want || want; x.light = dir; x.lum = il; x.allow = dir ? (il + 0.05) / w - 0.05 : w * (il + 0.05) - 0.05; });
             light = dir;
             for (const mode of o.modes){ spec = solve(mode); if (spec) break; }
             if (spec){ flipped = (flipped || []).concat(flips.map(x => ({ name: x.name, fill: ink }))); break; }
@@ -228,9 +285,39 @@ export async function openStudio(query = ''){
         if (!spec.scrimColor) delete spec.scrimColor;
         if (spec.grade == null) delete spec.grade;
         return { bg: spec, light, flipped, inkLum: inkLum == null ? null : +inkLum.toFixed(3), lines: live.length,
-                 shortBefore: live.filter(x => x.lum != null && x.allow === x.old && (x.light ? x.old > (x.lum + 0.05) / want - 0.05 : x.old < want * (x.lum + 0.05) - 0.05)).length };
+                 shortBefore: live.filter(x => { const w = x.want || want; return x.lum != null && x.allow === x.old && (x.light ? x.old > (x.lum + 0.05) / w - 0.05 : x.old < w * (x.lum + 0.05) - 0.05); }).length };
       },
     };
   });
   return { browser, page, errors };
+}
+
+/* THE WRITERS' GATE. Every script that rewrites a showcase record runs its
+   candidates through here before writing: each pair {id, rec} is painted as
+   the record on disk and as the candidate, both through __sc.check (the one
+   measure, app.js pgCheck), and kept only when __sc.accept says the candidate
+   leaves no failure that was not there before and no critical line under what
+   it had. Returns { id: { ok, before, after, fresh, lost } }. */
+export async function gateRecords(page, pairs, opts){
+  const out = {};
+  for (let i = 0; i < pairs.length; i += 4){
+    Object.assign(out, await page.evaluate(async (batch, opts) => {
+      const R = {};
+      for (const { id, rec } of batch){
+        try {
+          const before = __sc.check(await __sc.load(id), opts);
+          const after = __sc.check(await __sc.prep(rec, id + '__candidate'), opts);
+          const a = __sc.accept(before, after, opts);
+          R[id] = { ok: a.ok, fresh: a.fresh, lost: a.lost, before: { legib: before.legib, number: before.number, fails: before.fails.length }, after: { legib: after.legib, number: after.number, fails: after.fails.map(f => f.code + ' ' + (f.line || '')) } };
+        } catch (e){ R[id] = { ok: false, err: String(e).slice(0, 160) }; }
+      }
+      return R;
+    }, pairs.slice(i, i + 4), opts || {}));
+  }
+  return out;
+}
+export function gateSummary(gate){
+  const rows = Object.entries(gate), kept = rows.filter(([, g]) => g.ok), held = rows.filter(([, g]) => !g.ok);
+  const why = {}; held.forEach(([, g]) => { const k = g.err ? 'error' : (g.fresh || []).map(f => f.code).concat((g.lost || []).length ? ['lost contrast'] : []).join('+') || 'held'; why[k] = (why[k] || 0) + 1; });
+  return `gate: kept ${kept.length} · held back ${held.length}` + (held.length ? ' (' + JSON.stringify(why) + ')' : '');
 }

@@ -20,13 +20,15 @@
  * left out: the plate owns its ground. So no line loses contrast and the
  * measured inks (contrast-fix.json) stay right.
  *
- * The page is opened with ?noground=1, so it measures the graded state this
- * replaces, with the contrast and number tables applied (the inks and the
- * number block the visitor sees).
+ * The page is opened with ?noground=1, so it measures the state without this
+ * table (since 2026-09-28 ungraded: the photograph as shot under the
+ * template's own scrim), with the contrast and number tables applied (the
+ * inks and the number block the visitor sees). It covers EVERY image-backed
+ * classic, not only the ones that used to be graded.
  *
  * usage: node scripts/naturalize_classics.mjs [--write] [--ids a,b] [--json out.json]
  */
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { openStudio } from './_showcase_harness.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
@@ -39,7 +41,10 @@ const { browser, page, errors } = await openStudio('&noground=1');
 await page.waitForFunction(() => Array.isArray(CONTRAST_FIX) && CONTRAST_FIX.length, { timeout: 60000 }).catch(() => {});
 await new Promise(r => setTimeout(r, 3000));
 const ids = (await page.evaluate(() => TEMPLATES
-  .filter(t => !/^(sc|hx)-/.test(t.id) && t.bg && t.bg.type === 'image' && t.bg.grade && t.bg.grade.shadow)
+  /* every image-backed classic, graded or not: since 2026-09-28 assignStyle()
+     grades nothing (rule 56), and this table is what supplies each classic's
+     solved neutral shade. Selecting only graded ones wrote an empty table. */
+  .filter(t => !/^(sc|hx)-/.test(t.id) && !t.showcase && t.bg && t.bg.type === 'image')
   .map(t => t.id))).filter(id => !only || only.has(id));
 const out = {};
 for (let i = 0; i < ids.length; i += 6){
@@ -52,7 +57,7 @@ for (let i = 0; i < ids.length; i += 6){
         /* the classics keep their gradient scrim (strong where the type is, the
            middle of the photograph left alive); an even one only if the
            gradient cannot hold every line at any strength */
-        const r = __sc.naturalGround(t, { grade: null, dark: null, light: PAPER, modes: [t.bg.scrimMode || 'gradient', 'normal'] });
+        const r = __sc.naturalGround(t, { grade: null, dark: null, light: PAPER, modes: ['bands', 'gradient', 'normal'], core: true, wantMinor: 3.5 });   // the lightest shade that holds the core (rule 87's measure)
         if (r.bg) Object.assign(r, { src: t.bg.src, was });
         R[id] = r;
       } catch (e){ R[id] = { err: String(e).slice(0, 160) }; }
@@ -68,13 +73,23 @@ const med = a => { const s = a.slice().sort((p, q) => p - q); return s.length ? 
 console.log(`\ngraded classics ${rows.length} · natural ${done.length} · skipped ${skips.length} · errors ${errs.length} · page errors ${errors.length}`);
 console.log(`was: ${JSON.stringify(done.reduce((m, [, r]) => (m[r.was.style] = (m[r.was.style] || 0) + 1, m), {}))}`);
 console.log(`scrim: black under light ink ${done.filter(([, r]) => r.light).length}, paper under dark ink ${done.filter(([, r]) => !r.light).length}; `
-  + `even ${done.filter(([, r]) => r.bg.scrimMode === 'normal').length}; strength median ${med(done.map(([, r]) => r.bg.scrim))} (was ${med(done.map(([, r]) => r.was.scrim))}), max ${Math.max(0, ...done.map(([, r]) => r.bg.scrim))}`);
+  + `bands ${done.filter(([, r]) => /^bands:/.test(r.bg.scrimMode)).length}, even ${done.filter(([, r]) => r.bg.scrimMode === 'normal').length}; strength median ${med(done.map(([, r]) => r.bg.scrim))} (was ${med(done.map(([, r]) => r.was.scrim))}), max ${Math.max(0, ...done.map(([, r]) => r.bg.scrim))}`);
 console.log(`lines held at an old ground already under 4.5:1: ${done.reduce((s, [, r]) => s + (r.shortBefore || 0), 0)}`);
 skips.forEach(([id, r]) => console.log('  SKIP', id, r.skip));
 errs.slice(0, 4).forEach(([id, r]) => console.log('  ERR', id, r.err));
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify(out));
 if (WRITE){
-  const table = done.map(([id, r]) => ({ id, src: r.src, bg: { scrim: r.bg.scrim, scrimColor: r.bg.scrimColor, scrimMode: r.bg.scrimMode } })).sort((a, b) => a.id < b.id ? -1 : 1);
+  let table = done.map(([id, r]) => ({ id, src: r.src, bg: { scrim: r.bg.scrim, scrimColor: r.bg.scrimColor, scrimMode: r.bg.scrimMode } }));
+  /* a template no neutral scrim can hold keeps its previous row (a solve
+     that fails must not drop a shade that was holding): 2026-09-28, nine
+     skipped rows fell out of the table and their inks lost their ground */
+  try {
+    const prev = JSON.parse(readFileSync(ROOT + 'assets/ground-fix.json', 'utf8')), have = new Set(table.map(x => x.id));
+    const kept = prev.filter(x => !have.has(x.id) && skips.some(([id]) => id === x.id));
+    table = table.concat(kept);
+    if (kept.length) console.log('kept the previous row for ' + kept.length + ' skipped templates: ' + kept.map(x => x.id).join(', '));
+  } catch (e){}
+  table.sort((a, b) => a.id < b.id ? -1 : 1);
   writeFileSync(ROOT + 'assets/ground-fix.json', JSON.stringify(table));
   console.log('wrote assets/ground-fix.json: ' + table.length + ' templates');
 }

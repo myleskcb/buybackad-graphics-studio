@@ -202,3 +202,52 @@ Append to `docs/LEARNING-LOG.md` at the end of every session, including a
 - Add a rule sourced from a textbook rather than from the library.
 - Change DNS, registrar settings, Stripe products, or plan limits unattended.
 - Treat a green audit as proof the property is safe. Ask what it did not check.
+
+## The gate (2026-09-27): every generation is measured before it is produced
+
+Owner: "every generation has a self audit process and a check before they're
+produced." DESIGN-LAW rule 87. In practice:
+
+- **One measure:** `pgCheck(scene)` in app.js. Contrast per line (core and
+  worst letter), the number's size and placement, the headline in a tile, the
+  guides, copy on copy. Thresholds in `PG_T`. The scripts reach it as
+  `__sc.check(t)`; the legibility audit and the critic read their numbers
+  from it. Never add another luminance helper, contrast formula, hex parser or
+  "plate under a line" finder: `pgLum`, `pgCr`, `pgRgb`, `pgCheck`.
+- **The studio:** `pgGate()` runs before a download, a video and a print
+  order. It shades a failing ground (neutral, in the direction the lines
+  need) and otherwise names the problem in a modal. Do not add an export
+  path that bypasses it.
+- **Emoji accents** (rule 88, 2026-09-29): `pgEmojiPass` runs after
+  alignPass on every render and places 0 to 2 emoji from
+  assets/emoji/fluent-3d.webp beside the copy; the gate fails one on copy.
+  A script that paints must wait for `pgEmojiLoad()` (openStudio does), or
+  it paints cards without their accents. After a change to the pass,
+  re-render every library thumbnail (`rethumb_showcase.mjs`) and bump
+  ASSET_REV. Never add a system-font emoji as artwork.
+- **The shade is bands** (rule 87, 2026-09-28): `scrimMode: 'bands:a-b,c-d'`
+  shades only the bands of the height that hold copy on the photograph.
+  `scrimRect` draws it (`scrimBands` parses it); `naturalGround` solves it
+  with modes `['bands', 'gradient', 'normal']`; the studio derives its own
+  from the scene (`pgShadeBands`). Never write a whole-card veil where a
+  bands shade would hold the lines, and never treat a bands mode as
+  'gradient' (normaliseBackdrop keeps it).
+- **The scripts:** a script that rewrites a showcase record passes its
+  candidates through `gateRecords(page, pairs)` and writes only what
+  `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the
+  harness is the one live-card predicate.
+- **Before a commit that touches the classics' passes or tables:**
+  `node scripts/verify_showcase.mjs --classics --write` (writes
+  assets/classics-gate.json; a classic that fails is not offered). The
+  re-bake order is bake_contrast, number_block --classics --write,
+  naturalize_classics --write, then verify.
+- **Before a commit that touches assets/showcase:**
+  `node scripts/verify_showcase.mjs --write` (exit 1 on any failure; it
+  stamps legib / num / numInk / gate / blur / ground on the index). Then
+  `rethumb_showcase.mjs` for the cards that changed, and bump `ASSET_REV`.
+- **The pipeline order** is in OPEN-ITEMS §R. Passes undo each other when
+  run out of order (refresh reads git HEAD; import restores the tone grade;
+  naturalize then darken; support_highlights before neutral_panels; content
+  audit after overlap; curate last).
+- **The record of what is still inconsistent** is docs/COHESION-AUDIT.md.
+  Read it before touching the classics' passes or the render paths.

@@ -81,11 +81,12 @@ function restage(rec, id, cat){
             grade:{ treat:'natural' }, fallback: tp.bg && tp.bg.fallback };
 
   // 3. the card: taller, and solid enough that no bill patterns behind a letter
-  /* a see-through panel's colour is not what anyone saw (they saw the
-     photograph through it), so it takes the neutral that carries its ink */
-  const f = rgba(panel.props.fill) || { r:18, g:18, b:20, a:0.9 };
-  const fill = f.a >= 0.5 ? 'rgba(' + f.r + ',' + f.g + ',' + f.b + ',' + Math.max(0.88, f.a) + ')'
-             : dark ? 'rgba(16,16,19,0.88)' : 'rgba(250,248,244,0.9)';
+  /* the card is smoke under light ink and paper under dark, never the
+     theme's hue: a cherry or navy card over the money read as a coloured
+     haze (rule 56; owner, 2026-09-27). Colour is the accent's job, on the
+     plate and the money word. */
+  const f = rgba(panel.props.fill) || { a:0.9 };
+  const fill = dark ? 'rgba(16,16,19,' + Math.max(0.88, f.a) + ')' : 'rgba(247,246,243,' + Math.max(0.9, f.a) + ')';
   panel.props = Object.assign({}, panel.props, CARD, { originX:'left', originY:'top', fill });
 
   /* 4. copy stacked and centred on the card, under the number's rank: the

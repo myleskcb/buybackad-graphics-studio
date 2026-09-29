@@ -494,8 +494,6 @@ Rejected:
   - Sizing a line-up to the single product it replaced: three MacBooks as
     stamps.
 
----
-
 ## 2026-09-27 — The video engine: built, self-audited, run against the library
 
 Studied:
@@ -908,6 +906,125 @@ standing on the band, the accent read off the photograph), and
 `scripts/audit_card.mjs` passes it 154/154 in the gallery painter, Easy Mode
 square and 3:4, and the video. DESIGN-LAW 68-76.
 
+## 2026-09-27 (night) — No hue over the photograph
+
+Studied:
+  The owner: "these colored hazes don't look great. Unify with the new design
+  language in the 'template and content audit update' thread." That thread's
+  language is DESIGN-LAW rule 56 (rung 1 is light and shade, never a colour).
+  Its one new commit since the reunification (the offer cards' number) is in
+  another repo's tool and does not touch the showcase.
+
+Measured:
+  - Every live card's shade was already neutral (#0b0b0d, #000, paper) and
+    every grade natural: the hazes were drawn ON the photograph, not in it.
+  - 182 cards laid a hue over the picture: see-through tinted rects (step
+    cards at a median 0.52, tiles, item panels, chips) and solid pastel or
+    deep-tinted panels holding the copy (lavender, navy, olive, cherry, beige).
+  - 423 wide pale or tinted glows round plates, panels and products, set for
+    the old white shade; on the dark grounds each plate sat in a haze.
+  - 947 light lines with light halos: the dark-ground pass re-inked them and
+    left their halos, so they glowed (rule 27 says the halo takes the tone the
+    ground is not).
+  - While testing sibling panels: every step digit on all 44 live Steps Flow
+    cards sat 23 to 60px right of its box. alignPass 4c tested a mark made of
+    type against its own box, so it always "collided" with itself.
+
+Changed:
+  - scripts/neutral_panels.mjs (rule 85): panels holding copy become smoke
+    under light copy, paper (0.9 and more) under dark, a same-luminance grey
+    when mixed; siblings share one treatment; glows become shade; halos take
+    the ground's opposite tone. Every line judged on its own pixels before and
+    after. 366 cards; no line lost contrast; a second run changes nothing.
+  - darken_grounds.mjs and restage_glasscards.mjs can no longer produce a
+    tinted band or card.
+  - alignPass 4c: a mark is not tested against itself. 44 cards' digits back
+    in their boxes.
+
+Rejected:
+  - Keeping each panel's luminance in grey everywhere: mid-grey panels read as
+    dull as the tints did. Smoke or paper wherever all the copy on the panel
+    points one way; grey only where it does not.
+  - Treating Headline 1 to 3 as a sibling set for ink: it would have turned
+    the yellow money word pale.
+  - A light halo behind dark copy on a coloured plate: rule 27 says the plate
+    is the separation; a glow there fuzzes the number.
+
+## 2026-09-27 (late night) — Every kind of ground
+
+Studied:
+  The owner: "backgrounds that are solid colors, sunburst all sorts of styles
+  even patterns overlays so we have all varieties some images some blurred
+  images … or we can always use a photo of the Apple Store background".
+
+Measured:
+  - 400 live cards: 373 photographs (84 "blurred"), 27 money-fall, 0 drawn.
+    grounds.js (115 ticked tiles, 33 styles) was never loaded by the studio,
+    and /scripts/* is 404'd at Netlify's edge, so it could not have been.
+  - The 84 blurred cards were flat smears. Showcase records store blur in
+    pixels on the 1080 card, blurredEl() read it as a fraction of the width:
+    4 meant four widths. The lab rendered through the same function, so the
+    smear is what everyone saw and approved.
+  - Once really blurred, 55 of the 84 fell under 4.5:1: their shade had been
+    solved against the smear. The solver's "never worse than the old ground"
+    let them stay worse, because the old ground was the smear.
+
+Changed:
+  - grounds.js moved to the site root, loaded by index.html; it paints a
+    ground or a photo-with-pattern as a background source, so every render
+    path draws it. New kinds: solid, sunburst, accent sunburst, light from
+    above; neutral overlays: dots, halftone, grid, stripes, rays, scanlines,
+    grain.
+  - blurredEl reads pixels as pixels. Blurred cards set at 14 to 24px and
+    re-solved strictly: 0 under 3:1, median worst line 6.13.
+  - scripts/vary_grounds.mjs: 100 cards re-grounded, all on their own
+    palette, each gated line by line on its pixels.
+  - Easy Mode: "More grounds" and "Pattern on top".
+
+Rejected:
+  - Drawn grounds under photo-led cards: the owner called headline-on-flat
+    "lacking imagery"; only cards with a hero cut-out moved.
+  - Keeping the smear and calling it blur: the owner asked for blurred images.
+  - A hue in a pattern overlay (rule 56).
+
+## 2026-09-27 (small hours) — One measure, one gate
+
+Studied:
+  The owner: "audit of any overlapping code, contradictory code, or overall
+  fuzzy directions … every generation has a self audit process and a check
+  before they're produced." Three readings: the rulebook, the pipeline in
+  app.js, the writer scripts.
+
+Measured:
+  - app.js: 11 luminance helpers (two sRGB knees), 8 contrast formulas, 14
+    hex parsers, 21 plate finders with different tolerances; scripts: 30 more
+    luminance helpers, four live-card predicates, ten contrast measures
+    against three thresholds. The rulebook: 37 rule pairs pointing opposite
+    ways, 19 of them a later rule replacing an earlier one silently.
+  - Nothing measured a card at export. The classics loaded with duotone
+    grades the ground table undid a second later. The Easy overlay laid the
+    visitor's colour over the photograph. A theme replaced a photo-led
+    card's photograph. The content audit's --write would have un-retired
+    all 284 curated cards. The watermark squashed story exports square.
+  - The shared measure (pgCheck) reproduces the two audits it replaces:
+    median difference 0.000 on both contrast measures over 120 live cards.
+  - The first gate fix shaded the wrong way on a card whose dark copy sat on
+    plates: majority ink is not the question; the failing lines' own ground is.
+
+Changed:
+  - pgCheck / PG_T / pgGate in app.js; __sc.check, accept, gateRecords and
+    live() in the harness; verify_showcase.mjs; the writers gated; the
+    legibility audit and the critic on the one measure.
+  - The contradictions above fixed in code; rule 87 and 19 "Superseded"
+    pointers in DESIGN-LAW; the pipeline in OPEN-ITEMS §R; the findings in
+    docs/COHESION-AUDIT.md.
+
+Rejected:
+  - Deleting the duplicate helpers in the classics' passes now: their tables
+    were baked with them; consolidation belongs to the classics' re-bake.
+  - A gate that blocks: an ad is never held hostage; it is measured, shaded
+    when shade fixes it, and otherwise named, with "Download anyway".
+
 ## 2026-09-28 — Audit and validation of the branch
 
 The owner: "audit and validate".
@@ -972,6 +1089,89 @@ set the steps on the subject — and the fix was a third outcome, fit. The audit
 caught two engine faults on the way: the full-canvas scrim taken for the CTA
 band, and a deliberately layered phone "rescued" by the product-clearance pass.
 
+## 2026-09-28 — The classics under the gate
+
+Studied:
+  The owner: "fix and push all redesigns, audited before pushing." The
+  open items of the cohesion audit, taken in order, each measured by the
+  gate before the push.
+
+Measured:
+  - Baseline: 38 of 243 classics failed the gate (22 legib, 15 numbers
+    under 72px, 4 off their plate, 2 numInk, 1 thumb). The 15 small numbers
+    were the guides fit: fitInsideGuides scaled a lowerThird card by 0.92
+    and took its 72px number to 66.
+  - The 45% wash sat on 14 classics, 66 rects (item chips, rules, hazard
+    stripes); no live showcase card has one.
+  - naturalize_classics selected only graded templates; with no grade
+    assigned it wrote an empty table and every classic lost its shade.
+  - The critic's plate finder took a claim strip above the number for its
+    plate: three street price tags at 98% "off plate".
+  - After the re-bake: 16 of 243 fail; they are held back by the gate table.
+    The first floor grew the plate with the number and pushed a band's
+    number 412px off; grown about its own centre, a pill grows to hold it
+    and a band lets it slide.
+
+Changed:
+  - pgNumberFloor after alignPass; fitToDoc floors the number at 72; one
+    plate finder (pgPlateUnder) for the gate and the floor; solid hex plates,
+    see-through rules; the editor hand-off refits, adds Badges, re-aligns.
+  - verify --classics (--write -> assets/classics-gate.json, read by
+    loadClassicsGate); bake_contrast takes CHROME and FABRIC_JS;
+    naturalize_classics covers every image-backed classic and keeps a
+    skipped template's previous row.
+  - 20 superseded scripts removed; FAQ copy for shade, patterns and neutral
+    panels; the stat reads 399.
+
+Rejected:
+  - Scaling the plate with the number: a full-width band is not a pill.
+  - Shipping the 16 that still fail: rule 60's "not offered" now applies to
+    the strip as it does to the library.
+
+## 2026-09-28 (later) — The shade stands where the copy stands
+
+Owner: "just make sure the backgrounds are visible if possible."
+
+Learned:
+  - How much of a photograph shows through is a number: the shaded ground's
+    mean luminance against the bare photograph's (scratch visibility.mjs).
+    Baseline: median 26% on the library's photo cards (197 of 273 under a
+    flat veil at 0.55), 49% on the classics.
+  - Lightening a whole-card veil barely moves it. Solving for the core of
+    the strokes instead of the worst tenth, then 3.5:1 for supporting copy,
+    took the library from 26% to 29% and the classics from 49% to 50%: the
+    veil must be as strong everywhere as the copy needs it anywhere, and one
+    line at the bottom holds the whole picture dark.
+  - The shade that shows the picture is the one that stands only where the
+    copy stands: full strength across the bands of the height that hold a
+    line on the photograph, feathered 6% of the height, nothing between
+    them. At the same strength it holds every line the flat veil held (the
+    line's box is inside its band), so the solver tries it first and falls
+    back to the graded and the even veil only when the bands cannot hold
+    every line.
+  - The gate's plate finder returns a plate the line merely overlaps (a
+    headline whose last line touches the panel below it); for "is this line
+    on a plate" the plate has to hold the line's centre, or the headline is
+    left out of the bands and the studio's gate opens its modal instead of
+    shading.
+  - After: library median 62% (p25 50%), 4 cards under 30% (from 48), shade median 0.44 (from 0.55); classics median 72%, 1 under 30%, shade median 0.27 (from 0.48). 264 of 273 photo cards re-solved (5 held back: a line would have lost contrast), 399 of 399 pass the gate; 230 of 235 classics bands, 227 of 243 pass, the same 16 held back.
+
+Changed:
+  - scrimRect draws `bands:a-b,c-d` (scrimBands parses, SCRIM_FEATHER 0.06);
+    normaliseBackdrop keeps a bands mode; naturalGround solves 'bands' first
+    (darken_grounds --lighten, naturalize_classics); the studio's own shade
+    is bands from the scene after the layout (pgShadeBands, pgShadeFit,
+    ezShadeRect, advShade); ASSET_REV 20260928a.
+  - DESIGN-LAW rule 87 (the shade stands where the copy stands), rule 62
+    pointer; AGENT-BRIEF; OPEN-ITEMS §R.
+
+Rejected:
+  - A floor of shade between the bands (a faint veil "for cohesion"): it is
+    the haze the owner asked to lift, and the gate does not need it.
+  - Shading by the copy's boxes rather than by bands: a patchwork of
+    rectangles reads as plates that are not there; a horizontal band reads
+    as light falling on the picture.
+
 ## 2026-09-29 — thirty-six patterns, sixteen aesthetic gradients, one sheet
 
 The owner asked for as many patterns as we could make, sized up and down and
@@ -1030,4 +1230,44 @@ shipping:
   (glassCard-nn01-20 re-set to All iPads).
 The ip-gen17-plateau-black crop is a square camera bump (16 Pro design), not
 the 17 Pro plateau: marked not authentic.
+
+## 2026-09-29 — Emoji beside the words
+
+Owner: "use emojis as attention grabbing assets in extra spaces (not
+overlapping.. and not all need it), relevant emojis or general purpose emojis
+like cash or arrows."
+
+Learned:
+  - The earlier removal was about system-font emoji: a different drawing per
+    device and a blank box in some exports. One art set as pictures (Fluent
+    3D, MIT, 48 in one 195 KB sheet) is the same everywhere.
+  - Every card's website is iphones.LA, so reading the topic off all the
+    words named every card a phone card. The headline decides; the website
+    and the number never do.
+  - An emoji in the nearest empty square floats: it reads as clutter away
+    from the words and covers the photograph. Beside a line, centred on its
+    caps, it reads as part of the message.
+  - Two emoji flanking one line look busy; one per row.
+  - Number plates are wide, so a hand beside them rarely fits; above either
+    end of the plate, pointing down, usually does.
+  - A Pro card opened signed-out lands on the plans page and the free
+    default; a test of a library card in Easy Mode has to use a free card.
+  - Ranking lines by their object's font size put the emoji beside a small
+    "WE BUY" in a two-line headline; each line ranks by its own height.
+  - A wall of ghosted products at 16% opacity counted as occupied and pushed
+    the emoji off the big product word; a picture under 0.3 is texture, as
+    the gate already treated it.
+
+Changed:
+  - pgEmojiPass after alignPass (wrapped); pgEmojiCheck in pgCheck
+    (wrapped), explained in the gate's words; Easy Mode's Emoji row (Auto,
+    Shuffle, None); the editor's picker shows the sheet and addEmoji places
+    pictures; the harness waits for the sheet; 399 thumbnails re-rendered.
+  - DESIGN-LAW rule 88, a pointer on rule 29; AGENT-BRIEF; OPEN-ITEMS §A 1.
+
+Rejected:
+  - System-font emoji (see above); an Apple emoji set (not licensed for
+    this); emoji on every card (the owner: "not all need it").
+
+---
 

@@ -1,0 +1,22 @@
+{
+ "about": "Classics that fail the gate (scripts/verify_showcase.mjs --classics --write): app.js loadClassicsGate() keeps them out of every list. Rule 87.",
+ "date": "2026-09-29",
+ "ids": [
+  "dl_coins_reviewProof_paper",
+  "dl_gold_agencyGrid_gold",
+  "dl_gold_arcCrown_gold",
+  "dl_gold_editorialLux_gold",
+  "dl_gold_reviewProof_gold",
+  "dl_gold_trustSeal_gold",
+  "dl_phones_lowerThird_ocean",
+  "dl_phones_reviewProof_ocean",
+  "dl_phones_slabPoster_mono",
+  "dl_silver_agencyGrid_arctic",
+  "dl_silver_voltStack_mono",
+  "dl_sports_reviewProof_paper",
+  "neon_sell",
+  "pkm_attic",
+  "st_phones_splitcol",
+  "st_sports_splitcol"
+ ]
+}

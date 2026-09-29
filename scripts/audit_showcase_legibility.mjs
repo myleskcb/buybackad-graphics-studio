@@ -37,49 +37,23 @@ const ONLY = process.env.ONLY ? new Set(JSON.parse(readFileSync(process.env.ONLY
 const work = ONLY ? idx.filter(c => ONLY.has(c.id)) : idx;
 const { browser, page, errors } = await openStudio();
 const out = {};
+/* 2026-09-27, cohesion audit: the measure lives in app.js pgCheck (the one
+   measure every generation passes), reached through __sc.check. This script
+   keeps its output (legib, legibMin, ghost, worst, bgMissing, layers) and its
+   thresholds come from PG_T. Compared over 120 live cards before the switch:
+   median |difference| 0.000 on legib and numInk. */
 for (let i = 0; i < work.length; i += 8){
   const ids = work.slice(i, i + 8).map(c => c.id);
   Object.assign(out, await page.evaluate(async ids => {
     const R = {};
-    const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
-    const lum = (d, k) => 0.2126 * lin(d[k]) + 0.7152 * lin(d[k + 1]) + 0.0722 * lin(d[k + 2]);
-    const CRIT = { headline:1, phone:1, cta:1 }, READ = { headline:1, phone:1, cta:1, info:1, badges:1, sub:1, website:1, offer:1 };
     for (const id of ids){
       try {
-        const t = await __sc.load(id);
-        const { sc, refs, bgMissing } = __sc.paint(t);
-        const W = TPL_W, H = TPL_H, ctx = sc.lowerCanvasEl.getContext('2d');
-        const full = ctx.getImageData(0, 0, W, H).data;
-        let legib = 99, legibMin = 99, ghost = 0, worst = null, layers = [];
-        t.layers.forEach((l, k) => {
-          const o = refs[k];
-          if (!o || typeof l.text !== 'string' || !l.text.trim() || !READ[l.role]) return;
-          const b = o.getBoundingRect(true, true);
-          const x0 = Math.max(0, Math.floor(b.left)), y0 = Math.max(0, Math.floor(b.top));
-          const x1 = Math.min(W, Math.ceil(b.left + b.width)), y1 = Math.min(H, Math.ceil(b.top + b.height));
-          if (x1 - x0 < 4 || y1 - y0 < 4) return;
-          o.visible = false; sc.renderAll();
-          const w = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data;
-          o.visible = true;
-          let changed = 0, total = 0, sum = 0;
-          const px = [];
-          for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++){
-            const f = (y * W + x) * 4, g = ((y - y0) * (x1 - x0) + (x - x0)) * 4; total++;
-            if (Math.abs(full[f] - w[g]) + Math.abs(full[f + 1] - w[g + 1]) + Math.abs(full[f + 2] - w[g + 2]) < 24) continue;
-            changed++;
-            const a = lum(full, f), c = lum(w, g), k = (Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05);
-            sum += k; px.push(k);
-          }
-          px.sort((p, q) => p - q);
-          const cov = total ? changed / total : 0, mean = changed ? sum / changed : 0;
-          const cr = changed ? px[Math.min(px.length - 1, Math.floor(px.length * 0.75))] : 0;   // the core of the strokes
-          layers.push({ role:l.role, text:l.text.slice(0, 30), cr:+cr.toFixed(2), mean:+mean.toFixed(2), cov:+(cov * 100).toFixed(1) });
-          if (cov < 0.012){ if (CRIT[l.role]) ghost++; return; }
-          if (CRIT[l.role]){ if (cr < legib){ legib = cr; worst = l.role + ' "' + l.text.slice(0, 24).replace(/\n/g, ' / ') + '"'; } }
-          else legibMin = Math.min(legibMin, cr);
-        });
-        sc.dispose();
-        R[id] = { legib:+legib.toFixed(2), legibMin:+legibMin.toFixed(2), ghost, worst, bgMissing, layers };
+        const t = await __sc.load(id), g = __sc.check(t);
+        const worstLine = g.lines.filter(l => PG_CRIT[l.role] && l.core != null).sort((a, b) => a.core - b.core)[0];
+        const layer = t.layers.find(l => worstLine && l.name === worstLine.name);
+        R[id] = { legib: g.legib, legibMin: g.legibMin, ghost: g.ghost, bgMissing: g.bgMissing,
+                  worst: worstLine ? worstLine.role + ' "' + String(layer ? layer.text : worstLine.name).slice(0, 24).replace(/\n/g, ' / ') + '"' : null,
+                  layers: g.lines.map(l => ({ role: l.role, text: String((t.layers.find(x => x.name === l.name) || {}).text || l.name).slice(0, 30), cr: l.core, letters: l.letters, cov: l.cov })) };
       } catch (e){ R[id] = { err:String(e).slice(0, 90) }; }
     }
     return R;

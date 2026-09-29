@@ -60,11 +60,81 @@
   K.blinds     = { name:'Window blinds',        note:'sunlight through blinds: diagonal light slats inside a cast shadow', draw(g,W,H,P,r){ K.shadowcast.draw(g,W,H,P,r); g.save(); g.filter='blur(10px)'; g.translate(W*0.5,H*0.5); g.rotate(-0.55); for(let i=-4;i<=4;i++){ g.fillStyle=rgba('#ffffff',0.09); g.fillRect(-W, i*150-26, W*2, 52); } g.restore(); } };
   K.split      = { name:'Diagonal split',       note:'ground and support tone, soft seam',                     draw(g,W,H,P,r){ g.fillStyle=P.c1; g.fillRect(0,0,W,H); g.filter='blur(14px)'; g.fillStyle=rgba(P.support,0.55); g.beginPath(); g.moveTo(W*0.55,0); g.lineTo(W,0); g.lineTo(W,H); g.lineTo(W*0.25,H); g.closePath(); g.fill(); g.filter='none'; } };
 
+  /* — solid and sunburst (owner, 2026-09-27: "backgrounds that are solid
+     colors, sunburst all sorts of styles even patterns overlays") — */
+  K.solid      = { name:'Solid colour',         note:'the ground colour, flat',                                 draw(g,W,H,P,r){ g.fillStyle=P.c1; g.fillRect(0,0,W,H); } };
+  const wedges = (g, cx, cy, N, R, fill, rot) => { g.fillStyle = fill; for (let i = 0; i < N; i += 2){ const a0 = rot + (i / N) * Math.PI * 2, a1 = rot + ((i + 1) / N) * Math.PI * 2; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a0) * R, cy + Math.sin(a0) * R); g.lineTo(cx + Math.cos(a1) * R, cy + Math.sin(a1) * R); g.closePath(); g.fill(); } };
+  K.sunburst   = { name:'Sunburst',             note:'rays from behind the product in a lighter tone of the ground', draw(g,W,H,P,r){ const d=dark(P); g.fillStyle=P.c1; g.fillRect(0,0,W,H); const cx=W/2,cy=H*0.56;
+      wedges(g,cx,cy,32,Math.hypot(W,H),d?mix(P.c1,'#ffffff',0.11):mix(P.c1,'#000000',0.07),-Math.PI/2);
+      const f=g.createRadialGradient(cx,cy,W*0.1,cx,cy,W*0.85); f.addColorStop(0,rgba(P.c1,0)); f.addColorStop(1,rgba(P.c1,0.75)); g.fillStyle=f; g.fillRect(0,0,W,H);
+      const gl=g.createRadialGradient(cx,cy,0,cx,cy,W*0.42); gl.addColorStop(0,'rgba(255,255,255,'+(d?0.1:0.3)+')'); gl.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=gl; g.fillRect(0,0,W,H); } };
+  K.burst      = { name:'Accent sunburst',      note:'rays in the accent over the ground, fading to the edges',  draw(g,W,H,P,r){ g.fillStyle=P.c1; g.fillRect(0,0,W,H); const cx=W/2,cy=H*0.56;
+      wedges(g,cx,cy,24,Math.hypot(W,H),rgba(P.accent,0.2),-Math.PI/2);
+      const f=g.createRadialGradient(cx,cy,W*0.12,cx,cy,W*0.9); f.addColorStop(0,rgba(P.c1,0)); f.addColorStop(1,rgba(P.c1,0.8)); g.fillStyle=f; g.fillRect(0,0,W,H); } };
+  K.burstTop   = { name:'Light from above',     note:'soft rays falling from the top centre',                   draw(g,W,H,P,r){ const d=dark(P); g.fillStyle=P.c1; g.fillRect(0,0,W,H); g.save(); g.filter='blur(6px)';
+      wedges(g,W/2,-H*0.25,40,Math.hypot(W,H)*1.4,d?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.28)',0); g.restore();
+      const f=g.createLinearGradient(0,0,0,H); f.addColorStop(0,rgba(P.c1,0)); f.addColorStop(1,rgba(P.c1,0.85)); g.fillStyle=f; g.fillRect(0,0,W,H); } };
+
   const list = Object.keys(K).map(key => ({ key, name: K[key].name, note: K[key].note }));
   function draw(kind, g, W, H, P, seed){
     const r = rng(seed || 1);
     (K[kind] || K.linear).draw(g, W, H, P, r);
-    if (!/grainy|paperTex|marble|velvet|frost/.test(kind)) grain(g, W, H, 0.05);
+    if (!/grainy|paperTex|marble|velvet|frost|solid/.test(kind)) grain(g, W, H, 0.05);
   }
-  window.GROUNDS = { list, draw, kinds: Object.keys(K) };
+
+  /* PATTERN OVERLAYS on a photograph. Neutral ink only, black or white at a
+     low strength (DESIGN-LAW rule 56: rung 1 over a photograph is light and
+     shade, never a colour), so the picture keeps its own colour. */
+  const O = {
+    dots(g,W,H,c,a){ g.fillStyle='rgba('+c+','+a+')'; for(let x=11;x<W;x+=22) for(let y=11;y<H;y+=22){ g.beginPath(); g.arc(x,y,2.6,0,Math.PI*2); g.fill(); } },
+    halftone(g,W,H,c,a){ g.fillStyle='rgba('+c+','+a+')'; for(let x=14;x<W;x+=28) for(let y=14;y<H;y+=28){ const t=Math.min(1,Math.max(0,(x/W+y/H)-0.9)*1.3); if(t<=0) continue; g.beginPath(); g.arc(x,y,1+t*11,0,Math.PI*2); g.fill(); } },
+    grid(g,W,H,c,a){ g.strokeStyle='rgba('+c+','+a+')'; g.lineWidth=1.5; for(let x=0;x<=W;x+=40){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,H); g.stroke(); } for(let y=0;y<=H;y+=40){ g.beginPath(); g.moveTo(0,y); g.lineTo(W,y); g.stroke(); } },
+    stripes(g,W,H,c,a){ g.strokeStyle='rgba('+c+','+a+')'; g.lineWidth=3; for(let x=-H;x<W+H;x+=18){ g.beginPath(); g.moveTo(x,0); g.lineTo(x+H,H); g.stroke(); } },
+    rays(g,W,H,c,a){ wedges(g,W/2,H*0.56,32,Math.hypot(W,H),'rgba('+c+','+a+')',-Math.PI/2); },
+    scan(g,W,H,c,a){ g.fillStyle='rgba('+c+','+a+')'; for(let y=0;y<H;y+=5) g.fillRect(0,y,W,2); },
+    grain(g,W,H,c,a){ for(let i=0;i<26000;i++){ g.fillStyle='rgba('+(Math.random()<0.5?'0,0,0':'255,255,255')+','+(Math.random()*a).toFixed(3)+')'; g.fillRect(Math.random()*W,Math.random()*H,2,2); } },
+  };
+  const OVERLAY_A = { dots:0.2, halftone:0.3, grid:0.14, stripes:0.12, rays:0.12, scan:0.16, grain:0.22 };
+  const overlays = [['dots','Dots'],['halftone','Halftone'],['grid','Grid'],['stripes','Stripes'],['rays','Sunburst rays'],['scan','Scanlines'],['grain','Film grain']];
+  function overlay(kind, g, W, H, tone, a){ if (!O[kind]) return; g.save(); O[kind](g, W, H, tone === 'light' ? '255,255,255' : '0,0,0', a == null ? OVERLAY_A[kind] : a); g.restore(); }
+
+  /* A drawn ground or an overlaid photograph as a background SOURCE, so the
+     studio treats it like any photograph (thumbnails, editor, export, video):
+       ground:<kind>/<c1>/<c2>/<accent>/<support>/<ink>/<seed>
+       overlay:<kind>/<dark|light>|<photo src>
+     Hex without '#'. canvasFor() paints it; an overlay needs its photo's
+     element (it is drawn at the photo's own size, the pattern scaled to it). */
+  const hx = h => String(h || '#888888').replace('#', '').slice(0, 6);
+  function src(kind, P, seed){ return 'ground:' + kind + '/' + [P.c1, P.c2 || P.c1, P.accent || P.c1, P.support || P.accent || P.c1, P.ink || '#ffffff'].map(hx).join('/') + '/' + (seed || 1); }
+  function overlaySrc(kind, tone, base){ return 'overlay:' + kind + '/' + (tone === 'light' ? 'light' : 'dark') + '|' + base; }
+  function parse(s){
+    s = String(s || '');
+    let m = /^ground:([A-Za-z]+)\/([0-9a-f]{6})\/([0-9a-f]{6})\/([0-9a-f]{6})\/([0-9a-f]{6})\/([0-9a-f]{6})\/(\d+)$/i.exec(s);
+    if (m) return { type:'ground', kind:m[1], P:{ c1:'#'+m[2], c2:'#'+m[3], accent:'#'+m[4], support:'#'+m[5], ink:'#'+m[6] }, seed:+m[7] };
+    m = /^overlay:([A-Za-z]+)\/(dark|light)\|(.+)$/.exec(s);
+    if (m) return { type:'overlay', kind:m[1], tone:m[2], base:m[3] };
+    return null;
+  }
+  /* the kinds' blur filters are in 1080px space: scaled with the canvas */
+  const scaledCtx = (g, k) => new Proxy(g, {
+    get(t, p){ const v = t[p]; return typeof v === 'function' ? v.bind(t) : v; },
+    set(t, p, v){ if (p === 'filter' && typeof v === 'string') v = v.replace(/blur\(([\d.]+)px\)/g, (x, n) => 'blur(' + (n * k) + 'px)'); t[p] = v; return true; },
+  });
+  function canvasFor(s, baseEl, size){
+    const q = parse(s); if (!q) return null;
+    const c = document.createElement('canvas');
+    if (q.type === 'ground'){
+      const n = size || 1620, k = n / 1080; c.width = c.height = n;
+      const g = c.getContext('2d'); g.scale(k, k);
+      draw(q.kind, scaledCtx(g, k), 1080, 1080, q.P, q.seed);
+      return c;
+    }
+    if (!baseEl || !(baseEl.width || baseEl.naturalWidth)) return null;
+    const w = baseEl.naturalWidth || baseEl.width, h = baseEl.naturalHeight || baseEl.height, k = Math.min(w, h) / 1080;
+    c.width = w; c.height = h;
+    const g = c.getContext('2d'); g.drawImage(baseEl, 0, 0, w, h); g.scale(k, k);
+    overlay(q.kind, g, w / k, h / k, q.tone);
+    return c;
+  }
+  window.GROUNDS = { list, draw, kinds: Object.keys(K), overlay, overlays, src, overlaySrc, parse, canvasFor };
 })();
