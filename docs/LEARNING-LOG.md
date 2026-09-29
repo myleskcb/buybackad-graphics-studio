@@ -717,11 +717,6 @@ Learned:
     end of the plate, pointing down, usually does.
   - A Pro card opened signed-out lands on the plans page and the free
     default; a test of a library card in Easy Mode has to use a free card.
-  - Ranking lines by their object's font size put the emoji beside a small
-    "WE BUY" in a two-line headline; each line ranks by its own height.
-  - A wall of ghosted products at 16% opacity counted as occupied and pushed
-    the emoji off the big product word; a picture under 0.3 is texture, as
-    the gate already treated it.
 
 Changed:
   - pgEmojiPass after alignPass (wrapped); pgEmojiCheck in pgCheck
