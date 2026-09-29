@@ -1057,6 +1057,8 @@ the product only when every colour has a declared job and survives
 `scripts/audit_theme_grammar.mjs`; `scripts/preview_theme_grammar.mjs` then
 proves the records are reachable and applied through the real editor UI.
 
+> Superseded in part (rule 79): a colour theme repaints the plates too, so it answers for the lines on them; text on a plate is left alone only while the plate keeps its colour.
+
 ## 52. A finished card may change colour only if it keeps its luminance, and it is judged on its own pixels
 
 Added 2026-09-22 with the showcase refresh (`docs/refresh-2026-09-22.md`).
@@ -1759,3 +1761,155 @@ Mode, the editor, the PNG and the video):
 Measured on the library (399 cards): 160 none, 190 one, 49 two; 0 emoji
 overlaps; the library (399 of 399) and the classics (227 of 243, the same 16
 held back) pass the gate as before.
+
+## 79. A colour theme owns the whole card, and answers for every line it repaints
+
+Added 2026-09-29. Numbered after the trunk's 67 to 78
+(`claude/vibrant-lovelace-rze4rx`), so bringing the branches together does not
+renumber it. The owner, on Easy Mode's colour themes, backgrounds and effects:
+"make sure we build all features to be completely relevant or at least make
+them work to redesign the theme."
+
+Measured before, through the real controls (`scripts/ez_theme_audit.mjs`: the
+first live card of each layout, four classics and the owner's screenshot card;
+every theme; the grounds under a light theme and a dark one, and with no theme
+where a build has a way back to it; blur, the overlays and the patterns; ORIG,
+the chip and the swatches), on the live build (26037de3): 1148 problems over
+20 cards and 21 themes. Every theme left every plate that carries words in the
+card's old colour (420 of 420 card-and-theme pairs; 48 such plates across the
+sample), 378 pairs left the card's own accent or support colour beside the
+theme's, and 32 changed under 1% of the picture (slabPoster nothing at all
+under any theme). 176 pairs took 425 lines under the gate or under 3:1, and
+the grounds under Gold Offer and Cash Green 125 more. Blur stayed live over a
+flat colour and did nothing on all 20 cards, and did nothing on the photograph
+of 4 (it replaced the photograph's own blur). Shade laid a white veil over
+Sell Your iPhone's and the KBB card's dark photographs and failed their
+headlines. No card had a way back from a theme; the lit chip and the drawing
+disagreed after a template switch; the six swatches ignored the theme.
+
+The cause was a rule doing its job too narrowly. Rule 51 left a line on a
+plate alone because the plate, not the theme, owns its contrast, and nothing
+repainted a plate. On the 403 live cards the phone number stands on a plate
+on all 403 and the CTA on 180 of 239, so a theme never reached the number,
+and every ribbon, pill, frame and icon kept the card's old accent beside the
+theme's new one. The lines it did repaint were given the theme's colour for
+the theme's own ground while they stood on the photograph.
+
+The rule:
+
+- **The theme owns the colour, so it answers for the contrast.** Rule 51's
+  reason stands: whoever paints a plate owns the lines on it. So the theme
+  paints the plates: each takes the job its colour had in the card's own
+  palette (the showcase row's c1, accent and support; read off the scene for a
+  classic): the accent's plates take the theme's accent, the support's its
+  support (or its ink where it has none), every other plate, the card's ground
+  colour and the paper and smoke panels, the theme's ground. Solid (rule 45),
+  opaque where it carries dark ink (rule 21), 1.3:1 apart from what it stands
+  on, a plate on a plate a step from its host.
+- **Marks keep their job and stay seen.** Ribbons, rules, frames, icons, dots
+  and sheens take their job's theme colour at their own opacity; black and
+  white stay neutral; a mark keeps 2:1 against what it is drawn on (a tick on
+  a disc the theme darkened was dark on dark).
+- **Every line is solved on its own pixels.** It starts from its job's colour
+  (the accent, the support, or the theme's reading colours: its ink, or its
+  ground where the ink sits on the wrong side of what the line stands on) and
+  only its lightness moves (rule 31) until three quarters of what is behind it
+  gives 4.5:1, or as far as its side allows. A line that read on most of its
+  photograph keeps its side (light stays light) so the shade and the outline
+  under it still serve it (rules 56, 62); a line on a coloured plate takes
+  whichever reading colour reads best there. "What is behind it" is the card
+  with every word hidden: a spec list that crosses a smoke panel and the edge
+  of a paper band is measured on both.
+- **The measure of a mixed ground is its majority.** The worst of the ground's
+  darkest and lightest tenth solved that spec list to #6f6f6f, equally poor on
+  both; three quarters of the ground is the measure (`thWorst`), and it is the
+  question the gate's core asks of the line itself (rule 66).
+- **The photograph keeps its colour** (rule 56). The theme's gradient is a
+  ground only where rule 65 already allowed a drawn one (a product-led card, or
+  a card already on a flat colour); a drawn ground is redrawn in the theme; the
+  visitor's photo or ground stays theirs.
+- **The chip that is lit is the theme that is drawn.** The theme follows the
+  visitor from card to card; ORIG puts the card's own colours back; a colour
+  set on a line with ✎ stays theirs until they pick a whole palette.
+- **A line keeps its side unless its side cannot read at all.** Held light
+  over a mid-tone ground it reached 2.3:1 at best; under 3:1 it goes
+  whichever way reads.
+- **A line's ring takes the tone its ground is not** (rules 27, 64). When a
+  theme or a ground turns a line's ink over, its outline and halo turn over
+  with it, neutral and at their own strength. The dark glow of a white
+  headline, kept round the dark ink a light theme gave it on a light ground,
+  smeared the letters. On a plate, or on a ground with no photograph (it is
+  as even as a plate), a ring of the ink's own tone goes and none is turned
+  light: a light outline round dark copy on a mid-tone ground counts as part
+  of the line and pulled gradientWave's selling points to 2.7:1. A coloured
+  outline is design and takes its job's colour.
+  A see-through backing behind a line (a chip's 0.12 tint) is judged like any
+  see-through panel: neutral, the tone the ink is not. The card's old green
+  stayed behind a light theme's dark chips.
+- **The six swatches are the theme's.** Beside ORIG they were six fixed
+  colours from before the themes: Gold Offer's cream card was offered a
+  magenta ground. With a theme on, they are its palette (rule 65), on its own
+  side of the ink and well clear of it:
+  - its ground, as a gradient and as a solid;
+  - its accent and support colour, deep under light ink, pale under dark;
+  - a neutral;
+  - the ground into the support colour.
+  Fitted only to 6:1, as "More grounds" is, the support colour under dark
+  ink came out mid-tone (0.35), where a headline crossing the card's smoke
+  panel read neither light nor dark. A swatch picked under one theme becomes
+  the same swatch of the next, and it leaves with the theme. With no theme,
+  the six classics stay. The lit swatch is found by value: a draft restored
+  from storage lit "custom" instead.
+- **The copy follows the ground the visitor picks, theme or none.** With no
+  theme, a quick swatch or a custom colour changed the ground and nothing
+  else: Sell Your iPhone's orange IPHONE read 2.2:1 on the amber swatch, and
+  its white headline 1.7:1. On a flat or drawn ground the visitor chose (not
+  a photograph, where the shade does this, rule 62), a reading line standing
+  on it that falls under 4.5:1 moves its lightness until it reads (rule 31).
+  A gradient's stops move together, to the side that reads. A line on a
+  plate is left alone (rule 51), and so is a colour set with ✎. A
+  see-through plate keeps what the eye saw (rule 52): scriptRetro's smoke
+  panel at 0.62 was near-black on its photograph and mid-grey on a white
+  swatch (its items 2.3:1), so it thickens in its own colour until its copy
+  reads (0.86, 5.8:1), up to solid. A see-through backing is dropped: it
+  calms a photograph, and on a flat colour it only sat round the letters as
+  a faint box (bandKnockout's chips read 2.6:1 with it, 7:1 without).
+- **The overlay is shade in the tone the copy needs** (rules 62, 64, 66).
+  Shade, Fade ↓ and Fade ↑ counted every critical line in the template's
+  record, including the number on its paper band. So on Sell Your iPhone,
+  Shade laid a white veil (0.34) over a dark photograph under white
+  headlines. The tone is now set twice. Before the copy is solved it comes
+  from the ground: paper over a light ground, dark over the rest. Once the
+  lines are drawn it is confirmed from those standing on the photograph:
+  dark when any is light ink or none stands there, paper only when all are
+  dark. Solved against a dark provisional shade, a light theme's headline had
+  been held light on a ground the shade made mid-tone. In the editor the
+  overlay sits above the ground; sent to the back, it vanished under a drawn
+  or flat ground's rect.
+- **A control with nothing to act on says so, and a lit swatch is what is
+  drawn.** Blur adds to the photograph's own blur (it replaced it: a card
+  designed at 14px went sharp at the slider's first step and only passed its
+  own blur at step 10); over a flat colour, or before a background is picked,
+  it is switched off with the reason under it. ORIG lights only when the
+  template's photograph is really drawn, not over the grey placeholder.
+- **One measure** (rule 66): the passes are built on `pgRgb`, `pgLum`, `pgCr`
+  and `pgPlateUnder`; their only finder of their own answers what a mark is
+  drawn on, which is not a line.
+- **The audit presses the real controls, one card at a time.** Each card
+  opens in a fresh browser context, because the studio keeps the visitor's
+  draft in localStorage. A page sharing the previous card's storage started
+  with Shade already on, and then measured Shade as "changing nothing".
+  Measurement waits for the card's own photograph: a classic's arrives in
+  the second preload wave, and before it every effect "changed nothing" on
+  the fallback gradient. Patterns are measured at full size, since a
+  quarter-size render blurs a 1.5px grid away.
+
+After, on this branch with the same audit: no problems over the same 20 cards
+and 21 themes, and no page errors. Themes change 3.5 to 100% of the picture
+(the screenshot card 77.9 to 88.3%). The grounds pass with no theme, under
+Gold Offer and under Cash Green. Blur works on every photograph and says why
+it is off over a flat colour. Every overlay and pattern changes the picture,
+and Shade passes the gate. ORIG restores every colour. The chip follows the
+drawing, and the swatches follow the theme. A theme adds nothing measurable to
+Sell Your iPhone's preview and about 60ms to bandKnockout's photographed one
+(123 to 182ms: three renders of what is behind the words).
