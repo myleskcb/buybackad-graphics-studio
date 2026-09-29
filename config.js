@@ -14,6 +14,19 @@
    A Cloudflare rule that proxies /gfx/* to the Netlify host therefore needs no
    special case: the request arrives as /api on the far side. */
 window.PGFX_API = (function () {
+  /* A copy served from this machine (python3 -m http.server) has no backend.
+     Opened once as http://localhost:8899/?demo=1 it runs in DEMO MODE on this
+     browser until ?demo=0, so the whole flow (an account, Pro, checkout) can be
+     clicked through locally. Never on a real host: there the Worker enforces
+     the plan, and this page's locks are display only. */
+  var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  if (local) {
+    try {
+      if (/[?&]demo=1\b/.test(location.search)) localStorage.setItem('pgfx_local_demo', '1');
+      if (/[?&]demo=0\b/.test(location.search)) localStorage.removeItem('pgfx_local_demo');
+      if (localStorage.getItem('pgfx_local_demo') === '1') return '';
+    } catch (e) {}
+  }
   var dir = location.pathname.replace(/\/[^\/]*$/, '/');
   return (dir === '/' ? '' : dir.replace(/\/$/, '')) + '/api';
 })();

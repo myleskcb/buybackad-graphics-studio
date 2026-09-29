@@ -181,6 +181,12 @@ netlify deploy --prod --dir=.
 Draft-deploy and *look* before `--prod`. Given landmine 2, the preview render is
 the only real check.
 
+To click through a branch on your own machine first: `python3 -m http.server
+8899` in the repo, then open `http://localhost:8899/?demo=1`. A local copy has
+no backend, so `?demo=1` (localhost only, remembered until `?demo=0`) runs the
+config.js demo mode: sign up with any email and take Pro through the simulated
+checkout to see every template.
+
 Verify after promoting:
 
 ```bash
