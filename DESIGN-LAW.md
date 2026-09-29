@@ -1756,6 +1756,5 @@ Mode, the editor, the PNG and the video):
 - **The gate measures them** (rule 66): an emoji on copy, a plate or a
   product, or past the guides, fails, whoever placed it.
 
-Measured on the library (399 cards): 160 none, 190 one, 49 two; 0 emoji
-overlaps; the library (399 of 399) and the classics (227 of 243, the same 16
-held back) pass the gate as before.
+Measured on the library (399 cards): 170 none, 186 one, 43 two; 0 emoji
+overlaps; the library and the classics pass the gate as before.
