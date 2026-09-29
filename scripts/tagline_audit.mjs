@@ -23,7 +23,7 @@
    Samples per family x category (--per N, default 2) or --ids a,b.
 
    usage: python3 -m http.server 8899   then
-          CHROME=... [FABRIC_JS=...] node scripts/tagline_audit.mjs [--per 2] [--ids a,b] [--sheet] [--noholds]
+          CHROME=... [FABRIC_JS=...] node scripts/tagline_audit.mjs [--per 2] [--ids a,b] [--looks glow,anaglyph] [--sheet] [--noholds]
    Writes .render/tagline-audit/{report.json, <id>.jpg (with --sheet: a strip of the styles)} */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { openStudio } from './_showcase_harness.mjs';
@@ -55,7 +55,9 @@ const pick = async () => page.evaluate(async (PER, IDS) => {
 }, PER, IDS);
 await page.evaluate(() => { loadAccount = async () => account; account = { email: 'audit@local', role: 'admin', plan: 'pro' }; });
 const cards = await pick();
-const STYLES = await page.evaluate(() => EZ_TAG_LOOKS.map(s => s[0]));
+// --looks a,b: only those looks (solid is always measured: it is the design each look is judged against)
+const LOOKS = arg('--looks', '') ? ['solid'].concat(arg('--looks', '').split(',').filter(k => k !== 'solid')) : null;
+const STYLES = await page.evaluate(LOOKS => EZ_TAG_LOOKS.map(s => s[0]).filter(k => !LOOKS || LOOKS.includes(k)), LOOKS);
 console.log('templates', cards.length, '× styles', STYLES.join(' '));
 
 const rows = [];

@@ -12714,13 +12714,29 @@ function taglineStyle(sc, spec, pal, W, H, as){
     for (let i = 0; i < 30 && !hues.every(([h, C], k) => cr(Y(at(L + dL[k], C, h)), gY) >= want); i++) L = Math.max(0.12, L - 0.01);
     return hues.map(([h, C], k) => at(L + dL[k], C, h));
   };
+  /* a premade or picked gradient: its colours as they are where they read on
+     the line's ground; where they do not (a sunset on a paper panel read
+     2.8:1), every stop moves together, lighter on a dark ground and deeper on
+     a light one, as far as the ground needs, keeping its hues */
+  const onGround = (o, st) => {
+    const gY = ground.get(o);
+    if (gY == null || !st.length) return st;
+    const want = wantOn(solidHex(o.fill) || '#ffffff', gY), q = st.map(c => ok(c));
+    const at2 = (s, d) => at(Math.max(0.05, Math.min(0.98, s.L + d)), s.C, s.h);
+    const least = d => Math.min(...q.map(s => cr(Y(at2(s, d)), gY)));
+    if (least(0) >= want) return st;
+    const step = gY < 0.18 ? 0.01 : -0.01;
+    let d = 0;
+    for (let i = 0; i < 90 && least(d) < want; i++) d += step;
+    return q.map(s => at2(s, d));
+  };
   const stopsFor = o => {
     const g = spec.gradient || 'theme';
     if (g === 'theme'){ const L = solveL(o, [h0 - 25, h0 + 25], 0.15); return [at(L, 0.15, h0 - 25), at(L, 0.15, h0 + 25)]; }
     if (g === 'pair'){ const L = solveL(o, [acc.h, sup.h], 0.15); return [at(L, 0.15, acc.h), at(L, 0.15, sup.h)]; }
     if (g === 'street') return streetBright();
     const st = taglineGradientStops(g);
-    if (st) return st;
+    if (st) return spec.plates === 'dark' ? st : onGround(o, st);
     const L = solveL(o, [h0 - 25, h0 + 25], 0.15);
     return [at(L, 0.15, h0 - 25), at(L, 0.15, h0 + 25)];
   };
@@ -12948,29 +12964,78 @@ function taglineStyle(sc, spec, pal, W, H, as){
     c.pgTagRest = null; c.pgTagBlock = null;
     return c;
   };
+  /* An effect's strength is chosen on the card, by the critic (rule 54): each
+     variant, from the look as drawn to the tamest, is put on the line and
+     measured on the scene at half size (the line and its layers, with and
+     without them), and the first that reads at 3.5:1 stays; with none,
+     the one that read best. A wide soft glow on a mid-grey photograph, a
+     paper panel or a gold band read 1.3 to 2.9:1 as drawn (tagline audit,
+     2026-09-29): its letters read, its faint halo did not. */
+  const choose = (o, variants, put, take) => {
+    let best = null;
+    for (let v = 0; v < variants.length; v++){
+      const marks = put(variants[v]);
+      const q = tagMarkQ75(sc, [o].concat(marks), W, H);
+      if (!best || q > best.q) best = { v, q };
+      if (q >= 3.5 || v === variants.length - 1){ if (best.v === v) return best; }
+      take(marks);
+    }
+    put(variants[best.v]);
+    return best;
+  };
+  const paintOf = o => ({ fill: o.fill, stroke: o.stroke, strokeWidth: o.strokeWidth, paintFirst: o.paintFirst, shadow: o.shadow });
+  const drop = marks => marks.forEach(m => sc.remove(m));
   if (spec.effect === 'glow'){
-    /* a neon tube: a hot core, a thin coloured edge, two passes of glow */
-    const glowHex = at(0.72, 0.2, h0);
+    /* a neon tube: a hot core, a thin coloured edge, two passes of glow; where
+       the ground will not carry that, a tighter glow, a deeper one, the tube
+       in the colour itself on a light ground, and at the last a white letter
+       in a thin deep rim */
     lines.forEach(o => {
-      const u = o.fontSize || 40;
+      const u = o.fontSize || 40, gY = ground.get(o), paper = gY != null && gY >= 0.45;
       keep(o);
-      if (spec.fill === 'white' || spec.fill === 'solid') o.set('fill', '#ffffff');
-      o.set({ stroke: glowHex, strokeWidth: Math.max(2, u * 0.035), paintFirst: 'stroke', shadow: new fabric.Shadow({ color: glowHex, blur: u * 0.45, offsetX: 0, offsetY: 0 }) });
-      const halo = cloneText(o, { fill: glowHex, opacity: 0.85, shadow: new fabric.Shadow({ color: glowHex, blur: u * 0.9, offsetX: 0, offsetY: 0 }) });
-      sc.insertAt(halo, sc.getObjects().indexOf(o));
+      const p0 = paintOf(o), white = spec.fill === 'white' || spec.fill === 'solid';
+      const deepL = (() => { let L = 0.4; if (gY != null) for (let i = 0; i < 40 && cr(Y(at(L, 0.2, h0)), gY) < 4.5; i++) L = Math.max(0.14, L - 0.01); return L; })();
+      const V = [
+        { core: '#ffffff', L: 0.72, blur: 0.45, halo: 0.85, hb: 0.9 },                 // the neon as drawn
+        { core: '#ffffff', L: 0.8, blur: 0.3, halo: 0.75, hb: 0.5 },                   // tighter, paler
+        { core: '#ffffff', L: deepL, blur: 0.22, halo: 0.8, hb: 0.3 },                 // a deep glow round a white core
+        { core: 'glow', L: deepL, blur: 0.25, halo: 0.45, hb: 0.35 },                  // the colour itself, softly glowing (paper)
+        { core: '#ffffff', L: deepL, blur: 0.1, halo: 0, hb: 0, rim: 0.06 },           // a white letter in a thin deep rim
+        { core: '#ffffff', L: deepL, blur: 0.12, halo: 0, hb: 0, rim: 0.085 },         // ...a heavier one
+        { core: '#ffffff', ink: '#0b0b0d', blur: 0.1, halo: 0, hb: 0, rim: 0.085 },    // the outline look's rim, which holds on every card
+      ];
+      const order = paper ? [0, 3, 1, 2, 4, 5, 6] : [0, 1, 2, 4, 3, 5, 6];
+      choose(o, order.map(k => V[k]), c => {
+        const g = c.ink || at(c.L, 0.2, h0);
+        o.set(p0);
+        if (white) o.set('fill', c.core === 'glow' ? g : c.core);
+        o.set({ stroke: g, strokeWidth: Math.max(2, u * (c.rim || 0.035)), paintFirst: 'stroke', strokeLineJoin: 'round',
+          shadow: new fabric.Shadow(c.ink ? { color: 'rgba(0,0,0,0.6)', blur: u * c.blur, offsetX: 0, offsetY: u * 0.03 } : { color: g, blur: u * c.blur, offsetX: 0, offsetY: 0 }) });
+        if (!c.halo) return [];
+        const halo = cloneText(o, { fill: g, opacity: c.halo, shadow: new fabric.Shadow({ color: g, blur: u * c.hb, offsetX: 0, offsetY: 0 }) });
+        sc.insertAt(halo, sc.getObjects().indexOf(o));
+        return [halo];
+      }, drop);
       touched++;
     });
   } else if (spec.effect === 'anaglyph'){
-    /* the old 3-D print: red to one side, blue to the other, the letter on top */
+    /* the old 3-D print: red to one side, blue to the other, the letter on
+       top, white on a dark ground and ink on a light one, as it was on paper */
     lines.forEach(o => {
-      const u = o.fontSize || 40, d = u * 0.05 * (o.scaleX || 1), a = (o.angle || 0) * Math.PI / 180;
+      const u = o.fontSize || 40, d = u * 0.05 * (o.scaleX || 1), a = (o.angle || 0) * Math.PI / 180, gY = ground.get(o) || 0;
       keep(o);
-      const red = cloneText(o, { fill: '#ff2a4f', left: o.left - d * Math.cos(a), top: o.top - d * Math.sin(a) });
-      const blue = cloneText(o, { fill: '#18b4ff', left: o.left + d * Math.cos(a), top: o.top + d * Math.sin(a) });
-      const i = sc.getObjects().indexOf(o);
-      sc.insertAt(blue, i); sc.insertAt(red, i);
-      if (spec.fill === 'white' || spec.fill === 'solid') o.set({ fill: '#ffffff' });
-      o.set({ stroke: null, strokeWidth: 0, shadow: null });
+      const p0 = paintOf(o), white = spec.fill === 'white' || spec.fill === 'solid';
+      const inks = gY >= 0.45 ? ['#141418', '#ffffff'] : ['#ffffff', '#141418'];
+      choose(o, white ? inks : [null], ink => {
+        o.set(p0);
+        const red = cloneText(o, { fill: '#ff2a4f', left: o.left - d * Math.cos(a), top: o.top - d * Math.sin(a) });
+        const blue = cloneText(o, { fill: '#18b4ff', left: o.left + d * Math.cos(a), top: o.top + d * Math.sin(a) });
+        const i = sc.getObjects().indexOf(o);
+        sc.insertAt(blue, i); sc.insertAt(red, i);
+        if (ink) o.set({ fill: ink });
+        o.set({ stroke: null, strokeWidth: 0, shadow: null });
+        return [red, blue];
+      }, drop);
       touched++;
     });
   } else if (spec.effect === 'extrude'){
@@ -14494,6 +14559,35 @@ function taglineApply(sc, tpl, W, H, spec, opts){
     try { taglineReset(sc); } catch (e2){}
     return { look: 'solid', pal, error: String(e && e.message || e) };
   }
+}
+/* The critic (rule 54) on some marks, cheaply: the scene painted at a small
+   scale with and without them, and the upper quartile of the contrast of
+   every pixel they change, inside their box. A look uses it to choose an
+   effect's strength on the card it lands on. */
+function tagMarkQ75(sc, marks, W, H){
+  const z = (sc.getZoom && sc.getZoom()) || 1, k = Math.min(0.6, 540 / Math.max(W, H));
+  let on = null, off = null;
+  const vis = marks.map(m => m.visible);
+  try {
+    on = sc.toCanvasElement(k / z);
+    marks.forEach(m => { m.visible = false; });
+    off = sc.toCanvasElement(k / z);
+  } catch (e){ return 0; }
+  finally { marks.forEach((m, i) => { m.visible = vis[i]; }); }
+  const bs = marks.map(m => { m.setCoords(); return m.getBoundingRect(true, true); });
+  const x0 = Math.max(0, Math.floor(Math.min(...bs.map(b => b.left)) * k)), y0 = Math.max(0, Math.floor(Math.min(...bs.map(b => b.top)) * k));
+  const x1 = Math.min(on.width, Math.ceil(Math.max(...bs.map(b => b.left + b.width)) * k)), y1 = Math.min(on.height, Math.ceil(Math.max(...bs.map(b => b.top + b.height)) * k));
+  if (x1 - x0 < 2 || y1 - y0 < 2) return 0;
+  const a = on.getContext('2d').getImageData(x0, y0, x1 - x0, y1 - y0).data, b = off.getContext('2d').getImageData(x0, y0, x1 - x0, y1 - y0).data;
+  const lin = v => _srgbToLin(v / 255), px = [];
+  for (let i = 0; i < a.length; i += 4){
+    if (Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]) < 24) continue;
+    const la = 0.2126 * lin(a[i]) + 0.7152 * lin(a[i + 1]) + 0.0722 * lin(a[i + 2]), lb = 0.2126 * lin(b[i]) + 0.7152 * lin(b[i + 1]) + 0.0722 * lin(b[i + 2]);
+    px.push((Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05));
+  }
+  if (!px.length) return 0;
+  px.sort((p, q) => p - q);
+  return px[Math.floor(px.length * 0.75)];
 }
 /* The emoji accents (pgEmojiPass) are placed beside the words after the
    layout; a look can move a line (a block), widen its ink (a rim, a glow) or

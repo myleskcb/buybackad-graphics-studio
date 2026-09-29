@@ -117,6 +117,9 @@ def under_products():
     return want
 
 def main():
+    # k-means starts from random centres: seeded, so the same photographs always give the same maps
+    cv2.setRNGSeed(0)
+    np.random.seed(0)
     sheet = '--sheet' in sys.argv
     table, maps = {}, {}
     want = under_products()

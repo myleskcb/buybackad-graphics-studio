@@ -2115,6 +2115,38 @@ street, gradient and pair styles may travel hue. Rule 1 (no outlines on type)
 stands for the templates as designed; the street and outline styles are a rim
 the visitor asks for, and the critic measures them like any other line.
 
+Amended 2026-09-29, when the three lines of work became one (the trunk's
+looks, the gate session's shade and emoji, this rule's engine):
+
+- **The looks are the trunk's, the engine is this rule's.** Twelve looks
+  (solid, street, signature, gradient, accent into support, white and
+  outline, colour blocks, multicolour, glow, red and blue 3-D, 3-D block,
+  pattern), sixteen premade gradients, any stops, the angle, the outline and
+  effect overrides and thirty-six patterns are one choice (`ez.tag`), set in
+  Easy Mode's panel or the editor's row and held on every surface. A card may
+  carry a look of its own (`tpl.look`), shown under Solid.
+- **Every look is solved on the card, not only the first six.** A premade
+  or picked gradient keeps its colours where they read on the line's ground
+  and moves them together, lighter or deeper, where they do not (a sunset on
+  a paper panel read 2.8:1). An effect's strength is chosen by the critic on
+  the card: glow tries the neon as drawn, then tighter, deeper, the colour
+  itself on paper, and at the last a thin deep rim, and keeps the first that
+  reads at 3.3:1 (as drawn, a wide soft glow read 1.3 to 2.9:1 on 15 of 82
+  templates); the red and blue print sets its letter white or ink the same
+  way.
+- **A look's own layers belong to their line.** A glow, the red and blue
+  offsets and the depth are marked (`pgKin`, `pgKinId`), so they are reset
+  with the look, measured with their line by the critic and by the gate
+  (never as words touching it), and in the editor they follow the line
+  through a drag, a word edit, undo and redo, and go when it is deleted.
+- **What comes after the layout stays after it.** alignPass runs plate air,
+  the product off its subject (rule 84), the number's floor, the bands shade
+  (rule 87) and the emoji accents (rule 88); the look runs after them, and
+  the emoji are placed again on the scene the look left, so an accent never
+  sits on a block or a slice of depth. The editor finishes a card the way
+  Easy Mode does (the number fills its plate, the claim shade) before the
+  look goes on.
+
 ## 84. A product stands off its photograph's subject
 
 Added 2026-09-27. The owner: "keep in mind where the background subject is in

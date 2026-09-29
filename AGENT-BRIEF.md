@@ -131,6 +131,27 @@ If `main` is behind the newest integration branch, start from that branch and
 say so. Screenshot the landing before you touch it: the violet Template Lab page
 is current; a warm orange one is August.
 
+### 7. A deploy must contain what is live, or it rolls someone back
+
+Sessions deploy the Netlify project straight from their own branches, and on
+2026-09-29 three lines were live or about to be: the trunk
+(`claude/vibrant-lovelace-rze4rx`), the branch production served
+(`claude/fervent-pascal-w6mthe`) and the one-engine work
+(`claude/vibrant-hawking-htxrvn`), each missing the others' last day. A deploy
+from any one of them would have taken the other two's work off the site.
+
+Before a production deploy, read the current production deploy's commit
+(the Netlify deploy list, or the connector's get-deploy) and check it is an
+ancestor of what you are about to deploy:
+
+```bash
+git merge-base --is-ancestor <live commit> HEAD && echo "contains what is live"
+```
+
+If it is not, merge that branch first (merge, never rebase another session's
+work), run the checks, then deploy. Merge the newest branches' finished work
+the same way before you build on top of it.
+
 ### 5. Internal docs are blocked from the public site
 
 `docs/`, `scripts/` and `DESIGN-LAW.md` are 404'd at the edge in
