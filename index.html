@@ -425,13 +425,21 @@
           <div class="ez-themes" id="ez-themes"></div>
         </div>
         <div class="ez-field" id="ez-tag-field">
-          <label>Tagline style <span style="text-transform:none;font-weight:500">(gradients, outlines, glow, 3-D and textures on the headline)</span></label>
+          <label>Tagline style <span style="text-transform:none;font-weight:500">(gradients, patterns, outlines, glow and 3-D on the headline)</span></label>
           <div class="ez-fxrow" id="ez-tag-looks" role="group" aria-label="Tagline look"></div>
           <div id="ez-tag-grad" hidden>
             <div class="ez-subttl">Gradient</div>
             <div class="ez-tag-presets" id="ez-tag-presets" role="group" aria-label="Premade gradients"></div>
             <div class="ez-tag-stops" id="ez-tag-stops" aria-label="Gradient colours"></div>
             <div class="ez-fxline"><label for="ez-tag-angle">Angle</label><input type="range" id="ez-tag-angle" min="0" max="360" step="5" value="90"><span class="fxval" id="ez-tag-angle-val">90°</span></div>
+          </div>
+          <div id="ez-tag-pat" hidden>
+            <div class="ez-subttl">Pattern</div>
+            <div class="ez-tag-pats" id="ez-tag-pats" role="group" aria-label="Patterns"></div>
+            <div class="ez-fxline"><label for="ez-tag-pscale">Size</label><input type="range" id="ez-tag-pscale" min="25" max="300" step="5" value="100"><span class="fxval" id="ez-tag-pscale-val">100%</span></div>
+            <div class="ez-fxline"><label for="ez-tag-px">Slide ↔</label><input type="range" id="ez-tag-px" min="0" max="100" step="1" value="0"><span class="fxval" id="ez-tag-px-val">0%</span></div>
+            <div class="ez-fxline"><label for="ez-tag-py">Slide ↕</label><input type="range" id="ez-tag-py" min="0" max="100" step="1" value="0"><span class="fxval" id="ez-tag-py-val">0%</span></div>
+            <div class="ez-tag-pathint">Or drag the preview to slide it. <button type="button" id="ez-tag-patreset">Reset size and slide</button></div>
           </div>
           <div class="ez-subttl">Outline</div>
           <div class="ez-fxrow" id="ez-tag-outline" role="group" aria-label="Tagline outline"></div>

@@ -698,3 +698,33 @@ photographs whose subject ended mid-card, which left the plain run empty and
 set the steps on the subject — and the fix was a third outcome, fit. The audit
 caught two engine faults on the way: the full-canvas scrim taken for the CTA
 band, and a deliberately layered phone "rescued" by the product-clearance pass.
+
+## 2026-09-29 — thirty-six patterns, sixteen aesthetic gradients, one sheet
+
+The owner asked for as many patterns as we could make, sized up and down and
+slid around in the editor, and for aesthetic colours (a holographic WE BUY
+IPHONES). The Easy Mode tagline panel now has one Pattern look with 36
+seamless tiles in five families (geometric, themed, material, animal, street),
+a size slider (25-300%), two slide sliders, and a drag on the preview itself.
+Sixteen gradients join the presets: holographic, iridescent, opal, vaporwave,
+Y2K chrome, oil slick, prism and the rest.
+
+What the checks found on the way:
+- The old stripes tile was solid ink: its stripes were exactly as wide as
+  their spacing. Nobody saw it because the panel check only asked whether the
+  preview changed.
+- Strokes ended at the tile edge left notches at every seam (chevron, zigzag,
+  waves, argyle); lines now run past the tile or are drawn wrapped, and a seam
+  metric (the step across the edge against the largest step inside) checks all 36.
+- A tile drawn at the design's density is soft in a 2160px download. Tiles
+  are now drawn at the render's own density and scaled into the line.
+- Per-line tiles made the money signs jump between lines. One sheet per card,
+  anchored to the card, and plate air re-anchors any line it moves.
+- A full preview takes about a second, too slow to drag. The drag slides the
+  sheet on the scene it built once, and its last frame is pixel-identical to
+  the full render it settles to (the panel check drags a real pointer).
+- The gradient look painted the badge and left the CTA cyan, breaking rule 74.
+  Plates of one colour now take one treatment (DESIGN-LAW 74). Street's dark
+  pill had hidden the badge's bolt, which is all stroke.
+- The first dialog a new visitor sees (service area) caught the test's pointer.
+  The check now proves the pointer lands on the preview before it drags.

@@ -1736,6 +1736,12 @@ that runs off the canvas is seen to the edge), as far as the guides let the
 letters go. The website line leaves the band when it would hold the number
 small (Easy Mode already leaves it off unless one is typed).
 
+A tagline look that treats plates treats the badge and the CTA together
+(2026-09-29): a gradient that paints the badge paints the band in the same
+stops, and Street's dark bands take the badge with them, its words and mark
+turned light. Each gradient stop is lifted until the words on the plate still
+read (7:1 under the number, 4.5:1 under the rest).
+
 ## 75. The engine chooses; it does not roll
 
 Added 2026-09-27: "Let's use more neon colors too, pastels can be good too but
