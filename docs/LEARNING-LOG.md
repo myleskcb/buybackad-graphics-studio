@@ -812,3 +812,9 @@ metric top in the square and 1.6px under it scaled. The approved card had the
 same drift and passed only because it started a pixel the other way. The rows
 are now re-centred by their drawn letters after the list grows; the approved
 9:16 still matches the owner's render (0.04% of pixels moved).
+The first version of that fix re-centred row 1 only. It chose each plate's
+words by visibility after the first measurement, and measuring draws one object
+alone, so plates 2 and 3 found no words and were skipped. The probe that
+"proved" the fix printed row 1 alone. Lesson: a check of a fix covers every
+instance the fix claims (all three rows, both tall formats), not the first.
+
