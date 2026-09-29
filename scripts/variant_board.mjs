@@ -24,7 +24,7 @@
  *   node scripts/variant_board.mjs compose --shard=0/4    → lab records + thumbnails
  *   node scripts/variant_board.mjs audit --shard=0/4      → audit_card --lab on the shard
  *   node scripts/variant_board.mjs collect [--keep=500]   → .render/board/site/ (the page, board.json, thumbnails)
- *   node scripts/variant_board.mjs thumbs --shard=0/4     → .render/board/site/t/ at 800px, from the kept records
+ *   node scripts/variant_board.mjs thumbs --shard=0/4     → .render/board/thumbs800/ (800px, from the kept records; collect prefers them)
  *   (needs :8899; CHROME=, FABRIC_JS= as for the other showcase scripts)
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, readdirSync } from 'node:fs';
@@ -323,7 +323,11 @@ if (cmd === 'collect'){
   const queues = Object.values(byVoice), picked = new Set();
   for (let k = 0; picked.size < KEEP && queues.some(q => q.length > k); k++) queues.forEach(q => { if (q[k] && picked.size < KEEP) picked.add(q[k].id); });
   const rows = pass.filter(r => picked.has(r.id));      // in plan order, the board mixes its voices
-  rows.forEach(r => copyFileSync(THUMBS + r.id + '.webp', SITE + 't/' + r.id + '.webp'));
+  /* each kept card's 800px picture (thumbs) when it has been painted, else the composer's proof */
+  const BIG = OUT + 'thumbs800/';
+  rows.forEach(r => copyFileSync(existsSync(BIG + r.id + '.webp') ? BIG + r.id + '.webp' : THUMBS + r.id + '.webp', SITE + 't/' + r.id + '.webp'));
+  const small = rows.filter(r => !existsSync(BIG + r.id + '.webp')).length;
+  if (small) console.log(small + ' kept cards have no 800px picture yet: run thumbs, then collect again');
   copyFileSync(ROOT + 'scripts/board_page.html', SITE + 'index.html');      // the board page (published as an artifact with a db for picks)
   writeFileSync(SITE + 'board.json', JSON.stringify(rows));
   const fails = Object.entries(why).sort((a, b) => b[1] - a[1]);
@@ -337,13 +341,14 @@ if (cmd === 'thumbs'){
      as renderThumb paints it but straight at --px (800: crisp across a phone and
      in the lightbox, where the composer's 560px proof read soft) and without
      renderThumb's JPEG step, so small type is compressed once */
-  const PX = +opt('px', 800), Q = +opt('q', 0.88), SITE = OUT + 'site/';
-  const rows = JSON.parse(readFileSync(SITE + 'board.json', 'utf8'));
-  const ids = rows.map(r => r.id).filter((id, i) => IDS ? IDS.has(id) : i % SHARDS === SHARD);
-  mkdirSync(SITE + 't/', { recursive: true });
+  const PX = +opt('px', 800), Q = +opt('q', 0.88), SITE = OUT + 'site/', BIG = OUT + 'thumbs800/';
+  /* the kept set (site/board.json), or --ids; painted into a cache that collect prefers */
+  const ids = IDS ? [...IDS] : JSON.parse(readFileSync(SITE + 'board.json', 'utf8')).map(r => r.id).filter((id, i) => i % SHARDS === SHARD);
+  mkdirSync(BIG, { recursive: true });
+  const todo = ids.filter(id => args.includes('--force') || !existsSync(BIG + id + '.webp'));
   const { browser, page } = await openStudio();
   let n = 0;
-  for (const id of ids){
+  for (const id of todo){
     const lab = JSON.parse(readFileSync(LABDIR + id + '.json', 'utf8'));
     const webp = await page.evaluate(async (rec, id, PX, Q) => {
       const t = await __sc.prep(rec, id);
@@ -363,8 +368,8 @@ if (cmd === 'thumbs'){
       const cv = document.createElement('canvas'); cv.width = cv.height = PX; cv.getContext('2d').drawImage(img, 0, 0);
       return cv.toDataURL('image/webp', Q);
     }, lab.rec, id, PX, Q);
-    writeFileSync(SITE + 't/' + id + '.webp', Buffer.from(webp.split(',')[1], 'base64'));
-    if (++n % 25 === 0) console.log('shard ' + SHARD + ': ' + n + '/' + ids.length + ' pictures');
+    writeFileSync(BIG + id + '.webp', Buffer.from(webp.split(',')[1], 'base64'));
+    if (++n % 25 === 0) console.log('shard ' + SHARD + ': ' + n + '/' + todo.length + ' pictures');
   }
   await browser.close();
   process.exit(0);
