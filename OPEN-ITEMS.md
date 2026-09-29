@@ -819,8 +819,9 @@ Open:
    (numberFill), and ran it off the card until today. Two templates the gate
    passes fail it in Easy Mode (dl_gold_priceAnchor_gold "Price Line",
    dl_strips_arcCrown_emerald "Headline 2", legibility). The sweep that found
-   it (every offered template through renderEzCanvas and pgCheck) belongs in
-   verify_showcase --classics.
+   it, `scripts/ez_gate_sweep.mjs` (every offered template through
+   renderEzCanvas and pgCheck; 261 swept, no number off its guides now),
+   belongs in verify_showcase --classics: one path for both.
 11. **Sparse patterns on a card with little open ground.** The theme audit's
    pattern check fails dots (0.5% of pixels) and grid (0.8%) on
    of_gold_row_cobalt, whose photograph, copy and bands leave little ground.

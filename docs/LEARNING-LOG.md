@@ -1536,3 +1536,109 @@ RESUME HERE:
   palette): themeScene must run BEFORE it, so a tagline look takes the
   theme's colours. Then run `node scripts/ez_theme_audit.mjs` (exit 0) and
   `scripts/verify_showcase.mjs` on the merged build.
+
+## 2026-09-29 (evening) — The variant board and the colour themes on the one engine
+
+The owner: "ok work around pusha aqnd commit". After a2311fe was pushed, the
+trunk (the variant board) and the colour-theme session both kept committing;
+each was merged here twice, as merge commits, nobody's history rewritten.
+
+Found:
+  - The trunk's own panel check failed on the owner-approved card before
+    either merge (it failed at a2311fe too). Colour blocks gave way: held
+    inside the 6% guides, the claim's block slid a whole padding sideways onto
+    its badge. Street's video lost its end card: the look sets the number deep
+    teal to read on its pale band, and the call to action carried it onto the
+    photograph under a dark shade (ctaTurnInk turned a flat dark line light
+    and skipped a gradient).
+  - Three turned claims (the street price-badge and ribbon cards) then gave
+    way at the 2.5% edge line: a turned line's block is wider than its own
+    width, and a block placed exactly on the line came out a hair past it.
+  - numberFill grew a number about its centre, and sized it to a band that
+    runs off the canvas unless the card was a restaged record. In Easy Mode
+    the gate failed 7 of 20 street cards and the offer cards on the number's
+    margin; on of_gold_row_cobalt the number started at x = -40. The classics
+    gate prepares a template the gallery's way (the number at its authored
+    76.5px) and never saw it: every offered template's Easy Mode render
+    through pgCheck is what found it.
+  - The theme audit on an offer card: the dots and grid patterns change under
+    1% of its pixels. The pattern sat under the card's own shade and vignette
+    layers (Easy Mode stacked it over the studio's ground only); over them it
+    still changes 0.5% and 0.8%, since the photograph, copy and bands leave
+    little ground.
+  - A look that took 39 s in the panel check: the template strip painting
+    about 150 thumbnails with their looks in the background while the check
+    waited on a preview that did not change. Not a loop and not a leak: 60
+    renders on one page, the heap flat at 12 MB.
+  - Rule and section numbers collided again: the trunk's new 79, the theme
+    session's 79 and its OPEN-ITEMS §P.
+
+Changed:
+  - Merged the trunk to 71986e6 and the colour-theme session to a040eb1.
+  - A stroke a look puts on or takes off keeps the line's centre (keepGlyphs,
+    from the trunk) in every variant the critic tries, in taglineReset and in
+    the video's last frames; a look's layers are placed by the line's centre.
+  - One order on every surface: the layout, the colour theme (themeScene),
+    then the tagline look, solved on the themed card in the theme's palette
+    (sc.__theme read by tplPalette). A card the editor opens from anywhere else
+    wears its own colours; ORIG gives the look the card's palette back; the
+    visitor's own photograph in the hand-off has the theme and the look solved
+    once it lands; an offer card's photograph stays under a theme.
+  - Blocks: a block's padding may pass the guides (never within 2.5% of the
+    edge, as its fault check already said), it is placed by its outline as it
+    stands on the card, and a claim's blocks move as one (DESIGN-LAW 83).
+  - The video's call to action turns a gradient line light as it does a flat
+    one, and takes a turned line's outline off about its centre.
+  - Every card's number is sized inside the guides (a restaged record by its
+    letters, any other by its box, as the gate measures), keeps the edge it
+    was set on unless it was centred, and keeps its letters inside the guides
+    (DESIGN-LAW 74).
+  - A pattern and an overlay go over a card's whole ground, the template's
+    own shade and vignette layers included (ezGroundStack), in Easy Mode and
+    the editor.
+  - Numbering: the trunk's 79 is 89 here, the theme session's 79 is 90 and its
+    §P is §T; the references in each side's own lines follow.
+
+Measured (the merged build, before the push):
+  - Tagline looks: all twelve on the 81 audited templates, the picture and
+    the video's frames, 81/81 each; blocks give way on 4, each over its
+    product (6 before these merges, 8 on the way).
+  - The trunk's tagline_panel_check passes (12 looks, 33 presets, 36
+    patterns, the drag, the video's call to action on six looks, no CSP
+    report), and so does the phone picker check.
+  - The owner-approved Steps Flow cards pass the trunk's audit_card at 100%
+    (224/224, 222/222: the claim spelled as written, the letters themselves
+    readable), and the 9:16 is within 0.04% of the owner's render.
+  - The colour themes: on the theme audit's sample and the owner-approved
+    card, 0 unthemed plates, 0 leftovers, 0 regressions; on one offer card
+    two sparse patterns change under 1% of its pixels (OPEN-ITEMS §S 11). A
+    theme picked in Easy Mode colours the look there and in the editor, ORIG
+    gives the card's palette back, and an offer card keeps its photograph.
+  - Easy Mode through the gate (scripts/ez_gate_sweep.mjs): 261 offered
+    templates, no number off its guides; 2 fail legibility there, as they did
+    without the number fill (§S 10).
+  - Showcase: 971 records through the gate, 418 live and none failing it, the
+    same 418 as before; every thumbnail re-rendered (ASSET_REV 20260929v);
+    content audit CLEAN 422; the school 713 pass, 258 held back.
+  - Classics: 404 measured whole, 347 pass, 57 held back; the template audit
+    holds 143 of 404 (both unchanged).
+  - Static: CSS_FALLBACK in sync, CSP hashes unchanged, every script and JSON
+    file parses, every record's pictures resolve (971 of 971).
+
+Rejected:
+  - Changing the trunk's panel check to accept a look that gave way on the
+    approved card: the engine was wrong, not the check.
+  - Loosening the theme audit's 1% bar for cards with little open ground: the
+    owner's call (OPEN-ITEMS §S 11).
+  - Deploying: this container still cannot reach Netlify (the environment's
+    network policy denies api.netlify.com, app.netlify.com, *.netlify.app).
+
+RESUME HERE:
+  Deploy from a machine that can reach Netlify: the three lines are one on
+  claude/vibrant-hawking-htxrvn, and production (buybackad-finished-copy)
+  serves 26037de, an ancestor of it. Draft first, look, then --prod. The other
+  two sessions must merge this branch before their next deploy. Then
+  OPEN-ITEMS §S: the held classics (0), the number fill and the badges over
+  deco (2, 3), badge words (4), one table for holds (5), the three offer cards
+  on their subject (8), one palette reader (9), one path for the gate and Easy
+  Mode (10), sparse patterns (11).
