@@ -48,6 +48,10 @@ const ids = process.argv.slice(2).filter(a => !a.startsWith('--'));
 /* --lab: the ids are lab records (.render/restage/lab/<id>.json, written by
    restage_steps_flow.mjs --as=…), audited through the same three paths */
 const LAB = process.argv.includes('--lab');
+/* --fail-fast: stop a card's audit at the first view with a failing check (the
+   variant board keeps only 100% cards, so a failing card needs no more views);
+   a card that passes is always audited in full */
+const FAST = process.argv.includes('--fail-fast');
 /* --device=<src>: Easy Mode with the visitor's phone swapped in (the picker), the
    card checks on that phone; the approved-render comparison is skipped (the
    approved render has the card's own phone) */
@@ -355,7 +359,7 @@ let allPass = true;
 for (const id of ids){
   const labRec = LAB ? JSON.parse(readFileSync(ROOT + '.render/restage/lab/' + id + '.json', 'utf8')) : null;
   const rec = LAB ? labRec.rec : JSON.parse(readFileSync(ROOT + 'assets/showcase/tpl/' + id + '.json', 'utf8'));
-  const r = await page.evaluate(async (id, rec, lab, device) => {
+  const r = await page.evaluate(async (id, rec, lab, device, fast) => {
     const res = [];
     if (lab){                                   // a lab record opens like any showcase card
       await scLoadIndex();
@@ -377,6 +381,7 @@ for (const id of ids){
     res.push(...__audit(sc, TPL_W, TPL_H, { built, settled }, 'gallery'));
     const png = sc.toDataURL({ format: 'png' });
     sc.dispose();
+    if (fast && res.some(c => !c.pass)) return { res, png, pngs: {}, stopped: 'gallery' };
     // 2. Easy Mode, the scene a visitor downloads, square and 3:4
     await scLoadIndex();
     account = { email: 'audit@local', role: 'admin', plan: 'pro' };
@@ -429,9 +434,10 @@ for (const id of ids){
         res.push({ where: 'easy ' + fmt, rule: 0, name: 'matches the owner-approved render', pass, got, want: 'under 0.5% of pixels changed, mean under 2.5 (at a quarter scale)' });
       }
       s2.dispose();
+      if (fast && res.some(c => !c.pass)) return { res, png, pngs, stopped: 'easy ' + fmt };
     }
     return { res, png, pngs };
-  }, id, rec, labRec, DEVICE).catch(e => ({ res: [{ where: 'harness', rule: 0, name: 'ran', pass: false, got: String(e).slice(0, 300), want: 'no error' }] }));
+  }, id, rec, labRec, DEVICE, FAST).catch(e => ({ res: [{ where: 'harness', rule: 0, name: 'ran', pass: false, got: String(e).slice(0, 300), want: 'no error' }] }));
   const tag = DEVICE ? '--' + DEVICE.replace(/^.*\//, '').replace(/\.[a-z]+$/, '') : '';
   if (r.png) writeFileSync(OUT + id + '.png', Buffer.from(r.png.split(',')[1], 'base64'));
   Object.entries(r.pngs || {}).forEach(([f, u]) => writeFileSync(OUT + id + tag + '-easy-' + f + '.png', Buffer.from(u.split(',')[1], 'base64')));
@@ -442,7 +448,7 @@ for (const id of ids){
   console.log('\n' + id + (DEVICE ? ' with ' + DEVICE : '') + ': ' + (checks.length - failed.length) + '/' + checks.length + ' checks pass' + (failed.length ? '' : '  (100%)'));
   checks.forEach(c => console.log((c.pass ? '  ok   ' : '  FAIL ') + (c.where + '        ').slice(0, 13) + (c.rule ? 'r' + c.rule + ' ' : '    ') + c.name + ': ' + c.got + (c.pass ? '' : '   (want ' + c.want + ')')));
   report.push({ id, pass: !failed.length, checks });
-  writeFileSync(OUT + id + tag + '.json', JSON.stringify({ id, device: DEVICE, checks }, null, 1));
+  writeFileSync(OUT + id + tag + '.json', JSON.stringify(Object.assign({ id, device: DEVICE, checks }, r.stopped ? { stopped: r.stopped } : {}), null, 1));
 }
 await browser.close();
 process.exit(allPass ? 0 : 1);

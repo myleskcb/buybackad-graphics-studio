@@ -14118,11 +14118,13 @@ function centreRowsSeen(sc, plates, texts){
     return bo < 0 ? null : { t: (y0 + t) / z, b: (y0 + bo + 1) / z };
   };
   const inside = (o, b) => { const c = o.getCenterPoint(); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; };
+  /* each plate's words, chosen before anything is measured: measuring draws one
+     object alone, so a visibility test after the first plate found no words on
+     the others and rows 2 and 3 were left off centre */
+  const rows = plates.map(p => { p.setCoords(); const pb = p.getBoundingRect(true, true); return { p, mine: texts.filter(o => o.visible !== false && inside(o, pb)) }; });
   let moved = 0;
   try {
-    plates.forEach(p => {
-      p.setCoords(); const pb = p.getBoundingRect(true, true);
-      const mine = texts.filter(o => o.visible !== false && inside(o, pb));
+    rows.forEach(({ p, mine }) => {
       if (!mine.length) return;
       const C = ink(p); if (!C) return;
       const num = mine.find(o => /^\d$/.test(String(o.text || '').trim())), words = mine.filter(o => o !== num);

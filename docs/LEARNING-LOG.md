@@ -1412,3 +1412,15 @@ metric top in the square and 1.6px under it scaled. The approved card had the
 same drift and passed only because it started a pixel the other way. The rows
 are now re-centred by their drawn letters after the list grows; the approved
 9:16 still matches the owner's render (0.04% of pixels moved).
+The first version of that fix re-centred row 1 only. It chose each plate's
+words by visibility after the first measurement, and measuring draws one object
+alone, so plates 2 and 3 found no words and were skipped. The probe that
+"proved" the fix printed row 1 alone. Lesson: a check of a fix covers every
+instance the fix claims (all three rows, both tall formats), not the first.
+Stopping audit shards mid-batch to restart them left 83 audits that judged
+nothing: the browser died first, and the audit wrote a "detached frame" record
+for every card left in its batch within a second. Counted as failures, they
+would have dropped good cards from the board. The board's audit now runs a
+crashed audit once more in a fresh browser, and collect reports crashes apart
+from designs that failed.
+
