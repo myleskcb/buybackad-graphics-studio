@@ -242,3 +242,15 @@
   for = "/phonegfx-studio.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# TEMPORARY: the ad review admin (admin-ads/). Remove this block with the folder.
+[[headers]]
+  for = "/admin-ads/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[redirects]]
+  from = "/admin-ads/tools/*"
+  to = "/404.html"
+  status = 404
+  force = true
