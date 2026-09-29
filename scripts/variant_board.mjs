@@ -23,7 +23,7 @@
  *   node scripts/variant_board.mjs plan [--n=660]         → .render/board/plan.json
  *   node scripts/variant_board.mjs compose --shard=0/4    → lab records + thumbnails
  *   node scripts/variant_board.mjs audit --shard=0/4      → audit_card --lab on the shard
- *   node scripts/variant_board.mjs collect [--keep=500]   → .render/board/site/ (board.json + thumbnails)
+ *   node scripts/variant_board.mjs collect [--keep=500]   → .render/board/site/ (the page, board.json, thumbnails)
  *   node scripts/variant_board.mjs thumbs --shard=0/4     → .render/board/site/t/ at 800px, from the kept records
  *   (needs :8899; CHROME=, FABRIC_JS= as for the other showcase scripts)
  */
@@ -323,6 +323,7 @@ if (cmd === 'collect'){
   for (let k = 0; picked.size < KEEP && queues.some(q => q.length > k); k++) queues.forEach(q => { if (q[k] && picked.size < KEEP) picked.add(q[k].id); });
   const rows = pass.filter(r => picked.has(r.id));      // in plan order, the board mixes its voices
   rows.forEach(r => copyFileSync(THUMBS + r.id + '.webp', SITE + 't/' + r.id + '.webp'));
+  copyFileSync(ROOT + 'scripts/board_page.html', SITE + 'index.html');      // the board page (published as an artifact with a db for picks)
   writeFileSync(SITE + 'board.json', JSON.stringify(rows));
   const fails = Object.entries(why).sort((a, b) => b[1] - a[1]);
   const perVoice = Object.fromEntries(Object.entries(byVoice).map(([v, q]) => [v, q.length + ' passed, ' + rows.filter(r => r.voice === v).length + ' kept']));
