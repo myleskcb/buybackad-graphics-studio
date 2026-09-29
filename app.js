@@ -12932,39 +12932,90 @@ function taglineStyle(sc, spec, pal, W, H, as){
     });
   }
 
-  // ── fill
+  /* An effect's strength and a fill's side are chosen on the card, by the
+     critic (rule 54): each variant, from the look as drawn to the tamest, is
+     put on the line and measured on the scene at half size (the line and its
+     layers, with and without them), and the first that reads at `need` stays;
+     with none, the one that read best. A wide soft glow on a mid-grey
+     photograph, a paper panel or a gold band read 1.3 to 2.9:1 as drawn
+     (tagline audit, 2026-09-29): its letters read, its faint halo did not;
+     multicolour and pattern letters kept a light line light on a cream
+     ticket (1.4 to 2.5:1). */
+  const choose = (o, variants, put, take, need) => {
+    need = need || 3.5;
+    let best = null;
+    for (let v = 0; v < variants.length; v++){
+      const marks = put(variants[v]);
+      const q = tagMarkQ75(sc, [o].concat(marks), W, H);
+      if (!best || q > best.q) best = { v, q };
+      if (q >= need || v === variants.length - 1){ if (best.v === v) return best; }
+      take(marks);
+    }
+    put(variants[best.v]);
+    return best;
+  };
+  const paintOf = o => ({ fill: o.fill, stroke: o.stroke, strokeWidth: o.strokeWidth, paintFirst: o.paintFirst, shadow: o.shadow, styles: o.styles && Object.keys(o.styles).length ? JSON.parse(JSON.stringify(o.styles)) : {} });
+  const drop = marks => marks.forEach(m => sc.remove(m));
+  // the other side of the ground: a light line's colours made deep, a deep line's light
+  const flipL = L => L >= 0.6 ? 0.34 : 0.84;
+  const flipStops = stops => {
+    const q = stops.map(c => ok(c)), mean = q.reduce((s, x) => s + x.L, 0) / (q.length || 1), d = flipL(mean) - mean;
+    return q.map(x => at(Math.max(0.06, Math.min(0.97, x.L + d)), Math.max(0.1, x.C), x.h));
+  };
+  const multiStyles = (o, TLx, preset) => {
+    const pool = preset ? preset : [0, 72, 144, 216, 288].map(d => at(TLx, 0.17, h0 + d));
+    const styles = {}; let k = 0;
+    (o._textLines || [String(o.text).split('')]).forEach((ln, li) => {
+      styles[li] = {};
+      ln.forEach((ch, ci) => { if (!/\s/.test(ch)){ styles[li][ci] = { fill: pool[k % pool.length] }; k++; } });
+    });
+    return styles;
+  };
+  /* outline: heavy, painted first so the letters keep their full width;
+     white letters rim harder on a light ground (a cream ticket), where they
+     read by their rim alone; a line swept deep needs none */
+  const rimOn = (o, gY) => {
+    if (spec.outline !== 'black' && spec.outline !== 'white') return;
+    const u = o.fontSize || 40, hard = spec.outline === 'black' && spec.fill === 'white' && gY >= 0.45;
+    o.set({ stroke: spec.outline === 'black' ? '#0b0b0d' : '#ffffff', strokeWidth: Math.max(3, u * (hard ? 0.11 : 0.085)), paintFirst: 'stroke', strokeLineJoin: 'round',
+      shadow: new fabric.Shadow(hard ? { color: 'rgba(0,0,0,0.5)', blur: u * 0.14, offsetX: 0, offsetY: u * 0.02 }
+        : { color: spec.outline === 'black' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)', blur: u * 0.1, offsetX: 0, offsetY: u * 0.03 }) });
+  };
+
+  // ── fill: as solved on the line's ground, and where that does not read, the other side of it
   const sheetFs = Math.max(...heads.map(fsOf)), patMemo = {};
   lines.forEach(o => {
     if (spec.blocks && heads.indexOf(o) >= 0) return;
     keep(o);
-    const { TL, light } = lightOf(o), u = o.fontSize || 40, gY = ground.get(o) || 0;
-    if (spec.fill === 'white'){ o.set('fill', '#ffffff'); clean(o); }
-    else if (spec.fill === 'gradient'){ o.set('fill', gradOf(deep.has(o) ? deepStops(o, gY) : stopsFor(o), spec.angle)); clean(o); }
-    else if (spec.fill === 'multicolor'){
-      /* each letter its own colour, cycling through the gradient's stops or
-         five hues spread from the accent at the line's own lightness */
-      const pool = Array.isArray(spec.gradient) || TAGLINE_GRADIENTS[spec.gradient] ? taglineGradientStops(spec.gradient)
-        : [0, 72, 144, 216, 288].map(d => at(TL, 0.17, h0 + d));
-      const styles = {}; let k = 0;
-      (o._textLines || [String(o.text).split('')]).forEach((ln, li) => {
-        styles[li] = {};
-        ln.forEach((ch, ci) => { if (!/\s/.test(ch)){ styles[li][ci] = { fill: pool[k % pool.length] }; k++; } });
-      });
-      o.set({ styles }); clean(o); o.dirty = true;
-    } else if (spec.fill === 'texture'){
-      /* one sheet for the card: the claim sets the tile's size and every line shows the same tile, anchored to the card */
-      const p = taglinePattern(spec.texture, TL, light, h0, sheetFs, { scale: spec.patScale, x: spec.patX, y: spec.patY, res: spec.patRes, obj: o, memo: patMemo });
-      o.set('fill', p); clean(o); sc.__patTile = p.pgTile;
+    const { TL, light } = lightOf(o), gY = ground.get(o) || 0, p0 = paintOf(o);
+    const preset = (Array.isArray(spec.gradient) || TAGLINE_GRADIENTS[spec.gradient]) ? taglineGradientStops(spec.gradient) : null;
+    const V = [];
+    if (spec.fill === 'white') V.push({ fill: '#ffffff', rim: true });
+    else if (spec.fill === 'gradient'){
+      const street = spec.gradient === 'street' && spec.plates === 'dark', isDeep = deep.has(o);
+      const first = isDeep ? deepStops(o, gY) : stopsFor(o);
+      V.push({ stops: first, rim: !isDeep });
+      V.push(street ? { stops: isDeep ? streetBright() : deepStops(o, gY), rim: isDeep } : { stops: flipStops(first), rim: true });
     }
-    /* outline: heavy, painted first so the letters keep their full width;
-       white letters rim harder on a light ground (a cream ticket), where
-       they read by their rim alone; a line swept deep needs none */
-    if ((spec.outline === 'black' || spec.outline === 'white') && !deep.has(o)){
-      const hard = spec.outline === 'black' && spec.fill === 'white' && gY >= 0.45;
-      o.set({ stroke: spec.outline === 'black' ? '#0b0b0d' : '#ffffff', strokeWidth: Math.max(3, u * (hard ? 0.11 : 0.085)), paintFirst: 'stroke', strokeLineJoin: 'round',
-        shadow: new fabric.Shadow(hard ? { color: 'rgba(0,0,0,0.5)', blur: u * 0.14, offsetX: 0, offsetY: u * 0.02 }
-          : { color: spec.outline === 'black' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)', blur: u * 0.1, offsetX: 0, offsetY: u * 0.03 }) });
-    }
+    else if (spec.fill === 'multicolor') V.push({ multi: TL, rim: true }, { multi: flipL(TL), flip: true, rim: true });
+    else if (spec.fill === 'texture') V.push({ tex: [TL, light], rim: true }, { tex: [flipL(TL), !light], rim: true },
+      { tex: [light ? 0.93 : 0.2, light], rim: true }, { tex: [light ? 0.2 : 0.93, !light], rim: true });   // then each side pushed further from the ground
+    else V.push({ rim: true });                                   // the card's own fill, with the outline the visitor chose
+    const put = v => {
+      o.set(p0);
+      if (v.fill) o.set('fill', v.fill);
+      else if (v.stops) o.set('fill', gradOf(v.stops, spec.angle));
+      else if (v.multi != null){ o.set({ styles: multiStyles(o, v.multi, preset && (v.flip ? flipStops(preset) : preset)) }); o.dirty = true; }
+      else if (v.tex){ const p = taglinePattern(spec.texture, v.tex[0], v.tex[1], h0, sheetFs, { scale: spec.patScale, x: spec.patX, y: spec.patY, res: spec.patRes, obj: o, memo: patMemo }); o.set('fill', p); sc.__patTile = p.pgTile; }
+      clean(o);
+      if (v.rim) rimOn(o, gY);
+      return [];
+    };
+    /* the fill as solved stays wherever it reads (the critic's 3:1 and a
+       little); only then the other side. A pattern's fine detail blurs at the
+       half size it is measured at, so it is asked for more (a stripe read
+       3.2:1 there and 2.99:1 at full size) */
+    if (V.length > 1) choose(o, V, put, () => {}, spec.fill === 'texture' ? 3.5 : 3.2); else put(V[0]);
     touched++;
   });
 
@@ -12977,27 +13028,6 @@ function taglineStyle(sc, spec, pal, W, H, as){
     c.pgTagRest = null; c.pgTagBlock = null;
     return c;
   };
-  /* An effect's strength is chosen on the card, by the critic (rule 54): each
-     variant, from the look as drawn to the tamest, is put on the line and
-     measured on the scene at half size (the line and its layers, with and
-     without them), and the first that reads at 3.5:1 stays; with none,
-     the one that read best. A wide soft glow on a mid-grey photograph, a
-     paper panel or a gold band read 1.3 to 2.9:1 as drawn (tagline audit,
-     2026-09-29): its letters read, its faint halo did not. */
-  const choose = (o, variants, put, take) => {
-    let best = null;
-    for (let v = 0; v < variants.length; v++){
-      const marks = put(variants[v]);
-      const q = tagMarkQ75(sc, [o].concat(marks), W, H);
-      if (!best || q > best.q) best = { v, q };
-      if (q >= 3.5 || v === variants.length - 1){ if (best.v === v) return best; }
-      take(marks);
-    }
-    put(variants[best.v]);
-    return best;
-  };
-  const paintOf = o => ({ fill: o.fill, stroke: o.stroke, strokeWidth: o.strokeWidth, paintFirst: o.paintFirst, shadow: o.shadow });
-  const drop = marks => marks.forEach(m => sc.remove(m));
   if (spec.effect === 'glow'){
     /* a neon tube: a hot core, a thin coloured edge, two passes of glow; where
        the ground will not carry that, a tighter glow, a deeper one, the tube
@@ -13059,15 +13089,23 @@ function taglineStyle(sc, spec, pal, W, H, as){
       // one layer per ~1.5px of depth, so the sides read as a solid block, not a stack of copies
       const u = o.fontSize || 40, depth = u * 0.18 * (o.scaleX || 1), n = Math.min(28, Math.max(8, Math.ceil(depth / 1.5))), step = depth / n;
       keep(o);
-      const i = sc.getObjects().indexOf(o);
-      for (let k = n; k >= 1; k--){
-        const side = at(0.52 - (k / n) * 0.24, 0.15, h0);
-        const layer = cloneText(o, { fill: side, left: o.left + step * k * 0.8, top: o.top + step * k,
-          shadow: k === n ? new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.16, offsetX: u * 0.03, offsetY: u * 0.06 }) : null });
-        sc.insertAt(layer, i);
-      }
-      if (!o.stroke || !o.strokeWidth) o.set({ stroke: 'rgba(10,10,14,0.85)', strokeWidth: Math.max(1.5, u * 0.03), paintFirst: 'stroke', strokeLineJoin: 'round' });
-      o.set({ shadow: null });
+      const p0 = paintOf(o);
+      /* as drawn; where the face does not read against its sides and ground,
+         deeper sides and a firmer edge, then the outline's rim on the face */
+      const V = [{ top: 0.52, span: 0.24, edge: 0.03 }, { top: 0.4, span: 0.26, edge: 0.05 }, { top: 0.36, span: 0.24, edge: 0.085, ink: '#0b0b0d' }];
+      choose(o, V, v => {
+        o.set(p0);
+        const i = sc.getObjects().indexOf(o), made = [];
+        for (let k = n; k >= 1; k--){
+          const side = at(v.top - (k / n) * v.span, 0.15, h0);
+          const layer = cloneText(o, { fill: side, left: o.left + step * k * 0.8, top: o.top + step * k,
+            shadow: k === n ? new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.16, offsetX: u * 0.03, offsetY: u * 0.06 }) : null });
+          sc.insertAt(layer, i); made.push(layer);
+        }
+        if (v.ink || !p0.stroke || !p0.strokeWidth) o.set({ stroke: v.ink || 'rgba(10,10,14,0.85)', strokeWidth: Math.max(1.5, u * v.edge), paintFirst: 'stroke', strokeLineJoin: 'round' });
+        o.set({ shadow: null });
+        return made;
+      }, drop, 3.3);
       touched++;
     });
   }

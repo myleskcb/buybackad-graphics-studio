@@ -19,7 +19,9 @@ const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.ar
 const WRITE = process.argv.includes('--write'), ALL = process.argv.includes('--all'), CLASSICS = process.argv.includes('--classics');
 const raw = readFileSync(DIR + 'index.json', 'utf8'), idx = JSON.parse(raw);
 const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
-const { browser, page, errors } = await openStudio();
+/* every classic, held or not: this table stands on its own measure, whatever
+   template-holds.js (audit_templates.mjs) keeps out of the lists */
+const { browser, page, errors } = await openStudio(CLASSICS ? '&noholds=1' : '');
 /* the classics: the templates app.js builds at load (the Easy Mode strip),
    measured after their fix tables (contrast, number, ground) have landed */
 const work = CLASSICS
