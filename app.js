@@ -2288,6 +2288,9 @@ function alignPass(sc, W, H){
        fell off its left end (restaged stepsFlow-nn05-30, 2026-09-27) */
     if (INK && plateHoldsMark(objs, box.b)) return;
     const t2 = held[0];
+    /* the number and its plate were sized together (numberFill, DESIGN-LAW 74): snugged to
+       the number's box, an inset CTA card grew 30px into the steps and lifted the phone */
+    if (INK && t2.o.pgRole === 'phone') return;
     const fs = (t2.o.fontSize || 34) * (t2.o.scaleY || 1);
     const padV = Math.round(fs * 0.44), padH = Math.round(fs * 0.66);
     const wantW = t2.b.width + padH * 2, wantH = t2.b.height + padV * 2;
@@ -2528,7 +2531,9 @@ function alignPass(sc, W, H){
       const deco = o.pgRole === 'deco' && !/^Tick/.test(o.name || '');
       const sticker = (o.type === 'circle' || o.type === 'rect') && /Sticker|Seal Disc|Burst/i.test(o.name || '');
       if (!deco && !sticker) return;
-      const b = bb(o); if (!b || b.width * b.height > W * H * 0.08) return;
+      /* on a card laid out by its letters, a numeral is judged by its letters too:
+         by its box, Oswald's "2" hung 5px under its plate and was moved (variant board, 2026-09-29) */
+      const b = INK && isText(o) ? (textInkRect(o) || bb(o)) : bb(o); if (!b || b.width * b.height > W * H * 0.08) return;
       const label = sticker ? txt.filter(t => inside(ctr(t.b), b)) : [];
       /* a mark is never in its own way: a step numeral is decoration AND a word, and
          counted against itself it always "touched copy" and was pushed out of its
@@ -2679,8 +2684,11 @@ function fitInsideGuides(sc, W, H){
       let L = b.left, T = b.top, R = b.left + b.width, B = b.top + b.height;
       if (x.edge.l) L = x.b.left; if (x.edge.r) R = x.b.left + x.b.width;
       if (x.edge.t) T = x.b.top;  if (x.edge.bo) B = x.b.top + x.b.height;
+      /* the box counts the outline, the rect's own width does not: set from the box,
+         an outlined band grew by its stroke on every pass (variant board, 2026-09-29) */
+      const sw = o.stroke && o.strokeWidth && !o.strokeUniform ? o.strokeWidth : 0;
       o.set({ originX:'left', originY:'top', left: L, top: T,
-              width: (R - L) / (o.scaleX || 1), height: (B - T) / (o.scaleY || 1) });
+              width: (R - L) / (o.scaleX || 1) - sw, height: (B - T) / (o.scaleY || 1) - sw });
     } else {
       let ox = 0, oy = 0;
       if (x.edge.l) ox = x.b.left - b.left; else if (x.edge.r) ox = (x.b.left + x.b.width) - (b.left + b.width);
@@ -5124,15 +5132,54 @@ const FONT_PAIRS = [
   { key: 'block',   name: 'Block',   display: ['Barlow Condensed', 700], support: ['Libre Franklin', 700, 500] },
   { key: 'arcade',  name: 'Arcade',  display: ['Russo One', 400], support: ['Sora', 700, 500] },
   { key: 'squad',   name: 'Squad',   display: ['Squada One', 400], support: ['Instrument Sans', 700, 500] },
-  { key: 'comic',   name: 'Comic',   display: ['Bangers', 400], support: ['Nunito', 700, 700] },
-  { key: 'marker',  name: 'Marker',  display: ['Permanent Marker', 400], support: ['Manrope', 700, 500] },
+  { key: 'comic',   name: 'Comic',   display: ['Knewave', 400], support: ['Nunito', 700, 700] },
+  { key: 'marker',  name: 'Marker',  display: ['Sedgwick Ave Display', 400], support: ['Manrope', 700, 500] },
   { key: 'retro',   name: 'Retro',   display: ['Bungee', 400], support: ['Instrument Sans', 700, 500] },
   { key: 'pop',     name: 'Pop',     display: ['Luckiest Guy', 400], support: ['Nunito', 700, 700] },
   { key: 'luxe',    name: 'Luxe',    display: ['Gloock', 400], support: ['Schibsted Grotesk', 700, 500] },
   { key: 'modern',  name: 'Modern',  display: ['Unbounded', 800], support: ['Instrument Sans', 700, 500] },
   { key: 'warp',    name: 'Warp',    display: ['Tilt Warp', 400], support: ['Sora', 700, 500] },
   { key: 'stencil', name: 'Stencil', display: ['Big Shoulders Stencil Display', 700], support: ['Chivo', 700, 500] },
+  { key: 'grotesk', name: 'Grotesk', display: ['Bricolage Grotesque', 800], support: ['Instrument Sans', 700, 500] },
+  { key: 'serif',   name: 'Serif',   display: ['Young Serif', 400], support: ['Manrope', 700, 500] },
 ];
+/* WHAT A FACE CAN SPELL (the variant board, 2026-09-29). The owner writes the
+   claim "iPHONE"; a caps-only face has no lowercase, so its "i" is a capital
+   and the claim reads "IPHONE" (Bangers, Permanent Marker, Bungee, Luckiest
+   Guy). A face whose 1 is a bare bar set "#1" as "#I" (Squada One). Measured
+   on the glyphs: the i has a dot (ink, a gap, ink again down its height), and
+   the 1 is not the I (their ink, aligned at the top left, differs by oneVsI
+   of what either covers). The face must be loaded first. */
+const _faceGlyphs = {};
+function faceGlyphs(family, weight, style){
+  const key = [family, weight || 400, style || 'normal'].join('|');
+  if (_faceGlyphs[key]) return _faceGlyphs[key];
+  const N = 220, c = document.createElement('canvas'); c.width = c.height = N;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.font = (style || 'normal') + ' ' + (weight || 400) + ' 150px "' + family + '"';
+  const ink = ch => {
+    x.clearRect(0, 0, N, N); x.fillText(ch, 40, 180);
+    const d = x.getImageData(0, 0, N, N).data, m = new Uint8Array(N * N);
+    let l = N, t = N, r = -1, b = -1;
+    for (let y = 0; y < N; y++) for (let k = 0; k < N; k++) if (d[(y * N + k) * 4 + 3] > 90){ m[y * N + k] = 1; if (k < l) l = k; if (k > r) r = k; if (y < t) t = y; if (y > b) b = y; }
+    return { m, l, t, r, b };
+  };
+  const i = ink('i');
+  let dotI = false;
+  for (let y = i.t, seen = false, gap = false; i.r >= 0 && y <= i.b; y++){
+    let on = false; for (let k = i.l; k <= i.r; k++) if (i.m[y * N + k]){ on = true; break; }
+    if (on && gap){ dotI = true; break; }
+    if (on) seen = true; else if (seen) gap = true;
+  }
+  const one = ink('1'), eye = ink('I');
+  let xor = 0, uni = 0;
+  if (one.r >= 0 && eye.r >= 0){
+    const w = Math.max(one.r - one.l, eye.r - eye.l) + 1, h = Math.max(one.b - one.t, eye.b - eye.t) + 1;
+    const at = (g, dx, dy) => g.l + dx < N && g.t + dy < N ? g.m[(g.t + dy) * N + g.l + dx] : 0;
+    for (let dy = 0; dy < h; dy++) for (let dx = 0; dx < w; dx++){ const a = at(one, dx, dy), e = at(eye, dx, dy); if (a || e) uni++; if (a !== e) xor++; }
+  }
+  return _faceGlyphs[key] = { dotI, oneVsI: uni ? +(xor / uni).toFixed(3) : 1 };
+}
 let _localFacesCss = null;
 function ensureFont(name){
   if (_fontLoaded.has(name)) return Promise.resolve();
@@ -8577,6 +8624,7 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
     }));
     sc.add(ezApplyStyle(bo, synth, tpl.id));
   }
+  sc.__look = (typeof ezTagSpec === 'function' && ezTagSpec()) || (typeof cardLookSpec === 'function' && cardLookSpec(tpl)) || null;   // what will paint the claim
   if (typeof blockRemap === 'function') blockRemap(sc, DW, DH);    // tall formats: blocks move whole, plates keep their words
   if (typeof tallFill === 'function') tallFill(sc, DW, DH);        // …and grow into what the photograph leaves plain
   alignPass(sc, DW, DH);
@@ -10905,7 +10953,9 @@ function motionBake(sc, docW, docH, outW, outH){
         // fabric scales a shadow with its object (a 2.6x product's 38px blur is ~100px) and a
         // blur's tail runs to ~1.5x it: cropped shorter, frame 0 lost the shadow's edge (rule 65)
         const r = o.getBoundingRect(false, true), sh = o.shadow || {}, os = sh.nonScaling ? 1 : Math.max(Math.abs(o.scaleX || 1), Math.abs(o.scaleY || 1));
-        const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z) + 6;
+        /* a slanted face draws past its advance box (Bangers' last letter ran 15px over it): text keeps a quarter em more */
+        const over = (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox') ? Math.ceil(0.25 * (o.fontSize || 40) * os * z) : 0;
+        const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z) + 6 + over;
         const x0 = Math.max(0, Math.floor(r.left - pad)), y0 = Math.max(0, Math.floor(r.top - pad));
         const x1 = Math.min(outW, Math.ceil(r.left + r.width + pad)), y1 = Math.min(outH, Math.ceil(r.top + r.height + pad));
         crop = { x:x0, y:y0, w:x1 - x0, h:y1 - y0 };
@@ -11416,7 +11466,8 @@ function ctaRender(sc, set, s, from, to, z, outW, outH){
       k.o.visible = k.v !== false && set.has(k.o);
       if (!k.o.visible) return;
       const r = k.o.getBoundingRect(false, true), sh = k.o.shadow || {}, os = sh.nonScaling ? 1 : Math.max(Math.abs(k.o.scaleX || 1), Math.abs(k.o.scaleY || 1));
-      const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z) + 6;
+      const over = (k.o.type === 'i-text' || k.o.type === 'text' || k.o.type === 'textbox') ? Math.ceil(0.25 * (k.o.fontSize || 40) * os * z) : 0;   // a slanted face draws past its box
+      const pad = Math.ceil((1.5 * (sh.blur || 0) + Math.max(Math.abs(sh.offsetX || 0), Math.abs(sh.offsetY || 0))) * os * z) + 6 + over;
       x0 = Math.min(x0, r.left - pad); y0 = Math.min(y0, r.top - pad);
       x1 = Math.max(x1, r.left + r.width + pad); y1 = Math.max(y1, r.top + r.height + pad);
     });
@@ -12478,6 +12529,11 @@ function taglineStyle(sc, spec, pal, W, H){
     });
   }
 
+  /* A stroke grows a text's box by its width, and fabric keeps the box's top-left:
+     an outline drawn on a left/top-anchored line moved its letters half a stroke
+     down and right (8px on a 196px claim, off its margin and its badge). Every
+     stroke change keeps the line's centre, so the letters stay where they were set. */
+  const keepGlyphs = (o, props) => { const c0 = o.getCenterPoint(); o.set(props); o.setPositionByOrigin(c0, 'center', 'center'); o.setCoords(); };
   // ── fill
   const sheetFs = Math.max(...heads.map(fsOf)), patMemo = {};
   lines.forEach(o => {
@@ -12503,7 +12559,7 @@ function taglineStyle(sc, spec, pal, W, H){
     }
     // outline: heavy, painted first so the letters keep their full width
     if (spec.outline === 'black' || spec.outline === 'white'){
-      o.set({ stroke: spec.outline === 'black' ? '#0b0b0d' : '#ffffff', strokeWidth: Math.max(3, u * 0.085), paintFirst: 'stroke', strokeLineJoin: 'round',
+      keepGlyphs(o, { stroke: spec.outline === 'black' ? '#0b0b0d' : '#ffffff', strokeWidth: Math.max(3, u * 0.085), paintFirst: 'stroke', strokeLineJoin: 'round',
         shadow: new fabric.Shadow({ color: spec.outline === 'black' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)', blur: u * 0.1, offsetX: 0, offsetY: u * 0.03 }) });
     }
     touched++;
@@ -12511,7 +12567,10 @@ function taglineStyle(sc, spec, pal, W, H){
 
   // ── effects
   const cloneText = (o, props) => {
+    const dx = props.dx || 0, dy = props.dy || 0; props = Object.assign({}, props); delete props.dx; delete props.dy;
     const c = new o.constructor(o.text, Object.assign(o.toObject(), { fill: '#000000', stroke: null, strokeWidth: 0, shadow: null, styles: {} }, props));
+    /* by its line's centre: an unstroked copy of a stroked line, placed by its top-left, sat half a stroke off the letters */
+    const oc = o.getCenterPoint(); c.setPositionByOrigin(new fabric.Point(oc.x + dx, oc.y + dy), 'center', 'center'); c.setCoords();
     c.set({ selectable: false, evented: false, name: (o.name || 'Tagline') + ' depth', pgRole: 'deco' });
     c.pgKin = o;          // its line: plate air, the critic and the video move, hide and measure them together
     return c;
@@ -12522,7 +12581,7 @@ function taglineStyle(sc, spec, pal, W, H){
     lines.forEach(o => {
       const u = o.fontSize || 40;
       if (spec.fill === 'white' || spec.fill === 'solid') o.set('fill', '#ffffff');
-      o.set({ stroke: glowHex, strokeWidth: Math.max(2, u * 0.035), paintFirst: 'stroke', shadow: new fabric.Shadow({ color: glowHex, blur: u * 0.45, offsetX: 0, offsetY: 0 }) });
+      keepGlyphs(o, { stroke: glowHex, strokeWidth: Math.max(2, u * 0.035), paintFirst: 'stroke', shadow: new fabric.Shadow({ color: glowHex, blur: u * 0.45, offsetX: 0, offsetY: 0 }) });
       const halo = cloneText(o, { fill: glowHex, opacity: 0.85, shadow: new fabric.Shadow({ color: glowHex, blur: u * 0.9, offsetX: 0, offsetY: 0 }) });
       sc.insertAt(halo, sc.getObjects().indexOf(o));
       touched++;
@@ -12531,12 +12590,12 @@ function taglineStyle(sc, spec, pal, W, H){
     /* the old 3-D print: red to one side, blue to the other, the letter on top */
     lines.forEach(o => {
       const u = o.fontSize || 40, d = u * 0.05 * (o.scaleX || 1), a = (o.angle || 0) * Math.PI / 180;
-      const red = cloneText(o, { fill: '#ff2a4f', left: o.left - d * Math.cos(a), top: o.top - d * Math.sin(a) });
-      const blue = cloneText(o, { fill: '#18b4ff', left: o.left + d * Math.cos(a), top: o.top + d * Math.sin(a) });
+      const red = cloneText(o, { fill: '#ff2a4f', dx: -d * Math.cos(a), dy: -d * Math.sin(a) });
+      const blue = cloneText(o, { fill: '#18b4ff', dx: d * Math.cos(a), dy: d * Math.sin(a) });
       const i = sc.getObjects().indexOf(o);
       sc.insertAt(blue, i); sc.insertAt(red, i);
       if (spec.fill === 'white' || spec.fill === 'solid') o.set({ fill: '#ffffff' });
-      o.set({ stroke: null, strokeWidth: 0, shadow: null });
+      keepGlyphs(o, { stroke: null, strokeWidth: 0, shadow: null });
       touched++;
     });
   } else if (spec.effect === 'extrude'){
@@ -12549,11 +12608,11 @@ function taglineStyle(sc, spec, pal, W, H){
       const i = sc.getObjects().indexOf(o);
       for (let k = n; k >= 1; k--){
         const side = at(0.52 - (k / n) * 0.24, 0.15, h0);
-        const layer = cloneText(o, { fill: side, left: o.left + step * k * 0.8, top: o.top + step * k,
+        const layer = cloneText(o, { fill: side, dx: step * k * 0.8, dy: step * k,
           shadow: k === n ? new fabric.Shadow({ color: 'rgba(0,0,0,0.6)', blur: u * 0.16, offsetX: u * 0.03, offsetY: u * 0.06 }) : null });
         sc.insertAt(layer, i);
       }
-      if (!o.stroke || !o.strokeWidth) o.set({ stroke: 'rgba(10,10,14,0.85)', strokeWidth: Math.max(1.5, u * 0.03), paintFirst: 'stroke', strokeLineJoin: 'round' });
+      if (!o.stroke || !o.strokeWidth) keepGlyphs(o, { stroke: 'rgba(10,10,14,0.85)', strokeWidth: Math.max(1.5, u * 0.03), paintFirst: 'stroke', strokeLineJoin: 'round' });
       o.set({ shadow: null });
       touched++;
     });
@@ -12600,6 +12659,9 @@ function numberFill(sc, W, H){
      (restaged, audited records: DESIGN-LAW 74, 76; the rest keep the box fill) */
   const INK = objs.some(o => o && o.pgInk);
   let top = INK ? Math.max(hb.top, G + 3) : hb.top, bot = INK ? Math.min(hb.top + hb.height, H - G - 3) : hb.top + hb.height;   // 3px: the letters' clearance off a guide (inkClear)
+  /* a look that will outline the number after this pass (Street, sc.__look) grows its letters by half the stroke */
+  const LKn = INK && sc.__look, npad = LKn && LKn.scope === 'selling' && (LKn.outline === 'black' || LKn.outline === 'white') ? 0.0425 * (ph.fontSize || 40) * (ph.scaleY || 1) : 0;
+  top += npad; bot -= npad;
   mates.forEach(x => { if (x.b.top + x.b.height <= pb.top + 2) top = Math.max(top, x.b.top + x.b.height); else if (x.b.top >= pb.top + pb.height - 2) bot = Math.min(bot, x.b.top); });
   /* the DIGITS fill 74% of the room: sized by its box, the number's letters
      filled 45% of a 184px band ("the CTA is way too small", 2026-09-27) */
@@ -12766,6 +12828,62 @@ function taglineCritic(sc, W, H){
   });
   sc.renderAll();
   return out;
+}
+/* THE LETTERS THEMSELVES (the variant board, 2026-09-29). taglineCritic takes
+   the upper quartile of every pixel a line changes, which a two-tone fill or a
+   busy photograph passes on its light patches while the letters dissolve (camo
+   on a dark ground; a black claim on a bright mosaic read 1.1:1 under most of
+   its letters and passed). Here the line's FILL is held against the ground
+   under it, pixel by pixel: g25 is the contrast three quarters of the fill
+   clears. An outline that draws the letters (a stroke painted first, 3px or
+   more) is counted too: o50, the fill against it. score: the better of the two.
+   The stroke is made clear rather than removed, so the letters stay put. */
+function fillLegibility(sc, o){
+  const cv = sc && sc.lowerCanvasEl, ctx = cv && cv.getContext('2d');
+  if (!ctx || !o) return null;
+  const CW = cv.width, CH = cv.height, z = CW / sc.width, objs = sc.getObjects();
+  const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const lum = (d, i) => 0.2126 * lin(d[i]) + 0.7152 * lin(d[i + 1]) + 0.0722 * lin(d[i + 2]);
+  const cr = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  const kin = objs.filter(q => q.pgKin === o);
+  const rs = [o].concat(kin).map(q => q.getBoundingRect(true, true));
+  const x0 = Math.max(0, Math.floor(Math.min(...rs.map(r => r.left)) * z)), y0 = Math.max(0, Math.floor(Math.min(...rs.map(r => r.top)) * z));
+  const x1 = Math.min(CW, Math.ceil(Math.max(...rs.map(r => r.left + r.width)) * z)), y1 = Math.min(CH, Math.ceil(Math.max(...rs.map(r => r.top + r.height)) * z));
+  if (x1 - x0 < 4 || y1 - y0 < 4) return null;
+  const vis = objs.map(q => q.visible), bgI = sc.backgroundImage, bgC = sc.backgroundColor;
+  const restore = () => { objs.forEach((q, i) => { q.visible = vis[i]; }); sc.backgroundImage = bgI; sc.backgroundColor = bgC; };
+  const grab = () => { sc.renderAll(); return ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data; };
+  const F = grab();
+  o.visible = false; kin.forEach(q => { q.visible = false; });
+  const G = grab();
+  restore();
+  sc.backgroundImage = null; sc.backgroundColor = ''; objs.forEach(q => { q.visible = q === o; });
+  const st = { stroke: o.stroke, shadow: o.shadow };
+  o.set({ stroke: 'rgba(0,0,0,0)', shadow: null });
+  const M = grab();
+  o.set(st); restore(); sc.renderAll();
+  const ol = typeof st.stroke === 'string' && (o.strokeWidth || 0) * (o.scaleY || 1) >= 3 && o.paintFirst === 'stroke';
+  let oL = null;
+  if (ol){ const c = document.createElement('canvas').getContext('2d'); c.fillStyle = st.stroke; c.fillRect(0, 0, 1, 1); const d = c.getImageData(0, 0, 1, 1).data; if (d[3] > 200) oL = lum(d, 0); }
+  /* OKLab, for the colour a pixel differs by when its lightness does not */
+  const lab = (d, i) => { const r = lin(d[i]), g = lin(d[i + 1]), b = lin(d[i + 2]);
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s2 = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+    return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s2, 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s2, 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s2]; };
+  const vsG = [], vsO = [], dEs = [], step = Math.max(1, Math.round(Math.sqrt((x1 - x0) * (y1 - y0) / 60000)));
+  let lost = 0;
+  for (let y = 0; y < y1 - y0; y += step) for (let x = 0; x < x1 - x0; x += step){
+    const i = (y * (x1 - x0) + x) * 4;
+    if (M[i + 3] < 200) continue;
+    const f = lum(F, i), c = cr(f, lum(G, i)); vsG.push(c); if (oL != null) vsO.push(cr(f, oL));
+    const a = lab(F, i), b = lab(G, i), dE = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]); dEs.push(dE);
+    if (c < 1.5 && dE < 0.12) lost++;                // neither lightness nor colour sets it apart
+  }
+  if (!vsG.length) return null;
+  vsG.sort((a, b) => a - b); vsO.sort((a, b) => a - b); dEs.sort((a, b) => a - b);
+  const q = (a, p) => a.length ? +a[Math.floor((a.length - 1) * p)].toFixed(2) : null;
+  const g25 = q(vsG, 0.25), o50 = q(vsO, 0.5);
+  return { g10: q(vsG, 0.1), g25, g50: q(vsG, 0.5), o50, dE10: q(dEs, 0.1), dE25: q(dEs, 0.25), lost: +(lost / vsG.length).toFixed(3),
+    score: o50 != null ? Math.max(g25, o50) : g25, n: vsG.length };
 }
 /* A CARD'S OWN LOOK. A record may carry a tagline look of its own (tpl.look:
    a TAGLINE_LOOKS key or a taglineStyle spec), chosen by the engine for that
@@ -13092,7 +13210,14 @@ function blockRemap(sc, W, H){
     const k = o.type === 'rect' ? sy : u;          // rect heights were stretched; everything else scaled by the short side
     // icons and circles were placed by their centre; everything else by its origin
     const oy = (o.type === 'path' || o.type === 'circle') ? o.getCenterPoint().y : o.top;
-    const r = isText(o) && typeof textInkRect === 'function' ? textInkRect(o) : bb;
+    let r = isText(o) && typeof textInkRect === 'function' ? textInkRect(o) : bb;
+    /* the claim as it will be seen: the look painted after layout (sc.__look) outlines it and may hang depth under it */
+    if (r && isText(o) && o.pgRole === 'headline' && sc.__look){
+      const L = sc.__look, u2 = (o.fontSize || 40), s2 = o.scaleY || 1;
+      const sw = (L.outline === 'black' || L.outline === 'white') ? Math.max(3, u2 * 0.085) : L.effect === 'glow' ? Math.max(2, u2 * 0.035) : L.effect === 'extrude' ? Math.max(1.5, u2 * 0.03) : 0;
+      const dp = L.effect === 'extrude' ? u2 * 0.18 : 0, pad = sw / 2 * s2;
+      if (pad || dp) r = { left: r.left - pad, top: r.top - pad, width: r.width + 2 * pad + dp * 0.8 * s2, height: r.height + 2 * pad + dp * s2 };
+    }
     const sq = b => ({ left: b.left / sx, top: oy / sy + (b.top - oy) / k, width: b.width / sx, height: b.height / k });
     items.push({ o, bb, k, box: sq(bb), key: sq(r) });
   });
@@ -13112,17 +13237,29 @@ function blockRemap(sc, W, H){
      tall format went above the steps ("a large gap", owner, 2026-09-28) */
   const cin = (a, b) => { const x = a.left + a.width / 2, y = a.top + a.height / 2; return x > b.left && x < b.left + b.width && y > b.top && y < b.top + b.height; };
   const bandOf = items.map(() => -1);
+  const phoneIt = items.find(q => q.o.pgRole === 'phone');
+  const INKC = items.some(it => it.o.pgRole === 'headline') && items.some(it => /^Badge Pill$/.test(it.o.name || ''));   // a composed Steps Flow card
   items.forEach((it, i) => {
     const b = it.box;
-    if (it.o.type !== 'rect' || b.width < 0.9 * TPL_W || b.height >= 0.35 * TPL_H || !(b.top <= 2 || b.top + b.height >= TPL_H - 2)) return;
+    /* an inset CTA card or pill (inside the guides, not touching the edge) is the band too */
+    const cta = it.o.type === 'rect' && phoneIt && cin(phoneIt.key, b) && b.width >= 0.8 * TPL_W && b.height < 0.35 * TPL_H && b.top + b.height >= 0.9 * TPL_H;
+    if (!cta && (it.o.type !== 'rect' || b.width < 0.9 * TPL_W || b.height >= 0.35 * TPL_H || !(b.top <= 2 || b.top + b.height >= TPL_H - 2))) return;
     bandOf[i] = i;
     items.forEach((q, j) => { if (j !== i && bandOf[j] < 0 && q.o.type !== 'image' && cin(q.key, b)) bandOf[j] = i; });
   });
   items.forEach((it, i) => { if (bandOf[i] >= 0) block[find(i)] = find(bandOf[i]); });
+  /* the claim (its lines and the badge hung on it) is a block of its own: an
+     outline or a 3-D depth brings it within the joining gap of the steps, and
+     joined, the steps were pinned under the claim with the spare room below */
+  const inClaim = it => it.o.pgRole === 'headline' || /^Badge( Pill| Icon)?$/.test(it.o.name || '');
   for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++){
     if ((bandOf[i] >= 0 || bandOf[j] >= 0) && bandOf[i] !== bandOf[j]) continue;   // a band's block takes nothing that is not on it
+    if (INKC && inClaim(items[i]) !== inClaim(items[j])) continue;
     if (near(items[i].key, items[j].key)) block[find(i)] = find(j);
   }
+  /* the claim is one block, however far apart a 3-D depth sets its lines */
+  const headIx = items.map((it, i) => it.o.pgRole === 'headline' ? i : -1).filter(i => i >= 0);
+  headIx.slice(1).forEach(i => { block[find(i)] = find(headIx[0]); });
   /* side by side is one row: a photo beside the steps rides with them. A
      narrow phone (one back, not a back and front pair) left 95px between itself
      and the plates, more than the joining gap, and was stacked above them as a
@@ -13381,7 +13518,11 @@ function tallFill(sc, W, H){
   const G = Math.round(GUIDE * Math.min(W, H));
   const inside = (o, b) => { const c = o.getCenterPoint(); return c.x > b.left && c.x < b.left + b.width && c.y > b.top && c.y < b.top + b.height; };
   const ground = o => o.pgScrim || o.pgBgRect || /^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '');
-  const band = objs.filter(o => live(o) && o.type === 'rect' && !ground(o) && bb(o).width >= W * 0.9 && bb(o).height < H * 0.35 && bb(o).top + bb(o).height >= H - 2)
+  /* the CTA band: full width at the foot, or an inset card or pill that holds the number near the foot */
+  const phoneT = objs.find(o => live(o) && isText(o) && o.pgRole === 'phone');
+  const band = objs.filter(o => live(o) && o.type === 'rect' && !ground(o) && bb(o).height < H * 0.35 && (
+      (bb(o).width >= W * 0.9 && bb(o).top + bb(o).height >= H - 2) ||
+      (phoneT && inside(phoneT, bb(o)) && bb(o).width >= W * 0.8 && bb(o).top + bb(o).height >= H * 0.9)))
     .sort((a, b) => bb(a).top - bb(b).top)[0];
   const prod = objs.filter(o => live(o) && o.type === 'image' && o.pgRole === 'photo').sort((a, b) => bb(b).width * bb(b).height - bb(a).width * bb(a).height)[0];
   const heads = objs.filter(o => live(o) && isText(o) && o.pgRole === 'headline');

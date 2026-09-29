@@ -1869,3 +1869,66 @@ strong enough for white type on a white photograph would smother it), and a
 band colour lifted in lightness until the number reads 7:1. A photograph that
 can carry neither (a mid-grey flat-lay of other phones: 2.8:1 either way) is
 not used for a claim set on the photograph.
+
+## 79. A variant is the approved design recomposed from approved parts
+
+Added 2026-09-29, for the variant board (owner, 2026-09-27: "at least 500
+options … themes taglines fonts colors, everything nothing left out … even
+shapes for background box/bubble like CTA … (with or without using outline)
+… cohesive, fun, easy to read, and appealing"). Every variant is the
+owner-approved Steps Flow card rebuilt by the shared composer
+(`scripts/_steps_composer.mjs`) from parts the owner already approved: a claim
+from the claim bank, a badge from the badge bank that repeats no word of it, a
+type pair from the owner's approved faces, a factory phone photo, a ground
+from the photographs that show no older iPhone, and a look from the studio's
+own. The engine chooses (rule 75):
+- **A voice** bundles a type pair, the plate and CTA shapes that suit it and
+  its looks; the accent is the voice's colour across the wheel from the
+  photograph, lifted until the number reads 7:1.
+- **Bright colour in the letters wants a dark ground.** Gradients and patterns
+  read 2-3:1 on light and mid photographs; a mid photograph under such a look
+  is dimmed by a heavier shade. Solid and Signature (the line's own tone) read
+  anywhere; glow and 3-D only on dark grounds.
+- **A face is measured before it is planned.** Its caps must reach 10% of the
+  card (rule 68) on every claim it is given, with the badge fitting beside the
+  second line; its figures must set the number at the audit's size in the CTA
+  it is given, or the number goes to the support face (still two faces). Two
+  voices (Luckiest Guy, Bricolage Grotesque) could not set the number in any
+  CTA and are not on the board; their pairs stay in the studio.
+- **The look is part of the layout.** The claim is spaced for its letters as
+  they will be seen: an outline's width is added to the line gap, the badge
+  hangs from the outlined cap line and clears the outlined line, a 3-D depth
+  is added under the first line. An inset CTA card or pill keeps its outline
+  inside the guides and the phone stands on its top edge.
+- **Measured the way the audit measures.** After composing, the painted card
+  is measured as the audit does (ink over 90 alpha, the look applied) and the
+  badge, numerals and step rows are set right to the pixel.
+- **The claim is spelled as the owner writes it.** "iPHONE" has a lowercase
+  i and "#1" has a one. A caps-only face has no lowercase, so its "i" is a
+  capital and the claim read "IPHONE" (Bangers, Permanent Marker, Bungee,
+  Luckiest Guy); a face whose 1 is a bare bar set "#1" as "#I" (Squada One).
+  `faceGlyphs` measures the glyphs themselves (the i has a dot above a gap;
+  the 1 differs from the I by at least a fifth of their ink), the planner
+  gives a face only the claims it can spell, and the audit fails a claim
+  whose face cannot (rule 71). The Comic voice is set in Knewave and the
+  Marker voice in Sedgwick Ave Display, both from the approved list; Marker
+  sets the number in its support face (Sedgwick's 9 reads as a g).
+- **Easy to read beats a clever look.** Camo is not on the board: its four
+  fixed military darks are the dark ground's own, and the letters dissolved
+  into it (the contrast measure passed it on its light patches). A ground
+  whose printed letters sit behind the claim (the open MacBook, its keys and
+  ruler) is not used: words behind words.
+- **The letters themselves must read.** The claim's contrast (4.5:1) is the
+  upper quartile of every pixel a line changes, and a black claim on a bright
+  mosaic passed it on the light tiles while a quarter of its letters vanished
+  into the dark ones. `fillLegibility` holds each line's fill against the
+  ground under it: no more than 5% of the letters may dissolve (under 1.5:1 in
+  lightness and under 0.12 apart in colour, OKLab), unless an outline draws the
+  letters at 4.5:1 off the fill. Colour counts: a saturated pink on grey reads
+  at 1.5:1 in lightness and loses nothing. The audit enforces it on every card
+  (rule 54).
+- **Only a 100% card ships.** Each variant is audited by
+  `scripts/audit_card.mjs` in the gallery painter, Easy Mode square, 3:4 and
+  9:16, and the video. The board takes the voices in turn, each in the
+  planner's balanced order, so a voice whose cards fail more often is not
+  crowded out, and shows each card at 800px painted from its audited record.
