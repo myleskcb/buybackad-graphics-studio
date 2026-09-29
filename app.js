@@ -8602,8 +8602,8 @@ function ezOverlayRect(w, h){
   /* 2026-09-27: the overlay is SHADE, never a hue (rules 56 and 64): the
      visitor's colour picker used to lay a tint over the photograph, which is
      the coloured haze the owner rejected. 'tint' saved in old drafts reads as
-     'shade'. Drawn dark (rule 62) until ezOverlayFit, after the layout and the
-     theme, reads its tone off the copy standing on the photograph. */
+     'shade'. Drawn dark (rule 62) until ezOverlayPre sets its tone from the
+     ground and ezOverlayFit confirms it from the copy on the photograph. */
   const r = new fabric.Rect({ left:0, top:0, width:w || CW, height:h || CH, fill: ezOverlayFill(f.overlay, a, '#000000'), selectable:false, evented:false, name:'Overlay' });
   r.pgOv = { kind: f.overlay, a, tone: '#000000' };
   return r;
@@ -12601,8 +12601,10 @@ function themeScene(sc, th, W, H, opts){
        panel (rule 64): neutral, the tone the ink is not, at its own strength.
        It kept the old palette's green behind a light theme's dark chips. */
     if (own && own.a > 0 && own.a < 0.5) t.set('backgroundColor', thHexA(thLumOf(out) >= 0.18 ? '#080604' : '#fffdf8', own.a));
+    /* with no photograph under it the ground is even, like a plate: a ring
+       of the ink's own tone goes rather than turning light */
     const plLum = bgHex ? thLumOf(bgHex) : pl ? (h => h ? thLumOf(h) : null)(plHex || (thParse(typeof pl.fill === 'string' ? pl.fill : '') || {}).hex) : null;
-    if (!thRingFit(t, out, plLum != null ? plLum : st ? st.p50 : null, !!(pl || bgHex))) t.set('stroke', thRecolour(t.stroke, src, T, true));
+    if (!thRingFit(t, out, plLum != null ? plLum : st ? st.p50 : null, !!(pl || bgHex || !sc.backgroundImage))) t.set('stroke', thRecolour(t.stroke, src, T, true));
     t.dirty = true;
     if (t.name) fills[t.name] = out;
     count.lines++;
@@ -12700,11 +12702,13 @@ function ezBlurOn(own){
    number's dark ink on its paper band, and a mid orange, outvoted the white
    headline. So Shade laid a white veil (0.34) over a dark photograph under
    light copy: rule 62's milky haze, and the headline lost contrast.
-   The tone is now read from the scene as drawn, after the layout and the
-   theme. It counts the lines standing on the photograph, in the ink they are
-   painted; a line on its own plate is left out, as pgShadeBands leaves it,
-   because the plate owns its ground. When a critical line (headline, number,
-   CTA) stands on the photograph, those lines decide.
+   The tone is now read from the scene as drawn. First it comes from the
+   ground (ezOverlayPre), before the theme and the copy are solved against it.
+   Then, once the lines are drawn (ezOverlayFit), it is confirmed from those
+   standing on the photograph, in the ink they are painted. A line on its own
+   plate is left out, as pgShadeBands leaves it, because the plate owns its
+   ground. When a critical line (headline, number, CTA) stands on the
+   photograph, those lines decide.
    - Dark when any counted line is lighter than 0.25 in luminance (the gate's
      line, pgGate), or when no copy stands on the photograph (rule 62).
    - Paper only when every counted line is dark ink (rule 66: "paper under
@@ -12834,9 +12838,10 @@ function thRingFit(t, ink, gl, onPlate){
    photograph, where the shade does this job, rule 62), each reading line
    standing on it that falls under 4.5:1 moves its lightness until it reads,
    keeping its hue (rule 31). A gradient's stops move together, to the side
-   that reads. The ring then follows the ink (thRingFit). A see-through
-   backing behind a line is dropped. A line on a plate is left alone
-   (rule 51), and so is a colour the visitor set. */
+   that reads. The ring then follows the ink (thRingFit), as on a plate: an
+   even ground needs no separation device. A see-through backing behind a
+   line is dropped. A line on a plate is left alone (rule 51), and so is a
+   colour the visitor set; a see-through plate thickens until its copy reads. */
 function ezGroundIsFlat(bg){
   return !!bg && (bg.type === 'solid' || bg.type === 'grad' || (bg.type === 'image' && /^ground:/.test(bg.src || '')));
 }
@@ -12844,22 +12849,39 @@ function ezCopyFollowsGround(sc, W, H){
   let objs; try { objs = sc.getObjects().slice(); } catch (e){ return null; }
   const words = objs.filter(o => o && o.visible !== false && thIsWords(o) && PG_READ[o.pgRole] && !((ezStyleOf(o.name) || {}).fill));
   if (!words.length) return null;
-  const bd = thBackdrop(sc, o => !thIsWords(o), Math.min(0.5, 540 / Math.max(W, H)));
+  const M = Math.min(0.5, 540 / Math.max(W, H)), boxOf = t => { t.setCoords(); const r = t.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const inkOf = t => { const k = t.type === 'group' ? (t._objects || [])[0] : t, cs = thStops(k && k.fill).map(thParse).filter(Boolean);
+    return cs.length ? cs.slice().sort((p, q) => thLumOf(p.hex) - thLumOf(q.hex))[cs.length >> 1].hex : null; };
+  /* a see-through panel under copy was set on the photograph: smoke at 0.62
+     is near-black there, and mid-grey over a white swatch, where
+     scriptRetro's pink items read 2.3:1 on it. It thickens in its own colour
+     until the copy on it reads, up to solid: the plate keeps what the eye saw
+     (rule 52), and its lines stay the plate's (rule 51) */
+  const onPlate = new Map();
+  words.forEach(t => { const p = thPlateOfLine(objs, t, W, H); if (p) { if (!onPlate.has(p)) onPlate.set(p, []); onPlate.get(p).push(t); } });
+  onPlate.forEach((lines, p) => {
+    const f = thParse(typeof p.fill === 'string' ? p.fill : ''); if (!f) return;
+    const a0 = f.a * (p.opacity == null ? 1 : p.opacity); if (a0 >= 0.95 || a0 <= 0) return;
+    const reads = () => { const bd = thBackdrop(sc, o => !thIsWords(o), M);
+      return lines.every(t => { const st = thStats(bd, boxOf(t)), ink = inkOf(t); return !st || !ink || thWorst(ink, st) >= 4.5; }); };
+    if (reads()) return;
+    for (let a = Math.min(1, a0 + 0.12); ; a = Math.min(1, a + 0.12)){
+      p.set({ fill: thHexA(f.hex, a), opacity: 1 }); p.dirty = true;
+      if (a >= 1 || reads()) break;
+    }
+  });
+  const bd = thBackdrop(sc, o => !thIsWords(o), M);
   const fills = {};
   words.forEach(t => {
     const own = thParse(t.backgroundColor);
-    if ((own && own.a >= 0.5) || thPlateOfLine(objs, t, W, H)) return;
+    if ((own && own.a >= 0.5) || onPlate.has(thPlateOfLine(objs, t, W, H))) return;
     /* a see-through backing calms a photograph behind a line; on a flat
        ground it calms nothing and only sits round the letters as a faint box
        (bandKnockout's chips read 2.6:1 with it, 7:1 without) */
     if (own && own.a > 0){ t.set('backgroundColor', ''); t.dirty = true; }
-    t.setCoords(); const r = t.getBoundingRect(true, true), st = thStats(bd, { x: r.left, y: r.top, w: r.width, h: r.height });
-    if (!st) return;
+    const st = thStats(bd, boxOf(t)), mean = inkOf(t);
+    if (!st || !mean || thWorst(mean, st) >= 4.5) return;
     const kids = t.type === 'group' ? (t._objects || []) : [t];
-    const f = kids[0] && kids[0].fill, stops = thStops(f).map(thParse).filter(Boolean);
-    if (!stops.length) return;
-    const mean = stops.slice().sort((p, q) => thLumOf(p.hex) - thLumOf(q.hex))[stops.length >> 1].hex;
-    if (thWorst(mean, st) >= 4.5) return;
     const up = thSolve(mean, st, 4.5, 'light'), dn = thSolve(mean, st, 4.5, 'dark');
     const side = thWorst(up, st) >= thWorst(dn, st) ? 'light' : 'dark';
     const solve = c => { const q = thParse(c); return q ? thHexA(thSolve(q.hex, st, 4.5, side), q.a) : c; };
@@ -12869,8 +12891,11 @@ function ezCopyFollowsGround(sc, W, H){
       k.dirty = true;
     });
     t.pgFillGrad = null;
+    /* a flat ground is even, like a plate: a ring of the ink's own tone goes
+       and none is turned light (a light outline round gradientWave's dark
+       selling points on the amber swatch read as part of the line, 2.7:1) */
     const ink = side === 'light' ? up : dn;
-    thRingFit(t, ink, st.p50, false);
+    thRingFit(t, ink, st.p50, true);
     t.dirty = true;
     if (t.name) fills[t.name] = ink;
   });
