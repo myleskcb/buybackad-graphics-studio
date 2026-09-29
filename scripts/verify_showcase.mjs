@@ -29,7 +29,10 @@ console.log('verifying ' + work.length + (CLASSICS ? ' classics' : ' cards'));
 const out = {};
 for (let i = 0; i < work.length; i += 6){
   Object.assign(out, await page.evaluate(async (ids, classics) => { const R = {};
-    for (const id of ids){ try { const t = classics ? TEMPLATES.find(x => x.id === id) : await __sc.load(id); R[id] = __sc.check(t); } catch (e){ R[id] = { err: String(e).slice(0, 160) }; } }
+    /* a classic is measured with its faces, pictures and photograph loaded (__sc.prep): measured
+       before a lazily loaded face arrived, a line is set in the fallback face and its box is not
+       the card's (the offer family's flavour faces "touched" at 0.96 that way) */
+    for (const id of ids){ try { const t = classics ? await __sc.prep({ base: id, tpl: TEMPLATES.find(x => x.id === id) }, id) : await __sc.load(id); R[id] = __sc.check(t); } catch (e){ R[id] = { err: String(e).slice(0, 160) }; } }
     return R; }, work.slice(i, i + 6).map(c => c.id), CLASSICS));
   if (i % 120 === 0 && i) console.log('…' + i + '/' + work.length);
 }

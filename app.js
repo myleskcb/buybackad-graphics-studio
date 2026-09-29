@@ -14216,12 +14216,28 @@ ez.phonePick = jget('pgfx_phonepick', null);
 const devKey = src => String(src || '').split('?')[0];
 function loadPhoneCatalog(){
   if (loadPhoneCatalog._p) return loadPhoneCatalog._p;
-  return (loadPhoneCatalog._p = fetch('assets/cutouts/devices.json').then(r => r.json()).then(j => { PHONE_CATALOG = j.devices || {}; return PHONE_CATALOG; })
-    .catch(() => { PHONE_CATALOG = {}; return PHONE_CATALOG; }));
+  const json = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
+  /* the owner's approval list and the flags found since (scripts/picture_gate.mjs,
+     DESIGN-LAW 79): a picture must pass both to reach a card, and the picker
+     is a card's picture chosen at run time, so it asks the same two lists */
+  return (loadPhoneCatalog._p = Promise.all([json('assets/cutouts/devices.json'), json('assets/approved-assets.json'), json('assets/cutout-flags.json')])
+    .then(([d, a, f]) => {
+      PHONE_CATALOG = (d && d.devices) || {};
+      const g = a && a['asset-grid-v1'];
+      PHONE_GATE = g ? { approved: new Set(g.approved || []), rejected: new Set(g.rejected || []), flags: f || {} } : null;
+      return PHONE_CATALOG;
+    }));
+}
+let PHONE_GATE = null;
+// pictureVerdict (scripts/picture_gate.mjs) for the picker: a phone is offered only when the owner approved it and nothing flagged it since
+function phoneApproved(src){
+  if (!PHONE_GATE) return false;
+  const id = String(src || '').replace(/^.*\//, '').replace(/\.[a-z0-9]+$/i, '');
+  return !PHONE_GATE.flags[id] && !PHONE_GATE.rejected.has(id) && PHONE_GATE.approved.has(id);
 }
 /* the phones the picker and the engine may use: factory photos from the shop's catalog */
 function phonePool(){
-  return Object.entries(PHONE_CATALOG || {}).filter(([, d]) => d.authentic !== false && /^quote-site/.test(d.source || ''))
+  return Object.entries(PHONE_CATALOG || {}).filter(([src, d]) => d.authentic !== false && /^quote-site/.test(d.source || '') && phoneApproved(src))
     .map(([src, d]) => Object.assign({ src }, d))
     .sort((a, b) => (b.recommended ? 1 : 0) - (a.recommended ? 1 : 0) || (a.rank == null ? 99 : a.rank) - (b.rank == null ? 99 : b.rank) || String(a.model).localeCompare(String(b.model)));
 }
@@ -14250,7 +14266,7 @@ function ezLoadCutout(src){
 /* the layer as it renders with the chosen phone: same box, re-seated by ink */
 function ezPhoneSwap(tpl){
   const src = ez.phonePick, l = src && ezPhoneLayer(tpl);
-  if (!l || devKey(l.props.src) === src) return null;
+  if (!l || devKey(l.props.src) === src || !phoneApproved(src)) return null;   // a pick saved before the picture was refused is not drawn
   const elN = CUTOUT_ELS[src], elO = CUTOUT_ELS[l.props.src];
   if (!elN || !elN.width){ ezLoadCutout(src).then(el => { if (el) schedEzPreview(0); }); return null; }
   const p = Object.assign({}, l.props, { src, flipX: false });
@@ -15659,6 +15675,9 @@ const PG_EMOJI_GENERAL = [
 const PG_EMOJI_ANY = ['cash', 'money-wings', 'fire', 'hundred', 'sparkles', 'handshake'];
 
 let PG_EMOJI_EL = null, PG_EMOJI_CTX = null;
+// the cards the owner approved as rendered (rule 78), which the accents leave as approved
+let PG_APPROVED = null;
+try { fetch('assets/approved/approved.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { PG_APPROVED = new Set(Object.keys(j || {}).filter(k => k[0] !== '_')); }).catch(() => {}); } catch (e){}
 function pgEmojiLoad(){
   if (pgEmojiLoad.p) return pgEmojiLoad.p;
   pgEmojiLoad.p = new Promise(res => {
@@ -15736,6 +15755,10 @@ function pgEmojiPass(sc, W, H){
   const ASKED = [['topic'], ['point'], ['topic', 'point'], ['general'], ['topic', 'general'], ['general', 'point']];
   const plan = ctx.seed ? ASKED[seed % ASKED.length] : PLANS[seed % PLANS.length];
   if (!plan.length) return why('not this card');
+  /* a card the owner approved as rendered keeps that render (DESIGN-LAW 78,
+     assets/approved/approved.json): no accent is added to it unless the
+     visitor asks for one (Shuffle) */
+  if (!ctx.seed && PG_APPROVED && PG_APPROVED.has(tplId)) return why('an approved render');
 
   const m = Math.min(W, H), u = m / TPL_W, G = Math.round(GUIDE * m), P = Math.round(0.018 * m);
   const box = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height, o }; };
