@@ -1938,3 +1938,10 @@ own. The engine chooses (rule 75):
   9:16, and the video. The board takes the voices in turn, each in the
   planner's balanced order, so a voice whose cards fail more often is not
   crowded out, and shows each card at 800px painted from its audited record.
+- **Then every kept card is looked at.** The audit is the floor, not the
+  review: all 500 are seen in contact sheets, and at full size wherever one
+  looks weak, as the owner would see them. What a reader should not be shown
+  is left out and named in the script (`REVIEW_OUT_GROUNDS`, `REVIEW_OUT_CARDS`):
+  the MacBook lid, whose black Apple logo sat behind the first plates' words
+  with grass at both edges, and a stencil claim whose breaks were lost in the
+  bills behind it. The next passing card of the same voice takes the place.

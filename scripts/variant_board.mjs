@@ -304,6 +304,16 @@ if (cmd === 'audit'){
   process.exit(0);
 }
 
+/* THE OWNER'S-EYE REVIEW (2026-09-29): every kept card was looked at in contact
+   sheets and at full size before publishing; what the audit passed but a reader
+   should not be shown is not kept (the planner's grounds are left as they were
+   planned, so this board's plan stays reproducible) */
+const REVIEW_OUT_GROUNDS = {
+  'macbook-macbook-pro-1': "the lid's black Apple logo sits behind the first plates' words (through a smoked plate, over them), and grass shows at both edges",
+};
+const REVIEW_OUT_CARDS = {
+  'vb-0288': "the stencil's breaks are lost in the bills' printing behind the claim",
+};
 if (cmd === 'collect'){
   const KEEP = +opt('keep', 500);
   const SITE = OUT + 'site/';
@@ -315,6 +325,8 @@ if (cmd === 'collect'){
   for (const p of plan){
     const aj = AUDIT + p.id + '.json';
     if (!existsSync(aj) || !existsSync(THUMBS + p.id + '.webp')){ why.missing = (why.missing || 0) + 1; continue; }
+    const gName = p.ground.kind === 'photo' ? p.ground.src.replace(/^.*\//, '').replace(/\.[a-z]+$/, '') : null;
+    if (REVIEW_OUT_CARDS[p.id] || (gName && REVIEW_OUT_GROUNDS[gName])){ why['left out in review'] = (why['left out in review'] || 0) + 1; continue; }
     const a = JSON.parse(readFileSync(aj, 'utf8'));
     if (a.checks.some(c => c.where === 'harness')){ why['audit crashed (run the audit again)'] = (why['audit crashed (run the audit again)'] || 0) + 1; continue; }
     const failed = a.checks.filter(c => !c.pass);
@@ -339,7 +351,7 @@ if (cmd === 'collect'){
   writeFileSync(SITE + 'board.json', JSON.stringify(rows));
   const fails = Object.entries(why).sort((a, b) => b[1] - a[1]);
   const perVoice = Object.fromEntries(Object.entries(byVoice).map(([v, q]) => [v, q.length + ' passed, ' + rows.filter(r => r.voice === v).length + ' kept']));
-  writeFileSync(OUT + 'collect.json', JSON.stringify({ kept: rows.length, passed: pass.length, planned: plan.length, perVoice, why: fails }, null, 1));
+  writeFileSync(OUT + 'collect.json', JSON.stringify({ kept: rows.length, passed: pass.length, planned: plan.length, perVoice, reviewOut: { grounds: REVIEW_OUT_GROUNDS, cards: REVIEW_OUT_CARDS }, why: fails }, null, 1));
   console.log('kept ' + rows.length + ' of ' + pass.length + ' passed (' + plan.length + ' planned); not kept: ' + fails.map(([k, n]) => k + ' ×' + n).join('; '));
   process.exit(rows.length >= KEEP ? 0 : 1);
 }

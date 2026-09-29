@@ -823,4 +823,10 @@ for every card left in its batch within a second. Counted as failures, they
 would have dropped good cards from the board. The board's audit now runs a
 crashed audit once more in a fresh browser, and collect reports crashes apart
 from designs that failed.
+The board as published: 900 planned, 900 audited in every view, 582 passed at
+100%; 13 were left out in the owner's-eye review (a MacBook lid whose Apple
+logo sat behind the step words, a stencil claim lost in banknote printing); 500
+kept, 35-36 per voice where the voice passed that many (Retro 23, Arcade 21,
+Warp 32 and Tech 32 gave all they passed), 7 claims, 11 badges, 16 factory
+phone photos led by the 17 and 18 Pro Max, 43 looks, 40 grounds, 14 type pairs.
 
