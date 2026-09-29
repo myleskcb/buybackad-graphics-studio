@@ -45,17 +45,14 @@ if (QUICK && !argv('--cards')) cards = cards.filter((_, i) => i % 4 === 0);
 
 const browser = await puppeteer.launch({ executablePath: process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   headless: 'new', args: ['--no-sandbox'], protocolTimeout: 0 });
-const page = await browser.newPage();
-await page.setViewport({ width: 1400, height: 1000 });
+/* One page per card. The studio decodes every template's photograph as it
+   warms up and keeps each blurred copy it draws, so a single page grows
+   without end over a run (6 GB in one renderer after a few cards, which
+   starved the machine); a fresh page per card keeps each measurement
+   independent of the last and the run bounded. */
 const pageErrors = [];
-page.on('pageerror', e => pageErrors.push(String(e).slice(0, 200)));
-await offline(page);
-await page.goto(BASE, { waitUntil: 'load', timeout: 120000 });
-await page.waitForFunction(() => typeof renderEzCanvas === 'function' && typeof pgCheck === 'function' && typeof COLOR_THEMES !== 'undefined', { timeout: 60000 });
-await page.evaluate(() => document.fonts.ready);
-await new Promise(r => setTimeout(r, 2500));
-
-await page.evaluate(() => {
+let page = null;
+const installHelpers = () => {
   loadAccount = async () => account;
   account = { email: 'audit@local', role: 'user', plan: 'pro' };          // every card opens; nothing is exported
   const GROUND = /^(BG|Scrim|Overlay|Vignette|Grain|Claim Shade|Pattern)$/;
@@ -130,7 +127,21 @@ await page.evaluate(() => {
     chosenChip(){ const b = document.querySelector('#ez-themes .ez-theme.active'); return b ? (b.dataset.theme !== undefined ? b.dataset.theme : (b.title || '').split(' · ')[0]) : null; },
     drawnTheme(){ return ez.theme ? (ez.theme.name || ez.theme) : ''; },
   };
-});
+};
+async function openPage(){
+  if (page) await page.close().catch(() => {});
+  page = await browser.newPage();
+  await page.setViewport({ width: 1400, height: 1000 });
+  page.on('pageerror', e => pageErrors.push(String(e).slice(0, 200)));
+  await offline(page);
+  await page.goto(BASE, { waitUntil: 'load', timeout: 120000 });
+  await page.waitForFunction(() => typeof renderEzCanvas === 'function' && typeof pgCheck === 'function' && typeof COLOR_THEMES !== 'undefined', { timeout: 60000 });
+  await page.evaluate(() => document.fonts.ready);
+  await new Promise(r => setTimeout(r, 2000));
+  await page.evaluate(installHelpers);
+  if (SHOTS) await page.evaluate(() => { window.__shots = true; });
+}
+await openPage();
 
 const sceneOf = async (act) => page.evaluate(async (act) => {
   if (act) await (new Function('return (async () => {' + act + '})()'))();
@@ -140,7 +151,6 @@ const sceneOf = async (act) => page.evaluate(async (act) => {
   sc.dispose();
   return r;
 }, act);
-if (SHOTS) await page.evaluate(() => { window.__shots = true; });
 const diffPct = (a, b) => { let n = 0; for (let i = 0; i < a.length; i += 3) if (Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]) > 24) n++; return +(100 * n / (a.length / 3)).toFixed(1); };
 /* a critical line (headline, number, CTA) failing the gate that did not before,
    or any other reading line (selling points, items, kicker, website) falling
@@ -158,6 +168,7 @@ const problems = [], rows = [];
 const P = (card, what, detail) => problems.push({ card, what, detail });
 
 for (const card of cards){
+  await openPage();
   const tid = await page.evaluate(id => __ez.open(id), card).catch(e => { P(card, 'open', String(e).slice(0, 120)); return null; });
   if (!tid){ continue; }
   const hasOriginal = await page.evaluate(() => !!__ez.chip(''));
@@ -237,7 +248,8 @@ for (const card of cards){
 }
 // the chip follows the drawing across a template switch
 {
-  const [a, b] = [cards[0], cards[1]];
+  const [a, b] = [cards[0], cards[1] || cards[0]];
+  await openPage();
   await page.evaluate(id => __ez.open(id), a);
   await page.evaluate(n => __ez.chip(n).click(), THEMES[0]);
   await page.evaluate(id => __ez.open(id), b);
