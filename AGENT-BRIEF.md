@@ -131,6 +131,16 @@ If `main` is behind the newest integration branch, start from that branch and
 say so. Screenshot the landing before you touch it: the violet Template Lab page
 is current; a warm orange one is August.
 
+**The newest branch is not always what is live either.** On 2026-09-29 three
+heads had diverged (`claude/vibrant-lovelace-rze4rx`, the trunk;
+`claude/vibrant-hawking-htxrvn`; `claude/fervent-pascal-w6mthe`), and the
+Netlify project the connector sees, `buybackad-finished-copy`, was serving
+production from `claude/fervent-pascal-w6mthe` (deploy `6abb0be6`, commit
+`47ec573a`). Ask the deploy which branch it built (`get-deploy-for-site`
+through the Netlify connector names `branch` and `commit_ref`) and build what
+the owner is looking at; say which branch you started from, and which heads
+you did not merge.
+
 ### 5. Internal docs are blocked from the public site
 
 `docs/`, `scripts/` and `DESIGN-LAW.md` are 404'd at the edge in
