@@ -292,7 +292,13 @@ if (cmd === 'audit'){
   for (let i = 0; i < ids.length; i += 20){
     const batch = ids.slice(i, i + 20);
     /* --fail-fast unless --full: a failing card is dropped, so its audit stops at the first failing view; a passing card is always audited in every view */
-    try { execFileSync('node', [ROOT + 'scripts/audit_card.mjs', '--lab', ...(args.includes('--full') ? [] : ['--fail-fast']), ...batch], { stdio: 'ignore', timeout: 20 * 90000 }); } catch (e){ /* exit 1: some failed; the JSONs say which */ }
+    const run = list => { try { execFileSync('node', [ROOT + 'scripts/audit_card.mjs', '--lab', ...(args.includes('--full') ? [] : ['--fail-fast']), ...list], { stdio: 'ignore', timeout: 20 * 90000 }); } catch (e){ /* exit 1: some failed; the JSONs say which */ } };
+    run(batch);
+    /* an audit that crashed (the page's renderer went away: "detached frame", "target
+       closed") judged nothing; it is run once more in a fresh browser, never counted
+       as a design that failed */
+    const crashed = batch.filter(id => { try { return JSON.parse(readFileSync(AUDIT + id + '.json', 'utf8')).checks.some(c => c.where === 'harness'); } catch (e){ return true; } });
+    if (crashed.length){ console.log('shard ' + SHARD + ': ' + crashed.length + ' audits crashed, run again: ' + crashed.join(' ')); run(crashed); }
     console.log('shard ' + SHARD + ': audited ' + Math.min(i + 20, ids.length) + '/' + ids.length);
   }
   process.exit(0);
@@ -310,6 +316,7 @@ if (cmd === 'collect'){
     const aj = AUDIT + p.id + '.json';
     if (!existsSync(aj) || !existsSync(THUMBS + p.id + '.webp')){ why.missing = (why.missing || 0) + 1; continue; }
     const a = JSON.parse(readFileSync(aj, 'utf8'));
+    if (a.checks.some(c => c.where === 'harness')){ why['audit crashed (run the audit again)'] = (why['audit crashed (run the audit again)'] || 0) + 1; continue; }
     const failed = a.checks.filter(c => !c.pass);
     if (failed.length){ failed.forEach(c => { const k = c.where.split(' ')[0] + ': ' + c.name; why[k] = (why[k] || 0) + 1; }); continue; }
     const lab = JSON.parse(readFileSync(LABDIR + p.id + '.json', 'utf8'));
