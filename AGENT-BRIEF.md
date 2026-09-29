@@ -218,6 +218,14 @@ produced." DESIGN-LAW rule 66. In practice:
   order. It shades a failing ground (neutral, in the direction the lines
   need) and otherwise names the problem in a modal. Do not add an export
   path that bypasses it.
+- **Emoji** (rule 67, 2026-09-29): iOS style or none. `pgEmojiPass` places
+  one device-font emoji on about three in ten cards, only when
+  `PG_IOS_EMOJI` (an Apple device; `?emoji=ios` forces it for tests). Never
+  ship emoji artwork files, never place a non-Apple emoji.
+- **Copy under a shape** (rule 68): the gate fails an invisible line of any
+  role and a line with a solid shape over its letters; `pgUncover` moves
+  such copy clear after the layout. A rotated rect is never rebuilt from its
+  bounding box.
 - **The shade is bands** (rule 66, 2026-09-28): `scrimMode: 'bands:a-b,c-d'`
   shades only the bands of the height that hold copy on the photograph.
   `scrimRect` draws it (`scrimBands` parses it); `naturalGround` solves it

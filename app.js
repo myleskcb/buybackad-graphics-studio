@@ -2616,6 +2616,19 @@ function fitInsideGuides(sc, W, H){
     /* keep what was attached to an edge attached: a full-width band keeps its
        width, a band or product at an edge keeps reaching it */
     const b = bb(o); if (!b) return;
+    const ang = (((o.angle || 0) % 180) + 180) % 180;
+    if (o.type === 'rect' && ang > 0.5 && ang < 179.5 && Math.abs(ang - 90) > 0.5){
+      /* a ROTATED band: its bounding box is not its size (a 112px band at -6
+         degrees has a 242px box), and rebuilding it from the box doubled its
+         thickness, so it rose over the headline and buried the line set on
+         the band below it (Rush Hour, 2026-09-29). It keeps its own
+         thickness, scaled with the message, and its own length, so it still
+         runs off both edges. */
+      if ((o.width || 0) * (o.scaleX || 1) >= (o.height || 0) * (o.scaleY || 1)) o.set({ scaleX: (o.scaleX || 1) / s });
+      else o.set({ scaleY: (o.scaleY || 1) / s });
+      o.setPositionByOrigin(n, 'center', 'center'); o.setCoords();
+      return;
+    }
     if (o.type === 'rect'){
       let L = b.left, T = b.top, R = b.left + b.width, B = b.top + b.height;
       if (x.edge.l) L = x.b.left; if (x.edge.r) R = x.b.left + x.b.width;
@@ -7912,6 +7925,20 @@ function stackBulletRuns(t){
   layers.forEach(l => {
     if (typeof l.text !== 'string' || !l.props) return;
     if (!/^(info|sub|badges)$/.test(l.role || '') && !/items|info|sub|line|detail/i.test(l.name || '')) return;
+    /* a line set ON a band or a pill stays one line: stacked, it hangs off
+       the band (Rush Hour's device list on its 96px band, 2026-09-29). Angled
+       with a band, or centred on a plate made for one line, it is left alone. */
+    if (Math.abs(l.props.angle || 0) > 0.5) return;
+    {
+      const p = l.props, f = p.fontSize || 34;
+      const tx = p.left || 0, ty = (p.originY === 'center') ? (p.top || 0) : (p.top || 0) + f * 0.6;
+      const onBand = layers.some(o => { if (o === l || o.kind !== 'rect' || !o.props) return false; const q = o.props;
+        const w = q.width || 0, h = q.height || 0; if (!w || !h || h > f * 3.2) return false;
+        const x0 = q.originX === 'center' ? (q.left || 0) - w / 2 : q.originX === 'right' ? (q.left || 0) - w : (q.left || 0);
+        const y0 = q.originY === 'center' ? (q.top || 0) - h / 2 : q.originY === 'bottom' ? (q.top || 0) - h : (q.top || 0);
+        return tx >= x0 && tx <= x0 + w && ty >= y0 && ty <= y0 + h; });
+      if (onBand) return;
+    }
     const lines = String(l.text).split('\n');
     const out = [];
     lines.forEach(line => {
@@ -11850,4 +11877,430 @@ function pgShadeFit(sc, W, H){
 {
   const _alignPass = alignPass;
   alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); try { pgShadeFit(sc, W, H); } catch (e){ console.warn('shade bands:', e); } return r; };
+}
+
+/* ── THE GATE SEES COPY UNDER A SHAPE (rule 66) ────────────────────────────
+   Rush Hour (owner, 2026-09-29: "this sucks"): the guides fit had doubled
+   two rotated bands, the gold one rose over the bottom of "iPHONE" and the
+   dark one buried "CASH PAID TODAY" completely, and the gate passed it: the
+   'ghost' check covered only the headline, the number and the call to
+   action, and nothing asked whether a shape was drawn over copy. Now:
+   - any reading line that is effectively invisible (under 1.2% of its box
+     inked) fails 'ghost', whatever its role;
+   - a solid shape or a product drawn ABOVE a line (later in the stack) that
+     covers more than 4% of the body of its letters fails 'covered'. Measured
+     on the real quads (a rotated band is its strip, not its box), against
+     the middle of the line's box (the leading above and the descender room
+     below are not letters). Wrapped, not spliced (AGENT-BRIEF 1). */
+function pgQuad(o){ o.setCoords(); const a = o.aCoords; return a ? [a.tl, a.tr, a.br, a.bl].map(p => ({ x: p.x, y: p.y })) : null; }
+function pgQuadArea(P){ let s = 0; for (let i = 0; i < P.length; i++){ const p = P[i], q = P[(i + 1) % P.length]; s += p.x * q.y - q.x * p.y; } return Math.abs(s) / 2; }
+function pgClip(subject, clipper){
+  /* Sutherland–Hodgman against a convex clipper, either winding */
+  let sgn = 0; for (let i = 0; i < clipper.length; i++){ const p = clipper[i], q = clipper[(i + 1) % clipper.length]; sgn += p.x * q.y - q.x * p.y; }
+  const inside = (p, a, b) => ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x)) * (sgn >= 0 ? 1 : -1) >= 0;
+  const cross = (p, q, a, b) => { const A1 = q.y - p.y, B1 = p.x - q.x, C1 = A1 * p.x + B1 * p.y, A2 = b.y - a.y, B2 = a.x - b.x, C2 = A2 * a.x + B2 * a.y, d = A1 * B2 - A2 * B1;
+    return d === 0 ? p : { x: (B2 * C1 - B1 * C2) / d, y: (A1 * C2 - A2 * C1) / d }; };
+  let out = subject.slice();
+  for (let i = 0; i < clipper.length && out.length; i++){
+    const a = clipper[i], b = clipper[(i + 1) % clipper.length], inp = out; out = [];
+    for (let j = 0; j < inp.length; j++){
+      const p = inp[j], q = inp[(j + 1) % inp.length], pin = inside(p, a, b), qin = inside(q, a, b);
+      if (pin){ out.push(p); if (!qin) out.push(cross(p, q, a, b)); } else if (qin) out.push(cross(p, q, a, b));
+    }
+  }
+  return out;
+}
+function pgCoverCheck(sc, r){
+  const objs = sc.getObjects(), W = sc.getWidth(), H = sc.getHeight();
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const alpha = f => { if (!f || f === 'transparent') return 0; if (typeof f !== 'string') return 1;
+    const m = /rgba\([^)]*,\s*([\d.]+)\s*\)/.exec(f); return m ? +m[1] : 1; };
+  const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+  const seen = new Set(r.fails.map(f => f.code + '|' + f.line));
+  const F = (code, o, v) => { const k = code + '|' + (o.name || ''); if (seen.has(k)) return; seen.add(k);
+    r.fails.push({ code, line: o.name || null, role: o.pgRole || null, value: +(+v).toFixed(2), need: code === 'ghost' ? 0.012 : 0.04 }); };
+  /* every reading line that is effectively invisible */
+  (r.lines || []).forEach(x => { if (x.cov != null && x.cov < 1.2 && x.px >= 14){ const o = objs.find(q => q && q.name === x.name); if (o) F('ghost', o, x.cov / 100); } });
+  /* every reading line with a solid shape drawn over its letters */
+  objs.forEach((t, i) => {
+    if (!isText(t) || t.visible === false || (t.opacity != null && t.opacity < 0.5) || !PG_READ[t.pgRole || ''] || !/[A-Za-z0-9]/.test(t.text || '')) return;
+    const Q = pgQuad(t); if (!Q) return;
+    const body = [lerp(Q[0], Q[3], 0.22), lerp(Q[1], Q[2], 0.22), lerp(Q[2], Q[1], 0.22), lerp(Q[3], Q[0], 0.22)], A = pgQuadArea(body);
+    if (A < 1) return;
+    let worst = 0;
+    for (let j = i + 1; j < objs.length; j++){
+      const o = objs[j];
+      if (!o || o.visible === false || (o.opacity != null && o.opacity < 0.5) || o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern) continue;
+      const shape = ((o.type === 'rect' || o.type === 'circle') && alpha(o.fill) >= 0.5) || (o.type === 'image' && o.pgRole === 'photo');
+      if (!shape) continue;
+      const P = pgQuad(o); if (!P || pgQuadArea(P) >= 0.6 * W * H) continue;
+      const c = pgClip(body, P); if (c.length < 3) continue;
+      worst = Math.max(worst, pgQuadArea(c) / A);
+    }
+    if (worst > 0.04) F('covered', t, worst);
+  });
+  r.ok = !r.fails.length;
+}
+{
+  const _pgCheck = pgCheck;
+  pgCheck = function(sc){ const r = _pgCheck.apply(this, arguments); try { pgCoverCheck(sc, r); } catch (e){ console.warn('cover check:', e); } return r; };
+  const _pgExplain = pgExplain;
+  pgExplain = function(f){
+    if (f && f.code === 'covered') return (f.line ? '“' + String(f.line).replace(/\s\d+$/, '') + '”' : 'a line') + ' is partly hidden under a shape';
+    return _pgExplain.apply(this, arguments);
+  };
+}
+
+/* ── COPY COMES OUT FROM UNDER A SHAPE (rule 66) ───────────────────────────
+   What the gate's 'covered' check found on the classics (2026-09-29): a call
+   to action and the number's pill authored 7px apart in one bar, which the
+   guides fit closed to a 24px overlap; an item list 20px above the number's
+   plate, whose top then reached into it. After the layout, a line of copy
+   with a solid shape or a product drawn over its letters slides clear by the
+   shortest way (off the shape, plus a margin), staying on its own plate and
+   inside the guides and off every other line and plate; if no slide is
+   clear, it comes down in size away from the shape, never under 72% (the
+   number is never touched: rule 53). Axis-aligned layers only: a rotated
+   band is kept right by fitInsideGuides. Wrapped, not spliced. */
+function pgUncover(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return false; }
+  W = W || sc.getWidth(); H = H || sc.getHeight();
+  const m = Math.min(W, H), G = Math.round(GUIDE * m), pad = Math.round(0.012 * m);
+  const flat = o => Math.abs(((o.angle || 0) % 360)) < 0.5;
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const alpha = f => { if (!f || f === 'transparent') return 0; if (typeof f !== 'string') return 1; const q = /rgba\([^)]*,\s*([\d.]+)\s*\)/.exec(f); return q ? +q[1] : 1; };
+  const bb = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const body = b => ({ x: b.x, y: b.y + b.h * 0.22, w: b.w, h: b.h * 0.56 });
+  const ov = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  const solid = o => o && o.visible !== false && !(o.opacity != null && o.opacity < 0.5) && !o.pgBgRect && !o.pgScrim && !o.pgShade && !o.pgPattern &&
+    (((o.type === 'rect' || o.type === 'circle') && alpha(o.fill) >= 0.5) || (o.type === 'image' && o.pgRole === 'photo'));
+  let moved = false;
+  objs.forEach((t, i) => {
+    if (!isText(t) || t.visible === false || !flat(t) || t.pgRole === 'phone' || !PG_READ[t.pgRole || ''] || !/[A-Za-z0-9]/.test(t.text || '')) return;
+    const tb = bb(t), tbody = body(tb); if (tbody.w * tbody.h < 1) return;
+    /* shapes drawn over the words; and small marks touching them from either
+       side of the stack (a status dot under "NO FEES" reads as a typo) */
+    const over = objs.filter((o, j) => o !== t && solid(o) && flat(o) && (j > i || (bb(o).w * bb(o).h < 0.25 * tb.w * tb.h))).map(o => ({ o, b: bb(o) }))
+      .filter(s => s.b.w * s.b.h < 0.6 * W * H && ov(tbody, s.b) / (tbody.w * tbody.h) > (s.b.w * s.b.h < 0.25 * tb.w * tb.h ? 0 : 0.04))
+      .sort((a, c) => ov(tbody, c.b) - ov(tbody, a.b));
+    if (!over.length) return;
+    /* a small mark (a status dot, a tick) on the words moves out in front of
+       them, on their line; if there is no room it goes (rule 60: a sticker is
+       never moved onto something else, only removed) */
+    if (over[0].b.w * over[0].b.h < 0.25 * tb.w * tb.h){
+      const d = over[0].o, db = over[0].b, gap = Math.max(6, Math.round(pad * 0.6));
+      const nx = tb.x - gap - db.w, ny = tb.y + tb.h / 2 - db.h / 2;
+      const room = nx >= G - 0.5 && !objs.some(o => o !== d && o !== t && isText(o) && o.visible !== false && ov({ x: nx, y: ny, w: db.w, h: db.h }, bb(o)) > 0);
+      if (room){ d.set({ left: d.left + (nx - db.x), top: d.top + (ny - db.y) }); d.setCoords(); }
+      else d.set({ visible: false });
+      moved = true; return;
+    }
+    const S = over[0].b;
+    const hostP = (typeof pgPlateUnder === 'function') ? pgPlateUnder(objs, t, tb, W, H) : null;
+    const host = hostP && hostP.o !== over[0].o && tb.x + tb.w / 2 >= hostP.x && tb.x + tb.w / 2 <= hostP.x + hostP.w && tb.y + tb.h / 2 >= hostP.y && tb.y + tb.h / 2 <= hostP.y + hostP.h ? hostP : null;
+    const others = objs.filter(o => o !== t && o !== (host && host.o) && o.visible !== false && !o.pgBgRect && !o.pgScrim && !o.pgShade && !o.pgPattern &&
+      (isText(o) || solid(o))).map(o => ({ o, b: bb(o) })).filter(x => x.b.w * x.b.h < 0.6 * W * H);
+    const clear = nb => nb.x >= G - 0.5 && nb.y >= G - 0.5 && nb.x + nb.w <= W - G + 0.5 && nb.y + nb.h <= H - G + 0.5 &&
+      (!host || (nb.x >= host.x + 4 && nb.x + nb.w <= host.x + host.w - 4 && nb.y + nb.h * 0.22 >= host.y && nb.y + nb.h * 0.78 <= host.y + host.h)) &&
+      !others.some(x => (isText(x.o) ? ov(body(nb), body(x.b)) : ov(body(nb), x.b)) > 0);
+    /* the shortest slide off the shape */
+    const moves = [
+      { dx: (S.x - pad) - (tb.x + tb.w), dy: 0 }, { dx: (S.x + S.w + pad) - tb.x, dy: 0 },
+      { dx: 0, dy: (S.y - pad) - (tbody.y + tbody.h) }, { dx: 0, dy: (S.y + S.h + pad) - tbody.y },
+    ].sort((a, c) => Math.hypot(a.dx, a.dy) - Math.hypot(c.dx, c.dy));
+    for (const mv of moves){
+      const nb = { x: tb.x + mv.dx, y: tb.y + mv.dy, w: tb.w, h: tb.h };
+      if (clear(nb)){ t.set({ left: t.left + mv.dx, top: t.top + mv.dy }); t.setCoords(); moved = true; return; }
+    }
+    /* else smaller, anchored on the side away from the shape */
+    const cx = tb.x + tb.w / 2, cy = tb.y + tb.h / 2, sx = S.x + S.w / 2, sy = S.y + S.h / 2;
+    const horiz = Math.abs(sx - cx) / Math.max(1, tb.w) > Math.abs(sy - cy) / Math.max(1, tb.h);
+    for (let k = 0.96; k >= 0.72; k -= 0.04){
+      const w = tb.w * k, h = tb.h * k;
+      const nx = horiz ? (sx > cx ? tb.x : tb.x + tb.w - w) : cx - w / 2, ny = horiz ? cy - h / 2 : (sy > cy ? tb.y : tb.y + tb.h - h);
+      const nb = { x: nx, y: ny, w, h };
+      if (ov(body(nb), S) === 0 && clear(nb)){
+        t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k }); t.setCoords();
+        const b2 = bb(t); t.set({ left: t.left + (nx - b2.x), top: t.top + (ny - b2.y) }); t.setCoords(); moved = true; return;
+      }
+    }
+  });
+  return moved;
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments);
+    try { if (pgUncover(sc, W, H) && typeof pgShadeFit === 'function') pgShadeFit(sc, W, H); } catch (e){ console.warn('uncover:', e); }
+    return r; };
+}
+
+/* ── EMOJI, iOS STYLE ONLY, ON SOME CARDS (rule 67) ───────────────────────
+   Owner, 2026-09-29: "EMOJIS ONLY IOS STYLE", "DON'T OVER USE ONLY FOR
+   SOME". A drawn set (Fluent 3D) was tried the same day and removed.
+
+   Apple's emoji artwork is Apple's and cannot ship inside the product as
+   pictures. What can be used is the device's own emoji font: on an iPhone,
+   an iPad or a Mac that IS Apple Color Emoji, so the emoji are exactly iOS
+   style, in the preview, the PNG and the video made on that device. On any
+   other device the font is someone else's drawing, so nothing is placed
+   (and the editor's emoji picker is not shown): no card ever carries an
+   emoji that is not iOS style. The library's pre-rendered thumbnails are
+   made on a server, so they carry none either.
+
+   Where, when there is room: beside the largest headline line (the topic,
+   read off the headline, never the website or the number), or a hand
+   pointing AT the number (rule 29). At most one per card, on about a
+   quarter of the cards, by the card's id; Easy Mode's Emoji row sets Auto,
+   Shuffle (always one where there is room) or None. Never on copy, a plate,
+   a product or another mark, inside the guides; the gate fails one that
+   is. Wrapped, not spliced (AGENT-BRIEF 1). */
+const PG_IOS_EMOJI = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get('emoji');
+    if (q === 'ios') return true;                                 // tests on a non-Apple machine: geometry only
+    if (q === 'off') return false;
+    return /iPhone|iPad|iPod|Macintosh|Mac OS X/.test(navigator.userAgent || '');
+  } catch (e){ return false; }
+})();
+const PG_EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+const PG_EMOJI_TOPICS = [
+  [/pok[eé]mon|charizard|pikachu|\btcg\b/i, ['⚡', '🔥', '✨']],
+  [/sports?\s*cards?|\bslabs?\b|\bpsa\b|rookies?|baseball|basketball|football/i, ['🏆', '⚾', '🏀', '🏈']],
+  [/test\s*strips?|\bcgms?\b|diabetic|dexcom|freestyle|one\s*touch|\bstrips\b/i, ['📦', '✅', '💵']],
+  [/macbooks?|laptops?|\bmacs?\b|computers?/i, ['💻']],
+  [/\bi?pads?\b|tablets?/i, ['📱']],
+  [/watch(es)?\b/i, ['⌚']],
+  [/airpods|headphones|\bbeats\b/i, ['🎧']],
+  [/playstation|\bps[45]\b|xbox|nintendo|consoles?|gaming/i, ['🎮']],
+  [/iphones?|samsung|galaxy|\bpixel\b|\bphones?\b|\bcells?\b/i, ['📱', '📲']],
+  [/motorcycles?|dirt\s*bikes?/i, ['🏍️']],
+  [/trucks?|pickups?|tacomas?|f-?150|silverado|tundra|\bvans?\b/i, ['🛻', '🚚', '🔑']],
+  [/\bcars?\b|\bautos?\b|vehicles?|\bsuvs?\b|hondas?|toyotas?|\bbmws?\b|junk/i, ['🚗', '🚙', '🔑']],
+  [/silverware|flatware|sterling/i, ['🍴', '🪙', '💰']],
+  [/diamonds?/i, ['💎', '💍']],
+  [/jewel|rings?\b|chains?|bracelets?|karat|\b1[048]k\b/i, ['💍', '💎', '👑']],
+  [/\bgold\b/i, ['👑', '💰', '💍', '💎']],
+  [/coins?|morgans?|eagles?|dollars?|numismatic/i, ['🪙', '💰']],
+  [/\bsilver\b|bullion|\bbars?\b/i, ['🪙', '💰', '💎']],
+];
+const PG_EMOJI_CAT = { phones: ['📱', '📲'], gold: ['👑', '💍', '💰'], silver: ['🪙', '💰'], coins: ['🪙', '💰'], cars: ['🚗', '🔑'],
+  sports: ['🏆', '⚾'], pokemon: ['⚡', '🔥'], strips: ['📦', '✅'] };
+const PG_EMOJI_GENERAL = ['💵', '💸', '💰', '🤑', '🔥', '💯'];
+let PG_EMOJI_CTX = null;
+function pgHash(s){ let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+/* the lines of a text object as boxes, so the room beside a short line of a
+   centred headline is room (the object's own box spans its widest line) */
+function pgTextLineBoxes(o, b){
+  if (!o._textLines || !o._textLines.length || Math.abs(o.angle || 0) > 0.5 || typeof o.getLineWidth !== 'function') return [b];
+  const sx = o.scaleX || 1, sy = o.scaleY || 1, out = []; let y = b.y;
+  const al = String(o.textAlign || 'left');
+  for (let i = 0; i < o._textLines.length; i++){
+    const lh = o.getHeightOfLine(i) * sy, lw = Math.min(b.w, o.getLineWidth(i) * sx);
+    const x = /center/.test(al) ? b.x + (b.w - lw) / 2 : /right/.test(al) ? b.x + b.w - lw : b.x;
+    if (lw > 1) out.push({ x, y, w: lw, h: lh, o });
+    y += lh;
+  }
+  return out.length ? out : [b];
+}
+/* one emoji in the device's font, its drawing s px square, centred at (cx, cy) */
+function pgEmojiText(ch, cx, cy, s, auto){
+  const o = new fabric.Text(ch, { left: cx, top: cy, originX: 'center', originY: 'center', fontFamily: PG_EMOJI_FONT, fontSize: s, lineHeight: 1,
+    fill: '#000000', shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.28)', blur: Math.round(s * 0.09), offsetX: 0, offsetY: Math.round(s * 0.035) }),
+    name: 'Emoji ' + ch, pgRole: 'deco', pgEmoji: ch, pgEmojiAuto: !!auto, pgCasing: 'none' });
+  const k = s / Math.max(1, o.width, o.height);
+  o.set({ scaleX: k, scaleY: k });
+  return o;
+}
+function pgEmojiStrip(sc){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return; }
+  const old = objs.filter(o => o && o.pgEmojiAuto);
+  if (old.length){ sc.__pgEmojiBusy = true; old.forEach(o => sc.remove(o)); sc.__pgEmojiBusy = false; }
+}
+function pgEmojiPass(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return; }
+  W = W || sc.getWidth(); H = H || sc.getHeight();
+  pgEmojiStrip(sc); objs = sc.getObjects();
+  pgEmojiHook(sc);
+  const why = w => { sc.pgEmojiWhy = w; };
+  if (!PG_IOS_EMOJI) return why('not an Apple device');
+  if (sc.pgEmojiManual) return why('the visitor placed their own');
+  const ctx = PG_EMOJI_CTX || ((sc instanceof fabric.Canvas) && typeof ez === 'object' && ez ? { mode: ez.emoji || 'auto', seed: ez.emojiSeed || 0 } : {});
+  if (ctx.mode === 'off') return why('off');
+  const tplId = String((objs.find(o => o && o.pgTplId) || {}).pgTplId || '').replace(/^(sc|hx)-/, '').replace(/__candidate$/, '');
+  if (!tplId && !ctx.seed) return why('no card id');
+  const seed = pgHash(tplId + '|emoji|' + (ctx.seed || 0));
+  /* only some cards: 3 in 10, one emoji each; a shuffle the visitor asked for
+     always tries to place one */
+  const PLANS = ['', '', '', '', '', '', '', 'topic', 'topic', 'point'];
+  const ASKED = ['topic', 'point', 'topic', 'general'];
+  const kind0 = ctx.seed ? ASKED[seed % ASKED.length] : PLANS[seed % PLANS.length];
+  if (!kind0) return why('not this card');
+
+  const m = Math.min(W, H), u = m / TPL_W, G = Math.round(GUIDE * m), P = Math.round(0.018 * m);
+  const box = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height, o }; };
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
+  const hollow = o => { const f = o.fill; return !f || f === 'transparent' || (typeof f === 'string' && /rgba\([^)]*,\s*0(\.0+)?\)$/.test(f)); };
+  const occ = [], lines = [];
+  objs.forEach(o => {
+    if (!o || o.visible === false || (o.opacity != null && o.opacity < 0.08)) return;
+    if (o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern) return;
+    if (/^(Scrim|BG|Overlay|Pattern|Vignette|Grain)$/.test(o.name || '')) return;
+    const b = box(o); if (b.w < 1 || b.h < 1) return;
+    if (isText(o)){
+      const ls = o.type === 'group' ? [b] : pgTextLineBoxes(o, b);
+      const reads = typeof o.text === 'string' ? /[A-Za-z0-9]/.test(o.text) : true;
+      ls.forEach(l => { l.o = o; occ.push(l); if (reads) lines.push(l); });
+      return;
+    }
+    const big = b.w * b.h >= 0.6 * W * H;
+    if (hollow(o) && o.stroke && (big || b.w * b.h >= 0.25 * W * H)){
+      const t = Math.max(6 * u, (o.strokeWidth || 1) * 2);
+      occ.push({ x: b.x, y: b.y, w: b.w, h: t }, { x: b.x, y: b.y + b.h - t, w: b.w, h: t }, { x: b.x, y: b.y, w: t, h: b.h }, { x: b.x + b.w - t, y: b.y, w: t, h: b.h });
+      return;
+    }
+    if (big && o.pgRole !== 'photo') return;
+    if (o.type === 'image' && o.opacity != null && o.opacity < 0.3) return;   // a ghosted picture is texture
+    occ.push(b);
+  });
+  const hit = (a, b, pad) => a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
+  const inside = r => r.x >= G && r.y >= G && r.x + r.w <= W - G && r.y + r.h <= H - G;
+  const free = r => inside(r) && !occ.some(b => hit(r, b, P));
+  const sq = (cx, cy, s) => ({ x: cx - s / 2, y: cy - s / 2, w: s, h: s });
+  const role = o => o.pgRole || '';
+  const textOf = o => typeof o.text === 'string' ? o.text : (o.pgCurved && o.pgCurved.text) || '';
+  const texts = objs.filter(o => isText(o) && o.visible !== false && !/^(website|phone)$/.test(role(o)));
+  const headWords = texts.filter(o => /^(headline|offer)$/.test(role(o))).map(textOf).join(' \n ');
+  const restWords = texts.filter(o => !/^(headline|offer)$/.test(role(o))).map(textOf).join(' \n ');
+  const tpl = (typeof TEMPLATES !== 'undefined' && TEMPLATES.find(t => t.id === tplId || t.id === 'sc-' + tplId)) || null;
+  let topics = null;
+  for (const words of [headWords, restWords]){ for (const [re, list] of PG_EMOJI_TOPICS) if (re.test(words)){ topics = list; break; } if (topics) break; }
+  if (!topics) topics = (tpl && PG_EMOJI_CAT[tpl.cat]) || PG_EMOJI_GENERAL;
+  const pick = (list, salt) => list[pgHash(tplId + salt + (ctx.seed || 0)) % list.length];
+
+  /* beside the biggest line first, by the line's own height */
+  const heads = lines.filter(l => /^(headline|offer)$/.test(role(l.o))).sort((a, b) => b.h - a.h).slice(0, 4);
+  const beside = (ls, sMin, sMax, k) => {
+    const sideFirst = seed % 3 === 0 ? -1 : 1;
+    for (const l of ls){
+      const cy = l.y + l.h * 0.46;
+      for (const side of [sideFirst, -sideFirst]){
+        for (let s = Math.min(sMax, l.h * k); s >= sMin; s -= 8 * u){
+          const g0 = Math.max(0.25 * s, P + 4 * u);
+          for (const gap of [g0, g0 + 0.3 * s]){
+            const cx = side > 0 ? l.x + l.w + gap + s / 2 : l.x - gap - s / 2, r = sq(cx, cy, s);
+            if (free(r)) return { r, s, cx, cy };
+          }
+        }
+      }
+    }
+    return null;
+  };
+  const pointAt = () => {
+    const targets = lines.filter(l => role(l.o) === 'phone').concat(lines.filter(l => role(l.o) === 'cta'));
+    for (const l of targets){
+      const pl = (typeof pgPlateUnder === 'function') ? pgPlateUnder(objs, l.o, l, W, H) : null;
+      const T = pl && l.x + l.w / 2 >= pl.x && l.x + l.w / 2 <= pl.x + pl.w && l.y + l.h / 2 >= pl.y && l.y + l.h / 2 <= pl.y + pl.h ? pl : l;
+      for (let s = Math.max(60 * u, Math.min(112 * u, T.h * 0.8)); s >= 60 * u; s -= 10 * u){
+        const gap = Math.max(0.2 * s, P + 4 * u), cy = T.y + T.h / 2, up = T.y - gap - s / 2;
+        const opts = [
+          { ch: '👉', cx: T.x - gap - s / 2, cy }, { ch: '👈', cx: T.x + T.w + gap + s / 2, cy },
+          { ch: '👇', cx: T.x + Math.max(s * 0.6, T.w * 0.14), cy: up }, { ch: '👇', cx: T.x + T.w - Math.max(s * 0.6, T.w * 0.14), cy: up },
+        ];
+        for (const o of opts){ const r = sq(o.cx, o.cy, s); if (free(r)) return Object.assign({ r, s }, o); }
+      }
+    }
+    return null;
+  };
+  let at = null, ch = null;
+  if (kind0 === 'point'){ at = pointAt(); if (at) ch = at.ch; }
+  if (!at){ at = beside(heads, 60 * u, 140 * u, 0.85); if (at) ch = pick(kind0 === 'general' ? PG_EMOJI_GENERAL : topics, '#' + kind0); }
+  if (!at) return why('no room beside the copy');
+  const o = pgEmojiText(ch, at.cx, at.cy, at.s, true);
+  sc.add(o);
+  why('placed ' + ch);
+}
+/* in the editor, an emoji the visitor moves or deletes is theirs: the pass
+   stops placing on that canvas until it is cleared for another design */
+function pgEmojiHook(sc){
+  if (!sc || sc.__pgEmojiHooked || typeof sc.on !== 'function' || !(sc instanceof fabric.Canvas)) return;
+  sc.__pgEmojiHooked = true;
+  sc.on('object:modified', e => { const o = e && e.target; if (o && o.pgEmojiAuto){ o.pgEmojiAuto = false; sc.pgEmojiManual = true; } });
+  sc.on('object:removed', e => { const o = e && e.target; if (o && o.pgEmojiAuto && !sc.__pgEmojiBusy && !sc.__pgClearing) sc.pgEmojiManual = true; });
+  const _clear = sc.clear;
+  sc.clear = function(){ sc.__pgClearing = true; try { return _clear.apply(this, arguments); } finally { sc.__pgClearing = false; sc.pgEmojiManual = false; } };
+}
+try { EXTRA_PROPS.push('pgEmoji', 'pgEmojiAuto'); } catch (e){}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){
+    try { pgEmojiStrip(sc); } catch (e){}                        // the layout never sees last pass's emoji
+    const r = _alignPass.apply(this, arguments);
+    try { pgEmojiPass(sc, W, H); } catch (e){ console.warn('emoji:', e); }
+    return r;
+  };
+}
+/* the gate: an emoji on copy, a plate or a product, or past the guides, fails */
+function pgEmojiCheck(sc, r){
+  const objs = sc.getObjects(), W = sc.getWidth(), H = sc.getHeight(), m = Math.min(W, H);
+  const ems = objs.filter(o => o && o.pgEmoji && o.visible !== false);
+  if (!ems.length) return;
+  const box = o => { o.setCoords(); const b = o.getBoundingRect(true, true); return { x: b.left, y: b.top, w: b.width, h: b.height }; };
+  const inter = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
+  const solid = o => { const f = o.fill; return f && f !== 'transparent' && !(typeof f === 'string' && /rgba\([^)]*,\s*0(\.[0-4]\d*)?\)$/.test(f)); };
+  const others = objs.filter(o => o && !o.pgEmoji && o.visible !== false && !(o.opacity != null && o.opacity < 0.3) && !o.pgBgRect && !o.pgScrim && !o.pgShade && !o.pgPattern &&
+    ((isText(o) && /[A-Za-z0-9]/.test(o.text || (o.pgCurved && o.pgCurved.text) || '')) || (o.type === 'image' && o.pgRole === 'photo') || (o.type === 'rect' && solid(o))));
+  const M = PG_T.margin * m;
+  ems.forEach(e => {
+    const b0 = box(e), k = 0.1, b = { x: b0.x + b0.w * k, y: b0.y + b0.h * k, w: b0.w * (1 - 2 * k), h: b0.h * (1 - 2 * k) };
+    let worst = null, share = 0;
+    others.forEach(o => { const ob = box(o); if (!isText(o) && ob.w * ob.h >= 0.6 * W * H) return;
+      (isText(o) && o.type !== 'group' ? pgTextLineBoxes(o, ob) : [ob]).forEach(l => { const s = inter(b, l) / Math.max(1, b.w * b.h); if (s > share){ share = s; worst = o; } }); });
+    if (share > 0.02) r.fails.push({ code: 'emoji', line: worst.name || null, role: worst.pgRole || null, value: +share.toFixed(2), need: 0 });
+    const over = Math.max(M - b.x, M - b.y, b.x + b.w - (W - M), b.y + b.h - (H - M));
+    if (over > 2 * m / TPL_W) r.fails.push({ code: 'emojiEdge', line: e.name || 'Emoji', role: 'deco', value: +(over * TPL_W / m).toFixed(1), need: 0 });
+  });
+  r.ok = !r.fails.length;
+}
+{
+  const _pgCheck = pgCheck;
+  pgCheck = function(sc){ const r = _pgCheck.apply(this, arguments); try { pgEmojiCheck(sc, r); } catch (e){ console.warn('emoji check:', e); } return r; };
+  const _pgExplain = pgExplain;
+  pgExplain = function(f){
+    if (f && f.code === 'emoji') return 'an emoji covers ' + (f.line ? '“' + String(f.line).replace(/\s\d+$/, '') + '”' : 'part of the ad');
+    if (f && f.code === 'emojiEdge') return 'an emoji runs into the edge';
+    return _pgExplain.apply(this, arguments);
+  };
+}
+/* Easy Mode's Emoji row and the editor's picker exist only where the emoji
+   are iOS style; the row's choice rides on the Easy render and the hand-off */
+{
+  const EZK = 'pg-ez-emoji';
+  const wrapCtx = fn => function(){
+    const prev = PG_EMOJI_CTX;
+    PG_EMOJI_CTX = (typeof ez === 'object' && ez) ? { mode: ez.emoji || 'auto', seed: ez.emojiSeed || 0 } : null;
+    try { return fn.apply(this, arguments); } finally { PG_EMOJI_CTX = prev; }
+  };
+  if (typeof renderEzCanvas === 'function') renderEzCanvas = wrapCtx(renderEzCanvas);
+  if (typeof openAdvancedFromEz === 'function') openAdvancedFromEz = wrapCtx(openAdvancedFromEz);
+  const sync = () => document.querySelectorAll('#ez-emoji-seg [data-em]').forEach(b => { const k = b.dataset.em;
+    b.classList.toggle('active', k === 'off' ? ez.emoji === 'off' : k === 'shuffle' ? ez.emoji !== 'off' && ez.emojiSeed > 0 : ez.emoji !== 'off' && !(ez.emojiSeed > 0)); });
+  const bind = () => {
+    const field = document.getElementById('ez-emoji-field');
+    if (field) field.hidden = !PG_IOS_EMOJI;
+    const pick = document.getElementById('emoji-grid');
+    if (pick && !PG_IOS_EMOJI){ const sec = pick.closest('.psec'); if (sec) sec.hidden = true; }
+    if (!PG_IOS_EMOJI || typeof ez !== 'object' || !ez) return;
+    try { const v = JSON.parse(localStorage.getItem(EZK) || 'null'); if (v){ ez.emoji = v.mode === 'off' ? 'off' : 'auto'; ez.emojiSeed = v.seed | 0; } } catch (e){}
+    document.querySelectorAll('#ez-emoji-seg [data-em]').forEach(b => b.onclick = () => {
+      const k = b.dataset.em;
+      if (k === 'off') ez.emoji = 'off';
+      else if (k === 'shuffle'){ ez.emoji = 'auto'; ez.emojiSeed = (ez.emojiSeed || 0) + 1; }
+      else { ez.emoji = 'auto'; ez.emojiSeed = 0; }
+      try { localStorage.setItem(EZK, JSON.stringify({ mode: ez.emoji, seed: ez.emojiSeed || 0 })); } catch (e){}
+      sync(); if (typeof schedEzPreview === 'function') schedEzPreview(0);
+    });
+    sync();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
 }

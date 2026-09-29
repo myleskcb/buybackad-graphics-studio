@@ -695,3 +695,36 @@ Rejected:
   - Shading by the copy's boxes rather than by bands: a patchwork of
     rectangles reads as plates that are not there; a horizontal band reads
     as light falling on the picture.
+
+## 2026-09-29 — iOS emoji or none; copy under a shape
+
+Owner: "EMOJIS ONLY IOS STYLE REMOVE AND DELETE ALL !", "AND DON'T OVER USE
+ONLY FOR SOME", and of Rush Hour in Easy Mode: "this sucks sorry".
+
+Learned:
+  - A drawn emoji set, however polished, is not what the owner means by
+    emoji: the iPhone's own. Apple's artwork cannot ship as files; the
+    device's emoji font can be used, and it is Apple's only on Apple devices.
+  - Placed on every other card (239 of 399), emoji read as overuse. Three in
+    ten eligible, one each, reads as an accent.
+  - fitInsideGuides rebuilt edge-attached rects from their bounding box; a
+    rotated band's box is not its size. Two bands doubled and covered copy.
+  - The gate could not see copy under a shape, nor an invisible line outside
+    the three critical roles. Once it could, it found seven broken classics
+    that had been offered all along.
+  - A status dot under the first letters of a chip reads as a typo; a small
+    mark on words moves in front of them.
+
+Changed:
+  - The Fluent set and its thumbnails reverted; ASSET_REV 20260929b.
+  - pgEmojiPass (device-font emoji, Apple devices only, 3 in 10 cards, one
+    each), pgEmojiCheck in the gate, Easy Mode's Emoji row and the editor's
+    picker shown on Apple devices only; ?emoji=ios forces the pass for tests.
+  - fitInsideGuides keeps a rotated band's thickness; stackBulletRuns leaves a
+    line on a band or a pill; pgCoverCheck ('ghost' any role, 'covered');
+    pgUncover after the layout.
+  - DESIGN-LAW rules 67 and 68.
+
+Rejected:
+  - Apple emoji images from a package (Apple's artwork, not licensed).
+  - Non-Apple device emoji as a fallback (the owner: iOS style only).
