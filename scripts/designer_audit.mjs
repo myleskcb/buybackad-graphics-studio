@@ -16,7 +16,8 @@
  *   themes    every chip changes the card, fails no critical line the card
  *             passed (the gate, pgCheck, rule 66) and puts no other reading
  *             line under 3:1; the chip lit is the theme drawn; ORIG puts back
- *             exactly the card it started from.
+ *             exactly the card it started from, after the themes and again
+ *             after the swatches.
  *   grounds   ORIG and the six quick swatches, with no theme, a light theme
  *             and a dark one, and the first two of every kind of ground (rule
  *             65): each changes the picture and keeps every line.
@@ -77,7 +78,14 @@ async function openPage(){
       async open(id){
         document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
         if (TEMPLATES.some(t => t.id === id)){ showEasy(id); document.querySelector('.ez-sw.orig').click(); }
-        else { await scLoadIndex(); await openShowcase(id); }
+        else {
+          /* a card the library no longer offers (the owner's Reef lower
+             third is stamped defect:school) is opened from its row, as the
+             Easy Mode audit opens it */
+          await scLoadIndex();
+          if (!SHOWCASE.byId[id]){ const all = await fetch('assets/showcase/index.json').then(r => r.json()); const row = all.find(c => c.id === id); if (row) SHOWCASE.byId[id] = row; }
+          await openShowcase(id);
+        }
         document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
         const t = ezTpl();
         const load = (src, store) => new Promise(r => { if (!src) return r();
@@ -117,6 +125,9 @@ for (const card of cards){
   await openPage();
   const row = { card };
   const tid = await page.evaluate(id => __ed.open(id), card).catch(e => { P(card, 'open', String(e).slice(0, 120)); return null; });
+  /* the card on screen is the card asked for: the Reef lower third did not
+     open and Sell Your iPhone, still on screen, was measured in its place */
+  if (tid && tid !== card && tid !== 'sc-' + card){ P(card, 'the card did not open', tid + ' is on screen'); rows.push(row); continue; }
   if (!tid){ rows.push(row); continue; }
   // the hand-off, and how the page answers while it settles
   const easy = await page.evaluate(() => __ed.easyBoxes());
@@ -164,6 +175,11 @@ for (const card of cards){
   }
   await act(`__ed.chip('').click(); document.querySelector('#ed-swatches .ez-sw.orig').click(); document.querySelector('#panel-left [data-ltab="bg"]').click();`, 600);
   const g0 = await measure();
+  /* the swatches' passes turn the copy on a flat ground; ORIG after them is
+     the card again (a gradient's stops shared with its saved original came
+     back turned: cars_kbb's headline, dark on its photograph) */
+  row.origAfter = diffPct(base.px, g0.px);
+  if (row.origAfter > 0.5) P(card, 'ORIG after the swatches does not put the card back', row.origAfter + '% of the picture differs');
   const styles = await page.evaluate(() => [...document.querySelectorAll('#ed-bgstyles button')].map(b => b.dataset.style));
   row.grounds = {};
   for (const st of styles){
@@ -249,7 +265,7 @@ for (const card of cards){
   }
   rows.push(row);
   const ts = Object.values(row.themes || {});
-  console.log(card.padEnd(24) + ` open: longest ${row.longest}ms, blocking ${row.blocking}ms · hand-off off ${row.handoff} · themes ${ts.length} changed ${Math.min(...ts.map(t => t.changed))}-${Math.max(...ts.map(t => t.changed))}% · ORIG ${row.orig}% · library ${row.library}`);
+  console.log(card.padEnd(24) + ` open: longest ${row.longest}ms, blocking ${row.blocking}ms · hand-off off ${row.handoff} · themes ${ts.length} changed ${Math.min(...ts.map(t => t.changed))}-${Math.max(...ts.map(t => t.changed))}% · ORIG ${row.orig}% (after swatches ${row.origAfter}%) · library ${row.library}`);
 }
 await browser.close();
 

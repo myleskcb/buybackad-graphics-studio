@@ -846,3 +846,146 @@ RESUME HERE:
   palette): themeScene must run BEFORE it, so a tagline look takes the
   theme's colours. Then run `node scripts/ez_theme_audit.mjs` (exit 0) and
   `scripts/verify_showcase.mjs` on the merged build.
+
+## 2026-09-30 — The designer speaks the house language
+
+Owner: "audit and make sure the designer page looks updated FOR ALL NEW
+FEATURES / DESIGN LANGUAGE".
+
+Studied:
+  Which page is "the designer page". The product has three candidates:
+  - the landing page, already current;
+  - the Template Lab, an owner's judging tool;
+  - the advanced editor, the full design page Easy Mode hands off to.
+  The editor was the one behind. Studied every tab against Easy Mode's
+  controls and DESIGN-LAW rules 56 to 67 and 79, with screenshots of each tab,
+  a CPU profile of the first twenty seconds after it opens, and the hand-off
+  measured object by object against Easy Mode's render.
+
+Measured:
+  (scripts/designer_audit.mjs, new; six cards, each in a fresh browser
+  context: Sell Your iPhone, the gold spot, KBB and Pokémon binder classics,
+  the owner's Reef lower third and bandKnockout. It watches the page for 12
+  seconds after the designer opens and checks the hand-off box by box
+  against Easy Mode's render. Then every theme and ORIG; the six swatches
+  with no theme, Gold Offer and Cash Green, and ORIG after them; the first
+  two of every kind of ground; blur, the overlays and the patterns; undo;
+  the library.)
+  live build (26037de3): 23 problems. No theme, swatch or ground control on
+    any card. The page froze once the designer opened: its longest task 0.8
+    to 1.1s, and 10.2 to 11.3 of the first 12 seconds blocked. The hand-off
+    moved copy on five of the six. Sell Your iPhone's product list was 937px
+    wide in Easy Mode and 811 in the designer, bandKnockout's knockout band
+    950 and 449, and the Reef lower third's left column moved 9px to the
+    right.
+  This branch: no problems over the same six cards, no page errors. The
+    longest task is 82 to 149ms, and 0.45 to 1.2s of the first 12 seconds
+    are blocked. Every box is within 3px of Easy Mode's. Every theme changes
+    every card (19.7 to 88.3% of the picture), and ORIG puts it back exactly,
+    after the themes and after the swatches.
+  On the way:
+  - The first full run here read 10: 7 on grounds, 2 with the page busy,
+    and 1 hand-off.
+  - After the shade and hand-off fixes it read 1: KBB's call to action at
+    1.55:1 under a 0.4 paper shade, on a blurred photograph. The swatch
+    tests before it were the cause. A light swatch had turned the gradient
+    headline dark, and the turn reached the saved original through a shared
+    gradient stop. ORIG then drew the headline dark on its photograph
+    (1.1:1), and the next photograph's shade was solved for dark copy.
+  - Then none, but the Reef lower third's numbers matched Sell Your
+    iPhone's to the digit. Stamped out of the library, the card had not
+    opened, and the card left on screen was measured under its name. The
+    live build's run had done the same; its Reef row above is from a re-run
+    with the audit fixed.
+  - Opened, the Reef card's headlines were about 100px narrower in the
+    designer than in Easy Mode. Easy Mode's first render had measured Big
+    Shoulders Display 700 in a fallback: WE BUY was 258px wide, and 156 in
+    its own face.
+  - Then none, on all six.
+  Easy Mode's audit (ez_theme_audit.mjs, rule 79's 20 cards, run in two
+  halves side by side): no problems over the 20 cards and 21 themes, and no
+  page errors.
+
+Changed:
+  - DESIGN-LAW rule 91 (numbered as vibrant-hawking numbers them). The
+    designer's panel carries Easy Mode's controls:
+    - Quick edit: a colour theme row with ORIG, and ORIG plus the six swatches
+      above the pickers, with a way through to the rest.
+    - Templates: the library.
+    - Backgrounds: every kind of ground in the card's or theme's colours,
+      blur, Shade/Fade, and Pattern on top.
+    These call Easy Mode's own functions, now given parameters for the card
+    and the theme (ezPalette, ezPresetSpecs, ezGroundSpecs, ezCategoryPhotos,
+    and ezCopyFollowsGround with a keep test).
+  - edRecolour, the designer's one colour pass, works from originals saved on
+    the objects (pgOrig, pgAutoFill, pgUser, pgTheme, added to EXTRA_PROPS
+    with the effects' flags and the emoji's auto flag). The originals are
+    deep copies (edSer, edDes): a gradient's stops are shared by fabric
+    between the gradient, its toObject() and a gradient made from it, and
+    themeScene's marks and ezCopyFollowsGround turn stops in place.
+  - edShadeSolve shades a photograph the visitor picks until the copy reads,
+    as the gate does at export.
+  - bindBgControls, the upload and "Remove photo", and applyBgAnywhere go
+    through edSetGround and edUsePhoto.
+  - pushHist and restoreHist carry bgState. A pattern saves as its recipe
+    (pgPatSpec, a one-pixel stand-in) and is redrawn after any load
+    (edRepaintPatterns).
+  - The Easy Mode hand-off's pattern is saved the same way.
+  - The ten PROC_BGS backdrops are no longer offered: refreshBgLibrary, and
+    the community gallery.
+  - openShowcase split: scRegister registers a library card for either mode.
+  - The hand-off rebuilds the template's layers before the visitor's words go
+    in, so they are laid out once. It goes through edRecolour, so ORIG works
+    on a card brought from Easy Mode.
+  - scRegister loads every weight a library card sets (document.fonts.load
+    per style, weight and family), after ensureFont's face nearest 400.
+  - ensureThumbs renders one thumbnail per idle slice, 150ms apart, only for
+    the category on screen and for cards waiting on one.
+  - refreshMyTemplates, buildEzStrip (past its first eight) and scClassicCard
+    fill lazily (lazyThumb). refreshPhotoThumb rebuilds the strip only when
+    Easy Mode is on screen, and draws a late photograph on the designer's
+    card.
+  - CSS: the new controls in Easy Mode's classes, sized for the 290px panel.
+    The category picker stacks.
+  - scripts/designer_audit.mjs (new). It checks that ORIG after the swatch
+    tests gives back the opening card: run against the code before the copy
+    fix, it failed KBB (7.3% of the picture). It fails a card that does not
+    open, and opens a retired card from its index row, as the Easy Mode
+    audit does.
+  - AGENT-BRIEF's gate section; OPEN-ITEMS §U, with §K 9 marked done and §P 5
+    marked done in part.
+
+Rejected:
+  - A second colour system for the editor: two would drift apart, the thing
+    rule 66 exists to stop.
+  - Snapshotting originals in memory only: undo, a draft or a saved template
+    would lose them, and ORIG would restore the themed colours.
+  - Waiting for the export gate to shade a photograph the visitor picks:
+    the canvas being designed would not be the ad that exports.
+  - Keeping the ten built-in backdrops beside the new grounds: fixed colours
+    in no card's palette are what rule 65 retired.
+  - Rendering every template's thumbnail in the background, even throttled:
+    a category's thumbnails are wanted only when it is shown.
+  - Keeping a pattern's pixels in the history: film grain was 911KB a step.
+  - Treating the last failing line (KBB's call to action at 1.55:1 under a
+    0.4 paper shade) as a shade problem. The shade was right for what it was
+    given; what it was given was wrong. The headline's saved original had
+    been turned dark by an earlier swatch, through a shared gradient stop.
+  - Fitting the hand-off to the designer's old layout. Sell Your iPhone's
+    product list fitted its panel in the designer only because it had been
+    laid out twice. The designer now shows what Easy Mode drew, overhang
+    included, and the overhang is the classics' body panel's to fix
+    (OPEN-ITEMS §P 5).
+
+RESUME HERE:
+  Bring the branches together (OPEN-ITEMS §P 1). The owner asked, through the
+  vibrant-hawking session (2026-09-30), that claude/vibrant-hawking-htxrvn be
+  merged into this branch before any production deploy from it: a merge
+  commit, then ez_theme_audit.mjs, then `git merge-base --is-ancestor <live
+  commit> HEAD`. On every surface the order is the layout, then themeScene,
+  then the tagline look (it reads sc.__theme through tplPalette). Then run
+  both audits on the merged build and expect exit 0:
+    node scripts/ez_theme_audit.mjs
+    node scripts/designer_audit.mjs
+  The designer's text Properties still offer any colour for a glow (rule 64
+  wants shade). That is a tool, left to the owner (§U 2).

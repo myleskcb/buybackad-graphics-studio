@@ -252,6 +252,16 @@ produced." DESIGN-LAW rule 66. In practice:
   Measure each card in a fresh browser context: the studio keeps the
   visitor's draft in localStorage, and a shared context leaks it into the
   next card.
+- **The designer** (rule 91, 2026-09-30): the advanced editor calls the same
+  passes on its live canvas through one colour pass, `edRecolour`. It
+  starts each time from the paint every object had before any theme
+  (`pgOrig`, saved with the object). Colour a designer object through it,
+  and save a deep copy of any paint, never the object: fabric shares a
+  gradient's stops, and the passes turn them in place. Before a commit that
+  touches the designer's panel, its grounds or the passes, run
+  `node scripts/designer_audit.mjs` too. It exits 1 on any problem and takes
+  about 12 minutes for its six cards. It fails a card that does not open
+  rather than measure the one left on screen.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

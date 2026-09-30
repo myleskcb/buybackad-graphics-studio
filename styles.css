@@ -1742,7 +1742,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .fp-item:hover,.fp-item.on{background:var(--surface-sunk)}
 .fp-item.sel{color:var(--accent)}
 
-/* ═══════════ THE DESIGNER'S NEW CONTROLS (DESIGN-LAW rule 80) ═══════════
+/* ═══════════ THE DESIGNER'S NEW CONTROLS (DESIGN-LAW rule 91) ═══════════
    The advanced editor's panel carries the same controls as Easy Mode, in
    Easy Mode's own classes (.ez-theme, .ez-sw, .ez-fxrow, .ez-fxline), sized
    down for the 290px panel. */

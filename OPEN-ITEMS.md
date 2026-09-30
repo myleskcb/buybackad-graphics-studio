@@ -382,6 +382,9 @@ Next, in order of what the owner will see:
 9. **The advanced editor's Background** is still Solid / Gradient / Image. A
    drawn ground opened from Easy Mode carries over (applyBgSpec draws it), but
    the editor has no picker of its own for them yet.
+   **Done 2026-09-30** (DESIGN-LAW rule 91, §U): its Backgrounds tab offers
+   every kind of ground in the card's or the theme's palette, with blur,
+   Shade/Fade and the patterns, and Quick edit has the six swatches.
 10. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
    done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
    predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
@@ -516,6 +519,57 @@ Still open:
    hangs off its smoke panel onto the paper band. There no single ink serves
    all three lines, and the theme treats it as standing on the ground. The
    editor keeps it on the panel. This predates the theme work; both read.
+   **Done in part 2026-09-30** (DESIGN-LAW rule 91, §U): the two agree. The
+   editor laid the visitor's words out a second time over objects already
+   fitted, and that second layout was the smaller list (0.81 of its size,
+   against Easy Mode's 0.935). It now lays them out once, and every box is
+   within 3px of Easy Mode's. The overhang stays, now in both. The panel is
+   the classics' bodyPanel, sized from the authored text before the layout
+   sets the list, so the fix belongs to the classics' passes (then
+   `verify_showcase.mjs --classics --write`).
 6. **Photographs the visitor uploads** are not re-inked (a shade does that
    job, rule 62), so white copy on a bright photo of their own still depends
    on the gate's shade at download.
+
+## U. 2026-09-30 — the designer speaks the house language
+
+Lettered as `claude/vibrant-hawking-htxrvn` letters them (this branch's §P is
+§T there).
+
+Done (DESIGN-LAW rule 91, `scripts/designer_audit.mjs`):
+- **Colour themes and ORIG** in the advanced editor, from one colour pass
+  whose originals survive undo, drafts and saved templates, and are copies:
+  ORIG puts the card back exactly after the themes and after the swatches.
+  The theme follows the visitor.
+- **Grounds and effects:** the six theme swatches, every kind of ground in the
+  card's or theme's colours, blur, Shade/Fade and patterns. The ten
+  fixed-colour backdrops are retired. A photograph the visitor picks is
+  shaded until the copy reads.
+- **The library** in the Templates tab. A library card is drawn in its own
+  faces from its first render: every weight it sets is loaded, not only the
+  face nearest 400 (66 of the 399 live cards set Big Shoulders Display 700).
+- **The hand-off** lays the visitor's words out once, as Easy Mode does
+  (§P 5, done in part).
+- **Undo** carries the ground.
+- **Loading:** thumbnails render in idle time and grids fill lazily. The
+  designer no longer freezes after it opens, and the landing page loads
+  faster.
+
+`scripts/designer_audit.mjs` reads 23 problems on the live build and none here
+(six cards, 21 themes). Easy Mode's audit still reads none (20 cards).
+
+Still open:
+
+1. **Easy Mode shades a picked photograph only at download.** In the designer
+   the shade is solved when the photograph is picked (edShadeSolve). Easy
+   Mode's preview still shows the copy unshaded on a photograph the visitor
+   picks, until the gate shades it at download. The same solve on Easy
+   Mode's scene (ez.shade) would make its preview honest too.
+2. **The designer's Properties** still offer any colour for a line's glow and
+   outline. Rule 64 wants glows to be shade, neutral. It is a manual tool, so
+   whether to narrow it is the owner's call.
+3. **The Template Lab** (`lab/`, linked from the landing page's top bar) is
+   an owner's judging tool in an older look. Its index still calls Set 7 and
+   Set 9 "newest", and it names a Look menu the site no longer has. It is out
+   of this change: it is not the product, and its sets are the record of what
+   was judged.
