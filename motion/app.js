@@ -41,6 +41,7 @@ const labelFor = (k, v) => {
   if (k === "glare") return v === .5 ? "Soft" : v === 1 ? "Normal" : "Bright";
   if (k === "front_glimpse") return v === "spin" ? "Flash past in the air" : "Land screen up, then flip";
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
+  if (k === "phone_angle") return { flat: "Flat", angled: "Turned in 3-D", turntable: "Turntable sway", wide_spin: "Wide 3-D spin" }[v] || v;
   return String(v).replace(/[_-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 };
 

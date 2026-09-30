@@ -348,6 +348,8 @@ function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = fa
   const c = Math.cos(flip), ac = Math.abs(c), front = c >= 0;
   const w = p.w * scale, h = p.h * scale;
   const zz = clamp(z, 0, 1);
+  // how far the visible face is turned from facing us, -pi/2..pi/2
+  const e = front ? Math.atan2(Math.sin(flip), c) : Math.atan2(Math.sin(flip - Math.PI), Math.cos(flip - Math.PI));
   // shadow: tight when it lies flat, big and soft in the air
   const si = zz < .33 ? 0 : zz < .66 ? 1 : 2, sh = p.shadows[si];
   if (!noShadow) {                                  // a reflection casts none
@@ -364,21 +366,53 @@ function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = fa
   ctx.globalAlpha = op;
   ctx.translate(x, y);
   ctx.rotate(-rot * Math.PI / 180);
-  const t = THICKNESS * p.w * scale * Math.abs(Math.sin(flip));
-  if (t >= 1.5) {                                   // the side of the phone
-    const lead = Math.sin(flip) * c > 0 ? 1 : -1;
-    ctx.fillStyle = shade(p.metal, -.3);
-    rrect(ctx, -w * ac / 2 + (lead > 0 ? 0 : -t), -h / 2, w * ac + t, h, Math.min((w * ac + t) / 2, CORNER * w));
-    ctx.fill();
-  }
-  ctx.scale(Math.max(ac, .02), 1);
-  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W);
-  else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
-  if (ac < .999) {                                 // turning away from the light
-    rrect(ctx, -w / 2, -h / 2, w, h, CORNER * w);
-    ctx.fillStyle = `rgba(0,0,0,${(1 - ac) * .45})`; ctx.fill();
+  if (Math.abs(Math.sin(e)) > .012) draw3d(ctx, p, w, h, e, front, rot, flip, x / W);
+  else {
+    ctx.scale(Math.max(ac, .02), 1);
+    if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W);
+    else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
   }
   ctx.restore();
+}
+
+/** The phone turned about its upright axis in true perspective: the real photo (or the
+ *  drawn screen side) in thin upright strips, each as tall as its depth makes it, and the
+ *  band of the frame along the edge that swings toward us, in the phone's own metal. Only
+ *  the photo is ever drawn: an angle is the same back seen from the side, never a new
+ *  design. p.focal sets the lens (a wide lens exaggerates the turn). */
+function draw3d(ctx, p, w, h, e, front, rot, flip, cxNorm) {
+  const f = h * (p.focal || 2.8), T = THICKNESS * w, se = Math.sin(e), ce = Math.cos(e);
+  const P = (X, Z) => { const zz = -X * se + Z * ce, k = f / (f + zz); return [(X * ce + Z * se) * k, k]; };
+  // the source: the photo, or the screen side drawn once at this size
+  let src = p.img, sw = p.img.width, shh = p.img.height;
+  if (front) {
+    const fw = Math.ceil(w), fh = Math.ceil(h);
+    if (!p._face || p._face.width !== fw || p._face.height !== fh) p._face = canvas(fw, fh);
+    const fx = p._face.getContext("2d"); fx.clearRect(0, 0, fw, fh); fx.save(); fx.translate(fw / 2, fh / 2);
+    drawFront(fx, w, h, p.metal, p.glare, rot, flip, cxNorm); fx.restore();
+    src = p._face; sw = fw; shh = fh;
+  }
+  // the frame band on the near edge
+  const Xn = Math.sign(se) * w / 2, [xa, ka] = P(Xn, 0), [xb, kb] = P(Xn, T), r = CORNER * w * .6;
+  ctx.fillStyle = shade(p.metal, -.3);
+  ctx.beginPath();
+  ctx.moveTo(xa, -(h / 2 - r) * ka); ctx.lineTo(xb, -(h / 2 - r) * kb); ctx.lineTo(xb, (h / 2 - r) * kb); ctx.lineTo(xa, (h / 2 - r) * ka);
+  ctx.closePath(); ctx.fill();
+  // the face, strip by strip, drawn off to one side so it can be shaded as it turns from the light
+  const [x0] = P(-w / 2, 0), [x1] = P(w / 2, 0), kmax = Math.max(P(-w / 2, 0)[1], P(w / 2, 0)[1]);
+  const L = Math.min(x0, x1) - 2, R = Math.max(x0, x1) + 2, bw = Math.ceil(R - L), bh = Math.ceil(h * kmax + 4);
+  if (!p._warp || p._warp.width < bw || p._warp.height < bh) p._warp = canvas(Math.max(bw, p._warp ? p._warp.width : 0), Math.max(bh, p._warp ? p._warp.height : 0));
+  const wx = p._warp.getContext("2d"); wx.clearRect(0, 0, p._warp.width, p._warp.height);
+  const N = clamp(Math.round(w * Math.abs(se) / 2) + 10, 10, 48);
+  for (let i = 0; i < N; i++) {
+    const u0 = i / N, u1 = (i + 1) / N, [xs0, k0] = P((u0 - .5) * w, 0), [xs1, k1] = P((u1 - .5) * w, 0), k = (k0 + k1) / 2;
+    const dx = Math.min(xs0, xs1), dw = Math.abs(xs1 - xs0) + .6;
+    wx.drawImage(src, u0 * sw, 0, (u1 - u0) * sw, shh, dx - L, bh / 2 - h * k / 2, dw, h * k);
+  }
+  wx.globalCompositeOperation = "source-atop";
+  wx.fillStyle = `rgba(0,0,0,${(1 - ce) * .5})`; wx.fillRect(0, 0, bw, bh);
+  wx.globalCompositeOperation = "source-over";
+  ctx.drawImage(p._warp, 0, 0, bw, bh, L, -bh / 2, bw, bh);
 }
 
 // ------------------------------------------------------------ where the phones land
@@ -614,8 +648,24 @@ function phoneState(p, t, st) {
     const after = t - (p.tReveal + .5);
     if (after > 0 && after < .18) s *= 1 - .02 * Math.sin(Math.PI * after / .18);
   }
+  // the phone's angle once it is settled, the same for every phone in the look so they
+  // read as one set: turned a little in 3-D, swaying on a turntable, or one wide spin
+  const settle = p.reveal ? p.tReveal + .5 : p.tLand + .15;
+  if (t > settle) {
+    const a = PHONE_TURN * p.turnSide, q = t - settle;
+    switch (st.phone_angle) {
+      case "angled": flip += a * inOut(clamp(q / .45)); break;
+      case "turntable": flip += a * 1.15 * Math.sin(q * 1.35) * clamp(q / .3); break;
+      case "wide_spin": {
+        const q2 = prog(t, settle + .35 + p.order * .07, 1.05);
+        flip += 2 * Math.PI * inOut(q2) * p.turnSide; z = Math.max(z, .3 * Math.sin(Math.PI * q2)); s *= 1 + .06 * Math.sin(Math.PI * q2);
+        break;
+      }
+    }
+  }
   return [hx, hy, s, rot, flip, z, 1];
 }
+const PHONE_TURN = 22 * Math.PI / 180;
 
 // ------------------------------------------------------------ type
 
@@ -1238,6 +1288,8 @@ export class Ad {
       p.landsBack = endsBack && st.front_glimpse === "spin";
       p.reveal = endsBack && !p.landsBack;
       p.glare = new Glare(rng(st.seed * 101 + i), st.glare);
+      p.focal = st.phone_angle === "wide_spin" ? 1.5 : 2.8;      // a wide lens makes the spin wide
+      p.turnSide = st.seed % 2 ? 1 : -1; p.order = i;           // every phone turns the same way
       return p;
     });
     this.drawOrder = this.phones.map((_, i) => i);
@@ -1443,6 +1495,11 @@ export class Ad {
     this.tl.hit = this.tl.text + (["slam", "stomp"].includes(st.text_in) ? .42 : .3);
     this.tl.tag = last + .12; this.tl.number = last + .25; this.tl.shine = this.tl.number + .5; this.tl.sparkle = this.tl.number + .35;
     this.tl.still = Math.max(this.tl.still, this.tl.revealEnd + .25);
+    // phones that turn once they settle keep moving until the turn is done (a turntable never stops)
+    const settled = p => p.reveal ? p.tReveal + .5 : p.tLand + .15;
+    const turnEnd = { angled: .5, wide_spin: 1.5 }[st.phone_angle];
+    if (turnEnd) this.tl.still = Math.max(this.tl.still, ...this.phones.map(p => settled(p) + turnEnd + p.order * .07));
+    this.livePhones = st.phone_angle === "turntable" && this.phones.length > 0;
     // an ending only where the number has had its time on screen first
     const tO = st.duration - 1.1;
     this.tOutro = st.outro && st.outro !== "none" && st.duration >= 4.5 && tO >= this.tl.number + 1.4 ? tO : null;
@@ -1978,7 +2035,7 @@ export class Ad {
   }
 
   _phonesLayer(t, dt, quality) {
-    if (this.still && !this.liveGround) return this.still;
+    if (this.still && !this.liveGround && !this.livePhones) return this.still;
     const flying = t < this.tl.landed + .02, moving = t < this.tl.revealEnd + .05;
     const subs = flying ? quality.subsFly : moving ? quality.subsMove : 1;
     const ax = this.acc.getContext("2d"), tx = this.tmp.getContext("2d");
@@ -2000,7 +2057,7 @@ export class Ad {
       }
       if (s > 0) { ax.globalAlpha = 1 / (s + 1); ax.drawImage(this.tmp, 0, 0); ax.globalAlpha = 1; }
     }
-    if (t > this.tl.still && !this.liveGround) {
+    if (t > this.tl.still && !this.liveGround && !this.livePhones) {
       this.still = canvas(this.W, this.H); this.still.getContext("2d").drawImage(this.acc, 0, 0);
       return this.still;
     }

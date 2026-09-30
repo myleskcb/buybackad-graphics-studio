@@ -391,6 +391,9 @@ export const OPTIONS = {
   transition: ["fade", "flash", "zoom_through", "whip", "iris", "slice", "block"],
   // the last second
   outro: ["none", "settle", "end_card"],
+  // how the phones stand once they land, in true 3-D: flat, turned a little, swaying, or one
+  // wide spin (last, so the looks drawn before it keep every other choice)
+  phone_angle: ["flat", "angled", "turntable", "wide_spin"],
 };
 
 // Spin-offs of the best grounds (audit 2026-09-30), painted in decor.js
@@ -442,6 +445,7 @@ export const WEIGHTS = {
   urgency: { none: 1 },
   number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
+  phone_angle: { flat: 3, angled: 2, turntable: 2, wide_spin: 1 },
   front_glimpse: { spin: 3, hold: 1 },
   text_in: { slide: 3, skew_slide: 3, slide_letters: 3, wipe: 3 },
   overlay: { none: 4 },
@@ -471,7 +475,7 @@ export const DEFAULT_STYLE = {
 // The first ad's look, as a starting point.
 export const CLASSIC = {
   font: "franklin", text_fx: "shadow", text_in: "slide", text_pos: "top-left", number_style: "plain",
-  number_pos: "bottom-center", number_in: "pop", arrangement: "row", entry: "fly_spin", end_face: "back",
+  number_pos: "bottom-center", number_in: "pop", arrangement: "row", phone_angle: "flat", entry: "fly_spin", end_face: "back",
   front_glimpse: "hold", background: "radial", palette: "sand", color_mode: "mono", camera: "push_in",
   sound_kit: "house", overlay: "none", hook: "cold_open",
 };
@@ -481,7 +485,7 @@ export const LABELS = {
   font: "Typeface", number_font: "Number typeface", case: "Case", tracking: "Letter spacing", skew: "Slant",
   text_fx: "Type treatment", color_mode: "Colour use", text_in: "Headline entrance", text_pos: "Headline position",
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
-  number_in: "Number entrance", arrangement: "Phone layout", entry: "Phones enter by", end_face: "Phones end on",
+  number_in: "Number entrance", arrangement: "Phone layout", phone_angle: "Phone angle", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
   sound_kit: "Music", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
   vibe: "LA vibe", board: "Sign board", urgency: "Urgency",
@@ -493,7 +497,7 @@ export const GROUPS = [
   ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
   ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
-  ["Phones", ["arrangement", "entry", "end_face", "front_glimpse", "glare", "depth"]],
+  ["Phones", ["arrangement", "phone_angle", "entry", "end_face", "front_glimpse", "glare", "depth"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
   ["Sound", ["sound_kit", "hit", "number_sfx"]],
 ];
