@@ -110,7 +110,20 @@ owner present, and leave the old copies alone until they confirm.
 Deploys have appeared minutes apart from separate sessions. Before concluding
 something is broken, check `git log` and the Netlify deploy list.
 
-### 6. `main` is not the newest code, so check before you build
+### 6. Start from `main`, and put your work back on it
+
+**Since 2026-09-30 `main` is the whole product.** The owner: "Audit and push
+all to main site, unify the sites or branches." Every line of work was merged
+into one (the trunk, the one-engine work, the colour themes, the video maker,
+and the live branch production served, with its iOS-only emoji) and `main`
+was moved to it. Start a session from `main`; when your work is done, merge
+`main` in again (another session may have moved it), run the checks, and put
+the result back on `main`. A branch that is not on `main` is not the product.
+Two August branches were left unmerged on purpose (OPEN-ITEMS §J, §U):
+`claude/busy-allen-2d5iv1` and `claude/quirky-ritchie-f0zuc8`; port from
+them, never merge them.
+
+History, and why this matters:
 
 On 2026-09-26 `main` was a month behind: the product had moved on across a
 dozen branches (the violet landing, the palettes, `/motion`, the iPhones LA
@@ -170,8 +183,21 @@ rulebook is not product. If you add another internal folder, block it too.
 
 ## Deploying
 
+**Deploy `main`, and only `main`.** Two Netlify projects serve this app:
+`buybackad-graphics-studio` (the URL in these docs, deployed from the owner's
+Mac with the CLI) and `buybackad-finished-copy` (the only one the owner's
+Netlify connector sees, in the `myleskcb2` team, deployed by sessions). Until
+2026-09-30 each was deployed from whatever branch a session stood on, so the
+two showed different products. Deploy the same `main` commit to both, or
+retire one; the lasting fix is to link one project to this repository's
+`main` in Netlify (Project configuration, Build & deploy, Link repository;
+publish directory `.`) so that every push to `main` deploys and nobody deploys
+by hand. The cloud sessions cannot reach Netlify (their network policy denies
+`*.netlify.app` and `api.netlify.com`).
+
 ```bash
 cd ~/Downloads/gfxv23
+git fetch origin && git checkout main && git pull   # deploy main, nothing else
 netlify status              # confirm the link
 netlify deploy --dir=.      # DRAFT first, always
 # open the draft URL and confirm it renders
