@@ -1803,3 +1803,20 @@ input[type=range]{width:100%;accent-color:var(--accent)}
    under its label instead of running past the edge */
 #ltab-templates .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}
 #ltab-templates .cat-select{min-width:0;width:100%}
+
+/* ═══════════ TEXT SHAPES (DESIGN-LAW rule 95) ═══════════
+   The shape chips beside Bend, in the designer's Properties and Easy Mode's ✎:
+   Straight, Arc, Wave, then the warps. Drawn as the .tp-biu buttons are. */
+.ts-shapes{flex:1;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;min-width:0}
+.ts-shapes button{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:var(--r-sm);padding:5px 1px;cursor:pointer;line-height:0;min-width:0}
+.ts-shapes button svg{width:100%;max-width:20px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.ts-shapes button:hover:not(.active){color:var(--text-2)}
+.ts-shapes button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}
+.field .ts-shapes{margin-top:4px}
+
+/* ═══════════ TYPE VOICES (DESIGN-LAW rule 96) ═══════════
+   The typeface row: ORIG and the eighteen type pairs, as Easy Mode's chips. */
+.ez-voices{display:flex;flex-wrap:wrap;gap:6px}
+.ez-voices button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}
+.ed-voices{gap:5px}
+.ed-voices button{padding:7px 10px;font-size:11px}
