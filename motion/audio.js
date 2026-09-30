@@ -89,21 +89,25 @@ function noiseBuffer(ctx, secs) {
 }
 
 function synth(ctx, noise) {
-  const env = (g, t, a, peak, decay) => { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0005, t + a + decay); };
+  // Cues are timed off the picture, and some land before the first frame (a whoosh
+  // into a headline at 0.1 s starts at -0.35 s). Web Audio throws on any negative
+  // time, so every scheduled time is clamped to the start: the early part is cut.
+  const T = x => (x > 0 ? x : 0);
+  const env = (g, t, a, peak, decay) => { g.gain.setValueAtTime(0, T(t)); g.gain.linearRampToValueAtTime(peak, T(t + a)); g.gain.exponentialRampToValueAtTime(.0005, T(t + a + decay)); };
   const out = (node, dest, pan = 0) => { if (pan) { const p = ctx.createStereoPanner(); p.pan.value = pan; node.connect(p).connect(dest); } else node.connect(dest); };
-  const noiseSrc = (t, dur) => { const n = ctx.createBufferSource(); n.buffer = noise; n.loop = true; n.start(Math.max(0, t), Math.random() * 1.5); n.stop(t + dur + .05); return n; };
-  const osc = (type, t, dur, f) => { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, Math.max(0, t)); o.start(Math.max(0, t)); o.stop(t + dur + .05); return o; };
+  const noiseSrc = (t, dur) => { const n = ctx.createBufferSource(); n.buffer = noise; n.loop = true; n.start(T(t), Math.random() * 1.5); n.stop(T(t + dur + .05)); return n; };
+  const osc = (type, t, dur, f) => { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, T(t)); o.start(T(t)); o.stop(T(t + dur + .05)); return o; };
   const S = {
     whoosh(dest, t, dur, up, pan, gain) {
       if (t + dur < 0) return;
       const n = noiseSrc(t, dur), bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 1.4;
       const f0 = up ? 400 : 3600, f1 = up ? 4200 : 500;
-      bp.frequency.setValueAtTime(f0, Math.max(0, t)); bp.frequency.exponentialRampToValueAtTime(f1, t + dur);
-      const g = ctx.createGain(); g.gain.setValueAtTime(0, Math.max(0, t)); g.gain.linearRampToValueAtTime(gain, t + dur * (up ? .8 : .45)); g.gain.linearRampToValueAtTime(0, t + dur);
+      bp.frequency.setValueAtTime(f0, T(t)); bp.frequency.exponentialRampToValueAtTime(f1, T(t + dur));
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, T(t)); g.gain.linearRampToValueAtTime(gain, T(t + dur * (up ? .8 : .45))); g.gain.linearRampToValueAtTime(0, T(t + dur));
       n.connect(bp).connect(g); out(g, dest, pan);
     },
     thud(dest, t, f0, f1, dur, pan, gain) {
-      const o = osc("sine", t, dur, f0); o.frequency.exponentialRampToValueAtTime(f1, t + dur * .6);
+      const o = osc("sine", t, dur, f0); o.frequency.exponentialRampToValueAtTime(f1, T(t + dur * .6));
       const g = ctx.createGain(); env(g, t, .004, gain, dur); o.connect(g); out(g, dest, pan);
       const n = noiseSrc(t, .03), lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2500;
       const gn = ctx.createGain(); env(gn, t, .001, gain * .35, .02); n.connect(lp).connect(gn); out(gn, dest, pan);
@@ -113,18 +117,18 @@ function synth(ctx, noise) {
       const n = noiseSrc(t, .02), g2 = ctx.createGain(); env(g2, t, .001, gain * .4, .015); n.connect(g2); out(g2, dest, pan);
     },
     impact(dest, t, gain) {
-      const o = osc("sine", t, 1, 98); o.frequency.exponentialRampToValueAtTime(38, t + .5);
+      const o = osc("sine", t, 1, 98); o.frequency.exponentialRampToValueAtTime(38, T(t + .5));
       const g = ctx.createGain(); env(g, t, .005, gain, .9); o.connect(g).connect(dest);
       const n = noiseSrc(t, .3), bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2500; bp.Q.value = .6;
       const gn = ctx.createGain(); env(gn, t, .002, gain * .7, .25); n.connect(bp).connect(gn).connect(dest);
     },
     bassDrop(dest, t, gain) {
-      const o = osc("sine", t, 1.4, 140); o.frequency.exponentialRampToValueAtTime(34, t + 1.1);
+      const o = osc("sine", t, 1.4, 140); o.frequency.exponentialRampToValueAtTime(34, T(t + 1.1));
       const ws = ctx.createWaveShaper(); ws.curve = curve(2.5);
       const g = ctx.createGain(); env(g, t, .01, gain, 1.3); o.connect(ws).connect(g).connect(dest);
     },
     pop(dest, t, gain) {
-      const o = osc("sine", t, .35, 660); o.frequency.exponentialRampToValueAtTime(1160, t + .08);
+      const o = osc("sine", t, .35, 660); o.frequency.exponentialRampToValueAtTime(1160, T(t + .08));
       const g = ctx.createGain(); env(g, t, .003, gain, .3); o.connect(g).connect(dest);
       const d = osc("sine", t + .05, .5, 1760), gd = ctx.createGain(); env(gd, t + .05, .003, gain * .35, .45); d.connect(gd).connect(dest);
     },
@@ -147,38 +151,38 @@ function synth(ctx, noise) {
       const g = ctx.createGain(); env(g, t, .001, gain, open ? .25 : .045); n.connect(hp).connect(g); out(g, dest, pan);
     },
     kick(dest, t, gain) {
-      const o = osc("sine", t, .45, 130); o.frequency.exponentialRampToValueAtTime(44, t + .12);
+      const o = osc("sine", t, .45, 130); o.frequency.exponentialRampToValueAtTime(44, T(t + .12));
       const g = ctx.createGain(); env(g, t, .002, gain, .4); o.connect(g).connect(dest);
     },
     bass808(dest, t, f, dur, gain) {
-      const o = osc("sine", t, dur, f * 2.2); o.frequency.exponentialRampToValueAtTime(f, t + .05);
+      const o = osc("sine", t, dur, f * 2.2); o.frequency.exponentialRampToValueAtTime(f, T(t + .05));
       const ws = ctx.createWaveShaper(); ws.curve = curve(2.2);
       const g = ctx.createGain(); env(g, t, .004, gain, dur); o.connect(ws).connect(g).connect(dest);
     },
     pluck(dest, t, f, dur, gain, type = "triangle", cutoff = 1800) {
-      const o = osc(type, t, dur, f), lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.setValueAtTime(cutoff, t); lp.frequency.exponentialRampToValueAtTime(200, t + dur);
+      const o = osc(type, t, dur, f), lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.setValueAtTime(cutoff, T(t)); lp.frequency.exponentialRampToValueAtTime(200, T(t + dur));
       const g = ctx.createGain(); env(g, t, .005, gain, dur); o.connect(lp).connect(g).connect(dest);
     },
     riser(dest, t, dur, gain) {
       if (t < 0) { dur += t; t = 0; }
       const n = noiseSrc(t, dur), bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 2;
-      bp.frequency.setValueAtTime(300, t); bp.frequency.exponentialRampToValueAtTime(5300, t + dur);
-      const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + dur); g.gain.linearRampToValueAtTime(0, t + dur + .02);
+      bp.frequency.setValueAtTime(300, T(t)); bp.frequency.exponentialRampToValueAtTime(5300, T(t + dur));
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, T(t)); g.gain.linearRampToValueAtTime(gain, T(t + dur)); g.gain.linearRampToValueAtTime(0, T(t + dur + .02));
       n.connect(bp).connect(g).connect(dest);
-      const o = osc("sawtooth", t, dur, 200); o.frequency.exponentialRampToValueAtTime(1100, t + dur);
-      const go = ctx.createGain(); go.gain.setValueAtTime(0, t); go.gain.linearRampToValueAtTime(gain * .12, t + dur); go.gain.linearRampToValueAtTime(0, t + dur + .02); o.connect(go).connect(dest);
+      const o = osc("sawtooth", t, dur, 200); o.frequency.exponentialRampToValueAtTime(1100, T(t + dur));
+      const go = ctx.createGain(); go.gain.setValueAtTime(0, T(t)); go.gain.linearRampToValueAtTime(gain * .12, T(t + dur)); go.gain.linearRampToValueAtTime(0, T(t + dur + .02)); o.connect(go).connect(dest);
     },
     cymbal(dest, t, dur, gain) {
       if (t < 0) { dur += t; t = 0; }
       const n = noiseSrc(t, dur), hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 5000;
-      const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.exponentialRampToValueAtTime(gain, t + dur); g.gain.linearRampToValueAtTime(0, t + dur + .02);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, T(t)); g.gain.exponentialRampToValueAtTime(gain, T(t + dur)); g.gain.linearRampToValueAtTime(0, T(t + dur + .02));
       n.connect(hp).connect(g).connect(dest);
     },
     glitch(dest, t, r, gain) {
       let p = t;
       while (p < t + .35) {
         const L = r.uniform(.012, .04), o = osc(r() < .5 ? "square" : "sawtooth", p, L, r.pick([220, 440, 880, 1320, 60]));
-        const g = ctx.createGain(); g.gain.setValueAtTime(gain * .5 * Math.exp(-(p - t) * 5), p); g.gain.setValueAtTime(0, p + L); o.connect(g).connect(dest);
+        const g = ctx.createGain(); g.gain.setValueAtTime(gain * .5 * Math.exp(-(p - t) * 5), T(p)); g.gain.setValueAtTime(0, T(p + L)); o.connect(g).connect(dest);
         p += L + r.uniform(0, .01);
       }
     },
@@ -188,7 +192,7 @@ function synth(ctx, noise) {
       [[2637, 1], [3951, .5], [5274, .25]].forEach(([f, a]) => { const o = osc("sine", t + .06, .9, f), gb = ctx.createGain(); env(gb, t + .06, .002, gain * .5 * a, .8); o.connect(gb).connect(dest); });
     },
     coin(dest, t, gain) {
-      const o = osc("square", t, .5, 988); o.frequency.setValueAtTime(1319, t + .08);
+      const o = osc("square", t, .5, 988); o.frequency.setValueAtTime(1319, T(t + .08));
       const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 4000;
       const g = ctx.createGain(); env(g, t, .002, gain * .35, .45); o.connect(lp).connect(g).connect(dest);
     },
