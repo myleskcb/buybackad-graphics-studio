@@ -97,7 +97,12 @@
 .vh-acts button{border:1.5px solid var(--vh-line);background:transparent;color:var(--vh-ink);font:700 14.5px Satoshi,system-ui,sans-serif;padding:9px 15px;border-radius:999px;cursor:pointer;min-height:42px}
 .vh-acts button.p{background:var(--vh-acc);color:var(--vh-acc-ink);border-color:transparent}
 .vh-acts button:focus-visible{outline:3px solid var(--vh-acc);outline-offset:2px}
-@media (max-width:520px){.vh-acts button{flex:1 1 100%}}`;
+@media (max-width:520px){.vh-acts button{flex:1 1 100%}}
+.vh-toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);z-index:2147482999;max-width:min(560px,calc(100vw - 32px));display:flex;gap:12px;align-items:center;
+  background:#1d1a27;color:#f1eff8;border:1px solid #3a3548;border-radius:14px;padding:11px 14px;font:14px/1.4 Satoshi,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .25s;pointer-events:none}
+.vh-toast.show{transform:translate(-50%,0);pointer-events:auto}
+.vh-toast button{flex:none;border:0;background:#b48cff;color:#140a24;font:700 13.5px Satoshi,system-ui,sans-serif;padding:7px 12px;border-radius:99px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.vh-toast{transition:none}}`;
   let styled = false, open = null;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -148,5 +153,82 @@
     return { close };
   }
 
-  window.VideoHelp = { check, show, close, inApp: IN_APP };
+  /* ------------------------------------------------------------ pushing on */
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  /** fn(attempt) up to `tries` times, waiting delay, 2×delay… between. An
+   *  error retryIf turns down (a refusal, not a hiccup) is thrown at once. */
+  async function retry(fn, { tries = 3, delay = 700, onRetry, retryIf } = {}){
+    let last;
+    for (let i = 0; i < tries; i++){
+      try { return await fn(i); }
+      catch (e){
+        last = e;
+        if (retryIf && !retryIf(e)) throw e;
+        if (i < tries - 1){ try { onRetry && onRetry(e, i + 1); } catch (x){} await sleep(delay * 2 ** i); }
+      }
+    }
+    throw last;
+  }
+  /** Resolves when this tab is on screen (at once if it already is). */
+  function waitVisible(){
+    if (!document.hidden) return Promise.resolve();
+    return new Promise(r => { const f = () => { if (!document.hidden){ document.removeEventListener('visibilitychange', f); r(); } }; document.addEventListener('visibilitychange', f); });
+  }
+  /** Out of memory, by whatever name this browser gives it. */
+  const isMemory = e => { const m = String((e && e.message) || e || ''); return (e && (e.name === 'RangeError' || e.name === 'QuotaExceededError')) || /allocation|out of memory|memory/i.test(m); };
+
+  /* A small note at the foot of the screen that does not stop anything. */
+  let toastEl = null, toastT = 0;
+  function toast(msg, o = {}){
+    if (!styled){ const s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s); styled = true; }
+    if (!toastEl){ toastEl = document.createElement('div'); toastEl.className = 'vh-toast'; toastEl.setAttribute('role', 'status'); toastEl.setAttribute('aria-live', 'polite'); document.body.appendChild(toastEl); }
+    toastEl.innerHTML = '<span></span>'; toastEl.firstChild.textContent = msg;
+    if (o.action){ const b = document.createElement('button'); b.type = 'button'; b.textContent = o.action.label; b.onclick = () => { toastEl.classList.remove('show'); o.action.run(); }; toastEl.appendChild(b); }
+    toastEl.classList.add('show'); clearTimeout(toastT);
+    toastT = setTimeout(() => toastEl.classList.remove('show'), o.ms || 7000);
+  }
+
+  /** Share sheet where there is one for files (a phone: Save Video, AirDrop,
+   *  straight to Instagram), else a plain download. Resolves true if shared. */
+  async function share(blob, name){
+    try {
+      const file = new File([blob], name, { type: blob.type });
+      if (navigator.canShare && navigator.canShare({ files: [file] })){ await navigator.share({ files: [file] }); return true; }
+    } catch (e){ if (e && e.name === 'AbortError') return true; }
+    save(blob, name); return false;
+  }
+  function save(blob, name){
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10 * 60000);
+  }
+  const canShareFiles = () => { try { return !!(navigator.canShare && navigator.canShare({ files: [new File([''], 'x.mp4', { type: 'video/mp4' })] })); } catch (e){ return false; } };
+
+  /* Safety net: an error nothing caught would otherwise just stop whatever the
+     person clicked, with nothing on screen. Say so, with what to do. Only our
+     own scripts count (an extension's or an ad blocker's errors are not ours),
+     and at most one note every 15 s. */
+  let netOn = false, lastNote = 0;
+  function safetyNet(o = {}){
+    if (netOn) return; netOn = true;
+    const ours = e => {
+      const st = String((e && (e.stack || e.filename)) || '');
+      if (/(chrome|moz|safari(-web)?)-extension:/.test(st)) return false;
+      return !st || st.includes(location.origin);        // no stack: a DOMException from our own call
+    };
+    const note = e => {
+      const m = String((e && e.message) || e || '');
+      if (!m || /ResizeObserver loop|^Script error\.?$|AbortError|The user aborted|cancell?ed/i.test(m)) return;
+      if (Date.now() - lastNote < 15000) return; lastNote = Date.now();
+      const text = /Failed to fetch|NetworkError|Load failed|network/i.test(m) ? 'The connection dropped for a moment. Check your internet, then try that again.'
+        : isMemory(e) ? 'This device ran low on memory. Close other tabs or apps, then try that again.'
+        : 'Something went wrong there, and your work is still here. Try that again; if it keeps happening, reload the page.';
+      (o.notify || toast)(text, e);
+    };
+    window.addEventListener('error', ev => { if (ev.error ? ours(ev.error) : (ev.filename || '').startsWith(location.origin)) { console.warn('Caught by the safety net:', ev.error || ev.message); note(ev.error || ev.message); } });
+    window.addEventListener('unhandledrejection', ev => { const r = ev.reason; if (ours(r)){ console.warn('Caught by the safety net:', r); note(r); } });
+  }
+
+  window.VideoHelp = { check, show, close, inApp: IN_APP, retry, waitVisible, isMemory, toast, share, save, canShareFiles, safetyNet };
 })();

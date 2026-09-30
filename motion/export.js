@@ -13,9 +13,10 @@ export function canEncode() {
   return typeof VideoEncoder !== "undefined" && typeof window.Mp4Muxer !== "undefined";
 }
 
-async function pickVideoCodec(w, h, fps) {
+// software: a hardware encoder that crashed partway is often fine in software
+async function pickVideoCodec(w, h, fps, software = false) {
   for (const codec of ["avc1.640034", "avc1.640028", "avc1.4d0034", "avc1.42003e", "avc1.42001f"]) {
-    const cfg = { codec, width: w, height: h, bitrate: Math.round(w * h * fps * .16), framerate: fps, avc: { format: "avc" } };
+    const cfg = { codec, width: w, height: h, bitrate: Math.round(w * h * fps * .16), framerate: fps, avc: { format: "avc" }, ...(software ? { hardwareAcceleration: "prefer-software" } : {}) };
     try { if ((await VideoEncoder.isConfigSupported(cfg)).supported) return cfg; } catch (e) { /* next */ }
   }
   return null;
@@ -32,9 +33,9 @@ async function pickAudioCodec() {
 
 /** Render the whole ad to an MP4 Blob. onProgress(0..1, label). Pass audioBuf
  *  (the rendered soundtrack) to reuse one, or null for a silent video. */
-export async function exportMp4(ad, onProgress = () => {}, { fps = 30, audioBuf } = {}) {
+export async function exportMp4(ad, onProgress = () => {}, { fps = 30, audioBuf, software = false } = {}) {
   const W = ad.W, H = ad.H, M = window.Mp4Muxer;
-  const vcfg = await pickVideoCodec(W, H, fps);
+  const vcfg = await pickVideoCodec(W, H, fps, software);
   if (!vcfg) throw codeError("no-h264", "This browser cannot encode H.264 video at " + W + "×" + H + ".");
   if (audioBuf === undefined) { onProgress(0, "Mixing the sound"); audioBuf = await renderSoundtrack(ad); }
   const acodec = audioBuf ? await pickAudioCodec() : null;
@@ -44,46 +45,66 @@ export async function exportMp4(ad, onProgress = () => {}, { fps = 30, audioBuf 
     audio: acodec ? { codec: acodec.muxCodec, numberOfChannels: 2, sampleRate: 44100 } : undefined,
     fastStart: "in-memory",
   });
-  let failed = null;
-  const venc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { failed = e; } });
-  venc.configure(vcfg);
-  let aenc = null;
-  if (acodec) {
-    aenc = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: e => { failed = e; } });
-    aenc.configure(acodec.cfg);
-  }
-
-  const c = canvas(W, H), ctx = c.getContext("2d");
-  const frames = Math.round(ad.st.duration * fps), dt = 1 / fps;
-  ad.still = null;
-  for (let i = 0; i < frames; i++) {
-    if (failed) throw failed;
-    ad.frame(ctx, i * dt, { subsFly: 8, subsMove: 4 }, dt);
-    const vf = new VideoFrame(c, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
-    venc.encode(vf, { keyFrame: i % (fps * 2) === 0 });
-    vf.close();
-    while (venc.encodeQueueSize > 6) await yieldNow();
-    if (i % 5 === 0) { onProgress(i / frames * .92, "Drawing frames"); await yieldNow(); }
-  }
-  await venc.flush();
-  if (aenc) {
-    onProgress(.94, "Encoding the sound");
-    const L = audioBuf.getChannelData(0), R = audioBuf.getChannelData(1), step = 4096;
-    for (let s = 0; s < audioBuf.length; s += step) {
-      const n = Math.min(step, audioBuf.length - s), data = new Float32Array(n * 2);
-      data.set(L.subarray(s, s + n), 0); data.set(R.subarray(s, s + n), n);
-      const ad2 = new AudioData({ format: "f32-planar", sampleRate: 44100, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round(s / 44100 * 1e6), data });
-      aenc.encode(ad2); ad2.close();
+  let failed = null, venc = null, aenc = null;
+  // an encoder left open after a failure can hold the hardware encoder the
+  // next attempt needs, so every way out of here closes both
+  const shut = () => { for (const e of [venc, aenc]) try { e && e.state !== "closed" && e.close(); } catch (x) { /* closed */ } };
+  try {
+    venc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { failed = e; } });
+    venc.configure(vcfg);
+    if (acodec) {
+      // a sound encoder failure is marked, so the next try can drop the sound and keep the video
+      aenc = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: e => { e.code = e.code || "audio"; failed = e; } });
+      aenc.configure(acodec.cfg);
     }
-    await aenc.flush();
-  }
-  if (failed) throw failed;
-  muxer.finalize();
+
+    const c = canvas(W, H), ctx = c.getContext("2d");
+    const frames = Math.round(ad.st.duration * fps), dt = 1 / fps;
+    ad.still = null;
+    const draw = frameGuard(frames);
+    for (let i = 0; i < frames; i++) {
+      if (failed) throw failed;
+      draw(() => ad.frame(ctx, i * dt, { subsFly: 8, subsMove: 4 }, dt));
+      const vf = new VideoFrame(c, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
+      venc.encode(vf, { keyFrame: i % (fps * 2) === 0 });
+      vf.close();
+      while (venc.encodeQueueSize > 6) await yieldNow();
+      if (i % 5 === 0) { onProgress(i / frames * .92, "Drawing frames"); await yieldNow(); }
+    }
+    await venc.flush();
+    if (aenc) {
+      onProgress(.94, "Encoding the sound");
+      const L = audioBuf.getChannelData(0), R = audioBuf.getChannelData(1), step = 4096;
+      for (let s = 0; s < audioBuf.length; s += step) {
+        const n = Math.min(step, audioBuf.length - s), data = new Float32Array(n * 2);
+        data.set(L.subarray(s, s + n), 0); data.set(R.subarray(s, s + n), n);
+        const ad2 = new AudioData({ format: "f32-planar", sampleRate: 44100, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round(s / 44100 * 1e6), data });
+        aenc.encode(ad2); ad2.close();
+      }
+      try { await aenc.flush(); } catch (e) { e.code = e.code || "audio"; throw e; }
+    }
+    if (failed) throw failed;
+    muxer.finalize();
+  } finally { shut(); }
   onProgress(1, "Done");
   return { blob: new Blob([muxer.target.buffer], { type: "video/mp4" }), ext: "mp4", audio: !!acodec, soundLost: !!audioBuf && !acodec };
 }
 
 function codeError(code, message) { const e = new Error(message); e.code = code; return e; }
+
+/** One frame that fails to draw keeps the one before it (the canvas still
+ *  holds it) rather than losing the whole video; more than one in ten is a
+ *  broken look, and that is thrown. */
+function frameGuard(total) {
+  let bad = 0;
+  return fn => {
+    try { fn(); }
+    catch (e) {
+      bad++; console.warn("A frame could not be drawn, keeping the one before:", e);
+      if (bad > Math.max(3, total * .1)) { e.code = e.code || "frames"; throw e; }
+    }
+  };
+}
 
 /** The best format the real-time recorder can write here. A bare "video/mp4"
  *  is only trusted where the browser also plays H.264: an open-source Chromium
@@ -122,7 +143,10 @@ export async function recordRealtime(ad, onProgress = () => {}, { fps = 30, audi
   let hidden = false, finish = null;
   const onVis = () => { if (document.hidden) { hidden = true; if (finish) finish(); } };
   document.addEventListener("visibilitychange", onVis);
-  ad.still = null; ad.frame(ctx, 0);
+  ad.still = null;
+  const draw = frameGuard(Math.round(ad.st.duration * fps));
+  let failed = null;
+  draw(() => ad.frame(ctx, 0));
   try {
     rec.start(250);
     if (src) { try { await actx.resume(); } catch (e) { /* plays silent */ } src.start(); }
@@ -136,7 +160,7 @@ export async function recordRealtime(ad, onProgress = () => {}, { fps = 30, audi
         if (hidden) return;
         const t = (performance.now() - t0) / 1000;
         if (t >= ad.st.duration) { resolve(); return; }
-        ad.frame(ctx, t, { subsFly: 3, subsMove: 2 });
+        try { draw(() => ad.frame(ctx, t, { subsFly: 3, subsMove: 2 })); } catch (e) { failed = e; resolve(); return; }
         onProgress(t / ad.st.duration, "Recording");
         n = Math.max(n + 1, Math.floor((performance.now() - t0) / step) + 1);
         setTimeout(tick, Math.max(0, t0 + n * step - performance.now()));
@@ -152,6 +176,7 @@ export async function recordRealtime(ad, onProgress = () => {}, { fps = 30, audi
   stream.getTracks().forEach(t => t.stop());
   if (actx) actx.close().catch(() => {});
   if (hidden) throw codeError("hidden", "The recording stopped because this tab was hidden.");
+  if (failed) throw failed;
   const type = (rec.mimeType || mime || "video/webm").split(";")[0];
   return { blob: new Blob(parts, { type }), ext: type.includes("mp4") ? "mp4" : "webm", audio: !!src };
 }

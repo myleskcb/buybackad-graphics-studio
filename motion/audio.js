@@ -203,6 +203,11 @@ function synth(ctx, noise) {
       const o = osc("sine", t, .04, 2400), g = ctx.createGain(); env(g, t, .001, gain, .03); o.connect(g).connect(dest);
     },
   };
+  // one cue that cannot be scheduled is skipped, not the whole soundtrack
+  for (const k of Object.keys(S)) {
+    const f = S[k];
+    S[k] = (...a) => { try { f(...a); } catch (e) { console.warn(`Sound cue "${k}" skipped:`, e); } };
+  }
   return S;
 }
 
