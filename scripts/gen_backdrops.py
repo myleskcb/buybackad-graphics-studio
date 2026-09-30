@@ -1,0 +1,1551 @@
+#!/usr/bin/env python3
+"""Generate candidate ad backdrops (product photography on designed grounds).
+
+A ground-style system (20 styles) x a layout system (14 layouts) x 25 palettes,
+planned per category so that no two images in a category share
+(style, layout) or (palette, layout) and neighbours differ.  Deterministic.
+
+The palette hexes (scripts/backdrop_palettes.json) are the proven 25 of
+scripts/refresh_palettes.mjs, solved to a dark, mid and light ground, an accent
+and a support colour.  Output goes to .render/backdrops/ unless --out.
+
+Usage:  python3 scripts/gen_backdrops.py [--out DIR] [--palettes FILE]
+                                          [--only cat[,cat]] [--limit N] [--jobs 4]
+"""
+import argparse, json, math, os, sys, time, zlib
+from collections import Counter, OrderedDict
+from multiprocessing import Pool
+
+import numpy as np
+import cv2
+from PIL import Image
+
+cv2.setNumThreads(1)
+F = np.float32
+W = H = 1080
+SEED = 20260930
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CUT = os.path.join(REPO, 'assets', 'cutouts')
+DEFAULT_OUT = os.path.join(REPO, '.render', 'backdrops')
+
+# ----------------------------------------------------------------------------- colour
+
+def s2l(c):
+    c = np.asarray(c, F)
+    return np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4).astype(F)
+
+def l2s(c):
+    c = np.clip(c, 0, 1)
+    return np.where(c <= 0.0031308, c * 12.92, 1.055 * np.power(c, 1 / 2.4) - 0.055).astype(F)
+
+def hex2lin(h):
+    h = h.lstrip('#')
+    return s2l(np.array([int(h[i:i + 2], 16) for i in (0, 2, 4)], F) / 255)
+
+_M1 = np.array([[0.4122214708, 0.5363325363, 0.0514459929],
+                [0.2119034982, 0.6806995451, 0.1073969566],
+                [0.0883024619, 0.2817188376, 0.6299787005]], F)
+_M2 = np.array([[0.2104542553, 0.7936177850, -0.0040720468],
+                [1.9779984951, -2.4285922050, 0.4505937099],
+                [0.0259040371, 0.7827717662, -0.8086757660]], F)
+_M1i = np.linalg.inv(_M1).astype(F)
+_M2i = np.linalg.inv(_M2).astype(F)
+
+def lin2lab(c):
+    return (np.cbrt(np.maximum(np.asarray(c, F) @ _M1.T, 0))) @ _M2.T
+
+def lab2lin(l):
+    return np.clip(((np.asarray(l, F) @ _M2i.T) ** 3) @ _M1i.T, 0, 1.2).astype(F)
+
+def labmix(a, b, t):
+    """OKLab mix with chroma interpolation (no grey midpoints)."""
+    a = np.asarray(a, F); b = np.asarray(b, F)
+    m = a * (1 - t) + b * t
+    ca, cb = math.hypot(a[1], a[2]), math.hypot(b[1], b[2])
+    ct = ca * (1 - t) + cb * t
+    c = math.hypot(m[1], m[2])
+    hd = abs(math.atan2(a[2], a[1]) - math.atan2(b[2], b[1]))
+    hd = min(hd, 2 * math.pi - hd)
+    if c > 1e-5 and (hd < 1.6 or min(ca, cb) < 0.03):
+        s = min(max(ct / c, 1.0), 2.0)
+        m[1:] *= s
+    return m
+
+def tint(lab, L, cs):
+    """same hue as lab, lightness L, chroma scaled by cs"""
+    lab = np.array(lab, F); out = lab.copy(); out[0] = L; out[1:] = lab[1:] * cs; return out
+
+def lighten(lab, dl):
+    lab = np.array(lab, F); lab[0] = np.clip(lab[0] + dl, 0, 1); return lab
+
+def lum(c):
+    return float(0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2])
+
+# ----------------------------------------------------------------------------- helpers
+
+PX = (np.arange(W, dtype=F) + 0.5)
+XX, YY = np.meshgrid(PX, PX)
+xn, yn = XX / W, YY / H
+
+def ss(e0, e1, x):
+    t = np.clip((x - e0) / (e1 - e0), 0, 1)
+    return t * t * (3 - 2 * t)
+
+def gblur(img, s):
+    if s <= 0.05:
+        return img
+    if s > 24:
+        k = 4
+        h, w = img.shape[:2]
+        sm = cv2.resize(img, (w // k, h // k), interpolation=cv2.INTER_AREA)
+        sm = cv2.GaussianBlur(sm, (0, 0), s / k)
+        return cv2.resize(sm, (w, h), interpolation=cv2.INTER_LINEAR)
+    return cv2.GaussianBlur(img, (0, 0), s)
+
+def vnoise(rng, cells, size=W):
+    g = rng.standard_normal((cells + 4, cells + 4)).astype(F)
+    big = cv2.resize(g, ((cells + 4) * size // cells,) * 2, interpolation=cv2.INTER_CUBIC)
+    o = size * 2 // cells
+    return big[o:o + size, o:o + size]
+
+def fbm(rng, cells=3, octaves=4, gain=0.5):
+    out = np.zeros((H, W), F); amp = 1.0; tot = 0
+    for i in range(octaves):
+        out += amp * vnoise(rng, cells * 2 ** i); tot += amp; amp *= gain
+    out /= tot
+    return (out / (out.std() + 1e-6)).astype(F)
+
+def paint(stops):
+    """stops: [(lab, weight-map or scalar)] -> linear rgb image, chroma preserving."""
+    wsum = np.zeros((H, W), F) + 1e-6
+    lab = np.zeros((H, W, 3), F)
+    ct = np.zeros((H, W), F)
+    for c, w in stops:
+        c = np.asarray(c, F)
+        w = np.broadcast_to(np.asarray(w, F), (H, W))
+        wsum += w
+        lab += w[..., None] * c
+        ct += w * math.hypot(c[1], c[2])
+    lab /= wsum[..., None]; ct /= wsum
+    cc = np.hypot(lab[..., 1], lab[..., 2])
+    sc = np.clip(ct / np.maximum(cc, 1e-5), 1.0, 2.0)
+    lab[..., 1] *= sc; lab[..., 2] *= sc
+    return lab2lin(lab)
+
+def lerp(a, b, t):
+    if np.ndim(t) == 2:
+        t = t[..., None]
+    return a + (b - a) * t
+
+def screen(img, add):
+    return 1 - (1 - np.clip(img, 0, 1)) * (1 - np.clip(add, 0, 1))
+
+def gauss2(cx, cy, sx, sy=None):
+    sy = sx if sy is None else sy
+    return np.exp(-(((XX - cx) / sx) ** 2 + ((YY - cy) / sy) ** 2) * 0.5).astype(F)
+
+# ----------------------------------------------------------------------------- palettes
+
+class Pal:
+    def __init__(self, p, dark):
+        self.name = p['name']; self.dark = dark
+        L = {k: lin2lab(hex2lin(p[k])) for k in ('dark', 'mid', 'light', 'accent', 'support')}
+        self.raw = L
+        white = lin2lab(np.ones(3, F))
+        if dark:
+            t = dict(base=L['dark'], base2=labmix(L['dark'], L['mid'], 0.30),
+                     deep=lighten(L['dark'], -0.07), hi=labmix(L['dark'], L['mid'], 0.62),
+                     acc=L['accent'], sup=L['support'],
+                     accs=tint(L['accent'], min(L['dark'][0] + 0.16, L['accent'][0]), 0.75),
+                     sups=tint(L['support'], min(L['dark'][0] + 0.14, L['support'][0]), 0.7),
+                     mid=L['mid'], light=L['light'])
+        else:
+            t = dict(base=L['light'], base2=labmix(L['light'], L['mid'], 0.20),
+                     deep=labmix(L['light'], L['mid'], 0.50), hi=labmix(L['light'], white, 0.5),
+                     acc=L['accent'], sup=L['support'],
+                     accs=tint(L['accent'], L['light'][0] - 0.05, 0.42), sups=tint(L['support'], L['light'][0] - 0.03, 0.45),
+                     mid=L['mid'], light=L['light'], dk=L['dark'])
+        self.t = t
+        self.lin = {k: lab2lin(v) for k, v in t.items()}
+        d = hex2lin(p['dark'])
+        self.shadow = np.clip(d / max(d.max(), 1e-3) * (0.30 if dark else 0.42), 0.02, 1).astype(F)
+
+# ----------------------------------------------------------------------------- items
+
+def I(name, cut='', rot=6, kind='', role='s'):
+    return dict(name=name, cut=cut, rot=rot, kind=kind, role=role)
+
+QS_BACKS = ['qs-iphone-12-back--blue', 'qs-iphone-12-back--green', 'qs-iphone-12-back--purple', 'qs-iphone-12-back--white',
+            'qs-iphone-12-pro-back--gold', 'qs-iphone-12-pro-back--graphite', 'qs-iphone-12-pro-back--pacific-blue',
+            'qs-iphone-13-back--blue', 'qs-iphone-13-back--green', 'qs-iphone-13-back--midnight', 'qs-iphone-13-back--pink',
+            'qs-iphone-13-back--starlight', 'qs-iphone-13-pro-back--alpine-green', 'qs-iphone-13-pro-back--gold',
+            'qs-iphone-13-pro-back--graphite', 'qs-iphone-13-pro-back--sierra-blue', 'qs-iphone-16-back--black',
+            'qs-iphone-16-back--pink', 'qs-iphone-16-back--teal', 'qs-iphone-16-back--ultramarine', 'qs-iphone-16-back--white',
+            'qs-iphone-16-plus-back--white', 'qs-iphone-16e-back--black', 'qs-iphone-16e-back--white',
+            'qs-iphone-17e-back--black', 'qs-iphone-17e-back--soft-pink', 'qs-iphone-17e-back--white']
+QS_PAIRS = ['qs-iphone-11-pro-max', 'qs-iphone-11', 'qs-iphone-12-pro-max', 'qs-iphone-12', 'qs-iphone-13-pro-max',
+            'qs-iphone-13', 'qs-iphone-14-pro-max', 'qs-iphone-14-plus', 'qs-iphone-15-pro-max', 'qs-iphone-15-pro',
+            'qs-iphone-15', 'qs-iphone-16-pro-max', 'qs-iphone-16-pro', 'qs-iphone-16', 'qs-iphone-16e',
+            'qs-iphone-17-pro-max', 'qs-iphone-17-pro', 'qs-iphone-17-air', 'qs-iphone-17', 'qs-iphone-17e',
+            'qs-iphone-18-pro-max', 'qs-iphone-18-pro']
+IP_PHOTO = ['ip-gen13-back-blue', 'ip-gen13-pro-back-graphite', 'ip-gen15-back-green', 'ip-gen15-pro-back-natural',
+            'ip-gen16-back-ultramarine', 'ip-gen17-plateau-white', 'ip-gen17-plateau-blue', 'iphone-15-pro-back-blue',
+            'iphone-15-pro-back-gold', 'iphone-15-pro-back-white', 'ip-angle-hero-tilt', 'ip-angle-standing-lean']
+
+POOLS = {
+    'iphone': ([I(n, rot=28, kind='back') for n in QS_BACKS] +
+               [I(n, rot=14, kind='pair') for n in QS_PAIRS] +
+               [I(n, rot=10, kind='photo') for n in IP_PHOTO] +
+               [I('ip-gen14-back-purple', 'B', 8, 'photo'), I('ip-gen14-pro-back-gold', 'B', 8, 'photo'),
+                I('ip-angle-back-topdown', rot=10, kind='photo'),
+                I('iphone-fan-four', rot=6, kind='photo', role='h'), I('iphone-trio-fan', 'B', 6, 'photo', 'h'),
+                I('iphones-trio', rot=4, kind='photo', role='h')]),
+    'gold': [I('gold-bar-single', 'R', 6), I('gold-bracelet-cuban', rot=20), I('gold-class-ring', rot=10),
+             I('gold-necklace-single', rot=20), I('gold-pocket-watch', rot=10), I('gold-nuggets-raw', rot=6),
+             I('gold-bracelet-pair', rot=14), I('gold-coins-pile', rot=4), I('gold-earrings-pile', rot=12),
+             I('gold-chains', rot=14), I('gold-bars', rot=4),
+             I('gold-bars-fan', rot=5, role='h'), I('gold-bars-row', rot=3, role='h'), I('gold-bars-stack', 'R', 3, role='h'),
+             I('gold-chains-pile', 'R', 4, role='h'), I('gold-jewelry-mixed', rot=4, role='h'), I('gold-scrap-mixed', rot=5, role='h')],
+    'silver': [I('silver-bar-single', rot=8), I('silver-candlesticks', rot=3), I('silver-coins-tube', rot=5),
+               I('silver-flatware', rot=12), I('silver-tea-set', rot=3), I('coin-silver-dollar-pair', rot=10),
+               I('silver-coins-spill', rot=5), I('silver-bars', rot=5),
+               I('silver-bars-row', rot=3, role='h'), I('silver-bars-stack', rot=3, role='h'),
+               I('silver-flatware-set', rot=4, role='h'), I('silver-jewelry-mixed', 'R', 4, role='h'),
+               I('silver-serving-tray', 'R', 4, role='h')],
+    'coins': [I('coin-silver-dollar-pair', rot=12), I('coin-jar-full', rot=3), I('coin-rolls-paper', rot=5),
+              I('coin-stack', rot=6), I('coin-graded-fan-three', rot=8), I('coin-slabs-stack', rot=8),
+              I('coin-loose-pile', rot=5), I('gold-coins-pile', rot=5), I('silver-coins-tube', rot=5),
+              I('silver-coins-spill', rot=5),
+              I('coin-collection-tray', rot=6, role='h'), I('coin-album-pages', 'R', 5, role='h')],
+    'cars': [I('car-sedan-rear', rot=1, kind='car'), I('car-suv-side', rot=1, kind='car'), I('car-front', rot=1, kind='car'),
+             I('car-motorcycle-side', rot=1, kind='car'), I('car-damaged-front', rot=1, kind='car'),
+             I('car-sedan-front', 'R', 1, 'car', 'h'), I('car-truck-front', 'R', 1, 'car', 'h'),
+             I('car-van-cargo', 'L', 1, 'car', 'h'),
+             I('car-wheel-tyre', rot=4, kind='acc'), I('car-title-keys', rot=10, kind='acc'),
+             I('car-keys', rot=12, kind='acc'), I('car-title-docs', rot=6, kind='acc')],
+    'strips': [I('strip-box-open-vials', rot=5), I('strip-boxes-fan', rot=6), I('strip-boxes-row-five', rot=3),
+               I('strip-boxes', rot=20), I('strip-kit-meter', rot=6), I('strip-kit', rot=8), I('strip-meter-hand', rot=12),
+               I('strip-vials-pile', rot=8)],
+    'pokemon': [I('poke-psa-charizard', rot=22), I('poke-slab', rot=8),
+                I('poke-booster', rot=8), I('poke-booster-box', rot=5), I('poke-booster-packs-fan', rot=6),
+                I('poke-elite-box', 'B', 4, role='h'), I('poke-cards-fan', 'L', 4, role='h')],
+    'sports': [I('ph-sports-card-baseball', rot=24), I('ph-sports-card-basketball', rot=24),
+               I('ph-sports-card-football', rot=24), I('ph-sports-slab', rot=22),
+               I('sports-slab', rot=8), I('sports-box-sealed', rot=5), I('ph-sports-box', rot=6),
+               I('ph-sports-cards-fan', rot=6, role='h'), I('ph-sports-slabs-fan', rot=6, role='h')],
+    'gaming': [I('console-single', rot=4), I('controller-pair', rot=10), I('game-console-pair', rot=3),
+               I('gaming-handheld', rot=10), I('laptop-gaming-open', rot=4), I('console-handheld-pair', rot=6)],
+    'audio': [I('buds-case-closed', rot=12), I('buds-overear-headphones', rot=8), I('buds-pair-loose', rot=8),
+              I('airpods-buds-out', rot=8), I('airpods-case-open', rot=8), I('qs-device-airpods-max', rot=6),
+              I('qs-airpods-3', rot=8), I('qs-airpods-pro-2', rot=8), I('qs-airpods-pro-3', rot=8),
+              I('speaker-portable', rot=4), I('qs-homepod-mini', rot=3), I('qs-device-homepod', rot=2),
+              I('pix-buds-case', rot=8), I('sam-buds-case', rot=8)],
+    'computers': [I('mac-air-open-angle', rot=4), I('mac-closed-topdown', rot=10), I('mac-keyboard-topdown', rot=6),
+                  I('mac-open-screen-on', rot=4), I('mac-pro-open-front', rot=3), I('macbook-open-angle', rot=4),
+                  I('macbook-open-front', rot=3), I('mac-half-open-glow', rot=4), I('monitor-widescreen', rot=2),
+                  I('keyboard-mouse-set', rot=6), I('laptop-windows-open', rot=3), I('qs-device-mac-mini', rot=3),
+                  I('qs-device-mac-studio', rot=3), I('qs-device-imac', rot=2), I('qs-macbook-pro-16--silver', rot=4),
+                  I('qs-macbook-pro-16--space-black', rot=4), I('qs-macbook-air-15--sky-blue', rot=4),
+                  I('qs-macbook-air-15--midnight', rot=4), I('qs-macbook-air-15--starlight', rot=4),
+                  I('qs-macbook-neo-13--blush', rot=4), I('qs-macbook-neo-13--citrus', rot=4),
+                  I('qs-macbook-neo-13--indigo', rot=4), I('qs-imac-24-m4--blue', rot=2), I('qs-imac-24-m4--pink', rot=2),
+                  I('qs-imac-24-m4--green', rot=2),
+                  I('mac-stack-closed-three', rot=3, role='h'), I('macbook-closed-stack', rot=3, role='h'),
+                  I('macbook-pair-open-closed', rot=3, role='h')],
+    'wearables': [I('watch-screen-on', rot=12), I('watch-single-angle', rot=10), I('apple-watch-single', rot=10),
+                  I('qs-watch-s11--aluminum-jet-black', rot=14), I('qs-watch-s11--aluminum-rose-gold', rot=14),
+                  I('qs-watch-s11--aluminum-silver', rot=14), I('qs-watch-s11--aluminum-space-gray', rot=14),
+                  I('qs-watch-s11--titanium-gold', rot=14), I('qs-watch-s11--titanium-natural', rot=14),
+                  I('qs-watch-s11--titanium-slate', rot=14), I('qs-watch-ultra2--titanium-black', rot=14),
+                  I('qs-watch-ultra--titanium-natural', rot=14), I('qs-watch-ultra3--titanium-natural', rot=14),
+                  I('qs-watch-s10--titanium-gold', rot=14), I('vr-headset', rot=6), I('qs-device-vision-pro', rot=5),
+                  I('pix-watch-round', 'B', 8), I('sam-watch-pair', rot=5),
+                  I('watch-pair-bands', rot=5, role='h'), I('apple-watch-pair', rot=5, role='h'),
+                  I('apple-watch-stack-three', rot=4, role='h')],
+    'cameras': [I('camera-dslr-body', rot=6), I('camera-mirrorless', rot=6), I('drone-folded', rot=6)],
+}
+COUNTS = OrderedDict([('iphone', 100)] + [(c, 25) for c in
+          ['gold', 'silver', 'coins', 'cars', 'strips', 'pokemon', 'sports', 'gaming', 'audio', 'computers', 'wearables', 'cameras']])
+
+# ----------------------------------------------------------------------------- cut-out loading
+
+_cache = OrderedDict()
+MAXSIDE = 1500
+
+def load_cut(name):
+    if name in _cache:
+        _cache.move_to_end(name); return _cache[name]
+    im = Image.open(os.path.join(CUT, name + '.webp')).convert('RGBA')
+    a = np.asarray(im, F) / 255
+    al = a[..., 3]
+    ys, xs = np.where(al > 0.03)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    a = a[y0:y1, x0:x1]
+    h, w = a.shape[:2]
+    d = min(1.0, MAXSIDE / max(h, w))
+    if d < 1:
+        a = cv2.resize(a, (round(w * d), round(h * d)), interpolation=cv2.INTER_AREA)
+    rgb = s2l(a[..., :3]); al = a[..., 3]
+    al = np.clip((al - 0.06) / 0.94, 0, 1).astype(F)       # choke fringe
+    core = (al > 0.97).astype(F)
+    sg = max(1.5, max(al.shape) / 500)
+    num = gblur(rgb * core[..., None], sg); den = gblur(core, sg)[..., None]
+    fill = num / np.maximum(den, 1e-4)
+    edge = ((al < 0.97) & (den[..., 0] > 0.02))[..., None]
+    t = al[..., None] ** 0.5
+    rgb = np.where(edge, fill * (1 - t) + rgb * t, rgb)      # decontaminate halo colour
+    spr = np.dstack([rgb * al[..., None], al]).astype(F)
+    val = (spr, 2.3 / d)
+    _cache[name] = val
+    while len(_cache) > 14:
+        _cache.popitem(last=False)
+    return val
+
+def aspect(name):
+    s, _ = load_cut(name); return s.shape[1] / s.shape[0]
+
+def prep_sprite(name, S, rot=0.0, blur=0.0):
+    src, cap = load_cut(name)
+    h, w = src.shape[:2]
+    s = min(S / math.sqrt(w * h), cap)
+    nw, nh = max(2, round(w * s)), max(2, round(h * s))
+    im = cv2.resize(src, (nw, nh), interpolation=cv2.INTER_AREA if s < 1 else cv2.INTER_CUBIC)
+    im = np.clip(im, 0, None); im[..., 3] = np.clip(im[..., 3], 0, 1)
+    im[..., :3] = np.minimum(im[..., :3], im[..., 3:4] * 1.02)
+    if abs(rot) > 0.05:
+        M = cv2.getRotationMatrix2D((nw / 2, nh / 2), rot, 1.0)
+        c, sn = abs(M[0, 0]), abs(M[0, 1])
+        bw, bh = int(nh * sn + nw * c) + 4, int(nh * c + nw * sn) + 4
+        M[0, 2] += bw / 2 - nw / 2; M[1, 2] += bh / 2 - nh / 2
+        im = cv2.warpAffine(im, M, (bw, bh), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+    if blur > 0.3:
+        p = int(blur * 3) + 2
+        im = cv2.copyMakeBorder(im, p, p, p, p, cv2.BORDER_CONSTANT, value=0)
+        im = cv2.GaussianBlur(im, (0, 0), blur)
+    ys, xs = np.where(im[..., 3] > 0.004)
+    im = im[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    return np.ascontiguousarray(im)
+
+# ----------------------------------------------------------------------------- canvas ops
+
+def _clip(x0, y0, h, w):
+    X0, Y0 = max(0, x0), max(0, y0)
+    X1, Y1 = min(W, x0 + w), min(H, y0 + h)
+    if X1 <= X0 or Y1 <= Y0:
+        return None
+    return (slice(Y0, Y1), slice(X0, X1)), (slice(Y0 - y0, Y1 - y0), slice(X0 - x0, X1 - x0))
+
+def blit(canvas, spr, x0, y0, op=1.0):
+    r = _clip(x0, y0, spr.shape[0], spr.shape[1])
+    if r is None: return
+    (cy, cx), (sy, sx) = r
+    s = spr[sy, sx]
+    a = s[..., 3:4] * op
+    canvas[cy, cx] = canvas[cy, cx] * (1 - a) + s[..., :3] * op
+
+def place(mask, x0, y0):
+    out = np.zeros((H, W), F)
+    r = _clip(int(round(x0)), int(round(y0)), mask.shape[0], mask.shape[1])
+    if r is None: return out
+    (cy, cx), (sy, sx) = r
+    out[cy, cx] = mask[sy, sx]
+    return out
+
+def shade(canvas, m, op, tint):
+    canvas *= (1 - (m * op)[..., None] * (1 - tint))
+
+# ----------------------------------------------------------------------------- ground styles
+
+class G:  # ground context
+    pass
+
+def base_grad(g, top='base', bot='base2', ang=None):
+    a = g.rng.uniform(-0.5, 0.5) if ang is None else ang
+    t = np.clip(yn * math.cos(a) + (xn - 0.5) * math.sin(a), 0, 1)
+    return paint([(g.p.t[top], 1 - t), (g.p.t[bot], t)])
+
+def prod_center(g):
+    return g.pc
+
+def st_mesh(g):
+    r = g.rng; T = g.p.t
+    cols = [T['base'], T['base2'], T['sups'], T['accs'], T['hi'], T['base'], T['sups']]
+    k = r.integers(4, 7)
+    wx, wy = fbm(r, 2, 2) * 0.07, fbm(r, 2, 2) * 0.07
+    x, y = xn + wx, yn + wy
+    stops = [(T['base'], 0.25)]
+    idx = r.permutation(len(cols))[:k]
+    for i in idx:
+        px, py = r.uniform(-0.1, 1.1), r.uniform(-0.1, 1.1)
+        s = r.uniform(0.22, 0.42)
+        wgt = np.exp(-((x - px) ** 2 + (y - py) ** 2) / (2 * s * s))
+        if cols[i] is T['accs']: wgt = wgt * 0.8
+        stops.append((cols[i], wgt))
+    return paint(stops)
+
+def _dir_uv(g, spread):
+    if g.zone == 'top':
+        th = g.rng.uniform(-spread, spread)
+    elif g.zone == 'left':
+        th = g.rng.uniform(0.45, 0.8)
+    else:
+        th = -g.rng.uniform(0.45, 0.8)
+    u = xn * math.cos(th) - yn * math.sin(th)
+    v = xn * math.sin(th) + yn * math.cos(th)
+    return u, v, th
+
+def st_waves(g):
+    r = g.rng; T = g.p.t
+    u, v, th = _dir_uv(g, 0.35)
+    vmin = v.min(); vmax = v.max(); vn = (v - vmin) / (vmax - vmin)
+    img = paint([(T['base'], 1 - vn), (T['base2'], vn)])
+    n = r.integers(4, 7)
+    starts = np.linspace(r.uniform(0.40, 0.50), 1.02, n)
+    if g.p.dark:
+        ramp = [T['base2'], T['sups'], T['hi'], T['accs'], T['sup'], T['base2']]
+    else:
+        ramp = [T['base2'], T['sups'], T['accs'], T['deep'], T['sups'], T['hi']]
+    r.shuffle(ramp[1:4])
+    for k in range(n):
+        a1, f1, p1 = r.uniform(0.035, 0.08), r.uniform(0.5, 1.2), r.uniform(0, 1)
+        a2, f2, p2 = r.uniform(0.01, 0.025), r.uniform(1.4, 2.6), r.uniform(0, 1)
+        curve = starts[k] + a1 * np.sin(2 * np.pi * (f1 * u + p1)) + a2 * np.sin(2 * np.pi * (f2 * u + p2))
+        d = (vn - curve) * (vmax - vmin) * H
+        above = np.clip(-d, 0, None)
+        img *= (1 - 0.20 * np.exp(-above / 38) * (d < 0))[..., None]
+        col = ramp[k % len(ramp)]
+        c0 = lab2lin(col); chi = lab2lin(labmix(col, T['hi'] if not g.p.dark else T['mid'], 0.35))
+        grad = ss(0, 160, d)
+        layer = chi[None, None] * (1 - grad[..., None]) + c0[None, None] * grad[..., None]
+        layer += (0.05 * np.exp(-((d - 10) / 7) ** 2))[..., None]
+        cov = np.clip(d + 0.5, 0, 1)
+        img = lerp(img, layer, cov)
+    return img
+
+def st_aurora(g):
+    r = g.rng; T = g.p.t
+    img = base_grad(g, 'deep' if g.p.dark else 'base', 'base' if g.p.dark else 'base2', 0)
+    add = np.zeros((H, W, 3), F)
+    streak_row = cv2.resize(r.standard_normal((1, 40)).astype(F), (W, 1), interpolation=cv2.INTER_CUBIC)
+    streak = 1 + 0.10 * np.repeat(gblur(streak_row, 3), H, 0)
+    ca, cs = lab2lin(T['acc']), lab2lin(T['sup'])
+    for k in range(r.integers(2, 4)):
+        y0 = r.uniform(0.28, 0.75); a = r.uniform(0.05, 0.14); f = r.uniform(0.4, 1.1); p = r.uniform(0, 1)
+        yc = y0 + a * np.sin(2 * np.pi * (f * xn + p)) + 0.03 * fbm(r, 2, 2)
+        w = r.uniform(0.035, 0.07) * (0.7 + 0.3 * np.sin(2 * np.pi * (xn * 1.3 + p)))
+        dy = yn - yc
+        wa = np.where(dy < 0, w * 2.6, w)
+        I_ = np.exp(-(dy / wa) ** 2) * streak * r.uniform(0.6, 1.0)
+        tx = ss(0, 1, xn if k % 2 == 0 else 1 - xn)
+        col = ca[None, None] * (1 - tx[..., None]) + cs[None, None] * tx[..., None]
+        add += I_[..., None] * col
+    add = gblur(add, 14)
+    if g.p.dark:
+        img = img + add * 0.55
+    else:
+        img = lerp(img, img * 0.5 + add * 0.5 + 0.25, np.clip(add.mean(2) * 1.1, 0, 0.6))
+    return img
+
+def st_studio(g, podium=False):
+    r = g.rng; T = g.p.t
+    hy = g.hy
+    if g.p.dark:
+        wall, floor = [(T['base'], T['base2']), (T['base'], T['sups']), (T['base2'], T['base'])][r.integers(3)]
+    else:
+        opts = [(T['base'], T['sups']), (T['sups'], T['base2']), (T['base2'], T['base']),
+                (T['base'], T['accs']), (T['accs'], T['base']), (T['base'], T['base2'])]
+        wall, floor = opts[r.integers(len(opts))]
+    cove = r.uniform(60, 130)
+    t = ss(hy - cove * 0.6, hy + cove, YY)
+    wall_top = labmix(wall, T['deep'], 0.35 if not g.p.dark else 0.0)
+    if g.p.dark:
+        wall_top = lighten(wall, -0.04)
+    wt = np.clip(YY / hy, 0, 1)
+    wallimg = paint([(wall_top, 1 - wt), (wall, wt)])
+    ft = np.clip((YY - hy) / (H - hy), 0, 1)
+    floorimg = paint([(lighten(floor, 0.02), 1 - ft), (lighten(floor, -0.035), ft)])
+    img = lerp(wallimg, floorimg, t)
+    # cove shading band
+    img *= (1 - 0.05 * np.exp(-((YY - hy - cove * 0.2) / (cove * 0.6)) ** 2))[..., None]
+    sx = g.pc[0] + r.uniform(-60, 60)
+    spot = gauss2(sx, hy - H * 0.12, W * 0.30, H * 0.26)
+    pool = gauss2(sx, hy + (H - hy) * 0.45, W * 0.34, (H - hy) * 0.35)
+    k = 0.20 if g.p.dark else 0.10
+    lc = lab2lin(labmix(T['hi'], T['sups'], 0.3)) if g.p.dark else np.ones(3, F)
+    img = img + (spot * k)[..., None] * lc + (pool * k * 0.6)[..., None] * lc
+    g.floor = True
+    if podium:
+        img = draw_podiums(g, img)
+    return img
+
+def draw_podiums(g, img):
+    r = g.rng; T = g.p.t
+    ped = []
+    for pl in g.pls:
+        if pl.get('bbox') is None: continue
+        if not (pl['mode'] == 'stand' or (pl['mode'] == 'float' and g.layout == 'floating-shadows')): continue
+        x0, y0, x1, y1 = pl['bbox']
+        by = pl['base'] if pl['mode'] == 'stand' else y1 + pl.get('lift', 60)
+        ped.append([x0, x1, by])
+    ped.sort(key=lambda p: p[2])
+    clusters = []
+    for p in ped:
+        for c in clusters:
+            if abs(c[2] - p[2]) < 30:
+                c[0] = min(c[0], p[0]); c[1] = max(c[1], p[1]); c[2] = max(c[2], p[2]); break
+        else:
+            clusters.append(list(p))
+    col = T['hi'] if not g.p.dark else labmix(T['base2'], T['sups'], 0.25)
+    if r.random() < 0.4:
+        col = labmix(col, T['accs'], 0.5)
+    ctop = lab2lin(lighten(col, 0.04)); cb = lab2lin(col)
+    lx = g.lx
+    info = []
+    for (x0, x1, by) in sorted(clusters, key=lambda c: c[2]):
+        cx = (x0 + x1) / 2
+        rx = max((x1 - x0) / 2 * 1.08 + 40, 150)
+        ry = rx * 0.13
+        top = by - ry * 0.25
+        base = max(top + H * r.uniform(0.07, 0.16), g.hy + 60)
+        base = min(base, H + ry)
+        dx = XX - cx
+        # floor contact / cast shadow of the pedestal
+        sh = gauss2(cx - lx * 60, base + 6, rx * 1.05, ry * 1.2)
+        shade(img, sh, 0.35, g.p.shadow)
+        rect = np.clip(rx - np.abs(dx) + 0.5, 0, 1) * np.clip(YY - top + 0.5, 0, 1) * np.clip(base - YY + 0.5, 0, 1)
+        db = np.sqrt((dx / rx) ** 2 + ((YY - base) / ry) ** 2)
+        ell_b = np.clip((1 - db) * ry + 0.5, 0, 1)
+        body = np.maximum(rect, ell_b)
+        nx = np.clip(dx / rx, -1, 1)
+        sh_ = 0.80 + 0.2 * np.sqrt(1 - nx ** 2) - 0.13 * nx * lx
+        vg = 1 - 0.10 * np.clip((YY - top) / (base - top + 1), 0, 1)
+        bodycol = cb[None, None] * (sh_ * vg)[..., None]
+        img = lerp(img, bodycol, body)
+        dt = np.sqrt((dx / rx) ** 2 + ((YY - top) / ry) ** 2)
+        ell_t = np.clip((1 - dt) * ry + 0.5, 0, 1)
+        topcol = ctop[None, None] * (1.0 + 0.06 * (1 - dt) - 0.04 * nx[..., None] * lx) if False else \
+            ctop[None, None] * (1.02 + 0.05 * np.clip(1 - dt, 0, 1))[..., None]
+        img = lerp(img, topcol, ell_t)
+        rim = np.exp(-(((dt - 1) * ry) / 1.2) ** 2) * (YY > top)
+        img += (rim * 0.06)[..., None]
+        info.append((cx, top, rx, ry))
+    g.podiums = info
+    return img
+
+def st_glass(g):
+    r = g.rng; T = g.p.t
+    stops = [(T['base'], 0.6)]
+    for c in [T['accs'], T['sups'], T['hi'], T['sup' if g.p.dark else 'sups']][:r.integers(3, 5)]:
+        px, py = r.uniform(0.1, 0.9), r.uniform(0.3, 1.0)
+        s = r.uniform(0.12, 0.22)
+        stops.append((c, np.exp(-((xn - px) ** 2 + (yn - py) ** 2) / (2 * s * s)) * 1.3))
+    img = paint(stops)
+    frost = gblur(img, 30)
+    x0, y0, x1, y1 = g.region
+    for k in range(r.integers(1, 3)):
+        pw, ph = r.uniform(0.34, 0.6) * W, r.uniform(0.22, 0.42) * H
+        cx = r.uniform(x0 + pw * 0.3, x1 - pw * 0.3)
+        cy = r.uniform(max(y0, H * 0.45), y1 - ph * 0.2)
+        rad = r.uniform(34, 70); ang = r.uniform(-0.12, 0.12)
+        dx, dy = XX - cx, YY - cy
+        qx = np.abs(dx * math.cos(ang) + dy * math.sin(ang)) - (pw / 2 - rad)
+        qy = np.abs(-dx * math.sin(ang) + dy * math.cos(ang)) - (ph / 2 - rad)
+        d = np.hypot(np.maximum(qx, 0), np.maximum(qy, 0)) + np.minimum(np.maximum(qx, qy), 0) - rad
+        cov = np.clip(0.5 - d, 0, 1)
+        shadow = gblur(np.roll(cov, 22, 0), 26)
+        shade(img, shadow * (1 - cov), 0.22, g.p.shadow)
+        fr = lerp(frost, np.ones(3, F) * (0.9 if not g.p.dark else 0.35), 0.16 if not g.p.dark else 0.10)
+        img = lerp(img, fr, cov)
+        gy, gx = np.gradient(d)
+        nn = np.hypot(gx, gy) + 1e-6
+        spec = np.clip(-(gx * -0.55 + gy * -0.83) / nn, 0, 1) ** 2
+        rim = np.exp(-((d + 1.5) / 1.3) ** 2)
+        img += (rim * (0.30 * spec + 0.05))[..., None]
+        img += (np.exp(np.minimum(d, 0) / 22) * (d < 0) * 0.05)[..., None]
+    return img
+
+def st_conic(g):
+    r = g.rng; T = g.p.t
+    cx, cy = g.pc[0] + r.uniform(-150, 150), g.pc[1] + r.uniform(-60, 120)
+    th = np.arctan2(YY - cy, XX - cx)
+    rr = np.hypot(XX - cx, YY - cy) / W
+    tw = r.uniform(-3, 3); p = r.uniform(0, 6.28)
+    t1 = 0.5 + 0.5 * np.cos(th + tw * rr + p)
+    t2 = 0.5 + 0.5 * np.cos(2 * th - tw * rr * 0.7 + p * 1.7)
+    img = paint([(T['base'], 0.55 + rr), (T['accs'], t1 ** 2 * 0.9), (T['sups'], (1 - t1) ** 2 * 0.8),
+                 (T['hi'], t2 ** 3 * 0.5)])
+    img = lerp(img, gblur(img, 30), np.exp(-rr / 0.06))
+    return gblur(img, 1.2)
+
+def st_rings(g):
+    r = g.rng; T = g.p.t
+    cx, cy = g.pc[0] + r.uniform(-80, 80), g.pc[1] + r.uniform(0, 140)
+    rr = np.hypot(XX - cx, YY - cy)
+    img = paint([(T['hi'] if not g.p.dark else T['base2'], np.exp(-(rr / (0.35 * W)) ** 2)),
+                 (T['base'], 0.6), (T['sups'], np.exp(-(rr / (0.18 * W)) ** 2) * 0.6)])
+    sp = r.uniform(24, 42); gam = r.uniform(0.9, 1.05)
+    ph = (rr / sp) ** gam
+    fade = np.exp(-rr / (0.62 * W))
+    img *= (1 + 0.035 * np.sin(2 * np.pi * ph) * fade)[..., None]
+    dist = np.abs(np.mod(ph + 0.5, 1) - 0.5) * sp
+    cov = np.clip(1.1 - dist, 0, 1) * fade
+    lc = lab2lin(T['hi'] if g.p.dark else T['deep'])
+    return lerp(img, lc, cov * 0.3)
+
+def st_grid(g):
+    r = g.rng; T = g.p.t
+    img = base_grad(g)
+    cx, cy = g.pc
+    glow = gauss2(cx, cy, W * 0.28)
+    img = screen(img, glow[..., None] * lab2lin(T['acc'] if g.p.dark else T['sups']) * (0.45 if g.p.dark else 0.5))
+    sp = float(r.choice([36, 40, 45, 54, 60]))
+    ox, oy = r.uniform(0, sp), r.uniform(0, sp)
+    dxl = np.abs(np.mod(XX - ox + sp / 2, sp) - sp / 2)
+    dyl = np.abs(np.mod(YY - oy + sp / 2, sp) - sp / 2)
+    cov = np.clip(1.0 - np.minimum(dxl, dyl), 0, 1)
+    maj = np.clip(1.4 - np.minimum(np.abs(np.mod(XX - ox + sp * 2, sp * 4) - sp * 2),
+                                   np.abs(np.mod(YY - oy + sp * 2, sp * 4) - sp * 2)), 0, 1)
+    fade = np.exp(-np.hypot(XX - cx, YY - cy) / (0.55 * W))
+    lc = lab2lin(T['hi'] if g.p.dark else T['deep'])
+    return lerp(img, lc, np.maximum(cov * 0.22, maj * 0.32) * (0.25 + 0.75 * fade))
+
+def st_halftone(g):
+    r = g.rng; T = g.p.t
+    img = base_grad(g)
+    sp = r.uniform(14, 22); h = sp * math.sqrt(3) / 2
+    def near(ox, oy):
+        dx = XX - ox - np.round((XX - ox) / sp) * sp
+        dy = YY - oy - np.round((YY - oy) / (2 * h)) * (2 * h)
+        return np.hypot(dx, dy)
+    d = np.minimum(near(0, 0), near(sp / 2, h))
+    cx, cy = g.pc
+    ang = r.uniform(0, 6.28)
+    f = np.clip(0.9 - np.hypot(XX - cx, YY - cy) / (0.75 * W) + 0.15 * fbm(r, 2, 2), 0, 1)
+    if r.random() < 0.5:
+        f = np.clip(0.5 + 0.5 * np.sin(((XX - cx) * math.cos(ang) + (YY - cy) * math.sin(ang)) / W * 5), 0, 1) * f + f * 0.3
+    f = f * (1 - g.calm * 0.85)
+    rad = sp * 0.46 * f ** 1.2
+    cov = np.clip(rad - d + 0.5, 0, 1) * (rad > 0.4)
+    lc = lab2lin(T['accs'] if not g.p.dark else labmix(T['base2'], T['acc'], 0.5))
+    return lerp(img, lc, cov * 0.75)
+
+def st_topo(g):
+    r = g.rng; T = g.p.t
+    cx, cy = g.pc
+    n = fbm(r, 2, 3) * 0.6 + 1.6 * np.exp(-(((XX - cx) / (0.3 * W)) ** 2 + ((YY - cy) / (0.3 * H)) ** 2))
+    img = paint([(T['base'], 1.0), (T['base2'], np.clip(n / 2.5, 0, 1))])
+    L = r.uniform(5, 8)
+    val = n * L
+    gy, gx = np.gradient(val)
+    gm = np.maximum(np.hypot(gx, gy), 1e-3)
+    dd = np.abs(np.mod(val + 0.5, 1) - 0.5) / gm
+    cov = np.clip(0.9 - dd, 0, 1)
+    val5 = val / 5
+    dd5 = np.abs(np.mod(val5 + 0.5, 1) - 0.5) / (gm / 5)
+    cov5 = np.clip(1.5 - dd5, 0, 1)
+    lc = lab2lin(T['hi'] if g.p.dark else T['deep'])
+    return lerp(img, lc, np.maximum(cov * 0.25, cov5 * 0.4))
+
+def st_papercut(g):
+    r = g.rng; T = g.p.t
+    x0, y0, x1, y1 = g.region
+    cx, cy = g.pc
+    if g.zone == 'top':
+        bias = ss(0.25, 1.1, yn)
+    elif g.zone == 'left':
+        bias = ss(0.25, 1.1, xn)
+    else:
+        bias = ss(0.25, 1.1, 1 - xn)
+    f = 0.35 * fbm(r, 2, 3) + 1.4 * bias + 0.4 * np.exp(-(((XX - cx) / 380) ** 2 + ((YY - cy) / 300) ** 2))
+    img = paint([(T['base'], 1.0), (T['base2'], yn * 0.4)])
+    n = r.integers(4, 6)
+    qs = np.quantile(f, np.linspace(0.45, 0.88, n))
+    gy, gx = np.gradient(f); gm = np.maximum(np.hypot(gx, gy), 1e-4)
+    if g.p.dark:
+        cols = [labmix(T['base'], T['base2'], 1.0), T['sups'], labmix(T['base2'], T['hi'], 0.5), T['accs'], T['hi']]
+    else:
+        cols = [T['base2'], T['sups'], T['accs'], labmix(T['sups'], T['deep'], 0.5), T['deep']]
+    for k in range(n):
+        m = np.clip((f - qs[k]) / gm + 0.5, 0, 1)
+        sh = gblur(np.roll(np.roll(m, 10, 0), int(-g.lx * 6), 1), 9)
+        shade(img, sh * (1 - m), 0.30, g.p.shadow)
+        c = lab2lin(cols[k % len(cols)])
+        layer = c[None, None] * (1 + 0.05 * (1 - yn))[..., None]
+        img = lerp(img, layer, m)
+        img += (np.exp(-(((f - qs[k]) / gm) - 1.2) ** 2 / 1.5) * 0.04)[..., None]
+    return img
+
+def _sdf_cov(d):
+    return np.clip(0.5 - d, 0, 1)
+
+def st_bauhaus(g):
+    r = g.rng; T = g.p.t
+    img = paint([(T['base'], 1.0)])
+    img *= (1 + 0.012 * fbm(r, 60, 1))[..., None]
+    x0, y0, x1, y1 = g.region
+    cx, cy = g.pc
+    pool = [T['acc'], T['sup'], T['mid'] if not g.p.dark else T['hi'], T['deep'] if not g.p.dark else T['base2']]
+    order = r.permutation(len(pool))
+    cols = [lab2lin(labmix(pool[i], T['base'], 0.15)) for i in order]
+    shapes = r.permutation(['circle', 'half', 'quarter', 'bar', 'arc'])[:r.integers(3, 5)]
+    for k, s in enumerate(shapes):
+        c = cols[k % len(cols)]
+        if s == 'circle':
+            R = r.uniform(0.18, 0.3) * W
+            ox, oy = cx + r.uniform(-120, 120), cy + r.uniform(-60, 80)
+            d = np.hypot(XX - ox, YY - oy) - R
+        elif s == 'half':
+            R = r.uniform(0.2, 0.34) * W
+            ox = r.uniform(x0, x1); oy = H + r.uniform(-40, 40) if g.zone == 'top' else r.uniform(y0 + 200, y1)
+            if g.zone != 'top':
+                ox = W if g.zone == 'left' else 0
+            d = np.hypot(XX - ox, YY - oy) - R
+        elif s == 'quarter':
+            R = r.uniform(0.25, 0.42) * W
+            if g.zone == 'top':
+                ox, oy = (0 if r.random() < 0.5 else W), H
+            else:
+                ox = W if g.zone == 'left' else 0; oy = 0 if r.random() < 0.5 else H
+            d = np.hypot(XX - ox, YY - oy) - R
+        elif s == 'bar':
+            ang = r.choice([0, 0, math.pi / 2, math.pi / 4, -math.pi / 4])
+            L, Th = r.uniform(0.4, 0.8) * W, r.uniform(26, 70)
+            ox, oy = r.uniform(x0, x1), r.uniform(max(y0, 0.5 * H), y1)
+            dx, dy = XX - ox, YY - oy
+            u = dx * math.cos(ang) + dy * math.sin(ang); v = -dx * math.sin(ang) + dy * math.cos(ang)
+            qx, qy = np.abs(u) - L / 2, np.abs(v) - Th / 2
+            d = np.hypot(np.maximum(qx, 0), np.maximum(qy, 0)) + np.minimum(np.maximum(qx, qy), 0)
+        else:
+            R = r.uniform(0.2, 0.32) * W; Th = r.uniform(18, 40)
+            ox, oy = cx + r.uniform(-100, 100), cy + r.uniform(0, 120)
+            d = np.abs(np.hypot(XX - ox, YY - oy) - R) - Th / 2
+            hp = -(YY - oy)  # keep upper half
+            d = np.maximum(d, -hp) if r.random() < 0.6 else d
+        cov = _sdf_cov(d) * (1 - 0.75 * g.calm)
+        img = lerp(img, c, cov)
+    return img
+
+def st_rothko(g):
+    r = g.rng; T = g.p.t
+    field = labmix(T['base'], T['base2'], 0.6)
+    img = paint([(field, 1.0)])
+    nb = r.integers(2, 4)
+    horiz = r.random() < 0.75
+    marg = r.uniform(50, 90)
+    cand = [T['accs'], T['sups'], T['deep'] if not g.p.dark else T['hi'], T['base'], labmix(T['accs'], T['sups'], 0.5)]
+    r.shuffle(cand)
+    fr = np.cumsum(r.uniform(0.6, 1.4, nb)); fr = np.concatenate([[0], fr / fr[-1]])
+    wn = fbm(r, 8, 3)
+    for k in range(nb):
+        if horiz:
+            a0, a1 = marg + fr[k] * (H - 2 * marg) + 14, marg + fr[k + 1] * (H - 2 * marg) - 14
+            d = np.maximum(np.maximum(a0 - YY, YY - a1), np.maximum(marg - XX, XX - (W - marg)))
+        else:
+            a0, a1 = marg + fr[k] * (W - 2 * marg) + 14, marg + fr[k + 1] * (W - 2 * marg) - 14
+            d = np.maximum(np.maximum(a0 - XX, XX - a1), np.maximum(marg - YY, YY - (H - marg)))
+        d = d + wn * 7
+        cov = ss(22, -22, d)
+        c = lab2lin(cand[k % len(cand)])
+        lum_ = 1 + 0.06 * np.clip(-d / 200, 0, 1)
+        img = lerp(img, c[None, None] * lum_[..., None], cov * 0.92)
+    img *= (1 + 0.015 * fbm(r, 120, 1))[..., None]
+    return img
+
+def st_marble(g):
+    r = g.rng; T = g.p.t
+    q1, q2 = fbm(r, 2, 4), fbm(r, 2, 4)
+    xw, yw = XX + 90 * q1, YY + 90 * q2
+    mx, my = xw.astype(F), yw.astype(F)
+    n2 = fbm(r, 3, 4)
+    f = cv2.remap(n2, mx, my, cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
+    f = (f - f.min()) / (f.max() - f.min())
+    img = paint([(T['base'], (1 - f) ** 2 + 0.2), (T['base2'], 2 * f * (1 - f)), (T['sups'], f ** 3 * 0.8),
+                 (T['accs'], np.clip(f - 0.75, 0, 1) * 3)])
+    k = r.uniform(5, 9)
+    vein = np.exp(-np.abs(np.sin(f * math.pi * k)) / 0.05) * ss(0.2, 0.8, f)
+    img = lerp(img, lab2lin(T['hi']), vein * 0.35)
+    return gblur(img, 0.8)
+
+def st_bokeh(g):
+    r = g.rng; T = g.p.t
+    img = paint([(T['base'], 1 - yn * 0.6), (T['base2'], yn), (T['sups'], gauss2(*g.pc, W * 0.3) * 0.7)])
+    cols = [lab2lin(T[k]) for k in (('acc', 'sup', 'hi') if g.p.dark else ('accs', 'sups', 'hi'))]
+    layers = []
+    for layer in range(2):
+        buf = np.zeros((H, W, 3), F)
+        n = r.integers(10, 20)
+        cnt = 0
+        while cnt < n:
+            x, y = r.uniform(-50, W + 50), r.uniform(-50, H + 50)
+            if g.calm[int(np.clip(y, 0, H - 1)), int(np.clip(x, 0, W - 1))] > 0.5 and r.random() < 0.75:
+                continue
+            cnt += 1
+            R = r.uniform(18, 50) if layer else r.uniform(40, 110)
+            op = r.uniform(0.10, 0.28) if layer else r.uniform(0.06, 0.16)
+            c = cols[r.integers(len(cols))]
+            xa, xb = int(max(0, x - R - 3)), int(min(W, x + R + 3)); ya, yb = int(max(0, y - R - 3)), int(min(H, y + R + 3))
+            if xb <= xa or yb <= ya: continue
+            d = np.hypot(XX[ya:yb, xa:xb] - x, YY[ya:yb, xa:xb] - y)
+            disc = np.clip(R - d + 0.5, 0, 1) * (0.85 + 0.15 * (d / R)) + 0.25 * np.exp(-((d - R * 0.94) / (R * 0.05)) ** 2)
+            buf[ya:yb, xa:xb] += disc[..., None] * c * op
+        layers.append(gblur(buf, 9 if layer == 0 else 1.2))
+    add = layers[0] + layers[1]
+    return screen(img, add) if g.p.dark else screen(img, add * 0.9)
+
+def st_pinstripe(g):
+    r = g.rng; T = g.p.t
+    ang = r.uniform(0.45, 1.1) * (1 if r.random() < 0.5 else -1)
+    nx, ny = math.cos(ang), math.sin(ang)
+    cx, cy = g.pc
+    u = (XX - cx) * nx + (YY - cy) * ny
+    split = np.clip(u / 2 + 0.5, 0, 1)
+    img = paint([(T['base'], 1 - split), (T['base2'], split)])
+    u0 = r.uniform(-80, 80); hw = r.uniform(0.12, 0.2) * W
+    band = np.clip(hw - np.abs(u - u0) + 0.5, 0, 1)
+    img = lerp(img, lab2lin(T['accs'] if r.random() < 0.6 else T['sups']), band * 0.85)
+    off = hw + r.uniform(30, 70); th = r.uniform(8, 18)
+    thin = np.clip(th / 2 - np.abs(u - u0 - off) + 0.5, 0, 1)
+    img = lerp(img, lab2lin(T['acc'] if g.p.dark else labmix(T['acc'], T['base'], 0.2)), thin * 0.9)
+    sp = r.uniform(9, 14)
+    v = (XX - cx) * nx + (YY - cy) * ny
+    dl = np.abs(np.mod(v + sp / 2, sp) - sp / 2)
+    lines = np.clip(0.9 - dl, 0, 1) * band
+    return lerp(img, lab2lin(T['hi'] if g.p.dark else T['base']), lines * 0.35)
+
+def st_prisms(g):
+    r = g.rng; T = g.p.t
+    img = base_grad(g, 'deep' if g.p.dark else 'base', 'base' if g.p.dark else 'base2')
+    sx = r.choice([-0.15, 1.15]) * W; sy = -0.12 * H
+    phi = np.arctan2(YY - sy, XX - sx); rho = np.hypot(XX - sx, YY - sy)
+    tgt = math.atan2(g.pc[1] - sy, g.pc[0] - sx)
+    add = np.zeros((H, W, 3), F)
+    cs = [lab2lin(T['acc']), np.ones(3, F) * 0.9, lab2lin(T['sup'])]
+    for j in range(r.integers(4, 7)):
+        a = tgt + r.uniform(-0.35, 0.35); w = r.uniform(0.012, 0.04); it = r.uniform(0.3, 0.8)
+        for m, c in enumerate(cs):
+            add += (np.exp(-((phi - a - (m - 1) * w * 0.6) / w) ** 2) * it * 0.45)[..., None] * c
+    fall = np.exp(-rho / (1.1 * W)) * ss(0, 0.25 * W, rho)
+    add *= fall[..., None]
+    leak = gauss2(sx, sy + 0.1 * H, 0.35 * W)
+    add += (leak * 0.35)[..., None] * lab2lin(T['acc'])
+    img = screen(img, add * (0.6 if g.p.dark else 0.45))
+    x0, y0, x1, y1 = g.region
+    for k in range(r.integers(1, 3)):
+        cx, cy = r.uniform(x0 + 80, x1 - 80), r.uniform(max(y0, 0.55 * H), y1)
+        R = r.uniform(120, 230); a0 = r.uniform(0, 6.28)
+        pts = np.array([[cx + R * math.cos(a0 + i * 2.094), cy + R * math.sin(a0 + i * 2.094)] for i in range(3)])
+        m = np.zeros((H, W), np.uint8)
+        cv2.fillPoly(m, [np.round(pts * 16).astype(np.int32)], 255, cv2.LINE_AA, shift=4)
+        m = m.astype(F) / 255
+        shifted = np.roll(np.roll(img, 10, 1), -6, 0)
+        img = lerp(img, lerp(shifted, np.ones(3, F), 0.12), m * 0.8)
+        e = np.zeros((H, W), np.uint8)
+        cv2.polylines(e, [np.round(pts * 16).astype(np.int32)], True, 255, 2, cv2.LINE_AA, shift=4)
+        img += (e.astype(F) / 255 * 0.22)[..., None]
+    return img
+
+def st_terrazzo(g):
+    r = g.rng; T = g.p.t
+    img = paint([(T['base'], 1.0), (T['base2'], np.clip(0.5 + 0.3 * fbm(r, 3, 3), 0, 1) * 0.6)])
+    names = ['acc', 'sup', 'mid', 'deep' if not g.p.dark else 'hi', 'accs']
+    masks = {k: np.zeros((H, W), np.uint8) for k in names}
+    n = r.integers(70, 120); cnt = 0; tries = 0
+    while cnt < n and tries < 2000:
+        tries += 1
+        x, y = r.uniform(0, W), r.uniform(0, H)
+        if g.calm[int(min(y, H - 1)), int(min(x, W - 1))] > 0.4 and r.random() < 0.85:
+            continue
+        cnt += 1
+        s = float(np.clip(r.lognormal(2.2, 0.45), 4, 30))
+        nv = r.integers(5, 8); a0 = r.uniform(0, 6.28)
+        pts = [[x + s * r.uniform(0.6, 1.0) * math.cos(a0 + i * 6.283 / nv),
+                y + s * r.uniform(0.6, 1.0) * math.sin(a0 + i * 6.283 / nv) * r.uniform(0.6, 1)] for i in range(nv)]
+        k = names[min(int(r.random() ** 1.3 * len(names)), len(names) - 1)]
+        cv2.fillPoly(masks[k], [np.round(np.array(pts) * 8).astype(np.int32)], 255, cv2.LINE_AA, shift=3)
+    for k, m in masks.items():
+        c = lab2lin(labmix(g.p.t[k], T['base'], 0.2))
+        img = lerp(img, c, m.astype(F) / 255 * 0.9)
+    return gblur(img, 0.4)
+
+def st_sunburst(g):
+    r = g.rng; T = g.p.t
+    cx, cy = g.pc[0], g.pc[1] + r.uniform(40, 200)
+    rr = np.hypot(XX - cx, YY - cy); ph = np.arctan2(YY - cy, XX - cx)
+    img = paint([(T['base'], 0.6 + rr / W), (T['hi'] if not g.p.dark else T['base2'], np.exp(-(rr / (0.3 * W)) ** 2) * 1.4),
+                 (T['sups'], np.exp(-(rr / (0.18 * W)) ** 2) * 0.6)])
+    N = int(r.integers(14, 26)); p = r.uniform(0, 6.28)
+    s = np.cos(N * ph + p)
+    aa = np.maximum(N * 1.2 / np.maximum(rr, 1), 0.02)
+    stripe = ss(-aa, aa, s)
+    k = 0.07 if g.p.dark else 0.05
+    img *= (1 + k * stripe * np.exp(-rr / (0.7 * W)) * ss(10, 80, rr))[..., None]
+    return img
+
+STYLES = OrderedDict([
+    ('ios-mesh', (st_mesh, 'plane', 0.0)), ('macos-waves', (st_waves, 'flat', 0.0)),
+    ('aurora', (st_aurora, 'plane', 0.0)), ('studio-sweep', (lambda g: st_studio(g), 'floor', 0.0)),
+    ('podium', (lambda g: st_studio(g, True), 'floor', 0.0)), ('liquid-glass', (st_glass, 'plane', 0.0)),
+    ('conic-swirl', (st_conic, 'plane', 0.0)), ('ripples', (st_rings, 'plane', 0.5)),
+    ('grid-glow', (st_grid, 'plane', 0.6)), ('halftone', (st_halftone, 'flat', 0.5)),
+    ('topographic', (st_topo, 'flat', 0.6)), ('paper-cut', (st_papercut, 'flat', 0.2)),
+    ('bauhaus', (st_bauhaus, 'flat', 0.0)), ('color-field', (st_rothko, 'flat', 0.0)),
+    ('fluid-marble', (st_marble, 'flat', 0.45)), ('bokeh', (st_bokeh, 'plane', 0.0)),
+    ('duotone-pinstripe', (st_pinstripe, 'flat', 0.5)), ('prism-light', (st_prisms, 'plane', 0.3)),
+    ('terrazzo', (st_terrazzo, 'flat', 0.4)), ('sunburst', (st_sunburst, 'plane', 0.5)),
+])
+STYLE_W = {s: 1.0 for s in STYLES}
+STYLE_W['studio-sweep'] = 3.2
+STYLE_W['podium'] = 1.4
+STYLE_W['ios-mesh'] = 1.2
+STYLE_W['liquid-glass'] = 1.2
+STYLE_W['macos-waves'] = 1.2
+
+# ----------------------------------------------------------------------------- layouts
+
+LAYOUTS = ['hero', 'tilted-pair', 'fan', 'lineup', 'diagonal-stagger', 'cascade-depth', 'offset-stack',
+           'flatlay-scatter', 'orbit-arc', 'edge-bleed', 'depth-of-field', 'grid-flatlay', 'floating-shadows',
+           'side-column']
+CAR_LAYOUTS = ['hero', 'tilted-pair', 'lineup', 'edge-bleed', 'depth-of-field', 'side-column', 'floating-shadows']
+STAND_LAYOUTS = {'hero', 'tilted-pair', 'lineup', 'diagonal-stagger', 'cascade-depth', 'depth-of-field',
+                 'floating-shadows', 'side-column'}
+FLAT_LAYOUTS = {'flatlay-scatter', 'grid-flatlay'}
+
+def compatible(style, layout):
+    if style == 'podium' and layout not in STAND_LAYOUTS: return False
+    if STYLES[style][1] == 'floor' and layout in FLAT_LAYOUTS: return False
+    return True
+
+def region_for(zone, layout):
+    if zone == 'top':
+        return [0.05 * W, 0.40 * H, 0.95 * W, 0.965 * H]
+    if layout == 'side-column':
+        return [0.60 * W, 0.06 * H, 0.97 * W, 0.965 * H] if zone == 'left' else [0.03 * W, 0.06 * H, 0.40 * W, 0.965 * H]
+    return [0.48 * W, 0.08 * H, 0.975 * W, 0.965 * H] if zone == 'left' else [0.025 * W, 0.08 * H, 0.52 * W, 0.965 * H]
+
+def text_rect(zone):
+    return {'top': (0, 0, W, 0.36 * H), 'left': (0, 0, 0.44 * W, H), 'right': (0.56 * W, 0, W, H)}[zone]
+
+def calm_mask(zone):
+    if zone == 'top':
+        return (1 - ss(0.28, 0.46, yn)).astype(F)
+    if zone == 'left':
+        return (1 - ss(0.36, 0.54, xn)).astype(F)
+    return (1 - ss(0.36, 0.54, 1 - xn)).astype(F)
+
+def P(it, S, x, y, mode='stand', rot=0.0, blur=0.0, z=0, lift=0.0, refl=None):
+    return dict(it=it, S=float(S), x=float(x), y=float(y), mode=mode, rot=float(rot), blur=float(blur), z=z,
+                lift=float(lift), refl=refl)
+
+def clamp_rot(it, a):
+    m = it['rot']
+    return float(np.clip(a, -m, m))
+
+def lay(layout, items, A, rng, hy):
+    x0, y0, x1, y1 = A; aw, ah = x1 - x0, y1 - y0; cx = (x0 + x1) / 2
+    ars = [aspect(it['name']) for it in items]
+    n = len(items); r = rng; out = []
+    side = 1 if r.random() < 0.5 else -1
+    if layout == 'hero':
+        it = items[0]
+        S = min(aw, ah) * 0.82
+        out.append(P(it, S, cx + r.uniform(-0.08, 0.08) * aw, y1 - 0.02 * H, 'stand', clamp_rot(it, r.uniform(-9, 9))))
+    elif layout == 'tilted-pair':
+        S = min(aw * 0.5, ah * 0.7)
+        t = r.uniform(5, 12)
+        for k, it in enumerate(items[:2]):
+            xs = x0 + aw * (0.34 + 0.32 * k)
+            out.append(P(it, S * (0.9 + 0.1 * k) * (0.4 if it.get('kind') == 'acc' else 1), xs, y1 - H * (0.06 - 0.045 * k), 'stand',
+                         clamp_rot(it, t * (1 if k == 0 else -1) * side), z=k))
+    elif layout == 'fan':
+        S = min(ah * 0.55, aw * 0.42)
+        sp = min(10 + 7 * n, max(items[0]['rot'] * 1.8, 10))
+        ang = np.linspace(-sp, sp, n)
+        px, py = cx + r.uniform(-0.06, 0.06) * aw, y1 + S * 0.25
+        R = S * 0.95
+        order = list(range(n)) if r.random() < 0.5 else list(range(n))[::-1]
+        mw = np.mean([S * math.sqrt(a_) for a_ in ars])
+        flat = items[0]['rot'] >= 15
+        for z, k in enumerate(order):
+            a = math.radians(ang[k])
+            xo = R * math.sin(a) * 1.25
+            if not flat:
+                xo = (k - (n - 1) / 2) * mw * 0.78
+            out.append(P(items[k], S, px + xo, py - R * math.cos(a), 'float', -ang[k], z=z,
+                         lift=40))
+    elif layout == 'lineup':
+        wide = np.mean(ars) > 1.3
+        base = y1 - 0.10 * H
+        if wide:
+            S = min(aw * 0.62 / math.sqrt(np.mean(ars)), ah * 0.5)
+            for k, it in enumerate(items):
+                t = k / max(1, n - 1)
+                out.append(P(it, S * (0.82 + 0.18 * t), x0 + aw * (0.28 + 0.44 * t) if side > 0 else x1 - aw * (0.28 + 0.44 * t),
+                             base - (1 - t) * 0.07 * H, 'stand', 0, z=k, refl=True))
+        else:
+            slot = aw / n
+            gap = r.uniform(0.82, 1.0)
+            for k, it in enumerate(items):
+                S = slot * 1.0 / math.sqrt(ars[k])
+                out.append(P(it, S, cx + slot * gap * (k - (n - 1) / 2), base, 'stand', 0, z=k, refl=True))
+    elif layout == 'diagonal-stagger':
+        S = ah * 0.62
+        for k, it in enumerate(items):
+            t = k / max(1, n - 1)
+            xx = x0 + aw * (0.22 + 0.56 * t) if side > 0 else x1 - aw * (0.16 + 0.68 * t)
+            out.append(P(it, S * (0.78 + 0.22 * t), xx, y0 + ah * (0.62 + 0.36 * t), 'stand',
+                         clamp_rot(it, r.uniform(-5, 5)), z=k))
+    elif layout == 'cascade-depth':
+        S = ah * 0.55
+        far = max(hy + 0.03 * H, y0 + 0.45 * ah)
+        for k, it in enumerate(items):
+            d = k / max(1, n - 1)
+            xx = cx + aw * 0.36 * (1 if k % 2 == 0 else -1) * (1 - d) * side + side * aw * 0.05
+            out.append(P(it, S * (0.6 + 0.4 * d), xx, far + (y1 - 0.03 * H - far) * d, 'stand',
+                         clamp_rot(it, r.uniform(-4, 4)), blur=(1 - d) * r.uniform(3, 6), z=k))
+    elif layout == 'offset-stack':
+        S = ah * 0.42
+        rot = clamp_rot(items[0], r.uniform(-14, 14))
+        flat = items[0]['rot'] >= 15
+        dx, dy = (side * aw * 0.13, -ah * 0.14) if flat else (side * aw * 0.24, -ah * 0.2)
+        if not flat:
+            S = ah * 0.36
+        sx, sy = cx - dx * (n - 1) / 2, y1 - ah * 0.30
+        for k, it in enumerate(items):
+            out.append(P(it, S, sx + dx * k, sy + dy * k, 'float', rot, z=k, lift=30 + 20 * k))
+    elif layout == 'flatlay-scatter':
+        S = math.sqrt(aw * ah / n) * 0.82
+        pts = []
+        for k, it in enumerate(items):
+            best = None
+            for t in range(60):
+                p = (r.uniform(x0 + S * 0.45, x1 - S * 0.45), r.uniform(y0 + S * 0.5, y1 - S * 0.5))
+                dmin = min([math.hypot(p[0] - q[0], p[1] - q[1]) for q in pts] + [1e9])
+                if best is None or dmin > best[0]:
+                    best = (dmin, p)
+                if dmin > S * 0.95: break
+            pts.append(best[1])
+            out.append(P(it, S * r.uniform(0.9, 1.1), best[1][0], best[1][1], 'flat', r.uniform(-1, 1) * it['rot'], z=k))
+    elif layout == 'orbit-arc':
+        S = ah * 0.5
+        dome = r.random() < 0.6
+        R = aw * 0.62
+        ocy = y1 + R * 0.55 if dome else y0 - R * 0.35
+        span = r.uniform(38, 58)
+        ang = np.linspace(-span, span, n)
+        for k, it in enumerate(items):
+            a = math.radians(ang[k])
+            if dome:
+                px, py = cx + R * math.sin(a), ocy - R * math.cos(a)
+                rot = -ang[k] * 0.5
+            else:
+                px, py = cx + R * math.sin(a), ocy + R * math.cos(a)
+                rot = ang[k] * 0.5
+            sc = 1 - 0.18 * abs(ang[k]) / span
+            out.append(P(it, S * sc, px, py, 'float', clamp_rot(it, rot), z=int(10 - abs(k - n / 2)), lift=50))
+    elif layout == 'edge-bleed':
+        it = items[0]
+        S = max(aw, ah) * r.uniform(0.85, 1.05)
+        out.append(P(it, S, 0, 0, 'bleed', clamp_rot(it, r.uniform(-16, 16)), z=1))
+        if n > 1:
+            out.append(P(items[1], min(aw, ah) * 0.32, 0, 0, 'float', clamp_rot(items[1], r.uniform(-10, 10)), z=2, lift=40))
+    elif layout == 'depth-of-field':
+        S = ah * 0.62
+        fx = x0 + aw * (0.62 if side > 0 else 0.38)
+        for k, it in enumerate(items):
+            d = n - 1 - k   # 0 = front
+            xx = fx - side * aw * 0.30 * d + (r.uniform(-30, 30) if d else 0)
+            out.append(P(it, S * (1 - 0.14 * d), xx, y1 - 0.03 * H - d * 0.085 * H, 'stand',
+                         clamp_rot(it, r.uniform(-5, 5)), blur=[0, r.uniform(6, 9), r.uniform(11, 14)][d], z=k))
+    elif layout == 'grid-flatlay':
+        ar = float(np.mean(ars))
+        best = None
+        for cols in range(1, n + 1):
+            rows = math.ceil(n / cols)
+            if cols * rows - n >= cols: continue
+            Sg = min(aw / cols / 1.12 / math.sqrt(ar), ah / rows / 1.12 * math.sqrt(ar))
+            if best is None or Sg > best[0]:
+                best = (Sg, cols, rows)
+        Sg, cols, rows = best
+        cw, ch = Sg * math.sqrt(ar) * 1.12, Sg / math.sqrt(ar) * 1.12
+        for k, it in enumerate(items):
+            i, j = k % cols, k // cols
+            inrow = min(cols, n - j * cols)
+            out.append(P(it, Sg, cx + cw * (i - (inrow - 1) / 2), (y0 + y1) / 2 + ch * (j - (rows - 1) / 2), 'flat',
+                         r.uniform(-1, 1) * min(4, it['rot']), z=k))
+    elif layout == 'floating-shadows' and items[0].get('kind') == 'car':
+        S = min(aw * 0.7 / math.sqrt(ars[0]), ah * 0.8)
+        for k, it in enumerate(items[:2]):
+            out.append(P(it, S * (1 - 0.2 * k), cx + (k - 0.5 * (n - 1)) * aw * 0.42, y1 - 0.06 * H - k * 0.05 * H,
+                         'stand', 0, z=-k, refl=True))
+    elif layout == 'floating-shadows':
+        S = ah * (0.8 if n == 1 else 0.62 if n == 2 else 0.5)
+        for k, it in enumerate(items):
+            t = (k + 0.5) / n
+            lift = r.uniform(70, 150)
+            out.append(P(it, S * r.uniform(0.9, 1.05), x0 + aw * (0.5 + (t - 0.5) * 0.8), y1 - 0.06 * H - lift - S * 0.45, 'float',
+                         clamp_rot(it, r.uniform(-12, 12)), z=k, lift=lift))
+    elif layout == 'side-column':
+        S = min(aw * 0.78, ah / n * 0.95)
+        for k, it in enumerate(items):
+            t = (k + 0.5) / n
+            mode = 'stand' if k == n - 1 else 'float'
+            yy = y1 - 0.02 * H if mode == 'stand' else y0 + ah * t
+            big = 1.0 if mode == 'stand' else 0.9
+            out.append(P(it, S * big, cx + (k % 2 - 0.5) * aw * 0.16, yy, mode,
+                         clamp_rot(it, (-1) ** k * r.uniform(3, 9)), z=k, lift=40))
+    return out
+
+LAYOUT_N = {'hero': (1, 1), 'tilted-pair': (2, 2), 'fan': (3, 5), 'lineup': (3, 5), 'diagonal-stagger': (3, 4),
+            'cascade-depth': (3, 4), 'offset-stack': (3, 4), 'flatlay-scatter': (4, 6), 'orbit-arc': (4, 5),
+            'edge-bleed': (1, 2), 'depth-of-field': (2, 3), 'grid-flatlay': (4, 6), 'floating-shadows': (1, 3),
+            'side-column': (2, 3)}
+
+def pick_items(cat, layout, rng):
+    pool = POOLS[cat]
+    lo, hi = LAYOUT_N[layout]
+    n = int(rng.integers(lo, hi + 1))
+    if layout == 'grid-flatlay':
+        n = int(rng.choice([4, 6]))
+    bleed_ok = layout in ('edge-bleed', 'hero', 'side-column', 'depth-of-field')
+    def ok(it):
+        return not it['cut'] or (bleed_ok and it['cut'] in ('B', 'L', 'R'))
+    if cat == 'iphone':
+        if layout in ('hero', 'edge-bleed', 'depth-of-field', 'tilted-pair', 'cascade-depth', 'floating-shadows'):
+            kind = 'photo' if rng.random() < 0.65 else 'pair'
+        elif layout in ('fan', 'flatlay-scatter', 'orbit-arc', 'offset-stack'):
+            kind = 'back'
+        else:
+            kind = 'back' if rng.random() < 0.6 else 'pair'
+        cands = [it for it in pool if it['kind'] == kind and ok(it) and (it['role'] == 's' or layout in ('hero', 'edge-bleed'))]
+        if layout == 'hero' and kind == 'photo' and rng.random() < 0.35:
+            cands = [it for it in pool if it['role'] == 'h' and ok(it)]
+        if layout == 'edge-bleed':
+            n = 1
+        idx = rng.permutation(len(cands))[:n]
+        return [cands[i] for i in idx]
+    if cat == 'cars':
+        cars = [it for it in pool if it['kind'] == 'car' and ok(it)]
+        acc = [it for it in pool if it['kind'] == 'acc']
+        rng.shuffle(cars); rng.shuffle(acc)
+        if layout in ('hero', 'edge-bleed'):
+            cars.sort(key=lambda it: 0 if (layout == 'edge-bleed' and it['cut']) else 1) if layout == 'edge-bleed' and rng.random() < 0.6 else None
+            return cars[:1] + (acc[:1] if layout == 'edge-bleed' and rng.random() < 0.5 else [])
+        if layout == 'tilted-pair':
+            return [cars[0], acc[0]] if rng.random() < 0.4 else cars[:2]
+        if layout == 'lineup':
+            return [c for c in cars if not c['cut']][:rng.integers(2, 4)]
+        if layout == 'depth-of-field':
+            return [c for c in cars if not c['cut']][:2]
+        if layout == 'side-column':
+            return [acc[0], [c for c in cars if not c['cut']][0]] if rng.random() < 0.6 else [acc[0], acc[1], cars[0]]
+        return [c for c in cars if not c['cut']][:rng.integers(1, 3)]
+    singles = [it for it in pool if it['role'] == 's' and ok(it)]
+    heroes = [it for it in pool if it['role'] == 'h' and ok(it)]
+    if layout in ('hero', 'edge-bleed') and heroes and rng.random() < 0.5:
+        first = [heroes[rng.integers(len(heroes))]]
+    else:
+        first = []
+    rest = singles if len(singles) >= n else singles + heroes
+    idx = rng.permutation(len(rest))
+    sel = first + [rest[i] for i in idx if rest[i] not in first]
+    if layout == 'edge-bleed':
+        return sel[:rng.integers(1, 3)]
+    return sel[:n]
+
+# ----------------------------------------------------------------------------- composition
+
+def build_sprites(pls):
+    for pl in pls:
+        pl['spr'] = prep_sprite(pl['it']['name'], pl['S'], pl['rot'], pl['blur'])
+        h, w = pl['spr'].shape[:2]
+        if pl['mode'] == 'stand':
+            pl['cx'], pl['cy'] = pl['x'], pl['y'] - h / 2
+            pl['base'] = pl['y']
+        else:
+            pl['cx'], pl['cy'] = pl['x'], pl['y']
+        pl['bbox'] = (pl['cx'] - w / 2, pl['cy'] - h / 2, pl['cx'] + w / 2, pl['cy'] + h / 2)
+
+def union(pls):
+    b = np.array([p['bbox'] for p in pls])
+    return b[:, 0].min(), b[:, 1].min(), b[:, 2].max(), b[:, 3].max()
+
+def fit(pls, A, rng, fill=0.95, valign='bottom'):
+    aw, ah = A[2] - A[0], A[3] - A[1]
+    for it in range(4):
+        build_sprites(pls)
+        ux0, uy0, ux1, uy1 = union(pls)
+        g = min(aw / (ux1 - ux0), ah / (uy1 - uy0))
+        f = min(g * fill, 2.2) if it == 0 else min(g, 1.0)
+        if abs(f - 1) < 0.015:
+            break
+        ax, ay = (ux0 + ux1) / 2, uy1
+        for p in pls:
+            p['S'] *= f; p['x'] = ax + (p['x'] - ax) * f; p['y'] = ay + (p['y'] - ay) * f
+            p['lift'] *= f
+    build_sprites(pls)
+    ux0, uy0, ux1, uy1 = union(pls)
+    slack = aw - (ux1 - ux0)
+    dx = (A[0] + A[2]) / 2 - (ux0 + ux1) / 2 + rng.uniform(-0.3, 0.3) * max(0, slack)
+    if valign == 'bottom':
+        dy = A[3] - uy1
+    else:
+        dy = (A[1] + A[3]) / 2 - (uy0 + uy1) / 2
+    for p in pls:
+        p['x'] += dx; p['y'] += dy
+    build_sprites(pls)
+
+def place_bleed(pls, zone, rng):
+    main = pls[0]
+    h, w = main['spr'].shape[:2]
+    cut = main['it']['cut']
+    if cut in ('L', 'R') and not (zone == 'left' and cut == 'L') and not (zone == 'right' and cut == 'R'):
+        sidep = cut
+    elif cut == 'B':
+        sidep = 'B'
+    else:
+        opts = ['B', 'R', 'L'] if zone == 'top' else (['R', 'B'] if zone == 'left' else ['L', 'B'])
+        sidep = opts[rng.integers(len(opts))]
+    frac = rng.uniform(0.14, 0.28)
+    if sidep == 'B':
+        cx = W * (rng.uniform(0.3, 0.7) if zone == 'top' else (0.74 if zone == 'left' else 0.26))
+        cy = H + h / 2 - h * (1 - frac)
+        top = 0.40 * H if zone == 'top' else 0.1 * H
+        if cy - h / 2 < top:
+            cy = top + h / 2
+    else:
+        cy = H * (0.70 if zone == 'top' else 0.55)
+        if cy + h / 2 > H * 0.98:
+            cy = max(H * 0.98 - h / 2, 0.42 * H + h / 2 if zone == 'top' else h / 2)
+        cx = (W - w / 2 + w * frac) if sidep == 'R' else (w / 2 - w * frac)
+    main['cx'], main['cy'] = cx, cy
+    main['bbox'] = (cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
+    main['bleed'] = sidep
+    if len(pls) > 1:
+        s = pls[1]; hh, ww = s['spr'].shape[:2]
+        A = region_for(zone, 'x')
+        if sidep == 'R':
+            sx = max(A[0] + ww / 2, cx - w / 2 - ww * 0.35)
+        elif sidep == 'L':
+            sx = min(A[2] - ww / 2, cx + w / 2 + ww * 0.35)
+        else:
+            sx = A[0] + ww / 2 + 20 if cx > W / 2 else A[2] - ww / 2 - 20
+        sy = min(A[3] - hh / 2, H * 0.88 - hh / 2)
+        s['cx'], s['cy'] = sx, sy
+        s['bbox'] = (sx - ww / 2, sy - hh / 2, sx + ww / 2, sy + hh / 2)
+        s['z'] = 3
+
+def snap_cut(pls, zone):
+    """Items with a cut edge must bleed off-frame on that side."""
+    for p in pls:
+        c = p['it']['cut']
+        if not c or p.get('bleed'): continue
+        x0, y0, x1, y1 = p['bbox']; dx = dy = 0
+        if c == 'B': dy = H + 6 - y1
+        elif c == 'R': dx = W + 6 - x1
+        elif c == 'L': dx = -6 - x0
+        if dy < 0: dy = 0
+        p['cx'] += dx; p['cy'] += dy
+        if 'base' in p: p['base'] += dy
+        p['bbox'] = (x0 + dx, y0 + dy, x1 + dx, y1 + dy)
+        p['bleed'] = c
+        if c == 'B' and p['mode'] == 'stand':
+            p['mode'] = 'bleed'
+
+def text_intrusion(pls, zone):
+    tx0, ty0, tx1, ty1 = text_rect(zone)
+    area = 0
+    for p in pls:
+        x0, y0, x1, y1 = p['bbox']
+        ix = max(0, min(x1, tx1) - max(x0, tx0)); iy = max(0, min(y1, ty1) - max(y0, ty0))
+        area += ix * iy
+    return area / ((tx1 - tx0) * (ty1 - ty0))
+
+def compose(spec):
+    t0 = time.time()
+    cat, idx = spec['cat'], spec['idx']
+    rng = np.random.default_rng([SEED, zlib.crc32(cat.encode()), idx])
+    pal = Pal(PALETTES[spec['pal']], spec['variant'] == 'dark')
+    style, layout, zone = spec['style'], spec['layout'], spec['zone']
+    items = pick_items(cat, layout, rng)
+    surface = STYLES[style][1]
+    hy = rng.uniform(0.58, 0.68) * H
+    if zone != 'top' and layout != 'side-column' and np.mean([aspect(it['name']) for it in items]) > 1.25:
+        zone = 'top'
+    A = region_for(zone, layout)
+    pls = lay(layout, items, A, rng, hy)
+    if layout == 'edge-bleed':
+        bseed = int(rng.integers(1 << 30))
+        for attempt in range(10):
+            build_sprites(pls)
+            place_bleed(pls, zone, np.random.default_rng(bseed))
+            if text_intrusion(pls, zone) < 0.004:
+                break
+            for p in pls:
+                p['S'] *= 0.9
+    else:
+        A2 = list(A)
+        if layout in STAND_LAYOUTS and layout != 'floating-shadows':
+            A2[3] = min(A2[3], 0.90 * H)
+        if layout == 'floating-shadows':
+            A2[3] = 0.86 * H
+        if style == 'podium':
+            A2[3] = min(A2[3], (0.70 if layout == 'floating-shadows' else 0.80) * H)
+        fill = {'flatlay-scatter': 0.97, 'grid-flatlay': 0.97, 'floating-shadows': 0.97, 'orbit-arc': 0.95}.get(layout, 0.96)
+        fit(pls, A2, rng, fill, 'bottom' if layout in STAND_LAYOUTS else 'center')
+        snap_cut(pls, zone)
+        if layout == 'side-column' and aspect(pls[-1]['it']['name']) > 1.3:
+            p = pls[-1]
+            ar = aspect(p['it']['name'])
+            p['S'] = 0.66 * W / math.sqrt(ar)
+            build_sprites([p])
+            w = p['spr'].shape[1]
+            p['x'] = (W + w * 0.22 - w / 2) if zone == 'left' else (w / 2 - w * 0.22)
+            p['y'] = 0.93 * H
+            build_sprites([p])
+            p['bleed'] = 'R' if zone == 'left' else 'L'
+    stand_bases = [p['base'] for p in pls if p['mode'] == 'stand']
+    if stand_bases:
+        hy = min(hy, min(stand_bases) - 0.035 * H)
+    hy = max(hy, 0.42 * H if zone == 'top' else 0.30 * H)
+    pls.sort(key=lambda p: p['z'])
+    # ---- ground
+    g = G(); g.layout = layout; g.rng = rng; g.p = pal; g.zone = zone; g.hy = hy; g.region = A; g.pls = pls
+    g.lx = float(rng.uniform(-0.8, 0.8)); g.floor = False
+    b = union(pls)
+    g.pc = (float(np.clip((b[0] + b[2]) / 2, 0, W)), float(np.clip((b[1] + b[3]) / 2, 0, H)))
+    g.calm = calm_mask(zone)
+    fn, _, soft = STYLES[style]
+    img = fn(g).astype(F)
+    if soft > 0:
+        img = lerp(img, gblur(img, 14), g.calm * soft)
+    img = np.clip(img, 0, 1.5)
+    if pal.dark:
+        glow = gauss2(g.pc[0], g.pc[1], W * 0.26, H * 0.22)
+        img = screen(img, glow[..., None] * lab2lin(labmix(pal.t['hi'], pal.t['sup'], 0.35)) * 0.22)
+    ground_mean = img.reshape(-1, 3).mean(0)
+    tint = ground_mean / max(lum(ground_mean), 1e-3)
+    tint = np.clip(tint / tint.max(), 0.5, 1.0)
+    shadow_tint = pal.shadow
+    light_bg = not pal.dark
+    lx = g.lx
+    # ---- floor pass: reflections + floor shadows
+    for p in pls:
+        spr = p['spr']; h, w = spr.shape[:2]
+        x0, y0 = int(round(p['cx'] - w / 2)), int(round(p['cy'] - h / 2))
+        a = spr[..., 3]
+        if p['mode'] == 'stand':
+            base = y0 + h
+            want_refl = p['refl'] or (p['refl'] is None and surface in ('floor', 'plane') and style != 'podium' and rng.random() < 0.8)
+            if want_refl:
+                L = h * rng.uniform(0.28, 0.4)
+                t = np.arange(h, dtype=F)
+                fade = np.clip(1 - t / L, 0, 1) ** 1.7 * (0.28 if light_bg else 0.34)
+                ref = spr[::-1] * fade[:, None, None]
+                ref = gblur(ref, 1.3)
+                ref[..., :3] *= tint
+                blit(img, ref, x0, base + 1)
+            low = int(max(3, h * 0.035))
+            prof = a[h - low:].max(0)
+            m = np.zeros((H, W), F)
+            yb = min(H - 1, max(0, base - 1))
+            r_ = _clip(x0, yb, 1, w)
+            if r_:
+                (cy_, cx_), (sy_, sx_) = r_
+                m[cy_, cx_] = prof[sx_][None]
+            c1 = cv2.GaussianBlur(m, (0, 0), sigmaX=3, sigmaY=2.2)
+            c2 = cv2.GaussianBlur(m, (0, 0), sigmaX=16, sigmaY=9)
+            shade(img, np.clip(c1 * 3.5, 0, 1), 0.55 if light_bg else 0.7, shadow_tint)
+            shade(img, np.clip(c2 * 5, 0, 1), 0.30 if light_bg else 0.4, shadow_tint)
+            if surface == 'floor' and style != 'podium':
+                sh = int(max(4, h * rng.uniform(0.18, 0.3)))
+                flat = cv2.resize(a[::-1], (w, sh), interpolation=cv2.INTER_AREA)
+                shear = -lx * 1.4
+                M = np.float32([[1, shear, max(0, -shear * sh)], [0, 1, 0]])
+                ww = int(w + abs(shear) * sh) + 2
+                cast = cv2.warpAffine(flat, M, (ww, sh))
+                cm = place(cast, x0 - max(0, -shear * sh), base)
+                near = gblur(cm, 3); far = gblur(cm, 16)
+                tt = np.clip((YY - base) / sh, 0, 1)
+                shade(img, near * (1 - tt) + far * tt, 0.28 if light_bg else 0.4, shadow_tint)
+    # ---- object pass
+    for p in pls:
+        spr = p['spr'].copy(); h, w = spr.shape[:2]
+        x0, y0 = int(round(p['cx'] - w / 2)), int(round(p['cy'] - h / 2))
+        a = spr[..., 3]
+        am = place(a, x0, y0)
+        if p['mode'] == 'float':
+            lift = p['lift']
+            if surface == 'floor':
+                fy = y0 + h + lift
+                if getattr(g, 'podiums', None):
+                    fy = min(fy, H - 10)
+                sq = cv2.resize(a, (w, max(3, int(h * 0.1))), interpolation=cv2.INTER_AREA)
+                fm = place(sq, x0 - lx * lift * 0.4, fy - sq.shape[0] / 2)
+                shade(img, gblur(fm, 6 + lift * 0.08), 0.5 * math.exp(-lift / 500), shadow_tint)
+            dist = 14 + lift * 0.25
+            ds = place(a, x0 - lx * dist, y0 + dist)
+            shade(img, gblur(ds, 10 + dist * 0.35), 0.30 if light_bg else 0.45, shadow_tint)
+        elif p['mode'] in ('flat', 'bleed'):
+            ds = place(a, x0 - lx * 8, y0 + 12)
+            shade(img, gblur(ds, 6), 0.30 if light_bg else 0.45, shadow_tint)
+            ds2 = place(a, x0 - lx * 20, y0 + 28)
+            shade(img, gblur(ds2, 24), 0.18 if light_bg else 0.3, shadow_tint)
+        elif p['mode'] == 'stand' and surface == 'flat':
+            ds = place(a, x0 - lx * 14, y0 + 10)
+            shade(img, gblur(ds, 14) * (1 - am), 0.18 if light_bg else 0.3, shadow_tint)
+        if pal.dark and spec['rim']:
+            glow = gblur(am, 34)
+            img += (glow * 0.13)[..., None] * lab2lin(labmix(pal.t['acc'], pal.t['sup'], spec['rim_mix']))
+        spr[..., :3] *= (0.95 + 0.05 * tint)
+        blit(img, spr, x0, y0)
+    # ---- finish
+    fin = spec['finish']
+    if fin == 'soft':
+        img = gblur(img, rng.uniform(2.0, 3.0))
+    elif fin == 'dreamy':
+        img = gblur(img, rng.uniform(6.5, 9.5))
+        bright = np.clip(img - 0.55, 0, None)
+        img = img + gblur(bright, 30) * 0.35
+    vr = np.hypot(xn - 0.5, yn - 0.5) / 0.7071
+    v = ss(0.45, 1.05, vr) * rng.uniform(0.14, 0.24)
+    img = img * (1 - v[..., None]) + img * shadow_tint * v[..., None]
+    out = l2s(img)
+    gs = rng.uniform(0.010, 0.016)
+    noise = rng.standard_normal((H, W, 1)).astype(F) * gs + rng.standard_normal((H, W, 3)).astype(F) * gs * 0.25
+    noise = cv2.GaussianBlur(noise, (0, 0), 0.5) * 0.75
+    out = np.clip(out + noise, 0, 1)
+    u8 = (out * 255 + 0.5).astype(np.uint8)
+    im = Image.fromarray(u8)
+    rel = f'full/{cat}/{cat}-{idx + 1:03d}.jpg'
+    im.save(os.path.join(OUT, rel), quality=84, optimize=True)
+    th = im.resize((360, 360), Image.LANCZOS)
+    th.save(os.path.join(OUT, f'thumb/{cat}-{idx + 1:03d}.jpg'), quality=78, optimize=True)
+    return dict(file=rel, thumb=f'thumb/{cat}-{idx + 1:03d}.jpg', cat=cat, style=style, palette=pal.name,
+                ground=spec['variant'], layout=layout, text_zone=zone, finish=fin,
+                devices=[p['it']['name'] for p in pls], text_zone_overlap=round(text_intrusion(pls, zone), 4),
+                secs=round(time.time() - t0, 2))
+
+# ----------------------------------------------------------------------------- planning
+
+def plan_category(cat, n):
+    rng = np.random.default_rng([SEED, zlib.crc32(cat.encode()), 999])
+    lays = CAR_LAYOUTS if cat == 'cars' else LAYOUTS
+    styles = list(STYLES)
+    for attempt in range(200):
+        used_sl, used_pl = set(), set()
+        lc, sc, pc = Counter(), Counter(), Counter()
+        specs = []; prev = None; failed = False
+        nf = [round(n * 0.40), round(n * 0.35)]
+        fins = ['sharp'] * nf[0] + ['soft'] * nf[1] + ['dreamy'] * (n - nf[0] - nf[1])
+        rng.shuffle(fins)
+        vars_ = (['light', 'dark'] * n)[:n]; rng.shuffle(vars_)
+        for i in range(n):
+            if i and False: pass
+            cl = [l for l in lays if not prev or l != prev['layout']]
+            m = min(lc[l] for l in cl)
+            cl = [l for l in cl if lc[l] == m]
+            l = cl[rng.integers(len(cl))]
+            cs = [s for s in styles if (s, l) not in used_sl and compatible(s, l) and (not prev or s != prev['style'])]
+            if not cs: failed = True; break
+            s = min(cs, key=lambda s: sc[s] / STYLE_W[s] + rng.random() * 0.35)
+            cp = [p for p in range(len(PALETTES)) if (p, l) not in used_pl and (not prev or p != prev['pal'])]
+            if not cp: failed = True; break
+            mp = min(pc[p] for p in cp)
+            cp = [p for p in cp if pc[p] == mp]
+            p = cp[rng.integers(len(cp))]
+            if l == 'side-column':
+                zone = 'left' if rng.random() < 0.5 else 'right'
+            elif l in ('hero', 'edge-bleed', 'offset-stack'):
+                zone = rng.choice(['top', 'top', 'left', 'right'])
+            elif l in ('depth-of-field', 'tilted-pair', 'floating-shadows', 'cascade-depth'):
+                zone = rng.choice(['top', 'top', 'top', 'top', 'left', 'right'])
+            else:
+                zone = 'top'
+            spec = dict(cat=cat, idx=i, layout=l, style=s, pal=int(p), variant=vars_[i], finish=fins[i], zone=str(zone),
+                        rim=bool(rng.random() < 0.4), rim_mix=float(rng.random()))
+            used_sl.add((s, l)); used_pl.add((p, l)); lc[l] += 1; sc[s] += 1; pc[p] += 1
+            specs.append(spec); prev = spec
+        if not failed:
+            ok_dreamy = {'hero', 'tilted-pair', 'edge-bleed', 'fan', 'lineup', 'floating-shadows', 'offset-stack',
+                         'side-column', 'diagonal-stagger'}
+            for sp_ in specs:
+                if sp_['finish'] == 'dreamy' and sp_['layout'] not in ok_dreamy:
+                    for o in specs:
+                        if o['finish'] != 'dreamy' and o['layout'] in ok_dreamy:
+                            sp_['finish'], o['finish'] = o['finish'], 'dreamy'; break
+            return specs
+    raise RuntimeError('planning failed for ' + cat)
+
+# ----------------------------------------------------------------------------- sheets
+
+def contact_sheets(manifest):
+    from PIL import ImageDraw
+    os.makedirs(os.path.join(OUT, 'sheets'), exist_ok=True)
+    bycat = OrderedDict()
+    for m in manifest:
+        bycat.setdefault(m['cat'], []).append(m)
+    T = 216
+    for cat, ms in bycat.items():
+        for s in range(0, len(ms), 25):
+            chunk = ms[s:s + 25]
+            sheet = Image.new('RGB', (5 * T, 5 * (T + 12)), (20, 20, 22))
+            d = ImageDraw.Draw(sheet)
+            for k, m in enumerate(chunk):
+                im = Image.open(os.path.join(OUT, m['thumb'])).resize((T, T), Image.LANCZOS)
+                x, y = (k % 5) * T, (k // 5) * (T + 12)
+                sheet.paste(im, (x, y))
+                d.text((x + 2, y + T), f"{m['file'].split('/')[-1][:-4]} {m['style'][:10]}/{m['layout'][:9]}", fill=(220, 220, 220))
+            sheet.save(os.path.join(OUT, 'sheets', f'{cat}-{s // 25 + 1}.jpg'), quality=85)
+
+# ----------------------------------------------------------------------------- main
+
+PALETTES = None
+OUT = None
+
+def _init(out, pals):
+    global OUT, PALETTES
+    OUT = out; PALETTES = pals
+
+def main():
+    global OUT, PALETTES
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--out', default=DEFAULT_OUT)
+    ap.add_argument('--palettes', default=None)
+    ap.add_argument('--only', default='')
+    ap.add_argument('--limit', type=int, default=0)
+    ap.add_argument('--pick', default='', help='comma list of 1-based indices')
+    ap.add_argument('--jobs', type=int, default=4)
+    a = ap.parse_args()
+    OUT = a.out
+    pal_path = a.palettes or os.path.join(REPO, 'scripts', 'backdrop_palettes.json')
+    PALETTES = json.load(open(pal_path))
+    specs = []
+    for cat, n in COUNTS.items():
+        sp = plan_category(cat, n)
+        if a.only and cat not in a.only.split(','): continue
+        if a.pick:
+            keep = {int(x) - 1 for x in a.pick.split(',')}
+            sp = [s for s in sp if s['idx'] in keep]
+        if a.limit: sp = sp[:a.limit]
+        specs += sp
+    for cat in COUNTS:
+        os.makedirs(os.path.join(OUT, 'full', cat), exist_ok=True)
+    os.makedirs(os.path.join(OUT, 'thumb'), exist_ok=True)
+    t0 = time.time()
+    with Pool(a.jobs, initializer=_init, initargs=(OUT, PALETTES)) as pool:
+        res = list(pool.imap(compose, specs, chunksize=2))
+    el = time.time() - t0
+    mpath = os.path.join(OUT, 'manifest.json')
+    if not a.only and not a.limit and not a.pick:
+        man = res
+    else:
+        old = json.load(open(mpath)) if os.path.exists(mpath) else []
+        d = {m['file']: m for m in old}
+        for m in res: d[m['file']] = m
+        man = sorted(d.values(), key=lambda m: (list(COUNTS).index(m['cat']), m['file']))
+    json.dump(man, open(mpath, 'w'), indent=1)
+    contact_sheets([m for m in man if m['cat'] in {r['cat'] for r in res}])
+    print(f'{len(res)} images in {el:.1f}s -> {OUT}')
+
+if __name__ == '__main__':
+    main()
