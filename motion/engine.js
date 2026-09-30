@@ -3,6 +3,7 @@
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
   NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES } from "./catalog.js";
+import { placeAccents, drawAccents, timeAccents } from "./accents.js";
 import { vibeBackground, candidateGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
@@ -124,6 +125,7 @@ function vibeInto(out, r, locked) {
   }
   set("palette", v.palettes); set("background", v.backgrounds); set("font", v.fonts);
   set("text_fx", v.fx); set("number_style", v.numbers); set("text_in", v.text_in); set("skew", v.skew);
+  set("accent_set", v.accent_sets); set("accent_kind", v.accent_kinds); set("accent_in", v.accent_in); set("phone_angle", v.phone_angles);
   if (!locked.has("background") && !fits(out.background)) out.background = (v.backgrounds || []).find(fits) || "radial";
   if (!locked.has("board")) out.board = v.boards && r() < (v.boardChance ?? 1) ? r.pick(v.boards) : "none";
   if (!locked.has("decor")) {
@@ -1835,7 +1837,7 @@ export class Ad {
     const pad = size * .1, grow = b => [b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad];
     // a sticker never lands on a phone: the back is the product, and the cameras are how
     // a buyer knows the model (placement audit 2026-09-30: 92 of 800 looks)
-    for (const P of this.phones.map(landedOutline)) {
+    for (const P of this.phones.map(p => onCamera(landedOutline(p), W, H, settleZoom(st)))) {   // where the camera shows them
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
       avoid.push([x0, y0, x1, y1]);
@@ -1907,6 +1909,14 @@ export class Ad {
     // a pinstripe under the words only where it clears the number
     const yP = o[3] + size * .28, band = [o[0], yP - size * .32, o[2], yP + size * .42];
     this.pinstripe = this.decor.has("pinstripe") && band[3] < H * .97 && (band[3] < nb[1] || band[1] > nb[3] || band[2] < nb[0] || band[0] > nb[2]);
+    // the accents last, in the room everything above left: clear of the words, the number
+    // and what points at it, the sign, the stickers, the tape's corner and the phones
+    const keep = avoid.map(grow);
+    if (this.pinstripe) keep.push(band);
+    if (this.arrowsMode || st.urgency === "arrows") keep.push([nb[0] - size * 1.4, nb[1] - size * .8, nb[2] + size * 1.4, nb[3] + size * .4]);
+    if (this.arrow) keep.push([Math.min(this.arrow.from[0], this.arrow.to[0]) - size * .3, Math.min(this.arrow.from[1], this.arrow.to[1]) - size * .3, Math.max(this.arrow.from[0], this.arrow.to[0]) + size * .3, Math.max(this.arrow.from[1], this.arrow.to[1]) + size * .3]);
+    if (this.tape) { const c = this.tape.corner; keep.push([c.includes("l") ? 0 : W * .55, c.includes("t") ? 0 : H * .55, c.includes("l") ? W * .45 : W, c.includes("t") ? H * .45 : H]); }
+    this.accents = timeAccents(placeAccents(st, W, H, keep, this.board ? [o[0], o[1] - size * .5, o[2], o[3]] : o, (this.assets || {}).accents, rng(st.seed * 61 + 3), this.insetTop, this.phones.length ? onCamera([this.stageC], W, H, settleZoom(st))[0] : null), tl, this.tOutro);
   }
 
   /** Measure the pixels that will actually sit behind the headline once the
@@ -2259,6 +2269,7 @@ export class Ad {
     if (this.pinstripe) drawPinstripe(ctx, this.pos.outer, this.size, lum(this.p.accent) > .45 ? this.p.accent : "#f6c945", t, tl.tag + .1);
     this._number(ctx, t);
     this._urgency(ctx, t);
+    if (this.accents && this.accents.length) drawAccents(ctx, this.accents, t, st, this.p, W, H, (this.assets || {}).accents);
     if (st.sparkles) this._sparkles(ctx, t);
     this._overlay(ctx, t);
     if (this.ticker) { const q = outCubic(prog(t, Math.max(0, tl.text - .25), .3)); if (q > 0) drawTicker(ctx, this.ticker, W, this.tickerY - (1 - q) * (this.tickerY + this.tickerH), t); }

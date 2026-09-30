@@ -394,6 +394,13 @@ export const OPTIONS = {
   // how the phones stand once they land, in true 3-D: flat, turned a little, swaying, or one
   // wide spin (last, so the looks drawn before it keep every other choice)
   phone_angle: ["flat", "angled", "turntable", "wide_spin"],
+  // accents (accents.js): how many, on what topic, drawn as what, and how they move
+  accents: [0, 1, 2, 3],
+  accent_set: ["cash", "money", "hype", "phones", "deal", "local", "trust", "sparkle", "checks"],
+  accent_kind: ["mix", "emoji", "asset", "symbol"],
+  accent_in: ["fade", "pop", "slide", "fly", "drop", "flip3d", "wide_spin", "zoom", "swing", "orbit"],
+  accent_idle: ["bob", "pulse", "wiggle", "turntable", "float", "still"],
+  accent_out: ["fade", "pop_out", "fly_out", "spin_out", "drop_out", "none"],
 };
 
 // Spin-offs of the best grounds (audit 2026-09-30), painted in decor.js
@@ -446,6 +453,8 @@ export const WEIGHTS = {
   number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
   phone_angle: { flat: 3, angled: 2, turntable: 2, wide_spin: 1 },
+  accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
+  accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
   front_glimpse: { spin: 3, hold: 1 },
   text_in: { slide: 3, skew_slide: 3, slide_letters: 3, wipe: 3 },
   overlay: { none: 4 },
@@ -475,7 +484,7 @@ export const DEFAULT_STYLE = {
 // The first ad's look, as a starting point.
 export const CLASSIC = {
   font: "franklin", text_fx: "shadow", text_in: "slide", text_pos: "top-left", number_style: "plain",
-  number_pos: "bottom-center", number_in: "pop", arrangement: "row", phone_angle: "flat", entry: "fly_spin", end_face: "back",
+  number_pos: "bottom-center", number_in: "pop", arrangement: "row", phone_angle: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
   front_glimpse: "hold", background: "radial", palette: "sand", color_mode: "mono", camera: "push_in",
   sound_kit: "house", overlay: "none", hook: "cold_open",
 };
@@ -485,7 +494,8 @@ export const LABELS = {
   font: "Typeface", number_font: "Number typeface", case: "Case", tracking: "Letter spacing", skew: "Slant",
   text_fx: "Type treatment", color_mode: "Colour use", text_in: "Headline entrance", text_pos: "Headline position",
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
-  number_in: "Number entrance", arrangement: "Phone layout", phone_angle: "Phone angle", entry: "Phones enter by", end_face: "Phones end on",
+  number_in: "Number entrance", arrangement: "Phone layout", phone_angle: "Phone angle",
+  accents: "Accents", accent_set: "Accent topic", accent_kind: "Accents drawn as", accent_in: "Accents enter by", accent_idle: "Accents move", accent_out: "Accents leave by", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
   sound_kit: "Music", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
   vibe: "LA vibe", board: "Sign board", urgency: "Urgency",
@@ -498,6 +508,7 @@ export const GROUPS = [
   ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
   ["Phones", ["arrangement", "phone_angle", "entry", "end_face", "front_glimpse", "glare", "depth"]],
+  ["Accents", ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
   ["Sound", ["sound_kit", "hit", "number_sfx"]],
 ];

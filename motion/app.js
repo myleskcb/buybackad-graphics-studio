@@ -5,6 +5,7 @@ import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, pho
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode } from "./export.js";
 import { auditLook, drawCurve } from "./audit.js";
+import { loadAccents, IOS_EMOJI } from "./accents.js";
 
 const $ = id => document.getElementById(id);
 const STORE = "pgfx_motion_v1";
@@ -41,6 +42,8 @@ const labelFor = (k, v) => {
   if (k === "glare") return v === .5 ? "Soft" : v === 1 ? "Normal" : "Bright";
   if (k === "front_glimpse") return v === "spin" ? "Flash past in the air" : "Land screen up, then flip";
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
+  if (k === "accents") return ["None", "One", "Two", "Three"][v] ?? v;
+  if (k === "accent_kind") return { mix: "Best for this device", emoji: IOS_EMOJI ? "iOS emoji" : "iOS emoji (Apple devices; stand-ins here)", asset: "Studio cutouts", symbol: "Keyboard symbols" }[v] || v;
   if (k === "phone_angle") return { flat: "Flat", angled: "Turned in 3-D", turntable: "Turntable sway", wide_spin: "Wide 3-D spin" }[v] || v;
   return String(v).replace(/[_-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 };
@@ -475,6 +478,7 @@ function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTi
   buildPanel();
   const { phones, index } = await loadPhones("./phones/");
   state.assets.phones = phones; state.index = index;
+  state.assets.accents = await loadAccents("../assets/cutouts/");
   state.style.phones = state.style.phones.filter(id => phones[id]);
   if (!state.style.phones.length) state.style.phones = DEFAULT_PHONES.filter(id => phones[id]);
   syncWords(); drawPhonePicker();
