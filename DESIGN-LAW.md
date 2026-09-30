@@ -3086,8 +3086,11 @@ theme audited, and no library card was gated on the render a visitor gets.
   is off and its title says why, in Easy Mode and in the designer; a pick
   carried over from another card is set aside there (the card shows its own,
   and a note says why) and comes back on the next card it suits, unless the
-  visitor picks again in that row. The audit loads the studio with
-  `?nochoiceholds=1`, or the chips it must click would be off.
+  visitor picks again in that row. A card that fails as offered is out of
+  every list, like a classic the gate holds, and neither opens by its id
+  (the last card a visitor used, or the default one): the first card on
+  offer opens instead. The audit loads the studio with `?nochoiceholds=1`,
+  or the chips it must click would be off.
 - **A line's backing is its ground.** The gate found a line's footprint by
   painting the card without it; hiding the whole object took its own backing
   with it (a chip's see-through panel, a badge's plate), and every panel pixel

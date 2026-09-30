@@ -18702,9 +18702,17 @@ function choiceHoldApply(){
   } catch (e){}
 })();
 {
-  /* a card opened in Easy Mode, and every sync of its rows */
+  /* a card opened in Easy Mode, and every sync of its rows. A card held back
+     (the classics gate, or a card that fails as offered) is out of every list
+     but could still open by its id: the last card a visitor used, or the
+     default one. It opens the first card on offer instead */
   const _selectEzTpl = selectEzTpl;
-  selectEzTpl = function(){ const r = _selectEzTpl.apply(this, arguments); try { choiceHoldApply(); choiceHoldSync(); } catch (e){ console.warn('GraphicsStudio choice holds:', e); } return r; };
+  selectEzTpl = function(id){
+    const want = TEMPLATES.find(t => t.id === id);
+    const r = _selectEzTpl.apply(this, want && want.gated ? [firstFreeTplId()].concat([].slice.call(arguments, 1)) : arguments);
+    try { choiceHoldApply(); choiceHoldSync(); } catch (e){ console.warn('GraphicsStudio choice holds:', e); }
+    return r;
+  };
   const _syncEzThemes = syncEzThemes;
   syncEzThemes = function(){ const r = _syncEzThemes.apply(this, arguments); try { choiceHoldSync(); } catch (e){} return r; };
   const _syncVoiceRow = syncVoiceRow;
