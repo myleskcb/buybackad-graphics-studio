@@ -734,3 +734,36 @@ Changed:
 Rejected:
   - Apple emoji images from a package (Apple's artwork, not licensed).
   - Non-Apple device emoji as a fallback (the owner: iOS style only).
+
+## 2026-09-30 — Looking at every card
+
+Owner: "looks better now keep updating and auditing the bad ones".
+
+Learned:
+  - The gate passes what it measures. Rendering all 226 offered classics
+    into labelled contact sheets and looking at each found six kinds of
+    defect it could not see: lines straddling plate edges, lines touching,
+    stacked lists under plates, dark glows on dark type, hairline serifs on
+    busy photographs, plates grown past the guides or over other plates.
+  - Almost all of them were on the designer layouts, and most came from one
+    pass running where it did not belong (the list stacker) or one stage
+    growing a plate without asking what else was there (step 4's padding).
+  - A text's box and fabric's line heights disagree by the last line's
+    leading; the gate and the resolver must use the same line boxes or one
+    sees a straddle the other does not.
+  - Luminance contrast cannot see camouflage: gold hairlines on a gold photo
+    measured like a readable headline.
+
+Changed:
+  - pgUncover now settles straddle, collide (touching counts), covered, marks
+    and copy on a product; clamps plates to the guides; trims overlapping
+    word-carrying plates. pgStraddleCheck in the gate ('straddle', 'collide'),
+    per-line bodies everywhere (pgLineBodies, pgTextLineBoxes fitted to the
+    box). stackBulletRuns skips dl_ layouts. pgDarkGlow. pgHairlineHeads.
+  - DESIGN-LAW rule 68 widened, rule 69.
+
+Left:
+  - Supporting lines of 19 to 24px (a tenth of all lines) read small on a
+    phone; raising the floor would redesign the densest layouts.
+  - Item lines over busy photographs are thin and low contrast on some gold
+    cards; the ground solver shades for the headline, not for 20px copy.

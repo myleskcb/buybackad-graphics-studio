@@ -7882,6 +7882,10 @@ function addProductCutout(t){
       tint would muddy a deliberate knockout. */
 function stackBulletRuns(t){
   let n = 0;
+  /* the designer layouts (dl_) set their item list as ONE line, sized and
+     placed for one line; stacked, it became a tiny column that ran under the
+     number's plate on 30-odd of them (visual audit, 2026-09-30) */
+  if (/^dl_/.test(t.id || '')) return 0;
   const layers = t.layers || [];
   /* How much vertical room does this layer actually have? Stacking a
      "A • B • C" run into four lines makes the block ~3x taller, and nothing
@@ -11925,8 +11929,10 @@ function pgCoverCheck(sc, r){
   objs.forEach((t, i) => {
     if (!isText(t) || t.visible === false || (t.opacity != null && t.opacity < 0.5) || !PG_READ[t.pgRole || ''] || !/[A-Za-z0-9]/.test(t.text || '')) return;
     const Q = pgQuad(t); if (!Q) return;
-    const body = [lerp(Q[0], Q[3], 0.22), lerp(Q[1], Q[2], 0.22), lerp(Q[2], Q[1], 0.22), lerp(Q[3], Q[0], 0.22)], A = pgQuadArea(body);
-    if (A < 1) return;
+    /* a flat text is judged line by line; a rotated one on its whole body */
+    const flatT = Math.abs((t.angle || 0) % 360) < 0.5;
+    const bodies = flatT ? pgLineBodies(t).map(q => [{ x: q.x, y: q.y }, { x: q.x + q.w, y: q.y }, { x: q.x + q.w, y: q.y + q.h }, { x: q.x, y: q.y + q.h }])
+                         : [[lerp(Q[0], Q[3], 0.22), lerp(Q[1], Q[2], 0.22), lerp(Q[2], Q[1], 0.22), lerp(Q[3], Q[0], 0.22)]];
     let worst = 0;
     for (let j = i + 1; j < objs.length; j++){
       const o = objs[j];
@@ -11934,8 +11940,7 @@ function pgCoverCheck(sc, r){
       const shape = ((o.type === 'rect' || o.type === 'circle') && alpha(o.fill) >= 0.5) || (o.type === 'image' && o.pgRole === 'photo');
       if (!shape) continue;
       const P = pgQuad(o); if (!P || pgQuadArea(P) >= 0.6 * W * H) continue;
-      const c = pgClip(body, P); if (c.length < 3) continue;
-      worst = Math.max(worst, pgQuadArea(c) / A);
+      bodies.forEach(bq => { const A = pgQuadArea(bq); if (A < 1) return; const c = pgClip(bq, P); if (c.length >= 3) worst = Math.max(worst, pgQuadArea(c) / A); });
     }
     if (worst > 0.04) F('covered', t, worst);
   });
@@ -11963,6 +11968,17 @@ function pgCoverCheck(sc, r){
    number is never touched: rule 53). Axis-aligned layers only: a rotated
    band is kept right by fitInsideGuides. Wrapped, not spliced. */
 function pgUncover(sc, W, H){
+  /* SETTLE (rule 68, widened 2026-09-30 after a visual audit of every
+     classic): after the layout, a line of copy may not be (a) under a solid
+     shape drawn over it, (b) half on and half off a plate (a label on a
+     plate's border, a list running under the number's plate, a headline
+     past its panel's edge), (c) touching another line's letters, or (d)
+     printed across a product photograph. Each is settled the shortest clear
+     way: the line slides fully off the thing in its way, or fully onto the
+     plate it straddles, staying inside the guides and clear of everything
+     else; failing that it comes down in size away from it (never under
+     72%). The number never moves (rule 53): the others make way. A small
+     mark (a status dot) on the words moves in front of them. */
   let objs; try { objs = sc.getObjects(); } catch (e){ return false; }
   W = W || sc.getWidth(); H = H || sc.getHeight();
   const m = Math.min(W, H), G = Math.round(GUIDE * m), pad = Math.round(0.012 * m);
@@ -11972,59 +11988,155 @@ function pgUncover(sc, W, H){
   const bb = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
   const body = b => ({ x: b.x, y: b.y + b.h * 0.22, w: b.w, h: b.h * 0.56 });
   const ov = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
-  const solid = o => o && o.visible !== false && !(o.opacity != null && o.opacity < 0.5) && !o.pgBgRect && !o.pgScrim && !o.pgShade && !o.pgPattern &&
-    (((o.type === 'rect' || o.type === 'circle') && alpha(o.fill) >= 0.5) || (o.type === 'image' && o.pgRole === 'photo'));
+  const ground = o => o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern || /^(Scrim|BG|Overlay|Pattern|Vignette|Grain)$/.test(o.name || '');
+  const live = o => o && o.visible !== false && !(o.opacity != null && o.opacity < 0.5) && !ground(o);
+  const isPlate = o => live(o) && (o.type === 'rect' || o.type === 'circle') && alpha(o.fill) >= 0.5;
+  const isPhoto = o => live(o) && o.type === 'image' && o.pgRole === 'photo';
+  const reads = o => isText(o) && o.visible !== false && !(o.opacity != null && o.opacity < 0.5) && PG_READ[o.pgRole || ''] && /[A-Za-z0-9]/.test(o.text || '');
+  const big = b => b.w * b.h >= 0.6 * W * H;
+  /* the share of a line's letters over a plate, on the plate's real outline */
+  const shareOn = (tbody, p) => {
+    if (flat(p)) return ov(tbody, bb(p)) / Math.max(1, tbody.w * tbody.h);
+    const P = pgQuad(p); if (!P) return 0;
+    const Q = [{ x: tbody.x, y: tbody.y }, { x: tbody.x + tbody.w, y: tbody.y }, { x: tbody.x + tbody.w, y: tbody.y + tbody.h }, { x: tbody.x, y: tbody.y + tbody.h }];
+    const c = pgClip(Q, P); return c.length < 3 ? 0 : pgQuadArea(c) / Math.max(1, tbody.w * tbody.h);
+  };
   let moved = false;
-  objs.forEach((t, i) => {
-    if (!isText(t) || t.visible === false || !flat(t) || t.pgRole === 'phone' || !PG_READ[t.pgRole || ''] || !/[A-Za-z0-9]/.test(t.text || '')) return;
-    const tb = bb(t), tbody = body(tb); if (tbody.w * tbody.h < 1) return;
-    /* shapes drawn over the words; and small marks touching them from either
-       side of the stack (a status dot under "NO FEES" reads as a typo) */
-    const over = objs.filter((o, j) => o !== t && solid(o) && flat(o) && (j > i || (bb(o).w * bb(o).h < 0.25 * tb.w * tb.h))).map(o => ({ o, b: bb(o) }))
-      .filter(s => s.b.w * s.b.h < 0.6 * W * H && ov(tbody, s.b) / (tbody.w * tbody.h) > (s.b.w * s.b.h < 0.25 * tb.w * tb.h ? 0 : 0.04))
-      .sort((a, c) => ov(tbody, c.b) - ov(tbody, a.b));
-    if (!over.length) return;
-    /* a small mark (a status dot, a tick) on the words moves out in front of
-       them, on their line; if there is no room it goes (rule 60: a sticker is
-       never moved onto something else, only removed) */
-    if (over[0].b.w * over[0].b.h < 0.25 * tb.w * tb.h){
-      const d = over[0].o, db = over[0].b, gap = Math.max(6, Math.round(pad * 0.6));
-      const nx = tb.x - gap - db.w, ny = tb.y + tb.h / 2 - db.h / 2;
-      const room = nx >= G - 0.5 && !objs.some(o => o !== d && o !== t && isText(o) && o.visible !== false && ov({ x: nx, y: ny, w: db.w, h: db.h }, bb(o)) > 0);
-      if (room){ d.set({ left: d.left + (nx - db.x), top: d.top + (ny - db.y) }); d.setCoords(); }
-      else d.set({ visible: false });
-      moved = true; return;
-    }
-    const S = over[0].b;
-    const hostP = (typeof pgPlateUnder === 'function') ? pgPlateUnder(objs, t, tb, W, H) : null;
-    const host = hostP && hostP.o !== over[0].o && tb.x + tb.w / 2 >= hostP.x && tb.x + tb.w / 2 <= hostP.x + hostP.w && tb.y + tb.h / 2 >= hostP.y && tb.y + tb.h / 2 <= hostP.y + hostP.h ? hostP : null;
-    const others = objs.filter(o => o !== t && o !== (host && host.o) && o.visible !== false && !o.pgBgRect && !o.pgScrim && !o.pgShade && !o.pgPattern &&
-      (isText(o) || solid(o))).map(o => ({ o, b: bb(o) })).filter(x => x.b.w * x.b.h < 0.6 * W * H);
-    const clear = nb => nb.x >= G - 0.5 && nb.y >= G - 0.5 && nb.x + nb.w <= W - G + 0.5 && nb.y + nb.h <= H - G + 0.5 &&
-      (!host || (nb.x >= host.x + 4 && nb.x + nb.w <= host.x + host.w - 4 && nb.y + nb.h * 0.22 >= host.y && nb.y + nb.h * 0.78 <= host.y + host.h)) &&
-      !others.some(x => (isText(x.o) ? ov(body(nb), body(x.b)) : ov(body(nb), x.b)) > 0);
-    /* the shortest slide off the shape */
-    const moves = [
-      { dx: (S.x - pad) - (tb.x + tb.w), dy: 0 }, { dx: (S.x + S.w + pad) - tb.x, dy: 0 },
-      { dx: 0, dy: (S.y - pad) - (tbody.y + tbody.h) }, { dx: 0, dy: (S.y + S.h + pad) - tbody.y },
-    ].sort((a, c) => Math.hypot(a.dx, a.dy) - Math.hypot(c.dx, c.dy));
-    for (const mv of moves){
-      const nb = { x: tb.x + mv.dx, y: tb.y + mv.dy, w: tb.w, h: tb.h };
-      if (clear(nb)){ t.set({ left: t.left + mv.dx, top: t.top + mv.dy }); t.setCoords(); moved = true; return; }
-    }
-    /* else smaller, anchored on the side away from the shape */
-    const cx = tb.x + tb.w / 2, cy = tb.y + tb.h / 2, sx = S.x + S.w / 2, sy = S.y + S.h / 2;
-    const horiz = Math.abs(sx - cx) / Math.max(1, tb.w) > Math.abs(sy - cy) / Math.max(1, tb.h);
-    for (let k = 0.96; k >= 0.72; k -= 0.04){
-      const w = tb.w * k, h = tb.h * k;
-      const nx = horiz ? (sx > cx ? tb.x : tb.x + tb.w - w) : cx - w / 2, ny = horiz ? cy - h / 2 : (sy > cy ? tb.y : tb.y + tb.h - h);
-      const nb = { x: nx, y: ny, w, h };
-      if (ov(body(nb), S) === 0 && clear(nb)){
-        t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k }); t.setCoords();
-        const b2 = bb(t); t.set({ left: t.left + (nx - b2.x), top: t.top + (ny - b2.y) }); t.setCoords(); moved = true; return;
-      }
-    }
+  const texts = objs.filter(reads);
+  /* a plate that the layout grew past the guides (the neon frame padded to
+     1053px around its number) comes back inside them, if everything on it
+     still fits; a plate attached to an edge is bleeding on purpose */
+  objs.forEach(o => {
+    if (!isPlate(o) || !flat(o) || o.type !== 'rect') return;
+    const b = bb(o); if (big(b) || b.x <= 2 || b.x + b.w >= W - 2) return;
+    if (b.x >= G - 1 && b.x + b.w <= W - G + 1) return;
+    const nw = Math.min(b.w, W - 2 * G), cx = Math.min(Math.max(b.x + b.w / 2, G + nw / 2), W - G - nw / 2), nb = { x: cx - nw / 2, y: b.y, w: nw, h: b.h };
+    const riders = texts.filter(t => pgLineBodies(t).every(q => ov(q, b) >= 0.96 * q.w * q.h));
+    if (!riders.every(t => pgLineBodies(t).every(q => q.x >= nb.x + 4 && q.x + q.w <= nb.x + nb.w - 4))) return;
+    const sw = (o.strokeWidth || 0) * (o.stroke ? 1 : 0);
+    o.set({ width: Math.max(1, (nw - sw) / (o.scaleX || 1)) }); o.setPositionByOrigin(new fabric.Point(cx, b.y + b.h / 2), 'center', 'center'); o.setCoords();
+    moved = true;
   });
+  /* two content plates overlapping part-way (the number's plate grown up
+     over the last step card): the upper one gives back the overlap on that
+     side, as far as its own words keep their margin. Nested plates (a pill
+     in its bar, a sheen on its pill) and rotated stickers are design. */
+  {
+    const plates = objs.map((o, j) => ({ o, j })).filter(x => isPlate(x.o) && flat(x.o) && x.o.type === 'rect' && !big(bb(x.o)));
+    const ridersOf = o => { const b = bb(o); return texts.filter(t => pgLineBodies(t).every(q => ov(q, b) >= 0.96 * q.w * q.h)); };
+    plates.forEach(up => plates.forEach(lo => {
+      if (lo.j >= up.j) return;
+      const a2 = bb(up.o), b2 = bb(lo.o), o2 = ov(a2, b2); if (o2 <= 0) return;
+      const small = Math.min(a2.w * a2.h, b2.w * b2.h); if (o2 >= 0.95 * small) return;          // nested
+      const rU = ridersOf(up.o), rL = ridersOf(lo.o); if (!rU.length || !rL.length) return;       // only plates that carry words
+      const gap = Math.max(6, Math.round(pad * 0.6));
+      /* cut the side of the upper plate that faces the lower one */
+      const cutTop = b2.y < a2.y && b2.y + b2.h < a2.y + a2.h, cutBottom = b2.y > a2.y && b2.y + b2.h > a2.y + a2.h;
+      if (!cutTop && !cutBottom) return;
+      const nb = cutTop ? { x: a2.x, y: b2.y + b2.h + gap, w: a2.w, h: a2.y + a2.h - (b2.y + b2.h + gap) }
+                        : { x: a2.x, y: a2.y, w: a2.w, h: (b2.y - gap) - a2.y };
+      if (nb.h < 20) return;
+      if (!rU.every(t => pgLineBodies(t).every(q => q.y >= nb.y + gap && q.y + q.h <= nb.y + nb.h - gap))) return;
+      const sw = (up.o.strokeWidth || 0) * (up.o.stroke ? 1 : 0);
+      up.o.set({ height: Math.max(1, (nb.h - sw) / (up.o.scaleY || 1)) });
+      up.o.setPositionByOrigin(new fabric.Point(a2.x + a2.w / 2, nb.y + nb.h / 2), 'center', 'center'); up.o.setCoords();
+      moved = true;
+    }));
+  }
+  /* the conflicts of line t with its body at nb */
+  const conflicts = (t, nb, strict) => {
+    const i = objs.indexOf(t), out = [];
+    /* each line's letters, carried from the line's box onto nb */
+    const tb0 = bb(t), k = nb.w / Math.max(1, tb0.w);
+    const bodies = pgLineBodies(t).map(q => ({ x: nb.x + (q.x - tb0.x) * k, y: nb.y + (q.y - tb0.y) * k, w: q.w * k, h: q.h * k }));
+    const tbody = body(nb), A = Math.max(1, tbody.w * tbody.h);
+    const worst = f => Math.max(0, ...bodies.map(f));
+    const lo = strict ? 0.04 : 0.08, hi = strict ? 0.96 : 0.92;
+    /* the plate the line fully sits on hides every plate beneath it (a number
+       on its pill across a panel's edge is on its pill) */
+    let host = -1;
+    objs.forEach((o, j) => { if (j < i && isPlate(o) && !big(bb(o)) && bodies.every(q => shareOn(q, o) >= hi)) host = j; });
+    objs.forEach((o, j) => {
+      if (o === t || !live(o)) return;
+      if (isText(o)){ if (reads(o)){ const obs = pgLineBodies(o);
+        /* overlapping letters, or two lines side by side on one row with no gap between them */
+        const tight = (q, ob) => { const vy = Math.min(q.y + q.h, ob.y + ob.h) - Math.max(q.y, ob.y); if (vy < 0.4 * Math.min(q.h, ob.h)) return 0;
+          const gap = Math.max(ob.x - (q.x + q.w), q.x - (ob.x + ob.w)); return gap < pad ? 0.05 : 0; };
+        const s2 = worst(q => Math.max(0, ...obs.map(ob => Math.max(ov(q, ob) / Math.max(1, Math.min(q.w * q.h, ob.w * ob.h)), tight(q, ob)))));
+        if (s2 > 0.02) out.push({ kind: 'collide', o, b: bb(o), s: s2 }); } return; }
+      const b = bb(o); if (big(b)) return;
+      if (isPlate(o)){
+        const s2 = shareOn(tbody, o), sLine = worst(q => shareOn(q, o));
+        const straddles = bodies.some(q => { const v = shareOn(q, o); return v > lo && v < hi; });
+        if (j > i && sLine > 0.04 && !(b.w * b.h < 0.25 * nb.w * nb.h)) out.push({ kind: 'covered', o, b, s: sLine });
+        else if (j < i && j > host && (straddles || (s2 > lo && s2 < hi)) && b.w * b.h >= 0.25 * nb.w * nb.h) out.push({ kind: 'straddle', o, b, s: s2 });
+        else if (b.w * b.h < 0.25 * nb.w * nb.h && ov(tbody, b) > 0) out.push({ kind: 'mark', o, b, s: 1 });
+      } else if (isPhoto(o)){ const s2 = ov(tbody, b) / A; if (s2 > 0.08) out.push({ kind: 'photo', o, b, s: s2 }); }
+    });
+    return out;
+  };
+  const inside = nb => nb.x >= G - 0.5 && nb.y >= G - 0.5 && nb.x + nb.w <= W - G + 0.5 && nb.y + nb.h <= H - G + 0.5;
+  for (let pass = 0; pass < 2; pass++){
+    /* the number stays; supporting lines make way before the headline does */
+    const order = texts.filter(t => t.pgRole !== 'phone').sort((a, c) => (PG_CRIT[a.pgRole] ? 1 : 0) - (PG_CRIT[c.pgRole] ? 1 : 0));
+    order.forEach(t => {
+      if (!flat(t)) return;
+      const tb = bb(t);
+      let cs = conflicts(t, tb, true);
+      /* a small mark on the words moves out in front of them, or goes */
+      cs.filter(c => c.kind === 'mark').forEach(c => {
+        const d = c.o, db = c.b, gap = Math.max(6, Math.round(pad * 0.6)), nx = tb.x - gap - db.w, ny = tb.y + tb.h / 2 - db.h / 2;
+        const room = nx >= G - 0.5 && !texts.some(o => o !== t && ov({ x: nx, y: ny, w: db.w, h: db.h }, bb(o)) > 0);
+        if (room){ d.set({ left: d.left + (nx - db.x), top: d.top + (ny - db.y) }); d.setCoords(); } else d.set({ visible: false });
+        moved = true;
+      });
+      cs = cs.filter(c => c.kind !== 'mark');
+      const dbg = sc.__settleDebug; if (dbg && cs.length) dbg.push({ line: t.name, conflicts: cs.map(c => c.kind + ':' + (c.o.name || c.o.type) + ':' + c.s.toFixed(2)) });
+      if (!cs.length) return;
+      /* a line that makes way for another line never pushes a critical one */
+      cs.sort((a, c) => c.s - a.s);
+      const S = cs[0];
+      if (S.kind === 'collide' && PG_CRIT[t.pgRole] && !PG_CRIT[S.o.pgRole] && S.o.pgRole !== 'phone') return;   // the other line moves on its turn
+      const tbody = body(tb), Sb = S.kind === 'collide' ? body(S.b) : S.b;
+      const moves = [
+        { dx: (Sb.x - pad) - (tb.x + tb.w), dy: 0 }, { dx: (Sb.x + Sb.w + pad) - tb.x, dy: 0 },
+        { dx: 0, dy: (Sb.y - pad) - (tbody.y + tbody.h) }, { dx: 0, dy: (Sb.y + Sb.h + pad) - tbody.y },
+      ];
+      if (S.kind === 'straddle' && flat(S.o) && tbody.w <= Sb.w - 2 * pad && tbody.h <= Sb.h - 2 * pad){   // or fully onto the plate
+        const dx = Math.max(Sb.x + pad - tbody.x, Math.min(0, (Sb.x + Sb.w - pad) - (tbody.x + tbody.w)));
+        const dy = Math.max(Sb.y + pad - tbody.y, Math.min(0, (Sb.y + Sb.h - pad) - (tbody.y + tbody.h)));
+        moves.push({ dx, dy });
+      }
+      moves.sort((a, c) => Math.hypot(a.dx, a.dy) - Math.hypot(c.dx, c.dy));
+      for (const mv of moves){
+        if (Math.hypot(mv.dx, mv.dy) > 0.22 * m) continue;                   // a long jump is a redesign, not a nudge
+        const nb = { x: tb.x + mv.dx, y: tb.y + mv.dy, w: tb.w, h: tb.h };
+        const left = conflicts(t, nb, false).filter(c => c.kind !== 'mark');
+        if (dbg) dbg.push({ line: t.name, try: [Math.round(mv.dx), Math.round(mv.dy)], inside: inside(nb), left: left.map(c => c.kind + ':' + (c.o.name || c.o.type) + ':' + c.s.toFixed(2)) });
+        if (inside(nb) && !left.length){ t.set({ left: t.left + mv.dx, top: t.top + mv.dy }); t.setCoords(); moved = true; return; }
+      }
+      const cx = tb.x + tb.w / 2, cy = tb.y + tb.h / 2, sx = Sb.x + Sb.w / 2, sy = Sb.y + Sb.h / 2;
+      const horiz = Math.abs(sx - cx) / Math.max(1, tb.w) > Math.abs(sy - cy) / Math.max(1, tb.h);
+      /* away from what is in the way; but a line mostly on its plate comes
+         down toward the plate (the part hanging off is the part to lose) */
+      const toward = S.kind === 'straddle' && S.s >= 0.5;
+      for (let k = 0.96; k >= 0.72; k -= 0.04){
+        const w = tb.w * k, h = tb.h * k;
+        const keepLeft = toward ? sx < cx : sx > cx, keepTop = toward ? sy < cy : sy > cy;
+        let nx = horiz ? (keepLeft ? tb.x : tb.x + tb.w - w) : cx - w / 2, ny = horiz ? cy - h / 2 : (keepTop ? tb.y : tb.y + tb.h - h);
+        if (toward){                                                         // and it lands wholly on the plate
+          nx = Math.min(Math.max(nx, Sb.x + pad), Sb.x + Sb.w - pad - w);
+          const bt = h * 0.22, bh = h * 0.56;                                // its letters, not its leading
+          ny = Math.min(Math.max(ny, Sb.y + pad - bt), Sb.y + Sb.h - pad - bt - bh);
+        }
+        const nb = { x: nx, y: ny, w, h };
+        if (inside(nb) && !conflicts(t, nb, false).some(c => c.kind !== 'mark')){
+          t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k }); t.setCoords();
+          const b2 = bb(t); t.set({ left: t.left + (nx - b2.x), top: t.top + (ny - b2.y) }); t.setCoords(); moved = true; return;
+        }
+      }
+    });
+  }
   return moved;
 }
 {
@@ -12100,14 +12212,18 @@ function pgHash(s){ let h = 2166136261; s = String(s); for (let i = 0; i < s.len
    centred headline is room (the object's own box spans its widest line) */
 function pgTextLineBoxes(o, b){
   if (!o._textLines || !o._textLines.length || Math.abs(o.angle || 0) > 0.5 || typeof o.getLineWidth !== 'function') return [b];
-  const sx = o.scaleX || 1, sy = o.scaleY || 1, out = []; let y = b.y;
-  const al = String(o.textAlign || 'left');
-  for (let i = 0; i < o._textLines.length; i++){
-    const lh = o.getHeightOfLine(i) * sy, lw = Math.min(b.w, o.getLineWidth(i) * sx);
+  const sx = o.scaleX || 1, sy = o.scaleY || 1, al = String(o.textAlign || 'left');
+  const rows = []; let y = 0;
+  for (let i = 0; i < o._textLines.length; i++){ const lh = o.getHeightOfLine(i) * sy; rows.push({ i, top: y, lh }); y += lh; }
+  /* fabric's line height carries leading under the last line that the
+     object's own box does not: the lines are fitted to the box, or a line
+     "hangs" a few px past a plate it sits wholly on */
+  const k = y > 0 ? b.h / y : 1, out = [];
+  rows.forEach(r => {
+    const lw = Math.min(b.w, o.getLineWidth(r.i) * sx); if (lw <= 1) return;
     const x = /center/.test(al) ? b.x + (b.w - lw) / 2 : /right/.test(al) ? b.x + b.w - lw : b.x;
-    if (lw > 1) out.push({ x, y, w: lw, h: lh, o });
-    y += lh;
-  }
+    out.push({ x, y: b.y + r.top * k, w: lw, h: r.lh * k, o });
+  });
   return out.length ? out : [b];
 }
 /* one emoji in the device's font, its drawing s px square, centred at (cx, cy) */
@@ -12316,3 +12432,125 @@ function pgEmojiCheck(sc, r){
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
 }
+
+/* ── THE GATE: A LINE HALF ON A PLATE, OR ON ANOTHER LINE (rule 68) ────────
+   Visual audit of every offered classic, 2026-09-30: a CTA label on the top
+   border of the number's plate, item lists stacked under it, a headline past
+   its panel's edge, "WE BUY" running into the number. None failed the gate.
+   Now a reading line fails 'straddle' when 8% to 92% of its letters lie on a
+   solid plate beneath it (on the plate's real outline), and 'collide' when
+   its letters overlap another line's by more than 3%. Wrapped, not spliced. */
+function pgStraddleCheck(sc, r){
+  const objs = sc.getObjects(), W = sc.getWidth(), H = sc.getHeight();
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const alpha = f => { if (!f || f === 'transparent') return 0; if (typeof f !== 'string') return 1; const q = /rgba\([^)]*,\s*([\d.]+)\s*\)/.exec(f); return q ? +q[1] : 1; };
+  const bb = o => { o.setCoords(); const b = o.getBoundingRect(true, true); return { x: b.left, y: b.top, w: b.width, h: b.height }; };
+  const body = b => ({ x: b.x, y: b.y + b.h * 0.22, w: b.w, h: b.h * 0.56 });
+  const ov = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  const ground = o => o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern || /^(Scrim|BG|Overlay|Pattern|Vignette|Grain)$/.test(o.name || '');
+  const reads = o => isText(o) && o.visible !== false && !(o.opacity != null && o.opacity < 0.5) && PG_READ[o.pgRole || ''] && /[A-Za-z0-9]/.test(o.text || '') && Math.abs((o.angle || 0) % 360) < 0.5;
+  const seen = new Set(r.fails.map(f => f.code + '|' + f.line));
+  const F = (code, o, v, need) => { const k = code + '|' + (o.name || ''); if (seen.has(k)) return; seen.add(k);
+    r.fails.push({ code, line: o.name || null, role: o.pgRole || null, value: +(+v).toFixed(2), need }); };
+  const lines = [];
+  objs.forEach((o, i) => { if (reads(o)) pgLineBodies(o).forEach(q => lines.push({ o, i, b: q })); });
+  const shareOf = (x, p) => { const pb = bb(p), A = Math.max(1, x.b.w * x.b.h);
+    if (Math.abs((p.angle || 0) % 360) < 0.5) return ov(x.b, pb) / A;
+    const P = pgQuad(p), Q = [{ x: x.b.x, y: x.b.y }, { x: x.b.x + x.b.w, y: x.b.y }, { x: x.b.x + x.b.w, y: x.b.y + x.b.h }, { x: x.b.x, y: x.b.y + x.b.h }];
+    const c = P ? pgClip(Q, P) : []; return c.length < 3 ? 0 : pgQuadArea(c) / A; };
+  const plateOK = p => p && p.visible !== false && !(p.opacity != null && p.opacity < 0.5) && !ground(p) && (p.type === 'rect' || p.type === 'circle') && alpha(p.fill) >= 0.5 && bb(p).w * bb(p).h < 0.6 * W * H;
+  lines.forEach(x => {
+    const A = Math.max(1, x.b.w * x.b.h);
+    /* the plate the line fully sits on hides every plate beneath it */
+    let host = -1; for (let j = 0; j < x.i; j++) if (plateOK(objs[j]) && shareOf(x, objs[j]) >= 0.92) host = j;
+    for (let j = host + 1; j < x.i; j++){
+      const p = objs[j];
+      if (!p || p.visible === false || (p.opacity != null && p.opacity < 0.5) || ground(p) || !(p.type === 'rect' || p.type === 'circle') || alpha(p.fill) < 0.5) continue;
+      const pb = bb(p); if (pb.w * pb.h >= 0.6 * W * H || pb.w * pb.h < 0.25 * bb(x.o).w * bb(x.o).h) continue;
+      let s;
+      if (Math.abs((p.angle || 0) % 360) < 0.5) s = ov(x.b, pb) / A;
+      else { const P = pgQuad(p), Q = [{ x: x.b.x, y: x.b.y }, { x: x.b.x + x.b.w, y: x.b.y }, { x: x.b.x + x.b.w, y: x.b.y + x.b.h }, { x: x.b.x, y: x.b.y + x.b.h }];
+        const c = P ? pgClip(Q, P) : []; s = c.length < 3 ? 0 : pgQuadArea(c) / A; }
+      if (s > 0.08 && s < 0.92){ F('straddle', x.o, s, 0); break; }
+    }
+  });
+  for (let a = 0; a < lines.length; a++) for (let c = a + 1; c < lines.length; c++){
+    const x = lines[a], y = lines[c]; if (x.o === y.o) continue;
+    let s = ov(x.b, y.b) / Math.max(1, Math.min(x.b.w * x.b.h, y.b.w * y.b.h));
+    const vy = Math.min(x.b.y + x.b.h, y.b.y + y.b.h) - Math.max(x.b.y, y.b.y);
+    if (vy >= 0.4 * Math.min(x.b.h, y.b.h) && Math.max(y.b.x - (x.b.x + x.b.w), x.b.x - (y.b.x + y.b.w)) < 0.008 * Math.min(W, H)) s = Math.max(s, 0.05);   // side by side, touching
+    if (s > 0.03) F('collide', PG_CRIT[x.o.pgRole] ? y.o : x.o, s, 0);
+  }
+  r.ok = !r.fails.length;
+}
+{
+  const _pgCheck = pgCheck;
+  pgCheck = function(sc){ const r = _pgCheck.apply(this, arguments); try { pgStraddleCheck(sc, r); } catch (e){ console.warn('straddle check:', e); } return r; };
+  const _pgExplain = pgExplain;
+  pgExplain = function(f){
+    const L = f && f.line ? '“' + String(f.line).replace(/\s\d+$/, '') + '”' : 'a line';
+    if (f && f.code === 'straddle') return L + ' runs over the edge of a panel';
+    if (f && f.code === 'collide') return L + ' runs into another line';
+    return _pgExplain.apply(this, arguments);
+  };
+}
+
+/* ── NO DARK GLOW BEHIND DARK TYPE (rule 27, rule 64) ──────────────────────
+   A dark shadow blurred behind dark letters on a bright band (the knockout
+   headlines, "SEALED PRODUCT" on its paper panel) reads as a smudge, not as
+   separation: a halo takes the tone of the ground, never of the ink. After
+   the layout, dark ink with a dark blurred shadow loses the shadow. */
+function pgInkLum(c){
+  if (typeof c !== 'string') return null;
+  let m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(c.trim()), r, g, b;
+  if (m){ let h = m[1]; if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); r = n >> 16; g = (n >> 8) & 255; b = n & 255; }
+  else { m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c); if (!m) return null; r = +m[1]; g = +m[2]; b = +m[3]; }
+  const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+function pgDarkGlow(sc){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return; }
+  objs.forEach(o => {
+    if (!o || !(o.type === 'i-text' || o.type === 'text' || o.type === 'textbox') || !o.shadow) return;
+    const ink = pgInkLum(o.fill), sh = o.shadow, sl = pgInkLum(sh.color);
+    if (ink == null || sl == null || ink > 0.12 || sl > 0.12 || !((sh.blur || 0) >= 3)) return;
+    o.set({ shadow: null });
+  });
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); try { pgDarkGlow(sc); } catch (e){} return r; };
+}
+
+/* the body of each line's letters (the middle 56% of each line box: the
+   leading above and the descender room below are not letters), so a covered
+   or straddling LAST line of a two-line text is judged on its own rather than
+   averaged into the block (duoSplit gold: "MARKET RATES" under the pill) */
+function pgLineBodies(o){
+  o.setCoords(); const r = o.getBoundingRect(true, true), b = { x: r.left, y: r.top, w: r.width, h: r.height };
+  const ls = (typeof pgTextLineBoxes === 'function' && o.type !== 'group') ? pgTextLineBoxes(o, b) : [b];
+  return ls.map(l => ({ x: l.x, y: l.y + l.h * 0.22, w: l.w, h: l.h * 0.56 }));
+}
+
+/* ── A HAIRLINE SERIF DOES NOT CARRY A HEADLINE OVER A PHOTOGRAPH ──────────
+   Visual audit, 2026-09-30: "CASH FOR GOLD" in Melodrama (the high-contrast
+   serif voice) over the gold-jewellery photographs read as texture: its
+   hairlines vanish into the chains, gold gradient on gold. The gate could not
+   see it (core 4.3 to 5.0, the same as the readable ones). Over a photograph
+   the headline takes Zodiak, the editorial serif, which keeps the serif voice
+   with strokes that hold; on a plain ground Melodrama stays. Runs at load,
+   before any layout, so every render measures the face it draws. */
+function pgHairlineHeads(t){
+  if (!t) return 0;
+  const photo = t.bg && t.bg.type === 'image';
+  let n = 0;
+  (t.layers || []).forEach(l => {
+    if (!l.props || l.props.fontFamily !== 'Melodrama' || typeof l.text !== 'string') return;
+    /* a headline over a photograph, or any line under 60px (its hairlines
+       are gone at that size on any ground: "GET A FREE QUOTE" on a white plate) */
+    const head = /^(headline|offer)$/.test(l.role || '');
+    if ((head && photo) || (l.props.fontSize || 0) < 60){ l.props.fontFamily = 'Zodiak'; n++; }
+  });
+  return n;
+}
+try { TEMPLATES.forEach(t => { if (!t.showcase) pgHairlineHeads(t); }); } catch (e){}

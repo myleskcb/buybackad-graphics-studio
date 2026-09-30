@@ -1776,3 +1776,41 @@ plate); the resolver fixed the first two kinds, the gate holds back the
 last (classics: 226 of 243 pass, 17 held back). One library card whose tick
 circles the layout had left a row out of step with its lines
 (checklistHero-du08-20, the only one of 30 tick lists) was retired: 398 live.
+
+**Widened 2026-09-30 (a visual audit of all 226 offered classics).** The owner:
+"keep updating and auditing the bad ones". Looking at every card found what
+the gate still passed, nearly all on the designer layouts (dl_):
+
+- **Wholly on a plate or wholly off it.** A line with 8% to 92% of its letters
+  on a solid plate beneath it fails 'straddle' (a CTA label on the number
+  plate's border, a list running under it, a headline past its panel). Only
+  the plate a line sits on counts: a number on its pill that crosses a panel
+  is on its pill.
+- **Lines never touch.** Letters overlapping another line's, or two lines side
+  by side on a row with no gap, fail 'collide' ("WE BUY" into the number).
+- **Each line of a text is judged on its own**, so a covered last line of a
+  two-line block is not averaged away ("MARKET RATES" under the pill).
+- **Settled after the layout** (`pgUncover`): the line slides the shortest
+  clear way, fully onto the plate it straddles or fully off, or shrinks toward
+  its plate (never under 72%); the number never moves.
+- **Plates stay inside the guides** unless attached to an edge: a plate the
+  layout padded past them (a 1053px neon frame) comes back if its words fit.
+- **Plates that carry words do not overlap part-way**: a number plate grown
+  over the last step card gives the overlap back.
+- **A designer layout's item list stays one line**; stacked, it became a tiny
+  column under the number's plate on 30-odd cards.
+
+## 69. A hairline serif does not carry a headline over a photograph
+
+Added 2026-09-30. The same audit: "CASH FOR GOLD" in Melodrama, the
+high-contrast serif, over the gold-jewellery photographs read as texture, its
+hairlines lost in the chains, gold on gold. The gate could not tell it from a
+readable card (core contrast 4.3 to 5.0 on both). Over a photograph a
+headline in Melodrama is set in Zodiak, the editorial serif, whose strokes
+hold; so is any Melodrama line under 60px ("GET A FREE QUOTE" on a white
+plate), where its hairlines are gone on any ground. On a plain ground at size
+Melodrama keeps its voice.
+
+And a dark glow behind dark type (the knockout headlines on bright bands) is
+removed after the layout: a halo takes the tone of the ground (rule 27), and a
+dark one behind dark letters is a smudge.

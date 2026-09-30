@@ -474,3 +474,16 @@ Still open, from the audit (numbers in docs/COHESION-AUDIT.md):
    the Easy photo swatches' base scrim (0.36 to 0.42 graded) before the gate
    shades further; `naturalize_showcase.mjs` still solves 'normal' only (it
    runs before darken, which re-solves).
+
+## M. 2026-09-30 — the visual audit
+
+Every offered classic rendered and looked at (contact sheets); the defects the
+gate could not see are now rules 68 (widened) and 69 and are settled in the
+engine. Still open:
+
+1. **Small supporting copy.** A tenth of all reading lines are 19 to 24px on
+   the 1080 card, about 7 to 9pt on a phone. A floor would redesign the
+   densest layouts; do it per layout.
+2. **Item lines over busy photographs** (some gold cards): the shade is solved
+   for the headline; the 20px list over the chains reads poorly.
+3. **The library's 398 cards** have not had the same by-eye pass yet.
