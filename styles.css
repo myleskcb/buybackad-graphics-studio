@@ -12,7 +12,7 @@
    2. ONE accent (#ff7a1a). The site now matches the PRODUCT it sells, not
       the CRM: a page selling loud buyback ads should not look like a SaaS
       dashboard. Colour that is not the accent means state:
-      green good, amber caution, red stop, violet AI.
+      green good, amber caution, red stop (2026-09-30: AI wears the accent).
    3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and
       wordmark only, as --brand-1/--brand-2, so the accent can be retuned for
       contrast without repainting the brand.
@@ -71,46 +71,51 @@
      kept, whole, as data-skin='ember' below. Accent colour is a separate axis
      (data-accent) so the two can be mixed from the Look menu. */
 
-  /* Field */
-  --field:#0f1116;
-  --wash-a:rgba(var(--accent-rgb),.26);
-  --wash-b:rgba(var(--accent2-rgb),.18);
-  --wash-c:rgba(0,214,180,.10);
+  /* Field. THE HOUSE LOOK, 2026-09-30 (owner: "fix the purple UI theme it's
+     kinda lame pick something unanimously people think looks clean and
+     cohesive"): neutral graphite greys, the system greys people know from
+     their phones, and ONE colour, blue, in the accent, the ring and the glow.
+     No second or third hue anywhere in the chrome (the orchid look carried a
+     violet accent, a pink second hue and a mint ring). */
+  --field:#0d0d0f;
+  --wash-a:rgba(var(--accent-rgb),.10);
+  --wash-b:rgba(var(--accent-rgb),.05);
+  --wash-c:rgba(0,0,0,0);
 
   /* Glass */
-  --glass-bg:rgba(24,27,34,.62);
-  --glass-bg-strong:rgba(24,27,34,.86);
-  --glass-edge:rgba(255,255,255,.12);
+  --glass-bg:rgba(28,28,31,.66);
+  --glass-bg-strong:rgba(28,28,31,.88);
+  --glass-edge:rgba(255,255,255,.10);
   --glass-blur:blur(34px) saturate(190%) brightness(1.04);
   --glass-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 38px -12px rgba(0,0,0,.6);
   --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.10),0 24px 60px -14px rgba(0,0,0,.75);
 
   /* Opaque content surfaces */
-  --surface-solid:#171a21;
-  --surface-sunk:rgba(255,255,255,.055);
-  --surface-raise:#1f232c;
+  --surface-solid:#161618;
+  --surface-sunk:rgba(255,255,255,.05);
+  --surface-raise:#1e1e21;
 
-  /* Ink — cool neutrals */
-  --text:#f2f4f8;
-  --text-2:#c3c9d6;
-  --text-dim:#8b94a7;
-  --hairline:rgba(255,255,255,.09);
-  --hairline-strong:rgba(255,255,255,.16);
+  /* Ink — true neutrals */
+  --text:#f5f5f7;
+  --text-2:#c7c7cc;
+  --text-dim:#8e8e93;
+  --hairline:rgba(255,255,255,.08);
+  --hairline-strong:rgba(255,255,255,.14);
 
   /* Accent — BLUE MARKET by default (the palette the owner kept most often
      in the template reviews). See the data-accent blocks for the others. */
-  --accent:#4d9cff;
-  --accent-ink:#061527;
-  --accent-wash:rgba(77,156,255,.16);
-  --accent-deep:#2b7de9;
-  --accent-soft:#cfe4ff;
-  --accent-rgb:77,156,255;
-  --accent2-rgb:120,90,255;
+  --accent:#0a84ff;
+  --accent-ink:#ffffff;
+  --accent-wash:rgba(10,132,255,.16);
+  --accent-deep:#0064d2;
+  --accent-soft:#cce4ff;
+  --accent-rgb:10,132,255;
+  --accent2-rgb:10,132,255;
 
-  --good:#30d68f;
-  --warn:#ffb03d;
-  --danger:#ff6259;
-  --ai:#a78bff;
+  --good:#30d158;
+  --warn:#ffb340;
+  --danger:#ff5b52;
+  --ai:var(--accent);
 
   /* Brand — follows the accent now. The mark used to carry its own orange
      regardless of the UI accent; that is the one place orange survived the
@@ -130,10 +135,10 @@
   --lift-3:0 4px 12px rgba(0,0,0,.5),0 40px 90px -22px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);
   --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.5);
 
-  --stage-1:#14171d;
-  --stage-2:#0a0c10;
-  --stage-dot:rgba(255,255,255,.045);
-  --scrim:rgba(8,10,14,.74);
+  --stage-1:#141416;
+  --stage-2:#0a0a0b;
+  --stage-dot:rgba(255,255,255,.04);
+  --scrim:rgba(8,8,10,.74);
 
   --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
   /* Satoshi runs the whole product, chrome included. The system stack stays
@@ -147,7 +152,7 @@
   --bg:var(--field);
   --surface:var(--surface-solid);
   --surface2:var(--surface-raise);
-  --surface3:#2a2f3a;
+  --surface3:#2a2a2e;
   --border:var(--hairline);
   --border2:var(--hairline-strong);
   --orange:var(--accent);
@@ -213,43 +218,43 @@
    default set a value. Radii, faces and the mono stack are theme-independent. */
 :root[data-theme='light']{
   color-scheme:light;
-  --field:#f3f4f7;
-  --wash-a:rgba(var(--accent-rgb),.14);
-  --wash-b:rgba(var(--accent2-rgb),.10);
-  --wash-c:rgba(0,214,180,.08);
+  --field:#f5f5f7;
+  --wash-a:rgba(var(--accent-rgb),.07);
+  --wash-b:rgba(var(--accent-rgb),.04);
+  --wash-c:rgba(0,0,0,0);
   --glass-bg:rgba(255,255,255,.58);
   --glass-bg-strong:rgba(255,255,255,.80);
   --glass-edge:rgba(255,255,255,.9);
   --glass-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(9,18,38,.045),0 1px 2px rgba(9,18,38,.05),0 14px 38px -12px rgba(9,18,38,.16);
   --glass-shadow-lift:inset 0 1px 0 rgba(255,255,255,.95),0 24px 60px -14px rgba(9,18,38,.30);
   --surface-solid:#ffffff;
-  --surface-sunk:rgba(9,18,38,.042);
-  --surface-raise:#f8f9fc;
-  --text:#14161c;
-  --text-2:#4a5060;
-  --text-dim:#6b7280;
-  --hairline:rgba(9,18,38,.09);
-  --hairline-strong:rgba(9,18,38,.16);
-  --accent:#1d63d8;
+  --surface-sunk:rgba(0,0,0,.04);
+  --surface-raise:#fbfbfd;
+  --text:#1d1d1f;
+  --text-2:#424245;
+  --text-dim:#6e6e73;
+  --hairline:rgba(0,0,0,.08);
+  --hairline-strong:rgba(0,0,0,.14);
+  --accent:#0066cc;
   --accent-ink:#ffffff;
-  --accent-wash:rgba(29,99,216,.12);
-  --accent-deep:#174fae;
-  --accent-soft:#dbe8ff;
-  --accent-rgb:29,99,216;
-  --accent2-rgb:109,63,214;
-  --good:#0f9d6b;
-  --warn:#c2751a;
-  --danger:#e0342a;
-  --ai:#6c4cff;
+  --accent-wash:rgba(0,102,204,.10);
+  --accent-deep:#0055b3;
+  --accent-soft:#d6e8ff;
+  --accent-rgb:0,102,204;
+  --accent2-rgb:0,102,204;
+  --good:#1a8a3f;
+  --warn:#b25e00;
+  --danger:#d7261e;
+  --ai:var(--accent);
   --lift-1:0 1px 2px rgba(9,18,38,.06),0 4px 12px -4px rgba(9,18,38,.10);
   --lift-2:0 2px 6px rgba(9,18,38,.07),0 18px 42px -14px rgba(9,18,38,.20),0 0 0 1px rgba(9,18,38,.05);
   --lift-3:0 4px 12px rgba(9,18,38,.08),0 40px 90px -22px rgba(9,18,38,.28),0 0 0 1px rgba(9,18,38,.06);
   --glow-accent:0 8px 30px -6px rgba(var(--accent-rgb),.34);
-  --stage-1:#eef0f4;
-  --stage-2:#dfe3ea;
-  --stage-dot:rgba(9,18,38,.07);
-  --scrim:rgba(120,132,155,.42);
-  --surface3:#e9ecf2;
+  --stage-1:#efeff2;
+  --stage-2:#e2e2e7;
+  --stage-dot:rgba(0,0,0,.06);
+  --scrim:rgba(120,120,128,.42);
+  --surface3:#ebebf0;
 }
 
 /* PAPER — light, editorial: a warm paper ground, ink type, a serif display
@@ -317,13 +322,13 @@ body{
    3. Vignette + grain: corners fall away, and wide displays stop banding. */
 /* How strongly the bokeh reads. A dark ground carries it as light in a room;
    the light skins take a third, where the same alpha smudges the paper. */
-:root{--bokeh-a:.42}
-:root[data-theme='light']{--bokeh-a:.17}
+:root{--bokeh-a:.16}
+:root[data-theme='light']{--bokeh-a:.07}
 :root[data-skin='obsidian']{--bokeh-a:.30}
 :root[data-skin='night']{--bokeh-a:.52}
 :root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.13}
 
-@media (max-width:700px){:root{--bokeh-a:.26}:root[data-skin='night']{--bokeh-a:.32}:root[data-theme='light']{--bokeh-a:.12}:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.09}}
+@media (max-width:700px){:root{--bokeh-a:.10}:root[data-skin='night']{--bokeh-a:.32}:root[data-theme='light']{--bokeh-a:.05}:root[data-skin='paper'],:root[data-skin='cream']{--bokeh-a:.09}}
 
 /* THE FIELD — the colour behind everything, in two parts.
 
@@ -770,9 +775,9 @@ input,textarea,select{font-family:inherit;color:var(--text)}
 .tb-btn:disabled{opacity:.35;cursor:default;background:transparent}
 .tb-btn svg{width:16px;height:16px}
 .tb-spacer{flex:1}
-/* AI is violet everywhere in the house, never the accent. */
-#enhance-btn{border:.5px solid rgba(167,139,255,.4);color:var(--ai);background:rgba(167,139,255,.10)}
-#enhance-btn:hover{background:rgba(167,139,255,.18);color:var(--ai)}
+/* AI wears the accent (2026-09-30: one colour in the chrome). */
+#enhance-btn{border:.5px solid rgba(var(--accent-rgb),.4);color:var(--ai);background:rgba(var(--accent-rgb),.10)}
+#enhance-btn:hover{background:rgba(var(--accent-rgb),.18);color:var(--ai)}
 #enhance-btn.busy{opacity:.6;pointer-events:none}
 #export-btn{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}
 #export-btn:hover{filter:brightness(1.06)}
@@ -1157,8 +1162,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .bg-gen-box textarea{width:100%;box-sizing:border-box;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 13px/1.4 var(--ui);padding:9px;resize:vertical;min-height:56px}
 .bg-gen-row{display:flex;gap:8px;margin-top:8px}
 .bg-gen-row select{flex:1;background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:var(--r-sm);color:var(--text);font:500 12px/1 var(--ui);padding:8px;min-width:0}
-/* AI generation is violet, the house colour for "a model did this". */
-.btn-gen{background:linear-gradient(135deg,var(--ai),#7b5cff);color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}
+/* AI generation wears the accent (2026-09-30: one colour in the chrome). */
+.btn-gen{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:#fff;border:none;border-radius:var(--r-pill);font:650 13px/1 var(--ui);padding:11px 16px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(167,139,255,.6)}
 .btn-gen:hover{filter:brightness(1.06)}
 .btn-gen:disabled{opacity:.55;cursor:wait}
 .bg-result{margin-top:10px;display:none}
@@ -1482,7 +1487,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
 .chip{font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;min-height:36px}
 .chip:hover{color:var(--text);border-color:var(--text-dim)}
-.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:var(--glow-accent)}
+.chip.on{background:var(--accent-deep);color:var(--accent-ink);border-color:var(--accent-deep);box-shadow:var(--glow-accent)}
 .chip .n{opacity:.65;font-family:var(--mono);font-size:11px;margin-left:6px;font-variant-numeric:tabular-nums}
 .tpl-more-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}
 .tpl-count{font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums}
@@ -1501,7 +1506,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .look-label{width:100%;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}
 .look-chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);border:.5px solid var(--hairline-strong);background:var(--surface-sunk);color:var(--text-2);cursor:pointer;min-height:30px}
 .look-chip:hover{color:var(--text)}
-.look-chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.look-chip.on{background:var(--accent-deep);color:var(--accent-ink);border-color:var(--accent-deep)}
 .look-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px -2px rgba(0,0,0,.5);padding:0}
 .look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--text)}
 .look-note{font-size:11.5px;color:var(--text-dim);line-height:1.45}
@@ -1595,10 +1600,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* ── accents, with their RING. Ring = the second colour: it carries focus,
    hover and selection, never fills. Pairings are a third of the wheel apart
    so the two read as a scheme, not a clash. ── */
-:root{--ring:#3ddc97;--ring-rgb:61,220,151}
-:root[data-theme='light']{--ring:#0f8f5f;--ring-rgb:15,143,95}
-:root[data-accent='blue']{--ring:#f2c744;--ring-rgb:242,199,68}
-:root[data-theme='light'][data-accent='blue']{--ring:#b7830c;--ring-rgb:183,131,12}
+:root{--ring:#0a84ff;--ring-rgb:10,132,255}
+:root[data-theme='light']{--ring:#0066cc;--ring-rgb:0,102,204}
+:root[data-accent='blue']{--ring:#0a84ff;--ring-rgb:10,132,255}
+:root[data-theme='light'][data-accent='blue']{--ring:#0066cc;--ring-rgb:0,102,204}
 :root[data-accent='mint']{--ring:#b48cff;--ring-rgb:180,140,255}
 :root[data-theme='light'][data-accent='mint']{--ring:#6d3fd6;--ring-rgb:109,63,214}
 :root[data-accent='orchid']{--ring:#3ddc97;--ring-rgb:61,220,151}
