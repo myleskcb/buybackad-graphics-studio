@@ -90,36 +90,44 @@ const hueGap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360
    side of the lightness scale: a pastel ground is quiet (0.045), a deep ground
    carries colour (0.11), the accent is the loudest thing on the card. The
    `neutral` palettes keep a near-neutral ground on purpose — the trust end. */
+/* 2026-09-30 — THE PROVEN 25. The owner: "not super obscure or niche ones
+   ... appealing and proven to get clicks." The 29 before this were invented
+   pairings with invented names ("Reef", "Kiwi & Violet", "Glacier & Flame"),
+   several of them near-twins, and a tap on one filtered the gallery to two
+   or three cards. These are the pairings retail, food, finance and Apple's
+   own marketing have run for decades, named for what a person sees: trust +
+   action (navy/orange, blue/yellow), money (green/gold), luxury
+   (black/gold, purple/gold, wine/gold), urgency (red/yellow, cream/red),
+   Apple (white/blue, titanium/orange, graphite/lime), and the high-click
+   social pairs (teal/coral, sunset pink, cobalt/pink, midnight/cyan).
+   Same luminance lock as before, so every card keeps the contrast it
+   passed its audits with; only hue and chroma move. */
 export const PALETTES = [
-  { name:'Cobalt & Tangerine', g:262, a:52,  s:195, deep:266 },
-  { name:'Pistachio & Plum',   g:128, a:336, s:232, deep:322 },
-  { name:'Tomato & Cream',     g:24,  a:256, s:172, deep:356 },
-  { name:'Racing Green',       g:156, a:95,  s:22,  deep:160 },
-  { name:'Ultraviolet & Lime', g:292, a:126, s:196, deep:292 },
-  { name:'Lagoon & Coral',     g:206, a:28,  s:292, deep:236 },
-  { name:'Blush & Cobalt',     g:356, a:262, s:162, deep:266 },
-  { name:'Butter & Navy',      g:96,  a:266, s:342, deep:266 },
-  { name:'Petrol & Peach',     g:224, a:48,  s:332, deep:226 },
-  { name:'Cherry & Aqua',      g:14,  a:196, s:96,  deep:6 },
-  { name:'Mint & Magenta',     g:166, a:342, s:256, deep:250 },
-  { name:'Lilac & Citrus',     g:306, a:112, s:178, deep:290 },
-  { name:'Glacier & Flame',    g:238, a:34,  s:122, deep:252 },
-  { name:'Aubergine & Brass',  g:322, a:92,  s:176, deep:318 },
-  { name:'Sea Glass & Grape',  g:184, a:300, s:56,  deep:212 },
-  { name:'Poppy & Ink',        g:28,  a:268, s:182, deep:268 },
-  { name:'Grape Soda',         g:284, a:178, s:62,  deep:286 },
-  { name:'Sage & Rosé',        g:142, a:358, s:252, deep:152 },
-  { name:'Reef',               g:40,  a:200, s:294, deep:352 },
-  { name:'Midnight & Cyan',    g:266, a:202, s:336, deep:266 },
-  { name:'Kiwi & Violet',      g:124, a:296, s:26,  deep:290 },
-  { name:'Denim & Butter',     g:256, a:96,  s:18,  deep:260 },
-  { name:'Jade & Tangerine',   g:174, a:52,  s:294, deep:176 },
-  { name:'Bubblegum & Pine',   g:352, a:154, s:242, deep:156 },
-  { name:'Orchid & Lime',      g:320, a:130, s:222, deep:302 },
-  { name:'Emerald & Blush',    g:160, a:12,  s:92,  deep:164 },
-  { name:'Marine & Rhubarb',   g:246, a:352, s:152, deep:250 },
-  { name:'Graphite & Volt',    g:252, a:122, s:202, deep:260, neutral:true },
-  { name:'Porcelain & Cobalt', g:84,  a:262, s:24,  deep:262, neutral:true },
+  { name:'Navy & Orange',       g:262, a:55,  s:200, deep:264 },
+  { name:'Black & Gold',        g:270, a:88,  s:40,  deep:270, neutral:true },
+  { name:'Money Green & Gold',  g:150, a:92,  s:205, deep:152 },
+  { name:'Apple White & Blue',  g:250, a:258, s:345, deep:260, neutral:true },
+  { name:'Red & Yellow',        g:27,  a:102, s:255, deep:22 },
+  { name:'Purple & Gold',       g:300, a:88,  s:340, deep:298 },
+  { name:'Teal & Coral',        g:190, a:30,  s:100, deep:200 },
+  { name:'Midnight & Cyan',     g:268, a:205, s:335, deep:268 },
+  { name:'Sunset Orange & Pink',g:50,  a:352, s:290, deep:350 },
+  { name:'Black & Hot Pink',    g:290, a:350, s:205, deep:290, neutral:true },
+  { name:'Mint & Navy',         g:165, a:262, s:350, deep:170 },
+  { name:'Cream & Red',         g:90,  a:27,  s:258, deep:20,  neutral:true },
+  { name:'Emerald & Pink',      g:158, a:0,   s:95,  deep:160 },
+  { name:'Blue & Yellow',       g:240, a:102, s:20,  deep:255 },
+  { name:'Graphite & Lime',     g:255, a:125, s:200, deep:260, neutral:true },
+  { name:'Lavender & Mint',     g:300, a:165, s:350, deep:295 },
+  { name:'Titanium & Orange',   g:230, a:50,  s:230, deep:255, neutral:true },
+  { name:'Wine & Gold',         g:8,   a:88,  s:200, deep:6 },
+  { name:'Cobalt & Pink',       g:265, a:350, s:190, deep:266 },
+  { name:'Peach & Teal',        g:55,  a:190, s:350, deep:200 },
+  { name:'Aqua & Magenta',      g:200, a:340, s:100, deep:215 },
+  { name:'Blush & Navy',        g:5,   a:262, s:160, deep:262 },
+  { name:'Purple & Lime',       g:295, a:125, s:200, deep:295 },
+  { name:'Lemon & Purple',      g:105, a:295, s:20,  deep:295 },
+  { name:'Stone & Teal',        g:80,  a:190, s:28,  deep:190, neutral:true },
 ];
 /* role chroma (light side / dark side) */
 const CH = { ground:[0.048, 0.112], accent:[0.17, 0.18], support:[0.12, 0.13], ink:[0.03, 0.035] };
@@ -206,7 +214,12 @@ export function assign(cards){
   const sorted = cards.slice().sort((x, y) => (x.cat + x.layout + x.id).localeCompare(y.cat + y.layout + y.id));
   for (const c of sorted){
     const o = parse(c.c1); const oh = o ? toOklch(o).H : 0; const oc = o ? toOklch(o).C : 0;
-    const ok = (p, strict) => (!strict || oc < 0.03 || hueGap(p.g, oh) >= 60) && (AFFINITY[c.cat] || (() => true))(p) && (!strict || !taken.has(c.cat + '|' + c.layout + '|' + p.name));
+    /* a gold, yellow or orange accent only reads as itself when it is light:
+       under Y 0.28 the no-brown rule has to trade it for the DEEP hue, and a
+       "Black & Gold" card with no gold on it is a wrong label. Those
+       palettes go to cards whose accent is light enough to carry them. */
+    const acc = parse(c.accent), warmOk = p => !(p.a >= 32 && p.a <= 108) || (acc && lumOf(acc) >= 0.28);
+    const ok = (p, strict) => (!strict || oc < 0.03 || hueGap(p.g, oh) >= 60) && (AFFINITY[c.cat] || (() => true))(p) && warmOk(p) && (!strict || !taken.has(c.cat + '|' + c.layout + '|' + p.name));
     let pool = PALETTES.filter(p => ok(p, true));
     if (!pool.length) pool = PALETTES.filter(p => ok(p, false));
     pool.sort((p, q) => use.get(p.name) - use.get(q.name));

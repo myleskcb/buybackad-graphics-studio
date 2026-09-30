@@ -658,6 +658,7 @@ step is measured by the gate before it writes):
 
     node scripts/refresh_showcase.mjs                      # palettes, faces, copy rules, from git HEAD: FIRST, or it discards everything after
     node scripts/import_lab_export.mjs                     # new records from the lab (restores the tone grade: before naturalize)
+    node scripts/repalette_showcase.mjs --write            # palettes only, on the records as they stand (the proven 25, 2026-09-30); any time
     node scripts/number_block.mjs --write                  # the number, big (rule 53)
     node scripts/naturalize_showcase.mjs --write           # photo in its own colour (rule 56)
     node scripts/restage_glasscards.mjs --write            # Glass Card: product on the card (rule 59)
