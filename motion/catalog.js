@@ -393,6 +393,45 @@ export const OPTIONS = {
   outro: ["none", "settle", "end_card"],
 };
 
+// Spin-offs of the best grounds (audit 2026-09-30), painted in decor.js
+// candidateGround. tier 3: the best of the best, three spin-offs each; tier 2:
+// the best, two each. None is drawn by a shuffle until the owner approves it:
+// GROUND_REVIEW is the owner's decision, id by id. An approved spin-off of an LA
+// vibe's ground joins that vibe; an approved studio one joins the studio grounds.
+export const GROUND_CANDIDATES = {
+  mural_waves:     { parent: "mural_wall",  tier: 3, label: "Mural: painted waves" },
+  mural_rainbow:   { parent: "mural_wall",  tier: 3, label: "Mural: seventies rainbow" },
+  mural_shapes:    { parent: "mural_wall",  tier: 3, label: "Mural: shapes and squiggles" },
+  sunset_synth:    { parent: "sunset_sky",  tier: 3, label: "Sunset: retro grid" },
+  sunset_ocean:    { parent: "sunset_sky",  tier: 3, label: "Sunset: over the ocean" },
+  sunset_dusk:     { parent: "sunset_sky",  tier: 3, label: "Sunset: dusk and stars" },
+  brick_neon_wash: { parent: "brick_night", tier: 3, label: "Brick: neon wash" },
+  brick_wet:       { parent: "brick_night", tier: 3, label: "Brick: wet night" },
+  brick_lamp:      { parent: "brick_night", tier: 3, label: "Brick: streetlamp" },
+  halftone_duo:    { parent: "halftone",    tier: 3, label: "Halftone: two corners" },
+  halftone_comic:  { parent: "halftone",    tier: 3, label: "Halftone: comic panel" },
+  halftone_lines:  { parent: "halftone",    tier: 3, label: "Halftone: line screen" },
+  rays_corner:     { parent: "rays",        tier: 2, label: "Rays: from the corner" },
+  rays_bold:       { parent: "rays",        tier: 2, label: "Rays: bold sunburst" },
+  beams_cross:     { parent: "beams",       tier: 2, label: "Beams: crossed searchlights" },
+  beams_stage:     { parent: "beams",       tier: 2, label: "Beams: stage lights" },
+  beach_sunset:    { parent: "beach",       tier: 2, label: "Beach: golden hour" },
+  beach_top:       { parent: "beach",       tier: 2, label: "Beach: from above" },
+  velvet_parted:   { parent: "velvet",      tier: 2, label: "Velvet: curtain parted" },
+  velvet_bulbs:    { parent: "velvet",      tier: 2, label: "Velvet: marquee bulbs" },
+  checker_floor:   { parent: "checker",     tier: 2, label: "Checker: floor" },
+  checker_diamond: { parent: "checker",     tier: 2, label: "Checker: diamonds" },
+  candy_flames:    { parent: "candy_flake", tier: 2, label: "Candy paint: flames" },
+  candy_fade:      { parent: "candy_flake", tier: 2, label: "Candy paint: two-tone fade" },
+};
+export const GROUND_REVIEW = { approved: [], rejected: [] };
+for (const id of GROUND_REVIEW.approved) {
+  const c = GROUND_CANDIDATES[id]; if (!c) continue;
+  const vibes = Object.values(VIBES).filter(v => (v.backgrounds || []).includes(c.parent));
+  if (vibes.length) vibes.forEach(v => v.backgrounds.push(id));
+  if (OPTIONS.background.includes(c.parent)) OPTIONS.background.push(id);
+}
+
 // The BACK is what makes a model recognisable: every drawn cut ends on the backs,
 // and most show the fronts only as they flash past. Type that ENTERS FROM THE
 // LEFT is drawn three times as often as the rest.

@@ -347,9 +347,9 @@ function drawPhonePicker() {
    of each; a shelf picked shows as many as you scroll, no button to keep pressing.
    (Owner, 2026-09-30: eight at a time "doesn't show enough"; "organize/categorize".) */
 const STUDIO = {
-  clean:   { label: "Clean gradients", backgrounds: ["radial", "flat", "linear", "duotone", "tonal", "spotlight", "split"] },
-  pattern: { label: "Patterns", backgrounds: ["dots", "stripes", "grid", "checker", "halftone", "rings", "waves"] },
-  light:   { label: "Light and glow", backgrounds: ["rays", "sunburst", "beams", "bokeh", "aurora", "drift", "mesh"] },
+  clean:   { label: "Clean gradients", backgrounds: ["radial", "flat", "linear", "duotone", "tonal", "spotlight", "split", "rays_bold"] },
+  pattern: { label: "Patterns", backgrounds: ["dots", "stripes", "grid", "checker", "halftone", "rings", "waves", "halftone_duo", "halftone_comic", "halftone_lines", "checker_diamond", "checker_floor"] },
+  light:   { label: "Light and glow", backgrounds: ["rays", "sunburst", "beams", "bokeh", "aurora", "drift", "mesh", "rays_corner", "beams_cross", "beams_stage"] },
   bold:    { label: "Bold and loud", backgrounds: ["bigword", "confetti", "frame", "noise"] },
 };
 const SHELVES = [

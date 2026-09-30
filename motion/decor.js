@@ -742,3 +742,292 @@ export function beatPulse(t, tHit, bpm) {
 }
 
 export { rng };
+
+// ------------------------------------------------------------ spin-off grounds (in review)
+
+/* Spin-offs of the grounds the 2026-09-30 audit rated best: three each of the
+   mural wall, the sunset sky, the night brick and the halftone, two each of the
+   rays, the beams, the beach, the velvet, the checker and the candy paint.
+   Every one is a candidate until the owner approves it (GROUND_REVIEW in
+   catalog.js): only an approved one is ever drawn by a shuffle. Each keeps its
+   parent's idea and its palette, and leaves the middle of the frame calm
+   enough for the phones and the words. */
+export function candidateGround(kind, x, st, p, W, H, sc, r) {
+  const sil = p.sil || mix(p.ground, "#000000", .7), D = Math.hypot(W, H), tall = W / H < .85;
+  const [cx, cy] = sc;
+  const sky = p.sky || [shade(p.ground, -.35), p.ground, p.accent, p.light];
+  const wall = cols => { stucco(x, mix(p.light, "#ffffff", .35), W, H, r); return cols; };
+  const muralCols = [p.ground, p.accent, p.plate, mix(p.ground, p.accent, .5), p.light];
+  const glow = (gx, gy, R, col, a) => { const g = x.createRadialGradient(gx, gy, 0, gx, gy, R); g.addColorStop(0, rgba(col, a)); g.addColorStop(1, rgba(col, 0)); x.fillStyle = g; x.fillRect(0, 0, W, H); };
+  const bricks = (base, lightK = .5, top = 0, bottom = H) => {
+    x.fillStyle = shade(base, -.2); x.fillRect(0, top, W, bottom - top);
+    const bh = Math.max(8, H * .045), bw = bh * 2.3, mortar = Math.max(1, bh * .12);
+    for (let row = 0, y = top; y < bottom; row++, y += bh)
+      for (let xx = row % 2 ? -bw / 2 : 0; xx < W; xx += bw) { x.fillStyle = mix(base, p.light, r.uniform(.05, lightK)); x.fillRect(xx + mortar / 2, y + mortar / 2, bw - mortar, Math.min(bh, bottom - y) - mortar); }
+    grain(x, W, H, r, 30, .3);
+  };
+  const skyTo = (hz, stops = sky) => { const g = x.createLinearGradient(0, 0, 0, hz); stops.forEach((c, i) => g.addColorStop(i / (stops.length - 1), c)); x.fillStyle = g; x.fillRect(0, 0, W, hz + 2); };
+  const radialGround = (k = .75) => { const g = x.createRadialGradient(cx, cy, 0, cx, cy, D * k); g.addColorStop(0, p.light); g.addColorStop(1, p.ground); x.fillStyle = g; x.fillRect(0, 0, W, H); };
+  const light = lum(p.ground) > .45 ? shade(p.ground, -.3) : p.light;
+  switch (kind) {
+    // ---- mural wall
+    case "mural_waves": {                                   // painted swells rolling across the wall
+      const cols = wall(muralCols), n = r.int(6, 8), amp = H * r.uniform(.03, .06), per = W * r.uniform(.5, .9), tilt = r.uniform(-.25, .25);
+      x.save(); x.globalAlpha = .93;
+      for (let i = 0; i <= n; i++) {                        // top band first, each lower swell over the one above
+        const y0 = H * (i / (n + 1)) * 1.1 - H * .02;
+        x.fillStyle = cols[i % cols.length]; x.beginPath(); x.moveTo(0, H);
+        for (let xx = 0; xx <= W + 10; xx += 10) x.lineTo(xx, y0 + tilt * (xx - W / 2) + Math.sin(xx / per * TAU + i * 1.3) * amp);
+        x.lineTo(W, H); x.closePath(); x.fill();
+        x.strokeStyle = "rgba(255,255,255,.7)"; x.lineWidth = Math.max(2, W * .005); x.stroke();
+      }
+      x.restore(); grain(x, W, H, r, 22, .35); return true;
+    }
+    case "mural_rainbow": {                                  // a seventies arch of painted bands out of a corner
+      const cols = wall(muralCols), ox = r() < .5 ? W * .02 : W * .98, oy = H * 1.02, band = Math.max(W, H) * r.uniform(.07, .1);
+      x.save(); x.globalAlpha = .93;
+      for (let i = 12; i >= 0; i--) { x.fillStyle = cols[i % cols.length]; x.beginPath(); x.arc(ox, oy, band * (i + 2), 0, TAU); x.fill(); }
+      x.fillStyle = mix(p.light, "#ffffff", .35); x.beginPath(); x.arc(ox, oy, band * 1.6, 0, TAU); x.fill();
+      x.restore(); grain(x, W, H, r, 22, .35); return true;
+    }
+    case "mural_shapes": {                                   // a two-tone wall with painted triangles, squiggles and dots
+      const cols = wall(muralCols);
+      x.save(); x.globalAlpha = .92; x.fillStyle = cols[0];
+      x.beginPath(); x.moveTo(0, H * r.uniform(.45, .7)); x.lineTo(W, H * r.uniform(.25, .5)); x.lineTo(W, H); x.lineTo(0, H); x.fill();
+      const U = Math.min(W, H);
+      for (let i = 0; i < 9; i++) {
+        const px = r() * W, py = r() * H, s = U * r.uniform(.05, .11), c = cols[(i + 1) % cols.length], kind2 = i % 3;
+        x.save(); x.translate(px, py); x.rotate(r() * TAU); x.fillStyle = c; x.strokeStyle = c; x.lineWidth = U * .014; x.lineCap = "round";
+        if (kind2 === 0) { x.beginPath(); x.moveTo(0, -s); x.lineTo(s * .9, s * .6); x.lineTo(-s * .9, s * .6); x.closePath(); x.fill(); }
+        else if (kind2 === 1) { x.beginPath(); for (let k = 0; k <= 24; k++) x.lineTo(-s * 1.4 + k * s * 2.8 / 24, Math.sin(k / 24 * TAU * 1.5) * s * .3); x.stroke(); }
+        else for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) { x.beginPath(); x.arc((a - 1) * s * .5, (b - 1) * s * .5, s * .12, 0, TAU); x.fill(); }
+        x.restore();
+      }
+      x.restore(); grain(x, W, H, r, 22, .35); return true;
+    }
+    // ---- sunset sky
+    case "sunset_synth": {                                   // the retro sun over a glowing grid floor
+      const hz = H * (tall ? .56 : .6); skyTo(hz);
+      const R = Math.min(W, H) * r.uniform(.18, .24), sx = W * r.uniform(.35, .65);
+      glow(sx, hz, R * 3, sky[3], .55); retroSun(x, sx, hz - R * .35, R, p.sun || "#ffb347", "#ff4f6d", hz);
+      x.fillStyle = shade(sil, -.2); x.fillRect(0, hz, W, H - hz);
+      x.strokeStyle = rgba(sky[2], .75); x.lineWidth = Math.max(1, W * .0028);
+      for (let k = 1; k < 14; k++) { const y = hz + (H - hz) * Math.pow(k / 13, 1.9); x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+      for (let k = -12; k <= 12; k++) { x.beginPath(); x.moveTo(sx + k * W * .02, hz); x.lineTo(sx + k * W * .2, H); x.stroke(); }
+      glow(sx, hz, W * .6, sky[2], .25); return true;
+    }
+    case "sunset_ocean": {                                   // the sun going down into the Pacific, its road of light on the water
+      const hz = H * (tall ? .5 : .55); skyTo(hz);
+      const R = Math.min(W, H) * r.uniform(.14, .2), sx = W * r.uniform(.3, .7);
+      glow(sx, hz, R * 3.4, sky[3], .6); retroSun(x, sx, hz - R * .3, R, p.sun || "#ffb347", "#ff4f6d", hz);
+      const og = x.createLinearGradient(0, hz, 0, H); og.addColorStop(0, mix(sky[1], "#0b3a5c", .45)); og.addColorStop(1, mix(sil, "#062238", .5));
+      x.fillStyle = og; x.fillRect(0, hz, W, H - hz);
+      for (let k = 0; k < 26; k++) {
+        const y = hz + (H - hz) * Math.pow((k + .5) / 26, 1.4), w = R * (.4 + 1.6 * (k / 26)) * r.uniform(.5, 1.2);
+        x.fillStyle = rgba(k % 3 ? sky[3] : "#fff4b8", .7 - k * .018); x.fillRect(sx - w / 2 + r.uniform(-R * .2, R * .2), y, w, Math.max(1.5, H * .004));
+      }
+      palms(x, W, H, sil, r, 2); return true;
+    }
+    case "sunset_dusk": {                                    // later, darker: stars out, the last of the light low, palms framing it
+      const hz = H * (tall ? .64 : .7);
+      skyTo(hz, [shade(sky[0], -.35), sky[0], sky[1], sky[2]]);
+      for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(255,255,255,${r.uniform(.2, .8)})`; const s = r.uniform(.6, 1.8) * Math.max(1, W / 700); x.fillRect(r() * W, r() * hz * .7, s, s); }
+      glow(W * r.uniform(.3, .7), hz, W * .7, sky[3], .5);
+      x.fillStyle = sil; x.fillRect(0, hz, W, H - hz);
+      skyline(x, W, H, hz + 2, sil, r);
+      palms(x, W, H, shade(sil, -.3), r, 2); palms(x, W, H, shade(sil, -.3), r, 1); return true;
+    }
+    // ---- night brick
+    case "brick_neon_wash": {                                // two neon signs just out of frame washing the wall in colour
+      bricks(p.ground, .45);
+      x.fillStyle = "rgba(8,4,24,.5)"; x.fillRect(0, 0, W, H);
+      x.save(); x.globalCompositeOperation = "screen";
+      glow(0, H * r.uniform(.1, .5), W * .9, p.accent, .55); glow(W, H * r.uniform(.5, .9), W * .9, p.plate || p.light, .5);
+      x.restore(); return true;
+    }
+    case "brick_wet": {                                      // the wall over a wet sidewalk, colour smeared in the puddles, rain
+      const fl = H * (tall ? .72 : .68); bricks(p.ground, .45, 0, fl);
+      x.fillStyle = "rgba(10,5,30,.4)"; x.fillRect(0, 0, W, fl);
+      glow(W * .3, H * .3, W * .7, p.accent, .3);
+      const g = x.createLinearGradient(0, fl, 0, H); g.addColorStop(0, shade(p.ground, -.55)); g.addColorStop(1, shade(p.ground, -.8)); x.fillStyle = g; x.fillRect(0, fl, W, H - fl);
+      for (let i = 0; i < 40; i++) { const px = r() * W, w = W * r.uniform(.004, .02); x.fillStyle = rgba(r() < .5 ? p.accent : p.light, r.uniform(.08, .3)); x.fillRect(px, fl + r() * H * .05, w, (H - fl) * r.uniform(.3, 1)); }
+      x.strokeStyle = "rgba(255,255,255,.18)"; x.lineWidth = Math.max(1, W * .0015);
+      for (let i = 0; i < 120; i++) { const px = r() * W, py = r() * H, L = H * r.uniform(.02, .05); x.beginPath(); x.moveTo(px, py); x.lineTo(px - L * .25, py + L); x.stroke(); }
+      return true;
+    }
+    case "brick_lamp": {                                     // one warm streetlamp over a dark wall
+      bricks(p.ground, .4);
+      x.fillStyle = "rgba(4,2,14,.62)"; x.fillRect(0, 0, W, H);
+      const lx = cx + W * r.uniform(-.15, .15);
+      x.save(); x.globalCompositeOperation = "screen";
+      const cone = x.createLinearGradient(0, 0, 0, H); cone.addColorStop(0, "rgba(255,214,150,.55)"); cone.addColorStop(1, "rgba(255,214,150,.05)");
+      x.fillStyle = cone; x.beginPath(); x.moveTo(lx - W * .04, 0); x.lineTo(lx + W * .04, 0); x.lineTo(lx + W * .45, H); x.lineTo(lx - W * .45, H); x.closePath(); x.fill();
+      glow(lx, H * .02, W * .25, "#ffe2b0", .8);
+      x.restore(); return true;
+    }
+    // ---- halftone
+    case "halftone_duo": {                                   // two dot screens meeting from opposite corners, one in the accent
+      radialGround();
+      const step = Math.max(10, W * .022), c1 = r() < .5 ? [0, 0] : [W, 0], c2 = [W - c1[0], H];
+      for (const [corner, col, a] of [[c1, light, .5], [c2, p.accent, .6]]) {
+        x.fillStyle = rgba(col, a);
+        for (let yy = 0; yy < H; yy += step) for (let xx = 0; xx < W; xx += step) {
+          const d = Math.hypot(xx - corner[0], yy - corner[1]) / D, rad = step * .5 * clamp(1 - d * 2.1);
+          if (rad > .5) { x.beginPath(); x.arc(xx + (col === p.accent ? step / 2 : 0), yy + (col === p.accent ? step / 2 : 0), rad, 0, TAU); x.fill(); }
+        }
+      }
+      return true;
+    }
+    case "halftone_comic": {                                 // a comic panel: action lines out of the phones and a dot screen over all
+      radialGround();
+      const n = 40; x.fillStyle = rgba(light, .28);
+      for (let i = 0; i < n; i++) { const a0 = i / n * TAU + r.uniform(0, .05), a1 = a0 + TAU / n * r.uniform(.2, .5); x.beginPath(); x.moveTo(cx, cy); x.arc(cx, cy, D, a0, a1); x.closePath(); x.fill(); }
+      const step = Math.max(8, W * .016); x.fillStyle = rgba(lum(p.ground) > .45 ? "#000000" : "#ffffff", .1);
+      for (let yy = 0, row = 0; yy < H; yy += step * .87, row++) for (let xx = row % 2 ? step / 2 : 0; xx < W; xx += step) { x.beginPath(); x.arc(xx, yy, step * .22, 0, TAU); x.fill(); }
+      x.strokeStyle = lum(p.accent) > .3 ? p.accent : p.ink; x.lineWidth = Math.min(W, H) * .018; x.strokeRect(x.lineWidth / 2, x.lineWidth / 2, W - x.lineWidth, H - x.lineWidth);
+      return true;
+    }
+    case "halftone_lines": {                                 // a line screen: diagonal rules that swell toward one corner
+      radialGround();
+      const per = Math.max(8, W * .02), corner = r.pick([[0, 0], [W, 0], [0, H], [W, H]]);
+      x.fillStyle = rgba(light, .5);
+      x.save(); x.translate(W / 2, H / 2); x.rotate(-Math.PI / 4);
+      for (let s = -D; s < D; s += per) for (let t = -D; t < D; t += per * .5) {
+        const c = Math.cos(Math.PI / 4), sn = Math.sin(Math.PI / 4), px = W / 2 + s * c + t * sn, py = H / 2 - s * sn + t * c;
+        const w = per * .9 * clamp(1 - Math.hypot(px - corner[0], py - corner[1]) / D * 1.7);
+        if (w > .4) x.fillRect(s - w / 2, t, w, per * .5 + .5);
+      }
+      x.restore(); return true;
+    }
+    // ---- rays
+    case "rays_corner": {                                    // the rays out of a low corner, two tones, like light through a door
+      radialGround(.9);
+      const ox = r() < .5 ? -W * .05 : W * 1.05, oy = H * 1.05, n = 22;
+      for (let i = 0; i < n; i++) { const a0 = Math.PI + i / n * Math.PI, a1 = a0 + Math.PI / n / 1.6; x.fillStyle = rgba(i % 2 ? light : mix(p.light, p.accent, .5), .3); x.beginPath(); x.moveTo(ox, oy); x.arc(ox, oy, D * 1.3, a0, a1); x.closePath(); x.fill(); }
+      return true;
+    }
+    case "rays_bold": {                                      // a full sunburst in the ground and a deeper shade of it, a soft pool behind the phones
+      x.fillStyle = p.ground; x.fillRect(0, 0, W, H);
+      const n = 16 + (st.seed % 3) * 4, deep = shade(p.ground, lum(p.ground) > .45 ? -.14 : .14);
+      x.fillStyle = deep;
+      for (let i = 0; i < n; i++) { const a0 = i / n * TAU, a1 = a0 + Math.PI / n; x.beginPath(); x.moveTo(cx, cy); x.arc(cx, cy, D, a0, a1); x.closePath(); x.fill(); }
+      glow(cx, cy, Math.min(W, H) * .45, p.light, .7); return true;
+    }
+    // ---- beams
+    case "beams_cross": {                                    // two searchlights from the floor crossing behind the phones
+      x.fillStyle = shade(p.ground, -.45); x.fillRect(0, 0, W, H);
+      x.save(); x.globalCompositeOperation = "screen";
+      for (const [bx, dir] of [[W * .12, 1], [W * .88, -1]]) {
+        const g = x.createLinearGradient(bx, H, bx + dir * W * .5, 0); g.addColorStop(0, rgba(p.light, .6)); g.addColorStop(1, rgba(p.light, 0));
+        x.fillStyle = g; x.beginPath(); x.moveTo(bx - W * .02, H); x.lineTo(bx + W * .02, H); x.lineTo(bx + dir * W * .95, -H * .05); x.lineTo(bx + dir * W * .55, -H * .05); x.closePath(); x.fill();
+      }
+      x.restore(); glow(W / 2, H, W * .6, p.light, .35); return true;
+    }
+    case "beams_stage": {                                    // lights from the rig onto a stage floor
+      const fl = H * (tall ? .7 : .66);
+      x.fillStyle = shade(p.ground, -.5); x.fillRect(0, 0, W, H);
+      const fg = x.createLinearGradient(0, fl, 0, H); fg.addColorStop(0, shade(p.ground, -.15)); fg.addColorStop(1, shade(p.ground, -.6)); x.fillStyle = fg; x.fillRect(0, fl, W, H - fl);
+      x.save(); x.globalCompositeOperation = "screen";
+      for (let i = 0; i < 3; i++) {
+        const bx = W * (.2 + .3 * i), tx = W * (.3 + .2 * i) + r.uniform(-W * .05, W * .05);
+        const g = x.createLinearGradient(0, 0, 0, fl); g.addColorStop(0, rgba(p.light, .55)); g.addColorStop(1, rgba(p.light, .12));
+        x.fillStyle = g; x.beginPath(); x.moveTo(bx - W * .015, 0); x.lineTo(bx + W * .015, 0); x.lineTo(tx + W * .13, fl); x.lineTo(tx - W * .13, fl); x.closePath(); x.fill();
+        x.fillStyle = rgba(p.light, .35); x.beginPath(); x.ellipse(tx, fl + H * .02, W * .15, H * .03, 0, 0, TAU); x.fill();
+      }
+      x.restore(); return true;
+    }
+    // ---- beach
+    case "beach_sunset": {                                   // the beach at golden hour: warm sky, the sun on the water, wet sand shining
+      const hz = H * (tall ? .4 : .44);
+      skyTo(hz, ["#3d1a70", "#b1447a", "#ff8a5b", "#ffc857"]);
+      const sx = W * r.uniform(.3, .7), R = Math.min(W, H) * .08;
+      glow(sx, hz, R * 5, "#ffd98a", .7); x.fillStyle = "#fff0b8"; x.beginPath(); x.arc(sx, hz, R, Math.PI, 0); x.fill();
+      const og = x.createLinearGradient(0, hz, 0, hz + H * .18); og.addColorStop(0, "#6a4a8c"); og.addColorStop(1, "#e08a6d"); x.fillStyle = og; x.fillRect(0, hz, W, H * .18);
+      for (let k = 0; k < 12; k++) { const y = hz + H * .18 * (k + .5) / 12, w = R * (1 + k * .25); x.fillStyle = rgba("#ffe0a0", .6 - k * .04); x.fillRect(sx - w / 2, y, w, Math.max(1.5, H * .004)); }
+      const sy = hz + H * .18; x.fillStyle = "rgba(255,255,255,.7)"; x.fillRect(0, sy - H * .004, W, H * .01);
+      const sg = x.createLinearGradient(0, sy, 0, H); sg.addColorStop(0, "#d99a7a"); sg.addColorStop(1, "#f0c89a"); x.fillStyle = sg; x.fillRect(0, sy + H * .006, W, H);
+      palms(x, W, H, "rgba(40,15,50,.9)", r, r.pick([1, 2])); return true;
+    }
+    case "beach_top": {                                      // from above: sand, the surf's edge and its foam
+      x.fillStyle = p.sand || "#f2d7a6"; x.fillRect(0, 0, W, H);
+      const n = Math.round(W * H / 380), k = Math.max(1, W / 700);
+      for (let i = 0; i < n; i++) { x.fillStyle = rgba(r() < .5 ? "#c9a36b" : "#fff3dc", r.uniform(.2, .6)); x.fillRect(r() * W, r() * H, k, k); }
+      const edge = xx => H * .34 + Math.sin(xx / W * 5 + 1) * H * .05 + Math.sin(xx / W * 13) * H * .012;
+      const wg = x.createLinearGradient(0, 0, 0, H * .4); wg.addColorStop(0, "#0077b6"); wg.addColorStop(1, "#48cae4");
+      x.fillStyle = wg; x.beginPath(); x.moveTo(0, 0); x.lineTo(W, 0); for (let xx = W; xx >= 0; xx -= 8) x.lineTo(xx, edge(xx)); x.closePath(); x.fill();
+      x.fillStyle = "rgba(160,120,70,.18)"; x.beginPath(); for (let xx = 0; xx <= W; xx += 8) x.lineTo(xx, edge(xx) + H * .05); for (let xx = W; xx >= 0; xx -= 8) x.lineTo(xx, edge(xx)); x.fill();
+      x.strokeStyle = "rgba(255,255,255,.9)"; x.lineWidth = Math.max(2, W * .008);
+      for (let j = 0; j < 3; j++) { x.globalAlpha = 1 - j * .3; x.beginPath(); for (let xx = 0; xx <= W; xx += 8) x.lineTo(xx, edge(xx) - j * H * .03 + Math.sin(xx * .05 + j) * H * .004); x.stroke(); }
+      x.globalAlpha = 1; return true;
+    }
+    // ---- velvet
+    case "velvet_parted": {                                  // the curtain drawn back to a lit stage
+      x.fillStyle = shade(p.ground, -.7); x.fillRect(0, 0, W, H);
+      glow(cx, H * .55, Math.min(W, H) * .55, p.light, .45);
+      const side = W * (tall ? .2 : .24), folds = 5;
+      for (const left of [true, false]) for (let i = 0; i < folds; i++) {
+        const fw = side / folds, x0 = left ? i * fw : W - (i + 1) * fw;
+        const g = x.createLinearGradient(x0, 0, x0 + fw, 0); g.addColorStop(0, shade(p.ground, -.45)); g.addColorStop(.5, p.light); g.addColorStop(1, shade(p.ground, -.45));
+        x.fillStyle = g; x.beginPath(); x.moveTo(x0, 0); x.lineTo(x0 + fw, 0); x.lineTo(x0 + fw + (left ? -1 : 1) * fw * i * .15, H); x.lineTo(x0 + (left ? -1 : 1) * fw * i * .15, H); x.closePath(); x.fill();
+      }
+      const vh = H * .08; x.fillStyle = shade(p.ground, -.25); x.fillRect(0, 0, W, vh);
+      for (let i = 0; i < 16; i++) { x.beginPath(); x.arc((i + .5) * W / 16, vh, W / 32, 0, Math.PI); x.fill(); }
+      x.fillStyle = "#d4a017"; x.fillRect(0, vh * .82, W, Math.max(2, H * .006)); return true;
+    }
+    case "velvet_bulbs": {                                   // velvet folds inside a frame of marquee bulbs
+      x.fillStyle = p.ground; x.fillRect(0, 0, W, H);
+      const folds = r.int(7, 11), fw = W / folds;
+      for (let i = 0; i < folds; i++) { const g = x.createLinearGradient(i * fw, 0, (i + 1) * fw, 0); g.addColorStop(0, shade(p.ground, -.45)); g.addColorStop(.5, p.light); g.addColorStop(1, shade(p.ground, -.45)); x.fillStyle = g; x.fillRect(i * fw - 1, 0, fw + 2, H); }
+      x.fillStyle = "rgba(0,0,0,.35)"; x.fillRect(0, 0, W, H);
+      const m = Math.min(W, H) * .035, gap = Math.min(W, H) * .06, bulb = (bx, by) => { const g = x.createRadialGradient(bx, by, 0, bx, by, m * .9); g.addColorStop(0, "#fffbe6"); g.addColorStop(.35, "#ffd36b"); g.addColorStop(1, "rgba(255,190,80,0)"); x.fillStyle = g; x.beginPath(); x.arc(bx, by, m * .9, 0, TAU); x.fill(); };
+      x.fillStyle = "#2a1a0a"; x.lineWidth = m * 1.2; x.strokeStyle = "#3a2410"; x.strokeRect(m, m, W - 2 * m, H - 2 * m);
+      for (let xx = m; xx <= W - m; xx += gap) { bulb(xx, m); bulb(xx, H - m); }
+      for (let yy = m + gap; yy < H - m; yy += gap) { bulb(m, yy); bulb(W - m, yy); }
+      return true;
+    }
+    // ---- checker
+    case "checker_floor": {                                  // a checkered floor running back to a lit wall
+      const hz = H * (tall ? .55 : .5);
+      const wg = x.createLinearGradient(0, 0, 0, hz); wg.addColorStop(0, shade(p.ground, -.2)); wg.addColorStop(1, p.light); x.fillStyle = wg; x.fillRect(0, 0, W, hz);
+      x.fillStyle = p.ground; x.fillRect(0, hz, W, H - hz);
+      const dark = mix(p.ground, lum(p.ground) > .45 ? "#000000" : "#ffffff", .3), rows = 9, cols = 12, vx = W / 2;
+      const Y = k => hz + (H - hz) * Math.pow(k / rows, 1.8), X = (c, y) => vx + (c - cols / 2) * (W * 1.9 / cols) * ((y - hz) / (H - hz));
+      x.fillStyle = dark;
+      for (let k = 0; k < rows; k++) for (let c = -4; c < cols + 4; c++) if ((k + c) % 2 === 0) {
+        const y0 = Y(k), y1 = Y(k + 1); x.beginPath(); x.moveTo(X(c, y0), y0); x.lineTo(X(c + 1, y0), y0); x.lineTo(X(c + 1, y1), y1); x.lineTo(X(c, y1), y1); x.closePath(); x.fill();
+      }
+      const sh = x.createLinearGradient(0, hz, 0, hz + H * .12); sh.addColorStop(0, "rgba(0,0,0,.35)"); sh.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = sh; x.fillRect(0, hz, W, H * .12);
+      return true;
+    }
+    case "checker_diamond": {                                // the checker turned to diamonds, two tones, lit behind the phones
+      x.fillStyle = p.ground; x.fillRect(0, 0, W, H);
+      const sq = Math.max(W, H) / r.pick([8, 11]); x.fillStyle = mix(p.ground, p.accent, .28);
+      x.save(); x.translate(W / 2, H / 2); x.rotate(Math.PI / 4);
+      for (let yy = -D; yy < D; yy += sq) for (let xx = -D; xx < D; xx += sq) if (((xx / sq | 0) + (yy / sq | 0)) % 2) x.fillRect(xx, yy, sq, sq);
+      x.restore(); glow(cx, cy, D * .5, p.light, .45); return true;
+    }
+    // ---- candy paint
+    case "candy_flames": {                                   // candy paint with hot-rod flames licking up from the bottom
+      if (!vibeBackground("candy_flake", x, st, p, W, H, sc, r)) return false;
+      const n = 7, base = H * 1.02, fw = W / (n - 1.5);
+      const fg = x.createLinearGradient(0, H * .55, 0, H); fg.addColorStop(0, "#ffe066"); fg.addColorStop(.5, "#ff8c1a"); fg.addColorStop(1, "#d62828");
+      x.save(); x.fillStyle = fg; x.strokeStyle = "rgba(255,255,255,.8)"; x.lineWidth = Math.max(1.5, W * .004);
+      x.beginPath(); x.moveTo(0, base);
+      for (let i = 0; i < n; i++) {
+        const bx = i * fw - fw * .3, tip = H * r.uniform(.58, .76), tx = bx + fw * r.uniform(.6, 1);
+        x.bezierCurveTo(bx + fw * .1, base - H * .2, tx - fw * .5, tip + H * .1, tx, tip);
+        x.bezierCurveTo(tx - fw * .1, tip + H * .12, bx + fw * .9, base - H * .18, bx + fw, base - H * .05);
+      }
+      x.lineTo(W, base); x.closePath(); x.fill(); x.stroke(); x.restore(); return true;
+    }
+    case "candy_fade": {                                     // a two-candy fade across the panel under a clear-coat sweep
+      const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, shade(p.ground, -.3)); g.addColorStop(.5, p.ground); g.addColorStop(1, mix(p.ground, p.accent, .55));
+      x.fillStyle = g; x.fillRect(0, 0, W, H);
+      const n = Math.round(W * H / 260), k = Math.max(1, W / 540);
+      for (let i = 0; i < n; i++) { x.fillStyle = r() < .7 ? `rgba(255,255,255,${r.uniform(.05, .4)})` : rgba(p.accent, r.uniform(.1, .45)); const s = r.uniform(.4, 1.6) * k; x.fillRect(r() * W, r() * H, s, s); }
+      const cl = x.createLinearGradient(0, H, W, 0); cl.addColorStop(.35, "rgba(255,255,255,0)"); cl.addColorStop(.47, "rgba(255,255,255,.22)"); cl.addColorStop(.52, "rgba(255,255,255,.05)"); cl.addColorStop(.6, "rgba(255,255,255,0)");
+      x.fillStyle = cl; x.fillRect(0, 0, W, H); return true;
+    }
+    default: return false;
+  }
+}

@@ -2,8 +2,8 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY } from "./catalog.js";
-import { vibeBackground, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES } from "./catalog.js";
+import { vibeBackground, candidateGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
 // ------------------------------------------------------------ small tools
@@ -107,6 +107,8 @@ export function applyVibe(st, seed, locked = new Set()) {
 // Grounds that are a material (a cork board, a stucco wall, candy paint) belong to
 // the vibe that paints them in its own colours; any other look draws the rest.
 const VIBE_GROUNDS = new Set(["cork", "stucco", "concrete", "brick_night", "candy_flake", "asphalt", "velvet", "beach", "mural_wall", "fluoro"]);
+// a spin-off of a vibe's ground belongs to the vibe as its parent does
+for (const [id, c] of Object.entries(GROUND_CANDIDATES)) if (VIBE_GROUNDS.has(c.parent)) VIBE_GROUNDS.add(id);
 
 function vibeInto(out, r, locked) {
   const v = VIBES[out.vibe];
@@ -976,7 +978,7 @@ function background(st, p, W, H, sc, r) {
   const [cx, cy] = sc;
   const radial = (k = .75) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * k); gr.addColorStop(0, l); gr.addColorStop(1, g); return gr; };
   x.fillStyle = g; x.fillRect(0, 0, W, H);
-  if (vibeBackground(st.background, x, st, p, W, H, sc, r)) {
+  if (candidateGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
     const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
     vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
     if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .3; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
