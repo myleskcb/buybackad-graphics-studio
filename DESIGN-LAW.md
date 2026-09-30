@@ -2966,3 +2966,59 @@ one.
 - Where a card had its own hero product, the wall had been crowding it out of
   the layout; with the wall gone it shows (a chain on the gold checklists, the
   strip fan on the steps cards).
+
+## 95. One colour to a card
+
+Added 2026-09-30. The owner, of voltStack-pp02-15 ("WE BUY CARS": a dark
+green ribbon, a white panel and a pink number plate over a brown
+photograph): "there's green white and pink boxes on there and they should all
+be a unified color gradient theme outline whatever it needs to have
+cohesiveness. This is a bit random and literally looks like we chose a
+randomizer." Measured: 86 of the 415 live cards drew their boxes in two
+unrelated hues, and 282 carried a second hue somewhere (a box, an outline, a
+mark, a coloured word, a glow). The palettes are pairs ("Emerald & Blush",
+"Jade & Tangerine"); the layouts gave one box the accent, another the support
+and a third the palette's tinted ink.
+
+- **A card's colour is one hue.** Boxes, outlines and frames, marks, coloured
+  words and glows are that hue in lighter and darker shades; paper, smoke,
+  black and white stay neutral (rule 85). Within 30 degrees of the card's hue
+  is the same colour.
+- **The hue is what the card already leads with**: the headline's colour when
+  the headline is in colour (a tinted white does not lead); else the colour
+  covering most of the card. A card that says GOLD keeps its gold where it
+  has gold.
+- **Anything else takes that hue at its own luminance**, so every line keeps
+  its exact contrast: a dark green ribbon on a pink card becomes a deep
+  raspberry, a salmon number box on a blue card a light blue.
+- It runs after the layout, after a theme, after a tagline look and after the
+  copy follows a flat ground (`pgOneHue`); a colour the visitor set by hand
+  (pgUser, the pencil in Easy Mode) is theirs. The gate fails a card left
+  with a colour outside its hue ('hues').
+
+> Supersedes the second hue of rule 63 and rule 90's support plates: the
+> support colour of a palette becomes a shade of the one hue, not a second
+> colour.
+
+## 96. The studio's own chrome is graphite and one blue
+
+Added 2026-09-30. The owner: "fix the purple UI theme it's kinda lame pick
+something unanimously people think looks clean and cohesive and redesign site
+UI / theme / webkit / color elements." The default look was graphite with an
+orchid accent, a pink second hue and a mint ring, and twenty large bokeh discs
+in all three behind every page: three colours in the chrome, the randomness
+rule 95 removes from the cards.
+
+- **Neutral greys** (the system greys people know from their phones: ground
+  #0d0d0f, surfaces #161618 and #1e1e21, ink #f5f5f7, #c7c7cc, #8e8e93; light:
+  #f5f5f7, white, #1d1d1f, #424245, #6e6e73).
+- **One colour, blue**: #0a84ff on dark, #0066cc on light, in the accent, the
+  focus ring, the glow and AI (which was violet). Filled controls carry white
+  words: a selected chip on the deeper blue (#0064d2, 5.6:1; light #0055b3,
+  7.1:1), a button on a blue that deepens to it (about 4.5:1 at the words).
+- **A quiet field**: the bokeh keeps its shape at a third of its strength and
+  in the one blue; no second or third hue.
+- Native controls, scrollbars, selection, the favicon, the 404 and the
+  information pages follow the same tokens. The other looks stay reachable by
+  URL (?look=); the house default is graphite and blue.
+

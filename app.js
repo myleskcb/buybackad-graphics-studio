@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20260930zm';
+const ASSET_REV = '20260930zq';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -17948,5 +17948,143 @@ async function edOpenShowcase(id){
       if (th) edRecolour({ theme: th });
     }
     return r;
+  };
+}
+
+/* ── ONE COLOUR TO A CARD (rule 95) ────────────────────────────────────────
+   The owner, 2026-09-30, of voltStack-pp02-15 ("WE BUY CARS": a dark green
+   ribbon, a white panel and a pink number plate over a brown photograph):
+   "there's green white and pink boxes on there and they should all be a
+   unified color gradient theme outline whatever it needs to have
+   cohesiveness. This is a bit random and literally looks like we chose a
+   randomizer." Measured: 86 of the 415 live cards drew their boxes in two
+   unrelated hues. The palettes are pairs ("Emerald & Blush", "Jade &
+   Tangerine"); the layouts gave one box the accent, another the support and
+   a third the palette's tinted ink, and a theme did the same (rule 90: the
+   support's plates take its support).
+
+   A card's colour is one hue. Its boxes (plates, pills, ribbons, chips,
+   ticks), outlines and frames, marks (stars, icons), coloured words and
+   glows are that hue in lighter and darker shades; paper, smoke, black and
+   white stay neutral (rule 85). The hue is the headline's where the headline
+   is in colour (a gold card's gold), else the one already covering most of
+   the card. Anything in another hue takes the one hue at
+   its own luminance, so every line keeps its exact contrast: a dark green
+   ribbon on a pink card becomes a deep raspberry, a salmon number box on a
+   blue card a light blue. Runs after the layout, after a theme and after a
+   tagline look; a colour the visitor set by hand (pgUser) is theirs. The
+   gate fails a card left in two hues ('hues'). */
+function pgHueOf(c){
+  const p = thParse(c); if (!p || p.a < 0.3) return null;
+  const k = hexToOklch(p.hex); if (!k) return null;
+  /* a colour, not a neutral: near-black, near-white and grey are smoke and
+     paper whatever their faint tint */
+  if (!((k.C >= 0.04 && k.L >= 0.25) || k.C >= 0.08)) return null;
+  return { hex: p.hex, a: p.a, k };
+}
+const PG_HUE_SHAPES = ['rect', 'circle', 'ellipse', 'polygon', 'path'];
+function pgHuePaints(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return { objs: [], paints: [] }; }
+  const A = W * H, minA = 900 * A / (TPL_W * TPL_H);
+  const live = o => o && o.visible !== false && !(o.opacity != null && o.opacity < 0.3);
+  const isText = o => o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
+  const paints = [];
+  const add = (o, kind, idx, c, area, extra) => { const h = pgHueOf(c); if (h) paints.push(Object.assign({ o, kind, idx, area, text: isText(o) }, extra || {}, h)); };
+  objs.forEach(o => {
+    if (!live(o) || thIsGround(o) || o.pgEmoji || o.pgEmojiAuto || o.type === 'image' || o.type === 'group') return;
+    const text = isText(o);
+    if (!text && !PG_HUE_SHAPES.includes(o.type)) return;
+    let ar; try { o.setCoords(); const r = o.getBoundingRect(true, true); ar = r.width * r.height; } catch (e){ return; }
+    const fillOK = text || (ar < 0.6 * A && ar >= (o.type === 'path' ? minA / 4 : minA));
+    if (fillOK){
+      if (typeof o.fill === 'string') add(o, 'fill', -1, o.fill, ar);
+      else if (o.fill && Array.isArray(o.fill.colorStops)) o.fill.colorStops.forEach((s, i) => add(o, 'fill', i, s.color, ar));
+    }
+    /* a stroke is a line, not a ground: a whole-card frame's outline counts */
+    if (typeof o.stroke === 'string' && (o.strokeWidth || 0) >= (text ? 1 : 2)) add(o, 'stroke', -1, o.stroke, ar * 0.1);
+    if (o.shadow && typeof o.shadow.color === 'string' && (o.shadow.blur || 0) >= 4) add(o, 'shadow', -1, o.shadow.color, ar * 0.05);
+    if (text && o.styles) Object.keys(o.styles).forEach(li => Object.keys(o.styles[li] || {}).forEach(ci => {
+      const st = o.styles[li][ci]; if (st && typeof st.fill === 'string') add(o, 'style', -1, st.fill, ar / Math.max(1, (o.text || '').length), { li, ci });
+    }));
+  });
+  return { objs, paints };
+}
+function pgHueAnchor(objs, paints, W, H){
+  const fills = paints.filter(x => x.kind === 'fill' || x.kind === 'style');
+  /* a card that says GOLD keeps its gold where the card already has it (a
+     pink-tinted headline turned a gold card's yellow bar pink otherwise) */
+  if (objs.some(o => o && o.pgRole === 'headline' && /\bGOLD\b/i.test(o.text || ''))){
+    const gold = paints.filter(x => x.k.h >= 55 && x.k.h <= 105 && x.k.C >= 0.06).sort((a, b) => b.area - a.area)[0];
+    if (gold) return gold.k;
+  }
+  /* the headline in colour (the largest; a tinted white does not lead) */
+  const head = fills.filter(x => x.text && x.o.pgRole === 'headline' && x.k.C >= 0.08).sort((a, b) => b.area - a.area)[0];   // a colour, not a tinted white
+  if (head) return head.k;
+  /* else the colour that already covers most of the card, so the card keeps
+     its look and the fewest pixels change (the gold band of a gold card, not
+     its pink number plate) */
+  const groups = [];
+  paints.forEach(x => { const g = groups.find(q => thGap(q.h, x.k.h) <= 30); if (g){ g.area += x.area; if (x.k.C > g.k.C) g.k = x.k; } else groups.push({ h: x.k.h, area: x.area, k: x.k }); });
+  groups.sort((a, b) => b.area - a.area);
+  return groups.length ? groups[0].k : null;
+}
+function pgOneHue(sc, W, H){
+  if (typeof window !== 'undefined' && window.__pgOneHueOff) return 0;   // for a before/after measure only
+  W = W || sc.getWidth(); H = H || sc.getHeight();
+  const { objs, paints } = pgHuePaints(sc, W, H);
+  if (paints.length < 2) return 0;
+  const anchor = pgHueAnchor(objs, paints, W, H); if (!anchor) return 0;
+  let n = 0;
+  paints.forEach(x => {
+    if (x.o.pgUser || thGap(x.k.h, anchor.h) <= 30) return;
+    /* the anchor's hue, a shade of its colour, at this paint's own luminance */
+    const C = Math.min(anchor.C, Math.max(x.k.C, anchor.C * 0.6)), want = thLumOf(x.hex);
+    let lo = 0, hi = 1, hex = x.hex;
+    for (let i = 0; i < 22; i++){ const L = (lo + hi) / 2, c = oklchFit({ L, C, h: anchor.h }); hex = c; if (thLumOf(c) < want) lo = L; else hi = L; }
+    const css = thHexA(hex, x.a);
+    if (x.kind === 'stroke') x.o.set('stroke', css);
+    else if (x.kind === 'shadow') x.o.shadow.color = css;
+    else if (x.kind === 'style') x.o.styles[x.li][x.ci].fill = css;
+    else if (x.idx < 0) x.o.set('fill', css);
+    else x.o.fill.colorStops[x.idx].color = css;
+    x.o.dirty = true; n++;
+  });
+  return n;
+}
+function pgHueCheck(sc, r){
+  const W = sc.getWidth(), H = sc.getHeight();
+  const { objs, paints } = pgHuePaints(sc, W, H);
+  if (paints.length < 2) return;
+  /* the same test the pass makes: every colour within 30 degrees of the
+     card's hue (a greedy grouping split one orange-to-rose family in two) */
+  const anchor = pgHueAnchor(objs, paints, W, H); if (!anchor) return;
+  const off = paints.filter(x => !x.o.pgUser && thGap(x.k.h, anchor.h) > 30);
+  if (off.length) r.fails.push({ code: 'hues', line: off[0].o.name || null, role: off[0].o.pgRole || null, value: off.length, need: 0 });
+  r.ok = !r.fails.length;
+}
+{
+  const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } };
+  const _alignPass = alignPass;
+  alignPass = function(sc){ const r = _alignPass.apply(this, arguments); run(sc); return r; };
+  const _themeScene = themeScene;
+  themeScene = function(sc){ const r = _themeScene.apply(this, arguments); if (sc) run(sc); return r; };
+  const _applyCardLook = applyCardLook;
+  applyCardLook = function(sc){ const r = _applyCardLook.apply(this, arguments); if (sc) run(sc); return r; };
+  /* the tagline look (Easy Mode, the designer, every export) and the copy
+     that follows a flat ground both repaint after the layout */
+  const _taglineApply = taglineApply;
+  taglineApply = function(sc){ const r = _taglineApply.apply(this, arguments); if (sc) run(sc); return r; };
+  const _ezCopyFollowsGround = ezCopyFollowsGround;
+  ezCopyFollowsGround = function(sc){ const r = _ezCopyFollowsGround.apply(this, arguments); if (sc) run(sc); return r; };
+  /* a colour the visitor picked with the pencil in Easy Mode is theirs */
+  const _ezApplyStyle = ezApplyStyle;
+  ezApplyStyle = function(o, l){ const st = typeof ezStyleOf === 'function' && l ? ezStyleOf(l.name) : null; const r = _ezApplyStyle.apply(this, arguments);
+    if (st && st.fill && r) r.pgUser = true; return r; };
+  const _pgCheck = pgCheck;
+  pgCheck = function(sc){ const r = _pgCheck.apply(this, arguments); try { pgHueCheck(sc, r); } catch (e){ console.warn('hue check:', e); } return r; };
+  const _pgExplain = pgExplain;
+  pgExplain = function(f){
+    if (f && f.code === 'hues') return 'the card is in more than one colour';
+    return _pgExplain.apply(this, arguments);
   };
 }
