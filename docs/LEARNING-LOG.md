@@ -1851,8 +1851,8 @@ Found:
 Changed:
   - Merged (merge commits): phone-ad-maker (PRs #2, #3, #4), vibrant-hawking
     to 11bed85 and to e0b1506, fervent-pascal to 9318537 and to d5b98b5,
-    project-thread-eost3s to 8842adc, eloquent-euler to 0769ce3 and to
-    8460821. `main` fast-forwarded.
+    project-thread-eost3s to 8842adc, eloquent-euler to 0769ce3, 8460821
+    and 5d40adc. `main` fast-forwarded.
   - Not merged: busy-allen and quirky-ritchie (August base, OPEN-ITEMS §J, §U).
   - DESIGN-LAW 88 (iOS emoji or none) in place of the drawn set, 91 (copy
     never under a shape, with ghost by contrast), 93 (the designer, from the
@@ -1871,8 +1871,9 @@ Measured (the final build, 6385b72):
     every look passes on every template but one pair (scriptRetro_paper's
     Headline 2 at 2.95:1, §U 8); blocks give way on 3, each over its
     product.
-  - Designer audit on six offered cards: hand-off 0, ORIG 0% on all six, no
-    legibility regression, 2.1 to 2.8 s of blocking (the bar is 3 s); left,
+  - Designer audit on six offered cards (with the designer's 5d40adc):
+    hand-off 0, ORIG 0% after the themes and after the swatches, no
+    legibility regression, 1.9 to 2.3 s of blocking (the bar is 3 s); left,
     sparse patterns on two cards, as on the designer branch (§U 6).
   - Approved: stepsFlow-nn05-30 224/224, nn01-30 222/222, the 9:16 within
     0.04% of the owner's render.

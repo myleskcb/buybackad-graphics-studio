@@ -941,9 +941,9 @@ Merged, in order (the log entry of the same date has the numbers):
 - `claude/fervent-pascal-w6mthe` to 9318537, what production served (the
   iOS-only emoji, copy never under a shape);
 - `claude/project-thread-eost3s` to 8842adc (the video maker, 2026-09-30);
-- `claude/eloquent-euler-7jvzfd` to 0769ce3 and 8460821 (the designer speaks
-  the house language, rule 93; its shade and hand-off fixes, thumbnails at
-  half the cost);
+- `claude/eloquent-euler-7jvzfd` to 0769ce3, 8460821 and 5d40adc (the
+  designer speaks the house language, rule 93, its §V; its shade and hand-off
+  fixes, thumbnails at half the cost, library cards in their own weights);
 - `claude/fervent-pascal-w6mthe` again to d5b98b5 (a visual audit of every
   classic: rule 91 widened, one serif to a card, rule 92);
 - the trunk, `claude/vibrant-lovelace-rze4rx`, is the branch this was built on.
@@ -981,12 +981,11 @@ Open:
    Mode opens its first card in their place and the audit measures one card
    five times; run it with `--cards` (icloud_ok, bold_buyer, gold_lux,
    cars_anycond, bandKnockout-pp04-15, stepsFlow-jw07-15 were used). On the
-   final build: hand-off 0 and ORIG 0% on all six, no legibility regression,
-   2.1 to 2.8 s of blocking in the 12 s after the editor opens (the bar is
-   3 s; icloud_ok, first measured while the library gate ran beside it at
-   4.4 s, reads 2.8 s alone). Left: sparse patterns that change under 1% of
-   gold_lux (dots, halftone, grid) and cars_anycond (grid), as on the
-   designer branch (§S 11).
+   final build (with the designer's 5d40adc): hand-off 0 and ORIG 0% on all
+   six, after the themes and after the swatches, no legibility regression,
+   1.9 to 2.3 s of blocking in the 12 s after the editor opens (the bar is
+   3 s). Left: sparse patterns that change under 1% of gold_lux (dots,
+   halftone, grid) and cars_anycond (grid), as on the designer branch (§S 11).
 7. **Easy Mode through the gate** (`scripts/ez_gate_sweep.mjs`, 267 offered
    templates): 5 fail, each as on the live branch alone. dl_strips_arcCrown_
    emerald's Headline 2 (legibility, §S 10); one of dl_sports_hudTech_emerald
