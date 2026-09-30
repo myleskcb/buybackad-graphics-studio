@@ -30,14 +30,14 @@ async function pickAudioCodec() {
   return null;
 }
 
-/** Render the whole ad to an MP4 Blob. onProgress(0..1, label). */
-export async function exportMp4(ad, onProgress = () => {}, { fps = 30 } = {}) {
+/** Render the whole ad to an MP4 Blob. onProgress(0..1, label). Pass audioBuf
+ *  (the rendered soundtrack) to reuse one, or null for a silent video. */
+export async function exportMp4(ad, onProgress = () => {}, { fps = 30, audioBuf } = {}) {
   const W = ad.W, H = ad.H, M = window.Mp4Muxer;
   const vcfg = await pickVideoCodec(W, H, fps);
-  if (!vcfg) throw new Error("This browser cannot encode H.264 video. Try Chrome, Edge or Safari 17+.");
-  onProgress(0, "Mixing the sound");
-  const audioBuf = await renderSoundtrack(ad);
-  const acodec = await pickAudioCodec();
+  if (!vcfg) throw codeError("no-h264", "This browser cannot encode H.264 video at " + W + "×" + H + ".");
+  if (audioBuf === undefined) { onProgress(0, "Mixing the sound"); audioBuf = await renderSoundtrack(ad); }
+  const acodec = audioBuf ? await pickAudioCodec() : null;
   const muxer = new M.Muxer({
     target: new M.ArrayBufferTarget(),
     video: { codec: "avc", width: W, height: H, frameRate: fps },
@@ -80,36 +80,78 @@ export async function exportMp4(ad, onProgress = () => {}, { fps = 30 } = {}) {
   if (failed) throw failed;
   muxer.finalize();
   onProgress(1, "Done");
-  return { blob: new Blob([muxer.target.buffer], { type: "video/mp4" }), ext: "mp4", audio: !!acodec };
+  return { blob: new Blob([muxer.target.buffer], { type: "video/mp4" }), ext: "mp4", audio: !!acodec, soundLost: !!audioBuf && !acodec };
 }
 
-/** Fallback: play the ad in real time into a MediaRecorder. */
-export async function recordRealtime(ad, onProgress = () => {}, { fps = 30 } = {}) {
+function codeError(code, message) { const e = new Error(message); e.code = code; return e; }
+
+/** The best format the real-time recorder can write here. A bare "video/mp4"
+ *  is only trusted where the browser also plays H.264: an open-source Chromium
+ *  answers yes and then writes VP9 in an MP4 box, which the platforms refuse. */
+export function recorderMime() {
+  if (typeof MediaRecorder === "undefined" || !HTMLCanvasElement.prototype.captureStream) return null;
+  const ok = m => { try { return MediaRecorder.isTypeSupported(m); } catch (e) { return false; } };
+  let h264 = false;
+  try { h264 = !!document.createElement("video").canPlayType('video/mp4; codecs="avc1.42E01E"'); } catch (e) { /* no */ }
+  return ["video/mp4;codecs=avc1,mp4a", "video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4;codecs=avc1"].find(ok)
+    || (h264 && ok("video/mp4") ? "video/mp4" : null)
+    || ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"].find(ok) || "";
+}
+
+/** Fallback: play the ad in real time into a MediaRecorder. audioBuf as for
+ *  exportMp4. Hiding the tab stops it (timers drop to once a second there, so
+ *  it would save a frozen video) with an error that says so. */
+export async function recordRealtime(ad, onProgress = () => {}, { fps = 30, audioBuf } = {}) {
+  const mime = recorderMime();
+  if (mime === null) throw codeError("no-recorder", "This browser cannot record video.");
   const W = ad.W, H = ad.H, c = canvas(W, H), ctx = c.getContext("2d");
-  const audioBuf = await renderSoundtrack(ad);
-  const actx = new AudioContext({ sampleRate: 44100 });
-  const dest = actx.createMediaStreamDestination();
-  const src = actx.createBufferSource(); src.buffer = audioBuf; src.connect(dest);
+  if (audioBuf === undefined) audioBuf = await renderSoundtrack(ad);
   const stream = c.captureStream(fps);
-  dest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
-  const mime = ["video/mp4;codecs=avc1,mp4a", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].find(m => MediaRecorder.isTypeSupported(m)) || "";
-  const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8e6 });
+  let actx = null, src = null;
+  if (audioBuf) {
+    try {
+      actx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: audioBuf.sampleRate });
+      const dest = actx.createMediaStreamDestination();
+      src = actx.createBufferSource(); src.buffer = audioBuf; src.connect(dest);
+      dest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+    } catch (e) { console.warn("Recording without sound:", e); src = null; }
+  }
+  const rec = new MediaRecorder(stream, { ...(mime ? { mimeType: mime } : {}), videoBitsPerSecond: 8e6 });
   const parts = []; rec.ondataavailable = e => e.data.size && parts.push(e.data);
-  const done = new Promise(r => { rec.onstop = r; });
+  const done = new Promise((res, rej) => { rec.onstop = res; rec.onerror = e => rej((e && e.error) || new Error("The recorder stopped with an error.")); });
+  let hidden = false, finish = null;
+  const onVis = () => { if (document.hidden) { hidden = true; if (finish) finish(); } };
+  document.addEventListener("visibilitychange", onVis);
   ad.still = null; ad.frame(ctx, 0);
-  rec.start(); src.start();
-  const t0 = performance.now();
-  await new Promise(resolve => {
-    const tick = () => {
-      const t = (performance.now() - t0) / 1000;
-      if (t >= ad.st.duration) { resolve(); return; }
-      ad.frame(ctx, t, { subsFly: 3, subsMove: 2 });
-      onProgress(t / ad.st.duration, "Recording");
-      requestAnimationFrame(tick);
-    };
-    tick();
-  });
-  rec.stop(); await done; actx.close();
-  const type = mime.split(";")[0] || "video/webm";
-  return { blob: new Blob(parts, { type }), ext: type.includes("mp4") ? "mp4" : "webm", audio: true };
+  try {
+    rec.start(250);
+    if (src) { try { await actx.resume(); } catch (e) { /* plays silent */ } src.start(); }
+    // a timer on absolute time, not requestAnimationFrame: rAF follows the
+    // display (and crawls in a background or headless tab), captureStream does not
+    const t0 = performance.now(), step = 1000 / fps;
+    await new Promise(resolve => {
+      finish = resolve;
+      let n = 0;
+      const tick = () => {
+        if (hidden) return;
+        const t = (performance.now() - t0) / 1000;
+        if (t >= ad.st.duration) { resolve(); return; }
+        ad.frame(ctx, t, { subsFly: 3, subsMove: 2 });
+        onProgress(t / ad.st.duration, "Recording");
+        n = Math.max(n + 1, Math.floor((performance.now() - t0) / step) + 1);
+        setTimeout(tick, Math.max(0, t0 + n * step - performance.now()));
+      };
+      tick();
+    });
+  } finally {
+    document.removeEventListener("visibilitychange", onVis);
+    try { rec.state !== "inactive" && rec.stop(); } catch (e) { /* stopped */ }
+    if (src) try { src.stop(); } catch (e) { /* stopped */ }
+  }
+  await done;
+  stream.getTracks().forEach(t => t.stop());
+  if (actx) actx.close().catch(() => {});
+  if (hidden) throw codeError("hidden", "The recording stopped because this tab was hidden.");
+  const type = (rec.mimeType || mime || "video/webm").split(";")[0];
+  return { blob: new Blob(parts, { type }), ext: type.includes("mp4") ? "mp4" : "webm", audio: !!src };
 }

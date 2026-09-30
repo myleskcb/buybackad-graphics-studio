@@ -11628,17 +11628,46 @@ async function recordMotion(sc, o){
 
 /* One path for both editors: gate → record → count the credit → download.
    The credit is taken only after a video actually exists, same as a PNG. */
+/* A failed or partial video export opens a pop-up (video-help.js) naming what
+   this browser is missing and offering the fixes: try again, save without
+   sound, or open the page in a browser that can. A toast is the fallback if
+   that script did not load. */
+let motionSilentOnce = false;
+async function videoTrouble(o, e, extra){
+  const VH = window.VideoHelp, m = String((e && e.message) || e || 'unknown error');
+  const retry = silent => { motionSilentOnce = !!silent; if (o.btn && !o.btn.disabled) o.btn.click(); };
+  if (!VH){ toast('Video export failed: ' + m, 'error'); return; }
+  let title = 'The video could not be made', message = 'Something in this browser stopped the video. The details are below.', report = null;
+  const actions = [{ label: 'Try again', primary: true, run: () => retry(false) }];
+  if (e && e.keep){
+    title = 'This video was not saved';
+    message = /flash/.test(m) ? 'The motion check refused it. Pick a calmer background or fewer moving parts, then try again.' : 'The check on the first frame refused it. Try again; if it repeats, reopen the design.';
+  } else {
+    if (/hidden/.test(m)){ title = 'The recording stopped'; message = 'This browser records the video in real time, and it stopped when the tab went into the background. Keep this tab on screen until the download starts (about ' + Math.ceil(MOTION.dur) + ' seconds).'; }
+    else if (/cannot record/.test(m)){ title = 'This browser cannot make videos'; message = 'It has neither a video encoder nor a screen recorder that works on this page.'; }
+    else if (/allocation|out of memory|QuotaExceeded/i.test(m) || (e && e.name === 'RangeError')){ title = 'Your device ran out of memory'; message = 'The video is made in memory on this device. Close other tabs or apps, or pick a smaller size, then try again.'; }
+    report = await VH.check({ w: o.w, h: o.h, fps: MOTION.fps, sound: !!o.actx && motionSoundOn() }).catch(() => null);
+    if (report && report.none){
+      // nothing to retry: the fix is another browser, which the pop-up offers
+      title = 'This browser cannot make videos'; message = 'It has no way to encode or record a video on this page. Open this page in ' + (/iPhone|iPad/.test(navigator.userAgent) ? 'Safari 17 or newer' : 'Chrome, Edge or Safari 17+') + ' to download it.';
+      actions.length = 0;
+    } else if (o.actx && motionSoundOn() && !/hidden/.test(m) && (!report || report.soundless || /audio|sound/i.test(m))) actions.push({ label: 'Download without sound', run: () => retry(true) });
+  }
+  VH.show({ title, message: message + (extra ? ' ' + extra : ''), error: m, report, actions });
+}
+
 async function runVideoExport(o){
   const btn = o.btn, label = btn ? btn.innerHTML : '';
+  const silent = motionSilentOnce; motionSilentOnce = false;
   const setBtn = html => { if (btn) btn.innerHTML = html; };
   if (btn) btn.disabled = true;
   try {
-    let sound = null;
-    if (o.actx && motionSoundOn()){
+    let sound = null, soundErr = null, fellBack = null;
+    if (o.actx && motionSoundOn() && !silent){
       setBtn('Preparing sound…');
-      try { sound = await motionSound(o.actx.sampleRate); } catch (e){ console.warn('GraphicsStudio motion: sound render failed, exporting silent.', e); }
+      try { sound = await motionSound(o.actx.sampleRate); } catch (e){ soundErr = e; console.warn('GraphicsStudio motion: sound render failed, exporting silent.', e); }
     }
-    const r = await recordMotion(o.sc, Object.assign({}, o, { sound,
+    const r = await recordMotion(o.sc, Object.assign({}, o, { sound, onFallback: e => { fellBack = e; },
       onProgress: p => setBtn('Recording… ' + Math.max(1, Math.ceil(MOTION.dur * (1 - p))) + 's') }));
     setBtn('Saving…');
     try { await recordExport(); }
@@ -11649,9 +11678,17 @@ async function runVideoExport(o){
     a.download = (o.name || 'ad').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-video-' + o.w + 'x' + o.h + '.' + ext;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-    toast(ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4', ext === 'mp4' ? 'success' : undefined);
+    const catches = [];
+    if (ext !== 'mp4') catches.push('It was saved as WebM, because this browser cannot write MP4. Instagram and TikTok may refuse WebM.');
+    if (fellBack) catches.push('The frame-by-frame encoder failed, so it was recorded in real time instead.');
+    if (soundErr) catches.push('The soundtrack could not be made, so the video has no sound.');
+    if (catches.length && window.VideoHelp){
+      const report = await window.VideoHelp.check({ w: o.w, h: o.h, fps: MOTION.fps, sound: !!sound }).catch(() => null);
+      window.VideoHelp.show({ tone: 'info', title: 'Video saved, with a catch', message: catches.join(' '), error: String((soundErr || fellBack || {}).message || ''), report });
+    } else toast(ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4', ext === 'mp4' ? 'success' : undefined);
   } catch (e){
-    toast('Video export failed: ' + (e.message || 'unknown error'), 'error');
+    console.error('GraphicsStudio motion: export failed', e);
+    videoTrouble(o, e);
   } finally {
     try { o.sc.dispose(); } catch (e){}
     if (o.actx) try { o.actx.close(); } catch (e){}
@@ -11667,7 +11704,7 @@ async function ezDownloadVideo(){
     $('ez-phone').focus(); $('ez-phone').scrollIntoView({ behavior:'smooth', block:'center' });
     return;
   }
-  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $('ez-video') }, new Error('this browser cannot record video')); return; }
   const gate = await gateExport(ezExportPx());
   if (!gate) return;
   /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
@@ -11680,7 +11717,7 @@ async function ezDownloadVideo(){
 async function editorDownloadVideo(){
   const actx = motionSoundOn() ? motionAudioContext() : null;
   if (!canvas) return;
-  if (!motionMime(!!actx)){ toast('Video export needs a recent Chrome, Edge, Safari or Firefox', 'error'); return; }
+  if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $('ex-video') }, new Error('this browser cannot record video')); return; }
   const gate = await gateExport(exportSize);
   if (!gate) return;
   const d = exportDims(Math.min(gate.px, MOTION.maxShort));
@@ -12530,27 +12567,42 @@ async function motionPlan(w, h, sound){
     const x = out.getContext('2d', { willReadFrequently: true });
     const bake = motionBake(sc, o.docW, o.docH, o.w, o.h);
     const z0 = motionFrameZero(sc, bake, x);
-    if (!z0.ok) throw new Error('the first frame did not match the still ad (' + z0.off + ' pixels differ), so nothing was saved');
+    if (!z0.ok) throw Object.assign(new Error('the first frame did not match the still ad (' + z0.off + ' pixels differ), so nothing was saved'), { keep: true });
     const n = Math.round(MOTION.dur * MOTION.fps);
-    const fc = new MotionFlashCheck(o.w, o.h, MOTION.fps);
-    if (!plan){
+    const realTime = () => {
       // real-time fallback: check every frame first, then record as before
+      const fc = new MotionFlashCheck(o.w, o.h, MOTION.fps);
       for (let i = 0; i < n; i++){ motionDraw(x, bake, i / MOTION.fps); fc.add(x); }
       const f = fc.result();
-      if (!f.pass) throw new Error(motionFlashMessage(f));
+      if (!f.pass) throw Object.assign(new Error(motionFlashMessage(f)), { keep: true });
       return _recordMotion(sc, o);
+    };
+    if (!plan) return realTime();
+    /* An encoder can still fail partway (a GPU encoder that runs out of
+       memory, an audio codec that said yes and then refuses the buffer). The
+       real-time recorder is the same video, so fall back to it rather than
+       stop; a refusal of the video itself (flashing) is kept. */
+    try { return await exactMotion(plan, o, x, bake, n, z0); }
+    catch (e){
+      if (e.keep || !motionMime(!!(o.actx && o.sound))) throw e;
+      console.warn('GraphicsStudio motion: exact encoder failed, recording in real time.', e);
+      if (o.onFallback) o.onFallback(e);
+      return realTime();
     }
+  };
+  async function exactMotion(plan, o, x, bake, n, z0){
+    const fc = new MotionFlashCheck(o.w, o.h, MOTION.fps);
     const MB = plan.MB;
     const format = plan.fmt === 'mp4' ? new MB.Mp4OutputFormat({ fastStart: 'in-memory' }) : new MB.WebMOutputFormat();
     const output = new MB.Output({ format, target: new MB.BufferTarget() });
-    const vs = new MB.CanvasSource(out, { codec: plan.codec, quality: MB.QUALITY_HIGH, keyFrameInterval: 2 });
+    const vs = new MB.CanvasSource(x.canvas, { codec: plan.codec, quality: MB.QUALITY_HIGH, keyFrameInterval: 2 });
     output.addVideoTrack(vs, { frameRate: MOTION.fps });
     let as = null;
     if (plan.audio){ as = new MB.AudioBufferSource({ codec: plan.audio, quality: MB.QUALITY_HIGH }); output.addAudioTrack(as); }
-    await output.start();
-    if (as) await as.add(o.sound);
     window.__gfxRecording = true;
     try {
+      await output.start();
+      if (as) await as.add(o.sound);
       for (let i = 0; i < n; i++){
         const t = i / MOTION.fps;
         motionDraw(x, bake, t);
@@ -12562,11 +12614,11 @@ async function motionPlan(w, h, sound){
     } catch (e){ await output.cancel().catch(() => {}); throw e; }
     finally { window.__gfxRecording = false; }
     const f = fc.result();
-    if (!f.pass){ await output.cancel().catch(() => {}); throw new Error(motionFlashMessage(f)); }
+    if (!f.pass){ await output.cancel().catch(() => {}); throw Object.assign(new Error(motionFlashMessage(f)), { keep: true }); }
     await output.finalize();
     const mime = plan.fmt === 'mp4' ? 'video/mp4' : 'video/webm';
     return { blob: new Blob([output.target.buffer], { type: mime }), mime, fps: MOTION.fps, exact: true, flash: f, frameZero: z0, cta: !!bake.cta };
-  };
+  }
 }
 /* Sound for the shift, laid over the living still's own score (which now runs
    the full ten seconds): a soft whoosh as the ad hands over, and the same

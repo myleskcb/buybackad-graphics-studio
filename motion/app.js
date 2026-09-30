@@ -3,7 +3,7 @@
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, countLooks } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, areaOf } from "./engine.js";
 import { renderSoundtrack } from "./audio.js";
-import { exportMp4, recordRealtime, canEncode } from "./export.js";
+import { exportMp4, recordRealtime, canEncode, recorderMime } from "./export.js";
 import { auditLook, drawCurve } from "./audit.js";
 
 const $ = id => document.getElementById(id);
@@ -271,7 +271,7 @@ function buildPanel() {
     state.sound = !state.sound; $("sound").setAttribute("aria-pressed", String(state.sound)); $("sound").innerHTML = state.sound ? "&#128266;" : "&#128263;";
     if (state.sound && state.playing) startAudio(curT()); else stopAudio();
   });
-  $("download").addEventListener("click", download);
+  $("download").addEventListener("click", () => download());
   document.addEventListener("keydown", e => { if (e.target.matches("input,select,textarea")) return; if (e.key === " ") { e.preventDefault(); togglePlay(); } if (e.key === "n") shuffle(false); });
 }
 
@@ -366,25 +366,79 @@ async function renderGallery(reset) {
 
 // ------------------------------------------------------------ download
 
-async function download() {
-  const btn = $("download"); btn.disabled = true;
+// Plain words for what went wrong, and what the person can do about it.
+function exportTrouble(e) {
+  const m = String((e && e.message) || e || "");
+  if (e && e.code === "hidden") return ["The recording stopped", "This browser records the video in real time, and it stopped when the tab went into the background. Keep this tab on screen until the download starts (about " + Math.ceil(state.style.duration || 8) + " seconds)."];
+  if (e && e.code === "no-recorder") return ["This browser cannot make videos", "It has neither a video encoder nor a screen recorder that works on this page."];
+  if (e && e.code === "no-h264") return ["This browser cannot write MP4", "It cannot encode H.264 video at this size."];
+  if (/allocation|out of memory|QuotaExceeded/i.test(m) || (e && e.name === "RangeError")) return ["Your device ran out of memory", "The video is made in memory on this device. Close other tabs or apps, or pick a smaller size (Square 1:1), then try again."];
+  if (e && (e.name === "EncodingError" || e.name === "NotSupportedError" || /encoder|codec/i.test(m))) return ["The video encoder stopped", "This browser's video encoder failed partway through. Recording in real time usually works instead."];
+  return ["The video could not be made", "Something in this browser stopped the video. The details are below."];
+}
+
+async function download(opts = {}) {
+  const how = opts.how || "auto", withSound = opts.sound !== false;
+  const btn = $("download"); if (btn.disabled) return; btn.disabled = true;
   $("progress").hidden = false; $("export-note").textContent = "";
   const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
+  const VH = window.VideoHelp;
+  const checkFor = ad => VH ? VH.check({ w: ad ? ad.W : 1080, h: ad ? ad.H : 1080, fps: 30, sound: withSound, muxer: typeof window.Mp4Muxer !== "undefined" }) : null;
+  let ad = null;
   try {
     const st = harmonise({ ...state.style }, state.locked, indexById());
     await loadFonts(fontsFor(st));
-    const ad = new Ad(st, state.assets);            // full size
-    let out;
-    if (canEncode()) out = await exportMp4(ad, prog);
-    else { $("export-note").textContent = "This browser records in real time: keep this tab in front for a few seconds."; out = await recordRealtime(ad, prog); }
+    ad = new Ad(st, state.assets);                   // full size
+    // the sound is made once, up front: if it fails the video is still made, silent
+    let audioBuf = null, soundErr = null, fellBack = null;
+    if (withSound) {
+      prog(0, "Mixing the sound");
+      try { audioBuf = await renderSoundtrack(ad); } catch (e) { soundErr = e; console.error("Soundtrack failed, saving without sound:", e); }
+    }
+    let out = null;
+    if (how === "auto" && canEncode()) {
+      try { out = await exportMp4(ad, prog, { audioBuf }); }
+      catch (e) { if (!recorderMime()) throw e; fellBack = e; console.warn("Frame-by-frame export failed, recording in real time:", e); }
+    }
+    if (!out) {
+      $("export-note").textContent = "Recording in real time: keep this tab on screen for about " + Math.ceil(st.duration) + " seconds.";
+      out = await recordRealtime(ad, prog, { audioBuf });
+    }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(out.blob);
     a.download = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${out.ext}`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 60000);
-    $("export-note").textContent = `Saved ${a.download} (${(out.blob.size / 1e6).toFixed(1)} MB${out.audio ? ", with sound" : ", no sound: this browser cannot encode audio"}).`;
+    const silent = withSound && !out.audio;
+    $("export-note").textContent = `Saved ${a.download} (${(out.blob.size / 1e6).toFixed(1)} MB${out.audio ? ", with sound" : withSound ? ", no sound" : ", without sound"}).`;
+    // saved, but not what was asked for: say what happened and how to get the rest
+    const catches = [];
+    if (out.ext !== "mp4") catches.push("It was saved as WebM, because this browser cannot write MP4. Instagram and TikTok may refuse WebM.");
+    if (fellBack && fellBack.code !== "no-h264") catches.push("The frame-by-frame encoder failed, so it was recorded in real time instead, which can be less smooth.");
+    if (silent) catches.push(soundErr ? "The soundtrack could not be made, so the video has no sound." : "This browser could not add the sound, so the video has no sound.");
+    if (catches.length && VH) {
+      const report = await checkFor(ad);
+      const why = soundErr || (fellBack && !fellBack.code ? fellBack : null);
+      VH.show({ tone: "info", title: "Video saved, with a catch", message: catches.join(" "), error: why ? String(why.message || why) : "", report,
+        actions: why ? [{ label: "Try again", primary: true, run: () => download(opts) }] : [] });
+    }
   } catch (e) {
-    console.error(e); $("export-note").textContent = "The video could not be made here: " + (e.message || e) + " Try Chrome or Edge.";
+    console.error(e);
+    const [title, message] = exportTrouble(e);
+    $("export-note").textContent = title + ". " + message;
+    if (VH) {
+      const report = await checkFor(ad).catch(() => null);
+      if (report && report.none) {
+        // nothing to retry: the fix is another browser, which the pop-up offers
+        $("export-note").textContent = "This browser cannot make videos. Open this page in Chrome, Edge or Safari 17+.";
+        VH.show({ title: "This browser cannot make videos", message: "It has no way to encode or record a video on this page. Open this page in " + (/iPhone|iPad/.test(navigator.userAgent) ? "Safari 17 or newer" : "Chrome, Edge or Safari 17+") + " to download it.", report, actions: [] });
+      } else {
+        const actions = [{ label: e.code === "hidden" ? "Record again" : "Try again", primary: true, run: () => download(opts) }];
+        if (how === "auto" && e.code !== "hidden" && recorderMime()) actions.push({ label: "Record in real time instead", run: () => download({ ...opts, how: "realtime" }) });
+        if (withSound && e.code !== "hidden" && (report ? report.soundless : true)) actions.push({ label: "Download without sound", run: () => download({ ...opts, sound: false }) });
+        VH.show({ title, message, error: e.code ? "" : String(e.message || e), report, actions });
+      }
+    }
   } finally { btn.disabled = false; setTimeout(() => { $("progress").hidden = true; }, 1500); }
 }
 
