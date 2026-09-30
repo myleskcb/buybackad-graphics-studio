@@ -1687,7 +1687,7 @@ Changed:
   - fitInsideGuides keeps a rotated band's thickness; stackBulletRuns leaves a
     line on a band or a pill; pgCoverCheck ('ghost' any role, 'covered');
     pgUncover after the layout.
-  - DESIGN-LAW rules 88 and 68.
+  - DESIGN-LAW rules 88 and 91.
 
 Rejected:
   - Apple emoji images from a package (Apple's artwork, not licensed).

@@ -2732,3 +2732,42 @@ plate); the resolver fixed the first two kinds, the gate holds back the
 last (classics: 226 of 243 pass, 17 held back). One library card whose tick
 circles the layout had left a row out of step with its lines
 (checklistHero-du08-20, the only one of 30 tick lists) was retired: 398 live.
+
+## 92. The designer speaks the house language
+
+Added 2026-09-30 by the colour-theme session (claude/eloquent-euler-7jvzfd,
+0769ce3), whose code calls it rule 80; numbered 92 here, after the rules 89-91
+merged before it. Its text was not yet written on that branch; this is taken
+from its commit and the code's own comments, for that session to amend. The
+owner: "audit and make sure the designer page looks updated FOR ALL NEW
+FEATURES / DESIGN LANGUAGE".
+
+The advanced editor had fallen a generation behind Easy Mode: no colour themes
+(rule 90), and a theme brought from Easy Mode could be neither changed nor
+taken off; ten fixed-colour backdrops from before the themes and none of rule
+86's grounds; no blur, shade or pattern; no library cards in its Templates
+tab; the copy stayed put when the ground changed; and it froze for about
+twenty seconds while every thumbnail rendered. Now, in the editor:
+
+- **One colour pass** (`edRecolour`) works from each object's saved original
+  paint, so themes never compound and ORIG puts the card back exactly,
+  through undo, drafts and saved templates. A colour the visitor set by hand
+  stays theirs. The theme follows the visitor from Easy Mode and from card to
+  card.
+- **The same controls as Easy Mode**: the theme row with ORIG, the six
+  swatches, every kind of ground in the card's or the theme's colours, blur,
+  shade and fade in the tone the copy needs, and patterns, in Easy Mode's
+  layer order. A photograph the visitor picks is shaded until the copy reads,
+  as the export gate would (rules 62, 87). Copy follows a flat ground.
+- **The tagline look goes on after the colours** (rule 83): the pass takes a
+  look off, recolours, and puts it back on in the theme's palette, so a theme
+  picked in the editor never overpaints a look (added when the lines were
+  merged, 2026-09-30).
+- **The hand-off lays the visitor's words out once**, as Easy Mode does; a
+  second layout compounded (Sell Your iPhone's product list at 0.81 with the
+  call to action risen onto it). Undo carries the ground; a pattern saves as
+  its recipe. Thumbnails render one per idle slice, only for the category on
+  screen.
+
+`scripts/designer_audit.mjs` presses every one of these through the real panel
+and exits 1 on any problem.
