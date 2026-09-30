@@ -8304,10 +8304,27 @@ function refreshTplLocks(){
     b.classList.toggle('locked', tplLocked(t));
   });
 }
+/* A card's selling points stand either as one list (a text of several
+   lines) or one to a slot: bandKnockout's chips, the ribbon's pills, the
+   strips, "Chip Text 2" (a single line whose name ends in its place). Each
+   slot takes one point, in order, once the visitor has edited the points;
+   until then it keeps the card's own word. Every slot used to take the whole
+   list: three lines in each of bandKnockout's chips, run under the number's
+   plate, on eight templates (the Easy Mode sweep, 2026-09-30). */
+function ezBadgeSlot(l){
+  const m = /\s(\d+)$/.exec((l && l.name) || '');
+  return m && !/\n/.test(String((l && l.text) || '')) ? +m[1] - 1 : -1;
+}
+function ezSlotText(l, word){
+  return (/^\s*\u2713/.test(String(l.text || '')) ? '\u2713 ' : '') + cleanText(word, l.casing || 'none', 'badges');
+}
+function ezSlotPlate(l){ const p = String(l.name || '').replace(/ Text (\d+)$/, ' $1'); return p !== l.name ? p : null; }
 function ezDefaultChips(tpl){
-  const b = tpl.layers.find(l => l.role === 'badges');
-  if (!b) return [];
-  return b.text.split(/[\u2022\u2713\n]/).map(x => x.trim()).filter(Boolean);
+  const bs = tpl.layers.filter(l => l.role === 'badges');
+  if (!bs.length) return [];
+  const list = bs.find(l => ezBadgeSlot(l) < 0);
+  const src = list ? [list] : bs.slice().sort((a, b) => ezBadgeSlot(a) - ezBadgeSlot(b));
+  return src.map(l => String(l.text || '')).join('\n').split(/[\u2022\u2713\n]/).map(x => x.trim()).filter(Boolean);
 }
 function ezChips(){ return ez.chips !== null ? ez.chips : ezDefaultChips(ezTpl()); }
 function cssBg(spec){
@@ -8828,14 +8845,17 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
   let hasBadgeLayer = false;
   const hiddenNames = (ez.hidden && ez.hidden[tpl.id]) || [];
   const swap = typeof ezPhoneSwap === 'function' ? ezPhoneSwap(tpl) : null;   // the phone the visitor picked
+  const edited = ez.chips !== null, noSlot = new Set();   // a slot with no point left, and its plate
+  if (edited) tpl.layers.forEach(l => { if (l.role === 'badges' && ezBadgeSlot(l) >= chips.length){ noSlot.add(l.name); const p = ezSlotPlate(l); if (p) noSlot.add(p); } });
   tpl.layers.forEach(l => {
-    if (hiddenNames.includes(l.name)) return;
+    if (hiddenNames.includes(l.name) || noSlot.has(l.name)) return;
     if (swap && l === swap.from) l = swap.layer;
     if (l.role === 'badges'){
       hasBadgeLayer = true;
       if (!chips.length) return;
-      const o = buildLayer(l, tpl.id, DW, DH);
-      o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
+      const o = buildLayer(l, tpl.id, DW, DH), slot = ezBadgeSlot(l);
+      if (slot < 0) o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
+      else if (edited && o.type !== 'textbox'){ o.set('text', ezSlotText(l, chips[slot])); fitToDoc(o, l.props, DW); }
       sc.add(ezApplyStyle(o, l, tpl.id));   // the ✎ beside "Selling points" styles them (it used to do nothing on a card with its own list)
       return;
     }
@@ -9073,8 +9093,13 @@ function openAdvancedFromEz(){
     if (hiddenNames.includes(o.name)){ canvas.remove(o); return; }
     if (o.pgRole === 'badges'){
       if (!chips.length){ canvas.remove(o); return; }
-      o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
-      const stB = (ez.styles[tpl.id] || {})[o.name], baseB = tpl.layers.find(x => x.name === o.name);
+      const baseS = tpl.layers.find(x => x.name === o.name), slot = baseS ? ezBadgeSlot(baseS) : -1;
+      if (slot < 0) o.set('text', chips.map(c => '\u2713 ' + c).join('\n'));
+      else if (ez.chips !== null){
+        if (slot >= chips.length){ const p = ezSlotPlate(baseS); canvas.remove(o); if (p) canvas.getObjects().filter(q => q.name === p).forEach(q => canvas.remove(q)); return; }
+        if (o.type !== 'textbox'){ o.set('text', ezSlotText(baseS, chips[slot])); fitToDoc(o, baseS.props, CW); }
+      }
+      const stB = (ez.styles[tpl.id] || {})[o.name], baseB = baseS;
       if (stB) o.set(ezStyleProps(stB, (baseB && baseB.props) || {}));   // the selling points' ✎ style, as Easy Mode drew it
       return;
     }
