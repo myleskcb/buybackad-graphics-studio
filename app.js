@@ -16002,8 +16002,11 @@ function pgCoverCheck(sc, r){
   const seen = new Set(r.fails.map(f => f.code + '|' + f.line));
   const F = (code, o, v) => { const k = code + '|' + (o.name || ''); if (seen.has(k)) return; seen.add(k);
     r.fails.push({ code, line: o.name || null, role: o.pgRole || null, value: +(+v).toFixed(2), need: code === 'ghost' ? 0.012 : 0.04 }); };
-  /* every reading line that is effectively invisible */
-  (r.lines || []).forEach(x => { if (x.cov != null && x.cov < 1.2 && x.px >= 14){ const o = objs.find(q => q && q.name === x.name); if (o) F('ghost', o, x.cov / 100); } });
+  /* every reading line that is effectively invisible: too little of its box
+     inked, or inked the colour of what is under it (st_cars_cashfor's claim on
+     its plate read 1.09:1 once the gate measured each card whole, with 4.6% of
+     its box changed, so the share alone let it through) */
+  (r.lines || []).forEach(x => { if (x.px >= 14 && ((x.cov != null && x.cov < 1.2) || (x.core != null && x.core < 1.2))){ const o = objs.find(q => q && q.name === x.name); if (o) F('ghost', o, x.cov / 100); } });
   /* every reading line with a solid shape drawn over its letters */
   objs.forEach((t, i) => {
     if (!isText(t) || t.visible === false || (t.opacity != null && t.opacity < 0.5) || !PG_READ[t.pgRole || ''] || !/[A-Za-z0-9]/.test(t.text || '')) return;

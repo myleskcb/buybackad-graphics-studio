@@ -2438,11 +2438,10 @@ the 45% wash on their hex plates, and paper scrims on three dark-ink cards.
 
 ## 88. Emoji are iOS style or none, and only on some cards
 
-Added 2026-09-29 on the live branch (claude/fervent-pascal-w6mthe) as rule 67, where it
-replaced the drawn-emoji rule this number held; numbered 88 here, its
-references following (the live branch's 64-68 are 85-88 and 91).
-
-Added 2026-09-29. The owner, after a drawn 3D set (Fluent Emoji) went live
+Added 2026-09-29 on the live branch (claude/fervent-pascal-w6mthe) as rule 67;
+numbered 88 here, where it replaces the drawn-emoji rule this number held
+(the live branch's 64-68 are 85-88 and 91, and its references follow). The
+owner, after a drawn 3D set (Fluent Emoji) went live
 the same day: "EMOJIS ONLY IOS STYLE REMOVE AND DELETE ALL !", then "AND
 DON'T OVER USE ONLY FOR SOME". The 3D set, its placement and its thumbnails
 were removed entirely (reverted).
@@ -2702,9 +2701,7 @@ Sell Your iPhone's preview and about 60ms to bandKnockout's photographed one
 ## 91. Copy is never under a shape, and the gate says so
 
 Added 2026-09-29 on the live branch as rule 68 (numbered 91 here, after the
-rules 89 and 90 merged before it).
-
-Added 2026-09-29. The owner, on Rush Hour in Easy Mode: "this sucks". Its
+rules 89 and 90 merged before it). The owner, on Rush Hour in Easy Mode: "this sucks". Its
 two rotated bands had doubled in thickness: the guides fit rebuilt an edge
 band's width and height from its bounding box, which for a band at -6 degrees
 is twice its thickness. The gold band rose over the bottom of "iPHONE" and the
@@ -2718,7 +2715,11 @@ and nothing asked whether a shape was drawn over copy.
 - **The gate fails any reading line that is invisible** ('ghost', any role)
   **and any line with a solid shape, a dot or a product drawn over its
   letters** ('covered', over 4% of the letters' body, on the real rotated
-  outlines).
+  outlines). Invisible is either measure: under 1.2% of its box inked, or its
+  letters under 1.2:1 on what is under them. The second was added when the
+  lines were merged (2026-09-30): measured whole, st_cars_cashfor's claim,
+  inked the colour of its plate, read 1.09:1 with 4.6% of its box changed,
+  and the share alone would have offered it again.
 - **After the layout, covered copy comes out** (`pgUncover`): it slides clear
   by the shortest way, on its own plate and inside the guides, or comes down
   in size away from the shape (never under 72%, never the number); a small
