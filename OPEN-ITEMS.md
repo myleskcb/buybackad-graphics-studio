@@ -487,3 +487,9 @@ engine. Still open:
 2. **Item lines over busy photographs** (some gold cards): the shade is solved
    for the headline; the 20px list over the chains reads poorly.
 3. **The library's 398 cards** have not had the same by-eye pass yet.
+4. **Two classics held back by the Zodiak swap (rule 69)**: Zodiak sets about
+   35% wider than Melodrama, so `coins_graded`'s long headline is fitted
+   under the 160px-tile floor and `dl_strips_duoSplit_emerald`'s headline no
+   longer fits its column. Each needs its own layout fix (a shorter line or a
+   wider column); the swap stays, since it makes some twenty gold, silver and
+   coin headlines readable.
