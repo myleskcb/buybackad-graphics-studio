@@ -1,0 +1,740 @@
+{
+ "date": "2026-09-30",
+ "looks": 16,
+ "bar": 3,
+ "badLooks": [
+  {
+   "look": "neon_motel/neon/radial",
+   "seed": 15838,
+   "failsOn": 57
+  }
+ ],
+ "palettes": {
+  "sand": {
+   "median": 4.18,
+   "worst": 1.68,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "studio": {
+   "median": 3.95,
+   "worst": 2.54,
+   "pass": 0.75,
+   "ownFails": 3
+  },
+  "midnight": {
+   "median": 7.1,
+   "worst": 3.22,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "graphite": {
+   "median": 6.66,
+   "worst": 3.09,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "sage": {
+   "median": 4.27,
+   "worst": 2.19,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "blush": {
+   "median": 4.24,
+   "worst": 2.3,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "cobalt": {
+   "median": 5.94,
+   "worst": 3.13,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "tangerine": {
+   "median": 5.09,
+   "worst": 2.02,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "lime": {
+   "median": 7.1,
+   "worst": 2.86,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "paper": {
+   "median": 6.95,
+   "worst": 2.58,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "cherry": {
+   "median": 6.48,
+   "worst": 3.18,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "mint": {
+   "median": 6.42,
+   "worst": 2.59,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "noir": {
+   "median": 6.66,
+   "worst": 3,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "lavender": {
+   "median": 4.15,
+   "worst": 2.48,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "ocean": {
+   "median": 5.92,
+   "worst": 3.14,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "butter": {
+   "median": 7.1,
+   "worst": 2.86,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "cash": {
+   "median": 5.97,
+   "worst": 3.13,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "concrete": {
+   "median": 4.76,
+   "worst": 2.34,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "ultraviolet": {
+   "median": 6.66,
+   "worst": 3.04,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "burgundy": {
+   "median": 6.62,
+   "worst": 3.19,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "glacier": {
+   "median": 5.46,
+   "worst": 2.59,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "ultramarine": {
+   "median": 5.85,
+   "worst": 3.13,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "teal": {
+   "median": 4.33,
+   "worst": 2.9,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "soft-pink": {
+   "median": 4.49,
+   "worst": 1.83,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "terracotta": {
+   "median": 4.88,
+   "worst": 3.28,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "electric": {
+   "median": 6.79,
+   "worst": 3.01,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "flamingo": {
+   "median": 5.07,
+   "worst": 2.15,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "matcha": {
+   "median": 4.38,
+   "worst": 2.92,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "espresso": {
+   "median": 5.97,
+   "worst": 2.86,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "arctic": {
+   "median": 6.67,
+   "worst": 2.82,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "neon-lime": {
+   "median": 7.3,
+   "worst": 3.2,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "sunset": {
+   "median": 4.73,
+   "worst": 2.21,
+   "pass": 0.81,
+   "ownFails": 2
+  },
+  "berry": {
+   "median": 6.36,
+   "worst": 3.19,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "denim": {
+   "median": 6.39,
+   "worst": 3.17,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "coral": {
+   "median": 4.79,
+   "worst": 2.03,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "mocha": {
+   "median": 4.56,
+   "worst": 3.09,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "forest": {
+   "median": 6.58,
+   "worst": 3.17,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "royal": {
+   "median": 6.66,
+   "worst": 3.01,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "bubblegum": {
+   "median": 7.1,
+   "worst": 2.73,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "slate": {
+   "median": 5.34,
+   "worst": 3.06,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "gold": {
+   "median": 4.46,
+   "worst": 2.93,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "chrome": {
+   "median": 4.29,
+   "worst": 2.69,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "infrared": {
+   "median": 5.62,
+   "worst": 3.15,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "aqua": {
+   "median": 4.44,
+   "worst": 2.92,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "plum": {
+   "median": 6.66,
+   "worst": 2.98,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "olive": {
+   "median": 5.15,
+   "worst": 3.09,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "peach": {
+   "median": 6.55,
+   "worst": 2.71,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "cyberpunk": {
+   "median": 7.31,
+   "worst": 3.19,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "vintage": {
+   "median": 5.89,
+   "worst": 2.28,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "tropical": {
+   "median": 4.43,
+   "worst": 2.93,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "rosewood": {
+   "median": 5.98,
+   "worst": 3.12,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "steel": {
+   "median": 6.51,
+   "worst": 3.15,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "mango": {
+   "median": 6.61,
+   "worst": 2.77,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "ice": {
+   "median": 6.94,
+   "worst": 2.83,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "magenta": {
+   "median": 5.7,
+   "worst": 3.11,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "navy-gold": {
+   "median": 6.66,
+   "worst": 2.93,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "carbon": {
+   "median": 6.66,
+   "worst": 2.61,
+   "pass": 0.88,
+   "ownFails": 2
+  },
+  "sky": {
+   "median": 3.97,
+   "worst": 2.88,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "sandstone": {
+   "median": 4.29,
+   "worst": 2.3,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "mint-choc": {
+   "median": 6.58,
+   "worst": 3.17,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "lemonade": {
+   "median": 5.9,
+   "worst": 2.22,
+   "pass": 0.81,
+   "ownFails": 2
+  },
+  "golden_hour": {
+   "median": 4.95,
+   "worst": 2.56,
+   "pass": 0.88,
+   "ownFails": 2
+  },
+  "pink_hour": {
+   "median": 4.87,
+   "worst": 2.61,
+   "pass": 0.88,
+   "ownFails": 2
+  },
+  "dusk_purple": {
+   "median": 5.27,
+   "worst": 3.27,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "la_sunset_teal": {
+   "median": 4.63,
+   "worst": 2.51,
+   "pass": 0.88,
+   "ownFails": 2
+  },
+  "freeway_sky": {
+   "median": 5.59,
+   "worst": 2.92,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "freeway_dusk": {
+   "median": 4.05,
+   "worst": 2.95,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "freeway_night": {
+   "median": 6.66,
+   "worst": 3.14,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "swap_yellow": {
+   "median": 6.77,
+   "worst": 2.84,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "swap_green": {
+   "median": 7.1,
+   "worst": 2.85,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "swap_orange": {
+   "median": 6.92,
+   "worst": 2.79,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "swap_pink": {
+   "median": 6.97,
+   "worst": 2.82,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "stucco_peach": {
+   "median": 6.1,
+   "worst": 2.6,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "stucco_white": {
+   "median": 6.24,
+   "worst": 2.83,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "concrete_grey": {
+   "median": 7.07,
+   "worst": 2.64,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "store_red": {
+   "median": 6.24,
+   "worst": 2.83,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "store_green": {
+   "median": 6.25,
+   "worst": 2.59,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "store_blue": {
+   "median": 6.27,
+   "worst": 2.36,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "cork_board": {
+   "median": 7.1,
+   "worst": 2.03,
+   "pass": 0.81,
+   "ownFails": 2
+  },
+  "candy_red": {
+   "median": 6.52,
+   "worst": 2.93,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "candy_purple": {
+   "median": 6.33,
+   "worst": 2.92,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "candy_teal": {
+   "median": 5.98,
+   "worst": 2.88,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "candy_green": {
+   "median": 5.98,
+   "worst": 2.88,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "night_brick": {
+   "median": 6.66,
+   "worst": 2.99,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "night_blue": {
+   "median": 6.66,
+   "worst": 2.81,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "mural_marigold": {
+   "median": 5.79,
+   "worst": 2.61,
+   "pass": 0.81,
+   "ownFails": 2
+  },
+  "mural_teal": {
+   "median": 4.04,
+   "worst": 2.68,
+   "pass": 0.88,
+   "ownFails": 2
+  },
+  "mural_rose": {
+   "median": 4.64,
+   "worst": 3.11,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "la_blue": {
+   "median": 5.7,
+   "worst": 2.88,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "la_blue_white": {
+   "median": 4.18,
+   "worst": 2.08,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "purple_gold": {
+   "median": 5.91,
+   "worst": 2.31,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "venice_teal": {
+   "median": 5.65,
+   "worst": 2.56,
+   "pass": 0.81,
+   "ownFails": 2
+  },
+  "venice_sand": {
+   "median": 5.89,
+   "worst": 2.56,
+   "pass": 0.81,
+   "ownFails": 2
+  },
+  "spray_concrete": {
+   "median": 6.81,
+   "worst": 2.67,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "spray_night": {
+   "median": 6.66,
+   "worst": 2.75,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "marquee_red": {
+   "median": 7.1,
+   "worst": 3.24,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "marquee_night": {
+   "median": 7.1,
+   "worst": 3.25,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "emerald": {
+   "median": 5.91,
+   "worst": 3.14,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "sapphire": {
+   "median": 6.42,
+   "worst": 2.94,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "amethyst": {
+   "median": 6.44,
+   "worst": 3.16,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "ruby": {
+   "median": 6.53,
+   "worst": 3.17,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "onyx_gold": {
+   "median": 6.66,
+   "worst": 2.95,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "pearl": {
+   "median": 7.1,
+   "worst": 2.54,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "powder": {
+   "median": 6.45,
+   "worst": 2.3,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "pistachio": {
+   "median": 5.89,
+   "worst": 2.27,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "apricot": {
+   "median": 6.77,
+   "worst": 2.46,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "lilac": {
+   "median": 7.1,
+   "worst": 2.5,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "rose_quartz": {
+   "median": 7.1,
+   "worst": 2.85,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "seafoam": {
+   "median": 5.72,
+   "worst": 2.23,
+   "pass": 0.88,
+   "ownFails": 1
+  },
+  "titanium": {
+   "median": 5.53,
+   "worst": 3.08,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "rose_gold": {
+   "median": 5.11,
+   "worst": 3.11,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "bronze": {
+   "median": 5.84,
+   "worst": 3.12,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "platinum": {
+   "median": 7.1,
+   "worst": 2.85,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "midnight_teal": {
+   "median": 6.66,
+   "worst": 2.92,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "ink_blue": {
+   "median": 6.99,
+   "worst": 2.94,
+   "pass": 0.94,
+   "ownFails": 1
+  },
+  "oxblood": {
+   "median": 7,
+   "worst": 3.2,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "pine": {
+   "median": 6.4,
+   "worst": 3.14,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "signal_red": {
+   "median": 5.82,
+   "worst": 3.15,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "klein": {
+   "median": 5.88,
+   "worst": 3.11,
+   "pass": 1,
+   "ownFails": 0
+  },
+  "cream_black": {
+   "median": 7.1,
+   "worst": 2.83,
+   "pass": 0.94,
+   "ownFails": 0
+  },
+  "storm": {
+   "median": 5.18,
+   "worst": 2.76,
+   "pass": 0.94,
+   "ownFails": 1
+  }
+ }
+}

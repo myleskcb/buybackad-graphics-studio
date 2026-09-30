@@ -346,7 +346,7 @@ function buildPalettePicker(row, opts) {
   const wrap = document.createElement("div"); wrap.className = "mo-pal";
   wrap.innerHTML = `<button type="button" class="mo-pal-btn" aria-haspopup="listbox" aria-expanded="false"></button>
     <div class="mo-pal-list" role="listbox" aria-label="${LABELS.palette || "Palette"}" tabindex="-1" hidden>${opts.map(v =>
-      `<div class="mo-pal-opt" role="option" data-pal="${v}" aria-selected="false">${palStrip(v)}<span>${labelFor("palette", v)}</span></div>`).join("")}</div>`;
+      `<div class="mo-pal-opt" role="option" data-pal="${v}" aria-selected="false">${palStrip(v)}<span>${labelFor("palette", v)}</span><b class="mo-pal-score"></b></div>`).join("")}</div>`;
   select.after(wrap);
   const btn = wrap.querySelector(".mo-pal-btn"), list = wrap.querySelector(".mo-pal-list");
   const items = [...list.querySelectorAll(".mo-pal-opt")];
@@ -388,6 +388,16 @@ function buildPalettePicker(row, opts) {
     e.preventDefault();
   });
   document.addEventListener("pointerdown", e => { if (!list.hidden && !wrap.contains(e.target)) close(false); });
+  // each palette's measured headline contrast (scripts/motion_palette_audit.mjs); the list works without it
+  fetch("./palette-audit.json").then(r => r.ok ? r.json() : null).then(rep => {
+    if (!rep) return;
+    items.forEach(o => {
+      const a = rep.palettes[o.dataset.pal]; if (!a) return;
+      const pale = a.median < 4.5, b = o.querySelector(".mo-pal-score");
+      b.textContent = `${a.median.toFixed(1)}:1`; b.classList.toggle("caution", pale);
+      o.title = `Headline contrast ${a.median.toFixed(1)}:1 (median of ${rep.looks} looks, audited ${rep.date}); passes ${rep.bar}:1 in ${Math.round(a.pass * rep.looks)} of ${rep.looks}` + (pale ? ". Pale: the headline leans on its shadow or plate" : "");
+    });
+  }).catch(() => { /* offline: swatches only */ });
 }
 
 function syncPalettePicker(v) {
