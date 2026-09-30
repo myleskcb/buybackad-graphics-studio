@@ -1729,3 +1729,84 @@ RESUME HERE:
   session's production deploy (and Netlify in the environment's network
   access), or deploys from a machine that reaches Netlify (AGENT-BRIEF,
   Deploying: draft, look, then --prod). Then OPEN-ITEMS §S.
+
+---
+
+## 2026-09-30 — Every line on main
+
+The owner: "Audit and push all to main site, unify the sites or branches."
+
+Found:
+  - `main` was 2026-08-28. Every other line had moved past it, and four were
+    live or about to be: the one-engine line (vibrant-hawking), the trunk,
+    the branch production served (fervent-pascal, 9318537: the iOS-only
+    emoji and the 'covered' gate), and two sessions that pushed during the
+    merge (the video maker's 8842adc, the designer's 0769ce3), plus a second
+    merge of the live branch by the one-engine session (e0b1506).
+  - Two sessions merging the same live branch at once came out the same:
+    both took its emoji section whole, both numbered its rules 87, 88 and 91,
+    both measured the same 415 live cards. Merging the second into the first
+    changed one comment. They also both picked ASSET_REV 20260930a for
+    different thumbnails, which a browser would have mixed: 20260930b.
+  - `git checkout --ours -- assets/showcase/` to take one side's thumbnails
+    also took that side's index over the resolved one, and the merge commit
+    said a card was retired when it was not. Check the tree after a bulk
+    checkout, not the message.
+  - The gate on the merged engine passed st_cars_cashfor, which the live
+    branch held: its claim is inked the colour of its plate (1.09:1) but 4.6%
+    of its box changes, so the share test for 'ghost' let it through. 'ghost'
+    now also fails letters under 1.2:1 (rule 91). It adds that card only.
+  - The designer audit measured one card five times: its default cards are
+    held on `main` (the template audit's 143, and the gate), so Easy Mode
+    opened its first card instead. On cards that are offered it found two
+    bugs, and on the designer branch alone the same kind of failure:
+    - ORIG left a theme's colour on gradient fills (cars_anycond, 14.1% of
+      the card, on the designer branch too): a gradient's toObject() copies
+      its list of stops, not the stops, and ezCopyFollowsGround recolours
+      stops in place, so a later pass rewrote the paint saved for ORIG.
+      Deep copies both ways (edSer, edDes): ORIG 0%.
+    - A photograph's paper shade was still on the canvas when the copy was
+      solved on the next ground, a flat one, and was taken off after: the
+      headline went dark on dark grey (1.14:1). The shade goes first now.
+  - The tagline look and the designer's colour pass did not know about each
+    other: a theme picked in the editor repainted over a look. The pass now
+    takes a look off, recolours, and puts it back in the theme's palette.
+
+Changed:
+  - Merged (merge commits): phone-ad-maker (PRs #2, #3, #4), vibrant-hawking
+    to 11bed85 and to e0b1506, fervent-pascal to 9318537, project-thread-
+    eost3s to 8842adc, eloquent-euler to 0769ce3. `main` fast-forwarded.
+  - Not merged: busy-allen and quirky-ritchie (August base, OPEN-ITEMS §J, §U).
+  - DESIGN-LAW 88 (iOS emoji or none) in place of the drawn set, 91 (copy
+    never under a shape, with ghost by contrast), 92 (the designer, from the
+    designer session's commit). AGENT-BRIEF landmine 6: start from `main`
+    and put work back on it; Deploying: deploy `main` only, one site.
+
+Measured (the merged build):
+  - Library: 971 records through the gate, 841 pass; 415 live, none failing
+    it; content audit CLEAN 419, retired 285. 552 thumbnails changed
+    materially (the drawn emoji off 248 live cards), the rest by grain only.
+  - Classics: 346 pass, 58 held (the same 57 and st_cars_cashfor). Template
+    audit 143 of 404 held (four trust-seal cards lose 'shape' to pgUncover).
+  - Easy Mode through the gate: 261 templates, no number off its guides, the
+    same 2 legibility holds (§S 10). Tagline looks: 12 x 81, all pass,
+    blocks give way on 4. tagline_panel_check and device_picker_check pass.
+  - Approved: stepsFlow-nn05-30 224/224, nn01-30 222/222, the 9:16 within
+    0.04% of the owner's render.
+  - Landing: 0 console or page errors, 0 failed requests, no overflow at
+    390 and 1440. Static: CSS_FALLBACK in sync, CSP hashes unchanged, JSON
+    and scripts parse, tests-iphonesla-link 64/64.
+  - cvd_audit.py fails three themes, as on the August `main`: rule 43's
+    finding, open.
+
+Rejected:
+  - Deploying: auto mode's Production Deploy rule refused the Netlify
+    connector's deploy-site, and the network policy blocks Netlify. Not
+    worked around; the owner deploys `main`.
+  - Merging the two August branches (§J).
+  - Deleting branches: the owner's call once the sessions have merged `main`.
+
+RESUME HERE:
+  Deploy `main` (AGENT-BRIEF, Deploying) to the site the owner keeps, and
+  link it to `main`. Then OPEN-ITEMS §U: the designer's settle time, the
+  held classics (§S 0), the colour-vision themes.

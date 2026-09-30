@@ -2763,6 +2763,13 @@ twenty seconds while every thumbnail rendered. Now, in the editor:
   look off, recolours, and puts it back on in the theme's palette, so a theme
   picked in the editor never overpaints a look (added when the lines were
   merged, 2026-09-30).
+- **ORIG is exact, whatever came between.** The paint saved for ORIG is a
+  deep copy: a gradient's stops were shared with the live fill, and the copy
+  pass recolours stops in place, so a later pass rewrote the saved paint and
+  ORIG kept a theme's colour (cars_anycond, 14.1% of the card). A shade a
+  photograph needed leaves before the copy is solved on the next, flat
+  ground (it had turned a headline dark on dark grey). Both found when the
+  lines were merged, 2026-09-30.
 - **The hand-off lays the visitor's words out once**, as Easy Mode does; a
   second layout compounded (Sell Your iPhone's product list at 0.81 with the
   call to action risen onto it). Undo carries the ground; a pattern saves as

@@ -17167,8 +17167,13 @@ function edSoon(fn, ms){ clearTimeout(_edSoonT); _edSoonT = setTimeout(fn, ms ||
 /* the ground layer is rebuilt by the ground and effect controls, never
    recoloured: everything else is paint */
 function edPaintable(o){ return !!o && !(o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern || o.pgOv); }
-const edSer = v => v && typeof v === 'object' ? (typeof v.toObject === 'function' ? v.toObject() : JSON.parse(JSON.stringify(v))) : v;
-const edDes = v => v && typeof v === 'object' && Array.isArray(v.colorStops) ? new fabric.Gradient(v) : v;
+/* deep copies both ways: a gradient's toObject() copies its list of stops but
+   not the stops, and the passes recolour stops in place (ezCopyFollowsGround
+   sets s.color), so a shallow copy let a later pass rewrite the paint saved
+   for ORIG (cars_anycond's hazard stripes kept a theme's colour, 14% of the
+   card) and a restored gradient shared its stops with the saved one */
+const edSer = v => v && typeof v === 'object' ? JSON.parse(JSON.stringify(typeof v.toObject === 'function' ? v.toObject() : v)) : v;
+const edDes = v => v && typeof v === 'object' && Array.isArray(v.colorStops) ? new fabric.Gradient(JSON.parse(JSON.stringify(v))) : v;
 function edPaintOf(o){
   const p = { fill: edSer(o.fill), stroke: o.stroke == null ? null : edSer(o.stroke), strokeWidth: o.strokeWidth,
     shadow: o.shadow ? edSer(o.shadow) : null, backgroundColor: o.backgroundColor || '', opacity: o.opacity == null ? 1 : o.opacity,
@@ -17216,6 +17221,12 @@ function edRecolour(opts){
   objs.forEach(o => { if (!o.pgUser) edPaintSet(o, o.pgOrig); });
   if (pick){ edLastTheme = th || null; edThemeGround(th, tpl); }
   const keep = o => !!o.pgUser;
+  /* a shade the last photograph needed goes before anything is measured on a
+     ground that is not a photograph the visitor picked: left on until
+     edShadeSolve, the copy was solved against it (a paper shade from a
+     blurred photo turned stepsFlow's headline dark on a dark solid ground,
+     1.14:1) and then the shade was taken off */
+  if (!(bgState && bgState.pick && edIsPhoto(bgState)) && canvas.getObjects().some(o => o.pgShade)) advShade(0);
   try { ezOverlayPre(canvas, CW, CH); } catch (e){ console.warn('GraphicsStudio overlay tone (designer):', e); }
   if (th){ try { themeScene(canvas, th, CW, CH, { tpl, keep }); } catch (e){ console.warn('GraphicsStudio theme (designer):', e); } }
   else if (bgState && bgState.pick && ezGroundIsFlat(bgState)){ try { ezCopyFollowsGround(canvas, CW, CH, keep); } catch (e){ console.warn('GraphicsStudio copy on ground (designer):', e); } }

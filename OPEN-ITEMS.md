@@ -888,3 +888,68 @@ Still open:
 6. **Photographs the visitor uploads** are not re-inked (a shade does that
    job, rule 62), so white copy on a bright photo of their own still depends
    on the gate's shade at download.
+
+## U. 2026-09-30 — every line of work on `main`
+
+The owner: "Audit and push all to main site, unify the sites or branches."
+`main` had not moved since 2026-08-28. It is now the whole product: every
+branch below is an ancestor of it, merged with merge commits (nobody's
+history rewritten), audited, and `main` fast-forwarded to the result.
+
+Merged, in order (the log entry of the same date has the numbers):
+- `claude/vibrant-hawking-htxrvn` to 11bed85 and again to e0b1506 (the one
+  engine, and its own merge of the live branch, which agreed with this one);
+- `phone-ad-maker` (PRs #2, #3, #4) and so `claude/project-thread-hkdmrf`,
+  `-j2pq9z`, `-kte3ml` (every commit of theirs was already in; the merge
+  records it);
+- `claude/fervent-pascal-w6mthe` to 9318537, what production served (the
+  iOS-only emoji, copy never under a shape);
+- `claude/project-thread-eost3s` to 8842adc (the video maker, 2026-09-30);
+- `claude/eloquent-euler-7jvzfd` to 0769ce3 (the designer speaks the house
+  language, rule 92, 2026-09-30);
+- the trunk, `claude/vibrant-lovelace-rze4rx`, is the branch this was built on.
+
+Not merged, on purpose (§J): `claude/busy-allen-2d5iv1` (the photo standard)
+and `claude/quirky-ritchie-f0zuc8` (the design console) are cut from the
+August `main`; merged, they would lay August code over September's. Port from
+them. Still worth porting: busy-allen's move of `tplbg-data.js` (a 621 KB
+render-blocking script on every landing load, measured 2026-09-30) to files,
+and the console's pass switches, re-derived for today's pass chain.
+
+Open:
+1. **Deploy `main`.** The cloud sessions cannot: the environment's network
+   policy denies `*.netlify.app` and `api.netlify.com`, and auto mode's
+   Production Deploy rule stops the Netlify connector's deploy-site. From the
+   Mac: `git checkout main && git pull`, then AGENT-BRIEF, Deploying (draft,
+   look, `--prod`).
+2. **One site.** `buybackad-finished-copy` (the connector's, where sessions
+   deployed) and `buybackad-graphics-studio` (the Mac's CLI) have served
+   different branches. Deploy `main` to both or retire one, and link the one
+   kept to this repository's `main` so a push deploys (AGENT-BRIEF, Deploying).
+3. **PR #1** (`claude/project-thread-hkdmrf` into `main`, "Bring main up to
+   date") is superseded: its head is in `main`.
+4. **Branches.** Every `claude/*` branch but the two August ones is in
+   `main`; they can be deleted once the sessions on them have merged `main`
+   (the owner's call; none was deleted here).
+5. **The colour-vision audit** (`scripts/cvd_audit.py`) fails three themes
+   (Crimson x Mint and Royal x Tangerine under simulation, Teal x Coral
+   before it),
+   exactly as it does on the August `main` and on every branch: rule 43's
+   finding, waiting on the field research rule 14 asks for.
+6. **The designer audit** (`scripts/designer_audit.mjs`, rule 92). Its
+   default cards sell_iphone, gold_spot, cars_kbb and pkm_binder are held by
+   the template audit on `main`, and lowerThird-nn03-30 by the gate, so Easy
+   Mode opens its first card in their place and the audit measures one card
+   five times; run it with `--cards` (icloud_ok, bold_buyer, gold_lux,
+   cars_anycond, bandKnockout-pp04-15, stepsFlow-jw07-15 were used). On those,
+   after the two fixes of the merge (ORIG exact, the photo shade gone before
+   a flat ground is solved): hand-off 0, ORIG 0% on all six, no legibility
+   regression, and two findings left, both the designer session's to weigh:
+   - **Settle time**: 3.1 to 3.7 s of main-thread blocking in the 12 s after
+     the editor opens (their bar is 3 s; the longest task 220 ms, under the
+     400 ms freeze bar). On the designer branch alone it is 1.9 to 2.9 s: the
+     thumbnails it renders one per idle slice now run the whole engine (the
+     look, the number fill, the gate's shade). Cheaper strip thumbnails, or a
+     longer breath between them.
+   - **Sparse patterns** change under 1% of gold_lux (dots, halftone, grid)
+     and cars_anycond (grid), exactly as on the designer branch (§S 11).
