@@ -2,7 +2,7 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, SOUND_ALIASES } from "./catalog.js";
 import { vibeBackground, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
@@ -86,7 +86,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
     if (!locked.has(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
   }
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
-  if (!locked.has("bpm")) out.bpm = r.int(90, 134);
+  if (!locked.has("bpm")) out.bpm = r.int(96, 124);      // the tempo a commercial bed sits at
   // an opening that shows the phones on frame 0 shows their backs: screen-up phones are black glass in the thumbnail
   if (!["hook_line", "word_beat"].includes(out.hook) && out.front_glimpse === "hold" && !locked.has("front_glimpse")) out.front_glimpse = "spin";
   vibeInto(out, r, locked);
@@ -199,6 +199,7 @@ function copyInto(out, r, locked, content) {
  *  it only stops two choices colliding on screen. */
 export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!FONTS[st.font]) st.font = "franklin";
+  for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[st[k]]) st[k] = map[st[k]];
   if (st.palette === "match") {
     const found = (st.phones || []).map(id => FINISH_PALETTES[(phoneIndex[id] || {}).finish]).filter(Boolean);
     st.palette = found.length ? found[Math.floor(rng(st.seed * 31)() * found.length)] : "sand";

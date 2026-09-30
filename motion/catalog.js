@@ -376,9 +376,10 @@ export const OPTIONS = {
   palette: [...Object.keys(PALETTES), "match", "match", "match"],
   camera: ["push_in", "push_out", "still", "drift", "punch", "tilt", "whip_in", "handheld"],
   shake: [0, 1, 2],
-  sound_kit: ["house", "trap", "boombap", "minimal", "lofi", "edm", "afrobeat", "funk", "drumline", "none"],
-  hit: ["impact", "riser", "glitch", "cymbal", "bass_drop", "clap_stack"],
-  number_sfx: ["pop", "register", "ticks", "coin", "chime", "whoosh_ding"],
+  // scored like a commercial: every kit plays chords in a key (audio.js)
+  sound_kit: ["uplift", "house", "hiphop", "lofi", "minimal", "cinematic", "none"],
+  hit: ["impact", "riser", "cymbal", "bass_drop"],
+  number_sfx: ["pop", "chime", "register", "whoosh_ding", "ticks"],
   glare: [0.5, 1, 1, 1.5],
   hook: ["hook_line", "hook_line", "word_beat", "word_beat", "crash_zoom", "flash_cut", "punch_in", "cold_open"],
   overlay: ["none", "none", "confetti", "light_leak", "vignette_pulse", "lens_flare", "glitch", "grain_live", "sparkle_field",
@@ -409,6 +410,16 @@ export const WEIGHTS = {
   depth: { none: 3, soft_floor: 3, reflection: 2 },
   transition: { fade: 2 },
   outro: { none: 3, settle: 2, end_card: 2 },
+  sound_kit: { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5 },
+  number_sfx: { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1 },
+};
+
+// Sounds retired in the commercial pass (owner, 2026-09-30) play as the nearest one
+// still offered, so a saved or locked look keeps working.
+export const SOUND_ALIASES = {
+  sound_kit: { trap: "hiphop", boombap: "hiphop", edm: "house", funk: "uplift", afrobeat: "house", drumline: "cinematic" },
+  hit: { glitch: "impact", clap_stack: "impact" },
+  number_sfx: { coin: "chime" },
 };
 
 export const FLAGS = { flash: 0.6, shine: 0.5, rgb_hit: 0.3, speed_lines: 0.35, sparkles: 0.35 };
@@ -422,7 +433,7 @@ export const DEFAULT_STYLE = {
   number_scale: 1, arrangement: "row", entry: "fly_spin", end_face: "back", front_glimpse: "spin",
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
-  sound_kit: "house", bpm: 118, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
+  sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
   overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",
   grade: "none", depth: "none", transition: "fade", outro: "none",
