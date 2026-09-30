@@ -1231,45 +1231,44 @@ shipping:
 The ip-gen17-plateau-black crop is a square camera bump (16 Pro design), not
 the 17 Pro plateau: marked not authentic.
 
-## 2026-09-29 — Emoji beside the words
+## 2026-09-29 — iOS emoji or none; copy under a shape
 
-Owner: "use emojis as attention grabbing assets in extra spaces (not
-overlapping.. and not all need it), relevant emojis or general purpose emojis
-like cash or arrows."
+Owner: "EMOJIS ONLY IOS STYLE REMOVE AND DELETE ALL !", "AND DON'T OVER USE
+ONLY FOR SOME", and of Rush Hour in Easy Mode: "this sucks sorry".
 
 Learned:
-  - The earlier removal was about system-font emoji: a different drawing per
-    device and a blank box in some exports. One art set as pictures (Fluent
-    3D, MIT, 48 in one 195 KB sheet) is the same everywhere.
-  - Every card's website is iphones.LA, so reading the topic off all the
-    words named every card a phone card. The headline decides; the website
-    and the number never do.
-  - An emoji in the nearest empty square floats: it reads as clutter away
-    from the words and covers the photograph. Beside a line, centred on its
-    caps, it reads as part of the message.
-  - Two emoji flanking one line look busy; one per row.
-  - Number plates are wide, so a hand beside them rarely fits; above either
-    end of the plate, pointing down, usually does.
-  - A Pro card opened signed-out lands on the plans page and the free
-    default; a test of a library card in Easy Mode has to use a free card.
-  - Ranking lines by their object's font size put the emoji beside a small
-    "WE BUY" in a two-line headline; each line ranks by its own height.
-  - A wall of ghosted products at 16% opacity counted as occupied and pushed
-    the emoji off the big product word; a picture under 0.3 is texture, as
-    the gate already treated it.
+  - A drawn emoji set, however polished, is not what the owner means by
+    emoji: the iPhone's own. Apple's artwork cannot ship as files; the
+    device's emoji font can be used, and it is Apple's only on Apple devices.
+  - Placed on every other card (239 of 399), emoji read as overuse. Three in
+    ten eligible, one each, reads as an accent.
+  - fitInsideGuides rebuilt edge-attached rects from their bounding box; a
+    rotated band's box is not its size. Two bands doubled and covered copy.
+  - The gate could not see copy under a shape, nor an invisible line outside
+    the three critical roles. Once it could, it found seven broken classics
+    that had been offered all along.
+  - A status dot under the first letters of a chip reads as a typo; a small
+    mark on words moves in front of them.
+  - 28 library cards had emoji typed into the design, drawn in Google's style
+    on the server's thumbnails: the iOS-only rule covers them too.
+  - Re-rendering every thumbnail shows every one changed: the grain layer is
+    random per render. Only thumbnails that changed materially (over 400
+    pixels by more than 24 levels) are worth committing; 567 of the 570 that
+    did were retired cards nobody sees.
 
 Changed:
-  - pgEmojiPass after alignPass (wrapped); pgEmojiCheck in pgCheck
-    (wrapped), explained in the gate's words; Easy Mode's Emoji row (Auto,
-    Shuffle, None); the editor's picker shows the sheet and addEmoji places
-    pictures; the harness waits for the sheet; 399 thumbnails re-rendered.
-  - DESIGN-LAW rule 88, a pointer on rule 29; AGENT-BRIEF; OPEN-ITEMS §A 1.
+  - The Fluent set and its thumbnails reverted; ASSET_REV 20260929b.
+  - pgEmojiPass (device-font emoji, Apple devices only, 3 in 10 cards, one
+    each), pgEmojiCheck in the gate, Easy Mode's Emoji row and the editor's
+    picker shown on Apple devices only; ?emoji=ios forces the pass for tests.
+  - fitInsideGuides keeps a rotated band's thickness; stackBulletRuns leaves a
+    line on a band or a pill; pgCoverCheck ('ghost' any role, 'covered');
+    pgUncover after the layout.
+  - DESIGN-LAW rules 88 and 91.
 
 Rejected:
-  - System-font emoji (see above); an Apple emoji set (not licensed for
-    this); emoji on every card (the owner: "not all need it").
-
----
+  - Apple emoji images from a package (Apple's artwork, not licensed).
+  - Non-Apple device emoji as a fallback (the owner: iOS style only).
 
 ## 2026-09-29 — Three lines made one: the trunk, the live branch and the one engine
 
@@ -1649,46 +1648,84 @@ RESUME HERE:
   on their subject (8), one palette reader (9), one path for the gate and Easy
   Mode (10), sparse patterns (11).
 
----
+## 2026-09-30 — What was live moved again: the iOS emoji merged, the sessions told
 
-## 2026-09-29 — iOS emoji or none; copy under a shape
+The owner: "You've got full access to do this for me … unblock the deploy …
+deploy it yourself … tell me which Netlify project is the real site … tell
+the other two sessions to merge claude/vibrant-hawking-htxrvn before they
+deploy … push and commit all changes."
 
-(Written on claude/fervent-pascal-w6mthe, the branch production served;
-merged into the unified line 2026-09-30. Rule numbers are the unified ones.)
-
-Owner: "EMOJIS ONLY IOS STYLE REMOVE AND DELETE ALL !", "AND DON'T OVER USE
-ONLY FOR SOME", and of Rush Hour in Easy Mode: "this sucks sorry".
-
-Learned:
-  - A drawn emoji set, however polished, is not what the owner means by
-    emoji: the iPhone's own. Apple's artwork cannot ship as files; the
-    device's emoji font can be used, and it is Apple's only on Apple devices.
-  - Placed on every other card (239 of 399), emoji read as overuse. Three in
-    ten eligible, one each, reads as an accent.
-  - fitInsideGuides rebuilt edge-attached rects from their bounding box; a
-    rotated band's box is not its size. Two bands doubled and covered copy.
-  - The gate could not see copy under a shape, nor an invisible line outside
-    the three critical roles. Once it could, it found seven broken classics
-    that had been offered all along.
-  - A status dot under the first letters of a chip reads as a typo; a small
-    mark on words moves in front of them.
-  - 28 library cards had emoji typed into the design, drawn in Google's style
-    on the server's thumbnails: the iOS-only rule covers them too.
-  - Re-rendering every thumbnail shows every one changed: the grain layer is
-    random per render. Only thumbnails that changed materially (over 400
-    pixels by more than 24 levels) are worth committing; 567 of the 570 that
-    did were retired cards nobody sees.
+Found:
+  - Production had moved after this branch last merged the live branch: the
+    Netlify connector's current deploy on buybackad-finished-copy was
+    claude/fervent-pascal-w6mthe at 9318537 (09:42 the day before). That
+    session had reverted the drawn 3D emoji set and removed it (the owner:
+    "EMOJIS ONLY IOS STYLE REMOVE AND DELETE ALL"), and added the gate's
+    'covered' and 'ghost' checks with pgUncover (Rush Hour). This branch no
+    longer contained what was live, so a deploy from it would have put the
+    3D emoji back and taken that work off the site.
+  - The connector sees one project, buybackad-finished-copy, and it is where
+    the sessions deploy production; buybackad-graphics-studio (the August
+    brief's URL) is not in the connected account. Both hosts are blocked from
+    this container, so neither page could be looked at from here.
+  - The session tools here cannot message a cloud session directly
+    (ListAgents lists none); a one-shot Routine into a named session
+    (create_trigger with persistent_session_id) delivers a message as a turn
+    of that conversation, and all three fired.
+  - A merge whose output was piped into `head` was killed by SIGPIPE halfway
+    through: files rewritten with conflict markers, no MERGE_HEAD. Reset to
+    the pushed commit and merged again with the output going to a file. Never
+    pipe a git command that writes the work tree into `head`.
+  - Git interleaved the old and new emoji sections line by line (the old
+    tables in one hunk, the new pass in the next); resolving hunk by hunk
+    would have kept a mixture. The span was replaced by the live branch's
+    section whole, and this branch's two additions put back.
+  - The live branch's new rule 68 collided with the trunk's 68 (the headline
+    as a claim): it is 91 here.
 
 Changed:
-  - The Fluent set and its thumbnails reverted; ASSET_REV 20260929b.
-  - pgEmojiPass (device-font emoji, Apple devices only, 3 in 10 cards, one
-    each), pgEmojiCheck in the gate, Easy Mode's Emoji row and the editor's
-    picker shown on Apple devices only; ?emoji=ios forces the pass for tests.
-  - fitInsideGuides keeps a rotated band's thickness; stackBulletRuns leaves a
-    line on a band or a pill; pgCoverCheck ('ghost' any role, 'covered');
-    pgUncover after the layout.
-  - DESIGN-LAW rules 88 and 91.
+  - Merged claude/fervent-pascal-w6mthe to 9318537 (a merge commit). The live
+    branch's emoji section whole; an approved render still gets no emoji
+    unless the visitor shuffles (PG_APPROVED, rule 78); the colour-theme
+    engine that followed it kept as merged; the harness waits for no sheet.
+  - Its rules 66 and 67 are 87 and 88 here, its new 68 is 91; the references
+    in its own lines follow. Its rewritten log entry replaced the old one.
+  - Every thumbnail re-rendered on the merged engine (no drawn emoji), the
+    gate and the audits re-run; ASSET_REV 20260930a.
+  - Told the three sessions, at the owner's request, to merge this branch
+    before any production deploy (one Routine each, fired 01:34 UTC).
+
+Measured (the merged build, before the push):
+  - Showcase: 971 records through the merged gate, with the live branch's
+    'covered' and 'ghost' checks: 415 live and none failing it. 'covered'
+    held back two cards that were live (bubblePop-du05-25, hudTech-jw10-25),
+    and checklistHero-du08-20 is retired as the live branch retired it.
+    Content audit CLEAN 419, retired 285: the retired flag had been written
+    twice ('curated+curated', 269 rows) since 2026-09-29, and it is once now.
+    Every thumbnail re-rendered, with no drawn emoji; ASSET_REV 20260930a.
+  - Classics: 347 of 404 pass, 57 held back. st_cars_cashfor, held on the
+    live branch, reads 4.81:1 on the merged engine and is offered. The
+    template audit holds 143 of 404.
+  - Tagline looks: all twelve on the 81 audited templates, 81/81 each;
+    blocks give way on 4, each over its product.
+  - tagline_panel_check passes; the approved Steps Flow cards pass audit_card
+    224/224 and 222/222, the 9:16 within 0.04% of the owner's render.
+  - Every offered template's Easy Mode render through the merged gate (261):
+    no number off its guides, nothing covered or invisible; the same 2
+    legibility holds as before (OPEN-ITEMS §S 10).
+  - Static: CSS_FALLBACK in sync, CSP hashes unchanged, every script and JSON
+    file parses, every record's pictures resolve (971 of 971).
 
 Rejected:
-  - Apple emoji images from a package (Apple's artwork, not licensed).
-  - Non-Apple device emoji as a fallback (the owner: iOS style only).
+  - Deploying from here: auto mode's Production Deploy rule stopped the
+    Netlify connector's deploy-site before it ran, and the environment's
+    network policy blocks Netlify besides. Asking another session to deploy
+    instead would be the same deploy by another route: the owner decides.
+  - Resolving the emoji conflicts hunk by hunk (see Found).
+
+RESUME HERE:
+  The branch contains what is live (9318537), the trunk (0d2915f) and the
+  colour themes (a040eb1). To put it on the site: the owner allows this
+  session's production deploy (and Netlify in the environment's network
+  access), or deploys from a machine that reaches Netlify (AGENT-BRIEF,
+  Deploying: draft, look, then --prod). Then OPEN-ITEMS §S.

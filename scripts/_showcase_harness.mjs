@@ -94,7 +94,6 @@ export async function openStudio(query = ''){
         } else sc.add(bgRectFor(t.bg.type === 'image' ? (t.bg.fallback || { type:'solid', c:'#101014' }) : t.bg, W, H));
         const refs = t.layers.map(l => { const o = buildLayer(l, t.id); sc.add(o); return o; });
         alignPass(sc, W, H);
-        if (typeof applyCardLook === 'function') applyCardLook(sc, t, W, H, 1);
         sc.renderAll();
         return { sc, refs, bgMissing: t.bg.type === 'image' && !bgi };
       },
@@ -191,7 +190,7 @@ export async function openStudio(query = ''){
            did not see carries it, and no scrim is its business */
         const cr = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
         const live = lines.filter(x => x.old != null && !(x.lum != null && x.mid != null && cr(x.lum, x.mid) < 1.5));
-        /* 'bands' (rule 87, 2026-09-28: "make sure the backgrounds are visible"):
+        /* 'bands' (rule 66, 2026-09-28: "make sure the backgrounds are visible"):
            the shade only across the bands of the height that hold copy on the
            photograph (every line, live or not, padded a little for descenders
            and shadows), nothing between them, so the picture shows through
