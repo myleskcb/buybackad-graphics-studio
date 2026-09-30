@@ -156,7 +156,7 @@
    "model": "iPhone 16 Pro Max",
    "finish": "Desert Titanium",
    "metal": "#c2a78f",
-   "w": 432,
+   "w": 425,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -166,7 +166,7 @@
    "model": "iPhone 16 Pro",
    "finish": "Desert Titanium",
    "metal": "#c2a78f",
-   "w": 428,
+   "w": 427,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -176,7 +176,7 @@
    "model": "iPhone 16 Pro Max",
    "finish": "Natural Titanium",
    "metal": "#b9b4aa",
-   "w": 432,
+   "w": 425,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -186,7 +186,7 @@
    "model": "iPhone 16 Pro",
    "finish": "Natural Titanium",
    "metal": "#b9b4aa",
-   "w": 428,
+   "w": 427,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -196,7 +196,7 @@
    "model": "iPhone 16 Pro Max",
    "finish": "White Titanium",
    "metal": "#e3e2de",
-   "w": 432,
+   "w": 425,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -206,7 +206,7 @@
    "model": "iPhone 16 Pro",
    "finish": "White Titanium",
    "metal": "#e3e2de",
-   "w": 428,
+   "w": 427,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -216,7 +216,7 @@
    "model": "iPhone 16 Pro Max",
    "finish": "Black Titanium",
    "metal": "#3d3d3f",
-   "w": 432,
+   "w": 425,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -226,7 +226,7 @@
    "model": "iPhone 16 Pro",
    "finish": "Black Titanium",
    "metal": "#3d3d3f",
-   "w": 428,
+   "w": 427,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -335,8 +335,8 @@
    "id": "15-pro-max-blue",
    "model": "iPhone 15 Pro Max",
    "finish": "Blue Titanium",
-   "metal": "#a0a5a8",
-   "w": 432,
+   "metal": "#2f4456",
+   "w": 429,
    "h": 900,
    "repaint": false,
    "ok": true
@@ -345,8 +345,8 @@
    "id": "15-pro-blue",
    "model": "iPhone 15 Pro",
    "finish": "Blue Titanium",
-   "metal": "#979c9f",
-   "w": 428,
+   "metal": "#2f4356",
+   "w": 430,
    "h": 900,
    "repaint": false,
    "ok": true
@@ -356,7 +356,7 @@
    "model": "iPhone 15 Pro Max",
    "finish": "Black Titanium",
    "metal": "#434345",
-   "w": 432,
+   "w": 429,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -366,7 +366,7 @@
    "model": "iPhone 15 Pro",
    "finish": "Black Titanium",
    "metal": "#434345",
-   "w": 428,
+   "w": 430,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -376,7 +376,7 @@
    "model": "iPhone 15 Pro Max",
    "finish": "Natural Titanium",
    "metal": "#bcb7ad",
-   "w": 432,
+   "w": 429,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -386,7 +386,7 @@
    "model": "iPhone 15 Pro",
    "finish": "Natural Titanium",
    "metal": "#bcb7ad",
-   "w": 428,
+   "w": 430,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -396,7 +396,7 @@
    "model": "iPhone 15 Pro Max",
    "finish": "White Titanium",
    "metal": "#e5e4e0",
-   "w": 432,
+   "w": 429,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -406,7 +406,7 @@
    "model": "iPhone 15 Pro",
    "finish": "White Titanium",
    "metal": "#e5e4e0",
-   "w": 428,
+   "w": 430,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -416,7 +416,7 @@
    "model": "iPhone 15 Plus",
    "finish": "Pink",
    "metal": "#d9bdc2",
-   "w": 438,
+   "w": 432,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -436,7 +436,7 @@
    "model": "iPhone 15 Plus",
    "finish": "Blue",
    "metal": "#b9cad1",
-   "w": 438,
+   "w": 432,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -456,7 +456,7 @@
    "model": "iPhone 15 Plus",
    "finish": "Green",
    "metal": "#bcccb6",
-   "w": 438,
+   "w": 432,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -486,7 +486,7 @@
    "model": "iPhone 14 Pro",
    "finish": "Deep Purple",
    "metal": "#5c5166",
-   "w": 428,
+   "w": 433,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -506,7 +506,7 @@
    "model": "iPhone 14 Pro",
    "finish": "Space Black",
    "metal": "#403f42",
-   "w": 428,
+   "w": 433,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -526,7 +526,7 @@
    "model": "iPhone 14 Pro",
    "finish": "Gold",
    "metal": "#efe2c6",
-   "w": 428,
+   "w": 433,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -536,7 +536,7 @@
    "model": "iPhone 14 Plus",
    "finish": "Blue",
    "metal": "#91a5ba",
-   "w": 438,
+   "w": 434,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -546,7 +546,7 @@
    "model": "iPhone 14",
    "finish": "Blue",
    "metal": "#91a5ba",
-   "w": 434,
+   "w": 435,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -556,7 +556,7 @@
    "model": "iPhone 14 Plus",
    "finish": "Yellow",
    "metal": "#ddca79",
-   "w": 438,
+   "w": 434,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -566,7 +566,7 @@
    "model": "iPhone 14",
    "finish": "Yellow",
    "metal": "#ddca79",
-   "w": 434,
+   "w": 435,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -576,7 +576,7 @@
    "model": "iPhone 14 Plus",
    "finish": "Purple",
    "metal": "#c7bacf",
-   "w": 438,
+   "w": 434,
    "h": 900,
    "repaint": true,
    "ok": true
@@ -586,7 +586,7 @@
    "model": "iPhone 14",
    "finish": "Purple",
    "metal": "#c7bacf",
-   "w": 434,
+   "w": 435,
    "h": 900,
    "repaint": true,
    "ok": true
