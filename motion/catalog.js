@@ -424,7 +424,8 @@ export const GROUND_CANDIDATES = {
   candy_flames:    { parent: "candy_flake", tier: 2, label: "Candy paint: flames" },
   candy_fade:      { parent: "candy_flake", tier: 2, label: "Candy paint: two-tone fade" },
 };
-export const GROUND_REVIEW = { approved: [], rejected: [] };
+// Owner, 2026-09-30: "keep the spin offs" (all 24, from the review page)
+export const GROUND_REVIEW = { approved: Object.keys(GROUND_CANDIDATES), rejected: [] };
 for (const id of GROUND_REVIEW.approved) {
   const c = GROUND_CANDIDATES[id]; if (!c) continue;
   const vibes = Object.values(VIBES).filter(v => (v.backgrounds || []).includes(c.parent));

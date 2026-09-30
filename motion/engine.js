@@ -328,12 +328,17 @@ function shadowSprite(w, h, blur) {
   return { c, pad };
 }
 
+const SHADOWS = new Map();
 export class Phone {
   constructor(img, meta, ph) {
     this.img = img; this.meta = meta;
     this.h = ph; this.w = ph * (meta.w / meta.h);
     this.metal = meta.metal;
-    this.shadows = [2, 10, 22].map(b => shadowSprite(this.w, this.h, b * ph / 400));
+    // the same size of phone casts the same shadows: made once (a look lays its phones out
+    // afresh for each place it tries for the words)
+    const sk = Math.round(this.w) + "x" + Math.round(this.h);
+    this.shadows = SHADOWS.get(sk) || SHADOWS.set(sk, [2, 10, 22].map(b => shadowSprite(this.w, this.h, b * ph / 400))).get(sk);
+    if (SHADOWS.size > 64) SHADOWS.delete(SHADOWS.keys().next().value);
     Object.assign(this, { home: [0, 0], angle: 0, size: 1, reveal: false, landsBack: false, start: [0, 0], arc: [0, 0],
       spin: 1, flips: 1, tIn: 0, tLand: 1, tReveal: 99, side: 1, glare: null });
   }
@@ -424,7 +429,9 @@ function arrangement(name, n, r, tall) {
     case "tower": { const a = r.uniform(-10, 10); lin(-.35, .35).forEach((y, i) => add((i % 2 ? .12 : -.12), y, a + (i % 2 ? 8 : -8), .8)); break; }
     case "spiral": for (let i = 0; i < n; i++) { const th = i * 2.1 + r.uniform(0, .4), rad = .15 + .6 * i / Math.max(1, n - 1); add(Math.cos(th) * rad, Math.sin(th) * rad * .8, th * 57.3 % 60 - 30, 1 - .08 * i); } break;
     case "vee": lin(-.9, .9).forEach(x => add(x, .55 - Math.abs(x) * .8, -x * 18)); break;
-    case "ring": for (let i = 0; i < n; i++) { const th = i / n * Math.PI * 2 - Math.PI / 2; add(Math.cos(th) * .7, Math.sin(th) * .75, -th * 57.3 + 90, .78); } break;
+    // round a circle, each phone standing up with a lean along it (turned to point out from the
+    // middle they lay on their sides in a cross, the placement audit's worst square layout)
+    case "ring": for (let i = 0; i < n; i++) { const th = i / n * Math.PI * 2 - Math.PI / 2 + Math.PI / n; add(Math.cos(th) * .72, Math.sin(th) * .6, -Math.cos(th) * 16 + r.uniform(-4, 4), .78); } break;
     case "staircase": lin(-.8, .8).forEach((x, i) => add(x, .35 - i * .7 / Math.max(1, n - 1), 0, .9)); break;
     case "crossed": for (let i = 0; i < n; i++) add((i - (n - 1) / 2) * .28, (i % 2 ? .08 : -.08), i % 2 ? 32 : -32, 1); break;
     case "giants": for (let i = 0; i < n; i++) add(lerp(-1.15, 1.15, n > 1 ? i / (n - 1) : .5), r.uniform(-.1, .25), r.uniform(-30, 30), 1.35); break;
@@ -1172,6 +1179,7 @@ export class Ad {
     this._layoutType();
     this._numberBelowPhones();
     this._headlineOffPhones();
+    this._wordsOffPhones();
     // how the phones get there is planned from where they finally land (the same draws from this.r as ever)
     this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC) : .3;
     this._timeline();
@@ -1183,7 +1191,7 @@ export class Ad {
     this.dofBlur = 0;
     if (st.depth === "dof") {
       // a shallow focus: the ground and any phone standing further back go soft
-      this.dofBlur = Math.max(1, this.W * .004); this.dofSize = Math.max(1, ...this.phones.map(p => p.size));
+      this.dofBlur = Math.max(1, this.W * .004); this.dofSize = Math.max(0, ...this.phones.map(p => p.size));   // the front phones stay sharp however small the layout made the group
       const b = canvas(this.W, this.H), bx = b.getContext("2d");
       if ("filter" in bx) { bx.filter = `blur(${Math.max(1, this.W * .006)}px)`; bx.drawImage(this.bg, 0, 0); bx.filter = "none"; bx.globalAlpha = .35; bx.drawImage(this.bg, 0, 0); this.bg = b; }
     }
@@ -1235,6 +1243,30 @@ export class Ad {
     this.drawOrder = this.phones.map((_, i) => i);
     if (st.arrangement === "hero") this.drawOrder = this.drawOrder.slice(1).concat([0]);
     this._spreadPhones();
+    this._phonesInFrame();
+  }
+
+  /** No phone is cut by the edge of the frame where the camera settles (giants bleed on
+   *  purpose). The group slides in first and stands smaller only when it cannot fit. */
+  _phonesInFrame() {
+    if (!this.phones.length || this.st.arrangement === "giants") return;
+    const W = this.W, H = this.H, z = settleZoom(this.st) * 1.02, m = Math.min(W, H) * .015;
+    // the frame the camera shows, in layout coordinates
+    const lo = [W / 2 - (W / 2 - m) / z, Math.max(this.insetTop + m, H / 2 - (H / 2 - m) / z)], hi = [W / 2 + (W / 2 - m) / z, H / 2 + (H / 2 - m) / z];
+    const box = () => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const P of this.phones.map(landedOutline)) for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+      return [x0, y0, x1, y1]; };
+    let b = box();
+    const k = Math.min(1, (hi[0] - lo[0]) / (b[2] - b[0]), (hi[1] - lo[1]) / (b[3] - b[1]));
+    if (k < 1) {
+      const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
+      for (const p of this.phones) { p.home = [cx + k * (p.home[0] - cx), cy + k * (p.home[1] - cy)]; p.size *= k; }
+      b = box();
+    }
+    const dx = Math.max(0, lo[0] - b[0]) - Math.max(0, b[2] - hi[0]), dy = Math.max(0, lo[1] - b[1]) - Math.max(0, b[3] - hi[1]);
+    if (!dx && !dy) return;
+    for (const p of this.phones) p.home = [p.home[0] + dx, p.home[1] + dy];
+    this.stageC = [this.stageC[0] + dx, this.stageC[1] + dy];
   }
 
   /** Every phone shows most of its back. A back is how a buyer knows the model, and a
@@ -1330,18 +1362,21 @@ export class Ad {
     const alts = [st.number_pos, ...["under-headline", "bottom-center", "bottom-right", "bottom-left"].filter(x => x !== st.number_pos)];
     let pos = null, lines, lineH, blockH, tag, num, firstFit = null, dropLabel = false;
     for (let attempt = 0; attempt < 18; attempt++) {
-      lines = headlineLines(st, this.pHead, size, bestN);
+      const lk = size.toFixed(3) + "|" + bestN;
+      lines = (this._lineCache ||= new Map()).get(lk) || this._lineCache.set(lk, headlineLines(st, this.pHead, size, bestN)).get(lk);
       const gap = size * (["box", "sticker", "highlighter", "cutout", "double_outline", "glass"].includes(st.text_fx) ? .14 : B ? .09 : .02);
       lineH = lines[0].asc * .98 + gap;
       const widest = Math.max(...lines.map(L => L.inkW));
       blockH = lineH * (lines.length - 1) + lines[0].asc;
       if (widest + 2 * bpad * size > maxW || blockH + (1.6 * bpad + btabs) * size > maxH) { size *= .93; continue; }
       const ph = this.pHead;
-      tag = st.tag ? trim(inkSprite(applyCase(st.tag, "upper"), st.tag.split("").map(() => ph.ink), st.font, size * .26, .12, lum(ph.ink) < .5 ? "flat" : "shadow", ph).c) : null;
+      const tk = st.tag + "|" + size.toFixed(3);
+      tag = st.tag ? ((this._tagCache ||= new Map()).get(tk) || this._tagCache.set(tk, trim(inkSprite(applyCase(st.tag, "upper"), st.tag.split("").map(() => ph.ink), st.font, size * .26, .12, lum(ph.ink) < .5 ? "flat" : "shadow", ph).c)).get(tk)) : null;
       let nSize = Math.min(size * .72, W * (wide ? .075 : .11)) * (st.number_scale || 1);
       const cta = st.urgency === "pulse_cta" ? { text: st.cta || (st.lang === "es" ? "¡MÁNDANOS TEXTO!" : "TEXT NOW"), hot: this.hot } : null;
-      num = numberSprite(st, p, nSize, cta);
-      while (num.c.width > W - 2 * m && nSize > 12) { nSize *= .92; num = numberSprite(st, p, nSize, cta); }
+      const ns = z => { const k = z.toFixed(3) + "|" + (cta ? 1 : 0) + "|" + st.number_pos; return (this._numCache ||= new Map()).get(k) || this._numCache.set(k, numberSprite(st, p, z, cta)).get(k); };
+      num = ns(nSize);
+      while (num.c.width > W - 2 * m && nSize > 12) { nSize *= .92; num = ns(nSize); }
       if (dropLabel) num = { ...num, label: null };
       // a slot counts only where the phones can make room for the number under them
       for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.ok && this._roomUnder(pos, num, size, true)) break; pos.ok = false; }
@@ -1363,6 +1398,7 @@ export class Ad {
     }
     if (st.urgency === "pulse_cta" && !num.label) st.urgency = "arrows";
     Object.assign(this, { size, lines, lineH, blockH, margin: m, tag, num, pos });
+    if (this._hook) { Object.assign(this, this._hook); return; }   // the opening words do not depend on where the headline sits
     this.hookLines = null;
     const hookFont = FINE_FACES.has(st.font) ? "oswald" : st.font;     // the opening words must read at a glance
     if (st.hook === "hook_line") {
@@ -1395,6 +1431,7 @@ export class Ad {
       });
       this.hookWords = true;
     }
+    this._hook = { hookLines: this.hookLines, hookSize: this.hookSize, hookWords: this.hookWords };
   }
 
   /** When the words and the number arrive, once the phones' timeline is known. */
@@ -1460,7 +1497,7 @@ export class Ad {
    *  (Audit 2026-09-30: in 117 of 400 random looks a quarter or more of the headline's
    *  ink lay on the phones.) */
   _headlineOffPhones() {
-    const HEAD_FIT = .75, TOTAL_FIT = .6, END_ZOOM = 1.1;
+    const HEAD_FIT = .5, TOTAL_FIT = .45, END_ZOOM = 1.1;
     if (!this.phones.length || !this.pos) return;
     const W = this.W, H = this.H, z = settleZoom(this.st), pos = this.pos, size = this.size, num = this.num;
     const g = Math.max(size * .08, H * .01);
@@ -1492,13 +1529,17 @@ export class Ad {
     const T = (k, dx, dy) => ([x, y]) => [ax + k * (x - ax) + dx, ay + k * (y - ay) + dy];
     const grown = [o[0] - g, o[1] - g, o[2] + g, o[3] + g];
     let clear = null, least = null;
-    const step = W * .03;
     // phones the number already made smaller may move but not shrink much further
     const kMin = Math.max(HEAD_FIT, TOTAL_FIT / this.phoneFit.k);
-    for (let k = 1; k >= kMin - 1e-9; k -= .05) {
-      const cost0 = (1 - k) * W * 3;
-      for (let i = -16; i <= 16; i++) for (let j = -16; j <= 16; j++) {
-        const dx = i * step, dy = j * step, cost = cost0 + Math.hypot(dx, dy);
+    // coarse first, then fine round the best the coarse pass found (the same answer as an
+    // exhaustive fine grid in the audit, at a fraction of the work)
+    const grid = [];
+    for (let k = 1; k >= kMin - 1e-9; k -= .1) for (let i = -8; i <= 8; i++) for (let j = -8; j <= 8; j++) grid.push([k, i * W * .06, j * W * .06]);
+    const refine = b => { const out = []; for (let k = Math.min(1, b.k + .05); k >= Math.max(kMin, b.k - .05) - 1e-9; k -= .05) for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) out.push([k, b.dx + i * W * .02, b.dy + j * W * .02]); return out; };
+    for (let pass = 0; pass < 2; pass++) {
+      const cands = pass ? ((clear || least) ? refine(clear || least) : []) : grid;
+      for (const [k, dx, dy] of cands) {
+        const cost = (1 - k) * W * 3 + Math.hypot(dx, dy);
         if (clear && cost >= clear.cost) continue;
         const moved = outlines.map(P => P.map(T(k, dx, dy))), Ps = onCam(moved), b = box(endCam(moved));
         if (mg - b[0] > over[0] + 1 || top + mg - b[1] > over[1] + 1 || b[2] - W + mg > over[2] + 1 || b[3] - H + mg > over[3] + 1) continue;
@@ -1515,6 +1556,91 @@ export class Ad {
     for (const p of this.phones) { p.home = f(p.home); p.size *= best.k; }
     this.stageC = f(this.stageC);
     this.phoneFit = { ...this.phoneFit, k: this.phoneFit.k * best.k, dy: this.phoneFit.dy + best.dy, head: true };
+  }
+
+  /** How much of the words' box the phones cover where the camera settles, 0..1. */
+  _headCover() {
+    const pos = this.pos;
+    if (!pos || !this.phones.length) return 0;
+    const b = pos.board || pos.outer, g = this.size * .06, o = [b[0] - g, b[1] - g, b[2] + g, b[3] + g], z = settleZoom(this.st);   // with a breath of room round the words
+    const Ps = this.phones.map(p => onCamera(landedOutline(p), this.W, this.H, z)), O = onCamera([[o[0], o[1]], [o[2], o[3]]], this.W, this.H, z);
+    let n = 0, c = 0;
+    for (let i = 0; i < 16; i++) for (let j = 0; j < 6; j++) {
+      const q = [lerp(O[0][0], O[1][0], (i + .5) / 16), lerp(O[0][1], O[1][1], (j + .5) / 6)];
+      n++; if (Ps.some(P => inOutline(P, q))) c++;
+    }
+    // and the other way round: a phone half hidden behind a sign board is as bad as words
+    // on a phone, though it covers only a sliver of a big board
+    let hid = 0;
+    for (const P of Ps) {
+      let m = 0, h = 0;
+      for (let a = 0; a < 6; a++) for (let b = 0; b < 10; b++) {
+        const u = (a + .5) / 6, w = (b + .5) / 10, x = P[0][0] + (P[1][0] - P[0][0]) * u + (P[3][0] - P[0][0]) * w, y = P[0][1] + (P[1][1] - P[0][1]) * u + (P[3][1] - P[0][1]) * w;
+        m++; if (x >= O[0][0] && x <= O[1][0] && y >= O[0][1] && y <= O[1][1]) h++;
+      }
+      hid = Math.max(hid, h / m);
+    }
+    return Math.max(c / n, hid - .12);                    // a phone may tuck its edge under the words, no more
+  }
+
+  /** The last resort for words on phones: where the phones cannot make room, the words
+   *  move instead, the way an image ad keeps its copy and its product apart. Each other
+   *  headline position is laid out afresh (its phones staged for it, from a stream of
+   *  their own so nothing else in the look changes) and the one that covers least is
+   *  kept; a look already clear keeps everything it had.
+   *  (Owner, 2026-09-30, over a centred headline across a stack of phones: "not great
+   *  placement here". Placement audit: 59 of 800 looks still had words on phones.) */
+  _wordsOffPhones() {
+    const OK = .03, BIG = .62, st = this.st, wide = this.W / this.H >= 1.3;
+    const big = () => Math.max(...this.phones.map(p => p.size), 0);
+    // how a layout did: clear of the words first, then the biggest phones
+    const measure = () => { this._shrinkClear(OK); return { cover: this._headCover(), size: big() }; };
+    const better = (a, b) => (a.cover <= OK) !== (b.cover <= OK) ? a.cover <= OK : a.cover <= OK ? a.size > b.size + .02 : a.cover < b.cover - .02;
+    const first = measure();
+    if (!this.phones.length || (first.cover <= OK && first.size >= BIG)) return;
+    const F = ["phones", "drawOrder", "stageC", "stageSpan", "size", "lines", "lineH", "blockH", "margin", "tag", "num", "pos", "hookLines", "hookSize", "hookWords", "phoneFit"];
+    const snap = { st: { ...st } }; for (const f of F) snap[f] = this[f];
+    const homes = this.phones.map(p => [p.home.slice(), p.size]);
+    const places = (wide ? ["middle-left", "top-left", "bottom-left", "top-right", "top-center", "center"]
+      : ["top-left", "top-center", "top-right", "bottom-left", "middle-left", "center"]);
+    // every other place for the words with the look's own layout, then, only if none is
+    // clean, the calmer layouts in every place
+    const order = places.filter(p => p !== snap.st.text_pos).map(p => [p, snap.st.arrangement]);
+    for (const a of ["fan", "row"]) if (a !== snap.st.arrangement) for (const p of places) order.push([p, a]);
+    const firstCalm = places.length - 1;
+    const r0 = this.r;
+    const lay = ([alt, arr], k) => {
+      Object.assign(st, snap.st, { text_pos: alt, arrangement: arr });
+      this.r = rng(st.seed * 131 + k); this._buildPhones(); this.r = r0;
+      this._layoutType(); this._numberBelowPhones(); this._headlineOffPhones();
+      return measure();
+    };
+    let best = { ...first, k: -1 }, last = -1;
+    for (let k = 0; k < order.length; k++) {
+      if (k >= firstCalm && best.cover <= OK && best.size >= .45) break;   // the look's own layout came out clean and big enough: keep it
+      const m = lay(order[k], k); last = k;
+      if (better(m, best)) best = { ...m, k };
+      if (best.cover <= OK && best.size >= BIG) break;
+    }
+    if (best.k < 0) {                                     // nothing did better: the look as it was
+      for (const f of F) this[f] = snap[f];
+      Object.assign(st, snap.st);
+      this.phones.forEach((p, i) => { p.home = homes[i][0]; p.size = homes[i][1]; });
+    } else if (best.k !== last) lay(order[best.k], best.k);
+  }
+
+  /** A group that still grazes the words stands a little smaller about its own middle,
+   *  which only ever draws its edges in, until it clears (never under 0.6 of itself). */
+  _shrinkClear(OK) {
+    if (this._headCover() <= OK) return;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const P of this.phones.map(landedOutline)) for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, home = this.phones.map(p => [p.home.slice(), p.size]);
+    for (let k = .95; k >= .6 - 1e-9; k -= .05) {
+      this.phones.forEach((p, i) => { p.home = [cx + k * (home[i][0][0] - cx), cy + k * (home[i][0][1] - cy)]; p.size = home[i][1] * k; });
+      if (this._headCover() <= OK) { this.phoneFit = { ...this.phoneFit, k: (this.phoneFit.k || 1) * k }; return; }
+    }
+    this.phones.forEach((p, i) => { p.home = home[i][0]; p.size = home[i][1]; });   // it did not clear: as it was
   }
 
   /** The least the phones must do for the number at pos to sit under them: rise by -dy,
@@ -1613,7 +1739,11 @@ export class Ad {
     const nb = [nx, ny - labH, nx + num.c.width, ny + num.c.height];
     const overlapX = !(nb[2] < outer[0] || nb[0] > outer[2]);
     const inside = !board || (board[0] >= m * .4 && board[2] <= W - m * .4);
-    const ok = inside && ny + num.c.height <= H * .985 && oy >= Math.max(H * .02, this.insetTop + H * .01)
+    // measured where the camera settles: it pushes in about the middle, so an edge that
+    // sits inside the frame at rest can end up cut off
+    const z = settleZoom(st), seen = (x, y) => [W / 2 + (x - W / 2) * z, H / 2 + (y - H / 2) * z];
+    const inFrame = b => { const a = seen(b[0], b[1]), c = seen(b[2], b[3]); return a[0] >= W * .012 && c[0] <= W * .988 && a[1] >= this.insetTop + H * .008 && c[1] <= H * .99; };
+    const ok = inside && inFrame(outer) && inFrame(nb) && ny + num.c.height <= H * .985 && oy >= Math.max(H * .02, this.insetTop + H * .01)
       && (st.number_pos === "under-headline" || !overlapX || nb[1] > textBottom + size * .15);
     return { ok, xs, y0, oy, block, board, outer, tag: tagXY, num: [nx, ny], label: labXY };
   }
@@ -1646,6 +1776,13 @@ export class Ad {
     if (this.tickerH) avoid.push([0, this.tickerY, W, this.tickerY + this.tickerH]);
     if (this.awningH) avoid.push([0, 0, W, this.awningH]);
     const pad = size * .1, grow = b => [b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad];
+    // a sticker never lands on a phone: the back is the product, and the cameras are how
+    // a buyer knows the model (placement audit 2026-09-30: 92 of 800 looks)
+    for (const P of this.phones.map(landedOutline)) {
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+      avoid.push([x0, y0, x1, y1]);
+    }
     if (this.decor.has("spray_halo") && !this.board) this.spray = buildSpray(pos.block, size, haloColour(this.pHead), r);
     const s0 = this.decor.has("starburst") ? this._spot(Math.min(W, H) * .105, avoid.map(grow)) : null;
     if (s0) {
@@ -1690,7 +1827,7 @@ export class Ad {
         return hits;
       };
       const best = ["tr", "tl", "br", "bl"].map(k => [k, score(k)]).sort((a, b) => a[1] - b[1])[0];
-      if (best[1] <= 2) { this.tape = { corner: best[0], text: st.cta || (es ? "¡NO ESPERES!" : "DON'T WAIT"), t0: tl.number + .35 }; this.cues.tape = this.tape.t0; }
+      if (best[1] === 0) { this.tape = { corner: best[0], text: st.cta || (es ? "¡NO ESPERES!" : "DON'T WAIT"), t0: tl.number + .35 }; this.cues.tape = this.tape.t0; }
       else st.urgency = "arrows";                          // no clear corner: point at the number instead
     }
     if (st.urgency === "ticker") {
@@ -2433,6 +2570,10 @@ function randomChar(t, j) {
 
 export async function loadPhones(base = "./phones/") {
   const idx = await (await fetch(base + "index.json")).json();
+  // only real, straight photos of real finishes: never a back painted to pass for another
+  // model or colour (repaint), never a photo that failed its check (ok: false)
+  // (Owner, 2026-09-30: "no fake designs", after an orange 16 Pro Max that never existed)
+  idx.phones = idx.phones.filter(m => !m.repaint && m.ok !== false);
   const phones = {};
   await Promise.all(idx.phones.map(m => new Promise(res => {
     const img = new Image(); img.decoding = "async";

@@ -9,7 +9,7 @@ import { auditLook, drawCurve } from "./audit.js";
 const $ = id => document.getElementById(id);
 const STORE = "pgfx_motion_v1";
 const PREVIEW_MAX = 720;
-const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-cosmic-orange", "18-pro-glacier", "16-ultramarine"];
+const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-cosmic-orange", "18-pro-glacier", "16-pink"];
 
 const state = {
   style: { ...DEFAULT_STYLE, ...CLASSIC, phones: DEFAULT_PHONES.slice() },
