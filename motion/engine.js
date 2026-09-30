@@ -83,8 +83,10 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   const r = rng(seed * 7919 + 13);
   const out = { ...st, seed };
   for (const k of Object.keys(OPTIONS)) {
+    if (k === "pose") continue;                    // its own draw below, so older seeds keep their looks
     if (!locked.has(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
   }
+  if (!locked.has("pose")) out.pose = rng(seed * 4099 + 71).weighted(OPTIONS.pose, WEIGHTS.pose);
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
   if (!locked.has("bpm")) out.bpm = r.int(90, 134);
   // an opening that shows the phones on frame 0 shows their backs: screen-up phones are black glass in the thumbnail
@@ -287,9 +289,37 @@ export class Glare {
   }
 }
 
+/** What the model really has, read off its name: a notch (14, 14 Plus, 16e,
+ *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older) or the
+ *  Action button (15 on); Camera Control (16 on, not the e models). A phone we
+ *  cannot place (an upload) gets the island and only volume and power. */
+export function designOf(model) {
+  const m = /iPhone (\d+)(e)?(?: (Pro Max|Pro|Plus))?/.exec(model || "");
+  if (!m) return { notch: false, left: null, camCtrl: false };
+  const gen = +m[1], e = !!m[2], pro = /Pro/.test(m[3] || "");
+  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 ? "mute" : "action", camCtrl: gen >= 16 && !e };
+}
+
+// Where the edge controls sit, as a share of the height from the top (Apple's
+// dimension drawings). Left and right are as you look at the screen.
+const CONTROLS = { mute: [.183, .213], action: [.176, .216], volUp: [.256, .33], volDown: [.352, .426], power: [.27, .405], camCtrl: [.565, .64] };
+
+/** The edge you see when a phone is turned: the band, its buttons in place. */
+function drawEdge(ctx, p, x0, t, h, screenRight) {
+  const d = p.design, bw = t * .46, bx = x0 + (t - bw) / 2;
+  const keys = screenRight ? ["power", ...(d.camCtrl ? ["camCtrl"] : [])] : [...(d.left ? [d.left] : []), "volUp", "volDown"];
+  for (const k of keys) {
+    const [a, b] = CONTROLS[k], y = -h / 2 + a * h, bh = (b - a) * h;
+    rrect(ctx, bx, y, bw, bh, bw / 2);
+    ctx.fillStyle = k === "camCtrl" ? "#1c1d21" : shade(p.metal, -.42); ctx.fill();
+    rrect(ctx, bx + bw * .2, y + bh * .06, bw * .3, bh * .88, bw * .15);
+    ctx.fillStyle = k === "camCtrl" ? "rgba(255,255,255,.14)" : shade(p.metal, .12); ctx.fill();
+  }
+}
+
 /** The screen side, switched off: the band, a black border, OLED glass and the
  *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred. */
-function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm) {
+function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm, notch = false) {
   const R = CORNER * w;
   rrect(ctx, -w / 2, -h / 2, w, h, R); ctx.fillStyle = metal; ctx.fill();
   const b = 0.014 * w;
@@ -310,9 +340,22 @@ function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm) {
     stop(1, 0);
     ctx.fillStyle = g; ctx.fillRect(-w / 2, -h / 2, w, h); ctx.restore();
   }
-  const iw = 0.315 * sw, ih = 0.093 * sw, top = -h / 2 + s + 0.034 * sw;
-  rrect(ctx, -iw / 2, top, iw, ih, ih / 2); ctx.fillStyle = "#070708"; ctx.fill();
-  const lr = ih * .3, lx = iw / 2 - ih / 2, ly = top + ih / 2;
+  let lr, lx, ly;
+  if (notch) {                                     // hangs from the top edge of the glass, with rounded shoulders
+    const nw = 0.4 * sw, nh = 0.082 * sw, top = -h / 2 + s, r = nh * .42, sr2 = nh * .22;
+    ctx.beginPath();
+    ctx.moveTo(-nw / 2 - sr2, top);
+    ctx.arcTo(-nw / 2, top, -nw / 2, top + sr2, sr2);
+    ctx.lineTo(-nw / 2, top + nh - r); ctx.arcTo(-nw / 2, top + nh, -nw / 2 + r, top + nh, r);
+    ctx.lineTo(nw / 2 - r, top + nh); ctx.arcTo(nw / 2, top + nh, nw / 2, top + nh - r, r);
+    ctx.lineTo(nw / 2, top + sr2); ctx.arcTo(nw / 2, top, nw / 2 + sr2, top, sr2);
+    ctx.closePath(); ctx.fillStyle = "#050506"; ctx.fill();
+    lr = nh * .17; lx = nw * .2; ly = top + nh * .5;
+  } else {
+    const iw = 0.315 * sw, ih = 0.093 * sw, top = -h / 2 + s + 0.034 * sw;
+    rrect(ctx, -iw / 2, top, iw, ih, ih / 2); ctx.fillStyle = "#070708"; ctx.fill();
+    lr = ih * .3; lx = iw / 2 - ih / 2; ly = top + ih / 2;
+  }
   ctx.beginPath(); ctx.arc(lx, ly, lr, 0, 7); ctx.fillStyle = "#0b0c10"; ctx.fill();
   ctx.beginPath(); ctx.arc(lx - lr * .2, ly - lr * .3, lr * .25, 0, 7); ctx.fillStyle = "#1a1e2c"; ctx.fill();
   rrect(ctx, -w / 2 + .5, -h / 2 + .5, w - 1, h - 1, R); ctx.strokeStyle = "rgba(255,255,255,.22)"; ctx.lineWidth = Math.max(1, w * .006); ctx.stroke();
@@ -331,6 +374,7 @@ export class Phone {
     this.img = img; this.meta = meta;
     this.h = ph; this.w = ph * (meta.w / meta.h);
     this.metal = meta.metal;
+    this.design = designOf(meta.model);
     this.shadows = [2, 10, 22].map(b => shadowSprite(this.w, this.h, b * ph / 400));
     Object.assign(this, { home: [0, 0], angle: 0, size: 1, reveal: false, landsBack: false, start: [0, 0], arc: [0, 0],
       spin: 1, flips: 1, tIn: 0, tLand: 1, tReveal: 99, side: 1, glare: null });
@@ -363,9 +407,11 @@ function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = fa
     ctx.fillStyle = shade(p.metal, -.3);
     rrect(ctx, -w * ac / 2 + (lead > 0 ? 0 : -t), -h / 2, w * ac + t, h, Math.min((w * ac + t) / 2, CORNER * w));
     ctx.fill();
+    // sin > 0 shows the screen's right-hand edge (power), sin < 0 its left (volume)
+    if (t >= 4) drawEdge(ctx, p, lead > 0 ? w * ac / 2 : -w * ac / 2 - t, t, h, Math.sin(flip) > 0);
   }
   ctx.scale(Math.max(ac, .02), 1);
-  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W);
+  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
   else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
   if (ac < .999) {                                 // turning away from the light
     rrect(ctx, -w / 2, -h / 2, w, h, CORNER * w);
@@ -510,7 +556,19 @@ function planEntries(phones, st, W, H, r, stageC) {
   return Math.max(...phones.map(p => p.tLand));
 }
 
+// Every phone in a video rests at the same angle: flat, or turned about 35
+// degrees to show one edge. The turn rides on top of every flip, so a phone
+// that lands on its screen shows the same edge, on the same side, as its back.
+const POSE_TURN = { flat: 0, edge_left: -.6, edge_right: .6 };
+
 function phoneState(p, t, st) {
+  const s = phoneState0(p, t, st);
+  const turn = POSE_TURN[st.pose] || 0;
+  if (s && turn) s[4] += turn;
+  return s;
+}
+
+function phoneState0(p, t, st) {
   if (t < p.tIn) return null;
   const [hx, hy] = p.home, base = p.size;
   if (p.crash && t < p.tLand) {
