@@ -8,7 +8,7 @@ they're produced."
 Three readings were made in one pass: DESIGN-LAW.md (65 rules), app.js (the
 generation pipeline, ~11,400 lines) and scripts/ (150 files, every writer of
 the showcase records). This is the record of what was found, what was fixed
-the same day, and what is left, so nothing found is lost. DESIGN-LAW rule 66
+the same day, and what is left, so nothing found is lost. DESIGN-LAW rule 87
 is the rule that came out of it.
 
 ## What was fixed
@@ -35,7 +35,7 @@ failure); today: 400 live cards, 0 failures.
 - The Easy Mode overlay laid the visitor's colour over the photograph
   ("Tint"). It is "Shade" now: black under light ink, paper under dark.
 - Picking a theme replaced a photo-led card's photograph with a gradient
-  (against rule 65). It keeps the photograph and recolours the copy.
+  (against rule 86). It keeps the photograph and recolours the copy.
 - The classics' halo direction was keyed on the ink alone (rule 27's own
   recorded bug); it follows the ink's ground where the bake measured it.
 - The watermark and the print order squashed story and wide exports square.
@@ -48,7 +48,7 @@ failure); today: 400 live cards, 0 failures.
 - Two wrappers on `buildEzForm` fetched the device list twice per rebuild.
 - The COLOR_THEMES family named "Duotone" is pastel gradients; renamed.
 - The rulebook: 19 rules that a later rule replaced now say so in place;
-  rule 66 lists the precedence.
+  rule 87 lists the precedence.
 
 ## Fixed the next day (2026-09-28), measured
 
@@ -57,7 +57,7 @@ with `assignStyle` grading nothing; the number floored at 72px after the
 guides fit; hex plates solid, rules see-through; the editor hand-off refits
 and re-aligns; `verify --classics` and the gate table (`classics-gate.json`,
 16 held back of 243, from 38 failing); 20 superseded scripts removed.
-Remaining per-layout work is listed in OPEN-ITEMS §L item 0.
+Remaining per-layout work is listed in OPEN-ITEMS §R item 0.
 
 ## What was found and is left (with the numbers)
 
@@ -86,7 +86,7 @@ a built-in background; the video's beat amplitudes are not re-checked against
 the guides. `ez.fx` (blur, overlay, pattern) is global across templates.
 
 **Classics vs the later rules.** Every non-solid hex rect is drawn at 45%
-alpha (rule 21) on the classics, which rule 64 calls a haze on a photograph;
+alpha (rule 21) on the classics, which rule 85 calls a haze on a photograph;
 three dark-ink classics stand on a 0.86 paper scrim (`gold_estate`,
 `silver_ster`, `cars_plate`); `completeTemplate` still builds the full-bleed
 phone bar that `highlightBudget` calls wrong; nine designer layouts author
@@ -107,7 +107,7 @@ Superseded scripts still present: `refresh_palettes.duoFor`, `audit_cards`,
 stale on 119 rows (`verify --write` now stamps it). `converge_themes` stores
 `onPlate:false` unconditionally.
 
-**Order dependencies** (the pipeline in OPEN-ITEMS §L is the answer):
+**Order dependencies** (the pipeline in OPEN-ITEMS §R is the answer):
 refresh_showcase before everything (it reads HEAD); import_lab_export before
 naturalize (it restores `tone`); naturalize, then darken, never
 supply_backgrounds after; number_block before restage and clear_number;

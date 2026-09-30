@@ -1,0 +1,277 @@
+<title>Tagline Lab</title>
+<style>
+@font-face{font-family:"Satoshi";font-weight:500;font-display:swap;src:url(data:font/woff2;base64,__SAT500__) format("woff2")}
+@font-face{font-family:"Satoshi";font-weight:700;font-display:swap;src:url(data:font/woff2;base64,__SAT700__) format("woff2")}
+@font-face{font-family:"Clash Display";font-weight:600;font-display:swap;src:url(data:font/woff2;base64,__CLASH600__) format("woff2")}
+/* A review room for ads, dark by choice so the ads are judged on a neutral
+   surround; every colour is set explicitly, so it reads the same on a light
+   or dark host. Tokens are the studio's own (styles.css): graphite and blue. */
+:root{
+  color-scheme:dark;
+  --ground:#0f1116;--panel:#171a21;--raise:#1f232c;--sunk:#0a0c10;
+  --line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.16);
+  --text:#f2f4f8;--text-2:#c9cfdb;--dim:#8b94a7;
+  --accent:#4d9cff;--accent-ink:#061527;--accent-wash:rgba(77,156,255,.16);
+  --good:#30d68f;--warn:#ffb03d;--bad:#ff6259;--keep:#30d68f;--keep-wash:rgba(48,214,143,.14);
+  --sans:"Satoshi",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Clash Display","Satoshi",ui-sans-serif,system-ui,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--text);font:500 14px/1.5 var(--sans);margin:0;padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:1320px;margin:0 auto;display:grid;gap:26px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+h1{font:600 clamp(30px,4.4vw,46px)/1.04 var(--display);letter-spacing:-.01em;margin:6px 0 10px;text-wrap:balance}
+.lede{max-width:68ch;color:var(--text-2);margin:0;font-size:15px}
+.lede b{color:var(--text)}
+.note{max-width:68ch;color:var(--dim);font-size:13px;margin:8px 0 0}
+.status{font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:8px;margin-top:10px}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+.status.live .dot{background:var(--good)}
+.status.off .dot{background:var(--warn)}
+
+/* the style legend doubles as the tally and the by-style switch */
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.sty{display:grid;gap:4px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer}
+.sty:hover{border-color:var(--line-2)}
+.sty[aria-pressed=true]{border-color:var(--accent);background:var(--accent-wash)}
+.sty .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sty .nm{font:600 16px/1.2 var(--display)}
+.sty .ct{font:700 12px var(--mono);color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sty .ct b{color:var(--keep)}
+.sty .ds{font-size:12.5px;color:var(--text-2);line-height:1.45}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;border-radius:999px;padding:6px 13px;font-size:13px;font-weight:700;color:var(--text-2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--text);color:var(--ground)}
+.hint{font-size:12.5px;color:var(--dim)}
+
+/* one ad per section, its styles side by side */
+.card{display:grid;gap:12px;padding-block:6px 4px;border-top:1px solid var(--line)}
+.card h2{font:600 20px/1.2 var(--display);margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.card h2 small{font:500 12.5px var(--sans);color:var(--dim)}
+.tag{font:700 10.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);border-radius:999px;padding:2px 8px}
+.row{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.tile{display:grid;gap:7px;align-content:start}
+.shot{position:relative;display:block;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--sunk);cursor:zoom-in;aspect-ratio:1/1;max-width:100%;width:100%}
+.shot img{display:block;width:100%;height:100%;object-fit:cover}
+.tile.kept .shot{border-color:var(--keep);box-shadow:0 0 0 2px var(--keep)}
+.tile.best .shot::after{content:"Best";position:absolute;left:8px;top:8px;font:700 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;background:var(--keep);color:#04150d;border-radius:999px;padding:3px 9px}
+.meta{display:grid;gap:1px;min-width:0}
+.meta .s{font-weight:700;font-size:13px}
+.meta .m{font:600 11px var(--mono);color:var(--dim);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.meta .m.no{color:var(--bad)}
+.acts{display:flex;gap:6px}
+.acts button{flex:1;border:1px solid var(--line-2);background:var(--raise);border-radius:9px;padding:6px 8px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--text-2)}
+.acts button:hover{border-color:var(--text-2)}
+.acts button[aria-pressed=true]{border-color:var(--keep);background:var(--keep-wash);color:var(--text)}
+.acts button:disabled{opacity:.45;cursor:default}
+
+/* one style across every ad */
+.style-view{display:grid;gap:14px}
+.style-view .row{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.style-view .tile .meta .s{font-weight:600;font-size:12.5px;color:var(--text-2)}
+
+/* the larger look */
+.box[hidden]{display:none}
+.box{position:fixed;inset:0;z-index:20;background:rgba(6,7,10,.92);display:grid;place-items:center;padding:16px;padding-top:calc(env(safe-area-inset-top,0px) + 16px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
+.box-in{display:grid;gap:12px;width:min(760px,100%);max-height:100%}
+.box img{width:100%;max-width:100%;max-height:72vh;object-fit:contain;border-radius:12px;background:var(--sunk);display:block}
+.box .cap{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.box .cap .t{font:600 18px/1.2 var(--display)}
+.box .cap .m{font:600 12px var(--mono);color:var(--dim)}
+.box .nav{display:flex;flex-wrap:wrap;gap:8px}
+.box .nav button{border:1px solid var(--line-2);background:var(--raise);border-radius:10px;padding:8px 13px;font-weight:700;cursor:pointer}
+.box .nav button[aria-pressed=true]{border-color:var(--keep);background:var(--keep-wash)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">BUYBACK.AD Graphics Studio · tagline styles</div>
+    <h1>Tagline Lab</h1>
+    <p class="lede"><b id="n-cards">5</b> iPhone posts, <b>ten tagline styles</b> each, rendered by the studio's own engine and measured by the critic that decides what the live library shows. <b>Keep</b> every style you would use and mark the <b>best</b> one for each post. Your picks are saved here and read back to decide which styles the studio offers.</p>
+    <p class="note">New this round: the phone number fills its plate (on the Steps Flow post it went from 80px to fill its band), glow, 3-D red &amp; blue, multicolour letters, and textures. Gradient presets and textures each show a different variant per post. Under each ad: the critic's worst contrast for the tagline, and the number's size and contrast; 3:1 is the bar.</p>
+    <div class="status" id="status"><span class="dot"></span><span id="status-t">Connecting to your saved picks…</span></div>
+  </header>
+
+  <section aria-label="Styles">
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <div class="bar">
+    <div class="seg" role="group" aria-label="View">
+      <button id="v-card" aria-pressed="true">By ad</button>
+      <button id="v-style" aria-pressed="false">By style</button>
+    </div>
+    <span class="hint" id="hint">Tap an ad to see it larger. Arrow keys step through its styles.</span>
+  </div>
+
+  <main id="main"></main>
+</div>
+
+<div class="box" id="box" hidden role="dialog" aria-modal="true" aria-label="Larger view">
+  <div class="box-in">
+    <img id="box-img" alt="">
+    <div class="cap"><span class="t" id="box-t"></span><span class="m" id="box-m"></span></div>
+    <div class="nav">
+      <button id="box-prev">← Previous</button>
+      <button id="box-keep" aria-pressed="false">Keep</button>
+      <button id="box-best" aria-pressed="false">Best for this ad</button>
+      <button id="box-next">Next →</button>
+      <button id="box-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LAB = __DATA__;
+const STYLES = {
+  solid:      ['Solid', 'As designed: the tagline in one colour.'],
+  street:     ['Street', 'Your #1 BUYER reference: one sweep toward yellow on every line that sells, heavy black outline, dark plates.'],
+  signature:  ['Signature gradient', "The accent's hue ±25°, repeated on every accent plate."],
+  preset:     ['Gradient presets', 'A different premade gradient on each post: accent into support, Sunset, Ocean, Neon, Gold foil. Sixteen are built in, and any colours can be chosen.'],
+  outline:    ['White + black outline', 'White tagline, heavy black outline, tight dark shadow.'],
+  blocks:     ['Colour blocks', "Each tagline line on its own block in the theme's two colours."],
+  multicolor: ['Multicolour letters', 'Each letter its own colour, black outline.'],
+  glow:       ['Glow', 'A neon tube: white core, coloured edge, two passes of glow.'],
+  anaglyph:   ['3-D red & blue', 'The classic 3-D print: red to one side, blue to the other.'],
+  texture:    ['Textures & depth', 'A different one on each post: stripes, polka dots, money signs, cracked, and a 3-D block.'],
+};
+const CAT = { phones:'Phones', gold:'Gold', silver:'Silver', coins:'Coins', cars:'Cars', strips:'Test strips', pokemon:'Pokémon', sports:'Sports cards' };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[m]));
+const order = LAB.styles;
+const cards = LAB.cards;
+$('n-cards').textContent = cards.length;
+
+/* picks: {cardId: {keep: [...styles], best: style|null}} */
+const picks = {};
+cards.forEach(c => { picks[c.id] = { keep: [], best: null }; });
+let db = null, canWrite = true;
+const S = { view: 'card', style: 'street', box: null };
+try { const v = localStorage.getItem('lab.view'); if (v === 'style' || v === 'card') S.view = v; const st = localStorage.getItem('lab.style'); if (STYLES[st]) S.style = st; } catch (e){}
+
+function status(kind, text){ $('status').className = 'status ' + kind; $('status-t').textContent = text; }
+
+/* one write at a time per ad; a newer state waits for the one in flight */
+const inflight = {}, queued = {};
+async function save(id){
+  if (!db || !canWrite) return;
+  if (inflight[id]){ queued[id] = true; return; }
+  inflight[id] = true;
+  try {
+    await db.doc('picks/' + id).set({ keep: picks[id].keep.slice(), best: picks[id].best, at: new Date().toISOString() });
+  } catch (e){
+    if (e && (e.code === 'invalid_argument' || e.code === 'not_granted' || e.code === 'revoked')){ canWrite = false; status('off', 'This view can read picks but not save them. Tell Claude in chat which styles you like.'); render(); }
+    else status('off', 'A pick did not save (' + ((e && e.code) || 'error') + '). Try it again in a moment.');
+  } finally {
+    inflight[id] = false;
+    if (queued[id]){ queued[id] = false; save(id); }
+  }
+}
+function toggleKeep(id, style){
+  const p = picks[id], i = p.keep.indexOf(style);
+  if (i >= 0){ p.keep.splice(i, 1); if (p.best === style) p.best = null; } else p.keep.push(style);
+  render(); save(id);
+}
+function toggleBest(id, style){
+  const p = picks[id];
+  if (p.best === style) p.best = null; else { p.best = style; if (p.keep.indexOf(style) < 0) p.keep.push(style); }
+  render(); save(id);
+}
+
+function fmt(v){ return v == null ? 'n/a' : v.toFixed(1) + ':1'; }
+function metrics(s){ return 'tagline ' + fmt(s.tagline) + ' · number ' + (s.numberPx ? s.numberPx + 'px ' : '') + fmt(s.number); }
+function tally(){
+  const t = {}; order.forEach(k => { t[k] = { keep: 0, best: 0 }; });
+  Object.values(picks).forEach(p => { p.keep.forEach(k => t[k] && t[k].keep++); if (p.best && t[p.best]) t[p.best].best++; });
+  return t;
+}
+function renderLegend(){
+  const t = tally();
+  $('legend').innerHTML = order.map(k => `<button class="sty" data-k="${k}" aria-pressed="${S.view === 'style' && S.style === k}">
+      <span class="top"><span class="nm">${esc(STYLES[k][0])}</span><span class="ct">kept <b>${t[k].keep}</b> · best <b>${t[k].best}</b></span></span>
+      <span class="ds">${esc(STYLES[k][1])}</span></button>`).join('');
+  $('legend').querySelectorAll('.sty').forEach(b => b.onclick = () => { S.view = 'style'; S.style = b.dataset.k; remember(); render(); window.scrollTo({ top: $('main').offsetTop - 12, behavior: 'smooth' }); });
+}
+function tileHtml(c, s, byStyle){
+  const p = picks[c.id], kept = p.keep.indexOf(s.style) >= 0, best = p.best === s.style;
+  const label = byStyle ? esc(c.name) + (s.label && s.label !== STYLES[s.style][0] ? ' · ' + esc(s.label) : '') : esc(s.label || STYLES[s.style][0]);
+  return `<div class="tile${kept ? ' kept' : ''}${best ? ' best' : ''}">
+      <button class="shot" data-c="${esc(c.id)}" data-s="${s.style}" aria-label="${esc(c.name)} in ${esc(STYLES[s.style][0])}, larger"><img src="img/${esc(s.img)}" alt="" loading="lazy" decoding="async"></button>
+      <div class="meta"><span class="s">${label}</span><span class="m${s.pass ? '' : ' no'}">${esc(metrics(s))}</span></div>
+      <div class="acts">
+        <button data-act="keep" data-c="${esc(c.id)}" data-s="${s.style}" aria-pressed="${kept}"${canWrite ? '' : ' disabled'}>${kept ? 'Kept' : 'Keep'}</button>
+        <button data-act="best" data-c="${esc(c.id)}" data-s="${s.style}" aria-pressed="${best}"${canWrite ? '' : ' disabled'}>Best</button>
+      </div></div>`;
+}
+function render(){
+  renderLegend();
+  $('v-card').setAttribute('aria-pressed', String(S.view === 'card'));
+  $('v-style').setAttribute('aria-pressed', String(S.view === 'style'));
+  if (S.view === 'card'){
+    $('hint').textContent = 'Tap an ad to see it larger. Arrow keys step through its styles.';
+    $('main').innerHTML = cards.map(c => `<section class="card" aria-label="${esc(c.name)}">
+        <h2>${esc(c.name)} <small>${esc(CAT[c.cat] || c.cat)}</small>${c.hero ? '<span class="tag">Your hero pick</span>' : ''}</h2>
+        <div class="row">${order.map(k => c.styles.find(s => s.style === k)).filter(Boolean).map(s => tileHtml(c, s, false)).join('')}</div></section>`).join('');
+  } else {
+    $('hint').textContent = 'One style across every ad, to judge it as a theme. Pick another style above.';
+    $('main').innerHTML = `<section class="style-view" aria-label="${esc(STYLES[S.style][0])} across every ad"><h2 style="font:600 22px/1.2 var(--display);margin:0">${esc(STYLES[S.style][0])} <span style="font:500 13px var(--sans);color:var(--dim)">on all ${cards.length} ads</span></h2>
+        <div class="row">${cards.map(c => { const s = c.styles.find(x => x.style === S.style); return s ? tileHtml(c, s, true) : ''; }).join('')}</div></section>`;
+  }
+  $('main').querySelectorAll('.shot').forEach(b => b.onclick = () => openBox(b.dataset.c, b.dataset.s));
+  $('main').querySelectorAll('[data-act]').forEach(b => b.onclick = () => (b.dataset.act === 'keep' ? toggleKeep : toggleBest)(b.dataset.c, b.dataset.s));
+  if (S.box) paintBox();
+}
+function remember(){ try { localStorage.setItem('lab.view', S.view); localStorage.setItem('lab.style', S.style); } catch (e){} }
+$('v-card').onclick = () => { S.view = 'card'; remember(); render(); };
+$('v-style').onclick = () => { S.view = 'style'; remember(); render(); };
+
+/* the larger view: steps through the styles of one ad (by ad) or one style across ads (by style) */
+function seq(){ return S.view === 'card' ? order.map(k => [S.box[0], k]) : cards.map(c => [c.id, S.style]); }
+function openBox(cid, st){ S.box = [cid, st]; $('box').hidden = false; paintBox(); $('box-close').focus(); }
+function paintBox(){
+  const [cid, st] = S.box, c = cards.find(x => x.id === cid), s = c && c.styles.find(x => x.style === st);
+  if (!s) return;
+  $('box-img').src = 'img/' + s.img; $('box-img').alt = c.name + ' in ' + STYLES[st][0];
+  $('box-t').textContent = (s.label || STYLES[st][0]) + ' · ' + c.name;
+  $('box-m').textContent = metrics(s) + (s.pass ? '' : ' · under the bar');
+  const p = picks[cid];
+  $('box-keep').setAttribute('aria-pressed', String(p.keep.indexOf(st) >= 0)); $('box-keep').textContent = p.keep.indexOf(st) >= 0 ? 'Kept' : 'Keep';
+  $('box-best').setAttribute('aria-pressed', String(p.best === st));
+  $('box-keep').disabled = $('box-best').disabled = !canWrite;
+}
+function step(d){ if (!S.box) return; const q = seq(), i = q.findIndex(x => x[0] === S.box[0] && x[1] === S.box[1]); S.box = q[(i + d + q.length) % q.length]; paintBox(); }
+function closeBox(){ S.box = null; $('box').hidden = true; }
+$('box-prev').onclick = () => step(-1); $('box-next').onclick = () => step(1); $('box-close').onclick = closeBox;
+$('box-keep').onclick = () => toggleKeep(S.box[0], S.box[1]);
+$('box-best').onclick = () => toggleBest(S.box[0], S.box[1]);
+$('box').addEventListener('click', e => { if (e.target === $('box')) closeBox(); });
+document.addEventListener('keydown', e => {
+  if (!S.box) return;
+  if (e.key === 'Escape') closeBox();
+  if (e.key === 'ArrowRight') step(1);
+  if (e.key === 'ArrowLeft') step(-1);
+});
+
+render();
+
+/* saved picks: the page works without them, and lights up when the store answers */
+(async () => {
+  const c = window.claude && typeof window.claude.use === 'function' ? window.claude : null;
+  db = c ? await c.use('db').catch(() => null) : null;
+  if (!db){ canWrite = false; status('off', 'Picks cannot be saved in this view. Tell Claude in chat which styles you like.'); render(); return; }
+  status('live', 'Your picks save here as you make them.');
+  db.collection('picks').onSnapshot(snap => {
+    snap.docs.forEach(d => {
+      if (!picks[d.id] || inflight[d.id] || queued[d.id]) return;
+      const v = d.data() || {};
+      picks[d.id] = { keep: Array.isArray(v.keep) ? v.keep.filter(k => STYLES[k]) : [], best: STYLES[v.best] ? v.best : null };
+    });
+    render();
+  }, e => { status('off', 'Saved picks are not reachable right now (' + ((e && e.code) || 'error') + '). Reload to try again.'); });
+})();
+</script>

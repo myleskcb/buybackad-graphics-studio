@@ -19,7 +19,9 @@ const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.ar
 const WRITE = process.argv.includes('--write'), ALL = process.argv.includes('--all'), CLASSICS = process.argv.includes('--classics');
 const raw = readFileSync(DIR + 'index.json', 'utf8'), idx = JSON.parse(raw);
 const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
-const { browser, page, errors } = await openStudio();
+/* every classic, held or not: this table stands on its own measure, whatever
+   template-holds.js (audit_templates.mjs) keeps out of the lists */
+const { browser, page, errors } = await openStudio(CLASSICS ? '&noholds=1' : '');
 /* the classics: the templates app.js builds at load (the Easy Mode strip),
    measured after their fix tables (contrast, number, ground) have landed */
 const work = CLASSICS
@@ -29,7 +31,10 @@ console.log('verifying ' + work.length + (CLASSICS ? ' classics' : ' cards'));
 const out = {};
 for (let i = 0; i < work.length; i += 6){
   Object.assign(out, await page.evaluate(async (ids, classics) => { const R = {};
-    for (const id of ids){ try { const t = classics ? TEMPLATES.find(x => x.id === id) : await __sc.load(id); R[id] = __sc.check(t); } catch (e){ R[id] = { err: String(e).slice(0, 160) }; } }
+    /* a classic is measured with its faces, pictures and photograph loaded (__sc.prep): measured
+       before a lazily loaded face arrived, a line is set in the fallback face and its box is not
+       the card's (the offer family's flavour faces "touched" at 0.96 that way) */
+    for (const id of ids){ try { const t = classics ? await __sc.prep({ base: id, tpl: TEMPLATES.find(x => x.id === id) }, id) : await __sc.load(id); R[id] = __sc.check(t); } catch (e){ R[id] = { err: String(e).slice(0, 160) }; } }
     return R; }, work.slice(i, i + 6).map(c => c.id), CLASSICS));
   if (i % 120 === 0 && i) console.log('…' + i + '/' + work.length);
 }
@@ -45,7 +50,7 @@ fails.slice(0, 25).forEach(x => console.log('  ' + x.c.id.padEnd(28) + x.r.fails
 if (WRITE && CLASSICS){
   /* the classics have no records: the ids that fail go to a table app.js reads (loadClassicsGate) */
   const ids = fails.map(x => x.c.id).sort();
-  writeFileSync(DIR + '../classics-gate.json', JSON.stringify({ about: 'Classics that fail the gate (scripts/verify_showcase.mjs --classics --write): app.js loadClassicsGate() keeps them out of every list. Rule 66.', date: new Date().toISOString().slice(0, 10), ids }, null, 1) + '\n');
+  writeFileSync(DIR + '../classics-gate.json', JSON.stringify({ about: 'Classics that fail the gate (scripts/verify_showcase.mjs --classics --write): app.js loadClassicsGate() keeps them out of every list. Rule 87.', date: new Date().toISOString().slice(0, 10), ids }, null, 1) + '\n');
   console.log('wrote assets/classics-gate.json: ' + ids.length + ' classics held back');
 }
 if (WRITE && !CLASSICS){

@@ -1,0 +1,6 @@
+{
+  "_doc": "Renders the owner has approved, format by format. scripts/audit_card.mjs compares a card's render in that format against its approved image (540px wide, webp): a difference means the engine changed an approved card, and the audit fails until the owner approves the new render or the change is undone. Re-approve by replacing the image and the entry here, with the owner's words.",
+  "stepsFlow-nn05-30": {
+    "story": { "image": "assets/approved/stepsFlow-nn05-30-story.webp", "approved": "2026-09-28", "owner": "Yes, that would be the ideal 9:16", "commit": "6f07aa8" }
+  }
+}

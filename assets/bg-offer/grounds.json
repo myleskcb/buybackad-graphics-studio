@@ -1,0 +1,168 @@
+{
+ "sports": [
+  {
+   "file": "dl_sports_arcCrown_crimson",
+   "p90": 198
+  },
+  {
+   "file": "dl_sports_agencyGrid_mono",
+   "p90": 170
+  },
+  {
+   "file": "dl_sports_glassCard_mono",
+   "p90": 224
+  }
+ ],
+ "pokemon": [
+  {
+   "file": "dl_pokemon_arcCrown_royal",
+   "p90": 227
+  },
+  {
+   "file": "dl_pokemon_bubblePop_royal",
+   "p90": 222
+  },
+  {
+   "file": "dl_pokemon_agencyGrid_royal",
+   "p90": 170
+  }
+ ],
+ "strips": [
+  {
+   "file": "strips-contour-next-test-strips-2",
+   "p90": 171
+  },
+  {
+   "file": "strips-blood-glucose-test-strips-2",
+   "p90": 241
+  },
+  {
+   "file": "strips-blood-glucose-meter-1",
+   "p90": 203
+  }
+ ],
+ "coins": [
+  {
+   "file": "coins-coin-collection-album-1",
+   "p90": 184
+  },
+  {
+   "file": "coins-morgan-silver-dollar-1",
+   "p90": 220
+  },
+  {
+   "file": "coins-american-gold-eagle-coin-1",
+   "p90": 239
+  }
+ ],
+ "gold": [
+  {
+   "file": "gold-gold-jewelry-rings-3",
+   "p90": 254
+  },
+  {
+   "file": "gold-gold-bracelet-2",
+   "p90": 178
+  },
+  {
+   "file": "gold-gold-necklace-chain-close-3",
+   "p90": 137
+  }
+ ],
+ "silver": [
+  {
+   "file": "silver-silverware-set-1",
+   "p90": 206
+  },
+  {
+   "file": "silver-silver-cutlery-1",
+   "p90": 183
+  },
+  {
+   "file": "silver-silver-jewelry-rings-2",
+   "p90": 248
+  }
+ ],
+ "cars": [
+  {
+   "file": "cars-used-car-dealership-lot-1",
+   "p90": 189
+  },
+  {
+   "file": "trucks-pickup-truck-1",
+   "p90": 198
+  },
+  {
+   "file": "cars-classic-car-chrome-grille-1",
+   "p90": 251
+  }
+ ],
+ "iphone": [
+  {
+   "file": "phones-iphone-15-pro-back-camera-1",
+   "p90": 166
+  },
+  {
+   "file": "phones-iphone-14-pro-1",
+   "p90": 118
+  },
+  {
+   "file": "phones-apple-iphone-15-1",
+   "p90": 181
+  }
+ ],
+ "mac": [
+  {
+   "file": "macbook-macbook-on-desk-1",
+   "p90": 208
+  },
+  {
+   "file": "macbook-macbook-pro-m3-1",
+   "p90": 198
+  },
+  {
+   "file": "macbook-macbook-air-2",
+   "p90": 34
+  }
+ ],
+ "space": [
+  {
+   "file": "space-earth-from-iss-night-1",
+   "p90": 130
+  },
+  {
+   "file": "space-earth-from-iss-night-3",
+   "p90": 22
+  },
+  {
+   "file": "space-moon-surface-nasa-4",
+   "p90": 99
+  },
+  {
+   "file": "space-earth-from-iss-night-4",
+   "p90": 99
+  },
+  {
+   "file": "space-aurora-from-space-3",
+   "p90": 172
+  },
+  {
+   "file": "space-galaxy-hubble-telescope-1",
+   "p90": 170
+  }
+ ],
+ "gaming": [
+  {
+   "file": "gaming-rgb-desk-setup",
+   "p90": 160
+  },
+  {
+   "file": "gaming-bedroom-night",
+   "p90": 96
+  },
+  {
+   "file": "gaming-living-room-tv",
+   "p90": 179
+  }
+ ]
+}

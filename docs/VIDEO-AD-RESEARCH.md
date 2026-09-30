@@ -433,7 +433,7 @@ still thumbnail. So:
 |---|---|---|
 | 0.0 s | **the finished ad**, still | all |
 | 0.0–0.5 s | wake: cutout rises 3–5% with decelerate easing; background begins a slow push-in (≤5% over the clip) and parallax against the cutout; one light sweep across the product | cutout, photo |
-| 0.5–3.5 s | **price scene**: price scales to hero, counter rolls up and lands with a small overshoot "stamp" by ~2.0 s, qualifier on the *same frame*, business badge in frame; holds ≥1.5 s after landing | price / headline, badges |
+| 0.5–3.5 s | **price scene**: price scales to hero, counter rolls up (built as a cascade — §10) and lands with a small overshoot "stamp" by ~2.0 s, qualifier on the *same frame*, business badge in frame; holds ≥1.5 s after landing | price / headline, badges |
 | 3.5–7.0 s | **how it works**: three steps or selling points, one at a time, ≤4 words each, each ≥1.2 s | info, sub |
 | 7.0–10.0 s | **end card**: back to the full composition; phone number emphasised, CTA verb ("Call" / "Text"), name; still for ≥3 s | phone, cta |
 | throughout | phone bar pinned in the same place inside the safe box | phone |
@@ -475,7 +475,7 @@ still thumbnail. So:
 | product wake (rise + ease-out) | "this is what we buy" | 300–500 ms; the first motion. Motion *onset* is what captures attention (Abrams & Christ) — prefer discrete onsets over constant drift |
 | single light sweep across the cutout | product quality (Apple hero shot) | one pass, low luminance change — never a flash |
 | parallax photo ↔ cutout, slow push-in | depth; keeps the frame "dynamic" (TikTok's static cap) | ≤5% scale over the whole clip |
-| price counter + overshoot stamp | the reveal — the beat card-buying and Opendoor videos are built on | lands with brand in frame; qualifier on the same frame |
+| price counter + overshoot stamp (built as a cascade — §10) | the reveal — the beat card-buying and Opendoor videos are built on | lands with brand in frame; qualifier on the same frame |
 | three-step process strip | the most portable device in the category (Photo → Price → Paid) | one icon at a time; uses the existing icon system (rule 17) |
 | persistent phone bar | the DRTV phone bar | never animated off screen |
 | brand badge (colour + shape) | an owned asset across every export | fixed per business |
@@ -532,7 +532,62 @@ output, and there is no output to measure.
 
 ---
 
-## 10. Sources
+## 10. Built — 2026-09-27
+
+**Second build (current): the living still and its call to action.** The
+owner rejected the first build: "still bound by our OLD design language",
+"the bg images / colors don't look very good". They kept its arc: "a good
+theme for ads to then shift to a CTA.. starts a fully made graphic image ad".
+The video is now the trunk's living-still engine (app.js MOTION) plus one
+addition, and it follows the design law rather than this document where the
+two differ (DESIGN-LAW rules 55, 56, 62 and 65):
+
+- 0 s: the finished ad, frame for frame (the grid thumbnail and the muted
+  autoplay are the ad; §2).
+- 0.5 to 5.5 s: the still breathes. The money line, the points and the
+  number each take one beat in turn (§3), and the photograph drifts.
+- 5.8 s: the ad hands over to a call to action built from the card's own
+  parts, headline, action line, number on its plate and product, on its own
+  photograph, shaded dark and graded to the copy (§4). The number lands with
+  one stamp and a two-note bell.
+- 10 s: it holds on the call to action and loops.
+
+**Where this departs from §8, measured or ruled:**
+
+1. **No dollar figures.** §8 asked for a price that counts up and lands. The
+   design law now keeps dollar figures off graphics (rule 55), and a counting
+   number fails the flash check anyway (rule 66: 10 flashes a second over 33%
+   of a region at 30 fps).
+2. **No new grounds, no recolouring.** The first build set its scenes on
+   tinted grounds and re-inked the ad (§6's colour work). Rules 56 and 62 retire
+   both: the photograph keeps its own colour, and shade is neutral and dark. The
+   only ink that changes is a line that lands dark on the shaded photograph,
+   turned as rule 62 turns it.
+3. **The flash check reads linear light at full resolution** (rule 66): a
+   gamma-space downscale misread cell luminance by up to 0.29, three times the
+   threshold.
+4. **Square first.** §7 surveyed placements; the owner's order is 1:1, then
+   3:4, then 9:16 occasionally, and audits run in that order.
+
+**Gates on every download:** frame 0 against the still, the exact encode
+(Mediabunny, frame by frame, MP4 where the browser can and WebM otherwise),
+and the flash check over every frame. A call to action is built only if it
+passes its own audit (guides, overlaps, the 72px number, 3:1 by the critic's
+method); otherwise the living still runs the whole clip.
+
+**Not verified in this environment:** the H.264 encoder. The container's
+Chromium has no H.264 or AAC encoder, so the WebM path was exercised end to
+end (both buttons, production CSP, files decoded: 10.0 s, 300 frames).
+**Export one clip from Chrome or Safari and play it before announcing it.**
+
+Measured: see DESIGN-LAW rule 65 and `scripts/motion_audit.mjs`.
+
+*First build, retired the same day:* `video.js`, a timeline of its own scenes
+(kicker, price cascade, three steps, end card) with a self-audit of reading
+time, layout and contrast; 243 templates × 2 formats, 0 frame-0, audit or
+flash failures. Its measured findings survive as rule 66; its look did not.
+
+## 11. Sources
 
 Every URL below was read via search-engine extract, except those marked (O),
 which were opened (section "How far to trust this file").

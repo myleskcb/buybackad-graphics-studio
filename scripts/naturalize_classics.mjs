@@ -57,7 +57,7 @@ for (let i = 0; i < ids.length; i += 6){
         /* the classics keep their gradient scrim (strong where the type is, the
            middle of the photograph left alive); an even one only if the
            gradient cannot hold every line at any strength */
-        const r = __sc.naturalGround(t, { grade: null, dark: null, light: PAPER, modes: ['bands', 'gradient', 'normal'], core: true, wantMinor: 3.5 });   // the lightest shade that holds the core (rule 66's measure)
+        const r = __sc.naturalGround(t, { grade: null, dark: null, light: PAPER, modes: ['bands', 'gradient', 'normal'], core: true, wantMinor: 3.5 });   // the lightest shade that holds the core (rule 87's measure)
         if (r.bg) Object.assign(r, { src: t.bg.src, was });
         R[id] = r;
       } catch (e){ R[id] = { err: String(e).slice(0, 160) }; }

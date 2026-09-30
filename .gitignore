@@ -9,3 +9,13 @@ node_modules/
 .render/
 # photographs the owner rejected in the backdrop review; kept for the record, never shipped
 assets/bg-web-rejected/
+__pycache__/
+
+# offer cards tool: fetched fonts, the export, the output
+tools/offer-cards/.fonts/
+tools/offer-cards/export/
+tools/offer-cards/out/
+tools/offer-cards/__pycache__/
+
+# scraped photographs waiting for scripts/ingest_assets.py; what it lands goes to assets/
+incoming/

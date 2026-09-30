@@ -494,6 +494,418 @@ Rejected:
   - Sizing a line-up to the single product it replaced: three MacBooks as
     stamps.
 
+## 2026-09-27 — The video engine: built, self-audited, run against the library
+
+Studied:
+  Built the engine from docs/VIDEO-AD-RESEARCH.md §8 (`video.js`, loaded after
+  app.js; Export → Make it a video ad). Owner asked twice mid-build: does it
+  apply to all our ads, and is it self-audited so it only produces correct
+  graphics.
+
+Measured:
+  - Frame 0 and the last frame are byte-identical to the Export PNG on every
+    template audited (video_audit.mjs: 0 differing values at 6/10/15 s).
+  - A price that counts up at 30 fps FAILS the flash check: 10 flashes/s over
+    33% of a region. Built as a cascade instead.
+  - drawImage downscaling misreads cell luminance by up to 0.29 against an
+    exact linear-light average (0.05 at half resolution). The flash check
+    reads every pixel.
+  - The first self-audit run caught "UP TO" overlapping "$1,100" (a `$` rises
+    above cap height). Price layout now stacks on measured glyph bounds.
+  - The first library sweep crashed out of memory after 28 templates:
+    renderers held five or six frame-sized canvases each. Added dispose().
+  - Encoded files decode back to 300 frames, 10.0 s, frame 0 at 40 dB PSNR
+    against the still. Under the production CSP (injected, rule 49) the panel
+    produces a download with zero policy violations.
+  - Library sweep (243 templates x story + square, every length): IN PROGRESS
+    at this commit; 141/243 story templates passed with no failures so far.
+
+Changed:
+  - video.js (new), vendor/mediabunny-1.60.0.min.mjs (MPL-2.0, licence
+    beside it), index.html (button, panel, script tag), styles.css (+ the
+    regenerated CSS_FALLBACK line in app.js, nothing else in app.js), cache
+    rules in _headers and netlify.toml, README section.
+  - scripts/video_audit.mjs, scripts/video_library_audit.mjs,
+    scripts/video_gallery.mjs, scripts/gallery/ (playback gallery builder).
+  - Playback gallery for the owner: https://claude.ai/artifact/G9CVJtTGMTQBpYA3AyZQmj
+    (20 clips, posters only until a clip is played, one video loaded at a time).
+
+Rejected:
+  - A counting price (flash, above). A seamless-loop crossfade (the loop
+    already closes on the still).
+  - Blocking export on "up to" copy. It is a copy decision (rule 24), so the
+    panel warns and cites the FTC finding.
+  - Blocking export when the ad has no phone number: some sellers trade by
+    DM. The bar carries their call to action and the panel says so.
+
+Not verified here:
+  - The H.264 encoder itself: this container's Chromium has none, and Chrome
+    for Testing could not be downloaded (403). The MP4 muxer was exercised
+    with VP9 inside it.
+
+RESUME HERE:
+  Export one clip from real Chrome or Safari, play the MP4, and upload it to
+  a Reel and a TikTok draft before announcing the feature. Then read
+  Facebook's Marketplace commerce policy by hand (research §7.2).
+
+---
+
+## 2026-09-27 (later) — Library sweep result
+
+Measured:
+  scripts/video_library_audit.mjs, all 243 templates x story + square = 486
+  clips:
+  - frame 0 vs the Export PNG: 0 differing; last frame vs frame 0: 0 differing
+  - self-audit at 6, 10 and 15 s (1,458 runs): 0 failures
+  - whole-clip flash check: 0 failures (worst: 4 transitions/s over 6.9% of a
+    region; the limit is 25%)
+  - number on screen: at least 99% in every clip; contrast fix needed: 0 clips
+  - accent fell back to white: 66 of 486 clips
+
+Changed:
+  DESIGN-LAW rules 51-54 (appended, per rule 42).
+
+RESUME HERE:
+  Unchanged from the entry above: one real MP4 from Chrome or Safari, then the
+  Marketplace commerce policy. Colour lever for later: the 66 white-accent
+  clips could take a hue from their backdrop photo (OKLCH, rule 40) instead of
+  white. Measure the contrast before changing it.
+
+---
+
+## 2026-09-27 (night) — The video rebuilt on the new language; plate air
+
+Owner:
+  "this is still bound by our OLD design language", "the bg images / colors
+  don't look very good", "it is a good theme for ads to then shift to a CTA..
+  starts a fully made graphic image ad", "these colored hazes don't look
+  great. Unify with the new design language", "primarily 1:1 or 3:4 but
+  occasionally we will do the 9:16", "primarily design for the square
+  format", and, on CALL FOR INSTANT OFFER edge to edge on its badge, "why
+  can't we seem to catch this? it would need to be shrunk 10-15% to make a
+  minimum margin on the sides".
+
+Changed:
+  - video.js is gone. The video is the trunk's living still plus a shift to
+    the card's own call to action at 5.8 s (DESIGN-LAW rule 65): its own
+    parts on its own photograph, the shade near-black and graded to the copy,
+    dark lines turned light as rule 62 turns them, lines carried with their
+    plates, the words before the picture. Exact encoder, frame-0 gate and
+    flash gate on every download (rule 66).
+  - plateAir() after alignPass, and the same margin measured by
+    audit_collisions.mjs (rule 64).
+  - The three video scripts pin their stub account, assert the card that
+    opened, wait for the photograph, and take --format (rule 67).
+  - Merged the trunk (fervent-pascal: white haze lifted, supportive
+    highlights, rule 63) and the audit thread (vibrant-hawking: the 50 offer
+    cards' big number) before measuring.
+  - The rules this log cited as "51-54" in the two entries above were my
+    first build's drafts; the trunk's rules own those numbers. Their findings
+    are restated as rule 66.
+
+Measured:
+  scripts/motion_audit.mjs, merged trunk:
+  - square, curated 398: call to action on 398 (383 with the headline),
+    frame 0 fails 0, flash fails 0 (worst 13.9% of a region, limit 25%)
+  - square, classics 243: call to action on 238, frame 0 0, flash 0
+  - 3:4, curated 398: call to action on 398, flash 0; frame 0 refused one
+    card per pixel (faint-halo rounding, worst block 4.9 levels), which the
+    block gate passes; a clipped shadow blocks at 17 to 23
+  - 9:16, first 60 curated: 60 of 60, frame 0 0, flash 0
+  scripts/audit_collisions.mjs, --no-air-fix vs plateAir:
+  - classics short of air 25 -> 1, collisions 48 -> 48
+  - showcase records short of air 187 -> 1 (live 56 -> 0), collisions
+    102 -> 101 (live 0 -> 0)
+  scripts/motion_export_check.mjs: both buttons, production CSP, 10.0 s,
+  300 frames, VP9 + Opus, 0 violations, 0 errors.
+  Gallery v2: 26 clips (18 square, 6 at 3:4, 2 at 9:16), all pass.
+
+Learned:
+  - A straddle test cannot see a line that fills its plate: 97% inside is
+    "inside". Air is its own measurement, and it has to be taken in the
+    plate's frame and on ink.
+  - Fourteen "failures" of one shape on fourteen different cards were one
+    classic measured fourteen times (rule 67). Suspect the harness first.
+  - The second pass of the ink turn made a white halo round white type, the
+    haze the owner had just rejected. A treatment tuned to one ink is wrong
+    for the other: the halo goes with the outline. The cards' own light
+    glows (WE BUY GOLD JEWELRY, a green number plate) did the same once the
+    call to action shaded their ground: re-cut dark (rule 27).
+  - A gate turns a quiet flaw into a refused download. The living still had
+    always clipped the tail of a scaled product's shadow (fabric scales a
+    shadow with its object; the bake padded by the unscaled blur); frame 0
+    missed the still by 4,076 pixels on scriptRetro-cd06-15, and the new gate
+    refused it. Fixed at the cause, not by loosening the gate.
+  - A preview must be the download scaled down, not a smaller render: at 480px
+    the call to action re-decided on softer pixels and one card lost its
+    headline in the gallery while keeping it in the file.
+
+RESUME HERE:
+  Export one real MP4 from Chrome or Safari and play it. Then the 3:4 audit
+  of the curated set (scripts/motion_audit.mjs --format three4) if it has not
+  been run, and the one classic still short of air
+  (dl_strips_duoSplit_emerald: its headline is 1.26x its panel).
+
+## 2026-09-27 — The offer cards in every category, and what must not ship
+
+Asked:
+  "Double the variation and make an alternate prompt for the same style but
+  more variations.. the best ones we go ahead and apply to multiple
+  categories." Then, mid-way: "Audit any overlapping issues, bad assets, or
+  inaccurate info / flaws. or bad copy gets removed", and the buying lines
+  next to phones (Samsung, Pixel, foldables, Meta glasses, consoles, PS5 and
+  Xbox, Steam Deck and ROG Ally, Switch, gaming PCs, headphones and gaming
+  headsets, controllers, monitors, SSDs, mini PCs, sealed Chromebooks):
+  "this is alternate media and we will create some alternate categories for".
+
+Measured:
+  - The product pictures, as pictures: OCR over all 478 cutouts found garbled
+    lettering on 14 (BOLD gold bars, WILD GOLD silver, FDDERALRESDRVENOTE,
+    "copslock", Addrorid); an edge test (a crop meets the frame with fully
+    opaque pixels, a real edge is anti-aliased) found 24 used ones cut off at
+    the frame; by eye, three "iPhones" were Android phones, the test strip ads
+    showed rapid test cassettes, the Pokemon boosters were another game's; two
+    were simply too small (a 144px coin drawn at 2.6x). 59 flagged in all.
+  - The claims: invented facts in rule 55's other words (TRUSTED on 205
+    showcase lines, "30 seconds" and "in minutes" on 81 each, INSTANT on 53,
+    WE BEAT 35, TOP BUYER 34, mail-in and house calls); in a second pass, a
+    price comparison nobody measured (WE TOP, WE OUTBID, WE MATCH THE COIN
+    SHOP on 57 headlines) and car services nobody offers (FREE TOW on 51
+    lines, DMV paperwork, same-day pickup, lien payoff, NO SMOG NEEDED); a
+    grammar slip in live copy ("SHOW US THE YOUR CARRIER NUMBER"); on the
+    owner's 50 offer cards, six headlines that claim more than the ad shows or
+    the shop buys.
+  - The Studio's own templates had never been held to the showcase's bar:
+    measured now, 108 of 243 classics fail it (41 of the 50 hand-built ones,
+    mostly three typefaces or a headline that does not win; 38 with a product
+    or a line over the words).
+  - The landing drew a Studio card's thumbnail before its product picture,
+    photograph or face had loaded (it never warms the library, to stay light
+    on a phone), so the five new categories showed type on black.
+  - Build-time headline fitting: estimated widths ran up to 10% narrow on some
+    faces, so a headline set in three lines where two were planned and the
+    product sat on it. Calibrated per face in the browser.
+
+Changed:
+  - The offer family in the Studio (offer-library.js): the owner's offer card
+    with every axis doubled (six layouts, twenty looks, twelve pairings), 161
+    cards over 35 buying lines in all 13 categories, five of them new (Gaming
+    & Consoles, Headphones & Audio, Computers & Parts, Wearables & Glasses,
+    Cameras & Drones). Lines with no clean picture are set in type. Every card
+    passes scripts/audit_templates.mjs.
+  - assets/cutout-flags.json, swap_flagged_cutouts.py, cutout_edges.py: bad
+    pictures named, and every showcase card that drew one given a whole, clean
+    picture of the same kind inside the old footprint (355 pictures over three
+    passes; none left).
+  - CLAIM / CLAIM_FIX (refresh_copy.mjs), honest_claims.mjs: 690 lines on the
+    showcase (540 on 423 cards, then 150 on 116) and the same words in app.js.
+    A comparison becomes an invitation ("SKIP THE COIN SHOP"), a tow becomes
+    AS-IS, a pickup becomes CASH IN HAND WHEN WE MEET.
+  - Three dead brand-logo layers removed (app.js cannot ink them, so they drew
+    nothing), two status dots moved off the words they sat on.
+  - template-holds.js: what fails the bar is left out of TEMPLATES (108 of 404).
+  - The landing fetches a shown Studio card's own assets and draws it again.
+  - The showcase: 620 records re-measured; 692 of 971 pass every check (690
+    before, under looser rules).
+  - docs/offer-cards-prompt-v2.md: the brief for the owner's generator, every
+    axis doubled, the category banks, the new honesty rules, the review of the
+    first 50.
+  - DESIGN-LAW 79-81 (57-59 when written; renumbered after the trunk's 57-67, then after its 68-78).
+
+Rejected:
+  - Fetching product photos from Wikimedia Commons or the makers' sites (the
+    owner offered): this container's network policy denies them. The fetch is
+    described in the v2 brief for the owner's Mac.
+  - Moving the voltStack and stepsFlow headlines apart by hand to clear their
+    box overlap: their number blocks were solved for the current positions
+    (assets/number-fix.json). They are held until the number block is re-baked.
+  - Treating iCloud-locked copy as inaccurate: it is a product line the studio
+    offers resellers, though the owner's own offer brief bans it for iPhones.LA.
+  - Unholding the five trustSeal cards that repeat FREE QUOTE: they fail the
+    design school too, so a copy fix alone would not bring them back.
+
+RESUME HERE:
+  Draft-deploy this branch and look at the landing's new category chips and
+  the Offer cards chip on a phone. Then the owner's Mac: redraw the six offer
+  card headlines in the v2 review, and source real photos for the type-only
+  lines (the v2 brief says how).
+
+## 2026-09-27, later — real cards, photographs behind them, faces with a voice
+
+Asked:
+  "they are good designs, they are definitely lacking and type faces that have
+  personality or flavor and the gray sections should have a background image
+  and it feels really incomplete because the cards don't even have a brand or
+  image on them. We need actual cards", then "At least give us a bare minimum
+  of base images that we can start using as placeholders", and for the rest,
+  "We can just scrape separately and implement as assets into our engine."
+
+Measured:
+  - The owner's own picture review (assets/approved-assets.json, 2026-09-03)
+    had never been consulted by this session's audits or swaps: 131 showcase
+    cards (89 live) drew a picture the owner had rejected, some put there by
+    the first swap (iphone-fan-four, mac-air-open-angle, silver-tea-set).
+  - Under that list, Pokemon had one usable picture (a trio of blank pastel
+    slabs), test strips one small one, sports cards two blank ones.
+  - This container reaches Google Fonts, npm, PyPI and raw GitHub files; every
+    image host (Commons, the Met, the Library of Congress, Openverse, stock
+    sites) is denied.
+
+Changed:
+  - poke-psa-charizard: a real PSA 10 1999 Charizard, cut straight-on from a
+    Commons photograph already in the repo (the perspective fitted to the
+    card's and the label's borders with OpenCV; certificate number softened).
+  - ph-sports-*: placeholder cards, a slab, fans and a sealed box that show a
+    card face and no invented brand (scripts/make_card_assets.py).
+  - The offer family on photographs of its goods with a solved neutral shade,
+    the small type on panels, and seventeen vendored display faces assigned
+    by category (DESIGN-LAW 82). 161 of 161 pass the audit.
+  - scripts/picture_gate.mjs: the owner's list and the flags, one rule for
+    every audit and the swap; 247 pictures on 162 showcase cards swapped
+    again, none of them now rejected; 692 of 971 showcase cards live.
+  - scripts/ingest_assets.py and docs/scrape-intake.md: scraped files in
+    incoming/ become cut-out, checked, credited, approved and wired assets
+    (offer-assets.js) in one command, with the shot list of what to fetch.
+  - The landing's offer and category chips draw each card again once its own
+    pictures, photograph and faces land.
+
+Rejected:
+  - Pulling vintage card scans from other people's GitHub repositories: raw
+    GitHub is reachable, but this session only works in the owner's repository.
+  - Pictogram athletes on the placeholder cards: they read as a child's toy.
+    The placeholders carry a ball on a light burst instead.
+  - Filling the owner's blank slab frames (sports-slab-graded is broken at a
+    corner and landscape); the placeholder slab is drawn to the real PSA
+    slab's proportions, measured off the Charizard photograph.
+
+RESUME HERE:
+  The owner scrapes; drop the files in incoming/ and run
+  python3 scripts/ingest_assets.py, then --write, then the template audit.
+  The ph-* placeholders go first (docs/scrape-intake.md).
+
+## 2026-09-27 (late) — One engine: the tagline everywhere, products off the subject, gaming rooms
+
+The owner: "Make sure that the latest tagline update that we are currently
+building gets implemented to these graphics for final unification. You don't
+build anything in this repo if it's not 100% unified into all design language
+not just portions ... we don't have logic that only applies to one type of ad
+or worse, one type of category only". Then: "keep in mind where the
+background subject is in relation to the secondary asset", and "particularly
+for these game consoles ... gamer bedrooms, gamer living rooms, aesthetic
+gaming set ups".
+
+Found:
+  - The tagline styles existed only as a lab experiment (taglineStyle, called
+    by scripts/tagline_lab after a render). No surface offered them; the
+    offer family had no palette to give them; the editor could not switch one
+    back off.
+  - Measured on every family (scripts/tagline_audit.mjs, 82 templates, every
+    style, the critic on every line and the video's frame zero), the lab's
+    styles failed 1 to 8 cards each: gradient and pair took a pure-white line
+    to a pastel at 0.88 (2.8:1 on a mid-grey photograph), and read a red line
+    on a dark panel as "dark" and made it darker (2.2:1); street put a 3px rim
+    on a 20px label, swept a number on its own orange band, and could not tell
+    a translucent glass panel from a dark photograph; outline read by its rim
+    alone on a cream ticket; blocks fell back on every offer "band" card
+    (their tagline sits on the 6% guide).
+  - The video cut the end off an italic T on a tagline block: the bake crops a
+    moving line to its box plus 6px, and a line's shadow had always widened
+    that crop. A block takes the shadow away. Not a style bug: an engine bug
+    that only a style without a shadow could show.
+  - The owner's two examples (coins centred on the ring photograph, the strip
+    fan on the Contour bottle) were not "covering" by a share-of-subject
+    measure: the coins hide a fifth of three rings, and all of the one that
+    matters. Covering has to include sitting on the centre of a concentrated
+    subject.
+  - No photograph of a gaming room exists in the repo, and every image host is
+    still denied here.
+
+Changed:
+  - TAGLINE_STYLES (app.js): one choice for every template, applied in
+    renderEzCanvas (preview, download, pack, video) and on the editor canvas;
+    colours from tplPalette (theme, family palette, scene, reference sweep);
+    ground-aware (gradient and pair solve their lightness on the measured
+    ground; street darkens plates and mid-toned bands, sweeps deep on large
+    light panels, leaves type under 34px alone; outline rims harder on light
+    grounds; the design's ink breaks a tie); blocks measured from the drawn
+    ink with shared padding in a tight stack; switchable (pgTagRest,
+    taglineReset), blocks follow their lines in the editor. Every style passes
+    on all 82 audited templates.
+  - motionBake: a moving text's crop allows a third of its size.
+  - photo_subjects.py -> photo-subjects.js (330 photographs, 16x16 maps) and
+    productYield with alignPass: products step off a covered subject without
+    touching words, plates or other products. Over the 427 cards that stand a
+    product on a photograph: designer 0 of 30 covered, street 1 of 37 (moved),
+    offer 7 of 140 (4 moved, 3 still cover a little), showcase 0 of 220 (its
+    products hide at most 12% of a subject).
+  - make_gaming_grounds.py: three drawn rooms (an RGB desk setup, a bedroom at
+    night, a living room with the TV) for the gaming lines, gaming headsets and
+    monitors, marked placeholders, on the scrape list.
+  - The trunk's showcase: the gated swap (157 pictures on 111 cards) and the
+    claim rewrite (198 lines on 145 cards) applied again after the merge, and
+    re-measured: no flagged picture and no invented claim left (102 and 145
+    before), 415 of 971 cards live, 9 lines repaired to 3:1 on 4 cards.
+
+Rejected:
+  - A box per photograph for the subject: the ring photograph is rings edge to
+    edge; a coarse saliency map shares a room's weight over its screens and
+    strips, and holds a ring's in the middle.
+  - Moving the photograph instead of the product: it would change what lies
+    under every line of type the legibility audit already passed.
+  - A nudge that only crosses the threshold (a laptop moved 27px, 0.13 to
+    0.11): a move has to show the subject, 40% less hidden or clear of its
+    centre by 6% of the card.
+  - Each gaming room's screen as its subject: 13 of 30 gaming cards moved,
+    most into a corner or onto a band. A console in front of a room's TV
+    reads as a console in a room. (Found on the way: a full-width band was
+    not a plate to the move, so a product could slide onto the steps band;
+    it is now.)
+  - Styling the thumbnails in Easy Mode's strip per style: a render per card
+    per change for a preview the big picture already shows.
+
+RESUME HERE:
+  The owner picks from what the video maker (motion/) has that templates do
+  not (OPEN-ITEMS §Q: number styles, urgency elements, sign boards); each is
+  built where the tagline style went, for every template. The gaming rooms
+  and the ph-* pictures wait on photographs (docs/scrape-intake.md).
+
+## 2026-09-27 (late) — "the worst ad I've ever seen you make": a card rebuilt, and an audit that says so first
+
+The owner took stepsFlow-nn05-30 apart: a headline that was only the item
+word, a trust word posing as the headline, too many typefaces, cheesy glossy
+pills, blurred small type, a "3" outside its box, a phone covering the
+photograph they loved, a CTA too small. Then, three renders in: "not put out
+another without 100% validating and self auditing."
+
+What was wrong under the hood was mostly one thing: **the engine judged type
+by its box, not its letters.** A 192px line's box reaches 44px above its caps
+and 50px under its baseline. So the guides pass thought the headline had left
+the canvas and shrank the whole card 1%; the collision pass thought two
+display lines 19px apart overlapped and pushed the second onto the first step;
+the decoration pass thought a bolt touched the headline and moved it off its
+pill; the product pass thought the number's box touched the phone and lifted
+the phone off the band; plates centred their words by the box and big type
+sat high. One helper, `textInkRect()`, and five passes switched to it.
+
+The "3" was its own bug: a step numeral is decoration and a word, and the
+decoration pass counted it as colliding with itself. The first dry render
+showed the "1" doing it too, pushed by the headline above.
+
+Two harness lessons. Measuring ink with the drop shadow on shifts a line's
+bearing by a different amount per glyph; and an auditor that uses the canvas
+width as its height sees nothing below 1080 on a 3:4 card. Both were mine and
+the audit caught the second itself (rule 50: suspect the harness first).
+
+Mirroring the phone, which the owner suggested, was the owner's own next
+catch: a mirrored iPhone has its cameras on the wrong side. The library had
+the same phone photographed leaning the other way.
+
+Result: `scripts/restage_steps_flow.mjs` rebuilds the card (claim, badge from
+the bank in the CTA's colour, two faces, flat uniform steps, a real phone
+standing on the band, the accent read off the photograph), and
+`scripts/audit_card.mjs` passes it 154/154 in the gallery painter, Easy Mode
+square and 3:4, and the video. DESIGN-LAW 68-76.
+
 ## 2026-09-27 (night) — No hue over the photograph
 
 Studied:
@@ -519,7 +931,7 @@ Measured:
     type against its own box, so it always "collided" with itself.
 
 Changed:
-  - scripts/neutral_panels.mjs (rule 64): panels holding copy become smoke
+  - scripts/neutral_panels.mjs (rule 85): panels holding copy become smoke
     under light copy, paper (0.9 and more) under dark, a same-luminance grey
     when mixed; siblings share one treatment; glows become shade; halos take
     the ground's opposite tone. Every line judged on its own pixels before and
@@ -603,8 +1015,8 @@ Changed:
   - pgCheck / PG_T / pgGate in app.js; __sc.check, accept, gateRecords and
     live() in the harness; verify_showcase.mjs; the writers gated; the
     legibility audit and the critic on the one measure.
-  - The contradictions above fixed in code; rule 66 and 19 "Superseded"
-    pointers in DESIGN-LAW; the pipeline in OPEN-ITEMS §L; the findings in
+  - The contradictions above fixed in code; rule 87 and 19 "Superseded"
+    pointers in DESIGN-LAW; the pipeline in OPEN-ITEMS §R; the findings in
     docs/COHESION-AUDIT.md.
 
 Rejected:
@@ -612,6 +1024,70 @@ Rejected:
     were baked with them; consolidation belongs to the classics' re-bake.
   - A gate that blocks: an ad is never held hostage; it is measured, shaded
     when shade fixes it, and otherwise named, with "Download anyway".
+
+## 2026-09-28 — Audit and validation of the branch
+
+The owner: "audit and validate".
+
+Checked, all passing on the branch as pushed after this entry:
+  - Every shipped script and every script in scripts/ and tools/gfx parses
+    (143); the Python scripts compile (13); all 1,028 JSON files are valid.
+  - Every file a card names exists: 971 showcase records, their thumbnails,
+    backdrops and pictures; the offer grounds; every photograph in
+    photo-subjects.js. None of the 382 pictures on live showcase cards is
+    flagged or refused by the owner's list.
+  - The landing (390 and 1440px): no failed request, no console or page
+    error, no sideways scroll. The release gate (tools/gfx/gate.mjs, 8 seeds):
+    1152 asked, 1152 clean.
+  - The template audit (dry run) agrees with template-holds.js (119 of 404
+    held, the offer family 161/161); the subject audit repeats its moves (437
+    cards); the tagline audit passes every style on all 82 sampled templates,
+    picture and video (5 blocks give way to the outline, each because a block
+    would cover the product).
+  - The real video buttons under the production CSP, as designed and with
+    blocks, from Easy Mode and the editor: 10s, 300 frames, audio, no
+    violation.
+
+Found and fixed:
+  - One inline script's hash (the FAQ JSON-LD) was missing from the CSP in
+    netlify.toml and _headers, from before this branch. JSON-LD is never
+    executed, so nothing broke, but scripts/verify_csp.mjs counts it; the
+    hashes were rewritten with scripts/csp_hashes.mjs.
+  - A code review of the branch, each case then driven in the editor, found
+    the tagline styles' editor side unsound: Enhance threw on every text (an
+    older fitToDoc bug: `(null && p.fontSize) !== undefined` is true) and,
+    wrapped by the style, took the style away with it; a style switched while
+    several objects were selected wrote absolute positions into a selection's
+    relative frame; the recorded positions went stale after a format switch or
+    a nudge (a line kept the block's shrink as its "designed" size); Quick Edit
+    and the properties panel left a line off its block; a duplicated line
+    shared its original's block; opening the editor from Easy Mode with the
+    visitor's own photograph solved the style on the template's photograph;
+    Fresh start and a History re-download kept or lost the theme the styles
+    read; the scene palette read the zoomed canvas width. All fixed: moves are
+    recorded as moves, blocks refit before every draw, copies get a block of
+    their own, blocks are not layers of their own, the selection is dropped
+    first, Enhance runs inside the style as one history step, and the style is
+    solved again when the visitor's photograph lands. Switching through every
+    style and back restores the designed card exactly (four templates).
+
+Not verifiable from a cloud session: what is live. Its network policy denies
+*.netlify.app, and the Netlify connector attached there sees a different
+project (buybackad-finished-copy). OPEN-ITEMS §Q.
+
+## 2026-09-28 — tall formats: centred, then grown, and the call made from the photograph
+
+The owner asked for the 3:4 content to be centred (a phone standing on the band
+had joined the steps to the band, pinning all of it to the bottom), then for
+the 9:16 to fill its blank space by growing the steps and layering the phone
+over them, and for five examples of the right call. The rule became a
+decision the engine takes from the photograph: grow into plain rows, fit into
+them, or stay centred where the photograph is subject all the way down
+(DESIGN-LAW 77). Two of the first six calls were wrong — "keep centred" on
+photographs whose subject ended mid-card, which left the plain run empty and
+set the steps on the subject — and the fix was a third outcome, fit. The audit
+caught two engine faults on the way: the full-canvas scrim taken for the CTA
+band, and a deliberately layered phone "rescued" by the product-clearance pass.
 
 ## 2026-09-28 — The classics under the gate
 
@@ -686,8 +1162,8 @@ Changed:
     (darken_grounds --lighten, naturalize_classics); the studio's own shade
     is bands from the scene after the layout (pgShadeBands, pgShadeFit,
     ezShadeRect, advShade); ASSET_REV 20260928a.
-  - DESIGN-LAW rule 66 (the shade stands where the copy stands), rule 62
-    pointer; AGENT-BRIEF; OPEN-ITEMS §L.
+  - DESIGN-LAW rule 87 (the shade stands where the copy stands), rule 62
+    pointer; AGENT-BRIEF; OPEN-ITEMS §R.
 
 Rejected:
   - A floor of shade between the bands (a faint veil "for cohesion"): it is
@@ -696,7 +1172,489 @@ Rejected:
     rectangles reads as plates that are not there; a horizontal band reads
     as light falling on the picture.
 
+## 2026-09-29 — thirty-six patterns, sixteen aesthetic gradients, one sheet
+
+The owner asked for as many patterns as we could make, sized up and down and
+slid around in the editor, and for aesthetic colours (a holographic WE BUY
+IPHONES). The Easy Mode tagline panel now has one Pattern look with 36
+seamless tiles in five families (geometric, themed, material, animal, street),
+a size slider (25-300%), two slide sliders, and a drag on the preview itself.
+Sixteen gradients join the presets: holographic, iridescent, opal, vaporwave,
+Y2K chrome, oil slick, prism and the rest.
+
+What the checks found on the way:
+- The old stripes tile was solid ink: its stripes were exactly as wide as
+  their spacing. Nobody saw it because the panel check only asked whether the
+  preview changed.
+- Strokes ended at the tile edge left notches at every seam (chevron, zigzag,
+  waves, argyle); lines now run past the tile or are drawn wrapped, and a seam
+  metric (the step across the edge against the largest step inside) checks all 36.
+- A tile drawn at the design's density is soft in a 2160px download. Tiles
+  are now drawn at the render's own density and scaled into the line.
+- Per-line tiles made the money signs jump between lines. One sheet per card,
+  anchored to the card, and plate air re-anchors any line it moves.
+- A full preview takes about a second, too slow to drag. The drag slides the
+  sheet on the scene it built once, and its last frame is pixel-identical to
+  the full render it settles to (the panel check drags a real pointer).
+- The gradient look painted the badge and left the CTA cyan, breaking rule 74.
+  Plates of one colour now take one treatment (DESIGN-LAW 74). Street's dark
+  pill had hidden the badge's bolt, which is all stroke.
+- The first dialog a new visitor sees (service area) caught the test's pointer.
+  The check now proves the pointer lands on the preview before it drags.
+
+## 2026-09-29 — the owner's fonts, the phone picker, and a picker that hid itself
+
+More fonts: the owner reviewed 151 faces on 2026-09-01 and approved 56, all
+already in assets/fonts, yet Easy Mode fetched most faces from Google. faces.css
+now declares every approved face (scripts/fetch_fonts.mjs reads the approved
+list), the picker lists them by role, and FONT_PAIRS pairs them by voice
+(street, bold, stadium, sport, tech, block, arcade, squad, comic, marker,
+retro, pop, luxe, modern, warp, stencil). The sheet check found a real bug:
+the loader asked only for weight 400, so a 700 headline in a static family
+(Oswald, Teko, Manrope…) painted in the fallback and fabric kept those widths.
+Every weight now loads. Nanum Pen Script has no middle dot (LA · OC · IE).
+
+The phone picker: the popular models first (18 Pro Max, 18 Pro, 17 Pro Max,
+17 Pro, 17 Air, 17, 16 Pro Max, 16 Pro), Surprise me, the rest of the shop's
+factory catalog by series, As designed. Two faults, both caught before
+shipping:
+- A narrow single-back photo left 95px between itself and the steps, more
+  than blockRemap's joining gap, so in 3:4 and 9:16 the phone was stacked
+  above the steps as its own block. Side by side is now one row.
+- My first version reused the page's existing id ez-device-field and the
+  function name ezDeviceSync, which belong to the "Your device" select (re-set
+  a card to iPad, Watch…). The later declaration silently replaced the old
+  one, and the check passed because it read the other element. A screenshot
+  showed it. The picker has its own names now; the check asserts the field is
+  laid out on screen and unique, and the old select was re-verified
+  (glassCard-nn01-20 re-set to All iPads).
+The ip-gen17-plateau-black crop is a square camera bump (16 Pro design), not
+the 17 Pro plateau: marked not authentic.
+
+## 2026-09-29 — Emoji beside the words
+
+Owner: "use emojis as attention grabbing assets in extra spaces (not
+overlapping.. and not all need it), relevant emojis or general purpose emojis
+like cash or arrows."
+
+Learned:
+  - The earlier removal was about system-font emoji: a different drawing per
+    device and a blank box in some exports. One art set as pictures (Fluent
+    3D, MIT, 48 in one 195 KB sheet) is the same everywhere.
+  - Every card's website is iphones.LA, so reading the topic off all the
+    words named every card a phone card. The headline decides; the website
+    and the number never do.
+  - An emoji in the nearest empty square floats: it reads as clutter away
+    from the words and covers the photograph. Beside a line, centred on its
+    caps, it reads as part of the message.
+  - Two emoji flanking one line look busy; one per row.
+  - Number plates are wide, so a hand beside them rarely fits; above either
+    end of the plate, pointing down, usually does.
+  - A Pro card opened signed-out lands on the plans page and the free
+    default; a test of a library card in Easy Mode has to use a free card.
+  - Ranking lines by their object's font size put the emoji beside a small
+    "WE BUY" in a two-line headline; each line ranks by its own height.
+  - A wall of ghosted products at 16% opacity counted as occupied and pushed
+    the emoji off the big product word; a picture under 0.3 is texture, as
+    the gate already treated it.
+
+Changed:
+  - pgEmojiPass after alignPass (wrapped); pgEmojiCheck in pgCheck
+    (wrapped), explained in the gate's words; Easy Mode's Emoji row (Auto,
+    Shuffle, None); the editor's picker shows the sheet and addEmoji places
+    pictures; the harness waits for the sheet; 399 thumbnails re-rendered.
+  - DESIGN-LAW rule 88, a pointer on rule 29; AGENT-BRIEF; OPEN-ITEMS §A 1.
+
+Rejected:
+  - System-font emoji (see above); an Apple emoji set (not licensed for
+    this); emoji on every card (the owner: "not all need it").
+
+---
+
+## 2026-09-29 — Three lines made one: the trunk, the live branch and the one engine
+
+The owner: "ok work around pusha aqnd commit" (after the live site could not
+be seen from the cloud session, and the Netlify connector saw only the
+finished-copy project).
+
+Found:
+  - What was live was none of the three lines on its own. The connector showed
+    production on buybackad-finished-copy as claude/fervent-pascal-w6mthe
+    (26037de: the gate, the bands shade, emoji accents), deployed by another
+    session at 01:37. The trunk had nine commits past this branch's last merge,
+    among them the tagline looks v2 and their panel: this branch's six-style
+    row was a first draft of a feature the trunk had since rebuilt. Deploying
+    any one line would have taken the other two off the site.
+  - The trunk's looks v2 kept v1's lightness bug (a white line at 0.88 on a
+    mid-grey photograph, a red line on a dark panel made darker), and its
+    newer looks failed the critic on the 82 audited templates: a premade
+    gradient on 5, glow on 15, the red and blue print on 3.
+  - The live branch's gate read a glow's halo, the red and blue offsets and a
+    3-D depth as words touching their line: every effect look would have
+    failed it. Colour blocks took an emoji accent for a product and gave way on
+    every card that had one. The emoji are placed in alignPass, before a look
+    could move a line.
+  - The trunk's phone picker offered ten phones (iPhone 11, 12, XR, XS) that
+    are not in the owner's approval list: the list was enforced where cards are
+    built and audited, and the picker chooses a picture at run time.
+  - photo_subjects.py was not reproducible (k-means from random centres): a
+    run with no photograph changed rewrote 65 maps.
+  - Rule numbers collided three ways (the trunk's 64-78, this branch's 68-73,
+    the live branch's 64-67), OPEN-ITEMS letters two ways.
+
+Changed:
+  - Merged the trunk, then the live branch (merge commits, nobody's history
+    rewritten). The card records both sides touched (281) merged field by field:
+    words and pictures here, colours, shade and grounds there, no field changed
+    by both; the index and number-fix.json per entry; the two owner-approved
+    Steps Flow cards kept as approved; the trunk's faces (a superset).
+  - One tagline engine: the trunk's looks, gradients, patterns, effects, panel
+    and card looks, through one entry point (taglineApply) on every surface,
+    with this branch's reset records, ground-aware solving, fitted blocks, the
+    editor row (now all twelve looks) and a look's layers that follow their
+    line in the editor and survive undo. DESIGN-LAW 83, amended.
+  - Every look solved on the card: a preset moves its stops together where
+    they do not read; glow and the red and blue print choose their strength by
+    the critic at half size, first to read at 3.5:1.
+  - The gate measures a look's layers with their line; blocks ignore emoji; the
+    emoji are placed again after the look; the editor finishes a card as Easy
+    Mode does (number fill, claim shade) before the look.
+  - The phone picker asks the owner's approval list and the flags (61 phones in
+    its pool, 51 after), and a saved pick of a refused phone is not drawn.
+  - photo_subjects.py seeds its k-means; 315 photographs mapped.
+  - Rules renumbered (this branch's 79-84, the live branch's 85-88) with every
+    reference in the lines each side wrote; AGENT-BRIEF landmine 7.
+
+Measured (the merged build, before the push):
+  - Tagline looks: all twelve on the 81 audited templates, the picture and
+    the video's frames, 81/81 each by the critic (blocks: 6 gave way to the
+    outline where a block would have covered a product).
+  - The owner-approved Steps Flow cards: stepsFlow-nn05-30 212/212 and
+    stepsFlow-nn01-30 210/210 (audit_card), and the approved 9:16 matches the
+    owner's render (0.00% of pixels moved).
+  - Showcase: 971 records measured by the gate; 418 live and none of them
+    failing it. The 125 that fail are held back (a headline too small as a
+    thumbnail 93, legibility 18, the number off its plate 19); content audit
+    CLEAN 422, retired 284. Every thumbnail re-rendered (ASSET_REV 20260929u).
+  - Classics: all 404 measured whole (?noholds=1), 347 pass; 57 held back,
+    in classics-gate.json and template-holds.js alike (the live branch held
+    16, by a measure taken before the faces and photographs loaded).
+  - Template audit: offer 161/161, street 22/40, designer 70/153, hand 8/50.
+    Subject audit: of 438 templates with a product on a photograph, 3 offer
+    cards still cover the photograph's subject (of_laptop_row_midnight,
+    of_strips_split_bone, of_camera_row_sand: OPEN-ITEMS §S).
+  - Static: CSS_FALLBACK in sync, CSP hashes unchanged, every script and JSON
+    file parses, every record's pictures resolve (971 of 971, 0 missing).
+
+Rejected:
+  - Deploying this branch alone, or the trunk and this branch without the live
+    branch: either would have rolled the site back.
+  - Picking one of the two tagline engines: the trunk's had the looks and the
+    owner's panel, this branch's had what made six styles hold on every
+    family; each alone lost something.
+  - A dark glow round a white core on a mid ground (it read worse, 2.0 to
+    2.9:1), and guessing an effect's parameters from the mean ground: chosen
+    by measuring instead.
+  - Merging the colour-theme session (claude/eloquent-euler-7jvzfd): minutes
+    old and mid-work. Re-running curate_showcase: it re-picks the owner's cut.
+
+## 2026-09-29 — the variant board: what 150 pilot cards taught the engine
+
+The first pilot passed 2 of 30. The audit was right each time, and most of the
+failures were engine bugs that the approved card had never exercised:
+- **An outline moved the letters.** fabric grows a stroked text's box and keeps
+  its top-left, so every outline look shifted the claim half a stroke down and
+  right (8px on a 196px line), and every effect copy (glow halo, red and blue,
+  3-D depth) sat half a stroke off its letters. Strokes now keep the centre;
+  copies are placed by their line's centre. This was live in the Easy Mode
+  panel.
+- **An outlined band grew on every pass.** fitInsideGuides re-attached a
+  full-bleed band from its bounding box, which counts the stroke.
+- **A numeral was judged by its box.** Oswald's "2" box hung 5px under its
+  plate and section 4c moved it; on letter-laid cards numerals are now judged
+  by their letters.
+- **An inset CTA card was snugged to the number's box** and grew 30px into the
+  steps, lifting the phone; the composer's CTA plate is left alone.
+- **The claim merged with the steps** in 3:4 and 9:16 when an outline or a 3-D
+  depth brought it within the joining gap; the claim is its own block, and the
+  tall-format passes know the look that will paint it.
+- **The video clipped a slanted face.** Bangers draws its last letter past its
+  advance box; the video's layer crops now keep a quarter em for text.
+- **Street's number** was re-centred by numberFill before its outline was drawn
+  and left the guides; numberFill now allows for the pending outline.
+- **A fixed "deep" accent** read 1.1:1 on a mauve ground; the second line's
+  colour on a light ground is solved against the darker fifth of the ground.
+Planning mistakes, caught by the numbers: the planner counted rejected
+attempts toward coverage (claims came out 64 to 145), and planned faces that
+could not set a claim or a number at the rules' sizes. The planner now
+measures every face first and counts only what it keeps.
+Then a look at the cards themselves, before the full run was a quarter done,
+found what no check measured yet: the Comic and Marker voices set "iPHONE" as
+"IPHONE" (Bangers and Permanent Marker have no lowercase), Squada One set "#1"
+as "#I", and the camo pattern dissolved into every dark ground while its light
+patches passed the contrast measure. The run was stopped and re-planned: the
+glyphs are measured (`faceGlyphs`), the audit fails a claim its face cannot
+spell, Comic and Marker moved to Knewave and Sedgwick Ave Display, camo and
+the open-MacBook ground left the board. Lesson: the audit is the floor, not
+the review. Contact sheets of the first cards, looked at as the owner would,
+catch what the rules have not yet named, and they are cheapest before the run.
+The same sheets showed a black claim on a bright mosaic that the contrast check
+passed (its upper quartile sat on the light tiles). A luminance-only floor on
+the letters' fill failed it, and also failed the owner's own pink "iPHONES" on
+grey phones, which reads plainly by its colour. Measured both ways on real
+cards, the difference is a pixel that neither lightness nor colour separates:
+the mosaic lost 26% of its letters, every other card 3% at most, the pink none.
+The gate is on that, not on a threshold picked from one bad card.
+The first audits then showed 3:4 and 9:16 rows off by 2 and 4px on cards the
+composer had centred to the pixel. Traced pass by pass, no pass moved them: the
+tall formats scale the list 1.45x, and a label's drawn top sat 0.7px under its
+metric top in the square and 1.6px under it scaled. The approved card had the
+same drift and passed only because it started a pixel the other way. The rows
+are now re-centred by their drawn letters after the list grows; the approved
+9:16 still matches the owner's render (0.04% of pixels moved).
+The first version of that fix re-centred row 1 only. It chose each plate's
+words by visibility after the first measurement, and measuring draws one object
+alone, so plates 2 and 3 found no words and were skipped. The probe that
+"proved" the fix printed row 1 alone. Lesson: a check of a fix covers every
+instance the fix claims (all three rows, both tall formats), not the first.
+Stopping audit shards mid-batch to restart them left 83 audits that judged
+nothing: the browser died first, and the audit wrote a "detached frame" record
+for every card left in its batch within a second. Counted as failures, they
+would have dropped good cards from the board. The board's audit now runs a
+crashed audit once more in a fresh browser, and collect reports crashes apart
+from designs that failed.
+The board as published: 900 planned, 900 audited in every view, 582 passed at
+100%; 13 were left out in the owner's-eye review (a MacBook lid whose Apple
+logo sat behind the step words, a stencil claim lost in banknote printing); 500
+kept, 35-36 per voice where the voice passed that many (Retro 23, Arcade 21,
+Warp 32 and Tech 32 gave all they passed), 7 claims, 11 badges, 16 factory
+phone photos led by the 17 and 18 Pro Max, 43 looks, 40 grounds, 14 type pairs.
+
+## 2026-09-29 (later) — The theme, background and effects controls do what they show
+
+Owner, with two screenshots of Easy Mode (the Reef lower third, Indigo Trade
+picked, the green background swatch on): "make sure we build all features to
+be completely relevant or at least make them work to redesign the theme."
+
+Studied:
+  What each control under "Suggested color themes", "Background" and
+  "Effects" actually does to the scene it draws, card by card, through the
+  real UI. Which branch the owner is looking at: the Netlify connector's
+  deploy record names `claude/fervent-pascal-w6mthe` (47ec573a, then 26037de3
+  an hour later) as production for buybackad-finished-copy; `main` was a
+  month behind and the trunk and vibrant-hawking had diverged from it.
+
+Measured (scripts/ez_theme_audit.mjs, new; one live card per layout, four
+classics, the screenshot card; every theme; grounds with no theme and under a
+light and a dark theme; blur; overlays; patterns; ORIG; the chip; the
+swatches):
+  live build (26037de3): 1148 problems. Every plate that carries words kept
+    its old colour under every theme (420 of 420 pairs), 378 pairs left the
+    card's own accent beside the theme's, 32 changed under 1% of the picture;
+    176 pairs and the grounds 125 more took lines under the gate or 3:1; blur
+    did nothing over a flat colour (20 cards) or on 4 photographs; Shade was
+    a white veil failing Sell Your iPhone's headlines; no ORIG; the chip
+    disagreed after a template switch; the swatches ignored the theme.
+    This branch: no problems over the same 20 cards and 21 themes, no page
+    errors. The first full run here read 16. Some were the audit's own: it
+    leaked the previous card's saved draft (Shade on) through localStorage,
+    and it measured a classic before its photograph had arrived. The rest
+    were real: Shade's white veil, and lines under 3:1 on the magenta and
+    amber swatches. The next run read 2, both on grounds picked with no theme
+    (a see-through panel, a light outline); then none.
+
+Changed:
+  - themeScene() (appended to app.js, "A THEME OWNS THE CARD'S COLOUR"): plates,
+    marks and lines repainted by the job their colour had in the card's
+    palette, every line solved on its own pixels; runs after the layout in
+    renderEzCanvas and in the editor hand-off. Built on pgRgb, pgLum, pgCr and
+    pgPlateUnder (rule 87).
+  - applyColorTheme no longer writes per-line colours into ez.styles (it takes
+    back any line colour on a theme or ORIG pick); ORIG chip; the theme
+    persists (state, history, projects), follows the visitor across cards,
+    and its chip is kept in step (syncEzThemes); ezThemeGround keeps rule 86's
+    photo-led / product-led ground and redraws a drawn ground in the theme.
+  - The selling points' ✎ style reaches a card's own badge list (Easy Mode and
+    the editor hand-off).
+  - Blur adds to the photograph's own (ezBlurOn), is switched off with its
+    reason over a flat colour or the placeholder (ezSyncFx), and reaches the
+    editor for a template or drawn ground.
+  - ORIG lit only when the photograph is really drawn; the Layers row shows
+    the photo that loaded (ezBgThumbSrc; OPEN-ITEMS §J 8) and names a
+    theme's ground; openShowcase refreshes it.
+  - The overlay's tone: ezOverlayPre from the ground before the copy is
+    solved, ezOverlayFit from the lines on the photograph after. It used to
+    come from ezInkLight over the template's record, and Shade was white over
+    Sell Your iPhone's dark photograph. In the editor it sits above the ground.
+  - The six quick swatches follow the theme: ezPresetSpecs, drawn by
+    ezSyncPresets. A pick follows the next theme and leaves with ORIG (a
+    slot tag, ezThemeGround). The lit swatch is found by value (ezSameGround).
+  - The copy follows a flat or drawn ground the visitor picks with no theme
+    on (ezCopyFollowsGround): lightness only; lines on plates and ✎ colours
+    are left alone; a see-through panel thickens until its copy reads;
+    see-through backings are dropped.
+  - A line's ring follows its ink (thRingFit), in the theme and in that
+    pass; with no photograph under it, a ring of the ink's own tone goes, as
+    on a plate. A theme's see-through backing is neutral. A line whose side
+    cannot reach 3:1 goes whichever way reads.
+  - The audit:
+    - a fresh browser context per card; the previous card's draft in
+      localStorage had Shade on before a card's own no-overlay base, and
+      Shade then "changed nothing" on it;
+    - each card's own photograph is awaited;
+    - patterns and their tone are measured at full size;
+    - no overlay may take a critical line under the gate;
+    - the grounds run with no theme as well;
+    - the six swatches must follow the theme.
+  - DESIGN-LAW rule 90; AGENT-BRIEF landmine 6 (the live branch is not always
+    the newest); OPEN-ITEMS §T.
+
+Rejected:
+  - Leaving rule 51 as it was and only lifting its skip: the line on a plate
+    would have taken the theme's colour for the theme's ground while its plate
+    kept the card's old colour (cyan on magenta, the screenshot).
+  - Rule 52's luminance-locked re-hue for everything: it keeps every contrast
+    by construction but cannot turn a dark card light, so a cream theme drew
+    dark brown panels. Kept only for marks in the card's ground colour.
+  - A tint of the theme's hue over the photograph (rule 56; the owner's "ugly
+    hideous overlaid colors"), and replacing every photograph with the theme's
+    gradient (rule 86 keeps a photo-led card's photograph).
+  - The worst tenth of the ground as the measure of a line: a spec list that
+    half crosses a paper band came out #6f6f6f. Three quarters of the ground.
+  - A backdrop of the ground plus word plates only: it left out the smoke panel
+    a line merely crosses and solved that line against bare photograph.
+  - Fitting the theme's swatches only to 6:1, as "More grounds" does: under
+    dark ink the support colour came out mid-tone (0.35), and a headline that
+    crosses the smoke panel read 2.3:1 either way. They sit on the theme's own
+    side, well clear of the ink.
+  - Turning a chip's see-through backing to paper on a flat ground: the chips
+    still read 1.7:1 on the orange swatch. The backing only calms a
+    photograph, so on a flat colour it goes.
+  - Deciding the overlay's tone only after the copy: the theme had already
+    solved the lines against a dark provisional shade.
+  - Reunifying the three heads in this session (conflicts in app.js, the
+    DESIGN-LAW numbering and binary showcase assets): the owner's call.
+
+RESUME HERE:
+  Bring the branches together: this branch is claude/fervent-pascal-w6mthe
+  (with its emoji accents, 26037de3) plus the theme work. On the trunk the
+  tagline styles run after the layout too (ezApplyTagline reads the scene's
+  palette): themeScene must run BEFORE it, so a tagline look takes the
+  theme's colours. Then run `node scripts/ez_theme_audit.mjs` (exit 0) and
+  `scripts/verify_showcase.mjs` on the merged build.
+
+## 2026-09-29 (evening) — The variant board and the colour themes on the one engine
+
+The owner: "ok work around pusha aqnd commit". After a2311fe was pushed, the
+trunk (the variant board) and the colour-theme session both kept committing;
+each was merged here twice, as merge commits, nobody's history rewritten.
+
+Found:
+  - The trunk's own panel check failed on the owner-approved card before
+    either merge (it failed at a2311fe too). Colour blocks gave way: held
+    inside the 6% guides, the claim's block slid a whole padding sideways onto
+    its badge. Street's video lost its end card: the look sets the number deep
+    teal to read on its pale band, and the call to action carried it onto the
+    photograph under a dark shade (ctaTurnInk turned a flat dark line light
+    and skipped a gradient).
+  - Three turned claims (the street price-badge and ribbon cards) then gave
+    way at the 2.5% edge line: a turned line's block is wider than its own
+    width, and a block placed exactly on the line came out a hair past it.
+  - numberFill grew a number about its centre, and sized it to a band that
+    runs off the canvas unless the card was a restaged record. In Easy Mode
+    the gate failed 7 of 20 street cards and the offer cards on the number's
+    margin; on of_gold_row_cobalt the number started at x = -40. The classics
+    gate prepares a template the gallery's way (the number at its authored
+    76.5px) and never saw it: every offered template's Easy Mode render
+    through pgCheck is what found it.
+  - The theme audit on an offer card: the dots and grid patterns change under
+    1% of its pixels. The pattern sat under the card's own shade and vignette
+    layers (Easy Mode stacked it over the studio's ground only); over them it
+    still changes 0.5% and 0.8%, since the photograph, copy and bands leave
+    little ground.
+  - A look that took 39 s in the panel check: the template strip painting
+    about 150 thumbnails with their looks in the background while the check
+    waited on a preview that did not change. Not a loop and not a leak: 60
+    renders on one page, the heap flat at 12 MB.
+  - Rule and section numbers collided again: the trunk's new 79, the theme
+    session's 79 and its OPEN-ITEMS §P.
+
+Changed:
+  - Merged the trunk to 71986e6 and the colour-theme session to a040eb1.
+  - A stroke a look puts on or takes off keeps the line's centre (keepGlyphs,
+    from the trunk) in every variant the critic tries, in taglineReset and in
+    the video's last frames; a look's layers are placed by the line's centre.
+  - One order on every surface: the layout, the colour theme (themeScene),
+    then the tagline look, solved on the themed card in the theme's palette
+    (sc.__theme read by tplPalette). A card the editor opens from anywhere else
+    wears its own colours; ORIG gives the look the card's palette back; the
+    visitor's own photograph in the hand-off has the theme and the look solved
+    once it lands; an offer card's photograph stays under a theme.
+  - Blocks: a block's padding may pass the guides (never within 2.5% of the
+    edge, as its fault check already said), it is placed by its outline as it
+    stands on the card, and a claim's blocks move as one (DESIGN-LAW 83).
+  - The video's call to action turns a gradient line light as it does a flat
+    one, and takes a turned line's outline off about its centre.
+  - Every card's number is sized inside the guides (a restaged record by its
+    letters, any other by its box, as the gate measures), keeps the edge it
+    was set on unless it was centred, and keeps its letters inside the guides
+    (DESIGN-LAW 74).
+  - A pattern and an overlay go over a card's whole ground, the template's
+    own shade and vignette layers included (ezGroundStack), in Easy Mode and
+    the editor.
+  - Numbering: the trunk's 79 is 89 here, the theme session's 79 is 90 and its
+    §P is §T; the references in each side's own lines follow.
+
+Measured (the merged build, before the push):
+  - Tagline looks: all twelve on the 81 audited templates, the picture and
+    the video's frames, 81/81 each; blocks give way on 4, each over its
+    product (6 before these merges, 8 on the way).
+  - The trunk's tagline_panel_check passes (12 looks, 33 presets, 36
+    patterns, the drag, the video's call to action on six looks, no CSP
+    report), and so does the phone picker check.
+  - The owner-approved Steps Flow cards pass the trunk's audit_card at 100%
+    (224/224, 222/222: the claim spelled as written, the letters themselves
+    readable), and the 9:16 is within 0.04% of the owner's render.
+  - The colour themes: on the theme audit's sample and the owner-approved
+    card, 0 unthemed plates, 0 leftovers, 0 regressions; on one offer card
+    two sparse patterns change under 1% of its pixels (OPEN-ITEMS §S 11). A
+    theme picked in Easy Mode colours the look there and in the editor, ORIG
+    gives the card's palette back, and an offer card keeps its photograph.
+  - Easy Mode through the gate (scripts/ez_gate_sweep.mjs): 261 offered
+    templates, no number off its guides; 2 fail legibility there, as they did
+    without the number fill (§S 10).
+  - Showcase: 971 records through the gate, 418 live and none failing it, the
+    same 418 as before; every thumbnail re-rendered (ASSET_REV 20260929v);
+    content audit CLEAN 422; the school 713 pass, 258 held back.
+  - Classics: 404 measured whole, 347 pass, 57 held back; the template audit
+    holds 143 of 404 (both unchanged).
+  - Static: CSS_FALLBACK in sync, CSP hashes unchanged, every script and JSON
+    file parses, every record's pictures resolve (971 of 971).
+
+Rejected:
+  - Changing the trunk's panel check to accept a look that gave way on the
+    approved card: the engine was wrong, not the check.
+  - Loosening the theme audit's 1% bar for cards with little open ground: the
+    owner's call (OPEN-ITEMS §S 11).
+  - Deploying: this container still cannot reach Netlify (the environment's
+    network policy denies api.netlify.com, app.netlify.com, *.netlify.app).
+
+RESUME HERE:
+  Deploy from a machine that can reach Netlify: the three lines are one on
+  claude/vibrant-hawking-htxrvn, and production (buybackad-finished-copy)
+  serves 26037de, an ancestor of it. Draft first, look, then --prod. The other
+  two sessions must merge this branch before their next deploy. Then
+  OPEN-ITEMS §S: the held classics (0), the number fill and the badges over
+  deco (2, 3), badge words (4), one table for holds (5), the three offer cards
+  on their subject (8), one palette reader (9), one path for the gate and Easy
+  Mode (10), sparse patterns (11).
+
+---
+
 ## 2026-09-29 — iOS emoji or none; copy under a shape
+
+(Written on claude/fervent-pascal-w6mthe, the branch production served;
+merged into the unified line 2026-09-30. Rule numbers are the unified ones.)
 
 Owner: "EMOJIS ONLY IOS STYLE REMOVE AND DELETE ALL !", "AND DON'T OVER USE
 ONLY FOR SOME", and of Rush Hour in Easy Mode: "this sucks sorry".
@@ -729,7 +1687,7 @@ Changed:
   - fitInsideGuides keeps a rotated band's thickness; stackBulletRuns leaves a
     line on a band or a pill; pgCoverCheck ('ghost' any role, 'covered');
     pgUncover after the layout.
-  - DESIGN-LAW rules 67 and 68.
+  - DESIGN-LAW rules 88 and 68.
 
 Rejected:
   - Apple emoji images from a package (Apple's artwork, not licensed).
@@ -760,7 +1718,7 @@ Changed:
     word-carrying plates. pgStraddleCheck in the gate ('straddle', 'collide'),
     per-line bodies everywhere (pgLineBodies, pgTextLineBoxes fitted to the
     box). stackBulletRuns skips dl_ layouts. pgDarkGlow. pgHairlineHeads.
-  - DESIGN-LAW rule 68 widened, rule 69.
+  - DESIGN-LAW rule 91 widened, rule 92.
 
 Left:
   - Supporting lines of 19 to 24px (a tenth of all lines) read small on a

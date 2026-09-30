@@ -110,7 +110,20 @@ owner present, and leave the old copies alone until they confirm.
 Deploys have appeared minutes apart from separate sessions. Before concluding
 something is broken, check `git log` and the Netlify deploy list.
 
-### 6. `main` is not the newest code, so check before you build
+### 6. Start from `main`, and put your work back on it
+
+**Since 2026-09-30 `main` is the whole product.** The owner: "Audit and push
+all to main site, unify the sites or branches." Every line of work was merged
+into one (the trunk, the one-engine work, the colour themes, the video maker,
+and the live branch production served, with its iOS-only emoji) and `main`
+was moved to it. Start a session from `main`; when your work is done, merge
+`main` in again (another session may have moved it), run the checks, and put
+the result back on `main`. A branch that is not on `main` is not the product.
+Two August branches were left unmerged on purpose (OPEN-ITEMS §J, §U):
+`claude/busy-allen-2d5iv1` and `claude/quirky-ritchie-f0zuc8`; port from
+them, never merge them.
+
+History, and why this matters:
 
 On 2026-09-26 `main` was a month behind: the product had moved on across a
 dozen branches (the violet landing, the palettes, `/motion`, the iPhones LA
@@ -131,6 +144,37 @@ If `main` is behind the newest integration branch, start from that branch and
 say so. Screenshot the landing before you touch it: the violet Template Lab page
 is current; a warm orange one is August.
 
+**The newest branch is not always what is live either.** On 2026-09-29 three
+heads had diverged (`claude/vibrant-lovelace-rze4rx`, the trunk;
+`claude/vibrant-hawking-htxrvn`; `claude/fervent-pascal-w6mthe`), and the
+Netlify project the connector sees, `buybackad-finished-copy`, was serving
+production from `claude/fervent-pascal-w6mthe` (deploy `6abb0be6`, commit
+`47ec573a`). Ask the deploy which branch it built (`get-deploy-for-site`
+through the Netlify connector names `branch` and `commit_ref`) and build what
+the owner is looking at; say which branch you started from, and which heads
+you did not merge.
+
+### 7. A deploy must contain what is live, or it rolls someone back
+
+Sessions deploy the Netlify project straight from their own branches, and on
+2026-09-29 three lines were live or about to be: the trunk
+(`claude/vibrant-lovelace-rze4rx`), the branch production served
+(`claude/fervent-pascal-w6mthe`) and the one-engine work
+(`claude/vibrant-hawking-htxrvn`), each missing the others' last day. A deploy
+from any one of them would have taken the other two's work off the site.
+
+Before a production deploy, read the current production deploy's commit
+(the Netlify deploy list, or the connector's get-deploy) and check it is an
+ancestor of what you are about to deploy:
+
+```bash
+git merge-base --is-ancestor <live commit> HEAD && echo "contains what is live"
+```
+
+If it is not, merge that branch first (merge, never rebase another session's
+work), run the checks, then deploy. Merge the newest branches' finished work
+the same way before you build on top of it.
+
 ### 5. Internal docs are blocked from the public site
 
 `docs/`, `scripts/` and `DESIGN-LAW.md` are 404'd at the edge in
@@ -139,8 +183,21 @@ rulebook is not product. If you add another internal folder, block it too.
 
 ## Deploying
 
+**Deploy `main`, and only `main`.** Two Netlify projects serve this app:
+`buybackad-graphics-studio` (the URL in these docs, deployed from the owner's
+Mac with the CLI) and `buybackad-finished-copy` (the only one the owner's
+Netlify connector sees, in the `myleskcb2` team, deployed by sessions). Until
+2026-09-30 each was deployed from whatever branch a session stood on, so the
+two showed different products. Deploy the same `main` commit to both, or
+retire one; the lasting fix is to link one project to this repository's
+`main` in Netlify (Project configuration, Build & deploy, Link repository;
+publish directory `.`) so that every push to `main` deploys and nobody deploys
+by hand. The cloud sessions cannot reach Netlify (their network policy denies
+`*.netlify.app` and `api.netlify.com`).
+
 ```bash
 cd ~/Downloads/gfxv23
+git fetch origin && git checkout main && git pull   # deploy main, nothing else
 netlify status              # confirm the link
 netlify deploy --dir=.      # DRAFT first, always
 # open the draft URL and confirm it renders
@@ -149,6 +206,12 @@ netlify deploy --prod --dir=.
 
 Draft-deploy and *look* before `--prod`. Given landmine 2, the preview render is
 the only real check.
+
+To click through a branch on your own machine first: `python3 -m http.server
+8899` in the repo, then open `http://localhost:8899/?demo=1`. A local copy has
+no backend, so `?demo=1` (localhost only, remembered until `?demo=0`) runs the
+config.js demo mode: sign up with any email and take Pro through the simulated
+checkout to see every template.
 
 Verify after promoting:
 
@@ -206,7 +269,7 @@ Append to `docs/LEARNING-LOG.md` at the end of every session, including a
 ## The gate (2026-09-27): every generation is measured before it is produced
 
 Owner: "every generation has a self audit process and a check before they're
-produced." DESIGN-LAW rule 66. In practice:
+produced." DESIGN-LAW rule 87. In practice:
 
 - **One measure:** `pgCheck(scene)` in app.js. Contrast per line (core and
   worst letter), the number's size and placement, the headline in a tile, the
@@ -218,21 +281,31 @@ produced." DESIGN-LAW rule 66. In practice:
   order. It shades a failing ground (neutral, in the direction the lines
   need) and otherwise names the problem in a modal. Do not add an export
   path that bypasses it.
-- **Emoji** (rule 67, 2026-09-29): iOS style or none. `pgEmojiPass` places
+- **Emoji** (rule 88, 2026-09-29): iOS style or none. `pgEmojiPass` places
   one device-font emoji on about three in ten cards, only when
   `PG_IOS_EMOJI` (an Apple device; `?emoji=ios` forces it for tests). Never
   ship emoji artwork files, never place a non-Apple emoji.
-- **Copy under a shape** (rule 68): the gate fails an invisible line of any
+- **Copy under a shape** (rule 91): the gate fails an invisible line of any
   role and a line with a solid shape over its letters; `pgUncover` moves
   such copy clear after the layout. A rotated rect is never rebuilt from its
   bounding box.
-- **The shade is bands** (rule 66, 2026-09-28): `scrimMode: 'bands:a-b,c-d'`
+- **The shade is bands** (rule 87, 2026-09-28): `scrimMode: 'bands:a-b,c-d'`
   shades only the bands of the height that hold copy on the photograph.
   `scrimRect` draws it (`scrimBands` parses it); `naturalGround` solves it
   with modes `['bands', 'gradient', 'normal']`; the studio derives its own
   from the scene (`pgShadeBands`). Never write a whole-card veil where a
   bands shade would hold the lines, and never treat a bands mode as
   'gradient' (normaliseBackdrop keeps it).
+- **Easy Mode's themes, grounds and effects** (rule 90, 2026-09-29): after
+  the layout, `themeScene` repaints plates, marks and lines. With no theme,
+  `ezCopyFollowsGround` answers for a flat ground the visitor picks. The
+  overlay's tone is set by `ezOverlayPre`, then `ezOverlayFit`. Before a
+  commit that touches any of them, or the Easy Mode controls, run
+  `node scripts/ez_theme_audit.mjs`. It exits 1 on any problem and takes
+  about 70 minutes for its 20-card sample (`--quick` runs a quarter).
+  Measure each card in a fresh browser context: the studio keeps the
+  visitor's draft in localStorage, and a shared context leaks it into the
+  next card.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the
@@ -246,7 +319,7 @@ produced." DESIGN-LAW rule 66. In practice:
   `node scripts/verify_showcase.mjs --write` (exit 1 on any failure; it
   stamps legib / num / numInk / gate / blur / ground on the index). Then
   `rethumb_showcase.mjs` for the cards that changed, and bump `ASSET_REV`.
-- **The pipeline order** is in OPEN-ITEMS §L. Passes undo each other when
+- **The pipeline order** is in OPEN-ITEMS §R. Passes undo each other when
   run out of order (refresh reads git HEAD; import restores the tone grade;
   naturalize then darken; support_highlights before neutral_panels; content
   audit after overlap; curate last).
