@@ -103,7 +103,7 @@ function familyOf(c1, pal){
   const p = parse(c1) || { r:0, g:0, b:0 }, Y = lumOf(p), C = toOklch(p).C;
   if (pal.neutral || (Y > 0.6 && C < 0.03)) return 'Studio';
   if (Y < 0.08) return 'Deep';
-  if (Y > 0.45) return 'Sorbet';
+  if (Y > 0.45) return 'Pastel';
   return 'Poster';
 }
 
