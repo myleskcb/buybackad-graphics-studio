@@ -417,7 +417,11 @@ export function buildBoard(kind, w, h, s, p, st, r, extra) {
       B.lamps = true;
       break;
     }
-    default: return null;
+    default: {
+      const tb = themeBoard(kind, w, h, s, p, st, r, extra, B);
+      if (!tb) return null;
+      ({ c, ox, oy } = tb);
+    }
   }
   B.c = c; B.ox = ox; B.oy = oy; B.w = w; B.h = h; B.s = s;
   return B;
@@ -1027,6 +1031,263 @@ export function candidateGround(kind, x, st, p, W, H, sc, r) {
       for (let i = 0; i < n; i++) { x.fillStyle = r() < .7 ? `rgba(255,255,255,${r.uniform(.05, .4)})` : rgba(p.accent, r.uniform(.1, .45)); const s = r.uniform(.4, 1.6) * k; x.fillRect(r() * W, r() * H, s, s); }
       const cl = x.createLinearGradient(0, H, W, 0); cl.addColorStop(.35, "rgba(255,255,255,0)"); cl.addColorStop(.47, "rgba(255,255,255,.22)"); cl.addColorStop(.52, "rgba(255,255,255,.05)"); cl.addColorStop(.6, "rgba(255,255,255,0)");
       x.fillStyle = cl; x.fillRect(0, 0, W, H); return true;
+    }
+    default: return false;
+  }
+}
+
+// ------------------------------------------------------------ the themes' signs and grounds
+
+/** The signs the themes add (themes.js THEME_BOARDS). The face of the room for the words
+ *  is w by h at (ox, oy) in the canvas returned; B takes the sign's tilt. */
+export function themeBoard(kind, w, h, s, p, st, r, extra, B) {
+  const m = s * .6, shadow = (x, k = 1) => { x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = s * .28 * k; x.shadowOffsetY = s * .09 * k; };
+  let c, ox = m, oy = m, x;
+  switch (kind) {
+    case "price_tag": {
+      const tip = h * .42; c = canvas(w + m * 2 + tip, h + m * 2); ox = m + tip; x = c.getContext("2d");
+      const card = ["#fff200", "#ffffff", "#ff9e1b", "#b8ff3a"].filter(k => Math.abs(lum(k) - lum(p.ground)) > .12)[0] || "#ffffff";
+      x.save(); shadow(x);
+      x.beginPath(); x.moveTo(ox, oy); x.lineTo(ox + w, oy); x.lineTo(ox + w, oy + h); x.lineTo(ox, oy + h); x.lineTo(ox - tip, oy + h / 2); x.closePath();
+      x.fillStyle = card; x.fill(); x.restore();
+      const hx = ox - tip * .5, hy = oy + h / 2, hr = Math.max(3, s * .12);
+      x.globalCompositeOperation = "destination-out"; x.beginPath(); x.arc(hx, hy, hr, 0, TAU); x.fill(); x.globalCompositeOperation = "source-over";
+      x.strokeStyle = "rgba(0,0,0,.35)"; x.lineWidth = Math.max(1, s * .03); x.beginPath(); x.arc(hx, hy, hr * 1.35, 0, TAU); x.stroke();
+      x.strokeStyle = "#8a6a3c"; x.lineWidth = Math.max(1.5, s * .035); x.beginPath(); x.moveTo(hx, hy - hr); x.quadraticCurveTo(hx - tip * .3, oy - m * .2, m * .2, m * .15); x.stroke();
+      x.strokeStyle = "rgba(0,0,0,.18)"; x.setLineDash([s * .1, s * .08]); x.strokeRect(ox + s * .15, oy + s * .15, w - s * .3, h - s * .3); x.setLineDash([]);
+      B.rot = r.uniform(-4, 4) * Math.PI / 180;
+      break;
+    }
+    case "chalkboard": {
+      const f = s * .34; c = canvas(w + m * 2 + f * 2, h + m * 2 + f * 2); ox = m + f; oy = m + f; x = c.getContext("2d");
+      x.save(); shadow(x); const wg = x.createLinearGradient(0, 0, 0, c.height); wg.addColorStop(0, "#8a5a36"); wg.addColorStop(1, "#5b3a22");
+      x.fillStyle = wg; x.fillRect(ox - f, oy - f, w + f * 2, h + f * 2); x.restore();
+      x.strokeStyle = "rgba(0,0,0,.25)"; x.lineWidth = 1; for (let k = 0; k < 6; k++) { const yy = oy - f + (h + f * 2) * (k + .5) / 6; x.beginPath(); x.moveTo(ox - f, yy); x.lineTo(ox - f * .2, yy + r.uniform(-2, 2)); x.stroke(); }
+      const sg = x.createRadialGradient(ox + w / 2, oy + h / 2, 0, ox + w / 2, oy + h / 2, Math.hypot(w, h) * .7); sg.addColorStop(0, "#2f4a3d"); sg.addColorStop(1, "#1b2d25");
+      x.fillStyle = sg; x.fillRect(ox, oy, w, h);
+      x.save(); x.beginPath(); x.rect(ox, oy, w, h); x.clip();
+      for (let k = 0; k < 14; k++) { x.fillStyle = `rgba(255,255,255,${r.uniform(.02, .06)})`; x.beginPath(); x.ellipse(ox + r() * w, oy + r() * h, w * r.uniform(.1, .3), h * r.uniform(.05, .15), r() * 3, 0, TAU); x.fill(); }
+      x.restore();
+      break;
+    }
+    case "receipt": {
+      const tooth = s * .2; c = canvas(w + m * 2, h + m * 2 + tooth * 2); oy = m + tooth; x = c.getContext("2d");
+      x.save(); shadow(x, .8); x.beginPath(); x.moveTo(ox, oy);
+      for (let xx = ox; xx < ox + w; xx += tooth) { x.lineTo(xx + tooth / 2, oy - tooth); x.lineTo(Math.min(ox + w, xx + tooth), oy); }
+      x.lineTo(ox + w, oy + h);
+      for (let xx = ox + w; xx > ox; xx -= tooth) { x.lineTo(xx - tooth / 2, oy + h + tooth); x.lineTo(Math.max(ox, xx - tooth), oy + h); }
+      x.closePath(); x.fillStyle = "#fbfbf7"; x.fill(); x.restore();
+      x.strokeStyle = "rgba(0,0,0,.14)"; x.setLineDash([s * .06, s * .06]); x.lineWidth = 1;
+      for (const yy of [oy + s * .2, oy + h - s * .2]) { x.beginPath(); x.moveTo(ox + s * .2, yy); x.lineTo(ox + w - s * .2, yy); x.stroke(); }
+      x.setLineDash([]);
+      B.rot = r.uniform(-2.5, 2.5) * Math.PI / 180;
+      break;
+    }
+    case "wanted_poster": {
+      c = canvas(w + m * 2, h + m * 2); x = c.getContext("2d");
+      x.save(); shadow(x); x.fillStyle = "#e9d3a6"; x.fillRect(ox, oy, w, h); x.restore();
+      const eg = x.createRadialGradient(ox + w / 2, oy + h / 2, Math.min(w, h) * .3, ox + w / 2, oy + h / 2, Math.hypot(w, h) * .62);
+      eg.addColorStop(0, "rgba(120,70,20,0)"); eg.addColorStop(1, "rgba(90,45,10,.55)"); x.fillStyle = eg; x.fillRect(ox, oy, w, h);
+      x.save(); x.beginPath(); x.rect(ox, oy, w, h); x.clip();
+      for (let k = 0; k < 20; k++) { x.fillStyle = `rgba(90,50,15,${r.uniform(.03, .08)})`; x.beginPath(); x.arc(ox + r() * w, oy + r() * h, s * r.uniform(.1, .5), 0, TAU); x.fill(); }
+      x.restore();
+      for (const nx of [ox + s * .3, ox + w - s * .3]) { x.fillStyle = "#3b3b3b"; x.beginPath(); x.arc(nx, oy + s * .3, s * .09, 0, TAU); x.fill(); x.fillStyle = "rgba(255,255,255,.45)"; x.beginPath(); x.arc(nx - s * .03, oy + s * .27, s * .03, 0, TAU); x.fill(); }
+      B.rot = r.uniform(-2, 2) * Math.PI / 180;
+      break;
+    }
+    case "sticky_note": {
+      c = canvas(w + m * 2, h + m * 2); x = c.getContext("2d");
+      const note = ["#ffe45c", "#ff9ecf", "#8fe3ff", "#b8ff8a"].filter(k => Math.abs(lum(k) - lum(p.ground)) > .1)[0] || "#ffe45c";
+      x.save(); shadow(x, .7);
+      x.beginPath(); x.moveTo(ox, oy); x.lineTo(ox + w, oy); x.lineTo(ox + w, oy + h - s * .5); x.quadraticCurveTo(ox + w - s * .1, oy + h - s * .1, ox + w - s * .6, oy + h); x.lineTo(ox, oy + h); x.closePath();
+      x.fillStyle = note; x.fill(); x.restore();
+      const cg = x.createLinearGradient(ox + w - s * .6, oy + h - s * .5, ox + w, oy + h); cg.addColorStop(0, "rgba(0,0,0,0)"); cg.addColorStop(1, "rgba(0,0,0,.18)");
+      x.fillStyle = cg; x.fillRect(ox + w - s * .7, oy + h - s * .6, s * .7, s * .6);
+      x.save(); x.translate(ox + w / 2, oy); x.rotate(r.uniform(-.08, .08)); x.fillStyle = "rgba(255,255,255,.55)"; x.fillRect(-s * .7, -s * .18, s * 1.4, s * .36); x.restore();
+      B.rot = r.uniform(-4, 4) * Math.PI / 180;
+      break;
+    }
+    case "speech_bubble": {
+      const tail = s * .7; c = canvas(w + m * 2, h + m * 2 + tail); x = c.getContext("2d");
+      const tx = ox + w * (r() < .5 ? .28 : .72);
+      const path = () => { rrect(x, ox, oy, w, h, Math.min(h * .45, s * .7)); x.moveTo(tx - s * .35, oy + h - 1); x.lineTo(tx + (tx < ox + w / 2 ? -s * .4 : s * .4), oy + h + tail); x.lineTo(tx + s * .35, oy + h - 1); };
+      x.save(); shadow(x, .6); x.beginPath(); path(); x.fillStyle = "#ffffff"; x.fill(); x.restore();
+      x.beginPath(); path(); x.strokeStyle = "#111111"; x.lineWidth = Math.max(2, s * .08); x.lineJoin = "round"; x.stroke();
+      x.fillStyle = "#ffffff"; x.fillRect(tx - s * .31, oy + h - s * .09, s * .62, s * .16);
+      break;
+    }
+    case "ticket_stub": {
+      c = canvas(w + m * 2, h + m * 2); x = c.getContext("2d");
+      const col = lum(p.plate) > .12 ? p.plate : "#e4002b", n = Math.min(h * .22, s * .35);
+      x.save(); shadow(x); x.beginPath(); rrect(x, ox, oy, w, h, s * .12); x.fillStyle = col; x.fill(); x.restore();
+      x.globalCompositeOperation = "destination-out";
+      for (const nx of [ox, ox + w]) { x.beginPath(); x.arc(nx, oy + h / 2, n, 0, TAU); x.fill(); }
+      x.globalCompositeOperation = "source-over";
+      x.strokeStyle = lum(col) > .55 ? "rgba(0,0,0,.35)" : "rgba(255,255,255,.55)"; x.lineWidth = Math.max(1.5, s * .03);
+      x.setLineDash([s * .08, s * .07]); x.strokeRect(ox + s * .18, oy + s * .18, w - s * .36, h - s * .36); x.setLineDash([]);
+      B.rot = r.uniform(-3, 3) * Math.PI / 180;
+      break;
+    }
+    case "led_panel": {
+      c = canvas(w + m * 2, h + m * 2); x = c.getContext("2d");
+      x.save(); shadow(x); rrect(x, ox, oy, w, h, s * .14); x.fillStyle = "#0b0b0d"; x.fill(); x.restore();
+      x.strokeStyle = "#2c2c31"; x.lineWidth = Math.max(2, s * .08); rrect(x, ox, oy, w, h, s * .14); x.stroke();
+      x.save(); rrect(x, ox, oy, w, h, s * .14); x.clip();
+      const d = Math.max(3, s * .085); x.fillStyle = "rgba(255,176,0,.08)";
+      for (let yy = oy + d / 2; yy < oy + h; yy += d) for (let xx = ox + d / 2; xx < ox + w; xx += d) { x.beginPath(); x.arc(xx, yy, d * .28, 0, TAU); x.fill(); }
+      x.restore();
+      break;
+    }
+    case "lightbox": {
+      c = canvas(w + m * 2, h + m * 2); x = c.getContext("2d");
+      x.save(); x.shadowColor = "rgba(255,255,240,.8)"; x.shadowBlur = s * .6; rrect(x, ox, oy, w, h, s * .16); x.fillStyle = "#ffffff"; x.fill(); x.restore();
+      const g = x.createLinearGradient(0, oy, 0, oy + h); g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#eef0f2");
+      rrect(x, ox, oy, w, h, s * .16); x.fillStyle = g; x.fill();
+      x.strokeStyle = "#1c1c1f"; x.lineWidth = Math.max(2, s * .09); rrect(x, ox, oy, w, h, s * .16); x.stroke();
+      break;
+    }
+    case "postcard": {
+      c = canvas(w + m * 2, h + m * 2); x = c.getContext("2d");
+      x.save(); shadow(x); x.fillStyle = "#fffdf6"; x.fillRect(ox, oy, w, h); x.restore();
+      x.strokeStyle = "#1d3557"; x.lineWidth = Math.max(1.5, s * .035); x.strokeRect(ox + s * .14, oy + s * .14, w - s * .28, h - s * .28);
+      const sw = s * .75, sh = s * .9, sx = ox + w - sw * .55, sy = oy - sh * .45;         // the stamp hangs off the corner, clear of the words
+      x.save(); x.translate(sx + sw / 2, sy + sh / 2); x.rotate(.08);
+      x.fillStyle = "#ffffff"; x.fillRect(-sw / 2, -sh / 2, sw, sh); x.fillStyle = "#e63946"; x.fillRect(-sw / 2 + s * .08, -sh / 2 + s * .08, sw - s * .16, sh - s * .16);
+      x.fillStyle = "#ffd166"; x.beginPath(); x.arc(0, 0, sw * .22, 0, TAU); x.fill(); x.restore();
+      x.strokeStyle = "rgba(29,53,87,.45)"; x.lineWidth = Math.max(1, s * .025);
+      for (let k = 0; k < 3; k++) { x.beginPath(); for (let u = 0; u <= 20; u++) x.lineTo(sx - s * 1.4 + u * s * .07, sy + sh * .7 + k * s * .14 + Math.sin(u * .9) * s * .04); x.stroke(); }
+      B.rot = r.uniform(-3, 3) * Math.PI / 180;
+      break;
+    }
+    default: return null;
+  }
+  return { c, ox, oy };
+}
+
+/** The grounds the themes add (themes.js THEME_GROUNDS). Returns false for any other. */
+export function themeGround(kind, x, st, p, W, H, sc, r) {
+  const U = Math.min(W, H), D = Math.hypot(W, H), g = p.ground, l = p.light;
+  const dark = lum(g) < .45, line = dark ? "#ffffff" : "#000000";
+  switch (kind) {
+    case "blueprint": {
+      x.fillStyle = g; x.fillRect(0, 0, W, H);
+      const minor = U * .025;
+      for (let k = 0, xx = 0; xx < W; xx += minor, k++) { x.fillStyle = rgba("#ffffff", k % 5 ? .07 : .16); x.fillRect(xx, 0, Math.max(1, W * .0012), H); }
+      for (let k = 0, yy = 0; yy < H; yy += minor, k++) { x.fillStyle = rgba("#ffffff", k % 5 ? .07 : .16); x.fillRect(0, yy, W, Math.max(1, W * .0012)); }
+      x.strokeStyle = rgba("#ffffff", .22); x.lineWidth = Math.max(1, W * .0015);
+      for (let k = 0; k < 3; k++) { x.beginPath(); x.arc(r() * W, r() * H, U * r.uniform(.08, .2), 0, TAU); x.stroke(); }
+      const vg = x.createRadialGradient(W / 2, H / 2, U * .2, W / 2, H / 2, D * .6); vg.addColorStop(0, rgba(l, .25)); vg.addColorStop(1, rgba(l, 0)); x.fillStyle = vg; x.fillRect(0, 0, W, H);
+      return true;
+    }
+    case "newsprint": {
+      x.fillStyle = g; x.fillRect(0, 0, W, H);
+      const cols = W / H > 1.2 ? 5 : 3, cw = W / cols, lh = U * .018;
+      for (let c = 0; c < cols; c++) for (let yy = U * .05; yy < H - U * .03; yy += lh * 1.6) {
+        if (r() < .06) continue;
+        x.fillStyle = rgba("#000000", r.uniform(.06, .11)); x.fillRect(c * cw + cw * .08, yy, cw * r.uniform(.6, .84), lh * .55);
+      }
+      grain(x, W, H, r, 18, .35); return true;
+    }
+    case "kraft": {
+      x.fillStyle = g; x.fillRect(0, 0, W, H);
+      blotches(x, W, H, r, 20, .12);
+      x.lineWidth = Math.max(.6, W * .001);
+      for (let i = 0; i < W * H / 900; i++) { const px = r() * W, py = r() * H, a = r() * TAU, L = U * r.uniform(.01, .04); x.strokeStyle = rgba(r() < .5 ? shade(g, -.35) : shade(g, .3), r.uniform(.15, .4)); x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * L, py + Math.sin(a) * L); x.stroke(); }
+      grain(x, W, H, r, 20, .3); return true;
+    }
+    case "wood": {
+      const n = W / H > 1.2 ? 9 : 6, pw = W / n;
+      for (let i = 0; i < n; i++) {
+        const base = shade(g, r.uniform(-.12, .1)), gr = x.createLinearGradient(i * pw, 0, (i + 1) * pw, 0);
+        gr.addColorStop(0, shade(base, -.12)); gr.addColorStop(.5, base); gr.addColorStop(1, shade(base, -.16)); x.fillStyle = gr; x.fillRect(i * pw, 0, pw + 1, H);
+        x.strokeStyle = rgba(shade(base, -.4), .25); x.lineWidth = Math.max(1, W * .0015);
+        for (let k = 0; k < 7; k++) { const x0 = i * pw + pw * r.uniform(.1, .9), ph = r() * 6; x.beginPath(); for (let yy = 0; yy <= H; yy += H / 40) x.lineTo(x0 + Math.sin(yy / H * 9 + ph) * pw * .05, yy); x.stroke(); }
+        x.fillStyle = "rgba(0,0,0,.35)"; x.fillRect(i * pw - 1, 0, Math.max(1.5, W * .003), H);
+      }
+      return true;
+    }
+    case "tile": {
+      x.fillStyle = shade(g, -.18); x.fillRect(0, 0, W, H);
+      const th = U * .07, tw = th * 2, gap = Math.max(1.5, U * .004);
+      for (let row = 0, yy = 0; yy < H; row++, yy += th) for (let xx = row % 2 ? -tw / 2 : 0; xx < W; xx += tw) {
+        const gr = x.createLinearGradient(0, yy, 0, yy + th); gr.addColorStop(0, shade(g, .12)); gr.addColorStop(1, shade(g, -.04));
+        rrect(x, xx + gap / 2, yy + gap / 2, tw - gap, th - gap, th * .12); x.fillStyle = gr; x.fill();
+      }
+      return true;
+    }
+    case "brushed_metal": {
+      const gr = x.createLinearGradient(0, 0, W, H); gr.addColorStop(0, shade(g, -.12)); gr.addColorStop(.45, l); gr.addColorStop(.55, shade(l, -.05)); gr.addColorStop(1, shade(g, -.18));
+      x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      for (let i = 0; i < H * .9; i++) { x.fillStyle = rgba(r() < .5 ? "#ffffff" : "#000000", r.uniform(.02, .06)); x.fillRect(0, r() * H, W, Math.max(.5, H * .0012)); }
+      return true;
+    }
+    case "carbon": {
+      x.fillStyle = shade(g, -.2); x.fillRect(0, 0, W, H);
+      const cell = U * .03;
+      for (let yy = 0, j = 0; yy < H; yy += cell, j++) for (let xx = 0, i = 0; xx < W; xx += cell, i++) {
+        const hor = (i + j) % 2 === 0, gr = hor ? x.createLinearGradient(xx, yy, xx, yy + cell) : x.createLinearGradient(xx, yy, xx + cell, yy);
+        gr.addColorStop(0, shade(g, -.25)); gr.addColorStop(.5, shade(l, -.05)); gr.addColorStop(1, shade(g, -.25));
+        x.fillStyle = gr; x.fillRect(xx + .5, yy + .5, cell - 1, cell - 1);
+      }
+      const vg = x.createRadialGradient(sc[0], sc[1], 0, sc[0], sc[1], D * .6); vg.addColorStop(0, rgba(l, .18)); vg.addColorStop(1, rgba(l, 0)); x.fillStyle = vg; x.fillRect(0, 0, W, H);
+      return true;
+    }
+    case "gingham": {
+      x.fillStyle = "#fbf8f2"; x.fillRect(0, 0, W, H);
+      const band = U * .06, col = lum(p.accent) < .8 && Math.abs(lum(p.accent) - .95) > .2 ? p.accent : g;
+      for (let xx = 0; xx < W; xx += band * 2) { x.fillStyle = rgba(col, .38); x.fillRect(xx, 0, band, H); }
+      for (let yy = 0; yy < H; yy += band * 2) { x.fillStyle = rgba(col, .38); x.fillRect(0, yy, W, band); }
+      grain(x, W, H, r, 14, .25); return true;
+    }
+    case "starfield": {
+      const gr = x.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, shade(g, -.3)); gr.addColorStop(1, g); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      x.save(); x.globalCompositeOperation = "screen";
+      for (let k = 0; k < 4; k++) { const bx = r() * W, by = r() * H, rad = U * r.uniform(.25, .5), gg = x.createRadialGradient(bx, by, 0, bx, by, rad); gg.addColorStop(0, rgba(k % 2 ? p.accent : l, .22)); gg.addColorStop(1, rgba(l, 0)); x.fillStyle = gg; x.fillRect(0, 0, W, H); }
+      x.restore();
+      for (let i = 0; i < W * H / 1800; i++) { x.fillStyle = `rgba(255,255,255,${r.uniform(.2, .9)})`; const s2 = r.uniform(.5, 1.8) * Math.max(1, W / 700); x.fillRect(r() * W, r() * H, s2, s2); }
+      return true;
+    }
+    case "pegboard": {
+      x.fillStyle = g; x.fillRect(0, 0, W, H);
+      const step = U * .05;
+      for (let yy = step / 2; yy < H; yy += step) for (let xx = step / 2; xx < W; xx += step) {
+        x.fillStyle = rgba("#000000", .55); x.beginPath(); x.arc(xx, yy, step * .12, 0, TAU); x.fill();
+        x.fillStyle = rgba("#ffffff", .12); x.beginPath(); x.arc(xx + step * .03, yy + step * .04, step * .12, 0, Math.PI); x.fill();
+      }
+      grain(x, W, H, r, 16, .25); return true;
+    }
+    case "diamond_plate": {
+      const gr = x.createLinearGradient(0, 0, W, H); gr.addColorStop(0, shade(l, -.1)); gr.addColorStop(.5, l); gr.addColorStop(1, shade(g, -.1)); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      const step = U * .06;
+      for (let yy = 0, j = 0; yy < H + step; yy += step, j++) for (let xx = (j % 2) * step / 2; xx < W + step; xx += step) {
+        x.save(); x.translate(xx, yy); x.rotate((j % 2 ? 1 : -1) * Math.PI / 4);
+        const lg = x.createLinearGradient(-step * .3, 0, step * .3, 0); lg.addColorStop(0, rgba("#000000", .25)); lg.addColorStop(1, rgba("#ffffff", .35));
+        x.fillStyle = lg; x.beginPath(); x.ellipse(0, 0, step * .3, step * .07, 0, 0, TAU); x.fill(); x.restore();
+      }
+      return true;
+    }
+    case "racing_stripes": {
+      x.fillStyle = l; x.fillRect(0, 0, W, H);
+      const cols = [p.accent, g, p.plate || shade(g, -.3)], bw = U * .1, ang = r() < .5 ? -.35 : .35;
+      x.save(); x.translate(W / 2, H * r.uniform(.4, .7)); x.rotate(ang);
+      cols.forEach((col, i) => { x.fillStyle = col; x.fillRect(-D, (i - 1.5) * bw * 1.15, 2 * D, bw); });
+      x.restore(); grain(x, W, H, r, 16, .3); return true;
+    }
+    case "holo": {
+      const gr = x.createLinearGradient(0, 0, W, H);
+      ["#ffd6f5", "#c7d2fe", "#a5f3fc", "#fef9c3", "#fbcfe8"].forEach((c2, i, a) => gr.addColorStop(i / (a.length - 1), c2));
+      x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      x.save(); x.globalCompositeOperation = "soft-light";
+      for (let k = 0; k < 5; k++) { const sh = x.createLinearGradient(0, H * r(), W, H * r()); sh.addColorStop(0, "rgba(255,255,255,0)"); sh.addColorStop(.5, "rgba(255,255,255,.7)"); sh.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = sh; x.fillRect(0, 0, W, H); }
+      x.restore(); return true;
+    }
+    case "notebook": {
+      x.fillStyle = "#fbfbf6"; x.fillRect(0, 0, W, H);
+      const lh = U * .045;
+      x.fillStyle = "rgba(60,110,200,.28)"; for (let yy = lh * 2; yy < H; yy += lh) x.fillRect(0, yy, W, Math.max(1, U * .002));
+      x.fillStyle = "rgba(220,60,70,.45)"; x.fillRect(W * .12, 0, Math.max(1.5, U * .003), H);
+      x.fillStyle = "rgba(0,0,0,.12)"; for (const f of [.2, .5, .8]) { x.beginPath(); x.arc(W * .05, H * f, U * .018, 0, TAU); x.fill(); }
+      grain(x, W, H, r, 10, .2); return true;
     }
     default: return false;
   }

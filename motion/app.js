@@ -1,6 +1,6 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, countLooks } from "./catalog.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, countLooks } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, areaOf } from "./engine.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode } from "./export.js";
@@ -356,8 +356,12 @@ const STUDIO = {
   light:   { label: "Light and glow", backgrounds: ["rays", "sunburst", "beams", "bokeh", "aurora", "drift", "mesh", "rays_corner", "beams_cross", "beams_stage"] },
   bold:    { label: "Bold and loud", backgrounds: ["bigword", "confetti", "frame", "noise"] },
 };
+// the approved themes, one shelf per family (each thumbnail a different theme of it)
+const familyShelves = THEME_FAMILIES.map(f => ({ f, ids: Object.keys(VIBES).filter(id => VIBES[id].family === f) })).filter(x => x.ids.length)
+  .map(({ f, ids }) => ({ id: "family-" + f.toLowerCase().replace(/[^a-z]+/g, "-"), group: "Themes", label: f, vibes: ids }));
 const SHELVES = [
-  ...Object.entries(VIBES).map(([id, v]) => ({ id, group: "LA looks", label: v.label, vibe: id })),
+  ...Object.entries(VIBES).filter(([, v]) => !v.family).map(([id, v]) => ({ id, group: "LA looks", label: v.label, vibe: id })),
+  ...familyShelves,
   ...Object.entries(STUDIO).map(([id, g]) => ({ id: "studio-" + id, group: "Studio", label: g.label, backgrounds: g.backgrounds.filter(b => OPTIONS.background.includes(b)) })),
 ];
 const ROW = 4, BATCH = 12, SHELF_MAX = 96;
@@ -365,7 +369,7 @@ const ROW = 4, BATCH = 12, SHELF_MAX = 96;
 /** A look drawn for one shelf: its vibe (or a studio ground) held, the rest from the seed. */
 function shelfStyle(shelf, seed) {
   const locked = new Set(state.locked); locked.add("vibe");
-  const base = { ...state.style, vibe: shelf.vibe || "none" };
+  const base = { ...state.style, vibe: shelf.vibes ? shelf.vibes[seed % shelf.vibes.length] : shelf.vibe || "none" };
   if (shelf.backgrounds) { locked.add("background"); base.background = shelf.backgrounds[seed % shelf.backgrounds.length]; }
   else locked.delete("background");
   return harmonise(randomize(base, seed, locked, [], false), locked, indexById());
@@ -415,7 +419,7 @@ async function renderGallery(reset) {
         const grid = sec.querySelector(".mo-gallery");
         for (let i = 0; i < ROW; i++) {
           const st = shelfStyle(shelf, state.gallerySeed++);
-          const b = await thumb(st, W, H, k, labelFor("font", st.font));
+          const b = await thumb(st, W, H, k, shelf.vibes ? VIBES[st.vibe].label : labelFor("font", st.font));
           if (!live()) return;
           grid.appendChild(b);
           await new Promise(r => setTimeout(r, 0));
@@ -428,7 +432,7 @@ async function renderGallery(reset) {
     if (!grid) { grid = document.createElement("div"); grid.className = "mo-gallery"; g.appendChild(grid); }
     for (let i = 0; i < BATCH && state.galleryShown < SHELF_MAX; i++) {
       const st = shelfStyle(shelf, state.gallerySeed++);
-      const b = await thumb(st, W, H, k, labelFor("font", st.font));
+      const b = await thumb(st, W, H, k, shelf.vibes ? VIBES[st.vibe].label : labelFor("font", st.font));
       if (!live()) return;
       grid.appendChild(b); state.galleryShown++;
       await new Promise(r => setTimeout(r, 0));

@@ -2,9 +2,9 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS } from "./catalog.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
-import { vibeBackground, candidateGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
+import { vibeBackground, candidateGround, themeGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
 // ------------------------------------------------------------ small tools
@@ -110,6 +110,7 @@ export function applyVibe(st, seed, locked = new Set()) {
 const VIBE_GROUNDS = new Set(["cork", "stucco", "concrete", "brick_night", "candy_flake", "asphalt", "velvet", "beach", "mural_wall", "fluoro"]);
 // a spin-off of a vibe's ground belongs to the vibe as its parent does
 for (const [id, c] of Object.entries(GROUND_CANDIDATES)) if (VIBE_GROUNDS.has(c.parent)) VIBE_GROUNDS.add(id);
+for (const id of THEME_GROUNDS) VIBE_GROUNDS.add(id);     // the themes' materials belong to the themes
 
 function vibeInto(out, r, locked) {
   const v = VIBES[out.vibe];
@@ -126,6 +127,8 @@ function vibeInto(out, r, locked) {
   set("palette", v.palettes); set("background", v.backgrounds); set("font", v.fonts);
   set("text_fx", v.fx); set("number_style", v.numbers); set("text_in", v.text_in); set("skew", v.skew);
   set("accent_set", v.accent_sets); set("accent_kind", v.accent_kinds); set("accent_in", v.accent_in); set("phone_angle", v.phone_angles);
+  // a theme may hold any other axis to its own choices (its camera, its grade, its sound...)
+  if (v.style) for (const [k, list] of Object.entries(v.style)) if (OPTIONS[k] || ["text_pos", "color_mode"].includes(k)) set(k, list);
   if (!locked.has("background") && !fits(out.background)) out.background = (v.backgrounds || []).find(fits) || "radial";
   if (!locked.has("board")) out.board = v.boards && r() < (v.boardChance ?? 1) ? r.pick(v.boards) : "none";
   if (!locked.has("decor")) {
@@ -954,8 +957,10 @@ function numberSprite(st, p, size, cta) {
   let font = st.number_font === "same" ? st.font : st.number_font;
   if (FINE_FACES.has(font) || !FONTS[font]) font = "oswald";
   const style = st.number_style;
-  const fxFor = { plain: ["hard_shadow", "extrude", "glow", "chrome", "gold", "neon", "long_shadow", "block3d", "foil"].includes(st.text_fx) ? st.text_fx : "shadow",
-    sticker: "sticker", outline: "shadow", underline: "shadow", neon: "neon", chrome: "chrome", gold: "gold", split: "shadow", stacked: "flat" };
+  // the number is the one thing that must read at a glance: a neon number is solid, bright
+  // figures in their glow, never hollow tubes (at number size those blur into the halo)
+  const fxFor = { plain: ["hard_shadow", "extrude", "glow", "chrome", "gold", "neon", "long_shadow", "block3d", "foil"].includes(st.text_fx) ? (st.text_fx === "neon" ? "glow" : st.text_fx) : "shadow",
+    sticker: "sticker", outline: "shadow", underline: "shadow", neon: "glow", chrome: "chrome", gold: "gold", split: "shadow", stacked: "flat" };
   const fx = fxFor[style] || "flat";
   const onPlate = ["pill", "box", "ticket", "tag", "stacked"].includes(style);
   const col = onPlate ? (contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : inkOn(p.plate)) : p.ink;
@@ -1037,7 +1042,7 @@ function background(st, p, W, H, sc, r) {
   const [cx, cy] = sc;
   const radial = (k = .75) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * k); gr.addColorStop(0, l); gr.addColorStop(1, g); return gr; };
   x.fillStyle = g; x.fillRect(0, 0, W, H);
-  if (candidateGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
+  if (candidateGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
     const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
     vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
     if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .3; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }

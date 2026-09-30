@@ -6,6 +6,9 @@
 // palette does not decide the motion, the motion does not decide the sound.
 // Ported from iphoneslainv scripts/phone-ad (the Mac engine), widened 2-3x.
 
+import { THEME_PALETTES, THEME_BOARDS, THEME_GROUNDS, THEMES, THEME_FAMILIES } from "./themes.js";
+export { THEMES, THEME_FAMILIES, THEME_GROUNDS };
+
 export const FONTS = {
   // name: [family, weight, file(s), kind]   kind: geometric grotesk condensed wide slab serif display script mono
   "unbounded":        ["Unbounded", 900, "unbounded-var.woff2", "wide"],
@@ -442,6 +445,15 @@ for (const id of GROUND_REVIEW.approved) {
   if (vibes.length) vibes.forEach(v => v.backgrounds.push(id));
   if (OPTIONS.background.includes(c.parent)) OPTIONS.background.push(id);
 }
+
+// The fifty themes (themes.js): their palettes, signs and grounds are always known (so a
+// look saved with one draws), but a theme joins the maker's vibes only once the owner
+// approves it on the review page. THEME_REVIEW is that decision, id by id.
+Object.assign(PALETTES, THEME_PALETTES);
+Object.assign(BOARDS, THEME_BOARDS);
+for (const g of THEME_GROUNDS) if (!OPTIONS.background.includes(g)) OPTIONS.background.push(g);
+export const THEME_REVIEW = { approved: [], rejected: [] };
+for (const id of THEME_REVIEW.approved) if (THEMES[id]) { VIBES[id] = THEMES[id]; if (!OPTIONS.vibe.includes(id)) OPTIONS.vibe.push(id); }
 
 // The BACK is what makes a model recognisable: every drawn cut ends on the backs,
 // and most show the fronts only as they flash past. Type that ENTERS FROM THE
