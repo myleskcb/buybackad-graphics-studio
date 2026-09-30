@@ -1129,6 +1129,10 @@ After: showcase 58 → **84px** median (945 of 971 rebuilt), classics 64 →
 **108px** median (165 rebuilt; 73 already at 84px or more keep their own). The
 classics' rebuild ships as `assets/number-fix.json`, applied at load.
 
+> Narrowed by rule 97 (2026-09-30): a classic keeps its own big number only
+> while its headline still leads by 1.3x; one that outranks its headline is
+> rebuilt at the cap.
+
 ## 54. A critic decides what is shown, and it judges the number letter by letter
 
 Added 2026-09-26. The study session's plan for the Studio, verbatim: "the
@@ -2966,3 +2970,152 @@ one.
 - Where a card had its own hero product, the wall had been crowding it out of
   the layout; with the wall gone it shows (a chain on the gold checklists, the
   strip fan on the steps cards).
+
+## 95. A curve or a warp is a property of the line, and a template built round a ring is curved on it
+
+Added 2026-09-30 on the designer branch (claude/eloquent-euler-7jvzfd). The
+owner: "ability to make clean warps and curves", "and pre warped / curved for
+select templates where the design is supportive or designed around that".
+
+A curved line used to be a fabric.Group of one Text per letter. Each letter
+was measured alone (no kerning), spaced by its centre (the feet crowded on an
+arch), painted alone (the next letter's outline over this one's fill, a
+gradient starting again on every letter) and baked in: Easy Mode set the
+visitor's words on the group, where they were never drawn, so the curved
+headlines of 87 library cards kept the template's words in the preview, the
+download and the video. The looks, the layout and the ink passed a group by.
+
+- **A shape is a property of a text object** (`pgShape {kind, bend}`), saved
+  as its recipe and laid out again whenever the text is. The line stays live
+  text: typed into, fitted, gated, recoloured, looked, voiced.
+- **Curves** (arc, wave) put the letters on a baseline with fabric's own text
+  on a path: kerned as the straight line is, spaced along the baseline, every
+  outline painted before every fill, one gradient across the line, the
+  letters centred on the path (on the baseline, SILVER's letters crowded in a
+  smile). Tracking is compensated so a curved word is spaced as it was
+  straight. The path's bounds are widened to the letters' own box, so the
+  cache, the selection and every measure hold the letters.
+- **Warps** (arch, bulge, flag, rise, fan, bowl) draw the straight line through
+  an envelope, a device-pixel column at a time, at the canvas's own
+  resolution: crisp at any zoom and in any export. The envelope stays inside
+  the line's own box (letters shrink, never grow), so a warped line is laid
+  out, fitted and gated as it was.
+- Bend runs -100..100; the sign turns the shape over. An arc's sweep is the old
+  curve slider's (100 = 207 degrees), so a template's `curve` carries over as
+  its bend. A saved design's old letter groups are read back as one shaped
+  line (`fabric.Group.fromObject`).
+- **The controls:** Shape chips and Bend in the designer's Properties panel and
+  in the ✎ menu of Easy Mode; the ✎ menu shows the template's own shape.
+- **A curve is bound to its ring.** A template designed round a circle names
+  the ring its arc belongs to (`TS_RINGS`): the arc's radius is the ring's, its
+  apex sits on the ring's top, in every format and after every layout pass
+  (the layout never moves a curved line off its ring; pgUncover leaves it). A
+  long word on a small ring is flattened (a larger radius, the sweep and the
+  sagitta capped) or brought down in size, whichever the design is built on:
+  arcCrown's crown flattens round its halo, karatSeal's legend shrinks to its
+  seal.
+- **Pre-curved templates:** the arcCrown family (the crown over the halo ring)
+  and the karatSeal family, which gained a curved legend on its seal's outer
+  ring; the library's curved headlines are live again. A tagline look can
+  take a curved line (its depth copies curve with it); a colour block cannot
+  (a block is a straight plate), and says so.
+
+## 96. The owner's type pairs are a choice for the whole card; a classic sets two faces
+
+Added 2026-09-30 on the designer branch. The owner: "new typefaces / text
+design". The owner approved 56 faces (2026-09-01) and FONT_PAIRS pairs them by
+voice (rule 70: one display face, one reading face), but nothing used the
+pairs: the classics kept the five house faces, and the only way to a new face
+was one line at a time from the ✎ menu.
+
+- **A voice is a choice for the whole card**, as a colour theme is: eighteen
+  pairs (Street, Bold, Stadium, Sport, Tech, Block, Arcade, Squad, Comic,
+  Marker, Retro, Pop, Luxe, Modern, Warp, Stencil, Grotesk, Serif), and ORIG,
+  the card's own faces. In Easy Mode under the colour themes, in the designer
+  under its colour theme.
+- The claim, the price and the number take the display face at its weight
+  (the number the reading face where the display face's figures are weak:
+  Sedgwick's 9 reads as a g, the stencil's 4 leaves a stray dot); the call to
+  action, kicker, badges and offer the reading face's label weight; the lists
+  and the website its line weight. A line given a face with ✎ keeps it.
+- The faces load, every weight, before the card is drawn.
+- **Each line keeps its footprint:** no wider than the card's own face set it
+  (a wider face comes down in size, a narrower one keeps its size), then the
+  layout lays the card out in it. Fitted to the card's width instead,
+  Unbounded's number grew its plate off the card.
+- **A read line keeps its weight.** A label or a list line takes the
+  heaviest of the voice's weight, the house floor for its role and size
+  (`WEIGHT_FLOOR`: 700 for badges, the call to action and the website, 600
+  for small type) and its own weight on the card, in a cut the family ships
+  (read from its @font-face rules). In the reading face's own 500,
+  trustSeal-gl02-15's items line fell under 3:1 in 17 of the 18 voices. The
+  claim, the price and the number keep the voice's display weight: that is
+  the voice.
+- In the designer each line remembers the face it had (`pgVoiceOrig`, saved
+  with it): ORIG puts it back, and voices never compound.
+- **Two faces on every classic** (rule 70 made true at load,
+  `houseTwoFaces`). 33 of the 50 hand-built classics set three families, and
+  the template audit (rule 81) held every one back. Each keeps its display
+  face (its biggest headline's) and one reading face (of the others, the one
+  carrying the most text); every other line takes the display face if it is a
+  headline, the number, a price or a mark, the reading face if it is read.
+  Weights snap to what the family ships. It runs last at load and again when
+  the number table lands (a table applied after a face pass undoes it).
+
+## 97. Every choice a card offers is one it passed
+
+Added 2026-09-30 on the designer branch. The owner: "make sure all classic and
+current themes are audited and ready for use with new color schemes, new
+design language, new typefaces / text design". The audits each covered a
+slice: the gate judged every card on its thumbnail, ez_theme_audit took the
+themes through a 20-card sample whose four classics were held, tagline_audit
+took the looks through 82 cards by its own measure. No classic had a colour
+theme audited, and no library card was gated on the render a visitor gets.
+
+- **scripts/every_card_audit.mjs** takes every offered classic and every live
+  library card through Easy Mode's own render, on the card's own photograph,
+  each in a fresh browser: the card as offered, then every colour theme (21),
+  tagline look (12) and type voice (18). A choice fails a card when a critical
+  line newly fails the gate, another reading line newly reads under 3:1, or
+  (a voice) a line newly runs off the card, off its plate or into another
+  line; a theme also fails when a plate keeps the card's old colour, the
+  card's own colours stay beside the theme's, or a mark vanishes on what it
+  sits on.
+- **Choice holds.** `--write-holds` writes the choices that fail each card to
+  assets/choice-holds.json, with the reason in words. On that card their chip
+  is off and its title says why, in Easy Mode and in the designer; a pick
+  carried over from another card is set aside there (the card shows its own,
+  and a note says why) and comes back on the next card it suits, unless the
+  visitor picks again in that row. The audit loads the studio with
+  `?nochoiceholds=1`, or the chips it must click would be off.
+- **A line's backing is its ground.** The gate found a line's footprint by
+  painting the card without it; hiding the whole object took its own backing
+  with it (a chip's see-through panel, a badge's plate), and every panel pixel
+  counted as ink against the bare photograph. dl_gold_duoSplit_gold's kicker,
+  dark on a 35% white panel and plainly legible, failed as a ghost under six
+  themes; sports_break's badges, pink on their own lavender panel at 1.13:1,
+  passed. Only the ink goes now (`pgHideInk`: fill, stroke and shadow made
+  clear), in the gate, the template audit and the contrast bake, which also
+  measures each line with the card laid out round it (left out, the layout
+  settled differently round the gap).
+- **A surface keeps its lightness under a theme.** A body the size of a
+  surface (over a quarter of the card) is ground, whatever hue it wore, as a
+  panel that big already was among the plates: dl_cars_slabPoster_mono's
+  frame, a dark red body over 83% of the card, was read as the accent and
+  turned Cash Green's bright green at 80% under white type (the number
+  2.9:1). It takes the theme's ground hue at its own lightness; its outline
+  is still a highlight.
+- **A big number does not outrank its headline** (rule 53: the headline at
+  least 1.3x the number). number_block.mjs kept any classic's number authored
+  at 84px or more as its own design, and 28 hand-built classics, numbers of
+  84 to 100px under headlines of 66 to 117px, were held back for their
+  hierarchy. Such a number is rebuilt at the cap (0.77x the headline, never
+  under 72px), its plate hugging it. agencyGrid failed the same rule by its
+  own drawing, a price line 124px under 148px headlines (now 104px). The
+  lowerThird cards stay held: the headline shares its rows with the number
+  and fits down to 86px beside it (their band's copy is 24px higher, so the
+  items line is inside the guide).
+- **The offer family is drawn as authored.** No load-time table touches it
+  (offer-library.js), so the classics' bakes leave it out: baked with the
+  classics on the merged engine, the contrast bake drew 850 rows that would
+  have repainted 168 offer cards.

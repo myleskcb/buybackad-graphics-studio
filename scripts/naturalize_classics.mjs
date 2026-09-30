@@ -85,7 +85,8 @@ if (WRITE){
      skipped rows fell out of the table and their inks lost their ground */
   try {
     const prev = JSON.parse(readFileSync(ROOT + 'assets/ground-fix.json', 'utf8')), have = new Set(table.map(x => x.id));
-    const kept = prev.filter(x => !have.has(x.id) && skips.some(([id]) => id === x.id));
+    /* ...and with --ids, every card outside them keeps its row */
+    const kept = prev.filter(x => !have.has(x.id) && (skips.some(([id]) => id === x.id) || (only && !only.has(x.id))));
     table = table.concat(kept);
     if (kept.length) console.log('kept the previous row for ' + kept.length + ' skipped templates: ' + kept.map(x => x.id).join(', '));
   } catch (e){}

@@ -1391,7 +1391,10 @@ const TEMPLATES = [
     r('Rule Mid', { left:70, top:594, width:W-140, height:2, rx:1, fill:P.ink, opacity:0.25 }),
     t('Items', 'info', 'upper', C.items, { left:70, top:628, fontFamily:T.s, fontSize:33, fill:P.sub, charSpacing:60 }),
     t('Price Label', 'info', 'upper', 'WE PAY', { left:70, top:756, fontFamily:T.s, fontSize:25, fill:P.sub, charSpacing:320, fontWeight:'600' }),
-    t('Price Line', 'info', 'upper', C.big, { left:64, top:796, fontFamily:T.d, fontSize:124, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
+    /* the price under the claim, not beside it: 124px under 148px headlines (1.19x) held all nine
+       agencyGrid classics for their hierarchy (the headline leads by 1.3x, rule 53); 104px holds
+       it under a headline the width fits down to 139px (TEST STRIPS) */
+    t('Price Line', 'info', 'upper', C.big, { left:64, top:796, fontFamily:T.d, fontSize:104, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
     t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:W-64, top:820, originX:'right', fontFamily:'Satoshi', fontSize:42, fill:P.ink, fontWeight:'800' }),
     t('CTA', 'cta', 'upper', C.cta, { left:W-64, top:884, originX:'right', fontFamily:T.s, fontSize:25, fill:P.a1, charSpacing:130, fontWeight:'700' }),
     t('Website', 'website', 'none', 'iphones.LA', { left:W-64, top:934, originX:'right', fontFamily:'Satoshi', fontSize:20, fill:P.sub, opacity:0.8 }),
@@ -1405,16 +1408,19 @@ const TEMPLATES = [
     ...phoneBar(P, T, 786),
     t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:948, originX:'center', fontFamily:'Satoshi', fontSize:21, fill:P.sub, opacity:0.7 }),
   ];
+  /* the band's copy 24px higher than it was drawn: the items line ran under the bottom guide (6%,
+     rule 57). The eight lowerThird classics are still held for their hierarchy: the headline shares
+     its rows with the number, and fits down to 86px beside a number at its 72px floor */
   LAYOUTS.lowerThird = (P, T, C) => [
     ...trust(P, T, C.badges),
-    r('Third Band', { left:-40, top:640, width:W+80, height:520, rx:44, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 34, 0, -10) }),
-    r('Accent Tick', { left:70, top:702, width:120, height:6, rx:3, fill:P.a1 }),
-    t('Kicker', 'sub', 'upper', C.k, { left:70, top:734, fontFamily:T.s, fontSize:25, fill:P.a1, charSpacing:300, fontWeight:'700' }),
-    t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:786, fontFamily:T.d, fontSize:94, fill:'#ffffff' }),
-    t('Headline 2', 'headline', 'upper', C.h2, { left:64, top:886, fontFamily:T.d, fontSize:94, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
-    t('Items', 'info', 'upper', C.items, { left:70, top:1002, fontFamily:T.s, fontSize:25, fill:'rgba(255,255,255,0.6)', charSpacing:40 }),
-    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:W-70, top:812, originX:'right', fontFamily:'Satoshi', fontSize:52, fill:'#ffffff', fontWeight:'900' }),
-    t('CTA', 'cta', 'upper', C.cta, { left:W-70, top:888, originX:'right', fontFamily:T.s, fontSize:27, fill:P.a1, charSpacing:110, fontWeight:'700' }),
+    r('Third Band', { left:-40, top:616, width:W+80, height:544, rx:44, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 34, 0, -10) }),
+    r('Accent Tick', { left:70, top:678, width:120, height:6, rx:3, fill:P.a1 }),
+    t('Kicker', 'sub', 'upper', C.k, { left:70, top:710, fontFamily:T.s, fontSize:25, fill:P.a1, charSpacing:300, fontWeight:'700' }),
+    t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:762, fontFamily:T.d, fontSize:94, fill:'#ffffff' }),
+    t('Headline 2', 'headline', 'upper', C.h2, { left:64, top:862, fontFamily:T.d, fontSize:94, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
+    t('Items', 'info', 'upper', C.items, { left:70, top:978, fontFamily:T.s, fontSize:25, fill:'rgba(255,255,255,0.6)', charSpacing:40 }),
+    t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:W-70, top:788, originX:'right', fontFamily:'Satoshi', fontSize:52, fill:'#ffffff', fontWeight:'900' }),
+    t('CTA', 'cta', 'upper', C.cta, { left:W-70, top:864, originX:'right', fontFamily:T.s, fontSize:27, fill:P.a1, charSpacing:110, fontWeight:'700' }),
   ];
 
   // ── the curated combo book: category → [layout, palette, pair, display name, featured] ──
@@ -18443,10 +18449,41 @@ function applyVoice(sc, v, tpl, W){
     const face = voiceFaceFor(v, o.pgRole);
     if (!face || (st[o.name] && st[o.name].font)) return;
     if (!o.pgVoiceOrig) o.pgVoiceOrig = { fontFamily: o.fontFamily, fontWeight: o.fontWeight, fontSize: o.fontSize };
-    voiceSetKeep(o, face);
+    voiceSetKeep(o, voiceWeightFor(o, face));
     o.pgVoice = v.key; n++;
   });
   return n;
+}
+/* A READ LINE KEEPS ITS WEIGHT (the every-card sweep, 2026-09-30). A voice set
+   the lists, the badges and the call to action in its reading face's own
+   weight, 500 for most pairs, where the house sets small type at 600 or 700
+   (WEIGHT_FLOOR, enforceTypeWeight) and a card had set a line bold to read on
+   a busy ground: trustSeal-gl02-15's items line fell under 3:1 in 17 of the 18
+   voices, gold_cash_now's badges in 12. A label or a list line takes the
+   heaviest of the voice's weight, the house floor for its role and size, and
+   its own weight on the card, in a cut the family ships. The claim, the price
+   and the number keep the voice's display weight: that is the voice. */
+const _voiceCuts = new Map();
+function voiceCutsOf(fam){
+  if (_voiceCuts.has(fam)) return _voiceCuts.get(fam);
+  const spans = (FONT_CUTS[fam] || []).map(w => [w, w]);
+  try { document.fonts.forEach(f => { if (String(f.family).replace(/["']/g, '') !== fam) return;
+    const w = String(f.weight).split(/\s+/).map(Number).filter(n => n > 0); if (w.length) spans.push([w[0], w[w.length - 1]]); }); } catch (e){}
+  _voiceCuts.set(fam, spans);
+  return spans;
+}
+function voiceWeightFor(o, face){
+  const role = o.pgRole || '';
+  if (!(VOICE_LABEL[role] || VOICE_LINE[role])) return face;
+  const own = o.pgVoiceOrig ? o.pgVoiceOrig.fontWeight : o.fontWeight;
+  const w0 = own === 'bold' ? 700 : +own || 400, px = (o.pgVoiceOrig && o.pgVoiceOrig.fontSize) || o.fontSize || 40;
+  const want = Math.max(+face[1] || 400, WEIGHT_FLOOR[role] || 0, px < 30 ? 600 : px < 46 ? 500 : 0, w0);
+  const spans = voiceCutsOf(face[0]);
+  if (!spans.length) return face;
+  const inside = spans.some(([a, b]) => want >= a && want <= b);
+  const up = spans.map(([a]) => a).filter(a => a >= want).sort((a, b) => a - b)[0];
+  const top = Math.max(...spans.map(([, b]) => b));
+  return [face[0], inside ? want : up || top];
 }
 
 /* a new face on a line, in no more room than the line had */
@@ -18506,7 +18543,7 @@ async function edRetype(key){
     const face = v && voiceFaceFor(v, o.pgRole);
     if (face){
       if (!o.pgVoiceOrig) o.pgVoiceOrig = { fontFamily: o.fontFamily, fontWeight: o.fontWeight, fontSize: o.fontSize };
-      voiceSetKeep(o, face); o.pgVoice = v.key;
+      voiceSetKeep(o, voiceWeightFor(o, face)); o.pgVoice = v.key;
     } else { delete o.pgVoiceOrig; delete o.pgVoice; o.setCoords(); o.dirty = true; }
   });
   canvas.requestRenderAll();
