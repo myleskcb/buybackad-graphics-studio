@@ -464,6 +464,67 @@ function hitsRect(P, r) {
   return true;
 }
 
+/** How much of phone i the phones drawn over it cover where they land, on a grid of points. */
+function hiddenShare(phones, order, i) {
+  const above = order.slice(order.indexOf(i) + 1).map(j => landedOutline(phones[j]));
+  if (!above.length) return 0;
+  const p = phones[i], hw = p.w * p.size / 2, hh = p.h * p.size / 2, th = -p.angle * Math.PI / 180, c = Math.cos(th), s = Math.sin(th);
+  const inside = (P, x, y) => { let c = false;
+    for (let a = 0, b = P.length - 1; a < P.length; b = a++) if ((P[a][1] > y) !== (P[b][1] > y) && x < (P[b][0] - P[a][0]) * (y - P[a][1]) / (P[b][1] - P[a][1]) + P[a][0]) c = !c;
+    return c; };
+  let n = 0, hid = 0;
+  for (let u = -.9; u <= .91; u += .2) for (let v = -.9; v <= .91; v += .1) {
+    const x = p.home[0] + u * hw * c - v * hh * s, y = p.home[1] + u * hw * s + v * hh * c;
+    n++; if (above.some(P => inside(P, x, y))) hid++;
+  }
+  return hid / n;
+}
+
+// No phone may lie more than this much under the phones drawn over it, nor end up
+// smaller than MIN_SPREAD of its size making room.
+const MAX_HIDDEN = .4, MIN_SPREAD = .8;
+
+/** A phone the ad sells must show. Where a layout lands one mostly under another (a
+ *  pile, a tower, a spiral), the two push apart, a little at a time, until every phone
+ *  shows at least 60% of itself; boxed in by the frame, they all stand a little smaller.
+ *  They never run further past an edge than the layout already ran them. Looks where
+ *  every phone already shows draw as they did. Takes nothing from the look's random draws.
+ *  (Owner, 2026-09-30, over a Neon motel look: "the ultramarine is covering the
+ *  burgundy 18 Pro Max". Of 33 Neon motel looks, 14 hid one phone 50-97%.) */
+function spreadPhones(phones, order, W, H) {
+  if (phones.length < 2) return;
+  const m = Math.min(W, H) * .02;
+  const bbox = p => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const [x, y] of landedOutline(p)) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    return [x0, y0, x1, y1]; };
+  const room = phones.map(p => { const b = bbox(p); return [Math.min(b[0], m), Math.min(b[1], m), Math.max(b[2], W - m), Math.max(b[3], H - m)]; });
+  const shove = (i, dx, dy) => {
+    const p = phones[i], b = bbox(p), r = room[i];
+    p.home = [p.home[0] + clamp(dx, r[0] - b[0], r[2] - b[2]), p.home[1] + clamp(dy, r[1] - b[1], r[3] - b[3])];
+  };
+  let k = 1;
+  for (let round = 0; round < 120; round++) {
+    const hid = phones.map((_, i) => hiddenShare(phones, order, i));
+    const worst = hid.indexOf(Math.max(...hid));
+    if (hid[worst] <= MAX_HIDDEN) return;
+    const p = phones[worst];
+    for (const j of order.slice(order.indexOf(worst) + 1)) {
+      const q = phones[j];
+      if (!hitsRect(landedOutline(q), bbox(p))) continue;
+      let dx = q.home[0] - p.home[0], dy = q.home[1] - p.home[1], d = Math.hypot(dx, dy);
+      if (d < 1e-3) { dx = 1; dy = 0; d = 1; }
+      const step = Math.min(p.h * p.size, q.h * q.size) * .03;
+      shove(worst, -step * dx / d, -step * dy / d); shove(j, step * dx / d, step * dy / d);
+    }
+    // pinned against the frame: all stand a little smaller, about where they are
+    if (round % 20 === 19 && k > MIN_SPREAD) {
+      const f = Math.max(MIN_SPREAD / k, .95); k *= f;
+      const cx = phones.reduce((a, p) => a + p.home[0], 0) / phones.length, cy = phones.reduce((a, p) => a + p.home[1], 0) / phones.length;
+      for (const p of phones) { p.size *= f; p.home = [cx + (p.home[0] - cx) * f, cy + (p.home[1] - cy) * f]; }
+    }
+  }
+}
+
 // ------------------------------------------------------------ how they get there
 
 const ENTRY_TIMES = { fly_spin: [1, .12], drop: [.85, .11], conveyor: [1.05, .14], zoom: [.9, .10], orbit: [1.2, .07],
@@ -480,7 +541,10 @@ function planEntries(phones, st, W, H, r, stageC) {
     // The first 3 seconds decide whether anyone watches: phones are already in
     // the air at frame 0 and land fast. A hook line owns the first second.
     const lead = ["hook_line", "word_beat"].includes(st.hook) ? .5 : st.hook === "crash_zoom" ? .22 : st.hook === "punch_in" ? -.7 : -.45;
-    p.tIn = lead + k * stag * .75; p.tLand = p.tIn + dur * .85;
+    // ...but IN the air: at frame 0 no phone is more than 40% through its flight, so
+    // a short entrance (a pop, a whip) under an early lead still flies in rather than
+    // standing there landed. (Owner, 2026-09-30: "it doesn't fly or move in".)
+    p.tIn = Math.max(lead, -.4 * dur * .85) + k * stag * .75; p.tLand = p.tIn + dur * .85;
     if (st.hook === "flash_cut") { p.tIn = p.tLand = Math.max(0, k - 1) * .15; p.flashIn = k > 1; p.landsBack = true; p.reveal = false; }   // two are there at frame 0, backs up
     p.spin = r.pick([-2, -1, 1, 2]) * (r() < .2 ? 1.5 : 1); p.flips = r.pick([1, 2]);
     const far = Math.max(p.h * p.size, H * .4);
@@ -1199,6 +1263,7 @@ export class Ad {
     });
     this.drawOrder = this.phones.map((_, i) => i);
     if (st.arrangement === "hero") this.drawOrder = this.drawOrder.slice(1).concat([0]);
+    spreadPhones(this.phones, this.drawOrder, W, H);
   }
 
   _timeline() {
