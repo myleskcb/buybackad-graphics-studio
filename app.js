@@ -12028,8 +12028,24 @@ function pgUncover(sc, W, H){
       if (lo.j >= up.j) return;
       const a2 = bb(up.o), b2 = bb(lo.o), o2 = ov(a2, b2); if (o2 <= 0) return;
       const small = Math.min(a2.w * a2.h, b2.w * b2.h); if (o2 >= 0.95 * small) return;          // nested
-      const rU = ridersOf(up.o), rL = ridersOf(lo.o); if (!rU.length || !rL.length) return;       // only plates that carry words
+      const rU = ridersOf(up.o), rL = ridersOf(lo.o); if (!rU.length) return;
       const gap = Math.max(6, Math.round(pad * 0.6));
+      /* a plate set INSIDE another (a number's pill in its CTA bar) that the
+         layout grew out past it stays inside it, with a margin, if its words
+         still fit: nested is the design, poking out is the accident */
+      const inX = a2.x >= b2.x - 1 && a2.x + a2.w <= b2.x + b2.w + 1, inY = a2.y >= b2.y - 1 && a2.y + a2.h <= b2.y + b2.h + 1;
+      if ((inX && !inY && a2.h < b2.h * 1.6) || (inY && !inX && a2.w < b2.w * 1.6)){
+        const ins = Math.max(4, Math.round(gap * 0.7));
+        const nb = inX ? { x: a2.x, y: Math.max(a2.y, b2.y + ins), w: a2.w, h: 0 } : { x: Math.max(a2.x, b2.x + ins), y: a2.y, w: 0, h: a2.h };
+        if (inX) nb.h = Math.min(a2.y + a2.h, b2.y + b2.h - ins) - nb.y; else nb.w = Math.min(a2.x + a2.w, b2.x + b2.w - ins) - nb.x;
+        if (nb.w < 20 || nb.h < 20) return;
+        if (!rU.every(t => pgLineBodies(t).every(q => q.x >= nb.x + 4 && q.x + q.w <= nb.x + nb.w - 4 && q.y >= nb.y + 4 && q.y + q.h <= nb.y + nb.h - 4))) return;
+        const sw = (up.o.strokeWidth || 0) * (up.o.stroke ? 1 : 0);
+        up.o.set({ width: Math.max(1, (nb.w - sw) / (up.o.scaleX || 1)), height: Math.max(1, (nb.h - sw) / (up.o.scaleY || 1)) });
+        up.o.setPositionByOrigin(new fabric.Point(nb.x + nb.w / 2, nb.y + nb.h / 2), 'center', 'center'); up.o.setCoords();
+        moved = true; return;
+      }
+      if (!rL.length) return;                                                                          // only plates that carry words
       /* cut the side of the upper plate that faces the lower one */
       const cutTop = b2.y < a2.y && b2.y + b2.h < a2.y + a2.h, cutBottom = b2.y > a2.y && b2.y + b2.h > a2.y + a2.h;
       if (!cutTop && !cutBottom) return;
@@ -12068,7 +12084,7 @@ function pgUncover(sc, W, H){
       if (isPlate(o)){
         const s2 = shareOn(tbody, o), sLine = worst(q => shareOn(q, o));
         const straddles = bodies.some(q => { const v = shareOn(q, o); return v > lo && v < hi; });
-        if (j > i && sLine > 0.04 && !(b.w * b.h < 0.25 * nb.w * nb.h)) out.push({ kind: 'covered', o, b, s: sLine });
+        if (j > i && sLine > (strict ? 0.015 : 0.04) && !(b.w * b.h < 0.25 * nb.w * nb.h)) out.push({ kind: 'covered', o, b, s: sLine });   // settle even a letter under a shape; accept a move that leaves under 4%
         else if (j < i && j > host && (straddles || (s2 > lo && s2 < hi)) && b.w * b.h >= 0.25 * nb.w * nb.h) out.push({ kind: 'straddle', o, b, s: s2 });
         else if (b.w * b.h < 0.25 * nb.w * nb.h && ov(tbody, b) > 0) out.push({ kind: 'mark', o, b, s: 1 });
       } else if (isPhoto(o)){ const s2 = ov(tbody, b) / A; if (s2 > 0.08) out.push({ kind: 'photo', o, b, s: s2 }); }
