@@ -11055,7 +11055,7 @@ const SC_DEV_LINE = {
    showing multiple models … (sell your macbook air pro neo) with multiple"):
    the category in the headline, several models lined up on the card */
 const SC_DEV_GROUPS = {
-  'group-iphone':  { family:'IPHONE',      label:'All iPhones',       models:['iphone-17-pro', 'iphone-17', 'iphone-16', 'iphone-16e'], line:'iPhone 17 • 16 • 15 • Pro & Pro Max' },
+  'group-iphone':  { family:'IPHONE',      label:'All iPhones',       models:['iphone-18-pro-max', 'iphone-18-pro', 'iphone-17-pro', 'iphone-16'], line:'iPhone 18 Pro Max • 18 Pro • 17 • 16 • 15' },
   'group-ipad':    { family:'IPAD',        label:'All iPads',         models:['ipad-pro-13-m5', 'ipad-air-13-m4', 'ipad-mini-7-a17-pro'], line:'iPad Pro • Air • mini • iPad' },
   'group-macbook': { family:'MACBOOK',     label:'All MacBooks',      models:['macbook-air-15', 'macbook-pro-14-m5', 'macbook-neo-13'], line:'MacBook Air • Pro • Neo • M1 to M5' },
   'group-mac':     { family:'MAC',         label:'All Macs',          models:['imac-24-m4', 'macbook-air-15', 'macbook-pro-14-m5'], line:'iMac • MacBook Air • MacBook Pro' },

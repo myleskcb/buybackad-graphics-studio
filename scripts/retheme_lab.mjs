@@ -110,7 +110,7 @@ const FRESH = ['cd10','cd04','jw03','gl02','du05', 'nn01','nn05','ck01','ck03'];
    item list and their own product pool. */
 const DEVICE_DECKS = {
   iphone:  { k:'APPLE BUYER', h1:'SELL YOUR', h2:'iPHONE',
-             items:'iPhone 17 • 16 • 15 • Pro & Pro Max',
+             items:'iPhone 18 Pro Max • 18 Pro • 17 • 16 • 15',
              sub:'SAME-DAY PAYMENT, EVERY TIME\nCRACKED, LOCKED OR BLACKLISTED\nWE MEET YOU LOCALLY OR YOU MAIL IT IN',
              cta:'GET YOUR OFFER', price:'UP TO $1,100 PAID TODAY', big:'$1,100',
              /* Current hardware, hero shots first: 17 Pro, 16, 15 Pro and the
