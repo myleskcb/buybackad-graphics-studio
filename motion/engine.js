@@ -701,8 +701,12 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
     }
     case "neon": {
       const g = lum(accent) > .35 ? accent : "#7cf5ff";
-      ctx.shadowColor = g; ctx.shadowBlur = size * .3; strokeAll(g, size * .06); strokeAll(g, size * .06);
-      noShadow(); strokeAll("#ffffff", size * .022); break;
+      // a dark bed under the tubes, so the glow reads against night and not against a lit
+      // wall, and tubes thick enough to read at feed size (the 3:1 headline check flagged
+      // 7 of 20 neon looks; it still counts the glow against the letters in some)
+      ctx.shadowColor = "rgba(0,0,0,.85)"; ctx.shadowBlur = size * .3; fillAll("rgba(0,0,0,.55)");
+      ctx.shadowColor = g; ctx.shadowBlur = size * .22; strokeAll(g, size * .085); strokeAll(g, size * .085);
+      noShadow(); strokeAll("#ffffff", size * .032); break;
     }
     case "gradient": {
       const g2 = ctx.createLinearGradient(0, pad, 0, pad + asc);
@@ -1132,6 +1136,7 @@ export class Ad {
     this._buildPhones();
     this._layoutType();
     this._numberBelowPhones();
+    this._headlineOffPhones();
     // how the phones get there is planned from where they finally land (the same draws from this.r as ever)
     this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC) : .3;
     this._timeline();
@@ -1347,6 +1352,76 @@ export class Ad {
     const T = ([x, y]) => [ax + k * (x - ax), ay + k * (y - ay) + dy];
     for (const p of this.phones) { p.home = T(p.home); p.size *= k; }
     this.stageC = T(this.stageC);
+  }
+
+  /** The headline never covers the phones, the image ads' rule 58 (copy is never touched
+   *  by the product). Where the phones would cover more than a little of the words, their
+   *  tag or their sign, the phones make room as they do for the number: the least move
+   *  that clears the words, standing smaller only where moving is not enough, and never
+   *  under HEAD_FIT (nor under TOTAL_FIT with what the number already took), because small
+   *  phones are a worse ad than words on phones. They stay clear of the number and of what
+   *  sits under it, and keep a margin from every edge the layout did not already run them
+   *  off, measured where the camera ends (it keeps pushing in). Where nothing clears the
+   *  words the phones take the place that covers least, if that at least halves it. A phone
+   *  tucked a little under the words, and every look already clear, draws as it did.
+   *  (Audit 2026-09-30: in 117 of 400 random looks a quarter or more of the headline's
+   *  ink lay on the phones.) */
+  _headlineOffPhones() {
+    const HEAD_FIT = .75, TOTAL_FIT = .6, END_ZOOM = 1.1;
+    if (!this.phones.length || !this.pos) return;
+    const W = this.W, H = this.H, z = settleZoom(this.st), pos = this.pos, size = this.size, num = this.num;
+    const g = Math.max(size * .08, H * .01);
+    const o = pos.board || pos.outer;
+    const labH = num.label ? num.label.height + size * .06 : 0;
+    const nb = [pos.num[0], pos.num[1] - labH, pos.num[0] + num.c.width, pos.num[1] + num.c.height];
+    const under = this.st.number_pos === "under-headline";
+    const column = [nb[0] - g * .5, nb[1] - g, nb[2] + g * .5, under ? nb[3] + g : H * 3];
+    // how much of the words' box the phones cover, on a grid of points
+    const pts = [];
+    for (let i = 0; i < 16; i++) for (let j = 0; j < 6; j++) pts.push([lerp(o[0], o[2], (i + .5) / 16), lerp(o[1], o[3], (j + .5) / 6)]);
+    const inside = (P, [x, y]) => { let c = false;
+      for (let i = 0, j = P.length - 1; i < P.length; j = i++) if ((P[i][1] > y) !== (P[j][1] > y) && x < (P[j][0] - P[i][0]) * (y - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0]) c = !c;
+      return c; };
+    const head = [o[0], o[1], o[2], o[3]];
+    const cover = Ps => Ps.some(P => hitsRect(P, head)) ? pts.filter(q => Ps.some(P => inside(P, q))).length / pts.length : 0;
+    const outlines = this.phones.map(landedOutline);
+    const onCam = Ps => Ps.map(P => onCamera(P, W, H, z));
+    const c0 = cover(onCam(outlines));
+    if (c0 <= .06) return;
+    const box = Ps => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const P of Ps) for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+      return [x0, y0, x1, y1]; };
+    const endCam = Ps => Ps.map(P => onCamera(P, W, H, END_ZOOM)), mg = W * .03;
+    const b0 = box(endCam(outlines)), top = this.insetTop;
+    // how far the layout already runs past each edge's margin: a moved group may not run further
+    const over = [Math.max(0, mg - b0[0]), Math.max(0, top + mg - b0[1]), Math.max(0, b0[2] - W + mg), Math.max(0, b0[3] - H + mg)];
+    const bb = box(outlines), ax = (bb[0] + bb[2]) / 2, ay = (bb[1] + bb[3]) / 2;
+    const T = (k, dx, dy) => ([x, y]) => [ax + k * (x - ax) + dx, ay + k * (y - ay) + dy];
+    const grown = [o[0] - g, o[1] - g, o[2] + g, o[3] + g];
+    let clear = null, least = null;
+    const step = W * .03;
+    // phones the number already made smaller may move but not shrink much further
+    const kMin = Math.max(HEAD_FIT, TOTAL_FIT / this.phoneFit.k);
+    for (let k = 1; k >= kMin - 1e-9; k -= .05) {
+      const cost0 = (1 - k) * W * 3;
+      for (let i = -16; i <= 16; i++) for (let j = -16; j <= 16; j++) {
+        const dx = i * step, dy = j * step, cost = cost0 + Math.hypot(dx, dy);
+        if (clear && cost >= clear.cost) continue;
+        const moved = outlines.map(P => P.map(T(k, dx, dy))), Ps = onCam(moved), b = box(endCam(moved));
+        if (mg - b[0] > over[0] + 1 || top + mg - b[1] > over[1] + 1 || b[2] - W + mg > over[2] + 1 || b[3] - H + mg > over[3] + 1) continue;
+        if (Ps.some(P => hitsRect(P, column))) continue;
+        if (!Ps.some(P => hitsRect(P, grown))) { clear = { k, dx, dy, cost }; continue; }
+        if (clear) continue;
+        const c = cover(Ps), score = c + cost / W * .05;
+        if (c <= c0 / 2 && (!least || score < least.score)) least = { k, dx, dy, cost, score };
+      }
+    }
+    const best = clear || least;
+    if (!best) return;
+    const f = T(best.k, best.dx, best.dy);
+    for (const p of this.phones) { p.home = f(p.home); p.size *= best.k; }
+    this.stageC = f(this.stageC);
+    this.phoneFit = { ...this.phoneFit, k: this.phoneFit.k * best.k, dy: this.phoneFit.dy + best.dy, head: true };
   }
 
   /** The least the phones must do for the number at pos to sit under them: rise by -dy,
@@ -1723,6 +1798,12 @@ export class Ad {
   _camera(t) {
     const c = this._camera0(t);
     if (this.st.hook === "punch_in" && t < .5) c[0] *= lerp(2.1, 1, outQuint(clamp(t / .5)));
+    // an opening with no words opens close on the phones and pulls back, so the thumbnail is
+    // the product, not the ground (frame 0 of these hooks showed under 15% of anything)
+    if (["flash_cut", "cold_open"].includes(this.st.hook) && t < .6) {
+      const e = 1 - outCubic(clamp(t / .6)), z = c[0] * lerp(1, 1.6, e);
+      c[1] -= e * z * (this.stageC[0] - this.W / 2) / this.W; c[2] -= e * z * (this.stageC[1] - this.H / 2) / this.H; c[0] = z;
+    }
     if (this.st.urgency === "beat_pump") c[0] *= 1 + .022 * beatPulse(t, this.tl.hit, this.st.bpm || 118);
     return c;
   }
@@ -1745,7 +1826,8 @@ export class Ad {
       ctx.restore();
       return;
     }
-    const a = 1 - out, s = lerp(1.25, 1, s0) * (1 + .3 * out);
+    // after the pop the words keep pushing toward the viewer, so the opening second never stands still
+    const a = 1 - out, s = lerp(1.25, 1, s0) * (1 + .12 * outCubic(prog(t, .14, .9))) * (1 + .3 * out);
     const lh = this.hookLines[0].asc * 1.02, total = lh * this.hookLines.length;
     ctx.save(); ctx.globalAlpha = a; ctx.translate(W / 2, H / 2); ctx.scale(s, s);
     this.hookLines.forEach((L, i) => ctx.drawImage(L.c, -L.inkW / 2 - L.pad, -total / 2 + i * lh - L.pad));
