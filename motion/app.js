@@ -19,6 +19,9 @@ const state = {
   index: [],
   ad: null, playing: true, t0: performance.now(), tPaused: 0, sound: false, audio: null, audioCtx: null, audioSrc: null,
   buildId: 0, gallerySeed: 1000,
+  // the gallery: which style it shows, and whether every look on screen moves (on for a mouse, unless motion is turned down)
+  galleryVibe: "all",
+  galleryPlay: matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches,
 };
 
 const BOARD_NAMES = { none: "No sign", freeway: "Green freeway sign", freeway_blue: "Blue freeway sign", poster: "Swap meet poster",
@@ -47,12 +50,14 @@ const labelFor = (k, v) => {
 // ------------------------------------------------------------ persistence
 
 function save() {
-  try { localStorage.setItem(STORE, JSON.stringify({ style: state.style, locked: [...state.locked] })); } catch (e) { /* private mode */ }
+  try { localStorage.setItem(STORE, JSON.stringify({ style: state.style, locked: [...state.locked], galleryVibe: state.galleryVibe, galleryPlay: state.galleryPlay })); } catch (e) { /* private mode */ }
 }
 function restore() {
   try {
     const s = JSON.parse(localStorage.getItem(STORE) || "null");
     if (s && s.style) { state.style = { ...state.style, ...s.style }; state.locked = new Set(s.locked || [...state.locked]); }
+    if (s && (s.galleryVibe === "all" || s.galleryVibe === "none" || VIBES[s.galleryVibe])) state.galleryVibe = s.galleryVibe;
+    if (s && typeof s.galleryPlay === "boolean") state.galleryPlay = s.galleryPlay;
   } catch (e) { /* fresh start */ }
   try {                                              // the studio's brand kit
     const b = JSON.parse(localStorage.getItem("pgfx_brand") || "null");
@@ -260,7 +265,6 @@ function buildPanel() {
   $("shuffle-look").addEventListener("click", () => shuffle(false));
   $("shuffle-all").addEventListener("click", () => shuffle(true));
   $("undo").addEventListener("click", () => { const prev = state.history.pop(); if (prev) { state.style = prev; save(); syncWords(); drawPhonePicker(); rebuild(); } $("undo").disabled = !state.history.length; });
-  $("more").addEventListener("click", () => renderGallery(false));
   $("play").addEventListener("click", togglePlay);
   $("scrub").addEventListener("input", e => {
     const d = state.ad ? state.ad.st.duration : 6;
@@ -339,29 +343,113 @@ function drawPhonePicker() {
 
 // ------------------------------------------------------------ more looks
 
+const GALLERY_PAGE = 24;
+const THUMB_MAX = 320;
+const thumbs = [];                                   // what the gallery can play: { ad, ctx, t0, lastT, last, hover, seen, moving }
+
+/** The gallery's own starting point: the style filter chip swaps in one vibe
+ *  (and frees the axes a vibe paints) without touching the ad being made. */
+function galleryBase() {
+  const v = state.galleryVibe || "all";
+  if (v === "all") return { style: state.style, locked: state.locked };
+  const locked = new Set(state.locked); locked.add("vibe");
+  VIBE_AXES.forEach(a => locked.delete(a));
+  return { style: { ...state.style, vibe: v }, locked };
+}
+
+function buildGallery() {
+  const chips = [["all", "All styles"], ["none", "Plain"], ...Object.entries(VIBES).map(([k, v]) => [k, v.label])];
+  $("gallery-vibes").innerHTML = chips.map(([k, l]) => `<button role="radio" data-gvibe="${k}" aria-checked="${k === (state.galleryVibe || "all")}">${l}</button>`).join("");
+  $("gallery-vibes").addEventListener("click", e => {
+    const b = e.target.closest("[data-gvibe]"); if (!b || b.dataset.gvibe === state.galleryVibe) return;
+    state.galleryVibe = b.dataset.gvibe;
+    document.querySelectorAll("#gallery-vibes [data-gvibe]").forEach(x => x.setAttribute("aria-checked", String(x === b)));
+    save(); renderGallery(true);
+  });
+  $("play-all").checked = state.galleryPlay;
+  $("play-all").addEventListener("change", e => { state.galleryPlay = e.target.checked; save(); });
+  $("more").addEventListener("click", () => renderGallery(false));
+  $("browse").addEventListener("click", e => { e.preventDefault(); $("looks").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  state.thumbSeen = new IntersectionObserver(es => es.forEach(en => { const th = thumbs.find(x => x.el === en.target); if (th) th.seen = en.isIntersecting; }), { rootMargin: "80px" });
+  requestAnimationFrame(thumbLoop);
+}
+
+/** Plays the looks: the one under the pointer every frame, and with "Play them
+ *  all" the ones on screen at about 15 frames a second, in turns, inside a small
+ *  budget per frame so the big preview never stutters. */
+function thumbLoop(now) {
+  const n = thumbs.length, budgetEnd = performance.now() + 7;
+  const draw = th => {
+    const d = th.ad.st.duration;
+    if (!th.moving) { th.moving = true; th.t0 = now; th.lastT = 0; th.ad.still = null; }
+    const t = ((now - th.t0) / 1000) % (d + .8);
+    if (t < th.lastT) th.ad.still = null;           // looped: the phones fly in again
+    th.lastT = t; th.last = now;
+    th.ad.frame(th.ctx, Math.min(t, d - .001), { subsFly: 1, subsMove: 1 });
+  };
+  for (const th of thumbs) {
+    if (th.hover) draw(th);
+    else if (th.moving && !(state.galleryPlay && th.seen)) { th.moving = false; th.ad.stillAt(th.ctx); }
+  }
+  if (state.galleryPlay && n) {
+    for (let j = 0; j < n && performance.now() < budgetEnd; j++) {
+      const i = (state.thumbCursor = ((state.thumbCursor || 0) + 1) % n), th = thumbs[i];
+      if (th.hover || !th.seen || now - th.last < 62) continue;
+      draw(th);
+    }
+  }
+  requestAnimationFrame(thumbLoop);
+}
+
 async function renderGallery(reset) {
   const g = $("gallery");
   // a reset starts a new gallery; one still drawing from before stops rather than
   // adding thumbnails of the old size or the old number to the new one
-  if (reset) { g.innerHTML = ""; state.galleryGen = (state.galleryGen || 0) + 1; }
+  if (reset) {
+    g.innerHTML = ""; state.galleryGen = (state.galleryGen || 0) + 1;
+    thumbs.forEach(th => state.thumbSeen && state.thumbSeen.unobserve(th.el)); thumbs.length = 0;
+  }
   const gen = state.galleryGen || 0;
   const [W, H] = ASPECTS[state.style.aspect] || ASPECTS["1:1"];
-  const k = 300 / Math.max(W, H);
-  for (let i = 0; i < 8; i++) {
-    if (gen !== (state.galleryGen || 0)) return;
-    const seed = state.gallerySeed++;
-    const st = harmonise(randomize(state.style, seed, state.locked, [], false), state.locked, indexById());
-    await loadFonts(fontsFor(st));
-    if (gen !== (state.galleryGen || 0)) return;
-    const ad = new Ad(st, state.assets, Math.round(W * k), Math.round(H * k));
-    const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
-    const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
-    ad.stillAt(c.getContext("2d"));
-    b.appendChild(c); b.insertAdjacentHTML("beforeend", `<span>${st.vibe && st.vibe !== "none" ? VIBES[st.vibe].label : labelFor("font", st.font)}</span>`);
-    b.addEventListener("click", () => { pushHistory(); state.style = { ...st, number: state.style.number, phones: state.style.phones }; save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); });
-    g.appendChild(b);
-    await new Promise(r => setTimeout(r, 0));
-  }
+  const k = THUMB_MAX / Math.max(W, H);
+  g.style.setProperty("--ar", `${W} / ${H}`);
+  g.style.setProperty("--thumb-min", H > W * 1.2 ? "150px" : W > H * 1.2 ? "250px" : "180px");
+  const { style, locked } = galleryBase(), vibe = state.galleryVibe || "all";
+  $("more").disabled = true;
+  try {
+    for (let i = 0; i < GALLERY_PAGE; i++) {
+      if (gen !== (state.galleryGen || 0)) return;
+      const seed = state.gallerySeed++;
+      const st = harmonise(randomize(style, seed, locked, [], false), locked, indexById());
+      await loadFonts(fontsFor(st));
+      if (gen !== (state.galleryGen || 0)) return;
+      const ad = new Ad(st, state.assets, Math.round(W * k), Math.round(H * k));
+      const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
+      const frame = document.createElement("span"); frame.className = "mo-thumb-img";
+      const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
+      const ctx = c.getContext("2d");
+      ad.stillAt(ctx);
+      frame.appendChild(c); b.appendChild(frame);
+      const name = st.vibe && st.vibe !== "none" ? VIBES[st.vibe].label : "Plain";
+      b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${labelFor("font", st.font)} · ${labelFor("hook", st.hook)}</small></span>`);
+      b.setAttribute("aria-label", `Use this look: ${name}, ${labelFor("font", st.font)}`);
+      const th = { el: b, ad, ctx, t0: 0, lastT: 0, last: 0, hover: false, seen: false, moving: false };
+      const hover = on => { th.hover = on; if (on) th.moving = false; };
+      b.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") hover(true); });
+      b.addEventListener("pointerleave", () => hover(false));
+      b.addEventListener("focus", () => hover(true)); b.addEventListener("blur", () => hover(false));
+      b.addEventListener("click", () => {
+        pushHistory();
+        state.style = { ...st, number: state.style.number, phones: state.style.phones };
+        if (vibe !== "all") { state.locked.add("vibe"); VIBE_AXES.forEach(a => state.locked.delete(a)); }   // New look stays in the style browsed
+        save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      g.appendChild(b); thumbs.push(th);
+      if (state.thumbSeen) state.thumbSeen.observe(b);
+      $("looks-count").textContent = `${thumbs.length} shown`;
+      await new Promise(r => setTimeout(r, 0));
+    }
+  } finally { if (gen === (state.galleryGen || 0)) $("more").disabled = false; }
 }
 
 // ------------------------------------------------------------ download
@@ -395,6 +483,7 @@ function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTi
 (async function main() {
   restore();
   buildPanel();
+  buildGallery();
   const { phones, index } = await loadPhones("./phones/");
   state.assets.phones = phones; state.index = index;
   state.style.phones = state.style.phones.filter(id => phones[id]);

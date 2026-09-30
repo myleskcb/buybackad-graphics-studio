@@ -52,6 +52,7 @@
         <button class="mo-btn primary" id="shuffle-look" title="New design, same words and phones">&#10227; New look</button>
         <button class="mo-btn" id="shuffle-all" title="New design, new words">&#9861; Surprise me</button>
         <button class="mo-btn" id="undo" title="Back to the previous look" disabled>&#8630; Back</button>
+        <a class="mo-btn" id="browse" href="#looks">&#9638; Browse looks</a>
         <button class="mo-btn download" id="download">&#11015; Download MP4</button>
       </div>
       <section class="mo-attn" id="attn" aria-label="Attention check">
@@ -64,9 +65,6 @@
       <div class="mo-progress" id="progress" hidden><div class="mo-bar"><i id="bar"></i></div><span id="progress-label"></span></div>
       <p class="mo-note" id="export-note"></p>
 
-      <h2 class="mo-h2">More looks <button class="mo-link" id="more">Show 8 more</button></h2>
-      <p class="mo-note">Your locked settings and your words stay; everything else is new. Tap one to use it.</p>
-      <div class="mo-gallery" id="gallery"></div>
     </section>
 
     <aside class="mo-panel" aria-label="Settings">
@@ -135,6 +133,17 @@
       <p class="mo-note mo-seed">Look number <b id="seed"></b>. The same number with the same settings always makes the same video.</p>
     </aside>
   </div>
+
+  <section class="mo-looks" id="looks" aria-labelledby="looks-h">
+    <div class="mo-looks-head">
+      <h2 class="mo-h2" id="looks-h">More looks <span class="mo-opt" id="looks-count"></span></h2>
+      <label class="mo-check"><input type="checkbox" id="play-all"> Play them all</label>
+    </div>
+    <p class="mo-note">Your words, phones and locked settings stay; everything else is new. Point at a look to watch it move, tap it to use it.</p>
+    <div class="mo-vibes" id="gallery-vibes" role="radiogroup" aria-label="Show looks in one style"></div>
+    <div class="mo-gallery" id="gallery"></div>
+    <button class="mo-btn mo-more" id="more">Show 24 more</button>
+  </section>
 </main>
 
 <footer class="bottom">
