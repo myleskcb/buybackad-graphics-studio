@@ -2733,11 +2733,59 @@ last (classics: 226 of 243 pass, 17 held back). One library card whose tick
 circles the layout had left a row out of step with its lines
 (checklistHero-du08-20, the only one of 30 tick lists) was retired: 398 live.
 
-## 92. The designer speaks the house language
+**Widened 2026-09-30 (a visual audit of all 226 offered classics).** The owner:
+"keep updating and auditing the bad ones". Looking at every card found what
+the gate still passed, nearly all on the designer layouts (dl_):
+
+- **Wholly on a plate or wholly off it.** A line with 8% to 92% of its letters
+  on a solid plate beneath it fails 'straddle' (a CTA label on the number
+  plate's border, a list running under it, a headline past its panel). Only
+  the plate a line sits on counts: a number on its pill that crosses a panel
+  is on its pill.
+- **Lines never touch.** Letters overlapping another line's, or two lines side
+  by side on a row with no gap, fail 'collide' ("WE BUY" into the number).
+- **Each line of a text is judged on its own**, so a covered last line of a
+  two-line block is not averaged away ("MARKET RATES" under the pill).
+- **Settled after the layout** (`pgUncover`): the line slides the shortest
+  clear way, fully onto the plate it straddles or fully off, or shrinks toward
+  its plate (never under 72%); the number never moves.
+- **Plates stay inside the guides** unless attached to an edge: a plate the
+  layout padded past them (a 1053px neon frame) comes back if its words fit.
+- **Plates that carry words do not overlap part-way**: a number plate grown
+  over the last step card gives the overlap back.
+- **A designer layout's item list stays one line**; stacked, it became a tiny
+  column under the number's plate on 30-odd cards.
+
+## 92. A hairline serif does not carry a headline over a photograph
+
+Added 2026-09-30 on the live branch as rule 69 (numbered 92 here, after the
+lines were merged). The same audit: "CASH FOR GOLD" in Melodrama, the
+high-contrast serif, over the gold-jewellery photographs read as texture, its
+hairlines lost in the chains, gold on gold. The gate could not tell it from a
+readable card (core contrast 4.3 to 5.0 on both). Over a photograph a
+headline in Melodrama is set in Zodiak, the editorial serif, whose strokes
+hold; so is any Melodrama line under 60px ("GET A FREE QUOTE" on a white
+plate), where its hairlines are gone on any ground. On a plain ground at size
+Melodrama keeps its voice.
+
+And a dark glow behind dark type (the knockout headlines on bright bands) is
+removed after the layout: a halo takes the tone of the ground (rule 27), and a
+dark one behind dark letters is a smudge.
+
+**One serif to a card** (2026-09-30, on the merged engine). Swapping only some
+lines set Zodiak beside Melodrama on twelve cards, a third family that the
+template audit holds back (rule 81). So the swap is made for the card: when
+the headline over a photograph moves to Zodiak, every Melodrama line on it
+moves too, the number included; a small Melodrama line on a card that keeps
+Melodrama takes the face the card's other copy is set in. A table that sets a
+face after load (assets/number-fix.json) is re-baked for the cards this pass
+changes, or it puts the old face back.
+
+## 93. The designer speaks the house language
 
 Added 2026-09-30 by the colour-theme session (claude/eloquent-euler-7jvzfd,
-0769ce3), whose code calls it rule 80; numbered 92 here, after the rules 89-91
-merged before it. Its text was not yet written on that branch; this is taken
+0769ce3), whose code calls it rule 80 (then 91); numbered 93 here, after the rules
+89-92 merged before it. Its text was not yet written on that branch; this is taken
 from its commit and the code's own comments, for that session to amend. The
 owner: "audit and make sure the designer page looks updated FOR ALL NEW
 FEATURES / DESIGN LANGUAGE".

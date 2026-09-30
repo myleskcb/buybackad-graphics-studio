@@ -1784,7 +1784,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-preview-card img.ez-pat-drag{cursor:grab;touch-action:none;user-select:none}
 .ez-preview-card img.ez-pat-drag.dragging{cursor:grabbing}
 .ez-tag-note{font:500 12px/1.45 var(--ui);color:var(--text-2);background:var(--surface-sunk);border:1px solid var(--hairline);border-left:3px solid #f5b53d;border-radius:var(--r-sm);padding:8px 10px;margin-top:4px}
-/* ═══════════ THE DESIGNER'S NEW CONTROLS (DESIGN-LAW rule 92) ═══════════
+/* ═══════════ THE DESIGNER'S NEW CONTROLS (DESIGN-LAW rule 93) ═══════════
    The advanced editor's panel carries the same controls as Easy Mode, in
    Easy Mode's own classes (.ez-theme, .ez-sw, .ez-fxrow, .ez-fxline), sized
    down for the 290px panel. */

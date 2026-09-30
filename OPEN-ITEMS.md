@@ -728,6 +728,31 @@ Still open, from the audit (numbers in docs/COHESION-AUDIT.md):
    shades further; `naturalize_showcase.mjs` still solves 'normal' only (it
    runs before darken, which re-solves).
 
+## M. 2026-09-30 — the visual audit
+
+Every offered classic rendered and looked at (contact sheets); the defects the
+gate could not see are now rules 91 (widened) and 92 and are settled in the
+engine. Still open:
+
+1. **Small supporting copy.** A tenth of all reading lines are 19 to 24px on
+   the 1080 card, about 7 to 9pt on a phone. A floor would redesign the
+   densest layouts; do it per layout.
+2. **Item lines over busy photographs** (some gold cards): the shade is solved
+   for the headline; the 20px list over the chains reads poorly.
+3. **The library's 415 cards** have not had the same by-eye pass yet.
+4. **Two classics held back by the Zodiak swap (rule 92)**: Zodiak sets about
+   35% wider than Melodrama, so `coins_graded`'s long headline is fitted
+   under the 160px-tile floor and `dl_strips_duoSplit_emerald`'s headline no
+   longer fits its column. Each needs its own layout fix (a shorter line or a
+   wider column); the swap stays, since it makes some twenty gold, silver and
+   coin headlines readable.
+5. **Four more classics held on the merged engine** (2026-09-30), each a
+   real defect the trunk's gate could not see and each needing its own layout
+   fix: `st_coins_splitcol` (the number runs off the left of its plate),
+   `dl_phones_lowerThird_ocean` (the number sits on "SELL YOUR"),
+   `dl_gold_priceAnchor_gold` (the one-line item list over the watch, 2.93:1),
+   `of_mac_center_sun` (the laptop cutout touches "Sell it.").
+
 ## S. 2026-09-29 — three lines of work made one
 
 The owner: "ok work around push and commit" (the live site could not be seen
@@ -906,7 +931,7 @@ Merged, in order (the log entry of the same date has the numbers):
   iOS-only emoji, copy never under a shape);
 - `claude/project-thread-eost3s` to 8842adc (the video maker, 2026-09-30);
 - `claude/eloquent-euler-7jvzfd` to 0769ce3 (the designer speaks the house
-  language, rule 92, 2026-09-30);
+  language, rule 93, 2026-09-30);
 - the trunk, `claude/vibrant-lovelace-rze4rx`, is the branch this was built on.
 
 Not merged, on purpose (§J): `claude/busy-allen-2d5iv1` (the photo standard)
@@ -936,7 +961,7 @@ Open:
    before it),
    exactly as it does on the August `main` and on every branch: rule 43's
    finding, waiting on the field research rule 14 asks for.
-6. **The designer audit** (`scripts/designer_audit.mjs`, rule 92). Its
+6. **The designer audit** (`scripts/designer_audit.mjs`, rule 93). Its
    default cards sell_iphone, gold_spot, cars_kbb and pkm_binder are held by
    the template audit on `main`, and lowerThird-nn03-30 by the gate, so Easy
    Mode opens its first card in their place and the audit measures one card

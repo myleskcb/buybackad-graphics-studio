@@ -1648,6 +1648,69 @@ RESUME HERE:
   on their subject (8), one palette reader (9), one path for the gate and Easy
   Mode (10), sparse patterns (11).
 
+---
+
+## 2026-09-30 — Looking at every card
+
+Owner: "looks better now keep updating and auditing the bad ones".
+
+Learned:
+  - The gate passes what it measures. Rendering all 226 offered classics
+    into labelled contact sheets and looking at each found six kinds of
+    defect it could not see: lines straddling plate edges, lines touching,
+    stacked lists under plates, dark glows on dark type, hairline serifs on
+    busy photographs, plates grown past the guides or over other plates.
+  - Almost all of them were on the designer layouts, and most came from one
+    pass running where it did not belong (the list stacker) or one stage
+    growing a plate without asking what else was there (step 4's padding).
+  - A text's box and fabric's line heights disagree by the last line's
+    leading; the gate and the resolver must use the same line boxes or one
+    sees a straddle the other does not.
+  - Luminance contrast cannot see camouflage: gold hairlines on a gold photo
+    measured like a readable headline.
+
+Changed:
+  - pgUncover now settles straddle, collide (touching counts), covered, marks
+    and copy on a product; clamps plates to the guides; trims overlapping
+    word-carrying plates. pgStraddleCheck in the gate ('straddle', 'collide'),
+    per-line bodies everywhere (pgLineBodies, pgTextLineBoxes fitted to the
+    box). stackBulletRuns skips dl_ layouts. pgDarkGlow. pgHairlineHeads.
+  - DESIGN-LAW rule 91 widened, rule 92.
+
+Left:
+  - Supporting lines of 19 to 24px (a tenth of all lines) read small on a
+    phone; raising the floor would redesign the densest layouts.
+  - Item lines over busy photographs are thin and low contrast on some gold
+    cards; the ground solver shades for the headline, not for 20px copy.
+
+## 2026-09-30 (later) — the live branch and the trunk made one again
+
+Merged claude/vibrant-lovelace-rze4rx (with vibrant-hawking) into the live
+branch before its next deploy, as the owner asked ("unify the sites or
+branches"), then ran every audit on the merged engine.
+
+Learned:
+  - The trunk's gate, without this branch's last three commits, offered cards
+    that are plainly broken on sight: the number printed over "SELL YOUR"
+    (dl_phones_lowerThird_ocean) and a number running off its plate
+    (st_coins_splitcol). The merged gate holds them.
+  - A face pass that runs at load is undone by any table applied after it:
+    the number table re-set Melodrama on five cards whose headlines had
+    moved to Zodiak, a third family on each.
+  - Changing some lines of a card to a new face is a new family; a face
+    decision belongs to the card.
+
+Changed:
+  - pgHairlineHeads decides for the card (one serif); number-fix rows for the
+    five cards re-baked with the repo's own generator.
+  - Classics gate: 63 of 404 held (trunk 58: two from the Zodiak swap, four
+    real defects above, one released). Template audit: 137 held (trunk 143).
+    Offered after both: 264 (trunk 260). Library 415 of 415 pass; 95 live
+    thumbnails changed materially (dark halos behind dark type gone, the
+    review quote at a readable size), the rest left as they were.
+  - DESIGN-LAW rule 92 widened; rule references in this branch's code now
+    use the unified numbers.
+
 ## 2026-09-30 — What was live moved again: the iOS emoji merged, the sessions told
 
 The owner: "You've got full access to do this for me … unblock the deploy …
@@ -1778,7 +1841,7 @@ Changed:
     eost3s to 8842adc, eloquent-euler to 0769ce3. `main` fast-forwarded.
   - Not merged: busy-allen and quirky-ritchie (August base, OPEN-ITEMS §J, §U).
   - DESIGN-LAW 88 (iOS emoji or none) in place of the drawn set, 91 (copy
-    never under a shape, with ghost by contrast), 92 (the designer, from the
+    never under a shape, with ghost by contrast), 93 (the designer, from the
     designer session's commit). AGENT-BRIEF landmine 6: start from `main`
     and put work back on it; Deploying: deploy `main` only, one site.
 
