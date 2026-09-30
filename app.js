@@ -10695,8 +10695,16 @@ async function scRegister(id){
   const base = scBaseOf(c) || {};
   const t = Object.assign({}, base, rec.tpl, { id: tid, name: c.name, cat: c.cat, tag: 'new',
     tier: scIsFree(c) ? 'free' : base.tier, showcase: id });
-  const fams = new Set();
-  (t.layers || []).forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); });
+  const fams = new Set(), faces = new Set();
+  (t.layers || []).forEach(l => { const p = l.props || {}, f = p.fontFamily; if (!f) return; fams.add(f);
+    faces.add((p.fontStyle === 'italic' ? 'italic ' : '') + (p.fontWeight || 400) + ' 24px "' + f + '"'); });
+  /* each weight the card sets, not only the family: ensureFont loads the
+     face nearest 400, and Big Shoulders Display has only 600 and 700. Its
+     700, on 66 of the 399 live cards, was measured in a fallback at the
+     card's first render: the Reef lower third's WE BUY came out 258px wide
+     in Easy Mode, 156 in its own face */
+  const loadFaces = f => ensureFont(f).then(() => document.fonts && document.fonts.load
+    ? Promise.all([...faces].filter(q => q.endsWith('"' + f + '"')).map(q => document.fonts.load(q).catch(() => {}))) : null);
   const cuts = [...new Set((t.layers || []).filter(l => l.kind === 'cutout' && l.props && l.props.src).map(l => l.props.src))];
   const loadCut = src => new Promise(res => {
     if (CUTOUT_ELS[src] && CUTOUT_ELS[src].width) return res();
@@ -10708,7 +10716,7 @@ async function scRegister(id){
     const el = new Image(); el.onload = () => { TPL_BG_ELS[src] = el; res(); }; el.onerror = () => res(); el.src = assetUrl(src);
   });
   await Promise.race([
-    Promise.all([...fams].map(f => ensureFont(f)).concat(cuts.map(loadCut), [loadBg(t.bg && t.bg.src)])),
+    Promise.all([...fams].map(loadFaces).concat(cuts.map(loadCut), [loadBg(t.bg && t.bg.src)])),
     new Promise(r => setTimeout(r, 7000)),      // never hold the click hostage
   ]);
   try { if (window.fabric && fabric.util && fabric.util.clearFabricFontCache) fabric.util.clearFabricFontCache(); } catch (e){}

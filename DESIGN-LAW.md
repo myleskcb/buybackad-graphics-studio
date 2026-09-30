@@ -2353,6 +2353,8 @@ The Apple Store photograph the owner mentions is not in the repo, and this
 session's network policy refused every free-photo host. It goes in as a
 photograph like any other once the owner supplies one (OPEN-ITEMS §K).
 
+> Extended (rule 93): the designer's Backgrounds tab offers the same kinds, in the card's or the theme's palette, with blur, Shade/Fade and the patterns; the ten fixed-colour backdrops are retired from it and from the community gallery.
+
 ## 87. One measure, one gate, and which rule wins
 
 Added 2026-09-27. The owner: "audit of any overlapping code, contradictory
@@ -2781,48 +2783,164 @@ Melodrama takes the face the card's other copy is set in. A table that sets a
 face after load (assets/number-fix.json) is re-baked for the cards this pass
 changes, or it puts the old face back.
 
-## 93. The designer speaks the house language
+## 93. The designer speaks the house language: Easy Mode's controls, on the live canvas
 
-Added 2026-09-30 by the colour-theme session (claude/eloquent-euler-7jvzfd,
-0769ce3), whose code calls it rule 80 (then 91); numbered 93 here, after the rules
-89-92 merged before it. Its text was not yet written on that branch; this is taken
-from its commit and the code's own comments, for that session to amend. The
-owner: "audit and make sure the designer page looks updated FOR ALL NEW
-FEATURES / DESIGN LANGUAGE".
+Added 2026-09-30 on the designer branch (claude/eloquent-euler-7jvzfd), whose
+code called it 80 and then 91; numbered 93 here, where the live branch's rules
+took 91 and 92 first. The owner: "audit and make sure the
+designer page looks updated FOR ALL NEW FEATURES / DESIGN LANGUAGE". The
+designer is the advanced editor ("Advanced editor →", "Fine-tune in advanced
+editor").
 
-The advanced editor had fallen a generation behind Easy Mode: no colour themes
-(rule 90), and a theme brought from Easy Mode could be neither changed nor
-taken off; ten fixed-colour backdrops from before the themes and none of rule
-86's grounds; no blur, shade or pattern; no library cards in its Templates
-tab; the copy stayed put when the ground changed; and it froze for about
-twenty seconds while every thumbnail rendered. Now, in the editor:
+Audited against Easy Mode, it was a generation behind:
+- no colour themes (rule 90), and a theme brought over from Easy Mode could be
+  neither changed nor taken off;
+- its Backgrounds tab offered ten fixed-colour procedural backdrops from before
+  the themes (red and gold beams, money bokeh, orange energy, purple pulse, a
+  tech grid) and none of rule 86's grounds;
+- Quick edit's Background was three raw colour pickers;
+- no blur, no shade, no pattern;
+- the Templates tab listed the 243 classics and none of the 399 library cards
+  the landing page leads with;
+- changing the ground left the copy where it was.
 
-- **One colour pass** (`edRecolour`) works from each object's saved original
-  paint, so themes never compound and ORIG puts the card back exactly,
-  through undo, drafts and saved templates. A colour the visitor set by hand
-  stays theirs. The theme follows the visitor from Easy Mode and from card to
-  card.
-- **The same controls as Easy Mode**: the theme row with ORIG, the six
-  swatches, every kind of ground in the card's or the theme's colours, blur,
-  shade and fade in the tone the copy needs, and patterns, in Easy Mode's
-  layer order. A photograph the visitor picks is shaded until the copy reads,
-  as the export gate would (rules 62, 87). Copy follows a flat ground.
+Measured on the live build (26037de3) by `scripts/designer_audit.mjs`
+(below), on six cards: 23 problems. The cards are four classics (Sell Your
+iPhone, the gold spot, KBB and the Pokémon binder) and two library cards (the
+owner's Reef lower third and bandKnockout).
+- On all six, no theme, swatch or ground control.
+- On all six, the page froze once the designer opened: its longest task ran
+  0.8 to 1.1s, and 10.2 to 11.3 of the first 12 seconds were blocked.
+- On five, the hand-off moved copy from where Easy Mode had put it. Sell Your
+  iPhone's product list was 937px wide in Easy Mode and 811 in the designer;
+  bandKnockout's knockout band went from 950 to 449.
+
+The rule:
+
+- **One system, not a copy.** The designer's controls call the functions Easy
+  Mode calls, on the designer's live canvas and its own card (currentTplId):
+  - themeScene for the themes;
+  - ezPresetSpecs for the six swatches;
+  - ezGroundSpecs for every kind of ground;
+  - ezOverlayFill, ezOverlayPre and ezOverlayFit for the overlay and its tone;
+  - GROUNDS.overlay for the patterns;
+  - ezCopyFollowsGround for the copy on a flat ground.
+  A new colour or ground feature lands in both, or it is not done.
+- **One pass, from the originals.** Every colour decision goes through
+  edRecolour: a theme picked, a ground changed, an effect changed.
+  - Each object remembers the paint it had before any theme (pgOrig). It is
+    saved with it (EXTRA_PROPS), so undo, drafts and saved templates keep it.
+  - The pass is made again from the originals, so themes never compound, and
+    ORIG puts back exactly the card it started from.
+  - The originals are copies. A gradient's colour stops are objects that
+    fabric shares between the gradient, its toObject() and a gradient made
+    from it, and two passes turn a stop's colour in place (themeScene's
+    marks, ezCopyFollowsGround). Shared, they turned the saved original too.
+    KBB's gradient headline, flipped dark on a light swatch, came back dark
+    on its photograph at ORIG (1.1:1), and the next photograph's shade was
+    solved for it.
+  - A colour the visitor sets by hand after a pass is theirs (pgUser). It
+    stays through a ground or an effect, and a whole palette takes it back,
+    as in Easy Mode.
+  - The theme drawn is written on the objects (pgTheme), so the chip that is
+    lit is the theme that is drawn, through undo too.
+- **The theme follows the visitor.** It follows from Easy Mode into the
+  designer, from card to card inside it, and through Enhance (which restores
+  each layer's own styling, then draws the theme again).
+- **Grounds are the card's, or its theme's** (rule 86).
+  - Quick edit carries ORIG and the six swatches (the theme's when a theme is
+    on).
+  - Backgrounds carries every kind of ground: photos, blurred photos, solid,
+    gradient, sunburst, pattern and texture, each painted in the card's
+    palette or its theme's.
+  - The ten fixed-colour backdrops are retired, from the community gallery
+    too.
+  - "Remove photo" leaves the card's own ground colour. Before, it left the
+    canvas bare.
+- **A photograph the visitor picks is shaded until the copy reads**, as the
+  gate would shade it at export (rules 62, 66): bands where the copy stands,
+  dark under light ink and paper under dark, stepped up to 0.7. The canvas
+  being designed is the ad that exports. The card's own photograph (already
+  solved in the library) and a flat ground (the copy follows it) take none.
+- **Effects, in Easy Mode's layer order**: ground, shade, pattern, overlay,
+  then the card.
+  - Blur adds to a photograph's own blur, and is switched off, with its
+    reason, over a flat colour.
+  - Shade, Fade ↓ and Fade ↑ take the tone the copy needs.
+  - The patterns and their light tone draw over any ground.
+- **The library is in the Templates tab.** The category's library cards open
+  in the designer as real templates, registered by scRegister, which Easy
+  Mode's openShowcase now shares.
+- **A card is drawn in its own faces from its first render.** scRegister
+  loads every weight the card sets, not only the family. ensureFont loads
+  the face nearest 400, and Big Shoulders Display comes only in 600 and 700.
+  Its 700, on 66 of the 399 live cards, could be measured in a fallback at
+  the card's first render, depending on when the face arrived. The Reef
+  lower third's WE BUY came out 258px wide in Easy Mode and 156 in its own
+  face, so the designer, opened later, disagreed with what Easy Mode had
+  drawn.
+- **The hand-off lays the visitor's words out once.** Easy Mode lays out fresh
+  layers once. The designer laid out the template's own words, then laid the
+  visitor's out a second time over objects already fitted. The second layout
+  compounded: on Sell Your iPhone the product list came out at 0.81 of its
+  size (Easy Mode: 0.935), and the call to action rose 34px onto it. Every
+  card with a textbox disagreed. The designer now rebuilds the layers before
+  the visitor's words go in.
+- **Undo carries the ground.** The history keeps the ground's description with
+  the canvas, so undoing a ground puts back its controls (the blur slider, the
+  lit swatch) as well as its pixels.
+- **A pattern is saved as its recipe.** Its kind and tone are saved, not its
+  pixels, and it is drawn again after any load. Saved as a 1080px PNG, film
+  grain was 911KB in every undo step and in the draft, enough to overrun the
+  browser's storage beside a photograph. An undo step with it now saves 61KB.
+- **The page answers while it settles.** Thumbnails render one at a time, in
+  the browser's idle time, with a breath between two. Only the category on
+  screen and the thumbnails a grid is waiting for are rendered, and a grid
+  shows a card's placeholder until its picture is ready (lazyThumb).
+  - Before, all 243 rendered six at a time, 60ms apart, for about twenty
+    seconds after the designer opened. The canvas did not paint in that time
+    and every click waited.
+  - Easy Mode's strip was rebuilt behind the designer at every photograph
+    that arrived, which held it up to half a second each time.
+  - The landing page loads in 2.7s on a laptop and 7.9s on a phone (it was
+    7.7s and 17.9s).
+- **A late photograph is drawn.** A classic's photograph that arrives after
+  its card opened in the designer is drawn in place, and the colours are
+  solved again on it.
+
+Measured by `scripts/designer_audit.mjs` (exit 1 on any problem), through the
+real panel, each card in a fresh browser context, and only on the card asked
+for. The first runs of it measured Sell Your iPhone twice. The owner's Reef
+lower third is stamped out of the library (defect:school), so it did not
+open, and the card still on screen was measured under its name. A card that
+does not open is now a problem, and a retired card opens from its row, as
+the Easy Mode audit opens it. It covers:
+- the page settling after the designer opens;
+- the hand-off;
+- every theme and ORIG;
+- the six swatches with no theme, a light theme and a dark one, and ORIG
+  after them;
+- the first two of every kind of ground;
+- blur, each overlay, each pattern and its tone;
+- undo;
+- the library.
+
+After, with the same audit on this branch: no problems over the six cards,
+and no page errors.
+- The page answers once the designer opens: its longest task runs 82 to
+  149ms, and 0.45 to 1.2 of the first 12 seconds are blocked.
+- The hand-off puts every box within 3px of where Easy Mode drew it.
+- Every theme changes every card (19.7 to 88.3% of the picture). ORIG puts
+  the card back exactly, after the themes and after the swatches.
+- The swatches, the grounds, blur, the overlays and the patterns each change
+  the picture and fail no line. Undo puts the ground back. The library lists
+  the category's cards, and one opens.
+
+Easy Mode's audit (rule 90) still reads no problems over its 20 cards and 21
+themes.
+
+Kept from the merge of the lines (2026-09-30):
 - **The tagline look goes on after the colours** (rule 83): the pass takes a
   look off, recolours, and puts it back on in the theme's palette, so a theme
   picked in the editor never overpaints a look (added when the lines were
   merged, 2026-09-30).
-- **ORIG is exact, whatever came between.** The paint saved for ORIG is a
-  deep copy: a gradient's stops were shared with the live fill, and the copy
-  pass recolours stops in place, so a later pass rewrote the saved paint and
-  ORIG kept a theme's colour (cars_anycond, 14.1% of the card). A shade a
-  photograph needed leaves before the copy is solved on the next, flat
-  ground (it had turned a headline dark on dark grey). Both found when the
-  lines were merged, 2026-09-30.
-- **The hand-off lays the visitor's words out once**, as Easy Mode does; a
-  second layout compounded (Sell Your iPhone's product list at 0.81 with the
-  call to action risen onto it). Undo carries the ground; a pattern saves as
-  its recipe. Thumbnails render one per idle slice, only for the category on
-  screen.
-
-`scripts/designer_audit.mjs` presses every one of these through the real panel
-and exits 1 on any problem.
