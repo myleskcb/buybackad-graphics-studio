@@ -1867,6 +1867,10 @@ Measured (the final build, 6385b72):
     (st_cars_cashfor among them). Template audit 137 of 404 held.
   - Easy Mode through the gate: 267 templates, no number off its guides,
     5 fail (§U 7). tagline_panel_check and device_picker_check pass.
+  - Tagline looks: 12 on 82 templates, the picture and the video's frames:
+    every look passes on every template but one pair (scriptRetro_paper's
+    Headline 2 at 2.95:1, §U 8); blocks give way on 3, each over its
+    product.
   - Designer audit on six offered cards: hand-off 0, ORIG 0% on all six, no
     legibility regression, 2.1 to 2.8 s of blocking (the bar is 3 s); left,
     sparse patterns on two cards, as on the designer branch (§U 6).

@@ -986,3 +986,10 @@ Open:
    which the sweep does not apply). The export gate still asks on each.
    Eight more (the bandKnockout family) were Easy Mode putting every selling
    point in every chip; fixed here (one point to a slot).
+8. **dl_sports_scriptRetro_paper's Headline 2 sits at 3:1.** Released by the
+   live branch's visual audit (2026-09-30), it is new to the tagline audit:
+   with the pair look it reads 2.95:1 (82 templates, every other look and
+   template passes; blocks give way on 3, each over its product), and in the
+   Easy Mode sweep it passes and fails between runs. The export gate shades
+   it when it fails; a line a design keeps at the edge of the bar wants its
+   ink moved, or the card held.
