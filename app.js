@@ -2792,7 +2792,9 @@ function renderThumb(tpl, px){
   }
   tpl.layers.forEach(l => sc.add(buildLayer(l, tpl.id)));
   alignPass(sc, TPL_W, TPL_H);
-  sc.renderAll();
+  /* no renderAll first: toDataURL paints the scene itself, at thumbnail size.
+     The full-size paint before it was thrown away, and was half the cost of
+     every thumbnail (78ms to 39ms, the same pixels; rule 91) */
   const url = sc.toDataURL({ format:'jpeg', quality:0.82, multiplier:(px||300)/TPL_W });
   sc.dispose();
   return url;
@@ -8785,18 +8787,22 @@ function openAdvancedFromEz(){
       if (stB) o.set(ezStyleProps(stB, (baseB && baseB.props) || {}));   // the selling points' ✎ style, as Easy Mode drew it
       return;
     }
-    if (o.pgRole === 'phone' && phone) o.set('text', formatPhone(phone));
+    let retyped = false;
+    if (o.pgRole === 'phone' && phone){ o.set('text', formatPhone(phone)); retyped = true; }
     else if (o.pgRole === 'website'){
-      if (site) o.set('text', cleanText(site, 'none', 'website'));
+      if (site){ o.set('text', cleanText(site, 'none', 'website')); retyped = true; }
       else canvas.remove(o);
     }
-    else if (vals[o.name] !== undefined) o.set('text', cleanText(vals[o.name], o.pgCasing || 'none', o.pgRole));
+    else if (vals[o.name] !== undefined){ o.set('text', cleanText(vals[o.name], o.pgCasing || 'none', o.pgRole)); retyped = true; }
     /* REFIT, as Easy Mode does (renderEzCanvas): the fit was computed for the
        authored words, and these are the visitor's. Single-line text only;
        textboxes wrap. (2026-09-28: the editor used to keep the authored fit,
        so a longer headline ran off the card.) */
     const baseL = tpl.layers.find(x => x.name === o.name);
-    if (baseL && o.text !== undefined && baseL.kind !== 'textbox' && (o.type === 'i-text' || o.type === 'text')){
+    /* only a line the visitor retyped, as Easy Mode refits: a fresh layer is
+       already fitted, and fitted again it took its optical shift twice (4px
+       on bandKnockout's first headline) */
+    if (retyped && baseL && o.text !== undefined && baseL.kind !== 'textbox' && (o.type === 'i-text' || o.type === 'text')){
       fitToDoc(o, baseL.props, CW);
       if (baseL.pgOptical !== false && typeof opticalLeftShift === 'function') o.set('left', o.left - opticalLeftShift(o));
     }
@@ -13056,6 +13062,10 @@ function edRecolour(opts){
   });
   if (pick && !opts.keepUser) objs.forEach(o => { delete o.pgUser; });
   objs.forEach(o => { if (!o.pgUser) edPaintSet(o, o.pgOrig); });
+  /* the last ground's shade comes off before anything is measured: left on,
+     a flat colour picked after a photograph had the copy solved against the
+     old shade (gold_spot's gold went dark on a near-black ground) */
+  if (canvas.getObjects().some(o => o.pgShade)) advShade(0);
   if (pick){ edLastTheme = th || null; edThemeGround(th, tpl); }
   const keep = o => !!o.pgUser;
   try { ezOverlayPre(canvas, CW, CH); } catch (e){ console.warn('GraphicsStudio overlay tone (designer):', e); }
@@ -13162,11 +13172,28 @@ function edShadeSolve(){
   const onPhoto = new Set(objs.filter(o => thIsWords(o) && !thPlateOfLine(objs, o, CW, CH)).map(o => o.name));
   const bad = r => r.lines.filter(l => l.core != null && onPhoto.has(l.name) &&
     (PG_CRIT[l.role] ? r.fails.some(f => f.line === l.name && /^(legib|numInk|ghost)$/.test(f.code)) : l.core < 3));
-  let b = bad(measure());
-  if (!b.length) return;
-  const dirs = [...new Set(b.filter(l => l.ink != null).map(l => l.ink > 0.25 ? 'dark' : 'light'))];
-  const tone = dirs.length === 1 ? dirs[0] : 'dark';          // one ground serves one direction; a photograph is shaded dark (rule 62)
-  for (let a = 0.1; a <= 0.71; a += 0.1){ advShade(a, tone); if (!bad(measure()).length) break; }
+  const r0 = measure(), b0 = bad(r0);
+  if (!b0.length) return;
+  /* one ground serves one direction (rule 56): the one most of the copy on
+     the photograph asks for, its critical lines first, dark on a tie (rule
+     62). Solved for the one line that failed, a dark headline that already
+     fails on the card's own photograph shaded gold_spot's crimson photograph
+     with 0.7 of paper and buried its light copy. */
+  const lines = r0.lines.filter(l => l.core != null && l.ink != null && onPhoto.has(l.name));
+  const crit = lines.filter(l => PG_CRIT[l.role]), pool = crit.length ? crit : lines;
+  const tone = pool.filter(l => l.ink <= 0.25).length > pool.filter(l => l.ink > 0.25).length ? 'light' : 'dark';
+  const serves = l => tone === 'dark' ? l.ink > 0.25 : l.ink <= 0.25;
+  if (!b0.some(serves)) return;
+  /* the lightest step that serves them all; else the step that leaves the
+     fewest lines failing, none of them made worse than without shade */
+  let best = { a: 0, n: b0.length };
+  for (let a = 0.1; a <= 0.71; a += 0.1){
+    advShade(a, tone);
+    const b = bad(measure());
+    if (b.length < best.n) best = { a, n: b.length };
+    if (!b.some(serves)) break;
+  }
+  advShade(best.a, tone);
   canvas.renderAll();
 }
 

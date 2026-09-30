@@ -2,7 +2,7 @@
 /* THE DESIGNER (ADVANCED EDITOR): DOES IT SPEAK THE HOUSE LANGUAGE?
  *
  * Owner, 2026-09-30: "audit and make sure the designer page looks updated FOR
- * ALL NEW FEATURES / DESIGN LANGUAGE". DESIGN-LAW rule 80. This presses every
+ * ALL NEW FEATURES / DESIGN LANGUAGE". DESIGN-LAW rule 91. This presses every
  * colour and ground control of the advanced editor through its real panel and
  * measures the canvas it draws, card by card, each card in a fresh browser
  * context (the studio keeps its drafts in localStorage):
