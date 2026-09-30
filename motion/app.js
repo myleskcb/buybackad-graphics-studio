@@ -34,7 +34,7 @@ const labelFor = (k, v) => {
   if (k === "board") return BOARD_NAMES[v] || v;
   if (k === "urgency") return URGENCY_NAMES[v] || v;
   if (k === "font" || k === "number_font") return v === "same" ? "Same as headline" : (FONTS[v] ? FONTS[v][0] : v);
-  if (k === "palette") return v === "match" ? "Match a phone's colour" : v.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+  if (k === "palette") return v === "match" ? "Match a phone's colour" : v.replace(/[_-]/g, " ").replace(/\bla\b/g, "LA").replace(/\b\w/g, c => c.toUpperCase());
   if (k === "tracking") return v < 0 ? "Tight" : v === 0 ? "Normal" : v <= .02 ? "Open" : v <= .05 ? "Wide" : "Extra wide";
   if (k === "skew") return v === 0 ? "Upright" : v < 0 ? `Back slant ${-v}°` : `Slant ${v}°`;
   if (k === "shake") return ["None", "Some", "Lots"][v] || v;
@@ -171,7 +171,10 @@ function buildPanel() {
       row.innerHTML = `<label>${LABELS[k] || k}<select data-key="${k}">${opts.map(v => `<option value="${v}">${labelFor(k, v)}</option>`).join("")}</select></label>
         <button class="mo-lock" data-lock="${k}" aria-pressed="false" title="Lock: keep this when shuffling">&#128275;</button>`;
       sec.appendChild(row);
-      if (k === "palette") { const sw = document.createElement("div"); sw.className = "mo-swatches"; sw.id = "swatches"; sec.appendChild(sw); }
+      if (k === "palette") {
+        buildPalettePicker(row, opts);
+        const sw = document.createElement("div"); sw.className = "mo-swatches"; sw.id = "swatches"; sec.appendChild(sw);
+      }
     }
     design.appendChild(sec);
   }
@@ -315,6 +318,7 @@ function syncWords() {
 
 function syncPanel(st) {
   document.querySelectorAll("#design select").forEach(s => { const k = s.dataset.key; s.value = String(st[k]); });
+  syncPalettePicker(String(st.palette));
   document.querySelectorAll("[data-flag]").forEach(c => { c.checked = !!st[c.dataset.flag]; });
   document.querySelectorAll("#aspects [data-aspect]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.aspect === st.aspect)));
   document.querySelectorAll("#lengths [data-len]").forEach(b => b.setAttribute("aria-checked", String(Number(b.dataset.len) === st.duration)));
@@ -322,6 +326,75 @@ function syncPanel(st) {
   $("swatches").innerHTML = ["ground", "light", "ink", "accent", "plate"].map(k => `<i style="background:${p[k]}" title="${k}"></i>`).join("");
   $("seed").textContent = st.seed;
   syncLocks();
+}
+
+// ------------------------------------------------------------ palette picker
+// A native <select> cannot show colour, so the palette gets its own list: each
+// option carries its five swatches. The <select> stays (hidden) as the source of
+// truth, so the change handler, syncPanel and locks all work unchanged.
+
+const PAL_KEYS = ["ground", "light", "ink", "accent", "plate"];
+const palStrip = v => v === "match"
+  ? `<span class="mo-pal-strip mo-pal-match" aria-hidden="true"></span>`
+  : `<span class="mo-pal-strip" aria-hidden="true">${PAL_KEYS.map(c => `<i style="background:${PALETTES[v][c]}"></i>`).join("")}</span>`;
+
+function buildPalettePicker(row, opts) {
+  const label = row.querySelector("label"), select = label.querySelector("select");
+  const lab = document.createElement("div"); lab.className = "mo-pal-lab";   // a <label> would forward clicks to the hidden select
+  lab.append(...label.childNodes); label.replaceWith(lab);
+  select.hidden = true;
+  const wrap = document.createElement("div"); wrap.className = "mo-pal";
+  wrap.innerHTML = `<button type="button" class="mo-pal-btn" aria-haspopup="listbox" aria-expanded="false"></button>
+    <div class="mo-pal-list" role="listbox" aria-label="${LABELS.palette || "Palette"}" tabindex="-1" hidden>${opts.map(v =>
+      `<div class="mo-pal-opt" role="option" data-pal="${v}" aria-selected="false">${palStrip(v)}<span>${labelFor("palette", v)}</span></div>`).join("")}</div>`;
+  select.after(wrap);
+  const btn = wrap.querySelector(".mo-pal-btn"), list = wrap.querySelector(".mo-pal-list");
+  const items = [...list.querySelectorAll(".mo-pal-opt")];
+  let active = -1;
+  const setActive = i => {
+    items.forEach(o => o.classList.remove("active"));
+    active = Math.max(0, Math.min(items.length - 1, i));
+    items[active].classList.add("active"); items[active].scrollIntoView({ block: "nearest" });
+  };
+  const open = () => {
+    list.hidden = false; btn.setAttribute("aria-expanded", "true");
+    setActive(Math.max(0, items.findIndex(o => o.dataset.pal === select.value))); list.focus();
+  };
+  const close = (refocus = true) => { list.hidden = true; btn.setAttribute("aria-expanded", "false"); if (refocus) btn.focus(); };
+  const choose = i => {
+    const v = items[i].dataset.pal; close();
+    if (v === select.value) return;
+    select.value = v; select.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  btn.addEventListener("click", () => list.hidden ? open() : close());
+  btn.addEventListener("keydown", e => { if (["ArrowDown", "ArrowUp"].includes(e.key)) { e.preventDefault(); open(); } });
+  list.addEventListener("click", e => { const o = e.target.closest(".mo-pal-opt"); if (o) choose(items.indexOf(o)); });
+  list.addEventListener("mousemove", e => { const o = e.target.closest(".mo-pal-opt"); if (o && items.indexOf(o) !== active) setActive(items.indexOf(o)); });
+  list.addEventListener("keydown", e => {
+    const k = e.key;
+    if (k === "ArrowDown") setActive(active + 1);
+    else if (k === "ArrowUp") setActive(active - 1);
+    else if (k === "Home") setActive(0);
+    else if (k === "End") setActive(items.length - 1);
+    else if (k === "PageDown") setActive(active + 8);
+    else if (k === "PageUp") setActive(active - 8);
+    else if (k === "Enter" || k === " ") choose(active);
+    else if (k === "Escape") close();
+    else if (k === "Tab") { close(false); return; }
+    else if (k.length === 1) {                        // type-ahead on the first letter
+      const c = k.toLowerCase(), n = items.length;
+      for (let j = 1; j <= n; j++) { const o = items[(active + j) % n]; if (o.textContent.trim().toLowerCase().startsWith(c)) { setActive((active + j) % n); break; } }
+    } else return;
+    e.preventDefault();
+  });
+  document.addEventListener("pointerdown", e => { if (!list.hidden && !wrap.contains(e.target)) close(false); });
+}
+
+function syncPalettePicker(v) {
+  const btn = document.querySelector(".mo-pal-btn"); if (!btn) return;
+  const known = v === "match" || PALETTES[v];
+  btn.innerHTML = known ? `${palStrip(v)}<span>${labelFor("palette", v)}</span>` : `<span>${labelFor("palette", v)}</span>`;
+  document.querySelectorAll(".mo-pal-opt").forEach(o => o.setAttribute("aria-selected", String(o.dataset.pal === v)));
 }
 
 function syncLocks() {
