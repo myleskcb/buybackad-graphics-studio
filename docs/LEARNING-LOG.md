@@ -1804,8 +1804,11 @@ Found:
     live or about to be: the one-engine line (vibrant-hawking), the trunk,
     the branch production served (fervent-pascal, 9318537: the iOS-only
     emoji and the 'covered' gate), and two sessions that pushed during the
-    merge (the video maker's 8842adc, the designer's 0769ce3), plus a second
-    merge of the live branch by the one-engine session (e0b1506).
+    merge (the video maker's 8842adc, the designer's 0769ce3 and 8460821, the
+    live branch's visual audit d5b98b5), plus a second merge of the live
+    branch by the one-engine session (e0b1506). Rule numbers collided a third
+    time: the live branch's new 92 (one serif to a card) keeps it, and the
+    designer's rule, 92 here for an hour, is 93.
   - Two sessions merging the same live branch at once came out the same:
     both took its emoji section whole, both numbered its rules 87, 88 and 91,
     both measured the same 415 live cards. Merging the second into the first
@@ -1834,26 +1837,39 @@ Found:
   - The tagline look and the designer's colour pass did not know about each
     other: a theme picked in the editor repainted over a look. The pass now
     takes a look off, recolours, and puts it back in the theme's palette.
+  - Easy Mode gave every selling-point layer the whole list, so a card with a
+    slot per point (bandKnockout's chips, the ribbon's pills, "Chip Text n")
+    carried every point in every slot, three lines deep, run under the
+    number's plate. The live branch's per-line checks found eight in the Easy
+    Mode sweep. One point to a slot now, the card's own words until the
+    visitor edits them (13 to 5 in the sweep; the 5 are as on the live
+    branch alone, OPEN-ITEMS §U 7).
+  - Two headlines at 3:1 (hudTech_emerald, scriptRetro_paper) pass and fail
+    between runs of the same build: a sweep's single failure near the line
+    is noise until it repeats.
 
 Changed:
   - Merged (merge commits): phone-ad-maker (PRs #2, #3, #4), vibrant-hawking
-    to 11bed85 and to e0b1506, fervent-pascal to 9318537, project-thread-
-    eost3s to 8842adc, eloquent-euler to 0769ce3. `main` fast-forwarded.
+    to 11bed85 and to e0b1506, fervent-pascal to 9318537 and to d5b98b5,
+    project-thread-eost3s to 8842adc, eloquent-euler to 0769ce3 and to
+    8460821. `main` fast-forwarded.
   - Not merged: busy-allen and quirky-ritchie (August base, OPEN-ITEMS §J, §U).
   - DESIGN-LAW 88 (iOS emoji or none) in place of the drawn set, 91 (copy
     never under a shape, with ghost by contrast), 93 (the designer, from the
     designer session's commit). AGENT-BRIEF landmine 6: start from `main`
     and put work back on it; Deploying: deploy `main` only, one site.
 
-Measured (the merged build):
-  - Library: 971 records through the gate, 841 pass; 415 live, none failing
-    it; content audit CLEAN 419, retired 285. 552 thumbnails changed
-    materially (the drawn emoji off 248 live cards), the rest by grain only.
-  - Classics: 346 pass, 58 held (the same 57 and st_cars_cashfor). Template
-    audit 143 of 404 held (four trust-seal cards lose 'shape' to pgUncover).
-  - Easy Mode through the gate: 261 templates, no number off its guides, the
-    same 2 legibility holds (§S 10). Tagline looks: 12 x 81, all pass,
-    blocks give way on 4. tagline_panel_check and device_picker_check pass.
+Measured (the final build, 6385b72):
+  - Library: 415 live cards through the gate, 415 pass, 0 page errors
+    (content audit CLEAN 419, retired 285). The drawn emoji came off 248 live
+    cards' thumbnails; the live branch re-drew 95 more.
+  - Classics: 341 pass, 63 fail, exactly the 63 classics-gate.json holds
+    (st_cars_cashfor among them). Template audit 137 of 404 held.
+  - Easy Mode through the gate: 267 templates, no number off its guides,
+    5 fail (§U 7). tagline_panel_check and device_picker_check pass.
+  - Designer audit on six offered cards: hand-off 0, ORIG 0% on all six, no
+    legibility regression, 2.1 to 2.8 s of blocking (the bar is 3 s); left,
+    sparse patterns on two cards, as on the designer branch (§U 6).
   - Approved: stepsFlow-nn05-30 224/224, nn01-30 222/222, the 9:16 within
     0.04% of the owner's render.
   - Landing: 0 console or page errors, 0 failed requests, no overflow at

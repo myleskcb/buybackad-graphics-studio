@@ -930,8 +930,11 @@ Merged, in order (the log entry of the same date has the numbers):
 - `claude/fervent-pascal-w6mthe` to 9318537, what production served (the
   iOS-only emoji, copy never under a shape);
 - `claude/project-thread-eost3s` to 8842adc (the video maker, 2026-09-30);
-- `claude/eloquent-euler-7jvzfd` to 0769ce3 (the designer speaks the house
-  language, rule 93, 2026-09-30);
+- `claude/eloquent-euler-7jvzfd` to 0769ce3 and 8460821 (the designer speaks
+  the house language, rule 93; its shade and hand-off fixes, thumbnails at
+  half the cost);
+- `claude/fervent-pascal-w6mthe` again to d5b98b5 (a visual audit of every
+  classic: rule 91 widened, one serif to a card, rule 92);
 - the trunk, `claude/vibrant-lovelace-rze4rx`, is the branch this was built on.
 
 Not merged, on purpose (§J): `claude/busy-allen-2d5iv1` (the photo standard)
@@ -966,15 +969,20 @@ Open:
    the template audit on `main`, and lowerThird-nn03-30 by the gate, so Easy
    Mode opens its first card in their place and the audit measures one card
    five times; run it with `--cards` (icloud_ok, bold_buyer, gold_lux,
-   cars_anycond, bandKnockout-pp04-15, stepsFlow-jw07-15 were used). On those,
-   after the two fixes of the merge (ORIG exact, the photo shade gone before
-   a flat ground is solved): hand-off 0, ORIG 0% on all six, no legibility
-   regression, and two findings left, both the designer session's to weigh:
-   - **Settle time**: 3.1 to 3.7 s of main-thread blocking in the 12 s after
-     the editor opens (their bar is 3 s; the longest task 220 ms, under the
-     400 ms freeze bar). On the designer branch alone it is 1.9 to 2.9 s: the
-     thumbnails it renders one per idle slice now run the whole engine (the
-     look, the number fill, the gate's shade). Cheaper strip thumbnails, or a
-     longer breath between them.
-   - **Sparse patterns** change under 1% of gold_lux (dots, halftone, grid)
-     and cars_anycond (grid), exactly as on the designer branch (§S 11).
+   cars_anycond, bandKnockout-pp04-15, stepsFlow-jw07-15 were used). On the
+   final build: hand-off 0 and ORIG 0% on all six, no legibility regression,
+   2.1 to 2.8 s of blocking in the 12 s after the editor opens (the bar is
+   3 s; icloud_ok, first measured while the library gate ran beside it at
+   4.4 s, reads 2.8 s alone). Left: sparse patterns that change under 1% of
+   gold_lux (dots, halftone, grid) and cars_anycond (grid), as on the
+   designer branch (§S 11).
+7. **Easy Mode through the gate** (`scripts/ez_gate_sweep.mjs`, 267 offered
+   templates): 5 fail, each as on the live branch alone. dl_strips_arcCrown_
+   emerald's Headline 2 (legibility, §S 10); one of dl_sports_hudTech_emerald
+   and dl_sports_scriptRetro_paper, whose Headline 2 sits at 3:1 and flips
+   between runs; dl_strips_duoSplit_emerald's Headline 2 across its plate
+   ('straddle', rule 91 widened); of_mac_center_sun's headline under its
+   product ('covered'); st_cars_cashfor ('ghost', held by the classics gate,
+   which the sweep does not apply). The export gate still asks on each.
+   Eight more (the bandKnockout family) were Easy Mode putting every selling
+   point in every chip; fixed here (one point to a slot).
