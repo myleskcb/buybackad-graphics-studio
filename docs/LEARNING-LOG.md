@@ -1231,45 +1231,44 @@ shipping:
 The ip-gen17-plateau-black crop is a square camera bump (16 Pro design), not
 the 17 Pro plateau: marked not authentic.
 
-## 2026-09-29 — Emoji beside the words
+## 2026-09-29 — iOS emoji or none; copy under a shape
 
-Owner: "use emojis as attention grabbing assets in extra spaces (not
-overlapping.. and not all need it), relevant emojis or general purpose emojis
-like cash or arrows."
+Owner: "EMOJIS ONLY IOS STYLE REMOVE AND DELETE ALL !", "AND DON'T OVER USE
+ONLY FOR SOME", and of Rush Hour in Easy Mode: "this sucks sorry".
 
 Learned:
-  - The earlier removal was about system-font emoji: a different drawing per
-    device and a blank box in some exports. One art set as pictures (Fluent
-    3D, MIT, 48 in one 195 KB sheet) is the same everywhere.
-  - Every card's website is iphones.LA, so reading the topic off all the
-    words named every card a phone card. The headline decides; the website
-    and the number never do.
-  - An emoji in the nearest empty square floats: it reads as clutter away
-    from the words and covers the photograph. Beside a line, centred on its
-    caps, it reads as part of the message.
-  - Two emoji flanking one line look busy; one per row.
-  - Number plates are wide, so a hand beside them rarely fits; above either
-    end of the plate, pointing down, usually does.
-  - A Pro card opened signed-out lands on the plans page and the free
-    default; a test of a library card in Easy Mode has to use a free card.
-  - Ranking lines by their object's font size put the emoji beside a small
-    "WE BUY" in a two-line headline; each line ranks by its own height.
-  - A wall of ghosted products at 16% opacity counted as occupied and pushed
-    the emoji off the big product word; a picture under 0.3 is texture, as
-    the gate already treated it.
+  - A drawn emoji set, however polished, is not what the owner means by
+    emoji: the iPhone's own. Apple's artwork cannot ship as files; the
+    device's emoji font can be used, and it is Apple's only on Apple devices.
+  - Placed on every other card (239 of 399), emoji read as overuse. Three in
+    ten eligible, one each, reads as an accent.
+  - fitInsideGuides rebuilt edge-attached rects from their bounding box; a
+    rotated band's box is not its size. Two bands doubled and covered copy.
+  - The gate could not see copy under a shape, nor an invisible line outside
+    the three critical roles. Once it could, it found seven broken classics
+    that had been offered all along.
+  - A status dot under the first letters of a chip reads as a typo; a small
+    mark on words moves in front of them.
+  - 28 library cards had emoji typed into the design, drawn in Google's style
+    on the server's thumbnails: the iOS-only rule covers them too.
+  - Re-rendering every thumbnail shows every one changed: the grain layer is
+    random per render. Only thumbnails that changed materially (over 400
+    pixels by more than 24 levels) are worth committing; 567 of the 570 that
+    did were retired cards nobody sees.
 
 Changed:
-  - pgEmojiPass after alignPass (wrapped); pgEmojiCheck in pgCheck
-    (wrapped), explained in the gate's words; Easy Mode's Emoji row (Auto,
-    Shuffle, None); the editor's picker shows the sheet and addEmoji places
-    pictures; the harness waits for the sheet; 399 thumbnails re-rendered.
-  - DESIGN-LAW rule 88, a pointer on rule 29; AGENT-BRIEF; OPEN-ITEMS §A 1.
+  - The Fluent set and its thumbnails reverted; ASSET_REV 20260929b.
+  - pgEmojiPass (device-font emoji, Apple devices only, 3 in 10 cards, one
+    each), pgEmojiCheck in the gate, Easy Mode's Emoji row and the editor's
+    picker shown on Apple devices only; ?emoji=ios forces the pass for tests.
+  - fitInsideGuides keeps a rotated band's thickness; stackBulletRuns leaves a
+    line on a band or a pill; pgCoverCheck ('ghost' any role, 'covered');
+    pgUncover after the layout.
+  - DESIGN-LAW rules 88 and 91.
 
 Rejected:
-  - System-font emoji (see above); an Apple emoji set (not licensed for
-    this); emoji on every card (the owner: "not all need it").
-
----
+  - Apple emoji images from a package (Apple's artwork, not licensed).
+  - Non-Apple device emoji as a fallback (the owner: iOS style only).
 
 ## 2026-09-29 — Three lines made one: the trunk, the live branch and the one engine
 

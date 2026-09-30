@@ -600,7 +600,7 @@ the type.
 
 Drop a gesture rather than translating it.
 
-> Extended (rule 88): a hand from the emoji set is placed only pointing at the number or the call to action.
+> Extended (rule 88): an iOS hand is placed only pointing at the number or the call to action.
 
 ## 30. Tracking runs opposite ways at the two ends of the scale
 
@@ -2436,49 +2436,36 @@ story or wide ad's shape; the content audit never clears a curation stamp; a
 wall cut-out is not a hero. Left for the classics' re-bake (OPEN-ITEMS §R):
 the 45% wash on their hex plates, and paper scrims on three dark-ink cards.
 
-## 88. Emoji are accents beside the words, drawn from one set, and not on every card
+## 88. Emoji are iOS style or none, and only on some cards
 
-Added 2026-09-29. The owner: "use emojis as attention grabbing assets in
-extra spaces (not overlapping.. and not all need it), relevant emojis or
-general purpose emojis like cash or arrows." Asked twice before (OPEN-ITEMS
-§A 1); pictorial emoji had been removed as the cheapest-looking thing on a
-page, and what made them cheap was that they were system-font characters:
-a different drawing on every phone, a blank box in some exports, and dropped
-anywhere as filler.
+Added 2026-09-29. The owner, after a drawn 3D set (Fluent Emoji) went live
+the same day: "EMOJIS ONLY IOS STYLE REMOVE AND DELETE ALL !", then "AND
+DON'T OVER USE ONLY FOR SOME". The 3D set, its placement and its thumbnails
+were removed entirely (reverted).
 
-The rule, as `pgEmojiPass` in app.js applies it after the layout (so it
-follows the visitor's words in every render: the card, its thumbnail, Easy
-Mode, the editor, the PNG and the video):
+Apple's emoji artwork is Apple's and cannot be shipped inside the product as
+pictures. What the product can use is the device's own emoji font, which on
+an iPhone, an iPad or a Mac is Apple's. So (`pgEmojiPass`, app.js):
 
-- **One art set, drawn as pictures**: 48 Fluent 3D emoji (Microsoft, MIT) in
-  one sheet, `assets/emoji/fluent-3d.webp`. Never a system-font emoji as
-  artwork; the editor's Add > Emoji places the same drawings.
-- **Beside the words, never on them.** An emoji stands beside a line of copy,
-  centred on its caps, at the largest size that fits between the line's end
-  and the guides (at most 150px on the 1080 card, 0.9 of a headline line)
-  with nothing within 18px: not copy, a plate, a product, a sparkle or
-  another emoji. One per row. A free-floating emoji in the nearest empty
-  square was tried and rejected: away from the words it reads as clutter,
-  and on a photograph it covers the picture the shade was lifted for (rule 87).
-- **Relevant first.** The topic is read off the headline, never the website
-  or the number (every card's website names iPhones): a truck for trucks, a
-  ring for jewelry, a coin for coins, a bolt or a flame for Pokémon, a trophy
-  for sports cards. A supporting line takes a general accent from what the
-  card promises: money, speed, a free quote.
-- **A hand points at the number** (rule 29): from its left, its right, or
-  above either end of its plate, or it is not placed.
-- **Not every card.** A third get none, half one, a fifth two, by the card's
-  id, so a card always shows the same accents and a card with no room gets
-  none. Easy Mode's Emoji row sets Auto, Shuffle (always at least one where
-  there is room) or None, remembered per visitor. In the editor an accent the
-  visitor moves or deletes is theirs, and the pass stops placing on that
-  canvas.
-- **The gate measures them** (rule 87): an emoji on copy, a plate or a
-  product, or past the guides, fails, whoever placed it.
+- **Only on Apple devices.** An emoji is a character in the device's emoji
+  font, placed only where that font is Apple's; on any other device nothing
+  is placed and the editor's emoji picker is not shown. No card anywhere
+  carries an emoji that is not iOS style. The library's thumbnails are made
+  on a server and carry none.
+- **Only on some cards, one at most.** About three in ten cards are eligible
+  (by the card's id, so a card always shows the same one), and a card gets
+  one only where there is room. Easy Mode's Emoji row (Apple devices only):
+  Auto, Shuffle (always one where there is room), None.
+- **Emoji typed into a design follow the same rule.** 28 library cards carry
+  one as a deco line (a ⚡ between headline lines, a 🏁 beside "WE BUY"):
+  it shows only on Apple devices, and such a card gets no extra one.
+- **Beside the words, never on them**: beside the largest headline line,
+  the topic read off the headline (never the website or the number), or a
+  hand pointing AT the number (rule 29). Never on copy, a plate, a product
+  or another mark, inside the guides; the gate fails one that is.
 
-Measured on the library (399 cards): 160 none, 190 one, 49 two; 0 emoji
-overlaps; the library (399 of 399) and the classics (227 of 243, the same 16
-held back) pass the gate as before.
+Measured with the pass forced on (a Linux test machine): 102 of 399 library
+cards get one, 297 none, 0 on copy.
 
 ## 89. A variant is the approved design recomposed from approved parts
 
@@ -2707,3 +2694,34 @@ and Shade passes the gate. ORIG restores every colour. The chip follows the
 drawing, and the swatches follow the theme. A theme adds nothing measurable to
 Sell Your iPhone's preview and about 60ms to bandKnockout's photographed one
 (123 to 182ms: three renders of what is behind the words).
+
+## 91. Copy is never under a shape, and the gate says so
+
+Added 2026-09-29 on the live branch as rule 68 (numbered 91 here, after the
+rules merged before it). The owner, on Rush Hour in Easy Mode: "this sucks". Its
+two rotated bands had doubled in thickness: the guides fit rebuilt an edge
+band's width and height from its bounding box, which for a band at -6 degrees
+is twice its thickness. The gold band rose over the bottom of "iPHONE" and the
+dark band buried "CASH PAID TODAY" entirely; the list pass had also stacked
+the band's one-line device list into three lines. The gate passed it,
+because only the headline, the number and the CTA could fail as invisible,
+and nothing asked whether a shape was drawn over copy.
+
+- **A rotated band keeps its own thickness and length** in the guides fit.
+- **A line on a band or a pill stays one line** (stackBulletRuns).
+- **The gate fails any reading line that is invisible** ('ghost', any role)
+  **and any line with a solid shape, a dot or a product drawn over its
+  letters** ('covered', over 4% of the letters' body, on the real rotated
+  outlines).
+- **After the layout, covered copy comes out** (`pgUncover`): it slides clear
+  by the shortest way, on its own plate and inside the guides, or comes down
+  in size away from the shape (never under 72%, never the number); a small
+  mark (a status dot) on the words moves out in front of them.
+
+The new checks found seven broken classics already in the Easy strip (a CTA
+under the number's pill on the review layouts, the item list under the
+number's plate on the trust-seal layouts, a line inked the colour of its
+plate); the resolver fixed the first two kinds, the gate holds back the
+last (classics: 226 of 243 pass, 17 held back). One library card whose tick
+circles the layout had left a row out of step with its lines
+(checklistHero-du08-20, the only one of 30 tick lists) was retired: 398 live.

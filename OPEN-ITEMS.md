@@ -26,9 +26,11 @@ hash identical (`226169392f04c437d94c49f9844cf561`).
    emojis sometimes can look good", "use icons emojis everything that could
    catch your eye"). Pictorial emoji were *removed* earlier as cheesy; the ask
    is to bring them back as an intentional oversized treatment, not filler.
-   **Done in part 2026-09-29** (DESIGN-LAW rule 88): emoji accents from one
-   3D art set, beside the words, on some cards, with an Easy Mode control.
-   Still open: a layout built around one oversized emoji as the hero.
+   **2026-09-29:** a drawn 3D set was built and removed the same day (owner:
+   "EMOJIS ONLY IOS STYLE"). Now DESIGN-LAW rule 88: the device's own emoji
+   font, on Apple devices only, one on some cards. Still open: an oversized
+   hero emoji layout, and whether the library's server-made thumbnails should
+   show iOS emoji (they cannot be drawn on the server).
 2. **Colourable / editable vectors.** "Maybe the vectors can have colors applied
    to them, make it as creative as possible with as much free rein to edit as a
    customer would like." The 20-mark icon set exists and renders, but `path`
