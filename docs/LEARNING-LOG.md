@@ -1648,3 +1648,47 @@ RESUME HERE:
   deco (2, 3), badge words (4), one table for holds (5), the three offer cards
   on their subject (8), one palette reader (9), one path for the gate and Easy
   Mode (10), sparse patterns (11).
+
+---
+
+## 2026-09-29 — iOS emoji or none; copy under a shape
+
+(Written on claude/fervent-pascal-w6mthe, the branch production served;
+merged into the unified line 2026-09-30. Rule numbers are the unified ones.)
+
+Owner: "EMOJIS ONLY IOS STYLE REMOVE AND DELETE ALL !", "AND DON'T OVER USE
+ONLY FOR SOME", and of Rush Hour in Easy Mode: "this sucks sorry".
+
+Learned:
+  - A drawn emoji set, however polished, is not what the owner means by
+    emoji: the iPhone's own. Apple's artwork cannot ship as files; the
+    device's emoji font can be used, and it is Apple's only on Apple devices.
+  - Placed on every other card (239 of 399), emoji read as overuse. Three in
+    ten eligible, one each, reads as an accent.
+  - fitInsideGuides rebuilt edge-attached rects from their bounding box; a
+    rotated band's box is not its size. Two bands doubled and covered copy.
+  - The gate could not see copy under a shape, nor an invisible line outside
+    the three critical roles. Once it could, it found seven broken classics
+    that had been offered all along.
+  - A status dot under the first letters of a chip reads as a typo; a small
+    mark on words moves in front of them.
+  - 28 library cards had emoji typed into the design, drawn in Google's style
+    on the server's thumbnails: the iOS-only rule covers them too.
+  - Re-rendering every thumbnail shows every one changed: the grain layer is
+    random per render. Only thumbnails that changed materially (over 400
+    pixels by more than 24 levels) are worth committing; 567 of the 570 that
+    did were retired cards nobody sees.
+
+Changed:
+  - The Fluent set and its thumbnails reverted; ASSET_REV 20260929b.
+  - pgEmojiPass (device-font emoji, Apple devices only, 3 in 10 cards, one
+    each), pgEmojiCheck in the gate, Easy Mode's Emoji row and the editor's
+    picker shown on Apple devices only; ?emoji=ios forces the pass for tests.
+  - fitInsideGuides keeps a rotated band's thickness; stackBulletRuns leaves a
+    line on a band or a pill; pgCoverCheck ('ghost' any role, 'covered');
+    pgUncover after the layout.
+  - DESIGN-LAW rules 88 and 68.
+
+Rejected:
+  - Apple emoji images from a package (Apple's artwork, not licensed).
+  - Non-Apple device emoji as a fallback (the owner: iOS style only).

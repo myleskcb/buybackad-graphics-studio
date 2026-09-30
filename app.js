@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20260929v';
+const ASSET_REV = '20260930a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -2688,6 +2688,19 @@ function fitInsideGuides(sc, W, H){
     /* keep what was attached to an edge attached: a full-width band keeps its
        width, a band or product at an edge keeps reaching it */
     const b = bb(o); if (!b) return;
+    const ang = (((o.angle || 0) % 180) + 180) % 180;
+    if (o.type === 'rect' && ang > 0.5 && ang < 179.5 && Math.abs(ang - 90) > 0.5){
+      /* a ROTATED band: its bounding box is not its size (a 112px band at -6
+         degrees has a 242px box), and rebuilding it from the box doubled its
+         thickness, so it rose over the headline and buried the line set on
+         the band below it (Rush Hour, 2026-09-29). It keeps its own
+         thickness, scaled with the message, and its own length, so it still
+         runs off both edges. */
+      if ((o.width || 0) * (o.scaleX || 1) >= (o.height || 0) * (o.scaleY || 1)) o.set({ scaleX: (o.scaleX || 1) / s });
+      else o.set({ scaleY: (o.scaleY || 1) / s });
+      o.setPositionByOrigin(n, 'center', 'center'); o.setCoords();
+      return;
+    }
     if (o.type === 'rect'){
       let L = b.left, T = b.top, R = b.left + b.width, B = b.top + b.height;
       if (x.edge.l) L = x.b.left; if (x.edge.r) R = x.b.left + x.b.width;
@@ -4015,7 +4028,11 @@ function addElement(kind){
   canvas.add(o); canvas.setActiveObject(o); canvas.renderAll();
   pushHist(); refreshLayers(); refreshQuickFields(); refreshProps();
 }
-/* addEmoji: see EMOJI ACCENTS (rule 88), where it places the emoji art */
+function addEmoji(em){
+  const o = new fabric.IText(em, {left:CW/2, top:CH/2, originX:'center', originY:'center', fontSize:110, name:'Emoji', pgRole:'deco'});
+  canvas.add(o); canvas.setActiveObject(o); canvas.renderAll();
+  pushHist(); refreshLayers();
+}
 async function addImageFromFile(f){
   let dataUrl;
   try { dataUrl = await fileToDataUrl(f); }
@@ -8081,6 +8098,20 @@ function stackBulletRuns(t){
   layers.forEach(l => {
     if (typeof l.text !== 'string' || !l.props) return;
     if (!/^(info|sub|badges)$/.test(l.role || '') && !/items|info|sub|line|detail/i.test(l.name || '')) return;
+    /* a line set ON a band or a pill stays one line: stacked, it hangs off
+       the band (Rush Hour's device list on its 96px band, 2026-09-29). Angled
+       with a band, or centred on a plate made for one line, it is left alone. */
+    if (Math.abs(l.props.angle || 0) > 0.5) return;
+    {
+      const p = l.props, f = p.fontSize || 34;
+      const tx = p.left || 0, ty = (p.originY === 'center') ? (p.top || 0) : (p.top || 0) + f * 0.6;
+      const onBand = layers.some(o => { if (o === l || o.kind !== 'rect' || !o.props) return false; const q = o.props;
+        const w = q.width || 0, h = q.height || 0; if (!w || !h || h > f * 3.2) return false;
+        const x0 = q.originX === 'center' ? (q.left || 0) - w / 2 : q.originX === 'right' ? (q.left || 0) - w : (q.left || 0);
+        const y0 = q.originY === 'center' ? (q.top || 0) - h / 2 : q.originY === 'bottom' ? (q.top || 0) - h : (q.top || 0);
+        return tx >= x0 && tx <= x0 + w && ty >= y0 && ty <= y0 + h; });
+      if (onBand) return;
+    }
     const lines = String(l.text).split('\n');
     const out = [];
     lines.forEach(line => {
@@ -15931,125 +15962,229 @@ function pgShadeFit(sc, W, H){
   alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); try { pgShadeFit(sc, W, H); } catch (e){ console.warn('shade bands:', e); } return r; };
 }
 
-/* ── EMOJI ACCENTS (rule 88) ──────────────────────────────────────────────
-   Owner, 2026-09-29: "use emojis as attention grabbing assets in extra spaces
-   (not overlapping.. and not all need it), relevant emojis or general purpose
-   emojis like cash or arrows."
+/* ── THE GATE SEES COPY UNDER A SHAPE (rule 87) ────────────────────────────
+   Rush Hour (owner, 2026-09-29: "this sucks"): the guides fit had doubled
+   two rotated bands, the gold one rose over the bottom of "iPHONE" and the
+   dark one buried "CASH PAID TODAY" completely, and the gate passed it: the
+   'ghost' check covered only the headline, the number and the call to
+   action, and nothing asked whether a shape was drawn over copy. Now:
+   - any reading line that is effectively invisible (under 1.2% of its box
+     inked) fails 'ghost', whatever its role;
+   - a solid shape or a product drawn ABOVE a line (later in the stack) that
+     covers more than 4% of the body of its letters fails 'covered'. Measured
+     on the real quads (a rotated band is its strip, not its box), against
+     the middle of the line's box (the leading above and the descender room
+     below are not letters). Wrapped, not spliced (AGENT-BRIEF 1). */
+function pgQuad(o){ o.setCoords(); const a = o.aCoords; return a ? [a.tl, a.tr, a.br, a.bl].map(p => ({ x: p.x, y: p.y })) : null; }
+function pgQuadArea(P){ let s = 0; for (let i = 0; i < P.length; i++){ const p = P[i], q = P[(i + 1) % P.length]; s += p.x * q.y - q.x * p.y; } return Math.abs(s) / 2; }
+function pgClip(subject, clipper){
+  /* Sutherland–Hodgman against a convex clipper, either winding */
+  let sgn = 0; for (let i = 0; i < clipper.length; i++){ const p = clipper[i], q = clipper[(i + 1) % clipper.length]; sgn += p.x * q.y - q.x * p.y; }
+  const inside = (p, a, b) => ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x)) * (sgn >= 0 ? 1 : -1) >= 0;
+  const cross = (p, q, a, b) => { const A1 = q.y - p.y, B1 = p.x - q.x, C1 = A1 * p.x + B1 * p.y, A2 = b.y - a.y, B2 = a.x - b.x, C2 = A2 * a.x + B2 * a.y, d = A1 * B2 - A2 * B1;
+    return d === 0 ? p : { x: (B2 * C1 - B1 * C2) / d, y: (A1 * C2 - A2 * C1) / d }; };
+  let out = subject.slice();
+  for (let i = 0; i < clipper.length && out.length; i++){
+    const a = clipper[i], b = clipper[(i + 1) % clipper.length], inp = out; out = [];
+    for (let j = 0; j < inp.length; j++){
+      const p = inp[j], q = inp[(j + 1) % inp.length], pin = inside(p, a, b), qin = inside(q, a, b);
+      if (pin){ out.push(p); if (!qin) out.push(cross(p, q, a, b)); } else if (qin) out.push(cross(p, q, a, b));
+    }
+  }
+  return out;
+}
+function pgCoverCheck(sc, r){
+  const objs = sc.getObjects(), W = sc.getWidth(), H = sc.getHeight();
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const alpha = f => { if (!f || f === 'transparent') return 0; if (typeof f !== 'string') return 1;
+    const m = /rgba\([^)]*,\s*([\d.]+)\s*\)/.exec(f); return m ? +m[1] : 1; };
+  const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+  const seen = new Set(r.fails.map(f => f.code + '|' + f.line));
+  const F = (code, o, v) => { const k = code + '|' + (o.name || ''); if (seen.has(k)) return; seen.add(k);
+    r.fails.push({ code, line: o.name || null, role: o.pgRole || null, value: +(+v).toFixed(2), need: code === 'ghost' ? 0.012 : 0.04 }); };
+  /* every reading line that is effectively invisible */
+  (r.lines || []).forEach(x => { if (x.cov != null && x.cov < 1.2 && x.px >= 14){ const o = objs.find(q => q && q.name === x.name); if (o) F('ghost', o, x.cov / 100); } });
+  /* every reading line with a solid shape drawn over its letters */
+  objs.forEach((t, i) => {
+    if (!isText(t) || t.visible === false || (t.opacity != null && t.opacity < 0.5) || !PG_READ[t.pgRole || ''] || !/[A-Za-z0-9]/.test(t.text || '')) return;
+    const Q = pgQuad(t); if (!Q) return;
+    const body = [lerp(Q[0], Q[3], 0.22), lerp(Q[1], Q[2], 0.22), lerp(Q[2], Q[1], 0.22), lerp(Q[3], Q[0], 0.22)], A = pgQuadArea(body);
+    if (A < 1) return;
+    let worst = 0;
+    for (let j = i + 1; j < objs.length; j++){
+      const o = objs[j];
+      if (!o || o.visible === false || (o.opacity != null && o.opacity < 0.5) || o.pgBgRect || o.pgScrim || o.pgShade || o.pgPattern) continue;
+      const shape = ((o.type === 'rect' || o.type === 'circle') && alpha(o.fill) >= 0.5) || (o.type === 'image' && o.pgRole === 'photo');
+      if (!shape) continue;
+      const P = pgQuad(o); if (!P || pgQuadArea(P) >= 0.6 * W * H) continue;
+      const c = pgClip(body, P); if (c.length < 3) continue;
+      worst = Math.max(worst, pgQuadArea(c) / A);
+    }
+    if (worst > 0.04) F('covered', t, worst);
+  });
+  r.ok = !r.fails.length;
+}
+{
+  const _pgCheck = pgCheck;
+  pgCheck = function(sc){ const r = _pgCheck.apply(this, arguments); try { pgCoverCheck(sc, r); } catch (e){ console.warn('cover check:', e); } return r; };
+  const _pgExplain = pgExplain;
+  pgExplain = function(f){
+    if (f && f.code === 'covered') return (f.line ? '“' + String(f.line).replace(/\s\d+$/, '') + '”' : 'a line') + ' is partly hidden under a shape';
+    return _pgExplain.apply(this, arguments);
+  };
+}
 
-   One art set, drawn as images: 48 Fluent 3D emoji (Microsoft, MIT) packed in
-   assets/emoji/fluent-3d.webp. A system-font emoji is a different drawing on
-   every phone and a blank box on some exports (rule 17's "cheapest-looking
-   thing on a page" was that); a picture is the same everywhere, the card, its
-   thumbnail, the video and the PNG.
+/* ── COPY COMES OUT FROM UNDER A SHAPE (rule 87) ───────────────────────────
+   What the gate's 'covered' check found on the classics (2026-09-29): a call
+   to action and the number's pill authored 7px apart in one bar, which the
+   guides fit closed to a 24px overlap; an item list 20px above the number's
+   plate, whose top then reached into it. After the layout, a line of copy
+   with a solid shape or a product drawn over its letters slides clear by the
+   shortest way (off the shape, plus a margin), staying on its own plate and
+   inside the guides and off every other line and plate; if no slide is
+   clear, it comes down in size away from the shape, never under 72% (the
+   number is never touched: rule 53). Axis-aligned layers only: a rotated
+   band is kept right by fitInsideGuides. Wrapped, not spliced. */
+function pgUncover(sc, W, H){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return false; }
+  W = W || sc.getWidth(); H = H || sc.getHeight();
+  const m = Math.min(W, H), G = Math.round(GUIDE * m), pad = Math.round(0.012 * m);
+  const flat = o => Math.abs(((o.angle || 0) % 360)) < 0.5;
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const alpha = f => { if (!f || f === 'transparent') return 0; if (typeof f !== 'string') return 1; const q = /rgba\([^)]*,\s*([\d.]+)\s*\)/.exec(f); return q ? +q[1] : 1; };
+  const bb = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const body = b => ({ x: b.x, y: b.y + b.h * 0.22, w: b.w, h: b.h * 0.56 });
+  const ov = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  const solid = o => o && o.visible !== false && !(o.opacity != null && o.opacity < 0.5) && !o.pgBgRect && !o.pgScrim && !o.pgShade && !o.pgPattern &&
+    (((o.type === 'rect' || o.type === 'circle') && alpha(o.fill) >= 0.5) || (o.type === 'image' && o.pgRole === 'photo'));
+  let moved = false;
+  objs.forEach((t, i) => {
+    if (!isText(t) || t.visible === false || !flat(t) || t.pgRole === 'phone' || !PG_READ[t.pgRole || ''] || !/[A-Za-z0-9]/.test(t.text || '')) return;
+    const tb = bb(t), tbody = body(tb); if (tbody.w * tbody.h < 1) return;
+    /* shapes drawn over the words; and small marks touching them from either
+       side of the stack (a status dot under "NO FEES" reads as a typo) */
+    const over = objs.filter((o, j) => o !== t && solid(o) && flat(o) && (j > i || (bb(o).w * bb(o).h < 0.25 * tb.w * tb.h))).map(o => ({ o, b: bb(o) }))
+      .filter(s => s.b.w * s.b.h < 0.6 * W * H && ov(tbody, s.b) / (tbody.w * tbody.h) > (s.b.w * s.b.h < 0.25 * tb.w * tb.h ? 0 : 0.04))
+      .sort((a, c) => ov(tbody, c.b) - ov(tbody, a.b));
+    if (!over.length) return;
+    /* a small mark (a status dot, a tick) on the words moves out in front of
+       them, on their line; if there is no room it goes (rule 60: a sticker is
+       never moved onto something else, only removed) */
+    if (over[0].b.w * over[0].b.h < 0.25 * tb.w * tb.h){
+      const d = over[0].o, db = over[0].b, gap = Math.max(6, Math.round(pad * 0.6));
+      const nx = tb.x - gap - db.w, ny = tb.y + tb.h / 2 - db.h / 2;
+      const room = nx >= G - 0.5 && !objs.some(o => o !== d && o !== t && isText(o) && o.visible !== false && ov({ x: nx, y: ny, w: db.w, h: db.h }, bb(o)) > 0);
+      if (room){ d.set({ left: d.left + (nx - db.x), top: d.top + (ny - db.y) }); d.setCoords(); }
+      else d.set({ visible: false });
+      moved = true; return;
+    }
+    const S = over[0].b;
+    const hostP = (typeof pgPlateUnder === 'function') ? pgPlateUnder(objs, t, tb, W, H) : null;
+    const host = hostP && hostP.o !== over[0].o && tb.x + tb.w / 2 >= hostP.x && tb.x + tb.w / 2 <= hostP.x + hostP.w && tb.y + tb.h / 2 >= hostP.y && tb.y + tb.h / 2 <= hostP.y + hostP.h ? hostP : null;
+    const others = objs.filter(o => o !== t && o !== (host && host.o) && o.visible !== false && !o.pgBgRect && !o.pgScrim && !o.pgShade && !o.pgPattern &&
+      (isText(o) || solid(o))).map(o => ({ o, b: bb(o) })).filter(x => x.b.w * x.b.h < 0.6 * W * H);
+    const clear = nb => nb.x >= G - 0.5 && nb.y >= G - 0.5 && nb.x + nb.w <= W - G + 0.5 && nb.y + nb.h <= H - G + 0.5 &&
+      (!host || (nb.x >= host.x + 4 && nb.x + nb.w <= host.x + host.w - 4 && nb.y + nb.h * 0.22 >= host.y && nb.y + nb.h * 0.78 <= host.y + host.h)) &&
+      !others.some(x => (isText(x.o) ? ov(body(nb), body(x.b)) : ov(body(nb), x.b)) > 0);
+    /* the shortest slide off the shape */
+    const moves = [
+      { dx: (S.x - pad) - (tb.x + tb.w), dy: 0 }, { dx: (S.x + S.w + pad) - tb.x, dy: 0 },
+      { dx: 0, dy: (S.y - pad) - (tbody.y + tbody.h) }, { dx: 0, dy: (S.y + S.h + pad) - tbody.y },
+    ].sort((a, c) => Math.hypot(a.dx, a.dy) - Math.hypot(c.dx, c.dy));
+    for (const mv of moves){
+      const nb = { x: tb.x + mv.dx, y: tb.y + mv.dy, w: tb.w, h: tb.h };
+      if (clear(nb)){ t.set({ left: t.left + mv.dx, top: t.top + mv.dy }); t.setCoords(); moved = true; return; }
+    }
+    /* else smaller, anchored on the side away from the shape */
+    const cx = tb.x + tb.w / 2, cy = tb.y + tb.h / 2, sx = S.x + S.w / 2, sy = S.y + S.h / 2;
+    const horiz = Math.abs(sx - cx) / Math.max(1, tb.w) > Math.abs(sy - cy) / Math.max(1, tb.h);
+    for (let k = 0.96; k >= 0.72; k -= 0.04){
+      const w = tb.w * k, h = tb.h * k;
+      const nx = horiz ? (sx > cx ? tb.x : tb.x + tb.w - w) : cx - w / 2, ny = horiz ? cy - h / 2 : (sy > cy ? tb.y : tb.y + tb.h - h);
+      const nb = { x: nx, y: ny, w, h };
+      if (ov(body(nb), S) === 0 && clear(nb)){
+        t.set({ scaleX: (t.scaleX || 1) * k, scaleY: (t.scaleY || 1) * k }); t.setCoords();
+        const b2 = bb(t); t.set({ left: t.left + (nx - b2.x), top: t.top + (ny - b2.y) }); t.setCoords(); moved = true; return;
+      }
+    }
+  });
+  return moved;
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments);
+    try { if (pgUncover(sc, W, H) && typeof pgShadeFit === 'function') pgShadeFit(sc, W, H); } catch (e){ console.warn('uncover:', e); }
+    return r; };
+}
 
-   Placed after the layout (alignPass) by pgEmojiPass, on the scene as it
-   stands, so it follows the visitor's words: never on copy, a plate, a
-   product or another mark, always inside the guides, and only where there is
-   room. Two kinds of place, both attached to the copy:
-   - beside a line: the topic (the product the card buys, read off the
-     headline) beside a headline line, a general accent (money, speed, a
-     free quote) beside a supporting line, at the largest size that fits
-     between the line's end and the guides;
-   - pointing AT the number or the call to action (rule 29: a hand points at
-     something, or it is not placed), from either side or from above its plate.
-   A free-floating emoji in the nearest empty square was tried first and
-   rejected: away from the words it reads as clutter, and on a photograph it
-   covers the picture the shade was lifted for.
-   Not every card: a third get none, most one, a few two, decided by the card's
-   id, so a card always shows the same accents; Easy Mode's Emoji row turns
-   them off or shuffles them. Appended, not spliced (AGENT-BRIEF 1). */
-const PG_EMOJI = { src: 'assets/emoji/fluent-3d.webp', cell: 256, cols: 8,
-  names: ['cash','money-wings','moneybag','money-face','coin','gem','ring','crown',
-          'phone','phone-arrow','laptop','watch','headphones','game','car','suv',
-          'pickup','truck','motorcycle','key','trophy','basketball','baseball','football',
-          'gold-medal','silver-medal','flower-cards','joker','bolt','fire','sparkles','hundred',
-          'check','point-right','point-left','point-down','arrow-right','arrow-down','receiver','speech',
-          'pin','stopwatch','rocket','handshake','package','tag','fork-knife','target'],
-  /* the character each drawing stands for (the editor's picker, alt text) */
-  chars: { 'cash':'💵','money-wings':'💸','moneybag':'💰','money-face':'🤑','coin':'🪙','gem':'💎','ring':'💍','crown':'👑',
-    'phone':'📱','phone-arrow':'📲','laptop':'💻','watch':'⌚','headphones':'🎧','game':'🎮','car':'🚗','suv':'🚙',
-    'pickup':'🛻','truck':'🚚','motorcycle':'🏍️','key':'🔑','trophy':'🏆','basketball':'🏀','baseball':'⚾','football':'🏈',
-    'gold-medal':'🥇','silver-medal':'🥈','flower-cards':'🎴','joker':'🃏','bolt':'⚡','fire':'🔥','sparkles':'✨','hundred':'💯',
-    'check':'✅','point-right':'👉','point-left':'👈','point-down':'👇','arrow-right':'➡️','arrow-down':'⬇️','receiver':'📞','speech':'💬',
-    'pin':'📍','stopwatch':'⏱️','rocket':'🚀','handshake':'🤝','package':'📦','tag':'🏷️','fork-knife':'🍴','target':'🎯' },
-};
-/* what the card buys, read off its own words (so a device switch or the
-   visitor's retyping re-picks), first match wins; then the template's
-   category; then the general set */
+/* ── EMOJI, iOS STYLE ONLY, ON SOME CARDS (rule 88) ───────────────────────
+   Owner, 2026-09-29: "EMOJIS ONLY IOS STYLE", "DON'T OVER USE ONLY FOR
+   SOME". A drawn set (Fluent 3D) was tried the same day and removed.
+
+   Apple's emoji artwork is Apple's and cannot ship inside the product as
+   pictures. What can be used is the device's own emoji font: on an iPhone,
+   an iPad or a Mac that IS Apple Color Emoji, so the emoji are exactly iOS
+   style, in the preview, the PNG and the video made on that device. On any
+   other device the font is someone else's drawing, so nothing is placed
+   (and the editor's emoji picker is not shown): no card ever carries an
+   emoji that is not iOS style. The library's pre-rendered thumbnails are
+   made on a server, so they carry none either.
+
+   Where, when there is room: beside the largest headline line (the topic,
+   read off the headline, never the website or the number), or a hand
+   pointing AT the number (rule 29). At most one per card, on about a
+   quarter of the cards, by the card's id; Easy Mode's Emoji row sets Auto,
+   Shuffle (always one where there is room) or None. Never on copy, a plate,
+   a product or another mark, inside the guides; the gate fails one that
+   is. Wrapped, not spliced (AGENT-BRIEF 1). */
+const PG_IOS_EMOJI = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get('emoji');
+    if (q === 'ios') return true;                                 // tests on a non-Apple machine: geometry only
+    if (q === 'off') return false;
+    return /iPhone|iPad|iPod|Macintosh|Mac OS X/.test(navigator.userAgent || '');
+  } catch (e){ return false; }
+})();
+const PG_EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
 const PG_EMOJI_TOPICS = [
-  [/pok[eé]mon|charizard|pikachu|\btcg\b/i, ['bolt', 'fire', 'flower-cards', 'sparkles']],
-  [/sports?\s*cards?|\bslabs?\b|\bpsa\b|rookies?|baseball|basketball|football/i, ['trophy', 'baseball', 'basketball', 'football']],
-  [/test\s*strips?|\bcgms?\b|diabetic|dexcom|freestyle|one\s*touch|\bstrips\b/i, ['package', 'check', 'cash']],
-  [/macbooks?|laptops?|\bmacs?\b|computers?/i, ['laptop']],
-  [/\bi?pads?\b|tablets?/i, ['phone']],
-  [/watch(es)?\b/i, ['watch']],
-  [/airpods|headphones|\bbeats\b/i, ['headphones']],
-  [/playstation|\bps[45]\b|xbox|nintendo|consoles?|gaming/i, ['game']],
-  [/iphones?|samsung|galaxy|\bpixel\b|\bphones?\b|\bcells?\b/i, ['phone', 'phone-arrow']],
-  [/motorcycles?|dirt\s*bikes?/i, ['motorcycle']],
-  [/trucks?|pickups?|tacomas?|f-?150|silverado|tundra|\bvans?\b/i, ['pickup', 'truck', 'key']],
-  [/\bcars?\b|\bautos?\b|vehicles?|\bsuvs?\b|hondas?|toyotas?|junk/i, ['car', 'suv', 'key']],
-  [/silverware|flatware|sterling/i, ['fork-knife', 'coin', 'moneybag']],
-  [/diamonds?/i, ['gem', 'ring']],
-  [/jewel|rings?\b|chains?|bracelets?|karat|\b1[048]k\b/i, ['ring', 'gem', 'crown']],
-  [/\bgold\b/i, ['crown', 'moneybag', 'ring', 'gem']],
-  [/coins?|morgans?|eagles?|dollars?|numismatic/i, ['coin', 'moneybag']],
-  [/\bsilver\b|bullion|\bbars?\b/i, ['coin', 'moneybag', 'gem']],
+  [/pok[eé]mon|charizard|pikachu|\btcg\b/i, ['⚡', '🔥', '✨']],
+  [/sports?\s*cards?|\bslabs?\b|\bpsa\b|rookies?|baseball|basketball|football/i, ['🏆', '⚾', '🏀', '🏈']],
+  [/test\s*strips?|\bcgms?\b|diabetic|dexcom|freestyle|one\s*touch|\bstrips\b/i, ['📦', '✅', '💵']],
+  [/macbooks?|laptops?|\bmacs?\b|computers?/i, ['💻']],
+  [/\bi?pads?\b|tablets?/i, ['📱']],
+  [/watch(es)?\b/i, ['⌚']],
+  [/airpods|headphones|\bbeats\b/i, ['🎧']],
+  [/playstation|\bps[45]\b|xbox|nintendo|consoles?|gaming/i, ['🎮']],
+  [/iphones?|samsung|galaxy|\bpixel\b|\bphones?\b|\bcells?\b/i, ['📱', '📲']],
+  [/motorcycles?|dirt\s*bikes?/i, ['🏍️']],
+  [/trucks?|pickups?|tacomas?|f-?150|silverado|tundra|\bvans?\b/i, ['🛻', '🚚', '🔑']],
+  [/\bcars?\b|\bautos?\b|vehicles?|\bsuvs?\b|hondas?|toyotas?|\bbmws?\b|junk/i, ['🚗', '🚙', '🔑']],
+  [/silverware|flatware|sterling/i, ['🍴', '🪙', '💰']],
+  [/diamonds?/i, ['💎', '💍']],
+  [/jewel|rings?\b|chains?|bracelets?|karat|\b1[048]k\b/i, ['💍', '💎', '👑']],
+  [/\bgold\b/i, ['👑', '💰', '💍', '💎']],
+  [/coins?|morgans?|eagles?|dollars?|numismatic/i, ['🪙', '💰']],
+  [/\bsilver\b|bullion|\bbars?\b/i, ['🪙', '💰', '💎']],
 ];
-const PG_EMOJI_CAT = { phones: ['phone', 'phone-arrow'], gold: ['crown', 'ring', 'moneybag'], silver: ['coin', 'moneybag'],
-  coins: ['coin', 'moneybag'], cars: ['car', 'key'], sports: ['trophy', 'baseball'], pokemon: ['bolt', 'fire'], strips: ['package', 'check'] };
-/* general purpose: what the offer promises, then money */
-const PG_EMOJI_GENERAL = [
-  [/cash|paid|\bpay|\$|money|offer/i, ['cash', 'money-wings', 'moneybag', 'money-face', 'cash']],
-  [/same\s*day|today|instant|fast|quick|minutes?|\bnow\b/i, ['stopwatch', 'rocket', 'bolt']],
-  [/free\s*quote|appraisal|no\s*fees/i, ['handshake', 'hundred']],
-]
-const PG_EMOJI_ANY = ['cash', 'money-wings', 'fire', 'hundred', 'sparkles', 'handshake'];
-
-let PG_EMOJI_EL = null, PG_EMOJI_CTX = null;
-// the cards the owner approved as rendered (rule 78), which the accents leave as approved
+const PG_EMOJI_CAT = { phones: ['📱', '📲'], gold: ['👑', '💍', '💰'], silver: ['🪙', '💰'], coins: ['🪙', '💰'], cars: ['🚗', '🔑'],
+  sports: ['🏆', '⚾'], pokemon: ['⚡', '🔥'], strips: ['📦', '✅'] };
+const PG_EMOJI_GENERAL = ['💵', '💸', '💰', '🤑', '🔥', '💯'];
+let PG_EMOJI_CTX = null;
+// the cards the owner approved as rendered (rule 78), which the pass leaves as approved
 let PG_APPROVED = null;
 try { fetch('assets/approved/approved.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { PG_APPROVED = new Set(Object.keys(j || {}).filter(k => k[0] !== '_')); }).catch(() => {}); } catch (e){}
-function pgEmojiLoad(){
-  if (pgEmojiLoad.p) return pgEmojiLoad.p;
-  pgEmojiLoad.p = new Promise(res => {
-    const el = new Image();
-    el.onload = () => {
-      PG_EMOJI_EL = el; res(el);
-      /* anything painted before the sheet landed lacks its accents */
-      try { Object.keys(THUMBS).forEach(k => delete THUMBS[k]); } catch (e){}
-      try { if (document.readyState !== 'loading'){
-        if (typeof buildEzStrip === 'function' && $('page-easy') && $('page-easy').classList.contains('active')) buildEzStrip();
-        if (typeof ez === 'object' && ez && ez.tpl && typeof schedEzPreview === 'function') schedEzPreview(0);
-      } } catch (e){}
-    };
-    el.onerror = () => { console.warn('GraphicsStudio: the emoji sheet did not load; cards render without their accents.'); res(null); };
-    el.src = assetUrl(PG_EMOJI.src);
-  });
-  return pgEmojiLoad.p;
+/* a line that is nothing but pictorial emoji (not a tick, a star, a bullet or
+   a divider arrow, which are typographic and belong to the type) */
+function pgIsEmojiText(txt){
+  const t = String(txt || '').replace(/[\s\uFE0F\u200D]/g, '');
+  if (!t) return false;
+  const typo = /^[✓✔✗✘★☆✦✧◆◇▶►◀◄•·→←↑↓✱✳❖]+$/u;
+  return !typo.test(t) && [...t].every(ch => /\p{Extended_Pictographic}|[\u{1F3FB}-\u{1F3FF}]/u.test(ch)) && /\p{Extended_Pictographic}/u.test(t);
 }
 function pgHash(s){ let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
-
-/* one emoji as a fabric image, centred at (cx, cy), s px square */
-function pgEmojiObj(name, cx, cy, s, angle, auto){
-  const k = PG_EMOJI.names.indexOf(name), C = PG_EMOJI.cell;
-  if (k < 0 || !PG_EMOJI_EL) return null;
-  const u = s / 150;
-  return new fabric.Image(PG_EMOJI_EL, {
-    left: cx, top: cy, originX: 'center', originY: 'center', width: C, height: C,
-    cropX: (k % PG_EMOJI.cols) * C, cropY: Math.floor(k / PG_EMOJI.cols) * C,
-    scaleX: s / C, scaleY: s / C, angle: angle || 0,
-    /* a soft contact shadow, never a hard offset (rule 4) */
-    shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.30)', blur: Math.round(14 * u), offsetX: 0, offsetY: Math.round(5 * u) }),
-    name: 'Emoji ' + (PG_EMOJI.chars[name] || name), pgRole: 'deco', pgEmoji: name, pgEmojiAuto: !!auto,
-  });
-}
-
 /* the lines of a text object as boxes, so the room beside a short line of a
    centred headline is room (the object's own box spans its widest line) */
 function pgTextLineBoxes(o, b){
-  /* a one-line headline in a fixed-width text box is as wide as its box, so
-     the line's own width counts for one line too */
   if (!o._textLines || !o._textLines.length || Math.abs(o.angle || 0) > 0.5 || typeof o.getLineWidth !== 'function') return [b];
   const sx = o.scaleX || 1, sy = o.scaleY || 1, out = []; let y = b.y;
   const al = String(o.textAlign || 'left');
@@ -16061,34 +16196,45 @@ function pgTextLineBoxes(o, b){
   }
   return out.length ? out : [b];
 }
-
+/* one emoji in the device's font, its drawing s px square, centred at (cx, cy) */
+function pgEmojiText(ch, cx, cy, s, auto){
+  const o = new fabric.Text(ch, { left: cx, top: cy, originX: 'center', originY: 'center', fontFamily: PG_EMOJI_FONT, fontSize: s, lineHeight: 1,
+    fill: '#000000', shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.28)', blur: Math.round(s * 0.09), offsetX: 0, offsetY: Math.round(s * 0.035) }),
+    name: 'Emoji ' + ch, pgRole: 'deco', pgEmoji: ch, pgEmojiAuto: !!auto, pgCasing: 'none' });
+  const k = s / Math.max(1, o.width, o.height);
+  o.set({ scaleX: k, scaleY: k });
+  return o;
+}
+function pgEmojiStrip(sc){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return; }
+  const old = objs.filter(o => o && o.pgEmojiAuto);
+  if (old.length){ sc.__pgEmojiBusy = true; old.forEach(o => sc.remove(o)); sc.__pgEmojiBusy = false; }
+}
 function pgEmojiPass(sc, W, H){
   let objs; try { objs = sc.getObjects(); } catch (e){ return; }
   W = W || sc.getWidth(); H = H || sc.getHeight();
-  /* the pass owns only the accents it placed; one the visitor placed or moved
-     is theirs */
-  const old = objs.filter(o => o && o.pgEmojiAuto);
-  if (old.length){ sc.__pgEmojiBusy = true; old.forEach(o => sc.remove(o)); sc.__pgEmojiBusy = false; objs = sc.getObjects(); }
+  pgEmojiStrip(sc); objs = sc.getObjects();
   pgEmojiHook(sc);
-  const why = w => { sc.pgEmojiWhy = w; };            // for the scripts and tests: why a card has none
+  const why = w => { sc.pgEmojiWhy = w; };
+  /* emoji typed into a design (28 library cards carry one as a deco line)
+     follow the same rule: shown only where they are iOS style */
+  const authored = objs.filter(o => o && o.pgRole === 'deco' && !o.pgEmoji && typeof o.text === 'string' && pgIsEmojiText(o.text));
+  if (!PG_IOS_EMOJI){ authored.forEach(o => o.set({ visible: false })); return why('not an Apple device'); }
   if (sc.pgEmojiManual) return why('the visitor placed their own');
-  /* the editor's canvas follows the visitor's Easy Mode choice on every later
-     pass (a format switch, Enhance); a thumbnail is always the card's own */
+  if (authored.some(o => o.visible !== false)) return why('the design has its own emoji');
   const ctx = PG_EMOJI_CTX || ((sc instanceof fabric.Canvas) && typeof ez === 'object' && ez ? { mode: ez.emoji || 'auto', seed: ez.emojiSeed || 0 } : {});
   if (ctx.mode === 'off') return why('off');
-  if (!PG_EMOJI_EL){ pgEmojiLoad(); return why('sheet not loaded'); }
-  /* the card's own id, the same in the app (sc-), the scripts (hx-) and a gated candidate */
   const tplId = String((objs.find(o => o && o.pgTplId) || {}).pgTplId || '').replace(/^(sc|hx)-/, '').replace(/__candidate$/, '');
   if (!tplId && !ctx.seed) return why('no card id');
   const seed = pgHash(tplId + '|emoji|' + (ctx.seed || 0));
-  /* not every card needs one: 3 in 10 get none, 5 one, 2 two; a shuffle the
-     visitor asked for always tries to place at least one */
-  const PLANS = [[], [], [], ['topic'], ['topic'], ['topic'], ['point'], ['topic', 'point'], ['topic', 'general'], ['general']];
-  const ASKED = [['topic'], ['point'], ['topic', 'point'], ['general'], ['topic', 'general'], ['general', 'point']];
-  const plan = ctx.seed ? ASKED[seed % ASKED.length] : PLANS[seed % PLANS.length];
-  if (!plan.length) return why('not this card');
+  /* only some cards: 3 in 10, one emoji each; a shuffle the visitor asked for
+     always tries to place one */
+  const PLANS = ['', '', '', '', '', '', '', 'topic', 'topic', 'point'];
+  const ASKED = ['topic', 'point', 'topic', 'general'];
+  const kind0 = ctx.seed ? ASKED[seed % ASKED.length] : PLANS[seed % PLANS.length];
+  if (!kind0) return why('not this card');
   /* a card the owner approved as rendered keeps that render (DESIGN-LAW 78,
-     assets/approved/approved.json): no accent is added to it unless the
+     assets/approved/approved.json): no emoji is added to it unless the
      visitor asks for one (Shuffle) */
   if (!ctx.seed && PG_APPROVED && PG_APPROVED.has(tplId)) return why('an approved render');
 
@@ -16109,44 +16255,32 @@ function pgEmojiPass(sc, W, H){
       return;
     }
     const big = b.w * b.h >= 0.6 * W * H;
-    if (hollow(o) && o.stroke && (big || b.w * b.h >= 0.25 * W * H)){   // a frame: only its rule is in the way
+    if (hollow(o) && o.stroke && (big || b.w * b.h >= 0.25 * W * H)){
       const t = Math.max(6 * u, (o.strokeWidth || 1) * 2);
       occ.push({ x: b.x, y: b.y, w: b.w, h: t }, { x: b.x, y: b.y + b.h - t, w: b.w, h: t }, { x: b.x, y: b.y, w: t, h: b.h }, { x: b.x + b.w - t, y: b.y, w: t, h: b.h });
       return;
     }
-    if (big && o.pgRole !== 'photo') return;                              // a panel or a texture the size of the card is ground
-    /* a ghosted picture (a wall of products at 16%) is texture: the gate
-       (pgEmojiCheck) ignores anything under 0.3 as well */
-    if (o.type === 'image' && o.opacity != null && o.opacity < 0.3) return;
+    if (big && o.pgRole !== 'photo') return;
+    if (o.type === 'image' && o.opacity != null && o.opacity < 0.3) return;   // a ghosted picture is texture
     occ.push(b);
   });
   const hit = (a, b, pad) => a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
   const inside = r => r.x >= G && r.y >= G && r.x + r.w <= W - G && r.y + r.h <= H - G;
-  const rows = [];
-  const free = r => inside(r) && !occ.some(b => hit(r, b, P)) && !rows.some(y => r.y < y.y + y.h && r.y + r.h > y.y);
+  const free = r => inside(r) && !occ.some(b => hit(r, b, P));
   const sq = (cx, cy, s) => ({ x: cx - s / 2, y: cy - s / 2, w: s, h: s });
   const role = o => o.pgRole || '';
   const textOf = o => typeof o.text === 'string' ? o.text : (o.pgCurved && o.pgCurved.text) || '';
-
-  /* the topic, from the headline first; never from the website or the
-     number (every card's website is iphones.LA, which named every card a
-     phone card on the first run) */
   const texts = objs.filter(o => isText(o) && o.visible !== false && !/^(website|phone)$/.test(role(o)));
   const headWords = texts.filter(o => /^(headline|offer)$/.test(role(o))).map(textOf).join(' \n ');
   const restWords = texts.filter(o => !/^(headline|offer)$/.test(role(o))).map(textOf).join(' \n ');
   const tpl = (typeof TEMPLATES !== 'undefined' && TEMPLATES.find(t => t.id === tplId || t.id === 'sc-' + tplId)) || null;
-  const pick = (list, salt) => list[pgHash(tplId + salt + (ctx.seed || 0)) % list.length];
   let topics = null;
   for (const words of [headWords, restWords]){ for (const [re, list] of PG_EMOJI_TOPICS) if (re.test(words)){ topics = list; break; } if (topics) break; }
-  if (!topics) topics = (tpl && PG_EMOJI_CAT[tpl.cat]) || PG_EMOJI_ANY;
-  /* general purpose: every promise the card makes, money most of all */
-  let general = [];
-  PG_EMOJI_GENERAL.forEach(([re, list]) => { if (re.test(headWords + ' ' + restWords)) general = general.concat(list); });
-  if (!general.length) general = PG_EMOJI_ANY;
+  if (!topics) topics = (tpl && PG_EMOJI_CAT[tpl.cat]) || PG_EMOJI_GENERAL;
+  const pick = (list, salt) => list[pgHash(tplId + salt + (ctx.seed || 0)) % list.length];
 
-  /* the places. Beside a line: the largest size that fits between the line's
-     end and the guides with nothing in the way, centred on the line's caps
-     (a text box carries its descender room at the bottom) */
+  /* beside the biggest line first, by the line's own height */
+  const heads = lines.filter(l => /^(headline|offer)$/.test(role(l.o))).sort((a, b) => b.h - a.h).slice(0, 4);
   const beside = (ls, sMin, sMax, k) => {
     const sideFirst = seed % 3 === 0 ? -1 : 1;
     for (const l of ls){
@@ -16154,55 +16288,40 @@ function pgEmojiPass(sc, W, H){
       for (const side of [sideFirst, -sideFirst]){
         for (let s = Math.min(sMax, l.h * k); s >= sMin; s -= 8 * u){
           const g0 = Math.max(0.25 * s, P + 4 * u);
-          for (const gap of [g0, g0 + 0.3 * s, g0 + 0.6 * s]){
+          for (const gap of [g0, g0 + 0.3 * s]){
             const cx = side > 0 ? l.x + l.w + gap + s / 2 : l.x - gap - s / 2, r = sq(cx, cy, s);
-            if (free(r)) return { r, s, cx, cy, side };
+            if (free(r)) return { r, s, cx, cy };
           }
         }
       }
     }
     return null;
   };
-  /* the biggest LINE first, by its own height: a two-line headline is one
-     object, and ranking by the object put the emoji beside a small "WE BUY"
-     rather than the big product word under it */
-  const heads = lines.filter(l => /^(headline|offer)$/.test(role(l.o))).sort((a, b) => b.h - a.h).slice(0, 4);
-  const minor = lines.filter(l => /^(sub|cta|info)$/.test(role(l.o)) && l.h >= 38 * u).sort((a, b) => b.h - a.h).slice(0, 4);
-  /* pointing AT the number (or the call to action): from the left, from the
-     right, or from above either end of its plate */
   const pointAt = () => {
     const targets = lines.filter(l => role(l.o) === 'phone').concat(lines.filter(l => role(l.o) === 'cta'));
     for (const l of targets){
       const pl = (typeof pgPlateUnder === 'function') ? pgPlateUnder(objs, l.o, l, W, H) : null;
       const T = pl && l.x + l.w / 2 >= pl.x && l.x + l.w / 2 <= pl.x + pl.w && l.y + l.h / 2 >= pl.y && l.y + l.h / 2 <= pl.y + pl.h ? pl : l;
-      for (let s = Math.max(64 * u, Math.min(124 * u, T.h * 0.85)); s >= 64 * u; s -= 10 * u){
+      for (let s = Math.max(60 * u, Math.min(112 * u, T.h * 0.8)); s >= 60 * u; s -= 10 * u){
         const gap = Math.max(0.2 * s, P + 4 * u), cy = T.y + T.h / 2, up = T.y - gap - s / 2;
         const opts = [
-          { name: 'point-right', cx: T.x - gap - s / 2, cy },
-          { name: 'point-left', cx: T.x + T.w + gap + s / 2, cy },
-          { name: 'point-down', cx: T.x + Math.max(s * 0.6, T.w * 0.14), cy: up },
-          { name: 'point-down', cx: T.x + T.w - Math.max(s * 0.6, T.w * 0.14), cy: up },
+          { ch: '👉', cx: T.x - gap - s / 2, cy }, { ch: '👈', cx: T.x + T.w + gap + s / 2, cy },
+          { ch: '👇', cx: T.x + Math.max(s * 0.6, T.w * 0.14), cy: up }, { ch: '👇', cx: T.x + T.w - Math.max(s * 0.6, T.w * 0.14), cy: up },
         ];
         for (const o of opts){ const r = sq(o.cx, o.cy, s); if (free(r)) return Object.assign({ r, s }, o); }
       }
     }
     return null;
   };
-
-  const placed = [], usedNames = new Set();
-  const put = (name, at) => { const o = pgEmojiObj(name, at.cx, at.cy, at.s, 0, true); if (!o) return false;
-    sc.add(o); occ.push(at.r); rows.push(at.r); placed.push(name); usedNames.add(name); return true; };
-  const choose = (list, salt) => { const l = list.filter(n => !usedNames.has(n)); return pick(l.length ? l : list, salt); };
-  plan.forEach((kind, i) => {
-    if (placed.length >= 2) return;
-    if (kind === 'point'){ const at = pointAt(); if (at){ put(at.name, at); return; } kind = 'general'; }
-    const at = kind === 'topic' ? (beside(heads, 64 * u, 150 * u, 0.9) || beside(minor, 60 * u, 110 * u, 1.2))
-                                : (beside(minor, 56 * u, 110 * u, 1.2) || beside(heads, 64 * u, 150 * u, 0.9));
-    if (at) put(choose(kind === 'topic' ? topics : general, '#' + kind + i), at);
-  });
-  why(placed.length ? 'placed ' + placed.join(', ') : 'no room beside the copy');
+  let at = null, ch = null;
+  if (kind0 === 'point'){ at = pointAt(); if (at) ch = at.ch; }
+  if (!at){ at = beside(heads, 60 * u, 140 * u, 0.85); if (at) ch = pick(kind0 === 'general' ? PG_EMOJI_GENERAL : topics, '#' + kind0); }
+  if (!at) return why('no room beside the copy');
+  const o = pgEmojiText(ch, at.cx, at.cy, at.s, true);
+  sc.add(o);
+  why('placed ' + ch);
 }
-/* in the editor, an accent the visitor moves or deletes is theirs: the pass
+/* in the editor, an emoji the visitor moves or deletes is theirs: the pass
    stops placing on that canvas until it is cleared for another design */
 function pgEmojiHook(sc){
   if (!sc || sc.__pgEmojiHooked || typeof sc.on !== 'function' || !(sc instanceof fabric.Canvas)) return;
@@ -16215,11 +16334,14 @@ function pgEmojiHook(sc){
 try { EXTRA_PROPS.push('pgEmoji', 'pgEmojiAuto'); } catch (e){}
 {
   const _alignPass = alignPass;
-  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); try { pgEmojiPass(sc, W, H); } catch (e){ console.warn('emoji accents:', e); } return r; };
+  alignPass = function(sc, W, H){
+    try { pgEmojiStrip(sc); } catch (e){}                        // the layout never sees last pass's emoji
+    const r = _alignPass.apply(this, arguments);
+    try { pgEmojiPass(sc, W, H); } catch (e){ console.warn('emoji:', e); }
+    return r;
+  };
 }
-
-/* the gate (rule 87) measures the accents too: an emoji on copy, a plate or
-   a product fails, one past the guides fails, whoever placed it */
+/* the gate: an emoji on copy, a plate or a product, or past the guides, fails */
 function pgEmojiCheck(sc, r){
   const objs = sc.getObjects(), W = sc.getWidth(), H = sc.getHeight(), m = Math.min(W, H);
   const ems = objs.filter(o => o && o.pgEmoji && o.visible !== false);
@@ -16229,18 +16351,16 @@ function pgEmojiCheck(sc, r){
   const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved));
   const solid = o => { const f = o.fill; return f && f !== 'transparent' && !(typeof f === 'string' && /rgba\([^)]*,\s*0(\.[0-4]\d*)?\)$/.test(f)); };
   const others = objs.filter(o => o && !o.pgEmoji && o.visible !== false && !(o.opacity != null && o.opacity < 0.3) && !o.pgBgRect && !o.pgScrim && !o.pgShade && !o.pgPattern &&
-    (isText(o) ? true : (o.type === 'image' && o.pgRole === 'photo') || (o.type === 'rect' && solid(o))));
+    ((isText(o) && /[A-Za-z0-9]/.test(o.text || (o.pgCurved && o.pgCurved.text) || '')) || (o.type === 'image' && o.pgRole === 'photo') || (o.type === 'rect' && solid(o))));
   const M = PG_T.margin * m;
   ems.forEach(e => {
-    const b0 = box(e), k = 0.08, b = { x: b0.x + b0.w * k, y: b0.y + b0.h * k, w: b0.w * (1 - 2 * k), h: b0.h * (1 - 2 * k) };   // the drawing, not its transparent margin or shadow
-    const name = e.name || 'Emoji';
+    const b0 = box(e), k = 0.1, b = { x: b0.x + b0.w * k, y: b0.y + b0.h * k, w: b0.w * (1 - 2 * k), h: b0.h * (1 - 2 * k) };
     let worst = null, share = 0;
     others.forEach(o => { const ob = box(o); if (!isText(o) && ob.w * ob.h >= 0.6 * W * H) return;
-      const lines = isText(o) && o.type !== 'group' ? pgTextLineBoxes(o, ob) : [ob];
-      lines.forEach(l => { const s = inter(b, l) / Math.max(1, b.w * b.h); if (s > share){ share = s; worst = o; } }); });
-    if (share > 0.02) r.fails.push({ code: 'emoji', line: worst.name || null, role: worst.pgRole || null, value: +share.toFixed(2), need: 0, emoji: name });
+      (isText(o) && o.type !== 'group' ? pgTextLineBoxes(o, ob) : [ob]).forEach(l => { const s = inter(b, l) / Math.max(1, b.w * b.h); if (s > share){ share = s; worst = o; } }); });
+    if (share > 0.02) r.fails.push({ code: 'emoji', line: worst.name || null, role: worst.pgRole || null, value: +share.toFixed(2), need: 0 });
     const over = Math.max(M - b.x, M - b.y, b.x + b.w - (W - M), b.y + b.h - (H - M));
-    if (over > 2 * m / TPL_W) r.fails.push({ code: 'emojiEdge', line: name, role: 'deco', value: +(over * TPL_W / m).toFixed(1), need: 0 });
+    if (over > 2 * m / TPL_W) r.fails.push({ code: 'emojiEdge', line: e.name || 'Emoji', role: 'deco', value: +(over * TPL_W / m).toFixed(1), need: 0 });
   });
   r.ok = !r.fails.length;
 }
@@ -16254,10 +16374,8 @@ function pgEmojiCheck(sc, r){
     return _pgExplain.apply(this, arguments);
   };
 }
-
-/* Easy Mode's Emoji row (index.html #ez-emoji-seg): Auto, Shuffle, None. The
-   choice rides on the Easy render and the hand-off to the editor; a
-   thumbnail is always the card's own accents. Remembered per visitor. */
+/* Easy Mode's Emoji row and the editor's picker exist only where the emoji
+   are iOS style; the row's choice rides on the Easy render and the hand-off */
 {
   const EZK = 'pg-ez-emoji';
   const wrapCtx = fn => function(){
@@ -16267,10 +16385,14 @@ function pgEmojiCheck(sc, r){
   };
   if (typeof renderEzCanvas === 'function') renderEzCanvas = wrapCtx(renderEzCanvas);
   if (typeof openAdvancedFromEz === 'function') openAdvancedFromEz = wrapCtx(openAdvancedFromEz);
-  const sync = () => { document.querySelectorAll('#ez-emoji-seg [data-em]').forEach(b => {
-    const k = b.dataset.em; b.classList.toggle('active', k === 'off' ? ez.emoji === 'off' : k === 'shuffle' ? ez.emoji !== 'off' && ez.emojiSeed > 0 : ez.emoji !== 'off' && !(ez.emojiSeed > 0)); }); };
+  const sync = () => document.querySelectorAll('#ez-emoji-seg [data-em]').forEach(b => { const k = b.dataset.em;
+    b.classList.toggle('active', k === 'off' ? ez.emoji === 'off' : k === 'shuffle' ? ez.emoji !== 'off' && ez.emojiSeed > 0 : ez.emoji !== 'off' && !(ez.emojiSeed > 0)); });
   const bind = () => {
-    if (typeof ez !== 'object' || !ez) return;
+    const field = document.getElementById('ez-emoji-field');
+    if (field) field.hidden = !PG_IOS_EMOJI;
+    const pick = document.getElementById('emoji-grid');
+    if (pick && !PG_IOS_EMOJI){ const sec = pick.closest('.psec'); if (sec) sec.hidden = true; }
+    if (!PG_IOS_EMOJI || typeof ez !== 'object' || !ez) return;
     try { const v = JSON.parse(localStorage.getItem(EZK) || 'null'); if (v){ ez.emoji = v.mode === 'off' ? 'off' : 'auto'; ez.emojiSeed = v.seed | 0; } } catch (e){}
     document.querySelectorAll('#ez-emoji-seg [data-em]').forEach(b => b.onclick = () => {
       const k = b.dataset.em;
@@ -16284,34 +16406,6 @@ function pgEmojiCheck(sc, r){
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
 }
-
-/* the editor's Add > Emoji: the same drawings, placed in the middle of the
-   card for the visitor to move (their own, never moved by the pass) */
-function addEmoji(em){
-  const name = Object.keys(PG_EMOJI.chars).find(k => PG_EMOJI.chars[k] === em) || (PG_EMOJI.names.includes(em) ? em : null);
-  const o = name && PG_EMOJI_EL ? pgEmojiObj(name, CW / 2, CH / 2, 150 * Math.min(CW, CH) / TPL_W, 0, false)
-    : new fabric.IText(em, { left: CW / 2, top: CH / 2, originX: 'center', originY: 'center', fontSize: 110, name: 'Emoji', pgRole: 'deco' });
-  if (!o) return;
-  canvas.add(o); canvas.setActiveObject(o); canvas.renderAll();
-  pushHist(); refreshLayers();
-}
-{
-  const fill = () => {
-    const eg = $('emoji-grid'); if (!eg) return;
-    const C = PG_EMOJI.cell, cols = PG_EMOJI.cols, rows = Math.ceil(PG_EMOJI.names.length / cols), px = 34;
-    eg.innerHTML = '';
-    PG_EMOJI.names.forEach((n, k) => {
-      const b = document.createElement('button'); b.type = 'button'; b.title = n.replace(/-/g, ' ');
-      b.setAttribute('aria-label', 'Add ' + b.title + ' emoji');
-      const i = document.createElement('span'); i.className = 'pg-emoji-sw';
-      i.style.cssText = 'display:inline-block;width:' + px + 'px;height:' + px + 'px;background:url(' + assetUrl(PG_EMOJI.src) + ') no-repeat;background-size:' + (cols * px) + 'px ' + (rows * px) + 'px;background-position:-' + ((k % cols) * px) + 'px -' + (Math.floor(k / cols) * px) + 'px';
-      b.appendChild(i); b.onclick = () => addEmoji(n); eg.appendChild(b);
-    });
-  };
-  /* the grid is built when the editor first opens (bindEditorUI); refill it after */
-  if (typeof bindEditorUI === 'function'){ const _b = bindEditorUI; bindEditorUI = function(){ const r = _b.apply(this, arguments); try { fill(); } catch (e){} return r; }; }
-}
-pgEmojiLoad();
 
 /* ═══ A THEME OWNS THE CARD'S COLOUR ═══════════════════════════════════════
    Owner, 2026-09-29, on the colour themes, backgrounds and effects: "make sure
