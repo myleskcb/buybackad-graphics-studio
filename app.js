@@ -16652,14 +16652,22 @@ function pgLineBodies(o){
 function pgHairlineHeads(t){
   if (!t) return 0;
   const photo = t.bg && t.bg.type === 'image';
+  const words = l => l.props && typeof l.text === 'string' && /[A-Za-z0-9]/.test(l.text) && l.role !== 'deco';
+  const mel = (t.layers || []).filter(l => words(l) && l.props.fontFamily === 'Melodrama');
+  if (!mel.length) return 0;
+  /* a headline over a photograph: every Melodrama line on the card takes
+     Zodiak, so the card still has one serif (the template audit counted a
+     third family where only some lines moved) */
+  if (photo && mel.some(l => /^(headline|offer)$/.test(l.role || ''))){ mel.forEach(l => { l.props.fontFamily = 'Zodiak'; }); return mel.length; }
+  /* a line under 60px (its hairlines are gone at that size on any ground:
+     "GET A FREE QUOTE" on a white plate) takes the card's other face, the one
+     its other copy is set in, so the card keeps its families; Zodiak only
+     where Melodrama is the card's one face */
+  const use = {};
+  (t.layers || []).forEach(l => { if (words(l) && l.props.fontFamily && l.props.fontFamily !== 'Melodrama') use[l.props.fontFamily] = (use[l.props.fontFamily] || 0) + 1; });
+  const other = Object.keys(use).sort((a, b) => use[b] - use[a])[0] || 'Zodiak';
   let n = 0;
-  (t.layers || []).forEach(l => {
-    if (!l.props || l.props.fontFamily !== 'Melodrama' || typeof l.text !== 'string') return;
-    /* a headline over a photograph, or any line under 60px (its hairlines
-       are gone at that size on any ground: "GET A FREE QUOTE" on a white plate) */
-    const head = /^(headline|offer)$/.test(l.role || '');
-    if ((head && photo) || (l.props.fontSize || 0) < 60){ l.props.fontFamily = 'Zodiak'; n++; }
-  });
+  mel.forEach(l => { if ((l.props.fontSize || 0) < 60){ l.props.fontFamily = other; n++; } });
   return n;
 }
 try { TEMPLATES.forEach(t => { if (!t.showcase) pgHairlineHeads(t); }); } catch (e){}

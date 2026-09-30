@@ -289,6 +289,11 @@ produced." DESIGN-LAW rule 87. In practice:
   role and a line with a solid shape over its letters; `pgUncover` moves
   such copy clear after the layout. A rotated rect is never rebuilt from its
   bounding box.
+- **Face passes and baked tables** (rule 92): `pgHairlineHeads` sets a
+  card's serif at load, and `assets/number-fix.json` sets the number's face
+  after it. Change a face pass and re-bake the rows of the cards it changes
+  (`number_block.mjs --classics --ids a,b --json f`, then replace those ids'
+  rows; `--classics --write` rewrites the whole table from what it measured).
 - **The shade is bands** (rule 87, 2026-09-28): `scrimMode: 'bands:a-b,c-d'`
   shades only the bands of the height that hold copy on the photograph.
   `scrimRect` draws it (`scrimBands` parses it); `naturalGround` solves it

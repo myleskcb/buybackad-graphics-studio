@@ -2771,3 +2771,12 @@ Melodrama keeps its voice.
 And a dark glow behind dark type (the knockout headlines on bright bands) is
 removed after the layout: a halo takes the tone of the ground (rule 27), and a
 dark one behind dark letters is a smudge.
+
+**One serif to a card** (2026-09-30, on the merged engine). Swapping only some
+lines set Zodiak beside Melodrama on twelve cards, a third family that the
+template audit holds back (rule 81). So the swap is made for the card: when
+the headline over a photograph moves to Zodiak, every Melodrama line on it
+moves too, the number included; a small Melodrama line on a card that keeps
+Melodrama takes the face the card's other copy is set in. A table that sets a
+face after load (assets/number-fix.json) is re-baked for the cards this pass
+changes, or it puts the old face back.

@@ -739,13 +739,19 @@ engine. Still open:
    densest layouts; do it per layout.
 2. **Item lines over busy photographs** (some gold cards): the shade is solved
    for the headline; the 20px list over the chains reads poorly.
-3. **The library's 398 cards** have not had the same by-eye pass yet.
+3. **The library's 415 cards** have not had the same by-eye pass yet.
 4. **Two classics held back by the Zodiak swap (rule 92)**: Zodiak sets about
    35% wider than Melodrama, so `coins_graded`'s long headline is fitted
    under the 160px-tile floor and `dl_strips_duoSplit_emerald`'s headline no
    longer fits its column. Each needs its own layout fix (a shorter line or a
    wider column); the swap stays, since it makes some twenty gold, silver and
    coin headlines readable.
+5. **Four more classics held on the merged engine** (2026-09-30), each a
+   real defect the trunk's gate could not see and each needing its own layout
+   fix: `st_coins_splitcol` (the number runs off the left of its plate),
+   `dl_phones_lowerThird_ocean` (the number sits on "SELL YOUR"),
+   `dl_gold_priceAnchor_gold` (the one-line item list over the watch, 2.93:1),
+   `of_mac_center_sun` (the laptop cutout touches "Sell it.").
 
 ## S. 2026-09-29 — three lines of work made one
 

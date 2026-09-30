@@ -1725,3 +1725,31 @@ Left:
     phone; raising the floor would redesign the densest layouts.
   - Item lines over busy photographs are thin and low contrast on some gold
     cards; the ground solver shades for the headline, not for 20px copy.
+
+## 2026-09-30 (later) — the live branch and the trunk made one again
+
+Merged claude/vibrant-lovelace-rze4rx (with vibrant-hawking) into the live
+branch before its next deploy, as the owner asked ("unify the sites or
+branches"), then ran every audit on the merged engine.
+
+Learned:
+  - The trunk's gate, without this branch's last three commits, offered cards
+    that are plainly broken on sight: the number printed over "SELL YOUR"
+    (dl_phones_lowerThird_ocean) and a number running off its plate
+    (st_coins_splitcol). The merged gate holds them.
+  - A face pass that runs at load is undone by any table applied after it:
+    the number table re-set Melodrama on five cards whose headlines had
+    moved to Zodiak, a third family on each.
+  - Changing some lines of a card to a new face is a new family; a face
+    decision belongs to the card.
+
+Changed:
+  - pgHairlineHeads decides for the card (one serif); number-fix rows for the
+    five cards re-baked with the repo's own generator.
+  - Classics gate: 63 of 404 held (trunk 58: two from the Zodiak swap, four
+    real defects above, one released). Template audit: 137 held (trunk 143).
+    Offered after both: 264 (trunk 260). Library 415 of 415 pass; 95 live
+    thumbnails changed materially (dark halos behind dark type gone, the
+    review quote at a readable size), the rest left as they were.
+  - DESIGN-LAW rule 92 widened; rule references in this branch's code now
+    use the unified numbers.
