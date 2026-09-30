@@ -384,6 +384,9 @@ Next, in order of what the owner will see:
 9. **The advanced editor's Background** is still Solid / Gradient / Image. A
    drawn ground opened from Easy Mode carries over (applyBgSpec draws it), but
    the editor has no picker of its own for them yet.
+   **Done 2026-09-30** (DESIGN-LAW rule 91, §U): its Backgrounds tab offers
+   every kind of ground in the card's or the theme's palette, with blur,
+   Shade/Fade and the patterns, and Quick edit has the six swatches.
 10. §J items 1 and 6 to 9 remain (2, ASSET_REV, and 5, CSS_FALLBACK, are
    done): `tplbg-data.js` as a 635KB render-blocking script, the PRO badge
    predicate, the grey Easy Mode placeholder, the `assets/tplbg/` 404 swatch,
@@ -910,6 +913,136 @@ Still open:
    hangs off its smoke panel onto the paper band. There no single ink serves
    all three lines, and the theme treats it as standing on the ground. The
    editor keeps it on the panel. This predates the theme work; both read.
+   **Done in part 2026-09-30** (DESIGN-LAW rule 91, §U): the two agree. The
+   editor laid the visitor's words out a second time over objects already
+   fitted, and that second layout was the smaller list (0.81 of its size,
+   against Easy Mode's 0.935). It now lays them out once, and every box is
+   within 3px of Easy Mode's. The overhang stays, now in both. The panel is
+   the classics' bodyPanel, sized from the authored text before the layout
+   sets the list, so the fix belongs to the classics' passes (then
+   `verify_showcase.mjs --classics --write`).
 6. **Photographs the visitor uploads** are not re-inked (a shade does that
    job, rule 62), so white copy on a bright photo of their own still depends
    on the gate's shade at download.
+
+## U. 2026-09-30 — every line of work on `main`
+
+The owner: "Audit and push all to main site, unify the sites or branches."
+`main` had not moved since 2026-08-28. It is now the whole product: every
+branch below is an ancestor of it, merged with merge commits (nobody's
+history rewritten), audited, and `main` fast-forwarded to the result.
+
+Merged, in order (the log entry of the same date has the numbers):
+- `claude/vibrant-hawking-htxrvn` to 11bed85 and again to e0b1506 (the one
+  engine, and its own merge of the live branch, which agreed with this one);
+- `phone-ad-maker` (PRs #2, #3, #4) and so `claude/project-thread-hkdmrf`,
+  `-j2pq9z`, `-kte3ml` (every commit of theirs was already in; the merge
+  records it);
+- `claude/fervent-pascal-w6mthe` to 9318537, what production served (the
+  iOS-only emoji, copy never under a shape);
+- `claude/project-thread-eost3s` to 8842adc (the video maker, 2026-09-30);
+- `claude/eloquent-euler-7jvzfd` to 0769ce3, 8460821 and 5d40adc (the
+  designer speaks the house language, rule 93, its §V; its shade and hand-off
+  fixes, thumbnails at half the cost, library cards in their own weights);
+- `claude/fervent-pascal-w6mthe` again to d5b98b5 (a visual audit of every
+  classic: rule 91 widened, one serif to a card, rule 92);
+- the trunk, `claude/vibrant-lovelace-rze4rx`, is the branch this was built on.
+
+Not merged, on purpose (§J): `claude/busy-allen-2d5iv1` (the photo standard)
+and `claude/quirky-ritchie-f0zuc8` (the design console) are cut from the
+August `main`; merged, they would lay August code over September's. Port from
+them. Still worth porting: busy-allen's move of `tplbg-data.js` (a 621 KB
+render-blocking script on every landing load, measured 2026-09-30) to files,
+and the console's pass switches, re-derived for today's pass chain.
+
+Open:
+1. **Deploy `main`.** The cloud sessions cannot: the environment's network
+   policy denies `*.netlify.app` and `api.netlify.com`, and auto mode's
+   Production Deploy rule stops the Netlify connector's deploy-site. From the
+   Mac: `git checkout main && git pull`, then AGENT-BRIEF, Deploying (draft,
+   look, `--prod`).
+2. **One site.** `buybackad-finished-copy` (the connector's, where sessions
+   deployed) and `buybackad-graphics-studio` (the Mac's CLI) have served
+   different branches. Deploy `main` to both or retire one, and link the one
+   kept to this repository's `main` so a push deploys (AGENT-BRIEF, Deploying).
+3. **PR #1** (`claude/project-thread-hkdmrf` into `main`, "Bring main up to
+   date") is superseded: its head is in `main`.
+4. **Branches.** Every `claude/*` branch but the two August ones is in
+   `main`; they can be deleted once the sessions on them have merged `main`
+   (the owner's call; none was deleted here).
+5. **The colour-vision audit** (`scripts/cvd_audit.py`) fails three themes
+   (Crimson x Mint and Royal x Tangerine under simulation, Teal x Coral
+   before it),
+   exactly as it does on the August `main` and on every branch: rule 43's
+   finding, waiting on the field research rule 14 asks for.
+6. **The designer audit** (`scripts/designer_audit.mjs`, rule 93). Its
+   default cards sell_iphone, gold_spot, cars_kbb and pkm_binder are held by
+   the template audit on `main`, and lowerThird-nn03-30 by the gate, so Easy
+   Mode opens its first card in their place and the audit measures one card
+   five times; run it with `--cards` (icloud_ok, bold_buyer, gold_lux,
+   cars_anycond, bandKnockout-pp04-15, stepsFlow-jw07-15 were used). On the
+   final build (with the designer's 5d40adc): hand-off 0 and ORIG 0% on all
+   six, after the themes and after the swatches, no legibility regression,
+   1.9 to 2.3 s of blocking in the 12 s after the editor opens (the bar is
+   3 s). Left: sparse patterns that change under 1% of gold_lux (dots,
+   halftone, grid) and cars_anycond (grid), as on the designer branch (§S 11).
+7. **Easy Mode through the gate** (`scripts/ez_gate_sweep.mjs`, 267 offered
+   templates): 5 fail, each as on the live branch alone. dl_strips_arcCrown_
+   emerald's Headline 2 (legibility, §S 10); one of dl_sports_hudTech_emerald
+   and dl_sports_scriptRetro_paper, whose Headline 2 sits at 3:1 and flips
+   between runs; dl_strips_duoSplit_emerald's Headline 2 across its plate
+   ('straddle', rule 91 widened); of_mac_center_sun's headline under its
+   product ('covered'); st_cars_cashfor ('ghost', held by the classics gate,
+   which the sweep does not apply). The export gate still asks on each.
+   Eight more (the bandKnockout family) were Easy Mode putting every selling
+   point in every chip; fixed here (one point to a slot).
+8. **dl_sports_scriptRetro_paper's Headline 2 sits at 3:1.** Released by the
+   live branch's visual audit (2026-09-30), it is new to the tagline audit:
+   with the pair look it reads 2.95:1 (82 templates, every other look and
+   template passes; blocks give way on 3, each over its product), and in the
+   Easy Mode sweep it passes and fails between runs. The export gate shades
+   it when it fails; a line a design keeps at the edge of the bar wants its
+   ink moved, or the card held.
+
+## V. 2026-09-30 — the designer speaks the house language
+
+Written on the designer branch as its §U (its §P is §T here); lettered V,
+after this file's §U (every line on `main`), and its rule 91 is rule 93.
+
+Done (DESIGN-LAW rule 93, `scripts/designer_audit.mjs`):
+- **Colour themes and ORIG** in the advanced editor, from one colour pass
+  whose originals survive undo, drafts and saved templates, and are copies:
+  ORIG puts the card back exactly after the themes and after the swatches.
+  The theme follows the visitor.
+- **Grounds and effects:** the six theme swatches, every kind of ground in the
+  card's or theme's colours, blur, Shade/Fade and patterns. The ten
+  fixed-colour backdrops are retired. A photograph the visitor picks is
+  shaded until the copy reads.
+- **The library** in the Templates tab. A library card is drawn in its own
+  faces from its first render: every weight it sets is loaded, not only the
+  face nearest 400 (66 of the 399 live cards set Big Shoulders Display 700).
+- **The hand-off** lays the visitor's words out once, as Easy Mode does
+  (§P 5, done in part).
+- **Undo** carries the ground.
+- **Loading:** thumbnails render in idle time and grids fill lazily. The
+  designer no longer freezes after it opens, and the landing page loads
+  faster.
+
+`scripts/designer_audit.mjs` reads 23 problems on the live build and none here
+(six cards, 21 themes). Easy Mode's audit still reads none (20 cards).
+
+Still open:
+
+1. **Easy Mode shades a picked photograph only at download.** In the designer
+   the shade is solved when the photograph is picked (edShadeSolve). Easy
+   Mode's preview still shows the copy unshaded on a photograph the visitor
+   picks, until the gate shades it at download. The same solve on Easy
+   Mode's scene (ez.shade) would make its preview honest too.
+2. **The designer's Properties** still offer any colour for a line's glow and
+   outline. Rule 85 wants glows to be shade, neutral. It is a manual tool, so
+   whether to narrow it is the owner's call.
+3. **The Template Lab** (`lab/`, linked from the landing page's top bar) is
+   an owner's judging tool in an older look. Its index still calls Set 7 and
+   Set 9 "newest", and it names a Look menu the site no longer has. It is out
+   of this change: it is not the product, and its sets are the record of what
+   was judged.
