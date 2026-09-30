@@ -520,6 +520,11 @@
       </div>
       <div class="panel-scroll">
         <div class="panel-tabview active" id="ltab-quick">
+          <div class="psec" id="ed-theme-sec">
+            <div class="psec-title">Colour theme</div>
+            <div class="ez-themes ed-themes" id="ed-themes"></div>
+            <div class="ed-note">Repaints the whole ad: panels, number, lines and marks. The photo keeps its colour; ORIG puts the card's own colours back.</div>
+          </div>
           <div class="psec" id="quick-fields-sec">
             <div class="psec-title">Your ad text</div>
             <div id="quick-fields"></div>
@@ -530,6 +535,7 @@
           </div>
           <div class="psec">
             <div class="psec-title">Background</div>
+            <div class="ez-swatches ed-swatches" id="ed-swatches"></div>
             <div class="field"><div class="seg" id="qbg-seg">
               <button data-bg="solid">Solid</button>
               <button data-bg="grad" class="active">Gradient</button>
@@ -547,6 +553,7 @@
               <div class="field"><input type="file" id="qbg-file" accept="image/*,.heic,.heif" style="display:none"><button class="btn btn-dark" id="qbg-upload" style="width:100%">Upload background photo</button></div>
               <div class="field"><button class="btn btn-ghost" id="qbg-remove" style="width:100%">Remove photo</button></div>
             </div>
+            <button class="ed-more" id="ed-more-grounds" type="button">More grounds, blur, shade and patterns →</button>
           </div>
         </div>
 
@@ -561,7 +568,11 @@
             <div class="empty-hint" id="my-tpl-empty">Nothing saved yet. Build an ad, then hit <b>💾 Save template</b> to reuse it with one click.</div>
           </div>
           <div class="psec">
-            <div class="psec-title">Built-in</div>
+            <div class="psec-title">Library <span class="ed-count" id="ed-lib-count"></span></div>
+            <div class="mini-tpl-grid" id="ed-lib-grid"></div>
+          </div>
+          <div class="psec">
+            <div class="psec-title">Classics</div>
             <div class="mini-tpl-grid" id="builtin-tpl-grid"></div>
           </div>
         </div>
@@ -596,6 +607,25 @@
         </div>
         <div class="panel-tabview" id="ltab-bg">
           <div class="psec">
+            <div class="psec-title">Grounds <span class="ed-count" id="ed-ground-hint">in this card's colours</span></div>
+            <div class="ez-fxrow ez-bgstyles" id="ed-bgstyles"></div>
+            <div class="ez-swatches ez-drawn" id="ed-drawn"></div>
+          </div>
+          <div class="psec">
+            <div class="psec-title">Effects</div>
+            <div class="ez-fxline"><label for="ed-blur">Blur</label><input type="range" id="ed-blur" min="0" max="20" value="0"><span class="fxval" id="ed-blur-val">0</span></div>
+            <div class="ez-fxnote" id="ed-blur-note" role="note" hidden></div>
+            <div class="ez-fxrow" id="ed-ov-seg">
+              <button type="button" data-ov="none" class="active">No overlay</button>
+              <button type="button" data-ov="down">Fade ↓</button>
+              <button type="button" data-ov="up">Fade ↑</button>
+              <button type="button" data-ov="shade">Shade</button>
+            </div>
+            <div class="ez-fxline" id="ed-ov-opts" style="display:none"><label for="ed-os">Strength</label><input type="range" id="ed-os" min="10" max="85" value="45"><span class="fxval" id="ed-os-val">45%</span></div>
+            <div class="ez-subttl">Pattern on top</div>
+            <div class="ez-fxrow" id="ed-pat-seg"></div>
+          </div>
+          <div class="psec">
             <div class="psec-title">AI background</div>
             <div class="bg-gen-box">
               <textarea id="bg-prompt" placeholder="Describe your background, e.g. gold jewelry on marble, rainy city at night, clean white desk"></textarea>
@@ -615,7 +645,7 @@
             </div>
           </div>
           <div class="psec">
-            <div class="psec-title" style="display:flex;align-items:center;justify-content:space-between">Library
+            <div class="psec-title" style="display:flex;align-items:center;justify-content:space-between">Your backgrounds
               <button class="gear-btn" id="bg-upload-btn" title="Add your own image">＋ Upload</button></div>
             <input type="file" id="bg-upload-file" accept="image/*,.heic,.heif" style="display:none">
             <div class="bg-lib-grid" id="bg-lib-grid"></div>
