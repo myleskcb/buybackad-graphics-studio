@@ -464,6 +464,39 @@ function hitsRect(P, r) {
   return true;
 }
 
+/** Whether two convex outlines overlap (separating axes). */
+function outlinesMeet(P, Q) {
+  for (const S of [P, Q]) for (let i = 0; i < S.length; i++) {
+    const a = S[i], b = S[(i + 1) % S.length], nx = b[1] - a[1], ny = a[0] - b[0];
+    let p0 = Infinity, p1 = -Infinity, q0 = Infinity, q1 = -Infinity;
+    for (const q of P) { const d = q[0] * nx + q[1] * ny; p0 = Math.min(p0, d); p1 = Math.max(p1, d); }
+    for (const q of Q) { const d = q[0] * nx + q[1] * ny; q0 = Math.min(q0, d); q1 = Math.max(q1, d); }
+    if (p1 <= q0 || q1 <= p0) return false;
+  }
+  return true;
+}
+function inOutline(P, [x, y]) {
+  let c = false;
+  for (let i = 0, j = P.length - 1; i < P.length; j = i++) if ((P[i][1] > y) !== (P[j][1] > y) && x < (P[j][0] - P[i][0]) * (y - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0]) c = !c;
+  return c;
+}
+/** How much of each phone's back shows past the phones drawn over it, 0..1, on a grid of points. */
+function phonesShowing(phones, order) {
+  const Ps = phones.map(landedOutline), out = phones.map(() => 1);
+  order.forEach((i, k) => {
+    const P = Ps[i], over = order.slice(k + 1).map(j => Ps[j]).filter(Q => outlinesMeet(P, Q));
+    if (!over.length) return;
+    let n = 0, v = 0;
+    for (let a = 0; a < 8; a++) for (let b = 0; b < 14; b++) {
+      const u = (a + .5) / 8, w = (b + .5) / 14;
+      const q = [P[0][0] + (P[1][0] - P[0][0]) * u + (P[3][0] - P[0][0]) * w, P[0][1] + (P[1][1] - P[0][1]) * u + (P[3][1] - P[0][1]) * w];
+      n++; if (!over.some(Q => inOutline(Q, q))) v++;
+    }
+    out[i] = v / n;
+  });
+  return out;
+}
+
 // ------------------------------------------------------------ how they get there
 
 const ENTRY_TIMES = { fly_spin: [1, .12], drop: [.85, .11], conveyor: [1.05, .14], zoom: [.9, .10], orbit: [1.2, .07],
@@ -1183,7 +1216,7 @@ export class Ad {
   _buildPhones() {
     const st = this.st, W = this.W, H = this.H;
     const s = stage(st, W, H);
-    this.stageC = [s.cx, s.cy];
+    this.stageC = [s.cx, s.cy]; this.stageSpan = [s.cx - s.hw, s.cx + s.hw];
     const ids = (st.phones || []).filter(id => this.assets.phones[id]);
     const spots = arrangement(st.arrangement, ids.length, this.r, W / H < .85);
     this.phones = ids.map((id, i) => {
@@ -1199,6 +1232,64 @@ export class Ad {
     });
     this.drawOrder = this.phones.map((_, i) => i);
     if (st.arrangement === "hero") this.drawOrder = this.drawOrder.slice(1).concat([0]);
+    this._spreadPhones();
+  }
+
+  /** Every phone shows most of its back. A back is how a buyer knows the model, and a
+   *  phone buried under two others is a colour, not a phone. Where a layout stacks them
+   *  (a pile, a tower, a hero's satellites) the phones that hide too much of one another
+   *  are pushed apart along the line between them, across the stage the layout gave them
+   *  (never up or down into the words' room, nor past the frame's edge), and only where pushing is not enough do they
+   *  all stand a little smaller. A layout that already shows every back draws as it did.
+   *  (Owner, 2026-09-30, over a mural look whose four phones sat in one clump: "poor phone
+   *  placement, overlapping excessively". Audit of 400 random looks: 144 had a phone less
+   *  than half visible, from pile, tower, hero, spiral, crossed and pairs.) */
+  _spreadPhones() {
+    const SHOW = .68, MIN_K = .72, phones = this.phones, order = this.drawOrder, n = phones.length;
+    if (n < 2) return;
+    const W = this.W, H = this.H, mg = Math.min(W, H) * .03;
+    let vis = phonesShowing(phones, order);
+    if (Math.min(...vis) >= SHOW) return;
+    const bbox = () => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const P of phones.map(landedOutline)) for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+      return [x0, y0, x1, y1]; };
+    const b0 = bbox();
+    // they part across the stage the layout gave them, never up or down into the words' room
+    const sp = this.stageSpan, pw = Math.max(...phones.map(p => p.w * p.size)) / 2;
+    const room = [Math.min(b0[0], Math.max(mg, sp[0] - pw)), b0[1], Math.max(b0[2], Math.min(W - mg, sp[1] + pw)), b0[3]];
+    const keepIn = p => {
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const [x, y] of landedOutline(p)) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+      p.home[0] += Math.max(0, room[0] - x0) - Math.max(0, x1 - room[2]);
+      p.home[1] += Math.max(0, room[1] - y0) - Math.max(0, y1 - room[3]);
+    };
+    // the group's middle: a pair on top of each other parts sideways from it
+    const mid = [(b0[0] + b0[2]) / 2, (b0[1] + b0[3]) / 2];
+    for (let k = 1; ; k *= .94) {
+      for (let it = 0; it < 40 && Math.min(...vis) < SHOW; it++) {
+        const Ps = phones.map(landedOutline);
+        order.forEach((i, a) => {
+          if (vis[i] >= SHOW) return;
+          for (const j of order.slice(a + 1)) {
+            if (!outlinesMeet(Ps[i], Ps[j])) continue;
+            const pi = phones[i], pj = phones[j];
+            let dx = pj.home[0] - pi.home[0], dy = pj.home[1] - pi.home[1];
+            if (Math.hypot(dx, dy) < pi.w * pi.size * .05) { dx = (pj.home[0] - mid[0]) || (i < j ? 1 : -1); dy = 0; }
+            // phones stand tall: parting sideways uncovers a back fastest
+            const d = Math.hypot(dx, dy * .6) || 1, step = pi.w * Math.min(pi.size, pj.size) * .06 * (SHOW - vis[i] + .1) / .4;
+            pi.home[0] -= dx / d * step; pi.home[1] -= dy * .6 / d * step;
+            pj.home[0] += dx / d * step; pj.home[1] += dy * .6 / d * step;
+          }
+        });
+        phones.forEach(keepIn);
+        vis = phonesShowing(phones, order);
+      }
+      if (Math.min(...vis) >= SHOW || k * .94 < MIN_K) break;
+      for (const p of phones) { p.size *= .94; keepIn(p); }
+      vis = phonesShowing(phones, order);
+    }
+    const b1 = bbox();
+    this.stageC = [this.stageC[0] + ((b1[0] + b1[2]) - (b0[0] + b0[2])) / 2, this.stageC[1] + ((b1[1] + b1[3]) - (b0[1] + b0[3])) / 2];
   }
 
   _timeline() {
