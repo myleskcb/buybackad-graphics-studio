@@ -400,7 +400,7 @@ export const WEIGHTS = {
   vibe: { none: 5 },
   board: { none: 10 },
   urgency: { none: 1 },
-  number_format: { raw: .4, spaced: .6 },
+  number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
   front_glimpse: { spin: 3, hold: 1 },
   text_in: { slide: 3, skew_slide: 3, slide_letters: 3, wipe: 3 },
@@ -418,7 +418,7 @@ export const DEFAULT_STYLE = {
   seed: 1, aspect: "1:1", duration: 6, fps: 30,
   font: "franklin", number_font: "same", case: "upper", tracking: 0, skew: 0,
   text_fx: "shadow", color_mode: "mono", accent_word: -1, text_in: "slide", text_pos: "top-left",
-  text_scale: 1, number_style: "plain", number_format: "raw", number_pos: "bottom-center", number_in: "pop",
+  text_scale: 1, number_style: "plain", number_format: "dashed", number_pos: "bottom-center", number_in: "pop",
   number_scale: 1, arrangement: "row", entry: "fly_spin", end_face: "back", front_glimpse: "spin",
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
