@@ -381,7 +381,7 @@ export class Phone {
   }
 }
 
-function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = false) {
+export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = false) {
   const c = Math.cos(flip), ac = Math.abs(c), front = c >= 0;
   const w = p.w * scale, h = p.h * scale;
   const zz = clamp(z, 0, 1);

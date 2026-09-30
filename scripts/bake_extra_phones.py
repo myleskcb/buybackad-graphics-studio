@@ -132,8 +132,53 @@ def metal_of(im):
     return "#" + "".join(f"{int(v):02x}" for v in a[y, x, :3])
 
 
+def fit_x(a, ys, glass=False):
+    """x of the phone's left edge (alpha) or the right edge of the blue glass, per row."""
+    lab = color.rgb2lab(a[..., :3] / 255)
+    blue = np.hypot(lab[..., 1], lab[..., 2]) > 15
+    return [np.where(blue[y])[0].max() if glass else np.where(a[y, :, 3] > 128)[0].min() for y in ys]
+
+
+def straighten(src):
+    """The only straight-on source is shot slightly from the right: the near side
+    is taller and its frame, buttons and all, shows. Map the back onto a true
+    rectangle, the right edge taken at the glass plus the thin rim every other
+    side shows, so the flat shot matches the dead-flat 17 and 18 Pro backs."""
+    from skimage import transform
+    a = np.asarray(src).astype(float)
+    ys = np.arange(250, 1350, 50)
+    xs = np.arange(200, 560, 20)
+    lx = np.polyfit(ys, fit_x(a, ys), 1)
+    rim = 9
+    rx = np.polyfit(ys, np.array(fit_x(a, ys, glass=True)) + rim, 1)
+    ty = np.polyfit(xs, [np.where(a[:, x, 3] > 128)[0].min() for x in xs], 1)
+    by = np.polyfit(xs, [np.where(a[:, x, 3] > 128)[0].max() for x in xs], 1)
+
+    def meet(xl, yl):                                # a vertical-ish x(y) line against a y(x) line
+        x = xl[1]
+        for _ in range(20):
+            y = np.polyval(yl, x); x = np.polyval(xl, y)
+        return x, np.polyval(yl, x)
+    quad = np.array([meet(lx, ty), meet(rx, ty), meet(rx, by), meet(lx, by)])
+    w = round(np.hypot(*(quad[1] - quad[0])) / 2 + np.hypot(*(quad[2] - quad[3])) / 2)
+    h = round(np.hypot(*(quad[3] - quad[0])) / 2 + np.hypot(*(quad[2] - quad[1])) / 2)
+    rect = np.array([[0, 0], [w, 0], [w, h], [0, h]], float)
+    if hasattr(transform.ProjectiveTransform, "from_estimate"):
+        tf = transform.ProjectiveTransform.from_estimate(rect, quad)
+    else:
+        tf = transform.ProjectiveTransform(); tf.estimate(rect, quad)
+    out = transform.warp(a / 255, tf, output_shape=(h, w), order=3, cval=0)
+    img = Image.fromarray((np.clip(out, 0, 1) * 255).round().astype(np.uint8), "RGBA")
+    # the silhouette: the corners every flat back has, the near side's frame gone
+    m = Image.new("L", (w * 4, h * 4), 0)
+    ImageDraw.Draw(m).rounded_rectangle((0, 0, w * 4 - 1, h * 4 - 1), round(w * 4 * .16), fill=255)
+    m = m.resize((w, h), Image.LANCZOS)
+    img.putalpha(Image.fromarray(np.minimum(np.asarray(m), np.asarray(img.getchannel("A")) + np.asarray(m) * (np.arange(w) > w * .5))))
+    return img
+
+
 def bake_pro():
-    src = Image.open(CUT / "iphone-15-pro-back-blue.webp").convert("RGBA")
+    src = straighten(Image.open(CUT / "iphone-15-pro-back-blue.webp").convert("RGBA"))
     lab = color.rgb2lab(np.asarray(src)[..., :3] / 255)
     chroma = np.hypot(lab[..., 1], lab[..., 2])
     body = chroma > 18

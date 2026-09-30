@@ -1,0 +1,28 @@
+<!doctype html><meta charset=utf-8><title>Phone views</title>
+<style>body{margin:0;background:#2b2733;color:#eee;font:13px system-ui}canvas{display:block}</style>
+<body><canvas id=c></canvas><script type=module>
+// Every phone at every angle the video maker can land it at, drawn by the
+// engine itself: back and screen, flat and turned to either edge. One row per
+// phone, so a model that is off in any view shows up next to the others.
+import { loadPhones, Phone, drawPhone } from "./engine.js";
+const { phones, index } = await loadPhones("./phones/");
+const only = new URLSearchParams(location.search).get("only");
+const list = index.filter(m => !only || only.split(",").some(p => m.id.startsWith(p)));
+const VIEWS = [["Back", Math.PI], ["Back, left edge", Math.PI - .6], ["Back, right edge", Math.PI + .6],
+  ["Screen", 0], ["Screen, left edge", -.6], ["Screen, right edge", .6]];
+const PH = 260, CW = 170, LW = 190, RH = PH + 40, cols = 2;
+const c = document.getElementById("c"), W = cols * (LW + CW * VIEWS.length);
+c.width = W; c.height = Math.ceil(list.length / cols) * RH + 40;
+const x = c.getContext("2d");
+x.fillStyle = "#2b2733"; x.fillRect(0, 0, c.width, c.height);
+x.fillStyle = "#bbb"; x.font = "600 15px system-ui";
+VIEWS.forEach(([n], j) => { for (let k = 0; k < cols; k++) x.fillText(n, k * (LW + CW * VIEWS.length) + LW + j * CW + 10, 26); });
+list.forEach((m, i) => {
+  const ox = (i % cols) * (LW + CW * VIEWS.length), oy = 40 + Math.floor(i / cols) * RH;
+  x.fillStyle = "#fff"; x.font = "600 16px system-ui"; x.fillText(m.model.replace("iPhone ", ""), ox + 12, oy + PH / 2);
+  x.fillStyle = "#aaa"; x.font = "14px system-ui"; x.fillText(m.finish + (m.repaint ? " (painted)" : ""), ox + 12, oy + PH / 2 + 20);
+  const p = new Phone(phones[m.id].img, m, PH);
+  VIEWS.forEach(([, flip], j) => drawPhone(x, p, ox + LW + j * CW + CW / 2, oy + PH / 2 + 10, 1, 0, flip, 0, 1, W, null));
+});
+document.title = "ready";
+</script>
