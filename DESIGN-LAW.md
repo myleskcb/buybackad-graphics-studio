@@ -1372,6 +1372,7 @@ tiled over the ground, four records, three of them rejected strip photographs)
 is removed: under the money it is ground-rung clutter.
 
 > Superseded in part (rule 87): the card is smoke or paper whether see-through or solid (rule 85).
+> Widened by rule 93: no card carries a product wall, not only the glass cards.
 
 ## 60. The library shows each design once at its best, not every recolour of it
 
@@ -2780,3 +2781,24 @@ moves too, the number included; a small Melodrama line on a card that keeps
 Melodrama takes the face the card's other copy is set in. A table that sets a
 face after load (assets/number-fix.json) is re-baked for the cards this pass
 changes, or it puts the old face back.
+
+## 93. A product shows whole or not at all
+
+Added 2026-09-30. The owner, of voltStack-pp02-15 ("WE BUY CARS"): "This one
+looks like little ghosts of cars." Six car cut-outs at 16% over the blurred
+photograph: a product WALL, which rule 59 had removed from the four glass
+cards only. 35 more live cards (165 ghosts, from retheme_lab's assortment
+pass, 16% on light grounds and 26% on dark) and 18 retired ones still carried
+one.
+
+- **A picture of the goods is shown at strength or left out.** At a sixth of
+  its strength over a photograph it is not texture; it reads as a ghost or a
+  stain, and it competes with the photograph that is the ground.
+- The records lose their walls; the generator no longer draws one; after the
+  layout any wall a saved design still carries comes out
+  (`pgGhostWallStrip`); and the gate fails a product picture drawn under 60%
+  opacity (`ghostPic`).
+- Where a card had its own hero product, the wall had been crowding it out of
+  the layout; with the wall gone it shows (a chain on the gold checklists, the
+  strip fan on the steps cards).
+

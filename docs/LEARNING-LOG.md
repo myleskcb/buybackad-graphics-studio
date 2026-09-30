@@ -1833,3 +1833,20 @@ RESUME HERE:
   session's production deploy (and Netlify in the environment's network
   access), or deploys from a machine that reaches Netlify (AGENT-BRIEF,
   Deploying: draft, look, then --prod). Then OPEN-ITEMS §S.
+
+## 2026-09-30 (evening) — the ghosts of cars
+
+The owner, of voltStack-pp02-15: "This one looks like little ghosts of cars."
+
+Learned:
+  - The product wall had been ruled out once (rule 59) but only on the four
+    cards that pass was written for; the generator kept drawing it, and 35
+    live cards kept it. A rule that is applied to a list, not enforced by the
+    gate, stays true only for the list.
+  - The wall had also crowded some cards' own hero product out of the layout;
+    removing it brought the hero back.
+
+Changed:
+  - Walls removed from 53 records (35 live), the generator's wall block gone,
+    pgGhostWallStrip after the layout, the gate's 'ghostPic'. DESIGN-LAW rule
+    93; AGENT-BRIEF.

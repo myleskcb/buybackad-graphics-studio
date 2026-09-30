@@ -289,6 +289,9 @@ produced." DESIGN-LAW rule 87. In practice:
   role and a line with a solid shape over its letters; `pgUncover` moves
   such copy clear after the layout. A rotated rect is never rebuilt from its
   bounding box.
+- **No see-through products** (rule 93): no product wall (ghosted cut-outs
+  over the ground), no product picture under 60% opacity; the gate fails it
+  ('ghostPic') and `pgGhostWallStrip` removes a wall after the layout.
 - **Face passes and baked tables** (rule 92): `pgHairlineHeads` sets a
   card's serif at load, and `assets/number-fix.json` sets the number's face
   after it. Change a face pass and re-bake the rows of the cards it changes

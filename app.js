@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20260930m';
+const ASSET_REV = '20260930p';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -17316,4 +17316,39 @@ function ezCopyFollowsGround(sc, W, H){
     if (t.name) fills[t.name] = ink;
   });
   return Object.keys(fills).length ? fills : null;
+}
+
+/* ── A PRODUCT SHOWS WHOLE OR NOT AT ALL (rule 93) ─────────────────────────
+   The owner, 2026-09-30, of voltStack-pp02-15: "This one looks like little
+   ghosts of cars." Rule 59 removed the product WALL (cut-outs tiled over the
+   ground at 16% or 26%) from the four glass cards; 35 more live cards still
+   carried one, 165 ghosts, drawn by retheme_lab's assortment pass. A picture
+   of the goods is the thing being bought: at a sixth of its strength over a
+   photograph it reads as a stain or a ghost, never as texture. The records
+   lose their walls; after the layout any wall a saved design still carries
+   comes out; and the gate fails any product picture drawn see-through. */
+function pgGhostWallStrip(sc){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const old = objs.filter(o => o && o.type === 'image' && /^Wall Product\b/.test(o.name || '') && o.opacity != null && o.opacity < 0.6);
+  old.forEach(o => sc.remove(o));
+  return old.length;
+}
+function pgGhostPicCheck(sc, r){
+  sc.getObjects().forEach(o => {
+    if (!o || o.type !== 'image' || o.visible === false || o.pgBgRect || o.pgPattern || o.pgRole !== 'photo') return;
+    const a = o.opacity == null ? 1 : o.opacity;
+    if (a > 0.02 && a < 0.6) r.fails.push({ code: 'ghostPic', line: o.name || null, role: 'photo', value: +a.toFixed(2), need: 0.6 });
+  });
+  r.ok = !r.fails.length;
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ try { pgGhostWallStrip(sc); } catch (e){} return _alignPass.apply(this, arguments); };
+  const _pgCheck = pgCheck;
+  pgCheck = function(sc){ const r = _pgCheck.apply(this, arguments); try { pgGhostPicCheck(sc, r); } catch (e){ console.warn('ghost picture check:', e); } return r; };
+  const _pgExplain = pgExplain;
+  pgExplain = function(f){
+    if (f && f.code === 'ghostPic') return 'a product picture is see-through: show it whole or take it out';
+    return _pgExplain.apply(this, arguments);
+  };
 }
