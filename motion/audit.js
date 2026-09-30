@@ -139,7 +139,7 @@ export async function auditLook(style, assets, { AdClass = Ad, size = 200, secs 
       const d = buf.getChannelData(0), n0 = Math.round(buf.sampleRate * .15);
       let s = 0; for (let i = 0; i < n0; i++) s += d[i] * d[i];
       soundAt0 = 20 * Math.log10(Math.sqrt(s / n0) + 1e-9);
-    } catch (e) { soundAt0 = null; }
+    } catch (e) { soundAt0 = -Infinity; }            // a mix that fails to render is an ad with no sound, not a check skipped
   }
 
   const checks = [
@@ -152,7 +152,7 @@ export async function auditLook(style, assets, { AdClass = Ad, size = 200, secs 
     { id: "dead", label: "Never still for over 0.6 s before the number lands", value: deadAir.toFixed(1) + " s", ok: deadAir <= .6, weight: 10, grade: deadAir <= .6 ? 1 : deadAir <= 1.2 ? .5 : 0 },
     { id: "contrast", label: "Headline stands out (3:1 or more)", value: contrast.toFixed(1) + ":1", ok: contrast >= 3, weight: 10, grade: Math.min(1, contrast / 3) },
   ];
-  if (soundAt0 != null) checks.push({ id: "sound", label: "Sound opens on a hit, not silence", value: soundAt0.toFixed(0) + " dB", ok: soundAt0 > -30, weight: 0, grade: soundAt0 > -30 ? 1 : 0 });
+  if (soundAt0 != null) checks.push({ id: "sound", label: "Sound opens on a hit, not silence", value: isFinite(soundAt0) ? soundAt0.toFixed(0) + " dB" : "no sound: the mix failed", ok: soundAt0 > -30, weight: 0, grade: soundAt0 > -30 ? 1 : 0 });
   const total = checks.reduce((a, c) => a + c.weight, 0);
   const score = Math.round(checks.reduce((a, c) => a + c.weight * c.grade, 0) / total * 100);
   return { score, checks, motion, headRead, numRead, headlineAt, numberAt, hookAt, wordsAt, cover0, black0, deadAir, hookMotion, contrast, soundAt0, fps: FPS };

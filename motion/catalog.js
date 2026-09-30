@@ -5,6 +5,12 @@
 // no two cuts share a look: the typeface does not decide the palette, the
 // palette does not decide the motion, the motion does not decide the sound.
 // Ported from iphoneslainv scripts/phone-ad (the Mac engine), widened 2-3x.
+//
+// Who the ad is for (an audience: its words, looks, music and voice) lives in
+// audiences.js; the voices in voices.js.
+
+import { MORE_VIBES, AUDIENCES, AUDIENCE_KEYS, MOODS } from "./audiences.js";
+import { CASTS } from "./voices.js";
 
 export const FONTS = {
   // name: [family, weight, file(s), kind]   kind: geometric grotesk condensed wide slab serif display script mono
@@ -324,6 +330,10 @@ export const VIBES = {
       es: { headlines: ["COMPRAMOS IPHONES"] } } },
 };
 
+// The looks that are not LA signs (clean tech, luxury noir, campus, game day...),
+// drawn and picked exactly like the LA vibes.
+Object.assign(VIBES, MORE_VIBES);
+
 // A sign board the headline sits on. ink/accent colour the words on the board;
 // the number keeps the scene's palette because it is not on the board.
 export const BOARDS = {
@@ -344,6 +354,11 @@ export const TAGS = ["", "", "", "TEXT FOR A QUOTE", "CALL OR TEXT", "LOCAL CASH
 export const NUMBER_LABELS = ["", "", "CALL OR TEXT", "TEXT US", "GET A QUOTE", "TEXT FOR A QUOTE", "CALL NOW", "TEXT ME"];
 
 export const OPTIONS = {
+  // who the ad speaks to, and the voice it speaks in
+  audience: ["none", ...AUDIENCE_KEYS],
+  voice: ["on", "off"],
+  voice_mood: Object.keys(MOODS),
+  voice_cast: Object.keys(CASTS),
   vibe: ["none", ...Object.keys(VIBES)],
   board: ["none", ...Object.keys(BOARDS)],
   urgency: ["none", "pulse_cta", "caution_tape", "ticker", "stamp", "arrows", "flash_border", "beat_pump"],
@@ -397,6 +412,9 @@ export const OPTIONS = {
 // and most show the fronts only as they flash past. Type that ENTERS FROM THE
 // LEFT is drawn three times as often as the rest.
 export const WEIGHTS = {
+  // an ad for everyone stays common; an audience that states a service (bulk, cracked) is only ever picked by hand
+  audience: { none: 4, ...Object.fromEntries(AUDIENCE_KEYS.filter(k => AUDIENCES[k].byHand).map(k => [k, 0])) },
+  voice: { on: 3, off: 1 },
   vibe: { none: 5 },
   board: { none: 10 },
   urgency: { none: 1 },
@@ -426,6 +444,7 @@ export const DEFAULT_STYLE = {
   overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",
   grade: "none", depth: "none", transition: "fade", outro: "none",
+  audience: "none", voice: "on", voice_mood: "confident", voice_cast: "host_m", vo_clip: "", vo_text: "", vo_lang: "en",
 };
 
 // The first ad's look, as a starting point.
@@ -444,12 +463,14 @@ export const LABELS = {
   number_in: "Number entrance", arrangement: "Phone layout", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
   sound_kit: "Music", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
-  vibe: "LA vibe", board: "Sign board", urgency: "Urgency",
+  vibe: "Vibe", board: "Sign board", urgency: "Urgency",
+  audience: "Made for", voice: "Voiceover", voice_mood: "Voice mood", voice_cast: "Voice",
   grade: "Colour grade", depth: "Phone depth", transition: "Hook transition", outro: "Ending",
 };
 
 export const GROUPS = [
-  ["LA vibe and urgency", ["vibe", "board", "urgency"]],
+  ["Audience and voice", ["audience", "voice", "voice_mood", "voice_cast"]],
+  ["Vibe and urgency", ["vibe", "board", "urgency"]],
   ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
   ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
