@@ -65,9 +65,11 @@ const RULE = { target: 0.62, min: 84, max: 118, floor: 72, lead: 0.77, label: 0.
 /* the classics are measured as the passes drew them: with the table this writes
    applied first, every number would already read as big and the bake would come
    out empty (the trap bake_contrast.mjs documents for ?nofix=1) */
-const { browser, page, errors } = await openStudio(CLASSICS ? '&nonum=1' : '');
+const { browser, page, errors } = await openStudio(CLASSICS ? '&nonum=1&noholds=1' : '');   // (held classics too: see bake_contrast)
 await page.evaluate(RULE => { window.__RULE = RULE; }, RULE);
-if (CLASSICS) ids = (await page.evaluate(() => TEMPLATES.filter(t => !/^(sc|hx)-/.test(t.id)).map(t => t.id))).filter(id => !only || only.has(id));
+/* not the offer family: drawn as authored, its number set to rule 53 by
+   offer-library.js itself, and no load-time table touches it */
+if (CLASSICS) ids = (await page.evaluate(() => TEMPLATES.filter(t => !/^(sc|hx)-/.test(t.id) && t.tag !== 'offer').map(t => t.id))).filter(id => !only || only.has(id));
 
 const report = {};
 for (let i = 0; i < ids.length; i += 6){

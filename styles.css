@@ -1365,6 +1365,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-tagstyle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .ez-tagnote{margin-top:8px;font:500 12px/1.4 var(--ui);color:var(--text-2)}
 /* ORIG: the card's own colours, the way back from a theme */
+/* a choice the audit found fails this card (choice holds, rule 97): off, and its title says why */
+.ez-theme.held,.ez-voices button.held,#ez-tag-looks button.held,.ez-tagstyle.held{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none;filter:grayscale(.6)}
+.ez-held-note{margin-top:7px;font:500 11.5px/1.4 var(--ui);color:var(--text-dim)}
 .ez-theme.orig{align-items:center;justify-content:center;background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1 var(--ui);letter-spacing:.06em}
 
 

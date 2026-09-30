@@ -324,6 +324,24 @@ produced." DESIGN-LAW rule 87. In practice:
   `node scripts/designer_audit.mjs` too. It exits 1 on any problem and takes
   about 12 minutes for its six cards. It fails a card that does not open
   rather than measure the one left on screen.
+- **Text shapes** (rule 95, 2026-09-30): a curve or a warp is `pgShape` on
+  a text object, laid out again with the text (`tsSet`). Never build a curved
+  line as a group of letters, and never let a layout pass move a line bound
+  to its ring (`TS_RINGS`, `tsBindRings`, run at the head of `alignPass`).
+- **Type voices and two faces** (rule 96): `applyVoice` sets the whole
+  card's faces before the layout, each line keeping its footprint;
+  `houseTwoFaces` sets two families on every classic, last at load and again
+  when a table sets a face.
+- **Every choice on every card** (rule 97): `node
+  scripts/every_card_audit.mjs --write-holds` takes every offered card
+  through every theme, look and voice on Easy Mode's render and writes
+  assets/choice-holds.json. The studio turns a held chip off with its reason
+  and keeps a card that fails as offered out of the lists. It takes hours in
+  full; run it with `--ids a,b` on the cards a change touches (the table is
+  updated for those cards only) and `--resume` to continue a stopped run. It
+  loads the studio with `?nochoiceholds=1`.
+- **What is under a line** is found by hiding its ink (`pgHideInk`), never
+  the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the
@@ -332,7 +350,12 @@ produced." DESIGN-LAW rule 87. In practice:
   `node scripts/verify_showcase.mjs --classics --write` (writes
   assets/classics-gate.json; a classic that fails is not offered). The
   re-bake order is bake_contrast, number_block --classics --write,
-  naturalize_classics --write, then verify.
+  naturalize_classics --write, then verify. The contrast and the shade answer
+  each other and number_block moves lines, so after a change that moves
+  anything run bake_contrast and naturalize a second time before verify and
+  audit_templates. The bakes take held classics too (`noholds=1`: a held
+  classic that is never baked is held again for want of its fixes) and leave
+  the offer family as authored.
 - **Before a commit that touches assets/showcase:**
   `node scripts/verify_showcase.mjs --write` (exit 1 on any failure; it
   stamps legib / num / numInk / gate / blur / ground on the index). Then

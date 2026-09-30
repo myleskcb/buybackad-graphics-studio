@@ -14,7 +14,8 @@
  * and the same measures the showcase audits take:
  *
  *   REJECT (the template is held back: template-holds.js, which app.js reads)
- *     cover      a product or a later line over 12% of a line of copy
+ *     cover      a product or a later line over 12% of a line of copy (a line over
+ *                a line, or anything over a curved line: its letters, not its box)
  *                (audit_showcase_overlap.mjs)
  *     shape      a solid shape drawn over 12% of a line of copy
  *     clip       a line running more than 6px off the card
@@ -93,6 +94,9 @@ for (let i = 0; i < ids.length; i += 6){
     const lum = (d, k) => 0.2126 * lin(d[k]) + 0.7152 * lin(d[k + 1]) + 0.0722 * lin(d[k + 2]);
     const READ = { headline:1, phone:1, cta:1, info:1, badges:1, sub:1, website:1, offer:1, user:1 };
     const CRIT = { headline:1, phone:1, cta:1 };
+    /* a line's ink off, its own backing kept (app.js pgHideInk): the panel is
+       the ground its letters read on, not ink */
+    const hideInk = o => typeof pgHideInk === 'function' ? pgHideInk(o) : (o.visible = false, () => { o.visible = true; });
     for (const id of batch){
       try {
         const base = TEMPLATES.find(x => x.id === id);
@@ -116,11 +120,53 @@ for (let i = 0; i < ids.length; i += 6){
         const shapes = objs.filter(z => SHAPE[z.l.kind] && !z.l.__wall && !(z.l.kind === 'path' && /Frame|Corner|Bracket/i.test(z.l.name || ''))
           && op(z.l) >= 0.5 && area(box(z.o)) < W * H * 0.5
           && !(z.l.props && !z.l.props.grad && !z.l.grad && (!z.l.props.fill || z.l.props.fill === 'transparent' || /rgba\([^)]*,\s*0(\.0+)?\)$/.test(String(z.l.props.fill)))));
+        /* a curved or warped line is judged by its letters, not its box (rule
+           76): an arc's box holds the air under its apex, which is where the
+           next line sits, and every arcCrown card was held for "Headline 2
+           over Arc Crown" with the letters well apart. Its share is its ink
+           under the other's box */
+        const shaped = o => !!(o && o.pgShape && o.pgShape.bend && o.pgShape.kind && o.pgShape.kind !== 'none');
+        const inkUnder = (x, zb) => {
+          const all = sc.getObjects(), vis = all.map(o => o.visible), bgI = sc.backgroundImage, bgC = sc.backgroundColor;
+          all.forEach(o => { o.visible = o === x.o; }); sc.backgroundImage = null; sc.backgroundColor = ''; sc.renderAll();
+          const x0 = Math.max(0, Math.floor(x.b.x)), y0 = Math.max(0, Math.floor(x.b.y)), x1 = Math.min(W, Math.ceil(x.b.x + x.b.w)), y1 = Math.min(H, Math.ceil(x.b.y + x.b.h));
+          let ink = 0, under = 0;
+          if (x1 > x0 && y1 > y0){ const d = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data;
+            for (let y = y0; y < y1; y++) for (let xx = x0; xx < x1; xx++){ if (d[((y - y0) * (x1 - x0) + (xx - x0)) * 4 + 3] < 128) continue;
+              ink++; if (xx >= zb.x && xx <= zb.x + zb.w && y >= zb.y && y <= zb.y + zb.h) under++; } }
+          all.forEach((o, i) => { o.visible = vis[i]; }); sc.backgroundImage = bgI; sc.backgroundColor = bgC; sc.renderAll();
+          return ink ? under / ink : 0;
+        };
+        /* ...and a line over a line is judged by the letters of both: the first
+           line's ink under the box of the second's ink. A line's box carries its
+           face's ascent and descent room, so two headline lines set tight held
+           each other ("Headline 2 over Headline 1", 15 to 17%, on the voltStack
+           and stepsFlow cards) with their letters apart, which the gate, that
+           measures letters, passed */
+        const inkBoxes = new Map();
+        const inkBox = z => {
+          if (inkBoxes.has(z.o)) return inkBoxes.get(z.o);
+          const b = box(z.o), all = sc.getObjects(), vis = all.map(o => o.visible), bgI = sc.backgroundImage, bgC = sc.backgroundColor;
+          all.forEach(o => { o.visible = o === z.o; }); sc.backgroundImage = null; sc.backgroundColor = ''; sc.renderAll();
+          const x0 = Math.max(0, Math.floor(b.x)), y0 = Math.max(0, Math.floor(b.y)), x1 = Math.min(W, Math.ceil(b.x + b.w)), y1 = Math.min(H, Math.ceil(b.y + b.h));
+          let r = b;
+          if (x1 > x0 && y1 > y0){ const d = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data; let a = W, c = H, e = -1, g = -1;
+            for (let y = y0; y < y1; y++) for (let xx = x0; xx < x1; xx++) if (d[((y - y0) * (x1 - x0) + (xx - x0)) * 4 + 3] >= 128){ if (xx < a) a = xx; if (xx > e) e = xx; if (y < c) c = y; if (y > g) g = y; }
+            if (e >= a && g >= c) r = { x: a, y: c, w: e - a + 1, h: g - c + 1 }; }
+          all.forEach((o, i) => { o.visible = vis[i]; }); sc.backgroundImage = bgI; sc.backgroundColor = bgC; sc.renderAll();
+          inkBoxes.set(z.o, r); return r;
+        };
+        const overOf = (x, z) => {
+          const zb = box(z.o), f = inter(x.b, zb) / area(x.b);
+          if (!(f > 0)) return 0;
+          const text = typeof z.l.text === 'string';
+          return text || shaped(x.o) ? inkUnder(x, text ? inkBox(z) : zb) : f;
+        };
         let cover = 0, coverBy = null, shapeCover = 0, shapeBy = null, clip = 0;
         read.filter(x => area(x.b) >= 400).forEach(x => {
           clip = Math.max(clip, -x.b.x, -x.b.y, x.b.x + x.b.w - W, x.b.y + x.b.h - H);
-          covers.forEach(z => { if (z.k <= x.k) return; const f = inter(x.b, box(z.o)) / area(x.b); if (f > cover){ cover = f; coverBy = (z.l.name || z.l.kind) + ' over ' + (x.l.name || x.role); } });
-          shapes.forEach(z => { if (z.k <= x.k) return; const f = inter(x.b, box(z.o)) / area(x.b); if (f > shapeCover){ shapeCover = f; shapeBy = (z.l.name || z.l.kind) + ' over ' + (x.l.name || x.role); } });
+          covers.forEach(z => { if (z.k <= x.k) return; const f = overOf(x, z); if (f > cover){ cover = f; coverBy = (z.l.name || z.l.kind) + ' over ' + (x.l.name || x.role); } });
+          shapes.forEach(z => { if (z.k <= x.k) return; const f = overOf(x, z); if (f > shapeCover){ shapeCover = f; shapeBy = (z.l.name || z.l.kind) + ' over ' + (x.l.name || x.role); } });
         });
 
         /* ── ink: line core (legibility audit) and letter by letter (school) ── */
@@ -128,9 +174,9 @@ for (let i = 0; i < ids.length; i += 6){
           const b = x.b, x0 = Math.max(0, Math.floor(b.x)), y0 = Math.max(0, Math.floor(b.y));
           const x1 = Math.min(W, Math.ceil(b.x + b.w)), y1 = Math.min(H, Math.ceil(b.y + b.h));
           if (x1 - x0 < 4 || y1 - y0 < 4) return null;
-          x.o.visible = false; sc.renderAll();
+          const back = hideInk(x.o); sc.renderAll();
           const wo = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data;
-          x.o.visible = true;
+          back();
           const px = []; let total = 0;
           for (let y = y0; y < y1; y++) for (let xx = x0; xx < x1; xx++){
             const f = (y * W + xx) * 4, g = ((y - y0) * (x1 - x0) + (xx - x0)) * 4; total++;
@@ -145,9 +191,9 @@ for (let i = 0; i < ids.length; i += 6){
           const x0 = Math.max(0, Math.floor(b.x) - pad), y0 = Math.max(0, Math.floor(b.y) - pad);
           const x1 = Math.min(W, Math.ceil(b.x + b.w) + pad), y1 = Math.min(H, Math.ceil(b.y + b.h) + pad);
           const w = x1 - x0, h = y1 - y0; if (w < 8 || h < 8) return null;
-          x.o.visible = false; sc.renderAll();
+          const back = hideInk(x.o); sc.renderAll();
           const wo = ctx.getImageData(x0, y0, w, h).data;
-          x.o.visible = true;
+          back();
           const step = Math.max(8, 0.55 * x.px);
           let worst = 99, any = 0;
           for (let c0 = 0; c0 < w; c0 += step){
@@ -186,8 +232,8 @@ for (let i = 0; i < ids.length; i += 6){
             if (cx >= c.x && cx <= c.x + c.w && c.y < b.y + b.h && c.y + c.h > b.y) plate = c; });
           if (plate){
             const x0 = Math.max(0, Math.floor(b.x)), y0 = Math.max(0, Math.floor(b.y)), w = Math.min(W, Math.ceil(b.x + b.w)) - x0, h = Math.min(H, Math.ceil(b.y + b.h)) - y0;
-            sc.renderAll(); const on = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = false; sc.renderAll();
-            const off = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = true; sc.renderAll();
+            sc.renderAll(); const on = ctx.getImageData(x0, y0, w, h).data, back = hideInk(phone.o); sc.renderAll();
+            const off = ctx.getImageData(x0, y0, w, h).data; back(); sc.renderAll();
             let ink = 0, out = 0;
             for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){ const q = (y * w + x) * 4;
               if (Math.abs(on[q] - off[q]) + Math.abs(on[q + 1] - off[q + 1]) + Math.abs(on[q + 2] - off[q + 2]) < 90) continue;

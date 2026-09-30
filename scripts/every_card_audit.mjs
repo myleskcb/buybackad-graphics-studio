@@ -1,4 +1,4 @@
-/* EVERY CARD, EVERY CHOICE (DESIGN-LAW rules 83, 87, 90).
+/* EVERY CARD, EVERY CHOICE (DESIGN-LAW rules 83, 87, 90, 97).
  *
  * The owner, 2026-09-30: "make sure all classic and current themes are
  * audited and ready for use with new color schemes, new design language, new
@@ -29,11 +29,22 @@
  *           node scripts/every_card_audit.mjs [--set classics|library|all]
  *             [--ids a,b] [--dims base,themes,looks,voices,combos]
  *             [--workers 4] [--out .render/every-card] [--resume] [--limit N]
+ *             [--write-holds]
  * Exits 1 on any problem. Results stream to <out>/results.jsonl, one card a
- * line, so a long run can be resumed (--resume skips the cards already there). */
+ * line, so a long run can be resumed (--resume skips the cards already there).
+ *
+ * --write-holds writes assets/choice-holds.json: each card that fails the gate
+ * as offered (the studio then offers it nowhere), and for each card the themes,
+ * looks and voices that fail it, with why. The studio offers them nowhere on
+ * that card (their chip is off, with the reason): every choice a visitor can
+ * make on a card is one this audit passed (rule 76). With --ids the table is
+ * updated for those cards only. */
 import puppeteer from 'puppeteer-core';
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync } from 'node:fs';
-import { BASE, offline, live } from './_showcase_harness.mjs';
+import { BASE as ROOT, offline, live } from './_showcase_harness.mjs';
+/* the studio as offered, but every choice clickable: its own holds (choice-holds.json,
+   rule 97) are what this audit writes, and a held chip is off */
+const BASE = ROOT + (ROOT.includes('?') ? '&' : '?') + 'nochoiceholds=1';
 
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const SET = argv('--set') || 'all';
@@ -44,8 +55,9 @@ const LIMIT = +(argv('--limit') || 0);
 mkdirSync(OUT, { recursive: true });
 const RESULTS = OUT.replace(/\/?$/, '/') + 'results.jsonl';
 
+/* CHROME_ARGS: extra flags for the browser, space separated */
 const launch = () => puppeteer.launch({ executablePath: process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  headless: 'new', args: ['--no-sandbox'], protocolTimeout: 0 });
+  headless: 'new', args: ['--no-sandbox'].concat((process.env.CHROME_ARGS || '').split(' ').filter(Boolean)), protocolTimeout: 0 });
 
 /* the page-side runner: everything a card needs happens in one evaluate */
 const RUNNER = () => {
@@ -101,7 +113,11 @@ const RUNNER = () => {
   /* a critical line newly failing the gate, any other reading line newly
      under 3:1, and (for a change of face) anything newly off the card,
      straddling, colliding or covered */
-  const CRIT = /^(legib|numInk|ghost)\|/, FIT = /^(clip|margin|straddle|collide|covered|touch|number)\|/;
+  /* (a voice) anything the new face's size or width breaks: off the card, off
+     its plate, into another line, the headline too small for a feed tile,
+     the number under its floor, the number off its plate or on the product.
+     The studio's own gate stops a download on each of them */
+  const CRIT = /^(legib|numInk|ghost)\|/, FIT = /^(clip|margin|straddle|collide|covered|touch|number|thumb|offPlate|onProduct)\|/;
   const regress = (base, now, fit) => { const was = new Set(base.fails);
     const crit = now.fails.filter(f => (CRIT.test(f) || (fit && FIT.test(f))) && !was.has(f));
     const B = Object.fromEntries(base.lines.map(l => [l[0], l[2]]));
@@ -210,7 +226,7 @@ const idx = JSON.parse(readFileSync(new URL('../assets/showcase/index.json', imp
 const library = idx.filter(live).map(c => c.id);
 let cards = argv('--ids') ? argv('--ids').split(',') : SET === 'classics' ? classics : SET === 'library' ? library : classics.concat(library);
 if (process.argv.includes('--resume') && existsSync(RESULTS)){
-  const done = new Set(readFileSync(RESULTS, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l).card));
+  const done = new Set(readFileSync(RESULTS, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(r => !r.err).map(r => r.card));   // an errored card is tried again
   cards = cards.filter(c => !done.has(c));
 } else if (!argv('--ids')) writeFileSync(RESULTS, '');
 if (LIMIT) cards = cards.slice(0, LIMIT);
@@ -219,13 +235,22 @@ console.log(`${cards.length} cards (${classics.length} offered classics, ${libra
 const queue = cards.slice();
 let done = 0, errors = 0;
 const t0 = Date.now();
+/* a browser that dies (a long run lost two workers to "Connection closed") is
+   relaunched, and a card that hangs is given up after CARD_MS: the run goes on,
+   and --resume picks up what a killed run left */
+const CARD_MS = 15 * 60000;
 async function worker(n){
-  const browser = await launch();
+  let browser = await launch();
+  const fresh = async () => { try { await browser.close(); } catch (e){} browser = await launch(); };
   while (queue.length){
     const card = queue.shift();
     let row = { card };
-    const ctx = await browser.createBrowserContext();
+    if (!browser.connected) await fresh();
+    let ctx;
+    try { ctx = await browser.createBrowserContext(); } catch (e){ await fresh(); ctx = await browser.createBrowserContext(); }
+    let timer;
     try {
+      await Promise.race([new Promise((_, no) => { timer = setTimeout(() => no(new Error('timed out after ' + CARD_MS / 60000 + ' min')), CARD_MS); }), (async () => {
       const page = await ctx.newPage();
       await page.setViewport({ width: 1400, height: 1000 });
       await offline(page);
@@ -237,7 +262,9 @@ async function worker(n){
       const o = await page.evaluate(id => __sw.open(id), card);
       if (o.err) row.err = o.err;
       else Object.assign(row, await page.evaluate(d => __sw.run(d), [...DIMS]));
-    } catch (e){ row.err = String(e).slice(0, 200); errors++; }
+      })()]);
+    } catch (e){ row.err = String(e).slice(0, 200); errors++; if (/timed out|Connection closed|Target closed|Protocol error/.test(row.err)) await fresh(); }
+    clearTimeout(timer);
     await ctx.close().catch(() => {});
     appendFileSync(RESULTS, JSON.stringify(row) + '\n');
     done++;
@@ -248,7 +275,7 @@ async function worker(n){
 await Promise.all(Array.from({ length: Math.min(WORKERS, cards.length) }, (_, n) => worker(n)));
 
 /* the summary, over every card in the results file */
-const rows = readFileSync(RESULTS, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l));
+const rows = [...new Map(readFileSync(RESULTS, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).map(r => [r.card, r])).values()];   // a card's latest row
 const problems = [];
 rows.forEach(r => {
   if (r.err) problems.push([r.card, 'open', r.err]);
@@ -266,6 +293,40 @@ rows.forEach(r => {
   }
 });
 writeFileSync(OUT.replace(/\/?$/, '/') + 'summary.json', JSON.stringify({ cards: rows.length, problems }, null, 1));
+if (process.argv.includes('--write-holds')){
+  const FILE = new URL('../assets/choice-holds.json', import.meta.url).pathname;
+  let prev = null; try { prev = JSON.parse(readFileSync(FILE, 'utf8')); } catch (e){}
+  const holds = argv('--ids') && prev ? prev : { about: '', cards: {}, themes: {}, looks: {}, voices: {} };
+  holds.about = 'Cards and choices that fail on the render a visitor gets (scripts/every_card_audit.mjs --write-holds). A card under cards is not offered; a theme, look or voice under a card is off on that card, and says why. DESIGN-LAW rule 97.';
+  holds.date = new Date().toISOString().slice(0, 10);
+  /* the reason, as the chip's title tells a visitor */
+  const lineOf = n => /^Phone Number/.test(n) ? 'the number' : /^Headline/.test(n) ? 'the headline' : /^CTA$/.test(n) ? 'the call to action' : '“' + n + '”';
+  const said = g => { const [code, rest] = g.split('|'); const n = String(rest || '').replace(/ ([\d.]+)$/, ''), v = (/ ([\d.]+)$/.exec(rest || '') || [])[1];
+    return code === 'minor' ? lineOf(n) + ' would read ' + v + ':1'
+      : code === 'legib' ? lineOf(n) + ' would be hard to read' : code === 'numInk' ? 'the number’s digits would be hard to read'
+      : code === 'ghost' ? lineOf(n) + ' would all but vanish' : /^(clip|margin)$/.test(code) ? lineOf(n) + ' would run off the card'
+      : /^(collide|touch)$/.test(code) ? lineOf(n) + ' would run into another line' : code === 'straddle' ? lineOf(n) + ' would hang off its plate'
+      : code === 'covered' ? lineOf(n) + ' would be covered' : code === 'number' ? 'the number would come out too small'
+      : code === 'thumb' ? 'the headline would be too small in a feed' : code === 'offPlate' ? 'the number would run off its plate'
+      : code === 'onProduct' ? 'the number would sit on the product' : lineOf(n) + ' would not work (' + code + ')'; };
+  const why = v => v.reg ? [...new Set(v.reg.map(said))].join('; ')
+    : v.unthemed ? 'a plate would keep the card’s old colour' : v.left ? 'the card’s own colours would stay beside it' : v.lost ? 'a mark would vanish on what it sits on' : 'it changes nothing here';
+  const done = new Set(rows.map(r => r.card));
+  /* a card that fails the gate as offered is not offered at all */
+  holds.cards = holds.cards || {};
+  done.forEach(c => delete holds.cards[c]);
+  rows.forEach(r => { if (!r.err && r.base && r.base.length) holds.cards[r.card] = [...new Set(r.base.map(said))].join('; '); });
+  for (const dim of ['themes', 'looks', 'voices']){
+    holds[dim] = holds[dim] || {};
+    done.forEach(c => delete holds[dim][c]);
+    rows.forEach(r => {
+      const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || v.left || v.lost));
+      if (bad.length) holds[dim][r.card] = Object.fromEntries(bad.map(([k, v]) => [k, why(v)]));
+    });
+  }
+  writeFileSync(FILE, JSON.stringify(holds, null, 0));
+  console.log('wrote assets/choice-holds.json: cards ' + Object.keys(holds.cards).length + ', ' + ['themes', 'looks', 'voices'].map(d => d + ' ' + Object.values(holds[d]).reduce((n, o) => n + Object.keys(o).length, 0)).join(', '));
+}
 const by = {};
 problems.forEach(([card, what]) => { (by[what] = by[what] || new Set()).add(card); });
 const ran = {}; rows.forEach(r => Object.entries(r.ran || {}).forEach(([k, n]) => ran[k] = (ran[k] || 0) + n));

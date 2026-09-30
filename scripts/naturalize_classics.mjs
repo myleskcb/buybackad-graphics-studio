@@ -36,7 +36,7 @@ const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.ar
 const only = argv('--ids') ? new Set(argv('--ids').split(',')) : null;
 export const PAPER = '#f4f1ec';
 
-const { browser, page, errors } = await openStudio('&noground=1');
+const { browser, page, errors } = await openStudio('&noground=1&noholds=1');   // (held classics too: see bake_contrast)
 /* the contrast and number tables are fetched after boot; wait for both */
 await page.waitForFunction(() => Array.isArray(CONTRAST_FIX) && CONTRAST_FIX.length, { timeout: 60000 }).catch(() => {});
 await new Promise(r => setTimeout(r, 3000));
@@ -44,7 +44,7 @@ const ids = (await page.evaluate(() => TEMPLATES
   /* every image-backed classic, graded or not: since 2026-09-28 assignStyle()
      grades nothing (rule 56), and this table is what supplies each classic's
      solved neutral shade. Selecting only graded ones wrote an empty table. */
-  .filter(t => !/^(sc|hx)-/.test(t.id) && !t.showcase && t.bg && t.bg.type === 'image')
+  .filter(t => !/^(sc|hx)-/.test(t.id) && !t.showcase && t.tag !== 'offer' && t.bg && t.bg.type === 'image')   // the offer family solves its own shade (offer-library.js)
   .map(t => t.id))).filter(id => !only || only.has(id));
 const out = {};
 for (let i = 0; i < ids.length; i += 6){
