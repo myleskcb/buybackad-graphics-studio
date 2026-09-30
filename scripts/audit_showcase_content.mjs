@@ -95,7 +95,8 @@ idx.forEach(c => {
      a measured defect: this audit never clears it (2026-09-27, cohesion
      audit: a --write run used to un-retire all 284 curated cards) */
   const curated = /\bcurated\b/.test(String(c.defect || ''));
-  if (uniq.length) c.defect = (curated ? 'curated+' : '') + uniq.join('+'); else if (curated) c.defect = 'curated'; else { delete c.defect; n.clean++; }
+  const rest = uniq.filter(w => w !== 'curated');     // counted above, written once (it was 'curated+curated')
+  if (rest.length) c.defect = (curated ? 'curated+' : '') + rest.join('+'); else if (curated) c.defect = 'curated'; else { delete c.defect; n.clean++; }
 });
 
 console.log('audited ' + idx.length);

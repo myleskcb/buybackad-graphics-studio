@@ -805,6 +805,13 @@ Open:
    other two first (AGENT-BRIEF landmine 7), or it takes their work off the
    site. `claude/quirky-ritchie-f0zuc8` (the design console) is cut from the
    August `main`: port its console, do not merge it.
+   2026-09-30: production had moved again (the live branch deployed 9318537
+   at 09:42, the iOS-only emoji); it is merged here, so this branch contains
+   what is live, the trunk to 0d2915f and the colour themes to a040eb1. At
+   the owner's request each of the three sessions was told, by a one-shot
+   Routine into its own conversation, to merge this branch before any
+   deploy. `claude/project-thread-hkdmrf` (the video work, merged with
+   `phone-ad-maker`) is cut from the August `main` too: not merged.
 2. **The number fill ignores deco.** `numberFill` grows the number to fill
    its plate and keeps it off other copy and products, not off a drawn mark:
    on checklistHero-du07-15 the number now reaches the sparkle on the plate's
@@ -829,7 +836,11 @@ Open:
    variants are in taglineStyle).
 7. **Not verifiable from a cloud session**: the live site. The environment's
    network policy denies api.netlify.com, app.netlify.com and *.netlify.app,
-   so neither a look nor a deploy reaches Netlify from here.
+   so neither a look nor a deploy reaches Netlify from here. On 2026-09-30 the
+   owner asked this session to deploy; auto mode's Production Deploy rule
+   stopped the Netlify connector's deploy-site before it ran. A production
+   deploy from here needs the owner's own permission for it (or a deploy from
+   their machine: AGENT-BRIEF, Deploying).
 8. **Three offer cards still cover their photograph's subject** (rule 84;
    the subject audit, 438 templates): of_laptop_row_midnight (12.6% of the
    subject), of_strips_split_bone (25.1%) and of_camera_row_sand (30.1%).
