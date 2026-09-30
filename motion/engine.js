@@ -390,7 +390,8 @@ function stage(st, W, H) {
   return { cx: cx * W, cy: cy * H, hw: sw * W / 2, hh: sh * H / 2, ph: ph * H * (st.phone_scale || 1) };
 }
 
-function arrangement(name, n, r, tall) {
+function arrangement(name, n, r, tall, s) {
+  if (s && LAID_OUT[name]) return laidOut(name, n, r, tall, s);
   if (tall && ["row", "cascade", "staircase"].includes(name) && n >= 3) name = "grid";
   const lin = (a, b) => n > 1 ? Array.from({ length: n }, (_, i) => a + (b - a) * i / (n - 1)) : [(a + b) / 2];
   const out = [];
@@ -432,6 +433,170 @@ function arrangement(name, n, r, tall) {
   return out;
 }
 
+/** The layouts drawn in the phones' own measure rather than the stage's: each is laid
+ *  out in pixels, in phone heights (PH) and phone widths (PW), as it would stand at full
+ *  size, then centred on the stage and made smaller as a whole (never bent) until the
+ *  group is no wider than the frame and no taller than one and a half phones or 90% of it. A fifth
+ *  number on a spot is its depth: the phone with the higher one stands in front and
+ *  lands last. */
+const LAID_OUT = {
+  // a hand of cards: a tight fan about one point under the hand
+  hand(n, r, tall, PH) {
+    const half = Math.min(32, 9 * (n - 1)), R = PH * .7;
+    return spots(n, t => { const f = lerp(-half, half, t) * Math.PI / 180; return [R * Math.sin(f), -R * Math.cos(f), -f * 180 / Math.PI, 1, 0]; });
+  },
+  // each leaning further than the one before, as dominoes fall
+  domino(n, r, tall, PH, PW) {
+    const d = r() < .5 ? -1 : 1, step = PW * (tall ? .78 : .92);
+    return spots(n, (t, i) => { const th = lerp(3, 36, t) * Math.PI / 180, x = d * (i - (n - 1) / 2) * step;
+      return [x + d * Math.sin(th) * PH / 2, -Math.cos(th) * PH / 2, -d * th * 180 / Math.PI, 1, 0]; });
+  },
+  // the middle phone stands highest and largest, the rest step down and out
+  podium(n, r, tall, PH, PW) {
+    const step = PW * (tall ? .74 : .86);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o) / Math.max(1, (n - 1) / 2);
+      return [o * step * (1 - .1 * k), PH * .22 * k, -Math.sign(o) * 5 * k, 1.1 - .24 * k, -Math.abs(o)]; });
+  },
+  // along a wave, each turned with the slope under it
+  wave(n, r, tall, PH, PW) {
+    const f0 = r() < .5 ? 0 : Math.PI, A = PH * .2, span = PW * (tall ? .8 : .95) * (n - 1);
+    return spots(n, t => { const f = f0 + 1.5 * Math.PI * t, slope = n > 1 ? A * 1.5 * Math.PI * Math.cos(f) / span : 0;
+      return [lerp(-span / 2, span / 2, t), A * Math.sin(f), Math.atan(slope) * 57.3 * -.8, 1, 0]; });
+  },
+  // a peacock's tail: all standing out from one point low in the middle
+  burst(n, r, tall, PH) {
+    const half = Math.min(66, 20 * (n - 1)), R = PH * .5;
+    return spots(n, t => { const f = lerp(-half, half, t); const a = f * Math.PI / 180;
+      return [R * Math.sin(a), -R * Math.cos(a), -f, 1, -Math.abs(f)]; });
+  },
+  // a line going away from the viewer: the nearest largest, each further one smaller and higher
+  runway(n, r, tall, PH, PW) {
+    const d = r() < .5 ? -1 : 1, out = []; let x = 0;
+    for (let i = 0; i < n; i++) {
+      const sc = 1.12 * .8 ** i;
+      if (i) x += d * PW * .6 * (sc + 1.12 * .8 ** (i - 1)) / 2;
+      out.push([x, -i * PH * .08 - sc * PH / 2, d * -3, sc, -i]);
+    }
+    return out;
+  },
+  // a group photo: a back row standing higher, a front row between them
+  group(n, r, tall, PH, PW) {
+    const back = Math.ceil(n / 2), front = n - back, S = PW * 1.1, out = [];
+    for (let i = 0; i < back; i++) out.push([(i - (back - 1) / 2) * S, -PH * .22, r.uniform(-5, 5), .88, 0]);
+    // the front row stands in the gaps of the back row
+    for (let i = 0; i < front; i++) out.push([(i - (back - 1) / 2 + .5) * S, PH * .2, r.uniform(-5, 5), 1.02, 1]);
+    return out;
+  },
+  // two large phones at the ends lean in over a smaller row between them
+  bookends(n, r, tall, PH, PW) {
+    if (n < 3) return LAID_OUT.podium(n, r, tall, PH, PW);
+    const m = n - 2, gap = PW * .74, end = (m - 1) / 2 * gap + PW * .95, out = [];
+    out.push([-end, 0, -12, 1.12, 1]);
+    for (let i = 0; i < m; i++) out.push([(i - (m - 1) / 2) * gap, PH * .12, i % 2 ? 4 : -4, .8, 0]);
+    out.push([end, 0, 12, 1.12, 1]);
+    return out;
+  },
+  // on a shelf in a shop: standing side by side on one line, the last leaning on its neighbour
+  shelf(n, r, tall, PH, PW) {
+    const rows = tall && n >= 4 ? 2 : 1, per = Math.ceil(n / rows), out = [];
+    for (let row = 0; row < rows; row++) {
+      const k = Math.min(per, n - row * per), sizes = Array.from({ length: k }, () => r.uniform(.9, 1.04));
+      const lean = k > 1 && r() < .6;
+      const width = sizes.reduce((a, b) => a + b, 0) * PW * 1.06;
+      let x = -width / 2;
+      sizes.forEach((sc, i) => {
+        const tilt = lean && i === k - 1 ? 10 : 0;
+        x += sc * PW * 1.06 / 2;
+        out.push([x + (tilt ? PW * .12 : 0), row * PH * 1.08 - sc * PH / 2 + (tilt ? PH * .01 : 0), -tilt, sc, 0]);
+        x += sc * PW * 1.06 / 2;
+      });
+    }
+    return out;
+  },
+  // an arrow: two arms meeting at the phone in front
+  chevron(n, r, tall, PH, PW) {
+    const d = r() < .5 ? -1 : 1;
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2;
+      return [-d * Math.abs(o) * PW, o * PH * .24, d * -o * 12, 1 - .05 * Math.abs(o), -Math.abs(o)]; });
+  },
+  // a grid turned as a whole, as a magazine sets a page
+  tilted_grid(n, r, tall, PH, PW) {
+    const cols = tall || n <= 4 ? 2 : 3, rows = Math.ceil(n / cols), th = (r() < .5 ? -1 : 1) * r.uniform(8, 13), a = th * Math.PI / 180;
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const rr = Math.floor(i / cols), inRow = Math.min(cols, n - rr * cols), cc = i % cols;
+      const x = (cc - (inRow - 1) / 2) * PW * 1.14, y = (rr - (rows - 1) / 2) * PH * 1.04;
+      out.push([x * Math.cos(a) + y * Math.sin(a), -x * Math.sin(a) + y * Math.cos(a), th, 1, 0]);
+    }
+    return out;
+  },
+  // one phone front and centre, the rest in a row behind it
+  headliner(n, r, tall, PH, PW) {
+    const out = [[0, PH * .12, r.uniform(-4, 4), 1.18, 1]], m = n - 1, left = Math.ceil(m / 2);
+    for (let i = 0; i < m; i++) {
+      const side = i < left ? -1 : 1, j = i < left ? i : i - left;
+      out.push([side * (PW * .78 + j * PW * .6), -PH * .15, -side * (6 + 4 * j), .78, -j]);
+    }
+    return out;
+  },
+  // a collage: one large phone beside a small grid of the rest
+  collage(n, r, tall, PH, PW) {
+    const d = r() < .5 ? -1 : 1, m = n - 1, big = 1.06, sm = .56, g = PW * .12;
+    if (!m) return [[0, 0, 0, big, 0]];
+    const cols = m === 1 ? 1 : 2, rows = Math.ceil(m / cols);
+    const gw = cols * sm * PW + (cols - 1) * g, total = big * PW + g * 1.5 + gw;
+    const out = [[d * (-total / 2 + big * PW / 2), 0, 0, big, 0]];
+    const x0 = d * (total / 2 - gw / 2), rh = sm * PH + g;
+    for (let i = 0; i < m; i++) {
+      const rr = Math.floor(i / cols), inRow = Math.min(cols, m - rr * cols), cc = i % cols;
+      out.push([x0 + (cc - (inRow - 1) / 2) * (sm * PW + g), (rr - (rows - 1) / 2) * rh, 0, sm, 0]);
+    }
+    return out;
+  },
+  // pairs leaning together at the top like a tent, an odd one standing on its own
+  tents(n, r, tall, PH, PW) {
+    const dx = PH / 2 * Math.sin(.28) + PW / 2 * Math.cos(.28) - PW * .1, out = [];
+    const units = []; for (let k = n; k > 0;) { if (k >= 2 && !(k === 3 && units.length === 1)) { units.push(2); k -= 2; } else { units.push(1); k -= 1; } }
+    const wid = u => u === 2 ? 2 * dx + PW : PW * 1.05;
+    const total = units.reduce((a, u) => a + wid(u), 0) + PW * .15 * (units.length - 1);
+    let x = -total / 2;
+    for (const u of units) {
+      const c = x + wid(u) / 2;
+      if (u === 2) { out.push([c - dx, 0, -16, 1, 0]); out.push([c + dx, 0, 16, 1, 0]); }
+      else out.push([c, -PH * .02, 0, 1.04, 0]);
+      x += wid(u) + PW * .15;
+    }
+    return out;
+  },
+  // a carousel seen from a little above: nearer phones larger and lower, further ones smaller and higher
+  carousel(n, r, tall, PH, PW) {
+    // turned so that no phone stands straight behind another
+    const Rx = PW * (tall ? .95 : 1.25) * Math.max(1, (n - 1) / 2), Ry = PH * .2, off = n % 2 ? 0 : .35;
+    return spots(n, (t, i) => { const th = 2 * Math.PI * i / n + off, c = Math.cos(th);
+      return [Math.sin(th) * Rx, c * Ry, -Math.sin(th) * 8, .72 + .34 * (c + 1) / 2, c]; });
+  },
+};
+
+/** n spots from f(t, i), t running 0..1 along them. */
+const spots = (n, f) => Array.from({ length: n }, (_, i) => f(n > 1 ? i / (n - 1) : .5, i));
+
+function laidOut(name, n, r, tall, s) {
+  const PH = s.ph, PW = s.ph * .475;
+  const out = LAID_OUT[name](n, r, tall, PH, PW);
+  // the whole group, corners and all, centred on the stage, and no larger than the room
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const [x, y, a, sc] of out) {
+    const hw = PW * sc / 2, hh = PH * sc / 2, th = -a * Math.PI / 180, c = Math.cos(th), sn = Math.sin(th);
+    for (const [u, v] of [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]]) {
+      const X = x + u * c - v * sn, Y = y + u * sn + v * c;
+      x0 = Math.min(x0, X); x1 = Math.max(x1, X); y0 = Math.min(y0, Y); y1 = Math.max(y1, Y);
+    }
+  }
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  const k = Math.min(1, Math.min(s.hw * 2.4, s.W * .94) / (x1 - x0), Math.min(PH * 1.5, s.H * .9) / (y1 - y0));
+  return out.map(([x, y, a, sc, z]) => [(x - cx) * k / s.hw, (y - cy) * k / s.hh, a, sc * k, z]);
+}
+
 /** The four corners of a phone where it comes to rest, a little generous for its
  *  shadow and for the pop of a phone that turns over after it lands. */
 function landedOutline(p) {
@@ -467,14 +632,16 @@ function hitsRect(P, r) {
 // ------------------------------------------------------------ how they get there
 
 const ENTRY_TIMES = { fly_spin: [1, .12], drop: [.85, .11], conveyor: [1.05, .14], zoom: [.9, .10], orbit: [1.2, .07],
-  deal: [.62, .15], pop: [.55, .09], rain: [.7, .07], boomerang: [1.1, .1], split: [.8, .05], spiral_in: [1.15, .08], whip: [.45, .1] };
+  deal: [.62, .15], pop: [.55, .09], rain: [.7, .07], boomerang: [1.1, .1], split: [.8, .05], spiral_in: [1.15, .08], whip: [.45, .1],
+  slide_up: [.8, .1], swing: [1.25, .1], float_up: [.9, .1], zipper: [.7, .08], sweep: [1, .09], pinwheel: [.75, .1],
+  snap: [.3, .2], roll: [1, .12], magnet: [.8, .03], shuffle: [1, .08], flip_in: [.8, .1] };
 
-function planEntries(phones, st, W, H, r, stageC) {
+function planEntries(phones, st, W, H, r, stageC, drawOrder) {
   const [dur, stag] = ENTRY_TIMES[st.entry] || ENTRY_TIMES.fly_spin;
   const dirs = ["left", "right", "top", "bottom", "top-left", "top-right", "bottom-left", "bottom-right"];
   const side = r() < .5 ? -1 : 1;
-  let order = phones.map((_, i) => i);
-  if (st.arrangement === "hero") order = order.slice(1).concat(order.slice(0, 1));
+  // the phone drawn in front lands last (the hero, or a layout's front row)
+  const order = drawOrder || phones.map((_, i) => i);
   order.forEach((i, k) => {
     const p = phones[i];
     // The first 3 seconds decide whether anyone watches: phones are already in
@@ -500,15 +667,31 @@ function planEntries(phones, st, W, H, r, stageC) {
       case "zoom": case "pop": p.start = [hx, hy]; break;
       case "orbit": case "split": case "spiral_in": p.start = [stageC[0], stageC[1]]; break;
       case "deal": p.start = [W / 2, H + far]; p.arc = [(W / 2 + hx) / 2, (H + hy) / 2 + H * .1]; break;
+      case "slide_up": p.start = [hx, H + far]; break;
+      case "zipper": p.start = [hx, k % 2 ? -far : H + far]; break;
+      case "swing": p.start = [0, -(hy + far)]; p.swing = (k % 2 ? 1 : -1) * side * r.uniform(45, 62); break;
+      case "sweep": p.start = [side < 0 ? -far : W + far, H * .8]; p.arc = [(p.start[0] + hx) / 2, Math.min(hy, H * .5) - H * .42]; break;
+      case "roll": p.start = [side < 0 ? -far : W + far, hy]; break;
+      case "magnet": {                                  // scattered about the frame, then drawn together
+        const m = .14, jx = r.uniform(-.08, .08) * W, jy = r.uniform(-.08, .08) * H;
+        p.start = [clamp(stageC[0] + (hx - stageC[0]) * 2.2 + jx, W * m, W * (1 - m)), clamp(stageC[1] + (hy - stageC[1]) * 2.2 + jy, H * m, H * (1 - m))];
+        p.rot0 = r.uniform(-35, 35); break;
+      }
+      case "shuffle": { const d = hx < stageC[0] ? -1 : hx > stageC[0] ? 1 : (k % 2 ? 1 : -1);
+        p.start = [stageC[0], stageC[1]]; p.arc = [hx + d * W * .32, hy - H * .08]; p.dir = d; break; }
+      case "float_up": case "snap": case "pinwheel": case "flip_in": p.start = [hx, hy]; break;
       default: p.start = sides.left;
     }
-    p.side = side;
+    p.side = side; p.k = k;
     if (st.hook === "crash_zoom" && k === order.length - 1) {     // the last to land crashes in from the lens
       p.crash = true; p.tIn = -.04; p.tLand = .72; p.crashFrom = [stageC[0], stageC[1]]; p.landsBack = true; p.reveal = false;
     }
   });
   return Math.max(...phones.map(p => p.tLand));
 }
+
+/** A phone's own height where it stands. */
+const H0 = p => p.h * p.size;
 
 function phoneState(p, t, st) {
   if (t < p.tIn) return null;
@@ -558,6 +741,54 @@ function phoneState(p, t, st) {
       case "split": {
         const e2 = outBack(q, 1.4);
         return [lerp(p.start[0], hx, e2), lerp(p.start[1], hy, e2), base * (.6 + .4 * e), p.angle * e, end + turn, .3 * z, clamp(q * 4)];
+      }
+      case "slide_up": {                                  // straight up from under the frame, a little past, and back
+        const e2 = outBack(q, 1.3);
+        return [hx, lerp(p.start[1], hy, e2), base, p.angle + p.side * 14 * z, end + turn, .3 * z, 1];
+      }
+      case "zipper": {                                    // in turn from the top and from the bottom
+        const e2 = outQuint(q);
+        return [hx, lerp(p.start[1], hy, e2), base, p.angle + (p.k % 2 ? 1 : -1) * 18 * (1 - e2), end + turn, .25 * z, 1];
+      }
+      case "swing": {                                     // hung from a point above, let down and left to swing still
+        const a = p.angle * Math.PI / 180, L = p.h * base * .9;
+        const drop = (1 - outCubic(clamp(q / .35))) * p.start[1];
+        const px = hx - L * Math.sin(a), py = hy - L * Math.cos(a) + drop;
+        const f = p.swing * (1 - q) ** 1.4 * Math.cos(2 * Math.PI * 1.25 * q), b = a + f * Math.PI / 180;
+        return [px + L * Math.sin(b), py + L * Math.cos(b), base, p.angle + f, end + turn, .3 * (1 - q), 1];
+      }
+      case "sweep": {                                     // one after another along the same wide arc over the top
+        const x = (1 - e) ** 2 * p.start[0] + 2 * (1 - e) * e * p.arc[0] + e * e * hx;
+        const y = (1 - e) ** 2 * p.start[1] + 2 * (1 - e) * e * p.arc[1] + e * e * hy;
+        return [x, y, base * (1 + .15 * z), p.angle - p.side * 140 * z, end + turn, .6 * z, 1];
+      }
+      case "roll": {                                      // in from the side, turning over and over like a wheel
+        const e2 = outQuint(q);
+        return [lerp(p.start[0], hx, e2), hy, base, p.angle + p.side * 420 * (1 - e2), end + turn, .2 * z, 1];
+      }
+      case "magnet": {                                    // from where they lie scattered, pulled into place
+        const e2 = outBack(q, 1.7);
+        return [lerp(p.start[0], hx, e2), lerp(p.start[1], hy, e2), base * (.72 + .28 * e), p.angle + p.rot0 * (1 - e), end + turn, .35 * z, 1];
+      }
+      case "shuffle": {                                   // out of one stack, round to the side and in, as cards are shuffled
+        const e2 = inOut(q);
+        const x = (1 - e2) ** 2 * p.start[0] + 2 * (1 - e2) * e2 * p.arc[0] + e2 * e2 * hx;
+        const y = (1 - e2) ** 2 * p.start[1] + 2 * (1 - e2) * e2 * p.arc[1] + e2 * e2 * hy;
+        return [x, y, base * (1 + .08 * Math.sin(Math.PI * q)), p.angle * e2 + p.dir * 20 * Math.sin(Math.PI * q), end + turn, .4 * Math.sin(Math.PI * q), 1];
+      }
+      case "float_up": {                                  // rises a little into place as it fades in, and does not turn
+        const e2 = outQuint(q);
+        return [hx, hy + H0(p) * .22 * (1 - e2), base * (.94 + .06 * e2), p.angle + p.side * 5 * (1 - e2), end, .2 * (1 - e2), clamp(q * 2.2)];
+      }
+      case "snap": {                                      // cut in on the beat, a touch large, and set down
+        return [hx, hy, base * (1 + .14 * z), p.angle + p.side * 4 * z, end, .2 * z, 1];
+      }
+      case "pinwheel": {                                  // spins up from nothing where it stands
+        const s2 = outBack(q, 1.8);
+        return [hx, hy, base * Math.max(.02, s2), p.angle + (p.spin > 0 ? 1 : -1) * 330 * z, end + turn, .4 * z, clamp(q * 6)];
+      }
+      case "flip_in": {                                   // edge on, turning over into view where it stands
+        return [hx, hy - H0(p) * .05 * z, base * (.86 + .14 * e), p.angle + p.spin * 10 * z, end + (2 * p.flips + .5) * Math.PI * z, .5 * z, 1];
       }
     }
   }
@@ -1138,7 +1369,7 @@ export class Ad {
     this._numberBelowPhones();
     this._headlineOffPhones();
     // how the phones get there is planned from where they finally land (the same draws from this.r as ever)
-    this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC) : .3;
+    this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC, this.drawOrder) : .3;
     this._timeline();
     this._typeTimeline();
     this._buildDecor();
@@ -1185,7 +1416,7 @@ export class Ad {
     const s = stage(st, W, H);
     this.stageC = [s.cx, s.cy];
     const ids = (st.phones || []).filter(id => this.assets.phones[id]);
-    const spots = arrangement(st.arrangement, ids.length, this.r, W / H < .85);
+    const spots = arrangement(st.arrangement, ids.length, this.r, W / H < .85, { ...s, W, H });
     this.phones = ids.map((id, i) => {
       const a = this.assets.phones[id];
       const p = new Phone(a.img, a.meta, s.ph);
@@ -1199,6 +1430,8 @@ export class Ad {
     });
     this.drawOrder = this.phones.map((_, i) => i);
     if (st.arrangement === "hero") this.drawOrder = this.drawOrder.slice(1).concat([0]);
+    // a layout that says which phones stand in front draws (and lands) them last
+    if (spots.some(sp => sp.length > 4)) this.drawOrder.sort((a, b) => (spots[a][4] || 0) - (spots[b][4] || 0));
   }
 
   _timeline() {
