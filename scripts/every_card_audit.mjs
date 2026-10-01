@@ -1,4 +1,4 @@
-/* EVERY CARD, EVERY CHOICE (DESIGN-LAW rules 83, 87, 90, 100).
+/* EVERY CARD, EVERY CHOICE (DESIGN-LAW rules 83, 87, 90, 101).
  *
  * The owner, 2026-09-30: "make sure all classic and current themes are
  * audited and ready for use with new color schemes, new design language, new
@@ -297,7 +297,7 @@ if (process.argv.includes('--write-holds')){
   const FILE = new URL('../assets/choice-holds.json', import.meta.url).pathname;
   let prev = null; try { prev = JSON.parse(readFileSync(FILE, 'utf8')); } catch (e){}
   const holds = argv('--ids') && prev ? prev : { about: '', cards: {}, themes: {}, looks: {}, voices: {} };
-  holds.about = 'Cards and choices that fail on the render a visitor gets (scripts/every_card_audit.mjs --write-holds). A card under cards is not offered; a theme, look or voice under a card is off on that card, and says why. DESIGN-LAW rule 100.';
+  holds.about = 'Cards and choices that fail on the render a visitor gets (scripts/every_card_audit.mjs --write-holds). A card under cards is not offered; a theme, look or voice under a card is off on that card, and says why. DESIGN-LAW rule 101.';
   holds.date = new Date().toISOString().slice(0, 10);
   /* the reason, as the chip's title tells a visitor */
   const lineOf = n => /^Phone Number/.test(n) ? 'the number' : /^Headline/.test(n) ? 'the headline' : /^CTA$/.test(n) ? 'the call to action' : '“' + n + '”';
