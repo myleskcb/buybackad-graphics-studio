@@ -6,6 +6,29 @@ import { rng, clamp } from "./engine.js";
 
 const SR = 44100;
 
+// Every cue is scheduled from the look's timeline, and some lead into a beat that lands
+// in the first instant (a riser into a hit at 0.1 s starts before the video does). The
+// Web Audio API throws on a time below zero, which failed the soundtrack, and with it the
+// download, for about a third of all looks (audit 2026-10-01: 142 of 400). Every time this
+// file schedules is held at zero or later, once, for every graph it builds.
+(function holdTimesAtZero() {
+  if (typeof AudioParam === "undefined" || AudioParam.prototype.__heldAtZero) return;
+  const T = t => (Number.isFinite(t) ? Math.max(0, t) : 0);
+  const A = AudioParam.prototype;
+  for (const m of ["setValueAtTime", "linearRampToValueAtTime", "exponentialRampToValueAtTime"]) {
+    const f = A[m]; A[m] = function (v, t) { return f.call(this, v, T(t)); };
+  }
+  const tgt = A.setTargetAtTime; A.setTargetAtTime = function (v, t, k) { return tgt.call(this, v, T(t), k); };
+  const cur = A.setValueCurveAtTime; if (cur) A.setValueCurveAtTime = function (vs, t, d) { return cur.call(this, vs, T(t), d); };
+  const can = A.cancelScheduledValues; A.cancelScheduledValues = function (t) { return can.call(this, T(t)); };
+  for (const P of [typeof AudioScheduledSourceNode !== "undefined" && AudioScheduledSourceNode.prototype, typeof AudioBufferSourceNode !== "undefined" && AudioBufferSourceNode.prototype]) {
+    if (!P) continue;
+    if (Object.prototype.hasOwnProperty.call(P, "start")) { const st0 = P.start; P.start = function (t, ...rest) { return st0.call(this, T(t), ...rest); }; }
+    if (Object.prototype.hasOwnProperty.call(P, "stop")) { const sp0 = P.stop; P.stop = function (t) { return sp0.call(this, T(t)); }; }
+  }
+  A.__heldAtZero = true;
+})();
+
 export async function renderSoundtrack(ad) {
   const st = ad.st, tl = ad.tl;
   const len = Math.ceil(st.duration * SR);

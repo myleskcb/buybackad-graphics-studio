@@ -12,11 +12,16 @@
 import { canvas, rrect, rng, lerp, clamp, prog, outCubic, outBack, outBounce, outQuint, lum, mix, rgba, fontCss, noiseTile } from "./engine.js";
 
 const TAU = Math.PI * 2;
+// A loop that draws as many random values as the frame has pixels takes its own stream,
+// one value from the look's: what comes after draws the same at every size, so the MP4
+// shows the ground the preview showed (audit 2026-10-01).
+const fork = r => rng((r() * 4294967296) >>> 0);
 const shade = (h, k) => mix(h, k < 0 ? "#000000" : "#ffffff", Math.abs(k));
 
 // ------------------------------------------------------------ small painters
 
 function blotches(x, W, H, r, scale, alpha) {
+  r = fork(r);
   const w = Math.max(4, Math.round(W / scale)), h = Math.max(4, Math.round(H / scale));
   const c = canvas(w, h), cx = c.getContext("2d"), id = cx.createImageData(w, h);
   for (let i = 0; i < w * h; i++) {
@@ -195,11 +200,11 @@ export function vibeBackground(kind, x, st, p, W, H, sc, r) {
       g.addColorStop(0, p.light); g.addColorStop(.55, p.ground); g.addColorStop(1, shade(p.ground, -.38));
       x.fillStyle = g; x.fillRect(0, 0, W, H);
       const n = Math.round(W * H / 230), k = Math.max(1, W / 540);
-      for (let i = 0; i < n; i++) {
+      ((r) => { for (let i = 0; i < n; i++) {
         const a = r();
         x.fillStyle = a < .6 ? `rgba(255,255,255,${r.uniform(.05, .45)})` : a < .85 ? rgba(p.accent, r.uniform(.1, .5)) : `rgba(255,220,150,${r.uniform(.1, .5)})`;
         const s = r.uniform(.4, 1.6) * k; x.fillRect(r() * W, r() * H, s, s);
-      }
+      } })(fork(r));
       const cl = x.createLinearGradient(0, 0, W, H);
       cl.addColorStop(.3, "rgba(255,255,255,0)"); cl.addColorStop(.42, "rgba(255,255,255,.16)"); cl.addColorStop(.5, "rgba(255,255,255,0)");
       x.fillStyle = cl; x.fillRect(0, 0, W, H);
@@ -208,10 +213,10 @@ export function vibeBackground(kind, x, st, p, W, H, sc, r) {
     case "cork": {
       x.fillStyle = p.ground; x.fillRect(0, 0, W, H);
       const n = Math.round(W * H / 95), k = Math.max(1, W / 700);
-      for (let i = 0; i < n; i++) {
+      ((r) => { for (let i = 0; i < n; i++) {
         x.fillStyle = r() < .5 ? rgba(shade(p.ground, -.45), r.uniform(.2, .6)) : rgba(shade(p.ground, .35), r.uniform(.15, .5));
         x.beginPath(); x.arc(r() * W, r() * H, r.uniform(.6, 2.4) * k, 0, TAU); x.fill();
-      }
+      } })(fork(r));
       blotches(x, W, H, r, 18, .12);
       break;
     }
@@ -249,7 +254,7 @@ export function vibeBackground(kind, x, st, p, W, H, sc, r) {
       for (let xx = 0; xx <= W; xx += 12) x.lineTo(xx, sy2 + Math.sin(xx / W * 9) * H * .01); x.lineTo(W, sy2 + H * .03); x.lineTo(0, sy2 + H * .03); x.fill();
       x.fillStyle = p.sand || "#f2d7a6"; x.fillRect(0, sy2 + H * .015, W, H);
       const n = Math.round(W * H / 400), k = Math.max(1, W / 700);
-      for (let i = 0; i < n; i++) { x.fillStyle = rgba(r() < .5 ? "#c9a36b" : "#fff3dc", r.uniform(.2, .6)); x.fillRect(r() * W, sy2 + r() * (H - sy2), k, k); }
+      ((r) => { for (let i = 0; i < n; i++) { x.fillStyle = rgba(r() < .5 ? "#c9a36b" : "#fff3dc", r.uniform(.2, .6)); x.fillRect(r() * W, sy2 + r() * (H - sy2), k, k); } })(fork(r));
       palms(x, W, H, "rgba(10,40,60,.85)", r, r.pick([1, 2]));
       break;
     }
@@ -955,7 +960,7 @@ export function candidateGround(kind, x, st, p, W, H, sc, r) {
     case "beach_top": {                                      // from above: sand, the surf's edge and its foam
       x.fillStyle = p.sand || "#f2d7a6"; x.fillRect(0, 0, W, H);
       const n = Math.round(W * H / 380), k = Math.max(1, W / 700);
-      for (let i = 0; i < n; i++) { x.fillStyle = rgba(r() < .5 ? "#c9a36b" : "#fff3dc", r.uniform(.2, .6)); x.fillRect(r() * W, r() * H, k, k); }
+      ((r) => { for (let i = 0; i < n; i++) { x.fillStyle = rgba(r() < .5 ? "#c9a36b" : "#fff3dc", r.uniform(.2, .6)); x.fillRect(r() * W, r() * H, k, k); } })(fork(r));
       const edge = xx => H * .34 + Math.sin(xx / W * 5 + 1) * H * .05 + Math.sin(xx / W * 13) * H * .012;
       const wg = x.createLinearGradient(0, 0, 0, H * .4); wg.addColorStop(0, "#0077b6"); wg.addColorStop(1, "#48cae4");
       x.fillStyle = wg; x.beginPath(); x.moveTo(0, 0); x.lineTo(W, 0); for (let xx = W; xx >= 0; xx -= 8) x.lineTo(xx, edge(xx)); x.closePath(); x.fill();
@@ -1028,7 +1033,7 @@ export function candidateGround(kind, x, st, p, W, H, sc, r) {
       const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, shade(p.ground, -.3)); g.addColorStop(.5, p.ground); g.addColorStop(1, mix(p.ground, p.accent, .55));
       x.fillStyle = g; x.fillRect(0, 0, W, H);
       const n = Math.round(W * H / 260), k = Math.max(1, W / 540);
-      for (let i = 0; i < n; i++) { x.fillStyle = r() < .7 ? `rgba(255,255,255,${r.uniform(.05, .4)})` : rgba(p.accent, r.uniform(.1, .45)); const s = r.uniform(.4, 1.6) * k; x.fillRect(r() * W, r() * H, s, s); }
+      ((r) => { for (let i = 0; i < n; i++) { x.fillStyle = r() < .7 ? `rgba(255,255,255,${r.uniform(.05, .4)})` : rgba(p.accent, r.uniform(.1, .45)); const s = r.uniform(.4, 1.6) * k; x.fillRect(r() * W, r() * H, s, s); } })(fork(r));
       const cl = x.createLinearGradient(0, H, W, 0); cl.addColorStop(.35, "rgba(255,255,255,0)"); cl.addColorStop(.47, "rgba(255,255,255,.22)"); cl.addColorStop(.52, "rgba(255,255,255,.05)"); cl.addColorStop(.6, "rgba(255,255,255,0)");
       x.fillStyle = cl; x.fillRect(0, 0, W, H); return true;
     }
@@ -1192,7 +1197,7 @@ export function themeGround(kind, x, st, p, W, H, sc, r) {
       x.fillStyle = g; x.fillRect(0, 0, W, H);
       blotches(x, W, H, r, 20, .12);
       x.lineWidth = Math.max(.6, W * .001);
-      for (let i = 0; i < W * H / 900; i++) { const px = r() * W, py = r() * H, a = r() * TAU, L = U * r.uniform(.01, .04); x.strokeStyle = rgba(r() < .5 ? shade(g, -.35) : shade(g, .3), r.uniform(.15, .4)); x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * L, py + Math.sin(a) * L); x.stroke(); }
+      ((r) => { for (let i = 0; i < W * H / 900; i++) { const px = r() * W, py = r() * H, a = r() * TAU, L = U * r.uniform(.01, .04); x.strokeStyle = rgba(r() < .5 ? shade(g, -.35) : shade(g, .3), r.uniform(.15, .4)); x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * L, py + Math.sin(a) * L); x.stroke(); } })(fork(r));
       grain(x, W, H, r, 20, .3); return true;
     }
     case "wood": {
@@ -1218,7 +1223,7 @@ export function themeGround(kind, x, st, p, W, H, sc, r) {
     case "brushed_metal": {
       const gr = x.createLinearGradient(0, 0, W, H); gr.addColorStop(0, shade(g, -.12)); gr.addColorStop(.45, l); gr.addColorStop(.55, shade(l, -.05)); gr.addColorStop(1, shade(g, -.18));
       x.fillStyle = gr; x.fillRect(0, 0, W, H);
-      for (let i = 0; i < H * .9; i++) { x.fillStyle = rgba(r() < .5 ? "#ffffff" : "#000000", r.uniform(.02, .06)); x.fillRect(0, r() * H, W, Math.max(.5, H * .0012)); }
+      ((r) => { for (let i = 0; i < H * .9; i++) { x.fillStyle = rgba(r() < .5 ? "#ffffff" : "#000000", r.uniform(.02, .06)); x.fillRect(0, r() * H, W, Math.max(.5, H * .0012)); } })(fork(r));
       return true;
     }
     case "carbon": {
@@ -1244,7 +1249,7 @@ export function themeGround(kind, x, st, p, W, H, sc, r) {
       x.save(); x.globalCompositeOperation = "screen";
       for (let k = 0; k < 4; k++) { const bx = r() * W, by = r() * H, rad = U * r.uniform(.25, .5), gg = x.createRadialGradient(bx, by, 0, bx, by, rad); gg.addColorStop(0, rgba(k % 2 ? p.accent : l, .22)); gg.addColorStop(1, rgba(l, 0)); x.fillStyle = gg; x.fillRect(0, 0, W, H); }
       x.restore();
-      for (let i = 0; i < W * H / 1800; i++) { x.fillStyle = `rgba(255,255,255,${r.uniform(.2, .9)})`; const s2 = r.uniform(.5, 1.8) * Math.max(1, W / 700); x.fillRect(r() * W, r() * H, s2, s2); }
+      ((r) => { for (let i = 0; i < W * H / 1800; i++) { x.fillStyle = `rgba(255,255,255,${r.uniform(.2, .9)})`; const s2 = r.uniform(.5, 1.8) * Math.max(1, W / 700); x.fillRect(r() * W, r() * H, s2, s2); } })(fork(r));
       return true;
     }
     case "pegboard": {

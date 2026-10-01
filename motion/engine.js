@@ -253,10 +253,20 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
 }
 
 /** The colours of type set ON a sign board: the board's, not the scene's. */
+// The colour each sign's face is painted (null: a face picked at random among light cards,
+// which read as light; "plate": the palette's plate). The words' accent must stand out from
+// it as well as from the ink: a store sign painted the accent's own yellow lost the whole
+// accent line of its headline (audit 2026-10-01, "PHONES INTO CASH" read "PHONES").
+const BOARD_FACE = { freeway: "#006b3f", freeway_blue: "#1d4f9c", poster: null, bandit_yellow: "#ffd21a", bandit_white: "#f6f6f1",
+  flyer: "#fbfaf5", neon_box: "#0c0618", marquee: "#fffaf0", store_sign: "plate", price_tag: null, chalkboard: "#24382f",
+  receipt: "#fbfbf7", wanted_poster: "#e9d3a6", sticky_note: null, speech_bubble: "#ffffff", ticket_stub: "plate",
+  led_panel: "#0b0b0d", lightbox: "#ffffff", postcard: "#fffdf6" };
 function boardPalette(b, p) {
   let ink = b.ink;
   if (ink === "auto") ink = lum(p.plate) > .55 ? "#111111" : "#ffffff";
   let accent = b.accent ?? p.accent;
+  const kind = Object.keys(BOARDS).find(k => BOARDS[k] === b), f = BOARD_FACE[kind], face = f === "plate" ? (p.plate || "#c1121f") : f || "#fff5a0";
+  if (Math.abs(lum(accent) - lum(face)) < .3) accent = [p.accent, "#e4002b", "#1d4ed8", ink].find(c => Math.abs(lum(c) - lum(face)) >= .3 && Math.abs(lum(c) - lum(ink)) >= .2) || ink;
   if (Math.abs(lum(accent) - lum(ink)) < .2) accent = ink;
   return { ...p, ink, accent, plate: lum(ink) > .5 ? "#111111" : "#ffffff", plate_ink: ink };
 }
@@ -1217,13 +1227,39 @@ function lumStats(c) {
 
 // ------------------------------------------------------------ the ad
 
+/** The size every look is laid out at: the preview's own (720 on the long side). */
+export function planSize(aspect) {
+  const [W, H] = ASPECTS[aspect] || ASPECTS["1:1"], k = 720 / Math.max(W, H);
+  return [Math.round(W * k), Math.round(H * k)];
+}
+const PLANS = new Map();
+/** The plan for a style: laid out once at the plan size, then kept (the last 200). */
+export function planFor(style, assets) {
+  const a = assets || {}, key = JSON.stringify(style) + "|" + Object.keys(a.phones || {}).length + "|" + Object.keys(a.accents || {}).length;
+  let plan = PLANS.get(key);
+  if (!plan) {
+    const [cw, ch] = planSize({ ...DEFAULT_STYLE, ...style }.aspect);
+    plan = new Ad(style, assets, cw, ch, { plan: false }).toPlan();
+    PLANS.set(key, plan);
+    if (PLANS.size > 200) PLANS.delete(PLANS.keys().next().value);
+  }
+  return plan;
+}
+
 export class Ad {
   /** assets: { phones: {id: {img, meta}} } */
-  constructor(style, assets, width, height) {
+  constructor(style, assets, width, height, opts = {}) {
     this.st = { ...DEFAULT_STYLE, ...style };
-    const st = this.st;
+    let st = this.st;
     this.W = width || (ASPECTS[st.aspect] || ASPECTS["1:1"])[0];
     this.H = height || (ASPECTS[st.aspect] || ASPECTS["1:1"])[1];
+    // Every decision about where things go is made once, at the plan size, and every other
+    // size (the gallery's thumbnail, the full-size MP4) draws that same plan, so what a
+    // customer previews is what they download. (Audit 2026-10-01: 72 of 200 looks came out
+    // with the words, the number or the phones elsewhere in the download.)
+    const [cw, ch] = planSize(st.aspect);
+    this.plan = opts.plan === false || (this.W === cw && this.H === ch) ? null : planFor(style, assets);
+    if (this.plan) { Object.assign(st, this.plan.st); }
     this.p = pal(st);
     this.boardDef = BOARDS[st.board] || null;
     this.pHead = this.boardDef ? boardPalette(this.boardDef, this.p) : this.p;
@@ -1234,9 +1270,11 @@ export class Ad {
     this._insets();
     this._buildPhones();
     this._layoutType();
-    this._numberBelowPhones();
-    this._headlineOffPhones();
-    this._wordsOffPhones();
+    if (!this.plan) {
+      this._numberBelowPhones();
+      this._headlineOffPhones();
+      this._wordsOffPhones();
+    }
     // how the phones get there is planned from where they finally land (the same draws from this.r as ever)
     this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC) : .3;
     this._timeline();
@@ -1258,6 +1296,20 @@ export class Ad {
     this._contrastGuard();
     this.still = null;
     this.acc = canvas(this.W, this.H); this.tmp = canvas(this.W, this.H);
+  }
+
+  /** What this look decided, in proportions of the frame, for every other size to draw. */
+  toPlan() {
+    const W = this.W, H = this.H, U = Math.min(W, H);
+    return {
+      st: { ...this.st }, lay: this._lay,
+      phones: this.phones.map(p => ({ x: p.home[0] / W, y: p.home[1] / H, size: p.size, angle: p.angle })),
+      drawOrder: this.drawOrder.slice(), stageC: [this.stageC[0] / W, this.stageC[1] / H], stageSpan: [this.stageSpan[0] / W, this.stageSpan[1] / W],
+      burst: this.burst ? { x: this.burst.x / W, y: this.burst.y / H, R: this.burst.R / U } : null,
+      stamp: this.stamp ? { k: this.stamp.k, x: this.stamp.x / W, y: this.stamp.y / H } : null,
+      tape: this.tape ? this.tape.corner : null, arrowsMode: this.arrowsMode, arrow: !!this.arrow, pinstripe: !!this.pinstripe,
+      accents: (this.accents || []).map(a => ({ ...a, x: a.x / W, y: a.y / H, R: a.R / U, t0: undefined, tOut: undefined })),
+    };
   }
 
   /** Room taken off the top of the frame by a shop awning and a ticker. */
@@ -1301,6 +1353,13 @@ export class Ad {
     });
     this.drawOrder = this.phones.map((_, i) => i);
     if (st.arrangement === "hero") this.drawOrder = this.drawOrder.slice(1).concat([0]);
+    if (this.plan) {                                         // where the plan put them, at this size
+      const P = this.plan;
+      this.phones.forEach((p, i) => { const q = P.phones[i]; if (q) { p.home = [q.x * W, q.y * H]; p.size = q.size; p.angle = q.angle; } });
+      this.drawOrder = P.drawOrder.filter(i => i < this.phones.length);
+      this.stageC = [P.stageC[0] * W, P.stageC[1] * H]; this.stageSpan = [P.stageSpan[0] * W, P.stageSpan[1] * W];
+      return;
+    }
     this._spreadPhones();
     this._phonesInFrame();
   }
@@ -1418,9 +1477,20 @@ export class Ad {
       const s2 = size * Math.min(1, maxW / Math.max(wid, 1), maxH / Math.max(hgt, 1));
       if (s2 > bestS * 1.04) { bestN = n; bestS = s2; }
     }
+    const gapOf = z => z * (["box", "sticker", "highlighter", "cutout", "double_outline", "glass"].includes(st.text_fx) ? .14 : B ? .09 : .02);
+    const ctaOf = () => st.urgency === "pulse_cta" ? { text: st.cta || (st.lang === "es" ? "¡MÁNDANOS TEXTO!" : "TEXT NOW"), hot: this.hot } : null;
+    const tagOf = z => { const ph = this.pHead; return st.tag ? trim(inkSprite(applyCase(st.tag, "upper"), st.tag.split("").map(() => ph.ink), st.font, z * .26, .12, lum(ph.ink) < .5 ? "flat" : "shadow", ph).c) : null; };
+    if (this.plan) {                                         // the plan's type, at this size
+      const L = this.plan.lay, z = L.size * H, ls = headlineLines(st, this.pHead, z, L.bestN), lh = ls[0].asc * .98 + gapOf(z);
+      const bh = lh * (ls.length - 1) + ls[0].asc, tg = tagOf(z);
+      let nm = numberSprite(st, p, L.nSize * H, ctaOf()); if (L.dropLabel) nm = { ...nm, label: null };
+      Object.assign(this, { size: z, lines: ls, lineH: lh, blockH: bh, margin: m, tag: tg, num: nm, pos: this._place(ls, lh, bh, tg, nm, m, z) });
+      this._lay = L;
+      return this._hookText();
+    }
     const alts = [st.number_pos, ...["under-headline", "bottom-center", "bottom-right", "bottom-left"].filter(x => x !== st.number_pos)];
-    let pos = null, lines, lineH, blockH, tag, num, firstFit = null, dropLabel = false;
-    for (let attempt = 0; attempt < 18; attempt++) {
+    let pos = null, lines, lineH, blockH, tag, num, firstFit = null, dropLabel = false, nUsed = 0;
+    for (let attempt = 0; attempt < 40; attempt++) {
       const lk = size.toFixed(3) + "|" + bestN;
       lines = (this._lineCache ||= new Map()).get(lk) || this._lineCache.set(lk, headlineLines(st, this.pHead, size, bestN)).get(lk);
       const gap = size * (["box", "sticker", "highlighter", "cutout", "double_outline", "glass"].includes(st.text_fx) ? .14 : B ? .09 : .02);
@@ -1436,6 +1506,7 @@ export class Ad {
       const ns = z => { const k = z.toFixed(3) + "|" + (cta ? 1 : 0) + "|" + st.number_pos; return (this._numCache ||= new Map()).get(k) || this._numCache.set(k, numberSprite(st, p, z, cta)).get(k); };
       num = ns(nSize);
       while (num.c.width > W - 2 * m && nSize > 12) { nSize *= .92; num = ns(nSize); }
+      nUsed = nSize;
       if (dropLabel) num = { ...num, label: null };
       // a slot counts only where the phones can make room for the number under them
       for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.ok && this._roomUnder(pos, num, size, true)) break; pos.ok = false; }
@@ -1455,9 +1526,28 @@ export class Ad {
       }
       st.number_pos = alts[0]; size *= .95;
     }
+    // however long the words, the look always has its lines, its number and a place: the
+    // smallest size tried, laid out as it comes (fuzz 2026-10-01: an 85-letter headline on a
+    // wide frame never fitted, so the number was never made and the look threw)
+    if (!num || !pos) {
+      lines = headlineLines(st, this.pHead, size, bestN);
+      lineH = lines[0].asc * .98 + gapOf(size); blockH = lineH * (lines.length - 1) + lines[0].asc;
+      tag = null; st.tag = ""; dropLabel = false;
+      if (st.urgency === "pulse_cta") st.urgency = "arrows";
+      nUsed = Math.min(size * .72, W * (wide ? .075 : .11));
+      num = numberSprite(st, p, nUsed, null);
+      pos = this._place(lines, lineH, blockH, tag, num, m, size);
+    }
     if (st.urgency === "pulse_cta" && !num.label) st.urgency = "arrows";
     Object.assign(this, { size, lines, lineH, blockH, margin: m, tag, num, pos });
-    if (this._hook) { Object.assign(this, this._hook); return; }   // the opening words do not depend on where the headline sits
+    this._lay = { size: size / H, bestN, nSize: nUsed / H, dropLabel };
+    this._hookText();
+  }
+
+  /** The opening words, which do not depend on where the headline sits. */
+  _hookText() {
+    const st = this.st, W = this.W, H = this.H, p = this.p, ar = W / H, wide = ar >= 1.3, tall = ar < .85;
+    if (this._hook) { Object.assign(this, this._hook); return; }
     this.hookLines = null;
     const hookFont = FINE_FACES.has(st.font) ? "oswald" : st.font;     // the opening words must read at a glance
     if (st.hook === "hook_line") {
@@ -1662,7 +1752,7 @@ export class Ad {
     const better = (a, b) => (a.cover <= OK) !== (b.cover <= OK) ? a.cover <= OK : a.cover <= OK ? a.size > b.size + .02 : a.cover < b.cover - .02;
     const first = measure();
     if (!this.phones.length || (first.cover <= OK && first.size >= BIG)) return;
-    const F = ["phones", "drawOrder", "stageC", "stageSpan", "size", "lines", "lineH", "blockH", "margin", "tag", "num", "pos", "hookLines", "hookSize", "hookWords", "phoneFit"];
+    const F = ["phones", "drawOrder", "stageC", "stageSpan", "size", "lines", "lineH", "blockH", "margin", "tag", "num", "pos", "hookLines", "hookSize", "hookWords", "phoneFit", "_lay"];
     const snap = { st: { ...st } }; for (const f of F) snap[f] = this[f];
     const homes = this.phones.map(p => [p.home.slice(), p.size]);
     const places = (wide ? ["middle-left", "top-left", "bottom-left", "top-right", "top-center", "center"]
@@ -1848,7 +1938,9 @@ export class Ad {
       avoid.push([x0, y0, x1, y1]);
     }
     if (this.decor.has("spray_halo") && !this.board) this.spray = buildSpray(pos.block, size, haloColour(this.pHead), r);
-    const s0 = this.decor.has("starburst") ? this._spot(Math.min(W, H) * .105, avoid.map(grow)) : null;
+    const U = Math.min(W, H), PL = this.plan;
+    const s0 = PL ? (PL.burst && { x: PL.burst.x * W, y: PL.burst.y * H, R: PL.burst.R * U })
+      : this.decor.has("starburst") ? this._spot(U * .105, avoid.map(grow)) : null;
     if (s0) {
       const R = s0.R, s = s0;
       const fills = ["#fff200", "#ff2d55", "#30d158", "#00e5ff", "#ff9e1b"].filter(f => Math.abs(lum(f) - lum(p.ground)) > .22);
@@ -1863,15 +1955,15 @@ export class Ad {
       const tail = left ? [tip[0] - size * 1.1, tip[1] - size * .9] : [tip[0] + size * 1.1, tip[1] - size * .9];
       const box = [Math.min(tail[0], tip[0]) - size * .2, tail[1] - size * .2, Math.max(tail[0], tip[0]) + size * .2, tip[1] + size * .3];
       const clear = box[2] < o[0] || box[0] > o[2] || box[3] < o[1] || box[1] > o[3];
-      if (tail[0] > 0 && tail[0] < W && clear) this.arrow = { from: tail, to: tip, color: lum(p.accent) > .35 ? p.accent : "#ff2e88", t0: tl.number + .25 };
+      if (PL ? PL.arrow : tail[0] > 0 && tail[0] < W && clear) this.arrow = { from: tail, to: tip, color: lum(p.accent) > .35 ? p.accent : "#ff2e88", t0: tl.number + .25 };
     }
     if (st.urgency === "stamp") {
       const col = lum(p.ground) > .45 ? r.pick(["#d62828", "#1d4ed8", "#b5179e"]) : this.hot;
       const text = st.stamp_text || (es ? "EFECTIVO" : "CASH");
       for (let fs = Math.min(size * .5, Math.min(W, H) * .07), k = 0; k < 4 && !this.stamp; k++, fs *= .8) {
         const S = buildStamp(text, fs, col, "oswald", r), R = Math.max(S.width, S.height) * .5;
-        const s = freeSpot(W, H, R, avoid.map(grow), this.stageC);
-        if (s && s.over < .1) { this.stamp = { S, x: s.x, y: s.y, t0: tl.number + .55 }; avoid.push([s.x - R, s.y - R, s.x + R, s.y + R]); }
+        const s = PL ? (PL.stamp && PL.stamp.k === k ? { x: PL.stamp.x * W, y: PL.stamp.y * H, over: 0 } : null) : freeSpot(W, H, R, avoid.map(grow), this.stageC);
+        if (s && s.over < .1) { this.stamp = { S, x: s.x, y: s.y, t0: tl.number + .55, k }; avoid.push([s.x - R, s.y - R, s.x + R, s.y + R]); }
       }
       if (this.stamp) this.cues.stamp = this.stamp.t0;
       else st.urgency = "arrows";                          // nowhere clear to stamp: point at the number instead
@@ -1890,7 +1982,7 @@ export class Ad {
         }
         return hits;
       };
-      const best = ["tr", "tl", "br", "bl"].map(k => [k, score(k)]).sort((a, b) => a[1] - b[1])[0];
+      const best = PL ? (PL.tape ? [PL.tape, 0] : ["", 1]) : ["tr", "tl", "br", "bl"].map(k => [k, score(k)]).sort((a, b) => a[1] - b[1])[0];
       if (best[1] === 0) { this.tape = { corner: best[0], text: st.cta || (es ? "¡NO ESPERES!" : "DON'T WAIT"), t0: tl.number + .35 }; this.cues.tape = this.tape.t0; }
       else st.urgency = "arrows";                          // no clear corner: point at the number instead
     }
@@ -1908,19 +2000,26 @@ export class Ad {
     this.arrowsMode = null;
     if (st.urgency === "arrows") {
       const words = this.board ? [o[0], o[1] - size * .5, o[2], o[3]] : o;
-      this.arrowsMode = chevronRoom(nb, size, W, words, r => this._onPhones(r));
+      this.arrowsMode = PL ? PL.arrowsMode : chevronRoom(nb, size, W, words, r => this._onPhones(r));
       if (!this.arrowsMode) st.urgency = "flash_border";
     }
     // a pinstripe under the words only where it clears the number
     const yP = o[3] + size * .28, band = [o[0], yP - size * .32, o[2], yP + size * .42];
-    this.pinstripe = this.decor.has("pinstripe") && band[3] < H * .97 && (band[3] < nb[1] || band[1] > nb[3] || band[2] < nb[0] || band[0] > nb[2]);
+    this.pinstripe = PL ? PL.pinstripe : this.decor.has("pinstripe") && band[3] < H * .97 && (band[3] < nb[1] || band[1] > nb[3] || band[2] < nb[0] || band[0] > nb[2]);
     // the accents last, in the room everything above left: clear of the words, the number
     // and what points at it, the sign, the stickers, the tape's corner and the phones
     const keep = avoid.map(grow);
+    // and the phones' whole group, not just each phone: a mark in the gap between two phones reads as clutter
+    if (this.phones.length) {
+      let gx0 = Infinity, gy0 = Infinity, gx1 = -Infinity, gy1 = -Infinity;
+      for (const P of this.phones.map(q => onCamera(landedOutline(q), W, H, settleZoom(st)))) for (const [px, py] of P) { gx0 = Math.min(gx0, px); gy0 = Math.min(gy0, py); gx1 = Math.max(gx1, px); gy1 = Math.max(gy1, py); }
+      keep.push([gx0, gy0, gx1, gy1]);
+    }
     if (this.pinstripe) keep.push(band);
     if (this.arrowsMode || st.urgency === "arrows") keep.push([nb[0] - size * 1.4, nb[1] - size * .8, nb[2] + size * 1.4, nb[3] + size * .4]);
     if (this.arrow) keep.push([Math.min(this.arrow.from[0], this.arrow.to[0]) - size * .3, Math.min(this.arrow.from[1], this.arrow.to[1]) - size * .3, Math.max(this.arrow.from[0], this.arrow.to[0]) + size * .3, Math.max(this.arrow.from[1], this.arrow.to[1]) + size * .3]);
     if (this.tape) { const c = this.tape.corner; keep.push([c.includes("l") ? 0 : W * .55, c.includes("t") ? 0 : H * .55, c.includes("l") ? W * .45 : W, c.includes("t") ? H * .45 : H]); }
+    if (PL) { this.accents = timeAccents(PL.accents.map(a => ({ ...a, x: a.x * W, y: a.y * H, R: a.R * U })), tl, this.tOutro); return; }
     this.accents = timeAccents(placeAccents(st, W, H, keep, this.board ? [o[0], o[1] - size * .5, o[2], o[3]] : o, (this.assets || {}).accents, rng(st.seed * 61 + 3), this.insetTop, this.phones.length ? onCamera([this.stageC], W, H, settleZoom(st))[0] : null), tl, this.tOutro);
   }
 

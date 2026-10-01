@@ -9,8 +9,12 @@ import { renderSoundtrack } from "./audio.js";
 // running while they switched tabs. A message round trip is not throttled.
 const yieldNow = () => new Promise(r => { const ch = new MessageChannel(); ch.port1.onmessage = () => r(); ch.port2.postMessage(0); });
 
-export function canEncode() {
-  return typeof VideoEncoder !== "undefined" && typeof window.Mp4Muxer !== "undefined";
+/** Whether this browser can make the MP4 frame by frame: an encoder that takes H.264 at
+ *  this size, not only an encoder (a Chromium without H.264, or a Firefox without it, has
+ *  VideoEncoder and would fail at the first frame; those record in real time instead). */
+export async function canEncode(w = 1080, h = 1920, fps = 30) {
+  if (typeof VideoEncoder === "undefined" || typeof window.Mp4Muxer === "undefined") return false;
+  return !!(await pickVideoCodec(w, h, fps));
 }
 
 async function pickVideoCodec(w, h, fps) {

@@ -460,7 +460,7 @@ async function download() {
     await loadFonts(fontsFor(st));
     const ad = new Ad(st, state.assets);            // full size
     let out;
-    if (canEncode()) out = await exportMp4(ad, prog);
+    if (await canEncode(ad.W, ad.H)) out = await exportMp4(ad, prog);
     else { $("export-note").textContent = "This browser records in real time: keep this tab in front for a few seconds."; out = await recordRealtime(ad, prog); }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(out.blob);
