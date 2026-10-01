@@ -1097,3 +1097,35 @@ Still open:
    tube, which the house's neon motel shares (0.80). Neon stays, the owner's
    first choice; if the audit's reading of a glowing tube is wrong, that is
    a change to the measure, not to the look.
+
+## X. 2026-10-01 — proven palettes
+
+Done (DESIGN-LAW rule 95): the showcase's 29 palettes ("Lilac & Citrus",
+"Grape Soda", 19 of them food) replaced by twelve proven pairings (Navy &
+Gold, Navy & Orange, Midnight & Cyan, Blue & Green, Green & Gold, Purple &
+Gold, Teal & Orange, Red & Yellow, Black & Gold, Black & Red, Black & Green,
+Silver & Blue). Colour only: `scripts/repalette_showcase.mjs --write` re-hues
+every record under the luminance lock, then the thumbnails, the colour
+measure and the gate were re-run: 415 of 415 live cards pass, none lost,
+median critical contrast 5.56 to 5.55:1, 0 colour-blind regressions. The palette grid's swatch now
+comes from the card with the most vivid accent (`scBuildFamilies`).
+
+Re-running it: `repalette_showcase.mjs` works on the working tree and maps
+from each card's CURRENT roles, so run it from the commit before this one
+(`git checkout <that>^ -- assets/showcase/`) or it re-hues colours it already
+moved. `refresh_showcase.mjs` now imports `familyOf` from
+`refresh_palettes.mjs`.
+
+Still open:
+
+1. **Light red and light orange are hard.** Pale accent type cannot be red or
+   orange (it reads salmon or peach), so those palettes only go to cards
+   whose accent is mid or dark, and red is further held back by the
+   colour-blind check: Black & Red carries fewer cards than the others. A
+   layout that puts white words on a red plate, rather than red words on
+   black, would let red go further; that is a layout change, not a colour pass.
+2. **The classics** (the 243 in `app.js`) and the Easy Mode colour themes
+   (`THEME_DECKS`) were not touched; they have their own palettes.
+3. Off the owner's Mac the thumbnails were drawn with fabric 5.3.0 from npm
+   (cdnjs, which serves the page's 5.3.1, is blocked here). The gate passed on
+   the same renderer; a re-draw on the Mac would use 5.3.1.

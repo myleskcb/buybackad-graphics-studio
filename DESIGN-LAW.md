@@ -3091,3 +3091,99 @@ The two sweeps draw different looks (the catalog is larger), so a
 difference of one or two looks is the draw. The misses that are left are
 single looks of the kinds the baseline has too. None is a pool: each new
 look was swept 30 times on its own until what failed in it was out.
+
+## 95. Palettes are proven pairings, and a warm colour is never drawn muddy
+
+Added 2026-10-01. The owner, on the 29 palettes of 2026-09-22: "the colors
+look so strange ... we really want the minimum amount of food names ... less
+niche color schemes, and more proven."
+
+**What was strange, measured on the 415 live cards.** Of the 2,713 chromatic
+colours in their records, 220 accents and 272 supports are drawn below
+luminance 0.2, which no warm hue can hold, and many more between 0.2 and 0.45.
+The old guard only swapped hues up to 108° and below 0.2, so a lime or citrus
+accent drew as olive (`#757a2c`) and an amber support as mustard (`#9b8301`)
+or tan (`#c06f2c`). Light grounds took a 0.048 pastel of whatever the ground hue was
+(lilac, blush, pale lime, khaki, greige), and dark reading ink took the
+ground's hue at 0.03, so a pink or red palette set its words in brown-black.
+Every palette was a triad, so most cards carried a third, unrelated colour.
+
+**The set.** Twelve pairings that ads and brands have run for decades, each
+hue measured off a reference colour: Navy & Gold, Navy & Orange, Midnight &
+Cyan, Blue & Green, Green & Gold, Purple & Gold, Teal & Orange, Red & Yellow,
+and the neutral grounds Black & Gold, Black & Red, Black & Green, Silver &
+Blue. Two hue families to a palette: the support is a shade of the ground's
+or the accent's family, so a card reads as two colours plus white or black.
+Names say the two colours; none is food.
+
+**The rules that make them draw clean** (`scripts/refresh_palettes.mjs`):
+
+- `muddy(H, Y)`: a warm hue has a lightest luminance it can be drawn at and
+  still be its colour (orange 0.2, gold and yellow 0.33, yellow-green 0.3,
+  lime 0.22, red-orange 0.12), read off reference shades. Under it the colour
+  takes the palette's deep hue (navy, forest, purple, crimson; charcoal on a
+  neutral palette). It is checked on the colour as written, too: a very dark
+  colour rounds to 8 bits with its hue loose by ten degrees.
+- An accent or support keeps at least C 0.12 (0.13 for a warm hue): gold at
+  0.08 is khaki, orange tan, green sage, blue slate.
+- A ground is a real colour or nearly white: C 0.11 dark, 0.14 at mid
+  luminance, falling to 0.02 by Y 0.75. No dusty mid-tones.
+- Dark reading ink is navy-, green- or purple-black (the palette's deep or
+  ink hue), never the ground's warm hue.
+- A two-stop fill decides once: if either stop takes the deep hue, both do,
+  so no gradient jumps hue (rule 5).
+- The ground, when it is a light white faintly tinted by the old palette (a
+  blush white under a teal palette), takes the new ground hue at the same
+  faint chroma. Every other neutral is left alone.
+
+**Luminance lock (rule 52) and colour-blind readers (rule 43).** Every colour
+is still solved to the luminance it replaces, so the gate's contrasts are
+unchanged. A palette is only given to a card if none of the reader's pairs
+(ink, accent and support on the ground) ends up worse by more than 0.25 and
+under 4.5:1 for a protan, deutan or tritan reader. The first plan failed 49
+pairs, nearly all red: a deuteranope sees a dark red lighter than it is. With
+the check in the assignment, 0 of 1,245 pairs regress, and red still carries
+the 101 cards where it is safe (Red & Yellow 74, Black & Red 27).
+
+**The accent must read as its name.** The accent keeps its luminance, and
+`namedBand(H)` is the band in which a hue is still the colour the palette
+names: over the top, red goes salmon, orange peach and purple lavender, so a
+card whose accent is pale type does not get them. Under the bottom a warm
+accent takes the deep hue (navy type on a white card, a proven look), except
+where deep is the neutral ground: gold cannot be drawn dark, so Black & Gold
+on a dark accent plate went charcoal and the first pass took
+`trustSeal-du03-35` from colourfulness 0.161 to 0.048 and off the landing (it
+filters under 0.05). When no palette fits a card, the colour-blind check
+still has to hold.
+
+**The picker shows the palette by its accent.** The landing's palette grid
+took its swatch from each palette's most colourful card, which could be a
+white card whose gold had gone navy: "Navy & Gold" with no gold in it. It now
+takes the card whose accent is most vivid (then the most colourful), and
+every one of the twelve shows the colour its name says.
+
+**Rule 41, in part.** Navy against gold is a near-exact complement (180° in
+OKLCH). Rule 41 is about two saturated mid-tones fighting; a dark ground under
+a light accent does not vibrate, and it is the most proven pairing there is.
+
+**Drawn grounds carry colours in a string.** A `ground:` backdrop keeps its
+five colours inside its source (`ground:kind/c1/c2/accent/support/ink/seed`,
+grounds.js `src()`), where a walk over colour values does not look: the first
+pass left 67 sunbursts, stripes and halftones in the old palettes. They are
+mapped by the same rules, the two ground stops deciding together.
+
+`scripts/repalette_showcase.mjs` moved the library onto the set in place
+(colour only), printing the lock, the muddy count and the colour-blind check;
+then rethumb, the colour measure, the gate. Measured against the library
+before (the gate on the same renderer):
+
+| | before | after |
+|---|---|---|
+| live cards | 415 | 415 (none lost, none gained) |
+| gate | 415 pass | 415 pass |
+| median worst critical line | 5.56:1 | 5.55:1 (median change per card 0.00) |
+| largest drop on one card | | 9.27 to 7.77:1 (a drawn sunburst re-hued) |
+| critical lines under 3:1 | 0 | 0 |
+| median colourfulness (live) | 0.263 | 0.266 |
+| colour-blind regressions (role pairs) | | 0 of 1,245 |
+| mapped colours left muddy | | 0 |

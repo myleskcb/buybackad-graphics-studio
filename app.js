@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20260930z';
+const ASSET_REV = '20261001a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -10508,6 +10508,8 @@ function scBuildWall(cards){
    colours." So this shows the palettes that are actually in the library, each
    with its real swatches and a live count, strongest colour first, and a tap
    filters the gallery to that palette. */
+/* how vivid one colour is: max minus min channel (HSV saturation times value) */
+function scColourVivid(h){ const [r, g, b] = scHexRgb(h); return (Math.max(r, g, b) - Math.min(r, g, b)) / 255; }
 function scBuildFamilies(cards){
   const grid = $('fam-grid');
   if (!grid) return;
@@ -10516,8 +10518,11 @@ function scBuildFamilies(cards){
   const pals = Object.keys(by).map(t => {
     const list = by[t];
     const chroma = list.reduce((a, c) => a + (c.chroma || 0), 0) / list.length;
-    /* the swatch comes from the card that shows this palette best */
-    const rep = list.slice().sort((x, y) => (y.chroma || 0) - (x.chroma || 0))[0];
+    /* the swatch comes from the card that shows this palette best: a palette
+       is named by its accent ("Navy & Gold"), so the card whose accent is most
+       vivid, then the most colourful. The most colourful card alone could be a
+       white one whose gold had gone navy (2026-10-01). */
+    const rep = list.slice().sort((x, y) => (scColourVivid(y.accent) - scColourVivid(x.accent)) || ((y.chroma || 0) - (x.chroma || 0)))[0];
     return { theme: t, n: list.length, chroma, rep, family: rep.family };
   }).sort((x, y) => y.chroma - x.chroma);
   grid.innerHTML = '';
