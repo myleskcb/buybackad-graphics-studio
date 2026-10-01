@@ -293,9 +293,12 @@ produced." DESIGN-LAW rule 87. In practice:
   theme, a tagline look and copy-follows-ground; everything coloured on a card
   is within 30 degrees of its hue, at its own luminance. The gate fails 'hues'.
   Do not add a pass that paints a second hue after these without running it.
-- **The chrome is graphite and one blue** (rule 96): the house default look is
-  graphite + blue (index.html bootstrap); no violet, pink or mint in the
-  chrome, AI included.
+- **The chrome is the poster look** (rule 98, superseding rule 96): skin
+  'poster' is the default (index.html bootstrap): paper, ink outlines, hard
+  offset shadows, and four signal colours each with one job (blue action,
+  tomato heat, marigold highlighter, mint cash). No glass, blur or glow in it.
+  Its rules are scoped `:root[data-skin='poster']` at the end of styles.css;
+  run sync_css_fallback.mjs after editing them.
 - **No see-through products** (rule 94): no product wall (ghosted cut-outs
   over the ground), no product picture under 60% opacity; the gate fails it
   ('ghostPic') and `pgGhostWallStrip` removes a wall after the layout.
@@ -331,15 +334,15 @@ produced." DESIGN-LAW rule 87. In practice:
   `node scripts/designer_audit.mjs` too. It exits 1 on any problem and takes
   about 12 minutes for its six cards. It fails a card that does not open
   rather than measure the one left on screen.
-- **Text shapes** (rule 98, 2026-09-30): a curve or a warp is `pgShape` on
+- **Text shapes** (rule 99, 2026-09-30): a curve or a warp is `pgShape` on
   a text object, laid out again with the text (`tsSet`). Never build a curved
   line as a group of letters, and never let a layout pass move a line bound
   to its ring (`TS_RINGS`, `tsBindRings`, run at the head of `alignPass`).
-- **Type voices and two faces** (rule 99): `applyVoice` sets the whole
+- **Type voices and two faces** (rule 100): `applyVoice` sets the whole
   card's faces before the layout, each line keeping its footprint;
   `houseTwoFaces` sets two families on every classic, last at load and again
   when a table sets a face.
-- **Every choice on every card** (rule 100): `node
+- **Every choice on every card** (rule 101): `node
   scripts/every_card_audit.mjs --write-holds` takes every offered card
   through every theme, look and voice on Easy Mode's render and writes
   assets/choice-holds.json. The studio turns a held chip off with its reason

@@ -43,7 +43,7 @@ import puppeteer from 'puppeteer-core';
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync } from 'node:fs';
 import { BASE as ROOT, offline, live } from './_showcase_harness.mjs';
 /* the studio as offered, but every choice clickable: its own holds (choice-holds.json,
-   rule 100) are what this audit writes, and a held chip is off */
+   rule 101) are what this audit writes, and a held chip is off */
 const BASE = ROOT + (ROOT.includes('?') ? '&' : '?') + 'nochoiceholds=1';
 
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };

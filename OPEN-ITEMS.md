@@ -1054,7 +1054,7 @@ Still open:
 
 ## W. 2026-09-30 — video ads for every kind of person, with voices
 
-Done (DESIGN-LAW rule 97 (94 on main)):
+Done (DESIGN-LAW rule 97):
 - **Sixteen audiences** (`motion/audiences.js`), each with its insight, its
   looks, music, words in English and Spanish, speakers, moods and voiceover
   scripts. Picking one in the maker ("Made for") turns the whole ad to it.
@@ -1110,7 +1110,7 @@ for use with new color schemes, new design language, new typefaces / text
 design", "ability to make clean warps and curves", "and pre warped / curved
 for select templates where the design is supportive or designed around that".
 
-Done (DESIGN-LAW rules 98, 96, 97; `scripts/every_card_audit.mjs`):
+Done (DESIGN-LAW rules 99, 100, 101; `scripts/every_card_audit.mjs`):
 - **Curves and warps** on live text, in the designer's Properties and Easy
   Mode's ✎ menu; arcs bound to their rings; the library's curved headlines
   take the visitor's words again.

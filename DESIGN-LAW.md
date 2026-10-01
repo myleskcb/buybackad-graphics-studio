@@ -1129,7 +1129,7 @@ After: showcase 58 → **84px** median (945 of 971 rebuilt), classics 64 →
 **108px** median (165 rebuilt; 73 already at 84px or more keep their own). The
 classics' rebuild ships as `assets/number-fix.json`, applied at load.
 
-> Narrowed by rule 100 (2026-09-30): a classic keeps its own big number only
+> Narrowed by rule 101 (2026-09-30): a classic keeps its own big number only
 > while its headline still leads by 1.3x; one that outranks its headline is
 > rebuilt at the cap.
 
@@ -3028,8 +3028,8 @@ rule 95 removes from the cards.
 
 ## 97. A video ad is made for someone, speaks in a voice that suits them, and always has sound
 
-Added 2026-09-30 on main as rule 97 (numbered 97 here, where the live branch's
-rules took 94 to 96 first). The owner: "make sure we have more variety styles and a
+Added 2026-09-30, written as 94; numbered 97 when merged with the live branch
+(claude/fervent-pascal-w6mthe), whose rules 94 to 96 were live first. The owner: "make sure we have more variety styles and a
 wider pool or base of ideas / knowledge to produce our video ads to appeal to
 any demographic or type of person ... make some talk with 11 labs voices",
 and "make the voices clean and vary by theme mood attitude etc."
@@ -3174,7 +3174,35 @@ difference of one or two looks is the draw. The misses that are left are
 single looks of the kinds the baseline has too. None is a pool: each new
 look was swept 30 times on its own until what failed in it was out.
 
-## 98. A curve or a warp is a property of the line, and a template built round a ring is curved on it
+## 98. The studio's chrome is a print shop's: paper, ink and four signal colours
+
+Added 2026-10-01 (numbered 98: the video rule took 97 on main first);
+supersedes rule 96's look. The owner, a day after graphite
+and one blue: "Blue is all right, but … we need something very cohesive and
+super convincing … maybe the overall black background/dark mode theme is not
+helping us or maybe we have something in the middle … this is looking very
+generic or vibe coded and not fitting for how good the graphics are". Dark
+glass, soft bokeh and one glowing accent is what a generated site looks like.
+The studio makes posters; its chrome is the wall they are pinned to.
+
+- **Ground**: warm paper (#f2eee4), cards a lighter paper (#fffdf8); ink-black
+  type (#141414). Dark mode is the same system on warm ink (#1b1a1f).
+- **Line**: an ink outline and a hard offset shadow, a print or a sticker;
+  never glass, blur or glow. Buttons press in.
+- **Four signal colours, one job each**, matched in strength so they read as
+  a set: blue #2b56f5 the action (buttons, links, focus), tomato #ff4a2e heat
+  (the hot plan, a kicker), marigold #ffc21a the highlighter (the hero's claim,
+  stickers, the closing call), mint #12b886 cash and done (ticks). Colour
+  fills shapes; words stay ink, or white on blue (5.6:1), ink on marigold
+  (11.4:1), ink on tomato (5.5:1). Blue as text on paper 4.8:1.
+- **Rhythm**: a tilted ink ticker of the goods under the hero; the library on
+  an ink band, so the ads glow between paper above and below (the "something
+  in the middle"); steps and section kickers carry the four colours in turn;
+  the mark is the four quartered.
+- The other looks stay reachable by URL (?look=); poster is the default. The
+  info pages, the video page and the 404 take the same paper and ink.
+
+## 99. A curve or a warp is a property of the line, and a template built round a ring is curved on it
 
 Added 2026-09-30 on the designer branch (claude/eloquent-euler-7jvzfd). The
 owner: "ability to make clean warps and curves", "and pre warped / curved for
@@ -3223,7 +3251,7 @@ download and the video. The looks, the layout and the ink passed a group by.
   take a curved line (its depth copies curve with it); a colour block cannot
   (a block is a straight plate), and says so.
 
-## 99. The owner's type pairs are a choice for the whole card; a classic sets two faces
+## 100. The owner's type pairs are a choice for the whole card; a classic sets two faces
 
 Added 2026-09-30 on the designer branch. The owner: "new typefaces / text
 design". The owner approved 56 faces (2026-09-01) and FONT_PAIRS pairs them by
@@ -3265,7 +3293,7 @@ was one line at a time from the ✎ menu.
   Weights snap to what the family ships. It runs last at load and again when
   the number table lands (a table applied after a face pass undoes it).
 
-## 100. Every choice a card offers is one it passed
+## 101. Every choice a card offers is one it passed
 
 Added 2026-09-30 on the designer branch. The owner: "make sure all classic and
 current themes are audited and ready for use with new color schemes, new

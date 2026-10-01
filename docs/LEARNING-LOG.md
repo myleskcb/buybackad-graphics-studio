@@ -2043,68 +2043,6 @@ RESUME HERE:
   The designer's text Properties still offer any colour for a glow (rule 85
   wants shade). That is a tool, left to the owner (§U 2).
 
-## 2026-09-30 — Video ads for every kind of person, with voices
-
-Owner: "make sure we have more variety styles and a wider pool or base of
-ideas / knowledge to produce our video ads to appeal to any demographic or
-type of person ... make some talk with 11 labs voices", then "make the voices
-clean and vary by theme mood attitude etc."
-
-Studied:
-  The maker drew every ad from one pool of words and fourteen LA looks: the
-  same "WE BUY IPHONES" for a student, a grandmother and an office manager.
-  What a copywriter would know first (who, the insight, what to avoid) was
-  nowhere. For the voices: no ElevenLabs key in the cloud environment, the
-  repo or its history, so the bank is built and measured without one, and
-  recorded by the owner.
-
-Built:
-  motion/audiences.js (16 audiences, 14 new looks, the moods), motion/voices.js
-  (17 speakers, 11 moods, picking a take), the voice track and its cleaning in
-  motion/audio.js, the audience in the engine and the panel,
-  scripts/voice_bank.mjs, scripts/audience_check.mjs,
-  scripts/motion_sound_check.mjs. DESIGN-LAW rule 97 (94 on main).
-
-Measured, and what it taught:
-  - The house's copy rules caught nothing in the new lines. The house's own
-    longest lines set the length limit; a guessed limit flagged half the
-    existing catalog.
-  - The first mix put the voice 2 dB UNDER the bed. The master compressor's
-    automatic make-up gain undid the ducking and pushed the peak over 0 dBFS.
-    The voice now joins after the compressor, the bed ducks after it, and a
-    look-ahead limiter (offline, exact) replaces a second Web Audio
-    compressor, whose make-up gain let peaks through. A "no-clip" rescale of
-    the whole mix was trimming the ad by 3.5 dB until the voice's own peaks
-    were held. Then 4.6 to 6.5 dB over the bed (two runs, two looks), the bed
-    down 9 to 10.4 dB and back within 0.2 dB, the peak at -1 dBFS, and a
-    voiced mix within 0.74 dB of an unvoiced one. Raising the voice 1.5 dB more only turned into trim.
-  - Testing the download turned up the worst thing found this session: 76 of
-    200 looks on main rendered NO SOUND. A cue before the first frame threw,
-    and every flash cut and most cold opens and punch-ins were silent. The
-    sweeps run with sound off, and the audit dropped its sound check when the
-    mix failed, so nothing ever reported it. A check that skips on error
-    measures nothing: the audit now fails such a mix, and
-    motion_sound_check.mjs renders 120 looks every run.
-  - Per-look sweeps (30 looks each) found what a 200-look sweep only hinted
-    at: the cutout treatment fails contrast 4 times in 6, the rings ground 3
-    in 6, and sky is white type on mid-blue at 2.4:1. Sky was in the look
-    made for older eyes. Dark looks opened on black glass over black ground.
-    Each came out of its pool. The dots ground was in every family-warm miss
-    in the pool runs. Taking it out cleared the still-frame miss there, but
-    the 200-look sweep failed the same three seeds on the ground drawn in its
-    place. The highlighter treatment was on all three: without it one
-    cleared and one lost its contrast miss, but two still miss their
-    headline or go still. That follows those two looks' opening timing (the
-    baseline has single misses of the same kind), not the look. A factor
-    present in every miss is a suspect, not a cause, until the miss goes
-    away without it.
-  - A three- or four-line headline under a phone-first opening settled at
-    1.07 to 1.13 s, just past the 1-second bar. The lines now stagger closer
-    when there is no opening line to read first.
-  - I compared one run's numbers with another run's screenshot and saw a bug
-    that was not there. Each run draws its own random look: read the values
-    and the picture from the same run.
-
 ## 2026-09-30 (evening) — the ghosts of cars
 
 The owner, of voltStack-pp02-15: "This one looks like little ghosts of cars."
@@ -2152,6 +2090,68 @@ Changed:
     bokeh strength, AI colour, chip fills; the bootstrap default; favicon,
     404, pages.css). CSS_FALLBACK and the CSP hash re-synced.
   - DESIGN-LAW rules 95 and 96; AGENT-BRIEF.
+
+## 2026-09-30 — Video ads for every kind of person, with voices
+
+Owner: "make sure we have more variety styles and a wider pool or base of
+ideas / knowledge to produce our video ads to appeal to any demographic or
+type of person ... make some talk with 11 labs voices", then "make the voices
+clean and vary by theme mood attitude etc."
+
+Studied:
+  The maker drew every ad from one pool of words and fourteen LA looks: the
+  same "WE BUY IPHONES" for a student, a grandmother and an office manager.
+  What a copywriter would know first (who, the insight, what to avoid) was
+  nowhere. For the voices: no ElevenLabs key in the cloud environment, the
+  repo or its history, so the bank is built and measured without one, and
+  recorded by the owner.
+
+Built:
+  motion/audiences.js (16 audiences, 14 new looks, the moods), motion/voices.js
+  (17 speakers, 11 moods, picking a take), the voice track and its cleaning in
+  motion/audio.js, the audience in the engine and the panel,
+  scripts/voice_bank.mjs, scripts/audience_check.mjs,
+  scripts/motion_sound_check.mjs. DESIGN-LAW rule 97.
+
+Measured, and what it taught:
+  - The house's copy rules caught nothing in the new lines. The house's own
+    longest lines set the length limit; a guessed limit flagged half the
+    existing catalog.
+  - The first mix put the voice 2 dB UNDER the bed. The master compressor's
+    automatic make-up gain undid the ducking and pushed the peak over 0 dBFS.
+    The voice now joins after the compressor, the bed ducks after it, and a
+    look-ahead limiter (offline, exact) replaces a second Web Audio
+    compressor, whose make-up gain let peaks through. A "no-clip" rescale of
+    the whole mix was trimming the ad by 3.5 dB until the voice's own peaks
+    were held. Then 4.6 to 6.5 dB over the bed (two runs, two looks), the bed
+    down 9 to 10.4 dB and back within 0.2 dB, the peak at -1 dBFS, and a
+    voiced mix within 0.74 dB of an unvoiced one. Raising the voice 1.5 dB more only turned into trim.
+  - Testing the download turned up the worst thing found this session: 76 of
+    200 looks on main rendered NO SOUND. A cue before the first frame threw,
+    and every flash cut and most cold opens and punch-ins were silent. The
+    sweeps run with sound off, and the audit dropped its sound check when the
+    mix failed, so nothing ever reported it. A check that skips on error
+    measures nothing: the audit now fails such a mix, and
+    motion_sound_check.mjs renders 120 looks every run.
+  - Per-look sweeps (30 looks each) found what a 200-look sweep only hinted
+    at: the cutout treatment fails contrast 4 times in 6, the rings ground 3
+    in 6, and sky is white type on mid-blue at 2.4:1. Sky was in the look
+    made for older eyes. Dark looks opened on black glass over black ground.
+    Each came out of its pool. The dots ground was in every family-warm miss
+    in the pool runs. Taking it out cleared the still-frame miss there, but
+    the 200-look sweep failed the same three seeds on the ground drawn in its
+    place. The highlighter treatment was on all three: without it one
+    cleared and one lost its contrast miss, but two still miss their
+    headline or go still. That follows those two looks' opening timing (the
+    baseline has single misses of the same kind), not the look. A factor
+    present in every miss is a suspect, not a cause, until the miss goes
+    away without it.
+  - A three- or four-line headline under a phone-first opening settled at
+    1.07 to 1.13 s, just past the 1-second bar. The lines now stagger closer
+    when there is no opening line to read first.
+  - I compared one run's numbers with another run's screenshot and saw a bug
+    that was not there. Each run draws its own random look: read the values
+    and the picture from the same run.
 
 ## 2026-09-30 (night) — every card, every choice; curves, warps and the owner's type pairs
 
@@ -2243,15 +2243,15 @@ Learned:
     the cause wrong the first time.
 
 Changed:
-  - Text shapes (rule 98): curves (arc, wave) on fabric's text on a path,
+  - Text shapes (rule 99): curves (arc, wave) on fabric's text on a path,
     warps (arch, bulge, flag, rise, fan, bowl) through an envelope; Shape and
     Bend in the designer's Properties and Easy Mode's ✎ menu; old letter
     groups read back as one shaped line; arcs bound to their rings
     (arcCrown's crown, karatSeal's new legend).
-  - Type voices (rule 99): eighteen pairs and ORIG in Easy Mode and the
+  - Type voices (rule 100): eighteen pairs and ORIG in Easy Mode and the
     designer; each line keeps its footprint; houseTwoFaces sets two families
     on every classic.
-  - Every choice a card offers is one it passed (rule 100):
+  - Every choice a card offers is one it passed (rule 101):
     every_card_audit.mjs --write-holds writes assets/choice-holds.json; the
     studio turns a held chip off with its reason under the row, sets a
     carried pick aside on the card it fails, and keeps a card that fails as
@@ -2296,3 +2296,25 @@ RESUME HERE:
     node scripts/every_card_audit.mjs --ids <the cards it touches> --write-holds
   and in full before a release (about eleven hours on four cores; --resume
   continues a stopped run).
+
+## 2026-10-01 — the poster look
+
+The owner, on graphite and one blue: "this is looking very generic or vibe
+coded and not fitting for how good the graphics are … multiple colors …
+something very cohesive … maybe something in the middle".
+
+Learned:
+  - Taking colour out was the wrong cure for random colour. The cure is a
+    small set of colours with one job each, matched in strength, on a ground
+    that is not black: four signal colours on paper read as designed; three
+    unrelated hues on black read as generated.
+  - A tilted full-width band overflows the page by its corners (4px on a
+    phone, 15px on a laptop); it is clipped by an untilted wrapper.
+  - A 2px outline grew the editor's Export button until it wrapped into a
+    circle and pushed two neighbours onto two lines; the bar's buttons keep
+    one line and a lighter print.
+
+Changed:
+  - Skin 'poster' (styles.css, scoped rules at the end), default in the
+    bootstrap; a category ticker in index.html; pages.css, 404 and the
+    favicon on paper and ink. DESIGN-LAW rule 98; AGENT-BRIEF.
