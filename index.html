@@ -33,15 +33,15 @@
 {"@type":"Offer","name":"Pro","price":"15","priceCurrency":"USD","description":"100 exports per month up to 2160 pixels, no watermark","priceSpecification":{"@type":"UnitPriceSpecification","price":"15","priceCurrency":"USD","unitCode":"MON","referenceQuantity":{"@type":"QuantitativeValue","value":"1","unitCode":"MON"}}}]}
 ]}
 </script>
-<meta name="theme-color" content="#0d0d0f" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b1a1f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2eee4" media="(prefers-color-scheme: light)">
 <script>
 /* Stamp the LOOK on <html> BEFORE first paint, so there is no flash of the
    wrong ground. Four axes, all CSS custom properties in styles.css:
    data-theme (dark | light), data-skin (ground), data-accent (accent + its
-   ring colour), data-type (display/body pairing). Defaults: graphite,
-   blue, clash, dark (2026-09-30: the orchid default retired for one clean
-   blue); Paper and Cream are light grounds and open light.
+   ring colour), data-type (display/body pairing). Defaults: poster (paper,
+   ink and four signal colours; DESIGN-LAW rule 97), blue, clash, light
+   (2026-10-01; graphite-and-blue the day before, orchid before that); Paper and Cream are light grounds and open light.
    A URL can set a look to share it: ?look=night-mint-unbounded (skin-accent-
    type, any tail optional), ?skin=, ?accent=, ?type=, ?theme=. One house
    look for every visitor (owner, 2026-09-27: one unified design language):
@@ -53,10 +53,10 @@
    has them. */
 (function(){
   var d = document.documentElement, q = {};
-  var S = ['graphite','night','slate','obsidian','forest','ember','paper','cream'];
+  var S = ['poster','graphite','night','slate','obsidian','forest','ember','paper','cream'];
   var A = ['orchid','violet','blue','sky','cyan','teal','mint','lime','gold','amber','orange','coral','rose'];
   var T = ['clash','unbounded','syne','grotesk','manrope','khand','serif','melodrama'];
-  var LIGHT = { paper:1, cream:1 };
+  var LIGHT = { poster:1, paper:1, cream:1 };
   var GF = { unbounded:'Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700', syne:'Syne:wght@500;700;800&family=Sora:wght@400;500;600;700', grotesk:'Space+Grotesk:wght@400;500;600;700', manrope:'Manrope:wght@400;500;600;700;800' };
   try { new URLSearchParams(location.search).forEach(function(v, k){ q[k] = v; }); } catch(e){}
   var look = (q.look || '').split('-');
@@ -65,7 +65,7 @@
   try {
     if (!theme) theme = localStorage.getItem('pgfx_theme') || '';
   } catch(e){}
-  if (S.indexOf(skin) < 0) skin = 'graphite';
+  if (S.indexOf(skin) < 0) skin = 'poster';
   if (A.indexOf(accent) < 0) accent = 'blue';
   if (T.indexOf(type) < 0) type = 'clash';
   if (fromUrl.skin && !fromUrl.theme) theme = LIGHT[skin] ? 'light' : 'dark';
@@ -90,7 +90,7 @@
      assets/fonts and declared in styles.css. The font PICKER still pulls
      the Google catalogue on demand via ensureFont(), so nothing is lost
      and the render-blocking third-party request is gone. -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a84ff'/%3E%3Crect x='16' y='26' width='32' height='12' rx='3' fill='%23ffffff'/%3E%3C/svg%3E">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <!-- The ten 150KB template backdrops that used to be preloaded here fed the
      OLD canvas landing. The showcase ships 448px thumbnails instead, so they
      were 1.5MB of art the page never drew: on a phone that was most of a
@@ -163,6 +163,8 @@
     <div class="stat"><b>13</b><span>buying categories</span></div>
     <div class="stat"><b>14</b><span>Los Angeles looks for video ads</span></div>
   </div>
+  <!-- the category ticker (poster look, DESIGN-LAW rule 97): what the studio sells for, in an ink band with the four signal colours between -->
+  <div class="lp-ticker" aria-hidden="true"><div class="lp-ticker-band"><div class="lp-ticker-track"><span>Phones</span><i></i><span>Gold</span><i></i><span>Silver</span><i></i><span>Coins</span><i></i><span>Cars</span><i></i><span>Test strips</span><i></i><span>Pokémon</span><i></i><span>Sports cards</span><i></i><span>Watches</span><i></i><span>Laptops</span><i></i><span>Cameras</span><i></i><span>Consoles</span><i></i><span>Phones</span><i></i><span>Gold</span><i></i><span>Silver</span><i></i><span>Coins</span><i></i><span>Cars</span><i></i><span>Test strips</span><i></i><span>Pokémon</span><i></i><span>Sports cards</span><i></i><span>Watches</span><i></i><span>Laptops</span><i></i><span>Cameras</span><i></i><span>Consoles</span><i></i></div></div></div>
 
   <section class="lp-section" id="lp-themes">
     <div class="lp-section-head">

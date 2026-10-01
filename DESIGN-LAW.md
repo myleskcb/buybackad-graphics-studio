@@ -3022,3 +3022,30 @@ rule 95 removes from the cards.
   information pages follow the same tokens. The other looks stay reachable by
   URL (?look=); the house default is graphite and blue.
 
+## 97. The studio's chrome is a print shop's: paper, ink and four signal colours
+
+Added 2026-10-01; supersedes rule 96's look. The owner, a day after graphite
+and one blue: "Blue is all right, but … we need something very cohesive and
+super convincing … maybe the overall black background/dark mode theme is not
+helping us or maybe we have something in the middle … this is looking very
+generic or vibe coded and not fitting for how good the graphics are". Dark
+glass, soft bokeh and one glowing accent is what a generated site looks like.
+The studio makes posters; its chrome is the wall they are pinned to.
+
+- **Ground**: warm paper (#f2eee4), cards a lighter paper (#fffdf8); ink-black
+  type (#141414). Dark mode is the same system on warm ink (#1b1a1f).
+- **Line**: an ink outline and a hard offset shadow, a print or a sticker;
+  never glass, blur or glow. Buttons press in.
+- **Four signal colours, one job each**, matched in strength so they read as
+  a set: blue #2b56f5 the action (buttons, links, focus), tomato #ff4a2e heat
+  (the hot plan, a kicker), marigold #ffc21a the highlighter (the hero's claim,
+  stickers, the closing call), mint #12b886 cash and done (ticks). Colour
+  fills shapes; words stay ink, or white on blue (5.6:1), ink on marigold
+  (11.4:1), ink on tomato (5.5:1). Blue as text on paper 4.8:1.
+- **Rhythm**: a tilted ink ticker of the goods under the hero; the library on
+  an ink band, so the ads glow between paper above and below (the "something
+  in the middle"); steps and section kickers carry the four colours in turn;
+  the mark is the four quartered.
+- The other looks stay reachable by URL (?look=); poster is the default. The
+  info pages, the video page and the 404 take the same paper and ink.
+

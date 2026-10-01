@@ -2090,3 +2090,25 @@ Changed:
     bokeh strength, AI colour, chip fills; the bootstrap default; favicon,
     404, pages.css). CSS_FALLBACK and the CSP hash re-synced.
   - DESIGN-LAW rules 95 and 96; AGENT-BRIEF.
+
+## 2026-10-01 — the poster look
+
+The owner, on graphite and one blue: "this is looking very generic or vibe
+coded and not fitting for how good the graphics are … multiple colors …
+something very cohesive … maybe something in the middle".
+
+Learned:
+  - Taking colour out was the wrong cure for random colour. The cure is a
+    small set of colours with one job each, matched in strength, on a ground
+    that is not black: four signal colours on paper read as designed; three
+    unrelated hues on black read as generated.
+  - A tilted full-width band overflows the page by its corners (4px on a
+    phone, 15px on a laptop); it is clipped by an untilted wrapper.
+  - A 2px outline grew the editor's Export button until it wrapped into a
+    circle and pushed two neighbours onto two lines; the bar's buttons keep
+    one line and a lighter print.
+
+Changed:
+  - Skin 'poster' (styles.css, scoped rules at the end), default in the
+    bootstrap; a category ticker in index.html; pages.css, 404 and the
+    favicon on paper and ink. DESIGN-LAW rule 97; AGENT-BRIEF.

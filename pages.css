@@ -1,12 +1,12 @@
 /* Information pages: about.html, ads/*.html, privacy.html, terms.html.
    Small on purpose; the studio's styles.css is 120KB of editor chrome that
-   these pages do not need. Same faces and the house look: graphite greys and one blue
-   (2026-09-30; the orchid default retired). */
+   these pages do not need. Same faces and the house look (DESIGN-LAW rule 97): warm paper, ink type
+   and the action blue. */
 @font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-display:swap}
 @font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-display:swap}
 @font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap}
-:root{--bg:#0d0d0f;--panel:#161618;--line:#2a2a2e;--text:#f5f5f7;--text-2:#c7c7cc;--muted:#8e8e93;--accent:#0a84ff;--accent-ink:#ffffff;--btn:#0071e3}
-@media (prefers-color-scheme: light){:root{--bg:#f5f5f7;--panel:#ffffff;--line:#e5e5ea;--text:#1d1d1f;--text-2:#424245;--muted:#6e6e73;--accent:#0066cc;--accent-ink:#ffffff;--btn:#0066cc}}
+:root{color-scheme:light;--bg:#f2eee4;--panel:#fffdf8;--line:rgba(20,20,20,.18);--text:#141414;--text-2:#3b3833;--muted:#66615a;--accent:#2b56f5;--accent-ink:#ffffff;--btn:#2b56f5}
+
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font:500 16.5px/1.65 Satoshi,system-ui,-apple-system,'Segoe UI',sans-serif}

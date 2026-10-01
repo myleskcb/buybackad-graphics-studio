@@ -293,9 +293,12 @@ produced." DESIGN-LAW rule 87. In practice:
   theme, a tagline look and copy-follows-ground; everything coloured on a card
   is within 30 degrees of its hue, at its own luminance. The gate fails 'hues'.
   Do not add a pass that paints a second hue after these without running it.
-- **The chrome is graphite and one blue** (rule 96): the house default look is
-  graphite + blue (index.html bootstrap); no violet, pink or mint in the
-  chrome, AI included.
+- **The chrome is the poster look** (rule 97, superseding rule 96): skin
+  'poster' is the default (index.html bootstrap): paper, ink outlines, hard
+  offset shadows, and four signal colours each with one job (blue action,
+  tomato heat, marigold highlighter, mint cash). No glass, blur or glow in it.
+  Its rules are scoped `:root[data-skin='poster']` at the end of styles.css;
+  run sync_css_fallback.mjs after editing them.
 - **No see-through products** (rule 94): no product wall (ghosted cut-outs
   over the ground), no product picture under 60% opacity; the gate fails it
   ('ghostPic') and `pgGhostWallStrip` removes a wall after the layout.

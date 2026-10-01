@@ -1808,3 +1808,242 @@ input[type=range]{width:100%;accent-color:var(--accent)}
    under its label instead of running past the edge */
 #ltab-templates .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}
 #ltab-templates .cat-select{min-width:0;width:100%}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   POSTER — THE HOUSE LOOK, 2026-10-01 (DESIGN-LAW rule 97).
+   The owner, on graphite and one blue: "this is looking very generic or vibe
+   coded and not fitting for how good the graphics are … it has multiple
+   colors … highlight colors accent colors but we need something very
+   cohesive … maybe the black background/dark mode is not helping us or maybe
+   we have something in the middle". Dark glass, soft bokeh and one glowing
+   accent is the default look of a generated site. This one is a print shop's:
+   the studio makes posters, so the chrome is the wall they are pinned to.
+
+   GROUND  warm paper, between white and black; ink-black type.
+   LINE    an ink outline and a hard offset shadow (a sticker, a print), never
+           glass, blur or glow.
+   COLOUR  four signal colours, each with ONE job, matched in strength so they
+           read as a set:
+             blue      #2b56f5  the action (buttons, links, focus)
+             tomato    #ff4a2e  heat (the hot plan, the "new", a kicker dot)
+             marigold  #ffc21a  the highlighter (the hero's claim, stickers)
+             mint      #12b886  cash and done (ticks, success)
+           Colour fills shapes; words stay ink (or white on blue), so every
+           line reads. Dark mode is the same system on warm ink. */
+:root[data-theme][data-skin='poster']{
+  color-scheme:light;
+  --ink:#141414;
+  --paper:#f2eee4;
+  --pop-blue:#2b56f5;
+  --pop-tomato:#ff4a2e;
+  --pop-marigold:#ffc21a;
+  --pop-mint:#12b886;
+  --hard:3px 3px 0 var(--ink);
+  --hard-lg:5px 5px 0 var(--ink);
+  --line-w:2px;
+
+  --field:#f2eee4;
+  --wash-a:rgba(0,0,0,0);--wash-b:rgba(0,0,0,0);--wash-c:rgba(0,0,0,0);
+  --glass-bg:#fbf8f1;
+  --glass-bg-strong:#fffdf8;
+  --glass-edge:rgba(20,20,20,.85);
+  --glass-blur:none;
+  --glass-shadow:0 1px 0 rgba(20,20,20,.06);
+  --glass-shadow-lift:var(--hard-lg);
+  --surface-solid:#fffdf8;
+  --surface-raise:#f8f4ec;
+  --surface-sunk:rgba(20,20,20,.05);
+  --surface3:#ebe5d8;
+  --text:#141414;
+  --text-2:#3b3833;
+  --text-dim:#66615a;
+  --hairline:rgba(20,20,20,.12);
+  --hairline-strong:rgba(20,20,20,.24);
+  --accent:#2b56f5;
+  --accent-ink:#ffffff;
+  --accent-wash:rgba(43,86,245,.10);
+  --accent-deep:#2045d8;
+  --accent-soft:#dbe3ff;
+  --accent-rgb:43,86,245;
+  --accent2-rgb:255,74,46;
+  --ring:#ffc21a;--ring-rgb:255,194,26;
+  --good:#08774f;
+  --warn:#a65800;
+  --danger:#cc2a14;
+  --ai:var(--accent);
+  --brand-1:var(--pop-blue);
+  --brand-2:var(--pop-tomato);
+  --brand-rgb:43,86,245;
+  --lift-1:0 1px 2px rgba(20,20,20,.08);
+  --lift-2:var(--hard);
+  --lift-3:var(--hard-lg);
+  --glow-accent:0 0 0 0 transparent;
+  --stage-1:#e8e3d7;
+  --stage-2:#ddd7c9;
+  --stage-dot:rgba(20,20,20,.07);
+  --scrim:rgba(20,20,20,.45);
+  --bokeh-a:0;
+}
+:root[data-theme='dark'][data-skin='poster']{
+  color-scheme:dark;
+  --ink:#0d0c0f;
+  --paper:#1b1a1f;
+  --hard:3px 3px 0 #000;
+  --hard-lg:5px 5px 0 #000;
+  --field:#1b1a1f;
+  --glass-bg:#24232a;
+  --glass-bg-strong:#2a2930;
+  --glass-edge:rgba(244,240,232,.22);
+  --glass-shadow:0 1px 0 rgba(0,0,0,.3);
+  --surface-solid:#24232a;
+  --surface-raise:#2c2b33;
+  --surface-sunk:rgba(244,240,232,.06);
+  --surface3:#35343c;
+  --text:#f4f0e8;
+  --text-2:#d2ccc0;
+  --text-dim:#a29c90;
+  --hairline:rgba(244,240,232,.12);
+  --hairline-strong:rgba(244,240,232,.24);
+  --accent:#6f8cff;
+  --accent-ink:#0b0c14;
+  --accent-wash:rgba(111,140,255,.14);
+  --accent-deep:#5a78f5;
+  --accent-soft:#2b3360;
+  --accent-rgb:111,140,255;
+  --good:#3fd39c;
+  --warn:#ffb340;
+  --danger:#ff7a63;
+  --stage-1:#232228;
+  --stage-2:#17161b;
+  --stage-dot:rgba(244,240,232,.05);
+  --scrim:rgba(0,0,0,.6);
+}
+/* no blur, no bokeh, no vignette: paper with a whisper of grain */
+:root[data-skin='poster'] body::before{display:none}
+:root[data-skin='poster'] body::after{opacity:.22;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/></svg>")}
+:root[data-skin='poster'] .glass::after{display:none}
+
+/* buttons: printed, not lit */
+:root[data-skin='poster'] .btn-primary{background:var(--accent);color:var(--accent-ink);border:var(--line-w) solid var(--ink);box-shadow:var(--hard)}
+:root[data-skin='poster'] .btn-primary:hover{filter:none;transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+:root[data-skin='poster'] .btn-primary:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+:root[data-skin='poster'] .btn-outline{background:var(--surface-solid);color:var(--text);border:var(--line-w) solid var(--ink);box-shadow:var(--hard);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-skin='poster'] .btn-outline:hover{background:var(--pop-marigold);color:#141414;transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+:root[data-theme='dark'][data-skin='poster'] .btn-primary,
+:root[data-theme='dark'][data-skin='poster'] .btn-outline{border-color:#000}
+:root[data-skin='poster'] .btn-ghost{color:var(--text)}
+:root[data-skin='poster'] .btn-ghost:hover{background:var(--surface-sunk)}
+:root[data-skin='poster'] .nav-upgrade,
+:root[data-skin='poster'] .plan-btn,
+:root[data-skin='poster'] .ez-dl,
+:root[data-skin='poster'] #export-btn,
+:root[data-skin='poster'] .btn-gen,
+:root[data-skin='poster'] .tpl-card .tpl-use{background:var(--accent);color:var(--accent-ink);border:var(--line-w) solid var(--ink);box-shadow:var(--hard)}
+:root[data-skin='poster'] .ez-stepnum{background:var(--pop-marigold);color:#141414;border:var(--line-w) solid var(--ink);line-height:22px}
+:root[data-skin='poster'] .chip.on,
+:root[data-skin='poster'] .look-chip.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:none}
+:root[data-theme='dark'][data-skin='poster'] .chip.on,
+:root[data-theme='dark'][data-skin='poster'] .look-chip.on{background:var(--text);color:#141414;border-color:var(--text)}
+
+/* the bar: paper, an ink rule under it */
+:root[data-skin='poster'] .lp-nav,
+:root[data-skin='poster'] .topbar{background:var(--field);-webkit-backdrop-filter:none;backdrop-filter:none;border-bottom:var(--line-w) solid var(--ink);box-shadow:none}
+:root[data-theme='dark'][data-skin='poster'] .lp-nav,
+:root[data-theme='dark'][data-skin='poster'] .topbar{border-bottom-color:rgba(244,240,232,.18)}
+:root[data-skin='poster'] .lp-nav-links a{color:var(--text)}
+:root[data-skin='poster'] .lp-nav-links a:hover{color:var(--accent)}
+/* the mark: the four signal colours, quartered */
+:root[data-skin='poster'] .logo .logo-mark{background:conic-gradient(from 0deg,var(--pop-blue) 0 25%,var(--pop-tomato) 0 50%,var(--pop-marigold) 0 75%,var(--pop-mint) 0);border:var(--line-w) solid var(--ink);box-shadow:2px 2px 0 var(--ink);border-radius:10px}
+:root[data-skin='poster'] .logo .logo-mark,:root[data-skin='poster'] .auth-brand .logo-mark{color:transparent}
+:root[data-skin='poster'] .logo em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--accent)}
+
+/* the hero: a sticker, ink type, the claim under a highlighter */
+:root[data-skin='poster'] .hero-eyebrow{background:var(--pop-marigold);color:#141414;border:var(--line-w) solid var(--ink);box-shadow:var(--hard);transform:rotate(-1.5deg);letter-spacing:.07em}
+:root[data-skin='poster'] .hero h1{letter-spacing:-.035em}
+:root[data-skin='poster'] .hero h1 em{color:var(--text);background:linear-gradient(transparent 52%,var(--pop-marigold) 52%,var(--pop-marigold) 90%,transparent 90%);padding:0 .06em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+:root[data-theme='dark'][data-skin='poster'] .hero h1 em{color:var(--text);background:linear-gradient(transparent 56%,rgba(255,194,26,.55) 56%,rgba(255,194,26,.55) 90%,transparent 90%)}
+:root[data-skin='poster'] .hero p{color:var(--text-2)}
+
+/* the wall: posters pinned up, each a little off true */
+:root[data-skin='poster'] .hero-wall{-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 92%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 92%,transparent 100%)}
+:root[data-skin='poster'] .wall-card{border:var(--line-w) solid var(--ink);box-shadow:var(--hard);border-radius:8px}
+:root[data-skin='poster'] .wall-card:nth-child(3n+1){transform:rotate(-1deg)}
+:root[data-skin='poster'] .wall-card:nth-child(3n+2){transform:rotate(.8deg)}
+:root[data-skin='poster'] .wall-card:hover{transform:rotate(0) scale(1.04);box-shadow:var(--hard-lg)}
+:root[data-theme='dark'][data-skin='poster'] .wall-card{border-color:#000}
+
+/* sections: each kicker carries one of the four, in turn */
+:root[data-skin='poster'] .lp-kicker{color:var(--text);display:inline-flex;align-items:center;gap:9px}
+:root[data-skin='poster'] .lp-kicker::before{content:'';width:12px;height:12px;border-radius:3px;background:var(--pop-blue);border:1.5px solid var(--ink);flex:none}
+:root[data-skin='poster'] .lp-section:nth-of-type(4n+2) .lp-kicker::before{background:var(--pop-tomato)}
+:root[data-skin='poster'] .lp-section:nth-of-type(4n+3) .lp-kicker::before{background:var(--pop-marigold)}
+:root[data-skin='poster'] .lp-section:nth-of-type(4n) .lp-kicker::before{background:var(--pop-mint)}
+:root[data-skin='poster'] .stat b{color:var(--text)}
+:root[data-skin='poster'] .stat-lead b{color:var(--accent)}
+:root[data-skin='poster'] .lp-stats{border-top:var(--line-w) solid var(--ink)}
+:root[data-theme='dark'][data-skin='poster'] .lp-stats{border-top-color:rgba(244,240,232,.18)}
+
+/* panels: paper cards with an ink line; the ones that sell carry the shadow */
+:root[data-skin='poster'] .ez-card,
+:root[data-skin='poster'] .lp-faq,
+:root[data-skin='poster'] .lp-price-card{background:var(--surface-solid);-webkit-backdrop-filter:none;backdrop-filter:none;border:1.5px solid var(--ink);box-shadow:none}
+:root[data-skin='poster'] .lp-price-card{border-width:var(--line-w);box-shadow:var(--hard)}
+:root[data-skin='poster'] .lp-price-card.hot{border-color:var(--ink);box-shadow:5px 5px 0 var(--pop-tomato),5px 5px 0 var(--line-w) var(--ink)}
+:root[data-skin='poster'] .lp-price-card li::before{color:var(--pop-mint);text-shadow:0 0 0 var(--ink)}
+:root[data-skin='poster'] .lp-faq summary::after{color:var(--pop-tomato)}
+:root[data-skin='poster'] .lp-cta-inner{background:var(--pop-marigold);color:#141414;border:var(--line-w) solid var(--ink);box-shadow:var(--hard-lg);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-skin='poster'] .lp-cta-inner::before{display:none}
+:root[data-skin='poster'] .lp-cta-inner p{color:#2b2925}
+:root[data-skin='poster'] .lp-cta-inner .btn-outline{background:#fffdf8;color:#141414}
+:root[data-theme='dark'][data-skin='poster'] .ez-card,
+:root[data-theme='dark'][data-skin='poster'] .lp-faq,
+:root[data-theme='dark'][data-skin='poster'] .lp-price-card{border-color:rgba(244,240,232,.2)}
+:root[data-theme='dark'][data-skin='poster'] .lp-price-card{box-shadow:var(--hard)}
+:root[data-skin='poster'] ::selection{background:var(--pop-marigold);color:#141414}
+:root[data-skin='poster'] :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* POSTER, rhythm: a ticker of what it sells for, the library on an ink wall
+   (the ads glow on it, paper above and below: the "something in the middle"),
+   and the steps numbered in the four colours. */
+.lp-ticker{display:none}
+:root[data-skin='poster'] .lp-ticker{display:block;overflow:hidden;margin:14px 0 0;padding:14px 0}
+:root[data-skin='poster'] .lp-ticker-band{overflow:hidden;margin:0 -3%;background:var(--ink);transform:rotate(-1deg)}
+:root[data-skin='poster'] .lp-ticker-track{display:flex;align-items:center;gap:22px;width:max-content;padding:13px 0;animation:lpTick 48s linear infinite}
+:root[data-skin='poster'] .lp-ticker span{font:700 clamp(18px,2.2vw,26px)/1 var(--display);letter-spacing:-.01em;text-transform:uppercase;color:#f4f0e8;white-space:nowrap}
+:root[data-skin='poster'] .lp-ticker i{width:16px;height:16px;border-radius:4px;flex:none;background:var(--pop-blue)}
+:root[data-skin='poster'] .lp-ticker i:nth-of-type(4n+2){background:var(--pop-tomato)}
+:root[data-skin='poster'] .lp-ticker i:nth-of-type(4n+3){background:var(--pop-marigold)}
+:root[data-skin='poster'] .lp-ticker i:nth-of-type(4n){background:var(--pop-mint)}
+@keyframes lpTick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){:root[data-skin='poster'] .lp-ticker-track{animation:none}}
+:root[data-theme='dark'][data-skin='poster'] .lp-ticker-band{background:#0d0c0f}
+
+:root[data-skin='poster'] #lp-templates{position:relative;background:#141414;box-shadow:0 0 0 100vmax #141414;clip-path:inset(0 -100vmax);color:#f4f0e8;margin-top:40px;margin-bottom:40px}
+:root[data-theme='dark'][data-skin='poster'] #lp-templates{background:#0d0c0f;box-shadow:0 0 0 100vmax #0d0c0f}
+:root[data-skin='poster'] #lp-templates .lp-kicker,
+:root[data-skin='poster'] #lp-templates h2{color:#f4f0e8}
+:root[data-skin='poster'] #lp-templates .lp-kicker::before{border-color:#f4f0e8}
+:root[data-skin='poster'] #lp-templates .lp-section-head p,
+:root[data-skin='poster'] #lp-templates .tpl-count{color:#b9b3a7}
+:root[data-skin='poster'] #lp-templates .chip{background:rgba(244,240,232,.06);border:1.5px solid rgba(244,240,232,.28);color:#e9e4da}
+:root[data-skin='poster'] #lp-templates .chip:hover{border-color:#f4f0e8;color:#fff}
+:root[data-skin='poster'] #lp-templates .chip.on{background:var(--pop-marigold);border-color:var(--pop-marigold);color:#141414}
+:root[data-skin='poster'] #lp-templates .tpl-card{border:var(--line-w) solid #000;box-shadow:4px 4px 0 #000;border-radius:10px}
+:root[data-skin='poster'] #lp-templates .btn-outline{border-color:#000;box-shadow:3px 3px 0 #000}
+:root[data-skin='poster'] #lp-templates .btn-ghost{color:#f4f0e8}
+:root[data-skin='poster'] #lp-templates .btn-ghost:hover{background:rgba(244,240,232,.08)}
+
+:root[data-skin='poster'] .flow-step{background:var(--surface-solid);border:var(--line-w) solid var(--ink);box-shadow:var(--hard);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-skin='poster'] .flow-step .fs-num{display:inline-block;color:#fff;background:var(--pop-blue);border:1.5px solid var(--ink);border-radius:6px;padding:5px 9px;font-size:10.5px}
+:root[data-skin='poster'] .flow-step:nth-child(2) .fs-num{background:var(--pop-tomato);color:#141414}
+:root[data-skin='poster'] .flow-step:nth-child(3) .fs-num{background:var(--pop-marigold);color:#141414}
+:root[data-skin='poster'] .flow-step p{color:var(--text-2)}
+:root[data-theme='dark'][data-skin='poster'] .flow-step{border-color:rgba(244,240,232,.2);box-shadow:var(--hard)}
+:root[data-skin='poster'] .fam-card{background:var(--surface-solid);-webkit-backdrop-filter:none;backdrop-filter:none;border:1.5px solid var(--ink);box-shadow:none}
+:root[data-skin='poster'] .fam-card:hover{transform:translate(-2px,-2px);box-shadow:var(--hard)}
+:root[data-skin='poster'] .fam-card.on{border-color:var(--ink);box-shadow:3px 3px 0 var(--pop-marigold),3px 3px 0 1.5px var(--ink)}
+:root[data-theme='dark'][data-skin='poster'] .fam-card{border-color:rgba(244,240,232,.2)}
+/* the editor's bar is tight: its buttons keep one line and a lighter print */
+:root[data-skin='poster'] .topbar .tb-btn,
+:root[data-skin='poster'] .topbar .btn{white-space:nowrap}
+:root[data-skin='poster'] #export-btn{white-space:nowrap;border-width:1.5px;box-shadow:2px 2px 0 var(--ink);padding-left:14px;padding-right:14px}
