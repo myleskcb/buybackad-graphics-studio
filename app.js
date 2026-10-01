@@ -11102,7 +11102,7 @@ const SC_DEV_LINE = {
    showing multiple models … (sell your macbook air pro neo) with multiple"):
    the category in the headline, several models lined up on the card */
 const SC_DEV_GROUPS = {
-  'group-iphone':  { family:'IPHONE',      label:'All iPhones',       models:['iphone-17-pro', 'iphone-17', 'iphone-16', 'iphone-16e'], line:'iPhone 17 • 16 • 15 • Pro & Pro Max' },
+  'group-iphone':  { family:'IPHONE',      label:'All iPhones',       models:['iphone-18-pro-max', 'iphone-18-pro', 'iphone-17-pro', 'iphone-16'], line:'iPhone 18 Pro Max • 18 Pro • 17 • 16 • 15' },
   'group-ipad':    { family:'IPAD',        label:'All iPads',         models:['ipad-pro-13-m5', 'ipad-air-13-m4', 'ipad-mini-7-a17-pro'], line:'iPad Pro • Air • mini • iPad' },
   'group-macbook': { family:'MACBOOK',     label:'All MacBooks',      models:['macbook-air-15', 'macbook-pro-14-m5', 'macbook-neo-13'], line:'MacBook Air • Pro • Neo • M1 to M5' },
   'group-mac':     { family:'MAC',         label:'All Macs',          models:['imac-24-m4', 'macbook-air-15', 'macbook-pro-14-m5'], line:'iMac • MacBook Air • MacBook Pro' },
@@ -16537,7 +16537,14 @@ function pgEmojiPass(sc, W, H){
      always tries to place one */
   const PLANS = ['', '', '', '', '', '', '', 'topic', 'topic', 'point'];
   const ASKED = ['topic', 'point', 'topic', 'general'];
-  const kind0 = ctx.seed ? ASKED[seed % ASKED.length] : PLANS[seed % PLANS.length];
+  let kind0 = ctx.seed ? ASKED[seed % ASKED.length] : PLANS[seed % PLANS.length];
+  /* a sparse card (owner, 2026-09-30: "Emojis can be used if applicable or
+     design is lacking or can use the extra placements"): four or fewer lines
+     of copy besides the number and the website leave room the card is not
+     using, so it may carry one too; still one at most, beside the words */
+  const readsCopy = o => o && o.visible !== false && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved))
+    && !/^(website|phone|deco)$/.test(o.pgRole || '') && /[A-Za-z0-9]/.test(typeof o.text === 'string' ? o.text : (o.pgCurved && o.pgCurved.text) || '');
+  if (!kind0 && objs.filter(readsCopy).length <= 4) kind0 = seed % 3 === 0 ? 'point' : 'topic';
   if (!kind0) return why('not this card');
   /* a card the owner approved as rendered keeps that render (DESIGN-LAW 78,
      assets/approved/approved.json): no emoji is added to it unless the
