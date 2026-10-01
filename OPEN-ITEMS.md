@@ -1191,8 +1191,12 @@ Still open:
    (`pgBuilt`, through the ORIG pass), then puts a theme and a type voice
    back on. Checked on three classics: a hand colour, face and size undone
    exactly, and theme plus voice as on a fresh card.
-10. **Three patterns change nothing on gold_lux** in the designer (dots,
-    halftone, grid; designer_audit), the same on production.
+10. ~~**Three patterns change nothing on gold_lux**~~ Fixed 2026-10-01
+    (§Y): a pattern's tone was always dark, black dots on a near-black card.
+    The first pattern now takes the tone that shows on its ground (Easy
+    Mode reads the preview, the designer the ground; Light still turns it
+    over): dots, halftone and grid change 1.6%, 11% and 2.3% of gold_lux
+    (0.1% to 0.4% before).
 11. **The sweep takes about eleven hours on four cores** (the gate reads each
     line's pixels back after a render: 1.3s a render, more than half of it
     getImageData). Run it with `--ids` for the cards a change touches, and in

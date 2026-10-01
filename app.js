@@ -15774,6 +15774,19 @@ function ezPatternObj(w, h){
   GROUNDS.overlay(f.pattern, g, w / k, h / k, f.ptone || 'dark');
   try { return new fabric.Image(c, { left:0, top:0, selectable:false, evented:false, name:'Pattern', pgPattern:true }); } catch (e){ return null; }
 }
+/* a pattern's tone follows what it lies on until the visitor turns it with
+   Light: black dots on a near-black card changed nothing (gold_lux: dots,
+   halftone and grid, designer_audit), so a dark card takes the light tone.
+   Read off the preview, which is the card as it will download */
+function ezPreviewIsDark(){
+  const im = $('ez-preview'); if (!im || !im.naturalWidth) return false;
+  try {
+    const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d'); g.drawImage(im, 0, 0, 32, 32);
+    const d = g.getImageData(0, 0, 32, 32).data, ls = [];
+    for (let k = 0; k < d.length; k += 4) ls.push(pgLumAt(d, k));
+    ls.sort((x, y) => x - y); return ls[ls.length >> 1] < 0.18;
+  } catch (e){ return false; }
+}
 function ezPatternRow(){
   const row = $('fx-pat-seg');
   if (!row || row.dataset.built || !window.GROUNDS || !GROUNDS.overlays) return;
@@ -15781,8 +15794,8 @@ function ezPatternRow(){
   const opts = [['none', 'None']].concat(GROUNDS.overlays, [['__tone', 'Light']]);
   opts.forEach(([key, label]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.pat = key;
     b.onclick = () => {
-      if (key === '__tone'){ ez.fx.ptone = ez.fx.ptone === 'light' ? 'dark' : 'light'; }
-      else ez.fx.pattern = key;
+      if (key === '__tone'){ ez.fx.ptone = ez.fx.ptone === 'light' ? 'dark' : 'light'; ez.fx.ptoneUser = true; }
+      else { if (!ez.fx.ptoneUser) ez.fx.ptone = ezPreviewIsDark() ? 'light' : 'dark'; ez.fx.pattern = key; }
       row.querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.pat === '__tone' ? ez.fx.ptone === 'light' : x.dataset.pat === (ez.fx.pattern || 'none')));
       schedEzPreview(0);
     };
@@ -17935,6 +17948,13 @@ function edRepaintPatterns(){
   });
   if (n) canvas.requestRenderAll();
 }
+function edPatternTone(){
+  try {
+    const bd = thBackdrop(canvas, o => thIsGround(o) && !o.pgOv && !o.pgPattern, Math.min(0.25, 270 / Math.max(CW, CH)));
+    const st = thStats(bd, { x: 0, y: 0, w: CW, h: CH });
+    return st && st.p50 < 0.18 ? 'light' : 'dark';
+  } catch (e){ return 'dark'; }
+}
 function edSetPattern(kind, tone){
   if (!canvas) return;
   canvas.getObjects().filter(o => o.pgPattern).forEach(o => canvas.remove(o));
@@ -18007,7 +18027,7 @@ function edBind(){
       const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.pat = key;
       b.onclick = () => {
         const cur = canvas && canvas.getObjects().find(o => o.pgPattern);
-        const spec = (cur && cur.pgPatSpec) || { kind: 'none', tone: 'dark' };
+        const spec = (cur && cur.pgPatSpec) || { kind: 'none', tone: edPatternTone() };   // a first pattern takes the tone that shows on the ground (ezPreviewIsDark)
         if (key === '__tone'){ if (spec.kind !== 'none') edSetPattern(spec.kind, spec.tone === 'light' ? 'dark' : 'light'); else toast('Pick a pattern first'); }
         else edSetPattern(key, spec.tone);
       };
