@@ -2043,6 +2043,54 @@ RESUME HERE:
   The designer's text Properties still offer any colour for a glow (rule 85
   wants shade). That is a tool, left to the owner (§U 2).
 
+## 2026-09-30 (evening) — the ghosts of cars
+
+The owner, of voltStack-pp02-15: "This one looks like little ghosts of cars."
+
+Learned:
+  - The product wall had been ruled out once (rule 59) but only on the four
+    cards that pass was written for; the generator kept drawing it, and 35
+    live cards kept it. A rule that is applied to a list, not enforced by the
+    gate, stays true only for the list.
+  - The wall had also crowded some cards' own hero product out of the layout;
+    removing it brought the hero back.
+
+Changed:
+  - Walls removed from 53 records (35 live), the generator's wall block gone,
+    pgGhostWallStrip after the layout, the gate's 'ghostPic'. DESIGN-LAW rule
+    94 (93 went to the designer when the lines were merged); AGENT-BRIEF.
+
+## 2026-09-30 (night) — one colour to a card, and to the studio
+
+The owner, of voltStack-pp02-15: "there's green white and pink boxes on there
+... literally looks like we chose a randomizer", then of the site: "fix the
+purple UI theme it's kinda lame".
+
+Learned:
+  - Two-colour palettes ("X & Y") read as random when the layout spreads the
+    two colours over boxes. 86 of 415 live cards had boxes in two hues; 282
+    had a second hue somewhere.
+  - Recolouring at the same luminance changes nothing the contrast gates
+    measure, so it is safe to do after every other pass; and a brightness-only
+    thumbnail diff cannot see it (a whole first pass of changed thumbnails was
+    reverted as "noise" before a per-card engine measure replaced the diff).
+  - The anchor matters more than the rule: keyed to the number plate, a gold
+    card's gold band went pink. Keyed to what the card already leads with,
+    and to gold on a card that says GOLD, the fewest pixels change.
+  - A check that groups hues greedily disagrees with a pass that measures
+    from an anchor; the check now asks the pass's question.
+  - The chrome had the same fault: accent, second hue and ring in three
+    colours, plus bokeh in all three.
+
+Changed:
+  - pgOneHue / pgHueCheck ('hues'), hooked after alignPass, themeScene,
+    applyCardLook, taglineApply and ezCopyFollowsGround; the Easy pencil's
+    colours are the visitor's. 282 live thumbnails re-drawn.
+  - The house look: graphite greys and one blue (styles.css tokens, ring,
+    bokeh strength, AI colour, chip fills; the bootstrap default; favicon,
+    404, pages.css). CSS_FALLBACK and the CSP hash re-synced.
+  - DESIGN-LAW rules 95 and 96; AGENT-BRIEF.
+
 ## 2026-09-30 — Video ads for every kind of person, with voices
 
 Owner: "make sure we have more variety styles and a wider pool or base of
@@ -2063,7 +2111,7 @@ Built:
   (17 speakers, 11 moods, picking a take), the voice track and its cleaning in
   motion/audio.js, the audience in the engine and the panel,
   scripts/voice_bank.mjs, scripts/audience_check.mjs,
-  scripts/motion_sound_check.mjs. DESIGN-LAW rule 94.
+  scripts/motion_sound_check.mjs. DESIGN-LAW rule 97.
 
 Measured, and what it taught:
   - The house's copy rules caught nothing in the new lines. The house's own

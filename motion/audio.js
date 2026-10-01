@@ -111,7 +111,7 @@ function keepUnder(buf, ceiling) {
 
 // ------------------------------------------------------------ the voice
 
-// Measured with scripts/motion_sound_check.mjs (DESIGN-LAW 94): the voice sits
+// Measured with scripts/motion_sound_check.mjs (DESIGN-LAW 97): the voice sits
 // about 6 dB over the bed under it, the music under the voice drops further
 // than the effects, and a voiced mix stays within 1 dB of the same mix without it.
 const VOICE_RMS = 10 ** (-14 / 20), VOICE_CEILING = 10 ** (-2.5 / 20), MUSIC_UNDER = .45, BED_UNDER = .36, PEAK = 10 ** (-1 / 20);

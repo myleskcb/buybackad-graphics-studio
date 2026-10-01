@@ -749,6 +749,11 @@ engine. Still open:
    longer fits its column. Each needs its own layout fix (a shorter line or a
    wider column); the swap stays, since it makes some twenty gold, silver and
    coin headlines readable.
+6. **The designer audit's default cards include four held classics**
+   (sell_iphone, gold_spot, cars_kbb, pkm_binder, all in template-holds.js
+   on every line), so `designer_audit.mjs` reports "the card did not open"
+   for them on any build; its two library cards pass every measure. Point
+   its default list at offered cards.
 5. **Four more classics held on the merged engine** (2026-09-30), each a
    real defect the trunk's gate could not see and each needing its own layout
    fix: `st_coins_splitcol` (the number runs off the left of its plate),
@@ -1049,7 +1054,7 @@ Still open:
 
 ## W. 2026-09-30 — video ads for every kind of person, with voices
 
-Done (DESIGN-LAW rule 94):
+Done (DESIGN-LAW rule 97):
 - **Sixteen audiences** (`motion/audiences.js`), each with its insight, its
   looks, music, words in English and Spanish, speakers, moods and voiceover
   scripts. Picking one in the maker ("Made for") turns the whole ad to it.
