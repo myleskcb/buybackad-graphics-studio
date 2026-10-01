@@ -1234,3 +1234,148 @@ Still open:
 3. Off the owner's Mac the thumbnails were drawn with fabric 5.3.0 from npm
    (cdnjs, which serves the page's 5.3.1, is blocked here). The gate passed on
    the same renderer; a re-draw on the Mac would use 5.3.1.
+
+## Z. 2026-10-01 — everything left behind, merged; the UI cleaned up; live
+
+The owner: "clean up the UI and push and commit so we are finally live with
+all working features and all the relevant and necessary features and
+anything left behind. Make sure we fix it."
+
+Thirteen branches carried finished work `main` did not have, several still
+being pushed to while this was merged. Merged into
+`claude/eloquent-euler-7jvzfd` with merge commits (nobody's history
+rewritten), checked, and `main` moved to the result:
+- `claude/fervent-pascal-w6mthe` to 8334c95 and again to 61d77f1, what
+  production served (one colour to a card, rules 95 and 96; the poster look,
+  rule 98);
+- `main` to da82a13 and c60355f (video ads for every kind of person, with
+  voices, rule 97);
+- `claude/sharp-maxwell-q2aq4o` to b97076d (34 phone backs for the video
+  maker, one angle a video, turned phones as 3D slabs);
+- `claude/optimistic-edison-xbbk02` to 7efd7da and again to 470b852 (library
+  cards wear the headline looks, emoji on sparse cards, plates that hug the
+  number, the iPhone 18 lines; the gate's `numCentre`, rule 102);
+- `claude/dreamy-knuth-9123rb` to 2a49223 (the backdrop generator,
+  candidates only; its 25 palettes were merged and then replaced, below);
+- `claude/tender-carson-jq5lbr` to 3e4118c and again to 07cc227 (the
+  palettes' food names, then twelve proven pairings, rule 103, §Y);
+- the video maker's branches, merged by a helper session in its own
+  worktree and brought in at 6f762f6: `claude/kind-hawking-kbuw14` to
+  0a86e83 and 6e71a9c (phones that do not bury one another, shelves by
+  look, 24 ground spin-offs, clean placements, the Phone angle, accents,
+  fifty themes held, what is previewed is what is downloaded),
+  `claude/determined-brown-ned7iy` to d55e9a3 and 672bf3f (phones in flight
+  at frame 0; real instruments, 13 grooves, 16 public-domain tunes and
+  recorded sounds), `claude/more-phone-layouts-3bgshy` to 666b1d4 (15
+  layouts, 11 entrances, a rating round on /admin-ads),
+  `claude/professional-ad-audio-5e9i1b` to 92616bd (the commercial score,
+  -16 LUFS), `claude/fervent-heisenberg-d1edfb` to 60e616d (video export
+  that falls back instead of failing, and says what is missing),
+  `claude/video-ad-gallery-2kzfho` to ce2ddb8 (the full-width gallery of
+  moving looks) and `claude/sharp-maxwell-q2aq4o` again to e532cd0
+  (straight-on cameras on the phone backs);
+- this branch's own work (curves and warps, type voices, every choice
+  passed: rules 99 to 101, §X).
+
+Not merged, on purpose (§J, §U): `claude/busy-allen-2d5iv1` and
+`claude/quirky-ritchie-f0zuc8`, cut from the August `main`. Port from them;
+busy-allen's `tplbg-data.js` move is ported (below).
+
+Decisions the owner may want to look at:
+1. **Palettes: twelve, not twenty-five.** Two sessions answered the same
+   request ("not super obscure or niche ones ... appealing and proven to get
+   clicks", 2026-09-30; "less niche color schemes, and more proven",
+   2026-10-01): the palette session with 25 pairings, never deployed, and
+   this morning the palette-names session with 12 (Navy & Gold, Navy &
+   Orange, Midnight & Cyan, Blue & Green, Green & Gold, Purple & Gold, Teal
+   & Orange, Red & Yellow, Black & Gold, Black & Red, Black & Green, Silver
+   & Blue), checked for colour-blind readers and muddy warm colours, with no
+   food names. The twelve, the answer to the later message, are on the
+   site. The 25 are in the history (dreamy-knuth's 0a99ea91) if the owner
+   wants them back. The backdrop generator keeps its own 25 for its
+   candidates (scripts/backdrop_palettes.json).
+2. **The library's records were re-coloured here, not taken from the palette
+   branch**: 334 of them had moved on since it forked (rule 94's cut-off
+   products, the library looks and plates, the centred numbers). Its own
+   colour-only pass, run on this line's records as they stood before any new
+   palette, gives the same palette to all 971 cards and the branch's records
+   byte for byte where nothing else had changed.
+3. **Rule numbers.** The poster look took 98 on the live branch, so this
+   branch's rules are 99 to 101; the library branch's centred number,
+   written as 94, is 102; the palettes, written as 95, are 103.
+4. **The video maker, where two branches answered the same thing** (the
+   helper's choices): one spread pass (kind-hawking's); one 3D renderer
+   (sharp-maxwell's slab, chosen by rendering both) with kind-hawking's five
+   Phone angle choices; one guard against sound before the first frame;
+   professional's commercial bed with main's voice over it and
+   determined-brown's grooves and tunes played through it; one gallery. Two
+   are the owner's to tune: a shuffle picks a tune in about 86 of 120 looks
+   (`WEIGHTS.melody.none` and `WEIGHTS.accent.none` in motion/catalog.js set
+   how often the plain commercial score plays), and no audience names any of
+   the 13 grooves yet.
+
+Fixed on the merged build (the first five were on production too):
+- The phone designer showed no canvas after its tour (both side panels were
+  left open over it).
+- Enhance put back the authored file, not the card as offered: three faces,
+  and the inks and the number size the tables had fixed (§X 9).
+- A pattern drew black dots on a black card; five of six sunburst grounds
+  drew black on black on a dark card (§X 10).
+- Easy Mode's layers list ran each name into its words ("TitleCASH BUYER").
+- The landing loaded `tplbg-data.js` (635 KB of eight photographs as base64)
+  before the studio; they are files in assets/tplbg/ now.
+- Under the one grey theme (Clean Slate) a card's own look kept the card's
+  colours (once the library cards wore looks).
+- The held-choice note speaks the visitor's language; "Colour" everywhere;
+  shorter hints.
+
+Checked on the merged build: every JS file parses (265); CSS_FALLBACK in
+sync; the CSP hashes unchanged; ten pages at 390 and 1440 with no page or
+console error and no sideways scroll; the landing check clean (0 failed
+requests, 3.58 MB first load); the library gate 415 of 415 on the twelve
+palettes (414 since neonNight-jw04-20 moved, held); the classics gate 58
+held, the same 58; the theme audit's six findings answered (two fixed,
+three held on one card); the designer audit's theme and ORIG checks (its
+timings were taken on a loaded machine); Enhance and the pattern tone
+checked on three classics; the studio's video download under the
+production CSP (exit 0, 10 s, 300 frames, sound); on the video maker
+(the helper, on its final head) audience_check, motion_sound_check over
+120 looks, every new sound at -16 LUFS, downloads at 1:1 and 9:16 with
+sound. This Chromium has no H.264, so the MP4 path itself is untested here.
+
+Open:
+1. **The choice holds were measured before the merges.**
+   assets/choice-holds.json (rule 101) came from the sweep of 2026-09-30, on
+   an engine without one colour to a card, the library looks, the twelve
+   palettes or `numCentre`. Its card holds are re-measured on the merged
+   engine (`--dims base`); its theme, look and voice holds are the old ones
+   (plus three measured on reviewProof-cd06-15) until the full sweep runs
+   again: `node scripts/every_card_audit.mjs --write-holds`, about eleven
+   hours on four cores. Started after the deploy; commit its table and
+   deploy `main` again when it ends.
+2. **A number alone on a band that runs off the bottom** (rule 102). 37
+   cards are held as offered for `numCentre`: 16 stepsFlow and 16 trustSeal
+   library cards (their band holds the number and the website; with the
+   visitor's website empty, Easy Mode leaves the number high on it) and the
+   four street price badges; and neonNight-jw04-20, whose number the
+   library session moved to stay on its plate at 9:16 and whose gallery
+   thumbnail still fails (0.14). The layout centres a lone number as far as the
+   bottom guide lets it (`numberCentreY`), the gate measures the band as
+   seen, and these bands are too shallow under the guide for both: centred
+   as far as the guide allows, stepsFlow-cd04-30's number is still 12.1%
+   off. The answer is a plate that hugs the number when it is alone (as
+   `scripts/hug_number_pill.mjs` did for the scriptRetro bars), then
+   `every_card_audit.mjs --ids <them> --dims base --write-holds`.
+3. **reviewProof's call to action runs under its number's pill** (on
+   production too): two of the family are held as offered, and
+   reviewProof-cd06-15 has three themes held for it.
+4. **One site.** As §U 2: `buybackad-graphics-studio` (the Mac's CLI) still
+   serves what was last deployed from the Mac; deploy `main` there too, or
+   retire it.
+5. **Branches.** Every `claude/*` branch but the two August ones is in
+   `main` now; delete them once their sessions have merged `main` (the
+   owner's call). Sessions were still pushing while this was merged; merge
+   `main` before building on any of them.
+6. **Held for the owner:** the fifty video themes (`THEME_REVIEW` in
+   motion/catalog.js) and the backdrop candidates (scripts/gen_backdrops.py,
+   `.render/backdrops/`); nothing of either is offered until approved.

@@ -2318,3 +2318,97 @@ Changed:
   - Skin 'poster' (styles.css, scoped rules at the end), default in the
     bootstrap; a category ticker in index.html; pages.css, 404 and the
     favicon on paper and ink. DESIGN-LAW rule 98; AGENT-BRIEF.
+
+## 2026-10-01 — Everything left behind, merged; the UI cleaned up; live
+
+(claude/eloquent-euler-7jvzfd, then `main`.)
+
+The owner: "clean up the UI and push and commit so we are finally live with
+all working features and all the relevant and necessary features and
+anything left behind. Make sure we fix it."
+
+Found:
+  - Thirteen branches had finished work `main` did not: the live branch
+    (its poster look was deployed at 09:52, while this was being merged),
+    `main` itself, two library branches, two palette branches, the
+    phone-backs branch and six video-maker branches, all cut from the same
+    `main` of 2026-09-30 morning and none merged back. Four of them pushed
+    again while this ran (the library branch's centred number, the palette
+    branch's twelve, two video branches); a fetch before the last merge is
+    not optional.
+  - Two sessions answered the same request about the palettes a day apart,
+    one with 25 pairings that never reached the site, the other with 12.
+    The later answer was to the later message; the 25 had been merged here
+    an hour before the 12 arrived and came back out.
+  - A palette pass that maps from each card's current colours cannot be run
+    twice, and a branch's records are not the records it forked from: 334
+    of 971 had moved on here. The pass, run on this line's records as they
+    stood before any new palette, gave the branch's result byte for byte on
+    every record nothing else had touched, twice (the 25, then the 12).
+  - Rule numbers collided three more times (the poster look on 98, the
+    centred number written as 94, the palettes as 95); OPEN-ITEMS §X twice.
+  - The phone designer was unusable on production too: the editor's tour
+    opens both side panels to point at them, and under 1100px they are
+    drawers over the canvas, left open after the tour.
+  - Enhance restored each line from TRAITS, the authored file as the script
+    loaded it, before the passes that make a classic pass: three faces came
+    back, and the baked inks and the number's size went. Laid on raw, the
+    colours also skipped the colour passes (gold_lux's gradient headline went
+    flat, its gold call to action lavender).
+  - A pattern was always drawn dark: on gold_lux's near-black ground dots,
+    halftone and grid changed 0.1% to 0.4% of the card. The sunburst grounds
+    drew black on black on a dark classic, whose palette took the number's
+    dark ink as its accent.
+  - Once library cards wore looks of their own, Clean Slate (the one grey
+    theme) left the card's own colours on them: the look took a theme's
+    colours only when they were colourful.
+  - The new `numCentre` holds four street price badges in Easy Mode's render
+    that pass on the thumbnail's: the number sits high on a plate that runs
+    off the bottom of the card. The two paths lay a card out differently,
+    and only the audit of Easy Mode's own render saw it.
+  - Changing into a helper agent's worktree with `cd` made the harness take
+    it for this session's working directory. Read another worktree with
+    `git -C`.
+  - `pgrep -f` with a pattern in the waiting loop's own command line found
+    the loop and never ended (the same trap as `pkill -f`): match with
+    `[x]yz`, or by the PID.
+  - Six video sessions had each fixed the same few things their own way:
+    two passes for phones burying phones, two 3D renderers, three guards
+    against sound before the first frame, two galleries. Merged one after
+    another, each pair would have run both; one of each was kept, by
+    measuring (and, for the renderers, by looking at both).
+
+Changed:
+  - Merged (merge commits): fervent-pascal to 8334c95 and 61d77f1, `main` to
+    da82a13 and c60355f, sharp-maxwell to b97076d, tender-carson to 3e4118c
+    and 07cc227, optimistic-edison to 7efd7da and 470b852, dreamy-knuth to
+    2a49223, and the video maker through a helper's worktree (6f762f6):
+    kind-hawking to 0a86e83 and 6e71a9c, determined-brown to d55e9a3 and
+    672bf3f, more-phone-layouts to 666b1d4, professional-ad-audio to
+    92616bd, fervent-heisenberg to 60e616d, video-ad-gallery to ce2ddb8,
+    sharp-maxwell again to e532cd0. The rules move up one when the
+    poster look took 98: curves and warps 99, type voices 100, every choice
+    passed 101; the centred number is 102, the palettes 103.
+  - The twelve palettes on the 971 library records, re-coloured on this
+    line, every thumbnail re-drawn on the merged engine (ASSET_REV
+    20261001c).
+  - UI: the phone designer's panels close after the tour; Enhance puts a
+    card back as offered (enhanceTraitOf, pgBuilt through the ORIG pass, a
+    voice and a theme put back on); a pattern's tone follows its ground; a
+    ground's accent shows on it; a card's look wears a grey theme; the
+    layers list shows each name over its words; the held-choice note in
+    plain words; "Colour" on every label; shorter hints. The eight classics'
+    photographs are files, and the landing no longer loads a 635 KB script
+    of them first (busy-allen's port).
+  - Holds: the cards that fail as offered on the merged engine; three
+    themes on reviewProof-cd06-15.
+
+Checked (the merged build): OPEN-ITEMS §Z lists each check and its result.
+
+RESUME HERE:
+  1. The full choice sweep on the merged engine (OPEN-ITEMS §Z 1):
+       node scripts/every_card_audit.mjs --write-holds
+     then commit assets/choice-holds.json and deploy `main`.
+  2. The street price badge's number plate (§Z 2), reviewProof's call to
+     action under its pill (§Z 3).
+  3. Deploy the same `main` to the Mac's project (buybackad-graphics-studio).
