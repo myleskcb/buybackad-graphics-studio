@@ -335,20 +335,20 @@
    "id": "15-pro-max-blue",
    "model": "iPhone 15 Pro Max",
    "finish": "Blue Titanium",
-   "metal": "#406280",
+   "metal": "#416382",
    "w": 429,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "15-pro-blue",
    "model": "iPhone 15 Pro",
    "finish": "Blue Titanium",
-   "metal": "#406280",
+   "metal": "#416382",
    "w": 430,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {

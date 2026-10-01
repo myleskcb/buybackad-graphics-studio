@@ -3134,10 +3134,11 @@ function randomChar(t, j) {
 export async function loadPhones(base = "./phones/") {
   const idx = await (await fetch(base + "index.json")).json();
   // never a photo that failed its check (ok: false). A painted back (repaint) stays: each is
-  // a model Apple made in a finish it was sold in, painted from a real back where no straight
-  // photo of it exists (scripts/bake_extra_phones.py), and the picker says so. Dropping them
-  // too, as the owner's "no fake designs" (2026-09-30, after an orange 16 Pro Max that never
-  // existed) was first read, would leave no 14, no 16 Pro and only the blue 15 Pros.
+  // a model Apple made in a finish it was sold in, built from a real back and Apple's own
+  // straight-on camera where no straight photo of it exists (scripts/bake_extra_phones.py),
+  // and the picker says so. Dropping them too, as the owner's "no fake designs" (2026-09-30,
+  // after an orange 16 Pro Max that never existed) was first read, would leave no 14, no 15
+  // and no 16 Pro: the blue 15 Pros take their camera from Apple's render now as well.
   idx.phones = idx.phones.filter(m => m.ok !== false);
   const phones = {};
   await Promise.all(idx.phones.map(m => new Promise(res => {
