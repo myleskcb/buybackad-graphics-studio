@@ -232,7 +232,7 @@ function stopAudio() { if (state.audioSrc) { try { state.audioSrc.stop(); } catc
 // ------------------------------------------------------------ the panel
 
 function buildPanel() {
-  $("look-count").textContent = `${Number(countLooks()).toExponential(1).replace("e+", " × 10^")} possible looks from ${Object.keys(FONTS).length} typefaces and ${Object.keys(PALETTES).length} palettes.`;
+  $("look-count").textContent = `${Number(countLooks()).toExponential(1).replace("e+", " × 10^")} possible looks from ${Object.keys(FONTS).length} typefaces and ${new Set(OPTIONS.palette.filter(v => v !== "match")).size} palettes.`;   // the held themes' palettes are known, not offered
   $("headline-list").innerHTML = [...HEADLINES, ...COPY.es.headlines.filter(h => !h.includes("{"))].map(h => `<option value="${h}">`).join("");
   const design = $("design");
   for (const [title, keys] of GROUPS) {
@@ -637,6 +637,13 @@ function setShelf(cat) {
   $("gallery-cats").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
+/** Runs fn once el is within a screen's height of view (at once where that cannot be watched). */
+function whenNear(el, fn) {
+  if (!("IntersectionObserver" in window)) { fn(); return; }
+  const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); fn(); } }, { rootMargin: "100% 0px" });
+  io.observe(el);
+}
+
 /** Plays the looks: the one under the pointer every frame, and with "Play them all" the
  *  ones on screen at about 15 frames a second, in turns, inside a small budget per frame
  *  so the big preview never stutters. A look kept as a still gets its engine back when it
@@ -688,6 +695,7 @@ function syncMore() {
 }
 
 async function renderGallery(reset) {
+  if (!state.galleryOn) return;                      // not started yet: it starts as it comes near the screen
   const g = $("gallery");
   // a reset starts a new gallery; one still drawing from before stops rather than
   // adding thumbnails of the old size, the old number or the old shelf to the new one
@@ -927,5 +935,7 @@ async function start() {
   syncWords(); drawPhonePicker();
   await rebuild();
   if (!state.looping) { state.looping = true; requestAnimationFrame(loop); }
-  renderGallery(true).catch(e => console.warn("Gallery:", e));
+  // the gallery is drawn as it comes near the screen: two dozen looks laid out while the
+  // preview first plays would stall it, and a visit starts at the top
+  whenNear($("looks"), () => { if (state.galleryOn) return; state.galleryOn = true; renderGallery(true).catch(e => console.warn("Gallery:", e)); });
 }
