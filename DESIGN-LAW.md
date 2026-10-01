@@ -3122,3 +3122,12 @@ theme audited, and no library card was gated on the render a visitor gets.
   (offer-library.js), so the classics' bakes leave it out: baked with the
   classics on the merged engine, the contrast bake drew 850 rows that would
   have repainted 168 offer cards.
+
+Measured (2026-10-01): 735 cards, 37,485 renders. 16 cards fail as offered
+and are held (Sell Your iPhone's device list over its panel, four topstrip
+classics, eight scriptRetro and two reviewProof library cards, one arcCrown
+at 3.00:1). 2.6% of theme renders fail (most a mark vanishing on what it
+sits on, as on the engine before), 0.4% of looks, 11.6% of voices (most a
+headline shrunk under the feed tile in a wider face: Modern is off on 379
+cards, the condensed pairs on almost none). 314 classics (264 before) and 405
+library cards are offered, and every choice offered on each passed.

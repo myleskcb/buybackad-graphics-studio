@@ -1051,3 +1051,95 @@ Still open:
    Set 9 "newest", and it names a Look menu the site no longer has. It is out
    of this change: it is not the product, and its sets are the record of what
    was judged.
+
+## W. 2026-09-30 (night) — every card, every choice; curves, warps, type pairs
+
+The owner: "make sure all classic and current themes are audited and ready
+for use with new color schemes, new design language, new typefaces / text
+design", "ability to make clean warps and curves", "and pre warped / curved
+for select templates where the design is supportive or designed around that".
+
+Done (DESIGN-LAW rules 95, 96, 97; `scripts/every_card_audit.mjs`):
+- **Curves and warps** on live text, in the designer's Properties and Easy
+  Mode's ✎ menu; arcs bound to their rings; the library's curved headlines
+  take the visitor's words again.
+- **The owner's eighteen type pairs** as a choice for the whole card, in Easy
+  Mode and the designer; two families on every classic.
+- **Every offered card under every choice**, on Easy Mode's render: 735
+  cards, 37,485 renders gated. 16 cards fail as offered and are held; 395 of
+  15,435 theme renders fail (2.6%), 33 of 8,820 looks (0.4%), 1,540 of 13,230
+  voices (11.6%), each held on its card (assets/choice-holds.json): its chip
+  is off, the reason is under the row, a carried pick is set aside there.
+  314 classics and 405 library cards are offered.
+- **The gate, the template audit and the contrast bake** see a line's own
+  backing as its ground; the bake measures each line with the card laid out
+  round it; the template audit judges a line over a line, or anything over a
+  curve, by the letters.
+- **The classics' tables** re-baked on this engine, twice, with held classics
+  baked too and the offer family left as authored: contrast 284 rows on 142
+  classics, numbers 594 layers on 191, grounds 241. The classics gate holds
+  58 (63 in production), the template audit 82 (137): 320 of the 404
+  classics pass both (264), and 314 once the cards that fail as offered are
+  held.
+
+Still open:
+
+1. **The contrast bake repairs by its own measure, not the gate's** (rule 87:
+   one measure). Of the 59 lines the gate fails on the 48 classics held for
+   legibility, 53 have no row in assets/contrast-fix.json: the bake judged
+   them by the mean of an ideal ink against the ground, the gate by the 75th
+   percentile of what the letters actually changed. Have bake_contrast repair
+   any line the gate fails (a critical line under 3:1 by pgCheck's core),
+   then run the chain and sweep the cards it releases (`--ids`).
+2. **A wide voice on a full-width claim.** A voice keeps each line's
+   footprint, so a claim already as wide as the card shrinks in a wider face:
+   987 of the voice holds are a headline under the feed tile's 77px, and
+   Modern (Unbounded) is off on 379 cards, Serif on 197, Retro (Bungee) on
+   187. On a card set in a condensed face the number, held at its 72px floor,
+   also runs off its plate (reviewProof-cd06-15 in Russo One: the headline
+   95px to 53px). Unbounded and Bungee are tall for their width too, so
+   stacked lines run into each other. The answer is a voice that knows its
+   own width: the claim on two lines at size, or a leading and a size floor
+   of the voice's own, and a second layout pass after it.
+3. **A mark vanishes on what it sits on under a theme** (242 of the theme
+   holds, on 22 library cards; the same on production's engine): stepsFlow's
+   step-number boxes, trustSeal's phone cue, small elements. themeScene's
+   marks step fixes a mark against the plate it finds under it (hostOf), and
+   these sit on something it does not count as a plate.
+4. **Headlines under 94px.** With the number at its 72px floor a headline
+   needs 94px to lead by 1.3x (rule 53). Nine hand-built classics (gold_spot,
+   silver_ster, coins_grandpa, coins_graded, strips_clean, strips_pickup,
+   sports_score, sports_goat, pkm_attic) and three lowerThird cards (phones,
+   strips, sports) set theirs smaller, most because the words fill the width.
+   They stay held; the answer is a two-line claim at a larger size, which is
+   the owner's copy to break.
+5. **The visitor's device list overruns a classic's info panel** (§P 5).
+   In Easy Mode the phone pick writes the devices into the info line, three
+   lines where the card drew two: Sell Your iPhone's list runs out of its
+   dark panel onto the cream bar, where its last line is light on light. The
+   settle pass (pgUncover) finds no clear slide onto either plate and does
+   not combine a smaller size with a slide. The card is held as offered; the
+   answer is the body panel that follows its words. The same pass leaves the
+   four topstrip classics' number on their call to action, and eight
+   scriptRetro library cards' number half off its band.
+6. **The tagline critic still hides the whole line** (`taglineCritic`,
+   `fillLegibility`): a look on a line with a backing is judged against the
+   bare photograph. No classic's headline has a backing today. A depth copy
+   (`cloneText`) also copies its line's backing, which would stack panels.
+7. **One-off repair scripts still hide whole layers** (audit_card,
+   clear_number, neutral_panels, repair_showcase_contrast,
+   repair_showcase_ink, support_highlights, tagline_audit, vary_grounds).
+   None of them runs in the classics' chain; switch each to `pgHideInk` when
+   it is next used.
+8. **scripts/neutral_panels.mjs** throws a ReferenceError before it measures
+   anything (found while tracing the gate, not investigated).
+9. **Enhance undoes the face passes.** It restores each layer's authored
+   traits, including the faces that houseTwoFaces and the hairline pass moved
+   at load, so an Enhanced classic can set three families again.
+10. **Three patterns change nothing on gold_lux** in the designer (dots,
+    halftone, grid; designer_audit), the same on production.
+11. **The sweep takes about eleven hours on four cores** (the gate reads each
+    line's pixels back after a render: 1.3s a render, more than half of it
+    getImageData). Run it with `--ids` for the cards a change touches, and in
+    full before a release that changes the engine, the themes, the looks or
+    the voices. `--resume` continues a stopped run.

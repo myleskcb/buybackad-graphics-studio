@@ -2059,3 +2059,147 @@ Changed:
   - Walls removed from 53 records (35 live), the generator's wall block gone,
     pgGhostWallStrip after the layout, the gate's 'ghostPic'. DESIGN-LAW rule
     94 (93 went to the designer when the lines were merged); AGENT-BRIEF.
+
+## 2026-09-30 (night) — every card, every choice; curves, warps and the owner's type pairs
+
+(claude/eloquent-euler-7jvzfd.)
+
+Owner: "make sure all classic and current themes are audited and ready for
+use", "with new color schemes, new design language, new typefaces / text
+design", "ability to make clean warps and curves", "and pre warped / curved
+for select templates where the design is supportive or designed around that".
+
+Studied:
+  What was audited, and on which render. The gate judged every card on its
+  thumbnail. ez_theme_audit took the 21 themes through a 20-card sample, and
+  its four classics were held, so it skipped them. tagline_audit took the
+  looks through 82 cards by its own measure. No classic had had a colour theme
+  audited, and no library card had been gated on the render a visitor gets:
+  Easy Mode's, on the card's own photograph. The type pairs the owner approved
+  (FONT_PAIRS, rule 70) were used nowhere. A curved line was a group of
+  one-letter texts that Easy Mode could not type into: the curved headlines of
+  87 library cards kept the template's words in the preview, the download and
+  the video.
+
+Measured:
+  scripts/every_card_audit.mjs (new) takes each card in a fresh browser, as
+  offered and then under every theme, look and voice, the gate on every
+  render. Over 735 cards (the 320 classics then offered and the 415 live
+  library cards), 21 themes, 12 looks and 18 voices: 37,485 renders gated,
+  about eleven hours on four cores.
+  - 16 cards fail as offered and are held: Sell Your iPhone (the device list
+    overruns its panel), four topstrip classics (the number runs into the
+    call to action), eight scriptRetro library cards (the number hangs off
+    its band), two reviewProof cards (the call to action is covered) and
+    dl_strips_arcCrown_emerald (its claim at 3.00:1, as on production).
+  - ez_theme_audit: no problems over its 18 cards and 21 themes.
+    designer_audit (six offered cards, an idle machine): the editor opens in
+    under 220ms a task; three patterns change nothing on gold_lux, the same
+    on production.
+  - Themes: 395 of 15,435 fail (2.6%), on 39 cards. Most are marks that
+    vanish on what they sit on (242: step-number boxes, a phone cue, small
+    elements), the same on production's engine; then the number's digits.
+  - Looks: 33 of 8,820 (0.4%), Street most.
+  - Voices: 1,540 of 13,230 (11.6%), on 416 cards. The condensed pairs
+    (Street, Block, Tech, Stencil, Squad, Sport) are offered almost
+    everywhere; Modern is off on 379 cards, Serif on 197, Retro on 187. Most
+    of it (987 reasons) is a headline that keeps its width in a wider face
+    and falls under the feed tile's 77px.
+
+Learned:
+  - Hiding a line to see what is under it hides its backing too. The gate, the
+    template audit and the contrast bake all did it, so a chip's see-through
+    panel counted as ink against the bare photograph: a dark kicker on a 35%
+    white panel failed as a ghost under six themes, and a pink badge on its
+    own lavender panel (1.13:1) passed. Only the ink goes now.
+  - A bake that leaves a layer out measures another layout. alignPass settled
+    the card differently round the gap, and the bake chose inks for a ground
+    that was not under the line.
+  - Tables baked before the number table moved the number blocks described the
+    old layout: a website line was given near-black for a mid-grey plate it no
+    longer sat on. The contrast and shade bakes answer each other; the chain
+    runs bake_contrast and naturalize twice.
+  - A box is not the letters, twice more: an arc's box holds the air under its
+    apex, and two tight headline lines' boxes hold their faces' ascent and
+    descent room. The template audit held every arcCrown card and every
+    voltStack, stepsFlow and gradientWave card for "cover" with the letters
+    apart; the gate, which measures letters, passed them.
+  - A theme read a frame's dark red body over 83% of a card as the accent and
+    painted it bright green under white type. A panel that big is a surface,
+    whatever hue it wore.
+  - The offer family is drawn as authored, and the classics' bakes had never
+    run with it in TEMPLATES (they were last baked on a branch without it): the
+    contrast bake drew 850 rows that would have repainted 168 offer cards.
+  - A voice that keeps each line's footprint shrinks a headline set in a
+    condensed face (95px to 53px in Russo One) and grows a number held at its
+    72px floor off its plate. Some cards cannot take some faces; the audit
+    holds those pairs on those cards rather than bend the layout.
+  - A voice set lists and badges in its reading face's own 500, under the
+    house's floor for small type (600 and 700): trustSeal-gl02-15's items
+    line fell under 3:1 in 17 of 18 voices. A read line now keeps its weight.
+  - 45 classics were held for their hierarchy. 28 hand-built ones kept a big
+    authored number (84 to 100px) that outranked the headline, because the
+    number table never touches a number already 84px or more; 19 of them
+    lead now with the number at the cap. agencyGrid drew its price line 124px
+    under 148px headlines; all eight lead now (six are offered; two fail on
+    other lines). The rest set a headline under 94px, which cannot lead a
+    72px number by 1.3x: nine hand-built
+    ones whose words fill the width, and the lowerThird cards, whose headline
+    shares its rows with the number. A 24px shift of lowerThird's band (its
+    items line had run under the bottom guide) did not change that; I read
+    the cause wrong the first time.
+
+Changed:
+  - Text shapes (rule 95): curves (arc, wave) on fabric's text on a path,
+    warps (arch, bulge, flag, rise, fan, bowl) through an envelope; Shape and
+    Bend in the designer's Properties and Easy Mode's ✎ menu; old letter
+    groups read back as one shaped line; arcs bound to their rings
+    (arcCrown's crown, karatSeal's new legend).
+  - Type voices (rule 96): eighteen pairs and ORIG in Easy Mode and the
+    designer; each line keeps its footprint; houseTwoFaces sets two families
+    on every classic.
+  - Every choice a card offers is one it passed (rule 97):
+    every_card_audit.mjs --write-holds writes assets/choice-holds.json; the
+    studio turns a held chip off with its reason under the row, sets a
+    carried pick aside on the card it fails, and keeps a card that fails as
+    offered out of the lists. pgHideInk in the gate, the template audit and
+    the contrast bake; the bake measures each line with the card laid out
+    round it; themeScene's surfaces; the offer family out of the classics'
+    bakes; the template audit's cover by the letters.
+  - A read line keeps its weight under a voice (voiceWeightFor).
+  - number_block.mjs rebuilds a big authored number that outranks its
+    headline, at the cap (floored); agencyGrid's price line 104px;
+    lowerThird's band copy 24px higher. number_block and naturalize_classics
+    with --ids now replace only those cards' rows (they rewrote the whole
+    table from the few they measured).
+  - Tables re-baked on this engine, twice, then for the 44 cards above:
+    contrast 284 rows on 142 classics, numbers 594 layers on 191, grounds
+    241. The classics gate holds 58 (63 in production), the template audit
+    82 (137): 320 of the 404 classics pass both (264), 314 once the cards
+    that fail as offered are held.
+  - 81 of the 87 curved library cards' thumbnails re-drawn (the other six
+    differed by grain); ASSET_REV 20260930zn. The owner-approved render
+    (stepsFlow-nn05-30, story) still matches: 0.04% of pixels moved.
+
+Did not work:
+  - Killing a sweep with `pkill -f` and a pattern that the shell's own
+    command line also matched: it killed the shell. Kill by process id.
+  - Reading the canvas faster. getImageData is more than half the gate's
+    time; a 2D context made with willReadFrequently took 42% off one gate,
+    and nothing off four workers on four cores, with the same results.
+  - A sweep with no restart: a browser that died took its worker's queue with
+    it ("Connection closed"). Workers now relaunch a dead browser, give a
+    hung card up after 15 minutes, and --resume retries a card that errored.
+
+RESUME HERE:
+  The holds table is written; nothing is running. Next, in order of what it
+  releases:
+    1. bake_contrast repairs by the gate's measure (OPEN-ITEMS §W 1): 48
+       classics are held for lines the bake never looked at.
+    2. A wide voice on a full-width claim (§W 2): two lines, or a leading
+       and a size of the voice's own; Modern is off on half the cards.
+    3. themeScene's marks (§W 3): a mark that vanishes on what it sits on.
+  After any change to the engine, the themes, the looks or the voices:
+    node scripts/every_card_audit.mjs --ids <the cards it touches> --write-holds
+  and in full before a release (about eleven hours on four cores; --resume
+  continues a stopped run).
