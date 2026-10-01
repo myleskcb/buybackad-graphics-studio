@@ -2,7 +2,7 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KIT_BPM } from "./catalog.js";
 import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
@@ -90,12 +90,14 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   const r = rng(seed * 7919 + 13);
   const out = { ...st, seed };
   for (const k of Object.keys(OPTIONS)) {
-    if (k === "pose" || ACCENT_AXES.includes(k)) continue;   // their own draws below, so older seeds keep their looks
+    if (k === "pose" || ACCENT_AXES.includes(k) || LATE_OPTIONS.includes(k)) continue;   // their own draws below, so older seeds keep their looks
     if (!locked.has(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
   }
   if (!locked.has("pose")) out.pose = rng(seed * 4099 + 71).weighted(OPTIONS.pose, WEIGHTS.pose);
   const ra = rng(seed * 6151 + 29);
   for (const k of ACCENT_AXES) if (!locked.has(k)) out[k] = ra.weighted(OPTIONS[k], WEIGHTS[k]);
+  const r2 = rng(seed * 6007 + 29);
+  for (const k of LATE_OPTIONS) if (!locked.has(k)) out[k] = r2.weighted(OPTIONS[k], WEIGHTS[k]);
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
   if (!locked.has("bpm")) out.bpm = r.int(96, 124);      // the tempo a commercial bed sits at
   audienceInto(out, r, locked);
@@ -316,6 +318,16 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (st.case === "title" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.05);
   if ((FONTS[st.font] || [])[3] === "wide" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.01);
   if (st.decor.includes("sparkle")) st.sparkles = true;
+  // the sound: each newer groove at its own tempo, a tune only over a groove, and no
+  // church organ on a tune of fast runs
+  const kb = KIT_BPM[st.sound_kit];
+  if (kb && !locked.has("bpm") && (st.bpm < kb[0] || st.bpm > kb[1])) st.bpm = kb[0] + (st.seed >>> 0) % (kb[1] - kb[0] + 1);
+  if (!OPTIONS.melody.includes(st.melody)) st.melody = "none";
+  if (!OPTIONS.lead.includes(st.lead)) st.lead = "piano";
+  if (!OPTIONS.accent.includes(st.accent)) st.accent = "none";
+  if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
+  if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
+    st.lead = ["piano", "marimba", "xylophone", "harpsichord"][st.seed % 4];
   // a take that no longer fits (a shorter ad, another language, a bank that arrived late) is picked again, the same way every time
   if (!voiceFits(st)) pickVoice(st, rng(st.seed * 53 + 7), locked);
   return st;

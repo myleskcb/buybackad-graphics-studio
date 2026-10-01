@@ -1,6 +1,6 @@
-// Phone Ad Maker sound: every cue is synthesised here, so nothing is fetched or licensed.
-// Rendered offline with the Web Audio graph, then played with the preview or
-// encoded into the video.
+// Phone Ad Maker sound: every cue is synthesised here or played from a CC0 recording
+// (music.js), so nothing is licensed. Rendered offline with the Web Audio graph, then
+// played with the preview or encoded into the video.
 //
 // Scored like a commercial, not a game (owner, 2026-09-30: "less annoying, slightly
 // more professional or serious ... more commercial"):
@@ -12,6 +12,12 @@
 //  - one room reverb under everything, and the music ducks under the hits;
 //  - every ad is levelled to the same loudness (-16 LUFS, peaks under -1 dBFS), so no
 //    look is louder than the next and nothing clips.
+// Real instruments (music.js, 2026-10-01) play in that same bed: thirteen grooves of
+// their own (reggaeton to bossa nova) beside the six scored kits, a famous public-domain
+// tune over any of them, and recorded sounds for the opening, the headline and the
+// number. They take the bed's key, its room, its filter until the hit, its ducking under
+// the hits and the voice, and its levelling. A recording that will not load is left out;
+// the rest of the mix still renders.
 // Nothing is ever scheduled before the first frame (the guard at the end of synth): a
 // phone that is already down on frame 0 (flash cut, punch in, cold open) never makes a
 // sound before time zero. Where a look has a voiceover (voices.js), the take is cleaned
@@ -20,11 +26,13 @@
 import { rng, clamp } from "./engine.js";
 import { SOUND_ALIASES } from "./catalog.js";
 import { clipById, VO_START, voWindow } from "./voices.js";
+import { soundManifest, sampleBuffer, sampler, arrange, playTune, groove, KITS, SHAVE, LEADS } from "./music.js";
 
 const SR = 44100, TARGET_LUFS = -16, QUIET_LUFS = -19, CEILING = .891;   // .891 = -1 dBFS
 
-const QUAL = { M: [0, 4, 7], m: [0, 3, 7], M7: [0, 4, 7, 11], m7: [0, 3, 7, 10], d7: [0, 4, 7, 10],
-  add9: [0, 4, 7, 14], m9: [0, 3, 7, 10, 14], sus: [0, 5, 7] };
+// "7" and M9 are how music.js names a dominant seventh (d7 here) and a major ninth
+const QUAL = { M: [0, 4, 7], m: [0, 3, 7], M7: [0, 4, 7, 11], m7: [0, 3, 7, 10], d7: [0, 4, 7, 10], "7": [0, 4, 7, 10],
+  add9: [0, 4, 7, 14], m9: [0, 3, 7, 10, 14], M9: [0, 4, 7, 11, 14], sus: [0, 5, 7] };
 // [semitones above the key's tonic, chord quality], one chord per bar
 const PROGS = {
   uplift: [[[0, "add9"], [7, "M"], [9, "m7"], [5, "add9"]], [[0, "add9"], [5, "add9"], [9, "m7"], [7, "sus"]], [[9, "m7"], [5, "M7"], [0, "add9"], [7, "M"]]],
@@ -36,6 +44,10 @@ const PROGS = {
 };
 // how far the bed opens after the hit: the lo-fi kit stays dark on purpose
 const OPEN_HZ = { lofi: 5200, cinematic: 9000, minimal: 12000 };
+// the kits whose progressions sit in a major key; the rest are minor (a sound that plays
+// a chord of its own, an orchestra hit or a glockenspiel run, takes the kit's third)
+const MAJOR_KITS = new Set(["uplift", "lofi"]);
+const hasMusic = kit => kit !== "none" && !!(PROGS[kit] || KITS[kit]);
 
 const hz = m => 440 * 2 ** ((m - 69) / 12);
 const voicing = (root, q, lo) => QUAL[q].map(iv => { let m = root + iv; while (m < lo) m += 12; while (m >= lo + 12) m -= 12; return m; }).sort((a, b) => a - b);
@@ -55,21 +67,39 @@ export async function renderSoundtrack(ad, { solo = "" } = {}) {
   // The bed is levelled as it plays with no voice, and a voiced ad keeps that gain:
   // levelled with the voice in, the music either side of the words would drop, and a
   // voiced mix stays within 1 dB of the same mix without one.
-  const plain = await mixBed(ad, 0);
-  const gain = levelGain(plain, kit !== "none" && PROGS[kit] ? TARGET_LUFS : QUIET_LUFS);
+  const rec = await recordingsFor(ad);
+  const plain = await mixBed(ad, 0, rec);
+  const gain = levelGain(plain, hasMusic(kit) ? TARGET_LUFS : QUIET_LUFS);
   if (!voice) { applyLevel(plain, gain); return plain; }
-  const out = await mixBed(ad, voice.duration);       // the same bed, ducked under the words
+  const out = await mixBed(ad, voice.duration, rec);  // the same bed, ducked under the words
   applyLevel(out, gain);
   if (solo !== "bed") layVoice(out, voice);
   keepUnder(out, PEAK);
   return out;
 }
 
+/** The recordings the look plays (music.js), loaded. Which they are is learned by
+ *  composing its bed once, unrendered and with no other cue built (rec.probe); null where
+ *  the sound library cannot load. */
+async function recordingsFor(ad) {
+  const man = await soundManifest(), bufs = new Map(), need = new Set();
+  if (!man) return null;
+  compose(ad, new OfflineAudioContext(2, SR, SR), 0, { man, bufs, need, probe: true });
+  await Promise.all([...need].map(async k => bufs.set(k, await sampleBuffer(k))));
+  return { man, bufs, need: new Set() };
+}
+
 /** The effects and the music, rendered; voDur, the length of a voiceover to duck under. */
-async function mixBed(ad, voDur) {
+async function mixBed(ad, voDur, rec) {
+  const ctx = new OfflineAudioContext(2, Math.ceil(ad.st.duration * SR), SR);
+  compose(ad, ctx, voDur, rec);
+  return ctx.startRendering();
+}
+
+/** The bed's graph, built in ctx. rec: the recordings it may play (recordingsFor). */
+function compose(ad, ctx, voDur, rec) {
   const st = ad.st, tl = ad.tl, T = st.duration;
   const kit = alias("sound_kit", st.sound_kit || "uplift"), hitKind = alias("hit", st.hit), numKind = alias("number_sfx", st.number_sfx);
-  const ctx = new OfflineAudioContext(2, Math.ceil(T * SR), SR);
   const r = rng(st.seed * 17 + 3);
   const noise = noiseBuffer(ctx, 2, st.seed);
 
@@ -85,7 +115,7 @@ async function mixBed(ad, voDur) {
   const roomTone = ctx.createBiquadFilter(); roomTone.type = "highpass"; roomTone.frequency.value = 220;
   room.connect(roomTone).connect(roomOut).connect(master);
 
-  const hit = tl.hit, hasMusic = kit !== "none" && PROGS[kit];
+  const hit = tl.hit, withMusic = hasMusic(kit);
   const openAt = hit > .35 ? hit : 0;
   const bus = (level, filtered) => {
     const g = ctx.createGain(); g.gain.value = level;
@@ -109,13 +139,18 @@ async function mixBed(ad, voDur) {
 
   // ---- the key and the chords, drawn from the seed
   const tonic = r.pick([57, 58, 60, 62, 55, 53]);          // A, Bb, C, D, G, F
-  const prog = hasMusic ? r.pick(PROGS[kit]) : PROGS.uplift[0];
+  const prog = PROGS[kit] ? r.pick(PROGS[kit]) : PROGS.uplift[0];
   const bpm = st.bpm || 112, b = 60 / bpm, bar = 4 * b;
   const start = hit - Math.ceil(hit / bar) * bar;            // a bar line lands exactly on the headline hit
-  const chordAt = t => prog[((Math.floor((t - start) / bar + 1e-6) % prog.length) + prog.length) % prog.length];
+  // A tune (music.js) brings its chords and the bed follows them; a groove of its own
+  // draws its own progression. Both in this key, so the tune, the groove, the bells and
+  // the number all agree.
+  const A = arrange(st, start, hit, tonic % 12);
+  const chordAt = A.tune ? A.chordAt : t => prog[((Math.floor((t - start) / bar + 1e-6) % prog.length) + prog.length) % prog.length];
+  const minor = A.tune || KITS[kit] ? A.minor : !MAJOR_KITS.has(kit);
   const bell1 = hz(tonic % 12 + 72), bell2 = hz(tonic % 12 + 79);   // tonic and fifth, C5 to B5
 
-  const S = synth(ctx, noise, r, sfx), M = synth(ctx, noise, r, music);
+  const S = synth(ctx, noise, r, sfx, rec), M = synth(ctx, noise, r, music, rec);
   const booms = [];
   const boom = (t, g) => { if (t < -.02) return; S.boom(Math.max(0, t), g); booms.push(Math.max(0, t)); };
 
@@ -135,7 +170,7 @@ async function mixBed(ad, voDur) {
       boom(0, .8); if (ad.hookEnd > .6) S.swish(ad.hookEnd - .4, .45, true, 0, .1); break;
     case "word_beat": {
       boom(0, .7);
-      const tones = voicing(tonic + prog[0][0], prog[0][1], 67);
+      const c0 = A.tune ? A.tune.chords[0] : KITS[kit] ? A.chordAt(0) : prog[0], tones = voicing(tonic + c0[0], c0[1], 67);
       (ad.hookLines || []).forEach((_, i) => { if (!i) return; const tt = i * (ad.hookBeat || .2); S.thump(tt, .12, 0); S.keys(tt, hz(tones[i % tones.length]), .35, .06, .7); });
       if (ad.hookEnd > .6) S.swish(ad.hookEnd - .35, .4, true, 0, .1); break;
     }
@@ -151,12 +186,39 @@ async function mixBed(ad, voDur) {
     case "punch_in": boom(0, .85); S.swish(0, .45, false, 0, .1); break;
     default: boom(0, .6);
   }
+  // An opening sound over the hook's hit (music.js). Under a voiceover it is gone by the
+  // first word, as the hit is: the take starts once the opening has decayed (DESIGN-LAW 97).
+  const clear = voDur ? VO_START : Infinity;
+  switch (st.accent) {
+    case "air_horn": S.airhorn(0, .42, clear); break;
+    case "siren": S.hit(0, "siren", .5, 0, 1, 0, clear); break;
+    case "whistle": S.hit(0, "whistle", .5, 0, 1, 0, clear); break;
+    case "gong": S.hit(0, "gong", .55, 0, 1, 0, clear); break;
+    case "windchimes": S.hit(0, "windchimes", .55, .3, 1, 0, clear); break;
+    case "bell_tree": S.hit(0, "bell_tree", .5, -.3, 1, 0, clear); break;
+    case "vibraslap": S.hit(0, "vibraslap", .6, 0, 1, 0, clear); break;
+  }
 
   // ---- the headline hit
   switch (hitKind) {
     case "riser": S.swell(hit - .9, hit, .2); boom(hit, .85); break;
     case "cymbal": S.reverseCymbal(hit - 1, hit, .09); boom(hit, .85); break;
     case "bass_drop": S.swish(tl.text - .45, .5, true, -.3, .1); S.subDrop(hit, .9); booms.push(hit); break;
+    // the recorded hits (music.js), each over a low hit, so the music steps back under it too
+    case "gong": S.swish(tl.text - .45, .5, true, -.3, .1); S.hit(hit, "gong", .75); boom(hit, .45); break;
+    case "timpani": S.hit(hit, "timpani", .9); S.hit(hit, "bass_drum", .5); boom(hit, .35); break;
+    case "whip": S.swish(tl.text - .3, .32, true, -.3, .1); S.hit(hit, "whip", .9); boom(hit, .5); break;
+    case "anvil": S.hit(hit, "anvil", .7); boom(hit, .6); break;
+    case "crash": S.hit(hit, "crash", .55); boom(hit, .75); break;
+    case "swell": {                                  // a cymbal swell that peaks on the hit, started partway into an early one
+      const t0 = hit - 1.9; S.hit(Math.max(0, t0), "cym_swell", .55, 0, 1, Math.max(0, -t0)); boom(hit, .85); break;
+    }
+    case "orchestra": {                              // an orchestra hit made of the real thing
+      S.hit(hit, "timpani", .8); S.hit(hit, "bass_drum", .5); S.hit(hit, "crash", .4);
+      const root = 48 + A.keyPc;
+      [root, root + 12, root + (minor ? 15 : 16), root + 19, root + 24].forEach(m => S.note(hit, "organ", m, .45, .3));
+      boom(hit, .4); break;
+    }
     default: S.swish(tl.text - .45, .5, true, -.3, .11); boom(hit, .9);
   }
   if (ad.lines.length > 1) S.thump(tl.lines[1] + .3, .12, 0);
@@ -172,6 +234,21 @@ async function mixBed(ad, voDur) {
     case "register": S.register(tl.number + .05, .32, bell1); break;
     case "chime": S.bell(tl.number + .05, bell1, .15); S.bell(tl.number + .15, bell2, .13); break;
     case "whoosh_ding": S.swish(tl.number - .25, .35, true, .3, .09); S.bell(tl.number + .12, bell2, .15); break;
+    // played and recorded (music.js), in the bed's key
+    case "shave_haircut": {                          // "shave and a haircut... two bits"
+      const inst = st.melody !== "none" && st.lead && st.lead !== "synth" ? st.lead : "xylophone", top = (LEADS[inst] || LEADS.xylophone).center;
+      const home = A.keyPc + 12 * Math.round((top - A.keyPc) / 12);
+      let x = tl.number; for (const [m, d] of SHAVE) { if (m != null) S.note(x, inst, home + m, d * .14, .5); x += d * .14; }
+      break;
+    }
+    case "cash_counter": S.counter(tl.number, .5); break;
+    case "text_ding": { const m = 84 + A.keyPc % 12; S.note(tl.number + .02, "glock", m, .3, .45); S.note(tl.number + .13, "glock", m + 7, .5, .45); break; }
+    case "phone_buzz": S.buzz(tl.number, .45); S.buzz(tl.number + .42, .45); break;
+    case "bells": S.note(tl.number + .03, "bells", 64 + (A.keyPc + 8) % 12, 1.4, .55); break;
+    case "triangle": S.hit(tl.number + .03, "triangle", .7, .3); break;
+    case "glock_run": [0, 4, 7, 12].forEach((iv, i) => S.note(tl.number + i * .055, "glock", 84 + A.keyPc % 12 + iv - (minor && iv === 4 ? 1 : 0), .5, .45)); break;
+    case "harp_gliss": [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24].forEach((iv, i) => S.note(tl.number - .25 + i * .035, "harp", 60 + A.keyPc % 12 + iv, .6, .35 - i * .015, .2)); break;
+    case "whistle": S.hit(tl.number, "whistle", .5, .2); break;
     default: S.blip(tl.number + .05, .15, bell1);
   }
   if (st.shine || st.sparkles) S.sparkle(tl.shine, .045, tonic);
@@ -182,8 +259,13 @@ async function mixBed(ad, voDur) {
   if (cues.tape != null) S.swish(cues.tape, .38, false, .3, .08);
   if (ad.tOutro != null) { S.bell(ad.tOutro, bell1, .08); S.bell(ad.tOutro + .09, bell2, .07); }
 
-  // ---- the bed
-  if (hasMusic) score(M, kit, prog, tonic, start, T, b, hit, r);
+  // ---- the bed: a scored kit, or a groove of its own (music.js), and a tune over either.
+  // Music that cannot be laid out leaves the ad its effects and its voice, not silence.
+  if (withMusic) try {
+    if (KITS[kit]) groove(M, kit, A, start, T);
+    else score(M, kit, chordAt, tonic, start, T, b, hit, A.tune ? .5 : 1);
+    playTune(M, A, st, T);
+  } catch (e) { console.warn("Music skipped:", e); }
   // the bed steps back under every hit and comes back over a quarter second
   if (music.duck) for (const t of [...new Set(booms)].sort((x, y) => x - y)) {
     if (t < openAt - .01) continue;
@@ -194,7 +276,6 @@ async function mixBed(ad, voDur) {
   // in over 10 ms (no click), out over the last 0.7 s
   master.gain.setValueAtTime(0, 0); master.gain.linearRampToValueAtTime(1, .01);
   master.gain.setValueAtTime(1, Math.max(.02, T - .7)); master.gain.linearRampToValueAtTime(0, T);
-  return ctx.startRendering();
 }
 
 /** The voice sits on top of a mix that already peaks near full scale, so a
@@ -373,7 +454,7 @@ function roomImpulse(ctx, secs, seed) {
   return b;
 }
 
-function synth(ctx, noise, r, bus) {
+function synth(ctx, noise, r, bus, rec) {
   const T0 = t => Math.max(0, t);
   const env = (g, t, a, peak, decay) => { t = T0(t); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0003, t + a + decay); g.gain.linearRampToValueAtTime(0, t + a + decay + .01); };
   const out = (node, pan = 0, send = 0) => {
@@ -385,6 +466,10 @@ function synth(ctx, noise, r, bus) {
   const noiseSrc = (t, dur) => { const n = ctx.createBufferSource(); n.buffer = noise; n.loop = true; n.start(T0(t), r() * 1.5); n.stop(T0(t) + dur + .05); return n; };
   const osc = (type, t, dur, f) => { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, T0(t)); o.start(T0(t)); o.stop(T0(t) + dur + .05); return o; };
   const filt = (type, f, Q = .7) => { const x = ctx.createBiquadFilter(); x.type = type; x.frequency.value = f; x.Q.value = Q; return x; };
+  // the recordings (music.js) play into this same bus and room, a little wet
+  const play = rec ? sampler(ctx, rec.man, rec.bufs, rec.need) : null;
+  let recNode = null;
+  const recIn = () => { if (!recNode) { recNode = ctx.createGain(); out(recNode, 0, .2); } return recNode; };
   const S = {
     // ---------------------------------------------------------------- effects
     swish(t, dur, up, pan, gain) {
@@ -520,7 +605,71 @@ function synth(ctx, noise, r, bus) {
       lp.connect(g); out(g, 0, .6);
       notes.forEach(m => [-7, 7].forEach(cents => { const o = osc("sawtooth", t0, t1 - t0 + .3, hz(m)); o.detune.value = cents; o.connect(lp); }));
     },
+    // ------------------------------------------------- the grooves' own (music.js)
+    snare(t, gain) {
+      const o = osc("triangle", t, .2, 190), g = ctx.createGain(); env(g, t, .001, gain * .6, .12); o.connect(g); out(g, 0, .2);
+      const n = noiseSrc(t, .25), gn = ctx.createGain(); env(gn, t, .001, gain, .18); n.connect(filt("highpass", 1800)).connect(gn); out(gn, 0, .2);
+    },
+    /** An 808: a sine that drops onto its note, driven a little so a phone speaker hears it. */
+    bass808(t, f, dur, gain) {
+      const o = osc("sine", t, dur, f * 2.2); o.frequency.exponentialRampToValueAtTime(f, t + .05);
+      const ws = ctx.createWaveShaper(); ws.curve = curve(2.2);
+      const g = ctx.createGain(); env(g, t, .004, gain, dur); o.connect(ws).connect(g); out(g);
+    },
+    /** A drill 808: the note bends into the next. */
+    slide808(t, f0, f1, dur, gain) {
+      const o = osc("sine", t, dur, f0 * 2.2); o.frequency.exponentialRampToValueAtTime(f0, t + .04);
+      if (f1 !== f0) { o.frequency.setValueAtTime(f0, t + dur * .55); o.frequency.exponentialRampToValueAtTime(f1, t + dur * .7); }
+      const ws = ctx.createWaveShaper(); ws.curve = curve(2.6);
+      const g = ctx.createGain(); env(g, t, .004, gain, dur); o.connect(ws).connect(g); out(g);
+    },
+    /** Amapiano's log drum: a pitched knock with a body. */
+    logdrum(t, f, gain) {
+      const o = osc("sine", t, .5, f * 2.6); o.frequency.exponentialRampToValueAtTime(f, t + .025);
+      const ws = ctx.createWaveShaper(); ws.curve = curve(1.6);
+      const g = ctx.createGain(); env(g, t, .002, gain, .42); o.connect(ws).connect(filt("lowpass", 900)).connect(g); out(g, 0, .15);
+      const n = noiseSrc(t, .02), gn = ctx.createGain(); env(gn, t, .001, gain * .25, .015); n.connect(filt("bandpass", 1200)).connect(gn); out(gn, 0, .15);
+    },
+    /** A plucked note: a groove's bass line, or the synth lead. */
+    pluck(t, f, dur, gain, type = "triangle", cutoff = 1800) {
+      const o = osc(type, t, dur, f), lp = filt("lowpass", cutoff); lp.frequency.setValueAtTime(cutoff, t); lp.frequency.exponentialRampToValueAtTime(200, t + dur);
+      const g = ctx.createGain(); env(g, t, .005, gain, dur); o.connect(lp).connect(g); out(g, 0, .15);
+    },
+    // ------------------------------------------------- picked by hand or by a shuffle (music.js)
+    /** Three blasts of an air horn, the last one long; none past `until`. */
+    airhorn(t, gain, until = Infinity) {
+      [[0, .16], [.22, .1], [.38, .55]].forEach(([o0, d]) => {
+        const t0 = t + o0; d = Math.min(d, until - t0); if (d < .05) return;
+        const g = ctx.createGain(), ws = ctx.createWaveShaper(); ws.curve = curve(3);
+        [466, 470, 233, 932].forEach((f, i) => { const o = osc("sawtooth", t0, d, f); if (d > .3) o.frequency.linearRampToValueAtTime(f * .97, t0 + d);
+          const og = ctx.createGain(); og.gain.value = [.5, .5, .35, .2][i]; o.connect(og).connect(ws); });
+        g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(gain, t0 + .012); g.gain.setValueAtTime(gain, t0 + d - .03); g.gain.linearRampToValueAtTime(0, t0 + d);
+        ws.connect(filt("bandpass", 1400, .6)).connect(g); out(g, 0, .2);
+      });
+    },
+    /** A phone on vibrate, on a table. */
+    buzz(t, gain) {
+      const o = osc("square", t, .32, 152), am = osc("square", t, .32, 31), amg = ctx.createGain(); amg.gain.value = .35;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain * .6, t + .015);
+      g.gain.setValueAtTime(gain * .6, t + .29); g.gain.linearRampToValueAtTime(0, t + .32);
+      am.connect(amg).connect(g.gain); o.connect(filt("lowpass", 520)).connect(g); out(g, 0, .1);
+    },
+    /** A bill counter: a fast flutter of notes, then a stop. */
+    counter(t, gain) {
+      for (let k = 0; k < 18; k++) {
+        const tk = t + k * .034, n = noiseSrc(tk, .02), g = ctx.createGain();
+        env(g, tk, .001, gain * (.5 + .5 * Math.sin(k * .7) ** 2), .018); n.connect(filt("bandpass", 3200 + (k % 3) * 500, 1.5)).connect(g); out(g, 0, .1);
+      }
+      const end = t + 18 * .034, o = osc("sine", end, .06, 180); o.frequency.exponentialRampToValueAtTime(120, end + .036);
+      const g = ctx.createGain(); env(g, end, .004, gain * .6, .06); o.connect(g); out(g, 0, .1);
+    },
+    // ------------------------------------------------- recordings (music.js)
+    hit(t, id, gain, pan = 0, rate = 1, from = 0, until = Infinity) { if (play) play.hit(recIn(), t, id, gain, pan, rate, from, until); },
+    note(t, inst, midi, dur, gain, pan = 0) { if (play) play.note(recIn(), t, inst, midi, dur, gain, pan); },
   };
+  // composed only to learn which recordings it plays: every other cue builds nothing (the
+  // guard below still holds, so the same recordings are asked for as when it plays)
+  if (rec && rec.probe) for (const k of Object.keys(S)) if (k !== "hit" && k !== "note") S[k] = () => {};
   // Nothing is scheduled before the first frame, and this is the one place that holds it.
   // Cues are timed off the picture, and some fall before it: a phone already down when the
   // ad opens, a sweep into an early hit, the bars of the bed before the first. Web Audio
@@ -547,41 +696,57 @@ function synth(ctx, noise, r, bus) {
       try { return f(t, ...a); } catch (e) { console.warn(`Sound cue "${k}" skipped:`, e); }
     };
   }
+  S.range = inst => play ? play.range(inst) : null;   // not a cue: the notes an instrument was recorded across
   return S;
 }
 
-/** The bed: a groove per kit over the chosen chords. Before the headline hit only
- *  the chords and a light pulse play; the drums come in on the hit. */
-function score(M, kit, prog, tonic, start, total, b, hit, r) {
+/** A soft clip, for the 808s and the air horn. */
+function curve(k) {
+  const n = 1024, c = new Float32Array(n);
+  for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; c[i] = Math.tanh(x * k); }
+  return c;
+}
+
+/** The bed: a groove per kit over the chords. Before the headline hit only the chords
+ *  and a light pulse play; the drums come in on the hit. chordAt: the chord at a time
+ *  (the kit's progression, a bar each, or a tune's own); under: the keys' level under a
+ *  tune, which leads. */
+function score(M, kit, chordAt, tonic, start, total, b, hit, under = 1) {
   const bar = 4 * b, nBars = Math.ceil((total - start) / bar);
+  const post = t => t >= hit - 1e-3, same = (x, y) => x[0] === y[0] && x[1] === y[1];
+  const padLevel = { cinematic: .05, minimal: .03, lofi: .025 }[kit] ?? .035;
   for (let k = 0; k < nBars; k++) {
-    const t0 = start + k * bar, [deg, q] = prog[k % prog.length], root = tonic + deg;
-    const pad = voicing(root, q, 55), keys = voicing(root, q, 60), bassF = hz(voicing(root, "M", 36)[0]);
-    const post = t => t >= hit - 1e-3;
-    const padLevel = { cinematic: .05, minimal: .03, lofi: .025 }[kit] ?? .035;
-    M.pad(t0, t0 + bar, pad, padLevel);
+    const t0 = start + k * bar;
+    // a pad for each chord in the bar: one, unless a tune changes chord inside it
+    for (let i = 0, from = 0; i < 4; i++) {
+      const c = chordAt(t0 + from * b + 1e-4);
+      if (i < 3 && same(chordAt(t0 + (i + 1) * b + 1e-4), c)) continue;
+      M.pad(t0 + from * b, t0 + (i + 1) * b, voicing(tonic + c[0], c[1], 55), padLevel); from = i + 1;
+    }
     for (let i = 0; i < 4; i++) {
       const t = t0 + i * b;
       if (t > total) break;
+      const [deg, q] = chordAt(t + 1e-4), root = tonic + deg;
+      const keys = voicing(root, q, 60), bassF = hz(voicing(root, "M", 36)[0]);
       switch (kit) {
         case "uplift":
           if (post(t)) {
             if (i % 2 === 0) M.kick(t, .55); else M.clap(t, .16);
             M.shaker(t + b / 2, .05, .2); M.shaker(t, .035, -.2);
             M.bass(t, bassF, b * (i % 2 ? .9 : 1.4), .26);
-            [0, 1].forEach(e => M.keys(t + e * b / 2, hz(keys[(i * 2 + e) % keys.length] + 12), b * .9, .045, .8, e ? .25 : -.25));
-          } else M.keys(t, hz(keys[i % keys.length] + 12), b * 1.2, .04, .6);
+            [0, 1].forEach(e => M.keys(t + e * b / 2, hz(keys[(i * 2 + e) % keys.length] + 12), b * .9, .045 * under, .8, e ? .25 : -.25));
+          } else M.keys(t, hz(keys[i % keys.length] + 12), b * 1.2, .04 * under, .6);
           break;
         case "house":
           if (post(t)) {
             M.kick(t, .6); M.hat(t + b / 2, .05, i === 3, .15);
             if (i % 2) M.clap(t, .15);
             M.bass(t + b / 2, bassF * (i === 3 ? 2 : 1), b * .45, .24);
-            if (i === 0 || i === 2) keys.forEach(m => M.keys(t + b * .5, hz(m), b * .6, .035, .9));
+            if (i === 0 || i === 2) keys.forEach(m => M.keys(t + b * .5, hz(m), b * .6, .035 * under, .9));
           } else M.hat(t + b / 2, .03, false, .15);
           break;
         case "hiphop":
-          if (i === 0) keys.forEach(m => M.keys(t, hz(m), bar * .9, .03, .5));
+          if (i === 0) keys.forEach(m => M.keys(t, hz(m), bar * .9, .03 * under, .5));
           if (post(t)) {
             if (i === 0) { M.kick(t, .6); M.bass(t, bassF, b * 2.3, .28); }
             if (i === 2) { M.clap(t, .2); M.kick(t + b * .5, .45); M.bass(t + b * .5, bassF, b * 1.3, .24); }
@@ -590,7 +755,7 @@ function score(M, kit, prog, tonic, start, total, b, hit, r) {
           break;
         case "lofi": {
           const sw = .16 * b;
-          if (i === 0 || i === 2) keys.forEach(m => M.keys(t + (i === 2 ? b * .5 + sw : 0), hz(m), b * 1.8, .03, .35));
+          if (i === 0 || i === 2) keys.forEach(m => M.keys(t + (i === 2 ? b * .5 + sw : 0), hz(m), b * 1.8, .03 * under, .35));
           if (post(t)) {
             if (i === 0) { M.kick(t, .45); M.bass(t, bassF, b * 1.8, .22); }
             if (i === 2) { M.rim(t + sw * .3, .18); M.kick(t + b * .5 + sw, .35); }
@@ -599,13 +764,13 @@ function score(M, kit, prog, tonic, start, total, b, hit, r) {
           break;
         }
         case "minimal":
-          [0, 1].forEach(e => M.keys(t + e * b / 2, hz(keys[e ? 2 : 0]), b * .4, post(t) ? .05 : .035, .3));
+          [0, 1].forEach(e => M.keys(t + e * b / 2, hz(keys[e ? 2 : 0]), b * .4, (post(t) ? .05 : .035) * under, .3));
           if (i === 0) M.bass(t, bassF, bar * .95, .22);
           if (post(t)) { if (i === 0) M.kick(t, .45); if (i % 2) M.rim(t, .12); }
           break;
         case "cinematic":
-          if (i === 0) { M.keys(t, hz(keys[0] - 12), bar, .06, .3); M.bass(t, bassF, bar * .95, .2); }
-          if (i === 2) M.keys(t, hz(keys[keys.length - 1] - 12), b * 2, .045, .3);
+          if (i === 0) { M.keys(t, hz(keys[0] - 12), bar, .06 * under, .3); M.bass(t, bassF, bar * .95, .2); }
+          if (i === 2) M.keys(t, hz(keys[keys.length - 1] - 12), b * 2, .045 * under, .3);
           if (post(t)) { if (i === 0 || i === 2) { M.tom(t, .4); M.tom(t + b * .35, .22); } M.shaker(t + b / 2, .025); }
           else if (i === 0) M.tom(t, .2);
           break;

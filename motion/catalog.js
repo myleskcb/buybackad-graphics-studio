@@ -399,10 +399,19 @@ export const OPTIONS = {
   palette: [...Object.keys(PALETTES), "match", "match", "match"],
   camera: ["push_in", "push_out", "still", "drift", "punch", "tilt", "whip_in", "handheld"],
   shake: [0, 1, 2],
-  // scored like a commercial: every kit plays chords in a key (audio.js)
-  sound_kit: ["uplift", "house", "hiphop", "lofi", "minimal", "cinematic", "none"],
-  hit: ["impact", "riser", "cymbal", "bass_drop"],
-  number_sfx: ["pop", "chime", "register", "whoosh_ding", "ticks"],
+  // scored like a commercial: every kit plays chords in a key (audio.js); the grooves
+  // after cinematic are patterns of their own on real instruments (music.js)
+  sound_kit: ["uplift", "house", "hiphop", "lofi", "minimal", "cinematic",
+    "reggaeton", "jersey_club", "drill", "phonk", "baile_funk", "amapiano", "cumbia", "disco", "uk_garage", "swing", "epic", "march", "bossa", "none"],
+  hit: ["impact", "riser", "cymbal", "bass_drop", "gong", "timpani", "whip", "anvil", "crash", "swell", "orchestra"],
+  number_sfx: ["pop", "chime", "register", "whoosh_ding", "ticks", "shave_haircut", "cash_counter", "text_ding", "phone_buzz",
+    "bells", "triangle", "glock_run", "harp_gliss", "whistle"],
+  // a famous public-domain tune over the groove (music.js), and what plays it
+  melody: ["none", "mountain_king", "fur_elise", "beethoven5", "ode_to_joy", "saints", "ballgame", "cucaracha", "toccata",
+    "turkish_march", "eine_kleine", "greensleeves", "morning_mood", "bumblebee", "carol_bells", "entertainer", "canon"],
+  lead: ["piano", "epiano", "vibes", "marimba", "xylophone", "glock", "organ", "harpsichord", "sax", "harp", "kalimba", "synth"],
+  // a sound over the opening hook (not the accents below, which are drawn on screen)
+  accent: ["none", "air_horn", "siren", "whistle", "gong", "windchimes", "bell_tree", "vibraslap"],
   glare: [0.5, 1, 1, 1.5],
   hook: ["hook_line", "hook_line", "word_beat", "word_beat", "crash_zoom", "flash_cut", "punch_in", "cold_open"],
   overlay: ["none", "none", "confetti", "light_leak", "vignette_pulse", "lens_flare", "glitch", "grain_live", "sparkle_field",
@@ -498,7 +507,17 @@ export const WEIGHTS = {
   outro: { none: 3, settle: 2, end_card: 2 },
   sound_kit: { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5 },
   number_sfx: { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1 },
+  melody: { none: 5 },
+  accent: { none: 7 },
 };
+
+// The sound options added after the first looks were made. They are drawn from a
+// stream of their own, so every earlier look keeps the design it always had.
+export const LATE_OPTIONS = ["melody", "lead", "accent"];
+
+// The tempo each newer groove is played at (the scored kits take any).
+export const KIT_BPM = { reggaeton: [88, 100], jersey_club: [136, 144], drill: [138, 146], phonk: [124, 136], baile_funk: [126, 132],
+  amapiano: [110, 115], cumbia: [90, 100], disco: [116, 124], uk_garage: [130, 134], swing: [140, 168], epic: [88, 108], march: [112, 126], bossa: [120, 136] };
 
 // Sounds retired in the commercial pass (owner, 2026-09-30) play as the nearest one
 // still offered, so a saved or locked look keeps working.
@@ -506,6 +525,24 @@ export const SOUND_ALIASES = {
   sound_kit: { trap: "hiphop", boombap: "hiphop", edm: "house", funk: "uplift", afrobeat: "house", drumline: "cinematic" },
   hit: { glitch: "impact", clap_stack: "impact" },
   number_sfx: { coin: "chime" },
+};
+
+// The panel's names for the sounds; any other shows as its own words ("reggaeton": Reggaeton).
+export const SOUND_NAMES = {
+  sound_kit: { uplift: "Uplifting pop", house: "Deep house", hiphop: "Hip-hop", lofi: "Lo-fi", minimal: "Minimal pulse", cinematic: "Cinematic",
+    jersey_club: "Jersey club", baile_funk: "Baile funk", uk_garage: "UK garage", swing: "Swing jazz", epic: "Epic drums", march: "March / circus",
+    bossa: "Bossa nova", none: "No music" },
+  hit: { impact: "Low hit", riser: "Swell into a hit", cymbal: "Reverse cymbal", bass_drop: "Sub drop", swell: "Cymbal swell", orchestra: "Orchestra hit" },
+  number_sfx: { pop: "Soft pop", chime: "Two bells", register: "Cash register", whoosh_ding: "Whoosh and bell", ticks: "Soft typing",
+    shave_haircut: "Shave and a haircut", cash_counter: "Bill counter", text_ding: "Message ding", phone_buzz: "Phone buzz",
+    bells: "Tubular bell", glock_run: "Glockenspiel run", harp_gliss: "Harp sweep", whistle: "Referee whistle" },
+  melody: { none: "None", mountain_king: "In the Hall of the Mountain King (Grieg)", fur_elise: "Für Elise (Beethoven)", beethoven5: "Symphony No. 5 (Beethoven)",
+    ode_to_joy: "Ode to Joy (Beethoven)", saints: "When the Saints Go Marching In", ballgame: "Take Me Out to the Ball Game (1908)",
+    cucaracha: "La Cucaracha", toccata: "Toccata in D minor (Bach)", turkish_march: "Turkish March (Mozart)", eine_kleine: "Eine kleine Nachtmusik (Mozart)",
+    greensleeves: "Greensleeves", morning_mood: "Morning Mood (Grieg)", bumblebee: "Flight of the Bumblebee (Rimsky-Korsakov)",
+    carol_bells: "Carol of the Bells (Leontovych, 1916)", entertainer: "The Entertainer (Joplin)", canon: "Canon in D (Pachelbel)" },
+  lead: { epiano: "Electric piano", vibes: "Vibraphone", glock: "Glockenspiel", sax: "Tenor sax", synth: "Synth lead" },
+  accent: { none: "None", air_horn: "Air horn", whistle: "Referee whistle", windchimes: "Wind chimes", bell_tree: "Bell tree" },
 };
 
 export const FLAGS = { flash: 0.6, shine: 0.5, rgb_hit: 0.3, speed_lines: 0.35, sparkles: 0.35 };
@@ -520,6 +557,7 @@ export const DEFAULT_STYLE = {
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
   sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
+  melody: "none", lead: "piano", accent: "none",
   overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",
   grade: "none", depth: "none", transition: "fade", outro: "none",
@@ -542,7 +580,7 @@ export const LABELS = {
   number_in: "Number entrance", arrangement: "Phone layout", pose: "Phone angle",
   accents: "Accents", accent_set: "Accent topic", accent_kind: "Accents drawn as", accent_in: "Accents enter by", accent_idle: "Accents move", accent_out: "Accents leave by", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
-  sound_kit: "Music", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
+  sound_kit: "Music", melody: "Famous tune (public domain)", lead: "Tune played on", accent: "Opening sound", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
   vibe: "Vibe", board: "Sign board", urgency: "Urgency",
   audience: "Made for", voice: "Voiceover", voice_mood: "Voice mood", voice_cast: "Voice",
   grade: "Colour grade", depth: "Phone depth", transition: "Hook transition", outro: "Ending",
@@ -557,7 +595,7 @@ export const GROUPS = [
   ["Phones", ["arrangement", "pose", "entry", "end_face", "front_glimpse", "glare", "depth"]],
   ["Accents", ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
-  ["Sound", ["sound_kit", "hit", "number_sfx"]],
+  ["Sound", ["sound_kit", "melody", "lead", "accent", "hit", "number_sfx"]],
 ];
 
 export function countLooks() {

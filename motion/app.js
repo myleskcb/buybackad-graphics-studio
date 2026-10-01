@@ -1,6 +1,6 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, countLooks } from "./catalog.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
@@ -50,6 +50,7 @@ const labelFor = (k, v) => {
   if (k === "voice_mood") return MOODS[v] ? `${MOODS[v].label}: ${MOODS[v].note}` : v;
   if (k === "voice_cast") return CASTS[v] ? CASTS[v].label : v;
   if (k === "board") return BOARD_NAMES[v] || v;
+  if (SOUND_NAMES[k] && SOUND_NAMES[k][v]) return SOUND_NAMES[k][v];
   if (k === "urgency") return URGENCY_NAMES[v] || v;
   if (k === "font" || k === "number_font") return v === "same" ? "Same as headline" : (FONTS[v] ? FONTS[v][0] : v);
   if (k === "palette") return v === "match" ? "Match a phone's colour" : v.replace(/[_-]/g, " ").replace(/\bla\b/g, "LA").replace(/\b\w/g, c => c.toUpperCase());
@@ -60,9 +61,6 @@ const labelFor = (k, v) => {
   if (k === "front_glimpse") return v === "spin" ? "Flash past in the air" : "Land screen up, then flip";
   if (k === "pose") return { flat: "Flat, all the same", edge_left: "Turned in 3-D, left edge showing", edge_right: "Turned in 3-D, right edge showing",
     turntable: "Turntable sway, all in step", wide_spin: "Wide 3-D spin" }[v] || v;
-  if (k === "sound_kit") return { uplift: "Uplifting pop", house: "Deep house", hiphop: "Hip-hop", lofi: "Lo-fi", minimal: "Minimal pulse", cinematic: "Cinematic", none: "No music" }[v] || v;
-  if (k === "hit") return { impact: "Low hit", riser: "Swell into a hit", cymbal: "Reverse cymbal", bass_drop: "Sub drop" }[v] || v;
-  if (k === "number_sfx") return { pop: "Soft pop", chime: "Two bells", register: "Cash register", whoosh_ding: "Whoosh and bell", ticks: "Soft typing" }[v] || v;
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
   if (k === "accents") return ["None", "One", "Two", "Three"][v] ?? v;
   if (k === "accent_kind") return { mix: "Best for this device", emoji: IOS_EMOJI ? "iOS emoji" : "iOS emoji (Apple devices; stand-ins here)", asset: "Studio cutouts", symbol: "Keyboard symbols" }[v] || v;
@@ -219,12 +217,17 @@ function loop() {
 }
 
 async function startAudio(from) {
+  // The latest call wins. A look's first mix waits for its recordings (music.js), so a look
+  // changed in the meantime must not start the old sound over the new one, and the sound
+  // starts where the picture is by then, not where it was asked for.
+  const call = state.audioCall = (state.audioCall || 0) + 1;
   try {
     if (!state.audioCtx) state.audioCtx = new AudioContext();
-    if (state.audioSrc) { try { state.audioSrc.stop(); } catch (e) { /* done */ } }
-    if (!state.audio || state.audio.ad !== state.ad) state.audio = { ad: state.ad, buf: await renderSoundtrack(state.ad) };
+    stopAudio();
+    if (!state.audio || state.audio.ad !== state.ad) { const ad = state.ad, buf = await renderSoundtrack(ad); if (ad === state.ad) state.audio = { ad, buf }; }
+    if (call !== state.audioCall || !state.audio || state.audio.ad !== state.ad) return;
     const src = state.audioCtx.createBufferSource(); src.buffer = state.audio.buf; src.connect(state.audioCtx.destination);
-    src.start(0, Math.max(0, from)); state.audioSrc = src;
+    src.start(0, Math.max(0, state.playing ? curT() : from)); state.audioSrc = src;
   } catch (e) { console.warn("sound", e); }
 }
 function stopAudio() { if (state.audioSrc) { try { state.audioSrc.stop(); } catch (e) { /* done */ } state.audioSrc = null; } }
