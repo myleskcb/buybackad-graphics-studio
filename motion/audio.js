@@ -527,7 +527,8 @@ function synth(ctx, noise, r, bus) {
   // throws on a time before zero, and one such cue used to leave the whole ad silent (38%
   // of looks on 2026-09-30). A sweep that builds to a moment after the start is heard from
   // the first frame, shortened; a hit timed before it happened before the ad and is dropped
-  // (one within 20 ms of it lands on the first frame). BUILDS: where each sweep keeps its
+  // (one within 20 ms of it lands on the first frame). And one cue that still cannot be
+  // scheduled is skipped, not the whole soundtrack. BUILDS: where each sweep keeps its
   // length (or its end) among the arguments after its start.
   const BUILDS = { swish: [0, false], bass: [1, false], swell: [0, true], reverseCymbal: [0, true], pad: [0, true] };
   for (const [k, f] of Object.entries(S)) {
@@ -543,7 +544,7 @@ function synth(ctx, noise, r, bus) {
         }
         t = 0;
       }
-      return f(t, ...a);
+      try { return f(t, ...a); } catch (e) { console.warn(`Sound cue "${k}" skipped:`, e); }
     };
   }
   return S;
