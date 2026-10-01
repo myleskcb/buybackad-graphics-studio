@@ -2060,6 +2060,37 @@ Changed:
     pgGhostWallStrip after the layout, the gate's 'ghostPic'. DESIGN-LAW rule
     94 (93 went to the designer when the lines were merged); AGENT-BRIEF.
 
+## 2026-09-30 (night) — one colour to a card, and to the studio
+
+The owner, of voltStack-pp02-15: "there's green white and pink boxes on there
+... literally looks like we chose a randomizer", then of the site: "fix the
+purple UI theme it's kinda lame".
+
+Learned:
+  - Two-colour palettes ("X & Y") read as random when the layout spreads the
+    two colours over boxes. 86 of 415 live cards had boxes in two hues; 282
+    had a second hue somewhere.
+  - Recolouring at the same luminance changes nothing the contrast gates
+    measure, so it is safe to do after every other pass; and a brightness-only
+    thumbnail diff cannot see it (a whole first pass of changed thumbnails was
+    reverted as "noise" before a per-card engine measure replaced the diff).
+  - The anchor matters more than the rule: keyed to the number plate, a gold
+    card's gold band went pink. Keyed to what the card already leads with,
+    and to gold on a card that says GOLD, the fewest pixels change.
+  - A check that groups hues greedily disagrees with a pass that measures
+    from an anchor; the check now asks the pass's question.
+  - The chrome had the same fault: accent, second hue and ring in three
+    colours, plus bokeh in all three.
+
+Changed:
+  - pgOneHue / pgHueCheck ('hues'), hooked after alignPass, themeScene,
+    applyCardLook, taglineApply and ezCopyFollowsGround; the Easy pencil's
+    colours are the visitor's. 282 live thumbnails re-drawn.
+  - The house look: graphite greys and one blue (styles.css tokens, ring,
+    bokeh strength, AI colour, chip fills; the bootstrap default; favicon,
+    404, pages.css). CSS_FALLBACK and the CSP hash re-synced.
+  - DESIGN-LAW rules 95 and 96; AGENT-BRIEF.
+
 ## 2026-09-30 (night) — every card, every choice; curves, warps and the owner's type pairs
 
 (claude/eloquent-euler-7jvzfd.)
