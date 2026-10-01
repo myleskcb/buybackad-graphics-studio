@@ -44,6 +44,9 @@ async function measure(page, id, rec){
       if (k >= 0) TEMPLATES.splice(k, 1);
       SHOWCASE.records[id] = rec;
       await openShowcase(id);
+      /* Easy Mode can still be settling the last card (a category switch
+         re-opens the strip's first card): wait, then ask once more */
+      for (let k = 0; k < 20 && ez.tpl !== tid; k++){ await new Promise(r => setTimeout(r, 100)); if (k === 10) showEasy(tid); }
       if (ez.tpl !== tid) return { err: 'Easy Mode opened ' + ez.tpl };
       await ensureTplAssets(ezTpl());
       $('ez-phone').value = '(562) 999-4994';
@@ -74,8 +77,13 @@ const shots = process.env.SHOTS; if (shots) mkdirSync(shots, { recursive: true }
 for (let i = 0; i < changed.length; i++){
   if (i && i % 60 === 0){ await browser.close(); ({ browser, page, errors } = await openStudio('&emoji=off')); }
   const id = changed[i], then = recThen(id);
-  const now = await measure(page, id, recNow(id));
-  const was = then ? await measure(page, id, then) : {};
+  /* a card whose picture never settles is reported, not waited on forever:
+     the browser is replaced and the sweep goes on */
+  const timed = async rec => { let t; const r = await Promise.race([measure(page, id, rec), new Promise(res => { t = setTimeout(() => res({ err: 'timed out' }), 120000); })]); clearTimeout(t);
+    if (r.err === 'timed out'){ try { await browser.close(); } catch (e){} ({ browser, page, errors } = await openStudio('&emoji=off')); }
+    return r; };
+  const now = await timed(recNow(id));
+  const was = then ? await timed(then) : {};
   const fresh = {};
   if (now.err) fresh.err = [now.err];
   else PATHS.forEach(p => { const w = new Set(was[p] || []); const f = (now[p] || []).filter(c => !w.has(c)); if (f.length) fresh[p] = f; });
