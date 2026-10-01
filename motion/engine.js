@@ -85,8 +85,10 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   const r = rng(seed * 7919 + 13);
   const out = { ...st, seed };
   for (const k of Object.keys(OPTIONS)) {
+    if (k === "pose") continue;                    // its own draw below, so older seeds keep their looks
     if (!locked.has(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
   }
+  if (!locked.has("pose")) out.pose = rng(seed * 4099 + 71).weighted(OPTIONS.pose, WEIGHTS.pose);
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
   if (!locked.has("bpm")) out.bpm = r.int(90, 134);
   audienceInto(out, r, locked);
@@ -342,9 +344,83 @@ export class Glare {
   }
 }
 
+/** What the model really has, read off its name: a notch (14, 14 Plus, 16e,
+ *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older) or the
+ *  Action button (15 on); Camera Control (16 on, not the e models). A phone we
+ *  cannot place (an upload) gets the island and only volume and power. */
+export function designOf(model) {
+  const m = /iPhone (\d+)(e)?(?: (Pro Max|Pro|Plus))?/.exec(model || "");
+  if (!m) return { notch: false, left: null, camCtrl: false };
+  const gen = +m[1], e = !!m[2], pro = /Pro/.test(m[3] || "");
+  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 ? "mute" : "action", camCtrl: gen >= 16 && !e };
+}
+
+// Where the edge controls sit, as a share of the height from the top (Apple's
+// dimension drawings). Left and right are as you look at the screen.
+const CONTROLS = { mute: [.183, .213], action: [.176, .216], volUp: [.256, .33], volDown: [.352, .426], power: [.27, .405], camCtrl: [.565, .64] };
+
+// A turned phone is drawn as what it is: a rounded slab THICKNESS deep, turned
+// about its long axis and seen through a lens a few phone-heights away, the way
+// a product shot is lit and framed. The near edge stands a little taller than
+// the far one, the side is a solid band that wraps the corners, and the face
+// falls off toward its far edge.
+const LENS = 6.5;                                  // camera distance, in phone heights
+
+function outline(w, h, r, n = 9) {                 // a rounded rectangle, clockwise
+  const pts = [];
+  for (const [cx, cy, a0] of [[w / 2 - r, -h / 2 + r, -Math.PI / 2], [w / 2 - r, h / 2 - r, 0], [-w / 2 + r, h / 2 - r, Math.PI / 2], [-w / 2 + r, -h / 2 + r, Math.PI]])
+    for (let i = 0; i <= n; i++) { const a = a0 + i / n * Math.PI / 2; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+  return pts;
+}
+
+function poly(ctx, pts) {
+  ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath();
+}
+
+function drawSlab(ctx, p, w, h, flip, face) {
+  const c = Math.cos(flip), s = Math.sin(flip), T = THICKNESS * w, D = LENS * h, R = CORNER * w;
+  // local x runs to the screen's right, zl out of the screen; sin > 0 brings the
+  // screen's right-hand edge (power) toward the lens, sin < 0 its left (volume)
+  const P = (x, y, zl) => { const X = x * c - zl * s, f = D / (D - (x * s + zl * c)); return [X * f, y * f]; };
+  const seen = c >= 0 ? T / 2 : -T / 2;
+  const rim = outline(w, h, R);
+  // the side: the outline swept from the hidden face to the seen one, brushed
+  // metal dark at both rims with a highlight a little in from the near face
+  const steps = Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
+  for (let k = 0; k <= steps; k++) {
+    const u = k / steps, zl = -seen + 2 * seen * u;
+    poly(ctx, rim.map(([x, y]) => P(x, y, zl)));
+    ctx.fillStyle = shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
+  }
+  // the controls on the side we see, where Apple puts them
+  const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
+  const keys = s > 0 ? ["power", ...(d.camCtrl ? ["camCtrl"] : [])] : [...(d.left ? [d.left] : []), "volUp", "volDown"];
+  for (const key of keys) {
+    const [a0, b0] = CONTROLS[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
+    poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
+    ctx.fillStyle = key === "camCtrl" ? "#1c1d21" : shade(p.metal, -.38); ctx.fill();
+    poly(ctx, [P(xs, y0 + 1, q * .1), P(xs, y0 + 1, q * .45), P(xs, y1 - 1, q * .45), P(xs, y1 - 1, q * .1)]);
+    ctx.fillStyle = key === "camCtrl" ? "rgba(255,255,255,.16)" : shade(p.metal, .18); ctx.fill();
+  }
+  // the face, in thin vertical strips so it recedes; the back is seen from behind
+  const fw = face.width, fh = face.height, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
+  const near = P(X(0), 0, seen)[0], far = P(X(1), 0, seen)[0];
+  const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / 3)));
+  for (let i = 0; i < n; i++) {
+    const [xa, ta] = P(X(i / n), -h / 2, seen), [xb, tb] = P(X((i + 1) / n), -h / 2, seen);
+    const top = (ta + tb) / 2, x0 = Math.min(xa, xb), dw = Math.abs(xb - xa) + .6;
+    ctx.drawImage(face, i / n * fw, 0, fw / n, fh, x0, top, dw, -2 * top);
+  }
+  // light: the face falls off toward the edge turned away from the lens
+  const ns = s > 0 ? 1 : -1, k = Math.abs(s);
+  const g = ctx.createLinearGradient(P(ns * w / 2, 0, seen)[0], 0, P(-ns * w / 2, 0, seen)[0], 0);
+  g.addColorStop(0, `rgba(255,255,255,${.07 * k})`); g.addColorStop(.35, "rgba(0,0,0,0)"); g.addColorStop(1, `rgba(0,0,0,${.3 * k})`);
+  poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill();
+}
+
 /** The screen side, switched off: the band, a black border, OLED glass and the
  *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred. */
-function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm) {
+function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm, notch = false) {
   const R = CORNER * w;
   rrect(ctx, -w / 2, -h / 2, w, h, R); ctx.fillStyle = metal; ctx.fill();
   const b = 0.014 * w;
@@ -365,9 +441,22 @@ function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm) {
     stop(1, 0);
     ctx.fillStyle = g; ctx.fillRect(-w / 2, -h / 2, w, h); ctx.restore();
   }
-  const iw = 0.315 * sw, ih = 0.093 * sw, top = -h / 2 + s + 0.034 * sw;
-  rrect(ctx, -iw / 2, top, iw, ih, ih / 2); ctx.fillStyle = "#070708"; ctx.fill();
-  const lr = ih * .3, lx = iw / 2 - ih / 2, ly = top + ih / 2;
+  let lr, lx, ly;
+  if (notch) {                                     // hangs from the top edge of the glass, with rounded shoulders
+    const nw = 0.4 * sw, nh = 0.082 * sw, top = -h / 2 + s, r = nh * .42, sr2 = nh * .22;
+    ctx.beginPath();
+    ctx.moveTo(-nw / 2 - sr2, top);
+    ctx.arcTo(-nw / 2, top, -nw / 2, top + sr2, sr2);
+    ctx.lineTo(-nw / 2, top + nh - r); ctx.arcTo(-nw / 2, top + nh, -nw / 2 + r, top + nh, r);
+    ctx.lineTo(nw / 2 - r, top + nh); ctx.arcTo(nw / 2, top + nh, nw / 2, top + nh - r, r);
+    ctx.lineTo(nw / 2, top + sr2); ctx.arcTo(nw / 2, top, nw / 2 + sr2, top, sr2);
+    ctx.closePath(); ctx.fillStyle = "#050506"; ctx.fill();
+    lr = nh * .17; lx = nw * .2; ly = top + nh * .5;
+  } else {
+    const iw = 0.315 * sw, ih = 0.093 * sw, top = -h / 2 + s + 0.034 * sw;
+    rrect(ctx, -iw / 2, top, iw, ih, ih / 2); ctx.fillStyle = "#070708"; ctx.fill();
+    lr = ih * .3; lx = iw / 2 - ih / 2; ly = top + ih / 2;
+  }
   ctx.beginPath(); ctx.arc(lx, ly, lr, 0, 7); ctx.fillStyle = "#0b0c10"; ctx.fill();
   ctx.beginPath(); ctx.arc(lx - lr * .2, ly - lr * .3, lr * .25, 0, 7); ctx.fillStyle = "#1a1e2c"; ctx.fill();
   rrect(ctx, -w / 2 + .5, -h / 2 + .5, w - 1, h - 1, R); ctx.strokeStyle = "rgba(255,255,255,.22)"; ctx.lineWidth = Math.max(1, w * .006); ctx.stroke();
@@ -386,13 +475,14 @@ export class Phone {
     this.img = img; this.meta = meta;
     this.h = ph; this.w = ph * (meta.w / meta.h);
     this.metal = meta.metal;
+    this.design = designOf(meta.model);
     this.shadows = [2, 10, 22].map(b => shadowSprite(this.w, this.h, b * ph / 400));
     Object.assign(this, { home: [0, 0], angle: 0, size: 1, reveal: false, landsBack: false, start: [0, 0], arc: [0, 0],
       spin: 1, flips: 1, tIn: 0, tLand: 1, tReveal: 99, side: 1, glare: null });
   }
 }
 
-function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = false) {
+export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = false) {
   const c = Math.cos(flip), ac = Math.abs(c), front = c >= 0;
   const w = p.w * scale, h = p.h * scale;
   const zz = clamp(z, 0, 1);
@@ -412,15 +502,21 @@ function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = fa
   ctx.globalAlpha = op;
   ctx.translate(x, y);
   ctx.rotate(-rot * Math.PI / 180);
-  const t = THICKNESS * p.w * scale * Math.abs(Math.sin(flip));
-  if (t >= 1.5) {                                   // the side of the phone
-    const lead = Math.sin(flip) * c > 0 ? 1 : -1;
-    ctx.fillStyle = shade(p.metal, -.3);
-    rrect(ctx, -w * ac / 2 + (lead > 0 ? 0 : -t), -h / 2, w * ac + t, h, Math.min((w * ac + t) / 2, CORNER * w));
-    ctx.fill();
+  if (Math.abs(Math.sin(flip)) > .015) {           // turned: the slab, in perspective
+    let face = p.img;
+    if (front) {
+      const fc = p._front || (p._front = canvas(1, 1));
+      fc.width = Math.ceil(w); fc.height = Math.ceil(h);
+      const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2);
+      drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
+      face = fc;
+    }
+    drawSlab(ctx, p, w, h, flip, face);
+    ctx.restore();
+    return;
   }
   ctx.scale(Math.max(ac, .02), 1);
-  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W);
+  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
   else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
   if (ac < .999) {                                 // turning away from the light
     rrect(ctx, -w / 2, -h / 2, w, h, CORNER * w);
@@ -565,7 +661,19 @@ function planEntries(phones, st, W, H, r, stageC) {
   return Math.max(...phones.map(p => p.tLand));
 }
 
+// Every phone in a video rests at the same angle: flat, or turned about 35
+// degrees to show one edge. The turn rides on top of every flip, so a phone
+// that lands on its screen shows the same edge, on the same side, as its back.
+const POSE_TURN = { flat: 0, edge_left: -.6, edge_right: .6 };
+
 function phoneState(p, t, st) {
+  const s = phoneState0(p, t, st);
+  const turn = POSE_TURN[st.pose] || 0;
+  if (s && turn) s[4] += turn;
+  return s;
+}
+
+function phoneState0(p, t, st) {
   if (t < p.tIn) return null;
   const [hx, hy] = p.home, base = p.size;
   if (p.crash && t < p.tLand) {

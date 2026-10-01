@@ -49,6 +49,7 @@ const labelFor = (k, v) => {
   if (k === "shake") return ["None", "Some", "Lots"][v] || v;
   if (k === "glare") return v === .5 ? "Soft" : v === 1 ? "Normal" : "Bright";
   if (k === "front_glimpse") return v === "spin" ? "Flash past in the air" : "Land screen up, then flip";
+  if (k === "pose") return { flat: "Flat, all the same", edge_left: "All angled, left edge showing", edge_right: "All angled, right edge showing" }[v];
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
   return String(v).replace(/[_-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 };
