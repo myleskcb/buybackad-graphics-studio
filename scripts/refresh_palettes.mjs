@@ -89,37 +89,40 @@ const hueGap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360
    DARK colour takes if its own would read brown. Chroma is per role and per
    side of the lightness scale: a pastel ground is quiet (0.045), a deep ground
    carries colour (0.11), the accent is the loudest thing on the card. The
-   `neutral` palettes keep a near-neutral ground on purpose — the trust end. */
+   `neutral` palettes keep a near-neutral ground on purpose — the trust end.
+   NAMES are "ground & accent", from stone, metal, flower, sea and sky: never
+   food or drink, and no colour word on two palettes (owner, 2026-09-30: 19 of
+   29 names were food). */
 export const PALETTES = [
-  { name:'Cobalt & Tangerine', g:262, a:52,  s:195, deep:266 },
-  { name:'Pistachio & Plum',   g:128, a:336, s:232, deep:322 },
-  { name:'Tomato & Cream',     g:24,  a:256, s:172, deep:356 },
+  { name:'Cobalt & Marigold',  g:262, a:52,  s:195, deep:266 },
+  { name:'Moss & Fuchsia',     g:128, a:336, s:232, deep:322 },
+  { name:'Scarlet & Sky',      g:24,  a:256, s:172, deep:356 },
   { name:'Racing Green',       g:156, a:95,  s:22,  deep:160 },
-  { name:'Ultraviolet & Lime', g:292, a:126, s:196, deep:292 },
+  { name:'Ultraviolet & Neon', g:292, a:126, s:196, deep:292 },
   { name:'Lagoon & Coral',     g:206, a:28,  s:292, deep:236 },
-  { name:'Blush & Cobalt',     g:356, a:262, s:162, deep:266 },
-  { name:'Butter & Navy',      g:96,  a:266, s:342, deep:266 },
-  { name:'Petrol & Peach',     g:224, a:48,  s:332, deep:226 },
-  { name:'Cherry & Aqua',      g:14,  a:196, s:96,  deep:6 },
-  { name:'Mint & Magenta',     g:166, a:342, s:256, deep:250 },
-  { name:'Lilac & Citrus',     g:306, a:112, s:178, deep:290 },
+  { name:'Peony & Sapphire',   g:356, a:262, s:162, deep:266 },
+  { name:'Primrose & Navy',    g:96,  a:266, s:342, deep:266 },
+  { name:'Petrol & Amber',     g:224, a:48,  s:332, deep:226 },
+  { name:'Rose & Aqua',        g:14,  a:196, s:96,  deep:6 },
+  { name:'Malachite & Magenta', g:166, a:342, s:256, deep:250 },
+  { name:'Lilac & Canary',     g:306, a:112, s:178, deep:290 },
   { name:'Glacier & Flame',    g:238, a:34,  s:122, deep:252 },
-  { name:'Aubergine & Brass',  g:322, a:92,  s:176, deep:318 },
-  { name:'Sea Glass & Grape',  g:184, a:300, s:56,  deep:212 },
+  { name:'Amethyst & Brass',   g:322, a:92,  s:176, deep:318 },
+  { name:'Sea Glass & Iris',   g:184, a:300, s:56,  deep:212 },
   { name:'Poppy & Ink',        g:28,  a:268, s:182, deep:268 },
-  { name:'Grape Soda',         g:284, a:178, s:62,  deep:286 },
-  { name:'Sage & Rosé',        g:142, a:358, s:252, deep:152 },
+  { name:'Indigo & Turquoise', g:284, a:178, s:62,  deep:286 },
+  { name:'Willow & Ruby',      g:142, a:358, s:252, deep:152 },
   { name:'Reef',               g:40,  a:200, s:294, deep:352 },
   { name:'Midnight & Cyan',    g:266, a:202, s:336, deep:266 },
-  { name:'Kiwi & Violet',      g:124, a:296, s:26,  deep:290 },
-  { name:'Denim & Butter',     g:256, a:96,  s:18,  deep:260 },
-  { name:'Jade & Tangerine',   g:174, a:52,  s:294, deep:176 },
-  { name:'Bubblegum & Pine',   g:352, a:154, s:242, deep:156 },
-  { name:'Orchid & Lime',      g:320, a:130, s:222, deep:302 },
+  { name:'Meadow & Lavender',  g:124, a:296, s:26,  deep:290 },
+  { name:'Denim & Sunflower',  g:256, a:96,  s:18,  deep:260 },
+  { name:'Jade & Ember',       g:174, a:52,  s:294, deep:176 },
+  { name:'Flamingo & Pine',    g:352, a:154, s:242, deep:156 },
+  { name:'Orchid & Fern',      g:320, a:130, s:222, deep:302 },
   { name:'Emerald & Blush',    g:160, a:12,  s:92,  deep:164 },
-  { name:'Marine & Rhubarb',   g:246, a:352, s:152, deep:250 },
+  { name:'Marine & Hibiscus',  g:246, a:352, s:152, deep:250 },
   { name:'Graphite & Volt',    g:252, a:122, s:202, deep:260, neutral:true },
-  { name:'Porcelain & Cobalt', g:84,  a:262, s:24,  deep:262, neutral:true },
+  { name:'Porcelain & Lapis',  g:84,  a:262, s:24,  deep:262, neutral:true },
 ];
 /* role chroma (light side / dark side) */
 const CH = { ground:[0.048, 0.112], accent:[0.17, 0.18], support:[0.12, 0.13], ink:[0.03, 0.035] };
