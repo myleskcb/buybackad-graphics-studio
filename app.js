@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261001a';
+const ASSET_REV = '20261001b';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -10554,7 +10554,40 @@ function scBuildWall(cards){
    chooses. Owner, 2026-09-04: "I don't even know what families are for
    colours." So this shows the palettes that are actually in the library, each
    with its real swatches and a live count, strongest colour first, and a tap
-   filters the gallery to that palette. */
+   filters the gallery to that palette.
+   2026-09-30: the 25 proven palettes (scripts/refresh_palettes.mjs). The
+   swatch is now the palette's own colours, the two its name promises first,
+   then its support colour and its light ground. Copied off one card, the
+   luminance lock made "Stone & Teal" show red and "Garnet & Gold" pink. The
+   order follows PALETTES; a theme not listed here keeps its card swatch. */
+const PALETTE_SW = {
+  'Navy & Orange':['#0b2a5b', '#ff7a00', '#2cc5cd', '#dce8fd'],
+  'Black & Gold':['#111114', '#d4af37', '#f89c7b', '#e4e7f0'],
+  'Money Green & Gold':['#0b5d3b', '#e0b43a', '#2ec5d3', '#d0efd5'],
+  'Apple White & Blue':['#f5f5f7', '#0071e3', '#ef98c9', '#1d1d1f'],
+  'Red & Yellow':['#d62828', '#ffc300', '#7db6fe', '#fde1dd'],
+  'Purple & Gold':['#4b1d7a', '#f2b705', '#eb99d0', '#ece3fd'],
+  'Teal & Coral':['#0f7c80', '#ff6f61', '#c4b452', '#c2f0ec'],
+  'Midnight & Cyan':['#0b1437', '#00d1e0', '#e79ad6', '#dee7fe'],
+  'Sunset Orange & Pink':['#ff7a3d', '#ff4f9a', '#b5a8fd', '#fde2d3'],
+  'Black & Hot Pink':['#111114', '#ff2d8a', '#2ec5d3', '#e7e6ef'],
+  'Seafoam & Navy':['#b8f0d8', '#13294b', '#f297c3', '#ffffff'],
+  'Ivory & Red':['#f6efe1', '#d7263d', '#84b5fd', '#1b1b1b'],
+  'Emerald & Pink':['#0c6b4f', '#ff7aa8', '#cbb251', '#ccf0d9'],
+  'Blue & Yellow':['#0057b8', '#ffd700', '#fb9798', '#d2ebfd'],
+  'Graphite & Volt':['#2b2d31', '#a3e635', '#2cc5cd', '#e2e8ef'],
+  'Lavender & Jade':['#cdb8f5', '#3ddc97', '#f297c3', '#392364'],
+  'Titanium & Orange':['#8e9298', '#ff6a13', '#51bfee', '#1f2226'],
+  'Garnet & Gold':['#5e0b2b', '#d4a017', '#2cc5cd', '#fde0e4'],
+  'Cobalt & Pink':['#1f3fbf', '#ff6fb5', '#31c6bf', '#dde8fe'],
+  'Shell & Teal':['#ffcfb3', '#0f8b8d', '#f297c3', '#033639'],
+  'Aqua & Magenta':['#19c3d1', '#d6247a', '#c4b452', '#003640'],
+  'Blush & Navy':['#f7d6de', '#1b2a5c', '#61c694', '#ffffff'],
+  'Ultraviolet & Neon':['#5b21b6', '#a3e635', '#2cc5cd', '#e9e4fe'],
+  'Sunflower & Purple':['#fff176', '#6a1bb3', '#fb9798', '#392364'],
+  'Stone & Teal':['#d8d2c6', '#0f7c80', '#fb998c', '#2b2b2b'],
+};
+const PALETTE_ORDER = Object.keys(PALETTE_SW);
 function scBuildFamilies(cards){
   const grid = $('fam-grid');
   if (!grid) return;
@@ -10566,7 +10599,10 @@ function scBuildFamilies(cards){
     /* the swatch comes from the card that shows this palette best */
     const rep = list.slice().sort((x, y) => (y.chroma || 0) - (x.chroma || 0))[0];
     return { theme: t, n: list.length, chroma, rep, family: rep.family };
-  }).sort((x, y) => y.chroma - x.chroma);
+  }).sort((x, y) => {
+    const i = PALETTE_ORDER.indexOf(x.theme), j = PALETTE_ORDER.indexOf(y.theme);
+    return (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || y.chroma - x.chroma;
+  });
   grid.innerHTML = '';
   pals.forEach(p => {
     const b = document.createElement('button');
@@ -10574,9 +10610,10 @@ function scBuildFamilies(cards){
     b.className = 'fam-card';
     b.dataset.fam = p.theme;
     b.title = p.theme + ' · ' + p.family + ' · ' + p.n + ' cards';
-    b.innerHTML = `<div class="fam-sw"><i style="background:${p.rep.c1}"></i><i style="background:${p.rep.ink}"></i><i style="background:${p.rep.accent}"></i><i style="background:${p.rep.support}"></i></div>
+    const sw = PALETTE_SW[p.theme] || [p.rep.c1, p.rep.ink, p.rep.accent, p.rep.support];
+    b.innerHTML = `<div class="fam-sw">${sw.map(h => `<i style="background:${h}"></i>`).join('')}</div>
       <div class="fam-name">${escHtml(p.theme)}</div>
-      <div class="fam-meta">${p.n} card${p.n === 1 ? '' : 's'} &middot; ${escHtml(p.family)}</div>`;
+      <div class="fam-meta">${p.n} card${p.n === 1 ? '' : 's'}</div>`;
     b.onclick = () => {
       SHOWCASE.filter.fam = SHOWCASE.filter.fam === p.theme ? 'all' : p.theme;
       scSyncFilters();
