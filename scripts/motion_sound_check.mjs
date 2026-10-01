@@ -111,6 +111,9 @@ const browser = await puppeteer.launch({ executablePath: CHROME, headless: 'new'
   expect(groups[0] === 'Audience and voice', `the first panel group is "${groups[0]}", not Audience and voice`);
   const { AUDIENCES } = await import('../motion/audiences.js'), { VIBES } = await import('../motion/catalog.js');
   for (const [key, a] of Object.entries(AUDIENCES)) {
+    // the rebuild this pick causes writes the line again; cleared first, so the check never
+    // reads the line before it (the attention audit of the last pick can hold the page a second or two)
+    await p.$eval('#vo-line', e => { e.textContent = ''; });
     await p.select('select[data-key=audience]', key);
     await p.waitForFunction(k => document.querySelector('select[data-key=audience]').value === k && document.querySelector('#vo-line').textContent.length > 10, { timeout: 30000 }, key);
     await new Promise(r => setTimeout(r, 400));

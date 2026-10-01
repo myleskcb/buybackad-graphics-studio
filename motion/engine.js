@@ -2,7 +2,7 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES } from "./catalog.js";
 import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
@@ -97,7 +97,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   const ra = rng(seed * 6151 + 29);
   for (const k of ACCENT_AXES) if (!locked.has(k)) out[k] = ra.weighted(OPTIONS[k], WEIGHTS[k]);
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
-  if (!locked.has("bpm")) out.bpm = r.int(90, 134);
+  if (!locked.has("bpm")) out.bpm = r.int(96, 124);      // the tempo a commercial bed sits at
   audienceInto(out, r, locked);
   vibeInto(out, r, locked);
   backsFirst(out, locked);
@@ -272,6 +272,7 @@ function copyInto(out, r, locked, content) {
  *  it only stops two choices colliding on screen. */
 export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!FONTS[st.font]) st.font = "franklin";
+  for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[st[k]]) st[k] = map[st[k]];
   if (st.palette === "match") {
     const found = (st.phones || []).map(id => FINISH_PALETTES[(phoneIndex[id] || {}).finish]).filter(Boolean);
     st.palette = found.length ? found[Math.floor(rng(st.seed * 31)() * found.length)] : "sand";

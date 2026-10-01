@@ -1,6 +1,6 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, countLooks } from "./catalog.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, SOUND_ALIASES, countLooks } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
@@ -52,6 +52,9 @@ const labelFor = (k, v) => {
   if (k === "front_glimpse") return v === "spin" ? "Flash past in the air" : "Land screen up, then flip";
   if (k === "pose") return { flat: "Flat, all the same", edge_left: "Turned in 3-D, left edge showing", edge_right: "Turned in 3-D, right edge showing",
     turntable: "Turntable sway, all in step", wide_spin: "Wide 3-D spin" }[v] || v;
+  if (k === "sound_kit") return { uplift: "Uplifting pop", house: "Deep house", hiphop: "Hip-hop", lofi: "Lo-fi", minimal: "Minimal pulse", cinematic: "Cinematic", none: "No music" }[v] || v;
+  if (k === "hit") return { impact: "Low hit", riser: "Swell into a hit", cymbal: "Reverse cymbal", bass_drop: "Sub drop" }[v] || v;
+  if (k === "number_sfx") return { pop: "Soft pop", chime: "Two bells", register: "Cash register", whoosh_ding: "Whoosh and bell", ticks: "Soft typing" }[v] || v;
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
   if (k === "accents") return ["None", "One", "Two", "Three"][v] ?? v;
   if (k === "accent_kind") return { mix: "Best for this device", emoji: IOS_EMOJI ? "iOS emoji" : "iOS emoji (Apple devices; stand-ins here)", asset: "Studio cutouts", symbol: "Keyboard symbols" }[v] || v;
@@ -67,6 +70,7 @@ function restore() {
   try {
     const s = JSON.parse(localStorage.getItem(STORE) || "null");
     if (s && s.style) { state.style = { ...state.style, ...s.style }; state.locked = new Set(s.locked || [...state.locked]); }
+    for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[state.style[k]]) state.style[k] = map[state.style[k]];   // a retired sound shows as its stand-in
   } catch (e) { /* fresh start */ }
   try {                                              // the studio's brand kit
     const b = JSON.parse(localStorage.getItem("pgfx_brand") || "null");
