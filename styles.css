@@ -1365,7 +1365,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-tagstyle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .ez-tagnote{margin-top:8px;font:500 12px/1.4 var(--ui);color:var(--text-2)}
 /* ORIG: the card's own colours, the way back from a theme */
-/* a choice the audit found fails this card (choice holds, rule 97): off, and its title says why */
+/* a choice the audit found fails this card (choice holds, rule 100): off, and its title says why */
 .ez-theme.held,.ez-voices button.held,#ez-tag-looks button.held,.ez-tagstyle.held{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none;filter:grayscale(.6)}
 .ez-held-note{margin-top:7px;font:500 11.5px/1.4 var(--ui);color:var(--text-dim)}
 .ez-theme.orig{align-items:center;justify-content:center;background:var(--surface-sunk);color:var(--text-dim);font:700 9px/1 var(--ui);letter-spacing:.06em}
@@ -1807,7 +1807,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 #ltab-templates .ez-catrow{flex-direction:column;align-items:stretch;gap:6px}
 #ltab-templates .cat-select{min-width:0;width:100%}
 
-/* ═══════════ TEXT SHAPES (DESIGN-LAW rule 95) ═══════════
+/* ═══════════ TEXT SHAPES (DESIGN-LAW rule 98) ═══════════
    The shape chips beside Bend, in the designer's Properties and Easy Mode's ✎:
    Straight, Arc, Wave, then the warps. Drawn as the .tp-biu buttons are. */
 .ts-shapes{flex:1;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;min-width:0}
@@ -1817,7 +1817,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ts-shapes button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}
 .field .ts-shapes{margin-top:4px}
 
-/* ═══════════ TYPE VOICES (DESIGN-LAW rule 96) ═══════════
+/* ═══════════ TYPE VOICES (DESIGN-LAW rule 99) ═══════════
    The typeface row: ORIG and the eighteen type pairs, as Easy Mode's chips. */
 .ez-voices{display:flex;flex-wrap:wrap;gap:6px}
 .ez-voices button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}

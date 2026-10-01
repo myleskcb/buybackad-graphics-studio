@@ -2150,15 +2150,15 @@ Learned:
     the cause wrong the first time.
 
 Changed:
-  - Text shapes (rule 95): curves (arc, wave) on fabric's text on a path,
+  - Text shapes (rule 98): curves (arc, wave) on fabric's text on a path,
     warps (arch, bulge, flag, rise, fan, bowl) through an envelope; Shape and
     Bend in the designer's Properties and Easy Mode's ✎ menu; old letter
     groups read back as one shaped line; arcs bound to their rings
     (arcCrown's crown, karatSeal's new legend).
-  - Type voices (rule 96): eighteen pairs and ORIG in Easy Mode and the
+  - Type voices (rule 99): eighteen pairs and ORIG in Easy Mode and the
     designer; each line keeps its footprint; houseTwoFaces sets two families
     on every classic.
-  - Every choice a card offers is one it passed (rule 97):
+  - Every choice a card offers is one it passed (rule 100):
     every_card_audit.mjs --write-holds writes assets/choice-holds.json; the
     studio turns a held chip off with its reason under the row, sets a
     carried pick aside on the card it fails, and keeps a card that fails as

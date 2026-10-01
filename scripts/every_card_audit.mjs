@@ -1,4 +1,4 @@
-/* EVERY CARD, EVERY CHOICE (DESIGN-LAW rules 83, 87, 90, 97).
+/* EVERY CARD, EVERY CHOICE (DESIGN-LAW rules 83, 87, 90, 100).
  *
  * The owner, 2026-09-30: "make sure all classic and current themes are
  * audited and ready for use with new color schemes, new design language, new
@@ -43,7 +43,7 @@ import puppeteer from 'puppeteer-core';
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync } from 'node:fs';
 import { BASE as ROOT, offline, live } from './_showcase_harness.mjs';
 /* the studio as offered, but every choice clickable: its own holds (choice-holds.json,
-   rule 97) are what this audit writes, and a held chip is off */
+   rule 100) are what this audit writes, and a held chip is off */
 const BASE = ROOT + (ROOT.includes('?') ? '&' : '?') + 'nochoiceholds=1';
 
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
@@ -297,7 +297,7 @@ if (process.argv.includes('--write-holds')){
   const FILE = new URL('../assets/choice-holds.json', import.meta.url).pathname;
   let prev = null; try { prev = JSON.parse(readFileSync(FILE, 'utf8')); } catch (e){}
   const holds = argv('--ids') && prev ? prev : { about: '', cards: {}, themes: {}, looks: {}, voices: {} };
-  holds.about = 'Cards and choices that fail on the render a visitor gets (scripts/every_card_audit.mjs --write-holds). A card under cards is not offered; a theme, look or voice under a card is off on that card, and says why. DESIGN-LAW rule 97.';
+  holds.about = 'Cards and choices that fail on the render a visitor gets (scripts/every_card_audit.mjs --write-holds). A card under cards is not offered; a theme, look or voice under a card is off on that card, and says why. DESIGN-LAW rule 100.';
   holds.date = new Date().toISOString().slice(0, 10);
   /* the reason, as the chip's title tells a visitor */
   const lineOf = n => /^Phone Number/.test(n) ? 'the number' : /^Headline/.test(n) ? 'the headline' : /^CTA$/.test(n) ? 'the call to action' : '“' + n + '”';

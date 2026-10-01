@@ -1129,7 +1129,7 @@ After: showcase 58 → **84px** median (945 of 971 rebuilt), classics 64 →
 **108px** median (165 rebuilt; 73 already at 84px or more keep their own). The
 classics' rebuild ships as `assets/number-fix.json`, applied at load.
 
-> Narrowed by rule 97 (2026-09-30): a classic keeps its own big number only
+> Narrowed by rule 100 (2026-09-30): a classic keeps its own big number only
 > while its headline still leads by 1.3x; one that outranks its headline is
 > rebuilt at the cap.
 
@@ -2971,7 +2971,7 @@ one.
   the layout; with the wall gone it shows (a chain on the gold checklists, the
   strip fan on the steps cards).
 
-## 95. A curve or a warp is a property of the line, and a template built round a ring is curved on it
+## 98. A curve or a warp is a property of the line, and a template built round a ring is curved on it
 
 Added 2026-09-30 on the designer branch (claude/eloquent-euler-7jvzfd). The
 owner: "ability to make clean warps and curves", "and pre warped / curved for
@@ -3020,7 +3020,7 @@ download and the video. The looks, the layout and the ink passed a group by.
   take a curved line (its depth copies curve with it); a colour block cannot
   (a block is a straight plate), and says so.
 
-## 96. The owner's type pairs are a choice for the whole card; a classic sets two faces
+## 99. The owner's type pairs are a choice for the whole card; a classic sets two faces
 
 Added 2026-09-30 on the designer branch. The owner: "new typefaces / text
 design". The owner approved 56 faces (2026-09-01) and FONT_PAIRS pairs them by
@@ -3062,7 +3062,7 @@ was one line at a time from the ✎ menu.
   Weights snap to what the family ships. It runs last at load and again when
   the number table lands (a table applied after a face pass undoes it).
 
-## 97. Every choice a card offers is one it passed
+## 100. Every choice a card offers is one it passed
 
 Added 2026-09-30 on the designer branch. The owner: "make sure all classic and
 current themes are audited and ready for use with new color schemes, new

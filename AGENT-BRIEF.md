@@ -324,15 +324,15 @@ produced." DESIGN-LAW rule 87. In practice:
   `node scripts/designer_audit.mjs` too. It exits 1 on any problem and takes
   about 12 minutes for its six cards. It fails a card that does not open
   rather than measure the one left on screen.
-- **Text shapes** (rule 95, 2026-09-30): a curve or a warp is `pgShape` on
+- **Text shapes** (rule 98, 2026-09-30): a curve or a warp is `pgShape` on
   a text object, laid out again with the text (`tsSet`). Never build a curved
   line as a group of letters, and never let a layout pass move a line bound
   to its ring (`TS_RINGS`, `tsBindRings`, run at the head of `alignPass`).
-- **Type voices and two faces** (rule 96): `applyVoice` sets the whole
+- **Type voices and two faces** (rule 99): `applyVoice` sets the whole
   card's faces before the layout, each line keeping its footprint;
   `houseTwoFaces` sets two families on every classic, last at load and again
   when a table sets a face.
-- **Every choice on every card** (rule 97): `node
+- **Every choice on every card** (rule 100): `node
   scripts/every_card_audit.mjs --write-holds` takes every offered card
   through every theme, look and voice on Easy Mode's render and writes
   assets/choice-holds.json. The studio turns a held chip off with its reason
