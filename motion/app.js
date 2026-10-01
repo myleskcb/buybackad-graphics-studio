@@ -1,17 +1,18 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, countLooks } from "./catalog.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, countLooks } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode } from "./export.js";
 import { auditLook, drawCurve } from "./audit.js";
+import { loadAccents, IOS_EMOJI } from "./accents.js";
 
 const $ = id => document.getElementById(id);
 const STORE = "pgfx_motion_v1";
 const PREVIEW_MAX = 720;
-const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-cosmic-orange", "18-pro-glacier", "16-ultramarine"];
+const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-cosmic-orange", "18-pro-glacier", "16-pink"];
 
 const state = {
   style: { ...DEFAULT_STYLE, ...CLASSIC, phones: DEFAULT_PHONES.slice() },
@@ -49,8 +50,11 @@ const labelFor = (k, v) => {
   if (k === "shake") return ["None", "Some", "Lots"][v] || v;
   if (k === "glare") return v === .5 ? "Soft" : v === 1 ? "Normal" : "Bright";
   if (k === "front_glimpse") return v === "spin" ? "Flash past in the air" : "Land screen up, then flip";
-  if (k === "pose") return { flat: "Flat, all the same", edge_left: "All angled, left edge showing", edge_right: "All angled, right edge showing" }[v];
+  if (k === "pose") return { flat: "Flat, all the same", edge_left: "Turned in 3-D, left edge showing", edge_right: "Turned in 3-D, right edge showing",
+    turntable: "Turntable sway, all in step", wide_spin: "Wide 3-D spin" }[v] || v;
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
+  if (k === "accents") return ["None", "One", "Two", "Three"][v] ?? v;
+  if (k === "accent_kind") return { mix: "Best for this device", emoji: IOS_EMOJI ? "iOS emoji" : "iOS emoji (Apple devices; stand-ins here)", asset: "Studio cutouts", symbol: "Keyboard symbols" }[v] || v;
   return String(v).replace(/[_-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 };
 
@@ -281,6 +285,9 @@ function buildPanel() {
   $("shuffle-all").addEventListener("click", () => shuffle(true));
   $("undo").addEventListener("click", () => { const prev = state.history.pop(); if (prev) { state.style = prev; save(); syncWords(); drawPhonePicker(); rebuild(); } $("undo").disabled = !state.history.length; });
   $("more").addEventListener("click", () => renderGallery(false));
+  $("gallery-cats").addEventListener("click", e => { const b = e.target.closest("[data-cat]"); if (b) setShelf(b.dataset.cat); });
+  $("gallery").addEventListener("click", e => { const b = e.target.closest(".mo-link[data-cat]"); if (b) setShelf(b.dataset.cat); });
+  if ("IntersectionObserver" in window) new IntersectionObserver(es => { if (es.some(x => x.isIntersecting) && (state.galleryCat || "all") !== "all") renderGallery(false); }, { rootMargin: "600px" }).observe($("gallery-end"));
   $("play").addEventListener("click", togglePlay);
   $("scrub").addEventListener("input", e => {
     const d = state.ad ? state.ad.st.duration : 6;
@@ -454,29 +461,108 @@ function drawPhonePicker() {
 
 // ------------------------------------------------------------ more looks
 
+/* The gallery is sorted by look: every LA vibe is its own shelf, so is every look
+   made for the audiences, and the plain studio grounds are four shelves by what the
+   ground does. "All" shows one row of each; a shelf picked shows as many as you
+   scroll, no button to keep pressing.
+   (Owner, 2026-09-30: eight at a time "doesn't show enough"; "organize/categorize".) */
+const STUDIO = {
+  clean:   { label: "Clean gradients", backgrounds: ["radial", "flat", "linear", "duotone", "tonal", "spotlight", "split", "rays_bold"] },
+  pattern: { label: "Patterns", backgrounds: ["dots", "stripes", "grid", "checker", "halftone", "rings", "waves", "halftone_duo", "halftone_comic", "halftone_lines", "checker_diamond", "checker_floor"] },
+  light:   { label: "Light and glow", backgrounds: ["rays", "sunburst", "beams", "bokeh", "aurora", "drift", "mesh", "rays_corner", "beams_cross", "beams_stage"] },
+  bold:    { label: "Bold and loud", backgrounds: ["bigword", "confetti", "frame", "noise"] },
+};
+// the approved themes, one shelf per family (each thumbnail a different theme of it)
+const familyShelves = THEME_FAMILIES.map(f => ({ f, ids: Object.keys(VIBES).filter(id => VIBES[id].family === f) })).filter(x => x.ids.length)
+  .map(({ f, ids }) => ({ id: "family-" + f.toLowerCase().replace(/[^a-z]+/g, "-"), group: "Themes", label: f, vibes: ids }));
+const SHELVES = [
+  ...Object.entries(VIBES).filter(([, v]) => !v.family).map(([id, v]) => ({ id, group: v.la === false ? "Audience looks" : "LA looks", label: v.label, vibe: id })),
+  ...familyShelves,
+  ...Object.entries(STUDIO).map(([id, g]) => ({ id: "studio-" + id, group: "Studio", label: g.label, backgrounds: g.backgrounds.filter(b => OPTIONS.background.includes(b)) })),
+];
+const ROW = 4, BATCH = 12, SHELF_MAX = 96;
+
+/** A look drawn for one shelf: its vibe (or a studio ground) held, the rest from the seed. */
+function shelfStyle(shelf, seed) {
+  const locked = new Set(state.locked); locked.add("vibe");
+  const base = { ...state.style, vibe: shelf.vibes ? shelf.vibes[seed % shelf.vibes.length] : shelf.vibe || "none" };
+  if (shelf.backgrounds) { locked.add("background"); base.background = shelf.backgrounds[seed % shelf.backgrounds.length]; }
+  else locked.delete("background");
+  return harmonise(randomize(base, seed, locked, [], false), locked, indexById());
+}
+
+async function thumb(st, W, H, k, label) {
+  await loadFonts(fontsFor(st));
+  const ad = new Ad(st, state.assets, Math.round(W * k), Math.round(H * k));
+  const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
+  const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
+  ad.stillAt(c.getContext("2d"));
+  b.appendChild(c); b.insertAdjacentHTML("beforeend", `<span>${label}</span>`);
+  b.addEventListener("click", () => { pushHistory(); state.style = { ...st, number: state.style.number, phones: state.style.phones }; save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); });
+  return b;
+}
+
+function drawShelfChips() {
+  const box = $("gallery-cats"), cur = state.galleryCat || "all";
+  let html = `<button class="mo-chip" data-cat="all" aria-pressed="${cur === "all"}">All</button>`, grp = null;
+  for (const s of SHELVES) {
+    if (s.group !== grp) { grp = s.group; html += `<span class="mo-chip-grp">${grp}</span>`; }
+    html += `<button class="mo-chip" data-cat="${s.id}" aria-pressed="${cur === s.id}">${s.label}</button>`;
+  }
+  box.innerHTML = html;
+}
+
 async function renderGallery(reset) {
   const g = $("gallery");
   // a reset starts a new gallery; one still drawing from before stops rather than
-  // adding thumbnails of the old size or the old number to the new one
-  if (reset) { g.innerHTML = ""; state.galleryGen = (state.galleryGen || 0) + 1; }
-  const gen = state.galleryGen || 0;
+  // adding thumbnails of the old size, the old number or the old shelf to the new one
+  if (reset) { g.innerHTML = ""; state.galleryGen = (state.galleryGen || 0) + 1; state.galleryShown = 0; drawShelfChips(); }
+  const gen = state.galleryGen || 0, live = () => gen === (state.galleryGen || 0);
   const [W, H] = ASPECTS[state.style.aspect] || ASPECTS["1:1"];
-  const k = 300 / Math.max(W, H);
-  for (let i = 0; i < 8; i++) {
-    if (gen !== (state.galleryGen || 0)) return;
-    const seed = state.gallerySeed++;
-    const st = harmonise(randomize(state.style, seed, state.locked, [], false), state.locked, indexById());
-    await loadFonts(fontsFor(st));
-    if (gen !== (state.galleryGen || 0)) return;
-    const ad = new Ad(st, state.assets, Math.round(W * k), Math.round(H * k));
-    const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
-    const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
-    ad.stillAt(c.getContext("2d"));
-    b.appendChild(c); b.insertAdjacentHTML("beforeend", `<span>${st.vibe && st.vibe !== "none" ? VIBES[st.vibe].label : labelFor("font", st.font)}</span>`);
-    b.addEventListener("click", () => { pushHistory(); state.style = { ...st, number: state.style.number, phones: state.style.phones }; save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); });
-    g.appendChild(b);
-    await new Promise(r => setTimeout(r, 0));
-  }
+  const k = 300 / Math.max(W, H), cat = state.galleryCat || "all";
+  if (state.galleryBusy === gen) return;
+  state.galleryBusy = gen;
+  try {
+    if (cat === "all") {
+      if (!reset) return;
+      let grp = null;
+      for (const shelf of SHELVES) {
+        if (!live()) return;
+        if (shelf.group !== grp) { grp = shelf.group; g.insertAdjacentHTML("beforeend", `<h3 class="mo-shelf-grp">${grp}</h3>`); }
+        const sec = document.createElement("section"); sec.className = "mo-shelf";
+        sec.innerHTML = `<header><h4>${shelf.label}</h4><button class="mo-link" data-cat="${shelf.id}">See all &rsaquo;</button></header><div class="mo-gallery"></div>`;
+        g.appendChild(sec);
+        const grid = sec.querySelector(".mo-gallery");
+        for (let i = 0; i < ROW; i++) {
+          const st = shelfStyle(shelf, state.gallerySeed++);
+          const b = await thumb(st, W, H, k, shelf.vibes ? VIBES[st.vibe].label : labelFor("font", st.font));
+          if (!live()) return;
+          grid.appendChild(b);
+          await new Promise(r => setTimeout(r, 0));
+        }
+      }
+      return;
+    }
+    const shelf = SHELVES.find(s => s.id === cat);
+    let grid = g.querySelector(".mo-gallery");
+    if (!grid) { grid = document.createElement("div"); grid.className = "mo-gallery"; g.appendChild(grid); }
+    for (let i = 0; i < BATCH && state.galleryShown < SHELF_MAX; i++) {
+      const st = shelfStyle(shelf, state.gallerySeed++);
+      const b = await thumb(st, W, H, k, shelf.vibes ? VIBES[st.vibe].label : labelFor("font", st.font));
+      if (!live()) return;
+      grid.appendChild(b); state.galleryShown++;
+      await new Promise(r => setTimeout(r, 0));
+    }
+  } finally { if (state.galleryBusy === gen) state.galleryBusy = null; }
+  // still in view after a batch (a tall screen): keep going
+  if (live() && cat !== "all" && state.galleryShown < SHELF_MAX && nearEnd()) renderGallery(false);
+}
+const nearEnd = () => { const e = $("gallery-end"); return e && e.getBoundingClientRect().top < innerHeight + 600; };
+
+function setShelf(cat) {
+  state.galleryCat = cat; renderGallery(true);
+  $("more").hidden = cat === "all";
+  $("gallery-cats").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 // ------------------------------------------------------------ download
@@ -513,6 +599,7 @@ function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTi
   await loadVoiceBank();
   const { phones, index } = await loadPhones("./phones/");
   state.assets.phones = phones; state.index = index;
+  state.assets.accents = await loadAccents("../assets/cutouts/");
   state.style.phones = state.style.phones.filter(id => phones[id]);
   if (!state.style.phones.length) state.style.phones = DEFAULT_PHONES.filter(id => phones[id]);
   syncWords(); drawPhonePicker();

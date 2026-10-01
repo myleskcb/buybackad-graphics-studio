@@ -7,10 +7,12 @@
 // Ported from iphoneslainv scripts/phone-ad (the Mac engine), widened 2-3x.
 //
 // Who the ad is for (an audience: its words, looks, music and voice) lives in
-// audiences.js; the voices in voices.js.
+// audiences.js; the voices in voices.js; the fifty themes in themes.js.
 
 import { MORE_VIBES, AUDIENCES, AUDIENCE_KEYS, MOODS } from "./audiences.js";
 import { CASTS } from "./voices.js";
+import { THEME_PALETTES, THEME_BOARDS, THEME_GROUNDS, THEMES, THEME_FAMILIES } from "./themes.js";
+export { THEMES, THEME_FAMILIES, THEME_GROUNDS };
 
 export const FONTS = {
   // name: [family, weight, file(s), kind]   kind: geometric grotesk condensed wide slab serif display script mono
@@ -383,7 +385,9 @@ export const OPTIONS = {
     "tower", "spiral", "vee", "ring", "staircase", "crossed", "giants", "pairs"],
   entry: ["fly_spin", "drop", "conveyor", "zoom", "orbit", "deal", "pop", "rain", "boomerang", "split", "spiral_in", "whip"],
   end_face: ["back", "front", "mixed"],
-  pose: ["flat", "edge_left", "edge_right"],
+  // the phone angle, one for every phone in the video so the set reads as one: flat, turned
+  // in 3-D to show one edge, swaying on a turntable, or one wide spin once they land
+  pose: ["flat", "edge_left", "edge_right", "turntable", "wide_spin"],
   front_glimpse: ["spin", "hold"],
   background: ["radial", "flat", "linear", "split", "rays", "dots", "stripes", "spotlight", "bigword", "grid",
     "mesh", "rings", "checker", "waves", "bokeh", "confetti", "duotone", "halftone", "beams", "frame", "sunburst", "noise",
@@ -407,7 +411,64 @@ export const OPTIONS = {
   transition: ["fade", "flash", "zoom_through", "whip", "iris", "slice", "block"],
   // the last second
   outro: ["none", "settle", "end_card"],
+  // accents (accents.js): how many, on what topic, drawn as what, and how they move
+  accents: [0, 1, 2, 3],
+  accent_set: ["cash", "money", "hype", "phones", "deal", "local", "trust", "sparkle", "checks"],
+  accent_kind: ["mix", "emoji", "asset", "symbol"],
+  accent_in: ["fade", "pop", "slide", "fly", "drop", "flip3d", "wide_spin", "zoom", "swing", "orbit"],
+  accent_idle: ["bob", "pulse", "wiggle", "turntable", "float", "still"],
+  accent_out: ["fade", "pop_out", "fly_out", "spin_out", "drop_out", "none"],
 };
+
+// Spin-offs of the best grounds (audit 2026-09-30), painted in decor.js
+// candidateGround. tier 3: the best of the best, three spin-offs each; tier 2:
+// the best, two each. None is drawn by a shuffle until the owner approves it:
+// GROUND_REVIEW is the owner's decision, id by id. An approved spin-off of an LA
+// vibe's ground joins that vibe; an approved studio one joins the studio grounds.
+export const GROUND_CANDIDATES = {
+  mural_waves:     { parent: "mural_wall",  tier: 3, label: "Mural: painted waves" },
+  mural_rainbow:   { parent: "mural_wall",  tier: 3, label: "Mural: seventies rainbow" },
+  mural_shapes:    { parent: "mural_wall",  tier: 3, label: "Mural: shapes and squiggles" },
+  sunset_synth:    { parent: "sunset_sky",  tier: 3, label: "Sunset: retro grid" },
+  sunset_ocean:    { parent: "sunset_sky",  tier: 3, label: "Sunset: over the ocean" },
+  sunset_dusk:     { parent: "sunset_sky",  tier: 3, label: "Sunset: dusk and stars" },
+  brick_neon_wash: { parent: "brick_night", tier: 3, label: "Brick: neon wash" },
+  brick_wet:       { parent: "brick_night", tier: 3, label: "Brick: wet night" },
+  brick_lamp:      { parent: "brick_night", tier: 3, label: "Brick: streetlamp" },
+  halftone_duo:    { parent: "halftone",    tier: 3, label: "Halftone: two corners" },
+  halftone_comic:  { parent: "halftone",    tier: 3, label: "Halftone: comic panel" },
+  halftone_lines:  { parent: "halftone",    tier: 3, label: "Halftone: line screen" },
+  rays_corner:     { parent: "rays",        tier: 2, label: "Rays: from the corner" },
+  rays_bold:       { parent: "rays",        tier: 2, label: "Rays: bold sunburst" },
+  beams_cross:     { parent: "beams",       tier: 2, label: "Beams: crossed searchlights" },
+  beams_stage:     { parent: "beams",       tier: 2, label: "Beams: stage lights" },
+  beach_sunset:    { parent: "beach",       tier: 2, label: "Beach: golden hour" },
+  beach_top:       { parent: "beach",       tier: 2, label: "Beach: from above" },
+  velvet_parted:   { parent: "velvet",      tier: 2, label: "Velvet: curtain parted" },
+  velvet_bulbs:    { parent: "velvet",      tier: 2, label: "Velvet: marquee bulbs" },
+  checker_floor:   { parent: "checker",     tier: 2, label: "Checker: floor" },
+  checker_diamond: { parent: "checker",     tier: 2, label: "Checker: diamonds" },
+  candy_flames:    { parent: "candy_flake", tier: 2, label: "Candy paint: flames" },
+  candy_fade:      { parent: "candy_flake", tier: 2, label: "Candy paint: two-tone fade" },
+};
+// Owner, 2026-09-30: "keep the spin offs" (all 24, from the review page)
+export const GROUND_REVIEW = { approved: Object.keys(GROUND_CANDIDATES), rejected: [] };
+for (const id of GROUND_REVIEW.approved) {
+  const c = GROUND_CANDIDATES[id]; if (!c) continue;
+  // the audiences' own looks keep the grounds they were swept and pruned on
+  const vibes = Object.values(VIBES).filter(v => v.la !== false && (v.backgrounds || []).includes(c.parent));
+  if (vibes.length) vibes.forEach(v => v.backgrounds.push(id));
+  if (OPTIONS.background.includes(c.parent)) OPTIONS.background.push(id);
+}
+
+// The fifty themes (themes.js): their palettes, signs and grounds are always known (so a
+// look saved with one draws), but a theme joins the maker's vibes only once the owner
+// approves it on the review page. THEME_REVIEW is that decision, id by id.
+Object.assign(PALETTES, THEME_PALETTES);
+Object.assign(BOARDS, THEME_BOARDS);
+for (const g of THEME_GROUNDS) if (!OPTIONS.background.includes(g)) OPTIONS.background.push(g);
+export const THEME_REVIEW = { approved: [], rejected: [] };
+for (const id of THEME_REVIEW.approved) if (THEMES[id]) { VIBES[id] = THEMES[id]; if (!OPTIONS.vibe.includes(id)) OPTIONS.vibe.push(id); }
 
 // The BACK is what makes a model recognisable: every drawn cut ends on the backs,
 // and most show the fronts only as they flash past. Type that ENTERS FROM THE
@@ -421,7 +482,9 @@ export const WEIGHTS = {
   urgency: { none: 1 },
   number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
-  pose: { flat: 2, edge_left: 1, edge_right: 1 },
+  pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1 },   // turned, as often as a turntable, either edge
+  accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
+  accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
   front_glimpse: { spin: 3, hold: 1 },
   text_in: { slide: 3, skew_slide: 3, slide_letters: 3, wipe: 3 },
   overlay: { none: 4 },
@@ -452,7 +515,7 @@ export const DEFAULT_STYLE = {
 // The first ad's look, as a starting point.
 export const CLASSIC = {
   font: "franklin", text_fx: "shadow", text_in: "slide", text_pos: "top-left", number_style: "plain",
-  number_pos: "bottom-center", number_in: "pop", arrangement: "row", entry: "fly_spin", end_face: "back",
+  number_pos: "bottom-center", number_in: "pop", arrangement: "row", pose: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
   front_glimpse: "hold", background: "radial", palette: "sand", color_mode: "mono", camera: "push_in",
   sound_kit: "house", overlay: "none", hook: "cold_open",
 };
@@ -462,7 +525,8 @@ export const LABELS = {
   font: "Typeface", number_font: "Number typeface", case: "Case", tracking: "Letter spacing", skew: "Slant",
   text_fx: "Type treatment", color_mode: "Colour use", text_in: "Headline entrance", text_pos: "Headline position",
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
-  number_in: "Number entrance", arrangement: "Phone layout", entry: "Phones enter by", end_face: "Phones end on", pose: "Phone angle",
+  number_in: "Number entrance", arrangement: "Phone layout", pose: "Phone angle",
+  accents: "Accents", accent_set: "Accent topic", accent_kind: "Accents drawn as", accent_in: "Accents enter by", accent_idle: "Accents move", accent_out: "Accents leave by", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
   sound_kit: "Music", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
   vibe: "Vibe", board: "Sign board", urgency: "Urgency",
@@ -476,7 +540,8 @@ export const GROUPS = [
   ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
   ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
-  ["Phones", ["arrangement", "entry", "end_face", "pose", "front_glimpse", "glare", "depth"]],
+  ["Phones", ["arrangement", "pose", "entry", "end_face", "front_glimpse", "glare", "depth"]],
+  ["Accents", ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
   ["Sound", ["sound_kit", "hit", "number_sfx"]],
 ];
