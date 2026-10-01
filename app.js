@@ -3448,22 +3448,46 @@ function cleanText(t, casing, role){
   return fixBrandWords(s);
 }
 
+/* the layer as the studio offers it now. TRAITS is taken from the authored
+   file when the script loads, before the passes that make a classic pass:
+   two faces (rule 70), the hairline pass, the contrast, number and ground
+   tables all work on t.layers in place, after it. Restored from TRAITS, an
+   Enhanced classic set three families again and lost its baked inks and its
+   number's size. */
+function enhanceTraitOf(tid, nm){
+  const t = TEMPLATES.find(x => x.id === tid), l = t && (t.layers || []).find(x => x.name === nm);
+  if (!l || !l.props) return (TRAITS[tid] && TRAITS[tid][nm]) || null;
+  const tr = {};
+  TRAIT_KEYS.forEach(k => { if (l.props[k] !== undefined) tr[k] = l.props[k]; });
+  tr._shadow = l.props.shadow || null; tr._casing = l.casing || 'none'; tr._role = l.role || '';
+  return tr;
+}
 async function enhance(){
   if (!canvas) return;
   const btn = $('enhance-btn');
   btn.classList.add('busy');
   try {
-    // 1) restore canonical template styling per layer trait
+    // 1) restore canonical template styling per layer trait: the card's own
+    //    faces first (a type voice comes off, and goes back on at the end, as
+    //    a theme does, rule 100), then each line's face, size and setting as
+    //    the studio offers the card now
+    const voice = edVoiceName();
+    if (voice) await edRetype(null);
+    /* the paint of an object the colour pass has recorded (pgOrig) is put
+       back by that pass below, gradients and the colour passes included;
+       laid on raw from the template, gold_lux's gradient headline went flat
+       and its gold call to action the lavender it was authored in */
+    const PAINT = ['fill', 'stroke', 'strokeWidth', 'backgroundColor', 'opacity'];
     let restored = 0;
     canvas.getObjects().forEach(o => {
       if (o.pgCurved) return;
       const tid = o.pgTplId, nm = o.name;
-      if (tid && TRAITS[tid] && TRAITS[tid][nm]){
-        const tr = TRAITS[tid][nm];
+      const tr = tid ? enhanceTraitOf(tid, nm) : null;
+      if (tr){
         const apply = {};
-        TRAIT_KEYS.forEach(k => { if (tr[k] !== undefined) apply[k] = tr[k]; });
+        TRAIT_KEYS.forEach(k => { if (tr[k] !== undefined && !(o.pgOrig && PAINT.includes(k))) apply[k] = tr[k]; });
         o.set(apply);
-        o.set('shadow', tr._shadow ? new fabric.Shadow(tr._shadow) : null);
+        if (!o.pgOrig) o.set('shadow', tr._shadow ? new fabric.Shadow(tr._shadow) : null);
         // TRAITS holds the AUTHORED size, which for a long money-word is the
         // one that overflowed the board in the first place. Re-fit after
         // restoring, or Enhance undoes the fix every time it runs.
@@ -3495,6 +3519,12 @@ async function enhance(){
         }
       } catch(e){ /* local cleanup already applied */ }
     }
+    /* 4) the card's own colours, as ORIG gives them: the paint each object had
+       as built, before any theme or hand-set colour (a colour set by hand
+       rewrites pgOrig, not pgBuilt), every colour pass made again */
+    canvas.getObjects().forEach(o => { if (o.pgBuilt){ edPaintSet(o, o.pgBuilt); o.pgOrig = edPaintOf(o); o.pgAutoFill = edFillKey(o); delete o.pgUser; } });   // pgAutoFill: or the pass reads the built paint as set by hand
+    if (canvas.getObjects().some(o => o.pgOrig)) edRecolour({ theme: null, silent: true });
+    if (voice) await edRetype(voice);
     pushHist(); refreshQuickFields(); refreshLayers(); refreshProps();
     toast(restored ? '✦ Enhanced, styling restored, text cleaned' : '✦ Enhanced, text cleaned', 'success');
   } finally { btn.classList.remove('busy'); }
@@ -17624,7 +17654,7 @@ function pgGhostPicCheck(sc, r){
    templates: the paint each object had before any theme (pgOrig), the paint
    the last pass left (pgAutoFill, so a colour set by hand afterwards is seen
    as the visitor's: pgUser), the theme drawn (pgTheme), and the effects */
-EXTRA_PROPS.push('pgOrig', 'pgAutoFill', 'pgUser', 'pgTheme', 'pgOv', 'pgPattern', 'pgPatSpec', 'pgShade', 'pgShadeA', 'pgShadeTone', 'pgShadeMode', 'pgEmoji', 'pgEmojiAuto');
+EXTRA_PROPS.push('pgOrig', 'pgBuilt', 'pgAutoFill', 'pgUser', 'pgTheme', 'pgOv', 'pgPattern', 'pgPatSpec', 'pgShade', 'pgShadeA', 'pgShadeTone', 'pgShadeMode', 'pgEmoji', 'pgEmojiAuto');
 
 /* a thumbnail a grid is waiting for, filled in when ensureThumbs() gets to it */
 const _lazyThumbs = new Map();
@@ -17700,7 +17730,7 @@ function edRecolour(opts){
   if (hadLook){ canvas.discardActiveObject(); taglineReset(canvas); }
   const objs = canvas.getObjects().filter(edPaintable);
   objs.forEach(o => {
-    if (!o.pgOrig){ o.pgOrig = edPaintOf(o); return; }
+    if (!o.pgOrig){ o.pgOrig = edPaintOf(o); if (!o.pgBuilt) o.pgBuilt = edPaintOf(o); return; }   // pgBuilt: as built, for Enhance; never rewritten
     if (o.pgAutoFill != null && edFillKey(o) !== o.pgAutoFill){ o.pgOrig = edPaintOf(o); o.pgUser = true; }
   });
   if (pick && !opts.keepUser) objs.forEach(o => { delete o.pgUser; });

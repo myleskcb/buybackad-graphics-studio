@@ -282,8 +282,8 @@ either would put August code over September work. Their still-useful parts
 are listed to port, each checked against the trunk on 2026-09-27:
 
 `claude/busy-allen-2d5iv1` (photo standard, 317597c):
-1. **`tplbg-data.js` is still a 635KB render-blocking base64 script** on the
-   trunk. Port: move the eight classic photos to `assets/tplbg/` files.
+1. ~~**`tplbg-data.js` is still a 635KB render-blocking base64 script**~~
+   Ported 2026-10-01 (§Y): the eight photos are files in `assets/tplbg/`.
 2. **No asset cache-busting** (`ASSET_REV` absent) while art is cached 30 days,
    so a replaced photo never reaches a returning visitor. Port the `?v=` revision.
 3. The photo standard itself (subject fill, tone band, 1200px) and
@@ -957,9 +957,9 @@ Merged, in order (the log entry of the same date has the numbers):
 Not merged, on purpose (§J): `claude/busy-allen-2d5iv1` (the photo standard)
 and `claude/quirky-ritchie-f0zuc8` (the design console) are cut from the
 August `main`; merged, they would lay August code over September's. Port from
-them. Still worth porting: busy-allen's move of `tplbg-data.js` (a 621 KB
-render-blocking script on every landing load, measured 2026-09-30) to files,
-and the console's pass switches, re-derived for today's pass chain.
+them. Still worth porting: the console's pass switches, re-derived for
+today's pass chain (busy-allen's move of `tplbg-data.js` to files was ported
+on 2026-10-01, §Y).
 
 Open:
 1. **Deploy `main`.** The cloud sessions cannot: the environment's network
@@ -1185,9 +1185,12 @@ Still open:
    it is next used.
 8. **scripts/neutral_panels.mjs** throws a ReferenceError before it measures
    anything (found while tracing the gate, not investigated).
-9. **Enhance undoes the face passes.** It restores each layer's authored
-   traits, including the faces that houseTwoFaces and the hairline pass moved
-   at load, so an Enhanced classic can set three families again.
+9. ~~**Enhance undoes the face passes.**~~ Fixed 2026-10-01 (§Y): Enhance
+   restores each line as the studio offers the card now (`enhanceTraitOf`:
+   the load-time faces, tables and sizes), and its colours as built
+   (`pgBuilt`, through the ORIG pass), then puts a theme and a type voice
+   back on. Checked on three classics: a hand colour, face and size undone
+   exactly, and theme plus voice as on a fresh card.
 10. **Three patterns change nothing on gold_lux** in the designer (dots,
     halftone, grid; designer_audit), the same on production.
 11. **The sweep takes about eleven hours on four cores** (the gate reads each
