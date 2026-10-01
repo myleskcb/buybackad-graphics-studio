@@ -123,6 +123,16 @@ Two August branches were left unmerged on purpose (OPEN-ITEMS §J, §U):
 `claude/busy-allen-2d5iv1` and `claude/quirky-ritchie-f0zuc8`; port from
 them, never merge them.
 
+**It happened again within a day.** On 2026-10-01 twelve branches carried
+finished work `main` did not have (OPEN-ITEMS §Y): six video-maker sessions,
+two library sessions and a palette session had all started from `main` on
+2026-09-30, done what the owner asked, pushed their branch and stopped. The
+owner asked for "anything left behind", and got two palette sessions that
+had gone opposite ways on the same palettes. A session's work is not done
+when its branch is pushed: merge `main` in, run the checks, and put the
+result on `main` the same day, or say plainly in your last message that it
+is not on `main` and why.
+
 History, and why this matters:
 
 On 2026-09-26 `main` was a month behind: the product had moved on across a
@@ -342,6 +352,12 @@ produced." DESIGN-LAW rule 87. In practice:
   card's faces before the layout, each line keeping its footprint;
   `houseTwoFaces` sets two families on every classic, last at load and again
   when a table sets a face.
+- **The palettes are the proven 25** (2026-10-01): `PALETTES` in
+  scripts/refresh_palettes.mjs, the library tiles' swatches `PALETTE_SW` in
+  app.js. Named "ground & accent" in plain colour words, never food or drink
+  (the owner had 19 food names renamed). `node scripts/repalette_showcase.mjs
+  --write` moves every library record onto them and changes nothing else;
+  then rethumb_showcase.mjs and verify_showcase.mjs, and bump ASSET_REV.
 - **Every choice on every card** (rule 101): `node
   scripts/every_card_audit.mjs --write-holds` takes every offered card
   through every theme, look and voice on Easy Mode's render and writes
