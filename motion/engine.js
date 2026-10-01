@@ -692,9 +692,19 @@ function planEntries(phones, st, W, H, r, stageC) {
     // The first 3 seconds decide whether anyone watches: phones are already in
     // the air at frame 0 and land fast. A hook line owns the first second.
     const lead = ["hook_line", "word_beat"].includes(st.hook) ? .5 : st.hook === "crash_zoom" ? .22 : st.hook === "punch_in" ? -.7 : -.45;
-    p.tIn = lead + k * stag * .75; p.tLand = p.tIn + dur * .85;
-    if (st.hook === "flash_cut") { p.tIn = p.tLand = Math.max(0, k - 1) * .15; p.flashIn = k > 1; p.landsBack = true; p.reveal = false; }   // two are there at frame 0, backs up
+    // ...but IN the air: at frame 0 no phone is more than half way through its flight, so
+    // a short entrance (a pop, a whip) under an early lead still flies in rather than
+    // standing there landed. (Owner, 2026-09-30: "it doesn't fly or move in".)
+    p.tIn = Math.max(lead, -.5 * dur * .85) + k * stag * .75; p.tLand = p.tIn + dur * .85;
+    // a flash cut: two are all but landed at frame 0, backs up, and each after them slams
+    // in on a white flash. Every one still flies the last stretch in, fast, rather than
+    // appearing where it lands. (Owner, 2026-09-30: "it doesn't fly or move in".)
+    if (st.hook === "flash_cut") {
+      p.tFlash = Math.max(0, k - 1) * .15 + (k > 1 ? .18 : 0); p.tLand = Math.max(.18, p.tFlash); p.tIn = p.tLand - .3;
+      p.flashIn = k > 1; p.landsBack = true; p.reveal = false;
+    }
     p.spin = r.pick([-2, -1, 1, 2]) * (r() < .2 ? 1.5 : 1); p.flips = r.pick([1, 2]);
+    if (st.hook === "flash_cut") p.flips = 0;     // backs up all the way in: no black glass on frame 0
     const far = Math.max(p.h * p.size, H * .4);
     const [hx, hy] = p.home;
     const sides = { left: [-far, hy], right: [W + far, hy], top: [hx, -far], bottom: [hx, H + far],
@@ -2411,7 +2421,7 @@ export class Ad {
       if ((st.transition || "fade") === "fade" || t < this.hookEnd - .04) this._hookLine(ctx, t);
       else this._transition(ctx, t);
     }
-    if (st.hook === "flash_cut") for (const p of this.phones) { if (!p.flashIn) continue; const f = t - p.tIn; if (f >= 0 && f < .09) { ctx.fillStyle = `rgba(255,255,255,${.6 * (1 - f / .09)})`; ctx.fillRect(0, 0, W, H); } }
+    if (st.hook === "flash_cut") for (const p of this.phones) { if (!p.flashIn) continue; const f = t - p.tFlash; if (f >= 0 && f < .09) { ctx.fillStyle = `rgba(255,255,255,${.6 * (1 - f / .09)})`; ctx.fillRect(0, 0, W, H); } }
     if (this.scrimC) { const k = prog(t, tl.text - .1, .4); if (k > 0) { ctx.globalAlpha = k; ctx.drawImage(this.scrimC, 0, 0, W, H); ctx.globalAlpha = 1; } }
     if (this.spray) drawSpray(ctx, this.spray, this.pos.block, t, tl.text);
     if (this.board) drawBoard(ctx, this.board, this.pos.board[0], this.pos.board[1], t, tl.text - .12, W, H);

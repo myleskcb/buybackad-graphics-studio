@@ -43,8 +43,8 @@ export async function renderSoundtrack(ad, { solo = "" } = {}) {
       S.impact(sfx, 0, .75);
       (ad.hookLines || []).forEach((_, i) => { const tt = i * (ad.hookBeat || .2); S.kick(sfx, tt, .8); S.clap(sfx, tt, i % 2 ? .45 : .3); });
       S.whoosh(sfx, ad.hookEnd - .12, .3, true, 0, .4); break;
-    case "flash_cut":                                // one hit per cut; the phones already in when the ad opens share the first frame's
-      [...new Set(ad.phones.map(p => Math.max(0, Math.round(p.tIn * 100) / 100)))].forEach(t => S.impact(sfx, t, .6)); break;
+    case "flash_cut":                                // one hit per flash; the phones all but down when the ad opens share the first frame's
+      [...new Set(ad.phones.map(p => Math.max(0, Math.round((p.tFlash ?? p.tIn) * 100) / 100)))].forEach(t => S.impact(sfx, t, .6)); break;
     case "crash_zoom": S.whoosh(sfx, 0, .6, false, 0, .7); ad.phones.filter(p => p.crash).forEach(p => S.impact(sfx, p.tLand, .8)); break;
     case "punch_in": S.impact(sfx, 0, .85); S.whoosh(sfx, 0, .5, false, 0, .5); break;
     case "cold_open": S.impact(sfx, 0, .6); break;
