@@ -432,11 +432,11 @@
           </div>
         </div>
         <div class="ez-field">
-          <label>Color themes <span style="text-transform:none;font-weight:500">(recolor the whole ad: panels, number, lines and marks; your photo keeps its color; ORIG undoes)</span></label>
+          <label>Colour theme <span style="text-transform:none;font-weight:500">(repaints the whole ad; your photo keeps its colour; ORIG undoes)</span></label>
           <div class="ez-themes" id="ez-themes"></div>
         </div>
         <div class="ez-field" id="ez-voice-field">
-          <label>Typeface <span style="text-transform:none;font-weight:500">(a type pair for the whole ad: a display face for the claim and the number, a reading face for the rest; ORIG keeps the card's own)</span></label>
+          <label>Typeface <span style="text-transform:none;font-weight:500">(one type pair for the whole ad; ORIG keeps the card's own)</span></label>
           <div class="ez-fxrow ez-voices" id="ez-voices" role="group" aria-label="Typeface"></div>
         </div>
         <div class="ez-field" id="ez-phonepick-field" hidden>
@@ -590,7 +590,7 @@
               <button data-bg="grad" class="active">Gradient</button>
               <button data-bg="image">Image</button>
             </div></div>
-            <div id="qbg-solid" style="display:none" class="field"><label>Color</label><input type="color" id="qbg-color" value="#111118"></div>
+            <div id="qbg-solid" style="display:none" class="field"><label>Colour</label><input type="color" id="qbg-color" value="#111118"></div>
             <div id="qbg-grad">
               <div class="field-row">
                 <div class="field"><label>From</label><input type="color" id="qbg-c1" value="#b01030"></div>
@@ -756,7 +756,7 @@
               <div class="field"><label>Bend <span id="pt-curve-val">0</span></label><input type="range" id="pt-curve" min="-100" max="100" value="0"></div>
             </div>
             <div class="psec">
-              <div class="psec-title">Color</div>
+              <div class="psec-title">Colour</div>
               <div class="fillseg" id="pt-fillseg"><button data-ft="solid" class="active">Solid</button><button data-ft="grad">Gradient</button></div>
               <div class="field-row" id="pt-fill-solid">
                 <div class="field"><label>Fill</label><input type="color" id="pt-fill" value="#ffffff"></div>
@@ -764,8 +764,8 @@
               </div>
               <div id="pt-fill-grad" style="display:none">
                 <div class="field-row">
-                  <div class="field"><label>Color 1</label><input type="color" id="pt-g1" value="#ffd200"></div>
-                  <div class="field"><label>Color 2</label><input type="color" id="pt-g2" value="#ff5000"></div>
+                  <div class="field"><label>Colour 1</label><input type="color" id="pt-g1" value="#ffd200"></div>
+                  <div class="field"><label>Colour 2</label><input type="color" id="pt-g2" value="#ff5000"></div>
                 </div>
                 <div class="field"><label>Angle <span id="pt-ga-val">90°</span></label><input type="range" id="pt-ga" min="0" max="360" value="90"></div>
                 <div class="field-row"><div class="field"><label>Outline</label><input type="color" id="pt-stroke2" value="#000000"></div></div>
@@ -776,7 +776,7 @@
                 <div class="field"><label>&nbsp;</label><button id="pt-bgcolor-off" title="Remove the highlight strip behind the text" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;font-size:12px">✕ None</button></div>
               </div>
               <div class="field"><label>Glow / shadow <span id="pt-shadow-val">0</span></label><input type="range" id="pt-shadow" min="0" max="80" value="0"></div>
-              <div class="field"><label>Shadow color</label><input type="color" id="pt-shadow-color" value="#000000"></div>
+              <div class="field"><label>Shadow colour</label><input type="color" id="pt-shadow-color" value="#000000"></div>
             </div>
           </div>
 
@@ -790,8 +790,8 @@
               </div>
               <div id="ps-fill-grad" style="display:none">
                 <div class="field-row">
-                  <div class="field"><label>Color 1</label><input type="color" id="ps-g1" value="#7b2d9e"></div>
-                  <div class="field"><label>Color 2</label><input type="color" id="ps-g2" value="#b01030"></div>
+                  <div class="field"><label>Colour 1</label><input type="color" id="ps-g1" value="#7b2d9e"></div>
+                  <div class="field"><label>Colour 2</label><input type="color" id="ps-g2" value="#b01030"></div>
                 </div>
                 <div class="field"><label>Angle <span id="ps-ga-val">90°</span></label><input type="range" id="ps-ga" min="0" max="360" value="90"></div>
               </div>
@@ -1121,7 +1121,7 @@
   <div class="tp-row"><label>Style</label><span class="tp-biu">
     <button id="tp-b"><b>B</b></button><button id="tp-i"><i>I</i></button><button id="tp-u"><u>U</u></button>
   </span></div>
-  <div class="tp-row"><label>Color</label><input type="color" id="tp-fill" value="#ffffff"><label style="width:auto">Outline</label><input type="color" id="tp-stroke" value="#000000"><input type="range" id="tp-sw" min="0" max="12" value="0" style="width:64px"><span class="tp-val" id="tp-sw-val">0</span></div>
+  <div class="tp-row"><label>Colour</label><input type="color" id="tp-fill" value="#ffffff"><label style="width:auto">Outline</label><input type="color" id="tp-stroke" value="#000000"><input type="range" id="tp-sw" min="0" max="12" value="0" style="width:64px"><span class="tp-val" id="tp-sw-val">0</span></div>
   <div class="tp-row"><label>Behind</label><span class="tp-biu" style="flex:none;width:76px"><button id="tp-bg-on" title="Solid color behind the text">▨ Fill</button></span><input type="color" id="tp-bg-c" value="#ffd200"></div>
   <div class="tp-row"><label>Glow</label><input type="range" id="tp-glow" min="0" max="60" value="0"><input type="color" id="tp-glow-c" value="#ff5000"><span class="tp-val" id="tp-glow-val">0</span></div>
   <div class="tp-row"><label>Shape</label><div class="ts-shapes" id="tp-shape" role="group" aria-label="Text shape"></div></div>
