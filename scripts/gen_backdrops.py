@@ -541,15 +541,24 @@ def st_glass(g):
     img = paint(stops)
     frost = gblur(img, 30)
     x0, y0, x1, y1 = g.region
+    b = union(g.pls)
+    # one frosted pane holds the whole group, like a display case; a second,
+    # smaller pane is drawn only where it touches no product
     for k in range(r.integers(1, 3)):
-        pw, ph = r.uniform(0.34, 0.6) * W, r.uniform(0.22, 0.42) * H
-        cx = r.uniform(x0 + pw * 0.3, x1 - pw * 0.3)
-        cy = r.uniform(max(y0, H * 0.45), y1 - ph * 0.2)
-        rad = r.uniform(34, 70); ang = r.uniform(-0.12, 0.12)
+        if k == 0:
+            pw, ph = min(W * 0.94, b[2] - b[0] + 140), min(H * 0.6, b[3] - b[1] + 120)
+            cx, cy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2 + 10
+            rad = r.uniform(40, 70); ang = 0.0
+        else:
+            pw, ph = r.uniform(0.2, 0.32) * W, r.uniform(0.12, 0.2) * H
+            cx, cy = r.uniform(0.2, 0.8) * W, r.uniform(0.08, 0.3) * H
+            rad = r.uniform(28, 48); ang = r.uniform(-0.12, 0.12)
         dx, dy = XX - cx, YY - cy
         qx = np.abs(dx * math.cos(ang) + dy * math.sin(ang)) - (pw / 2 - rad)
         qy = np.abs(-dx * math.sin(ang) + dy * math.cos(ang)) - (ph / 2 - rad)
         d = np.hypot(np.maximum(qx, 0), np.maximum(qy, 0)) + np.minimum(np.maximum(qx, qy), 0) - rad
+        if k and crosses(d, g.keep):
+            continue
         cov = np.clip(0.5 - d, 0, 1)
         shadow = gblur(np.roll(cov, 22, 0), 26)
         shade(img, shadow * (1 - cov), 0.22, g.p.shadow)
@@ -645,6 +654,18 @@ def st_topo(g):
     lc = lab2lin(T['hi'] if g.p.dark else T['deep'])
     return lerp(img, lc, np.maximum(cov * 0.25, cov5 * 0.4))
 
+def keep_mask(g, pad=26):
+    """Where the products stand (their boxes, padded), soft-edged: shapes keep their edges out of it."""
+    m = np.zeros((H, W), F)
+    for p in g.pls:
+        x0, y0, x1, y1 = p['bbox']
+        m[max(0, int(y0 - pad)):min(H, int(y1 + pad)), max(0, int(x0 - pad)):min(W, int(x1 + pad))] = 1
+    return m
+
+def crosses(d, keep, band=28):
+    """True when a shape's edge (|sdf| < band) runs through a product."""
+    return bool(np.any((np.abs(d) < band) & (keep > 0.5)))
+
 def st_papercut(g):
     r = g.rng; T = g.p.t
     x0, y0, x1, y1 = g.region
@@ -689,10 +710,15 @@ def st_bauhaus(g):
     shapes = r.permutation(['circle', 'half', 'quarter', 'bar', 'arc'])[:r.integers(3, 5)]
     for k, s in enumerate(shapes):
         c = cols[k % len(cols)]
+        b = union(g.pls)
+        gR = 0.5 * math.hypot(b[2] - b[0], b[3] - b[1]) + 40
         if s == 'circle':
-            R = r.uniform(0.18, 0.3) * W
-            ox, oy = cx + r.uniform(-120, 120), cy + r.uniform(-60, 80)
+            R = min(gR, 0.49 * W)
+            ox, oy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
             d = np.hypot(XX - ox, YY - oy) - R
+            if crosses(d, g.keep):          # the group is too wide for one circle: a plinth disc below it instead
+                R = 0.5 * (b[2] - b[0]) + 60
+                d = np.hypot(XX - ox, (YY - (b[3] + R * 0.55)) * 1.0) - R
         elif s == 'half':
             R = r.uniform(0.2, 0.34) * W
             ox = r.uniform(x0, x1); oy = H + r.uniform(-40, 40) if g.zone == 'top' else r.uniform(y0 + 200, y1)
@@ -715,11 +741,13 @@ def st_bauhaus(g):
             qx, qy = np.abs(u) - L / 2, np.abs(v) - Th / 2
             d = np.hypot(np.maximum(qx, 0), np.maximum(qy, 0)) + np.minimum(np.maximum(qx, qy), 0)
         else:
-            R = r.uniform(0.2, 0.32) * W; Th = r.uniform(18, 40)
-            ox, oy = cx + r.uniform(-100, 100), cy + r.uniform(0, 120)
+            Th = r.uniform(18, 40); R = gR + 30 + Th
+            ox, oy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
             d = np.abs(np.hypot(XX - ox, YY - oy) - R) - Th / 2
             hp = -(YY - oy)  # keep upper half
             d = np.maximum(d, -hp) if r.random() < 0.6 else d
+        if s in ('half', 'quarter', 'bar', 'arc') and crosses(d, g.keep):
+            continue                         # an edge through a product reads as an overlap: drop the shape
         cov = _sdf_cov(d) * (1 - 0.75 * g.calm)
         img = lerp(img, c, cov)
     return img
@@ -729,11 +757,15 @@ def st_rothko(g):
     field = labmix(T['base'], T['base2'], 0.6)
     img = paint([(field, 1.0)])
     nb = r.integers(2, 4)
-    horiz = r.random() < 0.75
+    horiz = True
     marg = r.uniform(50, 90)
     cand = [T['accs'], T['sups'], T['deep'] if not g.p.dark else T['hi'], T['base'], labmix(T['accs'], T['sups'], 0.5)]
     r.shuffle(cand)
     fr = np.cumsum(r.uniform(0.6, 1.4, nb)); fr = np.concatenate([[0], fr / fr[-1]])
+    # the last block starts above the products, so no block edge crosses them
+    uy0 = union(g.pls)[1]
+    cut = np.clip((uy0 - 60 - marg) / (H - 2 * marg), 0.15, 0.85)
+    fr = np.concatenate([fr[:-1] * cut / max(fr[-2], 1e-3), [1.0]]) if nb > 1 else fr
     wn = fbm(r, 8, 3)
     for k in range(nb):
         if horiz:
@@ -799,7 +831,10 @@ def st_pinstripe(g):
     u = (XX - cx) * nx + (YY - cy) * ny
     split = np.clip(u / 2 + 0.5, 0, 1)
     img = paint([(T['base'], 1 - split), (T['base2'], split)])
-    u0 = r.uniform(-80, 80); hw = r.uniform(0.12, 0.2) * W
+    # the band holds the whole group, so its edges and the thin line run clear of every product
+    b = union(g.pls)
+    cu = [(x - cx) * nx + (y - cy) * ny for x in (b[0], b[2]) for y in (b[1], b[3])]
+    u0 = (min(cu) + max(cu)) / 2; hw = (max(cu) - min(cu)) / 2 + r.uniform(40, 80)
     band = np.clip(hw - np.abs(u - u0) + 0.5, 0, 1)
     img = lerp(img, lab2lin(T['accs'] if r.random() < 0.6 else T['sups']), band * 0.85)
     off = hw + r.uniform(30, 70); th = r.uniform(8, 18)
@@ -836,6 +871,8 @@ def st_prisms(g):
         m = np.zeros((H, W), np.uint8)
         cv2.fillPoly(m, [np.round(pts * 16).astype(np.int32)], 255, cv2.LINE_AA, shift=4)
         m = m.astype(F) / 255
+        if np.any((m > 0.1) & (g.keep > 0.5)):
+            continue
         shifted = np.roll(np.roll(img, 10, 1), -6, 0)
         img = lerp(img, lerp(shifted, np.ones(3, F), 0.12), m * 0.8)
         e = np.zeros((H, W), np.uint8)
@@ -848,14 +885,16 @@ def st_terrazzo(g):
     img = paint([(T['base'], 1.0), (T['base2'], np.clip(0.5 + 0.3 * fbm(r, 3, 3), 0, 1) * 0.6)])
     names = ['acc', 'sup', 'mid', 'deep' if not g.p.dark else 'hi', 'accs']
     masks = {k: np.zeros((H, W), np.uint8) for k in names}
-    n = r.integers(70, 120); cnt = 0; tries = 0
+    n = r.integers(26, 46); cnt = 0; tries = 0
     while cnt < n and tries < 2000:
         tries += 1
         x, y = r.uniform(0, W), r.uniform(0, H)
         if g.calm[int(min(y, H - 1)), int(min(x, W - 1))] > 0.4 and r.random() < 0.85:
             continue
+        if g.keep[int(min(y, H - 1)), int(min(x, W - 1))] > 0.5:
+            continue
         cnt += 1
-        s = float(np.clip(r.lognormal(2.2, 0.45), 4, 30))
+        s = float(np.clip(r.lognormal(3.15, 0.4), 12, 70))
         nv = r.integers(5, 8); a0 = r.uniform(0, 6.28)
         pts = [[x + s * r.uniform(0.6, 1.0) * math.cos(a0 + i * 6.283 / nv),
                 y + s * r.uniform(0.6, 1.0) * math.sin(a0 + i * 6.283 / nv) * r.uniform(0.6, 1)] for i in range(nv)]
@@ -865,6 +904,46 @@ def st_terrazzo(g):
         c = lab2lin(labmix(g.p.t[k], T['base'], 0.2))
         img = lerp(img, c, m.astype(F) / 255 * 0.9)
     return gblur(img, 0.4)
+
+def st_splatter(g):
+    """Paint splats: a ragged body, flung droplets, a fine spray, sometimes a drip."""
+    r = g.rng; T = g.p.t
+    img = paint([(T['base'], 1.0), (T['base2'], yn * 0.5)])
+    cols = [T['acc'], T['sup'], T['hi'] if g.p.dark else T['mid'], T['accs']]
+    n = int(r.integers(4, 8)); placed = 0; tries = 0
+    while placed < n and tries < 160:
+        tries += 1
+        R = float(r.uniform(55, 140))
+        x, y = r.uniform(0.06, 0.94) * W, r.uniform(0.10, 0.96) * H
+        sub = g.keep[max(0, int(y - R * 1.3)):int(y + R * 1.3), max(0, int(x - R * 1.3)):int(x + R * 1.3)]
+        if sub.size and sub.max() > 0.5:
+            continue
+        if g.calm[int(min(y, H - 1)), int(min(x, W - 1))] > 0.5 and abs(x - W / 2) < 0.3 * W:
+            continue                                        # the middle of the headline zone stays clean; its corners may take paint
+        placed += 1
+        m = np.zeros((H * 4 // 4, W), np.uint8)
+        k = 72; th = np.linspace(0, 2 * math.pi, k, endpoint=False)
+        rad = R * (1 + 0.18 * np.sin(th * r.integers(3, 7) + r.uniform(0, 6)) + 0.12 * r.standard_normal(k))
+        spikes = r.random(k) < 0.18
+        rad = np.where(spikes, rad * r.uniform(1.25, 1.7, k), rad)
+        pts = np.stack([x + rad * np.cos(th), y + rad * np.sin(th)], 1)
+        cv2.fillPoly(m, [np.round(pts * 8).astype(np.int32)], 255, cv2.LINE_AA, shift=3)
+        for _ in range(int(r.integers(8, 18))):            # flung droplets along rays
+            a = r.uniform(0, 2 * math.pi); dd = R * r.uniform(1.3, 2.6); rr = max(2.0, R * r.uniform(0.04, 0.14) * (2.6 - dd / R) / 1.3)
+            cv2.circle(m, (int((x + dd * math.cos(a)) * 8), int((y + dd * math.sin(a)) * 8)), int(rr * 8), 255, -1, cv2.LINE_AA, shift=3)
+        for _ in range(int(r.integers(40, 90))):           # fine spray
+            a = r.uniform(0, 2 * math.pi); dd = R * abs(r.normal(1.6, 0.6))
+            cv2.circle(m, (int((x + dd * math.cos(a)) * 8), int((y + dd * math.sin(a)) * 8)), int(r.uniform(0.8, 2.4) * 8), 255, -1, cv2.LINE_AA, shift=3)
+        if r.random() < 0.45:                               # a drip
+            L = R * r.uniform(1.2, 2.8); wv = R * r.uniform(0.12, 0.22); dx = r.uniform(-0.4, 0.4) * R
+            cv2.rectangle(m, (int((x + dx - wv / 2) * 8), int(y * 8)), (int((x + dx + wv / 2) * 8), int((y + L) * 8)), 255, -1, cv2.LINE_AA, shift=3)
+            cv2.circle(m, (int((x + dx) * 8), int((y + L) * 8)), int(wv * 0.75 * 8), 255, -1, cv2.LINE_AA, shift=3)
+        mf = m.astype(F) / 255 * (1 - 0.35 * g.calm) * (1 - g.keep)
+        c = lab2lin(cols[placed % len(cols)])
+        sh = gblur(np.roll(np.roll(mf, 4, 0), 3, 1), 3)
+        shade(img, sh * (1 - mf), 0.18, g.p.shadow)        # paint sits ON the ground
+        img = lerp(img, c[None, None] * (1 + 0.06 * gblur(mf, 6) - 0.03)[..., None], mf * 0.95)
+    return img
 
 def st_sunburst(g):
     r = g.rng; T = g.p.t
@@ -891,12 +970,16 @@ STYLES = OrderedDict([
     ('fluid-marble', (st_marble, 'flat', 0.45)), ('bokeh', (st_bokeh, 'plane', 0.0)),
     ('duotone-pinstripe', (st_pinstripe, 'flat', 0.5)), ('prism-light', (st_prisms, 'plane', 0.3)),
     ('terrazzo', (st_terrazzo, 'flat', 0.4)), ('sunburst', (st_sunburst, 'plane', 0.5)),
+    ('paint-splatter', (st_splatter, 'flat', 0.3)),
 ])
 STYLE_W = {s: 1.0 for s in STYLES}
+# patterned grounds: smoothed right behind the products so no line or edge runs through one
+BUSY = {'bauhaus', 'color-field', 'paper-cut', 'duotone-pinstripe', 'topographic', 'halftone', 'terrazzo',
+        'paint-splatter', 'fluid-marble', 'macos-waves', 'grid-glow', 'ripples'}
 STYLE_W['studio-sweep'] = 3.2
 STYLE_W['podium'] = 1.4
 STYLE_W['ios-mesh'] = 1.2
-STYLE_W['liquid-glass'] = 1.2
+STYLE_W['liquid-glass'] = 0.7
 STYLE_W['macos-waves'] = 1.2
 
 # ----------------------------------------------------------------------------- layouts
@@ -947,6 +1030,9 @@ def lay(layout, items, A, rng, hy):
     n = len(items); r = rng; out = []
     acc = lambda it: 0.45 if it.get('kind') == 'acc' else 1.0
     base = y1 - 0.02 * H
+    phones = all(it['name'].startswith(('qs-iphone', 'ip-', 'iphone')) for it in items)
+    # phones in a row share one height (they must match); anything else fills its own slot
+    fitslot = lambda k, w, h: min(w / math.sqrt(ars[k]), h * math.sqrt(ars[k]))
     if layout == 'hero':
         it = items[0]
         out.append(P(it, min(aw, ah) * 0.82, cx, base, 'stand', clamp_rot(it, r.uniform(-6, 6))))
@@ -956,7 +1042,7 @@ def lay(layout, items, A, rng, hy):
         mid = (n - 1) / 2
         hh = min(min(slot * 0.8 / a_ for a_ in ars), ah * 0.9)   # one height for the row: neighbours match
         for k, it in enumerate(items):
-            S = hh * math.sqrt(ars[k]) * acc(it)
+            S = (hh * math.sqrt(ars[k]) if phones else fitslot(k, slot * 0.9, ah * 0.85)) * acc(it)
             if layout == 'trio' and k == 1 and acc(it) == 1:
                 S *= 1.12
             rot = clamp_rot(it, t * (k - mid) / max(mid, 1))
@@ -967,7 +1053,7 @@ def lay(layout, items, A, rng, hy):
         hh = min(min(slot * 0.8 / a_ for a_ in ars), ah * 0.8)
         for k, it in enumerate(items):
             d = (k - mid) / max(mid, 1)
-            out.append(P(it, hh * math.sqrt(ars[k]), cx + slot * (k - mid), (y0 + y1) / 2 + abs(d) * ah * 0.10, 'float',
+            out.append(P(it, hh * math.sqrt(ars[k]) if phones else fitslot(k, slot * 0.9, ah * 0.8), cx + slot * (k - mid), (y0 + y1) / 2 + abs(d) * ah * 0.10, 'float',
                          clamp_rot(it, -d * 12), z=k, lift=60))
     elif layout == 'pyramid':
         S = min(aw * 0.3 / math.sqrt(np.mean(ars)), ah * 0.55)
@@ -980,10 +1066,10 @@ def lay(layout, items, A, rng, hy):
         mid = (n - 1) / 2
         hh = min(min(slot * 0.8 / a_ for a_ in ars), ah * 0.72)
         for k, it in enumerate(items):
-            out.append(P(it, hh * math.sqrt(ars[k]), cx + slot * (k - mid), (y0 + y1) / 2 - ah * 0.04 * (1 - abs(k - mid) / max(mid, 1)),
+            out.append(P(it, hh * math.sqrt(ars[k]) if phones else fitslot(k, slot * 0.9, ah * 0.75), cx + slot * (k - mid), (y0 + y1) / 2 - ah * 0.04 * (1 - abs(k - mid) / max(mid, 1)),
                          'float', clamp_rot(it, r.uniform(-10, 10)), z=k, lift=r.uniform(70, 130)))
     elif layout == 'flatlay-scatter':
-        S = math.sqrt(aw * ah / n) * 0.72
+        S = math.sqrt(aw * ah / n) * (0.72 if phones else 0.86)
         pts = []
         for k, it in enumerate(items):
             best = None
@@ -1022,14 +1108,18 @@ def lay(layout, items, A, rng, hy):
                          z=k, lift=50))
     return out
 
+GAP = 22
+
 def overlap(pls):
     """Largest shared-alpha area between two products, as a share of the smaller."""
-    ms = [(place(p['spr'][..., 3], p['cx'] - p['spr'].shape[1] / 2, p['cy'] - p['spr'].shape[0] / 2) > 0.15) for p in pls]
+    k = np.ones((GAP, GAP), np.uint8)   # products need a visible gap, not just no shared pixel
+    ms = [cv2.dilate((place(p['spr'][..., 3], p['cx'] - p['spr'].shape[1] / 2, p['cy'] - p['spr'].shape[0] / 2) > 0.15)
+                     .astype(np.uint8), k).astype(bool) for p in pls]
     worst = 0.0
     for i in range(len(ms)):
         for j in range(i + 1, len(ms)):
             b0, b1 = pls[i]['bbox'], pls[j]['bbox']
-            if b0[2] < b1[0] or b1[2] < b0[0] or b0[3] < b1[1] or b1[3] < b0[1]:
+            if b0[2] + GAP < b1[0] or b1[2] + GAP < b0[0] or b0[3] + GAP < b1[1] or b1[3] + GAP < b0[1]:
                 continue
             inter = np.count_nonzero(ms[i] & ms[j])
             if inter:
@@ -1052,12 +1142,17 @@ LAYOUT_N = {'hero': (1, 1), 'pair': (2, 2), 'trio': (3, 3), 'lineup': (4, 5), 's
             'pyramid': (3, 3), 'floating-row': (2, 4), 'flatlay-scatter': (4, 5), 'grid-flatlay': (4, 6),
             'orbit-arc': (3, 5)}
 
+# Owner, 2026-10-01, on gold and silver: "enlarge at least 30 to 40%". Small
+# objects in rows of five read as crumbs: outside iPhone, fewer and bigger.
+LAYOUT_N_SMALL = {'lineup': (3, 3), 'spread-fan': (3, 3), 'floating-row': (2, 3), 'flatlay-scatter': (3, 3),
+                  'grid-flatlay': (4, 4), 'orbit-arc': (3, 3)}
+
 def pick_items(cat, layout, rng):
     pool = POOLS[cat]
-    lo, hi = LAYOUT_N[layout]
+    lo, hi = LAYOUT_N_SMALL.get(layout, LAYOUT_N[layout]) if cat != 'iphone' else LAYOUT_N[layout]
     n = int(rng.integers(lo, hi + 1))
     if layout == 'grid-flatlay':
-        n = int(rng.choice([4, 6]))
+        n = int(rng.choice([4, 6])) if cat == 'iphone' else 4
     bleed_ok = layout == 'hero'
     def ok(it):
         return not it['cut'] or (bleed_ok and it['cut'] in ('B', 'L', 'R'))
@@ -1218,7 +1313,7 @@ def compose(spec):
     if zone != 'top' and layout != 'side-column' and np.mean([aspect(it['name']) for it in items]) > 1.25:
         zone = 'top'
     zone = 'top'
-    A = [0.08 * W, 0.40 * H, 0.92 * W, 0.965 * H]
+    A = [0.08 * W, 0.40 * H, 0.92 * W, 0.965 * H] if cat == 'iphone' else [0.03 * W, 0.36 * H, 0.97 * W, 0.975 * H]
     pls = lay(layout, items, A, rng, hy)
     A2 = list(A)
     if layout in STAND_LAYOUTS:
@@ -1226,7 +1321,7 @@ def compose(spec):
     if style == 'podium':
         A2[3] = 0.80 * H
     valign = 'bottom' if layout in STAND_LAYOUTS else 'center'
-    fill = {'flatlay-scatter': 0.92, 'grid-flatlay': 0.94}.get(layout, 0.94)
+    fill = {'flatlay-scatter': 0.92, 'grid-flatlay': 0.94}.get(layout, 0.94) if cat == 'iphone' else 0.99
     fit(pls, A2, rng, fill, valign)
     separate(pls, A2, rng, fill, valign)
     snap_cut(pls, zone)
@@ -1241,8 +1336,12 @@ def compose(spec):
     b = union(pls)
     g.pc = (float(np.clip((b[0] + b[2]) / 2, 0, W)), float(np.clip((b[1] + b[3]) / 2, 0, H)))
     g.calm = calm_mask(zone)
+    g.keep = keep_mask(g)
     fn, _, soft = STYLES[style]
     img = fn(g).astype(F)
+    if style in BUSY:
+        k = gblur(keep_mask(g, 10), 18)
+        img = lerp(img, gblur(img, 26), k * 0.8)
     if soft > 0:
         img = lerp(img, gblur(img, 14), g.calm * soft)
     img = np.clip(img, 0, 1.5)
@@ -1349,7 +1448,9 @@ def compose(spec):
     th.save(os.path.join(OUT, f'thumb/{cat}-{idx + 1:03d}.jpg'), quality=78, optimize=True)
     return dict(file=rel, thumb=f'thumb/{cat}-{idx + 1:03d}.jpg', cat=cat, style=style, palette=pal.name,
                 ground=spec['variant'], layout=layout, text_zone=zone, finish=fin,
-                devices=[p['it']['name'] for p in pls], text_zone_overlap=round(text_intrusion(pls, zone), 4),
+                devices=[p['it']['name'] for p in pls],
+                prod_size=round(float(np.mean([math.sqrt(p['spr'][..., 3].sum()) for p in pls])) / W, 4),
+                text_zone_overlap=round(text_intrusion(pls, zone), 4),
                 secs=round(time.time() - t0, 2))
 
 # ----------------------------------------------------------------------------- planning

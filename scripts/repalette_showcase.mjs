@@ -11,7 +11,8 @@
  * colours (C < 0.03: the shade over photographs, white, near-black ink) are
  * not touched, so rule 85 still holds.
  *
- *   node scripts/repalette_showcase.mjs --write
+ *   node scripts/repalette_showcase.mjs --write            (assign + recolour)
+ *   node scripts/repalette_showcase.mjs --keep --write     (same palettes, re-solved: after a chroma change)
  *   node scripts/verify_showcase.mjs          # the gate, unchanged by design
  *   node scripts/rethumb_showcase.mjs         # then bump ASSET_REV in app.js
  */
@@ -20,7 +21,10 @@ import { PALETTES, assign, mapper, walkColours, parse, lumOf, toOklch } from './
 const DIR = new URL('../assets/showcase/', import.meta.url).pathname;
 const WRITE = process.argv.includes('--write');
 const idx = JSON.parse(readFileSync(DIR + 'index.json', 'utf8'));
-const plan = assign(idx);
+const KEEP = process.argv.includes('--keep');   // re-solve each card on the palette it already has (e.g. after a chroma change)
+const BY = Object.fromEntries(PALETTES.map(p => [p.name, p]));
+const plan = KEEP ? Object.fromEntries(idx.map(c => [c.id, BY[c.theme]])) : assign(idx);
+if (KEEP && idx.some(c => !BY[c.theme])) throw new Error('--keep: a card is on a palette that no longer exists');
 const LAYOUT_NAME = c => String(c.name || '').split(' · ').slice(1).join(' · ') || c.layout;
 /* family = what the ground actually is now (same rule as refresh_showcase) */
 function familyOf(c1, pal){
