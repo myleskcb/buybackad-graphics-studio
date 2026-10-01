@@ -1,6 +1,6 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, countLooks } from "./catalog.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, SOUND_NAMES, countLooks } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, areaOf } from "./engine.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode } from "./export.js";
@@ -32,6 +32,7 @@ const WORD_KEYS = ["headline", "tag", "number_label", "hook_text"];
 const labelFor = (k, v) => {
   if (k === "vibe") return v === "none" ? "None: any look" : VIBES[v].label;
   if (k === "board") return BOARD_NAMES[v] || v;
+  if (SOUND_NAMES[k] && SOUND_NAMES[k][v]) return SOUND_NAMES[k][v];
   if (k === "urgency") return URGENCY_NAMES[v] || v;
   if (k === "font" || k === "number_font") return v === "same" ? "Same as headline" : (FONTS[v] ? FONTS[v][0] : v);
   if (k === "palette") return v === "match" ? "Match a phone's colour" : v.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());

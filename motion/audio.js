@@ -1,15 +1,27 @@
-// Phone Ad Maker sound: every cue is synthesised here, so nothing is fetched or licensed.
-// Rendered offline with the Web Audio graph, then played with the preview or
-// encoded into the video.
+// Phone Ad Maker sound: every cue is synthesised here or played from a CC0 recording
+// (music.js), so nothing is licensed. Rendered offline with the Web Audio graph, then
+// played with the preview or encoded into the video.
 
 import { rng, clamp } from "./engine.js";
+import { soundManifest, sampleBuffer, sampler, arrange, playTune, groove, KITS, SHAVE, LEADS, mtof } from "./music.js";
 
 const SR = 44100;
+// Times before the first frame (a phone already in flight at frame 0) are clamped to it:
+// Web Audio refuses a negative time, and one refused cue used to silence the whole soundtrack.
+const T = x => Math.max(0, x);
 
 export async function renderSoundtrack(ad) {
+  const man = await soundManifest(), bufs = new Map(), need = new Set();
+  // composed once to learn which recordings it plays, then again with them loaded
+  compose(ad, new OfflineAudioContext(2, SR, SR), man, bufs, need);
+  if (need.size) await Promise.all([...need].map(async k => bufs.set(k, await sampleBuffer(k))));
+  const ctx = new OfflineAudioContext(2, Math.ceil(ad.st.duration * SR), SR);
+  compose(ad, ctx, man, bufs, new Set());
+  return ctx.startRendering();
+}
+
+function compose(ad, ctx, man, bufs, need) {
   const st = ad.st, tl = ad.tl;
-  const len = Math.ceil(st.duration * SR);
-  const ctx = new OfflineAudioContext(2, len, SR);
   const master = ctx.createGain(); master.gain.value = .9;
   const comp = ctx.createDynamicsCompressor();
   comp.threshold.value = -14; comp.knee.value = 8; comp.ratio.value = 6; comp.attack.value = .003; comp.release.value = .12;
@@ -18,7 +30,10 @@ export async function renderSoundtrack(ad) {
   const music = ctx.createGain(); music.gain.value = st.music_volume ?? .5; music.connect(master);
   const noise = noiseBuffer(ctx, 2);
   const r = rng(st.seed * 17 + 3);
-  const S = synth(ctx, noise);
+  const S = Object.assign(synth(ctx, noise), sampler(ctx, man, bufs, need));
+  const hit = tl.hit;
+  const b = 60 / (st.bpm || 118), start = st.hook && st.hook !== "none" ? hit - Math.ceil(hit / b) * b : hit;
+  const A = arrange(st, start, hit);
 
   for (const p of ad.phones) {
     const pan = clamp((p.home[0] / ad.W) * 2 - 1, -1, 1) * .7, fl = p.tLand - p.tIn;
@@ -29,7 +44,7 @@ export async function renderSoundtrack(ad) {
     if (["drop", "rain"].includes(st.entry)) S.thud(sfx, p.tIn + fl * .73, 90, 60, .25, pan, .4);
     if (p.reveal) { S.whoosh(sfx, p.tReveal, .45, true, pan, .25); S.tap(sfx, p.tReveal + .48, pan, .6); }
   }
-  const hit = tl.hit;
+  
   // Nothing opens on silence: the first frame lands on a hit that matches the hook.
   switch (st.hook) {
     case "hook_line": S.bassDrop(sfx, 0, .75); S.impact(sfx, 0, .8); S.whoosh(sfx, .8, .3, true, 0, .4); break;
@@ -42,12 +57,33 @@ export async function renderSoundtrack(ad) {
     case "punch_in": S.impact(sfx, 0, .85); S.whoosh(sfx, 0, .5, false, 0, .5); break;
     case "cold_open": S.impact(sfx, 0, .6); break;
   }
+  switch (st.accent) {                               // an opening sound over the hook
+    case "air_horn": S.airhorn(sfx, 0, .42); break;
+    case "siren": S.hit(sfx, 0, "siren", .5); break;
+    case "whistle": S.hit(sfx, 0, "whistle", .5); break;
+    case "gong": S.hit(sfx, 0, "gong", .55); break;
+    case "windchimes": S.hit(sfx, 0, "windchimes", .55, .3); break;
+    case "bell_tree": S.hit(sfx, 0, "bell_tree", .5, -.3); break;
+    case "vibraslap": S.hit(sfx, 0, "vibraslap", .6); break;
+  }
   switch (st.hit) {
     case "riser": S.riser(sfx, hit - .8, .8, .55); S.impact(sfx, hit, .9); break;
     case "glitch": S.whoosh(sfx, tl.text - .45, .55, true, -.6, .5); S.glitch(sfx, hit - .05, r, .6); S.impact(sfx, hit, .8); break;
     case "cymbal": S.cymbal(sfx, hit - .9, 1.0, .5); S.impact(sfx, hit, .85); break;
     case "bass_drop": S.whoosh(sfx, tl.text - .45, .55, true, -.6, .45); S.bassDrop(sfx, hit, .9); break;
     case "clap_stack": S.whoosh(sfx, tl.text - .45, .55, true, -.6, .45); [0, .06, .12].forEach(o => S.clap(sfx, hit + o, .5)); S.impact(sfx, hit, .6); break;
+    case "gong": S.whoosh(sfx, tl.text - .45, .55, true, -.6, .4); S.hit(sfx, hit, "gong", .75); S.impact(sfx, hit, .45); break;
+    case "timpani": S.hit(sfx, hit, "timpani", .9); S.hit(sfx, hit, "bass_drum", .5); S.impact(sfx, hit, .35); break;
+    case "whip": S.whoosh(sfx, tl.text - .3, .32, true, -.5, .45); S.hit(sfx, hit, "whip", .9); S.impact(sfx, hit, .5); break;
+    case "anvil": S.hit(sfx, hit, "anvil", .7); S.impact(sfx, hit, .6); break;
+    case "crash": S.hit(sfx, hit, "crash", .55); S.impact(sfx, hit, .75); break;
+    case "swell": S.hit(sfx, hit - 1.9, "cym_swell", .55); S.impact(sfx, hit, .85); break;
+    case "orchestra": {                              // an orchestra hit made of the real thing
+      S.hit(sfx, hit, "timpani", .8); S.hit(sfx, hit, "bass_drum", .5); S.hit(sfx, hit, "crash", .4);
+      const root = 48 + A.keyPc;
+      [root, root + 12, root + (A.minor ? 15 : 16), root + 19, root + 24].forEach(m => S.note(sfx, hit, "organ", m, .45, .3));
+      S.impact(sfx, hit, .4); break;
+    }
     default: S.whoosh(sfx, tl.text - .45, .55, true, -.6, .55); S.impact(sfx, hit, .9);
   }
   if (ad.lines.length > 1) S.impact(sfx, tl.lines[1] + .3, .45);
@@ -61,6 +97,20 @@ export async function renderSoundtrack(ad) {
     case "coin": S.coin(sfx, tl.number + .05, .6); break;
     case "chime": S.chime(sfx, tl.number + .05, .6); break;
     case "whoosh_ding": S.whoosh(sfx, tl.number - .2, .35, true, .4, .35); S.chime(sfx, tl.number + .15, .45); break;
+    case "shave_haircut": {                          // "shave and a haircut... two bits"
+      const inst = st.melody !== "none" && st.lead && st.lead !== "synth" ? st.lead : "xylophone", top = (LEADS[inst] || LEADS.xylophone).center;
+      const tonic = A.keyPc + 12 * Math.round((top - A.keyPc) / 12);
+      let x = tl.number; for (const [n, d] of SHAVE) { if (n != null) S.note(sfx, x, inst, tonic + n, d * .14, .5); x += d * .14; }
+      break;
+    }
+    case "cash_counter": S.counter(sfx, tl.number, .5); break;
+    case "text_ding": { const m = 84 + A.keyPc % 12; S.note(sfx, tl.number + .02, "glock", m, .3, .45); S.note(sfx, tl.number + .13, "glock", m + 7, .5, .45); break; }
+    case "phone_buzz": S.buzz(sfx, tl.number, .45); S.buzz(sfx, tl.number + .42, .45); break;
+    case "bells": S.note(sfx, tl.number + .03, "bells", 64 + (A.keyPc + 8) % 12, 1.4, .55); break;
+    case "triangle": S.hit(sfx, tl.number + .03, "triangle", .7, .3); break;
+    case "glock_run": [0, 4, 7, 12].forEach((iv, i) => S.note(sfx, tl.number + i * .055, "glock", 84 + A.keyPc % 12 + iv - (A.minor && iv === 4 ? 1 : 0), .5, .45)); break;
+    case "harp_gliss": [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24].forEach((iv, i) => S.note(sfx, tl.number - .25 + i * .035, "harp", 60 + A.keyPc % 12 + iv, .6, .35 - i * .015, .2)); break;
+    case "whistle": S.hit(sfx, tl.number, "whistle", .5, .2); break;
     default: S.pop(sfx, tl.number + .05, .7);
   }
   if (st.shine || st.sparkles) S.shimmer(sfx, tl.shine, .45);
@@ -72,13 +122,13 @@ export async function renderSoundtrack(ad) {
   if (cues.tape != null) S.whoosh(sfx, cues.tape, .38, false, .3, .45);
   if (st.sound_kit !== "none") {
     // The beat runs from the first frame, on a grid that puts a downbeat exactly on the headline hit.
-    const b = 60 / (st.bpm || 118), start = st.hook && st.hook !== "none" ? hit - Math.ceil(hit / b) * b : hit;
-    beat(S, music, st.sound_kit, start, st.duration, st.bpm || 118, r);
+    if (KITS[st.sound_kit]) groove(S, music, st.sound_kit, A, start, st.duration);
+    else beat(S, music, st.sound_kit, start, st.duration, st.bpm || 118, r, A.tune ? t => mtof(28 + ((A.keyPc + A.chordAt(t + 1e-4)[0] - 4) % 12 + 12) % 12) : null);
+    playTune(S, music, A, st, st.duration);
   }
   // fade the whole mix out at the end
-  master.gain.setValueAtTime(.9, Math.max(0, st.duration - .6));
-  master.gain.linearRampToValueAtTime(0, st.duration);
-  return ctx.startRendering();
+  master.gain.setValueAtTime(.9, T(Math.max(0, st.duration - .6)));
+  master.gain.linearRampToValueAtTime(0, T(st.duration));
 }
 
 function noiseBuffer(ctx, secs) {
@@ -89,21 +139,21 @@ function noiseBuffer(ctx, secs) {
 }
 
 function synth(ctx, noise) {
-  const env = (g, t, a, peak, decay) => { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0005, t + a + decay); };
+  const env = (g, t, a, peak, decay) => { g.gain.setValueAtTime(0, T(t)); g.gain.linearRampToValueAtTime(peak, T(t + a)); g.gain.exponentialRampToValueAtTime(.0005, T(t + a + decay)); };
   const out = (node, dest, pan = 0) => { if (pan) { const p = ctx.createStereoPanner(); p.pan.value = pan; node.connect(p).connect(dest); } else node.connect(dest); };
-  const noiseSrc = (t, dur) => { const n = ctx.createBufferSource(); n.buffer = noise; n.loop = true; n.start(Math.max(0, t), Math.random() * 1.5); n.stop(t + dur + .05); return n; };
-  const osc = (type, t, dur, f) => { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, Math.max(0, t)); o.start(Math.max(0, t)); o.stop(t + dur + .05); return o; };
+  const noiseSrc = (t, dur) => { const n = ctx.createBufferSource(); n.buffer = noise; n.loop = true; n.start(Math.max(0, t), Math.random() * 1.5); n.stop(T(t + dur + .05)); return n; };
+  const osc = (type, t, dur, f) => { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, T(Math.max(0, t))); o.start(Math.max(0, t)); o.stop(T(t + dur + .05)); return o; };
   const S = {
     whoosh(dest, t, dur, up, pan, gain) {
       if (t + dur < 0) return;
       const n = noiseSrc(t, dur), bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 1.4;
       const f0 = up ? 400 : 3600, f1 = up ? 4200 : 500;
-      bp.frequency.setValueAtTime(f0, Math.max(0, t)); bp.frequency.exponentialRampToValueAtTime(f1, t + dur);
-      const g = ctx.createGain(); g.gain.setValueAtTime(0, Math.max(0, t)); g.gain.linearRampToValueAtTime(gain, t + dur * (up ? .8 : .45)); g.gain.linearRampToValueAtTime(0, t + dur);
+      bp.frequency.setValueAtTime(f0, T(Math.max(0, t))); bp.frequency.exponentialRampToValueAtTime(f1, T(t + dur));
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, T(Math.max(0, t))); g.gain.linearRampToValueAtTime(gain, T(t + dur * (up ? .8 : .45))); g.gain.linearRampToValueAtTime(0, T(t + dur));
       n.connect(bp).connect(g); out(g, dest, pan);
     },
     thud(dest, t, f0, f1, dur, pan, gain) {
-      const o = osc("sine", t, dur, f0); o.frequency.exponentialRampToValueAtTime(f1, t + dur * .6);
+      const o = osc("sine", t, dur, f0); o.frequency.exponentialRampToValueAtTime(f1, T(t + dur * .6));
       const g = ctx.createGain(); env(g, t, .004, gain, dur); o.connect(g); out(g, dest, pan);
       const n = noiseSrc(t, .03), lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2500;
       const gn = ctx.createGain(); env(gn, t, .001, gain * .35, .02); n.connect(lp).connect(gn); out(gn, dest, pan);
@@ -113,18 +163,18 @@ function synth(ctx, noise) {
       const n = noiseSrc(t, .02), g2 = ctx.createGain(); env(g2, t, .001, gain * .4, .015); n.connect(g2); out(g2, dest, pan);
     },
     impact(dest, t, gain) {
-      const o = osc("sine", t, 1, 98); o.frequency.exponentialRampToValueAtTime(38, t + .5);
+      const o = osc("sine", t, 1, 98); o.frequency.exponentialRampToValueAtTime(38, T(t + .5));
       const g = ctx.createGain(); env(g, t, .005, gain, .9); o.connect(g).connect(dest);
       const n = noiseSrc(t, .3), bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2500; bp.Q.value = .6;
       const gn = ctx.createGain(); env(gn, t, .002, gain * .7, .25); n.connect(bp).connect(gn).connect(dest);
     },
     bassDrop(dest, t, gain) {
-      const o = osc("sine", t, 1.4, 140); o.frequency.exponentialRampToValueAtTime(34, t + 1.1);
+      const o = osc("sine", t, 1.4, 140); o.frequency.exponentialRampToValueAtTime(34, T(t + 1.1));
       const ws = ctx.createWaveShaper(); ws.curve = curve(2.5);
       const g = ctx.createGain(); env(g, t, .01, gain, 1.3); o.connect(ws).connect(g).connect(dest);
     },
     pop(dest, t, gain) {
-      const o = osc("sine", t, .35, 660); o.frequency.exponentialRampToValueAtTime(1160, t + .08);
+      const o = osc("sine", t, .35, 660); o.frequency.exponentialRampToValueAtTime(1160, T(t + .08));
       const g = ctx.createGain(); env(g, t, .003, gain, .3); o.connect(g).connect(dest);
       const d = osc("sine", t + .05, .5, 1760), gd = ctx.createGain(); env(gd, t + .05, .003, gain * .35, .45); d.connect(gd).connect(dest);
     },
@@ -147,38 +197,38 @@ function synth(ctx, noise) {
       const g = ctx.createGain(); env(g, t, .001, gain, open ? .25 : .045); n.connect(hp).connect(g); out(g, dest, pan);
     },
     kick(dest, t, gain) {
-      const o = osc("sine", t, .45, 130); o.frequency.exponentialRampToValueAtTime(44, t + .12);
+      const o = osc("sine", t, .45, 130); o.frequency.exponentialRampToValueAtTime(44, T(t + .12));
       const g = ctx.createGain(); env(g, t, .002, gain, .4); o.connect(g).connect(dest);
     },
     bass808(dest, t, f, dur, gain) {
-      const o = osc("sine", t, dur, f * 2.2); o.frequency.exponentialRampToValueAtTime(f, t + .05);
+      const o = osc("sine", t, dur, f * 2.2); o.frequency.exponentialRampToValueAtTime(f, T(t + .05));
       const ws = ctx.createWaveShaper(); ws.curve = curve(2.2);
       const g = ctx.createGain(); env(g, t, .004, gain, dur); o.connect(ws).connect(g).connect(dest);
     },
     pluck(dest, t, f, dur, gain, type = "triangle", cutoff = 1800) {
-      const o = osc(type, t, dur, f), lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.setValueAtTime(cutoff, t); lp.frequency.exponentialRampToValueAtTime(200, t + dur);
+      const o = osc(type, t, dur, f), lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.setValueAtTime(cutoff, T(t)); lp.frequency.exponentialRampToValueAtTime(200, T(t + dur));
       const g = ctx.createGain(); env(g, t, .005, gain, dur); o.connect(lp).connect(g).connect(dest);
     },
     riser(dest, t, dur, gain) {
       if (t < 0) { dur += t; t = 0; }
       const n = noiseSrc(t, dur), bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 2;
-      bp.frequency.setValueAtTime(300, t); bp.frequency.exponentialRampToValueAtTime(5300, t + dur);
-      const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + dur); g.gain.linearRampToValueAtTime(0, t + dur + .02);
+      bp.frequency.setValueAtTime(300, T(t)); bp.frequency.exponentialRampToValueAtTime(5300, T(t + dur));
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, T(t)); g.gain.linearRampToValueAtTime(gain, T(t + dur)); g.gain.linearRampToValueAtTime(0, T(t + dur + .02));
       n.connect(bp).connect(g).connect(dest);
-      const o = osc("sawtooth", t, dur, 200); o.frequency.exponentialRampToValueAtTime(1100, t + dur);
-      const go = ctx.createGain(); go.gain.setValueAtTime(0, t); go.gain.linearRampToValueAtTime(gain * .12, t + dur); go.gain.linearRampToValueAtTime(0, t + dur + .02); o.connect(go).connect(dest);
+      const o = osc("sawtooth", t, dur, 200); o.frequency.exponentialRampToValueAtTime(1100, T(t + dur));
+      const go = ctx.createGain(); go.gain.setValueAtTime(0, T(t)); go.gain.linearRampToValueAtTime(gain * .12, T(t + dur)); go.gain.linearRampToValueAtTime(0, T(t + dur + .02)); o.connect(go).connect(dest);
     },
     cymbal(dest, t, dur, gain) {
       if (t < 0) { dur += t; t = 0; }
       const n = noiseSrc(t, dur), hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 5000;
-      const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.exponentialRampToValueAtTime(gain, t + dur); g.gain.linearRampToValueAtTime(0, t + dur + .02);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, T(t)); g.gain.exponentialRampToValueAtTime(gain, T(t + dur)); g.gain.linearRampToValueAtTime(0, T(t + dur + .02));
       n.connect(hp).connect(g).connect(dest);
     },
     glitch(dest, t, r, gain) {
       let p = t;
       while (p < t + .35) {
         const L = r.uniform(.012, .04), o = osc(r() < .5 ? "square" : "sawtooth", p, L, r.pick([220, 440, 880, 1320, 60]));
-        const g = ctx.createGain(); g.gain.setValueAtTime(gain * .5 * Math.exp(-(p - t) * 5), p); g.gain.setValueAtTime(0, p + L); o.connect(g).connect(dest);
+        const g = ctx.createGain(); g.gain.setValueAtTime(gain * .5 * Math.exp(-(p - t) * 5), T(p)); g.gain.setValueAtTime(0, T(p + L)); o.connect(g).connect(dest);
         p += L + r.uniform(0, .01);
       }
     },
@@ -188,12 +238,50 @@ function synth(ctx, noise) {
       [[2637, 1], [3951, .5], [5274, .25]].forEach(([f, a]) => { const o = osc("sine", t + .06, .9, f), gb = ctx.createGain(); env(gb, t + .06, .002, gain * .5 * a, .8); o.connect(gb).connect(dest); });
     },
     coin(dest, t, gain) {
-      const o = osc("square", t, .5, 988); o.frequency.setValueAtTime(1319, t + .08);
+      const o = osc("square", t, .5, 988); o.frequency.setValueAtTime(1319, T(t + .08));
       const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 4000;
       const g = ctx.createGain(); env(g, t, .002, gain * .35, .45); o.connect(lp).connect(g).connect(dest);
     },
     chime(dest, t, gain) {
       [1047, 1319, 1568, 2093].forEach((f, i) => { const o = osc("sine", t + i * .07, 1.2, f), g = ctx.createGain(); env(g, t + i * .07, .003, gain * .3, 1.1); o.connect(g).connect(dest); });
+    },
+    slide808(dest, t, f0, f1, dur, gain) {               // a drill 808: the note bends into the next
+      const o = osc("sine", t, dur, f0 * 2.2); o.frequency.exponentialRampToValueAtTime(f0, T(t + .04));
+      if (f1 !== f0) { o.frequency.setValueAtTime(f0, T(t + dur * .55)); o.frequency.exponentialRampToValueAtTime(f1, T(t + dur * .7)); }
+      const ws = ctx.createWaveShaper(); ws.curve = curve(2.6);
+      const g = ctx.createGain(); env(g, t, .004, gain, dur); o.connect(ws).connect(g).connect(dest);
+    },
+    logdrum(dest, t, f, gain) {                          // amapiano's log drum: a pitched knock with a body
+      const o = osc("sine", t, .5, f * 2.6); o.frequency.exponentialRampToValueAtTime(f, T(t + .025));
+      const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900;
+      const ws = ctx.createWaveShaper(); ws.curve = curve(1.6);
+      const g = ctx.createGain(); env(g, t, .002, gain, .42); o.connect(ws).connect(lp).connect(g).connect(dest);
+      const n = noiseSrc(t, .02), bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1200;
+      const gn = ctx.createGain(); env(gn, t, .001, gain * .25, .015); n.connect(bp).connect(gn).connect(dest);
+    },
+    airhorn(dest, t, gain) {                             // three blasts, the last one long
+      [[0, .16], [.22, .1], [.38, .55]].forEach(([o0, d]) => {
+        const t0 = t + o0, g = ctx.createGain(), ws = ctx.createWaveShaper(); ws.curve = curve(3);
+        const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1400; bp.Q.value = .6;
+        [466, 470, 233, 932].forEach((f, i) => { const o = osc("sawtooth", t0, d, f); if (d > .3) o.frequency.linearRampToValueAtTime(f * .97, T(t0 + d));
+          const og = ctx.createGain(); og.gain.value = [.5, .5, .35, .2][i]; o.connect(og).connect(ws); });
+        g.gain.setValueAtTime(0, T(t0)); g.gain.linearRampToValueAtTime(gain, T(t0 + .012)); g.gain.setValueAtTime(gain, T(t0 + d - .03)); g.gain.linearRampToValueAtTime(0, T(t0 + d));
+        ws.connect(bp).connect(g).connect(dest);
+      });
+    },
+    buzz(dest, t, gain) {                                // a phone on vibrate, on a table
+      const o = osc("square", t, .32, 152), lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 520;
+      const am = osc("square", t, .32, 31), amg = ctx.createGain(); amg.gain.value = .35;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, T(t)); g.gain.linearRampToValueAtTime(gain * .6, T(t + .015));
+      g.gain.setValueAtTime(gain * .6, T(t + .29)); g.gain.linearRampToValueAtTime(0, T(t + .32));
+      am.connect(amg).connect(g.gain); o.connect(lp).connect(g).connect(dest);
+    },
+    counter(dest, t, gain) {                             // a bill counter: a fast flutter of notes, then a stop
+      for (let k = 0; k < 18; k++) {
+        const tk = t + k * .034, n = noiseSrc(tk, .02), bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 3200 + (k % 3) * 500; bp.Q.value = 1.5;
+        const g = ctx.createGain(); env(g, tk, .001, gain * (.5 + .5 * Math.sin(k * .7) ** 2), .018); n.connect(bp).connect(g).connect(dest);
+      }
+      S.thud(dest, t + 18 * .034, 180, 120, .06, 0, gain * .6);
     },
     tick(dest, t, gain) {
       const o = osc("sine", t, .04, 2400), g = ctx.createGain(); env(g, t, .001, gain, .03); o.connect(g).connect(dest);
@@ -209,14 +297,14 @@ function curve(k) {
 }
 
 /** A short bed under the ad. Each kit is its own groove, not a remix of one. */
-function beat(S, dest, kit, start, total, bpm, r) {
+function beat(S, dest, kit, start, total, bpm, r, rootAt = null) {
   const b = 60 / bpm;
   const roots = { house: [55, 55, 65.41, 49], trap: [45, 45, 53.4, 40], lofi: [110, 98, 87.3, 98], edm: [55, 49, 43.65, 49],
     funk: [41.2, 41.2, 49, 55], afrobeat: [55, 61.7, 49, 55], boombap: [49, 49, 55, 43.65], minimal: [55, 55, 55, 55], drumline: [55, 55, 55, 55] }[kit] || [55, 55, 55, 55];
   let n = 0;
   for (let t = start; t < total; t += b, n++) {
     if (t < -1e-6) continue;
-    const root = roots[Math.floor(n / 8) % 4];
+    const root = rootAt ? rootAt(t) : roots[Math.floor(n / 8) % 4];
     switch (kit) {
       case "house":
         S.kick(dest, t, .85); S.hat(dest, t + b / 2, .3);
