@@ -3379,3 +3379,21 @@ sits on, as on the engine before), 0.4% of looks, 11.6% of voices (most a
 headline shrunk under the feed tile in a wider face: Modern is off on 379
 cards, the condensed pairs on almost none). 314 classics (264 before) and 405
 library cards are offered, and every choice offered on each passed.
+
+## 102. The number sits in the middle of a plate it has to itself
+
+Added 2026-10-01 on the library branch (claude/optimistic-edison-xbbk02) as
+94; numbered 102 when merged, after rules 94 to 101. The owner, on a scriptRetro card whose number hugged the top
+of a full-width bar: "The CTA is not centered so it doesn't look great", then
+"Make sure it comes out, clean every single time and properly". That card
+passed the gate: offPlate counts letters off the plate, and every letter was
+on it. So the gate (pgCheck) now also fails `numCentre`: on a plate no other
+line shares, the number's letters must sit within 12% of the plate's middle
+as it is seen (clipped to the card), across and down.
+
+Measured on the 415 live cards: the old scriptRetro bars were 22% to 37% off;
+six cards still failed (five Neon Night plates 14% to 20% low, one Trust Seal
+band 27% high) and `scripts/centre_number.mjs` moved each number until its
+letters sat within 3%, kept only where the gate accepted the card. A second
+run changes nothing. The scriptRetro bars themselves were rebuilt as pills
+(`scripts/hug_number_pill.mjs`).

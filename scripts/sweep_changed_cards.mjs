@@ -82,7 +82,7 @@ for (let i = 0; i < changed.length; i++){
   if (shots && now.png) writeFileSync(shots + '/' + id + '.jpg', Buffer.from(now.png.split(',')[1], 'base64'));
   delete now.png; delete was.png;
   res[id] = { fresh, now, was };
-  if ((i + 1) % 20 === 0) console.log('…' + (i + 1) + '/' + changed.length);
+  if ((i + 1) % 20 === 0){ console.log('…' + (i + 1) + '/' + changed.length); mkdirSync(OUT.replace(/\/[^/]*$/, ''), { recursive: true }); writeFileSync(OUT, JSON.stringify(res, null, 1)); }   // a long run keeps what it measured
 }
 await browser.close();
 mkdirSync(OUT.replace(/\/[^/]*$/, ''), { recursive: true });
