@@ -15687,7 +15687,7 @@ function ezPatternRow(){
      touch    two lines whose boxes overlap by more than a kiss (rule 58)
    FAIL holds a card back (the landing's `defect`, the studio's gate); WARN
    is shown and ranks a card down. */
-const PG_T = { number: 72, legib: 3, numInk: 3, contrast: 4.5, onProduct: 0.12, offPlate: 0.08, thumb: 8, margin: 0.06, touch: 0.18, cut: 0.08, tile: 160 };
+const PG_T = { number: 72, legib: 3, numInk: 3, contrast: 4.5, onProduct: 0.12, offPlate: 0.08, numCentre: 0.12, thumb: 8, margin: 0.06, touch: 0.18, cut: 0.08, tile: 160 };
 const PG_READ = { headline:1, phone:1, cta:1, info:1, badges:1, sub:1, website:1, offer:1 }, PG_CRIT = { headline:1, phone:1, cta:1 };
 const pgLin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
 const pgLumAt = (d, k) => 0.2126 * pgLin(d[k]) + 0.7152 * pgLin(d[k + 1]) + 0.0722 * pgLin(d[k + 2]);
@@ -15787,7 +15787,7 @@ function pgCheck(sc, opts){
   });
   // the number: big, its letters readable, on its plate, off the product
   const phone = read.find(x => x.role === 'phone');
-  let onProduct = 0, offPlate = 0;
+  let onProduct = 0, offPlate = 0, numOff = 0;
   if (phone){
     if (phone.px < PG_T.number - 0.5) F('number', phone, phone.px, PG_T.number);   // half a pixel of rounding, the same tolerance the floor uses
     if (phone.letters != null && phone.letters < PG_T.numInk) F('numInk', phone, phone.letters, PG_T.numInk);
@@ -15803,12 +15803,27 @@ function pgCheck(sc, opts){
       if (w > 0 && h > 0){
         const on = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = false; sc.renderAll();
         const off = ctx.getImageData(x0, y0, w, h).data; phone.o.visible = true; sc.renderAll();
-        let ink = 0, out = 0;
+        let ink = 0, out = 0, iL = Infinity, iR = -Infinity, iT = Infinity, iB = -Infinity;
         for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){ const q = (y * w + x) * 4;
           if (Math.abs(on[q] - off[q]) + Math.abs(on[q + 1] - off[q + 1]) + Math.abs(on[q + 2] - off[q + 2]) < 90) continue;
-          ink++; const X = x + x0, Y = y + y0; if (X < plate.x || X > plate.x + plate.w || Y < plate.y || Y > plate.y + plate.h) out++; }
+          ink++; const X = x + x0, Y = y + y0; if (X < plate.x || X > plate.x + plate.w || Y < plate.y || Y > plate.y + plate.h) out++;
+          if (X < iL) iL = X; if (X > iR) iR = X; if (Y < iT) iT = Y; if (Y > iB) iB = Y; }
         offPlate = ink ? out / ink : 0;
         if (offPlate > PG_T.offPlate) F('offPlate', phone, offPlate, PG_T.offPlate);
+        /* the number is centred on a plate it has to itself (owner, 2026-09-30:
+           "The CTA is not centered so it doesn't look great"): its letters'
+           middle within 12% of the plate's middle as it is seen (clipped to
+           the card), across and down. A band whose number hugged its top edge
+           passed offPlate, since every letter was on it (scriptRetro, 22% to
+           37% high); a plate shared with the CTA or the website is a stack,
+           and is not judged here. */
+        const sx0 = Math.max(0, plate.x), sx1 = Math.min(W, plate.x + plate.w), sy0 = Math.max(0, plate.y), sy1 = Math.min(H, plate.y + plate.h);
+        const shared = read.some(x => x !== phone && x.b && (() => { const cx = x.b.x + x.b.w / 2, cy = x.b.y + x.b.h / 2; return cx > sx0 && cx < sx1 && cy > sy0 && cy < sy1; })());
+        if (ink && !shared && sy1 - sy0 >= 40 && sx1 - sx0 >= 80){
+          const ox = ((iL + iR) / 2 - (sx0 + sx1) / 2) / (sx1 - sx0), oy = ((iT + iB) / 2 - (sy0 + sy1) / 2) / (sy1 - sy0);
+          numOff = Math.max(Math.abs(ox), Math.abs(oy));
+          if (numOff > PG_T.numCentre) F('numCentre', phone, +numOff.toFixed(3), PG_T.numCentre);
+        }
       }
     }
   } else if (!opts.noPhone) Wn('noNumber', null, null, null);
@@ -15843,7 +15858,7 @@ function pgCheck(sc, opts){
   return { ok: !fails.length, fails, warns, legib: +legib.toFixed(2), legibMin: +legibMin.toFixed(2), number: phone ? +phone.px.toFixed(1) : null,
            numInk: phone && phone.letters != null ? +phone.letters.toFixed(2) : null,
            letters: crit.length ? +Math.min(...crit).toFixed(2) : null, minorInk: minorL.length ? +Math.min(...minorL).toFixed(2) : null,
-           onProduct: +onProduct.toFixed(3), offPlate: +offPlate.toFixed(3), headPx: +headPx.toFixed(1), headTile: +headTile.toFixed(1),
+           onProduct: +onProduct.toFixed(3), offPlate: +offPlate.toFixed(3), numOff: +numOff.toFixed(3), headPx: +headPx.toFixed(1), headTile: +headTile.toFixed(1),
            ghost: read.filter(x => PG_CRIT[x.role] && x.cov < 0.012).length,
            lines: read.map(x => ({ name: x.name, role: x.role, px: +x.px.toFixed(1), core: x.core == null ? null : +x.core.toFixed(2), letters: x.letters == null ? null : +x.letters.toFixed(2), cov: +(x.cov * 100).toFixed(1),
                                    ink: x.ink == null ? null : +x.ink.toFixed(3), ground: x.ground == null ? null : +x.ground.toFixed(3) })) };
@@ -15857,6 +15872,7 @@ function pgExplain(f){
     case 'number': return 'the phone number is ' + Math.round(f.value) + 'px; it needs 72px to read in a feed';
     case 'numInk': return 'part of the phone number reads ' + f.value + ':1; every digit needs 3:1';
     case 'offPlate': return 'the phone number runs off its plate';
+    case 'numCentre': return 'the phone number is not centred on its plate';
     case 'onProduct': return 'the phone number sits on the product';
     case 'thumb': return 'the headline is too small to read as a thumbnail';
     case 'margin': return L + ' runs into the edge';

@@ -2961,3 +2961,21 @@ Kept from the merge of the lines (2026-09-30):
   look off, recolours, and puts it back on in the theme's palette, so a theme
   picked in the editor never overpaints a look (added when the lines were
   merged, 2026-09-30).
+
+## 94. The number sits in the middle of a plate it has to itself
+
+Added 2026-10-01. The owner, on a scriptRetro card whose number hugged the top
+of a full-width bar: "The CTA is not centered so it doesn't look great", then
+"Make sure it comes out, clean every single time and properly". That card
+passed the gate: offPlate counts letters off the plate, and every letter was
+on it. So the gate (pgCheck) now also fails `numCentre`: on a plate no other
+line shares, the number's letters must sit within 12% of the plate's middle
+as it is seen (clipped to the card), across and down.
+
+Measured on the 415 live cards: the old scriptRetro bars were 22% to 37% off;
+six cards still failed (five Neon Night plates 14% to 20% low, one Trust Seal
+band 27% high) and `scripts/centre_number.mjs` moved each number until its
+letters sat within 3%, kept only where the gate accepted the card. A second
+run changes nothing. The scriptRetro bars themselves were rebuilt as pills
+(`scripts/hug_number_pill.mjs`).
+
