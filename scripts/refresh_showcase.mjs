@@ -26,7 +26,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { openStudio } from './_showcase_harness.mjs';
 import { rewriteCopy, deckOfHeadline, fixForeignLines, foreignWords, COMPANY, LICENSE } from './refresh_copy.mjs';
-import { PALETTES, assign, mapper, walkColours, displayFace, numFace, SUPPORT_FACE, snapWeight, parse, lumOf, toOklch } from './refresh_palettes.mjs';
+import { PALETTES, assign, mapper, walkColours, familyOf, displayFace, numFace, SUPPORT_FACE, snapWeight } from './refresh_palettes.mjs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const DIR = ROOT + 'assets/showcase/';
 const FROM = process.env.REFRESH_FROM || 'HEAD';
@@ -96,15 +96,6 @@ function refreshRecord(c){
   });
   const roles = { c1:map(c.c1), ink:map(c.ink), accent:map(c.accent), support:map(c.support) };
   return { rec:Object.assign({}, rec, { tpl }), pal, faces, roles };
-}
-
-/* family = what the ground actually is now, measured, not a generator's name */
-function familyOf(c1, pal){
-  const p = parse(c1) || { r:0, g:0, b:0 }, Y = lumOf(p), C = toOklch(p).C;
-  if (pal.neutral || (Y > 0.6 && C < 0.03)) return 'Studio';
-  if (Y < 0.08) return 'Deep';
-  if (Y > 0.45) return 'Pastel';
-  return 'Poster';
 }
 
 const work = ONLY ? idx.filter(c => ONLY.has(c.id)) : idx;

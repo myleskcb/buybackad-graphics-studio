@@ -19,10 +19,13 @@
  * whites, near-black ink) are left alone, which keeps rule 2's neutral
  * shadow neutral.
  *
- * Colour maths in OKLCH (rule 40). Accents are split-complementary or triadic
- * to the ground, never an exact complement (rule 41). Any dark colour that
- * would land in the orange-amber band (the "brown" band) takes the palette's
- * DEEP hue instead.
+ * Colour maths in OKLCH (rule 40). Any colour a warm hue cannot hold at its
+ * luminance (orange to rust, gold to mustard, lime to olive: muddy()) takes
+ * the palette's DEEP hue instead.
+ *
+ * 2026-10-01: the palettes below replace the 2026-09-22 set with proven
+ * two-colour pairings (see "the palettes"); scripts/repalette_showcase.mjs
+ * moved the library onto them in place, under the same luminance lock.
  */
 
 /* ---------- colour ---------- */
@@ -85,58 +88,75 @@ export function atLuminance(H, C, Y){
 const hueGap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
 
 /* ---------- the palettes ----------
-   g/a/s = ground, action accent, support hue (OKLCH degrees); deep = the hue a
-   DARK colour takes if its own would read brown. Chroma is per role and per
-   side of the lightness scale: a pastel ground is quiet (0.045), a deep ground
-   carries colour (0.11), the accent is the loudest thing on the card. The
-   `neutral` palettes keep a near-neutral ground on purpose — the trust end. */
-/* 2026-09-30 — THE PROVEN 25. The owner: "not super obscure or niche ones
-   ... appealing and proven to get clicks." The 29 before this were invented
-   pairings with invented names ("Reef", "Kiwi & Violet", "Glacier & Flame"),
-   several of them near-twins, and a tap on one filtered the gallery to two
-   or three cards. These are the pairings retail, food, finance and Apple's
-   own marketing have run for decades, named for what a person sees: trust +
-   action (navy/orange, blue/yellow), money (green/gold), luxury
-   (black/gold, purple/gold, wine/gold), urgency (red/yellow, cream/red),
-   Apple (white/blue, titanium/orange, graphite/lime), and the high-click
-   social pairs (teal/coral, sunset pink, cobalt/pink, midnight/cyan).
-   Same luminance lock as before, so every card keeps the contrast it
-   passed its audits with; only hue and chroma move.
-   Named as the owner asked the same night (2026-09-30: 19 of the old 29
-   names were food or drink): never food or drink, so eight of the proven
-   pairs carry a stone, metal, flower, sea or sky word for the fruit, herb or
-   drink in the trade name (Mint, Cream, Lime, Wine, Peach, Lemon): Seafoam &
-   Navy, Ivory & Red, Graphite & Volt, Lavender & Jade, Garnet & Gold, Shell &
-   Teal, Ultraviolet & Neon, Sunflower & Purple. */
+   THE 2026-10-01 SET. Owner, on the 29 that came before: "the colors look so
+   strange ... less niche color schemes, and more proven." They were generated
+   triads (lilac + olive + teal, brick + periwinkle + mint) and three in four
+   carried a food name. These are the pairings ads and brands have run for
+   decades: navy and gold, black and red, green and gold, blue and orange. Two
+   hue families to a palette, never three: the support colour is a shade of
+   the ground's or the accent's family, so a card reads as two colours plus
+   white or black.
+
+   g/a/s = ground, action accent, support hue (OKLCH degrees), each measured
+   off a reference colour (navy #0b2a6b 263, gold #f5b301 82, orange #ff7a00
+   51, red #e11d2a 26, cyan #06b6d4 215, green #16a34a 149, purple #7e22ce
+   302, teal #0f766e 186). deep = the hue a warm colour takes when the card
+   needs it too dark to stay clean (see muddy()); ink = the hue of dark
+   reading ink when it is not deep. `neutral` palettes keep a black, white or
+   silver ground. Navy against gold is a near-exact complement, which rule 41
+   warns about for two saturated mid-tones; a dark ground under a light accent
+   does not vibrate, and it is the most proven pairing there is.
+   NAMES say the two colours plainly. No food or drink. */
 export const PALETTES = [
-  { name:'Navy & Orange',       g:262, a:55,  s:200, deep:264 },
-  { name:'Black & Gold',        g:270, a:88,  s:40,  deep:270, neutral:true },
-  { name:'Money Green & Gold',  g:150, a:92,  s:205, deep:152 },
-  { name:'Apple White & Blue',  g:250, a:258, s:345, deep:260, neutral:true },
-  { name:'Red & Yellow',        g:27,  a:102, s:255, deep:22 },
-  { name:'Purple & Gold',       g:300, a:88,  s:340, deep:298 },
-  { name:'Teal & Coral',        g:190, a:30,  s:100, deep:200 },
-  { name:'Midnight & Cyan',     g:268, a:205, s:335, deep:268 },
-  { name:'Sunset Orange & Pink',g:50,  a:352, s:290, deep:350 },
-  { name:'Black & Hot Pink',    g:290, a:350, s:205, deep:290, neutral:true },
-  { name:'Seafoam & Navy',      g:165, a:262, s:350, deep:170 },
-  { name:'Ivory & Red',         g:90,  a:27,  s:258, deep:20,  neutral:true },
-  { name:'Emerald & Pink',      g:158, a:0,   s:95,  deep:160 },
-  { name:'Blue & Yellow',       g:240, a:102, s:20,  deep:255 },
-  { name:'Graphite & Volt',     g:255, a:125, s:200, deep:260, neutral:true },
-  { name:'Lavender & Jade',     g:300, a:165, s:350, deep:295 },
-  { name:'Titanium & Orange',   g:230, a:50,  s:230, deep:255, neutral:true },
-  { name:'Garnet & Gold',       g:8,   a:88,  s:200, deep:6 },
-  { name:'Cobalt & Pink',       g:265, a:350, s:190, deep:266 },
-  { name:'Shell & Teal',        g:55,  a:190, s:350, deep:200 },
-  { name:'Aqua & Magenta',      g:200, a:340, s:100, deep:215 },
-  { name:'Blush & Navy',        g:5,   a:262, s:160, deep:262 },
-  { name:'Ultraviolet & Neon',  g:295, a:125, s:200, deep:295 },
-  { name:'Sunflower & Purple',  g:105, a:295, s:20,  deep:295 },
-  { name:'Stone & Teal',        g:80,  a:190, s:28,  deep:190, neutral:true },
+  { name:'Navy & Gold',      g:264, a:86,  s:236, deep:264 },
+  { name:'Navy & Orange',    g:264, a:50,  s:236, deep:264 },
+  { name:'Midnight & Cyan',  g:270, a:212, s:250, deep:270 },
+  { name:'Blue & Green',     g:252, a:148, s:232, deep:252 },
+  { name:'Green & Gold',     g:150, a:88,  s:162, deep:152 },
+  { name:'Purple & Gold',    g:302, a:86,  s:312, deep:302 },
+  { name:'Teal & Orange',    g:194, a:50,  s:212, deep:196 },
+  { name:'Red & Yellow',     g:22,  a:96,  s:100, deep:20, ink:258 },
+  { name:'Black & Gold',     g:258, a:84,  s:96,  deep:258, neutral:true },
+  { name:'Black & Red',      g:258, a:27,  s:17,  deep:258, neutral:true },
+  { name:'Black & Green',    g:258, a:146, s:160, deep:258, neutral:true },
+  { name:'Silver & Blue',    g:250, a:262, s:232, deep:264, neutral:true },
 ];
-/* role chroma (light side / dark side) */
-const CH = { ground:[0.048, 0.112], accent:[0.17, 0.18], support:[0.12, 0.13], ink:[0.03, 0.035] };
+/* role chroma (light side / dark side); the ground's is groundC() */
+const CH = { accent:[0.17, 0.18], support:[0.12, 0.13], ink:[0.03, 0.035] };
+/* A ground is either a real colour or close to white. The 0.048 pastel the
+   last set gave every light ground is what made the wall dusty lilac, khaki
+   and greige; here a mid ground carries clean colour (royal blue, kelly green)
+   and a light one fades to a tinted white. */
+const groundC = Y => Y < 0.08 ? 0.11 : Y < 0.3 ? 0.14 : Y < 0.75 ? 0.14 - (Y - 0.3) * 0.27 : 0.02;
+/* The lightest a warm hue can be drawn before it stops reading as its own
+   colour: orange goes rust, gold goes mustard, yellow and lime go olive.
+   Measured on reference shades (#d4a017 gold holds at Y 0.39, #b8860b is
+   mustard at 0.29; #ea580c orange holds at 0.23; #4d7c0f lime is olive at
+   0.17). Under it the colour takes the palette's deep hue instead. The old
+   guard stopped at hue 108 and Y 0.2, which is how lime and citrus accents
+   reached the wall as olive. */
+export function muddy(H, Y){
+  const t = H >= 35 && H < 45 ? 0.12 : H >= 45 && H < 65 ? 0.2 : H >= 65 && H < 105 ? 0.33
+    : H >= 105 && H < 120 ? 0.3 : H >= 120 && H < 140 ? 0.22 : 0;
+  return Y < t;
+}
+
+/* The luminance band in which a hue still reads as the colour a palette names
+   it: below it a warm hue goes muddy (above), above it red turns salmon,
+   orange peach and purple lavender. Read off the same reference shades. A
+   card's accent is locked to its luminance, so repalette_showcase.mjs gives a
+   palette only to a card whose accent is not over the top of its accent's
+   band (and, on a neutral palette, not under the bottom either: Black & Gold
+   goes where the accent can be gold). */
+export function namedBand(H){
+  H = ((H % 360) + 360) % 360;
+  if (H >= 10 && H < 35) return [0.07, 0.3];
+  if (H >= 35 && H < 65) return [0.18, 0.55];
+  if (H >= 65 && H < 110) return [0.33, 0.9];
+  if (H >= 110 && H < 140) return [0.22, 0.95];
+  if (H >= 275 && H < 330) return [0.02, 0.35];
+  return [0.02, 0.95];
+}
 
 /* which palettes suit a category — soft preference, never a wall. Gold wants
    a warm-yellow accent or support somewhere in it; silver and strips want a
@@ -149,42 +169,90 @@ export const AFFINITY = {
   pokemon:p => !p.neutral, coins:() => true, cars:() => true, sports:() => true, phones:() => true,
 };
 
-/* ---------- mapping one card ---------- */
+/* family = what the ground actually is, measured, not a generator's name */
+export function familyOf(c1, pal){
+  const p = parse(c1) || { r:0, g:0, b:0 }, Y = lumOf(p), C = toOklch(p).C;
+  if (pal.neutral || (Y > 0.6 && C < 0.03)) return 'Studio';
+  if (Y < 0.08) return 'Deep';
+  if (Y > 0.45) return 'Pastel';
+  return 'Poster';
+}
+
+/* ---------- mapping one card ----------
+   map(str) re-hues one colour; map(str, true) forces the deep hue (a gradient
+   whose other stop needs it); map.deepFor(str) says whether a colour would
+   take the deep hue by itself. */
 export function mapper(pal, oldRoles){
   const roles = ['ground', 'ink', 'accent', 'support'];
   const src = { ground:oldRoles.c1, ink:oldRoles.ink, accent:oldRoles.accent, support:oldRoles.support };
   const O = {}; roles.forEach(r => { const p = parse(src[r]); O[r] = p ? toOklch(p) : null; });
   const hueFor = { ground:pal.g, ink:pal.g, accent:pal.a, support:pal.s };
   const cache = new Map();
-  return function map(str){
-    if (cache.has(str)) return cache.get(str);
-    const c = parse(str); if (!c){ cache.set(str, str); return str; }
+  function plan(str){
+    const c = parse(str); if (!c) return null;
     const k = toOklch(c), Y = lumOf(c);
-    let out = str;
-    if (k.C >= 0.03){
-      /* nearest old role in OKLab: that is the job this colour was doing */
-      let role = 'accent', best = 9;
-      roles.forEach(r => { const o = O[r]; if (!o || (r === 'ink' && o.C < 0.03)) return;
-        const d = Math.hypot(k.L - o.L, k.A - o.A, k.B - o.B); if (d < best){ best = d; role = r; } });
-      const o = O[role] || k;
-      const side = Y > 0.3 ? 0 : 1;
-      let C = CH[role][side] * clamp(o.C > 0.01 ? k.C / o.C : 1, 0.55, 1.35);
-      if (pal.neutral && (role === 'ground' || role === 'ink')) C = Math.min(C, role === 'ground' ? 0.018 : 0.02);
-      /* keep the colour's own small offset from its role hue, so a two-stop
-         gradient stays two stops */
-      const off = clamp(((k.H - o.H + 540) % 360) - 180, -14, 14);
-      let H = (hueFor[role] + off + 360) % 360;
-      if (Y < 0.2 && H >= 32 && H <= 108) H = pal.deep;      // no brown
-      out = fmt(atLuminance(H, C, Y), c);
+    if (k.C < 0.03){
+      /* neutrals stay: shadows, whites, near-black ink. Except the ground
+         itself when it is a light, faintly tinted white: that tint is the old
+         palette's (a blush white under a teal palette), so it takes the new
+         ground hue at the same faint chroma */
+      const o = O.ground;
+      if (o && o.C < 0.03 && k.C >= 0.008 && Y > 0.5 && Math.hypot(k.L - o.L, k.A - o.A, k.B - o.B) < 0.004)
+        return { c, Y, C:Math.min(k.C, pal.neutral ? 0.012 : 0.02), H:pal.g, deep:false };
+      return null;
     }
-    cache.set(str, out);
+    /* nearest old role in OKLab: that is the job this colour was doing */
+    let role = 'accent', best = 9;
+    roles.forEach(r => { const o = O[r]; if (!o || (r === 'ink' && o.C < 0.03)) return;
+      const d = Math.hypot(k.L - o.L, k.A - o.A, k.B - o.B); if (d < best){ best = d; role = r; } });
+    const o = O[role] || k;
+    const rel = clamp(o.C > 0.01 ? k.C / o.C : 1, 0.55, 1.35);
+    let C = (role === 'ground' ? groundC(Y) : CH[role][Y > 0.3 ? 0 : 1]) * rel;
+    if (pal.neutral && (role === 'ground' || role === 'ink')) C = Math.min(C, 0.012);
+    /* keep the colour's own small offset from its role hue, so a two-stop
+       gradient stays two stops */
+    const off = clamp(((k.H - o.H + 540) % 360) - 180, -14, 14);
+    let H = (hueFor[role] + off + 360) % 360;
+    if (role === 'ink' && Y < 0.2) H = pal.ink ?? pal.deep;   // dark reading ink is navy-, green- or purple-black, never brown-black
+    /* an accent needs its saturation: gold at C 0.08 is khaki, orange is tan,
+       green is sage, blue is slate. The dusty mid-tone is the old wall's look */
+    if (role === 'accent' || role === 'support') C = Math.max(C, H >= 35 && H < 140 ? 0.13 : 0.12);
+    return { c, Y, C, H, deep:muddy(H, Y) };
+  }
+  function map(str, forceDeep = false){
+    const key = forceDeep ? str + '|deep' : str;
+    if (cache.has(key)) return cache.get(key);
+    const p = plan(str);
+    let out = str;
+    if (p){
+      let { H, C } = p;
+      const toDeep = () => { H = pal.deep; if (pal.neutral && pal.deep === pal.g) C = Math.min(C, 0.012); };
+      if (forceDeep || p.deep) toDeep();
+      out = fmt(atLuminance(H, C, p.Y), p.c);
+      /* a very dark colour rounds to 8 bits with its hue loose by ten degrees:
+         judge what was written, not what was asked for */
+      const k = toOklch(parse(out));
+      if (H !== pal.deep && k.C >= 0.05 && muddy(k.H, p.Y)){ toDeep(); out = fmt(atLuminance(H, C, p.Y), p.c); }
+    }
+    cache.set(key, out);
     return out;
-  };
+  }
+  map.deepFor = str => { const p = plan(str); return !!(p && p.deep); };
+  return map;
 }
+const isColour = v => typeof v === 'string' && /^\s*(#[0-9a-f]{3,8}|rgba?\([^)]*\))\s*$/i.test(v);
 export function walkColours(o, map){
   if (Array.isArray(o)) return o.map(v => walkColours(v, map));
-  if (o && typeof o === 'object'){ const r = {}; for (const k in o) r[k] = (k === 'text' || k === 'src' || k === 'fontFamily') ? o[k] : walkColours(o[k], map); return r; }
-  if (typeof o === 'string' && /^\s*(#[0-9a-f]{3,8}|rgba?\([^)]*\))\s*$/i.test(o)) return map(o);
+  if (o && typeof o === 'object'){
+    /* a two-stop fill decides its hue once: if either stop has to take the
+       deep hue, both do, or the gradient would jump hue (rule 5) */
+    const pair = isColour(o.c1) && isColour(o.c2) && map.deepFor && (map.deepFor(o.c1) || map.deepFor(o.c2));
+    const r = {};
+    for (const k in o) r[k] = (k === 'text' || k === 'src' || k === 'fontFamily') ? o[k]
+      : pair && (k === 'c1' || k === 'c2') ? map(o[k], true) : walkColours(o[k], map);
+    return r;
+  }
+  if (isColour(o)) return map(o);
   return o;
 }
 
@@ -209,24 +277,24 @@ export function duoFor(pal, scrimColor, a){
 
 /* ---------- assignment: balanced, by rule ----------
    Each card takes the least-used palette that (1) moves its ground at least
-   60° round the wheel from where it was, so the refresh is visible, (2) suits
-   its category, and (3) is not already on another card with the same layout
-   in the same category. Ties go to palette order. Nothing is decided by
+   60° round the wheel from where it was, so the refresh is visible (skipped
+   with { move:false }, when the point is the new set, not the change), (2) suits
+   its category, (3) is not already on another card with the same layout
+   in the same category, and (4) passes `fits` (repalette: the accent reads
+   as its named colour, and no colour-blind reader loses contrast, rule 43);
+   when nothing fits, `soft` still must. Ties go to palette order. Nothing is decided by
    hashing an id. */
-export function assign(cards){
+export function assign(cards, { move = true, fits = () => true, soft = () => true } = {}){
   const use = new Map(PALETTES.map(p => [p.name, 0]));
   const taken = new Set();
   const out = {};
   const sorted = cards.slice().sort((x, y) => (x.cat + x.layout + x.id).localeCompare(y.cat + y.layout + y.id));
   for (const c of sorted){
     const o = parse(c.c1); const oh = o ? toOklch(o).H : 0; const oc = o ? toOklch(o).C : 0;
-    /* a gold, yellow or orange accent only reads as itself when it is light:
-       under Y 0.28 the no-brown rule has to trade it for the DEEP hue, and a
-       "Black & Gold" card with no gold on it is a wrong label. Those
-       palettes go to cards whose accent is light enough to carry them. */
-    const acc = parse(c.accent), warmOk = p => !(p.a >= 32 && p.a <= 108) || (acc && lumOf(acc) >= 0.28);
-    const ok = (p, strict) => (!strict || oc < 0.03 || hueGap(p.g, oh) >= 60) && (AFFINITY[c.cat] || (() => true))(p) && warmOk(p) && (!strict || !taken.has(c.cat + '|' + c.layout + '|' + p.name));
-    let pool = PALETTES.filter(p => ok(p, true));
+    const ok = (p, strict) => (!strict || !move || oc < 0.03 || hueGap(p.g, oh) >= 60) && (AFFINITY[c.cat] || (() => true))(p) && (!strict || !taken.has(c.cat + '|' + c.layout + '|' + p.name));
+    let pool = PALETTES.filter(p => ok(p, true) && fits(c, p));
+    if (!pool.length) pool = PALETTES.filter(p => ok(p, false) && fits(c, p));
+    if (!pool.length) pool = PALETTES.filter(p => ok(p, false) && soft(c, p));   // what must hold even when nothing fits
     if (!pool.length) pool = PALETTES.filter(p => ok(p, false));
     pool.sort((p, q) => use.get(p.name) - use.get(q.name));
     const p = pool[0];
