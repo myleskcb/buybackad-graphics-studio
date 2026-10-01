@@ -186,20 +186,18 @@ QS_BACKS = ['qs-iphone-12-back--blue', 'qs-iphone-12-back--green', 'qs-iphone-12
 QS_PAIRS = ['qs-iphone-11-pro-max', 'qs-iphone-11', 'qs-iphone-12-pro-max', 'qs-iphone-12', 'qs-iphone-13-pro-max',
             'qs-iphone-13', 'qs-iphone-14-pro-max', 'qs-iphone-14-plus', 'qs-iphone-15-pro-max', 'qs-iphone-15-pro',
             'qs-iphone-15', 'qs-iphone-16-pro-max', 'qs-iphone-16-pro', 'qs-iphone-16', 'qs-iphone-16e',
-            'qs-iphone-17-pro-max', 'qs-iphone-17-pro', 'qs-iphone-17-air', 'qs-iphone-17', 'qs-iphone-17e',
-            'qs-iphone-18-pro-max', 'qs-iphone-18-pro']
-IP_PHOTO = ['ip-gen13-back-blue', 'ip-gen13-pro-back-graphite', 'ip-gen15-back-green', 'ip-gen15-pro-back-natural',
-            'ip-gen16-back-ultramarine', 'ip-gen17-plateau-white', 'ip-gen17-plateau-blue', 'iphone-15-pro-back-blue',
-            'iphone-15-pro-back-gold', 'iphone-15-pro-back-white', 'ip-angle-hero-tilt', 'ip-angle-standing-lean']
+            'qs-iphone-17-pro-max', 'qs-iphone-17-pro', 'qs-iphone-17-air', 'qs-iphone-17', 'qs-iphone-17e']
+# 2026-10-01 audit (owner: "doesn't have an Apple logo", "looks like a fake
+# Samsung"): only photographs of a real iPhone back WITH the logo. Out: the
+# ip-gen14/15/16 and ip-angle renders (no logo), ip-gen15-back-green (a
+# camera layout no iPhone has), the edge-on ip-gen13-back-blue and plateau
+# shots, iphone-15-pro-back-gold (no logo), the iPhone 18 and duo concepts.
+IP_PHOTO = ['ip-gen13-pro-back-graphite', 'iphone-15-pro-back-blue']   # the white 15 Pro shot is angled: it reads small beside the flat renders
 
 POOLS = {
-    'iphone': ([I(n, rot=28, kind='back') for n in QS_BACKS] +
-               [I(n, rot=14, kind='pair') for n in QS_PAIRS] +
-               [I(n, rot=10, kind='photo') for n in IP_PHOTO] +
-               [I('ip-gen14-back-purple', 'B', 8, 'photo'), I('ip-gen14-pro-back-gold', 'B', 8, 'photo'),
-                I('ip-angle-back-topdown', rot=10, kind='photo'),
-                I('iphone-fan-four', rot=6, kind='photo', role='h'), I('iphone-trio-fan', 'B', 6, 'photo', 'h'),
-                I('iphones-trio', rot=4, kind='photo', role='h')]),
+    'iphone': ([I(n, rot=12, kind='back') for n in QS_BACKS] +
+               [I(n, rot=8, kind='pair') for n in QS_PAIRS] +
+               [I(n, rot=8, kind='photo') for n in IP_PHOTO]),
     'gold': [I('gold-bar-single', 'R', 6), I('gold-bracelet-cuban', rot=20), I('gold-class-ring', rot=10),
              I('gold-necklace-single', rot=20), I('gold-pocket-watch', rot=10), I('gold-nuggets-raw', rot=6),
              I('gold-bracelet-pair', rot=14), I('gold-coins-pile', rot=4), I('gold-earrings-pile', rot=12),
@@ -264,8 +262,9 @@ POOLS = {
                   I('apple-watch-stack-three', rot=4, role='h')],
     'cameras': [I('camera-dslr-body', rot=6), I('camera-mirrorless', rot=6), I('drone-folded', rot=6)],
 }
-COUNTS = OrderedDict([('iphone', 100)] + [(c, 25) for c in
-          ['gold', 'silver', 'coins', 'cars', 'strips', 'pokemon', 'sports', 'gaming', 'audio', 'computers', 'wearables', 'cameras']])
+COUNTS = OrderedDict([('iphone', 150)] + [(c, 40) for c in
+          ['gold', 'silver', 'coins', 'strips', 'pokemon', 'sports', 'gaming', 'audio', 'computers', 'wearables']]
+          + [('cars', 20), ('cameras', 25)])
 
 # ----------------------------------------------------------------------------- cut-out loading
 
@@ -902,12 +901,14 @@ STYLE_W['macos-waves'] = 1.2
 
 # ----------------------------------------------------------------------------- layouts
 
-LAYOUTS = ['hero', 'tilted-pair', 'fan', 'lineup', 'diagonal-stagger', 'cascade-depth', 'offset-stack',
-           'flatlay-scatter', 'orbit-arc', 'edge-bleed', 'depth-of-field', 'grid-flatlay', 'floating-shadows',
-           'side-column']
-CAR_LAYOUTS = ['hero', 'tilted-pair', 'lineup', 'edge-bleed', 'depth-of-field', 'side-column', 'floating-shadows']
-STAND_LAYOUTS = {'hero', 'tilted-pair', 'lineup', 'diagonal-stagger', 'cascade-depth', 'depth-of-field',
-                 'floating-shadows', 'side-column'}
+# 2026-10-01, the owner: "less overlapping, more spread out and more centered".
+# Every layout is centred under a top headline zone and products never touch
+# (separate() spreads them until no two alphas overlap). Stacks, cascades,
+# depth-of-field, side columns and edge-bleeds are gone.
+LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'spread-fan', 'pyramid', 'floating-row',
+           'flatlay-scatter', 'grid-flatlay', 'orbit-arc']
+CAR_LAYOUTS = ['hero']   # a car beside another car or a key ring shrinks to a toy at 1080
+STAND_LAYOUTS = {'hero', 'pair', 'trio', 'lineup', 'pyramid'}
 FLAT_LAYOUTS = {'flatlay-scatter', 'grid-flatlay'}
 
 def compatible(style, layout):
@@ -944,161 +945,112 @@ def lay(layout, items, A, rng, hy):
     x0, y0, x1, y1 = A; aw, ah = x1 - x0, y1 - y0; cx = (x0 + x1) / 2
     ars = [aspect(it['name']) for it in items]
     n = len(items); r = rng; out = []
-    side = 1 if r.random() < 0.5 else -1
+    acc = lambda it: 0.45 if it.get('kind') == 'acc' else 1.0
+    base = y1 - 0.02 * H
     if layout == 'hero':
         it = items[0]
-        S = min(aw, ah) * 0.82
-        out.append(P(it, S, cx + r.uniform(-0.08, 0.08) * aw, y1 - 0.02 * H, 'stand', clamp_rot(it, r.uniform(-9, 9))))
-    elif layout == 'tilted-pair':
-        S = min(aw * 0.5, ah * 0.7)
-        t = r.uniform(5, 12)
-        for k, it in enumerate(items[:2]):
-            xs = x0 + aw * (0.34 + 0.32 * k)
-            out.append(P(it, S * (0.9 + 0.1 * k) * (0.4 if it.get('kind') == 'acc' else 1), xs, y1 - H * (0.06 - 0.045 * k), 'stand',
-                         clamp_rot(it, t * (1 if k == 0 else -1) * side), z=k))
-    elif layout == 'fan':
-        S = min(ah * 0.55, aw * 0.42)
-        sp = min(10 + 7 * n, max(items[0]['rot'] * 1.8, 10))
-        ang = np.linspace(-sp, sp, n)
-        px, py = cx + r.uniform(-0.06, 0.06) * aw, y1 + S * 0.25
-        R = S * 0.95
-        order = list(range(n)) if r.random() < 0.5 else list(range(n))[::-1]
-        mw = np.mean([S * math.sqrt(a_) for a_ in ars])
-        flat = items[0]['rot'] >= 15
-        for z, k in enumerate(order):
-            a = math.radians(ang[k])
-            xo = R * math.sin(a) * 1.25
-            if not flat:
-                xo = (k - (n - 1) / 2) * mw * 0.78
-            out.append(P(items[k], S, px + xo, py - R * math.cos(a), 'float', -ang[k], z=z,
-                         lift=40))
-    elif layout == 'lineup':
-        wide = np.mean(ars) > 1.3
-        base = y1 - 0.10 * H
-        if wide:
-            S = min(aw * 0.62 / math.sqrt(np.mean(ars)), ah * 0.5)
-            for k, it in enumerate(items):
-                t = k / max(1, n - 1)
-                out.append(P(it, S * (0.82 + 0.18 * t), x0 + aw * (0.28 + 0.44 * t) if side > 0 else x1 - aw * (0.28 + 0.44 * t),
-                             base - (1 - t) * 0.07 * H, 'stand', 0, z=k, refl=True))
-        else:
-            slot = aw / n
-            gap = r.uniform(0.82, 1.0)
-            for k, it in enumerate(items):
-                S = slot * 1.0 / math.sqrt(ars[k])
-                out.append(P(it, S, cx + slot * gap * (k - (n - 1) / 2), base, 'stand', 0, z=k, refl=True))
-    elif layout == 'diagonal-stagger':
-        S = ah * 0.62
+        out.append(P(it, min(aw, ah) * 0.82, cx, base, 'stand', clamp_rot(it, r.uniform(-6, 6))))
+    elif layout in ('pair', 'trio', 'lineup'):
+        slot = aw / n
+        t = r.uniform(3, 8) if layout != 'lineup' else 0
+        mid = (n - 1) / 2
+        hh = min(min(slot * 0.8 / a_ for a_ in ars), ah * 0.9)   # one height for the row: neighbours match
         for k, it in enumerate(items):
-            t = k / max(1, n - 1)
-            xx = x0 + aw * (0.22 + 0.56 * t) if side > 0 else x1 - aw * (0.16 + 0.68 * t)
-            out.append(P(it, S * (0.78 + 0.22 * t), xx, y0 + ah * (0.62 + 0.36 * t), 'stand',
-                         clamp_rot(it, r.uniform(-5, 5)), z=k))
-    elif layout == 'cascade-depth':
-        S = ah * 0.55
-        far = max(hy + 0.03 * H, y0 + 0.45 * ah)
+            S = hh * math.sqrt(ars[k]) * acc(it)
+            if layout == 'trio' and k == 1 and acc(it) == 1:
+                S *= 1.12
+            rot = clamp_rot(it, t * (k - mid) / max(mid, 1))
+            out.append(P(it, S, cx + slot * (k - mid), base, 'stand', rot, z=k, refl=True if layout == 'lineup' else None))
+    elif layout == 'spread-fan':
+        slot = aw / n
+        mid = (n - 1) / 2
+        hh = min(min(slot * 0.8 / a_ for a_ in ars), ah * 0.8)
         for k, it in enumerate(items):
-            d = k / max(1, n - 1)
-            xx = cx + aw * 0.36 * (1 if k % 2 == 0 else -1) * (1 - d) * side + side * aw * 0.05
-            out.append(P(it, S * (0.6 + 0.4 * d), xx, far + (y1 - 0.03 * H - far) * d, 'stand',
-                         clamp_rot(it, r.uniform(-4, 4)), blur=(1 - d) * r.uniform(3, 6), z=k))
-    elif layout == 'offset-stack':
-        S = ah * 0.42
-        rot = clamp_rot(items[0], r.uniform(-14, 14))
-        flat = items[0]['rot'] >= 15
-        dx, dy = (side * aw * 0.13, -ah * 0.14) if flat else (side * aw * 0.24, -ah * 0.2)
-        if not flat:
-            S = ah * 0.36
-        sx, sy = cx - dx * (n - 1) / 2, y1 - ah * 0.30
+            d = (k - mid) / max(mid, 1)
+            out.append(P(it, hh * math.sqrt(ars[k]), cx + slot * (k - mid), (y0 + y1) / 2 + abs(d) * ah * 0.10, 'float',
+                         clamp_rot(it, -d * 12), z=k, lift=60))
+    elif layout == 'pyramid':
+        S = min(aw * 0.3 / math.sqrt(np.mean(ars)), ah * 0.55)
+        pos = [(cx, y1 - 0.02 * H - ah * 0.40, 0.92), (cx - aw * 0.26, base, 1.0), (cx + aw * 0.26, base, 1.0)]
+        for k, it in enumerate(items[:3]):
+            x, y, f = pos[k]
+            out.append(P(it, S * f, x, y, 'stand' if k else 'float', clamp_rot(it, [0, -5, 5][k]), z=k, lift=50))
+    elif layout == 'floating-row':
+        slot = aw / n
+        mid = (n - 1) / 2
+        hh = min(min(slot * 0.8 / a_ for a_ in ars), ah * 0.72)
         for k, it in enumerate(items):
-            out.append(P(it, S, sx + dx * k, sy + dy * k, 'float', rot, z=k, lift=30 + 20 * k))
+            out.append(P(it, hh * math.sqrt(ars[k]), cx + slot * (k - mid), (y0 + y1) / 2 - ah * 0.04 * (1 - abs(k - mid) / max(mid, 1)),
+                         'float', clamp_rot(it, r.uniform(-10, 10)), z=k, lift=r.uniform(70, 130)))
     elif layout == 'flatlay-scatter':
-        S = math.sqrt(aw * ah / n) * 0.82
+        S = math.sqrt(aw * ah / n) * 0.72
         pts = []
         for k, it in enumerate(items):
             best = None
-            for t in range(60):
+            for t in range(80):
                 p = (r.uniform(x0 + S * 0.45, x1 - S * 0.45), r.uniform(y0 + S * 0.5, y1 - S * 0.5))
                 dmin = min([math.hypot(p[0] - q[0], p[1] - q[1]) for q in pts] + [1e9])
                 if best is None or dmin > best[0]:
                     best = (dmin, p)
-                if dmin > S * 0.95: break
             pts.append(best[1])
-            out.append(P(it, S * r.uniform(0.9, 1.1), best[1][0], best[1][1], 'flat', r.uniform(-1, 1) * it['rot'], z=k))
-    elif layout == 'orbit-arc':
-        S = ah * 0.5
-        dome = r.random() < 0.6
-        R = aw * 0.62
-        ocy = y1 + R * 0.55 if dome else y0 - R * 0.35
-        span = r.uniform(38, 58)
-        ang = np.linspace(-span, span, n)
-        for k, it in enumerate(items):
-            a = math.radians(ang[k])
-            if dome:
-                px, py = cx + R * math.sin(a), ocy - R * math.cos(a)
-                rot = -ang[k] * 0.5
-            else:
-                px, py = cx + R * math.sin(a), ocy + R * math.cos(a)
-                rot = ang[k] * 0.5
-            sc = 1 - 0.18 * abs(ang[k]) / span
-            out.append(P(it, S * sc, px, py, 'float', clamp_rot(it, rot), z=int(10 - abs(k - n / 2)), lift=50))
-    elif layout == 'edge-bleed':
-        it = items[0]
-        S = max(aw, ah) * r.uniform(0.85, 1.05)
-        out.append(P(it, S, 0, 0, 'bleed', clamp_rot(it, r.uniform(-16, 16)), z=1))
-        if n > 1:
-            out.append(P(items[1], min(aw, ah) * 0.32, 0, 0, 'float', clamp_rot(items[1], r.uniform(-10, 10)), z=2, lift=40))
-    elif layout == 'depth-of-field':
-        S = ah * 0.62
-        fx = x0 + aw * (0.62 if side > 0 else 0.38)
-        for k, it in enumerate(items):
-            d = n - 1 - k   # 0 = front
-            xx = fx - side * aw * 0.30 * d + (r.uniform(-30, 30) if d else 0)
-            out.append(P(it, S * (1 - 0.14 * d), xx, y1 - 0.03 * H - d * 0.085 * H, 'stand',
-                         clamp_rot(it, r.uniform(-5, 5)), blur=[0, r.uniform(6, 9), r.uniform(11, 14)][d], z=k))
+            out.append(P(it, S, best[1][0], best[1][1], 'flat', r.uniform(-1, 1) * it['rot'], z=k))
     elif layout == 'grid-flatlay':
         ar = float(np.mean(ars))
         best = None
         for cols in range(1, n + 1):
             rows = math.ceil(n / cols)
             if cols * rows - n >= cols: continue
-            Sg = min(aw / cols / 1.12 / math.sqrt(ar), ah / rows / 1.12 * math.sqrt(ar))
+            Sg = min(aw / cols / 1.25 / math.sqrt(ar), ah / rows / 1.25 * math.sqrt(ar))
             if best is None or Sg > best[0]:
                 best = (Sg, cols, rows)
         Sg, cols, rows = best
-        cw, ch = Sg * math.sqrt(ar) * 1.12, Sg / math.sqrt(ar) * 1.12
+        cw, ch = Sg * math.sqrt(ar) * 1.25, Sg / math.sqrt(ar) * 1.25
         for k, it in enumerate(items):
             i, j = k % cols, k // cols
             inrow = min(cols, n - j * cols)
             out.append(P(it, Sg, cx + cw * (i - (inrow - 1) / 2), (y0 + y1) / 2 + ch * (j - (rows - 1) / 2), 'flat',
                          r.uniform(-1, 1) * min(4, it['rot']), z=k))
-    elif layout == 'floating-shadows' and items[0].get('kind') == 'car':
-        S = min(aw * 0.7 / math.sqrt(ars[0]), ah * 0.8)
-        for k, it in enumerate(items[:2]):
-            out.append(P(it, S * (1 - 0.2 * k), cx + (k - 0.5 * (n - 1)) * aw * 0.42, y1 - 0.06 * H - k * 0.05 * H,
-                         'stand', 0, z=-k, refl=True))
-    elif layout == 'floating-shadows':
-        S = ah * (0.8 if n == 1 else 0.62 if n == 2 else 0.5)
+    elif layout == 'orbit-arc':
+        S = ah * 0.42
+        R = aw * 0.62
+        ocy = y1 + R * 0.55
+        span = r.uniform(40, 54)
+        ang = np.linspace(-span, span, n)
         for k, it in enumerate(items):
-            t = (k + 0.5) / n
-            lift = r.uniform(70, 150)
-            out.append(P(it, S * r.uniform(0.9, 1.05), x0 + aw * (0.5 + (t - 0.5) * 0.8), y1 - 0.06 * H - lift - S * 0.45, 'float',
-                         clamp_rot(it, r.uniform(-12, 12)), z=k, lift=lift))
-    elif layout == 'side-column':
-        S = min(aw * 0.78, ah / n * 0.95)
-        for k, it in enumerate(items):
-            t = (k + 0.5) / n
-            mode = 'stand' if k == n - 1 else 'float'
-            yy = y1 - 0.02 * H if mode == 'stand' else y0 + ah * t
-            big = 1.0 if mode == 'stand' else 0.9
-            out.append(P(it, S * big, cx + (k % 2 - 0.5) * aw * 0.16, yy, mode,
-                         clamp_rot(it, (-1) ** k * r.uniform(3, 9)), z=k, lift=40))
+            a = math.radians(ang[k])
+            out.append(P(it, S, cx + R * math.sin(a), ocy - R * math.cos(a), 'float', clamp_rot(it, -ang[k] * 0.5),
+                         z=k, lift=50))
     return out
 
-LAYOUT_N = {'hero': (1, 1), 'tilted-pair': (2, 2), 'fan': (3, 5), 'lineup': (3, 5), 'diagonal-stagger': (3, 4),
-            'cascade-depth': (3, 4), 'offset-stack': (3, 4), 'flatlay-scatter': (4, 6), 'orbit-arc': (4, 5),
-            'edge-bleed': (1, 2), 'depth-of-field': (2, 3), 'grid-flatlay': (4, 6), 'floating-shadows': (1, 3),
-            'side-column': (2, 3)}
+def overlap(pls):
+    """Largest shared-alpha area between two products, as a share of the smaller."""
+    ms = [(place(p['spr'][..., 3], p['cx'] - p['spr'].shape[1] / 2, p['cy'] - p['spr'].shape[0] / 2) > 0.15) for p in pls]
+    worst = 0.0
+    for i in range(len(ms)):
+        for j in range(i + 1, len(ms)):
+            b0, b1 = pls[i]['bbox'], pls[j]['bbox']
+            if b0[2] < b1[0] or b1[2] < b0[0] or b0[3] < b1[1] or b1[3] < b0[1]:
+                continue
+            inter = np.count_nonzero(ms[i] & ms[j])
+            if inter:
+                worst = max(worst, inter / max(1, min(ms[i].sum(), ms[j].sum())))
+    return worst
+
+def separate(pls, A, rng, fill, valign):
+    """Spread the group about its centre until no two products overlap, then refit."""
+    for _ in range(12):
+        if len(pls) < 2 or overlap(pls) < 0.002:
+            return
+        gx = np.mean([p['x'] for p in pls]); gy = np.mean([p['y'] for p in pls])
+        for p in pls:
+            p['x'] = gx + (p['x'] - gx) * 1.12
+            if p['mode'] != 'stand':
+                p['y'] = gy + (p['y'] - gy) * 1.08
+        fit(pls, A, rng, fill, valign)
+
+LAYOUT_N = {'hero': (1, 1), 'pair': (2, 2), 'trio': (3, 3), 'lineup': (4, 5), 'spread-fan': (3, 5),
+            'pyramid': (3, 3), 'floating-row': (2, 4), 'flatlay-scatter': (4, 5), 'grid-flatlay': (4, 6),
+            'orbit-arc': (3, 5)}
 
 def pick_items(cat, layout, rng):
     pool = POOLS[cat]
@@ -1106,50 +1058,44 @@ def pick_items(cat, layout, rng):
     n = int(rng.integers(lo, hi + 1))
     if layout == 'grid-flatlay':
         n = int(rng.choice([4, 6]))
-    bleed_ok = layout in ('edge-bleed', 'hero', 'side-column', 'depth-of-field')
+    bleed_ok = layout == 'hero'
     def ok(it):
         return not it['cut'] or (bleed_ok and it['cut'] in ('B', 'L', 'R'))
     if cat == 'iphone':
-        if layout in ('hero', 'edge-bleed', 'depth-of-field', 'tilted-pair', 'cascade-depth', 'floating-shadows'):
-            kind = 'photo' if rng.random() < 0.65 else 'pair'
-        elif layout in ('fan', 'flatlay-scatter', 'orbit-arc', 'offset-stack'):
-            kind = 'back'
-        else:
+        if layout == 'hero':
+            kind = rng.choice(['photo', 'pair', 'pair'])
+        elif layout in ('pair', 'trio'):
+            kind = rng.choice(['photo', 'pair', 'back'])
+        elif layout in ('lineup', 'floating-row'):
             kind = 'back' if rng.random() < 0.6 else 'pair'
-        cands = [it for it in pool if it['kind'] == kind and ok(it) and (it['role'] == 's' or layout in ('hero', 'edge-bleed'))]
-        if layout == 'hero' and kind == 'photo' and rng.random() < 0.35:
-            cands = [it for it in pool if it['role'] == 'h' and ok(it)]
-        if layout == 'edge-bleed':
-            n = 1
+        else:
+            kind = 'back'
+        cands = [it for it in pool if it['kind'] == kind]
+        if len(cands) < n:
+            cands = [it for it in pool if it['kind'] in ('back', 'photo')]
         idx = rng.permutation(len(cands))[:n]
         return [cands[i] for i in idx]
     if cat == 'cars':
         cars = [it for it in pool if it['kind'] == 'car' and ok(it)]
         acc = [it for it in pool if it['kind'] == 'acc']
         rng.shuffle(cars); rng.shuffle(acc)
-        if layout in ('hero', 'edge-bleed'):
-            cars.sort(key=lambda it: 0 if (layout == 'edge-bleed' and it['cut']) else 1) if layout == 'edge-bleed' and rng.random() < 0.6 else None
-            return cars[:1] + (acc[:1] if layout == 'edge-bleed' and rng.random() < 0.5 else [])
-        if layout == 'tilted-pair':
-            return [cars[0], acc[0]] if rng.random() < 0.4 else cars[:2]
-        if layout == 'lineup':
-            return [c for c in cars if not c['cut']][:rng.integers(2, 4)]
-        if layout == 'depth-of-field':
-            return [c for c in cars if not c['cut']][:2]
-        if layout == 'side-column':
-            return [acc[0], [c for c in cars if not c['cut']][0]] if rng.random() < 0.6 else [acc[0], acc[1], cars[0]]
-        return [c for c in cars if not c['cut']][:rng.integers(1, 3)]
+        whole = [c for c in cars if not c['cut']]
+        if layout == 'hero':
+            return whole[:1]
+        if layout == 'pair':
+            return [whole[0], acc[0]] if rng.random() < 0.4 else whole[:2]
+        if layout == 'trio':
+            return [acc[0], whole[0], acc[1]]
+        return whole[:2]
     singles = [it for it in pool if it['role'] == 's' and ok(it)]
     heroes = [it for it in pool if it['role'] == 'h' and ok(it)]
-    if layout in ('hero', 'edge-bleed') and heroes and rng.random() < 0.5:
+    if layout == 'hero' and heroes and rng.random() < 0.5:
         first = [heroes[rng.integers(len(heroes))]]
     else:
         first = []
     rest = singles if len(singles) >= n else singles + heroes
     idx = rng.permutation(len(rest))
     sel = first + [rest[i] for i in idx if rest[i] not in first]
-    if layout == 'edge-bleed':
-        return sel[:rng.integers(1, 3)]
     return sel[:n]
 
 # ----------------------------------------------------------------------------- composition
@@ -1185,7 +1131,7 @@ def fit(pls, A, rng, fill=0.95, valign='bottom'):
     build_sprites(pls)
     ux0, uy0, ux1, uy1 = union(pls)
     slack = aw - (ux1 - ux0)
-    dx = (A[0] + A[2]) / 2 - (ux0 + ux1) / 2 + rng.uniform(-0.3, 0.3) * max(0, slack)
+    dx = (A[0] + A[2]) / 2 - (ux0 + ux1) / 2
     if valign == 'bottom':
         dy = A[3] - uy1
     else:
@@ -1271,38 +1217,19 @@ def compose(spec):
     hy = rng.uniform(0.58, 0.68) * H
     if zone != 'top' and layout != 'side-column' and np.mean([aspect(it['name']) for it in items]) > 1.25:
         zone = 'top'
-    A = region_for(zone, layout)
+    zone = 'top'
+    A = [0.08 * W, 0.40 * H, 0.92 * W, 0.965 * H]
     pls = lay(layout, items, A, rng, hy)
-    if layout == 'edge-bleed':
-        bseed = int(rng.integers(1 << 30))
-        for attempt in range(10):
-            build_sprites(pls)
-            place_bleed(pls, zone, np.random.default_rng(bseed))
-            if text_intrusion(pls, zone) < 0.004:
-                break
-            for p in pls:
-                p['S'] *= 0.9
-    else:
-        A2 = list(A)
-        if layout in STAND_LAYOUTS and layout != 'floating-shadows':
-            A2[3] = min(A2[3], 0.90 * H)
-        if layout == 'floating-shadows':
-            A2[3] = 0.86 * H
-        if style == 'podium':
-            A2[3] = min(A2[3], (0.70 if layout == 'floating-shadows' else 0.80) * H)
-        fill = {'flatlay-scatter': 0.97, 'grid-flatlay': 0.97, 'floating-shadows': 0.97, 'orbit-arc': 0.95}.get(layout, 0.96)
-        fit(pls, A2, rng, fill, 'bottom' if layout in STAND_LAYOUTS else 'center')
-        snap_cut(pls, zone)
-        if layout == 'side-column' and aspect(pls[-1]['it']['name']) > 1.3:
-            p = pls[-1]
-            ar = aspect(p['it']['name'])
-            p['S'] = 0.66 * W / math.sqrt(ar)
-            build_sprites([p])
-            w = p['spr'].shape[1]
-            p['x'] = (W + w * 0.22 - w / 2) if zone == 'left' else (w / 2 - w * 0.22)
-            p['y'] = 0.93 * H
-            build_sprites([p])
-            p['bleed'] = 'R' if zone == 'left' else 'L'
+    A2 = list(A)
+    if layout in STAND_LAYOUTS:
+        A2[3] = 0.90 * H
+    if style == 'podium':
+        A2[3] = 0.80 * H
+    valign = 'bottom' if layout in STAND_LAYOUTS else 'center'
+    fill = {'flatlay-scatter': 0.92, 'grid-flatlay': 0.94}.get(layout, 0.94)
+    fit(pls, A2, rng, fill, valign)
+    separate(pls, A2, rng, fill, valign)
+    snap_cut(pls, zone)
     stand_bases = [p['base'] for p in pls if p['mode'] == 'stand']
     if stand_bases:
         hy = min(hy, min(stand_bases) - 0.035 * H)
@@ -1401,7 +1328,7 @@ def compose(spec):
     # ---- finish
     fin = spec['finish']
     if fin == 'soft':
-        img = gblur(img, rng.uniform(2.0, 3.0))
+        img = gblur(img, rng.uniform(1.4, 2.2))
     elif fin == 'dreamy':
         img = gblur(img, rng.uniform(6.5, 9.5))
         bright = np.clip(img - 0.55, 0, None)
@@ -1435,13 +1362,14 @@ def plan_category(cat, n):
         used_sl, used_pl = set(), set()
         lc, sc, pc = Counter(), Counter(), Counter()
         specs = []; prev = None; failed = False
-        nf = [round(n * 0.40), round(n * 0.35)]
-        fins = ['sharp'] * nf[0] + ['soft'] * nf[1] + ['dreamy'] * (n - nf[0] - nf[1])
+        nf = round(n * 0.55)
+        fins = ['sharp'] * nf + ['soft'] * (n - nf)
         rng.shuffle(fins)
         vars_ = (['light', 'dark'] * n)[:n]; rng.shuffle(vars_)
         for i in range(n):
             if i and False: pass
             cl = [l for l in lays if not prev or l != prev['layout']]
+            cl = cl or list(lays)
             m = min(lc[l] for l in cl)
             cl = [l for l in cl if lc[l] == m]
             l = cl[rng.integers(len(cl))]
@@ -1453,26 +1381,12 @@ def plan_category(cat, n):
             mp = min(pc[p] for p in cp)
             cp = [p for p in cp if pc[p] == mp]
             p = cp[rng.integers(len(cp))]
-            if l == 'side-column':
-                zone = 'left' if rng.random() < 0.5 else 'right'
-            elif l in ('hero', 'edge-bleed', 'offset-stack'):
-                zone = rng.choice(['top', 'top', 'left', 'right'])
-            elif l in ('depth-of-field', 'tilted-pair', 'floating-shadows', 'cascade-depth'):
-                zone = rng.choice(['top', 'top', 'top', 'top', 'left', 'right'])
-            else:
-                zone = 'top'
+            zone = 'top'
             spec = dict(cat=cat, idx=i, layout=l, style=s, pal=int(p), variant=vars_[i], finish=fins[i], zone=str(zone),
                         rim=bool(rng.random() < 0.4), rim_mix=float(rng.random()))
             used_sl.add((s, l)); used_pl.add((p, l)); lc[l] += 1; sc[s] += 1; pc[p] += 1
             specs.append(spec); prev = spec
         if not failed:
-            ok_dreamy = {'hero', 'tilted-pair', 'edge-bleed', 'fan', 'lineup', 'floating-shadows', 'offset-stack',
-                         'side-column', 'diagonal-stagger'}
-            for sp_ in specs:
-                if sp_['finish'] == 'dreamy' and sp_['layout'] not in ok_dreamy:
-                    for o in specs:
-                        if o['finish'] != 'dreamy' and o['layout'] in ok_dreamy:
-                            sp_['finish'], o['finish'] = o['finish'], 'dreamy'; break
             return specs
     raise RuntimeError('planning failed for ' + cat)
 
