@@ -1052,7 +1052,58 @@ Still open:
    of this change: it is not the product, and its sets are the record of what
    was judged.
 
-## W. 2026-09-30 (night) — every card, every choice; curves, warps, type pairs
+## W. 2026-09-30 — video ads for every kind of person, with voices
+
+Done (DESIGN-LAW rule 97 (94 on main)):
+- **Sixteen audiences** (`motion/audiences.js`), each with its insight, its
+  looks, music, words in English and Spanish, speakers, moods and voiceover
+  scripts. Picking one in the maker ("Made for") turns the whole ad to it.
+- **Fourteen new looks** beside the LA signs, each measured on its own and
+  pruned of what failed.
+- **Voices** (`motion/voices.js`): eleven moods, seventeen speakers, each
+  played by ElevenLabs voices in order. `scripts/voice_bank.mjs` records the
+  bank; the maker picks a take that fits the ad's length. `motion/audio.js`
+  cleans it (trim, rumble cut, presence, de-ess, compressor, levelled,
+  look-ahead limited) and ducks the bed under it.
+- **Every look has sound again.** 76 of 200 looks on `main` had rendered
+  silent (a cue before the first frame threw inside the mix), and the audit
+  hid it. Fixed, and `scripts/motion_sound_check.mjs` now fails on it.
+- **Long headlines land inside the first second** under openings with no line
+  to read first.
+- `scripts/audience_check.mjs` checks every line, look and script;
+  `scripts/motion_sound_check.mjs` checks the sound of 120 looks, all sixteen
+  audiences through the real panel, and the voice mix.
+
+Still open:
+
+1. **Record the voice bank (owner).** No ElevenLabs key reached this session:
+   none is in the cloud environment, the repo or its history. On a machine
+   with the key:
+
+       ELEVENLABS_API_KEY=… node scripts/voice_bank.mjs --dry   # the plan and its characters
+       ELEVENLABS_API_KEY=… node scripts/voice_bank.mjs         # 180 takes, 10,414 characters
+
+   (or put the key in the repo's `.env`, which git ignores). In a cloud
+   session, the key goes in the environment's settings (environment
+   variables), and `api.elevenlabs.io` must be allowed in its network access.
+   Then commit `motion/voice/`, and run `scripts/motion_sound_check.mjs`,
+   which measures a real take once the bank has one. Until then the maker
+   shows each ad's script and plays it with music and sound only.
+2. **Listen to the takes.** The mix is measured on a synthetic voice. The
+   first real bank should be heard: a speaker who does not suit its cast is
+   one line in `CASTS` (the voices it tries, in order), and a mood that reads
+   wrong is one line in `VOICE_MOODS`.
+3. **Spanish voices.** A Spanish line uses a Spanish-labelled voice from the
+   account if there is one, else a premade voice speaking Spanish through the
+   multilingual model. Adding one or two native Mexican-Spanish voices to the
+   ElevenLabs account (Voice Library) before recording would make the vecina
+   and the vecino sound local.
+4. **Gamer RGB's contrast reads 0.83** on the audit: its misses are the neon
+   tube, which the house's neon motel shares (0.80). Neon stays, the owner's
+   first choice; if the audit's reading of a glowing tube is wrong, that is
+   a change to the measure, not to the look.
+
+## X. 2026-09-30 (night) — every card, every choice; curves, warps, type pairs
 
 The owner: "make sure all classic and current themes are audited and ready
 for use with new color schemes, new design language, new typefaces / text

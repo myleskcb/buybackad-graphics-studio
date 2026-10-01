@@ -3026,6 +3026,154 @@ rule 95 removes from the cards.
   information pages follow the same tokens. The other looks stay reachable by
   URL (?look=); the house default is graphite and blue.
 
+## 97. A video ad is made for someone, speaks in a voice that suits them, and always has sound
+
+Added 2026-09-30 on main as rule 97 (numbered 97 here, where the live branch's
+rules took 94 to 96 first). The owner: "make sure we have more variety styles and a
+wider pool or base of ideas / knowledge to produce our video ads to appeal to
+any demographic or type of person ... make some talk with 11 labs voices",
+and "make the voices clean and vary by theme mood attitude etc."
+
+**An audience is written down before a word is.** `motion/audiences.js` holds
+sixteen: upgraders, students, parents, seniors, busy professionals, deal
+seekers, Spanish-speaking families, drivers and gig workers, the eco-minded,
+businesses and bulk, gamers and Gen Z, premium owners, cracked or broken
+phones, movers and declutterers, the holiday season, hometown locals. Each
+has who they are, the insight its words are built on, and what to avoid. From
+that it draws:
+- its looks (the vibes, music kits, tempo, colour grade, openings, overlays
+  and urgency that suit it);
+- its words on screen, in English and Spanish;
+- its speakers and moods, and its voiceover scripts.
+
+Picking an audience in the maker ("Made for") turns the whole ad to it: the
+look, the words, the music and the voice. A shuffle draws an audience about
+four times in five. It never draws one whose words state a service not every
+buyer offers (bulk lots, cracked phones); the maker's user picks those, and
+so says it.
+
+**Fourteen looks that are not LA signs** join the fourteen that are: clean
+tech, luxury noir, family warm, campus, gamer RGB, eco green, breaking news,
+pro office, clear and simple, holiday, repair bench, Y2K pop, mercado bright
+and game day. Each is a pool of the catalog's own palettes, grounds, faces,
+treatments, number styles and entrances. A look can name its openings. Each
+pool is measured, and what fails comes out (audit-sweep, 30 looks each):
+- **Dark looks** (luxury noir, gamer RGB, repair bench, game day) open on their
+  words or a punch-in, never on black glass over a black ground.
+- **Flat and bright looks** (breaking news, pro office, holiday, campus) do not
+  open on a crash zoom, whose first frame is nearly empty ground. Clear and
+  simple opens calmly (its line, a cold open or a punch-in).
+- **Out on contrast:** the cutout treatment (it fails contrast 4 times in 6),
+  the rings ground (3 in 6), the highlighter from eco green and family warm,
+  and the box treatment from pro office. Glass leaves gamer RGB, and the dots
+  ground leaves family warm.
+- **No designed look carries a palette under 3:1**, ink on ground (studio,
+  blush, soft pink, coral). The look made for older eyes (clear and simple)
+  carries only palettes of 9:1 or more. It had sky, white on mid-blue at
+  2.4:1.
+- **Neon stays** in gamer RGB: its contrast misses are the neon tube, which the
+  house's neon motel shares (0.80 both).
+
+**Every line keeps the house copy rules** (rule 80, `scripts/refresh_copy.mjs`):
+no price, deadline, rank, clock, named company, licence, rating or long dash,
+no promise about who answers. No line is longer than the house's own longest
+line of its kind. A voiceover never reads out a number; it points at it ("the
+number on your screen"), so one bank of takes serves every user.
+`scripts/audience_check.mjs` holds every line, every look reference and every
+script's length to this, and exits non-zero on any miss.
+
+**The voices.** `motion/voices.js` has eleven moods and seventeen speakers.
+A mood is how a line is read: hype, playful, warm, calm, confident, luxe,
+street, sincere, newsy, festive, reassuring. It is the ElevenLabs voice
+settings: stability, style and speed. A speaker (a cast) is a kind of
+person: a crisp presenter, a social host, a streamer, a warm neighbour, a
+trusted elder, a calm guide, a street local, a vecina and a vecino, an
+announcer, a luxe voice. Each is played by one of a few ElevenLabs voices in
+order. A Spanish line first looks for a Spanish-labelled voice in the
+account.
+
+`scripts/voice_bank.mjs` records every script twice, by two speakers, and
+across an audience's scripts every speaker is heard in every mood. That is
+180 takes and 10,414 characters on eleven_multilingual_v2 (`--full`: 546
+and 31,472). The takes go to `motion/voice/<audience>/`, with their length
+and word timings in `motion/voice/manifest.json`. The key is read from
+`ELEVENLABS_API_KEY` or the repo's gitignored `.env`, and is sent only to
+api.elevenlabs.io. The page sends nothing anywhere.
+
+**A take fits its ad.** Speech starts at 0.3 s, after the opening hit has
+decayed, and ends at least 0.5 s before the end. A take longer than the ad's
+room (4.2, 5.2 or 7.2 s) is never picked for it. Every audience has a script
+that fits the 5-second ad in each language.
+
+**Clean** (`motion/audio.js`), each take:
+- one channel, with no offset;
+- the silence either end trimmed (below -45 dB, keeping 30 ms before the first
+  word and 80 ms after the last);
+- rumble cut at 85 Hz, a little mud out at 250 Hz, a little presence in at
+  3.2 kHz, the esses eased at 6.8 kHz, and a gentle compressor;
+- the words levelled to -14 dBFS RMS, every peak under -2.5 dBFS by a
+  look-ahead limiter, and 10 ms fades.
+
+It joins the mix after the master compressor, whose automatic make-up gain
+would otherwise lift the bed back up under it. Under the voice, the music
+drops 7 dB and then the whole bed another 9. The bed ramps down 80 ms before
+the first word and back up over 150 ms after the last. A voiced mix is
+brought down just enough never to peak over -1 dBFS.
+
+Measured (`scripts/motion_sound_check.mjs`, over house, trap, minimal and
+drumline, two runs on two looks):
+- the voice sits 4.6 to 6.5 dB over the bed on the whole line, pauses
+  included (about 3 dB more on the words alone);
+- the bed ducks 9.0 to 10.4 dB and comes back within 0.2 dB;
+- the mix peaks at -1.0 dBFS;
+- a voiced mix is at most 0.74 dB quieter than the same mix without a voice.
+
+An 8-second-only take is not picked for a 5-second ad. The recorded download
+carries the voice.
+
+**Every look has sound.** Before this, a cue timed before the first frame threw
+inside the mix: a phone already in place when the ad opens, a flash cut
+before it. Web Audio cannot schedule in the past, and the throw left the
+whole ad silent. It hit 76 of 200 looks on `main`: every flash cut, most
+cold opens and punch-ins. The preview and the download were both silent,
+and the attention audit hid it, because it skipped its sound check when the
+mix failed.
+
+Now:
+- a hit timed before the first frame is dropped (it happened before the ad);
+- a sweep that builds to a moment after it is heard from the first frame;
+- a flash cut opens on one hit at the first frame;
+- the audit reads a mix that fails as "no sound".
+
+After: 200 of 200 looks render a mix (seed 1), and every one of the 120 in
+`scripts/motion_sound_check.mjs` opens on a hit.
+
+**Long headlines still land inside the first second.** With no opening line to
+read first (a cold open, a crash zoom, a punch-in), a headline of three or
+four lines staggers its lines closer, so the last starts by 0.6 s. Before,
+the last line settled at 1.07 to 1.13 s; two-line headlines are untouched.
+
+Measured, 200 random looks (audit-sweep, seed 1) before and after:
+
+| check | before (`main`) | after |
+|---|---|---|
+| First frame shows something | 0.98 | 0.975 |
+| First frame is not mostly black | 0.99 | 0.98 |
+| Movement in the first half second | 1.00 | 1.00 |
+| Words on screen by 1 s | 1.00 | 0.995 |
+| Headline readable by 2 s | 0.995 | 0.99 |
+| Number readable by 3 s | 0.995 | 1.00 |
+| Never still for over 0.6 s | 0.995 | 0.995 |
+| Headline stands out (3:1) | 0.93 | 0.94 |
+| Median headline contrast | 4.7:1 | 5.5:1 |
+| Median first-frame coverage | 72% | 93% |
+| Looks with sound | 124 of 200 | 200 of 200 |
+
+The two sweeps draw different looks (the catalog is larger), so a
+difference of one or two looks is the draw. The misses that are left are
+single looks of the kinds the baseline has too. None is a pool: each new
+look was swept 30 times on its own until what failed in it was out.
+
 ## 98. A curve or a warp is a property of the line, and a template built round a ring is curved on it
 
 Added 2026-09-30 on the designer branch (claude/eloquent-euler-7jvzfd). The
