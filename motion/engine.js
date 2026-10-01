@@ -3,6 +3,8 @@
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
   NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY } from "./catalog.js";
+import { AUDIENCES, GENERAL } from "./audiences.js";
+import { pickVoice, voiceFits } from "./voices.js";
 import { vibeBackground, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
@@ -87,12 +89,57 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   }
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
   if (!locked.has("bpm")) out.bpm = r.int(90, 134);
-  // an opening that shows the phones on frame 0 shows their backs: screen-up phones are black glass in the thumbnail
-  if (!["hook_line", "word_beat"].includes(out.hook) && out.front_glimpse === "hold" && !locked.has("front_glimpse")) out.front_glimpse = "spin";
+  audienceInto(out, r, locked);
   vibeInto(out, r, locked);
+  backsFirst(out, locked);
   copyInto(out, r, locked, content);
+  voiceInto(out, r, locked);
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = r.sample(phonesPool, r.pick([3, 4, 4, 5]));
   return harmonise(out, locked);
+}
+
+/** An opening that shows the phones on frame 0 shows their backs: screen-up
+ *  phones are black glass in the thumbnail. */
+function backsFirst(out, locked) {
+  if (!["hook_line", "word_beat"].includes(out.hook) && out.front_glimpse === "hold" && !locked.has("front_glimpse")) out.front_glimpse = "spin";
+  return out;
+}
+
+/** An audience picks the look's vibe, music, grade and opening from what suits
+ *  the people it speaks to (audiences.js); the vibe then draws the rest. The
+ *  page calls this when an audience is picked by hand: the look, the words and
+ *  the voice all follow. */
+export function applyAudience(st, seed, locked = new Set()) {
+  const out = { ...st }, r = rng(seed * 5153 + 41);
+  audienceInto(out, r, locked);
+  vibeInto(out, r, locked);
+  backsFirst(out, locked);
+  copyInto(out, r, locked, true);
+  voiceInto(out, r, locked);
+  return out;
+}
+
+function audienceInto(out, r, locked) {
+  const a = AUDIENCES[out.audience];
+  if (!a) return out;
+  const L = a.looks || {};
+  const set = (k, list) => { if (list && list.length && !locked.has(k)) out[k] = r.pick(list); };
+  set("vibe", L.vibes); set("sound_kit", L.sound_kit); set("grade", L.grade); set("hook", L.hook); set("overlay", L.overlay); set("urgency", L.urgency);
+  if (L.bpm && !locked.has("bpm")) out.bpm = r.int(L.bpm[0], L.bpm[1]);
+  return out;
+}
+
+/** The speaker and the mood from the audience, then the take (voices.js). */
+function voiceInto(out, r, locked) {
+  const a = AUDIENCES[out.audience] || GENERAL;
+  if (!locked.has("voice_mood")) out.voice_mood = r.pick(a.moods);
+  if (!locked.has("voice_cast")) out.voice_cast = r.pick(a.casts);
+  return pickVoice(out, r, locked);
+}
+
+/** A new voice for the ad as it stands (a mood or a speaker picked by hand). */
+export function applyVoice(st, seed, locked = new Set()) {
+  return pickVoice({ ...st }, rng(seed * 7727 + 3), locked);
 }
 
 /** An LA vibe draws the look's ground, palette, faces, treatment, sign board
@@ -101,7 +148,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
 export function applyVibe(st, seed, locked = new Set()) {
   const out = { ...st };
   vibeInto(out, rng(seed * 4099 + 17), locked);
-  return out;
+  return backsFirst(out, locked);
 }
 
 // Grounds that are a material (a cork board, a stucco wall, candy paint) belong to
@@ -122,6 +169,8 @@ function vibeInto(out, r, locked) {
   }
   set("palette", v.palettes); set("background", v.backgrounds); set("font", v.fonts);
   set("text_fx", v.fx); set("number_style", v.numbers); set("text_in", v.text_in); set("skew", v.skew);
+  // a look's own openings, kept when the one drawn (or the audience's) is already among them
+  if (v.hooks && !v.hooks.includes(out.hook) && !locked.has("hook")) out.hook = r.pick(v.hooks);
   if (!locked.has("background") && !fits(out.background)) out.background = (v.backgrounds || []).find(fits) || "radial";
   if (!locked.has("board")) out.board = v.boards && r() < (v.boardChance ?? 1) ? r.pick(v.boards) : "none";
   if (!locked.has("decor")) {
@@ -136,7 +185,7 @@ const SPANISH = /[¿¡ÁÉÍÓÚÑ]|\b(COMPRAMOS|COMPRO|VENDE|TU|EFECTIVO|DINERO
 /** The look's city ({AREA}): the brand kit's, else LA for an LA vibe, else none. */
 export function areaOf(st) {
   const a = String(st.area || "").split(",")[0].trim().toUpperCase();
-  return a || (st.vibe && st.vibe !== "none" ? "LA" : "");
+  return a || (st.vibe && st.vibe !== "none" && (VIBES[st.vibe] || {}).la !== false ? "LA" : "");
 }
 /** The area code of the number on the ad ({CODE}), or nothing. */
 export function codeOf(st) {
@@ -154,8 +203,9 @@ export function applyCopy(st, seed, locked = new Set(), content = true) {
 }
 
 function copyInto(out, r, locked, content) {
-  const mode = out.lang_mode || "en";
-  let lang = mode === "mix" ? r.weighted(["en", "es", "both"], { en: 5, es: 3, both: 2 }) : mode;
+  const mode = out.lang_mode || "en", aud = AUDIENCES[out.audience];
+  // an audience that speaks Spanish first is drawn mostly in Spanish
+  let lang = mode === "mix" ? r.weighted(["en", "es", "both"], aud && aud.lang === "es" ? { en: 1, es: 6, both: 3 } : { en: 5, es: 3, both: 2 }) : mode;
   if (!content && mode !== "both") lang = SPANISH.test(out.headline || "") ? "es" : "en";   // the words on the page decide
   out.lang = lang;
   const v = VIBES[out.vibe], known = { AREA: areaOf(out), CODE: codeOf(out) };
@@ -167,6 +217,9 @@ function copyInto(out, r, locked, content) {
   const legacy = { headlines: HEADLINES, hooks: HOOKS, tags: TAGS, labels: NUMBER_LABELS };
   const pool = (L, key) => {
     const own = (v && v.copy && v.copy[L] && v.copy[L][key]) || [];
+    // an audience's own lines speak for it, with its vibe's; the general pools fill only what it has none of
+    const mine = ((aud && aud.copy && aud.copy[L] && aud.copy[L][key]) || []).map(fillIn(L)).filter(s => s != null);
+    if (mine.length) return [...mine, ...mine, ...own.map(fillIn(L)).filter(s => s != null)];
     const base = (COPY[L] && COPY[L][key]) || [];
     const extra = L === "en" ? (legacy[key] || []) : [];
     const fill = fillIn(L);
@@ -242,6 +295,8 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (st.case === "title" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.05);
   if ((FONTS[st.font] || [])[3] === "wide" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.01);
   if (st.decor.includes("sparkle")) st.sparkles = true;
+  // a take that no longer fits (a shorter ad, another language, a bank that arrived late) is picked again, the same way every time
+  if (!voiceFits(st)) pickVoice(st, rng(st.seed * 53 + 7), locked);
   return st;
 }
 
@@ -1307,7 +1362,10 @@ export class Ad {
   /** When the words and the number arrive, once the phones' timeline is known. */
   _typeTimeline() {
     const st = this.st, n = this.lines.length;
-    this.tl.lines = this.lines.map((_, i) => this.tl.text + i * .12);
+    // words on screen within a second: with no opening line to read first, a long headline's lines follow
+    // each other closer, so the last one starts by 0.6 s (two lines keep the full 0.12 s)
+    const step = n > 1 && this.tl.text < .6 ? Math.min(.12, Math.max(.06, (.6 - this.tl.text) / (n - 1))) : .12;
+    this.tl.lines = this.lines.map((_, i) => this.tl.text + i * step);
     const perLetter = ["slide_letters", "drop_letters", "typewriter", "scramble", "spin_letters"].includes(st.text_in);
     const last = this.tl.lines[n - 1] + (perLetter ? .4 : .26);
     this.tl.hit = this.tl.text + (["slam", "stomp"].includes(st.text_in) ? .42 : .3);

@@ -1,6 +1,6 @@
 /* Information pages: about.html, ads/*.html, privacy.html, terms.html.
    Small on purpose; the studio's styles.css is 120KB of editor chrome that
-   these pages do not need. Same faces and the house look (DESIGN-LAW rule 97): warm paper, ink type
+   these pages do not need. Same faces and the house look (DESIGN-LAW rule 98): warm paper, ink type
    and the action blue. */
 @font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-display:swap}
 @font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-display:swap}

@@ -3,19 +3,25 @@
 // encoded into the video.
 
 import { rng, clamp } from "./engine.js";
+import { clipById, VO_START, voWindow } from "./voices.js";
 
 const SR = 44100;
 
-export async function renderSoundtrack(ad) {
+/** solo: "voice" or "bed" renders one stem alone, for measuring the mix. */
+export async function renderSoundtrack(ad, { solo = "" } = {}) {
   const st = ad.st, tl = ad.tl;
   const len = Math.ceil(st.duration * SR);
   const ctx = new OfflineAudioContext(2, len, SR);
   const master = ctx.createGain(); master.gain.value = .9;
   const comp = ctx.createDynamicsCompressor();
   comp.threshold.value = -14; comp.knee.value = 8; comp.ratio.value = 6; comp.attack.value = .003; comp.release.value = .12;
-  master.connect(comp).connect(ctx.destination);
-  const sfx = ctx.createGain(); sfx.gain.value = 1; sfx.connect(master);
-  const music = ctx.createGain(); music.gain.value = st.music_volume ?? .5; music.connect(master);
+  // the voice joins after the master compressor, whose automatic make-up gain would lift the bed back up under it
+  const bedOut = ctx.createGain(); bedOut.gain.value = 1;
+  master.connect(comp).connect(bedOut).connect(ctx.destination);
+  const bed = ctx.createGain(); bed.gain.value = solo === "voice" ? 0 : 1; bed.connect(master);
+  const voBus = ctx.createGain(); voBus.gain.value = solo === "bed" ? 0 : 1; voBus.connect(ctx.destination);
+  const sfx = ctx.createGain(); sfx.gain.value = 1; sfx.connect(bed);
+  const music = ctx.createGain(); music.gain.value = st.music_volume ?? .5; music.connect(bed);
   const noise = noiseBuffer(ctx, 2);
   const r = rng(st.seed * 17 + 3);
   const S = synth(ctx, noise);
@@ -37,7 +43,8 @@ export async function renderSoundtrack(ad) {
       S.impact(sfx, 0, .75);
       (ad.hookLines || []).forEach((_, i) => { const tt = i * (ad.hookBeat || .2); S.kick(sfx, tt, .8); S.clap(sfx, tt, i % 2 ? .45 : .3); });
       S.whoosh(sfx, ad.hookEnd - .12, .3, true, 0, .4); break;
-    case "flash_cut": ad.phones.forEach(p => S.impact(sfx, p.tIn, .6)); break;
+    case "flash_cut":                                // one hit per cut; the phones already in when the ad opens share the first frame's
+      [...new Set(ad.phones.map(p => Math.max(0, Math.round(p.tIn * 100) / 100)))].forEach(t => S.impact(sfx, t, .6)); break;
     case "crash_zoom": S.whoosh(sfx, 0, .6, false, 0, .7); ad.phones.filter(p => p.crash).forEach(p => S.impact(sfx, p.tLand, .8)); break;
     case "punch_in": S.impact(sfx, 0, .85); S.whoosh(sfx, 0, .5, false, 0, .5); break;
     case "cold_open": S.impact(sfx, 0, .6); break;
@@ -75,10 +82,156 @@ export async function renderSoundtrack(ad) {
     const b = 60 / (st.bpm || 118), start = st.hook && st.hook !== "none" ? hit - Math.ceil(hit / b) * b : hit;
     beat(S, music, st.sound_kit, start, st.duration, st.bpm || 118, r);
   }
+  // the voiceover, cleaned, over a bed that ducks under it
+  const take = st.voice !== "off" && st.vo_clip ? clipById(st.vo_clip) : null;
+  let spoke = false;
+  if (take) {
+    try {
+      const clean = await cleanVoice(ctx, await voiceBuffer(ctx, take.file));
+      if (clean && clean.duration <= voWindow(st.duration) + .05) { voiceOver(ctx, clean, voBus, music, bedOut, st.music_volume ?? .5); spoke = true; }
+    } catch (e) { console.warn("voice", take.file, e); }
+  }
   // fade the whole mix out at the end
   master.gain.setValueAtTime(.9, Math.max(0, st.duration - .6));
   master.gain.linearRampToValueAtTime(0, st.duration);
-  return ctx.startRendering();
+  const out = await ctx.startRendering();
+  if (spoke) keepUnder(out, PEAK);
+  return out;
+}
+
+/** The voice sits on top of a mix that already peaks near full scale, so a
+ *  loud word could clip: the whole mix comes down just enough that it cannot. */
+function keepUnder(buf, ceiling) {
+  let peak = 0;
+  for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i++) peak = Math.max(peak, Math.abs(d[i])); }
+  if (peak <= ceiling) return;
+  const k = ceiling / peak;
+  for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i++) d[i] *= k; }
+}
+
+// ------------------------------------------------------------ the voice
+
+// Measured with scripts/motion_sound_check.mjs (DESIGN-LAW 97): the voice sits
+// about 6 dB over the bed under it, the music under the voice drops further
+// than the effects, and a voiced mix stays within 1 dB of the same mix without it.
+const VOICE_RMS = 10 ** (-14 / 20), VOICE_CEILING = 10 ** (-2.5 / 20), MUSIC_UNDER = .45, BED_UNDER = .36, PEAK = 10 ** (-1 / 20);
+const TAKES = new Map();
+async function voiceBuffer(ctx, file) {
+  let bytes = TAKES.get(file);
+  if (!bytes) {
+    const res = await fetch(new URL("./voice/" + file, import.meta.url));
+    if (!res.ok) throw new Error(`voice ${file}: ${res.status}`);
+    bytes = await res.arrayBuffer(); TAKES.set(file, bytes);
+  }
+  return ctx.decodeAudioData(bytes.slice(0));        // decoding takes the buffer; the cache keeps its own
+}
+
+/** A take, cleaned, as one channel ready to lay in the mix:
+ *   1. no offset, and the silence either end trimmed (below -45 dB, keeping
+ *      30 ms before the first word and 80 ms after the last);
+ *   2. shaped: rumble cut (85 Hz), a little mud out (250 Hz), a little
+ *      presence in (3.2 kHz), the esses eased (6.8 kHz), a gentle compressor
+ *      to hold the words even;
+ *   3. levelled: the speech at -14 dBFS RMS, every peak under -2.5 dBFS by a
+ *      look-ahead limiter (5 ms ahead, 60 ms release), 10 ms fades so neither
+ *      edge clicks.
+ *  Returns null for a silent take. */
+export async function cleanVoice(ctx, buf) {
+  const n = buf.length, sr = buf.sampleRate, ch = buf.numberOfChannels;
+  const x = new Float32Array(n);
+  for (let c = 0; c < ch; c++) { const d = buf.getChannelData(c); for (let i = 0; i < n; i++) x[i] += d[i] / ch; }
+  let mean = 0; for (let i = 0; i < n; i++) mean += x[i]; mean /= n || 1;
+  for (let i = 0; i < n; i++) x[i] -= mean;
+  const edges = speechEdges(x, sr);
+  if (!edges) return null;
+  const a = Math.max(0, edges[0] - Math.round(sr * .03)), b = Math.min(n, edges[1] + Math.round(sr * .08));
+  // 2. shape
+  const sh = new OfflineAudioContext(1, b - a, sr), src = sh.createBufferSource(), raw = sh.createBuffer(1, b - a, sr);
+  raw.copyToChannel(x.slice(a, b), 0); src.buffer = raw;
+  const f = (type, freq, q, gain = 0) => { const q0 = sh.createBiquadFilter(); q0.type = type; q0.frequency.value = freq; q0.Q.value = q; q0.gain.value = gain; return q0; };
+  const comp = sh.createDynamicsCompressor();
+  comp.threshold.value = -24; comp.knee.value = 6; comp.ratio.value = 3; comp.attack.value = .005; comp.release.value = .12;
+  src.connect(f("highpass", 85, .707)).connect(f("peaking", 250, 1, -2)).connect(f("peaking", 3200, .9, 2.5))
+    .connect(f("peaking", 6800, 2.5, -2.5)).connect(comp).connect(sh.destination);
+  src.start(0);
+  const y = (await sh.startRendering()).getChannelData(0).slice();
+  // 3. level, limit, fade
+  const rms = speechRms(y, sr);
+  if (!rms) return null;
+  for (let i = 0; i < y.length; i++) y[i] *= VOICE_RMS / rms;
+  limit(y, sr, VOICE_CEILING);
+  const fade = Math.min(Math.round(sr * .01), y.length >> 1);
+  for (let i = 0; i < fade; i++) { const e = i / fade; y[i] *= e; y[y.length - 1 - i] *= e; }
+  const out = ctx.createBuffer(1, y.length, sr); out.copyToChannel(y, 0);
+  return out;
+}
+
+/** The first and last sample of speech: 10 ms windows above -45 dB. */
+function speechEdges(x, sr) {
+  const win = Math.max(1, Math.round(sr * .01)), gate = 10 ** (-45 / 20);
+  let first = -1, last = -1;
+  for (let i = 0; i < x.length; i += win) {
+    const m = Math.min(win, x.length - i); let s = 0;
+    for (let j = 0; j < m; j++) s += x[i + j] * x[i + j];
+    if (Math.sqrt(s / m) > gate) { if (first < 0) first = i; last = i + m; }
+  }
+  return first < 0 ? null : [first, last];
+}
+
+/** The loudness of the words alone: RMS over the 10 ms windows within 30 dB
+ *  of the loudest, so the pauses between words do not count. */
+function speechRms(x, sr) {
+  const win = Math.max(1, Math.round(sr * .01)), w = [];
+  for (let i = 0; i < x.length; i += win) {
+    const m = Math.min(win, x.length - i); let s = 0;
+    for (let j = 0; j < m; j++) s += x[i + j] * x[i + j];
+    w.push([s, m]);
+  }
+  const top = Math.max(...w.map(([s, m]) => s / m)), floor = top * 10 ** (-30 / 10);
+  let s = 0, m = 0;
+  for (const [ws, wm] of w) if (ws / wm >= floor) { s += ws; m += wm; }
+  return m ? Math.sqrt(s / m) : 0;
+}
+
+/** A look-ahead peak limiter: the gain falls ahead of a peak so it arrives
+ *  already under the ceiling, and comes back up over the release. */
+function limit(y, sr, ceiling) {
+  const n = y.length, look = Math.max(1, Math.round(sr * .005)), rel = Math.exp(-1 / (sr * .06)), att = Math.exp(-1 / (look / 3));
+  const need = new Float32Array(n);
+  for (let i = 0; i < n; i++) { const a = Math.abs(y[i]); need[i] = a > ceiling ? ceiling / a : 1; }
+  // the least gain any sample in the next `look` needs (a monotone deque keeps it linear)
+  const ahead = new Float32Array(n), q = new Int32Array(n);
+  let h = 0, t = 0;
+  for (let i = n - 1; i >= 0; i--) {
+    while (t > h && need[q[t - 1]] >= need[i]) t--;
+    q[t++] = i;
+    while (q[h] > i + look) h++;
+    ahead[i] = need[q[h]];
+  }
+  let g = 1;
+  for (let i = 0; i < n; i++) {
+    const want = ahead[i];
+    g = want < g ? want + (g - want) * att : want + (g - want) * rel;
+    const v = y[i] * Math.min(g, need[i]);              // never over the ceiling, even mid-attack
+    y[i] = v;
+  }
+}
+
+/** The cleaned take over the mix, after the master compressor. Under it the
+ *  music drops 7 dB and then the whole bed another 9, ramping down 80 ms
+ *  before the first word and back up over 150 ms after the last. */
+function voiceOver(ctx, buf, dest, music, bedOut, musicLevel) {
+  const t0 = VO_START, t1 = t0 + buf.duration;
+  const src = ctx.createBufferSource(); src.buffer = buf; src.connect(dest);
+  src.start(t0);
+  const duck = (param, base, k) => {
+    param.setValueAtTime(base, Math.max(0, t0 - .08));
+    param.linearRampToValueAtTime(base * k, t0);
+    param.setValueAtTime(base * k, t1);
+    param.linearRampToValueAtTime(base, t1 + .15);
+  };
+  duck(music.gain, musicLevel, MUSIC_UNDER);
+  duck(bedOut.gain, 1, BED_UNDER);
 }
 
 function noiseBuffer(ctx, secs) {
@@ -199,6 +352,19 @@ function synth(ctx, noise) {
       const o = osc("sine", t, .04, 2400), g = ctx.createGain(); env(g, t, .001, gain, .03); o.connect(g).connect(dest);
     },
   };
+  // A cue timed before the first frame (a phone already in place when the ad opens, a cut before it) happened
+  // before the ad: a hit there is dropped, and a sweep that builds to a moment after it is heard from the first
+  // frame. Web Audio cannot schedule in the past, and one such call used to throw and leave the whole ad silent
+  // (38% of looks on 2026-09-30: every flash cut, most cold opens and punch-ins).
+  const BUILDS = new Set(["whoosh", "riser", "cymbal"]);
+  for (const [k, f] of Object.entries(S)) {
+    S[k] = (dest, t, ...rest) => {
+      if (!(t < 0)) return f(dest, t, ...rest);
+      if (!BUILDS.has(k)) return;
+      const left = t + rest[0];
+      if (left >= .05) f(dest, 0, left, ...rest.slice(1));
+    };
+  }
   return S;
 }
 

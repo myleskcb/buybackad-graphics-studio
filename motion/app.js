@@ -1,7 +1,9 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, countLooks } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, areaOf } from "./engine.js";
+import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf } from "./engine.js";
+import { AUDIENCES, MOODS } from "./audiences.js";
+import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode } from "./export.js";
 import { auditLook, drawCurve } from "./audit.js";
@@ -29,8 +31,15 @@ const URGENCY_NAMES = { none: "None", pulse_cta: "Pulsing TEXT NOW badge", cauti
 const VIBE_AXES = ["palette", "background", "font", "text_fx", "number_style", "board", "decor", "skew"];
 const WORD_KEYS = ["headline", "tag", "number_label", "hook_text"];
 
+// what an audience decides, let go when one is picked by hand so the whole ad follows it
+const AUDIENCE_AXES = ["vibe", ...VIBE_AXES, "sound_kit", "grade", "hook", "overlay", "urgency", "bpm", "voice_mood", "voice_cast", ...WORD_KEYS];
+
 const labelFor = (k, v) => {
   if (k === "vibe") return v === "none" ? "None: any look" : VIBES[v].label;
+  if (k === "audience") return v === "none" ? "Everyone" : AUDIENCES[v].label + (AUDIENCES[v].byHand ? " (only by hand)" : "");
+  if (k === "voice") return v === "on" ? "On" : "Off";
+  if (k === "voice_mood") return MOODS[v] ? `${MOODS[v].label}: ${MOODS[v].note}` : v;
+  if (k === "voice_cast") return CASTS[v] ? CASTS[v].label : v;
   if (k === "board") return BOARD_NAMES[v] || v;
   if (k === "urgency") return URGENCY_NAMES[v] || v;
   if (k === "font" || k === "number_font") return v === "same" ? "Same as headline" : (FONTS[v] ? FONTS[v][0] : v);
@@ -163,7 +172,7 @@ function buildPanel() {
   $("headline-list").innerHTML = [...HEADLINES, ...COPY.es.headlines.filter(h => !h.includes("{"))].map(h => `<option value="${h}">`).join("");
   const design = $("design");
   for (const [title, keys] of GROUPS) {
-    const sec = document.createElement("details"); sec.className = "mo-sec"; sec.open = ["Type", "Scene", "LA vibe and urgency"].includes(title);
+    const sec = document.createElement("details"); sec.className = "mo-sec"; sec.open = ["Audience and voice", "Type", "Scene", "Vibe and urgency"].includes(title);
     sec.innerHTML = `<summary>${title}</summary>`;
     for (const k of keys) {
       const row = document.createElement("div"); row.className = "mo-set";
@@ -175,6 +184,7 @@ function buildPanel() {
         buildPalettePicker(row, opts);
         const sw = document.createElement("div"); sw.className = "mo-swatches"; sw.id = "swatches"; sec.appendChild(sw);
       }
+      if (k === "voice_cast") { const vo = document.createElement("p"); vo.className = "mo-vo"; vo.id = "vo-line"; sec.appendChild(vo); }
     }
     design.appendChild(sec);
   }
@@ -188,6 +198,12 @@ function buildPanel() {
       VIBE_AXES.forEach(a => state.locked.delete(a));
       state.style = applyVibe(state.style, (Math.random() * 1e9) | 0, state.locked);
     }
+    if (k === "audience") {                         // so is an audience: its look, its words and its voice
+      AUDIENCE_AXES.forEach(a => state.locked.delete(a));
+      state.style = applyAudience(state.style, (Math.random() * 1e9) | 0, state.locked);
+      syncWords();
+    }
+    if (["voice", "voice_mood", "voice_cast"].includes(k)) state.style = applyVoice(state.style, (Math.random() * 1e9) | 0, state.locked);
     save(); rebuild();
   });
   design.addEventListener("click", e => {
@@ -325,7 +341,22 @@ function syncPanel(st) {
   const p = pal(st);
   $("swatches").innerHTML = ["ground", "light", "ink", "accent", "plate"].map(k => `<i style="background:${p[k]}" title="${k}"></i>`).join("");
   $("seed").textContent = st.seed;
+  syncVoice(st);
   syncLocks();
+}
+
+/** What the ad says, and whether that take is recorded yet. */
+function syncVoice(st) {
+  const el = $("vo-line"); if (!el) return;
+  const clip = st.vo_clip ? clipById(st.vo_clip) : null, n = voiceBank().clips.length;
+  if (st.voice === "off") { el.textContent = "No voiceover: music and sound only."; return; }
+  if (!st.vo_text) { el.textContent = "No script fits this length; try a longer ad."; return; }
+  el.innerHTML = "";
+  const q = document.createElement("q"); q.textContent = st.vo_text; el.appendChild(q);
+  const note = document.createElement("small");
+  note.textContent = clip ? ` ${CASTS[clip.cast] ? CASTS[clip.cast].label : clip.cast}, ${clip.mood}, ${clip.secs.toFixed(1)} s`
+    : n ? " Not recorded for this length yet: the ad plays with music and sound only." : " Voiceovers are not recorded yet: the ad plays with music and sound only.";
+  el.appendChild(note);
 }
 
 // ------------------------------------------------------------ palette picker
@@ -478,6 +509,7 @@ function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTi
 (async function main() {
   restore();
   buildPanel();
+  await loadVoiceBank();
   const { phones, index } = await loadPhones("./phones/");
   state.assets.phones = phones; state.index = index;
   state.style.phones = state.style.phones.filter(id => phones[id]);

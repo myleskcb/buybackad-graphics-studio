@@ -4,18 +4,21 @@
 // and call sweep(n, firstSeed) from the console or a headless browser.
 // sweep(n, seed, { neutral: true }) turns the finishing passes (grade, phone
 // depth, hook transition, ending, the newer overlays) off on the same looks.
+// sweep(n, seed, { lock: { vibe: "luxury_noir" } }) holds one look or one
+// audience still and draws everything else, to judge that pool on its own.
 import { randomize, harmonise, loadPhones, loadFonts, fontsFor } from "./engine.js";
 import { DEFAULT_STYLE } from "./catalog.js";
 import { auditLook, summarise } from "./audit.js";
 
-const KEYS = ["palette", "background", "text_fx", "grade", "overlay", "depth", "vibe", "board", "hook", "transition", "outro", "color_mode"];
+const KEYS = ["audience", "palette", "background", "text_fx", "grade", "overlay", "depth", "vibe", "board", "hook", "transition", "outro", "color_mode", "headline"];
 
 window.sweep = async (n, base = 1, opts = {}) => {
   const a = await loadPhones("./phones/");
   const idx = {}; a.index.forEach(m => idx[m.id] = m);
   const pool = a.index.map(m => m.id), reps = [], rows = [];
   for (let k = 0; k < n; k++) {
-    const st = harmonise(randomize({ ...DEFAULT_STYLE, number: "(323) 555-0199" }, base + k, new Set(), pool, true), new Set(), idx);
+    const lock = opts.lock || {}, held = new Set(Object.keys(lock));
+    const st = harmonise(randomize({ ...DEFAULT_STYLE, number: "(323) 555-0199", ...lock }, base + k, held, pool, true), held, idx);
     if (opts.neutral) {
       Object.assign(st, { grade: "none", depth: "none", transition: "fade", outro: "none" });
       if (["bokeh_drift", "light_rays", "dust", "shimmer", "bloom"].includes(st.overlay)) st.overlay = "none";
