@@ -14979,7 +14979,12 @@ function tplPalette(tpl, sc, W){
   const colourful = p => !!p && (tagChroma(p.accent) >= 0.04 || tagChroma(p.support) >= 0.04);
   let p = null;
   const th = sc && sc.__theme;                    // a colour theme on this scene (themeScene): the look wears it too
-  if (th) p = { accent: th.accent, support: th.support || th.accent, ink: th.ink, c1: th.bg && th.bg.c1 };
+  /* a neutral one too (rule 90: a theme owns the whole card). Clean Slate's
+     slate grey failed the colourful test, so a card's own look fell back to
+     the card's palette beside the theme: stepsFlow's colour blocks stayed
+     pink and gradientWave's sweep kept its hues (ez_theme_audit, once the
+     library cards wore looks of their own) */
+  if (th) return { accent: th.accent, support: th.support || th.accent, ink: th.ink, c1: th.bg && th.bg.c1 };
   const rec = tpl && tpl.showcase && typeof SHOWCASE !== 'undefined' && SHOWCASE.byId && SHOWCASE.byId[tpl.showcase];
   if (!colourful(p) && rec) p = { accent: rec.accent, support: rec.support, ink: rec.ink, c1: rec.c1 };
   if (!colourful(p) && tpl && tpl.palette) p = tpl.palette;
