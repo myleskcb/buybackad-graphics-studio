@@ -304,17 +304,63 @@ export function designOf(model) {
 // dimension drawings). Left and right are as you look at the screen.
 const CONTROLS = { mute: [.183, .213], action: [.176, .216], volUp: [.256, .33], volDown: [.352, .426], power: [.27, .405], camCtrl: [.565, .64] };
 
-/** The edge you see when a phone is turned: the band, its buttons in place. */
-function drawEdge(ctx, p, x0, t, h, screenRight) {
-  const d = p.design, bw = t * .46, bx = x0 + (t - bw) / 2;
-  const keys = screenRight ? ["power", ...(d.camCtrl ? ["camCtrl"] : [])] : [...(d.left ? [d.left] : []), "volUp", "volDown"];
-  for (const k of keys) {
-    const [a, b] = CONTROLS[k], y = -h / 2 + a * h, bh = (b - a) * h;
-    rrect(ctx, bx, y, bw, bh, bw / 2);
-    ctx.fillStyle = k === "camCtrl" ? "#1c1d21" : shade(p.metal, -.42); ctx.fill();
-    rrect(ctx, bx + bw * .2, y + bh * .06, bw * .3, bh * .88, bw * .15);
-    ctx.fillStyle = k === "camCtrl" ? "rgba(255,255,255,.14)" : shade(p.metal, .12); ctx.fill();
+// A turned phone is drawn as what it is: a rounded slab THICKNESS deep, turned
+// about its long axis and seen through a lens a few phone-heights away, the way
+// a product shot is lit and framed. The near edge stands a little taller than
+// the far one, the side is a solid band that wraps the corners, and the face
+// falls off toward its far edge.
+const LENS = 6.5;                                  // camera distance, in phone heights
+
+function outline(w, h, r, n = 9) {                 // a rounded rectangle, clockwise
+  const pts = [];
+  for (const [cx, cy, a0] of [[w / 2 - r, -h / 2 + r, -Math.PI / 2], [w / 2 - r, h / 2 - r, 0], [-w / 2 + r, h / 2 - r, Math.PI / 2], [-w / 2 + r, -h / 2 + r, Math.PI]])
+    for (let i = 0; i <= n; i++) { const a = a0 + i / n * Math.PI / 2; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+  return pts;
+}
+
+function poly(ctx, pts) {
+  ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath();
+}
+
+function drawSlab(ctx, p, w, h, flip, face) {
+  const c = Math.cos(flip), s = Math.sin(flip), T = THICKNESS * w, D = LENS * h, R = CORNER * w;
+  // local x runs to the screen's right, zl out of the screen; sin > 0 brings the
+  // screen's right-hand edge (power) toward the lens, sin < 0 its left (volume)
+  const P = (x, y, zl) => { const X = x * c - zl * s, f = D / (D - (x * s + zl * c)); return [X * f, y * f]; };
+  const seen = c >= 0 ? T / 2 : -T / 2;
+  const rim = outline(w, h, R);
+  // the side: the outline swept from the hidden face to the seen one, brushed
+  // metal dark at both rims with a highlight a little in from the near face
+  const steps = Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
+  for (let k = 0; k <= steps; k++) {
+    const u = k / steps, zl = -seen + 2 * seen * u;
+    poly(ctx, rim.map(([x, y]) => P(x, y, zl)));
+    ctx.fillStyle = shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
   }
+  // the controls on the side we see, where Apple puts them
+  const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
+  const keys = s > 0 ? ["power", ...(d.camCtrl ? ["camCtrl"] : [])] : [...(d.left ? [d.left] : []), "volUp", "volDown"];
+  for (const key of keys) {
+    const [a0, b0] = CONTROLS[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
+    poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
+    ctx.fillStyle = key === "camCtrl" ? "#1c1d21" : shade(p.metal, -.38); ctx.fill();
+    poly(ctx, [P(xs, y0 + 1, q * .1), P(xs, y0 + 1, q * .45), P(xs, y1 - 1, q * .45), P(xs, y1 - 1, q * .1)]);
+    ctx.fillStyle = key === "camCtrl" ? "rgba(255,255,255,.16)" : shade(p.metal, .18); ctx.fill();
+  }
+  // the face, in thin vertical strips so it recedes; the back is seen from behind
+  const fw = face.width, fh = face.height, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
+  const near = P(X(0), 0, seen)[0], far = P(X(1), 0, seen)[0];
+  const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / 3)));
+  for (let i = 0; i < n; i++) {
+    const [xa, ta] = P(X(i / n), -h / 2, seen), [xb, tb] = P(X((i + 1) / n), -h / 2, seen);
+    const top = (ta + tb) / 2, x0 = Math.min(xa, xb), dw = Math.abs(xb - xa) + .6;
+    ctx.drawImage(face, i / n * fw, 0, fw / n, fh, x0, top, dw, -2 * top);
+  }
+  // light: the face falls off toward the edge turned away from the lens
+  const ns = s > 0 ? 1 : -1, k = Math.abs(s);
+  const g = ctx.createLinearGradient(P(ns * w / 2, 0, seen)[0], 0, P(-ns * w / 2, 0, seen)[0], 0);
+  g.addColorStop(0, `rgba(255,255,255,${.07 * k})`); g.addColorStop(.35, "rgba(0,0,0,0)"); g.addColorStop(1, `rgba(0,0,0,${.3 * k})`);
+  poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill();
 }
 
 /** The screen side, switched off: the band, a black border, OLED glass and the
@@ -401,14 +447,18 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
   ctx.globalAlpha = op;
   ctx.translate(x, y);
   ctx.rotate(-rot * Math.PI / 180);
-  const t = THICKNESS * p.w * scale * Math.abs(Math.sin(flip));
-  if (t >= 1.5) {                                   // the side of the phone
-    const lead = Math.sin(flip) * c > 0 ? 1 : -1;
-    ctx.fillStyle = shade(p.metal, -.3);
-    rrect(ctx, -w * ac / 2 + (lead > 0 ? 0 : -t), -h / 2, w * ac + t, h, Math.min((w * ac + t) / 2, CORNER * w));
-    ctx.fill();
-    // sin > 0 shows the screen's right-hand edge (power), sin < 0 its left (volume)
-    if (t >= 4) drawEdge(ctx, p, lead > 0 ? w * ac / 2 : -w * ac / 2 - t, t, h, Math.sin(flip) > 0);
+  if (Math.abs(Math.sin(flip)) > .015) {           // turned: the slab, in perspective
+    let face = p.img;
+    if (front) {
+      const fc = p._front || (p._front = canvas(1, 1));
+      fc.width = Math.ceil(w); fc.height = Math.ceil(h);
+      const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2);
+      drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
+      face = fc;
+    }
+    drawSlab(ctx, p, w, h, flip, face);
+    ctx.restore();
+    return;
   }
   ctx.scale(Math.max(ac, .02), 1);
   if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
