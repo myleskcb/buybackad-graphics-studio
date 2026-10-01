@@ -16460,7 +16460,14 @@ function pgEmojiPass(sc, W, H){
      always tries to place one */
   const PLANS = ['', '', '', '', '', '', '', 'topic', 'topic', 'point'];
   const ASKED = ['topic', 'point', 'topic', 'general'];
-  const kind0 = ctx.seed ? ASKED[seed % ASKED.length] : PLANS[seed % PLANS.length];
+  let kind0 = ctx.seed ? ASKED[seed % ASKED.length] : PLANS[seed % PLANS.length];
+  /* a sparse card (owner, 2026-09-30: "Emojis can be used if applicable or
+     design is lacking or can use the extra placements"): four or fewer lines
+     of copy besides the number and the website leave room the card is not
+     using, so it may carry one too; still one at most, beside the words */
+  const readsCopy = o => o && o.visible !== false && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox' || (o.type === 'group' && o.pgCurved))
+    && !/^(website|phone|deco)$/.test(o.pgRole || '') && /[A-Za-z0-9]/.test(typeof o.text === 'string' ? o.text : (o.pgCurved && o.pgCurved.text) || '');
+  if (!kind0 && objs.filter(readsCopy).length <= 4) kind0 = seed % 3 === 0 ? 'point' : 'topic';
   if (!kind0) return why('not this card');
   /* a card the owner approved as rendered keeps that render (DESIGN-LAW 78,
      assets/approved/approved.json): no emoji is added to it unless the

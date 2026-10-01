@@ -2156,6 +2156,16 @@ looks, the gate session's shade and emoji, this rule's engine):
   effect overrides and thirty-six patterns are one choice (`ez.tag`), set in
   Easy Mode's panel or the editor's row and held on every surface. A card may
   carry a look of its own (`tpl.look`), shown under Solid.
+- **The library wears them** (2026-09-30, the owner: "we're not really
+  using our text effects / variations to show the differences and ways we
+  can support our themes with more flavor"). No showcase card carried a
+  look, so the gallery never showed one. `scripts/assign_card_looks.mjs`
+  gives about six in ten live cards a look from their family's own short
+  list (neon glows, the sticker family multicolour, poster slabs colour
+  blocks, the retro script 3-D block), chosen by the card's id (rule 75),
+  kept only where the gate accepts it, else the next, else as designed.
+  Street is not assigned (it darkens the number's plate, rule 74), and an
+  approved render is left alone (rule 78).
 - **Every look is solved on the card, not only the first six.** A premade
   or picked gradient keeps its colours where they read on the line's ground
   and moves them together, lighter or deeper, where they do not (a sunset on
@@ -2471,6 +2481,13 @@ an iPhone, an iPad or a Mac is Apple's. So (`pgEmojiPass`, app.js):
 
 Measured with the pass forced on (a Linux test machine): 102 of 399 library
 cards get one, 297 none, 0 on copy.
+
+Amended 2026-09-30. The owner: "Emojis can be used if applicable or design is
+lacking or can use the extra placements." A sparse card (four or fewer lines
+of copy besides the number and the website) is eligible as well as the three
+in ten; it is still one emoji at most, still iOS style or none, still beside
+the words and never on them. Measured with the pass forced on: 61 of 139
+sampled live cards get one, 0 on copy, a plate or a product.
 
 ## 89. A variant is the approved design recomposed from approved parts
 
