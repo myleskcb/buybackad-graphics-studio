@@ -203,7 +203,13 @@ retire one; the lasting fix is to link one project to this repository's
 `main` in Netlify (Project configuration, Build & deploy, Link repository;
 publish directory `.`) so that every push to `main` deploys and nobody deploys
 by hand. The cloud sessions cannot reach Netlify (their network policy denies
-`*.netlify.app` and `api.netlify.com`).
+`*.netlify.app` and `api.netlify.com`). The connector's deploy-site does not
+deploy by itself: it returns an `npx @netlify/mcp --site-id … --proxy-path
+https://netlify-mcp.netlify.app/proxy/…` command, which zips the working
+tree (all but node_modules and .git) and uploads it through those hosts, so
+from a cloud session it fails with 403 (2026-10-01, twice). Check out `main`
+before running it anywhere: the deploy records the branch and commit the
+tree is on.
 
 ```bash
 cd ~/Downloads/gfxv23

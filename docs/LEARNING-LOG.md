@@ -2319,7 +2319,7 @@ Changed:
     bootstrap; a category ticker in index.html; pages.css, 404 and the
     favicon on paper and ink. DESIGN-LAW rule 98; AGENT-BRIEF.
 
-## 2026-10-01 — Everything left behind, merged; the UI cleaned up; live
+## 2026-10-01 — Everything left behind, merged; the UI cleaned up; on main
 
 (claude/eloquent-euler-7jvzfd, then `main`.)
 
@@ -2405,7 +2405,16 @@ Changed:
 
 Checked (the merged build): OPEN-ITEMS §Z lists each check and its result.
 
+Did not work:
+  - Deploying from this cloud session. The connector's deploy-site returns
+    an npx command that zips the working tree and uploads it through
+    netlify-mcp.netlify.app to api.netlify.com; the environment's network
+    policy answers 403 to both (the agent proxy's status page names them).
+    `main` is pushed and waits for a deploy (OPEN-ITEMS §Z 0).
+
 RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0): from the Mac, or from a session whose
+     environment allows netlify-mcp.netlify.app and api.netlify.com.
   1. The full choice sweep on the merged engine (OPEN-ITEMS §Z 1):
        node scripts/every_card_audit.mjs --write-holds
      then commit assets/choice-holds.json and deploy `main`.

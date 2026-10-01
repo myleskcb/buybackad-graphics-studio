@@ -1235,7 +1235,7 @@ Still open:
    (cdnjs, which serves the page's 5.3.1, is blocked here). The gate passed on
    the same renderer; a re-draw on the Mac would use 5.3.1.
 
-## Z. 2026-10-01 — everything left behind, merged; the UI cleaned up; live
+## Z. 2026-10-01 — everything left behind, merged; the UI cleaned up; on `main`
 
 The owner: "clean up the UI and push and commit so we are finally live with
 all working features and all the relevant and necessary features and
@@ -1344,6 +1344,16 @@ production CSP (exit 0, 10 s, 300 frames, sound); on the video maker
 sound. This Chromium has no H.264, so the MP4 path itself is untested here.
 
 Open:
+0. **Deploy `main`.** It is pushed (2b5fc56 and on) and contains what
+   production serves (61d77f1). This cloud session could not deploy it: the
+   Netlify connector's deploy-site hands back
+   `npx @netlify/mcp --site-id … --proxy-path https://netlify-mcp.netlify.app/proxy/…`,
+   which zips the working tree (all but node_modules and .git, about 400
+   MB) and uploads it through `netlify-mcp.netlify.app` to `api.netlify.com`,
+   and the environment's network policy answers 403 to both (twice, a fresh
+   token the second time). Either allow those two hosts in the environment's
+   Network access and deploy from a session, or from the Mac: AGENT-BRIEF,
+   Deploying (`git checkout main && git pull`, then the draft and `--prod`).
 1. **The choice holds were measured before the merges.**
    assets/choice-holds.json (rule 101) came from the sweep of 2026-09-30, on
    an engine without one colour to a card, the library looks, the twelve
