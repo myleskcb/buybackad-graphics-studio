@@ -76,7 +76,7 @@ export function placeAccents(st, W, H, avoid, words, assets, r, insetTop = 0, fo
   const mx = W * .07, my = Math.max(H * .07, insetTop + H * .03);
   for (let i = 0; i < n; i++) {
     const res = resolve(set[i % set.length], st.accent_kind || "mix", assets);
-    const R = U * (res.as === "asset" ? .085 : res.as === "emoji" ? .07 : .055) * r.uniform(.9, 1.12);
+    const R = U * (res.as === "asset" ? .085 : res.as === "emoji" ? .07 : .065) * r.uniform(.9, 1.12);
     let best = null;
     for (let a = 0; a <= 12; a++) for (let b = 0; b <= 12; b++) {
       const x = lerp(mx + R, W - mx - R, a / 12), y = lerp(my + R, H - my - R, b / 12);

@@ -798,7 +798,7 @@ async function download(opts = {}) {
       catch (e) { soundErr = e; console.error("Soundtrack failed, making the video without sound:", e); }
     }
     const steps = [];
-    if (how === "auto" && canEncode()) {
+    if (how === "auto" && await canEncode(ad.W, ad.H)) {
       steps.push({ id: "mp4", label: "the MP4 encoder", run: a => exportMp4(a, prog, { audioBuf: buf }) });
       steps.push({ id: "mp4-sw", label: "the MP4 encoder in software", say: "Trying the MP4 encoder again in software…",
         skip: e => e && e.code === "no-h264", run: a => exportMp4(a, prog, { audioBuf: buf, software: true }) });

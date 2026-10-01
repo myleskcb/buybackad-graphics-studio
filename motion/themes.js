@@ -388,7 +388,7 @@ export const THEMES = {
     copy: { en: { headlines: ["POP! CASH FOR YOUR IPHONE", "SELL YOUR OLD IPHONE", "WE BUY IPHONES"], tags: ["FREE QUOTE", "TEXT A PIC"] },
       es: { headlines: ["¡EFECTIVO POR TU IPHONE!", "VENDE TU IPHONE VIEJO"], tags: ["MÁNDANOS FOTO"] } } }),
   highlighter_rave: T("Playful & bold", "Highlighter rave", { palettes: ["rave_fluoro"], backgrounds: ["carbon", "fluoro", "grid"],
-    fonts: ["bangers", "unbounded", "bungee"], fx: ["highlighter", "glow", "neon"], boards: ["none"], numbers: ["neon", "box"],
+    fonts: ["bangers", "unbounded", "bungee"], fx: ["highlighter", "glow"], boards: ["none"], numbers: ["neon", "box"],
     accent_sets: ["hype"], accent_kinds: ["symbol"], phone_angles: ["wide_spin", "turntable"],
     style: { accent_in: ["zoom", "wide_spin", "fly"], accent_idle: ["pulse"], urgency: ["beat_pump", "flash_border"], overlay: ["glitch", "confetti"], sound_kit: ["edm", "trap"] },
     copy: { en: { headlines: ["CASH FOR IPHONES", "SELL YOUR IPHONE", "WE BUY IPHONES"], tags: ["ALL MODELS", "TEXT A PIC"] },
