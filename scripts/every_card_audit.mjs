@@ -308,7 +308,8 @@ if (process.argv.includes('--write-holds')){
       : /^(collide|touch)$/.test(code) ? lineOf(n) + ' would run into another line' : code === 'straddle' ? lineOf(n) + ' would hang off its plate'
       : code === 'covered' ? lineOf(n) + ' would be covered' : code === 'number' ? 'the number would come out too small'
       : code === 'thumb' ? 'the headline would be too small in a feed' : code === 'offPlate' ? 'the number would run off its plate'
-      : code === 'onProduct' ? 'the number would sit on the product' : lineOf(n) + ' would not work (' + code + ')'; };
+      : code === 'onProduct' ? 'the number would sit on the product' : code === 'numCentre' ? 'the number would sit off the middle of its plate'
+      : lineOf(n) + ' would not work (' + code + ')'; };
   const why = v => v.reg ? [...new Set(v.reg.map(said))].join('; ')
     : v.unthemed ? 'a plate would keep the card’s old colour' : v.left ? 'the card’s own colours would stay beside it' : v.lost ? 'a mark would vanish on what it sits on' : 'it changes nothing here';
   const done = new Set(rows.map(r => r.card));

@@ -18734,6 +18734,7 @@ function choiceHoldPlain(why){
   if (/off its plate/.test(w)) return 'a line would slip off its panel';
   if (/off the card/.test(w)) return 'a line would run off the card';
   if (/colours would stay/.test(w)) return 'the card’s own colours would clash with it';
+  if (/off the middle/.test(w)) return 'the number would sit off the middle of its plate';
   return w;
 }
 /* under a row with chips off, what is off and why: a title never shows on a
