@@ -352,12 +352,14 @@ produced." DESIGN-LAW rule 87. In practice:
   card's faces before the layout, each line keeping its footprint;
   `houseTwoFaces` sets two families on every classic, last at load and again
   when a table sets a face.
-- **The palettes are the proven 25** (2026-10-01): `PALETTES` in
-  scripts/refresh_palettes.mjs, the library tiles' swatches `PALETTE_SW` in
-  app.js. Named "ground & accent" in plain colour words, never food or drink
-  (the owner had 19 food names renamed). `node scripts/repalette_showcase.mjs
-  --write` moves every library record onto them and changes nothing else;
-  then rethumb_showcase.mjs and verify_showcase.mjs, and bump ASSET_REV.
+- **The palettes are twelve proven pairings** (rule 103, 2026-10-01):
+  `PALETTES` in scripts/refresh_palettes.mjs, two hue families each, named
+  for the two colours, never food or drink. `scripts/repalette_showcase.mjs`
+  moves every library record onto them, colour only, and maps from each
+  card's CURRENT colours: run it on records still in the old palettes, never
+  twice. Then rethumb_showcase.mjs and verify_showcase.mjs, and bump
+  ASSET_REV. (Two sessions answered the same request with 25 and with 12
+  pairings; the twelve, the later answer, are the product.)
 - **Every choice on every card** (rule 101): `node
   scripts/every_card_audit.mjs --write-holds` takes every offered card
   through every theme, look and voice on Easy Mode's render and writes
