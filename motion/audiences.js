@@ -142,7 +142,7 @@ export const AUDIENCES = {
     insight: "The old phone is money they forgot they have, and it loses value the longer it sits.",
     avoid: "Tech jargon, pressure, anything that makes the new phone feel like a mistake.",
     moods: ["confident", "hype"], casts: ["crisp_f", "crisp_m", "host_m", "host_f"],
-    looks: { vibes: ["clean_tech", "y2k_pop", "none"], sound_kit: ["house", "minimal", "edm"], bpm: [112, 126], grade: ["clean", "cool", "none"] },
+    looks: { vibes: ["clean_tech", "y2k_pop", "none"], sound_kit: ["house", "minimal"], bpm: [112, 126], grade: ["clean", "cool", "none"] },
     copy: {
       en: { hooks: ["GOT THE NEW IPHONE?", "UPGRADED THIS YEAR?", "NEW PHONE. OLD ONE?", "WHERE'S YOUR OLD IPHONE?"],
         headlines: ["SELL THE ONE YOU REPLACED", "YOUR OLD IPHONE IS WORTH CASH", "UPGRADED? SELL THE OLD ONE", "NEW PHONE? CASH FOR THE OLD ONE"],
@@ -165,7 +165,7 @@ export const AUDIENCES = {
     insight: "Cash for textbooks, rent or a night out from a phone they already stopped using.",
     avoid: "Talking down, parent voice, long sentences.",
     moods: ["playful", "hype"], casts: ["host_f", "host_m", "gamer_m"],
-    looks: { vibes: ["campus", "y2k_pop", "gamer_rgb"], sound_kit: ["trap", "edm", "lofi"], bpm: [118, 134], grade: ["punchy", "none"] },
+    looks: { vibes: ["campus", "y2k_pop", "gamer_rgb"], sound_kit: ["hiphop", "house", "lofi"], bpm: [118, 134], grade: ["punchy", "none"] },
     copy: {
       en: { hooks: ["BROKE? CHECK YOUR DRAWER", "TEXTBOOK MONEY?", "OLD PHONE = RENT MONEY?", "STUDENTS, LOOK"],
         headlines: ["TURN YOUR OLD IPHONE INTO CASH", "YOUR OLD PHONE IS MONEY", "CASH FOR YOUR OLD IPHONE"],
@@ -188,7 +188,7 @@ export const AUDIENCES = {
     insight: "Clearing clutter and getting a little back for the family, simply and safely.",
     avoid: "Hype, slang, anything that sounds risky.",
     moods: ["warm", "reassuring"], casts: ["warm_f", "warm_m"],
-    looks: { vibes: ["family_warm", "eco_green", "none"], sound_kit: ["lofi", "funk", "minimal"], bpm: [96, 112], grade: ["warm", "clean"], urgency: ["none", "pulse_cta", "arrows"] },
+    looks: { vibes: ["family_warm", "eco_green", "none"], sound_kit: ["lofi", "uplift", "minimal"], bpm: [96, 112], grade: ["warm", "clean"], urgency: ["none", "pulse_cta", "arrows"] },
     copy: {
       en: { hooks: ["A DRAWER FULL OF OLD PHONES?", "THE KIDS UPGRADED?", "SPRING CLEANING?"],
         headlines: ["WE BUY THE FAMILY'S OLD IPHONES", "CLEAR THE DRAWER, GET CASH", "OLD IPHONES INTO CASH"],
@@ -255,7 +255,7 @@ export const AUDIENCES = {
     insight: "A straight, fair offer from a local buyer beats the hassle of listing it.",
     avoid: "Promises of the most money, anything that sounds too good.",
     moods: ["hype", "street"], casts: ["host_m", "street_m", "host_f"],
-    looks: { vibes: ["swap_meet", "bandit_sign", "breaking_news", "corner_store", "sports_broadcast"], sound_kit: ["trap", "boombap", "drumline"], bpm: [116, 132], grade: ["punchy", "none"] },
+    looks: { vibes: ["swap_meet", "bandit_sign", "breaking_news", "corner_store", "sports_broadcast"], sound_kit: ["hiphop", "cinematic"], bpm: [116, 132], grade: ["punchy", "none"] },
     copy: {
       en: { hooks: ["GOT ANOTHER QUOTE?", "SELLING YOUR IPHONE?", "WAIT. READ THIS."],
         headlines: ["GET A CASH OFFER FOR YOUR IPHONE", "A FAIR CASH OFFER", "WE BUY IPHONES. FAIR AND LOCAL."],
@@ -276,7 +276,7 @@ export const AUDIENCES = {
     insight: "Someone from the community who speaks their language and treats them fairly.",
     avoid: "Clumsy translation, stereotypes, English-only fine print.",
     moods: ["warm", "festive"], casts: ["warm_es_f", "warm_es_m"], lang: "es",
-    looks: { vibes: ["mercado", "mural", "sunset_blvd", "lowrider"], sound_kit: ["afrobeat", "funk", "house"], bpm: [100, 120], grade: ["warm", "punchy"] },
+    looks: { vibes: ["mercado", "mural", "sunset_blvd", "lowrider"], sound_kit: ["house", "uplift"], bpm: [100, 120], grade: ["warm", "punchy"] },
     copy: {
       es: { hooks: ["¡OYE! ¿Y ESE IPHONE VIEJO?", "¿TIENES UN IPHONE QUE YA NO USAS?", "¡ATENCIÓN, FAMILIA!"],
         headlines: ["COMPRAMOS IPHONES", "TU IPHONE VIEJO VALE DINERO", "SOMOS DE AQUÍ. COMPRAMOS IPHONES."],
@@ -296,7 +296,7 @@ export const AUDIENCES = {
     insight: "A worn or cracked work phone is still worth cash, and time off the road is money.",
     avoid: "Office tone, anything slow.",
     moods: ["street", "confident"], casts: ["street_m", "street_f"],
-    looks: { vibes: ["freeway", "street_spray", "repair_shop", "neon_motel"], sound_kit: ["boombap", "trap", "funk"], bpm: [92, 112], grade: ["film", "punchy"] },
+    looks: { vibes: ["freeway", "street_spray", "repair_shop", "neon_motel"], sound_kit: ["hiphop", "uplift"], bpm: [92, 112], grade: ["film", "punchy"] },
     copy: {
       en: { hooks: ["DRIVE FOR A LIVING?", "PHONE TAKING A BEATING?", "NEW WORK PHONE?"],
         headlines: ["CASH FOR YOUR OLD WORK PHONE", "WE BUY USED IPHONES", "WORN OUT? STILL WORTH CASH"],
@@ -356,7 +356,7 @@ export const AUDIENCES = {
     insight: "Old phone into money for the next thing: games, a drop, a new setup.",
     avoid: "Trying too hard, cringe slang, corporate tone.",
     moods: ["hype", "playful"], casts: ["gamer_m", "host_f"],
-    looks: { vibes: ["gamer_rgb", "y2k_pop", "neon_motel"], sound_kit: ["trap", "edm"], bpm: [124, 134], grade: ["punchy", "cool"], overlay: ["glitch", "grain_live", "none"] },
+    looks: { vibes: ["gamer_rgb", "y2k_pop", "neon_motel"], sound_kit: ["hiphop", "house"], bpm: [124, 134], grade: ["punchy", "cool"], overlay: ["glitch", "grain_live", "none"] },
     copy: {
       en: { hooks: ["STOP SCROLLING", "LOOT DROP IN YOUR DRAWER", "OLD PHONE?"],
         headlines: ["CASH OUT YOUR OLD IPHONE", "OLD PHONE. NEW MONEY.", "LEVEL UP: SELL YOUR OLD IPHONE"],
@@ -396,7 +396,7 @@ export const AUDIENCES = {
     insight: "They assume it's worthless; a buyer who still wants it is a relief.",
     avoid: "Blame, judgement, promises about what any damage is worth.",
     moods: ["reassuring", "street"], casts: ["warm_m", "calm_f", "street_m"],
-    looks: { vibes: ["repair_shop", "bandit_sign", "breaking_news"], sound_kit: ["boombap", "funk", "minimal"], bpm: [96, 116], grade: ["film", "none"] },
+    looks: { vibes: ["repair_shop", "bandit_sign", "breaking_news"], sound_kit: ["hiphop", "uplift", "minimal"], bpm: [96, 116], grade: ["film", "none"] },
     copy: {
       en: { hooks: ["CRACKED SCREEN?", "DROPPED IT?", "DEAD BATTERY?"],
         headlines: ["WE BUY CRACKED IPHONES TOO", "BROKEN? TEXT US A PIC", "CRACKED? ASK US"],
@@ -416,7 +416,7 @@ export const AUDIENCES = {
     insight: "Every box they empty is a win; getting paid for part of it is a bonus.",
     avoid: "Sad tones, pressure.",
     moods: ["warm", "playful"], casts: ["warm_f", "host_f", "warm_m"],
-    looks: { vibes: ["family_warm", "tear_off", "eco_green", "venice"], sound_kit: ["funk", "lofi", "house"], bpm: [100, 118], grade: ["warm", "clean"] },
+    looks: { vibes: ["family_warm", "tear_off", "eco_green", "venice"], sound_kit: ["uplift", "lofi", "house"], bpm: [100, 118], grade: ["warm", "clean"] },
     copy: {
       en: { hooks: ["MOVING SOON?", "SPRING CLEANING?", "CLEARING OUT?"],
         headlines: ["PACK LESS. GET CASH.", "OLD IPHONES INTO CASH", "WE BUY THE PHONES YOU FIND"],
@@ -436,7 +436,7 @@ export const AUDIENCES = {
     insight: "Holiday money from last year's phone, just when it's needed.",
     avoid: "Deadlines and countdowns; a sale that ends.",
     moods: ["festive", "warm"], casts: ["host_f", "warm_m", "warm_f"],
-    looks: { vibes: ["holiday_gift", "family_warm"], sound_kit: ["house", "funk", "drumline"], bpm: [108, 124], grade: ["warm", "punchy"], overlay: ["confetti", "sparkle_field", "bokeh_drift", "none"] },
+    looks: { vibes: ["holiday_gift", "family_warm"], sound_kit: ["house", "uplift", "cinematic"], bpm: [108, 124], grade: ["warm", "punchy"], overlay: ["confetti", "sparkle_field", "bokeh_drift", "none"] },
     copy: {
       en: { hooks: ["NEW IPHONE UNDER THE TREE?", "HOLIDAY UPGRADE?", "GIFTING A NEW IPHONE?"],
         headlines: ["TURN LAST YEAR'S IPHONE INTO HOLIDAY CASH", "NEW IPHONE? SELL THE OLD ONE", "HOLIDAY CASH FROM YOUR OLD IPHONE"],
@@ -456,7 +456,7 @@ export const AUDIENCES = {
     insight: "A buyer who is from here, meets up nearby and talks like a neighbour.",
     avoid: "Corporate tone, chains.",
     moods: ["street", "warm"], casts: ["street_m", "street_f", "warm_m"],
-    looks: { vibes: ["sunset_blvd", "swap_meet", "bandit_sign", "lowrider", "mural", "la_blue", "street_spray", "marquee", "freeway", "corner_store"], sound_kit: ["boombap", "funk", "house"], bpm: [92, 116], grade: ["film", "warm", "punchy"] },
+    looks: { vibes: ["sunset_blvd", "swap_meet", "bandit_sign", "lowrider", "mural", "la_blue", "street_spray", "marquee", "freeway", "corner_store"], sound_kit: ["hiphop", "uplift", "house"], bpm: [92, 116], grade: ["film", "warm", "punchy"] },
     copy: {
       en: { hooks: ["HEY NEIGHBOR", "LOCALS, LISTEN UP"], headlines: ["WE'RE FROM HERE. WE BUY IPHONES.", "LOCAL IPHONE BUYERS"],
         tags: ["WE'RE FROM HERE", "MEET UP LOCAL"], cta: ["TEXT US", "CALL OR TEXT"] },

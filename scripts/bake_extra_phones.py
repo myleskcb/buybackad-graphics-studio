@@ -1,15 +1,19 @@
 """Bake extra phone backs for the video maker (motion/phones).
 
-No straight-on photo exists for these finishes, so each one is painted from a
-back we do have (repaint=true in index.json):
+No full-size straight-on photo exists for these finishes, so each is built
+from real parts (repaint=true in index.json):
 
-  * Pro / Pro Max (14, 15, 16): the iPhone 15 Pro Blue Titanium back
-    (assets/cutouts/iphone-15-pro-back-blue.webp). Blue Titanium itself ships
-    as-is; every other finish repaints its glass and plateau.
+  * Pro / Pro Max (14, 15, 16): the back of the iPhone 15 Pro Blue Titanium
+    photo (assets/cutouts/iphone-15-pro-back-blue.webp), straightened, its own
+    camera taken out: it was shot from the right, so its plateau shows one side
+    wall and reads backwards when the phone turns the other way. In its place
+    goes the generation's own plateau from Apple's straight-on render (qs-*),
+    then glass and plateau are painted in the finish.
   * 14 / 14 Plus / 15 / 15 Plus: the clean iPhone 16 White back with its pill
-    camera patched out and the square diagonal-lens module from the iPhone 14
-    Purple photo (assets/cutouts/ip-gen14-back-purple.webp) set in, then
-    painted.
+    camera patched out and the generation's square diagonal-lens plateau from
+    Apple's straight-on render set in, then painted.
+
+Check the result with scripts/audit_phone_views.py and motion/views-sheet.html.
 
 Run:  python3 scripts/bake_extra_phones.py   (needs pillow, numpy, scikit-image)
 """
@@ -177,26 +181,103 @@ def straighten(src):
     return img
 
 
+# Apple's own straight-on renders, one per generation: (file, plateau box in px).
+# The plateau is lit from the front in these, so it reads true at any turn;
+# the only full-size back is shot from the right and its camera is not.
+MODULES = {
+    "16": ("qs-iphone-16-pro-max.webp", (11, 11, 148, 146)),   # White Titanium
+    "15": ("qs-iphone-15-pro.webp", (13, 11, 143, 146)),       # Natural Titanium
+    "14": ("qs-iphone-14-pro-max.webp", (11, 15, 143, 146)),   # Deep Purple
+}
+MOD_AT, MOD_SIZE = .034, .53     # plateau offset and size, in phone widths (the renders, measured)
+WORK_H = 1800
+
+
+def _tones(f, box):
+    """A render's non-glass lightness: median and spread (the glass is the darkest
+    quarter in every one of them)."""
+    L = color.rgb2lab(np.asarray(Image.open(CUT / f).convert("RGB").crop(box)) / 255)[..., 0]
+    glass = np.percentile(L, 25) + 2
+    rest = L[L > glass * 1.4]
+    q1, q3 = np.percentile(rest, [25, 75])
+    return glass, float(np.median(rest)), float(q3 - q1)
+
+
+def module_neutral(f, box, size, to_med=None, to_spread=None, lidar=True):
+    """A straight-on plateau from Apple's render, colour taken out, its tones set
+    on a common grey (the 16 Pro White's unless given) so every generation paints
+    alike. The lens glass, and on a Pro the LiDAR, keep their own darks."""
+    m = Image.open(CUT / f).convert("RGBA").crop(box).resize(size, Image.LANCZOS)
+    lab = color.rgb2lab(np.asarray(m)[..., :3] / 255)
+    glass, med, spread = _tones(f, box)
+    _, med16, spread16 = _tones(*MODULES["16"])
+    to_med = med16 if to_med is None else to_med
+    to_spread = spread16 if to_spread is None else to_spread
+    L = lab[..., 0]
+    # stretch the spread only a little: a low-res render posterises
+    mapped = np.clip(to_med + (L - med) * min(1.25, to_spread / spread), 0, 100)
+    k = smooth(L, glass * .8, glass * 1.6)
+    if lidar:                                       # found, not assumed: the dark dot low on the right
+        yy, xx = np.mgrid[0:size[1], 0:size[0]]
+        zone = (xx > size[0] * .6) & (yy > size[1] * .68) & (xx < size[0] * .95) & (yy < size[1] * .97)
+        dot = zone & (L < np.percentile(L[zone], 12))
+        cy, cx = yy[dot].mean(), xx[dot].mean()
+        r = np.sqrt(dot.sum() / np.pi)
+        k = k * smooth(np.hypot(xx - cx, yy - cy), r * 1.15, r * 1.6)
+    lab[..., 0] = L * (1 - k) + mapped * k
+    lab[..., 1:] = 0
+    rgb = (np.clip(color.lab2rgb(lab), 0, 1) * 255).round().astype(np.uint8)
+    return Image.fromarray(np.dstack([rgb, np.asarray(m)[..., 3]]), "RGBA"), to_med
+
+
+def erase_module(im):
+    """Fill the photo's own (side-lit) camera with plain back: each column's
+    colour from the clean band between the camera and the logo, carried up."""
+    W = im.width
+    a = np.asarray(im).astype(float)
+    y0, y1 = round(W * .72), round(W * .84)
+    band = a[y0:y1].mean(0)
+    slope = (a[y1:y1 + (y1 - y0)].mean(0) - a[y0:y1].mean(0)) / (y1 - y0)   # the light's fall down the back
+    ys = np.arange(im.height)[:, None, None] - (y0 + y1) / 2
+    fill = np.clip(band[None] + slope[None] * ys, 0, 255)
+    m = Image.new("L", im.size, 0)
+    ImageDraw.Draw(m).rounded_rectangle((round(W * .024), round(W * .024), round(W * .69), round(W * .69)), round(W * .14), fill=255)
+    m = np.asarray(m.filter(ImageFilter.GaussianBlur(W * .01))).astype(float)[..., None] / 255
+    out = a.copy()
+    out[..., :3] = a[..., :3] * (1 - m) + fill[..., :3] * m
+    return Image.fromarray(out.round().astype(np.uint8), "RGBA")
+
+
 def bake_pro():
     src = straighten(Image.open(CUT / "iphone-15-pro-back-blue.webp").convert("RGBA"))
-    lab = color.rgb2lab(np.asarray(src)[..., :3] / 255)
+    src = src.resize((round(WORK_H * .478), WORK_H), Image.LANCZOS)
+    clean = erase_module(src)
+    lab = color.rgb2lab(np.asarray(clean)[..., :3] / 255)
     chroma = np.hypot(lab[..., 1], lab[..., 2])
     body = chroma > 18
     body_l = float(np.median(lab[..., 0][body]))
-    # blue glass and plateau get the full paint; the steel band gets a lighter tint
+    blue = lab_hex(np.median(lab[body], axis=0))
+    # blue glass gets the full paint; the steel band gets a lighter tint
     weight = np.maximum(smooth(chroma, 6, 20), 0.85 * smooth(lab[..., 0], 20, 55))
-    weight *= np.asarray(src)[..., 3] / 255 > 0
-    wimg = Image.fromarray((weight * 255).astype(np.uint8))
+    weight *= np.asarray(clean)[..., 3] / 255 > 0
+    side = round(src.width * MOD_SIZE)
+    mods = {g: module_neutral(*MODULES[g], (side, side)) for g in MODULES}
+    mmask = rrect_mask((side, side), round(side * .2), blur=1.2)
     out = []
     for pid, model, finish, target, w in PRO:
         if target is None:
-            im = src
+            im = clean
         else:
             dark = hex_lab(target)[0] < 40
-            im = paint(src, np.asarray(wimg).astype(float) / 255, target, body_l, 0.8 if dark else 0.55)
+            im = paint(clean, weight, target, body_l, 0.8 if dark else 0.55)
+        # the plateau and lens rings in the finish's colour, the glass left dark
+        mod, ref = mods[pid[:2]]
+        ml = color.rgb2lab(np.asarray(mod)[..., :3] / 255)[..., 0]
+        mod = paint(mod, smooth(ml, 38, 68) * (1 - smooth(ml, 86, 94)), target or blue, ref, 0.6)
+        im = im.copy(); im.paste(mod, (round(src.width * MOD_AT), round(src.width * MOD_AT)), mmask)
         im = finish_back(im, w, pid)
         out.append(dict(id=pid, model=model, finish=finish, metal=target or metal_of(im),
-                        w=w, h=H, repaint=target is not None, ok=True))
+                        w=w, h=H, repaint=True, ok=True))
     return out
 
 
@@ -206,7 +287,15 @@ def rrect_mask(size, r, blur=1.5):
     return m.filter(ImageFilter.GaussianBlur(blur))
 
 
-def base_composite():
+# The 14 and 15 from Apple's straight-on renders: (file, plateau box in px, size
+# and offset in phone widths, measured off the render).
+BASE_MODULES = {
+    "15": ("qs-iphone-15.webp", (13, 13, 122, 123), .445, .045),
+    "14": ("qs-iphone-14.webp", (8, 12, 120, 123), .457, .045),
+}
+
+
+def base_composite(gen):
     body = Image.open(OUT / "16-white.webp").convert("RGBA")
     W = body.width
     # patch out the pill camera with the (mirrored) clean top-right corner
@@ -215,31 +304,26 @@ def base_composite():
     ImageDraw.Draw(fm).rounded_rectangle((8, 8, 195, 280), 30, fill=255)
     fm = fm.filter(ImageFilter.GaussianBlur(6))
     body = Image.composite(mir, body, fm)
-    # the square module from the 14 photo, straightened to a square
-    mod = Image.open(CUT / "ip-gen14-back-purple.webp").convert("RGBA").crop((145, 55, 612, 607))
-    side = round(W * .43)
-    mod = mod.resize((side, side), Image.LANCZOS)
-    # neutralise the purple so every finish paints from the same white
-    ml = color.rgb2lab(np.asarray(mod)[..., :3] / 255)
     bl = color.rgb2lab(np.asarray(body)[..., :3] / 255)
     body_l = float(np.median(bl[..., 0][np.asarray(body)[..., 3] > 250]))
-    mod_l = float(np.median(ml[..., 0][ml[..., 0] > 55]))
-    ml[..., 0] = np.clip(ml[..., 0] + (body_l - mod_l) * smooth(ml[..., 0], 30, 60), 0, 100)
-    ml[..., 1:] = 0
-    mrgb = (np.clip(color.lab2rgb(ml), 0, 1) * 255).round().astype(np.uint8)
-    mod = Image.fromarray(np.dstack([mrgb, np.asarray(mod)[..., 3]]), "RGBA")
-    mask = rrect_mask((side, side), round(side * .2))
-    body.paste(mod, (round(W * .055), round(W * .055)), mask)
+    f, box, size, at = BASE_MODULES[gen]
+    side = round(W * size)
+    # the plateau sits a touch darker than the glass around it, as on the phone
+    mod, _ = module_neutral(f, box, (side, side), to_med=body_l - 4, to_spread=_tones(f, box)[2], lidar=False)
+    body.paste(mod, (round(W * at), round(W * at)), rrect_mask((side, side), round(side * .22)))
     return body, body_l
 
 
 def bake_base():
-    body, body_l = base_composite()
-    a = np.asarray(body).astype(float)
-    lab = color.rgb2lab(a[..., :3] / 255)
-    weight = smooth(lab[..., 0], 45, 75) * (a[..., 3] > 0)
+    bodies = {}
+    for gen in BASE_MODULES:
+        body, body_l = base_composite(gen)
+        a = np.asarray(body).astype(float)
+        lab = color.rgb2lab(a[..., :3] / 255)
+        bodies[gen] = (body, body_l, smooth(lab[..., 0], 45, 75) * (a[..., 3] > 0))
     out = []
     for pid, model, finish, target, w in BASE:
+        body, body_l, weight = bodies[pid[:2]]
         finish_back(paint(body, weight, target, body_l, 0.9), w, pid)
         out.append(dict(id=pid, model=model, finish=finish, metal=lab_hex(hex_lab(target) - [8, 0, 0]),
                         w=w, h=H, repaint=True, ok=True))

@@ -1,17 +1,23 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, countLooks } from "./catalog.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
-import { exportMp4, recordRealtime, canEncode } from "./export.js";
+import { exportMp4, recordRealtime, canEncode, recorderMime } from "./export.js";
 import { auditLook, drawCurve } from "./audit.js";
+import { loadAccents, IOS_EMOJI } from "./accents.js";
 
 const $ = id => document.getElementById(id);
 const STORE = "pgfx_motion_v1";
+// video-help.js (loaded just before this module) holds the pop-up, the retries
+// and the safety net. If it did not load, everything still runs, saying less.
+const VH = () => window.VideoHelp || { retry: async fn => fn(0), waitVisible: async () => {}, isMemory: () => false, toast: m => console.warn(m),
+  show: () => {}, check: async () => null, share: null, save: null, canShareFiles: () => false, safetyNet: () => {}, inApp: false };
+VH().safetyNet();
 const PREVIEW_MAX = 720;
-const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-cosmic-orange", "18-pro-glacier", "16-ultramarine"];
+const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-cosmic-orange", "18-pro-glacier", "16-pink"];
 
 const state = {
   style: { ...DEFAULT_STYLE, ...CLASSIC, phones: DEFAULT_PHONES.slice() },
@@ -21,6 +27,9 @@ const state = {
   index: [],
   ad: null, playing: true, t0: performance.now(), tPaused: 0, sound: false, audio: null, audioCtx: null, audioSrc: null,
   buildId: 0, gallerySeed: 1000,
+  // the gallery: the shelf it shows, and whether every look on screen moves (on for a mouse, unless motion is turned down)
+  galleryCat: "all",
+  galleryPlay: matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches,
 };
 
 const BOARD_NAMES = { none: "No sign", freeway: "Green freeway sign", freeway_blue: "Blue freeway sign", poster: "Swap meet poster",
@@ -41,6 +50,7 @@ const labelFor = (k, v) => {
   if (k === "voice_mood") return MOODS[v] ? `${MOODS[v].label}: ${MOODS[v].note}` : v;
   if (k === "voice_cast") return CASTS[v] ? CASTS[v].label : v;
   if (k === "board") return BOARD_NAMES[v] || v;
+  if (SOUND_NAMES[k] && SOUND_NAMES[k][v]) return SOUND_NAMES[k][v];
   if (k === "urgency") return URGENCY_NAMES[v] || v;
   if (k === "font" || k === "number_font") return v === "same" ? "Same as headline" : (FONTS[v] ? FONTS[v][0] : v);
   if (k === "palette") return v === "match" ? "Match a phone's colour" : v.replace(/[_-]/g, " ").replace(/\bla\b/g, "LA").replace(/\b\w/g, c => c.toUpperCase());
@@ -49,21 +59,29 @@ const labelFor = (k, v) => {
   if (k === "shake") return ["None", "Some", "Lots"][v] || v;
   if (k === "glare") return v === .5 ? "Soft" : v === 1 ? "Normal" : "Bright";
   if (k === "front_glimpse") return v === "spin" ? "Flash past in the air" : "Land screen up, then flip";
-  if (k === "pose") return { flat: "Flat, all the same", edge_left: "All angled, left edge showing", edge_right: "All angled, right edge showing" }[v];
+  if (k === "pose") return { flat: "Flat, all the same", edge_left: "Turned in 3-D, left edge showing", edge_right: "Turned in 3-D, right edge showing",
+    turntable: "Turntable sway, all in step", wide_spin: "Wide 3-D spin" }[v] || v;
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
+  if (k === "accents") return ["None", "One", "Two", "Three"][v] ?? v;
+  if (k === "accent_kind") return { mix: "Best for this device", emoji: IOS_EMOJI ? "iOS emoji" : "iOS emoji (Apple devices; stand-ins here)", asset: "Studio cutouts", symbol: "Keyboard symbols" }[v] || v;
   return String(v).replace(/[_-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 };
 
 // ------------------------------------------------------------ persistence
 
 function save() {
-  try { localStorage.setItem(STORE, JSON.stringify({ style: state.style, locked: [...state.locked] })); } catch (e) { /* private mode */ }
+  try { localStorage.setItem(STORE, JSON.stringify({ style: state.style, locked: [...state.locked], galleryCat: state.galleryCat, galleryPlay: state.galleryPlay })); } catch (e) { /* private mode */ }
 }
 function restore() {
   try {
     const s = JSON.parse(localStorage.getItem(STORE) || "null");
-    if (s && s.style) { state.style = { ...state.style, ...s.style }; state.locked = new Set(s.locked || [...state.locked]); }
+    if (s && s.style && typeof s.style === "object") { state.style = { ...state.style, ...s.style }; state.locked = new Set(Array.isArray(s.locked) ? s.locked : [...state.locked]); }
+    for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[state.style[k]]) state.style[k] = map[state.style[k]];   // a retired sound shows as its stand-in
+    if (s && (s.galleryCat === "all" || SHELVES.some(x => x.id === s.galleryCat))) state.galleryCat = s.galleryCat;
+    if (s && typeof s.galleryPlay === "boolean") state.galleryPlay = s.galleryPlay;
   } catch (e) { /* fresh start */ }
+  // a saved look from an older version must not stop the page from starting
+  if (!Array.isArray(state.style.phones)) state.style.phones = DEFAULT_PHONES.slice();
   try {                                              // the studio's brand kit
     const b = JSON.parse(localStorage.getItem("pgfx_brand") || "null");
     if (b && b.phone && !state.style.number) state.style.number = b.phone;
@@ -78,21 +96,55 @@ function restore() {
 
 async function rebuild() {
   const id = ++state.buildId;
-  const st = harmonise({ ...state.style }, state.locked, indexById());
-  await loadFonts(fontsFor(st));
-  if (id !== state.buildId) return;
-  const [W, H] = ASPECTS[st.aspect] || ASPECTS["1:1"];
-  const k = Math.min(1, PREVIEW_MAX / Math.max(W, H));
-  const ad = new Ad(st, state.assets, Math.round(W * k), Math.round(H * k));
-  if (id !== state.buildId) return;
-  state.ad = ad;
-  const c = $("preview"); c.width = ad.W; c.height = ad.H;
-  state.t0 = performance.now(); state.tPaused = 0;
-  state.audio = null;
-  if (state.sound) startAudio(0);
-  syncPanel(st);
+  try {
+    const st = harmonise({ ...state.style }, state.locked, indexById());
+    await loadFonts(fontsFor(st));
+    if (id !== state.buildId) return;
+    const [W, H] = ASPECTS[st.aspect] || ASPECTS["1:1"];
+    const k = Math.min(1, PREVIEW_MAX / Math.max(W, H));
+    const ad = new Ad(st, state.assets, Math.round(W * k), Math.round(H * k));
+    if (id !== state.buildId) return;
+    state.ad = ad;
+    const c = $("preview"); c.width = ad.W; c.height = ad.H;
+    state.t0 = performance.now(); state.tPaused = 0;
+    state.audio = null;
+    if (state.sound) startAudio(0);
+    syncPanel(st);
+    $("loading").hidden = true;
+    scheduleAudit(st);
+    state.lastGood = JSON.parse(JSON.stringify(state.style));
+  } catch (e) {
+    if (id !== state.buildId) return;
+    console.error("This look could not be drawn:", e);
+    recoverLook();
+  }
+}
+
+/* A look that cannot be drawn (a setting from an older version, a bad upload)
+   must not leave a dead preview: go back to the last look that worked, then to
+   the plain look, keeping the number. Only if even that fails, say so. */
+function recoverLook() {
+  // counted over a window, not reset by a rebuild that succeeds: a look that
+  // builds and then fails every frame must not bounce back and forth forever
+  const now = Date.now();
+  state.recoveries = (state.recoveries || []).filter(t => now - t < 20000).concat(now);
+  const n = state.recoveries.length;
   $("loading").hidden = true;
-  scheduleAudit(st);
+  if (n > 2) {
+    if (state.recoverHalted) return;
+    state.recoverHalted = true;                     // until a frame draws again
+    VH().show({ title: "The preview could not be drawn", message: "Even the plain look would not draw. Reloading the page usually clears it. If it does not, start from a fresh look (this clears the saved settings on this page).",
+      actions: [{ label: "Reload the page", primary: true, run: () => location.reload() },
+        { label: "Start from a fresh look", run: () => { try { localStorage.removeItem(STORE); } catch (e) { /* private mode */ } location.reload(); } }] });
+    return;
+  }
+  const last = n === 1 && state.lastGood && JSON.stringify(state.lastGood) !== JSON.stringify(state.style) ? state.lastGood : null;
+  const plain = { ...DEFAULT_STYLE, ...CLASSIC, phones: DEFAULT_PHONES.filter(id => state.assets.phones[id]) };
+  pushHistory();                                   // Back still reaches the look that failed
+  state.style = { ...(last || plain), number: state.style.number };
+  save(); syncWords(); drawPhonePicker();
+  VH().toast(last ? "That look could not be drawn, so the last one that worked is back." : "That look could not be drawn, so a plain look is back. Your number is kept.");
+  rebuild();
 }
 
 // ------------------------------------------------------------ attention
@@ -144,24 +196,38 @@ function curT() {
 
 function loop() {
   const ad = state.ad;
-  if (ad) {
-    const t = curT(), d = ad.st.duration;
-    const ctx = $("preview").getContext("2d");
-    ad.frame(ctx, Math.min(t, d - .001), { subsFly: 3, subsMove: 2 });
-    if (state.playing) $("scrub").value = String(Math.round(Math.min(t, d) / d * 1000));
-    if (state.playing && state.sound && t < .05 && !state._restarted) { startAudio(0); state._restarted = true; }
-    if (t > .1) state._restarted = false;
+  // one frame that throws must not stop the preview for good: keep ticking, and
+  // after half a second of nothing but failures treat the look as broken
+  try {
+    if (ad) {
+      const t = curT(), d = ad.st.duration;
+      const ctx = $("preview").getContext("2d");
+      ad.frame(ctx, Math.min(t, d - .001), { subsFly: 3, subsMove: 2 });
+      if (state.playing) $("scrub").value = String(Math.round(Math.min(t, d) / d * 1000));
+      if (state.playing && state.sound && t < .05 && !state._restarted) { startAudio(0); state._restarted = true; }
+      if (t > .1) state._restarted = false;
+    }
+    state.frameFails = 0; state.recoverHalted = false;
+  } catch (e) {
+    state.frameFails = (state.frameFails || 0) + 1;
+    if (state.frameFails === 1) console.warn("A preview frame could not be drawn:", e);
+    if (state.frameFails >= 30) { state.frameFails = 0; recoverLook(); }
   }
   requestAnimationFrame(loop);
 }
 
 async function startAudio(from) {
+  // The latest call wins. A look's first mix waits for its recordings (music.js), so a look
+  // changed in the meantime must not start the old sound over the new one, and the sound
+  // starts where the picture is by then, not where it was asked for.
+  const call = state.audioCall = (state.audioCall || 0) + 1;
   try {
     if (!state.audioCtx) state.audioCtx = new AudioContext();
-    if (state.audioSrc) { try { state.audioSrc.stop(); } catch (e) { /* done */ } }
-    if (!state.audio || state.audio.ad !== state.ad) state.audio = { ad: state.ad, buf: await renderSoundtrack(state.ad) };
+    stopAudio();
+    if (!state.audio || state.audio.ad !== state.ad) { const ad = state.ad, buf = await renderSoundtrack(ad); if (ad === state.ad) state.audio = { ad, buf }; }
+    if (call !== state.audioCall || !state.audio || state.audio.ad !== state.ad) return;
     const src = state.audioCtx.createBufferSource(); src.buffer = state.audio.buf; src.connect(state.audioCtx.destination);
-    src.start(0, Math.max(0, from)); state.audioSrc = src;
+    src.start(0, Math.max(0, state.playing ? curT() : from)); state.audioSrc = src;
   } catch (e) { console.warn("sound", e); }
 }
 function stopAudio() { if (state.audioSrc) { try { state.audioSrc.stop(); } catch (e) { /* done */ } state.audioSrc = null; } }
@@ -169,7 +235,7 @@ function stopAudio() { if (state.audioSrc) { try { state.audioSrc.stop(); } catc
 // ------------------------------------------------------------ the panel
 
 function buildPanel() {
-  $("look-count").textContent = `${Number(countLooks()).toExponential(1).replace("e+", " × 10^")} possible looks from ${Object.keys(FONTS).length} typefaces and ${Object.keys(PALETTES).length} palettes.`;
+  $("look-count").textContent = `${Number(countLooks()).toExponential(1).replace("e+", " × 10^")} possible looks from ${Object.keys(FONTS).length} typefaces and ${new Set(OPTIONS.palette.filter(v => v !== "match")).size} palettes.`;   // the held themes' palettes are known, not offered
   $("headline-list").innerHTML = [...HEADLINES, ...COPY.es.headlines.filter(h => !h.includes("{"))].map(h => `<option value="${h}">`).join("");
   const design = $("design");
   for (const [title, keys] of GROUPS) {
@@ -272,7 +338,7 @@ function buildPanel() {
       state.assets.phones[a.id] = a; state.index.push(a.meta);
       state.style.phones.push(a.id); if (state.style.phones.length > 6) state.style.phones.shift();
       drawPhonePicker(); rebuild();
-    } catch (err) { alert("That picture could not be read. Try a PNG of the phone's back."); }
+    } catch (err) { console.warn(err); VH().toast("That picture could not be read. Try a PNG or JPG of the phone's back, on a plain background."); }
     e.target.value = "";
   });
 
@@ -280,7 +346,6 @@ function buildPanel() {
   $("shuffle-look").addEventListener("click", () => shuffle(false));
   $("shuffle-all").addEventListener("click", () => shuffle(true));
   $("undo").addEventListener("click", () => { const prev = state.history.pop(); if (prev) { state.style = prev; save(); syncWords(); drawPhonePicker(); rebuild(); } $("undo").disabled = !state.history.length; });
-  $("more").addEventListener("click", () => renderGallery(false));
   $("play").addEventListener("click", togglePlay);
   $("scrub").addEventListener("input", e => {
     const d = state.ad ? state.ad.st.duration : 6;
@@ -291,7 +356,7 @@ function buildPanel() {
     state.sound = !state.sound; $("sound").setAttribute("aria-pressed", String(state.sound)); $("sound").innerHTML = state.sound ? "&#128266;" : "&#128263;";
     if (state.sound && state.playing) startAudio(curT()); else stopAudio();
   });
-  $("download").addEventListener("click", download);
+  $("download").addEventListener("click", () => download());
   document.addEventListener("keydown", e => { if (e.target.matches("input,select,textarea")) return; if (e.key === " ") { e.preventDefault(); togglePlay(); } if (e.key === "n") shuffle(false); });
 }
 
@@ -316,8 +381,13 @@ async function shuffle(all) {
   if (pool.length) locked.delete("phones"); else locked.add("phones");
   const btns = [$("shuffle-look"), $("shuffle-all")]; btns.forEach(b => b.disabled = true);
   try {
-    state.style = $("strong-only").checked ? await strongSeed(state.style, locked, pool, all)
-      : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
+    try {
+      state.style = $("strong-only").checked ? await strongSeed(state.style, locked, pool, all)
+        : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
+    } catch (e) {                                   // the attention check failed: shuffle without it
+      console.warn("Strong-look search failed, shuffling without it:", e);
+      state.style = randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
+    }
   } finally { btns.forEach(b => b.disabled = false); }
   state.style.number = state.style.number;              // the number is never shuffled
   save(); syncWords(); drawPhonePicker(); rebuild();
@@ -454,53 +524,369 @@ function drawPhonePicker() {
 
 // ------------------------------------------------------------ more looks
 
+/* The gallery spans the page and is sorted by look: a shelf per LA vibe, per look made
+   for the audiences and per family of approved themes, and four studio shelves of plain
+   looks by what the ground does. All shows a row of every shelf; a chip shows one shelf.
+   Either way it draws 24 looks at a time: Show 24 more adds the next, and so does
+   scrolling to its end, up to 96 on one shelf. A look plays when it is pointed at, and
+   with Play them all every look on screen moves. A look picked from a shelf keeps that
+   shelf's vibe, so New look stays in it.
+   (Owner, 2026-09-30: eight at a time "doesn't show enough"; "organize/categorize".) */
+const STUDIO = {
+  clean:   { label: "Clean gradients", backgrounds: ["radial", "flat", "linear", "duotone", "tonal", "spotlight", "split", "rays_bold"] },
+  pattern: { label: "Patterns", backgrounds: ["dots", "stripes", "grid", "checker", "halftone", "rings", "waves", "halftone_duo", "halftone_comic", "halftone_lines", "checker_diamond", "checker_floor"] },
+  light:   { label: "Light and glow", backgrounds: ["rays", "sunburst", "beams", "bokeh", "aurora", "drift", "mesh", "rays_corner", "beams_cross", "beams_stage"] },
+  bold:    { label: "Bold and loud", backgrounds: ["bigword", "confetti", "frame", "noise"] },
+};
+// the approved themes, one shelf per family (each thumbnail a different theme of it)
+const familyShelves = THEME_FAMILIES.map(f => ({ f, ids: Object.keys(VIBES).filter(id => VIBES[id].family === f) })).filter(x => x.ids.length)
+  .map(({ f, ids }) => ({ id: "family-" + f.toLowerCase().replace(/[^a-z]+/g, "-"), group: "Themes", label: f, vibes: ids }));
+const SHELVES = [
+  ...Object.entries(VIBES).filter(([, v]) => !v.family).map(([id, v]) => ({ id, group: v.la === false ? "Audience looks" : "LA looks", label: v.label, vibe: id })),
+  ...familyShelves,
+  ...Object.entries(STUDIO).map(([id, g]) => ({ id: "studio-" + id, group: "Studio", label: g.label, backgrounds: g.backgrounds.filter(b => OPTIONS.background.includes(b)) })),
+];
+const GALLERY_PAGE = 24, SHELF_MAX = 96, THUMB_MAX = 320;
+// A look keeps its engine, to play, only where it can be pointed at or with Play them all
+// on; anywhere else it stays a still until it is asked to move, so a long gallery stays
+// light on a phone.
+const HOVER = matchMedia("(hover: hover) and (pointer: fine)").matches;
+const keepAds = () => HOVER || state.galleryPlay;
+const thumbs = [];                                   // what the gallery can play: { el, st, w, h, ad, ctx, t0, lastT, last, hover, seen, moving }
+
+/** A look drawn for one shelf: its vibe (or a studio ground) held, the rest from the
+ *  seed. A vibe paints its own palette, ground, faces and sign, so a vibe's shelf frees
+ *  those locks, as picking the vibe by hand does. */
+function shelfStyle(shelf, seed) {
+  const locked = new Set(state.locked); locked.add("vibe");
+  const base = { ...state.style, vibe: shelf.vibes ? shelf.vibes[seed % shelf.vibes.length] : shelf.vibe || "none" };
+  if (shelf.backgrounds) { locked.add("background"); base.background = shelf.backgrounds[seed % shelf.backgrounds.length]; }
+  else VIBE_AXES.forEach(a => locked.delete(a));
+  return harmonise(randomize(base, seed, locked, [], false), locked, indexById());
+}
+
+/** What a look is called under its thumbnail: its vibe, or for a plain look its ground. */
+const lookName = st => st.vibe && st.vibe !== "none" && VIBES[st.vibe] ? VIBES[st.vibe].label
+  : (GROUND_CANDIDATES[st.background] || {}).label || labelFor("background", st.background);
+
+/** One shelf's next look as a thumbnail. A look that will not draw is skipped for the
+ *  next seed, so a bad look leaves a gap at most, never a stopped gallery. */
+async function shelfThumb(shelf, W, H, k, lock) {
+  for (let tries = 0; tries < 2; tries++) {
+    const seed = state.gallerySeed++;
+    try { return await thumb(shelfStyle(shelf, seed), Math.round(W * k), Math.round(H * k), lock); }
+    catch (e) { console.warn("Gallery look " + seed + " skipped:", e); }
+  }
+  return null;
+}
+
+/** The look, still, as a button that uses it, with its caption under it. lock: using it
+ *  keeps its vibe, so New look stays in the shelf it came from. */
+async function thumb(st, w, h, lock) {
+  await loadFonts(fontsFor(st));
+  const ad = new Ad(st, state.assets, w, h);
+  const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
+  const frame = document.createElement("span"); frame.className = "mo-thumb-img";
+  const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
+  const ctx = c.getContext("2d");
+  ad.stillAt(ctx);
+  frame.appendChild(c); b.appendChild(frame);
+  const name = lookName(st), font = labelFor("font", st.font);
+  b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font} · ${labelFor("hook", st.hook)}</small></span>`);
+  b.setAttribute("aria-label", `Use this look: ${name}, ${font}`);
+  const th = { el: b, st, w, h, ad: keepAds() ? ad : null, ctx, t0: 0, lastT: 0, last: 0, hover: false, seen: false, moving: false };
+  const hover = on => { th.hover = on; if (on) th.moving = false; };
+  b.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") hover(true); });
+  b.addEventListener("pointerleave", () => hover(false));
+  b.addEventListener("focus", () => hover(true)); b.addEventListener("blur", () => hover(false));
+  b.addEventListener("click", () => {
+    pushHistory();
+    state.style = { ...st, number: state.style.number, phones: state.style.phones };
+    if (lock) { state.locked.add("vibe"); VIBE_AXES.forEach(a => state.locked.delete(a)); }   // New look stays in the shelf browsed
+    save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  thumbs.push(th);
+  if (state.thumbSeen) state.thumbSeen.observe(b);
+  return b;
+}
+
+function buildGallery() {
+  const cur = state.galleryCat || "all";
+  let html = `<button role="radio" data-cat="all" aria-checked="${cur === "all"}">All</button>`, grp = null;
+  for (const s of SHELVES) {
+    if (s.group !== grp) { grp = s.group; html += `<span class="mo-chip-grp">${grp}</span>`; }
+    html += `<button role="radio" data-cat="${s.id}" aria-checked="${cur === s.id}">${s.label}</button>`;
+  }
+  $("gallery-cats").innerHTML = html;
+  $("gallery-cats").addEventListener("click", e => { const b = e.target.closest("[data-cat]"); if (b) setShelf(b.dataset.cat); });
+  $("gallery").addEventListener("click", e => { const b = e.target.closest(".mo-link[data-cat]"); if (b) setShelf(b.dataset.cat); });
+  $("play-all").checked = state.galleryPlay;
+  $("play-all").addEventListener("change", e => { state.galleryPlay = e.target.checked; save(); });
+  $("more").addEventListener("click", () => renderGallery(false));
+  $("browse").addEventListener("click", e => { e.preventDefault(); $("looks").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  if ("IntersectionObserver" in window) {
+    state.thumbSeen = new IntersectionObserver(es => es.forEach(en => { const th = thumbs.find(x => x.el === en.target); if (th) th.seen = en.isIntersecting; }), { rootMargin: "80px" });
+    // the end of the gallery coming near the screen draws the next batch
+    new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) renderGallery(false); }, { rootMargin: "600px" }).observe($("gallery-end"));
+  }
+  requestAnimationFrame(thumbLoop);
+}
+
+function setShelf(cat) {
+  if (cat === (state.galleryCat || "all")) return;
+  state.galleryCat = cat; save();
+  document.querySelectorAll("#gallery-cats [data-cat]").forEach(x => x.setAttribute("aria-checked", String(x.dataset.cat === cat)));
+  renderGallery(true);
+  $("gallery-cats").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+/** Runs fn once el is within a screen's height of view (at once where that cannot be watched). */
+function whenNear(el, fn) {
+  if (!("IntersectionObserver" in window)) { fn(); return; }
+  const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); fn(); } }, { rootMargin: "100% 0px" });
+  io.observe(el);
+}
+
+/** Plays the looks: the one under the pointer every frame, and with "Play them all" the
+ *  ones on screen at about 15 frames a second, in turns, inside a small budget per frame
+ *  so the big preview never stutters. A look kept as a still gets its engine back when it
+ *  is asked to move, one look a frame. */
+function thumbLoop(now) {
+  const n = thumbs.length, budgetEnd = performance.now() + 7;
+  let built = false;
+  const ready = th => {
+    if (th.ad) return true;
+    if (built || th.broken) return false;
+    built = true;
+    try { th.ad = new Ad(th.st, state.assets, th.w, th.h); return true; } catch (e) { th.broken = true; return false; }
+  };
+  const draw = th => {
+    if (!ready(th)) return;
+    const d = th.ad.st.duration;
+    if (!th.moving) { th.moving = true; th.t0 = now; th.lastT = 0; th.ad.still = null; }
+    const t = ((now - th.t0) / 1000) % (d + .8);
+    if (t < th.lastT) th.ad.still = null;           // looped: the phones fly in again
+    th.lastT = t; th.last = now;
+    th.ad.frame(th.ctx, Math.min(t, d - .001), { subsFly: 1, subsMove: 1 });
+  };
+  for (const th of thumbs) {
+    if (th.hover) draw(th);
+    else if (th.moving && !(state.galleryPlay && th.seen)) {
+      th.moving = false; th.ad.stillAt(th.ctx);
+      if (!keepAds()) th.ad = null;                  // back to a still
+    }
+  }
+  if (state.galleryPlay && n) {
+    for (let j = 0; j < n && performance.now() < budgetEnd; j++) {
+      const i = (state.thumbCursor = ((state.thumbCursor || 0) + 1) % n), th = thumbs[i];
+      if (th.hover || !th.seen || now - th.last < 62) continue;
+      draw(th);
+    }
+  }
+  requestAnimationFrame(thumbLoop);
+}
+
+const galleryDone = () => (state.galleryCat || "all") === "all" ? state.galleryShelf >= SHELVES.length : state.galleryShown >= SHELF_MAX;
+const nearEnd = () => { const e = $("gallery-end"); return e && e.getBoundingClientRect().top < innerHeight + 600; };
+
+/** The button under the gallery says how many the next batch adds, and goes at the end. */
+function syncMore() {
+  const b = $("more"), row = state.galleryRow || 4;
+  const next = (state.galleryCat || "all") === "all" ? Math.min(SHELVES.length - state.galleryShelf, Math.ceil(GALLERY_PAGE / row)) * row
+    : Math.min(GALLERY_PAGE, SHELF_MAX - state.galleryShown);
+  b.hidden = galleryDone(); b.disabled = false; b.textContent = `Show ${next} more`;
+}
+
 async function renderGallery(reset) {
+  if (!state.galleryOn) return;                      // not started yet: it starts as it comes near the screen
   const g = $("gallery");
   // a reset starts a new gallery; one still drawing from before stops rather than
-  // adding thumbnails of the old size or the old number to the new one
-  if (reset) { g.innerHTML = ""; state.galleryGen = (state.galleryGen || 0) + 1; }
-  const gen = state.galleryGen || 0;
-  const [W, H] = ASPECTS[state.style.aspect] || ASPECTS["1:1"];
-  const k = 300 / Math.max(W, H);
-  for (let i = 0; i < 8; i++) {
-    if (gen !== (state.galleryGen || 0)) return;
-    const seed = state.gallerySeed++;
-    const st = harmonise(randomize(state.style, seed, state.locked, [], false), state.locked, indexById());
-    await loadFonts(fontsFor(st));
-    if (gen !== (state.galleryGen || 0)) return;
-    const ad = new Ad(st, state.assets, Math.round(W * k), Math.round(H * k));
-    const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
-    const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
-    ad.stillAt(c.getContext("2d"));
-    b.appendChild(c); b.insertAdjacentHTML("beforeend", `<span>${st.vibe && st.vibe !== "none" ? VIBES[st.vibe].label : labelFor("font", st.font)}</span>`);
-    b.addEventListener("click", () => { pushHistory(); state.style = { ...st, number: state.style.number, phones: state.style.phones }; save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); });
-    g.appendChild(b);
-    await new Promise(r => setTimeout(r, 0));
+  // adding thumbnails of the old size, the old number or the old shelf to the new one
+  if (reset) {
+    g.innerHTML = ""; state.galleryGen = (state.galleryGen || 0) + 1;
+    state.galleryShown = 0; state.galleryShelf = 0; state.galleryGroup = null;
+    thumbs.forEach(th => state.thumbSeen && state.thumbSeen.unobserve(th.el)); thumbs.length = 0;
+    $("looks-count").textContent = "";
   }
+  const gen = state.galleryGen || 0, live = () => gen === (state.galleryGen || 0);
+  if (state.galleryBusy === gen || galleryDone()) return;
+  const [W, H] = ASPECTS[state.style.aspect] || ASPECTS["1:1"];
+  const k = THUMB_MAX / Math.max(W, H), cat = state.galleryCat || "all";
+  // the thumbnails take the shape of the size chosen, a wide one in a wider column; a
+  // shelf in All fills one row of them, and has at least four
+  const min = H > W * 1.2 ? 150 : W > H * 1.2 ? 250 : 180;
+  g.style.setProperty("--ar", `${W} / ${H}`); g.style.setProperty("--thumb-min", min + "px");
+  if (reset) state.galleryRow = Math.max(4, Math.floor((g.clientWidth + 12) / (min + 12)));
+  state.galleryBusy = gen; $("more").disabled = true;
+  const shown = () => { $("looks-count").textContent = `${thumbs.length} shown`; };
+  let made = 0;
+  try {
+    if (cat === "all") {
+      while (made < GALLERY_PAGE && state.galleryShelf < SHELVES.length) {
+        const shelf = SHELVES[state.galleryShelf++];
+        if (shelf.group !== state.galleryGroup) { state.galleryGroup = shelf.group; g.insertAdjacentHTML("beforeend", `<h3 class="mo-shelf-grp">${shelf.group}</h3>`); }
+        const sec = document.createElement("section"); sec.className = "mo-shelf";
+        sec.innerHTML = `<header><h4>${shelf.label}</h4><button class="mo-link" data-cat="${shelf.id}">See all &rsaquo;</button></header><div class="mo-gallery"></div>`;
+        g.appendChild(sec);
+        const grid = sec.querySelector(".mo-gallery");
+        for (let i = 0; i < state.galleryRow; i++) {
+          const b = await shelfThumb(shelf, W, H, k, false);
+          if (!live()) return;
+          if (b) { grid.appendChild(b); made++; shown(); }
+          await new Promise(r => setTimeout(r, 0));
+        }
+      }
+    } else {
+      const shelf = SHELVES.find(s => s.id === cat);
+      let grid = g.querySelector(".mo-gallery");
+      if (!grid) { grid = document.createElement("div"); grid.className = "mo-gallery"; g.appendChild(grid); }
+      for (let i = 0; i < GALLERY_PAGE && state.galleryShown < SHELF_MAX; i++) {
+        const b = await shelfThumb(shelf, W, H, k, true);
+        if (!live()) return;
+        if (b) { grid.appendChild(b); made++; shown(); }
+        state.galleryShown++;                          // a look skipped still counts, so a shelf that will not draw ends
+        await new Promise(r => setTimeout(r, 0));
+      }
+    }
+  } finally { if (state.galleryBusy === gen) { state.galleryBusy = null; syncMore(); } }
+  // still in view after a batch (a tall screen): keep going
+  if (live() && made && nearEnd()) renderGallery(false);
 }
 
 // ------------------------------------------------------------ download
 
-async function download() {
-  const btn = $("download"); btn.disabled = true;
+// Plain words for what went wrong, and what the person can do about it.
+function exportTrouble(e) {
+  const m = String((e && e.message) || e || "");
+  if (e && e.code === "no-recorder") return ["This browser cannot make videos", "It has neither a video encoder nor a screen recorder that works on this page."];
+  if (e && e.code === "no-h264") return ["This browser cannot write MP4", "It cannot encode H.264 video at this size."];
+  if (VH().isMemory(e)) return ["Your device ran out of memory", "Even at a smaller size the video did not fit in this device's memory. Close other tabs or apps, then try again."];
+  if (e && e.code === "frames") return ["This look could not be drawn", "Too many frames of this look failed to draw. Try New look, or change the setting you changed last."];
+  if (e && (e.name === "EncodingError" || e.name === "NotSupportedError" || /encoder|codec/i.test(m))) return ["The video encoder stopped", "Every way this browser has of making the video failed. Try again, or use another browser."];
+  return ["The video could not be made", "Every way this browser has of making the video failed. The details are below."];
+}
+
+/* Real time, until it is done: if the tab goes into the background the
+   recording would freeze, so it waits for the person to come back and starts
+   again instead of failing. */
+async function recordUntilDone(ad, audioBuf, prog, note) {
+  for (let k = 0; ; k++) {
+    if (document.hidden) { note("Paused: come back to this tab and the recording starts again."); await VH().waitVisible(); }
+    note("Recording in real time: keep this tab on screen for about " + Math.ceil(ad.st.duration) + " seconds.");
+    try { return await recordRealtime(ad, prog, { audioBuf }); }
+    catch (e) { if (e.code !== "hidden" || k >= 5) throw e; }
+  }
+}
+
+/* Every way of making the video, best first. A failure moves on rather than
+   stopping: the MP4 encoder again in software, then real time; the sound is
+   dropped if it is what fails, and the size comes down if memory runs out.
+   Only when every way has failed does the pop-up come up, and it says what
+   was tried and what would fix it. */
+async function download(opts = {}) {
+  const how = opts.how || "auto", withSound = opts.sound !== false;
+  const btn = $("download"); if (btn.disabled) return; btn.disabled = true;
+  const H = VH();
   $("progress").hidden = false; $("export-note").textContent = "";
+  const note = t => { $("export-note").textContent = t; };
   const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
+  const checkFor = ad => H.check({ w: ad ? ad.W : 1080, h: ad ? ad.H : 1080, fps: 30, sound: withSound, muxer: typeof window.Mp4Muxer !== "undefined" });
+  let ad = null;
+  const tried = [];
   try {
     const st = harmonise({ ...state.style }, state.locked, indexById());
     await loadFonts(fontsFor(st));
-    const ad = new Ad(st, state.assets);            // full size
-    let out;
-    if (canEncode()) out = await exportMp4(ad, prog);
-    else { $("export-note").textContent = "This browser records in real time: keep this tab in front for a few seconds."; out = await recordRealtime(ad, prog); }
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(out.blob);
-    a.download = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${out.ext}`;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 60000);
-    $("export-note").textContent = `Saved ${a.download} (${(out.blob.size / 1e6).toFixed(1)} MB${out.audio ? ", with sound" : ", no sound: this browser cannot encode audio"}).`;
+    const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
+    let scale = 1;
+    const even = v => Math.max(2, Math.round(v / 2) * 2);   // H.264 wants even sides
+    const build = () => (scale === 1 ? new Ad(st, state.assets) : new Ad(st, state.assets, even(W0 * scale), even(H0 * scale)));
+    ad = build();
+    // the sound is made once, up front; if it will not come, the video is made silent
+    let buf = null, soundErr = null, soundDropped = null;
+    if (withSound) {
+      prog(0, "Mixing the sound");
+      try { buf = await H.retry(() => renderSoundtrack(ad), { tries: 2 }); }
+      catch (e) { soundErr = e; console.error("Soundtrack failed, making the video without sound:", e); }
+    }
+    const steps = [];
+    if (how === "auto" && await canEncode(ad.W, ad.H)) {
+      steps.push({ id: "mp4", label: "the MP4 encoder", run: a => exportMp4(a, prog, { audioBuf: buf }) });
+      steps.push({ id: "mp4-sw", label: "the MP4 encoder in software", say: "Trying the MP4 encoder again in software…",
+        skip: e => e && e.code === "no-h264", run: a => exportMp4(a, prog, { audioBuf: buf, software: true }) });
+    }
+    if (recorderMime() !== null) steps.push({ id: "live", label: "real-time recording", run: a => recordUntilDone(a, buf, prog, note) });
+    let out = null, last = null, mp4Failed = false;
+    for (let i = 0; i < steps.length && !out; i++) {
+      const step = steps[i];
+      if (step.skip && step.skip(last)) continue;
+      if (step.say) note(step.say);
+      try { out = await step.run(ad); out.via = step.id; }
+      catch (e) {
+        last = e; tried.push(step.label + ": " + String(e.message || e)); console.warn(step.label + " failed:", e);
+        if (step.id !== "live" && e.code !== "no-h264") mp4Failed = true;
+        if (H.isMemory(e) && scale > .5) { scale = scale === 1 ? .67 : .5; ad = build(); note("Low on memory: making it smaller…"); i--; continue; }
+        if (buf && (e.code === "audio" || step.id === "live")) { buf = null; soundDropped = e; note("Trying again without the sound…"); i--; continue; }
+      }
+    }
+    if (!out) throw last || Object.assign(new Error("This browser cannot record video."), { code: "no-recorder" });
+
+    const name = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${out.ext}`;
+    saveVideo(out.blob, name);
+    const silent = withSound && !out.audio;
+    $("export-note").textContent = `Saved ${name} (${ad.W}×${ad.H}, ${(out.blob.size / 1e6).toFixed(1)} MB${out.audio ? ", with sound" : withSound ? ", no sound" : ", without sound"}). `;
+    offerAgain(out.blob, name);
+    // saved, but not everything that was asked for: say what happened and how to get the rest
+    const catches = [];
+    if (out.ext !== "mp4") catches.push("It was saved as WebM, because this browser cannot write MP4. Instagram and TikTok may refuse WebM.");
+    if (scale < 1) catches.push(`It was made at ${ad.W}×${ad.H} instead of ${W0}×${H0}, because this device ran low on memory at full size.`);
+    if (out.via === "live" && mp4Failed) catches.push("The MP4 encoder failed, so it was recorded in real time instead, which can be less smooth.");
+    if (silent) catches.push(soundErr ? "The soundtrack could not be made, so the video has no sound." : soundDropped ? "The sound would not go into the video, so it was saved without it." : "This browser could not add the sound, so the video has no sound.");
+    if (H.inApp) catches.push("You are in an app's built-in browser, which often does not keep downloads. If the video does not show up, use Share or open this page in your phone's browser.");
+    if (catches.length) {
+      const report = await checkFor(ad).catch(() => null);
+      const actions = [];
+      if (H.canShareFiles()) actions.push({ label: "Share or save to Photos", primary: true, run: () => H.share(out.blob, name) });
+      if (silent || scale < 1 || out.via === "live") actions.push({ label: "Try again", run: () => download(opts) });
+      H.show({ tone: "info", title: "Video saved, with a catch", message: catches.join(" "), error: tried.join("\n"), report, actions });
+    }
   } catch (e) {
-    console.error(e); $("export-note").textContent = "The video could not be made here: " + (e.message || e) + " Try Chrome or Edge.";
+    console.error(e);
+    const [title, message] = exportTrouble(e);
+    note(title + ". " + message);
+    const report = await checkFor(ad).catch(() => null);
+    if (report && report.none) {
+      // nothing to retry: the fix is another browser, which the pop-up offers
+      note("This browser cannot make videos. Open this page in Chrome, Edge or Safari 17+.");
+      H.show({ title: "This browser cannot make videos", message: "It has no way to encode or record a video on this page. Open this page in " + (/iPhone|iPad/.test(navigator.userAgent) ? "Safari 17 or newer" : "Chrome, Edge or Safari 17+") + " to download it.", report, actions: [] });
+    } else {
+      const actions = [{ label: "Try again", primary: true, run: () => download(opts) }];
+      if (withSound && (!report || report.soundless)) actions.push({ label: "Download without sound", run: () => download({ ...opts, sound: false }) });
+      if (e.code === "frames") actions.unshift({ label: "New look", primary: true, run: () => shuffle(false) });
+      H.show({ title, message, error: tried.length ? "Tried " + tried.join("\n") : String(e.message || e), report, actions });
+    }
   } finally { btn.disabled = false; setTimeout(() => { $("progress").hidden = true; }, 1500); }
+}
+
+function saveVideo(blob, name) {
+  if (VH().save) return VH().save(blob, name);
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 600000);
+}
+
+/* A download can be dropped without a word (an app's built-in browser, a
+   blocked pop-up, a phone that saved it somewhere unexpected): keep a way to
+   save it again, and on a phone the share sheet, until the next video. */
+function offerAgain(blob, name) {
+  const n = $("export-note");
+  const again = document.createElement("button"); again.className = "mo-link"; again.type = "button"; again.textContent = "Save again";
+  again.addEventListener("click", () => saveVideo(blob, name));
+  n.appendChild(again);
+  if (VH().canShareFiles()) {
+    const sh = document.createElement("button"); sh.className = "mo-link"; sh.type = "button"; sh.textContent = "Share or save to Photos";
+    sh.addEventListener("click", () => VH().share(blob, name));
+    n.appendChild(sh);
+  }
 }
 
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
@@ -509,14 +895,50 @@ function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTi
 
 (async function main() {
   restore();
-  buildPanel();
-  await loadVoiceBank();
-  const { phones, index } = await loadPhones("./phones/");
+  try { buildPanel(); buildGallery(); }
+  catch (e) {
+    // a look saved by an older version can break the panel: clear it and start once more
+    console.error("The panel could not be built:", e);
+    let again = false;
+    try { again = !sessionStorage.getItem("pgfx_motion_reset"); sessionStorage.setItem("pgfx_motion_reset", "1"); localStorage.removeItem(STORE); } catch (x) { /* storage off */ }
+    if (again) { location.reload(); return; }
+    VH().show({ title: "The video maker could not start", message: "Reloading the page usually clears it. If it keeps happening, try another browser.", error: String(e.message || e),
+      actions: [{ label: "Reload the page", primary: true, run: () => location.reload() }] });
+    return;
+  }
+  await start();
+})();
+
+/* The phones come over the network, so a dropped connection is retried
+   before anything is said, and then the pop-up offers to try again. */
+async function start() {
+  const H = VH();
+  await loadVoiceBank();                            // never fails: without it the ads play music and sound only
+  let got;
+  try {
+    got = await H.retry(async () => {
+      const r = await loadPhones("./phones/");
+      if (!Object.keys(r.phones).length) throw new Error("None of the phone pictures loaded.");
+      return r;
+    }, { tries: 4, delay: 1000, onRetry: () => { $("loading").textContent = "Still loading the phones, trying again…"; } });
+  } catch (e) {
+    console.error(e);
+    $("loading").textContent = "The phones could not load.";
+    H.show({ title: "The phones could not load", message: "The page could not fetch its phone pictures, usually because the connection dropped or a content filter blocked them. Check your internet, then try again.",
+      error: String(e.message || e), actions: [{ label: "Try again", primary: true, run: () => { $("loading").textContent = "Loading phones and fonts…"; start(); } },
+        { label: "Reload the page", run: () => location.reload() }] });
+    return;
+  }
+  const { phones, index } = got;
   state.assets.phones = phones; state.index = index;
+  state.assets.accents = await loadAccents("../assets/cutouts/");
   state.style.phones = state.style.phones.filter(id => phones[id]);
   if (!state.style.phones.length) state.style.phones = DEFAULT_PHONES.filter(id => phones[id]);
+  try { sessionStorage.removeItem("pgfx_motion_reset"); } catch (e) { /* storage off */ }
   syncWords(); drawPhonePicker();
   await rebuild();
-  requestAnimationFrame(loop);
-  renderGallery(true);
-})();
+  if (!state.looping) { state.looping = true; requestAnimationFrame(loop); }
+  // the gallery is drawn as it comes near the screen: two dozen looks laid out while the
+  // preview first plays would stall it, and a visit starts at the top
+  whenNear($("looks"), () => { if (state.galleryOn) return; state.galleryOn = true; renderGallery(true).catch(e => console.warn("Gallery:", e)); });
+}
