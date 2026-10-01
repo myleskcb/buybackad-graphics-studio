@@ -39,7 +39,9 @@ async function measure(page, id, rec){
       const { sc } = __sc.paint(t); out.gallery = codes(pgCheck(sc)); sc.dispose();
       /* Easy Mode, from this record */
       await scLoadIndex();
-      account = { email: 'audit@local', role: 'admin', plan: 'pro' };
+      /* an operator sees every card (premium ones open the plans dialog for a
+         free visitor); the app's own account load must not undo that */
+      account = { email: 'audit@local', role: 'admin', plan: 'pro' }; loadAccount = async () => account;
       const tid = 'sc-' + id, k = TEMPLATES.findIndex(x => x.id === tid);
       if (k >= 0) TEMPLATES.splice(k, 1);
       SHOWCASE.records[id] = rec;
