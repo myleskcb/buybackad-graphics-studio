@@ -13967,7 +13967,7 @@ function ezTagAutoStops(look){
   if (TAGLINE_GRADIENTS[g]) return TAGLINE_GRADIENTS[g].stops.slice();
   const acc = hexToOklch(pal.accent) || { L: 0.7, C: 0.15, h: 250 }, sup = hexToOklch(pal.support || pal.accent) || acc;
   const h0 = acc.C >= 0.04 ? acc.h : sup.h, at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
-  if (look === 'multicolor') return [0, 72, 144, 216, 288].map(d => at(0.8, 0.17, h0 + d));
+  if (look === 'multicolor') return pal.fx && pal.fx.letters && pal.fx.letters.length > 1 ? pal.fx.letters.slice() : [0, 72, 144, 216, 288].map(d => at(0.8, 0.17, h0 + d));   // a theme's letters are its own colours (thFx)
   if (g === 'pair') return [at(0.8, 0.15, acc.h), at(0.8, 0.15, sup.h)];
   if (g === 'street'){
     const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
@@ -17619,12 +17619,24 @@ function themeScene(sc, th, W, H, opts){
      a plate another plate stands on (reviewProof-cd06-15's call-to-action bar
      under its number box): a look that matches plates to its gradient then
      has to read dark words and white digits on one colour, and sank the bar
-     to black under its dark words. */
+     to black under its dark words. "No job" is by area: three small ticks in
+     the accent's job left Navy & Gold on checklistHero-jw07-15 with no gold
+     to see, so under 1.5% of the card counts as none, and with no support
+     plate the number's own plate (or the call to action's, a fifth of the
+     card at most) takes it. A
+     two-colour palette's accent is its ink, everywhere already. */
   let promote = null;
-  if (!words.some(t => { const w = before.get(t); return w && thRoleOf(w.ink, src) === 'accent'; }) && !plates.some(p => plateRole(p) === 'accent')){
-    const sup = plates.filter(p => plateRole(p) === 'support' && !plates.some(q => q !== p && hostOf(q) === p));
-    promote = sup.find(p => words.some(t => host.get(t) === p && (t.pgRole === 'phone' || t.pgRole === 'cta')))
-      || sup.sort((a, b) => box(b).w * box(b).h - box(a).w * box(a).h)[0] || null;
+  const areaOf = o => box(o).w * box(o).h;
+  const accentArea = words.filter(t => { const w = before.get(t); return w && thRoleOf(w.ink, src) === 'accent'; }).reduce((n, t) => n + areaOf(t), 0)
+    + plates.filter(p => plateRole(p) === 'accent').reduce((n, p) => n + areaOf(p), 0);
+  if (T.accent !== T.ink && accentArea < 0.015 * W * H){
+    const free = p => !plates.some(q => q !== p && hostOf(q) === p);
+    const carries = (p, role) => words.some(t => host.get(t) === p && t.pgRole === role);
+    const sup = plates.filter(p => plateRole(p) === 'support' && free(p));
+    const own = plates.filter(p => free(p) && plateRole(p) !== 'support' && plateRole(p) !== 'ground' && areaOf(p) < 0.2 * W * H);
+    promote = sup.find(p => carries(p, 'phone') || carries(p, 'cta'))
+      || sup.sort((a, b) => areaOf(b) - areaOf(a))[0]
+      || own.find(p => carries(p, 'phone')) || own.find(p => carries(p, 'cta')) || null;
   }
   plates.slice().sort((a, b) => objs.indexOf(a) - objs.indexOf(b)).forEach(p => {
     const cs = thStops(p.fill).map(thParse).filter(Boolean);

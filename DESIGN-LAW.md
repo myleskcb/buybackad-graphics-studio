@@ -3707,10 +3707,14 @@ card as designed draws as it did.
 
 **The palette's accent shows.** A card whose own colours gave the accent no
 job (slabPoster-pp04-15: its one plate is its support colour, its words
-white) drew Navy & Gold with no gold and Red, White & Blue with no red. With
-no line and no plate in the accent's job, the support plate that carries the
-number or the call to action, else the largest, takes the accent, never a
-plate another plate stands on.
+white) drew Navy & Gold with no gold and Red, White & Blue with no red; on
+checklistHero-jw07-15 three small ticks were the accent's whole job, and no
+gold could be seen. When the lines and plates in the accent's job cover
+under 1.5% of the card, the support plate that carries the number or the
+call to action takes the accent, else the largest support plate, else the
+number's own plate (or the call to action's) up to a fifth of the card;
+never a plate another plate stands on. A two-colour palette's accent is its
+ink, everywhere already.
 
 **A plate matched to a look's gradient goes lighter or darker by its own
 words.** The card looks that match plates to their gradient (Signature,
@@ -3724,9 +3728,15 @@ comes from the words standing on the plate itself.
 **Measured.**
 
 - All 52 themes on 18 cards (one live card of each library layout, three
-  classics): 954 renders, 953 pass the gate; the one that failed ('hues',
-  Blue & Green on reviewProof-cd06-15, the cyan that slid) passes with the
-  fold above. The 21 older themes on those cards: 3 held on `main`, 0 fail.
+  classics): 954 renders, 954 pass the gate on the final build. A first run
+  failed one ('hues', Blue & Green on reviewProof-cd06-15, the cyan that
+  slid), fixed by the fold above. The 21 older themes on those cards: 3 held
+  on `main`, 0 fail.
+- `every_card_audit.mjs` on the first six classics before it was stopped
+  (top_buyer to gold_estate): all 52 themes pass on all six.
+- `designer_audit.mjs`: the 52 themes change every card it opens and ORIG
+  puts them back, except bandKnockout-pp04-15, which ORIG does not restore on
+  `main` either.
 - Every card as designed is unchanged: the 78 live cards whose own look
   matches plates, drawn as renderThumb draws them with `main`'s app.js and
   with this one, differ by at most 0.71% of pixels (median 0.16%), and the
