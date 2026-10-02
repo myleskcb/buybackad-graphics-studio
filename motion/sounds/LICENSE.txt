@@ -1,0 +1,12 @@
+Sounds in this folder
+
+Every recording here comes from the Versilian Community Sample Library (VCSL),
+https://github.com/sgossner/VCSL, released under CC0 1.0 Universal (public domain
+dedication): free for any use, commercial included, with no credit owed.
+index.json names the exact VCSL file behind every sound.
+
+They were trimmed, levelled, tuned and encoded by scripts/build_motion_sounds.py.
+
+The tunes the video maker plays with them (motion/music.js) are compositions
+published before 1931, public domain in the United States. What plays is the
+app's own performance of each tune, never anyone else's recording.

@@ -45,7 +45,7 @@ export async function openStudio(query = ''){
         const load = (src, store) => new Promise(r => { if (store === TPL_BG_ELS && isDrawnSrc(src)) return loadDrawnBg(src).then(r);
           if (!src || (store[src] && store[src].width)) return r();
           const el = new Image(); el.onload = () => { store[src] = el; r(); }; el.onerror = () => r();
-          /* the first classics' photographs ship inside tplbg-data.js, not as files */
+          /* the first classics' photographs shipped inside tplbg-data.js until 2026-10-01; files now */
           el.src = (store === TPL_BG_ELS && window.TPL_BG_DATA && TPL_BG_DATA[src]) || src; });
         await Promise.race([
           Promise.all([...fams].map(f => ensureFont(f).then(() => document.fonts.load('700 40px "' + f + '"').catch(() => {})))

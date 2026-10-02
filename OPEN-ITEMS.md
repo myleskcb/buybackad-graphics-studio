@@ -282,8 +282,8 @@ either would put August code over September work. Their still-useful parts
 are listed to port, each checked against the trunk on 2026-09-27:
 
 `claude/busy-allen-2d5iv1` (photo standard, 317597c):
-1. **`tplbg-data.js` is still a 635KB render-blocking base64 script** on the
-   trunk. Port: move the eight classic photos to `assets/tplbg/` files.
+1. ~~**`tplbg-data.js` is still a 635KB render-blocking base64 script**~~
+   Ported 2026-10-01 (§Y): the eight photos are files in `assets/tplbg/`.
 2. **No asset cache-busting** (`ASSET_REV` absent) while art is cached 30 days,
    so a replaced photo never reaches a returning visitor. Port the `?v=` revision.
 3. The photo standard itself (subject fill, tone band, 1200px) and
@@ -658,6 +658,7 @@ step is measured by the gate before it writes):
 
     node scripts/refresh_showcase.mjs                      # palettes, faces, copy rules, from git HEAD: FIRST, or it discards everything after
     node scripts/import_lab_export.mjs                     # new records from the lab (restores the tone grade: before naturalize)
+    node scripts/repalette_showcase.mjs --write            # palettes only, on the records as they stand (the proven 25, 2026-09-30); any time
     node scripts/number_block.mjs --write                  # the number, big (rule 53)
     node scripts/naturalize_showcase.mjs --write           # photo in its own colour (rule 56)
     node scripts/restage_glasscards.mjs --write            # Glass Card: product on the card (rule 59)
@@ -956,9 +957,9 @@ Merged, in order (the log entry of the same date has the numbers):
 Not merged, on purpose (§J): `claude/busy-allen-2d5iv1` (the photo standard)
 and `claude/quirky-ritchie-f0zuc8` (the design console) are cut from the
 August `main`; merged, they would lay August code over September's. Port from
-them. Still worth porting: busy-allen's move of `tplbg-data.js` (a 621 KB
-render-blocking script on every landing load, measured 2026-09-30) to files,
-and the console's pass switches, re-derived for today's pass chain.
+them. Still worth porting: the console's pass switches, re-derived for
+today's pass chain (busy-allen's move of `tplbg-data.js` to files was ported
+on 2026-10-01, §Y).
 
 Open:
 1. **Deploy `main`.** The cloud sessions cannot: the environment's network
@@ -1102,3 +1103,313 @@ Still open:
    tube, which the house's neon motel shares (0.80). Neon stays, the owner's
    first choice; if the audit's reading of a glowing tube is wrong, that is
    a change to the measure, not to the look.
+
+## X. 2026-09-30 (night) — every card, every choice; curves, warps, type pairs
+
+The owner: "make sure all classic and current themes are audited and ready
+for use with new color schemes, new design language, new typefaces / text
+design", "ability to make clean warps and curves", "and pre warped / curved
+for select templates where the design is supportive or designed around that".
+
+Done (DESIGN-LAW rules 99, 100, 101; `scripts/every_card_audit.mjs`):
+- **Curves and warps** on live text, in the designer's Properties and Easy
+  Mode's ✎ menu; arcs bound to their rings; the library's curved headlines
+  take the visitor's words again.
+- **The owner's eighteen type pairs** as a choice for the whole card, in Easy
+  Mode and the designer; two families on every classic.
+- **Every offered card under every choice**, on Easy Mode's render: 735
+  cards, 37,485 renders gated. 16 cards fail as offered and are held; 395 of
+  15,435 theme renders fail (2.6%), 33 of 8,820 looks (0.4%), 1,540 of 13,230
+  voices (11.6%), each held on its card (assets/choice-holds.json): its chip
+  is off, the reason is under the row, a carried pick is set aside there.
+  314 classics and 405 library cards are offered.
+- **The gate, the template audit and the contrast bake** see a line's own
+  backing as its ground; the bake measures each line with the card laid out
+  round it; the template audit judges a line over a line, or anything over a
+  curve, by the letters.
+- **The classics' tables** re-baked on this engine, twice, with held classics
+  baked too and the offer family left as authored: contrast 284 rows on 142
+  classics, numbers 594 layers on 191, grounds 241. The classics gate holds
+  58 (63 in production), the template audit 82 (137): 320 of the 404
+  classics pass both (264), and 314 once the cards that fail as offered are
+  held.
+
+Still open:
+
+1. **The contrast bake repairs by its own measure, not the gate's** (rule 87:
+   one measure). Of the 59 lines the gate fails on the 48 classics held for
+   legibility, 53 have no row in assets/contrast-fix.json: the bake judged
+   them by the mean of an ideal ink against the ground, the gate by the 75th
+   percentile of what the letters actually changed. Have bake_contrast repair
+   any line the gate fails (a critical line under 3:1 by pgCheck's core),
+   then run the chain and sweep the cards it releases (`--ids`).
+2. **A wide voice on a full-width claim.** A voice keeps each line's
+   footprint, so a claim already as wide as the card shrinks in a wider face:
+   987 of the voice holds are a headline under the feed tile's 77px, and
+   Modern (Unbounded) is off on 379 cards, Serif on 197, Retro (Bungee) on
+   187. On a card set in a condensed face the number, held at its 72px floor,
+   also runs off its plate (reviewProof-cd06-15 in Russo One: the headline
+   95px to 53px). Unbounded and Bungee are tall for their width too, so
+   stacked lines run into each other. The answer is a voice that knows its
+   own width: the claim on two lines at size, or a leading and a size floor
+   of the voice's own, and a second layout pass after it.
+3. **A mark vanishes on what it sits on under a theme** (242 of the theme
+   holds, on 22 library cards; the same on production's engine): stepsFlow's
+   step-number boxes, trustSeal's phone cue, small elements. themeScene's
+   marks step fixes a mark against the plate it finds under it (hostOf), and
+   these sit on something it does not count as a plate.
+4. **Headlines under 94px.** With the number at its 72px floor a headline
+   needs 94px to lead by 1.3x (rule 53). Nine hand-built classics (gold_spot,
+   silver_ster, coins_grandpa, coins_graded, strips_clean, strips_pickup,
+   sports_score, sports_goat, pkm_attic) and three lowerThird cards (phones,
+   strips, sports) set theirs smaller, most because the words fill the width.
+   They stay held; the answer is a two-line claim at a larger size, which is
+   the owner's copy to break.
+5. **The visitor's device list overruns a classic's info panel** (§P 5).
+   In Easy Mode the phone pick writes the devices into the info line, three
+   lines where the card drew two: Sell Your iPhone's list runs out of its
+   dark panel onto the cream bar, where its last line is light on light. The
+   settle pass (pgUncover) finds no clear slide onto either plate and does
+   not combine a smaller size with a slide. The card is held as offered; the
+   answer is the body panel that follows its words. The same pass leaves the
+   four topstrip classics' number on their call to action, and eight
+   scriptRetro library cards' number half off its band.
+6. **The tagline critic still hides the whole line** (`taglineCritic`,
+   `fillLegibility`): a look on a line with a backing is judged against the
+   bare photograph. No classic's headline has a backing today. A depth copy
+   (`cloneText`) also copies its line's backing, which would stack panels.
+7. **One-off repair scripts still hide whole layers** (audit_card,
+   clear_number, neutral_panels, repair_showcase_contrast,
+   repair_showcase_ink, support_highlights, tagline_audit, vary_grounds).
+   None of them runs in the classics' chain; switch each to `pgHideInk` when
+   it is next used.
+8. **scripts/neutral_panels.mjs** throws a ReferenceError before it measures
+   anything (found while tracing the gate, not investigated).
+9. ~~**Enhance undoes the face passes.**~~ Fixed 2026-10-01 (§Y): Enhance
+   restores each line as the studio offers the card now (`enhanceTraitOf`:
+   the load-time faces, tables and sizes), and its colours as built
+   (`pgBuilt`, through the ORIG pass), then puts a theme and a type voice
+   back on. Checked on three classics: a hand colour, face and size undone
+   exactly, and theme plus voice as on a fresh card.
+10. ~~**Three patterns change nothing on gold_lux**~~ Fixed 2026-10-01
+    (§Y): a pattern's tone was always dark, black dots on a near-black card.
+    The first pattern now takes the tone that shows on its ground (Easy
+    Mode reads the preview, the designer the ground; Light still turns it
+    over): dots, halftone and grid change 1.6%, 11% and 2.3% of gold_lux
+    (0.1% to 0.4% before).
+11. **The sweep takes about eleven hours on four cores** (the gate reads each
+    line's pixels back after a render: 1.3s a render, more than half of it
+    getImageData). Run it with `--ids` for the cards a change touches, and in
+    full before a release that changes the engine, the themes, the looks or
+    the voices. `--resume` continues a stopped run.
+
+## Y. 2026-10-01 — proven palettes
+
+Done (DESIGN-LAW rule 103, written as 95 on its branch): the showcase's 29 palettes ("Lilac & Citrus",
+"Grape Soda", 19 of them food) replaced by twelve proven pairings (Navy &
+Gold, Navy & Orange, Midnight & Cyan, Blue & Green, Green & Gold, Purple &
+Gold, Teal & Orange, Red & Yellow, Black & Gold, Black & Red, Black & Green,
+Silver & Blue). Colour only: `scripts/repalette_showcase.mjs --write` re-hues
+every record under the luminance lock, then the thumbnails, the colour
+measure and the gate were re-run: 415 of 415 live cards pass, none lost,
+median critical contrast 5.56 to 5.55:1, 0 colour-blind regressions. The palette grid's swatch now
+comes from the card with the most vivid accent (`scBuildFamilies`).
+
+Re-running it: `repalette_showcase.mjs` works on the working tree and maps
+from each card's CURRENT roles, so run it from the commit before this one
+(`git checkout <that>^ -- assets/showcase/`) or it re-hues colours it already
+moved. `refresh_showcase.mjs` now imports `familyOf` from
+`refresh_palettes.mjs`.
+
+Still open:
+
+1. **Light red and light orange are hard.** Pale accent type cannot be red or
+   orange (it reads salmon or peach), so those palettes only go to cards
+   whose accent is mid or dark, and red is further held back by the
+   colour-blind check: Black & Red carries fewer cards than the others. A
+   layout that puts white words on a red plate, rather than red words on
+   black, would let red go further; that is a layout change, not a colour pass.
+2. **The classics** (the 243 in `app.js`) and the Easy Mode colour themes
+   (`THEME_DECKS`) were not touched; they have their own palettes.
+3. Off the owner's Mac the thumbnails were drawn with fabric 5.3.0 from npm
+   (cdnjs, which serves the page's 5.3.1, is blocked here). The gate passed on
+   the same renderer; a re-draw on the Mac would use 5.3.1.
+
+## Z. 2026-10-01 — everything left behind, merged; the UI cleaned up; on `main`
+
+The owner: "clean up the UI and push and commit so we are finally live with
+all working features and all the relevant and necessary features and
+anything left behind. Make sure we fix it."
+
+Thirteen branches carried finished work `main` did not have, several still
+being pushed to while this was merged. Merged into
+`claude/eloquent-euler-7jvzfd` with merge commits (nobody's history
+rewritten), checked, and `main` moved to the result:
+- `claude/fervent-pascal-w6mthe` to 8334c95 and again to 61d77f1, what
+  production served (one colour to a card, rules 95 and 96; the poster look,
+  rule 98);
+- `main` to da82a13 and c60355f (video ads for every kind of person, with
+  voices, rule 97);
+- `claude/sharp-maxwell-q2aq4o` to b97076d (34 phone backs for the video
+  maker, one angle a video, turned phones as 3D slabs);
+- `claude/optimistic-edison-xbbk02` to 7efd7da and again to 470b852 (library
+  cards wear the headline looks, emoji on sparse cards, plates that hug the
+  number, the iPhone 18 lines; the gate's `numCentre`, rule 102);
+- `claude/dreamy-knuth-9123rb` to 2a49223 (the backdrop generator,
+  candidates only; its 25 palettes were merged and then replaced, below);
+- `claude/tender-carson-jq5lbr` to 3e4118c and again to 07cc227 (the
+  palettes' food names, then twelve proven pairings, rule 103, §Y);
+- the video maker's branches, merged by a helper session in its own
+  worktree and brought in at 6f762f6: `claude/kind-hawking-kbuw14` to
+  0a86e83 and 6e71a9c (phones that do not bury one another, shelves by
+  look, 24 ground spin-offs, clean placements, the Phone angle, accents,
+  fifty themes held, what is previewed is what is downloaded),
+  `claude/determined-brown-ned7iy` to d55e9a3 and 672bf3f (phones in flight
+  at frame 0; real instruments, 13 grooves, 16 public-domain tunes and
+  recorded sounds), `claude/more-phone-layouts-3bgshy` to 666b1d4 (15
+  layouts, 11 entrances, a rating round on /admin-ads),
+  `claude/professional-ad-audio-5e9i1b` to 92616bd (the commercial score,
+  -16 LUFS), `claude/fervent-heisenberg-d1edfb` to 60e616d (video export
+  that falls back instead of failing, and says what is missing),
+  `claude/video-ad-gallery-2kzfho` to ce2ddb8 (the full-width gallery of
+  moving looks) and `claude/sharp-maxwell-q2aq4o` again to e532cd0
+  (straight-on cameras on the phone backs);
+- this branch's own work (curves and warps, type voices, every choice
+  passed: rules 99 to 101, §X).
+
+Not merged, on purpose (§J, §U): `claude/busy-allen-2d5iv1` and
+`claude/quirky-ritchie-f0zuc8`, cut from the August `main`. Port from them;
+busy-allen's `tplbg-data.js` move is ported (below).
+
+Decisions the owner may want to look at:
+1. **Palettes: twelve, not twenty-five.** Two sessions answered the same
+   request ("not super obscure or niche ones ... appealing and proven to get
+   clicks", 2026-09-30; "less niche color schemes, and more proven",
+   2026-10-01): the palette session with 25 pairings, never deployed, and
+   this morning the palette-names session with 12 (Navy & Gold, Navy &
+   Orange, Midnight & Cyan, Blue & Green, Green & Gold, Purple & Gold, Teal
+   & Orange, Red & Yellow, Black & Gold, Black & Red, Black & Green, Silver
+   & Blue), checked for colour-blind readers and muddy warm colours, with no
+   food names. The twelve, the answer to the later message, are on the
+   site. The 25 are in the history (dreamy-knuth's 0a99ea91) if the owner
+   wants them back. The backdrop generator keeps its own 25 for its
+   candidates (scripts/backdrop_palettes.json).
+2. **The library's records were re-coloured here, not taken from the palette
+   branch**: 334 of them had moved on since it forked (rule 94's cut-off
+   products, the library looks and plates, the centred numbers). Its own
+   colour-only pass, run on this line's records as they stood before any new
+   palette, gives the same palette to all 971 cards and the branch's records
+   byte for byte where nothing else had changed.
+3. **Rule numbers.** The poster look took 98 on the live branch, so this
+   branch's rules are 99 to 101; the library branch's centred number,
+   written as 94, is 102; the palettes, written as 95, are 103.
+4. **The video maker, where two branches answered the same thing** (the
+   helper's choices): one spread pass (kind-hawking's); one 3D renderer
+   (sharp-maxwell's slab, chosen by rendering both) with kind-hawking's five
+   Phone angle choices; one guard against sound before the first frame;
+   professional's commercial bed with main's voice over it and
+   determined-brown's grooves and tunes played through it; one gallery. Two
+   are the owner's to tune: a shuffle picks a tune in about 86 of 120 looks
+   (`WEIGHTS.melody.none` and `WEIGHTS.accent.none` in motion/catalog.js set
+   how often the plain commercial score plays), and no audience names any of
+   the 13 grooves yet.
+
+Fixed on the merged build (the first five were on production too):
+- The phone designer showed no canvas after its tour (both side panels were
+  left open over it).
+- Enhance put back the authored file, not the card as offered: three faces,
+  and the inks and the number size the tables had fixed (§X 9).
+- A pattern drew black dots on a black card; five of six sunburst grounds
+  drew black on black on a dark card (§X 10).
+- Easy Mode's layers list ran each name into its words ("TitleCASH BUYER").
+- The landing loaded `tplbg-data.js` (635 KB of eight photographs as base64)
+  before the studio; they are files in assets/tplbg/ now.
+- Under the one grey theme (Clean Slate) a card's own look kept the card's
+  colours (once the library cards wore looks).
+- The held-choice note speaks the visitor's language; "Colour" everywhere;
+  shorter hints.
+
+Checked on the merged build: every JS file parses (265); CSS_FALLBACK in
+sync; the CSP hashes unchanged; ten pages at 390 and 1440 with no page or
+console error and no sideways scroll; the landing check clean (0 failed
+requests, 3.58 MB first load); the library gate 415 of 415 on the twelve
+palettes (414 since neonNight-jw04-20 moved, held); the classics gate 58
+held, the same 58; the theme audit's six findings answered (two fixed,
+three held on one card); the designer audit's theme and ORIG checks (its
+timings were taken on a loaded machine); Enhance and the pattern tone
+checked on three classics; the studio's video download under the
+production CSP (exit 0, 10 s, 300 frames, sound); on the video maker
+(the helper, on its final head) audience_check, motion_sound_check over
+120 looks, every new sound at -16 LUFS, downloads at 1:1 and 9:16 with
+sound. This Chromium has no H.264, so the MP4 path itself is untested here.
+
+Open:
+0. **Deploy `main`.** It is pushed (2b5fc56 and on) and contains what
+   production serves (61d77f1). This cloud session could not deploy it: the
+   Netlify connector's deploy-site hands back
+   `npx @netlify/mcp --site-id … --proxy-path https://netlify-mcp.netlify.app/proxy/…`,
+   which zips the working tree (all but node_modules and .git, about 400
+   MB) and uploads it through `netlify-mcp.netlify.app` to `api.netlify.com`,
+   and the environment's network policy answers 403 to both (twice, a fresh
+   token the second time). Either allow those two hosts in the environment's
+   Network access and deploy from a session, or from the Mac: AGENT-BRIEF,
+   Deploying (a clean worktree of `origin/main`, then the draft and
+   `--prod`). The owner's first try from the Mac ran in the home folder, not
+   the repo (AGENT-BRIEF, Deploying): if that deploy finished, publish the
+   last good deploy again and delete it from the project's deploy list
+   before anything else.
+1. **The choice holds, measured on the merged engine (done 2026-10-02).**
+   The full sweep (`node scripts/every_card_audit.mjs --write-holds`) ran on
+   `main` at 8c15d48: 735 cards, 37,485 renders (themes 15,435, looks 8,820,
+   voices 13,230), no card that failed to open, no page errors. A container
+   restart cut it at 275 cards; `--resume` in tracked chunks finished it.
+   assets/choice-holds.json now holds 45 cards as offered (37 for `numCentre`,
+   §Z 2; four topstrip classics whose call to action and number collide;
+   two reviewProof cards, §Z 3; sell_iphone; dl_strips_arcCrown_emerald,
+   below), 444 themes on 53 cards, 35 looks on 27 cards and 1,520 voices on
+   416 cards. Against the table it replaced: themes 125 new and 79 cleared,
+   looks 5 and 3, voices 13 and 33. The app was checked loading it: the held
+   cards are out of the strip and the library, and a held chip is off with
+   its reason. Still open from it:
+   - dl_strips_arcCrown_emerald is held for its second headline line, which
+     sits on the legibility line: it failed four of six measurements since
+     2026-09-30, two of three on this build. Raise that line's contrast, then
+     `--ids dl_strips_arcCrown_emerald --dims base --write-holds`.
+   - 333 of the 444 theme holds are a mark that falls under 2:1 on what it
+     sits on, on 30 cards (slabPoster 12, scriptRetro 6, stepsFlow 5); the
+     marks are mostly the phone cue and stepsFlow's three step-number boxes.
+     A few marks on a few families: worth one look at how a theme paints
+     them before 333 holds stand.
+   - The Modern voice is off on 379 cards: the headline too small in a feed
+     on 239, the number or the call label running into another line on
+     about 140 each. Serif (198 cards) and Retro (186) fail mostly for the
+     headline's size. A voice that fails on half the cards wants a fix in
+     the voice, not holds.
+2. **A number alone on a band that runs off the bottom** (rule 102). 37
+   cards are held as offered for `numCentre`: 16 stepsFlow and 16 trustSeal
+   library cards (their band holds the number and the website; with the
+   visitor's website empty, Easy Mode leaves the number high on it) and the
+   four street price badges; and neonNight-jw04-20, whose number the
+   library session moved to stay on its plate at 9:16 and whose gallery
+   thumbnail still fails (0.14). The layout centres a lone number as far as the
+   bottom guide lets it (`numberCentreY`), the gate measures the band as
+   seen, and these bands are too shallow under the guide for both: centred
+   as far as the guide allows, stepsFlow-cd04-30's number is still 12.1%
+   off. The answer is a plate that hugs the number when it is alone (as
+   `scripts/hug_number_pill.mjs` did for the scriptRetro bars), then
+   `every_card_audit.mjs --ids <them> --dims base --write-holds`.
+3. **reviewProof's call to action runs under its number's pill** (on
+   production too): two of the family are held as offered, and
+   reviewProof-cd06-15 has three themes held for it.
+4. **One site.** As §U 2: two projects serve the app.
+   `buybackad-graphics-studio` (studio.scans.ad, deployed from the Mac's CLI)
+   serves what was last deployed from the Mac; `buybackad-finished-copy`
+   (the connector's) serves 61d77f1. Deploy the same `main` to both, or
+   retire one.
+5. **Branches.** Every `claude/*` branch but the two August ones is in
+   `main` now; delete them once their sessions have merged `main` (the
+   owner's call). Sessions were still pushing while this was merged; merge
+   `main` before building on any of them.
+6. **Held for the owner:** the fifty video themes (`THEME_REVIEW` in
+   motion/catalog.js) and the backdrop candidates (scripts/gen_backdrops.py,
+   `.render/backdrops/`); nothing of either is offered until approved.

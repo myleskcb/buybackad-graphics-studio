@@ -27,6 +27,13 @@
       "commit": "6144804",
       "date": "2026-09-26",
       "subject": "Widen the video ad maker: palettes, a colour grade, phone depth, transitions and an ending"
+    },
+    {
+      "id": "b5-phone-layouts",
+      "label": "More phone layouts",
+      "commit": "c3dd95ad",
+      "date": "2026-09-30",
+      "subject": "Add 15 phone layouts and 11 ways for phones to enter the video ads"
     }
   ]
 }

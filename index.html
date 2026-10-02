@@ -158,7 +158,7 @@
   <div class="lp-stats" id="lp-stats">
     <div class="stat stat-lead"><b id="lp-stat-new">398</b><span>designs ready to post, each one checked before you see it</span></div>
     <div class="stat"><b>243</b><span>classic designs</span></div>
-    <div class="stat"><b id="lp-stat-pal">29</b><span>colour sets</span></div>
+    <div class="stat"><b id="lp-stat-pal">12</b><span>colour sets</span></div>
     <div class="stat"><b>357</b><span>backgrounds</span></div>
     <div class="stat"><b>13</b><span>things you can buy</span></div>
     <div class="stat"><b>14</b><span>video ad styles</span></div>
@@ -169,7 +169,7 @@
   <section class="lp-section" id="lp-themes">
     <div class="lp-section-head">
       <div class="lp-kicker">Colours</div>
-      <h2><span id="lp-pal-count">29</span> colour sets. Every design checked before you see it.</h2>
+      <h2><span id="lp-pal-count">12</span> colour sets. Every design checked before you see it.</h2>
       <p>Each colour set styles the whole ad: the background, the text, one bright colour for the big words, and a quieter one for the small print. Before a design appears here, we check that the headline, the phone number and the button all stand out from what&rsquo;s behind them. If any of them is hard to read, the design is hidden. Photos keep their own colours; we only darken them where words sit on top.</p>
     </div>
     <div class="fam-grid" id="fam-grid"></div>
@@ -432,8 +432,12 @@
           </div>
         </div>
         <div class="ez-field">
-          <label>Color themes <span style="text-transform:none;font-weight:500">(changes all the colours at once; your photo stays the same; ORIG puts the original colours back)</span></label>
+          <label>Colour theme <span style="text-transform:none;font-weight:500">(changes all the colours at once; your photo stays the same; ORIG puts the original colours back)</span></label>
           <div class="ez-themes" id="ez-themes"></div>
+        </div>
+        <div class="ez-field" id="ez-voice-field">
+          <label>Typeface <span style="text-transform:none;font-weight:500">(one type pair for the whole ad; ORIG keeps the card's own)</span></label>
+          <div class="ez-fxrow ez-voices" id="ez-voices" role="group" aria-label="Typeface"></div>
         </div>
         <div class="ez-field" id="ez-phonepick-field" hidden>
           <label>Phone <span style="text-transform:none;font-weight:500">(factory photos only; the popular, high-value models first)</span></label>
@@ -561,6 +565,10 @@
             <div class="ez-themes ed-themes" id="ed-themes"></div>
             <div class="ed-note">Changes all the colours at once: boxes, number, text and marks. Your photo stays the same. ORIG puts the design&rsquo;s original colours back.</div>
           </div>
+          <div class="psec" id="ed-voice-sec">
+            <div class="psec-title">Typeface</div>
+            <div class="ez-fxrow ez-voices ed-voices" id="ed-voices" role="group" aria-label="Typeface"></div>
+          </div>
           <div class="psec" id="quick-fields-sec">
             <div class="psec-title">Your ad text</div>
             <div id="quick-fields"></div>
@@ -582,7 +590,7 @@
               <button data-bg="grad" class="active">Gradient</button>
               <button data-bg="image">Image</button>
             </div></div>
-            <div id="qbg-solid" style="display:none" class="field"><label>Color</label><input type="color" id="qbg-color" value="#111118"></div>
+            <div id="qbg-solid" style="display:none" class="field"><label>Colour</label><input type="color" id="qbg-color" value="#111118"></div>
             <div id="qbg-grad">
               <div class="field-row">
                 <div class="field"><label>From</label><input type="color" id="qbg-c1" value="#b01030"></div>
@@ -744,10 +752,11 @@
               </div></div>
               <div class="field"><label>Letter spacing <span id="pt-lsp-val">0</span></label><input type="range" id="pt-lsp" min="-100" max="600" value="0"></div>
               <div class="field"><label>Line height <span id="pt-lh-val">1.0</span></label><input type="range" id="pt-lh" min="70" max="200" value="100"></div>
-              <div class="field"><label>Curve <span id="pt-curve-val">0</span></label><input type="range" id="pt-curve" min="-100" max="100" value="0"></div>
+              <div class="field"><label>Shape</label><div class="ts-shapes" id="pt-shape" role="group" aria-label="Text shape"></div></div>
+              <div class="field"><label>Bend <span id="pt-curve-val">0</span></label><input type="range" id="pt-curve" min="-100" max="100" value="0"></div>
             </div>
             <div class="psec">
-              <div class="psec-title">Color</div>
+              <div class="psec-title">Colour</div>
               <div class="fillseg" id="pt-fillseg"><button data-ft="solid" class="active">Solid</button><button data-ft="grad">Gradient</button></div>
               <div class="field-row" id="pt-fill-solid">
                 <div class="field"><label>Fill</label><input type="color" id="pt-fill" value="#ffffff"></div>
@@ -755,8 +764,8 @@
               </div>
               <div id="pt-fill-grad" style="display:none">
                 <div class="field-row">
-                  <div class="field"><label>Color 1</label><input type="color" id="pt-g1" value="#ffd200"></div>
-                  <div class="field"><label>Color 2</label><input type="color" id="pt-g2" value="#ff5000"></div>
+                  <div class="field"><label>Colour 1</label><input type="color" id="pt-g1" value="#ffd200"></div>
+                  <div class="field"><label>Colour 2</label><input type="color" id="pt-g2" value="#ff5000"></div>
                 </div>
                 <div class="field"><label>Angle <span id="pt-ga-val">90°</span></label><input type="range" id="pt-ga" min="0" max="360" value="90"></div>
                 <div class="field-row"><div class="field"><label>Outline</label><input type="color" id="pt-stroke2" value="#000000"></div></div>
@@ -767,7 +776,7 @@
                 <div class="field"><label>&nbsp;</label><button id="pt-bgcolor-off" title="Remove the highlight strip behind the text" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;font-size:12px">✕ None</button></div>
               </div>
               <div class="field"><label>Glow / shadow <span id="pt-shadow-val">0</span></label><input type="range" id="pt-shadow" min="0" max="80" value="0"></div>
-              <div class="field"><label>Shadow color</label><input type="color" id="pt-shadow-color" value="#000000"></div>
+              <div class="field"><label>Shadow colour</label><input type="color" id="pt-shadow-color" value="#000000"></div>
             </div>
           </div>
 
@@ -781,8 +790,8 @@
               </div>
               <div id="ps-fill-grad" style="display:none">
                 <div class="field-row">
-                  <div class="field"><label>Color 1</label><input type="color" id="ps-g1" value="#7b2d9e"></div>
-                  <div class="field"><label>Color 2</label><input type="color" id="ps-g2" value="#b01030"></div>
+                  <div class="field"><label>Colour 1</label><input type="color" id="ps-g1" value="#7b2d9e"></div>
+                  <div class="field"><label>Colour 2</label><input type="color" id="ps-g2" value="#b01030"></div>
                 </div>
                 <div class="field"><label>Angle <span id="ps-ga-val">90°</span></label><input type="range" id="ps-ga" min="0" max="360" value="90"></div>
               </div>
@@ -1112,10 +1121,11 @@
   <div class="tp-row"><label>Style</label><span class="tp-biu">
     <button id="tp-b"><b>B</b></button><button id="tp-i"><i>I</i></button><button id="tp-u"><u>U</u></button>
   </span></div>
-  <div class="tp-row"><label>Color</label><input type="color" id="tp-fill" value="#ffffff"><label style="width:auto">Outline</label><input type="color" id="tp-stroke" value="#000000"><input type="range" id="tp-sw" min="0" max="12" value="0" style="width:64px"><span class="tp-val" id="tp-sw-val">0</span></div>
+  <div class="tp-row"><label>Colour</label><input type="color" id="tp-fill" value="#ffffff"><label style="width:auto">Outline</label><input type="color" id="tp-stroke" value="#000000"><input type="range" id="tp-sw" min="0" max="12" value="0" style="width:64px"><span class="tp-val" id="tp-sw-val">0</span></div>
   <div class="tp-row"><label>Behind</label><span class="tp-biu" style="flex:none;width:76px"><button id="tp-bg-on" title="Solid color behind the text">▨ Fill</button></span><input type="color" id="tp-bg-c" value="#ffd200"></div>
   <div class="tp-row"><label>Glow</label><input type="range" id="tp-glow" min="0" max="60" value="0"><input type="color" id="tp-glow-c" value="#ff5000"><span class="tp-val" id="tp-glow-val">0</span></div>
-  <div class="tp-row"><label>Curve</label><input type="range" id="tp-curve" min="-100" max="100" value="0"><span class="tp-val" id="tp-curve-val">0</span></div>
+  <div class="tp-row"><label>Shape</label><div class="ts-shapes" id="tp-shape" role="group" aria-label="Text shape"></div></div>
+  <div class="tp-row"><label>Bend</label><input type="range" id="tp-curve" min="-100" max="100" value="0"><span class="tp-val" id="tp-curve-val">0</span></div>
   <button class="tp-reset" id="tp-reset">↺ Reset this text to the template style</button>
 </div>
 
@@ -1276,10 +1286,10 @@
 })();
 </script>
 <script src="config.js"></script>
-<script src="tplbg-data.js"></script>
 <script src="template-holds.js"></script>
 <script src="photo-subjects.js"></script>
 <script src="grounds.js"></script>
+<script src="video-help.js"></script>
 <script src="app.js"></script>
 <script src="iphonesla-link.js"></script>
 <script src="offer-assets.js"></script>
