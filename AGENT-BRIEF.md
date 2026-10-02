@@ -323,10 +323,12 @@ produced." DESIGN-LAW rule 87. In practice:
   role and a line with a solid shape over its letters; `pgUncover` moves
   such copy clear after the layout. A rotated rect is never rebuilt from its
   bounding box.
-- **One colour to a card** (rule 95): `pgOneHue` runs after the layout, a
-  theme, a tagline look and copy-follows-ground; everything coloured on a card
-  is within 30 degrees of its hue, at its own luminance. The gate fails 'hues'.
-  Do not add a pass that paints a second hue after these without running it.
+- **Two colour families to a card** (rule 95 as reconciled with rule 103):
+  `pgOneHue` runs after the layout, a theme, a tagline look and
+  copy-follows-ground; a card keeps its two largest hue families (its proven
+  pair), a third folds into the nearest kept one at its own luminance, never
+  under a warm hue's muddy floor (`pgMuddyFloor`). The gate fails 'hues'. Do
+  not add a pass that paints a third hue after these without running it.
 - **Customer words are plain and readable** (rule 104): download not export,
   colours not palette/ink/accent/plate, box not plate, background not ground;
   no ratios or pixel maths in customer copy; text floors 16px running, 13.5px

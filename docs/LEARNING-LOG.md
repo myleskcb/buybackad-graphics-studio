@@ -2461,3 +2461,25 @@ Changed:
     designer hints, plan features, the quota line and the quality-check
     messages rewritten in plain words. DESIGN-LAW rule 104; AGENT-BRIEF.
 
+
+## 2026-10-02 (later) — main's proven palettes and the one-colour pass
+
+Merging main brought rule 103: twelve proven two-colour palettes, drawn never
+muddy. This branch's rule 95 (one hue to a card), already live on main, fought
+it: measured on the live cards, it drew colours muddy on 75 (a dark green
+re-hued into gold at its own luminance is olive) and folded the pairs (a Navy
+& Gold card's gold number went blue).
+
+Learned:
+  - Two sessions each answered an owner message about colour, and the two
+    answers were rules that disagreed; only measuring the live render showed it.
+  - The owner's first complaint (random green, white and pink boxes) is now
+    answered at the source by the palettes; the runtime pass only has to stop
+    a third colour, not force one.
+
+Changed:
+  - pgHuePlan: two largest families kept (gold on GOLD cards), a third folded
+    into the nearest kept family that can hold it, never under pgMuddyFloor
+    (main's muddy() thresholds plus a six-degree margin). Muddy 75 to 0;
+    changed cards 242 to 89. DESIGN-LAW rule 95's reconciliation note;
+    AGENT-BRIEF.

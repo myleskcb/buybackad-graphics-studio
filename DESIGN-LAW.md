@@ -3021,6 +3021,21 @@ and a third the palette's tinted ink.
 > support colour of a palette becomes a shade of the one hue, not a second
 > colour.
 
+**Reconciled with rule 103, 2026-10-02: two families, never muddy.** Since
+this rule, every card was given a proven two-colour palette (rule 103), which
+removes the random third colour at its source. One hue for everything then
+undid that work: the pass turned colours muddy on 75 of 415 cards (dark greens
+and blues drawn in a warm hue too dark to hold it: olive, brown) and folded
+the pairs into one colour (a Navy & Gold card's gold number went blue). Now a
+card keeps its **two** largest colour families (its palette's pair; gold always
+among them on a card that says GOLD); only a **third** family is folded, into
+the kept one nearest in hue that can hold it at its own luminance; nothing is
+moved into a hue under its muddy floor (rule 103's `muddy()`, with a six-degree
+margin for gamut fitting). Measured on the live cards: muddy results 75 to 0,
+cards the pass changes 242 to 89 (most of them multi-coloured "rainbow"
+headlines settling into the card's two colours). The gate's 'hues' asks the
+same question: a third family the pass can fold.
+
 ## 96. The studio's own chrome is graphite and one blue
 
 Added 2026-09-30. The owner: "fix the purple UI theme it's kinda lame pick
