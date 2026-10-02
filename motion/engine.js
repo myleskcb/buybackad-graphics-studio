@@ -105,7 +105,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   backsFirst(out, locked);
   copyInto(out, r, locked, content);
   voiceInto(out, r, locked);
-  if (!locked.has("phones") && phonesPool.length > 5) out.phones = r.sample(phonesPool, r.pick([3, 4, 4, 5]));
+  if (!locked.has("phones") && phonesPool.length > 5) out.phones = pickPhones(phonesPool, r.pick([3, 3, 5, 5, 4]), r);
   return harmonise(out, locked);
 }
 
@@ -847,21 +847,49 @@ function inOutline(P, [x, y]) {
   for (let i = 0, j = P.length - 1; i < P.length; j = i++) if ((P[i][1] > y) !== (P[j][1] > y) && x < (P[j][0] - P[i][0]) * (y - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0]) c = !c;
   return c;
 }
-/** How much of each phone's back shows past the phones drawn over it, 0..1, on a grid of points. */
-function phonesShowing(phones, order) {
-  const Ps = phones.map(landedOutline), out = phones.map(() => 1);
-  order.forEach((i, k) => {
-    const P = Ps[i], over = order.slice(k + 1).map(j => Ps[j]).filter(Q => outlinesMeet(P, Q));
-    if (!over.length) return;
-    let n = 0, v = 0;
-    for (let a = 0; a < 8; a++) for (let b = 0; b < 14; b++) {
-      const u = (a + .5) / 8, w = (b + .5) / 14;
-      const q = [P[0][0] + (P[1][0] - P[0][0]) * u + (P[3][0] - P[0][0]) * w, P[0][1] + (P[1][1] - P[0][1]) * u + (P[3][1] - P[0][1]) * w];
-      n++; if (!over.some(Q => inOutline(Q, q))) v++;
-    }
-    out[i] = v / n;
-  });
+
+// ------------------------------------------------------------ the set's colours
+/* Owner, 2026-10-02: "try not to use too many similar tone devices ... maybe 2 of the same
+   colour but the middle one we could use an orange 17 Pro Max or a burgundy 18 Pro Max".
+   A phone's tone is read off its metal; the set keeps at most two of a tone, the boldest
+   finish stands in the middle, and no two of a tone stand side by side where it can help. */
+export const PHONE_META = {};
+const unitRgb = h => { const n = parseInt(String(h || "#888888").slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255].map(v => v / 255); };
+function toneOf(meta) {
+  const [r, g, b] = unitRgb(meta && meta.metal), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, sat = mx - mn;
+  if (sat < .14) return l > .62 ? "light" : l < .3 ? "dark" : "grey";
+  let h = mx === r ? ((g - b) / sat) % 6 : mx === g ? (b - r) / sat + 2 : (r - g) / sat + 4; h = (h * 60 + 360) % 360;
+  return h < 18 || h >= 340 ? (l < .45 ? "burgundy" : "red") : h < 45 ? "orange" : h < 70 ? "gold" : h < 170 ? "green" : h < 205 ? "teal" : h < 255 ? "blue" : h < 290 ? "purple" : "pink";
+}
+function boldness(meta) {
+  const [r, g, b] = unitRgb(meta && meta.metal), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  const named = /cosmic orange/i.test(meta && meta.finish || "") || /burgundy/i.test(meta && meta.finish || "") ? .3 : 0;
+  return (mx - mn) * (1 - Math.abs(l - .45)) + named + (/pro max/i.test(meta && meta.model || "") ? .05 : 0);
+}
+/** n phones from a pool: at most two of a tone, and one bold finish where the pool has one. */
+export function pickPhones(pool, n, r) {
+  const ids = pool.slice(); for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+  const meta = id => PHONE_META[id], out = [], count = {};
+  const bold = ids.filter(id => meta(id) && boldness(meta(id)) > .55);
+  if (bold.length) { out.push(bold[0]); count[toneOf(meta(bold[0]))] = 1; }
+  for (const id of ids) { if (out.length >= n) break; if (out.includes(id)) continue; const t = toneOf(meta(id)); if ((count[t] || 0) >= 2) continue; out.push(id); count[t] = (count[t] || 0) + 1; }
+  for (const id of ids) { if (out.length >= n) break; if (!out.includes(id)) out.push(id); }
   return out;
+}
+/** The order the phones stand in, left to right: the boldest in the middle, then outward,
+ *  never two of a tone side by side where another can go between. */
+function orderByTone(ids, metaOf) {
+  const n = ids.length; if (n < 3) return ids;
+  const left = ids.slice().sort((a, b) => boldness(metaOf(b)) - boldness(metaOf(a)) || ids.indexOf(a) - ids.indexOf(b));
+  const slots = new Array(n), m = Math.floor((n - 1) / 2);
+  slots[m] = left.shift();
+  const order = []; for (let k = 1; k < n; k++) { if (m - k >= 0) order.push(m - k); if (m + k < n) order.push(m + k); }
+  for (const s of order) {
+    const nb = [slots[s - 1], slots[s + 1]].filter(Boolean).map(id => toneOf(metaOf(id)));
+    const i = left.findIndex(id => !nb.includes(toneOf(metaOf(id))));
+    slots[s] = left.splice(i < 0 ? 0 : i, 1)[0];
+  }
+  return slots;
 }
 
 // ------------------------------------------------------------ how they get there
@@ -1734,7 +1762,7 @@ export class Ad {
     const st = this.st, W = this.W, H = this.H;
     const s = stage(st, W, H);
     this.stageC = [s.cx, s.cy]; this.stageSpan = [s.cx - s.hw, s.cx + s.hw];
-    const ids = (st.phones || []).filter(id => this.assets.phones[id]);
+    const ids = orderByTone((st.phones || []).filter(id => this.assets.phones[id]), id => this.assets.phones[id].meta);
     const spots = arrangement(st.arrangement, ids.length, this.r, W / H < .85, { ...s, W, H });
     this.phones = ids.map((id, i) => {
       const a = this.assets.phones[id];
@@ -1760,8 +1788,75 @@ export class Ad {
       this.stageC = [P.stageC[0] * W, P.stageC[1] * H]; this.stageSpan = [P.stageSpan[0] * W, P.stageSpan[1] * W];
       return;
     }
-    this._spreadPhones();
+    this._tidyPhones();
     this._phonesInFrame();
+  }
+
+  /** The set's house rules (owner, 2026-10-02, over phones stacked on each other):
+   *  - one angle: every phone leans the same way ("don't mix angles")
+   *  - side by side only: a phone may tuck behind a neighbour from the side, never from
+   *    above or below ("from the sides not the top"); stacked phones part sideways
+   *  - at most half: a tucked phone shows at least half of itself, and phones that do not
+   *    touch keep a little air between them ("allow them some space ... to breathe")
+   *  - the middle phone stands on the stage's centre, in front, its neighbours mirrored
+   *    on either side ("the middle phone should be centered, it would look more clean")
+   *  Only across the stage the layout gave them; where that is not enough, they all stand
+   *  a little smaller. */
+  _tidyPhones() {
+    const phones = this.phones, n = phones.length;
+    if (!n) return;
+    const W = this.W, H = this.H, mg = Math.min(W, H) * .03, cx = this.stageC[0];
+    const angs = phones.map(p => p.angle).sort((a, b) => a - b), common = clamp(angs[Math.floor((n - 1) / 2)], -12, 12);
+    phones.forEach(p => { p.angle = common; });
+    if (n < 2) { phones[0].home[0] = cx; return; }
+    const byX = () => phones.map((_, i) => i).sort((a, b) => phones[a].home[0] - phones[b].home[0]);
+    // drawn from the outside in, so the middle stands in front
+    const xo = byX(), mid = (n - 1) / 2;
+    this.drawOrder = xo.map((i, k) => [i, Math.abs(k - mid)]).sort((a, b) => b[1] - a[1]).map(q => q[0]);
+    const outline = (p, e = 0) => { const hw = p.w * p.size / 2 + e, hh = p.h * p.size / 2 + e, th = -p.angle * Math.PI / 180, c = Math.cos(th), sn = Math.sin(th);
+      return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => [p.home[0] + x * c - y * sn, p.home[1] + x * sn + y * c]); };
+    const hidden = (back, fronts) => { const P = outline(back), Qs = fronts.map(f => outline(f)).filter(Q => outlinesMeet(P, Q)); if (!Qs.length) return 0; let h = 0, m = 0;
+      for (let a = 0; a < 8; a++) for (let b = 0; b < 14; b++) { const u = (a + .5) / 8, w = (b + .5) / 14, q = [P[0][0] + (P[1][0] - P[0][0]) * u + (P[3][0] - P[0][0]) * w, P[0][1] + (P[1][1] - P[0][1]) * u + (P[3][1] - P[0][1]) * w]; m++; if (Qs.some(Q => inOutline(Q, q))) h++; }
+      return h / m; };
+    const front = (i, j) => this.drawOrder.indexOf(i) > this.drawOrder.indexOf(j);
+    const sp = this.stageSpan, pwMax = Math.max(...phones.map(p => p.w * p.size));
+    const xs = () => { let x0 = Infinity, x1 = -Infinity; for (const p of phones) for (const [x] of outline(p)) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); } return [x0, x1]; };
+    const [g0, g1] = xs(), room = [Math.min(g0, Math.max(mg, sp[0] - pwMax / 2)), Math.max(g1, Math.min(W - mg, sp[1] + pwMax / 2))];
+    const fits = () => { const [x0, x1] = xs(); return x0 >= room[0] - 1 && x1 <= room[1] + 1; };
+    const mirror = () => {                                   // the middle on the centre, neighbours mirrored
+      const o = byX(), xsv = o.map(i => phones[i].home[0]), half = Math.floor(n / 2);
+      for (let k = 0; k < half; k++) {
+        const d = Math.max(0, (xsv[n - 1 - k] - xsv[k]) / 2);
+        phones[o[k]].home[0] = cx - d; phones[o[n - 1 - k]].home[0] = cx + d;
+      }
+      if (n % 2) phones[o[(n - 1) / 2]].home[0] = cx;
+    };
+    const breach = () => {                                   // the worst rule broken, and the pairs that break it
+      const bad = [], ph = phones.reduce((a, p) => a + p.h * p.size, 0) / n, gap = phones.reduce((a, p) => a + p.w * p.size, 0) / n * .05;
+      const stacked = (i, j) => Math.abs(phones[i].home[1] - phones[j].home[1]) > ph * .08;
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++)
+        if (stacked(i, j) && outlinesMeet(outline(phones[i], gap), outline(phones[j], gap))) bad.push([i, j]);
+      for (let i = 0; i < n; i++) {                          // what all its neighbours in front hide of it, together
+        const fr = phones.map((_, j) => j).filter(j => j !== i && !stacked(i, j) && front(j, i));
+        if (hidden(phones[i], fr.map(j => phones[j])) > .42) for (const j of fr) if (outlinesMeet(outline(phones[i]), outline(phones[j]))) bad.push([i, j]);
+      }
+      return bad;
+    };
+    mirror();
+    for (let k = 0; k < 9; k++) {
+      for (let it = 0; it < 60; it++) {
+        const bad = breach(); if (!bad.length) break;
+        for (const [i, j] of bad) {                          // part sideways, outward from the centre
+          const a = phones[i], b = phones[j], step = pwMax * .035, d = a.home[0] <= b.home[0] ? 1 : -1;
+          a.home[0] -= d * step; b.home[0] += d * step;
+        }
+        mirror();
+      }
+      if (!breach().length && fits()) break;
+      // no room left: the set, smaller, from its own middle
+      for (const p of phones) { p.size *= .94; p.home[0] = cx + (p.home[0] - cx) * .94; }
+      mirror();
+    }
   }
 
   /** No phone is cut by the edge of the frame where the camera settles (giants bleed on
@@ -1785,63 +1880,6 @@ export class Ad {
     if (!dx && !dy) return;
     for (const p of this.phones) p.home = [p.home[0] + dx, p.home[1] + dy];
     this.stageC = [this.stageC[0] + dx, this.stageC[1] + dy];
-  }
-
-  /** Every phone shows most of its back. A back is how a buyer knows the model, and a
-   *  phone buried under two others is a colour, not a phone. Where a layout stacks them
-   *  (a pile, a tower, a hero's satellites) the phones that hide too much of one another
-   *  are pushed apart along the line between them, across the stage the layout gave them
-   *  (never up or down into the words' room, nor past the frame's edge), and only where pushing is not enough do they
-   *  all stand a little smaller. A layout that already shows every back draws as it did.
-   *  (Owner, 2026-09-30, over a mural look whose four phones sat in one clump: "poor phone
-   *  placement, overlapping excessively". Audit of 400 random looks: 144 had a phone less
-   *  than half visible, from pile, tower, hero, spiral, crossed and pairs.) */
-  _spreadPhones() {
-    const SHOW = .68, MIN_K = .72, phones = this.phones, order = this.drawOrder, n = phones.length;
-    if (n < 2) return;
-    const W = this.W, H = this.H, mg = Math.min(W, H) * .03;
-    let vis = phonesShowing(phones, order);
-    if (Math.min(...vis) >= SHOW) return;
-    const bbox = () => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-      for (const P of phones.map(landedOutline)) for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
-      return [x0, y0, x1, y1]; };
-    const b0 = bbox();
-    // they part across the stage the layout gave them, never up or down into the words' room
-    const sp = this.stageSpan, pw = Math.max(...phones.map(p => p.w * p.size)) / 2;
-    const room = [Math.min(b0[0], Math.max(mg, sp[0] - pw)), b0[1], Math.max(b0[2], Math.min(W - mg, sp[1] + pw)), b0[3]];
-    const keepIn = p => {
-      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-      for (const [x, y] of landedOutline(p)) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
-      p.home[0] += Math.max(0, room[0] - x0) - Math.max(0, x1 - room[2]);
-      p.home[1] += Math.max(0, room[1] - y0) - Math.max(0, y1 - room[3]);
-    };
-    // the group's middle: a pair on top of each other parts sideways from it
-    const mid = [(b0[0] + b0[2]) / 2, (b0[1] + b0[3]) / 2];
-    for (let k = 1; ; k *= .94) {
-      for (let it = 0; it < 40 && Math.min(...vis) < SHOW; it++) {
-        const Ps = phones.map(landedOutline);
-        order.forEach((i, a) => {
-          if (vis[i] >= SHOW) return;
-          for (const j of order.slice(a + 1)) {
-            if (!outlinesMeet(Ps[i], Ps[j])) continue;
-            const pi = phones[i], pj = phones[j];
-            let dx = pj.home[0] - pi.home[0], dy = pj.home[1] - pi.home[1];
-            if (Math.hypot(dx, dy) < pi.w * pi.size * .05) { dx = (pj.home[0] - mid[0]) || (i < j ? 1 : -1); dy = 0; }
-            // phones stand tall: parting sideways uncovers a back fastest
-            const d = Math.hypot(dx, dy * .6) || 1, step = pi.w * Math.min(pi.size, pj.size) * .06 * (SHOW - vis[i] + .1) / .4;
-            pi.home[0] -= dx / d * step; pi.home[1] -= dy * .6 / d * step;
-            pj.home[0] += dx / d * step; pj.home[1] += dy * .6 / d * step;
-          }
-        });
-        phones.forEach(keepIn);
-        vis = phonesShowing(phones, order);
-      }
-      if (Math.min(...vis) >= SHOW || k * .94 < MIN_K) break;
-      for (const p of phones) { p.size *= .94; keepIn(p); }
-      vis = phonesShowing(phones, order);
-    }
-    const b1 = bbox();
-    this.stageC = [this.stageC[0] + ((b1[0] + b1[2]) - (b0[0] + b0[2])) / 2, this.stageC[1] + ((b1[1] + b1[3]) - (b0[1] + b0[3])) / 2];
   }
 
   _timeline() {
@@ -3155,7 +3193,7 @@ export async function loadPhones(base = "./phones/") {
   const phones = {};
   await Promise.all(idx.phones.map(m => new Promise(res => {
     const img = new Image(); img.decoding = "async";
-    img.onload = () => { phones[m.id] = { img, meta: m }; res(); };
+    img.onload = () => { phones[m.id] = { img, meta: m }; PHONE_META[m.id] = m; res(); };
     img.onerror = () => res();
     img.src = base + m.id + ".webp";
   })));
