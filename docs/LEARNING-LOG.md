@@ -2438,3 +2438,32 @@ RESUME HERE:
   2. The street price badge's number plate (§Z 2), reviewProof's call to
      action under its pill (§Z 3).
   3. The same `main` on both Netlify projects, or one retired (§Z 4).
+
+## 2026-10-02 — the designer lines things up: pink guides, lock to the middle, centre all
+
+(claude/trusting-ride-cfpk9o, then `main`.)
+
+The owner, with a screenshot of a checklist card's selling points in the
+advanced editor: "Can we make sure in the editor I can lock these centered and
+if you could just auto center everything please once again and make sure that
+layers can align with each other showing a pink line like other editing
+software's and it will align either horizontally or vertically or both". Then,
+of a Pokémon card: "it looks incomplete. It looks like you threw everything
+down and then abandoned it".
+
+Found:
+  - The editor snapped only to the card's middle (18 px, accent lines, two
+    fixed divs). Nothing lined a layer up with another.
+  - A selling point is three layers (a ring, an icon, the words); centred one
+    by one the icons zigzag, so "centre" has to know what reads as one thing.
+  - The Pokémon card is scriptRetro-jw05-16 (headline pushed right, a small
+    slab at the left, the pill and dots loose). It is already held from the
+    site on `main` (rule 105, holds.json: a drawn ground with a small
+    cut-out); the live site still shows it because `main` has not been
+    deployed since. All 14 of its live siblings with the same copy are
+    centred.
+
+Did: DESIGN-LAW rule 106. Pink guides to every layer's edges and middle and
+the card's, both axes at once, Alt for free placement; Lock to the middle in
+Arrange (a row comes with the layer); Centre all in the top bar; a locked
+group keeps its shape through a format switch.

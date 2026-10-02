@@ -3571,3 +3571,37 @@ are held back from the site, listed with their reason in
 - The stamp is `curated`, the one every later audit keeps
   (audit_showcase_content.mjs, curate_showcase.mjs), so no re-run puts a
   card back. 329 cards stay live; every category keeps 33 to 66.
+
+## 106. The designer lines things up the way every design tool does: pink guides, and a lock to the middle
+
+Added 2026-10-02. The owner, on a checklist card's selling points in the
+advanced editor: "Can we make sure in the editor I can lock these centered
+and if you could just auto center everything please once again and make sure
+that layers can align with each other showing a pink line like other editing
+software's and it will align either horizontally or vertically or both".
+
+- **Guides.** A layer dragged within seven screen pixels of another layer's
+  edge or middle, or the card's edge or middle, snaps to it, and a pink line
+  (`#snap-guides`, drawn over the canvas, never on it) shows every match,
+  across and down at once. The card's middle wins a tie at half its distance.
+  Alt held places a layer freely; View, "Smart guides (pink lines)" turns them
+  off (`viewCfg.guides`, which replaced the centre-only `centerSnap`).
+- **What reads as one thing moves as one** (`ccParts`): a plate and the lines
+  on it, a ring and its icon, an icon and the words beside it, and a list of
+  such rows on one left edge, one block, so the icons keep their column. A
+  selling point centred line by line put its icons in a zigzag.
+- **Lock to the middle** (Arrange, `pgCentreLock` + `pgCentreGroup`): the
+  group stays on the card's middle line however its words, face, size or
+  format change (`ccKeep`, before every render of the canvas and every undo
+  step); it moves up and down only, and pressing one part carries the rest of
+  its row. A format switch keeps a locked group's shape (`remapObjects`).
+- **Centre all** (top bar) centres every group, and each line on its plate on
+  the plate's middle, then locks them. It leaves a small piece in a corner (a
+  sticker, the corner badges, never a headline, the number or the call to
+  action), and leaves where it was any part that would land on another it did
+  not touch: a picture before words, else the smaller. On the Pokémon
+  scriptRetro card the owner called "incomplete … threw everything down and
+  then abandoned it" (scriptRetro-jw05-16, already held from the site by rule
+  105) it centres all but the slab, which would have covered the headline.
+- Nothing runs by itself: a card opened from Easy Mode arrives as Easy Mode
+  drew it (rule 93), and the centring is the visitor's choice.
