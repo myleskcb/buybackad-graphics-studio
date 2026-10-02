@@ -384,6 +384,19 @@ produced." DESIGN-LAW rule 87. In practice:
   twice. Then rethumb_showcase.mjs and verify_showcase.mjs, and bump
   ASSET_REV. (Two sessions answered the same request with 25 and with 12
   pairings; the twelve, the later answer, are the product.)
+- **The studio's colour themes are 52, in groups** (rule 106, 2026-10-02):
+  COLOR_THEMES leads with Two colours (a ground and one colour for every
+  word), Three colours (ground, ink, one accent) and the library's twelve
+  Proven pairs, then the earlier 21 under "More" (the landing counts them,
+  does not show them). `group` is the field; `themeChips` builds both rows.
+  Run `node scripts/theme_law.mjs` after adding one (a two-colour theme's
+  accent must equal its ink). The effects take the palette's colours from
+  `thFx` (outline dark and light, 3-D and offset depth, glow, multicolour
+  letters); never hard-code an effect colour that bypasses it while a theme
+  is on. With a theme on, `pgOneHue` keeps the theme's colours (not one hue);
+  what a look the visitor picked paints is `pgLookInk` and stays theirs. A
+  card as designed draws exactly as before: check that on any change here by
+  drawing its thumbnail with `main`'s app.js and this one.
 - **Every choice on every card** (rule 101): `node
   scripts/every_card_audit.mjs --write-holds` takes every offered card
   through every theme, look and voice on Easy Mode's render and writes

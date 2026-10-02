@@ -177,9 +177,11 @@ Object.entries(TAMED).forEach(([k,P]) => {
 });
 console.log(`  --> ${palRows.filter(r=>r.pass).length}/${palRows.length} pass   ('!' marks the value that failed)`);
 
-console.log('\n══ COLOR_THEMES — the 10 the customer picks in Easy Mode ══');
-console.log('   ink and accent against BOTH stops, not just the dark one.\n');
-console.log('  theme            ink/c1  ink/c2  acc/c1  acc/c2  accCVD  acc-vs-ink  hue  warm  verdict');
+console.log(`\n══ COLOR_THEMES — the ${COLOR_THEMES.length} the customer picks in Easy Mode and the designer ══`);
+console.log('   ink and accent against BOTH stops, not just the dark one. A two-colour');
+console.log('   theme (rule 106) sets every word in its one colour, so its accent IS its');
+console.log('   ink and the accent-vs-ink floor does not apply; it must say so exactly.\n');
+console.log('  theme                   ink/c1  ink/c2  acc/c1  acc/c2  accCVD  acc-vs-ink  hue  warm  verdict');
 let ctFails = 0;
 COLOR_THEMES.forEach(t => {
   const i1 = cr(t.ink, t.bg.c1), i2 = cr(t.ink, t.bg.c2);
@@ -188,11 +190,15 @@ COLOR_THEMES.forEach(t => {
   // the accent word sits INSIDE the white headline: the two must separate
   const vsInk = cr(t.accent, t.ink);
   const warm = isWarm(t.accent);
-  const pass = Math.min(i1,i2) >= 4.5 && Math.min(a1,a2) >= 4.5 && cvd >= 3.0 && vsInk >= 1.7;
+  const two = t.group === 'Two colours';
+  const sep = two ? t.accent.toLowerCase() === t.ink.toLowerCase() && !t.support : vsInk >= 1.7;
+  const sup = t.support ? Math.min(cr(t.support, t.bg.c1), cr(t.support, t.bg.c2)) : null;
+  const pass = Math.min(i1,i2) >= 4.5 && Math.min(a1,a2) >= 4.5 && cvd >= 3.0 && sep && (sup == null || sup >= 4.5);
   if (!pass) ctFails++;
-  console.log(`  ${t.name.padEnd(15)} ${F(i1)}${mark(i1,4.5)} ${F(i2)}${mark(i2,4.5)}` +
+  console.log(`  ${t.name.padEnd(22)} ${F(i1)}${mark(i1,4.5)} ${F(i2)}${mark(i2,4.5)}` +
     ` ${F(a1)}${mark(a1,4.5)} ${F(a2)}${mark(a2,4.5)}  ${F(cvd)}${mark(cvd,3.0)}` +
-    `  ${F(vsInk)}${mark(vsInk,1.7)}     ${F(hueOf(t.accent),3)}  ${warm?'yes ':'no  '}  ${pass?'PASS':'FAIL'}`);
+    `  ${two ? '  one ink' : F(vsInk)}${sep ? ' ' : '!'}     ${F(hueOf(t.accent),3)}  ${warm?'yes ':'no  '}  ${pass?'PASS':'FAIL'}` +
+    (sup != null && sup < 4.5 ? `  support ${sup}!` : ''));
 });
 console.log(`  --> ${COLOR_THEMES.length - ctFails}/${COLOR_THEMES.length} pass`);
 
@@ -208,9 +214,10 @@ console.log(byp.length
   ? `  · plate ink does NOT match onAccent() on: ${byp.map(r=>r.k).join(', ')} — something is hard-coding an ink again.`
   : `  · plate ink matches onAccent() on all ${palRows.length} palettes (the nine designer bypasses are gone).`);
 console.log(`  · accent warmth (house direction, HANDOFF §6): ` +
-  `${COLOR_THEMES.filter(t=>isWarm(t.accent)).length}/10 COLOR_THEMES warm, ` +
+  `${COLOR_THEMES.filter(t=>isWarm(t.accent)).length}/${COLOR_THEMES.length} COLOR_THEMES warm, ` +
   `${Object.values(TAMED).filter(P=>isWarm(P.a1)).length}/12 PAL a1 warm.`);
 console.log(`\n  floors: ink/sub >= 4.5:1 (body copy) · a1 and plate ink >= 3.0:1 (display sizes, WCAG large)`);
 console.log(`          accent >= 3.0:1 under the worst CVD simulation`);
-console.log(`          accent vs ink >= 1.7:1 so the money word reads as a different colour\n`);
+console.log(`          accent vs ink >= 1.7:1 so the money word reads as a different colour`);
+console.log(`          (a two-colour theme: accent = ink, no support); a support >= 4.5:1 on both stops\n`);
 process.exit(fails + ctFails ? 1 : 0);

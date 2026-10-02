@@ -3571,3 +3571,123 @@ are held back from the site, listed with their reason in
 - The stamp is `curated`, the one every later audit keeps
   (audit_showcase_content.mjs, curate_showcase.mjs), so no re-run puts a
   card back. 329 cards stay live; every category keeps 33 to 66.
+
+## 106. A palette is its own colours: two, three or a proven pair, and the effects wear them
+
+Added 2026-10-02. The owner, of the landing's twelve palettes: "I think we
+have more colors than this, right? I mean, there's gotta be more proven
+themes. This is a bit basic. Maybe some color pallets using only two or three
+colors?", then "keep in mind we use things like gradient, and other effects
+that may use extra colors like 3-D", "Or outlines around text", and "make sure
+we have as much capability as possible when it comes to colors".
+
+**What there was, measured.** The landing showed the library's twelve
+palettes (rule 103). The studio's colour row had 21 themes under generated
+names ("Blue Ticket", "Orchid Payday"), none of them the twelve. And on
+`main` no theme and no headline look could draw more than one colour: rule
+95's pass ran after the theme and after the look and took every colour to the
+card's leading hue. Counted on the render (the colour families `pgHuePaints`
+finds), on slabPoster-pp04-15 and checklistHero-jw07-15:
+
+| | with rule 95's pass | without it |
+|---|---|---|
+| Rainbow gradient | 1 family (shades of pink) | 5 and 6 |
+| Red & blue 3-D | 1 (both offsets red) | 3 and 3 |
+| Multicolour letters | 1 | 5 and 5 |
+| Electric Trust (navy, coral, blue) | 1 on each card | 1 and 2 |
+
+The effects the panel offered could not be drawn, and a palette of two
+colours came out as one.
+
+**The set: 52 themes in four groups** (COLOR_THEMES), every one measured by
+`scripts/theme_law.mjs`: ink and accent at least 4.5:1 on both ends of the
+ground's gradient, the accent at least 3:1 under protan, deutan and tritan
+simulation, the accent at least 1.7:1 from the ink so the money word reads as
+a different colour, a support at least 4.5:1. 52 of 52 pass.
+
+- **Two colours** (12): a ground and one colour for every word, mark and
+  plate, the hand-painted "WE BUY" sign. Named words on ground: Yellow on
+  Black, Black on Yellow, White on Black, Black on White, White on Red, Red on
+  White, White on Blue, Blue on White, White on Navy, White on Green, White on
+  Purple, Black on Orange. The accent is the ink, so the 1.7:1 floor does not
+  apply; theme_law requires it to be exactly the ink, with no support. A plate
+  in the colour carries its words in the ground's colour (White on Red's
+  number box is white with red digits).
+- **Three colours** (7): a ground, the reading ink and one accent for the
+  money line and its plates: Red, White & Blue, Navy, White & Red, White,
+  Black & Red, Black, White & Red, Black, White & Yellow, Black, White &
+  Orange, Blue, White & Yellow. Measured and left out: Red, White & Yellow
+  (yellow on red 4.18:1, and 1.45:1 from the white), White, Navy & Orange
+  (3.80:1: an orange dark enough to read on white is rust, rule 103), Green,
+  White & Yellow (1.64:1 from the white; Green & Gold is the pair).
+- **Proven pairs** (12): the library's palettes (rule 103), each solved from
+  its hues, so a palette named on the landing is one a visitor can put on any
+  card. Two moved from a first solve: Black & Red's accent to 0.27 luminance
+  (it read 4.40:1), Silver & Blue's support deeper (3.74:1); Black & Red's
+  support is silver, since a red light enough to read on charcoal is salmon.
+- **More** (21): the earlier sets, kept under their names so a saved draft
+  finds its theme; the landing counts them and does not show them.
+
+**The effects wear the palette** (`thFx`). With a theme on, every colour an
+effect paints is one the palette has: an outline is its darkest colour drawn
+near-black round a light letter (navy-black on Navy & Gold, oxblood on White
+on Red, black where the colour is warm, which goes mud dark) and its lightest
+round a dark one (the yellow of Black on Yellow); a 3-D block recedes into its
+dark ground's hue, or a dark ink's (Red, White & Blue's navy), never a warm
+hue; a glow is its accent, and white on a black-and-white palette (it had
+been the hue a grey rounds to); multicolour letters are its own colours. The
+Outline row gains **Palette** (its dark round light letters, its light round
+dark ones), and Auto's black is the palette's dark unless the visitor picks
+Black. A new effect and look, **Offset shadow**: one solid copy of the letters
+set down and right, no blur, in the palette's deep colour, the poster's hard
+shadow (rule 98), measured by the critic like the 3-D block. With no theme,
+every look draws as before.
+
+**A palette is its own colours** (`pgOneHue`, `pgHueCheck` with a theme).
+With a theme on, a paint within 30 degrees of any colour the theme has stays;
+anything else takes the nearest of them at its own luminance, never a warm one
+too dark to hold it (`pgMuddyFloor`, rule 103's floors), and on a
+black-and-white theme it goes neutral. Near white or black a hue clips at the
+edge of the screen's colours and slides (a pale cyan folded to blue came back
+cyan), so the fold drops chroma until it is in the family or neutral. With no
+theme the pass is rule 95's, unchanged.
+
+**A look the visitor picked is theirs** (`pgLookInk`). What a look the
+visitor chose in the panel paints (a rainbow, red and blue offsets, a letter
+in every colour) is left by the pass and the gate, as a colour set by hand
+(pgUser) is. A card's own look (`tpl.look`) stays under rule 95, so every
+card as designed draws as it did.
+
+**The palette's accent shows.** A card whose own colours gave the accent no
+job (slabPoster-pp04-15: its one plate is its support colour, its words
+white) drew Navy & Gold with no gold and Red, White & Blue with no red. With
+no line and no plate in the accent's job, the support plate that carries the
+number or the call to action, else the largest, takes the accent, never a
+plate another plate stands on.
+
+**A plate matched to a look's gradient goes lighter or darker by its own
+words.** The card looks that match plates to their gradient (Signature,
+Accent into support) push each plate until the words on it read; they counted
+the number on its own pill over reviewProof-cd06-15's call-to-action bar as
+on the bar, could not read dark words and white digits on one colour, and
+sank the bar to black under its dark words: the three themes held on that
+card (OPEN-ITEMS §Z 3), and every new theme with a support. The direction now
+comes from the words standing on the plate itself.
+
+**Measured.**
+
+- All 52 themes on 18 cards (one live card of each library layout, three
+  classics): 954 renders, 953 pass the gate; the one that failed ('hues',
+  Blue & Green on reviewProof-cd06-15, the cyan that slid) passes with the
+  fold above. The 21 older themes on those cards: 3 held on `main`, 0 fail.
+- Every card as designed is unchanged: the 78 live cards whose own look
+  matches plates, drawn as renderThumb draws them with `main`'s app.js and
+  with this one, differ by at most 0.71% of pixels (median 0.16%), and the
+  same card against `main` itself by 0.63% (its grain).
+- The choices on every card: `scripts/every_card_audit.mjs --dims
+  base,themes,looks --write-holds`, which now rewrites only the dimensions it
+  ran (a themes-and-looks run keeps the voice holds).
+
+> Amends rule 95: with a colour theme on, the card's hue is the theme's
+> colours, not one hue; a look the visitor picked is theirs. Rule 95 stands
+> for a card as designed.

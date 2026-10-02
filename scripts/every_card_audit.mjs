@@ -296,7 +296,10 @@ writeFileSync(OUT.replace(/\/?$/, '/') + 'summary.json', JSON.stringify({ cards:
 if (process.argv.includes('--write-holds')){
   const FILE = new URL('../assets/choice-holds.json', import.meta.url).pathname;
   let prev = null; try { prev = JSON.parse(readFileSync(FILE, 'utf8')); } catch (e){}
-  const holds = argv('--ids') && prev ? prev : { about: '', cards: {}, themes: {}, looks: {}, voices: {} };
+  /* a run over some cards, or some dimensions, rewrites only what it measured:
+     a themes-and-looks run keeps every card's voice holds */
+  const some = !!argv('--ids') || !['themes', 'looks', 'voices'].every(d => DIMS.has(d));
+  const holds = some && prev ? prev : { about: '', cards: {}, themes: {}, looks: {}, voices: {} };
   holds.about = 'Cards and choices that fail on the render a visitor gets (scripts/every_card_audit.mjs --write-holds). A card under cards is not offered; a theme, look or voice under a card is off on that card, and says why. DESIGN-LAW rule 101.';
   holds.date = new Date().toISOString().slice(0, 10);
   /* the reason, as the chip's title tells a visitor */
@@ -319,6 +322,7 @@ if (process.argv.includes('--write-holds')){
   rows.forEach(r => { if (!r.err && r.base && r.base.length) holds.cards[r.card] = [...new Set(r.base.map(said))].join('; '); });
   for (const dim of ['themes', 'looks', 'voices']){
     holds[dim] = holds[dim] || {};
+    if (!DIMS.has(dim)) continue;
     done.forEach(c => delete holds[dim][c]);
     rows.forEach(r => {
       const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || v.left || v.lost));

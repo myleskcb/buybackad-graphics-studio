@@ -1444,3 +1444,51 @@ Still open:
 2. **The band headline** (bandKnockout and some slabPoster layouts) sets a
    dark word with a heavy shadow on a coloured band; nine cards were held for
    it. The layout wants a light word on a dark band, or no shadow.
+
+## AB. 2026-10-02 — 52 colour themes; the effects wear them
+
+The owner, of the landing's twelve palettes: "there's gotta be more proven
+themes ... Maybe some color pallets using only two or three colors", then
+"keep in mind we use things like gradient, and other effects that may use
+extra colors like 3-D. Or outlines around text", and "make sure we have as
+much capability as possible when it comes to colors".
+
+Done (DESIGN-LAW rule 106), on `claude/vigilant-wozniak-kyyy7b`:
+- **52 themes in groups**: Two colours (12 sign looks, Yellow on Black to
+  Black on Orange), Three colours (7, Red, White & Blue and six more), the
+  library's twelve Proven pairs, and the earlier 21 under "More". 52 of 52
+  pass theme_law. The studio's colour row and the designer's are grouped
+  (`themeChips`); the landing shows the library's twelve with their cards and
+  the studio's groups under them, a tap opening the studio with the theme on.
+- **The effects take the palette's colours** (`thFx`): outline, 3-D depth,
+  glow, multicolour letters; an Outline choice "Palette"; a new effect and
+  look, Offset shadow.
+- **What rule 95 flattened is drawn**: with a theme on, its colours stay
+  (Navy & Gold keeps gold and navy); a look the visitor picks keeps its
+  colours (the Rainbow gradient, Red & blue 3-D and Multicolour had been one
+  colour on every card).
+- **Every palette shows its accent** on a card that gave the accent no job.
+- **§Z 3's three held themes on reviewProof-cd06-15 pass**: a plate matched
+  to a look's gradient now goes lighter or darker by the words on it.
+- Measured: 954 renders of all 52 themes on 18 cards, 953 passing and the
+  one fixed; the 78 live cards with plate-matching looks unchanged as designed.
+
+Still open:
+
+1. **Merge to `main` and deploy.** This session may push only its own
+   branch; the owner's go-ahead puts it on `main` (merge `main` in first,
+   theme_law and sync_css_fallback --check, then the deploy from the Mac).
+2. **The choice holds for the new themes and looks**: `every_card_audit.mjs
+   --dims base,themes,looks --write-holds` over every offered card (649), in
+   two-hour chunks with `--resume`. Until its table is written, a new theme
+   is offered on every card and the download gate (pgGate) is what stands
+   between a weak combination and a download.
+3. **A red accent lifted for a dark photograph goes salmon** (Black, White &
+   Red's headline on sell_iphone): themeScene solves an accent line's
+   lightness until it reads, and over rule 103's band red stops being red.
+   Keeping the red and shading the photograph under that line would hold
+   the name; not done.
+4. **`claude/fervent-pascal-w6mthe`** (the plain-words copy, rule 95's two
+   families) is not in `main` or here; its pgOneHue change and this one's
+   wrapper meet in the same pass when it is merged (this one wraps it, so the
+   theme path stays and its two families become the no-theme path).

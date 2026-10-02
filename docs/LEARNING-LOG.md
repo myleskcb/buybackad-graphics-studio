@@ -2438,3 +2438,31 @@ RESUME HERE:
   2. The street price badge's number plate (§Z 2), reviewProof's call to
      action under its pill (§Z 3).
   3. The same `main` on both Netlify projects, or one retired (§Z 4).
+
+## 2026-10-02 — 52 colour themes; the effects wear them
+
+Asked: more proven palettes, some of two or three colours, with the
+gradients, 3-D and outlines in mind, "as much capability as possible".
+
+Did (DESIGN-LAW rule 106, OPEN-ITEMS §AB): two-colour and three-colour sets
+and the library's pairs in the studio, measured by theme_law; effects drawn
+from the palette (`thFx`); the one-colour pass keeps a theme's colours and a
+look the visitor picked; the accent shows on every card; the plate-matching
+guard reads the words on the plate itself.
+
+Learned:
+  - The quickest finding came from rendering, not reading: the panel offered
+    sixteen gradients, red and blue 3-D and multicolour letters, and rule
+    95's pass drew every one of them as one colour. No audit had counted the
+    colours a look leaves on the card.
+  - A heuristic that changes a theme (giving the accent a plate) has to be
+    run against the card's own look too: the first version gave the accent
+    to a bar that another plate stood on, and a look then sank it to black.
+  - Pixel comparisons need their own noise floor: the grain differs between
+    two renders of one card on one build by up to 0.63%.
+
+RESUME HERE:
+  0. The owner's go-ahead to merge this branch into `main`, then the deploy.
+  1. The choice holds run (OPEN-ITEMS §AB 2), `--resume` until 649 cards,
+     then `--write-holds`.
+  2. The salmon red (§AB 3).
