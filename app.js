@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261001c';
+const ASSET_REV = '20261002a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -15062,7 +15062,7 @@ function scenePalette(sc, W){
   W = W || sc.width / ((sc.getZoom && sc.getZoom()) || 1);
   const cols = [];
   sc.getObjects().forEach(o => {
-    if (o.visible === false || (o.opacity != null && o.opacity < 0.3) || o.pgTagBlock || o.pgKin) return;
+    if (o.visible === false || (o.opacity != null && o.opacity < 0.3) || o.pgTagBlock || o.pgKin || pgPlateInked(o)) return;
     const isT = o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
     if (!isT && o.type !== 'rect') return;
     if (!isT && o.width * (o.scaleX || 1) >= 0.93 * W) return;              // the ground, not an accent
@@ -17145,7 +17145,7 @@ function thSourcePalette(sc, tpl, W, H){
   const box = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return { width: 0, height: 0 }; } };
   let big = null, bigA = 0;
   objs.forEach(o => {
-    if (!o || o.visible === false || thIsGround(o) || o.type === 'image') return;
+    if (!o || o.visible === false || thIsGround(o) || o.type === 'image' || pgPlateInked(o)) return;
     const b = box(o), area = Math.max(1, b.width * b.height);
     if (thIsWords(o)){ thStops(o.fill).forEach(c => add(c, area * 0.6)); return; }
     thStops(o.fill).forEach(c => { const f = add(c, area * 0.25); if (f && area > bigA && o.type !== 'path'){ big = f; bigA = area; } });
@@ -17156,7 +17156,7 @@ function thSourcePalette(sc, tpl, W, H){
   let acc = null;
   for (const role of ['phone', 'cta']){
     const pl = plateOf(role); acc = acc || (pl && famIn(pl.fill));
-    const t = objs.find(o => thIsWords(o) && o.pgRole === role); acc = acc || (t && famIn(t.fill));
+    const t = objs.find(o => thIsWords(o) && o.pgRole === role); acc = acc || (t && !pgPlateInked(t) && famIn(t.fill));
   }
   fams.sort((a, b) => b.w - a.w);
   acc = acc || fams[0] || null;
@@ -19087,6 +19087,66 @@ function pgOneHue(sc, W, H){
   });
   return n;
 }
+/* The words on a coloured plate wear the plate's colour (rule 104). Owner,
+   2026-10-02, of a light blue number box with a near-black number in it: "I
+   would probably use the same blue tone for the numbers and box". The number,
+   the CTA over it and the website under it, when neutral and sitting on a
+   coloured plate beneath them, take the plate's hue at their own luminance:
+   a deep shade of it when the line is dark, a faint tint when it is white, so
+   every contrast the gate measured is the same. A line the visitor coloured
+   by hand, a gradient, and a line on a neutral plate are left alone. */
+const PG_PLATE_INK_ROLES = ['phone', 'cta', 'website'];
+function pgPlateInk(sc){
+  if (typeof window !== 'undefined' && window.__pgPlateInkOff) return 0;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const W = sc.getWidth(), H = sc.getHeight(), A = W * H, minA = 900 * A / (TPL_W * TPL_H);
+  const isText = o => o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
+  const box = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  let n = 0;
+  objs.forEach((t, ti) => {
+    /* the number and the lines that travel with it, nothing else: a headline
+       on a band is styled from its own colour by the tagline looks, and a
+       tinted headline turned a light blue band navy (checklistHero-pp02-15) */
+    if (!isText(t) || !PG_PLATE_INK_ROLES.includes(t.pgRole) || t.pgUser || t.visible === false || typeof t.fill !== 'string') return;
+    const ours = pgPlateInked(t);                   // tinted here before: it follows its plate as the plate is now
+    if (pgHueOf(t.fill) && !ours) return;
+    const tp = thParse(t.fill); if (!tp) return;
+    const tb = box(t); if (!tb || !tb.width) return;
+    const cx = tb.left + tb.width / 2, cy = tb.top + tb.height / 2;
+    /* the topmost solid coloured shape under the line that holds its middle
+       and most of its letters */
+    let plate = null;
+    for (let i = ti - 1; i >= 0 && !plate; i--){
+      const o = objs[i];
+      if (!o || o.visible === false || isText(o) || !PG_HUE_SHAPES.includes(o.type) || thIsGround(o) || typeof o.fill !== 'string') continue;
+      if (o.opacity != null && o.opacity < 0.85) continue;
+      /* a box, as pgHuePaints counts one: a dot under a tick mark is too small
+         for pgOneHue to bring to the card's hue, so its colour is not the card's */
+      const pb = box(o); if (!pb || pb.width * pb.height >= 0.6 * A || pb.width * pb.height < (o.type === 'path' ? minA / 4 : minA)) continue;
+      if (cx < pb.left || cx > pb.left + pb.width || cy < pb.top || cy > pb.top + pb.height) continue;
+      const ix = Math.max(0, Math.min(tb.left + tb.width, pb.left + pb.width) - Math.max(tb.left, pb.left));
+      const iy = Math.max(0, Math.min(tb.top + tb.height, pb.top + pb.height) - Math.max(tb.top, pb.top));
+      if (ix * iy < 0.6 * tb.width * tb.height) continue;
+      const h = pgHueOf(o.fill); if (!h || h.a < 0.85){ plate = 'neutral'; break; }   // the line's plate is neutral: so is the line
+      plate = h;
+    }
+    if (!plate || plate === 'neutral'){
+      if (ours){ t.set('fill', thHexA(oklchFit(Object.assign(hexToOklch(tp.hex), { C: 0 })), tp.a)); t.pgPlateInk = null; t.dirty = true; n++; }
+      return;
+    }
+    const want = thLumOf(tp.hex), C = Math.min(plate.k.C, want < 0.2 ? 0.09 : 0.03);
+    let lo = 0, hi = 1, hex = tp.hex;
+    for (let i = 0; i < 22; i++){ const L = (lo + hi) / 2, c = oklchFit({ L, C, h: plate.k.h }); hex = c; if (thLumOf(c) < want) lo = L; else hi = L; }
+    const css = thHexA(hex, tp.a);
+    t.set('fill', css); t.pgPlateInk = css; t.dirty = true; n++;
+  });
+  return n;
+}
+/* a line pgPlateInk tinted, still wearing that tint: its colour is the
+   plate's, so the passes that read a card's colours (scenePalette,
+   thSourcePalette) skip it. Read as a source it turned a card's light blue
+   tagline blocks navy (checklistHero-pp02-15, 'Colour blocks'). */
+function pgPlateInked(o){ return !!(o && o.pgPlateInk && o.pgPlateInk === o.fill); }
 function pgHueCheck(sc, r){
   const W = sc.getWidth(), H = sc.getHeight();
   const { objs, paints } = pgHuePaints(sc, W, H);
@@ -19099,7 +19159,7 @@ function pgHueCheck(sc, r){
   r.ok = !r.fails.length;
 }
 {
-  const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } };
+  const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); } };
   const _alignPass = alignPass;
   alignPass = function(sc){ const r = _alignPass.apply(this, arguments); run(sc); return r; };
   const _themeScene = themeScene;
