@@ -215,10 +215,16 @@ POOLS = {
               I('coin-loose-pile', rot=5), I('gold-coins-pile', rot=5), I('silver-coins-tube', rot=5),
               I('silver-coins-spill', rot=5),
               I('coin-collection-tray', rot=6, role='h'), I('coin-album-pages', 'R', 5, role='h')],
+    # 2026-10-02 (owner: "more popular cars and less bikes", "some trucks and
+    # work vans"): the pickup, van and motorcycle renders are out, real ones cut
+    # from Commons photographs are in (scripts/cut_vehicle_photos.py). The
+    # sedans and the SUV are still renders until real ones land
+    # (scripts/fetch_backdrops.mjs CATS=popular,...). CAR_ROTA sets the mix.
     'cars': [I('car-sedan-rear', rot=1, kind='car'), I('car-suv-side', rot=1, kind='car'), I('car-front', rot=1, kind='car'),
-             I('car-motorcycle-side', rot=1, kind='car'), I('car-damaged-front', rot=1, kind='car'),
-             I('car-sedan-front', 'R', 1, 'car', 'h'), I('car-truck-front', 'R', 1, 'car', 'h'),
-             I('car-van-cargo', 'L', 1, 'car', 'h'),
+             I('car-damaged-front', rot=1, kind='car'), I('car-sedan-front', 'R', 1, 'car', 'h'),
+             I('car-ford-f150-black', rot=1, kind='car'), I('car-chevy-silverado-red', rot=1, kind='car'),
+             I('car-ford-transit-connect-white', rot=1, kind='car'), I('car-ford-transit-courier-white', rot=1, kind='car'),
+             I('car-ldv-maxus-van-white', rot=1, kind='car'), I('car-harley-softail-black', rot=1, kind='car'),
              I('car-wheel-tyre', rot=4, kind='acc'), I('car-title-keys', rot=10, kind='acc'),
              I('car-keys', rot=12, kind='acc'), I('car-title-docs', rot=6, kind='acc')],
     'strips': [I('strip-box-open-vials', rot=5), I('strip-boxes-fan', rot=6), I('strip-boxes-row-five', rot=3),
@@ -262,6 +268,12 @@ POOLS = {
                   I('apple-watch-stack-three', rot=4, role='h')],
     'cameras': [I('camera-dslr-body', rot=6), I('camera-mirrorless', rot=6), I('drone-folded', rot=6)],
 }
+# The vehicle each car backdrop shows, in order (cars-001 is the first): ten
+# cars, five pickups, four work vans, one motorcycle, no two alike side by side.
+CAR_ROTA = ['car-suv-side', 'car-ford-f150-black', 'car-sedan-rear', 'car-ford-transit-connect-white', 'car-front',
+            'car-chevy-silverado-red', 'car-sedan-front', 'car-ldv-maxus-van-white', 'car-suv-side', 'car-ford-f150-black',
+            'car-damaged-front', 'car-ford-transit-courier-white', 'car-sedan-rear', 'car-harley-softail-black', 'car-front',
+            'car-chevy-silverado-red', 'car-suv-side', 'car-ford-transit-connect-white', 'car-sedan-front', 'car-ford-f150-black']
 COUNTS = OrderedDict([('iphone', 150)] + [(c, 40) for c in
           ['gold', 'silver', 'coins', 'strips', 'pokemon', 'sports', 'gaming', 'audio', 'computers', 'wearables']]
           + [('cars', 20), ('cameras', 25)])
@@ -1147,7 +1159,7 @@ LAYOUT_N = {'hero': (1, 1), 'pair': (2, 2), 'trio': (3, 3), 'lineup': (4, 5), 's
 LAYOUT_N_SMALL = {'lineup': (3, 3), 'spread-fan': (3, 3), 'floating-row': (2, 3), 'flatlay-scatter': (3, 3),
                   'grid-flatlay': (4, 4), 'orbit-arc': (3, 3)}
 
-def pick_items(cat, layout, rng):
+def pick_items(cat, layout, rng, idx=None):
     pool = POOLS[cat]
     lo, hi = LAYOUT_N_SMALL.get(layout, LAYOUT_N[layout]) if cat != 'iphone' else LAYOUT_N[layout]
     n = int(rng.integers(lo, hi + 1))
@@ -1176,6 +1188,9 @@ def pick_items(cat, layout, rng):
         rng.shuffle(cars); rng.shuffle(acc)
         whole = [c for c in cars if not c['cut']]
         if layout == 'hero':
+            if idx is not None:
+                by = {it['name']: it for it in pool}
+                return [by[CAR_ROTA[idx % len(CAR_ROTA)]]]
             return whole[:1]
         if layout == 'pair':
             return [whole[0], acc[0]] if rng.random() < 0.4 else whole[:2]
@@ -1307,7 +1322,7 @@ def compose(spec):
     rng = np.random.default_rng([SEED, zlib.crc32(cat.encode()), idx])
     pal = Pal(PALETTES[spec['pal']], spec['variant'] == 'dark')
     style, layout, zone = spec['style'], spec['layout'], spec['zone']
-    items = pick_items(cat, layout, rng)
+    items = pick_items(cat, layout, rng, idx)
     surface = STYLES[style][1]
     hy = rng.uniform(0.58, 0.68) * H
     if zone != 'top' and layout != 'side-column' and np.mean([aspect(it['name']) for it in items]) > 1.25:

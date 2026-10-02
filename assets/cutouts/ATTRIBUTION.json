@@ -4,5 +4,41 @@
     "artist": "Romer Jed Medina from Newark, NJ, United States",
     "page": "https://commons.wikimedia.org/wiki/File:2021-10-8_to_2021-10-9_-_NYCC_(Touch_Edits_-_009)_(51573445803).jpg",
     "note": "cut from assets/bg-web/pokemon-charizard-card-2.jpg; certificate number and barcode softened"
+  },
+  "car-ford-f150-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20F-150%20(fourteenth%20generation)%20Rutesheimer%20Autoschau%202025%20DSC%209231.jpg",
+    "note": "cut from assets/bg-web/trucks-ford-f-150-3.jpg by scripts/cut_vehicle_photos.py. a black Ford F-150 (fourteenth generation, 2021-), SuperCrew pickup, rear three-quarter"
+  },
+  "car-chevy-silverado-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "JoachimKohler-HB",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChevrolet%20C-10%20Silverado%20in%20Lower%20Saxony.jpg",
+    "note": "cut from assets/bg-web/trucks-chevrolet-silverado-pickup-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Chevrolet C10 Silverado pickup (1981-87 square body), front three-quarter"
+  },
+  "car-ford-transit-connect-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Transit%20Connect%20(3rd%20generation)%20IMG%203395.jpg",
+    "note": "cut from assets/bg-web/vans-ford-transit-van-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Ford Transit Connect work van (third generation), front three-quarter"
+  },
+  "car-ford-transit-courier-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Transit%20Courier%20(2nd%20generation)%20DSC%207943.jpg",
+    "note": "cut from assets/bg-web/vans-ford-transit-van-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Ford Transit Courier work van (second generation), rear three-quarter"
+  },
+  "car-ldv-maxus-van-white": {
+    "license": "CC BY-SA 2.5",
+    "artist": "DeFacto",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALDV%20Maxus%202.8%20CDi%2095%20SWB%202005.jpg",
+    "note": "cut from assets/bg-web/vans-cargo-van-1.jpg by scripts/cut_vehicle_photos.py. a white LDV Maxus panel van, front three-quarter (its plate is already blank in the photograph)"
+  },
+  "car-harley-softail-black": {
+    "license": "CC BY 4.0",
+    "artist": "Pierre André Leclercq",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHarley-Davidson%20Softail%20Springer%20Screamin'%20Eagle%202008.jpg",
+    "note": "cut from assets/bg-web/bikes-harley-davidson-motorcycle-1.jpg by scripts/cut_vehicle_photos.py. a black Harley-Davidson Softail Springer motorcycle, side on"
   }
 }

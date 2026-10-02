@@ -12,11 +12,27 @@ const UA = { 'User-Agent': 'buyback-ad-lab/1.0 (admin@iphones.la) backdrop resea
 const QUERIES = {
   cash: ['pile of US dollars', 'stack of hundred dollar bills', 'US dollar bills fanned', 'cash money pile', 'bundle of banknotes dollars', 'one hundred dollar bills close'],
   strips: ['OneTouch Verio test strips box', 'Accu-Chek Guide test strips', 'blood glucose test strip box packaging', 'Contour Next test strips', 'Dexcom G6 sensor box', 'FreeStyle Libre sensor box', 'diabetes test strip boxes retail'],
+  /* 2026-10-02, the owner on the car backdrops: "more popular cars and less
+     bikes", "some trucks and work vans", "semis". One query per real model;
+     what comes back is checked by eye and cut out with
+     scripts/cut_vehicle_photos.py (add it to SPEC, plates boxed), then put in
+     CAR_ROTA in scripts/gen_backdrops.py. No bikes. */
+  popular: ['Toyota Camry', 'Toyota Corolla', 'Honda Accord', 'Honda Civic', 'Honda Civic Type R', 'Toyota RAV4', 'Honda CR-V',
+            'Toyota 4Runner', 'Toyota Highlander', 'Tesla Model 3', 'Tesla Model Y', 'Jeep Wrangler', 'Nissan Rogue',
+            'Chevrolet Tahoe', 'Ford Explorer', 'Hyundai Elantra', 'Lexus IS', 'Audi S5', 'BMW M3', 'Mercedes-Benz G-Class',
+            'Lamborghini Urus', 'Bentley Bentayga'],
+  trucks: ['Toyota Tacoma', 'Ford F-150', 'Chevrolet Silverado', 'Ram 1500', 'Toyota Tundra', 'GMC Sierra', 'Ford Ranger',
+           'Ford Super Duty'],
+  vans: ['Ford Transit', 'Mercedes-Benz Sprinter', 'Ram ProMaster', 'Chevrolet Express', 'Ford E-Series', 'Nissan NV200'],
+  semis: ['Freightliner Cascadia', 'Peterbilt 579', 'Peterbilt 389', 'Kenworth T680', 'Kenworth W900', 'Volvo VNL',
+          'International LT', 'Mack Anthem'],
 };
-/* CATS=bikes,trucks,vans fetches only those pools */
+/* CATS=popular,trucks,vans,semis fetches only those pools (PER=6 for more to choose from) */
 const ONLY = process.env.CATS ? process.env.CATS.split(',') : null;
 const OK = /CC0|Public domain|CC BY( |-)?(SA )?\d|CC-BY|CC BY-SA|Attribution/i;
 const BAD = /NC|ND|GFDL only|Fair use|copyright/i;
+/* a maker's press photograph is not a photograph of a car someone sells us */
+const PRESS = /\bpress(e|foto)?\b|pressefoto|newsroom|media kit|official photo/i;
 const tfetch = (u, ms, opts) => { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return fetch(u, Object.assign({ signal: c.signal, headers: UA }, opts || {})).finally(() => clearTimeout(t)); };
 const slug = q => q.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const att = existsSync(OUT + 'ATTRIBUTION.json') ? JSON.parse(readFileSync(OUT + 'ATTRIBUTION.json', 'utf8')) : [];
@@ -39,6 +55,7 @@ for (const [cat, qs] of Object.entries(QUERIES)){
       const ii = pg.imageinfo && pg.imageinfo[0]; if (!ii) continue;
       const m = ii.extmetadata || {}, lic = (m.LicenseShortName || {}).value || '', usage = (m.UsageTerms || {}).value || '';
       if (!OK.test(lic) || BAD.test(lic)) continue;
+      if (PRESS.test(pg.title + ' ' + ((m.Artist || {}).value || '') + ' ' + ((m.Credit || {}).value || ''))) continue;
       if ((ii.width || 0) < 1600 || (ii.height || 0) < 900 || ii.width < ii.height) continue;
       if (!/\.(jpe?g|png)$/i.test(pg.title)) continue;
       const file = cat + '-' + slug(q) + '-' + (n + 1) + '.jpg';
