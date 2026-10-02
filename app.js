@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261001c';
+const ASSET_REV = '20261002a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -6736,22 +6736,28 @@ let ez = { tpl: null, format: jget('pgfx_ez_format', 'square'), vals:{}, chips:n
 let ezBound = false, ezPrevTimer = null;
 
 function ezTpl(){ return TEMPLATES.find(t => t.id === ez.tpl) || TEMPLATES[0]; }
+/* In the order of the platform's mix (platform-mix.js, owner 2026-10-02):
+   phones first (Apple is at least half the platform, Samsung and Pixel live
+   here too), then the lines the owner named in the order named (consoles,
+   gold, coins, Pok\u00e9mon, silver for bullion, cars, then other trading cards),
+   then the categories the mix does not weigh. The chips, the category menus
+   and the studio's strip all read this order. */
 const CATS = [
   { id:'phones',  label:'\uD83D\uDCF1 Phones & Devices' },
-  { id:'gold',    label:'\uD83E\uDD47 Gold & Jewelry' },
-  { id:'silver',  label:'\uD83E\uDD48 Silver' },
-  { id:'coins',   label:'\uD83E\uDE99 Rare Coins' },
-  { id:'cars',    label:'\uD83D\uDE97 Cars & Trucks' },
-  { id:'strips',  label:'\uD83E\uDE78 Diabetic Supplies' },
-  { id:'pokemon', label:'\u26A1 Pok\u00e9mon Cards' },
-  { id:'sports',  label:'\uD83C\uDFC0 Sports Cards' },
   /* 2026-09-27, the owner: "this is alternate media and we will create some
      alternate categories for" it. Their templates come from offer-library.js. */
   { id:'gaming',    label:'\uD83C\uDFAE Gaming & Consoles' },
-  { id:'audio',     label:'\uD83C\uDFA7 Headphones & Audio' },
+  { id:'gold',    label:'\uD83E\uDD47 Gold & Jewelry' },
+  { id:'coins',   label:'\uD83E\uDE99 Rare Coins' },
+  { id:'pokemon', label:'\u26A1 Pok\u00e9mon Cards' },
+  { id:'silver',  label:'\uD83E\uDD48 Silver' },
+  { id:'cars',    label:'\uD83D\uDE97 Cars & Trucks' },
+  { id:'sports',  label:'\uD83C\uDFC0 Sports Cards' },
   { id:'computers', label:'\uD83D\uDCBB Computers & Parts' },
+  { id:'audio',     label:'\uD83C\uDFA7 Headphones & Audio' },
   { id:'wearables', label:'\u231A Wearables & Glasses' },
   { id:'cameras',   label:'\uD83D\uDCF7 Cameras & Drones' },
+  { id:'strips',  label:'\uD83E\uDE78 Diabetic Supplies' },
 ];
 let currentCat = jget('pgfx_cat', 'phones');
 function setCategory(cat){
@@ -10510,6 +10516,40 @@ function scLocked(c){
   const base = scBaseOf(c);
   return base ? tplLocked(Object.assign({}, base, { cat: c.cat })) : false;
 }
+/* THE PLATFORM'S MIX (platform-mix.js; owner, 2026-10-02, over a sports-card
+   card and a Honda motorcycle near the top of the landing: "a little niche",
+   "more popular themes, especially on the homepage"). The landing is at least
+   half Apple (iPhone 30, Mac 10, iPad 10); the other half is consoles, VR,
+   Samsung, Pixel, gold, coins, Pokémon cards, bullion and cars, then other
+   trading cards, then bikes. Every landing list that spans lines goes through
+   scMix, so the wall, the All gallery and a category chip each keep those
+   shares on whatever part of them is on screen. On a page that loads app.js
+   without platform-mix.js nothing is re-ordered. */
+function scSubject(it){
+  if (!it) return null;
+  if (it.classic) return typeof PLATFORM_MIX !== 'undefined' ? PLATFORM_MIX.templateSubject(it.classic) : it.classic.cat;
+  return it.subject || it.cat;            // stamped by scripts/tag_subjects.mjs
+}
+/* the offer cards a landing list may carry: consoles, VR, Samsung and Pixel
+   have no showcase cards, only these. Built, not held (applyTemplateHolds took
+   those out of TEMPLATES), not gated. */
+function scOfferPool(cat){
+  return TEMPLATES.filter(t => t.tag === 'offer' && !t.gated && (!cat || t.cat === cat));
+}
+/* showcase cards and offer cards as ONE ranked list: each in its own order
+   (scOrder, varietyOrder), taken in turn so both kinds lead, then unlocked
+   before locked so a first click still tends to open the editor */
+function scRankMixed(cards, tpls){
+  const a = scOrder(cards), b = varietyOrder(tpls || []).map(t => ({ classic:t }));
+  const both = [];
+  for (let i = 0; i < Math.max(a.length, b.length); i++){ if (a[i]) both.push(a[i]); if (b[i]) both.push(b[i]); }
+  const locked = it => it.classic ? tplLocked(it.classic) : scLocked(it);
+  return both.filter(it => !locked(it)).concat(both.filter(locked));
+}
+function scMix(list, limit){
+  if (typeof PLATFORM_MIX === 'undefined') return typeof limit === 'number' ? list.slice(0, limit) : list;
+  return PLATFORM_MIX.order(list, scSubject, limit);
+}
 function scBuildWall(cards){
   const wall = $('hero-wall');
   if (!wall) return;
@@ -10545,44 +10585,74 @@ function scBuildWall(cards){
      takes from all of them, and the ranking above orders by warning count) */
   const cleanVivid = vivid.filter(c => !(c.school && c.school.warn && c.school.warn.length));
   if (cleanVivid.length >= want) vivid = cleanVivid;
-  const buckets = {};
-  vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
-  Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
-  const order = Object.keys(buckets).sort((a, b) => buckets[b].length - buckets[a].length);
-  const chosen = [];
-  for (let round = 0; chosen.length < want && round < 40; round++){
-    for (const b of order){
-      const c = (buckets[b] || [])[round];
-      /* one PALETTE per card on the wall, never the same twice: the wall has
-         to show the range of the library, not six blues (owner, 2026-09-02) */
-      if (c && chosen.length < want && !chosen.some(x => x.theme === c.theme || (x.layout === c.layout && x.cat === c.cat))) chosen.push(c);
+  let picks;
+  if (typeof PLATFORM_MIX !== 'undefined'){
+    /* THE OWNER'S MIX ON THE WALL: the slots go at the platform's shares (of
+       eighteen: nine Apple, one each for the nine named lines). Within a line,
+       the hand picks first in the order picked, then the most vivid cards with
+       one palette before any repeat, unlocked before locked, then the offer
+       cards. A hand pick on a line the mix does not weigh (test strips) stays
+       in the library and off the wall. */
+    const seen = new Set(), fresh = [], again = [];
+    vivid.slice().sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity))
+      .forEach(c => { (seen.has(c.theme) ? again : fresh).push(c); seen.add(c.theme); });
+    const free = list => list.filter(c => !scLocked(c)).concat(list.filter(c => scLocked(c)));
+    const offers = varietyOrder(scOfferPool());
+    const offerItems = offers.filter(t => !tplLocked(t)).concat(offers.filter(t => tplLocked(t))).map(t => ({ classic:t }));
+    picks = scMix(chosenByHand.concat(free(fresh), free(again), offerItems), want);
+  } else {
+    const buckets = {};
+    vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
+    Object.values(buckets).forEach(list => list.sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity)));
+    const order = Object.keys(buckets).sort((a, b) => buckets[b].length - buckets[a].length);
+    const chosen = [];
+    for (let round = 0; chosen.length < want && round < 40; round++){
+      for (const b of order){
+        const c = (buckets[b] || [])[round];
+        /* one PALETTE per card on the wall, never the same twice: the wall has
+           to show the range of the library, not six blues (owner, 2026-09-02) */
+        if (c && chosen.length < want && !chosen.some(x => x.theme === c.theme || (x.layout === c.layout && x.cat === c.cat))) chosen.push(c);
+      }
     }
+    vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1 && !chosen.some(x => x.theme === c.theme)) chosen.push(c); });
+    vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1) chosen.push(c); });
+    /* a third of the wall stays free, so the first click usually opens the
+       editor rather than the plan page; the free pool is also walked by hue */
+    const freeVivid = vivid.filter(c => !scLocked(c)).sort((a, b) => b.chroma - a.chroma);
+    const quota = Math.round(want / 3);
+    let haveFree = chosen.filter(c => !scLocked(c)).length;
+    for (const c of freeVivid){
+      if (haveFree >= quota) break;
+      if (chosen.indexOf(c) !== -1 || chosen.some(x => x.theme === c.theme && x !== c)) continue;
+      const k = chosen.map((x, i) => [x, i]).reverse().find(([x]) => scLocked(x));
+      if (!k) break;
+      chosen[k[1]] = c; haveFree++;
+    }
+    /* hand-picked first, in the order they were picked, then the machine's
+       choices fill whatever is left — so a short list still gives a full wall */
+    picks = chosenByHand.length
+      ? chosenByHand.concat(scOrder(chosen)).slice(0, want)
+      : scOrder(chosen);
   }
-  vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1 && !chosen.some(x => x.theme === c.theme)) chosen.push(c); });
-  vivid.forEach(c => { if (chosen.length < want && chosen.indexOf(c) === -1) chosen.push(c); });
-  /* a third of the wall stays free, so the first click usually opens the
-     editor rather than the plan page; the free pool is also walked by hue */
-  const freeVivid = vivid.filter(c => !scLocked(c)).sort((a, b) => b.chroma - a.chroma);
-  const quota = Math.round(want / 3);
-  let haveFree = chosen.filter(c => !scLocked(c)).length;
-  for (const c of freeVivid){
-    if (haveFree >= quota) break;
-    if (chosen.indexOf(c) !== -1 || chosen.some(x => x.theme === c.theme && x !== c)) continue;
-    const k = chosen.map((x, i) => [x, i]).reverse().find(([x]) => scLocked(x));
-    if (!k) break;
-    chosen[k[1]] = c; haveFree++;
-  }
-  /* hand-picked first, in the order they were picked, then the machine's
-     choices fill whatever is left — so a short list still gives a full wall */
-  const picks = chosenByHand.length
-    ? chosenByHand.concat(scOrder(chosen)).slice(0, want)
-    : scOrder(chosen);  cols.forEach((col, i) => {
+  cols.forEach((col, i) => {
     col.innerHTML = '';
     const mine = picks.filter((_, k) => k % cols.length === i);
     /* each column is its list twice, so the -50% keyframe loops seamlessly */
     mine.concat(mine).forEach((c, k) => {
       const d = document.createElement('div');
       d.className = 'wall-card';
+      if (c.classic){
+        /* an offer card has no baked thumbnail: drawn here once its own
+           picture, photograph and faces are in (only this card's, rule 93) */
+        const t = c.classic;
+        d.title = t.name;
+        d.innerHTML = `<img src="${THUMBS[t.id] || thumbFallback(t, 160)}" alt="${escHtml(t.name)} template" decoding="async">`;
+        const img = d.querySelector('img');
+        ensureTplAssets(t).then(() => { const u = getThumb(t.id, 448); if (u) img.src = u; });
+        d.onclick = () => showEasy(t.id);
+        col.appendChild(d);
+        return;
+      }
       d.title = c.name;
       d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
       d.onclick = () => openShowcase(c.id);
@@ -10651,10 +10721,12 @@ function scBuildChips(cards){
     b.onclick = () => { SHOWCASE.filter.cat = id; scSyncFilters(); scRenderGrid(true); };
     row.appendChild(b);
   };
-  mk('all', 'All', cards.length);
+  /* the counts are what the view shows: showcase cards plus the offer cards
+     scRenderGrid mixes in beside them */
+  mk('all', 'All', cards.length + scOfferPool().length);
   /* a category the showcase has no cards for yet (the 2026-09-27 ones) shows
      the studio's own templates for it, so its chip is never an empty room */
-  CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] || scStudioCat(c.id).length));
+  CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] ? counts[c.id] + scOfferPool(c.id).length : scStudioCat(c.id).length));
   mk('offer', 'Offer cards', scOffers().length);
   mk('classics', 'Classics', scClassics().length);
   const more = $('lp-tpl-more');
@@ -10738,9 +10810,12 @@ function scRenderGrid(reset){
       SHOWCASE.list = scStudioCat(f.cat).map(t => ({ classic:t }));
     } else {
       const sub = SHOWCASE.cards.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.theme === f.fam));
-      const ordered = scOrder(sub);
-      /* unlocked first, so the first cards anyone clicks open the editor */
-      SHOWCASE.list = ordered.filter(c => !scLocked(c)).concat(ordered.filter(c => scLocked(c)));
+      /* the platform's mix (scMix): the offer cards of the same category join
+         the showcase's, because consoles, VR, Samsung and Pixel exist only as
+         offer cards; a palette filter is the showcase's own and keeps to it.
+         Unlocked first inside every line (scRankMixed). */
+      const offers = f.fam === 'all' ? scOfferPool(f.cat === 'all' ? null : f.cat) : [];
+      SHOWCASE.list = scMix(scRankMixed(sub, offers));
     }
   }
   const slice = SHOWCASE.list.slice(SHOWCASE.shown, SHOWCASE.shown + SHOWCASE.PAGE);
@@ -15062,7 +15137,7 @@ function scenePalette(sc, W){
   W = W || sc.width / ((sc.getZoom && sc.getZoom()) || 1);
   const cols = [];
   sc.getObjects().forEach(o => {
-    if (o.visible === false || (o.opacity != null && o.opacity < 0.3) || o.pgTagBlock || o.pgKin) return;
+    if (o.visible === false || (o.opacity != null && o.opacity < 0.3) || o.pgTagBlock || o.pgKin || pgPlateInked(o)) return;
     const isT = o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
     if (!isT && o.type !== 'rect') return;
     if (!isT && o.width * (o.scaleX || 1) >= 0.93 * W) return;              // the ground, not an accent
@@ -17145,7 +17220,7 @@ function thSourcePalette(sc, tpl, W, H){
   const box = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return { width: 0, height: 0 }; } };
   let big = null, bigA = 0;
   objs.forEach(o => {
-    if (!o || o.visible === false || thIsGround(o) || o.type === 'image') return;
+    if (!o || o.visible === false || thIsGround(o) || o.type === 'image' || pgPlateInked(o)) return;
     const b = box(o), area = Math.max(1, b.width * b.height);
     if (thIsWords(o)){ thStops(o.fill).forEach(c => add(c, area * 0.6)); return; }
     thStops(o.fill).forEach(c => { const f = add(c, area * 0.25); if (f && area > bigA && o.type !== 'path'){ big = f; bigA = area; } });
@@ -17156,7 +17231,7 @@ function thSourcePalette(sc, tpl, W, H){
   let acc = null;
   for (const role of ['phone', 'cta']){
     const pl = plateOf(role); acc = acc || (pl && famIn(pl.fill));
-    const t = objs.find(o => thIsWords(o) && o.pgRole === role); acc = acc || (t && famIn(t.fill));
+    const t = objs.find(o => thIsWords(o) && o.pgRole === role); acc = acc || (t && !pgPlateInked(t) && famIn(t.fill));
   }
   fams.sort((a, b) => b.w - a.w);
   acc = acc || fams[0] || null;
@@ -19087,6 +19162,66 @@ function pgOneHue(sc, W, H){
   });
   return n;
 }
+/* The words on a coloured plate wear the plate's colour (rule 104). Owner,
+   2026-10-02, of a light blue number box with a near-black number in it: "I
+   would probably use the same blue tone for the numbers and box". The number,
+   the CTA over it and the website under it, when neutral and sitting on a
+   coloured plate beneath them, take the plate's hue at their own luminance:
+   a deep shade of it when the line is dark, a faint tint when it is white, so
+   every contrast the gate measured is the same. A line the visitor coloured
+   by hand, a gradient, and a line on a neutral plate are left alone. */
+const PG_PLATE_INK_ROLES = ['phone', 'cta', 'website'];
+function pgPlateInk(sc){
+  if (typeof window !== 'undefined' && window.__pgPlateInkOff) return 0;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const W = sc.getWidth(), H = sc.getHeight(), A = W * H, minA = 900 * A / (TPL_W * TPL_H);
+  const isText = o => o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
+  const box = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  let n = 0;
+  objs.forEach((t, ti) => {
+    /* the number and the lines that travel with it, nothing else: a headline
+       on a band is styled from its own colour by the tagline looks, and a
+       tinted headline turned a light blue band navy (checklistHero-pp02-15) */
+    if (!isText(t) || !PG_PLATE_INK_ROLES.includes(t.pgRole) || t.pgUser || t.visible === false || typeof t.fill !== 'string') return;
+    const ours = pgPlateInked(t);                   // tinted here before: it follows its plate as the plate is now
+    if (pgHueOf(t.fill) && !ours) return;
+    const tp = thParse(t.fill); if (!tp) return;
+    const tb = box(t); if (!tb || !tb.width) return;
+    const cx = tb.left + tb.width / 2, cy = tb.top + tb.height / 2;
+    /* the topmost solid coloured shape under the line that holds its middle
+       and most of its letters */
+    let plate = null;
+    for (let i = ti - 1; i >= 0 && !plate; i--){
+      const o = objs[i];
+      if (!o || o.visible === false || isText(o) || !PG_HUE_SHAPES.includes(o.type) || thIsGround(o) || typeof o.fill !== 'string') continue;
+      if (o.opacity != null && o.opacity < 0.85) continue;
+      /* a box, as pgHuePaints counts one: a dot under a tick mark is too small
+         for pgOneHue to bring to the card's hue, so its colour is not the card's */
+      const pb = box(o); if (!pb || pb.width * pb.height >= 0.6 * A || pb.width * pb.height < (o.type === 'path' ? minA / 4 : minA)) continue;
+      if (cx < pb.left || cx > pb.left + pb.width || cy < pb.top || cy > pb.top + pb.height) continue;
+      const ix = Math.max(0, Math.min(tb.left + tb.width, pb.left + pb.width) - Math.max(tb.left, pb.left));
+      const iy = Math.max(0, Math.min(tb.top + tb.height, pb.top + pb.height) - Math.max(tb.top, pb.top));
+      if (ix * iy < 0.6 * tb.width * tb.height) continue;
+      const h = pgHueOf(o.fill); if (!h || h.a < 0.85){ plate = 'neutral'; break; }   // the line's plate is neutral: so is the line
+      plate = h;
+    }
+    if (!plate || plate === 'neutral'){
+      if (ours){ t.set('fill', thHexA(oklchFit(Object.assign(hexToOklch(tp.hex), { C: 0 })), tp.a)); t.pgPlateInk = null; t.dirty = true; n++; }
+      return;
+    }
+    const want = thLumOf(tp.hex), C = Math.min(plate.k.C, want < 0.2 ? 0.09 : 0.03);
+    let lo = 0, hi = 1, hex = tp.hex;
+    for (let i = 0; i < 22; i++){ const L = (lo + hi) / 2, c = oklchFit({ L, C, h: plate.k.h }); hex = c; if (thLumOf(c) < want) lo = L; else hi = L; }
+    const css = thHexA(hex, tp.a);
+    t.set('fill', css); t.pgPlateInk = css; t.dirty = true; n++;
+  });
+  return n;
+}
+/* a line pgPlateInk tinted, still wearing that tint: its colour is the
+   plate's, so the passes that read a card's colours (scenePalette,
+   thSourcePalette) skip it. Read as a source it turned a card's light blue
+   tagline blocks navy (checklistHero-pp02-15, 'Colour blocks'). */
+function pgPlateInked(o){ return !!(o && o.pgPlateInk && o.pgPlateInk === o.fill); }
 function pgHueCheck(sc, r){
   const W = sc.getWidth(), H = sc.getHeight();
   const { objs, paints } = pgHuePaints(sc, W, H);
@@ -19099,7 +19234,7 @@ function pgHueCheck(sc, r){
   r.ok = !r.fails.length;
 }
 {
-  const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } };
+  const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); } };
   const _alignPass = alignPass;
   alignPass = function(sc){ const r = _alignPass.apply(this, arguments); run(sc); return r; };
   const _themeScene = themeScene;

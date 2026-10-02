@@ -3496,3 +3496,125 @@ before (the gate on the same renderer):
 | median colourfulness (live) | 0.263 | 0.266 |
 | colour-blind regressions (role pairs) | | 0 of 1,245 |
 | mapped colours left muddy | | 0 |
+
+## 104. The words on a coloured plate wear the plate's colour
+
+Added 2026-10-02. The owner, of a Test Strips card whose number sat in a
+light blue box in a near-black: "I would probably use the same blue tone for
+the numbers and box." And of a Pokémon card with the same baby-blue pill and
+brown-black digits: "this looks ridiculous."
+
+Rule 95 makes a card one hue but leaves black and white alone, so the
+number, the CTA over it and the website under it stayed the warm near-black
+`#141110` on every plate: brownish on blue, muddy on green.
+
+- **The number, the CTA and the website line, when neutral and sitting on a
+  solid coloured plate beneath them** (the line's middle and most of its
+  letters on the plate), take the plate's hue at their own luminance: a deep
+  shade (C up to 0.09) when the line is dark, a faint tint (C up to 0.03)
+  when it is white. The plate and its words read as one colour, and every
+  contrast the gate measured is the same. At the darkest inks the colour only
+  shows in blue and purple: a green at the luminance of near-black is black.
+- **Only that unit, and never as a source.** The first build tinted every
+  line on a plate, and a card's tagline look ('Colour blocks') builds its
+  palette from the colours on the card, weighting the number and CTA twice:
+  `checklistHero-pp02-15`'s light blue headline blocks came out navy with
+  white words. A tinted line is marked (`pgPlateInk`) and the palette readers
+  (`scenePalette`, `thSourcePalette`) skip it, so the rest of the card is
+  exactly what it was. A marked line still wearing its tint follows its
+  plate when a theme repaints it, and goes back to neutral on a neutral one.
+- The plate must be a box as `pgHuePaints` counts one. A dot under a tick
+  mark is too small for `pgOneHue` to bring to the card's hue, and the first
+  build tinted `trustSeal-nn05-30`'s tick with that dot's off-hue colour,
+  which the gate failed ('hues').
+- A line on a neutral plate (paper, smoke, black, white) stays neutral; a
+  line the visitor coloured by hand (pgUser), a gradient and per-letter
+  colours are left alone.
+- `pgPlateInk` runs right after `pgOneHue` on every path that runs it (the
+  layout, a theme, a card look, a tagline look, the copy that follows a flat
+  ground), so the plate's colour is final when its words take it.
+
+Measured on main's build, the classics gate before and after: 346 of 404
+pass either way, no card's verdict changes except `st_coins_splitcol` (held
+already, its number off its plate), whose number's worst letter goes from 3.0
+to 2.92:1 where anti-aliased tinted digits meet the photograph; the median
+change in the worst critical line is 0.00 (range plus or minus 0.04).
+
+## 105. A card on the site is a finished ad: a photograph behind it, a headline that reads
+
+Added 2026-10-02. The owner, looking at the live library: "These can't be
+final products on the site.. there's no background?", then "we need to
+audit".
+
+Every one of the 415 live cards was looked at on numbered contact sheets
+(grouped by what is behind it), and every doubtful one again at full size. 86
+are held back from the site, listed with their reason in
+`assets/showcase/holds.json` and stamped by `scripts/hold_showcase.mjs`:
+
+| reason | cards |
+|---|---|
+| a drawn ground (flat colour, pattern, sunburst, gradient) with a small cut-out and no photograph | 65 |
+| a panel or wash covering the photograph, so the card reads flat | 7 |
+| a dark headline with a heavy shadow on a coloured band, reading as a smudge | 9 |
+| an outlined serif headline over a busy photograph | 2 |
+| a dark headline on a light or same-colour ground, muddy | 2 |
+| fails the gate on main too (the number off the middle of its plate) | 1 |
+
+- **No photograph, no place on the site.** Rule 86's drawn grounds (sunburst,
+  stripes, halftone, mesh) stay in the studio as backgrounds a visitor can
+  choose, but a library card has to show a scene: a photograph, a blurred
+  photograph, the money art, or a photograph under a pattern.
+- **The gate cannot see these.** 85 of them passed it: their lines clear 3:1. A
+  smudged band headline clears 3:1 and still looks broken; a flat card has
+  nothing wrong with it except that it is not an ad. That is why the audit
+  was done by eye, and why it lives in a list a person wrote.
+- The stamp is `curated`, the one every later audit keeps
+  (audit_showcase_content.mjs, curate_showcase.mjs), so no re-run puts a
+  card back. 329 cards stay live; every category keeps 33 to 66.
+
+## 106. The landing is at least half Apple, and the rest is what sells
+
+Added 2026-10-02. The owner, over a "WE BUY CARDS" basketball card and a "WE
+BUY HONDAS" motorcycle near the top of the landing: "basketball cards seem
+like a little niche", "I was thinking more popular themes, especially on the
+homepage", then: "The platform should be at least 50% Apple devices 30%
+iPhone 10% Mac 10% iPad and then the remaining should be split between
+consoles, VR, Samsung, Pixel phones, gold, coins, Pokémon cards, bullion,
+cars, then other trading cards", "then bikes".
+
+The landing used to treat all eight showcase categories as equals: free cards
+first, three free per category, no two neighbours alike. That put coins 3,
+test strips 3, silver 2, sports cards 2, gold 2, Pokémon 1, cars 1 (the Honda
+bike) and phones 2 on the first page of sixteen.
+
+| half | line | share |
+|---|---|---|
+| Apple, 50 | iPhone | 30 |
+| | Mac | 10 |
+| | iPad | 10 |
+| the rest, 50 | consoles, VR, Samsung, Pixel, gold, coins, Pokémon, bullion, cars | 5 each |
+| | other trading cards | 3 |
+| | bikes | 2 |
+
+- **The table is `platform-mix.js`, and only there.** The hero wall, the All
+  gallery and every category chip order their cards through it (`scMix`), by
+  smooth weighted round robin: first which half, then which line. Any prefix
+  keeps the shares, not only the whole list. Of the eighteen wall slots: nine
+  Apple (five iPhone, two Mac, two iPad), one each of the nine named lines.
+- **A line that runs out hands its share on inside its own half**, so Apple
+  stays at half for as long as an Apple card is left. That is the "at least".
+- **What a card sells is its `subject`**, not its category. "phones" holds
+  iPhones, iPads, MacBooks and watches; "cars" holds the motorcycles; "silver"
+  holds bars and flatware. `scripts/tag_subjects.mjs` reads each showcase
+  card's headline, then its picture, and stamps the index; an offer card's
+  subject is its buying line (`PLATFORM_MIX.templateSubject`).
+- **Offer cards join the gallery and the wall**, because consoles, VR, Samsung
+  and Pixel exist only as offer cards. A palette filter stays showcase-only.
+- **Unnamed lines stay in the library.** Test strips, silver flatware,
+  watches, audio, cameras and the rest are behind their chips and after every
+  weighted card in All; they are never weighted. A hand-picked hero card on
+  such a line stays off the wall.
+- The category chips and menus follow the same order (`CATS`).
+- `scripts/mix_check.mjs` fails if a live card has no subject, if Apple falls
+  under half of any prefix while it has cards, or if a line drifts more than
+  one card from its share.
