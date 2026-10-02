@@ -676,6 +676,8 @@ step is measured by the gate before it writes):
     node scripts/audit_showcase_content.mjs --write        # `defect` from the stamps (keeps `curated`)
     node scripts/curate_showcase.mjs --write               # the owner's cut
     node scripts/hold_showcase.mjs --write                 # the owner's audit (assets/showcase/holds.json, rule 105), LAST
+    node scripts/tag_subjects.mjs --write                  # what each card sells, for the landing's mix (rule 106)
+    node scripts/mix_check.mjs                             # the landing keeps the owner's mix: exit 1 on a drift
     node scripts/verify_showcase.mjs --write               # the gate over the library: exit 1 stops the commit
     node scripts/rethumb_showcase.mjs                      # then bump ASSET_REV in app.js
     node scripts/measure_showcase_color.mjs
@@ -1444,6 +1446,39 @@ Still open:
 2. **The band headline** (bandKnockout and some slabPoster layouts) sets a
    dark word with a heavy shadow on a coloured band; nine cards were held for
    it. The layout wants a light word on a dark band, or no shadow.
+
+## AB. 2026-10-02 — the landing is at least half Apple (DESIGN-LAW 106)
+
+Done: `platform-mix.js` (the owner's table), `scMix` in app.js on the hero
+wall, the All gallery and the category chips, offer cards mixed in beside
+the showcase's, `subject` stamped on the index (`scripts/tag_subjects.mjs`),
+`scripts/mix_check.mjs`, the category order (`CATS`) to match.
+
+Measured on main's library, loaded headless at 1440 and 390 with every
+request served from the checkout: 0 page errors, 0 missing files. The wall:
+iPhone 5, Mac 2, iPad 2, then one each of consoles, VR, Samsung, Pixel, gold,
+coins, Pokémon, bullion and cars. The first page: iPhone 5, Mac 2, iPad 1,
+consoles 1, VR 1, Samsung 1, Pixel 1, gold 1, coins 1, Pokémon 1, bullion 1.
+Apple holds half of every prefix to card 146, where its 74 cards run out.
+
+Not live until deployed (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **Supply is thin where the owner put weight.** Mac has 16 cards, VR, Samsung
+   and Pixel 5 each, bikes 3, and consoles, VR, Samsung and Pixel have no
+   showcase card at all (only offer cards). More cards there keep the mix true
+   further down the list.
+2. **Nine of the eighteen wall slots are offer cards**, drawn in the browser
+   after their own picture and faces load (most of the iPhone showcase cards
+   are photo-led, and the wall takes only product-led ones). Watch the
+   landing's phone weight with `landing_check.mjs` after a deploy.
+3. **The VR line is PRO-locked** for a signed-out visitor (Gaming is not a
+   free category), so its wall and first-page card opens the plan page.
+4. The hand-picked hero list (`assets/hero-picks.json`) still names two test
+   strip cards: `stepsFlow-cd06-30` is held (rule 105), and the mix keeps
+   `checklistHero-pp02-20` off the wall. Re-pick on `/lab/hero.html` if the
+   owner wants the list to match.
 
 ## AC. 2026-10-02 — the phone mark joins the number; two car cards finished; why a card looks unfinished
 

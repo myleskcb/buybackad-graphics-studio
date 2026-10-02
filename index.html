@@ -536,11 +536,12 @@
       <div class="view-drop" id="view-drop">
         <button class="view-item" id="vi-grid"><span class="vi-check"></span>Show grid</button>
         <button class="view-item" id="vi-gridsnap"><span class="vi-check"></span>Snap to grid</button>
-        <button class="view-item" id="vi-centersnap"><span class="vi-check"></span>Smart center guides</button>
+        <button class="view-item" id="vi-centersnap"><span class="vi-check"></span>Smart guides (pink lines)</button>
         <button class="view-item" id="vi-gridsize"><span style="width:16px"></span>Grid size: <b id="vi-gridsize-val" style="margin-left:auto">20px</b></button>
       </div>
     </div>
     <button class="tb-btn" id="enhance-btn" title="Restore template styling and clean up text">✦ <span class="tb-label">Enhance</span></button>
+    <button class="tb-btn" id="centre-all-btn" title="Centre every line, row and plate on the card and lock them to the middle">⇔ <span class="tb-label">Centre all</span></button>
     <div class="tb-spacer"></div>
     <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
     <button class="tb-btn" id="help-btn" title="Replay the tour">?</button>
@@ -709,8 +710,7 @@
       <div id="canvas-holder">
         <div id="grid-overlay"></div>
         <canvas id="c" width="1080" height="1080"></canvas>
-        <div id="guide-v"></div>
-        <div id="guide-h"></div>
+        <div id="snap-guides" aria-hidden="true"></div>
       </div>
       <div class="zoombar">
         <button id="zoom-out" title="Zoom out">−</button>
@@ -829,6 +829,7 @@
           <div id="props-common" style="display:none">
             <div class="psec">
               <div class="psec-title">Arrange</div>
+              <div class="field"><div class="icon-row"><button id="pc-clock" title="Keep this, and the rest of its row, on the middle of the card while you edit; it moves up and down only">⇔ Lock to the middle</button></div></div>
               <div class="field"><label>Align to canvas</label><div class="icon-row">
                 <button id="pc-al-l" title="Align left">⇤</button>
                 <button id="pc-center-h" title="Center horizontally">↔</button>
@@ -1290,6 +1291,7 @@
 <script src="photo-subjects.js"></script>
 <script src="grounds.js"></script>
 <script src="video-help.js"></script>
+<script src="platform-mix.js"></script>
 <script src="app.js"></script>
 <script src="iphonesla-link.js"></script>
 <script src="offer-assets.js"></script>
