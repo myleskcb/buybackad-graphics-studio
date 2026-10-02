@@ -212,16 +212,34 @@ before running it anywhere: the deploy records the branch and commit the
 tree is on.
 
 ```bash
-cd ~/Downloads/gfxv23
-git fetch origin && git checkout main && git pull   # deploy main, nothing else
-netlify status              # confirm the link
+cd ~/Downloads/gfxv23 && git fetch origin
+# a clean checkout of exactly main: nothing uncommitted or untracked ships
+git worktree add ~/Downloads/studio-main origin/main    # the first time
+cd ~/Downloads/studio-main
+git fetch origin && git checkout --detach origin/main   # every time after
+git log -1 --oneline        # the main you mean to ship
+netlify link --name buybackad-graphics-studio           # the first time
 netlify deploy --dir=.      # DRAFT first, always
+# before it uploads: "Config file" must be …/studio-main/netlify.toml and
+# "Deploy path" …/studio-main; "No config file was defined" means the wrong
+# folder, so Ctrl+C
 # open the draft URL and confirm it renders
 netlify deploy --prod --dir=.
 ```
 
 Draft-deploy and *look* before `--prod`. Given landmine 2, the preview render is
 the only real check.
+
+`--dir=.` is whatever folder the terminal is in. On 2026-10-01 the owner ran
+`netlify link` and `netlify deploy --prod --dir=.` in the home folder
+(`/Users/admin`); the CLI said "No config file was defined", "Deploy path:
+/Users/admin", and began hashing the Photos library to publish it on
+studio.scans.ad. When you hand the owner deploy commands, start them with the
+`cd`, and tell them to read the Deploy path line before anything uploads. A
+home folder linked by mistake is undone with `netlify unlink` there; a deploy
+made from one is deleted with `netlify api deleteDeploy --data
+'{"deploy_id":"…"}'` after the last good deploy is published again (every
+finished deploy keeps a public address of its own).
 
 To click through a branch on your own machine first: `python3 -m http.server
 8899` in the repo, then open `http://localhost:8899/?demo=1`. A local copy has

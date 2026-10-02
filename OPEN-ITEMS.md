@@ -1353,7 +1353,11 @@ Open:
    and the environment's network policy answers 403 to both (twice, a fresh
    token the second time). Either allow those two hosts in the environment's
    Network access and deploy from a session, or from the Mac: AGENT-BRIEF,
-   Deploying (`git checkout main && git pull`, then the draft and `--prod`).
+   Deploying (a clean worktree of `origin/main`, then the draft and
+   `--prod`). The owner's first try from the Mac ran in the home folder, not
+   the repo (AGENT-BRIEF, Deploying): if that deploy finished, publish the
+   last good deploy again and delete it from the project's deploy list
+   before anything else.
 1. **The choice holds were measured before the merges.**
    assets/choice-holds.json (rule 101) came from the sweep of 2026-09-30, on
    an engine without one colour to a card, the library looks, the twelve
