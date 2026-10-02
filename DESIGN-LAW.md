@@ -3571,3 +3571,50 @@ are held back from the site, listed with their reason in
 - The stamp is `curated`, the one every later audit keeps
   (audit_showcase_content.mjs, curate_showcase.mjs), so no re-run puts a
   card back. 329 cards stay live; every category keeps 33 to 66.
+
+## 106. The landing is at least half Apple, and the rest is what sells
+
+Added 2026-10-02. The owner, over a "WE BUY CARDS" basketball card and a "WE
+BUY HONDAS" motorcycle near the top of the landing: "basketball cards seem
+like a little niche", "I was thinking more popular themes, especially on the
+homepage", then: "The platform should be at least 50% Apple devices 30%
+iPhone 10% Mac 10% iPad and then the remaining should be split between
+consoles, VR, Samsung, Pixel phones, gold, coins, Pokémon cards, bullion,
+cars, then other trading cards", "then bikes".
+
+The landing used to treat all eight showcase categories as equals: free cards
+first, three free per category, no two neighbours alike. That put coins 3,
+test strips 3, silver 2, sports cards 2, gold 2, Pokémon 1, cars 1 (the Honda
+bike) and phones 2 on the first page of sixteen.
+
+| half | line | share |
+|---|---|---|
+| Apple, 50 | iPhone | 30 |
+| | Mac | 10 |
+| | iPad | 10 |
+| the rest, 50 | consoles, VR, Samsung, Pixel, gold, coins, Pokémon, bullion, cars | 5 each |
+| | other trading cards | 3 |
+| | bikes | 2 |
+
+- **The table is `platform-mix.js`, and only there.** The hero wall, the All
+  gallery and every category chip order their cards through it (`scMix`), by
+  smooth weighted round robin: first which half, then which line. Any prefix
+  keeps the shares, not only the whole list. Of the eighteen wall slots: nine
+  Apple (five iPhone, two Mac, two iPad), one each of the nine named lines.
+- **A line that runs out hands its share on inside its own half**, so Apple
+  stays at half for as long as an Apple card is left. That is the "at least".
+- **What a card sells is its `subject`**, not its category. "phones" holds
+  iPhones, iPads, MacBooks and watches; "cars" holds the motorcycles; "silver"
+  holds bars and flatware. `scripts/tag_subjects.mjs` reads each showcase
+  card's headline, then its picture, and stamps the index; an offer card's
+  subject is its buying line (`PLATFORM_MIX.templateSubject`).
+- **Offer cards join the gallery and the wall**, because consoles, VR, Samsung
+  and Pixel exist only as offer cards. A palette filter stays showcase-only.
+- **Unnamed lines stay in the library.** Test strips, silver flatware,
+  watches, audio, cameras and the rest are behind their chips and after every
+  weighted card in All; they are never weighted. A hand-picked hero card on
+  such a line stays off the wall.
+- The category chips and menus follow the same order (`CATS`).
+- `scripts/mix_check.mjs` fails if a live card has no subject, if Apple falls
+  under half of any prefix while it has cards, or if a line drifts more than
+  one card from its share.
