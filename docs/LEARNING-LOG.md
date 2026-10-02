@@ -2463,10 +2463,11 @@ Found:
     deployed since. All 14 of its live siblings with the same copy are
     centred.
 
-Did: DESIGN-LAW rule 106. Pink guides to every layer's edges and middle and
-the card's, both axes at once, Alt for free placement; Lock to the middle in
-Arrange (a row comes with the layer); Centre all in the top bar; a locked
-group keeps its shape through a format switch.
+Did: DESIGN-LAW rule 107 (the landing session took 106 the same hour).
+Pink guides to every layer's edges and middle and the card's, both axes at
+once, Alt for free placement; Lock to the middle in Arrange (a row comes with
+the layer); Centre all in the top bar; a locked group keeps its shape through
+a format switch.
 
 Checked: in a headless editor (Playwright, fabric 5.3.0 served locally):
 Centre all on checklistHero-cd06-15 (the list a block, its icons in a column;
