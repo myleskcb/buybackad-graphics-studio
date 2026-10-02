@@ -2401,7 +2401,9 @@ Changed:
     photographs are files, and the landing no longer loads a 635 KB script
     of them first (busy-allen's port).
   - Holds: the cards that fail as offered on the merged engine; three
-    themes on reviewProof-cd06-15.
+    themes on reviewProof-cd06-15. Then (2026-10-02) the full sweep's
+    table on `main`'s build: 45 cards, 444 themes, 35 looks, 1,520 voices
+    (OPEN-ITEMS §Z 1).
 
 Checked (the merged build): OPEN-ITEMS §Z lists each check and its result.
 
@@ -2411,13 +2413,28 @@ Did not work:
     netlify-mcp.netlify.app to api.netlify.com; the environment's network
     policy answers 403 to both (the agent proxy's status page names them).
     `main` is pushed and waits for a deploy (OPEN-ITEMS §Z 0).
+  - The deploy commands this session gave the owner in chat began with
+    `git checkout main && git pull`, not with the `cd` into the repo. The
+    owner ran `netlify link` and `netlify deploy --prod --dir=.` in the home
+    folder: "No config file was defined", "Deploy path: /Users/admin", and
+    the CLI hashing the Photos library to publish it. Hand the owner
+    commands that start with the `cd`, from a clean worktree of `main`,
+    and name the line to read before anything uploads (AGENT-BRIEF,
+    Deploying).
+  - Keeping the session alive with a waiter. It reached its two-hour limit,
+    nothing tracked was running, and the container was reclaimed within the
+    hour, killing the sweep at 275 cards of 735. A long job runs as tracked
+    chunks instead (`timeout -k 60 6900` inside a background task, then
+    `--resume`). `timeout`'s kill leaves the audit's browsers behind (48
+    here): kill them before the next chunk.
 
 RESUME HERE:
-  0. Deploy `main` (OPEN-ITEMS §Z 0): from the Mac, or from a session whose
-     environment allows netlify-mcp.netlify.app and api.netlify.com.
-  1. The full choice sweep on the merged engine (OPEN-ITEMS §Z 1):
-       node scripts/every_card_audit.mjs --write-holds
-     then commit assets/choice-holds.json and deploy `main`.
+  0. Deploy `main` (OPEN-ITEMS §Z 0) from a clean worktree on the Mac
+     (AGENT-BRIEF, Deploying), first clearing the deploy made from the home
+     folder if it finished.
+  1. From the full sweep (OPEN-ITEMS §Z 1): dl_strips_arcCrown_emerald's
+     second headline line, the marks a theme loses (the phone cue,
+     stepsFlow's number boxes), the Modern voice.
   2. The street price badge's number plate (§Z 2), reviewProof's call to
      action under its pill (§Z 3).
-  3. Deploy the same `main` to the Mac's project (buybackad-graphics-studio).
+  3. The same `main` on both Netlify projects, or one retired (§Z 4).

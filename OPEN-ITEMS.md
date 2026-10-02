@@ -1358,15 +1358,33 @@ Open:
    the repo (AGENT-BRIEF, Deploying): if that deploy finished, publish the
    last good deploy again and delete it from the project's deploy list
    before anything else.
-1. **The choice holds were measured before the merges.**
-   assets/choice-holds.json (rule 101) came from the sweep of 2026-09-30, on
-   an engine without one colour to a card, the library looks, the twelve
-   palettes or `numCentre`. Its card holds are re-measured on the merged
-   engine (`--dims base`); its theme, look and voice holds are the old ones
-   (plus three measured on reviewProof-cd06-15) until the full sweep runs
-   again: `node scripts/every_card_audit.mjs --write-holds`, about eleven
-   hours on four cores. Started after the deploy; commit its table and
-   deploy `main` again when it ends.
+1. **The choice holds, measured on the merged engine (done 2026-10-02).**
+   The full sweep (`node scripts/every_card_audit.mjs --write-holds`) ran on
+   `main` at 8c15d48: 735 cards, 37,485 renders (themes 15,435, looks 8,820,
+   voices 13,230), no card that failed to open, no page errors. A container
+   restart cut it at 275 cards; `--resume` in tracked chunks finished it.
+   assets/choice-holds.json now holds 45 cards as offered (37 for `numCentre`,
+   §Z 2; four topstrip classics whose call to action and number collide;
+   two reviewProof cards, §Z 3; sell_iphone; dl_strips_arcCrown_emerald,
+   below), 444 themes on 53 cards, 35 looks on 27 cards and 1,520 voices on
+   416 cards. Against the table it replaced: themes 125 new and 79 cleared,
+   looks 5 and 3, voices 13 and 33. The app was checked loading it: the held
+   cards are out of the strip and the library, and a held chip is off with
+   its reason. Still open from it:
+   - dl_strips_arcCrown_emerald is held for its second headline line, which
+     sits on the legibility line: it failed four of six measurements since
+     2026-09-30, two of three on this build. Raise that line's contrast, then
+     `--ids dl_strips_arcCrown_emerald --dims base --write-holds`.
+   - 333 of the 444 theme holds are a mark that falls under 2:1 on what it
+     sits on, on 30 cards (slabPoster 12, scriptRetro 6, stepsFlow 5); the
+     marks are mostly the phone cue and stepsFlow's three step-number boxes.
+     A few marks on a few families: worth one look at how a theme paints
+     them before 333 holds stand.
+   - The Modern voice is off on 379 cards: the headline too small in a feed
+     on 239, the number or the call label running into another line on
+     about 140 each. Serif (198 cards) and Retro (186) fail mostly for the
+     headline's size. A voice that fails on half the cards wants a fix in
+     the voice, not holds.
 2. **A number alone on a band that runs off the bottom** (rule 102). 37
    cards are held as offered for `numCentre`: 16 stepsFlow and 16 trustSeal
    library cards (their band holds the number and the website; with the
@@ -1383,9 +1401,11 @@ Open:
 3. **reviewProof's call to action runs under its number's pill** (on
    production too): two of the family are held as offered, and
    reviewProof-cd06-15 has three themes held for it.
-4. **One site.** As §U 2: `buybackad-graphics-studio` (the Mac's CLI) still
-   serves what was last deployed from the Mac; deploy `main` there too, or
-   retire it.
+4. **One site.** As §U 2: two projects serve the app.
+   `buybackad-graphics-studio` (studio.scans.ad, deployed from the Mac's CLI)
+   serves what was last deployed from the Mac; `buybackad-finished-copy`
+   (the connector's) serves 61d77f1. Deploy the same `main` to both, or
+   retire one.
 5. **Branches.** Every `claude/*` branch but the two August ones is in
    `main` now; delete them once their sessions have merged `main` (the
    owner's call). Sessions were still pushing while this was merged; merge
