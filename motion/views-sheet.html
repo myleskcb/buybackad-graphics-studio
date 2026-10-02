@@ -1,16 +1,20 @@
 <!doctype html><meta charset=utf-8><title>Phone views</title>
 <style>body{margin:0;background:#2b2733;color:#eee;font:13px system-ui}canvas{display:block}</style>
 <body><canvas id=c></canvas><script type=module>
-// Every phone at every angle the video maker can land it at, drawn by the
-// engine itself: back and screen, flat and turned to either edge. One row per
-// phone, so a model that is off in any view shows up next to the others.
-import { loadPhones, Phone, drawPhone } from "./engine.js";
+// Every phone at the angles the video maker can land it at, drawn by the
+// engine itself: back and screen, flat, hero three-quarter, turned, leaning back
+// and side on. One row per phone, so a model that is off in any view shows up
+// next to the others. ?only=16-pro,15- narrows the list, ?look=illustrated
+// shows the art effect, ?ph= sets the phone height, ?cols= the columns.
+import { loadPhones, Phone, drawPhone, POSES } from "./engine.js";
 const { phones, index } = await loadPhones("./phones/");
 const only = new URLSearchParams(location.search).get("only");
 const list = index.filter(m => !only || only.split(",").some(p => m.id.startsWith(p)));
-const VIEWS = [["Back", Math.PI], ["Back, left edge", Math.PI - .6], ["Back, right edge", Math.PI + .6],
-  ["Screen", 0], ["Screen, left edge", -.6], ["Screen, right edge", .6]];
-const PH = +(new URLSearchParams(location.search).get("ph") || 260), CW = PH * .65, LW = 190, RH = PH + 40, cols = 2;
+const q = new URLSearchParams(location.search), look = q.get("look") || "photo";
+// [label, pose, on its back]
+const VIEWS = [["Back", "flat", 1], ["Back, hero", "hero_right", 1], ["Back, left edge", "edge_left", 1], ["Back, leaning", "lean_back", 1],
+  ["Back, side on", "profile_right", 1], ["Screen", "flat", 0], ["Screen, hero", "hero_left", 0], ["Screen, leaning", "lean_back", 0]];
+const PH = +(q.get("ph") || 260), CW = PH * .72, LW = 190, RH = PH + 40, cols = +(q.get("cols") || 1);
 const c = document.getElementById("c"), W = cols * (LW + CW * VIEWS.length);
 c.width = W; c.height = Math.ceil(list.length / cols) * RH + 40;
 const x = c.getContext("2d");
@@ -22,7 +26,12 @@ list.forEach((m, i) => {
   x.fillStyle = "#fff"; x.font = "600 16px system-ui"; x.fillText(m.model.replace("iPhone ", ""), ox + 12, oy + PH / 2);
   x.fillStyle = "#aaa"; x.font = "14px system-ui"; x.fillText(m.finish + (m.repaint ? " (painted)" : ""), ox + 12, oy + PH / 2 + 20);
   const p = new Phone(phones[m.id].img, m, PH);
-  VIEWS.forEach(([, flip], j) => drawPhone(x, p, ox + LW + j * CW + CW / 2, oy + PH / 2 + 10, 1, 0, flip, 0, 1, W, null));
+  p.look = look;
+  VIEWS.forEach(([, pose, back], j) => {
+    const [turn, lean] = POSES[pose];
+    p.pitch = lean;
+    drawPhone(x, p, ox + LW + j * CW + CW / 2, oy + PH / 2 + 10, .9, 0, (back ? Math.PI : 0) + turn, 0, 1, W, null);
+  });
 });
 document.title = "ready";
 </script>
