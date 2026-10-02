@@ -384,7 +384,7 @@ produced." DESIGN-LAW rule 87. In practice:
   twice. Then rethumb_showcase.mjs and verify_showcase.mjs, and bump
   ASSET_REV. (Two sessions answered the same request with 25 and with 12
   pairings; the twelve, the later answer, are the product.)
-- **The studio's colour themes are 52, in groups** (rule 106, 2026-10-02):
+- **The studio's colour themes are 52, in groups** (rule 107, 2026-10-02):
   COLOR_THEMES leads with Two colours (a ground and one colour for every
   word), Three colours (ground, ink, one accent) and the library's twelve
   Proven pairs, then the earlier 21 under "More" (the landing counts them,

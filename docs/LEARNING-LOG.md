@@ -2444,7 +2444,7 @@ RESUME HERE:
 Asked: more proven palettes, some of two or three colours, with the
 gradients, 3-D and outlines in mind, "as much capability as possible".
 
-Did (DESIGN-LAW rule 106, OPEN-ITEMS §AB): two-colour and three-colour sets
+Did (DESIGN-LAW rule 107, OPEN-ITEMS §AC): two-colour and three-colour sets
 and the library's pairs in the studio, measured by theme_law; effects drawn
 from the palette (`thFx`); the one-colour pass keeps a theme's colours and a
 look the visitor picked; the accent shows on every card; the plate-matching
@@ -2463,6 +2463,6 @@ Learned:
 
 RESUME HERE:
   0. The owner's go-ahead to merge this branch into `main`, then the deploy.
-  1. The choice holds run (OPEN-ITEMS §AB 2), `--resume` until 649 cards,
+  1. The choice holds run (OPEN-ITEMS §AC 2), `--resume` until 649 cards,
      then `--write-holds`.
-  2. The salmon red (§AB 3).
+  2. The salmon red (§AC 3).
