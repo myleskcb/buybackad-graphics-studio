@@ -130,7 +130,7 @@ export const TUNES = {
     chords: [[0, "m", .5], [0, "m", 3], [-2, "M", 3], [0, "m", 3], [7, "M", 3], [0, "m", 3], [-2, "M", 3], [0, "m", 1.5], [7, "M", 1.5], [0, "m", 2.5]] },
   morning_mood: { mode: "major", tempo: [70, 100],
     notes: [[7, .5], [4, .5], [2, .5], [0, .5], [2, .5], [4, .5], [7, .5], [4, .5], [2, .5], [0, .5], [2, .5], [4, .5],
-      [2, .5], [4, .5], [7, .5], [4, .5], [7, .5], [9, .5], [4, .5], [9, .5], [7, .5], [4, .5], [2, .5], [0, 4]],
+      [2, .5], [4, .5], [7, .5], [4, .5], [7, .5], [9, .5], [4, .5], [9, .5], [7, .5], [4, .5], [2, .5], [0, 4.5]],
     chords: [[0, "M", 6], [0, "M", 3], [0, "M", 3], [0, "M", 4]] },
   bumblebee: { mode: "minor", tempo: [140, 170], fast: true,
     notes: [[19, .25], [18, .25], [17, .25], [16, .25], [15, .25], [20, .25], [19, .25], [18, .25],
@@ -145,11 +145,66 @@ export const TUNES = {
   entertainer: { mode: "major", tempo: [80, 100], fast: true, pickup: .5,
     notes: [[2, .25], [3, .25], [4, .25], [12, .5], [4, .25], [12, .5], [4, .25], [12, 1.25], [12, .25], [14, .25], [15, .25], [16, .25],
       [12, .25], [14, .25], [16, .5], [11, .25], [14, .5], [12, 1.75]],
-    chords: [[0, "M", 5.5], [7, "7", 1.5], [0, "M", 1.5]] },
+    chords: [[0, "M", 5.5], [7, "7", 1.5], [0, "M", 1]] },
   canon: { mode: "major", tempo: [70, 100],
     notes: [[16, 2], [14, 2], [12, 2], [11, 2], [9, 2], [7, 2], [9, 2], [11, 2]],
     chords: [[0, "M", 2], [7, "M", 2], [9, "m", 2], [4, "m", 2], [5, "M", 2], [0, "M", 2], [5, "M", 2], [7, "M", 2]] },
 };
+
+// Bach's Prelude in C: each bar one chord, broken the same way twice
+const prelude = bars => bars.flatMap(c => [0, 1, 2, 3, 4, 2, 3, 4, 0, 1, 2, 3, 4, 2, 3, 4].map(i => [c[i], .25]));
+// Moonlight Sonata: triplets, four to a bar
+const triplets = groups => groups.flatMap(([g, n]) => Array.from({ length: n }, () => g.map(x => [x, 1 / 3])).flat());
+
+Object.assign(TUNES, {
+  prelude_c: { mode: "major", tempo: [60, 80], fast: true,
+    notes: prelude([[0, 4, 7, 12, 16], [0, 2, 9, 14, 17], [-1, 2, 7, 14, 17], [0, 4, 7, 12, 16]]),
+    chords: [[0, "M", 4], [2, "m7", 4], [7, "7", 4], [0, "M", 4]] },
+  minuet_g: { mode: "major", tempo: [100, 130],
+    notes: [[7, 1], [0, .5], [2, .5], [4, .5], [5, .5], [7, 1], [0, 1], [0, 1], [9, 1], [5, .5], [7, .5], [9, .5], [11, .5], [12, 1], [0, 1], [0, 1],
+      [5, 1], [7, .5], [5, .5], [4, .5], [2, .5], [4, 1], [5, .5], [4, .5], [2, .5], [0, .5], [-1, 1], [0, .5], [2, .5], [4, .5], [0, .5], [2, 3]],
+    chords: [[0, "M", 6], [5, "M", 3], [0, "M", 3], [5, "M", 3], [0, "M", 3], [7, "M", 6]] },
+  mozart40: { mode: "minor", tempo: [150, 190],
+    notes: [[8, .5], [7, .5], [7, 1], [8, .5], [7, .5], [7, 1], [8, .5], [7, .5], [7, 1], [15, 1],
+      [15, .5], [14, .5], [12, 1], [12, .5], [10, .5], [8, 1], [8, .5], [7, .5], [5, 1], [5, 2], [null, 1]],
+    chords: [[0, "m", 8], [5, "m", 4], [7, "7", 4]] },
+  spring: { mode: "major", tempo: [100, 120], pickup: .5,
+    notes: [[0, .5], [4, .5], [4, .5], [4, .5], [2, .25], [0, .25], [7, 1.5], [7, .25], [5, .25],
+      [4, .5], [4, .5], [4, .5], [2, .25], [0, .25], [7, 1.5], [7, .25], [5, .25], [4, .5], [5, .5], [7, .5], [5, .5], [4, .5], [2, .5], [0, 1]],
+    chords: [[0, "M", 8.5], [0, "M", 2], [7, "M", 2]] },
+  moonlight: { mode: "minor", tempo: [50, 60],
+    notes: triplets([[[-5, 0, 3], 8], [[-4, 0, 3], 2], [[-4, 1, 5], 2], [[-5, -1, 2], 4]]),
+    chords: [[0, "m", 8], [8, "M", 2], [1, "M", 2], [7, "7", 4]] },
+  gymnopedie: { mode: "major", tempo: [60, 80],
+    notes: [[16, 1], [19, 1], [17, 1], [16, 1], [11, 1], [9, 1], [11, 1], [12, 1], [7, 1], [4, 3]],
+    chords: [[5, "M7", 3], [0, "M7", 3], [5, "M7", 3], [0, "M7", 3]] },
+  oh_susanna: { mode: "major", tempo: [110, 140], pickup: 1,
+    notes: [[0, .5], [2, .5], [4, 1], [7, 1], [7, 1.5], [9, .5], [7, 1], [4, 1], [0, 1.5], [2, .5], [4, 1], [4, 1], [2, 1], [0, 1], [2, 3], [0, .5], [2, .5],
+      [4, 1], [7, 1], [7, 1.5], [9, .5], [7, 1], [4, 1], [0, 1.5], [2, .5], [4, 1], [4, 1], [2, 1], [2, 1], [0, 3]],
+    chords: [[0, "M", 13], [7, "7", 4], [0, "M", 8], [7, "7", 4], [0, "M", 3]] },
+  // ---- for holiday ads only (catalog.js SEASON_TUNES)
+  jingle_bells: { mode: "major", tempo: [110, 140], season: "christmas",
+    notes: [[4, 1], [4, 1], [4, 2], [4, 1], [4, 1], [4, 2], [4, 1], [7, 1], [0, 1.5], [2, .5], [4, 4],
+      [5, 1], [5, 1], [5, 1.5], [5, .5], [5, 1], [4, 1], [4, 1], [4, .5], [4, .5], [4, 1], [2, 1], [2, 1], [4, 1], [2, 2], [7, 2],
+      [4, 1], [4, 1], [4, 2], [4, 1], [4, 1], [4, 2], [4, 1], [7, 1], [0, 1.5], [2, .5], [4, 4],
+      [5, 1], [5, 1], [5, 1.5], [5, .5], [5, 1], [4, 1], [4, 1], [4, .5], [4, .5], [7, 1], [7, 1], [5, 1], [2, 1], [0, 4]],
+    chords: [[0, "M", 16], [5, "M", 4], [0, "M", 4], [2, "7", 4], [7, "7", 4], [0, "M", 16], [5, "M", 4], [0, "M", 4], [7, "7", 4], [0, "M", 4]] },
+  joy_to_world: { mode: "major", tempo: [80, 110], season: "christmas",
+    notes: [[12, 1], [11, .75], [9, .25], [7, 1.5], [5, .5], [4, 1], [2, 1], [0, 1.5], [7, .5], [9, 1.5], [9, .5], [11, 1.5], [11, .5], [12, 3], [null, 1]],
+    chords: [[0, "M", 4], [5, "M", 1], [7, "7", 1], [0, "M", 2], [7, "7", 4], [0, "M", 4]] },
+  we_wish: { mode: "major", tempo: [100, 140], season: "christmas", pickup: 1,
+    notes: [[-5, 1], [0, 1], [0, .5], [2, .5], [0, .5], [-1, .5], [-3, 1], [-3, 1], [-3, 1], [2, 1], [2, .5], [4, .5], [2, .5], [0, .5], [-1, 1], [-5, 1], [-5, 1],
+      [4, 1], [4, .5], [5, .5], [4, .5], [2, .5], [0, 1], [-3, 1], [-5, .5], [-5, .5], [-3, 1], [2, 1], [-1, 1], [0, 2]],
+    chords: [[7, "7", 1], [0, "M", 3], [5, "M", 3], [2, "M", 3], [7, "M", 3], [4, "M", 3], [9, "m", 3], [5, "M", 1.5], [7, "M", 1.5], [0, "M", 2]] },
+  dies_irae: { mode: "minor", tempo: [60, 90], season: "halloween",
+    notes: [[3, 1], [2, 1], [3, 1], [0, 1], [2, 1], [-2, 1], [0, 2], [3, 1], [2, 1], [3, 1], [0, 1], [2, 1], [-2, 1], [0, 2]],
+    chords: [[0, "m", 8], [0, "m", 8]] },
+  funeral_march: { mode: "minor", tempo: [50, 70], season: "halloween",
+    notes: [[0, 1], [0, .75], [0, .25], [0, 2], [3, .75], [2, .25], [2, .75], [0, .25], [0, .75], [-1, .25], [0, 1]],
+    chords: [[0, "m", 4], [0, "m", 2], [7, "7", 1], [0, "m", 1]] },
+});
+TUNES.carol_bells.season = "christmas";
+TUNES.toccata.season = "halloween";
 
 export const SHAVE = [[0, 1], [-5, .5], [-5, .5], [-3, 1], [-5, 1], [null, 1], [-1, 1], [0, 1]];
 
@@ -180,6 +235,11 @@ export const KITS = {
   epic: { prog: "minor", keys: ["organ", "piano"] },
   march: { prog: "march", keys: ["piano", "marimba", "xylophone"] },
   bossa: { prog: "jazz", keys: ["epiano", "vibes", "harp"] },
+  pop: { prog: "major", keys: ["piano", "epiano"] },
+  rnb: { prog: "lush", keys: ["epiano"] },
+  motown: { prog: "major", keys: ["piano", "vibes"] },
+  gospel: { prog: "major", keys: ["organ"] },
+  classical: { prog: "major", keys: ["piano", "harp", "harpsichord"] },
 };
 
 /** The key, chords and tune of one look, laid on its beat grid. */
@@ -239,7 +299,7 @@ export function playTune(S, dest, A, st, total) {
       if (n != null && x >= 0 && x < total - .05) {
         const down = Math.abs(beat - Math.round(beat)) < 1e-6 && Math.round(beat) % 2 === 0;
         const g = down ? .95 : .78;                   // the tune leads: it sits over the groove, not in it
-        if (inst === "synth") S.pluck(dest, x, mtof(tonic + n), Math.max(.12, d * step), g * .7, "square", 2600);
+        if (inst === "synth") [0, 7].forEach(c => S.pluck(dest, x, mtof(tonic + n) * 2 ** (c / 1200), Math.max(.15, d * step), g * .35, "sawtooth", 1800));   // a warm two-oscillator lead
         else S.note(dest, x, inst, tonic + n, d * step * .95, g, .08);
       }
       x += d * step; beat += d;
@@ -374,6 +434,39 @@ export function groove(S, dest, kit, A, start, total) {
           if (i === 0 || i === 6 || i === 8 || i === 14) { const f = bass(t); S.pluck(dest, t, i === 6 || i === 14 ? f * 1.5 : f, b * .9, .45, "sine", 800); }
           if (on("x..x..x...x..x..", i)) stab(t, s16 * 1.6, .12, 66);
           break;
+        case "pop":                                       // the four-chord radio song
+          if (beat) S.kick(dest, t, .8);
+          if (i === 4 || i === 12) { S.hit(dest, t, "snare", .35); S.hit(dest, t, "clap", .3); }
+          if (i % 2 === 0) S.hit(dest, t, i % 4 ? "shaker_up" : "shaker", .16, .3);
+          if (beat) stab(t, b * .9, .12, 64);
+          if (on("x.......x.x.....", i)) S.pluck(dest, t, bass(t), b * 1.2, .5, "sine", 600);
+          break;
+        case "rnb":                                       // a slow jam: soft kick, finger snap, long chords
+          if (on("x......x..x.....", i)) S.kick(dest, t, .6);
+          if (i === 4 || i === 12) { S.hit(dest, t, "rim", .3); S.hit(dest, t, "clap2", .18, .2); }
+          S.hat(dest, t, i % 2 ? .05 : .09, false, .2);
+          if (i === 0) { stab(t, b * 3.9, .13, 62); S.bass808(dest, t, bass(t), b * 3.5, .5); }
+          break;
+        case "motown": {                                  // classic soul: tambourine on 2 and 4, a busy bass
+          if (on("x.....x.x.......", i)) S.kick(dest, t, .7);
+          if (i === 4 || i === 12) { S.hit(dest, t, "snare", .35); S.hit(dest, t, "tamb", .35, .25); }
+          if (i % 2 === 0) S.hat(dest, t, .07);
+          if (on("x..x..x.x..x.x..", i)) { const f = bass(t); S.pluck(dest, t, [f, f, f * 1.5, f * 2, f * 1.5, f, f * 1.5][i % 7], s16 * 1.8, .45, "triangle", 900); }
+          if (i === 4 || i === 12) stab(t, s16 * 2, .14, 66);
+          break;
+        }
+        case "gospel":                                    // church organ, hand claps, tambourine
+          if (i === 0 || i === 8) S.kick(dest, t, .65);
+          if (i === 4 || i === 12) { S.hit(dest, t, "clap", .4); S.hit(dest, t, "clap2", .3, .3); S.hit(dest, t, "tamb", .25, -.25); }
+          if (i === 0) stab(t, b * 3.9, .1, 62);
+          if (i === 0 || i === 8) S.pluck(dest, t, bass(t), b * 1.8, .45, "sine", 500);
+          break;
+        case "classical": {                               // no drums: a broken-chord accompaniment
+          const c = chordTones(t, 52), pat = [0, 2, 1, 2];
+          S.note(dest, t, K, c[pat[i % 4] % c.length], s16 * 1.6, .14);
+          if (i === 0) S.note(dest, t, K, bassNote(keyPc, A.chordAt(t + 1e-4)) + 12, b * 3.8, .16);
+          break;
+        }
       }
     }
   }

@@ -65,6 +65,7 @@ function compose(ad, ctx, man, bufs, need) {
     case "windchimes": S.hit(sfx, 0, "windchimes", .55, .3); break;
     case "bell_tree": S.hit(sfx, 0, "bell_tree", .5, -.3); break;
     case "vibraslap": S.hit(sfx, 0, "vibraslap", .6); break;
+    case "sleigh_bells": S.hit(sfx, 0, "sleigh_shake", .6, .2); break;
   }
   switch (st.hit) {
     case "riser": S.riser(sfx, hit - .8, .8, .55); S.impact(sfx, hit, .9); break;
@@ -125,6 +126,8 @@ function compose(ad, ctx, man, bufs, need) {
     if (KITS[st.sound_kit]) groove(S, music, st.sound_kit, A, start, st.duration);
     else beat(S, music, st.sound_kit, start, st.duration, st.bpm || 118, r, A.tune ? t => mtof(28 + ((A.keyPc + A.chordAt(t + 1e-4)[0] - 4) % 12 + 12) % 12) : null);
     playTune(S, music, A, st, st.duration);
+    if (st.season === "christmas")                     // sleigh bells on the off-beats, from the hit on
+      for (let t = hit + b / 2; t < st.duration; t += b) S.hit(music, t, "sleigh", .28, .3);
   }
   // fade the whole mix out at the end
   master.gain.setValueAtTime(.9, T(Math.max(0, st.duration - .6)));
@@ -335,7 +338,7 @@ function beat(S, dest, kit, start, total, bpm, r, rootAt = null) {
         if (n % 4 === 0 || n % 8 === 6) S.kick(dest, t, .6);
         if (n % 4 === 2) S.snare(dest, t + swing * .3, .3);
         S.hat(dest, t + (n % 2 ? swing : 0), .12);
-        if (n % 4 === 0) [1, 1.26, 1.5, 1.89].forEach(k => S.pluck(dest, t, root * 2 * k, b * 3.8, .08, "triangle", 1200));
+        if (n % 4 === 0) { const m = Math.round(69 + 12 * Math.log2(root * 2 / 440)); [0, 4, 7, 11].forEach(iv => S.note(dest, t, "epiano", m + iv, b * 3.8, .2)); }   // a Rhodes, not a bleep
         break;
       }
       case "edm": {

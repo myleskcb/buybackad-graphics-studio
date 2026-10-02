@@ -123,6 +123,8 @@ HITS = {
     "whistle":       ("Aerophones/Edge-blown Aerophones/Ball Whistle/Main_BallWhistle_Short-001.wav", .8, .1),
     "whistle_long":  ("Aerophones/Edge-blown Aerophones/Ball Whistle/Main_BallWhistle_Long-001.wav", 1.6, .1),
     "siren":         ("Aerophones/Free Aerophones/Siren/Main_SirenWhistle-005.wav", 2.4, .08),
+    "sleigh":        ("Idiophones/Struck Idiophones/Sleigh Bells/Sleighbells_Hit_rr1_Mid.wav", .6, .07),
+    "sleigh_shake":  ("Idiophones/Struck Idiophones/Sleigh Bells/sleighbell1_shake1.wav", 1.8, .06),
 }
 
 have = set(files)

@@ -2,7 +2,7 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, LATE_OPTIONS, KIT_BPM } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, LATE_OPTIONS, KEPT_OPTIONS, KIT_BPM, SEASON_TUNES, SEASON_ACCENTS, CLASSICAL_TUNES } from "./catalog.js";
 import { vibeBackground, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
@@ -83,10 +83,10 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   const r = rng(seed * 7919 + 13);
   const out = { ...st, seed };
   for (const k of Object.keys(OPTIONS)) {
-    if (!locked.has(k) && !LATE_OPTIONS.includes(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
+    if (!locked.has(k) && !LATE_OPTIONS.includes(k) && !KEPT_OPTIONS.includes(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
   }
   const r2 = rng(seed * 6007 + 29);
-  for (const k of LATE_OPTIONS) if (!locked.has(k)) out[k] = r2.weighted(OPTIONS[k], WEIGHTS[k]);
+  for (const k of LATE_OPTIONS) if (!locked.has(k)) out[k] = r2.weighted(OPTIONS[k], seasonWeights(k, out.season));
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
   if (!locked.has("bpm")) out.bpm = r.int(90, 134);
   // an opening that shows the phones on frame 0 shows their backs: screen-up phones are black glass in the thumbnail
@@ -95,6 +95,16 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   copyInto(out, r, locked, content);
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = r.sample(phonesPool, r.pick([3, 4, 4, 5]));
   return harmonise(out, locked);
+}
+
+/** A holiday's tunes and opening sound only in an ad set to that holiday, and mostly there. */
+function seasonWeights(k, season) {
+  const own = { melody: SEASON_TUNES, accent: SEASON_ACCENTS }[k];
+  if (!own) return WEIGHTS[k];
+  const mine = new Set((own[season] || [])), any = new Set(Object.values(own).flat()), w = { ...WEIGHTS[k] };
+  for (const v of OPTIONS[k]) if (any.has(v)) w[v] = mine.has(v) ? (k === "melody" ? 6 : 8) : 0;
+  if (mine.size && k === "melody") { for (const v of OPTIONS[k]) if (!mine.has(v)) w[v] = 0; }
+  return w;
 }
 
 /** An LA vibe draws the look's ground, palette, faces, treatment, sign board
@@ -251,6 +261,15 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!OPTIONS.melody.includes(st.melody)) st.melody = "none";
   if (!OPTIONS.lead.includes(st.lead)) st.lead = "piano";
   if (!OPTIONS.accent.includes(st.accent)) st.accent = "none";
+  if (!OPTIONS.season.includes(st.season)) st.season = "none";
+  // holiday tunes belong to holiday ads, and a holiday ad plays one
+  const holiday = SEASON_TUNES[st.season] || [], anyHoliday = Object.values(SEASON_TUNES).flat();
+  if (!locked.has("melody")) {
+    if (holiday.length && !holiday.includes(st.melody)) st.melody = holiday[(st.seed >>> 0) % holiday.length];
+    else if (!holiday.length && anyHoliday.includes(st.melody)) st.melody = CLASSICAL_TUNES[(st.seed >>> 0) % CLASSICAL_TUNES.length];
+    if (st.sound_kit === "classical" && st.melody === "none") st.melody = CLASSICAL_TUNES[(st.seed >>> 0) % CLASSICAL_TUNES.length];
+  }
+  if (!locked.has("accent") && st.accent === "sleigh_bells" && st.season !== "christmas") st.accent = "none";
   if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
   if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
     st.lead = ["piano", "marimba", "xylophone", "harpsichord"][st.seed % 4];
