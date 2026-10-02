@@ -3571,3 +3571,55 @@ are held back from the site, listed with their reason in
 - The stamp is `curated`, the one every later audit keeps
   (audit_showcase_content.mjs, curate_showcase.mjs), so no re-run puts a
   card back. 329 cards stay live; every category keeps 33 to 66.
+
+## 108. The phone mark belongs to the number: its colour, its line, its box
+
+Added 2026-10-02. The owner, of two car cards: "The Phone icon by the CTA
+looks super out of place and we could always color match it to make the
+theme look more cohesive", and of the second, "Same thing with this one".
+
+The mark beside a number (`Phone Cue`, written by retheme_lab.mjs on two cards
+in five so people know what the number is for) was placed and coloured for
+the number as it stood when the card was generated. The passes after it
+resized, moved and recoloured the number (the faces, the hug of the pill, the
+plate ink of rule 104) and left the mark where it was. Measured on the 93 live
+cards that carry one, on the pixels the studio paints:
+
+| | before | after |
+|---|---|---|
+| mark shown | 60 | 59 |
+| not the number's colour | 60 | 0 |
+| off the box that holds the number | 22 | 0 |
+| more than 12px off the number's middle | 46 | 0 |
+| gap to the digits | -175 to 77px | 18 to 26px |
+
+55 of the 93 asked for `phoneMark`, a name the icon table never had, so the
+lookup fell back to the sparkle: a star stood beside the number. `ICONS.phoneMark`
+is now a handset.
+
+`pgPhoneCue` runs after `pgPlateInk` everywhere the colour passes run (rule 95):
+
+- **Colour.** The mark takes the number's ink, whatever painted it last.
+- **Size and line.** The mark is 0.92 of the digits' cap height, measured from
+  the face, and centred on the digits (not the line box, which the leading and
+  the parentheses make taller).
+- **Box.** Inside the solid shape that holds the number, a gap of a quarter of
+  the number's size to its left. Where the number was centred on its box, the
+  mark and the number are centred together. A rect that hugs the number grows
+  about its middle to take the mark, when the slivers it gains touch no other
+  line and it stays on the card; a drawn shape never grows.
+- **Otherwise hidden.** A mark with no room, or one that would land on another
+  line, is hidden rather than left off its box (2 cards).
+- **The visitor's.** A mark or a number dragged in the designer is never moved
+  again.
+
+Under a colour theme the mark used to keep its old colour on a repainted box
+and vanish; 225 of the 444 themes held off (rule 101) were that, on 18 cards.
+With the mark following the number's ink, the 12 of those cards that are live
+were measured again: 89 themes come back on 9 of them (444 held to 355); the
+marks still lost are stepsFlow's step-number boxes and slabPoster's marks.
+
+It is not only the phone. On the same day 148 of the 331 live cards showed at
+least one sparkle where another mark was meant (265 marks under 31 names the
+table lacks: `corner` 96, `medal` 15, `cash` 14, `dollar` 14, `check` 12,
+`headset` 12, ...). OPEN-ITEMS §AC.

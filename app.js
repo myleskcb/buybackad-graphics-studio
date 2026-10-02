@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261002a';
+const ASSET_REV = '20261002b';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -6857,6 +6857,11 @@ const ICONS = {
   cashTag:   { d:'M54 12 H80 A8 8 0 0 1 88 20 V46 A8 8 0 0 1 85.6 51.7 L48 89 A8 8 0 0 1 36.7 89 L11 63.3 '
                 +'A8 8 0 0 1 11 52 L48.4 14.4 A8 8 0 0 1 54 12 Z M70 30 A5 5 0 1 0 70 30.1 Z' , min:28 },
   boltFast:  { d:'M56 10 L26 54 A3 3 0 0 0 28.5 59 H45 L42 90 L74 44 A3 3 0 0 0 71.5 39 H55 Z' , min:28 },
+  /* the handset beside a number. 291 showcase records ask for it by this name
+     (retheme_lab.mjs, 'Phone Cue'); it was never drawn, so the lookup fell
+     back to the sparkle and a star stood beside the number (2026-10-02) */
+  phoneMark: { d:'M26 12 H36 A5 5 0 0 1 41 16 L46 30 A6 6 0 0 1 44.5 36.5 L37 43 Q44 57 57 63 L63.5 55.5 A6 6 0 0 1 70 54 '
+                +'L84 59 A5 5 0 0 1 88 64 V74 A10 10 0 0 1 77 85 Q47 83 31 67 Q15 51 13 23 A10 10 0 0 1 24 12 Z' , min:28 },
 };
 /* Which marks belong to which category. First entry is the category's primary
    mark — the one a layout reaches for when it wants ONE icon. */
@@ -19147,6 +19152,110 @@ function pgPlateInk(sc){
    thSourcePalette) skip it. Read as a source it turned a card's light blue
    tagline blocks navy (checklistHero-pp02-15, 'Colour blocks'). */
 function pgPlateInked(o){ return !!(o && o.pgPlateInk && o.pgPlateInk === o.fill); }
+/* The phone mark belongs to the number (rule 108). Owner, 2026-10-02, of a
+   mauve handset outline beside a white number: "The Phone icon by the CTA
+   looks super out of place and we could always color match it". The generator
+   (retheme_lab.mjs, 'Phone Cue') placed and coloured the mark for the number
+   as it was then; later passes resized, moved and recoloured the number and
+   left the mark behind. On all 93 live cards that carry one it was not the
+   number's colour, 22 of the 60 shown sat off the box that holds the number,
+   46 were off the number's line. After every colour pass the mark takes the
+   number's ink, a size to its digits and their middle, a gap to their left,
+   inside the number's box; where the number was centred, the mark and the
+   number are centred together. A mark with no room is hidden, and a mark or
+   a number the visitor moved stays where they put it. */
+function pgPhoneCue(sc){
+  if (typeof window !== 'undefined' && window.__pgPhoneCueOff) return 0;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const cue = objs.find(o => o && o.name === 'Phone Cue' && o.type === 'path');
+  if (!cue || cue.visible === false) return 0;
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const num = objs.find(o => isText(o) && o.pgRole === 'phone' && o.visible !== false && /\d/.test(o.text || ''));
+  if (!num) return 0;
+  const ink = typeof num.fill === 'string' ? num.fill : (num.fill && num.fill.colorStops && num.fill.colorStops[0] ? num.fill.colorStops[0].color : null);
+  if (ink && !cue.pgUser){ cue.set('stroke', ink); cue.dirty = true; }
+  /* what the visitor dragged in the designer is theirs */
+  if (!sc.pgCueHook && typeof sc.on === 'function'){
+    sc.pgCueHook = true;
+    sc.on('object:modified', e => { const o = e && e.target; if (!o) return; o.pgHand = true; if (o._objects) o._objects.forEach(x => { x.pgHand = true; }); });
+  }
+  const numFreeOf = o => !o.pgHand;
+  if (cue.pgHand || Math.abs(num.angle || 0) > 0.5) return 1;
+  const box = o => { o.setCoords(); const b = o.getBoundingRect(true, true); return { l: b.left, t: b.top, r: b.left + b.width, b: b.top + b.height, w: b.width, h: b.height }; };
+  const W = sc.getWidth() / (sc.getZoom ? sc.getZoom() : 1), H = sc.getHeight() / (sc.getZoom ? sc.getZoom() : 1);
+  let nb = box(num);
+  /* the digits' height and middle, from the face itself: parentheses and the
+     line's leading make the box taller than the figures */
+  const fs = (num.fontSize || 60) * (num.scaleY || 1);
+  let cap = 0.7 * fs, mid = nb.t + 0.53 * fs;
+  try {
+    const g = document.createElement('canvas').getContext('2d');
+    g.font = `${num.fontStyle || 'normal'} ${num.fontWeight || 400} ${num.fontSize}px "${num.fontFamily}"`;
+    const m = g.measureText('0123456789');
+    if (m.actualBoundingBoxAscent > 0){
+      cap = m.actualBoundingBoxAscent * (num.scaleY || 1);
+      const base = nb.t + (num.fontSize * (num._fontSizeMult || 1.13) * (1 - (num._fontSizeFraction || 0.222))) * (num.scaleY || 1);
+      mid = base - cap / 2;
+    }
+  } catch (e){}
+  const s = (0.92 * cap) / Math.max(1, cue.height || 80);      // the path's own box is the glyph's
+  cue.set({ scaleX: s, scaleY: s });
+  const cb0 = box(cue), cw = cb0.w, ch = cb0.h, gap = Math.max(8, 0.24 * fs);
+  /* the box that holds the number: the topmost solid shape under it that
+     takes all of it */
+  let plate = null, plateObj = null;
+  for (let i = objs.indexOf(num) - 1; i >= 0 && !plate; i--){
+    const o = objs[i];
+    if (!o || o === cue || o.visible === false || isText(o) || !PG_HUE_SHAPES.includes(o.type) || thIsGround(o) || o.name === 'Phone Cue') continue;
+    if (o.opacity != null && o.opacity < 0.5) continue;
+    const pb = box(o);
+    if (pb.w * pb.h >= 0.6 * W * H || pb.w < nb.w * 0.8) continue;
+    if (nb.l >= pb.l - 6 && nb.r <= pb.r + 6 && nb.t >= pb.t - 6 && nb.b <= pb.b + 6){ plate = pb; plateObj = o; }
+  }
+  const pad = plate ? Math.max(10, 0.45 * cw) : 0.045 * W;
+  const groupW = cw + gap + nb.w;
+  const hide = why => { cue.set('visible', false); cue.pgCueWhy = why; cue.dirty = true; return 1; };
+  const others = objs.filter(o => isText(o) && o !== num && o.visible !== false && String(o.text || '').trim()).map(box);
+  const hits = (a, skip) => others.some(o => !(skip && skip(o)) && a.l < o.r && a.r > o.l && a.t < o.b && a.b > o.t);
+  /* a box that hugs the number (owner, 2026-09-30: "shorten the width of the
+     box to just fit the phone number and a little margin") grows by the mark,
+     about its middle, when that touches no other line and stays on the card;
+     a squared or rounded rect only, never a drawn shape */
+  if (plate && groupW > plate.w - 2 * pad){
+    const need = groupW + 2 * pad - plate.w;
+    const grown = { l: plate.l - need / 2, t: plate.t, r: plate.r + need / 2, b: plate.b };
+    const inside = o => o.l >= plate.l - 6 && o.r <= plate.r + 6 && o.t >= plate.t - 6 && o.b <= plate.b + 6;
+    if (plateObj.type !== 'rect' || Math.abs(plateObj.angle || 0) > 0.5 || plateObj.skewX || plateObj.skewY || !numFreeOf(plateObj)) return hide('room:shape');
+    if (grown.l < 0.03 * W || grown.r > 0.97 * W) return hide('room:card');
+    /* only the two slivers it gains have to be clear */
+    const sl = [{ l: grown.l, t: plate.t + 6, r: plate.l, b: plate.b - 6 }, { l: plate.r, t: plate.t + 6, r: grown.r, b: plate.b - 6 }];
+    if (sl.some(a => hits(a, inside))) return hide('room:copy');
+    const k = need / ((plateObj.scaleX || 1));
+    const ox = plateObj.originX || 'left';
+    plateObj.set({ width: plateObj.width + k, left: plateObj.left - (ox === 'left' ? need / 2 : ox === 'right' ? -need / 2 : 0) });
+    plateObj.setCoords(); plateObj.dirty = true;
+    plate = box(plateObj);
+  }
+  const R = plate ? { l: plate.l + pad, r: plate.r - pad, cx: (plate.l + plate.r) / 2 } : { l: pad, r: W - pad, cx: W / 2 };
+  const tol = Math.max(8, 0.03 * (R.r - R.l));
+  if (groupW > R.r - R.l + 1) return hide('room');
+  const numFree = numFreeOf(num);
+  const centred = Math.abs((nb.l + nb.r) / 2 - R.cx) < tol || Math.abs((nb.l - gap - cw + nb.r) / 2 - R.cx) < tol;
+  let dx = 0, x;
+  if (centred && numFree){ x = R.cx - groupW / 2; dx = x + cw + gap - nb.l; }
+  else {
+    x = nb.l - gap - cw;
+    if (x < R.l){ if (!numFree || nb.r + (R.l - x) > R.r) return hide('edge'); dx = R.l - x; x = R.l; }
+  }
+  /* never onto another line of copy */
+  const cueAt = { l: x, t: mid - ch / 2, r: x + cw, b: mid + ch / 2 };
+  const numAt = { l: nb.l + dx, t: nb.t, r: nb.r + dx, b: nb.b };
+  if (hits(cueAt) || (Math.abs(dx) > 0.5 && hits(numAt))) return hide(hits(cueAt) ? 'cueHits' : 'numHits');
+  if (Math.abs(dx) > 0.5){ num.set('left', num.left + dx); num.setCoords(); num.dirty = true; }
+  cue.set({ left: cue.left + (x - cb0.l), top: cue.top + (mid - ch / 2 - cb0.t) });
+  cue.setCoords(); cue.dirty = true;
+  return 1;
+}
 function pgHueCheck(sc, r){
   const W = sc.getWidth(), H = sc.getHeight();
   const { objs, paints } = pgHuePaints(sc, W, H);
@@ -19159,7 +19268,8 @@ function pgHueCheck(sc, r){
   r.ok = !r.fails.length;
 }
 {
-  const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); } };
+  const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); }
+    try { pgPhoneCue(sc); } catch (e){ console.warn('phone cue:', e); } };
   const _alignPass = alignPass;
   alignPass = function(sc){ const r = _alignPass.apply(this, arguments); run(sc); return r; };
   const _themeScene = themeScene;

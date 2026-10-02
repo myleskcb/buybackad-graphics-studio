@@ -2438,3 +2438,45 @@ RESUME HERE:
   2. The street price badge's number plate (§Z 2), reviewProof's call to
      action under its pill (§Z 3).
   3. The same `main` on both Netlify projects, or one retired (§Z 4).
+
+## 2026-10-02 (evening) — the phone mark joins the number; two car cards finished
+
+(claude/beautiful-wozniak-xmvvuk, from `main` at de8d35de.)
+
+The owner sent two car cards from the live site: "The Phone icon by the CTA
+looks super out of place and we could always color match it ... the white box
+should be color match to blue or the CTA should be matched to white ... needs
+a background image", then "Same thing with this one", then asked for a list of
+why cards look unfinished, whether they need to supply photographs, and for a
+quick view where their own edits could teach the generator.
+
+Found:
+  - Both cards had been held on `main` that morning for exactly this (no
+    photograph). The live site predates the hold. Check holds.json and the
+    deploy's commit before treating a screenshot as the product.
+  - One remark about one icon was a library-wide defect: the phone mark was
+    coloured and placed for the number as it stood at generation, and every
+    later pass moved the number and not the mark (60 of 60 shown in the wrong
+    colour). Measure the remark across the library before fixing the card.
+  - `ICONS[name] || ICONS.sparkle` hides missing art: 55 phone marks and 265
+    other marks on 148 live cards drew as a star. A fallback that draws
+    something is a defect generator; the gate cannot see it.
+  - A pass that tracks "did the visitor move this" by comparing positions is
+    fooled by the next pass that moves it. The designer's own
+    `object:modified` is the signal.
+  - A grown box exactly as wide as it must be fails a strict comparison by a
+    float: one card lost its mark to that.
+
+Tools: the cloud session cannot reach cdnjs; `npm i fabric@5.3.0
+puppeteer-core` in the scratchpad, `node_modules` linked into the repo
+(gitignored), and FABRIC_JS / CHROME=/opt/pw-browsers/chromium run every
+harness script.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0): the owner is reviewing a site that is
+     behind it.
+  1. The sparkle stand-ins (OPEN-ITEMS §AC 2): map, draw or drop the 31
+     missing mark names, sheet for the owner, gate.
+  2. Photographs for the 63 drawn-ground holds (§AC 1); sports, coins, gold
+     and silver need the owner's photographs first.
+  3. The owner's review view (§AC, proposed), if the owner wants it.

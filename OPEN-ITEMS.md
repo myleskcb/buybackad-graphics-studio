@@ -1444,3 +1444,101 @@ Still open:
 2. **The band headline** (bandKnockout and some slabPoster layouts) sets a
    dark word with a heavy shadow on a coloured band; nine cards were held for
    it. The layout wants a light word on a dark band, or no shadow.
+
+## AC. 2026-10-02 — the phone mark joins the number; two car cards finished; why a card looks unfinished
+
+The owner sent two car cards from the live site (`bubblePop-cd10-30` and
+`scriptRetro-du07-30`): "The Phone icon by the CTA looks super out of place
+and we could always color match it ... the white box should be color match to
+blue or the CTA should be matched to white ... needs a background image", then
+"Same thing with this one". Both were already held on `main` (§AA, a drawn
+ground with no photograph); the live site predates the hold (§AA, not live
+until deployed).
+
+Done (DESIGN-LAW rule 108):
+- **The phone mark** (`pgPhoneCue`, after `pgPlateInk`): on the 93 live cards
+  that carry one, 0 now differ from the number's colour (was 60 of 60 shown),
+  0 sit off the number's box (22), 0 are off its middle (46); 59 shown, 2
+  hidden for want of room. `ICONS.phoneMark` drawn: 55 of the 93 asked for it
+  and got the sparkle.
+- **The two cards finished and back on the site.** A car photograph behind each
+  (`dl_cars_neonNight_sunset.jpg`, `dl_cars_slabPoster_mono.jpg`, used by no
+  other card), card 1's info strip in its CTA's colour with white words, and
+  the marks that drew as sparkles (a `wheel`, an `arrowRight`, a `tag`) or did
+  not belong (the sports base's card-slab mark) taken off. Out of holds.json
+  (84 left) and the index's `curated` stamp.
+- 291 thumbnails redrawn (every record with a phone mark). ASSET_REV 20261002b.
+
+- **Theme holds** (every_card_audit.mjs on the 12 live cards whose themes
+  were held for a vanishing mark): 444 held themes to 355; 89 come back on 9
+  cards (scriptRetro-du07-30's 12 among them). The marks still lost are
+  stepsFlow-jw03-20's step boxes and two slabPoster cards' marks.
+
+Checked: the library gate 331 of 331 live cards (verify_showcase.mjs); the
+classics 346 of 404, the same 58 held as on main; Easy Mode themes
+(ez_theme_audit.mjs --quick) no problems; the designer (designer_audit.mjs)
+the same problems as main, measured on both: sell_iphone and gold_spot do not
+open in this sandbox, bandKnockout-pp04-15's ORIG differs by 4% (it carries no
+phone mark), and the open-time blocking sits near its 3000ms line on both
+builds (over three or four runs each, bandKnockout-pp04-15 2838 to 2898ms on
+main and 2625 to 3105 here, cars_kbb 2668 to 2895 on main and 2862 to 3019
+here). While the designer opens, `pgPhoneCue` runs 115 times for 1ms in all
+(timed in the page), so the spread is the machine's; the line is close
+enough that a slower machine will cross it on main too.
+
+Tooling bug found: `every_card_audit.mjs --ids ... --write-holds` given a held
+card writes it as passing everything (it could not open it, so nothing
+failed) and drops its rows. Six held cards lost their rows that way here and
+were put back from the table as it was. Fix: leave a card that does not open
+out of the write.
+
+Why a card looks unfinished, measured on the 331 live cards and the 84 held,
+with the step that finishes it (the owner asked for this list):
+
+1. **No photograph behind it** — 63 held cards (coins 12, gold 10, sports 10,
+   cars 9, silver 9, phones 5, strips 5, pokemon 3). Each needs a scene for its
+   product, then the gate. Unused photographs on disk: cars 13, phones 22,
+   strips 7, pokemon 5 (enough); coins 9, gold 8, silver 7, sports 2 (short:
+   sports needs about 8 more, coins and gold 4 to 5, silver 2 to 3). All are
+   1200px where the spec asks 2160 (rule 44).
+2. **A sparkle where a mark was meant** — 148 live cards show at least one
+   (265 marks): the records name 31 marks the icon table never had (`corner`
+   96, `medal` 15, `cash` 14, `dollar` 14, `check` 12, `headset` 12, `burst`
+   11, ...), and `ICONS[name] || ICONS.sparkle` draws a star for each. Fix: map
+   the names with an obvious mark already drawn (`cash`/`dollar`/`tag` to
+   `cashTag`, `shield`/`check` to `shieldTick`, `bolt` to `boltFast`,
+   `key`/`keyfob` to `keyFob`, `car`/`wheel` to `carSide`, `coin` to
+   `coinStack`, `ingot` to `barStack`, `gem`/`ringMark` to `ring`, `cardSlab`
+   to `slab`), draw the few that earn it (`corner` as a frame bracket,
+   `headset`), and draw nothing for the rest rather than a star. Then a
+   contact sheet for the owner and the gate.
+3. **A mark the passes left behind** — the phone mark (done, rule 108); the
+   same kind of drift is likely for the other marks placed beside a line at
+   generation (the website's globe and arrow are hidden by the layout today).
+4. **Two boxes that do not agree** — an info strip in white beside a coloured
+   CTA (card 1 here). One colour per card (rule 95) brings hues together but
+   not a white strip against a coloured box. A pass or an audit: on a card
+   with a coloured CTA plate, a neutral strip carrying the selling points
+   takes the CTA's colour, or both go light.
+5. **Headlines that do not read** — 13 held (§AA 2): the band headline's
+   dark word with a heavy shadow (9), outlined serifs on busy photographs (2),
+   dark on its own colour (2).
+6. **A photograph a panel covers** — 7 held.
+7. **The live site is behind `main`.** Every screenshot the owner sent today
+   was of cards `main` had already held or fixed. Deploy `main` (§Z 0).
+
+The owner's part, and a tool for it (proposed, not built):
+- Photographs for the short categories above, 2160px or larger, a real scene
+  with calm space at the top and middle for the headline; the owner's own
+  photographs of real buys are worth more than stock (trust is the
+  conversion).
+- **A review view**: open any card full size, drag, resize, hide or recolour
+  its layers, swap its ground from the category's photographs, mark it keep /
+  fix / cut with a reason chip, and save the change as a diff against the
+  record (layer name -> the props that changed). The studio's designer
+  already opens a record (`edOpenShowcase`) but cannot turn its canvas back
+  into a record, and every grading tool in `lab/` keeps its verdicts in one
+  browser's localStorage. The diffs come back as one JSON file in the repo
+  (`assets/owner-edits/`), a script applies them to the records through the
+  gate, and a second reads them for patterns (the owner always moves X, always
+  matches Y) to turn into passes, the way rule 108 came from one remark.
