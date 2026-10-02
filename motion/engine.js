@@ -395,6 +395,14 @@ function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = fa
  *  band of the frame along the edge that swings toward us, in the phone's own metal. Only
  *  the photo is ever drawn: an angle is the same back seen from the side, never a new
  *  design. p.focal sets the lens (a wide lens exaggerates the turn). */
+/** A picture's shape filled with its metal, a shade darker: the phone's side. */
+function silhouette(img, metal, keep) {
+  const c = canvas(img.width, img.height), x = c.getContext("2d");
+  x.drawImage(img, 0, 0); x.globalCompositeOperation = "source-in";
+  x.fillStyle = shade(metal, -.3); x.fillRect(0, 0, c.width, c.height);
+  return c;
+}
+
 function draw3d(ctx, p, w, h, e, front, rot, flip, cxNorm) {
   const f = h * (p.focal || 2.8), T = THICKNESS * w, se = Math.sin(e), ce = Math.cos(e);
   const P = (X, Z) => { const zz = -X * se + Z * ce, k = f / (f + zz); return [(X * ce + Z * se) * k, k]; };
@@ -407,23 +415,26 @@ function draw3d(ctx, p, w, h, e, front, rot, flip, cxNorm) {
     drawFront(fx, w, h, p.metal, p.glare, rot, flip, cxNorm); fx.restore();
     src = p._face; sw = fw; shh = fh;
   }
-  // the frame band on the near edge
-  const Xn = Math.sign(se) * w / 2, [xa, ka] = P(Xn, 0), [xb, kb] = P(Xn, T), r = CORNER * w * .6;
-  ctx.fillStyle = shade(p.metal, -.3);
-  ctx.beginPath();
-  ctx.moveTo(xa, -(h / 2 - r) * ka); ctx.lineTo(xb, -(h / 2 - r) * kb); ctx.lineTo(xb, (h / 2 - r) * kb); ctx.lineTo(xa, (h / 2 - r) * ka);
-  ctx.closePath(); ctx.fill();
-  // the face, strip by strip, drawn off to one side so it can be shaded as it turns from the light
-  const [x0] = P(-w / 2, 0), [x1] = P(w / 2, 0), kmax = Math.max(P(-w / 2, 0)[1], P(w / 2, 0)[1]);
-  const L = Math.min(x0, x1) - 2, R = Math.max(x0, x1) + 2, bw = Math.ceil(R - L), bh = Math.ceil(h * kmax + 4);
+  // the phone's own silhouette in its metal, a few depths back, so the side follows the
+  // rounded corners (a straight slab stuck out square past them: "these phones look really
+  // weird", owner 2026-10-02), then the face; drawn off to one side to shade as it turns
+  const sil = front ? silhouette(src, p.metal, false) : (p._sil ||= silhouette(p.img, p.metal, true));
+  const [x0] = P(-w / 2, 0), [x1] = P(w / 2, 0), [xT0] = P(-w / 2, T), [xT1] = P(w / 2, T);
+  const kmax = Math.max(P(-w / 2, 0)[1], P(w / 2, 0)[1], P(-w / 2, T)[1], P(w / 2, T)[1]);
+  const L = Math.min(x0, x1, xT0, xT1) - 2, R = Math.max(x0, x1, xT0, xT1) + 2, bw = Math.ceil(R - L), bh = Math.ceil(h * kmax + 4);
   if (!p._warp || p._warp.width < bw || p._warp.height < bh) p._warp = canvas(Math.max(bw, p._warp ? p._warp.width : 0), Math.max(bh, p._warp ? p._warp.height : 0));
   const wx = p._warp.getContext("2d"); wx.clearRect(0, 0, p._warp.width, p._warp.height);
-  const N = clamp(Math.round(w * Math.abs(se) / 2) + 10, 10, 48);
-  for (let i = 0; i < N; i++) {
-    const u0 = i / N, u1 = (i + 1) / N, [xs0, k0] = P((u0 - .5) * w, 0), [xs1, k1] = P((u1 - .5) * w, 0), k = (k0 + k1) / 2;
-    const dx = Math.min(xs0, xs1), dw = Math.abs(xs1 - xs0) + .6;
-    wx.drawImage(src, u0 * sw, 0, (u1 - u0) * sw, shh, dx - L, bh / 2 - h * k / 2, dw, h * k);
-  }
+  const N = clamp(Math.round(Math.abs(x1 - x0) / 2.5), 24, 160);
+  const warp = (img, iw, ih, Z) => {
+    for (let i = 0; i < N; i++) {
+      const u0 = i / N, u1 = (i + 1) / N, [xs0, k0] = P((u0 - .5) * w, Z), [xs1, k1] = P((u1 - .5) * w, Z), k = (k0 + k1) / 2;
+      wx.drawImage(img, u0 * iw, 0, (u1 - u0) * iw, ih, Math.min(xs0, xs1) - L, bh / 2 - h * k / 2, Math.abs(xs1 - xs0) + .7, h * k);
+    }
+  };
+  // as many depths as the side spans in pixels, so a phone seen edge-on shows a solid band
+  const span = Math.abs(P(Math.sign(se) * w / 2, T)[0] - P(Math.sign(se) * w / 2, 0)[0]), layers = clamp(Math.ceil(span / 1.2), 3, 40);
+  for (let k = layers; k >= 1; k--) warp(sil, sil.width, sil.height, T * k / layers);
+  warp(src, sw, shh, 0);
   wx.globalCompositeOperation = "source-atop";
   wx.fillStyle = `rgba(0,0,0,${(1 - ce) * .5})`; wx.fillRect(0, 0, bw, bh);
   wx.globalCompositeOperation = "source-over";
@@ -680,7 +691,7 @@ function phoneState(p, t, st) {
   }
   return [hx, hy, s, rot, flip, z, 1];
 }
-const PHONE_TURN = 22 * Math.PI / 180;
+const PHONE_TURN = 14 * Math.PI / 180;     // a flat photo carries a gentle turn; 22 degrees read as warped
 
 // ------------------------------------------------------------ type
 
