@@ -33,14 +33,15 @@
 {"@type":"Offer","name":"Pro","price":"15","priceCurrency":"USD","description":"100 exports per month up to 2160 pixels, no watermark","priceSpecification":{"@type":"UnitPriceSpecification","price":"15","priceCurrency":"USD","unitCode":"MON","referenceQuantity":{"@type":"QuantitativeValue","value":"1","unitCode":"MON"}}}]}
 ]}
 </script>
-<meta name="theme-color" content="#070a12" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#eaeef6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b1a1f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2eee4" media="(prefers-color-scheme: light)">
 <script>
 /* Stamp the LOOK on <html> BEFORE first paint, so there is no flash of the
    wrong ground. Four axes, all CSS custom properties in styles.css:
    data-theme (dark | light), data-skin (ground), data-accent (accent + its
-   ring colour), data-type (display/body pairing). Defaults: graphite,
-   orchid, clash, dark; Paper and Cream are light grounds and open light.
+   ring colour), data-type (display/body pairing). Defaults: poster (paper,
+   ink and four signal colours; DESIGN-LAW rule 98), blue, clash, light
+   (2026-10-01; graphite-and-blue the day before, orchid before that); Paper and Cream are light grounds and open light.
    A URL can set a look to share it: ?look=night-mint-unbounded (skin-accent-
    type, any tail optional), ?skin=, ?accent=, ?type=, ?theme=. One house
    look for every visitor (owner, 2026-09-27: one unified design language):
@@ -52,10 +53,10 @@
    has them. */
 (function(){
   var d = document.documentElement, q = {};
-  var S = ['graphite','night','slate','obsidian','forest','ember','paper','cream'];
+  var S = ['poster','graphite','night','slate','obsidian','forest','ember','paper','cream'];
   var A = ['orchid','violet','blue','sky','cyan','teal','mint','lime','gold','amber','orange','coral','rose'];
   var T = ['clash','unbounded','syne','grotesk','manrope','khand','serif','melodrama'];
-  var LIGHT = { paper:1, cream:1 };
+  var LIGHT = { poster:1, paper:1, cream:1 };
   var GF = { unbounded:'Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700', syne:'Syne:wght@500;700;800&family=Sora:wght@400;500;600;700', grotesk:'Space+Grotesk:wght@400;500;600;700', manrope:'Manrope:wght@400;500;600;700;800' };
   try { new URLSearchParams(location.search).forEach(function(v, k){ q[k] = v; }); } catch(e){}
   var look = (q.look || '').split('-');
@@ -64,8 +65,8 @@
   try {
     if (!theme) theme = localStorage.getItem('pgfx_theme') || '';
   } catch(e){}
-  if (S.indexOf(skin) < 0) skin = 'graphite';
-  if (A.indexOf(accent) < 0) accent = 'orchid';
+  if (S.indexOf(skin) < 0) skin = 'poster';
+  if (A.indexOf(accent) < 0) accent = 'blue';
   if (T.indexOf(type) < 0) type = 'clash';
   if (fromUrl.skin && !fromUrl.theme) theme = LIGHT[skin] ? 'light' : 'dark';
   if (theme !== 'light' && theme !== 'dark') theme = LIGHT[skin] ? 'light' : 'dark';
@@ -89,7 +90,7 @@
      assets/fonts and declared in styles.css. The font PICKER still pulls
      the Google catalogue on demand via ensureFont(), so nothing is lost
      and the render-blocking third-party request is gone. -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b48cff'/%3E%3Crect x='16' y='26' width='32' height='12' rx='3' fill='%23140a24'/%3E%3C/svg%3E">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <!-- The ten 150KB template backdrops that used to be preloaded here fed the
      OLD canvas landing. The showcase ships 448px thumbnails instead, so they
      were 1.5MB of art the page never drew: on a phone that was most of a
@@ -157,16 +158,18 @@
   <div class="lp-stats" id="lp-stats">
     <div class="stat stat-lead"><b id="lp-stat-new">398</b><span>designs ready to post &middot; each one checked on its own pixels</span></div>
     <div class="stat"><b>243</b><span>classic templates</span></div>
-    <div class="stat"><b id="lp-stat-pal">29</b><span>colour palettes in the library</span></div>
+    <div class="stat"><b id="lp-stat-pal">12</b><span>colour palettes in the library</span></div>
     <div class="stat"><b>357</b><span>backdrops &amp; scenes</span></div>
     <div class="stat"><b>13</b><span>buying categories</span></div>
     <div class="stat"><b>14</b><span>Los Angeles looks for video ads</span></div>
   </div>
+  <!-- the category ticker (poster look, DESIGN-LAW rule 98): what the studio sells for, in an ink band with the four signal colours between -->
+  <div class="lp-ticker" aria-hidden="true"><div class="lp-ticker-band"><div class="lp-ticker-track"><span>Phones</span><i></i><span>Gold</span><i></i><span>Silver</span><i></i><span>Coins</span><i></i><span>Cars</span><i></i><span>Test strips</span><i></i><span>Pokémon</span><i></i><span>Sports cards</span><i></i><span>Watches</span><i></i><span>Laptops</span><i></i><span>Cameras</span><i></i><span>Consoles</span><i></i><span>Phones</span><i></i><span>Gold</span><i></i><span>Silver</span><i></i><span>Coins</span><i></i><span>Cars</span><i></i><span>Test strips</span><i></i><span>Pokémon</span><i></i><span>Sports cards</span><i></i><span>Watches</span><i></i><span>Laptops</span><i></i><span>Cameras</span><i></i><span>Consoles</span><i></i></div></div></div>
 
   <section class="lp-section" id="lp-themes">
     <div class="lp-section-head">
       <div class="lp-kicker">Colour palettes</div>
-      <h2><span id="lp-pal-count">29</span> palettes in the library. Every card measured before you see it.</h2>
+      <h2><span id="lp-pal-count">12</span> palettes in the library. Every card measured before you see it.</h2>
       <p>A palette is the whole ad, not a swatch: the ground, the ink, the accent that carries the money line, and a supporting colour for the small print. Each palette's ink clears 4.5:1 on its own ground, and every card is measured again on its own pixels: a card whose headline, number or call to action falls under 3:1 against what is behind it, or whose phone number fails letter by letter, is held back and never shown here. The photographs keep their own colour, with neutral shade only where the words need it.</p>
     </div>
     <div class="fam-grid" id="fam-grid"></div>
@@ -429,8 +432,12 @@
           </div>
         </div>
         <div class="ez-field">
-          <label>Color themes <span style="text-transform:none;font-weight:500">(recolor the whole ad: panels, number, lines and marks; your photo keeps its color; ORIG undoes)</span></label>
+          <label>Colour theme <span style="text-transform:none;font-weight:500">(repaints the whole ad; your photo keeps its colour; ORIG undoes)</span></label>
           <div class="ez-themes" id="ez-themes"></div>
+        </div>
+        <div class="ez-field" id="ez-voice-field">
+          <label>Typeface <span style="text-transform:none;font-weight:500">(one type pair for the whole ad; ORIG keeps the card's own)</span></label>
+          <div class="ez-fxrow ez-voices" id="ez-voices" role="group" aria-label="Typeface"></div>
         </div>
         <div class="ez-field" id="ez-phonepick-field" hidden>
           <label>Phone <span style="text-transform:none;font-weight:500">(factory photos only; the popular, high-value models first)</span></label>
@@ -558,6 +565,10 @@
             <div class="ez-themes ed-themes" id="ed-themes"></div>
             <div class="ed-note">Repaints the whole ad: panels, number, lines and marks. The photo keeps its colour; ORIG puts the card's own colours back.</div>
           </div>
+          <div class="psec" id="ed-voice-sec">
+            <div class="psec-title">Typeface</div>
+            <div class="ez-fxrow ez-voices ed-voices" id="ed-voices" role="group" aria-label="Typeface"></div>
+          </div>
           <div class="psec" id="quick-fields-sec">
             <div class="psec-title">Your ad text</div>
             <div id="quick-fields"></div>
@@ -579,7 +590,7 @@
               <button data-bg="grad" class="active">Gradient</button>
               <button data-bg="image">Image</button>
             </div></div>
-            <div id="qbg-solid" style="display:none" class="field"><label>Color</label><input type="color" id="qbg-color" value="#111118"></div>
+            <div id="qbg-solid" style="display:none" class="field"><label>Colour</label><input type="color" id="qbg-color" value="#111118"></div>
             <div id="qbg-grad">
               <div class="field-row">
                 <div class="field"><label>From</label><input type="color" id="qbg-c1" value="#b01030"></div>
@@ -741,10 +752,11 @@
               </div></div>
               <div class="field"><label>Letter spacing <span id="pt-lsp-val">0</span></label><input type="range" id="pt-lsp" min="-100" max="600" value="0"></div>
               <div class="field"><label>Line height <span id="pt-lh-val">1.0</span></label><input type="range" id="pt-lh" min="70" max="200" value="100"></div>
-              <div class="field"><label>Curve <span id="pt-curve-val">0</span></label><input type="range" id="pt-curve" min="-100" max="100" value="0"></div>
+              <div class="field"><label>Shape</label><div class="ts-shapes" id="pt-shape" role="group" aria-label="Text shape"></div></div>
+              <div class="field"><label>Bend <span id="pt-curve-val">0</span></label><input type="range" id="pt-curve" min="-100" max="100" value="0"></div>
             </div>
             <div class="psec">
-              <div class="psec-title">Color</div>
+              <div class="psec-title">Colour</div>
               <div class="fillseg" id="pt-fillseg"><button data-ft="solid" class="active">Solid</button><button data-ft="grad">Gradient</button></div>
               <div class="field-row" id="pt-fill-solid">
                 <div class="field"><label>Fill</label><input type="color" id="pt-fill" value="#ffffff"></div>
@@ -752,8 +764,8 @@
               </div>
               <div id="pt-fill-grad" style="display:none">
                 <div class="field-row">
-                  <div class="field"><label>Color 1</label><input type="color" id="pt-g1" value="#ffd200"></div>
-                  <div class="field"><label>Color 2</label><input type="color" id="pt-g2" value="#ff5000"></div>
+                  <div class="field"><label>Colour 1</label><input type="color" id="pt-g1" value="#ffd200"></div>
+                  <div class="field"><label>Colour 2</label><input type="color" id="pt-g2" value="#ff5000"></div>
                 </div>
                 <div class="field"><label>Angle <span id="pt-ga-val">90°</span></label><input type="range" id="pt-ga" min="0" max="360" value="90"></div>
                 <div class="field-row"><div class="field"><label>Outline</label><input type="color" id="pt-stroke2" value="#000000"></div></div>
@@ -764,7 +776,7 @@
                 <div class="field"><label>&nbsp;</label><button id="pt-bgcolor-off" title="Remove the highlight strip behind the text" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;font-size:12px">✕ None</button></div>
               </div>
               <div class="field"><label>Glow / shadow <span id="pt-shadow-val">0</span></label><input type="range" id="pt-shadow" min="0" max="80" value="0"></div>
-              <div class="field"><label>Shadow color</label><input type="color" id="pt-shadow-color" value="#000000"></div>
+              <div class="field"><label>Shadow colour</label><input type="color" id="pt-shadow-color" value="#000000"></div>
             </div>
           </div>
 
@@ -778,8 +790,8 @@
               </div>
               <div id="ps-fill-grad" style="display:none">
                 <div class="field-row">
-                  <div class="field"><label>Color 1</label><input type="color" id="ps-g1" value="#7b2d9e"></div>
-                  <div class="field"><label>Color 2</label><input type="color" id="ps-g2" value="#b01030"></div>
+                  <div class="field"><label>Colour 1</label><input type="color" id="ps-g1" value="#7b2d9e"></div>
+                  <div class="field"><label>Colour 2</label><input type="color" id="ps-g2" value="#b01030"></div>
                 </div>
                 <div class="field"><label>Angle <span id="ps-ga-val">90°</span></label><input type="range" id="ps-ga" min="0" max="360" value="90"></div>
               </div>
@@ -1109,10 +1121,11 @@
   <div class="tp-row"><label>Style</label><span class="tp-biu">
     <button id="tp-b"><b>B</b></button><button id="tp-i"><i>I</i></button><button id="tp-u"><u>U</u></button>
   </span></div>
-  <div class="tp-row"><label>Color</label><input type="color" id="tp-fill" value="#ffffff"><label style="width:auto">Outline</label><input type="color" id="tp-stroke" value="#000000"><input type="range" id="tp-sw" min="0" max="12" value="0" style="width:64px"><span class="tp-val" id="tp-sw-val">0</span></div>
+  <div class="tp-row"><label>Colour</label><input type="color" id="tp-fill" value="#ffffff"><label style="width:auto">Outline</label><input type="color" id="tp-stroke" value="#000000"><input type="range" id="tp-sw" min="0" max="12" value="0" style="width:64px"><span class="tp-val" id="tp-sw-val">0</span></div>
   <div class="tp-row"><label>Behind</label><span class="tp-biu" style="flex:none;width:76px"><button id="tp-bg-on" title="Solid color behind the text">▨ Fill</button></span><input type="color" id="tp-bg-c" value="#ffd200"></div>
   <div class="tp-row"><label>Glow</label><input type="range" id="tp-glow" min="0" max="60" value="0"><input type="color" id="tp-glow-c" value="#ff5000"><span class="tp-val" id="tp-glow-val">0</span></div>
-  <div class="tp-row"><label>Curve</label><input type="range" id="tp-curve" min="-100" max="100" value="0"><span class="tp-val" id="tp-curve-val">0</span></div>
+  <div class="tp-row"><label>Shape</label><div class="ts-shapes" id="tp-shape" role="group" aria-label="Text shape"></div></div>
+  <div class="tp-row"><label>Bend</label><input type="range" id="tp-curve" min="-100" max="100" value="0"><span class="tp-val" id="tp-curve-val">0</span></div>
   <button class="tp-reset" id="tp-reset">↺ Reset this text to the template style</button>
 </div>
 
@@ -1273,10 +1286,10 @@
 })();
 </script>
 <script src="config.js"></script>
-<script src="tplbg-data.js"></script>
 <script src="template-holds.js"></script>
 <script src="photo-subjects.js"></script>
 <script src="grounds.js"></script>
+<script src="video-help.js"></script>
 <script src="app.js"></script>
 <script src="iphonesla-link.js"></script>
 <script src="offer-assets.js"></script>

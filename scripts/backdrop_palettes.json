@@ -1,0 +1,202 @@
+[
+ {
+  "name": "Navy & Orange",
+  "dark": "#132d69",
+  "mid": "#5275b7",
+  "light": "#dce8fd",
+  "accent": "#f5800a",
+  "support": "#2cc5cd"
+ },
+ {
+  "name": "Black & Gold",
+  "dark": "#2d3038",
+  "mid": "#717682",
+  "light": "#e4e7f0",
+  "accent": "#c69a03",
+  "support": "#f89c7b"
+ },
+ {
+  "name": "Money Green & Gold",
+  "dark": "#023919",
+  "mid": "#3c844f",
+  "light": "#d0efd5",
+  "accent": "#c09c02",
+  "support": "#2ec5d3"
+ },
+ {
+  "name": "Apple White & Blue",
+  "dark": "#2b3138",
+  "mid": "#6d7781",
+  "light": "#e1e8ef",
+  "accent": "#61a0fe",
+  "support": "#ef98c9"
+ },
+ {
+  "name": "Red & Yellow",
+  "dark": "#601218",
+  "mid": "#b15e55",
+  "light": "#fde1dd",
+  "accent": "#b1a110",
+  "support": "#7db6fe"
+ },
+ {
+  "name": "Purple & Gold",
+  "dark": "#3c2263",
+  "mid": "#8369b0",
+  "light": "#ece3fd",
+  "accent": "#c69a03",
+  "support": "#eb99d0"
+ },
+ {
+  "name": "Teal & Coral",
+  "dark": "#033639",
+  "mid": "#08847f",
+  "light": "#c2f0ec",
+  "accent": "#fd7764",
+  "support": "#c4b452"
+ },
+ {
+  "name": "Midnight & Cyan",
+  "dark": "#1b2b69",
+  "mid": "#5b73b8",
+  "light": "#dee7fe",
+  "accent": "#12b0be",
+  "support": "#e79ad6"
+ },
+ {
+  "name": "Sunset Orange & Pink",
+  "dark": "#5a143c",
+  "mid": "#ac6338",
+  "light": "#fde2d3",
+  "accent": "#f970b3",
+  "support": "#b5a8fd"
+ },
+ {
+  "name": "Black & Hot Pink",
+  "dark": "#303038",
+  "mid": "#767481",
+  "light": "#e7e6ef",
+  "accent": "#f771b7",
+  "support": "#2ec5d3"
+ },
+ {
+  "name": "Mint & Navy",
+  "dark": "#03382a",
+  "mid": "#168662",
+  "light": "#c9f0dd",
+  "accent": "#6b9fff",
+  "support": "#f297c3"
+ },
+ {
+  "name": "Cream & Red",
+  "dark": "#333028",
+  "mid": "#7a7569",
+  "light": "#eae7de",
+  "accent": "#fe766a",
+  "support": "#84b5fd"
+ },
+ {
+  "name": "Emerald & Pink",
+  "dark": "#033823",
+  "mid": "#2a8559",
+  "light": "#ccf0d9",
+  "accent": "#fe6fa2",
+  "support": "#cbb251"
+ },
+ {
+  "name": "Blue & Yellow",
+  "dark": "#013063",
+  "mid": "#297cae",
+  "light": "#d2ebfd",
+  "accent": "#b1a110",
+  "support": "#fb9798"
+ },
+ {
+  "name": "Graphite & Lime",
+  "dark": "#2b3138",
+  "mid": "#6e7782",
+  "light": "#e2e8ef",
+  "accent": "#84ad0a",
+  "support": "#2cc5cd"
+ },
+ {
+  "name": "Lavender & Mint",
+  "dark": "#392364",
+  "mid": "#8369b0",
+  "light": "#ece3fd",
+  "accent": "#03b684",
+  "support": "#f297c3"
+ },
+ {
+  "name": "Titanium & Orange",
+  "dark": "#293236",
+  "mid": "#6a787f",
+  "light": "#dfe9ee",
+  "accent": "#fb7c20",
+  "support": "#51bfee"
+ },
+ {
+  "name": "Wine & Gold",
+  "dark": "#5e122b",
+  "mid": "#b05c6d",
+  "light": "#fde0e4",
+  "accent": "#c69a03",
+  "support": "#2cc5cd"
+ },
+ {
+  "name": "Cobalt & Pink",
+  "dark": "#172c69",
+  "mid": "#5774b7",
+  "light": "#dde8fe",
+  "accent": "#f771b7",
+  "support": "#31c6bf"
+ },
+ {
+  "name": "Peach & Teal",
+  "dark": "#033639",
+  "mid": "#a96532",
+  "light": "#fee2cf",
+  "accent": "#17b2ab",
+  "support": "#f297c3"
+ },
+ {
+  "name": "Aqua & Magenta",
+  "dark": "#003640",
+  "mid": "#018388",
+  "light": "#c1f0f2",
+  "accent": "#ee74ca",
+  "support": "#c4b452"
+ },
+ {
+  "name": "Blush & Navy",
+  "dark": "#0f2d68",
+  "mid": "#af5c71",
+  "light": "#fde0e6",
+  "accent": "#6b9fff",
+  "support": "#61c694"
+ },
+ {
+  "name": "Purple & Lime",
+  "dark": "#392364",
+  "mid": "#7e6ab2",
+  "light": "#e9e4fe",
+  "accent": "#84ad0a",
+  "support": "#2cc5cd"
+ },
+ {
+  "name": "Lemon & Purple",
+  "dark": "#392364",
+  "mid": "#7f781a",
+  "light": "#ebe9c5",
+  "accent": "#ad8dfd",
+  "support": "#fb9798"
+ },
+ {
+  "name": "Stone & Teal",
+  "dark": "#353028",
+  "mid": "#7c7569",
+  "light": "#ece7df",
+  "accent": "#17b2ab",
+  "support": "#fb998c"
+ }
+]

@@ -1129,6 +1129,10 @@ After: showcase 58 → **84px** median (945 of 971 rebuilt), classics 64 →
 **108px** median (165 rebuilt; 73 already at 84px or more keep their own). The
 classics' rebuild ships as `assets/number-fix.json`, applied at load.
 
+> Narrowed by rule 101 (2026-09-30): a classic keeps its own big number only
+> while its headline still leads by 1.3x; one that outranks its headline is
+> rebuilt at the cap.
+
 ## 54. A critic decides what is shown, and it judges the number letter by letter
 
 Added 2026-09-26. The study session's plan for the Studio, verbatim: "the
@@ -1372,6 +1376,7 @@ tiled over the ground, four records, three of them rejected strip photographs)
 is removed: under the money it is ground-rung clutter.
 
 > Superseded in part (rule 87): the card is smoke or paper whether see-through or solid (rule 85).
+> Widened by rule 94: no card carries a product wall, not only the glass cards.
 
 ## 60. The library shows each design once at its best, not every recolour of it
 
@@ -2156,6 +2161,16 @@ looks, the gate session's shade and emoji, this rule's engine):
   effect overrides and thirty-six patterns are one choice (`ez.tag`), set in
   Easy Mode's panel or the editor's row and held on every surface. A card may
   carry a look of its own (`tpl.look`), shown under Solid.
+- **The library wears them** (2026-09-30, the owner: "we're not really
+  using our text effects / variations to show the differences and ways we
+  can support our themes with more flavor"). No showcase card carried a
+  look, so the gallery never showed one. `scripts/assign_card_looks.mjs`
+  gives about six in ten live cards a look from their family's own short
+  list (neon glows, the sticker family multicolour, poster slabs colour
+  blocks, the retro script 3-D block), chosen by the card's id (rule 75),
+  kept only where the gate accepts it, else the next, else as designed.
+  Street is not assigned (it darkens the number's plate, rule 74), and an
+  approved render is left alone (rule 78).
 - **Every look is solved on the card, not only the first six.** A premade
   or picked gradient keeps its colours where they read on the line's ground
   and moves them together, lighter or deeper, where they do not (a sunset on
@@ -2471,6 +2486,13 @@ an iPhone, an iPad or a Mac is Apple's. So (`pgEmojiPass`, app.js):
 
 Measured with the pass forced on (a Linux test machine): 102 of 399 library
 cards get one, 297 none, 0 on copy.
+
+Amended 2026-09-30. The owner: "Emojis can be used if applicable or design is
+lacking or can use the extra placements." A sparse card (four or fewer lines
+of copy besides the number and the website) is eligible as well as the three
+in ten; it is still one emoji at most, still iOS style or none, still beside
+the words and never on them. Measured with the pass forced on: 61 of 139
+sampled live cards get one, 0 on copy, a plate or a product.
 
 ## 89. A variant is the approved design recomposed from approved parts
 
@@ -2944,3 +2966,533 @@ Kept from the merge of the lines (2026-09-30):
   look off, recolours, and puts it back on in the theme's palette, so a theme
   picked in the editor never overpaints a look (added when the lines were
   merged, 2026-09-30).
+
+## 94. A product shows whole or not at all
+
+Added 2026-09-30 on the live branch (numbered 94 when the lines were
+merged; the designer took 93). The owner, of voltStack-pp02-15 ("WE BUY CARS"): "This one
+looks like little ghosts of cars." Six car cut-outs at 16% over the blurred
+photograph: a product WALL, which rule 59 had removed from the four glass
+cards only. 35 more live cards (165 ghosts, from retheme_lab's assortment
+pass, 16% on light grounds and 26% on dark) and 18 retired ones still carried
+one.
+
+- **A picture of the goods is shown at strength or left out.** At a sixth of
+  its strength over a photograph it is not texture; it reads as a ghost or a
+  stain, and it competes with the photograph that is the ground.
+- The records lose their walls; the generator no longer draws one; after the
+  layout any wall a saved design still carries comes out
+  (`pgGhostWallStrip`); and the gate fails a product picture drawn under 60%
+  opacity (`ghostPic`).
+- Where a card had its own hero product, the wall had been crowding it out of
+  the layout; with the wall gone it shows (a chain on the gold checklists, the
+  strip fan on the steps cards).
+
+## 95. One colour to a card
+
+Added 2026-09-30. The owner, of voltStack-pp02-15 ("WE BUY CARS": a dark
+green ribbon, a white panel and a pink number plate over a brown
+photograph): "there's green white and pink boxes on there and they should all
+be a unified color gradient theme outline whatever it needs to have
+cohesiveness. This is a bit random and literally looks like we chose a
+randomizer." Measured: 86 of the 415 live cards drew their boxes in two
+unrelated hues, and 282 carried a second hue somewhere (a box, an outline, a
+mark, a coloured word, a glow). The palettes are pairs ("Emerald & Blush",
+"Jade & Tangerine"); the layouts gave one box the accent, another the support
+and a third the palette's tinted ink.
+
+- **A card's colour is one hue.** Boxes, outlines and frames, marks, coloured
+  words and glows are that hue in lighter and darker shades; paper, smoke,
+  black and white stay neutral (rule 85). Within 30 degrees of the card's hue
+  is the same colour.
+- **The hue is what the card already leads with**: the headline's colour when
+  the headline is in colour (a tinted white does not lead); else the colour
+  covering most of the card. A card that says GOLD keeps its gold where it
+  has gold.
+- **Anything else takes that hue at its own luminance**, so every line keeps
+  its exact contrast: a dark green ribbon on a pink card becomes a deep
+  raspberry, a salmon number box on a blue card a light blue.
+- It runs after the layout, after a theme, after a tagline look and after the
+  copy follows a flat ground (`pgOneHue`); a colour the visitor set by hand
+  (pgUser, the pencil in Easy Mode) is theirs. The gate fails a card left
+  with a colour outside its hue ('hues').
+
+> Supersedes the second hue of rule 63 and rule 90's support plates: the
+> support colour of a palette becomes a shade of the one hue, not a second
+> colour.
+
+## 96. The studio's own chrome is graphite and one blue
+
+Added 2026-09-30. The owner: "fix the purple UI theme it's kinda lame pick
+something unanimously people think looks clean and cohesive and redesign site
+UI / theme / webkit / color elements." The default look was graphite with an
+orchid accent, a pink second hue and a mint ring, and twenty large bokeh discs
+in all three behind every page: three colours in the chrome, the randomness
+rule 95 removes from the cards.
+
+- **Neutral greys** (the system greys people know from their phones: ground
+  #0d0d0f, surfaces #161618 and #1e1e21, ink #f5f5f7, #c7c7cc, #8e8e93; light:
+  #f5f5f7, white, #1d1d1f, #424245, #6e6e73).
+- **One colour, blue**: #0a84ff on dark, #0066cc on light, in the accent, the
+  focus ring, the glow and AI (which was violet). Filled controls carry white
+  words: a selected chip on the deeper blue (#0064d2, 5.6:1; light #0055b3,
+  7.1:1), a button on a blue that deepens to it (about 4.5:1 at the words).
+- **A quiet field**: the bokeh keeps its shape at a third of its strength and
+  in the one blue; no second or third hue.
+- Native controls, scrollbars, selection, the favicon, the 404 and the
+  information pages follow the same tokens. The other looks stay reachable by
+  URL (?look=); the house default is graphite and blue.
+
+## 97. A video ad is made for someone, speaks in a voice that suits them, and always has sound
+
+Added 2026-09-30, written as 94; numbered 97 when merged with the live branch
+(claude/fervent-pascal-w6mthe), whose rules 94 to 96 were live first. The owner: "make sure we have more variety styles and a
+wider pool or base of ideas / knowledge to produce our video ads to appeal to
+any demographic or type of person ... make some talk with 11 labs voices",
+and "make the voices clean and vary by theme mood attitude etc."
+
+**An audience is written down before a word is.** `motion/audiences.js` holds
+sixteen: upgraders, students, parents, seniors, busy professionals, deal
+seekers, Spanish-speaking families, drivers and gig workers, the eco-minded,
+businesses and bulk, gamers and Gen Z, premium owners, cracked or broken
+phones, movers and declutterers, the holiday season, hometown locals. Each
+has who they are, the insight its words are built on, and what to avoid. From
+that it draws:
+- its looks (the vibes, music kits, tempo, colour grade, openings, overlays
+  and urgency that suit it);
+- its words on screen, in English and Spanish;
+- its speakers and moods, and its voiceover scripts.
+
+Picking an audience in the maker ("Made for") turns the whole ad to it: the
+look, the words, the music and the voice. A shuffle draws an audience about
+four times in five. It never draws one whose words state a service not every
+buyer offers (bulk lots, cracked phones); the maker's user picks those, and
+so says it.
+
+**Fourteen looks that are not LA signs** join the fourteen that are: clean
+tech, luxury noir, family warm, campus, gamer RGB, eco green, breaking news,
+pro office, clear and simple, holiday, repair bench, Y2K pop, mercado bright
+and game day. Each is a pool of the catalog's own palettes, grounds, faces,
+treatments, number styles and entrances. A look can name its openings. Each
+pool is measured, and what fails comes out (audit-sweep, 30 looks each):
+- **Dark looks** (luxury noir, gamer RGB, repair bench, game day) open on their
+  words or a punch-in, never on black glass over a black ground.
+- **Flat and bright looks** (breaking news, pro office, holiday, campus) do not
+  open on a crash zoom, whose first frame is nearly empty ground. Clear and
+  simple opens calmly (its line, a cold open or a punch-in).
+- **Out on contrast:** the cutout treatment (it fails contrast 4 times in 6),
+  the rings ground (3 in 6), the highlighter from eco green and family warm,
+  and the box treatment from pro office. Glass leaves gamer RGB, and the dots
+  ground leaves family warm.
+- **No designed look carries a palette under 3:1**, ink on ground (studio,
+  blush, soft pink, coral). The look made for older eyes (clear and simple)
+  carries only palettes of 9:1 or more. It had sky, white on mid-blue at
+  2.4:1.
+- **Neon stays** in gamer RGB: its contrast misses are the neon tube, which the
+  house's neon motel shares (0.80 both).
+
+**Every line keeps the house copy rules** (rule 80, `scripts/refresh_copy.mjs`):
+no price, deadline, rank, clock, named company, licence, rating or long dash,
+no promise about who answers. No line is longer than the house's own longest
+line of its kind. A voiceover never reads out a number; it points at it ("the
+number on your screen"), so one bank of takes serves every user.
+`scripts/audience_check.mjs` holds every line, every look reference and every
+script's length to this, and exits non-zero on any miss.
+
+**The voices.** `motion/voices.js` has eleven moods and seventeen speakers.
+A mood is how a line is read: hype, playful, warm, calm, confident, luxe,
+street, sincere, newsy, festive, reassuring. It is the ElevenLabs voice
+settings: stability, style and speed. A speaker (a cast) is a kind of
+person: a crisp presenter, a social host, a streamer, a warm neighbour, a
+trusted elder, a calm guide, a street local, a vecina and a vecino, an
+announcer, a luxe voice. Each is played by one of a few ElevenLabs voices in
+order. A Spanish line first looks for a Spanish-labelled voice in the
+account.
+
+`scripts/voice_bank.mjs` records every script twice, by two speakers, and
+across an audience's scripts every speaker is heard in every mood. That is
+180 takes and 10,414 characters on eleven_multilingual_v2 (`--full`: 546
+and 31,472). The takes go to `motion/voice/<audience>/`, with their length
+and word timings in `motion/voice/manifest.json`. The key is read from
+`ELEVENLABS_API_KEY` or the repo's gitignored `.env`, and is sent only to
+api.elevenlabs.io. The page sends nothing anywhere.
+
+**A take fits its ad.** Speech starts at 0.3 s, after the opening hit has
+decayed, and ends at least 0.5 s before the end. A take longer than the ad's
+room (4.2, 5.2 or 7.2 s) is never picked for it. Every audience has a script
+that fits the 5-second ad in each language.
+
+**Clean** (`motion/audio.js`), each take:
+- one channel, with no offset;
+- the silence either end trimmed (below -45 dB, keeping 30 ms before the first
+  word and 80 ms after the last);
+- rumble cut at 85 Hz, a little mud out at 250 Hz, a little presence in at
+  3.2 kHz, the esses eased at 6.8 kHz, and a gentle compressor;
+- the words levelled to -14 dBFS RMS, every peak under -2.5 dBFS by a
+  look-ahead limiter, and 10 ms fades.
+
+It joins the mix after the master compressor, whose automatic make-up gain
+would otherwise lift the bed back up under it. Under the voice, the music
+drops 7 dB and then the whole bed another 9. The bed ramps down 80 ms before
+the first word and back up over 150 ms after the last. A voiced mix is
+brought down just enough never to peak over -1 dBFS.
+
+Measured (`scripts/motion_sound_check.mjs`, over house, trap, minimal and
+drumline, two runs on two looks):
+- the voice sits 4.6 to 6.5 dB over the bed on the whole line, pauses
+  included (about 3 dB more on the words alone);
+- the bed ducks 9.0 to 10.4 dB and comes back within 0.2 dB;
+- the mix peaks at -1.0 dBFS;
+- a voiced mix is at most 0.74 dB quieter than the same mix without a voice.
+
+An 8-second-only take is not picked for a 5-second ad. The recorded download
+carries the voice.
+
+**Every look has sound.** Before this, a cue timed before the first frame threw
+inside the mix: a phone already in place when the ad opens, a flash cut
+before it. Web Audio cannot schedule in the past, and the throw left the
+whole ad silent. It hit 76 of 200 looks on `main`: every flash cut, most
+cold opens and punch-ins. The preview and the download were both silent,
+and the attention audit hid it, because it skipped its sound check when the
+mix failed.
+
+Now:
+- a hit timed before the first frame is dropped (it happened before the ad);
+- a sweep that builds to a moment after it is heard from the first frame;
+- a flash cut opens on one hit at the first frame;
+- the audit reads a mix that fails as "no sound".
+
+After: 200 of 200 looks render a mix (seed 1), and every one of the 120 in
+`scripts/motion_sound_check.mjs` opens on a hit.
+
+**Long headlines still land inside the first second.** With no opening line to
+read first (a cold open, a crash zoom, a punch-in), a headline of three or
+four lines staggers its lines closer, so the last starts by 0.6 s. Before,
+the last line settled at 1.07 to 1.13 s; two-line headlines are untouched.
+
+Measured, 200 random looks (audit-sweep, seed 1) before and after:
+
+| check | before (`main`) | after |
+|---|---|---|
+| First frame shows something | 0.98 | 0.975 |
+| First frame is not mostly black | 0.99 | 0.98 |
+| Movement in the first half second | 1.00 | 1.00 |
+| Words on screen by 1 s | 1.00 | 0.995 |
+| Headline readable by 2 s | 0.995 | 0.99 |
+| Number readable by 3 s | 0.995 | 1.00 |
+| Never still for over 0.6 s | 0.995 | 0.995 |
+| Headline stands out (3:1) | 0.93 | 0.94 |
+| Median headline contrast | 4.7:1 | 5.5:1 |
+| Median first-frame coverage | 72% | 93% |
+| Looks with sound | 124 of 200 | 200 of 200 |
+
+The two sweeps draw different looks (the catalog is larger), so a
+difference of one or two looks is the draw. The misses that are left are
+single looks of the kinds the baseline has too. None is a pool: each new
+look was swept 30 times on its own until what failed in it was out.
+
+## 98. The studio's chrome is a print shop's: paper, ink and four signal colours
+
+Added 2026-10-01 (numbered 98: the video rule took 97 on main first);
+supersedes rule 96's look. The owner, a day after graphite
+and one blue: "Blue is all right, but … we need something very cohesive and
+super convincing … maybe the overall black background/dark mode theme is not
+helping us or maybe we have something in the middle … this is looking very
+generic or vibe coded and not fitting for how good the graphics are". Dark
+glass, soft bokeh and one glowing accent is what a generated site looks like.
+The studio makes posters; its chrome is the wall they are pinned to.
+
+- **Ground**: warm paper (#f2eee4), cards a lighter paper (#fffdf8); ink-black
+  type (#141414). Dark mode is the same system on warm ink (#1b1a1f).
+- **Line**: an ink outline and a hard offset shadow, a print or a sticker;
+  never glass, blur or glow. Buttons press in.
+- **Four signal colours, one job each**, matched in strength so they read as
+  a set: blue #2b56f5 the action (buttons, links, focus), tomato #ff4a2e heat
+  (the hot plan, a kicker), marigold #ffc21a the highlighter (the hero's claim,
+  stickers, the closing call), mint #12b886 cash and done (ticks). Colour
+  fills shapes; words stay ink, or white on blue (5.6:1), ink on marigold
+  (11.4:1), ink on tomato (5.5:1). Blue as text on paper 4.8:1.
+- **Rhythm**: a tilted ink ticker of the goods under the hero; the library on
+  an ink band, so the ads glow between paper above and below (the "something
+  in the middle"); steps and section kickers carry the four colours in turn;
+  the mark is the four quartered.
+- The other looks stay reachable by URL (?look=); poster is the default. The
+  info pages, the video page and the 404 take the same paper and ink.
+
+## 99. A curve or a warp is a property of the line, and a template built round a ring is curved on it
+
+Added 2026-09-30 on the designer branch (claude/eloquent-euler-7jvzfd). The
+owner: "ability to make clean warps and curves", "and pre warped / curved for
+select templates where the design is supportive or designed around that".
+
+A curved line used to be a fabric.Group of one Text per letter. Each letter
+was measured alone (no kerning), spaced by its centre (the feet crowded on an
+arch), painted alone (the next letter's outline over this one's fill, a
+gradient starting again on every letter) and baked in: Easy Mode set the
+visitor's words on the group, where they were never drawn, so the curved
+headlines of 87 library cards kept the template's words in the preview, the
+download and the video. The looks, the layout and the ink passed a group by.
+
+- **A shape is a property of a text object** (`pgShape {kind, bend}`), saved
+  as its recipe and laid out again whenever the text is. The line stays live
+  text: typed into, fitted, gated, recoloured, looked, voiced.
+- **Curves** (arc, wave) put the letters on a baseline with fabric's own text
+  on a path: kerned as the straight line is, spaced along the baseline, every
+  outline painted before every fill, one gradient across the line, the
+  letters centred on the path (on the baseline, SILVER's letters crowded in a
+  smile). Tracking is compensated so a curved word is spaced as it was
+  straight. The path's bounds are widened to the letters' own box, so the
+  cache, the selection and every measure hold the letters.
+- **Warps** (arch, bulge, flag, rise, fan, bowl) draw the straight line through
+  an envelope, a device-pixel column at a time, at the canvas's own
+  resolution: crisp at any zoom and in any export. The envelope stays inside
+  the line's own box (letters shrink, never grow), so a warped line is laid
+  out, fitted and gated as it was.
+- Bend runs -100..100; the sign turns the shape over. An arc's sweep is the old
+  curve slider's (100 = 207 degrees), so a template's `curve` carries over as
+  its bend. A saved design's old letter groups are read back as one shaped
+  line (`fabric.Group.fromObject`).
+- **The controls:** Shape chips and Bend in the designer's Properties panel and
+  in the ✎ menu of Easy Mode; the ✎ menu shows the template's own shape.
+- **A curve is bound to its ring.** A template designed round a circle names
+  the ring its arc belongs to (`TS_RINGS`): the arc's radius is the ring's, its
+  apex sits on the ring's top, in every format and after every layout pass
+  (the layout never moves a curved line off its ring; pgUncover leaves it). A
+  long word on a small ring is flattened (a larger radius, the sweep and the
+  sagitta capped) or brought down in size, whichever the design is built on:
+  arcCrown's crown flattens round its halo, karatSeal's legend shrinks to its
+  seal.
+- **Pre-curved templates:** the arcCrown family (the crown over the halo ring)
+  and the karatSeal family, which gained a curved legend on its seal's outer
+  ring; the library's curved headlines are live again. A tagline look can
+  take a curved line (its depth copies curve with it); a colour block cannot
+  (a block is a straight plate), and says so.
+
+## 100. The owner's type pairs are a choice for the whole card; a classic sets two faces
+
+Added 2026-09-30 on the designer branch. The owner: "new typefaces / text
+design". The owner approved 56 faces (2026-09-01) and FONT_PAIRS pairs them by
+voice (rule 70: one display face, one reading face), but nothing used the
+pairs: the classics kept the five house faces, and the only way to a new face
+was one line at a time from the ✎ menu.
+
+- **A voice is a choice for the whole card**, as a colour theme is: eighteen
+  pairs (Street, Bold, Stadium, Sport, Tech, Block, Arcade, Squad, Comic,
+  Marker, Retro, Pop, Luxe, Modern, Warp, Stencil, Grotesk, Serif), and ORIG,
+  the card's own faces. In Easy Mode under the colour themes, in the designer
+  under its colour theme.
+- The claim, the price and the number take the display face at its weight
+  (the number the reading face where the display face's figures are weak:
+  Sedgwick's 9 reads as a g, the stencil's 4 leaves a stray dot); the call to
+  action, kicker, badges and offer the reading face's label weight; the lists
+  and the website its line weight. A line given a face with ✎ keeps it.
+- The faces load, every weight, before the card is drawn.
+- **Each line keeps its footprint:** no wider than the card's own face set it
+  (a wider face comes down in size, a narrower one keeps its size), then the
+  layout lays the card out in it. Fitted to the card's width instead,
+  Unbounded's number grew its plate off the card.
+- **A read line keeps its weight.** A label or a list line takes the
+  heaviest of the voice's weight, the house floor for its role and size
+  (`WEIGHT_FLOOR`: 700 for badges, the call to action and the website, 600
+  for small type) and its own weight on the card, in a cut the family ships
+  (read from its @font-face rules). In the reading face's own 500,
+  trustSeal-gl02-15's items line fell under 3:1 in 17 of the 18 voices. The
+  claim, the price and the number keep the voice's display weight: that is
+  the voice.
+- In the designer each line remembers the face it had (`pgVoiceOrig`, saved
+  with it): ORIG puts it back, and voices never compound.
+- **Two faces on every classic** (rule 70 made true at load,
+  `houseTwoFaces`). 33 of the 50 hand-built classics set three families, and
+  the template audit (rule 81) held every one back. Each keeps its display
+  face (its biggest headline's) and one reading face (of the others, the one
+  carrying the most text); every other line takes the display face if it is a
+  headline, the number, a price or a mark, the reading face if it is read.
+  Weights snap to what the family ships. It runs last at load and again when
+  the number table lands (a table applied after a face pass undoes it).
+
+## 101. Every choice a card offers is one it passed
+
+Added 2026-09-30 on the designer branch. The owner: "make sure all classic and
+current themes are audited and ready for use with new color schemes, new
+design language, new typefaces / text design". The audits each covered a
+slice: the gate judged every card on its thumbnail, ez_theme_audit took the
+themes through a 20-card sample whose four classics were held, tagline_audit
+took the looks through 82 cards by its own measure. No classic had a colour
+theme audited, and no library card was gated on the render a visitor gets.
+
+- **scripts/every_card_audit.mjs** takes every offered classic and every live
+  library card through Easy Mode's own render, on the card's own photograph,
+  each in a fresh browser: the card as offered, then every colour theme (21),
+  tagline look (12) and type voice (18). A choice fails a card when a critical
+  line newly fails the gate, another reading line newly reads under 3:1, or
+  (a voice) a line newly runs off the card, off its plate or into another
+  line; a theme also fails when a plate keeps the card's old colour, the
+  card's own colours stay beside the theme's, or a mark vanishes on what it
+  sits on.
+- **Choice holds.** `--write-holds` writes the choices that fail each card to
+  assets/choice-holds.json, with the reason in words. On that card their chip
+  is off and its title says why, in Easy Mode and in the designer; a pick
+  carried over from another card is set aside there (the card shows its own,
+  and a note says why) and comes back on the next card it suits, unless the
+  visitor picks again in that row. A card that fails as offered is out of
+  every list, like a classic the gate holds, and neither opens by its id
+  (the last card a visitor used, or the default one): the first card on
+  offer opens instead. The audit loads the studio with `?nochoiceholds=1`,
+  or the chips it must click would be off.
+- **A line's backing is its ground.** The gate found a line's footprint by
+  painting the card without it; hiding the whole object took its own backing
+  with it (a chip's see-through panel, a badge's plate), and every panel pixel
+  counted as ink against the bare photograph. dl_gold_duoSplit_gold's kicker,
+  dark on a 35% white panel and plainly legible, failed as a ghost under six
+  themes; sports_break's badges, pink on their own lavender panel at 1.13:1,
+  passed. Only the ink goes now (`pgHideInk`: fill, stroke and shadow made
+  clear), in the gate, the template audit and the contrast bake, which also
+  measures each line with the card laid out round it (left out, the layout
+  settled differently round the gap).
+- **A surface keeps its lightness under a theme.** A body the size of a
+  surface (over a quarter of the card) is ground, whatever hue it wore, as a
+  panel that big already was among the plates: dl_cars_slabPoster_mono's
+  frame, a dark red body over 83% of the card, was read as the accent and
+  turned Cash Green's bright green at 80% under white type (the number
+  2.9:1). It takes the theme's ground hue at its own lightness; its outline
+  is still a highlight.
+- **A big number does not outrank its headline** (rule 53: the headline at
+  least 1.3x the number). number_block.mjs kept any classic's number authored
+  at 84px or more as its own design, and 28 hand-built classics, numbers of
+  84 to 100px under headlines of 66 to 117px, were held back for their
+  hierarchy. Such a number is rebuilt at the cap (0.77x the headline, never
+  under 72px), its plate hugging it. agencyGrid failed the same rule by its
+  own drawing, a price line 124px under 148px headlines (now 104px). The
+  lowerThird cards stay held: the headline shares its rows with the number
+  and fits down to 86px beside it (their band's copy is 24px higher, so the
+  items line is inside the guide).
+- **The offer family is drawn as authored.** No load-time table touches it
+  (offer-library.js), so the classics' bakes leave it out: baked with the
+  classics on the merged engine, the contrast bake drew 850 rows that would
+  have repainted 168 offer cards.
+
+Measured (2026-10-01): 735 cards, 37,485 renders. 16 cards fail as offered
+and are held (Sell Your iPhone's device list over its panel, four topstrip
+classics, eight scriptRetro and two reviewProof library cards, one arcCrown
+at 3.00:1). 2.6% of theme renders fail (most a mark vanishing on what it
+sits on, as on the engine before), 0.4% of looks, 11.6% of voices (most a
+headline shrunk under the feed tile in a wider face: Modern is off on 379
+cards, the condensed pairs on almost none). 314 classics (264 before) and 405
+library cards are offered, and every choice offered on each passed.
+
+## 102. The number sits in the middle of a plate it has to itself
+
+Added 2026-10-01 on the library branch (claude/optimistic-edison-xbbk02) as
+94; numbered 102 when merged, after rules 94 to 101. The owner, on a scriptRetro card whose number hugged the top
+of a full-width bar: "The CTA is not centered so it doesn't look great", then
+"Make sure it comes out, clean every single time and properly". That card
+passed the gate: offPlate counts letters off the plate, and every letter was
+on it. So the gate (pgCheck) now also fails `numCentre`: on a plate no other
+line shares, the number's letters must sit within 12% of the plate's middle
+as it is seen (clipped to the card), across and down.
+
+Measured on the 415 live cards: the old scriptRetro bars were 22% to 37% off;
+six cards still failed (five Neon Night plates 14% to 20% low, one Trust Seal
+band 27% high) and `scripts/centre_number.mjs` moved each number until its
+letters sat within 3%, kept only where the gate accepted the card. A second
+run changes nothing. The scriptRetro bars themselves were rebuilt as pills
+(`scripts/hug_number_pill.mjs`).
+
+## 103. Palettes are proven pairings, and a warm colour is never drawn muddy
+
+Added 2026-10-01 on claude/tender-carson-jq5lbr as 95; numbered 103 when merged,
+after rules 94 to 102. It supersedes the 25 pairings merged here from
+claude/dreamy-knuth-9123rb the same morning (the owner's same request a day
+earlier, never deployed); this is the answer to the later message. The owner, on the 29 palettes of 2026-09-22: "the colors
+look so strange ... we really want the minimum amount of food names ... less
+niche color schemes, and more proven."
+
+**What was strange, measured on the 415 live cards.** Of the 2,713 chromatic
+colours in their records, 220 accents and 272 supports are drawn below
+luminance 0.2, which no warm hue can hold, and many more between 0.2 and 0.45.
+The old guard only swapped hues up to 108° and below 0.2, so a lime or citrus
+accent drew as olive (`#757a2c`) and an amber support as mustard (`#9b8301`)
+or tan (`#c06f2c`). Light grounds took a 0.048 pastel of whatever the ground hue was
+(lilac, blush, pale lime, khaki, greige), and dark reading ink took the
+ground's hue at 0.03, so a pink or red palette set its words in brown-black.
+Every palette was a triad, so most cards carried a third, unrelated colour.
+
+**The set.** Twelve pairings that ads and brands have run for decades, each
+hue measured off a reference colour: Navy & Gold, Navy & Orange, Midnight &
+Cyan, Blue & Green, Green & Gold, Purple & Gold, Teal & Orange, Red & Yellow,
+and the neutral grounds Black & Gold, Black & Red, Black & Green, Silver &
+Blue. Two hue families to a palette: the support is a shade of the ground's
+or the accent's family, so a card reads as two colours plus white or black.
+Names say the two colours; none is food.
+
+**The rules that make them draw clean** (`scripts/refresh_palettes.mjs`):
+
+- `muddy(H, Y)`: a warm hue has a lightest luminance it can be drawn at and
+  still be its colour (orange 0.2, gold and yellow 0.33, yellow-green 0.3,
+  lime 0.22, red-orange 0.12), read off reference shades. Under it the colour
+  takes the palette's deep hue (navy, forest, purple, crimson; charcoal on a
+  neutral palette). It is checked on the colour as written, too: a very dark
+  colour rounds to 8 bits with its hue loose by ten degrees.
+- An accent or support keeps at least C 0.12 (0.13 for a warm hue): gold at
+  0.08 is khaki, orange tan, green sage, blue slate.
+- A ground is a real colour or nearly white: C 0.11 dark, 0.14 at mid
+  luminance, falling to 0.02 by Y 0.75. No dusty mid-tones.
+- Dark reading ink is navy-, green- or purple-black (the palette's deep or
+  ink hue), never the ground's warm hue.
+- A two-stop fill decides once: if either stop takes the deep hue, both do,
+  so no gradient jumps hue (rule 5).
+- The ground, when it is a light white faintly tinted by the old palette (a
+  blush white under a teal palette), takes the new ground hue at the same
+  faint chroma. Every other neutral is left alone.
+
+**Luminance lock (rule 52) and colour-blind readers (rule 43).** Every colour
+is still solved to the luminance it replaces, so the gate's contrasts are
+unchanged. A palette is only given to a card if none of the reader's pairs
+(ink, accent and support on the ground) ends up worse by more than 0.25 and
+under 4.5:1 for a protan, deutan or tritan reader. The first plan failed 49
+pairs, nearly all red: a deuteranope sees a dark red lighter than it is. With
+the check in the assignment, 0 of 1,245 pairs regress, and red still carries
+the 101 cards where it is safe (Red & Yellow 74, Black & Red 27).
+
+**The accent must read as its name.** The accent keeps its luminance, and
+`namedBand(H)` is the band in which a hue is still the colour the palette
+names: over the top, red goes salmon, orange peach and purple lavender, so a
+card whose accent is pale type does not get them. Under the bottom a warm
+accent takes the deep hue (navy type on a white card, a proven look), except
+where deep is the neutral ground: gold cannot be drawn dark, so Black & Gold
+on a dark accent plate went charcoal and the first pass took
+`trustSeal-du03-35` from colourfulness 0.161 to 0.048 and off the landing (it
+filters under 0.05). When no palette fits a card, the colour-blind check
+still has to hold.
+
+**The picker shows the palette by its accent.** The landing's palette grid
+took its swatch from each palette's most colourful card, which could be a
+white card whose gold had gone navy: "Navy & Gold" with no gold in it. It now
+takes the card whose accent is most vivid (then the most colourful), and
+every one of the twelve shows the colour its name says.
+
+**Rule 41, in part.** Navy against gold is a near-exact complement (180° in
+OKLCH). Rule 41 is about two saturated mid-tones fighting; a dark ground under
+a light accent does not vibrate, and it is the most proven pairing there is.
+
+**Drawn grounds carry colours in a string.** A `ground:` backdrop keeps its
+five colours inside its source (`ground:kind/c1/c2/accent/support/ink/seed`,
+grounds.js `src()`), where a walk over colour values does not look: the first
+pass left 67 sunbursts, stripes and halftones in the old palettes. They are
+mapped by the same rules, the two ground stops deciding together.
+
+`scripts/repalette_showcase.mjs` moved the library onto the set in place
+(colour only), printing the lock, the muddy count and the colour-blind check;
+then rethumb, the colour measure, the gate. Measured against the library
+before (the gate on the same renderer):
+
+| | before | after |
+|---|---|---|
+| live cards | 415 | 415 (none lost, none gained) |
+| gate | 415 pass | 415 pass |
+| median worst critical line | 5.56:1 | 5.55:1 (median change per card 0.00) |
+| largest drop on one card | | 9.27 to 7.77:1 (a drawn sunburst re-hued) |
+| critical lines under 3:1 | 0 | 0 |
+| median colourfulness (live) | 0.263 | 0.266 |
+| colour-blind regressions (role pairs) | | 0 of 1,245 |
+| mapped colours left muddy | | 0 |

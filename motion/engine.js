@@ -2,7 +2,9 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KIT_BPM } from "./catalog.js";
+import { AUDIENCES, GENERAL } from "./audiences.js";
+import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
 import { vibeBackground, candidateGround, themeGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
@@ -79,21 +81,76 @@ export function pal(st) {
   return { ...(PALETTES[st.palette] || PALETTES.sand), ...(st.colors || {}) };
 }
 
+// The accents came after every other axis; they draw from a stream of their own so a
+// look number keeps every choice it made before them.
+const ACCENT_AXES = ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"];
+
 /** Draw every unlocked design axis from the seed, each independently. */
 export function randomize(st, seed, locked = new Set(), phonesPool = [], content = true) {
   const r = rng(seed * 7919 + 13);
   const out = { ...st, seed };
   for (const k of Object.keys(OPTIONS)) {
+    if (k === "pose" || ACCENT_AXES.includes(k) || LATE_OPTIONS.includes(k)) continue;   // their own draws below, so older seeds keep their looks
     if (!locked.has(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
   }
+  if (!locked.has("pose")) out.pose = rng(seed * 4099 + 71).weighted(OPTIONS.pose, WEIGHTS.pose);
+  const ra = rng(seed * 6151 + 29);
+  for (const k of ACCENT_AXES) if (!locked.has(k)) out[k] = ra.weighted(OPTIONS[k], WEIGHTS[k]);
+  const r2 = rng(seed * 6007 + 29);
+  for (const k of LATE_OPTIONS) if (!locked.has(k)) out[k] = r2.weighted(OPTIONS[k], WEIGHTS[k]);
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
-  if (!locked.has("bpm")) out.bpm = r.int(90, 134);
-  // an opening that shows the phones on frame 0 shows their backs: screen-up phones are black glass in the thumbnail
-  if (!["hook_line", "word_beat"].includes(out.hook) && out.front_glimpse === "hold" && !locked.has("front_glimpse")) out.front_glimpse = "spin";
+  if (!locked.has("bpm")) out.bpm = r.int(96, 124);      // the tempo a commercial bed sits at
+  audienceInto(out, r, locked);
   vibeInto(out, r, locked);
+  backsFirst(out, locked);
   copyInto(out, r, locked, content);
+  voiceInto(out, r, locked);
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = r.sample(phonesPool, r.pick([3, 4, 4, 5]));
   return harmonise(out, locked);
+}
+
+/** An opening that shows the phones on frame 0 shows their backs: screen-up
+ *  phones are black glass in the thumbnail. */
+function backsFirst(out, locked) {
+  if (!["hook_line", "word_beat"].includes(out.hook) && out.front_glimpse === "hold" && !locked.has("front_glimpse")) out.front_glimpse = "spin";
+  return out;
+}
+
+/** An audience picks the look's vibe, music, grade and opening from what suits
+ *  the people it speaks to (audiences.js); the vibe then draws the rest. The
+ *  page calls this when an audience is picked by hand: the look, the words and
+ *  the voice all follow. */
+export function applyAudience(st, seed, locked = new Set()) {
+  const out = { ...st }, r = rng(seed * 5153 + 41);
+  audienceInto(out, r, locked);
+  vibeInto(out, r, locked);
+  backsFirst(out, locked);
+  copyInto(out, r, locked, true);
+  voiceInto(out, r, locked);
+  return out;
+}
+
+function audienceInto(out, r, locked) {
+  const a = AUDIENCES[out.audience];
+  if (!a) return out;
+  const L = a.looks || {};
+  const set = (k, list) => { if (list && list.length && !locked.has(k)) out[k] = r.pick(list); };
+  set("vibe", L.vibes); set("sound_kit", L.sound_kit); set("grade", L.grade); set("hook", L.hook); set("overlay", L.overlay); set("urgency", L.urgency);
+  if (L.bpm && !locked.has("bpm")) out.bpm = r.int(L.bpm[0], L.bpm[1]);
+  return out;
+}
+
+/** The speaker and the mood from the audience, then the take (voices.js). */
+function voiceInto(out, r, locked) {
+  const a = AUDIENCES[out.audience] || GENERAL;
+  if (!locked.has("voice_mood")) out.voice_mood = r.pick(a.moods);
+  if (!locked.has("voice_cast")) out.voice_cast = r.pick(a.casts);
+  return pickVoice(out, r, locked);
+}
+
+/** A new voice for the ad as it stands (a mood or a speaker picked by hand). */
+export function applyVoice(st, seed, locked = new Set()) {
+  return pickVoice({ ...st }, rng(seed * 7727 + 3), locked);
 }
 
 /** An LA vibe draws the look's ground, palette, faces, treatment, sign board
@@ -102,7 +159,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
 export function applyVibe(st, seed, locked = new Set()) {
   const out = { ...st };
   vibeInto(out, rng(seed * 4099 + 17), locked);
-  return out;
+  return backsFirst(out, locked);
 }
 
 // Grounds that are a material (a cork board, a stucco wall, candy paint) belong to
@@ -126,7 +183,14 @@ function vibeInto(out, r, locked) {
   }
   set("palette", v.palettes); set("background", v.backgrounds); set("font", v.fonts);
   set("text_fx", v.fx); set("number_style", v.numbers); set("text_in", v.text_in); set("skew", v.skew);
-  set("accent_set", v.accent_sets); set("accent_kind", v.accent_kinds); set("accent_in", v.accent_in); set("phone_angle", v.phone_angles);
+  // a look's own openings, kept when the one drawn (or the audience's) is already among them
+  if (v.hooks && !v.hooks.includes(out.hook) && !locked.has("hook")) out.hook = r.pick(v.hooks);
+  set("accent_set", v.accent_sets); set("accent_kind", v.accent_kinds); set("accent_in", v.accent_in);
+  // a theme names a turned set without its side ("angled"); the side is drawn here, the same for every phone
+  if (v.phone_angles && v.phone_angles.length && !locked.has("pose")) {
+    const a = r.pick(v.phone_angles);
+    out.pose = a === "angled" ? (r() < .5 ? "edge_left" : "edge_right") : a;
+  }
   // a theme may hold any other axis to its own choices (its camera, its grade, its sound...)
   if (v.style) for (const [k, list] of Object.entries(v.style)) if (OPTIONS[k] || ["text_pos", "color_mode"].includes(k)) set(k, list);
   if (!locked.has("background") && !fits(out.background)) out.background = (v.backgrounds || []).find(fits) || "radial";
@@ -143,7 +207,7 @@ const SPANISH = /[¿¡ÁÉÍÓÚÑ]|\b(COMPRAMOS|COMPRO|VENDE|TU|EFECTIVO|DINERO
 /** The look's city ({AREA}): the brand kit's, else LA for an LA vibe, else none. */
 export function areaOf(st) {
   const a = String(st.area || "").split(",")[0].trim().toUpperCase();
-  return a || (st.vibe && st.vibe !== "none" ? "LA" : "");
+  return a || (st.vibe && st.vibe !== "none" && (VIBES[st.vibe] || {}).la !== false ? "LA" : "");
 }
 /** The area code of the number on the ad ({CODE}), or nothing. */
 export function codeOf(st) {
@@ -161,8 +225,9 @@ export function applyCopy(st, seed, locked = new Set(), content = true) {
 }
 
 function copyInto(out, r, locked, content) {
-  const mode = out.lang_mode || "en";
-  let lang = mode === "mix" ? r.weighted(["en", "es", "both"], { en: 5, es: 3, both: 2 }) : mode;
+  const mode = out.lang_mode || "en", aud = AUDIENCES[out.audience];
+  // an audience that speaks Spanish first is drawn mostly in Spanish
+  let lang = mode === "mix" ? r.weighted(["en", "es", "both"], aud && aud.lang === "es" ? { en: 1, es: 6, both: 3 } : { en: 5, es: 3, both: 2 }) : mode;
   if (!content && mode !== "both") lang = SPANISH.test(out.headline || "") ? "es" : "en";   // the words on the page decide
   out.lang = lang;
   const v = VIBES[out.vibe], known = { AREA: areaOf(out), CODE: codeOf(out) };
@@ -174,6 +239,9 @@ function copyInto(out, r, locked, content) {
   const legacy = { headlines: HEADLINES, hooks: HOOKS, tags: TAGS, labels: NUMBER_LABELS };
   const pool = (L, key) => {
     const own = (v && v.copy && v.copy[L] && v.copy[L][key]) || [];
+    // an audience's own lines speak for it, with its vibe's; the general pools fill only what it has none of
+    const mine = ((aud && aud.copy && aud.copy[L] && aud.copy[L][key]) || []).map(fillIn(L)).filter(s => s != null);
+    if (mine.length) return [...mine, ...mine, ...own.map(fillIn(L)).filter(s => s != null)];
     const base = (COPY[L] && COPY[L][key]) || [];
     const extra = L === "en" ? (legacy[key] || []) : [];
     const fill = fillIn(L);
@@ -206,6 +274,7 @@ function copyInto(out, r, locked, content) {
  *  it only stops two choices colliding on screen. */
 export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!FONTS[st.font]) st.font = "franklin";
+  for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[st[k]]) st[k] = map[st[k]];
   if (st.palette === "match") {
     const found = (st.phones || []).map(id => FINISH_PALETTES[(phoneIndex[id] || {}).finish]).filter(Boolean);
     st.palette = found.length ? found[Math.floor(rng(st.seed * 31)() * found.length)] : "sand";
@@ -249,6 +318,18 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (st.case === "title" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.05);
   if ((FONTS[st.font] || [])[3] === "wide" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.01);
   if (st.decor.includes("sparkle")) st.sparkles = true;
+  // the sound: each newer groove at its own tempo, a tune only over a groove, and no
+  // church organ on a tune of fast runs
+  const kb = KIT_BPM[st.sound_kit];
+  if (kb && !locked.has("bpm") && (st.bpm < kb[0] || st.bpm > kb[1])) st.bpm = kb[0] + (st.seed >>> 0) % (kb[1] - kb[0] + 1);
+  if (!OPTIONS.melody.includes(st.melody)) st.melody = "none";
+  if (!OPTIONS.lead.includes(st.lead)) st.lead = "piano";
+  if (!OPTIONS.accent.includes(st.accent)) st.accent = "none";
+  if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
+  if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
+    st.lead = ["piano", "marimba", "xylophone", "harpsichord"][st.seed % 4];
+  // a take that no longer fits (a shorter ad, another language, a bank that arrived late) is picked again, the same way every time
+  if (!voiceFits(st)) pickVoice(st, rng(st.seed * 53 + 7), locked);
   return st;
 }
 
@@ -304,9 +385,86 @@ export class Glare {
   }
 }
 
+/** What the model really has, read off its name: a notch (14, 14 Plus, 16e,
+ *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older) or the
+ *  Action button (15 on); Camera Control (16 on, not the e models). A phone we
+ *  cannot place (an upload) gets the island and only volume and power. */
+export function designOf(model) {
+  const m = /iPhone (\d+)(e)?(?: (Pro Max|Pro|Plus))?/.exec(model || "");
+  if (!m) return { notch: false, left: null, camCtrl: false };
+  const gen = +m[1], e = !!m[2], pro = /Pro/.test(m[3] || "");
+  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 ? "mute" : "action", camCtrl: gen >= 16 && !e };
+}
+
+// Where the edge controls sit, as a share of the height from the top (Apple's
+// dimension drawings). Left and right are as you look at the screen.
+const CONTROLS = { mute: [.183, .213], action: [.176, .216], volUp: [.256, .33], volDown: [.352, .426], power: [.27, .405], camCtrl: [.565, .64] };
+
+// A turned phone is drawn as what it is: a rounded slab THICKNESS deep, turned
+// about its long axis and seen through a lens a few phone-heights away, the way
+// a product shot is lit and framed. The near edge stands a little taller than
+// the far one, the side is a solid band that wraps the corners, and the face
+// falls off toward its far edge.
+const LENS = 6.5;                                  // camera distance, in phone heights
+// The Wide 3-D spin is shot through a wide lens, close in, so the turn reads big. Any
+// closer and the far edge breaks into the strips the face is drawn in.
+const WIDE_LENS = 2.2;
+
+function outline(w, h, r, n = 9) {                 // a rounded rectangle, clockwise
+  const pts = [];
+  for (const [cx, cy, a0] of [[w / 2 - r, -h / 2 + r, -Math.PI / 2], [w / 2 - r, h / 2 - r, 0], [-w / 2 + r, h / 2 - r, Math.PI / 2], [-w / 2 + r, -h / 2 + r, Math.PI]])
+    for (let i = 0; i <= n; i++) { const a = a0 + i / n * Math.PI / 2; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+  return pts;
+}
+
+function poly(ctx, pts) {
+  ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath();
+}
+
+function drawSlab(ctx, p, w, h, flip, face) {
+  const c = Math.cos(flip), s = Math.sin(flip), T = THICKNESS * w, D = (p.lens || LENS) * h, R = CORNER * w;
+  // local x runs to the screen's right, zl out of the screen; sin > 0 brings the
+  // screen's right-hand edge (power) toward the lens, sin < 0 its left (volume)
+  const P = (x, y, zl) => { const X = x * c - zl * s, f = D / (D - (x * s + zl * c)); return [X * f, y * f]; };
+  const seen = c >= 0 ? T / 2 : -T / 2;
+  const rim = outline(w, h, R);
+  // the side: the outline swept from the hidden face to the seen one, brushed
+  // metal dark at both rims with a highlight a little in from the near face
+  const steps = Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
+  for (let k = 0; k <= steps; k++) {
+    const u = k / steps, zl = -seen + 2 * seen * u;
+    poly(ctx, rim.map(([x, y]) => P(x, y, zl)));
+    ctx.fillStyle = shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
+  }
+  // the controls on the side we see, where Apple puts them
+  const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
+  const keys = s > 0 ? ["power", ...(d.camCtrl ? ["camCtrl"] : [])] : [...(d.left ? [d.left] : []), "volUp", "volDown"];
+  for (const key of keys) {
+    const [a0, b0] = CONTROLS[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
+    poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
+    ctx.fillStyle = key === "camCtrl" ? "#1c1d21" : shade(p.metal, -.38); ctx.fill();
+    poly(ctx, [P(xs, y0 + 1, q * .1), P(xs, y0 + 1, q * .45), P(xs, y1 - 1, q * .45), P(xs, y1 - 1, q * .1)]);
+    ctx.fillStyle = key === "camCtrl" ? "rgba(255,255,255,.16)" : shade(p.metal, .18); ctx.fill();
+  }
+  // the face, in thin vertical strips so it recedes; the back is seen from behind
+  const fw = face.width, fh = face.height, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
+  const near = P(X(0), 0, seen)[0], far = P(X(1), 0, seen)[0];
+  const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / 3)));
+  for (let i = 0; i < n; i++) {
+    const [xa, ta] = P(X(i / n), -h / 2, seen), [xb, tb] = P(X((i + 1) / n), -h / 2, seen);
+    const top = (ta + tb) / 2, x0 = Math.min(xa, xb), dw = Math.abs(xb - xa) + .6;
+    ctx.drawImage(face, i / n * fw, 0, fw / n, fh, x0, top, dw, -2 * top);
+  }
+  // light: the face falls off toward the edge turned away from the lens
+  const ns = s > 0 ? 1 : -1, k = Math.abs(s);
+  const g = ctx.createLinearGradient(P(ns * w / 2, 0, seen)[0], 0, P(-ns * w / 2, 0, seen)[0], 0);
+  g.addColorStop(0, `rgba(255,255,255,${.07 * k})`); g.addColorStop(.35, "rgba(0,0,0,0)"); g.addColorStop(1, `rgba(0,0,0,${.3 * k})`);
+  poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill();
+}
+
 /** The screen side, switched off: the band, a black border, OLED glass and the
  *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred. */
-function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm) {
+function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm, notch = false) {
   const R = CORNER * w;
   rrect(ctx, -w / 2, -h / 2, w, h, R); ctx.fillStyle = metal; ctx.fill();
   const b = 0.014 * w;
@@ -327,9 +485,22 @@ function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm) {
     stop(1, 0);
     ctx.fillStyle = g; ctx.fillRect(-w / 2, -h / 2, w, h); ctx.restore();
   }
-  const iw = 0.315 * sw, ih = 0.093 * sw, top = -h / 2 + s + 0.034 * sw;
-  rrect(ctx, -iw / 2, top, iw, ih, ih / 2); ctx.fillStyle = "#070708"; ctx.fill();
-  const lr = ih * .3, lx = iw / 2 - ih / 2, ly = top + ih / 2;
+  let lr, lx, ly;
+  if (notch) {                                     // hangs from the top edge of the glass, with rounded shoulders
+    const nw = 0.4 * sw, nh = 0.082 * sw, top = -h / 2 + s, r = nh * .42, sr2 = nh * .22;
+    ctx.beginPath();
+    ctx.moveTo(-nw / 2 - sr2, top);
+    ctx.arcTo(-nw / 2, top, -nw / 2, top + sr2, sr2);
+    ctx.lineTo(-nw / 2, top + nh - r); ctx.arcTo(-nw / 2, top + nh, -nw / 2 + r, top + nh, r);
+    ctx.lineTo(nw / 2 - r, top + nh); ctx.arcTo(nw / 2, top + nh, nw / 2, top + nh - r, r);
+    ctx.lineTo(nw / 2, top + sr2); ctx.arcTo(nw / 2, top, nw / 2 + sr2, top, sr2);
+    ctx.closePath(); ctx.fillStyle = "#050506"; ctx.fill();
+    lr = nh * .17; lx = nw * .2; ly = top + nh * .5;
+  } else {
+    const iw = 0.315 * sw, ih = 0.093 * sw, top = -h / 2 + s + 0.034 * sw;
+    rrect(ctx, -iw / 2, top, iw, ih, ih / 2); ctx.fillStyle = "#070708"; ctx.fill();
+    lr = ih * .3; lx = iw / 2 - ih / 2; ly = top + ih / 2;
+  }
   ctx.beginPath(); ctx.arc(lx, ly, lr, 0, 7); ctx.fillStyle = "#0b0c10"; ctx.fill();
   ctx.beginPath(); ctx.arc(lx - lr * .2, ly - lr * .3, lr * .25, 0, 7); ctx.fillStyle = "#1a1e2c"; ctx.fill();
   rrect(ctx, -w / 2 + .5, -h / 2 + .5, w - 1, h - 1, R); ctx.strokeStyle = "rgba(255,255,255,.22)"; ctx.lineWidth = Math.max(1, w * .006); ctx.stroke();
@@ -349,6 +520,7 @@ export class Phone {
     this.img = img; this.meta = meta;
     this.h = ph; this.w = ph * (meta.w / meta.h);
     this.metal = meta.metal;
+    this.design = designOf(meta.model);
     // the same size of phone casts the same shadows: made once (a look lays its phones out
     // afresh for each place it tries for the words)
     const sk = Math.round(this.w) + "x" + Math.round(this.h);
@@ -359,12 +531,10 @@ export class Phone {
   }
 }
 
-function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = false) {
+export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = false) {
   const c = Math.cos(flip), ac = Math.abs(c), front = c >= 0;
   const w = p.w * scale, h = p.h * scale;
   const zz = clamp(z, 0, 1);
-  // how far the visible face is turned from facing us, -pi/2..pi/2
-  const e = front ? Math.atan2(Math.sin(flip), c) : Math.atan2(Math.sin(flip - Math.PI), Math.cos(flip - Math.PI));
   // shadow: tight when it lies flat, big and soft in the air
   const si = zz < .33 ? 0 : zz < .66 ? 1 : 2, sh = p.shadows[si];
   if (!noShadow) {                                  // a reflection casts none
@@ -381,64 +551,27 @@ function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = fa
   ctx.globalAlpha = op;
   ctx.translate(x, y);
   ctx.rotate(-rot * Math.PI / 180);
-  if (Math.abs(Math.sin(e)) > .012) draw3d(ctx, p, w, h, e, front, rot, flip, x / W);
-  else {
-    ctx.scale(Math.max(ac, .02), 1);
-    if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W);
-    else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
+  if (Math.abs(Math.sin(flip)) > .015) {           // turned: the slab, in perspective
+    let face = p.img;
+    if (front) {
+      const fc = p._front || (p._front = canvas(1, 1));
+      fc.width = Math.ceil(w); fc.height = Math.ceil(h);
+      const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2);
+      drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
+      face = fc;
+    }
+    drawSlab(ctx, p, w, h, flip, face);
+    ctx.restore();
+    return;
+  }
+  ctx.scale(Math.max(ac, .02), 1);
+  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
+  else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
+  if (ac < .999) {                                 // turning away from the light
+    rrect(ctx, -w / 2, -h / 2, w, h, CORNER * w);
+    ctx.fillStyle = `rgba(0,0,0,${(1 - ac) * .45})`; ctx.fill();
   }
   ctx.restore();
-}
-
-/** The phone turned about its upright axis in true perspective: the real photo (or the
- *  drawn screen side) in thin upright strips, each as tall as its depth makes it, and the
- *  band of the frame along the edge that swings toward us, in the phone's own metal. Only
- *  the photo is ever drawn: an angle is the same back seen from the side, never a new
- *  design. p.focal sets the lens (a wide lens exaggerates the turn). */
-/** A picture's shape filled with its metal, a shade darker: the phone's side. */
-function silhouette(img, metal, keep) {
-  const c = canvas(img.width, img.height), x = c.getContext("2d");
-  x.drawImage(img, 0, 0); x.globalCompositeOperation = "source-in";
-  x.fillStyle = shade(metal, -.3); x.fillRect(0, 0, c.width, c.height);
-  return c;
-}
-
-function draw3d(ctx, p, w, h, e, front, rot, flip, cxNorm) {
-  const f = h * (p.focal || 2.8), T = THICKNESS * w, se = Math.sin(e), ce = Math.cos(e);
-  const P = (X, Z) => { const zz = -X * se + Z * ce, k = f / (f + zz); return [(X * ce + Z * se) * k, k]; };
-  // the source: the photo, or the screen side drawn once at this size
-  let src = p.img, sw = p.img.width, shh = p.img.height;
-  if (front) {
-    const fw = Math.ceil(w), fh = Math.ceil(h);
-    if (!p._face || p._face.width !== fw || p._face.height !== fh) p._face = canvas(fw, fh);
-    const fx = p._face.getContext("2d"); fx.clearRect(0, 0, fw, fh); fx.save(); fx.translate(fw / 2, fh / 2);
-    drawFront(fx, w, h, p.metal, p.glare, rot, flip, cxNorm); fx.restore();
-    src = p._face; sw = fw; shh = fh;
-  }
-  // the phone's own silhouette in its metal, a few depths back, so the side follows the
-  // rounded corners (a straight slab stuck out square past them: "these phones look really
-  // weird", owner 2026-10-02), then the face; drawn off to one side to shade as it turns
-  const sil = front ? silhouette(src, p.metal, false) : (p._sil ||= silhouette(p.img, p.metal, true));
-  const [x0] = P(-w / 2, 0), [x1] = P(w / 2, 0), [xT0] = P(-w / 2, T), [xT1] = P(w / 2, T);
-  const kmax = Math.max(P(-w / 2, 0)[1], P(w / 2, 0)[1], P(-w / 2, T)[1], P(w / 2, T)[1]);
-  const L = Math.min(x0, x1, xT0, xT1) - 2, R = Math.max(x0, x1, xT0, xT1) + 2, bw = Math.ceil(R - L), bh = Math.ceil(h * kmax + 4);
-  if (!p._warp || p._warp.width < bw || p._warp.height < bh) p._warp = canvas(Math.max(bw, p._warp ? p._warp.width : 0), Math.max(bh, p._warp ? p._warp.height : 0));
-  const wx = p._warp.getContext("2d"); wx.clearRect(0, 0, p._warp.width, p._warp.height);
-  const N = clamp(Math.round(Math.abs(x1 - x0) / 2.5), 24, 160);
-  const warp = (img, iw, ih, Z) => {
-    for (let i = 0; i < N; i++) {
-      const u0 = i / N, u1 = (i + 1) / N, [xs0, k0] = P((u0 - .5) * w, Z), [xs1, k1] = P((u1 - .5) * w, Z), k = (k0 + k1) / 2;
-      wx.drawImage(img, u0 * iw, 0, (u1 - u0) * iw, ih, Math.min(xs0, xs1) - L, bh / 2 - h * k / 2, Math.abs(xs1 - xs0) + .7, h * k);
-    }
-  };
-  // as many depths as the side spans in pixels, so a phone seen edge-on shows a solid band
-  const span = Math.abs(P(Math.sign(se) * w / 2, T)[0] - P(Math.sign(se) * w / 2, 0)[0]), layers = clamp(Math.ceil(span / 1.2), 3, 40);
-  for (let k = layers; k >= 1; k--) warp(sil, sil.width, sil.height, T * k / layers);
-  warp(src, sw, shh, 0);
-  wx.globalCompositeOperation = "source-atop";
-  wx.fillStyle = `rgba(0,0,0,${(1 - ce) * .5})`; wx.fillRect(0, 0, bw, bh);
-  wx.globalCompositeOperation = "source-over";
-  ctx.drawImage(p._warp, 0, 0, bw, bh, L, -bh / 2, bw, bh);
 }
 
 // ------------------------------------------------------------ where the phones land
@@ -457,7 +590,8 @@ function stage(st, W, H) {
   return { cx: cx * W, cy: cy * H, hw: sw * W / 2, hh: sh * H / 2, ph: ph * H * (st.phone_scale || 1) };
 }
 
-function arrangement(name, n, r, tall) {
+function arrangement(name, n, r, tall, s) {
+  if (s && LAID_OUT[name]) return laidOut(name, n, r, tall, s);
   if (tall && ["row", "cascade", "staircase"].includes(name) && n >= 3) name = "grid";
   const lin = (a, b) => n > 1 ? Array.from({ length: n }, (_, i) => a + (b - a) * i / (n - 1)) : [(a + b) / 2];
   const out = [];
@@ -499,6 +633,170 @@ function arrangement(name, n, r, tall) {
     default: return arrangement("row", n, r, tall);
   }
   return out;
+}
+
+/** The layouts drawn in the phones' own measure rather than the stage's: each is laid
+ *  out in pixels, in phone heights (PH) and phone widths (PW), as it would stand at full
+ *  size, then centred on the stage and made smaller as a whole (never bent) until the
+ *  group is no wider than the frame and no taller than one and a half phones or 90% of it. A fifth
+ *  number on a spot is its depth: the phone with the higher one stands in front and
+ *  lands last. */
+const LAID_OUT = {
+  // a hand of cards: a tight fan about one point under the hand
+  hand(n, r, tall, PH) {
+    const half = Math.min(32, 9 * (n - 1)), R = PH * .7;
+    return spots(n, t => { const f = lerp(-half, half, t) * Math.PI / 180; return [R * Math.sin(f), -R * Math.cos(f), -f * 180 / Math.PI, 1, 0]; });
+  },
+  // each leaning further than the one before, as dominoes fall
+  domino(n, r, tall, PH, PW) {
+    const d = r() < .5 ? -1 : 1, step = PW * (tall ? .78 : .92);
+    return spots(n, (t, i) => { const th = lerp(3, 36, t) * Math.PI / 180, x = d * (i - (n - 1) / 2) * step;
+      return [x + d * Math.sin(th) * PH / 2, -Math.cos(th) * PH / 2, -d * th * 180 / Math.PI, 1, 0]; });
+  },
+  // the middle phone stands highest and largest, the rest step down and out
+  podium(n, r, tall, PH, PW) {
+    const step = PW * (tall ? .74 : .86);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o) / Math.max(1, (n - 1) / 2);
+      return [o * step * (1 - .1 * k), PH * .22 * k, -Math.sign(o) * 5 * k, 1.1 - .24 * k, -Math.abs(o)]; });
+  },
+  // along a wave, each turned with the slope under it
+  wave(n, r, tall, PH, PW) {
+    const f0 = r() < .5 ? 0 : Math.PI, A = PH * .2, span = PW * (tall ? .8 : .95) * (n - 1);
+    return spots(n, t => { const f = f0 + 1.5 * Math.PI * t, slope = n > 1 ? A * 1.5 * Math.PI * Math.cos(f) / span : 0;
+      return [lerp(-span / 2, span / 2, t), A * Math.sin(f), Math.atan(slope) * 57.3 * -.8, 1, 0]; });
+  },
+  // a peacock's tail: all standing out from one point low in the middle
+  burst(n, r, tall, PH) {
+    const half = Math.min(66, 20 * (n - 1)), R = PH * .5;
+    return spots(n, t => { const f = lerp(-half, half, t); const a = f * Math.PI / 180;
+      return [R * Math.sin(a), -R * Math.cos(a), -f, 1, -Math.abs(f)]; });
+  },
+  // a line going away from the viewer: the nearest largest, each further one smaller and higher
+  runway(n, r, tall, PH, PW) {
+    const d = r() < .5 ? -1 : 1, out = []; let x = 0;
+    for (let i = 0; i < n; i++) {
+      const sc = 1.12 * .8 ** i;
+      if (i) x += d * PW * .6 * (sc + 1.12 * .8 ** (i - 1)) / 2;
+      out.push([x, -i * PH * .08 - sc * PH / 2, d * -3, sc, -i]);
+    }
+    return out;
+  },
+  // a group photo: a back row standing higher, a front row between them
+  group(n, r, tall, PH, PW) {
+    const back = Math.ceil(n / 2), front = n - back, S = PW * 1.1, out = [];
+    for (let i = 0; i < back; i++) out.push([(i - (back - 1) / 2) * S, -PH * .22, r.uniform(-5, 5), .88, 0]);
+    // the front row stands in the gaps of the back row
+    for (let i = 0; i < front; i++) out.push([(i - (back - 1) / 2 + .5) * S, PH * .2, r.uniform(-5, 5), 1.02, 1]);
+    return out;
+  },
+  // two large phones at the ends lean in over a smaller row between them
+  bookends(n, r, tall, PH, PW) {
+    if (n < 3) return LAID_OUT.podium(n, r, tall, PH, PW);
+    const m = n - 2, gap = PW * .74, end = (m - 1) / 2 * gap + PW * .95, out = [];
+    out.push([-end, 0, -12, 1.12, 1]);
+    for (let i = 0; i < m; i++) out.push([(i - (m - 1) / 2) * gap, PH * .12, i % 2 ? 4 : -4, .8, 0]);
+    out.push([end, 0, 12, 1.12, 1]);
+    return out;
+  },
+  // on a shelf in a shop: standing side by side on one line, the last leaning on its neighbour
+  shelf(n, r, tall, PH, PW) {
+    const rows = tall && n >= 4 ? 2 : 1, per = Math.ceil(n / rows), out = [];
+    for (let row = 0; row < rows; row++) {
+      const k = Math.min(per, n - row * per), sizes = Array.from({ length: k }, () => r.uniform(.9, 1.04));
+      const lean = k > 1 && r() < .6;
+      const width = sizes.reduce((a, b) => a + b, 0) * PW * 1.06;
+      let x = -width / 2;
+      sizes.forEach((sc, i) => {
+        const tilt = lean && i === k - 1 ? 10 : 0;
+        x += sc * PW * 1.06 / 2;
+        out.push([x + (tilt ? PW * .12 : 0), row * PH * 1.08 - sc * PH / 2 + (tilt ? PH * .01 : 0), -tilt, sc, 0]);
+        x += sc * PW * 1.06 / 2;
+      });
+    }
+    return out;
+  },
+  // an arrow: two arms meeting at the phone in front
+  chevron(n, r, tall, PH, PW) {
+    const d = r() < .5 ? -1 : 1;
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2;
+      return [-d * Math.abs(o) * PW, o * PH * .24, d * -o * 12, 1 - .05 * Math.abs(o), -Math.abs(o)]; });
+  },
+  // a grid turned as a whole, as a magazine sets a page
+  tilted_grid(n, r, tall, PH, PW) {
+    const cols = tall || n <= 4 ? 2 : 3, rows = Math.ceil(n / cols), th = (r() < .5 ? -1 : 1) * r.uniform(8, 13), a = th * Math.PI / 180;
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const rr = Math.floor(i / cols), inRow = Math.min(cols, n - rr * cols), cc = i % cols;
+      const x = (cc - (inRow - 1) / 2) * PW * 1.14, y = (rr - (rows - 1) / 2) * PH * 1.04;
+      out.push([x * Math.cos(a) + y * Math.sin(a), -x * Math.sin(a) + y * Math.cos(a), th, 1, 0]);
+    }
+    return out;
+  },
+  // one phone front and centre, the rest in a row behind it
+  headliner(n, r, tall, PH, PW) {
+    const out = [[0, PH * .12, r.uniform(-4, 4), 1.18, 1]], m = n - 1, left = Math.ceil(m / 2);
+    for (let i = 0; i < m; i++) {
+      const side = i < left ? -1 : 1, j = i < left ? i : i - left;
+      out.push([side * (PW * .78 + j * PW * .6), -PH * .15, -side * (6 + 4 * j), .78, -j]);
+    }
+    return out;
+  },
+  // a collage: one large phone beside a small grid of the rest
+  collage(n, r, tall, PH, PW) {
+    const d = r() < .5 ? -1 : 1, m = n - 1, big = 1.06, sm = .56, g = PW * .12;
+    if (!m) return [[0, 0, 0, big, 0]];
+    const cols = m === 1 ? 1 : 2, rows = Math.ceil(m / cols);
+    const gw = cols * sm * PW + (cols - 1) * g, total = big * PW + g * 1.5 + gw;
+    const out = [[d * (-total / 2 + big * PW / 2), 0, 0, big, 0]];
+    const x0 = d * (total / 2 - gw / 2), rh = sm * PH + g;
+    for (let i = 0; i < m; i++) {
+      const rr = Math.floor(i / cols), inRow = Math.min(cols, m - rr * cols), cc = i % cols;
+      out.push([x0 + (cc - (inRow - 1) / 2) * (sm * PW + g), (rr - (rows - 1) / 2) * rh, 0, sm, 0]);
+    }
+    return out;
+  },
+  // pairs leaning together at the top like a tent, an odd one standing on its own
+  tents(n, r, tall, PH, PW) {
+    const dx = PH / 2 * Math.sin(.28) + PW / 2 * Math.cos(.28) - PW * .1, out = [];
+    const units = []; for (let k = n; k > 0;) { if (k >= 2 && !(k === 3 && units.length === 1)) { units.push(2); k -= 2; } else { units.push(1); k -= 1; } }
+    const wid = u => u === 2 ? 2 * dx + PW : PW * 1.05;
+    const total = units.reduce((a, u) => a + wid(u), 0) + PW * .15 * (units.length - 1);
+    let x = -total / 2;
+    for (const u of units) {
+      const c = x + wid(u) / 2;
+      if (u === 2) { out.push([c - dx, 0, -16, 1, 0]); out.push([c + dx, 0, 16, 1, 0]); }
+      else out.push([c, -PH * .02, 0, 1.04, 0]);
+      x += wid(u) + PW * .15;
+    }
+    return out;
+  },
+  // a carousel seen from a little above: nearer phones larger and lower, further ones smaller and higher
+  carousel(n, r, tall, PH, PW) {
+    // turned so that no phone stands straight behind another
+    const Rx = PW * (tall ? .95 : 1.25) * Math.max(1, (n - 1) / 2), Ry = PH * .2, off = n % 2 ? 0 : .35;
+    return spots(n, (t, i) => { const th = 2 * Math.PI * i / n + off, c = Math.cos(th);
+      return [Math.sin(th) * Rx, c * Ry, -Math.sin(th) * 8, .72 + .34 * (c + 1) / 2, c]; });
+  },
+};
+
+/** n spots from f(t, i), t running 0..1 along them. */
+const spots = (n, f) => Array.from({ length: n }, (_, i) => f(n > 1 ? i / (n - 1) : .5, i));
+
+function laidOut(name, n, r, tall, s) {
+  const PH = s.ph, PW = s.ph * .475;
+  const out = LAID_OUT[name](n, r, tall, PH, PW);
+  // the whole group, corners and all, centred on the stage, and no larger than the room
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const [x, y, a, sc] of out) {
+    const hw = PW * sc / 2, hh = PH * sc / 2, th = -a * Math.PI / 180, c = Math.cos(th), sn = Math.sin(th);
+    for (const [u, v] of [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]]) {
+      const X = x + u * c - v * sn, Y = y + u * sn + v * c;
+      x0 = Math.min(x0, X); x1 = Math.max(x1, X); y0 = Math.min(y0, Y); y1 = Math.max(y1, Y);
+    }
+  }
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  const k = Math.min(1, Math.min(s.hw * 2.4, s.W * .94) / (x1 - x0), Math.min(PH * 1.5, s.H * .9) / (y1 - y0));
+  return out.map(([x, y, a, sc, z]) => [(x - cx) * k / s.hw, (y - cy) * k / s.hh, a, sc * k, z]);
 }
 
 /** The four corners of a phone where it comes to rest, a little generous for its
@@ -569,22 +867,34 @@ function phonesShowing(phones, order) {
 // ------------------------------------------------------------ how they get there
 
 const ENTRY_TIMES = { fly_spin: [1, .12], drop: [.85, .11], conveyor: [1.05, .14], zoom: [.9, .10], orbit: [1.2, .07],
-  deal: [.62, .15], pop: [.55, .09], rain: [.7, .07], boomerang: [1.1, .1], split: [.8, .05], spiral_in: [1.15, .08], whip: [.45, .1] };
+  deal: [.62, .15], pop: [.55, .09], rain: [.7, .07], boomerang: [1.1, .1], split: [.8, .05], spiral_in: [1.15, .08], whip: [.45, .1],
+  slide_up: [.8, .1], swing: [1.25, .1], float_up: [.9, .1], zipper: [.7, .08], sweep: [1, .09], pinwheel: [.75, .1],
+  snap: [.3, .2], roll: [1, .12], magnet: [.8, .03], shuffle: [1, .08], flip_in: [.8, .1] };
 
-function planEntries(phones, st, W, H, r, stageC) {
+function planEntries(phones, st, W, H, r, stageC, drawOrder) {
   const [dur, stag] = ENTRY_TIMES[st.entry] || ENTRY_TIMES.fly_spin;
   const dirs = ["left", "right", "top", "bottom", "top-left", "top-right", "bottom-left", "bottom-right"];
   const side = r() < .5 ? -1 : 1;
-  let order = phones.map((_, i) => i);
-  if (st.arrangement === "hero") order = order.slice(1).concat(order.slice(0, 1));
+  // the phone drawn in front lands last (the hero, or a layout's front row)
+  const order = drawOrder || phones.map((_, i) => i);
   order.forEach((i, k) => {
     const p = phones[i];
     // The first 3 seconds decide whether anyone watches: phones are already in
     // the air at frame 0 and land fast. A hook line owns the first second.
     const lead = ["hook_line", "word_beat"].includes(st.hook) ? .5 : st.hook === "crash_zoom" ? .22 : st.hook === "punch_in" ? -.7 : -.45;
-    p.tIn = lead + k * stag * .75; p.tLand = p.tIn + dur * .85;
-    if (st.hook === "flash_cut") { p.tIn = p.tLand = Math.max(0, k - 1) * .15; p.flashIn = k > 1; p.landsBack = true; p.reveal = false; }   // two are there at frame 0, backs up
+    // ...but IN the air: at frame 0 no phone is more than half way through its flight, so
+    // a short entrance (a pop, a whip) under an early lead still flies in rather than
+    // standing there landed. (Owner, 2026-09-30: "it doesn't fly or move in".)
+    p.tIn = Math.max(lead, -.5 * dur * .85) + k * stag * .75; p.tLand = p.tIn + dur * .85;
+    // a flash cut: two are all but landed at frame 0, backs up, and each after them slams
+    // in on a white flash. Every one still flies the last stretch in, fast, rather than
+    // appearing where it lands. (Owner, 2026-09-30: "it doesn't fly or move in".)
+    if (st.hook === "flash_cut") {
+      p.tFlash = Math.max(0, k - 1) * .15 + (k > 1 ? .18 : 0); p.tLand = Math.max(.18, p.tFlash); p.tIn = p.tLand - .3;
+      p.flashIn = k > 1; p.landsBack = true; p.reveal = false;
+    }
     p.spin = r.pick([-2, -1, 1, 2]) * (r() < .2 ? 1.5 : 1); p.flips = r.pick([1, 2]);
+    if (st.hook === "flash_cut") p.flips = 0;     // backs up all the way in: no black glass on frame 0
     const far = Math.max(p.h * p.size, H * .4);
     const [hx, hy] = p.home;
     const sides = { left: [-far, hy], right: [W + far, hy], top: [hx, -far], bottom: [hx, H + far],
@@ -602,9 +912,22 @@ function planEntries(phones, st, W, H, r, stageC) {
       case "zoom": case "pop": p.start = [hx, hy]; break;
       case "orbit": case "split": case "spiral_in": p.start = [stageC[0], stageC[1]]; break;
       case "deal": p.start = [W / 2, H + far]; p.arc = [(W / 2 + hx) / 2, (H + hy) / 2 + H * .1]; break;
+      case "slide_up": p.start = [hx, H + far]; break;
+      case "zipper": p.start = [hx, k % 2 ? -far : H + far]; break;
+      case "swing": p.start = [0, -(hy + far)]; p.swing = (k % 2 ? 1 : -1) * side * r.uniform(45, 62); break;
+      case "sweep": p.start = [side < 0 ? -far : W + far, H * .8]; p.arc = [(p.start[0] + hx) / 2, Math.min(hy, H * .5) - H * .42]; break;
+      case "roll": p.start = [side < 0 ? -far : W + far, hy]; break;
+      case "magnet": {                                  // scattered about the frame, then drawn together
+        const m = .14, jx = r.uniform(-.08, .08) * W, jy = r.uniform(-.08, .08) * H;
+        p.start = [clamp(stageC[0] + (hx - stageC[0]) * 2.2 + jx, W * m, W * (1 - m)), clamp(stageC[1] + (hy - stageC[1]) * 2.2 + jy, H * m, H * (1 - m))];
+        p.rot0 = r.uniform(-35, 35); break;
+      }
+      case "shuffle": { const d = hx < stageC[0] ? -1 : hx > stageC[0] ? 1 : (k % 2 ? 1 : -1);
+        p.start = [stageC[0], stageC[1]]; p.arc = [hx + d * W * .32, hy - H * .08]; p.dir = d; break; }
+      case "float_up": case "snap": case "pinwheel": case "flip_in": p.start = [hx, hy]; break;
       default: p.start = sides.left;
     }
-    p.side = side;
+    p.side = side; p.k = k;
     if (st.hook === "crash_zoom" && k === order.length - 1) {     // the last to land crashes in from the lens
       p.crash = true; p.tIn = -.04; p.tLand = .72; p.crashFrom = [stageC[0], stageC[1]]; p.landsBack = true; p.reveal = false;
     }
@@ -612,7 +935,24 @@ function planEntries(phones, st, W, H, r, stageC) {
   return Math.max(...phones.map(p => p.tLand));
 }
 
+/** A phone's own height where it stands. */
+const H0 = p => p.h * p.size;
+
+// Every phone in a video rests at the same angle: flat, or turned about 35
+// degrees to show one edge. The turn rides on top of every flip, so a phone
+// that lands on its screen shows the same edge, on the same side, as its back.
+// The two angles that keep moving (a turntable sway, one wide spin) start from
+// flat once the phones settle; see phoneState0.
+const POSE_TURN = { flat: 0, edge_left: -.6, edge_right: .6 };
+
 function phoneState(p, t, st) {
+  const s = phoneState0(p, t, st);
+  const turn = POSE_TURN[st.pose] || 0;
+  if (s && turn) s[4] += turn;
+  return s;
+}
+
+function phoneState0(p, t, st) {
   if (t < p.tIn) return null;
   const [hx, hy] = p.home, base = p.size;
   if (p.crash && t < p.tLand) {
@@ -661,6 +1001,54 @@ function phoneState(p, t, st) {
         const e2 = outBack(q, 1.4);
         return [lerp(p.start[0], hx, e2), lerp(p.start[1], hy, e2), base * (.6 + .4 * e), p.angle * e, end + turn, .3 * z, clamp(q * 4)];
       }
+      case "slide_up": {                                  // straight up from under the frame, a little past, and back
+        const e2 = outBack(q, 1.3);
+        return [hx, lerp(p.start[1], hy, e2), base, p.angle + p.side * 14 * z, end + turn, .3 * z, 1];
+      }
+      case "zipper": {                                    // in turn from the top and from the bottom
+        const e2 = outQuint(q);
+        return [hx, lerp(p.start[1], hy, e2), base, p.angle + (p.k % 2 ? 1 : -1) * 18 * (1 - e2), end + turn, .25 * z, 1];
+      }
+      case "swing": {                                     // hung from a point above, let down and left to swing still
+        const a = p.angle * Math.PI / 180, L = p.h * base * .9;
+        const drop = (1 - outCubic(clamp(q / .35))) * p.start[1];
+        const px = hx - L * Math.sin(a), py = hy - L * Math.cos(a) + drop;
+        const f = p.swing * (1 - q) ** 1.4 * Math.cos(2 * Math.PI * 1.25 * q), b = a + f * Math.PI / 180;
+        return [px + L * Math.sin(b), py + L * Math.cos(b), base, p.angle + f, end + turn, .3 * (1 - q), 1];
+      }
+      case "sweep": {                                     // one after another along the same wide arc over the top
+        const x = (1 - e) ** 2 * p.start[0] + 2 * (1 - e) * e * p.arc[0] + e * e * hx;
+        const y = (1 - e) ** 2 * p.start[1] + 2 * (1 - e) * e * p.arc[1] + e * e * hy;
+        return [x, y, base * (1 + .15 * z), p.angle - p.side * 140 * z, end + turn, .6 * z, 1];
+      }
+      case "roll": {                                      // in from the side, turning over and over like a wheel
+        const e2 = outQuint(q);
+        return [lerp(p.start[0], hx, e2), hy, base, p.angle + p.side * 420 * (1 - e2), end + turn, .2 * z, 1];
+      }
+      case "magnet": {                                    // from where they lie scattered, pulled into place
+        const e2 = outBack(q, 1.7);
+        return [lerp(p.start[0], hx, e2), lerp(p.start[1], hy, e2), base * (.72 + .28 * e), p.angle + p.rot0 * (1 - e), end + turn, .35 * z, 1];
+      }
+      case "shuffle": {                                   // out of one stack, round to the side and in, as cards are shuffled
+        const e2 = inOut(q);
+        const x = (1 - e2) ** 2 * p.start[0] + 2 * (1 - e2) * e2 * p.arc[0] + e2 * e2 * hx;
+        const y = (1 - e2) ** 2 * p.start[1] + 2 * (1 - e2) * e2 * p.arc[1] + e2 * e2 * hy;
+        return [x, y, base * (1 + .08 * Math.sin(Math.PI * q)), p.angle * e2 + p.dir * 20 * Math.sin(Math.PI * q), end + turn, .4 * Math.sin(Math.PI * q), 1];
+      }
+      case "float_up": {                                  // rises a little into place as it fades in, and does not turn
+        const e2 = outQuint(q);
+        return [hx, hy + H0(p) * .22 * (1 - e2), base * (.94 + .06 * e2), p.angle + p.side * 5 * (1 - e2), end, .2 * (1 - e2), clamp(q * 2.2)];
+      }
+      case "snap": {                                      // cut in on the beat, a touch large, and set down
+        return [hx, hy, base * (1 + .14 * z), p.angle + p.side * 4 * z, end, .2 * z, 1];
+      }
+      case "pinwheel": {                                  // spins up from nothing where it stands
+        const s2 = outBack(q, 1.8);
+        return [hx, hy, base * Math.max(.02, s2), p.angle + (p.spin > 0 ? 1 : -1) * 330 * z, end + turn, .4 * z, clamp(q * 6)];
+      }
+      case "flip_in": {                                   // edge on, turning over into view where it stands
+        return [hx, hy - H0(p) * .05 * z, base * (.86 + .14 * e), p.angle + p.spin * 10 * z, end + (2 * p.flips + .5) * Math.PI * z, .5 * z, 1];
+      }
     }
   }
   let s = base;
@@ -674,13 +1062,12 @@ function phoneState(p, t, st) {
     const after = t - (p.tReveal + .5);
     if (after > 0 && after < .18) s *= 1 - .02 * Math.sin(Math.PI * after / .18);
   }
-  // the phone's angle once it is settled, the same for every phone in the look so they
-  // read as one set: turned a little in 3-D, swaying on a turntable, or one wide spin
+  // the angles that move once a phone is settled, every phone in step so the set reads
+  // as one: swaying on a turntable, or one wide spin
   const settle = p.reveal ? p.tReveal + .5 : p.tLand + .15;
   if (t > settle) {
     const a = PHONE_TURN * p.turnSide, q = t - settle;
-    switch (st.phone_angle) {
-      case "angled": flip += a * inOut(clamp(q / .45)); break;
+    switch (st.pose) {
       case "turntable": flip += a * 1.15 * Math.sin(q * 1.35) * clamp(q / .3); break;
       case "wide_spin": {
         const q2 = prog(t, settle + .35 + p.order * .07, 1.05);
@@ -1287,7 +1674,7 @@ export class Ad {
       this._wordsOffPhones();
     }
     // how the phones get there is planned from where they finally land (the same draws from this.r as ever)
-    this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC) : .3;
+    this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC, this.drawOrder) : .3;
     this._timeline();
     this._typeTimeline();
     this._buildDecor();
@@ -1348,7 +1735,7 @@ export class Ad {
     const s = stage(st, W, H);
     this.stageC = [s.cx, s.cy]; this.stageSpan = [s.cx - s.hw, s.cx + s.hw];
     const ids = (st.phones || []).filter(id => this.assets.phones[id]);
-    const spots = arrangement(st.arrangement, ids.length, this.r, W / H < .85);
+    const spots = arrangement(st.arrangement, ids.length, this.r, W / H < .85, { ...s, W, H });
     this.phones = ids.map((id, i) => {
       const a = this.assets.phones[id];
       const p = new Phone(a.img, a.meta, s.ph);
@@ -1358,12 +1745,14 @@ export class Ad {
       p.landsBack = endsBack && st.front_glimpse === "spin";
       p.reveal = endsBack && !p.landsBack;
       p.glare = new Glare(rng(st.seed * 101 + i), st.glare);
-      p.focal = st.phone_angle === "wide_spin" ? 1.5 : 2.8;      // a wide lens makes the spin wide
+      p.lens = st.pose === "wide_spin" ? WIDE_LENS : LENS;      // a wide lens makes the spin wide
       p.turnSide = st.seed % 2 ? 1 : -1; p.order = i;           // every phone turns the same way
       return p;
     });
     this.drawOrder = this.phones.map((_, i) => i);
     if (st.arrangement === "hero") this.drawOrder = this.drawOrder.slice(1).concat([0]);
+    // a layout that says which phones stand in front draws (and lands) them last
+    if (spots.some(sp => sp.length > 4)) this.drawOrder.sort((a, b) => (spots[a][4] || 0) - (spots[b][4] || 0));
     if (this.plan) {                                         // where the plan put them, at this size
       const P = this.plan;
       this.phones.forEach((p, i) => { const q = P.phones[i]; if (q) { p.home = [q.x * W, q.y * H]; p.size = q.size; p.angle = q.angle; } });
@@ -1597,7 +1986,10 @@ export class Ad {
   /** When the words and the number arrive, once the phones' timeline is known. */
   _typeTimeline() {
     const st = this.st, n = this.lines.length;
-    this.tl.lines = this.lines.map((_, i) => this.tl.text + i * .12);
+    // words on screen within a second: with no opening line to read first, a long headline's lines follow
+    // each other closer, so the last one starts by 0.6 s (two lines keep the full 0.12 s)
+    const step = n > 1 && this.tl.text < .6 ? Math.min(.12, Math.max(.06, (.6 - this.tl.text) / (n - 1))) : .12;
+    this.tl.lines = this.lines.map((_, i) => this.tl.text + i * step);
     const perLetter = ["slide_letters", "drop_letters", "typewriter", "scramble", "spin_letters"].includes(st.text_in);
     const last = this.tl.lines[n - 1] + (perLetter ? .4 : .26);
     this.tl.hit = this.tl.text + (["slam", "stomp"].includes(st.text_in) ? .42 : .3);
@@ -1605,9 +1997,9 @@ export class Ad {
     this.tl.still = Math.max(this.tl.still, this.tl.revealEnd + .25);
     // phones that turn once they settle keep moving until the turn is done (a turntable never stops)
     const settled = p => p.reveal ? p.tReveal + .5 : p.tLand + .15;
-    const turnEnd = { angled: .5, wide_spin: 1.5 }[st.phone_angle];
+    const turnEnd = { wide_spin: 1.5 }[st.pose];
     if (turnEnd) this.tl.still = Math.max(this.tl.still, ...this.phones.map(p => settled(p) + turnEnd + p.order * .07));
-    this.livePhones = st.phone_angle === "turntable" && this.phones.length > 0;
+    this.livePhones = st.pose === "turntable" && this.phones.length > 0;
     // an ending only where the number has had its time on screen first
     const tO = st.duration - 1.1;
     this.tOutro = st.outro && st.outro !== "none" && st.duration >= 4.5 && tO >= this.tl.number + 1.4 ? tO : null;
@@ -2374,7 +2766,7 @@ export class Ad {
       if ((st.transition || "fade") === "fade" || t < this.hookEnd - .04) this._hookLine(ctx, t);
       else this._transition(ctx, t);
     }
-    if (st.hook === "flash_cut") for (const p of this.phones) { if (!p.flashIn) continue; const f = t - p.tIn; if (f >= 0 && f < .09) { ctx.fillStyle = `rgba(255,255,255,${.6 * (1 - f / .09)})`; ctx.fillRect(0, 0, W, H); } }
+    if (st.hook === "flash_cut") for (const p of this.phones) { if (!p.flashIn) continue; const f = t - p.tFlash; if (f >= 0 && f < .09) { ctx.fillStyle = `rgba(255,255,255,${.6 * (1 - f / .09)})`; ctx.fillRect(0, 0, W, H); } }
     if (this.scrimC) { const k = prog(t, tl.text - .1, .4); if (k > 0) { ctx.globalAlpha = k; ctx.drawImage(this.scrimC, 0, 0, W, H); ctx.globalAlpha = 1; } }
     if (this.spray) drawSpray(ctx, this.spray, this.pos.block, t, tl.text);
     if (this.board) drawBoard(ctx, this.board, this.pos.board[0], this.pos.board[1], t, tl.text - .12, W, H);
@@ -2753,10 +3145,13 @@ function randomChar(t, j) {
 
 export async function loadPhones(base = "./phones/") {
   const idx = await (await fetch(base + "index.json")).json();
-  // only real, straight photos of real finishes: never a back painted to pass for another
-  // model or colour (repaint), never a photo that failed its check (ok: false)
-  // (Owner, 2026-09-30: "no fake designs", after an orange 16 Pro Max that never existed)
-  idx.phones = idx.phones.filter(m => !m.repaint && m.ok !== false);
+  // never a photo that failed its check (ok: false). A painted back (repaint) stays: each is
+  // a model Apple made in a finish it was sold in, built from a real back and Apple's own
+  // straight-on camera where no straight photo of it exists (scripts/bake_extra_phones.py),
+  // and the picker says so. Dropping them too, as the owner's "no fake designs" (2026-09-30,
+  // after an orange 16 Pro Max that never existed) was first read, would leave no 14, no 15
+  // and no 16 Pro: the blue 15 Pros take their camera from Apple's render now as well.
+  idx.phones = idx.phones.filter(m => m.ok !== false);
   const phones = {};
   await Promise.all(idx.phones.map(m => new Promise(res => {
     const img = new Image(); img.decoding = "async";

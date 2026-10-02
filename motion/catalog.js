@@ -5,7 +5,12 @@
 // no two cuts share a look: the typeface does not decide the palette, the
 // palette does not decide the motion, the motion does not decide the sound.
 // Ported from iphoneslainv scripts/phone-ad (the Mac engine), widened 2-3x.
+//
+// Who the ad is for (an audience: its words, looks, music and voice) lives in
+// audiences.js; the voices in voices.js; the fifty themes in themes.js.
 
+import { MORE_VIBES, AUDIENCES, AUDIENCE_KEYS, MOODS } from "./audiences.js";
+import { CASTS } from "./voices.js";
 import { THEME_PALETTES, THEME_BOARDS, THEME_GROUNDS, THEMES, THEME_FAMILIES } from "./themes.js";
 export { THEMES, THEME_FAMILIES, THEME_GROUNDS };
 
@@ -327,6 +332,10 @@ export const VIBES = {
       es: { headlines: ["COMPRAMOS IPHONES"] } } },
 };
 
+// The looks that are not LA signs (clean tech, luxury noir, campus, game day...),
+// drawn and picked exactly like the LA vibes.
+Object.assign(VIBES, MORE_VIBES);
+
 // A sign board the headline sits on. ink/accent colour the words on the board;
 // the number keeps the scene's palette because it is not on the board.
 export const BOARDS = {
@@ -347,6 +356,11 @@ export const TAGS = ["", "", "", "TEXT FOR A QUOTE", "CALL OR TEXT", "LOCAL CASH
 export const NUMBER_LABELS = ["", "", "CALL OR TEXT", "TEXT US", "GET A QUOTE", "TEXT FOR A QUOTE", "CALL NOW", "TEXT ME"];
 
 export const OPTIONS = {
+  // who the ad speaks to, and the voice it speaks in
+  audience: ["none", ...AUDIENCE_KEYS],
+  voice: ["on", "off"],
+  voice_mood: Object.keys(MOODS),
+  voice_cast: Object.keys(CASTS),
   vibe: ["none", ...Object.keys(VIBES)],
   board: ["none", ...Object.keys(BOARDS)],
   urgency: ["none", "pulse_cta", "caution_tape", "ticker", "stamp", "arrows", "flash_border", "beat_pump"],
@@ -368,9 +382,15 @@ export const OPTIONS = {
   number_pos: ["bottom-center", "bottom-left", "bottom-right", "under-headline"],
   number_in: ["pop", "slide_up", "type", "wipe", "flip", "roll", "slide_left", "drop", "slot", "glow_on"],
   arrangement: ["row", "fan", "pile", "diagonal", "arc", "grid", "hero", "cascade",
-    "tower", "spiral", "vee", "ring", "staircase", "crossed", "giants", "pairs"],
-  entry: ["fly_spin", "drop", "conveyor", "zoom", "orbit", "deal", "pop", "rain", "boomerang", "split", "spiral_in", "whip"],
+    "tower", "spiral", "vee", "ring", "staircase", "crossed", "giants", "pairs",
+    "hand", "domino", "podium", "wave", "burst", "runway", "group", "bookends", "shelf", "chevron", "tilted_grid",
+    "headliner", "collage", "tents", "carousel"],
+  entry: ["fly_spin", "drop", "conveyor", "zoom", "orbit", "deal", "pop", "rain", "boomerang", "split", "spiral_in", "whip",
+    "slide_up", "swing", "float_up", "zipper", "sweep", "pinwheel", "snap", "roll", "magnet", "shuffle", "flip_in"],
   end_face: ["back", "front", "mixed"],
+  // the phone angle, one for every phone in the video so the set reads as one: flat, turned
+  // in 3-D to show one edge, swaying on a turntable, or one wide spin once they land
+  pose: ["flat", "edge_left", "edge_right", "turntable", "wide_spin"],
   front_glimpse: ["spin", "hold"],
   background: ["radial", "flat", "linear", "split", "rays", "dots", "stripes", "spotlight", "bigword", "grid",
     "mesh", "rings", "checker", "waves", "bokeh", "confetti", "duotone", "halftone", "beams", "frame", "sunburst", "noise",
@@ -379,9 +399,19 @@ export const OPTIONS = {
   palette: [...Object.keys(PALETTES), "match", "match", "match"],
   camera: ["push_in", "push_out", "still", "drift", "punch", "tilt", "whip_in", "handheld"],
   shake: [0, 1, 2],
-  sound_kit: ["house", "trap", "boombap", "minimal", "lofi", "edm", "afrobeat", "funk", "drumline", "none"],
-  hit: ["impact", "riser", "glitch", "cymbal", "bass_drop", "clap_stack"],
-  number_sfx: ["pop", "register", "ticks", "coin", "chime", "whoosh_ding"],
+  // scored like a commercial: every kit plays chords in a key (audio.js); the grooves
+  // after cinematic are patterns of their own on real instruments (music.js)
+  sound_kit: ["uplift", "house", "hiphop", "lofi", "minimal", "cinematic",
+    "reggaeton", "jersey_club", "drill", "phonk", "baile_funk", "amapiano", "cumbia", "disco", "uk_garage", "swing", "epic", "march", "bossa", "none"],
+  hit: ["impact", "riser", "cymbal", "bass_drop", "gong", "timpani", "whip", "anvil", "crash", "swell", "orchestra"],
+  number_sfx: ["pop", "chime", "register", "whoosh_ding", "ticks", "shave_haircut", "cash_counter", "text_ding", "phone_buzz",
+    "bells", "triangle", "glock_run", "harp_gliss", "whistle"],
+  // a famous public-domain tune over the groove (music.js), and what plays it
+  melody: ["none", "mountain_king", "fur_elise", "beethoven5", "ode_to_joy", "saints", "ballgame", "cucaracha", "toccata",
+    "turkish_march", "eine_kleine", "greensleeves", "morning_mood", "bumblebee", "carol_bells", "entertainer", "canon"],
+  lead: ["piano", "epiano", "vibes", "marimba", "xylophone", "glock", "organ", "harpsichord", "sax", "harp", "kalimba", "synth"],
+  // a sound over the opening hook (not the accents below, which are drawn on screen)
+  accent: ["none", "air_horn", "siren", "whistle", "gong", "windchimes", "bell_tree", "vibraslap"],
   glare: [0.5, 1, 1, 1.5],
   hook: ["hook_line", "hook_line", "word_beat", "word_beat", "crash_zoom", "flash_cut", "punch_in", "cold_open"],
   overlay: ["none", "none", "confetti", "light_leak", "vignette_pulse", "lens_flare", "glitch", "grain_live", "sparkle_field",
@@ -394,9 +424,6 @@ export const OPTIONS = {
   transition: ["fade", "flash", "zoom_through", "whip", "iris", "slice", "block"],
   // the last second
   outro: ["none", "settle", "end_card"],
-  // how the phones stand once they land, in true 3-D: flat, turned a little, swaying, or one
-  // wide spin (last, so the looks drawn before it keep every other choice)
-  phone_angle: ["flat", "angled", "turntable", "wide_spin"],
   // accents (accents.js): how many, on what topic, drawn as what, and how they move
   accents: [0, 1, 2, 3],
   accent_set: ["cash", "money", "hype", "phones", "deal", "local", "trust", "sparkle", "checks"],
@@ -441,7 +468,8 @@ export const GROUND_CANDIDATES = {
 export const GROUND_REVIEW = { approved: Object.keys(GROUND_CANDIDATES), rejected: [] };
 for (const id of GROUND_REVIEW.approved) {
   const c = GROUND_CANDIDATES[id]; if (!c) continue;
-  const vibes = Object.values(VIBES).filter(v => (v.backgrounds || []).includes(c.parent));
+  // the audiences' own looks keep the grounds they were swept and pruned on
+  const vibes = Object.values(VIBES).filter(v => v.la !== false && (v.backgrounds || []).includes(c.parent));
   if (vibes.length) vibes.forEach(v => v.backgrounds.push(id));
   if (OPTIONS.background.includes(c.parent)) OPTIONS.background.push(id);
 }
@@ -460,12 +488,15 @@ for (const id of THEME_REVIEW.approved) if (THEMES[id]) { VIBES[id] = THEMES[id]
 // and most show the fronts only as they flash past. Type that ENTERS FROM THE
 // LEFT is drawn three times as often as the rest.
 export const WEIGHTS = {
+  // an ad for everyone stays common; an audience that states a service (bulk, cracked) is only ever picked by hand
+  audience: { none: 4, ...Object.fromEntries(AUDIENCE_KEYS.filter(k => AUDIENCES[k].byHand).map(k => [k, 0])) },
+  voice: { on: 3, off: 1 },
   vibe: { none: 5 },
   board: { none: 10 },
   urgency: { none: 1 },
   number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
-  phone_angle: { flat: 3, angled: 2, turntable: 2, wide_spin: 1 },
+  pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1 },   // turned, as often as a turntable, either edge
   accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
   accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
   front_glimpse: { spin: 3, hold: 1 },
@@ -475,6 +506,44 @@ export const WEIGHTS = {
   depth: { none: 3, soft_floor: 3, reflection: 2 },
   transition: { fade: 2 },
   outro: { none: 3, settle: 2, end_card: 2 },
+  sound_kit: { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5 },
+  number_sfx: { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1 },
+  melody: { none: 5 },
+  accent: { none: 7 },
+};
+
+// The sound options added after the first looks were made. They are drawn from a
+// stream of their own, so every earlier look keeps the design it always had.
+export const LATE_OPTIONS = ["melody", "lead", "accent"];
+
+// The tempo each newer groove is played at (the scored kits take any).
+export const KIT_BPM = { reggaeton: [88, 100], jersey_club: [136, 144], drill: [138, 146], phonk: [124, 136], baile_funk: [126, 132],
+  amapiano: [110, 115], cumbia: [90, 100], disco: [116, 124], uk_garage: [130, 134], swing: [140, 168], epic: [88, 108], march: [112, 126], bossa: [120, 136] };
+
+// Sounds retired in the commercial pass (owner, 2026-09-30) play as the nearest one
+// still offered, so a saved or locked look keeps working.
+export const SOUND_ALIASES = {
+  sound_kit: { trap: "hiphop", boombap: "hiphop", edm: "house", funk: "uplift", afrobeat: "house", drumline: "cinematic" },
+  hit: { glitch: "impact", clap_stack: "impact" },
+  number_sfx: { coin: "chime" },
+};
+
+// The panel's names for the sounds; any other shows as its own words ("reggaeton": Reggaeton).
+export const SOUND_NAMES = {
+  sound_kit: { uplift: "Uplifting pop", house: "Deep house", hiphop: "Hip-hop", lofi: "Lo-fi", minimal: "Minimal pulse", cinematic: "Cinematic",
+    jersey_club: "Jersey club", baile_funk: "Baile funk", uk_garage: "UK garage", swing: "Swing jazz", epic: "Epic drums", march: "March / circus",
+    bossa: "Bossa nova", none: "No music" },
+  hit: { impact: "Low hit", riser: "Swell into a hit", cymbal: "Reverse cymbal", bass_drop: "Sub drop", swell: "Cymbal swell", orchestra: "Orchestra hit" },
+  number_sfx: { pop: "Soft pop", chime: "Two bells", register: "Cash register", whoosh_ding: "Whoosh and bell", ticks: "Soft typing",
+    shave_haircut: "Shave and a haircut", cash_counter: "Bill counter", text_ding: "Message ding", phone_buzz: "Phone buzz",
+    bells: "Tubular bell", glock_run: "Glockenspiel run", harp_gliss: "Harp sweep", whistle: "Referee whistle" },
+  melody: { none: "None", mountain_king: "In the Hall of the Mountain King (Grieg)", fur_elise: "Für Elise (Beethoven)", beethoven5: "Symphony No. 5 (Beethoven)",
+    ode_to_joy: "Ode to Joy (Beethoven)", saints: "When the Saints Go Marching In", ballgame: "Take Me Out to the Ball Game (1908)",
+    cucaracha: "La Cucaracha", toccata: "Toccata in D minor (Bach)", turkish_march: "Turkish March (Mozart)", eine_kleine: "Eine kleine Nachtmusik (Mozart)",
+    greensleeves: "Greensleeves", morning_mood: "Morning Mood (Grieg)", bumblebee: "Flight of the Bumblebee (Rimsky-Korsakov)",
+    carol_bells: "Carol of the Bells (Leontovych, 1916)", entertainer: "The Entertainer (Joplin)", canon: "Canon in D (Pachelbel)" },
+  lead: { epiano: "Electric piano", vibes: "Vibraphone", glock: "Glockenspiel", sax: "Tenor sax", synth: "Synth lead" },
+  accent: { none: "None", air_horn: "Air horn", whistle: "Referee whistle", windchimes: "Wind chimes", bell_tree: "Bell tree" },
 };
 
 export const FLAGS = { flash: 0.6, shine: 0.5, rgb_hit: 0.3, speed_lines: 0.35, sparkles: 0.35 };
@@ -485,19 +554,21 @@ export const DEFAULT_STYLE = {
   font: "franklin", number_font: "same", case: "upper", tracking: 0, skew: 0,
   text_fx: "shadow", color_mode: "mono", accent_word: -1, text_in: "slide", text_pos: "top-left",
   text_scale: 1, number_style: "plain", number_format: "dashed", number_pos: "bottom-center", number_in: "pop",
-  number_scale: 1, arrangement: "row", entry: "fly_spin", end_face: "back", front_glimpse: "spin",
+  number_scale: 1, arrangement: "row", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat",
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
-  sound_kit: "house", bpm: 118, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
+  sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
+  melody: "none", lead: "piano", accent: "none",
   overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",
   grade: "none", depth: "none", transition: "fade", outro: "none",
+  audience: "none", voice: "on", voice_mood: "confident", voice_cast: "host_m", vo_clip: "", vo_text: "", vo_lang: "en",
 };
 
 // The first ad's look, as a starting point.
 export const CLASSIC = {
   font: "franklin", text_fx: "shadow", text_in: "slide", text_pos: "top-left", number_style: "plain",
-  number_pos: "bottom-center", number_in: "pop", arrangement: "row", phone_angle: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
+  number_pos: "bottom-center", number_in: "pop", arrangement: "row", pose: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
   front_glimpse: "hold", background: "radial", palette: "sand", color_mode: "mono", camera: "push_in",
   sound_kit: "house", overlay: "none", hook: "cold_open",
 };
@@ -507,23 +578,25 @@ export const LABELS = {
   font: "Typeface", number_font: "Number typeface", case: "Case", tracking: "Letter spacing", skew: "Slant",
   text_fx: "Type treatment", color_mode: "Colour use", text_in: "Headline entrance", text_pos: "Headline position",
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
-  number_in: "Number entrance", arrangement: "Phone layout", phone_angle: "Phone angle",
+  number_in: "Number entrance", arrangement: "Phone layout", pose: "Phone angle",
   accents: "Accents", accent_set: "Accent topic", accent_kind: "Accents drawn as", accent_in: "Accents enter by", accent_idle: "Accents move", accent_out: "Accents leave by", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
-  sound_kit: "Music", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
-  vibe: "LA vibe", board: "Sign board", urgency: "Urgency",
+  sound_kit: "Music", melody: "Famous tune (public domain)", lead: "Tune played on", accent: "Opening sound", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
+  vibe: "Vibe", board: "Sign board", urgency: "Urgency",
+  audience: "Made for", voice: "Voiceover", voice_mood: "Voice mood", voice_cast: "Voice",
   grade: "Colour grade", depth: "Phone depth", transition: "Hook transition", outro: "Ending",
 };
 
 export const GROUPS = [
-  ["LA vibe and urgency", ["vibe", "board", "urgency"]],
+  ["Audience and voice", ["audience", "voice", "voice_mood", "voice_cast"]],
+  ["Vibe and urgency", ["vibe", "board", "urgency"]],
   ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
   ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
-  ["Phones", ["arrangement", "phone_angle", "entry", "end_face", "front_glimpse", "glare", "depth"]],
+  ["Phones", ["arrangement", "pose", "entry", "end_face", "front_glimpse", "glare", "depth"]],
   ["Accents", ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
-  ["Sound", ["sound_kit", "hit", "number_sfx"]],
+  ["Sound", ["sound_kit", "melody", "lead", "accent", "hit", "number_sfx"]],
 ];
 
 export function countLooks() {

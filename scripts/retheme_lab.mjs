@@ -110,7 +110,7 @@ const FRESH = ['cd10','cd04','jw03','gl02','du05', 'nn01','nn05','ck01','ck03'];
    item list and their own product pool. */
 const DEVICE_DECKS = {
   iphone:  { k:'APPLE BUYER', h1:'SELL YOUR', h2:'iPHONE',
-             items:'iPhone 17 • 16 • 15 • Pro & Pro Max',
+             items:'iPhone 18 Pro Max • 18 Pro • 17 • 16 • 15',
              sub:'SAME-DAY PAYMENT, EVERY TIME\nCRACKED, LOCKED OR BLACKLISTED\nWE MEET YOU LOCALLY OR YOU MAIL IT IN',
              cta:'GET YOUR OFFER', price:'UP TO $1,100 PAID TODAY', big:'$1,100',
              /* Current hardware, hero shots first: 17 Pro, 16, 15 Pro and the
@@ -3630,29 +3630,9 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
                           w: it.w, angle: tilt, shadow:{ color:'rgba(0,0,0,0.40)', blur:36, offsetX:0, offsetY:18 } } });
               });
             }
-            /* the wall: on every assorted card that took no lineup, and on
-               half of the ones that did */
-            if (!lineup || sd % 2 === 0){
-              const light = lumHex(th.c1) > 0.22;
-              const wallSet = singles.length >= 3 ? singles : use;
-              const cols = 3, rows = 3, cw = W / cols, rh = H / rows;
-              const wall = [];
-              for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++){
-                const k = r * cols + c;
-                if ((k + sd) % 4 === 0) continue;                       // a gap or two, so it is not a wallpaper grid
-                const nm = wallSet[(k * 5 + sd) % wallSet.length];
-                const jx = ((sd * (k + 3)) % 60) - 30, jy = ((sd * (k + 7)) % 60) - 30;
-                const tw = Math.round(Math.min(cw, rh) * 0.86), tx = cw * (c + 0.5) + jx, ty = rh * (r + 0.5) + jy;
-                /* a ghost under the headline fights the word; that cell stays empty */
-                const tile = { left: tx - tw / 2, top: ty - tw / 2, width: tw, height: tw };
-                const underHead = headBoxes.some(h => { const ix = Math.max(0, Math.min(tile.left + tile.width, h.left + h.width) - Math.max(tile.left, h.left)), iy = Math.max(0, Math.min(tile.top + tile.height, h.top + h.height) - Math.max(tile.top, h.top)); return ix * iy > 0.25 * tw * tw; });
-                if (underHead) continue;
-                wall.push({ kind:'cutout', name:'Wall Product ' + (k + 1), role:'photo', __wall:true,
-                  props:{ src: srcOf(nm), left: tx, top: ty, originX:'center', originY:'center',
-                          w: tw, angle: (k % 2 ? 12 : -12), opacity: light ? 0.16 : 0.26 } });
-              }
-              t2.layers.unshift(...wall);
-            }
+            /* no product wall (DESIGN-LAW rule 93, 2026-09-30): cut-outs tiled
+               over the ground at 16% or 26% read as ghosts ("little ghosts of
+               cars"), never as texture. A product shows whole or not at all. */
           }
         }
 

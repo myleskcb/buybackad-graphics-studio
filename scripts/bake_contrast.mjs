@@ -52,7 +52,10 @@ const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/M
    the previous table. Baking from repaired colours finds nothing wrong and
    writes an empty file, silently undoing every repair on the next deploy. */
 const RAW  = process.env.GFX_BASE || 'http://localhost:8899/';
-const BASE = RAW + (RAW.includes('?') ? '&' : '?') + 'nofix=1';
+/* &noholds=1: a held template is baked too. Left out, it never had its fixes,
+   so audit_templates measured it without them and held it again (2026-09-30:
+   137 of the 243 classics held, most on tables that never reached them) */
+const BASE = RAW + (RAW.includes('?') ? '&' : '?') + 'nofix=1&noholds=1';
 const OUTFILE = new URL('../assets/contrast-fix.json', import.meta.url).pathname;
 
 const browser = await puppeteer.launch({ executablePath: CHROME, headless:'new', args:['--no-sandbox'], protocolTimeout: 0 });
@@ -97,8 +100,15 @@ const fixes = await page.evaluate(() => {
       if (tpl.bg.scrim) sc.add(scrimRect(tpl.bg.scrim, W, H, tpl.bg.scrimColor, tpl.bg.scrimMode));
     } else sc.add(bgRectFor(tpl.bg.type==='image'?(tpl.bg.fallback||{type:'solid',c:'#101014'}):tpl.bg, W, H));
     const refs = [];
-    tpl.layers.forEach((l,i) => { if (skip===i){refs.push(null);return;} const o=buildLayer(l,tpl.id); sc.add(o); refs.push(o); });
+    tpl.layers.forEach((l,i) => { const o=buildLayer(l,tpl.id); sc.add(o); refs.push(o); });
     alignPass(sc, W, H);
+    /* the ground under a layer: the card laid out WITH it (left out, the
+       layout settled differently round the gap and the pixels "under" it were
+       another arrangement's), then only its ink taken off (app.js pgHideInk):
+       its own backing is the ground its letters read on. Measured against the
+       bare photograph, sports_break's badges were given a pink that vanished
+       on their own lavender panel (1.13:1) */
+    if (skip >= 0 && refs[skip]){ if (typeof pgHideInk === 'function') pgHideInk(refs[skip]); else refs[skip].visible = false; }
     sc.renderAll();
     const d = sc.lowerCanvasEl.getContext('2d').getImageData(0,0,W,H);
     return { d, refs, kill:()=>sc.dispose() };
@@ -106,6 +116,11 @@ const fixes = await page.evaluate(() => {
 
   const out = [];
   TEMPLATES.forEach(tpl => {
+    /* the offer family (offer-library.js) is drawn as authored, its inks
+       chosen on its own ground; no load-time table touches it. Baked with
+       the classics (2026-09-30, on the merged engine) it drew 850 rows that
+       would have repainted 168 of its cards */
+    if (tpl.tag === 'offer') return;
     let full; try { full = paint(tpl, -1); } catch(e){ return; }
     const idx = [];
     tpl.layers.forEach((l,i) => {

@@ -123,6 +123,16 @@ Two August branches were left unmerged on purpose (OPEN-ITEMS §J, §U):
 `claude/busy-allen-2d5iv1` and `claude/quirky-ritchie-f0zuc8`; port from
 them, never merge them.
 
+**It happened again within a day.** On 2026-10-01 twelve branches carried
+finished work `main` did not have (OPEN-ITEMS §Y): six video-maker sessions,
+two library sessions and a palette session had all started from `main` on
+2026-09-30, done what the owner asked, pushed their branch and stopped. The
+owner asked for "anything left behind", and got two palette sessions that
+had gone opposite ways on the same palettes. A session's work is not done
+when its branch is pushed: merge `main` in, run the checks, and put the
+result on `main` the same day, or say plainly in your last message that it
+is not on `main` and why.
+
 History, and why this matters:
 
 On 2026-09-26 `main` was a month behind: the product had moved on across a
@@ -193,19 +203,43 @@ retire one; the lasting fix is to link one project to this repository's
 `main` in Netlify (Project configuration, Build & deploy, Link repository;
 publish directory `.`) so that every push to `main` deploys and nobody deploys
 by hand. The cloud sessions cannot reach Netlify (their network policy denies
-`*.netlify.app` and `api.netlify.com`).
+`*.netlify.app` and `api.netlify.com`). The connector's deploy-site does not
+deploy by itself: it returns an `npx @netlify/mcp --site-id … --proxy-path
+https://netlify-mcp.netlify.app/proxy/…` command, which zips the working
+tree (all but node_modules and .git) and uploads it through those hosts, so
+from a cloud session it fails with 403 (2026-10-01, twice). Check out `main`
+before running it anywhere: the deploy records the branch and commit the
+tree is on.
 
 ```bash
-cd ~/Downloads/gfxv23
-git fetch origin && git checkout main && git pull   # deploy main, nothing else
-netlify status              # confirm the link
+cd ~/Downloads/gfxv23 && git fetch origin
+# a clean checkout of exactly main: nothing uncommitted or untracked ships
+git worktree add ~/Downloads/studio-main origin/main    # the first time
+cd ~/Downloads/studio-main
+git fetch origin && git checkout --detach origin/main   # every time after
+git log -1 --oneline        # the main you mean to ship
+netlify link --name buybackad-graphics-studio           # the first time
 netlify deploy --dir=.      # DRAFT first, always
+# before it uploads: "Config file" must be …/studio-main/netlify.toml and
+# "Deploy path" …/studio-main; "No config file was defined" means the wrong
+# folder, so Ctrl+C
 # open the draft URL and confirm it renders
 netlify deploy --prod --dir=.
 ```
 
 Draft-deploy and *look* before `--prod`. Given landmine 2, the preview render is
 the only real check.
+
+`--dir=.` is whatever folder the terminal is in. On 2026-10-01 the owner ran
+`netlify link` and `netlify deploy --prod --dir=.` in the home folder
+(`/Users/admin`); the CLI said "No config file was defined", "Deploy path:
+/Users/admin", and began hashing the Photos library to publish it on
+studio.scans.ad. When you hand the owner deploy commands, start them with the
+`cd`, and tell them to read the Deploy path line before anything uploads. A
+home folder linked by mistake is undone with `netlify unlink` there; a deploy
+made from one is deleted with `netlify api deleteDeploy --data
+'{"deploy_id":"…"}'` after the last good deploy is published again (every
+finished deploy keeps a public address of its own).
 
 To click through a branch on your own machine first: `python3 -m http.server
 8899` in the repo, then open `http://localhost:8899/?demo=1`. A local copy has
@@ -289,6 +323,19 @@ produced." DESIGN-LAW rule 87. In practice:
   role and a line with a solid shape over its letters; `pgUncover` moves
   such copy clear after the layout. A rotated rect is never rebuilt from its
   bounding box.
+- **One colour to a card** (rule 95): `pgOneHue` runs after the layout, a
+  theme, a tagline look and copy-follows-ground; everything coloured on a card
+  is within 30 degrees of its hue, at its own luminance. The gate fails 'hues'.
+  Do not add a pass that paints a second hue after these without running it.
+- **The chrome is the poster look** (rule 98, superseding rule 96): skin
+  'poster' is the default (index.html bootstrap): paper, ink outlines, hard
+  offset shadows, and four signal colours each with one job (blue action,
+  tomato heat, marigold highlighter, mint cash). No glass, blur or glow in it.
+  Its rules are scoped `:root[data-skin='poster']` at the end of styles.css;
+  run sync_css_fallback.mjs after editing them.
+- **No see-through products** (rule 94): no product wall (ghosted cut-outs
+  over the ground), no product picture under 60% opacity; the gate fails it
+  ('ghostPic') and `pgGhostWallStrip` removes a wall after the layout.
 - **Face passes and baked tables** (rule 92): `pgHairlineHeads` sets a
   card's serif at load, and `assets/number-fix.json` sets the number's face
   after it. Change a face pass and re-bake the rows of the cards it changes
@@ -321,6 +368,32 @@ produced." DESIGN-LAW rule 87. In practice:
   `node scripts/designer_audit.mjs` too. It exits 1 on any problem and takes
   about 12 minutes for its six cards. It fails a card that does not open
   rather than measure the one left on screen.
+- **Text shapes** (rule 99, 2026-09-30): a curve or a warp is `pgShape` on
+  a text object, laid out again with the text (`tsSet`). Never build a curved
+  line as a group of letters, and never let a layout pass move a line bound
+  to its ring (`TS_RINGS`, `tsBindRings`, run at the head of `alignPass`).
+- **Type voices and two faces** (rule 100): `applyVoice` sets the whole
+  card's faces before the layout, each line keeping its footprint;
+  `houseTwoFaces` sets two families on every classic, last at load and again
+  when a table sets a face.
+- **The palettes are twelve proven pairings** (rule 103, 2026-10-01):
+  `PALETTES` in scripts/refresh_palettes.mjs, two hue families each, named
+  for the two colours, never food or drink. `scripts/repalette_showcase.mjs`
+  moves every library record onto them, colour only, and maps from each
+  card's CURRENT colours: run it on records still in the old palettes, never
+  twice. Then rethumb_showcase.mjs and verify_showcase.mjs, and bump
+  ASSET_REV. (Two sessions answered the same request with 25 and with 12
+  pairings; the twelve, the later answer, are the product.)
+- **Every choice on every card** (rule 101): `node
+  scripts/every_card_audit.mjs --write-holds` takes every offered card
+  through every theme, look and voice on Easy Mode's render and writes
+  assets/choice-holds.json. The studio turns a held chip off with its reason
+  and keeps a card that fails as offered out of the lists. It takes hours in
+  full; run it with `--ids a,b` on the cards a change touches (the table is
+  updated for those cards only) and `--resume` to continue a stopped run. It
+  loads the studio with `?nochoiceholds=1`.
+- **What is under a line** is found by hiding its ink (`pgHideInk`), never
+  the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the
@@ -329,7 +402,12 @@ produced." DESIGN-LAW rule 87. In practice:
   `node scripts/verify_showcase.mjs --classics --write` (writes
   assets/classics-gate.json; a classic that fails is not offered). The
   re-bake order is bake_contrast, number_block --classics --write,
-  naturalize_classics --write, then verify.
+  naturalize_classics --write, then verify. The contrast and the shade answer
+  each other and number_block moves lines, so after a change that moves
+  anything run bake_contrast and naturalize a second time before verify and
+  audit_templates. The bakes take held classics too (`noholds=1`: a held
+  classic that is never baked is held again for want of its fixes) and leave
+  the offer family as authored.
 - **Before a commit that touches assets/showcase:**
   `node scripts/verify_showcase.mjs --write` (exit 1 on any failure; it
   stamps legib / num / numInk / gate / blur / ground on the index). Then

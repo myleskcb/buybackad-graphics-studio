@@ -44,7 +44,8 @@
  * misapplied. Re-run it after changing a classic template or a pass.
  *
  * usage: node scripts/number_block.mjs [--write] [--ids a,b,c] [--json out.json]
- *        node scripts/number_block.mjs --classics [--write]
+ *        node scripts/number_block.mjs --classics [--write] [--ids a,b,c]   (--ids: only
+ *        those cards' rows in the table are replaced)
  *   CHROME=... FABRIC_JS=... work as in _showcase_harness.mjs.
  */
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
@@ -65,9 +66,11 @@ const RULE = { target: 0.62, min: 84, max: 118, floor: 72, lead: 0.77, label: 0.
 /* the classics are measured as the passes drew them: with the table this writes
    applied first, every number would already read as big and the bake would come
    out empty (the trap bake_contrast.mjs documents for ?nofix=1) */
-const { browser, page, errors } = await openStudio(CLASSICS ? '&nonum=1' : '');
+const { browser, page, errors } = await openStudio(CLASSICS ? '&nonum=1&noholds=1' : '');   // (held classics too: see bake_contrast)
 await page.evaluate(RULE => { window.__RULE = RULE; }, RULE);
-if (CLASSICS) ids = (await page.evaluate(() => TEMPLATES.filter(t => !/^(sc|hx)-/.test(t.id)).map(t => t.id))).filter(id => !only || only.has(id));
+/* not the offer family: drawn as authored, its number set to rule 53 by
+   offer-library.js itself, and no load-time table touches it */
+if (CLASSICS) ids = (await page.evaluate(() => TEMPLATES.filter(t => !/^(sc|hx)-/.test(t.id) && t.tag !== 'offer').map(t => t.id))).filter(id => !only || only.has(id));
 
 const report = {};
 for (let i = 0; i < ids.length; i += 6){
@@ -165,8 +168,12 @@ for (let i = 0; i < ids.length; i += 6){
         const cap = headFs ? Math.max(R.floor, R.lead * headFs) : R.max;
         const start = Math.min(target, cap);
         const old = { fs: L[pk].props.fontSize, face: L[pk].props.fontFamily };
-        /* a classic authored with a big number already (the street set's 90-105px) keeps its own design */
-        if (CLASSICS && old.fs >= R.min){ out[id] = { skip: 'already big', old }; continue; }
+        /* a classic authored with a big number already (the street set's 90-105px)
+           keeps its own design, unless its number outranks its headline: rule 53
+           has the headline at least 1.3x the number, and 28 hand-built classics
+           (numbers of 84 to 100px under headlines of 66 to 117) were held back for
+           it. Those are rebuilt at the cap */
+        if (CLASSICS && old.fs >= R.min && old.fs <= cap + 0.5){ out[id] = { skip: 'already big', old }; continue; }
 
         const tryLayout = (N, shrink) => {
           const size = {}, patch = {};
@@ -244,11 +251,11 @@ for (let i = 0; i < ids.length; i += 6){
           return null;
         };
         let got = null;
-        for (let N = Math.round(start); N >= R.floor && !got; N -= 2) got = tryLayout(N, false) || tryLayout(N, true);
+        for (let N = Math.floor(start); N >= R.floor && !got; N -= 2) got = tryLayout(N, false) || tryLayout(N, true);
         if (!got && row.size){
           /* a CTA beside the number that no longer fits beside it goes above it instead */
           row.clear(); kids.forEach(v => v.sort((a, b) => orderOf(a) - orderOf(b)));
-          for (let N = Math.round(start); N >= R.floor && !got; N -= 2) got = tryLayout(N, false) || tryLayout(N, true);
+          for (let N = Math.floor(start); N >= R.floor && !got; N -= 2) got = tryLayout(N, false) || tryLayout(N, true);
         }
         if (!got){ out[id] = { keep: true, why: 'no room for a ' + R.floor + 'px number (blocked by ' + lastHit + ')', old, headFs, layout: t.name }; continue; }
         /* the patches, as record props */
@@ -302,8 +309,11 @@ if (WRITE && CLASSICS){
     if (nm.some(n => !n) || new Set(nm).size !== nm.length) continue;
     Object.entries(r.props).forEach(([k, q]) => { const [layer, role, text] = r.names[k]; rowsOut.push({ id, layer, role, text, props: q }); });
   }
-  writeFileSync(ROOT + 'assets/number-fix.json', JSON.stringify(rowsOut));
-  console.log('wrote assets/number-fix.json: ' + rowsOut.length + ' layers on ' + new Set(rowsOut.map(x => x.id)).size + ' classic templates');
+  /* with --ids only those cards' rows are replaced; the rest of the table stands */
+  let rest = [];
+  if (only){ try { rest = JSON.parse(readFileSync(ROOT + 'assets/number-fix.json', 'utf8')).filter(x => !only.has(x.id)); } catch (e){} }
+  writeFileSync(ROOT + 'assets/number-fix.json', JSON.stringify(rest.concat(rowsOut)));
+  console.log('wrote assets/number-fix.json: ' + rowsOut.length + ' layers on ' + new Set(rowsOut.map(x => x.id)).size + ' classic templates' + (only ? ' (the other ' + new Set(rest.map(x => x.id)).size + ' kept)' : ''));
 } else if (WRITE){
   let n = 0;
   for (const [id, r] of done){

@@ -2042,3 +2042,399 @@ RESUME HERE:
     node scripts/designer_audit.mjs
   The designer's text Properties still offer any colour for a glow (rule 85
   wants shade). That is a tool, left to the owner (§U 2).
+
+## 2026-09-30 (evening) — the ghosts of cars
+
+The owner, of voltStack-pp02-15: "This one looks like little ghosts of cars."
+
+Learned:
+  - The product wall had been ruled out once (rule 59) but only on the four
+    cards that pass was written for; the generator kept drawing it, and 35
+    live cards kept it. A rule that is applied to a list, not enforced by the
+    gate, stays true only for the list.
+  - The wall had also crowded some cards' own hero product out of the layout;
+    removing it brought the hero back.
+
+Changed:
+  - Walls removed from 53 records (35 live), the generator's wall block gone,
+    pgGhostWallStrip after the layout, the gate's 'ghostPic'. DESIGN-LAW rule
+    94 (93 went to the designer when the lines were merged); AGENT-BRIEF.
+
+## 2026-09-30 (night) — one colour to a card, and to the studio
+
+The owner, of voltStack-pp02-15: "there's green white and pink boxes on there
+... literally looks like we chose a randomizer", then of the site: "fix the
+purple UI theme it's kinda lame".
+
+Learned:
+  - Two-colour palettes ("X & Y") read as random when the layout spreads the
+    two colours over boxes. 86 of 415 live cards had boxes in two hues; 282
+    had a second hue somewhere.
+  - Recolouring at the same luminance changes nothing the contrast gates
+    measure, so it is safe to do after every other pass; and a brightness-only
+    thumbnail diff cannot see it (a whole first pass of changed thumbnails was
+    reverted as "noise" before a per-card engine measure replaced the diff).
+  - The anchor matters more than the rule: keyed to the number plate, a gold
+    card's gold band went pink. Keyed to what the card already leads with,
+    and to gold on a card that says GOLD, the fewest pixels change.
+  - A check that groups hues greedily disagrees with a pass that measures
+    from an anchor; the check now asks the pass's question.
+  - The chrome had the same fault: accent, second hue and ring in three
+    colours, plus bokeh in all three.
+
+Changed:
+  - pgOneHue / pgHueCheck ('hues'), hooked after alignPass, themeScene,
+    applyCardLook, taglineApply and ezCopyFollowsGround; the Easy pencil's
+    colours are the visitor's. 282 live thumbnails re-drawn.
+  - The house look: graphite greys and one blue (styles.css tokens, ring,
+    bokeh strength, AI colour, chip fills; the bootstrap default; favicon,
+    404, pages.css). CSS_FALLBACK and the CSP hash re-synced.
+  - DESIGN-LAW rules 95 and 96; AGENT-BRIEF.
+
+## 2026-09-30 — Video ads for every kind of person, with voices
+
+Owner: "make sure we have more variety styles and a wider pool or base of
+ideas / knowledge to produce our video ads to appeal to any demographic or
+type of person ... make some talk with 11 labs voices", then "make the voices
+clean and vary by theme mood attitude etc."
+
+Studied:
+  The maker drew every ad from one pool of words and fourteen LA looks: the
+  same "WE BUY IPHONES" for a student, a grandmother and an office manager.
+  What a copywriter would know first (who, the insight, what to avoid) was
+  nowhere. For the voices: no ElevenLabs key in the cloud environment, the
+  repo or its history, so the bank is built and measured without one, and
+  recorded by the owner.
+
+Built:
+  motion/audiences.js (16 audiences, 14 new looks, the moods), motion/voices.js
+  (17 speakers, 11 moods, picking a take), the voice track and its cleaning in
+  motion/audio.js, the audience in the engine and the panel,
+  scripts/voice_bank.mjs, scripts/audience_check.mjs,
+  scripts/motion_sound_check.mjs. DESIGN-LAW rule 97.
+
+Measured, and what it taught:
+  - The house's copy rules caught nothing in the new lines. The house's own
+    longest lines set the length limit; a guessed limit flagged half the
+    existing catalog.
+  - The first mix put the voice 2 dB UNDER the bed. The master compressor's
+    automatic make-up gain undid the ducking and pushed the peak over 0 dBFS.
+    The voice now joins after the compressor, the bed ducks after it, and a
+    look-ahead limiter (offline, exact) replaces a second Web Audio
+    compressor, whose make-up gain let peaks through. A "no-clip" rescale of
+    the whole mix was trimming the ad by 3.5 dB until the voice's own peaks
+    were held. Then 4.6 to 6.5 dB over the bed (two runs, two looks), the bed
+    down 9 to 10.4 dB and back within 0.2 dB, the peak at -1 dBFS, and a
+    voiced mix within 0.74 dB of an unvoiced one. Raising the voice 1.5 dB more only turned into trim.
+  - Testing the download turned up the worst thing found this session: 76 of
+    200 looks on main rendered NO SOUND. A cue before the first frame threw,
+    and every flash cut and most cold opens and punch-ins were silent. The
+    sweeps run with sound off, and the audit dropped its sound check when the
+    mix failed, so nothing ever reported it. A check that skips on error
+    measures nothing: the audit now fails such a mix, and
+    motion_sound_check.mjs renders 120 looks every run.
+  - Per-look sweeps (30 looks each) found what a 200-look sweep only hinted
+    at: the cutout treatment fails contrast 4 times in 6, the rings ground 3
+    in 6, and sky is white type on mid-blue at 2.4:1. Sky was in the look
+    made for older eyes. Dark looks opened on black glass over black ground.
+    Each came out of its pool. The dots ground was in every family-warm miss
+    in the pool runs. Taking it out cleared the still-frame miss there, but
+    the 200-look sweep failed the same three seeds on the ground drawn in its
+    place. The highlighter treatment was on all three: without it one
+    cleared and one lost its contrast miss, but two still miss their
+    headline or go still. That follows those two looks' opening timing (the
+    baseline has single misses of the same kind), not the look. A factor
+    present in every miss is a suspect, not a cause, until the miss goes
+    away without it.
+  - A three- or four-line headline under a phone-first opening settled at
+    1.07 to 1.13 s, just past the 1-second bar. The lines now stagger closer
+    when there is no opening line to read first.
+  - I compared one run's numbers with another run's screenshot and saw a bug
+    that was not there. Each run draws its own random look: read the values
+    and the picture from the same run.
+
+## 2026-09-30 (night) — every card, every choice; curves, warps and the owner's type pairs
+
+(claude/eloquent-euler-7jvzfd.)
+
+Owner: "make sure all classic and current themes are audited and ready for
+use", "with new color schemes, new design language, new typefaces / text
+design", "ability to make clean warps and curves", "and pre warped / curved
+for select templates where the design is supportive or designed around that".
+
+Studied:
+  What was audited, and on which render. The gate judged every card on its
+  thumbnail. ez_theme_audit took the 21 themes through a 20-card sample, and
+  its four classics were held, so it skipped them. tagline_audit took the
+  looks through 82 cards by its own measure. No classic had had a colour theme
+  audited, and no library card had been gated on the render a visitor gets:
+  Easy Mode's, on the card's own photograph. The type pairs the owner approved
+  (FONT_PAIRS, rule 70) were used nowhere. A curved line was a group of
+  one-letter texts that Easy Mode could not type into: the curved headlines of
+  87 library cards kept the template's words in the preview, the download and
+  the video.
+
+Measured:
+  scripts/every_card_audit.mjs (new) takes each card in a fresh browser, as
+  offered and then under every theme, look and voice, the gate on every
+  render. Over 735 cards (the 320 classics then offered and the 415 live
+  library cards), 21 themes, 12 looks and 18 voices: 37,485 renders gated,
+  about eleven hours on four cores.
+  - 16 cards fail as offered and are held: Sell Your iPhone (the device list
+    overruns its panel), four topstrip classics (the number runs into the
+    call to action), eight scriptRetro library cards (the number hangs off
+    its band), two reviewProof cards (the call to action is covered) and
+    dl_strips_arcCrown_emerald (its claim at 3.00:1, as on production).
+  - ez_theme_audit: no problems over its 18 cards and 21 themes.
+    designer_audit (six offered cards, an idle machine): the editor opens in
+    under 220ms a task; three patterns change nothing on gold_lux, the same
+    on production.
+  - Themes: 395 of 15,435 fail (2.6%), on 39 cards. Most are marks that
+    vanish on what they sit on (242: step-number boxes, a phone cue, small
+    elements), the same on production's engine; then the number's digits.
+  - Looks: 33 of 8,820 (0.4%), Street most.
+  - Voices: 1,540 of 13,230 (11.6%), on 416 cards. The condensed pairs
+    (Street, Block, Tech, Stencil, Squad, Sport) are offered almost
+    everywhere; Modern is off on 379 cards, Serif on 197, Retro on 187. Most
+    of it (987 reasons) is a headline that keeps its width in a wider face
+    and falls under the feed tile's 77px.
+
+Learned:
+  - Hiding a line to see what is under it hides its backing too. The gate, the
+    template audit and the contrast bake all did it, so a chip's see-through
+    panel counted as ink against the bare photograph: a dark kicker on a 35%
+    white panel failed as a ghost under six themes, and a pink badge on its
+    own lavender panel (1.13:1) passed. Only the ink goes now.
+  - A bake that leaves a layer out measures another layout. alignPass settled
+    the card differently round the gap, and the bake chose inks for a ground
+    that was not under the line.
+  - Tables baked before the number table moved the number blocks described the
+    old layout: a website line was given near-black for a mid-grey plate it no
+    longer sat on. The contrast and shade bakes answer each other; the chain
+    runs bake_contrast and naturalize twice.
+  - A box is not the letters, twice more: an arc's box holds the air under its
+    apex, and two tight headline lines' boxes hold their faces' ascent and
+    descent room. The template audit held every arcCrown card and every
+    voltStack, stepsFlow and gradientWave card for "cover" with the letters
+    apart; the gate, which measures letters, passed them.
+  - A theme read a frame's dark red body over 83% of a card as the accent and
+    painted it bright green under white type. A panel that big is a surface,
+    whatever hue it wore.
+  - The offer family is drawn as authored, and the classics' bakes had never
+    run with it in TEMPLATES (they were last baked on a branch without it): the
+    contrast bake drew 850 rows that would have repainted 168 offer cards.
+  - A voice that keeps each line's footprint shrinks a headline set in a
+    condensed face (95px to 53px in Russo One) and grows a number held at its
+    72px floor off its plate. Some cards cannot take some faces; the audit
+    holds those pairs on those cards rather than bend the layout.
+  - A voice set lists and badges in its reading face's own 500, under the
+    house's floor for small type (600 and 700): trustSeal-gl02-15's items
+    line fell under 3:1 in 17 of 18 voices. A read line now keeps its weight.
+  - 45 classics were held for their hierarchy. 28 hand-built ones kept a big
+    authored number (84 to 100px) that outranked the headline, because the
+    number table never touches a number already 84px or more; 19 of them
+    lead now with the number at the cap. agencyGrid drew its price line 124px
+    under 148px headlines; all eight lead now (six are offered; two fail on
+    other lines). The rest set a headline under 94px, which cannot lead a
+    72px number by 1.3x: nine hand-built
+    ones whose words fill the width, and the lowerThird cards, whose headline
+    shares its rows with the number. A 24px shift of lowerThird's band (its
+    items line had run under the bottom guide) did not change that; I read
+    the cause wrong the first time.
+
+Changed:
+  - Text shapes (rule 99): curves (arc, wave) on fabric's text on a path,
+    warps (arch, bulge, flag, rise, fan, bowl) through an envelope; Shape and
+    Bend in the designer's Properties and Easy Mode's ✎ menu; old letter
+    groups read back as one shaped line; arcs bound to their rings
+    (arcCrown's crown, karatSeal's new legend).
+  - Type voices (rule 100): eighteen pairs and ORIG in Easy Mode and the
+    designer; each line keeps its footprint; houseTwoFaces sets two families
+    on every classic.
+  - Every choice a card offers is one it passed (rule 101):
+    every_card_audit.mjs --write-holds writes assets/choice-holds.json; the
+    studio turns a held chip off with its reason under the row, sets a
+    carried pick aside on the card it fails, and keeps a card that fails as
+    offered out of the lists. pgHideInk in the gate, the template audit and
+    the contrast bake; the bake measures each line with the card laid out
+    round it; themeScene's surfaces; the offer family out of the classics'
+    bakes; the template audit's cover by the letters.
+  - A read line keeps its weight under a voice (voiceWeightFor).
+  - number_block.mjs rebuilds a big authored number that outranks its
+    headline, at the cap (floored); agencyGrid's price line 104px;
+    lowerThird's band copy 24px higher. number_block and naturalize_classics
+    with --ids now replace only those cards' rows (they rewrote the whole
+    table from the few they measured).
+  - Tables re-baked on this engine, twice, then for the 44 cards above:
+    contrast 284 rows on 142 classics, numbers 594 layers on 191, grounds
+    241. The classics gate holds 58 (63 in production), the template audit
+    82 (137): 320 of the 404 classics pass both (264), 314 once the cards
+    that fail as offered are held.
+  - 81 of the 87 curved library cards' thumbnails re-drawn (the other six
+    differed by grain); ASSET_REV 20260930zn. The owner-approved render
+    (stepsFlow-nn05-30, story) still matches: 0.04% of pixels moved.
+
+Did not work:
+  - Killing a sweep with `pkill -f` and a pattern that the shell's own
+    command line also matched: it killed the shell. Kill by process id.
+  - Reading the canvas faster. getImageData is more than half the gate's
+    time; a 2D context made with willReadFrequently took 42% off one gate,
+    and nothing off four workers on four cores, with the same results.
+  - A sweep with no restart: a browser that died took its worker's queue with
+    it ("Connection closed"). Workers now relaunch a dead browser, give a
+    hung card up after 15 minutes, and --resume retries a card that errored.
+
+RESUME HERE:
+  The holds table is written; nothing is running. Next, in order of what it
+  releases:
+    1. bake_contrast repairs by the gate's measure (OPEN-ITEMS §X 1): 48
+       classics are held for lines the bake never looked at.
+    2. A wide voice on a full-width claim (§X 2): two lines, or a leading
+       and a size of the voice's own; Modern is off on half the cards.
+    3. themeScene's marks (§X 3): a mark that vanishes on what it sits on.
+  After any change to the engine, the themes, the looks or the voices:
+    node scripts/every_card_audit.mjs --ids <the cards it touches> --write-holds
+  and in full before a release (about eleven hours on four cores; --resume
+  continues a stopped run).
+
+## 2026-10-01 — the poster look
+
+The owner, on graphite and one blue: "this is looking very generic or vibe
+coded and not fitting for how good the graphics are … multiple colors …
+something very cohesive … maybe something in the middle".
+
+Learned:
+  - Taking colour out was the wrong cure for random colour. The cure is a
+    small set of colours with one job each, matched in strength, on a ground
+    that is not black: four signal colours on paper read as designed; three
+    unrelated hues on black read as generated.
+  - A tilted full-width band overflows the page by its corners (4px on a
+    phone, 15px on a laptop); it is clipped by an untilted wrapper.
+  - A 2px outline grew the editor's Export button until it wrapped into a
+    circle and pushed two neighbours onto two lines; the bar's buttons keep
+    one line and a lighter print.
+
+Changed:
+  - Skin 'poster' (styles.css, scoped rules at the end), default in the
+    bootstrap; a category ticker in index.html; pages.css, 404 and the
+    favicon on paper and ink. DESIGN-LAW rule 98; AGENT-BRIEF.
+
+## 2026-10-01 — Everything left behind, merged; the UI cleaned up; on main
+
+(claude/eloquent-euler-7jvzfd, then `main`.)
+
+The owner: "clean up the UI and push and commit so we are finally live with
+all working features and all the relevant and necessary features and
+anything left behind. Make sure we fix it."
+
+Found:
+  - Thirteen branches had finished work `main` did not: the live branch
+    (its poster look was deployed at 09:52, while this was being merged),
+    `main` itself, two library branches, two palette branches, the
+    phone-backs branch and six video-maker branches, all cut from the same
+    `main` of 2026-09-30 morning and none merged back. Four of them pushed
+    again while this ran (the library branch's centred number, the palette
+    branch's twelve, two video branches); a fetch before the last merge is
+    not optional.
+  - Two sessions answered the same request about the palettes a day apart,
+    one with 25 pairings that never reached the site, the other with 12.
+    The later answer was to the later message; the 25 had been merged here
+    an hour before the 12 arrived and came back out.
+  - A palette pass that maps from each card's current colours cannot be run
+    twice, and a branch's records are not the records it forked from: 334
+    of 971 had moved on here. The pass, run on this line's records as they
+    stood before any new palette, gave the branch's result byte for byte on
+    every record nothing else had touched, twice (the 25, then the 12).
+  - Rule numbers collided three more times (the poster look on 98, the
+    centred number written as 94, the palettes as 95); OPEN-ITEMS §X twice.
+  - The phone designer was unusable on production too: the editor's tour
+    opens both side panels to point at them, and under 1100px they are
+    drawers over the canvas, left open after the tour.
+  - Enhance restored each line from TRAITS, the authored file as the script
+    loaded it, before the passes that make a classic pass: three faces came
+    back, and the baked inks and the number's size went. Laid on raw, the
+    colours also skipped the colour passes (gold_lux's gradient headline went
+    flat, its gold call to action lavender).
+  - A pattern was always drawn dark: on gold_lux's near-black ground dots,
+    halftone and grid changed 0.1% to 0.4% of the card. The sunburst grounds
+    drew black on black on a dark classic, whose palette took the number's
+    dark ink as its accent.
+  - Once library cards wore looks of their own, Clean Slate (the one grey
+    theme) left the card's own colours on them: the look took a theme's
+    colours only when they were colourful.
+  - The new `numCentre` holds four street price badges in Easy Mode's render
+    that pass on the thumbnail's: the number sits high on a plate that runs
+    off the bottom of the card. The two paths lay a card out differently,
+    and only the audit of Easy Mode's own render saw it.
+  - Changing into a helper agent's worktree with `cd` made the harness take
+    it for this session's working directory. Read another worktree with
+    `git -C`.
+  - `pgrep -f` with a pattern in the waiting loop's own command line found
+    the loop and never ended (the same trap as `pkill -f`): match with
+    `[x]yz`, or by the PID.
+  - Six video sessions had each fixed the same few things their own way:
+    two passes for phones burying phones, two 3D renderers, three guards
+    against sound before the first frame, two galleries. Merged one after
+    another, each pair would have run both; one of each was kept, by
+    measuring (and, for the renderers, by looking at both).
+
+Changed:
+  - Merged (merge commits): fervent-pascal to 8334c95 and 61d77f1, `main` to
+    da82a13 and c60355f, sharp-maxwell to b97076d, tender-carson to 3e4118c
+    and 07cc227, optimistic-edison to 7efd7da and 470b852, dreamy-knuth to
+    2a49223, and the video maker through a helper's worktree (6f762f6):
+    kind-hawking to 0a86e83 and 6e71a9c, determined-brown to d55e9a3 and
+    672bf3f, more-phone-layouts to 666b1d4, professional-ad-audio to
+    92616bd, fervent-heisenberg to 60e616d, video-ad-gallery to ce2ddb8,
+    sharp-maxwell again to e532cd0. The rules move up one when the
+    poster look took 98: curves and warps 99, type voices 100, every choice
+    passed 101; the centred number is 102, the palettes 103.
+  - The twelve palettes on the 971 library records, re-coloured on this
+    line, every thumbnail re-drawn on the merged engine (ASSET_REV
+    20261001c).
+  - UI: the phone designer's panels close after the tour; Enhance puts a
+    card back as offered (enhanceTraitOf, pgBuilt through the ORIG pass, a
+    voice and a theme put back on); a pattern's tone follows its ground; a
+    ground's accent shows on it; a card's look wears a grey theme; the
+    layers list shows each name over its words; the held-choice note in
+    plain words; "Colour" on every label; shorter hints. The eight classics'
+    photographs are files, and the landing no longer loads a 635 KB script
+    of them first (busy-allen's port).
+  - Holds: the cards that fail as offered on the merged engine; three
+    themes on reviewProof-cd06-15. Then (2026-10-02) the full sweep's
+    table on `main`'s build: 45 cards, 444 themes, 35 looks, 1,520 voices
+    (OPEN-ITEMS §Z 1).
+
+Checked (the merged build): OPEN-ITEMS §Z lists each check and its result.
+
+Did not work:
+  - Deploying from this cloud session. The connector's deploy-site returns
+    an npx command that zips the working tree and uploads it through
+    netlify-mcp.netlify.app to api.netlify.com; the environment's network
+    policy answers 403 to both (the agent proxy's status page names them).
+    `main` is pushed and waits for a deploy (OPEN-ITEMS §Z 0).
+  - The deploy commands this session gave the owner in chat began with
+    `git checkout main && git pull`, not with the `cd` into the repo. The
+    owner ran `netlify link` and `netlify deploy --prod --dir=.` in the home
+    folder: "No config file was defined", "Deploy path: /Users/admin", and
+    the CLI hashing the Photos library to publish it. Hand the owner
+    commands that start with the `cd`, from a clean worktree of `main`,
+    and name the line to read before anything uploads (AGENT-BRIEF,
+    Deploying).
+  - Keeping the session alive with a waiter. It reached its two-hour limit,
+    nothing tracked was running, and the container was reclaimed within the
+    hour, killing the sweep at 275 cards of 735. A long job runs as tracked
+    chunks instead (`timeout -k 60 6900` inside a background task, then
+    `--resume`). `timeout`'s kill leaves the audit's browsers behind (48
+    here): kill them before the next chunk.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0) from a clean worktree on the Mac
+     (AGENT-BRIEF, Deploying), first clearing the deploy made from the home
+     folder if it finished.
+  1. From the full sweep (OPEN-ITEMS §Z 1): dl_strips_arcCrown_emerald's
+     second headline line, the marks a theme loses (the phone cue,
+     stepsFlow's number boxes), the Modern voice.
+  2. The street price badge's number plate (§Z 2), reviewProof's call to
+     action under its pill (§Z 3).
+  3. The same `main` on both Netlify projects, or one retired (§Z 4).
