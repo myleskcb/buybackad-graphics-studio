@@ -88,7 +88,12 @@ export function palm(x, bx, by, h, lean, color, r) {
   for (let k = 0; k < 3; k++) { x.beginPath(); x.arc(tx + r.uniform(-h * .02, h * .02), ty + h * .02 + r.uniform(0, h * .015), h * .014, 0, TAU); x.fill(); }
 }
 
+// The image cards' grounds leave the palms out: a card's copy can stand anywhere, and a
+// trunk through a line of it is noise (motion/photo-grounds.js). The video keeps them.
+let PALMS_OFF = false;
+export function withoutPalms(f) { PALMS_OFF = true; try { return f(); } finally { PALMS_OFF = false; } }
 function palms(x, W, H, color, r, n) {
+  if (PALMS_OFF) return;
   n = n || r.pick([1, 2, 2, 3]);
   for (let i = 0; i < n; i++) {
     const left = i % 2 === 0;

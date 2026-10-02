@@ -19124,3 +19124,29 @@ function pgHueCheck(sc, r){
     return _pgExplain.apply(this, arguments);
   };
 }
+
+/* THE VIDEO MAKER'S SCENES IN THE GROUND PICKER (2026-10-02, appended, not spliced).
+   Owner: "we have really clean backgrounds" ... "same with the background photo
+   generation". motion/photo-grounds.js (a module, loaded after this script) registers
+   the video maker's scenes with GROUNDS; here they join Easy Mode's and the designer's
+   ground styles as five more groups. A group lists its scenes once they are registered
+   (each a drawn ground, "ground:sceneX/...", painted in the card's palette and gated
+   like any photograph). */
+{
+  const SCENE_STYLES = [['scene_sky', 'Sky & beach'], ['scene_walls', 'Walls & street'], ['scene_show', 'Showtime'], ['scene_pop', 'Pop & print'], ['scene_made', 'Materials']];
+  SCENE_STYLES.forEach(([key, label]) => EZ_GROUND_STYLES.push({ key, label,
+    get kinds(){ const g = (window.SCENE_GROUPS || []).find(x => x.key === key); return g ? g.kinds : []; } }));
+  /* a scene is a picture, not a flat ground: it takes the soft shade a photograph
+     takes in the picker (the gate deepens it only where a line needs it) */
+  const _ezGroundSpecs = ezGroundSpecs;
+  ezGroundSpecs = function(st, PArg){
+    const out = _ezGroundSpecs.apply(this, arguments);
+    if (st && /^scene_/.test(st.key)){ const light = scLum((PArg || ezPalette()).ink) > 0.4;
+      out.forEach(x => Object.assign(x.bg, { scrim: 0.42, scrimColor: light ? '#0b0b0d' : '#f6f6f4', scrimMode: 'gradient' })); }
+    return out;
+  };
+  window.addEventListener('scenes-ready', () => {
+    try { if (/^scene_/.test(ezGroundStyle)) ezDrawnSync(); } catch (e){}
+    try { if (/^scene_/.test(edGroundStyle)){ _edGroundKey = ''; edBuildGrounds(); } } catch (e){}
+  });
+}
