@@ -2467,3 +2467,22 @@ Did: DESIGN-LAW rule 106. Pink guides to every layer's edges and middle and
 the card's, both axes at once, Alt for free placement; Lock to the middle in
 Arrange (a row comes with the layer); Centre all in the top bar; a locked
 group keeps its shape through a format switch.
+
+Checked: in a headless editor (Playwright, fabric 5.3.0 served locally):
+Centre all on checklistHero-cd06-15 (the list a block, its icons in a column;
+the corner badges left) and scriptRetro-jw05-16; a drag shows a line across
+and one down at once and snaps; Alt drags freely; a locked list stays on the
+middle when a line is retyped longer, ignores the arrow keys sideways, moves
+down with its row, survives undo and redo; square to 16:9 to 9:16 and back
+keeps each locked group's shape (1.2 px at most). designer_audit.mjs: the
+same four problems as on unchanged `main` de8d35de (sell_iphone and gold_spot
+open as another card; bandKnockout-pp04-15's ORIG 4.2%), none new; cars_kbb's
+blocking read 3461 ms once and 2939 and 2649 ms on two re-runs (main 2629,
+2669; the bar is 3000).
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0): the live site still offers the 86 cards
+     held this morning, the Pokémon card the owner flagged among them, and
+     lacks the guides and the lock.
+  1. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
