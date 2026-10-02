@@ -452,7 +452,8 @@ for (const id of GROUND_REVIEW.approved) {
 Object.assign(PALETTES, THEME_PALETTES);
 Object.assign(BOARDS, THEME_BOARDS);
 for (const g of THEME_GROUNDS) if (!OPTIONS.background.includes(g)) OPTIONS.background.push(g);
-export const THEME_REVIEW = { approved: [], rejected: [] };
+// Owner, 2026-10-02: "approve all" (all fifty, after the review page and the 3-D phone fix)
+export const THEME_REVIEW = { approved: Object.keys(THEMES), rejected: [] };
 for (const id of THEME_REVIEW.approved) if (THEMES[id]) { VIBES[id] = THEMES[id]; if (!OPTIONS.vibe.includes(id)) OPTIONS.vibe.push(id); }
 
 // The BACK is what makes a model recognisable: every drawn cut ends on the backs,
