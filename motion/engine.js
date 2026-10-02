@@ -863,7 +863,7 @@ function toneOf(meta) {
 }
 function boldness(meta) {
   const [r, g, b] = unitRgb(meta && meta.metal), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
-  const named = /cosmic orange/i.test(meta && meta.finish || "") || /burgundy/i.test(meta && meta.finish || "") ? .3 : 0;
+  const named = /cosmic orange/i.test(meta && meta.finish || "") || /burgundy/i.test(meta && meta.finish || "") ? .45 : 0;
   return (mx - mn) * (1 - Math.abs(l - .45)) + named + (/pro max/i.test(meta && meta.model || "") ? .05 : 0);
 }
 /** n phones from a pool: at most two of a tone, and one bold finish where the pool has one. */
@@ -871,7 +871,10 @@ export function pickPhones(pool, n, r) {
   const ids = pool.slice(); for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
   const meta = id => PHONE_META[id], out = [], count = {};
   const bold = ids.filter(id => meta(id) && boldness(meta(id)) > .55);
-  if (bold.length) { out.push(bold[0]); count[toneOf(meta(bold[0]))] = 1; }
+  if (bold.length) {                                       // orange or burgundy, turn about
+    const tones = [...new Set(bold.map(id => toneOf(meta(id))))], t = tones[Math.floor(r() * tones.length)];
+    const id = bold.find(b => toneOf(meta(b)) === t); out.push(id); count[t] = 1;
+  }
   for (const id of ids) { if (out.length >= n) break; if (out.includes(id)) continue; const t = toneOf(meta(id)); if ((count[t] || 0) >= 2) continue; out.push(id); count[t] = (count[t] || 0) + 1; }
   for (const id of ids) { if (out.length >= n) break; if (!out.includes(id)) out.push(id); }
   return out;
@@ -1762,8 +1765,11 @@ export class Ad {
     const st = this.st, W = this.W, H = this.H;
     const s = stage(st, W, H);
     this.stageC = [s.cx, s.cy]; this.stageSpan = [s.cx - s.hw, s.cx + s.hw];
-    const ids = orderByTone((st.phones || []).filter(id => this.assets.phones[id]), id => this.assets.phones[id].meta);
-    const spots = arrangement(st.arrangement, ids.length, this.r, W / H < .85, { ...s, W, H });
+    const lr = orderByTone((st.phones || []).filter(id => this.assets.phones[id]), id => this.assets.phones[id].meta);
+    const spots = arrangement(st.arrangement, lr.length, this.r, W / H < .85, { ...s, W, H });
+    // the tones' left-to-right order, onto the layout's spots as they stand left to right
+    const ids = new Array(lr.length);
+    spots.map((sp, i) => i).sort((a, b) => spots[a][0] - spots[b][0] || a - b).forEach((i, k) => { ids[i] = lr[k]; });
     this.phones = ids.map((id, i) => {
       const a = this.assets.phones[id];
       const p = new Phone(a.img, a.meta, s.ph);
