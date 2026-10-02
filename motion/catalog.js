@@ -381,10 +381,9 @@ export const OPTIONS = {
   number_format: ["raw", "dashed", "dotted", "parens", "spaced"],
   number_pos: ["bottom-center", "bottom-left", "bottom-right", "under-headline"],
   number_in: ["pop", "slide_up", "type", "wipe", "flip", "roll", "slide_left", "drop", "slot", "glow_on"],
-  arrangement: ["row", "fan", "pile", "diagonal", "arc", "grid", "hero", "cascade",
-    "tower", "spiral", "vee", "ring", "staircase", "crossed", "giants", "pairs",
-    "hand", "domino", "podium", "wave", "burst", "runway", "group", "bookends", "shelf", "chevron", "tilted_grid",
-    "headliner", "collage", "tents", "carousel"],
+  // styled, tidy sets only (owner, 2026-10-02: "stylistic arrangements of phones ... not
+  // messy views"); piles, spirals, rings, towers, collages and the like are gone
+  arrangement: ["lineup", "showcase", "wings", "fan", "hand", "podium", "headliner", "burst", "tents"],
   entry: ["fly_spin", "drop", "conveyor", "zoom", "orbit", "deal", "pop", "rain", "boomerang", "split", "spiral_in", "whip",
     "slide_up", "swing", "float_up", "zipper", "sweep", "pinwheel", "snap", "roll", "magnet", "shuffle", "flip_in"],
   end_face: ["back", "front", "mixed"],
@@ -496,6 +495,7 @@ export const WEIGHTS = {
   urgency: { none: 1 },
   number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
+  arrangement: { lineup: 3, showcase: 3, wings: 2, fan: 2, hand: 2, podium: 2, headliner: 2, burst: 1, tents: 1 },
   pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1 },   // turned, as often as a turntable, either edge
   accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
   accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
@@ -554,7 +554,7 @@ export const DEFAULT_STYLE = {
   font: "franklin", number_font: "same", case: "upper", tracking: 0, skew: 0,
   text_fx: "shadow", color_mode: "mono", accent_word: -1, text_in: "slide", text_pos: "top-left",
   text_scale: 1, number_style: "plain", number_format: "dashed", number_pos: "bottom-center", number_in: "pop",
-  number_scale: 1, arrangement: "row", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat",
+  number_scale: 1, arrangement: "lineup", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat",
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
   sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
@@ -568,7 +568,7 @@ export const DEFAULT_STYLE = {
 // The first ad's look, as a starting point.
 export const CLASSIC = {
   font: "franklin", text_fx: "shadow", text_in: "slide", text_pos: "top-left", number_style: "plain",
-  number_pos: "bottom-center", number_in: "pop", arrangement: "row", pose: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
+  number_pos: "bottom-center", number_in: "pop", arrangement: "lineup", pose: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
   front_glimpse: "hold", background: "radial", palette: "sand", color_mode: "mono", camera: "push_in",
   sound_kit: "house", overlay: "none", hook: "cold_open",
 };

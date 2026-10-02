@@ -667,7 +667,7 @@ const LAID_OUT = {
   },
   // a peacock's tail: all standing out from one point low in the middle
   burst(n, r, tall, PH) {
-    const half = Math.min(66, 20 * (n - 1)), R = PH * .5;
+    const half = Math.min(40, 14 * (n - 1)), R = PH * .5;
     return spots(n, t => { const f = lerp(-half, half, t); const a = f * Math.PI / 180;
       return [R * Math.sin(a), -R * Math.cos(a), -f, 1, -Math.abs(f)]; });
   },
@@ -714,6 +714,25 @@ const LAID_OUT = {
       });
     }
     return out;
+  },
+  // a clean line-up: one size, upright, a little air between each, standing on one line
+  lineup(n, r, tall, PH, PW) {
+    const step = PW * (tall && n > 3 ? 1.04 : 1.12);
+    return spots(n, (t, i) => [(i - (n - 1) / 2) * step, 0, 0, 1, 0]);
+  },
+  // a shop window: the middle phone large and in front, the others smaller, tucked a third
+  // behind it from the side, all standing on one floor
+  showcase(n, r, tall, PH, PW) {
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o), sc = k ? Math.max(.66, 1.12 - .2 * Math.ceil(k)) : 1.12;
+      let x = 0; for (let j = 1; j <= Math.ceil(k); j++) { const a = j === 1 ? 1.12 : Math.max(.66, 1.12 - .2 * (j - 1)), b = Math.max(.66, 1.12 - .2 * j); x += PW * (a + b) / 2 * .72; }
+      if (n % 2 === 0) x = k < 1 ? PW * .4 : x;
+      return [Math.sign(o) * x, -sc * PH / 2, 0, sc, -k]; });
+  },
+  // wings: the middle upright, each pair beside it leaning out a little more and a little lower
+  wings(n, r, tall, PH, PW) {
+    const lean = r.uniform(7, 11);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * PW * (tall ? 1.02 : 1.1), PH * .05 * k * k, -Math.sign(o) * lean * k, 1 - .06 * k, -k]; });
   },
   // an arrow: two arms meeting at the phone in front
   chevron(n, r, tall, PH, PW) {
@@ -778,6 +797,9 @@ const LAID_OUT = {
       return [Math.sin(th) * Rx, c * Ry, -Math.sin(th) * 8, .72 + .34 * (c + 1) / 2, c]; });
   },
 };
+
+/** The styled sets drawn as mirror images about the middle phone. */
+const MIRRORED = new Set(["fan", "arc", "vee", "hand", "burst", "podium", "bookends", "tents", "headliner", "wings", "showcase", "lineup"]);
 
 /** n spots from f(t, i), t running 0..1 along them. */
 const spots = (n, f) => Array.from({ length: n }, (_, i) => f(n > 1 ? i / (n - 1) : .5, i));
@@ -1812,10 +1834,21 @@ export class Ad {
     const phones = this.phones, n = phones.length;
     if (!n) return;
     const W = this.W, H = this.H, mg = Math.min(W, H) * .03, cx = this.stageC[0];
-    const angs = phones.map(p => p.angle).sort((a, b) => a - b), common = clamp(angs[Math.floor((n - 1) / 2)], -12, 12);
-    phones.forEach(p => { p.angle = common; });
-    if (n < 2) { phones[0].home[0] = cx; return; }
     const byX = () => phones.map((_, i) => i).sort((a, b) => phones[a].home[0] - phones[b].home[0]);
+    if (MIRRORED.has(this.st.arrangement) && n > 1) {         // a styled set: each pair a mirror image, the middle upright
+      const o = byX(), half = Math.floor(n / 2);
+      for (let k = 0; k < half; k++) {
+        const L = phones[o[k]], R = phones[o[n - 1 - k]], a = (Math.abs(L.angle) + Math.abs(R.angle)) / 2, sg = Math.sign(L.angle - R.angle) || 0;
+        L.angle = sg * a; R.angle = -sg * a;
+        const y = (L.home[1] + R.home[1]) / 2, sz = (L.size + R.size) / 2;
+        L.home[1] = R.home[1] = y; L.size = R.size = sz;
+      }
+      if (n % 2) phones[o[(n - 1) / 2]].angle = 0;
+    } else {                                                 // otherwise one lean for all
+      const angs = phones.map(p => p.angle).sort((a, b) => a - b), common = clamp(angs[Math.floor((n - 1) / 2)], -12, 12);
+      phones.forEach(p => { p.angle = common; });
+    }
+    if (n < 2) { phones[0].home[0] = cx; return; }
     // drawn from the outside in, so the middle stands in front
     const xo = byX(), mid = (n - 1) / 2;
     this.drawOrder = xo.map((i, k) => [i, Math.abs(k - mid)]).sort((a, b) => b[1] - a[1]).map(q => q[0]);
@@ -1839,12 +1872,14 @@ export class Ad {
     };
     const breach = () => {                                   // the worst rule broken, and the pairs that break it
       const bad = [], ph = phones.reduce((a, p) => a + p.h * p.size, 0) / n, gap = phones.reduce((a, p) => a + p.w * p.size, 0) / n * .05;
-      const stacked = (i, j) => Math.abs(phones[i].home[1] - phones[j].home[1]) > ph * .08;
+      // side by side when the two share nearly all the smaller one's height; otherwise one is above the other
+      const ys = phones.map(p => { const O = outline(p); return [Math.min(...O.map(q => q[1])), Math.max(...O.map(q => q[1]))]; });
+      const stacked = (i, j) => Math.min(ys[i][1], ys[j][1]) - Math.max(ys[i][0], ys[j][0]) < .9 * Math.min(ys[i][1] - ys[i][0], ys[j][1] - ys[j][0]);
       for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++)
         if (stacked(i, j) && outlinesMeet(outline(phones[i], gap), outline(phones[j], gap))) bad.push([i, j]);
       for (let i = 0; i < n; i++) {                          // what all its neighbours in front hide of it, together
         const fr = phones.map((_, j) => j).filter(j => j !== i && !stacked(i, j) && front(j, i));
-        if (hidden(phones[i], fr.map(j => phones[j])) > .42) for (const j of fr) if (outlinesMeet(outline(phones[i]), outline(phones[j]))) bad.push([i, j]);
+        if (hidden(phones[i], fr.map(j => phones[j])) > .36) for (const j of fr) if (outlinesMeet(outline(phones[i]), outline(phones[j]))) bad.push([i, j]);
       }
       return bad;
     };
@@ -2207,7 +2242,7 @@ export class Ad {
     // every other place for the words with the look's own layout, then, only if none is
     // clean, the calmer layouts in every place
     const order = places.filter(p => p !== snap.st.text_pos).map(p => [p, snap.st.arrangement]);
-    for (const a of ["fan", "row"]) if (a !== snap.st.arrangement) for (const p of places) order.push([p, a]);
+    for (const a of ["lineup", "showcase"]) if (a !== snap.st.arrangement) for (const p of places) order.push([p, a]);
     const firstCalm = places.length - 1;
     const r0 = this.r;
     const lay = ([alt, arr], k) => {
