@@ -442,9 +442,17 @@ function drawSlab(ctx, p, w, h, flip, face) {
   for (const key of keys) {
     const [a0, b0] = CONTROLS[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
     poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
-    ctx.fillStyle = key === "camCtrl" ? "#1c1d21" : shade(p.metal, -.38); ctx.fill();
+    // Camera Control sits flush in the rail, filled in the body's colour with a fine
+    // seam round it: drawn dark it read as an empty SIM-tray slot
+    if (key === "camCtrl") {
+      ctx.fillStyle = shade(p.metal, -.2); ctx.fill();
+      poly(ctx, [P(xs, y0 + 1, -q * .72), P(xs, y0 + 1, q * .72), P(xs, y1 - 1, q * .72), P(xs, y1 - 1, -q * .72)]);
+      ctx.fillStyle = shade(p.metal, .04); ctx.fill();
+      continue;
+    }
+    ctx.fillStyle = shade(p.metal, -.38); ctx.fill();
     poly(ctx, [P(xs, y0 + 1, q * .1), P(xs, y0 + 1, q * .45), P(xs, y1 - 1, q * .45), P(xs, y1 - 1, q * .1)]);
-    ctx.fillStyle = key === "camCtrl" ? "rgba(255,255,255,.16)" : shade(p.metal, .18); ctx.fill();
+    ctx.fillStyle = shade(p.metal, .18); ctx.fill();
   }
   // the face, in thin vertical strips so it recedes; the back is seen from behind
   const fw = face.width, fh = face.height, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
