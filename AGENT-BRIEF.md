@@ -293,6 +293,11 @@ produced." DESIGN-LAW rule 87. In practice:
   theme, a tagline look and copy-follows-ground; everything coloured on a card
   is within 30 degrees of its hue, at its own luminance. The gate fails 'hues'.
   Do not add a pass that paints a second hue after these without running it.
+- **Customer words are plain and readable** (rule 99): download not export,
+  colours not palette/ink/accent/plate, box not plate, background not ground;
+  no ratios or pixel maths in customer copy; text floors 16px running, 13.5px
+  notes, 12.5px labels. Edit the FAQ in its visible <details>; rebuild the
+  ld-faq JSON-LD from them (they must match).
 - **The chrome is the poster look** (rule 98, superseding rule 96): skin
   'poster' is the default (index.html bootstrap): paper, ink outlines, hard
   offset shadows, and four signal colours each with one job (blue action,

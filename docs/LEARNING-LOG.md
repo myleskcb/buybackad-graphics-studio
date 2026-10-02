@@ -2174,3 +2174,25 @@ Changed:
   - Skin 'poster' (styles.css, scoped rules at the end), default in the
     bootstrap; a category ticker in index.html; pages.css, 404 and the
     favicon on paper and ink. DESIGN-LAW rule 98; AGENT-BRIEF.
+
+## 2026-10-02 — legible and plain
+
+The owner: "fix the legibility for maximum customer understanding … and
+simplify any language that may be complex".
+
+Learned:
+  - Contrast was not the problem (already above 4.5:1 nearly everywhere);
+    size was. A third of the landing's text and nearly all of Easy Mode's
+    labels sat at 9 to 13px.
+  - The copy carried the build's vocabulary to the customer: ratios, "ink",
+    "plates", "grounds", "architectures", "a salted hash". Writing it in the
+    customer's words lowered the reading grade from 6.4 to 4.9 without losing
+    a fact.
+  - Bigger type has knock-on effects: the designer's "Quick edit" tab wrapped
+    until its tabs kept one line.
+
+Changed:
+  - Size floors in the poster scope (styles.css); landing, FAQ (and its JSON-LD,
+    rebuilt from the visible answers), pricing, partner cards, Easy Mode and
+    designer hints, plan features, the quota line and the quality-check
+    messages rewritten in plain words. DESIGN-LAW rule 99; AGENT-BRIEF.

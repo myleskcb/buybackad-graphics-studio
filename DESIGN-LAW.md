@@ -3197,3 +3197,31 @@ The studio makes posters; its chrome is the wall they are pinned to.
   the mark is the four quartered.
 - The other looks stay reachable by URL (?look=); poster is the default. The
   info pages, the video page and the 404 take the same paper and ink.
+
+## 99. A customer reads plain words at a readable size
+
+Added 2026-10-02. The owner, on the poster look: "I like it now just fix the
+legibility for maximum customer understanding … and simplify any language that
+may be complex."
+
+- **Size floors** (poster look): running text 16 to 18.5px; notes, captions,
+  hints and footer links 13.5 to 15px; small uppercase labels 12.5px, lightly
+  tracked; nothing a customer reads under 12px (a colour swatch's ORIG badge,
+  10.5px, is the one exception). Secondary text is the dark grey (10:1), not
+  the dim one. Measured on the landing, Easy Mode and the designer: text under
+  13px fell from 64 to 27 runs on the landing and 207 to 32 in Easy Mode, and
+  no text a customer reads is under 4.5:1 (Easy Mode had 50, the PRO badges
+  on the strip among them; they are ink pills now).
+- **Plain words.** Short sentences, everyday words, the customer's own terms:
+  download (not export), colours or colour set (not palette, ink, accent or
+  plate), design (not template, where it is the thing they pick), box (not
+  plate), background (not ground), headline style (not tagline), AI
+  background (not BG). No ratios, pixel maths or internals in customer copy:
+  "the headline, number and button stand out from what is behind them", not
+  "measured for contrast on the card's own pixels". The quality check speaks
+  the same way ("is hard to read against what is behind it", "the colours on
+  this ad do not match").
+- Measured on the landing copy: reading grade 6.4 to 4.9, 14.0 to 11.1 words
+  a sentence, reading ease 74 to 80, every fact kept. The FAQ's search-engine
+  copy (JSON-LD) is rebuilt from the visible answers, so the two always match.
+
