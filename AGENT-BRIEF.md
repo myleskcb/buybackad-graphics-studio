@@ -384,7 +384,7 @@ produced." DESIGN-LAW rule 87. In practice:
   twice. Then rethumb_showcase.mjs and verify_showcase.mjs, and bump
   ASSET_REV. (Two sessions answered the same request with 25 and with 12
   pairings; the twelve, the later answer, are the product.)
-- **The studio's colour themes are 52, in groups** (rule 107, 2026-10-02):
+- **The studio's colour themes are 52, in groups** (rule 108, 2026-10-02):
   COLOR_THEMES leads with Two colours (a ground and one colour for every
   word), Three colours (ground, ink, one accent) and the library's twelve
   Proven pairs, then the earlier 21 under "More" (the landing counts them,
@@ -405,6 +405,11 @@ produced." DESIGN-LAW rule 87. In practice:
   full; run it with `--ids a,b` on the cards a change touches (the table is
   updated for those cards only) and `--resume` to continue a stopped run. It
   loads the studio with `?nochoiceholds=1`.
+- **The designer's guides and lock** (rule 107, 2026-10-02): the pink guides
+  (`sgSnap`) and the lock to the middle (`pgCentreLock`, kept by `ccKeep`
+  before every render and undo step) work on the parts `ccParts` finds. A
+  pass that moves designer objects leaves a locked group to the keeper;
+  never set `left` on one without its group.
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its

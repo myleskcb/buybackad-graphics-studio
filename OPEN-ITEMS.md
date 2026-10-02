@@ -1488,7 +1488,7 @@ themes ... Maybe some color pallets using only two or three colors", then
 extra colors like 3-D. Or outlines around text", and "make sure we have as
 much capability as possible when it comes to colors".
 
-Done (DESIGN-LAW rule 107), on `claude/vigilant-wozniak-kyyy7b`:
+Done (DESIGN-LAW rule 108), on `claude/vigilant-wozniak-kyyy7b`:
 - **52 themes in groups**: Two colours (12 sign looks, Yellow on Black to
   Black on Orange), Three colours (7, Red, White & Blue and six more), the
   library's twelve Proven pairs, and the earlier 21 under "More". 52 of 52
