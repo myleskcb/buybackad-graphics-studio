@@ -1480,3 +1480,45 @@ Still open:
    `checklistHero-pp02-20` off the wall. Re-pick on `/lab/hero.html` if the
    owner wants the list to match.
 
+
+## AC. 2026-10-02 — Steps Flow: one gap down to the CTA, and a CTA that is not a fourth step (DESIGN-LAW 107)
+
+The owner, over `stepsFlow-du08-15` and a green-CTA Steps card in the
+library: "audit the margin between each bubble", "the CTA should have even
+margin", "if we have three boxes of the same color, maybe the CTA is a
+different color? Or maybe it has a highlight?", then "most importantly,
+continue the same margin between each bubble".
+
+Done: `pgStepRhythm` and `pgCtaStandOut` in app.js, wrapped onto the layout
+(and the rhythm again after `numberFill`, the colour again after every
+repaint), `scripts/steps_rhythm_audit.mjs`, the Steps Flow thumbnails
+re-rendered, ASSET_REV bumped.
+
+Measured: 83 of 83 Steps cards in one rhythm (2 before), no CTA plate in its
+rows' neutral (6 before), no gate result changed on any card; the classic in
+Easy Mode in all six formats, one rhythm in each and the gate clean; the
+every-choice audit on the 21 live Steps cards and both classics wrote the
+same holds `main` has, card for card (only contrast figures in the second
+decimal moved), so `assets/choice-holds.json` is unchanged. It did catch one
+new hold on the way (du02-20 under Electric Trust, the phone cue on a plate
+the theme repainted), fixed before this commit (rule 107).
+
+Not on `main`: this session may push only to its own branch,
+`claude/relaxed-darwin-8aces4` (merged up to `main` at 8f4d1e72). Merge it to
+`main`, then deploy (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **`stepsFlow-pp06-35`'s number straddles its band** (half above the band's
+   top edge). The gate already failed it (offPlate, numCentre, straddle)
+   before this change, and it is held off the site (rule 105); the rows now
+   keep one gap to the band, but the number needs moving onto the band
+   (`scripts/centre_number.mjs`) before it can come back.
+2. **The other stacked layouts** (checklist rows over a number, the review
+   cards, trust tiles) were not measured by this audit; the pass is keyed to
+   the Steps Flow names (`Step Card n`, `Phone Plate`). If the owner sees the
+   same uneven last gap elsewhere, widen `pgStepRhythm`'s finder.
+3. **Rows can now be as short as their words plus 9px each side** (the
+   classic in Easy Mode: 129px rows became 117px so the number keeps its
+   size). If the owner prefers taller rows and a smaller number there, swap
+   the order in `pgStepRhythm` (the plate gives before the rows).

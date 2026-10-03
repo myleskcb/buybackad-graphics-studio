@@ -3618,3 +3618,72 @@ bike) and phones 2 on the first page of sixteen.
 - `scripts/mix_check.mjs` fails if a live card has no subject, if Apple falls
   under half of any prefix while it has cards, or if a line drifts more than
   one card from its share.
+
+## 107. A stack keeps one rhythm down to its call to action, and the action is not another step
+
+Added 2026-10-02. The owner, over two Steps Flow cards in the library (the
+first was `stepsFlow-du08-15`): "Can we audit the margin between each bubble?
+I particularly think the CTA should have even margin.. also if we have three
+boxes of the same color, maybe the CTA is a different color? Or maybe it has
+a highlight? See the green one looks a little more cohesive", then "But most
+importantly, continue the same margin between each bubble".
+
+Measured on the 83 Steps Flow cards (the two classics and every showcase
+record) as renderThumb paints them, `scripts/steps_rhythm_audit.mjs --before`:
+
+| | before | after |
+|---|---|---|
+| step 1 to 2, 2 to 3 | 11 to 15px, equal on every card | 11 to 15px, equal on every card |
+| step 3 to the CTA plate | 26px **over** the third card to 33px under it | the same as the steps' gap, on every card |
+| cards with one rhythm | 2 of 83 | 83 of 83 |
+| CTA plate the rows' own neutral | 6 | 0 |
+
+In Easy Mode it was worse: the classic's plate covered the bottom 24px of
+GET PAID in the square, the 16:9 and the 4:3, 9 to 11px in the Tall 3:4 and
+the flyer, and in the story it sat 16px under rows 26px apart. The rows were set by the template; the guides fit and the number's
+floor (rule 53) sized and placed the plate after them, and nothing asked how
+far apart the two had ended up.
+
+- **The rhythm is the steps' own gap.** `pgStepRhythm`, last in the layout
+  (and again after `numberFill`), lays the step cards out again above the
+  plate: one gap apart and one gap off it, each card and everything drawn on
+  it keeping its middle (a sheen keeps its place under the card's top edge).
+- **The plate stays where the guides and the number put it; the rows move.**
+  Rows that do not fit come down in height first, never below their own words
+  plus 9px each side. Only then does a plate (not a band run to the card's
+  edge) give its spare height, from the top, down to its words plus a fifth of
+  them each side: the number fills its plate (`numberFill`), and the owner has
+  already said of these cards' CTA: "very hard to read and too small". Then
+  the gap itself comes down, never under 6px. Rows with room to spare move
+  down to the plate, unless that would cover something they did not.
+- **A stack that was spread on purpose is left alone**: gaps that already
+  differ by more than 6px, or a plate more than three gaps further down.
+- **The CTA is not a fourth step.** `pgCtaStandOut`: where the plate and the
+  step cards are both neutral and within 0.35 of each other in OKLab
+  lightness, or within 0.08 in OKLab, the plate takes the card's accent: the
+  colour the card's own accent plates already wear (the kicker pill, the step
+  numbers), else its headline's, else the hue the card is in, never the rows'
+  colour back. The number and every line and mark on the plate turn to
+  whichever of near-black and near-white reads better, the plate's lightness
+  moving until that is 7:1 (rules 53, 74), then take the plate's hue (rule
+  104). The colour is one the card already has, so the card keeps one hue
+  (rule 95). It runs after every pass that repaints a card, as pgOneHue does.
+  A plate the visitor coloured is theirs.
+- **A plate it recoloured is looked after to the end.** The number grows after
+  the pass and widens its plate under a mark beside it, and a theme takes a
+  coloured plate for an accent plate and repaints it in its own accent. On
+  `stepsFlow-du02-20` under Electric Trust both happened: the phone cue ended
+  on a light blue plate in its old mid blue, 1.6:1, and the every-choice audit
+  held the theme. So on such a plate, anything that does not read (a line
+  under 4.5:1, a mark under 3:1) takes the plate's ink; a tagline look's own
+  colours, which read, are left alone.
+- The six it recoloured: du08-15 and du01-20 (off-white under off-white rows,
+  now the navy of their kicker pills), du02-20 (teal), jw03-15 and jw10-20
+  (a grey pill under grey glass, now the gold of their step numbers), and the
+  classic `dl_silver_stepsFlow_ocean` (a near-black plate under near-black
+  glass, now its cyan).
+- No gate result changed on any of the 83 cards. Easy Mode measured in all six
+  formats on the classic: one rhythm in each, the gate clean.
+- `scripts/steps_rhythm_audit.mjs` exits 1 on a card whose three gaps differ
+  by more than 2px or whose plate reads as a fourth step. `--before` turns
+  both passes off (`window.__pgStepRhythmOff`, `__pgCtaStandOutOff`).

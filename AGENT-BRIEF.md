@@ -394,6 +394,13 @@ produced." DESIGN-LAW rule 87. In practice:
   loads the studio with `?nochoiceholds=1`.
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
+- **A stack keeps one rhythm to its call to action** (rule 107, 2026-10-02):
+  `pgStepRhythm`, last in the layout and again after `numberFill`, sets the
+  Steps Flow cards one gap apart and one gap off the CTA plate (the rows
+  move, the plate stays); `pgCtaStandOut` gives a plate in its rows' own
+  neutral the card's accent. A pass that moves or resizes the steps or the
+  number's plate after them must leave `node scripts/steps_rhythm_audit.mjs`
+  passing.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

@@ -2438,3 +2438,55 @@ RESUME HERE:
   2. The street price badge's number plate (§Z 2), reviewProof's call to
      action under its pill (§Z 3).
   3. The same `main` on both Netlify projects, or one retired (§Z 4).
+
+## 2026-10-02 — Steps Flow: one gap down to the CTA (DESIGN-LAW 107)
+
+(claude/relaxed-darwin-8aces4, from `main` at 8f4d1e72.)
+
+The owner, over two Steps Flow cards in the library: "Can we audit the margin
+between each bubble? I particularly think the CTA should have even margin",
+"if we have three boxes of the same color, maybe the CTA is a different
+color? Or maybe it has a highlight? See the green one looks a little more
+cohesive", then "most importantly, continue the same margin between each
+bubble".
+
+Found:
+  - The three step cards were evenly spaced on every one of the 83 cards
+    (11 to 15px). The CTA plate was never on that rhythm: from 26px over the
+    third card to 33px under it. Each pass was right by its own measure (the
+    guides fit, the number floor, the plate fit), and none of them looked at
+    the space between the plate and the rows. The gate could not see it
+    either: overlapping plates are not copy on copy.
+  - Easy Mode was worse than the thumbnails (the plate over the bottom 24px
+    of GET PAID), because the number grows to fill its plate there.
+  - Moving the plate was the wrong lever: it sits on the bottom guide, and
+    the headline sits right on top of the rows on most cards (2 to 30px), so
+    there was nowhere to push the stack. The rows give: they had 25px of air
+    over and under their words.
+  - First run: 7 of 83 still uneven. A 14px sheen was counted as a row's
+    words (thin was < 14px), and the classics' tilted number boxes are 107px
+    tall, so their rows could not come down far enough without the plate.
+    Letting the plate give first fixed it and made the Easy Mode number 20%
+    smaller; the owner has asked for this CTA to be bigger before, so the rows
+    give first and the plate last.
+  - Six CTA plates were the rows' own neutral; the first card the owner showed
+    (du08-15) was one. Their accent was already on the card (the kicker pill,
+    the step numbers), so the plate takes that and the card keeps one hue.
+  - The every-choice audit caught what the thumbnail audit could not: on
+    du02-20 under Electric Trust the theme repainted the recoloured plate in
+    its own accent, the number then widened it under the phone cue, and the
+    cue read 1.6:1. Proved on `main`'s build served beside this one (the
+    same audit, one card: no problem there), then fixed. A pass that
+    recolours early has to be checked again after everything that runs
+    later.
+
+Tooling in a cloud session: no puppeteer and cdnjs blocked. puppeteer-core
+and fabric 5.3.0 from npm into the scratchpad, `node_modules` symlinked into
+the repo (gitignored as a directory, so the symlink shows as untracked: do not
+add it), CHROME=/opt/pw-browsers/chromium-1194/chrome-linux/chrome and
+FABRIC_JS pointing at the npm fabric.min.js.
+
+RESUME HERE:
+  0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (OPEN-ITEMS
+     §AC); the earlier RESUME items stand.
+  1. `stepsFlow-pp06-35`'s number onto its band (§AC 1).

@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261002a';
+const ASSET_REV = '20261002b';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -19258,4 +19258,238 @@ function pgHueCheck(sc, r){
     if (f && f.code === 'hues') return 'the card is in more than one colour';
     return _pgExplain.apply(this, arguments);
   };
+}
+
+/* ═══ THE STEPS KEEP ONE RHYTHM, DOWN TO THE CTA (rule 107) ═══════════════
+   Owner, 2026-10-02, over two Steps Flow cards in the library: "Can we audit
+   the margin between each bubble? I particularly think the CTA should have
+   even margin", then "most importantly, continue the same margin between each
+   bubble". Measured on 83 cards (scripts/steps_rhythm_audit.mjs): the step
+   cards were 11 to 15px apart on every one, and the CTA plate under them
+   anywhere from 26px OVER the third card to 33px under it, because the guides
+   fit and the number's floor size and place the plate after the rows are set.
+   The plate is where the guides and the number put it, so the rows move: the
+   step cards are laid out again above it, one gap apart and one gap off it,
+   each card and everything drawn on it keeping its middle. Rows that do not
+   fit come down in height, never below their own words plus 9px of air each
+   side, before the plate gives any of its own; rows with room to spare move
+   down to the plate as one. A stack whose gaps already differ (a tall format
+   spreads its blocks) is left alone. Wrapped, not spliced (AGENT-BRIEF 1);
+   window.__pgStepRhythmOff for a before/after measure. */
+function pgStepRhythm(sc, W, H){
+  if (typeof window !== 'undefined' && window.__pgStepRhythmOff) return null;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  W = W || sc.getWidth(); H = H || sc.getHeight();
+  const live = o => o && o.visible !== false && !(o.opacity != null && o.opacity < 0.3);
+  const bb = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const cards = objs.filter(o => live(o) && o.type === 'rect' && /^Step Card \d+$/.test(o.name || ''))
+    .map(o => ({ o, b: bb(o) })).sort((a, c) => a.b.y - c.b.y);
+  if (cards.length < 2 || cards.some(c => c.o.angle)) return null;
+  const plate = objs.find(o => live(o) && o.type === 'rect' && o.name === 'Phone Plate');
+  if (!plate || plate.angle) return null;
+  const P = bb(plate), last = cards[cards.length - 1].b;
+  if (P.y < last.y + last.h / 2) return null;                                   // not under the stack
+  const x0 = Math.min(...cards.map(c => c.b.x)), x1 = Math.max(...cards.map(c => c.b.x + c.b.w));
+  if (P.x > x1 || P.x + P.w < x0) return null;                                  // beside it, not under it
+  const n = cards.length, gaps = [];
+  for (let i = 1; i < n; i++) gaps.push(cards[i].b.y - (cards[i - 1].b.y + cards[i - 1].b.h));
+  if (Math.max(...gaps) - Math.min(...gaps) > 6) return null;                   // not one evenly spaced stack
+  const g = Math.max(8, gaps.slice().sort((a, c) => a - c)[gaps.length >> 1]);
+  if (Math.abs(P.y - (last.y + last.h) - g) <= 1.5) return null;                // already one rhythm
+  /* what rides on each card: drawn after it, its middle inside it, and the
+     card the topmost host there (a website line at the top of a plate that
+     overlaps the third card belongs to the plate, not to the card) */
+  const hosts = cards.map(c => ({ o: c.o, b: c.b, card: c })).concat([{ o: plate, b: P, card: null }]);
+  cards.forEach(c => { c.riders = []; });
+  const plateRiders = [];
+  objs.forEach((o, k) => {
+    if (!live(o) || hosts.some(h => h.o === o) || thIsGround(o)) return;
+    const r = bb(o), cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+    const h = hosts.filter(h => objs.indexOf(h.o) < k && cx > h.b.x && cx < h.b.x + h.b.w && cy > h.b.y && cy < h.b.y + h.b.h)
+      .sort((a, c) => objs.indexOf(c.o) - objs.indexOf(a.o))[0];
+    if (!h || r.h > h.b.h + 4) return;
+    if (h.card) h.card.riders.push({ o, b: r, thin: o.type === 'rect' && r.h < 0.15 * h.b.h });   // thin: a sheen, kept off the card's top
+    else plateRiders.push({ o, b: r });
+  });
+  cards.forEach(c => {
+    const body = c.riders.filter(r => !r.thin);
+    c.span = body.length ? Math.max(...body.map(r => r.b.y + r.b.h)) - Math.min(...body.map(r => r.b.y)) : 0;
+  });
+  const T = cards[0].b.y, h0 = cards.map(c => c.b.h), sum0 = h0.reduce((s, v) => s + v, 0);
+  let B = P.y, hs = h0.slice(), gap = g, top = B - sum0 - n * g, cut = 0;
+  if (top < T - 0.5){
+    /* the rows do not fit above the plate. What gives, in order: the rows'
+       spare height, down to their words plus 9px each side; then the
+       plate's spare height over its words (a plate, not a band run to the
+       card's edge), down to its words plus a fifth of them each side; then
+       the gap itself, never under 6px. The plate gives last because the
+       number fills it (numberFill): "These CTA are very hard to read and
+       too small" (owner, 2026-09-27, on these cards) */
+    const span = Math.max(...cards.map(c => c.span)), hCur = Math.min(...h0);
+    const fit = (gp, c) => (B + c - T - n * gp) / n;
+    const band = P.w >= 0.93 * W || P.y + P.h >= H - 2;
+    const ps = plateRiders.length ? Math.max(...plateRiders.map(r => r.b.y + r.b.h)) - Math.min(...plateRiders.map(r => r.b.y)) : 0;
+    const spare = band || !plateRiders.length ? 0 : Math.max(0, P.h - (ps + 2 * Math.max(14, 0.2 * ps)));
+    let h = fit(g, 0);
+    if (h < span + 18 - 0.01){
+      cut = Math.min(spare, n * (span + 18 - h)); h = fit(g, cut);
+      if (h < span + 18 - 0.01){ h = Math.min(span + 18, hCur); gap = fit(0, cut) - h; if (gap < 6) return null; }
+    }
+    hs = h0.map(v => Math.min(v, h));
+    gap = (B + cut - T - hs.reduce((s, v) => s + v, 0)) / n;
+    if (gap < 6) return null;
+    top = T;
+  } else if (top - T > 3 * g) return null;                                      // far apart on purpose
+  else {
+    // room to spare: down to the plate, unless that covers something the rows did not
+    const old = cards.map(c => c.b);
+    let y = top;
+    const fresh = cards.map((c, i) => { const b = { x: c.b.x, y, w: c.b.w, h: hs[i] }; y += hs[i] + gap; return b; });
+    const ov = (a, c) => a.x < c.x + c.w && a.x + a.w > c.x && a.y < c.y + c.h && a.y + a.h > c.y;
+    const ridden = new Set(cards.flatMap(c => c.riders.map(r => r.o)));
+    const hit = objs.some(o => live(o) && !hosts.some(h => h.o === o) && !ridden.has(o) && !thIsGround(o) && (() => {
+      const r = bb(o); if (r.w >= 0.93 * W && r.h >= 0.5 * H) return false;
+      return fresh.some(f => ov(f, r)) && !old.some(f => ov(f, r));
+    })());
+    if (hit){ top = T; gap = (B - T - sum0) / n; if (gap > 3 * g) return null; }
+  }
+  if (cut > 0.25){
+    // the plate gives from its top; what is on it keeps its place in the plate's middle
+    const bot = P.y + P.h;
+    plate.set({ height: plate.height - cut / (plate.scaleY || 1) }); plate.setCoords();
+    plate.set({ top: plate.top + (bot - (bb(plate).y + bb(plate).h)) }); plate.setCoords();
+    const nb = bb(plate);
+    plateRiders.forEach(r => { r.o.set({ top: r.o.top + cut / 2 }); r.o.setCoords(); });
+    const u = plateRiders.map(r => bb(r.o)), uy = Math.min(...u.map(b => b.y)), ub = Math.max(...u.map(b => b.y + b.h));
+    const d = uy < nb.y + 6 ? nb.y + 6 - uy : ub > nb.y + nb.h - 6 ? nb.y + nb.h - 6 - ub : 0;
+    if (d) plateRiders.forEach(r => { r.o.set({ top: r.o.top + d }); r.o.setCoords(); });
+    B = nb.y;
+  }
+  let y = top, moved = cut > 0.25 ? 1 : 0;
+  cards.forEach((c, i) => {
+    const o = c.o, b = c.b, h = hs[i];
+    const dMid = (y + h / 2) - (b.y + b.h / 2), dTop = y - b.y;
+    if (Math.abs(h - b.h) > 0.25) o.set({ height: o.height + (h - b.h) / (o.scaleY || 1) });
+    o.setCoords(); o.set({ top: o.top + (y - bb(o).y) }); o.setCoords();
+    c.riders.forEach(r => { r.o.set({ top: r.o.top + (r.thin ? dTop : dMid) }); r.o.setCoords(); });
+    if (Math.abs(dMid) > 0.25 || Math.abs(h - b.h) > 0.25) moved++;
+    y += h + gap;
+  });
+  if (moved && typeof pgShadeFit === 'function') try { pgShadeFit(sc, W, H); } catch (e){}
+  return { moved, gap: Math.round(gap * 10) / 10, h: Math.round(Math.min(...hs)), cut: Math.round(cut) };
+}
+
+/* ═══ THE CTA IS NOT A FOURTH STEP (rule 107) ══════════════════════════════
+   The owner, on the same two cards: "if we have three boxes of the same color,
+   maybe the CTA is a different color? Or maybe it has a highlight? See the
+   green one looks a little more cohesive." On six Steps Flow cards the
+   number's plate was a neutral of the rows' own value (off-white under
+   off-white rows, a grey pill under grey glass, near-black under near-black
+   glass), so the action read as a fourth step. Where the plate and the step cards are both neutral and within
+   0.35 of each other in OKLab lightness, or are the same colour, the plate
+   takes the card's accent: the colour its own accent plates already wear (the
+   kicker pill, the step numbers), else its headline's, else the hue the card
+   is in, never the rows' colour back; with none of those, the card's darkest
+   ink under light rows and its lightest over dark ones. The number and every
+   line or mark on the plate turn to whichever of near-black and near-white
+   reads better on it, the plate's lightness moving until that is 7:1 (rules
+   53, 74), and pgPlateInk gives them the plate's hue (rule 104). The colour
+   comes from the card, so it is the card's hue (rule 95). A plate the visitor
+   coloured is theirs. window.__pgCtaStandOutOff for a before/after measure. */
+function pgCtaStandOut(sc, W, H){
+  if (typeof window !== 'undefined' && window.__pgCtaStandOutOff) return null;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  W = W || sc.getWidth(); H = H || sc.getHeight();
+  const A = W * H, minA = 900 * A / (TPL_W * TPL_H);
+  const live = o => o && o.visible !== false && !(o.opacity != null && o.opacity < 0.3);
+  const isText = o => o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
+  const bb = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const cards = objs.filter(o => live(o) && o.type === 'rect' && /^Step Card \d+$/.test(o.name || ''));
+  const plate = objs.find(o => live(o) && o.type === 'rect' && o.name === 'Phone Plate');
+  if (cards.length < 2 || !plate || plate.pgUser || typeof plate.fill !== 'string' || typeof cards[0].fill !== 'string') return null;
+  const pp = thParse(plate.fill), cp = thParse(cards[0].fill);
+  if (!pp || !cp || pp.a < 0.85 || cp.a < 0.45) return null;                    // see-through rows wear the photograph
+  const lab = k => [k.L, k.C * Math.cos(k.h * Math.PI / 180), k.C * Math.sin(k.h * Math.PI / 180)];
+  const dE = (a, c) => { const p = lab(a), q = lab(c); return Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]); };
+  const pk = hexToOklch(pp.hex), ck = hexToOklch(cp.hex);
+  if (!pk || !ck) return null;
+  const P = bb(plate), zP = objs.indexOf(plate);
+  const onPlate = objs.filter((o, k) => k > zP && live(o) && !thIsGround(o) && (() => {
+    const r = bb(o), cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+    return cx > P.x && cx < P.x + P.w && cy > P.y && cy < P.y + P.h && r.h < P.h + 8;
+  })());
+  const DARK = '#101014', LIGHT = '#fbfaf8';
+  const inkFor = f => pgCr(pgLum(DARK), pgLum(f)) >= pgCr(pgLum(LIGHT), pgLum(f)) ? DARK : LIGHT;
+  const same = dE(pk, ck) < 0.08 || (!pgHueOf(pp.hex) && !pgHueOf(cp.hex) && Math.abs(pk.L - ck.L) < 0.35);
+  /* a plate this pass recoloured, as it is now. The number grows after the
+     pass (numberFill) and widens the plate under a mark beside it, and a
+     theme takes a coloured plate for an accent plate and repaints it in its
+     own accent (the phone cue on stepsFlow-du02-20 under Electric Trust
+     ended on a light blue plate in its old mid blue, 1.6:1). So whatever is
+     on the plate now and does not read on it takes the plate's ink; a
+     tagline look's own colours, which read, are left as the look set them */
+  if (plate.pgStandOut && !same){
+    const ink = plate.pgStandOut.fill === plate.fill ? plate.pgStandOut.ink : inkFor(plate.fill), Lp = pgLum(plate.fill);
+    let n = 0;
+    onPlate.forEach(o => {
+      const c = isText(o) ? o.fill : o.type === 'path' && !o.fill ? o.stroke : null;
+      if (typeof c !== 'string' || !thParse(c) || o.pgUser || pgCr(pgLum(c), Lp) >= (isText(o) ? 4.5 : 3)) return;
+      if (isText(o)){ o.set('fill', thHexA(ink, thParse(c).a)); o.pgPlateInk = null; } else o.set('stroke', ink);
+      o.dirty = true; n++;
+    });
+    if (n) try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); }
+    return n ? { plate: plate.fill, ink, again: n } : null;
+  }
+  if (!same) return null;
+  const lines = onPlate.filter(o => isText(o) && /[A-Za-z0-9]/.test(o.text || ''));
+  if (lines.some(o => o.pgUser || typeof o.fill !== 'string')) return null;      // a styled or hand-coloured line keeps the plate it was set on
+  // the card's accent: its own accent plates, then its headline, then its hue
+  const cands = [];
+  objs.forEach(o => {
+    if (!live(o) || o === plate || cards.includes(o) || onPlate.includes(o) || thIsGround(o) || o.pgEmoji || o.pgEmojiAuto || typeof o.fill !== 'string') return;
+    const h = pgHueOf(o.fill); if (!h || h.a < 0.85 || dE(h.k, ck) < 0.12) return;
+    if (isText(o)){ if (o.pgRole === 'headline') cands.push({ hex: h.hex, w: 1 }); return; }
+    if (!PG_HUE_SHAPES.includes(o.type) || o.type === 'path') return;
+    const r = bb(o), ar = r.w * r.h; if (ar < minA || ar > 0.25 * A) return;
+    cands.push({ hex: h.hex, w: 2 + ar / A });
+  });
+  let acc = cands.length ? cands.sort((a, c) => c.w - a.w)[0].hex : null;
+  if (!acc){
+    const { objs: o2, paints } = pgHuePaints(sc, W, H), an = paints.length ? pgHueAnchor(o2, paints, W, H) : null;
+    if (an) acc = oklchFit({ L: ck.L > 0.6 ? 0.42 : 0.8, C: Math.min(0.14, Math.max(0.08, an.C)), h: an.h });
+  }
+  if (!acc){
+    const inks = objs.filter(o => live(o) && isText(o) && typeof o.fill === 'string' && thParse(o.fill)).map(o => thParse(o.fill).hex)
+      .sort((a, c) => thLumOf(a) - thLumOf(c));
+    acc = ck.L > 0.6 ? (inks.find(h => thLumOf(h) < 0.03) || '#141110') : (inks.reverse().find(h => thLumOf(h) > 0.8) || '#f6f6f4');
+  }
+  const ink = inkFor(acc);
+  { const k = hexToOklch(acc);
+    for (let i = 0; i < 30 && pgCr(pgLum(ink), pgLum(acc)) < 7; i++){ k.L = ink === DARK ? Math.min(0.98, k.L + 0.02) : Math.max(0.04, k.L - 0.02); acc = oklchFit(k); } }
+  plate.set('fill', acc); plate.dirty = true; plate.pgStandOut = { fill: acc, ink };
+  onPlate.forEach(o => {
+    if (isText(o)){ const t = thParse(o.fill); if (t){ o.set('fill', thHexA(ink, t.a)); o.pgPlateInk = null; o.dirty = true; } }
+    else if (o.type === 'path' && typeof o.stroke === 'string' && !o.fill){ o.set('stroke', ink); o.dirty = true; }
+  });
+  try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); }
+  return { plate: acc, ink };
+}
+{
+  /* last of the layout, so the plate is where every pass left it; again after
+     the number fills its plate (taglineFinish); and the colour again after
+     anything that repaints the card, as pgOneHue is run */
+  const rhythm = (sc, W, H) => { try { pgStepRhythm(sc, W, H); } catch (e){ console.warn('steps rhythm:', e); } };
+  const standOut = (sc, W, H) => { try { pgCtaStandOut(sc, W, H); } catch (e){ console.warn('cta stands out:', e); } };
+  const _alignPass = alignPass;
+  alignPass = function(sc, W, H){ const r = _alignPass.apply(this, arguments); rhythm(sc, W, H); standOut(sc, W, H); return r; };
+  const _taglineFinish = taglineFinish;
+  taglineFinish = function(sc, W, H){ const r = _taglineFinish.apply(this, arguments); if (sc){ rhythm(sc, W, H); standOut(sc, W, H); } return r; };
+  const _themeScene = themeScene;
+  themeScene = function(sc, th, W, H){ const r = _themeScene.apply(this, arguments); if (sc) standOut(sc, W, H); return r; };
+  const _applyCardLook = applyCardLook;
+  applyCardLook = function(sc, tpl, W, H){ const r = _applyCardLook.apply(this, arguments); if (sc) standOut(sc, W, H); return r; };
+  const _taglineApply = taglineApply;
+  taglineApply = function(sc, tpl, W, H){ const r = _taglineApply.apply(this, arguments); if (sc) standOut(sc, W, H); return r; };
+  const _ezCopyFollowsGround = ezCopyFollowsGround;
+  ezCopyFollowsGround = function(sc, W, H){ const r = _ezCopyFollowsGround.apply(this, arguments); if (sc) standOut(sc, W, H); return r; };
 }
