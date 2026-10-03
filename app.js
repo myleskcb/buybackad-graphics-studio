@@ -13958,7 +13958,13 @@ function taglineStyle(sc, spec, pal, W, H, as){
     keep(o);
     const { TL, light } = lightOf(o), gY = ground.get(o) || 0, p0 = paintOf(o);
     const preset = (Array.isArray(spec.gradient) || TAGLINE_GRADIENTS[spec.gradient]) ? taglineGradientStops(spec.gradient)
-      : spec.fill === 'multicolor' && fx && fx.letters && fx.letters.length > 1 ? fx.letters.slice() : null;
+      : null;
+    /* a palette's letters (thFx) keep their hues at the lightness the line
+       reads at, as the colour wheel does: as they are, White on Red's white and
+       near-black letters left half a headline black on bubblePop-cd06-30's
+       dark photograph, 1.58:1 (every_card_audit, 2026-10-03) */
+    const fxLetters = !preset && spec.fill === 'multicolor' && fx && fx.letters && fx.letters.length > 1
+      ? L => fx.letters.map(c => { const q = ok(c); return at(L, Math.min(q.C, 0.17), q.h); }) : null;
     const V = [];
     if (spec.fill === 'white') V.push({ fill: '#ffffff', rim: true });
     else if (spec.fill === 'gradient'){
@@ -13975,7 +13981,7 @@ function taglineStyle(sc, spec, pal, W, H, as){
       keepGlyphs(o, p0);
       if (v.fill) o.set('fill', v.fill);
       else if (v.stops) o.set('fill', gradOf(v.stops, spec.angle));
-      else if (v.multi != null){ o.set({ styles: multiStyles(o, v.multi, preset && (v.flip ? flipStops(preset) : preset)) }); o.dirty = true; }
+      else if (v.multi != null){ o.set({ styles: multiStyles(o, v.multi, fxLetters ? fxLetters(v.multi) : preset && (v.flip ? flipStops(preset) : preset)) }); o.dirty = true; }
       else if (v.tex){ const p = taglinePattern(spec.texture, v.tex[0], v.tex[1], h0, sheetFs, { scale: spec.patScale, x: spec.patX, y: spec.patY, res: spec.patRes, obj: o, memo: patMemo }); o.set('fill', p); sc.__patTile = p.pgTile; }
       clean(o);
       if (v.rim) rimOn(o, gY);
@@ -14270,7 +14276,7 @@ function ezTagAutoStops(look){
   if (TAGLINE_GRADIENTS[g]) return TAGLINE_GRADIENTS[g].stops.slice();
   const acc = hexToOklch(pal.accent) || { L: 0.7, C: 0.15, h: 250 }, sup = hexToOklch(pal.support || pal.accent) || acc;
   const h0 = acc.C >= 0.04 ? acc.h : sup.h, at = (L, C, h) => oklchFit({ L, C, h: ((h % 360) + 360) % 360 });
-  if (look === 'multicolor') return pal.fx && pal.fx.letters && pal.fx.letters.length > 1 ? pal.fx.letters.slice() : [0, 72, 144, 216, 288].map(d => at(0.8, 0.17, h0 + d));   // a theme's letters are its own colours (thFx)
+  if (look === 'multicolor') return pal.fx && pal.fx.letters && pal.fx.letters.length > 1 ? pal.fx.letters.map(c => { const q = hexToOklch(c) || { C: 0, h: 0 }; return at(0.8, Math.min(q.C, 0.17), q.h); }) : [0, 72, 144, 216, 288].map(d => at(0.8, 0.17, h0 + d));   // a theme's letters: its own colours, at a light line's lightness (thFx)
   if (g === 'pair') return [at(0.8, 0.15, acc.h), at(0.8, 0.15, sup.h)];
   if (g === 'street'){
     const toY = ((105 - h0) % 360 + 540) % 360 - 180, dir = Math.abs(toY) < 12 ? -1 : Math.sign(toY);
@@ -17714,8 +17720,11 @@ function thFx(p){
   const glow = hued(acc) ? acc : hued(sup) ? sup : null;
   const letters = [];
   [acc, sup, ink].forEach(x => { if (x && !letters.some(l => { const o = hexToOklch(l); return o && thGap(o.h, x.k.h) < 25 && Math.abs(o.L - x.k.L) < 0.25; })) letters.push(x.hex); });
-  /* one colour (a two-colour palette): the second is the neutral that reads
-     on its ground, not one that matches the first (yellow and white on black) */
+  /* one colour (a two-colour palette): the second is its ground's colour when
+     that is a colour (White on Red: white and red), else the neutral that
+     reads on its ground, not one that matches the first (yellow and white on
+     black); the look sets them at the line's own lightness */
+  if (letters.length < 2 && hued(g1) && !letters.some(l => { const o = hexToOklch(l); return o && thGap(o.h, g1.k.h) < 25 && Math.abs(o.L - g1.k.L) < 0.25; })) letters.push(g1.hex);
   if (letters.length < 2){
     const one = hexToOklch(letters[0] || '#ffffff'), gY = g1 ? g1.Y : 0;
     const other = [light, dark, '#ffffff', '#0b0b0d'].filter(h => { const o = hexToOklch(h); return !o || !one || Math.abs(o.L - one.L) >= 0.25 || thGap(o.h, one.h) >= 25; })
