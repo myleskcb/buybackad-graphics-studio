@@ -760,5 +760,275 @@
     "artist": "メイド理世",
     "page": "https://commons.wikimedia.org/wiki/File%3AMacBook%20Air%20(A2681)%20front.jpg",
     "note": "cut from assets/bg-web/apple-macbook-air-m2-4.jpg by scripts/cut_vehicle_photos.py. a MacBook Air (M2) closed, lid and logo from above"
+  },
+  "car-bmw-m3-touring-blue-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20M3%20(G81)%20Motorworld%20Munich%201X7A0056.jpg",
+    "note": "cut from assets/bg-web/angles-bmw-m3-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue BMW M3 Touring (G81), rear three-quarter"
+  },
+  "car-bmw-x5-black-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Jengtingchen",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20X5%20MK4%20rear.jpg",
+    "note": "cut from assets/bg-web/angles-bmw-x5-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black BMW X5 (G05), rear three-quarter"
+  },
+  "car-cadillac-escalade-black-rear": {
+    "license": "CC BY 4.0",
+    "artist": "Baron Maddock",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2021%20Cadillac%20Escalade%20rear.jpg",
+    "note": "cut from assets/bg-web/angles-cadillac-escalade-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Cadillac Escalade (fifth generation), rear three-quarter"
+  },
+  "car-chevy-equinox-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2017%20Chevrolet%20Equinox%20rear%205.27.18.jpg",
+    "note": "cut from assets/bg-web/angles-chevrolet-equinox-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Chevrolet Equinox (third generation), rear three-quarter; dealer plate blurred"
+  },
+  "car-ford-bronco-sport-yellow-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2022%20Ford%20Bronco%20Sport%20Big%20Bend%2C%20rear%20left%2C%2009-03-2022.jpg",
+    "note": "cut from assets/bg-web/angles-ford-bronco-rear-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a yellow Ford Bronco Sport, rear three-quarter"
+  },
+  "car-ford-f150-raptor-orange-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2021%20Ford%20F-150%20Raptor%2C%20rear%204.23.22.jpg",
+    "note": "cut from assets/bg-web/angles-ford-f-150-raptor-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an orange Ford F-150 Raptor (third generation), rear three-quarter"
+  },
+  "car-ford-f150-black-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2018%20Ford%20F-150%20Crew%20Cab%20rear%205.26.18.jpg",
+    "note": "cut from assets/bg-web/angles-ford-f-150-rear-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Ford F-150 FX4 (thirteenth generation), rear three-quarter"
+  },
+  "car-ford-mustang-mach1-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Mustang%20VI%20Mach%201%201X7A0304.jpg",
+    "note": "cut from assets/bg-web/angles-ford-mustang-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Ford Mustang Mach 1 (S550), rear three-quarter"
+  },
+  "car-ford-mustang-gt-yellow-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Vauxford",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2018%20Ford%20Mustang%20GT%205.0%20Rear.jpg",
+    "note": "cut from assets/bg-web/angles-ford-mustang-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a yellow Ford Mustang GT (S550), rear three-quarter"
+  },
+  "car-ford-ranger-blue-rear": {
+    "license": "CC BY 4.0",
+    "artist": "Just a Man",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Ford%20Ranger%20V6%20Limited%20(Argentina)%2C%20rear%20side.jpg",
+    "note": "cut from assets/bg-web/angles-ford-ranger-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Ford Ranger Limited (P703) double cab, rear three-quarter"
+  },
+  "car-ford-transit-custom-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Transit%20Custom%20(2023)%201X7A1608.jpg",
+    "note": "cut from assets/bg-web/angles-ford-transit-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Ford Transit Custom (second generation) panel van, rear three-quarter"
+  },
+  "car-ford-e-transit-custom-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20E-Transit%20Custom%20(2023)%20DSC%209252.jpg",
+    "note": "cut from assets/bg-web/angles-ford-transit-rear-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Ford E-Transit Custom (second generation), rear three-quarter"
+  },
+  "car-gmc-sierra-ev-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Deathpallie325",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20GMC%20Sierra%20EV%20Denali%20rear%20view.jpg",
+    "note": "cut from assets/bg-web/angles-gmc-sierra-rear-1.jpg by scripts/cut_vehicle_photos.py. a grey GMC Sierra EV Denali pickup, rear three-quarter, no plate"
+  },
+  "car-honda-accord-white-rear": {
+    "license": "CC0",
+    "artist": "TTTNIS",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20Accord%20CV3%20e-HEV%20EX%20rear.jpg",
+    "note": "cut from assets/bg-web/angles-honda-accord-rear-1.jpg by scripts/cut_vehicle_photos.py. a white Honda Accord (tenth generation), rear three-quarter, plate already blank"
+  },
+  "car-honda-accord-2023-white-side": {
+    "license": "CC BY 2.0",
+    "artist": "Jason Lawrence from New York",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20Accord%20(54065885343).jpg",
+    "note": "cut from assets/bg-web/angles-honda-accord-side-view-3.jpg by scripts/cut_vehicle_photos.py. a white Honda Accord (eleventh generation, 2023-), side on"
+  },
+  "car-honda-crv-red-rear": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Mr.choppers",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2023%20Honda%20CR-V%20EX-L%204WD%20in%20Radiant%20Red%20Metallic%2C%20rear%20right.jpg",
+    "note": "cut from assets/bg-web/angles-honda-cr-v-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Honda CR-V (sixth generation, 2023-), rear three-quarter; dealer plate blurred"
+  },
+  "car-honda-pilot-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "EurovisionNim",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2014%20Honda%20Pilot%20wagon%2C%20rear%20view%2001.jpg",
+    "note": "cut from assets/bg-web/angles-honda-pilot-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Honda Pilot (second generation), rear three-quarter"
+  },
+  "car-honda-ridgeline-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2017%20Honda%20Ridgeline%20rear%205.12.18.jpg",
+    "note": "cut from assets/bg-web/angles-honda-ridgeline-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Honda Ridgeline (second generation) pickup, rear three-quarter; dealer plate blurred"
+  },
+  "car-hyundai-ioniq5-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Ioniq%205%20N%20Line%20IMG%203869.jpg",
+    "note": "cut from assets/bg-web/angles-hyundai-ioniq-5-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Hyundai Ioniq 5 (facelift), rear three-quarter"
+  },
+  "car-hyundai-ioniq5-silver-side": {
+    "license": "CC BY 2.0",
+    "artist": "Andrew Bone",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Ioniq%205%20(2021%2C%20Weymouth%2C%20UK%20-%20side%20%26%20front).jpg",
+    "note": "cut from assets/bg-web/angles-hyundai-ioniq-5-side-view-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Hyundai Ioniq 5, front three-quarter, side on"
+  },
+  "car-hyundai-tucson-l-white-rear": {
+    "license": "CC0",
+    "artist": "SSJF01",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Tucson%20(NX4).png",
+    "note": "cut from assets/bg-web/angles-hyundai-tucson-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Hyundai Tucson L (NX4, long wheelbase), rear three-quarter"
+  },
+  "car-jeep-gladiator-rubicon-red-side": {
+    "license": "CC BY-SA 4.0",
+    "artist": "CZmarlin  — Christopher Ziemnowicz would appreciate a photo credit if this image is used anywhere other than Wikipedia. ",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJeep%20Gladiator%20(JT)%20Rubicon%20in%20red%20-%202of2.jpg",
+    "note": "cut from assets/bg-web/angles-jeep-gladiator-side-view-1.jpg by scripts/cut_vehicle_photos.py. a red Jeep Gladiator Rubicon (JT) pickup, side on, no plate in view"
+  },
+  "car-kia-k5-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2021%20Kia%20K5%20GT-Line%2C%20rear%20left%2C%2009-09-2023.jpg",
+    "note": "cut from assets/bg-web/angles-kia-k5-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Kia K5 (DL3), rear three-quarter; dealer plate blurred"
+  },
+  "car-kia-telluride-2026-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2027%20Kia%20Telluride%20S%2C%20rear%20right%2C%2006-21-2026.jpg",
+    "note": "cut from assets/bg-web/angles-kia-telluride-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Kia Telluride (second generation, 2026), rear three-quarter; dealer plate blurred"
+  },
+  "car-lexus-rx-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALexus%20RX%20350h%20(AALH10-AALH15)%20IMG%208880.jpg",
+    "note": "cut from assets/bg-web/angles-lexus-rx-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Lexus RX 350h (fifth generation), rear three-quarter"
+  },
+  "car-lexus-rx-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALexus%20RX%20500h%20F%20Sport%20Performance%20(TALH17)%201X7A7079.jpg",
+    "note": "cut from assets/bg-web/angles-lexus-rx-rear-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Lexus RX 500h (fifth generation), rear three-quarter"
+  },
+  "car-ram-1500-black-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Deathpallie325",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2025%20Ram%201500%20rear%20view.jpg",
+    "note": "cut from assets/bg-web/angles-ram-1500-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Ram 1500 (2025) crew cab pickup, rear three-quarter; dealer plate blurred"
+  },
+  "car-rivian-r1s-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2025%20Rivian%20R1S%20Ascend%20Tri%20Max%2C%20rear%20right%2C%2011-21-2025.jpg",
+    "note": "cut from assets/bg-web/angles-rivian-r1s-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Rivian R1S, rear three-quarter"
+  },
+  "car-rivian-r1t-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2022%20Rivian%20R1T%20(in%20Glacier%20White)%2C%20rear%206.21.22.jpg",
+    "note": "cut from assets/bg-web/angles-rivian-r1t-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Rivian R1T pickup, rear three-quarter"
+  },
+  "car-rivian-r1t-green-rear": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Mr.choppers",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2022%20Rivian%20R1T%20Adventure%20in%20Forest%20Green%2C%20rear%20left.jpg",
+    "note": "cut from assets/bg-web/angles-rivian-r1t-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a green Rivian R1T pickup with a roof rack, rear three-quarter"
+  },
+  "car-subaru-outback-red-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2023%20Subaru%20Outback%20Premium%2C%20rear%20right%2C%2009-09-2023.jpg",
+    "note": "cut from assets/bg-web/angles-subaru-outback-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Subaru Outback (BT), rear three-quarter; dealer plate blurred"
+  },
+  "car-tesla-cybertruck-rear-street": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Tesla%20Cybertruck%2C%20rear%209.7.24.jpg",
+    "note": "cut from assets/bg-web/angles-tesla-cybertruck-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a stainless Tesla Cybertruck, rear three-quarter"
+  },
+  "car-tesla-model-3-performance-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Chanokchon",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Tesla%20Model%203%20Highland%20Performance%20AWD%20(Rear).jpg",
+    "note": "cut from assets/bg-web/angles-tesla-model-3-rear-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Tesla Model 3 Performance (Highland) in a showroom, rear three-quarter"
+  },
+  "car-tesla-model-x-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2017%20Tesla%20Model%20X%20rear%205.27.18.jpg",
+    "note": "cut from assets/bg-web/angles-tesla-model-x-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Tesla Model X, rear three-quarter"
+  },
+  "car-tesla-model-y-red-side": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Daniel.Cardenas",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATesla%20Model%20Y%20passenger%20side%20view.jpg",
+    "note": "cut from assets/bg-web/angles-tesla-model-y-side-view-1.jpg by scripts/cut_vehicle_photos.py. a red Tesla Model Y (Juniper), side on, no plate in view"
+  },
+  "car-toyota-camry-2025-white-side": {
+    "license": "CC0",
+    "artist": "Sardaka",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Camry%20001aaa.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-camry-side-view-2.jpg by scripts/cut_vehicle_photos.py. a white Toyota Camry (XV80, 2025-), side on"
+  },
+  "car-toyota-corolla-cross-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Corolla%20Cross%20Hybrid%201X7A1862.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-corolla-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Toyota Corolla Cross Hybrid, rear three-quarter"
+  },
+  "car-toyota-gr-supra-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Dietmar Rabich",
+    "page": "https://commons.wikimedia.org/wiki/File%3AD%C3%BClmen%2C%20Auto%20Bertels%2C%20Toyota%20GR%20Supra%20--%202021%20--%209544.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-gr-supra-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Toyota GR Supra (A90) in a showroom, rear three-quarter; dealer plate blurred"
+  },
+  "car-toyota-highlander-white-rear": {
+    "license": "CC0",
+    "artist": "Throwawayacc222",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2025%20Toyota%20Highlander%20Limited%20white%20rear.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-highlander-rear-2.jpg by scripts/cut_vehicle_photos.py. a white Toyota Highlander (XU70), rear three-quarter, plate already blank"
+  },
+  "car-toyota-highlander-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2020%20Toyota%20Highlander%20XLE%20AWD%2C%20rear.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-highlander-rear-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Toyota Highlander (XU70), rear three-quarter; dealer plate blurred"
+  },
+  "car-toyota-prius-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2025%20Toyota%20Prius%20LE%2C%20rear%20right%2C%2009-06-2025.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-prius-rear-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Toyota Prius (fifth generation), rear three-quarter; dealer plate blurred"
+  },
+  "car-toyota-prius-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Toyota%20Prius%20XLE%20AWD%2C%20rear%20left%2C%2006-01-2024.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-prius-rear-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Toyota Prius XLE (fifth generation), rear three-quarter; dealer plate blurred"
+  },
+  "car-toyota-rav4-2026-white-rear": {
+    "license": "CC0",
+    "artist": "TTTNIS",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2026%20Toyota%20RAV4%20PHEV%20GR%20Sport%20Prototype%20rear.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-rav4-rear-3.jpg by scripts/cut_vehicle_photos.py. a white Toyota RAV4 PHEV (sixth generation, 2026) at a show, rear three-quarter, show plate only"
+  },
+  "car-toyota-tacoma-trd-black-rear": {
+    "license": "CC0",
+    "artist": "Throwawayacc222",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Toyota%20Tacoma%20TRD%20Off%20Road%20black%20rear.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-tacoma-rear-2.jpg by scripts/cut_vehicle_photos.py. a black Toyota Tacoma TRD Off-Road (N400, 2024-), rear three-quarter, plate already blank"
+  },
+  "car-toyota-tundra-trd-pro-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2022%20Toyota%20Tundra%20TRD%20Pro%2C%20rear%20NYIAS%202022.jpg",
+    "note": "cut from assets/bg-web/angles-toyota-tundra-rear-1.jpg by scripts/cut_vehicle_photos.py. a white Toyota Tundra TRD Pro build with spare tyres in the bed, at a show, rear three-quarter, show plate only"
   }
 }

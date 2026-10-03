@@ -34,7 +34,8 @@ Escalade (price sticker on the windscreen, the photographer in the paint);
 then an Urus Performante (cut off at the frame), a Rivian R2 and a 2026 Land
 Cruiser (people in the cab), a 911 GT3 RS (another car fused to it), a TRX (a
 store security cable) and, of the Apple photographs, two iPhone 17 Pro Max
-(store cradle left on), two Mac minis and three MacBook Airs (cables).
+(store cradle left on), two Mac minis and three MacBook Airs (cables); a
+Cybertruck at night (orange cast) and a 2026 RAV4 (display stand under it).
 
   python3 scripts/cut_vehicle_photos.py            dry run: .render/vehicles/_review.jpg
   python3 scripts/cut_vehicle_photos.py --write    land them
@@ -380,8 +381,6 @@ SPEC = {
         subject='a green Rivian R1T pickup with a roof rack, rear three-quarter'),
     'car-subaru-outback-red-rear': dict(src='angles-subaru-outback-rear-2.jpg', floor=None, plates=[[195, 485, 330, 610]],
         subject='a red Subaru Outback (BT), rear three-quarter; dealer plate blurred'),
-    'car-tesla-cybertruck-rear-night': dict(src='angles-tesla-cybertruck-rear-1.jpg', floor=None, plates=[[540, 805, 695, 885]],
-        subject='a stainless Tesla Cybertruck at night, rear three-quarter'),
     'car-tesla-cybertruck-rear-street': dict(src='angles-tesla-cybertruck-rear-2.jpg', floor=None, plates=[[345, 540, 470, 635]],
         subject='a stainless Tesla Cybertruck, rear three-quarter'),
     'car-tesla-model-3-performance-white-rear': dict(src='angles-tesla-model-3-rear-3.jpg', floor=None, plates=[[265, 585, 470, 720]],
@@ -404,8 +403,6 @@ SPEC = {
         subject='a silver Toyota Prius (fifth generation), rear three-quarter; dealer plate blurred'),
     'car-toyota-prius-grey-rear': dict(src='angles-toyota-prius-rear-2.jpg', floor=None, plates=[[1440, 875, 1585, 995]],
         subject='a grey Toyota Prius XLE (fifth generation), rear three-quarter; dealer plate blurred'),
-    'car-toyota-rav4-2026-grey-rear': dict(src='angles-toyota-rav4-rear-2.jpg', floor=None, plates=[],
-        subject='a grey Toyota RAV4 PHEV (sixth generation, 2026) at a show, rear three-quarter, show plate only'),
     'car-toyota-rav4-2026-white-rear': dict(src='angles-toyota-rav4-rear-3.jpg', floor=None, plates=[],
         subject='a white Toyota RAV4 PHEV (sixth generation, 2026) at a show, rear three-quarter, show plate only'),
     'car-toyota-tacoma-trd-black-rear': dict(src='angles-toyota-tacoma-rear-2.jpg', floor=None, plates=[],
