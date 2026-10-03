@@ -3652,3 +3652,38 @@ software's and it will align either horizontally or vertically or both".
   105) it centres all but the slab, which would have covered the headline.
 - Nothing runs by itself: a card opened from Easy Mode arrives as Easy Mode
   drew it (rule 93), and the centring is the visitor's choice.
+
+## 108. A phone in a video is the model it is, and moves the way a camera would see it
+
+Added 2026-10-03. The owner, on three turned 17 and 18 Pros in a video: "they
+look like sim tray devices missing the sim tray so it's got a hole... audit
+small detail and fix fill in body color", then "make sure we have even better
+movements, accuracy, and realism".
+
+- **The body is the model's** (`designOf`, motion/engine.js). A turned phone's
+  edge is as deep as Apple's published depth for its width (`BODY`): a Plus
+  turns an edge 0.100 of its width, a 17 Pro 0.122, where every model was
+  0.115. Camera Control is flush and the body's colour; drawn near-black it
+  read as an empty SIM tray.
+- **A control the photograph shows is drawn where the photograph has it**
+  (`MEASURED_CONTROLS`). The 17 and 18 Pro backs show the side button standing
+  proud of the rail 46.8 to 64.4 mm from the top on both sizes; the engine drew
+  it 5 mm higher, so a turned phone showed two. `scripts/audit_phone_views.py`
+  fails a back whose button and drawing disagree by more than 1% of the height.
+  The stripes on the non-Pro backs sit at one share of the height on both sides
+  and both sizes, which buttons do not: they are the shared back's, not a
+  measurement.
+- **Motion blur blurs** (`Ad._subsFor`, `EXPORT_QUALITY`). An export draws the
+  phones at as many moments of the shutter as it takes for no corner to jump
+  more than 3 px between two (8 to 24); a fixed 8 left fast spins, frame 0
+  among them, as a fan of copies. The preview keeps its fixed few, to play live.
+  It costs the export about 1.2 to 1.8 times the drawing time.
+- **A shadow softens as the phone rises, without steps.** It blends the two
+  nearest of its three blurs, as dark together as one, and is as wide as the
+  turned body; picking one blur jumped at a third and two thirds of the height.
+- **Light moves on a turning back.** A soft band crosses it as it turns about 20
+  degrees toward the key light (high left, where the shadows fall from); square
+  to the lens or resting on an edge it is gone, so a still phone is unchanged.
+- `node scripts/motion_phone_check.mjs` measures the blur of every entrance,
+  flat and turned, and the shadow's steps, and exits 1 past either bar; run it
+  and audit_phone_views.py after a change to how the phones are drawn or move.

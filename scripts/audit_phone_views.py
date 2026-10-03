@@ -12,6 +12,8 @@ the engine turns them (motion/phones). Every check is MEASURED off the pixels:
   grain     softness in the band the set shares
   design    what the engine draws for the model: notch or Dynamic Island, mute
             switch or Action button, Camera Control (read from engine.js)
+  button    where the back shows the side button standing proud of the rail, the
+            engine draws it there too (a turned phone otherwise shows two)
 
 Lighting is NOT scored: studio light, glass panels and reflections swamp any
 left/right measure (tried; it failed Apple's own flat shots). Judge light by eye
@@ -80,6 +82,22 @@ def lenses(a, alpha):
     return out
 
 
+def side_button(alpha):
+    """The side button where it stands proud of the rail on the photo's left edge
+    (the phone's right side, seen from the back): rows whose silhouette runs past
+    the straight edge, as a share of the height, or None where the back shows none."""
+    a = alpha.astype(float)
+    h = a.shape[0]
+    edge = a[:, :14].sum(1) / 255
+    out = edge - np.median(edge[int(h * .15):int(h * .85)])
+    out[:int(h * .12)] = 0
+    out[int(h * .88):] = 0
+    rows = np.where(out >= .6)[0]
+    if len(rows) < 8:
+        return None
+    return rows.min() / h, (rows.max() + 1) / h
+
+
 def sharp(a, alpha):
     g = luma(a.astype(float))
     lap = np.abs(4 * g[1:-1, 1:-1] - g[:-2, 1:-1] - g[2:, 1:-1] - g[1:-1, :-2] - g[1:-1, 2:])
@@ -120,7 +138,10 @@ def main():
         g = sharp(a, alpha)
         if not 1.4 <= g <= 3.4: bad.append("grain")
         d = des.get(p["model"])
-        dtxt = "?" if not d else f"{'notch' if d['notch'] else 'island'}, {d['left'] or '-'}{', camera control' if d['camCtrl'] else ''}"
+        btn = side_button(alpha)
+        if btn and d and max(abs(btn[0] - d["controls"]["power"][0]), abs(btn[1] - d["controls"]["power"][1])) > .01:
+            bad.append("button")
+        dtxt = "?" if not d else f"{'notch' if d['notch'] else 'island'}, {d['left'] or '-'}{', camera control' if d['camCtrl'] else ''}, depth {d['depth']:.3f}"
         lt = " ".join(f"{r:.2f}" for r in ls) or "-"
         fails += bool(bad)
         print(f"{p['id']:26} {'ok' if size_ok else 'BAD':9} {shape:+5.1f}% {max(vs, hs):7.4f} {lt:26} {g:5.1f}  {dtxt}"

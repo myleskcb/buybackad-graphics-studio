@@ -387,20 +387,43 @@ export class Glare {
 
 /** What the model really has, read off its name: a notch (14, 14 Plus, 16e,
  *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older) or the
- *  Action button (15 on); Camera Control (16 on, not the e models). A phone we
- *  cannot place (an upload) gets the island and only volume and power. */
+ *  Action button (15 on); Camera Control (16 on, not the e models); how deep the
+ *  body is for its width, and where its edge controls sit. A phone we cannot
+ *  place (an upload) gets the island, only volume and power, and the usual depth. */
 export function designOf(model) {
   const m = /iPhone (\d+)(e)?(?: (Pro Max|Pro|Plus))?/.exec(model || "");
-  if (!m) return { notch: false, left: null, camCtrl: false };
+  if (!m) return { notch: false, left: null, camCtrl: false, depth: THICKNESS, controls: CONTROLS };
   const gen = +m[1], e = !!m[2], pro = /Pro/.test(m[3] || "");
-  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 ? "mute" : "action", camCtrl: gen >= 16 && !e };
+  const name = `iPhone ${gen}${e ? "e" : ""}${m[3] ? " " + m[3] : ""}`, body = BODY[name];
+  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 ? "mute" : "action", camCtrl: gen >= 16 && !e,
+    depth: body ? body[1] / body[0] : THICKNESS, controls: { ...CONTROLS, ...MEASURED_CONTROLS[name] } };
 }
+
+// Apple's published width and depth of each body in mm (the depth without the
+// camera), so a Pro Max turns a thinner edge than a Pro and a 17 Pro a deeper one
+// than a 16 Pro. The 18 Pro is drawn on the 17 Pro's body, as the phone audit's
+// SPEC has it.
+const BODY = {
+  "iPhone 14": [71.5, 7.80], "iPhone 14 Plus": [78.1, 7.80], "iPhone 14 Pro": [71.5, 7.85], "iPhone 14 Pro Max": [77.6, 7.85],
+  "iPhone 15": [71.6, 7.80], "iPhone 15 Plus": [77.8, 7.80], "iPhone 15 Pro": [70.6, 8.25], "iPhone 15 Pro Max": [76.7, 8.25],
+  "iPhone 16": [71.6, 7.80], "iPhone 16 Plus": [77.8, 7.80], "iPhone 16 Pro": [71.5, 8.25], "iPhone 16 Pro Max": [77.6, 8.25],
+  "iPhone 16e": [71.5, 7.80], "iPhone 17": [71.5, 7.95], "iPhone 17e": [71.5, 7.80],
+  "iPhone 17 Pro": [71.9, 8.75], "iPhone 17 Pro Max": [78.0, 8.75], "iPhone 18 Pro": [71.9, 8.75], "iPhone 18 Pro Max": [78.0, 8.75],
+};
 
 // Where the edge controls sit, as a share of the height from the top (Apple's
 // dimension drawings). Left and right are as you look at the screen.
 const CONTROLS = { mute: [.183, .213], action: [.176, .216], volUp: [.256, .33], volDown: [.352, .426], power: [.27, .405], camCtrl: [.565, .64] };
+// ...except where a factory back shows the control itself, standing proud of the
+// rail, and it sits elsewhere: then it is drawn where the photograph has it, or a
+// turned phone shows two side buttons. The 17 and 18 Pro's side button is 46.8 to
+// 64.4 mm from the top on both sizes (scripts/audit_phone_views.py measures it).
+const MEASURED_CONTROLS = {
+  "iPhone 17 Pro": { power: [.311, .429] }, "iPhone 17 Pro Max": { power: [.287, .394] },
+  "iPhone 18 Pro": { power: [.312, .429] }, "iPhone 18 Pro Max": { power: [.287, .393] },
+};
 
-// A turned phone is drawn as what it is: a rounded slab THICKNESS deep, turned
+// A turned phone is drawn as what it is: a rounded slab as deep as its model, turned
 // about its long axis and seen through a lens a few phone-heights away, the way
 // a product shot is lit and framed. The near edge stands a little taller than
 // the far one, the side is a solid band that wraps the corners, and the face
@@ -422,7 +445,7 @@ function poly(ctx, pts) {
 }
 
 function drawSlab(ctx, p, w, h, flip, face) {
-  const c = Math.cos(flip), s = Math.sin(flip), T = THICKNESS * w, D = (p.lens || LENS) * h, R = CORNER * w;
+  const c = Math.cos(flip), s = Math.sin(flip), T = (p.design.depth || THICKNESS) * w, D = (p.lens || LENS) * h, R = CORNER * w;
   // local x runs to the screen's right, zl out of the screen; sin > 0 brings the
   // screen's right-hand edge (power) toward the lens, sin < 0 its left (volume)
   const P = (x, y, zl) => { const X = x * c - zl * s, f = D / (D - (x * s + zl * c)); return [X * f, y * f]; };
@@ -440,7 +463,7 @@ function drawSlab(ctx, p, w, h, flip, face) {
   const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
   const keys = s > 0 ? ["power", ...(d.camCtrl ? ["camCtrl"] : [])] : [...(d.left ? [d.left] : []), "volUp", "volDown"];
   for (const key of keys) {
-    const [a0, b0] = CONTROLS[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
+    const [a0, b0] = (d.controls || CONTROLS)[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
     poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
     // Camera Control sits flush in the rail, filled in the body's colour with a fine
     // seam round it: drawn dark it read as an empty SIM-tray slot
@@ -468,7 +491,25 @@ function drawSlab(ctx, p, w, h, flip, face) {
   const g = ctx.createLinearGradient(P(ns * w / 2, 0, seen)[0], 0, P(-ns * w / 2, 0, seen)[0], 0);
   g.addColorStop(0, `rgba(255,255,255,${.07 * k})`); g.addColorStop(.35, "rgba(0,0,0,0)"); g.addColorStop(1, `rgba(0,0,0,${.3 * k})`);
   poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill();
+  // a turning back catches the key light (high on the left, where the shadows fall
+  // from): a soft band crosses it, left to right, as its face turns about 20 degrees
+  // toward the light. Square to the lens or resting on an edge it is gone, so a still
+  // phone looks as it did and only a moving one shows it.
+  if (c < 0) {
+    const phi = Math.atan2(-s, -c), uc = .5 + (phi - SHEEN_AT) * 6, a = .13 * clamp(Math.abs(c) * 3);
+    if (a > .004 && uc > -.6 && uc < 1.6) {
+      const xL = Math.min(near, far), xR = Math.max(near, far), xc = lerp(xL, xR, uc), sd = (xR - xL) * .22;
+      const g2 = ctx.createLinearGradient(xc - 2.5 * sd, 0, xc + 2.5 * sd, 0);
+      [[0, 0], [.25, .46], [.5, 1], [.75, .46], [1, 0]].forEach(([u, v]) => g2.addColorStop(u, `rgba(255,255,255,${a * v})`));
+      poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g2; ctx.fill();
+    }
+  }
 }
+const BLUR_STEP = 3;                               // px a phone corner may move between two moments of one frame (export)
+/** How an exported video's frames are drawn: 8 moments of the shutter while phones fly, 4
+ *  while they turn over, up to 24 where they move fast enough to need them (Ad._subsFor). */
+export const EXPORT_QUALITY = { subsFly: 8, subsMove: 4, maxSubs: 24 };
+const SHEEN_AT = .35;                              // radians a back turns toward the key light before it catches it full on
 
 /** The screen side, switched off: the band, a black border, OLED glass and the
  *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred. */
@@ -543,15 +584,20 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
   const c = Math.cos(flip), ac = Math.abs(c), front = c >= 0;
   const w = p.w * scale, h = p.h * scale;
   const zz = clamp(z, 0, 1);
-  // shadow: tight when it lies flat, big and soft in the air
-  const si = zz < .33 ? 0 : zz < .66 ? 1 : 2, sh = p.shadows[si];
+  // shadow: tight when it lies flat, big and soft in the air. It softens with the
+  // height, blended between the two nearest blurs (picking one jumped at a third and
+  // two thirds of the way up), and is as wide as the turned body, its edge included.
   if (!noShadow) {                                  // a reflection casts none
+    const f = zz * 2, i0 = Math.min(1, Math.floor(f)), k = f - i0, a = op * .42 * (1 - .55 * zz);
+    const a0 = a * (1 - k), a1 = k > 0 ? (a - a0) / (1 - a0) : 0;   // the two together as dark as one
     ctx.save();
-    ctx.globalAlpha = op * .42 * (1 - .55 * zz);
     ctx.translate(x + W * (.006 + .03 * zz), y + W * (.010 + .045 * zz));
     ctx.rotate(-rot * Math.PI / 180);
-    ctx.scale(scale * Math.max(ac, .12), scale);
-    ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
+    ctx.scale(scale * Math.max(ac + (p.design.depth || THICKNESS) * Math.abs(Math.sin(flip)), .02), scale);
+    for (const [sh, al] of [[p.shadows[i0], a0], [p.shadows[i0 + 1], a1]]) {
+      if (al <= .001) continue;
+      ctx.globalAlpha = al; ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
+    }
     ctx.restore();
   }
 
@@ -2559,10 +2605,41 @@ export class Ad {
     target.drawImage(c, 0, 0, cw, ch, x - half, yb, cw, ch);
   }
 
-  _phonesLayer(t, dt, quality) {
-    if (this.still && !this.liveGround && !this.livePhones) return this.still;
+  /** How far, in pixels, the furthest-travelling corner of any phone moves while one
+   *  frame's shutter is open (the slab's turn counts: an edge sweeping across the face). */
+  _shutterTravel(t, dt) {
+    const span = dt * .55, n = 8;
+    let most = 0;
+    for (const p of this.phones) {
+      let prev = null, d = 0;
+      for (let k = 0; k <= n; k++) {
+        const s = phoneState(p, t + (k / n - .5) * span, this.st);
+        if (!s) { prev = null; continue; }
+        const [x, y, sc, rot, flip] = s, hw = p.w * sc / 2 * Math.cos(flip), hh = p.h * sc / 2;
+        const a = -rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+        const pts = [[hw, hh], [-hw, hh], [hw, -hh], [-hw, -hh]].map(([u, v]) => [x + u * ca - v * sa, y + u * sa + v * ca]);
+        if (prev) d += Math.max(...pts.map((q, i) => Math.hypot(q[0] - prev[i][0], q[1] - prev[i][1])));
+        prev = pts;
+      }
+      most = Math.max(most, d);
+    }
+    return most;
+  }
+
+  /** How many moments of the shutter one frame's phones are drawn at. An export takes as
+   *  many as the motion needs for no corner to jump more than BLUR_STEP px between two of
+   *  them: a fixed 8 left a fast spin as a fan of separate copies, on frame 0 too, which is
+   *  the thumbnail. The preview keeps its fixed few, to play live. */
+  _subsFor(t, dt, quality) {
     const flying = t < this.tl.landed + .02, moving = t < this.tl.revealEnd + .05;
     const subs = flying ? quality.subsFly : moving ? quality.subsMove : 1;
+    if (subs <= 1 || !(quality.maxSubs > subs)) return subs;
+    return Math.min(quality.maxSubs, Math.max(subs, Math.ceil(this._shutterTravel(t, dt) / BLUR_STEP) + 1));
+  }
+
+  _phonesLayer(t, dt, quality) {
+    if (this.still && !this.liveGround && !this.livePhones) return this.still;
+    const subs = this._subsFor(t, dt, quality);
     const ax = this.acc.getContext("2d"), tx = this.tmp.getContext("2d");
     for (let s = 0; s < subs; s++) {
       const ts = subs > 1 ? t + (s / (subs - 1) - .5) * dt * .55 : t;
@@ -2758,7 +2835,7 @@ export class Ad {
     }
   }
 
-  frame(ctx, t, quality = { subsFly: 8, subsMove: 4 }, dt = 1 / 30) {
+  frame(ctx, t, quality = EXPORT_QUALITY, dt = 1 / 30) {
     const st = this.st, W = this.W, H = this.H, tl = this.tl;
     const base = this._phonesLayer(t, dt, quality);
     const [z, px, py, rotDeg] = this._camera(t);

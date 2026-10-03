@@ -2487,3 +2487,60 @@ RESUME HERE:
      lacks the guides and the lock.
   1. The designer audit's standing failures on `main`: sell_iphone and
      gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-03 — the video maker's phones: the model's body, real blur, steady shadows
+
+(claude/great-johnson-v8ppp6, not yet on `main`: this session may push only
+its own branch.)
+
+The owner, with a screenshot of three turned 17 and 18 Pros from a video:
+"they look like sim tray devices missing the sim tray so it's got a hole...
+audit small detail and fix fill in body color". Then: "make sure we have even
+better movements, accuracy, and realism".
+
+Found (each measured, motion/views-sheet.html and the engine in a headless
+browser):
+  - The hole was Camera Control, drawn #1c1d21 on the rail: 2.2 to 5.1 times
+    darker than the rail beside it on every turned 16-and-later phone.
+  - The 17 and 18 Pro backs show the side button proud of the rail at 0.311
+    to 0.429 of the height (0.287 to 0.394 on the Max): the same 46.8 to 64.4
+    mm from the top on both sizes. The engine drew it at 0.27 to 0.405, so a
+    turned phone showed two buttons. No other back shows a button that can be
+    trusted (the non-Pro stripes sit at one share of the height on both
+    sides and both sizes).
+  - Every model's edge was 0.115 of its width deep; Apple's depths run from
+    0.100 (Plus) to 0.122 (17 Pro). Corners are right: every back's radius is
+    within 5% of the engine's 0.165.
+  - Motion blur took a fixed 8 moments: at 1080 a fast spin's corners jumped
+    7 to 39 px between them, and frame 0 showed a fan of copies.
+  - The shadow picked one of three blurs by height and jumped 22 times its
+    usual step at a third and two thirds of the way up.
+  - Movement curves themselves are smooth: no entrance or pose changes speed
+    by more than 26 px a frame within an eighth of a frame, but for the
+    bounces of drop and rain, which are meant.
+
+Did: DESIGN-LAW rule 108. Camera Control flush in the body's colour; `BODY`
+(Apple's width and depth per model) and `MEASURED_CONTROLS` in designOf;
+`Ad._subsFor` and `EXPORT_QUALITY` (8 to 24 moments, 3 px apart at most); the
+shadow blended between blurs and as wide as the turned body; a soft band of
+light across a turning back, gone at rest. audit_phone_views.py prints each
+model's depth and fails a drawn button the back disagrees with;
+scripts/motion_phone_check.mjs measures blur and shadow.
+
+Checked: motion_phone_check.mjs, all 46 entrance and pose pairs and four
+shadows pass (worst copy 0.48 px, fixed 8 measured up to 4.9; shadow 3.3
+against 22). audit_phone_views.py: 56 of 59, the same three 16-white-as-*
+shape fails as before. The attention audit (audit-sweep.html, 24 looks, seed
+101) gives the same scores and pass rates before and after; contrast moves in
+the fourth decimal. A 6 s export draws in 1.2 to 1.8 times the time (headless,
+no GPU: 10.6 s to 18.1 s for fly_spin). Views sheet, old engine against new:
+only the edge depths, the turned shadows and the 17/18 Pro button change.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main`, then deploy `main`
+     (OPEN-ITEMS §Z 0).
+  1. A turned 17 or 18 Pro's camera plateau is drawn flat on the back; it
+     stands proud of the body. Its height needs a source (a side photograph
+     or Apple's drawing) before it is drawn.
+  2. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
