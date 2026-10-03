@@ -79,7 +79,7 @@ const ONLYQ = process.env.Q ? process.env.Q.toLowerCase().split(',') : null;
 const OK = /CC0|Public domain|CC BY( |-)?(SA )?\d|CC-BY|CC BY-SA|Attribution/i;
 const BAD = /NC|ND|GFDL only|Fair use|copyright/i;
 /* a maker's press photograph is not a photograph of a car someone sells us */
-const PRESS = /\bpress(e|foto)?\b|pressefoto|newsroom|media kit|official photo/i;
+const PRESS = /\bpress(e|foto)?\b|pressefoto|newsroom|media kit|official photo|courtesy of|photo by (rivian|tesla|ford|toyota|honda|gm|chevrolet|bmw|mercedes|porsche|lucid|hyundai|kia|nissan|stellantis|jeep|ram|audi|volkswagen|lexus|cadillac)/i;
 const tfetch = (u, ms, opts) => { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return fetch(u, Object.assign({ signal: c.signal, headers: UA }, opts || {})).finally(() => clearTimeout(t)); };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 /* upload.wikimedia.org answers 403 or 429 to thumbnails asked for too fast:
