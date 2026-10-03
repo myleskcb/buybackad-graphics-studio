@@ -378,7 +378,7 @@ export const OPTIONS = {
   shake: [0, 1, 2],
   sound_kit: ["house", "trap", "boombap", "minimal", "lofi", "edm", "afrobeat", "funk", "drumline",
     "reggaeton", "jersey_club", "drill", "phonk", "baile_funk", "amapiano", "cumbia", "disco", "uk_garage", "swing", "epic", "march", "bossa",
-    "pop", "rnb", "motown", "gospel", "classical", "none"],
+    "pop", "rnb", "motown", "gospel", "classical", "synthwave", "gfunk", "future_bass", "deep_house", "trance", "nu_disco", "none"],
   hit: ["impact", "riser", "glitch", "cymbal", "bass_drop", "clap_stack", "gong", "timpani", "whip", "anvil", "crash", "swell", "orchestra"],
   number_sfx: ["pop", "register", "ticks", "coin", "chime", "whoosh_ding", "shave_haircut", "cash_counter", "text_ding", "phone_buzz",
     "bells", "triangle", "glock_run", "harp_gliss", "whistle"],
@@ -387,7 +387,8 @@ export const OPTIONS = {
     "turkish_march", "eine_kleine", "greensleeves", "morning_mood", "bumblebee", "carol_bells", "entertainer", "canon",
     "prelude_c", "minuet_g", "mozart40", "spring", "moonlight", "gymnopedie", "oh_susanna",
     "jingle_bells", "joy_to_world", "we_wish", "dies_irae", "funeral_march"],
-  lead: ["piano", "epiano", "vibes", "marimba", "xylophone", "glock", "organ", "harpsichord", "sax", "harp", "kalimba", "synth"],
+  lead: ["piano", "epiano", "vibes", "marimba", "xylophone", "glock", "organ", "harpsichord", "sax", "harp", "kalimba", "synth",
+    "supersaw", "synth_pluck", "synth_brass", "fm_bell", "gfunk_lead"],
   // a sound over the opening hook
   accent: ["none", "air_horn", "siren", "whistle", "gong", "windchimes", "bell_tree", "vibraslap", "sleigh_bells"],
   // a holiday ad: its tunes play only here (never picked by a shuffle; chosen by hand)
@@ -427,8 +428,9 @@ export const WEIGHTS = {
   // fewer bleeps: the sounds that read as a video game are rare, real instruments common
   number_sfx: { coin: .2 },
   hit: { glitch: .25 },
-  lead: { synth: .3, xylophone: .6, glock: .6, kalimba: .8, piano: 1.6, epiano: 1.3 },
-  sound_kit: { edm: .6, minimal: .6, pop: 2, motown: 2, classical: 1.5, rnb: 1.5, gospel: 1.2 },
+  lead: { synth: 1.2, xylophone: .6, glock: .6, kalimba: .8, piano: 1.6, epiano: 1.3, supersaw: 1, synth_pluck: 1, synth_brass: .8, fm_bell: .8, gfunk_lead: 1 },
+  sound_kit: { edm: .6, minimal: .6, pop: 2, motown: 2, classical: 1.5, rnb: 1.5, gospel: 1.2,
+    synthwave: 1.6, gfunk: 1.6, future_bass: 1.4, deep_house: 1.4, trance: 1.2, nu_disco: 1.4 },
 };
 
 // The sound options added after the first looks were made. They are drawn from a
@@ -449,12 +451,14 @@ export const CLASSICAL_TUNES = ["prelude_c", "minuet_g", "mozart40", "spring", "
 // The tempo each newer groove is played at (the older ones take any).
 export const KIT_BPM = { reggaeton: [88, 100], jersey_club: [136, 144], drill: [138, 146], phonk: [124, 136], baile_funk: [126, 132],
   amapiano: [110, 115], cumbia: [90, 100], disco: [116, 124], uk_garage: [130, 134], swing: [140, 168], epic: [88, 108], march: [112, 126], bossa: [120, 136],
-  pop: [100, 122], rnb: [68, 80], motown: [100, 120], gospel: [88, 104], classical: [72, 100] };
+  pop: [100, 122], rnb: [68, 80], motown: [100, 120], gospel: [88, 104], classical: [72, 100],
+  synthwave: [100, 118], gfunk: [88, 98], future_bass: [140, 152], deep_house: [118, 124], trance: [134, 140], nu_disco: [112, 122] };
 
 export const SOUND_NAMES = {
   sound_kit: { boombap: "Boom bap", edm: "EDM", lofi: "Lo-fi", jersey_club: "Jersey club", baile_funk: "Baile funk", uk_garage: "UK garage",
     swing: "Swing jazz", epic: "Epic drums", march: "March / circus", bossa: "Bossa nova", rnb: "R&B slow jam", motown: "Motown soul",
-    classical: "Classical (no drums)", none: "No music" },
+    classical: "Classical (no drums)", synthwave: "Synthwave (80s)", gfunk: "G-funk (West Coast)", future_bass: "Future bass",
+    deep_house: "Deep house", nu_disco: "Nu-disco", none: "No music" },
   hit: { swell: "Cymbal swell", orchestra: "Orchestra hit", bass_drop: "Bass drop", clap_stack: "Clap stack" },
   number_sfx: { shave_haircut: "Shave and a haircut", cash_counter: "Bill counter", text_ding: "Message ding", phone_buzz: "Phone buzz",
     bells: "Tubular bell", glock_run: "Glockenspiel run", harp_gliss: "Harp sweep", whistle: "Referee whistle", whoosh_ding: "Whoosh and ding" },
@@ -467,7 +471,8 @@ export const SOUND_NAMES = {
     moonlight: "Moonlight Sonata (Beethoven)", gymnopedie: "Gymnopédie No. 1 (Satie)", oh_susanna: "Oh! Susanna (Foster)",
     jingle_bells: "Jingle Bells (Christmas)", joy_to_world: "Joy to the World (Christmas)", we_wish: "We Wish You a Merry Christmas",
     toccata: "Toccata in D minor, Bach (Halloween)", dies_irae: "Dies Irae (Halloween)", funeral_march: "Funeral March, Chopin (Halloween)" },
-  lead: { epiano: "Electric piano", vibes: "Vibraphone", glock: "Glockenspiel", sax: "Tenor sax", synth: "Synth lead" },
+  lead: { epiano: "Electric piano", vibes: "Vibraphone", glock: "Glockenspiel", sax: "Tenor sax", synth: "Warm synth lead", supersaw: "Supersaw", synth_pluck: "Synth pluck",
+    synth_brass: "Synth brass", fm_bell: "FM bell", gfunk_lead: "G-funk whistle lead" },
   accent: { none: "None", air_horn: "Air horn", whistle: "Referee whistle", windchimes: "Wind chimes", bell_tree: "Bell tree", sleigh_bells: "Sleigh bells" },
   season: { none: "None", christmas: "Christmas", halloween: "Halloween" },
 };

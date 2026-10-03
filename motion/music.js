@@ -73,6 +73,23 @@ export const LEADS = {
   kalimba: { center: 76, gain: .95, ring: .3 },
   bells: { center: 70, gain: .7, ring: .8 },
   synth: { center: 74 },
+  supersaw: { center: 74 }, synth_pluck: { center: 76 }, synth_brass: { center: 70 }, fm_bell: { center: 79 }, gfunk_lead: { center: 81 }, pad: { center: 66 },
+};
+
+// ------------------------------------------------------------ synthesisers (made here, nothing sampled)
+
+// osc: [waveform, detune in cents, level]; cut: the filter's [start, end] in Hz over cutTime;
+// fm: [ratio, index, decay] for a bell; glide: seconds to slide from the last note;
+// vib: [rate Hz, depth as a fraction of the pitch, delay]; level evens them with the sampled instruments
+export const SYNTHS = {
+  supersaw: { osc: [["sawtooth", -24, .2], ["sawtooth", -14, .2], ["sawtooth", -6, .2], ["sawtooth", 0, .2], ["sawtooth", 6, .2], ["sawtooth", 14, .2], ["sawtooth", 24, .2]],
+    attack: .012, release: .25, cut: [5200, 3600], cutTime: .4, q: .6, level: .485 },
+  synth_pluck: { osc: [["sawtooth", 0, .6], ["square", 6, .25]], attack: .003, release: .12, cut: [6500, 420], cutTime: .22, q: 2, level: .55 },
+  synth_brass: { osc: [["sawtooth", 0, .5], ["sawtooth", -7, .5]], attack: .035, release: .14, cut: [700, 2600], cutTime: .09, q: 1.2, level: .36 },
+  fm_bell: { osc: [["sine", 0, 1]], fm: [3.5, 2.6, .7], attack: .002, release: .7, cut: [9000, 9000], level: .137 },
+  gfunk_lead: { osc: [["sine", 0, .75], ["triangle", 0, .25]], attack: .025, release: .12, glide: .07, vib: [5.6, .011, .14], cut: [4200, 4200], level: .165 },
+  pad: { osc: [["sawtooth", -9, .34], ["sawtooth", 9, .34], ["sawtooth", 0, .34]], attack: .14, release: .45, cut: [900, 1500], cutTime: .6, q: .5, level: .5 },
+  synth_bass: { osc: [["sawtooth", 0, .55], ["square", -5, .35]], attack: .004, release: .08, cut: [1200, 380], cutTime: .12, q: 3, glide: .05, level: .8 },
 };
 
 // ------------------------------------------------------------ the tunes
@@ -240,6 +257,12 @@ export const KITS = {
   motown: { prog: "major", keys: ["piano", "vibes"] },
   gospel: { prog: "major", keys: ["organ"] },
   classical: { prog: "major", keys: ["piano", "harp", "harpsichord"] },
+  synthwave: { prog: "minor", keys: ["pad"] },
+  gfunk: { prog: "lush", keys: ["epiano", "pad"] },
+  future_bass: { prog: "major", keys: ["supersaw"] },
+  deep_house: { prog: "lush", keys: ["synth_pluck", "epiano", "organ"] },
+  trance: { prog: "minor", keys: ["supersaw", "pad"] },
+  nu_disco: { prog: "minor", keys: ["synth_brass", "synth_pluck"] },
 };
 
 /** The key, chords and tune of one look, laid on its beat grid. */
@@ -294,12 +317,13 @@ export function playTune(S, dest, A, st, total) {
   const tonic = [t0, t0 - 12, t0 + 12].reduce((a, c) => fits(c) < fits(a) ? c : a);
   const step = A.k * A.b, L0 = A.len * step;
   for (let rep = 0; A.t0 + rep * L0 < total; rep++) {
-    let x = A.t0 + rep * L0, beat = 0;
+    let x = A.t0 + rep * L0, beat = 0, prev = null;
     for (const [n, d] of T.notes) {
       if (n != null && x >= 0 && x < total - .05) {
         const down = Math.abs(beat - Math.round(beat)) < 1e-6 && Math.round(beat) % 2 === 0;
         const g = down ? .95 : .78;                   // the tune leads: it sits over the groove, not in it
-        if (inst === "synth") [0, 7].forEach(c => S.pluck(dest, x, mtof(tonic + n) * 2 ** (c / 1200), Math.max(.15, d * step), g * .35, "sawtooth", 1800));   // a warm two-oscillator lead
+        if (SYNTHS[inst]) { S.note(dest, x, inst, tonic + n, d * step * .95, g, .08, prev); prev = mtof(tonic + n); }
+        else if (inst === "synth") [0, 7].forEach(c => S.pluck(dest, x, mtof(tonic + n) * 2 ** (c / 1200), Math.max(.15, d * step), g * .44, "sawtooth", 1800));   // a warm two-oscillator lead
         else S.note(dest, x, inst, tonic + n, d * step * .95, g, .08);
       }
       x += d * step; beat += d;
@@ -460,6 +484,58 @@ export function groove(S, dest, kit, A, start, total) {
           if (i === 4 || i === 12) { S.hit(dest, t, "clap", .4); S.hit(dest, t, "clap2", .3, .3); S.hit(dest, t, "tamb", .25, -.25); }
           if (i === 0) stab(t, b * 3.9, .1, 62);
           if (i === 0 || i === 8) S.pluck(dest, t, bass(t), b * 1.8, .45, "sine", 500);
+          break;
+        case "synthwave": {                               // the 80s: gated snare, a running octave bass, a wide pad
+          if (i === 0 || i === 8) S.kick(dest, t, .85);
+          if (i === 4 || i === 12) { S.hit(dest, t, "snare", .45); S.snare(dest, t, .3); S.hit(dest, t, "clap", .2, .2); }
+          if (i % 2 === 0) S.hat(dest, t, .09, false, .25);
+          if (i % 2 === 0) { const m = bassNote(keyPc, A.chordAt(t + 1e-4)) + 12 + (i % 4 ? 12 : 0); S.note(dest, t, "synth_bass", m, s16 * 1.6, .3); }
+          if (i === 0) stab(t, b * 3.9, .2, 62);
+          break;
+        }
+        case "gfunk": {                                   // West Coast: a slow bounce, a fat bass that slides, a high whine
+          const sw = i % 2 ? s16 * .25 : 0;
+          if (on("x......x..x.....", i)) S.kick(dest, t, .8);
+          if (i === 4 || i === 12) { S.hit(dest, t, "clap", .45); S.hit(dest, t, "snare", .25); }
+          S.hat(dest, t + sw, i % 2 ? .05 : .1, false, .2);
+          if (on("x......x..x...x.", i)) { const m = bassNote(keyPc, A.chordAt(t + 1e-4)) + (i === 14 ? 7 : 0); S.note(dest, t, "synth_bass", m, s16 * (i === 0 ? 5 : 2.5), .38); }
+          if (i === 0) stab(t, b * 3.9, .15, 64);
+          if (!A.tune && i === 0 && bar % 2 === 0) {     // the whistle line, when no tune is leading
+            const c = chordTones(t, 84); let prev = null;
+            [[c[2] ?? c[0], 1.5], [c[1], .5], [c[0], 2]].reduce((x, [m, d]) => { S.note(dest, x, "gfunk_lead", m, d * b * .95, .3, .25, prev); prev = mtof(m); return x + d * b; }, t);
+          }
+          break;
+        }
+        case "future_bass": {                             // half-time drums, big supersaw chords that pump
+          if (i === 0 || (B && i === 10)) S.kick(dest, t, .85);
+          if (i === 8) { S.hit(dest, t, "snare", .45); S.hit(dest, t, "clap", .4); }
+          if (i % 2 === 0) S.hat(dest, t, .08, false, .25);
+          if (i === 0) S.bass808(dest, t, bass(t), b * 3.6, .55);
+          if (on("x.x.x.x.x..x..x.", i)) stab(t + .02, s16 * 1.4, i % 4 ? .1 : .14, 66);
+          break;
+        }
+        case "deep_house":
+          if (beat) S.kick(dest, t, .85);
+          if (on("..x...x...x...x.", i)) S.hit(dest, t, "hat_open", .22, .2);
+          if (i === 4 || i === 12) S.hit(dest, t, "clap", .35);
+          S.hit(dest, t, i % 2 ? "shaker_up" : "shaker", .1, -.3);
+          if (on("...x..x....x..x.", i)) stab(t, s16 * 2, .15, 64);
+          if (on("..x.....x.x.....", i)) S.note(dest, t, "synth_bass", bassNote(keyPc, A.chordAt(t + 1e-4)) + 12, s16 * 1.8, .3);
+          break;
+        case "trance":
+          if (beat) S.kick(dest, t, .9);
+          if (on("..x...x...x...x.", i)) { S.note(dest, t, "synth_bass", bassNote(keyPc, A.chordAt(t + 1e-4)) + 12, s16 * 1.5, .32); S.hat(dest, t, .14, true, .2); }
+          if (i === 4 || i === 12) S.hit(dest, t, "clap", .3);
+          if (i % 2 === 1) S.hat(dest, t, .05);
+          if (i % 2 === 0) stab(t, s16 * 1.3, .09, 67);    // a gated chord, every eighth
+          break;
+        case "nu_disco":
+          if (beat) S.kick(dest, t, .85);
+          if (i === 4 || i === 12) { S.hit(dest, t, "clap", .35); S.hit(dest, t, "snare", .2); }
+          if (on("..x...x...x...x.", i)) S.hit(dest, t, "hat_open", .2, .2);
+          if (i % 2 === 0) { const m = bassNote(keyPc, A.chordAt(t + 1e-4)) + 12 + (i % 4 ? 12 : 0); S.note(dest, t, "synth_bass", m, s16 * 1.5, .32); }
+          if (on("..x..x....x..x..", i)) stab(t, s16 * 1.5, .14, 66);
+          if (i % 4 === 2) S.hit(dest, t, "tamb", .12, -.3);
           break;
         case "classical": {                               // no drums: a broken-chord accompaniment
           const c = chordTones(t, 52), pat = [0, 2, 1, 2];

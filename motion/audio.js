@@ -3,7 +3,7 @@
 // played with the preview or encoded into the video.
 
 import { rng, clamp } from "./engine.js";
-import { soundManifest, sampleBuffer, sampler, arrange, playTune, groove, KITS, SHAVE, LEADS, mtof } from "./music.js";
+import { soundManifest, sampleBuffer, sampler, arrange, playTune, groove, KITS, SHAVE, LEADS, SYNTHS, mtof } from "./music.js";
 
 const SR = 44100;
 // Times before the first frame (a phone already in flight at frame 0) are clamped to it:
@@ -31,6 +31,10 @@ function compose(ad, ctx, man, bufs, need) {
   const noise = noiseBuffer(ctx, 2);
   const r = rng(st.seed * 17 + 3);
   const S = Object.assign(synth(ctx, noise), sampler(ctx, man, bufs, need));
+  // a note on a synthesiser is played here; on any other instrument, from its recording
+  const recorded = S.note;
+  S.note = (dest, t, inst, m, dur, gain, pan = 0, from = null) => SYNTHS[inst]
+    ? S.voice(dest, t, mtof(m), dur, gain * (SYNTHS[inst].level ?? 1), SYNTHS[inst], pan, from) : recorded(dest, t, inst, m, dur, gain, pan);
   const hit = tl.hit;
   const b = 60 / (st.bpm || 118), start = st.hook && st.hook !== "none" ? hit - Math.ceil(hit / b) * b : hit;
   const A = arrange(st, start, hit);
@@ -285,6 +289,37 @@ function synth(ctx, noise) {
         const g = ctx.createGain(); env(g, tk, .001, gain * (.5 + .5 * Math.sin(k * .7) ** 2), .018); n.connect(bp).connect(g).connect(dest);
       }
       S.thud(dest, t + 18 * .034, 180, 120, .06, 0, gain * .6);
+    },
+    voice(dest, t, f, dur, gain, P, pan = 0, from = null) {   // one note on a synthesiser patch
+      const rel = P.release ?? .1, end = t + dur + rel;
+      if (end <= 0) return;
+      const g = ctx.createGain(), att = P.attack ?? .005;
+      g.gain.setValueAtTime(0, T(t)); g.gain.linearRampToValueAtTime(gain, T(t + att));
+      g.gain.setValueAtTime(gain, T(Math.max(t + att, t + dur))); g.gain.linearRampToValueAtTime(0, T(end));
+      const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.Q.value = P.q ?? .7;
+      const [c0, c1] = P.cut || [4000, 4000];
+      lp.frequency.setValueAtTime(c0, T(t)); if (c1 !== c0) lp.frequency.exponentialRampToValueAtTime(c1, T(t + (P.cutTime ?? .2)));
+      const glide = from && P.glide && from !== f;
+      let vib = null;
+      if (P.vib) {                                        // a vibrato that comes in once the note has sounded
+        const [rate, depth, delay] = P.vib, lfo = osc("sine", t, dur + rel, rate);
+        vib = ctx.createGain(); vib.gain.setValueAtTime(0, T(t)); vib.gain.setValueAtTime(0, T(t + delay)); vib.gain.linearRampToValueAtTime(f * depth, T(t + delay + .15));
+        lfo.connect(vib);
+      }
+      let fmIn = null;
+      if (P.fm) {                                         // a bell: a modulator whose brightness dies away
+        const [ratio, index, decay] = P.fm, m = osc("sine", t, dur + rel, f * ratio);
+        fmIn = ctx.createGain(); fmIn.gain.setValueAtTime(f * index, T(t)); fmIn.gain.exponentialRampToValueAtTime(f * .05, T(t + decay));
+        m.connect(fmIn);
+      }
+      for (const [type, cents, lvl] of P.osc) {
+        const fo = f * 2 ** (cents / 1200), o = osc(type, t, dur + rel, glide ? from * 2 ** (cents / 1200) : fo);
+        if (glide) o.frequency.exponentialRampToValueAtTime(fo, T(t + P.glide));
+        if (vib) vib.connect(o.frequency);
+        if (fmIn) fmIn.connect(o.frequency);
+        const og = ctx.createGain(); og.gain.value = lvl; o.connect(og).connect(lp);
+      }
+      lp.connect(g); out(g, dest, pan);
     },
     tick(dest, t, gain) {
       const o = osc("sine", t, .04, 2400), g = ctx.createGain(); env(g, t, .001, gain, .03); o.connect(g).connect(dest);
