@@ -312,7 +312,9 @@ if (process.argv.includes('--write-holds')){
       : lineOf(n) + ' would not work (' + code + ')'; };
   const why = v => v.reg ? [...new Set(v.reg.map(said))].join('; ')
     : v.unthemed ? 'a plate would keep the card’s old colour' : v.left ? 'the card’s own colours would stay beside it' : v.lost ? 'a mark would vanish on what it sits on' : 'it changes nothing here';
-  const done = new Set(rows.map(r => r.card));
+  /* only a card that opened was measured: one that did not (a held card asked
+     for by id) keeps its rows rather than being written as passing everything */
+  const done = new Set(rows.filter(r => !r.err).map(r => r.card));
   /* a card that fails the gate as offered is not offered at all */
   holds.cards = holds.cards || {};
   done.forEach(c => delete holds.cards[c]);

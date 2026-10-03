@@ -3704,3 +3704,48 @@ It is not only the phone. On the same day 148 of the 331 live cards showed at
 least one sparkle where another mark was meant (265 marks under 31 names the
 table lacks: `corner` 96, `medal` 15, `cash` 14, `dollar` 14, `check` 12,
 `headset` 12, ...). OPEN-ITEMS §AC.
+
+## 109. Every mark is the one the generator drew, and stands clear of the headline
+
+Added 2026-10-03. The owner: "keep working on the style", after rule 108 and
+the list of why a card looks unfinished (OPEN-ITEMS §AC).
+
+- **The generator's marks are the studio's.** retheme_lab.mjs draws 46 marks
+  into the page it renders with (`ICONS.medal`, `ICONS.corner`, `ICONS.globe`,
+  ...) and writes their names into the records; app.js never had 44 of them,
+  and `ICONS[name] || ICONS.sparkle` drew a star for each. 265 marks on 148
+  live cards were stars. The 44 are copied into `ICONS` as the generator drew
+  them, stroke weights and all (its `pin` and `phoneMark` keep the studio's).
+  Measured after: no mark on a live card falls back; the 466 marks shown are
+  the same 466, none newly on copy or off the card.
+- **A floating mark stands 118px clear of a headline on its row**
+  (`pgFlankClear`, after `pgPhoneCue` in every colour pass). The generator
+  kept its line art that far out because "a green tick beside SELL YOUR read
+  as part of the sentence" (owner, 2026-09-03: "really?"); the layout passes
+  then moved the headlines and left the marks. On the 331 live cards of
+  2026-10-03, 123 of the 166 marks shown sat closer than 118px to a headline
+  on their row, 45 closer than 60px, 4 on it. Now 113 are moved back out to
+  118px and 10 are hidden where there was no room.
+- **A mark that reads as a character never stands beside a headline.** A
+  dollar sign or a tick on a headline's row reads as a letter of it ("$CASH
+  FOR", "SELL YOUR ✓") at any distance: hidden (25 more). `PG_GLYPH_MARKS`.
+- On all 370 live cards after: 145 floating marks shown, none within 118px
+  of a headline on its row.
+- A mark the visitor dragged in the designer stays (`pgHandHook`, shared with
+  rule 108).
+
+## 110. The selling-points strip wears the CTA's colour
+
+Added 2026-10-03. The owner, of a white strip of selling points above a blue
+call-to-action box: "the white box should be color match to blue or the CTA
+should be matched to white but either way it's lacking cohesiveness".
+
+- On the bubblePop and voltStack layouts the strip (`Info Text Panel`) was
+  drawn white whatever the CTA box (`CTA Card`) was. Where the box is
+  coloured, the strip takes the box's colour, and its words are white, as the
+  CTA's are, unless white would read under 3:1 on it (then near-black).
+- Done in the records, card by card, through the gate: 21 live cards and 7 of
+  the cards brought back with a photograph. One is left as it was:
+  voltStack-su02-30 sets its CTA line over the strip itself, and a coloured
+  strip took that line to 1.36:1.
+- A neutral CTA box keeps a neutral strip (bubblePop-jw04-20: white and white).

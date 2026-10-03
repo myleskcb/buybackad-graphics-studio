@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261002b';
+const ASSET_REV = '20261003a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -2869,6 +2869,7 @@ function buildLayer(l, tplId, dw, dh){
       strokeLineCap: 'round', strokeLineJoin: 'round',
       originX: 'left', originY: 'top', objectCaching: false
     }));
+    obj.pgIcon = ICONS[l.icon] ? l.icon : 'sparkle';
   }
   else if (l.kind === 'textbox') obj = new fabric.Textbox(txt, Object.assign({paintFirst:'stroke'}, p));
   else {
@@ -7169,6 +7170,55 @@ const ICONS = {
      back to the sparkle and a star stood beside the number (2026-10-02) */
   phoneMark: { d:'M26 12 H36 A5 5 0 0 1 41 16 L46 30 A6 6 0 0 1 44.5 36.5 L37 43 Q44 57 57 63 L63.5 55.5 A6 6 0 0 1 70 54 '
                 +'L84 59 A5 5 0 0 1 88 64 V74 A10 10 0 0 1 77 85 Q47 83 31 67 Q15 51 13 23 A10 10 0 0 1 24 12 Z' , min:28 },
+  /* the generator's marks. retheme_lab.mjs draws these into the page it
+     renders with and writes their names into the records; the studio never
+     had them, so 265 marks on 148 live cards fell back to the sparkle
+     (2026-10-03). Copied as the generator drew them, its stroke weights
+     with them. */
+  planet:     { d: 'M50 22 A28 28 0 1 0 50 78 A28 28 0 1 0 50 22 Z M8 60 C26 74 74 74 92 40 M8 60 C14 52 22 48 30 46 M92 40 C86 46 78 50 70 52', sw: 5 },
+  rocket:     { d: 'M50 6 C64 20 68 44 62 66 H38 C32 44 36 20 50 6 Z M38 56 L22 70 L30 74 L40 66 M62 56 L78 70 L70 74 L60 66 M42 66 L50 90 L58 66 M50 30 A7 7 0 1 0 50 44 A7 7 0 1 0 50 30 Z', sw: 5 },
+  moon:       { d: 'M58 10 A40 40 0 1 0 90 62 A30 30 0 0 1 58 10 Z', sw: 5 },
+  scribble:   { d: 'M10 60 C22 40 30 40 40 60 C50 80 58 80 68 60 C78 40 86 40 92 56', sw: 7 },
+  flame:      { d: 'M50 6 C62 26 78 34 74 58 C72 74 60 90 50 94 C40 90 28 74 26 58 C24 44 36 40 38 28 C44 40 54 42 50 6 Z M50 60 C56 68 58 76 50 84 C42 76 44 68 50 60 Z', sw: 5 },
+  headset:    { d: 'M22 58 V50 A28 28 0 0 1 78 50 V58 M14 58 H30 V80 H22 A8 8 0 0 1 14 72 Z M70 58 H86 V72 A8 8 0 0 1 78 80 H70 Z M78 80 C78 90 66 92 54 92', sw: 6 },
+  pushpin:    { d: 'M40 10 H60 V36 L70 48 H30 L40 36 Z M50 48 V90', sw: 6 },
+  arrowRight: { d: 'M14 50 H82 M58 26 L82 50 L58 74', sw: 9 },
+  globe:      { d: 'M50 12 A38 38 0 1 0 50 88 A38 38 0 1 0 50 12 Z M50 12 C32 30 32 70 50 88 M50 12 C68 30 68 70 50 88 M12 50 H88 M19 31 H81 M19 69 H81', sw: 6 },
+  corner:     { d: 'M12 46 V12 H46', sw: 9 },
+  pokeball:   { d: 'M50 8 A42 42 0 0 1 92 50 H64 A14 14 0 0 0 36 50 H8 A42 42 0 0 1 50 8 Z M50 92 A42 42 0 0 1 8 50 H36 A14 14 0 0 0 64 50 H92 A42 42 0 0 1 50 92 Z M50 42 A8 8 0 1 0 50 58 A8 8 0 1 0 50 42 Z', sw: 5 },
+  bolt:       { d: 'M56 6 L22 56 H46 L40 94 L78 42 H54 Z', sw: 6 },
+  dollar:     { d: 'M50 10 V90 M68 30 C68 20 32 18 32 34 C32 52 68 46 68 66 C68 82 32 80 32 70', sw: 8 },
+  coin:       { d: 'M50 12 A38 38 0 1 0 50 88 A38 38 0 1 0 50 12 Z M50 26 A24 24 0 1 0 50 74 A24 24 0 1 0 50 26 Z', sw: 6 },
+  gem:        { d: 'M20 40 L36 20 H64 L80 40 L50 84 Z M20 40 H80 M36 20 L50 40 L64 20 M50 40 V84', sw: 5 },
+  star5:      { d: 'M50 8 L61 38 L94 38 L67 57 L77 90 L50 70 L23 90 L33 57 L6 38 L39 38 Z', sw: 5 },
+  keyfob:     { d: 'M30 12 H70 A10 10 0 0 1 80 22 V78 A10 10 0 0 1 70 88 H30 A10 10 0 0 1 20 78 V22 A10 10 0 0 1 30 12 Z M50 30 A8 8 0 1 0 50 46 A8 8 0 1 0 50 30 Z M38 62 H62 M38 74 H62', sw: 5 },
+  cardSlab:   { d: 'M30 8 H70 A8 8 0 0 1 78 16 V84 A8 8 0 0 1 70 92 H30 A8 8 0 0 1 22 84 V16 A8 8 0 0 1 30 8 Z M34 22 H66 V58 H34 Z M34 70 H66', sw: 5 },
+  drop:       { d: 'M50 8 C50 8 22 44 22 62 A28 28 0 0 0 78 62 C78 44 50 8 50 8 Z', sw: 6 },
+  check:      { d: 'M18 52 L40 74 L84 28', sw: 12 },
+  car:        { d: 'M10 62 L20 42 Q24 34 34 34 H66 Q76 34 80 42 L90 62 V76 H78 A9 9 0 0 1 60 76 H40 A9 9 0 0 1 22 76 H10 Z M24 46 H76', sw: 5 },
+  truck:      { d: 'M8 30 H56 V70 H8 Z M56 44 H76 L88 58 V70 H56 Z M20 70 A8 8 0 1 0 20 86 A8 8 0 1 0 20 70 Z M74 70 A8 8 0 1 0 74 86 A8 8 0 1 0 74 70 Z', sw: 5 },
+  wheel:      { d: 'M50 8 A42 42 0 1 0 50 92 A42 42 0 1 0 50 8 Z M50 36 A14 14 0 1 0 50 64 A14 14 0 1 0 50 36 Z M11 50 H36 M64 50 H89 M50 64 V90', sw: 6 },
+  key:        { d: 'M30 30 A18 18 0 1 0 30 66 A18 18 0 1 0 30 30 Z M46 48 H90 V62 H80 V72 H70 V62 H62 V70 H54 V62 H46 Z', sw: 5 },
+  moto:       { d: 'M22 60 A12 12 0 1 0 22 84 A12 12 0 1 0 22 60 Z M78 60 A12 12 0 1 0 78 84 A12 12 0 1 0 78 60 Z M22 72 L40 44 H60 L78 72 M52 44 L44 28 H60', sw: 5 },
+  van:        { d: 'M8 34 H62 L88 52 V72 H8 Z M22 72 A8 8 0 1 0 22 88 A8 8 0 1 0 22 72 Z M74 72 A8 8 0 1 0 74 88 A8 8 0 1 0 74 72 Z M62 34 V52 H88', sw: 5 },
+  watchMark:  { d: 'M50 26 A24 24 0 1 0 50 74 A24 24 0 1 0 50 26 Z M38 8 H62 L58 26 H42 Z M38 92 H62 L58 74 H42 Z M50 38 V50 L58 56', sw: 5 },
+  ringMark:   { d: 'M50 30 A26 26 0 1 0 50 82 A26 26 0 1 0 50 30 Z M40 20 L50 8 L60 20 Z M40 20 H60 L50 30 Z', sw: 5 },
+  chain:      { d: 'M22 42 A12 12 0 0 1 34 30 H46 A12 12 0 0 1 46 54 H34 A12 12 0 0 1 22 42 Z M54 58 A12 12 0 0 1 66 46 H78 A12 12 0 0 1 78 70 H66 A12 12 0 0 1 54 58 Z', sw: 5 },
+  ingot:      { d: 'M22 34 H78 L90 66 H10 Z M30 46 H70', sw: 5 },
+  box:        { d: 'M14 34 L50 18 L86 34 V72 L50 88 L14 72 Z M14 34 L50 50 L86 34 M50 50 V88', sw: 5 },
+  shield:     { d: 'M50 8 L84 20 V50 C84 72 68 86 50 92 C32 86 16 72 16 50 V20 Z M36 50 L46 60 L66 40', sw: 5 },
+  thumbs:     { d: 'M22 46 H36 V86 H22 Z M36 50 L52 20 C60 20 62 28 58 42 H80 C88 42 88 52 84 58 L76 84 C74 86 72 86 68 86 H36', sw: 5 },
+  medal:      { d: 'M50 40 A22 22 0 1 0 50 84 A22 22 0 1 0 50 40 Z M34 8 L44 44 M66 8 L56 44 M30 8 H46 M54 8 H70', sw: 5 },
+  tag:        { d: 'M10 50 L48 12 H88 V52 L50 90 Z M72 28 A6 6 0 1 0 72 40 A6 6 0 1 0 72 28 Z', sw: 5 },
+  receipt:    { d: 'M26 8 H74 V92 L64 84 L54 92 L44 84 L34 92 L26 84 Z M36 30 H64 M36 46 H64 M36 62 H54', sw: 5 },
+  cash:       { d: 'M8 28 H92 V72 H8 Z M50 40 A10 10 0 1 0 50 60 A10 10 0 1 0 50 40 Z M18 38 H24 M76 62 H82', sw: 5 },
+  burst:      { d: 'M50 6 L58 30 L82 18 L70 42 L94 50 L70 58 L82 82 L58 70 L50 94 L42 70 L18 82 L30 58 L6 50 L30 42 L18 18 L42 30 Z', sw: 5 },
+  heart:      { d: 'M50 88 C20 66 8 50 14 32 C20 16 42 16 50 32 C58 16 80 16 86 32 C92 50 80 66 50 88 Z', sw: 5 },
+  clock:      { d: 'M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10 Z M50 26 V50 L66 60', sw: 5 },
+  flag:       { d: 'M20 92 V10 M20 14 H80 L68 34 L80 54 H20', sw: 6 },
+  battery:    { d: 'M10 30 H78 V70 H10 Z M78 42 H90 V58 H78 Z M20 40 H36 V60 H20 Z M42 40 H58 V60 H42 Z', sw: 5 },
+  handshake:  { d: 'M6 40 L30 22 L50 34 L70 22 L94 40 M30 22 L20 60 L44 80 L60 66 M70 22 L80 60 L56 80', sw: 5 },
+  vial:       { d: 'M36 8 H64 M42 8 V56 A8 8 0 1 0 58 56 V8 M42 40 H58', sw: 5 },
 };
 /* Which marks belong to which category. First entry is the category's primary
    mark — the one a layout reaches for when it wants ONE icon. */
@@ -19542,8 +19592,16 @@ function pgPlateInked(o){ return !!(o && o.pgPlateInk && o.pgPlateInk === o.fill
    inside the number's box; where the number was centred, the mark and the
    number are centred together. A mark with no room is hidden, and a mark or
    a number the visitor moved stays where they put it. */
+/* what the visitor dragged in the designer is theirs: the passes that place
+   marks (pgPhoneCue, pgFlankClear) leave an object marked pgHand where it is */
+function pgHandHook(sc){
+  if (!sc || sc.pgCueHook || typeof sc.on !== 'function') return;
+  sc.pgCueHook = true;
+  sc.on('object:modified', e => { const o = e && e.target; if (!o) return; o.pgHand = true; if (o._objects) o._objects.forEach(x => { x.pgHand = true; }); });
+}
 function pgPhoneCue(sc){
   if (typeof window !== 'undefined' && window.__pgPhoneCueOff) return 0;
+  pgHandHook(sc);
   let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
   const cue = objs.find(o => o && o.name === 'Phone Cue' && o.type === 'path');
   if (!cue || cue.visible === false) return 0;
@@ -19552,11 +19610,6 @@ function pgPhoneCue(sc){
   if (!num) return 0;
   const ink = typeof num.fill === 'string' ? num.fill : (num.fill && num.fill.colorStops && num.fill.colorStops[0] ? num.fill.colorStops[0].color : null);
   if (ink && !cue.pgUser){ cue.set('stroke', ink); cue.dirty = true; }
-  /* what the visitor dragged in the designer is theirs */
-  if (!sc.pgCueHook && typeof sc.on === 'function'){
-    sc.pgCueHook = true;
-    sc.on('object:modified', e => { const o = e && e.target; if (!o) return; o.pgHand = true; if (o._objects) o._objects.forEach(x => { x.pgHand = true; }); });
-  }
   const numFreeOf = o => !o.pgHand;
   if (cue.pgHand || Math.abs(num.angle || 0) > 0.5) return 1;
   const box = o => { o.setCoords(); const b = o.getBoundingRect(true, true); return { l: b.left, t: b.top, r: b.left + b.width, b: b.top + b.height, w: b.width, h: b.height }; };
@@ -19634,6 +19687,49 @@ function pgPhoneCue(sc){
   cue.setCoords(); cue.dirty = true;
   return 1;
 }
+/* A floating mark stands clear of the headline (rule 109). The generator put
+   its line-art marks 118px out from the hero ("a green tick beside SELL YOUR
+   read as part of the sentence", owner, 2026-09-03: "really?"), then the
+   layout passes moved the headline and left the marks: on 2026-10-03, 123 of
+   the 166 shown sat closer than that to a headline on their row, 4 on it. A
+   mark on a headline's row is moved back out to 118px, keeping its height,
+   when that keeps it on the card and off every line of copy; otherwise it is
+   hidden. A mark that reads as a character (a dollar sign, a tick) is never
+   on a headline's row at all: "CASH FOR" beside a $ reads "$CASH FOR" at any
+   distance. One the visitor dragged stays. */
+const PG_FLANK = 118, PG_GLYPH_MARKS = ['dollar', 'check'];
+function pgFlankClear(sc){
+  if (typeof window !== 'undefined' && window.__pgFlankOff) return 0;
+  pgHandHook(sc);
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const marks = objs.filter(o => o && o.type === 'path' && /^Element \d+$/.test(o.name || '') && o.visible !== false && !o.pgHand);
+  if (!marks.length) return 0;
+  const W = sc.getWidth() / (sc.getZoom ? sc.getZoom() : 1), H = sc.getHeight() / (sc.getZoom ? sc.getZoom() : 1);
+  const k = Math.min(W, H) / TPL_W, gapMin = PG_FLANK * k, edge = 24 * k;
+  const box = o => { const b = o.getBoundingRect(true, true); return { l: b.left, t: b.top, r: b.left + b.width, b: b.top + b.height, w: b.width, h: b.height }; };
+  const texts = objs.filter(o => /text/.test(o.type || '') && o.visible !== false && String(o.text || '').trim()).map(o => ({ o, b: box(o) }));
+  const heads = texts.filter(x => x.o.pgRole === 'headline');
+  const row = (a, h) => Math.min(a.b, h.b) - Math.max(a.t, h.t) >= 0.25 * Math.min(a.h, h.h);
+  const gapTo = (a, h) => a.l >= h.r ? a.l - h.r : h.l >= a.r ? h.l - a.r : -1;
+  let n = 0;
+  marks.forEach(m => {
+    const b = box(m);
+    if (PG_GLYPH_MARKS.includes(m.pgIcon) && heads.some(h => row(b, h.b))){ m.set('visible', false); m.dirty = true; n++; return; }
+    const near = heads.filter(h => row(b, h.b) && gapTo(b, h.b) < gapMin - 0.5);
+    if (!near.length) return;
+    const h = near.sort((p, q) => gapTo(b, p.b) - gapTo(b, q.b))[0].b;
+    const right = (b.l + b.r) / 2 >= (h.l + h.r) / 2;
+    const l = right ? h.r + gapMin : h.l - gapMin - b.w;
+    const at = { l, t: b.t, r: l + b.w, b: b.b, w: b.w, h: b.h };
+    const fits = at.l >= edge && at.r <= W - edge
+      && !texts.some(x => at.l < x.b.r && at.r > x.b.l && at.t < x.b.b && at.b > x.b.t)
+      && !heads.some(x => row(at, x.b) && gapTo(at, x.b) < gapMin - 0.5);
+    if (fits) m.set('left', m.left + (at.l - b.l));
+    else m.set('visible', false);
+    m.setCoords(); m.dirty = true; n++;
+  });
+  return n;
+}
 function pgHueCheck(sc, r){
   const W = sc.getWidth(), H = sc.getHeight();
   const { objs, paints } = pgHuePaints(sc, W, H);
@@ -19647,7 +19743,7 @@ function pgHueCheck(sc, r){
 }
 {
   const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); }
-    try { pgPhoneCue(sc); } catch (e){ console.warn('phone cue:', e); } };
+    try { pgPhoneCue(sc); } catch (e){ console.warn('phone cue:', e); } try { pgFlankClear(sc); } catch (e){ console.warn('flank:', e); } };
   const _alignPass = alignPass;
   alignPass = function(sc){ const r = _alignPass.apply(this, arguments); run(sc); return r; };
   const _themeScene = themeScene;

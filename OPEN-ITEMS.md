@@ -1577,3 +1577,54 @@ The owner's part, and a tool for it (proposed, not built):
   (`assets/owner-edits/`), a script applies them to the records through the
   gate, and a second reads them for patterns (the owner always moves X, always
   matches Y) to turn into passes, the way rule 108 came from one remark.
+
+## AD. 2026-10-03 — the generator's marks, marks clear of the headline, 39 cards back with a photograph
+
+The owner: "keep working on the style", after §AC's list.
+
+Done (DESIGN-LAW rules 109, 110):
+- **§AC 2, the sparkle stand-ins.** The 44 marks the generator drew and the
+  studio never had are in `ICONS`. No mark on a live card falls back to the
+  sparkle (265 did on 148 cards).
+- **Marks clear of the headline** (`pgFlankClear`): of 166 floating marks on
+  the 331 cards, 123 sat closer than the generator's 118px to a headline on
+  their row; 113 moved back out, 10 hidden without room, and 25 dollar signs
+  and ticks hidden from headline rows. On the 370 live cards: 145 shown, none
+  within 118px.
+- **39 drawn-ground cards back with a photograph** (§AC 1): cars 6, phones 5,
+  pokemon 1, strips 5, coins 8, gold 5, silver 7, sports 2, each on a library
+  photograph no other card uses (near-duplicate shots counted as one). holds.json
+  84 to 45. Seven of them also took rule 110's strip.
+- **The strip wears the CTA's colour** on 21 live cards (rule 110).
+- `every_card_audit.mjs --write-holds` keeps the rows of a card that did not
+  open (§AC's tooling bug).
+
+Checked: the library gate 370 of 370 live cards (verify_showcase.mjs); the
+classics 346 of 404, the same 58 held as on main; Easy Mode themes
+(ez_theme_audit.mjs --quick) no problems; the designer the same four problems
+as main (two cards that do not open here, bandKnockout-pp04-15's ORIG 4%).
+Marks on the 370: none falls back to the sparkle, 477 shown, none off the
+card, the 20 on copy as before (checklist ticks in their boxes, two badge
+marks); 69 phone marks shown, every one the number's ink, in its box, on its
+line. Every choice on the 200 cards whose picture changed or that came back
+(every_card_audit.mjs --write-holds, all 200 opened): held themes 355 to 312,
+looks 35 to 39 (three on bubblePop-pp06-35, one on trustSeal-du06-35), voices
+1520 to 1522; three of the returning stepsFlow cards are kept out as offered
+for the number off the middle of its band (3 below). 971 thumbnails redrawn.
+ASSET_REV 20261003a.
+
+Still open:
+1. **24 drawn-ground cards** remain held: sports 8, gold 5, coins 4, cars 3,
+   pokemon 2, silver 2 (stepsFlow 11, slabPoster 6, seven others). Sports
+   needs the owner's photographs first (two were on disk); the others need a
+   photograph or a layout fix (2, 3).
+2. **The slabPoster layouts** (6 held) set everything on a large central
+   panel, so a photograph behind them only shows at the edges (rule 105's
+   "panel covers the photograph"). They want the panel made glass or smaller
+   before a photograph earns its place.
+3. **The number off the middle of its band** (rule 102): Easy Mode drops the
+   website line when the visitor has none and leaves the number alone at the
+   top of stepsFlow's and trustSeal's footer band. 21 live cards (three of
+   them brought back here), 4 classics and 12 held cards are kept out of the
+   lists for it. Found while this ran; the fix is rule 111, in the next
+   commit.
