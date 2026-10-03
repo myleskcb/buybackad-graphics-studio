@@ -263,7 +263,7 @@ POOLS = {
     'computers': [I('mac-air-open-angle', rot=4), I('mac-closed-topdown', rot=10), I('mac-keyboard-topdown', rot=6),
                   I('mac-open-screen-on', rot=4), I('mac-pro-open-front', rot=3), I('macbook-open-angle', rot=4),
                   I('macbook-open-front', rot=3), I('mac-half-open-glow', rot=4), I('monitor-widescreen', rot=2),
-                  I('keyboard-mouse-set', rot=6), I('laptop-windows-open', rot=3), I('qs-device-mac-mini', rot=3),
+                  I('keyboard-mouse-set', rot=6), I('laptop-windows-open', rot=3),
                   I('qs-device-mac-studio', rot=3), I('qs-device-imac', rot=2), I('qs-macbook-pro-16--silver', rot=4),
                   I('qs-macbook-pro-16--space-black', rot=4), I('qs-macbook-air-15--sky-blue', rot=4),
                   I('qs-macbook-air-15--midnight', rot=4), I('qs-macbook-air-15--starlight', rot=4),
@@ -291,7 +291,7 @@ POOLS = {
         [f'qs-ipad-air-{sz}-{chip}--{c}' for sz in ('11', '13') for chip in ('m2', 'm3', 'm4')
          for c in ('blue', 'purple', 'space-gray', 'starlight')] +
         ['qs-ipad-mini-6'] + ['qs-ipad-mini-7-a17-pro--' + c for c in ('blue', 'purple', 'space-gray', 'starlight')] +
-        ['qs-ipad-pro-12-9-4th-gen', 'qs-ipad-pro-12-9-5th-gen', 'qs-ipad-pro-12-9-6th-gen', 'qs-ipad-pro-11-4th-gen',
+        ['qs-ipad-pro-12-9-4th-gen', 'qs-ipad-pro-12-9-5th-gen', 'qs-ipad-pro-12-9-6th-gen',
          'qs-ipad-pro-11-m4--silver', 'qs-ipad-pro-11-m4--space-black', 'qs-ipad-pro-13-m4--silver',
          'qs-ipad-pro-13-m4--space-black', 'qs-ipad-pro-11-m5', 'qs-ipad-pro-13-m5--silver', 'qs-ipad-pro-13-m5--space-black'])],
     'macbook': [I(n, rot=4) for n in (
@@ -305,12 +305,69 @@ POOLS = {
         ['qs-macbook-pro-14-m5--' + c for c in ('silver', 'space-black')] +
         ['qs-macbook-pro-16--' + c for c in ('silver', 'space-black', 'space-gray')] +
         ['qs-macbook-pro-16-m5--' + c for c in ('silver', 'space-black')])],
-    # the Mac mini M1/M2 picture is a 49px strip: only the M4 one is big enough
+    # Mac mini: the M1/M2 picture is a 49px strip and the front shot was rejected
+    # by the owner ("featureless-angle"); the iPad Pro 11 4th gen too ("relic")
     'mac': [I(n, rot=2) for n in (
         ['qs-imac-24-m1--' + c for c in ('blue', 'green', 'orange', 'pink', 'purple', 'silver', 'yellow')] +
         ['qs-imac-24-m4--' + c for c in ('blue', 'green', 'orange', 'pink', 'purple', 'silver', 'yellow')] +
-        ['qs-sheet-imac-24-m3-2023', 'qs-device-mac-mini', 'qs-device-mac-studio', 'qs-sheet-macstudio-2022'])],
+        ['qs-sheet-imac-24-m3-2023', 'qs-device-mac-studio', 'qs-sheet-macstudio-2022'])],
 }
+# 2026-10-03: the owner's pass (assets/approved-assets.json "rejected") and the
+# defects found since (assets/cutout-flags.json) never ship in these sets; the
+# other categories still carry some until replacements land.
+_GRID = json.load(open(os.path.join(REPO, 'assets', 'approved-assets.json')))['asset-grid-v1']
+BANNED = set(_GRID['rejected']) | set(json.load(open(os.path.join(REPO, 'assets', 'cutout-flags.json'))))
+for _c in ('iphone', 'ipad', 'macbook', 'mac', 'computers', 'cars'):
+    POOLS[_c] = [it for it in POOLS[_c] if it['name'] not in BANNED]
+
+# ----------------------------------------------------------------------------- Apple-ad sets
+# Owner, 2026-10-03: "we want our stuff to look like Apple ads", "Simplistic,
+# informative, and authoritative", "More options, please". Each Apple line gets
+# a second set built the way Apple's own ads are: one product upright and large,
+# or one model in a row of its colours; clean studio and system-wallpaper
+# grounds only; the ground tinted from the product's own finish
+# (assets/devices.json, measured on the cut-out) or Apple's white and black; no blur.
+AD = OrderedDict([('iphone-ad', 'iphone'), ('ipad-ad', 'ipad'), ('macbook-ad', 'macbook'), ('mac-ad', 'mac')])
+# liquid glass is out: its small floating panes read as clutter, not as Apple
+AD_STYLES = ['studio-sweep', 'podium', 'ios-mesh', 'macos-waves', 'aurora']
+AD_LAYOUTS = ['hero', 'pair', 'trio', 'lineup']
+# a MacBook is a lid and a screen from the front: three in a row are toys, and
+# its colour barely shows, so one large, or two (sizes or colours) as Apple shows them
+AD_LAYOUTS_BY = {'macbook-ad': ['hero', 'pair']}
+AD_LINEUP = {'iphone-ad': 5, 'ipad-ad': 4, 'macbook-ad': 3, 'mac-ad': 4}
+AD_COUNTS = OrderedDict([('iphone-ad', 60), ('ipad-ad', 40), ('macbook-ad', 40), ('mac-ad', 30)])
+_DEV = json.load(open(os.path.join(REPO, 'assets', 'devices.json')))['models']
+FINISH = {c['slug']: (f.replace('-', ' ').title(), c['hex'])
+          for m in _DEV.values() for f, c in m.get('colours', {}).items()}
+APPLE_NEUTRAL = dict(dark='#0b0b0d', mid='#86868b', light='#f5f5f7', accent='#2997ff', support='#d2d2d7')
+
+def ad_need(cat, layout):
+    return {'hero': 1, 'pair': 2, 'trio': 3}.get(layout) or AD_LINEUP[cat]
+
+def ad_groups(cat):
+    """one model per group, its colours as the members (qs-...--blue), upright"""
+    g = OrderedDict()
+    for it in POOLS[AD[cat]]:
+        if not it['name'].startswith('qs-'): continue
+        g.setdefault(it['name'].split('--')[0], []).append(dict(it, rot=0))
+    return g
+
+def lab2hex(lab):
+    c = l2s(lab2lin(np.asarray(lab, F)))
+    return '#' + ''.join(f'{int(round(float(v) * 255)):02x}' for v in np.clip(c, 0, 1))
+
+def ad_palette(items, mode, dark):
+    """tone: Apple's way of setting a colour finish on its own colour"""
+    fin = FINISH.get(items[len(items) // 2]['name'])
+    if mode == 'tone' and fin:
+        lab = lin2lab(hex2lin(fin[1])); C = math.hypot(lab[1], lab[2]); h = math.atan2(lab[2], lab[1])
+        if C >= 0.025:
+            mk = lambda L, c: lab2hex([L, c * math.cos(h), c * math.sin(h)])
+            return dict(name='Tone · ' + fin[0], dark=mk(0.25, min(C * 0.55, 0.07)), mid=mk(0.62, min(C * 0.8, 0.10)),
+                        light=mk(0.945, min(C * 0.32, 0.035)), accent=mk(min(max(lab[0], 0.55), 0.8), min(C * 1.1, 0.16)),
+                        support=mk(0.86, min(C * 0.5, 0.06)))
+    return dict(APPLE_NEUTRAL, name='Apple Black' if dark else 'Apple White')
+
 # The vehicle each car backdrop shows, in order (cars-001 is the first): every
 # real vehicle once, 29 cars, 8 pickups (the Cybertruck among them), 7 vans, 4 semis
 # and one motorcycle. The order spreads the kinds (no two pickups, vans or
@@ -336,7 +393,8 @@ CAR_ROTA = ['car-ram-1500-blue', 'car-rolls-royce-cullinan-black', 'car-volvo-vn
             'car-chevy-silverado-red', 'car-ford-bronco-blue', 'car-ford-e350-white']
 COUNTS = OrderedDict([('iphone', 150)] + [(c, 40) for c in
           ['gold', 'silver', 'coins', 'strips', 'pokemon', 'sports', 'gaming', 'audio', 'computers', 'wearables']]
-          + [('cars', len(CAR_ROTA)), ('cameras', 25), ('ipad', 40), ('macbook', 40), ('mac', 40)])
+          + [('cars', len(CAR_ROTA)), ('cameras', 25), ('ipad', 40), ('macbook', 40), ('mac', 40)]
+          + list(AD_COUNTS.items()))
 
 # ----------------------------------------------------------------------------- cut-out loading
 
@@ -1219,7 +1277,10 @@ LAYOUT_N = {'hero': (1, 1), 'pair': (2, 2), 'trio': (3, 3), 'lineup': (4, 5), 's
 LAYOUT_N_SMALL = {'lineup': (3, 3), 'spread-fan': (3, 3), 'floating-row': (2, 3), 'flatlay-scatter': (3, 3),
                   'grid-flatlay': (4, 4), 'orbit-arc': (3, 3)}
 
-def pick_items(cat, layout, rng, idx=None):
+def pick_items(cat, layout, rng, idx=None, spec=None):
+    if cat in AD:
+        by = {it['name']: it for g in ad_groups(cat).values() for it in g}
+        return [by[n] for n in spec['items']]
     pool = POOLS[cat]
     lo, hi = LAYOUT_N_SMALL.get(layout, LAYOUT_N[layout]) if cat != 'iphone' else LAYOUT_N[layout]
     n = int(rng.integers(lo, hi + 1))
@@ -1380,15 +1441,17 @@ def compose(spec):
     t0 = time.time()
     cat, idx = spec['cat'], spec['idx']
     rng = np.random.default_rng([SEED, zlib.crc32(cat.encode()), idx])
-    pal = Pal(PALETTES[spec['pal']], spec['variant'] == 'dark')
     style, layout, zone = spec['style'], spec['layout'], spec['zone']
-    items = pick_items(cat, layout, rng, idx)
+    items = pick_items(cat, layout, rng, idx, spec)
+    pdef = ad_palette(items, spec['pmode'], spec['variant'] == 'dark') if cat in AD else PALETTES[spec['pal']]
+    pal = Pal(pdef, spec['variant'] == 'dark')
     surface = STYLES[style][1]
     hy = rng.uniform(0.58, 0.68) * H
     if zone != 'top' and layout != 'side-column' and np.mean([aspect(it['name']) for it in items]) > 1.25:
         zone = 'top'
     zone = 'top'
-    A = [0.08 * W, 0.40 * H, 0.92 * W, 0.965 * H] if cat == 'iphone' else [0.03 * W, 0.36 * H, 0.97 * W, 0.975 * H]
+    A = ([0.08 * W, 0.40 * H, 0.92 * W, 0.965 * H] if cat == 'iphone' else
+         [0.06 * W, 0.37 * H, 0.94 * W, 0.965 * H] if cat in AD else [0.03 * W, 0.36 * H, 0.97 * W, 0.975 * H])
     pls = lay(layout, items, A, rng, hy)
     A2 = list(A)
     if layout in STAND_LAYOUTS:
@@ -1500,7 +1563,7 @@ def compose(spec):
         spr[..., :3] *= (0.95 + 0.05 * tint)
         blit(img, spr, x0, y0)
     # ---- finish
-    fin = spec['finish']
+    fin = 'sharp' if cat in AD else spec['finish']
     if fin == 'soft':
         img = gblur(img, rng.uniform(1.4, 2.2))
     elif fin == 'dreamy':
@@ -1522,6 +1585,7 @@ def compose(spec):
     th = im.resize((360, 360), Image.LANCZOS)
     th.save(os.path.join(OUT, f'thumb/{cat}-{idx + 1:03d}.jpg'), quality=78, optimize=True)
     return dict(file=rel, thumb=f'thumb/{cat}-{idx + 1:03d}.jpg', cat=cat, style=style, palette=pal.name,
+                sw=[pdef['dark' if pal.dark else 'light'], pdef['accent']],
                 ground=spec['variant'], layout=layout, text_zone=zone, finish=fin,
                 devices=[p['it']['name'] for p in pls],
                 prod_size=round(float(np.mean([math.sqrt(p['spr'][..., 3].sum()) for p in pls])) / W, 4),
@@ -1532,12 +1596,13 @@ def compose(spec):
 
 def plan_category(cat, n):
     rng = np.random.default_rng([SEED, zlib.crc32(cat.encode()), 999])
-    lays = CAR_LAYOUTS if cat == 'cars' else LAYOUTS
-    # cars have one layout, so one use per style and per palette stops at 20:
-    # there each may come as often as the count needs (owner, 2026-10-03:
-    # "MORE"), never as the same style and palette twice
-    cap = -(-n // len(STYLES)) if cat == 'cars' else 1
-    styles = list(STYLES)
+    lays = CAR_LAYOUTS if cat == 'cars' else AD_LAYOUTS_BY.get(cat, AD_LAYOUTS) if cat in AD else LAYOUTS
+    styles = list(AD_STYLES) if cat in AD else list(STYLES)
+    # one use per (style, layout) and (palette, layout) until a set has more
+    # images than that allows (cars have one layout, the Apple-ad sets six
+    # styles): then each may come as often as the count needs (owner,
+    # 2026-10-03: "MORE"), never as the same style and palette twice
+    cap = max(1, -(-n // (len(styles) * len(lays))))
     for attempt in range(200):
         used_sl, used_pl, used_sp = Counter(), Counter(), set()
         lc, sc, pc = Counter(), Counter(), Counter()
@@ -1567,8 +1632,30 @@ def plan_category(cat, n):
             used_sl[(s, l)] += 1; used_pl[(p, l)] += 1; used_sp.add((s, p)); lc[l] += 1; sc[s] += 1; pc[p] += 1
             specs.append(spec); prev = spec
         if not failed:
+            if cat in AD:
+                ad_assign(cat, specs)
             return specs
     raise RuntimeError('planning failed for ' + cat)
+
+def ad_assign(cat, specs):
+    """which model and colours each Apple-ad image shows: every model in turn,
+    a different colour each time round; one or two products on their own tone
+    (Apple white or black when the finish is neutral), a row of colours on
+    Apple white or black every other time"""
+    groups = ad_groups(cat); keys = list(groups)
+    r = np.random.default_rng([SEED, zlib.crc32(cat.encode()), 4242])
+    for l in AD_LAYOUTS_BY.get(cat, AD_LAYOUTS):
+        need = ad_need(cat, l)
+        elig = [k for k in keys if len(groups[k]) >= need] or keys
+        perm = r.permutation(len(elig)); j = 0
+        for sp in specs:
+            if sp['layout'] != l: continue
+            k = elig[perm[j % len(elig)]]
+            cols = list(groups[k]); off = (j // len(elig)) % len(cols)
+            cols = cols[off:] + cols[:off]
+            sp['items'] = [c['name'] for c in cols[:need]]
+            sp['pmode'] = 'tone' if (need <= 2 or j % 2 == 0) else 'neutral'
+            j += 1
 
 # ----------------------------------------------------------------------------- sheets
 

@@ -72,6 +72,33 @@ const QUERIES = {
   semis: ['Freightliner Cascadia', 'Peterbilt 579', 'Peterbilt 389', 'Kenworth T680', 'Kenworth W900', 'Volvo VNL',
           'International LT', 'Mack Anthem'],
 };
+/* owner, 2026-10-03: "More imagery, more alternate angles as much as you can
+   give me": the rear and the side of each vehicle already in */
+const ANGLE_MODELS = ['Toyota Camry', 'Toyota Corolla', 'Toyota Prius', 'Toyota RAV4', 'Toyota Highlander', 'Toyota 4Runner',
+  'Toyota Tacoma', 'Toyota Tundra', 'Toyota Land Cruiser', 'Toyota GR Supra', 'Toyota GR Corolla', 'Honda Accord', 'Honda Civic',
+  'Honda Civic Type R', 'Honda CR-V', 'Honda Pilot', 'Honda Ridgeline', 'Nissan Rogue', 'Nissan Frontier', 'Hyundai Tucson',
+  'Hyundai Sonata', 'Hyundai Ioniq 5', 'Kia Telluride', 'Kia K5', 'Subaru Outback', 'Subaru Forester', 'Mazda CX-5',
+  'Ford F-150', 'Ford F-150 Raptor', 'Ford Ranger', 'Ford Maverick', 'Ford Bronco', 'Ford Mustang', 'Ford Explorer',
+  'Ford Transit', 'Chevrolet Silverado', 'Chevrolet Tahoe', 'Chevrolet Corvette', 'Chevrolet Equinox', 'GMC Sierra',
+  'Ram 1500', 'Ram ProMaster', 'Jeep Wrangler', 'Jeep Grand Cherokee', 'Jeep Gladiator', 'Dodge Charger',
+  'Tesla Model 3', 'Tesla Model Y', 'Tesla Model S', 'Tesla Model X', 'Tesla Cybertruck', 'Rivian R1S', 'Rivian R1T',
+  'Cadillac Escalade', 'Lexus RX', 'Lexus IS', 'BMW M3', 'BMW X5', 'Audi RS 5', 'Mercedes-AMG G 63', 'Mercedes-Benz S-Class',
+  'Mercedes-Benz Sprinter', 'Porsche 911', 'Porsche 911 GT3', 'Range Rover', 'Lamborghini Urus', 'Rolls-Royce Cullinan',
+  'Bentley Bentayga', 'Peterbilt 579', 'Freightliner Cascadia', 'Kenworth T680', 'Volvo VNL'];
+QUERIES.angles = ANGLE_MODELS.flatMap(m => [m + ' rear', m + ' side view']);
+/* owner, 2026-10-03: "As much modern apple imagery as you can, please, we
+   want our stuff to look like Apple ads": photographs of the devices we buy
+   (2020 on), for the angles the storefront art does not have */
+QUERIES.apple = ['iPhone 17 Pro', 'iPhone 17 Pro Max', 'iPhone Air', 'iPhone 17', 'iPhone 16 Pro', 'iPhone 16 Pro Max',
+  'iPhone 16', 'iPhone 16 Plus', 'iPhone 16e', 'iPhone 15 Pro', 'iPhone 15 Pro Max', 'iPhone 15', 'iPhone 15 Plus',
+  'iPhone 14 Pro', 'iPhone 14 Pro Max', 'iPhone 14', 'iPhone 13 Pro', 'iPhone 13 Pro Max', 'iPhone 13', 'iPhone 13 mini',
+  'iPhone 12 Pro', 'iPhone 12 Pro Max', 'iPhone 12', 'iPhone 12 mini', 'iPad Pro M4', 'iPad Pro M5', 'iPad Pro 12.9 M2',
+  'iPad Air M2', 'iPad Air M3', 'iPad Air 5th generation', 'iPad mini 7', 'iPad mini 6', 'iPad 10th generation',
+  'iPad (A16)', 'MacBook Air M1', 'MacBook Air M2', 'MacBook Air M3', 'MacBook Air M4', 'MacBook Air 15-inch',
+  'MacBook Pro 14-inch M1 Pro', 'MacBook Pro 14-inch M3', 'MacBook Pro 16-inch M1 Max', 'MacBook Pro M4', 'MacBook Pro 13-inch M1',
+  'iMac 24-inch M1', 'iMac M3', 'iMac M4', 'Mac Studio', 'Mac mini M4', 'Mac mini M2', 'Apple Studio Display', 'Apple Pro Display XDR'];
+/* SKIP=file.json (an ATTRIBUTION list) skips Commons files already downloaded under another name */
+const SKIP = new Set(process.env.SKIP ? JSON.parse(readFileSync(process.env.SKIP, 'utf8')).map(a => a.title) : []);
 /* CATS=popular,trucks,vans,semis fetches only those pools (PER=6 for more to choose from) */
 const ONLY = process.env.CATS ? process.env.CATS.split(',') : null;
 /* Q=camry,tahoe fetches only the queries that contain one of these (any case) */
@@ -116,8 +143,11 @@ for (const [cat, qs] of Object.entries(QUERIES)){
       const ii = pg.imageinfo && pg.imageinfo[0]; if (!ii) continue;
       const m = ii.extmetadata || {}, lic = (m.LicenseShortName || {}).value || '', usage = (m.UsageTerms || {}).value || '';
       if (!OK.test(lic) || BAD.test(lic)) continue;
+      if (SKIP.has(pg.title) || att.some(a => a.title === pg.title)) continue;
       if (PRESS.test(pg.title + ' ' + ((m.Artist || {}).value || '') + ' ' + ((m.Credit || {}).value || ''))) continue;
-      if ((ii.width || 0) < 1600 || (ii.height || 0) < 900 || ii.width < ii.height) continue;
+      /* a phone or a tablet is often shot upright: the apple pool takes portrait too */
+      if (cat === 'apple' ? Math.max(ii.width || 0, ii.height || 0) < 1600 || Math.min(ii.width || 0, ii.height || 0) < 900
+                          : (ii.width || 0) < 1600 || (ii.height || 0) < 900 || ii.width < ii.height) continue;
       if (!/\.(jpe?g|png)$/i.test(pg.title)) continue;
       const file = cat + '-' + slug(q) + '-' + (n + 1) + '.jpg';
       if (have.has(file)){ n++; continue; }
