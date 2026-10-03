@@ -2529,3 +2529,45 @@ RESUME HERE:
   2. Photographs for the 63 drawn-ground holds (§AC 1); sports, coins, gold
      and silver need the owner's photographs first.
   3. The owner's review view (§AC, proposed), if the owner wants it.
+
+## 2026-10-03 — the generator's marks; marks clear of the headline; 39 cards back with a photograph
+
+(claude/beautiful-wozniak-xmvvuk.)
+
+The owner: "keep working on the style", after the list of why a card looks
+unfinished (OPEN-ITEMS §AC).
+
+Found:
+  - The 265 sparkles were not missing art. retheme_lab.mjs draws its own 46
+    marks into the page it renders with; app.js never had 44 of them. Before
+    drawing a mark, look for the one the generator already drew.
+  - Restoring the right glyphs made a second problem visible: the layout
+    passes had moved headlines up to the floating marks the generator had
+    set 118px out. A fallback that draws something hides more than one
+    defect.
+  - A dollar sign or a tick reads as a letter beside a headline at any
+    distance. Distance is not the rule for a glyph-like mark; the row is.
+  - "Gate passes" is not "finished". All 39 photograph cards passed the gate
+    first time; seven still had a white strip beside a coloured box, found
+    by looking.
+  - A record's CTA ink is not what is drawn (the passes repaint it): choose
+    a new line's ink by contrast on its own plate, not by copying a field.
+  - Two of the studio's passes disagreed with the gate about the number's
+    middle (numberFill: inside the guides; the gate: the band as seen), and
+    25 cards were out of Easy Mode for it. numberCentreY already said what
+    both meant; it was used for restaged records only. Rule 111: 23 cards
+    back in Easy Mode, and the measure of which renders it changes (22, all
+    on the two layouts) is what kept its every-choice re-run to 26 cards.
+  - `pkill -f <pattern>` from a shell whose own command line holds the
+    pattern kills that shell (twice). Find processes by /proc cmdline under
+    `pgrep -x node`.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0).
+  1. The owner's photographs: sports (8 held), and one or two each for coins,
+     gold, silver (§AD 1).
+  2. slabPoster's panel (§AD 2) and the 2 trustSeal cards whose band cannot
+     grow under their copy (§AD 3).
+  3. A thumbnail redraw re-encodes every webp; compare pixels and keep only
+     the ones that changed (10 of 971 here) rather than committing 971.
+  4. The owner's review view (§AC), if wanted.

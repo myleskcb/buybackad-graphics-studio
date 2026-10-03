@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261003a';
+const ASSET_REV = '20261003b';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -14088,6 +14088,13 @@ function numberFill(sc, W, H){
   ph.set({ scaleX: (ph.scaleX || 1) * k, scaleY: (ph.scaleY || 1) * k });
   // its letters centred in the room between whatever sits above and below it on the plate
   ph.setPositionByOrigin(new fabric.Point(c.x, (top + bot) / 2), 'center', 'center'); ph.setCoords();
+  /* alone on its plate, on the plate's middle as it is seen, as far as the
+     guides let it (numberCentreY, as a restaged record is set): centred in the
+     room inside the guides, a number on a band that runs off the card sat a
+     fifth of the band over its middle, and the gate (numCentre, rule 102)
+     kept 21 live cards out of Easy Mode for it (rule 111) */
+  /* (window.__numberSoloOff: off, for a before/after measure only) */
+  if (!INK && !mates.length && !(typeof window !== 'undefined' && window.__numberSoloOff)){ const b1 = ph.getBoundingRect(true, true); ph.set('top', ph.top + (numberCentreY(hb, top, bot, b1.height, H, G) - (b1.top + b1.height / 2))); ph.setCoords(); }
   /* ...and across it, on the edge it was set on. Grown about its centre, a
      number set on the left guide of a full band ran off the card (an offer
      card in Easy Mode: its letters from x = -32). A number centred on its
@@ -19592,6 +19599,73 @@ function pgPlateInked(o){ return !!(o && o.pgPlateInk && o.pgPlateInk === o.fill
    inside the number's box; where the number was centred, the mark and the
    number are centred together. A mark with no room is hidden, and a mark or
    a number the visitor moved stays where they put it. */
+/* The number sits in the middle of a plate it has to itself (rule 111, after
+   rule 102). Easy Mode leaves the website line off the ad when the visitor
+   has none, and stepsFlow's footer band held the website over the number:
+   the number was left alone at the band's top, about a fifth of its height
+   over the middle, and the gate failed it (numCentre). On 2026-10-03, 21 live
+   cards, 4 classics and 12 held cards were kept out of the lists for that
+   alone (choice-holds.json). When the number is alone on its plate and its
+   ink's middle is further than the gate allows from the plate's middle as
+   seen, it moves to the middle, down or across, as the gate measures it. */
+function pgNumberMiddle(sc){
+  if (typeof window !== 'undefined' && window.__pgNumberMiddleOff) return 0;
+  pgHandHook(sc);
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const num = objs.find(o => isText(o) && o.pgRole === 'phone' && o.visible !== false && /\d/.test(o.text || ''));
+  if (!num || num.pgHand || Math.abs(num.angle || 0) > 0.5) return 0;
+  const W = sc.getWidth() / (sc.getZoom ? sc.getZoom() : 1), H = sc.getHeight() / (sc.getZoom ? sc.getZoom() : 1);
+  const box = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const nb = box(num);
+  const plate = pgPlateUnder(objs, num, nb, W, H); if (!plate || plate.o.pgHand) return 0;
+  const sx0 = Math.max(0, plate.x), sx1 = Math.min(W, plate.x + plate.w), sy0 = Math.max(0, plate.y), sy1 = Math.min(H, plate.y + plate.h);
+  if (sy1 - sy0 < 40 || sx1 - sx0 < 80) return 0;
+  /* a plate shared with another line is a stack, as the gate reads it */
+  const shared = objs.some(o => o !== num && isText(o) && o.visible !== false && PG_READ[o.pgRole] && /[A-Za-z0-9]/.test(o.text || '') && (() => {
+    const b = box(o), cx = b.x + b.w / 2, cy = b.y + b.h / 2; return cx > sx0 && cx < sx1 && cy > sy0 && cy < sy1; })());
+  if (shared) return 0;
+  /* the ink's middle: the face's own ascent and descent for these characters
+     over the baseline fabric draws them on */
+  const sy = num.scaleY || 1;
+  let midY = nb.y + nb.h / 2;
+  try {
+    const g = document.createElement('canvas').getContext('2d');
+    g.font = `${num.fontStyle || 'normal'} ${num.fontWeight || 400} ${num.fontSize}px "${num.fontFamily}"`;
+    const m = g.measureText(String(num.text));
+    if (m.actualBoundingBoxAscent > 0){
+      const base = nb.y + num.fontSize * (num._fontSizeMult || 1.13) * (1 - (num._fontSizeFraction || 0.222)) * sy;
+      midY = base - (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) * sy / 2;
+    }
+  } catch (e){}
+  const midX = nb.x + nb.w / 2;
+  /* the plate's middle as it is seen, kept inside the guides (numberCentreY, as numberFill sets it) */
+  const G = 0.06 * Math.min(W, H), lift = midY - (nb.y + nb.h / 2);
+  const aim = p => numberCentreY({ top: p.y, height: p.h }, Math.max(p.y, G), Math.min(p.y + p.h, H - G), nb.h, H, G) + lift;
+  const off = (p, y) => { const a = Math.max(0, p.y), b = Math.min(H, p.y + p.h); return Math.abs(y - (a + b) / 2) / (b - a); };
+  let P = { x: plate.x, y: plate.y, w: plate.w, h: plate.h };
+  if (off(P, midY) <= PG_T.numCentre && Math.abs(midX - (sx0 + sx1) / 2) / (sx1 - sx0) <= PG_T.numCentre) return 0;
+  /* a band that runs off the card's foot and is too shallow for its number to
+     be both inside the guide and on its middle grows upward, into clear space
+     only, until it is: 10 to 20px on stepsFlow's footer */
+  if (off(P, aim(P)) > PG_T.numCentre - 0.01 && plate.o.type === 'rect' && !plate.o.angle && P.y + P.h >= H - 1){
+    const words = objs.filter(o => o !== num && isText(o) && o.visible !== false && String(o.text || '').trim()).map(box);
+    let d = 0;
+    for (let t = 4; t <= 0.06 * H; t += 4){
+      const Q = { x: P.x, y: P.y - t, w: P.w, h: P.h + t };
+      if (words.some(b => b.x < Q.x + Q.w && b.x + b.w > Q.x && b.y < P.y && b.y + b.h > Q.y)) break;
+      d = t; if (off(Q, aim(Q)) <= PG_T.numCentre - 0.01) break;
+    }
+    if (d){ const o = plate.o, sy0p = o.scaleY || 1;
+      o.set({ top: o.top - d, height: o.height + d / sy0p }); o.setCoords(); o.dirty = true; P = { x: P.x, y: P.y - d, w: P.w, h: P.h + d }; }
+  }
+  const cx = (Math.max(0, P.x) + Math.min(W, P.x + P.w)) / 2;
+  const dy = off(P, midY) > PG_T.numCentre ? aim(P) - midY : 0;
+  const dx = Math.abs(midX - cx) / (Math.min(W, P.x + P.w) - Math.max(0, P.x)) > PG_T.numCentre ? cx - midX : 0;
+  if (!dx && !dy) return 0;
+  num.set({ left: num.left + dx, top: num.top + dy }); num.setCoords(); num.dirty = true;
+  return 1;
+}
 /* what the visitor dragged in the designer is theirs: the passes that place
    marks (pgPhoneCue, pgFlankClear) leave an object marked pgHand where it is */
 function pgHandHook(sc){
@@ -19743,7 +19817,7 @@ function pgHueCheck(sc, r){
 }
 {
   const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); }
-    try { pgPhoneCue(sc); } catch (e){ console.warn('phone cue:', e); } try { pgFlankClear(sc); } catch (e){ console.warn('flank:', e); } };
+    try { pgNumberMiddle(sc); } catch (e){ console.warn('number middle:', e); } try { pgPhoneCue(sc); } catch (e){ console.warn('phone cue:', e); } try { pgFlankClear(sc); } catch (e){ console.warn('flank:', e); } };
   const _alignPass = alignPass;
   alignPass = function(sc){ const r = _alignPass.apply(this, arguments); run(sc); return r; };
   const _themeScene = themeScene;

@@ -3749,3 +3749,37 @@ should be matched to white but either way it's lacking cohesiveness".
   voltStack-su02-30 sets its CTA line over the strip itself, and a coloured
   strip took that line to 1.36:1.
 - A neutral CTA box keeps a neutral strip (bubblePop-jw04-20: white and white).
+
+## 111. A number alone on a band is on the band's middle, inside the guides
+
+Added 2026-10-03. Rule 102 put the number on the middle of a plate it has to
+itself and made the gate check it (numCentre: the letters' middle within 12%
+of the plate's middle as it is seen). Two of the studio's own passes then
+disagreed with the gate on the same card:
+
+- **Easy Mode leaves the website line off** when the visitor has none. On
+  stepsFlow and trustSeal the footer band held the website over the number;
+  without it the number was alone, at the band's top.
+- **`numberFill` centred it in the room inside the guides**, and on a band
+  that runs off the card's foot that room's middle sits half a guide (32px)
+  above the band's middle as it is seen: a fifth of a 190px band, past the
+  gate's 12%. It used the right helper, `numberCentreY` (the seen middle,
+  clamped to the guides), only for restaged records.
+
+On 2026-10-03, 21 live cards and 4 classics were kept out of Easy Mode for
+that alone (choice-holds.json). Now:
+
+- `numberFill`, when the number is alone on its plate, sets it with
+  `numberCentreY` like a restaged record. A plate it shares (a CTA over it) is
+  a stack and keeps the room's middle.
+- `pgNumberMiddle`, in every colour pass, sets a number alone on its plate on
+  the same middle when it is further off than the gate allows; a band that
+  runs off the card's foot and is too shallow for both the guide and the
+  middle grows upward into clear space until it is (10 to 20px on stepsFlow's
+  footer).
+- Measured in Easy Mode on all 370 live cards, the work off and on: 22
+  renders change (stepsFlow and trustSeal only), and the number fails its
+  middle on 2 cards where it failed on 21 (trustSeal-jw10-30 and -jw10-31,
+  whose band has copy right above it and cannot grow). The 4 price-badge
+  classics pass. The thumbnail gate is 370 of 370 and the classics 346 of
+  404, as before.

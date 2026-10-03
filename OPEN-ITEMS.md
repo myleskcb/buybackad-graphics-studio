@@ -1625,6 +1625,11 @@ Still open:
 3. **The number off the middle of its band** (rule 102): Easy Mode drops the
    website line when the visitor has none and leaves the number alone at the
    top of stepsFlow's and trustSeal's footer band. 21 live cards (three of
-   them brought back here), 4 classics and 12 held cards are kept out of the
-   lists for it. Found while this ran; the fix is rule 111, in the next
-   commit.
+   them brought back here), 4 classics and 12 held cards were kept out of the
+   lists for it. Done in the next commit (DESIGN-LAW 111): the number fails
+   its middle on 2 live cards in Easy Mode instead of 21 (trustSeal-jw10-30
+   and -jw10-31, whose band cannot grow under the copy above it: still open).
+   23 cards are back in Easy Mode (19 live, the 4 price-badge classics), and
+   neonNight-jw04-20, held for this alone, passes the gate and every choice
+   and is back on the site (holds 44). The 12 held ones still want a
+   photograph.
