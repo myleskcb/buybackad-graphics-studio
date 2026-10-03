@@ -1675,3 +1675,12 @@ Still open:
    neonNight-jw04-20, held for this alone, passes the gate and every choice
    and is back on the site (holds 44). The 12 held ones still want a
    photograph.
+
+After main's composition audit was merged in (b7a67925): main's 90 centred
+cards were measured on main's code, without this branch's passes, so every
+choice on them was measured again on the merged code (every_card_audit.mjs
+--write-holds, all 90 opened, none fails as offered): cards kept out 21,
+held themes 314, looks 40, voices 1526. On the merged tree: library gate 363
+of 363, classics 346 of 404 as before, no mark falls back, no floating mark
+within 118px of a headline, 67 phone marks shown and all right, Easy Mode
+themes no problems, the designer main's same four problems.
