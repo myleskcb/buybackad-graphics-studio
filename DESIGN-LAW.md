@@ -3652,3 +3652,64 @@ software's and it will align either horizontally or vertically or both".
   105) it centres all but the slab, which would have covered the headline.
 - Nothing runs by itself: a card opened from Easy Mode arrives as Easy Mode
   drew it (rule 93), and the centring is the visitor's choice.
+
+## 108. Every video goes out with its photo: the ad at its best moment, 1440 on the short side
+
+Added 2026-10-03. The owner: "Make sure that every single video ad has a
+photo because offer requires us to put a photo with any video at and we need
+the HD 1440P version of the ad as a photo so find the best point in the video
+to save". OfferUp takes a video only with a photo beside it.
+
+- **Every video export brings a PNG with it**, under the same export: the
+  studio's Easy Mode and editor (`motionPhoto`, one count for both files in
+  `deliverVideo`) and the video maker (`makePhoto` in motion/app.js). A new
+  video export path calls one of them, or is not finished.
+- **1440 on the short side, in the video's aspect**: 1440×1440, 1440×1800,
+  1440×1920 for Tall 3:4, 1440×2560, 2560×1440. It is drawn again at that
+  size by the video's own frame function (the studio bakes the scene at the
+  photo's size; the maker builds the look at it, and every size draws the
+  same plan), never a video frame scaled up. The plan's cap holds: Free's
+  photo is 1080 with the video's watermark. Low on memory, the photo is made
+  at the video's size and the pop-up says so; one that cannot be made at all
+  is named in the pop-up, never dropped silently.
+- **The moment is measured** (video-still.js): every tenth of a second is
+  drawn and scored on its own pixels as detail (the mean luminance step
+  between neighbouring pixels, on a copy 320 on its long side) times
+  stillness squared (1 minus the share of the frame that moves by more than
+  8 levels in the tenth of a second either side), held to the lowest score of
+  itself and its neighbours; within half a percent of the best, the earliest.
+- **Only from the stretch where the whole ad is on screen.** The maker: from
+  the number's arrival to the ending (an end card shows the number alone).
+  The studio: the living still, 0 to 5.7 s; the call to action from 5.8 s is
+  the ad cut down to its number and what fits beside it. Over the whole clip
+  the call to action won on Green Gold Glass Card at 9.7 s, on the detail of
+  the banknote photograph its shade lifts off, not on its copy: detail
+  measures everything on screen, so the windows say what counts as the ad.
+- Measured 2026-10-03: on 12 random maker looks (seeds 4100-4111) the chosen
+  frame was the finished ad on every one, and the frame the number arrives on
+  scored lower on every one; the studio chose 0 s on both cards checked
+  (glassCard-cd06-15, top_buyer). The photo matches the video's own decoded
+  frame at its moment at 29.8 to 41.6 dB PSNR
+  (`scripts/video_photo_check.mjs`, every maker size, Easy Mode square and
+  story, Free, and the editor).
+- **The photo stays to hand after the video** (added 2026-10-03, later the
+  same day). The owner, again: "make sure I get a photo with every single
+  video ad of the best moment high-quality so when I download the video and
+  also then download the photo after so I have the option ... I'd rather not
+  take a screenshot and crop it". The photo downloads with the video, but a
+  browser can hold a second download back (Chrome asks once per site, a
+  phone can drop it), and the studio's only way back was the toast's Save
+  photo again, gone in twelve seconds. So in the studio a button,
+  "📷 Download the video's photo", saves the same PNG again from the moment
+  both files are given until the next video replaces it, a count that went
+  through only on Try again included (`VideoHelp.keepPhoto`, from
+  `deliverVideo`). In Easy Mode it is right under Download as video, in the
+  same look; in the editor's export pop-up it takes a line of its own under
+  the buttons (a fourth button in that row pushed Cancel out of the pop-up).
+  The maker already kept one: Save photo in the note under Download MP4.
+  `scripts/video_photo_check.mjs` presses each and requires the same bytes.
+- **The toast fits a phone.** VideoHelp's toast was centred with `left:50%`,
+  which caps a box at half the screen: on a 390px phone the photo's toast
+  ("Its 1440×1440 photo for OfferUp came with it", Save photo again) was a
+  195px column with its button hanging off the edge. It is centred by its
+  margins now, as wide as it needs up to the screen less 16px a side.
