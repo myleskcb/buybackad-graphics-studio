@@ -98,9 +98,15 @@
 .vh-acts button.p{background:var(--vh-acc);color:var(--vh-acc-ink);border-color:transparent}
 .vh-acts button:focus-visible{outline:3px solid var(--vh-acc);outline-offset:2px}
 @media (max-width:520px){.vh-acts button{flex:1 1 100%}}
-.vh-toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);z-index:2147482999;max-width:min(560px,calc(100vw - 32px));display:flex;gap:12px;align-items:center;
+.vh-toast{position:fixed;left:16px;right:16px;bottom:18px;margin:0 auto;width:max-content;box-sizing:border-box;transform:translateY(140%);z-index:2147482999;max-width:min(560px,calc(100vw - 32px));display:flex;gap:12px;align-items:center;
   background:#1d1a27;color:#f1eff8;border:1px solid #3a3548;border-radius:14px;padding:11px 14px;font:14px/1.4 Satoshi,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .25s;pointer-events:none}
-.vh-toast.show{transform:translate(-50%,0);pointer-events:auto}
+/* centred by its margins, not left:50%: a box that starts halfway across can
+   only be half the screen wide, which on a phone squeezed the photo's toast
+   into a column with its button hanging off the edge */
+.vh-toast.show{transform:translateY(0);pointer-events:auto}
+.vh-toast span{min-width:0}
+/* the video's photo kept under a row of buttons (the editor's export pop-up), on a line of its own */
+.vh-photo.vh-line{display:flex;align-items:center;justify-content:center;width:100%;margin-top:10px}
 .vh-toast button{flex:none;border:0;background:#b48cff;color:#140a24;font:700 13.5px Satoshi,system-ui,sans-serif;padding:7px 12px;border-radius:99px;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.vh-toast{transition:none}}`;
   let styled = false, open = null;
@@ -234,5 +240,30 @@
     window.addEventListener('unhandledrejection', ev => { const r = ev.reason; if (ours(r)){ console.warn('Caught by the safety net:', r); note(r); } });
   }
 
-  window.VideoHelp = { check, show, close, inApp: IN_APP, retry, waitVisible, isMemory, toast, share, save, canShareFiles, safetyNet };
+  /* The video's photo, kept. Owner, 2026-10-03, a day after the photo came
+     with every video (rule 108): "when I download the video and also then
+     download the photo after so I have the option". The photo downloads with
+     the video, but a browser can hold a second download back (Chrome asks
+     first, a phone can drop it), and the toast's Save photo again is gone in
+     twelve seconds. So a button placed right after the video button keeps
+     the photo until the next video replaces it: one tap, any time, no
+     screenshot and no crop. It wears the video button's look; after a row
+     of buttons (the editor's export pop-up, which has no room for a fourth)
+     the page passes the class, and it takes a line of its own. */
+  let kept = null;
+  function keepPhoto(photo, after, label, cls){
+    if (kept){ kept.remove(); kept = null; }
+    if (!photo || !photo.blob || !after || !after.parentNode) return null;
+    if (!styled){ const s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s); styled = true; }
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = cls || after.className; b.classList.add('vh-photo'); b.classList.remove('primary', 'download', 'btn-primary');
+    if (cls) b.classList.add('vh-line');
+    b.textContent = label || "\u{1F4F7}\u00a0 Download the video's photo";
+    b.title = 'The photo of your last video, ' + (photo.w && photo.h ? photo.w + '×' + photo.h + ', ' : '') + 'for OfferUp, which takes a video only with a photo (' + photo.name + ')';
+    b.addEventListener('click', () => save(photo.blob, photo.name));
+    after.insertAdjacentElement('afterend', b);
+    return (kept = b);
+  }
+
+  window.VideoHelp = { check, show, close, inApp: IN_APP, retry, waitVisible, isMemory, toast, share, save, canShareFiles, safetyNet, keepPhoto };
 })();

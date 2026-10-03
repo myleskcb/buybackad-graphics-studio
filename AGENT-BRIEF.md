@@ -401,7 +401,9 @@ produced." DESIGN-LAW rule 87. In practice:
   video only with a photo, so each video download saves a PNG 1440 on the
   short side of the ad at its best moment (`video-still.js`; `motionPhoto` in
   the studio, `makePhoto` in the maker). A new video export path makes one
-  too. Check: `node scripts/video_photo_check.mjs`.
+  too, and keeps it a tap away until the next video (`VideoHelp.keepPhoto`
+  in the studio, Save photo in the maker's note): a browser can hold the
+  second download back. Check: `node scripts/video_photo_check.mjs`.
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its

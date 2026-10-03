@@ -12,7 +12,11 @@
    side in the video's aspect (1080 on Free, the plan's cap, with the
    watermark the video carries); and the photo against the video's own
    decoded frames near the chosen moment (PSNR on a 360px copy), so the photo
-   is a moment of that video and not some other picture.
+   is a moment of that video and not some other picture. And the photo stays
+   to hand after it (2026-10-03, "so I have the option"): in the studio one
+   button right after the video button pressed (in the editor's export
+   pop-up, on the line under its buttons; VideoHelp.keepPhoto) saves the
+   same PNG again; in the maker the note under the button has Save photo.
 
    usage:  npx http-server -p 8899 -s .   then
            CHROME=/path/to/chrome [FABRIC_JS=/path/fabric.min.js] node scripts/video_photo_check.mjs [--only motion|studio] [cardId]
@@ -51,7 +55,13 @@ async function openPage(path){
     else q.continue();
   });
   const cdp = await page.target().createCDPSession();
-  await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: OUT });
+  await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: OUT, eventsEnabled: true });
+  /* every finished download by name: a second save of the same name replaces
+     the file here (headless Chrome does not add " (1)"), so the folder alone
+     cannot show it */
+  const names = new Map(); page.downloads = [];
+  cdp.on('Browser.downloadWillBegin', e => names.set(e.guid, e.suggestedFilename));
+  cdp.on('Browser.downloadProgress', e => { if (e.state === 'completed') page.downloads.push(names.get(e.guid)); });
   await page.goto(BASE + path, { waitUntil: 'load', timeout: 120000 });
   await page.evaluate(() => document.fonts.ready);
   return page;
@@ -121,6 +131,7 @@ if (ONLY !== 'studio'){
     const m = r.note.match(/moment at ([\d.]+) s/);
     r.t = m ? +m[1] : null;
     if (r.t == null) r.bad.push('the note names no moment');
+    if (!await page.evaluate(() => [...document.querySelectorAll('#export-note .mo-link')].some(b => b.textContent === 'Save photo'))) r.bad.push('no Save photo under the button');
     if (vid && png && r.t != null){ r.match = await compare(page, vid, png, r.t).catch(e => ({ err: String(e) })); if (!(r.match.psnr >= 24)) r.bad.push('photo is not the video at its moment (' + JSON.stringify(r.match) + ')'); }
     results.push(r);
   }
@@ -171,6 +182,20 @@ if (ONLY !== 'motion'){
     r.t = out.t; r.format = out.fmt; r.card = out.card;
     r.files = await landed(before, 2);
     const { vid, png } = judge(r, run.short);
+    /* the photo stays a tap away right after the video button: one button, and it saves the same file again */
+    if (png){
+      const was = readFileSync(png), n0 = page.downloads.length, sel = run.editor ? '#export-overlay .modal-actions + .vh-photo' : '#ez-video + .vh-photo';
+      const kept = await page.evaluate(sel => { const b = document.querySelector(sel); if (b) b.click(); return { here: !!b, n: document.querySelectorAll('.vh-photo').length, label: b ? b.textContent : null }; }, sel);
+      r.kept = kept.label;
+      if (!kept.here) r.bad.push('no photo button after the video button');
+      else if (kept.n !== 1) r.bad.push(kept.n + ' photo buttons');
+      else {
+        for (let i = 0; i < 16 && page.downloads.length === n0; i++) await new Promise(res => setTimeout(res, 500));
+        await new Promise(res => setTimeout(res, 500));
+        const got = page.downloads.slice(n0);
+        if (got.length !== 1 || got[0] !== r.photo || !readFileSync(png).equals(was)) r.bad.push('the photo button did not save the same photo (' + JSON.stringify(got) + ')');
+      }
+    }
     if (vid && png && r.t != null){
       r.match = await compare(page, vid, png, r.t).catch(e => ({ err: String(e) }));
       if (!(r.match.psnr >= 24)) r.bad.push('photo is not the video at its moment (' + JSON.stringify(r.match) + ')');

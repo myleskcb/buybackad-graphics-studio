@@ -12173,6 +12173,7 @@ async function runVideoExport(o){
     try { photo = await motionPhoto(o, name, Math.min(w, h)); }
     catch (e){ photoErr = e; console.warn('GraphicsStudio motion: the photo could not be made, the video goes alone.', e); }
     setBtn('Saving…');
+    if (photo) Object.assign(photo, { after: o.photoAfter || btn, label: o.photoLabel, cls: o.photoClass });
     if (!await deliverVideo(r.blob, name, photo)) return;
     const catches = [];
     if (ext !== 'mp4') catches.push('It was saved as WebM, because this browser cannot write MP4. Instagram and TikTok may refuse WebM.');
@@ -12217,7 +12218,9 @@ async function deliverVideo(blob, name, photo){
   const VH = window.VideoHelp;
   const transient = e => e instanceof TypeError || /Failed to fetch|NetworkError|Load failed|HTTP (5\d\d|429)/i.test(String((e && e.message) || e));
   const save = (b, n) => { if (VH) VH.save(b, n); else { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = n; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 600000); } };
-  const give = () => { save(blob, name); if (photo) save(photo.blob, photo.name); };
+  /* and the photo stays a tap away beside the video button until the next
+     video, on a count that only went through on Try again too (keepPhoto) */
+  const give = () => { save(blob, name); if (photo){ save(photo.blob, photo.name); if (VH && VH.keepPhoto) VH.keepPhoto(photo, photo.after, photo.label, photo.cls); } };
   const done = photo ? 'Video and photo downloaded' : 'Video downloaded';
   try {
     await (VH ? VH.retry(recordExport, { tries: 3, delay: 1200, retryIf: transient }) : recordExport());
@@ -12318,7 +12321,7 @@ async function editorDownloadVideo(){
   canvas.discardActiveObject(); canvas.renderAll();
   const sc = new fabric.StaticCanvas(null, { width:CW, height:CH, renderOnAddRemove:false, enableRetinaScaling:false });
   await new Promise(res => sc.loadFromJSON(canvas.toJSON(EXTRA_PROPS), res));
-  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, photoCap:motionPhotoCap(), actx, name:currentTplName, btn:$('ex-video') });
+  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, photoCap:motionPhotoCap(), photoAfter:$('ex-video').parentNode, photoClass:'btn btn-outline', photoLabel:"\u{1F4F7}\u00a0 Download the video's photo", actx, name:currentTplName, btn:$('ex-video') });
 }
 
 /* the buttons (index.html: #ez-video beside Download my ad, #ex-video in the

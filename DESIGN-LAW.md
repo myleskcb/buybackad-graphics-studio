@@ -3692,3 +3692,24 @@ to save". OfferUp takes a video only with a photo beside it.
   frame at its moment at 29.8 to 41.6 dB PSNR
   (`scripts/video_photo_check.mjs`, every maker size, Easy Mode square and
   story, Free, and the editor).
+- **The photo stays to hand after the video** (added 2026-10-03, later the
+  same day). The owner, again: "make sure I get a photo with every single
+  video ad of the best moment high-quality so when I download the video and
+  also then download the photo after so I have the option ... I'd rather not
+  take a screenshot and crop it". The photo downloads with the video, but a
+  browser can hold a second download back (Chrome asks once per site, a
+  phone can drop it), and the studio's only way back was the toast's Save
+  photo again, gone in twelve seconds. So in the studio a button,
+  "📷 Download the video's photo", saves the same PNG again from the moment
+  both files are given until the next video replaces it, a count that went
+  through only on Try again included (`VideoHelp.keepPhoto`, from
+  `deliverVideo`). In Easy Mode it is right under Download as video, in the
+  same look; in the editor's export pop-up it takes a line of its own under
+  the buttons (a fourth button in that row pushed Cancel out of the pop-up).
+  The maker already kept one: Save photo in the note under Download MP4.
+  `scripts/video_photo_check.mjs` presses each and requires the same bytes.
+- **The toast fits a phone.** VideoHelp's toast was centred with `left:50%`,
+  which caps a box at half the screen: on a 390px phone the photo's toast
+  ("Its 1440×1440 photo for OfferUp came with it", Save photo again) was a
+  195px column with its button hanging off the edge. It is centred by its
+  margins now, as wide as it needs up to the screen less 16px a side.
