@@ -397,6 +397,16 @@ produced." DESIGN-LAW rule 87. In practice:
   before every render and undo step) work on the parts `ccParts` finds. A
   pass that moves designer objects leaves a locked group to the keeper;
   never set `left` on one without its group.
+- **The colour builder** (rule 108, 2026-10-03): `colour-builder.js`, loaded
+  after app.js. The landing's colour section is two tabs (the twelve
+  ready-made sets, or build your own); the + in Easy Mode's and the
+  designer's colour rows opens the same builder. Partners come from the
+  fixed lists in `CB_PARTNERS` (rule 14), every set is solved and checked
+  before it is shown, and saved sets live in localStorage `pgfx_my_colours`,
+  found by `ezThemeByName`. Before a commit that touches it, the colour
+  helpers it calls (hexToOklch, oklchFit, pgLum, pgCr) or the theme passes,
+  run `node scripts/colour_builder_audit.mjs` (about half an hour;
+  `--sets-only` takes seconds).
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its

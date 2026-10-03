@@ -3652,3 +3652,85 @@ software's and it will align either horizontally or vertically or both".
   105) it centres all but the slab, which would have covered the headline.
 - Nothing runs by itself: a card opened from Easy Mode arrives as Easy Mode
   drew it (rule 93), and the centring is the visitor's choice.
+
+## 108. A colour set the visitor builds is held to the law the house's sets are
+
+Added 2026-10-03. The owner, of the landing's twelve colour sets: "this is
+too elementary ... we should have a colored pallet builder that can make any
+amount that uses supportive colors ... if you choose a color, it will show you
+a list of the most popular supportive/secondary colors", then: "Maybe we have
+these 12 done for your themes or you can pick a color to start with".
+
+The twelve stay, as the **Ready-made** tab. Beside them, **Build your own**
+(`colour-builder.js`): pick one of fourteen colours (navy, blue, cyan, teal,
+green, lime, gold, yellow, orange, red, pink, purple, black, white) or any
+colour, see what goes with it as small ads, choose which colour is the
+background and which colour the small print takes, and save as many sets as
+you like. A saved set is a colour theme: it sits after ORIG in Easy Mode's and
+the designer's colour rows, beside a + that opens the same builder, and a
+draft or project made with it reopens in it (`ezThemeByName` finds it).
+
+- **What goes with a colour is a list, not a wheel** (rule 14). Each colour
+  has a fixed list of partners from pairings ads and brands have run for
+  decades (`CB_PARTNERS`, mirrored so a pair is found from either end). Rule
+  103's twelve come first, ordered by how many live designs use them, counted
+  on the page (`SHOWCASE.palN`); the rest follow as "classic pairs". The
+  order is curated, not measured popularity: the page says "ready-made sets
+  first, then other classic pairs", and states no number it did not count.
+- **Every set is solved, then checked, before it is shown.** Text on both
+  background stops 4.5:1 for normal sight and protan, deutan and tritan
+  readers; the bright colour 4.5:1 on both stops, 3:1 at worst for
+  colour-blind readers and 1.7:1 from the text (theme_law.mjs); the small
+  print 4.5:1 under all four; the number on its bright box 3:1 (rules 43, 51).
+  Lightness is solved in OKLCH with the hue kept (rules 31, 40).
+- **Every colour stays its name.** A warm colour is never drawn under rule
+  103's muddy floor, the bright colour stays inside its named band, and
+  chroma keeps rule 103's floor where the screen can show it (light blue and
+  mid teal cannot reach 0.12; there the floor is what the gamut holds). Navy,
+  blue and cyan are named by lightness as much as hue, so they carry their own
+  bands; gold, yellow, orange, lime, cyan and pink are never a dark background
+  (they go brown, olive, teal or wine), and black and white always are.
+- **Two families** (rules 95, 103): the small print is a lighter or deeper
+  shade of the background's colour or of the bright colour, never a third
+  hue; on a red background it is the bright colour's (a red one goes salmon),
+  and a shade of a red or pink turns toward crimson, never toward rust.
+- **A pair that cannot pass, or that comes out the same as one already
+  listed, is left out and the page says why**, in plain words (rule 16):
+  yellow under white text has to be drawn as deep as gold, so next to navy it
+  *is* gold; cyan and orange are both bright colours, so neither can be the
+  background; teal on white leaves no small-print colour that reads. A colour
+  the visitor picks is used as near as the law allows, and the page says when
+  it was drawn darker or lighter.
+- **The studio's gate still has the last word** (rule 87): a built set is
+  applied by `themeScene` and checked by `pgGate` before every download,
+  like any theme. Choice holds (rule 101) do not cover built sets; the gate
+  does.
+
+Measured with `scripts/colour_builder_audit.mjs`, which re-scores every set
+with maths of its own (theme_law.mjs's contrast and simulation, rule 103's
+own `muddy()` and `namedBand()` imported from refresh_palettes.mjs), on 80
+pairs from the fourteen colours and ten picked colours: 310 sets, 0 failing;
+worst text 8.26:1, bright colour 4.50:1, bright colour for colour-blind
+readers 3.53:1, bright against text 1.74:1, small print 4.55:1, number on its
+box 4.53:1; all twelve ready-made pairs offered from both their colours; 12
+pairs left out, each with its reason. A mustard gold (`#9b8301`) and a grey
+small print put in by hand fail it (58 failures).
+
+On cards, the eleven sets the fourteen colours open on, applied in Easy Mode
+on seven cards (three classics; four live showcase cards, a light one among
+them) and measured by the gate against each card's own colours: 0 of 77
+renders lose a line (no critical line fails that passed, no other reading
+line falls under 3:1).
+
+**Known, not the builder's:** on `main` a warm bright colour still lets two
+passes draw a dark shape muddy, house themes as much as built sets (19 of 77
+builder renders; the two house themes run as a control, 7 of 14). The
+one-colour pass folds a dark panel or bar into the card's gold at the panel's
+own luminance (`#3f3300` olive on top_buyer's bottom bar, and Orchid Payday's
+`#393300` beside it); rule 95's reconciliation on
+`claude/fervent-pascal-w6mthe` (pgMuddyFloor) keeps it the palette's deep hue
+there (Orchid Payday's bar measured `#47205e`). And the number or call to
+action on an orange or gold box takes the box's hue at its own dark
+luminance (rule 104's plate ink: `#3e1200` brown on gradientWave-nn05-15,
+`#332b00` under Orchid Payday), which no branch guards yet: under the muddy
+floor it should take the deep hue, as rule 103 says of a warm accent.

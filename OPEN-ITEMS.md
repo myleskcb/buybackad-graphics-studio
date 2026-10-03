@@ -1480,3 +1480,47 @@ Still open:
    `checklistHero-pp02-20` off the wall. Re-pick on `/lab/hero.html` if the
    owner wants the list to match.
 
+
+## AC. 2026-10-03 — build your own colours (DESIGN-LAW 108)
+
+(claude/eager-hopper-khk7ct, from `main` at 809c5ac6. **Not on `main`**: this
+session was told to develop and push on that branch only.)
+
+The landing's colour section is two tabs: the twelve ready-made sets, and
+Build your own (`colour-builder.js`). Pick a colour (fourteen, or any), see
+what goes with it as small ads (ready-made pairs first, by how many live
+designs use them), choose the background and the small print, save as many
+as you like. Saved sets sit after ORIG in Easy Mode's and the designer's
+colour rows, beside a + that opens the same builder in a dialog.
+
+Checked: `scripts/colour_builder_audit.mjs` (310 sets, 0 failing on its own
+maths; 12 of 12 ready-made pairs offered from both colours; 0 of 77 card
+renders lose a line); a mutation (mustard gold, grey small print) fails it;
+the flow end to end in headless Chromium (landing, Use, Easy Mode, reload,
+the + dialog, the designer, delete, Escape); the production CSP from
+`_headers`, light and dark; `landing_check.mjs` at 390 and 1440 (0 errors,
+0 failed requests, no overflow); `designer_audit.mjs` (only `main`'s standing
+problems: sell_iphone and gold_spot do not open, bandKnockout-pp04-15's ORIG
+4.2%); `ez_theme_audit.mjs --quick` (no problems, 4 cards x 6 themes).
+
+Still open:
+
+1. **`main` is not what is live.** Production (`buybackad-finished-copy`)
+   serves `claude/fervent-pascal-w6mthe` at 37a26d34, three commits `main`
+   lacks (the plain-words copy; rule 95 reconciled with rule 103). A trial
+   merge conflicts on the CSS_FALLBACK line (regenerate), DESIGN-LAW and the
+   log (keep both; its "rule 104" needs the next free number), and
+   `assets/showcase/index.json` plus 209 thumbnails both sides re-drew (re-draw
+   from the merged code, `verify_showcase.mjs --write`, bump ASSET_REV). Merge
+   it, then this branch, then run the audits AGENT-BRIEF lists.
+2. **A warm bright colour lets two passes draw dark shapes muddy**, house
+   themes as much as built sets (rule 108, "Known"): the one-colour pass
+   (fixed on the live branch) and the plate ink of rule 104 (a dark number on
+   an orange or gold box goes brown; no branch guards it). Under the muddy
+   floor the plate ink should take the deep hue.
+3. Once the live branch's copy is in, the colour section's heading and the
+   FAQ answer "Can I change the colours?" can mention building your own (left
+   alone here so the merge stays clean).
+4. Choice holds (rule 101) do not cover built sets; the gate does (pgGate
+   before every download). If a built set should be held per card like the
+   house themes, `every_card_audit.mjs` needs to learn them.

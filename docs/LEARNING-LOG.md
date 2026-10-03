@@ -2487,3 +2487,50 @@ RESUME HERE:
      lacks the guides and the lock.
   1. The designer audit's standing failures on `main`: sell_iphone and
      gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-03 — build your own colours
+
+(claude/eager-hopper-khk7ct, from `main` 809c5ac6; not on `main`.)
+
+The owner, of the landing's twelve colour sets: "this is too elementary ...
+a colored pallet builder that can make any amount that uses supportive
+colors ... if you choose a color, it will show you a list of the most popular
+supportive/secondary colors", then "Maybe we have these 12 done for your
+themes or you can pick a color to start with".
+
+Found:
+  - The screenshot was of `claude/fervent-pascal-w6mthe`, which production
+    serves, not of `main` (the Netlify connector's deploy names the branch).
+    A trial merge into `main` conflicts on 209 thumbnails and the showcase
+    index, both re-drawn on each side: that is its own job (OPEN-ITEMS §AC 1).
+  - Under white text and the 1.7:1 money-word rule, yellow has to be drawn as
+    deep as gold: next to navy, "yellow" *is* gold. The builder says so and
+    leaves it out rather than listing two of the same.
+  - Container-query units on the container itself (padding, gap) read the
+    viewport: every small sample ad had 115 px of padding a side and no text.
+    The spacing lives on what is inside.
+  - The olive bars under gold sets are `main`'s, not the builder's: the house
+    theme Orchid Payday draws the same `#393300`; the live branch draws it
+    `#47205e`. A dark number on an orange box going brown is rule 104's plate
+    ink, on no branch guarded.
+  - Running the designer audit beside another browser audit made cars_kbb
+    "freeze" (411 ms); alone it is 200 ms. Run timing audits alone.
+
+Did: DESIGN-LAW rule 108; `colour-builder.js` (the engine, the builder, the
+saved sets, the studio's + dialog); hooks in app.js (`buildThemeRow`,
+`edBind`, `scBuildFamilies`, `ezThemeByName`); the landing's two tabs;
+`scripts/colour_builder_audit.mjs`; AGENT-BRIEF; OPEN-ITEMS §AC.
+
+Checked: colour_builder_audit.mjs: 310 sets, 0 failing; 0 of 77 card renders
+lose a line; a mustard gold and a grey small print put in by hand fail it.
+End to end in headless Chromium (fabric 5.3.0 served locally): landing → Use
+→ Easy Mode in the set, the gate passing; reload keeps it; the + dialog; the
+designer's row; delete; Escape. The production CSP, light and dark: no
+violation. landing_check.mjs clean at 390 and 1440. designer_audit.mjs: only
+`main`'s standing problems. ez_theme_audit.mjs --quick: no problems over 4
+cards x 6 themes.
+
+RESUME HERE:
+  0. Merge the live branch into `main`, then this branch (OPEN-ITEMS §AC 1),
+     and deploy `main` from the Mac (AGENT-BRIEF, Deploying).
+  1. Guard rule 104's plate ink with the muddy floor (§AC 2).

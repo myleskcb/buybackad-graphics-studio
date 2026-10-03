@@ -172,7 +172,13 @@
       <h2><span id="lp-pal-count">12</span> palettes in the library. Every card measured before you see it.</h2>
       <p>A palette is the whole ad, not a swatch: the ground, the ink, the accent that carries the money line, and a supporting colour for the small print. Each palette's ink clears 4.5:1 on its own ground, and every card is measured again on its own pixels: a card whose headline, number or call to action falls under 3:1 against what is behind it, or whose phone number fails letter by letter, is held back and never shown here. The photographs keep their own colour, with neutral shade only where the words need it.</p>
     </div>
+    <!-- ready-made sets or the colour builder (colour-builder.js, DESIGN-LAW rule 108) -->
+    <div class="cb-tabs" id="cb-tabs" role="tablist" aria-label="Colour sets">
+      <button type="button" role="tab" id="cb-tab-ready" data-tab="ready" aria-controls="fam-grid" aria-selected="true">Ready-made <span class="n">12</span></button>
+      <button type="button" role="tab" id="cb-tab-build" data-tab="build" aria-controls="cb-root" aria-selected="false" tabindex="-1">Build your own</button>
+    </div>
     <div class="fam-grid" id="fam-grid"></div>
+    <div class="cb-root" id="cb-root" role="tabpanel" aria-labelledby="cb-tab-build" hidden></div>
   </section>
 
   <section class="lp-section" id="lp-templates">
@@ -1293,6 +1299,7 @@
 <script src="video-help.js"></script>
 <script src="platform-mix.js"></script>
 <script src="app.js"></script>
+<script src="colour-builder.js"></script>
 <script src="iphonesla-link.js"></script>
 <script src="offer-assets.js"></script>
 <script src="offer-library.js"></script>

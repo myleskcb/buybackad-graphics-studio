@@ -1488,6 +1488,96 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .fam-sw i{display:block}
 .fam-name{font-weight:650;font-size:14px;letter-spacing:-.01em}
 .fam-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-variant-numeric:tabular-nums}
+/* ── THE COLOUR BUILDER (colour-builder.js, DESIGN-LAW rule 108) ──────────
+   The landing's colour sets as two tabs, ready-made or build your own, and
+   the same builder in a dialog from the + in the studio's colour rows. Drawn
+   from the tokens, so every look has it; the poster look's ink lines sit
+   with its other rules below. Text floors as rule 104: 16px running, 13.5px
+   notes, 12.5px labels. */
+.fam-grid[hidden],.cb-root[hidden]{display:none}
+.cb-tabs{display:inline-flex;gap:4px;padding:4px;margin:0 0 18px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline-strong)}
+.cb-tabs [role=tab]{font:inherit;font-size:15px;font-weight:650;padding:9px 18px;border:0;border-radius:var(--r-pill);background:none;color:var(--text-2);cursor:pointer;min-height:40px;white-space:nowrap}
+.cb-tabs [role=tab].on{background:var(--surface-solid);color:var(--text);box-shadow:var(--lift-1)}
+.cb-tabs .n{font-variant-numeric:tabular-nums;opacity:.75;margin-left:4px}
+.cb-tabs [role=tab]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cb{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:28px;align-items:start}
+.cb-main{display:flex;flex-direction:column;gap:26px;min-width:0}
+.cb-label{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:-.01em;margin:0 0 12px}
+.cb-num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--text);color:var(--surface-solid);font-size:13.5px;font-weight:800;flex:none}
+.cb-hint{font-size:14.5px;line-height:1.5;color:var(--text-2);margin:-4px 0 14px;max-width:62ch}
+.cb-starts{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}
+.cb-start{display:flex;flex-direction:column;align-items:center;gap:7px;padding:9px 4px 8px;border-radius:12px;border:1.5px solid transparent;background:none;color:var(--text);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.cb-start i{display:block;width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.22)}
+.cb-start:hover{background:var(--surface-sunk)}
+:root[data-theme='dark'] .cb-start i,:root[data-theme='dark'] .cb-roles i,:root[data-theme='dark'] .cb-chips .chip i{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.3)}
+.cb-start.on{border-color:var(--text);background:var(--surface-solid)}
+.cb-start:focus-visible,.cb-pair:focus-visible,.cb-any:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.cb-any{position:relative}
+.cb-any input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+.cb-any i{background:conic-gradient(#ff4a2e,#ffc21a,#12b886,#06b6d4,#2b56f5,#7e22ce,#ec4899,#ff4a2e)}
+.cb-pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.cb-pair{display:flex;flex-direction:column;gap:3px;text-align:left;padding:8px 8px 10px;border-radius:14px;border:1.5px solid var(--hairline-strong);background:var(--surface-solid);color:var(--text);font:inherit;cursor:pointer;transition:transform .13s,box-shadow .13s}
+.cb-pair .cb-ad{margin-bottom:6px}
+.cb-pair-name{font-size:15px;font-weight:700}
+.cb-pair-meta{font-size:13.5px;color:var(--text-2)}
+.cb-pair.on{border-color:var(--text);box-shadow:0 0 0 2px var(--text)}
+.cb-left{font-size:13.5px;line-height:1.5;color:var(--text-2);margin:14px 0 0;max-width:75ch}
+.cb-side{position:sticky;top:84px;display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:18px;background:var(--surface-solid);border:1.5px solid var(--hairline-strong)}
+.cb-side .cb-label{margin-bottom:0}
+.cb-side{scroll-margin-top:80px}
+.cb-name{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.cb-roles{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+.cb-roles li{display:grid;grid-template-columns:22px 1fr;column-gap:8px;align-items:center;font-size:14px}
+.cb-roles i{width:22px;height:22px;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25);grid-row:span 2}
+.cb-roles b{font-weight:650}
+.cb-roles span{font-size:12.5px;line-height:1.3;color:var(--text-2)}
+.cb-sublabel{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);margin-bottom:7px}
+.cb-sublabel .n{font-variant-numeric:tabular-nums;letter-spacing:0;margin-left:4px}
+.cb-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cb-chips .chip{display:inline-flex;align-items:center;gap:7px;font-size:14px}
+.cb-chips .chip i{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.3);flex:none}
+.cb-note{font-size:13.5px;line-height:1.45;color:var(--text);background:var(--surface-sunk);border-radius:10px;padding:8px 10px;margin:0}
+.cb-actions{display:flex;flex-wrap:wrap;gap:8px}
+.cb-actions .btn-primary{flex:1 1 auto}
+.cb-link{align-self:flex-start;background:none;border:0;padding:2px 0;font:inherit;font-size:14px;font-weight:650;color:var(--accent);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
+.cb-saved{border-top:1px solid var(--hairline);padding-top:12px}
+.cb-saved ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+.cb-saved li{display:flex;align-items:center;gap:6px}
+.cb-saved-use{flex:1;display:flex;align-items:center;gap:9px;min-width:0;text-align:left;padding:6px 8px;border-radius:10px;border:1px solid var(--hairline);background:none;color:var(--text);font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cb-saved-use:hover{background:var(--surface-sunk)}
+.cb-saved-sw{display:flex;width:44px;height:22px;border-radius:6px;overflow:hidden;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.cb-saved-sw span{flex:1}
+.cb-saved-del{width:32px;height:32px;flex:none;border-radius:8px;border:1px solid var(--hairline);background:none;color:var(--text-2);font-size:18px;line-height:1;cursor:pointer}
+.cb-saved-del:hover{color:var(--danger);border-color:var(--danger)}
+/* the sample ad: sized by its own width, so a card and the big preview read alike */
+.cb-ad{container-type:inline-size;aspect-ratio:1;border-radius:10px;overflow:hidden;background:linear-gradient(160deg,var(--g1),var(--g2));color:var(--ink);display:flex;flex-direction:column;justify-content:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+/* container units on the container itself would read the viewport, so the
+   spacing lives on what is inside it */
+.cb-ad span{display:block;margin:0 8cqw}
+.cb-ad-k{font:700 10cqw/1 'Clash Display','Satoshi',sans-serif;letter-spacing:.01em;word-spacing:.12em}
+.cb-ad-h{font:700 18cqw/.92 'Clash Display','Satoshi',sans-serif;color:var(--acc);letter-spacing:-.01em;margin-top:2cqw!important}
+.cb-ad-s{font:600 5.6cqw/1.25 'Satoshi',sans-serif;color:var(--sup);margin-top:4cqw!important}
+.cb-ad-n{align-self:flex-start;margin-top:5cqw!important;padding:2.8cqw 4cqw;border-radius:2.6cqw;background:var(--acc);color:var(--pin);font:800 7.6cqw/1 'Satoshi',sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cb-ad.big{border-radius:14px}
+/* the studio's colour rows: the visitor's sets, and a + to make one */
+.ez-theme.cb-make{align-items:center;justify-content:center;background:var(--surface-sunk);color:var(--text);font:700 20px/1 var(--ui)}
+.ez-theme.cb-make span{flex:0}
+.modal.cb-modal{max-width:min(1040px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto}
+.cb.in-modal .cb-side{top:0}
+/* the dialog's form labels are small capitals; the any-colour swatch is not a form label */
+.modal .cb-any{display:flex;font-size:13.5px;font-weight:600;color:var(--text);margin:0;text-transform:none;letter-spacing:0}
+@media (max-width:900px){
+  .cb{grid-template-columns:1fr}
+  .cb-side{position:static}
+}
+@media (max-width:640px){
+  .cb-tabs{display:flex}
+  .cb-tabs [role=tab]{flex:1;padding:9px 10px}
+  .cb-starts{grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:4px}
+  .cb-pairs{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .modal.cb-modal{padding:18px 14px}
+  .modal-overlay:has(.cb-modal){padding:12px}
+}
 
 /* gallery filters */
 .lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
@@ -2066,6 +2156,20 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .fam-card:hover{transform:translate(-2px,-2px);box-shadow:var(--hard)}
 :root[data-skin='poster'] .fam-card.on{border-color:var(--ink);box-shadow:3px 3px 0 var(--pop-marigold),3px 3px 0 1.5px var(--ink)}
 :root[data-theme='dark'][data-skin='poster'] .fam-card{border-color:rgba(244,240,232,.2)}
+/* the colour builder in the poster look: ink lines, the chosen card in marigold */
+:root[data-skin='poster'] .cb-tabs{background:var(--surface-solid);border:1.5px solid var(--ink);box-shadow:var(--hard)}
+:root[data-skin='poster'] .cb-tabs [role=tab].on{background:var(--ink);color:#fff;box-shadow:none}
+:root[data-skin='poster'] .cb-pair{border-color:var(--ink)}
+:root[data-skin='poster'] .cb-pair:hover{transform:translate(-2px,-2px);box-shadow:var(--hard)}
+:root[data-skin='poster'] .cb-pair.on{box-shadow:3px 3px 0 var(--pop-marigold),3px 3px 0 1.5px var(--ink)}
+:root[data-skin='poster'] .cb-start.on{border-color:var(--ink);box-shadow:2px 2px 0 var(--ink)}
+:root[data-skin='poster'] .cb-side{border-color:var(--ink);box-shadow:var(--hard-lg)}
+:root[data-skin='poster'] .cb.in-modal .cb-side{box-shadow:var(--hard)}
+:root[data-theme='dark'][data-skin='poster'] .cb-tabs,
+:root[data-theme='dark'][data-skin='poster'] .cb-pair,
+:root[data-theme='dark'][data-skin='poster'] .cb-side{border-color:rgba(244,240,232,.2)}
+:root[data-theme='dark'][data-skin='poster'] .cb-tabs [role=tab].on{background:var(--text);color:#141414}
+:root[data-theme='dark'][data-skin='poster'] .cb-start.on{border-color:var(--text);box-shadow:2px 2px 0 #000}
 /* the editor's bar is tight: its buttons keep one line and a lighter print */
 :root[data-skin='poster'] .topbar .tb-btn,
 :root[data-skin='poster'] .topbar .btn{white-space:nowrap}
