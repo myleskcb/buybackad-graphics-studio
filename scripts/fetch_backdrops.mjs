@@ -34,6 +34,19 @@ const BAD = /NC|ND|GFDL only|Fair use|copyright/i;
 /* a maker's press photograph is not a photograph of a car someone sells us */
 const PRESS = /\bpress(e|foto)?\b|pressefoto|newsroom|media kit|official photo/i;
 const tfetch = (u, ms, opts) => { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return fetch(u, Object.assign({ signal: c.signal, headers: UA }, opts || {})).finally(() => clearTimeout(t)); };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+/* upload.wikimedia.org answers 403 or 429 to thumbnails asked for too fast:
+   wait (Retry-After when given) and ask again, and keep a gap between files */
+async function getImage(u){
+  for (let i = 0; i < 5; i++){
+    const r = await tfetch(u, 40000);
+    if (r.ok) return r;
+    if (![403, 429, 503].includes(r.status)) return r;
+    const ra = +(r.headers.get('retry-after') || 0);
+    await sleep(Math.max(ra * 1000, [4000, 10000, 20000, 40000, 60000][i]));
+  }
+  return { ok:false };
+}
 const slug = q => q.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const att = existsSync(OUT + 'ATTRIBUTION.json') ? JSON.parse(readFileSync(OUT + 'ATTRIBUTION.json', 'utf8')) : [];
 const have = new Set(att.map(a => a.file));
@@ -61,7 +74,10 @@ for (const [cat, qs] of Object.entries(QUERIES)){
       const file = cat + '-' + slug(q) + '-' + (n + 1) + '.jpg';
       if (have.has(file)){ n++; continue; }
       try {
-        const ir = await tfetch(ii.thumburl || ii.url, 40000); if (!ir.ok) continue;
+        await sleep(1200);
+        /* the API now names thumb.wikimedia.org for thumbnails; upload.wikimedia.org
+           serves the same file at the same path */
+        const ir = await getImage((ii.thumburl || ii.url).replace('://thumb.wikimedia.org/', '://upload.wikimedia.org/')); if (!ir.ok){ console.log('    could not download ' + pg.title); continue; }
         const buf = Buffer.from(await ir.arrayBuffer()); if (buf.length < 60000) continue;
         writeFileSync(OUT + file, buf);
         att.push({ file, cat, query: q, title: pg.title, artist: ((m.Artist || {}).value || '').replace(/<[^>]+>/g, '').slice(0, 120), license: lic, usage, credit: ((m.Credit || {}).value || '').replace(/<[^>]+>/g, '').slice(0, 120),

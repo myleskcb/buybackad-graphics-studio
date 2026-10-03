@@ -215,17 +215,21 @@ POOLS = {
               I('coin-loose-pile', rot=5), I('gold-coins-pile', rot=5), I('silver-coins-tube', rot=5),
               I('silver-coins-spill', rot=5),
               I('coin-collection-tray', rot=6, role='h'), I('coin-album-pages', 'R', 5, role='h')],
-    # 2026-10-02 (owner: "more popular cars and less bikes", "some trucks and
-    # work vans"): the pickup, van and motorcycle renders are out, real ones cut
-    # from Commons photographs are in (scripts/cut_vehicle_photos.py). The
-    # sedans and the SUV are still renders until real ones land
-    # (scripts/fetch_backdrops.mjs CATS=popular,...). CAR_ROTA sets the mix.
-    'cars': [I('car-sedan-rear', rot=1, kind='car'), I('car-suv-side', rot=1, kind='car'), I('car-front', rot=1, kind='car'),
-             I('car-damaged-front', rot=1, kind='car'), I('car-sedan-front', 'R', 1, 'car', 'h'),
-             I('car-ford-f150-black', rot=1, kind='car'), I('car-chevy-silverado-red', rot=1, kind='car'),
-             I('car-ford-transit-connect-white', rot=1, kind='car'), I('car-ford-transit-courier-white', rot=1, kind='car'),
-             I('car-ldv-maxus-van-white', rot=1, kind='car'), I('car-harley-softail-black', rot=1, kind='car'),
-             I('car-wheel-tyre', rot=4, kind='acc'), I('car-title-keys', rot=10, kind='acc'),
+    # 2026-10-02/03 (owner: "more popular cars and less bikes", "some trucks and
+    # work vans", "semis"): only real vehicles, cut from Commons photographs by
+    # scripts/cut_vehicle_photos.py (credits in assets/cutouts/ATTRIBUTION.json).
+    # The sedan, SUV, pickup, van and motorcycle renders are gone. CAR_ROTA
+    # picks which of these each car backdrop shows.
+    'cars': [I(n, rot=1, kind='car') for n in (
+                 'car-toyota-camry-silver', 'car-toyota-corolla-white', 'car-honda-civic-white',
+                 'car-honda-civic-type-r-blue', 'car-toyota-rav4-white', 'car-honda-crv-silver',
+                 'car-toyota-4runner-green', 'car-mercedes-g-class-orange', 'car-bmw-m3-blue',
+                 'car-lamborghini-urus-green', 'car-bentley-bentayga-grey', 'car-audi-s5-white',
+                 'car-lexus-is-white', 'car-toyota-tacoma-orange', 'car-ford-f150-black', 'car-ram-1500-blue',
+                 'car-chevy-silverado-red', 'car-ford-transit-connect-white', 'car-ford-transit-courier-white',
+                 'car-ldv-maxus-van-white', 'car-ram-promaster-grey', 'car-mercedes-sprinter-white',
+                 'car-peterbilt-389-white', 'car-freightliner-cascadia-blue', 'car-harley-softail-black')] +
+            [I('car-wheel-tyre', rot=4, kind='acc'), I('car-title-keys', rot=10, kind='acc'),
              I('car-keys', rot=12, kind='acc'), I('car-title-docs', rot=6, kind='acc')],
     'strips': [I('strip-box-open-vials', rot=5), I('strip-boxes-fan', rot=6), I('strip-boxes-row-five', rot=3),
                I('strip-boxes', rot=20), I('strip-kit-meter', rot=6), I('strip-kit', rot=8), I('strip-meter-hand', rot=12),
@@ -268,12 +272,19 @@ POOLS = {
                   I('apple-watch-stack-three', rot=4, role='h')],
     'cameras': [I('camera-dslr-body', rot=6), I('camera-mirrorless', rot=6), I('drone-folded', rot=6)],
 }
-# The vehicle each car backdrop shows, in order (cars-001 is the first): ten
-# cars, five pickups, four work vans, one motorcycle, no two alike side by side.
-CAR_ROTA = ['car-suv-side', 'car-ford-f150-black', 'car-sedan-rear', 'car-ford-transit-connect-white', 'car-front',
-            'car-chevy-silverado-red', 'car-sedan-front', 'car-ldv-maxus-van-white', 'car-suv-side', 'car-ford-f150-black',
-            'car-damaged-front', 'car-ford-transit-courier-white', 'car-sedan-rear', 'car-harley-softail-black', 'car-front',
-            'car-chevy-silverado-red', 'car-suv-side', 'car-ford-transit-connect-white', 'car-sedan-front', 'car-ford-f150-black']
+# The vehicle each car backdrop shows, in order (cars-001 is the first): twenty
+# different real vehicles, eleven cars (the owner's Camry, RAV4, G-Class, M3,
+# Urus, Bentayga, S5, Civic, Civic Type R and IS, with a Corolla), three
+# pickups, three work vans, two semis and one motorcycle, no two of a kind side
+# by side, and none on a palette of its own colour (no green Urus on Money
+# Green, no white van on Apple White). Left out: the CR-V (shot from a slant,
+# it tips on the podium) and the 4Runner (grass hides its tyres).
+CAR_ROTA = ['car-toyota-camry-silver', 'car-toyota-tacoma-orange', 'car-bmw-m3-blue', 'car-ford-transit-connect-white',
+            'car-bentley-bentayga-grey', 'car-ram-1500-blue', 'car-lamborghini-urus-green', 'car-peterbilt-389-white',
+            'car-honda-civic-type-r-blue', 'car-harley-softail-black', 'car-mercedes-g-class-orange',
+            'car-mercedes-sprinter-white', 'car-toyota-rav4-white', 'car-ford-f150-black', 'car-lexus-is-white',
+            'car-ram-promaster-grey', 'car-toyota-corolla-white', 'car-freightliner-cascadia-blue', 'car-audi-s5-white',
+            'car-honda-civic-white']
 COUNTS = OrderedDict([('iphone', 150)] + [(c, 40) for c in
           ['gold', 'silver', 'coins', 'strips', 'pokemon', 'sports', 'gaming', 'audio', 'computers', 'wearables']]
           + [('cars', 20), ('cameras', 25)])

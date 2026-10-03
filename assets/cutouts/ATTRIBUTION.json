@@ -40,5 +40,119 @@
     "artist": "Pierre André Leclercq",
     "page": "https://commons.wikimedia.org/wiki/File%3AHarley-Davidson%20Softail%20Springer%20Screamin'%20Eagle%202008.jpg",
     "note": "cut from assets/bg-web/bikes-harley-davidson-motorcycle-1.jpg by scripts/cut_vehicle_photos.py. a black Harley-Davidson Softail Springer motorcycle, side on"
+  },
+  "car-toyota-camry-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "EurovisionNim",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2018%20Toyota%20Camry%20(ASV70R)%20Ascent%20sedan%20(2018-08-27)%2001.jpg",
+    "note": "cut from assets/bg-web/popular-toyota-camry-5.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Toyota Camry (XV70, 2018-) sedan, front three-quarter"
+  },
+  "car-toyota-corolla-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "EurovisionNim",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2018%20Toyota%20Corolla%20(ZRE172R)%20Ascent%20sedan%20(2018-11-02)%2002.jpg",
+    "note": "cut from assets/bg-web/popular-toyota-corolla-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Toyota Corolla (E170, 2014-19) sedan, rear three-quarter"
+  },
+  "car-honda-civic-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20Civic%20Hybrid%20(2022%2C%20Europe)%20IAA%202023%201X7A0545%20(2).jpg",
+    "note": "cut from assets/bg-web/popular-honda-civic-6.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Honda Civic (eleventh generation, 2022-) hatchback, front three-quarter"
+  },
+  "car-honda-civic-type-r-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20Civic%20Type%20R%20(2017)%201X7A0088.jpg",
+    "note": "cut from assets/bg-web/popular-honda-civic-type-r-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Honda Civic Type R (FK8, 2017-21), front three-quarter"
+  },
+  "car-honda-crv-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "B20180",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20CR-V%20in%20Thailand%201.jpg",
+    "note": "cut from assets/bg-web/popular-honda-cr-v-1.jpg by scripts/cut_vehicle_photos.py. a silver Honda CR-V (fifth generation, 2017-22) in a showroom, front three-quarter, no plate"
+  },
+  "car-toyota-rav4-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%2C%20Paris%20Motor%20Show%202018%2C%20Paris%20(1Y7A1784).jpg",
+    "note": "cut from assets/bg-web/popular-toyota-rav4-2.jpg by scripts/cut_vehicle_photos.py. a white Toyota RAV4 Hybrid (XA50, 2019-) with a black roof, front three-quarter, show plate only"
+  },
+  "car-toyota-4runner-green": {
+    "license": "CC BY-SA 2.0",
+    "artist": "Roy Cohutta",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%204Runner%202021.jpg",
+    "note": "cut from assets/bg-web/popular-toyota-4runner-4.jpg by scripts/cut_vehicle_photos.py. an Army Green Toyota 4Runner TRD Pro (N280), front three-quarter, no plate"
+  },
+  "car-mercedes-g-class-orange": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMercedes-Benz%20W%20463%20(2018)%20Professional%20Line%201X7A6057.jpg",
+    "note": "cut from assets/bg-web/popular-mercedes-benz-g-class-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a matte orange Mercedes-Benz G-Class (W463, 2018-) Professional Line, front three-quarter"
+  },
+  "car-bmw-m3-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20M3%20CS%201X7A6394.jpg",
+    "note": "cut from assets/bg-web/popular-bmw-m3-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue BMW M3 CS (F80) sedan, front three-quarter"
+  },
+  "car-lamborghini-urus-green": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALamborghini%20Urus%20SE%20DSC%208524.jpg",
+    "note": "cut from assets/bg-web/popular-lamborghini-urus-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a green Lamborghini Urus SE (2024-), front three-quarter"
+  },
+  "car-bentley-bentayga-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABentley%20Bentayga%20(FL)%20Azure%201X7A7439.jpg",
+    "note": "cut from assets/bg-web/popular-bentley-bentayga-5.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey-blue Bentley Bentayga Azure (facelift, 2021-), front three-quarter"
+  },
+  "car-audi-s5-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Dinkun Chen",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAUDI%20S5%20SPORTBACK%20F5%20China.jpg",
+    "note": "cut from assets/bg-web/popular-audi-s5-5.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Audi S5 Sportback (F5), front three-quarter"
+  },
+  "car-lexus-is-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kevauto",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2021%20Lexus%20IS%20300%20AWD%2C%20front%203.26.21.jpg",
+    "note": "cut from assets/bg-web/popular-lexus-is-5.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Lexus IS 300 AWD (2021) sedan, front three-quarter"
+  },
+  "car-toyota-tacoma-orange": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Tacoma%20TRD%20Off%20Road%20(N400)%20IMG%209727.jpg",
+    "note": "cut from assets/bg-web/trucks-toyota-tacoma-6.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an orange Toyota Tacoma TRD Off Road (N400, 2024-) double cab pickup, front three-quarter"
+  },
+  "car-ram-1500-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Ermell",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARam%201500%20(DT)%20Hirschaid%202022-20220709-RM-111330.jpg",
+    "note": "cut from assets/bg-web/trucks-ram-1500-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Ram 1500 crew cab pickup, front three-quarter"
+  },
+  "car-ram-promaster-grey": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Mr.choppers",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2014%20Ram%201500%20ProMaster%20Tradesman%20SWB%20std%20roof%20front.jpg",
+    "note": "cut from assets/bg-web/vans-ram-promaster-4.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey 2014 Ram ProMaster 1500 Tradesman low-roof work van, front three-quarter"
+  },
+  "car-mercedes-sprinter-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMercedes-Benz%20Vans%2C%20IAA%202026%2C%20Hanover%20(20260914-P1086801).jpg",
+    "note": "cut from assets/bg-web/vans-mercedes-benz-sprinter-2.jpg by scripts/cut_vehicle_photos.py. a white Mercedes-Benz Sprinter 4x4 tipper (chassis cab, 2023-) at a show, front three-quarter, show plate only"
+  },
+  "car-peterbilt-389-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3APeterbilt%20389.png",
+    "note": "cut from assets/bg-web/semis-peterbilt-389-4.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Peterbilt 389 day-cab semi tractor, front three-quarter"
+  },
+  "car-freightliner-cascadia-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Oleg Yunakov",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFreightliner%20Cascadia.jpg",
+    "note": "cut from assets/bg-web/semis-freightliner-cascadia-4.jpg by scripts/cut_vehicle_photos.py. a blue Freightliner Cascadia (second generation) sleeper semi tractor, front three-quarter, no front plate"
   }
 }
