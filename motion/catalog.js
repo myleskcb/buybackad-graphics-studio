@@ -426,11 +426,12 @@ export const OPTIONS = {
   outro: ["none", "settle", "end_card"],
   // accents (accents.js): how many, on what topic, drawn as what, and how they move
   accents: [0, 1, 2, 3],
-  accent_set: ["cash", "money", "hype", "phones", "deal", "local", "trust", "sparkle", "checks"],
+  accent_set: ["cash", "money", "hype", "phones", "deal", "local", "trust", "sparkle", "checks",
+    "party", "fast", "premium", "shop", "today", "love", "la_sun", "eco", "keys", "marks"],
   accent_kind: ["mix", "emoji", "asset", "symbol"],
-  accent_in: ["fade", "pop", "slide", "fly", "drop", "flip3d", "wide_spin", "zoom", "swing", "orbit"],
-  accent_idle: ["bob", "pulse", "wiggle", "turntable", "float", "still"],
-  accent_out: ["fade", "pop_out", "fly_out", "spin_out", "drop_out", "none"],
+  accent_in: ["fade", "pop", "slide", "fly", "drop", "flip3d", "wide_spin", "zoom", "swing", "orbit", "bounce_in", "unfold", "spiral", "rise", "stamp"],
+  accent_idle: ["bob", "pulse", "wiggle", "turntable", "float", "still", "sway", "heartbeat", "breathe", "circle"],
+  accent_out: ["fade", "pop_out", "fly_out", "spin_out", "drop_out", "none", "shrink", "rise_out", "flip_out", "blur_out"],
 };
 
 // Spin-offs of the best grounds (audit 2026-09-30), painted in decor.js
