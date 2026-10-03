@@ -1551,13 +1551,16 @@ Done (DESIGN-LAW rule 110), on `claude/vigilant-wozniak-kyyy7b`:
   make it fully audited and validated"): every_card_audit over all 649
   cards, themes and looks, holds written (assets/choice-holds.json): 45
   cards held as offered, the same as `main`; the older themes' holds 444 →
-  275; the 31 new themes 171 holds over 21 cards; looks 36 (35 on `main`).
+  275; the 31 new themes 171 holds over 21 cards; looks 37 (36 on `main`).
   The library gate 329/329, the classics the same 58 failing as stored,
   ez_theme_audit and tagline_audit clean, designer_audit's ORIG 0% on every
   card that opens. Five things the audit found are fixed (rule 110): a mark
   on a large panel, a halo on an even ground, a mark the number's plate slid
   under, multicolour letters at the line's lightness, and the designer's
-  ORIG (bandKnockout-pp04-15, 29% on `main`).
+  ORIG (bandKnockout-pp04-15, 29% on `main`). `main` merged in again
+  (b7a67925, rules 108 and 109 there, so this is 110 and §AD): its 90
+  re-centred cards measured again on the merged build, three holds moved,
+  the library gate 321/321.
 
 Still open:
 

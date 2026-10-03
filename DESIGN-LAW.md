@@ -3921,7 +3921,7 @@ with three workers, the most this container's 14 GB holds):
   held on `main` pass, one new: Blue Ticket on bandKnockout-ck04-35, its frame
   left in the old colour). The 31 new themes: 171 holds over 21 cards, at
   most 2% of cards for any theme (Black on Orange 11 cards, Midnight & Cyan,
-  Blue & Green and Black & Green 10). The looks: 36 holds, 35 on `main`; no
+  Blue & Green and Black & Green 10). The looks: 37 holds, 36 on `main`; no
   look newly failing on a card, Offset shadow on none. Written to
   assets/choice-holds.json, so a held chip is off on its card with its reason.
 - `verify_showcase.mjs`: the library 329 of 329 pass; the classics 346 pass
@@ -3934,6 +3934,12 @@ with three workers, the most this container's 14 GB holds):
   that opens and ORIG puts each back exactly (0%), after the themes and after
   the swatches; the two that do not open (sell_iphone, gold_spot) are held as
   offered, as on `main`.
+- After `main`'s composition audit re-centred 90 library cards (rule 109),
+  merged here: those 90 run again through every theme and look on the merged
+  build. Three holds moved (scriptRetro-du08-15 gains Black on Orange,
+  trustSeal-jw10-26 loses White on Red, trustSeal-cd06-26 gains the glow look
+  `main` holds too); the library gate 321 of 321 (the composition audit
+  took 8 off the site).
 - `theme_law.mjs`: 52 of 52; the worst ink under a colour-vision
   simulation 3.92:1 (White on Red), the worst support 4.45:1. (`cvd_audit.py`
   reads a hand-copied table of the older THEME_DECKS, not COLOR_THEMES, and
