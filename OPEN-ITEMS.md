@@ -1481,7 +1481,7 @@ Still open:
    owner wants the list to match.
 
 
-## AC. 2026-10-02 — Steps Flow: one gap down to the CTA, and a CTA that is not a fourth step (DESIGN-LAW 107)
+## AC. 2026-10-02 — Steps Flow: one gap down to the CTA, and a CTA that is not a fourth step (DESIGN-LAW 108)
 
 The owner, over `stepsFlow-du08-15` and a green-CTA Steps card in the
 library: "audit the margin between each bubble", "the CTA should have even
@@ -1501,7 +1501,7 @@ every-choice audit on the 21 live Steps cards and both classics wrote the
 same holds `main` has, card for card (only contrast figures in the second
 decimal moved), so `assets/choice-holds.json` is unchanged. It did catch one
 new hold on the way (du02-20 under Electric Trust, the phone cue on a plate
-the theme repainted), fixed before this commit (rule 107).
+the theme repainted), fixed before this commit (rule 108).
 
 Not on `main`: this session may push only to its own branch,
 `claude/relaxed-darwin-8aces4` (merged up to `main` at 8f4d1e72). Merge it to
