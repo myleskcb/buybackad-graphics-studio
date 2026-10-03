@@ -1480,7 +1480,49 @@ Still open:
    `checklistHero-pp02-20` off the wall. Re-pick on `/lab/hero.html` if the
    owner wants the list to match.
 
-## AC. 2026-10-02 — the phone mark joins the number; two car cards finished; why a card looks unfinished
+
+## AC. 2026-10-03 — the composition audit: 88 cards centred, 8 held (DESIGN-LAW 109)
+
+The owner: "next audit more", after a Pokémon card that "looks incomplete".
+`scripts/composition_audit.mjs` (exits 1 on a failing offered card) and
+`scripts/centre_showcase.mjs` (the gated repair). 118 of 309 offered cards
+failed; 88 were centred, 16 lost a leftover ✓ in their first ring, 16 had an
+invisible icon or sticker text inked to read; 8 were held (holds.json);
+verify_showcase passes all 321 live cards; 49 of 301 still fail the measure.
+every_card_audit on the changed cards: no card newly held as offered (two
+whose centred headline covered the corner badges were put back,
+checklistHero-cd04-15 and -cd06-20, keeping the tick and ink repairs); one
+theme (neonNight-nn05-15, Electric Trust) and one look (trustSeal-cd06-26,
+glow) newly off; the voices' table moved on 16 cards.
+
+Not live until deployed (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **The gate held 11 centrings**, each because a line would sit on a
+   brighter or darker patch of the photograph and lose contrast, or a
+   kicker would be covered: checklistHero-jw10-15, checklistHero-du07-15
+   (both still carry the leftover ✓ and need it removed without the move),
+   neonNight-jw07-15, scriptRetro-io03-15, scriptRetro-cd06-15,
+   scriptRetro-ca07-20, voltStack-du01-20, voltStack-gl04-20,
+   reviewProof-jw05-30 (held), hudTech-du01-30, bubblePop-du09-35. Each
+   needs its shade re-solved after the move (naturalize, then verify).
+2. **Fifteen came out no better** (a wave layout, a card whose parts collide
+   when centred, a part centred onto another): trustSeal-su02-20,
+   neonNight-nn03-20, neonNight-jw05-20, neonNight-cd06-25,
+   ticketStub-jw07-20, hudTech-cd10-20, voltStack-jw10-30,
+   scriptRetro-nn01-30, scriptRetro-du01-30, bandKnockout-jw10-30,
+   bandKnockout-pa03-35, checklistHero-pa01-35, checklistHero-pp09-35,
+   reviewProof-cd08-35 (held), hudTech-nn08-35 (held). A person's eye, or a
+   relayout, not a nudge.
+3. **Steps Flow**: eight fail the measure (the number's plate off the middle
+   on several); claude/relaxed-darwin-8aces4 is re-laying them out and is
+   not on `main`. Run composition_audit on them after it merges.
+4. The left-aligned designs that share an edge (most voltStack, neonNight,
+   hudTech left headlines) pass and were not touched. If the owner wants
+   every card centred, `centre_showcase.mjs --ids` takes any list.
+
+## AD. 2026-10-02 — the phone mark joins the number; two car cards finished; why a card looks unfinished
 
 The owner sent two car cards from the live site (`bubblePop-cd10-30` and
 `scriptRetro-du07-30`): "The Phone icon by the CTA looks super out of place
@@ -1490,7 +1532,7 @@ blue or the CTA should be matched to white ... needs a background image", then
 ground with no photograph); the live site predates the hold (§AA, not live
 until deployed).
 
-Done (DESIGN-LAW rule 108):
+Done (DESIGN-LAW rule 110):
 - **The phone mark** (`pgPhoneCue`, after `pgPlateInk`): on the 93 live cards
   that carry one, 0 now differ from the number's colour (was 60 of 60 shown),
   0 sit off the number's box (22), 0 are off its middle (46); 59 shown, 2
@@ -1547,7 +1589,7 @@ with the step that finishes it (the owner asked for this list):
    to `slab`), draw the few that earn it (`corner` as a frame bracket,
    `headset`), and draw nothing for the rest rather than a star. Then a
    contact sheet for the owner and the gate.
-3. **A mark the passes left behind** — the phone mark (done, rule 108); the
+3. **A mark the passes left behind** — the phone mark (done, rule 110); the
    same kind of drift is likely for the other marks placed beside a line at
    generation (the website's globe and arrow are hidden by the layout today).
 4. **Two boxes that do not agree** — an info strip in white beside a coloured
@@ -1576,14 +1618,14 @@ The owner's part, and a tool for it (proposed, not built):
   browser's localStorage. The diffs come back as one JSON file in the repo
   (`assets/owner-edits/`), a script applies them to the records through the
   gate, and a second reads them for patterns (the owner always moves X, always
-  matches Y) to turn into passes, the way rule 108 came from one remark.
+  matches Y) to turn into passes, the way rule 110 came from one remark.
 
-## AD. 2026-10-03 — the generator's marks, marks clear of the headline, 39 cards back with a photograph
+## AE. 2026-10-03 — the generator's marks, marks clear of the headline, 39 cards back with a photograph
 
-The owner: "keep working on the style", after §AC's list.
+The owner: "keep working on the style", after §AD's list.
 
-Done (DESIGN-LAW rules 109, 110):
-- **§AC 2, the sparkle stand-ins.** The 44 marks the generator drew and the
+Done (DESIGN-LAW rules 111, 112):
+- **§AD 2, the sparkle stand-ins.** The 44 marks the generator drew and the
   studio never had are in `ICONS`. No mark on a live card falls back to the
   sparkle (265 did on 148 cards).
 - **Marks clear of the headline** (`pgFlankClear`): of 166 floating marks on
@@ -1591,13 +1633,13 @@ Done (DESIGN-LAW rules 109, 110):
   their row; 113 moved back out, 10 hidden without room, and 25 dollar signs
   and ticks hidden from headline rows. On the 370 live cards: 145 shown, none
   within 118px.
-- **39 drawn-ground cards back with a photograph** (§AC 1): cars 6, phones 5,
+- **39 drawn-ground cards back with a photograph** (§AD 1): cars 6, phones 5,
   pokemon 1, strips 5, coins 8, gold 5, silver 7, sports 2, each on a library
   photograph no other card uses (near-duplicate shots counted as one). holds.json
-  84 to 45. Seven of them also took rule 110's strip.
-- **The strip wears the CTA's colour** on 21 live cards (rule 110).
+  84 to 45. Seven of them also took rule 112's strip.
+- **The strip wears the CTA's colour** on 21 live cards (rule 112).
 - `every_card_audit.mjs --write-holds` keeps the rows of a card that did not
-  open (§AC's tooling bug).
+  open (§AD's tooling bug).
 
 Checked: the library gate 370 of 370 live cards (verify_showcase.mjs); the
 classics 346 of 404, the same 58 held as on main; Easy Mode themes
@@ -1626,7 +1668,7 @@ Still open:
    website line when the visitor has none and leaves the number alone at the
    top of stepsFlow's and trustSeal's footer band. 21 live cards (three of
    them brought back here), 4 classics and 12 held cards were kept out of the
-   lists for it. Done in the next commit (DESIGN-LAW 111): the number fails
+   lists for it. Done in the next commit (DESIGN-LAW 113): the number fails
    its middle on 2 live cards in Easy Mode instead of 21 (trustSeal-jw10-30
    and -jw10-31, whose band cannot grow under the copy above it: still open).
    23 cards are back in Easy Mode (19 live, the 4 price-badge classics), and
