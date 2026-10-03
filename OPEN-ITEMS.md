@@ -1505,33 +1505,46 @@ Done (DESIGN-LAW rule 108), on `claude/vigilant-wozniak-kyyy7b`:
 - **Every palette shows its accent** on a card that gave the accent no job.
 - **§Z 3's three held themes on reviewProof-cd06-15 pass**: a plate matched
   to a look's gradient now goes lighter or darker by the words on it.
-- Measured: 954 renders of all 52 themes on 18 cards, all passing; the 78
-  live cards with plate-matching looks unchanged as designed.
+- **Audited on every offered card** (2026-10-03, the owner: "keep going to
+  make it fully audited and validated"): every_card_audit over all 649
+  cards, themes and looks, holds written (assets/choice-holds.json): 45
+  cards held as offered, the same as `main`; the older themes' holds 444 →
+  275; the 31 new themes 171 holds over 21 cards; looks 36 (35 on `main`).
+  The library gate 329/329, the classics the same 58 failing as stored,
+  ez_theme_audit and tagline_audit clean, designer_audit's ORIG 0% on every
+  card that opens. Five things the audit found are fixed (rule 108): a mark
+  on a large panel, a halo on an even ground, a mark the number's plate slid
+  under, multicolour letters at the line's lightness, and the designer's
+  ORIG (bandKnockout-pp04-15, 29% on `main`).
 
 Still open:
 
 1. **Merge to `main` and deploy.** This session may push only its own
    branch; the owner's go-ahead puts it on `main` (merge `main` in first,
    theme_law and sync_css_fallback --check, then the deploy from the Mac).
-2. **The choice holds for the new themes and looks**: `every_card_audit.mjs
-   --dims base,themes,looks --write-holds` over every offered card (649).
-   On this session's four-core container it ran at several minutes a card
-   (67 renders each), more than a day for all of them, so it was stopped
-   after six classics (all 52 themes passed on each). Run it on the Mac, or
-   in two-hour chunks with `--resume`. Until its table is written, a new
-   theme is offered on every card and the download gate (pgGate) is what
-   stands between a weak combination and a download; the voice holds are
-   kept (the writer now rewrites only the dimensions it ran).
+2. **The per-card holds the audit wrote**, each a chip turned off on its card
+   with its reason, not a bug the visitor meets. Worth a look one day, since
+   a fix would give the chip back: Black on Orange (11 cards; among them
+   checklistHero-cd04-15's second headline and scriptRetro-io03-15's call to
+   action fail the gate's legibility); trustSeal-du05-15's status
+   text and trustSeal-du02-20's status dot (a tick on a dot in the ink's
+   colour) under Black on Yellow and Black on Orange; reviewProof-pp03-35's
+   quote under White on Red and White on Green (1.5:1); arcCrown-nn01-30's
+   crown under Navy, White & Red; Blue Ticket on bandKnockout-ck04-35, its
+   frame left in the old colour (the one older theme newly held).
 3. **A red accent lifted for a dark photograph goes salmon** (Black, White &
    Red's headline on sell_iphone): themeScene solves an accent line's
    lightness until it reads, and over rule 103's band red stops being red.
    Keeping the red and shading the photograph under that line would hold
    the name; not done.
-4. **The designer audit** on this build: 4 problems over its 6 cards, all
-   as on `main`: sell_iphone and gold_spot do not open (held as offered,
-   choice-holds.json and template-holds.js), and ORIG does not put
-   bandKnockout-pp04-15 back in the designer (29% of it differs; the same on
-   `main`'s app.js).
+4. **A colour set by hand on a line a look styles** is the line's own paint
+   under the look (the designer keeps it through a ground change, and a look
+   that keeps the letters' face, as 3-D does, shows it), but a look that
+   paints the letters (a gradient, multicolour) draws over it while it is
+   on, in Easy Mode and the designer alike, as on `main`; and picking
+   another look in the designer puts the line back to its paint before the
+   hand colour (taglineEditorApply resets first), as on `main`. Whether a
+   hand colour should win over a look is the owner's call.
 5. **`claude/fervent-pascal-w6mthe`** (the plain-words copy, rule 95's two
    families) is not in `main` or here; its pgOneHue change and this one's
    wrapper meet in the same pass when it is merged (this one wraps it, so the

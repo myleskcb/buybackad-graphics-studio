@@ -404,7 +404,12 @@ produced." DESIGN-LAW rule 87. In practice:
   and keeps a card that fails as offered out of the lists. It takes hours in
   full; run it with `--ids a,b` on the cards a change touches (the table is
   updated for those cards only) and `--resume` to continue a stopped run. It
-  loads the studio with `?nochoiceholds=1`.
+  loads the studio with `?nochoiceholds=1`. On a container (a cloud session,
+  about 14 GB) run it with `--lean --workers 3`: a studio page peaks near
+  4 GB, a fourth worker gets its renderer killed for memory, and a page that
+  dies is now reported and opened again rather than hanging the run. The
+  full run (649 cards, themes and looks) took about eight hours that way,
+  in chunks continued with `--resume`.
 - **The designer's guides and lock** (rule 107, 2026-10-02): the pink guides
   (`sgSnap`) and the lock to the middle (`pgCentreLock`, kept by `ccKeep`
   before every render and undo step) work on the parts `ccParts` finds. A

@@ -3759,25 +3759,70 @@ sank the bar to black under its dark words: the three themes held on that
 card (OPEN-ITEMS §Z 3), and every new theme with a support. The direction now
 comes from the words standing on the plate itself.
 
-**Measured.**
+**What the full audit found, and fixed** (2026-10-03, every offered card
+through every theme and look, below):
 
-- All 52 themes on 18 cards (one live card of each library layout, three
-  classics): 954 renders, 954 pass the gate on the final build. A first run
-  failed one ('hues', Blue & Green on reviewProof-cd06-15, the cyan that
-  slid), fixed by the fold above. The 21 older themes on those cards: 3 held
-  on `main`, 0 fail.
-- `every_card_audit.mjs` on the first six classics before it was stopped
-  (top_buyer to gold_estate): all 52 themes pass on all six.
-- `designer_audit.mjs`: the 52 themes change every card it opens and ORIG
-  puts them back, except bandKnockout-pp04-15, which ORIG does not restore on
-  `main` either.
+- **A mark keeps to the panel it is drawn on.** A dark rule on a large dark
+  panel that is not a plate (dl_silver_editorialLux_arctic) was measured
+  against the card's ground and kept its dark ink; a mark now reads the
+  largest solid shape under its centre when no plate hosts it.
+- **A halo goes where it cannot help.** A kicker's dark halo on a mid-tone
+  photograph read 1.44:1 as a smudge round letters that read without it;
+  `thRingFit` drops a blurred ring on an even ground when the ink reads 4.5:1
+  against the worst tenth of the ground under the line.
+- **A mark stays visible on the plate it ends up on** (`thMarksVisible`). The
+  number's plate grows after the theme (numberFill) and can slide under a
+  mark: trustSeal-cd10-20's phone cue landed dark on Blue Market's dark plate,
+  1.46:1, under nine of the older themes. With a theme on, once the card is
+  finished and again after a look, a mark under 2:1 on the solid shape under
+  its centre takes the theme's colour that reads 3:1 there.
+- **A palette's multicolour letters keep their hues at the line's
+  lightness** (`fxLetters`): bubblePop's letters on a light line were drawn
+  at the palette colours' own lightness and two came out black.
+- **The designer's ORIG puts the card back.** edRecolour read a colour the
+  visitor set by hand after taking the look off, against a record taken
+  before the look, so every colour the look's own passes made (the plate ink
+  of rule 104, the one-colour pass) was saved as the card's paint, and ORIG
+  left bandKnockout-pp04-15 29% in theme colours (on `main` too). It now
+  reads the hand colour against what the last pass left, the look included,
+  before the look comes off, and puts the visitor's colour back under the
+  look as the line's own paint: a headline set to magenta by hand stays
+  magenta through a ground change, under ORIG and under a theme, with the
+  card's extrude look still on it.
+
+**Measured** (2026-10-03, on the final build; `every_card_audit.mjs --lean`
+with three workers, the most this container's 14 GB holds):
+
+- `every_card_audit.mjs --dims base,themes,looks --write-holds` over every
+  offered card, 649: 33,748 theme renders and 8,437 look renders, the 50
+  cards a fix touched run again. Cards held as offered: 45, the same as on
+  `main`. The 21 older themes: 444 holds on `main`, 275 now (161 card-themes
+  held on `main` pass, one new: Blue Ticket on bandKnockout-ck04-35, its frame
+  left in the old colour). The 31 new themes: 171 holds over 21 cards, at
+  most 2% of cards for any theme (Black on Orange 11 cards, Midnight & Cyan,
+  Blue & Green and Black & Green 10). The looks: 36 holds, 35 on `main`; no
+  look newly failing on a card, Offset shadow on none. Written to
+  assets/choice-holds.json, so a held chip is off on its card with its reason.
+- `verify_showcase.mjs`: the library 329 of 329 pass; the classics 346 pass
+  and 58 fail, the same 58 as stored before this change.
+- `ez_theme_audit.mjs` on its 19 cards × 52 themes: no problems (every plate
+  themed, nothing left in the old colours, no regressions).
+- `tagline_audit.mjs`: each of the 13 looks passes on 102 of 102 templates
+  (the five that error are held as offered and open another card).
+- `designer_audit.mjs` on its six cards: the 52 themes change every card
+  that opens and ORIG puts each back exactly (0%), after the themes and after
+  the swatches; the two that do not open (sell_iphone, gold_spot) are held as
+  offered, as on `main`.
+- `theme_law.mjs`: 52 of 52; the worst ink under a colour-vision
+  simulation 3.92:1 (White on Red), the worst support 4.45:1. (`cvd_audit.py`
+  reads a hand-copied table of the older THEME_DECKS, not COLOR_THEMES, and
+  fails the same three decks on `main`; theme_law's simulation is what
+  measures the 52.)
 - Every card as designed is unchanged: the 78 live cards whose own look
   matches plates, drawn as renderThumb draws them with `main`'s app.js and
-  with this one, differ by at most 0.71% of pixels (median 0.16%), and the
-  same card against `main` itself by 0.63% (its grain).
-- The choices on every card: `scripts/every_card_audit.mjs --dims
-  base,themes,looks --write-holds`, which now rewrites only the dimensions it
-  ran (a themes-and-looks run keeps the voice holds).
+  with this one, differ by at most 0.66% of pixels (median 0.18%) on the
+  final build, and the same card against `main` itself by 0.63%
+  (hudTech-du01-30, its grain).
 
 > Amends rule 95: with a colour theme on, the card's hue is the theme's
 > colours, not one hue; a look the visitor picked is theirs. Rule 95 stands

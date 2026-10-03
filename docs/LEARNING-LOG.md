@@ -2510,8 +2510,36 @@ Learned:
   - Pixel comparisons need their own noise floor: the grain differs between
     two renders of one card on one build by up to 0.63%.
 
+## 2026-10-03 — the 52 themes audited on every card
+
+Asked: "keep going to make it fully audited and validated".
+
+Did: every audit the repo has, on the final build. every_card_audit over all
+649 offered cards, themes and looks (42,000 renders), holds written; the
+library and classics gates; ez_theme_audit; tagline_audit; designer_audit;
+theme_law. Five problems it found are fixed (DESIGN-LAW 108, "What the full
+audit found"); OPEN-ITEMS §AC lists the per-card holds left.
+
+Learned:
+  - Every hang of the full audit at fifteen minutes was the kernel killing a
+    renderer for memory: a studio page peaks near 4 GB and four of them do
+    not fit in 14 GB. The page died silently and its evaluate waited
+    forever. `--lean`, three workers and treating a crashed page as an error
+    to open again made the run finish; a lean run was checked against a
+    normal one first (same results on the same cards).
+  - An audit that writes a table must rewrite only what it measured: a
+    themes-and-looks run had been about to drop every voice hold.
+  - A "left over" colour can be the card's own: on a card whose own palette
+    is the theme, the old colour and the theme's are the same colour.
+    Measure a regression against `main`'s holds, never against zero.
+  - A record of "what the last pass left" has to be taken after every pass
+    that paints, the look and its own passes included, or the next pass
+    reads the passes' colours as the visitor's. The designer's ORIG drift on
+    bandKnockout-pp04-15 was on `main` too; only the designer audit saw it.
+  - pkill -f matches the shell that runs it: stop audit processes by
+    skipping bash in the match, or the tool call dies with its children.
+
 RESUME HERE:
   0. The owner's go-ahead to merge this branch into `main`, then the deploy.
-  1. The choice holds run (OPEN-ITEMS §AC 2), `--resume` until 649 cards,
-     then `--write-holds`.
+  1. The per-card holds (OPEN-ITEMS §AC 2), if a chip is worth giving back.
   2. The salmon red (§AC 3).

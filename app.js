@@ -18513,15 +18513,28 @@ function edRecolour(opts){
      then the look, in the theme's palette): taken off first, so the paint this
      pass records and restores is the design's, and put back on the result */
   const hadLook = typeof taglineModeOf === 'function' && !!taglineModeOf(canvas);
+  /* a colour the visitor set since the last pass: read against what that pass
+     left, the look and the passes after it included, before the look comes
+     off. Read after it, against a record taken before the look, every colour
+     the look's own passes made (the plate ink of rule 104, the one-colour
+     pass) looked like the visitor's, was saved as the card's own paint, and
+     ORIG left bandKnockout-pp04-15 29% in theme colours (designer_audit, on
+     main too, 2026-10-03). A line the plate-ink pass tinted is the pass's */
+  const edited = new Map(canvas.getObjects().filter(o => edPaintable(o) && o.pgOrig && o.pgAutoFill != null && edFillKey(o) !== o.pgAutoFill && !pgPlateInked(o))
+    .map(o => [o, { fill: edSer(o.fill), kids: o.type === 'group' && o._objects ? o._objects.map(k => edSer(k.fill)) : null }]));
   if (hadLook){ canvas.discardActiveObject(); taglineReset(canvas); }
   const objs = canvas.getObjects().filter(edPaintable);
   objs.forEach(o => {
     if (!o.pgOrig){ o.pgOrig = edPaintOf(o); if (!o.pgBuilt) o.pgBuilt = edPaintOf(o); return; }   // pgBuilt: as built, for Enhance; never rewritten
-    /* a line the plate-ink pass tinted (rule 104) wears the pass's colour, not
-       the visitor's: read as theirs, its themed paint was saved as the card's
-       own and ORIG brought bandKnockout-pp04-15's number and call to action
-       back light (designer_audit, on main too, 2026-10-03) */
-    if (o.pgAutoFill != null && edFillKey(o) !== o.pgAutoFill && !pgPlateInked(o)){ o.pgOrig = edPaintOf(o); o.pgUser = true; }
+    /* the visitor's colour is put back under the look taken off: the line's
+       own paint from now on, so the look wears over it and it is there again
+       when the look comes off (the look's rim and shadow are the look's) */
+    const hand = edited.get(o);
+    if (hand){
+      o.set('fill', edDes(hand.fill));
+      if (hand.kids && o._objects) o._objects.forEach((k, i) => { if (i < hand.kids.length){ k.set('fill', edDes(hand.kids[i])); k.dirty = true; } });
+      o.dirty = true; o.pgOrig = edPaintOf(o); o.pgUser = true;
+    }
   });
   if (pick && !opts.keepUser) objs.forEach(o => { delete o.pgUser; });
   objs.forEach(o => { if (!o.pgUser) edPaintSet(o, o.pgOrig); });
@@ -18536,9 +18549,10 @@ function edRecolour(opts){
   else if (bgState && bgState.pick && ezGroundIsFlat(bgState)){ try { ezCopyFollowsGround(canvas, CW, CH, keep); } catch (e){ console.warn('GraphicsStudio copy on ground (designer):', e); } }
   try { ezOverlayFit(canvas, CW, CH); } catch (e){ console.warn('GraphicsStudio overlay tone (designer):', e); }
   try { edShadeSolve(); } catch (e){ console.warn('GraphicsStudio shade (designer):', e); }
-  objs.forEach(o => { o.pgAutoFill = edFillKey(o); if (th) o.pgTheme = th.name; else delete o.pgTheme; });
+  objs.forEach(o => { if (th) o.pgTheme = th.name; else delete o.pgTheme; });
   canvas.__theme = th || null;
   if (hadLook){ try { taglineShow(taglineApply(canvas, tpl, CW, CH), 'ed-tagnote'); } catch (e){ console.warn('GraphicsStudio tagline look (designer):', e); } }
+  objs.forEach(o => { o.pgAutoFill = edFillKey(o); });   // what this pass left, the look and its passes included
   canvas.renderAll();
   if (!opts.silent) pushHist();
   try { refreshProps(); } catch (e){}
@@ -19950,4 +19964,13 @@ function thMarksVisible(sc){
   taglineFinish = function(sc){ const r = _taglineFinish.apply(this, arguments); try { thMarksVisible(sc); } catch (e){ console.warn('marks visible:', e); } return r; };
   const _taglineApply = taglineApply;
   taglineApply = function(sc){ const r = _taglineApply.apply(this, arguments); try { thMarksVisible(sc); } catch (e){ console.warn('marks visible:', e); } return r; };
+}
+{
+  /* the designer: a look put on its canvas from anywhere (the editor's look
+     row, Enhance, the hand-off) is a pass's colour, not the visitor's, so the
+     record edRecolour reads follows it; outermost, after thMarksVisible */
+  const _tgApply = taglineApply;
+  taglineApply = function(sc){ const r = _tgApply.apply(this, arguments);
+    try { if (typeof canvas !== 'undefined' && canvas && sc === canvas) canvas.getObjects().forEach(o => { if (edPaintable(o) && o.pgAutoFill != null) o.pgAutoFill = edFillKey(o); }); } catch (e){}
+    return r; };
 }
