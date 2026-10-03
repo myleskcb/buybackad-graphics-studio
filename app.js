@@ -19636,7 +19636,13 @@ function pgDepthReads(sc){
      runs again on what that leaves, so ORIG and every theme end the same way */
   if (typeof edRecolour === 'function'){
     const _edRecolour = edRecolour;
-    edRecolour = function(){ const r = _edRecolour.apply(this, arguments); if (typeof canvas !== 'undefined' && canvas){ after(canvas); try { canvas.requestRenderAll(); } catch (e){} } return r; };
+    edRecolour = function(){
+      /* a line pgPlateInk tinted after the last recolour recorded its paint is the
+         studio's tint, not the visitor's colour: recorded as automatic, so ORIG does
+         not keep it as a colour picked by hand (bandKnockout-pp04-15's number and CTA
+         stayed light after a theme and ORIG, designer_audit) */
+      try { if (typeof canvas !== 'undefined' && canvas) canvas.getObjects().forEach(o => { if (o.pgAutoFill != null && pgPlateInked(o)) o.pgAutoFill = edFillKey(o); }); } catch (e){}
+      const r = _edRecolour.apply(this, arguments); if (typeof canvas !== 'undefined' && canvas){ after(canvas); try { canvas.requestRenderAll(); } catch (e){} } return r; };
   }
 }
 
