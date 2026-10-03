@@ -196,6 +196,14 @@ QS_PAIRS = ['qs-iphone-12-mini', 'qs-iphone-12', 'qs-iphone-12-pro', 'qs-iphone-
 # camera layout no iPhone has), the edge-on ip-gen13-back-blue and plateau
 # shots, iphone-15-pro-back-gold (no logo), the iPhone 18 and duo concepts.
 IP_PHOTO = ['ip-gen13-pro-back-graphite', 'iphone-15-pro-back-blue']   # the white 15 Pro shot is angled: it reads small beside the flat renders
+# 2026-10-03 (owner: "As much modern apple imagery as you can"): real devices
+# photographed on Commons (scripts/cut_vehicle_photos.py), with their logos
+IP_PHOTO += ['photo-iphone-13-pro-graphite', 'photo-iphone-14-pro-deep-purple', 'photo-iphone-14-red',
+             'photo-iphone-15-black', 'photo-iphone-17-pro-silver']
+APPLE_PHOTO = {'ipad': ['photo-ipad-a16-pink', 'photo-ipad-air-m2-blue', 'photo-ipad-mini-6-blue'],
+               'macbook': ['photo-macbook-air-15-starlight', 'photo-macbook-air-m1-silver',
+                           'photo-macbook-air-m1-space-gray', 'photo-macbook-air-m2-starlight', 'photo-macbook-air-m2-lid'],
+               'mac': ['photo-mac-studio-angle']}
 
 POOLS = {
     'iphone': ([I(n, rot=12, kind='back') for n in QS_BACKS] +
@@ -312,6 +320,9 @@ POOLS = {
         ['qs-imac-24-m4--' + c for c in ('blue', 'green', 'orange', 'pink', 'purple', 'silver', 'yellow')] +
         ['qs-sheet-imac-24-m3-2023', 'qs-device-mac-studio', 'qs-sheet-macstudio-2022'])],
 }
+for _c, _ns in APPLE_PHOTO.items():
+    POOLS[_c] += [I(n, rot=4) for n in _ns]
+
 # 2026-10-03: the owner's pass (assets/approved-assets.json "rejected") and the
 # defects found since (assets/cutout-flags.json) never ship in these sets; the
 # other categories still carry some until replacements land.
@@ -345,11 +356,14 @@ def ad_need(cat, layout):
     return {'hero': 1, 'pair': 2, 'trio': 3}.get(layout) or AD_LINEUP[cat]
 
 def ad_groups(cat):
-    """one model per group, its colours as the members (qs-...--blue), upright"""
+    """one model per group, its colours as the members (qs-...--blue), upright;
+    each real photograph (photo-...) a group of its own, shown alone"""
     g = OrderedDict()
     for it in POOLS[AD[cat]]:
-        if not it['name'].startswith('qs-'): continue
-        g.setdefault(it['name'].split('--')[0], []).append(dict(it, rot=0))
+        if it['name'].startswith('qs-'):
+            g.setdefault(it['name'].split('--')[0], []).append(dict(it, rot=0))
+        elif it['name'].startswith('photo-'):
+            g[it['name']] = [dict(it, rot=0)]
     return g
 
 def lab2hex(lab):
@@ -1647,7 +1661,10 @@ def ad_assign(cat, specs):
     for l in AD_LAYOUTS_BY.get(cat, AD_LAYOUTS):
         need = ad_need(cat, l)
         elig = [k for k in keys if len(groups[k]) >= need] or keys
-        perm = r.permutation(len(elig)); j = 0
+        # the real photographs first, so every one is shown
+        ph = [i for i, k in enumerate(elig) if k.startswith('photo-')]
+        rest = [i for i, k in enumerate(elig) if not k.startswith('photo-')]
+        perm = [ph[i] for i in r.permutation(len(ph))] + [rest[i] for i in r.permutation(len(rest))]; j = 0
         for sp in specs:
             if sp['layout'] != l: continue
             k = elig[perm[j % len(elig)]]

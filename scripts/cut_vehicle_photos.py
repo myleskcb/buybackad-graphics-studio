@@ -30,7 +30,11 @@ Silverado (people in the cab), the 1956 Chevy (a classic, not a popular car),
 the F-250 (a flag on a pole in the bed) and the Transit Courier at the show
 (doors open, people round it). 2026-10-03: cut and then dropped, a 1969
 Charger (driver at the wheel), a Silverado HD (arm out of the window) and an
-Escalade (price sticker on the windscreen, the photographer in the paint).
+Escalade (price sticker on the windscreen, the photographer in the paint);
+then an Urus Performante (cut off at the frame), a Rivian R2 and a 2026 Land
+Cruiser (people in the cab), a 911 GT3 RS (another car fused to it), a TRX (a
+store security cable) and, of the Apple photographs, two iPhone 17 Pro Max
+(store cradle left on), two Mac minis and three MacBook Airs (cables).
 
   python3 scripts/cut_vehicle_photos.py            dry run: .render/vehicles/_review.jpg
   python3 scripts/cut_vehicle_photos.py --write    land them
@@ -187,10 +191,6 @@ SPEC = {
         subject='a silver Tesla Model X, front three-quarter'),
     'car-audi-rs5-sportback-red': dict(src='popular-audi-rs-5-sportback-3.jpg', floor=None, plates=[[160, 650, 410, 780]],
         subject='a red Audi RS 5 Sportback (F5, facelift), front three-quarter; dealer plate blurred'),
-    'car-lamborghini-urus-performante-yellow': dict(src='popular-lamborghini-urus-performante-2.jpg', floor=None, plates=[],
-        subject='a yellow Lamborghini Urus Performante, front three-quarter, no front plate'),
-    'car-porsche-911-gt3-rs-grey': dict(src='popular-porsche-911-gt3-3.jpg', floor=None, plates=[[350, 575, 660, 665]],
-        subject='a grey Porsche 911 GT3 RS (992), rear three-quarter'),
     'car-hyundai-sonata-black': dict(src='popular-hyundai-sonata-2.jpg', floor=None, plates=[],
         subject='a black Hyundai Sonata (DN8, 2024 facelift), front three-quarter, plate already blank'),
     'car-mazda-cx5-blue': dict(src='popular-mazda-cx-5-3.jpg', floor=None, plates=[[210, 760, 510, 880]],
@@ -211,8 +211,6 @@ SPEC = {
         subject='a silver Subaru Forester (sixth generation, 2025-), front three-quarter, model-name show plate'),
     'car-kia-k5-grey': dict(src='popular-kia-k5-2.jpg', floor=None, plates=[],
         subject='a grey Kia K5 (DL3, facelift), front three-quarter, plate already blank'),
-    'car-ram-1500-trx-red': dict(src='trucks-ram-1500-trx-1.jpg', floor=None, plates=[],
-        subject='a red Ram 1500 TRX crew cab pickup at a dealer, front three-quarter, no front plate'),
     'car-chevy-silverado-zr2-red': dict(src='trucks-chevrolet-silverado-zr2-1.jpg', floor=None, plates=[[1700, 740, 1800, 860]],
         subject='a red Chevrolet Silverado 1500 ZR2 (2022-) crew cab pickup, front three-quarter'),
     'car-gmc-sierra-denali-grey': dict(src='trucks-gmc-sierra-denali-2.jpg', floor=None, plates=[[115, 740, 300, 830]],
@@ -271,8 +269,6 @@ SPEC = {
         subject='a grey Porsche 911 Sport Classic (992), rear three-quarter'),
     'car-porsche-356-blue': dict(src='collect-porsche-356-1.jpg', floor=None, plates=[[1440, 880, 1650, 980]],
         subject='a blue Porsche 356 cabriolet, front three-quarter'),
-    'car-toyota-land-cruiser-2026-blue': dict(src='y2026-2026-toyota-land-cruiser-1.jpg', floor=None, plates=[],
-        subject='a blue-grey Toyota Land Cruiser FJ (2026) at a show, front three-quarter, show plate only'),
     'car-jeep-wrangler-rubicon-2026-orange': dict(src='y2026-2026-jeep-wrangler-3.jpg', floor=None, plates=[],
         subject='an orange Jeep Wrangler Rubicon (2024-26), front three-quarter, no front plate'),
     'car-jeep-grand-wagoneer-white': dict(src='y2026-2026-jeep-grand-wagoneer-1.jpg', floor=None, plates=[],
@@ -289,8 +285,6 @@ SPEC = {
         subject='a white Hyundai Ioniq 9 (2026), front three-quarter'),
     'car-rivian-r1s-silver': dict(src='y2026-rivian-r1s-2.jpg', floor=None, plates=[[225, 895, 365, 1000]],
         subject='a silver Rivian R1S, front three-quarter'),
-    'car-rivian-r2-green': dict(src='y2026-rivian-r2-1.jpg', floor=None, plates=[],
-        subject='a green Rivian R2, front three-quarter, no front plate'),
     'car-tesla-cybertruck-cyberbeast': dict(src='y2026-tesla-cybertruck-cyberbeast-1.jpg', floor=None, plates=[[100, 850, 330, 920]],
         subject='a stainless Tesla Cybertruck Cyberbeast, rear three-quarter'),
     # 2026-10-03 (owner: "As much modern apple imagery as you can"): photographs of
@@ -305,38 +299,24 @@ SPEC = {
         subject='an iPhone 15 in black, back, flat'),
     'photo-iphone-17-pro-silver': dict(src='apple-iphone-17-pro-1.jpg', floor=None, plates=[],
         subject='an iPhone 17 Pro in silver, back, at an angle'),
-    'photo-iphone-17-pro-max-cosmic-orange': dict(src='apple-iphone-17-pro-4.jpg', floor=2665, plates=[],
-        subject='an iPhone 17 Pro Max in Cosmic Orange, back, in a clear store cradle (its rod cut off)'),
-    'photo-iphone-17-pro-max-deep-blue': dict(src='apple-iphone-17-pro-max-1.jpg', floor=2600, plates=[],
-        subject='an iPhone 17 Pro Max in Deep Blue, back, in a clear store cradle (its rod cut off)'),
     'photo-ipad-a16-pink': dict(src='apple-ipad-a16-4.jpg', floor=None, plates=[],
         subject='an iPad (A16) in pink, back'),
     'photo-ipad-air-m2-blue': dict(src='apple-ipad-air-m2-4.jpg', floor=None, plates=[],
         subject='an iPad Air 11-inch (M2) in blue, back'),
     'photo-ipad-mini-6-blue': dict(src='apple-ipad-mini-6-4.jpg', floor=None, plates=[],
         subject='an iPad mini 6 in blue, back'),
-    'photo-mac-mini-m4-top': dict(src='apple-imac-m4-1.jpg', floor=None, plates=[],
-        subject='a Mac mini (M4, 2024), front three-quarter from above, logo on top'),
-    'photo-mac-mini-m4-angle': dict(src='apple-mac-mini-m4-2.jpg', floor=None, plates=[],
-        subject='a Mac mini (M4, 2024), three-quarter from above'),
     'photo-mac-studio-angle': dict(src='apple-mac-studio-4.jpg', floor=None, plates=[],
         subject='a Mac Studio (2022), front three-quarter from above, logo on top'),
-    'photo-macbook-air-15-midnight': dict(src='apple-macbook-air-15-inch-1.jpg', floor=None, plates=[],
-        subject='a MacBook Air 15-inch in Midnight, open, three-quarter'),
     'photo-macbook-air-15-starlight': dict(src='apple-macbook-air-15-inch-3.jpg', floor=None, plates=[],
         subject='a MacBook Air 15-inch in Starlight, open, three-quarter'),
     'photo-macbook-air-m1-silver': dict(src='apple-macbook-air-m1-2.jpg', floor=None, plates=[],
         subject='a MacBook Air (M1) in silver, open, three-quarter, screen off'),
     'photo-macbook-air-m1-space-gray': dict(src='apple-macbook-air-m1-3.jpg', floor=None, plates=[],
         subject='a MacBook Air (M1) in space gray, open, from the front, screen off'),
-    'photo-macbook-air-m1-big-sur': dict(src='apple-macbook-air-m1-4.jpg', floor=None, plates=[],
-        subject='a MacBook Air (M1) in space gray, open, Big Sur on screen'),
     'photo-macbook-air-m2-starlight': dict(src='apple-macbook-air-m2-1.jpg', floor=None, plates=[],
         subject='a MacBook Air (M2) in Starlight, open, three-quarter'),
     'photo-macbook-air-m2-lid': dict(src='apple-macbook-air-m2-4.jpg', floor=None, plates=[],
         subject='a MacBook Air (M2) closed, lid and logo from above'),
-    'photo-macbook-air-m4-silver': dict(src='apple-macbook-air-m4-1.jpg', floor=None, plates=[],
-        subject='a MacBook Air 13-inch (M4) in silver, open, three-quarter'),
     # 2026-10-03 (owner: "more alternate angles as much as you can"): rear and side views
     'car-bmw-m3-touring-blue-rear': dict(src='angles-bmw-m3-rear-1.jpg', floor=None, plates=[[1395, 455, 1670, 545]],
         subject='a blue BMW M3 Touring (G81), rear three-quarter'),
