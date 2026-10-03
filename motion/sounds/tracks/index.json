@@ -95,6 +95,18 @@
    "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Vivaldi_Winter_mvt_1_Allegro_non_molto_-_The_USAF_Concert.ogg",
    "license": "Public domain",
    "basis": "US Air Force, public domain"
+  },
+  {
+   "id": "can_can",
+   "title": "The Can-Can (Offenbach) · Musopen",
+   "kind": "classical",
+   "bpm": 109.1,
+   "beat": 0.18,
+   "from": 87.5,
+   "source": "File:Offenbach - Orpheus in the Underworld - Overture, Can Can section.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Offenbach_-_Orpheus_in_the_Underworld_-_Overture%2C_Can_Can_section.ogg",
+   "license": "Public Domain",
+   "basis": "Musopen, public domain"
   }
  ]
 }

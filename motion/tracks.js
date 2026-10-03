@@ -57,5 +57,12 @@ export const TRACKS = [
   "kind": "classical",
   "bpm": 160.1,
   "beat": 0.7
+ },
+ {
+  "id": "can_can",
+  "title": "The Can-Can (Offenbach) · Musopen",
+  "kind": "classical",
+  "bpm": 109.1,
+  "beat": 0.18
  }
 ];
