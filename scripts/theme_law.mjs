@@ -183,6 +183,7 @@ console.log('   theme (rule 106) sets every word in its one colour, so its accen
 console.log('   ink and the accent-vs-ink floor does not apply; it must say so exactly.\n');
 console.log('  theme                   ink/c1  ink/c2  acc/c1  acc/c2  accCVD  acc-vs-ink  hue  warm  verdict');
 let ctFails = 0;
+const cvdRows = [];
 COLOR_THEMES.forEach(t => {
   const i1 = cr(t.ink, t.bg.c1), i2 = cr(t.ink, t.bg.c2);
   const a1 = cr(t.accent, t.bg.c1), a2 = cr(t.accent, t.bg.c2);
@@ -193,14 +194,22 @@ COLOR_THEMES.forEach(t => {
   const two = t.group === 'Two colours';
   const sep = two ? t.accent.toLowerCase() === t.ink.toLowerCase() && !t.support : vsInk >= 1.7;
   const sup = t.support ? Math.min(cr(t.support, t.bg.c1), cr(t.support, t.bg.c2)) : null;
-  const pass = Math.min(i1,i2) >= 4.5 && Math.min(a1,a2) >= 4.5 && cvd >= 3.0 && sep && (sup == null || sup >= 4.5);
+  /* the words and the small print for colour-blind readers too (rule 43):
+     the ink and the support at least 3:1 under every simulation */
+  const inkCvd = Math.min(cvdWorst(t.ink, t.bg.c1), cvdWorst(t.ink, t.bg.c2));
+  const supCvd = t.support ? Math.min(cvdWorst(t.support, t.bg.c1), cvdWorst(t.support, t.bg.c2)) : null;
+  const pass = Math.min(i1,i2) >= 4.5 && Math.min(a1,a2) >= 4.5 && cvd >= 3.0 && sep && (sup == null || sup >= 4.5)
+    && inkCvd >= 3.0 && (supCvd == null || supCvd >= 3.0);
   if (!pass) ctFails++;
   console.log(`  ${t.name.padEnd(22)} ${F(i1)}${mark(i1,4.5)} ${F(i2)}${mark(i2,4.5)}` +
     ` ${F(a1)}${mark(a1,4.5)} ${F(a2)}${mark(a2,4.5)}  ${F(cvd)}${mark(cvd,3.0)}` +
     `  ${two ? '  one ink' : F(vsInk)}${sep ? ' ' : '!'}     ${F(hueOf(t.accent),3)}  ${warm?'yes ':'no  '}  ${pass?'PASS':'FAIL'}` +
-    (sup != null && sup < 4.5 ? `  support ${sup}!` : ''));
+    (sup != null && sup < 4.5 ? `  support ${sup}!` : '') + (inkCvd < 3 ? `  ink CVD ${inkCvd}!` : '') + (supCvd != null && supCvd < 3 ? `  support CVD ${supCvd}!` : ''));
+  cvdRows.push({ name: t.name, inkCvd, supCvd });
 });
 console.log(`  --> ${COLOR_THEMES.length - ctFails}/${COLOR_THEMES.length} pass`);
+console.log(`      ink under CVD: worst ${Math.min(...cvdRows.map(r => r.inkCvd))} (${cvdRows.sort((p, q) => p.inkCvd - q.inkCvd)[0].name}); ` +
+  `support under CVD: worst ${Math.min(...cvdRows.filter(r => r.supCvd != null).map(r => r.supCvd))}`);
 
 console.log('\n══ FINDINGS ══');
 const dead = palRows.filter(r => r.n === 0);
@@ -217,7 +226,7 @@ console.log(`  · accent warmth (house direction, HANDOFF §6): ` +
   `${COLOR_THEMES.filter(t=>isWarm(t.accent)).length}/${COLOR_THEMES.length} COLOR_THEMES warm, ` +
   `${Object.values(TAMED).filter(P=>isWarm(P.a1)).length}/12 PAL a1 warm.`);
 console.log(`\n  floors: ink/sub >= 4.5:1 (body copy) · a1 and plate ink >= 3.0:1 (display sizes, WCAG large)`);
-console.log(`          accent >= 3.0:1 under the worst CVD simulation`);
+console.log(`          accent, ink and support >= 3.0:1 under the worst CVD simulation`);
 console.log(`          accent vs ink >= 1.7:1 so the money word reads as a different colour`);
 console.log(`          (a two-colour theme: accent = ink, no support); a support >= 4.5:1 on both stops\n`);
 process.exit(fails + ctFails ? 1 : 0);

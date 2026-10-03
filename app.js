@@ -17975,8 +17975,15 @@ function themeScene(sc, th, W, H, opts){
      darkened was left dark on dark) */
   const painted = new Map(done);
   const colourOf = o => painted.get(o) || (() => { const p = thParse(typeof o.fill === 'string' ? o.fill : ''); return p && p.a >= 0.5 ? p.hex : null; })();
+  /* with no plate under it, the panel it is drawn on, whatever its size: a
+     blue rule on dl_silver_editorialLux_arctic's dark smoke frame (80% of the
+     card, too big to be a plate) took Black on Yellow's black and vanished,
+     1.04:1 (every_card_audit, 2026-10-03) */
+  const panelOf = o => { const k = objs.indexOf(o), a = box(o).w * box(o).h;
+    return shapes.filter(p => p !== o && objs.indexOf(p) < k && paintA(p) >= 0.5 && box(p).w * box(p).h > a && holds(p, o))
+      .sort((p, q) => box(p).w * box(p).h - box(q).w * box(q).h)[0] || null; };
   shapes.filter(o => !plateSet.has(o)).forEach(o => {
-    const on = hostOf(o), onHex = on ? colourOf(on) : null;
+    const on = hostOf(o) || panelOf(o), onHex = on ? colourOf(on) : null;
     /* a body the size of a surface is ground, whatever hue it wore, as a panel
        that big is among the plates: dl_cars_slabPoster_mono's frame (a dark red
        body over 83% of the card, too big to be a plate) was read as the accent
