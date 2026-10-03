@@ -22,5 +22,12 @@ export const TRACKS = [
   "kind": "classical",
   "bpm": 104.4,
   "beat": 0.41
+ },
+ {
+  "id": "moonlight",
+  "title": "Moonlight Sonata · Paul Pitman (Musopen)",
+  "kind": "classical",
+  "bpm": 171.5,
+  "beat": 0.23
  }
 ];

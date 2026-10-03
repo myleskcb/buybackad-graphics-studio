@@ -35,6 +35,18 @@
    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Mozart_-_Symphony_No._40_in_G_minor%2C_K550_-_I._Molto_allegro_%28Musopen_Symphony%29.flac",
    "license": "Public domain",
    "basis": "Musopen, public domain"
+  },
+  {
+   "id": "moonlight",
+   "title": "Moonlight Sonata · Paul Pitman (Musopen)",
+   "kind": "classical",
+   "bpm": 171.5,
+   "beat": 0.23,
+   "from": 4.5,
+   "source": "File:Ludwig van Beethoven - sonata no. 14 in c sharp minor 'moonlight', op. 27 no. 2 - i. adagio sostenuto.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Ludwig_van_Beethoven_-_sonata_no._14_in_c_sharp_minor_%27moonlight%27%2C_op._27_no._2_-_i._adagio_sostenuto.ogg",
+   "license": "Public domain",
+   "basis": "Musopen, public domain"
   }
  ]
 }
