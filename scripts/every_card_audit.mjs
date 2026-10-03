@@ -336,13 +336,19 @@ if (process.argv.includes('--write-holds')){
   holds.cards = holds.cards || {};
   done.forEach(c => delete holds.cards[c]);
   rows.forEach(r => { if (!r.err && r.base && r.base.length) holds.cards[r.card] = [...new Set(r.base.map(said))].join('; '); });
+  /* a library card already painted in a palette keeps that palette's colours
+     when the theme of the same name is picked: those are the theme's own, not
+     the card's left beside it (glassCard-jw03-15's gold under Black & Gold,
+     2026-10-03) */
+  const ownPalette = Object.fromEntries(idx.map(c => [c.id, c.theme]));
+  const leftOk = (dim, card, k) => dim === 'themes' && ownPalette[card] === k;
   for (const dim of ['themes', 'looks', 'voices']){
     holds[dim] = holds[dim] || {};
     if (!DIMS.has(dim)) continue;
     done.forEach(c => delete holds[dim][c]);
     rows.forEach(r => {
-      const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || v.left || v.lost));
-      if (bad.length) holds[dim][r.card] = Object.fromEntries(bad.map(([k, v]) => [k, why(v)]));
+      const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || (v.left && !leftOk(dim, r.card, k)) || v.lost));
+      if (bad.length) holds[dim][r.card] = Object.fromEntries(bad.map(([k, v]) => [k, why(leftOk(dim, r.card, k) ? Object.assign({}, v, { left: null }) : v)]));
     });
   }
   writeFileSync(FILE, JSON.stringify(holds, null, 0));
