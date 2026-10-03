@@ -392,6 +392,11 @@ produced." DESIGN-LAW rule 87. In practice:
   full; run it with `--ids a,b` on the cards a change touches (the table is
   updated for those cards only) and `--resume` to continue a stopped run. It
   loads the studio with `?nochoiceholds=1`.
+- **The designer's guides and lock** (rule 107, 2026-10-02): the pink guides
+  (`sgSnap`) and the lock to the middle (`pgCentreLock`, kept by `ccKeep`
+  before every render and undo step) work on the parts `ccParts` finds. A
+  pass that moves designer objects leaves a locked group to the keeper;
+  never set `left` on one without its group.
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its
