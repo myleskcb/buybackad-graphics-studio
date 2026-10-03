@@ -18517,7 +18517,11 @@ function edRecolour(opts){
   const objs = canvas.getObjects().filter(edPaintable);
   objs.forEach(o => {
     if (!o.pgOrig){ o.pgOrig = edPaintOf(o); if (!o.pgBuilt) o.pgBuilt = edPaintOf(o); return; }   // pgBuilt: as built, for Enhance; never rewritten
-    if (o.pgAutoFill != null && edFillKey(o) !== o.pgAutoFill){ o.pgOrig = edPaintOf(o); o.pgUser = true; }
+    /* a line the plate-ink pass tinted (rule 104) wears the pass's colour, not
+       the visitor's: read as theirs, its themed paint was saved as the card's
+       own and ORIG brought bandKnockout-pp04-15's number and call to action
+       back light (designer_audit, on main too, 2026-10-03) */
+    if (o.pgAutoFill != null && edFillKey(o) !== o.pgAutoFill && !pgPlateInked(o)){ o.pgOrig = edPaintOf(o); o.pgUser = true; }
   });
   if (pick && !opts.keepUser) objs.forEach(o => { delete o.pgUser; });
   objs.forEach(o => { if (!o.pgUser) edPaintSet(o, o.pgOrig); });
