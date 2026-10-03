@@ -1480,3 +1480,39 @@ Still open:
    `checklistHero-pp02-20` off the wall. Re-pick on `/lab/hero.html` if the
    owner wants the list to match.
 
+
+## AC. 2026-10-03 — the composition audit: 90 cards centred, 8 held (DESIGN-LAW 109)
+
+The owner: "next audit more", after a Pokémon card that "looks incomplete".
+`scripts/composition_audit.mjs` (exits 1 on a failing offered card) and
+`scripts/centre_showcase.mjs` (the gated repair). 118 of 309 offered cards
+failed; 90 were centred, 16 lost a leftover ✓ in their first ring, 16 had an
+invisible icon or sticker text inked to read; 8 were held (holds.json);
+verify_showcase passes all 321 live cards; 47 of 301 still fail the measure.
+
+Not live until deployed (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **The gate held 11 centrings**, each because a line would sit on a
+   brighter or darker patch of the photograph and lose contrast, or a
+   kicker would be covered: checklistHero-jw10-15, checklistHero-du07-15
+   (both still carry the leftover ✓ and need it removed without the move),
+   neonNight-jw07-15, scriptRetro-io03-15, scriptRetro-cd06-15,
+   scriptRetro-ca07-20, voltStack-du01-20, voltStack-gl04-20,
+   reviewProof-jw05-30 (held), hudTech-du01-30, bubblePop-du09-35. Each
+   needs its shade re-solved after the move (naturalize, then verify).
+2. **Fifteen came out no better** (a wave layout, a card whose parts collide
+   when centred, a part centred onto another): trustSeal-su02-20,
+   neonNight-nn03-20, neonNight-jw05-20, neonNight-cd06-25,
+   ticketStub-jw07-20, hudTech-cd10-20, voltStack-jw10-30,
+   scriptRetro-nn01-30, scriptRetro-du01-30, bandKnockout-jw10-30,
+   bandKnockout-pa03-35, checklistHero-pa01-35, checklistHero-pp09-35,
+   reviewProof-cd08-35 (held), hudTech-nn08-35 (held). A person's eye, or a
+   relayout, not a nudge.
+3. **Steps Flow**: eight fail the measure (the number's plate off the middle
+   on several); claude/relaxed-darwin-8aces4 is re-laying them out and is
+   not on `main`. Run composition_audit on them after it merges.
+4. The left-aligned designs that share an edge (most voltStack, neonNight,
+   hudTech left headlines) pass and were not touched. If the owner wants
+   every card centred, `centre_showcase.mjs --ids` takes any list.

@@ -2487,3 +2487,37 @@ RESUME HERE:
      lacks the guides and the lock.
   1. The designer audit's standing failures on `main`: sell_iphone and
      gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-03 — the composition audit: does a card line up?
+
+(claude/trusting-ride-cfpk9o, then `main`.)
+
+The owner: "next audit more", the day after a Pokémon card that "looks
+incomplete … threw everything down and then abandoned it" and checklist
+bullets to be centred.
+
+Found:
+  - Every audit so far asked whether a line reads, whether there is a
+    photograph, whether the colour holds. None asked whether a card's parts
+    share a line. The new question failed 118 of the 309 offered cards.
+  - Looking at all 309 on numbered sheets found about thirty; the measure
+    found what the eye missed at thumbnail size (ticketStub-ck03-15's number
+    100 px left of the middle, four scriptRetro plates exactly 35 px off) and
+    the eye found what the measure cannot see (six reviewProof cards whose
+    call to action collides with the number).
+  - The first cut over-reported (154): sparkles, tilted kicker ribbons and
+    the outer chips of a centred row of three line up with nothing on
+    purpose. A measure is calibrated against the eye, then trusted.
+  - The checklists' empty rings were two defects, not one: a leftover ✓ text
+    over the first ring's icon on 18 cards, and white icons on pale rings at
+    1.1:1. The icons are line drawings, coloured by stroke: a contrast check
+    that reads `fill` finds nothing to fix.
+  - The layout pass does not undo a moved `left`; a block-centred list with a
+    ragged right edge still reads left-heavy in a thumbnail. Check the
+    numbers before believing the picture, and the picture before believing
+    the numbers.
+
+Did: DESIGN-LAW rule 109, OPEN-ITEMS §AC. 90 cards centred through the gate,
+16 leftover ticks removed, 16 icons or stickers inked to read, 8 held; 321
+live, all passing verify_showcase; 47 of 301 still fail the measure (8 are
+Steps Flow, left to claude/relaxed-darwin-8aces4), none newly.

@@ -3652,3 +3652,57 @@ software's and it will align either horizontally or vertically or both".
   105) it centres all but the slab, which would have covered the headline.
 - Nothing runs by itself: a card opened from Easy Mode arrives as Easy Mode
   drew it (rule 93), and the centring is the visitor's choice.
+
+## 109. A card's parts line up: on the middle, or on an edge they share
+
+Added 2026-10-03 (108 is claimed three times over on unmerged branches; this
+takes the next free number). The owner, of a scriptRetro Pokémon card: "it
+looks incomplete. It looks like you threw everything down and then abandoned
+it"; of a checklist's selling points: "auto center everything please once
+again"; then "next audit more".
+
+No earlier audit asked whether a card's parts line up. The gate asks whether
+each line reads, rule 105 whether there is a photograph. A phone plate 67 px
+off the middle under a centred headline, or a headline pushed right over a
+centred pill, passes both and still looks unfinished.
+
+- **The parts** are what the designer's Centre all moves as one (rule 107,
+  `ccParts`): a plate and its lines, a ring and its icon, an icon and its
+  words, a line and its depth copy, a list of rows on one left edge.
+- **The measure** (`__sc.comp`, `scripts/composition_audit.mjs`): a part is
+  loose when it is off the middle (10 px) and shares no left or right edge
+  with another part. Decoration, a small tilted sticker, a part with its
+  mirror across the middle and a picture of 3% of the card or more are not
+  layout. A near miss is a loose part with words or a plate 20 to 90 px off:
+  it was meant to be centred. A card fails with a near miss, two loose parts,
+  a loose headline, number or call to action, or a picture over a headline.
+  Measured on the 309 offered cards: 118 failed (the first cut, counting
+  decoration, failed 154): phone plates 35 to 105 px off, headlines pushed to
+  one side of a centred card, the checklists' lists on the left under centred
+  plates.
+- **The repair** (`scripts/centre_showcase.mjs`) is Centre all on the record:
+  each part centred, each line on its plate centred on the plate, corner
+  pieces left, a part that would land on another left where it was. Kept only
+  when the writers' gate accepts it and the composition is better. Of 119
+  tried (every failing card but Steps Flow, and every checklist for the two
+  defects below), 90 were centred; 15 came out no better; 11 were held back by
+  the gate (a line would lose contrast on
+  the new patch of photograph, or a kicker would be covered) and stay as they
+  were.
+- **Two defects the measure found on the way**, both on the checklists:
+  a leftover ✓ ("Tick Mark", a text from before the rings carried icons) sat
+  in the first ring over its icon on 18 of the 24 (16 removed); and the ring
+  icons were drawn near-white on near-white rings (1.08 to 1.12:1) on nine of
+  them and 1.7 to 2.4:1 on five more, so the rings read as empty. An icon on
+  its ring now clears 3:1 or takes the house ink, near-black or near-white
+  (16 cards, seven of them bubblePop stickers with the same fault). A line
+  icon is coloured by its stroke, which the builder takes from its fill.
+- **What centring cannot mend is held** (`assets/showcase/holds.json`, rows
+  marked audit 2026-10-03): six reviewProof cards whose call-to-action pill
+  collides with the number (cut off under it, empty, or running off the card,
+  two with their steps beside their pills), a bubblePop card whose number runs
+  over the product pictures, and a hudTech card with a muddy dark headline
+  among scattered cut-outs. 321 cards stay live.
+- After: 47 of 301 offered cards fail the measure, none that passed before.
+  Eight are Steps Flow cards, being re-laid out on another branch
+  (claude/relaxed-darwin-8aces4) and not touched here.

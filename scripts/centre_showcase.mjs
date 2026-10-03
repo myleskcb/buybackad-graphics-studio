@@ -11,7 +11,8 @@
  *      icons) sitting in the first ring over its icon is removed;
  *   2. an icon on its ring that does not clear 3:1 against it (white on a
  *      pale ring at 1.1:1 read as an empty ring) takes the house ink, near
- *      black or near white, whichever clears more, measured as painted;
+ *      black or near white, whichever clears more, measured as painted (a
+ *      line icon by its stroke);
  *   3. every part is centred as Centre all centres it (each line on its
  *      plate on the plate's middle; a corner piece, and a part that would
  *      land on another, stay), by moving the layers' authored `left` and
@@ -62,10 +63,12 @@ for (let i = 0; i < ids.length; i += 4){
             if (rl == null) return;
             L.forEach((m, j) => {
               if (j === k || !refs[j] || !(m.kind === 'path' || m.kind === 'text') || !m.props || !inside(sgBox(refs[j]), rb)) return;
-              const ml = pgLum(refs[j].fill);
+              /* a line icon is drawn by its stroke, which the builder takes from its fill */
+              const o = refs[j], ml = pgLum(typeof o.fill === 'string' && o.fill ? o.fill : o.stroke);
               if (ml == null || pgCr(rl, ml) >= 3) return;
               const ink = pgCr(rl, pgLum('#141110')) >= pgCr(rl, pgLum('#fbfaf8')) ? '#141110' : '#fbfaf8';
-              m.props.fill = ink; notes.push(m.name + ' ' + pgCr(rl, ml).toFixed(2) + ':1 -> ' + ink);
+              m.props.fill = ink; if (m.props.stroke) m.props.stroke = ink;
+              notes.push(m.name + ' ' + pgCr(rl, ml).toFixed(2) + ':1 -> ' + ink);
             });
           });
           sc.dispose(); }
