@@ -83,6 +83,18 @@
    "url": "https://upload.wikimedia.org/wikipedia/commons/1/17/Antonin_Dvorak_-_symphony_no._9_in_e_minor_%27from_the_new_world%27%2C_op._95_-_iv._allegro_con_fuoco.ogg",
    "license": "Public domain",
    "basis": "Musopen, public domain"
+  },
+  {
+   "id": "vivaldi_winter",
+   "title": "Winter, Four Seasons (Vivaldi) · USAF Concert Band",
+   "kind": "classical",
+   "bpm": 160.1,
+   "beat": 0.7,
+   "from": 66.0,
+   "source": "File:Vivaldi Winter mvt 1 Allegro non molto - The USAF Concert.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Vivaldi_Winter_mvt_1_Allegro_non_molto_-_The_USAF_Concert.ogg",
+   "license": "Public domain",
+   "basis": "US Air Force, public domain"
   }
  ]
 }

@@ -50,5 +50,12 @@ export const TRACKS = [
   "kind": "classical",
   "bpm": 70.6,
   "beat": 0.26
+ },
+ {
+  "id": "vivaldi_winter",
+  "title": "Winter, Four Seasons (Vivaldi) · USAF Concert Band",
+  "kind": "classical",
+  "bpm": 160.1,
+  "beat": 0.7
  }
 ];
