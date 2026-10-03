@@ -64,5 +64,12 @@ export const TRACKS = [
   "kind": "classical",
   "bpm": 109.1,
   "beat": 0.18
+ },
+ {
+  "id": "william_tell",
+  "title": "William Tell Overture, finale · US Marine Band",
+  "kind": "march",
+  "bpm": 150.1,
+  "beat": 0.34
  }
 ];

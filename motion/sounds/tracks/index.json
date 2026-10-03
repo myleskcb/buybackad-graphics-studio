@@ -107,6 +107,18 @@
    "url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Offenbach_-_Orpheus_in_the_Underworld_-_Overture%2C_Can_Can_section.ogg",
    "license": "Public Domain",
    "basis": "Musopen, public domain"
+  },
+  {
+   "id": "william_tell",
+   "title": "William Tell Overture, finale · US Marine Band",
+   "kind": "march",
+   "bpm": 150.1,
+   "beat": 0.34,
+   "from": 16.3,
+   "source": "File:Gioachino Rossini, William Tell Overture (military band version, 2000).ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Gioachino_Rossini%2C_William_Tell_Overture_%28military_band_version%2C_2000%29.ogg",
+   "license": "Public domain",
+   "basis": "US Marine Band, public domain"
   }
  ]
 }
