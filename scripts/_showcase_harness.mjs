@@ -83,6 +83,58 @@ export async function openStudio(query = ''){
         return { ok: !fresh.length && !lost.length, fresh, lost };
       },
       colour: { lin: pgLin, lum: pgLum, rgb: pgRgb, cr: pgCr },
+      /* THE COMPOSITION (scripts/composition_audit.mjs, centre_showcase.mjs,
+         DESIGN-LAW rule 109): the card split into the parts that read as one
+         thing, as the designer's Centre all splits it (app.js ccParts), and
+         per part whether it lines up with anything. loose: off the middle
+         (8 px), sharing no left or right edge with another part, not a corner
+         piece; nearMiss: a loose part with words or a plate within 90 px of
+         the middle; onWords: a picture over more than 15% of a headline.
+         A card fails with a nearMiss, two loose parts (or a loose headline,
+         number or call to action) or a picture on its words. */
+      comp(t){
+        const W = TPL_W, MID = W / 2;
+        const { sc, refs } = this.paint(t);
+        const objs = sc.getObjects().filter(o => o.visible !== false && !o.pgScrim && !o.pgBgRect && (o.opacity == null || o.opacity > 0.05) && !sgGround(sgBox(o)));
+        const parts = ccParts(objs);
+        const role = u => { const r = u.objs.map(o => o.pgRole || '').filter(Boolean); return r.includes('headline') ? 'headline' : r.includes('phone') ? 'phone' : r.includes('cta') ? 'cta' : r[0] || (ccHasText(u) ? 'text' : 'picture'); };
+        const name = u => u.objs.filter(o => o.name).map(o => o.name).slice(0, 3).join('+');
+        const H = TPL_H, P = parts.map(u => ({ u, b: u.box, role: role(u), text: ccHasText(u), corner: ccCorner(u), dx: u.box.cx - MID }));
+        P.forEach((p, i) => {
+          p.centred = Math.abs(p.dx) <= 10;
+          p.sharesL = P.some((q, j) => j !== i && Math.abs(q.b.l - p.b.l) <= 8);
+          p.sharesR = P.some((q, j) => j !== i && Math.abs(q.b.r - p.b.r) <= 8);
+          /* what is not layout: decoration (sparkles, a category mark), a
+             small tilted sticker (a kicker ribbon), a part with its mirror
+             across the middle (the outer chips of a row of three), and a
+             picture big enough to be the other half of the card (a picture
+             under 3% of it, the slab beside a scriptRetro headline, floats) */
+          p.deco = p.u.objs.every(o => (o.pgRole || '') === 'deco') && !p.u.plate;
+          p.sticker = p.b.w < 0.4 * W && p.b.h < 0.12 * H && p.u.objs.some(o => Math.abs(((o.angle || 0) + 180) % 360 - 180) >= 2);
+          p.mirror = P.some((q, j) => j !== i && Math.abs(q.b.cx + p.b.cx - W) <= 10 && Math.abs(q.b.w - p.b.w) <= 0.6 * Math.max(q.b.w, p.b.w));
+          p.bigPic = !p.text && !p.u.plate && p.b.w * p.b.h >= 0.03 * W * H;
+          p.loose = !p.centred && !p.sharesL && !p.sharesR && !p.corner && !p.deco && !p.sticker && !p.mirror && !p.bigPic && p.b.w < 0.9 * W && p.b.w * p.b.h > 400;
+          p.nearMiss = p.loose && Math.abs(p.dx) > 20 && Math.abs(p.dx) <= 90 && !!(p.text || p.u.plate);   // over 20 px it shows
+        });
+        const meet = (a, c) => Math.max(0, Math.min(a.r, c.r) - Math.max(a.l, c.l)) * Math.max(0, Math.min(a.b, c.b) - Math.max(a.t, c.t));
+        const heads = objs.filter(o => o.pgRole === 'headline').map(o => sgBox(o));
+        const onWords = P.filter(p => !p.text && !p.u.plate).map(p => ({ p, worst: Math.max(0, ...heads.map(h => meet(p.b, h) / (h.w * h.h))) }))
+          .filter(x => x.worst > 0.15).map(x => ({ part: name(x.p.u), share: +x.worst.toFixed(2) }));
+        const loose = P.filter(p => p.loose).map(p => ({ part: name(p.u), role: p.role, dx: Math.round(p.dx) }));
+        /* one near miss per line off the middle: a plate, its call to action
+           and the site under it, all 67 px off, are one mistake */
+        const near = [];
+        P.filter(p => p.nearMiss).forEach(p => { const q = near.find(x => Math.abs(x.cx - p.b.cx) <= 8); if (q) q.part += ', ' + name(p.u); else near.push({ part: name(p.u), role: p.role, dx: Math.round(p.dx), cx: p.b.cx }); });
+        near.forEach(x => delete x.cx);
+        const axis = { centred: P.filter(p => p.text && p.centred).length, left: P.filter(p => p.text && !p.centred && p.sharesL).length, right: P.filter(p => p.text && !p.centred && p.sharesR && !p.sharesL).length };
+        const fail = [];
+        if (near.length) fail.push('nearMiss');
+        /* two loose parts, or one that carries the message (the headline, the
+           number's plate, the call to action) */
+        if (loose.length >= 2 || loose.some(x => /^(headline|phone|cta)$/.test(x.role))) fail.push('loose');
+        if (onWords.length) fail.push('onWords');
+        return { fail, loose, near, onWords, axis, parts: P.length, sc, refs, P };
+      },
       /* renderThumb()'s own sequence, kept open so layers can be toggled */
       paint(t){
         const W = TPL_W, H = TPL_H;

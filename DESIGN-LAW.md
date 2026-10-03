@@ -3653,7 +3653,128 @@ software's and it will align either horizontally or vertically or both".
 - Nothing runs by itself: a card opened from Easy Mode arrives as Easy Mode
   drew it (rule 93), and the centring is the visitor's choice.
 
-## 108. A palette is its own colours: two, three or a proven pair, and the effects wear them
+## 108. Every video goes out with its photo: the ad at its best moment, 1440 on the short side
+
+Added 2026-10-03. The owner: "Make sure that every single video ad has a
+photo because offer requires us to put a photo with any video at and we need
+the HD 1440P version of the ad as a photo so find the best point in the video
+to save". OfferUp takes a video only with a photo beside it.
+
+- **Every video export brings a PNG with it**, under the same export: the
+  studio's Easy Mode and editor (`motionPhoto`, one count for both files in
+  `deliverVideo`) and the video maker (`makePhoto` in motion/app.js). A new
+  video export path calls one of them, or is not finished.
+- **1440 on the short side, in the video's aspect**: 1440×1440, 1440×1800,
+  1440×1920 for Tall 3:4, 1440×2560, 2560×1440. It is drawn again at that
+  size by the video's own frame function (the studio bakes the scene at the
+  photo's size; the maker builds the look at it, and every size draws the
+  same plan), never a video frame scaled up. The plan's cap holds: Free's
+  photo is 1080 with the video's watermark. Low on memory, the photo is made
+  at the video's size and the pop-up says so; one that cannot be made at all
+  is named in the pop-up, never dropped silently.
+- **The moment is measured** (video-still.js): every tenth of a second is
+  drawn and scored on its own pixels as detail (the mean luminance step
+  between neighbouring pixels, on a copy 320 on its long side) times
+  stillness squared (1 minus the share of the frame that moves by more than
+  8 levels in the tenth of a second either side), held to the lowest score of
+  itself and its neighbours; within half a percent of the best, the earliest.
+- **Only from the stretch where the whole ad is on screen.** The maker: from
+  the number's arrival to the ending (an end card shows the number alone).
+  The studio: the living still, 0 to 5.7 s; the call to action from 5.8 s is
+  the ad cut down to its number and what fits beside it. Over the whole clip
+  the call to action won on Green Gold Glass Card at 9.7 s, on the detail of
+  the banknote photograph its shade lifts off, not on its copy: detail
+  measures everything on screen, so the windows say what counts as the ad.
+- Measured 2026-10-03: on 12 random maker looks (seeds 4100-4111) the chosen
+  frame was the finished ad on every one, and the frame the number arrives on
+  scored lower on every one; the studio chose 0 s on both cards checked
+  (glassCard-cd06-15, top_buyer). The photo matches the video's own decoded
+  frame at its moment at 29.8 to 41.6 dB PSNR
+  (`scripts/video_photo_check.mjs`, every maker size, Easy Mode square and
+  story, Free, and the editor).
+- **The photo stays to hand after the video** (added 2026-10-03, later the
+  same day). The owner, again: "make sure I get a photo with every single
+  video ad of the best moment high-quality so when I download the video and
+  also then download the photo after so I have the option ... I'd rather not
+  take a screenshot and crop it". The photo downloads with the video, but a
+  browser can hold a second download back (Chrome asks once per site, a
+  phone can drop it), and the studio's only way back was the toast's Save
+  photo again, gone in twelve seconds. So in the studio a button,
+  "📷 Download the video's photo", saves the same PNG again from the moment
+  both files are given until the next video replaces it, a count that went
+  through only on Try again included (`VideoHelp.keepPhoto`, from
+  `deliverVideo`). In Easy Mode it is right under Download as video, in the
+  same look; in the editor's export pop-up it takes a line of its own under
+  the buttons (a fourth button in that row pushed Cancel out of the pop-up).
+  The maker already kept one: Save photo in the note under Download MP4.
+  `scripts/video_photo_check.mjs` presses each and requires the same bytes.
+- **The toast fits a phone.** VideoHelp's toast was centred with `left:50%`,
+  which caps a box at half the screen: on a 390px phone the photo's toast
+  ("Its 1440×1440 photo for OfferUp came with it", Save photo again) was a
+  195px column with its button hanging off the edge. It is centred by its
+  margins now, as wide as it needs up to the screen less 16px a side.
+
+## 109. A card's parts line up: on the middle, or on an edge they share
+
+Added 2026-10-03 (108 is claimed three times over on unmerged branches; this
+takes the next free number). The owner, of a scriptRetro Pokémon card: "it
+looks incomplete. It looks like you threw everything down and then abandoned
+it"; of a checklist's selling points: "auto center everything please once
+again"; then "next audit more".
+
+No earlier audit asked whether a card's parts line up. The gate asks whether
+each line reads, rule 105 whether there is a photograph. A phone plate 67 px
+off the middle under a centred headline, or a headline pushed right over a
+centred pill, passes both and still looks unfinished.
+
+- **The parts** are what the designer's Centre all moves as one (rule 107,
+  `ccParts`): a plate and its lines, a ring and its icon, an icon and its
+  words, a line and its depth copy, a list of rows on one left edge.
+- **The measure** (`__sc.comp`, `scripts/composition_audit.mjs`): a part is
+  loose when it is off the middle (10 px) and shares no left or right edge
+  with another part. Decoration, a small tilted sticker, a part with its
+  mirror across the middle and a picture of 3% of the card or more are not
+  layout. A near miss is a loose part with words or a plate 20 to 90 px off:
+  it was meant to be centred. A card fails with a near miss, two loose parts,
+  a loose headline, number or call to action, or a picture over a headline.
+  Measured on the 309 offered cards: 118 failed (the first cut, counting
+  decoration, failed 154): phone plates 35 to 105 px off, headlines pushed to
+  one side of a centred card, the checklists' lists on the left under centred
+  plates.
+- **The repair** (`scripts/centre_showcase.mjs`) is Centre all on the record:
+  each part centred, each line on its plate centred on the plate, corner
+  pieces left, a part that would land on another left where it was. Kept only
+  when the writers' gate accepts it and the composition is better. Of 119
+  tried (every failing card but Steps Flow, and every checklist for the two
+  defects below), 88 were centred; 15 came out no better; 11 were held back by
+  the gate (a line would lose contrast on
+  the new patch of photograph, or a kicker would be covered) and stay as they
+  were. Two more were centred and put back: in Easy Mode's render their
+  centred headline covered the corner badges, which takes a card off the site
+  (every_card_audit, rule 101); they keep only the two repairs below
+  (`--fix-only`).
+- **Two defects the measure found on the way**, both on the checklists:
+  a leftover ✓ ("Tick Mark", a text from before the rings carried icons) sat
+  in the first ring over its icon on 18 of the 24 (16 removed); and the ring
+  icons were drawn near-white on near-white rings (1.08 to 1.12:1) on nine of
+  them and 1.7 to 2.4:1 on five more, so the rings read as empty. An icon on
+  its ring now clears 3:1 or takes the house ink, near-black or near-white
+  (16 cards, seven of them bubblePop stickers with the same fault). A line
+  icon is coloured by its stroke, which the builder takes from its fill.
+- **What centring cannot mend is held** (`assets/showcase/holds.json`, rows
+  marked audit 2026-10-03): six reviewProof cards whose call-to-action pill
+  collides with the number (cut off under it, empty, or running off the card,
+  two with their steps beside their pills), a bubblePop card whose number runs
+  over the product pictures, and a hudTech card with a muddy dark headline
+  among scattered cut-outs. 321 cards stay live.
+- After: 49 of 301 offered cards fail the measure, none that passed before.
+  every_card_audit on the 90 changed cards: no card newly held as offered;
+  one theme on neonNight-nn05-15 and one look on trustSeal-cd06-26 newly off,
+  and the voices' table moved on 16 cards (1,520 to 1,525 voices off).
+  Eight are Steps Flow cards, being re-laid out on another branch
+  (claude/relaxed-darwin-8aces4) and not touched here.
+
+## 110. A palette is its own colours: two, three or a proven pair, and the effects wear them
 
 Added 2026-10-02. The owner, of the landing's twelve palettes: "I think we
 have more colors than this, right? I mean, there's gotta be more proven
