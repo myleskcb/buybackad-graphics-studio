@@ -14,6 +14,9 @@ the engine turns them (motion/phones). Every check is MEASURED off the pixels:
             switch or Action button, Camera Control (read from engine.js)
   button    where the back shows the side button standing proud of the rail, the
             engine draws it there too (a turned phone otherwise shows two)
+  facts     what a turned phone shows on its edges and screen against Apple's own
+            line-up (FACTS): notch or island, mute switch or Action button,
+            Camera Control. A model not in FACTS is printed unchecked.
 
 Lighting is NOT scored: studio light, glass panels and reflections swamp any
 left/right measure (tried; it failed Apple's own flat shots). Judge light by eye
@@ -46,6 +49,20 @@ SPEC = {
     "iPhone 14": (71.5, 146.7), "iPhone 14 Plus": (78.1, 160.8),
 }
 SCALE = .993
+
+# Apple's line-up: (notch, left control, Camera Control). The 15 and 15 Plus kept
+# the mute switch; the Action button came on the 15 Pro and on every 16. The 17e
+# and the 18 Pro are left out until their sheets are checked.
+FACTS = {
+    "iPhone 14": (True, "mute", False), "iPhone 14 Plus": (True, "mute", False),
+    "iPhone 14 Pro": (False, "mute", False), "iPhone 14 Pro Max": (False, "mute", False),
+    "iPhone 15": (False, "mute", False), "iPhone 15 Plus": (False, "mute", False),
+    "iPhone 15 Pro": (False, "action", False), "iPhone 15 Pro Max": (False, "action", False),
+    "iPhone 16": (False, "action", True), "iPhone 16 Plus": (False, "action", True),
+    "iPhone 16 Pro": (False, "action", True), "iPhone 16 Pro Max": (False, "action", True),
+    "iPhone 16e": (True, "action", False), "iPhone 17": (False, "action", True),
+    "iPhone 17 Pro": (False, "action", True), "iPhone 17 Pro Max": (False, "action", True),
+}
 
 
 def luma(a):
@@ -138,10 +155,13 @@ def main():
         g = sharp(a, alpha)
         if not 1.4 <= g <= 3.4: bad.append("grain")
         d = des.get(p["model"])
+        fact = FACTS.get(p["model"])
+        if d and fact and (d["notch"], d["left"], d["camCtrl"]) != fact:
+            bad.append("facts")
         btn = side_button(alpha)
         if btn and d and max(abs(btn[0] - d["controls"]["power"][0]), abs(btn[1] - d["controls"]["power"][1])) > .01:
             bad.append("button")
-        dtxt = "?" if not d else f"{'notch' if d['notch'] else 'island'}, {d['left'] or '-'}{', camera control' if d['camCtrl'] else ''}, depth {d['depth']:.3f}"
+        dtxt = "?" if not d else f"{'notch' if d['notch'] else 'island'}, {d['left'] or '-'}{', camera control' if d['camCtrl'] else ''}, depth {d['depth']:.3f}{'' if fact else ' (unchecked)'}"
         lt = " ".join(f"{r:.2f}" for r in ls) or "-"
         fails += bool(bad)
         print(f"{p['id']:26} {'ok' if size_ok else 'BAD':9} {shape:+5.1f}% {max(vs, hs):7.4f} {lt:26} {g:5.1f}  {dtxt}"

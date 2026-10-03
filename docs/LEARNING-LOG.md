@@ -2544,3 +2544,47 @@ RESUME HERE:
      or Apple's drawing) before it is drawn.
   2. The designer audit's standing failures on `main`: sell_iphone and
      gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-03 (later) — every phone, all the way round
+
+(claude/great-johnson-v8ppp6, not yet on `main`.)
+
+The owner: "All devices audit the 360 and any other angles".
+
+Found (every offered phone, 57 of the 59 backs; the two ok:false 16s are never
+offered): turned through 360 degrees every 2 upright and every 3 at 45, 90 and
+180 degrees in the frame, each angle measured for the body's width, gaps inside
+it and its change from the angle before:
+  - Side-on (90 and 270 degrees) every phone was 1 to 2 px wide where its edge
+    is 12 to 14, beside a full-width shadow: the side was a stack of outlines,
+    and side-on each is a line. A wide spin passes there twice, a flip-in
+    starts there.
+  - The iPhone 15 and 15 Plus were given the Action button; they kept the mute
+    switch (the Action button came on the 15 Pro and on every 16).
+  - The light band on a turning back was set by the phone's own left, so a
+    phone lying at an angle caught a light that was not there.
+  - No angle left a gap in the old engine; the first fix (slices filled to the
+    one behind) left a see-through seam down the middle side-on, which the
+    gap measure caught.
+
+Did: rule 108, all the way round. Each slice of the edge is filled back a
+slice and a half (`hull`); designOf gives the 15 and 15 Plus the mute switch;
+the band takes the scene's light whatever the phone's angle.
+audit_phone_views.py checks each model against Apple's line-up (FACTS; the 17e
+and 18 Pro unchecked); motion_phone_check.mjs turns one phone of every model.
+
+Checked: all 57 phones, upright, at 45, on its side and upside down: no gaps;
+side-on edges 12 to 14 px, within 10% of each model's depth (a pixel of
+rounding); the largest step of a turn 1.7 times the usual (2.4 before).
+motion_phone_check.mjs passes all of it (46 entrance and pose pairs, four
+shadows, 36 turns); audit_phone_views.py 56 of 59, the same three shape fails.
+The attention audit (24 looks, seed 101) is unchanged from the commit before.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main`, then deploy `main`
+     (OPEN-ITEMS §Z 0).
+  1. A turned 17 or 18 Pro's camera plateau is drawn flat; its height needs a
+     source before it is drawn. The 17e's and 18 Pro's notch, buttons and
+     Camera Control want checking against Apple's sheets (FACTS leaves them out).
+  2. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.

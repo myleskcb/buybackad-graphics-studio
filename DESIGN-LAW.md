@@ -3687,3 +3687,16 @@ movements, accuracy, and realism".
 - `node scripts/motion_phone_check.mjs` measures the blur of every entrance,
   flat and turned, and the shadow's steps, and exits 1 past either bar; run it
   and audit_phone_views.py after a change to how the phones are drawn or move.
+- **All the way round** (owner, the same day: "All devices audit the 360 and any
+  other angles"). Every offered phone was turned through 360 degrees upright and
+  at 45, 90 and 180 degrees in the frame. Side-on, a phone shows its edge, as
+  deep as its model (the side was built from stacked outlines, and side-on each
+  is a line: every phone was a 1 to 2 px hairline beside a full-width shadow at
+  90 and 270 degrees, the middle of every wide spin and the start of a flip-in).
+  The edge's slices overlap, so no angle leaves a see-through seam. A phone lying
+  at any angle catches the same key light, high on the left. The iPhone 15 and
+  15 Plus carry the mute switch, not the Action button (`designOf`, checked
+  against Apple's line-up by audit_phone_views.py's FACTS).
+- motion_phone_check.mjs turns one phone of every model the same way, upright and
+  on its side, and fails an edge under 0.8 of the model's depth, a gap inside
+  the body, or a step of the turn over 2.5 times the usual.

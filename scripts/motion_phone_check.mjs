@@ -12,6 +12,11 @@
      shadow  a phone's shadow softens and grows as it rises. Between two
              heights a hundredth apart it may change no more than 5 times the
              usual step (picking one of three blurs jumped 22 times it).
+     turn    one phone of every model turned all the way round (every 2
+             degrees upright, every 6 lying on its side): side-on it shows an
+             edge at least 0.8 of its model's depth (it was a 1 px hairline),
+             no angle leaves a see-through gap inside it, and no step of the
+             turn changes it more than 2.5 times the usual step.
 
    The phones' shape, depth and buttons against the photographs are
    scripts/audit_phone_views.py's.
@@ -22,7 +27,7 @@
    Exits 1 on a failure. */
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const PORT = +arg('--port', 8765), ONLY = arg('--entries', '');
-const BLUR_BAR = 1, SHADOW_BAR = 5;
+const BLUR_BAR = 1, SHADOW_BAR = 5, EDGE_BAR = .8, HOLE_BAR = 2, TURN_BAR = 2.5;
 
 let browser;
 try {
@@ -38,7 +43,7 @@ await page.goto(`http://localhost:${PORT}/motion/audit-sweep.html`);
 await page.waitForFunction(() => window.ready);
 
 const res = await page.evaluate(async ONLY => {
-  const { Ad, Phone, drawPhone, loadPhones, EXPORT_QUALITY } = await import('./engine.js');
+  const { Ad, Phone, drawPhone, loadPhones, designOf, EXPORT_QUALITY } = await import('./engine.js');
   const { DEFAULT_STYLE, OPTIONS } = await import('./catalog.js');
   const { phones, index } = await loadPhones('./phones/');
   const ids = ['17-pro-cosmic-orange', '18-pro-burgundy', '18-pro-glacier'];
@@ -71,7 +76,40 @@ const res = await page.evaluate(async ONLY => {
     const med = [...steps].sort((a, b) => a - b)[steps.length >> 1], top = Math.max(...steps);
     shadow.push({ phone: id, view, ratio: +(top / med).toFixed(1), at: (steps.indexOf(top) + 1) / 100 });
   }
-  return { blur, shadow };
+  // the turn: one phone of every model, all the way round, upright and on its side
+  const T = 320, tc = document.createElement('canvas'); tc.width = T; tc.height = T;
+  const tx = tc.getContext('2d', { willReadFrequently: true }), turn = [], seen = new Set();
+  for (const m of index) {
+    if (seen.has(m.model)) continue;
+    seen.add(m.model);
+    const p = new Phone(phones[m.id].img, m, 240), depth = designOf(m.model).depth * p.w;
+    for (const [rot, step] of [[0, 2], [90, 6]]) {
+      let prev = null, edge = Infinity, hole = 0; const steps = [];
+      for (let d = 0; d < 360; d += step) {
+        tx.clearRect(0, 0, T, T);
+        drawPhone(tx, p, T / 2, T / 2, 1, rot, d * Math.PI / 180, 0, 1, T, null, true);
+        const px = tx.getImageData(0, 0, T, T).data, body = new Uint8Array(T * T);
+        for (let i = 0; i < T * T; i++) body[i] = px[i * 4 + 3] > 200;
+        // a gap is a clear pixel the body surrounds: flood the outside from the border
+        const out = new Uint8Array(T * T), st = [];
+        for (let i = 0; i < T; i++) for (const j of [i, (T - 1) * T + i, i * T, i * T + T - 1]) if (!body[j] && !out[j]) { out[j] = 1; st.push(j); }
+        while (st.length) { const j = st.pop(), jx = j % T;
+          for (const k of [jx > 0 ? j - 1 : -1, jx < T - 1 ? j + 1 : -1, j - T, j + T]) if (k >= 0 && k < T * T && !body[k] && !out[k]) { out[k] = 1; st.push(k); } }
+        let h = 0; for (let i = 0; i < T * T; i++) if (!body[i] && !out[i]) h++;
+        hole = Math.max(hole, h);
+        if (d % 180 === 90) {                        // side-on: the edge's width across the middle
+          let lo = T, hi = -1;
+          for (let i = 0; i < T; i++) { const j = rot ? i * T + T / 2 : (T / 2) * T + i; if (body[j]) { lo = Math.min(lo, i); hi = Math.max(hi, i); } }
+          edge = Math.min(edge, (hi - lo + 1) / depth);
+        }
+        if (prev) { let sum = 0; for (let i = 0; i < px.length; i++) sum += Math.abs(px[i] - prev[i]); steps.push(sum); }
+        prev = px;
+      }
+      const med = [...steps].sort((a, b) => a - b)[steps.length >> 1], top = Math.max(...steps);
+      turn.push({ phone: m.id, rot, edge: +edge.toFixed(2), hole, step: +(top / med).toFixed(1), at: (steps.indexOf(top) + 1) * step });
+    }
+  }
+  return { blur, shadow, turn };
 }, ONLY);
 
 let fails = 0;
@@ -84,6 +122,11 @@ console.log(`shadow: largest step against the usual (bar ${SHADOW_BAR})`);
 for (const r of res.shadow) {
   const bad = r.ratio > SHADOW_BAR; fails += bad;
   console.log(`  ${r.phone.padEnd(22)} ${r.view.padEnd(7)} ${r.ratio.toFixed(1).padStart(5)}  at height ${r.at.toFixed(2)}${bad ? '   FAIL' : ''}`);
+}
+console.log(`turn: edge side-on against the model's depth (bar ${EDGE_BAR}), gap px (bar ${HOLE_BAR}), largest step (bar ${TURN_BAR})`);
+for (const r of res.turn) {
+  const bad = r.edge < EDGE_BAR || r.hole > HOLE_BAR || r.step > TURN_BAR; fails += bad;
+  console.log(`  ${r.phone.padEnd(24)} ${(r.rot ? 'on its side' : 'upright').padEnd(11)} edge ${r.edge.toFixed(2)}  gap ${String(r.hole).padStart(3)}  step ${r.step.toFixed(1).padStart(4)} at ${String(r.at).padStart(3)}°${bad ? '   FAIL' : ''}`);
 }
 console.log(`\n${fails ? fails + ' failing' : 'all pass'}`);
 await browser.close();

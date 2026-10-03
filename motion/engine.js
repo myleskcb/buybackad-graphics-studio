@@ -386,8 +386,9 @@ export class Glare {
 }
 
 /** What the model really has, read off its name: a notch (14, 14 Plus, 16e,
- *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older) or the
- *  Action button (15 on); Camera Control (16 on, not the e models); how deep the
+ *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older, and the
+ *  15 and 15 Plus) or the Action button (15 Pro, and every model from the 16);
+ *  Camera Control (16 on, not the e models); how deep the
  *  body is for its width, and where its edge controls sit. A phone we cannot
  *  place (an upload) gets the island, only volume and power, and the usual depth. */
 export function designOf(model) {
@@ -395,7 +396,7 @@ export function designOf(model) {
   if (!m) return { notch: false, left: null, camCtrl: false, depth: THICKNESS, controls: CONTROLS };
   const gen = +m[1], e = !!m[2], pro = /Pro/.test(m[3] || "");
   const name = `iPhone ${gen}${e ? "e" : ""}${m[3] ? " " + m[3] : ""}`, body = BODY[name];
-  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 ? "mute" : "action", camCtrl: gen >= 16 && !e,
+  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 || (gen === 15 && !pro) ? "mute" : "action", camCtrl: gen >= 16 && !e,
     depth: body ? body[1] / body[0] : THICKNESS, controls: { ...CONTROLS, ...MEASURED_CONTROLS[name] } };
 }
 
@@ -444,7 +445,15 @@ function poly(ctx, pts) {
   ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath();
 }
 
-function drawSlab(ctx, p, w, h, flip, face) {
+function hull(pts) {                               // the convex hull, by the monotone chain
+  const a = pts.slice().sort((p, q) => p[0] - q[0] || p[1] - q[1]), lo = [], up = [];
+  const turn = (o, p, q) => (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0]);
+  for (const q of a) { while (lo.length > 1 && turn(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (let i = a.length - 1; i >= 0; i--) { const q = a[i]; while (up.length > 1 && turn(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+
+function drawSlab(ctx, p, w, h, flip, face, rot = 0) {
   const c = Math.cos(flip), s = Math.sin(flip), T = (p.design.depth || THICKNESS) * w, D = (p.lens || LENS) * h, R = CORNER * w;
   // local x runs to the screen's right, zl out of the screen; sin > 0 brings the
   // screen's right-hand edge (power) toward the lens, sin < 0 its left (volume)
@@ -454,9 +463,13 @@ function drawSlab(ctx, p, w, h, flip, face) {
   // the side: the outline swept from the hidden face to the seen one, brushed
   // metal dark at both rims with a highlight a little in from the near face
   const steps = Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
+  // Each slice is filled back to a slice and a half behind it: side-on, an outline is only
+  // a line, and outlines alone left a phone at 90 degrees a hairline beside its full shadow
+  // (and slices that only met left a see-through seam where their soft edges touched).
   for (let k = 0; k <= steps; k++) {
-    const u = k / steps, zl = -seen + 2 * seen * u;
-    poly(ctx, rim.map(([x, y]) => P(x, y, zl)));
+    const u = k / steps, zl = -seen + 2 * seen * u, at = rim.map(([x, y]) => P(x, y, zl));
+    const zb = -seen + 2 * seen * Math.max(0, (k - 1.5) / steps);
+    poly(ctx, k ? hull(rim.map(([x, y]) => P(x, y, zb)).concat(at)) : at);
     ctx.fillStyle = shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
   }
   // the controls on the side we see, where Apple puts them
@@ -492,11 +505,14 @@ function drawSlab(ctx, p, w, h, flip, face) {
   g.addColorStop(0, `rgba(255,255,255,${.07 * k})`); g.addColorStop(.35, "rgba(0,0,0,0)"); g.addColorStop(1, `rgba(0,0,0,${.3 * k})`);
   poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill();
   // a turning back catches the key light (high on the left, where the shadows fall
-  // from): a soft band crosses it, left to right, as its face turns about 20 degrees
-  // toward the light. Square to the lens or resting on an edge it is gone, so a still
-  // phone looks as it did and only a moving one shows it.
+  // from): a soft band crosses it, away from the light, as its face turns about 20
+  // degrees toward it. Square to the lens or resting on an edge it is gone, so a still
+  // phone looks as it did and only a moving one shows it. However the phone lies in the
+  // frame the light stays where it is: a turn about its long axis faces it toward the
+  // light only as far as that axis lies across the light (on its side, the turn tips it up).
   if (c < 0) {
-    const phi = Math.atan2(-s, -c), uc = .5 + (phi - SHEEN_AT) * 6, a = .13 * clamp(Math.abs(c) * 3);
+    const ra = -rot * Math.PI / 180, across = Math.cos(ra) + Math.sin(ra);
+    const phi = Math.asin(clamp(-s * across, -1, 1)), uc = .5 + Math.sign(across) * (phi - SHEEN_AT) * 6, a = .13 * clamp(Math.abs(c) * 3);
     if (a > .004 && uc > -.6 && uc < 1.6) {
       const xL = Math.min(near, far), xR = Math.max(near, far), xc = lerp(xL, xR, uc), sd = (xR - xL) * .22;
       const g2 = ctx.createLinearGradient(xc - 2.5 * sd, 0, xc + 2.5 * sd, 0);
@@ -614,7 +630,7 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
       drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
       face = fc;
     }
-    drawSlab(ctx, p, w, h, flip, face);
+    drawSlab(ctx, p, w, h, flip, face, rot);
     ctx.restore();
     return;
   }
