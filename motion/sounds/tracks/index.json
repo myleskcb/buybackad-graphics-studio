@@ -1,0 +1,40 @@
+{
+ "tracks": [
+  {
+   "id": "mountain_king",
+   "title": "In the Hall of the Mountain King · Musopen Symphony",
+   "kind": "classical",
+   "bpm": 88.9,
+   "beat": 0.61,
+   "from": 111.6,
+   "source": "File:Musopen - In the Hall Of The Mountain King.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Musopen_-_In_the_Hall_Of_The_Mountain_King.ogg",
+   "license": "Public domain",
+   "basis": "Musopen, public domain"
+  },
+  {
+   "id": "morning_mood",
+   "title": "Morning Mood (Grieg) · Musopen Symphony",
+   "kind": "classical",
+   "bpm": 160.1,
+   "beat": 0.44,
+   "from": 0.1,
+   "source": "File:Grieg - Peer Gynt Suite No. 1, Op. 46 - I. Morning Mood (Musopen Symphony).flac",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Grieg_-_Peer_Gynt_Suite_No._1%2C_Op._46_-_I._Morning_Mood_%28Musopen_Symphony%29.flac",
+   "license": "Public domain",
+   "basis": "Musopen, public domain"
+  },
+  {
+   "id": "mozart40",
+   "title": "Symphony No. 40 (Mozart) · Musopen Symphony",
+   "kind": "classical",
+   "bpm": 104.4,
+   "beat": 0.41,
+   "from": 0.6,
+   "source": "File:Mozart - Symphony No. 40 in G minor, K550 - I. Molto allegro (Musopen Symphony).flac",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Mozart_-_Symphony_No._40_in_G_minor%2C_K550_-_I._Molto_allegro_%28Musopen_Symphony%29.flac",
+   "license": "Public domain",
+   "basis": "Musopen, public domain"
+  }
+ ]
+}
