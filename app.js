@@ -19895,3 +19895,46 @@ function pgThemePlan(sc, fams, W, H){
     r.ok = !r.fails.length;
   };
 }
+/* A MARK STAYS VISIBLE ON THE PLATE IT ENDS UP ON (rule 108). themeScene keeps
+   a mark visible on what it is drawn on, but the number's plate grows after
+   it (numberFill, into clear space) and can slide under a mark:
+   trustSeal-cd10-20's dark phone cue landed on Blue Market's dark accent
+   plate, 1.46:1 (every_card_audit, 2026-10-03). With a theme on, once the card
+   is finished and again after the look, a mark (a shape or an icon that
+   carries no words) under 2:1 on the solid shape under its centre takes the
+   theme's colour that reads 3:1 there, at its own opacity. A card without a
+   theme is left exactly as it is drawn. */
+function thMarksVisible(sc){
+  const T = sc && thPalette(sc.__theme); if (!T) return 0;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const W = sc.getWidth(), H = sc.getHeight(), SH = ['rect', 'circle', 'ellipse', 'polygon', 'path'];
+  const isText = o => o.type === 'i-text' || o.type === 'text' || o.type === 'textbox';
+  const box = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const inside = (b, c) => c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h;
+  const lums = o => thStops(o.fill).map(thParse).filter(p => p && p.a >= 0.5).map(p => thLumOf(p.hex));   // a gradient plate: each stop
+  const pool = [T.accent, T.support, T.ink, T.g1, T.g2, '#ffffff', '#0e0f13'].filter(Boolean);
+  const words = objs.filter(o => isText(o) && o.visible !== false);
+  let n = 0;
+  objs.forEach((o, k) => {
+    if (!o || o.visible === false || o.pgUser || o.pgLookInk || o.pgKin || o.pgTagBlock || isText(o) || !SH.includes(o.type) || thIsGround(o)) return;
+    const b = box(o); if (b.w * b.h >= 0.25 * W * H) return;
+    if (words.some(t => objs.indexOf(t) > k && inside(b, t.getCenterPoint()))) return;    // it carries words: a plate, solved with them
+    const c = o.getCenterPoint();
+    const host = objs.slice(0, k).filter(q => q && q.visible !== false && q.type !== 'path' && SH.includes(q.type) && !thIsGround(q) && lums(q).length
+      && (bb => bb.w * bb.h > b.w * b.h && inside(bb, c))(box(q))).sort((p, q) => box(p).w * box(p).h - box(q).w * box(q).h)[0];
+    if (!host) return;
+    const hy = lums(host), worst = h => Math.min(...hy.map(y => pgCr(thLumOf(h), y)));
+    const fix = key => { const p = thParse(typeof o[key] === 'string' ? o[key] : ''); if (!p || p.a < 0.5 || worst(p.hex) >= 2) return;
+      const pick = pool.find(h => worst(h) >= 3) || pool.slice().sort((x, y) => worst(y) - worst(x))[0];
+      o.set(key, thHexA(pick, p.a)); o.dirty = true; n++; };
+    fix('fill');
+    if (o.stroke && o.strokeWidth) fix('stroke');
+  });
+  return n;
+}
+{
+  const _taglineFinish = taglineFinish;
+  taglineFinish = function(sc){ const r = _taglineFinish.apply(this, arguments); try { thMarksVisible(sc); } catch (e){ console.warn('marks visible:', e); } return r; };
+  const _taglineApply = taglineApply;
+  taglineApply = function(sc){ const r = _taglineApply.apply(this, arguments); try { thMarksVisible(sc); } catch (e){ console.warn('marks visible:', e); } return r; };
+}
