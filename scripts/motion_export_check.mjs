@@ -89,7 +89,8 @@ for (const where of ['easy', 'editor']){
   }, where, CARD).catch(e => ({ err: String(e) }));
   await new Promise(res => setTimeout(res, 2500));
   const files = readdirSync(DL).filter(f => !before.has(f) && !/crdownload/.test(f));
-  r.where = where; r.file = files[0] || null; r.bytes = r.file ? statSync(DL + r.file).size : 0;
+  // the video, not its photo (rule 108: every video download saves a PNG beside it)
+  r.where = where; r.file = files.find(f => /\.(mp4|webm)$/.test(f)) || null; r.photo = files.find(f => /\.png$/.test(f)) || null; r.bytes = r.file ? statSync(DL + r.file).size : 0;
   if (r.file){
     const buf = readFileSync(DL + r.file);
     r.decode = await page.evaluate(async (b64) => {
@@ -108,5 +109,5 @@ for (const where of ['easy', 'editor']){
 const cspAll = await page.evaluate(() => window.__csp);
 console.log(JSON.stringify({ results, toasts, csp: cspAll, errors: errs }, null, 1));
 await browser.close();
-const fail = results.some(r => r.err || !r.file || !r.decode || Math.abs(r.decode.duration - 10) > 0.1 || r.decode.frames < 295) || cspAll.length || errs.length;
+const fail = results.some(r => r.err || !r.file || !r.photo || !r.decode || Math.abs(r.decode.duration - 10) > 0.1 || r.decode.frames < 295) || cspAll.length || errs.length;
 process.exit(fail ? 1 : 0);

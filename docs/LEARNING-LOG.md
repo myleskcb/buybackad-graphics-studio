@@ -2488,6 +2488,144 @@ RESUME HERE:
   1. The designer audit's standing failures on `main`: sell_iphone and
      gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
 
+## 2026-10-03 — every video goes out with its photo (rule 108)
+
+Owner: "Make sure that every single video ad has a photo because offer
+requires us to put a photo with any video at and we need the HD 1440P version
+of the ad as a photo so find the best point in the video to save". OfferUp
+takes a video only with a photo beside it.
+
+Found:
+  - Two video exports, neither saving a photo: the studio's (Easy Mode's
+    Download as video and the editor's Video, `runVideoExport`, a 10 s clip:
+    the living still, then the call to action from 5.8 s) and the maker's
+    (`download` in motion/app.js: phones fly in, words, number, then an
+    optional ending from duration - 1.1 s).
+  - Both draw any moment as a pure function of t at any size (`motionDraw` on
+    a bake; `Ad.frame`, every size drawing the 720 plan), so the photo can be
+    drawn at 1440 rather than scaled up from the 1080 video.
+  - A score of detail x stillness over the whole studio clip chose the call to
+    action at 9.7 s on Green Gold Glass Card: the banknote photograph its
+    shade lifts off, not its copy. Detail counts everything on screen, so the
+    windows have to say what is the ad.
+
+Did: video-still.js (shared, like video-help.js): every 0.1 s scored as
+detail x stillness^2, held to its neighbours, the earliest within 0.5%.
+Studio: `motionPhoto` (living still only, 0 to 5.7 s; a bake at the photo's
+size; Free's 1080 cap and watermark), one export for both files
+(`deliverVideo`). Maker: `makePhoto` (from the number's arrival to the
+ending; a 360 probe of the same plan; the frame redrawn at 1440 at the
+export's quality). Both: a "Save photo" way back (a browser may hold a second
+download), the share sheet takes both files, a photo that fails or comes out
+smaller is named in the pop-up. DESIGN-LAW rule 108; README; brief.
+
+Checked (headless Chromium, production CSP, fabric 5.3.0 served locally;
+this Chromium has no H.264, so the videos are WebM):
+  - scripts/video_photo_check.mjs: the maker at 1:1, 4:5, 9:16, 16:9 gives
+    1440x1440, 1440x1800, 1440x2560, 2560x1440 at 2.6, 3.4, 3.3, 4.2 s;
+    Easy Mode square and story (operator, Pro) 1440x1440 and 1440x2560 at
+    0 s; Free 1080x1080 with the corner marks; the editor 1440x1440. Each
+    photo against the video's own decoded frame at its moment: 29.8 to
+    41.6 dB PSNR. No CSP violations, no page errors.
+  - 12 random maker looks (seeds 4100-4111): the chosen frame was the
+    finished ad every time (number landed, phones settled), and the frame the
+    number arrives on scored lower every time. 0.26 to 0.58 s per look.
+  - scripts/motion_export_check.mjs (now takes the video, not its photo, and
+    fails without the photo): both buttons, 10 s, 300 frames, Opus.
+  - The MP4 path's toast, with the recorder stubbed: "Video downloaded …
+    Its 1440×1440 photo for OfferUp came with it." and Save photo again.
+
+Not on `main`: this session was told to push its own branch only
+(`claude/blissful-gates-b39qmr`), which contains `main` 809c5ac6.
+
+RESUME HERE:
+  0. Merge `claude/blissful-gates-b39qmr` into `main` and deploy `main`
+     (OPEN-ITEMS §Z 0 still stands: the live site lags `main`).
+  1. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  2. Free's photo is 1080, the plan's cap. If OfferUp posts from Free
+     accounts should get 1440 too, that is `motionPhotoCap` in app.js, and a
+     plan change for the owner to make.
+
+## 2026-10-03 — the video's photo reaches `main`, and stays to hand after the video
+
+Owner: "make sure I get a photo with every single video ad of the best moment
+high-quality so when I download the video and also then download the photo
+after so I have the option because offer requires you to put a photo for
+every single video and I'd rather not take a screenshot and crop it." Then:
+"push this end to end so when I get home later, I can download some imagery
+and configure my ads."
+
+Found:
+  - The same request had been done overnight on
+    `claude/blissful-gates-b39qmr` (2139a150, rule 108: a 1440 PNG of the
+    measured best moment with every video, studio and maker) and never put
+    on `main`, so the owner never saw it. This session first built its own
+    version (a JPEG at the plan's still size, frame 0) before finding the
+    branch; that version was dropped and the branch merged instead. Read the
+    newest branches' subjects before building: `git for-each-ref
+    --sort=-committerdate refs/remotes` named it in plain words.
+  - What the merged branch left short of today's words: the studio handed the
+    photo over as a second automatic download, and its only way back was the
+    toast's Save photo again, gone in twelve seconds. Chrome asks before a
+    site's second download and a phone can drop it.
+  - VideoHelp's toast was centred with `left:50%`, so on a 390px phone it
+    was half the screen wide and its Save photo again hung off the edge.
+  - The editor's export row (Cancel, Download PNG, Video) has no room for a
+    fourth button: it pushed Cancel out of the pop-up even on a desktop.
+
+Did: merged `claude/blissful-gates-b39qmr`. `VideoHelp.keepPhoto`: a button,
+"📷 Download the video's photo", that saves the same PNG again until the next
+video (Easy Mode: right under Download as video; the editor: its own line
+under the export buttons), placed from `deliverVideo` so a count that only
+went through on Try again keeps it too. The toast centred by its margins.
+`scripts/video_photo_check.mjs` presses the kept button and requires the same
+bytes (by Chrome's download events: headless Chrome replaces a file of the
+same name rather than adding " (1)", so the folder alone cannot show a second
+save). Rule 108, README, brief.
+
+Checked (headless Chromium, production CSP, fabric 5.3.0 served locally;
+this Chromium has no H.264, so the videos are WebM):
+  - scripts/video_photo_check.mjs, 8 of 8: the maker at 1:1, 4:5, 9:16, 16:9
+    gives 1440x1440, 1440x1800, 1440x2560, 2560x1440 at 2.6, 3.4, 3.3, 4.2 s;
+    Easy Mode square and story (operator, Pro) 1440x1440 and 1440x2560 at
+    0 s; Free 1080x1080 with the corner marks; the editor 1440x1440. Each
+    photo against the video's own decoded frame at its moment: 29.8 to
+    41.6 dB. Every studio run's kept button (one, in its place) saved the
+    same bytes again; the maker's note has Save photo. No CSP violations, no
+    page errors.
+  - scripts/motion_export_check.mjs: both buttons, 10 s, 300 frames, and the
+    photo beside each video.
+  - The MP4 path (the owner's Chrome or Safari), recorder stubbed, desktop
+    and a 390px phone, a real click: the toast reads "Video downloaded, ready
+    for Reels and Stories. Its 1440×1440 photo for OfferUp came with it." with
+    Save photo again inside it; after it has gone, the kept button saves the
+    photo again.
+
+Not done, and why:
+  - Not deployed. Every Netlify host is denied from a cloud session
+    (api.netlify.com, netlify-mcp.netlify.app, both sites), as on 2026-10-01.
+  - The live project the connector sees (`buybackad-finished-copy`) serves
+    `claude/fervent-pascal-w6mthe` 37a26d34 (deployed 2026-10-03 01:11), which
+    has three commits `main` does not: a6b461e0 "Legible and plain" (readable
+    sizes, plain customer words; its rule 99 collides with main's 99), a
+    merge and an audit. A deploy of `main` there rolls that copy back. A dry
+    merge into this head: 213 conflicts, ~210 of them showcase thumbnails
+    both lines re-rendered. A job of its own (AGENT-BRIEF landmine 7).
+  - On a phone the editor's export row already clips Cancel at the left edge
+    (three buttons, 338px in a 276px row; `.modal-actions` does not wrap).
+    Unchanged here: it is every pop-up's row, in styles.css and CSS_FALLBACK.
+
+RESUME HERE:
+  0. Reconcile `claude/fervent-pascal-w6mthe` (37a26d34) into `main` (renumber
+     its rule 99, re-thumb the conflicting cards, verify), then deploy `main`
+     to both Netlify projects. Until then, deploying `main` to
+     `buybackad-finished-copy` takes the legibility copy off the live site.
+  1. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  2. `.modal-actions` on a phone: let the row wrap (styles.css, then
+     sync_css_fallback.mjs).
+
 ## 2026-10-03 — the composition audit: does a card line up?
 
 (claude/trusting-ride-cfpk9o, then `main`.)
