@@ -3715,8 +3715,10 @@ function ccParts(objs){
   const beside = (a, c) => { const h = Math.min(a.h, c.h);
     return Math.min(a.b, c.b) - Math.max(a.t, c.t) >= 0.5 * h && Math.max(a.l, c.l) - Math.min(a.r, c.r) <= Math.max(24, 0.6 * h); };
   const inRow = new Set();
+  /* a line's depth copy is its line (pgKin, pgKinId once saved) */
+  const kin = (a, c) => a.pgKin === c || (!!a.pgKinId && a.pgKinId === c.pgTagId);
   for (let i = 0; i < it.length; i++) for (let j = i + 1; j < it.length; j++){
-    if (on(it[i].b, it[j].b)) up[root(i)] = root(j);
+    if (kin(it[i].o, it[j].o) || kin(it[j].o, it[i].o) || on(it[i].b, it[j].b)) up[root(i)] = root(j);
     else if (beside(it[i].b, it[j].b)){ up[root(i)] = root(j); inRow.add(i); inRow.add(j); }
   }
   const byRoot = new Map();
