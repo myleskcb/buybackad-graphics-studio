@@ -18061,7 +18061,8 @@ function themeScene(sc, th, W, H, opts){
     /* with no photograph under it the ground is even, like a plate: a ring
        of the ink's own tone goes rather than turning light */
     const plLum = bgHex ? thLumOf(bgHex) : pl ? (h => h ? thLumOf(h) : null)(plHex || (thParse(typeof pl.fill === 'string' ? pl.fill : '') || {}).hex) : null;
-    if (!thRingFit(t, out, plLum != null ? plLum : st ? st.p50 : null, !!(pl || bgHex || !sc.backgroundImage))) t.set('stroke', thRecolour(t.stroke, src, T, true));
+    const stWorst = st && st.p90 != null ? (thLumOf(out) > st.p50 ? st.p90 : st.p10) : null;
+    if (!thRingFit(t, out, plLum != null ? plLum : st ? st.p50 : null, !!(pl || bgHex || !sc.backgroundImage), plLum != null ? plLum : stWorst)) t.set('stroke', thRecolour(t.stroke, src, T, true));
     t.dirty = true;
     if (t.name) fills[t.name] = out;
     count.lines++;
@@ -18270,7 +18271,7 @@ function ezSyncPresets(){
    letters. On a plate the plate is the separation: a ring of the ink's own
    tone goes, and none is turned light. Returns false for a coloured outline;
    that is part of the design, and the caller colours it by its role. */
-function thRingFit(t, ink, gl, onPlate){
+function thRingFit(t, ink, gl, onPlate, worst){
   const inkUp = gl == null || thLumOf(ink) > gl, tone = inkUp ? '#080604' : '#fffdf8';
   const ring = c => { const q = thParse(c); if (!q || !(q.a > 0)) return { c };
     if ((thLumOf(q.hex) < thLumOf(ink)) === inkUp) return { c: thHexA(tone, q.a) };   // it separates: neutral, at its own strength
@@ -18281,7 +18282,16 @@ function thRingFit(t, ink, gl, onPlate){
     if (o && o.C < 0.035){ const r = ring(t.stroke); if (r.drop) t.set({ stroke: null, strokeWidth: 0 }); else t.set('stroke', r.c); }
     else coloured = true;
   }
-  if (t.shadow && t.shadow.color){ const r = ring(t.shadow.color); if (r.drop) t.set('shadow', null); else t.shadow.color = r.c; }
+  /* on an even ground a line that already reads 4.5:1 on all but a tenth of
+     it needs no halo: under White on Red a white kicker's dark halo was most
+     of the pixels the line changes on the flat red, and the gate read it
+     1.44:1 (dl_cars_duoSplit_crimson; every_card_audit, 2026-10-03). `worst`
+     is the ground's least favourable tenth, so a line half over a white
+     product keeps the halo that parts it from the product. A hard offset
+     shadow (no blur) is a look, and stays */
+  const wl = worst != null ? worst : gl;
+  if (t.shadow && t.shadow.color && onPlate && wl != null && (t.shadow.blur || 0) > 0 && pgCr(thLumOf(ink), wl) >= 4.5) t.set('shadow', null);
+  else if (t.shadow && t.shadow.color){ const r = ring(t.shadow.color); if (r.drop) t.set('shadow', null); else t.shadow.color = r.c; }
   return !coloured;
 }
 
@@ -18353,7 +18363,7 @@ function ezCopyFollowsGround(sc, W, H, keep){
        and none is turned light (a light outline round gradientWave's dark
        selling points on the amber swatch read as part of the line, 2.7:1) */
     const ink = side === 'light' ? up : dn;
-    thRingFit(t, ink, st.p50, true);
+    thRingFit(t, ink, st.p50, true, st.p90 != null ? (thLumOf(ink) > st.p50 ? st.p90 : st.p10) : null);
     t.dirty = true;
     if (t.name) fills[t.name] = ink;
   });
