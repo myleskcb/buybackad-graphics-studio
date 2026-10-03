@@ -2487,3 +2487,62 @@ RESUME HERE:
      lacks the guides and the lock.
   1. The designer audit's standing failures on `main`: sell_iphone and
      gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-03 — every video goes out with its photo (rule 108)
+
+Owner: "Make sure that every single video ad has a photo because offer
+requires us to put a photo with any video at and we need the HD 1440P version
+of the ad as a photo so find the best point in the video to save". OfferUp
+takes a video only with a photo beside it.
+
+Found:
+  - Two video exports, neither saving a photo: the studio's (Easy Mode's
+    Download as video and the editor's Video, `runVideoExport`, a 10 s clip:
+    the living still, then the call to action from 5.8 s) and the maker's
+    (`download` in motion/app.js: phones fly in, words, number, then an
+    optional ending from duration - 1.1 s).
+  - Both draw any moment as a pure function of t at any size (`motionDraw` on
+    a bake; `Ad.frame`, every size drawing the 720 plan), so the photo can be
+    drawn at 1440 rather than scaled up from the 1080 video.
+  - A score of detail x stillness over the whole studio clip chose the call to
+    action at 9.7 s on Green Gold Glass Card: the banknote photograph its
+    shade lifts off, not its copy. Detail counts everything on screen, so the
+    windows have to say what is the ad.
+
+Did: video-still.js (shared, like video-help.js): every 0.1 s scored as
+detail x stillness^2, held to its neighbours, the earliest within 0.5%.
+Studio: `motionPhoto` (living still only, 0 to 5.7 s; a bake at the photo's
+size; Free's 1080 cap and watermark), one export for both files
+(`deliverVideo`). Maker: `makePhoto` (from the number's arrival to the
+ending; a 360 probe of the same plan; the frame redrawn at 1440 at the
+export's quality). Both: a "Save photo" way back (a browser may hold a second
+download), the share sheet takes both files, a photo that fails or comes out
+smaller is named in the pop-up. DESIGN-LAW rule 108; README; brief.
+
+Checked (headless Chromium, production CSP, fabric 5.3.0 served locally;
+this Chromium has no H.264, so the videos are WebM):
+  - scripts/video_photo_check.mjs: the maker at 1:1, 4:5, 9:16, 16:9 gives
+    1440x1440, 1440x1800, 1440x2560, 2560x1440 at 2.6, 3.4, 3.3, 4.2 s;
+    Easy Mode square and story (operator, Pro) 1440x1440 and 1440x2560 at
+    0 s; Free 1080x1080 with the corner marks; the editor 1440x1440. Each
+    photo against the video's own decoded frame at its moment: 29.8 to
+    41.6 dB PSNR. No CSP violations, no page errors.
+  - 12 random maker looks (seeds 4100-4111): the chosen frame was the
+    finished ad every time (number landed, phones settled), and the frame the
+    number arrives on scored lower every time. 0.26 to 0.58 s per look.
+  - scripts/motion_export_check.mjs (now takes the video, not its photo, and
+    fails without the photo): both buttons, 10 s, 300 frames, Opus.
+  - The MP4 path's toast, with the recorder stubbed: "Video downloaded …
+    Its 1440×1440 photo for OfferUp came with it." and Save photo again.
+
+Not on `main`: this session was told to push its own branch only
+(`claude/blissful-gates-b39qmr`), which contains `main` 809c5ac6.
+
+RESUME HERE:
+  0. Merge `claude/blissful-gates-b39qmr` into `main` and deploy `main`
+     (OPEN-ITEMS §Z 0 still stands: the live site lags `main`).
+  1. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  2. Free's photo is 1080, the plan's cap. If OfferUp posts from Free
+     accounts should get 1440 too, that is `motionPhotoCap` in app.js, and a
+     plan change for the owner to make.

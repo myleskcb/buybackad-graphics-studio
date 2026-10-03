@@ -59,6 +59,14 @@ otherwise, encoded frame by frame, so switching tabs does not spoil it.
 The export refuses the file, and does not spend an export, if frame 0 does
 not match the still or the clip fails the WCAG 2.3.1 flash check (rule 66).
 
+Every video download also saves **a photo of the ad** (OfferUp takes a
+video only with a photo beside it): a PNG 1440 pixels on its short side, in
+the video's aspect, drawn at that size from the video's best moment, which
+`video-still.js` measures on the frames themselves (DESIGN-LAW rule 108). It
+comes under the same export; Free's photo is 1080 with the watermark, the
+plan's cap. The video maker at `/motion` does the same for its phone ads.
+Check: `scripts/video_photo_check.mjs`.
+
 Checks: `scripts/motion_audit.mjs` (every curated card and classic, per
 format), `scripts/motion_export_check.mjs` (presses both buttons under the
 production CSP and decodes the files), `scripts/motion_gallery.mjs` +

@@ -190,13 +190,17 @@
   }
 
   /** Share sheet where there is one for files (a phone: Save Video, AirDrop,
-   *  straight to Instagram), else a plain download. Resolves true if shared. */
-  async function share(blob, name){
+   *  straight to Instagram), else a plain download. Resolves true if shared.
+   *  more: [{ blob, name }] to go in the same sheet (the video's photo, for
+   *  OfferUp); where the sheet takes one file only, the video goes alone. */
+  async function share(blob, name, more){
+    const extra = (more || []).filter(m => m && m.blob);
     try {
-      const file = new File([blob], name, { type: blob.type });
-      if (navigator.canShare && navigator.canShare({ files: [file] })){ await navigator.share({ files: [file] }); return true; }
+      const files = [new File([blob], name, { type: blob.type })].concat(extra.map(m => new File([m.blob], m.name, { type: m.blob.type })));
+      for (const set of files.length > 1 ? [files, files.slice(0, 1)] : [files])
+        if (navigator.canShare && navigator.canShare({ files: set })){ await navigator.share({ files: set }); return true; }
     } catch (e){ if (e && e.name === 'AbortError') return true; }
-    save(blob, name); return false;
+    save(blob, name); extra.forEach(m => save(m.blob, m.name)); return false;
   }
   function save(blob, name){
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
