@@ -832,22 +832,30 @@ async function download(opts = {}) {
 
     const name = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${out.ext}`;
     saveVideo(out.blob, name);
+    // the photo that goes with it: OfferUp takes a video only with one (makePhoto)
+    let photo = null, photoErr = null;
+    try { photo = await makePhoto(st, name, Math.min(ad.W, ad.H), prog); saveVideo(photo.blob, photo.name); }
+    catch (e) { photoErr = e; console.warn("The photo could not be made, the video goes alone:", e); }
     const silent = withSound && !out.audio;
-    $("export-note").textContent = `Saved ${name} (${ad.W}×${ad.H}, ${(out.blob.size / 1e6).toFixed(1)} MB${out.audio ? ", with sound" : withSound ? ", no sound" : ", without sound"}). `;
-    offerAgain(out.blob, name);
+    $("export-note").textContent = `Saved ${name} (${ad.W}×${ad.H}, ${(out.blob.size / 1e6).toFixed(1)} MB${out.audio ? ", with sound" : withSound ? ", no sound" : ", without sound"})` +
+      (photo ? ` and its photo for OfferUp, ${photo.name} (${photo.w}×${photo.h}, the moment at ${photo.t.toFixed(1)} s). ` : ". ");
+    offerAgain(out.blob, name, photo);
     // saved, but not everything that was asked for: say what happened and how to get the rest
     const catches = [];
     if (out.ext !== "mp4") catches.push("It was saved as WebM, because this browser cannot write MP4. Instagram and TikTok may refuse WebM.");
     if (scale < 1) catches.push(`It was made at ${ad.W}×${ad.H} instead of ${W0}×${H0}, because this device ran low on memory at full size.`);
     if (out.via === "live" && mp4Failed) catches.push("The MP4 encoder failed, so it was recorded in real time instead, which can be less smooth.");
     if (silent) catches.push(soundErr ? "The soundtrack could not be made, so the video has no sound." : soundDropped ? "The sound would not go into the video, so it was saved without it." : "This browser could not add the sound, so the video has no sound.");
+    if (photoErr) catches.push("The photo that goes with it could not be made, so only the video was saved. OfferUp takes a video only with a photo.");
+    else if (photo.short < photo.wanted) catches.push(`Its photo was made at ${photo.w}×${photo.h} instead of ${photo.wanted} on the short side, because this device ran low on memory.`);
     if (H.inApp) catches.push("You are in an app's built-in browser, which often does not keep downloads. If the video does not show up, use Share or open this page in your phone's browser.");
     if (catches.length) {
       const report = await checkFor(ad).catch(() => null);
       const actions = [];
-      if (H.canShareFiles()) actions.push({ label: "Share or save to Photos", primary: true, run: () => H.share(out.blob, name) });
+      if (H.canShareFiles()) actions.push({ label: "Share or save to Photos", primary: true, run: () => H.share(out.blob, name, photo ? [photo] : []) });
       if (silent || scale < 1 || out.via === "live") actions.push({ label: "Try again", run: () => download(opts) });
-      H.show({ tone: "info", title: "Video saved, with a catch", message: catches.join(" "), error: tried.join("\n"), report, actions });
+      if (photoErr) actions.push({ label: "Try the photo again", run: async () => { const p = await makePhoto(st, name, Math.min(ad.W, ad.H)); saveVideo(p.blob, p.name); offerAgain(out.blob, name, p); } });
+      H.show({ tone: "info", title: "Video saved, with a catch", message: catches.join(" "), error: photoErr ? String(photoErr.message || photoErr) : tried.join("\n"), report, actions });
     }
   } catch (e) {
     console.error(e);
@@ -874,17 +882,57 @@ function saveVideo(blob, name) {
   setTimeout(() => URL.revokeObjectURL(a.href), 600000);
 }
 
+/* The photo that goes with every video. OfferUp takes a video only with a
+   photo beside it (owner, 2026-10-03), so each download brings the ad as a
+   PNG, 1440 on the short side (1440×1440, 1440×1800, 1440×2560, 2560×1440).
+   The moment is the video's best, measured by video-still.js on a small copy
+   of the same look (every size draws the same plan) from the number's arrival
+   to the ending, which shows the number alone and is not the ad; it is then
+   drawn again at the photo's own size, never a video frame scaled up. Low on
+   memory, it is made at the video's size. */
+async function makePhoto(st, videoName, videoShort, prog = () => {}) {
+  const VS = window.VideoStill;
+  if (!VS) throw new Error("The photo maker did not load.");
+  const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
+  const g = VS.size(W0, H0, 360), probe = new Ad(st, state.assets, g.w, g.h);
+  const pc = document.createElement("canvas"); pc.width = probe.W; pc.height = probe.H;
+  const px = pc.getContext("2d");
+  const from = isFinite(probe.tl.number) ? probe.tl.number : 0, to = Math.max(from, (probe.tOutro != null ? probe.tOutro : st.duration) - .05);
+  const pick = await VS.best({
+    frame: t => { probe.still = null; probe.frame(px, t, { subsFly: 2, subsMove: 2 }); return pc; },
+    windows: [[from, to]], onProgress: p => prog(p, "Choosing the photo"),
+  });
+  const want = VS.SHORT, sizes = [want, Math.min(want, videoShort || want)].filter((s, i, a) => a.indexOf(s) === i);
+  let last = null;
+  for (const s of sizes) {
+    try {
+      const { w, h } = VS.size(W0, H0, s), ad = new Ad(st, state.assets, w, h);
+      const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
+      ad.still = null; ad.frame(c.getContext("2d"), pick.t, { subsFly: 8, subsMove: 4 }, 1 / 30);   // the export's own quality
+      return { blob: await VS.toBlob(c), name: VS.name(videoName, ad.W, ad.H), w: ad.W, h: ad.H, t: pick.t, short: s, wanted: want, pick };
+    } catch (e) { last = e; if (!VH().isMemory(e)) throw e; }
+  }
+  throw last;
+}
+
 /* A download can be dropped without a word (an app's built-in browser, a
    blocked pop-up, a phone that saved it somewhere unexpected): keep a way to
-   save it again, and on a phone the share sheet, until the next video. */
-function offerAgain(blob, name) {
+   save it again, and on a phone the share sheet, until the next video. The
+   photo keeps one too: a browser can hold a second download back. */
+function offerAgain(blob, name, photo) {
   const n = $("export-note");
+  n.querySelectorAll(".mo-link").forEach(b => b.remove());
   const again = document.createElement("button"); again.className = "mo-link"; again.type = "button"; again.textContent = "Save again";
   again.addEventListener("click", () => saveVideo(blob, name));
   n.appendChild(again);
+  if (photo) {
+    const ph = document.createElement("button"); ph.className = "mo-link"; ph.type = "button"; ph.textContent = "Save photo";
+    ph.addEventListener("click", () => saveVideo(photo.blob, photo.name));
+    n.appendChild(ph);
+  }
   if (VH().canShareFiles()) {
     const sh = document.createElement("button"); sh.className = "mo-link"; sh.type = "button"; sh.textContent = "Share or save to Photos";
-    sh.addEventListener("click", () => VH().share(blob, name));
+    sh.addEventListener("click", () => VH().share(blob, name, photo ? [photo] : []));
     n.appendChild(sh);
   }
 }

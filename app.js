@@ -12167,22 +12167,36 @@ async function runVideoExport(o){
     if (!r) throw last || new Error('this browser cannot record video');
     const ext = /mp4/.test(r.mime) ? 'mp4' : 'webm';
     const name = (o.name || 'ad').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-video-' + w + 'x' + h + '.' + ext;
+    // the photo that goes with it: OfferUp takes a video only with one (motionPhoto)
+    setBtn('Choosing the photo…');
+    let photo = null, photoErr = null;
+    try { photo = await motionPhoto(o, name, Math.min(w, h)); }
+    catch (e){ photoErr = e; console.warn('GraphicsStudio motion: the photo could not be made, the video goes alone.', e); }
     setBtn('Saving…');
-    if (!await deliverVideo(r.blob, name)) return;
+    if (!await deliverVideo(r.blob, name, photo)) return;
     const catches = [];
     if (ext !== 'mp4') catches.push('It was saved as WebM, because this browser cannot write MP4. Instagram and TikTok may refuse WebM.');
     if (w !== o.w) catches.push('It was made at ' + w + '×' + h + ' instead of ' + o.w + '×' + o.h + ', because this device ran low on memory at full size.');
     if (fellBack) catches.push('The frame-by-frame encoder failed, so it was recorded in real time instead.');
     if (soundErr) catches.push('The soundtrack could not be made, so the video has no sound.');
     else if (soundDropped) catches.push('The sound would not go into the video, so it was saved without it.');
+    if (photoErr) catches.push('The photo that goes with it could not be made (' + String(photoErr.message || photoErr) + '), so only the video was saved. OfferUp takes a video only with a photo: download this ad as an image for it.');
+    else if (photo && photo.short < photo.wanted) catches.push('Its photo was made at ' + photo.w + '×' + photo.h + ' instead of ' + photo.wanted + ' on the short side, because this device ran low on memory.');
     if (VH && VH.inApp) catches.push("You are in an app's built-in browser, which often does not keep downloads. If the video does not show up, use Share or open this page in your phone's browser.");
     if (catches.length && VH){
       const report = await VH.check({ w, h, fps: MOTION.fps, sound: !!o.actx }).catch(() => null);
       const actions = [];
-      if (VH.canShareFiles()) actions.push({ label: 'Share or save to Photos', primary: true, run: () => VH.share(r.blob, name) });
+      if (VH.canShareFiles()) actions.push({ label: 'Share or save to Photos', primary: true, run: () => VH.share(r.blob, name, photo ? [photo] : []) });
       actions.push({ label: 'Save again', run: () => VH.save(r.blob, name) });
-      VH.show({ tone: 'info', title: 'Video saved, with a catch', message: catches.join(' '), error: String((soundErr || soundDropped || fellBack || {}).message || ''), report, actions });
-    } else toast(ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4', ext === 'mp4' ? 'success' : undefined);
+      if (photo) actions.push({ label: 'Save the photo again', run: () => VH.save(photo.blob, photo.name) });
+      VH.show({ tone: 'info', title: 'Video saved, with a catch', message: catches.join(' '), error: String((photoErr || soundErr || soundDropped || fellBack || {}).message || ''), report, actions });
+    } else {
+      const said = ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4';
+      /* a second download can be held by the browser ("download multiple
+         files?"), so the photo keeps a way to be saved again */
+      if (photo && VH) VH.toast(said + '. Its ' + photo.w + '×' + photo.h + ' photo for OfferUp came with it.', { ms: 12000, action: { label: 'Save photo again', run: () => VH.save(photo.blob, photo.name) } });
+      else toast(said, ext === 'mp4' ? 'success' : undefined);
+    }
   } catch (e){
     console.error('GraphicsStudio motion: export failed', e);
     videoTrouble(o, e);
@@ -12196,11 +12210,15 @@ async function runVideoExport(o){
 /* The export is counted once the video exists, then it downloads. A dropped
    connection or a server hiccup is retried; if it still will not go, the
    finished video is kept and the pop-up retries just the count, so nothing is
-   rendered twice. A refusal (out of exports, signed out) says what to do. */
-async function deliverVideo(blob, name){
+   rendered twice. A refusal (out of exports, signed out) says what to do.
+   The video's photo (motionPhoto) rides on the same export: one count, two
+   files. */
+async function deliverVideo(blob, name, photo){
   const VH = window.VideoHelp;
   const transient = e => e instanceof TypeError || /Failed to fetch|NetworkError|Load failed|HTTP (5\d\d|429)/i.test(String((e && e.message) || e));
-  const give = () => { if (VH) VH.save(blob, name); else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 600000); } };
+  const save = (b, n) => { if (VH) VH.save(b, n); else { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = n; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 600000); } };
+  const give = () => { save(blob, name); if (photo) save(photo.blob, photo.name); };
+  const done = photo ? 'Video and photo downloaded' : 'Video downloaded';
   try {
     await (VH ? VH.retry(recordExport, { tries: 3, delay: 1200, retryIf: transient }) : recordExport());
     give(); return true;
@@ -12210,7 +12228,7 @@ async function deliverVideo(blob, name){
     if (!VH){ toast('Export could not be recorded: ' + m, 'error'); return false; }
     if (transient(e)){
       VH.show({ title: 'Your video is ready, but the connection dropped', message: 'The download is counted before it starts, and that could not reach the server. Check your internet, then press Try again: the video is kept, so it will not be made again.',
-        error: m, actions: [{ label: 'Try again', primary: true, run: async () => { if (await deliverVideo(blob, name)) toast('Video downloaded', 'success'); } }] });
+        error: m, actions: [{ label: 'Try again', primary: true, run: async () => { if (await deliverVideo(blob, name, photo)) toast(done, 'success'); } }] });
     } else if (/sign|auth|token|401|403/i.test(m)){
       VH.show({ title: 'Please sign in again', message: 'Your sign-in ran out before the video could be counted. Sign in, then download the video again.', error: m,
         actions: [{ label: 'Sign in', primary: true, run: () => openAuth('Sign in to download your video.') }] });
@@ -12218,11 +12236,50 @@ async function deliverVideo(blob, name){
       VH.show({ title: 'No exports left this period', message: m, actions: [{ label: 'See plans', primary: true, run: () => openPlans(m) }] });
     } else {
       VH.show({ title: 'The export could not be counted', message: 'The video was made, but the server refused to count it, so it was not downloaded. Try again in a moment.', error: m,
-        actions: [{ label: 'Try again', primary: true, run: async () => { if (await deliverVideo(blob, name)) toast('Video downloaded', 'success'); } }] });
+        actions: [{ label: 'Try again', primary: true, run: async () => { if (await deliverVideo(blob, name, photo)) toast(done, 'success'); } }] });
     }
     return false;
   }
 }
+
+/* The photo that goes with every video. OfferUp takes a video only with a
+   photo beside it (owner, 2026-10-03), so each video download brings the ad
+   as a PNG, 1440 on the short side within the plan's cap (photoCap: Free
+   stays at its 1080, with the video's watermark). The moment is the video's
+   best, measured on its own frames by video-still.js, and it is drawn again
+   from a bake made at the photo's own size, so it is never a video frame
+   scaled up. Low on memory, it is made at the video's size.
+   It is chosen from the living still only: the call to action from 5.8 s is
+   the ad cut down to its number, its plate and what fits beside them, so it
+   is not the ad. Measured over the whole clip (2026-10-03), the call to
+   action won on a card whose shade lifts off a busy photograph (Green Gold
+   Glass Card, 9.7 s): the photograph's detail, not the copy's. */
+async function motionPhoto(o, videoName, videoShort){
+  const VS = window.VideoStill;
+  if (!VS) throw new Error('the photo maker did not load');
+  const want = Math.min(VS.SHORT, o.photoCap || Infinity);
+  const sizes = [want, Math.min(want, videoShort || want)].filter((s, i, a) => a.indexOf(s) === i);
+  let last = null;
+  for (const s of sizes){
+    try {
+      const { w, h } = VS.size(o.docW, o.docH, s);
+      const bake = motionBake(o.sc, o.docW, o.docH, w, h);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d');
+      const end = (bake.cta ? MOTION.cta.at : MOTION.dur) - 0.1;
+      const pick = await VS.best({ frame: t => { motionDraw(x, bake, t); return c; }, windows: [[0, end]] });
+      motionDraw(x, bake, pick.t);
+      if (o.watermark) drawWatermarkMarks(x, w, h);
+      return { blob: await VS.toBlob(c), name: VS.name(videoName, w, h), w, h, t: pick.t, short: s, wanted: want, pick };
+    } catch (e){
+      last = e;
+      if (!(window.VideoHelp && VideoHelp.isMemory(e))) throw e;
+    }
+  }
+  throw last;
+}
+/* the plan's cap on the photo's short side (operators have none) */
+const motionPhotoCap = () => isAdmin() ? Infinity : planOf().maxPx;
 
 /* The video buttons: an error anywhere before the export starts (building
    the scene, the account check) must not just stop with nothing on screen. */
@@ -12249,7 +12306,7 @@ async function ezDownloadVideo(){
   if (!await pgGate('ez', () => renderEzCanvas(1080, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true))) return;
   const sc = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true);
   const docW = sc.width, docH = sc.height, k = Math.min(gate.px, MOTION.maxShort) / Math.min(docW, docH);
-  await runVideoExport({ sc, docW, docH, w: Math.round(docW * k), h: Math.round(docH * k), watermark:gate.watermark, actx, name:ezTpl().name, btn:$('ez-video') });
+  await runVideoExport({ sc, docW, docH, w: Math.round(docW * k), h: Math.round(docH * k), watermark:gate.watermark, photoCap:motionPhotoCap(), actx, name:ezTpl().name, btn:$('ez-video') });
 }
 async function editorDownloadVideo(){
   const actx = motionSoundOn() ? motionAudioContext() : null;
@@ -12261,7 +12318,7 @@ async function editorDownloadVideo(){
   canvas.discardActiveObject(); canvas.renderAll();
   const sc = new fabric.StaticCanvas(null, { width:CW, height:CH, renderOnAddRemove:false, enableRetinaScaling:false });
   await new Promise(res => sc.loadFromJSON(canvas.toJSON(EXTRA_PROPS), res));
-  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, actx, name:currentTplName, btn:$('ex-video') });
+  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, photoCap:motionPhotoCap(), actx, name:currentTplName, btn:$('ex-video') });
 }
 
 /* the buttons (index.html: #ez-video beside Download my ad, #ex-video in the
