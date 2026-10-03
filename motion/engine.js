@@ -85,6 +85,20 @@ export function pal(st) {
 // look number keeps every choice it made before them.
 const ACCENT_AXES = ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"];
 
+/** A look named by a link (the Look Book, looks.html): a vibe, a ground or a phone set held,
+ *  everything else drawn from the seed, the viewer's own words, number and phones kept. The
+ *  library draws its thumbnail with this, and the maker opens the link with it, so the look
+ *  picked is the look that opens. Returns { style, locked }. */
+export function linkedLook(base, seed, pick = {}) {
+  const locked = new Set(["phones", "number", "aspect"]);
+  const st = { ...base };
+  if (pick.aspect && ASPECTS[pick.aspect]) st.aspect = pick.aspect;
+  if (pick.vibe && VIBES[pick.vibe]) { st.vibe = pick.vibe; locked.add("vibe"); }
+  if (pick.bg && OPTIONS.background.includes(pick.bg)) { st.vibe = "none"; st.background = pick.bg; locked.add("vibe"); locked.add("background"); }
+  if (pick.layout && OPTIONS.arrangement.includes(pick.layout)) { st.arrangement = pick.layout; locked.add("arrangement"); }
+  return { style: harmonise(randomize(st, seed, locked, [], true), locked), locked };
+}
+
 /** Draw every unlocked design axis from the seed, each independently. */
 export function randomize(st, seed, locked = new Set(), phonesPool = [], content = true) {
   const r = rng(seed * 7919 + 13);

@@ -19285,3 +19285,73 @@ function pgHueCheck(sc, r){
     try { if (/^scene_/.test(edGroundStyle)){ _edGroundKey = ''; edBuildGrounds(); } } catch (e){}
   });
 }
+
+/* NO BLACK ON BLACK (owner, 2026-10-03, over a dark headline on dark 3-D sides:
+   "This looks generally hard to read" ... "Can we both agree black with black
+   shadow?"). Appended, not spliced. A line's depth and shadow are there to lift
+   its letters, so they stand on the other side of its face: a dark face takes
+   light sides (its own hue, lighter as they recede) and loses the black drop
+   shadow and the dark rim; a dark line's dark shadow becomes a light one. Runs
+   last, after the passes that can turn a face dark (copy that follows its ground,
+   one hue, a theme), so the sides answer the face as it is drawn. */
+function pgDepthReads(sc){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const lumOf = f => { if (typeof f === 'string') return pgLum(thParse(f) ? thParse(f).hex : f);
+    if (f && Array.isArray(f.colorStops) && f.colorStops.length){ const ls = f.colorStops.map(s => pgLum(thParse(s.color) ? thParse(s.color).hex : s.color)).filter(v => v != null); return ls.length ? ls.reduce((a, b) => a + b, 0) / ls.length : null; }
+    return null; };
+  const hexOf = f => { const p = thParse(typeof f === 'string' ? f : (f && f.colorStops && f.colorStops[0] && f.colorStops[0].color)); return p ? p.hex : null; };
+  const DARK = 0.18;
+  let n = 0;
+  objs.forEach(face => {
+    if (!isText(face) || face.pgRole === 'deco' || face.visible === false) return;
+    const fL = lumOf(face.fill); if (fL == null || fL >= DARK) return;
+    const sides = objs.filter(o => o !== face && o.pgKin === face && / depth$/.test(o.name || ''));
+    const sL = sides.map(o => lumOf(o.fill)).filter(v => v != null);
+    if (sides.length && sL.length && pgCr(fL, sL.reduce((a, b) => a + b, 0) / sL.length) < 2.5){
+      const k = hexToOklch(hexOf(sides[0].fill) || hexOf(face.fill) || '#808080') || { h: 0, C: 0 };
+      const fc = face.getCenterPoint(), far = o => { const c = o.getCenterPoint(); return Math.hypot(c.x - fc.x, c.y - fc.y); };
+      const D = Math.max(1, ...sides.map(far));
+      sides.forEach(o => { o.set({ fill: oklchFit({ L: 0.93 - 0.17 * far(o) / D, C: Math.min(k.C, 0.09), h: k.h }), shadow: null }); o.dirty = true; });
+      if (face.stroke && (face.strokeWidth || 0) > 0){ const sl = lumOf(face.stroke); if (sl != null && sl < 0.3) face.set('stroke', 'rgba(246,246,244,0.9)'); }
+      n++;
+    }
+    /* a plain dark line's dark shadow */
+    const sh = face.shadow;
+    if (sh && typeof sh.color === 'string'){ const p = thParse(sh.color), l = p ? pgLum(p.hex) : null;
+      if (l != null && l < 0.3 && (sh.blur || 0) + Math.abs(sh.offsetX || 0) + Math.abs(sh.offsetY || 0) > 0){ sh.color = 'rgba(255,255,255,' + Math.min(0.6, Math.max(0.35, p.a || 0.5)) + ')'; face.dirty = true; n++; } }
+  });
+  return n;
+}
+{
+  const after = sc => { try { pgDepthReads(sc); } catch (e){ console.warn('depth reads:', e); } };
+  ['alignPass', 'themeScene', 'applyCardLook', 'taglineApply', 'ezCopyFollowsGround'].forEach(name => {
+    const f = window[name]; if (typeof f !== 'function') return;
+    window[name] = function(sc){ const r = f.apply(this, arguments); if (sc) after(sc); return r; };
+  });
+  /* the designer recolours its live canvas from the saved paint (rule 93): the pass
+     runs again on what that leaves, so ORIG and every theme end the same way */
+  if (typeof edRecolour === 'function'){
+    const _edRecolour = edRecolour;
+    edRecolour = function(){ const r = _edRecolour.apply(this, arguments); if (typeof canvas !== 'undefined' && canvas){ after(canvas); try { canvas.requestRenderAll(); } catch (e){} } return r; };
+  }
+}
+
+/* A CARD PICKED IN THE LOOK BOOK (looks.html, 2026-10-03, appended, not spliced). Owner:
+   "push all into 1 mega library". ?card=<showcase id> opens that card in Easy Mode as the
+   gallery does; ?tpl=<template id> opens a classic template. The link is then cleared. */
+{
+  let q = null; try { q = new URLSearchParams(location.search); } catch (e){}
+  const card = q && q.get('card'), tpl = q && q.get('tpl');
+  if (card || tpl) window.addEventListener('load', () => setTimeout(async () => {
+    try {
+      if (tpl && TEMPLATES.some(t => t.id === tpl)) showEasy(tpl);
+      else if (card){
+        await scLoadIndex();
+        if (!SHOWCASE.byId[card]){ const all = await fetch('assets/showcase/index.json').then(r => r.json()); const row = all.find(c => c.id === card); if (row) SHOWCASE.byId[card] = row; }
+        if (SHOWCASE.byId[card]) await openShowcase(card); else showEasy(null);
+      }
+    } catch (e){ console.warn('Look Book link:', e); }
+    try { history.replaceState(null, '', location.pathname); } catch (e){}
+  }, 50));
+}
