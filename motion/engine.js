@@ -734,6 +734,32 @@ const LAID_OUT = {
     return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
       return [o * PW * (tall ? 1.02 : 1.1), PH * .05 * k * k, -Math.sign(o) * lean * k, 1 - .06 * k, -k]; });
   },
+  // a gallery wall: one size, each phone on its own with clear air either side, leaning
+  // a touch outward from the middle
+  gallery(n, r, tall, PH, PW) {
+    const step = PW * (tall && n > 3 ? 1.22 : 1.42);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2; return [o * step, 0, -Math.sign(o) * 4, 1, 0]; });
+  },
+  // a crown: apart from each other along a gentle arch, the middle highest, each pair
+  // leaning out along it
+  crown(n, r, tall, PH, PW) {
+    const step = PW * (tall ? 1.16 : 1.3);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * step, PH * .07 * k * k, -Math.sign(o) * 7 * k, 1 - .05 * k, -k]; });
+  },
+  // a spotlight: the middle phone large, the rest small and apart, all on one floor
+  spotlight(n, r, tall, PH, PW) {
+    const big = 1.2, sm = .68;
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o), sc = k < .75 ? big : sm;
+      const x = k < .75 ? o * PW * .7 : Math.sign(o) * (PW * big / 2 + PW * .22 + PW * sm / 2 + (Math.ceil(k) - 1) * PW * (sm + .2));
+      return [n % 2 ? x : (k < 1 ? Math.sign(o) * PW * .62 : x), -sc * PH / 2, 0, sc, -k]; });
+  },
+  // leaning in: the middle upright and in front, its neighbours tucked behind it from the
+  // side and leaning in toward it
+  lean_in(n, r, tall, PH, PW) {
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * PW * .78, PH * .03 * k, Math.sign(o) * 8 * k, 1 - .08 * k, -k]; });
+  },
   // an arrow: two arms meeting at the phone in front
   chevron(n, r, tall, PH, PW) {
     const d = r() < .5 ? -1 : 1;
@@ -799,7 +825,8 @@ const LAID_OUT = {
 };
 
 /** The styled sets drawn as mirror images about the middle phone. */
-const MIRRORED = new Set(["fan", "arc", "vee", "hand", "burst", "podium", "bookends", "tents", "headliner", "wings", "showcase", "lineup"]);
+const MIRRORED = new Set(["fan", "arc", "vee", "hand", "burst", "podium", "bookends", "tents", "headliner", "wings", "showcase", "lineup",
+  "gallery", "crown", "spotlight", "lean_in"]);
 
 /** n spots from f(t, i), t running 0..1 along them. */
 const spots = (n, f) => Array.from({ length: n }, (_, i) => f(n > 1 ? i / (n - 1) : .5, i));
@@ -1284,7 +1311,7 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       strokeAll("#2a1a00", size * .07); noShadow(); fillAll(g4); break;
     }
     case "long_shadow": {
-      const L = Math.round(size * .35), col = shade(p.ground, -.45);
+      const L = Math.round(size * .35), col = shade(p.ground, darkInk ? -.15 : -.45);   // never dark under dark letters (owner, 2026-10-03)
       for (let k = L; k >= 1; k -= 1) { ctx.save(); ctx.translate(k, k); fillAll(col); ctx.restore(); }
       fillAll(); break;
     }
@@ -1341,7 +1368,7 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       const base = !darkInk && contrastOf(accent, p.ground) >= 4.5 ? accent : ink;
       const g5 = ctx.createLinearGradient(0, pad, 0, pad + asc);
       [[0, shade(base, .55)], [.44, base], [.52, shade(base, -.28)], [.6, shade(base, .3)], [1, shade(base, -.08)]].forEach(([o, c2]) => g5.addColorStop(o, c2));
-      ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04; fillAll(g5); break;
+      ctx.shadowColor = darkInk ? shadowCol : "rgba(0,0,0,.45)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04; fillAll(g5); break;
     }
     default: fillAll();
   }
