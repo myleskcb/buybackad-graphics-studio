@@ -71,6 +71,18 @@
    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Satie_Gymnopedie_No_1_performed_by_Michael_Laucke.flac",
    "license": "Public domain",
    "basis": "performer's own recording, released to the public domain"
+  },
+  {
+   "id": "new_world",
+   "title": "New World Symphony, finale (Dvořák) · Musopen",
+   "kind": "classical",
+   "bpm": 70.6,
+   "beat": 0.26,
+   "from": 21.5,
+   "source": "File:Antonin Dvorak - symphony no. 9 in e minor 'from the new world', op. 95 - iv. allegro con fuoco.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/1/17/Antonin_Dvorak_-_symphony_no._9_in_e_minor_%27from_the_new_world%27%2C_op._95_-_iv._allegro_con_fuoco.ogg",
+   "license": "Public domain",
+   "basis": "Musopen, public domain"
   }
  ]
 }

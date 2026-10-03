@@ -43,5 +43,12 @@ export const TRACKS = [
   "kind": "classical",
   "bpm": 92.3,
   "beat": 0.3
+ },
+ {
+  "id": "new_world",
+  "title": "New World Symphony, finale (Dvořák) · Musopen",
+  "kind": "classical",
+  "bpm": 70.6,
+  "beat": 0.26
  }
 ];
