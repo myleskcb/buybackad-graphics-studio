@@ -3685,10 +3685,13 @@ centred pill, passes both and still looks unfinished.
   pieces left, a part that would land on another left where it was. Kept only
   when the writers' gate accepts it and the composition is better. Of 119
   tried (every failing card but Steps Flow, and every checklist for the two
-  defects below), 90 were centred; 15 came out no better; 11 were held back by
+  defects below), 88 were centred; 15 came out no better; 11 were held back by
   the gate (a line would lose contrast on
   the new patch of photograph, or a kicker would be covered) and stay as they
-  were.
+  were. Two more were centred and put back: in Easy Mode's render their
+  centred headline covered the corner badges, which takes a card off the site
+  (every_card_audit, rule 101); they keep only the two repairs below
+  (`--fix-only`).
 - **Two defects the measure found on the way**, both on the checklists:
   a leftover ✓ ("Tick Mark", a text from before the rings carried icons) sat
   in the first ring over its icon on 18 of the 24 (16 removed); and the ring
@@ -3703,6 +3706,9 @@ centred pill, passes both and still looks unfinished.
   two with their steps beside their pills), a bubblePop card whose number runs
   over the product pictures, and a hudTech card with a muddy dark headline
   among scattered cut-outs. 321 cards stay live.
-- After: 47 of 301 offered cards fail the measure, none that passed before.
+- After: 49 of 301 offered cards fail the measure, none that passed before.
+  every_card_audit on the 90 changed cards: no card newly held as offered;
+  one theme on neonNight-nn05-15 and one look on trustSeal-cd06-26 newly off,
+  and the voices' table moved on 16 cards (1,520 to 1,525 voices off).
   Eight are Steps Flow cards, being re-laid out on another branch
   (claude/relaxed-darwin-8aces4) and not touched here.

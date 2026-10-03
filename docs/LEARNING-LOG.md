@@ -2517,7 +2517,11 @@ Found:
     numbers before believing the picture, and the picture before believing
     the numbers.
 
-Did: DESIGN-LAW rule 109, OPEN-ITEMS §AC. 90 cards centred through the gate,
+Did: DESIGN-LAW rule 109, OPEN-ITEMS §AC. 88 cards centred through the gate,
 16 leftover ticks removed, 16 icons or stickers inked to read, 8 held; 321
-live, all passing verify_showcase; 47 of 301 still fail the measure (8 are
+live, all passing verify_showcase; 49 of 301 still fail the measure (8 are
 Steps Flow, left to claude/relaxed-darwin-8aces4), none newly.
+  - The writers' gate passed two centrings that every_card_audit then held as
+    offered: Easy Mode lays a card out again with the visitor's words, and
+    there the centred headline covered the corner badges. A layout change is
+    not done until every_card_audit has run on the cards it touched.

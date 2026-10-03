@@ -24,12 +24,13 @@
  * better: no failure it did not have, and fewer loose parts or none left.
  *
  * usage: node scripts/centre_showcase.mjs (--ids a,b | --from audit.json) [--write] [--json f] [--out dir]
+ *        [--fix-only]   the tick and the ink only (a card the centring would cost an offer)
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { openStudio, gateRecords, gateSummary } from './_showcase_harness.mjs';
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/showcase/';
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
-const WRITE = process.argv.includes('--write');
+const WRITE = process.argv.includes('--write'), FIXONLY = process.argv.includes('--fix-only');   // the tick and the ink, no centring
 let ids = argv('--ids') ? argv('--ids').split(',') : [];
 if (argv('--from')) ids = ids.concat(JSON.parse(readFileSync(argv('--from'), 'utf8')).filter(r => r.fail && r.fail.length).map(r => r.id));
 ids = [...new Set(ids)];
@@ -38,7 +39,7 @@ console.log('cards: ' + ids.length);
 const { browser, page } = await openStudio();
 const results = {};
 for (let i = 0; i < ids.length; i += 4){
-  Object.assign(results, await page.evaluate(async batch => {
+  Object.assign(results, await page.evaluate(async (batch, FIXONLY) => {
     const R = {};
     const keep = o => o.visible !== false && !o.pgScrim && !o.pgBgRect && (o.opacity == null || o.opacity > 0.05) && !sgGround(sgBox(o));
     const summary = c => ({ fail: c.fail, loose: c.loose.length, near: c.near.map(n => n.part + ' ' + n.dx), onWords: c.onWords.length });
@@ -74,7 +75,7 @@ for (let i = 0; i < ids.length; i += 4){
           sc.dispose(); }
         /* 3. centred as Centre all centres */
         let moved = 0;
-        for (let pass = 0; pass < 3; pass++){
+        for (let pass = 0; pass < (FIXONLY ? 0 : 3); pass++){
           const t = await paintCand(); const { sc, refs } = __sc.paint(t);
           const plan = ccPlan(sc.getObjects().filter(keep), TPL_W / 2, { top: true });
           let m = 0;
@@ -88,7 +89,7 @@ for (let i = 0; i < ids.length; i += 4){
       } catch (e){ R[id] = { err: String(e).slice(0, 200) }; }
     }
     return R;
-  }, ids.slice(i, i + 4)));
+  }, ids.slice(i, i + 4), FIXONLY));
   process.stdout.write('\r' + Math.min(i + 4, ids.length) + '/' + ids.length);
 }
 console.log('');

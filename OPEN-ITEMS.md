@@ -1481,14 +1481,19 @@ Still open:
    owner wants the list to match.
 
 
-## AC. 2026-10-03 — the composition audit: 90 cards centred, 8 held (DESIGN-LAW 109)
+## AC. 2026-10-03 — the composition audit: 88 cards centred, 8 held (DESIGN-LAW 109)
 
 The owner: "next audit more", after a Pokémon card that "looks incomplete".
 `scripts/composition_audit.mjs` (exits 1 on a failing offered card) and
 `scripts/centre_showcase.mjs` (the gated repair). 118 of 309 offered cards
-failed; 90 were centred, 16 lost a leftover ✓ in their first ring, 16 had an
+failed; 88 were centred, 16 lost a leftover ✓ in their first ring, 16 had an
 invisible icon or sticker text inked to read; 8 were held (holds.json);
-verify_showcase passes all 321 live cards; 47 of 301 still fail the measure.
+verify_showcase passes all 321 live cards; 49 of 301 still fail the measure.
+every_card_audit on the changed cards: no card newly held as offered (two
+whose centred headline covered the corner badges were put back,
+checklistHero-cd04-15 and -cd06-20, keeping the tick and ink repairs); one
+theme (neonNight-nn05-15, Electric Trust) and one look (trustSeal-cd06-26,
+glow) newly off; the voices' table moved on 16 cards.
 
 Not live until deployed (AGENT-BRIEF, Deploying).
 
