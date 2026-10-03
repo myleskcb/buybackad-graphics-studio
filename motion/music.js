@@ -41,6 +41,8 @@ export function sampler(ctx, man, bufs, need) {
   return {
     /** A one-shot: percussion or an effect. */
     hit(dest, t, id, gain, pan = 0, rate = 1) { if (man && man.hits[id]) play(dest, t, id, gain, pan, rate); },
+    /** Whether a recording can play: not yet known counts as yes (the first pass asks for it). */
+    loaded(id) { return !!man && (!bufs.has(id) || !!bufs.get(id)); },
     /** The notes an instrument was recorded across, give or take a few. */
     range(inst) { const I = man && man.pitched[inst]; return I ? [I.zones[0] + I.shift - 2, I.zones[I.zones.length - 1] + I.shift + 4] : null; },
     /** One note on a sampled instrument, from the nearest recorded note. */
@@ -74,6 +76,19 @@ export const LEADS = {
   bells: { center: 70, gain: .7, ring: .8 },
   synth: { center: 74 },
   supersaw: { center: 74 }, synth_pluck: { center: 76 }, synth_brass: { center: 70 }, fm_bell: { center: 79 }, gfunk_lead: { center: 81 }, pad: { center: 66 },
+  organ_b3: { center: 72 }, strings: { center: 70 }, acid: { center: 60 },
+  guitar: { center: 67 }, funk_guitar: { center: 62 },
+  upright: { center: 74, gain: 1.45, ring: .35 }, clav: { center: 67, gain: .95, ring: .1 }, harmonica: { center: 74, gain: .85, ring: .05, sustain: true },
+  strumstick: { center: 66, gain: 1.15, ring: .3 }, balafon: { center: 74, gain: 1.85, ring: .2 },
+};
+
+// Plucked strings, made here note by note (Karplus-Strong, audio.js): bright: how hard the
+// pick; damp: how long it rings; lp: the body's darkness; ring: how long past the note it may sound
+export const STRINGS = {
+  guitar: { id: "gtr", bright: .5, damp: .996, secs: 2.4, lp: 4800, body: 210, ring: .45, level: .9 },
+  funk_guitar: { id: "fgt", bright: .9, damp: .978, secs: .7, lp: 3800, body: 400, ring: .02, level: .85 },
+  bass_guitar: { id: "bgt", bright: .32, damp: .998, secs: 2, lp: 1500, body: 110, ring: .08, level: 1.25 },
+  upright_bass: { id: "ubs", bright: .2, damp: .994, secs: 1.6, lp: 900, body: 90, ring: .12, level: 1.4 },
 };
 
 // ------------------------------------------------------------ synthesisers (made here, nothing sampled)
@@ -90,6 +105,11 @@ export const SYNTHS = {
   gfunk_lead: { osc: [["sine", 0, .75], ["triangle", 0, .25]], attack: .025, release: .12, glide: .07, vib: [5.6, .011, .14], cut: [4200, 4200], level: .165 },
   pad: { osc: [["sawtooth", -9, .34], ["sawtooth", 9, .34], ["sawtooth", 0, .34]], attack: .14, release: .45, cut: [900, 1500], cutTime: .6, q: .5, level: .5 },
   synth_bass: { osc: [["sawtooth", 0, .55], ["square", -5, .35]], attack: .004, release: .08, cut: [1200, 380], cutTime: .12, q: 3, glide: .05, level: .8 },
+  // a tonewheel organ: drawbars at the octave, twelfth and two octaves, and the speaker's wobble
+  organ_b3: { osc: [["sine", -1200, .3], ["sine", 0, .5], ["sine", 1200, .35], ["sine", 1902, .22], ["sine", 2400, .14]],
+    attack: .006, release: .07, vib: [6.3, .0035, 0], cut: [7000, 7000], level: .215 },
+  strings: { osc: [["sawtooth", -11, .33], ["sawtooth", 11, .33], ["sawtooth", 0, .33]], attack: .2, release: .55, vib: [5.2, .005, .25], cut: [2600, 2600], q: .3, level: .39 },
+  acid: { osc: [["sawtooth", 0, 1]], attack: .003, release: .06, cut: [2800, 320], cutTime: .16, q: 9, glide: .06, level: .165 },
 };
 
 // ------------------------------------------------------------ the tunes
@@ -239,30 +259,30 @@ const PROGS = {
 /** What the new grooves are made of: their mood and the instruments that may
  *  play their chords (their tempo is KIT_BPM in catalog.js). Each is a groove of its own. */
 export const KITS = {
-  reggaeton: { prog: "minor", keys: ["epiano", "marimba", "piano"] },
+  reggaeton: { prog: "minor", keys: ["epiano", "marimba", "piano", "guitar"] },
   jersey_club: { prog: "minor", keys: ["glock", "kalimba", "epiano"] },
   drill: { prog: "minor", keys: ["piano", "vibes", "harp"] },
   phonk: { prog: "minor", keys: ["piano", "epiano"] },
   baile_funk: { prog: "minor", keys: ["epiano", "marimba"] },
-  amapiano: { prog: "lush", keys: ["piano", "epiano"] },
-  cumbia: { prog: "major", keys: ["piano", "marimba", "vibes"] },
-  disco: { prog: "minor", keys: ["epiano", "piano"] },
+  amapiano: { prog: "lush", keys: ["piano", "epiano", "upright"] },
+  cumbia: { prog: "major", keys: ["piano", "marimba", "vibes", "guitar", "strumstick"], bass: "bass_guitar" },
+  disco: { prog: "minor", keys: ["epiano", "piano", "funk_guitar"], bass: "bass_guitar" },
   uk_garage: { prog: "lush", keys: ["epiano", "organ"] },
-  swing: { prog: "jazz", keys: ["piano", "vibes"] },
-  epic: { prog: "minor", keys: ["organ", "piano"] },
-  march: { prog: "march", keys: ["piano", "marimba", "xylophone"] },
-  bossa: { prog: "jazz", keys: ["epiano", "vibes", "harp"] },
-  pop: { prog: "major", keys: ["piano", "epiano"] },
-  rnb: { prog: "lush", keys: ["epiano"] },
-  motown: { prog: "major", keys: ["piano", "vibes"] },
-  gospel: { prog: "major", keys: ["organ"] },
-  classical: { prog: "major", keys: ["piano", "harp", "harpsichord"] },
-  synthwave: { prog: "minor", keys: ["pad"] },
+  swing: { prog: "jazz", keys: ["piano", "vibes", "upright", "guitar"], bass: "upright_bass" },
+  epic: { prog: "minor", keys: ["organ", "piano", "strings"] },
+  march: { prog: "march", keys: ["piano", "marimba", "upright"] },
+  bossa: { prog: "jazz", keys: ["guitar", "guitar", "epiano", "vibes"], bass: "upright_bass" },
+  pop: { prog: "major", keys: ["piano", "epiano", "guitar", "upright"], bass: "bass_guitar" },
+  rnb: { prog: "lush", keys: ["epiano", "guitar", "strings"] },
+  motown: { prog: "major", keys: ["piano", "vibes", "funk_guitar", "clav"], bass: "bass_guitar" },
+  gospel: { prog: "major", keys: ["organ_b3", "organ_b3", "upright"], bass: "bass_guitar" },
+  classical: { prog: "major", keys: ["piano", "harp", "harpsichord", "guitar", "upright"] },
+  synthwave: { prog: "minor", keys: ["pad", "strings"] },
   gfunk: { prog: "lush", keys: ["epiano", "pad"] },
   future_bass: { prog: "major", keys: ["supersaw"] },
-  deep_house: { prog: "lush", keys: ["synth_pluck", "epiano", "organ"] },
+  deep_house: { prog: "lush", keys: ["synth_pluck", "epiano", "organ_b3"] },
   trance: { prog: "minor", keys: ["supersaw", "pad"] },
-  nu_disco: { prog: "minor", keys: ["synth_brass", "synth_pluck"] },
+  nu_disco: { prog: "minor", keys: ["synth_brass", "synth_pluck", "funk_guitar", "clav"] },
 };
 
 /** The key, chords and tune of one look, laid on its beat grid. */
@@ -339,7 +359,11 @@ export function groove(S, dest, kit, A, start, total) {
   const chordTones = (t, center) => voicing(keyPc, A.chordAt(t + 1e-4), center);
   const bass = t => mtof(bassNote(keyPc, A.chordAt(t + 1e-4)));
   const duck = A.tune ? .5 : 1;                       // under a tune the chords step back
-  const stab = (t, dur, gain, center = 64) => chordTones(t, center).forEach((m, i) => S.note(dest, t + i * .004, K, m, dur, gain * duck));
+  const strum = STRINGS[K] ? .016 : .004;            // a guitar is strummed, a keyboard struck at once
+  const stab = (t, dur, gain, center = 64) => chordTones(t, center).forEach((m, i) => S.note(dest, t + i * strum, K, m, dur, gain * duck));
+  // the groove's bass on a real-sounding bass where it has one, else the plain tone it had
+  const BI = (KITS[kit] || {}).bass;
+  const low = (t, f, dur, gain, type, cut) => BI ? S.note(dest, t, BI, 69 + 12 * Math.log2(f / 440), dur, gain) : S.pluck(dest, t, f, dur, gain, type, cut);
   let bar = 0;
   for (let t0 = start; t0 < total; t0 += 16 * s16, bar++) {
     for (let i = 0; i < 16; i++) {
@@ -404,7 +428,7 @@ export function groove(S, dest, kit, A, start, total) {
           if (on("..x...x...x...x.", i)) S.hit(dest, t, "conga_mute", .3, -.25);
           if (on("...x.......x....", i)) S.hit(dest, t, "conga", .32, -.25);
           if (on("......x.......x.", i)) S.hit(dest, t, "tumba", .35, -.1);
-          if (i === 0 || i === 8) { S.kick(dest, t, .45); const f = bass(t); S.pluck(dest, t, i ? f * 1.5 : f, b * 1.2, .5, "triangle", 700); }
+          if (i === 0 || i === 8) { S.kick(dest, t, .45); const f = bass(t); low(t, i ? f * 1.5 : f, b * 1.2, .5, "triangle", 700); }
           if (on("..x...x...x...x.", i)) stab(t, s16 * 1.5, .13);
           break;
         case "disco":
@@ -413,7 +437,7 @@ export function groove(S, dest, kit, A, start, total) {
           if (i % 2 === 1) S.hat(dest, t, .07);
           if (i === 4 || i === 12) { S.hit(dest, t, "snare", .4); S.hit(dest, t, "clap", .3); }
           if (on("..x...x...x...x.", i)) S.hit(dest, t, "tamb", .16, -.3);
-          if (i % 2 === 0) { const f = bass(t); S.pluck(dest, t, i % 4 ? f * 2 : f, s16 * 1.6, .42, "sawtooth", 1100); }
+          if (i % 2 === 0) { const f = bass(t); low(t, i % 4 ? f * 2 : f, s16 * 1.6, .42, "sawtooth", 1100); }
           if (on("..x...x.........", i)) stab(t, s16 * 2, .14);
           break;
         case "uk_garage": {
@@ -433,7 +457,7 @@ export function groove(S, dest, kit, A, start, total) {
           if (i % 4 === 0) {                                // walking bass: chord tones, then a step into the next
             const c = voicing(keyPc, A.chordAt(tt + 1e-4), 40), n = (i / 4) | 0;
             const m = n === 3 ? voicing(keyPc, A.chordAt(tt + b + 1e-4), 40)[0] - 1 : c[[0, 2, 1][n] % c.length];
-            S.pluck(dest, tt, mtof(m), b * .9, .45, "sine", 900);
+            low(tt, mtof(m), b * .9, .45, "sine", 900);
           }
           if (i === 0 || i === 7) stab(tt, b * .5, .13, 64);
           break;
@@ -455,7 +479,7 @@ export function groove(S, dest, kit, A, start, total) {
           if (on("x..x..x...x..x..", i)) S.hit(dest, t, "rim", .35, -.2);
           if (on("x.....xx........", i) || on("........x.....xx", i)) S.kick(dest, t, .45);
           S.hit(dest, t, i % 2 ? "shaker_up" : "shaker", .12, .3);
-          if (i === 0 || i === 6 || i === 8 || i === 14) { const f = bass(t); S.pluck(dest, t, i === 6 || i === 14 ? f * 1.5 : f, b * .9, .45, "sine", 800); }
+          if (i === 0 || i === 6 || i === 8 || i === 14) { const f = bass(t); low(t, i === 6 || i === 14 ? f * 1.5 : f, b * .9, .45, "sine", 800); }
           if (on("x..x..x...x..x..", i)) stab(t, s16 * 1.6, .12, 66);
           break;
         case "pop":                                       // the four-chord radio song
@@ -463,7 +487,7 @@ export function groove(S, dest, kit, A, start, total) {
           if (i === 4 || i === 12) { S.hit(dest, t, "snare", .35); S.hit(dest, t, "clap", .3); }
           if (i % 2 === 0) S.hit(dest, t, i % 4 ? "shaker_up" : "shaker", .16, .3);
           if (beat) stab(t, b * .9, .12, 64);
-          if (on("x.......x.x.....", i)) S.pluck(dest, t, bass(t), b * 1.2, .5, "sine", 600);
+          if (on("x.......x.x.....", i)) low(t, bass(t), b * 1.2, .5, "sine", 600);
           break;
         case "rnb":                                       // a slow jam: soft kick, finger snap, long chords
           if (on("x......x..x.....", i)) S.kick(dest, t, .6);
@@ -475,7 +499,7 @@ export function groove(S, dest, kit, A, start, total) {
           if (on("x.....x.x.......", i)) S.kick(dest, t, .7);
           if (i === 4 || i === 12) { S.hit(dest, t, "snare", .35); S.hit(dest, t, "tamb", .35, .25); }
           if (i % 2 === 0) S.hat(dest, t, .07);
-          if (on("x..x..x.x..x.x..", i)) { const f = bass(t); S.pluck(dest, t, [f, f, f * 1.5, f * 2, f * 1.5, f, f * 1.5][i % 7], s16 * 1.8, .45, "triangle", 900); }
+          if (on("x..x..x.x..x.x..", i)) { const f = bass(t); low(t, [f, f, f * 1.5, f * 2, f * 1.5, f, f * 1.5][i % 7], s16 * 1.8, .45, "triangle", 900); }
           if (i === 4 || i === 12) stab(t, s16 * 2, .14, 66);
           break;
         }
@@ -483,7 +507,7 @@ export function groove(S, dest, kit, A, start, total) {
           if (i === 0 || i === 8) S.kick(dest, t, .65);
           if (i === 4 || i === 12) { S.hit(dest, t, "clap", .4); S.hit(dest, t, "clap2", .3, .3); S.hit(dest, t, "tamb", .25, -.25); }
           if (i === 0) stab(t, b * 3.9, .1, 62);
-          if (i === 0 || i === 8) S.pluck(dest, t, bass(t), b * 1.8, .45, "sine", 500);
+          if (i === 0 || i === 8) low(t, bass(t), b * 1.8, .45, "sine", 500);
           break;
         case "synthwave": {                               // the 80s: gated snare, a running octave bass, a wide pad
           if (i === 0 || i === 8) S.kick(dest, t, .85);

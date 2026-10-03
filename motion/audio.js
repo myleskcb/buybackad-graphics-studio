@@ -3,7 +3,7 @@
 // played with the preview or encoded into the video.
 
 import { rng, clamp } from "./engine.js";
-import { soundManifest, sampleBuffer, sampler, arrange, playTune, groove, KITS, SHAVE, LEADS, SYNTHS, mtof } from "./music.js";
+import { soundManifest, sampleBuffer, sampler, arrange, playTune, groove, KITS, SHAVE, LEADS, SYNTHS, STRINGS, mtof } from "./music.js";
 
 const SR = 44100;
 // Times before the first frame (a phone already in flight at frame 0) are clamped to it:
@@ -27,17 +27,25 @@ function compose(ad, ctx, man, bufs, need) {
   comp.threshold.value = -14; comp.knee.value = 8; comp.ratio.value = 6; comp.attack.value = .003; comp.release.value = .12;
   master.connect(comp).connect(ctx.destination);
   const sfx = ctx.createGain(); sfx.gain.value = 1; sfx.connect(master);
-  const music = ctx.createGain(); music.gain.value = st.music_volume ?? .5; music.connect(master);
   const noise = noiseBuffer(ctx, 2);
   const r = rng(st.seed * 17 + 3);
   const S = Object.assign(synth(ctx, noise), sampler(ctx, man, bufs, need));
-  // a note on a synthesiser is played here; on any other instrument, from its recording
+  // a note on a synthesiser or a plucked string is played here; on any other instrument, from its recording
   const recorded = S.note;
   S.note = (dest, t, inst, m, dur, gain, pan = 0, from = null) => SYNTHS[inst]
-    ? S.voice(dest, t, mtof(m), dur, gain * (SYNTHS[inst].level ?? 1), SYNTHS[inst], pan, from) : recorded(dest, t, inst, m, dur, gain, pan);
+    ? S.voice(dest, t, mtof(m), dur, gain * (SYNTHS[inst].level ?? 1), SYNTHS[inst], pan, from)
+    : STRINGS[inst] ? S.string(dest, t, mtof(m), dur, gain * (STRINGS[inst].level ?? 1), STRINGS[inst], pan) : recorded(dest, t, inst, m, dur, gain, pan);
+  // real drums: the recorded hi-hat, snare and claps, matched to the loudness of the synthesised
+  // ones they replace (measured); the synthesised one stays only where a recording fails to load
+  const rawHit = S.hit, synthHat = S.hat, synthSnare = S.snare, synthClap = S.clap; let claps = 0;
+  S.hat = (dest, t, gain, open = false, pan = 0) => S.loaded(open ? "hat_open" : "hat")
+    ? rawHit(dest, t, open ? "hat_open" : "hat", gain * (open ? 2.5 : 1.12), pan) : synthHat(dest, t, gain, open, pan);
+  S.snare = (dest, t, gain) => { if (!S.loaded("snare")) return synthSnare(dest, t, gain); rawHit(dest, t, "snare", gain * 1.35); synthSnare(dest, t, gain * .25); };
+  S.clap = (dest, t, gain) => S.loaded("clap") ? rawHit(dest, t, claps++ % 2 ? "clap2" : "clap", gain * .62) : synthClap(dest, t, gain);
   const hit = tl.hit;
   const b = 60 / (st.bpm || 118), start = st.hook && st.hook !== "none" ? hit - Math.ceil(hit / b) * b : hit;
   const A = arrange(st, start, hit);
+  const { music, finish } = mixBus(ctx, S, st, master, sfx, hit, b);
 
   for (const p of ad.phones) {
     const pan = clamp((p.home[0] / ad.W) * 2 - 1, -1, 1) * .7, fl = p.tLand - p.tIn;
@@ -132,20 +140,146 @@ function compose(ad, ctx, man, bufs, need) {
     playTune(S, music, A, st, st.duration);
     if (st.season === "christmas")                     // sleigh bells on the off-beats, from the hit on
       for (let t = hit + b / 2; t < st.duration; t += b) S.hit(music, t, "sleigh", .28, .3);
+    arrangeDrums(S, music, st, hit, b);
   }
+  finish();
   // fade the whole mix out at the end
   master.gain.setValueAtTime(.9, T(Math.max(0, st.duration - .6)));
   master.gain.linearRampToValueAtTime(0, T(st.duration));
 }
 
-function noiseBuffer(ctx, secs) {
+// ------------------------------------------------------------ making it sound like a record
+
+const DRUMLESS = new Set(["classical", "none"]);
+// how much each groove breathes under its kick, and how much room it is played in
+const PUMP = { house: .35, edm: .4, deep_house: .35, trance: .4, future_bass: .5, nu_disco: .3, disco: .25, pop: .18, synthwave: .2,
+  jersey_club: .25, uk_garage: .25, reggaeton: .2, amapiano: .25 };
+const ROOM = { classical: .34, rnb: .3, gospel: .3, lofi: .26, epic: .32, synthwave: .3, bossa: .24, swing: .24, motown: .22, gfunk: .2 };
+
+/** A room: noise that dies away, darker as it goes, a little different in each ear. */
+function roomImpulse(ctx, secs) {
+  const n = Math.floor(secs * SR), b = ctx.createBuffer(2, n, SR), pre = Math.floor(.012 * SR);
+  for (let c = 0; c < 2; c++) {
+    const d = b.getChannelData(c); let s = 977 + c * 131, lp = 0;
+    for (let i = pre; i < n; i++) {
+      s = (s * 1103515245 + 12345) & 0x7fffffff;
+      lp += (.35 + .5 * (1 - i / n)) * ((s / 0x3fffffff - 1) - lp);
+      d[i] = lp * (1 - i / n) ** 2.6;
+    }
+  }
+  return b;
+}
+
+/** The music's own bus: a filter that opens into the headline hit (the drop), a room, the
+ *  pump under the kick, the look's mix tone, and drums and notes played by hand (a few
+ *  milliseconds early or late, never twice at the same loudness). The sound effects stay
+ *  dry and exact so they land on the picture. */
+function mixBus(ctx, S, st, master, sfx, hit, b) {
+  const kit = st.sound_kit, out = ctx.createGain(); out.gain.value = st.music_volume ?? .5;
+  tone(ctx, st.tone, out, st.duration).connect(master);
+  const music = ctx.createGain(), kickBus = ctx.createGain(), duck = ctx.createGain();
+  const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.Q.value = .9;
+  // the build: muffled from the first frame, wide open on the hit, closing over the last second
+  lp.frequency.setValueAtTime(hit > .25 ? 650 : 18000, 0);
+  if (hit > .25) lp.frequency.exponentialRampToValueAtTime(18000, T(hit));
+  lp.frequency.setValueAtTime(18000, T(st.duration - 1.1)); lp.frequency.exponentialRampToValueAtTime(2500, T(st.duration));
+  music.connect(lp).connect(duck).connect(out);
+  kickBus.connect(out);
+  const room = ctx.createConvolver(); room.buffer = roomImpulse(ctx, 2.2);
+  const hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 280;
+  const wet = ctx.createGain(); wet.gain.value = ROOM[kit] ?? .18;
+  lp.connect(hp).connect(room).connect(wet).connect(duck);
+  const sfxSend = ctx.createGain(); sfxSend.gain.value = .08; sfx.connect(sfxSend).connect(hp);
+
+  // played by hand
+  const h = rng(st.seed * 31 + 9), mine = d => d === music;
+  const loose = (fn, dt, dv, tIdx = 1, gIdx = 2) => (...a) => {
+    if (mine(a[0])) { a[tIdx] += (h() - .5) * 2 * dt; a[gIdx] *= 1 - dv + 2 * dv * h(); }
+    return fn(...a);
+  };
+  const kicks = [], kick0 = S.kick;
+  S.kick = (dest, t, gain) => { if (dest === music) { kicks.push(t); dest = kickBus; t += (h() - .5) * .004; gain *= .95 + .1 * h(); } kick0(dest, t, gain); };
+  S.hat = loose(S.hat, .007, .18); S.snare = loose(S.snare, .004, .08); S.clap = loose(S.clap, .004, .1);
+  S.hit = loose(S.hit, .005, .12, 1, 3); S.note = loose(S.note, .006, .1, 1, 5); S.pluck = loose(S.pluck, .004, .08, 1, 4);
+
+  return {
+    music,
+    finish() {
+      // the pump: everything but the kick dips as each kick lands and swells back
+      const depth = PUMP[kit] || 0;
+      if (!depth) return;
+      let free = 0;
+      for (const t of kicks.sort((x, y) => x - y)) {
+        if (t < free || t < 0) continue;
+        const back = Math.min(.3, b * .6);
+        duck.gain.setValueAtTime(1, t); duck.gain.linearRampToValueAtTime(1 - depth, t + .015); duck.gain.linearRampToValueAtTime(1, t + back);
+        free = t + back;
+      }
+    },
+  };
+}
+
+/** The mix tone: the same song as mixed, warm, on tape, on vinyl, bright, or in a club. */
+function tone(ctx, kind, input, dur) {
+  const node = (type, f, g, q) => { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; if (g != null) n.gain.value = g; if (q != null) n.Q.value = q; return n; };
+  let chain;
+  switch (kind) {
+    case "warm": chain = [node("lowshelf", 160, 2.5), node("highshelf", 6500, -3.5)]; break;
+    case "tape": { const ws = ctx.createWaveShaper(), mk = ctx.createGain(); ws.curve = curve(1.35); ws.oversample = "2x"; mk.gain.value = .86; chain = [node("lowshelf", 120, 2), ws, node("lowpass", 11000, null, .5), mk]; break; }
+    case "vinyl": chain = [node("highpass", 55), node("lowshelf", 200, 1.5), node("lowpass", 8500, null, .5)]; break;
+    case "bright": chain = [node("highshelf", 7500, 4), node("peaking", 3000, 1.5, .8)]; break;
+    case "club": chain = [node("lowshelf", 75, 4.5), node("peaking", 350, -2, .9), node("highshelf", 9000, 2)]; break;
+    default: return input;                                  // studio: as mixed
+  }
+  let last = input; for (const n of chain) { last.connect(n); last = n; }
+  if (kind === "vinyl") {                                   // the crackle under the record
+    const n = Math.floor(dur * SR), cb = ctx.createBuffer(1, n, SR), d = cb.getChannelData(0); let s = 4242;
+    for (let i = 0; i < n; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; const u = s / 0x7fffffff; d[i] = u > .99965 ? (u - .99965) * 1600 * (i % 2 ? 1 : -1) : (u - .5) * .004; }
+    const src = ctx.createBufferSource(); src.buffer = cb; const g = ctx.createGain(); g.gain.value = .5; src.connect(g).connect(last); src.start(0);
+  }
+  return last;
+}
+
+/** Drums arranged like a record: a crash on the drop, a fill into every fourth bar. */
+function arrangeDrums(S, music, st, hit, b) {
+  if (DRUMLESS.has(st.sound_kit)) return;
+  if (!["crash", "cymbal", "swell", "orchestra"].includes(st.hit)) S.hit(music, hit, "crash", .3, .3);
+  const f = rng(st.seed * 53 + 1);
+  for (let bar = 4; hit + bar * 4 * b < st.duration - .6; bar += 4) {
+    const t0 = hit + bar * 4 * b - b, kind = f.int(0, 2);
+    for (let i = 0; i < 4; i++) {
+      const t = t0 + i * b / 4, g = .16 + i * .05;
+      if (kind === 0) S.hit(music, t, "snare", g);
+      else if (kind === 1) S.hit(music, t, ["tom_hi", "tom_hi", "tom_lo", "tom_lo"][i], g + .05, i < 2 ? -.3 : .3);
+      else { S.hit(music, t, i % 2 ? "tom_lo" : "snare", g); if (i === 3) S.hit(music, t + b / 8, "snare", g); }
+    }
+    S.hit(music, t0 + b, "crash", .2, -.3);
+  }
+}
+
+const KS = new Map();
+/** A plucked string (Karplus-Strong): a burst of noise fed round a delay one vibration long,
+ *  losing a little brightness each time round, as a real string does. Made once per note. */
+function ksBuffer(f, P) {
+  const N = Math.max(2, Math.round(SR / f - .5)), key = P.id + ":" + N;
+  if (KS.has(key)) return KS.get(key);
+  const len = Math.floor(P.secs * SR), b = new AudioBuffer({ length: len, sampleRate: SR, numberOfChannels: 1 }), d = b.getChannelData(0);
+  let s = 12345 + N * 7, prev = 0;
+  for (let i = 0; i < N; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; prev += P.bright * ((s / 0x3fffffff - 1) - prev); d[i] = prev; }
+  for (let i = N; i < len; i++) d[i] = P.damp * .5 * (d[i - N] + d[Math.max(0, i - N - 1)]);
+  let pk = 0; for (let i = 0; i < len; i++) pk = Math.max(pk, Math.abs(d[i]));
+  for (let i = 0; i < len; i++) d[i] *= .8 / (pk || 1);
+  const v = { b, f: SR / (N + .5) }; KS.set(key, v); return v;
+}
+
+export function noiseBuffer(ctx, secs) {
   const b = ctx.createBuffer(1, secs * SR, SR), d = b.getChannelData(0);
   let s = 12345;
   for (let i = 0; i < d.length; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; d[i] = s / 0x3fffffff - 1; }
   return b;
 }
 
-function synth(ctx, noise) {
+export function synth(ctx, noise) {
   const env = (g, t, a, peak, decay) => { g.gain.setValueAtTime(0, T(t)); g.gain.linearRampToValueAtTime(peak, T(t + a)); g.gain.exponentialRampToValueAtTime(.0005, T(t + a + decay)); };
   const out = (node, dest, pan = 0) => { if (pan) { const p = ctx.createStereoPanner(); p.pan.value = pan; node.connect(p).connect(dest); } else node.connect(dest); };
   const noiseSrc = (t, dur) => { const n = ctx.createBufferSource(); n.buffer = noise; n.loop = true; n.start(Math.max(0, t), Math.random() * 1.5); n.stop(T(t + dur + .05)); return n; };
@@ -203,9 +337,12 @@ function synth(ctx, noise) {
       const n = noiseSrc(t, open ? .3 : .06), hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 7000;
       const g = ctx.createGain(); env(g, t, .001, gain, open ? .25 : .045); n.connect(hp).connect(g); out(g, dest, pan);
     },
-    kick(dest, t, gain) {
-      const o = osc("sine", t, .45, 130); o.frequency.exponentialRampToValueAtTime(44, T(t + .12));
-      const g = ctx.createGain(); env(g, t, .002, gain, .4); o.connect(g).connect(dest);
+    kick(dest, t, gain) {                                 // a body that drops in pitch, a beater click, a little drive
+      const o = osc("sine", t, .5, 150); o.frequency.exponentialRampToValueAtTime(46, T(t + .09));
+      const ws = ctx.createWaveShaper(); ws.curve = curve(1.6);
+      const g = ctx.createGain(); env(g, t, .002, gain, .42); o.connect(ws).connect(g).connect(dest);
+      const n = noiseSrc(t, .012), hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 2500;
+      const gc = ctx.createGain(); env(gc, t, .0005, gain * .22, .008); n.connect(hp).connect(gc).connect(dest);
     },
     bass808(dest, t, f, dur, gain) {
       const o = osc("sine", t, dur, f * 2.2); o.frequency.exponentialRampToValueAtTime(f, T(t + .05));
@@ -289,6 +426,15 @@ function synth(ctx, noise) {
         const g = ctx.createGain(); env(g, tk, .001, gain * (.5 + .5 * Math.sin(k * .7) ** 2), .018); n.connect(bp).connect(g).connect(dest);
       }
       S.thud(dest, t + 18 * .034, 180, 120, .06, 0, gain * .6);
+    },
+    string(dest, t, f, dur, gain, P, pan = 0) {          // one note on a plucked string
+      const end = t + dur + (P.ring ?? .3); if (end <= 0) return;
+      const k = ksBuffer(f, P), src = ctx.createBufferSource(); src.buffer = k.b; src.playbackRate.value = f / k.f;
+      const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = P.lp ?? 5000;
+      const body = ctx.createBiquadFilter(); body.type = "peaking"; body.frequency.value = P.body ?? 220; body.gain.value = 3; body.Q.value = 1;
+      const g = ctx.createGain(); g.gain.setValueAtTime(gain, T(t)); g.gain.setValueAtTime(gain, T(Math.max(t, end - .06))); g.gain.linearRampToValueAtTime(0, T(end));
+      src.connect(lp).connect(body).connect(g); out(g, dest, pan);
+      src.start(T(t), t < 0 ? -t : 0); src.stop(T(end + .01));
     },
     voice(dest, t, f, dur, gain, P, pan = 0, from = null) {   // one note on a synthesiser patch
       const rel = P.release ?? .1, end = t + dur + rel;
@@ -394,7 +540,7 @@ function beat(S, dest, kit, start, total, bpm, r, rootAt = null) {
         if (n % 4 === 0 || n % 8 === 3) S.kick(dest, t, .8);
         if (n % 4 === 2) S.snare(dest, t, .5);
         S.hat(dest, t, .18); S.hat(dest, t + b / 2, .14);
-        [0, .5, .75].forEach((o, k) => S.pluck(dest, t + o * b, root * (k === 2 ? 1.5 : 1) * 2, b * .3, .35, "sawtooth", 900));
+        [0, .5, .75].forEach((o, k) => S.note(dest, t + o * b, "bass_guitar", 69 + 12 * Math.log2(root * (k === 2 ? 1.5 : 1) * 2 / 440), b * .3, .4));   // a slap of real-sounding bass
         break;
       }
       case "drumline": {

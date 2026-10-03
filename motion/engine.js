@@ -262,6 +262,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!OPTIONS.lead.includes(st.lead)) st.lead = "piano";
   if (!OPTIONS.accent.includes(st.accent)) st.accent = "none";
   if (!OPTIONS.season.includes(st.season)) st.season = "none";
+  if (!OPTIONS.tone.includes(st.tone)) st.tone = "studio";
   // holiday tunes belong to holiday ads, and a holiday ad plays one
   const holiday = SEASON_TUNES[st.season] || [], anyHoliday = Object.values(SEASON_TUNES).flat();
   if (!locked.has("melody")) {
