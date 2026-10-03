@@ -71,5 +71,12 @@ export const TRACKS = [
   "kind": "march",
   "bpm": 150.1,
   "beat": 0.34
+ },
+ {
+  "id": "gladiators",
+  "title": "Entry of the Gladiators (circus march) · US Marine Band",
+  "kind": "march",
+  "bpm": 77.5,
+  "beat": 0.14
  }
 ];

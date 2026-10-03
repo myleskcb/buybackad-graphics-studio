@@ -119,6 +119,18 @@
    "url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Gioachino_Rossini%2C_William_Tell_Overture_%28military_band_version%2C_2000%29.ogg",
    "license": "Public domain",
    "basis": "US Marine Band, public domain"
+  },
+  {
+   "id": "gladiators",
+   "title": "Entry of the Gladiators (circus march) · US Marine Band",
+   "kind": "march",
+   "bpm": 77.5,
+   "beat": 0.14,
+   "from": 0.0,
+   "source": "File:Julius Fučík's \"Entrance of the Gladiators\", performed by the U.S. Marine Band.oga",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/7/73/Julius_Fu%C4%8D%C3%ADk%27s_%22Entrance_of_the_Gladiators%22%2C_performed_by_the_U.S._Marine_Band.oga",
+   "license": "Public domain",
+   "basis": "US Marine Band, public domain"
   }
  ]
 }
