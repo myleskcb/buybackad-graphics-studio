@@ -183,10 +183,13 @@ QS_BACKS = ['qs-iphone-12-back--blue', 'qs-iphone-12-back--green', 'qs-iphone-12
             'qs-iphone-16-back--pink', 'qs-iphone-16-back--teal', 'qs-iphone-16-back--ultramarine', 'qs-iphone-16-back--white',
             'qs-iphone-16-plus-back--white', 'qs-iphone-16e-back--black', 'qs-iphone-16e-back--white',
             'qs-iphone-17e-back--black', 'qs-iphone-17e-back--soft-pink', 'qs-iphone-17e-back--white']
-QS_PAIRS = ['qs-iphone-11-pro-max', 'qs-iphone-11', 'qs-iphone-12-pro-max', 'qs-iphone-12', 'qs-iphone-13-pro-max',
-            'qs-iphone-13', 'qs-iphone-14-pro-max', 'qs-iphone-14-plus', 'qs-iphone-15-pro-max', 'qs-iphone-15-pro',
-            'qs-iphone-15', 'qs-iphone-16-pro-max', 'qs-iphone-16-pro', 'qs-iphone-16', 'qs-iphone-16e',
-            'qs-iphone-17-pro-max', 'qs-iphone-17-pro', 'qs-iphone-17-air', 'qs-iphone-17', 'qs-iphone-17e']
+# 2026-10-03 (owner: "iPhone 2020+"): every model we buy, the iPhone 12 (2020)
+# on; the 11 and 11 Pro Max (2019) are out. No SE: there is no Apple picture of it.
+QS_PAIRS = ['qs-iphone-12-mini', 'qs-iphone-12', 'qs-iphone-12-pro', 'qs-iphone-12-pro-max', 'qs-iphone-13-mini',
+            'qs-iphone-13', 'qs-iphone-13-pro', 'qs-iphone-13-pro-max', 'qs-iphone-14', 'qs-iphone-14-plus',
+            'qs-iphone-14-pro', 'qs-iphone-14-pro-max', 'qs-iphone-15', 'qs-iphone-15-plus', 'qs-iphone-15-pro',
+            'qs-iphone-15-pro-max', 'qs-iphone-16', 'qs-iphone-16-plus', 'qs-iphone-16-pro', 'qs-iphone-16-pro-max',
+            'qs-iphone-16e', 'qs-iphone-17', 'qs-iphone-17-air', 'qs-iphone-17-pro', 'qs-iphone-17-pro-max', 'qs-iphone-17e']
 # 2026-10-01 audit (owner: "doesn't have an Apple logo", "looks like a fake
 # Samsung"): only photographs of a real iPhone back WITH the logo. Out: the
 # ip-gen14/15/16 and ip-angle renders (no logo), ip-gen15-back-green (a
@@ -221,14 +224,23 @@ POOLS = {
     # The sedan, SUV, pickup, van and motorcycle renders are gone. CAR_ROTA
     # picks which of these each car backdrop shows.
     'cars': [I(n, rot=1, kind='car') for n in (
-                 'car-toyota-camry-silver', 'car-toyota-corolla-white', 'car-honda-civic-white',
-                 'car-honda-civic-type-r-blue', 'car-toyota-rav4-white', 'car-honda-crv-silver',
-                 'car-toyota-4runner-green', 'car-mercedes-g-class-orange', 'car-bmw-m3-blue',
-                 'car-lamborghini-urus-green', 'car-bentley-bentayga-grey', 'car-audi-s5-white',
-                 'car-lexus-is-white', 'car-toyota-tacoma-orange', 'car-ford-f150-black', 'car-ram-1500-blue',
-                 'car-chevy-silverado-red', 'car-ford-transit-connect-white', 'car-ford-transit-courier-white',
-                 'car-ldv-maxus-van-white', 'car-ram-promaster-grey', 'car-mercedes-sprinter-white',
-                 'car-peterbilt-389-white', 'car-freightliner-cascadia-blue', 'car-harley-softail-black')] +
+                 'car-audi-s5-white', 'car-bentley-bentayga-grey', 'car-bmw-m3-blue', 'car-chevy-silverado-red',
+                 'car-chevy-tahoe-black', 'car-dodge-charger-orange', 'car-ford-bronco-blue', 'car-ford-e350-white',
+                 'car-ford-explorer-white', 'car-ford-f150-black', 'car-ford-f250-black',
+                 'car-ford-ranger-wildtrak-orange', 'car-ford-transit-connect-white',
+                 'car-ford-transit-courier-white', 'car-freightliner-cascadia-blue', 'car-harley-softail-black',
+                 'car-honda-accord-white', 'car-honda-civic-type-r-blue', 'car-honda-civic-white',
+                 'car-honda-crv-silver', 'car-hyundai-tucson-white', 'car-jeep-wrangler-rubicon-lime',
+                 'car-kia-telluride-grey', 'car-lamborghini-urus-green', 'car-ldv-maxus-van-white',
+                 'car-lexus-is-white', 'car-mercedes-g-class-orange', 'car-mercedes-s-class-black',
+                 'car-mercedes-sprinter-white', 'car-nissan-nv200-white', 'car-nissan-rogue-copper',
+                 'car-peterbilt-389-white', 'car-peterbilt-579-red', 'car-porsche-911-carrera-rs-orange',
+                 'car-porsche-911-gt3-blue', 'car-ram-1500-blue', 'car-ram-promaster-grey', 'car-range-rover-blue',
+                 'car-rolls-royce-cullinan-black', 'car-subaru-outback-white', 'car-tesla-cybertruck',
+                 'car-tesla-model-3-white', 'car-tesla-model-y-white', 'car-toyota-4runner-green',
+                 'car-toyota-camry-silver', 'car-toyota-corolla-white', 'car-toyota-highlander-silver',
+                 'car-toyota-rav4-white', 'car-toyota-tacoma-orange', 'car-toyota-tundra-trd-pro-blue',
+                 'car-volvo-vnl-blue')] +
             [I('car-wheel-tyre', rot=4, kind='acc'), I('car-title-keys', rot=10, kind='acc'),
              I('car-keys', rot=12, kind='acc'), I('car-title-docs', rot=6, kind='acc')],
     'strips': [I('strip-box-open-vials', rot=5), I('strip-boxes-fan', rot=6), I('strip-boxes-row-five', rot=3),
@@ -271,23 +283,60 @@ POOLS = {
                   I('watch-pair-bands', rot=5, role='h'), I('apple-watch-pair', rot=5, role='h'),
                   I('apple-watch-stack-three', rot=4, role='h')],
     'cameras': [I('camera-dslr-body', rot=6), I('camera-mirrorless', rot=6), I('drone-folded', rot=6)],
+    # 2026-10-03 (owner: "iPad 2020+ Mac 2020+ Macbook 2020+"): Apple's own
+    # pictures of every model we buy from 2020 on, in their colours
+    'ipad': [I(n, rot=8) for n in (
+        ['qs-ipad-8', 'qs-ipad-9', 'qs-ipad-10'] + ['qs-ipad-11-a16--' + c for c in ('blue', 'pink', 'silver', 'yellow')] +
+        ['qs-ipad-air-4', 'qs-ipad-air-5'] +
+        [f'qs-ipad-air-{sz}-{chip}--{c}' for sz in ('11', '13') for chip in ('m2', 'm3', 'm4')
+         for c in ('blue', 'purple', 'space-gray', 'starlight')] +
+        ['qs-ipad-mini-6'] + ['qs-ipad-mini-7-a17-pro--' + c for c in ('blue', 'purple', 'space-gray', 'starlight')] +
+        ['qs-ipad-pro-12-9-4th-gen', 'qs-ipad-pro-12-9-5th-gen', 'qs-ipad-pro-12-9-6th-gen', 'qs-ipad-pro-11-4th-gen',
+         'qs-ipad-pro-11-m4--silver', 'qs-ipad-pro-11-m4--space-black', 'qs-ipad-pro-13-m4--silver',
+         'qs-ipad-pro-13-m4--space-black', 'qs-ipad-pro-11-m5', 'qs-ipad-pro-13-m5--silver', 'qs-ipad-pro-13-m5--space-black'])],
+    'macbook': [I(n, rot=4) for n in (
+        ['qs-sheet-mba-13-m1-2020', 'qs-sheet-mbp-13-m1-2020', 'qs-sheet-mbp-13-m2-2022'] +
+        ['qs-macbook-air-13--' + c for c in ('midnight', 'silver', 'sky-blue', 'space-gray', 'starlight')] +
+        ['qs-macbook-air-13-m5--' + c for c in ('midnight', 'silver', 'sky-blue', 'starlight')] +
+        ['qs-macbook-air-15--' + c for c in ('midnight', 'silver', 'sky-blue', 'space-gray', 'starlight')] +
+        ['qs-macbook-air-15-m5--' + c for c in ('midnight', 'silver', 'sky-blue', 'starlight')] +
+        ['qs-macbook-neo-13--' + c for c in ('blush', 'citrus', 'indigo', 'silver')] +
+        ['qs-macbook-pro-14--' + c for c in ('silver', 'space-black', 'space-gray')] +
+        ['qs-macbook-pro-14-m5--' + c for c in ('silver', 'space-black')] +
+        ['qs-macbook-pro-16--' + c for c in ('silver', 'space-black', 'space-gray')] +
+        ['qs-macbook-pro-16-m5--' + c for c in ('silver', 'space-black')])],
+    # the Mac mini M1/M2 picture is a 49px strip: only the M4 one is big enough
+    'mac': [I(n, rot=2) for n in (
+        ['qs-imac-24-m1--' + c for c in ('blue', 'green', 'orange', 'pink', 'purple', 'silver', 'yellow')] +
+        ['qs-imac-24-m4--' + c for c in ('blue', 'green', 'orange', 'pink', 'purple', 'silver', 'yellow')] +
+        ['qs-sheet-imac-24-m3-2023', 'qs-device-mac-mini', 'qs-device-mac-studio', 'qs-sheet-macstudio-2022'])],
 }
-# The vehicle each car backdrop shows, in order (cars-001 is the first): twenty
-# different real vehicles, eleven cars (the owner's Camry, RAV4, G-Class, M3,
-# Urus, Bentayga, S5, Civic, Civic Type R and IS, with a Corolla), three
-# pickups, three work vans, two semis and one motorcycle, no two of a kind side
-# by side, and none on a palette of its own colour (no green Urus on Money
-# Green, no white van on Apple White). Left out: the CR-V (shot from a slant,
-# it tips on the podium) and the 4Runner (grass hides its tyres).
-CAR_ROTA = ['car-toyota-camry-silver', 'car-toyota-tacoma-orange', 'car-bmw-m3-blue', 'car-ford-transit-connect-white',
-            'car-bentley-bentayga-grey', 'car-ram-1500-blue', 'car-lamborghini-urus-green', 'car-peterbilt-389-white',
-            'car-honda-civic-type-r-blue', 'car-harley-softail-black', 'car-mercedes-g-class-orange',
-            'car-mercedes-sprinter-white', 'car-toyota-rav4-white', 'car-ford-f150-black', 'car-lexus-is-white',
-            'car-ram-promaster-grey', 'car-toyota-corolla-white', 'car-freightliner-cascadia-blue', 'car-audi-s5-white',
-            'car-honda-civic-white']
+# The vehicle each car backdrop shows, in order (cars-001 is the first): every
+# real vehicle once, 29 cars, 8 pickups (the Cybertruck among them), 7 vans, 4 semis
+# and one motorcycle. The order spreads the kinds (no two pickups, vans or
+# semis side by side) and gives each backdrop the vehicle that stands out most
+# from its ground (OKLab distance of the body colour from the ground colour,
+# then pairs swapped while the weaker of the two gets better). Left out: the
+# CR-V (shot from a slant, it tips on the podium) and the 4Runner (grass
+# hides its tyres).
+CAR_ROTA = ['car-ram-1500-blue', 'car-rolls-royce-cullinan-black', 'car-volvo-vnl-blue', 'car-ford-f150-black',
+            'car-honda-civic-white', 'car-hyundai-tucson-white', 'car-toyota-camry-silver',
+            'car-lamborghini-urus-green', 'car-peterbilt-579-red', 'car-ford-f250-black', 'car-peterbilt-389-white',
+            'car-harley-softail-black', 'car-ford-transit-connect-white', 'car-honda-civic-type-r-blue',
+            'car-ford-ranger-wildtrak-orange', 'car-porsche-911-gt3-blue', 'car-nissan-rogue-copper',
+            'car-mercedes-s-class-black', 'car-mercedes-sprinter-white', 'car-tesla-model-y-white',
+            'car-audi-s5-white', 'car-ford-transit-courier-white', 'car-jeep-wrangler-rubicon-lime',
+            'car-toyota-corolla-white', 'car-tesla-model-3-white', 'car-ldv-maxus-van-white',
+            'car-porsche-911-carrera-rs-orange', 'car-bmw-m3-blue', 'car-toyota-tundra-trd-pro-blue',
+            'car-dodge-charger-orange', 'car-toyota-rav4-white', 'car-toyota-tacoma-orange',
+            'car-mercedes-g-class-orange', 'car-ram-promaster-grey', 'car-freightliner-cascadia-blue',
+            'car-lexus-is-white', 'car-range-rover-blue', 'car-ford-explorer-white', 'car-nissan-nv200-white',
+            'car-bentley-bentayga-grey', 'car-tesla-cybertruck', 'car-toyota-highlander-silver',
+            'car-subaru-outback-white', 'car-kia-telluride-grey', 'car-honda-accord-white', 'car-chevy-tahoe-black',
+            'car-chevy-silverado-red', 'car-ford-bronco-blue', 'car-ford-e350-white']
 COUNTS = OrderedDict([('iphone', 150)] + [(c, 40) for c in
           ['gold', 'silver', 'coins', 'strips', 'pokemon', 'sports', 'gaming', 'audio', 'computers', 'wearables']]
-          + [('cars', 20), ('cameras', 25)])
+          + [('cars', len(CAR_ROTA)), ('cameras', 25), ('ipad', 40), ('macbook', 40), ('mac', 40)])
 
 # ----------------------------------------------------------------------------- cut-out loading
 
@@ -1484,9 +1533,13 @@ def compose(spec):
 def plan_category(cat, n):
     rng = np.random.default_rng([SEED, zlib.crc32(cat.encode()), 999])
     lays = CAR_LAYOUTS if cat == 'cars' else LAYOUTS
+    # cars have one layout, so one use per style and per palette stops at 20:
+    # there each may come as often as the count needs (owner, 2026-10-03:
+    # "MORE"), never as the same style and palette twice
+    cap = -(-n // len(STYLES)) if cat == 'cars' else 1
     styles = list(STYLES)
     for attempt in range(200):
-        used_sl, used_pl = set(), set()
+        used_sl, used_pl, used_sp = Counter(), Counter(), set()
         lc, sc, pc = Counter(), Counter(), Counter()
         specs = []; prev = None; failed = False
         nf = round(n * 0.55)
@@ -1500,10 +1553,10 @@ def plan_category(cat, n):
             m = min(lc[l] for l in cl)
             cl = [l for l in cl if lc[l] == m]
             l = cl[rng.integers(len(cl))]
-            cs = [s for s in styles if (s, l) not in used_sl and compatible(s, l) and (not prev or s != prev['style'])]
+            cs = [s for s in styles if used_sl[(s, l)] < cap and compatible(s, l) and (not prev or s != prev['style'])]
             if not cs: failed = True; break
             s = min(cs, key=lambda s: sc[s] / STYLE_W[s] + rng.random() * 0.35)
-            cp = [p for p in range(len(PALETTES)) if (p, l) not in used_pl and (not prev or p != prev['pal'])]
+            cp = [p for p in range(len(PALETTES)) if used_pl[(p, l)] < cap and (cap == 1 or (s, p) not in used_sp) and (not prev or p != prev['pal'])]
             if not cp: failed = True; break
             mp = min(pc[p] for p in cp)
             cp = [p for p in cp if pc[p] == mp]
@@ -1511,7 +1564,7 @@ def plan_category(cat, n):
             zone = 'top'
             spec = dict(cat=cat, idx=i, layout=l, style=s, pal=int(p), variant=vars_[i], finish=fins[i], zone=str(zone),
                         rim=bool(rng.random() < 0.4), rim_mix=float(rng.random()))
-            used_sl.add((s, l)); used_pl.add((p, l)); lc[l] += 1; sc[s] += 1; pc[p] += 1
+            used_sl[(s, l)] += 1; used_pl[(p, l)] += 1; used_sp.add((s, p)); lc[l] += 1; sc[s] += 1; pc[p] += 1
             specs.append(spec); prev = spec
         if not failed:
             return specs

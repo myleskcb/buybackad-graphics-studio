@@ -154,5 +154,161 @@
     "artist": "Oleg Yunakov",
     "page": "https://commons.wikimedia.org/wiki/File%3AFreightliner%20Cascadia.jpg",
     "note": "cut from assets/bg-web/semis-freightliner-cascadia-4.jpg by scripts/cut_vehicle_photos.py. a blue Freightliner Cascadia (second generation) sleeper semi tractor, front three-quarter, no front plate"
+  },
+  "car-toyota-highlander-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Dietmar Rabich",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMariposa%20(CA%2C%20USA)%2C%20Fremont's%20Fort%20Historical%20Marker%2C%20Toyota%20Highlander%20--%202022%20--%20141813.jpg",
+    "note": "cut from assets/bg-web/popular-toyota-highlander-3.jpg by scripts/cut_vehicle_photos.py. a silver Toyota Highlander (XU70, 2022), front three-quarter, no plate"
+  },
+  "car-tesla-model-3-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATesla%20Model%203%20(2023)%20IMG%209488%20(cropped).jpg",
+    "note": "cut from assets/bg-web/popular-tesla-model-3-4.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Tesla Model 3 (2023 Highland), front three-quarter"
+  },
+  "car-tesla-model-y-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Dllu",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATesla%20Model%20Y%202025%20at%20Santana%20Row%20dllu%2002.jpg",
+    "note": "cut from assets/bg-web/popular-tesla-model-y-6.jpg by scripts/cut_vehicle_photos.py. a white Tesla Model Y (2025 Juniper) in a Tesla store, front three-quarter, no plate"
+  },
+  "car-jeep-wrangler-rubicon-lime": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJeep%20Wrangler%20Rubicon%20(JL)%204xe%201X7A0285.jpg",
+    "note": "cut from assets/bg-web/popular-jeep-wrangler-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a lime Jeep Wrangler Rubicon 4xe (JL), front three-quarter; dealer lettering on the door blurred"
+  },
+  "car-nissan-rogue-copper": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANissan%20X-Trail%20(T33)%201X7A7179.jpg",
+    "note": "cut from assets/bg-web/popular-nissan-rogue-1.jpg by scripts/cut_vehicle_photos.py. a copper Nissan Rogue / X-Trail (T33), front three-quarter, no plate"
+  },
+  "car-chevy-tahoe-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Calreyn88",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChevrolet%20Tahoe%202.jpg",
+    "note": "cut from assets/bg-web/popular-chevrolet-tahoe-4.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Chevrolet Tahoe (2015-20), front three-quarter"
+  },
+  "car-ford-explorer-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Explorer%20PHEV%201X7A6478.jpg",
+    "note": "cut from assets/bg-web/popular-ford-explorer-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Ford Explorer (sixth generation) PHEV, front three-quarter"
+  },
+  "car-honda-accord-white": {
+    "license": "CC BY 4.0",
+    "artist": "Firzafp",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20Accord%20(tenth%20generation%3B%20CV)%20(front)%20in%20Mangga%20Besar%20-%20Jakarta%20(26%20February%202024).jpg",
+    "note": "cut from assets/bg-web/popular-honda-accord-tenth-generation-6.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Honda Accord (tenth generation), front three-quarter"
+  },
+  "car-ford-bronco-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Bronco%2C%20Auto%202025%2C%20Zurich%20(20251029-P1074515).jpg",
+    "note": "cut from assets/bg-web/popular-ford-bronco-3.jpg by scripts/cut_vehicle_photos.py. a blue Ford Bronco (sixth generation) four-door at a show, front three-quarter, show plate only"
+  },
+  "car-dodge-charger-orange": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Ermell",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADodge%20Charger%20Hirschaid-20220709-RM-113717.jpg",
+    "note": "cut from assets/bg-web/popular-dodge-charger-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an orange Dodge Charger (LD) Scat Pack, front three-quarter"
+  },
+  "car-porsche-911-gt3-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20911%20GT3%20Touring%2C%20IAA%202017%2C%20Frankfurt%20(1Y7A2766).jpg",
+    "note": "cut from assets/bg-web/popular-porsche-911-3.jpg by scripts/cut_vehicle_photos.py. a blue Porsche 911 GT3 Touring (991.2) at a show, front three-quarter, show plate only"
+  },
+  "car-porsche-911-carrera-rs-orange": {
+    "license": "CC BY-SA 2.0 de",
+    "artist": "Lothar Spurzem",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20911%20Carrera%20RS%2C%20Bj.%201972-73%20(2016-07-02%2001%20Sp).JPG",
+    "note": "cut from assets/bg-web/popular-porsche-911-5.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an orange Porsche 911 Carrera RS 2.7 (1972-73), rear three-quarter"
+  },
+  "car-tesla-cybertruck": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Tesla%20Cybertruck%20Foundation%20Series%20IMG%200642.jpg",
+    "note": "cut from assets/bg-web/popular-tesla-cybertruck-3.jpg by scripts/cut_vehicle_photos.py. a stainless Tesla Cybertruck Foundation Series (2024), front three-quarter, no plate"
+  },
+  "car-range-rover-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "DeFacto",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALand%20Rover%20Range%20Rover%20Autobiography%202016.jpg",
+    "note": "cut from assets/bg-web/popular-range-rover-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a dark blue Range Rover Autobiography (L405), front three-quarter"
+  },
+  "car-subaru-outback-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASubaru%20Outback%20(BT)%20DSC%208814.jpg",
+    "note": "cut from assets/bg-web/popular-subaru-outback-1.jpg by scripts/cut_vehicle_photos.py. a white Subaru Outback (BT) Wilderness, front three-quarter, dealer plate only"
+  },
+  "car-hyundai-tucson-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Tucson%20(NX4)%201X7A0424.jpg",
+    "note": "cut from assets/bg-web/popular-hyundai-tucson-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Hyundai Tucson (NX4), front three-quarter"
+  },
+  "car-kia-telluride-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKia%20Telluride%20DSC%208226.jpg",
+    "note": "cut from assets/bg-web/popular-kia-telluride-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Kia Telluride, front three-quarter"
+  },
+  "car-rolls-royce-cullinan-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Jengtingchen",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARolls-Royce%20Cullinan%20001.jpg",
+    "note": "cut from assets/bg-web/popular-rolls-royce-cullinan-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a dark grey Rolls-Royce Cullinan, front three-quarter"
+  },
+  "car-mercedes-s-class-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMercedes-Benz%20W223%20IAA%202021%201X7A0206.jpg",
+    "note": "cut from assets/bg-web/popular-mercedes-benz-s-class-4.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Mercedes-Benz S-Class (W223), front three-quarter"
+  },
+  "car-toyota-tundra-trd-pro-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Gogerr",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2026%20Toyota%20Tundra%20TRD%20Pro.jpg",
+    "note": "cut from assets/bg-web/trucks-toyota-tundra-5.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Toyota Tundra TRD Pro (2026) in a showroom, front three-quarter"
+  },
+  "car-ford-ranger-wildtrak-orange": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Ranger%20(T6%2C%20P703)%20Wildtrak%20IMG%207320.jpg",
+    "note": "cut from assets/bg-web/trucks-ford-ranger-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an orange Ford Ranger Wildtrak (P703), front three-quarter"
+  },
+  "car-ford-f250-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20F-250%20Super%20Duty%20(P558)%201X7A7058.jpg",
+    "note": "cut from assets/bg-web/trucks-ford-super-duty-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Ford F-250 Super Duty (P558) crew cab, front three-quarter"
+  },
+  "car-nissan-nv200-white": {
+    "license": "CC0",
+    "artist": "TTTNIS",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANissan%20NV200%20Vanette%20Premium%20GX.jpg",
+    "note": "cut from assets/bg-web/vans-nissan-nv200-3.jpg by scripts/cut_vehicle_photos.py. a white Nissan NV200 van, front three-quarter (its plate is already blank in the photograph)"
+  },
+  "car-ford-e350-white": {
+    "license": "Public domain",
+    "artist": "IFCAR",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2008%20Ford%20E-Series%20wagon.jpg",
+    "note": "cut from assets/bg-web/vans-ford-e-series-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white 2008 Ford E-Series wagon, front three-quarter"
+  },
+  "car-volvo-vnl-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Oleg Yunakov",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVolvo%20VNL%20860%20Globetrotter%20XL%20-%202.jpg",
+    "note": "cut from assets/bg-web/semis-volvo-vnl-4.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Volvo VNL 860 Globetrotter XL sleeper semi tractor, front three-quarter"
+  },
+  "car-peterbilt-579-red": {
+    "license": "CC BY 2.0",
+    "artist": "Solar Guard Exclusive Truck Parts",
+    "page": "https://commons.wikimedia.org/wiki/File%3APeterbilt%20(9451414052).jpg",
+    "note": "cut from assets/bg-web/semis-peterbilt-579-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Peterbilt 579 sleeper semi tractor, front three-quarter"
   }
 }

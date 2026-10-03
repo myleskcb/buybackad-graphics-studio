@@ -28,7 +28,9 @@ owner's own pass.
 Chosen by eye, 2026-10-02: left out are the brown F-150 and the 1977
 Silverado (people in the cab), the 1956 Chevy (a classic, not a popular car),
 the F-250 (a flag on a pole in the bed) and the Transit Courier at the show
-(doors open, people round it).
+(doors open, people round it). 2026-10-03: cut and then dropped, a 1969
+Charger (driver at the wheel), a Silverado HD (arm out of the window) and an
+Escalade (price sticker on the windscreen, the photographer in the paint).
 
   python3 scripts/cut_vehicle_photos.py            dry run: .render/vehicles/_review.jpg
   python3 scripts/cut_vehicle_photos.py --write    land them
@@ -104,6 +106,59 @@ SPEC = {
         subject='a white Peterbilt 389 day-cab semi tractor, front three-quarter'),
     'car-freightliner-cascadia-blue': dict(src='semis-freightliner-cascadia-4.jpg', floor=None, plates=[],
         subject='a blue Freightliner Cascadia (second generation) sleeper semi tractor, front three-quarter, no front plate'),
+    # 2026-10-03, round two ("MORE"): popular, top trims, Teslas, trucks, vans, semis
+    'car-toyota-highlander-silver': dict(src='popular-toyota-highlander-3.jpg', floor=None, plates=[],
+        subject='a silver Toyota Highlander (XU70, 2022), front three-quarter, no plate'),
+    'car-tesla-model-3-white': dict(src='popular-tesla-model-3-4.jpg', floor=None, plates=[[270, 795, 630, 935]],
+        subject='a white Tesla Model 3 (2023 Highland), front three-quarter'),
+    'car-tesla-model-y-white': dict(src='popular-tesla-model-y-6.jpg', floor=None, plates=[],
+        subject='a white Tesla Model Y (2025 Juniper) in a Tesla store, front three-quarter, no plate'),
+    'car-jeep-wrangler-rubicon-lime': dict(src='popular-jeep-wrangler-2.jpg', floor=None, plates=[[190, 655, 392, 750], [1085, 640, 1365, 695]],
+        subject='a lime Jeep Wrangler Rubicon 4xe (JL), front three-quarter; dealer lettering on the door blurred'),
+    'car-nissan-rogue-copper': dict(src='popular-nissan-rogue-1.jpg', floor=None, plates=[],
+        subject='a copper Nissan Rogue / X-Trail (T33), front three-quarter, no plate'),
+    'car-chevy-tahoe-black': dict(src='popular-chevrolet-tahoe-4.jpg', floor=None, plates=[[1270, 920, 1550, 1022]],
+        subject='a black Chevrolet Tahoe (2015-20), front three-quarter'),
+    'car-ford-explorer-white': dict(src='popular-ford-explorer-3.jpg', floor=None, plates=[[190, 665, 405, 762]],
+        subject='a white Ford Explorer (sixth generation) PHEV, front three-quarter'),
+    'car-honda-accord-white': dict(src='popular-honda-accord-tenth-generation-6.jpg', floor=None, plates=[[100, 800, 400, 980]],
+        subject='a white Honda Accord (tenth generation), front three-quarter'),
+    'car-ford-bronco-blue': dict(src='popular-ford-bronco-3.jpg', floor=None, plates=[],
+        subject='a blue Ford Bronco (sixth generation) four-door at a show, front three-quarter, show plate only'),
+    'car-dodge-charger-orange': dict(src='popular-dodge-charger-3.jpg', floor=None, plates=[[1312, 888, 1562, 976]],
+        subject='an orange Dodge Charger (LD) Scat Pack, front three-quarter'),
+    'car-porsche-911-gt3-blue': dict(src='popular-porsche-911-3.jpg', floor=None, plates=[],
+        subject='a blue Porsche 911 GT3 Touring (991.2) at a show, front three-quarter, show plate only'),
+    'car-porsche-911-carrera-rs-orange': dict(src='popular-porsche-911-5.jpg', floor=None, plates=[[1452, 832, 1676, 916]],
+        subject='an orange Porsche 911 Carrera RS 2.7 (1972-73), rear three-quarter'),
+    'car-tesla-cybertruck': dict(src='popular-tesla-cybertruck-3.jpg', floor=None, plates=[],
+        subject='a stainless Tesla Cybertruck Foundation Series (2024), front three-quarter, no plate'),
+    'car-range-rover-blue': dict(src='popular-range-rover-1.jpg', floor=None, plates=[[210, 728, 396, 808]],
+        subject='a dark blue Range Rover Autobiography (L405), front three-quarter'),
+    'car-subaru-outback-white': dict(src='popular-subaru-outback-1.jpg', floor=None, plates=[],
+        subject='a white Subaru Outback (BT) Wilderness, front three-quarter, dealer plate only'),
+    'car-hyundai-tucson-white': dict(src='popular-hyundai-tucson-2.jpg', floor=None, plates=[[184, 682, 406, 768]],
+        subject='a white Hyundai Tucson (NX4), front three-quarter'),
+    'car-kia-telluride-grey': dict(src='popular-kia-telluride-1.jpg', floor=None, plates=[[148, 752, 366, 838]],
+        subject='a grey Kia Telluride, front three-quarter'),
+    'car-rolls-royce-cullinan-black': dict(src='popular-rolls-royce-cullinan-1.jpg', floor=None, plates=[[334, 1026, 446, 1088]],
+        subject='a dark grey Rolls-Royce Cullinan, front three-quarter'),
+    'car-mercedes-s-class-black': dict(src='popular-mercedes-benz-s-class-4.jpg', floor=None, plates=[[230, 590, 450, 656]],
+        subject='a black Mercedes-Benz S-Class (W223), front three-quarter'),
+    'car-toyota-tundra-trd-pro-blue': dict(src='trucks-toyota-tundra-5.jpg', floor=None, plates=[[1625, 915, 1715, 1035]],
+        subject='a blue Toyota Tundra TRD Pro (2026) in a showroom, front three-quarter'),
+    'car-ford-ranger-wildtrak-orange': dict(src='trucks-ford-ranger-1.jpg', floor=None, plates=[[190, 630, 410, 740]],
+        subject='an orange Ford Ranger Wildtrak (P703), front three-quarter'),
+    'car-ford-f250-black': dict(src='trucks-ford-super-duty-1.jpg', floor=None, plates=[[1604, 664, 1716, 760]],
+        subject='a black Ford F-250 Super Duty (P558) crew cab, front three-quarter'),
+    'car-nissan-nv200-white': dict(src='vans-nissan-nv200-3.jpg', floor=None, plates=[],
+        subject='a white Nissan NV200 van, front three-quarter (its plate is already blank in the photograph)'),
+    'car-ford-e350-white': dict(src='vans-ford-e-series-2.jpg', floor=None, plates=[[152, 772, 272, 888]],
+        subject='a white 2008 Ford E-Series wagon, front three-quarter'),
+    'car-volvo-vnl-blue': dict(src='semis-volvo-vnl-4.jpg', floor=None, plates=[[228, 1080, 300, 1172]],
+        subject='a blue Volvo VNL 860 Globetrotter XL sleeper semi tractor, front three-quarter'),
+    'car-peterbilt-579-red': dict(src='semis-peterbilt-579-1.jpg', floor=None, plates=[[1496, 1104, 1658, 1156]],
+        subject='a red Peterbilt 579 sleeper semi tractor, front three-quarter'),
 }
 
 MODEL = 'birefnet-general'   # cleaner than isnet-general-use on wheels, mirrors and grilles (checked side by side, 2026-10-02)
