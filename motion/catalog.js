@@ -1,3 +1,5 @@
+import { TRACKS } from "./tracks.js";
+export { TRACKS };
 // Phone Ad Maker: every choice an ad makes, as data.
 //
 // A style is the whole design of one ad. Every field can be set by hand in the
@@ -392,6 +394,8 @@ export const OPTIONS = {
     "guitar", "upright", "clav", "harmonica", "strumstick", "balafon", "organ_b3", "strings", "acid"],
   // the whole mix's character: the same song as mixed, warm, on tape, on vinyl, bright, or in a club
   tone: ["studio", "warm", "tape", "vinyl", "bright", "club"],
+  // a real recording (motion/tracks.js) in place of the generated music, or the user's own
+  track: ["none", ...TRACKS.map(t => t.id), "upload"],
   // a sound over the opening hook
   accent: ["none", "air_horn", "siren", "whistle", "gong", "windchimes", "bell_tree", "vibraslap", "sleigh_bells"],
   // a holiday ad: its tunes play only here (never picked by a shuffle; chosen by hand)
@@ -432,6 +436,8 @@ export const WEIGHTS = {
   number_sfx: { coin: .2 },
   hit: { glitch: .25 },
   tone: { studio: 2 },
+  // most new looks play a real recording; the user's own track only when they upload one
+  track: { none: 14, upload: 0 },
   lead: { guitar: 1.4, upright: 1, clav: .8, harmonica: .8, strumstick: .7, balafon: .6, organ_b3: 1, strings: 1, acid: .5, synth: 1.2, xylophone: .6, glock: .6, kalimba: .8, piano: 1.6, epiano: 1.3, supersaw: 1, synth_pluck: 1, synth_brass: .8, fm_bell: .8, gfunk_lead: 1 },
   sound_kit: { edm: .6, minimal: .6, pop: 2, motown: 2, classical: 1.5, rnb: 1.5, gospel: 1.2,
     synthwave: 1.6, gfunk: 1.6, future_bass: 1.4, deep_house: 1.4, trance: 1.2, nu_disco: 1.4 },
@@ -439,7 +445,7 @@ export const WEIGHTS = {
 
 // The sound options added after the first looks were made. They are drawn from a
 // stream of their own, so every earlier look keeps the design it always had.
-export const LATE_OPTIONS = ["melody", "lead", "accent", "tone"];
+export const LATE_OPTIONS = ["melody", "lead", "accent", "tone", "track"];
 // Options a shuffle never changes: only a hand pick sets them.
 export const KEPT_OPTIONS = ["season"];
 
@@ -448,6 +454,8 @@ export const KEPT_OPTIONS = ["season"];
 export const SEASON_TUNES = { christmas: ["carol_bells", "jingle_bells", "joy_to_world", "we_wish"],
   halloween: ["toccata", "dies_irae", "funeral_march"] };
 export const SEASON_ACCENTS = { christmas: ["sleigh_bells"], halloween: ["gong", "windchimes"] };
+export const SEASON_TRACKS = { christmas: TRACKS.filter(t => t.kind === "christmas").map(t => t.id),
+  halloween: TRACKS.filter(t => t.kind === "halloween").map(t => t.id) };
 // The tunes a drum-free classical accompaniment plays under when none is picked.
 export const CLASSICAL_TUNES = ["prelude_c", "minuet_g", "mozart40", "spring", "moonlight", "gymnopedie", "fur_elise", "canon",
   "eine_kleine", "ode_to_joy", "morning_mood", "greensleeves", "turkish_march"];
@@ -481,6 +489,7 @@ export const SOUND_NAMES = {
   tone: { studio: "Studio", warm: "Warm", tape: "Tape", vinyl: "Vinyl", bright: "Bright", club: "Club" },
   accent: { none: "None", air_horn: "Air horn", whistle: "Referee whistle", windchimes: "Wind chimes", bell_tree: "Bell tree", sleigh_bells: "Sleigh bells" },
   season: { none: "None", christmas: "Christmas", halloween: "Halloween" },
+  track: { none: "None: made-up music", upload: "My own music (uploaded)", ...Object.fromEntries(TRACKS.map(t => [t.id, t.title])) },
 };
 
 export const FLAGS = { flash: 0.6, shine: 0.5, rgb_hit: 0.3, speed_lines: 0.35, sparkles: 0.35 };
@@ -495,7 +504,7 @@ export const DEFAULT_STYLE = {
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
   sound_kit: "house", bpm: 118, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
-  melody: "none", lead: "piano", accent: "none", season: "none", tone: "studio",
+  melody: "none", lead: "piano", accent: "none", season: "none", tone: "studio", track: "none",
   overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",
   grade: "none", depth: "none", transition: "fade", outro: "none",
@@ -516,7 +525,7 @@ export const LABELS = {
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
   number_in: "Number entrance", arrangement: "Phone layout", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
-  sound_kit: "Music", melody: "Famous tune (public domain)", lead: "Tune played on", accent: "Opening sound", season: "Holiday music", tone: "Mix tone", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
+  sound_kit: "Music", melody: "Famous tune (public domain)", lead: "Tune played on", accent: "Opening sound", season: "Holiday music", tone: "Mix tone", track: "Real recording (public domain)", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
   vibe: "LA vibe", board: "Sign board", urgency: "Urgency",
   grade: "Colour grade", depth: "Phone depth", transition: "Hook transition", outro: "Ending",
 };
@@ -528,7 +537,7 @@ export const GROUPS = [
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
   ["Phones", ["arrangement", "entry", "end_face", "front_glimpse", "glare", "depth"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
-  ["Sound", ["sound_kit", "season", "melody", "lead", "tone", "accent", "hit", "number_sfx"]],
+  ["Sound", ["track", "sound_kit", "season", "melody", "lead", "tone", "accent", "hit", "number_sfx"]],
 ];
 
 export function countLooks() {

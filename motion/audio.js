@@ -45,7 +45,11 @@ function compose(ad, ctx, man, bufs, need) {
   const hit = tl.hit;
   const b = 60 / (st.bpm || 118), start = st.hook && st.hook !== "none" ? hit - Math.ceil(hit / b) * b : hit;
   const A = arrange(st, start, hit);
-  const { music, finish } = mixBus(ctx, S, st, master, sfx, hit, b);
+  const { music, direct, finish } = mixBus(ctx, S, st, master, sfx, hit, b);
+  // a real recording (or the user's own track) plays instead of the music made here
+  const recKey = st.track && !["none", "upload"].includes(st.track) ? "tracks/" + st.track : null;
+  if (recKey && !bufs.has(recKey)) need.add(recKey);
+  const recording = st.track === "upload" ? (ad.assets && ad.assets.userTrack) || null : recKey ? bufs.get(recKey) || null : null;
 
   for (const p of ad.phones) {
     const pan = clamp((p.home[0] / ad.W) * 2 - 1, -1, 1) * .7, fl = p.tLand - p.tIn;
@@ -133,7 +137,8 @@ function compose(ad, ctx, man, bufs, need) {
   if (cues.burst != null) S.pop(sfx, cues.burst, .45);
   if (cues.stamp != null) { S.thud(sfx, cues.stamp + .2, 120, 38, .45, 0, 1); S.clap(sfx, cues.stamp + .2, .45); }
   if (cues.tape != null) S.whoosh(sfx, cues.tape, .38, false, .3, .45);
-  if (st.sound_kit !== "none") {
+  if (recording) playRecording(ctx, recording, direct, st, hit);
+  else if (st.sound_kit !== "none") {
     // The beat runs from the first frame, on a grid that puts a downbeat exactly on the headline hit.
     if (KITS[st.sound_kit]) groove(S, music, st.sound_kit, A, start, st.duration);
     else beat(S, music, st.sound_kit, start, st.duration, st.bpm || 118, r, A.tune ? t => mtof(28 + ((A.keyPc + A.chordAt(t + 1e-4)[0] - 4) % 12 + 12) % 12) : null);
@@ -203,7 +208,7 @@ function mixBus(ctx, S, st, master, sfx, hit, b) {
   S.hit = loose(S.hit, .005, .12, 1, 3); S.note = loose(S.note, .006, .1, 1, 5); S.pluck = loose(S.pluck, .004, .08, 1, 4);
 
   return {
-    music,
+    music, direct: out,
     finish() {
       // the pump: everything but the kick dips as each kick lands and swells back
       const depth = PUMP[kit] || 0;
@@ -217,6 +222,16 @@ function mixBus(ctx, S, st, master, sfx, hit, b) {
       }
     },
   };
+}
+
+/** A real recording: it comes in on the headline hit, so its first downbeat lands with the
+ *  words (each clip starts on a strong beat), at the level the music is set to. An upload
+ *  plays from its start. Fades in a touch before the hit and out with the ad. */
+function playRecording(ctx, buf, dest, st, hit) {
+  const s = ctx.createBufferSource(); s.buffer = buf;
+  const g = ctx.createGain(), level = 1.6 * (st.track === "upload" ? .8 : 1), t0 = Math.max(0, hit - .02);
+  g.gain.setValueAtTime(0, 0); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(level, t0 + .02);
+  s.connect(g).connect(dest); s.start(t0);
 }
 
 /** The mix tone: the same song as mixed, warm, on tape, on vinyl, bright, or in a club. */

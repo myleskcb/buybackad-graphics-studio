@@ -246,6 +246,15 @@ function buildPanel() {
     if (i >= 0) { if (list.length > 1) list.splice(i, 1); } else { if (list.length >= 6) list.shift(); list.push(id); }
     save(); drawPhonePicker(); rebuild();
   });
+  $("music-upload").addEventListener("change", async e => {   // the user's own track: kept in memory, never uploaded anywhere
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try {
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      state.assets.userTrack = await ac.decodeAudioData(await f.arrayBuffer()); if (ac.close) ac.close();
+      pushHistory(); state.style.track = "upload"; state.locked.add("track"); save(); rebuild();
+      $("music-upload-name").textContent = f.name;
+    } catch (err) { $("music-upload-name").textContent = "That file could not be read as audio."; }
+  });
   $("upload").addEventListener("change", async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
     try {

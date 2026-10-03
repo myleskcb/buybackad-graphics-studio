@@ -2,7 +2,7 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, LATE_OPTIONS, KEPT_OPTIONS, KIT_BPM, SEASON_TUNES, SEASON_ACCENTS, CLASSICAL_TUNES } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, LATE_OPTIONS, KEPT_OPTIONS, KIT_BPM, SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS } from "./catalog.js";
 import { vibeBackground, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
@@ -99,11 +99,13 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
 
 /** A holiday's tunes and opening sound only in an ad set to that holiday, and mostly there. */
 function seasonWeights(k, season) {
-  const own = { melody: SEASON_TUNES, accent: SEASON_ACCENTS }[k];
+  const own = { melody: SEASON_TUNES, accent: SEASON_ACCENTS, track: SEASON_TRACKS }[k];
   if (!own) return WEIGHTS[k];
   const mine = new Set((own[season] || [])), any = new Set(Object.values(own).flat()), w = { ...WEIGHTS[k] };
   for (const v of OPTIONS[k]) if (any.has(v)) w[v] = mine.has(v) ? (k === "melody" ? 6 : 8) : 0;
   if (mine.size && k === "melody") { for (const v of OPTIONS[k]) if (!mine.has(v)) w[v] = 0; }
+  // a holiday ad: mostly that holiday's real recordings, else a holiday tune made here
+  if (mine.size && k === "track") { for (const v of OPTIONS[k]) if (!mine.has(v) && v !== "none") w[v] = 0; w.none = 6; }
   return w;
 }
 
@@ -263,6 +265,12 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!OPTIONS.accent.includes(st.accent)) st.accent = "none";
   if (!OPTIONS.season.includes(st.season)) st.season = "none";
   if (!OPTIONS.tone.includes(st.tone)) st.tone = "studio";
+  if (!OPTIONS.track.includes(st.track)) st.track = "none";
+  // a holiday's recordings belong to holiday ads; a real recording sets the beat the picture pulses to
+  const holidayTracks = Object.values(SEASON_TRACKS).flat();
+  if (!locked.has("track") && holidayTracks.includes(st.track) && !(SEASON_TRACKS[st.season] || []).includes(st.track)) st.track = "none";
+  const rec = TRACKS.find(t => t.id === st.track);
+  if (rec && rec.bpm && rec.beat >= .2 && !locked.has("bpm")) st.bpm = Math.round(rec.bpm);
   // holiday tunes belong to holiday ads, and a holiday ad plays one
   const holiday = SEASON_TUNES[st.season] || [], anyHoliday = Object.values(SEASON_TUNES).flat();
   if (!locked.has("melody")) {
