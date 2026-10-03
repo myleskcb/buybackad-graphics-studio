@@ -1302,3 +1302,149 @@ export function themeGround(kind, x, st, p, W, H, sc, r) {
     default: return false;
   }
 }
+
+/* FRESH GROUNDS (owner, 2026-10-03: "Make more variety" ... backgrounds). Twelve new
+   clean grounds in the house manner: soft, in the look's own palette, calm in the
+   middle for the phones and the words. Candidates until the owner approves them
+   (FRESH_REVIEW in catalog.js); a shuffle draws only approved ones. */
+export const FRESH_GROUNDS = {
+  studio_sweep: "Studio sweep",       // a photo studio's curved wall into the floor
+  pill_stage:   "Stage pill",         // a rounded plinth the phones stand on
+  arch_window:  "Arch",               // one tall soft arch behind the middle
+  paper_cut:    "Paper cut",          // layered paper hills along the foot
+  ribbon_wave:  "Ribbons",            // two broad soft ribbons across a corner
+  concentric:   "Rounded rings",      // rounded frames stepping in to the middle
+  split_soft:   "Soft split",         // two tones on a soft diagonal
+  spot_floor:   "Spot on the floor",  // a pool of light on a dark stage floor
+  bokeh_night:  "City bokeh",         // out-of-focus lights low in a night frame
+  marble_soft:  "Soft marble",        // pale veins in a polished stone
+  tile_gloss:   "Glossy tile",        // large glazed tiles with a sheen
+  grid_glow:    "Horizon grid",       // a faint grid running to a lit horizon
+};
+export function freshGround(kind, x, st, p, W, H, sc, r) {
+  if (!(kind in FRESH_GROUNDS)) return false;
+  const [cx, cy] = sc, D = Math.hypot(W, H), U = Math.min(W, H), dark = lum(p.ground) < .4;
+  const g = p.ground, l = p.light, a = p.accent;
+  const lin = (x0, y0, x1, y1, stops) => { const gr = x.createLinearGradient(x0, y0, x1, y1); stops.forEach(([o, c]) => gr.addColorStop(o, c)); return gr; };
+  const rad = (gx, gy, r0, r1, stops) => { const gr = x.createRadialGradient(gx, gy, r0, gx, gy, r1); stops.forEach(([o, c]) => gr.addColorStop(o, c)); return gr; };
+  const fill = (s) => { x.fillStyle = s; x.fillRect(0, 0, W, H); };
+  switch (kind) {
+    case "studio_sweep": {
+      const fy = H * .72;
+      fill(lin(0, 0, 0, H, [[0, shade(g, -.12)], [.55, l], [.72, mix(l, g, .35)], [1, shade(g, -.18)]]));
+      x.save(); x.translate(cx, fy + U * .05); x.scale(1, .28); x.fillStyle = rad(0, 0, 0, U * .45, [[0, "rgba(0,0,0,.22)"], [1, "rgba(0,0,0,0)"]]); x.fillRect(-W, -U * 2, W * 2, U * 4); x.restore();
+      fill(rad(cx, H * .35, 0, D * .6, [[0, rgba(l, .35)], [1, rgba(l, 0)]]));
+      grain(x, W, H, r, 12, .25); return true;
+    }
+    case "pill_stage": {
+      fill(lin(0, 0, 0, H, [[0, shade(g, -.15)], [1, g]]));
+      fill(rad(cx, H * .4, 0, D * .55, [[0, rgba(l, .5)], [1, rgba(l, 0)]]));
+      const pw = W * .78, ph = U * .12, px = cx - pw / 2, py = H * .8;
+      x.fillStyle = shade(g, dark ? .14 : -.1); x.beginPath(); x.ellipse(cx, py + ph, pw / 2, ph * .55, 0, 0, TAU); x.fill();
+      x.fillStyle = lin(px, 0, px + pw, 0, [[0, shade(l, -.12)], [.5, l], [1, shade(l, -.12)]]);
+      x.beginPath(); x.ellipse(cx, py, pw / 2, ph * .55, 0, 0, TAU); x.fill();
+      x.fillStyle = shade(g, dark ? .22 : -.05); x.fillRect(px, py, pw, ph); x.beginPath(); x.ellipse(cx, py + ph, pw / 2, ph * .55, 0, 0, Math.PI); x.fill();
+      x.fillStyle = lin(px, 0, px + pw, 0, [[0, shade(l, -.08)], [.5, mix(l, "#ffffff", .25)], [1, shade(l, -.08)]]); x.beginPath(); x.ellipse(cx, py, pw / 2, ph * .55, 0, 0, TAU); x.fill();
+      grain(x, W, H, r, 10, .2); return true;
+    }
+    case "arch_window": {
+      fill(lin(0, 0, 0, H, [[0, g], [1, shade(g, -.12)]]));
+      const aw = Math.min(W * .62, H * .5), ah = H * .78, ax = cx - aw / 2, ay = H - ah;
+      x.save(); x.beginPath(); x.moveTo(ax, H); x.lineTo(ax, ay + aw / 2); x.arc(cx, ay + aw / 2, aw / 2, Math.PI, 0); x.lineTo(ax + aw, H); x.closePath();
+      x.fillStyle = lin(0, ay, 0, H, [[0, mix(l, "#ffffff", .2)], [1, l]]); x.shadowColor = "rgba(0,0,0,.18)"; x.shadowBlur = U * .05; x.fill(); x.restore();
+      grain(x, W, H, r, 10, .22); return true;
+    }
+    case "paper_cut": {
+      fill(lin(0, 0, 0, H, [[0, l], [1, g]]));
+      const n = 4;
+      for (let i = 0; i < n; i++) {
+        const base = H * (.62 + i * .1), amp = H * .04, ph0 = r() * TAU, f = r.uniform(.8, 1.6);
+        x.save(); x.shadowColor = "rgba(0,0,0,.2)"; x.shadowBlur = U * .03; x.shadowOffsetY = -U * .006;
+        x.fillStyle = mix(l, shade(g, -.25), (i + 1) / (n + 1)); x.beginPath(); x.moveTo(0, H);
+        for (let xx = 0; xx <= W + 8; xx += 8) x.lineTo(xx, base + Math.sin(xx / W * TAU * f + ph0) * amp);
+        x.lineTo(W, H); x.closePath(); x.fill(); x.restore();
+      }
+      grain(x, W, H, r, 14, .3); return true;
+    }
+    case "ribbon_wave": {
+      fill(lin(0, 0, W, H, [[0, g], [1, shade(g, -.1)]]));
+      const d = r() < .5 ? 1 : -1;
+      [[.0, rgba(a, .22)], [.12, rgba(l, .28)]].forEach(([off, col], i) => {
+        x.fillStyle = col; x.beginPath();
+        const y0 = H * (.05 + off), w0 = U * (.16 + .05 * i);
+        x.moveTo(d > 0 ? -W * .1 : W * 1.1, y0);
+        x.bezierCurveTo(W * .35, y0 + H * .35, W * .65, y0 - H * .1, d > 0 ? W * 1.1 : -W * .1, y0 + H * .5);
+        x.lineTo(d > 0 ? W * 1.1 : -W * .1, y0 + H * .5 + w0);
+        x.bezierCurveTo(W * .65, y0 - H * .1 + w0, W * .35, y0 + H * .35 + w0, d > 0 ? -W * .1 : W * 1.1, y0 + w0);
+        x.closePath(); x.fill();
+      });
+      grain(x, W, H, r, 10, .2); return true;
+    }
+    case "concentric": {
+      fill(g);
+      const n = 6;
+      for (let i = 0; i < n; i++) {
+        const k = 1 - i / n, w = W * (.2 + .95 * k), h = H * (.2 + .95 * k), rr = Math.min(w, h) * .12;
+        x.fillStyle = mix(g, l, (i + 1) / (n + 1)); x.shadowColor = "rgba(0,0,0,.18)"; x.shadowBlur = U * .02;
+        x.beginPath(); x.roundRect ? x.roundRect(cx - w / 2, cy - h / 2, w, h, rr) : x.rect(cx - w / 2, cy - h / 2, w, h); x.fill();
+      }
+      grain(x, W, H, r, 10, .2); return true;
+    }
+    case "split_soft": {
+      fill(g);
+      const t = r.uniform(-.2, .2);
+      x.save(); x.filter = `blur(${Math.round(U * .02)}px)`; x.fillStyle = mix(g, l, .9);
+      x.beginPath(); x.moveTo(W * (.55 + t), -U * .1); x.lineTo(W + U * .1, -U * .1); x.lineTo(W + U * .1, H + U * .1); x.lineTo(W * (.35 + t), H + U * .1); x.closePath(); x.fill(); x.restore();
+      grain(x, W, H, r, 12, .25); return true;
+    }
+    case "spot_floor": {
+      const deep = shade(g, dark ? -.35 : -.55);
+      fill(lin(0, 0, 0, H, [[0, deep], [.7, shade(deep, .08)], [1, deep]]));
+      x.save(); x.globalCompositeOperation = "lighter";
+      x.fillStyle = lin(0, 0, 0, H * .8, [[0, rgba(l, .0)], [1, rgba(l, .22)]]);
+      x.beginPath(); x.moveTo(cx - W * .08, 0); x.lineTo(cx + W * .08, 0); x.lineTo(cx + W * .36, H * .82); x.lineTo(cx - W * .36, H * .82); x.closePath(); x.fill(); x.restore();
+      x.save(); x.translate(cx, H * .82); x.scale(1, .22); x.fillStyle = rad(0, 0, 0, W * .42, [[0, rgba(l, .55)], [1, rgba(l, 0)]]); x.fillRect(-W, -W, W * 2, W * 2); x.restore();
+      grain(x, W, H, r, 12, .3); return true;
+    }
+    case "bokeh_night": {
+      const deep = shade(g, dark ? -.3 : -.6);
+      fill(lin(0, 0, 0, H, [[0, deep], [1, shade(deep, .1)]]));
+      for (let i = 0; i < 40; i++) {
+        const bx = r() * W, by = H * (.62 + r() * .38), br = U * r.uniform(.015, .05), col = r() < .5 ? a : l;
+        x.fillStyle = rad(bx, by, 0, br, [[0, rgba(col, .45)], [.7, rgba(col, .3)], [1, rgba(col, 0)]]); x.beginPath(); x.arc(bx, by, br, 0, TAU); x.fill();
+      }
+      grain(x, W, H, r, 12, .3); return true;
+    }
+    case "marble_soft": {
+      fill(lin(0, 0, W, H, [[0, l], [1, mix(l, g, .25)]]));
+      x.save(); x.strokeStyle = rgba(shade(g, -.3), .32); x.lineCap = "round";
+      for (let i = 0; i < 9; i++) {
+        let px = r() * W, py = -U * .1; x.lineWidth = U * r.uniform(.002, .008); x.beginPath(); x.moveTo(px, py);
+        for (let k = 0; k < 14; k++) { px += r.uniform(-.12, .2) * U; py += H / 12; x.lineTo(px, py); }
+        x.stroke();
+      }
+      x.restore(); grain(x, W, H, r, 8, .2); return true;
+    }
+    case "tile_gloss": {
+      fill(l);
+      const s = U * .22, m = Math.max(1, s * .04);
+      for (let y = 0; y < H; y += s) for (let xx = 0; xx < W; xx += s) {
+        x.fillStyle = mix(l, g, r.uniform(.15, .35)); x.fillRect(xx + m, y + m, s - m * 2, s - m * 2);
+        x.fillStyle = lin(xx, y, xx + s, y + s, [[0, "rgba(255,255,255,.22)"], [.45, "rgba(255,255,255,0)"]]); x.fillRect(xx + m, y + m, s - m * 2, s - m * 2);
+      }
+      fill(rad(cx, cy, 0, D * .6, [[0, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,.18)"]]));
+      grain(x, W, H, r, 8, .2); return true;
+    }
+    case "grid_glow": {
+      const hz = H * .58, deep = shade(g, dark ? -.3 : -.55);
+      fill(lin(0, 0, 0, H, [[0, deep], [hz / H, shade(deep, .12)], [1, deep]]));
+      fill(rad(cx, hz, 0, W * .55, [[0, rgba(a, .35)], [1, rgba(a, 0)]]));
+      x.save(); x.strokeStyle = rgba(l, .16); x.lineWidth = Math.max(1, U * .002); x.beginPath();
+      for (let i = -12; i <= 12; i++) { x.moveTo(cx + i * W * .02, hz); x.lineTo(cx + i * W * .2, H); }
+      for (let k = 1; k < 10; k++) { const yy = hz + (H - hz) * (k / 10) ** 1.8; x.moveTo(0, yy); x.lineTo(W, yy); }
+      x.stroke(); x.restore();
+      grain(x, W, H, r, 10, .25); return true;
+    }
+  }
+  return false;
+}

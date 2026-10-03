@@ -467,6 +467,10 @@ export const GROUND_CANDIDATES = {
 };
 // Owner, 2026-09-30: "keep the spin offs" (all 24, from the review page)
 export const GROUND_REVIEW = { approved: Object.keys(GROUND_CANDIDATES), rejected: [] };
+// The fresh grounds (motion/decor.js FRESH_GROUNDS, 2026-10-03): candidates until the
+// owner approves them on the review page; only approved ones join the shuffle.
+export const FRESH_REVIEW = { approved: [], rejected: [] };
+for (const id of FRESH_REVIEW.approved) if (!OPTIONS.background.includes(id)) OPTIONS.background.push(id);
 for (const id of GROUND_REVIEW.approved) {
   const c = GROUND_CANDIDATES[id]; if (!c) continue;
   // the audiences' own looks keep the grounds they were swept and pruned on
