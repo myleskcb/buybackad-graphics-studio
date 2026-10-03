@@ -270,7 +270,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   const holidayTracks = Object.values(SEASON_TRACKS).flat();
   if (!locked.has("track") && holidayTracks.includes(st.track) && !(SEASON_TRACKS[st.season] || []).includes(st.track)) st.track = "none";
   const rec = TRACKS.find(t => t.id === st.track);
-  if (rec && rec.bpm && rec.beat >= .2 && !locked.has("bpm")) st.bpm = Math.round(rec.bpm);
+  if (rec && rec.bpm && rec.beat >= .5 && !locked.has("bpm")) st.bpm = Math.round(rec.bpm);   // only a beat measured clearly (not a slow, rubato piece)
   // holiday tunes belong to holiday ads, and a holiday ad plays one
   const holiday = SEASON_TUNES[st.season] || [], anyHoliday = Object.values(SEASON_TUNES).flat();
   if (!locked.has("melody")) {

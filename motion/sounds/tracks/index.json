@@ -47,6 +47,30 @@
    "url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Ludwig_van_Beethoven_-_sonata_no._14_in_c_sharp_minor_%27moonlight%27%2C_op._27_no._2_-_i._adagio_sostenuto.ogg",
    "license": "Public domain",
    "basis": "Musopen, public domain"
+  },
+  {
+   "id": "fur_elise",
+   "title": "Für Elise (Beethoven) · piano",
+   "kind": "classical",
+   "bpm": 150.1,
+   "beat": 0.38,
+   "from": 0.4,
+   "source": "File:FurElise.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/FurElise.ogg",
+   "license": "Public domain",
+   "basis": "performer's own recording, released to the public domain"
+  },
+  {
+   "id": "gymnopedie",
+   "title": "Gymnopédie No. 1 (Satie) · Michael Laucke, guitar",
+   "kind": "classical",
+   "bpm": 92.3,
+   "beat": 0.3,
+   "from": 0.1,
+   "source": "File:Satie Gymnopedie No 1 performed by Michael Laucke.flac",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Satie_Gymnopedie_No_1_performed_by_Michael_Laucke.flac",
+   "license": "Public domain",
+   "basis": "performer's own recording, released to the public domain"
   }
  ]
 }

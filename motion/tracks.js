@@ -29,5 +29,19 @@ export const TRACKS = [
   "kind": "classical",
   "bpm": 171.5,
   "beat": 0.23
+ },
+ {
+  "id": "fur_elise",
+  "title": "Für Elise (Beethoven) · piano",
+  "kind": "classical",
+  "bpm": 150.1,
+  "beat": 0.38
+ },
+ {
+  "id": "gymnopedie",
+  "title": "Gymnopédie No. 1 (Satie) · Michael Laucke, guitar",
+  "kind": "classical",
+  "bpm": 92.3,
+  "beat": 0.3
  }
 ];
