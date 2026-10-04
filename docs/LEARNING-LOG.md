@@ -2770,3 +2770,45 @@ RESUME HERE:
      sync_css_fallback.mjs).
   4. The designer audit's standing failures on `main`: sell_iphone and
      gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-04 — the 17 and 18 Pro's sides, in their own colour
+
+(claude/great-johnson-v8ppp6, not yet on `main`.)
+
+The owner, with a side-on Cosmic Orange 17 Pro from the turn sheet: "Much
+better, but the orange looks a little bit too light. Wouldn't you say from the
+side angle?"
+
+Found: the side was drawn from index.json's `metal`, read off the back's thin
+rim, where the studio light catches it. On a 17 or 18 Pro the plateau is the
+sides' own aluminium, so the photograph says what the side should be: `metal`
+was 13 to 55 levels a channel off it on all twelve backs (1.1 to 3.4 times its
+light). Side-on the orange's average light was right (0.99) and its colour was
+not: the shading mixed it toward black at the rims and white between, brown
+and peach. With the plateau's colour under the old shading the light finishes
+went dark (0.61 to 0.68).
+
+Did: `RAIL` (each 17 and 18 Pro back's plateau colour, the median of two clear
+patches) and `litRail` (the colour scaled by the light in linear terms, a faint
+white glint, averaging to itself) for those sides; the older backs keep `metal`
+and the old shading, having no part of their frame's metal to measure.
+audit_phone_views.py: `rail`. DESIGN-LAW rule 110, a side is its metal's colour.
+
+Checked: side-on, the twelve sides average 0.89 to 1.10 of their plateau
+(0.67 to 2.65 before); audit_phone_views.py 56 of 59, the old `metal` fails
+`rail` on all twelve.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main` (it carries `main` at
+     b7a67925); reconcile `claude/fervent-pascal-w6mthe` (37a26d34) into
+     `main` (renumber its rule 99, re-thumb the conflicting cards, verify),
+     then deploy `main` to both Netlify projects.
+  1. A turned 17 or 18 Pro's camera plateau is drawn flat; its height needs a
+     source before it is drawn. The 17e's and 18 Pro's notch, buttons and
+     Camera Control want checking against Apple's sheets (FACTS leaves them out).
+  2. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  3. `.modal-actions` on a phone: let the row wrap (styles.css, then
+     sync_css_fallback.mjs).
+  4. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.

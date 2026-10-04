@@ -17,6 +17,9 @@ the engine turns them (motion/phones). Every check is MEASURED off the pixels:
   facts     what a turned phone shows on its edges and screen against Apple's own
             line-up (FACTS): notch or island, mute switch or Action button,
             Camera Control. A model not in FACTS is printed unchecked.
+  rail      on a 17 or 18 Pro the sides are the camera plateau's aluminium: the
+            engine's side colour (RAIL) is the plateau's, measured here off two
+            clear patches of it, to 12 levels a channel
 
 Lighting is NOT scored: studio light, glass panels and reflections swamp any
 left/right measure (tried; it failed Apple's own flat shots). Judge light by eye
@@ -131,11 +134,31 @@ def designs(models):
         return {m: None for m in models}
 
 
+UNIBODY = {"iPhone 17 Pro", "iPhone 17 Pro Max", "iPhone 18 Pro", "iPhone 18 Pro Max"}
+PLATEAU = [(.58, .035, .72, .085), (.60, .15, .72, .20)]   # clear of the lenses, flash and LiDAR
+
+
+def plateau(a):
+    h, w = a.shape[:2]
+    px = np.concatenate([a[int(y0 * h):int(y1 * h), int(x0 * w):int(x1 * w), :3].reshape(-1, 3) for x0, y0, x1, y1 in PLATEAU])
+    return np.median(px, 0)
+
+
+def rails():
+    js = "import('./motion/engine.js').then(e=>console.log(JSON.stringify(e.RAIL)))"
+    try:
+        r = subprocess.run(["node", "--no-warnings", "--input-type=module", "-e", js], cwd=ROOT, capture_output=True, text=True, timeout=60)
+        return json.loads(r.stdout.strip().splitlines()[-1])
+    except Exception:
+        return None
+
+
 def main():
     idx = json.loads((PHONES / "index.json").read_text())["phones"]
     pre = sys.argv[1:]
     idx = [p for p in idx if not pre or any(p["id"].startswith(x) for x in pre)]
     des = designs(sorted({p["model"] for p in idx}))
+    rail = rails()
     fails = 0
     print(f"{'phone':26} {'size':9} {'shape':>6} {'square':>7} {'lenses (w/h)':26} {'grain':>5}  design")
     for p in idx:
@@ -158,6 +181,11 @@ def main():
         fact = FACTS.get(p["model"])
         if d and fact and (d["notch"], d["left"], d["camCtrl"]) != fact:
             bad.append("facts")
+        if p["model"] in UNIBODY and rail is not None:
+            want = plateau(a)
+            got = rail.get(p["id"])
+            if not got or np.abs(np.array([int(got[i:i + 2], 16) for i in (1, 3, 5)]) - want).max() > 12:
+                bad.append("rail")
         btn = side_button(alpha)
         if btn and d and max(abs(btn[0] - d["controls"]["power"][0]), abs(btn[1] - d["controls"]["power"][1])) > .01:
             bad.append("button")

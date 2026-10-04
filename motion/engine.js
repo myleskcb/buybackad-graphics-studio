@@ -470,7 +470,7 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0) {
     const u = k / steps, zl = -seen + 2 * seen * u, at = rim.map(([x, y]) => P(x, y, zl));
     const zb = -seen + 2 * seen * Math.max(0, (k - 1.5) / steps);
     poly(ctx, k ? hull(rim.map(([x, y]) => P(x, y, zb)).concat(at)) : at);
-    ctx.fillStyle = shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
+    ctx.fillStyle = p.railLin ? litRail(p.railLin, u) : shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
   }
   // the controls on the side we see, where Apple puts them
   const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
@@ -579,12 +579,37 @@ function shadowSprite(w, h, blur) {
   return { c, pad };
 }
 
+// On a 17 or 18 Pro the sides and the camera plateau are one piece of anodised aluminium,
+// so the side is the plateau's colour, measured off each factory back (the median of two
+// clear patches of plateau; scripts/audit_phone_views.py checks it). index.json's "metal"
+// is read off the back's thin rim, where the studio light catches it: 1.1 to 3.4 times too
+// light on these, the Cosmic Orange's side a peach.
+export const RAIL = {
+  "17-pro-cosmic-orange": "#ed8d50", "17-pro-max-cosmic-orange": "#ee8c50", "17-pro-deep-blue": "#434a61",
+  "17-pro-max-deep-blue": "#434a61", "17-pro-silver": "#d9d9d8", "17-pro-max-silver": "#dadada",
+  "18-pro-burgundy": "#5d333a", "18-pro-max-burgundy": "#5e343b", "18-pro-glacier": "#bbc8d9",
+  "18-pro-max-glacier": "#bbc8da", "18-pro-black": "#262628", "18-pro-max-silver": "#e4e5e2",
+};
+
+// A side whose colour is its metal's own (RAIL) is lit as a surface is: the colour scaled by
+// the light in linear terms, darker at both rims and brightest a little in from the near face,
+// with a faint white glint, so it keeps its hue and averages to itself. Mixed toward black and
+// white, as the rim-read sides still are, a saturated colour went brown at the rims and pale
+// between: the Cosmic Orange's side read peach.
+const toLin = v => (v /= 255) <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4;
+const toSrgb = v => Math.round(255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055));
+function litRail(lin, u) {
+  const f = .61 + .72 * Math.exp(-((u - .6) ** 2) / .1), glint = .035 * Math.exp(-((u - .64) ** 2) / .006);
+  return `rgb(${lin.map(v => toSrgb(Math.min(1, v * f + glint))).join(",")})`;
+}
+
 const SHADOWS = new Map();
 export class Phone {
   constructor(img, meta, ph) {
     this.img = img; this.meta = meta;
     this.h = ph; this.w = ph * (meta.w / meta.h);
-    this.metal = meta.metal;
+    this.metal = RAIL[meta.id] || meta.metal;
+    this.railLin = RAIL[meta.id] ? hexRgb(RAIL[meta.id]).map(toLin) : null;
     this.design = designOf(meta.model);
     // the same size of phone casts the same shadows: made once (a look lays its phones out
     // afresh for each place it tries for the words)

@@ -3821,3 +3821,15 @@ movements, accuracy, and realism".
 - motion_phone_check.mjs turns one phone of every model the same way, upright and
   on its side, and fails an edge under 0.8 of the model's depth, a gap inside
   the body, or a step of the turn over 2.5 times the usual.
+- **A side is its metal's colour** (owner, 2026-10-04, of a Cosmic Orange 17 Pro
+  side-on: "the orange looks a little bit too light"). On a 17 or 18 Pro the
+  sides and the camera plateau are one piece of aluminium, so the side is drawn
+  the plateau's colour, measured off each back (`RAIL`). index.json's `metal` is
+  read off the back's thin rim, where the studio light catches it, and was 13
+  to 55 levels a channel off (1.1 to 3.4 times too light). A measured side is
+  lit as a surface is, its colour scaled by the light with a faint white glint,
+  so it keeps its hue and averages to its own colour (0.89 to 1.10 side-on);
+  mixed toward black and white, the orange went brown at the rims and peach
+  between. Older backs show no part made of their frame's metal, so their sides
+  keep the rim's colour and the old shading. audit_phone_views.py fails a 17 or
+  18 Pro whose RAIL is more than 12 levels off its plateau.
