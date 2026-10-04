@@ -1,1 +1,72 @@
-{}
+{
+ "coins": {
+  "one": [
+   "photo-coin-platinum-eagle-2013",
+   "photo-coin-capped-bust-half-1835",
+   "photo-coin-capped-bust-half-1835-reverse",
+   "photo-coin-capped-bust-half-1822",
+   "photo-coin-capped-bust-half-1836-reverse",
+   "photo-coin-iowa-half-1946",
+   "photo-coin-iowa-half-1946-reverse",
+   "photo-coin-bridgeport-half-1936",
+   "photo-coin-flying-eagle-cent-1856-reverse",
+   "photo-coin-gold-dollar-1857",
+   "photo-coin-kennedy-half-2014",
+   "photo-coin-kennedy-half-2014-reverse",
+   "photo-coin-proof-set-1995-silver",
+   "photo-coin-quarter-eagle-1848-cal",
+   "photo-coin-standing-liberty-quarter-1917",
+   "photo-coin-standing-liberty-quarter-reverse",
+   "photo-coin-three-dollar-gold-1874",
+   "photo-coin-three-dollar-gold-1874-reverse",
+   "photo-coin-three-dollar-gold-1878"
+  ],
+  "set": [
+   "photo-coin-draped-bust-dollar-1795",
+   "photo-coin-draped-bust-dollar-1798",
+   "photo-coin-ike-dollar-1971",
+   "photo-coin-ike-dollar-bicentennial",
+   "photo-coin-flying-eagle-cent-1858",
+   "photo-coin-indian-quarter-eagle-1908",
+   "photo-coin-indian-eagle-1907",
+   "photo-coin-indian-eagle-1908",
+   "photo-coin-indian-half-eagle-1908",
+   "photo-coin-liberty-eagle-1865",
+   "photo-coin-liberty-eagle-1839",
+   "photo-coin-liberty-half-eagle-1866",
+   "photo-coin-liberty-nickel-1913",
+   "photo-coin-liberty-nickel-1883",
+   "photo-coin-quarter-eagle-1796",
+   "photo-coin-seated-dollar-1859",
+   "photo-coin-seated-dollar-1873-proof",
+   "photo-coin-standing-liberty-gold-2016",
+   "photo-coin-trade-dollar-1878",
+   "photo-coin-trade-dollar-1875-cc",
+   "photo-coin-trade-dollar-1884-proof"
+  ]
+ },
+ "gold": {
+  "one": [
+   "photo-gold-buffalo-proof",
+   "photo-gold-buffalo-proof-reverse",
+   "photo-gold-buffalo-2013",
+   "photo-gold-sovereign-1963",
+   "photo-gold-ring-diamonds-garnets",
+   "photo-gold-bangle-beaded",
+   "photo-gold-bar-cast",
+   "photo-gold-brooch-art-nouveau",
+   "photo-gold-watch-longines-boxed"
+  ],
+  "set": [
+   "photo-gold-sovereign-1918",
+   "photo-gold-sovereigns-six",
+   "photo-gold-cuba-5-pesos-1915"
+  ]
+ },
+ "silver": {
+  "one": [],
+  "set": [
+   "photo-silver-panda-coins-pair"
+  ]
+ }
+}

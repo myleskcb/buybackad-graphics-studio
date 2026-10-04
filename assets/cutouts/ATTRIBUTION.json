@@ -4606,5 +4606,323 @@
     "artist": "BuybackAd video maker (motion/engine.js)",
     "page": "motion/phones/16e-black.webp",
     "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "photo-coin-platinum-eagle-2013": {
+    "license": "Public domain",
+    "artist": "United States Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3APlatinum%20Obverse.png",
+    "note": "cut from assets/bg-web/coins2-american-platinum-eagle-1.jpg by scripts/cut_vehicle_photos.py. a 2013 American Platinum Eagle proof coin (obverse, Statue of Liberty)"
+  },
+  "photo-coin-capped-bust-half-1835": {
+    "license": "Public domain",
+    "artist": "",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMonnaie%20-%20Etats-Unis%2C%201-2%20dollar%2C%201835%20-%20btv1b11336545h%20(1%20of%202).jpg",
+    "note": "cut from assets/bg-web/coins2-capped-bust-half-dollar-3.jpg by scripts/cut_vehicle_photos.py. an 1835 Capped Bust half dollar (obverse)"
+  },
+  "photo-coin-capped-bust-half-1835-reverse": {
+    "license": "Public domain",
+    "artist": "",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMonnaie%20-%20Etats-Unis%2C%201-2%20dollar%2C%201835%20-%20btv1b11336545h%20(2%20of%202).jpg",
+    "note": "cut from assets/bg-web/coins2-capped-bust-half-dollar-1.jpg by scripts/cut_vehicle_photos.py. an 1835 Capped Bust half dollar (reverse)"
+  },
+  "photo-coin-capped-bust-half-1822": {
+    "license": "Public domain",
+    "artist": "",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMonnaie%20-%20Etats-Unis%2C%201-2%20dollar%2C%201822%20-%20btv1b113365425%20(1%20of%202).jpg",
+    "note": "cut from assets/bg-web/coins2-capped-bust-half-dollar-2.jpg by scripts/cut_vehicle_photos.py. an 1822 Capped Bust half dollar (obverse)"
+  },
+  "photo-coin-capped-bust-half-1836-reverse": {
+    "license": "Public domain",
+    "artist": "",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMonnaie%20-%20Etats-Unis%2C%201-2%20dollar%2C%201836%20-%20btv1b11336546z%20(2%20of%202).jpg",
+    "note": "cut from assets/bg-web/coins2-capped-bust-half-dollar-4.jpg by scripts/cut_vehicle_photos.py. an 1836 Capped Bust half dollar (reverse)"
+  },
+  "photo-coin-iowa-half-1946": {
+    "license": "Public domain",
+    "artist": "United States Mint/Henry Augustus Lukeman",
+    "page": "https://commons.wikimedia.org/wiki/File%3AIowa%20centennial%20half%20dollar%20commemorative%20obverse.jpg",
+    "note": "cut from assets/bg-web/coins2-commemorative-half-dollar-2.jpg by scripts/cut_vehicle_photos.py. a 1946 Iowa Statehood Centennial commemorative silver half dollar (obverse, Old Stone Capitol)"
+  },
+  "photo-coin-iowa-half-1946-reverse": {
+    "license": "Public domain",
+    "artist": "United States Mint/Henry Augustus Lukeman",
+    "page": "https://commons.wikimedia.org/wiki/File%3AIowa%20centennial%20half%20dollar%20commemorative%20reverse.jpg",
+    "note": "cut from assets/bg-web/coins2-commemorative-half-dollar-3.jpg by scripts/cut_vehicle_photos.py. a 1946 Iowa Statehood Centennial commemorative silver half dollar (reverse, eagle)"
+  },
+  "photo-coin-bridgeport-half-1936": {
+    "license": "Public domain",
+    "artist": "United States Mint/Henry Kreis",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABridgeport%20centennial%20half%20dollar%20commemorative%20obverse.jpg",
+    "note": "cut from assets/bg-web/coins2-commemorative-half-dollar-4.jpg by scripts/cut_vehicle_photos.py. a 1936 Bridgeport Centennial commemorative silver half dollar (obverse, P. T. Barnum)"
+  },
+  "photo-coin-draped-bust-dollar-1795": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1795-%241-Draped%20bust%20(small%20eagle).jpg",
+    "note": "cut from assets/bg-web/coins2-draped-bust-dollar-2.jpg by scripts/cut_vehicle_photos.py. a 1795 Draped Bust silver dollar (small eagle), obverse and reverse"
+  },
+  "photo-coin-draped-bust-dollar-1798": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1798-%241-Draped%20bust%20(heraldic%20eagle).jpg",
+    "note": "cut from assets/bg-web/coins2-draped-bust-dollar-3.jpg by scripts/cut_vehicle_photos.py. a 1798 Draped Bust silver dollar (heraldic eagle), obverse and reverse"
+  },
+  "photo-coin-ike-dollar-1971": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Auge=mit",
+    "page": "https://commons.wikimedia.org/wiki/File%3AEisenhower%20Dollar%20noBG.jpg",
+    "note": "cut from assets/bg-web/coins2-eisenhower-dollar-1.jpg by scripts/cut_vehicle_photos.py. a 1971 Eisenhower dollar, obverse and reverse"
+  },
+  "photo-coin-ike-dollar-bicentennial": {
+    "license": "CC BY-SA 4.0",
+    "artist": "weitere Informationen: https://commons.wikimedia.org/wiki/File:Eisenhower_dollar.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File%3AEisenhower%20Dollar%20Type%20II%20noBG%2001.jpg",
+    "note": "cut from assets/bg-web/coins2-eisenhower-dollar-2.jpg by scripts/cut_vehicle_photos.py. a 1776-1976 Bicentennial Eisenhower dollar (Liberty Bell and Moon reverse), obverse and reverse"
+  },
+  "photo-coin-flying-eagle-cent-1858": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1858-1C-Flying%20Eagle%20Cent.jpg",
+    "note": "cut from assets/bg-web/coins2-flying-eagle-cent-1.jpg by scripts/cut_vehicle_photos.py. an 1858 Flying Eagle cent, obverse and reverse"
+  },
+  "photo-coin-flying-eagle-cent-1856-reverse": {
+    "license": "Public domain",
+    "artist": "",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMonnaie%20-%20Etats-Unis%2C%201%20cent%2C%201856%20-%20btv1b113366341%20(2%20of%202).jpg",
+    "note": "cut from assets/bg-web/coins2-flying-eagle-cent-3.jpg by scripts/cut_vehicle_photos.py. an 1856 Flying Eagle cent (reverse, ONE CENT wreath)"
+  },
+  "photo-coin-gold-dollar-1857": {
+    "license": "Public domain",
+    "artist": "Coin: James B. Longacre. Image by Lost Dutchman Rare Coins",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1857%20gold%20dollar%20reverse.jpg",
+    "note": "cut from assets/bg-web/coins2-gold-dollar-coin-4.jpg by scripts/cut_vehicle_photos.py. an 1857 gold dollar (reverse)"
+  },
+  "photo-coin-indian-quarter-eagle-1908": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1908-G%242%C2%BD-Indian%20Head.jpg",
+    "note": "cut from assets/bg-web/coins2-indian-head-eagle-1.jpg by scripts/cut_vehicle_photos.py. a 1908 Indian Head quarter eagle ($2.50 gold), obverse and reverse"
+  },
+  "photo-coin-indian-eagle-1907": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1907-G%2410-Indian%20Head%20(no%20motto).jpg",
+    "note": "cut from assets/bg-web/coins2-indian-head-eagle-2.jpg by scripts/cut_vehicle_photos.py. a 1907 Indian Head eagle ($10 gold, no motto), obverse and reverse"
+  },
+  "photo-coin-indian-eagle-1908": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1908-G%2410-Indian%20Head%20(motto).jpg",
+    "note": "cut from assets/bg-web/coins2-indian-head-eagle-3.jpg by scripts/cut_vehicle_photos.py. a 1908 Indian Head eagle ($10 gold, with motto), obverse and reverse"
+  },
+  "photo-coin-indian-half-eagle-1908": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1908-G%245-Indian%20Head.jpg",
+    "note": "cut from assets/bg-web/coins2-indian-head-half-eagle-2.jpg by scripts/cut_vehicle_photos.py. a 1908 Indian Head half eagle ($5 gold), obverse and reverse"
+  },
+  "photo-coin-kennedy-half-2014": {
+    "license": "Public domain",
+    "artist": "Professional Coin Grading Service",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2014-P%2050th%20anniversary%20Kennedy%20half%20dollar%20high%20relief%20obverse.jpg",
+    "note": "cut from assets/bg-web/coins2-kennedy-half-dollar-2.jpg by scripts/cut_vehicle_photos.py. a 2014-P 50th anniversary high-relief Kennedy half dollar (obverse)"
+  },
+  "photo-coin-kennedy-half-2014-reverse": {
+    "license": "Public domain",
+    "artist": "Professional Coin Grading Service",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2014-P%2050th%20anniversary%20Kennedy%20half%20dollar%20high%20relief%20reverse.jpg",
+    "note": "cut from assets/bg-web/coins2-kennedy-half-dollar-1.jpg by scripts/cut_vehicle_photos.py. a 2014-P 50th anniversary high-relief Kennedy half dollar (reverse, presidential seal)"
+  },
+  "photo-coin-liberty-eagle-1865": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1865-G%2410-Liberty%20Head%20(new%20style).jpg",
+    "note": "cut from assets/bg-web/coins2-liberty-head-eagle-1.jpg by scripts/cut_vehicle_photos.py. an 1865 Liberty Head eagle ($10 gold, proof), obverse and reverse"
+  },
+  "photo-coin-liberty-eagle-1839": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1839-G%2410-Liberty%20Head%20(old%20style).jpg",
+    "note": "cut from assets/bg-web/coins2-liberty-head-eagle-2.jpg by scripts/cut_vehicle_photos.py. an 1839 Liberty Head eagle ($10 gold, old-style head), obverse and reverse"
+  },
+  "photo-coin-liberty-half-eagle-1866": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1866-G%245-Liberty%20Head%20(motto).jpg",
+    "note": "cut from assets/bg-web/coins2-liberty-head-eagle-4.jpg by scripts/cut_vehicle_photos.py. an 1866 Liberty Head half eagle ($5 gold, with motto, proof), obverse and reverse"
+  },
+  "photo-coin-liberty-nickel-1913": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1913-5C-Liberty%20Nickel%20(cents).jpg",
+    "note": "cut from assets/bg-web/coins2-liberty-nickel-1.jpg by scripts/cut_vehicle_photos.py. a 1913 Liberty Head nickel (proof), obverse and reverse"
+  },
+  "photo-coin-liberty-nickel-1883": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1883-5C-Liberty%20Nickel%20(no%20cents).jpg",
+    "note": "cut from assets/bg-web/coins2-liberty-nickel-2.jpg by scripts/cut_vehicle_photos.py. an 1883 No Cents Liberty Head nickel (proof), obverse and reverse"
+  },
+  "photo-coin-proof-set-1995-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Karl Thomas Moore",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1995%20U.S.%20Mint%20silver%20proof%20set.jpg",
+    "note": "cut from assets/bg-web/coins2-proof-set-coins-1.jpg by scripts/cut_vehicle_photos.py. a 1995 US Mint silver proof set in its presentation case"
+  },
+  "photo-coin-quarter-eagle-1796": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1796-G%242%C2%BD-Turban%20Head%20(no%20stars).jpg",
+    "note": "cut from assets/bg-web/coins2-quarter-eagle-gold-coin-1.jpg by scripts/cut_vehicle_photos.py. a 1796 No Stars quarter eagle ($2.50 gold), obverse and reverse"
+  },
+  "photo-coin-quarter-eagle-1848-cal": {
+    "license": "Public domain",
+    "artist": "Professional Coin Grading Service",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1848%20%22CAL%22%20Liberty%20Head%20quarter%20eagle%20(reverse).jpg",
+    "note": "cut from assets/bg-web/coins2-quarter-eagle-gold-coin-2.jpg by scripts/cut_vehicle_photos.py. an 1848 CAL. Liberty Head quarter eagle ($2.50 gold, reverse)"
+  },
+  "photo-coin-seated-dollar-1859": {
+    "license": "Public domain",
+    "artist": "US Mint (coin); Heritage Auctions (image)",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1859-O%20%241.jpg",
+    "note": "cut from assets/bg-web/coins2-seated-liberty-dollar-1.jpg by scripts/cut_vehicle_photos.py. an 1859-O Seated Liberty silver dollar, obverse and reverse"
+  },
+  "photo-coin-seated-dollar-1873-proof": {
+    "license": "Public domain",
+    "artist": "Designed by Christian Gobrecht for the US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1873-1%24-Seated%20Liberty%20(motto).jpg",
+    "note": "cut from assets/bg-web/coins2-seated-liberty-dollar-4.jpg by scripts/cut_vehicle_photos.py. an 1873 Seated Liberty silver dollar (proof, with motto), obverse and reverse"
+  },
+  "photo-coin-standing-liberty-quarter-1917": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Anemonemma, Generalissima, 3df",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1917%20Standing%20Liberty%20Quarter%20(Obverse).jpg",
+    "note": "cut from assets/bg-web/coins2-standing-liberty-quarter-1.jpg by scripts/cut_vehicle_photos.py. a 1917 Standing Liberty quarter (Type 1, obverse)"
+  },
+  "photo-coin-standing-liberty-quarter-reverse": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Anemonemma, Generalissima, 3df",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1917%20Standing%20Liberty%20Quarter%20(Reverse).jpg",
+    "note": "cut from assets/bg-web/coins2-standing-liberty-quarter-2.jpg by scripts/cut_vehicle_photos.py. a 1917 Standing Liberty quarter (reverse, flying eagle)"
+  },
+  "photo-coin-standing-liberty-gold-2016": {
+    "license": "Public domain",
+    "artist": "Professional Coin Grading Service",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2016-W%20Standing%20Liberty%20quarter%20gold.jpg",
+    "note": "cut from assets/bg-web/coins2-standing-liberty-quarter-3.jpg by scripts/cut_vehicle_photos.py. a 2016-W gold Standing Liberty quarter (centennial), obverse and reverse"
+  },
+  "photo-coin-three-dollar-gold-1874": {
+    "license": "Public domain",
+    "artist": "United States Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1874%20Three-dollar%20piece%20obverse.jpg",
+    "note": "cut from assets/bg-web/coins2-three-dollar-gold-piece-1.jpg by scripts/cut_vehicle_photos.py. an 1874 three-dollar gold piece (obverse, Indian princess)"
+  },
+  "photo-coin-three-dollar-gold-1874-reverse": {
+    "license": "Public domain",
+    "artist": "United States Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1874%20Three-dollar%20piece%20reverse.jpg",
+    "note": "cut from assets/bg-web/coins2-three-dollar-gold-piece-2.jpg by scripts/cut_vehicle_photos.py. an 1874 three-dollar gold piece (reverse)"
+  },
+  "photo-coin-three-dollar-gold-1878": {
+    "license": "Public domain",
+    "artist": "Lost Dutchman Rare Coins for image, James B. Longacre for coin",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1878%20three-dollar%20piece%20obverse.jpg",
+    "note": "cut from assets/bg-web/coins2-three-dollar-gold-piece-4.jpg by scripts/cut_vehicle_photos.py. an 1878 three-dollar gold piece (obverse)"
+  },
+  "photo-coin-trade-dollar-1878": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Windrain",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1%20dollar%20trade%20US%20-%201878%20(S).png",
+    "note": "cut from assets/bg-web/coins2-trade-dollar-1.jpg by scripts/cut_vehicle_photos.py. an 1878-S Trade dollar, obverse and reverse"
+  },
+  "photo-coin-trade-dollar-1875-cc": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Windrain",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1%20dollar%20trade%20USA%20-%201875%20CC.png",
+    "note": "cut from assets/bg-web/coins2-trade-dollar-2.jpg by scripts/cut_vehicle_photos.py. an 1875-CC Trade dollar, reverse and obverse"
+  },
+  "photo-coin-trade-dollar-1884-proof": {
+    "license": "Public domain",
+    "artist": "United States Mint (coin),NNC (image)",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1884%20T%241%20Trade%20Dollar%20(Judd-1732).jpg",
+    "note": "cut from assets/bg-web/coins2-trade-dollar-4.jpg by scripts/cut_vehicle_photos.py. an 1884 Trade dollar (proof), obverse and reverse"
+  },
+  "photo-gold-buffalo-proof": {
+    "license": "Public domain",
+    "artist": "US government",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2006%20American%20Buffalo%20Proof%20Obverse.jpg",
+    "note": "cut from assets/bg-web/coins2-american-gold-buffalo-1.jpg by scripts/cut_vehicle_photos.py. a 2006 American Gold Buffalo 1 oz proof coin (obverse, Indian head)"
+  },
+  "photo-gold-buffalo-proof-reverse": {
+    "license": "Public domain",
+    "artist": "US government",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2006%20American%20Buffalo%20Proof%20Reverse.jpg",
+    "note": "cut from assets/bg-web/coins2-american-gold-buffalo-2.jpg by scripts/cut_vehicle_photos.py. a 2006 American Gold Buffalo 1 oz proof coin (reverse, bison)"
+  },
+  "photo-gold-buffalo-2013": {
+    "license": "Public domain",
+    "artist": "United States Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABuffalo%20%2450%20Obverse.png",
+    "note": "cut from assets/bg-web/coins2-american-gold-buffalo-4.jpg by scripts/cut_vehicle_photos.py. a 2013 American Gold Buffalo 1 oz coin (obverse)"
+  },
+  "photo-gold-sovereign-1918": {
+    "license": "CC0",
+    "artist": "Snd3054",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASovereign%20(minted%20in%20India).jpg",
+    "note": "cut from assets/bg-web/coins2-sovereign-gold-coin-1.jpg by scripts/cut_vehicle_photos.py. a 1918 gold sovereign (George V, Bombay mint), reverse and obverse"
+  },
+  "photo-gold-sovereigns-six": {
+    "license": "CC0",
+    "artist": "Snd3054",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABranch%20Mint%20Sovereigns.jpg",
+    "note": "cut from assets/bg-web/coins2-sovereign-gold-coin-2.jpg by scripts/cut_vehicle_photos.py. six gold sovereigns (1899-1927, branch mints), St George reverses"
+  },
+  "photo-gold-sovereign-1963": {
+    "license": "Public domain",
+    "artist": "Royal Mint &amp; Mary Gillick",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1963%20Gold%20Sovereign%20%E2%80%93%20Elizabeth%20II%20Obverse.png",
+    "note": "cut from assets/bg-web/coins2-sovereign-gold-coin-4.jpg by scripts/cut_vehicle_photos.py. a 1963 gold sovereign (obverse, Elizabeth II)"
+  },
+  "photo-gold-cuba-5-pesos-1915": {
+    "license": "Public domain",
+    "artist": "National Museum of American History\n",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACuba%201915%205%20Pesos.jpg",
+    "note": "cut from assets/bg-web/gold2-gold-cuban-link-1.jpg by scripts/cut_vehicle_photos.py. a 1915 Cuban gold 5 pesos (Jose Marti), obverse and reverse"
+  },
+  "photo-gold-ring-diamonds-garnets": {
+    "license": "CC BY-SA 4.0",
+    "artist": "W.carter",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGold%20ring%20with%20diamonds%20and%20garnets%201.jpg",
+    "note": "cut from assets/bg-web/gold2-diamond-ring-gold-3.jpg by scripts/cut_vehicle_photos.py. a yellow gold band ring set with diamonds and garnets"
+  },
+  "photo-gold-bangle-beaded": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Bhaskaranaidu",
+    "page": "https://commons.wikimedia.org/wiki/File%3AA%20big%20bangle%20one.JPG",
+    "note": "cut from assets/bg-web/gold2-gold-bangle-4.jpg by scripts/cut_vehicle_photos.py. a heavy yellow gold bangle with beaded, granulated work"
+  },
+  "photo-gold-bar-cast": {
+    "license": "Public domain",
+    "artist": "Szaaman",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGold%20bullion%201.jpg",
+    "note": "cut from assets/bg-web/gold2-gold-bar-1-kg-1.jpg by scripts/cut_vehicle_photos.py. a large cast gold bullion bar stamped P 70272"
+  },
+  "photo-gold-brooch-art-nouveau": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Uknown, possibly Rene Boivin.",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGold%20Pendant%20brooch%2C%20Art%20Nouvea%20ustyle%2C%20c.1902.jpg",
+    "note": "cut from assets/bg-web/gold2-gold-brooch-3.jpg by scripts/cut_vehicle_photos.py. an Art Nouveau gold brooch-pendant with a carved woman's profile, diamonds and a pearl drop (c. 1902)"
+  },
+  "photo-gold-watch-longines-boxed": {
+    "license": "CC BY-SA 2.0",
+    "artist": "Joe Haupt from USA",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVintage%20Longines%20%22Grand%20Prize%22%20Automatic%20Man's%20Wristwatch%2C%2010%20kt.%20Gold%20Case%2C%20Dates%20to%201960s%20(8451238649).jpg",
+    "note": "cut from assets/bg-web/gold2-gold-wristwatch-3.jpg by scripts/cut_vehicle_photos.py. a vintage 1960s Longines Grand Prize automatic wristwatch with a 10k gold case, in its red presentation box"
+  },
+  "photo-silver-panda-coins-pair": {
+    "license": "CC BY 2.0",
+    "artist": "Chi Ho Chan from Hong Kong",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChinese%20panda%20silver%20coins%20(52282119440).jpg",
+    "note": "cut from assets/bg-web/coins2-chinese-panda-coin-2.jpg by scripts/cut_vehicle_photos.py. two Chinese Silver Panda 30 g coins (2017 and 2018) in capsules"
   }
 }
