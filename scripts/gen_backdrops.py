@@ -507,14 +507,15 @@ AD = OrderedDict([('iphone-ad', 'iphone'), ('ipad-ad', 'ipad'), ('macbook-ad', '
 # liquid glass is out: its small floating panes read as clutter, not as Apple
 AD_STYLES = ['studio-sweep', 'podium', 'podium-tiered', 'podium-neon', 'ios-mesh', 'macos-waves', 'aurora', 'showroom',
              'concrete', 'sky']
-AD_LAYOUTS = ['hero', 'pair', 'trio', 'lineup']
+AD_LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'staircase', 'offset']
 # 2026-10-04 (owner: "more variety?"): phones and iPads also float, tilted, and
 # lie flat in a grid of their colours, as Apple shows a colour range
 # a MacBook is a lid and a screen from the front: three in a row are toys, and
 # its colour barely shows, so one large, or two (sizes or colours) as Apple shows them
-AD_LAYOUTS_BY = {'iphone-ad': ['hero', 'pair', 'trio', 'lineup', 'floating-row', 'grid-flatlay'],
-                 'ipad-ad': ['hero', 'pair', 'trio', 'lineup', 'floating-row'],
-                 'macbook-ad': ['hero', 'pair']}
+AD_LAYOUTS_BY = {'iphone-ad': ['hero', 'pair', 'trio', 'lineup', 'floating-row', 'grid-flatlay',
+                               'staircase', 'zigzag', 'offset', 'hero-plus'],
+                 'ipad-ad': ['hero', 'pair', 'trio', 'lineup', 'floating-row', 'staircase', 'offset', 'hero-plus'],
+                 'macbook-ad': ['hero', 'pair', 'offset', 'stagger']}
 AD_TILT = 15
 AD_LINEUP = {'iphone-ad': 5, 'ipad-ad': 4, 'macbook-ad': 3, 'mac-ad': 4}
 AD_COUNTS = OrderedDict([('iphone-ad', 96), ('ipad-ad', 60), ('macbook-ad', 40), ('mac-ad', 40)])
@@ -527,7 +528,9 @@ APPLE_NEUTRAL = dict(dark='#0b0b0d', mid='#86868b', light='#f5f5f7', accent='#29
 def ad_need(cat, layout):
     if layout == 'floating-row': return 3 if cat == 'iphone-ad' else 2
     if layout == 'grid-flatlay': return 4
-    return {'hero': 1, 'pair': 2, 'trio': 3}.get(layout) or AD_LINEUP[cat]
+    if layout == 'staircase': return 4 if cat == 'iphone-ad' else 3
+    if layout == 'zigzag': return 4
+    return {'hero': 1, 'offset': 1, 'pair': 2, 'stagger': 2, 'trio': 3, 'hero-plus': 3}.get(layout) or AD_LINEUP[cat]
 
 def ad_groups(cat):
     """one model per group, its colours as the members (qs-...--blue), upright;
@@ -1634,17 +1637,23 @@ PODIUMS = {'podium', 'podium-tiered', 'podium-neon'}
 # depth-of-field, side columns and edge-bleeds are gone.
 LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'spread-fan', 'pyramid', 'floating-row',
            'flatlay-scatter', 'grid-flatlay', 'orbit-arc']
+# owner, 2026-10-04: "I do like these sizes but I need some variety ... not all too
+# consistent ... Different arrangements maybe?": two on a diagonal, one large with two
+# small at its feet, a row that zigzags, a staircase (stepped pedestals on a podium)
+# and one large product set off to one side
+MORE_LAYOUTS = ['stagger', 'hero-plus', 'zigzag', 'staircase', 'offset']
+LAYOUTS += MORE_LAYOUTS
 CAR_LAYOUTS = ['hero']   # a car beside another car or a key ring shrinks to a toy at 1080
 # owner, 2026-10-04, on a Mac Studio between two iMacs in a scatter: "Maybe the Mac
 # studio could be centered?", and of a pyramid, a fan and a pair: "my favorite row of
 # three". Macs stand: on one floor line, the odd one (a Mac Studio) in the middle.
-MAC_LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'pyramid', 'spread-fan']
+MAC_LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'pyramid', 'spread-fan', 'hero-plus', 'staircase', 'offset']
 # The device wall, back from the lab's tile ground (scripts/retheme_lab.mjs, the
 # owner's 2026-09-03 favourite; owner, 2026-10-04: "what happened to our tile image
 # generator"): the video maker's phones in an even grid, one scale, one angle, every
 # screen a different wallpaper, drawn solid (DESIGN-LAW rule 94: no ghost walls)
 LAYOUTS_BY = {'cars': CAR_LAYOUTS, 'cars-pair': ['stagger'], 'mac': MAC_LAYOUTS, 'iphone': LAYOUTS + ['device-wall']}
-STAND_LAYOUTS = {'hero', 'pair', 'trio', 'lineup', 'pyramid'}
+STAND_LAYOUTS = {'hero', 'pair', 'trio', 'lineup', 'pyramid', 'hero-plus', 'staircase', 'offset'}
 FLAT_LAYOUTS = {'flatlay-scatter', 'grid-flatlay', 'device-wall'}
 
 def compatible(style, layout):
@@ -1697,6 +1706,28 @@ def lay(layout, items, A, rng, hy):
     if layout == 'hero':
         it = items[0]
         out.append(P(it, min(aw, ah) * 0.82, cx, base, 'stand', clamp_rot(it, r.uniform(-6, 6))))
+    elif layout == 'offset':                        # one, large; compose() sets it to one side
+        it = items[0]
+        out.append(P(it, min(aw, ah) * 0.82, cx, base, 'stand', 0.0))
+    elif layout == 'hero-plus':                     # one large, two small at its feet either side
+        out.append(P(items[0], fitslot(0, aw * 0.52, ah * 0.92), cx, base, 'stand', 0.0, z=0))
+        for k, it in enumerate(items[1:3], 1):
+            out.append(P(it, fitslot(k, aw * 0.26, ah * 0.46) * acc(it), cx + (-1 if k == 1 else 1) * aw * 0.37, base,
+                         'stand', 0.0, z=2))
+    elif layout == 'zigzag':                        # a row, every other one raised
+        slot = aw / n; mid = (n - 1) / 2
+        hh = min(min(slot * 0.8 / a_ for a_ in ars), ah * 0.62)
+        for k, it in enumerate(items):
+            S = hh * math.sqrt(ars[k]) if phones else fitslot(k, slot * 0.9, ah * 0.6)
+            out.append(P(it, S, cx + slot * (k - mid), (y0 + y1) / 2 + (ah * 0.13 if k % 2 else -ah * 0.13), 'float',
+                         0.0, z=k, lift=60))
+    elif layout == 'staircase':                     # rising one step a product, either way
+        slot = aw / n; mid = (n - 1) / 2; d = 1 if r.random() < 0.5 else -1
+        hh = min(min(slot * 0.8 / a_ for a_ in ars), ah * 0.66)
+        for k, it in enumerate(items):
+            S = (hh * math.sqrt(ars[k]) if phones else fitslot(k, slot * 0.9, ah * 0.62)) * acc(it)
+            step = (k if d > 0 else n - 1 - k) * ah * 0.13
+            out.append(P(it, S, cx + slot * (k - mid), base - step, 'stand', 0.0, z=n - k))
     elif layout == 'stagger':
         # two vehicles on a diagonal, the front view up and left, the rear down
         # and right: side by side two cars shrink to toys at 1080
@@ -1819,12 +1850,13 @@ def separate(pls, A, rng, fill, valign):
 
 LAYOUT_N = {'hero': (1, 1), 'pair': (2, 2), 'trio': (3, 3), 'lineup': (4, 5), 'spread-fan': (3, 5),
             'pyramid': (3, 3), 'floating-row': (2, 4), 'flatlay-scatter': (4, 5), 'grid-flatlay': (4, 6),
-            'orbit-arc': (3, 5), 'device-wall': (6, 8)}
+            'orbit-arc': (3, 5), 'device-wall': (6, 8), 'stagger': (2, 2), 'hero-plus': (3, 3), 'zigzag': (4, 5),
+            'staircase': (3, 4), 'offset': (1, 1)}
 
 # Owner, 2026-10-01, on gold and silver: "enlarge at least 30 to 40%". Small
 # objects in rows of five read as crumbs: outside iPhone, fewer and bigger.
 LAYOUT_N_SMALL = {'lineup': (3, 3), 'spread-fan': (3, 3), 'floating-row': (2, 3), 'flatlay-scatter': (3, 3),
-                  'grid-flatlay': (4, 4), 'orbit-arc': (3, 3)}
+                  'grid-flatlay': (4, 4), 'orbit-arc': (3, 3), 'zigzag': (3, 4), 'staircase': (3, 3)}
 
 def pick_items(cat, layout, rng, idx=None, spec=None):
     if cat == 'cars-pair':
@@ -1843,11 +1875,11 @@ def pick_items(cat, layout, rng, idx=None, spec=None):
     def ok(it):
         return not it['cut'] or (bleed_ok and it['cut'] in ('B', 'L', 'R'))
     if cat == 'iphone':
-        if layout == 'hero':
+        if layout in ('hero', 'offset'):
             kind = rng.choice(['photo', 'pair', 'pair', 'view', 'view'])
-        elif layout in ('pair', 'trio'):
+        elif layout in ('pair', 'trio', 'stagger', 'hero-plus', 'staircase'):
             kind = rng.choice(['photo', 'pair', 'back', 'view', 'view'])
-        elif layout in ('lineup', 'floating-row', 'spread-fan'):
+        elif layout in ('lineup', 'floating-row', 'spread-fan', 'zigzag'):
             kind = rng.choice(['back', 'back', 'pair', 'view', 'view'])
         else:
             kind = 'back'
@@ -1859,7 +1891,7 @@ def pick_items(cat, layout, rng, idx=None, spec=None):
                 side = 'screen' if rng.random() < 0.7 else 'back'; deg = int(rng.choice([0, 0, -15, 15]))
             cands = [it for it in pool if it['kind'] == 'view' and VIEW[it['name']]['side'] == side
                      and VIEW[it['name']]['deg'] == deg]
-            if layout in ('pair', 'trio') and rng.random() < 0.5:
+            if layout in ('pair', 'trio', 'stagger', 'hero-plus') and rng.random() < 0.5:
                 byp = {VIEW[it['name']]['phone']: it for it in cands}
                 return [byp[p] for p in HERO_TRIO[:n]]
             seen, pick = set(), []                  # a phone once, its other wallpaper only if short
@@ -2028,14 +2060,25 @@ def compose(spec):
     zone = 'top'
     A = ([0.08 * W, 0.40 * H, 0.92 * W, 0.965 * H] if cat == 'iphone' else
          [0.06 * W, 0.37 * H, 0.94 * W, 0.965 * H] if cat in AD else [0.03 * W, 0.36 * H, 0.97 * W, 0.975 * H])
+    size = spec.get('size', 'standard')
+    if size == 'large':                             # a wider stage, reaching higher
+        A = [max(0.012 * W, A[0] - 0.025 * W), A[1] - 0.06 * H, min(0.988 * W, A[2] + 0.025 * W), A[3]]
+    elif size == 'xl':                              # nearly the whole frame under a slim headline
+        A = [0.015 * W, A[1] - 0.12 * H, 0.985 * W, max(A[3], 0.975 * H)]
+    lift = {'standard': 0.0, 'large': 0.02, 'xl': 0.04}[size]
     pls = lay(layout, items, A, rng, hy)
     A2 = list(A)
     if layout in STAND_LAYOUTS:
-        A2[3] = 0.90 * H
+        A2[3] = (0.90 + lift) * H
     if style in PODIUMS:
-        A2[3] = 0.80 * H
+        A2[3] = (0.80 + lift) * H
+    if layout == 'offset':                          # to one side of the stage
+        w2 = (A2[2] - A2[0]) * 0.64
+        if rng.random() < 0.5: A2[2] = A2[0] + w2
+        else: A2[0] = A2[2] - w2
     valign = 'bottom' if layout in STAND_LAYOUTS else 'center'
     fill = {'flatlay-scatter': 0.92, 'grid-flatlay': 0.94}.get(layout, 0.94) if cat == 'iphone' else 0.99
+    if size == 'xl': fill = 1.0
     fit(pls, A2, rng, fill, valign)
     separate(pls, A2, rng, fill, valign)
     snap_cut(pls, zone)
@@ -2162,7 +2205,7 @@ def compose(spec):
     th.save(os.path.join(OUT, f'thumb/{cat}-{idx + 1:03d}.jpg'), quality=78, optimize=True)
     return dict(file=rel, thumb=f'thumb/{cat}-{idx + 1:03d}.jpg', cat=cat, style=style, palette=pal.name,
                 sw=[pdef['dark' if pal.dark else 'light'], pdef['accent']],
-                ground=spec['variant'], layout=layout, text_zone=zone, finish=fin,
+                ground=spec['variant'], layout=layout, size=spec.get('size', 'standard'), text_zone=zone, finish=fin,
                 devices=[p['it']['name'] for p in pls],
                 prod_size=round(float(np.mean([math.sqrt(p['spr'][..., 3].sum()) for p in pls])) / W, 4),
                 text_zone_overlap=round(text_intrusion(pls, zone), 4),
@@ -2213,6 +2256,14 @@ def plan_category(cat, n):
         if not failed:
             if cat in AD:
                 ad_assign(cat, specs)
+            # owner, 2026-10-04: "maybe have larger or more visible images? ... I do like
+            # these sizes but I need some variety": about half as they are, a third
+            # larger, a fifth extra large; drawn apart from the plan above, so the
+            # rest of each image stays as it was
+            sr = np.random.default_rng([SEED, zlib.crc32(cat.encode()), 1717])
+            sizes = ['standard'] * round(n * 0.45) + ['large'] * round(n * 0.35)
+            sizes += ['xl'] * (n - len(sizes)); sr.shuffle(sizes)
+            for sp, z in zip(specs, sizes): sp['size'] = str(z)
             return specs
     raise RuntimeError('planning failed for ' + cat)
 
