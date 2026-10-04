@@ -1,23 +1,30 @@
 #!/usr/bin/env node
 /* THE LIBRARY API, CHECKED (netlify/lib/library.mjs, DESIGN-LAW rule 111).
 
+   0. The renders (assets/library-ads/, scripts/render_library_ads.mjs): every
+      card the site offers (scIsLive, read out of app.js so the two cannot
+      drift) has one, none is left for a card no longer offered, each file is
+      the one its index entry names (sha1), a 1080x1080 JPEG, and made from
+      the card's library thumbnail as it is now (thumb_sha1; a thumbnail drawn
+      again since makes it stale: run render_library_ads.mjs --stale).
    1. The router on its own, against this checkout's files: no keys is 503;
       no key, a wrong key or a key shorter than 32 is 401 with
       WWW-Authenticate; both headers work; two keys at once (a rotation) both
       work; over the day's count is 429; POST is 405; no CORS header. Every
-      route answers, the filters filter, pagination adds up, the categories
-      add up to the totals, the counts are the library's (placeholders out)
-      and the site's own live cards (scIsLive, read out of app.js, so the two
-      cannot drift), a held card is not there, every link is a file in this
-      checkout, and a credited picture carries its credit.
+      route answers; the ads are the site's offered cards, each with its
+      render, thumbnail and studio link, every link a file in this checkout;
+      categories add up; the filters filter; search puts what an ad is for
+      (its category) before a palette in its title; paging adds up; a held
+      card is not there.
    2. The real function (netlify/functions/api.mjs) with a stand-in
       @netlify/blobs, against a static server on this checkout: the library
       answers through it, and the routes after it still ask for a sign-in.
 
-   usage:  npx http-server -p 8899 -s .   (part 2 needs it; part 1 does not)
+   usage:  npx http-server -p 8899 -s .   (part 2 needs it; parts 0 and 1 do not)
            node scripts/library_api_check.mjs
    Exits non-zero on any failure. */
-import { readFileSync, existsSync, mkdirSync, writeFileSync, cpSync, rmSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync, writeFileSync, cpSync, rmSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -27,7 +34,44 @@ const BASE = process.env.GFX_BASE || 'http://localhost:8899';
 const { libraryRoute, libraryForget } = await import(pathToFileURL(join(ROOT, 'netlify/lib/library.mjs')).href);
 const bad = [];
 const ok = (cond, what) => { if (!cond) bad.push(what); return cond; };
+const sha1 = (b) => createHash('sha1').update(b).digest('hex');
+const json = (p) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
 
+/* ---------- 0. the renders ---------- */
+const appSrc = readFileSync(join(ROOT, 'app.js'), 'utf8');
+const liveSrc = (appSrc.match(/function scIsLive\(c\)\{[^\n]*\}/) || [])[0];
+ok(liveSrc, 'scIsLive is not where it was in app.js');
+const scIsLive = new Function(liveSrc + '; return scIsLive;')();
+const cards = json('assets/showcase/index.json'), offered = cards.filter(scIsLive);
+const renders = json('assets/library-ads/index.json').items;
+const jpegSize = (b) => {             // the frame header's size (SOF0..SOF15 bar 4, 8, 12)
+  for (let i = 2; i < b.length - 9;) {
+    if (b[i] !== 0xff) return null;
+    const m = b[i + 1], len = b.readUInt16BE(i + 2);
+    if (m >= 0xc0 && m <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(m)) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)];
+    i += 2 + len;
+  }
+  return null;
+};
+const missing = offered.filter((c) => !renders[c.id]).map((c) => c.id);
+ok(!missing.length, missing.length + ' offered cards have no render (run render_library_ads.mjs --stale): ' + missing.slice(0, 5).join(', '));
+const extra = Object.keys(renders).filter((id) => !offered.some((c) => c.id === id));
+ok(!extra.length, extra.length + ' renders for cards no longer offered: ' + extra.slice(0, 5).join(', '));
+const files = readdirSync(join(ROOT, 'assets/library-ads')).filter((f) => f.endsWith('.jpg'));
+ok(files.length === Object.keys(renders).length, files.length + ' render files for ' + Object.keys(renders).length + ' entries');
+const wrong = [], stale = [];
+for (const c of offered) {
+  const r = renders[c.id]; if (!r) continue;
+  const f = join(ROOT, 'assets/library-ads', c.id + '.jpg');
+  if (!existsSync(f)) { wrong.push(c.id + ' (no file)'); continue; }
+  const b = readFileSync(f), size = jpegSize(b);
+  if (sha1(b) !== r.sha1 || b[0] !== 0xff || b[1] !== 0xd8 || String(size) !== '1080,1080' || r.w !== 1080 || r.bytes !== b.length) wrong.push(c.id);
+  if (sha1(readFileSync(join(ROOT, c.thumb))) !== r.thumb_sha1) stale.push(c.id);
+}
+ok(!wrong.length, wrong.length + " renders are not what their index says (a 1080x1080 JPEG of that sha1): " + wrong.slice(0, 5).join(', '));
+ok(!stale.length, stale.length + ' renders are older than their card in the library (run render_library_ads.mjs --stale): ' + stale.slice(0, 5).join(', '));
+
+/* ---------- 1. the router ---------- */
 const KEY = 'bbl_' + 'k'.repeat(40), KEY2 = 'bbl_' + 'n'.repeat(40);
 const ORIGIN = 'https://studio.example';
 const fetchJson = async (u) => {
@@ -48,7 +92,6 @@ const call = async (path, { key = KEY, header = 'auth', method = 'GET', env = { 
   return { status: r.status, body: await r.json(), headers: r.headers };
 };
 
-/* ---------- 1. the router ---------- */
 libraryForget();
 ok((await libraryRoute(new Request(ORIGIN + '/api/me'), new URL(ORIGIN + '/api/me'), '/me', {}, { fetchJson })) === null, 'a path outside /library is not passed on');
 ok((await call('/library/v1', { env: {} })).status === 503, 'no LIBRARY_KEYS is not 503');
@@ -63,60 +106,41 @@ allow = false; ok((await call('/library/v1')).status === 429, "over the day's co
 ok((await call('/library/v1', { method: 'POST' })).status === 405, 'POST is not 405');
 r = await call('/library/v1');
 ok(r.status === 200 && !r.headers.get('Access-Control-Allow-Origin'), 'the index failed, or carries a CORS header');
-ok((await call('/library/v2')).status === 404, 'an unknown version is not 404');
+ok((await call('/library/v2')).status === 404 && (await call('/library/v1/assets')).status === 404, 'an unknown version or route is not 404');
 
-const lib = JSON.parse(readFileSync(join(ROOT, 'assets/library.json'), 'utf8')).assets;
-const cards = JSON.parse(readFileSync(join(ROOT, 'assets/showcase/index.json'), 'utf8'));
-const appSrc = readFileSync(join(ROOT, 'app.js'), 'utf8');
-const liveSrc = (appSrc.match(/function scIsLive\(c\)\{[^\n]*\}/) || [])[0];
-ok(liveSrc, 'scIsLive is not where it was in app.js');
-const scIsLive = new Function(liveSrc + '; return scIsLive;')();
-const wantAssets = lib.filter((a) => a.source !== 'placeholder').length, wantAds = cards.filter(scIsLive).length;
+const want = offered.filter((c) => renders[c.id]).length;
 const idx = r.body;
-ok(idx.counts.assets === wantAssets, `assets ${idx.counts.assets}, the library has ${wantAssets} that are not placeholders`);
-ok(idx.counts.ads === wantAds, `ads ${idx.counts.ads}, the site offers ${wantAds} (scIsLive)`);
-ok(idx.counts.cutouts + idx.counts.scenes + idx.counts.backgrounds === idx.counts.assets, 'the kinds do not add up to the assets');
+ok(idx.counts.ads === want && want === offered.length, `ads ${idx.counts.ads}, the site offers ${offered.length} (scIsLive), ${want} rendered`);
 ok(r.headers.get('X-Library-Version') === idx.version, 'the version header is not the index version');
+const cats = (await call('/library/v1/categories')).body.categories;
+ok(Object.values(cats).reduce((a, b) => a + b, 0) === want, 'the categories do not add up to the ads');
 
-const cats = (await call('/library/v1/categories')).body;
-const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
-ok(Object.values(cats.assets).reduce((a, o) => a + sum(o), 0) === wantAssets && sum(cats.ads) === wantAds, 'the categories do not add up to the totals');
-
-// every asset and ad, all pages
-const all = async (path) => { const out = []; for (let off = 0; off !== null;){ const b = (await call(path + (path.includes('?') ? '&' : '?') + 'limit=200&offset=' + off)).body; out.push(...b.items); off = b.next_offset; } return out; };
-const assets = await all('/library/v1/assets'), ads = await all('/library/v1/ads');
-ok(assets.length === wantAssets && ads.length === wantAds, `paging gave ${assets.length} assets and ${ads.length} ads`);
+const all = []; for (let off = 0; off !== null;) { const b = (await call('/library/v1/ads?limit=200&offset=' + off)).body; all.push(...b.items); off = b.next_offset; }
+ok(all.length === want, `paging gave ${all.length} ads`);
 const local = (u) => join(ROOT, new URL(u).pathname);
-const missing = assets.filter((a) => !existsSync(local(a.url))).map((a) => a.id).concat(ads.filter((a) => !existsSync(local(a.thumb.url))).map((a) => a.id));
-ok(!missing.length, missing.length + ' links to no file: ' + missing.slice(0, 5).join(', '));
-ok(assets.every((a) => a.url.startsWith(ORIGIN + '/assets/') && a.id && a.kind && a.format) && ads.every((a) => a.studio_url === ORIGIN + '/?card=' + a.id), 'an item is missing its link, kind, format or studio link');
-ok(!assets.some((a) => a.source === 'placeholder') && !assets.some((a) => '_s' in a), 'a placeholder or an internal field is out');
-const credited = assets.find((a) => a.id === 'poke-psa-charizard');
-ok(!credited || (credited.credit && credited.credit.license), 'a credited picture lost its credit');
+const nofile = all.filter((a) => !existsSync(local(a.image.url)) || !existsSync(local(a.thumb.url))).map((a) => a.id);
+ok(!nofile.length, nofile.length + ' ads link to no file: ' + nofile.slice(0, 5).join(', '));
+ok(all.every((a) => a.image.url === ORIGIN + '/assets/library-ads/' + a.id + '.jpg?v=' + renders[a.id].sha1.slice(0, 12) && a.image.width === 1080 && a.image.format === 'jpg'
+  && a.studio_url === ORIGIN + '/?card=' + a.id && a.title && a.category && !('_s' in a)), 'an ad is missing its image, size, studio link or title, or shows an internal field');
 
-// filters
-const iph = (await call('/library/v1/assets?kind=cutout&category=iphones&limit=500')).body;
-ok(iph.limit === 200 && iph.items.length > 0 && iph.items.every((a) => a.kind === 'cutout' && a.category === 'iphones' && a.transparent), 'kind and category do not filter, or the limit is not capped at 200');
-ok(iph.total === lib.filter((a) => a.kind === 'cutout' && a.category === 'iphones' && a.source !== 'placeholder').length, 'the iphones cut-out count is off');
-const q = (await call('/library/v1/assets?q=airpods%20case')).body;
-ok(q.total > 0 && q.items.every((a) => /airpods/.test(a.id + a.category + a.alt) && /case/.test(a.id + a.alt)), 'q does not narrow to every word');
-ok((await call('/library/v1/assets?kind=sticker')).status === 400, 'an unknown kind is not 400');
+const gold = (await call('/library/v1/ads?category=gold&limit=500')).body;
+ok(gold.limit === 200 && gold.total === offered.filter((c) => c.cat === 'gold').length && gold.items.every((a) => a.category === 'gold'), 'category does not filter, or the limit is not capped at 200');
+const q = (await call('/library/v1/ads?q=gold')).body;
+const goldN = offered.filter((c) => c.cat === 'gold').length;
+ok(q.total > goldN && q.total < want && q.items.slice(0, goldN).every((a) => a.category === 'gold'), 'q=gold does not narrow, or the gold ads are not first: ' + q.items.slice(0, 3).map((a) => a.category + ' ' + a.title).join(' | '));
 const ph = (await call('/library/v1/ads?category=phones&limit=3')).body;
-ok(ph.items.length === 3 && ph.items.every((a) => a.category === 'phones') && ph.next_offset === 3, 'ads by category or their paging is off');
-
-// one of each
-ok((await call('/library/v1/assets/' + assets[0].id)).body?.item?.id === assets[0].id, 'one asset by id');
-ok((await call('/library/v1/ads/' + ads[0].id)).body?.item?.id === ads[0].id, 'one ad by id');
-ok((await call('/library/v1/assets/no-such-thing')).status === 404, 'an unknown asset is not 404');
-ok((await call('/library/v1/assets/' + encodeURIComponent('../x'))).status === 400, 'a malformed id is not 400');
-const held = JSON.parse(readFileSync(join(ROOT, 'assets/showcase/holds.json'), 'utf8')).holds[0];
+ok(ph.items.length === 3 && ph.next_offset === 3, 'paging by category is off');
+ok((await call('/library/v1/ads/' + all[0].id)).body?.item?.id === all[0].id, 'one ad by id');
+ok((await call('/library/v1/ads/no-such-ad')).status === 404, 'an unknown ad is not 404');
+ok((await call('/library/v1/ads/' + encodeURIComponent('../x'))).status === 400, 'a malformed id is not 400');
+const held = json('assets/showcase/holds.json').holds[0];
 if (held) ok((await call('/library/v1/ads/' + held.id)).status === 404, 'a held card (' + held.id + ') is offered');
 
-const unit = { assets: wantAssets, ads: wantAds, cutouts: idx.counts.cutouts, scenes: idx.counts.scenes, backgrounds: idx.counts.backgrounds, version: idx.version, iphonesCutouts: iph.total };
+const unit = { ads: want, categories: cats, version: idx.version, renderMB: +(Object.values(renders).reduce((a, x) => a + x.bytes, 0) / 1048576).toFixed(1) };
 
 /* ---------- 2. through the real function ---------- */
 let through = 'skipped (no server at ' + BASE + ')';
-const up = await fetch(BASE + '/assets/library.json').then((x) => x.ok).catch(() => false);
+const up = await fetch(BASE + '/assets/library-ads/index.json').then((x) => x.ok).catch(() => false);
 if (up) {
   const T = join(tmpdir(), 'pgfx-library-check');
   rmSync(T, { recursive: true, force: true });
@@ -130,10 +154,11 @@ if (up) {
   const api = (await import(pathToFileURL(join(T, 'netlify/functions/api.mjs')).href)).default;
   const get = (path, key) => api(new Request(BASE + path, { headers: key ? { Authorization: 'Bearer ' + key } : {} }));
   const a = await get('/api/library/v1', KEY), aj = await a.json();
-  ok(a.status === 200 && aj.counts.assets === wantAssets && aj.counts.ads === wantAds, 'through api.mjs the index is ' + a.status + ' ' + JSON.stringify(aj.counts || aj));
-  ok(aj.routes && aj.routes.assets === BASE + '/api/library/v1/assets', 'through api.mjs the routes are not on the request origin');
-  const one = await (await get('/api/library/v1/assets?category=iphones&limit=1', KEY)).json();
-  ok(one.items && (await fetch(one.items[0].url)).ok, 'through api.mjs an asset link does not load from the site');
+  ok(a.status === 200 && aj.counts.ads === want, 'through api.mjs the index is ' + a.status + ' ' + JSON.stringify(aj.counts || aj));
+  ok(aj.routes && aj.routes.ads === BASE + '/api/library/v1/ads', 'through api.mjs the routes are not on the request origin');
+  const one = await (await get('/api/library/v1/ads?category=phones&limit=1', KEY)).json();
+  const img = one.items && await fetch(one.items[0].image.url);
+  ok(img && img.ok && (await img.arrayBuffer()).byteLength === one.items[0].image.bytes, 'through api.mjs an ad image does not load from the site at its size');
   ok((await get('/api/library/v1', null)).status === 401, 'through api.mjs no key is not 401');
   ok((await get('/api/library/v1', KEY)).status === 200 && (await get('/api/library/v1', KEY)).status === 429, 'through api.mjs LIBRARY_DAILY=3 does not stop the fourth request');
   ok((await get('/api/me', null)).status === 401, 'through api.mjs /me no longer asks for a sign-in');

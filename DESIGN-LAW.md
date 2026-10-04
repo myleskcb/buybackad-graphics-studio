@@ -3920,3 +3920,29 @@ iPhones LA repo to finish this library of imagery".
   and 311 ad designs, every link a file in the checkout
   (`scripts/library_api_check.mjs`, which also fails a held card offered,
   a wrong or short key, the day's cap and a CORS header).
+- **The library is the ads, at full size** (later the same day). The owner,
+  over the first picker, which opened on the product cut-outs: "Those are not
+  the ads those are assets and very old assets at that so it's going to be ads
+  that we approved and send to the library in the buyback ad app ... the ads
+  look way different than that." The API now offers the ads alone, the cards
+  the site offers, and the cut-outs, scenes and backgrounds are gone from it.
+  The studio draws an ad in the browser and a partner's server cannot, so
+  `scripts/render_library_ads.mjs` draws every offered card once at 1080
+  through `renderThumb()` (the picture the library's thumbnail is shrunk
+  from; JPEG 0.88) into `assets/library-ads/`, and the API hands out each ad
+  as that file (`?v=` its sha1), its thumbnail and its studio link. An ad
+  without a render is not offered. The index records each render's sha1 and
+  its thumbnail's: `library_api_check.mjs` fails on an offered card with no
+  render, a render left for a card no longer offered, a file that is not its
+  sha1 or not 1080x1080, and a render older than its thumbnail (run
+  `render_library_ads.mjs --stale` after `rethumb_showcase.mjs`).
+  Measured 2026-10-04: 311 renders, 55 MB, 102 to 396 KB; each one shrunk to
+  448 against its library thumbnail, 28.9 to 35 dB, median 31.7 (the
+  thumbnail is itself a WebP of a JPEG), none under 25.
+- **Search ranks what an ad is for.** A title is a palette and a layout
+  ("Black & Gold · Checklist Hero"), so a word of the category or subject
+  counts 3, of the title or layout 2: "gold" opens on the gold-buying ads, not
+  on phones ads in gold.
+- **One file to hand over.** `docs/iphonesla-library.zip`
+  (`scripts/pack_iphonesla_library.sh`) is the folder; the handoff check fails
+  while the two differ.

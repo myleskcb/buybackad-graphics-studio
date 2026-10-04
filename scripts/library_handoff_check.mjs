@@ -8,9 +8,11 @@
    2. docs/iphonesla-library/test_buybackad_library.py against it (Python
       3.9+, Pillow for the JPEG checks).
    3. docs/iphonesla-library/example_server.py on 127.0.0.1:8896, and its
-      demo listing page driven in Chromium: the picker loads, a search narrows,
-      a pick adds a JPEG File to the listing's photos (white behind a
-      cut-out), the Ad designs tab shows designs and opens the studio.
+      demo listing page driven in Chromium: the picker loads the library's
+      ads, a search narrows them, a pick adds the ad to the listing's photos
+      as a JPEG File, byte for byte the library's 1080 render.
+   5. docs/iphonesla-library.zip holds exactly this folder's files, byte for
+      byte (scripts/pack_iphonesla_library.sh makes it).
 
    4. With SNIPPETS_PYTHON (a Python that has flask, fastapi, httpx and
       pillow): the Flask and FastAPI code in README.md, taken out of the
@@ -20,8 +22,8 @@
    usage:  CHROME=/path/to/chrome [SHOT=listing.png] [SNIPPETS_PYTHON=venv/bin/python] node scripts/library_handoff_check.mjs
    Exits non-zero on any failure. */
 import { createServer } from 'node:http';
-import { readFileSync, existsSync, statSync } from 'node:fs';
-import { spawn } from 'node:child_process';
+import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join, extname } from 'node:path';
 import puppeteer from 'puppeteer-core';
@@ -72,12 +74,12 @@ const snippets = {};
 if (process.env.SNIPPETS_PYTHON) {
   const md = readFileSync(join(HANDOFF, 'README.md'), 'utf8');
   const block = (label) => (md.split('\n' + label + '\n\n```python\n')[1] || '').split('\n```')[0];
-  const first = (await (await fetch(SITE + '/api/library/v1/assets?kind=cutout&category=iphones&limit=1', { headers: { Authorization: 'Bearer ' + KEY } })).json()).items[0].id;
+  const first = (await (await fetch(SITE + '/api/library/v1/ads?category=phones&limit=1', { headers: { Authorization: 'Bearer ' + KEY } })).json()).items[0].id;
   const checks = {
     'Flask:': `
 from flask import Flask
 app = Flask(__name__); app.register_blueprint(bp); c = app.test_client()
-r = c.get('/api/buybackad-library/assets?kind=cutout&category=iphones&limit=2&secret=x'); assert r.status_code == 200 and len(r.get_json()['items']) == 2, r.status_code
+r = c.get('/api/buybackad-library/ads?category=gold&limit=2&secret=x'); assert r.status_code == 200 and len(r.get_json()['items']) == 2 and all(a['category'] == 'gold' for a in r.get_json()['items']), r.status_code
 assert 'partner' not in c.get('/api/buybackad-library/index').get_json()
 assert c.get('/api/buybackad-library/nope').status_code == 404
 r = c.get('/api/buybackad-library/jpeg/${first}?max=600'); assert r.status_code == 200 and r.data[:3] == bytes([255, 216, 255]), r.status_code
@@ -87,7 +89,7 @@ print('ok')`,
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 app = FastAPI(); app.include_router(router); c = TestClient(app)
-r = c.get('/api/buybackad-library/assets?kind=cutout&category=iphones&limit=2&secret=x'); assert r.status_code == 200 and len(r.json()['items']) == 2, r.status_code
+r = c.get('/api/buybackad-library/ads?category=gold&limit=2&secret=x'); assert r.status_code == 200 and len(r.json()['items']) == 2 and all(a['category'] == 'gold' for a in r.json()['items']), r.status_code
 assert 'partner' not in c.get('/api/buybackad-library/index').json()
 assert c.get('/api/buybackad-library/nope').status_code == 404
 r = c.get('/api/buybackad-library/jpeg/${first}?max=600'); assert r.status_code == 200 and r.content[:3] == bytes([255, 216, 255]), r.status_code
@@ -122,36 +124,43 @@ try {
   page_.first = await page.$$eval('.bbl-tile', (t) => t.length);
   page_.status = await page.$eval('.bbl-status', (e) => e.textContent);
   page_.categories = await page.$$eval('.bbl select option', (o) => o.length);
-  await page.type('.bbl input[type=search]', 'iphone');
-  await page.waitForFunction(() => /found/.test(document.querySelector('.bbl-status').textContent) && [...document.querySelectorAll('.bbl-tile span')].every((s) => /iphone|ip-|phone/i.test(s.textContent)), { timeout: 30000 }).catch(() => {});
+  await page.type('.bbl input[type=search]', 'gold');
+  await page.waitForFunction((all) => /ads:/.test(document.querySelector('.bbl-status').textContent) && +document.querySelector('.bbl-status').textContent.split(' ')[0] < all, { timeout: 30000 }, +page_.status.split(' ')[0]).catch(() => {});
   page_.searched = await page.$eval('.bbl-status', (e) => e.textContent);
   page_.searchTiles = await page.$$eval('.bbl-tile span', (s) => s.slice(0, 4).map((x) => x.textContent));
   await page.click('.bbl-tile');
   await page.waitForFunction(() => document.querySelectorAll('#photos img').length === 1, { timeout: 30000 }).catch(() => {});
   page_.added = await page.evaluate(async () => {
     const f = photos[0]; if (!f) return null;
-    const bmp = await createImageBitmap(f), c = new OffscreenCanvas(bmp.width, bmp.height), x = c.getContext('2d');
-    x.drawImage(bmp, 0, 0); const px = x.getImageData(0, 0, 1, 1).data;
-    return { name: f.name, type: f.type, bytes: f.size, size: [bmp.width, bmp.height], corner: [px[0], px[1], px[2]], magic: [...new Uint8Array(await f.slice(0, 3).arrayBuffer())] };
+    const bmp = await createImageBitmap(f);
+    const b = new Uint8Array(await f.arrayBuffer()); let h = 0; for (let i = 0; i < b.length; i++) h = (h * 31 + b[i]) >>> 0;
+    return { name: f.name, type: f.type, bytes: f.size, size: [bmp.width, bmp.height], magic: [...b.slice(0, 3)], hash: h };
   });
+  if (page_.added){
+    const id = page_.added.name.replace(/\.jpg$/, ''), want = readFileSync(join(ROOT, 'assets/library-ads', id + '.jpg'));
+    let h = 0; for (const x of want) h = (h * 31 + x) >>> 0;
+    page_.added.sameAsRender = h === page_.added.hash && want.length === page_.added.bytes;
+  }
   if (process.env.SHOT) await page.screenshot({ path: process.env.SHOT });   // the listing page with its pick, to look at
-  await page.click('.bbl-tabs button:nth-child(4)');
-  await page.waitForFunction(() => /studio/.test(document.querySelector('.bbl-status').textContent), { timeout: 30000 }).catch(() => {});
-  page_.ads = await page.$eval('.bbl-status', (e) => e.textContent);
-  await page.click('.bbl-tile');
-  await new Promise((r) => setTimeout(r, 1500));
-  page_.openedStudio = browser.targets().map((t) => t.url()).find((u) => u.startsWith(SITE + '/?card=')) || null;
   page_.errors = errs;
 } finally { await browser.close(); shop.kill(); site.close(); }
 
-ok(page_.first > 0 && /found/.test(page_.status), 'the picker did not load: ' + page_.status);
+ok(page_.first > 0 && /ads:/.test(page_.status), 'the picker did not load: ' + page_.status);
 ok(page_.categories > 1, 'the categories did not load');
-ok(/found/.test(page_.searched) && page_.searchTiles.length, 'the search did not narrow: ' + page_.searched);
-ok(page_.added && page_.added.type === 'image/jpeg' && page_.added.magic.join() === '255,216,255' && page_.added.bytes > 1000, 'the pick did not add a JPEG: ' + JSON.stringify(page_.added));
-ok(page_.added && page_.added.corner.every((v) => v >= 245), "the cut-out's corner is not white: " + JSON.stringify(page_.added && page_.added.corner));
-ok(page_.added && Math.max(...page_.added.size) <= 1600, 'the JPEG is over 1600 on its long side');
-ok(/studio/.test(page_.ads || ''), 'the Ad designs tab did not load: ' + page_.ads);
-ok(page_.openedStudio, 'a design did not open the studio');
+ok(/ads:/.test(page_.searched) && +page_.searched.split(' ')[0] < +page_.status.split(' ')[0] && page_.searchTiles.length, 'the search did not narrow: ' + page_.searched);
+ok(page_.added && page_.added.type === 'image/jpeg' && page_.added.magic.join() === '255,216,255' && page_.added.size.join() === '1080,1080', 'the pick did not add a 1080 JPEG: ' + JSON.stringify(page_.added));
+ok(page_.added && page_.added.sameAsRender, "the pick is not the library's render byte for byte");
+
+/* 5. the zip is the folder */
+const z = spawnSync('unzip', ['-Z1', join(ROOT, 'docs/iphonesla-library.zip')], { encoding: 'utf8' });
+const inZip = (z.stdout || '').split('\n').filter((n) => n && !n.endsWith('/'));
+const want = readdirSync(HANDOFF).filter((f) => !f.startsWith('.') && f !== '__pycache__').map((f) => 'iphonesla-library/' + f).sort();
+ok(z.status === 0 && JSON.stringify(inZip.slice().sort()) === JSON.stringify(want), 'the zip holds ' + JSON.stringify(inZip) + ', the folder ' + JSON.stringify(want));
+for (const n of inZip) {
+  const a = spawnSync('unzip', ['-p', join(ROOT, 'docs/iphonesla-library.zip'), n]).stdout;
+  const f = join(ROOT, 'docs', n);
+  if (!existsSync(f) || !readFileSync(f).equals(a)) bad.push('the zip\'s ' + n + ' is not the folder\'s');
+}
 ok(!page_.errors.length, 'page errors: ' + page_.errors.join(' | '));
 ok(!/Traceback/.test(shopLog), 'the reference server raised: ' + shopLog.split('Traceback')[1]);
 
