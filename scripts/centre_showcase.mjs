@@ -102,7 +102,7 @@ for (let i = 0; i < ids.length; i += 4){
           return moved;
         };
         const ok = c => !c.fail.some(f => /^(mixed|innerMixed|nearMiss)$/.test(f));
-        const axisCentred = c => c.P.filter(p => ccAxisPart(p.u)).every(p => Math.abs(p.dx) <= 10);   // the measure's own 'centred'
+        const axisCentred = c => c.P.filter(p => ccAxisPart(p.u) && !p.mirror).every(p => p.centred);   // the measure's own 'centred'
         if (!FIXONLY){
           const was = __sc.comp(await paintCand()); was.sc.dispose();
           if (!ok(was) || was.loose.length){
@@ -114,11 +114,17 @@ for (let i = 0; i < ids.length; i += 4){
               /* the headline's left edge: its biggest line, as drawn */
               const t0 = await paintCand(); const { sc: s0 } = __sc.paint(t0);
               const heads = s0.getObjects().filter(o => o.pgRole === 'headline' && o.visible !== false).map(o => sgBox(o)).sort((a, b) => b.w * b.h - a.w * a.h);
-              const x = heads.length ? heads[0].l : null; s0.dispose();
+              s0.dispose();
+              /* the side the headline stands on: its biggest line left of the
+                 middle aligns everything left, right of it everything right */
+              const side = heads.length && heads[0].cx > TPL_W / 2 + 15 ? 'right' : 'left';
+              const x = heads.length ? (side === 'right' ? heads[0].r : heads[0].l) : null;
               if (x != null){
-                await settle(objs => ccPlanLeft(objs, x));
-                c = __sc.comp(await paintCand()); const goodL = ok(c) && c.P.filter(p => ccAxisPart(p.u)).every(p => Math.abs(p.b.l - x) <= 8 || Math.abs(p.dx) <= 10 && p.b.w >= 0.6 * TPL_W); c.sc.dispose();
-                if (goodL) notes.push('aligned left');
+                await settle(objs => ccPlanLeft(objs, x, side));
+                c = __sc.comp(await paintCand());
+                const goodL = ok(c) && c.P.filter(p => ccAxisPart(p.u) && !p.mirror).every(p => Math.abs((side === 'right' ? p.b.r : p.b.l) - x) <= 8);
+                c.sc.dispose();
+                if (goodL) notes.push('aligned ' + side);
                 else { restore(); notes.push('no single alignment holds'); }
               } else notes.push('no single alignment holds');
             }
@@ -134,7 +140,7 @@ for (let i = 0; i < ids.length; i += 4){
 }
 console.log('');
 /* kept: one alignment verified (centred, or aligned left), or the tick and the ink, and no failure it did not have */
-const better = r => !r.err && r.notes.some(n => /^(centred|aligned left)$|tick|->/.test(n)) && r.after.fail.every(f => r.before.fail.includes(f));
+const better = r => !r.err && r.notes.some(n => /^(centred|aligned (left|right))$|tick|->/.test(n)) && r.after.fail.every(f => r.before.fail.includes(f));
 const cands = Object.entries(results).filter(([, r]) => better(r));
 const gate = await gateRecords(page, cands.map(([id, r]) => ({ id, rec: r.rec })));
 console.log(gateSummary(gate));

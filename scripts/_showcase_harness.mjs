@@ -103,7 +103,7 @@ export async function openStudio(query = ''){
         const name = u => u.objs.filter(o => o.name).map(o => o.name).slice(0, 3).join('+');
         const H = TPL_H, P = parts.map(u => ({ u, b: u.sbox, role: role(u), text: ccHasText(u), corner: ccCorner(u), dx: u.sbox.cx - MID }));   // judged by what is drawn solid (ccSolid)
         P.forEach((p, i) => {
-          p.centred = Math.abs(p.dx) <= 10;
+          p.centred = Math.abs(p.dx) <= 15;   // under the near miss (20): a dot hanging off a kicker is not a second axis
           p.sharesL = P.some((q, j) => j !== i && Math.abs(q.b.l - p.b.l) <= 8);
           p.sharesR = P.some((q, j) => j !== i && Math.abs(q.b.r - p.b.r) <= 8);
           /* what is not layout: decoration (sparkles, a category mark), a
@@ -113,7 +113,8 @@ export async function openStudio(query = ''){
              under 3% of it, the slab beside a scriptRetro headline, floats) */
           p.deco = p.u.objs.every(o => (o.pgRole || '') === 'deco') && !p.u.plate;
           p.sticker = p.b.w < 0.4 * W && p.b.h < 0.12 * H && p.u.objs.some(o => Math.abs(((o.angle || 0) + 180) % 360 - 180) >= 2);
-          p.mirror = P.some((q, j) => j !== i && Math.abs(q.b.cx + p.b.cx - W) <= 10 && Math.abs(q.b.w - p.b.w) <= 0.6 * Math.max(q.b.w, p.b.w));
+          p.mirror = P.some((q, j) => j !== i && Math.abs(q.b.cx + p.b.cx - W) <= 10 && Math.abs(q.b.w - p.b.w) <= 0.6 * Math.max(q.b.w, p.b.w)
+            && Math.min(q.b.b, p.b.b) - Math.max(q.b.t, p.b.t) >= 0.5 * Math.min(q.b.h, p.b.h));   // on one band, as the chips of a row
           p.bigPic = !p.text && !p.u.plate && p.b.w * p.b.h >= 0.03 * W * H;
           p.loose = !p.centred && !p.sharesL && !p.sharesR && !p.corner && !p.deco && !p.sticker && !p.mirror && !p.bigPic && p.b.w < 0.9 * W && p.b.w * p.b.h > 400;
           p.nearMiss = p.loose && Math.abs(p.dx) > 20 && Math.abs(p.dx) <= 90 && !!(p.text || p.u.plate);   // over 20 px it shows
@@ -133,7 +134,7 @@ export async function openStudio(query = ''){
            (ccAxisPart) all on the middle, or all on a shared edge, never some
            of each; and the lines on a plate all centred on it, or all on one
            left edge */
-        const axisP = P.filter(p => ccAxisPart(p.u));
+        const axisP = P.filter(p => ccAxisPart(p.u) && !p.mirror);   // a mirrored pair is centred as a pair
         const nC = axisP.filter(p => p.centred).length, nL = axisP.filter(p => !p.centred && p.sharesL).length, nR = axisP.filter(p => !p.centred && !p.sharesL && p.sharesR).length;
         const mixed = (nC && (nL || nR)) || (nL && nR) ? { centred: nC, left: nL, right: nR, parts: axisP.filter(p => !p.centred).map(p => name(p.u) + ' ' + Math.round(p.dx)) } : null;
         const inner = [];
