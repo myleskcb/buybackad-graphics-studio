@@ -33,10 +33,12 @@
        seconds. Resolves { t, score, detail, stillness, rows }.
    VideoStill.toBlob(canvas)         Promise<Blob>, PNG
    VideoStill.name(videoName, w, h)  the photo's file name, beside the video's
-   VideoStill.frames(videoBlob, { max, onProgress })
-       the video's own frames, read back out of the file: up to `max` (6)
-       moments that look different from each other, each the held best of
-       its stretch. Resolves [{ t, blob, w, h, score }] in time order.
+   VideoStill.frames(videoBlob, { around, max, onProgress })
+       the video's own frames, read back out of the file. With `around` (the
+       best moment's time): the moment that looks most worth posting of those
+       that look different from it, `max` of them (1). Without: up to `max`
+       (6) moments that look different from each other. Each the held best of
+       its stretch. Resolves [{ t, blob, w, h, score }], best first.
    VideoStill.frameName(videoName, t, w, h)  a frame's file name */
 (function(){
   const SHORT = 1440, GRID = 320, STEP = 0.1, MOVE = 8, TIE = 0.995;
@@ -178,12 +180,17 @@
       r.score = r.detail * r.stillness * r.stillness;
     });
     rows.forEach((r, i) => { r.held = Math.min(r.score, rows[i - 1] ? rows[i - 1].score : Infinity, rows[i + 1] ? rows[i + 1].score : Infinity); });
-    const top = Math.max(...rows.map(r => r.held)), picked = [];
+    /* around the best moment (2026-10-04, the owner: "auto select the best
+       one ... maybe we have alternative if you don't like it", then "why
+       would we need two maybe like one"): the best is the HD photo already
+       made, so what is offered is the alternative to it, measured against its
+       frame here, and one of them */
+    const anchor = o.around == null ? null : rows.reduce((a, r) => Math.abs(r.t - o.around) < Math.abs(a.t - o.around) ? r : a);
+    const top = Math.max(...rows.map(r => r.held)), picked = [], max = o.max || (anchor ? 1 : MAXF);
     for (const r of rows.slice().sort((a, b) => b.held - a.held || a.t - b.t)){
-      if (picked.length >= (o.max || MAXF) || r.held < top * FLOOR) break;
-      if (picked.every(p => Math.abs(p.t - r.t) >= APART && differs(p.B, r.B) >= DIFF)) picked.push(r);
+      if (picked.length >= max || r.held < top * FLOOR) break;
+      if ((anchor ? [anchor] : []).concat(picked).every(p => Math.abs(p.t - r.t) >= APART && differs(p.B, r.B) >= DIFF)) picked.push(r);
     }
-    picked.sort((a, b) => a.t - b.t);
     /* the very frames that were scored, read again from the start rather
        than sought: a video recorded in real time (MediaRecorder's WebM) has
        no index to seek by, and getCanvas(t) comes back empty on it */
@@ -195,7 +202,7 @@
       if (out.length === want.size) break;
     }
     if (o.onProgress) o.onProgress(1);
-    return out;
+    return out.sort((a, b) => b.score - a.score || a.t - b.t);
   }
 
   window.VideoStill = { SHORT, size, best, toBlob, name, frames, frameName };

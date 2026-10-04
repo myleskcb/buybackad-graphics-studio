@@ -2756,3 +2756,33 @@ RESUME HERE:
   2. `taglineCritic` reads the lower canvas at `getZoom()`, not at its size:
      with the scenes at 1x now it is right, but a scene made elsewhere with
      retina scaling would mislead it the way it misled pgCheck.
+
+## 2026-10-04 — one photo picked, one alternative (rule 110, continued)
+
+Owner: "Auto select the best one, but maybe we have alternative if you don't
+like it see others below and you have two other alternate", then
+"realistically, why would we need two maybe like one? There's only so many
+frames and currently there are six seconds."
+
+Found: the pop-up offered the picked photo plus every distinct frame in time
+order, and in the studio the first frame was the picked moment again (0.0 s,
+exact beside HD). A clip has about two compositions (the studio: the ad and
+its call to action; the maker: the phones face-on and landed), so a second
+alternative would be a near-copy, as the owner guessed.
+
+Did: `VideoStill.frames(video, { around })` measures against the picked
+moment's frame in the file and returns the one best moment that differs from
+it (0.5 s apart, 6% of 32px blocks by 20 levels). "Your video's photo":
+Picked for you, and Not this one? Try this; Save both. The buttons read
+"📷 This video's photo" and Other photo. Rule 110 continued, README, brief.
+
+Checked: video_photo_check.mjs 8 of 8, two cards on every run, the
+alternative 0 levels off the file and at least 1.2 s from the picked moment;
+the pop-up on desktop and a 2x phone (fits the phone without scrolling).
+Video length left as is: the maker offers 5, 6 or 8 s (6 by default), the
+studio 10 s; docs/VIDEO-AD-RESEARCH.md cites Google's six-second bumpers (90%
+of 122 campaigns lifted recall) and the loop ending on the opening
+composition.
+
+RESUME HERE: as the entry before (reconcile `claude/fervent-pascal-w6mthe`,
+then deploy `main`; one H.264 export from Chrome or Safari).

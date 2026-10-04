@@ -836,9 +836,9 @@ async function download(opts = {}) {
     let photo = null, photoErr = null;
     try { photo = await makePhoto(st, name, Math.min(ad.W, ad.H), prog); saveVideo(photo.blob, photo.name); }
     catch (e) { photoErr = e; console.warn("The photo could not be made, the video goes alone:", e); }
-    // and the video's own frames, read back out of the file (VideoStill.frames, rule 110), settled either way
+    // and the other moment, the alternative to it, read back out of the file (VideoStill.frames, rule 110), settled either way
     if (photo && window.VideoStill && VideoStill.frames)
-      photo.frames = VideoStill.frames(out.blob).then(fs => ({ frames: fs.map(f => Object.assign(f, { name: VideoStill.frameName(name, f.t, f.w, f.h) })) }),
+      photo.frames = VideoStill.frames(out.blob, { around: photo.t }).then(fs => ({ frames: fs.map(f => Object.assign(f, { name: VideoStill.frameName(name, f.t, f.w, f.h) })) }),
         e => { console.warn("The video's frames could not be read back:", e); return { error: e }; });
     const silent = withSound && !out.audio;
     $("export-note").textContent = `Saved ${name} (${ad.W}×${ad.H}, ${(out.blob.size / 1e6).toFixed(1)} MB${out.audio ? ", with sound" : withSound ? ", no sound" : ", without sound"})` +
@@ -934,8 +934,8 @@ function offerAgain(blob, name, photo) {
     ph.addEventListener("click", () => saveVideo(photo.blob, photo.name));
     n.appendChild(ph);
     if (VH().photos) {
-      const more = document.createElement("button"); more.className = "mo-link"; more.type = "button"; more.textContent = "More photos";
-      more.title = "The HD photo and the video's own frames, exactly as the video shows them";
+      const more = document.createElement("button"); more.className = "mo-link"; more.type = "button"; more.textContent = "Other photo";
+      more.title = "The photo picked for you, and one other moment from the video, exactly as it shows it";
       more.addEventListener("click", () => VH().photos(photo));
       n.appendChild(more);
     }

@@ -16,12 +16,12 @@
    to hand after it (2026-10-03, "so I have the option"): in the studio one
    button right after the video button pressed (in the editor's export
    pop-up, on the line under its buttons; VideoHelp.keepPhoto); in the maker
-   Save photo and More photos in the note under the button.
-   The photos of the video (2026-10-04, rule 110): the studio's button and
-   the maker's More photos open them; every Download lands; the HD photo is
-   the same bytes; at least one of the video's own frames comes, each at the
-   video's size and pixel for pixel the frame the file holds at its time
-   (decoded here again: at most 1 level off).
+   Save photo and Other photo in the note under the button.
+   The video's photo, picked, and the other one (2026-10-04, rule 110): the
+   studio's button and the maker's Other photo open them; two cards, the
+   picked HD photo (the same bytes) and one other moment at least half a
+   second from it, at the video's size and pixel for pixel the frame the file
+   holds at its time (decoded here again: at most 1 level off).
 
    usage:  npx http-server -p 8899 -s .   then
            CHROME=/path/to/chrome [FABRIC_JS=/path/fabric.min.js] node scripts/video_photo_check.mjs [--only motion|studio] [cardId]
@@ -105,17 +105,17 @@ async function compare(page, video, photo, t){
   }, { v64: readFileSync(video).toString('base64'), p64: readFileSync(photo).toString('base64'), t });
 }
 
-/* The photos pop-up (VideoHelp.photos), opened by `open` (a selector, and
-   the text of the one to press): every card's Download saves its file, the
-   HD one the photo already saved; each of the video's own frames is the
-   frame the file holds at its time, pixel for pixel. */
+/* The photo pop-up (VideoHelp.photos), opened by `sel` (and the text of the
+   one to press): two cards, every Download saves its file, the first the HD
+   photo already saved, the other a frame the file holds at its time, pixel
+   for pixel, at least half a second from the picked moment. */
 async function sheet(page, r, video, photo, sel, text){
   const n0 = page.downloads.length;
   const got = await page.evaluate(async (sel, text) => {
     const b = [...document.querySelectorAll(sel)].find(x => !text || x.textContent === text);
     if (!b) return { err: 'nothing to open the photos with (' + sel + ')' };
     b.click();
-    for (let i = 0; i < 240 && document.querySelector('.vh-wait') && /Reading/.test(document.querySelector('.vh-wait').textContent); i++) await new Promise(res => setTimeout(res, 500));
+    for (let i = 0; i < 240 && document.querySelector('.vh-wait') && /Finding/.test(document.querySelector('.vh-wait').textContent); i++) await new Promise(res => setTimeout(res, 500));
     const w = document.querySelector('.vh-wait');
     const cards = [...document.querySelectorAll('.vh-pic')].map(c => ({ cap: c.querySelector('figcaption').textContent, name: c.querySelector('button').title }));
     for (const c of document.querySelectorAll('.vh-pic button')){ c.click(); await new Promise(res => setTimeout(res, 400)); }
@@ -126,13 +126,14 @@ async function sheet(page, r, video, photo, sel, text){
   await new Promise(res => setTimeout(res, 800));
   const saved = page.downloads.slice(n0);
   r.sheet = { title: got.title, cards: got.cards.map(c => c.cap), wait: got.wait };
-  if (!/Photos from your video$/.test(got.title || '')) r.bad.push('the photos did not open (' + got.title + ')');
-  if (got.wait) r.bad.push('the frames did not come: ' + got.wait);
+  if (!/Your video's photo$/.test(got.title || '')) r.bad.push('the photo did not open (' + got.title + ')');
+  if (got.wait) r.bad.push('the other moment did not come: ' + got.wait);
+  if (got.cards.length !== 2) r.bad.push(got.cards.length + ' cards, not the picked photo and one other');
   if (saved.length !== got.cards.length || got.cards.some(c => !saved.includes(c.name))) r.bad.push('the photos saved ' + JSON.stringify(saved) + ' for ' + got.cards.length + ' cards');
   if (got.cards[0] && got.cards[0].name !== photo.slice(OUT.length)) r.bad.push('the first photo is not the HD one');
   else if (saved.includes(got.cards[0] && got.cards[0].name) && !readFileSync(photo).equals(readFileSync(OUT + got.cards[0].name))) r.bad.push('the HD photo saved different bytes');
   const frames = got.cards.slice(1).map(c => c.name);
-  if (!frames.length) r.bad.push("none of the video's own frames came");
+  if (!frames.length) r.bad.push('no other moment came');
   r.frames = [];
   for (const f of frames){
     const m = f.match(/-frame-([\d.]+)s-(\d+)x(\d+)\.png$/);
@@ -162,6 +163,7 @@ async function sheet(page, r, video, photo, sel, text){
       return Object.assign(best, { size: [img.width, img.height] });
     }, { v64: readFileSync(video).toString('base64'), p64: readFileSync(OUT + f).toString('base64'), t: +m[1] }).catch(e => ({ err: String(e) }));
     r.frames.push(Object.assign({ t: +m[1] }, res));
+    if (r.t != null && Math.abs(+m[1] - r.t) < 0.45) r.bad.push('the other moment (' + m[1] + ' s) is the picked one (' + r.t + ' s)');
     if (res.err) r.bad.push('frame ' + f + ': ' + res.err);
     else if (res.most > 1) r.bad.push('frame ' + f + ' is not the video\'s frame (' + res.most + ' levels off)');
   }
@@ -199,7 +201,7 @@ if (ONLY !== 'studio'){
     r.t = m ? +m[1] : null;
     if (r.t == null) r.bad.push('the note names no moment');
     if (!await page.evaluate(() => [...document.querySelectorAll('#export-note .mo-link')].some(b => b.textContent === 'Save photo'))) r.bad.push('no Save photo under the button');
-    if (vid && png){ await page.evaluate(() => window.VideoHelp && VideoHelp.close()); await sheet(page, r, vid, png, '#export-note .mo-link', 'More photos'); await page.evaluate(() => VideoHelp.close()); }
+    if (vid && png){ await page.evaluate(() => window.VideoHelp && VideoHelp.close()); await sheet(page, r, vid, png, '#export-note .mo-link', 'Other photo'); await page.evaluate(() => VideoHelp.close()); }
     if (vid && png && r.t != null){ r.match = await compare(page, vid, png, r.t).catch(e => ({ err: String(e) })); if (!(r.match.psnr >= 24)) r.bad.push('photo is not the video at its moment (' + JSON.stringify(r.match) + ')'); }
     results.push(r);
   }

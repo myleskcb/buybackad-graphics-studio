@@ -12253,11 +12253,12 @@ async function runVideoExport(o){
     catch (e){ photoErr = e; console.warn('GraphicsStudio motion: the photo could not be made, the video goes alone.', e); }
     setBtn('Saving…');
     if (photo) Object.assign(photo, { after: o.photoAfter || btn, label: o.photoLabel, cls: o.photoClass });
-    /* and the video's own frames, read back out of the file while it
-       downloads (VideoStill.frames, rule 110): settled either way, so a
-       browser that cannot read them never reaches the safety net */
+    /* and the other moment, the alternative to it, read back out of the
+       file while it downloads (VideoStill.frames around the photo's moment,
+       rule 110): settled either way, so a browser that cannot read it never
+       reaches the safety net */
     if (photo && window.VideoStill && VideoStill.frames)
-      photo.frames = VideoStill.frames(r.blob).then(fs => ({ frames: fs.map(f => Object.assign(f, { name: VideoStill.frameName(name, f.t, f.w, f.h) })) }), e => {
+      photo.frames = VideoStill.frames(r.blob, { around: photo.t }).then(fs => ({ frames: fs.map(f => Object.assign(f, { name: VideoStill.frameName(name, f.t, f.w, f.h) })) }), e => {
         console.warn("GraphicsStudio motion: the video's frames could not be read back.", e); return { error: e };
       });
     if (!await deliverVideo(r.blob, name, photo)) return;
@@ -12276,14 +12277,14 @@ async function runVideoExport(o){
       if (VH.canShareFiles()) actions.push({ label: 'Share or save to Photos', primary: true, run: () => VH.share(r.blob, name, photo ? [photo] : []) });
       actions.push({ label: 'Save again', run: () => VH.save(r.blob, name) });
       if (photo) actions.push({ label: 'Save the photo again', run: () => VH.save(photo.blob, photo.name) });
-      if (photo && VH.photos) actions.push({ label: 'More photos', run: () => VH.photos(photo) });
+      if (photo && VH.photos) actions.push({ label: 'Other photo', run: () => VH.photos(photo) });
       VH.show({ tone: 'info', title: 'Video saved, with a catch', message: catches.join(' '), error: String((photoErr || soundErr || soundDropped || fellBack || {}).message || ''), report, actions });
     } else {
       const said = ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4';
       /* a second download can be held by the browser ("download multiple
          files?"), so the photo keeps a way to be saved again */
       if (photo && VH) VH.toast(said + '. Its ' + photo.w + '×' + photo.h + ' photo for OfferUp came with it.', { ms: 12000, action: VH.photos
-        ? { label: 'More photos', run: () => VH.photos(photo) } : { label: 'Save photo again', run: () => VH.save(photo.blob, photo.name) } });
+        ? { label: 'Other photo', run: () => VH.photos(photo) } : { label: 'Save photo again', run: () => VH.save(photo.blob, photo.name) } });
       else toast(said, ext === 'mp4' ? 'success' : undefined);
     }
   } catch (e){

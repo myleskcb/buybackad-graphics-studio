@@ -65,11 +65,12 @@ the video's aspect, drawn at that size from the video's best moment, which
 `video-still.js` measures on the frames themselves (DESIGN-LAW rule 108). It
 comes under the same export; Free's photo is 1080 with the watermark, the
 plan's cap. The video maker at `/motion` does the same for its phone ads.
-The video's own frames come too, to choose from (rule 110): **📷 Photos from
-this video** under the video button in the studio (**More photos** in the
-maker) opens the HD photo and up to six frames read back out of the video file,
-exactly as it shows them, each moment one that looks different. Each downloads
-on its own, or **Save all** (on a phone, straight to Photos).
+The photo is picked for you, and there is one alternative if you would rather
+not use it (rule 110): **📷 This video's photo** under the video button in the
+studio (**Other photo** in the maker) shows the picked one beside the one other
+moment worth posting that looks different from it, read back out of the video
+file exactly as it shows it. Each downloads on its own, or **Save both** (on a
+phone, straight to Photos).
 Check: `scripts/video_photo_check.mjs`.
 
 Checks: `scripts/motion_audit.mjs` (every curated card and classic, per

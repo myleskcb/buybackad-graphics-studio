@@ -3863,3 +3863,19 @@ frame" and "more versions".
   ready to post yet". Measured after: the gate passes at 1x and 2x, desktop
   and phone; the ad exported on a 2x screen against a 1x one is 48 dB apart,
   at most 6 levels on any channel, no pixel more than 8.
+- **One picked, one other** (later the same day). The owner: "Auto select the
+  best one, but maybe we have alternative if you don't like it", then
+  "realistically, why would we need two maybe like one? There's only so many
+  frames and currently there are six seconds." So the pop-up is "Your video's
+  photo": the best moment, picked for you (rule 108's HD photo, the one that
+  came with the video), and beside it one alternative, "Not this one? Try
+  this": the best-scoring moment that looks different from the picked one,
+  measured against the picked moment's own frame in the file
+  (`VideoStill.frames` with `around`, `max` 1), at least 0.5 s from it, exact
+  as the file holds it. A clip with no such moment says so rather than offer a
+  near-copy. It opens from "📷 This video's photo" under the studio's video
+  button, Other photo in the toast, and Other photo in the maker's note; Save
+  both. Measured on the check's eight runs: the studio's alternative is its
+  call to action (9.9 s; 7.6 s on Free), the maker's the phones face-on (1.2
+  to 1.4 s) against the picked phones landed with the words (2.6 to 4.2 s);
+  every one 0 levels off the file.
