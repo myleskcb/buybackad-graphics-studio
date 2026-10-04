@@ -1333,7 +1333,20 @@ export const FRESH_GROUNDS = {
   wave_lines:   "Line waves",         // thin parallel wavy lines
   checker_fade: "Fading checks",      // a checkerboard fading into the ground
   glow_orbs:    "Glow orbs",          // two glowing orbs behind the middle
+  // colour (owner, 2026-10-04, of soft confetti: "maybe some background confetti like
+  // this but with color"; "Keep going use creativity get more variety")
+  confetti_pop: "Confetti",           // bright flecks in several colours, round the edges
+  sprinkles:    "Sprinkles",          // little rounded sprinkles, like a cake top
+  streamers:    "Streamers",          // curling party streamers from the corners
+  polka_pop:    "Polka dots",         // big soft polka dots in two colours
+  terrazzo:     "Terrazzo",           // a polished stone floor with coloured chips
+  paper_shapes: "Paper shapes",       // cut-paper circles, triangles and squiggles
 };
+// the confetti colours: the look's accent, its plate, and a few brights that sit with them
+const partyCols = p => [p.accent, p.plate || p.accent, "#ff4d6d", "#ffd60a", "#2ec4b6", "#4d7cff", "#ff8a3d", "#b56cff"]
+  .filter((c, i, a) => c && a.indexOf(c) === i);
+// a fleck's place: anywhere but the middle, where the phones and the words stand
+const edgeSpot = (r, W, H, cx, cy, U, k = .34) => { for (let t = 0; t < 30; t++) { const x = r() * W, y = r() * H; if (Math.hypot((x - cx) / W, (y - cy) / H) > k) return [x, y]; } return [r() * W, r() < .5 ? r() * H * .12 : H - r() * H * .12]; };
 export function freshGround(kind, x, st, p, W, H, sc, r) {
   if (!(kind in FRESH_GROUNDS)) return false;
   const [cx, cy] = sc, D = Math.hypot(W, H), U = Math.min(W, H), dark = lum(p.ground) < .4;
@@ -1524,7 +1537,7 @@ export function freshGround(kind, x, st, p, W, H, sc, r) {
     case "checker_fade": {
       fill(g); const s2 = U * .08;
       for (let yy = 0; yy < H; yy += s2) for (let xx = 0; xx < W; xx += s2) if (((xx / s2) + (yy / s2)) % 2 < 1) {
-        const k = Math.max(0, 1 - (yy / H) * 1.4); if (k <= 0) continue; x.fillStyle = rgba(dark ? l : shade(g, -.25), .22 * k); x.fillRect(xx, yy, s2, s2); }
+        const k = Math.max(0, 1 - (yy / H) * 1.4); if (k <= 0) continue; x.fillStyle = rgba(dark ? l : shade(g, -.3), .36 * k); x.fillRect(xx, yy, s2, s2); }
       grain(x, W, H, r, 8, .2); return true;
     }
     case "glow_orbs": {
@@ -1533,6 +1546,66 @@ export function freshGround(kind, x, st, p, W, H, sc, r) {
       fill(rad(cx - W * .18, cy - H * .05, 0, U * .45, [[0, rgba(a, .45)], [1, rgba(a, 0)]]));
       fill(rad(cx + W * .2, cy + H * .08, 0, U * .4, [[0, rgba(l, .35)], [1, rgba(l, 0)]]));
       x.restore(); grain(x, W, H, r, 10, .25); return true;
+    }
+    case "confetti_pop": {
+      fill(lin(0, 0, 0, H, [[0, l], [1, mix(l, g, .35)]]));
+      const cols = partyCols(p);
+      for (let i = 0; i < 70; i++) {
+        const [px, py] = edgeSpot(r, W, H, cx, cy, U, .3), col = cols[i % cols.length], kind = i % 3, sz = U * r.uniform(.012, .022);
+        x.save(); x.translate(px, py); x.rotate(r() * TAU); x.globalAlpha = r.uniform(.75, .95); x.fillStyle = col;
+        if (kind === 0) x.fillRect(-sz, -sz * .45, sz * 2, sz * .9);
+        else if (kind === 1) { x.beginPath(); x.arc(0, 0, sz * .7, 0, TAU); x.fill(); }
+        else { x.beginPath(); x.moveTo(-sz, sz * .6); x.lineTo(sz, sz * .6); x.lineTo(0, -sz * .9); x.closePath(); x.fill(); }
+        x.restore();
+      }
+      grain(x, W, H, r, 8, .18); return true;
+    }
+    case "sprinkles": {
+      fill(lin(0, 0, W, H, [[0, mix(l, "#ffffff", .2)], [1, l]]));
+      const cols = partyCols(p); x.save(); x.lineCap = "round";
+      for (let i = 0; i < 120; i++) {
+        const [px, py] = edgeSpot(r, W, H, cx, cy, U, .28), a0 = r() * TAU, len = U * r.uniform(.014, .024);
+        x.strokeStyle = cols[i % cols.length]; x.lineWidth = U * .008; x.beginPath(); x.moveTo(px - Math.cos(a0) * len / 2, py - Math.sin(a0) * len / 2); x.lineTo(px + Math.cos(a0) * len / 2, py + Math.sin(a0) * len / 2); x.stroke();
+      }
+      x.restore(); grain(x, W, H, r, 8, .15); return true;
+    }
+    case "streamers": {
+      fill(lin(0, 0, 0, H, [[0, g], [1, shade(g, dark ? .06 : -.06)]]));
+      const cols = partyCols(p); x.save(); x.lineCap = "round";
+      for (let i = 0; i < 7; i++) {
+        const fromLeft = i % 2 === 0, y0 = H * r.uniform(-.05, .3) + (i > 3 ? H * .65 : 0);
+        x.strokeStyle = rgba(cols[i % cols.length], .85); x.lineWidth = U * r.uniform(.008, .013); x.beginPath();
+        for (let k = 0; k <= 40; k++) { const t = k / 40, xx = fromLeft ? t * W * .38 : W - t * W * .38, yy = y0 + t * H * .12 + Math.sin(t * TAU * 2 + i) * U * .045; k ? x.lineTo(xx, yy) : x.moveTo(xx, yy); }
+        x.stroke();
+      }
+      x.restore(); grain(x, W, H, r, 8, .2); return true;
+    }
+    case "polka_pop": {
+      fill(l); const cols = [a, p.plate || shade(a, -.2)], st = U * .16;
+      for (let yy = 0, row = 0; yy < H + st; yy += st * .87, row++) for (let xx = row % 2 ? st / 2 : 0; xx < W + st; xx += st) {
+        const d = Math.hypot((xx - cx) / W, (yy - cy) / H); x.fillStyle = rgba(cols[(row + Math.round(xx / st)) % 2], d < .3 ? .12 : .32);
+        x.beginPath(); x.arc(xx, yy, st * .22, 0, TAU); x.fill(); }
+      grain(x, W, H, r, 8, .15); return true;
+    }
+    case "terrazzo": {
+      fill(mix(l, "#ffffff", .3)); const cols = partyCols(p).concat([shade(g, -.2), mix(l, g, .5)]);
+      for (let i = 0; i < 160; i++) { const px = r() * W, py = r() * H, rr = U * r.uniform(.006, .022);
+        x.fillStyle = rgba(cols[i % cols.length], Math.hypot((px - cx) / W, (py - cy) / H) < .28 ? .35 : .8); x.beginPath();
+        for (let k = 0; k < 6; k++) { const a0 = k / 6 * TAU, q = rr * r.uniform(.6, 1.2); k ? x.lineTo(px + Math.cos(a0) * q, py + Math.sin(a0) * q) : x.moveTo(px + Math.cos(a0) * q, py + Math.sin(a0) * q); }
+        x.closePath(); x.fill(); }
+      grain(x, W, H, r, 10, .2); return true;
+    }
+    case "paper_shapes": {
+      fill(lin(0, 0, 0, H, [[0, l], [1, mix(l, g, .25)]])); const cols = partyCols(p);
+      for (let i = 0; i < 12; i++) {
+        const [px, py] = edgeSpot(r, W, H, cx, cy, U, .36), col = cols[i % cols.length], sz = U * r.uniform(.04, .07);
+        x.save(); x.translate(px, py); x.rotate(r() * TAU); x.shadowColor = "rgba(0,0,0,.18)"; x.shadowBlur = U * .012; x.shadowOffsetY = U * .006; x.fillStyle = col; x.strokeStyle = col;
+        if (i % 3 === 0) { x.beginPath(); x.arc(0, 0, sz * .6, 0, TAU); x.fill(); }
+        else if (i % 3 === 1) { x.beginPath(); x.moveTo(-sz * .6, sz * .5); x.lineTo(sz * .6, sz * .5); x.lineTo(0, -sz * .55); x.closePath(); x.fill(); }
+        else { x.lineWidth = sz * .18; x.lineCap = "round"; x.beginPath(); for (let k = 0; k <= 20; k++) { const t = k / 20; const xx = (t - .5) * sz * 1.8, yy = Math.sin(t * TAU * 1.5) * sz * .25; k ? x.lineTo(xx, yy) : x.moveTo(xx, yy); } x.stroke(); }
+        x.restore();
+      }
+      grain(x, W, H, r, 8, .18); return true;
     }
     case "grid_glow": {
       const hz = H * .58, deep = shade(g, dark ? -.3 : -.55);

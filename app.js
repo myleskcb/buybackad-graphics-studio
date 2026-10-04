@@ -19631,7 +19631,8 @@ function pgHueCheck(sc, r){
    (each a drawn ground, "ground:sceneX/...", painted in the card's palette and gated
    like any photograph). */
 {
-  const SCENE_STYLES = [['scene_sky', 'Sky & beach'], ['scene_walls', 'Walls & street'], ['scene_show', 'Showtime'], ['scene_pop', 'Pop & print'], ['scene_made', 'Materials']];
+  const SCENE_STYLES = [['scene_sky', 'Sky & beach'], ['scene_walls', 'Walls & street'], ['scene_show', 'Showtime'], ['scene_pop', 'Pop & print'], ['scene_made', 'Materials'],
+    ['scene_fresh', 'Fresh & clean'], ['scene_party', 'Party & colour'], ['scene_glow', 'Glow & lines']];
   SCENE_STYLES.forEach(([key, label]) => EZ_GROUND_STYLES.push({ key, label,
     get kinds(){ const g = (window.SCENE_GROUPS || []).find(x => x.key === key); return g ? g.kinds : []; } }));
   /* a scene is a picture, not a flat ground: it takes the soft shade a photograph

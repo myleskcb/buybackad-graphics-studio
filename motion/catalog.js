@@ -469,7 +469,12 @@ export const GROUND_CANDIDATES = {
 export const GROUND_REVIEW = { approved: Object.keys(GROUND_CANDIDATES), rejected: [] };
 // The fresh grounds (motion/decor.js FRESH_GROUNDS, 2026-10-03): candidates until the
 // owner approves them on the review page; only approved ones join the shuffle.
-export const FRESH_REVIEW = { approved: [], rejected: [] };
+// Owner, 2026-10-04, of all 24 on the review page: "I do like all of them"; the confetti
+// ones asked for the same day ("background confetti like this but with color") come approved.
+export const FRESH_REVIEW = { approved: ["studio_sweep", "pill_stage", "arch_window", "paper_cut", "ribbon_wave", "concentric", "split_soft",
+  "spot_floor", "bokeh_night", "marble_soft", "tile_gloss", "grid_glow", "sky_gradient", "pastel_blobs", "neon_frame", "halftone_fade",
+  "diagonal_lines", "window_light", "podium_steps", "sun_rays", "confetti_soft", "wave_lines", "checker_fade", "glow_orbs",
+  "confetti_pop", "sprinkles", "streamers"], rejected: [] };
 for (const id of FRESH_REVIEW.approved) if (!OPTIONS.background.includes(id)) OPTIONS.background.push(id);
 for (const id of GROUND_REVIEW.approved) {
   const c = GROUND_CANDIDATES[id]; if (!c) continue;

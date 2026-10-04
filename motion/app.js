@@ -546,6 +546,8 @@ const STUDIO = {
   pattern: { label: "Patterns", backgrounds: ["dots", "stripes", "grid", "checker", "halftone", "rings", "waves", "halftone_duo", "halftone_comic", "halftone_lines", "checker_diamond", "checker_floor"] },
   light:   { label: "Light and glow", backgrounds: ["rays", "sunburst", "beams", "bokeh", "aurora", "drift", "mesh", "rays_corner", "beams_cross", "beams_stage"] },
   bold:    { label: "Bold and loud", backgrounds: ["bigword", "confetti", "frame", "noise"] },
+  fresh:   { label: "Fresh and clean", backgrounds: ["studio_sweep", "pill_stage", "arch_window", "paper_cut", "ribbon_wave", "concentric", "split_soft", "spot_floor", "marble_soft", "tile_gloss", "sky_gradient", "pastel_blobs", "window_light", "podium_steps", "sun_rays"] },
+  party:   { label: "Party and colour", backgrounds: ["confetti_pop", "sprinkles", "streamers", "confetti_soft", "polka_pop", "terrazzo", "paper_shapes", "glow_orbs", "neon_frame", "bokeh_night", "grid_glow", "halftone_fade", "diagonal_lines", "wave_lines", "checker_fade"] },
 };
 // the approved themes, one shelf per family (each thumbnail a different theme of it)
 const familyShelves = THEME_FAMILIES.map(f => ({ f, ids: Object.keys(VIBES).filter(id => VIBES[id].family === f) })).filter(x => x.ids.length)

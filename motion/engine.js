@@ -448,7 +448,10 @@ function drawSlab(ctx, p, w, h, flip, face) {
   for (let k = 0; k <= steps; k++) {
     const u = k / steps, zl = -seen + 2 * seen * u;
     poly(ctx, rim.map(([x, y]) => P(x, y, zl)));
-    ctx.fillStyle = shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
+    // the body's own colour, a shade darker: never lighter than the body (owner, 2026-10-04:
+    // "we made sure the sides aren't too light ... darken them to the proper body color");
+    // the soft highlight only lifts the side back toward that colour
+    ctx.fillStyle = shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u); ctx.fill();
   }
   // the controls on the side we see, where Apple puts them
   const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
@@ -456,9 +459,9 @@ function drawSlab(ctx, p, w, h, flip, face) {
   for (const key of keys) {
     const [a0, b0] = CONTROLS[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
     poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
-    ctx.fillStyle = key === "camCtrl" ? "#1c1d21" : shade(p.metal, -.38); ctx.fill();
+    ctx.fillStyle = shade(p.metal, key === "camCtrl" ? -.3 : -.38); ctx.fill();   // Camera Control is the body's colour (owner, 2026-10-04), its sapphire face a little brighter
     poly(ctx, [P(xs, y0 + 1, q * .1), P(xs, y0 + 1, q * .45), P(xs, y1 - 1, q * .45), P(xs, y1 - 1, q * .1)]);
-    ctx.fillStyle = key === "camCtrl" ? "rgba(255,255,255,.16)" : shade(p.metal, .18); ctx.fill();
+    ctx.fillStyle = shade(p.metal, key === "camCtrl" ? -.06 : -.14); ctx.fill();   // a lit edge, still no lighter than the body
   }
   // the face, in thin vertical strips so it recedes; the back is seen from behind
   const fw = face.width, fh = face.height, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
@@ -1529,7 +1532,28 @@ function numberSprite(st, p, size, cta) {
   const sp = inkSprite(text, colors, font, size, st.tracking * .5, fx, p, 0);
   const bodyH = sp.asc + sp.desc;
   let out;
-  if (onPlate || style === "outline") {
+  if (style === "tag") {
+    // a swing tag (owner, 2026-10-04: "shrink the number 10% and scoot it up ... to
+    // essentially center it and give it proper margin so it's not right next to the dot"):
+    // the plate as it was, the figures 10% smaller, centred on the plate by their own ink,
+    // starting a clear gap after the hole so the tag reads as a tag
+    const px = size * .45, py = size * .14, H = sp.asc * .95 + py * 2;
+    const s2 = inkSprite(text, colors, font, size * .9, st.tracking * .5, fx, p, 0);
+    const m = canvas(4, 4).getContext("2d"); m.font = fontCss(font, size * .9);
+    const ink = m.measureText(text), up = ink.actualBoundingBoxAscent || s2.asc * .72, down = ink.actualBoundingBoxDescent || 0;
+    const hole = H * .45, holeR = H * .09, lead = hole + holeR + H * .26;
+    const W = lead + s2.inkW + px * .9;
+    const c = canvas(W + 24, H + 24), x = c.getContext("2d");
+    x.translate(6, 6);
+    x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14; x.shadowOffsetY = 6;
+    x.beginPath(); x.moveTo(3 + H * .45, 3); x.lineTo(3 + W, 3); x.lineTo(3 + W, 3 + H); x.lineTo(3 + H * .45, 3 + H); x.lineTo(3, 3 + H / 2); x.closePath();
+    x.fillStyle = p.plate; x.fill(); x.restore();
+    x.beginPath(); x.arc(3 + hole, 3 + H / 2, holeR, 0, 7); x.fillStyle = p.ground; x.fill();
+    // the figures' ink centred on the plate: baseline at the middle plus half their height
+    const base = 3 + H / 2 + (up - down) / 2;
+    x.drawImage(s2.c, 3 + lead - s2.pad, base - (s2.pad + s2.asc));
+    out = c;
+  } else if (onPlate || style === "outline") {
     const px = size * .45, py = size * .14;
     const W = sp.inkW + px * 2, H = sp.asc * .95 + py * 2;
     const c = canvas(W + 24, H + 24), x = c.getContext("2d");
