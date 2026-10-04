@@ -18,7 +18,7 @@
  * pool are tried first (--try, 5), so the set is shared out. A card with no
  * real photograph that passes is reported.
  *
- * usage: node scripts/reground_showcase.mjs [--ids a,b] [--skip-cats sports] [--try 5] [--write] [--json f] [--out dir]
+ * usage: node scripts/reground_showcase.mjs [--ids a,b] [--skip-cats sports] [--try 5] [--pin dry.json] [--write] [--json f] [--out dir]
  */
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { openStudio, gateRecords, live } from './_showcase_harness.mjs';
@@ -32,7 +32,10 @@ const WRITE = process.argv.includes('--write');
    ATTRIBUTION.json), or the Apple product scenes, matched to what the card
    says it buys. */
 export const retired = src => /^assets\/bg\//.test(src) || /^assets\/showcase\/bg\/dg_cast_/.test(src);
-const WEB = readdirSync(ROOT + 'assets/bg-web').filter(f => /\.jpe?g$/i.test(f)).map(f => 'assets/bg-web/' + f);
+/* a single coin's face filling the frame (on black, or a gold disc) reads as
+   a flat field or as words over its lettering once the copy is on it: out */
+const NOT_A_GROUND = /^coins-american-gold-eagle-coin-[12]\.|^coins-coin-hoard-2\./;   // and the slabbed Morgan, which shades to black
+const WEB = readdirSync(ROOT + 'assets/bg-web').filter(f => /\.jpe?g$/i.test(f) && !NOT_A_GROUND.test(f)).map(f => 'assets/bg-web/' + f);
 const web = re => WEB.filter(f => re.test(f.split('/').pop()));
 const SILVER_COINS = web(/^coins-(morgan|half-dollar|coin-hoard)/);
 const GOLD_COINS = web(/^coins-american-gold-eagle/);
@@ -65,13 +68,16 @@ console.log('cards on a retired ground: ' + work.length);
 const uses = {};
 idx.filter(live).forEach(c => { const s = photoOf((recOf(c.id).tpl.bg || {}).src); uses[s] = (uses[s] || 0) + 1; });
 const MAXTRY = +(argv('--try') || 5);
+const PIN = argv('--pin') ? JSON.parse(readFileSync(argv('--pin'), 'utf8')) : null;
 const { browser, page } = await openStudio();
 const out = {};
 for (const id of work){
   const rec = recOf(id), src = rec.tpl.bg.src || '', pre = src.includes('|') ? src.slice(0, src.lastIndexOf('|') + 1) : '';
   const cat = (idx.find(c => c.id === id) || {}).cat;
   /* the least-used photographs of the card's pool first, a few at most */
-  const pool = poolFor(cat, rec).slice().sort((a, b) => (uses[a] || 0) - (uses[b] || 0) || a.localeCompare(b)).slice(0, MAXTRY);
+  /* --pin f.json ({ id: { to } }, a dry run's --json): exactly the photograph looked at */
+  const pin = PIN && PIN[id] && PIN[id].to;
+  const pool = pin ? [pin] : poolFor(cat, rec).slice().sort((a, b) => (uses[a] || 0) - (uses[b] || 0) || a.localeCompare(b)).slice(0, MAXTRY);
   if (!pool.length){ out[id] = { from: photoOf(src), to: null, tried: [], why: 'no real photograph for ' + cat }; console.log(id.padEnd(26) + 'NONE  no real photograph for ' + cat); continue; }
   const cands = [];
   for (const s of pool){

@@ -450,6 +450,21 @@
    "id": "arcCrown-nn01-30",
    "why": "stood on a retired fanned trading-card photograph (owner, 2026-10-04: \"go ahead and remove\"); none of the four other sports photographs passes the gate under it",
    "audit": "2026-10-04"
+  },
+  {
+   "id": "scriptRetro-ik06-20",
+   "why": "stood on a generated photograph (owner, 2026-10-04: \"use images of real things\"); no real photograph of its goods passes the gate under it yet",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "scriptRetro-cd06-30",
+   "why": "stood on a generated photograph (owner, 2026-10-04: \"use images of real things\"); no real photograph of its goods passes the gate under it yet",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "neonNight-jw02-35",
+   "why": "stood on a generated photograph (owner, 2026-10-04: \"use images of real things\"); no real photograph of its goods passes the gate under it yet",
+   "audit": "2026-10-04"
   }
  ]
 }
