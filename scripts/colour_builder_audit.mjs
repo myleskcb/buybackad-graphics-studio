@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* COLOUR BUILDER AUDIT — is every set the builder offers one the house would
- * ship, and does it hold on real cards? (DESIGN-LAW rule 108)
+ * ship, and does it hold on real cards? (DESIGN-LAW rule 110)
  *
  * The builder (colour-builder.js) checks its own sets before it shows them.
  * A check that grades its own homework can share its own mistake, so this

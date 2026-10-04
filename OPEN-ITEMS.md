@@ -1481,7 +1481,48 @@ Still open:
    owner wants the list to match.
 
 
-## AC. 2026-10-03 — build your own colours (DESIGN-LAW 108)
+## AC. 2026-10-03 — the composition audit: 88 cards centred, 8 held (DESIGN-LAW 109)
+
+The owner: "next audit more", after a Pokémon card that "looks incomplete".
+`scripts/composition_audit.mjs` (exits 1 on a failing offered card) and
+`scripts/centre_showcase.mjs` (the gated repair). 118 of 309 offered cards
+failed; 88 were centred, 16 lost a leftover ✓ in their first ring, 16 had an
+invisible icon or sticker text inked to read; 8 were held (holds.json);
+verify_showcase passes all 321 live cards; 49 of 301 still fail the measure.
+every_card_audit on the changed cards: no card newly held as offered (two
+whose centred headline covered the corner badges were put back,
+checklistHero-cd04-15 and -cd06-20, keeping the tick and ink repairs); one
+theme (neonNight-nn05-15, Electric Trust) and one look (trustSeal-cd06-26,
+glow) newly off; the voices' table moved on 16 cards.
+
+Not live until deployed (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **The gate held 11 centrings**, each because a line would sit on a
+   brighter or darker patch of the photograph and lose contrast, or a
+   kicker would be covered: checklistHero-jw10-15, checklistHero-du07-15
+   (both still carry the leftover ✓ and need it removed without the move),
+   neonNight-jw07-15, scriptRetro-io03-15, scriptRetro-cd06-15,
+   scriptRetro-ca07-20, voltStack-du01-20, voltStack-gl04-20,
+   reviewProof-jw05-30 (held), hudTech-du01-30, bubblePop-du09-35. Each
+   needs its shade re-solved after the move (naturalize, then verify).
+2. **Fifteen came out no better** (a wave layout, a card whose parts collide
+   when centred, a part centred onto another): trustSeal-su02-20,
+   neonNight-nn03-20, neonNight-jw05-20, neonNight-cd06-25,
+   ticketStub-jw07-20, hudTech-cd10-20, voltStack-jw10-30,
+   scriptRetro-nn01-30, scriptRetro-du01-30, bandKnockout-jw10-30,
+   bandKnockout-pa03-35, checklistHero-pa01-35, checklistHero-pp09-35,
+   reviewProof-cd08-35 (held), hudTech-nn08-35 (held). A person's eye, or a
+   relayout, not a nudge.
+3. **Steps Flow**: eight fail the measure (the number's plate off the middle
+   on several); claude/relaxed-darwin-8aces4 is re-laying them out and is
+   not on `main`. Run composition_audit on them after it merges.
+4. The left-aligned designs that share an edge (most voltStack, neonNight,
+   hudTech left headlines) pass and were not touched. If the owner wants
+   every card centred, `centre_showcase.mjs --ids` takes any list.
+
+## AD. 2026-10-03 — build your own colours (DESIGN-LAW 110)
 
 (claude/eager-hopper-khk7ct, from `main` at 809c5ac6. **Not on `main`**: this
 session was told to develop and push on that branch only.)
@@ -1514,7 +1555,7 @@ Still open:
    from the merged code, `verify_showcase.mjs --write`, bump ASSET_REV). Merge
    it, then this branch, then run the audits AGENT-BRIEF lists.
 2. **A warm bright colour lets two passes draw dark shapes muddy**, house
-   themes as much as built sets (rule 108, "Known"): the one-colour pass
+   themes as much as built sets (rule 110, "Known"): the one-colour pass
    (fixed on the live branch) and the plate ink of rule 104 (a dark number on
    an orange or gold box goes brown; no branch guards it). Under the muddy
    floor the plate ink should take the deep hue.
