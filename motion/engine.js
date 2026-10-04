@@ -1464,7 +1464,7 @@ class Line {
       });
     }
     this.plate = null;
-    if (st.text_fx === "box") {
+    if (st.text_fx === "box" && text.trim()) {                // a blank line has no box (an empty plate read as a stray grey square)
       const px = size * .22, py = size * .07;
       const w = this.inkW + px * 2, h = this.asc * .92 + py * 2;
       const pc = canvas(w + Math.abs(Math.tan(st.skew * Math.PI / 180)) * h + 2, h), x = pc.getContext("2d");

@@ -205,6 +205,10 @@ for (const card of cards){
   const plates = base.inv.filter(x => x.cls === 'plate'), chromatic = base.inv.filter(x => x.c >= 0.04);
   const row = { card, plates: plates.length, chromatic: chromatic.length, themes: {} };
   for (const name of themes){
+    /* a theme the studio holds off this card (template-holds.js: its chip is disabled
+       and says why) cannot be picked, so it is not measured as if it had been */
+    const held = await page.evaluate((id, n) => { try { return typeof choiceHoldWhy === 'function' ? choiceHoldWhy('themes', id, n) : null; } catch (e){ return null; } }, tid, name);
+    if (held){ (row.held = row.held || []).push(name); continue; }
     const r = await sceneOf(`__ez.chip(${JSON.stringify(name)}).click();`);
     save(card + '-' + name.replace(/\W+/g, '_'), r);
     const by = Object.fromEntries(r.inv.map(x => [x.key, x]));
