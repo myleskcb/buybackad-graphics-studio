@@ -417,6 +417,12 @@ produced." DESIGN-LAW rule 87. In practice:
   failure; `scripts/centre_showcase.mjs --ids a,b` repairs with Centre all
   through the writers' gate. A pass that moves a showcase card's layers
   runs the audit on the cards it touched.
+- **Real photographs only** (rule 112, 2026-10-04): no generated scene
+  (`assets/bg/dl_*`) or drawn ground (`dg_cast`) behind a card or template
+  where a real photograph of the goods exists. New photographs go in
+  assets/bg-web with their credits (`scripts/fetch_backdrops.mjs`), are
+  looked at before use, and reach cards through
+  `scripts/reground_showcase.mjs` and templates through `BG_REAL` in app.js.
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its

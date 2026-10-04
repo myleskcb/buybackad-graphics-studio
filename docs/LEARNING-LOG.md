@@ -2786,3 +2786,34 @@ composition.
 
 RESUME HERE: as the entry before (reconcile `claude/fervent-pascal-w6mthe`,
 then deploy `main`; one H.264 export from Chrome or Safari).
+
+## 2026-10-04 — real photographs of the goods
+
+(claude/trusting-ride-cfpk9o, then `main`.)
+
+The owner, of the fanned trading-card photographs: "go ahead and remove",
+then "replace everything and please use images of real things. People buy.
+This is like so classic AI slop … It's a placeholder at very best."
+
+Found:
+  - 87 offered cards stood on photographs the studio generated and 37 on
+    drawn placeholders; only 89 of 288 on real photographs. Fifteen of the
+    nineteen sports photographs were the same three card fans.
+  - My first answer moved the sports cards onto four other sports photographs
+    from the same generated set. It looked like progress and was the same
+    thing; the owner's next message said so. Read the complaint for its
+    class, not its instance.
+  - Commons search is a poor stock library: of 81 photographs fetched for the
+    thin categories, 6 were usable. Sports cards and Pokémon return trade
+    cards from the 1800s and tournament crowds. Unsplash, Pexels, Openverse
+    and Flickr are blocked by the cloud network policy.
+  - The gate passes a card whose ground is a flat black field: three cards
+    on the slabbed Morgan photograph passed every line and looked like a
+    blank card. I blamed the wrong photograph first; check which file a bad
+    card actually stands on before excluding one.
+  - The hand-built templates borrow their photograph from the pool of the
+    designer and street templates, so redirecting one set moves them; a
+    shade table keyed by src skips a row whose photograph changed, so
+    restoring old rows does nothing.
+
+Did: DESIGN-LAW 112, OPEN-ITEMS §AE.

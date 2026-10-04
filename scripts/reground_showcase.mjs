@@ -6,7 +6,7 @@
  * remove", then "replace everything and please use images of real things.
  * People buy. This is like so classic AI slop" and "We need to look like
  * graphic designers made this … It's a placeholder at very best."
- * DESIGN-LAW rule 111.
+ * DESIGN-LAW rule 112.
  *
  * Every live card standing on a generated photograph (assets/bg) or a drawn
  * ground (dg_cast) is given a real photograph of what it buys (POOLS: the

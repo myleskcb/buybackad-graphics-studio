@@ -1547,3 +1547,34 @@ Still open:
    sits over left-aligned lines.
 3. **Steps Flow** (15 fail): measure again after claude/relaxed-darwin-8aces4
    merges.
+
+## AE. 2026-10-04 — real photographs of the goods (DESIGN-LAW 112)
+
+The owner: "replace everything and please use images of real things. People
+buy. This is like so classic AI slop." 89 library cards moved from generated
+or drawn grounds to real Commons photographs of their goods (reviewed by
+eye), 6 held, 305 live, verify_showcase passes all 305. Every non-sports
+template builds on a real photograph (`BG_REAL`); the Pokémon offer cards
+too.
+
+Not live until deployed (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **Sports cards: no real photographs.** 30 live sports cards, the sports
+   templates and the sports offer cards still stand on generated scenes. The
+   cloud network policy blocks Unsplash, Pexels, Openverse and Flickr; allow
+   `unsplash.com`, `images.unsplash.com`, `api.openverse.org`,
+   `live.staticflickr.com` in the environment (or add the owner's own
+   photographs of cards and slabs to assets/bg-web with credits) and run
+   `scripts/reground_showcase.mjs --ids …` on them.
+2. **The pools are thin.** Pokémon has two photographs (graded Charizard
+   slabs), coins 8, silver 13 with the silver coins; many cards share one.
+   claude/great-hopper-j674cf carries ~100 more real photographs of coins,
+   gold, silver, strips and Apple products (and the vehicles); merge it, then
+   re-ground with `--try` to spread the set.
+3. **Product cut-outs** on some cards (assets/cutouts, generated) were not
+   part of this pass.
+4. **The money-pattern art** (`assets/grounds/money-fall-*`, 27 cards) and
+   the Apple product scenes (48 phones cards) were kept: they show real
+   banknotes and real products. Say if they should go too.

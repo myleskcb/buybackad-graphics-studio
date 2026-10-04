@@ -1658,7 +1658,7 @@ const TEMPLATES = [
     flush();
   }
 
-  /* REAL GROUNDS (DESIGN-LAW rule 111, 2026-10-04). The owner, of the
+  /* REAL GROUNDS (DESIGN-LAW rule 112, 2026-10-04). The owner, of the
      Designer Library's generated photographs: "replace everything and please
      use images of real things. People buy. This is like so classic AI slop".
      Each template stands on a real photograph of its goods (the curated
@@ -1923,7 +1923,7 @@ const TEMPLATES = [
         id: stId,
         name: label, tag:'street', cat, pal, tier:'premium', feat: i === 0,
         bg: bgSrc
-          ? { type:'image', src:(BG_REAL[cat] && BG_REAL[cat].length ? BG_REAL[cat][(i + 3) % BG_REAL[cat].length] : bgSrc), scrim:0.46, blur:0.014,   // a real photograph of the goods (rule 111)
+          ? { type:'image', src:(BG_REAL[cat] && BG_REAL[cat].length ? BG_REAL[cat][(i + 3) % BG_REAL[cat].length] : bgSrc), scrim:0.46, blur:0.014,   // a real photograph of the goods (rule 112)
               fallback:{ type:'grad', c1:P.fb1 || P.bg1, c2:P.fb2 || P.bg2, a:135 } }
           : { type:'grad', c1:P.fb1 || P.bg1, c2:P.fb2 || P.bg2, a:135 },
         layers,
