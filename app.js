@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261003a';
+const ASSET_REV = '20261004a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -3783,18 +3783,37 @@ function ccCorner(u){
   return b.w < 0.4 * CW && b.h < 0.3 * CH && (b.l < 0.12 * CW || b.r > 0.88 * CW) && (b.t < 0.12 * CH || b.b > 0.88 * CH);
 }
 function ccHasText(u){ return u.objs.some(o => o.text !== undefined || o.pgCurved); }
+/* parts of words on one band, side by side (a row of chips: NO FEES · SAME
+   DAY · LOCAL), move as one; centred one by one they piled up in the middle */
+function ccRows(parts){
+  const words = u => ccHasText(u) && !ccCorner(u) && u.sbox.w < 0.8 * CW;
+  const band = (a, c) => Math.max(a.h, c.h) <= 2.5 * Math.min(a.h, c.h) && Math.min(a.b, c.b) - Math.max(a.t, c.t) >= 0.5 * Math.min(a.h, c.h)
+    && (Math.min(a.r, c.r) - Math.max(a.l, c.l)) <= 0;
+  const out = [];
+  parts.forEach(u => {
+    const q = words(u) && out.find(r => r.rowable && band(r.sbox, u.sbox));
+    if (!q){ out.push(Object.assign(u, { rowable: words(u) })); return; }
+    const j = (a, c) => { const x = { l: Math.min(a.l, c.l), r: Math.max(a.r, c.r), t: Math.min(a.t, c.t), b: Math.max(a.b, c.b) }; return Object.assign(x, { w: x.r - x.l, h: x.b - x.t, cx: (x.l + x.r) / 2, cy: (x.t + x.b) / 2 }); };
+    q.members = (q.members || [Object.assign({}, q)]).concat([u]);
+    q.objs = q.objs.concat(u.objs); q.box = j(q.box, u.box); q.sbox = j(q.sbox, u.sbox); q.solid = q.solid || u.solid;
+    q.plate = null; q.kids = [];
+  });
+  return out;
+}
 /* how far each layer moves to centre these parts on the line `mid`: each
    part as a whole, and the lines on a plate on the plate's own middle. A
    part that would land on another it did not touch stays where it was: a
    picture before words, else the smaller. Returns { shift: Map, parts } */
 function ccPlan(objs, mid, opts){
   opts = opts || {};
-  const parts = ccParts(objs);
+  const parts = ccRows(ccParts(objs));
   parts.forEach(u => {
     u.dx = mid - u.sbox.cx;
     if (opts.top && ccCorner(u)){ u.dx = 0; u.kept = 'corner'; }
     if (opts.onPlate && !ccHasText(u)){ u.dx = 0; u.kept = 'mark'; }      // an icon on a plate keeps its place on it
     if (u.plate && u.kids.length) u.inner = ccPlan(u.kids, sgBox(u.plate).cx, { onPlate: true }).shift;
+    /* a row's members keep their own plates' lines centred on them */
+    if (u.members) u.members.forEach(m => { if (m.plate && m.kids.length){ const sh = ccPlan(m.kids, sgBox(m.plate).cx, { onPlate: true }).shift; u.inner = u.inner || new Map(); sh.forEach((d, o) => u.inner.set(o, d)); } });
   });
   ccGuard(parts);
   const shift = new Map();
@@ -3826,7 +3845,7 @@ function ccGuard(parts){
    words, not decoration, a sticker, a corner piece, a picture or a band the
    width of the card */
 function ccAxisPart(u){
-  if (!ccHasText(u) || ccCorner(u) || u.sbox.w >= 0.8 * CW) return false;
+  if (!u.objs.some(o => o.text !== undefined && /[A-Za-z0-9]/.test(o.text || '')) || ccCorner(u) || u.sbox.w >= 0.8 * CW) return false;   // words, not a ✓ in a dot
   if (u.objs.every(o => (o.pgRole || '') === 'deco') && !u.plate) return false;
   return !(u.sbox.w < 0.4 * CW && u.sbox.h < 0.12 * CH && u.objs.some(o => Math.abs(((o.angle || 0) + 180) % 360 - 180) >= 2));
 }
@@ -3834,10 +3853,10 @@ function ccAxisPart(u){
    everything … or if you're going to center it then you can't leave the
    second line of the hero aligned left"): each part that is judged moves its
    left edge onto x; a line on a plate goes with its plate */
-function ccPlanLeft(objs, x){
-  const parts = ccParts(objs);
+function ccPlanLeft(objs, x, side){
+  const parts = ccRows(ccParts(objs));
   parts.forEach(u => {
-    u.dx = ccAxisPart(u) ? x - u.sbox.l : 0; if (!u.dx) u.kept = u.kept || 'free';
+    u.dx = ccAxisPart(u) ? x - (side === 'right' ? u.sbox.r : u.sbox.l) : 0; if (!u.dx) u.kept = u.kept || 'free';
     if (u.plate && u.kids.length) u.inner = ccPlan(u.kids, sgBox(u.plate).cx, { onPlate: true }).shift;   // the plate is what sits on the edge
   });
   ccGuard(parts);

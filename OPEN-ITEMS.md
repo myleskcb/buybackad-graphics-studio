@@ -1521,3 +1521,27 @@ Still open:
 4. The left-aligned designs that share an edge (most voltStack, neonNight,
    hudTech left headlines) pass and were not touched. If the owner wants
    every card centred, `centre_showcase.mjs --ids` takes any list.
+
+## AD. 2026-10-04 — one alignment to a card (DESIGN-LAW 109, continued)
+
+The owner: "align left for everything … or if you're going to center it then
+you can't leave the second line of the hero aligned left" (hudTech-jw07-16),
+"same thing here" (ticketStub-ck03-15). The measure now fails a mix of
+centred and side-aligned parts, and lines on a plate out of step; the repair
+centres all, or aligns all to the headline's side, or moves nothing. 39 cards
+given one alignment, 10 held, 311 live; verify_showcase passes all 311;
+composition 45 of 291 fail, none newly.
+
+Not live until deployed (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **Eight read as one alignment by eye but fail `mixed`** by a part a little
+   off its axis: checklistHero-cd06-16, voltStack-gl02-15, neonNight-jw07-15,
+   hudTech-cd04-20, voltStack-jw10-30, arcCrown-jw10-30, bandKnockout-ck04-35,
+   bandKnockout-ck07-35. Each wants one part nudged by hand in the designer.
+2. **The ten held cards** (holds.json, audit 2026-10-04) need a new layout,
+   not a nudge: the headline's side is taken by pictures, or an arc heading
+   sits over left-aligned lines.
+3. **Steps Flow** (15 fail): measure again after claude/relaxed-darwin-8aces4
+   merges.

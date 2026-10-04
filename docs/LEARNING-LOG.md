@@ -2663,3 +2663,31 @@ Steps Flow, left to claude/relaxed-darwin-8aces4), none newly.
     offered: Easy Mode lays a card out again with the visitor's words, and
     there the centred headline covered the corner badges. A layout change is
     not done until every_card_audit has run on the cards it touched.
+
+## 2026-10-04 — one alignment to a card
+
+(claude/trusting-ride-cfpk9o, then `main`.)
+
+The owner, on a card the first pass called fixed: "you need to align left for
+everything … or if you're going to center it then you can't leave the second
+line of the hero aligned left"; "same thing here" on a ticket card.
+
+Found:
+  - A half-centred card is worse than either answer. The first pass centred
+    part by part and let the collision guard keep a part where it was, so
+    SKIP went to the middle and THE COIN SHOP stayed left.
+  - The measure judged whole parts, never the lines inside one, so a ticket
+    whose lines disagreed passed; and it read the inside of rings and
+    tickets not at all, because only rectangles were plates.
+  - Outlines lie about size. A 25%, unfilled HUD ring 460 px across held a
+    headline, paired with another as its "icon", and blocked every move
+    near it; a dashed ticket border held every line on the ticket.
+  - A line under its plate's margin cannot be moved from its authored place:
+    the layout puts it back at the margin, so three nudges never showed. Move
+    from where it is drawn, and check every line after.
+  - Loosening one test to stop false alarms (a mirror pair of chips) let in
+    false passes (any two parts either side of the middle). Every relaxed
+    rule needs a counter-condition (the pair shares a band).
+
+Did: DESIGN-LAW 109, continued; OPEN-ITEMS §AD. 39 cards given one alignment,
+10 held, 311 live, verify 311 pass, composition 45 of 291 fail, none newly.
