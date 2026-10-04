@@ -15,16 +15,12 @@
  ],
  "pokemon": [
   {
-   "file": "dl_pokemon_arcCrown_royal",
-   "p90": 227
+   "file": "pokemon-charizard-card-1",
+   "p90": 198
   },
   {
-   "file": "dl_pokemon_bubblePop_royal",
-   "p90": 222
-  },
-  {
-   "file": "dl_pokemon_agencyGrid_royal",
-   "p90": 170
+   "file": "pokemon-charizard-card-2",
+   "p90": 218
   }
  ],
  "strips": [
@@ -149,20 +145,6 @@
   {
    "file": "space-galaxy-hubble-telescope-1",
    "p90": 170
-  }
- ],
- "gaming": [
-  {
-   "file": "gaming-rgb-desk-setup",
-   "p90": 160
-  },
-  {
-   "file": "gaming-bedroom-night",
-   "p90": 96
-  },
-  {
-   "file": "gaming-living-room-tv",
-   "p90": 179
   }
  ]
 }

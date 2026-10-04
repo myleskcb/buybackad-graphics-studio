@@ -336,7 +336,7 @@
      white type over it clears 4.5:1, and no picture is darker than it needs. */
   const GROUNDS = {
     sports: [{ file:'dl_sports_arcCrown_crimson', p90:198 }, { file:'dl_sports_agencyGrid_mono', p90:170 }, { file:'dl_sports_glassCard_mono', p90:224 }],
-    pokemon: [{ file:'dl_pokemon_arcCrown_royal', p90:227 }, { file:'dl_pokemon_bubblePop_royal', p90:222 }, { file:'dl_pokemon_agencyGrid_royal', p90:170 }],
+    pokemon: [{ file:'pokemon-charizard-card-1', p90:198 }, { file:'pokemon-charizard-card-2', p90:218 }],   // real photographs (DESIGN-LAW 111)
     strips: [{ file:'strips-contour-next-test-strips-2', p90:171 }, { file:'strips-blood-glucose-test-strips-2', p90:241 }, { file:'strips-blood-glucose-meter-1', p90:203 }],
     coins: [{ file:'coins-coin-collection-album-1', p90:184 }, { file:'coins-morgan-silver-dollar-1', p90:220 }, { file:'coins-american-gold-eagle-coin-1', p90:239 }],
     gold: [{ file:'gold-gold-jewelry-rings-3', p90:254 }, { file:'gold-gold-bracelet-2', p90:178 }, { file:'gold-gold-necklace-chain-close-3', p90:137 }],

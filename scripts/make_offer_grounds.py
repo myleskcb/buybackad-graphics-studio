@@ -20,7 +20,8 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 OUT = os.path.join(ROOT, 'assets', 'bg-offer')
 GROUNDS = {
     'sports':  ['bg/dl_sports_arcCrown_crimson', 'bg/dl_sports_agencyGrid_mono', 'bg/dl_sports_glassCard_mono'],
-    'pokemon': ['bg/dl_pokemon_arcCrown_royal', 'bg/dl_pokemon_bubblePop_royal', 'bg/dl_pokemon_agencyGrid_royal'],
+    # real photographs only (DESIGN-LAW 111): graded Charizard slabs; sports keeps its studio scenes until a real photograph is found
+    'pokemon': ['bg-web/pokemon-charizard-card-1', 'bg-web/pokemon-charizard-card-2'],
     'strips':  ['bg-web/strips-contour-next-test-strips-2', 'bg-web/strips-blood-glucose-test-strips-2', 'bg-web/strips-blood-glucose-meter-1'],
     'coins':   ['bg-web/coins-coin-collection-album-1', 'bg-web/coins-morgan-silver-dollar-1', 'bg-web/coins-american-gold-eagle-coin-1'],
     'gold':    ['bg-web/gold-gold-jewelry-rings-3', 'bg-web/gold-gold-bracelet-2', 'bg-web/gold-gold-necklace-chain-close-3'],

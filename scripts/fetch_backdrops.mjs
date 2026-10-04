@@ -13,6 +13,8 @@ const QUERIES = {
   cash: ['pile of US dollars', 'stack of hundred dollar bills', 'US dollar bills fanned', 'cash money pile', 'bundle of banknotes dollars', 'one hundred dollar bills close'],
   strips: ['OneTouch Verio test strips box', 'Accu-Chek Guide test strips', 'blood glucose test strip box packaging', 'Contour Next test strips', 'Dexcom G6 sensor box', 'FreeStyle Libre sensor box', 'diabetes test strip boxes retail'],
 };
+/* QUERIES_FILE=queries.json fetches those pools instead ({ cat: [query, …] }) */
+if (process.env.QUERIES_FILE){ const q = JSON.parse(readFileSync(process.env.QUERIES_FILE, 'utf8')); Object.keys(QUERIES).forEach(k => delete QUERIES[k]); Object.assign(QUERIES, q); }
 /* CATS=bikes,trucks,vans fetches only those pools */
 const ONLY = process.env.CATS ? process.env.CATS.split(',') : null;
 const OK = /CC0|Public domain|CC BY( |-)?(SA )?\d|CC-BY|CC BY-SA|Attribution/i;
@@ -27,7 +29,7 @@ for (const [cat, qs] of Object.entries(QUERIES)){
   for (const q of qs){
     let pages;
     try {
-      const u = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({ action: 'query', generator: 'search', gsrsearch: 'filetype:bitmap ' + q, gsrnamespace: '6', gsrlimit: '25',
+      const u = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({ action: 'query', generator: 'search', gsrsearch: 'filetype:bitmap ' + q, gsrnamespace: '6', gsrlimit: process.env.SQUARE ? '50' : '25',
         prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '1920', format: 'json' });
       const r = await tfetch(u, 25000); if (!r.ok){ console.log('  ' + cat.padEnd(8) + q + ': HTTP ' + r.status); continue; }
       const j = await r.json(); pages = Object.values((j.query || {}).pages || {});
@@ -39,7 +41,8 @@ for (const [cat, qs] of Object.entries(QUERIES)){
       const ii = pg.imageinfo && pg.imageinfo[0]; if (!ii) continue;
       const m = ii.extmetadata || {}, lic = (m.LicenseShortName || {}).value || '', usage = (m.UsageTerms || {}).value || '';
       if (!OK.test(lic) || BAD.test(lic)) continue;
-      if ((ii.width || 0) < 1600 || (ii.height || 0) < 900 || ii.width < ii.height) continue;
+      /* SQUARE=1: any orientation 1200 px or more on its short side (a square card crops the middle) */
+      if (process.env.SQUARE ? Math.min(ii.width || 0, ii.height || 0) < 1200 : ((ii.width || 0) < 1600 || (ii.height || 0) < 900 || ii.width < ii.height)) continue;
       if (!/\.(jpe?g|png)$/i.test(pg.title)) continue;
       const file = cat + '-' + slug(q) + '-' + (n + 1) + '.jpg';
       if (have.has(file)){ n++; continue; }
