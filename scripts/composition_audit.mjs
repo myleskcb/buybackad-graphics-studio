@@ -20,7 +20,14 @@
  *             centred and is not (the scriptRetro phone plate, 67 px off).
  *   onWords   a picture (no text) over more than 15% of a headline's box.
  *
- * A card fails with a nearMiss, two loose parts (or one loose headline,
+ *   mixed     some parts centred and some on a shared edge (owner,
+ *             2026-10-04: "align left for everything … or if you're going to
+ *             center it then you can't leave the second line of the hero
+ *             aligned left").
+ *   innerMixed the lines on a plate (a ticket, a ring, a panel) neither all
+ *             centred on it nor all on one left edge.
+ *
+ * A card fails with any of these, two loose parts (or one loose headline,
  * number or call to action), or a picture on its words. The measure is
  * __sc.comp in scripts/_showcase_harness.mjs, shared with centre_showcase.mjs.
  *
@@ -44,7 +51,7 @@ for (let i = 0; i < work.length; i += 6){
   rows.push(...await page.evaluate(async ids => {
     const out = [];
     for (const id of ids){
-      try { const r = __sc.comp(await __sc.load(id)); r.sc.dispose(); out.push({ id, fail: r.fail, loose: r.loose, near: r.near, onWords: r.onWords, axis: r.axis, parts: r.parts }); }
+      try { const r = __sc.comp(await __sc.load(id)); r.sc.dispose(); out.push({ id, fail: r.fail, loose: r.loose, near: r.near, onWords: r.onWords, axis: r.axis, mixed: r.mixed, inner: r.inner, parts: r.parts }); }
       catch (e){ out.push({ id, err: String(e).slice(0, 160) }); }
     }
     return out;
@@ -54,8 +61,8 @@ for (let i = 0; i < work.length; i += 6){
 console.log('');
 const bad = rows.filter(r => r.err || (r.fail && r.fail.length));
 const count = k => rows.filter(r => r.fail && r.fail.includes(k)).length;
-console.log(`fail ${bad.length} of ${rows.length}: nearMiss ${count('nearMiss')} · loose ${count('loose')} · onWords ${count('onWords')} · errors ${rows.filter(r => r.err).length}`);
-bad.forEach(r => console.log(r.id.padEnd(24) + (r.err || r.fail.join('+') + '  ' + JSON.stringify({ near: r.near, loose: r.loose, onWords: r.onWords }))));
+console.log(`fail ${bad.length} of ${rows.length}: mixed ${count('mixed')} · innerMixed ${count('innerMixed')} · nearMiss ${count('nearMiss')} · loose ${count('loose')} · onWords ${count('onWords')} · errors ${rows.filter(r => r.err).length}`);
+bad.forEach(r => console.log(r.id.padEnd(24) + (r.err || r.fail.join('+') + '  ' + JSON.stringify({ mixed: r.mixed, inner: r.inner, near: r.near, loose: r.loose, onWords: r.onWords }))));
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify(rows, null, 1));
 await browser.close();
 process.exit(bad.length ? 1 : 0);
