@@ -1658,6 +1658,24 @@ const TEMPLATES = [
     flush();
   }
 
+  /* REAL GROUNDS (DESIGN-LAW rule 111, 2026-10-04). The owner, of the
+     Designer Library's generated photographs: "replace everything and please
+     use images of real things. People buy. This is like so classic AI slop".
+     Each template stands on a real photograph of its goods (the curated
+     Commons set, assets/bg-web, credits in its ATTRIBUTION.json), taken in
+     turn from its category's pool so neighbours differ. A category with no
+     real photograph yet (sports cards) keeps its file until one is found.
+     The shade for the new photograph is solved by
+     scripts/naturalize_classics.mjs (assets/ground-fix.json, matched by src),
+     and the classics' gate decides what is offered. */
+  const BG_REAL = {"phones": ["assets/bg-web/phones-apple-iphone-15-1.jpg", "assets/bg-web/phones-apple-iphone-15-2.jpg", "assets/bg-web/phones-apple-iphone-15-3.jpg", "assets/bg-web/phones-iphone-13-pro-1.jpg", "assets/bg-web/phones-iphone-13-pro-2.jpg", "assets/bg-web/phones-iphone-13-pro-3.jpg", "assets/bg-web/phones-iphone-14-pro-1.jpg", "assets/bg-web/phones-iphone-14-pro-2.jpg", "assets/bg-web/phones-iphone-14-pro-3.jpg", "assets/bg-web/phones-iphone-15-pro-back-camera-1.jpg", "assets/bg-web/phones-iphone-16-pro-1.jpg", "assets/bg-web/phones-iphone-16-pro-2.jpg"],
+    "gold": ["assets/bg-web/coins-american-gold-eagle-coin-1.jpg", "assets/bg-web/coins-american-gold-eagle-coin-2.jpg", "assets/bg-web/coins-american-gold-eagle-coin-3.jpg", "assets/bg-web/gold-gold-bracelet-2.jpg", "assets/bg-web/gold-gold-bracelet-3.jpg", "assets/bg-web/gold-gold-jewelry-rings-3.jpg", "assets/bg-web/gold-gold-necklace-chain-close-3.jpg", "assets/bg-web/gold-gold-ring-wedding-band-1.jpg", "assets/bg-web/gold-gold-ring-wedding-band-2.jpg", "assets/bg-web/gold-gold-ring-wedding-band-3.jpg", "assets/bg-web/gold-gold-watch-1.jpg", "assets/bg-web/gold-rolex-watch-3.jpg"],
+    "silver": ["assets/bg-web/coins-coin-hoard-1.jpg", "assets/bg-web/coins-coin-hoard-2.jpg", "assets/bg-web/coins-half-dollar-1.jpg", "assets/bg-web/coins-morgan-silver-dollar-1.jpg", "assets/bg-web/coins-morgan-silver-dollar-2.jpg", "assets/bg-web/coins-morgan-silver-dollar-3.jpg", "assets/bg-web/silver-silver-cutlery-1.jpg", "assets/bg-web/silver-silver-cutlery-2.jpg", "assets/bg-web/silver-silver-jewelry-rings-2.jpg", "assets/bg-web/silver-silver-necklace-chain-1.jpg", "assets/bg-web/silver-silver-tea-set-2.jpg", "assets/bg-web/silver-silverware-set-1.jpg", "assets/bg-web/silver-silverware-set-3.jpg"],
+    "coins": ["assets/bg-web/coins-american-gold-eagle-coin-1.jpg", "assets/bg-web/coins-american-gold-eagle-coin-2.jpg", "assets/bg-web/coins-american-gold-eagle-coin-3.jpg", "assets/bg-web/coins-coin-collection-album-1.jpg", "assets/bg-web/coins-coin-hoard-1.jpg", "assets/bg-web/coins-coin-hoard-2.jpg", "assets/bg-web/coins-half-dollar-1.jpg", "assets/bg-web/coins-morgan-silver-dollar-1.jpg", "assets/bg-web/coins-morgan-silver-dollar-2.jpg", "assets/bg-web/coins-morgan-silver-dollar-3.jpg"],
+    "cars": ["assets/bg-web/cars-bmw-key-1.jpg", "assets/bg-web/cars-bmw-key-2.jpg", "assets/bg-web/cars-bmw-key-3.jpg", "assets/bg-web/cars-car-interior-steering-wheel-dashboard-1.jpg", "assets/bg-web/cars-car-interior-steering-wheel-dashboard-2.jpg", "assets/bg-web/cars-car-key-fob-1.jpg", "assets/bg-web/cars-classic-car-chrome-grille-1.jpg", "assets/bg-web/cars-classic-car-chrome-grille-2.jpg", "assets/bg-web/cars-classic-car-chrome-grille-3.jpg", "assets/bg-web/cars-sports-car-front-night-1.jpg", "assets/bg-web/cars-sports-car-front-night-2.jpg", "assets/bg-web/cars-used-car-dealership-lot-1.jpg", "assets/bg-web/trucks-chevrolet-silverado-pickup-1.jpg", "assets/bg-web/trucks-chevrolet-silverado-pickup-3.jpg", "assets/bg-web/trucks-ford-f-150-1.jpg", "assets/bg-web/trucks-ford-f-150-2.jpg", "assets/bg-web/trucks-ford-f-150-3.jpg", "assets/bg-web/trucks-pickup-truck-1.jpg", "assets/bg-web/trucks-pickup-truck-3.jpg", "assets/bg-web/trucks-pickup-truck-bed-1.jpg", "assets/bg-web/trucks-pickup-truck-bed-3.jpg"],
+    "strips": ["assets/bg-web/strips-blood-glucose-meter-1.jpg", "assets/bg-web/strips-blood-glucose-meter-4.jpg", "assets/bg-web/strips-blood-glucose-test-strips-2.jpg", "assets/bg-web/strips-blood-glucose-test-strips-3.jpg", "assets/bg-web/strips-contour-next-test-strips-1.jpg", "assets/bg-web/strips-contour-next-test-strips-2.jpg", "assets/bg-web/strips-contour-next-test-strips-3.jpg", "assets/bg-web/strips-freestyle-libre-3.jpg", "assets/bg-web/strips-freestyle-libre-4.jpg", "assets/bg-web/strips-glucose-meter-test-strip-2.jpg"],
+    "pokemon": ["assets/bg-web/pokemon-charizard-card-1.jpg", "assets/bg-web/pokemon-charizard-card-2.jpg"]};
+  const bgRealN = {};
   window.BG_MANIFEST = [];
   Object.keys(BOOK).forEach(cat => {
     const D = DECKS[cat];
@@ -1666,7 +1684,7 @@ const TEMPLATES = [
       const P = PAL[pal], T = { d:PAIRS[pair][0], s:PAIRS[pair][1] };
       const C = Object.assign({}, D, { h2: (lay === 'duoSplit' || lay === 'checklistHero') ? D.h2 : D.h2, quote: (TRUST_COPY[cat]||{}).q || 'Text us a photo. We send a price, you decide.', who: (TRUST_COPY[cat]||{}).w || 'HOW IT WORKS' });
       const id = 'dl_' + cat + '_' + lay + '_' + pal;
-      const file = 'assets/bg/' + id + '.jpg';
+      const realPool = BG_REAL[cat], file = realPool && realPool.length ? realPool[(bgRealN[cat] = (bgRealN[cat] || 0) + 1) % realPool.length] : 'assets/bg/' + id + '.jpg';
       /* Scrim compensates for how bright the BACKDROP is, which is a property
          of the palette's mood prompt, not a global constant. mono is "neutral
          charcoal studio, silver light" and arctic is "bright cool daylight,
