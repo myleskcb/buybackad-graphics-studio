@@ -1599,7 +1599,9 @@ seriously????"
 
 Then, of du01-20's grown one-word headline: "create some room for the words...
 this just feels incomplete still iPhone.. or maybe we can change it to sell
-your iphone?": it is now SELL YOUR over iPHONE (rule 113), gated, re-thumbed.
+your iphone?", then "WE BUY ALL (skip line) iPHONE 12-18", "or skip.. iPHONE
+PRO MAX AIR", "more specific and more variety", "too broad": it is now WE BUY
+over iPHONE PRO · MAX · AIR (rule 113), gated, re-thumbed.
 
 Done: `scripts/hero_headline.mjs` (measures the letters every headline covers,
 grows the ones under 30,000 px² as one block, gated); ten records grown (the
