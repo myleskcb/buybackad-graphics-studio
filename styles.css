@@ -1488,7 +1488,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .fam-sw i{display:block}
 .fam-name{font-weight:650;font-size:14px;letter-spacing:-.01em}
 .fam-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-variant-numeric:tabular-nums}
-/* ── THE COLOUR BUILDER (colour-builder.js, DESIGN-LAW rule 110) ──────────
+/* ── THE COLOUR BUILDER (colour-builder.js, DESIGN-LAW rule 112) ──────────
    The landing's colour sets as two tabs, ready-made or build your own, and
    the same builder in a dialog from the + in the studio's colour rows. Drawn
    from the tokens, so every look has it; the poster look's ink lines sit

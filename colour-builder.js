@@ -14,7 +14,7 @@
  * sits in the colour row of Easy Mode and the designer, and the studio's
  * gate still checks every download made with it (DESIGN-LAW 87).
  *
- * WHAT "GOES WITH" MEANS (DESIGN-LAW 110). The partners of each colour are a
+ * WHAT "GOES WITH" MEANS (DESIGN-LAW 112). The partners of each colour are a
  * fixed list of pairings ads and brands have run for decades (rule 103's
  * twelve among them, and they come first, ordered by how many live designs
  * use them, counted on the page). Colour theory does not get to invent a

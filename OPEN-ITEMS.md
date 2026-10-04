@@ -1548,7 +1548,7 @@ Still open:
 3. **Steps Flow** (15 fail): measure again after claude/relaxed-darwin-8aces4
    merges.
 
-## AE. 2026-10-03 — build your own colours (DESIGN-LAW 110)
+## AE. 2026-10-03 — build your own colours (DESIGN-LAW 112)
 
 (claude/eager-hopper-khk7ct, from `main` at 809c5ac6. **Not on `main`**: this
 session was told to develop and push on that branch only.)
@@ -1581,7 +1581,7 @@ Still open:
    from the merged code, `verify_showcase.mjs --write`, bump ASSET_REV). Merge
    it, then this branch, then run the audits AGENT-BRIEF lists.
 2. **A warm bright colour lets two passes draw dark shapes muddy**, house
-   themes as much as built sets (rule 110, "Known"): the one-colour pass
+   themes as much as built sets (rule 112, "Known"): the one-colour pass
    (fixed on the live branch) and the plate ink of rule 104 (a dark number on
    an orange or gold box goes brown; no branch guards it). Under the muddy
    floor the plate ink should take the deep hue.
