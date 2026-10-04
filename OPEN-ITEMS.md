@@ -1571,6 +1571,10 @@ many times do I have to tell you this is not a hero. It's tiny little text
 that looks extremely out of place compared to every other graphic
 seriously????"
 
+Then, of du01-20's grown one-word headline: "create some room for the words...
+this just feels incomplete still iPhone.. or maybe we can change it to sell
+your iphone?": it is now SELL YOUR over iPHONE (rule 111), gated, re-thumbed.
+
 Done: `scripts/hero_headline.mjs` (measures the letters every headline covers,
 grows the ones under 30,000 px² as one block, gated); ten records grown (the
 four Steps cards off the site, six live reviewProof and ticketStub cards);

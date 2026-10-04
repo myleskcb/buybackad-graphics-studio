@@ -3882,6 +3882,16 @@ What the owner compares is how much of the card the headline's letters cover:
   off the site already; and on the site reviewProof-pp03-35, -io03-15,
   -pp02-15 (×1.54), -pp02-20 (×1.28), ticketStub-ck03-15 and -du02-30 (×1.32).
   Three of the Steps cards had failed the gate's thumbnail test; none does now.
+- **A hero names what it wants.** The owner, of du01-20's grown "iPHONE":
+  "I would think we need to scoot this hero down a little bit and create some
+  room for the words... this just feels incomplete still iPhone.. or maybe we
+  can change it to sell your iphone?" One word is an object, not an ad. It is
+  now SELL YOUR (the lead, 0.44 of the hero, the family's own first words:
+  SELL YOUR TEST STRIPS, SELL YOUR iPAD) over iPHONE, the pair filling the band
+  between the kicker pill and the first step, 38px off each; the lead's letters
+  on the band's top, the hero's box 16% into the lead's (the collision pass
+  calls under 18% a kiss, so the lines sit 38px apart, not 57). WE BUY was
+  drawn too and left: beside EZ BUYER it says buy twice.
 - **Four live Glass Cards stay under the floor** (25k to 29k): their headline
   shares the glass panel with the product, and a bigger headline pushes the
   product out of the panel (the layout then leaves it off). That is a layout
