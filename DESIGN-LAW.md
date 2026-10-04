@@ -3774,7 +3774,154 @@ centred pill, passes both and still looks unfinished.
   Eight are Steps Flow cards, being re-laid out on another branch
   (claude/relaxed-darwin-8aces4) and not touched here.
 
-## 110. A stack keeps one rhythm down to its call to action, and the action is not another step
+### 109, continued: one alignment to a card (2026-10-04)
+
+The owner, on hudTech-jw07-16 after the first centring: "you need to align
+left for everything so the left one needed the middle box aligned the left
+as well or if you're going to center it then you can't leave the second line
+of the hero aligned left"; then "same thing here" on ticketStub-ck03-15, one
+ticket line left of the others.
+
+- **A card is centred, or on one side, never both.** The measure fails
+  `mixed` (some parts centred, some on a shared edge) and `innerMixed` (the
+  stacked lines on a plate neither on one centre nor on one left edge with
+  each other). A mirrored pair on one band (the outer chips of a row of
+  three) is centred as a pair; a row of a label and its value is not a stack;
+  depth copies and a ✓ in a dot are not lines; up to 15 px off is centred.
+- **What the first pass got wrong.** It centred text only on rectangles, so
+  the lines in a ring or a ticket kept their old place; it paired a 460 px
+  ring with the headline beside it as if it were the line's icon; it counted
+  a faint unfilled ring and a dashed ticket border as solid, so they held
+  lines and blocked moves; and it moved lines from their authored place, so a
+  line the layout holds at its plate's margin never moved (the ticket's
+  PAID ON THE SPOT). Parts are now judged by what is drawn solid (`ccSolid`),
+  any solid shape holding lines is a plate, an icon pairs with its words only
+  at a like height, a row of chips moves as one (`ccRows`), and lines move
+  from where they are drawn, each checked after painting.
+- **The repair** centres the whole card, or when anything cannot be centred,
+  puts every part on the side the headline stands on (`ccPlanLeft`, left or
+  right), or moves nothing. 39 more cards were given one alignment (32
+  centred, 3 left, 1 right, 3 repairs of the tick and the ink only), each
+  through the writers' gate and looked at by eye (one, bubblePop-jw04-35,
+  was not written: moved, its tagline blocks fell away).
+- **Ten could take neither** and are held (holds.json, audit 2026-10-04): a
+  headline on one side over a centred plate with pictures in the way, an arc
+  over a left line, three checklists whose left list stands over a centred
+  plate. 311 cards are live.
+- After: 45 of 291 offered cards fail the measure, none newly; 15 are Steps
+  Flow (another branch), and of the rest 8 read as one alignment by eye with
+  a part a little off.
+
+## 110. A video's real thumbnails are its own frames: read back exact, and more than one
+
+Added 2026-10-04. The owner: "more and more exact versions of real thumbnails
+in the ad". Asked what that meant, two of four: "the photo is the exact video
+frame" and "more versions".
+
+- **The frames come out of the file**, not out of the engine.
+  `VideoStill.frames` reads the finished video back (Mediabunny, vendor/) and
+  saves each frame exactly as the file holds it, at the video's size, as PNG.
+  A frame drawn again can differ from the one that was encoded (the maker
+  keeps its phones from the first settled frame while its rays keep moving),
+  and what a platform's thumbnail picker shows is the file. Rule 108's HD
+  photo stays as it is, drawn again at 1440: it is the one that downloads by
+  itself.
+- **Moments that look different.** Every tenth of a second is scored as
+  rule 108 scores it (detail × stillness², held to its neighbours), and
+  moments are taken best first, at least 0.5 s apart, none under 40% of the
+  best, up to six, each only if 6% of its 32px blocks (on a copy 320 on its
+  long side) move their mean luminance by more than 20 levels from every
+  moment already taken. Measured on seven clips: the same ad with its
+  photograph breathing behind it, 0 of the blocks; the ad against its call to
+  action, 0.62 to 0.80; the phones face-on against the phones landed, 0.117 to
+  0.383. On 16px blocks at 12 levels the breathing read 0.12 to 0.15 and four
+  near-copies were offered. What it gives: in the studio the finished ad and
+  its call to action; in the maker the phones face-on and landed, and an
+  ending where the look has one.
+- **Read through, not sought, a canvas to each frame.** A video recorded in
+  real time (MediaRecorder's WebM) has no index, and asking it for the frame
+  at a time came back empty; the chosen frames are taken on a second pass from
+  the start. With a pool of canvases the reader decodes ahead into canvases
+  it has already handed out: a chosen frame was saved with a later one drawn
+  over it, 16 to 227 levels off, on every frame but the clip's last.
+- **Offered, not pushed.** The one automatic download stays the HD photo.
+  The frames wait in "Photos from your video" (`VideoHelp.photos`): the HD
+  photo first, then the frames, each with Download, and Save all (the share
+  sheet on a phone, where Save to Photos takes them all at once; else one
+  download after another). It opens from "📷 Photos from this video" under
+  the studio's video button (in the editor, under the export buttons), More
+  photos in the toast, and More photos in the maker's note. The frames are
+  read while the video downloads and arrive in the pop-up if it is open.
+  `scripts/video_photo_check.mjs` opens it on every run, saves every card, and
+  holds each frame to the same file decoded again: at most 1 level off.
+- **A 2x screen measures at 1x** (found doing this). Easy Mode's scene and the
+  template thumbnails are never shown on screen, only exported and measured,
+  and are now made with `enableRetinaScaling:false`. fabric's default drew them
+  at twice their size on an iPhone or a Retina Mac, and `pgCheck`, which
+  reads W x H of the canvas, measured its top-left quarter: every line "almost
+  invisible", and every Easy Mode download on those screens stopped at "Not
+  ready to post yet". Measured after: the gate passes at 1x and 2x, desktop
+  and phone; the ad exported on a 2x screen against a 1x one is 48 dB apart,
+  at most 6 levels on any channel, no pixel more than 8.
+- **One picked, one other** (later the same day). The owner: "Auto select the
+  best one, but maybe we have alternative if you don't like it", then
+  "realistically, why would we need two maybe like one? There's only so many
+  frames and currently there are six seconds." So the pop-up is "Your video's
+  photo": the best moment, picked for you (rule 108's HD photo, the one that
+  came with the video), and beside it one alternative, "Not this one? Try
+  this": the best-scoring moment that looks different from the picked one,
+  measured against the picked moment's own frame in the file
+  (`VideoStill.frames` with `around`, `max` 1), at least 0.5 s from it, exact
+  as the file holds it. A clip with no such moment says so rather than offer a
+  near-copy. It opens from "📷 This video's photo" under the studio's video
+  button, Other photo in the toast, and Other photo in the maker's note; Save
+  both. Measured on the check's eight runs: the studio's alternative is its
+  call to action (9.9 s; 7.6 s on Free), the maker's the phones face-on (1.2
+  to 1.4 s) against the picked phones landed with the words (2.6 to 4.2 s);
+  every one 0 levels off the file.
+
+## 111. The library goes to a partner by key: the site's own catalogue, never a copy
+
+Added 2026-10-04. The owner: "build the intermediary so the ad title and
+description page and list it can access the library material from buyback ad
+via a key ... build your part and then give me the rest to put into the
+iPhones LA repo to finish this library of imagery".
+
+- **One route, one key.** `/api/library/v1` (`netlify/lib/library.mjs`,
+  routed before the account checks in `api.mjs`) answers a partner's server
+  holding a key from `LIBRARY_KEYS` (`name:key` pairs, 32 characters or more,
+  compared in constant time; two pairs at once is a rotation). No CORS: a key
+  in a web page is a key anyone has. Each key gets `LIBRARY_DAILY` requests a
+  day (20000), counted fail-open.
+- **The site's own catalogue, read from the deploy.** It reads that deploy's
+  `assets/library.json` and `assets/showcase/index.json` over HTTP (five
+  minutes' cache), so every link it hands out is a file that deploy serves, and
+  a library change reaches the partner with the deploy, never by a second
+  copy. The pictures stay static files; the key gates the catalogue.
+- **Only what the site offers.** Ad designs pass the site's own `scIsLive`
+  (held cards carry a defect and stay out; the check reads the test out of
+  app.js so the two cannot drift); placeholders are never offered; every
+  picture carries `source` and, where the library holds one, its `credit`.
+  A design is a 448px preview with `studio_url` (`?card=<id>`, which opens it
+  in Easy Mode): it is finished in the studio, and the full-size download goes
+  back to iPhones LA through the existing link (`iphonesla-link.js`).
+- **Search ranks the name first.** Every word of `q` must start a word of the
+  item; a word in the name counts 3, in the description 2, elsewhere 1, the
+  library's order breaking ties. Before it, "iphone" opened on two Android
+  phones, filed as they are under iphones.
+- **The other side is handed over tested.** `docs/iphonesla-library/` (not
+  served: docs/ is 404'd) holds the Python client, the two routes, the picker
+  and a paste-ready prompt for `loganipad/iphoneslainv`, which this session
+  could not reach. `scripts/library_handoff_check.mjs` runs all of it against
+  a stand-in BUYBACK.AD: nine Python tests, the README's Flask and FastAPI
+  code as written, and the demo listing page in Chromium, where a pick adds a
+  JPEG with white behind the cut-out to the listing's photos.
+- Measured 2026-10-04: 867 assets (637 cut-outs, 77 scenes, 153 backgrounds)
+  and 311 ad designs, every link a file in the checkout
+  (`scripts/library_api_check.mjs`, which also fails a held card offered,
+  a wrong or short key, the day's cap and a CORS header).
+
+## 112. A stack keeps one rhythm down to its call to action, and the action is not another step
 
 Added 2026-10-02. The owner, over two Steps Flow cards in the library (the
 first was `stepsFlow-du08-15`): "Can we audit the margin between each bubble?
@@ -3843,10 +3990,10 @@ far apart the two had ended up.
   by more than 2px or whose plate reads as a fourth step. `--before` turns
   both passes off (`window.__pgStepRhythmOff`, `__pgCtaStandOutOff`).
 
-## 111. The headline is the hero: it covers the card like every other card's does
+## 113. The headline is the hero: it covers the card like every other card's does
 
 Added 2026-10-03. The owner, over `stepsFlow-du01-20` (one word, "iPHONE", in
-the top left of a Steps card, shown in rule 110's before-and-after): "How many
+the top left of a Steps card, shown in rule 112's before-and-after): "How many
 times do I have to tell you this is not a hero. It's tiny little text that
 looks extremely out of place compared to every other graphic seriously????"
 
@@ -3895,7 +4042,7 @@ What the owner compares is how much of the card the headline's letters cover:
 - **Four live Glass Cards stay under the floor** (25k to 29k): their headline
   shares the glass panel with the product, and a bigger headline pushes the
   product out of the panel (the layout then leaves it off). That is a layout
-  decision, not a size: OPEN-ITEMS §AE.
+  decision, not a size: OPEN-ITEMS §AF.
 - Never judge a headline by its font size alone again: a condensed face and a
   short word make a large size small. Run `node scripts/hero_headline.mjs
   --live` (without `--write` it only reports) after anything that sets

@@ -8,9 +8,13 @@
    VideoHelp.check({ w, h, fps, sound, muxer }) -> Promise<report>
      report.items: [{ id, label, ok, detail, fix }] for each thing an export
      leans on; report.mp4 / report.record / report.sound say which paths work.
-   VideoHelp.show({ title, message, error, report, actions, tone })
+   VideoHelp.show({ title, message, error, report, actions, tone, body, wide })
      opens the pop-up. actions: [{ label, primary, run }]; run() may return a
-     promise, and the pop-up closes before it runs. */
+     promise, and the pop-up closes before it runs. body: a node shown under
+     the message; wide: room for a grid of pictures.
+   VideoHelp.photos(photo) a video's photo, picked (its HD photo), and the
+     other moment worth posting (photo.frames, from VideoStill.frames), each
+     to download. */
 (function(){
   const ua = navigator.userAgent || '';
   const IN_APP = /FBAN|FBAV|FB_IAB|Instagram|Line\/|TikTok|musical_ly|Snapchat|Twitter|LinkedInApp|Pinterest|GSA\//i.test(ua);
@@ -105,6 +109,19 @@
    into a column with its button hanging off the edge */
 .vh-toast.show{transform:translateY(0);pointer-events:auto}
 .vh-toast span{min-width:0}
+/* the photos of a video: a grid of its HD photo and its own frames */
+.vh.wide{max-width:640px}
+.vh-pics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0 4px}
+.vh-pic{margin:0;display:flex;flex-direction:column;gap:6px;border:1px solid var(--vh-line);border-radius:12px;padding:8px}
+.vh-pic img{display:block;width:100%;height:200px;object-fit:contain;border-radius:8px;background:rgba(127,127,127,.12)}
+.vh-pic figcaption{font-size:13px;line-height:1.3}
+.vh-pic figcaption span{display:block;color:var(--vh-mut)}
+.vh-pic button{margin-top:auto;border:1.5px solid var(--vh-line);background:transparent;color:var(--vh-ink);font:700 13.5px Satoshi,system-ui,sans-serif;padding:7px 12px;border-radius:999px;cursor:pointer;min-height:38px}
+.vh-pic button:focus-visible{outline:3px solid var(--vh-acc);outline-offset:2px}
+.vh-wait{color:var(--vh-mut);font-size:13.5px;margin:2px 0;align-self:center}
+.vh-tag{font-style:normal;font-weight:700;font-size:12.5px;color:var(--vh-mut)}
+.vh-pic:first-child .vh-tag{color:var(--vh-acc)}
+@media (max-width:520px){.vh-pic img{height:150px}}
 /* the video's photo kept under a row of buttons (the editor's export pop-up), on a line of its own */
 .vh-photo.vh-line{display:flex;align-items:center;justify-content:center;width:100%;margin-top:10px}
 .vh-toast button{flex:none;border:0;background:#b48cff;color:#140a24;font:700 13.5px Satoshi,system-ui,sans-serif;padding:7px 12px;border-radius:99px;cursor:pointer}
@@ -118,7 +135,7 @@
     if (!styled){ const s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s); styled = true; }
     close();
     const back = document.createElement('div'); back.className = 'vh-back';
-    const box = document.createElement('div'); box.className = 'vh' + (o.tone === 'info' ? ' info' : '');
+    const box = document.createElement('div'); box.className = 'vh' + (o.tone === 'info' ? ' info' : '') + (o.wide ? ' wide' : '');
     box.setAttribute('role', o.tone === 'info' ? 'dialog' : 'alertdialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-labelledby', 'vh-title');
     const missing = o.report ? o.report.items.filter(i => i.ok !== true) : [];
     const rows = (o.showAll && o.report ? o.report.items : missing).map(i => {
@@ -132,6 +149,7 @@
       (rows ? `<p><b>${missing.length ? 'What this browser is missing' : 'What this browser can do'}</b></p><ul>${rows}</ul>` : '') +
       '<div class="vh-acts"></div>';
     const acts = box.querySelector('.vh-acts');
+    if (o.body) box.insertBefore(o.body, acts);
     const list = (o.actions || []).slice();
     if (o.report && (o.report.inApp || missing.some(i => ['h264', 'webcodecs', 'recorder', 'inapp', 'secure'].includes(i.id))))
       list.push({ label: 'Copy link to open elsewhere', keepOpen: true, run: async b => {
@@ -250,20 +268,76 @@
      screenshot and no crop. It wears the video button's look; after a row
      of buttons (the editor's export pop-up, which has no room for a fourth)
      the page passes the class, and it takes a line of its own. */
-  let kept = null;
+  let kept = null, keptSet = null;
+  const urlOf = p => p._url || (p._url = URL.createObjectURL(p.blob));
+  function forget(set){
+    if (!set) return;
+    if (set._url) URL.revokeObjectURL(set._url);
+    if (set.frames) set.frames.then(r => (r.frames || []).forEach(f => f._url && URL.revokeObjectURL(f._url)));
+  }
   function keepPhoto(photo, after, label, cls){
     if (kept){ kept.remove(); kept = null; }
+    if (keptSet !== photo){ forget(keptSet); keptSet = null; }
     if (!photo || !photo.blob || !after || !after.parentNode) return null;
     if (!styled){ const s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s); styled = true; }
     const b = document.createElement('button');
     b.type = 'button'; b.className = cls || after.className; b.classList.add('vh-photo'); b.classList.remove('primary', 'download', 'btn-primary');
     if (cls) b.classList.add('vh-line');
-    b.textContent = label || "\u{1F4F7}\u00a0 Download the video's photo";
-    b.title = 'The photo of your last video, ' + (photo.w && photo.h ? photo.w + '×' + photo.h + ', ' : '') + 'for OfferUp, which takes a video only with a photo (' + photo.name + ')';
-    b.addEventListener('click', () => save(photo.blob, photo.name));
+    b.textContent = label || "\u{1F4F7}\u00a0 This video's photo";
+    b.title = "Your last video's photo, picked, and one other moment from it, for OfferUp, which takes a video only with a photo (" + photo.name + ')';
+    b.addEventListener('click', () => photos(photo));
     after.insertAdjacentElement('afterend', b);
+    keptSet = photo;
     return (kept = b);
   }
 
-  window.VideoHelp = { check, show, close, inApp: IN_APP, retry, waitVisible, isMemory, toast, share, save, canShareFiles, safetyNet, keepPhoto };
+  /* The photo of a video, picked, and the other one. Owner, 2026-10-04:
+     "auto select the best one, but maybe we have alternative if you don't
+     like it", then "realistically, why would we need two maybe like one?
+     There's only so many frames". So: the best moment, picked for you (rule
+     108's HD photo, which already came with the video), and beside it the
+     one other moment worth posting that looks different from it, exactly as
+     the video holds it (VideoStill.frames around the best; it arrives while
+     the pop-up is open if it is still being read). A clip with no such
+     moment says so rather than offering a near-copy. Save both goes to the
+     share sheet where a phone has one, else one download after the other. */
+  function photos(photo){
+    if (!photo || !photo.blob) return;
+    const grid = document.createElement('div'); grid.className = 'vh-pics';
+    const card = (p, tag, title, sub) => {
+      const f = document.createElement('figure'); f.className = 'vh-pic';
+      const t = document.createElement('em'); t.className = 'vh-tag'; t.textContent = tag;
+      const img = document.createElement('img'); img.src = urlOf(p); img.alt = title + ', ' + sub; img.loading = 'lazy';
+      const cap = document.createElement('figcaption'); cap.innerHTML = '<b></b><span></span>';
+      cap.firstChild.textContent = title; cap.lastChild.textContent = sub;
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Download';
+      b.title = p.name; b.addEventListener('click', () => save(p.blob, p.name));
+      f.append(t, img, cap, b); return f;
+    };
+    grid.appendChild(card(photo, 'Picked for you', 'Best moment, HD', photo.w + '×' + photo.h + (photo.t != null ? ' · at ' + photo.t.toFixed(1) + ' s' : '') + ' · came with the video'));
+    const wait = document.createElement('p'); wait.className = 'vh-wait';
+    wait.textContent = photo.frames ? 'Finding the other moment in the video…' : 'There is no other moment to offer for this video.';
+    grid.appendChild(wait);
+    if (photo.frames) photo.frames.then(r => {
+      const alt = (r.frames || [])[0];
+      if (r.error){ wait.textContent = 'The other moment could not be read out of this video (' + String(r.error.message || r.error) + '). The best one is above.'; return; }
+      if (!alt){ wait.textContent = 'This video has no other moment that looks different enough to offer: the best one is the photo.'; return; }
+      wait.remove();
+      grid.appendChild(card(alt, 'Not this one? Try this', 'Another moment', alt.w + '×' + alt.h + ' · at ' + alt.t.toFixed(1) + ' s, exactly as the video shows it'));
+    });
+    const both = async () => {
+      const r = photo.frames ? await photo.frames : {};
+      const list = [photo].concat((r.frames || []).slice(0, 1));
+      try {
+        const files = list.map(p => new File([p.blob], p.name, { type: p.blob.type || 'image/png' }));
+        if (navigator.canShare && navigator.canShare({ files })){ await navigator.share({ files }); return; }
+      } catch (e){ if (e && e.name === 'AbortError') return; }
+      for (const p of list){ save(p.blob, p.name); await new Promise(res => setTimeout(res, 350)); }
+    };
+    show({ tone: 'info', wide: true, title: "Your video's photo",
+      message: 'The best moment is picked for you and came with the video. Not the one? The other moment beside it is exactly as the video shows it. Either can go with the video on OfferUp or Marketplace.',
+      body: grid, actions: [{ label: 'Save both', primary: true, run: both }] });
+  }
+
+  window.VideoHelp = { check, show, close, inApp: IN_APP, retry, waitVisible, isMemory, toast, share, save, canShareFiles, safetyNet, keepPhoto, photos };
 })();

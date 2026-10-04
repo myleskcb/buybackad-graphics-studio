@@ -2664,7 +2664,180 @@ Steps Flow, left to claude/relaxed-darwin-8aces4), none newly.
     there the centred headline covered the corner badges. A layout change is
     not done until every_card_audit has run on the cards it touched.
 
-## 2026-10-02 — Steps Flow: one gap down to the CTA (DESIGN-LAW 110)
+## 2026-10-04 — one alignment to a card
+
+(claude/trusting-ride-cfpk9o, then `main`.)
+
+The owner, on a card the first pass called fixed: "you need to align left for
+everything … or if you're going to center it then you can't leave the second
+line of the hero aligned left"; "same thing here" on a ticket card.
+
+Found:
+  - A half-centred card is worse than either answer. The first pass centred
+    part by part and let the collision guard keep a part where it was, so
+    SKIP went to the middle and THE COIN SHOP stayed left.
+  - The measure judged whole parts, never the lines inside one, so a ticket
+    whose lines disagreed passed; and it read the inside of rings and
+    tickets not at all, because only rectangles were plates.
+  - Outlines lie about size. A 25%, unfilled HUD ring 460 px across held a
+    headline, paired with another as its "icon", and blocked every move
+    near it; a dashed ticket border held every line on the ticket.
+  - A line under its plate's margin cannot be moved from its authored place:
+    the layout puts it back at the margin, so three nudges never showed. Move
+    from where it is drawn, and check every line after.
+  - Loosening one test to stop false alarms (a mirror pair of chips) let in
+    false passes (any two parts either side of the middle). Every relaxed
+    rule needs a counter-condition (the pair shares a band).
+
+Did: DESIGN-LAW 109, continued; OPEN-ITEMS §AD. 39 cards given one alignment,
+10 held, 311 live, verify 311 pass, composition 45 of 291 fail, none newly.
+
+## 2026-10-04 — a video's real thumbnails: its own frames, exact, more than one (rule 110)
+
+Owner: "more and more exact versions of real thumbnails in the ad". Asked what
+that meant (four choices), "the photo is the exact video frame" and "more
+versions", then "of real thumbnails in the ad".
+
+Found:
+  - A frame cannot be drawn again exactly: the maker keeps its phones layer
+    from the first settled frame (`this.still`) while its rays keep moving, so
+    a fresh Ad at time t is not the frame the encoder got. The file is: read
+    it back.
+  - A real-time recording (MediaRecorder's WebM, the maker in this container)
+    has no index: Mediabunny's getCanvas(t) came back null on it, while
+    reading it through worked.
+  - With `poolSize: 2` the CanvasSink decodes ahead into canvases it has
+    already handed out: chosen frames came out 16 to 227 levels off the file,
+    every frame but the clip's last (which has nothing after it).
+  - Telling moments apart: 16px blocks at 12 levels read a photograph breathing
+    behind the same ad as 0.12 to 0.15 different and offered four near-copies;
+    32px blocks at 20 levels read it 0, the ad against its call to action 0.62
+    to 0.80, phones face-on against landed 0.117 to 0.383 (seven clips).
+  - Found doing this, older than it: on any 2x screen (iPhone, Retina Mac)
+    Easy Mode's gate failed every line as "almost invisible" and stopped every
+    download at "Not ready to post yet". renderEzCanvas's StaticCanvas took
+    fabric's default retina scaling (a 2160 canvas for a 1080 ad) and pgCheck
+    reads W x H of it: the top-left quarter. glassCard-cd06-15: 1x desktop and
+    phone pass, 2x desktop and phone fail with six "ghost" lines.
+
+Did: `VideoStill.frames` (video-still.js): reads the finished file back, scores
+every 0.1 s as rule 108 does, takes up to six moments best first that look
+different (above), and saves those frames as the file holds them, PNG at the
+video's size, on a second pass from the start, a canvas to each frame.
+`VideoHelp.photos`: "Photos from your video", the HD photo then the frames,
+each with Download, Save all (share sheet on a phone, else one after another).
+The studio starts reading the frames while the video downloads; "📷 Photos
+from this video" (the kept button) and More photos (the toast) open it; the
+maker's note has More photos. The HD photo still downloads by itself.
+`enableRetinaScaling:false` on renderEzCanvas's and renderThumb's scenes.
+Rule 110, README, brief.
+
+Checked (headless Chromium, production CSP, fabric 5.3.0 served locally;
+WebM here, no H.264):
+  - scripts/video_photo_check.mjs, 8 of 8: every run's photos open with three
+    pictures, the HD photo and two of the video's own frames, every Download
+    lands, the HD one the same bytes as the photo that came with the video,
+    and every frame 0 levels off the same file decoded again. Studio: 0.0 and
+    9.9 s (the ad, its call to action); Free 1.7 and 7.6 s; the maker: the
+    phones face-on (1.1 to 1.5 s) and landed (5.1 to 5.9 s) at every size.
+  - motion_export_check.mjs: both buttons, 10 s, 300 frames, the photo.
+  - The gate on glassCard-cd06-15 at 1x and 2x, desktop and a 390px phone:
+    passes on all four. The ad saved on a 2x screen against a 1x one: 48 dB,
+    at most 6 levels, no pixel over 8. Thumbnails identical on all four.
+  - The photos pop-up on desktop and a 2x phone (two columns, Save all and
+    Close in reach), after a real export.
+
+RESUME HERE:
+  0. As 2026-10-03: reconcile `claude/fervent-pascal-w6mthe` (37a26d34, live
+     on `buybackad-finished-copy`, its "Legible and plain" copy not on
+     `main`) before deploying `main` there; deploy `main`.
+  1. Export one video from Chrome or Safari (H.264, hardware decode) and open
+     its photos: the frames are checked here only on WebM.
+  2. `taglineCritic` reads the lower canvas at `getZoom()`, not at its size:
+     with the scenes at 1x now it is right, but a scene made elsewhere with
+     retina scaling would mislead it the way it misled pgCheck.
+
+## 2026-10-04 — one photo picked, one alternative (rule 110, continued)
+
+Owner: "Auto select the best one, but maybe we have alternative if you don't
+like it see others below and you have two other alternate", then
+"realistically, why would we need two maybe like one? There's only so many
+frames and currently there are six seconds."
+
+Found: the pop-up offered the picked photo plus every distinct frame in time
+order, and in the studio the first frame was the picked moment again (0.0 s,
+exact beside HD). A clip has about two compositions (the studio: the ad and
+its call to action; the maker: the phones face-on and landed), so a second
+alternative would be a near-copy, as the owner guessed.
+
+Did: `VideoStill.frames(video, { around })` measures against the picked
+moment's frame in the file and returns the one best moment that differs from
+it (0.5 s apart, 6% of 32px blocks by 20 levels). "Your video's photo":
+Picked for you, and Not this one? Try this; Save both. The buttons read
+"📷 This video's photo" and Other photo. Rule 110 continued, README, brief.
+
+Checked: video_photo_check.mjs 8 of 8, two cards on every run, the
+alternative 0 levels off the file and at least 1.2 s from the picked moment;
+the pop-up on desktop and a 2x phone (fits the phone without scrolling).
+Video length left as is: the maker offers 5, 6 or 8 s (6 by default), the
+studio 10 s; docs/VIDEO-AD-RESEARCH.md cites Google's six-second bumpers (90%
+of 122 campaigns lifted recall) and the loop ending on the opening
+composition.
+
+RESUME HERE: as the entry before (reconcile `claude/fervent-pascal-w6mthe`,
+then deploy `main`; one H.264 export from Chrome or Safari).
+
+## 2026-10-04 — the library for iPhones LA's listing page, by key (rule 111)
+
+Owner: "I need you to build the intermediary so the ad title and description
+page and list it can access the library material from buyback ad via a key.
+Does that make sense? So build your part and then give me the rest to put into
+the iPhones LA repo to finish this library of imagery".
+
+Found:
+  - Two libraries: the imagery (assets/library.json: 874 records, cut-outs,
+    scenes, backgrounds, 7 of them placeholders) and the ad designs
+    (assets/showcase/index.json, 971 records, 311 offered by scIsLive). Both
+    are static files the deploy serves; the backend is one Netlify Function
+    (api.mjs) with no route for a partner.
+  - The existing iPhones LA link pushes studio downloads to the shop
+    (iphonesla-link.js); this is the other direction, a pull by the shop's
+    server.
+  - loganipad/iphoneslainv (Python) is not reachable from this session, so its
+    side is handed over as files and a prompt, run here first.
+  - Search in library order put two Android phones first for "iphone": the
+    library files them under iphones.
+
+Did: netlify/lib/library.mjs (/api/library/v1: index, categories, assets,
+ads, one of each; key from LIBRARY_KEYS; day count; ranked search), routed
+first in api.mjs; ?card=<id> in app.js (appended) to open a design in Easy
+Mode; docs/iphonesla-library/ (buybackad_library.py, library-picker.js,
+example_server.py, test_buybackad_library.py, README.md with the contract,
+Flask and FastAPI routes and the paste-ready prompt). Rule 111, README, brief.
+
+Checked:
+  - scripts/library_api_check.mjs: no failures; through the real api.mjs with
+    a stand-in @netlify/blobs too (a /me after it still asks for a sign-in;
+    LIBRARY_DAILY=3 stops the fourth request). Broken on purpose (held cards
+    let through), it failed four ways.
+  - scripts/library_handoff_check.mjs with SNIPPETS_PYTHON: nine Python tests,
+    the README's Flask and FastAPI code as written, the demo listing page in
+    Chromium (a pick adds iphone-15-pro-back-black.jpg, 1600x1445, white
+    behind it; a design opens /?card=...). No failures.
+  - ?card= in Chromium: a Phones card opens in Easy Mode with the parameter
+    cleared and the rest of the address kept; a held card opens nothing and
+    says so; a malformed id opens nothing. A premium card opens the free
+    fallback for a free visitor, as a click would.
+
+RESUME HERE:
+  0. The owner: make a key, set LIBRARY_KEYS on the Netlify project iPhones LA
+     will call, deploy `main` (with the 2026-10-03 caveat about
+     `claude/fervent-pascal-w6mthe`), and give the iPhones LA session
+     docs/iphonesla-library/README.md's prompt.
+  1. After the deploy: `curl -H "Authorization: Bearer <key>"
+     <site>/api/library/v1` once, to see the function read its own deploy.
+
+## 2026-10-02 — Steps Flow: one gap down to the CTA (DESIGN-LAW 112)
 
 (claude/relaxed-darwin-8aces4, from `main` at 8f4d1e72.)
 
@@ -2713,14 +2886,14 @@ FABRIC_JS pointing at the npm fabric.min.js.
 
 RESUME HERE:
   0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (OPEN-ITEMS
-     §AD); the earlier RESUME items stand.
-  1. `stepsFlow-pp06-35`'s number onto its band (§AD 1).
+     §AE); the earlier RESUME items stand.
+  1. `stepsFlow-pp06-35`'s number onto its band (§AE 1).
 
-## 2026-10-03 — the headline is the hero (DESIGN-LAW 111)
+## 2026-10-03 — the headline is the hero (DESIGN-LAW 113)
 
 (claude/relaxed-darwin-8aces4.)
 
-The owner, over the first before-and-after of rule 110, at stepsFlow-du01-20's
+The owner, over the first before-and-after of rule 112, at stepsFlow-du01-20's
 one-word "iPHONE": "How many times do I have to tell you this is not a hero.
 It's tiny little text that looks extremely out of place compared to every
 other graphic seriously????"
@@ -2743,5 +2916,5 @@ Found:
     of those pictures.
 
 RESUME HERE:
-  0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (§AD, §AE).
-  1. The four Glass Cards' headline and product (§AE 1), with the owner.
+  0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (§AE, §AF).
+  1. The four Glass Cards' headline and product (§AF 1), with the owner.

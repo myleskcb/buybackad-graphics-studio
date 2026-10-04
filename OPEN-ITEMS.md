@@ -1522,7 +1522,33 @@ Still open:
    hudTech left headlines) pass and were not touched. If the owner wants
    every card centred, `centre_showcase.mjs --ids` takes any list.
 
-## AD. 2026-10-02 — Steps Flow: one gap down to the CTA, and a CTA that is not a fourth step (DESIGN-LAW 110)
+## AD. 2026-10-04 — one alignment to a card (DESIGN-LAW 109, continued)
+
+The owner: "align left for everything … or if you're going to center it then
+you can't leave the second line of the hero aligned left" (hudTech-jw07-16),
+"same thing here" (ticketStub-ck03-15). The measure now fails a mix of
+centred and side-aligned parts, and lines on a plate out of step; the repair
+centres all, or aligns all to the headline's side, or moves nothing. 39 cards
+given one alignment, 10 held, 311 live; verify_showcase passes all 311;
+composition 45 of 291 fail, none newly. every_card_audit on the 39: no card
+newly held as offered; choices off across the table fell (themes 445 to 426,
+voices 1,525 to 1,513).
+
+Not live until deployed (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **Eight read as one alignment by eye but fail `mixed`** by a part a little
+   off its axis: checklistHero-cd06-16, voltStack-gl02-15, neonNight-jw07-15,
+   hudTech-cd04-20, voltStack-jw10-30, arcCrown-jw10-30, bandKnockout-ck04-35,
+   bandKnockout-ck07-35. Each wants one part nudged by hand in the designer.
+2. **The ten held cards** (holds.json, audit 2026-10-04) need a new layout,
+   not a nudge: the headline's side is taken by pictures, or an arc heading
+   sits over left-aligned lines.
+3. **Steps Flow** (15 fail): measure again after claude/relaxed-darwin-8aces4
+   merges.
+
+## AE. 2026-10-02 — Steps Flow: one gap down to the CTA, and a CTA that is not a fourth step (DESIGN-LAW 112)
 
 The owner, over `stepsFlow-du08-15` and a green-CTA Steps card in the
 library: "audit the margin between each bubble", "the CTA should have even
@@ -1542,7 +1568,7 @@ every-choice audit on the 21 live Steps cards and both classics wrote the
 same holds `main` has, card for card (only contrast figures in the second
 decimal moved), so `assets/choice-holds.json` is unchanged. It did catch one
 new hold on the way (du02-20 under Electric Trust, the phone cue on a plate
-the theme repainted), fixed before this commit (rule 110).
+the theme repainted), fixed before this commit (rule 112).
 
 Not on `main`: this session may push only to its own branch,
 `claude/relaxed-darwin-8aces4` (merged up to `main` at 8f4d1e72). Merge it to
@@ -1564,16 +1590,16 @@ Still open:
    size). If the owner prefers taller rows and a smaller number there, swap
    the order in `pgStepRhythm` (the plate gives before the rows).
 
-## AE. 2026-10-03 — the headline is the hero (DESIGN-LAW 111)
+## AF. 2026-10-03 — the headline is the hero (DESIGN-LAW 113)
 
-The owner, over `stepsFlow-du01-20` in the rule 110 before-and-after: "How
+The owner, over `stepsFlow-du01-20` in the rule 112 before-and-after: "How
 many times do I have to tell you this is not a hero. It's tiny little text
 that looks extremely out of place compared to every other graphic
 seriously????"
 
 Then, of du01-20's grown one-word headline: "create some room for the words...
 this just feels incomplete still iPhone.. or maybe we can change it to sell
-your iphone?": it is now SELL YOUR over iPHONE (rule 111), gated, re-thumbed.
+your iphone?": it is now SELL YOUR over iPHONE (rule 113), gated, re-thumbed.
 
 Done: `scripts/hero_headline.mjs` (measures the letters every headline covers,
 grows the ones under 30,000 px² as one block, gated); ten records grown (the
@@ -1597,4 +1623,13 @@ Still open:
    did on `main` before its headline grew (the composition audit, rule 109,
    fails both the same way). Centring it is that audit's job
    (`scripts/centre_showcase.mjs`), not this one's.
-4. Rule 110's open items stand (§AD).
+4. **The Steps layout reads as two alignments to rule 109's measure**: a
+   left-set headline over full-width rows and a centred number plate. Rule
+   109 (continued) left its 15 failing Steps cards to this branch; with their
+   two-line headlines du01-20 and jw05-31 now fail it the same way (they
+   passed as one tiny line). `scripts/centre_showcase.mjs` finds no single
+   alignment for du01-20, and for jw05-31 it would move GEM MT away from its
+   10, so neither was written. The family needs one call from the owner:
+   centre the headline over the rows, or set the plate on the headline's
+   left edge.
+5. Rule 112's open items stand (§AE).
