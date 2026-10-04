@@ -403,7 +403,13 @@ produced." DESIGN-LAW rule 87. In practice:
   the studio, `makePhoto` in the maker). A new video export path makes one
   too, and keeps it a tap away until the next video (`VideoHelp.keepPhoto`
   in the studio, Save photo in the maker's note): a browser can hold the
-  second download back. Check: `node scripts/video_photo_check.mjs`.
+  second download back. Its own frames (rule 110) are read back out of the
+  file (`VideoStill.frames`), never drawn again, and offered in
+  `VideoHelp.photos`. Check: `node scripts/video_photo_check.mjs`.
+- **Off-screen scenes are 1x** (rule 110): a `fabric.StaticCanvas` that is
+  only exported or measured takes `enableRetinaScaling:false`. On a 2x screen
+  fabric's default doubles its canvas, and anything reading W x H of it
+  (`pgCheck`) measures a quarter of the ad.
 - **A card's parts line up** (rule 109, 2026-10-03): `node
   scripts/composition_audit.mjs` measures every offered card (`__sc.comp`:
   loose parts, near misses, a picture over a headline) and exits 1 on a

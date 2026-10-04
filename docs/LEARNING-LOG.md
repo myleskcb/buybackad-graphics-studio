@@ -2663,3 +2663,68 @@ Steps Flow, left to claude/relaxed-darwin-8aces4), none newly.
     offered: Easy Mode lays a card out again with the visitor's words, and
     there the centred headline covered the corner badges. A layout change is
     not done until every_card_audit has run on the cards it touched.
+
+## 2026-10-04 — a video's real thumbnails: its own frames, exact, more than one (rule 110)
+
+Owner: "more and more exact versions of real thumbnails in the ad". Asked what
+that meant (four choices), "the photo is the exact video frame" and "more
+versions", then "of real thumbnails in the ad".
+
+Found:
+  - A frame cannot be drawn again exactly: the maker keeps its phones layer
+    from the first settled frame (`this.still`) while its rays keep moving, so
+    a fresh Ad at time t is not the frame the encoder got. The file is: read
+    it back.
+  - A real-time recording (MediaRecorder's WebM, the maker in this container)
+    has no index: Mediabunny's getCanvas(t) came back null on it, while
+    reading it through worked.
+  - With `poolSize: 2` the CanvasSink decodes ahead into canvases it has
+    already handed out: chosen frames came out 16 to 227 levels off the file,
+    every frame but the clip's last (which has nothing after it).
+  - Telling moments apart: 16px blocks at 12 levels read a photograph breathing
+    behind the same ad as 0.12 to 0.15 different and offered four near-copies;
+    32px blocks at 20 levels read it 0, the ad against its call to action 0.62
+    to 0.80, phones face-on against landed 0.117 to 0.383 (seven clips).
+  - Found doing this, older than it: on any 2x screen (iPhone, Retina Mac)
+    Easy Mode's gate failed every line as "almost invisible" and stopped every
+    download at "Not ready to post yet". renderEzCanvas's StaticCanvas took
+    fabric's default retina scaling (a 2160 canvas for a 1080 ad) and pgCheck
+    reads W x H of it: the top-left quarter. glassCard-cd06-15: 1x desktop and
+    phone pass, 2x desktop and phone fail with six "ghost" lines.
+
+Did: `VideoStill.frames` (video-still.js): reads the finished file back, scores
+every 0.1 s as rule 108 does, takes up to six moments best first that look
+different (above), and saves those frames as the file holds them, PNG at the
+video's size, on a second pass from the start, a canvas to each frame.
+`VideoHelp.photos`: "Photos from your video", the HD photo then the frames,
+each with Download, Save all (share sheet on a phone, else one after another).
+The studio starts reading the frames while the video downloads; "📷 Photos
+from this video" (the kept button) and More photos (the toast) open it; the
+maker's note has More photos. The HD photo still downloads by itself.
+`enableRetinaScaling:false` on renderEzCanvas's and renderThumb's scenes.
+Rule 110, README, brief.
+
+Checked (headless Chromium, production CSP, fabric 5.3.0 served locally;
+WebM here, no H.264):
+  - scripts/video_photo_check.mjs, 8 of 8: every run's photos open with three
+    pictures, the HD photo and two of the video's own frames, every Download
+    lands, the HD one the same bytes as the photo that came with the video,
+    and every frame 0 levels off the same file decoded again. Studio: 0.0 and
+    9.9 s (the ad, its call to action); Free 1.7 and 7.6 s; the maker: the
+    phones face-on (1.1 to 1.5 s) and landed (5.1 to 5.9 s) at every size.
+  - motion_export_check.mjs: both buttons, 10 s, 300 frames, the photo.
+  - The gate on glassCard-cd06-15 at 1x and 2x, desktop and a 390px phone:
+    passes on all four. The ad saved on a 2x screen against a 1x one: 48 dB,
+    at most 6 levels, no pixel over 8. Thumbnails identical on all four.
+  - The photos pop-up on desktop and a 2x phone (two columns, Save all and
+    Close in reach), after a real export.
+
+RESUME HERE:
+  0. As 2026-10-03: reconcile `claude/fervent-pascal-w6mthe` (37a26d34, live
+     on `buybackad-finished-copy`, its "Legible and plain" copy not on
+     `main`) before deploying `main` there; deploy `main`.
+  1. Export one video from Chrome or Safari (H.264, hardware decode) and open
+     its photos: the frames are checked here only on WebM.
+  2. `taglineCritic` reads the lower canvas at `getZoom()`, not at its size:
+     with the scenes at 1x now it is right, but a scene made elsewhere with
+     retina scaling would mislead it the way it misled pgCheck.

@@ -2887,7 +2887,7 @@ function buildLayer(l, tplId, dw, dh){
 const THUMBS = {};
 function renderThumb(tpl, px){
   // thumbnails always preview the authored square template, whatever the live doc format
-  const sc = new fabric.StaticCanvas(null, { width:TPL_W, height:TPL_H, renderOnAddRemove:false });
+  const sc = new fabric.StaticCanvas(null, { width:TPL_W, height:TPL_H, renderOnAddRemove:false, enableRetinaScaling:false });   // at 1x on every screen, as renderEzCanvas
   const bgi = tpl.bg.type === 'image' ? freshBgImage(tpl.bg.src, tpl.bg.blur, tpl.bg.grade) : null;
   if (bgi){
     sc.setBackgroundImage(coverImage(bgi, TPL_W, TPL_H), () => {});
@@ -9180,7 +9180,12 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
   // Easy Mode is deliberately square-only, the guided flow targets Marketplace
   // & Instagram posts; rectangular formats live in the advanced editor
   const tpl = ezTpl();
-  const sc = new fabric.StaticCanvas(null, { width:DW, height:DH, renderOnAddRemove:false });
+  /* never drawn on screen, only exported and measured: at 1x on every
+     screen. fabric's retina scaling (on by default) drew it at 2x on an
+     iPhone or a Retina Mac, and pgCheck, which reads it W x H, measured the
+     top-left quarter: the gate called every line "almost invisible" and every
+     download from Easy Mode stopped at "Not ready to post yet" (2026-10-04) */
+  const sc = new fabric.StaticCanvas(null, { width:DW, height:DH, renderOnAddRemove:false, enableRetinaScaling:false });
   // solid base first: guarantees no transparent pixels can ever export as black
   sc.setBackgroundColor('#101014', () => {});
   // Until a background is explicitly picked, the template photo previews as a
@@ -12176,6 +12181,13 @@ async function runVideoExport(o){
     catch (e){ photoErr = e; console.warn('GraphicsStudio motion: the photo could not be made, the video goes alone.', e); }
     setBtn('Saving…');
     if (photo) Object.assign(photo, { after: o.photoAfter || btn, label: o.photoLabel, cls: o.photoClass });
+    /* and the video's own frames, read back out of the file while it
+       downloads (VideoStill.frames, rule 110): settled either way, so a
+       browser that cannot read them never reaches the safety net */
+    if (photo && window.VideoStill && VideoStill.frames)
+      photo.frames = VideoStill.frames(r.blob).then(fs => ({ frames: fs.map(f => Object.assign(f, { name: VideoStill.frameName(name, f.t, f.w, f.h) })) }), e => {
+        console.warn("GraphicsStudio motion: the video's frames could not be read back.", e); return { error: e };
+      });
     if (!await deliverVideo(r.blob, name, photo)) return;
     const catches = [];
     if (ext !== 'mp4') catches.push('It was saved as WebM, because this browser cannot write MP4. Instagram and TikTok may refuse WebM.');
@@ -12192,12 +12204,14 @@ async function runVideoExport(o){
       if (VH.canShareFiles()) actions.push({ label: 'Share or save to Photos', primary: true, run: () => VH.share(r.blob, name, photo ? [photo] : []) });
       actions.push({ label: 'Save again', run: () => VH.save(r.blob, name) });
       if (photo) actions.push({ label: 'Save the photo again', run: () => VH.save(photo.blob, photo.name) });
+      if (photo && VH.photos) actions.push({ label: 'More photos', run: () => VH.photos(photo) });
       VH.show({ tone: 'info', title: 'Video saved, with a catch', message: catches.join(' '), error: String((photoErr || soundErr || soundDropped || fellBack || {}).message || ''), report, actions });
     } else {
       const said = ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4';
       /* a second download can be held by the browser ("download multiple
          files?"), so the photo keeps a way to be saved again */
-      if (photo && VH) VH.toast(said + '. Its ' + photo.w + '×' + photo.h + ' photo for OfferUp came with it.', { ms: 12000, action: { label: 'Save photo again', run: () => VH.save(photo.blob, photo.name) } });
+      if (photo && VH) VH.toast(said + '. Its ' + photo.w + '×' + photo.h + ' photo for OfferUp came with it.', { ms: 12000, action: VH.photos
+        ? { label: 'More photos', run: () => VH.photos(photo) } : { label: 'Save photo again', run: () => VH.save(photo.blob, photo.name) } });
       else toast(said, ext === 'mp4' ? 'success' : undefined);
     }
   } catch (e){
@@ -12323,7 +12337,7 @@ async function editorDownloadVideo(){
   canvas.discardActiveObject(); canvas.renderAll();
   const sc = new fabric.StaticCanvas(null, { width:CW, height:CH, renderOnAddRemove:false, enableRetinaScaling:false });
   await new Promise(res => sc.loadFromJSON(canvas.toJSON(EXTRA_PROPS), res));
-  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, photoCap:motionPhotoCap(), photoAfter:$('ex-video').parentNode, photoClass:'btn btn-outline', photoLabel:"\u{1F4F7}\u00a0 Download the video's photo", actx, name:currentTplName, btn:$('ex-video') });
+  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, photoCap:motionPhotoCap(), photoAfter:$('ex-video').parentNode, photoClass:'btn btn-outline', actx, name:currentTplName, btn:$('ex-video') });
 }
 
 /* the buttons (index.html: #ez-video beside Download my ad, #ex-video in the

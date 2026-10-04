@@ -3773,3 +3773,55 @@ centred pill, passes both and still looks unfinished.
   and the voices' table moved on 16 cards (1,520 to 1,525 voices off).
   Eight are Steps Flow cards, being re-laid out on another branch
   (claude/relaxed-darwin-8aces4) and not touched here.
+
+## 110. A video's real thumbnails are its own frames: read back exact, and more than one
+
+Added 2026-10-04. The owner: "more and more exact versions of real thumbnails
+in the ad". Asked what that meant, two of four: "the photo is the exact video
+frame" and "more versions".
+
+- **The frames come out of the file**, not out of the engine.
+  `VideoStill.frames` reads the finished video back (Mediabunny, vendor/) and
+  saves each frame exactly as the file holds it, at the video's size, as PNG.
+  A frame drawn again can differ from the one that was encoded (the maker
+  keeps its phones from the first settled frame while its rays keep moving),
+  and what a platform's thumbnail picker shows is the file. Rule 108's HD
+  photo stays as it is, drawn again at 1440: it is the one that downloads by
+  itself.
+- **Moments that look different.** Every tenth of a second is scored as
+  rule 108 scores it (detail × stillness², held to its neighbours), and
+  moments are taken best first, at least 0.5 s apart, none under 40% of the
+  best, up to six, each only if 6% of its 32px blocks (on a copy 320 on its
+  long side) move their mean luminance by more than 20 levels from every
+  moment already taken. Measured on seven clips: the same ad with its
+  photograph breathing behind it, 0 of the blocks; the ad against its call to
+  action, 0.62 to 0.80; the phones face-on against the phones landed, 0.117 to
+  0.383. On 16px blocks at 12 levels the breathing read 0.12 to 0.15 and four
+  near-copies were offered. What it gives: in the studio the finished ad and
+  its call to action; in the maker the phones face-on and landed, and an
+  ending where the look has one.
+- **Read through, not sought, a canvas to each frame.** A video recorded in
+  real time (MediaRecorder's WebM) has no index, and asking it for the frame
+  at a time came back empty; the chosen frames are taken on a second pass from
+  the start. With a pool of canvases the reader decodes ahead into canvases
+  it has already handed out: a chosen frame was saved with a later one drawn
+  over it, 16 to 227 levels off, on every frame but the clip's last.
+- **Offered, not pushed.** The one automatic download stays the HD photo.
+  The frames wait in "Photos from your video" (`VideoHelp.photos`): the HD
+  photo first, then the frames, each with Download, and Save all (the share
+  sheet on a phone, where Save to Photos takes them all at once; else one
+  download after another). It opens from "📷 Photos from this video" under
+  the studio's video button (in the editor, under the export buttons), More
+  photos in the toast, and More photos in the maker's note. The frames are
+  read while the video downloads and arrive in the pop-up if it is open.
+  `scripts/video_photo_check.mjs` opens it on every run, saves every card, and
+  holds each frame to the same file decoded again: at most 1 level off.
+- **A 2x screen measures at 1x** (found doing this). Easy Mode's scene and the
+  template thumbnails are never shown on screen, only exported and measured,
+  and are now made with `enableRetinaScaling:false`. fabric's default drew them
+  at twice their size on an iPhone or a Retina Mac, and `pgCheck`, which
+  reads W x H of the canvas, measured its top-left quarter: every line "almost
+  invisible", and every Easy Mode download on those screens stopped at "Not
+  ready to post yet". Measured after: the gate passes at 1x and 2x, desktop
+  and phone; the ad exported on a 2x screen against a 1x one is 48 dB apart,
+  at most 6 levels on any channel, no pixel more than 8.
