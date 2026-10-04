@@ -1626,6 +1626,10 @@ same twenty builder sets on three classics draw muddy paint in 3 of 60
 renders (24 before), all one case, a near-black green number on Lime & Navy's
 lime box (`#0a1a00`, rule 104's plate ink).
 
+   With `main` at b5684f57 merged in as well (the library is the ads): the
+   311 library ads re-rendered from the merged code (render_library_ads
+   --stale), library_api_check and library_handoff_check pass.
+
 6. **Choice holds were not re-swept** on the merged build: the one-colour pass
    changed (two families), so `node scripts/every_card_audit.mjs
    --write-holds` (hours; `--resume`) should be run before the holds are

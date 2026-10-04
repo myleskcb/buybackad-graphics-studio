@@ -82,16 +82,17 @@ export one clip from Chrome or Safari before announcing it.
 
 ## Library API (iPhones LA) — optional
 
-`/api/library/v1` hands the imagery library (867 product cut-outs, scenes and
-backgrounds) and the 311 ad designs the site offers to a partner's server,
-behind a key: set `LIBRARY_KEYS` (`name:key` pairs, keys of 32 characters or
-more) in the Netlify environment. Without it the route answers 503 and nothing
-else changes. The pictures stay the site's static files; the key gates the
-catalogue. `?card=<id>` opens a design in the studio. The other side, for
-iPhones LA's listing page, is `docs/iphonesla-library/` (a Python client, the
-two server routes, the picker, a paste-ready prompt). Checks:
-`scripts/library_api_check.mjs`, `scripts/library_handoff_check.mjs`.
-DESIGN-LAW rule 111.
+`/api/library/v1` hands the library's ads (the 311 finished cards the site
+offers, each rendered at 1080x1080 into `assets/library-ads/` by
+`scripts/render_library_ads.mjs`) to a partner's server, behind a key: set
+`LIBRARY_KEYS` (`name:key` pairs, keys of 32 characters or more) in the
+Netlify environment. Without it the route answers 503 and nothing else
+changes. `?card=<id>` opens an ad in the studio. The other side, for iPhones
+LA's listing page, is `docs/iphonesla-library.zip` (the folder
+`docs/iphonesla-library/`: a Python client, the server routes, the picker, a
+paste-ready prompt). After the library's thumbnails are drawn again, run
+`render_library_ads.mjs --stale`. Checks: `scripts/library_api_check.mjs`,
+`scripts/library_handoff_check.mjs`. DESIGN-LAW rule 111.
 
 ## SCANS.AD (ScanMap) integration — optional
 Graphics Studio runs 100% standalone. The integration is also **invisible to

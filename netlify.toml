@@ -239,6 +239,12 @@
   [headers.values]
     Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
 
+# the library's ads at full size (rule 111): the API links them with ?v=<sha1>
+[[headers]]
+  for = "/assets/library-ads/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
 [[headers]]
   for = "/assets/geo/*"
   [headers.values]

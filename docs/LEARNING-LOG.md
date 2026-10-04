@@ -2837,6 +2837,63 @@ RESUME HERE:
   1. After the deploy: `curl -H "Authorization: Bearer <key>"
      <site>/api/library/v1` once, to see the function read its own deploy.
 
+## 2026-10-04 — the library is the ads: full-size renders, one zip (rule 111, continued)
+
+Owner, over the first iPhones LA picker: "Those are not the ads those are
+assets and very old assets at that so it's going to be ads that we approved
+and send to the library in the buyback ad app. Just make sure everything is
+unified. Can you make it one simple dot zip for me ... the ads look way
+different than that." And: "It's two apps communicating together or creating
+link accessible files for a temporary. until the automation is complete..?"
+
+Found:
+  - "The library" in this repo is the Designer Library, the showcase cards
+    (311 offered); the first version led with assets/library.json's product
+    cut-outs, which the owner reads as old assets. assets/approved/ is the
+    audit's reference renders, not a library anything is sent to.
+  - The API could hand out only 448px thumbnails: the studio draws an ad in
+    the browser. renderThumb() at 1080 is the picture each thumbnail is shrunk
+    from (rethumb_showcase.mjs), 155 to 476 ms a card.
+  - Search: titles are palettes ("Black & Gold · ..."), so "gold" ranked
+    phones ads in a gold palette above the gold-buying ads.
+
+Did: scripts/render_library_ads.mjs (every offered card at 1080, JPEG 0.88,
+into assets/library-ads/ with an index of sha1s; --stale; prunes cards no
+longer offered); renderThumb(tpl, px, q) takes a quality; the API offers the
+ads alone, each as its render (?v=sha1), thumbnail and studio link, and ranks
+category and subject over the title; the client, picker, reference server,
+tests and README for ads; docs/iphonesla-library.zip
+(scripts/pack_iphonesla_library.sh); cache headers for the renders (toml and
+_headers). Rule 111 continued, README, brief.
+
+The answer to the question: both. The two apps talk through the API (which
+ads there are, behind the key); the ads are files at fixed addresses on the
+site. When the library changes, rethumb, render --stale and deploy: the next
+answer is the new library, nothing to sync on the iPhones LA side. The step
+left by hand is that render, until the deploy runs it.
+
+Checked:
+  - 311 renders, 55 MB; each shrunk to 448 against its thumbnail 28.9 to 35 dB
+    (median 31.7), none under 25; the two lowest looked at side by side: the
+    same ads.
+  - library_api_check.mjs: no failures (renders, keys, routes, ranking, the
+    real api.mjs).
+  - library_handoff_check.mjs with SNIPPETS_PYTHON: ten Python tests, the
+    README's Flask and FastAPI code, the demo listing page (311 ads, "gold"
+    narrows to 115 with the gold ads first, a pick adds
+    checklistHero-jw07-15.jpg, 1080x1080, byte for byte the render), the zip
+    the folder. No failures.
+
+RESUME HERE:
+  0. The owner: a key, LIBRARY_KEYS on the Netlify project iPhones LA calls,
+     deploy `main` (the `claude/fervent-pascal-w6mthe` caveat stands), and the
+     zip's README prompt to the iPhones LA session.
+  1. Automate the last hand step: render_library_ads.mjs --stale in the deploy
+     (or a scheduled job), so an ad approved into the library reaches iPhones
+     LA without anyone running it.
+  2. The repo grows 55 MB with the renders, and again with every full
+     re-render: re-render --stale, not everything.
+
 ## 2026-10-03 — build your own colours
 
 (claude/eager-hopper-khk7ct, from `main` 809c5ac6; not on `main`.)

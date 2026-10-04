@@ -415,13 +415,15 @@ produced." DESIGN-LAW rule 87. In practice:
   out of the file (`VideoStill.frames` with `around`), never drawn again,
   offered in `VideoHelp.photos`. One, not more: the owner asked for one. Check: `node scripts/video_photo_check.mjs`.
 - **The library API** (rule 111, 2026-10-04): `/api/library/v1` in
-  `netlify/lib/library.mjs`, routed first in `api.mjs`, behind `LIBRARY_KEYS`.
-  It reads the deploy's own `assets/library.json` and showcase index, so a
-  change to either is a change to what partners get: offered ads use the
-  site's own `scIsLive` (the check reads it out of app.js), placeholders are
-  never offered. Keys stay server-side; no CORS. Checks:
-  `node scripts/library_api_check.mjs`, and for the iPhones LA handoff
-  (`docs/iphonesla-library/`) `node scripts/library_handoff_check.mjs`.
+  `netlify/lib/library.mjs`, routed first in `api.mjs`, behind `LIBRARY_KEYS`,
+  offers the library's ads: the cards `scIsLive` offers, each as its 1080
+  render in `assets/library-ads/` (`scripts/render_library_ads.mjs`, through
+  `renderThumb()`). After `rethumb_showcase.mjs`, run
+  `render_library_ads.mjs --stale`: `library_api_check.mjs` fails on a missing,
+  leftover or stale render. Keys stay server-side; no CORS. The iPhones LA
+  side is `docs/iphonesla-library/`, handed over as
+  `docs/iphonesla-library.zip` (`scripts/pack_iphonesla_library.sh`); check it
+  with `node scripts/library_handoff_check.mjs`.
 - **Off-screen scenes are 1x** (rule 110): a `fabric.StaticCanvas` that is
   only exported or measured takes `enableRetinaScaling:false`. On a 2x screen
   fabric's default doubles its canvas, and anything reading W x H of it
