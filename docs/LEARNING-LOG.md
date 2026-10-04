@@ -3057,7 +3057,11 @@ Not done here: the deploy. This session's network policy denies
 `*.netlify.app` and `api.netlify.com`; the owner deploys from the Mac, or
 allows those hosts in the environment's network settings.
 
+Then, with the owner's yes: `main` fast-forwarded to this branch (b5684f57 to
+4af5fc17), so `main` holds the colour builder and what production serves.
+
 RESUME HERE:
-  0. Put this branch on `main` and deploy it (AGENT-BRIEF, Deploying).
+  0. Deploy `main` from the Mac to both Netlify projects (AGENT-BRIEF,
+     Deploying); this session's network cannot reach Netlify.
   1. Re-sweep the choice holds on the merged build (OPEN-ITEMS §AE 6).
   2. Guard rule 104's plate ink with the muddy floor (§AE 2).
