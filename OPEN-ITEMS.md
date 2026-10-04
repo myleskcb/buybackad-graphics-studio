@@ -1481,7 +1481,48 @@ Still open:
    owner wants the list to match.
 
 
-## AC. 2026-10-02 — Steps Flow: one gap down to the CTA, and a CTA that is not a fourth step (DESIGN-LAW 108)
+## AC. 2026-10-03 — the composition audit: 88 cards centred, 8 held (DESIGN-LAW 109)
+
+The owner: "next audit more", after a Pokémon card that "looks incomplete".
+`scripts/composition_audit.mjs` (exits 1 on a failing offered card) and
+`scripts/centre_showcase.mjs` (the gated repair). 118 of 309 offered cards
+failed; 88 were centred, 16 lost a leftover ✓ in their first ring, 16 had an
+invisible icon or sticker text inked to read; 8 were held (holds.json);
+verify_showcase passes all 321 live cards; 49 of 301 still fail the measure.
+every_card_audit on the changed cards: no card newly held as offered (two
+whose centred headline covered the corner badges were put back,
+checklistHero-cd04-15 and -cd06-20, keeping the tick and ink repairs); one
+theme (neonNight-nn05-15, Electric Trust) and one look (trustSeal-cd06-26,
+glow) newly off; the voices' table moved on 16 cards.
+
+Not live until deployed (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **The gate held 11 centrings**, each because a line would sit on a
+   brighter or darker patch of the photograph and lose contrast, or a
+   kicker would be covered: checklistHero-jw10-15, checklistHero-du07-15
+   (both still carry the leftover ✓ and need it removed without the move),
+   neonNight-jw07-15, scriptRetro-io03-15, scriptRetro-cd06-15,
+   scriptRetro-ca07-20, voltStack-du01-20, voltStack-gl04-20,
+   reviewProof-jw05-30 (held), hudTech-du01-30, bubblePop-du09-35. Each
+   needs its shade re-solved after the move (naturalize, then verify).
+2. **Fifteen came out no better** (a wave layout, a card whose parts collide
+   when centred, a part centred onto another): trustSeal-su02-20,
+   neonNight-nn03-20, neonNight-jw05-20, neonNight-cd06-25,
+   ticketStub-jw07-20, hudTech-cd10-20, voltStack-jw10-30,
+   scriptRetro-nn01-30, scriptRetro-du01-30, bandKnockout-jw10-30,
+   bandKnockout-pa03-35, checklistHero-pa01-35, checklistHero-pp09-35,
+   reviewProof-cd08-35 (held), hudTech-nn08-35 (held). A person's eye, or a
+   relayout, not a nudge.
+3. **Steps Flow**: eight fail the measure (the number's plate off the middle
+   on several); claude/relaxed-darwin-8aces4 is re-laying them out and is
+   not on `main`. Run composition_audit on them after it merges.
+4. The left-aligned designs that share an edge (most voltStack, neonNight,
+   hudTech left headlines) pass and were not touched. If the owner wants
+   every card centred, `centre_showcase.mjs --ids` takes any list.
+
+## AD. 2026-10-02 — Steps Flow: one gap down to the CTA, and a CTA that is not a fourth step (DESIGN-LAW 110)
 
 The owner, over `stepsFlow-du08-15` and a green-CTA Steps card in the
 library: "audit the margin between each bubble", "the CTA should have even
@@ -1501,7 +1542,7 @@ every-choice audit on the 21 live Steps cards and both classics wrote the
 same holds `main` has, card for card (only contrast figures in the second
 decimal moved), so `assets/choice-holds.json` is unchanged. It did catch one
 new hold on the way (du02-20 under Electric Trust, the phone cue on a plate
-the theme repainted), fixed before this commit (rule 108).
+the theme repainted), fixed before this commit (rule 110).
 
 Not on `main`: this session may push only to its own branch,
 `claude/relaxed-darwin-8aces4` (merged up to `main` at 8f4d1e72). Merge it to
@@ -1523,9 +1564,9 @@ Still open:
    size). If the owner prefers taller rows and a smaller number there, swap
    the order in `pgStepRhythm` (the plate gives before the rows).
 
-## AD. 2026-10-03 — the headline is the hero (DESIGN-LAW 109)
+## AE. 2026-10-03 — the headline is the hero (DESIGN-LAW 111)
 
-The owner, over `stepsFlow-du01-20` in the rule 108 before-and-after: "How
+The owner, over `stepsFlow-du01-20` in the rule 110 before-and-after: "How
 many times do I have to tell you this is not a hero. It's tiny little text
 that looks extremely out of place compared to every other graphic
 seriously????"
@@ -1548,4 +1589,8 @@ Still open:
    measure lives in the script, not in `pgCheck`, so a visitor's export is not
    stopped by it; moving it into the gate would hold every card under 30k
    (the four Glass Cards) until (1) is settled.
-3. Rule 108's open items stand (§AC).
+3. **reviewProof-pp03-35's GOLD BUYER sits 32px left of the middle**, as it
+   did on `main` before its headline grew (the composition audit, rule 109,
+   fails both the same way). Centring it is that audit's job
+   (`scripts/centre_showcase.mjs`), not this one's.
+4. Rule 110's open items stand (§AD).

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* THE HEADLINE IS THE HERO (DESIGN-LAW 109).
+/* THE HEADLINE IS THE HERO (DESIGN-LAW 111).
  *
  * The owner, 2026-10-03, over stepsFlow-du01-20 (one word, "iPHONE", at the
  * top left of a Steps card): "How many times do I have to tell you this is

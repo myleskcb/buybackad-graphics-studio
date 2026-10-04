@@ -1,4 +1,4 @@
-/* THE STEPS RHYTHM AUDIT (DESIGN-LAW 108): every Steps Flow card (the classics
+/* THE STEPS RHYTHM AUDIT (DESIGN-LAW 110): every Steps Flow card (the classics
  * and every showcase record), painted the way renderThumb() paints it, and two
  * questions asked of the laid-out scene:
  *   gaps   step 1 to 2, 2 to 3, and step 3 to the CTA plate, from the objects'

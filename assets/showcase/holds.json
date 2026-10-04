@@ -1,5 +1,5 @@
 {
- "about": "Cards the owner's audit of 2026-10-02 holds back from the site (DESIGN-LAW rule 105). Every live card was looked at on contact sheets; a card is held when it is not a finished product: no photograph behind it, or a headline that does not read. scripts/hold_showcase.mjs --write stamps defect \"curated\" on each, which every later audit keeps. Delete a line here and the stamp from index.json to bring a card back.",
+ "about": "Cards the owner's audit of 2026-10-02 holds back from the site (DESIGN-LAW rule 105). Every live card was looked at on contact sheets; a card is held when it is not a finished product: no photograph behind it, or a headline that does not read. scripts/hold_showcase.mjs --write stamps defect \"curated\" on each, which every later audit keeps. Delete a line here and the stamp from index.json to bring a card back. The composition audit of 2026-10-03 (DESIGN-LAW rule 109) added the rows marked audit 2026-10-03: cards whose parts collide in a way centring cannot mend.",
  "date": "2026-10-02",
  "holds": [
   {
@@ -345,6 +345,46 @@
   {
    "id": "neonNight-jw04-20",
    "why": "fails the gate: the number sits off the middle of its plate (numCentre), on main as well"
+  },
+  {
+   "id": "reviewProof-jw05-30",
+   "why": "the call to action collides with the number: its pill sits under the number plate, cut off, empty or running off the card; the steps sit beside their pills",
+   "audit": "2026-10-03"
+  },
+  {
+   "id": "reviewProof-jw10-30",
+   "why": "the call to action collides with the number: its pill sits under the number plate, cut off, empty or running off the card; the steps sit beside their pills",
+   "audit": "2026-10-03"
+  },
+  {
+   "id": "reviewProof-cd08-35",
+   "why": "the call to action collides with the number: its pill sits under the number plate, cut off, empty or running off the card",
+   "audit": "2026-10-03"
+  },
+  {
+   "id": "reviewProof-nn01-30",
+   "why": "the call to action collides with the number: its pill sits under the number plate, cut off, empty or running off the card",
+   "audit": "2026-10-03"
+  },
+  {
+   "id": "reviewProof-pp03-35",
+   "why": "the call to action collides with the number: its pill sits under the number plate, cut off, empty or running off the card",
+   "audit": "2026-10-03"
+  },
+  {
+   "id": "reviewProof-cd06-15",
+   "why": "the call to action is cut off under the number pill (\"REQUEST AN APPRAISA\")",
+   "audit": "2026-10-03"
+  },
+  {
+   "id": "bubblePop-jw06-35",
+   "why": "the number runs over the product pictures",
+   "audit": "2026-10-03"
+  },
+  {
+   "id": "hudTech-nn08-35",
+   "why": "a dark headline on a grey ground, muddy, with cut-outs scattered round it",
+   "audit": "2026-10-03"
   }
  ]
 }
