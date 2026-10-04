@@ -23,7 +23,8 @@
  *                                imagery catalogue (netlify/lib/library.mjs).
  *
  * Env vars: JWT_SECRET (required), GEMINI_KEY (required for AI), ADMIN_EMAILS
- * (comma-separated), optional: PGFX_BG_MODEL, RL_USER_DAILY, RL_PRO_DAILY,
+ * (comma-separated), optional: FAL_KEY (Seedream fallback when Gemini fails, or
+ * the only provider without GEMINI_KEY), PGFX_BG_MODEL, RL_USER_DAILY, RL_PRO_DAILY,
  * RL_GLOBAL_DAILY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, PRICE_PRO, SITE_URL,
  * LIBRARY_KEYS (name:key pairs), LIBRARY_DAILY.
  */
