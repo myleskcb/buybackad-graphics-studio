@@ -305,8 +305,9 @@ SPEC = {
         subject='an iPhone 14 (PRODUCT)RED, back'),
     'photo-iphone-15-black': dict(src='apple-iphone-15-1.jpg', floor=None, plates=[],
         subject='an iPhone 15 in black, back, flat'),
-    'photo-iphone-17-pro-silver': dict(src='apple-iphone-17-pro-1.jpg', floor=None, plates=[],
-        subject='an iPhone 17 Pro in silver, back, at an angle'),
+    'photo-iphone-17-pro-silver': dict(src='apple-iphone-17-pro-1.jpg', floor=None, plates=[], upright=59.3,
+        subject='an iPhone 17 Pro in silver, back, turned upright (it lay at 31 degrees; owner, 2026-10-04: '
+                '"the angle is a little weird")'),
     'photo-ipad-a16-pink': dict(src='apple-ipad-a16-4.jpg', floor=None, plates=[],
         subject='an iPad (A16) in pink, back'),
     'photo-ipad-air-m2-blue': dict(src='apple-ipad-air-m2-4.jpg', floor=None, plates=[],
@@ -1045,6 +1046,9 @@ def cut(rid, s):
     a = keep_vehicle(a, s.get('keep') == 'all')
     rgb = unmix(np.asarray(im, np.float32), a)
     rgba = Image.fromarray(np.dstack([rgb, a * 255]).astype(np.uint8), 'RGBA')
+    if s.get('upright'):                            # turned to stand straight (degrees, anticlockwise)
+        rgba = rgba.rotate(s['upright'], resample=Image.BICUBIC, expand=True)
+        rgba = rgba.crop(rgba.getbbox())
     return check_cutout(rgba)
 
 def review(rows, path):

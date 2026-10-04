@@ -463,14 +463,20 @@ function drawSlab(ctx, p, w, h, flip, face) {
 }
 
 /** The screen side, switched off: the band, a black border, OLED glass and the
- *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred. */
-function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm, notch = false) {
+ *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred.
+ *  `screen`, an image, lights the glass with it (a wallpaper), under the glare
+ *  and the island. */
+function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm, notch = false, screen = null) {
   const R = CORNER * w;
   rrect(ctx, -w / 2, -h / 2, w, h, R); ctx.fillStyle = metal; ctx.fill();
   const b = 0.014 * w;
   rrect(ctx, -w / 2 + b, -h / 2 + b, w - 2 * b, h - 2 * b, R - b); ctx.fillStyle = "#050506"; ctx.fill();
   const s = b + 0.032 * w, sw = w - 2 * s, sh = h - 2 * s, sr = R - s * 1.05;
   rrect(ctx, -w / 2 + s, -h / 2 + s, sw, sh, sr); ctx.fillStyle = "#111215"; ctx.fill();
+  if (screen) {
+    ctx.save(); rrect(ctx, -w / 2 + s, -h / 2 + s, sw, sh, sr); ctx.clip();
+    ctx.drawImage(screen, -w / 2 + s, -h / 2 + s, sw, sh); ctx.restore();
+  }
   if (glare && glare.strength > 0) {
     ctx.save(); rrect(ctx, -w / 2 + s, -h / 2 + s, sw, sh, sr); ctx.clip();
     const a = (glare.angle + rot) * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
@@ -527,7 +533,7 @@ export class Phone {
     this.shadows = SHADOWS.get(sk) || SHADOWS.set(sk, [2, 10, 22].map(b => shadowSprite(this.w, this.h, b * ph / 400))).get(sk);
     if (SHADOWS.size > 64) SHADOWS.delete(SHADOWS.keys().next().value);
     Object.assign(this, { home: [0, 0], angle: 0, size: 1, reveal: false, landsBack: false, start: [0, 0], arc: [0, 0],
-      spin: 1, flips: 1, tIn: 0, tLand: 1, tReveal: 99, side: 1, glare: null });
+      spin: 1, flips: 1, tIn: 0, tLand: 1, tReveal: 99, side: 1, glare: null, screen: null });
   }
 }
 
@@ -557,7 +563,7 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
       const fc = p._front || (p._front = canvas(1, 1));
       fc.width = Math.ceil(w); fc.height = Math.ceil(h);
       const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2);
-      drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
+      drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch, p.screen);
       face = fc;
     }
     drawSlab(ctx, p, w, h, flip, face);
@@ -565,7 +571,7 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
     return;
   }
   ctx.scale(Math.max(ac, .02), 1);
-  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
+  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch, p.screen);
   else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
   if (ac < .999) {                                 // turning away from the light
     rrect(ctx, -w / 2, -h / 2, w, h, CORNER * w);

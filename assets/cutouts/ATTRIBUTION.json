@@ -705,7 +705,7 @@
     "license": "CC0",
     "artist": "Olgierd Rudak",
     "page": "https://commons.wikimedia.org/wiki/File%3AIPhone%2017%20Pro%20(2025-12-28).jpg",
-    "note": "cut from assets/bg-web/apple-iphone-17-pro-1.jpg by scripts/cut_vehicle_photos.py. an iPhone 17 Pro in silver, back, at an angle"
+    "note": "cut from assets/bg-web/apple-iphone-17-pro-1.jpg by scripts/cut_vehicle_photos.py. an iPhone 17 Pro in silver, back, turned upright (it lay at 31 degrees; owner, 2026-10-04: \"the angle is a little weird\")"
   },
   "photo-ipad-a16-pink": {
     "license": "CC BY-SA 4.0",
@@ -2566,5 +2566,2045 @@
     "artist": "cavebear42",
     "page": "https://commons.wikimedia.org/wiki/File%3ARay-Ban%20Stories.jpg",
     "note": "cut from assets/bg-web/wearables-meta-ray-ban-1.jpg by scripts/cut_vehicle_photos.py. Ray-Ban Meta smart glasses"
+  },
+  "view-18-pro-max-burgundy--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_field-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_field-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_field-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_field-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_field-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_hills-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_hills-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_hills-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_hills-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-burgundy--screen_hills-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Burgundy, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_bands-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_bands-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_bands-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_bands-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_bands-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_mesh-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_mesh-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_mesh-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_mesh-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-burgundy--screen_mesh-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-burgundy.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Burgundy, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_schematic-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_schematic-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_schematic-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_schematic-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_schematic-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_arcs-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_arcs-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_arcs-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_arcs-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-glacier--screen_arcs-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Glacier, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_mesh-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_mesh-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_mesh-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_mesh-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_mesh-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_diagonal-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_diagonal-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_diagonal-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_diagonal-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-glacier--screen_diagonal-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-glacier.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Glacier, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_bands-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_bands-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_bands-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_bands-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_bands-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_mesh-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_mesh-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_mesh-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_mesh-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-max-silver--screen_mesh-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro Max in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_mesh-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_mesh-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_mesh-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_mesh-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_mesh-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_diagonal-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_diagonal-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_diagonal-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_diagonal-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-18-pro-black--screen_diagonal-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/18-pro-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 18 Pro in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_arcs-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_arcs-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_arcs-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_arcs-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_arcs-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_bands-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_bands-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_bands-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_bands-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-cosmic-orange--screen_bands-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Cosmic Orange, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_diagonal-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_diagonal-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_diagonal-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_diagonal-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_diagonal-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_field-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_field-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_field-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_field-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-cosmic-orange--screen_field-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-cosmic-orange.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Cosmic Orange, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_arcs-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_arcs-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_arcs-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_arcs-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_arcs-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_bands-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_bands-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_bands-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_bands-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-deep-blue--screen_bands-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Deep Blue, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_diagonal-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_diagonal-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_diagonal-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_diagonal-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_diagonal-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_field-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_field-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_field-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_field-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-deep-blue--screen_field-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-deep-blue.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Deep Blue, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_field-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_field-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_field-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_field-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_field-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_hills-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_hills-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_hills-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_hills-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-max-silver--screen_hills-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-max-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro Max in Silver, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_bands-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_bands-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_bands-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_bands-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_bands-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_mesh-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_mesh-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_mesh-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_mesh-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17-pro-silver--screen_mesh-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17-pro-silver.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17 Pro in Silver, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_schematic-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_schematic-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_schematic-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_schematic-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_schematic-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_arcs-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_arcs-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_arcs-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_arcs-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-pink--screen_arcs-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Pink, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_mesh-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_mesh-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_mesh-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_mesh-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_mesh-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_diagonal-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_diagonal-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_diagonal-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_diagonal-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-white--screen_diagonal-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in White, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_field-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_field-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_field-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_field-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_field-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_hills-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_hills-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_hills-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_hills-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16-black--screen_hills-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16 in Black, screen lit with the showcase engine's \"hills\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_poly-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_poly-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_poly-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_poly-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_poly-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_schematic-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_schematic-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_schematic-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_schematic-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-soft-pink--screen_schematic-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-soft-pink.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Soft Pink, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_poly-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_poly-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_poly-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_poly-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_poly-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"poly\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_schematic-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_schematic-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_schematic-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_schematic-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-white--screen_schematic-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in White, screen lit with the showcase engine's \"schematic\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_arcs-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_arcs-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_arcs-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_arcs-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_arcs-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"arcs\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_bands-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_bands-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_bands-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_bands-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-17e-black--screen_bands-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/17e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 17e in Black, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_bands-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_bands-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_bands-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_bands-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_bands-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"bands\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_mesh-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_mesh-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_mesh-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_mesh-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-white--screen_mesh-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-white.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in White, screen lit with the showcase engine's \"mesh\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--back-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, back, flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--back-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, back, turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--back-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, back, turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--back-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, back, turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--back-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, back, turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--back-l45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, back, turned 45 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--back-r45": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, back, turned 45 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_diagonal-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_diagonal-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_diagonal-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_diagonal-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_diagonal-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"diagonal\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_field-0": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), flat; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_field-l15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_field-r15": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 15 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_field-l30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the left; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
+  },
+  "view-16e-black--screen_field-r30": {
+    "license": "own photograph (iphones.la inventory)",
+    "artist": "BuybackAd video maker (motion/engine.js)",
+    "page": "motion/phones/16e-black.webp",
+    "note": "drawn by scripts/render_phone_views.mjs with the video maker's own phone engine: the iPhone 16e in Black, screen lit with the showcase engine's \"field\" wallpaper (engine/showcase.mjs), turned 30 degrees to the right; the back is the owner's own inventory photograph baked for the video maker (motion/phones/index.json)"
   }
 }

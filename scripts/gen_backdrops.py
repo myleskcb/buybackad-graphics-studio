@@ -205,8 +205,28 @@ APPLE_PHOTO = {'ipad': ['photo-ipad-a16-pink', 'photo-ipad-air-m2-blue', 'photo-
                            'photo-macbook-air-m1-space-gray', 'photo-macbook-air-m2-starlight', 'photo-macbook-air-m2-lid'],
                'mac': ['photo-mac-studio-angle']}
 
+# 2026-10-04 (owner: "use the video engine ... full angles of every device", "work
+# within 15° increments"): every phone the video maker draws (motion/phones, the
+# finishes Apple photographed), back and screen, flat and turned 15, 30 and 45
+# degrees either way, rendered by scripts/render_phone_views.mjs
+_MOTION = {m['id']: m for m in json.load(open(os.path.join(REPO, 'motion', 'phones', 'index.json')))['phones']}
+VIEW = OrderedDict()
+for _f in sorted(os.listdir(os.path.join(REPO, 'assets', 'cutouts'))):
+    if _f.startswith('view-') and _f.endswith('.webp'):
+        _n = _f[:-5]; _ph, _v = _n[5:].split('--'); _side, _tag = _v.split('-')
+        _deg = 0 if _tag == '0' else int(_tag[1:]) * (-1 if _tag[0] == 'l' else 1)
+        _side, _, _wall = _side.partition('_')     # screen_<wallpaper>: the screen lit with it
+        if _wall == 'field': continue              # a flat wash with one pool: on a phone it reads as a dead screen
+        VIEW[_n] = dict(phone=_ph, model=_MOTION[_ph]['model'], finish=_MOTION[_ph]['finish'],
+                        metal=_MOTION[_ph]['metal'], side=_side, deg=_deg, wall=_wall)
+VIEW_ANGLES = [(sd, d) for sd in ('back', 'screen') for d in (0, -15, 15, -30, 30)]
+# owner on a podium trio of iPhone 12s: "we should use the main models, red, orange,
+# and glacier promax models"
+HERO_TRIO = ['18-pro-max-burgundy', '17-pro-max-cosmic-orange', '18-pro-max-glacier']
+
 POOLS = {
     'iphone': ([I(n, rot=12, kind='back') for n in QS_BACKS] +
+               [I(n, rot=8, kind='view') for n, v in VIEW.items() if (v['side'], v['deg']) in VIEW_ANGLES] +
                [I(n, rot=8, kind='pair') for n in QS_PAIRS] +
                [I(n, rot=8, kind='photo') for n in IP_PHOTO]),
     'gold': [I('gold-bar-single', 'R', 6), I('gold-bracelet-cuban', rot=20), I('gold-class-ring', rot=10),
@@ -485,7 +505,8 @@ for _c in ('iphone', 'ipad', 'macbook', 'mac', 'computers', 'cars', 'gold', 'sil
 # (assets/devices.json, measured on the cut-out) or Apple's white and black; no blur.
 AD = OrderedDict([('iphone-ad', 'iphone'), ('ipad-ad', 'ipad'), ('macbook-ad', 'macbook'), ('mac-ad', 'mac')])
 # liquid glass is out: its small floating panes read as clutter, not as Apple
-AD_STYLES = ['studio-sweep', 'podium', 'ios-mesh', 'macos-waves', 'aurora', 'showroom', 'concrete', 'sky']
+AD_STYLES = ['studio-sweep', 'podium', 'podium-tiered', 'podium-neon', 'ios-mesh', 'macos-waves', 'aurora', 'showroom',
+             'concrete', 'sky']
 AD_LAYOUTS = ['hero', 'pair', 'trio', 'lineup']
 # 2026-10-04 (owner: "more variety?"): phones and iPads also float, tilted, and
 # lie flat in a grid of their colours, as Apple shows a colour range
@@ -494,12 +515,13 @@ AD_LAYOUTS = ['hero', 'pair', 'trio', 'lineup']
 AD_LAYOUTS_BY = {'iphone-ad': ['hero', 'pair', 'trio', 'lineup', 'floating-row', 'grid-flatlay'],
                  'ipad-ad': ['hero', 'pair', 'trio', 'lineup', 'floating-row'],
                  'macbook-ad': ['hero', 'pair']}
-AD_TILT = 10
+AD_TILT = 15
 AD_LINEUP = {'iphone-ad': 5, 'ipad-ad': 4, 'macbook-ad': 3, 'mac-ad': 4}
 AD_COUNTS = OrderedDict([('iphone-ad', 96), ('ipad-ad', 60), ('macbook-ad', 40), ('mac-ad', 40)])
 _DEV = json.load(open(os.path.join(REPO, 'assets', 'devices.json')))['models']
 FINISH = {c['slug']: (f.replace('-', ' ').title(), c['hex'])
           for m in _DEV.values() for f, c in m.get('colours', {}).items()}
+FINISH.update({n: (v['finish'], v['metal']) for n, v in VIEW.items()})
 APPLE_NEUTRAL = dict(dark='#0b0b0d', mid='#86868b', light='#f5f5f7', accent='#2997ff', support='#d2d2d7')
 
 def ad_need(cat, layout):
@@ -516,6 +538,16 @@ def ad_groups(cat):
             g.setdefault(it['name'].split('--')[0], []).append(dict(it, rot=0))
         elif it['name'].startswith('photo-'):
             g[it['name']] = [dict(it, rot=0)]
+        elif it['name'].startswith('view-') and VIEW[it['name']]['deg'] == 0 and VIEW[it['name']]['side'] == 'back':
+            # a model's finishes side by side, flat (not every angle of every model:
+            # Apple's storefront colours and the photographs keep their share)
+            v = VIEW[it['name']]
+            g.setdefault(f"view:{v['model']}:{v['side']}{v['deg']}", []).append(dict(it, rot=0))
+    for side, deg in [('back', 0), ('screen', 0)]:
+        trio = [next((n for n, v in VIEW.items() if v['phone'] == p and v['side'] == side and v['deg'] == deg), None)
+                for p in HERO_TRIO]
+        if all(trio):
+            g[f'view:hero-trio:{side}{deg}'] = [I(n, rot=0, kind='view') for n in trio]
     return g
 
 def lab2hex(lab):
@@ -534,6 +566,37 @@ def ad_palette(items, mode, dark):
                         support=mk(0.86, min(C * 0.5, 0.06)))
     return dict(APPLE_NEUTRAL, name='Apple Black' if dark else 'Apple White')
 
+def vivid(pdef, dark):
+    """Owner, 2026-10-04: "Too much pastel colors ... more neon more vibrant, more heavy
+    contrast", "too much gray [in the dark ones] ... the ones with blue I really like".
+    A grey dark ground goes deep blue, a light ground keeps its hue with more colour
+    in it, accents go neon."""
+    lab = {k: lin2lab(hex2lin(pdef[k])) for k in ('dark', 'mid', 'light', 'accent', 'support')}
+    C = lambda v: math.hypot(v[1], v[2])
+    def chroma(v, k, cap):
+        c = C(v)
+        if c > 1e-4: v = v.copy(); v[1:] *= min(k, cap / c) if c < cap else 1.0
+        return v
+    out = dict(pdef)
+    blue = np.array([0.0, -0.016, -0.062], F)
+    if dark:
+        if C(lab['dark']) < 0.035:
+            lab['dark'] = np.array([min(lab['dark'][0], 0.25), *blue[1:]], F)
+            out['name'] = pdef['name'].replace('Black', 'Midnight')
+        else:
+            lab['dark'] = chroma(lab['dark'], 1.25, 0.15)
+        if C(lab['mid']) < 0.035:
+            lab['mid'] = np.array([lab['mid'][0], *(blue[1:] * 1.3)], F)
+        else:
+            lab['mid'] = chroma(lab['mid'], 1.2, 0.17)
+    elif C(lab['light']) >= 0.02:
+        lab['light'] = chroma(lighten(lab['light'], -0.08), 2.1, 0.14)
+    for k in ('accent', 'support'):
+        v = chroma(lab[k], 1.3, 0.26); v[0] = float(np.clip(v[0], 0.64, 0.86)); lab[k] = v
+    for k, v in lab.items():
+        out[k] = lab2hex(v)
+    return out
+
 # The vehicle each car backdrop shows, in order (cars-001 is the first): every
 # real vehicle once, 264 cars, 41 pickups, 9 vans, 4 semis and one motorcycle;
 # many models twice, from the front and from the rear or side (owner,
@@ -544,144 +607,138 @@ def ad_palette(items, mode, dark):
 # its ground (OKLab distance of the body colour from the ground colour, then pairs
 # swapped while the weaker of the two gets better). Left out: the CR-V (shot
 # from a slant, it tips on the podium) and the 4Runner (grass hides its tyres).
-CAR_ROTA = ['car-peterbilt-579-red', 'car-kia-k5-grey', 'car-ford-maverick-red', 'car-jeep-wrangler-sahara-red',
-            'car-lamborghini-urus-green', 'car-bmw-x5-black-rear', 'car-toyota-tundra-1794-black',
-            'car-nissan-z-yellow', 'car-chevy-corvette-c8-red', 'car-porsche-panamera-turbo-bronze',
-            'car-ram-trx-red', 'car-subaru-outback-red-rear', 'car-kia-ev6-gt-black-rear',
-            'car-nissan-nv200-white', 'car-subaru-wrx-blue', 'car-land-rover-defender-110-classic-grey-rear',
-            'car-honda-crv-red-rear', 'car-lamborghini-temerario-yellow', 'car-honda-accord-white',
-            'car-honda-civic-sedan-blue-rear', 'car-lexus-nx-silver-rear', 'car-toyota-corolla-cross-silver-rear',
-            'car-ford-mustang-mach-e-rally-lime', 'car-nissan-frontier-grey', 'car-honda-civic-type-r-fl5-white',
-            'car-tesla-model-y-red-side', 'car-toyota-highlander-black', 'car-mercedes-w114-classic-cream',
-            'car-subaru-crosstrek-wilderness-blue-rear', 'car-audi-q5-sportback-grey', 'car-mclaren-720s-grey',
-            'car-lexus-lx-black', 'car-polestar-2-white', 'car-ford-transit-courier-white',
-            'car-ford-bronco-sport-black-rear', 'car-bmw-x7-white', 'car-nissan-altima-silver-rear',
-            'car-ram-1500-limited-grey', 'car-kia-k5-silver-rear', 'car-acura-integra-red-rear',
-            'car-honda-civic-type-r-fk8-blue-rear', 'car-mercedes-amg-g63-2025-black',
-            'car-cadillac-escalade-black-rear', 'car-mercedes-amg-g63-black', 'car-ram-1500-rebel-black',
-            'car-toyota-4runner-limited-black', 'car-bmw-x3-m50-black-rear', 'car-kia-ev6-gt-black',
-            'car-hyundai-ioniq5-grey-rear', 'car-mercedes-amg-gt63-4door-white', 'car-genesis-g70-grey-rear',
-            'car-honda-passport-white', 'car-chevy-corvette-z06-yellow', 'car-rolls-royce-ghost-purple-side',
-            'car-bmw-m4-convertible-black', 'car-infiniti-qx60-bronze', 'car-subaru-crosstrek-wilderness-blue',
-            'car-toyota-land-cruiser-80-red', 'car-audi-q7-grey', 'car-ford-ranger-blue-rear',
-            'car-hyundai-santa-fe-white-rear', 'car-mercedes-190e-evo-black', 'car-toyota-tacoma-trd-black-rear',
-            'car-audi-s5-white', 'car-toyota-gr86-blue', 'car-tesla-model-3-highland-red',
-            'car-toyota-tundra-trd-pro-white-rear', 'car-acura-rdx-blue-rear', 'car-porsche-panamera-gts-chalk',
-            'car-tesla-model-y-performance-red', 'car-land-rover-defender-110-classic-grey', 'car-polestar-2-grey',
-            'car-honda-pilot-white', 'car-toyota-rav4-phev-red-rear', 'car-cadillac-escalade-v-white',
-            'car-jeep-grand-cherokee-l-silver', 'car-vw-golf-gti-tcr-white-rear', 'car-hyundai-santa-fe-white',
-            'car-freightliner-cascadia-blue', 'car-jeep-wagoneer-classic-red', 'car-ford-bronco-blue',
-            'car-mercedes-glc-blue', 'car-gmc-yukon-denali-2025-black-rear', 'car-ford-f150-lightning-black',
-            'car-honda-accord-2023-white-side', 'car-rivian-r1t-white-rear', 'car-toyota-highlander-red',
-            'car-bentley-continental-gt-green-rear', 'car-honda-hrv-red-rear', 'car-honda-crv-2023-black',
-            'car-porsche-911-gt3-blue', 'car-tesla-cybertruck', 'car-audi-r8-v10-blue',
-            'car-mercedes-c-class-all-terrain-white', 'car-honda-ridgeline-white', 'car-porsche-918-spyder-white',
-            'car-honda-nsx-na1-red', 'car-ford-mustang-dark-horse-blue', 'car-rivian-r1t-green-rear',
-            'car-lexus-rx-white', 'car-ford-transit-connect-white', 'car-mercedes-amg-g63-yellow',
-            'car-ford-bronco-1st-gen-cream', 'car-jeep-wagoneer-classic-red-rear', 'car-mercedes-sprinter-white',
-            'car-porsche-carrera-gt-silver', 'car-tesla-model-x-white-rear', 'car-toyota-corolla-white',
-            'car-tesla-model-3-white', 'car-nissan-skyline-gtr-r34-blue', 'car-toyota-gr-supra-grey-rear',
-            'car-toyota-highlander-silver-rear', 'car-mini-classic-cream', 'car-honda-pilot-white-rear',
-            'car-ford-f150-black-rear', 'car-honda-crv-2023-blue', 'car-bmw-1m-coupe-orange',
-            'car-bentley-continental-gt-red-rear', 'car-lamborghini-aventador-s-red',
-            'car-ford-bronco-sport-yellow-rear', 'car-lexus-rx-white-rear', 'car-mazda-cx90-blue',
-            'car-chevy-camaro-yellow-rear', 'car-lamborghini-aventador-roadster-blue-rear',
-            'car-nissan-rogue-copper', 'car-lexus-is-white', 'car-hyundai-ioniq-6-silver',
-            'car-honda-accord-white-rear', 'car-ford-bronco-black-diamond-silver',
-            'car-tesla-cybertruck-cyberbeast', 'car-vw-jetta-gli-grey', 'car-audi-rs5-sportback-red',
-            'car-lexus-es-white', 'car-toyota-sienna-white', 'car-hyundai-kona-n-white', 'car-ferrari-roma-white',
-            'car-ford-f150-black', 'car-toyota-4runner-trd-pro-lime', 'car-porsche-cayenne-gts-coupe-white-rear',
-            'car-porsche-911-carrera-rs-orange', 'car-kia-sorento-grey', 'car-lexus-rx-grey-rear',
-            'car-tesla-model-s-plaid-white', 'car-kia-soul-green', 'car-lamborghini-aventador-ultimae-orange',
-            'car-ford-f150-raptor-2026-black', 'car-tesla-model-y-juniper-grey', 'car-harley-softail-black',
-            'car-bmw-m3-blue', 'car-volvo-xc90-2025-white', 'car-mercedes-s-class-black',
-            'car-volvo-xc90-silver-rear', 'car-bmw-m3-touring-blue-rear', 'car-ferrari-f8-tributo-red-rear',
-            'car-hyundai-ioniq5-silver-side', 'car-chevy-silverado-red', 'car-tesla-model-x-silver',
-            'car-peterbilt-389-white', 'car-chevy-corvette-c1-blue', 'car-audi-e-tron-gt-grey-rear',
-            'car-dodge-charger-orange', 'car-ram-1500-blue', 'car-honda-civic-type-r-blue',
-            'car-toyota-land-cruiser-fj40-green', 'car-mercedes-amg-g63-silver-rear',
-            'car-toyota-venza-silver-rear', 'car-lexus-es-white-rear', 'car-ford-bronco-sport-badlands-red',
-            'car-bmw-i4-white-rear', 'car-hyundai-ioniq-9-white', 'car-chevy-suburban-black',
-            'car-hyundai-kona-n-white-rear', 'car-rolls-royce-cullinan-black', 'car-chrysler-pacifica-grey',
-            'car-ldv-maxus-van-white', 'car-porsche-taycan-gts-sport-turismo-rear', 'car-buick-enclave-grey-rear',
-            'car-jeep-gladiator-green', 'car-toyota-gr-supra-2026-red', 'car-hyundai-sonata-black',
-            'car-range-rover-sport-grey', 'car-toyota-prius-white', 'car-bentley-continental-gt-green',
-            'car-hyundai-palisade-white', 'car-ram-1500-black-rear', 'car-chevy-tahoe-black',
-            'car-ferrari-296-gtb-yellow', 'car-jeep-gladiator-rubicon-red-side',
-            'car-mercedes-amg-g63-cabriolet-blue', 'car-tesla-model-y-white', 'car-toyota-rav4-white',
-            'car-ford-f150-raptor-orange-rear', 'car-lincoln-aviator-black', 'car-porsche-cayenne-gts-silver',
-            'car-mercedes-g-class-orange', 'car-lucid-air-white-rear', 'car-ford-mustang-convertible-grey',
-            'car-tesla-model-y-blue', 'car-mazda-cx5-blue', 'car-honda-civic-white',
-            'car-chrysler-pacifica-white-rear', 'car-lamborghini-huracan-tecnica-blue',
-            'car-chevy-equinox-white-rear', 'car-toyota-gr-corolla-black', 'car-porsche-911-sport-classic-grey',
-            'car-vw-tiguan-2024-red', 'car-mercedes-amg-gt-black-series-orange', 'car-bmw-ix3-2026-white',
-            'car-kia-k4-white', 'car-mazda3-hatch-white', 'car-ram-promaster-grey', 'car-volvo-xc60-silver-rear',
-            'car-ford-explorer-white', 'car-acura-rdx-blue', 'car-ferrari-296-gtb-yellow-rear',
-            'car-toyota-tacoma-trd-offroad-red', 'car-chevy-corvette-c3-grey-rear',
-            'car-lincoln-aviator-black-rear', 'car-porsche-911-gt2-rs-white', 'car-bentley-bentayga-grey',
-            'car-nissan-pathfinder-rock-creek-rear', 'car-bmw-m3-csl-e46-grey', 'car-ford-mustang-gt-yellow-rear',
-            'car-toyota-camry-2025-white-side', 'car-subaru-impreza-wrx-1992-silver', 'car-toyota-prius-grey-rear',
-            'car-dodge-durango-srt-grey', 'car-honda-hrv-beige', 'car-jeep-grand-wagoneer-white',
-            'car-jeep-compass-silver', 'car-lucid-air-white', 'car-ford-mustang-gt-blue-grey',
-            'car-rivian-r1s-grey-rear', 'car-toyota-camry-silver', 'car-ford-bronco-sport-badlands-blue',
-            'car-toyota-prius-2026-grey', 'car-hyundai-tucson-white', 'car-range-rover-blue',
-            'car-toyota-highlander-white-rear', 'car-vw-golf-gti-clubsport-grey',
-            'car-hyundai-ioniq-6-silver-rear', 'car-toyota-tundra-trd-pro-blue', 'car-rivian-r1s-silver',
-            'car-bmw-m3-competition-green', 'car-toyota-rav4-2026-white-rear',
-            'car-ford-transit-custom-silver-rear', 'car-genesis-gv80-grey', 'car-chevy-camaro-yellow',
-            'car-honda-s2000-silver', 'car-mazda3-hatch-silver-rear', 'car-tesla-model-3-performance-white-rear',
-            'car-subaru-outback-white', 'car-dodge-challenger-1972-lime',
-            'car-lamborghini-huracan-tecnica-blue-rear', 'car-vw-id5-gtx-silver',
-            'car-mercedes-amg-g63-4x4-blue-rear', 'car-toyota-prius-silver-rear', 'car-kia-ev9-silver',
-            'car-toyota-highlander-blue', 'car-bmw-5-series-grey', 'car-jeep-wrangler-rubicon-lime',
-            'car-gmc-yukon-denali-white-rear', 'car-mercedes-amg-gle63-silver', 'car-ferrari-296-gts-grey',
-            'car-ford-f150-grey', 'car-porsche-356-blue', 'car-porsche-cayenne-gts-white-rear',
-            'car-subaru-forester-silver', 'car-bmw-z8-silver', 'car-jeep-compass-silver-rear',
-            'car-bmw-2002-turbo-white', 'car-toyota-tacoma-trd-black', 'car-toyota-supra-a80-silver',
-            'car-land-rover-defender-90-teal', 'car-porsche-macan-white', 'car-vw-golf-mk1-white-rear',
-            'car-maserati-mc20-cielo-rear', 'car-porsche-panamera-turbo-chalk-rear', 'car-bmw-x3-black',
-            'car-bmw-x7-m50i-white', 'car-chevy-silverado-z71-black', 'car-hyundai-palisade-black',
-            'car-buick-enclave-grey', 'car-ford-e-transit-custom-white-rear', 'car-maserati-mc20-white',
-            'car-ford-f250-black', 'car-chevy-camaro-1969-silver', 'car-hyundai-kona-grey',
-            'car-toyota-highlander-silver', 'car-kia-sportage-black', 'car-hyundai-tucson-l-white-rear',
-            'car-mclaren-720s-silver', 'car-toyota-tacoma-trd-offroad-black', 'car-kia-telluride-grey',
-            'car-gmc-sierra-denali-grey', 'car-ford-mustang-mach1-grey-rear', 'car-chevy-silverado-zr2-red',
-            'car-nissan-gtr-r35-white', 'car-kia-telluride-2026-silver-rear', 'car-ferrari-f8-spider-magenta-rear',
-            'car-jeep-wrangler-rubicon-2026-orange', 'car-bmw-3-0-csl-beige', 'car-nissan-titan-xd-silver',
-            'car-vw-atlas-silver', 'car-ford-ranger-wildtrak-orange', 'car-ford-e350-white',
-            'car-jeep-wrangler-2door-black-rear', 'car-toyota-tacoma-orange', 'car-volvo-vnl-blue',
-            'car-chevy-equinox-white', 'car-honda-ridgeline-grey-rear', 'car-volvo-xc60-silver',
-            'car-tesla-cybertruck-rear-street', 'car-ford-bronco-sport-heritage-blue',
-            'car-ram-2500-power-wagon-white', 'car-tesla-model-y-black-side',
-            'car-toyota-tundra-trd-pro-orange-rear', 'car-toyota-venza-silver', 'car-gmc-sierra-ev-grey-rear']
-# 2026-10-04 (owner: "more variety?" -> more layouts): one model from the front
-# and from the rear (or side), on a diagonal (layout stagger), every model that has both
+CAR_ROTA = ['car-nissan-z-yellow', 'car-mazda-cx5-blue', 'car-toyota-gr-corolla-black',
+            'car-chevy-camaro-yellow-rear', 'car-bmw-m4-convertible-black', 'car-jeep-wrangler-rubicon-lime',
+            'car-nissan-pathfinder-rock-creek-rear', 'car-subaru-impreza-wrx-1992-silver',
+            'car-ford-mustang-mach-e-rally-lime', 'car-toyota-prius-grey-rear', 'car-lincoln-aviator-black-rear',
+            'car-honda-civic-type-r-fl5-white', 'car-bmw-x3-black', 'car-chevy-corvette-z06-yellow',
+            'car-gmc-sierra-ev-grey-rear', 'car-chevy-camaro-1969-silver', 'car-porsche-cayenne-gts-white-rear',
+            'car-acura-rdx-blue', 'car-dodge-durango-srt-grey', 'car-bmw-2002-turbo-white',
+            'car-nissan-altima-silver-rear', 'car-rivian-r1t-white-rear', 'car-mercedes-amg-g63-2025-black',
+            'car-honda-accord-white', 'car-ford-f150-raptor-orange-rear', 'car-hyundai-ioniq5-silver-side',
+            'car-lamborghini-huracan-tecnica-blue', 'car-honda-passport-white', 'car-ford-e350-white',
+            'car-jeep-grand-cherokee-l-silver', 'car-jeep-wrangler-2door-black-rear', 'car-tesla-model-y-white',
+            'car-chevy-equinox-white', 'car-ford-transit-courier-white', 'car-bmw-3-0-csl-beige',
+            'car-ford-ranger-wildtrak-orange', 'car-range-rover-sport-grey', 'car-mercedes-amg-g63-yellow',
+            'car-nissan-nv200-white', 'car-cadillac-escalade-v-white', 'car-hyundai-santa-fe-white',
+            'car-ram-promaster-grey', 'car-porsche-macan-white', 'car-toyota-supra-a80-silver',
+            'car-rivian-r1s-grey-rear', 'car-jeep-grand-wagoneer-white', 'car-kia-ev6-gt-black-rear',
+            'car-ford-bronco-black-diamond-silver', 'car-audi-q5-sportback-grey', 'car-toyota-prius-silver-rear',
+            'car-hyundai-sonata-black', 'car-nissan-skyline-gtr-r34-blue', 'car-toyota-tundra-1794-black',
+            'car-honda-nsx-na1-red', 'car-audi-r8-v10-blue', 'car-lexus-lx-black', 'car-honda-hrv-beige',
+            'car-hyundai-santa-fe-white-rear', 'car-audi-s5-white', 'car-toyota-land-cruiser-80-red',
+            'car-nissan-titan-xd-silver', 'car-land-rover-defender-110-classic-grey-rear',
+            'car-toyota-highlander-red', 'car-porsche-cayenne-gts-coupe-white-rear', 'car-mazda3-hatch-white',
+            'car-vw-golf-gti-clubsport-grey', 'car-ram-1500-limited-grey', 'car-ford-bronco-sport-heritage-blue',
+            'car-tesla-cybertruck-rear-street', 'car-vw-golf-gti-tcr-white-rear', 'car-honda-pilot-white',
+            'car-toyota-rav4-phev-red-rear', 'car-genesis-gv80-grey', 'car-honda-crv-red-rear',
+            'car-honda-civic-type-r-fk8-blue-rear', 'car-lexus-rx-white', 'car-bentley-continental-gt-green',
+            'car-tesla-model-y-black-side', 'car-porsche-911-gt3-blue', 'car-ford-transit-connect-white',
+            'car-kia-k5-silver-rear', 'car-ford-bronco-sport-yellow-rear', 'car-bmw-m3-blue',
+            'car-bmw-x7-m50i-white', 'car-mercedes-w114-classic-cream', 'car-ford-mustang-convertible-grey',
+            'car-toyota-highlander-silver', 'car-mazda3-hatch-silver-rear', 'car-ram-trx-red',
+            'car-honda-civic-white', 'car-mercedes-c-class-all-terrain-white', 'car-ford-mustang-gt-blue-grey',
+            'car-bmw-1m-coupe-orange', 'car-ford-bronco-sport-black-rear', 'car-chevy-corvette-c3-grey-rear',
+            'car-vw-jetta-gli-grey', 'car-mercedes-amg-gt-black-series-orange', 'car-toyota-highlander-blue',
+            'car-ram-1500-rebel-black', 'car-toyota-sienna-white', 'car-subaru-crosstrek-wilderness-blue',
+            'car-lamborghini-temerario-yellow', 'car-hyundai-kona-n-white',
+            'car-jeep-wrangler-rubicon-2026-orange', 'car-chevy-corvette-c8-red', 'car-lexus-es-white-rear',
+            'car-tesla-model-s-plaid-white', 'car-ford-f150-lightning-black', 'car-chevy-equinox-white-rear',
+            'car-volvo-vnl-blue', 'car-tesla-model-x-white-rear', 'car-infiniti-qx60-bronze',
+            'car-range-rover-blue', 'car-dodge-charger-orange', 'car-ford-bronco-1st-gen-cream',
+            'car-tesla-model-y-juniper-grey', 'car-toyota-4runner-limited-black',
+            'car-ford-mustang-mach1-grey-rear', 'car-hyundai-palisade-black', 'car-porsche-911-sport-classic-grey',
+            'car-bentley-continental-gt-green-rear', 'car-ferrari-296-gts-grey', 'car-hyundai-ioniq-9-white',
+            'car-acura-integra-red-rear', 'car-nissan-rogue-copper', 'car-bmw-x3-m50-black-rear',
+            'car-bmw-x7-white', 'car-ford-explorer-white', 'car-ferrari-roma-white', 'car-mclaren-720s-silver',
+            'car-tesla-model-y-performance-red', 'car-bmw-m3-competition-green', 'car-lexus-is-white',
+            'car-lamborghini-urus-green', 'car-freightliner-cascadia-blue', 'car-honda-accord-white-rear',
+            'car-chevy-silverado-z71-black', 'car-tesla-model-3-white', 'car-chevy-corvette-c1-blue',
+            'car-peterbilt-389-white', 'car-ford-bronco-sport-badlands-blue', 'car-lexus-rx-white-rear',
+            'car-acura-rdx-blue-rear', 'car-land-rover-defender-90-teal', 'car-ram-1500-blue',
+            'car-mercedes-glc-blue', 'car-lexus-es-white', 'car-polestar-2-white',
+            'car-tesla-model-3-performance-white-rear', 'car-toyota-venza-silver', 'car-vw-tiguan-2024-red',
+            'car-bmw-m3-touring-blue-rear', 'car-subaru-forester-silver', 'car-ferrari-f8-spider-magenta-rear',
+            'car-kia-ev6-gt-black', 'car-mercedes-190e-evo-black', 'car-kia-telluride-2026-silver-rear',
+            'car-jeep-compass-silver-rear', 'car-honda-hrv-red-rear', 'car-gmc-yukon-denali-white-rear',
+            'car-toyota-tacoma-trd-black-rear', 'car-ferrari-296-gtb-yellow', 'car-hyundai-ioniq5-grey-rear',
+            'car-kia-sportage-black', 'car-vw-golf-mk1-white-rear', 'car-ford-ranger-blue-rear',
+            'car-tesla-model-x-silver', 'car-volvo-xc90-2025-white', 'car-ford-f150-black-rear',
+            'car-rolls-royce-ghost-purple-side', 'car-toyota-rav4-white',
+            'car-lamborghini-aventador-ultimae-orange', 'car-buick-enclave-grey-rear',
+            'car-maserati-mc20-cielo-rear', 'car-polestar-2-grey', 'car-nissan-frontier-grey',
+            'car-land-rover-defender-110-classic-grey', 'car-bmw-z8-silver',
+            'car-toyota-tundra-trd-pro-white-rear', 'car-chrysler-pacifica-white-rear',
+            'car-toyota-tundra-trd-pro-orange-rear', 'car-honda-accord-2023-white-side',
+            'car-toyota-corolla-cross-silver-rear', 'car-toyota-gr86-blue', 'car-ford-f150-black',
+            'car-toyota-gr-supra-2026-red', 'car-ford-maverick-red', 'car-hyundai-palisade-white',
+            'car-kia-telluride-grey', 'car-toyota-corolla-white', 'car-mercedes-g-class-orange',
+            'car-ford-f150-raptor-2026-black', 'car-audi-q7-grey', 'car-hyundai-kona-n-white-rear',
+            'car-mini-classic-cream', 'car-ford-mustang-gt-yellow-rear', 'car-audi-rs5-sportback-red',
+            'car-toyota-tundra-trd-pro-blue', 'car-bentley-continental-gt-red-rear', 'car-ford-f250-black',
+            'car-ferrari-296-gtb-yellow-rear', 'car-jeep-wagoneer-classic-red', 'car-chevy-silverado-red',
+            'car-porsche-taycan-gts-sport-turismo-rear', 'car-kia-k4-white', 'car-hyundai-kona-grey',
+            'car-lucid-air-white-rear', 'car-mercedes-amg-g63-silver-rear', 'car-porsche-918-spyder-white',
+            'car-volvo-xc60-silver', 'car-tesla-cybertruck-cyberbeast', 'car-honda-civic-type-r-blue',
+            'car-honda-crv-2023-blue', 'car-mercedes-amg-g63-black', 'car-ford-transit-custom-silver-rear',
+            'car-toyota-prius-white', 'car-tesla-model-y-blue', 'car-nissan-gtr-r35-white',
+            'car-honda-civic-sedan-blue-rear', 'car-rolls-royce-cullinan-black', 'car-porsche-panamera-gts-chalk',
+            'car-kia-soul-green', 'car-jeep-gladiator-green', 'car-porsche-cayenne-gts-silver',
+            'car-mercedes-amg-gt63-4door-white', 'car-ferrari-f8-tributo-red-rear', 'car-bmw-ix3-2026-white',
+            'car-hyundai-tucson-l-white-rear', 'car-gmc-yukon-denali-2025-black-rear', 'car-vw-atlas-silver',
+            'car-ram-1500-black-rear', 'car-chevy-camaro-yellow', 'car-jeep-compass-silver',
+            'car-toyota-venza-silver-rear', 'car-honda-ridgeline-white', 'car-peterbilt-579-red',
+            'car-toyota-prius-2026-grey', 'car-lamborghini-aventador-roadster-blue-rear', 'car-ford-f150-grey',
+            'car-tesla-model-3-highland-red', 'car-ford-e-transit-custom-white-rear', 'car-volvo-xc90-silver-rear',
+            'car-genesis-g70-grey-rear', 'car-mercedes-amg-g63-4x4-blue-rear', 'car-jeep-wrangler-sahara-red',
+            'car-bmw-i4-white-rear', 'car-porsche-carrera-gt-silver', 'car-cadillac-escalade-black-rear',
+            'car-bentley-bentayga-grey', 'car-lexus-nx-silver-rear', 'car-porsche-panamera-turbo-bronze',
+            'car-subaru-crosstrek-wilderness-blue-rear', 'car-kia-k5-grey', 'car-volvo-xc60-silver-rear',
+            'car-toyota-tacoma-trd-offroad-black', 'car-honda-s2000-silver', 'car-toyota-land-cruiser-fj40-green',
+            'car-ford-mustang-dark-horse-blue', 'car-toyota-tacoma-orange', 'car-tesla-model-y-red-side',
+            'car-honda-crv-2023-black', 'car-gmc-sierra-denali-grey', 'car-lamborghini-huracan-tecnica-blue-rear',
+            'car-toyota-gr-supra-grey-rear', 'car-audi-e-tron-gt-grey-rear', 'car-mclaren-720s-grey',
+            'car-mazda-cx90-blue', 'car-tesla-cybertruck', 'car-ford-bronco-sport-badlands-red',
+            'car-chrysler-pacifica-grey', 'car-chevy-tahoe-black', 'car-kia-sorento-grey',
+            'car-toyota-camry-2025-white-side', 'car-toyota-highlander-white-rear', 'car-mercedes-sprinter-white',
+            'car-rivian-r1s-silver', 'car-toyota-camry-silver', 'car-rivian-r1t-green-rear',
+            'car-bmw-x5-black-rear', 'car-maserati-mc20-white', 'car-jeep-gladiator-rubicon-red-side',
+            'car-mercedes-s-class-black', 'car-subaru-wrx-blue', 'car-toyota-tacoma-trd-offroad-red',
+            'car-buick-enclave-grey', 'car-toyota-highlander-silver-rear', 'car-lexus-rx-grey-rear',
+            'car-honda-pilot-white-rear', 'car-hyundai-ioniq-6-silver-rear', 'car-chevy-silverado-zr2-red',
+            'car-chevy-suburban-black', 'car-subaru-outback-red-rear', 'car-vw-id5-gtx-silver',
+            'car-hyundai-ioniq-6-silver', 'car-lincoln-aviator-black', 'car-hyundai-tucson-white',
+            'car-porsche-911-carrera-rs-orange', 'car-kia-ev9-silver', 'car-toyota-tacoma-trd-black',
+            'car-bmw-5-series-grey', 'car-porsche-panamera-turbo-chalk-rear', 'car-ldv-maxus-van-white',
+            'car-porsche-911-gt2-rs-white', 'car-mercedes-amg-g63-cabriolet-blue',
+            'car-ram-2500-power-wagon-white', 'car-subaru-outback-white', 'car-toyota-rav4-2026-white-rear',
+            'car-bmw-m3-csl-e46-grey', 'car-dodge-challenger-1972-lime', 'car-lamborghini-aventador-s-red',
+            'car-lucid-air-white', 'car-toyota-highlander-black', 'car-jeep-wagoneer-classic-red-rear',
+            'car-ford-bronco-blue', 'car-harley-softail-black', 'car-toyota-4runner-trd-pro-lime',
+            'car-porsche-356-blue', 'car-mercedes-amg-gle63-silver', 'car-honda-ridgeline-grey-rear']
+# One model from the front and from the rear (or side), on a diagonal (layout
+# stagger). Owner, 2026-10-04: "I would like to have the same color car ... Even the
+# same car if possible ... But I'll take the same color": audited by eye, each pair
+# the same paint, most of them the same car photographed twice (a dark blue M3 beside
+# a bright blue M3 Touring, a dark grey K5 beside a silver one, are out).
 CAR_DUOS = [
-    ('car-toyota-camry-silver', 'car-toyota-camry-2025-white-side'), ('car-toyota-prius-2026-grey', 'car-toyota-prius-grey-rear'),
-    ('car-toyota-rav4-white', 'car-toyota-rav4-2026-white-rear'), ('car-toyota-highlander-silver', 'car-toyota-highlander-silver-rear'),
-    ('car-toyota-tacoma-orange', 'car-toyota-tacoma-trd-black-rear'), ('car-toyota-tundra-trd-pro-blue', 'car-toyota-tundra-trd-pro-white-rear'),
-    ('car-toyota-gr-supra-2026-red', 'car-toyota-gr-supra-grey-rear'), ('car-honda-accord-white', 'car-honda-accord-white-rear'),
-    ('car-honda-pilot-white', 'car-honda-pilot-white-rear'), ('car-honda-ridgeline-white', 'car-honda-ridgeline-grey-rear'),
-    ('car-ford-f150-black', 'car-ford-f150-black-rear'), ('car-ford-f150-raptor-2026-black', 'car-ford-f150-raptor-orange-rear'),
-    ('car-ford-mustang-dark-horse-blue', 'car-ford-mustang-gt-yellow-rear'), ('car-ford-ranger-wildtrak-orange', 'car-ford-ranger-blue-rear'),
-    ('car-chevy-equinox-white', 'car-chevy-equinox-white-rear'), ('car-gmc-sierra-denali-grey', 'car-gmc-sierra-ev-grey-rear'),
-    ('car-ram-1500-blue', 'car-ram-1500-black-rear'), ('car-jeep-gladiator-green', 'car-jeep-gladiator-rubicon-red-side'),
-    ('car-cadillac-escalade-v-white', 'car-cadillac-escalade-black-rear'), ('car-bmw-m3-blue', 'car-bmw-m3-touring-blue-rear'),
+    ('car-toyota-prius-2026-grey', 'car-toyota-prius-grey-rear'),
+    ('car-toyota-rav4-white', 'car-toyota-rav4-2026-white-rear'),
+    ('car-toyota-highlander-silver', 'car-toyota-highlander-silver-rear'),
+    ('car-honda-accord-white', 'car-honda-accord-white-rear'), ('car-honda-pilot-white', 'car-honda-pilot-white-rear'),
+    ('car-ford-f150-black', 'car-ford-f150-black-rear'), ('car-chevy-equinox-white', 'car-chevy-equinox-white-rear'),
     ('car-lexus-rx-white', 'car-lexus-rx-white-rear'), ('car-hyundai-tucson-white', 'car-hyundai-tucson-l-white-rear'),
-    ('car-hyundai-ioniq5-silver-side', 'car-hyundai-ioniq5-grey-rear'), ('car-kia-k5-grey', 'car-kia-k5-silver-rear'),
-    ('car-kia-telluride-grey', 'car-kia-telluride-2026-silver-rear'), ('car-subaru-outback-white', 'car-subaru-outback-red-rear'),
-    ('car-tesla-model-3-white', 'car-tesla-model-3-performance-white-rear'), ('car-tesla-model-y-white', 'car-tesla-model-y-red-side'),
-    ('car-tesla-model-x-silver', 'car-tesla-model-x-white-rear'), ('car-tesla-cybertruck', 'car-tesla-cybertruck-rear-street'),
-    ('car-rivian-r1s-silver', 'car-rivian-r1s-grey-rear')]
-# 2026-10-04: the same model from the front and from the rear, from the new photographs
-CAR_DUOS += [
+    ('car-tesla-cybertruck', 'car-tesla-cybertruck-rear-street'),
+    ('car-tesla-model-3-white', 'car-tesla-model-3-performance-white-rear'),
+    ('car-tesla-model-y-performance-red', 'car-tesla-model-y-red-side'),
+    ('car-ram-1500-rebel-black', 'car-ram-1500-black-rear'),
+    ('car-toyota-tacoma-trd-offroad-black', 'car-toyota-tacoma-trd-black-rear'),
+    ('car-honda-civic-type-r-blue', 'car-honda-civic-type-r-fk8-blue-rear'),
     ('car-acura-rdx-blue', 'car-acura-rdx-blue-rear'),
     ('car-bentley-continental-gt-green', 'car-bentley-continental-gt-green-rear'),
     ('car-bmw-x3-black', 'car-bmw-x3-m50-black-rear'), ('car-buick-enclave-grey', 'car-buick-enclave-grey-rear'),
     ('car-chevy-camaro-yellow', 'car-chevy-camaro-yellow-rear'),
-    ('car-chrysler-pacifica-grey', 'car-chrysler-pacifica-white-rear'),
     ('car-ferrari-296-gtb-yellow', 'car-ferrari-296-gtb-yellow-rear'),
-    ('car-honda-hrv-beige', 'car-honda-hrv-red-rear'),
     ('car-hyundai-ioniq-6-silver', 'car-hyundai-ioniq-6-silver-rear'),
     ('car-hyundai-kona-n-white', 'car-hyundai-kona-n-white-rear'),
     ('car-hyundai-santa-fe-white', 'car-hyundai-santa-fe-white-rear'),
@@ -692,20 +749,11 @@ CAR_DUOS += [
     ('car-land-rover-defender-110-classic-grey', 'car-land-rover-defender-110-classic-grey-rear'),
     ('car-lexus-es-white', 'car-lexus-es-white-rear'), ('car-lincoln-aviator-black', 'car-lincoln-aviator-black-rear'),
     ('car-lucid-air-white', 'car-lucid-air-white-rear'), ('car-maserati-mc20-white', 'car-maserati-mc20-cielo-rear'),
-    ('car-mazda3-hatch-white', 'car-mazda3-hatch-silver-rear'),
-    ('car-porsche-cayenne-gts-silver', 'car-porsche-cayenne-gts-white-rear'),
+    ('car-mercedes-amg-g63-cabriolet-blue', 'car-mercedes-amg-g63-4x4-blue-rear'),
     ('car-porsche-panamera-gts-chalk', 'car-porsche-panamera-turbo-chalk-rear'),
     ('car-subaru-crosstrek-wilderness-blue', 'car-subaru-crosstrek-wilderness-blue-rear'),
     ('car-toyota-venza-silver', 'car-toyota-venza-silver-rear'),
-    ('car-volvo-xc60-silver', 'car-volvo-xc60-silver-rear'),
-    ('car-volvo-xc90-2025-white', 'car-volvo-xc90-silver-rear'),
-    ('car-mercedes-amg-g63-2025-black', 'car-mercedes-amg-g63-silver-rear'),
-    ('car-jeep-wrangler-sahara-red', 'car-jeep-wrangler-2door-black-rear'),
-    ('car-tesla-model-y-blue', 'car-tesla-model-y-black-side'),
-    ('car-ford-bronco-sport-badlands-red', 'car-ford-bronco-sport-black-rear'),
-    ('car-honda-civic-type-r-blue', 'car-honda-civic-type-r-fk8-blue-rear'),
-    ('car-honda-civic-white', 'car-honda-civic-sedan-blue-rear'),
-    ('car-toyota-rav4-white', 'car-toyota-rav4-phev-red-rear')]
+    ('car-volvo-xc60-silver', 'car-volvo-xc60-silver-rear')]
 POOLS['cars-pair'] = POOLS['cars']
 
 COUNTS = OrderedDict([('iphone', 150)] + [(c, 40) for c in
@@ -921,10 +969,10 @@ def st_studio(g, podium=False):
     img = img + (spot * k)[..., None] * lc + (pool * k * 0.6)[..., None] * lc
     g.floor = True
     if podium:
-        img = draw_podiums(g, img)
+        img = draw_podiums(g, img, podium if isinstance(podium, str) else 'round')
     return img
 
-def draw_podiums(g, img):
+def draw_podiums(g, img, kind='round'):
     r = g.rng; T = g.p.t
     ped = []
     for pl in g.pls:
@@ -941,12 +989,17 @@ def draw_podiums(g, img):
                 c[0] = min(c[0], p[0]); c[1] = max(c[1], p[1]); c[2] = max(c[2], p[2]); break
         else:
             clusters.append(list(p))
-    col = T['hi'] if not g.p.dark else labmix(T['base2'], T['sups'], 0.25)
-    if r.random() < 0.4:
+    # on a dark ground, a lighter tone of the ground itself (as Apple sets one)
+    col = T['hi'] if not g.p.dark else lighten(labmix(T['base2'], T['mid'], 0.45), 0.05)
+    if r.random() < 0.4 and not g.p.dark:
         col = labmix(col, T['accs'], 0.5)
     ctop = lab2lin(lighten(col, 0.04)); cb = lab2lin(col)
     lx = g.lx
     info = []
+    neon = lab2lin(tint(T['accs'] if g.p.dark else T['acc'], 0.80, 1.35))
+    if kind == 'neon':                              # a dark drum, so its rings carry the light
+        cb = lab2lin(lighten(labmix(T['base'], T['deep'], 0.5), -0.06 if g.p.dark else -0.30))
+        ctop = lab2lin(lighten(labmix(T['base'], T['deep'], 0.5), -0.02 if g.p.dark else -0.24))
     for (x0, x1, by) in sorted(clusters, key=lambda c: c[2]):
         cx = (x0 + x1) / 2
         rx = max((x1 - x0) / 2 * 1.08 + 40, 150)
@@ -954,28 +1007,51 @@ def draw_podiums(g, img):
         top = by - ry * 0.25
         base = max(top + H * r.uniform(0.07, 0.16), g.hy + 60)
         base = min(base, H + ry)
-        dx = XX - cx
-        # floor contact / cast shadow of the pedestal
-        sh = gauss2(cx - lx * 60, base + 6, rx * 1.05, ry * 1.2)
-        shade(img, sh, 0.35, g.p.shadow)
-        rect = np.clip(rx - np.abs(dx) + 0.5, 0, 1) * np.clip(YY - top + 0.5, 0, 1) * np.clip(base - YY + 0.5, 0, 1)
-        db = np.sqrt((dx / rx) ** 2 + ((YY - base) / ry) ** 2)
-        ell_b = np.clip((1 - db) * ry + 0.5, 0, 1)
-        body = np.maximum(rect, ell_b)
-        nx = np.clip(dx / rx, -1, 1)
-        sh_ = 0.80 + 0.2 * np.sqrt(1 - nx ** 2) - 0.13 * nx * lx
-        vg = 1 - 0.10 * np.clip((YY - top) / (base - top + 1), 0, 1)
-        bodycol = cb[None, None] * (sh_ * vg)[..., None]
-        img = lerp(img, bodycol, body)
-        dt = np.sqrt((dx / rx) ** 2 + ((YY - top) / ry) ** 2)
-        ell_t = np.clip((1 - dt) * ry + 0.5, 0, 1)
-        topcol = ctop[None, None] * (1.0 + 0.06 * (1 - dt) - 0.04 * nx[..., None] * lx) if False else \
-            ctop[None, None] * (1.02 + 0.05 * np.clip(1 - dt, 0, 1))[..., None]
-        img = lerp(img, topcol, ell_t)
-        rim = np.exp(-(((dt - 1) * ry) / 1.2) ** 2) * (YY > top)
-        img += (rim * 0.06)[..., None]
+        if kind == 'tiered':
+            # two drums: a wide low step, the products on a narrower one above it
+            step = top + (base - top) * 0.52
+            img = _drum(g, img, cx, step, base + ry * 0.15, rx * 1.32, ry * 1.32, cb * 0.72, ctop * 0.84, True)
+            img = _drum(g, img, cx, top, step + ry * 0.35, rx, ry, cb, ctop, False)
+        else:
+            img = _drum(g, img, cx, top, base, rx, ry, cb, ctop, True)
+        if kind == 'neon':
+            dx = XX - cx
+            ring = np.zeros((H, W), F)
+            for yc, w_ in ((top, 1.6), (base, 2.2)):
+                d = np.sqrt((dx / rx) ** 2 + ((YY - yc) / ry) ** 2)
+                band = np.exp(-(((d - 1) * ry) / w_) ** 2)
+                if yc == base: band *= (YY > base)          # the front half of the foot
+                ring = np.maximum(ring, band)
+            glow = ring * 0.9 + gblur(ring, 6) * 1.6 + gblur(ring, 26) * 1.4
+            img = screen(img, np.clip(glow, 0, 1)[..., None] * neon)
+            # its light on the floor
+            img = screen(img, (gauss2(cx, base + ry * 0.6, rx * 1.15, ry * 1.6) * 0.22)[..., None] * neon)
         info.append((cx, top, rx, ry))
     g.podiums = info
+    return img
+
+def _drum(g, img, cx, top, base, rx, ry, cb, ctop, cast):
+    """one cylinder seen from a little above: body, lit top, a fine rim"""
+    lx = g.lx
+    dx = XX - cx
+    if cast:                                        # floor contact / cast shadow
+        sh = gauss2(cx - lx * 60, base + 6, rx * 1.05, ry * 1.2)
+        shade(img, sh, 0.35, g.p.shadow)
+    rect = np.clip(rx - np.abs(dx) + 0.5, 0, 1) * np.clip(YY - top + 0.5, 0, 1) * np.clip(base - YY + 0.5, 0, 1)
+    db = np.sqrt((dx / rx) ** 2 + ((YY - base) / ry) ** 2)
+    ell_b = np.clip((1 - db) * ry + 0.5, 0, 1)
+    body = np.maximum(rect, ell_b)
+    nx = np.clip(dx / rx, -1, 1)
+    sh_ = 0.80 + 0.2 * np.sqrt(1 - nx ** 2) - 0.13 * nx * lx
+    vg = 1 - 0.10 * np.clip((YY - top) / (base - top + 1), 0, 1)
+    bodycol = cb[None, None] * (sh_ * vg)[..., None]
+    img = lerp(img, bodycol, body)
+    dt = np.sqrt((dx / rx) ** 2 + ((YY - top) / ry) ** 2)
+    ell_t = np.clip((1 - dt) * ry + 0.5, 0, 1)
+    topcol = ctop[None, None] * (1.02 + 0.05 * np.clip(1 - dt, 0, 1))[..., None]
+    img = lerp(img, topcol, ell_t)
+    rim = np.exp(-(((dt - 1) * ry) / 1.2) ** 2) * (YY > top)
+    img += (rim * 0.06)[..., None]
     return img
 
 def st_glass(g):
@@ -1521,7 +1597,9 @@ def st_neon(g):
 STYLES = OrderedDict([
     ('ios-mesh', (st_mesh, 'plane', 0.0)), ('macos-waves', (st_waves, 'flat', 0.0)),
     ('aurora', (st_aurora, 'plane', 0.0)), ('studio-sweep', (lambda g: st_studio(g), 'floor', 0.0)),
-    ('podium', (lambda g: st_studio(g, True), 'floor', 0.0)), ('liquid-glass', (st_glass, 'plane', 0.0)),
+    ('podium', (lambda g: st_studio(g, 'round'), 'floor', 0.0)),
+    ('podium-tiered', (lambda g: st_studio(g, 'tiered'), 'floor', 0.0)),
+    ('podium-neon', (lambda g: st_studio(g, 'neon'), 'floor', 0.0)), ('liquid-glass', (st_glass, 'plane', 0.0)),
     ('conic-swirl', (st_conic, 'plane', 0.0)), ('ripples', (st_rings, 'plane', 0.5)),
     ('grid-glow', (st_grid, 'plane', 0.6)), ('halftone', (st_halftone, 'flat', 0.5)),
     ('topographic', (st_topo, 'flat', 0.6)), ('paper-cut', (st_papercut, 'flat', 0.2)),
@@ -1538,10 +1616,15 @@ STYLE_W = {s: 1.0 for s in STYLES}
 BUSY = {'bauhaus', 'color-field', 'paper-cut', 'duotone-pinstripe', 'topographic', 'halftone', 'terrazzo',
         'paint-splatter', 'fluid-marble', 'macos-waves', 'grid-glow', 'ripples'}
 STYLE_W['studio-sweep'] = 3.2
-STYLE_W['podium'] = 1.4
 STYLE_W['ios-mesh'] = 1.2
 STYLE_W['liquid-glass'] = 0.7
-STYLE_W['macos-waves'] = 1.2
+# owner, 2026-10-04: "The podium is my absolute favorite", the waves "look exactly
+# like Apple ... We should have a lot of those"
+STYLE_W['podium'] = 2.4
+STYLE_W['podium-tiered'] = 1.8
+STYLE_W['podium-neon'] = 1.8
+STYLE_W['macos-waves'] = 3.0
+PODIUMS = {'podium', 'podium-tiered', 'podium-neon'}
 
 # ----------------------------------------------------------------------------- layouts
 
@@ -1552,11 +1635,20 @@ STYLE_W['macos-waves'] = 1.2
 LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'spread-fan', 'pyramid', 'floating-row',
            'flatlay-scatter', 'grid-flatlay', 'orbit-arc']
 CAR_LAYOUTS = ['hero']   # a car beside another car or a key ring shrinks to a toy at 1080
+# owner, 2026-10-04, on a Mac Studio between two iMacs in a scatter: "Maybe the Mac
+# studio could be centered?", and of a pyramid, a fan and a pair: "my favorite row of
+# three". Macs stand: on one floor line, the odd one (a Mac Studio) in the middle.
+MAC_LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'pyramid', 'spread-fan']
+# The device wall, back from the lab's tile ground (scripts/retheme_lab.mjs, the
+# owner's 2026-09-03 favourite; owner, 2026-10-04: "what happened to our tile image
+# generator"): the video maker's phones in an even grid, one scale, one angle, every
+# screen a different wallpaper, drawn solid (DESIGN-LAW rule 94: no ghost walls)
+LAYOUTS_BY = {'cars': CAR_LAYOUTS, 'cars-pair': ['stagger'], 'mac': MAC_LAYOUTS, 'iphone': LAYOUTS + ['device-wall']}
 STAND_LAYOUTS = {'hero', 'pair', 'trio', 'lineup', 'pyramid'}
-FLAT_LAYOUTS = {'flatlay-scatter', 'grid-flatlay'}
+FLAT_LAYOUTS = {'flatlay-scatter', 'grid-flatlay', 'device-wall'}
 
 def compatible(style, layout):
-    if style == 'podium' and layout not in STAND_LAYOUTS: return False
+    if style in PODIUMS and layout not in STAND_LAYOUTS: return False
     if STYLES[style][1] == 'floor' and layout in FLAT_LAYOUTS: return False
     return True
 
@@ -1577,8 +1669,16 @@ def calm_mask(zone):
         return (1 - ss(0.36, 0.54, xn)).astype(F)
     return (1 - ss(0.36, 0.54, 1 - xn)).astype(F)
 
+# Owner, 2026-10-04: "standardize the angles ... not super random or super extreme
+# tilts ... work within 15° increments": every product stands straight or leans
+# 15 degrees, 30 at the most
+TILT_STEP, TILT_MAX = 15, 30
+
+def snap_tilt(a):
+    return float(np.clip(TILT_STEP * round(a / TILT_STEP), -TILT_MAX, TILT_MAX))
+
 def P(it, S, x, y, mode='stand', rot=0.0, blur=0.0, z=0, lift=0.0, refl=None):
-    return dict(it=it, S=float(S), x=float(x), y=float(y), mode=mode, rot=float(rot), blur=float(blur), z=z,
+    return dict(it=it, S=float(S), x=float(x), y=float(y), mode=mode, rot=snap_tilt(rot), blur=float(blur), z=z,
                 lift=float(lift), refl=refl)
 
 def clamp_rot(it, a):
@@ -1591,7 +1691,7 @@ def lay(layout, items, A, rng, hy):
     n = len(items); r = rng; out = []
     acc = lambda it: 0.45 if it.get('kind') == 'acc' else 1.0
     base = y1 - 0.02 * H
-    phones = all(it['name'].startswith(('qs-iphone', 'ip-', 'iphone')) for it in items)
+    phones = all(it['name'].startswith(('qs-iphone', 'ip-', 'iphone', 'photo-iphone', 'view-')) for it in items)
     # phones in a row share one height (they must match); anything else fills its own slot
     fitslot = lambda k, w, h: min(w / math.sqrt(ars[k]), h * math.sqrt(ars[k]))
     if layout == 'hero':
@@ -1650,6 +1750,15 @@ def lay(layout, items, A, rng, hy):
                     best = (dmin, p)
             pts.append(best[1])
             out.append(P(it, S, best[1][0], best[1][1], 'flat', r.uniform(-1, 1) * it['rot'], z=k))
+    elif layout == 'device-wall':
+        cols = 4 if n >= 8 else 3
+        rows = math.ceil(n / cols)
+        ar = float(np.mean(ars))
+        cw, ch = aw / cols, ah / rows
+        Sg = min(cw * 0.86 / math.sqrt(ar), ch * 0.88 * math.sqrt(ar))
+        for k, it in enumerate(items):
+            i, j = k % cols, k // cols
+            out.append(P(it, Sg, x0 + cw * (i + 0.5), y0 + ch * (j + 0.5), 'flat', 0.0, z=k))
     elif layout == 'grid-flatlay':
         ar = float(np.mean(ars))
         best = None
@@ -1710,7 +1819,7 @@ def separate(pls, A, rng, fill, valign):
 
 LAYOUT_N = {'hero': (1, 1), 'pair': (2, 2), 'trio': (3, 3), 'lineup': (4, 5), 'spread-fan': (3, 5),
             'pyramid': (3, 3), 'floating-row': (2, 4), 'flatlay-scatter': (4, 5), 'grid-flatlay': (4, 6),
-            'orbit-arc': (3, 5)}
+            'orbit-arc': (3, 5), 'device-wall': (6, 8)}
 
 # Owner, 2026-10-01, on gold and silver: "enlarge at least 30 to 40%". Small
 # objects in rows of five read as crumbs: outside iPhone, fewer and bigger.
@@ -1735,13 +1844,30 @@ def pick_items(cat, layout, rng, idx=None, spec=None):
         return not it['cut'] or (bleed_ok and it['cut'] in ('B', 'L', 'R'))
     if cat == 'iphone':
         if layout == 'hero':
-            kind = rng.choice(['photo', 'pair', 'pair'])
+            kind = rng.choice(['photo', 'pair', 'pair', 'view', 'view'])
         elif layout in ('pair', 'trio'):
-            kind = rng.choice(['photo', 'pair', 'back'])
-        elif layout in ('lineup', 'floating-row'):
-            kind = 'back' if rng.random() < 0.6 else 'pair'
+            kind = rng.choice(['photo', 'pair', 'back', 'view', 'view'])
+        elif layout in ('lineup', 'floating-row', 'spread-fan'):
+            kind = rng.choice(['back', 'back', 'pair', 'view', 'view'])
         else:
             kind = 'back'
+        if layout == 'device-wall':
+            kind = 'view'; n = 8 if rng.random() < 0.5 else 6
+        if kind == 'view':                          # every phone in the picture turned the same way
+            side, deg = VIEW_ANGLES[int(rng.integers(len(VIEW_ANGLES)))]
+            if layout == 'device-wall':             # mostly lit screens, as the wallpaper showcases are
+                side = 'screen' if rng.random() < 0.7 else 'back'; deg = int(rng.choice([0, 0, -15, 15]))
+            cands = [it for it in pool if it['kind'] == 'view' and VIEW[it['name']]['side'] == side
+                     and VIEW[it['name']]['deg'] == deg]
+            if layout in ('pair', 'trio') and rng.random() < 0.5:
+                byp = {VIEW[it['name']]['phone']: it for it in cands}
+                return [byp[p] for p in HERO_TRIO[:n]]
+            seen, pick = set(), []                  # a phone once, its other wallpaper only if short
+            for i in rng.permutation(len(cands)):
+                ph = VIEW[cands[i]['name']]['phone']
+                if ph not in seen: seen.add(ph); pick.append(cands[i])
+            pick += [it for it in cands if it not in pick]
+            return pick[:n]
         cands = [it for it in pool if it['kind'] == kind]
         if len(cands) < n:
             cands = [it for it in pool if it['kind'] in ('back', 'photo')]
@@ -1770,8 +1896,13 @@ def pick_items(cat, layout, rng, idx=None, spec=None):
         first = []
     rest = singles if len(singles) >= n else singles + heroes
     idx = rng.permutation(len(rest))
-    sel = first + [rest[i] for i in idx if rest[i] not in first]
-    return sel[:n]
+    sel = (first + [rest[i] for i in idx if rest[i] not in first])[:n]
+    if cat == 'mac':                                # the Mac Studio in the middle, iMacs either side
+        odd = [it for it in sel if 'studio' in it['name']][:1]
+        if odd and len(sel) > 1:
+            sel = [it for it in sel if it is not odd[0]]
+            sel.insert(0 if layout == 'pyramid' else len(sel) // 2, odd[0])
+    return sel
 
 # ----------------------------------------------------------------------------- composition
 
@@ -1888,6 +2019,7 @@ def compose(spec):
     style, layout, zone = spec['style'], spec['layout'], spec['zone']
     items = pick_items(cat, layout, rng, idx, spec)
     pdef = ad_palette(items, spec['pmode'], spec['variant'] == 'dark') if cat in AD else PALETTES[spec['pal']]
+    pdef = vivid(pdef, spec['variant'] == 'dark')
     pal = Pal(pdef, spec['variant'] == 'dark')
     surface = STYLES[style][1]
     hy = rng.uniform(0.58, 0.68) * H
@@ -1900,7 +2032,7 @@ def compose(spec):
     A2 = list(A)
     if layout in STAND_LAYOUTS:
         A2[3] = 0.90 * H
-    if style == 'podium':
+    if style in PODIUMS:
         A2[3] = 0.80 * H
     valign = 'bottom' if layout in STAND_LAYOUTS else 'center'
     fill = {'flatlay-scatter': 0.92, 'grid-flatlay': 0.94}.get(layout, 0.94) if cat == 'iphone' else 0.99
@@ -1943,7 +2075,7 @@ def compose(spec):
         a = spr[..., 3]
         if p['mode'] == 'stand':
             base = y0 + h
-            want_refl = p['refl'] or (p['refl'] is None and surface in ('floor', 'plane') and style != 'podium' and rng.random() < 0.8)
+            want_refl = p['refl'] or (p['refl'] is None and surface in ('floor', 'plane') and style not in PODIUMS and rng.random() < 0.8)
             if want_refl:
                 L = h * rng.uniform(0.28, 0.4)
                 t = np.arange(h, dtype=F)
@@ -1964,7 +2096,7 @@ def compose(spec):
             c2 = cv2.GaussianBlur(m, (0, 0), sigmaX=16, sigmaY=9)
             shade(img, np.clip(c1 * 3.5, 0, 1), 0.55 if light_bg else 0.7, shadow_tint)
             shade(img, np.clip(c2 * 5, 0, 1), 0.30 if light_bg else 0.4, shadow_tint)
-            if surface == 'floor' and style != 'podium':
+            if surface == 'floor' and style not in PODIUMS:
                 sh = int(max(4, h * rng.uniform(0.18, 0.3)))
                 flat = cv2.resize(a[::-1], (w, sh), interpolation=cv2.INTER_AREA)
                 shear = -lx * 1.4
@@ -2040,7 +2172,7 @@ def compose(spec):
 
 def plan_category(cat, n):
     rng = np.random.default_rng([SEED, zlib.crc32(cat.encode()), 999])
-    lays = CAR_LAYOUTS if cat == 'cars' else ['stagger'] if cat == 'cars-pair' else AD_LAYOUTS_BY.get(cat, AD_LAYOUTS) if cat in AD else LAYOUTS
+    lays = LAYOUTS_BY.get(cat) or (AD_LAYOUTS_BY.get(cat, AD_LAYOUTS) if cat in AD else LAYOUTS)
     styles = list(AD_STYLES) if cat in AD else list(STYLES)
     # one use per (style, layout) and (palette, layout) until a set has more
     # images than that allows (cars have one layout, the Apple-ad sets six
@@ -2048,6 +2180,7 @@ def plan_category(cat, n):
     # 2026-10-03: "MORE"), never as the same style and palette twice
     per = -(-n // len(lays))
     cap = max(1, max(-(-per // max(1, sum(compatible(s_, l_) for s_ in styles))) for l_ in lays))
+    pcap = max(cap, -(-per // len(PALETTES)))   # more styles than palettes: a palette may come oftener
     for attempt in range(200):
         used_sl, used_pl, used_sp = Counter(), Counter(), set()
         lc, sc, pc = Counter(), Counter(), Counter()
@@ -2055,7 +2188,8 @@ def plan_category(cat, n):
         nf = round(n * 0.55)
         fins = ['sharp'] * nf + ['soft'] * (n - nf)
         rng.shuffle(fins)
-        vars_ = (['light', 'dark'] * n)[:n]; rng.shuffle(vars_)
+        nl = round(n * (0.5 if cat in AD else 0.35))      # owner: "heavy contrast": more dark grounds
+        vars_ = ['light'] * nl + ['dark'] * (n - nl); rng.shuffle(vars_)
         for i in range(n):
             if i and False: pass
             cl = [l for l in lays if not prev or l != prev['layout']]
@@ -2066,7 +2200,7 @@ def plan_category(cat, n):
             cs = [s for s in styles if used_sl[(s, l)] < cap and compatible(s, l) and (not prev or s != prev['style'])]
             if not cs: failed = True; break
             s = min(cs, key=lambda s: sc[s] / STYLE_W[s] + rng.random() * 0.35)
-            cp = [p for p in range(len(PALETTES)) if used_pl[(p, l)] < cap and (cap == 1 or (s, p) not in used_sp) and (not prev or p != prev['pal'])]
+            cp = [p for p in range(len(PALETTES)) if used_pl[(p, l)] < pcap and (cap == 1 or (s, p) not in used_sp) and (not prev or p != prev['pal'])]
             if not cp: failed = True; break
             mp = min(pc[p] for p in cp)
             cp = [p for p in cp if pc[p] == mp]
@@ -2092,9 +2226,9 @@ def ad_assign(cat, specs):
     for l in AD_LAYOUTS_BY.get(cat, AD_LAYOUTS):
         need = ad_need(cat, l)
         elig = [k for k in keys if len(groups[k]) >= need] or keys
-        # the real photographs first, so every one is shown
-        ph = [i for i, k in enumerate(elig) if k.startswith('photo-')]
-        rest = [i for i, k in enumerate(elig) if not k.startswith('photo-')]
+        # the real photographs and the main Pro Max trio first, so every one is shown
+        ph = [i for i, k in enumerate(elig) if k.startswith(('photo-', 'view:hero-trio'))]
+        rest = [i for i, k in enumerate(elig) if not k.startswith(('photo-', 'view:hero-trio'))]
         perm = [ph[i] for i in r.permutation(len(ph))] + [rest[i] for i in r.permutation(len(rest))]; j = 0
         for sp in specs:
             if sp['layout'] != l: continue
@@ -2102,7 +2236,7 @@ def ad_assign(cat, specs):
             cols = list(groups[k]); off = (j // len(elig)) % len(cols)
             cols = cols[off:] + cols[:off]
             sp['items'] = [c['name'] for c in cols[:need]]
-            sp['pmode'] = 'tone' if (need <= 2 or j % 2 == 0) else 'neutral'
+            sp['pmode'] = 'tone' if (need <= 2 or j % 4 != 3) else 'neutral'   # owner: "more vibrant"
             j += 1
 
 # ----------------------------------------------------------------------------- sheets
