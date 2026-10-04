@@ -3,6 +3,27 @@
 
 export const TRACKS = [
  {
+  "id": "eagle_eyes",
+  "title": "Eagle Eyes · USAF Airmen of Note",
+  "kind": "jazz",
+  "bpm": 80.0,
+  "beat": 0.46
+ },
+ {
+  "id": "sousa_funk",
+  "title": "Sousa Gone Funk · US Navy Band",
+  "kind": "jazz",
+  "bpm": 85.8,
+  "beat": 0.23
+ },
+ {
+  "id": "aero_groove",
+  "title": "Aero Groove Evolution · USAF Rhythm in Blue",
+  "kind": "jazz",
+  "bpm": 85.8,
+  "beat": 0.39
+ },
+ {
   "id": "mountain_king",
   "title": "In the Hall of the Mountain King · Musopen Symphony",
   "kind": "classical",

@@ -1,6 +1,42 @@
 {
  "tracks": [
   {
+   "id": "eagle_eyes",
+   "title": "Eagle Eyes · USAF Airmen of Note",
+   "kind": "jazz",
+   "bpm": 80.0,
+   "beat": 0.46,
+   "from": 63.6,
+   "source": "File:Eagle Eyes - Airmen of Note - United States Air Force Band.mp3",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Eagle_Eyes_-_Airmen_of_Note_-_United_States_Air_Force_Band.mp3",
+   "license": "Public domain",
+   "basis": "US Air Force (composed by MSgt Jeff Martin), public domain"
+  },
+  {
+   "id": "sousa_funk",
+   "title": "Sousa Gone Funk · US Navy Band",
+   "kind": "jazz",
+   "bpm": 85.8,
+   "beat": 0.23,
+   "from": 5.7,
+   "source": "File:Sousa gone Funk (Washington Post) - U.S. Navy Band.opus",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/8/82/Sousa_gone_Funk_%28Washington_Post%29_-_U.S._Navy_Band.opus",
+   "license": "Public domain",
+   "basis": "US Navy Band, public domain"
+  },
+  {
+   "id": "aero_groove",
+   "title": "Aero Groove Evolution · USAF Rhythm in Blue",
+   "kind": "jazz",
+   "bpm": 85.8,
+   "beat": 0.39,
+   "from": 89.0,
+   "source": "File:Aero Groove Evolution - Rhythm in Blue - United States Air Force Heritage of America Band.mp3",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/3/39/Aero_Groove_Evolution_-_Rhythm_in_Blue_-_United_States_Air_Force_Heritage_of_America_Band.mp3",
+   "license": "Public domain",
+   "basis": "US Air Force, public domain"
+  },
+  {
    "id": "mountain_king",
    "title": "In the Hall of the Mountain King · Musopen Symphony",
    "kind": "classical",

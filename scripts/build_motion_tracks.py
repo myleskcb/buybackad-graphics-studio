@@ -182,7 +182,7 @@ def main():
             if not any(k in lic for k in ("public domain", "cc0")): print("skip (licence):", tid, meta["license"]); continue
             L = meta["length"] or 600
             if meta["small"]:
-                url, bps = meta["small"], meta["small_bps"] / 8 * 1.15        # bytes a second, with room for variation
+                url, bps = meta["small"], (meta["small_bps"] or 160000) / 8 * 1.15    # bytes a second, with room (Commons sometimes reports 0)
                 ext = ".ogg" if meta["small"].endswith(".ogg") else ".mp3"
             else:
                 url, bps, ext = meta["url"].split("?")[0], meta["size"] / L * 1.05, os.path.splitext(urllib.parse.urlparse(meta["url"]).path)[1]
