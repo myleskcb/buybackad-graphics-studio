@@ -397,6 +397,19 @@ produced." DESIGN-LAW rule 87. In practice:
   before every render and undo step) work on the parts `ccParts` finds. A
   pass that moves designer objects leaves a locked group to the keeper;
   never set `left` on one without its group.
+- **Every video has its photo** (rule 108, 2026-10-03): OfferUp takes a
+  video only with a photo, so each video download saves a PNG 1440 on the
+  short side of the ad at its best moment (`video-still.js`; `motionPhoto` in
+  the studio, `makePhoto` in the maker). A new video export path makes one
+  too, and keeps it a tap away until the next video (`VideoHelp.keepPhoto`
+  in the studio, Save photo in the maker's note): a browser can hold the
+  second download back. Check: `node scripts/video_photo_check.mjs`.
+- **A card's parts line up** (rule 109, 2026-10-03): `node
+  scripts/composition_audit.mjs` measures every offered card (`__sc.comp`:
+  loose parts, near misses, a picture over a headline) and exits 1 on a
+  failure; `scripts/centre_showcase.mjs --ids a,b` repairs with Centre all
+  through the writers' gate. A pass that moves a showcase card's layers
+  runs the audit on the cards it touched.
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its
