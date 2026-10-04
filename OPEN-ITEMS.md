@@ -1530,7 +1530,9 @@ you can't leave the second line of the hero aligned left" (hudTech-jw07-16),
 centred and side-aligned parts, and lines on a plate out of step; the repair
 centres all, or aligns all to the headline's side, or moves nothing. 39 cards
 given one alignment, 10 held, 311 live; verify_showcase passes all 311;
-composition 45 of 291 fail, none newly.
+composition 45 of 291 fail, none newly. every_card_audit on the 39: no card
+newly held as offered; choices off across the table fell (themes 445 to 426,
+voices 1,525 to 1,513).
 
 Not live until deployed (AGENT-BRIEF, Deploying).
 
