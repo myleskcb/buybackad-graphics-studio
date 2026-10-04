@@ -25,6 +25,9 @@
 /assets/showcase/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 
+/assets/library-ads/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
 /assets/geo/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 

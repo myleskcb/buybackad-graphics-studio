@@ -1,6 +1,6 @@
 """The iPhones LA routes the picker calls, as a runnable reference.
 
-Standard library only (Pillow for the JPEG route). It is the shape to copy
+Standard library only. It is the shape to copy
 into iPhones LA's own app (Flask, FastAPI, Django: README.md has the first
 two), not something to run in production as it is.
 
@@ -9,13 +9,12 @@ two), not something to run in production as it is.
     python3 example_server.py 8896
 
 then open http://localhost:8896/ : a listing page (title, description,
-photos) with the library beside it.
+photos) with the library's ads beside it.
 
     GET /api/buybackad-library/index        counts and version
-    GET /api/buybackad-library/categories   kinds and categories
-    GET /api/buybackad-library/assets       ?kind=&category=&q=&limit=&offset=
+    GET /api/buybackad-library/categories   the categories, with counts
     GET /api/buybackad-library/ads          ?category=&q=&limit=&offset=
-    GET /api/buybackad-library/jpeg/<id>    that asset as a listing JPEG (?max=1600)
+    GET /api/buybackad-library/jpeg/<id>    that ad as a listing JPEG, 1080x1080 (?max= for smaller)
 """
 from __future__ import annotations
 
@@ -84,20 +83,20 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/static/library-picker.js":
                 with open(os.path.join(HERE, "library-picker.js"), "rb") as f:
                     return self._send(200, f.read(), "application/javascript; charset=utf-8", "public, max-age=300")
-            m = re.fullmatch(r"/api/buybackad-library/(index|categories|assets|ads)", u.path)
+            m = re.fullmatch(r"/api/buybackad-library/(index|categories|ads)", u.path)
             if m:
                 return self._json(200, LIB.proxy(m.group(1), params))
             m = re.fullmatch(r"/api/buybackad-library/jpeg/([^/]+)", u.path)
             if m:
-                asset_id = urllib.parse.unquote(m.group(1))
-                if not ID_RE.match(asset_id):
+                ad_id = urllib.parse.unquote(m.group(1))
+                if not ID_RE.match(ad_id):
                     return self._json(400, {"error": "not a library id"})
-                max_side = max(320, min(2400, int(params.get("max", "1600") or 1600)))
-                key = (asset_id, max_side)
+                max_side = max(320, min(1080, int(params["max"]))) if params.get("max") else None
+                key = (ad_id, max_side)
                 with _jpeg_lock:
                     jpeg = _jpegs.get(key)
                 if jpeg is None:
-                    jpeg = LIB.listing_jpeg(LIB.asset(asset_id), max_side=max_side)
+                    jpeg = LIB.ad_jpeg(LIB.ad(ad_id), max_side=max_side)
                     with _jpeg_lock:
                         _jpegs[key] = jpeg
                         while len(_jpegs) > 40:

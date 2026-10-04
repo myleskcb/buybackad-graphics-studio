@@ -4,7 +4,7 @@
     BUYBACKAD_LIBRARY_KEY=bbl_... \
     python3 -m unittest test_buybackad_library -v
 
-Skipped without the two variables. The JPEG checks need Pillow.
+Skipped without the two variables. The smaller-JPEG check needs Pillow.
 """
 import io
 import os
@@ -31,32 +31,29 @@ class LibraryTest(unittest.TestCase):
 
     def test_index_and_categories_agree(self):
         idx = self.lib.index()
-        self.assertEqual(idx["counts"]["assets"], idx["counts"]["cutouts"] + idx["counts"]["scenes"] + idx["counts"]["backgrounds"])
-        cats = self.lib.categories()
-        self.assertEqual(sum(sum(c.values()) for c in cats["assets"].values()), idx["counts"]["assets"])
-        self.assertEqual(sum(cats["ads"].values()), idx["counts"]["ads"])
+        self.assertGreater(idx["counts"]["ads"], 0)
+        self.assertEqual(sum(self.lib.categories()["categories"].values()), idx["counts"]["ads"])
 
     def test_filters_and_paging(self):
-        page = self.lib.assets(kind="cutout", category="iphones", limit=5)
+        page = self.lib.ads(category="phones", limit=5)
         self.assertLessEqual(len(page["items"]), 5)
-        self.assertTrue(all(a["kind"] == "cutout" and a["category"] == "iphones" and a["transparent"] for a in page["items"]))
-        every = list(self.lib.iter_assets(kind="cutout", category="iphones"))
+        self.assertTrue(all(a["category"] == "phones" for a in page["items"]))
+        every = list(self.lib.iter_ads(category="phones"))
         self.assertEqual(len(every), page["total"])
         self.assertEqual(len({a["id"] for a in every}), len(every))
 
     def test_search_narrows(self):
-        page = self.lib.assets(q="macbook")
+        page = self.lib.ads(q="gold")
         self.assertGreater(page["total"], 0)
-        self.assertLess(page["total"], self.lib.index()["counts"]["assets"])
+        self.assertLess(page["total"], self.lib.index()["counts"]["ads"])
 
     def test_one_by_id(self):
-        first = self.lib.assets(limit=1)["items"][0]
-        self.assertEqual(self.lib.asset(first["id"])["id"], first["id"])
         ad = self.lib.ads(limit=1)["items"][0]
         self.assertEqual(self.lib.ad(ad["id"])["id"], ad["id"])
         self.assertTrue(ad["studio_url"].endswith("/?card=" + ad["id"]))
+        self.assertEqual((ad["image"]["width"], ad["image"]["height"]), (1080, 1080))
         with self.assertRaises(LibraryError) as e:
-            self.lib.asset("no-such-picture")
+            self.lib.ad("no-such-ad")
         self.assertEqual(e.exception.status, 404)
 
     def test_wrong_key_is_401(self):
@@ -65,24 +62,26 @@ class LibraryTest(unittest.TestCase):
         self.assertEqual(e.exception.status, 401)
 
     def test_proxy_drops_unknown_params_and_the_partner(self):
-        page = self.lib.proxy("assets", {"kind": "scene", "limit": "3", "secret": "x"})
-        self.assertTrue(all(a["kind"] == "scene" for a in page["items"]))
+        page = self.lib.proxy("ads", {"category": "gold", "limit": "3", "secret": "x"})
+        self.assertTrue(0 < len(page["items"]) <= 3 and all(a["category"] == "gold" for a in page["items"]))
         self.assertNotIn("partner", self.lib.proxy("index", {}))
         self.assertIn("partner", self.lib.index())        # the cached answer was not trimmed
 
     def test_pictures_only_from_the_site(self):
         with self.assertRaises(LibraryError):
-            self.lib.fetch_image({"url": "https://example.com/x.webp"})
+            self.lib.fetch_image("https://example.com/x.jpg")
+
+    def test_the_ad_is_the_librarys_jpeg_byte_for_byte(self):
+        ad = self.lib.ads(limit=1)["items"][0]
+        jpeg = self.lib.ad_jpeg(ad)
+        self.assertEqual(jpeg[:3], b"\xff\xd8\xff")
+        self.assertEqual(len(jpeg), ad["image"]["bytes"])
 
     @unittest.skipIf(Image is None, "needs Pillow")
-    def test_cutout_becomes_a_listing_jpeg_on_white(self):
-        item = self.lib.assets(kind="cutout", category="iphones", limit=1)["items"][0]
-        jpeg = self.lib.listing_jpeg(item, max_side=800)
-        im = Image.open(io.BytesIO(jpeg))
-        self.assertEqual(im.format, "JPEG")
-        self.assertLessEqual(max(im.size), 800)
-        corner = im.convert("RGB").getpixel((0, 0))
-        self.assertTrue(all(c >= 245 for c in corner), corner)
+    def test_a_smaller_ad(self):
+        ad = self.lib.ads(limit=1)["items"][0]
+        im = Image.open(io.BytesIO(self.lib.ad_jpeg(ad, max_side=640)))
+        self.assertEqual((im.format, im.size), ("JPEG", (640, 640)))
 
 
 if __name__ == "__main__":

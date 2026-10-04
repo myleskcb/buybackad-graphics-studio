@@ -2885,7 +2885,7 @@ function buildLayer(l, tplId, dw, dh){
 
 // ---------- thumbnail engine: renders REAL previews from the actual specs ----------
 const THUMBS = {};
-function renderThumb(tpl, px){
+function renderThumb(tpl, px, q){                         // q: JPEG quality (0.82); the library's full-size renders take 0.88
   // thumbnails always preview the authored square template, whatever the live doc format
   const sc = new fabric.StaticCanvas(null, { width:TPL_W, height:TPL_H, renderOnAddRemove:false, enableRetinaScaling:false });   // at 1x on every screen, as renderEzCanvas
   const bgi = tpl.bg.type === 'image' ? freshBgImage(tpl.bg.src, tpl.bg.blur, tpl.bg.grade) : null;
@@ -2901,7 +2901,7 @@ function renderThumb(tpl, px){
   /* no renderAll first: toDataURL paints the scene itself, at thumbnail size.
      The full-size paint before it was thrown away, and was half the cost of
      every thumbnail (78ms to 39ms, the same pixels; rule 93) */
-  const url = sc.toDataURL({ format:'jpeg', quality:0.82, multiplier:(px||300)/TPL_W });
+  const url = sc.toDataURL({ format:'jpeg', quality:q || 0.82, multiplier:(px||300)/TPL_W });
   sc.dispose();
   return url;
 }

@@ -1,20 +1,21 @@
 /**
- * The library API: BUYBACK.AD's imagery for a partner's server, behind a key.
+ * The library API: BUYBACK.AD's library of ads for a partner's server, behind
+ * a key.
  *
  * Owner, 2026-10-04: "build the intermediary so the ad title and description
  * page and list it can access the library material from buyback ad via a
- * key". The partner is iPhones LA: its listing page (title, description, list
- * it) picks pictures from here. Its server asks; the browser never holds the
- * key. The handoff for that side is docs/iphonesla-library/.
+ * key", then, over a first version that offered the product pictures: "Those
+ * are not the ads those are assets ... it's going to be ads that we approved
+ * and send to the library in the buyback ad app". The library is the Designer
+ * Library: the finished ad cards the site offers. The partner is iPhones LA:
+ * its listing page (title, description, list it) puts one of them on a
+ * listing. Its server asks; the browser never holds the key. The other side
+ * is docs/iphonesla-library/ (and docs/iphonesla-library.zip).
  *
- *   GET /api/library/v1                what is here: counts, version, routes
- *   GET /api/library/v1/categories     kinds and categories, with counts
- *   GET /api/library/v1/assets         product cut-outs, scenes, backgrounds
- *                                      ?kind= ?category= ?q= ?limit= ?offset=
- *   GET /api/library/v1/assets/<id>    one of them
- *   GET /api/library/v1/ads            the finished ad designs the site offers
- *                                      ?category= ?q= ?limit= ?offset=
- *   GET /api/library/v1/ads/<id>       one of them
+ *   GET /api/library/v1               what is here: counts, version, routes
+ *   GET /api/library/v1/categories    the categories, with counts
+ *   GET /api/library/v1/ads           the ads; ?category= ?q= ?limit= ?offset=
+ *   GET /api/library/v1/ads/<id>      one of them
  *
  * The key: `Authorization: Bearer <key>` (or `X-Library-Key: <key>`). Keys
  * live in the env var LIBRARY_KEYS as comma-separated name:key pairs
@@ -23,27 +24,24 @@
  * LIBRARY_DAILY times a day (20000 by default). No CORS headers: a key in a
  * web page is a key anyone has.
  *
- * What it describes is the deployed site's own assets/library.json and
- * assets/showcase/index.json, read over HTTP from the same deploy and kept
- * five minutes, so every link it hands out is a file that deploy serves. The
- * pictures themselves are those static files (public, cached a month at the
- * edge); the key gates the catalogue, not the bytes.
+ * An ad is offered when the site offers it (scIsLive in app.js: no defect
+ * stamped, imagery, not washed out; held cards carry a defect) and it has a
+ * full-size render (assets/library-ads/, scripts/render_library_ads.mjs: the
+ * studio's own renderThumb() at 1080, the picture the library's thumbnail is
+ * shrunk from). It comes as that image (its link carries the file's sha1, so
+ * a re-render is never served stale), its 448px thumbnail, and studio_url,
+ * which opens it in the studio (?card=<id>).
  *
- * - Assets: every entry but the placeholders (drawn stand-ins for a missing
- *   photograph). Provenance goes with each: `source` as the library records
- *   it, and `credit` where assets/cutouts/ATTRIBUTION.json holds one.
- * - Ads: the cards the site offers, by the site's own test (scIsLive in
- *   app.js: no defect stamped, imagery, not washed out); held cards carry a
- *   defect and stay out. Each comes as its 448px thumbnail and `studio_url`,
- *   which opens it in the studio (?card=<id>) to be finished with a phone
- *   number and downloaded full size.
+ * What it describes is read from the same deploy over HTTP and kept five
+ * minutes (assets/showcase/index.json, assets/library-ads/index.json), so
+ * every link it hands out is a file that deploy serves. The images are static
+ * files, cached at the edge; the key gates the catalogue.
  *
  * The router answers null for any path outside /library, so api.mjs goes on.
  */
 
 const TTL_MS = 5 * 60 * 1000;
 const MAX_LIMIT = 200;
-const KINDS = ['cutout', 'scene', 'background'];
 const ID_RE = /^[A-Za-z0-9_-]{1,100}$/;
 const enc = new TextEncoder();
 
@@ -86,51 +84,36 @@ function presentedKey(req) {
 
 const words = (s) => String(s || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 const list = (v) => String(v || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
-const formatOf = (file) => (String(file).match(/\.([a-z0-9]+)$/i) || [])[1]?.toLowerCase().replace('jpeg', 'jpg') || null;
+/* the site's own test for a card it offers (scIsLive, app.js) */
+const live = (c) => !!c && !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05);
 
-/** the site's own library and showcase, read from this deploy and kept TTL_MS */
+/** the site's library and its renders, read from this deploy and kept TTL_MS */
 async function load(origin, fetchJson, now) {
   if (cache && cache.origin === origin && now - cache.at < TTL_MS) return cache.data;
-  const [lib, cards, credits] = await Promise.all([
-    fetchJson(origin + '/assets/library.json'),
+  const [cards, renders] = await Promise.all([
     fetchJson(origin + '/assets/showcase/index.json'),
-    fetchJson(origin + '/assets/cutouts/ATTRIBUTION.json').catch(() => ({})),
+    fetchJson(origin + '/assets/library-ads/index.json'),
   ]);
   const abs = (u) => new URL(u, origin + '/').href;
-  const assets = (Array.isArray(lib && lib.assets) ? lib.assets : [])
-    .filter((a) => a && ID_RE.test(a.slug || '') && KINDS.includes(a.kind) && a.url && a.source !== 'placeholder')
-    .map((a) => ({
-      id: a.slug,
-      kind: a.kind,
-      category: a.category || null,
-      alt: a.prompt && !/^composed locally|^placeholder/i.test(a.prompt) ? a.prompt : a.slug.replace(/[-_]+/g, ' '),
-      width: a.w || null,
-      height: a.h || null,
-      bytes: a.bytes || null,
-      format: formatOf(a.file || a.url),
-      transparent: a.kind === 'cutout',
-      url: abs(a.url),
-      source: a.source || null,
-      credit: (credits && credits[a.slug]) || null,
-      _s: words([a.slug, a.category, a.kind, a.prompt].join(' ')),
-      _n: words(a.slug), _d: words(a.prompt),
-    }));
-  /* the site's own test for a card it offers (scIsLive, app.js) */
-  const live = (c) => !!c && !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05);
-  const ads = (Array.isArray(cards) ? cards : []).filter((c) => live(c) && ID_RE.test(c.id || '') && c.thumb).map((c) => ({
-    id: c.id,
-    title: c.name || c.id,
-    category: c.cat || null,
-    theme: c.theme || null,
-    layout: c.layout || null,
-    subject: c.subject || null,
-    thumb: { url: abs(c.thumb), width: 448, height: 448 },
-    studio_url: origin + '/?card=' + encodeURIComponent(c.id),
-    _s: words([c.id, c.name, c.cat, c.theme, c.layout, c.subject, c.family].join(' ')),
-    _n: words(c.name), _d: words([c.subject, c.theme, c.layout].join(' ')),
-  }));
-  const version = 'lib' + ((lib && lib.built) || 0) + '-ads' + ads.length + '-' + assets.length;
-  cache = { origin, at: now, data: { assets, ads, version } };
+  const made = (renders && renders.items) || {};
+  const ads = (Array.isArray(cards) ? cards : []).filter((c) => live(c) && ID_RE.test(c.id || '') && c.thumb && made[c.id]).map((c) => {
+    const r = made[c.id];
+    return {
+      id: c.id,
+      title: c.name || c.id,
+      category: c.cat || null,
+      theme: c.theme || null,
+      layout: c.layout || null,
+      subject: c.subject || null,
+      image: { url: abs('assets/library-ads/' + c.id + '.jpg') + '?v=' + String(r.sha1 || '').slice(0, 12), width: r.w, height: r.h, bytes: r.bytes, format: 'jpg' },
+      thumb: { url: abs(c.thumb), width: 448, height: 448 },
+      studio_url: origin + '/?card=' + encodeURIComponent(c.id),
+      _s: words([c.id, c.name, c.cat, c.theme, c.layout, c.subject, c.family].join(' ')),
+      _n: words([c.cat, c.subject].join(' ')), _d: words([c.name, c.layout].join(' ')),
+    };
+  });
+  const version = 'ads' + ads.length + '-' + String((renders && renders.built) || '').replace(/\D/g, '').slice(0, 14);
+  cache = { origin, at: now, data: { ads, version } };
   return cache.data;
 }
 
@@ -142,9 +125,10 @@ function page(items, url) {
   return { total: items.length, offset, limit, next_offset: offset + limit < items.length ? offset + limit : null, items: slice };
 }
 const matches = (q) => { const t = words(q); return (x) => t.every((w) => x._s.some((s) => s.startsWith(w))); };
-/* best first: a word in the name counts 3, in the description 2, anywhere
-   else (the category) 1; the library's own order breaks ties. "iphone" put
-   two Android phones first, filed as they are under the iphones category */
+/* best first: a word naming what the ad is for (its category or subject)
+   counts 3, a word of its title or layout 2, anywhere else 1; the library's
+   own order breaks ties. A title is a palette and a layout ("Black & Gold ·
+   Checklist Hero"): ranked first, "gold" opened on phones ads in gold */
 function ranked(items, q) {
   const t = words(q), has = (ws, w) => ws.some((s) => s.startsWith(w));
   const score = (x) => t.reduce((n, w) => n + (has(x._n, w) ? 3 : has(x._d, w) ? 2 : 1), 0);
@@ -168,38 +152,29 @@ export async function libraryRoute(req, url, p, env, deps) {
   if (route !== 'v1' && !route.startsWith('v1/')) return reply({ error: 'Not found. The library API is at /api/library/v1' }, 404);
   let data;
   try { data = await load(url.origin, deps.fetchJson, (deps.now || Date.now)()); }
-  catch (e) { return reply({ error: 'The library index could not be read (' + e.message + ')' }, 502); }
+  catch (e) { return reply({ error: 'The library could not be read (' + e.message + ')' }, 502); }
   const head = { 'X-Library-Version': data.version };
   const parts = route.split('/').slice(1).map((s) => decodeURIComponent(s));
+  const tally = () => data.ads.reduce((m, x) => { const k = x.category || 'other'; m[k] = (m[k] || 0) + 1; return m; }, {});
 
   if (!parts.length || (parts.length === 1 && parts[0] === '')) {
     const base = url.origin + '/api/library/v1';
     return reply({
       name: 'BUYBACK.AD library', version: data.version, partner,
-      counts: { assets: data.assets.length, ads: data.ads.length, ...Object.fromEntries(KINDS.map((k) => [k + 's', data.assets.filter((a) => a.kind === k).length])) },
-      routes: { categories: base + '/categories', assets: base + '/assets', asset: base + '/assets/{id}', ads: base + '/ads', ad: base + '/ads/{id}' },
+      counts: { ads: data.ads.length, categories: tally() },
+      routes: { categories: base + '/categories', ads: base + '/ads', ad: base + '/ads/{id}' },
     }, 200, head);
   }
-  if (parts[0] === 'categories' && parts.length === 1) {
-    const tally = (xs, key) => xs.reduce((m, x) => { const k = x[key] || 'other'; m[k] = (m[k] || 0) + 1; return m; }, {});
-    return reply({
-      version: data.version,
-      assets: Object.fromEntries(KINDS.map((k) => [k, tally(data.assets.filter((a) => a.kind === k), 'category')])),
-      ads: tally(data.ads, 'category'),
-    }, 200, head);
-  }
-  if (parts[0] === 'assets' || parts[0] === 'ads') {
-    const pool = parts[0] === 'assets' ? data.assets : data.ads;
+  if (parts[0] === 'categories' && parts.length === 1) return reply({ version: data.version, categories: tally() }, 200, head);
+  if (parts[0] === 'ads') {
     if (parts.length === 2) {
       if (!ID_RE.test(parts[1])) return reply({ error: 'Not a library id' }, 400, head);
-      const one = pool.find((x) => x.id === parts[1]);
-      return one ? reply({ version: data.version, item: strip(one) }, 200, head) : reply({ error: 'No such ' + parts[0].slice(0, -1) + ' (it may have been held back since)' }, 404, head);
+      const one = data.ads.find((x) => x.id === parts[1]);
+      return one ? reply({ version: data.version, item: strip(one) }, 200, head) : reply({ error: 'No such ad in the library (it may have been held back since)' }, 404, head);
     }
     if (parts.length !== 1) return reply({ error: 'Not found' }, 404, head);
-    const kinds = list(url.searchParams.get('kind')), cats = list(url.searchParams.get('category'));
-    if (kinds.some((k) => !KINDS.includes(k))) return reply({ error: 'kind is one of ' + KINDS.join(', ') }, 400, head);
-    let items = pool;
-    if (parts[0] === 'assets' && kinds.length) items = items.filter((a) => kinds.includes(a.kind));
+    const cats = list(url.searchParams.get('category'));
+    let items = data.ads;
     if (cats.length) items = items.filter((x) => cats.includes(String(x.category || '').toLowerCase()));
     if (url.searchParams.get('q')) items = ranked(items.filter(matches(url.searchParams.get('q'))), url.searchParams.get('q'));
     return reply(Object.assign({ version: data.version }, page(items, url)), 200, head);
