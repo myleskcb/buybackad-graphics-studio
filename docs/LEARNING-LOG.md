@@ -2664,6 +2664,34 @@ Steps Flow, left to claude/relaxed-darwin-8aces4), none newly.
     there the centred headline covered the corner badges. A layout change is
     not done until every_card_audit has run on the cards it touched.
 
+## 2026-10-04 — one alignment to a card
+
+(claude/trusting-ride-cfpk9o, then `main`.)
+
+The owner, on a card the first pass called fixed: "you need to align left for
+everything … or if you're going to center it then you can't leave the second
+line of the hero aligned left"; "same thing here" on a ticket card.
+
+Found:
+  - A half-centred card is worse than either answer. The first pass centred
+    part by part and let the collision guard keep a part where it was, so
+    SKIP went to the middle and THE COIN SHOP stayed left.
+  - The measure judged whole parts, never the lines inside one, so a ticket
+    whose lines disagreed passed; and it read the inside of rings and
+    tickets not at all, because only rectangles were plates.
+  - Outlines lie about size. A 25%, unfilled HUD ring 460 px across held a
+    headline, paired with another as its "icon", and blocked every move
+    near it; a dashed ticket border held every line on the ticket.
+  - A line under its plate's margin cannot be moved from its authored place:
+    the layout puts it back at the margin, so three nudges never showed. Move
+    from where it is drawn, and check every line after.
+  - Loosening one test to stop false alarms (a mirror pair of chips) let in
+    false passes (any two parts either side of the middle). Every relaxed
+    rule needs a counter-condition (the pair shares a band).
+
+Did: DESIGN-LAW 109, continued; OPEN-ITEMS §AD. 39 cards given one alignment,
+10 held, 311 live, verify 311 pass, composition 45 of 291 fail, none newly.
+
 ## 2026-10-03 — build your own colours
 
 (claude/eager-hopper-khk7ct, from `main` 809c5ac6; not on `main`.)
@@ -2678,7 +2706,7 @@ Found:
   - The screenshot was of `claude/fervent-pascal-w6mthe`, which production
     serves, not of `main` (the Netlify connector's deploy names the branch).
     A trial merge into `main` conflicts on 209 thumbnails and the showcase
-    index, both re-drawn on each side: that is its own job (OPEN-ITEMS §AD 1).
+    index, both re-drawn on each side: that is its own job (OPEN-ITEMS §AE 1).
   - Under white text and the 1.7:1 money-word rule, yellow has to be drawn as
     deep as gold: next to navy, "yellow" *is* gold. The builder says so and
     leaves it out rather than listing two of the same.
@@ -2696,7 +2724,7 @@ Did: DESIGN-LAW rule 110 (rules 108 and 109 went to the video photo and
 the composition audit on `main` the same day); `colour-builder.js` (the engine, the builder, the
 saved sets, the studio's + dialog); hooks in app.js (`buildThemeRow`,
 `edBind`, `scBuildFamilies`, `ezThemeByName`); the landing's two tabs;
-`scripts/colour_builder_audit.mjs`; AGENT-BRIEF; OPEN-ITEMS §AD.
+`scripts/colour_builder_audit.mjs`; AGENT-BRIEF; OPEN-ITEMS §AE.
 
 Checked: colour_builder_audit.mjs: 310 sets, 0 failing; 0 of 77 card renders
 lose a line; a mustard gold and a grey small print put in by hand fail it.
@@ -2708,6 +2736,6 @@ violation. landing_check.mjs clean at 390 and 1440. designer_audit.mjs: only
 cards x 6 themes.
 
 RESUME HERE:
-  0. Merge the live branch into `main`, then this branch (OPEN-ITEMS §AD 1),
+  0. Merge the live branch into `main`, then this branch (OPEN-ITEMS §AE 1),
      and deploy `main` from the Mac (AGENT-BRIEF, Deploying).
-  1. Guard rule 104's plate ink with the muddy floor (§AD 2).
+  1. Guard rule 104's plate ink with the muddy floor (§AE 2).

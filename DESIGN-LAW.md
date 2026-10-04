@@ -3774,6 +3774,44 @@ centred pill, passes both and still looks unfinished.
   Eight are Steps Flow cards, being re-laid out on another branch
   (claude/relaxed-darwin-8aces4) and not touched here.
 
+### 109, continued: one alignment to a card (2026-10-04)
+
+The owner, on hudTech-jw07-16 after the first centring: "you need to align
+left for everything so the left one needed the middle box aligned the left
+as well or if you're going to center it then you can't leave the second line
+of the hero aligned left"; then "same thing here" on ticketStub-ck03-15, one
+ticket line left of the others.
+
+- **A card is centred, or on one side, never both.** The measure fails
+  `mixed` (some parts centred, some on a shared edge) and `innerMixed` (the
+  stacked lines on a plate neither on one centre nor on one left edge with
+  each other). A mirrored pair on one band (the outer chips of a row of
+  three) is centred as a pair; a row of a label and its value is not a stack;
+  depth copies and a ✓ in a dot are not lines; up to 15 px off is centred.
+- **What the first pass got wrong.** It centred text only on rectangles, so
+  the lines in a ring or a ticket kept their old place; it paired a 460 px
+  ring with the headline beside it as if it were the line's icon; it counted
+  a faint unfilled ring and a dashed ticket border as solid, so they held
+  lines and blocked moves; and it moved lines from their authored place, so a
+  line the layout holds at its plate's margin never moved (the ticket's
+  PAID ON THE SPOT). Parts are now judged by what is drawn solid (`ccSolid`),
+  any solid shape holding lines is a plate, an icon pairs with its words only
+  at a like height, a row of chips moves as one (`ccRows`), and lines move
+  from where they are drawn, each checked after painting.
+- **The repair** centres the whole card, or when anything cannot be centred,
+  puts every part on the side the headline stands on (`ccPlanLeft`, left or
+  right), or moves nothing. 39 more cards were given one alignment (32
+  centred, 3 left, 1 right, 3 repairs of the tick and the ink only), each
+  through the writers' gate and looked at by eye (one, bubblePop-jw04-35,
+  was not written: moved, its tagline blocks fell away).
+- **Ten could take neither** and are held (holds.json, audit 2026-10-04): a
+  headline on one side over a centred plate with pictures in the way, an arc
+  over a left line, three checklists whose left list stands over a centred
+  plate. 311 cards are live.
+- After: 45 of 291 offered cards fail the measure, none newly; 15 are Steps
+  Flow (another branch), and of the rest 8 read as one alignment by eye with
+  a part a little off.
+
 ## 110. A colour set the visitor builds is held to the law the house's sets are
 
 Added 2026-10-03. The owner, of the landing's twelve colour sets: "this is

@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261003a';
+const ASSET_REV = '20261004a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -3702,6 +3702,18 @@ function sgCarry(o){
   sgDrag.mates.forEach(m => { m.p.top = m.top + dy; m.p.setCoords(); });
 }
 
+/* what is drawn solid: words, a picture, a filled shape a third opaque or
+   more; an outline (hudTech's HUD ring, 25% and unfilled) is decoration, and
+   neither aligns, collides nor holds lines */
+function ccSolid(o){
+  if (o.text !== undefined) return /\S/.test(o.text || '');
+  if (o.type === 'image' || o.type === 'group') return true;
+  if ((o.opacity == null ? 1 : o.opacity) < 0.3) return false;
+  const f = o.fill;
+  if (!f || f === 'transparent' || f === 'none') return false;
+  if (typeof f === 'string'){ const c = pgRgb(f); if (c && c[3] < 0.3) return false; }
+  return true;
+}
 /* what reads as one thing among these layers: a plate and the lines on it, a
    ring and its icon, an icon and the words beside it; then a list of such
    rows sharing a left edge, one block, so its icons keep their column.
@@ -3712,13 +3724,18 @@ function ccParts(objs){
   const area = b => b.w * b.h;
   const meet = (a, c) => Math.max(0, Math.min(a.r, c.r) - Math.max(a.l, c.l)) * Math.max(0, Math.min(a.b, c.b) - Math.max(a.t, c.t));
   const on = (a, c) => meet(a, c) >= 0.8 * Math.min(area(a), area(c));
+  /* beside: an icon and its words, of a height (a big ring beside a headline
+     is a backdrop, not the line's icon: hudTech's SKIP / THE COIN SHOP) */
   const beside = (a, c) => { const h = Math.min(a.h, c.h);
-    return Math.min(a.b, c.b) - Math.max(a.t, c.t) >= 0.5 * h && Math.max(a.l, c.l) - Math.min(a.r, c.r) <= Math.max(24, 0.6 * h); };
+    return Math.max(a.h, c.h) <= 2.5 * h && Math.min(a.b, c.b) - Math.max(a.t, c.t) >= 0.5 * h && Math.max(a.l, c.l) - Math.min(a.r, c.r) <= Math.max(24, 0.6 * h); };
   const inRow = new Set();
   /* a line's depth copy is its line (pgKin, pgKinId once saved) */
   const kin = (a, c) => a.pgKin === c || (!!a.pgKinId && a.pgKinId === c.pgTagId);
   for (let i = 0; i < it.length; i++) for (let j = i + 1; j < it.length; j++){
-    if (kin(it[i].o, it[j].o) || kin(it[j].o, it[i].o) || on(it[i].b, it[j].b)) up[root(i)] = root(j);
+    /* on: the smaller inside the larger, when the larger is drawn solid (a
+       dashed ticket border or a faint ring holds nothing) */
+    const big = area(it[i].b) >= area(it[j].b) ? it[i] : it[j];
+    if (kin(it[i].o, it[j].o) || kin(it[j].o, it[i].o) || (on(it[i].b, it[j].b) && ccSolid(big.o))) up[root(i)] = root(j);
     else if (beside(it[i].b, it[j].b)){ up[root(i)] = root(j); inRow.add(i); inRow.add(j); }
   }
   const byRoot = new Map();
@@ -3729,12 +3746,17 @@ function ccParts(objs){
   };
   let parts = [...byRoot.values()].map(ix => {
     const xs = ix.map(i => it[i]);
-    const plates = xs.filter(x => x.o.type === 'rect' && xs.some(y => y !== x && on(x.b, y.b) && area(y.b) < area(x.b)))
+    /* a plate is any shape holding lines: a rect, a ring, a ticket, a panel
+       (never a picture or a line); the lines on it are centred on it, an icon
+       on it keeps its place */
+    const shape = o => /^(rect|circle|ellipse|path|polygon|polyline|triangle)$/.test(o.type) && o.text === undefined && ccSolid(o);
+    const plates = xs.filter(x => shape(x.o) && xs.some(y => y !== x && on(x.b, y.b) && area(y.b) < area(x.b)))
       .sort((a, c) => area(c.b) - area(a.b));
     const plate = plates[0] || null;
-    return { objs: xs.map(x => x.o), box: box(xs), plate: plate && plate.o,
+    const solid = xs.filter(x => ccSolid(x.o));
+    return { objs: xs.map(x => x.o), box: box(xs), sbox: box(solid.length ? solid : xs), solid: solid.length > 0, plate: plate && plate.o,
       kids: plate ? xs.filter(y => y !== plate && area(y.b) < area(plate.b) && on(plate.b, y.b)).map(y => y.o) : [],
-      row: !plate && ix.some(i => inRow.has(i)) };
+      row: ix.some(i => inRow.has(i)) };
   }).sort((a, c) => a.box.t - c.box.t);
   /* rows one under another on one left edge are a list */
   const out = [];
@@ -3742,8 +3764,9 @@ function ccParts(objs){
     const q = out[out.length - 1];
     if (q && q.row && p.row && Math.abs(q.lastL - p.box.l) <= 8 && p.box.t - q.box.b <= 1.2 * Math.max(p.box.h, q.lastH)){
       q.objs = q.objs.concat(p.objs);
-      q.box = { l: Math.min(q.box.l, p.box.l), r: Math.max(q.box.r, p.box.r), t: q.box.t, b: Math.max(q.box.b, p.box.b) };
-      Object.assign(q.box, { w: q.box.r - q.box.l, h: q.box.b - q.box.t, cx: (q.box.l + q.box.r) / 2, cy: (q.box.t + q.box.b) / 2 });
+      const join = (a, c) => { const j = { l: Math.min(a.l, c.l), r: Math.max(a.r, c.r), t: Math.min(a.t, c.t), b: Math.max(a.b, c.b) };
+        return Object.assign(j, { w: j.r - j.l, h: j.b - j.t, cx: (j.l + j.r) / 2, cy: (j.t + j.b) / 2 }); };
+      q.box = join(q.box, p.box); q.sbox = join(q.sbox, p.sbox); q.solid = q.solid || p.solid;
       q.lastL = p.box.l; q.lastH = p.box.h;
       return;
     }
@@ -3760,35 +3783,83 @@ function ccCorner(u){
   return b.w < 0.4 * CW && b.h < 0.3 * CH && (b.l < 0.12 * CW || b.r > 0.88 * CW) && (b.t < 0.12 * CH || b.b > 0.88 * CH);
 }
 function ccHasText(u){ return u.objs.some(o => o.text !== undefined || o.pgCurved); }
+/* parts of words on one band, side by side (a row of chips: NO FEES · SAME
+   DAY · LOCAL), move as one; centred one by one they piled up in the middle */
+function ccRows(parts){
+  const words = u => ccHasText(u) && !ccCorner(u) && u.sbox.w < 0.8 * CW;
+  const band = (a, c) => Math.max(a.h, c.h) <= 2.5 * Math.min(a.h, c.h) && Math.min(a.b, c.b) - Math.max(a.t, c.t) >= 0.5 * Math.min(a.h, c.h)
+    && (Math.min(a.r, c.r) - Math.max(a.l, c.l)) <= 0;
+  const out = [];
+  parts.forEach(u => {
+    const q = words(u) && out.find(r => r.rowable && band(r.sbox, u.sbox));
+    if (!q){ out.push(Object.assign(u, { rowable: words(u) })); return; }
+    const j = (a, c) => { const x = { l: Math.min(a.l, c.l), r: Math.max(a.r, c.r), t: Math.min(a.t, c.t), b: Math.max(a.b, c.b) }; return Object.assign(x, { w: x.r - x.l, h: x.b - x.t, cx: (x.l + x.r) / 2, cy: (x.t + x.b) / 2 }); };
+    q.members = (q.members || [Object.assign({}, q)]).concat([u]);
+    q.objs = q.objs.concat(u.objs); q.box = j(q.box, u.box); q.sbox = j(q.sbox, u.sbox); q.solid = q.solid || u.solid;
+    q.plate = null; q.kids = [];
+  });
+  return out;
+}
 /* how far each layer moves to centre these parts on the line `mid`: each
    part as a whole, and the lines on a plate on the plate's own middle. A
    part that would land on another it did not touch stays where it was: a
    picture before words, else the smaller. Returns { shift: Map, parts } */
 function ccPlan(objs, mid, opts){
   opts = opts || {};
-  const parts = ccParts(objs);
+  const parts = ccRows(ccParts(objs));
   parts.forEach(u => {
-    u.dx = mid - u.box.cx;
+    u.dx = mid - u.sbox.cx;
     if (opts.top && ccCorner(u)){ u.dx = 0; u.kept = 'corner'; }
     if (opts.onPlate && !ccHasText(u)){ u.dx = 0; u.kept = 'mark'; }      // an icon on a plate keeps its place on it
     if (u.plate && u.kids.length) u.inner = ccPlan(u.kids, sgBox(u.plate).cx, { onPlate: true }).shift;
+    /* a row's members keep their own plates' lines centred on them */
+    if (u.members) u.members.forEach(m => { if (m.plate && m.kids.length){ const sh = ccPlan(m.kids, sgBox(m.plate).cx, { onPlate: true }).shift; u.inner = u.inner || new Map(); sh.forEach((d, o) => u.inner.set(o, d)); } });
   });
+  ccGuard(parts);
+  const shift = new Map();
+  parts.forEach(u => u.objs.forEach(o => shift.set(o, u.dx + ((u.inner && u.inner.get(o)) || 0))));
+  return { shift, parts };
+}
+/* a part that would land on another it did not touch stays where it was: a
+   picture before words, else the smaller (sets u.dx = 0, u.kept) */
+function ccGuard(parts){
   const area = b => b.w * b.h;
   /* boxes carry a line's leading, so a sliver of overlap is air, not a collision */
   const hit = (a, c) => Math.min(a.r, c.r) - Math.max(a.l, c.l) > Math.max(6, 0.2 * Math.min(a.r - a.l, c.r - c.l))
     && Math.min(a.b, c.b) - Math.max(a.t, c.t) > Math.max(6, 0.2 * Math.min(a.b - a.t, c.b - c.t));
-  const moved = u => ({ l: u.box.l + u.dx, r: u.box.r + u.dx, t: u.box.t, b: u.box.b });
+  const moved = u => ({ l: u.sbox.l + u.dx, r: u.sbox.r + u.dx, t: u.sbox.t, b: u.sbox.b });
   for (let n = 0, changed = true; changed && n < parts.length * 3; n++){
     changed = false;
     for (let i = 0; i < parts.length; i++) for (let j = i + 1; j < parts.length; j++){
       const A = parts[i], B = parts[j];
-      if (!(A.dx || B.dx) || !hit(moved(A), moved(B)) || hit(A.box, B.box)) continue;
+      if (!A.solid || !B.solid) continue;      // an outline blocks nothing
+      if (!(A.dx || B.dx) || !hit(moved(A), moved(B)) || hit(A.sbox, B.sbox)) continue;
       const ta = ccHasText(A), tb = ccHasText(B);
-      let S = ta !== tb ? (ta ? B : A) : (area(A.box) <= area(B.box) ? A : B);
+      let S = ta !== tb ? (ta ? B : A) : (area(A.sbox) <= area(B.sbox) ? A : B);
       if (!S.dx) S = S === A ? B : A;
       S.dx = 0; S.kept = 'collision'; changed = true;
     }
   }
+}
+/* the parts a card's alignment is judged on (rule 109): words or a plate of
+   words, not decoration, a sticker, a corner piece, a picture or a band the
+   width of the card */
+function ccAxisPart(u){
+  if (!u.objs.some(o => o.text !== undefined && /[A-Za-z0-9]/.test(o.text || '')) || ccCorner(u) || u.sbox.w >= 0.8 * CW) return false;   // words, not a ✓ in a dot
+  if (u.objs.every(o => (o.pgRole || '') === 'deco') && !u.plate) return false;
+  return !(u.sbox.w < 0.4 * CW && u.sbox.h < 0.12 * CH && u.objs.some(o => Math.abs(((o.angle || 0) + 180) % 360 - 180) >= 2));
+}
+/* everything on one left edge, x (owner, 2026-10-04: "align left for
+   everything … or if you're going to center it then you can't leave the
+   second line of the hero aligned left"): each part that is judged moves its
+   left edge onto x; a line on a plate goes with its plate */
+function ccPlanLeft(objs, x, side){
+  const parts = ccRows(ccParts(objs));
+  parts.forEach(u => {
+    u.dx = ccAxisPart(u) ? x - (side === 'right' ? u.sbox.r : u.sbox.l) : 0; if (!u.dx) u.kept = u.kept || 'free';
+    if (u.plate && u.kids.length) u.inner = ccPlan(u.kids, sgBox(u.plate).cx, { onPlate: true }).shift;   // the plate is what sits on the edge
+  });
+  ccGuard(parts);
   const shift = new Map();
   parts.forEach(u => u.objs.forEach(o => shift.set(o, u.dx + ((u.inner && u.inner.get(o)) || 0))));
   return { shift, parts };
@@ -3831,7 +3902,8 @@ function ccKeep(){
   groups.forEach((objs, g) => {
     if (busy.has(g)) return;
     let l = Infinity, r = -Infinity;
-    objs.forEach(o => { const b = sgBox(o); l = Math.min(l, b.l); r = Math.max(r, b.r); });
+    const solid = objs.filter(ccSolid);
+    (solid.length ? solid : objs).forEach(o => { const b = sgBox(o); l = Math.min(l, b.l); r = Math.max(r, b.r); });   // by what is drawn solid, as Centre all judges it
     const dx = CW / 2 - (l + r) / 2;
     if (Math.abs(dx) >= 0.5) objs.forEach(o => { o.left += dx; o.setCoords(); });
   });
