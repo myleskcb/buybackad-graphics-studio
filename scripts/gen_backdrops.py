@@ -445,6 +445,12 @@ for _c, _ns in REAL_PHOTO.items():
     POOLS[_c] += [I(n, rot=6) for n in _ns]
 for _c, _ns in REAL_SET.items():
     POOLS[_c] += [I(n, rot=4, role='h') for n in _ns]
+# 2026-10-04 (owner: "audit the cameras again, ... a lot more rare coins, golden jewelry, Mac,
+# iMac, MacBook, iPad"): the second review of the Commons photographs, kept by category in
+# scripts/product_photos.json ("one": a single piece; "set": pieces shown together, role 'h')
+for _c, _d in json.load(open(os.path.join(REPO, 'scripts', 'product_photos.json'))).items():
+    POOLS[_c] += [I(n, rot=4 if _c in ('ipad', 'macbook', 'mac', 'computers') else 6) for n in _d.get('one', [])]
+    POOLS[_c] += [I(n, rot=4, role='h') for n in _d.get('set', [])]
 
 # 2026-10-04 (owner: "more variety?": more car models and colours): 98 more models
 # and four colours of 20 popular ones, cut from Commons photographs like the rest
@@ -511,8 +517,11 @@ POOLS['cars'] += [I(n, rot=1, kind='car') for n in CARS_MORE]
 # and Pokemon still carry some until replacements land.
 _GRID = json.load(open(os.path.join(REPO, 'assets', 'approved-assets.json')))['asset-grid-v1']
 BANNED = set(_GRID['rejected']) | set(json.load(open(os.path.join(REPO, 'assets', 'cutout-flags.json'))))
-for _c in ('iphone', 'ipad', 'macbook', 'mac', 'computers', 'cars', 'gold', 'silver', 'coins', 'sports', 'gaming',
-           'audio', 'wearables', 'cameras'):
+# 2026-10-04 (owner: "audit the cameras again, wearables, computers, headphones, audio,
+# gaming, Pokemon ..."): every cut-out in those sets looked at again; the AI renders,
+# damaged cuts, duplicates and off-category pictures found are in cutout-flags.json.
+# Diabetic supplies still carry some until replacements land.
+for _c in [c for c in POOLS if c != 'strips']:
     POOLS[_c] = [it for it in POOLS[_c] if it['name'] not in BANNED]
 
 # ----------------------------------------------------------------------------- Apple-ad sets
@@ -743,6 +752,7 @@ CAR_ROTA = ['car-toyota-rav4-white', 'car-range-rover-sport-grey', 'car-dodge-du
             'car-chevy-silverado-z71-black', 'car-chevy-tahoe-black', 'car-subaru-crosstrek-wilderness-blue-rear',
             'car-chevy-corvette-c8-red', 'car-toyota-prius-grey-rear', 'car-tesla-cybertruck',
             'car-porsche-911-sport-classic-grey', 'car-audi-e-tron-gt-grey-rear']
+CAR_ROTA = [n for n in CAR_ROTA if n not in BANNED]   # the audit's drops (assets/cutout-flags.json)
 # One model from the front and from the rear (or side), on a diagonal (layout
 # stagger). Owner, 2026-10-04: "I would like to have the same color car ... Even the
 # same car if possible ... But I'll take the same color": audited by eye, each pair
@@ -834,7 +844,8 @@ CAR_LINEUPS = _lineups(90)
 POOLS['cars-lineup'] = POOLS['cars']
 
 COUNTS = OrderedDict([('iphone', 150)] + [(c, 40) for c in
-          ['gold', 'silver', 'coins', 'strips', 'pokemon', 'sports', 'gaming', 'audio', 'computers', 'wearables']]
+          ['gold', 'silver', 'coins', 'strips']] + [('pokemon', 8)] + [(c, 40) for c in
+          ['sports', 'gaming', 'audio', 'computers', 'wearables']]
           + [('cars', len(CAR_ROTA)), ('cameras', 40), ('ipad', 40), ('macbook', 40), ('mac', 40)]
           + list(AD_COUNTS.items()) + [('cars-pair', len(CAR_DUOS)), ('cars-lineup', len(CAR_LINEUPS))])
 
@@ -1789,7 +1800,9 @@ MAC_LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'pyramid', 'spread-fan', 'hero-
 # owner's 2026-09-03 favourite; owner, 2026-10-04: "what happened to our tile image
 # generator"): the video maker's phones in an even grid, one scale, one angle, every
 # screen a different wallpaper, drawn solid (DESIGN-LAW rule 94: no ghost walls)
-LAYOUTS_BY = {'cars': CAR_LAYOUTS, 'cars-pair': ['stagger'], 'cars-lineup': ['fleet', 'stagger'], 'mac': MAC_LAYOUTS, 'iphone': LAYOUTS + ['device-wall']}
+# 2026-10-04: one Pokemon photograph is left after the audit (Commons has no other freely
+# licensed card photos), so a short set of it alone, centred or to one side, until more come in
+LAYOUTS_BY = {'pokemon': ['hero', 'offset'], 'cars': CAR_LAYOUTS, 'cars-pair': ['stagger'], 'cars-lineup': ['fleet', 'stagger'], 'mac': MAC_LAYOUTS, 'iphone': LAYOUTS + ['device-wall']}
 STAND_LAYOUTS = {'hero', 'pair', 'trio', 'lineup', 'pyramid', 'hero-plus', 'staircase', 'offset', 'fleet', 'echelon'}
 FLAT_LAYOUTS = {'flatlay-scatter', 'grid-flatlay', 'device-wall'}
 

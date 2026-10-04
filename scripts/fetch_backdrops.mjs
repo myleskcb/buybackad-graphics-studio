@@ -166,7 +166,11 @@ QUERIES.computers2 = ['Microsoft Surface Laptop', 'Microsoft Surface Pro', 'Dell
 QUERIES.apple2 = ['MacBook Pro M1', 'MacBook Pro 14-inch', 'MacBook Pro 16-inch', 'MacBook Pro M3', 'MacBook Air M3', 'MacBook Air 13',
   'MacBook Pro 13', 'iMac M1', 'iMac 24-inch', 'iMac M3', 'iMac 2020', 'iPad Pro M4', 'iPad Pro 12.9', 'iPad Pro 11', 'iPad Air',
   'iPad Air 5', 'iPad mini 6', 'iPad mini', 'iPad 10th generation', 'iPad 9th generation', 'Apple Pencil', 'iPad Magic Keyboard'];
-const PORTRAIT_OK = new Set(['apple', 'gold', 'silver', 'coins', 'sportsc', 'poke', 'gaming', 'audio', 'cameras', 'wearables',
+/* sports cards: the Library of Congress's public-domain scans of real vintage cards */
+QUERIES.sports2 = ['T206 baseball card', 'T206 Honus Wagner', 'Old Judge baseball card', 'Goudey baseball card', 'Allen Ginter baseball card',
+  'Benjamin K. Edwards collection baseball card', 'tobacco card baseball', 'Cracker Jack baseball card', 'baseball card 1910',
+  'baseball card 1887', 'Mayo Cut Plug baseball card', 'football card 1890s'];
+const PORTRAIT_OK = new Set(['apple', 'gold', 'silver', 'coins', 'sportsc', 'poke', 'gaming', 'audio', 'cameras', 'wearables', 'sports2',
   'coins2', 'gold2', 'poke2', 'cameras2', 'audio2', 'gaming2', 'wearables2', 'computers2', 'apple2']);
 /* SKIP=file.json (an ATTRIBUTION list) skips Commons files already downloaded under another name */
 const SKIP = new Set(process.env.SKIP ? JSON.parse(readFileSync(process.env.SKIP, 'utf8')).map(a => a.title) : []);
