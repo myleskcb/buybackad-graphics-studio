@@ -3,7 +3,12 @@
    was unreachable from here). Free licences only — CC0, public domain, CC BY,
    CC BY-SA — with the attribution kept in assets/bg-web/ATTRIBUTION.json.
    Each query is a scene a category needs; results are filtered to landscape
-   and at least 1600px wide, downloaded at 1920px. */
+   and at least 1600px wide, downloaded at 1920px (MINW= and WIDTH= raise
+   both; CATS=a,b fetches only those pools, PER= how many per query).
+   A photograph over 2048 x 2048 pixels in area renders BLACK on a showcase
+   card (the blur canvas and the treat filter, 2026-10-04: 13 of 18 at their
+   2160px short side), and Commons often answers with the original: bring
+   anything larger down to 2048 on its long side before a card uses it. */
 import { writeFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 const ROOT = new URL('../', import.meta.url).pathname, OUT = ROOT + 'assets/bg-web/';
 mkdirSync(OUT, { recursive: true });
@@ -12,6 +17,15 @@ const UA = { 'User-Agent': 'buyback-ad-lab/1.0 (admin@iphones.la) backdrop resea
 const QUERIES = {
   cash: ['pile of US dollars', 'stack of hundred dollar bills', 'US dollar bills fanned', 'cash money pile', 'bundle of banknotes dollars', 'one hundred dollar bills close'],
   strips: ['OneTouch Verio test strips box', 'Accu-Chek Guide test strips', 'blood glucose test strip box packaging', 'Contour Next test strips', 'Dexcom G6 sensor box', 'FreeStyle Libre sensor box', 'diabetes test strip boxes retail'],
+  /* 2026-10-04: the drawn-ground cards still held for want of a photograph
+     (OPEN-ITEMS §AE 1): sports 8, gold 5, coins 4, cars 3, pokemon 2, silver 2 */
+  sports:  ['baseball card collection', 'vintage baseball cards', 'trading card show', 'sports card shop', 'baseball cards binder', 'basketball trading cards', 'graded sports card',
+            'baseball and glove', 'baseball bat and ball', 'baseball on grass', 'basketball on court', 'baseball memorabilia', 'sports memorabilia collection', 'baseball stadium night', 'american football on field'],
+  gold:    ['gold jewelry display', 'gold chains jewelry', 'gold rings', 'gold bullion bars', 'gold necklace', 'gold coins'],
+  coins:   ['coin collection', 'Morgan silver dollar', 'old coins', 'numismatic collection', 'coins on table', 'silver coins'],
+  silver:  ['silver bullion bars', 'sterling silver flatware', 'silverware', 'silver jewelry', 'silver bars and coins'],
+  pokemon: ['trading card game cards', 'collectible card game binder', 'trading cards collection', 'card game booster packs'],
+  cars:    ['used car lot', 'car dealership lot', 'parked cars at night', 'car keys in hand', 'cars parked street'],
 };
 /* CATS=bikes,trucks,vans fetches only those pools */
 const ONLY = process.env.CATS ? process.env.CATS.split(',') : null;
@@ -28,7 +42,7 @@ for (const [cat, qs] of Object.entries(QUERIES)){
     let pages;
     try {
       const u = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({ action: 'query', generator: 'search', gsrsearch: 'filetype:bitmap ' + q, gsrnamespace: '6', gsrlimit: '25',
-        prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '1920', format: 'json' });
+        prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: String(+(process.env.WIDTH || 1920)), format: 'json' });
       const r = await tfetch(u, 25000); if (!r.ok){ console.log('  ' + cat.padEnd(8) + q + ': HTTP ' + r.status); continue; }
       const j = await r.json(); pages = Object.values((j.query || {}).pages || {});
     } catch (e){ console.log('  ' + cat.padEnd(8) + q + ': ' + e.message); continue; }
@@ -39,7 +53,7 @@ for (const [cat, qs] of Object.entries(QUERIES)){
       const ii = pg.imageinfo && pg.imageinfo[0]; if (!ii) continue;
       const m = ii.extmetadata || {}, lic = (m.LicenseShortName || {}).value || '', usage = (m.UsageTerms || {}).value || '';
       if (!OK.test(lic) || BAD.test(lic)) continue;
-      if ((ii.width || 0) < 1600 || (ii.height || 0) < 900 || ii.width < ii.height) continue;
+      if ((ii.width || 0) < +(process.env.MINW || 1600) || (ii.height || 0) < 900 || ii.width < ii.height) continue;
       if (!/\.(jpe?g|png)$/i.test(pg.title)) continue;
       const file = cat + '-' + slug(q) + '-' + (n + 1) + '.jpg';
       if (have.has(file)){ n++; continue; }

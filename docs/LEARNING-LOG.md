@@ -2747,3 +2747,27 @@ RESUME HERE:
   3. A thumbnail redraw re-encodes every webp; compare pixels and keep only
      the ones that changed (10 of 971 here) rather than committing 971.
   4. The owner's review view (§AD), if wanted.
+
+## 2026-10-04 — photographs from Wikimedia Commons; 17 more cards back
+
+(claude/beautiful-wozniak-xmvvuk.)
+
+The owner: "get imagery using the session with allowed cloud environments".
+
+Found:
+  - The one environment's network reaches Wikimedia Commons and nothing
+    else that serves photographs (Openverse, Pexels, Unsplash, Pixabay and
+    Flickr: 403 at the proxy). Probe the hosts before planning around them.
+  - Commons search answers a query about objects with museum pieces on
+    white: a flat card again. Scenes (a glove, a ball in grass, a stadium at
+    night) made better grounds than the objects themselves.
+  - A photograph over 2048 x 2048 pixels of area comes out black on a
+    showcase card, and the gate passes it (white words on black read well).
+    Measure a card's brightness after changing its ground, not only its
+    gate.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0) once this branch is merged into it.
+  1. The slabPoster panel (§AE 2) and stepsFlow-du09-35's photograph (§AF 1).
+  2. The 28 holds for layout (§AF 2).
+  3. The owner's review view (§AD), if wanted.

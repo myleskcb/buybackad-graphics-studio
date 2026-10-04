@@ -1684,3 +1684,49 @@ held themes 314, looks 40, voices 1526. On the merged tree: library gate 363
 of 363, classics 346 of 404 as before, no mark falls back, no floating mark
 within 118px of a headline, 67 phone marks shown and all right, Easy Mode
 themes no problems, the designer main's same four problems.
+
+## AF. 2026-10-04 — photographs from Wikimedia Commons; 17 more cards back
+
+The owner: "get imagery using the session with allowed cloud environments".
+The account has one cloud environment (Default, this session's). Its network
+reaches commons.wikimedia.org and upload.wikimedia.org; Openverse, Pexels,
+Unsplash, Pixabay and Flickr answer 403 at the proxy. Commons is what
+`scripts/fetch_backdrops.mjs` was written for (free licences only, credited in
+`assets/bg-web/ATTRIBUTION.json`).
+
+Done:
+- **Fetched** 63 candidates for the six short categories (§AE 1), queries
+  added to the script (sports twice, the second time as scenes: glove, ball,
+  court, stadium). **Kept 17** after looking at every one, plus one spare
+  (silver-silverware-1). Refused: museum pieces on white (a flat card
+  again), engravings and trade cards the search matched on "cards", team
+  logos (jerseys, a helmet), politicians and a player's face, branded signs
+  and medals, a basket of eggs matched on "ball", and a gold necklace on
+  black that read as a flat ground on its card. The refused files are in
+  `assets/bg-web-rejected/` (git ignores it) and out of the credits.
+- **The photographs ship at 2048px on the long side** (8.4 MB for 18).
+  Larger, they render black on a showcase card: over 2048 x 2048 pixels of
+  area the blur canvas and the treat filter come out black (13 of 18 did at
+  their first 2160px short side; a 2160 x 2160 square goes black where
+  2160 x 1620 does not). The gate cannot see it (white words on black read
+  well); a brightness check found it. A visitor's own photograph is not
+  affected: Easy Mode's upload path rendered a 2160 x 2160 photo, blurred
+  and not, at full brightness. Written into the fetcher's header.
+- **17 cards back on the site**: sports 8 (the gloves, the baseballs in the
+  grass, two stadiums at night, a gym floor), gold 3, coins 4, silver 1,
+  pokemon 1 (a library photograph on disk). Two took rule 112's strip. holds
+  52 to 35. ASSET_REV 20261004a.
+
+Checked: the library gate 380 of 380 live cards; every choice on the 17
+(every_card_audit.mjs --write-holds, all opened, none fails as offered):
+cards kept out of the lists 21 to 13 (the returning stepsFlow cards pass with
+rule 113 and a photograph), held themes 314 to 314, looks 40 to 40, voices
+1526 to 1526.
+
+Still open:
+1. **7 drawn-ground cards held**: the six slabPoster panels (§AE 2: a
+   photograph shows only at the edges) and stepsFlow-du09-35, whose gold
+   photograph was refused.
+2. **The other 28 holds** are for their headline, a panel over the
+   photograph, or the call to action against the number (§AA, §AC): layout
+   work, not imagery.
