@@ -2,7 +2,6 @@
  "about": "Classics that fail the gate (scripts/verify_showcase.mjs --classics --write): app.js loadClassicsGate() keeps them out of every list. Rule 87.",
  "date": "2026-10-04",
  "ids": [
-  "cars_plate",
   "cash_offer",
   "coins_graded",
   "dl_cars_trustSeal_crimson",
@@ -53,9 +52,11 @@
   "silver_ounce",
   "st_coins_splitcol",
   "st_phones_splitcol",
+  "st_silver_topstrip",
   "st_sports_splitcol",
+  "st_strips_icongrid",
   "st_strips_splitcol",
-  "strips_box",
+  "strips_clean",
   "we_buy"
  ]
 }
