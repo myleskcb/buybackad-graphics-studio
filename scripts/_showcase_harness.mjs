@@ -91,7 +91,9 @@ export async function openStudio(query = ''){
          piece; nearMiss: a loose part with words or a plate within 90 px of
          the middle; onWords: a picture over more than 15% of a headline.
          A card fails with a nearMiss, two loose parts (or a loose headline,
-         number or call to action) or a picture on its words. */
+         number or call to action), a picture on its words, a mix of centred
+         and edge-aligned parts (mixed), or the lines on a plate neither all
+         centred on it nor all on one left edge with each other (innerMixed). */
       comp(t){
         const W = TPL_W, MID = W / 2;
         const { sc, refs } = this.paint(t);
@@ -99,7 +101,7 @@ export async function openStudio(query = ''){
         const parts = ccParts(objs);
         const role = u => { const r = u.objs.map(o => o.pgRole || '').filter(Boolean); return r.includes('headline') ? 'headline' : r.includes('phone') ? 'phone' : r.includes('cta') ? 'cta' : r[0] || (ccHasText(u) ? 'text' : 'picture'); };
         const name = u => u.objs.filter(o => o.name).map(o => o.name).slice(0, 3).join('+');
-        const H = TPL_H, P = parts.map(u => ({ u, b: u.box, role: role(u), text: ccHasText(u), corner: ccCorner(u), dx: u.box.cx - MID }));
+        const H = TPL_H, P = parts.map(u => ({ u, b: u.sbox, role: role(u), text: ccHasText(u), corner: ccCorner(u), dx: u.sbox.cx - MID }));   // judged by what is drawn solid (ccSolid)
         P.forEach((p, i) => {
           p.centred = Math.abs(p.dx) <= 10;
           p.sharesL = P.some((q, j) => j !== i && Math.abs(q.b.l - p.b.l) <= 8);
@@ -118,7 +120,7 @@ export async function openStudio(query = ''){
         });
         const meet = (a, c) => Math.max(0, Math.min(a.r, c.r) - Math.max(a.l, c.l)) * Math.max(0, Math.min(a.b, c.b) - Math.max(a.t, c.t));
         const heads = objs.filter(o => o.pgRole === 'headline').map(o => sgBox(o));
-        const onWords = P.filter(p => !p.text && !p.u.plate).map(p => ({ p, worst: Math.max(0, ...heads.map(h => meet(p.b, h) / (h.w * h.h))) }))
+        const onWords = P.filter(p => !p.text && !p.u.plate && p.u.solid).map(p => ({ p, worst: Math.max(0, ...heads.map(h => meet(p.b, h) / (h.w * h.h))) }))
           .filter(x => x.worst > 0.15).map(x => ({ part: name(x.p.u), share: +x.worst.toFixed(2) }));
         const loose = P.filter(p => p.loose).map(p => ({ part: name(p.u), role: p.role, dx: Math.round(p.dx) }));
         /* one near miss per line off the middle: a plate, its call to action
@@ -127,13 +129,37 @@ export async function openStudio(query = ''){
         P.filter(p => p.nearMiss).forEach(p => { const q = near.find(x => Math.abs(x.cx - p.b.cx) <= 8); if (q) q.part += ', ' + name(p.u); else near.push({ part: name(p.u), role: p.role, dx: Math.round(p.dx), cx: p.b.cx }); });
         near.forEach(x => delete x.cx);
         const axis = { centred: P.filter(p => p.text && p.centred).length, left: P.filter(p => p.text && !p.centred && p.sharesL).length, right: P.filter(p => p.text && !p.centred && p.sharesR && !p.sharesL).length };
+        /* one alignment to a card (owner, 2026-10-04): the parts judged
+           (ccAxisPart) all on the middle, or all on a shared edge, never some
+           of each; and the lines on a plate all centred on it, or all on one
+           left edge */
+        const axisP = P.filter(p => ccAxisPart(p.u));
+        const nC = axisP.filter(p => p.centred).length, nL = axisP.filter(p => !p.centred && p.sharesL).length, nR = axisP.filter(p => !p.centred && !p.sharesL && p.sharesR).length;
+        const mixed = (nC && (nL || nR)) || (nL && nR) ? { centred: nC, left: nL, right: nR, parts: axisP.filter(p => !p.centred).map(p => name(p.u) + ' ' + Math.round(p.dx)) } : null;
+        const inner = [];
+        P.forEach(p => {
+          if (!p.u.plate) return;
+          /* the lines, not their depth copies or decoration */
+          const lines = p.u.kids.filter(o => o.text !== undefined && /[A-Za-z0-9]/.test(o.text || '') && o.visible !== false && !o.pgKin && !o.pgKinId && (o.pgRole || '') !== 'deco')
+            .map(o => ({ o, b: sgBox(o) }));
+          if (lines.length < 2) return;
+          /* a row (a label and its value side by side) is not a stack */
+          if (lines.some((x, i) => lines.some((y, j) => j > i && Math.min(x.b.b, y.b.b) - Math.max(x.b.t, y.b.t) >= 0.5 * Math.min(x.b.h, y.b.h)))) return;
+          /* on one centre, or on one left edge, with each other */
+          const cxs = lines.map(x => x.b.cx).sort((a, c) => a - c), mid = cxs[Math.floor(cxs.length / 2)];
+          const minL = Math.min(...lines.map(x => x.b.l));
+          const allC = lines.every(x => Math.abs(x.b.cx - mid) <= 12), allL = lines.every(x => Math.abs(x.b.l - minL) <= 8);
+          if (!allC && !allL) inner.push({ plate: p.u.plate.name, off: lines.filter(x => Math.abs(x.b.cx - mid) > 12).map(x => x.o.name + ' ' + Math.round(x.b.cx - mid)) });
+        });
         const fail = [];
+        if (mixed) fail.push('mixed');
+        if (inner.length) fail.push('innerMixed');
         if (near.length) fail.push('nearMiss');
         /* two loose parts, or one that carries the message (the headline, the
            number's plate, the call to action) */
         if (loose.length >= 2 || loose.some(x => /^(headline|phone|cta)$/.test(x.role))) fail.push('loose');
         if (onWords.length) fail.push('onWords');
-        return { fail, loose, near, onWords, axis, parts: P.length, sc, refs, P };
+        return { fail, loose, near, onWords, axis, mixed, inner, parts: P.length, sc, refs, P };
       },
       /* renderThumb()'s own sequence, kept open so layers can be toggled */
       paint(t){

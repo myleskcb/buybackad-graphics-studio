@@ -13,11 +13,12 @@
  *      pale ring at 1.1:1 read as an empty ring) takes the house ink, near
  *      black or near white, whichever clears more, measured as painted (a
  *      line icon by its stroke);
- *   3. every part is centred as Centre all centres it (each line on its
- *      plate on the plate's middle; a corner piece, and a part that would
- *      land on another, stay), by moving the layers' authored `left` and
- *      painting again until nothing moves (three passes at most: the layout
- *      pass may answer a move).
+ *   3. one alignment for the whole card: every part centred as Centre all
+ *      centres it (each line on its plate on the plate's middle; a corner
+ *      piece stays), every line checked after painting; if any part cannot
+ *      be centred, every part on the headline's left edge instead
+ *      (ccPlanLeft); if neither holds, nothing moves. Lines are moved from
+ *      where they are drawn, five passes at most.
  *
  * A candidate is kept only when the writers' gate accepts it (no new failure,
  * no critical line under what it had: gateRecords) and the composition is
@@ -73,17 +74,56 @@ for (let i = 0; i < ids.length; i += 4){
             });
           });
           sc.dispose(); }
-        /* 3. centred as Centre all centres */
-        let moved = 0;
-        for (let pass = 0; pass < (FIXONLY ? 0 : 3); pass++){
-          const t = await paintCand(); const { sc, refs } = __sc.paint(t);
-          const plan = ccPlan(sc.getObjects().filter(keep), TPL_W / 2, { top: true });
-          let m = 0;
-          refs.forEach((o, k) => { const dx = o && plan.shift.get(o); if (dx && Math.abs(dx) >= 1 && L[k].props && typeof L[k].props.left === 'number'){ L[k].props.left = +(L[k].props.left + dx).toFixed(2); m++; } });
-          sc.dispose(); moved += m;
-          if (!m) break;
+        /* 3. one alignment for the whole card (owner, 2026-10-04: "align left
+           for everything … or if you're going to center it then you can't
+           leave the second line of the hero aligned left"): centred as Centre
+           all centres, every line checked; failing that, every part on the
+           headline's left edge; failing that, nothing moves. A line is moved
+           from where it is drawn (the layout pass holds a line inside its
+           plate's margin, and a move from the authored place below that
+           margin never shows) */
+        const fixed = JSON.parse(JSON.stringify(L));
+        const restore = () => { L.splice(0, L.length, ...JSON.parse(JSON.stringify(fixed))); };
+        const settle = async planOf => {
+          let moved = 0;
+          for (let pass = 0; pass < 5; pass++){
+            const t = await paintCand(); const { sc, refs } = __sc.paint(t);
+            const plan = planOf(sc.getObjects().filter(keep));
+            let m = 0;
+            refs.forEach((o, k) => {
+              const dx = o && plan.shift.get(o), pr = L[k].props;
+              if (!dx || Math.abs(dx) < 1 || !pr || typeof pr.left !== 'number') return;
+              const base = o.text !== undefined && typeof o.left === 'number' && o.originX === (pr.originX || 'left') ? o.left : pr.left;
+              pr.left = +(base + dx).toFixed(2); m++;
+            });
+            sc.dispose(); moved += m;
+            if (!m) break;
+          }
+          return moved;
+        };
+        const ok = c => !c.fail.some(f => /^(mixed|innerMixed|nearMiss)$/.test(f));
+        const axisCentred = c => c.P.filter(p => ccAxisPart(p.u)).every(p => Math.abs(p.dx) <= 10);   // the measure's own 'centred'
+        if (!FIXONLY){
+          const was = __sc.comp(await paintCand()); was.sc.dispose();
+          if (!ok(was) || was.loose.length){
+            await settle(objs => ccPlan(objs, TPL_W / 2, { top: true }));
+            let c = __sc.comp(await paintCand()); const good = ok(c) && axisCentred(c); c.sc.dispose();
+            if (good) notes.push('centred');
+            else {
+              restore();
+              /* the headline's left edge: its biggest line, as drawn */
+              const t0 = await paintCand(); const { sc: s0 } = __sc.paint(t0);
+              const heads = s0.getObjects().filter(o => o.pgRole === 'headline' && o.visible !== false).map(o => sgBox(o)).sort((a, b) => b.w * b.h - a.w * a.h);
+              const x = heads.length ? heads[0].l : null; s0.dispose();
+              if (x != null){
+                await settle(objs => ccPlanLeft(objs, x));
+                c = __sc.comp(await paintCand()); const goodL = ok(c) && c.P.filter(p => ccAxisPart(p.u)).every(p => Math.abs(p.b.l - x) <= 8 || Math.abs(p.dx) <= 10 && p.b.w >= 0.6 * TPL_W); c.sc.dispose();
+                if (goodL) notes.push('aligned left');
+                else { restore(); notes.push('no single alignment holds'); }
+              } else notes.push('no single alignment holds');
+            }
+          }
         }
-        if (moved) notes.push('centred');
         const after = __sc.comp(await paintCand()); after.sc.dispose();
         R[id] = { rec: cand, notes, before: summary(before), after: summary(after) };
       } catch (e){ R[id] = { err: String(e).slice(0, 200) }; }
@@ -93,7 +133,8 @@ for (let i = 0; i < ids.length; i += 4){
   process.stdout.write('\r' + Math.min(i + 4, ids.length) + '/' + ids.length);
 }
 console.log('');
-const better = r => !r.err && r.notes.length && r.after.fail.every(f => r.before.fail.includes(f)) && (r.after.loose < r.before.loose || !r.after.fail.length || r.notes.some(n => /tick|->/.test(n)));
+/* kept: one alignment verified (centred, or aligned left), or the tick and the ink, and no failure it did not have */
+const better = r => !r.err && r.notes.some(n => /^(centred|aligned left)$|tick|->/.test(n)) && r.after.fail.every(f => r.before.fail.includes(f));
 const cands = Object.entries(results).filter(([, r]) => better(r));
 const gate = await gateRecords(page, cands.map(([id, r]) => ({ id, rec: r.rec })));
 console.log(gateSummary(gate));
