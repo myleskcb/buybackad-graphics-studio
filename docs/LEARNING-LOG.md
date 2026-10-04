@@ -2928,3 +2928,79 @@ RESUME HERE:
   0. Merge the live branch into `main`, then this branch (OPEN-ITEMS §AE 1),
      and deploy `main` from the Mac (AGENT-BRIEF, Deploying).
   1. Guard rule 104's plate ink with the muddy floor (§AE 2).
+
+## 2026-10-02 — legible and plain
+
+The owner: "fix the legibility for maximum customer understanding … and
+simplify any language that may be complex".
+
+Learned:
+  - Contrast was not the problem (already above 4.5:1 nearly everywhere);
+    size was. A third of the landing's text and nearly all of Easy Mode's
+    labels sat at 9 to 13px.
+  - The copy carried the build's vocabulary to the customer: ratios, "ink",
+    "plates", "grounds", "architectures", "a salted hash". Writing it in the
+    customer's words lowered the reading grade from 6.4 to 4.9 without losing
+    a fact.
+  - Bigger type has knock-on effects: the designer's "Quick edit" tab wrapped
+    until its tabs kept one line.
+
+Changed:
+  - Size floors in the poster scope (styles.css); landing, FAQ (and its JSON-LD,
+    rebuilt from the visible answers), pricing, partner cards, Easy Mode and
+    designer hints, plan features, the quota line and the quality-check
+    messages rewritten in plain words. DESIGN-LAW rule 104 on its branch,
+    113 on `main`; AGENT-BRIEF.
+
+
+## 2026-10-02 (later) — main's proven palettes and the one-colour pass
+
+Merging main brought rule 103: twelve proven two-colour palettes, drawn never
+muddy. This branch's rule 95 (one hue to a card), already live on main, fought
+it: measured on the live cards, it drew colours muddy on 75 (a dark green
+re-hued into gold at its own luminance is olive) and folded the pairs (a Navy
+& Gold card's gold number went blue).
+
+Learned:
+  - Two sessions each answered an owner message about colour, and the two
+    answers were rules that disagreed; only measuring the live render showed it.
+  - The owner's first complaint (random green, white and pink boxes) is now
+    answered at the source by the palettes; the runtime pass only has to stop
+    a third colour, not force one.
+
+Changed:
+  - pgHuePlan: two largest families kept (gold on GOLD cards), a third folded
+    into the nearest kept family that can hold it, never under pgMuddyFloor
+    (main's muddy() thresholds plus a six-degree margin). Muddy 75 to 0;
+    changed cards 242 to 89. DESIGN-LAW rule 95's reconciliation note;
+    AGENT-BRIEF.
+
+## 2026-10-04 — the live branch merged in, so the deploy rolls nothing back
+
+(claude/eager-hopper-khk7ct.)
+
+The owner: "OK perfect looks good pushing make sure it's deploy." Production
+(`buybackad-finished-copy`) serves `claude/fervent-pascal-w6mthe`, which
+neither `main` nor this branch had; a deploy of either would have taken its
+plain words and its two-family colour pass off the site (AGENT-BRIEF 7).
+
+Did: merged it. Thumbnails and the index conflicted (both sides had
+re-drawn them): `main`'s index rows kept (subjects, holds, colour), every
+live card re-drawn from the merged code (rethumb, 311), the gate stamped
+again (verify_showcase --write), colour measured again, ASSET_REV 20261004b,
+the classics gate written again. The plain-words rule is 113.
+
+Checked: gate 311 of 311; classics 58 held, the same set on every side;
+mix_check holds; composition_audit and cvd_audit.py fail exactly as on clean
+`main` (45 of 291 cards; the old theme decks); landing_check clean; the
+builder flows pass. Muddy paint under the builder's sets: 3 of 60 renders
+(24 on `main`).
+
+Not done here: the deploy. This session's network policy denies
+`*.netlify.app` and `api.netlify.com`; the owner deploys from the Mac, or
+allows those hosts in the environment's network settings.
+
+RESUME HERE:
+  0. Put this branch on `main` and deploy it (AGENT-BRIEF, Deploying).
+  1. Re-sweep the choice holds on the merged build (OPEN-ITEMS §AE 6).
+  2. Guard rule 104's plate ink with the muddy floor (§AE 2).

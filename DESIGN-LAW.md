@@ -3021,6 +3021,21 @@ and a third the palette's tinted ink.
 > support colour of a palette becomes a shade of the one hue, not a second
 > colour.
 
+**Reconciled with rule 103, 2026-10-02: two families, never muddy.** Since
+this rule, every card was given a proven two-colour palette (rule 103), which
+removes the random third colour at its source. One hue for everything then
+undid that work: the pass turned colours muddy on 75 of 415 cards (dark greens
+and blues drawn in a warm hue too dark to hold it: olive, brown) and folded
+the pairs into one colour (a Navy & Gold card's gold number went blue). Now a
+card keeps its **two** largest colour families (its palette's pair; gold always
+among them on a card that says GOLD); only a **third** family is folded, into
+the kept one nearest in hue that can hold it at its own luminance; nothing is
+moved into a hue under its muddy floor (rule 103's `muddy()`, with a six-degree
+margin for gamut fitting). Measured on the live cards: muddy results 75 to 0,
+cards the pass changes 242 to 89 (most of them multi-coloured "rainbow"
+headlines settling into the card's two colours). The gate's 'hues' asks the
+same question: a third family the pass can fold.
+
 ## 96. The studio's own chrome is graphite and one blue
 
 Added 2026-09-30. The owner: "fix the purple UI theme it's kinda lame pick
@@ -4065,3 +4080,31 @@ open on in both looks: 0 of 120 renders lose a line. The muddy paint the
 leading hue is often the warm background (28 of 60 light renders, 19 of 60
 dark); the same twenty sets on three classics draw it in 24 of 60 renders on
 `main` and in 0 of 60 on `claude/fervent-pascal-w6mthe`.
+
+## 113. A customer reads plain words at a readable size
+
+Added 2026-10-02 on claude/fervent-pascal-w6mthe as 104; numbered 113 when merged into main after 104 to 112. The owner, on the poster look: "I like it now just fix the
+legibility for maximum customer understanding … and simplify any language that
+may be complex."
+
+- **Size floors** (poster look): running text 16 to 18.5px; notes, captions,
+  hints and footer links 13.5 to 15px; small uppercase labels 12.5px, lightly
+  tracked; nothing a customer reads under 12px (a colour swatch's ORIG badge,
+  10.5px, is the one exception). Secondary text is the dark grey (10:1), not
+  the dim one. Measured on the landing, Easy Mode and the designer: text under
+  13px fell from 64 to 27 runs on the landing and 207 to 32 in Easy Mode, and
+  no text a customer reads is under 4.5:1 (Easy Mode had 50, the PRO badges
+  on the strip among them; they are ink pills now).
+- **Plain words.** Short sentences, everyday words, the customer's own terms:
+  download (not export), colours or colour set (not palette, ink, accent or
+  plate), design (not template, where it is the thing they pick), box (not
+  plate), background (not ground), headline style (not tagline), AI
+  background (not BG). No ratios, pixel maths or internals in customer copy:
+  "the headline, number and button stand out from what is behind them", not
+  "measured for contrast on the card's own pixels". The quality check speaks
+  the same way ("is hard to read against what is behind it", "the colours on
+  this ad do not match").
+- Measured on the landing copy: reading grade 6.4 to 4.9, 14.0 to 11.1 words
+  a sentence, reading ease 74 to 80, every fact kept. The FAQ's search-engine
+  copy (JSON-LD) is rebuilt from the visible answers, so the two always match.
+

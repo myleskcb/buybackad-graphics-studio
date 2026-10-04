@@ -1,6 +1,6 @@
 {
  "about": "Classics that fail the gate (scripts/verify_showcase.mjs --classics --write): app.js loadClassicsGate() keeps them out of every list. Rule 87.",
- "date": "2026-09-30",
+ "date": "2026-10-04",
  "ids": [
   "cars_plate",
   "cash_offer",

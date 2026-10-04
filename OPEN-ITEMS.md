@@ -1609,3 +1609,24 @@ clean at 390 and 1440.
    `main` the one-colour pass folds a card's dark panels into the card's
    leading hue, and on Light that hue is the warm background. The live
    branch's rule 95 reconciliation is the fix (item 1).
+
+**2026-10-04, the live branch merged into this branch** (for the owner's "make
+sure it's deployed"). `claude/fervent-pascal-w6mthe` (37a26d34, what
+production serves) is now in `claude/eager-hopper-khk7ct`, so a deploy of
+this branch no longer rolls the site back. Its plain-words rule is 113 here
+(104 on its branch). The 209 thumbnails both sides had re-drawn were re-drawn
+again from the merged code, all 311 live cards with them; the index took
+`main`'s rows (subjects, holds, colour) and was stamped again by the gate.
+Measured on the merge: the gate 311 of 311 live cards pass; classics 58
+held, the same 58 on `main` and on the live branch; the landing mix holds;
+the composition audit fails the same 45 of 291 cards as clean `main` (none
+new, none fixed); cvd_audit.py fails as on `main` (the old theme decks).
+Item 1 is done on this branch, not on `main`. Item 2 after the merge: the
+same twenty builder sets on three classics draw muddy paint in 3 of 60
+renders (24 before), all one case, a near-black green number on Lime & Navy's
+lime box (`#0a1a00`, rule 104's plate ink).
+
+6. **Choice holds were not re-swept** on the merged build: the one-colour pass
+   changed (two families), so `node scripts/every_card_audit.mjs
+   --write-holds` (hours; `--resume`) should be run before the holds are
+   trusted again. The gate still checks every download.

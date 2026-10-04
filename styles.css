@@ -2224,3 +2224,81 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .topbar .tb-btn,
 :root[data-skin='poster'] .topbar .btn{white-space:nowrap}
 :root[data-skin='poster'] #export-btn{white-space:nowrap;border-width:1.5px;box-shadow:2px 2px 0 var(--ink);padding-left:14px;padding-right:14px}
+
+/* POSTER, LEGIBLE (2026-10-02, owner: "fix the legibility for maximum customer
+   understanding"). Measured on the landing, Easy Mode and the designer: the
+   contrast was already above 4.5:1 almost everywhere, but 120 lines of the
+   landing and most of Easy Mode's labels were set at 9 to 13px, the small
+   uppercase labels at 10.5px. Floors here: running text 16 to 18px, notes and
+   captions 14px or more, labels 12.5px (uppercase tracked lightly), nothing a
+   customer reads below 12px; secondary text stays dark (text-2, 10:1). */
+:root[data-skin='poster'] body{font-size:16px}
+:root[data-skin='poster'] .btn{font-size:15px}
+:root[data-skin='poster'] .btn-xl{font-size:17px}
+:root[data-skin='poster'] .lp-nav-links a{font-size:15px}
+:root[data-skin='poster'] .hero p{font-size:18.5px;line-height:1.6;max-width:540px}
+:root[data-skin='poster'] .hero-note{font-size:14.5px;color:var(--text-2)}
+:root[data-skin='poster'] .hero-eyebrow{font-size:12.5px;letter-spacing:.05em}
+:root[data-skin='poster'] .lp-kicker{font-size:13px;letter-spacing:.07em}
+:root[data-skin='poster'] .lp-section-head p{font-size:17.5px;line-height:1.6;color:var(--text-2);max-width:640px}
+:root[data-skin='poster'] .stat b{font-size:24px}
+:root[data-skin='poster'] .stat span{font-size:15px;color:var(--text-2)}
+:root[data-skin='poster'] .fam-meta{font-size:13.5px;color:var(--text-2)}
+:root[data-skin='poster'] .chip{font-size:14.5px}
+:root[data-skin='poster'] .chip .n{font-size:12.5px}
+:root[data-skin='poster'] .tpl-count{font-size:15px}
+:root[data-skin='poster'] .flow-step h3{font-size:19px}
+:root[data-skin='poster'] .flow-step p{font-size:16px;line-height:1.6}
+:root[data-skin='poster'] .flow-step .fs-num{font-size:12px}
+:root[data-skin='poster'] .lp-price-card h3{font-size:19px}
+:root[data-skin='poster'] .lp-price-card li{font-size:16px}
+:root[data-skin='poster'] .lp-faq summary{font-size:17px}
+:root[data-skin='poster'] .lp-faq p{font-size:16px;line-height:1.65;color:var(--text-2)}
+:root[data-skin='poster'] .lp-cta-inner p{font-size:17px}
+:root[data-skin='poster'] .lpf-col h4{font-size:12.5px;color:var(--text-2)}
+:root[data-skin='poster'] .lpf-col a{font-size:15px}
+:root[data-skin='poster'] .lpf-brand p{font-size:15px;color:var(--text-2)}
+:root[data-skin='poster'] .lpf-base{font-size:13.5px;color:var(--text-2)}
+/* Easy Mode */
+:root[data-skin='poster'] .ez-tpl span{font-size:13px;line-height:1.25}
+:root[data-skin='poster'] .tpl-lock{font-size:11px;background:#141414;color:#fff;border:1.5px solid #141414;opacity:1}
+:root[data-skin='poster'] .tpl-card .tpl-lockpill{font-size:12px}
+:root[data-skin='poster'] .ez-field label,
+:root[data-skin='poster'] .ez-subttl,
+:root[data-skin='poster'] .ez-catrow label,
+:root[data-skin='poster'] .ez-wherelabel{font-size:12.5px;letter-spacing:.06em;color:var(--text-2)}
+:root[data-skin='poster'] .ez-field label span{font-size:13px;color:var(--text-2)}
+:root[data-skin='poster'] .ez-field input,
+:root[data-skin='poster'] .ez-field textarea{font-size:16px}
+:root[data-skin='poster'] .ez-fxrow button,
+:root[data-skin='poster'] #ltab-bg .ez-fxrow button{font-size:13.5px}
+:root[data-skin='poster'] .ez-chip,
+:root[data-skin='poster'] .ez-sizes .chip{font-size:14px}
+:root[data-skin='poster'] .ez-lname{font-size:14px}
+:root[data-skin='poster'] .ez-lprev{font-size:12.5px;color:var(--text-2)}
+:root[data-skin='poster'] .ez-stepline small{font-size:14px;color:var(--text-2)}
+:root[data-skin='poster'] .ez-fxnote{font-size:13.5px;color:var(--text-2)}
+:root[data-skin='poster'] .ez-hint{font-size:13.5px;color:var(--text-2)}
+:root[data-skin='poster'] .ez-adv-link{font-size:14px}
+:root[data-skin='poster'] .ez-tagstyle{font-size:12.5px}
+:root[data-skin='poster'] .ez-theme.orig,
+:root[data-skin='poster'] .ez-sw.orig{font-size:10.5px}
+/* the designer */
+:root[data-skin='poster'] .panel-tabs button{font-size:13.5px}
+:root[data-skin='poster'] .psec-title{font-size:12.5px;letter-spacing:.06em;color:var(--text-2)}
+:root[data-skin='poster'] .field label{font-size:13.5px}
+:root[data-skin='poster'] .seg button{font-size:13px}
+:root[data-skin='poster'] .ed-note{font-size:13.5px;color:var(--text-2)}
+:root[data-skin='poster'] .empty-hint{font-size:14px;color:var(--text-2)}
+:root[data-skin='poster'] #enhance-btn{color:var(--text)}
+@media(max-width:640px){
+  :root[data-skin='poster'] .hero p{font-size:17px}
+  :root[data-skin='poster'] .lp-section-head p{font-size:16.5px}
+}
+:root[data-skin='poster'] .lp-faq p{max-width:68ch}
+:root[data-skin='poster'] .ez-quota{font-size:13.5px;color:var(--text-2)}
+:root[data-skin='poster'] .nav-upgrade,
+:root[data-skin='poster'] .acct-chip{font-size:13px}
+:root[data-skin='poster'] .ed-more{font-size:13px}
+:root[data-skin='poster'] .zb-pct{font-size:12.5px}
+:root[data-skin='poster'] .panel-tabs button{font-size:13px;white-space:nowrap;padding-left:6px;padding-right:6px}
