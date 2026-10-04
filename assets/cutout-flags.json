@@ -58,5 +58,6 @@
   "silver-bars-stack": "cut off at the frame (a hard edge along the right)",
   "sports-binder-open": "cut off at the frame (a hard edge along the left)",
   "coin-slab": "too small: 144px wide, drawn 1.6x to 2.6x its own pixels on the cards that used it",
-  "car-keys": "too small: 365px wide, drawn 1.5x its own pixels"
+  "car-keys": "too small: 365px wide, drawn 1.5x its own pixels",
+  "car-dodge-durango-srt-grey": "a person standing behind the car, seen through the windscreen (found 2026-10-04)"
 }

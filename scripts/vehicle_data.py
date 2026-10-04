@@ -41,7 +41,7 @@ YEARS = {
     'hyundai-tucson-white': (2022, None), 'jeep-gladiator-green': (2020, None),
     'jeep-gladiator-rubicon-red-side': (2020, None), 'jeep-grand-cherokee-l-silver': (2021, None),
     'jeep-wrangler-rubicon-lime': (2021, None), 'kia-k5-grey': (2025, None), 'kia-k5-silver-rear': (2021, 2024),
-    'kia-telluride-grey': (2020, 2026), 'land-rover-defender-90-teal': (2021, None), 'ldv-maxus-van-white': (2005, 2017),
+    'kia-telluride-grey': (2020, 2026), 'land-rover-defender-90-teal': (1983, 2016), 'ldv-maxus-van-white': (2005, 2017),
     'lexus-rx-grey-rear': (2023, None), 'lexus-rx-white-rear': (2023, None), 'mercedes-190e-evo-black': (1989, 1990),
     'mercedes-amg-g63-black': (2019, 2024), 'mercedes-amg-gle63-silver': (2021, None),
     'mercedes-s-class-black': (2021, None), 'nissan-nv200-white': (2010, 2021), 'nissan-rogue-copper': (2021, None),

@@ -134,7 +134,40 @@ QUERIES.cameras = ['Canon EOS R5', 'Canon EOS R6', 'Sony Alpha a7 IV', 'Sony a7R
   'Fujifilm X100V', 'Leica Q2', 'GoPro HERO', 'DJI Mini 4 Pro', 'DJI Mavic 3', 'DJI Osmo Pocket', 'Canon EOS 5D', 'camera lens'];
 QUERIES.wearables = ['Apple Watch Ultra', 'Apple Watch Series 9', 'Apple Watch Series 10', 'Apple Watch', 'Galaxy Watch',
   'Pixel Watch', 'Garmin Fenix', 'Apple Vision Pro', 'Meta Ray-Ban'];
-const PORTRAIT_OK = new Set(['apple', 'gold', 'silver', 'coins', 'sportsc', 'poke', 'gaming', 'audio', 'cameras', 'wearables']);
+/* owner, 2026-10-04: "audit the cameras again, wearables, computers, headphones, audio,
+   gaming, Pokémon a lot more Pokémon a lot more rare coins, golden jewelry, Mac, iMac,
+   MacBook, iPad": a second, wider round for each */
+QUERIES.coins2 = ['Morgan silver dollar NNC', 'Peace dollar NNC', 'Barber half dollar', 'Seated Liberty dollar', 'Standing Liberty quarter',
+  'Franklin half dollar', 'Kennedy half dollar', 'Eisenhower dollar', 'Liberty nickel', 'Flying Eagle cent', 'Two-cent piece',
+  'Indian Head eagle', 'Liberty Head eagle', 'Indian Head half eagle', 'quarter eagle gold coin', 'three-dollar gold piece',
+  'gold dollar coin', 'Trade dollar', 'Draped Bust dollar', 'Capped Bust half dollar', 'commemorative half dollar',
+  'American Platinum Eagle', 'American Gold Buffalo', 'Britannia gold coin', 'Vienna Philharmonic coin', 'Chinese Panda coin',
+  'sovereign gold coin', 'Mexican 50 pesos gold', 'Silver Eagle proof', 'proof set coins', 'coin roll', 'graded coin slab'];
+QUERIES.gold2 = ['gold signet ring', 'gold wedding band', 'gold bangle', 'gold pendant', 'gold earrings', 'gold rope chain',
+  'gold cuban link', 'gold locket', 'gold brooch', 'gold cufflinks', 'gold medallion', 'diamond ring gold', 'gold bracelet charm',
+  'Rolex Datejust gold', 'Rolex Day-Date', 'gold wristwatch', 'gold bar 1 kg', 'gold bars stack', 'gold coins stack', 'gold grain'];
+QUERIES.poke2 = ['Pokemon card', 'Pokémon card', 'Pokémon Trading Card Game', 'Pokemon TCG', 'Pikachu card', 'Charizard card',
+  'Pokémon booster pack', 'Pokemon booster', 'Pokémon card collection', 'Pokemon card binder', 'Pokémon Elite Trainer Box',
+  'Pokemon card graded', 'Pokémon cards Japanese', 'trading card game cards'];
+QUERIES.cameras2 = ['Canon EOS R', 'Canon EOS R7', 'Sony Alpha 6400', 'Sony ZV-E10', 'Nikon D850', 'Nikon Z f', 'Nikon Z 6II',
+  'Fujifilm X100VI', 'Fujifilm X-S20', 'Leica M11', 'Leica M10', 'Hasselblad X2D', 'Panasonic Lumix S5', 'Ricoh GR III',
+  'Canon PowerShot G7 X', 'Instax Mini', 'DJI Air 3', 'DJI Avata', 'DJI Mini 3', 'Insta360', 'GoPro HERO12', 'Sigma lens', 'Sony FE lens'];
+QUERIES.audio2 = ['Sony WH-1000XM4', 'Bose QuietComfort 45', 'Bose Noise Cancelling Headphones 700', 'Beats Solo', 'Beats Studio',
+  'Sennheiser Momentum', 'AirPods 3', 'AirPods 2', 'Marshall speaker', 'Bose SoundLink', 'Sonos Era', 'HomePod', 'Audio-Technica headphones',
+  'Shure microphone', 'Beats Powerbeats Pro', 'Jabra Elite'];
+QUERIES.gaming2 = ['PlayStation 5 Slim', 'PlayStation 4 Pro', 'PlayStation 4', 'Xbox One X', 'Xbox One S', 'Nintendo Switch Lite',
+  'Game Boy', 'Game Boy Advance', 'Nintendo 3DS', 'Nintendo DS', 'PlayStation Portal', 'PlayStation Vita', 'Xbox Elite controller',
+  'Joy-Con', 'PlayStation VR2', 'Meta Quest 2', 'Valve Index', 'Nintendo 64', 'Super Nintendo', 'Sega Genesis'];
+QUERIES.wearables2 = ['Apple Watch SE', 'Apple Watch Ultra 2', 'Apple Watch Series 8', 'Apple Watch Series 7', 'Apple Watch Series 6',
+  'Samsung Galaxy Watch 6', 'Samsung Galaxy Watch Ultra', 'Garmin Forerunner', 'Garmin Venu', 'Fitbit', 'Oura Ring', 'Apple Watch band'];
+QUERIES.computers2 = ['Microsoft Surface Laptop', 'Microsoft Surface Pro', 'Dell XPS 13', 'ThinkPad X1 Carbon', 'HP Spectre', 'Razer Blade',
+  'gaming PC', 'Alienware', 'Chromebook', 'Mac mini M2', 'Mac mini M4', 'Mac Studio', 'Mac Pro 2019', 'Apple Studio Display',
+  'Pro Display XDR', 'Magic Keyboard', 'Magic Mouse'];
+QUERIES.apple2 = ['MacBook Pro M1', 'MacBook Pro 14-inch', 'MacBook Pro 16-inch', 'MacBook Pro M3', 'MacBook Air M3', 'MacBook Air 13',
+  'MacBook Pro 13', 'iMac M1', 'iMac 24-inch', 'iMac M3', 'iMac 2020', 'iPad Pro M4', 'iPad Pro 12.9', 'iPad Pro 11', 'iPad Air',
+  'iPad Air 5', 'iPad mini 6', 'iPad mini', 'iPad 10th generation', 'iPad 9th generation', 'Apple Pencil', 'iPad Magic Keyboard'];
+const PORTRAIT_OK = new Set(['apple', 'gold', 'silver', 'coins', 'sportsc', 'poke', 'gaming', 'audio', 'cameras', 'wearables',
+  'coins2', 'gold2', 'poke2', 'cameras2', 'audio2', 'gaming2', 'wearables2', 'computers2', 'apple2']);
 /* SKIP=file.json (an ATTRIBUTION list) skips Commons files already downloaded under another name */
 const SKIP = new Set(process.env.SKIP ? JSON.parse(readFileSync(process.env.SKIP, 'utf8')).map(a => a.title) : []);
 /* CATS=popular,trucks,vans,semis fetches only those pools (PER=6 for more to choose from) */

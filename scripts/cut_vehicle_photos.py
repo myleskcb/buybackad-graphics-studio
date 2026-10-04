@@ -254,7 +254,7 @@ SPEC = {
     'car-chevy-camaro-1969-silver': dict(src='collect-chevrolet-camaro-1969-4.jpg', floor=None, plates=[],
         subject='a silver 1969 Chevrolet Camaro Z/28, front three-quarter, no front plate'),
     'car-land-rover-defender-90-teal': dict(src='collect-land-rover-defender-90-2.jpg', floor=None, plates=[[1235, 860, 1345, 910]],
-        subject='a teal Land Rover Defender 90 station wagon, front three-quarter'),
+        subject='a teal Land Rover Defender 90 station wagon (classic, 1983-2016), front three-quarter'),
     'car-mercedes-190e-evo-black': dict(src='collect-mercedes-benz-190-e-2-5-16-evolution-1.jpg', floor=None, plates=[[245, 805, 545, 935]],
         subject='a black Mercedes-Benz 190 E 2.5-16 Evolution, front three-quarter'),
     'car-bmw-m3-csl-e46-grey': dict(src='collect-bmw-m3-csl-e46-1.jpg', floor=None, plates=[[200, 730, 470, 870]],

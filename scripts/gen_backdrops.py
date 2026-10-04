@@ -16,7 +16,7 @@ accent and a support colour.  Output goes to .render/backdrops/ unless --out.
 Usage:  python3 scripts/gen_backdrops.py [--out DIR] [--palettes FILE]
                                           [--only cat[,cat]] [--limit N] [--jobs 4]
 """
-import argparse, json, math, os, sys, time, zlib
+import argparse, itertools, json, math, os, sys, time, zlib
 from collections import Counter, OrderedDict
 from multiprocessing import Pool
 
@@ -783,10 +783,60 @@ CAR_DUOS = [
     ('car-volvo-xc60-silver', 'car-volvo-xc60-silver-rear')]
 POOLS['cars-pair'] = POOLS['cars']
 
+# Owner, 2026-10-04: "we can also mix models and have different assortment, but
+# ideally, let's keep it cohesive and something professionally designed". Three
+# vehicles that belong together: one brand, one class (exotics, luxury SUVs, pickups,
+# work vans), one paint colour, or the vintage ones; all seen from the front
+# three-quarter and all facing the same way (scripts/vehicle_facing.json): three as a
+# fleet (two behind, one larger in front), or two on a diagonal. (An echelon of three
+# stepping back was tried: the diagonal spends the frame's width and the cars go small.)
+_VEH = json.load(open(os.path.join(REPO, 'assets', 'vehicles.json')))
+_FACE_P = os.path.join(REPO, 'scripts', 'vehicle_facing.json')
+_FACE = json.load(open(_FACE_P)) if os.path.exists(_FACE_P) else {}
+_IN_POOL = {it['name'] for it in POOLS['cars'] if it['kind'] == 'car'}
+def _lineup_groups():
+    fr = [n for n, v in _VEH.items() if n in _IN_POOL and v['view'] == 'front' and _FACE.get(n) in ('L', 'R')]
+    keyfns = [('brand', lambda v: v['brand']),
+              ('class', lambda v: {'Exotic': 'Exotics', 'Commercial': 'Work vans and trucks'}.get(v['class']) or
+                        ('Pickups' if v['body'] == 'Pickup' else 'Luxury SUVs' if v['class'] == 'Luxury' and v['body'] == 'SUV'
+                         else 'Luxury cars' if v['class'] == 'Luxury' else None)),
+              ('colour', lambda v: v['colour_family'] if v['colour_family'] in ('red', 'white', 'black', 'blue', 'yellow', 'orange', 'green') else None),
+              ('era', lambda v: 'Vintage' if v['vintage'] else None)]
+    groups = OrderedDict()
+    for kind, fn in keyfns:
+        for n in sorted(fr):
+            k = fn(_VEH[n])
+            if k: groups.setdefault((kind, k, _FACE[n]), []).append(n)
+    return OrderedDict((k, v) for k, v in groups.items() if len(v) >= 3)
+LINEUP_GROUPS = _lineup_groups()
+def _lineups(limit):
+    """triples from every group in turn, no vehicle twice in a row of picks, each group
+    dealt its members in a fixed shuffle"""
+    r = np.random.default_rng([SEED, 5150]); decks = {}
+    for k, v in LINEUP_GROUPS.items():
+        d = list(v); r.shuffle(d); decks[k] = d
+    out, used = [], Counter()
+    # brand, class, colour and vintage groups in turn, so none crowds the others out
+    bykind = OrderedDict()
+    for k in LINEUP_GROUPS: bykind.setdefault(k[0], []).append(k)
+    keys = [k for grp in itertools.zip_longest(*bykind.values()) for k in grp if k]
+    while len(out) < limit and keys:
+        for k in list(keys):
+            d = decks[k]
+            d.sort(key=lambda n: used[n])
+            trio = d[:3]
+            if used[trio[0]] >= 2: keys.remove(k); continue
+            for n in trio: used[n] += 1
+            out.append((k, trio))
+            if len(out) >= limit: break
+    return out
+CAR_LINEUPS = _lineups(90)
+POOLS['cars-lineup'] = POOLS['cars']
+
 COUNTS = OrderedDict([('iphone', 150)] + [(c, 40) for c in
           ['gold', 'silver', 'coins', 'strips', 'pokemon', 'sports', 'gaming', 'audio', 'computers', 'wearables']]
           + [('cars', len(CAR_ROTA)), ('cameras', 40), ('ipad', 40), ('macbook', 40), ('mac', 40)]
-          + list(AD_COUNTS.items()) + [('cars-pair', len(CAR_DUOS))])
+          + list(AD_COUNTS.items()) + [('cars-pair', len(CAR_DUOS)), ('cars-lineup', len(CAR_LINEUPS))])
 
 # ----------------------------------------------------------------------------- cut-out loading
 
@@ -1621,6 +1671,64 @@ def st_neon(g):
     g.floor = True
     return img
 
+def st_road(g):
+    """a road at dusk: the sky in the palette, a dark asphalt road running to the
+    horizon, its lane lines meeting behind the vehicle, a sheen of wet light"""
+    r = g.rng; T = g.p.t; hy = g.hy
+    sky_top = lighten(T['base'], -0.04) if g.p.dark else labmix(T['base'], T['deep'], 0.35)
+    sky_lo = labmix(T['base2'], T['accs'], 0.35) if g.p.dark else T['base2']
+    wt = np.clip(YY / hy, 0, 1)
+    img = paint([(sky_top, 1 - wt), (sky_lo, wt)])
+    glow = gauss2(g.pc[0], hy, W * 0.55, H * 0.10)
+    img = screen(img, (glow * (0.30 if g.p.dark else 0.18))[..., None] * lab2lin(T['accs']))
+    road = np.array([0.20 if g.p.dark else 0.30, 0.0, -0.008], F)
+    rt = np.clip((YY - hy) / (H - hy), 0, 1)
+    ground = paint([(lighten(road, 0.03), 1 - rt), (lighten(road, -0.06), rt)])
+    grain = gblur(r.standard_normal((H, W)).astype(F), 0.8)
+    ground = ground * (1 + 0.035 * grain)[..., None]
+    t = ss(hy - 2, hy + 3, YY)
+    img = lerp(img, ground, t)
+    # the road's edges and lanes run to a vanishing point behind the vehicle and show
+    # either side of it (lines behind the vehicle are simply covered by it)
+    vx = g.pc[0]; m = np.zeros((H, W), np.uint8)
+    for side in (-1, 1):
+        for spread, wd in ((0.62, 10), (1.35, 7)):
+            cv2.line(m, (int(vx * 16), int(hy * 16)), (int((vx + side * W * spread) * 16), int(H * 16)), 255, wd,
+                     cv2.LINE_AA, shift=4)
+    yy = hy + 6
+    while yy < H:                                   # the dashed centre line
+        L = (yy - hy) * 0.30 + 5
+        for side in (-1, 1):
+            xa = vx + side * (yy - hy) / (H - hy) * W * 0.98; xb = vx + side * (min(H, yy + L) - hy) / (H - hy) * W * 0.98
+            cv2.line(m, (int(xa), int(yy)), (int(xb), int(min(H, yy + L))), 255, max(2, int((yy - hy) * 0.025)), cv2.LINE_AA)
+        yy += L * 2.2
+    lines = gblur(m.astype(F) / 255, 0.8) * (YY > hy + 1) * np.clip((YY - hy) / 60, 0, 1)
+    lc = lab2lin(np.array([0.90, -0.005, 0.10], F)) if r.random() < 0.5 else np.ones(3, F) * 0.92
+    img = lerp(img, lc[None, None] * np.ones_like(img), lines[..., None] * 0.8)
+    # the sky's light lying on the wet road
+    sheen = gauss2(g.pc[0], hy + (H - hy) * 0.25, W * 0.4, (H - hy) * 0.35) * (YY > hy)
+    img = screen(img, (sheen * 0.10)[..., None] * lab2lin(T['accs']))
+    g.floor = True
+    return img
+
+def st_spotlight(g):
+    """a dark studio lit by one overhead spotlight: a soft cone, a pool on the floor"""
+    T = g.p.t; hy = g.hy
+    base = lighten(labmix(T['base'], T['deep'], 0.5), -0.10 if g.p.dark else -0.32)
+    wt = np.clip(YY / H, 0, 1)
+    img = paint([(lighten(base, -0.03), 1 - wt), (base, wt)])
+    cx = g.pc[0]
+    half = np.clip((YY - 0) / (hy + 1), 0.05, 1) * W * 0.30
+    cone = np.clip(1 - np.abs(XX - cx) / np.maximum(half, 1), 0, 1) ** 1.6 * (YY < hy + 20)
+    cone = gblur(cone.astype(F), 18) * np.clip(1.2 - YY / hy * 0.4, 0, 1)
+    lc = lab2lin(labmix(T['hi'], T['sups'], 0.2)) if g.p.dark else lab2lin(lighten(T['base2'], 0.2))
+    img = screen(img, (cone * 0.22)[..., None] * lc)
+    pool = gauss2(cx, hy + (H - hy) * 0.30, W * 0.38, (H - hy) * 0.22) * (YY > hy - 10)
+    img = screen(img, (pool * 0.30)[..., None] * lc)
+    img = lerp(img, img * 0.94, ss(hy - 3, hy + 6, YY))
+    g.floor = True
+    return img
+
 STYLES = OrderedDict([
     ('ios-mesh', (st_mesh, 'plane', 0.0)), ('macos-waves', (st_waves, 'flat', 0.0)),
     ('aurora', (st_aurora, 'plane', 0.0)), ('studio-sweep', (lambda g: st_studio(g), 'floor', 0.0)),
@@ -1637,6 +1745,7 @@ STYLES = OrderedDict([
     ('paint-splatter', (st_splatter, 'flat', 0.3)),
     ('showroom', (st_showroom, 'floor', 0.0)), ('concrete', (st_concrete, 'floor', 0.0)),
     ('sky', (st_sky, 'plane', 0.2)), ('neon-night', (st_neon, 'floor', 0.0)),
+    ('road', (st_road, 'floor', 0.0)), ('spotlight', (st_spotlight, 'floor', 0.0)),
 ])
 STYLE_W = {s: 1.0 for s in STYLES}
 # patterned grounds: smoothed right behind the products so no line or edge runs through one
@@ -1668,6 +1777,10 @@ LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'spread-fan', 'pyramid', 'floating-
 MORE_LAYOUTS = ['stagger', 'hero-plus', 'zigzag', 'staircase', 'offset']
 LAYOUTS += MORE_LAYOUTS
 CAR_LAYOUTS = ['hero']   # a car beside another car or a key ring shrinks to a toy at 1080
+# owner, 2026-10-04: "the same Apple abstract doesn't always work as well for cars": the
+# vehicles get automotive settings only: studio, turntable podiums, showroom, concrete,
+# a road, a spotlight, neon, open sky
+CAR_STYLES = ['studio-sweep', 'podium', 'podium-neon', 'showroom', 'concrete', 'road', 'spotlight', 'neon-night', 'sky']
 # owner, 2026-10-04, on a Mac Studio between two iMacs in a scatter: "Maybe the Mac
 # studio could be centered?", and of a pyramid, a fan and a pair: "my favorite row of
 # three". Macs stand: on one floor line, the odd one (a Mac Studio) in the middle.
@@ -1676,8 +1789,8 @@ MAC_LAYOUTS = ['hero', 'pair', 'trio', 'lineup', 'pyramid', 'spread-fan', 'hero-
 # owner's 2026-09-03 favourite; owner, 2026-10-04: "what happened to our tile image
 # generator"): the video maker's phones in an even grid, one scale, one angle, every
 # screen a different wallpaper, drawn solid (DESIGN-LAW rule 94: no ghost walls)
-LAYOUTS_BY = {'cars': CAR_LAYOUTS, 'cars-pair': ['stagger'], 'mac': MAC_LAYOUTS, 'iphone': LAYOUTS + ['device-wall']}
-STAND_LAYOUTS = {'hero', 'pair', 'trio', 'lineup', 'pyramid', 'hero-plus', 'staircase', 'offset'}
+LAYOUTS_BY = {'cars': CAR_LAYOUTS, 'cars-pair': ['stagger'], 'cars-lineup': ['fleet', 'stagger'], 'mac': MAC_LAYOUTS, 'iphone': LAYOUTS + ['device-wall']}
+STAND_LAYOUTS = {'hero', 'pair', 'trio', 'lineup', 'pyramid', 'hero-plus', 'staircase', 'offset', 'fleet', 'echelon'}
 FLAT_LAYOUTS = {'flatlay-scatter', 'grid-flatlay', 'device-wall'}
 
 def compatible(style, layout):
@@ -1730,6 +1843,19 @@ def lay(layout, items, A, rng, hy):
     if layout == 'hero':
         it = items[0]
         out.append(P(it, min(aw, ah) * 0.82, cx, base, 'stand', clamp_rot(it, r.uniform(-6, 6))))
+    elif layout == 'fleet':                         # two behind, one larger in front, all facing one way
+        out.append(P(items[1], fitslot(1, aw * 0.46, ah * 0.36), x0 + aw * 0.26, y0 + ah * 0.42, 'stand', 0.0, z=0))
+        out.append(P(items[2], fitslot(2, aw * 0.46, ah * 0.36), x0 + aw * 0.74, y0 + ah * 0.42, 'stand', 0.0, z=1))
+        out.append(P(items[0], fitslot(0, aw * 0.66, ah * 0.52), cx, base, 'stand', 0.0, z=2))
+    elif layout == 'echelon':                       # stepping back on a diagonal, each nose clear of the next
+        # each car's wheels sit just above the roof of the one in front: no overlap, all large
+        d = -1 if items[0].get('face') == 'L' else 1    # nose left: the front car lowest at the left
+        y = base
+        for k, it in enumerate(items):
+            f = [1.0, 0.86, 0.74][k]
+            S = fitslot(k, aw * 0.62 * f, ah * 0.40 * f)
+            out.append(P(it, S, cx + d * aw * (0.19 - 0.19 * k), y, 'stand', 0.0, z=3 - k))
+            y -= S / math.sqrt(ars[k]) * 0.92 + 4
     elif layout == 'offset':                        # one, large; compose() sets it to one side
         it = items[0]
         out.append(P(it, min(aw, ah) * 0.82, cx, base, 'stand', 0.0))
@@ -1886,6 +2012,10 @@ def pick_items(cat, layout, rng, idx=None, spec=None):
     if cat == 'cars-pair':
         by = {it['name']: it for it in POOLS['cars']}
         return [by[n] for n in CAR_DUOS[idx % len(CAR_DUOS)]]
+    if cat == 'cars-lineup':
+        by = {it['name']: it for it in POOLS['cars']}
+        trio = [dict(by[n], face=_FACE[n]) for n in CAR_LINEUPS[idx % len(CAR_LINEUPS)][1]]
+        return trio[:2] if layout == 'stagger' else trio
     if cat in AD:
         by = {it['name']: it for g in ad_groups(cat).values() for it in g}
         tilt = AD_TILT if layout in ('floating-row', 'grid-flatlay') else 0
@@ -2240,7 +2370,10 @@ def compose(spec):
 def plan_category(cat, n):
     rng = np.random.default_rng([SEED, zlib.crc32(cat.encode()), 999])
     lays = LAYOUTS_BY.get(cat) or (AD_LAYOUTS_BY.get(cat, AD_LAYOUTS) if cat in AD else LAYOUTS)
-    styles = list(AD_STYLES) if cat in AD else list(STYLES)
+    styles = list(AD_STYLES) if cat in AD else \
+        [s_ for s_ in CAR_STYLES if s_ not in PODIUMS] if cat == 'cars-lineup' else \
+        list(CAR_STYLES) if cat.startswith('cars') else \
+        [s_ for s_ in STYLES if s_ not in ('road', 'spotlight')]
     # one use per (style, layout) and (palette, layout) until a set has more
     # images than that allows (cars have one layout, the Apple-ad sets six
     # styles): then each may come as often as the count needs (owner,
@@ -2248,8 +2381,9 @@ def plan_category(cat, n):
     per = -(-n // len(lays))
     cap = max(1, max(-(-per // max(1, sum(compatible(s_, l_) for s_ in styles))) for l_ in lays))
     pcap = max(cap, -(-per // len(PALETTES)))   # more styles than palettes: a palette may come oftener
+    spcap = max(1, -(-n // (len(styles) * len(PALETTES))))   # a style and palette together, at most this often
     for attempt in range(200):
-        used_sl, used_pl, used_sp = Counter(), Counter(), set()
+        used_sl, used_pl, used_sp = Counter(), Counter(), Counter()
         lc, sc, pc = Counter(), Counter(), Counter()
         specs = []; prev = None; failed = False
         nf = round(n * 0.55)
@@ -2267,7 +2401,7 @@ def plan_category(cat, n):
             cs = [s for s in styles if used_sl[(s, l)] < cap and compatible(s, l) and (not prev or s != prev['style'])]
             if not cs: failed = True; break
             s = min(cs, key=lambda s: sc[s] / STYLE_W[s] + rng.random() * 0.35)
-            cp = [p for p in range(len(PALETTES)) if used_pl[(p, l)] < pcap and (cap == 1 or (s, p) not in used_sp) and (not prev or p != prev['pal'])]
+            cp = [p for p in range(len(PALETTES)) if used_pl[(p, l)] < pcap and (cap == 1 or used_sp[(s, p)] < spcap) and (not prev or p != prev['pal'])]
             if not cp: failed = True; break
             mp = min(pc[p] for p in cp)
             cp = [p for p in cp if pc[p] == mp]
@@ -2275,7 +2409,7 @@ def plan_category(cat, n):
             zone = 'top'
             spec = dict(cat=cat, idx=i, layout=l, style=s, pal=int(p), variant=vars_[i], finish=fins[i], zone=str(zone),
                         rim=bool(rng.random() < 0.4), rim_mix=float(rng.random()))
-            used_sl[(s, l)] += 1; used_pl[(p, l)] += 1; used_sp.add((s, p)); lc[l] += 1; sc[s] += 1; pc[p] += 1
+            used_sl[(s, l)] += 1; used_pl[(p, l)] += 1; used_sp[(s, p)] += 1; lc[l] += 1; sc[s] += 1; pc[p] += 1
             specs.append(spec); prev = spec
         if not failed:
             if cat in AD:
@@ -2288,7 +2422,10 @@ def plan_category(cat, n):
             # the green palettes only on dark grounds: lit, green turns mint and lime
             for sp in specs:
                 if cat not in AD and PALETTES[sp['pal']]['name'] in DARK_ONLY: sp['variant'] = 'dark'
-            sizes = ['standard'] * round(n * 0.45) + ['large'] * round(n * 0.35)
+            # a single vehicle reads small at 1080 ("if we only have one photo ... maybe make
+            # it larger"): cars lean large
+            fs, fl = (0.25, 0.40) if cat.startswith('cars') else (0.45, 0.35)
+            sizes = ['standard'] * round(n * fs) + ['large'] * round(n * fl)
             sizes += ['xl'] * (n - len(sizes)); sr.shuffle(sizes)
             for sp, z in zip(specs, sizes): sp['size'] = str(z)
             return specs
