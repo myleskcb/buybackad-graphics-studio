@@ -3904,3 +3904,29 @@ that alone (choice-holds.json). Now:
   whose band has copy right above it and cannot grow). The 4 price-badge
   classics pass. The thumbnail gate is 370 of 370 and the classics 346 of
   404, as before.
+
+## 114. The hero is one colour and one ink
+
+Added 2026-10-04. The owner, of voltStack-ca07-15's WE BUY over CARDS: "They
+look like different shades when there's white and black in the hero just
+doesn't make a ton of sense … We should just unify it to one shade one text
+color for the hero", then "any solid color could be a pattern gradient
+whatever you think is fitting but solid colors are most fitting in most
+circumstances".
+
+- **Colour blocks** (the tagline look that sets each headline line on its
+  own block) alternated the theme's two colours line by line, ink by
+  contrast. The one-colour pass (rule 95) then brought the second colour to
+  the first's hue at its own lightness: two shades of one teal, white letters
+  on the darker and black on the lighter. Now every block is the theme's
+  accent and every line takes the one ink that reads on it (white unless it
+  would fall under 4.5:1, the block's lightness moved if neither does).
+- **Solid**, as the owner said fits most cards. A gradient or a pattern is a
+  look of its own (Signature, Gradient, Pattern), chosen for the whole claim,
+  never one per line.
+- Measured on the 380 live cards after: of the 95 with two or more headline
+  lines on bands, none has bands of two colours and none lines of two inks
+  (seven read so to the measure: a white-to-white gradient on one line is
+  still white). 68 live cards carry the look as offered, and any card can
+  take it in Easy Mode or the designer, so its rows in the choice table were
+  measured again on every card (OPEN-ITEMS §AF).

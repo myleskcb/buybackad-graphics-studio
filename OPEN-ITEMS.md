@@ -1730,3 +1730,25 @@ Still open:
 2. **The other 28 holds** are for their headline, a panel over the
    photograph, or the call to action against the number (§AA, §AC): layout
    work, not imagery.
+
+## AG. 2026-10-04 — the hero is one colour and one ink (DESIGN-LAW 114)
+
+The owner, of voltStack-ca07-15: "They look like different shades when
+there's white and black in the hero … We should just unify it to one shade
+one text color for the hero", and "solid colors are most fitting in most
+circumstances".
+
+Done: the Colour blocks tagline look sets every headline line on a block of
+the theme's accent with one ink (it alternated the theme's two colours, and
+the one-colour pass turned the second into a lighter shade of the first,
+with black letters on it). On the 380 live cards, no hero now has bands of
+two colours or lines of two inks. `every_card_audit.mjs --looks a,b`
+measures only the named looks and rewrites only their rows (and a dimension
+left out of --dims keeps its rows).
+
+Checked: library gate 380 of 380; Easy Mode themes no problems; the designer
+main's same four problems; every choice on the 68 live cards that carry the
+look as offered, all opened, none fails as offered (cards kept out 13, held
+themes 314, looks 40, voices 1525). The look on every other card and
+classic is measured in the next commit. 68 thumbnails redrawn. ASSET_REV
+20261004b.

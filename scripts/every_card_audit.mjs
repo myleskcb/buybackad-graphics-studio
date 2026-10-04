@@ -29,7 +29,7 @@
  *           node scripts/every_card_audit.mjs [--set classics|library|all]
  *             [--ids a,b] [--dims base,themes,looks,voices,combos]
  *             [--workers 4] [--out .render/every-card] [--resume] [--limit N]
- *             [--write-holds]
+ *             [--write-holds] [--looks blocks,outline]
  * Exits 1 on any problem. Results stream to <out>/results.jsonl, one card a
  * line, so a long run can be resumed (--resume skips the cards already there).
  *
@@ -49,6 +49,9 @@ const BASE = ROOT + (ROOT.includes('?') ? '&' : '?') + 'nochoiceholds=1';
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const SET = argv('--set') || 'all';
 const DIMS = new Set((argv('--dims') || 'base,themes,looks,voices,combos').split(','));
+/* --looks a,b measures only those tagline looks (and only their combos), and
+   --write-holds then rewrites only their rows, every other look's kept */
+const ONLY_LOOKS = argv('--looks') ? argv('--looks').split(',') : null;
 const WORKERS = +(argv('--workers') || 4);
 const OUT = argv('--out') || new URL('../.render/every-card/', import.meta.url).pathname;
 const LIMIT = +(argv('--limit') || 0);
@@ -171,7 +174,8 @@ const RUNNER = () => {
         }
         chip('').click();
       }
-      const LOOKS = (typeof EZ_TAG_LOOKS !== 'undefined' ? EZ_TAG_LOOKS : []).map(l => l.key || l[0] || l).filter(k => typeof k === 'string');
+      const LOOKS = (typeof EZ_TAG_LOOKS !== 'undefined' ? EZ_TAG_LOOKS : []).map(l => l.key || l[0] || l).filter(k => typeof k === 'string')
+        .filter(k => !window.__onlyLooks || window.__onlyLooks.includes(k));
       if (has('looks')){
         res.looks = {};
         for (const k of LOOKS){
@@ -258,6 +262,7 @@ async function worker(n){
       await page.goto(BASE, { waitUntil: 'load', timeout: 180000 });
       await new Promise(r => setTimeout(r, 2000));
       await page.evaluate(`(${RUNNER.toString()})()`);
+      await page.evaluate(l => { window.__onlyLooks = l; }, ONLY_LOOKS);
       await page.evaluate(() => { loadAccount = async () => account; account = { email: 'audit@local', role: 'user', plan: 'pro' }; });
       const o = await page.evaluate(id => __sw.open(id), card);
       if (o.err) row.err = o.err;
@@ -319,12 +324,19 @@ if (process.argv.includes('--write-holds')){
   holds.cards = holds.cards || {};
   done.forEach(c => delete holds.cards[c]);
   rows.forEach(r => { if (!r.err && r.base && r.base.length) holds.cards[r.card] = [...new Set(r.base.map(said))].join('; '); });
-  for (const dim of ['themes', 'looks', 'voices']){
+  /* only what this run measured is rewritten: a dimension left out of --dims
+     keeps its rows, and with --looks only those looks' rows change */
+  for (const dim of ['themes', 'looks', 'voices'].filter(d => DIMS.has(d))){
     holds[dim] = holds[dim] || {};
-    done.forEach(c => delete holds[dim][c]);
+    const only = dim === 'looks' && ONLY_LOOKS;
+    done.forEach(c => {
+      if (!only){ delete holds[dim][c]; return; }
+      const cur = holds[dim][c]; if (!cur) return;
+      only.forEach(k => delete cur[k]); if (!Object.keys(cur).length) delete holds[dim][c];
+    });
     rows.forEach(r => {
-      const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || v.left || v.lost));
-      if (bad.length) holds[dim][r.card] = Object.fromEntries(bad.map(([k, v]) => [k, why(v)]));
+      const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || v.left || v.lost) && (!only || only.includes(k)));
+      if (bad.length) holds[dim][r.card] = Object.assign(only ? (holds[dim][r.card] || {}) : {}, Object.fromEntries(bad.map(([k, v]) => [k, why(v)])));
     });
   }
   writeFileSync(FILE, JSON.stringify(holds, null, 0));

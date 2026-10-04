@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261004a';
+const ASSET_REV = '20261004b';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -13696,13 +13696,19 @@ function taglineStyle(sc, spec, pal, W, H, as){
   const lumOf = tagY, ratio = tagCr;
 
   /* ── colour blocks, measured before anything moves: each tagline line on
-     its own block, alternating the theme's two colours, ink by contrast. One
-     that would land on other copy, cover more of the product than its line
-     already does, or leave the 6% guides would break the card (rule 57: copy
-     is never touched), so that card takes the outline instead and says so. */
+     its own block, every block one colour (the theme's accent) and every line
+     one ink, by contrast (rule 114). They used to alternate the theme's two
+     colours, and the one-colour pass then brought the second to the first's
+     hue at its own lightness: two shades of one colour, white letters on one
+     and black on the other. Owner, 2026-10-04: "They look like different
+     shades when there's white and black in the hero … We should just unify
+     it to one shade one text color for the hero." One that would land on
+     other copy, cover more of the product than its line already does, or
+     leave the 6% guides would break the card (rule 57: copy is never
+     touched), so that card takes the outline instead and says so. */
   let blockPlan = null;
   if (spec.blocks){
-    const cols = [pal.accent || '#4d9cff', pal.support || pal.accent || '#4d9cff'];
+    const cols = [pal.accent || '#4d9cff'];
     const G = 0.06 * Math.min(W, H), E = 0.025 * Math.min(W, H), faults = [];
     // a block as it stands on the card: a turned line's block is wider than its own width
     const boxOf = g => {
@@ -13710,7 +13716,7 @@ function taglineStyle(sc, spec, pal, W, H, as){
       return { left: g.cx - w / 2, top: g.cy - h / 2, width: w, height: h };
     };
     const plan = heads.slice().sort((a, b) => a.top - b.top).map((o, i) => {
-      let fill = solidHex(cols[i % 2]) || '#4d9cff';
+      let fill = solidHex(cols[0]) || '#4d9cff';
       const ink = ratio(lumOf(fill), 1) >= ratio(lumOf(fill), lumOf('#0e0e10')) ? '#ffffff' : '#0e0e10';
       if (ratio(lumOf(fill), lumOf(ink)) < 4.5) fill = oklchFit({ L: ink === '#ffffff' ? 0.42 : 0.82, C: ok(fill).C, h: ok(fill).h });
       o.setCoords();
@@ -14198,7 +14204,7 @@ const EZ_TAG_LOOKS = [
   ['gradient', 'Gradient', 'Any premade or custom gradient, black outline'],
   ['pair', 'Accent → support', 'The accent melting into the support colour'],
   ['outline', 'White + outline', 'White letters, heavy black outline'],
-  ['blocks', 'Colour blocks', 'Each headline line on its own block of the theme’s colours'],
+  ['blocks', 'Colour blocks', 'Each headline line on its own block, one colour and one ink'],
   ['multicolor', 'Multicolour', 'Every letter its own colour'],
   ['glow', 'Glow', 'A neon tube: white core, coloured glow'],
   ['anaglyph', 'Red & blue 3-D', 'The old 3-D print: red to one side, blue to the other'],
