@@ -434,11 +434,70 @@ const LENS = 6.5;                                  // camera distance, in phone 
 // closer and the far edge breaks into the strips the face is drawn in.
 const WIDE_LENS = 2.2;
 
-function outline(w, h, r, n = 9) {                 // a rounded rectangle, clockwise
+function outline(x0, y0, x1, y1, [tl, tr, br, bl], n = 9) {   // a rounded rectangle, clockwise
   const pts = [];
-  for (const [cx, cy, a0] of [[w / 2 - r, -h / 2 + r, -Math.PI / 2], [w / 2 - r, h / 2 - r, 0], [-w / 2 + r, h / 2 - r, Math.PI / 2], [-w / 2 + r, -h / 2 + r, Math.PI]])
+  for (const [cx, cy, r, a0] of [[x1 - tr, y0 + tr, tr, -Math.PI / 2], [x1 - br, y1 - br, br, 0], [x0 + bl, y1 - bl, bl, Math.PI / 2], [x0 + tl, y0 + tl, tl, Math.PI]])
     for (let i = 0; i <= n; i++) { const a = a0 + i / n * Math.PI / 2; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
   return pts;
+}
+
+// A canvas draws an image's rectangle with hard edges, snapped to whole pixels, and the backs
+// are trimmed to the phone, so the phone's outline was that rectangle and jumped a pixel
+// column at a time as it turned. Drawn from a copy with a clear border PAD px wide, the snap
+// falls on clear pixels and the outline moves as smoothly as the picture.
+const PAD = 2, PADDED = new WeakMap();
+function padded(img) {
+  let c = PADDED.get(img);
+  if (!c) {
+    c = canvas((img.naturalWidth || img.width) + 2 * PAD, (img.naturalHeight || img.height) + 2 * PAD);
+    c.getContext("2d").drawImage(img, PAD, PAD);
+    PADDED.set(img, c);
+  }
+  return c;
+}
+
+// The body as its back photograph draws it: where its straight edges stand (a button proud of
+// the rail makes the trimmed photo wider than the body) and how round each corner is, as
+// shares of the photo's width and height. The turned slab is built on it, so near flat no
+// part of the slab shows past the photograph. Built on a rounded rectangle the photo's full
+// size, an 18 Pro showed a dark sliver down its left side and round its corners, which went
+// all at once as the phone came flat. Measured once per photo; null where it cannot be.
+const BODIES = new WeakMap();
+function bodyOf(img) {
+  if (!img || typeof img !== "object") return null;
+  if (BODIES.has(img)) return BODIES.get(img);
+  let body = null;
+  try {
+    const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+    if (W > 40 && H > 40) {
+      const c = canvas(W, H), x = c.getContext("2d", { willReadFrequently: true });
+      x.drawImage(img, 0, 0);
+      const a = x.getImageData(0, 0, W, H).data, on = (i, j) => a[(j * W + i) * 4 + 3] > 128;
+      const first = (n, f) => { for (let k = 0; k < n; k++) if (f(k)) return k; return n; };
+      const med = v => v.sort((p, q) => p - q)[v.length >> 1], rows = [], cols = [];
+      for (let j = Math.round(H * .15); j < H * .85; j += 4) rows.push(j);
+      for (let i = Math.round(W * .3); i < W * .7; i += 4) cols.push(i);
+      const L = med(rows.map(j => first(W, i => on(i, j)))), R = W - 1 - med(rows.map(j => first(W, i => on(W - 1 - i, j))));
+      const T = med(cols.map(i => first(H, j => on(i, j)))), B = H - 1 - med(cols.map(i => first(H, j => on(i, H - 1 - j))));
+      // a corner's radius: the circle that best fits how far in from the straight edge each
+      // row near the corner starts (sx, sy: 1 from the left or top, -1 from the right or bottom)
+      const radius = (sx, sy) => {
+        const x0 = sx > 0 ? L : R, y0 = sy > 0 ? T : B, pts = [];
+        for (let d = 0; d < W * .3; d++) pts.push([d, first(Math.round(W * .4), k => on(x0 + sx * k, y0 + sy * d))]);
+        let best = [Infinity, CORNER * W];
+        for (let r = W * .06; r < W * .3; r += .5) {
+          let e = 0;
+          for (const [d, o] of pts) e += ((d < r ? r - Math.sqrt(r * r - (r - d) ** 2) : 0) - o) ** 2;
+          if (e < best[0]) best = [e, r];
+        }
+        return best[1] / W;
+      };
+      const b = { l: L / W, r: (W - 1 - R) / W, t: T / H, b: (H - 1 - B) / H, rad: [radius(1, 1), radius(-1, 1), radius(-1, -1), radius(1, -1)] };
+      if (Math.max(b.l, b.r, b.t, b.b) < .04 && b.rad.every(r => r > .08 && r < .28)) body = b;
+    }
+  } catch (e) { /* a photo we cannot read: the slab keeps the usual outline */ }
+  BODIES.set(img, body);
+  return body;
 }
 
 function poly(ctx, pts) {
@@ -453,13 +512,21 @@ function hull(pts) {                               // the convex hull, by the mo
   return lo.slice(0, -1).concat(up.slice(0, -1));
 }
 
-function drawSlab(ctx, p, w, h, flip, face, rot = 0) {
+function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, face.height]) {
   const c = Math.cos(flip), s = Math.sin(flip), T = (p.design.depth || THICKNESS) * w, D = (p.lens || LENS) * h, R = CORNER * w;
   // local x runs to the screen's right, zl out of the screen; sin > 0 brings the
   // screen's right-hand edge (power) toward the lens, sin < 0 its left (volume)
-  const P = (x, y, zl) => { const X = x * c - zl * s, f = D / (D - (x * s + zl * c)); return [X * f, y * f]; };
-  const seen = c >= 0 ? T / 2 : -T / 2;
-  const rim = outline(w, h, R);
+  // The lens is focused on the face we see, not on the middle of the body: square on, that
+  // face then stands at its photograph's own size. (Focused half a body deeper, it stood half a
+  // percent large, and the phone jumped a pixel and a half where the bare photo took over.)
+  const seen = c >= 0 ? T / 2 : -T / 2, focus = D - seen * c;
+  const P = (x, y, zl) => { const X = x * c - zl * s, f = focus / (D - (x * s + zl * c)); return [X * f, y * f]; };
+  // the back photograph lies mirrored on the slab: its left edge is the slab's right (+x). The
+  // body stands 0.8 px inside the photograph's outline, so the photo's soft edge never shows
+  // the side through it (seen flat, its edge pixels darkened by a pixel's width, then let go)
+  const b = p.body, inset = .8, rim = b
+    ? outline(-w / 2 + b.r * w + inset, -h / 2 + b.t * h + inset, w / 2 - b.l * w - inset, h / 2 - b.b * h - inset, [b.rad[1], b.rad[0], b.rad[3], b.rad[2]].map(r => Math.max(0, r * w - inset)))
+    : outline(-w / 2 + inset, -h / 2 + inset, w / 2 - inset, h / 2 - inset, [R, R, R, R].map(r => r - inset));
   // the side: the outline swept from the hidden face to the seen one, brushed
   // metal dark at both rims with a highlight a little in from the near face
   const steps = Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
@@ -472,10 +539,14 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0) {
     poly(ctx, k ? hull(rim.map(([x, y]) => P(x, y, zb)).concat(at)) : at);
     ctx.fillStyle = p.railLin ? litRail(p.railLin, u) : shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
   }
-  // the controls on the side we see, where Apple puts them
+  // the controls on the side we see, where Apple puts them. They come into view as that side
+  // turns toward the lens, over the first 3.4 degrees: perspective alone gave them most of a
+  // pixel square on, so they jumped from one edge to the other as the phone passed flat.
   const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
   const keys = s > 0 ? ["power", ...(d.camCtrl ? ["camCtrl"] : [])] : [...(d.left ? [d.left] : []), "volUp", "volDown"];
-  for (const key of keys) {
+  const shown = clamp(Math.abs(s) / .06), alpha = ctx.globalAlpha;
+  ctx.globalAlpha = alpha * shown;
+  for (const key of shown > 0 ? keys : []) {
     const [a0, b0] = (d.controls || CONTROLS)[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
     poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
     // Camera Control sits flush in the rail, filled in the body's colour with a fine
@@ -490,14 +561,23 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0) {
     poly(ctx, [P(xs, y0 + 1, q * .1), P(xs, y0 + 1, q * .45), P(xs, y1 - 1, q * .45), P(xs, y1 - 1, q * .1)]);
     ctx.fillStyle = shade(p.metal, .18); ctx.fill();
   }
+  ctx.globalAlpha = alpha;
   // the face, in thin vertical strips so it recedes; the back is seen from behind
-  const fw = face.width, fh = face.height, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
+  const [sx, sy, fw, fh] = src, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
   const near = P(X(0), 0, seen)[0], far = P(X(1), 0, seen)[0];
   const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / 3)));
   for (let i = 0; i < n; i++) {
     const [xa, ta] = P(X(i / n), -h / 2, seen), [xb, tb] = P(X((i + 1) / n), -h / 2, seen);
-    const top = (ta + tb) / 2, x0 = Math.min(xa, xb), dw = Math.abs(xb - xa) + .6;
-    ctx.drawImage(face, i / n * fw, 0, fw / n, fh, x0, top, dw, -2 * top);
+    // each strip overlaps the next by 0.6 px so no seam shows, but never runs past the face, and
+    // the overlap takes in more of the photograph rather than stretching the strip over it
+    const top = (ta + tb) / 2, x0 = Math.min(xa, xb), span = Math.abs(xb - xa);
+    let dw = Math.min(span + .6, Math.max(near, far) - x0), sw = Math.min(fw / n * (span > 1e-6 ? dw / span : 1), fw * (1 - i / n));
+    // the clear border round the photograph comes too, so no hard edge falls on the phone
+    const kx = span / (fw / n), ky = -2 * top / fh;
+    let s0 = sx + i / n * fw, d0 = x0;
+    if (i === 0) { s0 -= PAD; sw += PAD; d0 -= PAD * kx; dw += PAD * kx; }
+    if (i === n - 1) { sw += PAD; dw += PAD * kx; }
+    ctx.drawImage(face, s0, sy - PAD, sw, fh + 2 * PAD, d0, top - PAD * ky, dw, -2 * top + 2 * PAD * ky);
   }
   // light: the face falls off toward the edge turned away from the lens
   const ns = s > 0 ? 1 : -1, k = Math.abs(s);
@@ -610,6 +690,7 @@ export class Phone {
     this.h = ph; this.w = ph * (meta.w / meta.h);
     this.metal = RAIL[meta.id] || meta.metal;
     this.railLin = RAIL[meta.id] ? hexRgb(RAIL[meta.id]).map(toLin) : null;
+    this.body = bodyOf(img);
     this.design = designOf(meta.model);
     // the same size of phone casts the same shadows: made once (a look lays its phones out
     // afresh for each place it tries for the words)
@@ -646,26 +727,21 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
   ctx.globalAlpha = op;
   ctx.translate(x, y);
   ctx.rotate(-rot * Math.PI / 180);
-  if (Math.abs(Math.sin(flip)) > .015) {           // turned: the slab, in perspective
-    let face = p.img;
-    if (front) {
-      const fc = p._front || (p._front = canvas(1, 1));
-      fc.width = Math.ceil(w); fc.height = Math.ceil(h);
-      const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2);
-      drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
-      face = fc;
-    }
-    drawSlab(ctx, p, w, h, flip, face, rot);
-    ctx.restore();
-    return;
+  // The phone is always the slab, in perspective, flat to the lens too: it is built to its
+  // photograph's outline and size, so square on it is the photograph. (Drawn as the bare
+  // photograph near flat, it changed at the hand-over: a dark edge blinked out at 0.86 degrees,
+  // and its buttons jumped edges.)
+  let face = padded(p.img), src = [PAD, PAD, p.img.naturalWidth || p.img.width, p.img.naturalHeight || p.img.height];
+  if (front) {
+    // the screen is drawn at twice the size and taken down, so its hairline frame stays as
+    // crisp as one drawn in place
+    const fc = p._front || (p._front = canvas(1, 1)), ss = 2;
+    fc.width = Math.ceil(w * ss) + 2 * PAD * ss; fc.height = Math.ceil(h * ss) + 2 * PAD * ss;
+    const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2); fx.scale(ss, ss);
+    drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
+    face = fc; src = [(fc.width - w * ss) / 2, (fc.height - h * ss) / 2, w * ss, h * ss];   // the screen as drawn, not the canvas's rounded-up size
   }
-  ctx.scale(Math.max(ac, .02), 1);
-  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
-  else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
-  if (ac < .999) {                                 // turning away from the light
-    rrect(ctx, -w / 2, -h / 2, w, h, CORNER * w);
-    ctx.fillStyle = `rgba(0,0,0,${(1 - ac) * .45})`; ctx.fill();
-  }
+  drawSlab(ctx, p, w, h, flip, face, rot, src);
   ctx.restore();
 }
 

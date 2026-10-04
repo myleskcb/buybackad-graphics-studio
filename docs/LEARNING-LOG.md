@@ -2985,3 +2985,65 @@ RESUME HERE:
      sync_css_fallback.mjs).
   4. The designer audit's standing failures on `main`: sell_iphone and
      gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-04 (later) — no flash at the edge as a phone comes flat
+
+(claude/great-johnson-v8ppp6, not yet on `main`.)
+
+The owner, watching the turntable reel: "There seems to be a minor bug that's
+clear in the burgundy 18 Pro Max that the left side kind of does a little bit
+of a flash and it's a little dark on the edge and then it disappears as the
+device goes flat. It's not gradual at all not very cohesive if you're staring
+at that specific location."
+
+Found: within 0.86 degrees of flat (|sin| 0.015) drawPhone drew the bare
+photograph, and turned it drew the slab; coming flat, one 0.05 degree step
+changed 4,161 to 8,188 pixels by over 16 levels, on every model, back and
+screen (the usual step: 0 to 15). The slab did not match the photograph in
+five ways, found one after another by measuring what was left:
+  - its outline was a rounded rectangle the photo's full size, but the 17 and
+    18 Pro backs are trimmed to the side button (0.7% of the width proud of
+    the body) and the 14 to 16 Pro backs are rounder at the left corners (0.18
+    of the width, against 0.15 at the right): a dark sliver of side;
+  - the lens was focused on the middle of the body, so the face stood half a
+    percent large and the phone jumped a pixel and a half;
+  - the last strip of the face ran 0.6 px past it, and each strip was stretched
+    17% over its overlap;
+  - side-on detail: the canvas draws an image's rectangle with hard, snapped
+    edges, and the backs are trimmed to the phone, so the outline jumped a
+    pixel column at a time (the spikes of 420 pixels);
+  - the side buttons keep most of a pixel of perspective square on, and swapped
+    edges as the phone passed flat.
+A hand-over moved to 0.006 degrees still stepped (the photo's soft edge over
+the side), and a fast path for dead flat put a step back and saved no time;
+both went.
+
+Did: rule 112, no hand-over to see. The slab at every angle (`bodyOf`, the
+photograph's outline 0.8 px inside; the lens on the seen face; buttons in
+over 3.4 degrees; `padded`; strips sampled; the screen at twice the size).
+motion_phone_check.mjs: `flat`, the last 2 degrees in steps of 0.05.
+
+Checked: motion_phone_check.mjs passes all of it on the new engine (flat: the
+worst step 17 pixels) and fails `flat` on all 36 model faces of the commit
+before (4,161 to 8,188 at 0.90 degrees); audit_phone_views.py 56 of 59; the
+attention audit (24 looks) unchanged. Still phones: the flat back changes by
+about its outline's anti-aliasing (400 pixels a phone), the screen's hairline
+frame stays as crisp. A 6 s export's frames: 13.2 to 15.7 s (flat), 16.7 to
+20.0 s (turntable), headless.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main` (it carries `main` at
+     48ab3caf); reconcile `claude/fervent-pascal-w6mthe` (37a26d34) into
+     `main` (renumber its rule 99, re-thumb the conflicting cards, verify),
+     then deploy `main` to both Netlify projects.
+  1. The owner: make a key, set LIBRARY_KEYS on the Netlify project iPhones LA
+     will call, give the iPhones LA session docs/iphonesla-library/README.md's
+     prompt; after the deploy, curl /api/library/v1 with the key once.
+  2. A turned 17 or 18 Pro's camera plateau is drawn flat; its height needs a
+     source. The 17e's and 18 Pro's notch, buttons and Camera Control want
+     checking against Apple's sheets (FACTS leaves them out).
+  3. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  4. `.modal-actions` on a phone: let the row wrap (styles.css, then
+     sync_css_fallback.mjs).
+

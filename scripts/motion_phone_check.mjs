@@ -17,6 +17,11 @@
              edge at least 0.8 of its model's depth (it was a 1 px hairline),
              no angle leaves a see-through gap inside it, and no step of the
              turn changes it more than 2.5 times the usual step.
+     flat    coming flat over its last 2 degrees in steps of 0.05, back and
+             screen, no step may change more than 60 pixels visibly (by over
+             16 levels): an 18 Pro's dark edge blinked out at 0.86 degrees,
+             4,600 to 8,200 pixels in one step, where the slab handed over to
+             the bare photograph, and its side buttons jumped edges at 0.
 
    The phones' shape, depth and buttons against the photographs are
    scripts/audit_phone_views.py's.
@@ -27,7 +32,7 @@
    Exits 1 on a failure. */
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const PORT = +arg('--port', 8765), ONLY = arg('--entries', '');
-const BLUR_BAR = 1, SHADOW_BAR = 5, EDGE_BAR = .8, HOLE_BAR = 2, TURN_BAR = 2.5;
+const BLUR_BAR = 1, SHADOW_BAR = 5, EDGE_BAR = .8, HOLE_BAR = 2, TURN_BAR = 2.5, FLAT_BAR = 60;
 
 let browser;
 try {
@@ -109,7 +114,30 @@ const res = await page.evaluate(async ONLY => {
       turn.push({ phone: m.id, rot, edge: +edge.toFixed(2), hole, step: +(top / med).toFixed(1), at: (steps.indexOf(top) + 1) * step });
     }
   }
-  return { blur, shadow, turn };
+  // coming flat, back and screen, one phone of every model: the last 2 degrees in steps of 0.05
+  const flat = [], F = 560, fc = document.createElement('canvas'); fc.width = F; fc.height = F;
+  const fx = fc.getContext('2d', { willReadFrequently: true });
+  for (const m of index) {
+    if (flat.some(r => r.model === m.model)) continue;
+    const p = new Phone(phones[m.id].img, m, 480);
+    for (const [face, base] of [['back', Math.PI], ['screen', 0]]) {
+      let prev = null; const steps = [];
+      for (let k = 40; k >= 0; k--) {
+        fx.fillStyle = '#d9c6a5'; fx.fillRect(0, 0, F, F);
+        drawPhone(fx, p, F / 2, F / 2, 1, 0, base + k * .05 * Math.PI / 180, 0, 1, F, null, true);
+        const px = fx.getImageData(0, 0, F, F).data;
+        if (prev) {
+          let t = 0;
+          for (let i = 0; i < px.length; i += 4) if (Math.max(Math.abs(px[i] - prev[i]), Math.abs(px[i + 1] - prev[i + 1]), Math.abs(px[i + 2] - prev[i + 2])) > 16) t++;
+          steps.push([t, (k + 1) * .05]);
+        }
+        prev = px;
+      }
+      const top = steps.reduce((a, q) => q[0] > a[0] ? q : a);
+      flat.push({ phone: m.id, model: m.model, face, ratio: top[0], at: +top[1].toFixed(2) });
+    }
+  }
+  return { blur, shadow, turn, flat };
 }, ONLY);
 
 let fails = 0;
@@ -127,6 +155,11 @@ console.log(`turn: edge side-on against the model's depth (bar ${EDGE_BAR}), gap
 for (const r of res.turn) {
   const bad = r.edge < EDGE_BAR || r.hole > HOLE_BAR || r.step > TURN_BAR; fails += bad;
   console.log(`  ${r.phone.padEnd(24)} ${(r.rot ? 'on its side' : 'upright').padEnd(11)} edge ${r.edge.toFixed(2)}  gap ${String(r.hole).padStart(3)}  step ${r.step.toFixed(1).padStart(4)} at ${String(r.at).padStart(3)}°${bad ? '   FAIL' : ''}`);
+}
+console.log(`flat: coming flat, the most pixels one 0.05 degree step changes visibly (bar ${FLAT_BAR})`);
+for (const r of res.flat) {
+  const bad = r.ratio > FLAT_BAR; fails += bad;
+  console.log(`  ${r.phone.padEnd(24)} ${r.face.padEnd(6)} ${String(r.ratio).padStart(5)} px  from ${r.at.toFixed(2)}°${bad ? '   FAIL' : ''}`);
 }
 console.log(`\n${fails ? fails + ' failing' : 'all pass'}`);
 await browser.close();

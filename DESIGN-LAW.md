@@ -3980,3 +3980,22 @@ movements, accuracy, and realism".
   between. Older backs show no part made of their frame's metal, so their sides
   keep the rim's colour and the old shading. audit_phone_views.py fails a 17 or
   18 Pro whose RAIL is more than 12 levels off its plateau.
+- **No hand-over to see** (owner, 2026-10-04, of the Burgundy 18 Pro: "the left
+  side kind of does a little bit of a flash and it's a little dark on the edge
+  and then it disappears as the device goes flat. It's not gradual at all").
+  Within 0.86 degrees of flat the phone was drawn as its bare photograph, and
+  the slab before it did not match: a dark sliver down its left side and round
+  its corners (the slab was a rounded rectangle the photo's full size, the
+  photo trimmed to its side button and rounder at the left), the face half a
+  percent large (the lens was focused on the middle of the body), and the side
+  buttons, with most of a pixel of perspective, swapped edges at flat. Now the
+  phone is the slab at every angle, built on its photograph's own outline
+  (`bodyOf`, measured once per photo) 0.8 px inside it, focused on the face we
+  see; the buttons come into view over the first 3.4 degrees; the photograph
+  is drawn from a copy with a clear border (`padded`) so the canvas's
+  hard-edged image rectangle never falls on the phone, its strips sampled
+  rather than stretched; the screen is drawn at twice the size and taken down.
+  Coming flat in steps of 0.05 degrees no step changes more than 17 pixels
+  visibly; at the old hand-over one step changed 4,161 to 8,188.
+  motion_phone_check.mjs's `flat` fails a step over 60. A 6 s export's frames
+  take about a fifth longer to draw.
