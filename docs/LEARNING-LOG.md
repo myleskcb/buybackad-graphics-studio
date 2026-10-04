@@ -2786,3 +2786,53 @@ composition.
 
 RESUME HERE: as the entry before (reconcile `claude/fervent-pascal-w6mthe`,
 then deploy `main`; one H.264 export from Chrome or Safari).
+
+## 2026-10-04 — the library for iPhones LA's listing page, by key (rule 111)
+
+Owner: "I need you to build the intermediary so the ad title and description
+page and list it can access the library material from buyback ad via a key.
+Does that make sense? So build your part and then give me the rest to put into
+the iPhones LA repo to finish this library of imagery".
+
+Found:
+  - Two libraries: the imagery (assets/library.json: 874 records, cut-outs,
+    scenes, backgrounds, 7 of them placeholders) and the ad designs
+    (assets/showcase/index.json, 971 records, 311 offered by scIsLive). Both
+    are static files the deploy serves; the backend is one Netlify Function
+    (api.mjs) with no route for a partner.
+  - The existing iPhones LA link pushes studio downloads to the shop
+    (iphonesla-link.js); this is the other direction, a pull by the shop's
+    server.
+  - loganipad/iphoneslainv (Python) is not reachable from this session, so its
+    side is handed over as files and a prompt, run here first.
+  - Search in library order put two Android phones first for "iphone": the
+    library files them under iphones.
+
+Did: netlify/lib/library.mjs (/api/library/v1: index, categories, assets,
+ads, one of each; key from LIBRARY_KEYS; day count; ranked search), routed
+first in api.mjs; ?card=<id> in app.js (appended) to open a design in Easy
+Mode; docs/iphonesla-library/ (buybackad_library.py, library-picker.js,
+example_server.py, test_buybackad_library.py, README.md with the contract,
+Flask and FastAPI routes and the paste-ready prompt). Rule 111, README, brief.
+
+Checked:
+  - scripts/library_api_check.mjs: no failures; through the real api.mjs with
+    a stand-in @netlify/blobs too (a /me after it still asks for a sign-in;
+    LIBRARY_DAILY=3 stops the fourth request). Broken on purpose (held cards
+    let through), it failed four ways.
+  - scripts/library_handoff_check.mjs with SNIPPETS_PYTHON: nine Python tests,
+    the README's Flask and FastAPI code as written, the demo listing page in
+    Chromium (a pick adds iphone-15-pro-back-black.jpg, 1600x1445, white
+    behind it; a design opens /?card=...). No failures.
+  - ?card= in Chromium: a Phones card opens in Easy Mode with the parameter
+    cleared and the rest of the address kept; a held card opens nothing and
+    says so; a malformed id opens nothing. A premium card opens the free
+    fallback for a free visitor, as a click would.
+
+RESUME HERE:
+  0. The owner: make a key, set LIBRARY_KEYS on the Netlify project iPhones LA
+     will call, deploy `main` (with the 2026-10-03 caveat about
+     `claude/fervent-pascal-w6mthe`), and give the iPhones LA session
+     docs/iphonesla-library/README.md's prompt.
+  1. After the deploy: `curl -H "Authorization: Bearer <key>"
+     <site>/api/library/v1` once, to see the function read its own deploy.

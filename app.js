@@ -19711,3 +19711,23 @@ function pgHueCheck(sc, r){
     return _pgExplain.apply(this, arguments);
   };
 }
+
+/* ═══ A CARD BY LINK (2026-10-04) ═══════════════════════════════════════════
+   ?card=<showcase id> opens that card in Easy Mode, as a click on it in the
+   template strip would. The library API (netlify/lib/library.mjs) hands it
+   out as each design's studio_url, so the iPhones LA listing page can send
+   someone from a design to the studio to put their number on it, and the
+   download goes back through the iPhones LA link (iphonesla-link.js). The
+   parameter is cleared once read (the rest of the address, the connect
+   fragment included, stays); an id the site does not offer opens nothing. */
+(function cardLink(){
+  let id = null;
+  try { id = new URLSearchParams(location.search).get('card'); } catch (e){}
+  if (!id) return;
+  try { const u = new URL(location.href); u.searchParams.delete('card'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e){}
+  if (!/^[A-Za-z0-9_-]{3,100}$/.test(id)) return;
+  const go = () => scLoadIndex()
+    .then(() => { if (SHOWCASE.byId[id]) return openShowcase(id); toast('That design is not in the library any more', 'error'); })
+    .catch(e => console.warn('GraphicsStudio: the card link could not open', id, e));
+  if (document.readyState === 'complete') setTimeout(go, 0); else window.addEventListener('load', () => setTimeout(go, 0), { once: true });
+})();

@@ -3879,3 +3879,44 @@ frame" and "more versions".
   call to action (9.9 s; 7.6 s on Free), the maker's the phones face-on (1.2
   to 1.4 s) against the picked phones landed with the words (2.6 to 4.2 s);
   every one 0 levels off the file.
+
+## 111. The library goes to a partner by key: the site's own catalogue, never a copy
+
+Added 2026-10-04. The owner: "build the intermediary so the ad title and
+description page and list it can access the library material from buyback ad
+via a key ... build your part and then give me the rest to put into the
+iPhones LA repo to finish this library of imagery".
+
+- **One route, one key.** `/api/library/v1` (`netlify/lib/library.mjs`,
+  routed before the account checks in `api.mjs`) answers a partner's server
+  holding a key from `LIBRARY_KEYS` (`name:key` pairs, 32 characters or more,
+  compared in constant time; two pairs at once is a rotation). No CORS: a key
+  in a web page is a key anyone has. Each key gets `LIBRARY_DAILY` requests a
+  day (20000), counted fail-open.
+- **The site's own catalogue, read from the deploy.** It reads that deploy's
+  `assets/library.json` and `assets/showcase/index.json` over HTTP (five
+  minutes' cache), so every link it hands out is a file that deploy serves, and
+  a library change reaches the partner with the deploy, never by a second
+  copy. The pictures stay static files; the key gates the catalogue.
+- **Only what the site offers.** Ad designs pass the site's own `scIsLive`
+  (held cards carry a defect and stay out; the check reads the test out of
+  app.js so the two cannot drift); placeholders are never offered; every
+  picture carries `source` and, where the library holds one, its `credit`.
+  A design is a 448px preview with `studio_url` (`?card=<id>`, which opens it
+  in Easy Mode): it is finished in the studio, and the full-size download goes
+  back to iPhones LA through the existing link (`iphonesla-link.js`).
+- **Search ranks the name first.** Every word of `q` must start a word of the
+  item; a word in the name counts 3, in the description 2, elsewhere 1, the
+  library's order breaking ties. Before it, "iphone" opened on two Android
+  phones, filed as they are under iphones.
+- **The other side is handed over tested.** `docs/iphonesla-library/` (not
+  served: docs/ is 404'd) holds the Python client, the two routes, the picker
+  and a paste-ready prompt for `loganipad/iphoneslainv`, which this session
+  could not reach. `scripts/library_handoff_check.mjs` runs all of it against
+  a stand-in BUYBACK.AD: nine Python tests, the README's Flask and FastAPI
+  code as written, and the demo listing page in Chromium, where a pick adds a
+  JPEG with white behind the cut-out to the listing's photos.
+- Measured 2026-10-04: 867 assets (637 cut-outs, 77 scenes, 153 backgrounds)
+  and 311 ad designs, every link a file in the checkout
+  (`scripts/library_api_check.mjs`, which also fails a held card offered,
+  a wrong or short key, the day's cap and a CORS header).

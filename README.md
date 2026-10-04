@@ -80,6 +80,19 @@ production CSP and decodes the files), `scripts/motion_gallery.mjs` +
 exercised in this repo's test container (its Chromium has no H.264 encoder):
 export one clip from Chrome or Safari before announcing it.
 
+## Library API (iPhones LA) — optional
+
+`/api/library/v1` hands the imagery library (867 product cut-outs, scenes and
+backgrounds) and the 311 ad designs the site offers to a partner's server,
+behind a key: set `LIBRARY_KEYS` (`name:key` pairs, keys of 32 characters or
+more) in the Netlify environment. Without it the route answers 503 and nothing
+else changes. The pictures stay the site's static files; the key gates the
+catalogue. `?card=<id>` opens a design in the studio. The other side, for
+iPhones LA's listing page, is `docs/iphonesla-library/` (a Python client, the
+two server routes, the picker, a paste-ready prompt). Checks:
+`scripts/library_api_check.mjs`, `scripts/library_handoff_check.mjs`.
+DESIGN-LAW rule 111.
+
 ## SCANS.AD (ScanMap) integration — optional
 Graphics Studio runs 100% standalone. The integration is also **invisible to
 single-product users**: every SCANS.AD surface (order buttons, tracked-link
