@@ -1,7 +1,7 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf } from "./engine.js";
+import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -90,6 +90,15 @@ function restore() {
   } catch (e) { /* none */ }
   const q = new URLSearchParams(location.search);
   if (q.get("look")) state.style.seed = parseInt(q.get("look"), 10) || state.style.seed;
+  // a look picked in the Look Book (looks.html): its vibe, ground or phone set, from its seed
+  const pick = { vibe: q.get("vibe"), bg: q.get("bg"), layout: q.get("layout"), aspect: q.get("aspect") };
+  if (pick.vibe || pick.bg || pick.layout) {
+    const { style, locked } = linkedLook({ ...state.style }, parseInt(q.get("look"), 10) || 1, pick);
+    state.style = style;
+    ["vibe", "background", "arrangement"].forEach(k => { if (locked.has(k)) state.locked.add(k); });
+    if (locked.has("vibe")) VIBE_AXES.forEach(a => state.locked.delete(a));
+    try { history.replaceState(null, "", location.pathname); } catch (e) { /* fine */ }
+  }
 }
 
 // ------------------------------------------------------------ building the ad

@@ -19624,3 +19624,282 @@ function pgHueCheck(sc, r){
     return _pgExplain.apply(this, arguments);
   };
 }
+
+/* THE VIDEO MAKER'S SCENES IN THE GROUND PICKER (2026-10-02, appended, not spliced).
+   Owner: "we have really clean backgrounds" ... "same with the background photo
+   generation". motion/photo-grounds.js (a module, loaded after this script) registers
+   the video maker's scenes with GROUNDS; here they join Easy Mode's and the designer's
+   ground styles as five more groups. A group lists its scenes once they are registered
+   (each a drawn ground, "ground:sceneX/...", painted in the card's palette and gated
+   like any photograph). */
+{
+  const SCENE_STYLES = [['scene_sky', 'Sky & beach'], ['scene_walls', 'Walls & street'], ['scene_show', 'Showtime'], ['scene_pop', 'Pop & print'], ['scene_made', 'Materials']];
+  SCENE_STYLES.forEach(([key, label]) => EZ_GROUND_STYLES.push({ key, label,
+    get kinds(){ const g = (window.SCENE_GROUPS || []).find(x => x.key === key); return g ? g.kinds : []; } }));
+  /* a scene is a picture, not a flat ground: it takes the soft shade a photograph
+     takes in the picker (the gate deepens it only where a line needs it) */
+  const _ezGroundSpecs = ezGroundSpecs;
+  ezGroundSpecs = function(st, PArg){
+    const out = _ezGroundSpecs.apply(this, arguments);
+    if (st && /^scene_/.test(st.key)){ const light = scLum((PArg || ezPalette()).ink) > 0.4;
+      out.forEach(x => Object.assign(x.bg, { scrim: 0.42, scrimColor: light ? '#0b0b0d' : '#f6f6f4', scrimMode: 'gradient' })); }
+    return out;
+  };
+  window.addEventListener('scenes-ready', () => {
+    try { if (/^scene_/.test(ezGroundStyle)) ezDrawnSync(); } catch (e){}
+    try { if (/^scene_/.test(edGroundStyle)){ _edGroundKey = ''; edBuildGrounds(); } } catch (e){}
+  });
+}
+
+/* NO BLACK ON BLACK (owner, 2026-10-03, over a dark headline on dark 3-D sides:
+   "This looks generally hard to read" ... "Can we both agree black with black
+   shadow?"). Appended, not spliced. A line's depth and shadow are there to lift
+   its letters, so they stand on the other side of its face: a dark face takes
+   light sides (its own hue, lighter as they recede) and loses the black drop
+   shadow and the dark rim; a dark line's dark shadow becomes a light one. Runs
+   last, after the passes that can turn a face dark (copy that follows its ground,
+   one hue, a theme), so the sides answer the face as it is drawn. */
+function pgDepthReads(sc){
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const lumOf = f => { if (typeof f === 'string') return pgLum(thParse(f) ? thParse(f).hex : f);
+    if (f && Array.isArray(f.colorStops) && f.colorStops.length){ const ls = f.colorStops.map(s => pgLum(thParse(s.color) ? thParse(s.color).hex : s.color)).filter(v => v != null); return ls.length ? ls.reduce((a, b) => a + b, 0) / ls.length : null; }
+    return null; };
+  const hexOf = f => { const p = thParse(typeof f === 'string' ? f : (f && f.colorStops && f.colorStops[0] && f.colorStops[0].color)); return p ? p.hex : null; };
+  const DARK = 0.18;
+  let n = 0;
+  objs.forEach(face => {
+    if (!isText(face) || face.pgRole === 'deco' || face.visible === false) return;
+    const fL = lumOf(face.fill); if (fL == null || fL >= DARK) return;
+    const sides = objs.filter(o => o !== face && o.pgKin === face && / depth$/.test(o.name || ''));
+    const sL = sides.map(o => lumOf(o.fill)).filter(v => v != null);
+    if (sides.length && sL.length && pgCr(fL, sL.reduce((a, b) => a + b, 0) / sL.length) < 2.5){
+      const k = hexToOklch(hexOf(sides[0].fill) || hexOf(face.fill) || '#808080') || { h: 0, C: 0 };
+      const fc = face.getCenterPoint(), far = o => { const c = o.getCenterPoint(); return Math.hypot(c.x - fc.x, c.y - fc.y); };
+      const D = Math.max(1, ...sides.map(far));
+      sides.forEach(o => { o.set({ fill: oklchFit({ L: 0.93 - 0.17 * far(o) / D, C: Math.min(k.C, 0.09), h: k.h }), shadow: null }); o.dirty = true; });
+      if (face.stroke && (face.strokeWidth || 0) > 0){ const sl = lumOf(face.stroke); if (sl != null && sl < 0.3) face.set('stroke', 'rgba(246,246,244,0.9)'); }
+      n++;
+    }
+    /* a plain dark line's dark shadow */
+    const sh = face.shadow;
+    if (sh && typeof sh.color === 'string'){ const p = thParse(sh.color), l = p ? pgLum(p.hex) : null;
+      if (l != null && l < 0.3 && (sh.blur || 0) + Math.abs(sh.offsetX || 0) + Math.abs(sh.offsetY || 0) > 0){ sh.color = 'rgba(255,255,255,' + Math.min(0.6, Math.max(0.35, p.a || 0.5)) + ')'; face.dirty = true; n++; } }
+  });
+  return n;
+}
+{
+  const after = sc => { try { pgDepthReads(sc); } catch (e){ console.warn('depth reads:', e); } };
+  ['alignPass', 'themeScene', 'applyCardLook', 'taglineApply', 'ezCopyFollowsGround'].forEach(name => {
+    const f = window[name]; if (typeof f !== 'function') return;
+    window[name] = function(sc){ const r = f.apply(this, arguments); if (sc) after(sc); return r; };
+  });
+  /* the designer recolours its live canvas from the saved paint (rule 93): the pass
+     runs again on what that leaves, so ORIG and every theme end the same way */
+  if (typeof edRecolour === 'function'){
+    const _edRecolour = edRecolour;
+    edRecolour = function(){
+      /* a line pgPlateInk tinted after the last recolour recorded its paint is the
+         studio's tint, not the visitor's colour: recorded as automatic, so ORIG does
+         not keep it as a colour picked by hand (bandKnockout-pp04-15's number and CTA
+         stayed light after a theme and ORIG, designer_audit) */
+      try { if (typeof canvas !== 'undefined' && canvas) canvas.getObjects().forEach(o => { if (o.pgAutoFill != null && pgPlateInked(o)) o.pgAutoFill = edFillKey(o); }); } catch (e){}
+      const r = _edRecolour.apply(this, arguments); if (typeof canvas !== 'undefined' && canvas){ after(canvas); try { canvas.requestRenderAll(); } catch (e){} } return r; };
+  }
+}
+
+/* A CARD PICKED IN THE LOOK BOOK (looks.html, 2026-10-03, appended, not spliced). Owner:
+   "push all into 1 mega library". ?card=<showcase id> opens that card in Easy Mode as the
+   gallery does; ?tpl=<template id> opens a classic template. The link is then cleared. */
+{
+  let q = null; try { q = new URLSearchParams(location.search); } catch (e){}
+  const card = q && q.get('card'), tpl = q && q.get('tpl');
+  if (card || tpl) window.addEventListener('load', () => setTimeout(async () => {
+    try {
+      if (tpl && TEMPLATES.some(t => t.id === tpl)) showEasy(tpl);
+      else if (card){
+        await scLoadIndex();
+        if (!SHOWCASE.byId[card]){ const all = await fetch('assets/showcase/index.json').then(r => r.json()); const row = all.find(c => c.id === card); if (row) SHOWCASE.byId[card] = row; }
+        if (SHOWCASE.byId[card]) await openShowcase(card); else showEasy(null);
+      }
+    } catch (e){ console.warn('Look Book link:', e); }
+    try { history.replaceState(null, '', location.pathname); } catch (e){}
+  }, 50));
+}
+
+/* PHONE SETS IN THE IMAGE ADS (owner, 2026-10-02/03: "unify the engine and add any of
+   these features / abilities to the photo ads"; then "Step 2 ... groups of 3-5 phones in
+   the photo ads, using the same tidy layouts and rules as the videos"). Appended, not
+   spliced. On a card whose product is a catalog phone, Easy Mode's Phone field offers how
+   many (1, 3 or 5) and a layout (lineup, showcase, fan, podium). The set takes the place
+   of the card's one phone, centred where it stood, the video maker's rules held:
+   - factory photos only, single backs the owner approved (phoneApproved, rule 73);
+   - one angle, or a fan's mirror image about an upright middle; side by side only;
+   - the boldest finish in the middle; at most two of a tone, never two side by side;
+   - it never covers copy or a plate the card's own phone did not: it stands smaller
+     until it clears, and where it cannot, the card keeps its one phone. */
+const PHONE_SET_LAYOUTS = ['lineup', 'showcase', 'fan', 'podium'];
+let ezPhoneSet = (() => { const v = jget('pgfx_phoneset', null); return v && [1, 3, 5].includes(v.n) && PHONE_SET_LAYOUTS.includes(v.layout) ? v : { n: 1, layout: 'lineup' }; })();
+function phoneSetTone(d){
+  const c = String((d && d.color) || '').toLowerCase();
+  if (/white|starlight|silver/.test(c)) return 'light';
+  if (/black|midnight|graphite|space/.test(c)) return 'dark';
+  if (/teal|alpine|green/.test(c)) return /teal/.test(c) ? 'teal' : 'green';
+  if (/blue|ultramarine|pacific|sierra/.test(c)) return 'blue';
+  if (/pink|rose/.test(c)) return 'pink';
+  if (/purple|lavender/.test(c)) return 'purple';
+  if (/gold|yellow|desert/.test(c)) return 'gold';
+  if (/orange/.test(c)) return 'orange';
+  if (/red|burgundy/.test(c)) return 'red';
+  return 'other';
+}
+const PHONE_SET_BOLD = ['orange', 'red', 'blue', 'teal', 'pink', 'purple', 'green', 'gold', 'dark', 'light', 'other'];
+/* the phones, left to right: the boldest in the middle, at most two of a tone */
+function phoneSetPick(n, first){
+  const singles = phonePool().filter(d => d.view === 'back' && d.color && d.color !== 'as pictured');
+  if (singles.length < n) return null;
+  const lead = singles.find(d => d.src === first) || singles.slice().sort((a, b) => PHONE_SET_BOLD.indexOf(phoneSetTone(a)) - PHONE_SET_BOLD.indexOf(phoneSetTone(b)) || (a.rank == null ? 99 : a.rank) - (b.rank == null ? 99 : b.rank))[0];
+  const out = [lead], count = { [phoneSetTone(lead)]: 1 };
+  for (const d of singles){ if (out.length >= n) break; if (out.includes(d)) continue; const t = phoneSetTone(d); if ((count[t] || 0) >= 2) continue; out.push(d); count[t] = (count[t] || 0) + 1; }
+  if (out.length < n) return null;
+  // the lead in the middle; the rest outward, a tone never beside the same tone where another fits
+  const slots = new Array(n), m = (n - 1) / 2; slots[m] = out[0];
+  const rest = out.slice(1), order = []; for (let k = 1; k <= m; k++) order.push(m - k, m + k);
+  for (const s of order){ const nb = [slots[s - 1], slots[s + 1]].filter(Boolean).map(phoneSetTone);
+    let i = rest.findIndex(d => !nb.includes(phoneSetTone(d))); if (i < 0) i = 0; slots[s] = rest.splice(i, 1)[0]; }
+  return slots;
+}
+/* spots in phone widths: x of the centre, lift of the foot (in phone heights), lean, size */
+function phoneSetSpots(layout, n){
+  const m = (n - 1) / 2, out = [];
+  for (let i = 0; i < n; i++){
+    const o = i - m, k = Math.abs(o), sg = Math.sign(o);
+    if (layout === 'showcase'){
+      let x = 0, prev = 1; for (let j = 1; j <= k; j++){ const s = Math.max(0.66, 1 - 0.17 * j); x += prev / 2 + s / 2 - 0.3 * s; prev = s; }
+      out.push({ x: sg * x, lift: 0, a: 0, s: k ? Math.max(0.66, 1 - 0.17 * k) : 1, z: -k });
+    } else if (layout === 'fan') out.push({ x: o * 0.84, lift: 0.025 * k, a: sg * 7 * k, s: 1 - 0.05 * k, z: -k });
+    else if (layout === 'podium') out.push({ x: o * 1.1, lift: k ? 0 : 0.07, a: 0, s: 1 - 0.13 * k, z: -k });
+    else out.push({ x: o * 1.12, lift: 0, a: 0, s: 1, z: -k });
+  }
+  return out;
+}
+let ezPhoneSetPending = null;
+{
+  const _ezPhoneSwap = ezPhoneSwap;
+  ezPhoneSwap = function(tpl){
+    const r = _ezPhoneSwap.apply(this, arguments);
+    ezPhoneSetPending = null;
+    const l = ezPhoneSetEnabled(tpl) ? ezPhoneSetLayer(tpl) : null;
+    if (l){
+      const set = phoneSetPick(ezPhoneSet.n, ez.phonePick || devKey(l.props.src));
+      if (set){
+        const need = set.filter(d => !(CUTOUT_ELS[d.src] && CUTOUT_ELS[d.src].width));
+        if (need.length) Promise.all(need.map(d => ezLoadCutout(d.src))).then(() => schedEzPreview(0));
+        else ezPhoneSetPending = { tplId: tpl.id, name: l.name, set, layout: ezPhoneSet.layout };
+      }
+    }
+    return r;
+  };
+}
+/* the card's one product picture a set may stand in for: the catalog phone the picker
+   swaps, or a card's only product picture when it is an iPhone (one, or a group shot);
+   never a card with two product pictures, nor a cracked phone (the damage is the ad) */
+function ezPhoneSetLayer(tpl){
+  if (!tpl) return null;
+  const l = ezPhoneLayer(tpl); if (l) return l;
+  const prods = (tpl.layers || []).filter(x => x.kind === 'cutout' && /Product/.test(x.name || '') && x.props && x.props.src);
+  if (prods.length !== 1) return null;
+  const src = String(prods[0].props.src);
+  return /iphone|ip-gen|ip-group|qs-set-iphone/i.test(src) && !/crack|broken|damag/i.test(src) ? prods[0] : null;
+}
+function ezPhoneSetEnabled(tpl){ return ezPhoneSet.n > 1 && !!ezPhoneSetLayer(tpl); }
+/* the set into a scene Easy Mode is drawing, in the card's phone's place */
+function ezPhoneSetPlace(sc){
+  const P = ezPhoneSetPending; if (!P) return null;
+  ezPhoneSetPending = null;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return null; }
+  const prod = objs.find(o => o && o.type === 'image' && o.name === P.name && (!o.pgTplId || o.pgTplId === P.tplId));
+  if (!prod) return null;
+  prod.setCoords(); const R = prod.getBoundingRect(true, true);
+  const iP = cutoutInk(prod.getElement && prod.getElement());
+  const inkH = R.height * (iP.y1 - iP.y0), foot = R.top + R.height * iP.y1, cx = R.left + R.width * (iP.x0 + iP.x1) / 2;
+  const spots = phoneSetSpots(P.layout, P.set.length);
+  const made = P.set.map((d, i) => {
+    const el = CUTOUT_ELS[d.src], ink = cutoutInk(el), sp = spots[i];
+    const im = new fabric.Image(el, { originX: 'center', originY: 'bottom', selectable: false, evented: false, name: 'Product', pgRole: prod.pgRole, pgTplId: prod.pgTplId, shadow: prod.shadow || null, opacity: 1 });
+    im.pgSet = { d, sp, ink };
+    return im;
+  });
+  const lay = k => {                                   // k: the set's size as a share of the card's phone height
+    const h = inkH * k, w0 = h * made.reduce((t, im) => { const g = im.pgSet.ink, el = im.getElement(); return t + (g.x1 - g.x0) * el.width / ((g.y1 - g.y0) * el.height); }, 0) / made.length;
+    made.forEach(im => { const { sp, ink } = im.pgSet, el = im.getElement(), s = h * sp.s / (el.height * (ink.y1 - ink.y0));
+      im.set({ scaleX: s, scaleY: s, angle: sp.a, left: cx + sp.x * w0, top: foot - sp.lift * h + el.height * (1 - ink.y1) * s }); im.setCoords(); });
+  };
+  const i0 = objs.indexOf(prod);
+  sc.remove(prod);
+  made.slice().sort((a, b) => a.pgSet.sp.z - b.pgSet.sp.z).forEach((im, j) => sc.insertAt(im, i0 + j));
+  /* as wide as the card's picture allows: a single phone's picture grows the set out to
+     the sides, a group shot's picture holds the set to its own width and height */
+  lay(1); const span = () => { let x0 = Infinity, x1 = -Infinity; made.forEach(im => { const b = im.getBoundingRect(true, true); x0 = Math.min(x0, b.left); x1 = Math.max(x1, b.left + b.width); }); return x1 - x0; };
+  const inkW = R.width * (iP.x1 - iP.x0), group = inkW / inkH > 0.8;
+  const k0 = Math.max(0.5, Math.min(group ? 1.15 : (P.set.length >= 5 ? 0.86 : 0.94), (group ? inkW : inkW * 1.8) / span()));
+  lay(k0);
+  return { prod, made, lay, R, i0, k0 };
+}
+/* after the layout: the set clears every line and plate the card's phone did not touch,
+   standing smaller until it does; where it cannot, the card's own phone goes back */
+function ezPhoneSetSettle(sc, S){
+  if (!S) return;
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const meets = (a, b) => a.left < b.left + b.width && b.left < a.left + a.width && a.top < b.top + b.height && b.top < a.top + a.height;
+  const W = sc.getWidth(), H = sc.getHeight();
+  /* words are never covered; a plate only where the card's own picture did not sit on it */
+  const R = S.R, obst = sc.getObjects().filter(o => o && !S.made.includes(o) && o.visible !== false && (isText(o) || (['rect', 'circle', 'path', 'polygon'].includes(o.type) && !thIsGround(o))))
+    .map(o => { o.setCoords(); return { b: o.getBoundingRect(true, true), t: isText(o) }; })
+    .filter(x => x.b.width * x.b.height < 0.6 * W * H && (x.t || !meets(x.b, R))).map(x => x.b);
+  const G = Math.round(GUIDE * Math.min(W, H));
+  const clear = () => S.made.every(im => { const b = im.getBoundingRect(true, true); return b.left >= G / 2 && b.left + b.width <= W - G / 2 && b.top >= 0 && !obst.some(o => meets(b, o)); });
+  for (let k = S.k0; k >= Math.max(0.45, S.k0 * 0.55); k -= 0.03){ S.lay(k); if (clear()) return; }
+  S.made.forEach(im => sc.remove(im)); sc.insertAt(S.prod, S.i0);   // no room: the card's one phone
+}
+{
+  const _alignPass = alignPass;
+  alignPass = function(sc){
+    const S = (sc && !(sc instanceof fabric.Canvas)) ? ezPhoneSetPlace(sc) : null;
+    const r = _alignPass.apply(this, arguments);
+    if (S) try { ezPhoneSetSettle(sc, S); } catch (e){ console.warn('phone set:', e); }
+    return r;
+  };
+  /* the controls, under the Phone picker */
+  const _build = buildEzPhonePick;
+  buildEzPhonePick = function(){
+    const r = _build.apply(this, arguments);
+    const f = $('ez-phonepick-field');
+    if (f && !f.querySelector('#ez-phoneset')){
+      const row = document.createElement('div'); row.className = 'ez-fxrow'; row.id = 'ez-phoneset'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', 'How many phones and how they stand');
+      const mk = (label, on, set, title) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; if (title) b.title = title;
+        b.onclick = () => { set(); jset('pgfx_phoneset', ezPhoneSet); sync(); schedEzPreview(0); }; b.dataset.on = on; return b; };
+      [1, 3, 5].forEach(n => row.appendChild(mk(n === 1 ? '1 phone' : n + ' phones', 'n' + n, () => { ezPhoneSet.n = n; }, n === 1 ? 'The card’s one phone' : n + ' phones side by side, the boldest in the middle')));
+      [['lineup', 'Lineup'], ['showcase', 'Showcase'], ['fan', 'Fan'], ['podium', 'Podium']].forEach(([k, l]) => row.appendChild(mk(l, 'l' + k, () => { ezPhoneSet.layout = k; if (ezPhoneSet.n === 1) ezPhoneSet.n = 3; })));
+      const sync = () => row.querySelectorAll('button').forEach(b => { const on = b.dataset.on === 'n' + ezPhoneSet.n || (ezPhoneSet.n > 1 && b.dataset.on === 'l' + ezPhoneSet.layout);
+        b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+      const lab = document.createElement('div'); lab.className = 'ez-subttl'; lab.textContent = 'How many phones';
+      f.appendChild(lab); f.appendChild(row); sync();
+    }
+    return r;
+  };
+  /* the field shows on a card a set can stand in for; the model picker only where the
+     card's phone is a catalog phone it can swap */
+  const _sync = ezPhonePickSync;
+  ezPhonePickSync = function(){
+    const r = _sync.apply(this, arguments);
+    const f = $('ez-phonepick-field'), tpl = typeof ezTpl === 'function' ? ezTpl() : null;
+    if (!f || !tpl) return r;
+    const cat = !!ezPhoneLayer(tpl), set = !!ezPhoneSetLayer(tpl);
+    f.hidden = !(cat || set);
+    f.querySelectorAll(':scope > .ez-phonepick-grid, :scope > .ez-fxrow:not(#ez-phoneset), :scope > label').forEach(el => {
+      if (el.id === 'ez-phonepick-more'){ if (!cat) el.hidden = true; return; }   // its own toggle opens it
+      el.hidden = !cat; });
+    return r;
+  };
+}

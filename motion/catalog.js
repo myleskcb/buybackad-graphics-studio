@@ -381,10 +381,10 @@ export const OPTIONS = {
   number_format: ["raw", "dashed", "dotted", "parens", "spaced"],
   number_pos: ["bottom-center", "bottom-left", "bottom-right", "under-headline"],
   number_in: ["pop", "slide_up", "type", "wipe", "flip", "roll", "slide_left", "drop", "slot", "glow_on"],
-  arrangement: ["row", "fan", "pile", "diagonal", "arc", "grid", "hero", "cascade",
-    "tower", "spiral", "vee", "ring", "staircase", "crossed", "giants", "pairs",
-    "hand", "domino", "podium", "wave", "burst", "runway", "group", "bookends", "shelf", "chevron", "tilted_grid",
-    "headliner", "collage", "tents", "carousel"],
+  // styled, tidy sets only (owner, 2026-10-02: "stylistic arrangements of phones ... not
+  // messy views"); piles, spirals, rings, towers, collages and the like are gone
+  arrangement: ["lineup", "showcase", "wings", "fan", "hand", "podium", "headliner", "burst", "tents",
+    "gallery", "crown", "spotlight", "lean_in"],
   entry: ["fly_spin", "drop", "conveyor", "zoom", "orbit", "deal", "pop", "rain", "boomerang", "split", "spiral_in", "whip",
     "slide_up", "swing", "float_up", "zipper", "sweep", "pinwheel", "snap", "roll", "magnet", "shuffle", "flip_in"],
   end_face: ["back", "front", "mixed"],
@@ -426,11 +426,12 @@ export const OPTIONS = {
   outro: ["none", "settle", "end_card"],
   // accents (accents.js): how many, on what topic, drawn as what, and how they move
   accents: [0, 1, 2, 3],
-  accent_set: ["cash", "money", "hype", "phones", "deal", "local", "trust", "sparkle", "checks"],
+  accent_set: ["cash", "money", "hype", "phones", "deal", "local", "trust", "sparkle", "checks",
+    "party", "fast", "premium", "shop", "today", "love", "la_sun", "eco", "keys", "marks"],
   accent_kind: ["mix", "emoji", "asset", "symbol"],
-  accent_in: ["fade", "pop", "slide", "fly", "drop", "flip3d", "wide_spin", "zoom", "swing", "orbit"],
-  accent_idle: ["bob", "pulse", "wiggle", "turntable", "float", "still"],
-  accent_out: ["fade", "pop_out", "fly_out", "spin_out", "drop_out", "none"],
+  accent_in: ["fade", "pop", "slide", "fly", "drop", "flip3d", "wide_spin", "zoom", "swing", "orbit", "bounce_in", "unfold", "spiral", "rise", "stamp"],
+  accent_idle: ["bob", "pulse", "wiggle", "turntable", "float", "still", "sway", "heartbeat", "breathe", "circle"],
+  accent_out: ["fade", "pop_out", "fly_out", "spin_out", "drop_out", "none", "shrink", "rise_out", "flip_out", "blur_out"],
 };
 
 // Spin-offs of the best grounds (audit 2026-09-30), painted in decor.js
@@ -466,6 +467,10 @@ export const GROUND_CANDIDATES = {
 };
 // Owner, 2026-09-30: "keep the spin offs" (all 24, from the review page)
 export const GROUND_REVIEW = { approved: Object.keys(GROUND_CANDIDATES), rejected: [] };
+// The fresh grounds (motion/decor.js FRESH_GROUNDS, 2026-10-03): candidates until the
+// owner approves them on the review page; only approved ones join the shuffle.
+export const FRESH_REVIEW = { approved: [], rejected: [] };
+for (const id of FRESH_REVIEW.approved) if (!OPTIONS.background.includes(id)) OPTIONS.background.push(id);
 for (const id of GROUND_REVIEW.approved) {
   const c = GROUND_CANDIDATES[id]; if (!c) continue;
   // the audiences' own looks keep the grounds they were swept and pruned on
@@ -480,7 +485,8 @@ for (const id of GROUND_REVIEW.approved) {
 Object.assign(PALETTES, THEME_PALETTES);
 Object.assign(BOARDS, THEME_BOARDS);
 for (const g of THEME_GROUNDS) if (!OPTIONS.background.includes(g)) OPTIONS.background.push(g);
-export const THEME_REVIEW = { approved: [], rejected: [] };
+// Owner, 2026-10-02: "approve all" (all fifty, after the review page and the 3-D phone fix)
+export const THEME_REVIEW = { approved: Object.keys(THEMES), rejected: [] };
 for (const id of THEME_REVIEW.approved) if (THEMES[id]) { VIBES[id] = THEMES[id]; if (!OPTIONS.vibe.includes(id)) OPTIONS.vibe.push(id); }
 
 // The BACK is what makes a model recognisable: every drawn cut ends on the backs,
@@ -495,6 +501,7 @@ export const WEIGHTS = {
   urgency: { none: 1 },
   number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
+  arrangement: { lineup: 3, showcase: 3, wings: 2, fan: 2, hand: 2, podium: 2, headliner: 2, burst: 1, tents: 1, gallery: 2, crown: 2, spotlight: 2, lean_in: 2 },
   pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1 },   // turned, as often as a turntable, either edge
   accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
   accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
@@ -553,7 +560,7 @@ export const DEFAULT_STYLE = {
   font: "franklin", number_font: "same", case: "upper", tracking: 0, skew: 0,
   text_fx: "shadow", color_mode: "mono", accent_word: -1, text_in: "slide", text_pos: "top-left",
   text_scale: 1, number_style: "plain", number_format: "dashed", number_pos: "bottom-center", number_in: "pop",
-  number_scale: 1, arrangement: "row", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat",
+  number_scale: 1, arrangement: "lineup", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat",
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
   sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
@@ -567,7 +574,7 @@ export const DEFAULT_STYLE = {
 // The first ad's look, as a starting point.
 export const CLASSIC = {
   font: "franklin", text_fx: "shadow", text_in: "slide", text_pos: "top-left", number_style: "plain",
-  number_pos: "bottom-center", number_in: "pop", arrangement: "row", pose: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
+  number_pos: "bottom-center", number_in: "pop", arrangement: "lineup", pose: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
   front_glimpse: "hold", background: "radial", palette: "sand", color_mode: "mono", camera: "push_in",
   sound_kit: "house", overlay: "none", hook: "cold_open",
 };
