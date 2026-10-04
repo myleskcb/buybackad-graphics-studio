@@ -436,8 +436,10 @@ export const WEIGHTS = {
   number_sfx: { coin: .2 },
   hit: { glitch: .25 },
   tone: { studio: 2 },
-  // most new looks play a real recording; the user's own track only when they upload one
-  track: { none: 14, upload: 0 },
+  // most new looks play a real recording, the modern jazz and funk most of all; the warhorses
+  // everyone has heard in a cartoon only by hand; the user's own track only when they upload one
+  track: { none: 10, upload: 0, ...Object.fromEntries(TRACKS.map(t => [t.id,
+    ["gladiators", "can_can", "william_tell", "mountain_king"].includes(t.id) ? 0 : t.kind === "jazz" ? 2.5 : t.id === "fur_elise" ? .4 : 1])) },
   lead: { guitar: 1.4, upright: 1, clav: .8, harmonica: .8, strumstick: .7, balafon: .6, organ_b3: 1, strings: 1, acid: .5, synth: 1.2, xylophone: .6, glock: .6, kalimba: .8, piano: 1.6, epiano: 1.3, supersaw: 1, synth_pluck: 1, synth_brass: .8, fm_bell: .8, gfunk_lead: 1 },
   sound_kit: { edm: .6, minimal: .6, pop: 2, motown: 2, classical: 1.5, rnb: 1.5, gospel: 1.2,
     synthwave: 1.6, gfunk: 1.6, future_bass: 1.4, deep_house: 1.4, trance: 1.2, nu_disco: 1.4 },
