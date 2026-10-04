@@ -1030,5 +1030,1541 @@
     "artist": "Kevauto",
     "page": "https://commons.wikimedia.org/wiki/File%3A2022%20Toyota%20Tundra%20TRD%20Pro%2C%20rear%20NYIAS%202022.jpg",
     "note": "cut from assets/bg-web/angles-toyota-tundra-rear-1.jpg by scripts/cut_vehicle_photos.py. a white Toyota Tundra TRD Pro build with spare tyres in the bed, at a show, rear three-quarter, show plate only"
+  },
+  "car-acura-integra-red-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "SmackJam",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAcura%20Integra%20(DE4)%20WGI22.jpg",
+    "note": "cut from assets/bg-web/popular2-acura-integra-2.jpg by scripts/cut_vehicle_photos.py. a red Acura Integra (2023-) A-Spec, rear three-quarter (its plate is the dealer's Acura card)"
+  },
+  "car-acura-rdx-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAcura%20RDX%20(TC1%2C%20TC2)%20IMG%208360.jpg",
+    "note": "cut from assets/bg-web/popular2-acura-rdx-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a dark blue Acura RDX (third generation, 2019-), front three-quarter"
+  },
+  "car-acura-rdx-blue-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAcura%20RDX%20(TC1%2C%20TC2)%20IMG%208370.jpg",
+    "note": "cut from assets/bg-web/popular2-acura-rdx-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a dark blue Acura RDX (third generation, 2019-), rear three-quarter"
+  },
+  "car-audi-e-tron-gt-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Audi%20S%20e-tron%20GT%20DSC%202915.jpg",
+    "note": "cut from assets/bg-web/popular2-audi-e-tron-gt-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Audi S e-tron GT (2024-), rear three-quarter"
+  },
+  "car-audi-q5-sportback-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAudi%20Q5%20Sportback%20GU%20DSC%209268.jpg",
+    "note": "cut from assets/bg-web/popular2-audi-q5-1.jpg by scripts/cut_vehicle_photos.py. a grey Audi SQ5 Sportback (third generation, 2025-), front three-quarter (no plate on it)"
+  },
+  "car-audi-q7-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2025%20Audi%20Q7%20(4M)%20DSC%207492.jpg",
+    "note": "cut from assets/bg-web/popular2-audi-q7-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Audi Q7 (2024 facelift), front three-quarter"
+  },
+  "car-audi-r8-v10-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Vauxford",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2018%20Audi%20R8%20Coupe%20V10%20plus%20Front.jpg",
+    "note": "cut from assets/bg-web/popular2-audi-r8-2.jpg by scripts/cut_vehicle_photos.py. a blue Audi R8 V10 (second generation), front three-quarter (no plate on it)"
+  },
+  "car-bentley-continental-gt-green": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABentley%20Continental%20GT%20(4th%20gen.)%20IMG%200556.jpg",
+    "note": "cut from assets/bg-web/popular2-bentley-continental-gt-1.jpg by scripts/cut_vehicle_photos.py. a green Bentley Continental GT (fourth generation, 2024-), front three-quarter (no plate on it)"
+  },
+  "car-bentley-continental-gt-green-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABentley%20Continental%20GT%20(4th%20gen.)%20IMG%200553.jpg",
+    "note": "cut from assets/bg-web/popular2-bentley-continental-gt-2.jpg by scripts/cut_vehicle_photos.py. a green Bentley Continental GT (fourth generation, 2024-), rear three-quarter (no plate on it)"
+  },
+  "car-bentley-continental-gt-red-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABentley%20Continental%20GT%20Speed%20(3rd%20gen.)%20IMG%200014.jpg",
+    "note": "cut from assets/bg-web/popular2-bentley-continental-gt-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Bentley Continental GT Speed (third generation), rear three-quarter"
+  },
+  "car-bmw-5-series-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Dinkun Chen",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%205%20SERIES%20LWB%20SEDAN%20(BMW%20G38)%20China%20(50).jpg",
+    "note": "cut from assets/bg-web/popular2-bmw-5-series-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey BMW 5 Series (G30) M Sport sedan, front three-quarter"
+  },
+  "car-bmw-i4-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20i4%201X7A6838.jpg",
+    "note": "cut from assets/bg-web/popular2-bmw-i4-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white BMW i4 M50 Gran Coupe, rear three-quarter"
+  },
+  "car-bmw-m4-convertible-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20M4%20(G83)%201X7A7098.jpg",
+    "note": "cut from assets/bg-web/popular2-bmw-m4-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black BMW M4 Competition Convertible (G83), front three-quarter"
+  },
+  "car-bmw-x3-m50-black-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20G45%20X3%20M50%20DSC%208805.jpg",
+    "note": "cut from assets/bg-web/popular2-bmw-x3-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black BMW X3 M50 (G45, 2025-), rear three-quarter"
+  },
+  "car-bmw-x3-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20G45%20X3%20M50%20DSC%207047.jpg",
+    "note": "cut from assets/bg-web/popular2-bmw-x3-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black BMW X3 (G45, 2025-) M Sport, front three-quarter"
+  },
+  "car-bmw-ix3-2026-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20iX3%20NA5%20IAA%202025%20DSC%201684.jpg",
+    "note": "cut from assets/bg-web/popular2-bmw-x3-3.jpg by scripts/cut_vehicle_photos.py. a white BMW iX3 (Neue Klasse, 2026), front three-quarter (show placard, no plate)"
+  },
+  "car-bmw-x7-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20G07%20X7%20M60i%20DSC%208564.jpg",
+    "note": "cut from assets/bg-web/popular2-bmw-x7-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white BMW X7 (G07, 2022 facelift) M Sport, front three-quarter"
+  },
+  "car-bmw-x7-m50i-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABMW%20G07%201X7A1696.jpg",
+    "note": "cut from assets/bg-web/popular2-bmw-x7-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white BMW X7 M50i (G07), front three-quarter"
+  },
+  "car-buick-enclave-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABuick%20Enclave%20(C1XX)%201X7A6180.jpg",
+    "note": "cut from assets/bg-web/popular2-buick-enclave-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Buick Enclave (second generation), front three-quarter"
+  },
+  "car-buick-enclave-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABuick%20Enclave%20(C1XX)%201X7A6178.jpg",
+    "note": "cut from assets/bg-web/popular2-buick-enclave-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Buick Enclave (second generation), rear three-quarter"
+  },
+  "car-chevy-camaro-yellow-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Ermell",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChevrolet%20Camaro%20Hirschaid%202022-20220709-RM-112013.jpg",
+    "note": "cut from assets/bg-web/popular2-chevrolet-camaro-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a yellow Chevrolet Camaro SS (fifth generation), rear three-quarter"
+  },
+  "car-chevy-camaro-yellow": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Ermell",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChevrolet%20Camaro%20Hirschaid%202022-20220709-RM-111908.jpg",
+    "note": "cut from assets/bg-web/popular2-chevrolet-camaro-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a yellow Chevrolet Camaro SS (fifth generation), front three-quarter"
+  },
+  "car-chevy-suburban-black": {
+    "license": "CC BY 4.0",
+    "artist": "OWS Photography",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChevrolet%20Suburban%20(GMTT1XX)%20Washington%20DC%20Metro%20Area%2C%20USA%20(1).jpg",
+    "note": "cut from assets/bg-web/popular2-chevrolet-suburban-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Chevrolet Suburban (twelfth generation, 2021-), front three-quarter from above"
+  },
+  "car-chrysler-pacifica-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChrysler%20Pacifica%20(RU)%20IMG%208281.jpg",
+    "note": "cut from assets/bg-web/popular2-chrysler-pacifica-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Chrysler Pacifica (2021 facelift) minivan, front three-quarter"
+  },
+  "car-chrysler-pacifica-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChrysler%20Pacifica%20(RU)%201X7A0367.jpg",
+    "note": "cut from assets/bg-web/popular2-chrysler-pacifica-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Chrysler Pacifica (2021 facelift) minivan, rear three-quarter"
+  },
+  "car-dodge-challenger-1972-lime": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Pierre André Leclercq",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADodge%20Challenger%20Et%C3%A92016.jpg",
+    "note": "cut from assets/bg-web/popular2-dodge-challenger-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a lime green Dodge Challenger (first generation, 1972), head-on"
+  },
+  "car-dodge-durango-srt-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADodge%20Durango%20SRT%20Hellcat%20MYLE%20Festival%202025%20DSC%209644.jpg",
+    "note": "cut from assets/bg-web/popular2-dodge-durango-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Dodge Durango SRT (third generation, 2021 facelift), front three-quarter"
+  },
+  "car-ferrari-296-gtb-yellow": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFerrari%20296%20GTB%201X7A6377.jpg",
+    "note": "cut from assets/bg-web/popular2-ferrari-296-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a yellow Ferrari 296 GTB, front three-quarter"
+  },
+  "car-ferrari-296-gtb-yellow-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFerrari%20296%20GTB%201X7A6379.jpg",
+    "note": "cut from assets/bg-web/popular2-ferrari-296-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a yellow Ferrari 296 GTB, rear three-quarter"
+  },
+  "car-ferrari-296-gts-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFerrari%20296%20GTB%20DSC%207011.jpg",
+    "note": "cut from assets/bg-web/popular2-ferrari-296-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Ferrari 296 GTS with a yellow stripe, front three-quarter"
+  },
+  "car-ferrari-f8-tributo-red-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFerrari%20F8%20Tributo%20DSC%207014.jpg",
+    "note": "cut from assets/bg-web/popular2-ferrari-f8-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Ferrari F8 Tributo, rear three-quarter"
+  },
+  "car-ferrari-f8-spider-magenta-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFerrari%20F8%20Spider%20DSC%209069.jpg",
+    "note": "cut from assets/bg-web/popular2-ferrari-f8-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a magenta Ferrari F8 Spider, rear three-quarter"
+  },
+  "car-ferrari-roma-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFerrari%20Roma%20IMG%209620%20(cropped).jpg",
+    "note": "cut from assets/bg-web/popular2-ferrari-roma-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Ferrari Roma, front three-quarter"
+  },
+  "car-ford-mustang-mach-e-rally-lime": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Mustang%20Mach-E%20Rally%20Auto%20Zuerich%202023%201X7A1182.jpg",
+    "note": "cut from assets/bg-web/popular2-ford-mustang-mach-e-2.jpg by scripts/cut_vehicle_photos.py. a lime Ford Mustang Mach-E Rally, front three-quarter (show placard, no plate)"
+  },
+  "car-genesis-g70-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGenesis%20G70%20Facelift%201X7A6392.jpg",
+    "note": "cut from assets/bg-web/popular2-genesis-g70-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Genesis G70 (2021 facelift) sedan, rear three-quarter"
+  },
+  "car-genesis-gv80-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGenesis%20GV80%20IAA%202021%201X7A0232.jpg",
+    "note": "cut from assets/bg-web/popular2-genesis-gv80-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a matte grey Genesis GV80, front three-quarter"
+  },
+  "car-gmc-yukon-denali-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGMC%20Yukon%20XL%20Denali%20(GMTT1XX)%201X7A6323.jpg",
+    "note": "cut from assets/bg-web/popular2-gmc-yukon-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white GMC Yukon XL Denali (fifth generation, 2021-), rear three-quarter"
+  },
+  "car-gmc-yukon-denali-2025-black-rear": {
+    "license": "CC0",
+    "artist": "JustAnotherCarDesigner",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGMC%20Yukon%20V%20003.jpg",
+    "note": "cut from assets/bg-web/popular2-gmc-yukon-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black GMC Yukon Denali (2025 facelift), rear three-quarter"
+  },
+  "car-honda-hrv-red-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20HR-V%20Hybrid%201X7A1882.jpg",
+    "note": "cut from assets/bg-web/popular2-honda-hr-v-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Honda HR-V (third generation), rear three-quarter"
+  },
+  "car-honda-hrv-beige": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20HR-V%20Hybrid%20DSC%207131.jpg",
+    "note": "cut from assets/bg-web/popular2-honda-hr-v-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a sand beige Honda HR-V (third generation), front three-quarter"
+  },
+  "car-honda-passport-white": {
+    "license": "CC BY 4.0",
+    "artist": "OWS Photography",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20Passport%20(YF7)%20Washington%20DC%20Metro%20Area%2C%20USA.jpg",
+    "note": "cut from assets/bg-web/popular2-honda-passport-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Honda Passport (2022 facelift) TrailSport, front three-quarter"
+  },
+  "car-hyundai-ioniq-6-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Ioniq%206%201X7A7258.jpg",
+    "note": "cut from assets/bg-web/popular2-hyundai-ioniq-6-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Hyundai Ioniq 6 (2025 facelift), front three-quarter"
+  },
+  "car-hyundai-ioniq-6-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Ioniq%206%201X7A7260.jpg",
+    "note": "cut from assets/bg-web/popular2-hyundai-ioniq-6-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Hyundai Ioniq 6 (2025 facelift), rear three-quarter"
+  },
+  "car-hyundai-kona-n-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Kona%20N%20IMG%205398.jpg",
+    "note": "cut from assets/bg-web/popular2-hyundai-kona-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Hyundai Kona N, front three-quarter"
+  },
+  "car-hyundai-kona-n-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Kona%20N%20IMG%205399.jpg",
+    "note": "cut from assets/bg-web/popular2-hyundai-kona-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Hyundai Kona N, rear three-quarter"
+  },
+  "car-hyundai-kona-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Kona%20(SX2)%201X7A1646.jpg",
+    "note": "cut from assets/bg-web/popular2-hyundai-kona-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Hyundai Kona (second generation, 2023-), front three-quarter"
+  },
+  "car-hyundai-palisade-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Benespit",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Palisade%20fl%20in%20Black.jpg",
+    "note": "cut from assets/bg-web/popular2-hyundai-palisade-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Hyundai Palisade Calligraphy (2023 facelift), front three-quarter"
+  },
+  "car-hyundai-palisade-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Benespit",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHyundai%20Palisade%20in%20white%2C%20front%20left.jpg",
+    "note": "cut from assets/bg-web/popular2-hyundai-palisade-3.jpg by scripts/cut_vehicle_photos.py. a white Hyundai Palisade (first generation), front three-quarter (its plate is already blacked out in the photograph)"
+  },
+  "car-hyundai-santa-fe-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Hyundai%20Santa%20Fe%20(MX5)%20IMG%205295.jpg",
+    "note": "cut from assets/bg-web/popular2-hyundai-santa-fe-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Hyundai Santa Fe (fifth generation, 2024-), front three-quarter"
+  },
+  "car-hyundai-santa-fe-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Hyundai%20Santa%20Fe%20(MX5)%20IMG%205309.jpg",
+    "note": "cut from assets/bg-web/popular2-hyundai-santa-fe-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Hyundai Santa Fe (fifth generation, 2024-), rear three-quarter"
+  },
+  "car-infiniti-qx60-bronze": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kazyakuruma",
+    "page": "https://commons.wikimedia.org/wiki/File%3AInfiniti%20QX60%20(L51)%2C%202021%2C%20right-front.jpg",
+    "note": "cut from assets/bg-web/popular2-infiniti-qx60-1.jpg by scripts/cut_vehicle_photos.py. a bronze Infiniti QX60 (second generation), front three-quarter (showroom, no plate)"
+  },
+  "car-jeep-compass-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJeep%20Compass%20(MP)%20PHEV%20Facelift%201X7A0140.jpg",
+    "note": "cut from assets/bg-web/popular2-jeep-compass-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Jeep Compass (2021 facelift) S, front three-quarter"
+  },
+  "car-jeep-compass-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJeep%20Compass%20(MP)%20PHEV%20Facelift%201X7A0139.jpg",
+    "note": "cut from assets/bg-web/popular2-jeep-compass-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Jeep Compass 4xe (2021 facelift) S, rear three-quarter"
+  },
+  "car-jeep-wagoneer-classic-red": {
+    "license": "CC BY-SA 2.0 de",
+    "artist": "Lothar Spurzem",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJeep%20Wagoneer%2C%20Bj.%20ca.%201968%20(2015-08-12%20b).JPG",
+    "note": "cut from assets/bg-web/popular2-jeep-wagoneer-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Jeep Wagoneer (SJ, 1960s-70s), front three-quarter"
+  },
+  "car-jeep-wagoneer-classic-red-rear": {
+    "license": "CC BY-SA 2.0 de",
+    "artist": "Lothar Spurzem",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJeep%20Wagoneer%2C%20Bj.%20ca.%201968%2C%20Heck%20(2015-08-12%20b).jpg",
+    "note": "cut from assets/bg-web/popular2-jeep-wagoneer-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Jeep Wagoneer (SJ, 1960s-70s), rear three-quarter"
+  },
+  "car-kia-ev6-gt-black-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKia%20EV6%20GT%20IMG%208171.jpg",
+    "note": "cut from assets/bg-web/popular2-kia-ev6-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Kia EV6 GT, rear three-quarter"
+  },
+  "car-kia-ev6-gt-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKia%20EV6%20GT%20IMG%208180.jpg",
+    "note": "cut from assets/bg-web/popular2-kia-ev6-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Kia EV6 GT, front three-quarter"
+  },
+  "car-kia-ev9-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKia%20EV9%201X7A2472.jpg",
+    "note": "cut from assets/bg-web/popular2-kia-ev9-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Kia EV9, front three-quarter"
+  },
+  "car-kia-sorento-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Kia%20Sorento%20(MQ4)%20Ditzingen%20Mobil%20IMG%209803.jpg",
+    "note": "cut from assets/bg-web/popular2-kia-sorento-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Kia Sorento (2024 facelift), front three-quarter"
+  },
+  "car-kia-soul-green": {
+    "license": "CC BY 4.0",
+    "artist": "DoulosBen",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKia%20Soul%20EX.jpg",
+    "note": "cut from assets/bg-web/popular2-kia-soul-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a green Kia Soul (third generation), front three-quarter"
+  },
+  "car-kia-sportage-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKia%20Sportage%20Plug-in-Hybrid%20(NQ5)%201X7A0317.jpg",
+    "note": "cut from assets/bg-web/popular2-kia-sportage-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Kia Sportage (fifth generation), front three-quarter"
+  },
+  "car-lamborghini-aventador-s-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGeneva%20International%20Motor%20Show%202018%2C%20Le%20Grand-Saconnex%20(1X7A1486).jpg",
+    "note": "cut from assets/bg-web/popular2-lamborghini-aventador-1.jpg by scripts/cut_vehicle_photos.py. a red Lamborghini Aventador S, front three-quarter (motor show, no plate)"
+  },
+  "car-lamborghini-aventador-ultimae-orange": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALamborghini%20Aventador%2C%20Motortreff%20Bella%20Italia%202024%2C%20Munich%20(P1190389-RR).jpg",
+    "note": "cut from assets/bg-web/popular2-lamborghini-aventador-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an orange Lamborghini Aventador LP 780-4 Ultimae, doors up, side three-quarter"
+  },
+  "car-lamborghini-aventador-roadster-blue-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALamborghini%20Aventador%20S%20Roadster%20Back%20IMG%200717.jpg",
+    "note": "cut from assets/bg-web/popular2-lamborghini-aventador-3.jpg by scripts/cut_vehicle_photos.py. a blue Lamborghini Aventador S Roadster, rear three-quarter (motor show placard)"
+  },
+  "car-lamborghini-huracan-tecnica-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALamborghini%20Hurac%C3%A1n%20Tecnica%201X7A7430.jpg",
+    "note": "cut from assets/bg-web/popular2-lamborghini-huracan-2.jpg by scripts/cut_vehicle_photos.py. a blue Lamborghini Huracan Tecnica, front three-quarter (no plate on it)"
+  },
+  "car-lamborghini-huracan-tecnica-blue-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALamborghini%20Hurac%C3%A1n%20Tecnica%201X7A7432.jpg",
+    "note": "cut from assets/bg-web/popular2-lamborghini-huracan-3.jpg by scripts/cut_vehicle_photos.py. a blue Lamborghini Huracan Tecnica, rear three-quarter (no plate on it)"
+  },
+  "car-land-rover-defender-110-classic-grey-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "DeFacto",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALand%20Rover%20Defender%20110%20Station%20Wagon%202016%20-%20rear.jpg",
+    "note": "cut from assets/bg-web/popular2-land-rover-defender-110-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Land Rover Defender 110 Station Wagon (classic, 2007-16), rear three-quarter"
+  },
+  "car-land-rover-defender-110-classic-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "DeFacto",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALand%20Rover%20Defender%20110%20Station%20Wagon%202016%20-%20front.jpg",
+    "note": "cut from assets/bg-web/popular2-land-rover-defender-110-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Land Rover Defender 110 Station Wagon (classic, 2007-16), front three-quarter"
+  },
+  "car-lexus-es-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2022%20Lexus%20ES%20350%20(GSZ10)%201X7A5794.jpg",
+    "note": "cut from assets/bg-web/popular2-lexus-es-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Lexus ES 350 F Sport (seventh generation), front three-quarter"
+  },
+  "car-lexus-es-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2022%20Lexus%20ES%20350%20(GSZ10)%201X7A0296.jpg",
+    "note": "cut from assets/bg-web/popular2-lexus-es-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Lexus ES 350 F Sport (seventh generation), rear three-quarter"
+  },
+  "car-lexus-lx-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALexus%20LX%20570%20(URJ201W)%20IMG%204913.jpg",
+    "note": "cut from assets/bg-web/popular2-lexus-lx-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Lexus LX 570 (2016 facelift), front three-quarter"
+  },
+  "car-lexus-nx-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALexus%20NX%20450h%2B%20(AAZH26)%201X7A6042.jpg",
+    "note": "cut from assets/bg-web/popular2-lexus-nx-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Lexus NX 450h+ (second generation), rear three-quarter"
+  },
+  "car-lincoln-aviator-black-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Dinkun Chen",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALINCOLN%20AVIATOR%20(U611)%20China%20(11).jpg",
+    "note": "cut from assets/bg-web/popular2-lincoln-aviator-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Lincoln Aviator (second generation), rear three-quarter"
+  },
+  "car-lincoln-aviator-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Dinkun Chen",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALINCOLN%20AVIATOR%20(U611)%20China%20(2).jpg",
+    "note": "cut from assets/bg-web/popular2-lincoln-aviator-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Lincoln Aviator (second generation), front three-quarter"
+  },
+  "car-lucid-air-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALucid%20Air%20DSC%206025.jpg",
+    "note": "cut from assets/bg-web/popular2-lucid-air-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Lucid Air sedan, rear three-quarter"
+  },
+  "car-lucid-air-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALucid%20Air%20DSC%206026.jpg",
+    "note": "cut from assets/bg-web/popular2-lucid-air-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Lucid Air sedan, front three-quarter"
+  },
+  "car-maserati-mc20-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMaserati%20MC20%20IAA%202021%201X7A0087.jpg",
+    "note": "cut from assets/bg-web/popular2-maserati-mc20-1.jpg by scripts/cut_vehicle_photos.py. a white Maserati MC20, front three-quarter (showroom, no plate)"
+  },
+  "car-maserati-mc20-cielo-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMaserati%20MC20%20Cielo%20IMG%202515.jpg",
+    "note": "cut from assets/bg-web/popular2-maserati-mc20-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a pale grey Maserati MC20 Cielo, rear three-quarter"
+  },
+  "car-mazda-cx90-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Elise240SX",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Mazda%20CX-90%20Mild%20Hybrid%20Inline%206%20Turbo%20GS-L%20AWD%20in%20Deep%20Crystal%20Blue%20Mica%2C%20Front%20Left%2C%2009-10-2023.jpg",
+    "note": "cut from assets/bg-web/popular2-mazda-cx-90-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a dark blue Mazda CX-90, front three-quarter"
+  },
+  "car-mazda3-hatch-silver-rear": {
+    "license": "CC BY-SA 3.0 de",
+    "artist": "© M 93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMazda3%20E-SKYACTIV-X%202.0%20M%20Hybrid%20Selection%20(IV)%20%E2%80%93%20h%2012022023.jpg",
+    "note": "cut from assets/bg-web/popular2-mazda3-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Mazda3 hatchback (fourth generation), rear three-quarter"
+  },
+  "car-mazda3-hatch-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "File:Mazda3 (BP) X e-Skyactiv-X IMG 9015.jpg: Alexander Migl\nderivative work: Zinnmann",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMazda3%20(BP)%20X%20e-Skyactiv-X%20IMG%209015%20(edit%20zm).jpg",
+    "note": "cut from assets/bg-web/popular2-mazda3-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Mazda3 hatchback (fourth generation), front three-quarter"
+  },
+  "car-mclaren-720s-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMcLaren%20720S%2C%20IAA%202017%2C%20(1Y7A3405).jpg",
+    "note": "cut from assets/bg-web/popular2-mclaren-720s-2.jpg by scripts/cut_vehicle_photos.py. a silver McLaren 720S, front three-quarter (show placard, no plate)"
+  },
+  "car-mclaren-720s-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Ermell",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMclaren%20720S%20PA280973-PSD.jpg",
+    "note": "cut from assets/bg-web/popular2-mclaren-720s-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey McLaren 720S, front three-quarter"
+  },
+  "car-mercedes-amg-gt63-4door-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMercedes-AMG%20GT%2063%20S%20(Facelift)%201X7A7353.jpg",
+    "note": "cut from assets/bg-web/popular2-mercedes-amg-gt-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Mercedes-AMG GT 63 S E Performance 4-door coupe, front three-quarter"
+  },
+  "car-mercedes-amg-gt-black-series-orange": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMercedes-AMG%20GT%20Black%20Series%20IMG%200324.jpg",
+    "note": "cut from assets/bg-web/popular2-mercedes-amg-gt-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an orange Mercedes-AMG GT Black Series, front three-quarter"
+  },
+  "car-mercedes-c-class-all-terrain-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMercedes-Benz%20C-Class%20All-Terrain%20IMG%200290.jpg",
+    "note": "cut from assets/bg-web/popular2-mercedes-benz-c-class-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Mercedes-Benz C-Class All-Terrain (W206), front three-quarter"
+  },
+  "car-mercedes-w114-classic-cream": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMercedes-Benz%20E-Class%201X7A5838.jpg",
+    "note": "cut from assets/bg-web/popular2-mercedes-benz-e-class-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a cream Mercedes-Benz 240 D (W115, 1970s) with a roof rack, front three-quarter"
+  },
+  "car-mercedes-glc-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Vauxford",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2018%20Mercedes-Benz%20GLC%20250%20Urban%20Edition%204MATIC%202.0%20Front.jpg",
+    "note": "cut from assets/bg-web/popular2-mercedes-benz-glc-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Mercedes-Benz GLC (X253), front three-quarter"
+  },
+  "car-mini-classic-cream": {
+    "license": "CC BY-SA 2.5",
+    "artist": "DeFacto",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMorris%20Mini-Minor%201959%20(621%20AOK).jpg",
+    "note": "cut from assets/bg-web/popular2-mini-cooper-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a cream classic Mini (Morris Mini-Minor, 1960s), front three-quarter"
+  },
+  "car-nissan-altima-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANissan%20Altima%20(L33)%20Facelift%20(rear).jpg",
+    "note": "cut from assets/bg-web/popular2-nissan-altima-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Nissan Altima (sixth generation) SR, rear three-quarter"
+  },
+  "car-nissan-gtr-r35-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Calreyn88",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANissan%20GT-R%207.jpg",
+    "note": "cut from assets/bg-web/popular2-nissan-gt-r-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Nissan GT-R (R35), front three-quarter"
+  },
+  "car-nissan-pathfinder-rock-creek-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANissan%20Pathfinder%20Rock%20Creek%20(R53)%20AMA%20Marbach%202025%20DSC%208665.jpg",
+    "note": "cut from assets/bg-web/popular2-nissan-pathfinder-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a sand Nissan Pathfinder Rock Creek (fifth generation), rear three-quarter"
+  },
+  "car-nissan-titan-xd-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANissan%20Titan%20V8%20P4220668.jpg",
+    "note": "cut from assets/bg-web/popular2-nissan-titan-1.jpg by scripts/cut_vehicle_photos.py. a silver Nissan Titan XD crew cab pickup, front three-quarter (no plate on it)"
+  },
+  "car-nissan-z-yellow": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kazyakuruma",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANissan%20FAIRLADY%20Z%20(Z34)%20Version%20ST%2C%202022%2C%20left-front.jpg",
+    "note": "cut from assets/bg-web/popular2-nissan-z-1.jpg by scripts/cut_vehicle_photos.py. a yellow Nissan Z (Fairlady Z, 2023-), front three-quarter (showroom, no plate)"
+  },
+  "car-polestar-2-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3APolestar%202%2C%20GIMS%202019%2C%20Le%20Grand-Saconnex%20(GIMS0552).jpg",
+    "note": "cut from assets/bg-web/popular2-polestar-2-1.jpg by scripts/cut_vehicle_photos.py. a white Polestar 2, front three-quarter (showroom, no plate)"
+  },
+  "car-polestar-2-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3APolestar%202%201X7A0419.jpg",
+    "note": "cut from assets/bg-web/popular2-polestar-2-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Polestar 2, front three-quarter"
+  },
+  "car-porsche-cayenne-gts-coupe-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20Cayenne%20Coup%C3%A9%20GTS%201X7A7224.jpg",
+    "note": "cut from assets/bg-web/popular2-porsche-cayenne-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a chalk Porsche Cayenne GTS Coupe (third generation), rear three-quarter"
+  },
+  "car-porsche-cayenne-gts-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20Cayenne%20(PO536)%20GTS%20IMG%203953.jpg",
+    "note": "cut from assets/bg-web/popular2-porsche-cayenne-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a chalk Porsche Cayenne GTS (third generation), rear three-quarter"
+  },
+  "car-porsche-cayenne-gts-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20Cayenne%20(PO536)%20GTS%20IMG%203952.jpg",
+    "note": "cut from assets/bg-web/popular2-porsche-cayenne-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Porsche Cayenne GTS (third generation, 2024 facelift), front three-quarter"
+  },
+  "car-porsche-macan-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20Macan%20T%201X7A6051.jpg",
+    "note": "cut from assets/bg-web/popular2-porsche-macan-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Porsche Macan (2022 facelift), front three-quarter"
+  },
+  "car-porsche-panamera-turbo-bronze": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20972%20Turbo%20E-Hybrid%20IMG%200445.jpg",
+    "note": "cut from assets/bg-web/popular2-porsche-panamera-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a bronze Porsche Panamera Turbo E-Hybrid (third generation), front three-quarter"
+  },
+  "car-porsche-panamera-gts-chalk": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20971%20Panamera%20Turbo%201X7A6497.jpg",
+    "note": "cut from assets/bg-web/popular2-porsche-panamera-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a chalk Porsche Panamera GTS (second generation), front three-quarter"
+  },
+  "car-porsche-panamera-turbo-chalk-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20971%20Panamera%20Turbo%201X7A6496.jpg",
+    "note": "cut from assets/bg-web/popular2-porsche-panamera-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a chalk Porsche Panamera Turbo (second generation), rear three-quarter"
+  },
+  "car-porsche-taycan-gts-sport-turismo-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3APorsche%20Taycan%20Sport%20Turismo%20GTS%201X7A0416.jpg",
+    "note": "cut from assets/bg-web/popular2-porsche-taycan-1.jpg by scripts/cut_vehicle_photos.py. a chalk Porsche Taycan GTS Sport Turismo, rear three-quarter (no plate on it)"
+  },
+  "car-range-rover-sport-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARange%20Rover%20Sport%20Series%20III%201X7A7071.jpg",
+    "note": "cut from assets/bg-web/popular2-range-rover-sport-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Range Rover Sport (third generation, 2022-), front three-quarter"
+  },
+  "car-rolls-royce-ghost-purple-side": {
+    "license": "CC BY-SA 4.0",
+    "artist": "ermell",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMonaco-Rolls-Royce-4071031.jpg",
+    "note": "cut from assets/bg-web/popular2-rolls-royce-ghost-2.jpg by scripts/cut_vehicle_photos.py. a purple-grey Rolls-Royce Ghost (second generation), side on (no plate in view)"
+  },
+  "car-subaru-crosstrek-wilderness-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASubaru%20Crosstrek%20Wilderness%20IMG%203719%20(cropped).jpg",
+    "note": "cut from assets/bg-web/popular2-subaru-crosstrek-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Subaru Crosstrek (third generation) with gold trim, front three-quarter"
+  },
+  "car-subaru-crosstrek-wilderness-blue-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASubaru%20Crosstrek%20Wilderness%20IMG%203726%20(cropped).jpg",
+    "note": "cut from assets/bg-web/popular2-subaru-crosstrek-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Subaru Crosstrek (third generation) with gold trim, rear three-quarter"
+  },
+  "car-subaru-wrx-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Dinkun Chen",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASUBARU%20WRX%20(VB)%20China.jpg",
+    "note": "cut from assets/bg-web/popular2-subaru-wrx-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Subaru WRX (fifth generation), front three-quarter"
+  },
+  "car-subaru-impreza-wrx-1992-silver": {
+    "license": "CC0",
+    "artist": "TTTNIS",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1994%20Subaru%20Impreza%20WRX%20STi.jpg",
+    "note": "cut from assets/bg-web/popular2-subaru-wrx-2.jpg by scripts/cut_vehicle_photos.py. a silver Subaru Impreza WRX (first generation, 1992), front three-quarter (museum placard, no plate)"
+  },
+  "car-toyota-gr86-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20GR86%20IMG%207863.jpg",
+    "note": "cut from assets/bg-web/popular2-toyota-gr86-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Toyota GR86, front three-quarter"
+  },
+  "car-toyota-venza-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Zotyefan",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Venza%20II%20IMG001.jpg",
+    "note": "cut from assets/bg-web/popular2-toyota-venza-1.jpg by scripts/cut_vehicle_photos.py. a silver Toyota Venza (Harrier, fourth generation), front three-quarter (no plate on it)"
+  },
+  "car-toyota-venza-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Zotyefan",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Venza%20II%20IMG002.jpg",
+    "note": "cut from assets/bg-web/popular2-toyota-venza-2.jpg by scripts/cut_vehicle_photos.py. a silver Toyota Venza (Harrier, fourth generation), rear three-quarter (no plate on it)"
+  },
+  "car-vw-atlas-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2021%20Volkswagen%20Atlas%201X7A0392.jpg",
+    "note": "cut from assets/bg-web/popular2-volkswagen-atlas-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Volkswagen Atlas (2021 facelift), front three-quarter"
+  },
+  "car-vw-golf-gti-tcr-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVW%20Golf%20GTI%20TCR%201X7A6182.jpg",
+    "note": "cut from assets/bg-web/popular2-volkswagen-golf-gti-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Volkswagen Golf GTI TCR (Mk7.5), rear three-quarter"
+  },
+  "car-vw-golf-gti-clubsport-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVolkswagen%20Golf%20VIII%20GTI%20Clubsport%2045%20IMG%204884.jpg",
+    "note": "cut from assets/bg-web/popular2-volkswagen-golf-gti-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Volkswagen Golf GTI Clubsport (Mk8), front three-quarter"
+  },
+  "car-vw-golf-mk1-white-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVW%20Golf%20GTI%2C%20Klassikstadt%2C%20Frankfurt%20am%20Main%20(P1032532).jpg",
+    "note": "cut from assets/bg-web/popular2-volkswagen-golf-gti-3.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Volkswagen Golf Mk1 with gold BBS wheels, rear three-quarter"
+  },
+  "car-vw-id5-gtx-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVolkswagen%20ID.5%20GTX%201X7A0318.jpg",
+    "note": "cut from assets/bg-web/popular2-volkswagen-id-4-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Volkswagen ID.5 GTX, front three-quarter"
+  },
+  "car-vw-jetta-gli-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVolkswagen%20Jetta%20VII%20GLI%20IMG%203138.jpg",
+    "note": "cut from assets/bg-web/popular2-volkswagen-jetta-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Volkswagen Jetta GLI (seventh generation), front three-quarter"
+  },
+  "car-vw-tiguan-2024-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVolkswagen%20Tiguan%20III%20IMG%208388.jpg",
+    "note": "cut from assets/bg-web/popular2-volkswagen-tiguan-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Volkswagen Tiguan (third generation, 2024-) R-Line, front three-quarter"
+  },
+  "car-volvo-xc60-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVolvo%20XC60%20(SPA)%20FL%201X7A6406.jpg",
+    "note": "cut from assets/bg-web/popular2-volvo-xc60-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Volvo XC60 B5 (second generation, 2021 facelift), rear three-quarter"
+  },
+  "car-volvo-xc60-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVolvo%20XC60%20(SPA)%20FL%201X7A0185.jpg",
+    "note": "cut from assets/bg-web/popular2-volvo-xc60-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Volvo XC60 (second generation, 2021 facelift), front three-quarter"
+  },
+  "car-volvo-xc90-silver-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2025%20Volvo%20XC90%20II%20DSC%207420.jpg",
+    "note": "cut from assets/bg-web/popular2-volvo-xc90-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Volvo XC90 B5 (second generation), rear three-quarter"
+  },
+  "car-volvo-xc90-2025-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2025%20Volvo%20XC90%20II%20autoMOBIL%20T%C3%BCbingen%202025%20DSC%202767.jpg",
+    "note": "cut from assets/bg-web/popular2-volvo-xc90-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a white Volvo XC90 (2025 facelift), front three-quarter"
+  },
+  "car-chevy-corvette-c1-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1962%20Chevrolet%20Corvette%20IMG%203669.jpg",
+    "note": "cut from assets/bg-web/colours-chevrolet-corvette-blue-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Chevrolet Corvette C1 (1961-62) roadster, front three-quarter"
+  },
+  "car-chevy-corvette-c3-grey-rear": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Noah Wulf",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADark%20Grey%201978-79%20Chevrolet%20Corvette%20on%20N%20Jones%20Blvd.jpg",
+    "note": "cut from assets/bg-web/colours-chevrolet-corvette-grey-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a dark grey Chevrolet Corvette C3 (1970s) coupe, rear three-quarter"
+  },
+  "car-chevy-corvette-c8-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChevrolet%20Corvette%20C8%20IAA%202021%201X7A0156.jpg",
+    "note": "cut from assets/bg-web/colours-chevrolet-corvette-red-1.jpg by scripts/cut_vehicle_photos.py. a red Chevrolet Corvette Stingray (C8) at a show, front three-quarter (no plate)"
+  },
+  "car-chevy-silverado-z71-black": {
+    "license": "Public domain",
+    "artist": "Bull-Doser",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChevrolet%20Silverado%20GMTK2CC%20Z71.JPG",
+    "note": "cut from assets/bg-web/colours-chevrolet-silverado-black-2.jpg by scripts/cut_vehicle_photos.py. a black Chevrolet Silverado 1500 Z71 (2016-18), front three-quarter (no front plate)"
+  },
+  "car-ford-bronco-sport-black-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Bronco%20Sport%20IMG%208735.jpg",
+    "note": "cut from assets/bg-web/colours-ford-bronco-black-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Ford Bronco Sport, rear three-quarter"
+  },
+  "car-ford-bronco-black-diamond-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2023%20Ford%20Bronco%20Black%20Diamond%204-door%2C%20front%20left%2C%2011-03-2024.jpg",
+    "note": "cut from assets/bg-web/colours-ford-bronco-black-2.jpg by scripts/cut_vehicle_photos.py. a silver Ford Bronco Black Diamond four-door (2023), front three-quarter (no front plate)"
+  },
+  "car-ford-bronco-sport-badlands-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Bronco%20Sport%20Badlands%201X7A6296.jpg",
+    "note": "cut from assets/bg-web/colours-ford-bronco-blue-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an Area 51 blue Ford Bronco Sport Badlands, front three-quarter"
+  },
+  "car-ford-bronco-sport-heritage-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MercurySable99",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2023%20Ford%20Bronco%20Sport%20Heritage%2C%20front%20left%2C%2009-30-2023.jpg",
+    "note": "cut from assets/bg-web/colours-ford-bronco-grey-1.jpg by scripts/cut_vehicle_photos.py. a blue-grey Ford Bronco Sport Heritage with a white roof, front three-quarter (no front plate)"
+  },
+  "car-ford-bronco-sport-badlands-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Bronco%20Sport%20Badlands%201X7A0424.jpg",
+    "note": "cut from assets/bg-web/colours-ford-bronco-red-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Ford Bronco Sport Badlands, front three-quarter"
+  },
+  "car-ford-f150-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20F-150%20(fourteenth%20generation)%20Rutesheimer%20Autoschau%202025%20DSC%209217.jpg",
+    "note": "cut from assets/bg-web/colours-ford-f-150-grey-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Ford F-150 (fourteenth generation, 2021-) SuperCrew, front three-quarter"
+  },
+  "car-ford-mustang-convertible-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Mustang%20VII%20Convertible%20AMA%20Marbach%202025%20DSC%208647.jpg",
+    "note": "cut from assets/bg-web/colours-ford-mustang-grey-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Ford Mustang GT Convertible (seventh generation, 2024-), front three-quarter"
+  },
+  "car-ford-mustang-gt-blue-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFord%20Mustang%20VII%20GT%20DSC%200731.jpg",
+    "note": "cut from assets/bg-web/colours-ford-mustang-grey-2.jpg by scripts/cut_vehicle_photos.py. a blue-grey Ford Mustang GT (seventh generation, 2024-), front three-quarter (no front plate)"
+  },
+  "car-honda-civic-type-r-fk8-blue-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20Civic%20Type%20R%20(2017)%201X7A0093.jpg",
+    "note": "cut from assets/bg-web/colours-honda-civic-blue-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Honda Civic Type R (FK8), rear three-quarter"
+  },
+  "car-honda-civic-sedan-blue-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20Civic%20(2021)%20sedan%20Sport%20DSC%207054.jpg",
+    "note": "cut from assets/bg-web/colours-honda-civic-blue-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Honda Civic Sport sedan (eleventh generation), rear three-quarter"
+  },
+  "car-honda-crv-2023-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20CR-V%20(6th%20generation)%20hybrid%201X7A1957.jpg",
+    "note": "cut from assets/bg-web/colours-honda-cr-v-black-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Honda CR-V (sixth generation, 2023-), front three-quarter"
+  },
+  "car-honda-crv-2023-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHonda%20CR-V%20(6th%20generation)%20hybrid%201X7A0866.jpg",
+    "note": "cut from assets/bg-web/colours-honda-cr-v-blue-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a dark blue Honda CR-V (sixth generation, 2023-), front three-quarter"
+  },
+  "car-jeep-wrangler-2door-black-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Damian B Oh",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJeep%20Wrangler%20Rubicon%202.0L%20JL%20Black%20(4).jpg",
+    "note": "cut from assets/bg-web/colours-jeep-wrangler-black-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Jeep Wrangler two-door (JL), rear three-quarter"
+  },
+  "car-jeep-wrangler-sahara-red": {
+    "license": "CC0",
+    "artist": "Retired electrician",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMoscow%2C%20Jeep%20Wrangler%20Unlimited%20red%2C%20Oct%202025%2003.jpg",
+    "note": "cut from assets/bg-web/colours-jeep-wrangler-red-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Jeep Wrangler Unlimited (JL) with a soft top, front three-quarter"
+  },
+  "car-mercedes-amg-g63-2025-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Damian B Oh",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMercedes-AMG%20W463%20G%2063%20Obsidian%20Black%20(16).jpg",
+    "note": "cut from assets/bg-web/colours-mercedes-amg-g-63-black-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Mercedes-AMG G 63 (W465, 2024-), front three-quarter"
+  },
+  "car-mercedes-amg-g63-4x4-blue-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMercedes-AMG%20G%2063%204x4%C2%B2%201X7A7350.jpg",
+    "note": "cut from assets/bg-web/colours-mercedes-amg-g-63-blue-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Mercedes-AMG G 63 4x4 squared with a roof rack, rear three-quarter"
+  },
+  "car-mercedes-amg-g63-cabriolet-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "MrWalkr",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2023%20Mercedes-AMG%20G%2063%20Convertible.jpg",
+    "note": "cut from assets/bg-web/colours-mercedes-amg-g-63-blue-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a blue Mercedes-AMG G 63 cabriolet conversion with red seats, front three-quarter"
+  },
+  "car-mercedes-amg-g63-silver-rear": {
+    "license": "CC0",
+    "artist": "Retired electrician",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMoscow%2C%20Mercedes-Benz%20AMG%20G63%20grey%2C%20Oct%202025%2001.jpg",
+    "note": "cut from assets/bg-web/colours-mercedes-amg-g-63-grey-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a silver Mercedes-AMG G 63 (W463), rear three-quarter"
+  },
+  "car-ram-1500-rebel-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Calreyn88",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARam%201500%20Classic%20(black).jpg",
+    "note": "cut from assets/bg-web/colours-ram-1500-black-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Ram 1500 Rebel (fifth generation), front three-quarter"
+  },
+  "car-ram-1500-limited-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Damian B Oh",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARAM%201500%20DT%20in%20grey%202.jpg",
+    "note": "cut from assets/bg-web/colours-ram-1500-grey-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a grey Ram 1500 Limited (fifth generation), front three-quarter"
+  },
+  "car-ram-trx-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARam%201500%20TRX%20MYLE%20Festival%202025%20DSC%209555.jpg",
+    "note": "cut from assets/bg-web/colours-ram-1500-red-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Ram 1500 TRX, front three-quarter"
+  },
+  "car-tesla-model-y-juniper-grey": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Damian B Oh",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATesla%20Model%20Y%20Juniper%20Stealth%20Grey%20(3).jpg",
+    "note": "cut from assets/bg-web/colours-tesla-model-3-grey-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a Stealth Grey Tesla Model Y (2025 Juniper), front three-quarter"
+  },
+  "car-tesla-model-3-highland-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATesla%20Model%203%20(2023)%20Autofr%C3%BChling%20Ulm%20IMG%209282.jpg",
+    "note": "cut from assets/bg-web/colours-tesla-model-3-red-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an Ultra Red Tesla Model 3 (2024 Highland), front three-quarter"
+  },
+  "car-tesla-model-y-black-side": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Damian B Oh",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATesla%20Model%20Y%20black%20(3).jpg",
+    "note": "cut from assets/bg-web/colours-tesla-model-y-black-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Tesla Model Y, side three-quarter"
+  },
+  "car-tesla-model-y-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Damian B Oh",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATesla%20Model%20Y%20Dual%20Motor%20Deep%20Blue%20Metallic%20(1).jpg",
+    "note": "cut from assets/bg-web/colours-tesla-model-y-blue-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a Deep Blue Tesla Model Y, front three-quarter"
+  },
+  "car-tesla-model-y-performance-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATesla%20Model%20Y%20Performance%20(2025)%20autoMOBIL%20T%C3%BCbingen%202025%20DSC%202801.jpg",
+    "note": "cut from assets/bg-web/colours-tesla-model-y-red-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. an Ultra Red Tesla Model Y Performance (2025), front three-quarter"
+  },
+  "car-toyota-4runner-limited-black": {
+    "license": "CC BY-SA 2.0",
+    "artist": "RL GNZLZ from Chile",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%204Runner%20Limited%202011%20(24816819280).jpg",
+    "note": "cut from assets/bg-web/colours-toyota-4runner-black-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Toyota 4Runner (fifth generation), front three-quarter"
+  },
+  "car-toyota-highlander-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Damian B Oh",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Highlander%20Hybrid%20Platinum%20XU70%20Attitude%20Black%20Mica%20(4).jpg",
+    "note": "cut from assets/bg-web/colours-toyota-highlander-black-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Toyota Highlander (XU70), front three-quarter"
+  },
+  "car-toyota-highlander-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Dinkun Chen",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATOYOTA%20HIGHLANDER%20HYBRID%20(XU70)%20China%20(23).jpg",
+    "note": "cut from assets/bg-web/colours-toyota-highlander-blue-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a dark blue Toyota Highlander (XU70), front three-quarter"
+  },
+  "car-toyota-highlander-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Highlander%20Hybrid%20(XU70)%201X7A0197.jpg",
+    "note": "cut from assets/bg-web/colours-toyota-highlander-red-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Toyota Highlander Hybrid (XU70), front three-quarter"
+  },
+  "car-toyota-rav4-phev-red-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20RAV4%20Plug-in%20Hybrid%20GR%20Sport%20IMG%209896.jpg",
+    "note": "cut from assets/bg-web/colours-toyota-rav4-red-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Toyota RAV4 Plug-in Hybrid GR Sport (fifth generation), rear"
+  },
+  "car-toyota-tacoma-trd-offroad-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Tacoma%20(N300)%20TRD%20IMG%206050.jpg",
+    "note": "cut from assets/bg-web/colours-toyota-tacoma-black-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Toyota Tacoma TRD Off-Road (third generation), front three-quarter"
+  },
+  "car-toyota-tacoma-trd-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander Migl",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Tacoma%20IMG%200916.jpg",
+    "note": "cut from assets/bg-web/colours-toyota-tacoma-black-2.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Toyota Tacoma TRD Off-Road (third generation), front three-quarter, close"
+  },
+  "car-toyota-tacoma-trd-offroad-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alexander-93",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Tacoma%20(N300)%20TRD%201X7A2437.jpg",
+    "note": "cut from assets/bg-web/colours-toyota-tacoma-red-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a red Toyota Tacoma TRD Off-Road (third generation), front three-quarter"
+  },
+  "car-toyota-tundra-1794-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Matti Blume",
+    "page": "https://commons.wikimedia.org/wiki/File%3AToyota%20Tundra%2C%20Stockholm%20(%201090862).jpg",
+    "note": "cut from assets/bg-web/colours-toyota-tundra-black-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a black Toyota Tundra 1794 Edition (second generation), front three-quarter"
+  },
+  "car-toyota-tundra-trd-pro-orange-rear": {
+    "license": "CC BY-SA 4.0",
+    "artist": "UltraTech66",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2022%20Toyota%20Tundra%20TRD%20Pro%20rear.jpg",
+    "note": "cut from assets/bg-web/colours-toyota-tundra-red-1.jpg by scripts/cut_vehicle_photos.py; licence plate blurred. a Solar Octane Toyota Tundra TRD Pro (third generation) at a show, rear three-quarter"
+  },
+  "photo-gold-bracelet-filigree": {
+    "license": "CC0",
+    "artist": "",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGold%20Bracelet%20MET%20DP374190.jpg",
+    "note": "cut from assets/bg-web/gold-gold-bracelet-1.jpg by scripts/cut_vehicle_photos.py. a gold filigree cuff bracelet"
+  },
+  "photo-gold-bracelet-flat": {
+    "license": "CC0",
+    "artist": "",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGold%20Bracelet%20MET%2052%2076%201%20MED%20s01.jpg",
+    "note": "cut from assets/bg-web/gold-gold-bracelet-4.jpg by scripts/cut_vehicle_photos.py. a flat gold link bracelet, laid out"
+  },
+  "photo-gold-bars-pair": {
+    "license": "Public domain",
+    "artist": "Szaaman",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGold%20Ingots%20on%20white%20background.jpg",
+    "note": "cut from assets/bg-web/gold-gold-bullion-bar-2.jpg by scripts/cut_vehicle_photos.py. two gold bullion bars, crossed"
+  },
+  "photo-gold-bars-pamp": {
+    "license": "CC BY 4.0",
+    "artist": "Ibex73",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGold%20ingot%20and%20bar%20of%20Banque%20de%20France.jpg",
+    "note": "cut from assets/bg-web/gold-gold-bullion-bar-3.jpg by scripts/cut_vehicle_photos.py. a PAMP Suisse gold bar and a small cast gold bar"
+  },
+  "photo-gold-chain-chunky": {
+    "license": "Public domain",
+    "artist": "\nUnknown authorUnknown author",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGold%20chain%20with%20gemstones%20and%20enamel%2C%20late%2016th%20century%2C%20The%20Royal%20Armoury%2C%20Sweden.jpg",
+    "note": "cut from assets/bg-web/gold-gold-chain-necklace-1.jpg by scripts/cut_vehicle_photos.py. a heavy gold link chain necklace"
+  },
+  "photo-gold-eagle-coins": {
+    "license": "CC BY 2.0",
+    "artist": "frankieleon",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGold%20Coins%20(3119590886).jpg",
+    "note": "cut from assets/bg-web/gold-gold-coin-american-eagle-1.jpg by scripts/cut_vehicle_photos.py. two gold coins, an American Gold Eagle and a Liberty double eagle"
+  },
+  "photo-gold-double-eagle-1907": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Billjones94",
+    "page": "https://commons.wikimedia.org/wiki/File%3A20%20Dollars%20gold%20coin%20of%20the%20United%20States%20of%20America.jpg",
+    "note": "cut from assets/bg-web/gold-gold-coin-american-eagle-3.jpg by scripts/cut_vehicle_photos.py. a 1907 Saint-Gaudens gold double eagle ($20)"
+  },
+  "photo-gold-eagle-proof": {
+    "license": "Public domain",
+    "artist": "United States Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2006%20AEGold%20Proof%20Obv.png",
+    "note": "cut from assets/bg-web/gold-gold-coin-american-eagle-4.jpg by scripts/cut_vehicle_photos.py. a 2006 American Gold Eagle proof coin"
+  },
+  "photo-gold-krugerrand-obverse": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Gruener Panda",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1%20oz%20Krugerrand%202017%20Bildseite.png",
+    "note": "cut from assets/bg-web/gold-gold-krugerrand-1.jpg by scripts/cut_vehicle_photos.py. a gold Krugerrand (obverse, Paul Kruger)"
+  },
+  "photo-gold-krugerrand-springbok": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Gruener Panda",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1%20oz%20Krugerrand%202017%20Wertseite.png",
+    "note": "cut from assets/bg-web/gold-gold-krugerrand-2.jpg by scripts/cut_vehicle_photos.py. a 2017 gold Krugerrand (reverse, springbok)"
+  },
+  "photo-gold-nugget": {
+    "license": "CC BY 3.0",
+    "artist": "division, CSIRO",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACSIRO%20ScienceImage%2010458%20An%208%20kg%20nugget%20from%20Victoria%20that%20was%20cut%20in%20two%20and%20had%20a%20thin%20slice.jpg",
+    "note": "cut from assets/bg-web/gold-gold-nugget-3.jpg by scripts/cut_vehicle_photos.py. a large natural gold nugget"
+  },
+  "photo-gold-rings-pink": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Earthsphere",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASoviet%20Gold%20Rings%20with%20Synthetic%20Rubies.JPG",
+    "note": "cut from assets/bg-web/gold-gold-jewelry-rings-3.jpg by scripts/cut_vehicle_photos.py. three gold rings set with synthetic rubies (Soviet, red gold)"
+  },
+  "photo-silver-eagle-obverse": {
+    "license": "Public domain",
+    "artist": "United States Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALiberty%20%241%20Obverse.png",
+    "note": "cut from assets/bg-web/silver-american-silver-eagle-2.jpg by scripts/cut_vehicle_photos.py. a 2014 American Silver Eagle proof (obverse)"
+  },
+  "photo-silver-eagle-reverse": {
+    "license": "Public domain",
+    "artist": "United States Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALiberty%20%241%20Reverse.png",
+    "note": "cut from assets/bg-web/silver-american-silver-eagle-4.jpg by scripts/cut_vehicle_photos.py. an American Silver Eagle proof (reverse)"
+  },
+  "photo-silver-morgan-1886": {
+    "license": "CC BY 2.0",
+    "artist": "Eric Golub from Gulfport, Florida",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMorgan%20silver%20dollar%20obverse%20(2581572743).jpg",
+    "note": "cut from assets/bg-web/silver-morgan-silver-dollar-3.jpg by scripts/cut_vehicle_photos.py. an 1886 Morgan silver dollar"
+  },
+  "photo-silver-peace-dollar-pair": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1921-1%24-Peace%20dollar.jpg",
+    "note": "cut from assets/bg-web/silver-peace-dollar-1.jpg by scripts/cut_vehicle_photos.py. a 1921 Peace silver dollar, obverse and reverse"
+  },
+  "photo-silver-maple-stack": {
+    "license": "CC BY-SA 3.0",
+    "artist": "\nDennis Lamczak",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACanadian%20Silver%20(83655181).jpeg",
+    "note": "cut from assets/bg-web/silver-silver-maple-leaf-coin-2.jpg by scripts/cut_vehicle_photos.py. a stack of silver Maple Leaf coins"
+  },
+  "photo-silver-maple-pile": {
+    "license": "CC BY-SA 3.0",
+    "artist": "\nDennis Lamczak",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACanadian%20Silver%20(84886855).jpeg",
+    "note": "cut from assets/bg-web/silver-silver-maple-leaf-coin-3.jpg by scripts/cut_vehicle_photos.py. a pile of silver Maple Leaf coins"
+  },
+  "photo-silver-tea-set-dark": {
+    "license": "CC BY 2.0",
+    "artist": "Rebecca Hardgrave",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASilver%20Tea%20Set%20(31460625102).png",
+    "note": "cut from assets/bg-web/silver-silver-tea-set-3.jpg by scripts/cut_vehicle_photos.py. a sterling silver tea and coffee service on a gallery tray"
+  },
+  "photo-silver-tea-set-white": {
+    "license": "CC BY 4.0",
+    "artist": "Designed by Vivianna Torun Bülow-Hübe and manufactured by Dansk Designs",
+    "page": "https://commons.wikimedia.org/wiki/File%3AVivianna%20Torun%20B%C3%BClow-H%C3%BCbe%20Silver%20Tea%20set.png",
+    "note": "cut from assets/bg-web/silver-silver-tea-set-4.jpg by scripts/cut_vehicle_photos.py. a modern silver tea set on a tray"
+  },
+  "photo-silver-tea-set-tray": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Tamorlan",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATea%20set%20(silver)-Spain.jpg",
+    "note": "cut from assets/bg-web/silver-silver-tea-set-2.jpg by scripts/cut_vehicle_photos.py. a silver tea and coffee service on a tray"
+  },
+  "photo-coin-gold-eagle-obverse": {
+    "license": "Public domain",
+    "artist": "United States Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALiberty%20%2450%20Obverse.png",
+    "note": "cut from assets/bg-web/coins-american-gold-eagle-coin-1.jpg by scripts/cut_vehicle_photos.py. a 2013 American Gold Eagle proof (obverse)"
+  },
+  "photo-coin-gold-eagle-reverse": {
+    "license": "Public domain",
+    "artist": "United States Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALiberty%20%2450%20Reverse.png",
+    "note": "cut from assets/bg-web/coins-american-gold-eagle-coin-2.jpg by scripts/cut_vehicle_photos.py. an American Gold Eagle proof (reverse)"
+  },
+  "photo-coin-buffalo-nickel-pair": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1913-5C-Buffalo%20Nickel%20(TyI-mound).jpg",
+    "note": "cut from assets/bg-web/coins-buffalo-nickel-1.jpg by scripts/cut_vehicle_photos.py. a Buffalo nickel, obverse and reverse"
+  },
+  "photo-coin-buffalo-nickel-stack": {
+    "license": "CC BY-SA 4.0",
+    "artist": "EdditoVulgata",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABuffalo%20Nickels.jpg",
+    "note": "cut from assets/bg-web/coins-buffalo-nickel-2.jpg by scripts/cut_vehicle_photos.py. a stack of Buffalo nickels"
+  },
+  "photo-coin-indian-cent-pair": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1859-1C-Indian%20Head%20Cent%20(wreath).jpg",
+    "note": "cut from assets/bg-web/coins-indian-head-cent-1.jpg by scripts/cut_vehicle_photos.py. an 1859 Indian Head cent, obverse and reverse"
+  },
+  "photo-coin-indian-cent-1860": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1860-1C-Indian%20Head%20Cent%20(wreath%20%26%20shield)%20obverse%20(cropped).jpg",
+    "note": "cut from assets/bg-web/coins-indian-head-cent-4.jpg by scripts/cut_vehicle_photos.py. an 1860 Indian Head cent"
+  },
+  "photo-coin-double-eagle-1849": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1849-G%2420-Liberty%20Head%20(Twenty%20D.).jpg",
+    "note": "cut from assets/bg-web/coins-liberty-head-double-eagle-1.jpg by scripts/cut_vehicle_photos.py. an 1849 Liberty Head double eagle, obverse and reverse"
+  },
+  "photo-coin-double-eagle-1866": {
+    "license": "Public domain",
+    "artist": "US Mint (coin), National Numismatic Collection (photograph by Jaclyn Nash)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANNC-US-1866-G%2420-Liberty%20Head%20(motto).jpg",
+    "note": "cut from assets/bg-web/coins-liberty-head-double-eagle-3.jpg by scripts/cut_vehicle_photos.py. an 1866 Liberty Head double eagle, obverse and reverse"
+  },
+  "photo-coin-wheat-cent": {
+    "license": "CC BY 2.0",
+    "artist": "Mark Morgan",
+    "page": "https://commons.wikimedia.org/wiki/File%3AUS%20Wheat%20Penny.jpg",
+    "note": "cut from assets/bg-web/coins-lincoln-wheat-penny-3.jpg by scripts/cut_vehicle_photos.py. a Lincoln wheat cent (reverse)"
+  },
+  "photo-coin-wheat-cent-1944": {
+    "license": "CC BY 2.0",
+    "artist": "Mark Morgan",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1944%20US%20Penny%20Lincoln%20Head.jpg",
+    "note": "cut from assets/bg-web/coins-lincoln-wheat-penny-4.jpg by scripts/cut_vehicle_photos.py. a 1944 Lincoln wheat cent"
+  },
+  "photo-coin-mercury-dime": {
+    "license": "Public domain",
+    "artist": "BrandonBigheart for the photograph; Adolph Weinman for the coin design.",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1943D%20Mercury%20Dime%20obverse.jpg",
+    "note": "cut from assets/bg-web/coins-mercury-dime-1.jpg by scripts/cut_vehicle_photos.py. a 1943 Mercury dime (obverse)"
+  },
+  "photo-coin-mercury-dime-reverse": {
+    "license": "Public domain",
+    "artist": "BrandonBigheart for the photograph; Adolph Weinman for the coin design.",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1943D%20Mercury%20Dime%20reverse.jpg",
+    "note": "cut from assets/bg-web/coins-mercury-dime-2.jpg by scripts/cut_vehicle_photos.py. a Mercury dime (reverse)"
+  },
+  "photo-coin-morgan-dollar": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Bobby131313",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1889-p-morgan-dollar-obverse.jpg",
+    "note": "cut from assets/bg-web/coins-morgan-dollar-1.jpg by scripts/cut_vehicle_photos.py. an 1880 Morgan dollar (obverse)"
+  },
+  "photo-coin-morgan-dollar-reverse": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Bobby131313",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1889-p-morgan-dollar-reverse.jpg",
+    "note": "cut from assets/bg-web/coins-morgan-dollar-2.jpg by scripts/cut_vehicle_photos.py. a Morgan dollar (reverse)"
+  },
+  "photo-coin-ngc-slabs-pair": {
+    "license": "CC BY-SA 4.0",
+    "artist": "BrayLockBoy",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANGC%20Slabbed%201851-P%20Gold%20and%201884-O%20Morgan%20Dollar%20side%20by%20side.jpg",
+    "note": "cut from assets/bg-web/coins-ngc-graded-coin-3.jpg by scripts/cut_vehicle_photos.py. two NGC graded coin slabs, a gold dollar and a Morgan dollar"
+  },
+  "photo-coin-pcgs-morgan": {
+    "license": "Public domain",
+    "artist": "Bruxton",
+    "page": "https://commons.wikimedia.org/wiki/File%3APCGS%20coin%20slab%20hologram.jpg",
+    "note": "cut from assets/bg-web/coins-pcgs-slab-coin-1.jpg by scripts/cut_vehicle_photos.py. a Morgan dollar in a PCGS slab"
+  },
+  "photo-coin-pcgs-falcon": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Viiticus",
+    "page": "https://commons.wikimedia.org/wiki/File%3APCGS%20graded%20coin%20slab.jpg",
+    "note": "cut from assets/bg-web/coins-pcgs-slab-coin-2.jpg by scripts/cut_vehicle_photos.py. a 2016 Canadian silver Peregrine Falcon proof coin in its capsule"
+  },
+  "photo-coin-pcgs-gold-dollar": {
+    "license": "Public domain",
+    "artist": "Philadelphia Mint",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALewis%20and%20Clark%20Commemorative%20Gold%20Dollar%20-%20DPLA%20-%20916365f6957fda78d26e7a8e884a307e%20(page%203).jpg",
+    "note": "cut from assets/bg-web/coins-pcgs-slab-coin-4.jpg by scripts/cut_vehicle_photos.py. a 1904 gold dollar graded MS 64 in a PCGS slab"
+  },
+  "photo-coin-saint-gaudens-pair": {
+    "license": "Public domain",
+    "artist": "Heritage Auctions (image); U.S. Mint (coin)",
+    "page": "https://commons.wikimedia.org/wiki/File%3A1907%20Ultra%20High%20Relief%20%2420%20Double%20Eagle%20(Inverted%20Edge%20Letters).jpg",
+    "note": "cut from assets/bg-web/coins-saint-gaudens-double-eagle-1.jpg by scripts/cut_vehicle_photos.py. a 1907 Saint-Gaudens double eagle, obverse and reverse"
+  },
+  "photo-coin-saint-gaudens-1933": {
+    "license": "Public domain",
+    "artist": "US Mint Pressroom Image Library [2]",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASpecimen1Obv.jpg",
+    "note": "cut from assets/bg-web/coins-saint-gaudens-double-eagle-4.jpg by scripts/cut_vehicle_photos.py. a 1933 Saint-Gaudens double eagle"
+  },
+  "photo-coin-walking-liberty-trio": {
+    "license": "CC BY-SA 4.0",
+    "artist": "BrayLockBoy",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASelection%20of%20Walking%20Liberties%2C%20Graded%20AG%2C%20F%20and%20AU.jpg",
+    "note": "cut from assets/bg-web/coins-walking-liberty-half-dollar-1.jpg by scripts/cut_vehicle_photos.py. three Walking Liberty half dollars"
+  },
+  "photo-coin-half-dollar-stacks": {
+    "license": "CC BY-SA 4.0",
+    "artist": "BrayLockBoy",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATwo%20stacks%20of%20half%20dollars%2C%20one%20silver%2C%20one%20clad%20-%20effects%20of%20the%20Coinage%20Act%201965.jpg",
+    "note": "cut from assets/bg-web/coins-walking-liberty-half-dollar-2.jpg by scripts/cut_vehicle_photos.py. two stacks of half dollars"
+  },
+  "photo-coin-album": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Anemonemma, Generalissima, 3df",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACoin%20collection.jpg",
+    "note": "cut from assets/bg-web/coins-coin-collection-album-1.jpg by scripts/cut_vehicle_photos.py. a coin album with a loose collection, rolls and holders"
+  },
+  "photo-sports-psa-1952": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Malangone77g",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJohn%20Malangone%20Graded%20baseball%20card%2C%20New%20York%20Yankees%20minor%20league%20affiliate%20team%2C%20Three%20Rivers%20Quebec%20Canada.jpg",
+    "note": "cut from assets/bg-web/sportsc-baseball-card-1.jpg by scripts/cut_vehicle_photos.py. a 1952 Laval Dairy baseball card (John Malangone, Three Rivers)"
+  },
+  "photo-gaming-dualsense-white": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Alex Cochrane",
+    "page": "https://commons.wikimedia.org/wiki/File%3APlaystation%20DualSense%20Controller.png",
+    "note": "cut from assets/bg-web/gaming-dualsense-controller-1.jpg by scripts/cut_vehicle_photos.py. a white PlayStation 5 DualSense controller"
+  },
+  "photo-gaming-dualsense-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Chris Woodrich",
+    "page": "https://commons.wikimedia.org/wiki/File%3APlaystation%205%20DualSense%20controller%20in%20Midnight%20Black%2C%202026-02-07%20(front).jpg",
+    "note": "cut from assets/bg-web/gaming-dualsense-controller-3.jpg by scripts/cut_vehicle_photos.py. a black PlayStation 5 DualSense controller"
+  },
+  "photo-gaming-switch-dock": {
+    "license": "Public domain",
+    "artist": "Evan-Amos",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANintendo-Switch-Console-Docked-wJoyConRB.jpg",
+    "note": "cut from assets/bg-web/gaming-nintendo-switch-1.jpg by scripts/cut_vehicle_photos.py. a Nintendo Switch: Joy-Con in the grip and the dock"
+  },
+  "photo-gaming-switch2-joycon": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Crisco 1492",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANintendo%20Switch%202%20Joy-Con%202%20Blue%20and%20Orange.jpg",
+    "note": "cut from assets/bg-web/gaming-nintendo-switch-2-1.jpg by scripts/cut_vehicle_photos.py. Nintendo Switch 2 Joy-Con 2 controllers"
+  },
+  "photo-gaming-switch2-docked": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Crisco 1492",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANintendo%20Switch%202%20in%20Docking%20Console.jpg",
+    "note": "cut from assets/bg-web/gaming-nintendo-switch-3.jpg by scripts/cut_vehicle_photos.py. a Nintendo Switch 2 in its dock"
+  },
+  "photo-gaming-switch2": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Crisco 1492",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANintendo%20Switch%202%20in%20Handheld%20Mode.jpg",
+    "note": "cut from assets/bg-web/gaming-nintendo-switch-4.jpg by scripts/cut_vehicle_photos.py. a Nintendo Switch 2 with Joy-Con 2 attached"
+  },
+  "photo-gaming-switch-oled-docked": {
+    "license": "CC BY 4.0",
+    "artist": "PantheraLeo1359531",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANintendo%20Switch%20%E2%80%93%20OLED-Modell%20mit%20gedockter%20Konsole%2020230506%20HOF01624%20RAW-Export.png",
+    "note": "cut from assets/bg-web/gaming-nintendo-switch-oled-1.jpg by scripts/cut_vehicle_photos.py. a white Nintendo Switch OLED in its dock"
+  },
+  "photo-gaming-switch-oled": {
+    "license": "CC BY 4.0",
+    "artist": "PantheraLeo1359531",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANintendo%20Switch%20%E2%80%93%20OLED-Modell-Konsole%2020230506%20HOF01643%20RAW-Export.png",
+    "note": "cut from assets/bg-web/gaming-nintendo-switch-oled-4.jpg by scripts/cut_vehicle_photos.py. a white Nintendo Switch OLED with Joy-Con attached"
+  },
+  "photo-gaming-switch-oled-set": {
+    "license": "CC BY 4.0",
+    "artist": "PantheraLeo1359531",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANintendo%20Switch%20%E2%80%93%20OLED-Modell%2C%20Konsole%20und%20Dock%2020230506.png",
+    "note": "cut from assets/bg-web/gaming-nintendo-switch-oled-3.jpg by scripts/cut_vehicle_photos.py. a white Nintendo Switch OLED and its dock"
+  },
+  "photo-gaming-ps5-black": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Soberian (this retouched file)Osh33m (original photograph)",
+    "page": "https://commons.wikimedia.org/wiki/File%3APlayStation%205%20and%20DualSense%20with%20transparent%20background.png",
+    "note": "cut from assets/bg-web/gaming-playstation-5-1.jpg by scripts/cut_vehicle_photos.py. a PlayStation 5 standing, with a DualSense"
+  },
+  "photo-gaming-ps5-white": {
+    "license": "CC0",
+    "artist": "Howardcorn33",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABlack%20and%20white%20Playstation%205%20base%20edition%20with%20controller.png",
+    "note": "cut from assets/bg-web/gaming-playstation-5-3.jpg by scripts/cut_vehicle_photos.py. a PlayStation 5 with a DualSense"
+  },
+  "photo-gaming-steam-deck": {
+    "license": "CC BY-SA 4.0",
+    "artist": "https://wiki.openstreetmap.org/wiki/User:Riiga",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJOSM%20on%20the%20Steam%20Deck.jpg",
+    "note": "cut from assets/bg-web/gaming-steam-deck-2.jpg by scripts/cut_vehicle_photos.py. a Valve Steam Deck"
+  },
+  "photo-gaming-xbox-series-x": {
+    "license": "CC BY 2.0",
+    "artist": "Ian Hughes",
+    "page": "https://commons.wikimedia.org/wiki/File%3AXbox%20series%20X%20(50648118708).jpg",
+    "note": "cut from assets/bg-web/gaming-xbox-series-x-3.jpg by scripts/cut_vehicle_photos.py. an Xbox Series X with a controller"
+  },
+  "photo-audio-airpods": {
+    "license": "CC BY 2.0",
+    "artist": "Maurizio Pesce from Milan, Italia",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAirPods%20(cropped).jpg",
+    "note": "cut from assets/bg-web/audio-airpods-4-1.jpg by scripts/cut_vehicle_photos.py. AirPods (second generation) and their case"
+  },
+  "photo-audio-airpods-max-blue": {
+    "license": "CC BY-SA 4.0",
+    "artist": "SimonWaldherr",
+    "page": "https://commons.wikimedia.org/wiki/File%3AApple%20AirPods%20Max%204.jpg",
+    "note": "cut from assets/bg-web/audio-airpods-4-2.jpg by scripts/cut_vehicle_photos.py. AirPods Max in blue"
+  },
+  "photo-audio-airpods-max-silver": {
+    "license": "CC BY-SA 4.0",
+    "artist": "SimonWaldherr",
+    "page": "https://commons.wikimedia.org/wiki/File%3AApple%20AirPods%20Max.jpg",
+    "note": "cut from assets/bg-web/audio-airpods-4-4.jpg by scripts/cut_vehicle_photos.py. AirPods Max in silver"
+  },
+  "photo-audio-airpods-max-case": {
+    "license": "CC BY-SA 3.0 de",
+    "artist": "Arne Müseler",
+    "page": "https://commons.wikimedia.org/wiki/File%3AApple%20airpods%20max%20with%20case.jpg",
+    "note": "cut from assets/bg-web/audio-airpods-max-1.jpg by scripts/cut_vehicle_photos.py. AirPods Max in the Smart Case"
+  },
+  "photo-audio-airpods-max-grey": {
+    "license": "CC BY-SA 3.0 de",
+    "artist": "Arne Müseler",
+    "page": "https://commons.wikimedia.org/wiki/File%3AApple%20airpods%20max%203.jpg",
+    "note": "cut from assets/bg-web/audio-airpods-max-2.jpg by scripts/cut_vehicle_photos.py. AirPods Max in space grey, ear cups down"
+  },
+  "photo-audio-airpods-max-front": {
+    "license": "CC BY-SA 3.0 de",
+    "artist": "Arne Müseler",
+    "page": "https://commons.wikimedia.org/wiki/File%3AApple%20airpods%20max%201.jpg",
+    "note": "cut from assets/bg-web/audio-airpods-max-3.jpg by scripts/cut_vehicle_photos.py. AirPods Max in space grey, front on"
+  },
+  "photo-audio-airpods-pro": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Hajoon0102",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAirPods%20Pro%20(2nd%20generation).jpg",
+    "note": "cut from assets/bg-web/audio-airpods-pro-1.jpg by scripts/cut_vehicle_photos.py. AirPods Pro (second generation) and their case"
+  },
+  "photo-audio-airpods-pro-buds": {
+    "license": "CC BY-SA 4.0",
+    "artist": "— aconcagua (talk)",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAirPods%20Pro%201.jpg",
+    "note": "cut from assets/bg-web/audio-airpods-pro-4.jpg by scripts/cut_vehicle_photos.py. a pair of AirPods Pro"
+  },
+  "photo-audio-beats-fit-pro-case": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Kyu3a",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABeats%20Fit%20Pro%20-%201.jpg",
+    "note": "cut from assets/bg-web/audio-beats-fit-pro-1.jpg by scripts/cut_vehicle_photos.py. the Beats Fit Pro charging case in white"
+  },
+  "photo-audio-bose-qc25": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Florian Fuchs",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABose%20QuietComfort%2025%20Acoustic%20Noise%20Cancelling%20Headphones.jpg",
+    "note": "cut from assets/bg-web/audio-bose-quietcomfort-headphones-2.jpg by scripts/cut_vehicle_photos.py. Bose QuietComfort 25 headphones"
+  },
+  "photo-audio-jbl-go-red": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Apiiroja",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJBL%20GO%201st%20generation.jpg",
+    "note": "cut from assets/bg-web/audio-jbl-speaker-2.jpg by scripts/cut_vehicle_photos.py. a red JBL Go speaker"
+  },
+  "photo-audio-jbl-go-red-dark": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Nishu raghuvanshi",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHARMAN%20speaker..jpg",
+    "note": "cut from assets/bg-web/audio-jbl-speaker-4.jpg by scripts/cut_vehicle_photos.py. a red JBL Go speaker"
+  },
+  "photo-audio-galaxy-buds-cases": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Gannu03",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASamsung%20Galaxy%20Buds%20FE%20and%20Samsung%20Galaxy%20Buds2%20Pro.jpg",
+    "note": "cut from assets/bg-web/audio-samsung-galaxy-buds-3.jpg by scripts/cut_vehicle_photos.py. two Samsung Galaxy Buds cases, white and black"
+  },
+  "photo-audio-sonos-play1": {
+    "license": "CC BY-SA 2.0",
+    "artist": "The Unwinder",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASonos%20One%20speaker%20white%20-%20vertical%20(40299333622).jpg",
+    "note": "cut from assets/bg-web/audio-sonos-speaker-4.jpg by scripts/cut_vehicle_photos.py. a white Sonos Play:1 speaker"
+  },
+  "photo-camera-canon-100mm": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Lucasbosch",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACanon%20EF%20100mm%20f2.8L%20Macro%20IS%20USM%20front%20horizontal.jpg",
+    "note": "cut from assets/bg-web/cameras-camera-lens-1.jpg by scripts/cut_vehicle_photos.py. a Canon EF 100mm f/2.8L Macro lens"
+  },
+  "photo-camera-canon-5d2": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Charles Lanteigne; edited by jjron (increased canvas size)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACanon%20EOS%205D%20Mark%20II%20with%2050mm%201.4%20edit1.jpg",
+    "note": "cut from assets/bg-web/cameras-canon-eos-5d-1.jpg by scripts/cut_vehicle_photos.py. a Canon EOS 5D Mark II with a 50mm lens"
+  },
+  "photo-camera-canon-5d2-front": {
+    "license": "CC BY-SA 3.0",
+    "artist": "Charles Lanteigne",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACanon%20EOS%205D%20Mark%20II%20with%2050mm%201.4.jpg",
+    "note": "cut from assets/bg-web/cameras-canon-eos-5d-2.jpg by scripts/cut_vehicle_photos.py. a Canon EOS 5D Mark II with a 50mm lens, front three-quarter"
+  },
+  "photo-camera-canon-r5": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Harrison Jones",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACanon%20EOS%20R5.jpg",
+    "note": "cut from assets/bg-web/cameras-canon-eos-r5-1.jpg by scripts/cut_vehicle_photos.py. a Canon EOS R5 body"
+  },
+  "photo-camera-canon-r6": {
+    "license": "CC BY-SA 4.0",
+    "artist": "GodeNehler",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACanon%20R6%20und%20RF%2085%202%2C0-8067.jpg",
+    "note": "cut from assets/bg-web/cameras-canon-eos-r6-3.jpg by scripts/cut_vehicle_photos.py. a Canon EOS R6 with an RF lens"
+  },
+  "photo-camera-dji-mini-4-pro": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Jacek Halicki",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2024%20Dron%20DJI%20Mini%204%20Pro%20(01).jpg",
+    "note": "cut from assets/bg-web/cameras-dji-mini-4-pro-2.jpg by scripts/cut_vehicle_photos.py. a DJI Mini 4 Pro drone, arms out"
+  },
+  "photo-camera-fujifilm-xt5": {
+    "license": "CC0",
+    "artist": "Müllowitsch",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFujifilm%20X-T5.jpg",
+    "note": "cut from assets/bg-web/cameras-fujifilm-x-t5-2.jpg by scripts/cut_vehicle_photos.py. a silver Fujifilm X-T5 with a zoom lens"
+  },
+  "photo-camera-gopro": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Greyfiveys",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGoPro%20Hero%209%20Black%20-%20Front%202.jpg",
+    "note": "cut from assets/bg-web/cameras-gopro-hero-1.jpg by scripts/cut_vehicle_photos.py. a GoPro HERO action camera"
+  },
+  "photo-camera-leica-q2": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Ferencvizi",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALeica%20Q2%20(L1000042).jpg",
+    "note": "cut from assets/bg-web/cameras-leica-q2-4.jpg by scripts/cut_vehicle_photos.py. a Leica Q2 with lens hood"
+  },
+  "photo-camera-nikon-z8": {
+    "license": "CC BY 2.0",
+    "artist": "Henry Söderlund from Helsinki, Finland",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANikon%20Z8%20(52956802197).jpg",
+    "note": "cut from assets/bg-web/cameras-nikon-z8-3.jpg by scripts/cut_vehicle_photos.py. a Nikon Z8 with a zoom lens"
+  },
+  "photo-camera-sony-a7r-gm": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Sony Europe",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASony%20SEL100F28GM%20A7R%20II%202%20Freigestellt.png",
+    "note": "cut from assets/bg-web/cameras-sony-a7r-2.jpg by scripts/cut_vehicle_photos.py. a Sony a7R with a G Master lens"
+  },
+  "photo-camera-sony-a7r5": {
+    "license": "CC BY-SA 4.0",
+    "artist": "PantheraLeo1359531",
+    "page": "https://commons.wikimedia.org/wiki/File%3A2026-07-25%20Frontansicht%20der%20Sony%20a7R%20VI%20mit%20Focus%20Stacking%20HOF6832.png",
+    "note": "cut from assets/bg-web/cameras-sony-a7r-3.jpg by scripts/cut_vehicle_photos.py. a Sony a7R V body"
+  },
+  "photo-camera-sony-a7r-body": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Denis Barthel",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASony%20A7RMII.jpg",
+    "note": "cut from assets/bg-web/cameras-sony-a7r-4.jpg by scripts/cut_vehicle_photos.py. a Sony a7R body"
+  },
+  "photo-camera-sony-a7iv": {
+    "license": "CC BY 2.0",
+    "artist": "Henry Söderlund from Helsinki, Finland, Finland",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASony%20A7%20IV%20(ILCE-7M4)%20-%20by%20Henry%20S%C3%B6derlund%20(51739988735).jpg",
+    "note": "cut from assets/bg-web/cameras-sony-alpha-a7-iv-1.jpg by scripts/cut_vehicle_photos.py. a Sony a7 IV with a zoom lens"
+  },
+  "photo-camera-sony-a7iv-zoom": {
+    "license": "CC0",
+    "artist": "Bautsch",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASony.alpha.7IV.G-Master.24-105mm.DSC00141.jpg",
+    "note": "cut from assets/bg-web/cameras-sony-alpha-a7-iv-4.jpg by scripts/cut_vehicle_photos.py. a Sony a7 IV with a zoom lens, from above"
+  },
+  "photo-wear-vision-pro": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Steve Zhang",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAR-%20Apple%20Vision%20Pro%20(2023).png",
+    "note": "cut from assets/bg-web/wearables-apple-vision-pro-3.jpg by scripts/cut_vehicle_photos.py. an Apple Vision Pro with the Solo Knit Band"
+  },
+  "photo-wear-watch-s10-pair": {
+    "license": "Public domain",
+    "artist": "KK IN HK",
+    "page": "https://commons.wikimedia.org/wiki/File%3AApple%20Watch%20Series%2010.png",
+    "note": "cut from assets/bg-web/wearables-apple-watch-series-10-1.jpg by scripts/cut_vehicle_photos.py. two Apple Watch Series 10 with Sport Bands"
+  },
+  "photo-wear-watch-s10-milanese": {
+    "license": "CC BY-SA 4.0",
+    "artist": "KK IN HK",
+    "page": "https://commons.wikimedia.org/wiki/File%3AApple%20Watch%2010.png",
+    "note": "cut from assets/bg-web/wearables-apple-watch-series-10-2.jpg by scripts/cut_vehicle_photos.py. two Apple Watch Series 10 with Milanese Loops"
+  },
+  "photo-wear-watch-s9-pair": {
+    "license": "CC BY 2.0",
+    "artist": "MIKI Yoshihito",
+    "page": "https://commons.wikimedia.org/wiki/File%3AApple%20Watch%20Series%207%3B%20January%202022%20(01).jpg",
+    "note": "cut from assets/bg-web/wearables-apple-watch-series-9-4.jpg by scripts/cut_vehicle_photos.py. two Apple Watch Series 9"
+  },
+  "photo-wear-ray-ban-meta": {
+    "license": "CC BY-SA 4.0",
+    "artist": "cavebear42",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARay-Ban%20Stories.jpg",
+    "note": "cut from assets/bg-web/wearables-meta-ray-ban-1.jpg by scripts/cut_vehicle_photos.py. Ray-Ban Meta smart glasses"
   }
 }

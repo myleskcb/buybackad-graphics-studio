@@ -97,6 +97,44 @@ QUERIES.apple = ['iPhone 17 Pro', 'iPhone 17 Pro Max', 'iPhone Air', 'iPhone 17'
   'iPad (A16)', 'MacBook Air M1', 'MacBook Air M2', 'MacBook Air M3', 'MacBook Air M4', 'MacBook Air 15-inch',
   'MacBook Pro 14-inch M1 Pro', 'MacBook Pro 14-inch M3', 'MacBook Pro 16-inch M1 Max', 'MacBook Pro M4', 'MacBook Pro 13-inch M1',
   'iMac 24-inch M1', 'iMac M3', 'iMac M4', 'Mac Studio', 'Mac mini M4', 'Mac mini M2', 'Apple Studio Display', 'Apple Pro Display XDR'];
+/* owner, 2026-10-04: "more variety?" -> more car models and colours, and the
+   other buy lines photographed for real */
+QUERIES.popular2 = ['Hyundai Palisade', 'Hyundai Santa Fe', 'Hyundai Ioniq 6', 'Hyundai Kona', 'Kia Sportage', 'Kia Sorento',
+  'Kia Carnival', 'Kia EV6', 'Kia EV9', 'Kia Soul', 'Nissan Altima', 'Nissan Pathfinder', 'Nissan Titan', 'Nissan Z', 'Nissan GT-R',
+  'Volkswagen Jetta', 'Volkswagen Atlas', 'Volkswagen Tiguan', 'Volkswagen Golf GTI', 'Volkswagen ID.4', 'Subaru Crosstrek',
+  'Subaru WRX', 'Mazda3', 'Mazda CX-90', 'Mazda MX-5 Miata', 'Chevrolet Malibu', 'Chevrolet Traverse', 'Chevrolet Suburban',
+  'Chevrolet Camaro', 'Chevrolet Trax', 'GMC Yukon', 'GMC Hummer EV', 'Buick Enclave', 'Dodge Durango', 'Dodge Challenger',
+  'Chrysler Pacifica', 'Jeep Cherokee', 'Jeep Compass', 'Jeep Wagoneer', 'Ford Expedition', 'Ford Edge', 'Ford Mustang Mach-E',
+  'Lincoln Navigator', 'Lincoln Aviator', 'Toyota Sequoia', 'Toyota Venza', 'Toyota Crown', 'Toyota GR86', 'Honda HR-V',
+  'Honda Passport', 'Honda Odyssey', 'Acura MDX', 'Acura RDX', 'Acura Integra', 'Lexus ES', 'Lexus NX', 'Lexus GX', 'Lexus LX',
+  'Infiniti QX60', 'Genesis GV80', 'Genesis G70', 'Audi Q5', 'Audi Q7', 'Audi A4', 'Audi R8', 'Audi e-tron GT', 'BMW 3 Series',
+  'BMW 5 Series', 'BMW X3', 'BMW X7', 'BMW M4', 'BMW i4', 'Mercedes-Benz C-Class', 'Mercedes-Benz E-Class', 'Mercedes-Benz GLC',
+  'Mercedes-Benz GLS', 'Mercedes-AMG GT', 'Porsche Cayenne', 'Porsche Macan', 'Porsche Taycan', 'Porsche Panamera',
+  'Land Rover Defender 110', 'Range Rover Sport', 'Volvo XC60', 'Volvo XC90', 'Lucid Air', 'Polestar 2', 'Mini Cooper',
+  'Ferrari 296', 'Ferrari Roma', 'Ferrari F8', 'McLaren 720S', 'Aston Martin DB11', 'Maserati MC20', 'Rolls-Royce Ghost',
+  'Bentley Continental GT', 'Lamborghini Huracan', 'Lamborghini Aventador'];
+QUERIES.colours = ['Toyota Camry', 'Toyota Corolla', 'Toyota RAV4', 'Toyota Tacoma', 'Toyota 4Runner', 'Toyota Highlander',
+  'Toyota Tundra', 'Honda Civic', 'Honda Accord', 'Honda CR-V', 'Ford F-150', 'Ford Bronco', 'Chevrolet Silverado',
+  'Tesla Model 3', 'Tesla Model Y', 'Jeep Wrangler', 'Ram 1500', 'Ford Mustang', 'Chevrolet Corvette', 'Mercedes-AMG G 63']
+  .flatMap(m => ['red', 'blue', 'black', 'grey'].map(c => m + ' ' + c));
+QUERIES.gold = ['gold bullion bar', 'gold coin American Eagle', 'gold Krugerrand', 'gold Maple Leaf coin', 'gold chain necklace',
+  'gold ring', 'gold bracelet', 'gold watch Rolex', 'gold nugget', 'gold jewelry'];
+QUERIES.silver = ['silver bullion bar', 'American Silver Eagle', 'silver Maple Leaf coin', 'Morgan silver dollar', 'Peace dollar',
+  'sterling silver flatware', 'silver tea set', 'silver bracelet', 'silver bars stack', 'silver coins'];
+QUERIES.coins = ['Morgan dollar', 'Walking Liberty half dollar', 'Saint-Gaudens double eagle', 'Indian Head cent', 'Buffalo nickel',
+  'Mercury dime', 'Lincoln wheat penny', 'Liberty Head double eagle', 'PCGS slab coin', 'NGC graded coin', 'coin collection'];
+QUERIES.sportsc = ['PSA graded card slab', 'sports trading card', 'baseball card', 'basketball card', 'football card',
+  'graded trading card', 'trading card collection', 'card binder'];
+QUERIES.poke = ['Pokemon trading card game', 'Pokemon booster pack', 'Pokemon card PSA', 'Pokemon cards', 'Pokemon booster box'];
+QUERIES.gaming = ['PlayStation 5', 'PlayStation 5 Pro', 'Xbox Series X', 'Xbox Series S', 'Nintendo Switch', 'Nintendo Switch OLED',
+  'Nintendo Switch 2', 'Steam Deck', 'DualSense controller', 'Xbox controller', 'Meta Quest 3', 'ROG Ally', 'gaming laptop'];
+QUERIES.audio = ['AirPods Pro', 'AirPods Max', 'AirPods 4', 'Sony WH-1000XM5', 'Bose QuietComfort headphones', 'Beats Studio Pro',
+  'Sony WF-1000XM5', 'Samsung Galaxy Buds', 'Beats Fit Pro', 'Bose QuietComfort Earbuds', 'Sonos speaker', 'JBL speaker'];
+QUERIES.cameras = ['Canon EOS R5', 'Canon EOS R6', 'Sony Alpha a7 IV', 'Sony a7R', 'Nikon Z6', 'Nikon Z8', 'Fujifilm X-T5',
+  'Fujifilm X100V', 'Leica Q2', 'GoPro HERO', 'DJI Mini 4 Pro', 'DJI Mavic 3', 'DJI Osmo Pocket', 'Canon EOS 5D', 'camera lens'];
+QUERIES.wearables = ['Apple Watch Ultra', 'Apple Watch Series 9', 'Apple Watch Series 10', 'Apple Watch', 'Galaxy Watch',
+  'Pixel Watch', 'Garmin Fenix', 'Apple Vision Pro', 'Meta Ray-Ban'];
+const PORTRAIT_OK = new Set(['apple', 'gold', 'silver', 'coins', 'sportsc', 'poke', 'gaming', 'audio', 'cameras', 'wearables']);
 /* SKIP=file.json (an ATTRIBUTION list) skips Commons files already downloaded under another name */
 const SKIP = new Set(process.env.SKIP ? JSON.parse(readFileSync(process.env.SKIP, 'utf8')).map(a => a.title) : []);
 /* CATS=popular,trucks,vans,semis fetches only those pools (PER=6 for more to choose from) */
@@ -146,7 +184,7 @@ for (const [cat, qs] of Object.entries(QUERIES)){
       if (SKIP.has(pg.title) || att.some(a => a.title === pg.title)) continue;
       if (PRESS.test(pg.title + ' ' + ((m.Artist || {}).value || '') + ' ' + ((m.Credit || {}).value || ''))) continue;
       /* a phone or a tablet is often shot upright: the apple pool takes portrait too */
-      if (cat === 'apple' ? Math.max(ii.width || 0, ii.height || 0) < 1600 || Math.min(ii.width || 0, ii.height || 0) < 900
+      if (PORTRAIT_OK.has(cat) ? Math.max(ii.width || 0, ii.height || 0) < 1600 || Math.min(ii.width || 0, ii.height || 0) < 900
                           : (ii.width || 0) < 1600 || (ii.height || 0) < 900 || ii.width < ii.height) continue;
       if (!/\.(jpe?g|png)$/i.test(pg.title)) continue;
       const file = cat + '-' + slug(q) + '-' + (n + 1) + '.jpg';
