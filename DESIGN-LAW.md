@@ -3893,3 +3893,66 @@ action on an orange or gold box takes the box's hue at its own dark
 luminance (rule 104's plate ink: `#3e1200` brown on gradientWave-nn05-15,
 `#332b00` under Orchid Payday), which no branch guards yet: under the muddy
 floor it should take the deep hue, as rule 103 says of a warm accent.
+
+**Added 2026-10-04: the look, and making a set your own.** The owner: "we
+just need to be able to tweak it to our liking or the style of our business",
+then, of the builder's one white card among dark ones: "Maybe somewhere at
+the top, we choose dark or light theme so ... dark mode, supportive themes
+versus light mode, supportive themes slightly alter it".
+
+- **A look at the head of the builder: Dark or Light.** Every suggestion is
+  solved in the chosen look. Dark is the twelve's look: a deep background
+  (navy, blue, teal, green, red, purple, or black), text near-white, the
+  bright colour light enough to stand out. Light is its mirror: the colours
+  whose name needs light (yellow, gold, lime, cyan, pink, orange; `lY`) are
+  the background as a real colour, never a pastel (rule 103), or white with
+  a breath of the cool colour; text navy-, green- or purple-black; the bright
+  colour drawn deep (navy, blue, red, green, purple, teal, raspberry). So on
+  Light a gold becomes the card and navy the words ("Gold & Navy"); black is
+  the text there and white is the text on Dark, so each stays in its own
+  look, and a pair that only works in the other look is listed under "On
+  Dark" or "On Light" with a button to switch. A ready-made set is marked
+  ready-made only in its own look (Silver & Blue light, the eleven dark).
+- **No outlines.** The owner asked whether the accents could take an outline
+  on Light; rule 1 forbids outlines on type, so a colour that cannot read on
+  a light background is drawn deeper, or becomes the background, instead.
+- **Make it yours.** Each colour of a set has a shade slider (the bright
+  colour a strength slider too), a picker and a code box for an exact colour,
+  and the background a style (flat, soft fade, deep fade; soft is the set's
+  own step between its stops). A slider's ends are the last values at which
+  the set still passes with the other colours as they stand (`cbRange`, on
+  the grid it stepped), so a tweak can make a set lighter, darker, quieter or
+  louder, never unreadable; with no room, the slider is off and says why. A
+  tweak is held to the same law plus three jobs in three colours: the bright
+  colour and the small print keep rule 103's chroma floor where the screen
+  can show it, the small print is neither the bright colour nor the text,
+  and a set has two colour families at most (`cbFamilies`; the near-black or
+  near-white text does not count). The named band is not enforced on a
+  tweak: a business may make its red lighter than a red.
+- **An exact colour is the visitor's.** A typed or picked colour is used as
+  typed where the set passes; where it does not, the small print moves first
+  (fitted, then drawn fresh from the families), then the other main colour,
+  and only then the visitor's own colour, keeping its hue and lifting its
+  chroma to the floor (an olive lightened at its own chroma is khaki). The
+  page says what moved, by how much and to what code (rule 16). A grey or
+  white cannot be the bright colour or the small print, a light background
+  on Dark or a dark one on Light points to the other look, and a third hue
+  for the small print is refused with the reason.
+- **Names and edits.** A set can be named ("Joe's Phones"); a saved set opens
+  for editing, Save changes keeps it in place, and a new name keeps the old
+  one in `aka`, which `ezThemeByName` reads, so a draft or a project made
+  under the old name still opens in it.
+
+Measured with colour_builder_audit.mjs (now both looks and the tweaks): on
+Dark 68 pairs and 204 sets, on Light 67 pairs and 204 sets, 0 failing; 1,804
+tweaked sets (both ends of every slider on every set, each style the builder
+offers, sixteen typed brand colours on the first set of each colour), 0
+failing on the audit's own maths; worst bright colour 4.50:1, for
+colour-blind readers 3.18:1, against the text 1.70:1, small print 4.50:1. A
+builder whose sliders reach 0.15 past their range, or that passes every
+tweak unchecked, fails it. On cards, the twenty sets the fourteen colours
+open on in both looks: 0 of 120 renders lose a line. The muddy paint the
+"Known" paragraph above describes is commoner on Light, where the card's
+leading hue is often the warm background (28 of 60 light renders, 19 of 60
+dark); the same twenty sets on three classics draw it in 24 of 60 renders on
+`main` and in 0 of 60 on `claude/fervent-pascal-w6mthe`.

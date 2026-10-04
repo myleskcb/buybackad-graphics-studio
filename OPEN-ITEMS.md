@@ -1591,3 +1591,21 @@ Still open:
 4. Choice holds (rule 101) do not cover built sets; the gate does (pgGate
    before every download). If a built set should be held per card like the
    house themes, `every_card_audit.mjs` needs to learn them.
+
+**2026-10-04, the look and the tweaks** (same branch). A Dark / Light look
+at the head of the builder; on Light the colours whose name needs light
+(yellow, gold, lime, cyan, pink, orange) are the background and the partner
+is drawn deep. Make it yours: shade and strength sliders that stop where the
+words would get hard to read, exact colours by picker or code (used as typed
+where they pass, else the nearest that does, said so), flat / soft / deep
+background, a name, and saved sets that open for editing (a rename keeps the
+old name in `aka`, so drafts still find the set). Checked: the audit on both
+looks and 1,804 tweaked sets, 0 failing; on cards, the twenty sets the fourteen colours open on in both looks, on six cards (bandKnockout-pp02-15 no longer opens on `main` and was skipped): 0 of 120 renders lose a line. Muddy paint under 47 of them (dark 19 of 60, light 28 of 60; house control 7 of 12), all from item 2's passes: the same twenty sets on three classics draw muddy paint in 24 of 60 renders here and 0 of 60 on `claude/fervent-pascal-w6mthe`, with no line lost on either; the flow in
+headless Chromium (save with a typed name, edit, rename, use, reload by the
+old name, gate passing); the production CSP light and dark; landing_check
+clean at 390 and 1440.
+
+5. **Light sets on a gold or yellow background meet item 2 hardest**: on
+   `main` the one-colour pass folds a card's dark panels into the card's
+   leading hue, and on Light that hue is the warm background. The live
+   branch's rule 95 reconciliation is the fix (item 1).

@@ -418,8 +418,11 @@ produced." DESIGN-LAW rule 87. In practice:
   before it is shown, and saved sets live in localStorage `pgfx_my_colours`,
   found by `ezThemeByName`. Before a commit that touches it, the colour
   helpers it calls (hexToOklch, oklchFit, pgLum, pgCr) or the theme passes,
-  run `node scripts/colour_builder_audit.mjs` (about half an hour;
-  `--sets-only` takes seconds).
+  run `node scripts/colour_builder_audit.mjs` (about an hour: both looks,
+  every slider end, typed brand colours, then sets on cards; `--sets-only`
+  takes about a minute). A tweak never leaves the law: a slider's ends are
+  `cbRange`'s, an exact colour goes through `cbExact`, and anything saved
+  passes `cbTweakOk`. Saved sets can be renamed; old names live in `aka`.
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its

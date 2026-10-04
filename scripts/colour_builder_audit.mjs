@@ -8,9 +8,9 @@
  * the Brettel/Viénot simulation as theme_law.mjs writes them, and rule 103's
  * muddy() and namedBand() imported from refresh_palettes.mjs itself.
  *
- *   sets   every starting colour (and a few colours a visitor might pick),
- *          every partner it lists, every arrangement, every small-print
- *          option. Each must hold:
+ *   sets   both looks (dark and light), every starting colour (and a few
+ *          colours a visitor might pick), every partner it lists, every
+ *          arrangement, every small-print option. Each must hold:
  *            text on both background stops    >= 4.5 normal, protan, deutan, tritan
  *            bright colour on both stops      >= 4.5 normal, >= 3.0 worst colour-blind
  *            bright colour against the text   >= 1.7 (the money word is a colour)
@@ -21,7 +21,13 @@
  *            print within 30 degrees of the background's or a bright
  *            colour's hue (two families, rules 95 and 103)
  *          and every one of rule 103's twelve ready-made pairs must be
- *          offered from both of its colours.
+ *          offered from both of its colours, in its own look (Silver &
+ *          Blue on light, the other eleven on dark).
+ *   tweaks the two ends of every slider on every set (background shade,
+ *          bright colour shade and strength, small print shade), each
+ *          background style the builder offers, and a list of typed brand
+ *          colours on a sample of sets: scored the same way, except the
+ *          named band (a visitor may make their red lighter than a red).
  *   cards  (skip with --sets-only) one set per starting colour on a sample of
  *          cards, applied in Easy Mode the way a visitor applies it, measured
  *          by the gate (pgCheck, rule 87) against the card's own colours: a
@@ -40,7 +46,7 @@
 import puppeteer from 'puppeteer-core';
 import { writeFileSync } from 'node:fs';
 import { BASE, offline } from './_showcase_harness.mjs';
-import { muddy, namedBand, parse, toOklch, lumOf } from './refresh_palettes.mjs';
+import { muddy, namedBand, parse, toOklch, atLuminance } from './refresh_palettes.mjs';
 
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const SETS_ONLY = process.argv.includes('--sets-only');
@@ -75,7 +81,7 @@ const worst = (fg, grounds, kinds) => Math.min(...kinds.flatMap(k => grounds.map
 const ok = hex => toOklch(parse(hex));
 const gap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
 
-function score(t){
+function score(t, tweak){
   const g = [t.c1, t.c2], bad = [];
   const text = worst(t.ink, g, ['normal', ...CVD]);
   const bright = worst(t.accent, g, ['normal']), brightCvd = worst(t.accent, g, CVD);
@@ -90,15 +96,19 @@ function score(t){
   if (muddy(A.H, Ya)) bad.push('bright muddy');
   if (Sp.C >= 0.05 && muddy(Sp.H, Ys)) bad.push('small print muddy');
   const band = namedBand(A.H);
-  if (Ya < band[0] - 1e-4 || Ya > band[1] + 1e-4) bad.push(`bright outside its named band (Y ${Ya.toFixed(3)})`);
-  if (A.C < 0.09) bad.push('bright dull C ' + A.C.toFixed(3));
-  if (Sp.C < 0.09) bad.push('small print dull C ' + Sp.C.toFixed(3));
-  /* the families on the set: the bright colour, the background when it is
-     a colour, the second colour of a white set, and dark text that carries
-     a hue (navy-black text and navy small print are one family) */
-  const G = ok(t.c1), I = ok(t.ink);
-  const fams = [A.H].concat(G.C >= 0.03 ? [G.H] : [], t.pairHex ? [ok(t.pairHex).H] : [], I.C >= 0.02 && lum(t.ink) < 0.2 ? [I.H] : []);
-  if (!fams.some(h => gap(h, Sp.H) <= 30)) bad.push('small print is a third colour');
+  if (!tweak && (Ya < band[0] - 1e-4 || Ya > band[1] + 1e-4)) bad.push(`bright outside its named band (Y ${Ya.toFixed(3)})`);
+  /* rule 103's chroma floor where the screen can show it: 0.12 (0.13 warm),
+     or the most the gamut holds at that luminance less 0.02, never under
+     0.06 (a deep teal holds 0.07) */
+  const floorC = (h, Y) => { const most = toOklch(atLuminance(h, 0.4, Y)).C; return Math.max(0.06, Math.min(h >= 35 && h < 140 ? 0.13 : 0.12, most - 0.02)) - 0.005; };
+  if (A.C < floorC(A.H, Ya)) bad.push('bright dull C ' + A.C.toFixed(3));
+  if (Sp.C < floorC(Sp.H, Ys)) bad.push('small print dull C ' + Sp.C.toFixed(3));
+  /* two families at most (rules 95, 103): the bright colour, the small
+     print and the background when it is a colour; the text is near-black or
+     near-white and does not count; within 30 degrees is one family */
+  const fams = [];
+  [A, Sp].concat(ok(t.c1).C >= 0.03 ? [ok(t.c1)] : []).forEach(o => { if (!fams.some(h => gap(h, o.H) <= 30)) fams.push(o.H); });
+  if (fams.length > 2) bad.push('a third colour family');
   return { bad, text, bright, brightCvd, vsText, small, number };
 }
 
@@ -124,46 +134,74 @@ const report = { sets: [], left: [], ready: [], cards: [] };
   /* the live counts the landing sorts by, once the library is in */
   await page.waitForFunction(() => typeof SHOWCASE !== 'undefined' && SHOWCASE.palN, { timeout: 60000 }).catch(() => {});
   const all = await page.evaluate(picks => {
-    const out = [], left = [], counts = (SHOWCASE && SHOWCASE.palN) || {};
+    const out = [], left = [], tweaks = [], counts = (SHOWCASE && SHOWCASE.palN) || {};
     const starts = CB_COLOURS.map(c => c.key).concat(picks);
-    starts.forEach(k => {
-      const S = cbColour(k), r = cbPartners(S, counts);
-      r.left.forEach(l => left.push({ start: k, partner: l.P.key, why: l.why }));
+    const row = (th, extra) => Object.assign({ name: th.name, c1: th.bg.c1, c2: th.bg.c2, ink: th.ink, accent: th.accent, support: th.support, pin: cbPlateInk(th) }, extra);
+    const BRAND = { bg: ['#1a1a2e', '#0d3b66', '#2b6cb0', '#14532d', '#3c1361', '#7f1d1d', '#ffffff', '#fff3c4', '#e0f7fa'],
+      acc: ['#ffd700', '#e10600', '#ff6b00', '#00a86b', '#7a5c00', '#1e90ff', '#c0c0c0'], sup: ['#00ff00', '#9bd1ff', '#ffe08a'] };
+    ['dark', 'light'].forEach(mode => starts.forEach(k => {
+      const S = cbColour(k), r = cbPartners(S, counts, mode);
+      r.left.forEach(l => left.push({ mode, start: k, partner: l.P.key, why: l.why }));
       r.list.forEach((x, pi) => x.sets.forEach((set, ai) => set.supports.forEach((_, si) => {
         const th = cbTheme(set, si);
-        out.push({ start: k, partner: x.P.key, pi, ai, si, name: th.name, ready: x.ready, n: x.n, mode: set.mode,
-          c1: th.bg.c1, c2: th.bg.c2, ink: th.ink, accent: th.accent, support: th.support, pin: cbPlateInk(th),
-          pairHex: set.pair ? set.pair.hex : null, own: cbCheck(th).ok });
+        out.push(row(th, { mode, start: k, partner: x.P.key, pi, ai, si, ready: x.ready, n: x.n, setMode: set.mode, pairHex: set.pair ? set.pair.hex : null, own: cbCheck(th).ok && cbTweakOk(th) }));
+        if (si || k.startsWith('#')) return;
+        /* the tweaks: each slider's two ends, each style the builder offers */
+        [['bg', 'L'], ['acc', 'L'], ['acc', 'C'], ['sup', 'L']].forEach(([key, f]) => {
+          const rg = cbRange(th, set.mode, {}, key, f); if (!rg) return;
+          [rg.lo, rg.hi].forEach(v => { const tw = { [key]: Object.assign(cbCur(th, set.mode, {}, key), { [f]: v }) };
+            const t2 = cbApply(th, set.mode, tw); tweaks.push(row(t2, { mode, start: k, partner: x.P.key, what: key + '.' + f + '=' + v.toFixed(3), own: cbTweakOk(t2) })); });
+        });
+        ['flat', 'deep'].forEach(g => { const t2 = cbApply(th, set.mode, { grad: g, bg: cbLch(th.bg.c1) });
+          if (cbTweakOk(t2)) tweaks.push(row(t2, { mode, start: k, partner: x.P.key, what: 'style ' + g, own: true })); });
+        /* typed brand colours, on the first set of each starting colour */
+        if (pi || ai) return;
+        Object.entries(BRAND).forEach(([key, hexes]) => hexes.forEach(hex => { const e = cbExact(th, set.mode, {}, key, hex);
+          if (e.tw){ const t2 = cbApply(th, set.mode, e.tw); tweaks.push(row(t2, { mode, start: k, partner: x.P.key, what: key + ' typed ' + hex, own: cbTweakOk(t2) })); } }));
       })));
-    });
-    return { out, left, ready: CB_READY, partners: Object.fromEntries(CB_COLOURS.map(c => [c.key, cbPartners(cbColour(c.key), counts).list.map(x => x.P.key)])) };
+    }));
+    const partners = Object.fromEntries(['dark', 'light'].map(m => [m, Object.fromEntries(CB_COLOURS.map(c => [c.key, cbPartners(cbColour(c.key), counts, m).list.filter(x => x.ready).map(x => x.P.key)]))]));
+    return { out, left, tweaks, ready: CB_READY, light: CB_READY_LIGHT, partners };
   }, PICKS);
   for (const t of all.out){
     const s = score(t);
-    if (s.bad.length || !t.own){ fails++; console.log(`  FAIL ${t.start} + ${t.partner} (${t.name}, ${t.mode}, small print ${t.si}): ${s.bad.join('; ') || 'the builder\'s own check disagrees'}`); }
+    if (s.bad.length || !t.own){ fails++; console.log(`  FAIL ${t.mode} ${t.start} + ${t.partner} (${t.name}, small print ${t.si}): ${s.bad.join('; ') || 'the builder\'s own check disagrees'}`); }
     report.sets.push(Object.assign({}, t, { score: s }));
   }
-  /* rule 103's twelve, offered from both ends */
+  report.tweaks = [];
+  let tweakFails = 0;
+  for (const t of all.tweaks){
+    const s = score(t, true);
+    if (s.bad.length || !t.own){ fails++; tweakFails++; if (tweakFails <= 20) console.log(`  FAIL tweak ${t.mode} ${t.start} + ${t.partner} ${t.what}: ${s.bad.join('; ') || 'the builder\'s own check disagrees'}`); }
+    report.tweaks.push(Object.assign({}, t, { score: s }));
+  }
+  /* rule 103's twelve, offered from both ends, in their own look, and as ready-made */
   Object.entries(all.ready).forEach(([pair, name]) => {
-    const [a, b] = pair.split('+'), both = (all.partners[a] || []).includes(b) && (all.partners[b] || []).includes(a);
-    report.ready.push({ name, both });
-    if (!both){ fails++; console.log(`  FAIL ready-made ${name} is not offered from both ${a} and ${b}`); }
+    const m = all.light[name] ? 'light' : 'dark', [a, b] = pair.split('+');
+    const both = (all.partners[m][a] || []).includes(b) && (all.partners[m][b] || []).includes(a);
+    report.ready.push({ name, mode: m, both });
+    if (!both){ fails++; console.log(`  FAIL ready-made ${name} is not offered as ready-made from both ${a} and ${b} on ${m}`); }
   });
   report.left = all.left;
-  const shown = new Set(all.out.filter(t => !t.start.startsWith('#')).map(t => t.start + '+' + t.partner)).size;
-  const sum = k => all.out.reduce((m, t) => Math.min(m, score(t)[k]), Infinity);
-  console.log(`\nsets: ${all.out.length} sets (${shown} pairs from the 14 colours, plus ${PICKS.length} picked colours), ${all.left.length} pairs left out`);
-  console.log(`  worst text ${sum('text').toFixed(2)} · bright ${sum('bright').toFixed(2)} · bright colour-blind ${sum('brightCvd').toFixed(2)} · bright vs text ${sum('vsText').toFixed(2)} · small print ${sum('small').toFixed(2)} · number ${sum('number').toFixed(2)}`);
-  console.log(`  ready-made pairs offered from both colours: ${report.ready.filter(r => r.both).length} of ${report.ready.length}`);
-  all.left.filter(l => !l.start.startsWith('#')).forEach(l => console.log(`  left out: ${l.start} + ${l.partner}: ${l.why}`));
+  const sum = (list, k, tw) => list.reduce((m, t) => Math.min(m, score(t, tw)[k]), Infinity);
+  const worst = (list, tw) => `worst text ${sum(list, 'text', tw).toFixed(2)} · bright ${sum(list, 'bright', tw).toFixed(2)} · bright colour-blind ${sum(list, 'brightCvd', tw).toFixed(2)} · bright vs text ${sum(list, 'vsText', tw).toFixed(2)} · small print ${sum(list, 'small', tw).toFixed(2)} · number ${sum(list, 'number', tw).toFixed(2)}`;
+  for (const m of ['dark', 'light']){
+    const here = all.out.filter(t => t.mode === m), shown = new Set(here.filter(t => !t.start.startsWith('#')).map(t => t.start + '+' + t.partner)).size;
+    console.log(`\n${m}: ${here.length} sets (${shown} pairs from the 14 colours, plus ${PICKS.length} picked colours), ${all.left.filter(l => l.mode === m && !l.start.startsWith('#')).length} pairs left out`);
+    console.log('  ' + worst(here));
+  }
+  console.log(`\ntweaks: ${all.tweaks.length} tweaked sets (slider ends, styles, typed brand colours), ${tweakFails} failing`);
+  console.log('  ' + worst(all.tweaks, true));
+  console.log(`  ready-made pairs offered from both colours in their own look: ${report.ready.filter(r => r.both).length} of ${report.ready.length}`);
+  if (process.argv.includes('--left')) all.left.filter(l => !l.start.startsWith('#')).forEach(l => console.log(`  left out on ${l.mode}: ${l.start} + ${l.partner}: ${l.why}`));
   await ctx.close();
 
   if (!SETS_ONLY){
     /* the set each starting colour opens on (its first partner), each set
        once: navy and gold both open on Navy & Gold */
     const firsts = all.out.filter(t => !t.start.startsWith('#') && t.pi === 0 && t.ai === 0 && t.si === 0);
-    const sample = [...new Map(firsts.map(t => [t.name, t])).values()];
-    console.log(`\ncards: ${sample.length} builder sets (what the 14 colours open on) and ${CONTROL.length} house themes on ${CARDS.length} cards`);
+    const sample = [...new Map(firsts.map(t => [t.mode + ' ' + t.name, t])).values()];
+    console.log(`\ncards: ${sample.length} builder sets (what the 14 colours open on, dark and light) and ${CONTROL.length} house themes on ${CARDS.length} cards`);
     for (const card of CARDS){
       const { ctx, page } = await openPage();
       await page.evaluate(() => { loadAccount = async () => account; account = { email: 'audit@local', role: 'user', plan: 'pro' }; });
@@ -203,8 +241,8 @@ const report = { sets: [], left: [], ready: [], cards: [] };
       for (const t of sample){
         const th = { name: t.name, family: 'Yours', bg: { type: 'grad', c1: t.c1, c2: t.c2, a: 170 }, accent: t.accent, ink: t.ink, support: t.support };
         const m = await measure(th), reg = regress(m);
-        row.builder[t.name] = { reg, muddy: m.muddy };
-        if (reg.length){ fails++; console.log(`  FAIL ${card} in ${t.name}: ${reg.join(', ')}`); }
+        row.builder[t.mode + ' ' + t.name] = { reg, muddy: m.muddy };
+        if (reg.length){ fails++; console.log(`  FAIL ${card} in ${t.name} (${t.mode}): ${reg.join(', ')}`); }
       }
       for (const name of CONTROL){
         const m = await page.evaluate(n => COLOR_THEMES.find(t => t.name === n), name).then(measure);

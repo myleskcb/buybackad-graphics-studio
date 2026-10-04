@@ -2739,3 +2739,47 @@ RESUME HERE:
   0. Merge the live branch into `main`, then this branch (OPEN-ITEMS §AE 1),
      and deploy `main` from the Mac (AGENT-BRIEF, Deploying).
   1. Guard rule 104's plate ink with the muddy floor (§AE 2).
+
+## 2026-10-04 — the look, and making a set your own
+
+(claude/eager-hopper-khk7ct; not on `main`, as before.)
+
+The owner: "we just need to be able to tweak it to our liking or the style of
+our business/look of our business", then, of the builder's one white card
+among dark ones: "Maybe somewhere at the top, we choose dark or light theme".
+
+Found:
+  - Light is not dark inverted. The colours that are only themselves when
+    light (yellow, gold, lime, cyan, pink) cannot be words on white, so on
+    Light they are the background and the partner is drawn deep: Gold & Navy,
+    Yellow & Red, Cyan & Navy. Black is the text on Light and white on Dark.
+  - Outlines were asked for; rule 1 forbids them on type. Deep words on a
+    light colour do the job.
+  - A deep teal holds C 0.07 at most; a fixed 0.09 floor erased teal from
+    Light. The floor is what the gamut holds, never under 0.06.
+  - A slider's range has to be found on the grid it steps on, from a value
+    that passes: rounding the ends, or starting from the set as the solver
+    drew it while the tweak redrew its second stop, put 32 of 2,072 ends
+    outside the law. Soft fade is now the solver's own step.
+  - Navy-black text is black: counting it as a colour family failed three
+    good light sets. The family count is the bright colour, the small print
+    and a coloured background.
+  - A brand colour that is a dull olive (#7a5c00) has to gain chroma as it
+    lightens, or it is khaki; the fit lifts it to the floor.
+  - Buttons that read the set captured when the panel was drawn saved the
+    old name: the name is typed without a redraw, so actions read it live.
+  - A slider's range costs about 17 ms after memoising OKLCH, luminance and
+    the colour-blind simulation (37 ms before).
+
+Did: DESIGN-LAW rule 110, the addendum; colour-builder.js (the look, the
+tweak engine `cbApply`, `cbRange`, `cbFit`, `cbSettle`, `cbExact`,
+`cbTweakOk`, `cbFamilies`; the panel; edit, rename, save as new); `aka` in
+`ezThemeByName`; colour_builder_audit.mjs for both looks and the tweaks;
+AGENT-BRIEF; OPEN-ITEMS §AE.
+
+Checked: the audit on both looks (408 sets) and 1,804 tweaked sets, 0 failing; on cards, the twenty sets the fourteen colours open on in both looks, on six cards (bandKnockout-pp02-15 no longer opens on `main` and was skipped): 0 of 120 renders lose a line. Muddy paint under 47 of them (dark 19 of 60, light 28 of 60; house control 7 of 12), all from item 2's passes: the same twenty sets on three classics draw muddy paint in 24 of 60 renders here and 0 of 60 on `claude/fervent-pascal-w6mthe`, with no line lost on either; the flow in headless Chromium (a typed name saved, edited, renamed, used, and a draft under the old name reopening in it; the gate passing); the production CSP light and dark; landing_check clean at 390 and 1440.
+
+RESUME HERE:
+  0. Merge the live branch into `main`, then this branch (OPEN-ITEMS §AE 1),
+     and deploy `main` from the Mac (AGENT-BRIEF, Deploying).
+  1. Guard rule 104's plate ink with the muddy floor (§AE 2).
