@@ -1,6 +1,18 @@
 {
  "tracks": [
   {
+   "id": "small_note_boogaloo",
+   "title": "Small Note Boogaloo · USAF Airmen of Note",
+   "kind": "jazz",
+   "bpm": 126.4,
+   "beat": 0.16,
+   "from": 5.2,
+   "source": "File:Small Note Boogaloo - Airmen of Note - United States Air Force Band.mp3",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Small_Note_Boogaloo_-_Airmen_of_Note_-_United_States_Air_Force_Band.mp3",
+   "license": "Public domain",
+   "basis": "US Air Force (composed by MSgt Ben Patterson), public domain"
+  },
+  {
    "id": "eagle_eyes",
    "title": "Eagle Eyes · USAF Airmen of Note",
    "kind": "jazz",
@@ -11,6 +23,18 @@
    "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Eagle_Eyes_-_Airmen_of_Note_-_United_States_Air_Force_Band.mp3",
    "license": "Public domain",
    "basis": "US Air Force (composed by MSgt Jeff Martin), public domain"
+  },
+  {
+   "id": "sheridan_square",
+   "title": "Sheridan Square · USAF Airmen of Note",
+   "kind": "jazz",
+   "bpm": 133.4,
+   "beat": 0.56,
+   "from": 60.0,
+   "source": "File:Sheridan Square - Airmen of Note - United States Air Force Band.mp3",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/45/Sheridan_Square_-_Airmen_of_Note_-_United_States_Air_Force_Band.mp3",
+   "license": "Public domain",
+   "basis": "US Air Force (composed by MSgt Kevin Cerovich), public domain"
   },
   {
    "id": "sousa_funk",

@@ -3,11 +3,25 @@
 
 export const TRACKS = [
  {
+  "id": "small_note_boogaloo",
+  "title": "Small Note Boogaloo · USAF Airmen of Note",
+  "kind": "jazz",
+  "bpm": 126.4,
+  "beat": 0.16
+ },
+ {
   "id": "eagle_eyes",
   "title": "Eagle Eyes · USAF Airmen of Note",
   "kind": "jazz",
   "bpm": 80.0,
   "beat": 0.46
+ },
+ {
+  "id": "sheridan_square",
+  "title": "Sheridan Square · USAF Airmen of Note",
+  "kind": "jazz",
+  "bpm": 133.4,
+  "beat": 0.56
  },
  {
   "id": "sousa_funk",
