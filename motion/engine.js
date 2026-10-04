@@ -316,7 +316,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
     st.skew = 0;
   } else {
     // dark type crosses black glass somewhere in almost every layout (a spray halo carries it instead)
-    const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline", "glass"];
+    const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline", "glass", "outline_shadow", "underline_bar"];
     if (darkInk && !halo && !onPlate.includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = ["sticker", "box", "highlighter", "double_outline"][st.seed % 4];
     if (darkInk && st.text_fx === "neon") st.text_fx = "sticker";
     if (!darkInk && lum(p.accent) < 0.42 && st.color_mode !== "mono" && st.text_fx !== "box" && !locked.has("color_mode")) st.color_mode = "mono";
@@ -328,7 +328,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (lum(p.ground) > .4 && st.number_style === "neon" && !locked.has("number_style")) st.number_style = "pill";
   // one "quote" is enough: a tag and a label must not say the same thing twice
   if (st.tag && st.number_label && /QUOTE/i.test(st.tag) && /QUOTE/i.test(st.number_label) && !locked.has("number_label")) st.number_label = "";
-  if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow", "block3d"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
+  if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow", "block3d", "inline", "stamped", "pop_stack"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
   if (st.case === "title" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.05);
   if ((FONTS[st.font] || [])[3] === "wide" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.01);
   if (st.decor.includes("sparkle")) st.sparkles = true;
@@ -774,6 +774,23 @@ const LAID_OUT = {
     return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
       return [o * PW * .78, PH * .03 * k, Math.sign(o) * 8 * k, 1 - .08 * k, -k]; });
   },
+  // a row all leaning the same way, evenly apart: one angle for the whole set
+  tilt_row(n, r, tall, PH, PW) {
+    const lean = (r() < .5 ? -1 : 1) * r.uniform(8, 12), step = PW * (tall && n > 3 ? 1.08 : 1.2);
+    return spots(n, (t, i) => [(i - (n - 1) / 2) * step, 0, lean, 1, 0]);
+  },
+  // the middle phone risen a little above its neighbours, all one size, each tucked a
+  // quarter behind the one nearer the middle
+  rise(n, r, tall, PH, PW) {
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * PW * .8, k ? PH * .04 * k : -PH * .06, 0, 1, -k]; });
+  },
+  // a fanfare: the middle upright and in front, the rest fanned out behind it from its foot
+  fanfare(n, r, tall, PH, PW) {
+    const half = Math.min(30, 11 * (n - 1)), R = PH * .62;
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, f = (n > 1 ? lerp(-half, half, t) : 0) * Math.PI / 180;
+      return [R * Math.sin(f) * 1.15, -R * Math.cos(f), -f * 180 / Math.PI, 1 - .04 * Math.abs(o), -Math.abs(o)]; });
+  },
   // an arrow: two arms meeting at the phone in front
   chevron(n, r, tall, PH, PW) {
     const d = r() < .5 ? -1 : 1;
@@ -840,7 +857,7 @@ const LAID_OUT = {
 
 /** The styled sets drawn as mirror images about the middle phone. */
 const MIRRORED = new Set(["fan", "arc", "vee", "hand", "burst", "podium", "bookends", "tents", "headliner", "wings", "showcase", "lineup",
-  "gallery", "crown", "spotlight", "lean_in"]);
+  "gallery", "crown", "spotlight", "lean_in", "rise", "fanfare"]);
 
 /** n spots from f(t, i), t running 0..1 along them. */
 const spots = (n, f) => Array.from({ length: n }, (_, i) => f(n > 1 ? i / (n - 1) : .5, i));
@@ -1383,6 +1400,47 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       const g5 = ctx.createLinearGradient(0, pad, 0, pad + asc);
       [[0, shade(base, .55)], [.44, base], [.52, shade(base, -.28)], [.6, shade(base, .3)], [1, shade(base, -.08)]].forEach(([o, c2]) => g5.addColorStop(o, c2));
       ctx.shadowColor = darkInk ? shadowCol : "rgba(0,0,0,.45)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04; fillAll(g5); break;
+    }
+    // more treatments (owner, 2026-10-04: "now more")
+    case "pop_stack": {
+      // two offset copies behind the letters: the accent, then a deeper shade of it, a retro print
+      const d = Math.max(2, size * .045), deep = shade(accent, lum(accent) > .5 ? -.45 : -.3);
+      ctx.save(); ctx.translate(d * 2, d * 2); fillAll(deep); ctx.restore();
+      ctx.save(); ctx.translate(d, d); each((ch, cx, cy, c0) => { ctx.fillStyle = contrastOf(c0, accent) < 2.5 ? shade(c0, lum(c0) > .5 ? -.55 : .5) : accent; ctx.fillText(ch, cx, cy); }); ctx.restore();
+      fillAll(); break;
+    }
+    case "outline_shadow": {
+      // a thick keyline in the deep ground and a hard shadow under it
+      const line = darkInk ? "#ffffff" : shade(p.ground, -.6), d = Math.max(2, size * .05);
+      ctx.save(); ctx.translate(d, d); strokeAll(line, size * .16); fillAll(line); ctx.restore();
+      strokeAll(line, size * .12); fillAll(); break;
+    }
+    case "underline_bar": {
+      // a solid bar of the accent under the line, the letters standing on it
+      const bc = Math.abs(lum(accent) - lum(ink)) > .25 ? accent : (darkInk ? "#ffd60a" : shade(p.ground, -.5));
+      ctx.fillStyle = bc; ctx.fillRect(pad - size * .06, by + desc * .1, inkW + size * .12, Math.max(3, size * .12));
+      ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .03; fillAll(); break;
+    }
+    case "stamped": {
+      // inked with a rubber stamp: the letters knocked back in small specks, always the same specks
+      fillAll();
+      ctx.save(); ctx.globalCompositeOperation = "destination-out";
+      const n = Math.round(inkW * asc / (size * size) * 90);
+      for (let i = 0; i < n; i++) {
+        const u = (Math.sin(i * 12.9898 + chars.length * 78.233) * 43758.5453) % 1, v = (Math.sin(i * 39.3468 + size) * 24634.6345) % 1;
+        const rr = size * (.012 + .02 * Math.abs((Math.sin(i * 7.1) * 9631.7) % 1));
+        ctx.globalAlpha = .55 + .4 * Math.abs((Math.sin(i * 3.3) * 4219.9) % 1);
+        ctx.beginPath(); ctx.arc(pad + Math.abs(u) * inkW, pad + Math.abs(v) * (asc + desc * .3), rr, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore(); break;
+    }
+    case "inline": {
+      // a sign-painter's inline: a thin line of the ground drawn inside each letter
+      ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .03; fillAll(); noShadow();
+      ctx.save(); ctx.globalCompositeOperation = "source-atop"; strokeAll(darkInk ? "#ffffff" : p.ground, Math.max(1, size * .022)); ctx.restore();
+      fillAll(); ctx.save(); ctx.globalCompositeOperation = "source-atop"; ctx.globalAlpha = .55;
+      ctx.translate(-size * .012, -size * .012); strokeAll(darkInk ? "#ffffff" : mix(ink, p.ground, .5), Math.max(1, size * .014)); ctx.restore();
+      break;
     }
     default: fillAll();
   }

@@ -371,7 +371,7 @@ export const OPTIONS = {
   skew: [0, 0, 0, 8, 12, -8],
   text_fx: ["shadow", "hard_shadow", "outline", "sticker", "extrude", "box", "glow", "flat",
     "neon", "gradient", "chrome", "gold", "long_shadow", "highlighter", "double_outline", "rgb_split", "cutout",
-    "block3d", "glass", "foil"],
+    "block3d", "glass", "foil", "pop_stack", "outline_shadow", "underline_bar", "stamped", "inline"],
   color_mode: ["mono", "accent_word", "split_lines", "accent_line"],
   text_in: ["slide", "skew_slide", "slide_letters", "wipe", "slam", "drop_letters",
     "typewriter", "word_pop", "blur_in", "rise_mask", "flip_in", "stomp", "scramble", "spin_letters",
@@ -384,7 +384,7 @@ export const OPTIONS = {
   // styled, tidy sets only (owner, 2026-10-02: "stylistic arrangements of phones ... not
   // messy views"); piles, spirals, rings, towers, collages and the like are gone
   arrangement: ["lineup", "showcase", "wings", "fan", "hand", "podium", "headliner", "burst", "tents",
-    "gallery", "crown", "spotlight", "lean_in"],
+    "gallery", "crown", "spotlight", "lean_in", "tilt_row", "rise", "fanfare"],
   entry: ["fly_spin", "drop", "conveyor", "zoom", "orbit", "deal", "pop", "rain", "boomerang", "split", "spiral_in", "whip",
     "slide_up", "swing", "float_up", "zipper", "sweep", "pinwheel", "snap", "roll", "magnet", "shuffle", "flip_in"],
   end_face: ["back", "front", "mixed"],
@@ -501,7 +501,7 @@ export const WEIGHTS = {
   urgency: { none: 1 },
   number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
-  arrangement: { lineup: 3, showcase: 3, wings: 2, fan: 2, hand: 2, podium: 2, headliner: 2, burst: 1, tents: 1, gallery: 2, crown: 2, spotlight: 2, lean_in: 2 },
+  arrangement: { lineup: 3, showcase: 3, wings: 2, fan: 2, hand: 2, podium: 2, headliner: 2, burst: 1, tents: 1, gallery: 2, crown: 2, spotlight: 2, lean_in: 2, tilt_row: 2, rise: 2, fanfare: 1 },
   pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1 },   // turned, as often as a turntable, either edge
   accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
   accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
