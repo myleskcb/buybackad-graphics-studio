@@ -3721,3 +3721,51 @@ far apart the two had ended up.
 - `scripts/steps_rhythm_audit.mjs` exits 1 on a card whose three gaps differ
   by more than 2px or whose plate reads as a fourth step. `--before` turns
   both passes off (`window.__pgStepRhythmOff`, `__pgCtaStandOutOff`).
+
+## 109. The headline is the hero: it covers the card like every other card's does
+
+Added 2026-10-03. The owner, over `stepsFlow-du01-20` (one word, "iPHONE", in
+the top left of a Steps card, shown in rule 108's before-and-after): "How many
+times do I have to tell you this is not a hero. It's tiny little text that
+looks extremely out of place compared to every other graphic seriously????"
+
+The gate's thumbnail test (`pgCheck` 'thumb') reads the headline's font size:
+0.7 of it on a 160px tile must reach 8px, so any line set at 77px or more
+passes. A 104px extra-condensed word passes, and still looks like a caption.
+What the owner compares is how much of the card the headline's letters cover:
+
+| | px² of headline letters on the 1080 square |
+|---|---|
+| the live library's median | 99,000 |
+| its tenth percentile | 46,000 |
+| CASH IN / 3 STEPS, which reads as a hero | 41,000 to 46,000 |
+| the four Steps cards the owner's words fit | 14,000 to 24,000 |
+| six live cards (four reviewProof, two ticketStub) | 22,000 to 28,000 |
+
+- **The floor is 30,000 px² of letters** (`HERO_MIN` in
+  `scripts/hero_headline.mjs`), measured on the letters (`textInkRect`), not
+  the boxes, on the card as renderThumb lays it out.
+- **A headline under it grows as one block**, by the largest factor the card
+  allows on the real render: its left edge (or centre) kept, its top free to
+  rise to the 6% guide; its letters inside the guides, 38px off every plate,
+  badge and product, and 0.8 of their own height off copy beside them; on the
+  plate and the ground they stood on (the median of every row and column of
+  the ground under the letters and 16px round them, so a headline printed on
+  a slab's label stays on the label); nothing else on the card moving or
+  going (a row pushed down, or a product left out for want of room, is a
+  collision); a sparkle set beside it moving with it; no headline line's
+  contrast falling. A grey headline under 4.5:1 takes the card's near-white
+  (near-black on a light ground). Then the gate (`gateRecords`).
+- Grown: du01-20 (×2.4, 15k to 84k), jw05-31 (×2.24, grey to white, 14k to
+  69k), du03-35 (×1.79, 20k to 65k) and pp09-35 (×1.57, 24k to 59k), all held
+  off the site already; and on the site reviewProof-pp03-35, -io03-15,
+  -pp02-15 (×1.54), -pp02-20 (×1.28), ticketStub-ck03-15 and -du02-30 (×1.32).
+  Three of the Steps cards had failed the gate's thumbnail test; none does now.
+- **Four live Glass Cards stay under the floor** (25k to 29k): their headline
+  shares the glass panel with the product, and a bigger headline pushes the
+  product out of the panel (the layout then leaves it off). That is a layout
+  decision, not a size: OPEN-ITEMS §AD.
+- Never judge a headline by its font size alone again: a condensed face and a
+  short word make a large size small. Run `node scripts/hero_headline.mjs
+  --live` (without `--write` it only reports) after anything that sets
+  headline sizes.

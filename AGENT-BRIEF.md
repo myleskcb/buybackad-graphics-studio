@@ -406,6 +406,11 @@ produced." DESIGN-LAW rule 87. In practice:
   neutral the card's accent. A pass that moves or resizes the steps or the
   number's plate after them must leave `node scripts/steps_rhythm_audit.mjs`
   passing.
+- **The headline is the hero** (rule 109, 2026-10-03): judged by the letters
+  it covers (30,000 px² on the 1080 square at least), never by font size
+  alone. `node scripts/hero_headline.mjs --live` reports any live card under
+  it; with `--write` it grows them, gated. Look at every card on a
+  before-and-after before you show it.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

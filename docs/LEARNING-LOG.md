@@ -2539,3 +2539,33 @@ RESUME HERE:
   0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (OPEN-ITEMS
      §AC); the earlier RESUME items stand.
   1. `stepsFlow-pp06-35`'s number onto its band (§AC 1).
+
+## 2026-10-03 — the headline is the hero (DESIGN-LAW 109)
+
+(claude/relaxed-darwin-8aces4.)
+
+The owner, over the first before-and-after of rule 108, at stepsFlow-du01-20's
+one-word "iPHONE": "How many times do I have to tell you this is not a hero.
+It's tiny little text that looks extremely out of place compared to every
+other graphic seriously????"
+
+Found:
+  - I put a card with a caption-sized headline into a sheet meant to show
+    finished work, because the sheet was about the gaps and I looked only at
+    the gaps. A before-and-after shows the whole card; every card on it has
+    to be one I would ship.
+  - The gate passes it: 'thumb' reads font size (77px and up passes), and
+    104px of an extra-condensed face on one short word is small. Coverage of
+    the letters is the measure the owner's eye uses: 99k px² for the median
+    live card, 15k for du01-20.
+  - The first fit broke three ways, each caught only by looking: a row's
+    number badge pushed out of its card by the layout making room, a headline
+    jammed against the grade's 10, a second line across a slab label's edge
+    (no percentile of the ground can see a one-row border; the row and column
+    medians can). On the live run it dropped the product out of three Glass
+    Cards, which every number passed. Every constraint in the script is one
+    of those pictures.
+
+RESUME HERE:
+  0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (§AC, §AD).
+  1. The four Glass Cards' headline and product (§AD 1), with the owner.

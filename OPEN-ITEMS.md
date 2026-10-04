@@ -1522,3 +1522,30 @@ Still open:
    classic in Easy Mode: 129px rows became 117px so the number keeps its
    size). If the owner prefers taller rows and a smaller number there, swap
    the order in `pgStepRhythm` (the plate gives before the rows).
+
+## AD. 2026-10-03 — the headline is the hero (DESIGN-LAW 109)
+
+The owner, over `stepsFlow-du01-20` in the rule 108 before-and-after: "How
+many times do I have to tell you this is not a hero. It's tiny little text
+that looks extremely out of place compared to every other graphic
+seriously????"
+
+Done: `scripts/hero_headline.mjs` (measures the letters every headline covers,
+grows the ones under 30,000 px² as one block, gated); ten records grown (the
+four Steps cards off the site, six live reviewProof and ticketStub cards);
+their thumbnails re-rendered; ASSET_REV bumped. The every-choice audit on the
+six live cards added no hold and lifted 49: type voices that had failed them
+as "the headline would be too small in a feed" now pass (assets/choice-holds.json).
+
+Still open:
+
+1. **Four live Glass Cards** (glassCard-ca07-15, -cd06-15, -jw05-30, -du02-30)
+   keep a 25k to 29k headline: it shares the glass panel with the product, and
+   any bigger headline pushes the product out. Either the product leaves the
+   panel (beside it, or behind it at the bottom) or the panel grows; the owner
+   decides which look.
+2. **The gate still reads the headline by font size** ('thumb'). The coverage
+   measure lives in the script, not in `pgCheck`, so a visitor's export is not
+   stopped by it; moving it into the gate would hold every card under 30k
+   (the four Glass Cards) until (1) is settled.
+3. Rule 108's open items stand (§AC).
