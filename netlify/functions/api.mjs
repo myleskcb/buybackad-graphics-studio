@@ -19,11 +19,16 @@
  *                                fallback when assets/bg/<file>.jpg isn't in
  *                                the deploy yet.
  *
+ *   GET  /api/library/v1/...     partner path, behind a library key: the
+ *                                imagery catalogue (netlify/lib/library.mjs).
+ *
  * Env vars: JWT_SECRET (required), GEMINI_KEY (required for AI), ADMIN_EMAILS
  * (comma-separated), optional: PGFX_BG_MODEL, RL_USER_DAILY, RL_PRO_DAILY,
- * RL_GLOBAL_DAILY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, PRICE_PRO, SITE_URL.
+ * RL_GLOBAL_DAILY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, PRICE_PRO, SITE_URL,
+ * LIBRARY_KEYS (name:key pairs), LIBRARY_DAILY.
  */
 import { getStore } from '@netlify/blobs';
+import { libraryRoute } from '../lib/library.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -212,6 +217,17 @@ export default async (req) => {
   const p = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
   if (req.method === 'OPTIONS') return json({});
   try {
+    /* the partner library: its own key, not a signed-in user, so it answers
+       before the account checks. The day's count fails open: a storage
+       hiccup never locks the partner out. */
+    const lib = await libraryRoute(req, url, p, env, {
+      fetchJson: async (u) => { const r = await fetch(u, { headers: { Accept: 'application/json' } }); if (!r.ok) throw new Error(u.replace(url.origin, '') + ' ' + r.status); return r.json(); },
+      count: async (partner) => {
+        try { return await bumpCounter('lib:' + partner + ':' + isoDay(), parseInt(env.LIBRARY_DAILY || '20000', 10)); }
+        catch (e) { console.warn('library: the day count failed, letting it through', e); return true; }
+      },
+    });
+    if (lib) return lib;
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 
     if (p === '/auth/signup' && req.method === 'POST') {

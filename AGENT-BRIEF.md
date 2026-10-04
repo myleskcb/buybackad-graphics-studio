@@ -403,7 +403,22 @@ produced." DESIGN-LAW rule 87. In practice:
   the studio, `makePhoto` in the maker). A new video export path makes one
   too, and keeps it a tap away until the next video (`VideoHelp.keepPhoto`
   in the studio, Save photo in the maker's note): a browser can hold the
-  second download back. Check: `node scripts/video_photo_check.mjs`.
+  second download back. Beside it, one alternative (rule 110): the other
+  moment worth posting that looks different from the picked one, read back
+  out of the file (`VideoStill.frames` with `around`), never drawn again,
+  offered in `VideoHelp.photos`. One, not more: the owner asked for one. Check: `node scripts/video_photo_check.mjs`.
+- **The library API** (rule 111, 2026-10-04): `/api/library/v1` in
+  `netlify/lib/library.mjs`, routed first in `api.mjs`, behind `LIBRARY_KEYS`.
+  It reads the deploy's own `assets/library.json` and showcase index, so a
+  change to either is a change to what partners get: offered ads use the
+  site's own `scIsLive` (the check reads it out of app.js), placeholders are
+  never offered. Keys stay server-side; no CORS. Checks:
+  `node scripts/library_api_check.mjs`, and for the iPhones LA handoff
+  (`docs/iphonesla-library/`) `node scripts/library_handoff_check.mjs`.
+- **Off-screen scenes are 1x** (rule 110): a `fabric.StaticCanvas` that is
+  only exported or measured takes `enableRetinaScaling:false`. On a 2x screen
+  fabric's default doubles its canvas, and anything reading W x H of it
+  (`pgCheck`) measures a quarter of the ad.
 - **A card's parts line up** (rule 109, 2026-10-03): `node
   scripts/composition_audit.mjs` measures every offered card (`__sc.comp`:
   loose parts, near misses, a picture over a headline) and exits 1 on a

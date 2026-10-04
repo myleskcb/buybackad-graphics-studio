@@ -65,9 +65,12 @@ the video's aspect, drawn at that size from the video's best moment, which
 `video-still.js` measures on the frames themselves (DESIGN-LAW rule 108). It
 comes under the same export; Free's photo is 1080 with the watermark, the
 plan's cap. The video maker at `/motion` does the same for its phone ads.
-If the browser holds the second download back, the photo is still a tap away
-until the next video: **📷 Download the video's photo** under the video button
-in the studio, **Save photo** under Download MP4 in the maker.
+The photo is picked for you, and there is one alternative if you would rather
+not use it (rule 110): **📷 This video's photo** under the video button in the
+studio (**Other photo** in the maker) shows the picked one beside the one other
+moment worth posting that looks different from it, read back out of the video
+file exactly as it shows it. Each downloads on its own, or **Save both** (on a
+phone, straight to Photos).
 Check: `scripts/video_photo_check.mjs`.
 
 Checks: `scripts/motion_audit.mjs` (every curated card and classic, per
@@ -76,6 +79,19 @@ production CSP and decodes the files), `scripts/motion_gallery.mjs` +
 `scripts/gallery/build.py` (the playback gallery). The H.264 path has not been
 exercised in this repo's test container (its Chromium has no H.264 encoder):
 export one clip from Chrome or Safari before announcing it.
+
+## Library API (iPhones LA) — optional
+
+`/api/library/v1` hands the imagery library (867 product cut-outs, scenes and
+backgrounds) and the 311 ad designs the site offers to a partner's server,
+behind a key: set `LIBRARY_KEYS` (`name:key` pairs, keys of 32 characters or
+more) in the Netlify environment. Without it the route answers 503 and nothing
+else changes. The pictures stay the site's static files; the key gates the
+catalogue. `?card=<id>` opens a design in the studio. The other side, for
+iPhones LA's listing page, is `docs/iphonesla-library/` (a Python client, the
+two server routes, the picker, a paste-ready prompt). Checks:
+`scripts/library_api_check.mjs`, `scripts/library_handoff_check.mjs`.
+DESIGN-LAW rule 111.
 
 ## SCANS.AD (ScanMap) integration — optional
 Graphics Studio runs 100% standalone. The integration is also **invisible to

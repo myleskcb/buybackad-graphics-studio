@@ -2887,7 +2887,7 @@ function buildLayer(l, tplId, dw, dh){
 const THUMBS = {};
 function renderThumb(tpl, px){
   // thumbnails always preview the authored square template, whatever the live doc format
-  const sc = new fabric.StaticCanvas(null, { width:TPL_W, height:TPL_H, renderOnAddRemove:false });
+  const sc = new fabric.StaticCanvas(null, { width:TPL_W, height:TPL_H, renderOnAddRemove:false, enableRetinaScaling:false });   // at 1x on every screen, as renderEzCanvas
   const bgi = tpl.bg.type === 'image' ? freshBgImage(tpl.bg.src, tpl.bg.blur, tpl.bg.grade) : null;
   if (bgi){
     sc.setBackgroundImage(coverImage(bgi, TPL_W, TPL_H), () => {});
@@ -9252,7 +9252,12 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
   // Easy Mode is deliberately square-only, the guided flow targets Marketplace
   // & Instagram posts; rectangular formats live in the advanced editor
   const tpl = ezTpl();
-  const sc = new fabric.StaticCanvas(null, { width:DW, height:DH, renderOnAddRemove:false });
+  /* never drawn on screen, only exported and measured: at 1x on every
+     screen. fabric's retina scaling (on by default) drew it at 2x on an
+     iPhone or a Retina Mac, and pgCheck, which reads it W x H, measured the
+     top-left quarter: the gate called every line "almost invisible" and every
+     download from Easy Mode stopped at "Not ready to post yet" (2026-10-04) */
+  const sc = new fabric.StaticCanvas(null, { width:DW, height:DH, renderOnAddRemove:false, enableRetinaScaling:false });
   // solid base first: guarantees no transparent pixels can ever export as black
   sc.setBackgroundColor('#101014', () => {});
   // Until a background is explicitly picked, the template photo previews as a
@@ -12248,6 +12253,14 @@ async function runVideoExport(o){
     catch (e){ photoErr = e; console.warn('GraphicsStudio motion: the photo could not be made, the video goes alone.', e); }
     setBtn('Saving…');
     if (photo) Object.assign(photo, { after: o.photoAfter || btn, label: o.photoLabel, cls: o.photoClass });
+    /* and the other moment, the alternative to it, read back out of the
+       file while it downloads (VideoStill.frames around the photo's moment,
+       rule 110): settled either way, so a browser that cannot read it never
+       reaches the safety net */
+    if (photo && window.VideoStill && VideoStill.frames)
+      photo.frames = VideoStill.frames(r.blob, { around: photo.t }).then(fs => ({ frames: fs.map(f => Object.assign(f, { name: VideoStill.frameName(name, f.t, f.w, f.h) })) }), e => {
+        console.warn("GraphicsStudio motion: the video's frames could not be read back.", e); return { error: e };
+      });
     if (!await deliverVideo(r.blob, name, photo)) return;
     const catches = [];
     if (ext !== 'mp4') catches.push('It was saved as WebM, because this browser cannot write MP4. Instagram and TikTok may refuse WebM.');
@@ -12264,12 +12277,14 @@ async function runVideoExport(o){
       if (VH.canShareFiles()) actions.push({ label: 'Share or save to Photos', primary: true, run: () => VH.share(r.blob, name, photo ? [photo] : []) });
       actions.push({ label: 'Save again', run: () => VH.save(r.blob, name) });
       if (photo) actions.push({ label: 'Save the photo again', run: () => VH.save(photo.blob, photo.name) });
+      if (photo && VH.photos) actions.push({ label: 'Other photo', run: () => VH.photos(photo) });
       VH.show({ tone: 'info', title: 'Video saved, with a catch', message: catches.join(' '), error: String((photoErr || soundErr || soundDropped || fellBack || {}).message || ''), report, actions });
     } else {
       const said = ext === 'mp4' ? 'Video downloaded, ready for Reels and Stories' : 'Video downloaded as WebM. For Instagram, export from Chrome or Safari to get MP4';
       /* a second download can be held by the browser ("download multiple
          files?"), so the photo keeps a way to be saved again */
-      if (photo && VH) VH.toast(said + '. Its ' + photo.w + '×' + photo.h + ' photo for OfferUp came with it.', { ms: 12000, action: { label: 'Save photo again', run: () => VH.save(photo.blob, photo.name) } });
+      if (photo && VH) VH.toast(said + '. Its ' + photo.w + '×' + photo.h + ' photo for OfferUp came with it.', { ms: 12000, action: VH.photos
+        ? { label: 'Other photo', run: () => VH.photos(photo) } : { label: 'Save photo again', run: () => VH.save(photo.blob, photo.name) } });
       else toast(said, ext === 'mp4' ? 'success' : undefined);
     }
   } catch (e){
@@ -12395,7 +12410,7 @@ async function editorDownloadVideo(){
   canvas.discardActiveObject(); canvas.renderAll();
   const sc = new fabric.StaticCanvas(null, { width:CW, height:CH, renderOnAddRemove:false, enableRetinaScaling:false });
   await new Promise(res => sc.loadFromJSON(canvas.toJSON(EXTRA_PROPS), res));
-  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, photoCap:motionPhotoCap(), photoAfter:$('ex-video').parentNode, photoClass:'btn btn-outline', photoLabel:"\u{1F4F7}\u00a0 Download the video's photo", actx, name:currentTplName, btn:$('ex-video') });
+  await runVideoExport({ sc, docW:CW, docH:CH, w:d.w, h:d.h, watermark:gate.watermark, photoCap:motionPhotoCap(), photoAfter:$('ex-video').parentNode, photoClass:'btn btn-outline', actx, name:currentTplName, btn:$('ex-video') });
 }
 
 /* the buttons (index.html: #ez-video beside Download my ad, #ex-video in the
@@ -19696,3 +19711,23 @@ function pgHueCheck(sc, r){
     return _pgExplain.apply(this, arguments);
   };
 }
+
+/* ═══ A CARD BY LINK (2026-10-04) ═══════════════════════════════════════════
+   ?card=<showcase id> opens that card in Easy Mode, as a click on it in the
+   template strip would. The library API (netlify/lib/library.mjs) hands it
+   out as each design's studio_url, so the iPhones LA listing page can send
+   someone from a design to the studio to put their number on it, and the
+   download goes back through the iPhones LA link (iphonesla-link.js). The
+   parameter is cleared once read (the rest of the address, the connect
+   fragment included, stays); an id the site does not offer opens nothing. */
+(function cardLink(){
+  let id = null;
+  try { id = new URLSearchParams(location.search).get('card'); } catch (e){}
+  if (!id) return;
+  try { const u = new URL(location.href); u.searchParams.delete('card'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e){}
+  if (!/^[A-Za-z0-9_-]{3,100}$/.test(id)) return;
+  const go = () => scLoadIndex()
+    .then(() => { if (SHOWCASE.byId[id]) return openShowcase(id); toast('That design is not in the library any more', 'error'); })
+    .catch(e => console.warn('GraphicsStudio: the card link could not open', id, e));
+  if (document.readyState === 'complete') setTimeout(go, 0); else window.addEventListener('load', () => setTimeout(go, 0), { once: true });
+})();
