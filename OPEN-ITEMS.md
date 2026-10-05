@@ -2051,8 +2051,11 @@ What the stopped sessions left unfinished, finished here:
    without it the table starts empty): 14 held as offered,
    dl_pokemon_agencyGrid_royal newly (its real photograph); the 32 cards
    beautiful-wozniak had released pass on the merged code and are offered.
-   The themes, looks and voices on every card are measured on `main` next
-   (a sweep of hours), and committed when it ends.
+   Then every theme, look and voice on all 660 (33,660 renders, 214 min,
+   resumed once after the container restarted): choices held off themes
+   328 to 321, looks 40 to 48, voices 1,464 to 1,469 (`main` had 426, 36
+   and 1,513); Colour blocks, the look beautiful-wozniak's sweep was
+   measuring when it stopped, is held on no card.
 5. **The audits PR #9 was waiting on** (kind-hawking's). ez_theme_audit.mjs
    in full: no problems over 19 cards x 21 themes, 0 page errors (the
    twentieth is held).
