@@ -3065,3 +3065,213 @@ RESUME HERE:
      Deploying); this session's network cannot reach Netlify.
   1. Re-sweep the choice holds on the merged build (OPEN-ITEMS §AE 6).
   2. Guard rule 104's plate ink with the muddy floor (§AE 2).
+## 2026-10-03 — the video maker's phones: the model's body, real blur, steady shadows
+
+(claude/great-johnson-v8ppp6, not yet on `main`: this session may push only
+its own branch.)
+
+The owner, with a screenshot of three turned 17 and 18 Pros from a video:
+"they look like sim tray devices missing the sim tray so it's got a hole...
+audit small detail and fix fill in body color". Then: "make sure we have even
+better movements, accuracy, and realism".
+
+Found (each measured, motion/views-sheet.html and the engine in a headless
+browser):
+  - The hole was Camera Control, drawn #1c1d21 on the rail: 2.2 to 5.1 times
+    darker than the rail beside it on every turned 16-and-later phone.
+  - The 17 and 18 Pro backs show the side button proud of the rail at 0.311
+    to 0.429 of the height (0.287 to 0.394 on the Max): the same 46.8 to 64.4
+    mm from the top on both sizes. The engine drew it at 0.27 to 0.405, so a
+    turned phone showed two buttons. No other back shows a button that can be
+    trusted (the non-Pro stripes sit at one share of the height on both
+    sides and both sizes).
+  - Every model's edge was 0.115 of its width deep; Apple's depths run from
+    0.100 (Plus) to 0.122 (17 Pro). Corners are right: every back's radius is
+    within 5% of the engine's 0.165.
+  - Motion blur took a fixed 8 moments: at 1080 a fast spin's corners jumped
+    7 to 39 px between them, and frame 0 showed a fan of copies.
+  - The shadow picked one of three blurs by height and jumped 22 times its
+    usual step at a third and two thirds of the way up.
+  - Movement curves themselves are smooth: no entrance or pose changes speed
+    by more than 26 px a frame within an eighth of a frame, but for the
+    bounces of drop and rain, which are meant.
+
+Did: DESIGN-LAW rule 114. Camera Control flush in the body's colour; `BODY`
+(Apple's width and depth per model) and `MEASURED_CONTROLS` in designOf;
+`Ad._subsFor` and `EXPORT_QUALITY` (8 to 24 moments, 3 px apart at most); the
+shadow blended between blurs and as wide as the turned body; a soft band of
+light across a turning back, gone at rest. audit_phone_views.py prints each
+model's depth and fails a drawn button the back disagrees with;
+scripts/motion_phone_check.mjs measures blur and shadow.
+
+Checked: motion_phone_check.mjs, all 46 entrance and pose pairs and four
+shadows pass (worst copy 0.48 px, fixed 8 measured up to 4.9; shadow 3.3
+against 22). audit_phone_views.py: 56 of 59, the same three 16-white-as-*
+shape fails as before. The attention audit (audit-sweep.html, 24 looks, seed
+101) gives the same scores and pass rates before and after; contrast moves in
+the fourth decimal. A 6 s export draws in 1.2 to 1.8 times the time (headless,
+no GPU: 10.6 s to 18.1 s for fly_spin). Views sheet, old engine against new:
+only the edge depths, the turned shadows and the 17/18 Pro button change.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main`, then deploy `main`
+     (OPEN-ITEMS §Z 0).
+  1. A turned 17 or 18 Pro's camera plateau is drawn flat on the back; it
+     stands proud of the body. Its height needs a source (a side photograph
+     or Apple's drawing) before it is drawn.
+  2. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-03 (later) — every phone, all the way round
+
+(claude/great-johnson-v8ppp6, not yet on `main`.)
+
+The owner: "All devices audit the 360 and any other angles".
+
+Found (every offered phone, 57 of the 59 backs; the two ok:false 16s are never
+offered): turned through 360 degrees every 2 upright and every 3 at 45, 90 and
+180 degrees in the frame, each angle measured for the body's width, gaps inside
+it and its change from the angle before:
+  - Side-on (90 and 270 degrees) every phone was 1 to 2 px wide where its edge
+    is 12 to 14, beside a full-width shadow: the side was a stack of outlines,
+    and side-on each is a line. A wide spin passes there twice, a flip-in
+    starts there.
+  - The iPhone 15 and 15 Plus were given the Action button; they kept the mute
+    switch (the Action button came on the 15 Pro and on every 16).
+  - The light band on a turning back was set by the phone's own left, so a
+    phone lying at an angle caught a light that was not there.
+  - No angle left a gap in the old engine; the first fix (slices filled to the
+    one behind) left a see-through seam down the middle side-on, which the
+    gap measure caught.
+
+Did: rule 114, all the way round. Each slice of the edge is filled back a
+slice and a half (`hull`); designOf gives the 15 and 15 Plus the mute switch;
+the band takes the scene's light whatever the phone's angle.
+audit_phone_views.py checks each model against Apple's line-up (FACTS; the 17e
+and 18 Pro unchecked); motion_phone_check.mjs turns one phone of every model.
+
+Checked: all 57 phones, upright, at 45, on its side and upside down: no gaps;
+side-on edges 12 to 14 px, within 10% of each model's depth (a pixel of
+rounding); the largest step of a turn 1.7 times the usual (2.4 before).
+motion_phone_check.mjs passes all of it (46 entrance and pose pairs, four
+shadows, 36 turns); audit_phone_views.py 56 of 59, the same three shape fails.
+The attention audit (24 looks, seed 101) is unchanged from the commit before.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main` (it carries `main` at
+     b7a67925); reconcile `claude/fervent-pascal-w6mthe` (37a26d34) into
+     `main` (renumber its rule 99, re-thumb the conflicting cards, verify),
+     then deploy `main` to both Netlify projects.
+  1. A turned 17 or 18 Pro's camera plateau is drawn flat; its height needs a
+     source before it is drawn. The 17e's and 18 Pro's notch, buttons and
+     Camera Control want checking against Apple's sheets (FACTS leaves them out).
+  2. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  3. `.modal-actions` on a phone: let the row wrap (styles.css, then
+     sync_css_fallback.mjs).
+  4. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-04 — the 17 and 18 Pro's sides, in their own colour
+
+(claude/great-johnson-v8ppp6, not yet on `main`.)
+
+The owner, with a side-on Cosmic Orange 17 Pro from the turn sheet: "Much
+better, but the orange looks a little bit too light. Wouldn't you say from the
+side angle?"
+
+Found: the side was drawn from index.json's `metal`, read off the back's thin
+rim, where the studio light catches it. On a 17 or 18 Pro the plateau is the
+sides' own aluminium, so the photograph says what the side should be: `metal`
+was 13 to 55 levels a channel off it on all twelve backs (1.1 to 3.4 times its
+light). Side-on the orange's average light was right (0.99) and its colour was
+not: the shading mixed it toward black at the rims and white between, brown
+and peach. With the plateau's colour under the old shading the light finishes
+went dark (0.61 to 0.68).
+
+Did: `RAIL` (each 17 and 18 Pro back's plateau colour, the median of two clear
+patches) and `litRail` (the colour scaled by the light in linear terms, a faint
+white glint, averaging to itself) for those sides; the older backs keep `metal`
+and the old shading, having no part of their frame's metal to measure.
+audit_phone_views.py: `rail`. DESIGN-LAW rule 114, a side is its metal's colour.
+
+Checked: side-on, the twelve sides average 0.89 to 1.10 of their plateau
+(0.67 to 2.65 before); audit_phone_views.py 56 of 59, the old `metal` fails
+`rail` on all twelve.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main` (it carries `main` at
+     b7a67925); reconcile `claude/fervent-pascal-w6mthe` (37a26d34) into
+     `main` (renumber its rule 99, re-thumb the conflicting cards, verify),
+     then deploy `main` to both Netlify projects.
+  1. A turned 17 or 18 Pro's camera plateau is drawn flat; its height needs a
+     source before it is drawn. The 17e's and 18 Pro's notch, buttons and
+     Camera Control want checking against Apple's sheets (FACTS leaves them out).
+  2. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  3. `.modal-actions` on a phone: let the row wrap (styles.css, then
+     sync_css_fallback.mjs).
+  4. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-04 (later) — no flash at the edge as a phone comes flat
+
+(claude/great-johnson-v8ppp6, not yet on `main`.)
+
+The owner, watching the turntable reel: "There seems to be a minor bug that's
+clear in the burgundy 18 Pro Max that the left side kind of does a little bit
+of a flash and it's a little dark on the edge and then it disappears as the
+device goes flat. It's not gradual at all not very cohesive if you're staring
+at that specific location."
+
+Found: within 0.86 degrees of flat (|sin| 0.015) drawPhone drew the bare
+photograph, and turned it drew the slab; coming flat, one 0.05 degree step
+changed 4,161 to 8,188 pixels by over 16 levels, on every model, back and
+screen (the usual step: 0 to 15). The slab did not match the photograph in
+five ways, found one after another by measuring what was left:
+  - its outline was a rounded rectangle the photo's full size, but the 17 and
+    18 Pro backs are trimmed to the side button (0.7% of the width proud of
+    the body) and the 14 to 16 Pro backs are rounder at the left corners (0.18
+    of the width, against 0.15 at the right): a dark sliver of side;
+  - the lens was focused on the middle of the body, so the face stood half a
+    percent large and the phone jumped a pixel and a half;
+  - the last strip of the face ran 0.6 px past it, and each strip was stretched
+    17% over its overlap;
+  - side-on detail: the canvas draws an image's rectangle with hard, snapped
+    edges, and the backs are trimmed to the phone, so the outline jumped a
+    pixel column at a time (the spikes of 420 pixels);
+  - the side buttons keep most of a pixel of perspective square on, and swapped
+    edges as the phone passed flat.
+A hand-over moved to 0.006 degrees still stepped (the photo's soft edge over
+the side), and a fast path for dead flat put a step back and saved no time;
+both went.
+
+Did: rule 114, no hand-over to see. The slab at every angle (`bodyOf`, the
+photograph's outline 0.8 px inside; the lens on the seen face; buttons in
+over 3.4 degrees; `padded`; strips sampled; the screen at twice the size).
+motion_phone_check.mjs: `flat`, the last 2 degrees in steps of 0.05.
+
+Checked: motion_phone_check.mjs passes all of it on the new engine (flat: the
+worst step 17 pixels) and fails `flat` on all 36 model faces of the commit
+before (4,161 to 8,188 at 0.90 degrees); audit_phone_views.py 56 of 59; the
+attention audit (24 looks) unchanged. Still phones: the flat back changes by
+about its outline's anti-aliasing (400 pixels a phone), the screen's hairline
+frame stays as crisp. A 6 s export's frames: 13.2 to 15.7 s (flat), 16.7 to
+20.0 s (turntable), headless.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main` (it carries `main` at
+     48ab3caf); reconcile `claude/fervent-pascal-w6mthe` (37a26d34) into
+     `main` (renumber its rule 99, re-thumb the conflicting cards, verify),
+     then deploy `main` to both Netlify projects.
+  1. The owner: make a key, set LIBRARY_KEYS on the Netlify project iPhones LA
+     will call, give the iPhones LA session docs/iphonesla-library/README.md's
+     prompt; after the deploy, curl /api/library/v1 with the key once.
+  2. A turned 17 or 18 Pro's camera plateau is drawn flat; its height needs a
+     source. The 17e's and 18 Pro's notch, buttons and Camera Control want
+     checking against Apple's sheets (FACTS leaves them out).
+  3. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  4. `.modal-actions` on a phone: let the row wrap (styles.css, then
+     sync_css_fallback.mjs).
+

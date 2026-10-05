@@ -400,21 +400,45 @@ export class Glare {
 }
 
 /** What the model really has, read off its name: a notch (14, 14 Plus, 16e,
- *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older) or the
- *  Action button (15 on); Camera Control (16 on, not the e models). A phone we
- *  cannot place (an upload) gets the island and only volume and power. */
+ *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older, and the
+ *  15 and 15 Plus) or the Action button (15 Pro, and every model from the 16);
+ *  Camera Control (16 on, not the e models); how deep the
+ *  body is for its width, and where its edge controls sit. A phone we cannot
+ *  place (an upload) gets the island, only volume and power, and the usual depth. */
 export function designOf(model) {
   const m = /iPhone (\d+)(e)?(?: (Pro Max|Pro|Plus))?/.exec(model || "");
-  if (!m) return { notch: false, left: null, camCtrl: false };
+  if (!m) return { notch: false, left: null, camCtrl: false, depth: THICKNESS, controls: CONTROLS };
   const gen = +m[1], e = !!m[2], pro = /Pro/.test(m[3] || "");
-  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 ? "mute" : "action", camCtrl: gen >= 16 && !e };
+  const name = `iPhone ${gen}${e ? "e" : ""}${m[3] ? " " + m[3] : ""}`, body = BODY[name];
+  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 || (gen === 15 && !pro) ? "mute" : "action", camCtrl: gen >= 16 && !e,
+    depth: body ? body[1] / body[0] : THICKNESS, controls: { ...CONTROLS, ...MEASURED_CONTROLS[name] } };
 }
+
+// Apple's published width and depth of each body in mm (the depth without the
+// camera), so a Pro Max turns a thinner edge than a Pro and a 17 Pro a deeper one
+// than a 16 Pro. The 18 Pro is drawn on the 17 Pro's body, as the phone audit's
+// SPEC has it.
+const BODY = {
+  "iPhone 14": [71.5, 7.80], "iPhone 14 Plus": [78.1, 7.80], "iPhone 14 Pro": [71.5, 7.85], "iPhone 14 Pro Max": [77.6, 7.85],
+  "iPhone 15": [71.6, 7.80], "iPhone 15 Plus": [77.8, 7.80], "iPhone 15 Pro": [70.6, 8.25], "iPhone 15 Pro Max": [76.7, 8.25],
+  "iPhone 16": [71.6, 7.80], "iPhone 16 Plus": [77.8, 7.80], "iPhone 16 Pro": [71.5, 8.25], "iPhone 16 Pro Max": [77.6, 8.25],
+  "iPhone 16e": [71.5, 7.80], "iPhone 17": [71.5, 7.95], "iPhone 17e": [71.5, 7.80],
+  "iPhone 17 Pro": [71.9, 8.75], "iPhone 17 Pro Max": [78.0, 8.75], "iPhone 18 Pro": [71.9, 8.75], "iPhone 18 Pro Max": [78.0, 8.75],
+};
 
 // Where the edge controls sit, as a share of the height from the top (Apple's
 // dimension drawings). Left and right are as you look at the screen.
 const CONTROLS = { mute: [.183, .213], action: [.176, .216], volUp: [.256, .33], volDown: [.352, .426], power: [.27, .405], camCtrl: [.565, .64] };
+// ...except where a factory back shows the control itself, standing proud of the
+// rail, and it sits elsewhere: then it is drawn where the photograph has it, or a
+// turned phone shows two side buttons. The 17 and 18 Pro's side button is 46.8 to
+// 64.4 mm from the top on both sizes (scripts/audit_phone_views.py measures it).
+const MEASURED_CONTROLS = {
+  "iPhone 17 Pro": { power: [.311, .429] }, "iPhone 17 Pro Max": { power: [.287, .394] },
+  "iPhone 18 Pro": { power: [.312, .429] }, "iPhone 18 Pro Max": { power: [.287, .393] },
+};
 
-// A turned phone is drawn as what it is: a rounded slab THICKNESS deep, turned
+// A turned phone is drawn as what it is: a rounded slab as deep as its model, turned
 // about its long axis and seen through a lens a few phone-heights away, the way
 // a product shot is lit and framed. The near edge stands a little taller than
 // the far one, the side is a solid band that wraps the corners, and the face
@@ -424,60 +448,183 @@ const LENS = 6.5;                                  // camera distance, in phone 
 // closer and the far edge breaks into the strips the face is drawn in.
 const WIDE_LENS = 2.2;
 
-function outline(w, h, r, n = 9) {                 // a rounded rectangle, clockwise
+function outline(x0, y0, x1, y1, [tl, tr, br, bl], n = 9) {   // a rounded rectangle, clockwise
   const pts = [];
-  for (const [cx, cy, a0] of [[w / 2 - r, -h / 2 + r, -Math.PI / 2], [w / 2 - r, h / 2 - r, 0], [-w / 2 + r, h / 2 - r, Math.PI / 2], [-w / 2 + r, -h / 2 + r, Math.PI]])
+  for (const [cx, cy, r, a0] of [[x1 - tr, y0 + tr, tr, -Math.PI / 2], [x1 - br, y1 - br, br, 0], [x0 + bl, y1 - bl, bl, Math.PI / 2], [x0 + tl, y0 + tl, tl, Math.PI]])
     for (let i = 0; i <= n; i++) { const a = a0 + i / n * Math.PI / 2; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
   return pts;
+}
+
+// A canvas draws an image's rectangle with hard edges, snapped to whole pixels, and the backs
+// are trimmed to the phone, so the phone's outline was that rectangle and jumped a pixel
+// column at a time as it turned. Drawn from a copy with a clear border PAD px wide, the snap
+// falls on clear pixels and the outline moves as smoothly as the picture.
+const PAD = 2, PADDED = new WeakMap();
+function padded(img) {
+  let c = PADDED.get(img);
+  if (!c) {
+    c = canvas((img.naturalWidth || img.width) + 2 * PAD, (img.naturalHeight || img.height) + 2 * PAD);
+    c.getContext("2d").drawImage(img, PAD, PAD);
+    PADDED.set(img, c);
+  }
+  return c;
+}
+
+// The body as its back photograph draws it: where its straight edges stand (a button proud of
+// the rail makes the trimmed photo wider than the body) and how round each corner is, as
+// shares of the photo's width and height. The turned slab is built on it, so near flat no
+// part of the slab shows past the photograph. Built on a rounded rectangle the photo's full
+// size, an 18 Pro showed a dark sliver down its left side and round its corners, which went
+// all at once as the phone came flat. Measured once per photo; null where it cannot be.
+const BODIES = new WeakMap();
+function bodyOf(img) {
+  if (!img || typeof img !== "object") return null;
+  if (BODIES.has(img)) return BODIES.get(img);
+  let body = null;
+  try {
+    const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+    if (W > 40 && H > 40) {
+      const c = canvas(W, H), x = c.getContext("2d", { willReadFrequently: true });
+      x.drawImage(img, 0, 0);
+      const a = x.getImageData(0, 0, W, H).data, on = (i, j) => a[(j * W + i) * 4 + 3] > 128;
+      const first = (n, f) => { for (let k = 0; k < n; k++) if (f(k)) return k; return n; };
+      const med = v => v.sort((p, q) => p - q)[v.length >> 1], rows = [], cols = [];
+      for (let j = Math.round(H * .15); j < H * .85; j += 4) rows.push(j);
+      for (let i = Math.round(W * .3); i < W * .7; i += 4) cols.push(i);
+      const L = med(rows.map(j => first(W, i => on(i, j)))), R = W - 1 - med(rows.map(j => first(W, i => on(W - 1 - i, j))));
+      const T = med(cols.map(i => first(H, j => on(i, j)))), B = H - 1 - med(cols.map(i => first(H, j => on(i, H - 1 - j))));
+      // a corner's radius: the circle that best fits how far in from the straight edge each
+      // row near the corner starts (sx, sy: 1 from the left or top, -1 from the right or bottom)
+      const radius = (sx, sy) => {
+        const x0 = sx > 0 ? L : R, y0 = sy > 0 ? T : B, pts = [];
+        for (let d = 0; d < W * .3; d++) pts.push([d, first(Math.round(W * .4), k => on(x0 + sx * k, y0 + sy * d))]);
+        let best = [Infinity, CORNER * W];
+        for (let r = W * .06; r < W * .3; r += .5) {
+          let e = 0;
+          for (const [d, o] of pts) e += ((d < r ? r - Math.sqrt(r * r - (r - d) ** 2) : 0) - o) ** 2;
+          if (e < best[0]) best = [e, r];
+        }
+        return best[1] / W;
+      };
+      const b = { l: L / W, r: (W - 1 - R) / W, t: T / H, b: (H - 1 - B) / H, rad: [radius(1, 1), radius(-1, 1), radius(-1, -1), radius(1, -1)] };
+      if (Math.max(b.l, b.r, b.t, b.b) < .04 && b.rad.every(r => r > .08 && r < .28)) body = b;
+    }
+  } catch (e) { /* a photo we cannot read: the slab keeps the usual outline */ }
+  BODIES.set(img, body);
+  return body;
 }
 
 function poly(ctx, pts) {
   ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath();
 }
 
-function drawSlab(ctx, p, w, h, flip, face) {
-  const c = Math.cos(flip), s = Math.sin(flip), T = THICKNESS * w, D = (p.lens || LENS) * h, R = CORNER * w;
+function hull(pts) {                               // the convex hull, by the monotone chain
+  const a = pts.slice().sort((p, q) => p[0] - q[0] || p[1] - q[1]), lo = [], up = [];
+  const turn = (o, p, q) => (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0]);
+  for (const q of a) { while (lo.length > 1 && turn(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (let i = a.length - 1; i >= 0; i--) { const q = a[i]; while (up.length > 1 && turn(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+
+function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, face.height]) {
+  const c = Math.cos(flip), s = Math.sin(flip), T = (p.design.depth || THICKNESS) * w, D = (p.lens || LENS) * h, R = CORNER * w;
   // local x runs to the screen's right, zl out of the screen; sin > 0 brings the
   // screen's right-hand edge (power) toward the lens, sin < 0 its left (volume)
-  const P = (x, y, zl) => { const X = x * c - zl * s, f = D / (D - (x * s + zl * c)); return [X * f, y * f]; };
-  const seen = c >= 0 ? T / 2 : -T / 2;
-  const rim = outline(w, h, R);
+  // The lens is focused on the face we see, not on the middle of the body: square on, that
+  // face then stands at its photograph's own size. (Focused half a body deeper, it stood half a
+  // percent large, and the phone jumped a pixel and a half where the bare photo took over.)
+  const seen = c >= 0 ? T / 2 : -T / 2, focus = D - seen * c;
+  const P = (x, y, zl) => { const X = x * c - zl * s, f = focus / (D - (x * s + zl * c)); return [X * f, y * f]; };
+  // the back photograph lies mirrored on the slab: its left edge is the slab's right (+x). The
+  // body stands 0.8 px inside the photograph's outline, so the photo's soft edge never shows
+  // the side through it (seen flat, its edge pixels darkened by a pixel's width, then let go)
+  const b = p.body, inset = .8, rim = b
+    ? outline(-w / 2 + b.r * w + inset, -h / 2 + b.t * h + inset, w / 2 - b.l * w - inset, h / 2 - b.b * h - inset, [b.rad[1], b.rad[0], b.rad[3], b.rad[2]].map(r => Math.max(0, r * w - inset)))
+    : outline(-w / 2 + inset, -h / 2 + inset, w / 2 - inset, h / 2 - inset, [R, R, R, R].map(r => r - inset));
   // the side: the outline swept from the hidden face to the seen one, brushed
   // metal dark at both rims with a highlight a little in from the near face
   const steps = Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
+  // Each slice is filled back to a slice and a half behind it: side-on, an outline is only
+  // a line, and outlines alone left a phone at 90 degrees a hairline beside its full shadow
+  // (and slices that only met left a see-through seam where their soft edges touched).
   for (let k = 0; k <= steps; k++) {
-    const u = k / steps, zl = -seen + 2 * seen * u;
-    poly(ctx, rim.map(([x, y]) => P(x, y, zl)));
-    // the body's own colour, a shade darker: never lighter than the body (owner, 2026-10-04:
-    // "we made sure the sides aren't too light ... darken them to the proper body color");
-    // the soft highlight only lifts the side back toward that colour
-    ctx.fillStyle = shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u); ctx.fill();
+    const u = k / steps, zl = -seen + 2 * seen * u, at = rim.map(([x, y]) => P(x, y, zl));
+    const zb = -seen + 2 * seen * Math.max(0, (k - 1.5) / steps);
+    poly(ctx, k ? hull(rim.map(([x, y]) => P(x, y, zb)).concat(at)) : at);
+    // a side measured in its own aluminium (RAIL, the 17 and 18 Pros) is lit as a surface and
+    // averages to that colour; any other is the body's own colour a shade darker, never lighter
+    // than the body (owner, 2026-10-04: "we made sure the sides aren't too light ... darken
+    // them to the proper body color"), the soft highlight only lifting it back toward it
+    ctx.fillStyle = p.railLin ? litRail(p.railLin, u) : shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u); ctx.fill();
   }
-  // the controls on the side we see, where Apple puts them
+  // the controls on the side we see, where Apple puts them. They come into view as that side
+  // turns toward the lens, over the first 3.4 degrees: perspective alone gave them most of a
+  // pixel square on, so they jumped from one edge to the other as the phone passed flat.
   const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
   const keys = s > 0 ? ["power", ...(d.camCtrl ? ["camCtrl"] : [])] : [...(d.left ? [d.left] : []), "volUp", "volDown"];
-  for (const key of keys) {
-    const [a0, b0] = CONTROLS[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
+  const shown = clamp(Math.abs(s) / .06), alpha = ctx.globalAlpha;
+  ctx.globalAlpha = alpha * shown;
+  for (const key of shown > 0 ? keys : []) {
+    const [a0, b0] = (d.controls || CONTROLS)[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
     poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
-    ctx.fillStyle = shade(p.metal, key === "camCtrl" ? -.3 : -.38); ctx.fill();   // Camera Control is the body's colour (owner, 2026-10-04), its sapphire face a little brighter
+    // Camera Control sits flush in the rail, filled in the body's colour with a fine seam
+    // round it: drawn dark it read as an empty SIM-tray slot (owner, 2026-10-04: "The camera
+    // control button is body color"). Neither it nor the keys' lit edge is lighter than the body.
+    if (key === "camCtrl") {
+      ctx.fillStyle = shade(p.metal, -.3); ctx.fill();
+      poly(ctx, [P(xs, y0 + 1, -q * .72), P(xs, y0 + 1, q * .72), P(xs, y1 - 1, q * .72), P(xs, y1 - 1, -q * .72)]);
+      ctx.fillStyle = shade(p.metal, -.06); ctx.fill();
+      continue;
+    }
+    ctx.fillStyle = shade(p.metal, -.38); ctx.fill();
     poly(ctx, [P(xs, y0 + 1, q * .1), P(xs, y0 + 1, q * .45), P(xs, y1 - 1, q * .45), P(xs, y1 - 1, q * .1)]);
-    ctx.fillStyle = shade(p.metal, key === "camCtrl" ? -.06 : -.14); ctx.fill();   // a lit edge, still no lighter than the body
+    ctx.fillStyle = shade(p.metal, -.14); ctx.fill();   // a lit edge, still no lighter than the body
   }
+  ctx.globalAlpha = alpha;
   // the face, in thin vertical strips so it recedes; the back is seen from behind
-  const fw = face.width, fh = face.height, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
+  const [sx, sy, fw, fh] = src, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
   const near = P(X(0), 0, seen)[0], far = P(X(1), 0, seen)[0];
   const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / 3)));
   for (let i = 0; i < n; i++) {
     const [xa, ta] = P(X(i / n), -h / 2, seen), [xb, tb] = P(X((i + 1) / n), -h / 2, seen);
-    const top = (ta + tb) / 2, x0 = Math.min(xa, xb), dw = Math.abs(xb - xa) + .6;
-    ctx.drawImage(face, i / n * fw, 0, fw / n, fh, x0, top, dw, -2 * top);
+    // each strip overlaps the next by 0.6 px so no seam shows, but never runs past the face, and
+    // the overlap takes in more of the photograph rather than stretching the strip over it
+    const top = (ta + tb) / 2, x0 = Math.min(xa, xb), span = Math.abs(xb - xa);
+    let dw = Math.min(span + .6, Math.max(near, far) - x0), sw = Math.min(fw / n * (span > 1e-6 ? dw / span : 1), fw * (1 - i / n));
+    // the clear border round the photograph comes too, so no hard edge falls on the phone
+    const kx = span / (fw / n), ky = -2 * top / fh;
+    let s0 = sx + i / n * fw, d0 = x0;
+    if (i === 0) { s0 -= PAD; sw += PAD; d0 -= PAD * kx; dw += PAD * kx; }
+    if (i === n - 1) { sw += PAD; dw += PAD * kx; }
+    ctx.drawImage(face, s0, sy - PAD, sw, fh + 2 * PAD, d0, top - PAD * ky, dw, -2 * top + 2 * PAD * ky);
   }
   // light: the face falls off toward the edge turned away from the lens
   const ns = s > 0 ? 1 : -1, k = Math.abs(s);
   const g = ctx.createLinearGradient(P(ns * w / 2, 0, seen)[0], 0, P(-ns * w / 2, 0, seen)[0], 0);
   g.addColorStop(0, `rgba(255,255,255,${.07 * k})`); g.addColorStop(.35, "rgba(0,0,0,0)"); g.addColorStop(1, `rgba(0,0,0,${.3 * k})`);
   poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill();
+  // a turning back catches the key light (high on the left, where the shadows fall
+  // from): a soft band crosses it, away from the light, as its face turns about 20
+  // degrees toward it. Square to the lens or resting on an edge it is gone, so a still
+  // phone looks as it did and only a moving one shows it. However the phone lies in the
+  // frame the light stays where it is: a turn about its long axis faces it toward the
+  // light only as far as that axis lies across the light (on its side, the turn tips it up).
+  if (c < 0) {
+    const ra = -rot * Math.PI / 180, across = Math.cos(ra) + Math.sin(ra);
+    const phi = Math.asin(clamp(-s * across, -1, 1)), uc = .5 + Math.sign(across) * (phi - SHEEN_AT) * 6, a = .13 * clamp(Math.abs(c) * 3);
+    if (a > .004 && uc > -.6 && uc < 1.6) {
+      const xL = Math.min(near, far), xR = Math.max(near, far), xc = lerp(xL, xR, uc), sd = (xR - xL) * .22;
+      const g2 = ctx.createLinearGradient(xc - 2.5 * sd, 0, xc + 2.5 * sd, 0);
+      [[0, 0], [.25, .46], [.5, 1], [.75, .46], [1, 0]].forEach(([u, v]) => g2.addColorStop(u, `rgba(255,255,255,${a * v})`));
+      poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g2; ctx.fill();
+    }
+  }
 }
+const BLUR_STEP = 3;                               // px a phone corner may move between two moments of one frame (export)
+/** How an exported video's frames are drawn: 8 moments of the shutter while phones fly, 4
+ *  while they turn over, up to 24 where they move fast enough to need them (Ad._subsFor). */
+export const EXPORT_QUALITY = { subsFly: 8, subsMove: 4, maxSubs: 24 };
+const SHEEN_AT = .35;                              // radians a back turns toward the key light before it catches it full on
 
 /** The screen side, switched off: the band, a black border, OLED glass and the
  *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred. */
@@ -531,12 +678,38 @@ function shadowSprite(w, h, blur) {
   return { c, pad };
 }
 
+// On a 17 or 18 Pro the sides and the camera plateau are one piece of anodised aluminium,
+// so the side is the plateau's colour, measured off each factory back (the median of two
+// clear patches of plateau; scripts/audit_phone_views.py checks it). index.json's "metal"
+// is read off the back's thin rim, where the studio light catches it: 1.1 to 3.4 times too
+// light on these, the Cosmic Orange's side a peach.
+export const RAIL = {
+  "17-pro-cosmic-orange": "#ed8d50", "17-pro-max-cosmic-orange": "#ee8c50", "17-pro-deep-blue": "#434a61",
+  "17-pro-max-deep-blue": "#434a61", "17-pro-silver": "#d9d9d8", "17-pro-max-silver": "#dadada",
+  "18-pro-burgundy": "#5d333a", "18-pro-max-burgundy": "#5e343b", "18-pro-glacier": "#bbc8d9",
+  "18-pro-max-glacier": "#bbc8da", "18-pro-black": "#262628", "18-pro-max-silver": "#e4e5e2",
+};
+
+// A side whose colour is its metal's own (RAIL) is lit as a surface is: the colour scaled by
+// the light in linear terms, darker at both rims and brightest a little in from the near face,
+// with a faint white glint, so it keeps its hue and averages to itself. Mixed toward black and
+// white, as the rim-read sides still are, a saturated colour went brown at the rims and pale
+// between: the Cosmic Orange's side read peach.
+const toLin = v => (v /= 255) <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4;
+const toSrgb = v => Math.round(255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055));
+function litRail(lin, u) {
+  const f = .61 + .72 * Math.exp(-((u - .6) ** 2) / .1), glint = .035 * Math.exp(-((u - .64) ** 2) / .006);
+  return `rgb(${lin.map(v => toSrgb(Math.min(1, v * f + glint))).join(",")})`;
+}
+
 const SHADOWS = new Map();
 export class Phone {
   constructor(img, meta, ph) {
     this.img = img; this.meta = meta;
     this.h = ph; this.w = ph * (meta.w / meta.h);
-    this.metal = meta.metal;
+    this.metal = RAIL[meta.id] || meta.metal;
+    this.railLin = RAIL[meta.id] ? hexRgb(RAIL[meta.id]).map(toLin) : null;
+    this.body = bodyOf(img);
     this.design = designOf(meta.model);
     // the same size of phone casts the same shadows: made once (a look lays its phones out
     // afresh for each place it tries for the words)
@@ -552,15 +725,20 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
   const c = Math.cos(flip), ac = Math.abs(c), front = c >= 0;
   const w = p.w * scale, h = p.h * scale;
   const zz = clamp(z, 0, 1);
-  // shadow: tight when it lies flat, big and soft in the air
-  const si = zz < .33 ? 0 : zz < .66 ? 1 : 2, sh = p.shadows[si];
+  // shadow: tight when it lies flat, big and soft in the air. It softens with the
+  // height, blended between the two nearest blurs (picking one jumped at a third and
+  // two thirds of the way up), and is as wide as the turned body, its edge included.
   if (!noShadow) {                                  // a reflection casts none
+    const f = zz * 2, i0 = Math.min(1, Math.floor(f)), k = f - i0, a = op * .42 * (1 - .55 * zz);
+    const a0 = a * (1 - k), a1 = k > 0 ? (a - a0) / (1 - a0) : 0;   // the two together as dark as one
     ctx.save();
-    ctx.globalAlpha = op * .42 * (1 - .55 * zz);
     ctx.translate(x + W * (.006 + .03 * zz), y + W * (.010 + .045 * zz));
     ctx.rotate(-rot * Math.PI / 180);
-    ctx.scale(scale * Math.max(ac, .12), scale);
-    ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
+    ctx.scale(scale * Math.max(ac + (p.design.depth || THICKNESS) * Math.abs(Math.sin(flip)), .02), scale);
+    for (const [sh, al] of [[p.shadows[i0], a0], [p.shadows[i0 + 1], a1]]) {
+      if (al <= .001) continue;
+      ctx.globalAlpha = al; ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
+    }
     ctx.restore();
   }
 
@@ -568,26 +746,21 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
   ctx.globalAlpha = op;
   ctx.translate(x, y);
   ctx.rotate(-rot * Math.PI / 180);
-  if (Math.abs(Math.sin(flip)) > .015) {           // turned: the slab, in perspective
-    let face = p.img;
-    if (front) {
-      const fc = p._front || (p._front = canvas(1, 1));
-      fc.width = Math.ceil(w); fc.height = Math.ceil(h);
-      const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2);
-      drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
-      face = fc;
-    }
-    drawSlab(ctx, p, w, h, flip, face);
-    ctx.restore();
-    return;
+  // The phone is always the slab, in perspective, flat to the lens too: it is built to its
+  // photograph's outline and size, so square on it is the photograph. (Drawn as the bare
+  // photograph near flat, it changed at the hand-over: a dark edge blinked out at 0.86 degrees,
+  // and its buttons jumped edges.)
+  let face = padded(p.img), src = [PAD, PAD, p.img.naturalWidth || p.img.width, p.img.naturalHeight || p.img.height];
+  if (front) {
+    // the screen is drawn at twice the size and taken down, so its hairline frame stays as
+    // crisp as one drawn in place
+    const fc = p._front || (p._front = canvas(1, 1)), ss = 2;
+    fc.width = Math.ceil(w * ss) + 2 * PAD * ss; fc.height = Math.ceil(h * ss) + 2 * PAD * ss;
+    const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2); fx.scale(ss, ss);
+    drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
+    face = fc; src = [(fc.width - w * ss) / 2, (fc.height - h * ss) / 2, w * ss, h * ss];   // the screen as drawn, not the canvas's rounded-up size
   }
-  ctx.scale(Math.max(ac, .02), 1);
-  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
-  else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
-  if (ac < .999) {                                 // turning away from the light
-    rrect(ctx, -w / 2, -h / 2, w, h, CORNER * w);
-    ctx.fillStyle = `rgba(0,0,0,${(1 - ac) * .45})`; ctx.fill();
-  }
+  drawSlab(ctx, p, w, h, flip, face, rot, src);
   ctx.restore();
 }
 
@@ -2753,10 +2926,41 @@ export class Ad {
     target.drawImage(c, 0, 0, cw, ch, x - half, yb, cw, ch);
   }
 
-  _phonesLayer(t, dt, quality) {
-    if (this.still && !this.liveGround && !this.livePhones) return this.still;
+  /** How far, in pixels, the furthest-travelling corner of any phone moves while one
+   *  frame's shutter is open (the slab's turn counts: an edge sweeping across the face). */
+  _shutterTravel(t, dt) {
+    const span = dt * .55, n = 8;
+    let most = 0;
+    for (const p of this.phones) {
+      let prev = null, d = 0;
+      for (let k = 0; k <= n; k++) {
+        const s = phoneState(p, t + (k / n - .5) * span, this.st);
+        if (!s) { prev = null; continue; }
+        const [x, y, sc, rot, flip] = s, hw = p.w * sc / 2 * Math.cos(flip), hh = p.h * sc / 2;
+        const a = -rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+        const pts = [[hw, hh], [-hw, hh], [hw, -hh], [-hw, -hh]].map(([u, v]) => [x + u * ca - v * sa, y + u * sa + v * ca]);
+        if (prev) d += Math.max(...pts.map((q, i) => Math.hypot(q[0] - prev[i][0], q[1] - prev[i][1])));
+        prev = pts;
+      }
+      most = Math.max(most, d);
+    }
+    return most;
+  }
+
+  /** How many moments of the shutter one frame's phones are drawn at. An export takes as
+   *  many as the motion needs for no corner to jump more than BLUR_STEP px between two of
+   *  them: a fixed 8 left a fast spin as a fan of separate copies, on frame 0 too, which is
+   *  the thumbnail. The preview keeps its fixed few, to play live. */
+  _subsFor(t, dt, quality) {
     const flying = t < this.tl.landed + .02, moving = t < this.tl.revealEnd + .05;
     const subs = flying ? quality.subsFly : moving ? quality.subsMove : 1;
+    if (subs <= 1 || !(quality.maxSubs > subs)) return subs;
+    return Math.min(quality.maxSubs, Math.max(subs, Math.ceil(this._shutterTravel(t, dt) / BLUR_STEP) + 1));
+  }
+
+  _phonesLayer(t, dt, quality) {
+    if (this.still && !this.liveGround && !this.livePhones) return this.still;
+    const subs = this._subsFor(t, dt, quality);
     const ax = this.acc.getContext("2d"), tx = this.tmp.getContext("2d");
     for (let s = 0; s < subs; s++) {
       const ts = subs > 1 ? t + (s / (subs - 1) - .5) * dt * .55 : t;
@@ -2952,7 +3156,7 @@ export class Ad {
     }
   }
 
-  frame(ctx, t, quality = { subsFly: 8, subsMove: 4 }, dt = 1 / 30) {
+  frame(ctx, t, quality = EXPORT_QUALITY, dt = 1 / 30) {
     const st = this.st, W = this.W, H = this.H, tl = this.tl;
     const base = this._phonesLayer(t, dt, quality);
     const [z, px, py, rotDeg] = this._camera(t);

@@ -4134,3 +4134,82 @@ may be complex."
   a sentence, reading ease 74 to 80, every fact kept. The FAQ's search-engine
   copy (JSON-LD) is rebuilt from the visible answers, so the two always match.
 
+
+## 114. A phone in a video is the model it is, and moves the way a camera would see it
+
+Added 2026-10-03 (numbered 114 when merged: `main` took 110 to 113 the same days). The owner, on three turned 17 and 18 Pros in a video: "they
+look like sim tray devices missing the sim tray so it's got a hole... audit
+small detail and fix fill in body color", then "make sure we have even better
+movements, accuracy, and realism".
+
+- **The body is the model's** (`designOf`, motion/engine.js). A turned phone's
+  edge is as deep as Apple's published depth for its width (`BODY`): a Plus
+  turns an edge 0.100 of its width, a 17 Pro 0.122, where every model was
+  0.115. Camera Control is flush and the body's colour; drawn near-black it
+  read as an empty SIM tray.
+- **A control the photograph shows is drawn where the photograph has it**
+  (`MEASURED_CONTROLS`). The 17 and 18 Pro backs show the side button standing
+  proud of the rail 46.8 to 64.4 mm from the top on both sizes; the engine drew
+  it 5 mm higher, so a turned phone showed two. `scripts/audit_phone_views.py`
+  fails a back whose button and drawing disagree by more than 1% of the height.
+  The stripes on the non-Pro backs sit at one share of the height on both sides
+  and both sizes, which buttons do not: they are the shared back's, not a
+  measurement.
+- **Motion blur blurs** (`Ad._subsFor`, `EXPORT_QUALITY`). An export draws the
+  phones at as many moments of the shutter as it takes for no corner to jump
+  more than 3 px between two (8 to 24); a fixed 8 left fast spins, frame 0
+  among them, as a fan of copies. The preview keeps its fixed few, to play live.
+  It costs the export about 1.2 to 1.8 times the drawing time.
+- **A shadow softens as the phone rises, without steps.** It blends the two
+  nearest of its three blurs, as dark together as one, and is as wide as the
+  turned body; picking one blur jumped at a third and two thirds of the height.
+- **Light moves on a turning back.** A soft band crosses it as it turns about 20
+  degrees toward the key light (high left, where the shadows fall from); square
+  to the lens or resting on an edge it is gone, so a still phone is unchanged.
+- `node scripts/motion_phone_check.mjs` measures the blur of every entrance,
+  flat and turned, and the shadow's steps, and exits 1 past either bar; run it
+  and audit_phone_views.py after a change to how the phones are drawn or move.
+- **All the way round** (owner, the same day: "All devices audit the 360 and any
+  other angles"). Every offered phone was turned through 360 degrees upright and
+  at 45, 90 and 180 degrees in the frame. Side-on, a phone shows its edge, as
+  deep as its model (the side was built from stacked outlines, and side-on each
+  is a line: every phone was a 1 to 2 px hairline beside a full-width shadow at
+  90 and 270 degrees, the middle of every wide spin and the start of a flip-in).
+  The edge's slices overlap, so no angle leaves a see-through seam. A phone lying
+  at any angle catches the same key light, high on the left. The iPhone 15 and
+  15 Plus carry the mute switch, not the Action button (`designOf`, checked
+  against Apple's line-up by audit_phone_views.py's FACTS).
+- motion_phone_check.mjs turns one phone of every model the same way, upright and
+  on its side, and fails an edge under 0.8 of the model's depth, a gap inside
+  the body, or a step of the turn over 2.5 times the usual.
+- **A side is its metal's colour** (owner, 2026-10-04, of a Cosmic Orange 17 Pro
+  side-on: "the orange looks a little bit too light"). On a 17 or 18 Pro the
+  sides and the camera plateau are one piece of aluminium, so the side is drawn
+  the plateau's colour, measured off each back (`RAIL`). index.json's `metal` is
+  read off the back's thin rim, where the studio light catches it, and was 13
+  to 55 levels a channel off (1.1 to 3.4 times too light). A measured side is
+  lit as a surface is, its colour scaled by the light with a faint white glint,
+  so it keeps its hue and averages to its own colour (0.89 to 1.10 side-on);
+  mixed toward black and white, the orange went brown at the rims and peach
+  between. Older backs show no part made of their frame's metal, so their sides
+  keep the rim's colour and the old shading. audit_phone_views.py fails a 17 or
+  18 Pro whose RAIL is more than 12 levels off its plateau.
+- **No hand-over to see** (owner, 2026-10-04, of the Burgundy 18 Pro: "the left
+  side kind of does a little bit of a flash and it's a little dark on the edge
+  and then it disappears as the device goes flat. It's not gradual at all").
+  Within 0.86 degrees of flat the phone was drawn as its bare photograph, and
+  the slab before it did not match: a dark sliver down its left side and round
+  its corners (the slab was a rounded rectangle the photo's full size, the
+  photo trimmed to its side button and rounder at the left), the face half a
+  percent large (the lens was focused on the middle of the body), and the side
+  buttons, with most of a pixel of perspective, swapped edges at flat. Now the
+  phone is the slab at every angle, built on its photograph's own outline
+  (`bodyOf`, measured once per photo) 0.8 px inside it, focused on the face we
+  see; the buttons come into view over the first 3.4 degrees; the photograph
+  is drawn from a copy with a clear border (`padded`) so the canvas's
+  hard-edged image rectangle never falls on the phone, its strips sampled
+  rather than stretched; the screen is drawn at twice the size and taken down.
+  Coming flat in steps of 0.05 degrees no step changes more than 17 pixels
+  visibly; at the old hand-over one step changed 4,161 to 8,188.
+  motion_phone_check.mjs's `flat` fails a step over 60. A 6 s export's frames
+  take about a fifth longer to draw.
