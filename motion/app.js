@@ -77,6 +77,8 @@ function restore() {
     const s = JSON.parse(localStorage.getItem(STORE) || "null");
     if (s && s.style && typeof s.style === "object") { state.style = { ...state.style, ...s.style }; state.locked = new Set(Array.isArray(s.locked) ? s.locked : [...state.locked]); }
     for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[state.style[k]]) state.style[k] = map[state.style[k]];   // a retired sound shows as its stand-in
+    // the user's own music lives in the page's memory only: after a reload the ad plays its other music
+    if (state.style.track === "upload") { state.style.track = "none"; state.locked.delete("track"); }
     if (s && (s.galleryCat === "all" || SHELVES.some(x => x.id === s.galleryCat))) state.galleryCat = s.galleryCat;
     if (s && typeof s.galleryPlay === "boolean") state.galleryPlay = s.galleryPlay;
   } catch (e) { /* fresh start */ }
@@ -348,6 +350,18 @@ function buildPanel() {
       state.style.phones.push(a.id); if (state.style.phones.length > 6) state.style.phones.shift();
       drawPhonePicker(); rebuild();
     } catch (err) { console.warn(err); VH().toast("That picture could not be read. Try a PNG or JPG of the phone's back, on a plain background."); }
+    e.target.value = "";
+  });
+  // the user's own music: decoded here and kept in this page's memory, never sent anywhere;
+  // after a reload, without it, the ad plays its other music
+  $("music-upload").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try {
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      try { state.assets.userTrack = await ac.decodeAudioData(await f.arrayBuffer()); } finally { if (ac.close) ac.close(); }
+      pushHistory(); state.style.track = "upload"; state.locked.add("track"); save(); rebuild();
+      $("music-upload-name").textContent = `${f.name}: plays from the headline in this ad, until the page is reloaded.`;
+    } catch (err) { console.warn(err); $("music-upload-name").textContent = "That file could not be read as music. Try an MP3, WAV or M4A."; }
     e.target.value = "";
   });
 

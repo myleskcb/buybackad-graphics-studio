@@ -13,20 +13,29 @@
 //  - every ad is levelled to the same loudness (-16 LUFS, peaks under -1 dBFS), so no
 //    look is louder than the next and nothing clips.
 // Real instruments (music.js, 2026-10-01) play in that same bed: thirteen grooves of
-// their own (reggaeton to bossa nova) beside the six scored kits, a famous public-domain
-// tune over any of them, and recorded sounds for the opening, the headline and the
-// number. They take the bed's key, its room, its filter until the hit, its ducking under
+// their own (reggaeton to bossa nova, and eleven more offered by hand since 2026-10-02)
+// beside the six scored kits, a famous public-domain tune over any of them, and recorded
+// sounds for the opening, the headline and the number. They take the bed's key, its room, its filter until the hit, its ducking under
 // the hits and the voice, and its levelling. A recording that will not load is left out;
 // the rest of the mix still renders.
 // Nothing is ever scheduled before the first frame (the guard at the end of synth): a
 // phone that is already down on frame 0 (flash cut, punch in, cold open) never makes a
 // sound before time zero. Where a look has a voiceover (voices.js), the take is cleaned
 // and laid over the bed, which ducks under it.
+// Played and produced (2026-10-03): the music's hi-hats, snares and claps are recorded
+// ones where they load (matched in loudness to the synthesised ones they replace), every
+// drum hit and note lands a few milliseconds early or late and never twice at the same
+// loudness, synthesisers and plucked strings play beside the recorded instruments, and a
+// mix tone (studio, warm, tape, vinyl, bright, club) colours the music. A real recording
+// (tracks.js) or the user's own track can play in place of the music made here: it comes
+// in on the headline hit, through the same bus (ducked under the hits and the voice,
+// levelled with the rest). One that will not load leaves the ad its music made here.
 
 import { rng, clamp } from "./engine.js";
 import { SOUND_ALIASES } from "./catalog.js";
+import { TRACKS } from "./tracks.js";
 import { clipById, VO_START, voWindow } from "./voices.js";
-import { soundManifest, sampleBuffer, sampler, arrange, playTune, groove, KITS, SHAVE, LEADS } from "./music.js";
+import { soundManifest, sampleBuffer, sampler, arrange, playTune, groove, KITS, SHAVE, LEADS, SYNTHS, STRINGS } from "./music.js";
 
 const SR = 44100, TARGET_LUFS = -16, QUIET_LUFS = -19, CEILING = .891;   // .891 = -1 dBFS
 
@@ -69,7 +78,7 @@ export async function renderSoundtrack(ad, { solo = "" } = {}) {
   // voiced mix stays within 1 dB of the same mix without one.
   const rec = await recordingsFor(ad);
   const plain = await mixBed(ad, 0, rec);
-  const gain = levelGain(plain, hasMusic(kit) ? TARGET_LUFS : QUIET_LUFS);
+  const gain = levelGain(plain, hasMusic(kit) || (rec && rec.track) ? TARGET_LUFS : QUIET_LUFS);
   if (!voice) { applyLevel(plain, gain); return plain; }
   const out = await mixBed(ad, voice.duration, rec);  // the same bed, ducked under the words
   applyLevel(out, gain);
@@ -78,15 +87,32 @@ export async function renderSoundtrack(ad, { solo = "" } = {}) {
   return out;
 }
 
-/** The recordings the look plays (music.js), loaded. Which they are is learned by
- *  composing its bed once, unrendered and with no other cue built (rec.probe); null where
- *  the sound library cannot load. */
+/** The recordings the look plays (music.js), loaded, and its real recording or the user's
+ *  own track (rec.track). Which samples it plays is learned by composing its bed once,
+ *  unrendered and with no other cue built (rec.probe); a look that plays a recording needs
+ *  none for its music, and one whose recording will not load composes the music made here
+ *  instead. null where neither the sound library nor a recording can load. */
 async function recordingsFor(ad) {
-  const man = await soundManifest(), bufs = new Map(), need = new Set();
-  if (!man) return null;
-  compose(ad, new OfflineAudioContext(2, SR, SR), 0, { man, bufs, need, probe: true });
-  await Promise.all([...need].map(async k => bufs.set(k, await sampleBuffer(k))));
-  return { man, bufs, need: new Set() };
+  const [man, track] = await Promise.all([soundManifest(), trackFor(ad)]);
+  if (!man && !track) return null;
+  const bufs = new Map(), need = new Set();
+  if (man) {
+    compose(ad, new OfflineAudioContext(2, SR, SR), 0, { man, bufs, need, probe: true, track });
+    await Promise.all([...need].map(async k => bufs.set(k, await sampleBuffer(k))));
+  }
+  return { man, bufs, need: new Set(), track };
+}
+
+/** The look's real recording (tracks.js) or the user's own (ad.assets.userTrack, decoded by
+ *  the page; it never leaves the browser), as an AudioBuffer; null for none, and null where
+ *  it will not load or decode, so the music made here plays and the ad is never silent. */
+async function trackFor(ad) {
+  const id = ad.st.track;
+  try {
+    const buf = id === "upload" ? (ad.assets && ad.assets.userTrack) || null
+      : TRACKS.some(t => t.id === id) ? await sampleBuffer("tracks/" + id) : null;
+    return buf && typeof buf.getChannelData === "function" && buf.duration > .5 ? buf : null;
+  } catch (e) { console.warn("recording", id, e); return null; }
 }
 
 /** The effects and the music, rendered; voDur, the length of a voiceover to duck under. */
@@ -115,27 +141,32 @@ function compose(ad, ctx, voDur, rec) {
   const roomTone = ctx.createBiquadFilter(); roomTone.type = "highpass"; roomTone.frequency.value = 220;
   room.connect(roomTone).connect(roomOut).connect(master);
 
-  const hit = tl.hit, withMusic = hasMusic(kit);
+  // a real recording or the user's own track, where the look has one that loaded
+  const hit = tl.hit, withMusic = hasMusic(kit), recording = (rec && rec.track) || null;
   const openAt = hit > .35 ? hit : 0;
-  const bus = (level, filtered) => {
+  const bus = (level, filtered, dest = master) => {
     const g = ctx.createGain(); g.gain.value = level;
     const v = ctx.createGain(); v.gain.value = 1;
-    if (!filtered) { g.connect(master); v.connect(room); return { in: g, verb: v }; }
-    // the bed is dark and a little lower until the headline hit, then opens up
-    const lp = (src, dest) => {
+    if (!filtered) { g.connect(dest); v.connect(room); return { in: g, verb: v }; }
+    // the bed is dark and a little lower until the headline hit, then opens up (all the way
+    // for a recording, which is mixed already)
+    const lp = (src, to) => {
       const f = ctx.createBiquadFilter(); f.type = "lowpass"; f.Q.value = .5;
-      const top = OPEN_HZ[kit] || 17000;
+      const top = recording ? 17000 : OPEN_HZ[kit] || 17000;
       if (openAt > 0) { f.frequency.setValueAtTime(900, 0); f.frequency.setValueAtTime(900, Math.max(0, openAt - .55)); f.frequency.exponentialRampToValueAtTime(top, openAt); }
       else f.frequency.value = top;
-      src.connect(f).connect(dest); return f;
+      src.connect(f).connect(to); return f;
     };
-    const duck = ctx.createGain(); duck.connect(master);
+    const duck = ctx.createGain(); duck.connect(dest);
     if (openAt > 0) { duck.gain.setValueAtTime(.72, 0); duck.gain.setValueAtTime(.72, Math.max(0, openAt - .55)); duck.gain.linearRampToValueAtTime(1, openAt); }
     lp(g, duck); lp(v, room);
     return { in: g, verb: v, duck };
   };
   const sfx = bus(1, false);
-  const musicLevel = (st.music_volume ?? .5) * 1.3, music = bus(musicLevel, true);
+  // the music's own character (the look's mix tone), on the music alone, before the levelling
+  const tone = toneChain(ctx, st.tone, T);
+  tone.output.connect(master);
+  const musicLevel = (st.music_volume ?? .5) * 1.3, music = bus(musicLevel, true, tone.input);
 
   // ---- the key and the chords, drawn from the seed
   const tonic = r.pick([57, 58, 60, 62, 55, 53]);          // A, Bb, C, D, G, F
@@ -151,6 +182,7 @@ function compose(ad, ctx, voDur, rec) {
   const bell1 = hz(tonic % 12 + 72), bell2 = hz(tonic % 12 + 79);   // tonic and fifth, C5 to B5
 
   const S = synth(ctx, noise, r, sfx, rec), M = synth(ctx, noise, r, music, rec);
+  playedByHand(M, st, rec);                                  // the music only: the effects stay exact
   const booms = [];
   const boom = (t, g) => { if (t < -.02) return; S.boom(Math.max(0, t), g); booms.push(Math.max(0, t)); };
 
@@ -197,6 +229,7 @@ function compose(ad, ctx, voDur, rec) {
     case "windchimes": S.hit(0, "windchimes", .55, .3, 1, 0, clear); break;
     case "bell_tree": S.hit(0, "bell_tree", .5, -.3, 1, 0, clear); break;
     case "vibraslap": S.hit(0, "vibraslap", .6, 0, 1, 0, clear); break;
+    case "sleigh_bells": S.hit(0, "sleigh_shake", .6, .2, 1, 0, clear); break;   // a Christmas ad's own
   }
 
   // ---- the headline hit
@@ -259,12 +292,21 @@ function compose(ad, ctx, voDur, rec) {
   if (cues.tape != null) S.swish(cues.tape, .38, false, .3, .08);
   if (ad.tOutro != null) { S.bell(ad.tOutro, bell1, .08); S.bell(ad.tOutro + .09, bell2, .07); }
 
-  // ---- the bed: a scored kit, or a groove of its own (music.js), and a tune over either.
-  // Music that cannot be laid out leaves the ad its effects and its voice, not silence.
-  if (withMusic) try {
+  // ---- the bed: a real recording in place of the music made here, or a scored kit or a
+  // groove of its own (music.js) with a tune over either. Music that cannot be laid out
+  // leaves the ad its effects and its voice, not silence; a recording that cannot play
+  // leaves it the music made here.
+  let recorded = false;
+  if (recording) {
+    if (rec.probe) recorded = true;                  // composed to learn the samples: a recording needs none
+    else try { playRecording(ctx, recording, music.in, hit, T); recorded = true; } catch (e) { console.warn("Recording skipped:", e); }
+  }
+  if (withMusic && !recorded) try {
     if (KITS[kit]) groove(M, kit, A, start, T);
     else score(M, kit, chordAt, tonic, start, T, b, hit, A.tune ? .5 : 1);
     playTune(M, A, st, T);
+    // a Christmas ad: sleigh bells on the off-beats, from the hit on
+    if (st.season === "christmas") for (let t = hit + b / 2; t < T - .3; t += b) M.hit(t, "sleigh", .28, .3);
   } catch (e) { console.warn("Music skipped:", e); }
   // the bed steps back under every hit and comes back over a quarter second
   if (music.duck) for (const t of [...new Set(booms)].sort((x, y) => x - y)) {
@@ -467,7 +509,7 @@ function synth(ctx, noise, r, bus, rec) {
   const osc = (type, t, dur, f) => { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, T0(t)); o.start(T0(t)); o.stop(T0(t) + dur + .05); return o; };
   const filt = (type, f, Q = .7) => { const x = ctx.createBiquadFilter(); x.type = type; x.frequency.value = f; x.Q.value = Q; return x; };
   // the recordings (music.js) play into this same bus and room, a little wet
-  const play = rec ? sampler(ctx, rec.man, rec.bufs, rec.need) : null;
+  const play = rec && rec.man ? sampler(ctx, rec.man, rec.bufs, rec.need) : null;
   let recNode = null;
   const recIn = () => { if (!recNode) { recNode = ctx.createGain(); out(recNode, 0, .2); } return recNode; };
   const S = {
@@ -663,9 +705,54 @@ function synth(ctx, noise, r, bus, rec) {
       const end = t + 18 * .034, o = osc("sine", end, .06, 180); o.frequency.exponentialRampToValueAtTime(120, end + .036);
       const g = ctx.createGain(); env(g, end, .004, gain * .6, .06); o.connect(g); out(g, 0, .1);
     },
+    // ------------------------------------------------- made here (music.js SYNTHS, STRINGS)
+    /** One note on a synthesiser patch; from: the note before, slid from where the patch glides. */
+    voice(t, f, dur, gain, P, pan = 0, from = null) {
+      const rel = P.release ?? .1, end = t + dur + rel, att = P.attack ?? .005;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + att);
+      g.gain.setValueAtTime(gain, Math.max(t + att, t + dur)); g.gain.linearRampToValueAtTime(0, end);
+      const [c0, c1] = P.cut || [4000, 4000], lp = filt("lowpass", c0, P.q ?? .7);
+      lp.frequency.setValueAtTime(c0, t); if (c1 !== c0) lp.frequency.exponentialRampToValueAtTime(c1, t + (P.cutTime ?? .2));
+      const glide = from && P.glide && from !== f;
+      let vib = null, fm = null;
+      if (P.vib) {                                       // a vibrato that comes in once the note has sounded
+        const [rate, depth, delay] = P.vib, lfo = osc("sine", t, dur + rel, rate);
+        vib = ctx.createGain(); vib.gain.setValueAtTime(0, t); vib.gain.setValueAtTime(0, t + delay); vib.gain.linearRampToValueAtTime(f * depth, t + delay + .15);
+        lfo.connect(vib);
+      }
+      if (P.fm) {                                        // a bell: a modulator whose brightness dies away
+        const [ratio, index, decay] = P.fm, m = osc("sine", t, dur + rel, f * ratio);
+        fm = ctx.createGain(); fm.gain.setValueAtTime(f * index, t); fm.gain.exponentialRampToValueAtTime(f * .05, t + decay);
+        m.connect(fm);
+      }
+      for (const [type, cents, lvl] of P.osc) {
+        const fo = f * 2 ** (cents / 1200), o = osc(type, t, dur + rel, glide ? from * 2 ** (cents / 1200) : fo);
+        if (glide) o.frequency.exponentialRampToValueAtTime(fo, t + P.glide);
+        if (vib) vib.connect(o.frequency);
+        if (fm) fm.connect(o.frequency);
+        const og = ctx.createGain(); og.gain.value = lvl; o.connect(og).connect(lp);
+      }
+      lp.connect(g); out(g, pan, .2);                    // in the room as the recorded instruments are
+    },
+    /** One note on a plucked string (Karplus-Strong, made once per pitch and kept). */
+    string(t, f, dur, gain, P, pan = 0) {
+      const end = t + dur + (P.ring ?? .3), k = ksBuffer(f, P), src = ctx.createBufferSource();
+      src.buffer = k.b; src.playbackRate.value = f / k.f;
+      const body = filt("peaking", P.body ?? 220, 1); body.gain.value = 3;
+      const g = ctx.createGain(); g.gain.setValueAtTime(gain, t); g.gain.setValueAtTime(gain, Math.max(t, end - .06)); g.gain.linearRampToValueAtTime(0, end);
+      src.connect(filt("lowpass", P.lp ?? 5000, 1)).connect(body).connect(g); out(g, pan, .2);
+      src.start(t); src.stop(end + .01);
+    },
     // ------------------------------------------------- recordings (music.js)
     hit(t, id, gain, pan = 0, rate = 1, from = 0, until = Infinity) { if (play) play.hit(recIn(), t, id, gain, pan, rate, from, until); },
-    note(t, inst, midi, dur, gain, pan = 0) { if (play) play.note(recIn(), t, inst, midi, dur, gain, pan); },
+    /** A note on any instrument: a synthesiser or a plucked string is played here, the rest
+     *  from their recordings. */
+    note(t, inst, midi, dur, gain, pan = 0, from = null) {
+      if (SYNTHS[inst]) return S.voice(t, hz(midi), dur, gain * (SYNTHS[inst].level ?? 1), SYNTHS[inst], pan, from);
+      if (STRINGS[inst]) return S.string(t, hz(midi), dur, gain * (STRINGS[inst].level ?? 1), STRINGS[inst], pan);
+      if (play) play.note(recIn(), t, inst, midi, dur, gain, pan);
+    },
   };
   // composed only to learn which recordings it plays: every other cue builds nothing (the
   // guard below still holds, so the same recordings are asked for as when it plays)
@@ -705,6 +792,105 @@ function curve(k) {
   const n = 1024, c = new Float32Array(n);
   for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; c[i] = Math.tanh(x * k); }
   return c;
+}
+
+// ------------------------------------------------------------ played and produced (2026-10-03)
+
+const KS = new Map();
+/** A plucked string (Karplus-Strong): a burst of noise fed round a delay one vibration long,
+ *  losing a little brightness each time round, as a real string does. Made once per pitch. */
+function ksBuffer(f, P) {
+  const N = Math.max(2, Math.round(SR / f - .5)), key = P.id + ":" + N;
+  if (KS.has(key)) return KS.get(key);
+  const len = Math.floor(P.secs * SR), b = new AudioBuffer({ length: len, sampleRate: SR, numberOfChannels: 1 }), d = b.getChannelData(0);
+  let s = 12345 + N * 7, prev = 0;
+  for (let i = 0; i < N; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; prev += P.bright * ((s / 0x3fffffff - 1) - prev); d[i] = prev; }
+  for (let i = N; i < len; i++) d[i] = P.damp * .5 * (d[i - N] + d[Math.max(0, i - N - 1)]);
+  let pk = 0; for (let i = 0; i < len; i++) pk = Math.max(pk, Math.abs(d[i]));
+  for (let i = 0; i < len; i++) d[i] *= .8 / (pk || 1);
+  const v = { b, f: SR / (N + .5) }; KS.set(key, v); return v;
+}
+
+/** The look's mix tone: the music as mixed (studio), warm, on tape, on vinyl with its
+ *  crackle, bright, or in a club. On the music alone, before the levelling, which brings
+ *  every tone to the same loudness. Returns the chain's two ends. */
+function toneChain(ctx, kind, dur) {
+  const node = (type, f, g, q) => { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; if (g != null) n.gain.value = g; if (q != null) n.Q.value = q; return n; };
+  let chain;
+  switch (kind) {
+    case "warm": chain = [node("lowshelf", 160, 2.5), node("highshelf", 6500, -3.5)]; break;
+    case "tape": { const ws = ctx.createWaveShaper(), mk = ctx.createGain(); ws.curve = curve(1.35); ws.oversample = "2x"; mk.gain.value = .86; chain = [node("lowshelf", 120, 2), ws, node("lowpass", 11000, null, .5), mk]; break; }
+    case "vinyl": chain = [node("highpass", 55), node("lowshelf", 200, 1.5), node("lowpass", 8500, null, .5)]; break;
+    case "bright": chain = [node("highshelf", 7500, 4), node("peaking", 3000, 1.5, .8)]; break;
+    case "club": chain = [node("lowshelf", 75, 4.5), node("peaking", 350, -2, .9), node("highshelf", 9000, 2)]; break;
+    default: { const g = ctx.createGain(); return { input: g, output: g }; }
+  }
+  for (let i = 1; i < chain.length; i++) chain[i - 1].connect(chain[i]);
+  const last = chain[chain.length - 1];
+  if (kind === "vinyl") {                                   // the crackle under the record, from the first frame
+    const n = Math.max(1, Math.floor(dur * SR)), cb = ctx.createBuffer(1, n, SR), d = cb.getChannelData(0); let s = 4242;
+    for (let i = 0; i < n; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; const u = s / 0x7fffffff; d[i] = u > .99965 ? (u - .99965) * 1600 * (i % 2 ? 1 : -1) : (u - .5) * .004; }
+    const src = ctx.createBufferSource(), g = ctx.createGain(); src.buffer = cb; g.gain.value = .5; src.connect(g).connect(last); src.start(0);
+  }
+  return { input: chain[0], output: last };
+}
+
+// Where a recording sits as it goes into the music bus: set so that, in the levelled mix, a
+// recording stands to the hits as the music made here does (2026-10-05: 30 looks, each
+// rendered both ways; loudness after the hit against the opening hit differs by a median
+// of -0.05 dB, quartiles -1.1 and +0.7).
+const REC_LUFS = -15;
+const REC_LOUD = new WeakMap();
+/** A recording's gain into the music bus: its loudness over the eight seconds an ad can
+ *  play of it, measured once (BS.1770), brought to REC_LUFS; never more than +12 dB. */
+function recordingGain(buf) {
+  let L = REC_LOUD.get(buf);
+  if (L == null) {
+    const n = Math.min(buf.length, Math.round(8 * buf.sampleRate)), ch = buf.numberOfChannels;
+    const clip = new AudioBuffer({ length: n, numberOfChannels: ch, sampleRate: buf.sampleRate });
+    for (let c = 0; c < ch; c++) clip.copyToChannel(buf.getChannelData(c).subarray(0, n), c);
+    L = loudness(clip) + (ch === 1 ? 3.01 : 0);             // one channel plays in both ears
+    REC_LOUD.set(buf, L);
+  }
+  return L > -60 ? clamp(10 ** ((REC_LUFS - L) / 20), .06, 4) : 1;
+}
+
+/** A real recording (or the user's own track) in place of the music made here. It comes in
+ *  on the headline hit, so the words land on its first downbeat (each clip starts on a
+ *  strong beat; an upload plays from its start), into the music's own bus, open by then:
+ *  ducked under the hits and the voice, toned, and levelled with the rest. */
+function playRecording(ctx, buf, dest, hit, T) {
+  const t0 = Math.max(0, hit - .02), s = ctx.createBufferSource(), g = ctx.createGain(), level = recordingGain(buf);
+  s.buffer = buf;
+  g.gain.setValueAtTime(0, 0); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(level, t0 + .02);
+  s.connect(g).connect(dest); s.start(t0); s.stop(T + .05);
+}
+
+// The recorded drums against the synthesised ones they replace in synth() above, at the same
+// gain: BS.1770 loudness of eight dry hits each (2026-10-05). The snare is the recording with
+// a quarter of the synthesised one under it, the pair as loud as the synthesised one alone.
+const DRUM_MATCH = { hat: 1.1, hat_open: 2.13, snare: 2.18, clap: .555 };
+// A player's hands: [timing in seconds either way, loudness either way, where the gain is]
+const LOOSE = { kick: [.002, .05, 0], hat: [.007, .18, 0], snare: [.004, .08, 0], clap: [.004, .1, 0], rim: [.004, .1, 0],
+  shaker: [.007, .18, 0], tom: [.004, .08, 0], hit: [.005, .12, 1], note: [.006, .1, 3], pluck: [.004, .08, 2], keys: [.006, .1, 2] };
+
+/** The music made here as played and produced (owner, 2026-10-03: "music that sounds played
+ *  and produced, not computed"): the recorded hi-hat, snare and claps in place of the
+ *  synthesised ones wherever they loaded (the synthesised one stays where one did not), and
+ *  every drum hit and note a few milliseconds early or late and never twice at the same
+ *  loudness, drawn from the look's own seed so it sounds the same every time. */
+function playedByHand(M, st, rec) {
+  // composing to learn the samples asks for the recorded one; playing uses it only once loaded
+  const has = id => !!(rec && rec.man && rec.man.hits[id]) && (rec.probe || !!rec.bufs.get(id));
+  const hit = M.hit, synthHat = M.hat, synthSnare = M.snare, synthClap = M.clap; let claps = 0;
+  M.hat = (t, gain, open = false, pan = 0) => { const id = open ? "hat_open" : "hat"; return has(id) ? hit(t, id, gain * DRUM_MATCH[id], pan) : synthHat(t, gain, open, pan); };
+  M.snare = (t, gain) => { if (!has("snare")) return synthSnare(t, gain); hit(t, "snare", gain * DRUM_MATCH.snare); synthSnare(t, gain * .25); };
+  M.clap = (t, gain, pan = 0) => { const id = claps++ % 2 ? "clap2" : "clap"; return has(id) ? hit(t, id, gain * DRUM_MATCH.clap, pan) : synthClap(t, gain, pan); };
+  const h = rng(st.seed * 31 + 9);
+  for (const [k, [dt, dv, gi]] of Object.entries(LOOSE)) {
+    const f = M[k];
+    M[k] = (t, ...a) => { t += (h() - .5) * 2 * dt; if (typeof a[gi] === "number") a[gi] *= 1 - dv + 2 * dv * h(); return f(t, ...a); };
+  }
 }
 
 /** The bed: a groove per kit over the chords. Before the headline hit only the chords
