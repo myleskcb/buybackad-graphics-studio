@@ -153,8 +153,10 @@ advice is wrong for this market.
 Measured: templates with a cutout score 7.8 edge density vs 4.6 without (+70%).
 New AI backdrop photography moved palette but *not* detail at all. 26 cutouts
 exist in `assets/cutouts/`; ~54 more ≈ **$3** on fal (Seedream v4 @ $0.03/image —
-it beat Nano Banana Pro at 5× the price in a measured bakeoff). fal key lives in
-`~/Desktop/apple-photo-engine` settings db.
+it beat Nano Banana Pro at 5× the price in a measured bakeoff). The fal key is the
+`FAL_KEY` environment variable, never a committed file: set once in the Claude
+cloud environment's settings (every new session reads it), in the Netlify site
+env only if the live site should fall back to fal, and in a local `.env`.
 
 ## 6. Design direction (locked by the owner)
 
