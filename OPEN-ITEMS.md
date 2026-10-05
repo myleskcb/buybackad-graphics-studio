@@ -1648,11 +1648,13 @@ Found (`scripts/theme_cohesion_audit.mjs`, new): four colour vocabularies in
 one product. The library's 311 cards, the landing's Ready-made tab and the
 colour builder spoke rule 103's twelve pairings; Easy Mode and the designer
 offered 21 themes under the names rule 103 retired ("Blue Market", "Gold
-Offer", "Hot Sale"), 17 with no small-print colour, four with a third hue,
-five with a brown, rust or olive accent, and internal words in the chip's
-title ("GFX Grammar", "iOS Flat"); `cvd_audit.py` graded ten themes that
-existed nowhere and failed; the choice holds were keyed by the 21 names.
-56 problems on the 21 themes.
+Offer", "Hot Sale"): 17 with no small-print colour, three with a brown or
+olive colour under the muddy floor, six with an accent outside its named
+band (a lavender, three salmons), three named for a plant or a food, and
+internal words in the chip's title ("GFX Grammar", "iOS Flat");
+`cvd_audit.py` graded ten themes that existed nowhere and failed; the
+choice holds were keyed by the 21 names. 93 problems on the tree as it
+stood.
 
 Done:
 - `COLOR_THEMES` is the twelve, each solved by the colour builder's own
@@ -1668,7 +1670,9 @@ Done:
 - `every_card_audit.mjs --dims` or `--ids` now updates only what it measured
   (a themes-only sweep used to write an empty looks and voices table).
 - The offer family's sand look: its rust accent (`#8a3b12`) is navy at the
-  same luminance (rule 52); the look is sand and navy.
+  same luminance (rule 52); the look is sand and navy. Its eight cards
+  through audit_templates.mjs before and after: 8 of 8 pass both times,
+  the same warnings (crowded 8, contrast 7), nothing rejected.
 - The FAQ's colour answer names the twelve and the builder (visible answer
   and JSON-LD together; CSP hashes recomputed).
 - Rule 114, the brief, the README.

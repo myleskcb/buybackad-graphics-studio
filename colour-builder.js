@@ -643,7 +643,8 @@ function cbSaved(){
 }
 function cbSameColours(a, b){ return a.bg.c1 === b.bg.c1 && a.bg.c2 === b.bg.c2 && a.accent === b.accent && a.ink === b.ink && a.support === b.support; }
 function cbUniqueName(want, list, except){
-  const taken = n => list.some(t => t.name === n && t.name !== except) || (typeof COLOR_THEMES !== 'undefined' && COLOR_THEMES.some(t => t.name === n));
+  /* a house theme's name, or a retired name it answers to (aka, rule 114), is taken: ezThemeByName would find the house theme first */
+  const taken = n => list.some(t => t.name === n && t.name !== except) || (typeof COLOR_THEMES !== 'undefined' && COLOR_THEMES.some(t => t.name === n || (Array.isArray(t.aka) && t.aka.includes(n))));
   let name = want, k = 2;
   while (taken(name)) name = want + ' ' + k++;
   return name;

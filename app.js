@@ -5476,11 +5476,15 @@ function coverImage(im, w, h){
    What this replaced, so it is not rebuilt: 21 themes of the studio's own
    ("Blue Market", "Orchid Payday", "Gold Offer", "Hot Sale"...), built
    2026-08-31 to 2026-09-26 before rule 103 moved the library onto the twelve.
-   The landing then said "Navy & Gold" while the studio said "Blue Ticket";
-   four of the 21 carried a third hue (the "GFX Grammar" rows), five drew a
-   brown, rust or olive accent under the muddy floor (Gold Offer #904d03,
-   Sky Market #9b2000, Mint Counter #325f01, Hot Sale's #7a4210), and the
-   chip's title showed internal words ("GFX Grammar", "iOS Flat", "Candy").
+   The landing then said "Navy & Gold" while the studio said "Blue Ticket".
+   Measured on the 21 (theme_cohesion_audit.mjs, rule 103's muddy() and
+   namedBand()): 17 carried no small-print colour (rule 51's fourth job);
+   three drew a brown or olive colour under the muddy floor (Gold Offer's
+   #904d03, Mint Counter's #325f01, Hot Sale's #7a4210); six set an accent
+   outside the band where it reads as its name (Mint Market's lilac, three
+   salmons: Indigo Cash, Deep Red, Electric Trust); three were named for a
+   plant or a food (Mint Market, Mint Counter, Orchid Payday); and the chip's
+   title showed internal words ("GFX Grammar", "iOS Flat", "Candy").
    Their contrast history (the 1.7:1 floor between the accent and the ink,
    2026-08-31; the OKLCH re-solve of the Template Lab rows, 2026-09-26) is in
    git and in the rule; the floors live on in theme_law.mjs and cbCheck(). */

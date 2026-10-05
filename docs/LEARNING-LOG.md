@@ -3080,11 +3080,13 @@ as it stood): the product spoke four colour vocabularies. The library's 311
 cards, the landing's Ready-made tab and the colour builder used rule 103's
 twelve pairings; Easy Mode and the designer offered 21 themes of their own
 under the names rule 103 retired ("Blue Market", "Gold Offer", "Hot
-Sale"), 17 of them with no small-print colour, four with a third hue, five
-with a brown, rust or olive accent under the muddy floor, and internal words
-in the chip's title ("GFX Grammar", "iOS Flat"); cvd_audit.py graded ten
-themes that existed nowhere ("Teal x Coral") and failed on them; the choice
-holds were keyed by the 21 names. 56 problems on the 21 themes.
+Sale"): 17 of them with no small-print colour, three with a brown or olive
+colour under the muddy floor, six with an accent outside its named band (a
+lavender, three salmons), three named for a plant or a food, and internal
+words in the chip's title ("GFX Grammar", "iOS Flat"); cvd_audit.py graded
+ten themes that existed nowhere ("Teal x Coral") and failed on them; the
+choice holds were keyed by the 21 names. 93 problems on the tree as it
+stood.
 
 Did:
   - COLOR_THEMES is the twelve, each solved by the colour builder's own
@@ -3101,7 +3103,8 @@ Did:
   - every_card_audit.mjs --dims or --ids updates only what it measured (a
     themes-only sweep used to write an empty looks and voices table).
   - The offer family's sand look: its rust accent is navy at the same
-    luminance (sand and navy, not sand and brown).
+    luminance (sand and navy, not sand and brown); its eight cards pass
+    audit_templates.mjs before and after, the same warnings.
   - The FAQ's colour answer names the twelve and the builder, in the visible
     answer and the JSON-LD; CSP hashes recomputed.
   - Rule 114, the brief, the README, OPEN-ITEMS §AF.

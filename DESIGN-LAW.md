@@ -4152,15 +4152,19 @@ we made from professional gfx designers."
   themes of their own, built 2026-08-31 to 2026-09-26, under the names rule
   103 had retired a week later ("Blue Market", "Orchid Payday", "Gold Offer",
   "Hot Sale"): a visitor read "Navy & Gold" on the landing and "Blue Ticket"
-  in the studio, and none of the twelve was a theme. Of the 21: 17 carried no
-  support colour (rule 51 asks four jobs of a theme); four carried a third
-  hue (the "GFX Grammar" rows: navy, coral and periwinkle; green, peach and
-  mint); five drew an accent or support under rule 103's muddy floor (Gold
-  Offer's `#904d03` and Hot Sale's `#7a4210`, brown; Sky Market's `#9b2000`,
-  rust; Mint Counter's `#325f01`, olive; Orchid Payday's `#d1b906` on the
-  edge); and the chip's title showed the studio's internal words to the
-  customer ("GFX Grammar", "iOS Flat", "Candy", "Cool Air"; rule 113). The
-  audit counted 56 problems on the 21.
+  in the studio, and none of the twelve was a theme. Measured on the 21
+  (rule 103's own `muddy()` and `namedBand()`): 17 carried no support colour
+  (rule 51 asks four jobs of a theme); three drew a colour under the muddy
+  floor (Gold Offer's accent `#904d03` and Hot Sale's support `#7a4210`,
+  brown; Mint Counter's accent `#325f01`, olive); six set an accent outside
+  the band where it reads as its name (Mint Market's `#cd92ff`, a lavender
+  above purple's band; Indigo Cash's `#fe7f78`, Deep Red's `#ff6b57` and
+  Electric Trust's `#ff6a55`, salmons above red's; the two muddy accents
+  under theirs); three were named for a plant or a food (Mint Market, Mint
+  Counter, Orchid Payday); every one wore an internal family word in the
+  chip's title ("GFX Grammar", "iOS Flat", "Candy", "Cool Air"; rule 113) and
+  four an internal intent. The audit counted 93 problems on the tree as it
+  stood (the 21 themes, the vocabulary and the aka lines together).
 - `scripts/cvd_audit.py`, which AGENT-BRIEF lists among the checks to run
   after a deploy, graded a hard-coded list of ten themes ("Teal x Coral",
   "Crimson x Mint") that matched nothing in app.js, and failed on it: a
