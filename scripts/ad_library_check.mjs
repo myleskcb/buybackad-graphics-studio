@@ -427,7 +427,11 @@ async function browserPart() {
       await page.waitForSelector('#grid-saved .ml-card', { timeout: 20000 });
       await page.click('#tab-finished');
       await page.waitForSelector('#grid-finished .ml-card img', { timeout: 20000 });
-      const offered = JSON.parse(readFileSync(join(ROOT, 'assets/showcase/index.json'), 'utf8')).filter((c) => !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05) && c.thumb).length;
+      // the site's own test for an offered card, read out of app.js, so the page cannot drift from it
+      const liveSrc = (readFileSync(join(ROOT, 'app.js'), 'utf8').match(/function scIsLive\(c\)\{[^\n]*\}/) || [])[0];
+      ok(liveSrc, 'scIsLive is not where it was in app.js');
+      const scIsLive = new Function(liveSrc + '; return scIsLive;')();
+      const offered = JSON.parse(readFileSync(join(ROOT, 'assets/showcase/index.json'), 'utf8')).filter((c) => scIsLive(c) && c.thumb).length;
       const m = await page.evaluate(() => ({ count: document.getElementById('count-finished').textContent, shown: document.querySelectorAll('#grid-finished .ml-card').length, wide: document.documentElement.scrollWidth - window.innerWidth, chips: document.querySelectorAll('#chips-finished button').length, saved: document.querySelectorAll('#grid-saved .ml-card').length }));
       ok(m.count.startsWith(offered + ' designs offered') && m.shown === Math.min(60, offered) && m.chips > 2, 'browser: the finished designs are every offered card (' + JSON.stringify(m) + ', ' + offered + ' offered)');
       await shot(page, 'master-finished-390');
