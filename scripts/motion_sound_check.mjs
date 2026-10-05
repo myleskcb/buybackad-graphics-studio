@@ -11,8 +11,10 @@
    1. The maker: the page opens without an error, the Audience and voice
       controls are there, and picking each audience by hand gives an ad in
       that audience's looks, music, words and voice.
-   2. The mix: a take laid over four different music kits, rendered as stems
-      (voice alone, bed alone) and whole, and measured:
+   2. The mix: a take laid over four different music kits (held to the music
+      made here: a shuffle can draw a real recording in its place) and over a
+      real recording (motion/tracks.js), rendered as stems (voice alone, bed
+      alone) and whole, and measured:
         starts     the first word at 0.3 s, after the opening hit
         ends       the last word at least 0.5 s before the end
         margin     the voice at least 4.5 dB over the bed under it (RMS over
@@ -153,9 +155,10 @@ const browser = await puppeteer.launch({ executablePath: CHROME, headless: 'new'
     const rms = (b, t0, t1) => { let s = 0, n = 0; for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = Math.round(t0 * sr); i < Math.round(t1 * sr); i++) { s += d[i] * d[i]; n++; } } return 20 * Math.log10(Math.sqrt(s / n) + 1e-9); };
     const peak = b => { let m = 0; for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < d.length; i++) m = Math.max(m, Math.abs(d[i])); } return 20 * Math.log10(m); };
     const edges = b => { const d = b.getChannelData(0), w = 441, g = 10 ** (-45 / 20); let f = -1, l = -1; for (let i = 0; i < d.length; i += w) { let s = 0; for (let j = 0; j < w && i + j < d.length; j++) s += d[i + j] ** 2; if (Math.sqrt(s / w) > g) { if (f < 0) f = i; l = i + w; } } return [f / sr, l / sr]; };
-    for (const kit of ['house', 'trap', 'minimal', 'drumline']) {
+    for (const [kit, sound_kit, track] of [['house', 'house', 'none'], ['trap', 'trap', 'none'], ['minimal', 'minimal', 'none'], ['drumline', 'drumline', 'none'],
+      ['recording', 'house', 'sousa_funk']]) {
       const st = E.harmonise({ ...E.randomize({ ...C.DEFAULT_STYLE, number: '(323) 555-0199' }, 77, new Set(), a.index.map(m => m.id), true),
-        audience: take.audience, lang: take.lang, lang_mode: take.lang, sound_kit: kit, duration: 6, voice: 'on', vo_clip: '' }, new Set(['voice_cast', 'voice_mood']), idx);
+        audience: take.audience, lang: take.lang, lang_mode: take.lang, sound_kit, track, duration: 6, voice: 'on', vo_clip: '' }, new Set(['voice_cast', 'voice_mood', 'track']), idx);
       const ad = new E.Ad(st, { phones: a.phones }, 320, 320), quiet = new E.Ad({ ...st, voice: 'off' }, { phones: a.phones }, 320, 320);
       const voice = await A.renderSoundtrack(ad, { solo: 'voice' }), bed = await A.renderSoundtrack(ad, { solo: 'bed' }), full = await A.renderSoundtrack(ad);
       const bedOff = await A.renderSoundtrack(quiet, { solo: 'bed' }), fullOff = await A.renderSoundtrack(quiet);

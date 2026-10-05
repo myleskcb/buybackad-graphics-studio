@@ -2,7 +2,8 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KIT_BPM } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KEPT_OPTIONS, KIT_BPM,
+  SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS } from "./catalog.js";
 import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
@@ -104,14 +105,15 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   const r = rng(seed * 7919 + 13);
   const out = { ...st, seed };
   for (const k of Object.keys(OPTIONS)) {
-    if (k === "pose" || ACCENT_AXES.includes(k) || LATE_OPTIONS.includes(k)) continue;   // their own draws below, so older seeds keep their looks
+    // their own draws below, so older seeds keep their looks; a kept option (the holiday) only by hand
+    if (k === "pose" || ACCENT_AXES.includes(k) || LATE_OPTIONS.includes(k) || KEPT_OPTIONS.includes(k)) continue;
     if (!locked.has(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
   }
   if (!locked.has("pose")) out.pose = rng(seed * 4099 + 71).weighted(OPTIONS.pose, WEIGHTS.pose);
   const ra = rng(seed * 6151 + 29);
   for (const k of ACCENT_AXES) if (!locked.has(k)) out[k] = ra.weighted(OPTIONS[k], WEIGHTS[k]);
   const r2 = rng(seed * 6007 + 29);
-  for (const k of LATE_OPTIONS) if (!locked.has(k)) out[k] = r2.weighted(OPTIONS[k], WEIGHTS[k]);
+  for (const k of LATE_OPTIONS) if (!locked.has(k)) out[k] = r2.weighted(OPTIONS[k], lateWeights(k, out.season));
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
   if (!locked.has("bpm")) out.bpm = r.int(96, 124);      // the tempo a commercial bed sits at
   audienceInto(out, r, locked);
@@ -121,6 +123,21 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   voiceInto(out, r, locked);
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = pickPhones(phonesPool, r.pick([3, 3, 5, 5, 4]), r);
   return harmonise(out, locked);
+}
+
+/** The weights a late sound option is drawn with. An ad set to a holiday by hand draws
+ *  that holiday's tunes (always one), its recordings (mostly, where it has any) and often
+ *  its opening sound; any other ad the catalog's own weights, unchanged, so a look number
+ *  that is not a holiday ad draws what it always drew. */
+function lateWeights(k, season) {
+  const own = { melody: SEASON_TUNES, accent: SEASON_ACCENTS, track: SEASON_TRACKS }[k], mine = own && own[season];
+  if (!mine) return WEIGHTS[k];
+  const w = { ...WEIGHTS[k] };
+  if (k === "accent") { for (const v of mine) w[v] = 8; return w; }
+  for (const v of OPTIONS[k]) w[v] = 0;
+  for (const v of mine) w[v] = 6;
+  if (k === "track") w.none = mine.length ? 6 : 1;            // else a holiday tune made here
+  return w;
 }
 
 /** An opening that shows the phones on frame 0 shows their backs: screen-up
@@ -339,6 +356,28 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!OPTIONS.melody.includes(st.melody)) st.melody = "none";
   if (!OPTIONS.lead.includes(st.lead)) st.lead = "piano";
   if (!OPTIONS.accent.includes(st.accent)) st.accent = "none";
+  if (!OPTIONS.season.includes(st.season)) st.season = "none";
+  if (!OPTIONS.tone.includes(st.tone)) st.tone = "studio";
+  if (!OPTIONS.track.includes(st.track)) st.track = "none";
+  // a holiday's recordings belong to its ads, and a holiday ad plays only its own (or its
+  // tunes, made here); no music means no recording either, unless one was picked by hand
+  if (!locked.has("track") && st.track !== "none" && st.track !== "upload") {
+    const mine = SEASON_TRACKS[st.season], holiday = Object.values(SEASON_TRACKS).flat().includes(st.track);
+    if ((mine ? !mine.includes(st.track) : holiday) || st.sound_kit === "none") st.track = "none";
+  }
+  // a real recording sets the beat the picture pulses to, but only a beat measured clearly
+  // (a slow, free-flowing piece measures at two or three times its felt tempo)
+  const rec = TRACKS.find(t => t.id === st.track);
+  if (rec && rec.bpm && rec.beat >= .5 && !locked.has("bpm")) st.bpm = Math.round(rec.bpm);
+  // holiday tunes belong to holiday ads, and a holiday ad plays one; an ordinary ad that drew
+  // one plays a classic instead; the drum-free classical kit always carries a classic
+  const holidayTunes = SEASON_TUNES[st.season] || [], anyHoliday = Object.values(SEASON_TUNES).flat();
+  if (!locked.has("melody")) {
+    if (holidayTunes.length && !holidayTunes.includes(st.melody)) st.melody = holidayTunes[(st.seed >>> 0) % holidayTunes.length];
+    else if (!holidayTunes.length && anyHoliday.includes(st.melody)) st.melody = CLASSICAL_TUNES[(st.seed >>> 0) % CLASSICAL_TUNES.length];
+    if (st.sound_kit === "classical" && st.melody === "none") st.melody = CLASSICAL_TUNES[(st.seed >>> 0) % CLASSICAL_TUNES.length];
+  }
+  if (!locked.has("accent") && st.accent === "sleigh_bells" && st.season !== "christmas") st.accent = "none";
   if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
   if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
     st.lead = ["piano", "marimba", "xylophone", "harpsichord"][st.seed % 4];
