@@ -750,9 +750,12 @@ test('the source holds no secret, logs nothing, and every request leaves the coo
   assert.ok(!/gfx_[A-Za-z0-9_-]{16,}|gfxc_[A-Za-z0-9_-]{16,}/.test(code));
 });
 
-test('index.html loads the link right after app.js and gains no inline script', () => {
+test('index.html loads the link after app.js, before the ad library, and gains no inline script', () => {
   const html = readFileSync(new URL('index.html', HERE), 'utf8');
-  assert.ok(html.includes('<script src="app.js"></script>\n<script src="iphonesla-link.js"></script>\n'));
+  // the order is the contract: the link wraps app.js's addHistory, and the ad
+  // library (ad-library.js) wraps the link's wrap and calls its refusal()
+  const at = f => html.indexOf('<script src="' + f + '"></script>\n');
+  assert.ok(at('app.js') > 0 && at('iphonesla-link.js') > at('app.js') && at('ad-library.js') > at('iphonesla-link.js'));
   assert.equal((html.match(/iphonesla-link\.js/g) || []).length, 1);
   // Structured data (application/ld+json) never runs, so the CSP needs no hash for it.
   assert.equal((html.match(/<script(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>/gi) || []).length, 2, 'the CSP carries exactly two inline hashes');

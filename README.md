@@ -94,6 +94,36 @@ paste-ready prompt). After the library's thumbnails are drawn again, run
 `render_library_ads.mjs --stale`. Checks: `scripts/library_api_check.mjs`,
 `scripts/library_handoff_check.mjs`. DESIGN-LAW rule 111.
 
+## Ad library and the master library — public link for auto-post
+
+**📚 Library** (Easy Mode's top bar, the editor's top bar, the account menu)
+keeps the ads an account saves, on the server (Netlify Blobs,
+`netlify/lib/adlibrary.mjs`, the studio side `ad-library.js`). After every
+download the studio offers **Save to library**, or saves every download by
+itself once **Save every download here** is ticked. What is saved is the
+download itself, as a JPEG: its size and its watermark, as the plan gave it.
+
+The library has one public link (`master-library.html?feed=fd_…`), shown in
+the dialog with **Copy link**, the JSON feed and RSS. Whoever holds it sees
+these ads and nothing else; **Reset link** makes a new one and the old one
+stops. Each ad is set to **Auto-post** or not and to post again once, every
+day, every week and so on. The feed lists each ad when it is due, and lists
+it again each time it comes due. iPhones LA reads it and posts through its own
+Auto-post (`docs/iphonesla-library/autopost_worker.py`, the prompt in that
+folder's README). An ad that shows a website, a QR code, a street address or a
+social handle, or carries the watermark, is saved but held from auto-post.
+Caps: free 12 ads, Pro 300, operators 2000 (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`,
+`ADLIB_MAX_ADMIN`), 100 saves a day (`ADLIB_DAILY`). It needs the real backend
+(`JWT_SECRET` set): in demo mode the dialog says so.
+
+`master-library.html` without a link is the **master library**: the account's
+saved ads, and **Finished designs**, every card the studio offers, read from
+this deploy (`assets/showcase/`, the full-size renders in
+`assets/library-ads/`), so whatever the latest build re-drew is what it shows.
+Check: `scripts/ad_library_check.mjs` (routes, the real function, iPhones LA's
+worker over HTTP, and the studio and page in Chromium under the production
+CSP; `FABRIC_JS=…` when cdnjs is out of reach).
+
 ## SCANS.AD (ScanMap) integration — optional
 Graphics Studio runs 100% standalone. The integration is also **invisible to
 single-product users**: every SCANS.AD surface (order buttons, tracked-link

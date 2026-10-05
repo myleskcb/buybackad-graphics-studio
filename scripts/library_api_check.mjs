@@ -146,7 +146,7 @@ if (up) {
   rmSync(T, { recursive: true, force: true });
   mkdirSync(join(T, 'netlify/functions'), { recursive: true }); mkdirSync(join(T, 'netlify/lib'), { recursive: true });
   cpSync(join(ROOT, 'netlify/functions/api.mjs'), join(T, 'netlify/functions/api.mjs'));
-  cpSync(join(ROOT, 'netlify/lib/library.mjs'), join(T, 'netlify/lib/library.mjs'));
+  cpSync(join(ROOT, 'netlify/lib'), join(T, 'netlify/lib'), { recursive: true });   // every module api.mjs imports (library, adlibrary)
   mkdirSync(join(T, 'node_modules/@netlify/blobs'), { recursive: true });
   writeFileSync(join(T, 'node_modules/@netlify/blobs/package.json'), JSON.stringify({ name: '@netlify/blobs', type: 'module', main: 'index.js' }));
   writeFileSync(join(T, 'node_modules/@netlify/blobs/index.js'), 'const m = new Map(); export const getStore = () => ({ get: async k => m.has(k) ? m.get(k) : null, set: async (k, v) => { m.set(k, v); }, delete: async k => { m.delete(k); }, list: async () => ({ blobs: [] }) });');

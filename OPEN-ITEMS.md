@@ -1634,3 +1634,27 @@ lime box (`#0a1a00`, rule 104's plate ink).
    changed (two families), so `node scripts/every_card_audit.mjs
    --write-holds` (hours; `--resume`) should be run before the holds are
    trusted again. The gate still checks every download.
+
+## Ad library. 2026-10-05: saved ads, one public link, auto-post and repost for iPhones LA
+
+The owner asked for "a public library for iphones LA to access and auto post
+the we buy ads and auto repost them too". Built: 📚 Library in the studio
+(`ad-library.js`), the server (`netlify/lib/adlibrary.mjs`, `/api/ads/*`),
+`master-library.html`, and iPhones LA's worker
+(`docs/iphonesla-library/autopost_worker.py`, the prompt in that README).
+Check: `scripts/ad_library_check.mjs`.
+
+1. **Live only once deployed with `JWT_SECRET` set.** Saving needs an account
+   on the server. Netlify Blobs needs nothing more. Not exercised against
+   production from here, because this session's network cannot reach
+   Netlify.
+2. **iPhones LA has to plug `post()` into its Auto-post.** The handoff zip and
+   prompt are ready; `loganipad/iphoneslainv` is out of this session's reach.
+3. **One save at a time.** The library index is read, changed and written per
+   save, so two saves at the very same moment (two tabs) could drop one. The
+   studio saves one after another. A lock or one blob per ad is the fix if
+   that ever happens.
+4. **A reset link's pictures** stay in browser caches for up to a day
+   (`max-age=86400` on a versioned picture). The feed itself stops at once.
+5. **Recent downloads** are this browser's, as before (IndexedDB, the last 12).
+   Saving one is how it reaches the library.

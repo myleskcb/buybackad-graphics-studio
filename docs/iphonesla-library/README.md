@@ -40,6 +40,8 @@ The browser never sees the key.
 | `library-picker.js` | the static files | the panel for the listing page: the library's ads, a search, a category. A pick hands the page the ad as a JPEG `File`. |
 | `example_server.py` | reference only | the routes and a demo listing page, standard library, runnable |
 | `test_buybackad_library.py` | the tests | ten checks against a live library (skipped without the env vars) |
+| `autopost_worker.py` | the server's jobs | auto-post and repost from the ad library's public link (below); posts through the shop's own Auto-post |
+| `test_autopost.py` | the tests | seven checks of the feed client and the worker against a stand-in library (no network) |
 
 ## Setting it up (the owner, once)
 
@@ -260,3 +262,145 @@ the routes; example_server.py has them runnable. Then:
 Report: the routes and the page changed, the test output, and a screenshot of
 the listing page with the library open.
 ```
+
+## Auto-post and repost: the ad library's public link
+
+The owner, 2026-10-05: "when we save the ads on the site we can make a public
+library for iphones LA to access and auto post the we buy ads and auto repost
+them too".
+
+The key-protected API above is the **Designer Library** (the studio's finished
+designs). This section covers the other library: the **ads the owner saves**
+in the studio (📚 Library, or "Save to library" after a download). It has one
+public link that iPhones LA reads. The ads on it are set to auto-post or not,
+each with its own repost schedule.
+
+```
+BUYBACK.AD studio ──save──▶ the ad library ──public link──▶ iPhones LA worker ──▶ Auto-post
+ (download, Save)          (Netlify Blobs)   JSON / RSS       autopost_worker.py    (the shop's own
+                                                              every 10-15 min        posting: post, repost)
+```
+
+### Getting the link (the owner, once)
+
+In the studio, sign in, open **📚 Library** and press **Copy link**. It looks
+like `https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_...`.
+Opening it shows the library as a page. On iPhones LA's server, set it as
+`BUYBACKAD_FEED_URL`. It needs no key: the link itself is the access, and it
+shows these ads and nothing else. **Reset link** in the same dialog makes a
+new link; the old one answers 404 from then on.
+
+### What the link answers
+
+| address | answers |
+|---|---|
+| `/api/ads/feed/fd_...` (or `.json`) | `{ name, version, updated, repost_days, count, links, items }`; `?category=phones` filters, `?due=1` gives only what is due to post |
+| `/api/ads/feed/fd_....rss` | RSS 2.0: one item per ad that is due, its picture as the enclosure, its slot as the guid |
+| `/api/ads/feed/fd_.../img/<id>.jpg` | the ad's picture, the JPEG as it was saved (the download, at its size; up to 2160 a side) |
+
+An ad (an example record):
+
+```json
+{ "id": "ad_mfx1k2abcd", "title": "WE BUY iPHONES", "category": "phones",
+  "caption": "WE BUY iPHONES", "template": "checklistHero",
+  "texts": [{ "role": "headline", "text": "WE BUY iPHONES" }, { "role": "badge", "text": "Cash today" }],
+  "products": ["iphone-15-pro"],
+  "image": { "url": "https://.../api/ads/feed/fd_.../img/ad_mfx1k2abcd.jpg?v=3f2a9c1d0e4b", "width": 1440, "height": 1440, "bytes": 412233, "format": "jpg" },
+  "created": "2026-10-05T12:00:00Z", "updated": "2026-10-05T12:00:00Z",
+  "autopost": true, "repost_days": 7, "hold": null,
+  "post": { "slot_id": "ad_mfx1k2abcd@2026-10-05T12:00:00Z", "due_at": "2026-10-05T12:00:00Z", "next_at": "2026-10-12T12:00:00Z", "round": 1 } }
+```
+
+- `post` is present when the ad is to be posted. It is due at `due_at`; with
+  `repost_days` (1, 2, 3, 5, 7, 14 or 30; 0 means once) it comes due again at
+  `next_at`, as round 2, 3 and so on. Turning auto-post back on makes it due
+  at once.
+- **`slot_id` is the whole contract**: keep the slot ids you have posted, and
+  post any ad whose current `slot_id` you have not. That posts each ad once
+  per slot, reposts it when the next slot comes, and never doubles up if a
+  run is repeated.
+- `hold` names why an ad is never auto-posted: it shows a website, a QR code,
+  a street address or a social handle, or it carries the free plan's
+  watermark (the same rule as the studio link's WE BUY pictures). A held ad
+  is listed with `post: null`.
+- `texts` and `products` are what is on the picture (the phone number is left
+  out of `texts`), for writing the listing; `caption` is the owner's line.
+- No email or account detail is ever in the feed. Answers carry
+  `Access-Control-Allow-Origin: *` and `X-Robots-Tag: noindex`; the JSON is
+  cached for one minute.
+
+### The worker
+
+`autopost_worker.py` does the above with the standard library. It reads the
+link, takes what is due, and calls `post(ad, jpeg_bytes, repost)` for each.
+It records a slot only after `post` returns, so a failed post is tried again
+on the next run. The posted slots live in one small JSON file.
+
+```
+BUYBACKAD_FEED_URL=https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_... \
+python3 autopost_worker.py --once --state var/buybackad-autopost.json --post myapp.autopost:post_we_buy_ad
+```
+
+Run it from cron or the app's scheduler every 10 to 15 minutes, or keep it
+running with `--loop 900`. `--dry-run` lists what is due and records nothing;
+`--limit` caps the posts per run (5 by default).
+
+`post` is the shop's own Auto-post: the same code path a person uses when they
+post a WE BUY ad by hand. It takes the picture as the ad's photo and writes the
+listing from `title`, `caption`, `texts`, `products` and `category`. It returns
+the listing's id, which is kept beside the slot. Do not build a second posting
+pipeline. Each marketplace has its own rules on reposting and automation, and
+the schedule set in the studio should stay inside them.
+
+RSS instead of the worker: any RSS auto-poster that posts new items will post
+each ad once per slot, because a repost is a new guid.
+
+### Checked (2026-10-05, from the BUYBACK.AD repo)
+
+`scripts/ad_library_check.mjs` covers the following:
+
+- **The routes.** Saving takes a real JPEG and refuses anything else. The
+  same picture saved twice is one ad. Each plan has a cap and there is a
+  daily count. The link answers JSON, RSS and pictures byte for byte. A
+  reset link stops answering.
+- **The schedule.** A weekly ad comes due on days 0, 7, 14 and 21.
+- **The worker.** `autopost_worker.py` runs over HTTP against the real
+  function: it posts the due ad once, with its JPEG whole, and not again on
+  a second run. `test_autopost.py` also passes.
+- **The studio, in Chromium under the production CSP.** A download offers
+  "Save to library". The Library dialog shows the saved ad and the link. A
+  free account's watermarked ad is held from auto-post; an operator's is set
+  to post. The public page shows the ad.
+
+Not checked from here: `loganipad/iphoneslainv` itself, which this session
+cannot reach.
+
+### Paste-ready prompt for the iPhones LA session (auto-post)
+
+```
+In loganipad/iphoneslainv: auto-post BUYBACK.AD's saved WE BUY ads, and post
+them again on their schedule, through the shop's existing Auto-post.
+
+The ads come from BUYBACK.AD's ad library: a public link the owner copies in
+the BUYBACK.AD studio (📚 Library → Copy link). From the BUYBACK.AD repo
+(myleskcb/buybackad-graphics-studio), take docs/iphonesla-library.zip and read
+its README.md, section "Auto-post and repost: the ad library's public link".
+It is the contract.
+  - buybackad_library.py  (BuybackadFeed is new; replace the old copy)
+  - autopost_worker.py    the worker: what is due, once per slot, retried on failure
+  - test_autopost.py      into the tests
+
+1. Set BUYBACKAD_FEED_URL (the link) where this app keeps its settings.
+2. Write post(ad, jpeg_bytes, repost) over the EXISTING Auto-post: the ad's
+   picture becomes the WE BUY ad's photo, and the listing text comes from
+   ad["title"], ad["caption"], ad["texts"], ad["products"] and
+   ad["category"]. It returns the listing's id. Use the same code path as a
+   WE BUY ad posted by hand. Do not add a second posting pipeline.
+3. Schedule autopost_worker.run_once (or the CLI with --once) every 10 to 15
+   minutes, with its state file somewhere that survives a deploy.
+4. Run test_autopost.py. Then save one ad in the BUYBACK.AD studio and watch
+   it post on the next run. Run again: it must not post twice.
+Report: where post() hooks into Auto-post, the schedule, the test output, and
+the first real post.
+```
+

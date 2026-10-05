@@ -728,5 +728,7 @@
     retryNow,
     disconnect,
     graphicFor,
+    // The ad library (ad-library.js) holds the same pictures back from auto-post.
+    refusal,
   };
 })();

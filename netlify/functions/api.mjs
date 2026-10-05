@@ -22,13 +22,19 @@
  *   GET  /api/library/v1/...     partner path, behind a library key: the
  *                                imagery catalogue (netlify/lib/library.mjs).
  *
+ *   /api/ads/...                 the ad library: ads an account saves, and
+ *                                one public link to them for a poster
+ *                                (netlify/lib/adlibrary.mjs).
+ *
  * Env vars: JWT_SECRET (required), GEMINI_KEY (required for AI), ADMIN_EMAILS
  * (comma-separated), optional: PGFX_BG_MODEL, RL_USER_DAILY, RL_PRO_DAILY,
  * RL_GLOBAL_DAILY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, PRICE_PRO, SITE_URL,
- * LIBRARY_KEYS (name:key pairs), LIBRARY_DAILY.
+ * LIBRARY_KEYS (name:key pairs), LIBRARY_DAILY, ADLIB_DAILY, ADLIB_MAX_FREE,
+ * ADLIB_MAX_PRO, ADLIB_MAX_ADMIN.
  */
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
+import { adLibraryRoute } from '../lib/adlibrary.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -87,6 +93,8 @@ const json = (data, status) => new Response(JSON.stringify(data), {
 // nulls ("Account not found" right after signup).
 const users = () => getStore({ name: 'pgfx-users', consistency: 'strong' });
 const bgStore = () => getStore('pgfx-backgrounds'); // published backgrounds: read-heavy, eventual is fine
+// saved ads: a save is read back at once (the library, its public link)
+const adStore = () => getStore({ name: 'pgfx-ad-library', consistency: 'strong' });
 
 async function getUser(em) { return JSON.parse((await users().get('u:' + em)) || 'null'); }
 async function putUser(u) { await users().set('u:' + u.email, JSON.stringify(u)); }
@@ -228,6 +236,19 @@ export default async (req) => {
       },
     });
     if (lib) return lib;
+    /* the ad library: its public link answers without an account, so it
+       comes before the JWT check too; its own routes ask for a sign-in */
+    const ads = await adLibraryRoute(req, url, p, env, {
+      store: adStore(),
+      accountsReady: !!env.JWT_SECRET,
+      whoami: (r) => readToken(r, env),
+      account: async (em) => { const u = await getUser(em); return u ? { plan: u.plan || 'free', role: roleFor(em, env) } : null; },
+      count: async (owner) => {
+        try { return await bumpCounter('adlib:' + owner + ':' + isoDay(), parseInt(env.ADLIB_DAILY || '100', 10)); }
+        catch (e) { console.warn('ad library: the day count failed, letting it through', e); return true; }
+      },
+    });
+    if (ads) return ads;
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 
     if (p === '/auth/signup' && req.method === 'POST') {

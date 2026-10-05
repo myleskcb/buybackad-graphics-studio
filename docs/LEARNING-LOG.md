@@ -3065,3 +3065,74 @@ RESUME HERE:
      Deploying); this session's network cannot reach Netlify.
   1. Re-sweep the choice holds on the merged build (OPEN-ITEMS §AE 6).
   2. Guard rule 104's plate ink with the muddy floor (§AE 2).
+
+## 2026-10-05 — saved ads, one public link, auto-post and repost (claude/wonderful-galileo-lu5pmv)
+
+The owner: "now make sure we finish all our design prompts and graphic
+changes from video to photos so we have the latest final versions.. allow us
+to see in the library / master library", then: "and when we save the ads on
+the site we can make a public library for iphones LA to access and auto post
+the we buy ads and auto repost them too".
+
+Found:
+  - Another session (`claude/zen-dijkstra-bmaw67`, "push and commit all of
+    the rest of the changes") was already merging every outstanding design
+    branch (PR #9's phone sets and Look Book, the video maker's phones, the
+    real-photograph backdrops and library cards, the headline work). It
+    planned to re-draw the thumbnails and the library's full-size renders,
+    then move `main`. Doing the same merges here would have made two
+    integrations that conflict. So this branch builds what was new and
+    leaves the merge to that session.
+  - "Save" in the studio meant the export history: this browser's last 12
+    downloads, in IndexedDB. Nothing about a download reached the server.
+  - The studio already sends exports to iPhones LA (`iphonesla-link.js`, a
+    connect code from its Auto-post page), but they land unselected there and
+    a person picks. Auto-posting needs the other way round: a library
+    iPhones LA reads, which says what is due.
+  - The studio loads the account only when Easy Mode opens (`bindEasyUI` →
+    `bindSaasUI` → `loadAccount`). A dialog opened before that has to load it
+    itself, or it says "sign in" to someone who is signed in.
+  - A check that runs a child process synchronously blocks its own
+    in-process HTTP server: the Python worker timed out and posted nothing.
+    Spawn it asynchronously.
+  - `tests-iphonesla-link.mjs` had one test failing on `main`: it wanted
+    `iphonesla-link.js` right after `app.js`, and the colour builder sits
+    between them now. It checks the order instead.
+
+Did: `netlify/lib/adlibrary.mjs` (save, update, remove, settings, link
+reset; the public feed as JSON, RSS and pictures; the slot rule), wired into
+`api.mjs` before the JWT check; `ad-library.js` (the addHistory hook, "Save to
+library" after a download, "Save every download here", the 📚 Library dialog:
+the link, auto-post and repost per ad, recent downloads); the buttons in
+`index.html` (Easy Mode, the editor, the account menu); `master-library.html`
+and `.js` (a shared link's page; the owner's saved ads and every finished
+design, read from the deploy); `iplaLink.refusal` exposed so a held picture is
+held for the same reasons; iPhones LA's `BuybackadFeed`,
+`autopost_worker.py`, `test_autopost.py`, the README section and prompt, the
+zip; `scripts/ad_library_check.mjs`; `library_api_check.mjs` copies every
+backend module now; README, OPEN-ITEMS "Ad library".
+
+The slot rule is the design. An ad is due when saved (or switched on) and
+again every N days; its slot id is `<ad>@<due time>`. A poster that keeps the
+ids it posted posts once per slot and needs nothing else. The RSS guid is the
+slot, so any RSS auto-poster reposts on schedule too.
+
+Checked:
+  - ad_library_check.mjs: no failures. That covers the routes and schedule;
+    the real api.mjs with a stand-in Blobs; the Python worker over HTTP
+    (posts once, not twice); test_autopost.py; and Chromium under the
+    production CSP (a free account's watermarked ad held, an operator's set
+    to post, the public page, the finished designs = every offered card, no
+    sideways scroll at 390). Broken on purpose (no slot rounds, a held ad
+    allowed, the old link kept on reset, no "Save" card, no watermark hold),
+    it fails each time.
+  - library_api_check.mjs and library_handoff_check.mjs (with Pillow): no
+    failures. tests-iphonesla-link.mjs: 64 of 64.
+
+RESUME HERE:
+  0. After `claude/zen-dijkstra-bmaw67` lands on `main`, merge `main` into
+     this branch (or this branch into `main`) and run ad_library_check.mjs
+     again. The finished designs then show the re-drawn library on their own.
+  1. Deploy `main` from the Mac with `JWT_SECRET` set. Then sign in on the
+     live site, save one ad, open 📚 Library → Copy link, and hand the link
+     plus the README prompt to the iPhones LA session.
