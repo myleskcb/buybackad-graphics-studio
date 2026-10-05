@@ -1677,8 +1677,9 @@ Done:
   and JSON-LD together; CSP hashes recomputed).
 - Rule 114, the brief, the README.
 
-Checked: cohesion audit 0 problems (after the hold sweep); `cvd_audit.py`
-12/12; `theme_law.mjs` 12/12; `audit_theme_grammar.mjs` 12/12;
+Checked: cohesion audit 0 problems after the hold sweep (631 cards, 7,572
+theme renders: 29 cards held as offered, a theme held on 143 pairs over 21
+cards, each theme on 9 to 15 cards); `cvd_audit.py` 12/12; `theme_law.mjs` 12/12; `audit_theme_grammar.mjs` 12/12;
 `colour_builder_audit.mjs --sets-only` all pass; `landing_check.mjs` clean at
 390 and 1440; `ez_theme_audit.mjs --quick` no problems, no page errors.
 

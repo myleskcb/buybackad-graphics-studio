@@ -221,6 +221,7 @@ await offline(pp);
 await pp.goto(BASE, { waitUntil: 'load', timeout: 180000 });
 await new Promise(r => setTimeout(r, 2500));
 const classics = await pp.evaluate(() => TEMPLATES.filter(t => !/^sc-/.test(t.id) && !t.gated).map(t => t.id));
+const themeNames = await pp.evaluate(() => COLOR_THEMES.map(t => t.name));   // the themes the studio offers (rule 114)
 await probe.close();
 const idx = JSON.parse(readFileSync(new URL('../assets/showcase/index.json', import.meta.url), 'utf8'));
 const library = idx.filter(live).map(c => c.id);
@@ -330,6 +331,12 @@ if (process.argv.includes('--write-holds')){
       if (bad.length) holds[dim][r.card] = Object.fromEntries(bad.map(([k, v]) => [k, why(v)]));
     });
   }
+  /* a card the studio no longer offers has no chips to hold, and a theme it
+     no longer offers (rule 114: the names changed) cannot be held by name:
+     a partial run left 17 unoffered cards holding 168 retired theme names */
+  const offered = new Set(classics.concat(library));
+  for (const tbl of ['cards', 'themes', 'looks', 'voices']) Object.keys(holds[tbl]).forEach(c => { if (!offered.has(c)) delete holds[tbl][c]; });
+  Object.keys(holds.themes).forEach(c => { Object.keys(holds.themes[c]).forEach(k => { if (!themeNames.includes(k)) delete holds.themes[c][k]; }); if (!Object.keys(holds.themes[c]).length) delete holds.themes[c]; });
   writeFileSync(FILE, JSON.stringify(holds, null, 0));
   console.log('wrote assets/choice-holds.json: cards ' + Object.keys(holds.cards).length + ', ' + ['themes', 'looks', 'voices'].map(d => d + ' ' + Object.values(holds[d]).reduce((n, o) => n + Object.keys(o).length, 0)).join(', '));
 }

@@ -4223,7 +4223,9 @@ we made from professional gfx designers."
   live name (rule 101), so after the set changes the holds are swept again
   (`every_card_audit.mjs --dims themes --write-holds`); a sweep over some
   choices or some cards updates only what it measured and leaves the rest of
-  the table standing.
+  the table standing, and drops what cannot be held any more: a card the
+  studio no longer offers, and a theme name it no longer offers (a partial
+  run had left 17 unoffered cards holding 168 retired names).
 - **The other colour vocabularies are reported, not yet unified.** The
   video maker's 165 palettes (motion/catalog.js, motion/themes.js: 34 named
   for a food, drink or flower, 12 with three families, four named for two
@@ -4245,4 +4247,11 @@ problems once the holds were swept. `cvd_audit.py` 12 of 12; `theme_law.mjs`
 --sets-only` all checks pass (12 of 12 ready-made pairs offered from both
 colours, 1,804 tweaked sets, 0 failing); `landing_check.mjs` 0 errors, 0
 failed requests, no overflow at 390 and 1440; `ez_theme_audit.mjs --quick` no
-problems, no page errors.
+problems, no page errors. The holds, swept on the new names over every
+offered card (631: 320 classics, 311 library; 7,572 theme renders): 29
+cards fail as offered and are held; a theme is held on 143 card-and-theme
+pairs (1.9% of renders; 2.6% on the 21 at rule 101), on 21 cards, each
+theme on 9 to 15 cards; 92 for a mark that would vanish on what it sits on,
+50 for a line that would lose legibility or fit, 1 for a plate that keeps
+the card's old colour (reviewProof-du08-20). Looks and voices keep their
+table (28 look holds on 21 cards, 1,231 voice holds on 349 cards).

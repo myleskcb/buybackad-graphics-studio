@@ -3109,7 +3109,10 @@ Did:
     answer and the JSON-LD; CSP hashes recomputed.
   - Rule 114, the brief, the README, OPEN-ITEMS §AF.
 
-Checked: theme_cohesion_audit 0 problems once the holds were swept;
+Checked: theme_cohesion_audit 0 problems once the holds were swept (631
+cards, 7,572 theme renders, 1.9% held: 143 pairs on 21 cards; 29 cards held
+as offered; the sweep lost its last four cards to a container restart and
+finished them with --resume);
 cvd_audit.py 12/12; theme_law.mjs 12/12; audit_theme_grammar.mjs 12/12;
 colour_builder_audit --sets-only all pass (12 of 12 ready-made pairs from
 both colours, 1,804 tweaks); landing_check clean at 390 and 1440;
