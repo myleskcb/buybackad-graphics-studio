@@ -52,6 +52,9 @@ export const POOLS = {
   coins: [[/GOLD/, GOLD_COINS], [/./, web(/^coins-/)]],
   strips: [[/./, web(/^strips-/)]],
   pokemon: [[/./, web(/^pokemon-/)]],
+  /* sports: the Commons photographs of the game and its cards (claude/beautiful-wozniak-xmvvuk's,
+     the signed baseballs, a Library of Congress card scan); the fanned trading cards are retired */
+  sports: [[/./, web(/^sports(c)?-/)]],
 };
 const photoOf = src => String(src || '').split('|').pop();
 const idx = JSON.parse(readFileSync(DIR + 'index.json', 'utf8'));
