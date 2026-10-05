@@ -73,6 +73,11 @@ PITCHED = {
     "harp":       ("Chordophones/Composite Chordophones/Concert Harp/", r"_mf1", 36, 100, 3, 2.4),
     "kalimba":    ("Idiophones/Plucked Idiophones/Kalimba, Tanzania/", r"", 40, 90, 3, 1.6),
     "bells":      ("Idiophones/Struck Idiophones/Tubular Bells 2/", r"_v2_", 60, 80, 2, 3.0),
+    "upright":    ("Chordophones/Zithers/Upright Piano, Knight/Sustains/", r"_vl2_rr1_", 36, 96, 3, 2.4),
+    "clav":       ("Electrophones/TX81Z/Clavisynth/", r"_vl3", 36, 90, 5, 1.4),
+    "harmonica":  ("Aerophones/Free Aerophones/Harmonica-Hohner-Special20-C/Sustains/", r"_Normal_", 48, 90, 1, 2.0),
+    "strumstick": ("Chordophones/Composite Chordophones/Strumstick/Finger/", r"_vl2_rr1", 38, 80, 2, 2.0),
+    "balafon":    ("Idiophones/Struck Idiophones/Balafon/Traditional Mallet/", r"_vl2_rr1", 40, 90, 3, 1.4),
 }
 
 # id: (exact VCSL path, max seconds, level)
@@ -123,6 +128,8 @@ HITS = {
     "whistle":       ("Aerophones/Edge-blown Aerophones/Ball Whistle/Main_BallWhistle_Short-001.wav", .8, .1),
     "whistle_long":  ("Aerophones/Edge-blown Aerophones/Ball Whistle/Main_BallWhistle_Long-001.wav", 1.6, .1),
     "siren":         ("Aerophones/Free Aerophones/Siren/Main_SirenWhistle-005.wav", 2.4, .08),
+    "sleigh":        ("Idiophones/Struck Idiophones/Sleigh Bells/Sleighbells_Hit_rr1_Mid.wav", .6, .07),
+    "sleigh_shake":  ("Idiophones/Struck Idiophones/Sleigh Bells/sleighbell1_shake1.wav", 1.8, .06),
 }
 
 have = set(files)
@@ -156,7 +163,11 @@ print("total KB", total // 1024)
 
 # instruments whose labels sit an octave under what they sound (measured: the waveform
 # repeats every half of the labelled period, and the labelled fundamental is absent)
-SHIFT = {"xylophone": 12, "glock": 12, "kalimba": 12, "vibes": 12, "marimba": 12, "sax": 12, "harpsichord": 12}
+SHIFT = {"xylophone": 12, "glock": 12, "kalimba": 12, "vibes": 12, "marimba": 12, "sax": 12, "harpsichord": 12,
+         "upright": 12, "harmonica": 12, "strumstick": 12, "balafon": 12, "clav": 24}
+# instruments where a single note can sound an octave over the rest (an organ's octave pipe,
+# a strumstick's doubled low string): each such note is measured and corrected on its own
+OCTAVE_CHECK = {"organ", "strumstick"}
 
 def decoded(inst, m):
     return np.frombuffer(subprocess.run([FF, "-v", "error", "-i", f"{OUT}/{inst}/{m}.mp3", "-ac", "1", "-ar", str(SR), "-f", "f32le", "pipe:1"],
@@ -186,7 +197,7 @@ for inst, v in manifest["pitched"].items():
         # under C3 the fundamental is too weak to measure, and a tubular bell has no single
         # partial at its pitch: those keep the recording's own tuning
         c = 0 if inst == "bells" or m + sh < 48 else max(-60, min(60, round(cents_off(x, f0))))
-        if inst == "organ" and period_match(x, 2 * f0) >= .9: c += 1200     # the octave pipe leads this note
+        if inst in OCTAVE_CHECK and period_match(x, 2 * f0) >= .9: c += 1200     # this note sounds an octave up
         v["cents"][str(m)] = c
     print(inst, "shift", sh, list(v["cents"].values()))
 with open(f"{OUT}/index.json", "w") as fp: json.dump(manifest, fp, indent=1)
