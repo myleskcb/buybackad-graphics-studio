@@ -447,6 +447,12 @@ produced." DESIGN-LAW rule 87. In practice:
   takes about a minute). A tweak never leaves the law: a slider's ends are
   `cbRange`'s, an exact colour goes through `cbExact`, and anything saved
   passes `cbTweakOk`. Saved sets can be renamed; old names live in `aka`.
+- **Real photographs only** (rule 117, 2026-10-04): no generated scene
+  (`assets/bg/dl_*`) or drawn ground (`dg_cast`) behind a card or template
+  where a real photograph of the goods exists. New photographs go in
+  assets/bg-web with their credits (`scripts/fetch_backdrops.mjs`), are
+  looked at before use, and reach cards through
+  `scripts/reground_showcase.mjs` and templates through `BG_REAL` in app.js.
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **A stack keeps one rhythm to its call to action** (rule 115, 2026-10-02):

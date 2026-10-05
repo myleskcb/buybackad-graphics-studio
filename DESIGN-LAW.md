@@ -4343,3 +4343,41 @@ What the owner compares is how much of the card the headline's letters cover:
   short word make a large size small. Run `node scripts/hero_headline.mjs
   --live` (without `--write` it only reports) after anything that sets
   headline sizes.
+## 117. Real photographs of the goods, never generated scenes or drawn placeholders
+
+Added 2026-10-04 (numbered 117 when merged: `main` took 112 to 116 the same days). The owner, of the fanned trading-card photographs behind
+the sports cards: "These are our classic background images, which I just
+wasn't really a fan of go ahead and remove"; then "replace everything and
+please use images of real things. People buy. This is like so classic AI
+slop", and "We need to look like graphic designers made this, and they would
+never choose that that's incomplete. It's a placeholder at very best."
+
+- **Retired:** every photograph the studio generated for the Designer
+  Library (`assets/bg/dl_*`, the "studio scenes": card fans, coins on burlap,
+  watches on velvet) and every drawn ground (`assets/showcase/bg/dg_cast_*`, a
+  flat colour and a grey slab icon). Fifteen of the nineteen sports
+  photographs were the same three fans.
+- **What stands in:** a real photograph of what the card says it buys, from
+  the curated Commons set in `assets/bg-web` (free licences only, credits in
+  its ATTRIBUTION.json), or the Apple product scenes for iPads and watches.
+  The words choose it (a Rolex for WATCH, a pickup for TACOMA, flatware for
+  STERLING, silver coins for SILVER DOLLARS). It stands sharp, in its own
+  colour, under a neutral shade solved for it, only where the words are.
+- **A photograph that is not a ground:** a single coin's face filling the
+  frame (on black, or a gold disc) and the slabbed Morgan in its red case
+  shade to a flat black field, or put words over a coin's own lettering,
+  once the copy is on them. They are out of the pools (`NOT_A_GROUND`).
+- **Measured, then looked at.** `scripts/reground_showcase.mjs` tries the
+  least-used photographs of a card's pool, solves the shade, and keeps one
+  only through the writers' gate; every result was looked at before it was
+  written (`--pin` writes exactly the one looked at). 89 library cards moved
+  to real photographs; 6 with none that passes are held (holds.json, audit
+  2026-10-04). The templates the studio builds take theirs from the same
+  pools (`BG_REAL` in app.js, the street set and the hand-built set with
+  them), their shade re-solved (ground-fix.json) and gated (classics-gate).
+  The Pokémon offer cards stand on the graded Charizard photographs.
+- **Not done: sports cards.** Commons has no usable photograph of sports
+  cards (searches returned museum trade cards, tournament crowds and two
+  signed baseballs), and the stock libraries designers use (Unsplash, Pexels,
+  Openverse's Flickr) are not reachable from the cloud sessions. The sports
+  cards keep generated scenes until real photographs arrive.

@@ -174,6 +174,8 @@ const PORTRAIT_OK = new Set(['apple', 'gold', 'silver', 'coins', 'sportsc', 'pok
   'coins2', 'gold2', 'poke2', 'cameras2', 'audio2', 'gaming2', 'wearables2', 'computers2', 'apple2']);
 /* SKIP=file.json (an ATTRIBUTION list) skips Commons files already downloaded under another name */
 const SKIP = new Set(process.env.SKIP ? JSON.parse(readFileSync(process.env.SKIP, 'utf8')).map(a => a.title) : []);
+/* QUERIES_FILE=queries.json fetches those pools instead ({ cat: [query, …] }) */
+if (process.env.QUERIES_FILE){ const q = JSON.parse(readFileSync(process.env.QUERIES_FILE, 'utf8')); Object.keys(QUERIES).forEach(k => delete QUERIES[k]); Object.assign(QUERIES, q); }
 /* CATS=popular,trucks,vans,semis fetches only those pools (PER=6 for more to choose from) */
 const ONLY = process.env.CATS ? process.env.CATS.split(',') : null;
 /* Q=camry,tahoe fetches only the queries that contain one of these (any case) */
@@ -206,7 +208,7 @@ for (const [cat, qs] of Object.entries(QUERIES)){
     if (ONLYQ && !ONLYQ.some(w => q.toLowerCase().includes(w))) continue;
     let pages;
     try {
-      const u = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({ action: 'query', generator: 'search', gsrsearch: 'filetype:bitmap ' + q, gsrnamespace: '6', gsrlimit: '25',
+      const u = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({ action: 'query', generator: 'search', gsrsearch: 'filetype:bitmap ' + q, gsrnamespace: '6', gsrlimit: process.env.SQUARE ? '50' : '25',
         prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '1920', format: 'json' });
       const r = await tfetch(u, 25000); if (!r.ok){ console.log('  ' + cat.padEnd(8) + q + ': HTTP ' + r.status); continue; }
       const j = await r.json(); pages = Object.values((j.query || {}).pages || {});
@@ -220,9 +222,11 @@ for (const [cat, qs] of Object.entries(QUERIES)){
       if (!OK.test(lic) || BAD.test(lic)) continue;
       if (SKIP.has(pg.title) || att.some(a => a.title === pg.title)) continue;
       if (PRESS.test(pg.title + ' ' + ((m.Artist || {}).value || '') + ' ' + ((m.Credit || {}).value || ''))) continue;
-      /* a phone or a tablet is often shot upright: the apple pool takes portrait too */
-      if (PORTRAIT_OK.has(cat) ? Math.max(ii.width || 0, ii.height || 0) < 1600 || Math.min(ii.width || 0, ii.height || 0) < 900
-                          : (ii.width || 0) < 1600 || (ii.height || 0) < 900 || ii.width < ii.height) continue;
+      /* SQUARE=1: any orientation 1200 px or more on its short side (a square card crops the
+         middle); else a phone or a tablet is often shot upright: the apple pool takes portrait too */
+      if (process.env.SQUARE ? Math.min(ii.width || 0, ii.height || 0) < 1200
+        : PORTRAIT_OK.has(cat) ? Math.max(ii.width || 0, ii.height || 0) < 1600 || Math.min(ii.width || 0, ii.height || 0) < 900
+        : (ii.width || 0) < 1600 || (ii.height || 0) < 900 || ii.width < ii.height) continue;
       if (!/\.(jpe?g|png)$/i.test(pg.title)) continue;
       const file = cat + '-' + slug(q) + '-' + (n + 1) + '.jpg';
       if (have.has(file)){ n++; continue; }
