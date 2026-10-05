@@ -6,7 +6,7 @@ import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, 
 import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
-import { vibeBackground, candidateGround, themeGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
+import { vibeBackground, candidateGround, themeGround, freshGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
 // ------------------------------------------------------------ small tools
@@ -85,6 +85,20 @@ export function pal(st) {
 // look number keeps every choice it made before them.
 const ACCENT_AXES = ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"];
 
+/** A look named by a link (the Look Book, looks.html): a vibe, a ground or a phone set held,
+ *  everything else drawn from the seed, the viewer's own words, number and phones kept. The
+ *  library draws its thumbnail with this, and the maker opens the link with it, so the look
+ *  picked is the look that opens. Returns { style, locked }. */
+export function linkedLook(base, seed, pick = {}) {
+  const locked = new Set(["phones", "number", "aspect"]);
+  const st = { ...base };
+  if (pick.aspect && ASPECTS[pick.aspect]) st.aspect = pick.aspect;
+  if (pick.vibe && VIBES[pick.vibe]) { st.vibe = pick.vibe; locked.add("vibe"); }
+  if (pick.bg && OPTIONS.background.includes(pick.bg)) { st.vibe = "none"; st.background = pick.bg; locked.add("vibe"); locked.add("background"); }
+  if (pick.layout && OPTIONS.arrangement.includes(pick.layout)) { st.arrangement = pick.layout; locked.add("arrangement"); }
+  return { style: harmonise(randomize(st, seed, locked, [], true), locked), locked };
+}
+
 /** Draw every unlocked design axis from the seed, each independently. */
 export function randomize(st, seed, locked = new Set(), phonesPool = [], content = true) {
   const r = rng(seed * 7919 + 13);
@@ -105,7 +119,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   backsFirst(out, locked);
   copyInto(out, r, locked, content);
   voiceInto(out, r, locked);
-  if (!locked.has("phones") && phonesPool.length > 5) out.phones = r.sample(phonesPool, r.pick([3, 4, 4, 5]));
+  if (!locked.has("phones") && phonesPool.length > 5) out.phones = pickPhones(phonesPool, r.pick([3, 3, 5, 5, 4]), r);
   return harmonise(out, locked);
 }
 
@@ -302,7 +316,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
     st.skew = 0;
   } else {
     // dark type crosses black glass somewhere in almost every layout (a spray halo carries it instead)
-    const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline", "glass"];
+    const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline", "glass", "outline_shadow", "underline_bar"];
     if (darkInk && !halo && !onPlate.includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = ["sticker", "box", "highlighter", "double_outline"][st.seed % 4];
     if (darkInk && st.text_fx === "neon") st.text_fx = "sticker";
     if (!darkInk && lum(p.accent) < 0.42 && st.color_mode !== "mono" && st.text_fx !== "box" && !locked.has("color_mode")) st.color_mode = "mono";
@@ -314,7 +328,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (lum(p.ground) > .4 && st.number_style === "neon" && !locked.has("number_style")) st.number_style = "pill";
   // one "quote" is enough: a tag and a label must not say the same thing twice
   if (st.tag && st.number_label && /QUOTE/i.test(st.tag) && /QUOTE/i.test(st.number_label) && !locked.has("number_label")) st.number_label = "";
-  if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow", "block3d"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
+  if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow", "block3d", "inline", "stamped", "pop_stack"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
   if (st.case === "title" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.05);
   if ((FONTS[st.font] || [])[3] === "wide" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.01);
   if (st.decor.includes("sparkle")) st.sparkles = true;
@@ -434,7 +448,10 @@ function drawSlab(ctx, p, w, h, flip, face) {
   for (let k = 0; k <= steps; k++) {
     const u = k / steps, zl = -seen + 2 * seen * u;
     poly(ctx, rim.map(([x, y]) => P(x, y, zl)));
-    ctx.fillStyle = shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
+    // the body's own colour, a shade darker: never lighter than the body (owner, 2026-10-04:
+    // "we made sure the sides aren't too light ... darken them to the proper body color");
+    // the soft highlight only lifts the side back toward that colour
+    ctx.fillStyle = shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u); ctx.fill();
   }
   // the controls on the side we see, where Apple puts them
   const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
@@ -442,9 +459,9 @@ function drawSlab(ctx, p, w, h, flip, face) {
   for (const key of keys) {
     const [a0, b0] = CONTROLS[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
     poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
-    ctx.fillStyle = key === "camCtrl" ? "#1c1d21" : shade(p.metal, -.38); ctx.fill();
+    ctx.fillStyle = shade(p.metal, key === "camCtrl" ? -.3 : -.38); ctx.fill();   // Camera Control is the body's colour (owner, 2026-10-04), its sapphire face a little brighter
     poly(ctx, [P(xs, y0 + 1, q * .1), P(xs, y0 + 1, q * .45), P(xs, y1 - 1, q * .45), P(xs, y1 - 1, q * .1)]);
-    ctx.fillStyle = key === "camCtrl" ? "rgba(255,255,255,.16)" : shade(p.metal, .18); ctx.fill();
+    ctx.fillStyle = shade(p.metal, key === "camCtrl" ? -.06 : -.14); ctx.fill();   // a lit edge, still no lighter than the body
   }
   // the face, in thin vertical strips so it recedes; the back is seen from behind
   const fw = face.width, fh = face.height, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
@@ -667,7 +684,7 @@ const LAID_OUT = {
   },
   // a peacock's tail: all standing out from one point low in the middle
   burst(n, r, tall, PH) {
-    const half = Math.min(66, 20 * (n - 1)), R = PH * .5;
+    const half = Math.min(40, 14 * (n - 1)), R = PH * .5;
     return spots(n, t => { const f = lerp(-half, half, t); const a = f * Math.PI / 180;
       return [R * Math.sin(a), -R * Math.cos(a), -f, 1, -Math.abs(f)]; });
   },
@@ -714,6 +731,68 @@ const LAID_OUT = {
       });
     }
     return out;
+  },
+  // a clean line-up: one size, upright, a little air between each, standing on one line
+  lineup(n, r, tall, PH, PW) {
+    const step = PW * (tall && n > 3 ? 1.04 : 1.12);
+    return spots(n, (t, i) => [(i - (n - 1) / 2) * step, 0, 0, 1, 0]);
+  },
+  // a shop window: the middle phone large and in front, the others smaller, tucked a third
+  // behind it from the side, all standing on one floor
+  showcase(n, r, tall, PH, PW) {
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o), sc = k ? Math.max(.66, 1.12 - .2 * Math.ceil(k)) : 1.12;
+      let x = 0; for (let j = 1; j <= Math.ceil(k); j++) { const a = j === 1 ? 1.12 : Math.max(.66, 1.12 - .2 * (j - 1)), b = Math.max(.66, 1.12 - .2 * j); x += PW * (a + b) / 2 * .72; }
+      if (n % 2 === 0) x = k < 1 ? PW * .4 : x;
+      return [Math.sign(o) * x, -sc * PH / 2, 0, sc, -k]; });
+  },
+  // wings: the middle upright, each pair beside it leaning out a little more and a little lower
+  wings(n, r, tall, PH, PW) {
+    const lean = r.uniform(7, 11);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * PW * (tall ? 1.02 : 1.1), PH * .05 * k * k, -Math.sign(o) * lean * k, 1 - .06 * k, -k]; });
+  },
+  // a gallery wall: one size, each phone on its own with clear air either side, leaning
+  // a touch outward from the middle
+  gallery(n, r, tall, PH, PW) {
+    const step = PW * (tall && n > 3 ? 1.22 : 1.42);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2; return [o * step, 0, -Math.sign(o) * 4, 1, 0]; });
+  },
+  // a crown: apart from each other along a gentle arch, the middle highest, each pair
+  // leaning out along it
+  crown(n, r, tall, PH, PW) {
+    const step = PW * (tall ? 1.16 : 1.3);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * step, PH * .07 * k * k, -Math.sign(o) * 7 * k, 1 - .05 * k, -k]; });
+  },
+  // a spotlight: the middle phone large, the rest small and apart, all on one floor
+  spotlight(n, r, tall, PH, PW) {
+    const big = 1.2, sm = .68;
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o), sc = k < .75 ? big : sm;
+      const x = k < .75 ? o * PW * .7 : Math.sign(o) * (PW * big / 2 + PW * .22 + PW * sm / 2 + (Math.ceil(k) - 1) * PW * (sm + .2));
+      return [n % 2 ? x : (k < 1 ? Math.sign(o) * PW * .62 : x), -sc * PH / 2, 0, sc, -k]; });
+  },
+  // leaning in: the middle upright and in front, its neighbours tucked behind it from the
+  // side and leaning in toward it
+  lean_in(n, r, tall, PH, PW) {
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * PW * .78, PH * .03 * k, Math.sign(o) * 8 * k, 1 - .08 * k, -k]; });
+  },
+  // a row all leaning the same way, evenly apart: one angle for the whole set
+  tilt_row(n, r, tall, PH, PW) {
+    const lean = (r() < .5 ? -1 : 1) * r.uniform(8, 12), step = PW * (tall && n > 3 ? 1.08 : 1.2);
+    return spots(n, (t, i) => [(i - (n - 1) / 2) * step, 0, lean, 1, 0]);
+  },
+  // the middle phone risen a little above its neighbours, all one size, each tucked a
+  // quarter behind the one nearer the middle
+  rise(n, r, tall, PH, PW) {
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * PW * .8, k ? PH * .04 * k : -PH * .06, 0, 1, -k]; });
+  },
+  // a fanfare: the middle upright and in front, the rest fanned out behind it from its foot
+  fanfare(n, r, tall, PH, PW) {
+    const half = Math.min(30, 11 * (n - 1)), R = PH * .62;
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, f = (n > 1 ? lerp(-half, half, t) : 0) * Math.PI / 180;
+      return [R * Math.sin(f) * 1.15, -R * Math.cos(f), -f * 180 / Math.PI, 1 - .04 * Math.abs(o), -Math.abs(o)]; });
   },
   // an arrow: two arms meeting at the phone in front
   chevron(n, r, tall, PH, PW) {
@@ -778,6 +857,10 @@ const LAID_OUT = {
       return [Math.sin(th) * Rx, c * Ry, -Math.sin(th) * 8, .72 + .34 * (c + 1) / 2, c]; });
   },
 };
+
+/** The styled sets drawn as mirror images about the middle phone. */
+const MIRRORED = new Set(["fan", "arc", "vee", "hand", "burst", "podium", "bookends", "tents", "headliner", "wings", "showcase", "lineup",
+  "gallery", "crown", "spotlight", "lean_in", "rise", "fanfare"]);
 
 /** n spots from f(t, i), t running 0..1 along them. */
 const spots = (n, f) => Array.from({ length: n }, (_, i) => f(n > 1 ? i / (n - 1) : .5, i));
@@ -847,21 +930,52 @@ function inOutline(P, [x, y]) {
   for (let i = 0, j = P.length - 1; i < P.length; j = i++) if ((P[i][1] > y) !== (P[j][1] > y) && x < (P[j][0] - P[i][0]) * (y - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0]) c = !c;
   return c;
 }
-/** How much of each phone's back shows past the phones drawn over it, 0..1, on a grid of points. */
-function phonesShowing(phones, order) {
-  const Ps = phones.map(landedOutline), out = phones.map(() => 1);
-  order.forEach((i, k) => {
-    const P = Ps[i], over = order.slice(k + 1).map(j => Ps[j]).filter(Q => outlinesMeet(P, Q));
-    if (!over.length) return;
-    let n = 0, v = 0;
-    for (let a = 0; a < 8; a++) for (let b = 0; b < 14; b++) {
-      const u = (a + .5) / 8, w = (b + .5) / 14;
-      const q = [P[0][0] + (P[1][0] - P[0][0]) * u + (P[3][0] - P[0][0]) * w, P[0][1] + (P[1][1] - P[0][1]) * u + (P[3][1] - P[0][1]) * w];
-      n++; if (!over.some(Q => inOutline(Q, q))) v++;
-    }
-    out[i] = v / n;
-  });
+
+// ------------------------------------------------------------ the set's colours
+/* Owner, 2026-10-02: "try not to use too many similar tone devices ... maybe 2 of the same
+   colour but the middle one we could use an orange 17 Pro Max or a burgundy 18 Pro Max".
+   A phone's tone is read off its metal; the set keeps at most two of a tone, the boldest
+   finish stands in the middle, and no two of a tone stand side by side where it can help. */
+export const PHONE_META = {};
+const unitRgb = h => { const n = parseInt(String(h || "#888888").slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255].map(v => v / 255); };
+function toneOf(meta) {
+  const [r, g, b] = unitRgb(meta && meta.metal), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, sat = mx - mn;
+  if (sat < .14) return l > .62 ? "light" : l < .3 ? "dark" : "grey";
+  let h = mx === r ? ((g - b) / sat) % 6 : mx === g ? (b - r) / sat + 2 : (r - g) / sat + 4; h = (h * 60 + 360) % 360;
+  return h < 18 || h >= 340 ? (l < .45 ? "burgundy" : "red") : h < 45 ? "orange" : h < 70 ? "gold" : h < 170 ? "green" : h < 205 ? "teal" : h < 255 ? "blue" : h < 290 ? "purple" : "pink";
+}
+function boldness(meta) {
+  const [r, g, b] = unitRgb(meta && meta.metal), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  const named = /cosmic orange/i.test(meta && meta.finish || "") || /burgundy/i.test(meta && meta.finish || "") ? .45 : 0;
+  return (mx - mn) * (1 - Math.abs(l - .45)) + named + (/pro max/i.test(meta && meta.model || "") ? .05 : 0);
+}
+/** n phones from a pool: at most two of a tone, and one bold finish where the pool has one. */
+export function pickPhones(pool, n, r) {
+  const ids = pool.slice(); for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+  const meta = id => PHONE_META[id], out = [], count = {};
+  const bold = ids.filter(id => meta(id) && boldness(meta(id)) > .55);
+  if (bold.length) {                                       // orange or burgundy, turn about
+    const tones = [...new Set(bold.map(id => toneOf(meta(id))))], t = tones[Math.floor(r() * tones.length)];
+    const id = bold.find(b => toneOf(meta(b)) === t); out.push(id); count[t] = 1;
+  }
+  for (const id of ids) { if (out.length >= n) break; if (out.includes(id)) continue; const t = toneOf(meta(id)); if ((count[t] || 0) >= 2) continue; out.push(id); count[t] = (count[t] || 0) + 1; }
+  for (const id of ids) { if (out.length >= n) break; if (!out.includes(id)) out.push(id); }
   return out;
+}
+/** The order the phones stand in, left to right: the boldest in the middle, then outward,
+ *  never two of a tone side by side where another can go between. */
+function orderByTone(ids, metaOf) {
+  const n = ids.length; if (n < 3) return ids;
+  const left = ids.slice().sort((a, b) => boldness(metaOf(b)) - boldness(metaOf(a)) || ids.indexOf(a) - ids.indexOf(b));
+  const slots = new Array(n), m = Math.floor((n - 1) / 2);
+  slots[m] = left.shift();
+  const order = []; for (let k = 1; k < n; k++) { if (m - k >= 0) order.push(m - k); if (m + k < n) order.push(m + k); }
+  for (const s of order) {
+    const nb = [slots[s - 1], slots[s + 1]].filter(Boolean).map(id => toneOf(metaOf(id)));
+    const i = left.findIndex(id => !nb.includes(toneOf(metaOf(id))));
+    slots[s] = left.splice(i < 0 ? 0 : i, 1)[0];
+  }
+  return slots;
 }
 
 // ------------------------------------------------------------ how they get there
@@ -1078,7 +1192,7 @@ function phoneState0(p, t, st) {
   }
   return [hx, hy, s, rot, flip, z, 1];
 }
-const PHONE_TURN = 22 * Math.PI / 180;
+const PHONE_TURN = 14 * Math.PI / 180;     // a flat photo carries a gentle turn; 22 degrees read as warped
 
 // ------------------------------------------------------------ type
 
@@ -1231,7 +1345,7 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       strokeAll("#2a1a00", size * .07); noShadow(); fillAll(g4); break;
     }
     case "long_shadow": {
-      const L = Math.round(size * .35), col = shade(p.ground, -.45);
+      const L = Math.round(size * .35), col = shade(p.ground, darkInk ? -.15 : -.45);   // never dark under dark letters (owner, 2026-10-03)
       for (let k = L; k >= 1; k -= 1) { ctx.save(); ctx.translate(k, k); fillAll(col); ctx.restore(); }
       fillAll(); break;
     }
@@ -1288,7 +1402,48 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       const base = !darkInk && contrastOf(accent, p.ground) >= 4.5 ? accent : ink;
       const g5 = ctx.createLinearGradient(0, pad, 0, pad + asc);
       [[0, shade(base, .55)], [.44, base], [.52, shade(base, -.28)], [.6, shade(base, .3)], [1, shade(base, -.08)]].forEach(([o, c2]) => g5.addColorStop(o, c2));
-      ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04; fillAll(g5); break;
+      ctx.shadowColor = darkInk ? shadowCol : "rgba(0,0,0,.45)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04; fillAll(g5); break;
+    }
+    // more treatments (owner, 2026-10-04: "now more")
+    case "pop_stack": {
+      // two offset copies behind the letters: the accent, then a deeper shade of it, a retro print
+      const d = Math.max(2, size * .045), deep = shade(accent, lum(accent) > .5 ? -.45 : -.3);
+      ctx.save(); ctx.translate(d * 2, d * 2); fillAll(deep); ctx.restore();
+      ctx.save(); ctx.translate(d, d); each((ch, cx, cy, c0) => { ctx.fillStyle = contrastOf(c0, accent) < 2.5 ? shade(c0, lum(c0) > .5 ? -.55 : .5) : accent; ctx.fillText(ch, cx, cy); }); ctx.restore();
+      fillAll(); break;
+    }
+    case "outline_shadow": {
+      // a thick keyline in the deep ground and a hard shadow under it
+      const line = darkInk ? "#ffffff" : shade(p.ground, -.6), d = Math.max(2, size * .05);
+      ctx.save(); ctx.translate(d, d); strokeAll(line, size * .16); fillAll(line); ctx.restore();
+      strokeAll(line, size * .12); fillAll(); break;
+    }
+    case "underline_bar": {
+      // a solid bar of the accent under the line, the letters standing on it
+      const bc = Math.abs(lum(accent) - lum(ink)) > .25 ? accent : (darkInk ? "#ffd60a" : shade(p.ground, -.5));
+      ctx.fillStyle = bc; ctx.fillRect(pad - size * .06, by + desc * .1, inkW + size * .12, Math.max(3, size * .12));
+      ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .03; fillAll(); break;
+    }
+    case "stamped": {
+      // inked with a rubber stamp: the letters knocked back in small specks, always the same specks
+      fillAll();
+      ctx.save(); ctx.globalCompositeOperation = "destination-out";
+      const n = Math.round(inkW * asc / (size * size) * 90);
+      for (let i = 0; i < n; i++) {
+        const u = (Math.sin(i * 12.9898 + chars.length * 78.233) * 43758.5453) % 1, v = (Math.sin(i * 39.3468 + size) * 24634.6345) % 1;
+        const rr = size * (.012 + .02 * Math.abs((Math.sin(i * 7.1) * 9631.7) % 1));
+        ctx.globalAlpha = .55 + .4 * Math.abs((Math.sin(i * 3.3) * 4219.9) % 1);
+        ctx.beginPath(); ctx.arc(pad + Math.abs(u) * inkW, pad + Math.abs(v) * (asc + desc * .3), rr, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore(); break;
+    }
+    case "inline": {
+      // a sign-painter's inline: a thin line of the ground drawn inside each letter
+      ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .03; fillAll(); noShadow();
+      ctx.save(); ctx.globalCompositeOperation = "source-atop"; strokeAll(darkInk ? "#ffffff" : p.ground, Math.max(1, size * .022)); ctx.restore();
+      fillAll(); ctx.save(); ctx.globalCompositeOperation = "source-atop"; ctx.globalAlpha = .55;
+      ctx.translate(-size * .012, -size * .012); strokeAll(darkInk ? "#ffffff" : mix(ink, p.ground, .5), Math.max(1, size * .014)); ctx.restore();
+      break;
     }
     default: fillAll();
   }
@@ -1309,7 +1464,7 @@ class Line {
       });
     }
     this.plate = null;
-    if (st.text_fx === "box") {
+    if (st.text_fx === "box" && text.trim()) {                // a blank line has no box (an empty plate read as a stray grey square)
       const px = size * .22, py = size * .07;
       const w = this.inkW + px * 2, h = this.asc * .92 + py * 2;
       const pc = canvas(w + Math.abs(Math.tan(st.skew * Math.PI / 180)) * h + 2, h), x = pc.getContext("2d");
@@ -1377,7 +1532,28 @@ function numberSprite(st, p, size, cta) {
   const sp = inkSprite(text, colors, font, size, st.tracking * .5, fx, p, 0);
   const bodyH = sp.asc + sp.desc;
   let out;
-  if (onPlate || style === "outline") {
+  if (style === "tag") {
+    // a swing tag (owner, 2026-10-04: "shrink the number 10% and scoot it up ... to
+    // essentially center it and give it proper margin so it's not right next to the dot"):
+    // the plate as it was, the figures 10% smaller, centred on the plate by their own ink,
+    // starting a clear gap after the hole so the tag reads as a tag
+    const px = size * .45, py = size * .14, H = sp.asc * .95 + py * 2;
+    const s2 = inkSprite(text, colors, font, size * .9, st.tracking * .5, fx, p, 0);
+    const m = canvas(4, 4).getContext("2d"); m.font = fontCss(font, size * .9);
+    const ink = m.measureText(text), up = ink.actualBoundingBoxAscent || s2.asc * .72, down = ink.actualBoundingBoxDescent || 0;
+    const hole = H * .45, holeR = H * .09, lead = hole + holeR + H * .26;
+    const W = lead + s2.inkW + px * .9;
+    const c = canvas(W + 24, H + 24), x = c.getContext("2d");
+    x.translate(6, 6);
+    x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14; x.shadowOffsetY = 6;
+    x.beginPath(); x.moveTo(3 + H * .45, 3); x.lineTo(3 + W, 3); x.lineTo(3 + W, 3 + H); x.lineTo(3 + H * .45, 3 + H); x.lineTo(3, 3 + H / 2); x.closePath();
+    x.fillStyle = p.plate; x.fill(); x.restore();
+    x.beginPath(); x.arc(3 + hole, 3 + H / 2, holeR, 0, 7); x.fillStyle = p.ground; x.fill();
+    // the figures' ink centred on the plate: baseline at the middle plus half their height
+    const base = 3 + H / 2 + (up - down) / 2;
+    x.drawImage(s2.c, 3 + lead - s2.pad, base - (s2.pad + s2.asc));
+    out = c;
+  } else if (onPlate || style === "outline") {
     const px = size * .45, py = size * .14;
     const W = sp.inkW + px * 2, H = sp.asc * .95 + py * 2;
     const c = canvas(W + 24, H + 24), x = c.getContext("2d");
@@ -1450,7 +1626,7 @@ function background(st, p, W, H, sc, r) {
   const [cx, cy] = sc;
   const radial = (k = .75) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * k); gr.addColorStop(0, l); gr.addColorStop(1, g); return gr; };
   x.fillStyle = g; x.fillRect(0, 0, W, H);
-  if (candidateGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
+  if (candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
     const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
     vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
     if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .3; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
@@ -1734,8 +1910,11 @@ export class Ad {
     const st = this.st, W = this.W, H = this.H;
     const s = stage(st, W, H);
     this.stageC = [s.cx, s.cy]; this.stageSpan = [s.cx - s.hw, s.cx + s.hw];
-    const ids = (st.phones || []).filter(id => this.assets.phones[id]);
-    const spots = arrangement(st.arrangement, ids.length, this.r, W / H < .85, { ...s, W, H });
+    const lr = orderByTone((st.phones || []).filter(id => this.assets.phones[id]), id => this.assets.phones[id].meta);
+    const spots = arrangement(st.arrangement, lr.length, this.r, W / H < .85, { ...s, W, H });
+    // the tones' left-to-right order, onto the layout's spots as they stand left to right
+    const ids = new Array(lr.length);
+    spots.map((sp, i) => i).sort((a, b) => spots[a][0] - spots[b][0] || a - b).forEach((i, k) => { ids[i] = lr[k]; });
     this.phones = ids.map((id, i) => {
       const a = this.assets.phones[id];
       const p = new Phone(a.img, a.meta, s.ph);
@@ -1760,8 +1939,88 @@ export class Ad {
       this.stageC = [P.stageC[0] * W, P.stageC[1] * H]; this.stageSpan = [P.stageSpan[0] * W, P.stageSpan[1] * W];
       return;
     }
-    this._spreadPhones();
+    this._tidyPhones();
     this._phonesInFrame();
+  }
+
+  /** The set's house rules (owner, 2026-10-02, over phones stacked on each other):
+   *  - one angle: every phone leans the same way ("don't mix angles")
+   *  - side by side only: a phone may tuck behind a neighbour from the side, never from
+   *    above or below ("from the sides not the top"); stacked phones part sideways
+   *  - at most half: a tucked phone shows at least half of itself, and phones that do not
+   *    touch keep a little air between them ("allow them some space ... to breathe")
+   *  - the middle phone stands on the stage's centre, in front, its neighbours mirrored
+   *    on either side ("the middle phone should be centered, it would look more clean")
+   *  Only across the stage the layout gave them; where that is not enough, they all stand
+   *  a little smaller. */
+  _tidyPhones() {
+    const phones = this.phones, n = phones.length;
+    if (!n) return;
+    const W = this.W, H = this.H, mg = Math.min(W, H) * .03, cx = this.stageC[0];
+    const byX = () => phones.map((_, i) => i).sort((a, b) => phones[a].home[0] - phones[b].home[0]);
+    if (MIRRORED.has(this.st.arrangement) && n > 1) {         // a styled set: each pair a mirror image, the middle upright
+      const o = byX(), half = Math.floor(n / 2);
+      for (let k = 0; k < half; k++) {
+        const L = phones[o[k]], R = phones[o[n - 1 - k]], a = (Math.abs(L.angle) + Math.abs(R.angle)) / 2, sg = Math.sign(L.angle - R.angle) || 0;
+        L.angle = sg * a; R.angle = -sg * a;
+        const y = (L.home[1] + R.home[1]) / 2, sz = (L.size + R.size) / 2;
+        L.home[1] = R.home[1] = y; L.size = R.size = sz;
+      }
+      if (n % 2) phones[o[(n - 1) / 2]].angle = 0;
+    } else {                                                 // otherwise one lean for all
+      const angs = phones.map(p => p.angle).sort((a, b) => a - b), common = clamp(angs[Math.floor((n - 1) / 2)], -12, 12);
+      phones.forEach(p => { p.angle = common; });
+    }
+    if (n < 2) { phones[0].home[0] = cx; return; }
+    // drawn from the outside in, so the middle stands in front
+    const xo = byX(), mid = (n - 1) / 2;
+    this.drawOrder = xo.map((i, k) => [i, Math.abs(k - mid)]).sort((a, b) => b[1] - a[1]).map(q => q[0]);
+    const outline = (p, e = 0) => { const hw = p.w * p.size / 2 + e, hh = p.h * p.size / 2 + e, th = -p.angle * Math.PI / 180, c = Math.cos(th), sn = Math.sin(th);
+      return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => [p.home[0] + x * c - y * sn, p.home[1] + x * sn + y * c]); };
+    const hidden = (back, fronts) => { const P = outline(back), Qs = fronts.map(f => outline(f)).filter(Q => outlinesMeet(P, Q)); if (!Qs.length) return 0; let h = 0, m = 0;
+      for (let a = 0; a < 8; a++) for (let b = 0; b < 14; b++) { const u = (a + .5) / 8, w = (b + .5) / 14, q = [P[0][0] + (P[1][0] - P[0][0]) * u + (P[3][0] - P[0][0]) * w, P[0][1] + (P[1][1] - P[0][1]) * u + (P[3][1] - P[0][1]) * w]; m++; if (Qs.some(Q => inOutline(Q, q))) h++; }
+      return h / m; };
+    const front = (i, j) => this.drawOrder.indexOf(i) > this.drawOrder.indexOf(j);
+    const sp = this.stageSpan, pwMax = Math.max(...phones.map(p => p.w * p.size));
+    const xs = () => { let x0 = Infinity, x1 = -Infinity; for (const p of phones) for (const [x] of outline(p)) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); } return [x0, x1]; };
+    const [g0, g1] = xs(), room = [Math.min(g0, Math.max(mg, sp[0] - pwMax / 2)), Math.max(g1, Math.min(W - mg, sp[1] + pwMax / 2))];
+    const fits = () => { const [x0, x1] = xs(); return x0 >= room[0] - 1 && x1 <= room[1] + 1; };
+    const mirror = () => {                                   // the middle on the centre, neighbours mirrored
+      const o = byX(), xsv = o.map(i => phones[i].home[0]), half = Math.floor(n / 2);
+      for (let k = 0; k < half; k++) {
+        const d = Math.max(0, (xsv[n - 1 - k] - xsv[k]) / 2);
+        phones[o[k]].home[0] = cx - d; phones[o[n - 1 - k]].home[0] = cx + d;
+      }
+      if (n % 2) phones[o[(n - 1) / 2]].home[0] = cx;
+    };
+    const breach = () => {                                   // the worst rule broken, and the pairs that break it
+      const bad = [], ph = phones.reduce((a, p) => a + p.h * p.size, 0) / n, gap = phones.reduce((a, p) => a + p.w * p.size, 0) / n * .05;
+      // side by side when the two share nearly all the smaller one's height; otherwise one is above the other
+      const ys = phones.map(p => { const O = outline(p); return [Math.min(...O.map(q => q[1])), Math.max(...O.map(q => q[1]))]; });
+      const stacked = (i, j) => Math.min(ys[i][1], ys[j][1]) - Math.max(ys[i][0], ys[j][0]) < .9 * Math.min(ys[i][1] - ys[i][0], ys[j][1] - ys[j][0]);
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++)
+        if (stacked(i, j) && outlinesMeet(outline(phones[i], gap), outline(phones[j], gap))) bad.push([i, j]);
+      for (let i = 0; i < n; i++) {                          // what all its neighbours in front hide of it, together
+        const fr = phones.map((_, j) => j).filter(j => j !== i && !stacked(i, j) && front(j, i));
+        if (hidden(phones[i], fr.map(j => phones[j])) > .36) for (const j of fr) if (outlinesMeet(outline(phones[i]), outline(phones[j]))) bad.push([i, j]);
+      }
+      return bad;
+    };
+    mirror();
+    for (let k = 0; k < 9; k++) {
+      for (let it = 0; it < 60; it++) {
+        const bad = breach(); if (!bad.length) break;
+        for (const [i, j] of bad) {                          // part sideways, outward from the centre
+          const a = phones[i], b = phones[j], step = pwMax * .035, d = a.home[0] <= b.home[0] ? 1 : -1;
+          a.home[0] -= d * step; b.home[0] += d * step;
+        }
+        mirror();
+      }
+      if (!breach().length && fits()) break;
+      // no room left: the set, smaller, from its own middle
+      for (const p of phones) { p.size *= .94; p.home[0] = cx + (p.home[0] - cx) * .94; }
+      mirror();
+    }
   }
 
   /** No phone is cut by the edge of the frame where the camera settles (giants bleed on
@@ -1785,63 +2044,6 @@ export class Ad {
     if (!dx && !dy) return;
     for (const p of this.phones) p.home = [p.home[0] + dx, p.home[1] + dy];
     this.stageC = [this.stageC[0] + dx, this.stageC[1] + dy];
-  }
-
-  /** Every phone shows most of its back. A back is how a buyer knows the model, and a
-   *  phone buried under two others is a colour, not a phone. Where a layout stacks them
-   *  (a pile, a tower, a hero's satellites) the phones that hide too much of one another
-   *  are pushed apart along the line between them, across the stage the layout gave them
-   *  (never up or down into the words' room, nor past the frame's edge), and only where pushing is not enough do they
-   *  all stand a little smaller. A layout that already shows every back draws as it did.
-   *  (Owner, 2026-09-30, over a mural look whose four phones sat in one clump: "poor phone
-   *  placement, overlapping excessively". Audit of 400 random looks: 144 had a phone less
-   *  than half visible, from pile, tower, hero, spiral, crossed and pairs.) */
-  _spreadPhones() {
-    const SHOW = .68, MIN_K = .72, phones = this.phones, order = this.drawOrder, n = phones.length;
-    if (n < 2) return;
-    const W = this.W, H = this.H, mg = Math.min(W, H) * .03;
-    let vis = phonesShowing(phones, order);
-    if (Math.min(...vis) >= SHOW) return;
-    const bbox = () => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-      for (const P of phones.map(landedOutline)) for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
-      return [x0, y0, x1, y1]; };
-    const b0 = bbox();
-    // they part across the stage the layout gave them, never up or down into the words' room
-    const sp = this.stageSpan, pw = Math.max(...phones.map(p => p.w * p.size)) / 2;
-    const room = [Math.min(b0[0], Math.max(mg, sp[0] - pw)), b0[1], Math.max(b0[2], Math.min(W - mg, sp[1] + pw)), b0[3]];
-    const keepIn = p => {
-      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-      for (const [x, y] of landedOutline(p)) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
-      p.home[0] += Math.max(0, room[0] - x0) - Math.max(0, x1 - room[2]);
-      p.home[1] += Math.max(0, room[1] - y0) - Math.max(0, y1 - room[3]);
-    };
-    // the group's middle: a pair on top of each other parts sideways from it
-    const mid = [(b0[0] + b0[2]) / 2, (b0[1] + b0[3]) / 2];
-    for (let k = 1; ; k *= .94) {
-      for (let it = 0; it < 40 && Math.min(...vis) < SHOW; it++) {
-        const Ps = phones.map(landedOutline);
-        order.forEach((i, a) => {
-          if (vis[i] >= SHOW) return;
-          for (const j of order.slice(a + 1)) {
-            if (!outlinesMeet(Ps[i], Ps[j])) continue;
-            const pi = phones[i], pj = phones[j];
-            let dx = pj.home[0] - pi.home[0], dy = pj.home[1] - pi.home[1];
-            if (Math.hypot(dx, dy) < pi.w * pi.size * .05) { dx = (pj.home[0] - mid[0]) || (i < j ? 1 : -1); dy = 0; }
-            // phones stand tall: parting sideways uncovers a back fastest
-            const d = Math.hypot(dx, dy * .6) || 1, step = pi.w * Math.min(pi.size, pj.size) * .06 * (SHOW - vis[i] + .1) / .4;
-            pi.home[0] -= dx / d * step; pi.home[1] -= dy * .6 / d * step;
-            pj.home[0] += dx / d * step; pj.home[1] += dy * .6 / d * step;
-          }
-        });
-        phones.forEach(keepIn);
-        vis = phonesShowing(phones, order);
-      }
-      if (Math.min(...vis) >= SHOW || k * .94 < MIN_K) break;
-      for (const p of phones) { p.size *= .94; keepIn(p); }
-      vis = phonesShowing(phones, order);
-    }
-    const b1 = bbox();
-    this.stageC = [this.stageC[0] + ((b1[0] + b1[2]) - (b0[0] + b0[2])) / 2, this.stageC[1] + ((b1[1] + b1[3]) - (b0[1] + b0[3])) / 2];
   }
 
   _timeline() {
@@ -2163,7 +2365,7 @@ export class Ad {
     // every other place for the words with the look's own layout, then, only if none is
     // clean, the calmer layouts in every place
     const order = places.filter(p => p !== snap.st.text_pos).map(p => [p, snap.st.arrangement]);
-    for (const a of ["fan", "row"]) if (a !== snap.st.arrangement) for (const p of places) order.push([p, a]);
+    for (const a of ["lineup", "showcase"]) if (a !== snap.st.arrangement) for (const p of places) order.push([p, a]);
     const firstCalm = places.length - 1;
     const r0 = this.r;
     const lay = ([alt, arr], k) => {
@@ -3155,7 +3357,7 @@ export async function loadPhones(base = "./phones/") {
   const phones = {};
   await Promise.all(idx.phones.map(m => new Promise(res => {
     const img = new Image(); img.decoding = "async";
-    img.onload = () => { phones[m.id] = { img, meta: m }; res(); };
+    img.onload = () => { phones[m.id] = { img, meta: m }; PHONE_META[m.id] = m; res(); };
     img.onerror = () => res();
     img.src = base + m.id + ".webp";
   })));
