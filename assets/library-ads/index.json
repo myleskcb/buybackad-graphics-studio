@@ -1,6 +1,6 @@
 {
  "_doc": "Full-size renders of the cards the library offers (scIsLive), for the library API (rule 111). Made by scripts/render_library_ads.mjs through the studio's renderThumb() at 1080. thumb_sha1 is the card's library thumbnail when the render was made: a thumbnail drawn again since makes the render stale (library_api_check.mjs fails until --stale is run).",
- "built": "2026-10-05T07:51:36.242Z",
+ "built": "2026-10-05T09:49:23.960Z",
  "size": 1080,
  "quality": 0.88,
  "items": {
@@ -79,9 +79,9 @@
   "arcCrown-du02-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 146799,
-   "sha1": "69f74223e6ababb66eb9dceb64c67737e2ea27cb",
-   "thumb_sha1": "8b10cadeeaa7454aa264a7c137a68296fb1e1b94",
+   "bytes": 131442,
+   "sha1": "5177e5d0beb604ee4f92d0e1ef944b8872079a9f",
+   "thumb_sha1": "e4667349abe4d13ca11b21c2340fc021509795a3",
    "rendered": "2026-10-05"
   },
   "arcCrown-du05-15": {
@@ -215,9 +215,9 @@
   "bandKnockout-cd06-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 179657,
-   "sha1": "a9bd47d3cc7fa1063af7ab0adcfb8071b76f9c57",
-   "thumb_sha1": "49c49e1d130da1deed3d64769a7026b908b84b19",
+   "bytes": 181692,
+   "sha1": "ad3ab9767e159c6d27f127e4d4732d3747524dc9",
+   "thumb_sha1": "c1b4a443bc16ef8e67d9904a8e7637bd1caafeb6",
    "rendered": "2026-10-05"
   },
   "bandKnockout-cd10-25": {
@@ -431,9 +431,9 @@
   "bubblePop-cd10-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 144887,
-   "sha1": "104f1a5e7261836a0f7fe6ee6b1b3be3aa3a9c27",
-   "thumb_sha1": "54db3f97294f59e92a157e3466859870e2052858",
+   "bytes": 141735,
+   "sha1": "f2d6c0c80e7b83a53dad75e1443ba0ef5d6039a8",
+   "thumb_sha1": "c661c7db92b7b6e27bf975d6d66bbe68248489d8",
    "rendered": "2026-10-05"
   },
   "bubblePop-ck01-15": {
@@ -463,9 +463,9 @@
   "bubblePop-du04-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 170627,
-   "sha1": "dba6e776f08bf5eebf141d0fb9209bd9851244a8",
-   "thumb_sha1": "edd06f03d4bfe2b57eebdb98a8c061fe1bbd5845",
+   "bytes": 173157,
+   "sha1": "2ab4b477985304103d25a0989e3ada0ced4bff02",
+   "thumb_sha1": "e6141a40036b8290d3e4818dbc4f729628aba0f4",
    "rendered": "2026-10-05"
   },
   "bubblePop-du05-20": {
@@ -639,17 +639,17 @@
   "bubblePop-pp06-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 155841,
-   "sha1": "894104e5ea88f857d827e2134429ed70020bb83f",
-   "thumb_sha1": "3c8773bdb0a6aee1aa918a130cd7276bf8311358",
+   "bytes": 155877,
+   "sha1": "0184a104f8ce5c6e757673a530545688d6d71dce",
+   "thumb_sha1": "fe1e189e3cef9c062e4465db6120afd0c4c512b7",
    "rendered": "2026-10-05"
   },
   "bubblePop-su02-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 169823,
-   "sha1": "d0a5eb2c5eb49f75f74d299c5875bcfd5cf20638",
-   "thumb_sha1": "e7048b6ecfc861e0172bd1696bc540a0e82bfa27",
+   "bytes": 170065,
+   "sha1": "c96d5e5877d6aa079655eb601ef9bcd6c8301c72",
+   "thumb_sha1": "69004eb9da12d638368f566f5fadd16321bdb75e",
    "rendered": "2026-10-05"
   },
   "checklistHero-ca05-35": {
@@ -735,9 +735,9 @@
   "checklistHero-du05-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 179673,
-   "sha1": "b225d572da06ee05a8070287a59d5f39bd7b0e90",
-   "thumb_sha1": "1f8a063f0fb4fef1dd398776c64b346b6aa0843d",
+   "bytes": 180879,
+   "sha1": "afc141665adfcb04c55bfe5142f11f3f9d286ee0",
+   "thumb_sha1": "5f7d49ded98ef7813ad1c5db4cd8f90ba6ea5b21",
    "rendered": "2026-10-05"
   },
   "checklistHero-du07-15": {
@@ -847,17 +847,17 @@
   "checklistHero-pp02-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 209877,
-   "sha1": "4c0a98e3649e78d518b0cfc4cac1ed8a84ef002e",
-   "thumb_sha1": "4151ba8f4901888df9638ef264b07458c49de50a",
+   "bytes": 207235,
+   "sha1": "a633a7704c5782aa70a79260c79c92c5eb3eb53b",
+   "thumb_sha1": "c6afb2d05058208b826ec66b85295db9fe324a89",
    "rendered": "2026-10-05"
   },
   "checklistHero-pp09-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 159960,
-   "sha1": "eaacc05edbc8d27cd2a660c170b531a76fb70cb3",
-   "thumb_sha1": "5a9abab8d7233f2871df71e210959c5a1ae656b7",
+   "bytes": 160060,
+   "sha1": "8dd941ab1bab3afc2904ae7d195ec093fd82f289",
+   "thumb_sha1": "c33bc9b59e0404537e280ad7dae2d0c59b5eda9f",
    "rendered": "2026-10-05"
   },
   "glassCard-ca03-35": {
@@ -1487,9 +1487,9 @@
   "neonNight-gl01-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 126976,
-   "sha1": "88460fc805a1636134aeb000993bf84064d622cf",
-   "thumb_sha1": "3e68198fd507742728e1f4a9211acbf77227ede5",
+   "bytes": 126108,
+   "sha1": "feba1d2752a7c2ffc81a23df75d54c1814665605",
+   "thumb_sha1": "5ba1daf53e22092cd46af3325d95557bb6092382",
    "rendered": "2026-10-05"
   },
   "neonNight-gl04-20": {
@@ -1559,9 +1559,9 @@
   "neonNight-jw04-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 137092,
-   "sha1": "ee31bc8e392b27dee19f56d5e7d4068deb44b332",
-   "thumb_sha1": "d3d1f82fa1aede35a0129c712a3bf53acd02ef64",
+   "bytes": 136536,
+   "sha1": "eb2daf35687f26413e5fd69d94a189040d1b91ae",
+   "thumb_sha1": "0a33bfa170863ae40a7c24030b35d4180cee8cdc",
    "rendered": "2026-10-05"
   },
   "neonNight-jw05-20": {
@@ -1775,9 +1775,9 @@
   "scriptRetro-du07-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 126458,
-   "sha1": "b5dc484e581c4c03e60596d483d844ad5b1a7adc",
-   "thumb_sha1": "e04fbcd05c9e3b8dab2ba6a0239a33b43ce1aaf8",
+   "bytes": 124396,
+   "sha1": "5761879491f127f6a4d56a1e0ed78206b23eb2eb",
+   "thumb_sha1": "f25e169a09531b437b54248205cf1a6ccfd031bb",
    "rendered": "2026-10-05"
   },
   "scriptRetro-ik05-20": {
@@ -2151,9 +2151,9 @@
   "stepsFlow-du01-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 158115,
-   "sha1": "3e0306b11a135895b4ff40d1f584bd7cc1a4cdbc",
-   "thumb_sha1": "c74dc55de2a594c56c447832141ea5e21329e03c",
+   "bytes": 148327,
+   "sha1": "8d32edb77c47254e67e536eca821a2405f82d33f",
+   "thumb_sha1": "4f0bd00c2e41f1e1b4df56a522fd2a1502069663",
    "rendered": "2026-10-05"
   },
   "stepsFlow-du02-20": {
@@ -2319,9 +2319,9 @@
   "stepsFlow-jw10-31": {
    "w": 1080,
    "h": 1080,
-   "bytes": 180482,
-   "sha1": "5f84e261ba865d6688cf3fc4ee316ceb1d17e0ff",
-   "thumb_sha1": "66fb9d1a568b4b16cf50549f28f8bfa5c1d2a478",
+   "bytes": 180302,
+   "sha1": "8fe80b092a0958e81c7b5f8b46ef4696a0d20b2e",
+   "thumb_sha1": "1f8f48aaaaa7edee59f856e7eb866a2adfb8caf3",
    "rendered": "2026-10-05"
   },
   "stepsFlow-nn01-20": {
@@ -2375,9 +2375,9 @@
   "stepsFlow-pp03-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 148696,
-   "sha1": "997c178ebe0ba39bc751110ecc60dc77eb5c8e8f",
-   "thumb_sha1": "6640c004eefd979e03295b4e3a7c5175c471e97d",
+   "bytes": 146578,
+   "sha1": "bc0004a5e686a698b4726433e9b555f7a06a3f04",
+   "thumb_sha1": "36826f5c3c0727e21751b0ac9ca327c5057b43f7",
    "rendered": "2026-10-05"
   },
   "stepsFlow-pp04-15": {
@@ -2415,9 +2415,9 @@
   "ticketStub-ck03-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 236582,
-   "sha1": "09c9202fb7d9323073bcd0609e47b419d1ba4b20",
-   "thumb_sha1": "af864f143f64b246a8f3004bfeef679ae9472ba9",
+   "bytes": 236542,
+   "sha1": "9a17e9df5a079a4e9ca8b8c7a6a4f839bc6836f5",
+   "thumb_sha1": "f4416a0e54ec086aa677db30fc07d7296eb81120",
    "rendered": "2026-10-05"
   },
   "ticketStub-du02-30": {
@@ -2807,9 +2807,9 @@
   "voltStack-gl03-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 155486,
-   "sha1": "7652d103ed50a64ad55daacac73e03857e30891f",
-   "thumb_sha1": "3823c755066a761938c25b5a96adaefcbaaa639a",
+   "bytes": 154082,
+   "sha1": "8c7885c9fc1e5cecc37e58851373801487bd755e",
+   "thumb_sha1": "061583ebd08495fd27ef7f16e5216c39b8f54203",
    "rendered": "2026-10-05"
   },
   "voltStack-gl04-20": {
