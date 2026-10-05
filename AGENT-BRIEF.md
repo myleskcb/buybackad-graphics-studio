@@ -133,6 +133,15 @@ when its branch is pushed: merge `main` in, run the checks, and put the
 result on `main` the same day, or say plainly in your last message that it
 is not on `main` and why.
 
+**And a session can stop before it gets there.** On 2026-10-05 five sessions
+had stopped at the weekly limit mid-task (OPEN-ITEMS §AM): three with
+finished edits never committed, one with a day of photograph picks on its
+container's disk only, which went with it. Commit and push at each step that
+works, not at the end, and keep the branch merged with `main` as you go; a
+session near its limit stops starting new work (docs/SESSION-PROTOCOL.md, the
+99% rule). Rule numbers and OPEN-ITEMS letters are decided when the work
+lands: four branches had each written a rule 112.
+
 History, and why this matters:
 
 On 2026-09-26 `main` was a month behind: the product had moved on across a
@@ -398,7 +407,11 @@ produced." DESIGN-LAW rule 87. In practice:
   and keeps a card that fails as offered out of the lists. It takes hours in
   full; run it with `--ids a,b` on the cards a change touches (the table is
   updated for those cards only) and `--resume` to continue a stopped run. It
-  loads the studio with `?nochoiceholds=1`.
+  loads the studio with `?nochoiceholds=1`. For the whole population pass
+  its own list as `--ids` too (the offered classics and the live library):
+  without `--ids` the table starts empty, so a run of one dimension (`--dims
+  base`) empties the others, and a classic the table holds drops out of the
+  population and loses its row unmeasured.
 - **The designer's guides and lock** (rule 107, 2026-10-02): the pink guides
   (`sgSnap`) and the lock to the middle (`pgCentreLock`, kept by `ccKeep`
   before every render and undo step) work on the parts `ccParts` finds. A
@@ -433,7 +446,8 @@ produced." DESIGN-LAW rule 87. In practice:
   loose parts, near misses, a picture over a headline) and exits 1 on a
   failure; `scripts/centre_showcase.mjs --ids a,b` repairs with Centre all
   through the writers' gate. A pass that moves a showcase card's layers
-  runs the audit on the cards it touched.
+  runs the audit on the cards it touched. A number and its phone mark
+  (rule 118) are one line to the measure: centred together.
 - **The colour builder** (rule 112, 2026-10-03): `colour-builder.js`, loaded
   after app.js. The landing's colour section is two tabs (the twelve
   ready-made sets, or build your own); the + in Easy Mode's and the

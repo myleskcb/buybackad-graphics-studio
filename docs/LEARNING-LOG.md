@@ -3493,3 +3493,80 @@ RESUME HERE:
   1. The slabPoster panel (§AJ 2) and stepsFlow-du09-35's photograph (§AK 1).
   2. The 28 holds for layout (§AK 2).
   3. The owner's review view (§AI), if wanted.
+
+## 2026-10-05 — five sessions stopped at the weekly limit, landed
+
+(claude/zen-dijkstra-bmaw67, from `main` 9040dcb9, then `main`.)
+
+The owner, over screenshots of five sessions that had all stopped at the
+weekly limit mid-task: "read all of these conversations see where we left
+off and push and commit all of the rest of the changes make sure everything
+lands", then "push and commit all new design changes".
+
+Studied: where each session stopped, from its screenshot and its branch (the
+transcripts were not reachable from here), and every branch `main` did not
+have (OPEN-ITEMS §AM).
+
+Learned:
+  - A session that stops at its limit loses what it had not pushed. Three of
+    the five had finished edits uncommitted (the held-base fix, the dark
+    band, the classifier) and one had a day of photograph picks (80 cars, 15
+    sports cards) on its disk only. Commit at each step, not at the end.
+  - A base's flag leaks into its cards. scRegister builds a card as
+    Object.assign(base, record), so `gated` on a base held every card built
+    on it: 102 live cards stood on a held base, and each opened the first
+    card on offer instead. A card is gated:false now; it is held by its own
+    stamps.
+  - A measurement taken on a branch is that branch's. trusting-ride re-
+    grounded 89 cards and kept their old colour stamps: drawn on the merged
+    code, one (ticketStub-du07-15) measured 0.038 and left the site. Every
+    stamp is measured again after a merge, never merged as data.
+  - Two branches can add one file name with two photographs in it
+    (silver-silver-tea-set-2.jpg). Git calls it a conflict only because the
+    bytes differ; look at both before keeping either.
+  - Rule numbers collide every time two sessions add a rule the same day:
+    112 was written by four branches. The number is decided when it lands.
+
+Changed: the merges, the four finished edits, ticketStub-du07-15 and two
+held cards on real photographs, `.modal-actions` wraps, the library drawn
+again (366 cards, their full-size ads), the classics gate, the every-choice
+holds, ASSET_REV 20261005a; OPEN-ITEMS §AM; AGENT-BRIEF landmine 6.
+
+Measured, on the merged build in a cloud container (fabric 5.3.0 served
+locally, Chromium 1194):
+  - verify_showcase: 364 of 364 live cards pass the gate, 0 errors, 0 page
+    errors; then 366 with the cards re-grounded. The classics gate: 53 held,
+    the same 53 as trusting-ride's.
+  - The library drawn again: 364 thumbnails, colour measured, 366 full-size
+    ads (6 pruned), library_api_check passes through the real function;
+    ASSET_REV 20261005a.
+  - every_card_audit --dims base over 660 cards: 14 held as offered (one
+    newly), 32 released by beautiful-wozniak confirmed.
+  - composition_audit: 81 of 362 fail after the repairs (main 45 of 291 on
+    the same machine); steps_rhythm_audit 83 cards, 0 failing.
+  - designer_audit: the four measured cards pass but cars_kbb's blocking
+    after the editor opens (2.9 to 3.7s; main 2.4 to 2.8s, same machine).
+  - ez_theme_audit, in full: no problems over 19 cards x 21 themes.
+  - colour_builder_audit --sets-only, every set and 1,803 tweaks: all pass.
+    cvd_audit.py: the same output as main (two themes fail under simulation,
+    one before it, as on main).
+  - video_photo_check (studio and maker), motion_phone_check (every phone,
+    the last 2 degrees in 0.05 degree steps): all pass. The music port:
+    motion_sound_check, motion_music_check, motion_export_check pass.
+  - landing_check at 390 and 1440: no errors, no failed requests, no
+    overflow; every pop-up's buttons inside a 390px screen; the motion,
+    Look Book, pick and admin pages open without an error.
+
+Rejected: merging claude/sharp-maxwell-q2aq4o's c228696d whole (a second
+phone renderer the owner's later notes went against; its iPhone 17 refit is
+ported); merging claude/vigilant-wozniak-kyyy7b without the owner (52 themes
+against the colour builder: their call, §AM 2); a full every-choice sweep
+without --ids (it starts from an empty table, so a run of one dimension
+empties the others, and a classic the table holds is left out of its
+population, so its hold would be dropped unmeasured).
+
+RESUME HERE:
+  0. Deploy `main` from the Mac to both Netlify projects (AGENT-BRIEF,
+     Deploying); this session cannot reach Netlify.
+  1. The owner's call on claude/vigilant-wozniak-kyyy7b (§AM 2).
+  2. The car and sports picks, from a session that can reach Commons (§AM 1).
