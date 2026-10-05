@@ -113,7 +113,7 @@ YEARS = {
 BRANDS = ['Aston Martin', 'Harley-Davidson', 'Land Rover', 'Range Rover', 'Rolls-Royce', 'Mercedes-AMG',
           'Mercedes-Benz', 'Acura', 'Audi', 'Bentley', 'BMW', 'Buick', 'Cadillac', 'Chevrolet', 'Chrysler', 'Dodge',
           'Ferrari', 'Ford', 'Freightliner', 'Genesis', 'GMC', 'Honda', 'Hyundai', 'Infiniti', 'Jeep', 'Kia',
-          'Lamborghini', 'LDV', 'Lexus', 'Lincoln', 'Lucid', 'Maserati', 'Mazda', 'McLaren', 'Mini', 'Nissan',
+          'Lamborghini', 'LDV', 'Lexus', 'Lincoln', 'Lucid', 'Maserati', 'Mazda', 'McLaren', 'Mini', 'Mitsubishi', 'Nissan',
           'Peterbilt', 'Polestar', 'Porsche', 'Ram', 'Rivian', 'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo']
 BRAND_OF = {'Mercedes-AMG': 'Mercedes-Benz', 'Range Rover': 'Land Rover'}
 EXOTIC = {'Ferrari', 'Lamborghini', 'McLaren', 'Rolls-Royce', 'Bentley', 'Aston Martin', 'Maserati'}
@@ -125,8 +125,9 @@ SUV = ('RAV4', 'CR-V', 'Highlander', '4Runner', 'Tahoe', 'Suburban', 'Explorer',
        'Sorento', 'EV9', 'Ioniq 5', 'Ioniq 9', 'Model X', 'Model Y', 'R1S', 'Navigator', 'Aviator', 'QX60', 'RDX',
        'Enclave', 'Equinox', 'Pilot', 'Passport', 'HR-V', 'Atlas', 'Tiguan', 'ID.5', 'XC60', 'XC90', 'CX-5', 'CX-90',
        'Forester', 'Crosstrek', 'Compass', 'Grand Cherokee', 'Wagoneer', 'Rogue', 'Pathfinder', 'Venza',
-       'Corolla Cross', 'Land Cruiser', 'NX', 'RX', 'LX', 'Durango', 'GV80', 'Soul', 'Outback')
-MINIVAN = ('Sienna', 'Pacifica')
+       'Corolla Cross', 'Land Cruiser', 'NX', 'RX', 'LX', 'Durango', 'GV80', 'Soul', 'Outback',
+       'Outlander', 'Kicks', 'Murano', 'Velar', 'UX')
+MINIVAN = ('Sienna', 'Pacifica', 'Odyssey')
 COLOUR = [('solar octane', 'orange'), ('magenta', 'pink'), ('teal', 'green'), ('lime', 'green'), ('chalk', 'white'),
           ('stainless', 'silver'), ('cream', 'beige'), ('sand', 'beige'), ('beige', 'beige'), ('bronze', 'bronze'),
           ('copper', 'bronze'), ('purple', 'purple'), ('pink', 'pink'), ('red', 'red'), ('orange', 'orange'),
