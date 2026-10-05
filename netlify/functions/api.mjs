@@ -425,6 +425,7 @@ export default async (req) => {
         mode: 'subscription',
         'line_items[0][price]': env.PRICE_PRO,
         'line_items[0][quantity]': '1',
+        allow_promotion_codes: 'true', // partner and creator discounts are Stripe promotion codes, no code change
         customer_email: em,
         'metadata[email]': em,
         'metadata[plan]': plan,

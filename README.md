@@ -1,41 +1,71 @@
 # BUYBACK.AD — deploy guide
 
-## Frontend (2 minutes)
-Drag this whole folder onto https://app.netlify.com/drop. Done.
-With `config.js` left empty the app runs in **demo mode**: sign-up/sign-in,
-plans, simulated checkout, the 3/week free limit, 1080p cap and watermark all
-work in-browser so you can test the entire flow today.
+## Frontend
+Deploy a clean checkout of `main` with the Netlify CLI (AGENT-BRIEF.md,
+"Deploying": draft first, look, then `--prod`). A local copy
+(`python3 -m http.server 8899`) opened as `http://localhost:8899/?demo=1` runs
+in **demo mode**: sign-up, plans, a simulated checkout, the 3-a-week free
+limit, the 1080 cap and the watermark all work in the browser, so the whole
+flow can be clicked through without a backend. `?demo=0` turns it off.
 
-## Backend — real accounts, real limits, real Stripe (~15 minutes)
-1. **Cloudflare** → Workers & Pages → Create Worker → paste `backend/worker.js`.
-2. Worker → Settings → **Bindings** → add KV namespace, variable name `USERS`.
-3. Worker → Settings → **Variables & secrets**:
-   - Secret `JWT_SECRET` — any long random string
-   - Secret `STRIPE_SECRET` — from Stripe → Developers → API keys (sk_live_… / sk_test_…)
-   - Secret `STRIPE_WEBHOOK_SECRET` — created in step 5 (whsec_…)
-   - Var `PRICE_PRO` — from step 4
-   - Var `SITE_URL` — your Netlify URL, e.g. https://buybackad.netlify.app
-4. **Stripe** → Product catalog → create the product “Pro $15/mo”
-   (recurring). Copy its **price id** (price_…) into step 3.
-5. Stripe → Developers → **Webhooks** → Add endpoint:
-   `https://YOUR-WORKER.workers.dev/stripe-webhook`, events
-   `checkout.session.completed` and `customer.subscription.deleted`.
-   Copy the signing secret into `STRIPE_WEBHOOK_SECRET`.
-6. Edit `config.js`: set `window.PGFX_API` to your worker URL. Redeploy the folder.
+## Backend — real accounts, real limits, real Stripe
+One Netlify Function deployed with the site, `netlify/functions/api.mjs`,
+answers at `/api/*` (`config.js` derives the path from where the app is
+served). Accounts, download counts and the daily counters live in Netlify
+Blobs (store `pgfx-users`). The Cloudflare Worker at `worker.js` is the
+retired first version: not deployed, 404'd at the edge, kept for history.
 
-That’s the full loop: sign-up → Stripe-hosted checkout → webhook flips the plan
-→ limits/watermark enforced **server-side** (browser tricks can’t bypass them).
+Set these in Netlify (Project configuration → Environment variables), then
+redeploy. `.env.example` is the local copy for `netlify dev`.
 
-## Plan rules (change in ONE place each side)
-`PLANS` at the top of `app.js` (labels/pricing shown in UI) and of
-`backend/worker.js` (the enforced truth):
-Free = 3/week, 1080px, watermark, 20 templates · Pro = 100/month, 2160px, all 50+ templates.
+| variable | what it does |
+|---|---|
+| `JWT_SECRET` | required; any long random string, signs the sign-in tokens |
+| `ADMIN_EMAILS` | comma-separated operator emails: no caps, no watermark, the admin tools |
+| `GEMINI_KEY` | AI backgrounds (Gemini 3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it). `FAL_KEY` is the Seedream fallback. With neither, the button says the feature is not enabled yet |
+| `RL_USER_DAILY` / `RL_PRO_DAILY` / `RL_GLOBAL_DAILY` | AI backgrounds a day for a Free account, a Pro account and the whole site (defaults 10 / 40 / 400). **The only per-use cost in the product**, about $0.034 an image: read `docs/SAAS-AUDIT-2026-10-05.md` before raising them |
+| `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, `PRICE_PRO`, `SITE_URL` | billing, below. Until all four are set, Go Pro says "Pro checkout is not open yet" and nothing is charged |
+| `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button |
+| `LIBRARY_KEYS`, `LIBRARY_DAILY` | the partner library API, below |
+
+Stripe, once:
+1. Product catalog → product "Pro", recurring, $15 a month. Its price id
+   (`price_…`) goes in `PRICE_PRO`. (An annual price is a second Stripe
+   price and a small code change: OPEN-ITEMS §AF 2.)
+2. Developers → Webhooks → endpoint `https://<your site>/api/stripe-webhook`,
+   events `checkout.session.completed` and `customer.subscription.deleted`.
+   Its signing secret (`whsec_…`) goes in `STRIPE_WEBHOOK_SECRET`.
+3. `SITE_URL` is the site's own origin (Stripe sends people back to it).
+4. Discounts for partners and creators (the landing's partnership section)
+   are Stripe promotion codes: Checkout shows a code field, so a code made in
+   Stripe → Coupons needs no code change.
+
+That is the loop: sign-up → Stripe-hosted checkout → webhook flips the plan →
+the function counts every download and tells the browser the plan's size cap
+and watermark. The count is enforced server-side; the size cap and the
+watermark are applied by the browser (OPEN-ITEMS §AF 5).
+
+## Plan rules (change in ONE place each side, and the copy)
+`PLANS` in the SaaS section of `app.js` (what the UI shows) and at the top of
+`netlify/functions/api.mjs` (the enforced truth). The same numbers are written
+out in `index.html` (#pricing, the FAQ, the sign-up chooser), `about.html`,
+`terms.html` and `COMMON_FAQ` in `scripts/build_seo_pages.mjs`; run that
+script after editing the FAQ, it rebuilds the ld-faq JSON-LD and the category
+pages.
+
+Free = 3 downloads a week, 1080 px on the short side, BUYBACK.AD watermark,
+every Phones design plus the top 3 of each other category (85 of the 311 cards
+offered on 2026-10-05) · Pro = $15 a month, 100 downloads a month, 2160 px, no
+watermark, every design, the QR code layer. A download is an image, or a video
+with its photo, from the studio, counted once, re-downloads included. The phone
+video maker at `/motion` is free, needs no account and counts nothing. AI
+backgrounds are on both plans under the daily caps above.
 
 ## Notes
 - Test first with Stripe **test keys** + card 4242 4242 4242 4242.
 - No email verification / password reset in this MVP — add before wide launch.
-- AI background generation is separate (⚙ in the Backgrounds tab) and unrelated
-  to these keys.
+- The money side, measured against the market and the model's price:
+  `docs/SAAS-AUDIT-2026-10-05.md`.
 
 ## Formats
 **Square 1:1 is the format the ads are designed for; Tall 3:4 comes second and

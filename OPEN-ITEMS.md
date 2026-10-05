@@ -1634,3 +1634,46 @@ lime box (`#0a1a00`, rule 104's plate ink).
    changed (two families), so `node scripts/every_card_audit.mjs
    --write-holds` (hours; `--resume`) should be run before the holds are
    trusted again. The gate still checks every download.
+
+## AF. 2026-10-05 — the SaaS side against the offer, the model's price and the market
+
+The owner: "make sure the saas side of things make sense with current model
+and offerings, and is worth the cost and make us enough, use market
+research." The full measurement is `docs/SAAS-AUDIT-2026-10-05.md`. Fixed
+on the branch: the FAQ's "Video ads don't count" (a studio video is one
+download; the video maker's are not), the README's retired Cloudflare
+backend, the checkout return that could say "You are now on the Free plan"
+to someone who had just paid, and Stripe promotion codes on checkout (the
+landing's partner discounts had no way to exist).
+
+Decisions for the owner, in order:
+
+1. **The AI background caps are the one way the product loses money.** At
+   the function's defaults a Pro account may spend $40.80 a month of Gemini
+   (40 a day at about $0.034) against $14.16 net, and a free account
+   $10.20. `netlify env:set RL_USER_DAILY 2`, `RL_PRO_DAILY 8`,
+   `RL_GLOBAL_DAILY 120` bounds it today without a deploy. The better
+   product shape is a monthly allowance in step with the download period
+   (a counter keyed by `isoMonth()` in `api.mjs`, and "60 AI backgrounds a
+   month" on the Pro card).
+2. **No annual price.** Every comparable tool sells one at about a third
+   off (Kittl $120, VistaCreate $120, Placeit $89.69, Canva about $180).
+   Add $120 a year: a second Stripe price, `PRICE_PRO_YEAR`, a second
+   button in `buildPlansGrid`, the checkout accepting `plan: 'pro-year'`.
+3. **Stripe is still off.** Set the four vars with test keys and walk the
+   loop once (checkout, webhook, Manage billing, cancel) before anything is
+   announced. Nothing on the SaaS side has taken a dollar yet.
+4. **The phone video maker is free, unwatermarked, uncounted and needs no
+   account.** Lead magnet or product: the owner's call. If product, ask for
+   the free account and count it as the studio's videos are counted.
+5. **The size cap and the watermark are applied by the browser** (carried
+   from the 2026-09-22 audit, item 8). The count is enforced; the rest is a
+   nudge a devtools user walks past. Moving them to the function means the
+   image goes up and comes back; a bigger change, decide when Pro has
+   customers.
+6. **Netlify's free plan** carries roughly 10,000 first visits a month
+   (300 credits; the landing is 2 to 3 MB on a first visit). Expect
+   Personal ($9) or Pro ($20 a seat) once the partner channel sends
+   traffic; watch the credits meter after the first push.
+7. **Partner and creator discounts** now work as Stripe promotion codes;
+   none exist yet. Make one per partner in Stripe → Coupons.
