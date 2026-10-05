@@ -4381,3 +4381,159 @@ never choose that that's incomplete. It's a placeholder at very best."
   signed baseballs), and the stock libraries designers use (Unsplash, Pexels,
   Openverse's Flickr) are not reachable from the cloud sessions. The sports
   cards keep generated scenes until real photographs arrive.
+## 118. The phone mark belongs to the number: its colour, its line, its box
+
+Added 2026-10-02 (written as 110 on claude/beautiful-wozniak-xmvvuk; numbered 118 when merged). The owner, of two car cards: "The Phone icon by the CTA
+looks super out of place and we could always color match it to make the
+theme look more cohesive", and of the second, "Same thing with this one".
+
+The mark beside a number (`Phone Cue`, written by retheme_lab.mjs on two cards
+in five so people know what the number is for) was placed and coloured for
+the number as it stood when the card was generated. The passes after it
+resized, moved and recoloured the number (the faces, the hug of the pill, the
+plate ink of rule 104) and left the mark where it was. Measured on the 93 live
+cards that carry one, on the pixels the studio paints:
+
+| | before | after |
+|---|---|---|
+| mark shown | 60 | 59 |
+| not the number's colour | 60 | 0 |
+| off the box that holds the number | 22 | 0 |
+| more than 12px off the number's middle | 46 | 0 |
+| gap to the digits | -175 to 77px | 18 to 26px |
+
+55 of the 93 asked for `phoneMark`, a name the icon table never had, so the
+lookup fell back to the sparkle: a star stood beside the number. `ICONS.phoneMark`
+is now a handset.
+
+`pgPhoneCue` runs after `pgPlateInk` everywhere the colour passes run (rule 95):
+
+- **Colour.** The mark takes the number's ink, whatever painted it last.
+- **Size and line.** The mark is 0.92 of the digits' cap height, measured from
+  the face, and centred on the digits (not the line box, which the leading and
+  the parentheses make taller).
+- **Box.** Inside the solid shape that holds the number, a gap of a quarter of
+  the number's size to its left. Where the number was centred on its box, the
+  mark and the number are centred together. A rect that hugs the number grows
+  about its middle to take the mark, when the slivers it gains touch no other
+  line and it stays on the card; a drawn shape never grows.
+- **Otherwise hidden.** A mark with no room, or one that would land on another
+  line, is hidden rather than left off its box (2 cards).
+- **The visitor's.** A mark or a number dragged in the designer is never moved
+  again.
+
+Under a colour theme the mark used to keep its old colour on a repainted box
+and vanish; 225 of the 444 themes held off (rule 101) were that, on 18 cards.
+With the mark following the number's ink, the 12 of those cards that are live
+were measured again: 89 themes come back on 9 of them (444 held to 355); the
+marks still lost are stepsFlow's step-number boxes and slabPoster's marks.
+
+It is not only the phone. On the same day 148 of the 331 live cards showed at
+least one sparkle where another mark was meant (265 marks under 31 names the
+table lacks: `corner` 96, `medal` 15, `cash` 14, `dollar` 14, `check` 12,
+`headset` 12, ...). OPEN-ITEMS §AI.
+
+## 119. Every mark is the one the generator drew, and stands clear of the headline
+
+Added 2026-10-03 (written as 111 on claude/beautiful-wozniak-xmvvuk; numbered 119 when merged). The owner: "keep working on the style", after rule 118 and
+the list of why a card looks unfinished (OPEN-ITEMS §AI).
+
+- **The generator's marks are the studio's.** retheme_lab.mjs draws 46 marks
+  into the page it renders with (`ICONS.medal`, `ICONS.corner`, `ICONS.globe`,
+  ...) and writes their names into the records; app.js never had 44 of them,
+  and `ICONS[name] || ICONS.sparkle` drew a star for each. 265 marks on 148
+  live cards were stars. The 44 are copied into `ICONS` as the generator drew
+  them, stroke weights and all (its `pin` and `phoneMark` keep the studio's).
+  Measured after: no mark on a live card falls back; the 466 marks shown are
+  the same 466, none newly on copy or off the card.
+- **A floating mark stands 118px clear of a headline on its row**
+  (`pgFlankClear`, after `pgPhoneCue` in every colour pass). The generator
+  kept its line art that far out because "a green tick beside SELL YOUR read
+  as part of the sentence" (owner, 2026-09-03: "really?"); the layout passes
+  then moved the headlines and left the marks. On the 331 live cards of
+  2026-10-03, 123 of the 166 marks shown sat closer than 118px to a headline
+  on their row, 45 closer than 60px, 4 on it. Now 113 are moved back out to
+  118px and 10 are hidden where there was no room.
+- **A mark that reads as a character never stands beside a headline.** A
+  dollar sign or a tick on a headline's row reads as a letter of it ("$CASH
+  FOR", "SELL YOUR ✓") at any distance: hidden (25 more). `PG_GLYPH_MARKS`.
+- On all 370 live cards after: 145 floating marks shown, none within 118px
+  of a headline on its row.
+- A mark the visitor dragged in the designer stays (`pgHandHook`, shared with
+  rule 118).
+
+## 120. The selling-points strip wears the CTA's colour
+
+Added 2026-10-03 (written as 112 on claude/beautiful-wozniak-xmvvuk; numbered 120 when merged). The owner, of a white strip of selling points above a blue
+call-to-action box: "the white box should be color match to blue or the CTA
+should be matched to white but either way it's lacking cohesiveness".
+
+- On the bubblePop and voltStack layouts the strip (`Info Text Panel`) was
+  drawn white whatever the CTA box (`CTA Card`) was. Where the box is
+  coloured, the strip takes the box's colour, and its words are white, as the
+  CTA's are, unless white would read under 3:1 on it (then near-black).
+- Done in the records, card by card, through the gate: 21 live cards and 7 of
+  the cards brought back with a photograph. One is left as it was:
+  voltStack-su02-30 sets its CTA line over the strip itself, and a coloured
+  strip took that line to 1.36:1.
+- A neutral CTA box keeps a neutral strip (bubblePop-jw04-20: white and white).
+
+## 121. A number alone on a band is on the band's middle, inside the guides
+
+Added 2026-10-03 (written as 113 on claude/beautiful-wozniak-xmvvuk; numbered 121 when merged). Rule 102 put the number on the middle of a plate it has to
+itself and made the gate check it (numCentre: the letters' middle within 12%
+of the plate's middle as it is seen). Two of the studio's own passes then
+disagreed with the gate on the same card:
+
+- **Easy Mode leaves the website line off** when the visitor has none. On
+  stepsFlow and trustSeal the footer band held the website over the number;
+  without it the number was alone, at the band's top.
+- **`numberFill` centred it in the room inside the guides**, and on a band
+  that runs off the card's foot that room's middle sits half a guide (32px)
+  above the band's middle as it is seen: a fifth of a 190px band, past the
+  gate's 12%. It used the right helper, `numberCentreY` (the seen middle,
+  clamped to the guides), only for restaged records.
+
+On 2026-10-03, 21 live cards and 4 classics were kept out of Easy Mode for
+that alone (choice-holds.json). Now:
+
+- `numberFill`, when the number is alone on its plate, sets it with
+  `numberCentreY` like a restaged record. A plate it shares (a CTA over it) is
+  a stack and keeps the room's middle.
+- `pgNumberMiddle`, in every colour pass, sets a number alone on its plate on
+  the same middle when it is further off than the gate allows; a band that
+  runs off the card's foot and is too shallow for both the guide and the
+  middle grows upward into clear space until it is (10 to 20px on stepsFlow's
+  footer).
+- Measured in Easy Mode on all 370 live cards, the work off and on: 22
+  renders change (stepsFlow and trustSeal only), and the number fails its
+  middle on 2 cards where it failed on 21 (trustSeal-jw10-30 and -jw10-31,
+  whose band has copy right above it and cannot grow). The 4 price-badge
+  classics pass. The thumbnail gate is 370 of 370 and the classics 346 of
+  404, as before.
+
+## 122. The hero is one colour and one ink
+
+Added 2026-10-04 (written as 114 on claude/beautiful-wozniak-xmvvuk; numbered 122 when merged). The owner, of voltStack-ca07-15's WE BUY over CARDS: "They
+look like different shades when there's white and black in the hero just
+doesn't make a ton of sense … We should just unify it to one shade one text
+color for the hero", then "any solid color could be a pattern gradient
+whatever you think is fitting but solid colors are most fitting in most
+circumstances".
+
+- **Colour blocks** (the tagline look that sets each headline line on its
+  own block) alternated the theme's two colours line by line, ink by
+  contrast. The one-colour pass (rule 95) then brought the second colour to
+  the first's hue at its own lightness: two shades of one teal, white letters
+  on the darker and black on the lighter. Now every block is the theme's
+  accent and every line takes the one ink that reads on it (white unless it
+  would fall under 4.5:1, the block's lightness moved if neither does).
+- **Solid**, as the owner said fits most cards. A gradient or a pattern is a
+  look of its own (Signature, Gradient, Pattern), chosen for the whole claim,
+  never one per line.
+- Measured on the 380 live cards after: of the 95 with two or more headline
+  lines on bands, none has bands of two colours and none lines of two inks
+  (seven read so to the measure: a white-to-white gradient on one line is
+  still white). 68 live cards carry the look as offered, and any card can
+  take it in Easy Mode or the designer, so its rows in the choice table were
+  measured again on every card (OPEN-ITEMS §AK).

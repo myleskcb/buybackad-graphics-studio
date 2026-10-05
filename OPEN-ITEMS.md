@@ -1751,3 +1751,233 @@ Still open:
 4. **The money-pattern art** (`assets/grounds/money-fall-*`, 27 cards) and
    the Apple product scenes (48 phones cards) were kept: they show real
    banknotes and real products. Say if they should go too.
+## AI. 2026-10-02 — the phone mark joins the number; two car cards finished; why a card looks unfinished
+
+The owner sent two car cards from the live site (`bubblePop-cd10-30` and
+`scriptRetro-du07-30`): "The Phone icon by the CTA looks super out of place
+and we could always color match it ... the white box should be color match to
+blue or the CTA should be matched to white ... needs a background image", then
+"Same thing with this one". Both were already held on `main` (§AA, a drawn
+ground with no photograph); the live site predates the hold (§AA, not live
+until deployed).
+
+Done (DESIGN-LAW rule 118):
+- **The phone mark** (`pgPhoneCue`, after `pgPlateInk`): on the 93 live cards
+  that carry one, 0 now differ from the number's colour (was 60 of 60 shown),
+  0 sit off the number's box (22), 0 are off its middle (46); 59 shown, 2
+  hidden for want of room. `ICONS.phoneMark` drawn: 55 of the 93 asked for it
+  and got the sparkle.
+- **The two cards finished and back on the site.** A car photograph behind each
+  (`dl_cars_neonNight_sunset.jpg`, `dl_cars_slabPoster_mono.jpg`, used by no
+  other card), card 1's info strip in its CTA's colour with white words, and
+  the marks that drew as sparkles (a `wheel`, an `arrowRight`, a `tag`) or did
+  not belong (the sports base's card-slab mark) taken off. Out of holds.json
+  (84 left) and the index's `curated` stamp.
+- 291 thumbnails redrawn (every record with a phone mark). ASSET_REV 20261002b.
+
+- **Theme holds** (every_card_audit.mjs on the 12 live cards whose themes
+  were held for a vanishing mark): 444 held themes to 355; 89 come back on 9
+  cards (scriptRetro-du07-30's 12 among them). The marks still lost are
+  stepsFlow-jw03-20's step boxes and two slabPoster cards' marks.
+
+Checked: the library gate 331 of 331 live cards (verify_showcase.mjs); the
+classics 346 of 404, the same 58 held as on main; Easy Mode themes
+(ez_theme_audit.mjs --quick) no problems; the designer (designer_audit.mjs)
+the same problems as main, measured on both: sell_iphone and gold_spot do not
+open in this sandbox, bandKnockout-pp04-15's ORIG differs by 4% (it carries no
+phone mark), and the open-time blocking sits near its 3000ms line on both
+builds (over three or four runs each, bandKnockout-pp04-15 2838 to 2898ms on
+main and 2625 to 3105 here, cars_kbb 2668 to 2895 on main and 2862 to 3019
+here). While the designer opens, `pgPhoneCue` runs 115 times for 1ms in all
+(timed in the page), so the spread is the machine's; the line is close
+enough that a slower machine will cross it on main too.
+
+Tooling bug found: `every_card_audit.mjs --ids ... --write-holds` given a held
+card writes it as passing everything (it could not open it, so nothing
+failed) and drops its rows. Six held cards lost their rows that way here and
+were put back from the table as it was. Fix: leave a card that does not open
+out of the write.
+
+Why a card looks unfinished, measured on the 331 live cards and the 84 held,
+with the step that finishes it (the owner asked for this list):
+
+1. **No photograph behind it** — 63 held cards (coins 12, gold 10, sports 10,
+   cars 9, silver 9, phones 5, strips 5, pokemon 3). Each needs a scene for its
+   product, then the gate. Unused photographs on disk: cars 13, phones 22,
+   strips 7, pokemon 5 (enough); coins 9, gold 8, silver 7, sports 2 (short:
+   sports needs about 8 more, coins and gold 4 to 5, silver 2 to 3). All are
+   1200px where the spec asks 2160 (rule 44).
+2. **A sparkle where a mark was meant** — 148 live cards show at least one
+   (265 marks): the records name 31 marks the icon table never had (`corner`
+   96, `medal` 15, `cash` 14, `dollar` 14, `check` 12, `headset` 12, `burst`
+   11, ...), and `ICONS[name] || ICONS.sparkle` draws a star for each. Fix: map
+   the names with an obvious mark already drawn (`cash`/`dollar`/`tag` to
+   `cashTag`, `shield`/`check` to `shieldTick`, `bolt` to `boltFast`,
+   `key`/`keyfob` to `keyFob`, `car`/`wheel` to `carSide`, `coin` to
+   `coinStack`, `ingot` to `barStack`, `gem`/`ringMark` to `ring`, `cardSlab`
+   to `slab`), draw the few that earn it (`corner` as a frame bracket,
+   `headset`), and draw nothing for the rest rather than a star. Then a
+   contact sheet for the owner and the gate.
+3. **A mark the passes left behind** — the phone mark (done, rule 118); the
+   same kind of drift is likely for the other marks placed beside a line at
+   generation (the website's globe and arrow are hidden by the layout today).
+4. **Two boxes that do not agree** — an info strip in white beside a coloured
+   CTA (card 1 here). One colour per card (rule 95) brings hues together but
+   not a white strip against a coloured box. A pass or an audit: on a card
+   with a coloured CTA plate, a neutral strip carrying the selling points
+   takes the CTA's colour, or both go light.
+5. **Headlines that do not read** — 13 held (§AA 2): the band headline's
+   dark word with a heavy shadow (9), outlined serifs on busy photographs (2),
+   dark on its own colour (2).
+6. **A photograph a panel covers** — 7 held.
+7. **The live site is behind `main`.** Every screenshot the owner sent today
+   was of cards `main` had already held or fixed. Deploy `main` (§Z 0).
+
+The owner's part, and a tool for it (proposed, not built):
+- Photographs for the short categories above, 2160px or larger, a real scene
+  with calm space at the top and middle for the headline; the owner's own
+  photographs of real buys are worth more than stock (trust is the
+  conversion).
+- **A review view**: open any card full size, drag, resize, hide or recolour
+  its layers, swap its ground from the category's photographs, mark it keep /
+  fix / cut with a reason chip, and save the change as a diff against the
+  record (layer name -> the props that changed). The studio's designer
+  already opens a record (`edOpenShowcase`) but cannot turn its canvas back
+  into a record, and every grading tool in `lab/` keeps its verdicts in one
+  browser's localStorage. The diffs come back as one JSON file in the repo
+  (`assets/owner-edits/`), a script applies them to the records through the
+  gate, and a second reads them for patterns (the owner always moves X, always
+  matches Y) to turn into passes, the way rule 118 came from one remark.
+
+## AJ. 2026-10-03 — the generator's marks, marks clear of the headline, 39 cards back with a photograph
+
+The owner: "keep working on the style", after §AI's list.
+
+Done (DESIGN-LAW rules 119, 120):
+- **§AI 2, the sparkle stand-ins.** The 44 marks the generator drew and the
+  studio never had are in `ICONS`. No mark on a live card falls back to the
+  sparkle (265 did on 148 cards).
+- **Marks clear of the headline** (`pgFlankClear`): of 166 floating marks on
+  the 331 cards, 123 sat closer than the generator's 118px to a headline on
+  their row; 113 moved back out, 10 hidden without room, and 25 dollar signs
+  and ticks hidden from headline rows. On the 370 live cards: 145 shown, none
+  within 118px.
+- **39 drawn-ground cards back with a photograph** (§AI 1): cars 6, phones 5,
+  pokemon 1, strips 5, coins 8, gold 5, silver 7, sports 2, each on a library
+  photograph no other card uses (near-duplicate shots counted as one). holds.json
+  84 to 45. Seven of them also took rule 120's strip.
+- **The strip wears the CTA's colour** on 21 live cards (rule 120).
+- `every_card_audit.mjs --write-holds` keeps the rows of a card that did not
+  open (§AI's tooling bug).
+
+Checked: the library gate 370 of 370 live cards (verify_showcase.mjs); the
+classics 346 of 404, the same 58 held as on main; Easy Mode themes
+(ez_theme_audit.mjs --quick) no problems; the designer the same four problems
+as main (two cards that do not open here, bandKnockout-pp04-15's ORIG 4%).
+Marks on the 370: none falls back to the sparkle, 477 shown, none off the
+card, the 20 on copy as before (checklist ticks in their boxes, two badge
+marks); 69 phone marks shown, every one the number's ink, in its box, on its
+line. Every choice on the 200 cards whose picture changed or that came back
+(every_card_audit.mjs --write-holds, all 200 opened): held themes 355 to 312,
+looks 35 to 39 (three on bubblePop-pp06-35, one on trustSeal-du06-35), voices
+1520 to 1522; three of the returning stepsFlow cards are kept out as offered
+for the number off the middle of its band (3 below). 971 thumbnails redrawn.
+ASSET_REV 20261003a.
+
+Still open:
+1. **24 drawn-ground cards** remain held: sports 8, gold 5, coins 4, cars 3,
+   pokemon 2, silver 2 (stepsFlow 11, slabPoster 6, seven others). Sports
+   needs the owner's photographs first (two were on disk); the others need a
+   photograph or a layout fix (2, 3).
+2. **The slabPoster layouts** (6 held) set everything on a large central
+   panel, so a photograph behind them only shows at the edges (rule 105's
+   "panel covers the photograph"). They want the panel made glass or smaller
+   before a photograph earns its place.
+3. **The number off the middle of its band** (rule 102): Easy Mode drops the
+   website line when the visitor has none and leaves the number alone at the
+   top of stepsFlow's and trustSeal's footer band. 21 live cards (three of
+   them brought back here), 4 classics and 12 held cards were kept out of the
+   lists for it. Done in the next commit (DESIGN-LAW 121): the number fails
+   its middle on 2 live cards in Easy Mode instead of 21 (trustSeal-jw10-30
+   and -jw10-31, whose band cannot grow under the copy above it: still open).
+   23 cards are back in Easy Mode (19 live, the 4 price-badge classics), and
+   neonNight-jw04-20, held for this alone, passes the gate and every choice
+   and is back on the site (holds 44). The 12 held ones still want a
+   photograph.
+
+After main's composition audit was merged in (b7a67925): main's 90 centred
+cards were measured on main's code, without this branch's passes, so every
+choice on them was measured again on the merged code (every_card_audit.mjs
+--write-holds, all 90 opened, none fails as offered): cards kept out 21,
+held themes 314, looks 40, voices 1526. On the merged tree: library gate 363
+of 363, classics 346 of 404 as before, no mark falls back, no floating mark
+within 118px of a headline, 67 phone marks shown and all right, Easy Mode
+themes no problems, the designer main's same four problems.
+
+## AK. 2026-10-04 — photographs from Wikimedia Commons; 17 more cards back
+
+The owner: "get imagery using the session with allowed cloud environments".
+The account has one cloud environment (Default, this session's). Its network
+reaches commons.wikimedia.org and upload.wikimedia.org; Openverse, Pexels,
+Unsplash, Pixabay and Flickr answer 403 at the proxy. Commons is what
+`scripts/fetch_backdrops.mjs` was written for (free licences only, credited in
+`assets/bg-web/ATTRIBUTION.json`).
+
+Done:
+- **Fetched** 63 candidates for the six short categories (§AJ 1), queries
+  added to the script (sports twice, the second time as scenes: glove, ball,
+  court, stadium). **Kept 17** after looking at every one, plus one spare
+  (silver-silverware-1). Refused: museum pieces on white (a flat card
+  again), engravings and trade cards the search matched on "cards", team
+  logos (jerseys, a helmet), politicians and a player's face, branded signs
+  and medals, a basket of eggs matched on "ball", and a gold necklace on
+  black that read as a flat ground on its card. The refused files are in
+  `assets/bg-web-rejected/` (git ignores it) and out of the credits.
+- **The photographs ship at 2048px on the long side** (8.4 MB for 18).
+  Larger, they render black on a showcase card: over 2048 x 2048 pixels of
+  area the blur canvas and the treat filter come out black (13 of 18 did at
+  their first 2160px short side; a 2160 x 2160 square goes black where
+  2160 x 1620 does not). The gate cannot see it (white words on black read
+  well); a brightness check found it. A visitor's own photograph is not
+  affected: Easy Mode's upload path rendered a 2160 x 2160 photo, blurred
+  and not, at full brightness. Written into the fetcher's header.
+- **17 cards back on the site**: sports 8 (the gloves, the baseballs in the
+  grass, two stadiums at night, a gym floor), gold 3, coins 4, silver 1,
+  pokemon 1 (a library photograph on disk). Two took rule 120's strip. holds
+  52 to 35. ASSET_REV 20261004a.
+
+Checked: the library gate 380 of 380 live cards; every choice on the 17
+(every_card_audit.mjs --write-holds, all opened, none fails as offered):
+cards kept out of the lists 21 to 13 (the returning stepsFlow cards pass with
+rule 121 and a photograph), held themes 314 to 314, looks 40 to 40, voices
+1526 to 1526.
+
+Still open:
+1. **7 drawn-ground cards held**: the six slabPoster panels (§AJ 2: a
+   photograph shows only at the edges) and stepsFlow-du09-35, whose gold
+   photograph was refused.
+2. **The other 28 holds** are for their headline, a panel over the
+   photograph, or the call to action against the number (§AA, §AC): layout
+   work, not imagery.
+
+## AL. 2026-10-04 — the hero is one colour and one ink (DESIGN-LAW 122)
+
+The owner, of voltStack-ca07-15: "They look like different shades when
+there's white and black in the hero … We should just unify it to one shade
+one text color for the hero", and "solid colors are most fitting in most
+circumstances".
+
+Done: the Colour blocks tagline look sets every headline line on a block of
+the theme's accent with one ink (it alternated the theme's two colours, and
+the one-colour pass turned the second into a lighter shade of the first,
+with black letters on it). On the 380 live cards, no hero now has bands of
+two colours or lines of two inks. `every_card_audit.mjs --looks a,b`
+measures only the named looks and rewrites only their rows (and a dimension
+left out of --dims keeps its rows).
+
+Checked: library gate 380 of 380; Easy Mode themes no problems; the designer
+main's same four problems; every choice on the 68 live cards that carry the
+look as offered, all opened, none fails as offered (cards kept out 13, held
+themes 314, looks 40, voices 1525). The look on every other card and
+classic is measured in the next commit. 68 thumbnails redrawn. ASSET_REV
+20261004b.

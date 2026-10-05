@@ -2887,6 +2887,7 @@ function buildLayer(l, tplId, dw, dh){
       strokeLineCap: 'round', strokeLineJoin: 'round',
       originX: 'left', originY: 'top', objectCaching: false
     }));
+    obj.pgIcon = ICONS[l.icon] ? l.icon : 'sparkle';
   }
   else if (l.kind === 'textbox') obj = new fabric.Textbox(txt, Object.assign({paintFirst:'stroke'}, p));
   else {
@@ -7257,6 +7258,60 @@ const ICONS = {
   cashTag:   { d:'M54 12 H80 A8 8 0 0 1 88 20 V46 A8 8 0 0 1 85.6 51.7 L48 89 A8 8 0 0 1 36.7 89 L11 63.3 '
                 +'A8 8 0 0 1 11 52 L48.4 14.4 A8 8 0 0 1 54 12 Z M70 30 A5 5 0 1 0 70 30.1 Z' , min:28 },
   boltFast:  { d:'M56 10 L26 54 A3 3 0 0 0 28.5 59 H45 L42 90 L74 44 A3 3 0 0 0 71.5 39 H55 Z' , min:28 },
+  /* the handset beside a number. 291 showcase records ask for it by this name
+     (retheme_lab.mjs, 'Phone Cue'); it was never drawn, so the lookup fell
+     back to the sparkle and a star stood beside the number (2026-10-02) */
+  phoneMark: { d:'M26 12 H36 A5 5 0 0 1 41 16 L46 30 A6 6 0 0 1 44.5 36.5 L37 43 Q44 57 57 63 L63.5 55.5 A6 6 0 0 1 70 54 '
+                +'L84 59 A5 5 0 0 1 88 64 V74 A10 10 0 0 1 77 85 Q47 83 31 67 Q15 51 13 23 A10 10 0 0 1 24 12 Z' , min:28 },
+  /* the generator's marks. retheme_lab.mjs draws these into the page it
+     renders with and writes their names into the records; the studio never
+     had them, so 265 marks on 148 live cards fell back to the sparkle
+     (2026-10-03). Copied as the generator drew them, its stroke weights
+     with them. */
+  planet:     { d: 'M50 22 A28 28 0 1 0 50 78 A28 28 0 1 0 50 22 Z M8 60 C26 74 74 74 92 40 M8 60 C14 52 22 48 30 46 M92 40 C86 46 78 50 70 52', sw: 5 },
+  rocket:     { d: 'M50 6 C64 20 68 44 62 66 H38 C32 44 36 20 50 6 Z M38 56 L22 70 L30 74 L40 66 M62 56 L78 70 L70 74 L60 66 M42 66 L50 90 L58 66 M50 30 A7 7 0 1 0 50 44 A7 7 0 1 0 50 30 Z', sw: 5 },
+  moon:       { d: 'M58 10 A40 40 0 1 0 90 62 A30 30 0 0 1 58 10 Z', sw: 5 },
+  scribble:   { d: 'M10 60 C22 40 30 40 40 60 C50 80 58 80 68 60 C78 40 86 40 92 56', sw: 7 },
+  flame:      { d: 'M50 6 C62 26 78 34 74 58 C72 74 60 90 50 94 C40 90 28 74 26 58 C24 44 36 40 38 28 C44 40 54 42 50 6 Z M50 60 C56 68 58 76 50 84 C42 76 44 68 50 60 Z', sw: 5 },
+  headset:    { d: 'M22 58 V50 A28 28 0 0 1 78 50 V58 M14 58 H30 V80 H22 A8 8 0 0 1 14 72 Z M70 58 H86 V72 A8 8 0 0 1 78 80 H70 Z M78 80 C78 90 66 92 54 92', sw: 6 },
+  pushpin:    { d: 'M40 10 H60 V36 L70 48 H30 L40 36 Z M50 48 V90', sw: 6 },
+  arrowRight: { d: 'M14 50 H82 M58 26 L82 50 L58 74', sw: 9 },
+  globe:      { d: 'M50 12 A38 38 0 1 0 50 88 A38 38 0 1 0 50 12 Z M50 12 C32 30 32 70 50 88 M50 12 C68 30 68 70 50 88 M12 50 H88 M19 31 H81 M19 69 H81', sw: 6 },
+  corner:     { d: 'M12 46 V12 H46', sw: 9 },
+  pokeball:   { d: 'M50 8 A42 42 0 0 1 92 50 H64 A14 14 0 0 0 36 50 H8 A42 42 0 0 1 50 8 Z M50 92 A42 42 0 0 1 8 50 H36 A14 14 0 0 0 64 50 H92 A42 42 0 0 1 50 92 Z M50 42 A8 8 0 1 0 50 58 A8 8 0 1 0 50 42 Z', sw: 5 },
+  bolt:       { d: 'M56 6 L22 56 H46 L40 94 L78 42 H54 Z', sw: 6 },
+  dollar:     { d: 'M50 10 V90 M68 30 C68 20 32 18 32 34 C32 52 68 46 68 66 C68 82 32 80 32 70', sw: 8 },
+  coin:       { d: 'M50 12 A38 38 0 1 0 50 88 A38 38 0 1 0 50 12 Z M50 26 A24 24 0 1 0 50 74 A24 24 0 1 0 50 26 Z', sw: 6 },
+  gem:        { d: 'M20 40 L36 20 H64 L80 40 L50 84 Z M20 40 H80 M36 20 L50 40 L64 20 M50 40 V84', sw: 5 },
+  star5:      { d: 'M50 8 L61 38 L94 38 L67 57 L77 90 L50 70 L23 90 L33 57 L6 38 L39 38 Z', sw: 5 },
+  keyfob:     { d: 'M30 12 H70 A10 10 0 0 1 80 22 V78 A10 10 0 0 1 70 88 H30 A10 10 0 0 1 20 78 V22 A10 10 0 0 1 30 12 Z M50 30 A8 8 0 1 0 50 46 A8 8 0 1 0 50 30 Z M38 62 H62 M38 74 H62', sw: 5 },
+  cardSlab:   { d: 'M30 8 H70 A8 8 0 0 1 78 16 V84 A8 8 0 0 1 70 92 H30 A8 8 0 0 1 22 84 V16 A8 8 0 0 1 30 8 Z M34 22 H66 V58 H34 Z M34 70 H66', sw: 5 },
+  drop:       { d: 'M50 8 C50 8 22 44 22 62 A28 28 0 0 0 78 62 C78 44 50 8 50 8 Z', sw: 6 },
+  check:      { d: 'M18 52 L40 74 L84 28', sw: 12 },
+  car:        { d: 'M10 62 L20 42 Q24 34 34 34 H66 Q76 34 80 42 L90 62 V76 H78 A9 9 0 0 1 60 76 H40 A9 9 0 0 1 22 76 H10 Z M24 46 H76', sw: 5 },
+  truck:      { d: 'M8 30 H56 V70 H8 Z M56 44 H76 L88 58 V70 H56 Z M20 70 A8 8 0 1 0 20 86 A8 8 0 1 0 20 70 Z M74 70 A8 8 0 1 0 74 86 A8 8 0 1 0 74 70 Z', sw: 5 },
+  wheel:      { d: 'M50 8 A42 42 0 1 0 50 92 A42 42 0 1 0 50 8 Z M50 36 A14 14 0 1 0 50 64 A14 14 0 1 0 50 36 Z M11 50 H36 M64 50 H89 M50 64 V90', sw: 6 },
+  key:        { d: 'M30 30 A18 18 0 1 0 30 66 A18 18 0 1 0 30 30 Z M46 48 H90 V62 H80 V72 H70 V62 H62 V70 H54 V62 H46 Z', sw: 5 },
+  moto:       { d: 'M22 60 A12 12 0 1 0 22 84 A12 12 0 1 0 22 60 Z M78 60 A12 12 0 1 0 78 84 A12 12 0 1 0 78 60 Z M22 72 L40 44 H60 L78 72 M52 44 L44 28 H60', sw: 5 },
+  van:        { d: 'M8 34 H62 L88 52 V72 H8 Z M22 72 A8 8 0 1 0 22 88 A8 8 0 1 0 22 72 Z M74 72 A8 8 0 1 0 74 88 A8 8 0 1 0 74 72 Z M62 34 V52 H88', sw: 5 },
+  watchMark:  { d: 'M50 26 A24 24 0 1 0 50 74 A24 24 0 1 0 50 26 Z M38 8 H62 L58 26 H42 Z M38 92 H62 L58 74 H42 Z M50 38 V50 L58 56', sw: 5 },
+  ringMark:   { d: 'M50 30 A26 26 0 1 0 50 82 A26 26 0 1 0 50 30 Z M40 20 L50 8 L60 20 Z M40 20 H60 L50 30 Z', sw: 5 },
+  chain:      { d: 'M22 42 A12 12 0 0 1 34 30 H46 A12 12 0 0 1 46 54 H34 A12 12 0 0 1 22 42 Z M54 58 A12 12 0 0 1 66 46 H78 A12 12 0 0 1 78 70 H66 A12 12 0 0 1 54 58 Z', sw: 5 },
+  ingot:      { d: 'M22 34 H78 L90 66 H10 Z M30 46 H70', sw: 5 },
+  box:        { d: 'M14 34 L50 18 L86 34 V72 L50 88 L14 72 Z M14 34 L50 50 L86 34 M50 50 V88', sw: 5 },
+  shield:     { d: 'M50 8 L84 20 V50 C84 72 68 86 50 92 C32 86 16 72 16 50 V20 Z M36 50 L46 60 L66 40', sw: 5 },
+  thumbs:     { d: 'M22 46 H36 V86 H22 Z M36 50 L52 20 C60 20 62 28 58 42 H80 C88 42 88 52 84 58 L76 84 C74 86 72 86 68 86 H36', sw: 5 },
+  medal:      { d: 'M50 40 A22 22 0 1 0 50 84 A22 22 0 1 0 50 40 Z M34 8 L44 44 M66 8 L56 44 M30 8 H46 M54 8 H70', sw: 5 },
+  tag:        { d: 'M10 50 L48 12 H88 V52 L50 90 Z M72 28 A6 6 0 1 0 72 40 A6 6 0 1 0 72 28 Z', sw: 5 },
+  receipt:    { d: 'M26 8 H74 V92 L64 84 L54 92 L44 84 L34 92 L26 84 Z M36 30 H64 M36 46 H64 M36 62 H54', sw: 5 },
+  cash:       { d: 'M8 28 H92 V72 H8 Z M50 40 A10 10 0 1 0 50 60 A10 10 0 1 0 50 40 Z M18 38 H24 M76 62 H82', sw: 5 },
+  burst:      { d: 'M50 6 L58 30 L82 18 L70 42 L94 50 L70 58 L82 82 L58 70 L50 94 L42 70 L18 82 L30 58 L6 50 L30 42 L18 18 L42 30 Z', sw: 5 },
+  heart:      { d: 'M50 88 C20 66 8 50 14 32 C20 16 42 16 50 32 C58 16 80 16 86 32 C92 50 80 66 50 88 Z', sw: 5 },
+  clock:      { d: 'M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10 Z M50 26 V50 L66 60', sw: 5 },
+  flag:       { d: 'M20 92 V10 M20 14 H80 L68 34 L80 54 H20', sw: 6 },
+  battery:    { d: 'M10 30 H78 V70 H10 Z M78 42 H90 V58 H78 Z M20 40 H36 V60 H20 Z M42 40 H58 V60 H42 Z', sw: 5 },
+  handshake:  { d: 'M6 40 L30 22 L50 34 L70 22 L94 40 M30 22 L20 60 L44 80 L60 66 M70 22 L80 60 L56 80', sw: 5 },
+  vial:       { d: 'M36 8 H64 M42 8 V56 A8 8 0 1 0 58 56 V8 M42 40 H58', sw: 5 },
 };
 /* Which marks belong to which category. First entry is the category's primary
    mark — the one a layout reaches for when it wants ONE icon. */
@@ -13750,13 +13805,19 @@ function taglineStyle(sc, spec, pal, W, H, as){
   const lumOf = tagY, ratio = tagCr;
 
   /* ── colour blocks, measured before anything moves: each tagline line on
-     its own block, alternating the theme's two colours, ink by contrast. One
-     that would land on other copy, cover more of the product than its line
-     already does, or leave the 6% guides would break the card (rule 57: copy
-     is never touched), so that card takes the outline instead and says so. */
+     its own block, every block one colour (the theme's accent) and every line
+     one ink, by contrast (rule 122). They used to alternate the theme's two
+     colours, and the one-colour pass then brought the second to the first's
+     hue at its own lightness: two shades of one colour, white letters on one
+     and black on the other. Owner, 2026-10-04: "They look like different
+     shades when there's white and black in the hero … We should just unify
+     it to one shade one text color for the hero." One that would land on
+     other copy, cover more of the product than its line already does, or
+     leave the 6% guides would break the card (rule 57: copy is never
+     touched), so that card takes the outline instead and says so. */
   let blockPlan = null;
   if (spec.blocks){
-    const cols = [pal.accent || '#4d9cff', pal.support || pal.accent || '#4d9cff'];
+    const cols = [pal.accent || '#4d9cff'];
     const G = 0.06 * Math.min(W, H), E = 0.025 * Math.min(W, H), faults = [];
     // a block as it stands on the card: a turned line's block is wider than its own width
     const boxOf = g => {
@@ -13764,7 +13825,7 @@ function taglineStyle(sc, spec, pal, W, H, as){
       return { left: g.cx - w / 2, top: g.cy - h / 2, width: w, height: h };
     };
     const plan = heads.slice().sort((a, b) => a.top - b.top).map((o, i) => {
-      let fill = solidHex(cols[i % 2]) || '#4d9cff';
+      let fill = solidHex(cols[0]) || '#4d9cff';
       const ink = ratio(lumOf(fill), 1) >= ratio(lumOf(fill), lumOf('#0e0e10')) ? '#ffffff' : '#0e0e10';
       if (ratio(lumOf(fill), lumOf(ink)) < 4.5) fill = oklchFit({ L: ink === '#ffffff' ? 0.42 : 0.82, C: ok(fill).C, h: ok(fill).h });
       o.setCoords();
@@ -14204,6 +14265,13 @@ function numberFill(sc, W, H){
   ph.set({ scaleX: (ph.scaleX || 1) * k, scaleY: (ph.scaleY || 1) * k });
   // its letters centred in the room between whatever sits above and below it on the plate
   ph.setPositionByOrigin(new fabric.Point(c.x, (top + bot) / 2), 'center', 'center'); ph.setCoords();
+  /* alone on its plate, on the plate's middle as it is seen, as far as the
+     guides let it (numberCentreY, as a restaged record is set): centred in the
+     room inside the guides, a number on a band that runs off the card sat a
+     fifth of the band over its middle, and the gate (numCentre, rule 102)
+     kept 21 live cards out of Easy Mode for it (rule 121) */
+  /* (window.__numberSoloOff: off, for a before/after measure only) */
+  if (!INK && !mates.length && !(typeof window !== 'undefined' && window.__numberSoloOff)){ const b1 = ph.getBoundingRect(true, true); ph.set('top', ph.top + (numberCentreY(hb, top, bot, b1.height, H, G) - (b1.top + b1.height / 2))); ph.setCoords(); }
   /* ...and across it, on the edge it was set on. Grown about its centre, a
      number set on the left guide of a full band ran off the card (an offer
      card in Easy Mode: its letters from x = -32). A number centred on its
@@ -14245,7 +14313,7 @@ const EZ_TAG_LOOKS = [
   ['gradient', 'Gradient', 'Any premade or custom gradient, black outline'],
   ['pair', 'Accent → support', 'The accent melting into the support colour'],
   ['outline', 'White + outline', 'White letters, heavy black outline'],
-  ['blocks', 'Colour blocks', 'Each headline line on its own block of the theme’s colours'],
+  ['blocks', 'Colour blocks', 'Each headline line on its own block, one colour and one ink'],
   ['multicolor', 'Multicolour', 'Every letter its own colour'],
   ['glow', 'Glow', 'A neon tube: white core, coloured glow'],
   ['anaglyph', 'Red & blue 3-D', 'The old 3-D print: red to one side, blue to the other'],
@@ -19735,6 +19803,223 @@ function pgPlateInk(sc){
    thSourcePalette) skip it. Read as a source it turned a card's light blue
    tagline blocks navy (checklistHero-pp02-15, 'Colour blocks'). */
 function pgPlateInked(o){ return !!(o && o.pgPlateInk && o.pgPlateInk === o.fill); }
+/* The phone mark belongs to the number (rule 118). Owner, 2026-10-02, of a
+   mauve handset outline beside a white number: "The Phone icon by the CTA
+   looks super out of place and we could always color match it". The generator
+   (retheme_lab.mjs, 'Phone Cue') placed and coloured the mark for the number
+   as it was then; later passes resized, moved and recoloured the number and
+   left the mark behind. On all 93 live cards that carry one it was not the
+   number's colour, 22 of the 60 shown sat off the box that holds the number,
+   46 were off the number's line. After every colour pass the mark takes the
+   number's ink, a size to its digits and their middle, a gap to their left,
+   inside the number's box; where the number was centred, the mark and the
+   number are centred together. A mark with no room is hidden, and a mark or
+   a number the visitor moved stays where they put it. */
+/* The number sits in the middle of a plate it has to itself (rule 121, after
+   rule 102). Easy Mode leaves the website line off the ad when the visitor
+   has none, and stepsFlow's footer band held the website over the number:
+   the number was left alone at the band's top, about a fifth of its height
+   over the middle, and the gate failed it (numCentre). On 2026-10-03, 21 live
+   cards, 4 classics and 12 held cards were kept out of the lists for that
+   alone (choice-holds.json). When the number is alone on its plate and its
+   ink's middle is further than the gate allows from the plate's middle as
+   seen, it moves to the middle, down or across, as the gate measures it. */
+function pgNumberMiddle(sc){
+  if (typeof window !== 'undefined' && window.__pgNumberMiddleOff) return 0;
+  pgHandHook(sc);
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const num = objs.find(o => isText(o) && o.pgRole === 'phone' && o.visible !== false && /\d/.test(o.text || ''));
+  if (!num || num.pgHand || Math.abs(num.angle || 0) > 0.5) return 0;
+  const W = sc.getWidth() / (sc.getZoom ? sc.getZoom() : 1), H = sc.getHeight() / (sc.getZoom ? sc.getZoom() : 1);
+  const box = o => { o.setCoords(); const r = o.getBoundingRect(true, true); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const nb = box(num);
+  const plate = pgPlateUnder(objs, num, nb, W, H); if (!plate || plate.o.pgHand) return 0;
+  const sx0 = Math.max(0, plate.x), sx1 = Math.min(W, plate.x + plate.w), sy0 = Math.max(0, plate.y), sy1 = Math.min(H, plate.y + plate.h);
+  if (sy1 - sy0 < 40 || sx1 - sx0 < 80) return 0;
+  /* a plate shared with another line is a stack, as the gate reads it */
+  const shared = objs.some(o => o !== num && isText(o) && o.visible !== false && PG_READ[o.pgRole] && /[A-Za-z0-9]/.test(o.text || '') && (() => {
+    const b = box(o), cx = b.x + b.w / 2, cy = b.y + b.h / 2; return cx > sx0 && cx < sx1 && cy > sy0 && cy < sy1; })());
+  if (shared) return 0;
+  /* the ink's middle: the face's own ascent and descent for these characters
+     over the baseline fabric draws them on */
+  const sy = num.scaleY || 1;
+  let midY = nb.y + nb.h / 2;
+  try {
+    const g = document.createElement('canvas').getContext('2d');
+    g.font = `${num.fontStyle || 'normal'} ${num.fontWeight || 400} ${num.fontSize}px "${num.fontFamily}"`;
+    const m = g.measureText(String(num.text));
+    if (m.actualBoundingBoxAscent > 0){
+      const base = nb.y + num.fontSize * (num._fontSizeMult || 1.13) * (1 - (num._fontSizeFraction || 0.222)) * sy;
+      midY = base - (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) * sy / 2;
+    }
+  } catch (e){}
+  const midX = nb.x + nb.w / 2;
+  /* the plate's middle as it is seen, kept inside the guides (numberCentreY, as numberFill sets it) */
+  const G = 0.06 * Math.min(W, H), lift = midY - (nb.y + nb.h / 2);
+  const aim = p => numberCentreY({ top: p.y, height: p.h }, Math.max(p.y, G), Math.min(p.y + p.h, H - G), nb.h, H, G) + lift;
+  const off = (p, y) => { const a = Math.max(0, p.y), b = Math.min(H, p.y + p.h); return Math.abs(y - (a + b) / 2) / (b - a); };
+  let P = { x: plate.x, y: plate.y, w: plate.w, h: plate.h };
+  if (off(P, midY) <= PG_T.numCentre && Math.abs(midX - (sx0 + sx1) / 2) / (sx1 - sx0) <= PG_T.numCentre) return 0;
+  /* a band that runs off the card's foot and is too shallow for its number to
+     be both inside the guide and on its middle grows upward, into clear space
+     only, until it is: 10 to 20px on stepsFlow's footer */
+  if (off(P, aim(P)) > PG_T.numCentre - 0.01 && plate.o.type === 'rect' && !plate.o.angle && P.y + P.h >= H - 1){
+    const words = objs.filter(o => o !== num && isText(o) && o.visible !== false && String(o.text || '').trim()).map(box);
+    let d = 0;
+    for (let t = 4; t <= 0.06 * H; t += 4){
+      const Q = { x: P.x, y: P.y - t, w: P.w, h: P.h + t };
+      if (words.some(b => b.x < Q.x + Q.w && b.x + b.w > Q.x && b.y < P.y && b.y + b.h > Q.y)) break;
+      d = t; if (off(Q, aim(Q)) <= PG_T.numCentre - 0.01) break;
+    }
+    if (d){ const o = plate.o, sy0p = o.scaleY || 1;
+      o.set({ top: o.top - d, height: o.height + d / sy0p }); o.setCoords(); o.dirty = true; P = { x: P.x, y: P.y - d, w: P.w, h: P.h + d }; }
+  }
+  const cx = (Math.max(0, P.x) + Math.min(W, P.x + P.w)) / 2;
+  const dy = off(P, midY) > PG_T.numCentre ? aim(P) - midY : 0;
+  const dx = Math.abs(midX - cx) / (Math.min(W, P.x + P.w) - Math.max(0, P.x)) > PG_T.numCentre ? cx - midX : 0;
+  if (!dx && !dy) return 0;
+  num.set({ left: num.left + dx, top: num.top + dy }); num.setCoords(); num.dirty = true;
+  return 1;
+}
+/* what the visitor dragged in the designer is theirs: the passes that place
+   marks (pgPhoneCue, pgFlankClear) leave an object marked pgHand where it is */
+function pgHandHook(sc){
+  if (!sc || sc.pgCueHook || typeof sc.on !== 'function') return;
+  sc.pgCueHook = true;
+  sc.on('object:modified', e => { const o = e && e.target; if (!o) return; o.pgHand = true; if (o._objects) o._objects.forEach(x => { x.pgHand = true; }); });
+}
+function pgPhoneCue(sc){
+  if (typeof window !== 'undefined' && window.__pgPhoneCueOff) return 0;
+  pgHandHook(sc);
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const cue = objs.find(o => o && o.name === 'Phone Cue' && o.type === 'path');
+  if (!cue || cue.visible === false) return 0;
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const num = objs.find(o => isText(o) && o.pgRole === 'phone' && o.visible !== false && /\d/.test(o.text || ''));
+  if (!num) return 0;
+  const ink = typeof num.fill === 'string' ? num.fill : (num.fill && num.fill.colorStops && num.fill.colorStops[0] ? num.fill.colorStops[0].color : null);
+  if (ink && !cue.pgUser){ cue.set('stroke', ink); cue.dirty = true; }
+  const numFreeOf = o => !o.pgHand;
+  if (cue.pgHand || Math.abs(num.angle || 0) > 0.5) return 1;
+  const box = o => { o.setCoords(); const b = o.getBoundingRect(true, true); return { l: b.left, t: b.top, r: b.left + b.width, b: b.top + b.height, w: b.width, h: b.height }; };
+  const W = sc.getWidth() / (sc.getZoom ? sc.getZoom() : 1), H = sc.getHeight() / (sc.getZoom ? sc.getZoom() : 1);
+  let nb = box(num);
+  /* the digits' height and middle, from the face itself: parentheses and the
+     line's leading make the box taller than the figures */
+  const fs = (num.fontSize || 60) * (num.scaleY || 1);
+  let cap = 0.7 * fs, mid = nb.t + 0.53 * fs;
+  try {
+    const g = document.createElement('canvas').getContext('2d');
+    g.font = `${num.fontStyle || 'normal'} ${num.fontWeight || 400} ${num.fontSize}px "${num.fontFamily}"`;
+    const m = g.measureText('0123456789');
+    if (m.actualBoundingBoxAscent > 0){
+      cap = m.actualBoundingBoxAscent * (num.scaleY || 1);
+      const base = nb.t + (num.fontSize * (num._fontSizeMult || 1.13) * (1 - (num._fontSizeFraction || 0.222))) * (num.scaleY || 1);
+      mid = base - cap / 2;
+    }
+  } catch (e){}
+  const s = (0.92 * cap) / Math.max(1, cue.height || 80);      // the path's own box is the glyph's
+  cue.set({ scaleX: s, scaleY: s });
+  const cb0 = box(cue), cw = cb0.w, ch = cb0.h, gap = Math.max(8, 0.24 * fs);
+  /* the box that holds the number: the topmost solid shape under it that
+     takes all of it */
+  let plate = null, plateObj = null;
+  for (let i = objs.indexOf(num) - 1; i >= 0 && !plate; i--){
+    const o = objs[i];
+    if (!o || o === cue || o.visible === false || isText(o) || !PG_HUE_SHAPES.includes(o.type) || thIsGround(o) || o.name === 'Phone Cue') continue;
+    if (o.opacity != null && o.opacity < 0.5) continue;
+    const pb = box(o);
+    if (pb.w * pb.h >= 0.6 * W * H || pb.w < nb.w * 0.8) continue;
+    if (nb.l >= pb.l - 6 && nb.r <= pb.r + 6 && nb.t >= pb.t - 6 && nb.b <= pb.b + 6){ plate = pb; plateObj = o; }
+  }
+  const pad = plate ? Math.max(10, 0.45 * cw) : 0.045 * W;
+  const groupW = cw + gap + nb.w;
+  const hide = why => { cue.set('visible', false); cue.pgCueWhy = why; cue.dirty = true; return 1; };
+  const others = objs.filter(o => isText(o) && o !== num && o.visible !== false && String(o.text || '').trim()).map(box);
+  const hits = (a, skip) => others.some(o => !(skip && skip(o)) && a.l < o.r && a.r > o.l && a.t < o.b && a.b > o.t);
+  /* a box that hugs the number (owner, 2026-09-30: "shorten the width of the
+     box to just fit the phone number and a little margin") grows by the mark,
+     about its middle, when that touches no other line and stays on the card;
+     a squared or rounded rect only, never a drawn shape */
+  if (plate && groupW > plate.w - 2 * pad){
+    const need = groupW + 2 * pad - plate.w;
+    const grown = { l: plate.l - need / 2, t: plate.t, r: plate.r + need / 2, b: plate.b };
+    const inside = o => o.l >= plate.l - 6 && o.r <= plate.r + 6 && o.t >= plate.t - 6 && o.b <= plate.b + 6;
+    if (plateObj.type !== 'rect' || Math.abs(plateObj.angle || 0) > 0.5 || plateObj.skewX || plateObj.skewY || !numFreeOf(plateObj)) return hide('room:shape');
+    if (grown.l < 0.03 * W || grown.r > 0.97 * W) return hide('room:card');
+    /* only the two slivers it gains have to be clear */
+    const sl = [{ l: grown.l, t: plate.t + 6, r: plate.l, b: plate.b - 6 }, { l: plate.r, t: plate.t + 6, r: grown.r, b: plate.b - 6 }];
+    if (sl.some(a => hits(a, inside))) return hide('room:copy');
+    const k = need / ((plateObj.scaleX || 1));
+    const ox = plateObj.originX || 'left';
+    plateObj.set({ width: plateObj.width + k, left: plateObj.left - (ox === 'left' ? need / 2 : ox === 'right' ? -need / 2 : 0) });
+    plateObj.setCoords(); plateObj.dirty = true;
+    plate = box(plateObj);
+  }
+  const R = plate ? { l: plate.l + pad, r: plate.r - pad, cx: (plate.l + plate.r) / 2 } : { l: pad, r: W - pad, cx: W / 2 };
+  const tol = Math.max(8, 0.03 * (R.r - R.l));
+  if (groupW > R.r - R.l + 1) return hide('room');
+  const numFree = numFreeOf(num);
+  const centred = Math.abs((nb.l + nb.r) / 2 - R.cx) < tol || Math.abs((nb.l - gap - cw + nb.r) / 2 - R.cx) < tol;
+  let dx = 0, x;
+  if (centred && numFree){ x = R.cx - groupW / 2; dx = x + cw + gap - nb.l; }
+  else {
+    x = nb.l - gap - cw;
+    if (x < R.l){ if (!numFree || nb.r + (R.l - x) > R.r) return hide('edge'); dx = R.l - x; x = R.l; }
+  }
+  /* never onto another line of copy */
+  const cueAt = { l: x, t: mid - ch / 2, r: x + cw, b: mid + ch / 2 };
+  const numAt = { l: nb.l + dx, t: nb.t, r: nb.r + dx, b: nb.b };
+  if (hits(cueAt) || (Math.abs(dx) > 0.5 && hits(numAt))) return hide(hits(cueAt) ? 'cueHits' : 'numHits');
+  if (Math.abs(dx) > 0.5){ num.set('left', num.left + dx); num.setCoords(); num.dirty = true; }
+  cue.set({ left: cue.left + (x - cb0.l), top: cue.top + (mid - ch / 2 - cb0.t) });
+  cue.setCoords(); cue.dirty = true;
+  return 1;
+}
+/* A floating mark stands clear of the headline (rule 119). The generator put
+   its line-art marks 118px out from the hero ("a green tick beside SELL YOUR
+   read as part of the sentence", owner, 2026-09-03: "really?"), then the
+   layout passes moved the headline and left the marks: on 2026-10-03, 123 of
+   the 166 shown sat closer than that to a headline on their row, 4 on it. A
+   mark on a headline's row is moved back out to 118px, keeping its height,
+   when that keeps it on the card and off every line of copy; otherwise it is
+   hidden. A mark that reads as a character (a dollar sign, a tick) is never
+   on a headline's row at all: "CASH FOR" beside a $ reads "$CASH FOR" at any
+   distance. One the visitor dragged stays. */
+const PG_FLANK = 118, PG_GLYPH_MARKS = ['dollar', 'check'];
+function pgFlankClear(sc){
+  if (typeof window !== 'undefined' && window.__pgFlankOff) return 0;
+  pgHandHook(sc);
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const marks = objs.filter(o => o && o.type === 'path' && /^Element \d+$/.test(o.name || '') && o.visible !== false && !o.pgHand);
+  if (!marks.length) return 0;
+  const W = sc.getWidth() / (sc.getZoom ? sc.getZoom() : 1), H = sc.getHeight() / (sc.getZoom ? sc.getZoom() : 1);
+  const k = Math.min(W, H) / TPL_W, gapMin = PG_FLANK * k, edge = 24 * k;
+  const box = o => { const b = o.getBoundingRect(true, true); return { l: b.left, t: b.top, r: b.left + b.width, b: b.top + b.height, w: b.width, h: b.height }; };
+  const texts = objs.filter(o => /text/.test(o.type || '') && o.visible !== false && String(o.text || '').trim()).map(o => ({ o, b: box(o) }));
+  const heads = texts.filter(x => x.o.pgRole === 'headline');
+  const row = (a, h) => Math.min(a.b, h.b) - Math.max(a.t, h.t) >= 0.25 * Math.min(a.h, h.h);
+  const gapTo = (a, h) => a.l >= h.r ? a.l - h.r : h.l >= a.r ? h.l - a.r : -1;
+  let n = 0;
+  marks.forEach(m => {
+    const b = box(m);
+    if (PG_GLYPH_MARKS.includes(m.pgIcon) && heads.some(h => row(b, h.b))){ m.set('visible', false); m.dirty = true; n++; return; }
+    const near = heads.filter(h => row(b, h.b) && gapTo(b, h.b) < gapMin - 0.5);
+    if (!near.length) return;
+    const h = near.sort((p, q) => gapTo(b, p.b) - gapTo(b, q.b))[0].b;
+    const right = (b.l + b.r) / 2 >= (h.l + h.r) / 2;
+    const l = right ? h.r + gapMin : h.l - gapMin - b.w;
+    const at = { l, t: b.t, r: l + b.w, b: b.b, w: b.w, h: b.h };
+    const fits = at.l >= edge && at.r <= W - edge
+      && !texts.some(x => at.l < x.b.r && at.r > x.b.l && at.t < x.b.b && at.b > x.b.t)
+      && !heads.some(x => row(at, x.b) && gapTo(at, x.b) < gapMin - 0.5);
+    if (fits) m.set('left', m.left + (at.l - b.l));
+    else m.set('visible', false);
+    m.setCoords(); m.dirty = true; n++;
+  });
+  return n;
+}
 function pgHueCheck(sc, r){
   const W = sc.getWidth(), H = sc.getHeight();
   const { objs, paints } = pgHuePaints(sc, W, H);
@@ -19744,7 +20029,8 @@ function pgHueCheck(sc, r){
   r.ok = !r.fails.length;
 }
 {
-  const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); } };
+  const run = sc => { try { pgOneHue(sc); } catch (e){ console.warn('one hue:', e); } try { pgPlateInk(sc); } catch (e){ console.warn('plate ink:', e); }
+    try { pgNumberMiddle(sc); } catch (e){ console.warn('number middle:', e); } try { pgPhoneCue(sc); } catch (e){ console.warn('phone cue:', e); } try { pgFlankClear(sc); } catch (e){ console.warn('flank:', e); } };
   const _alignPass = alignPass;
   alignPass = function(sc){ const r = _alignPass.apply(this, arguments); run(sc); return r; };
   const _themeScene = themeScene;

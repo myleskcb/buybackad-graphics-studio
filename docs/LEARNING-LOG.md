@@ -3386,3 +3386,110 @@ Found:
     restoring old rows does nothing.
 
 Did: DESIGN-LAW 117, OPEN-ITEMS §AH.
+## 2026-10-02 (evening) — the phone mark joins the number; two car cards finished
+
+(claude/beautiful-wozniak-xmvvuk, from `main` at de8d35de.)
+
+The owner sent two car cards from the live site: "The Phone icon by the CTA
+looks super out of place and we could always color match it ... the white box
+should be color match to blue or the CTA should be matched to white ... needs
+a background image", then "Same thing with this one", then asked for a list of
+why cards look unfinished, whether they need to supply photographs, and for a
+quick view where their own edits could teach the generator.
+
+Found:
+  - Both cards had been held on `main` that morning for exactly this (no
+    photograph). The live site predates the hold. Check holds.json and the
+    deploy's commit before treating a screenshot as the product.
+  - One remark about one icon was a library-wide defect: the phone mark was
+    coloured and placed for the number as it stood at generation, and every
+    later pass moved the number and not the mark (60 of 60 shown in the wrong
+    colour). Measure the remark across the library before fixing the card.
+  - `ICONS[name] || ICONS.sparkle` hides missing art: 55 phone marks and 265
+    other marks on 148 live cards drew as a star. A fallback that draws
+    something is a defect generator; the gate cannot see it.
+  - A pass that tracks "did the visitor move this" by comparing positions is
+    fooled by the next pass that moves it. The designer's own
+    `object:modified` is the signal.
+  - A grown box exactly as wide as it must be fails a strict comparison by a
+    float: one card lost its mark to that.
+
+Tools: the cloud session cannot reach cdnjs; `npm i fabric@5.3.0
+puppeteer-core` in the scratchpad, `node_modules` linked into the repo
+(gitignored), and FABRIC_JS / CHROME=/opt/pw-browsers/chromium run every
+harness script.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0): the owner is reviewing a site that is
+     behind it.
+  1. The sparkle stand-ins (OPEN-ITEMS §AI 2): map, draw or drop the 31
+     missing mark names, sheet for the owner, gate.
+  2. Photographs for the 63 drawn-ground holds (§AI 1); sports, coins, gold
+     and silver need the owner's photographs first.
+  3. The owner's review view (§AI, proposed), if the owner wants it.
+
+## 2026-10-03 — the generator's marks; marks clear of the headline; 39 cards back with a photograph
+
+(claude/beautiful-wozniak-xmvvuk.)
+
+The owner: "keep working on the style", after the list of why a card looks
+unfinished (OPEN-ITEMS §AI).
+
+Found:
+  - The 265 sparkles were not missing art. retheme_lab.mjs draws its own 46
+    marks into the page it renders with; app.js never had 44 of them. Before
+    drawing a mark, look for the one the generator already drew.
+  - Restoring the right glyphs made a second problem visible: the layout
+    passes had moved headlines up to the floating marks the generator had
+    set 118px out. A fallback that draws something hides more than one
+    defect.
+  - A dollar sign or a tick reads as a letter beside a headline at any
+    distance. Distance is not the rule for a glyph-like mark; the row is.
+  - "Gate passes" is not "finished". All 39 photograph cards passed the gate
+    first time; seven still had a white strip beside a coloured box, found
+    by looking.
+  - A record's CTA ink is not what is drawn (the passes repaint it): choose
+    a new line's ink by contrast on its own plate, not by copying a field.
+  - Two of the studio's passes disagreed with the gate about the number's
+    middle (numberFill: inside the guides; the gate: the band as seen), and
+    25 cards were out of Easy Mode for it. numberCentreY already said what
+    both meant; it was used for restaged records only. Rule 121: 23 cards
+    back in Easy Mode, and the measure of which renders it changes (22, all
+    on the two layouts) is what kept its every-choice re-run to 26 cards.
+  - `pkill -f <pattern>` from a shell whose own command line holds the
+    pattern kills that shell (twice). Find processes by /proc cmdline under
+    `pgrep -x node`.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0).
+  1. The owner's photographs: sports (8 held), and one or two each for coins,
+     gold, silver (§AJ 1).
+  2. slabPoster's panel (§AJ 2) and the 2 trustSeal cards whose band cannot
+     grow under their copy (§AJ 3).
+  3. A thumbnail redraw re-encodes every webp; compare pixels and keep only
+     the ones that changed (10 of 971 here) rather than committing 971.
+  4. The owner's review view (§AI), if wanted.
+
+## 2026-10-04 — photographs from Wikimedia Commons; 17 more cards back
+
+(claude/beautiful-wozniak-xmvvuk.)
+
+The owner: "get imagery using the session with allowed cloud environments".
+
+Found:
+  - The one environment's network reaches Wikimedia Commons and nothing
+    else that serves photographs (Openverse, Pexels, Unsplash, Pixabay and
+    Flickr: 403 at the proxy). Probe the hosts before planning around them.
+  - Commons search answers a query about objects with museum pieces on
+    white: a flat card again. Scenes (a glove, a ball in grass, a stadium at
+    night) made better grounds than the objects themselves.
+  - A photograph over 2048 x 2048 pixels of area comes out black on a
+    showcase card, and the gate passes it (white words on black read well).
+    Measure a card's brightness after changing its ground, not only its
+    gate.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0) once this branch is merged into it.
+  1. The slabPoster panel (§AJ 2) and stepsFlow-du09-35's photograph (§AK 1).
+  2. The 28 holds for layout (§AK 2).
+  3. The owner's review view (§AI), if wanted.
