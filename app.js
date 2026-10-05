@@ -11321,8 +11321,12 @@ async function scRegister(id){
     SHOWCASE.records[id] = rec;
   }
   const base = scBaseOf(c) || {};
+  /* a card is offered or held by its own checks (scIsLive, its gate stamps),
+     never by its base's: a base the classics gate holds (t.gated) passed the
+     hold on, and selectEzTpl opened the first card on offer in its place
+     (12 cards, once the templates stood on real photographs, rule 117) */
   const t = Object.assign({}, base, rec.tpl, { id: tid, name: c.name, cat: c.cat, tag: 'new',
-    tier: scIsFree(c) ? 'free' : base.tier, showcase: id });
+    tier: scIsFree(c) ? 'free' : base.tier, showcase: id, gated: false });
   const fams = new Set(), faces = new Set();
   (t.layers || []).forEach(l => { const p = l.props || {}, f = p.fontFamily; if (!f) return; fams.add(f);
     faces.add((p.fontStyle === 'italic' ? 'italic ' : '') + (p.fontWeight || 400) + ' 24px "' + f + '"'); });
