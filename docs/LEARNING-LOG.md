@@ -3275,3 +3275,84 @@ RESUME HERE:
   4. `.modal-actions` on a phone: let the row wrap (styles.css, then
      sync_css_fallback.mjs).
 
+## 2026-10-02 — Steps Flow: one gap down to the CTA (DESIGN-LAW 115)
+
+(claude/relaxed-darwin-8aces4, from `main` at 8f4d1e72.)
+
+The owner, over two Steps Flow cards in the library: "Can we audit the margin
+between each bubble? I particularly think the CTA should have even margin",
+"if we have three boxes of the same color, maybe the CTA is a different
+color? Or maybe it has a highlight? See the green one looks a little more
+cohesive", then "most importantly, continue the same margin between each
+bubble".
+
+Found:
+  - The three step cards were evenly spaced on every one of the 83 cards
+    (11 to 15px). The CTA plate was never on that rhythm: from 26px over the
+    third card to 33px under it. Each pass was right by its own measure (the
+    guides fit, the number floor, the plate fit), and none of them looked at
+    the space between the plate and the rows. The gate could not see it
+    either: overlapping plates are not copy on copy.
+  - Easy Mode was worse than the thumbnails (the plate over the bottom 24px
+    of GET PAID), because the number grows to fill its plate there.
+  - Moving the plate was the wrong lever: it sits on the bottom guide, and
+    the headline sits right on top of the rows on most cards (2 to 30px), so
+    there was nowhere to push the stack. The rows give: they had 25px of air
+    over and under their words.
+  - First run: 7 of 83 still uneven. A 14px sheen was counted as a row's
+    words (thin was < 14px), and the classics' tilted number boxes are 107px
+    tall, so their rows could not come down far enough without the plate.
+    Letting the plate give first fixed it and made the Easy Mode number 20%
+    smaller; the owner has asked for this CTA to be bigger before, so the rows
+    give first and the plate last.
+  - Six CTA plates were the rows' own neutral; the first card the owner showed
+    (du08-15) was one. Their accent was already on the card (the kicker pill,
+    the step numbers), so the plate takes that and the card keeps one hue.
+  - The every-choice audit caught what the thumbnail audit could not: on
+    du02-20 under Electric Trust the theme repainted the recoloured plate in
+    its own accent, the number then widened it under the phone cue, and the
+    cue read 1.6:1. Proved on `main`'s build served beside this one (the
+    same audit, one card: no problem there), then fixed. A pass that
+    recolours early has to be checked again after everything that runs
+    later.
+
+Tooling in a cloud session: no puppeteer and cdnjs blocked. puppeteer-core
+and fabric 5.3.0 from npm into the scratchpad, `node_modules` symlinked into
+the repo (gitignored as a directory, so the symlink shows as untracked: do not
+add it), CHROME=/opt/pw-browsers/chromium-1194/chrome-linux/chrome and
+FABRIC_JS pointing at the npm fabric.min.js.
+
+RESUME HERE:
+  0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (OPEN-ITEMS
+     §AF); the earlier RESUME items stand.
+  1. `stepsFlow-pp06-35`'s number onto its band (§AF 1).
+
+## 2026-10-03 — the headline is the hero (DESIGN-LAW 116)
+
+(claude/relaxed-darwin-8aces4.)
+
+The owner, over the first before-and-after of rule 115, at stepsFlow-du01-20's
+one-word "iPHONE": "How many times do I have to tell you this is not a hero.
+It's tiny little text that looks extremely out of place compared to every
+other graphic seriously????"
+
+Found:
+  - I put a card with a caption-sized headline into a sheet meant to show
+    finished work, because the sheet was about the gaps and I looked only at
+    the gaps. A before-and-after shows the whole card; every card on it has
+    to be one I would ship.
+  - The gate passes it: 'thumb' reads font size (77px and up passes), and
+    104px of an extra-condensed face on one short word is small. Coverage of
+    the letters is the measure the owner's eye uses: 99k px² for the median
+    live card, 15k for du01-20.
+  - The first fit broke three ways, each caught only by looking: a row's
+    number badge pushed out of its card by the layout making room, a headline
+    jammed against the grade's 10, a second line across a slab label's edge
+    (no percentile of the ground can see a one-row border; the row and column
+    medians can). On the live run it dropped the product out of three Glass
+    Cards, which every number passed. Every constraint in the script is one
+    of those pictures.
+
+RESUME HERE:
+  0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (§AF, §AG).
+  1. The four Glass Cards' headline and product (§AG 1), with the owner.

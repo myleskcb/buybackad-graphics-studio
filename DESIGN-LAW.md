@@ -4213,3 +4213,133 @@ movements, accuracy, and realism".
   visibly; at the old hand-over one step changed 4,161 to 8,188.
   motion_phone_check.mjs's `flat` fails a step over 60. A 6 s export's frames
   take about a fifth longer to draw.
+## 115. A stack keeps one rhythm down to its call to action, and the action is not another step
+
+Added 2026-10-02 (numbered 115 when merged: `main` took 110 to 114 the same days). The owner, over two Steps Flow cards in the library (the
+first was `stepsFlow-du08-15`): "Can we audit the margin between each bubble?
+I particularly think the CTA should have even margin.. also if we have three
+boxes of the same color, maybe the CTA is a different color? Or maybe it has
+a highlight? See the green one looks a little more cohesive", then "But most
+importantly, continue the same margin between each bubble".
+
+Measured on the 83 Steps Flow cards (the two classics and every showcase
+record) as renderThumb paints them, `scripts/steps_rhythm_audit.mjs --before`:
+
+| | before | after |
+|---|---|---|
+| step 1 to 2, 2 to 3 | 11 to 15px, equal on every card | 11 to 15px, equal on every card |
+| step 3 to the CTA plate | 26px **over** the third card to 33px under it | the same as the steps' gap, on every card |
+| cards with one rhythm | 2 of 83 | 83 of 83 |
+| CTA plate the rows' own neutral | 6 | 0 |
+
+In Easy Mode it was worse: the classic's plate covered the bottom 24px of
+GET PAID in the square, the 16:9 and the 4:3, 9 to 11px in the Tall 3:4 and
+the flyer, and in the story it sat 16px under rows 26px apart. The rows were set by the template; the guides fit and the number's
+floor (rule 53) sized and placed the plate after them, and nothing asked how
+far apart the two had ended up.
+
+- **The rhythm is the steps' own gap.** `pgStepRhythm`, last in the layout
+  (and again after `numberFill`), lays the step cards out again above the
+  plate: one gap apart and one gap off it, each card and everything drawn on
+  it keeping its middle (a sheen keeps its place under the card's top edge).
+- **The plate stays where the guides and the number put it; the rows move.**
+  Rows that do not fit come down in height first, never below their own words
+  plus 9px each side. Only then does a plate (not a band run to the card's
+  edge) give its spare height, from the top, down to its words plus a fifth of
+  them each side: the number fills its plate (`numberFill`), and the owner has
+  already said of these cards' CTA: "very hard to read and too small". Then
+  the gap itself comes down, never under 6px. Rows with room to spare move
+  down to the plate, unless that would cover something they did not.
+- **A stack that was spread on purpose is left alone**: gaps that already
+  differ by more than 6px, or a plate more than three gaps further down.
+- **The CTA is not a fourth step.** `pgCtaStandOut`: where the plate and the
+  step cards are both neutral and within 0.35 of each other in OKLab
+  lightness, or within 0.08 in OKLab, the plate takes the card's accent: the
+  colour the card's own accent plates already wear (the kicker pill, the step
+  numbers), else its headline's, else the hue the card is in, never the rows'
+  colour back. The number and every line and mark on the plate turn to
+  whichever of near-black and near-white reads better, the plate's lightness
+  moving until that is 7:1 (rules 53, 74), then take the plate's hue (rule
+  104). The colour is one the card already has, so the card keeps one hue
+  (rule 95). It runs after every pass that repaints a card, as pgOneHue does.
+  A plate the visitor coloured is theirs.
+- **A plate it recoloured is looked after to the end.** The number grows after
+  the pass and widens its plate under a mark beside it, and a theme takes a
+  coloured plate for an accent plate and repaints it in its own accent. On
+  `stepsFlow-du02-20` under Electric Trust both happened: the phone cue ended
+  on a light blue plate in its old mid blue, 1.6:1, and the every-choice audit
+  held the theme. So on such a plate, anything that does not read (a line
+  under 4.5:1, a mark under 3:1) takes the plate's ink; a tagline look's own
+  colours, which read, are left alone.
+- The six it recoloured: du08-15 and du01-20 (off-white under off-white rows,
+  now the navy of their kicker pills), du02-20 (teal), jw03-15 and jw10-20
+  (a grey pill under grey glass, now the gold of their step numbers), and the
+  classic `dl_silver_stepsFlow_ocean` (a near-black plate under near-black
+  glass, now its cyan).
+- No gate result changed on any of the 83 cards. Easy Mode measured in all six
+  formats on the classic: one rhythm in each, the gate clean.
+- `scripts/steps_rhythm_audit.mjs` exits 1 on a card whose three gaps differ
+  by more than 2px or whose plate reads as a fourth step. `--before` turns
+  both passes off (`window.__pgStepRhythmOff`, `__pgCtaStandOutOff`).
+
+## 116. The headline is the hero: it covers the card like every other card's does
+
+Added 2026-10-03 (numbered 116 when merged). The owner, over `stepsFlow-du01-20` (one word, "iPHONE", in
+the top left of a Steps card, shown in rule 115's before-and-after): "How many
+times do I have to tell you this is not a hero. It's tiny little text that
+looks extremely out of place compared to every other graphic seriously????"
+
+The gate's thumbnail test (`pgCheck` 'thumb') reads the headline's font size:
+0.7 of it on a 160px tile must reach 8px, so any line set at 77px or more
+passes. A 104px extra-condensed word passes, and still looks like a caption.
+What the owner compares is how much of the card the headline's letters cover:
+
+| | px² of headline letters on the 1080 square |
+|---|---|
+| the live library's median | 99,000 |
+| its tenth percentile | 46,000 |
+| CASH IN / 3 STEPS, which reads as a hero | 41,000 to 46,000 |
+| the four Steps cards the owner's words fit | 14,000 to 24,000 |
+| six live cards (four reviewProof, two ticketStub) | 22,000 to 28,000 |
+
+- **The floor is 30,000 px² of letters** (`HERO_MIN` in
+  `scripts/hero_headline.mjs`), measured on the letters (`textInkRect`), not
+  the boxes, on the card as renderThumb lays it out.
+- **A headline under it grows as one block**, by the largest factor the card
+  allows on the real render: its left edge (or centre) kept, its top free to
+  rise to the 6% guide; its letters inside the guides, 38px off every plate,
+  badge and product, and 0.8 of their own height off copy beside them; on the
+  plate and the ground they stood on (the median of every row and column of
+  the ground under the letters and 16px round them, so a headline printed on
+  a slab's label stays on the label); nothing else on the card moving or
+  going (a row pushed down, or a product left out for want of room, is a
+  collision); a sparkle set beside it moving with it; no headline line's
+  contrast falling. A grey headline under 4.5:1 takes the card's near-white
+  (near-black on a light ground). Then the gate (`gateRecords`).
+- Grown: du01-20 (×2.4, 15k to 84k), jw05-31 (×2.24, grey to white, 14k to
+  69k), du03-35 (×1.79, 20k to 65k) and pp09-35 (×1.57, 24k to 59k), all held
+  off the site already; and on the site reviewProof-pp03-35, -io03-15,
+  -pp02-15 (×1.54), -pp02-20 (×1.28), ticketStub-ck03-15 and -du02-30 (×1.32).
+  Three of the Steps cards had failed the gate's thumbnail test; none does now.
+- **A hero names what it wants, and names it exactly.** The owner, of
+  du01-20's grown "iPHONE": "create some room for the words... this just
+  feels incomplete still iPhone.. or maybe we can change it to sell your
+  iphone?"; then "what about WE BUY ALL (skip line) iPHONE 12-18", and, on the
+  way, "or skip.. iPHONE PRO MAX AIR", "more specific and more variety", "too
+  broad". One word is an object, not an ad, and ALL is a claim nobody can
+  picture. It is now WE BUY over iPHONE PRO · MAX · AIR: the lines a seller
+  owns, named, with dots so it reads as three models and not one. The hero
+  runs the card's width (920px of letters, 103px tall) and the lead is under
+  half its height; the pair sits on the middle of the band between the kicker
+  pill and the first step, the hero's box 16% into the lead's (the collision
+  pass calls under 18% a kiss). SELL YOUR / iPHONE, WE BUY ALL / iPHONE 12-18
+  and a three-line WE BUY / iPHONE 12-18 / PRO · PRO MAX · AIR were drawn and
+  passed the gate; the three-line one left every line small.
+- **Four live Glass Cards stay under the floor** (25k to 29k): their headline
+  shares the glass panel with the product, and a bigger headline pushes the
+  product out of the panel (the layout then leaves it off). That is a layout
+  decision, not a size: OPEN-ITEMS §AG.
+- Never judge a headline by its font size alone again: a condensed face and a
+  short word make a large size small. Run `node scripts/hero_headline.mjs
+  --live` (without `--write` it only reports) after anything that sets
+  headline sizes.

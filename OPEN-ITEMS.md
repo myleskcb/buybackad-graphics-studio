@@ -1634,3 +1634,90 @@ lime box (`#0a1a00`, rule 104's plate ink).
    changed (two families), so `node scripts/every_card_audit.mjs
    --write-holds` (hours; `--resume`) should be run before the holds are
    trusted again. The gate still checks every download.
+## AF. 2026-10-02 — Steps Flow: one gap down to the CTA, and a CTA that is not a fourth step (DESIGN-LAW 115)
+
+The owner, over `stepsFlow-du08-15` and a green-CTA Steps card in the
+library: "audit the margin between each bubble", "the CTA should have even
+margin", "if we have three boxes of the same color, maybe the CTA is a
+different color? Or maybe it has a highlight?", then "most importantly,
+continue the same margin between each bubble".
+
+Done: `pgStepRhythm` and `pgCtaStandOut` in app.js, wrapped onto the layout
+(and the rhythm again after `numberFill`, the colour again after every
+repaint), `scripts/steps_rhythm_audit.mjs`, the Steps Flow thumbnails
+re-rendered, ASSET_REV bumped.
+
+Measured: 83 of 83 Steps cards in one rhythm (2 before), no CTA plate in its
+rows' neutral (6 before), no gate result changed on any card; the classic in
+Easy Mode in all six formats, one rhythm in each and the gate clean; the
+every-choice audit on the 21 live Steps cards and both classics wrote the
+same holds `main` has, card for card (only contrast figures in the second
+decimal moved), so `assets/choice-holds.json` is unchanged. It did catch one
+new hold on the way (du02-20 under Electric Trust, the phone cue on a plate
+the theme repainted), fixed before this commit (rule 115).
+
+Not on `main`: this session may push only to its own branch,
+`claude/relaxed-darwin-8aces4` (merged up to `main` at 8f4d1e72). Merge it to
+`main`, then deploy (AGENT-BRIEF, Deploying).
+
+Still open:
+
+1. **`stepsFlow-pp06-35`'s number straddles its band** (half above the band's
+   top edge). The gate already failed it (offPlate, numCentre, straddle)
+   before this change, and it is held off the site (rule 105); the rows now
+   keep one gap to the band, but the number needs moving onto the band
+   (`scripts/centre_number.mjs`) before it can come back.
+2. **The other stacked layouts** (checklist rows over a number, the review
+   cards, trust tiles) were not measured by this audit; the pass is keyed to
+   the Steps Flow names (`Step Card n`, `Phone Plate`). If the owner sees the
+   same uneven last gap elsewhere, widen `pgStepRhythm`'s finder.
+3. **Rows can now be as short as their words plus 9px each side** (the
+   classic in Easy Mode: 129px rows became 117px so the number keeps its
+   size). If the owner prefers taller rows and a smaller number there, swap
+   the order in `pgStepRhythm` (the plate gives before the rows).
+
+## AG. 2026-10-03 — the headline is the hero (DESIGN-LAW 116)
+
+The owner, over `stepsFlow-du01-20` in the rule 115 before-and-after: "How
+many times do I have to tell you this is not a hero. It's tiny little text
+that looks extremely out of place compared to every other graphic
+seriously????"
+
+Then, of du01-20's grown one-word headline: "create some room for the words...
+this just feels incomplete still iPhone.. or maybe we can change it to sell
+your iphone?", then "WE BUY ALL (skip line) iPHONE 12-18", "or skip.. iPHONE
+PRO MAX AIR", "more specific and more variety", "too broad": it is now WE BUY
+over iPHONE PRO · MAX · AIR (rule 116), gated, re-thumbed.
+
+Done: `scripts/hero_headline.mjs` (measures the letters every headline covers,
+grows the ones under 30,000 px² as one block, gated); ten records grown (the
+four Steps cards off the site, six live reviewProof and ticketStub cards);
+their thumbnails re-rendered; ASSET_REV bumped. The every-choice audit on the
+six live cards added no hold and lifted 49: type voices that had failed them
+as "the headline would be too small in a feed" now pass (assets/choice-holds.json).
+
+Still open:
+
+1. **Four live Glass Cards** (glassCard-ca07-15, -cd06-15, -jw05-30, -du02-30)
+   keep a 25k to 29k headline: it shares the glass panel with the product, and
+   any bigger headline pushes the product out. Either the product leaves the
+   panel (beside it, or behind it at the bottom) or the panel grows; the owner
+   decides which look.
+2. **The gate still reads the headline by font size** ('thumb'). The coverage
+   measure lives in the script, not in `pgCheck`, so a visitor's export is not
+   stopped by it; moving it into the gate would hold every card under 30k
+   (the four Glass Cards) until (1) is settled.
+3. **reviewProof-pp03-35's GOLD BUYER sits 32px left of the middle**, as it
+   did on `main` before its headline grew (the composition audit, rule 109,
+   fails both the same way). Centring it is that audit's job
+   (`scripts/centre_showcase.mjs`), not this one's.
+4. **The Steps layout reads as two alignments to rule 109's measure**: a
+   left-set headline over full-width rows and a centred number plate. Rule
+   109 (continued) left its 15 failing Steps cards to this branch; with their
+   two-line headlines du01-20 and jw05-31 now fail it the same way (they
+   passed as one tiny line). `scripts/centre_showcase.mjs` finds no single
+   alignment for du01-20, and for jw05-31 it would move GEM MT away from its
+   10, so neither was written. The family needs one call from the owner:
+   centre the headline over the rows, or set the plate on the headline's
+   left edge.
+5. Rule 115's open items stand (§AF).
