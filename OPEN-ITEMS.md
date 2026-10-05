@@ -1634,3 +1634,73 @@ lime box (`#0a1a00`, rule 104's plate ink).
    changed (two families), so `node scripts/every_card_audit.mjs
    --write-holds` (hours; `--resume`) should be run before the holds are
    trusted again. The gate still checks every download.
+
+## AF. 2026-10-05 — one colour vocabulary: the themes are the library's twelve (DESIGN-LAW 114)
+
+(claude/busy-keller-i7qfrf, from `main` at 9040dcb9.)
+
+The owner: "Audit all themes after we make our master library make sure they
+follow all rules, don't contradict overlap or use wrong design language.
+make it cohesive and complete so they feel like ads we made from
+professional gfx designers."
+
+Found (`scripts/theme_cohesion_audit.mjs`, new): four colour vocabularies in
+one product. The library's 311 cards, the landing's Ready-made tab and the
+colour builder spoke rule 103's twelve pairings; Easy Mode and the designer
+offered 21 themes under the names rule 103 retired ("Blue Market", "Gold
+Offer", "Hot Sale"), 17 with no small-print colour, four with a third hue,
+five with a brown, rust or olive accent, and internal words in the chip's
+title ("GFX Grammar", "iOS Flat"); `cvd_audit.py` graded ten themes that
+existed nowhere and failed; the choice holds were keyed by the 21 names.
+56 problems on the 21 themes.
+
+Done:
+- `COLOR_THEMES` is the twelve, each solved by the colour builder's own
+  solver in its ready-made look (`scripts/house_themes.mjs --write`), with a
+  support colour, `family` Dark or Light, and `aka` carrying the 21 retired
+  names (`ezThemeByName` reads them, so drafts and projects reopen). Chip
+  titles and the toast show the name and look only.
+- `cvd_audit.py` reads the live set (text, bright colour and small print on
+  both stops under four kinds of sight); `audit_theme_grammar.mjs` checks
+  every theme's four roles; the browser audits that name a light and a dark
+  theme take Silver & Blue and Black & Green; the builder audit's controls
+  are Navy & Gold and Purple & Gold.
+- `every_card_audit.mjs --dims` or `--ids` now updates only what it measured
+  (a themes-only sweep used to write an empty looks and voices table).
+- The offer family's sand look: its rust accent (`#8a3b12`) is navy at the
+  same luminance (rule 52); the look is sand and navy.
+- The FAQ's colour answer names the twelve and the builder (visible answer
+  and JSON-LD together; CSP hashes recomputed).
+- Rule 114, the brief, the README.
+
+Checked: cohesion audit 0 problems (after the hold sweep); `cvd_audit.py`
+12/12; `theme_law.mjs` 12/12; `audit_theme_grammar.mjs` 12/12;
+`colour_builder_audit.mjs --sets-only` all pass; `landing_check.mjs` clean at
+390 and 1440; `ez_theme_audit.mjs --quick` no problems, no page errors.
+
+Still open:
+
+1. **The video maker's palettes are a vocabulary of their own.** 165
+   palettes in motion/catalog.js and motion/themes.js: 34 named for a food,
+   drink or flower (butter, cherry, matcha, espresso, bubblegum...), 12
+   carrying three hue families, four named for two colours; the keys are
+   what the maker shows, title-cased. Rule 103's language (two colours to a
+   name, none food) has not reached them. A session of its own: the maker
+   has its own measured audit (`motion_palette_audit.mjs`, on rendered
+   pixels), fifty themes under `THEME_REVIEW`, and audiences keyed by
+   palette, so a rename touches audiences.js, palette-audit.json and saved
+   looks. The cohesion audit prints the counts; `--strict` fails on them.
+2. **The offer family's look keys** (bone, blush, mint, sand, plum, cream)
+   are internal, never shown; one look (`midnight`) carries three families
+   (navy ground, mint accent, gold band). Left as authored; the family is
+   held to the showcase's bar by audit_templates.mjs.
+3. **Only one of the twelve is light** (Silver & Blue). The 21 had eight
+   light themes. The builder's Light look makes a light set of any pairing
+   whose colour reads light (gold, yellow, cyan, orange, lime, pink), a tap
+   from the + in the colour row; if the owner wants light ready-made sets in
+   the row, they are solved the same way (`cbArrangements(..., 'light')`)
+   and named by the builder ("Gold & Navy").
+4. **The classics' own palettes (`PAL`, twelve)** and the showcase's twelve
+   are two tables with two sets of names (PAL: ocean, paper, rose, arctic,
+   mono, sunset...). PAL paints the classics' fallback grounds and plates; a
+   visitor never sees its names. Not unified here.

@@ -447,6 +447,19 @@ produced." DESIGN-LAW rule 87. In practice:
   takes about a minute). A tweak never leaves the law: a slider's ends are
   `cbRange`'s, an exact colour goes through `cbExact`, and anything saved
   passes `cbTweakOk`. Saved sets can be renamed; old names live in `aka`.
+- **One colour vocabulary** (rule 114, 2026-10-05): the colour themes Easy
+  Mode and the designer offer (`COLOR_THEMES`) are rule 103's twelve
+  pairings, under the library's names, each solved by the colour builder
+  (`node scripts/house_themes.mjs --write`; never edit a colour in the
+  array by hand). `aka` on a theme lists the retired names drafts were
+  saved in. `node scripts/theme_cohesion_audit.mjs` is the check that the
+  vocabulary is one (themes, palettes, the builder's ready-made sets, the
+  live cards, the choice holds) and that each theme keeps the law; run it
+  with `cvd_audit.py` and `theme_law.mjs` before a commit that touches a
+  theme, a palette or the builder, and sweep the holds again
+  (`every_card_audit.mjs --dims themes --write-holds`) after the set
+  changes. The video maker's palettes are a vocabulary of their own still
+  (OPEN-ITEMS §AF).
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **The scripts:** a script that rewrites a showcase record passes its

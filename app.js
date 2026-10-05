@@ -5452,101 +5452,51 @@ function coverImage(im, w, h){
   return im;
 }
 
-/* ═══════════════ SUGGESTED COLOR THEMES ═══════════════
-   Scored, not asserted: run `node scripts/score_themes.mjs`. Every theme is
-   checked for white ink on the dark stop, ACCENT on the dark stop (the accent
-   carries the money word, so 4.5:1 is the floor, not 3:1), and the accent again
-   under protan/deutan/tritan simulation.
+/* ═══════════════ THE COLOUR THEMES: THE LIBRARY'S TWELVE PAIRINGS ═══════════════
+   DESIGN-LAW rule 114 (2026-10-05). One colour vocabulary for the whole
+   product: the twelve proven two-colour pairings the library's cards are
+   drawn in (rule 103: Navy & Gold, Navy & Orange, Midnight & Cyan, Blue &
+   Green, Green & Gold, Purple & Gold, Teal & Orange, Red & Yellow, Black &
+   Gold, Black & Red, Black & Green, Silver & Blue) are the themes Easy Mode
+   and the designer offer, under the same names the landing's Ready-made tab
+   and the colour builder use. Each record is solved by the colour builder's
+   own solver (cbArrangements, colour-builder.js) in the look the builder
+   calls that pairing ready-made in (Silver & Blue on light, the eleven on
+   dark), and printed by scripts/house_themes.mjs; every colour has a job
+   (ground, reading ink, bright accent, small print), two hue families to a
+   theme, no warm colour under rule 103's muddy floor, the accent inside its
+   named band, and the contrasts theme_law.mjs and cvd_audit.py hold it to.
+   Regenerate with house_themes.mjs rather than editing a colour by hand.
 
-   The previous set was built on "opposite-wheel hues pull clicks" and read as a
-   colour-theory exercise rather than as this business: Teal × Coral, Midnight ×
-   Pink and Crimson × Mint are lovely and belong on a festival poster. The
-   owner's note — the ads are "starting to pick some funky duotones" — is that
-   observation from the other side.
+   `family` is the look, in a customer's words (rule 113): Dark or Light.
+   `aka` lists the retired names a draft or project may have been saved
+   under; ezThemeByName() finds a theme by either, so nothing a visitor made
+   reopens in the card's own colours by mistake.
 
-   What a cash-buyback ad actually needs, and what this set is built from:
-     - a ground DARK enough that white type never has to fight it,
-     - one warm, high-energy accent doing the money word,
-     - names a non-designer can pick from ("Cash Green", not "Crimson × Mint"),
-     - and the warm/street direction locked in HANDOFF section 6.
-
-   Nine of ten accents are warm or neutral. Clean Slate is the deliberate
-   exception: some sellers respond to a clinical, no-nonsense look.
-
-   2026-08-31: three accents were retuned. Every theme in this set passed every
-   contrast test against its own ground and always had — but the accent's job
-   here is to carry ONE WORD inside an otherwise white headline, so the test
-   that matters is the accent against the INK NEXT TO IT, and nobody had run
-   it. Charcoal Lime scored 1.33:1 against its own white, Warm Cream 1.26 and
-   Clean Slate 1.19 — Clean Slate's #e8ecef was very nearly white on white, so
-   the money word was invisible as a money word while measuring 16.8:1 against
-   the background and looking, on a chart, like the best theme in the set.
-   Deepened to #add369 / #ecbf6a / #b1bec9: same hue, same names, now 1.71,
-   1.72 and 1.90 against the ink, and still 9:1+ against both stops with CVD
-   above 9.
-
-   Setting that floor at 1.7 then failed three MORE themes that had looked fine
-   at 1.6 — Gold Standard 1.67, Money Amber 1.61, Electric Cyan 1.67. Moving a
-   floor and grandfathering whatever was already under it is not a standard, so
-   those three were nudged to clear the same bar: #fbbf24 -> #f4bb2a,
-   #ffc247 -> #f9b939, #5fd8f0 -> #54d4ee. Sub-1% moves in lightness, invisible
-   side by side, and the whole set now passes one rule instead of two.
-   Floor is 1.7. Checked by scripts/theme_law.mjs.
-
-   2026-09-26: the twelve rows that came from scripts/theme_specs.mjs failed
-   that same audit (12 of 21 themes). Five Jewel and Night Neon rows set a
-   pastel accent beside a pale tinted ink, 1.12 to 1.34:1 apart, so the money
-   word was not a different colour; four light rows put a phone-number accent
-   under 4.5:1 on their own ground; two Duotone rows stood dark ink on a
-   mid-tone cyan or blue, under 4.5:1 for everything. The study session's
-   design language gives every colour one job, near-black or near-white ink,
-   one accent, and a ground that is clearly light or clearly dark, so each row
-   was re-solved in OKLCH keeping every hue: inks to near-black or near-white
-   with a breath of the ground's hue; mid-tone grounds to a pale tint of their
-   own hue (dark ink) or kept deep (light ink); accents placed in the one
-   luminance band that clears 4.5:1 on both stops and 1.75:1 against the ink,
-   at the most chroma the gamut allows, yellows and ambers at the light end of
-   that band so they stay gold rather than olive or brown. 21 of 21 pass. */
+   What this replaced, so it is not rebuilt: 21 themes of the studio's own
+   ("Blue Market", "Orchid Payday", "Gold Offer", "Hot Sale"...), built
+   2026-08-31 to 2026-09-26 before rule 103 moved the library onto the twelve.
+   The landing then said "Navy & Gold" while the studio said "Blue Ticket";
+   four of the 21 carried a third hue (the "GFX Grammar" rows), five drew a
+   brown, rust or olive accent under the muddy floor (Gold Offer #904d03,
+   Sky Market #9b2000, Mint Counter #325f01, Hot Sale's #7a4210), and the
+   chip's title showed internal words ("GFX Grammar", "iOS Flat", "Candy").
+   Their contrast history (the 1.7:1 floor between the accent and the ink,
+   2026-08-31; the OKLCH re-solve of the Template Lab rows, 2026-09-26) is in
+   git and in the rule; the floors live on in theme_law.mjs and cbCheck(). */
 const COLOR_THEMES = [
-  /* 2026-09-02: the row used to be ten dark grounds, four of them brown or
-     amber under an orange accent — the old design language. Five of the old
-     ones stay (the ones that were not brown); twelve come from
-     scripts/theme_specs.mjs, the same records the Template Lab sets are
-     painted with, so a theme picked here matches a theme seen there. Light
-     grounds carry DARK ink, which applyColorTheme() already handles because
-     it maps by role rather than by assuming white type. */
-  { name:'Blue Market',   family:'Pastel',    bg:{type:'grad', c1:'#aae8ff', c2:'#99dbfb', a:170}, accent:'#005284', ink:'#0a2026' },
-  { name:'Blue Ticket',   family:'Jewel',      bg:{type:'grad', c1:'#02383e', c2:'#002e36', a:170}, accent:'#ff83b6', ink:'#eaf5f7' },
-  { name:'Mint Market',   family:'Jewel',      bg:{type:'grad', c1:'#003a21', c2:'#003021', a:170}, accent:'#cd92ff', ink:'#edf5f0' },
-  { name:'Orchid Payday', family:'Jewel',      bg:{type:'grad', c1:'#47205e', c2:'#481057', a:170}, accent:'#d1b906', ink:'#f7f2fa' },
-  { name:'Indigo Cash',   family:'Night Neon', bg:{type:'grad', c1:'#0e253c', c2:'#02132e', a:170}, accent:'#fe7f78', ink:'#eef5fc' },
-  { name:'Indigo Trade',  family:'Pastel',    bg:{type:'grad', c1:'#cde1ff', c2:'#bdd2fe', a:170}, accent:'#4839b8', ink:'#141d2b' },
-  { name:'Blue Deal',     family:'Candy',      bg:{type:'grad', c1:'#afe7ff', c2:'#9bdafc', a:170}, accent:'#98056e', ink:'#0b2027' },
-  { name:'Sky Market',    family:'Cool Air',   bg:{type:'grad', c1:'#b9f7f6', c2:'#99e1e7', a:170}, accent:'#9b2000', ink:'#082021' },
-  { name:'Violet Payday', family:'iOS Flat',   bg:{type:'grad', c1:'#ecefff', c2:'#d5d7ef', a:170}, accent:'#3d40bc', ink:'#181c2b' },
-  { name:'Gold Offer',    family:'Paper',      bg:{type:'grad', c1:'#fdf4ee', c2:'#e5ddd5', a:170}, accent:'#904d03', ink:'#281a0f' },
-  { name:'Mint Counter',  family:'Paper',      bg:{type:'grad', c1:'#f2f8ef', c2:'#d9e1d8', a:170}, accent:'#325f01', ink:'#162011' },
-  { name:'Red Cash',      family:'Chalk',      bg:{type:'grad', c1:'#faf5f7', c2:'#e4dedf', a:170}, accent:'#a10966', ink:'#29171f' },
-  { name:'Cash Green',    family:'Classic',    bg:{type:'grad', c1:'#123123', c2:'#050f0a', a:170}, accent:'#4ade80', ink:'#ffffff' },
-  { name:'Night Blue',    family:'Classic',    bg:{type:'grad', c1:'#0f1b3d', c2:'#050916', a:170}, accent:'#ffa62b', ink:'#ffffff' },
-  { name:'Deep Red',      family:'Classic',    bg:{type:'grad', c1:'#2a0a0e', c2:'#0d0305', a:170}, accent:'#ff6b57', ink:'#ffffff' },
-  { name:'Electric Cyan', family:'Classic',    bg:{type:'grad', c1:'#07222b', c2:'#030d11', a:170}, accent:'#54d4ee', ink:'#ffffff' },
-  { name:'Clean Slate',   family:'Classic',    bg:{type:'grad', c1:'#141a20', c2:'#06090c', a:175}, accent:'#b1bec9', ink:'#ffffff' },
-  /* GFX GRAMMAR TRANSPLANT, 2026-09-04.
-     These are not copied Canva templates. They are four reusable campaign
-     intentions distilled from the prototype and expressed in this engine's
-     existing semantic roles. `support` is deliberately separate from the
-     money/CTA accent: one hue earns attention, the other carries small trust
-     and qualification copy. All four are checked by audit_theme_grammar.mjs
-     against both gradient stops under normal/protan/deutan/tritan vision. */
-  { name:'Hot Sale',       family:'GFX Grammar', intent:'urgent local offer',
-    bg:{type:'grad', c1:'#fff1d6', c2:'#e7c8a6', a:170}, accent:'#9f2d1f', ink:'#241612', support:'#7a4210' },
-  { name:'Electric Trust', family:'GFX Grammar', intent:'high-value electronics',
-    bg:{type:'grad', c1:'#101a3a', c2:'#07102b', a:170}, accent:'#ff6a55', ink:'#fffdf7', support:'#8fb1ff' },
-  { name:'Fresh Cash',     family:'GFX Grammar', intent:'safe same-day payout',
-    bg:{type:'grad', c1:'#174c3c', c2:'#082b23', a:170}, accent:'#f7a15a', ink:'#fff4d8', support:'#a8e6cf' },
-  { name:'Night Neon',     family:'GFX Grammar', intent:'after-hours scroll stop',
-    bg:{type:'grad', c1:'#121212', c2:'#050505', a:170}, accent:'#ff8b3d', ink:'#f7f0e6', support:'#c5d63b' },
+  { name:'Navy & Gold',     family:'Dark',  bg:{type:'grad', c1:'#072667', c2:'#031b56', a:170}, accent:'#f4b100', ink:'#f2f7ff', support:'#fdd76f', aka:['Night Blue'] },
+  { name:'Navy & Orange',   family:'Dark',  bg:{type:'grad', c1:'#072667', c2:'#031b56', a:170}, accent:'#ff7a00', ink:'#f2f7ff', support:'#fba763', aka:['Night Neon'] },
+  { name:'Midnight & Cyan', family:'Dark',  bg:{type:'grad', c1:'#072667', c2:'#031b56', a:170}, accent:'#00b5d7', ink:'#f2f7ff', support:'#5fd7fe', aka:['Electric Cyan'] },
+  { name:'Blue & Green',    family:'Dark',  bg:{type:'grad', c1:'#1f3f91', c2:'#143079', a:170}, accent:'#4cc96d', ink:'#f3f7ff', support:'#86e5ae' },
+  { name:'Green & Gold',    family:'Dark',  bg:{type:'grad', c1:'#003d0d', c2:'#003105', a:170}, accent:'#f5b200', ink:'#f1f9f2', support:'#fdd870' },
+  { name:'Purple & Gold',   family:'Dark',  bg:{type:'grad', c1:'#481d74', c2:'#3a1260', a:170}, accent:'#f4b100', ink:'#f8f5fe', support:'#fdd76f', aka:['Mint Market', 'Orchid Payday'] },
+  { name:'Teal & Orange',   family:'Dark',  bg:{type:'grad', c1:'#003c36', c2:'#002f2a', a:170}, accent:'#ff7a00', ink:'#eefaf8', support:'#fba763', aka:['Sky Market', 'Fresh Cash'] },
+  { name:'Red & Yellow',    family:'Dark',  bg:{type:'grad', c1:'#690004', c2:'#540000', a:170}, accent:'#e5b800', ink:'#fff4f3', support:'#efdc71' },
+  { name:'Black & Gold',    family:'Dark',  bg:{type:'grad', c1:'#202327', c2:'#101316', a:170}, accent:'#f4b100', ink:'#f4f7fb', support:'#fdd76f', aka:['Gold Offer', 'Clean Slate'] },
+  { name:'Black & Red',     family:'Dark',  bg:{type:'grad', c1:'#202327', c2:'#101316', a:170}, accent:'#fe4344', ink:'#f4f7fb', support:'#e8868a', aka:['Blue Ticket', 'Indigo Cash', 'Blue Deal', 'Red Cash', 'Deep Red', 'Hot Sale', 'Electric Trust'] },
+  { name:'Black & Green',   family:'Dark',  bg:{type:'grad', c1:'#202327', c2:'#101316', a:170}, accent:'#15a34a', ink:'#f4f7fb', support:'#6ac893', aka:['Mint Counter', 'Cash Green'] },
+  { name:'Silver & Blue',   family:'Light',  bg:{type:'grad', c1:'#f3f7ff', c2:'#e2e8f3', a:170}, accent:'#1d4ed8', ink:'#111b30', support:'#36428b', aka:['Blue Market', 'Indigo Trade', 'Violet Payday'] },
 ];
 /* Which text is standing on the card's ground, and which is standing on a
    plate of its own? A line on a plate takes its contrast from the plate, not
@@ -5608,7 +5558,7 @@ function applyColorTheme(th){
   refreshEzLayers();
   ezDrawnSync();
   schedEzPreview(0);
-  toast(th ? th.name + ' on the whole card' + (th.intent ? ' · ' + th.intent : '') : 'The card’s own colours', 'success');
+  toast(th ? th.name + ' on the whole card' : 'The card’s own colours', 'success');
 }
 function buildThemeRow(){
   const row = $('ez-themes');
@@ -5625,7 +5575,7 @@ function buildThemeRow(){
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'ez-theme'; b.dataset.theme = th.name;
-    b.title = [th.name, th.family, th.intent].filter(Boolean).join(' · ');
+    b.title = [th.name, th.family].filter(Boolean).join(' · ');
     b.setAttribute('aria-label', b.title);
     b.innerHTML = `<span style="background:linear-gradient(135deg, ${th.bg.c1}, ${th.bg.c2})"></span><span style="background:${th.accent}"></span>${th.support ? `<span style="background:${th.support}"></span>` : ''}`;
     b.onclick = () => applyColorTheme(th);
@@ -17969,7 +17919,7 @@ function ezThemeByName(n){
   if (!n) return null;
   const mine = () => { const v = jget('pgfx_my_colours', []);       // by its name, or a name it had before a rename (aka)
     return Array.isArray(v) ? v.find(t => t && t.bg && t.accent && (t.name === n || (Array.isArray(t.aka) && t.aka.includes(n)))) || null : null; };
-  return COLOR_THEMES.find(t => t.name === n) || mine();
+  return COLOR_THEMES.find(t => t.name === n || (Array.isArray(t.aka) && t.aka.includes(n))) || mine();
 }
 /* the ground a theme brings: none on a photo-led card (the photograph is the
    design, rule 86), its gradient on a product-led one or over a flat colour;
@@ -18622,7 +18572,7 @@ function edBind(){
   COLOR_THEMES.forEach(th => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'ez-theme'; b.dataset.theme = th.name;
-    b.title = [th.name, th.family, th.intent].filter(Boolean).join(' · '); b.setAttribute('aria-label', b.title);
+    b.title = [th.name, th.family].filter(Boolean).join(' · '); b.setAttribute('aria-label', b.title);
     b.innerHTML = `<span style="background:linear-gradient(135deg, ${th.bg.c1}, ${th.bg.c2})"></span><span style="background:${th.accent}"></span>${th.support ? `<span style="background:${th.support}"></span>` : ''}`;
     b.onclick = () => { edRecolour({ theme: th }); toast(th.name + ' on the whole card', 'success'); };
     row.appendChild(b);

@@ -3065,3 +3065,66 @@ RESUME HERE:
      Deploying); this session's network cannot reach Netlify.
   1. Re-sweep the choice holds on the merged build (OPEN-ITEMS §AE 6).
   2. Guard rule 104's plate ink with the muddy floor (§AE 2).
+
+## 2026-10-05 — one colour vocabulary: the themes are the library's twelve (rule 114)
+
+(claude/busy-keller-i7qfrf, from `main` at 9040dcb9.)
+
+The owner: "Audit all themes after we make our master library make sure they
+follow all rules, don't contradict overlap or use wrong design language.
+make it cohesive and complete so they feel like ads we made from
+professional gfx designers."
+
+Found (a new check, scripts/theme_cohesion_audit.mjs, run first on the tree
+as it stood): the product spoke four colour vocabularies. The library's 311
+cards, the landing's Ready-made tab and the colour builder used rule 103's
+twelve pairings; Easy Mode and the designer offered 21 themes of their own
+under the names rule 103 retired ("Blue Market", "Gold Offer", "Hot
+Sale"), 17 of them with no small-print colour, four with a third hue, five
+with a brown, rust or olive accent under the muddy floor, and internal words
+in the chip's title ("GFX Grammar", "iOS Flat"); cvd_audit.py graded ten
+themes that existed nowhere ("Teal x Coral") and failed on them; the choice
+holds were keyed by the 21 names. 56 problems on the 21 themes.
+
+Did:
+  - COLOR_THEMES is the twelve, each solved by the colour builder's own
+    solver in its ready-made look (scripts/house_themes.mjs --write; the
+    small print a shade of the bright colour's family, so a card comes out
+    navy and gold under Navy & Gold, not navy and pale blue), with `aka`
+    carrying the 21 retired names (ezThemeByName reads them: drafts and
+    projects reopen in the nearest theme). Chip titles show the name and
+    the look (Dark, Light), nothing internal.
+  - cvd_audit.py reads the live set and holds text, bright colour and small
+    print on both stops under four kinds of sight; audit_theme_grammar.mjs
+    holds every theme to its four roles; the browser audits that name a
+    light and a dark theme take Silver & Blue and Black & Green.
+  - every_card_audit.mjs --dims or --ids updates only what it measured (a
+    themes-only sweep used to write an empty looks and voices table).
+  - The offer family's sand look: its rust accent is navy at the same
+    luminance (sand and navy, not sand and brown).
+  - The FAQ's colour answer names the twelve and the builder, in the visible
+    answer and the JSON-LD; CSP hashes recomputed.
+  - Rule 114, the brief, the README, OPEN-ITEMS §AF.
+
+Checked: theme_cohesion_audit 0 problems once the holds were swept;
+cvd_audit.py 12/12; theme_law.mjs 12/12; audit_theme_grammar.mjs 12/12;
+colour_builder_audit --sets-only all pass (12 of 12 ready-made pairs from
+both colours, 1,804 tweaks); landing_check clean at 390 and 1440;
+ez_theme_audit --quick no problems, no page errors; three cards looked at
+under four themes each (the pale-blue small print that made Navy & Gold
+read as navy and white was seen here, and is why the small print takes the
+bright colour's family).
+
+Not done: the video maker's 165 palettes keep their own names (34 food,
+drink or flower names; OPEN-ITEMS §AF 1). Not deployed: this session's
+network cannot reach Netlify.
+
+RESUME HERE:
+  0. Merge `main` in (another session may have moved it), run the checks,
+     put this on `main`; deploy from the Mac (AGENT-BRIEF, Deploying).
+  1. The video maker's palettes (OPEN-ITEMS §AF 1): rule 103's language for
+     motion/catalog.js and motion/themes.js, with its own measured audit.
+  2. Light ready-made sets in the colour row, if the owner wants them
+     (§AF 3): solved the same way in the builder's Light look.
+  3. A full re-sweep of the holds (looks and voices too) on the merged
+     build: `every_card_audit.mjs --write-holds` (hours; `--resume`).

@@ -4134,3 +4134,111 @@ may be complex."
   a sentence, reading ease 74 to 80, every fact kept. The FAQ's search-engine
   copy (JSON-LD) is rebuilt from the visible answers, so the two always match.
 
+
+## 114. One colour vocabulary: the themes are the library's twelve pairings
+
+Added 2026-10-05. The owner: "Audit all themes after we make our master
+library make sure they follow all rules, don't contradict overlap or use
+wrong design language. make it cohesive and complete so they feel like ads
+we made from professional gfx designers."
+
+**Measured first** (`scripts/theme_cohesion_audit.mjs`, written for this, on
+`main` at 9040dcb9). The product spoke four colour vocabularies at once:
+
+- The library's 311 cards were drawn in rule 103's twelve proven pairings,
+  and the landing's Ready-made tab and the colour builder named them so
+  (Navy & Gold, Black & Red...).
+- Easy Mode's and the designer's colour row (`COLOR_THEMES`) offered 21
+  themes of their own, built 2026-08-31 to 2026-09-26, under the names rule
+  103 had retired a week later ("Blue Market", "Orchid Payday", "Gold Offer",
+  "Hot Sale"): a visitor read "Navy & Gold" on the landing and "Blue Ticket"
+  in the studio, and none of the twelve was a theme. Of the 21: 17 carried no
+  support colour (rule 51 asks four jobs of a theme); four carried a third
+  hue (the "GFX Grammar" rows: navy, coral and periwinkle; green, peach and
+  mint); five drew an accent or support under rule 103's muddy floor (Gold
+  Offer's `#904d03` and Hot Sale's `#7a4210`, brown; Sky Market's `#9b2000`,
+  rust; Mint Counter's `#325f01`, olive; Orchid Payday's `#d1b906` on the
+  edge); and the chip's title showed the studio's internal words to the
+  customer ("GFX Grammar", "iOS Flat", "Candy", "Cool Air"; rule 113). The
+  audit counted 56 problems on the 21.
+- `scripts/cvd_audit.py`, which AGENT-BRIEF lists among the checks to run
+  after a deploy, graded a hard-coded list of ten themes ("Teal x Coral",
+  "Crimson x Mint") that matched nothing in app.js, and failed on it: a
+  check asking a question nobody had asked for a month.
+- `assets/choice-holds.json` (rule 101) held themes by the 21 names.
+
+**The rule.**
+
+- **The themes are the palettes.** The colour themes Easy Mode and the
+  designer offer are rule 103's twelve pairings, under the same twelve names
+  the library's cards, the landing's Ready-made tab and the colour builder
+  use. One name means one set of colours everywhere a visitor meets it. A
+  thirteenth is a set the visitor builds (rule 112), or nothing.
+- **A theme is solved, not typed.** Each record is the colour builder's own
+  answer for its pairing (`cbArrangements`, colour-builder.js) in the look
+  the builder calls the pairing ready-made in (Silver & Blue on light, the
+  eleven on dark), printed by `scripts/house_themes.mjs --write`. So a
+  theme and the builder's "Navy & Gold" are the same colours, and every rule
+  the builder holds a set to holds the themes: four jobs (ground, reading
+  ink, bright accent, small print; rule 51), two hue families (rules 95,
+  103), no warm colour under the muddy floor, the accent inside its named
+  band and at rule 103's chroma floor, the ground's two stops in one hue
+  (rule 5), text and small print 4.5:1 on both stops for normal, protan,
+  deutan and tritan sight, the accent 4.5:1 and 3:1 simulated and 1.7:1 from
+  the text, the number 3:1 on an accent box (rules 43, 51, 87, 112). A
+  colour is never edited by hand in `COLOR_THEMES`: re-run the solver.
+- **The small print is a shade of the bright colour's family.** The builder
+  offers two small-print colours, a shade of the background's family first;
+  the themes take the bright colour's (rule 112 allows either). Seen on
+  checklistHero-jw07-15: its badges and icon discs carry the card's own
+  support role, so with a pale-blue small print "Navy & Gold" came out navy
+  and pale blue, with no gold on the card; with a pale gold it is navy and
+  gold. The two colours in the name are the two colours a visitor sees.
+- **The customer's words.** A theme's `family` is its look, Dark or Light;
+  a chip's title is the name and the look ("Navy & Gold · Dark"). No
+  internal family or intent reaches the screen (rule 113).
+- **A retired name still opens.** Each theme lists under `aka` the retired
+  names a draft or a project may have been saved in; `ezThemeByName` finds a
+  theme by either, so nothing a visitor made reopens in the card's own
+  colours by mistake. The mapping is the nearest pairing by the hue the old
+  theme led with, then its ground, then its side (light or dark), with five
+  pinned by the colour their name says (Gold Offer to Black & Gold, Cash
+  Green to Black & Green, Blue Market to Silver & Blue, Orchid Payday to
+  Purple & Gold, Electric Cyan to Midnight & Cyan).
+- **Every check reads the live set.** `cvd_audit.py` and
+  `audit_theme_grammar.mjs` read `COLOR_THEMES` out of app.js and hold every
+  theme to the same roles; the audits that need a light theme and a dark one
+  (ez_theme_audit, designer_audit, every_card_audit's combos) take Silver &
+  Blue and Black & Green; the colour builder audit's control themes are Navy
+  & Gold and Purple & Gold, the warm accents. `theme_cohesion_audit.mjs` is
+  the check that the vocabulary is one: the same twelve names in
+  `COLOR_THEMES`, `PALETTES`, `CB_READY` and on the live cards, every
+  choice-hold theme a live name, every retired name under exactly one `aka`,
+  and each theme inside the law above. It exits 1 on any of them.
+- **The holds follow the names.** A theme is held on a card only by its
+  live name (rule 101), so after the set changes the holds are swept again
+  (`every_card_audit.mjs --dims themes --write-holds`); a sweep over some
+  choices or some cards updates only what it measured and leaves the rest of
+  the table standing.
+- **The other colour vocabularies are reported, not yet unified.** The
+  video maker's 165 palettes (motion/catalog.js, motion/themes.js: 34 named
+  for a food, drink or flower, 12 with three families, four named for two
+  colours) and the offer family's 20 looks (offer-library.js: keys a
+  customer never sees) are measured by the same audit and printed; `--strict`
+  fails on them. The offer family's one accent under the muddy floor (the
+  sand look's rust `#8a3b12`) takes the deep hue, navy, at its own luminance
+  (rule 52), as rule 103 says of a warm colour drawn too dark. The video
+  maker is a session of its own (OPEN-ITEMS §AF).
+
+**Measured after.** `theme_cohesion_audit.mjs`: 12 themes, 12 palettes, 12
+ready-made sets, the 311 live cards in the same 12 names; every theme two
+families or one, nothing muddy, every accent in its band; worst text 8.77:1,
+accent 4.54:1 (3.79:1 for a colour-blind reader, Black & Red), accent
+against text 1.74:1, small print 5.68:1, number on its box 4.91:1; 0
+problems once the holds were swept. `cvd_audit.py` 12 of 12; `theme_law.mjs`
+12 of 12 (and the twelve classics' palettes 12 of 12 as before);
+`audit_theme_grammar.mjs` 12 of 12 with every role; `colour_builder_audit.mjs
+--sets-only` all checks pass (12 of 12 ready-made pairs offered from both
+colours, 1,804 tweaked sets, 0 failing); `landing_check.mjs` 0 errors, 0
+failed requests, no overflow at 390 and 1440; `ez_theme_audit.mjs --quick` no
+problems, no page errors.

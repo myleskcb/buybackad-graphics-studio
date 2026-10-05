@@ -80,6 +80,16 @@ production CSP and decodes the files), `scripts/motion_gallery.mjs` +
 exercised in this repo's test container (its Chromium has no H.264 encoder):
 export one clip from Chrome or Safari before announcing it.
 
+## Colour sets
+One vocabulary (DESIGN-LAW rule 114): the twelve colour sets the library's
+cards are made in (Navy & Gold, Navy & Orange, Midnight & Cyan, Blue & Green,
+Green & Gold, Purple & Gold, Teal & Orange, Red & Yellow, Black & Gold, Black
+& Red, Black & Green, Silver & Blue) are the colour themes Easy Mode and the
+designer offer, the landing's Ready-made tab, and the builder's ready-made
+sets. Each theme is solved by the colour builder (`scripts/house_themes.mjs
+--write` prints them into `app.js`); `scripts/theme_cohesion_audit.mjs`,
+`scripts/cvd_audit.py` and `scripts/theme_law.mjs` check them.
+
 ## Library API (iPhones LA) — optional
 
 `/api/library/v1` hands the library's ads (the 311 finished cards the site

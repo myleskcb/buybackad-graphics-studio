@@ -163,7 +163,7 @@ for (const card of cards){
   row.orig = diffPct(base.px, back.px);
   if (row.orig > 0.5) P(card, 'ORIG does not put the card back', row.orig + '% of the picture differs');
   // grounds: ORIG and the six, with no theme, a light theme and a dark one
-  for (const th of ['', 'Gold Offer', 'Cash Green']){
+  for (const th of ['', 'Silver & Blue', 'Black & Green']){   // no theme, a light one, a dark one (rule 114)
     await act(`__ed.chip(${JSON.stringify(th)}).click(); document.querySelector('#ed-swatches .ez-sw.orig').click();`);
     const b0 = await measure();
     for (let i = 0; i < 6; i++){
@@ -271,7 +271,7 @@ await browser.close();
 
 console.log('\n' + (problems.length ? problems.length + ' problems' : 'no problems') + ` over ${rows.length} cards · page errors ${pageErrors.length}`);
 const byWhat = {};
-problems.forEach(p => { const k = p.what.replace(/^theme [^:]+: /, 'theme: ').replace(/^(no theme|Gold Offer|Cash Green) swatch \d+/, 'swatch').replace(/^ground \S+ \d+/, 'ground'); (byWhat[k] = byWhat[k] || []).push(p.card); });
+problems.forEach(p => { const k = p.what.replace(/^theme [^:]+: /, 'theme: ').replace(/^(no theme|Silver & Blue|Black & Green) swatch \d+/, 'swatch').replace(/^ground \S+ \d+/, 'ground'); (byWhat[k] = byWhat[k] || []).push(p.card); });
 Object.entries(byWhat).forEach(([k, v]) => console.log('  ' + String(v.length).padStart(4) + '  ' + k + '  (' + [...new Set(v)].slice(0, 6).join(', ') + ')'));
 pageErrors.slice(0, 5).forEach(e => console.log('  page error: ' + e));
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify({ rows, problems, pageErrors }, null, 1));

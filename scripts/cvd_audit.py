@@ -1,14 +1,27 @@
 #!/usr/bin/env python3
 """
-Colour-vision-deficiency audit for the theme palettes (DESIGN-LAW rule 43).
+Colour-vision-deficiency audit for the studio's colour themes (DESIGN-LAW
+rules 43 and 114).
 
-Simulates protanopia, deuteranopia and tritanopia over each theme's accent
-against its own gradient start, and reports the WORST of the four contrast
-numbers rather than the normal-vision one.
+Reads COLOR_THEMES out of app.js (the twelve pairings Easy Mode and the
+designer offer, rule 114) and simulates protanopia, deuteranopia and
+tritanopia over every colour that carries words against both stops of its
+own background, reporting the WORST of the four contrast numbers rather than
+the normal-vision one:
+
+    text (ink)        >= 4.5:1 on both stops, normal and simulated
+    bright colour     >= 4.5:1 on both stops normal, >= 3.0:1 simulated
+                      (the floors theme_law.mjs and the colour builder use)
+    small print       >= 4.5:1 on both stops, normal and simulated
+
+Until 2026-10-05 this file carried its own hard-coded list of ten themes
+("Navy x Orange", "Teal x Coral"...) that matched nothing in app.js, and
+failed on it: a check that asks the wrong question (AGENT-BRIEF). It now
+reads the live set, so a theme added or re-solved is measured as shipped.
 
 Why a standalone script rather than a pass inside app.js: this measures the
 authored palette, not a rendered template, so it needs no canvas and no
-browser. Run it after touching THEME_DECKS.
+browser.
 
     python3 scripts/cvd_audit.py            # table + exit 1 if anything fails
     python3 scripts/cvd_audit.py --json     # machine-readable
@@ -24,24 +37,32 @@ Method notes that matter (see DESIGN-LAW rules 40 and 43):
 """
 import argparse
 import json
+import os
+import re
 import sys
 
-# Accent against its own gradient start (c1), read from THEME_DECKS in app.js.
-# Keep in sync by hand; a mismatch here is a silent false pass.
-THEMES = [
-    ("Navy x Orange",     "#132a63", "#ff7a1a"),
-    ("Teal x Coral",      "#0c5f5b", "#ff6f61"),
-    ("Purple x Gold",     "#4b1d95", "#ffd200"),
-    ("Forest x Amber",    "#14532d", "#fbbf24"),
-    ("Crimson x Mint",    "#9f1239", "#6ee7b7"),
-    ("Black x Electric",  "#101018", "#38bdf8"),
-    ("Charcoal x Lime",   "#26262e", "#a3e635"),
-    ("Royal x Tangerine", "#1e3a8a", "#fb923c"),
-    ("Espresso x Cream",  "#3f2d20", "#f5e6c8"),
-    ("Midnight x Pink",   "#1e1b4b", "#f472b6"),
-]
+APP = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app.js")
 
-TARGET = 4.5  # WCAG AA for normal-weight text
+
+def read_themes(path=APP):
+    """COLOR_THEMES as app.js declares it: name, c1, c2, accent, ink, support."""
+    with open(path, encoding="utf-8") as f:
+        src = f.read()
+    start = src.find("const COLOR_THEMES = [")
+    if start < 0:
+        sys.exit("COLOR_THEMES not found in app.js")
+    end = src.find("\n];", start)
+    body = src[start:end]
+    themes = []
+    for m in re.finditer(r"\{\s*name:'([^']+)'(.*?)\n?\s*\},?\s*$", body, re.M):
+        name, rest = m.group(1), m.group(2)
+        hexes = dict(re.findall(r"\b(c1|c2|accent|ink|support):'(#[0-9a-fA-F]{6})'", rest))
+        if not {"c1", "c2", "accent", "ink"} <= set(hexes):
+            sys.exit(f"theme {name}: a colour is missing in app.js ({sorted(hexes)})")
+        themes.append({"name": name, **hexes})
+    if not themes:
+        sys.exit("no theme records parsed from COLOR_THEMES")
+    return themes
 
 
 def hex_rgb(h):
@@ -96,52 +117,68 @@ def simulate(rgb, kind):
 
 
 KINDS = ("protan", "deutan", "tritan")
+# role: (floor with normal sight, floor under the worst simulation)
+FLOORS = {"ink": (4.5, 4.5), "accent": (4.5, 3.0), "support": (4.5, 4.5)}
 
 
-def audit():
+def worst_on(fg_hex, grounds, kind=None):
+    fg = hex_rgb(fg_hex)
     out = []
-    for name, ground_hex, accent_hex in THEMES:
-        ground, accent = hex_rgb(ground_hex), hex_rgb(accent_hex)
-        normal = contrast(accent, ground)
-        sims = {k: contrast(simulate(accent, k), simulate(ground, k)) for k in KINDS}
-        worst = min([normal] + list(sims.values()))
-        if normal < TARGET:
-            verdict = "fails already"      # pre-existing, not a CVD regression
-        elif worst < TARGET:
-            verdict = "FAILS UNDER CVD"    # the case this rule exists to catch
+    for g in grounds:
+        bg = hex_rgb(g)
+        if kind is None:
+            out.append(contrast(fg, bg))
         else:
-            verdict = "ok"
-        out.append({
-            "theme": name, "normal": round(normal, 2),
-            **{k: round(v, 2) for k, v in sims.items()},
-            "worst": round(worst, 2), "verdict": verdict,
-        })
-    return out
+            out.append(contrast(simulate(fg, kind), simulate(bg, kind)))
+    return min(out)
+
+
+def audit(themes):
+    rows = []
+    for t in themes:
+        grounds = [t["c1"], t["c2"]]
+        row = {"theme": t["name"], "fails": []}
+        for role, (floor, floor_cvd) in FLOORS.items():
+            if role not in t:
+                row["fails"].append(f"no {role} colour")
+                continue
+            normal = worst_on(t[role], grounds)
+            sims = {k: worst_on(t[role], grounds, k) for k in KINDS}
+            worst = min(sims.values())
+            row[role] = {"normal": round(normal, 2), **{k: round(v, 2) for k, v in sims.items()}, "worst": round(worst, 2)}
+            if normal < floor:
+                row["fails"].append(f"{role} {normal:.2f}:1 with normal sight (floor {floor})")
+            elif worst < floor_cvd:
+                k = min(sims, key=sims.get)
+                row["fails"].append(f"{role} {worst:.2f}:1 for a {k} reader (floor {floor_cvd})")
+        row["verdict"] = "ok" if not row["fails"] else "FAIL"
+        rows.append(row)
+    return rows
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
-    rows = audit()
+    themes = read_themes()
+    rows = audit(themes)
 
     if args.json:
         print(json.dumps(rows, indent=2))
     else:
-        print(f"{'theme':20}{'normal':>8}{'protan':>8}{'deutan':>8}{'tritan':>8}{'worst':>8}  verdict")
+        print(f"{'theme':17}{'text':>7}{'cvd':>7}{'bright':>8}{'cvd':>7}{'small':>8}{'cvd':>7}  verdict")
         for r in rows:
-            print(f"{r['theme']:20}{r['normal']:8.2f}{r['protan']:8.2f}"
-                  f"{r['deutan']:8.2f}{r['tritan']:8.2f}{r['worst']:8.2f}  {r['verdict']}")
-        bad = [r for r in rows if r["verdict"] == "FAILS UNDER CVD"]
-        pre = [r for r in rows if r["verdict"] == "fails already"]
+            cell = lambda role, k: f"{r[role][k]:7.2f}" if role in r else f"{'-':>7}"
+            print(f"{r['theme']:17}{cell('ink', 'normal')}{cell('ink', 'worst')}"
+                  f"{cell('accent', 'normal'):>8}{cell('accent', 'worst')}"
+                  f"{cell('support', 'normal'):>8}{cell('support', 'worst')}  {r['verdict']}"
+                  + ("" if not r["fails"] else "  " + "; ".join(r["fails"])))
+        bad = [r for r in rows if r["fails"]]
         print()
-        print(f"{len(bad)} theme(s) pass with normal vision and fail under simulation.")
-        if pre:
-            print(f"{len(pre)} theme(s) fail before simulation (separate problem): "
-                  + ", ".join(r["theme"] for r in pre))
-
-    return 1 if any(r["verdict"] == "FAILS UNDER CVD" for r in rows) else 0
+        print(f"{len(rows) - len(bad)}/{len(rows)} themes pass under normal sight and protan, deutan and tritan simulation"
+              f" (text and small print >= 4.5:1, bright colour >= 4.5:1 and >= 3.0:1 simulated, on both stops).")
+    sys.exit(1 if any(r["fails"] for r in rows) else 0)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
