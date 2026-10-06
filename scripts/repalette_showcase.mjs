@@ -22,6 +22,8 @@
  *
  *   node scripts/repalette_showcase.mjs            dry run
  *   node scripts/repalette_showcase.mjs --write    records + index
+ *   node scripts/repalette_showcase.mjs --keep --write
+ *            the same palettes, re-solved (after a chroma change)
  *
  * Then: rethumb_showcase.mjs, verify_showcase.mjs --write,
  * measure_showcase_color.mjs, bump ASSET_REV in app.js.
@@ -74,7 +76,11 @@ function cvdLoss(c, pal){
 const accentHolds = (c, p) => { const a = parse(c.accent); if (!a || toOklch(a).C < 0.03) return true;
   const [lo, hi] = namedBand(p.a), Y = lumOf(a); return Y <= hi && (Y >= lo || !(p.neutral && p.deep === p.g)); };
 const cvdSafe = (c, p) => !cvdLoss(c, p).length;
-const plan = assign(idx, { move:false, fits:(c, p) => accentHolds(c, p) && cvdSafe(c, p), soft:cvdSafe });
+const KEEP = process.argv.includes('--keep');   // re-solve each card on the palette it already has (e.g. after a chroma change)
+const BY = Object.fromEntries(PALETTES.map(p => [p.name, p]));
+if (KEEP && idx.some(c => !BY[c.theme])) throw new Error('--keep: a card is on a palette that no longer exists');
+const plan = KEEP ? Object.fromEntries(idx.map(c => [c.id, BY[c.theme]]))
+                  : assign(idx, { move:false, fits:(c, p) => accentHolds(c, p) && cvdSafe(c, p), soft:cvdSafe });
 const use = {}, perCat = {}, fam = {}, liveUse = {};
 let colours = 0, lockMax = 0, left = 0, cvdWorse = 0, cvdChecked = 0;
 const worse = [];

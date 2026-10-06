@@ -127,7 +127,13 @@ for (const card of cards){
   const tid = await page.evaluate(id => __ed.open(id), card).catch(e => { P(card, 'open', String(e).slice(0, 120)); return null; });
   /* the card on screen is the card asked for: the Reef lower third did not
      open and Sell Your iPhone, still on screen, was measured in its place */
-  if (tid && tid !== card && tid !== 'sc-' + card){ P(card, 'the card did not open', tid + ' is on screen'); rows.push(row); continue; }
+  if (tid && tid !== card && tid !== 'sc-' + card){
+    /* a card the studio holds back (the classics gate, cf92445d) opens the first card
+       on offer by design: noted and skipped, not measured in its place */
+    const gated = await page.evaluate(id => { const t = TEMPLATES.find(x => x.id === id || x.id === 'sc-' + id); return !t || !!t.gated; }, card);
+    if (gated){ console.log(card.padEnd(24) + ' skipped: held back from the studio (it does not open by its id)'); rows.push(row); continue; }
+    P(card, 'the card did not open', tid + ' is on screen'); rows.push(row); continue;
+  }
   if (!tid){ rows.push(row); continue; }
   // the hand-off, and how the page answers while it settles
   const easy = await page.evaluate(() => __ed.easyBoxes());

@@ -44,6 +44,17 @@ export const ACCENT_SETS = {
   trust:   [{ e: "✅", asset: "shield-check-3d" }, { e: "👍", asset: "thumbs-up-hand" }, { e: "⭐", sym: "star" }],
   sparkle: [{ sym: "sparkle" }, { sym: "star" }, { sym: "sparkle" }],
   checks:  [{ sym: "check" }, { sym: "check" }, { sym: "star" }],
+  // more topics (owner, 2026-10-03: "Make more variety")
+  party:   [{ e: "🎉", sym: "burst" }, { e: "🥳", sym: "star" }, { e: "🎊", sym: "sparkle" }],
+  fast:    [{ e: "🚀", sym: "arrow" }, { e: "⏱️", sym: "clock" }, { e: "💨", sym: "bolt" }],
+  premium: [{ e: "💎", sym: "diamond" }, { e: "👑", sym: "crown" }, { e: "🏆", sym: "star" }],
+  shop:    [{ e: "🛍️", sym: "tag" }, { e: "🏷️", sym: "tag" }, { e: "🧾", sym: "check" }],
+  today:   [{ e: "⏰", sym: "clock" }, { e: "📅", sym: "check" }, { e: "⌛", sym: "clock" }],
+  love:    [{ e: "❤️", sym: "heart" }, { e: "😍", sym: "heart" }, { e: "🙌", sym: "sparkle" }],
+  la_sun:  [{ e: "🌴", sym: "sparkle" }, { e: "🌅", sym: "star" }, { e: "😎", sym: "star" }],
+  eco:     [{ e: "♻️", sym: "plus" }, { e: "🌎", sym: "plus" }, { e: "🔁", sym: "arrow" }],
+  keys:    [{ sym: "plus" }, { sym: "heart" }, { sym: "diamond" }],
+  marks:   [{ sym: "tag" }, { sym: "clock" }, { sym: "crown" }],
 };
 
 /** The cutouts, loaded once. Resolves to { name: img } with whatever loaded. */
@@ -127,6 +138,11 @@ function pose(a, t, st, W, H) {
     case "zoom": { const e = outCubic(qi); sx = sy = lerp(3.2, 1, e); al = clamp(qi * 1.6); blur = (1 - e) * R * .25; break; }
     case "swing": { const e = qi; rot = -70 * ex * Math.exp(-4.2 * e) * Math.cos(e * 9); al = clamp(qi * 4); sx = sy = lerp(.8, 1, outCubic(qi)); break; }
     case "orbit": { const e = outCubic(qi), ang = (1 - e) * TAU * .9 + a.ph, rr = R * 4 * (1 - e); x = a.x + Math.cos(ang) * rr; y = a.y + Math.sin(ang) * rr; sx = sy = lerp(.3, 1, e); al = clamp(qi * 3); break; }
+    case "bounce_in": { const e = outBounce(qi); sx = sy = Math.max(.01, e); al = clamp(qi * 4); break; }
+    case "unfold": { const e = outBack(qi, 1.8); sy = Math.max(.01, e); sx = lerp(1.25, 1, outCubic(qi)); al = clamp(qi * 3); break; }
+    case "spiral": { const e = outCubic(qi); sx = sy = Math.max(.01, e); rot = -360 * (1 - e) * ex; al = clamp(qi * 2.5); break; }
+    case "rise": { const e = outQuint(qi); y = a.y + R * 2.2 * (1 - e); al = clamp(qi * 2); break; }
+    case "stamp": { const e = qi < .55 ? outCubic(qi / .55) : 1; sx = sy = lerp(2.3, 1, e) * (qi > .55 ? 1 - .08 * Math.sin((qi - .55) / .45 * Math.PI) : 1); rot = 14 * (1 - e) * ex; al = clamp(qi * 3); break; }
     default: al = qi;
   }
   // idling, once in
@@ -137,6 +153,10 @@ function pose(a, t, st, W, H) {
     case "wiggle": rot += 7 * Math.sin(ti * 3.4 + a.ph) * ramp; break;
     case "turntable": sx *= lerp(1, Math.max(.12, Math.abs(Math.cos(ti * 1.7 + a.ph * .2))), ramp); break;
     case "float": x += Math.cos(ti * 1.1 + a.ph) * R * .07 * ramp; y += Math.sin(ti * 1.4 + a.ph) * R * .1 * ramp; break;
+    case "sway": rot += 11 * Math.sin(ti * 1.6 + a.ph) * ramp; break;
+    case "heartbeat": { const ph = (ti * (st.bpm || 118) / 60) % 1, k = 1 + (.08 * Math.exp(-ph * 18) + .05 * Math.exp(-Math.max(0, ph - .22) * 18) * (ph > .22 ? 1 : 0)) * ramp; sx *= k; sy *= k; break; }
+    case "breathe": { const k = 1 + .045 * Math.sin(ti * 1.3 + a.ph) * ramp; sx *= k; sy *= k; break; }
+    case "circle": x += Math.cos(ti * 1.8 + a.ph) * R * .08 * ramp; y += Math.sin(ti * 1.8 + a.ph) * R * .08 * ramp; break;
   }
   // leaving, where the ad has an ending
   if (a.tOut != null && st.accent_out && st.accent_out !== "none") {
@@ -148,6 +168,10 @@ function pose(a, t, st, W, H) {
       case "fly_out": { const e = qo * qo; if (sideX) x = lerp(x, ex < 0 ? -R * 1.5 : W + R * 1.5, e); else y = lerp(y, ey < 0 ? -R * 1.5 : H + R * 1.5, e); rot += 90 * e * ex; break; }
       case "spin_out": sx *= Math.cos(3 * Math.PI * qo) * (1 - qo); sy *= 1 - qo; break;
       case "drop_out": y += qo * qo * H * .8; rot += 60 * qo * ex; break;
+      case "shrink": { const k = Math.max(0, 1 - outCubic(qo)); sx *= k; sy *= k; break; }
+      case "rise_out": y -= outCubic(qo) * R * 2.4; al *= 1 - qo; break;
+      case "flip_out": sx *= Math.cos(Math.PI / 2 * qo); al *= 1 - qo * .5; break;
+      case "blur_out": blur += qo * R * .3; al *= 1 - qo; sx *= 1 + .3 * qo; sy *= 1 + .3 * qo; break;
     }
   }
   return [x, y, sx, sy, rot, al, blur];
@@ -173,6 +197,15 @@ function drawSymbol(ctx, kind, R, col, line, fontName) {
       ctx.font = fontCss(fontName, R * 1.9); ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.strokeText("$", 0, R * .06); ctx.fillText("$", 0, R * .06); return;
     }
+    case "heart": ctx.moveTo(0, R * .85); ctx.bezierCurveTo(-R * 1.25, -R * .05, -R * .55, -R * 1.05, 0, -R * .42); ctx.bezierCurveTo(R * .55, -R * 1.05, R * 1.25, -R * .05, 0, R * .85); break;
+    case "diamond": [[0, -.9], [.75, -.25], [0, .95], [-.75, -.25], [-.45, -.9], [.45, -.9]].slice(0, 4).forEach(([u, v], k) => k ? ctx.lineTo(u * R, v * R) : ctx.moveTo(u * R, v * R)); break;
+    case "plus": [[-.3, -.85], [.3, -.85], [.3, -.3], [.85, -.3], [.85, .3], [.3, .3], [.3, .85], [-.3, .85], [-.3, .3], [-.85, .3], [-.85, -.3], [-.3, -.3]].forEach(([u, v], k) => k ? ctx.lineTo(u * R, v * R) : ctx.moveTo(u * R, v * R)); break;
+    case "crown": [[-.9, .6], [-.9, -.45], [-.45, .05], [0, -.75], [.45, .05], [.9, -.45], [.9, .6]].forEach(([u, v], k) => k ? ctx.lineTo(u * R, v * R) : ctx.moveTo(u * R, v * R)); break;
+    case "tag": { [[-.9, -.45], [.35, -.45], [.9, 0], [.35, .45], [-.9, .45]].forEach(([u, v], k) => k ? ctx.lineTo(u * R, v * R) : ctx.moveTo(u * R, v * R)); ctx.closePath(); ctx.stroke(); ctx.fill();
+      ctx.beginPath(); ctx.arc(R * .3, 0, R * .11, 0, TAU); ctx.fillStyle = line; ctx.fill(); return; }
+    case "clock": { ctx.arc(0, 0, R * .82, 0, TAU); ctx.stroke(); ctx.fill();
+      ctx.beginPath(); ctx.lineWidth = R * .13; ctx.strokeStyle = line; ctx.moveTo(0, 0); ctx.lineTo(0, -R * .52); ctx.moveTo(0, 0); ctx.lineTo(R * .38, R * .12); ctx.stroke(); return; }
+    case "burst": for (let k = 0; k < 24; k++) { const a = -Math.PI / 2 + k * Math.PI / 12, rr = k % 2 ? R * .62 : R; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } break;
     default: ctx.arc(0, 0, R * .6, 0, TAU);
   }
   ctx.closePath(); ctx.stroke(); ctx.fill();

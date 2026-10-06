@@ -4134,3 +4134,406 @@ may be complex."
   a sentence, reading ease 74 to 80, every fact kept. The FAQ's search-engine
   copy (JSON-LD) is rebuilt from the visible answers, so the two always match.
 
+
+## 114. A phone in a video is the model it is, and moves the way a camera would see it
+
+Added 2026-10-03 (numbered 114 when merged: `main` took 110 to 113 the same days). The owner, on three turned 17 and 18 Pros in a video: "they
+look like sim tray devices missing the sim tray so it's got a hole... audit
+small detail and fix fill in body color", then "make sure we have even better
+movements, accuracy, and realism".
+
+- **The body is the model's** (`designOf`, motion/engine.js). A turned phone's
+  edge is as deep as Apple's published depth for its width (`BODY`): a Plus
+  turns an edge 0.100 of its width, a 17 Pro 0.122, where every model was
+  0.115. Camera Control is flush and the body's colour; drawn near-black it
+  read as an empty SIM tray.
+- **A control the photograph shows is drawn where the photograph has it**
+  (`MEASURED_CONTROLS`). The 17 and 18 Pro backs show the side button standing
+  proud of the rail 46.8 to 64.4 mm from the top on both sizes; the engine drew
+  it 5 mm higher, so a turned phone showed two. `scripts/audit_phone_views.py`
+  fails a back whose button and drawing disagree by more than 1% of the height.
+  The stripes on the non-Pro backs sit at one share of the height on both sides
+  and both sizes, which buttons do not: they are the shared back's, not a
+  measurement.
+- **Motion blur blurs** (`Ad._subsFor`, `EXPORT_QUALITY`). An export draws the
+  phones at as many moments of the shutter as it takes for no corner to jump
+  more than 3 px between two (8 to 24); a fixed 8 left fast spins, frame 0
+  among them, as a fan of copies. The preview keeps its fixed few, to play live.
+  It costs the export about 1.2 to 1.8 times the drawing time.
+- **A shadow softens as the phone rises, without steps.** It blends the two
+  nearest of its three blurs, as dark together as one, and is as wide as the
+  turned body; picking one blur jumped at a third and two thirds of the height.
+- **Light moves on a turning back.** A soft band crosses it as it turns about 20
+  degrees toward the key light (high left, where the shadows fall from); square
+  to the lens or resting on an edge it is gone, so a still phone is unchanged.
+- `node scripts/motion_phone_check.mjs` measures the blur of every entrance,
+  flat and turned, and the shadow's steps, and exits 1 past either bar; run it
+  and audit_phone_views.py after a change to how the phones are drawn or move.
+- **All the way round** (owner, the same day: "All devices audit the 360 and any
+  other angles"). Every offered phone was turned through 360 degrees upright and
+  at 45, 90 and 180 degrees in the frame. Side-on, a phone shows its edge, as
+  deep as its model (the side was built from stacked outlines, and side-on each
+  is a line: every phone was a 1 to 2 px hairline beside a full-width shadow at
+  90 and 270 degrees, the middle of every wide spin and the start of a flip-in).
+  The edge's slices overlap, so no angle leaves a see-through seam. A phone lying
+  at any angle catches the same key light, high on the left. The iPhone 15 and
+  15 Plus carry the mute switch, not the Action button (`designOf`, checked
+  against Apple's line-up by audit_phone_views.py's FACTS).
+- motion_phone_check.mjs turns one phone of every model the same way, upright and
+  on its side, and fails an edge under 0.8 of the model's depth, a gap inside
+  the body, or a step of the turn over 2.5 times the usual.
+- **A side is its metal's colour** (owner, 2026-10-04, of a Cosmic Orange 17 Pro
+  side-on: "the orange looks a little bit too light"). On a 17 or 18 Pro the
+  sides and the camera plateau are one piece of aluminium, so the side is drawn
+  the plateau's colour, measured off each back (`RAIL`). index.json's `metal` is
+  read off the back's thin rim, where the studio light catches it, and was 13
+  to 55 levels a channel off (1.1 to 3.4 times too light). A measured side is
+  lit as a surface is, its colour scaled by the light with a faint white glint,
+  so it keeps its hue and averages to its own colour (0.89 to 1.10 side-on);
+  mixed toward black and white, the orange went brown at the rims and peach
+  between. Older backs show no part made of their frame's metal, so their sides
+  keep the rim's colour and the old shading. audit_phone_views.py fails a 17 or
+  18 Pro whose RAIL is more than 12 levels off its plateau.
+- **No hand-over to see** (owner, 2026-10-04, of the Burgundy 18 Pro: "the left
+  side kind of does a little bit of a flash and it's a little dark on the edge
+  and then it disappears as the device goes flat. It's not gradual at all").
+  Within 0.86 degrees of flat the phone was drawn as its bare photograph, and
+  the slab before it did not match: a dark sliver down its left side and round
+  its corners (the slab was a rounded rectangle the photo's full size, the
+  photo trimmed to its side button and rounder at the left), the face half a
+  percent large (the lens was focused on the middle of the body), and the side
+  buttons, with most of a pixel of perspective, swapped edges at flat. Now the
+  phone is the slab at every angle, built on its photograph's own outline
+  (`bodyOf`, measured once per photo) 0.8 px inside it, focused on the face we
+  see; the buttons come into view over the first 3.4 degrees; the photograph
+  is drawn from a copy with a clear border (`padded`) so the canvas's
+  hard-edged image rectangle never falls on the phone, its strips sampled
+  rather than stretched; the screen is drawn at twice the size and taken down.
+  Coming flat in steps of 0.05 degrees no step changes more than 17 pixels
+  visibly; at the old hand-over one step changed 4,161 to 8,188.
+  motion_phone_check.mjs's `flat` fails a step over 60. A 6 s export's frames
+  take about a fifth longer to draw.
+## 115. A stack keeps one rhythm down to its call to action, and the action is not another step
+
+Added 2026-10-02 (numbered 115 when merged: `main` took 110 to 114 the same days). The owner, over two Steps Flow cards in the library (the
+first was `stepsFlow-du08-15`): "Can we audit the margin between each bubble?
+I particularly think the CTA should have even margin.. also if we have three
+boxes of the same color, maybe the CTA is a different color? Or maybe it has
+a highlight? See the green one looks a little more cohesive", then "But most
+importantly, continue the same margin between each bubble".
+
+Measured on the 83 Steps Flow cards (the two classics and every showcase
+record) as renderThumb paints them, `scripts/steps_rhythm_audit.mjs --before`:
+
+| | before | after |
+|---|---|---|
+| step 1 to 2, 2 to 3 | 11 to 15px, equal on every card | 11 to 15px, equal on every card |
+| step 3 to the CTA plate | 26px **over** the third card to 33px under it | the same as the steps' gap, on every card |
+| cards with one rhythm | 2 of 83 | 83 of 83 |
+| CTA plate the rows' own neutral | 6 | 0 |
+
+In Easy Mode it was worse: the classic's plate covered the bottom 24px of
+GET PAID in the square, the 16:9 and the 4:3, 9 to 11px in the Tall 3:4 and
+the flyer, and in the story it sat 16px under rows 26px apart. The rows were set by the template; the guides fit and the number's
+floor (rule 53) sized and placed the plate after them, and nothing asked how
+far apart the two had ended up.
+
+- **The rhythm is the steps' own gap.** `pgStepRhythm`, last in the layout
+  (and again after `numberFill`), lays the step cards out again above the
+  plate: one gap apart and one gap off it, each card and everything drawn on
+  it keeping its middle (a sheen keeps its place under the card's top edge).
+- **The plate stays where the guides and the number put it; the rows move.**
+  Rows that do not fit come down in height first, never below their own words
+  plus 9px each side. Only then does a plate (not a band run to the card's
+  edge) give its spare height, from the top, down to its words plus a fifth of
+  them each side: the number fills its plate (`numberFill`), and the owner has
+  already said of these cards' CTA: "very hard to read and too small". Then
+  the gap itself comes down, never under 6px. Rows with room to spare move
+  down to the plate, unless that would cover something they did not.
+- **A stack that was spread on purpose is left alone**: gaps that already
+  differ by more than 6px, or a plate more than three gaps further down.
+- **The CTA is not a fourth step.** `pgCtaStandOut`: where the plate and the
+  step cards are both neutral and within 0.35 of each other in OKLab
+  lightness, or within 0.08 in OKLab, the plate takes the card's accent: the
+  colour the card's own accent plates already wear (the kicker pill, the step
+  numbers), else its headline's, else the hue the card is in, never the rows'
+  colour back. The number and every line and mark on the plate turn to
+  whichever of near-black and near-white reads better, the plate's lightness
+  moving until that is 7:1 (rules 53, 74), then take the plate's hue (rule
+  104). The colour is one the card already has, so the card keeps one hue
+  (rule 95). It runs after every pass that repaints a card, as pgOneHue does.
+  A plate the visitor coloured is theirs.
+- **A plate it recoloured is looked after to the end.** The number grows after
+  the pass and widens its plate under a mark beside it, and a theme takes a
+  coloured plate for an accent plate and repaints it in its own accent. On
+  `stepsFlow-du02-20` under Electric Trust both happened: the phone cue ended
+  on a light blue plate in its old mid blue, 1.6:1, and the every-choice audit
+  held the theme. So on such a plate, anything that does not read (a line
+  under 4.5:1, a mark under 3:1) takes the plate's ink; a tagline look's own
+  colours, which read, are left alone.
+- The six it recoloured: du08-15 and du01-20 (off-white under off-white rows,
+  now the navy of their kicker pills), du02-20 (teal), jw03-15 and jw10-20
+  (a grey pill under grey glass, now the gold of their step numbers), and the
+  classic `dl_silver_stepsFlow_ocean` (a near-black plate under near-black
+  glass, now its cyan).
+- No gate result changed on any of the 83 cards. Easy Mode measured in all six
+  formats on the classic: one rhythm in each, the gate clean.
+- `scripts/steps_rhythm_audit.mjs` exits 1 on a card whose three gaps differ
+  by more than 2px or whose plate reads as a fourth step. `--before` turns
+  both passes off (`window.__pgStepRhythmOff`, `__pgCtaStandOutOff`).
+
+## 116. The headline is the hero: it covers the card like every other card's does
+
+Added 2026-10-03 (numbered 116 when merged). The owner, over `stepsFlow-du01-20` (one word, "iPHONE", in
+the top left of a Steps card, shown in rule 115's before-and-after): "How many
+times do I have to tell you this is not a hero. It's tiny little text that
+looks extremely out of place compared to every other graphic seriously????"
+
+The gate's thumbnail test (`pgCheck` 'thumb') reads the headline's font size:
+0.7 of it on a 160px tile must reach 8px, so any line set at 77px or more
+passes. A 104px extra-condensed word passes, and still looks like a caption.
+What the owner compares is how much of the card the headline's letters cover:
+
+| | px² of headline letters on the 1080 square |
+|---|---|
+| the live library's median | 99,000 |
+| its tenth percentile | 46,000 |
+| CASH IN / 3 STEPS, which reads as a hero | 41,000 to 46,000 |
+| the four Steps cards the owner's words fit | 14,000 to 24,000 |
+| six live cards (four reviewProof, two ticketStub) | 22,000 to 28,000 |
+
+- **The floor is 30,000 px² of letters** (`HERO_MIN` in
+  `scripts/hero_headline.mjs`), measured on the letters (`textInkRect`), not
+  the boxes, on the card as renderThumb lays it out.
+- **A headline under it grows as one block**, by the largest factor the card
+  allows on the real render: its left edge (or centre) kept, its top free to
+  rise to the 6% guide; its letters inside the guides, 38px off every plate,
+  badge and product, and 0.8 of their own height off copy beside them; on the
+  plate and the ground they stood on (the median of every row and column of
+  the ground under the letters and 16px round them, so a headline printed on
+  a slab's label stays on the label); nothing else on the card moving or
+  going (a row pushed down, or a product left out for want of room, is a
+  collision); a sparkle set beside it moving with it; no headline line's
+  contrast falling. A grey headline under 4.5:1 takes the card's near-white
+  (near-black on a light ground). Then the gate (`gateRecords`).
+- Grown: du01-20 (×2.4, 15k to 84k), jw05-31 (×2.24, grey to white, 14k to
+  69k), du03-35 (×1.79, 20k to 65k) and pp09-35 (×1.57, 24k to 59k), all held
+  off the site already; and on the site reviewProof-pp03-35, -io03-15,
+  -pp02-15 (×1.54), -pp02-20 (×1.28), ticketStub-ck03-15 and -du02-30 (×1.32).
+  Three of the Steps cards had failed the gate's thumbnail test; none does now.
+- **A hero names what it wants, and names it exactly.** The owner, of
+  du01-20's grown "iPHONE": "create some room for the words... this just
+  feels incomplete still iPhone.. or maybe we can change it to sell your
+  iphone?"; then "what about WE BUY ALL (skip line) iPHONE 12-18", and, on the
+  way, "or skip.. iPHONE PRO MAX AIR", "more specific and more variety", "too
+  broad". One word is an object, not an ad, and ALL is a claim nobody can
+  picture. It is now WE BUY over iPHONE PRO · MAX · AIR: the lines a seller
+  owns, named, with dots so it reads as three models and not one. The hero
+  runs the card's width (920px of letters, 103px tall) and the lead is under
+  half its height; the pair sits on the middle of the band between the kicker
+  pill and the first step, the hero's box 16% into the lead's (the collision
+  pass calls under 18% a kiss). SELL YOUR / iPHONE, WE BUY ALL / iPHONE 12-18
+  and a three-line WE BUY / iPHONE 12-18 / PRO · PRO MAX · AIR were drawn and
+  passed the gate; the three-line one left every line small.
+- **Four live Glass Cards stay under the floor** (25k to 29k): their headline
+  shares the glass panel with the product, and a bigger headline pushes the
+  product out of the panel (the layout then leaves it off). That is a layout
+  decision, not a size: OPEN-ITEMS §AG.
+- Never judge a headline by its font size alone again: a condensed face and a
+  short word make a large size small. Run `node scripts/hero_headline.mjs
+  --live` (without `--write` it only reports) after anything that sets
+  headline sizes.
+## 117. Real photographs of the goods, never generated scenes or drawn placeholders
+
+Added 2026-10-04 (numbered 117 when merged: `main` took 112 to 116 the same days). The owner, of the fanned trading-card photographs behind
+the sports cards: "These are our classic background images, which I just
+wasn't really a fan of go ahead and remove"; then "replace everything and
+please use images of real things. People buy. This is like so classic AI
+slop", and "We need to look like graphic designers made this, and they would
+never choose that that's incomplete. It's a placeholder at very best."
+
+- **Retired:** every photograph the studio generated for the Designer
+  Library (`assets/bg/dl_*`, the "studio scenes": card fans, coins on burlap,
+  watches on velvet) and every drawn ground (`assets/showcase/bg/dg_cast_*`, a
+  flat colour and a grey slab icon). Fifteen of the nineteen sports
+  photographs were the same three fans.
+- **What stands in:** a real photograph of what the card says it buys, from
+  the curated Commons set in `assets/bg-web` (free licences only, credits in
+  its ATTRIBUTION.json), or the Apple product scenes for iPads and watches.
+  The words choose it (a Rolex for WATCH, a pickup for TACOMA, flatware for
+  STERLING, silver coins for SILVER DOLLARS). It stands sharp, in its own
+  colour, under a neutral shade solved for it, only where the words are.
+- **A photograph that is not a ground:** a single coin's face filling the
+  frame (on black, or a gold disc) and the slabbed Morgan in its red case
+  shade to a flat black field, or put words over a coin's own lettering,
+  once the copy is on them. They are out of the pools (`NOT_A_GROUND`).
+- **Measured, then looked at.** `scripts/reground_showcase.mjs` tries the
+  least-used photographs of a card's pool, solves the shade, and keeps one
+  only through the writers' gate; every result was looked at before it was
+  written (`--pin` writes exactly the one looked at). 89 library cards moved
+  to real photographs; 6 with none that passes are held (holds.json, audit
+  2026-10-04). The templates the studio builds take theirs from the same
+  pools (`BG_REAL` in app.js, the street set and the hand-built set with
+  them), their shade re-solved (ground-fix.json) and gated (classics-gate).
+  The Pokémon offer cards stand on the graded Charizard photographs.
+- **Not done: sports cards.** Commons has no usable photograph of sports
+  cards (searches returned museum trade cards, tournament crowds and two
+  signed baseballs), and the stock libraries designers use (Unsplash, Pexels,
+  Openverse's Flickr) are not reachable from the cloud sessions. The sports
+  cards keep generated scenes until real photographs arrive.
+## 118. The phone mark belongs to the number: its colour, its line, its box
+
+Added 2026-10-02 (written as 110 on claude/beautiful-wozniak-xmvvuk; numbered 118 when merged). The owner, of two car cards: "The Phone icon by the CTA
+looks super out of place and we could always color match it to make the
+theme look more cohesive", and of the second, "Same thing with this one".
+
+The mark beside a number (`Phone Cue`, written by retheme_lab.mjs on two cards
+in five so people know what the number is for) was placed and coloured for
+the number as it stood when the card was generated. The passes after it
+resized, moved and recoloured the number (the faces, the hug of the pill, the
+plate ink of rule 104) and left the mark where it was. Measured on the 93 live
+cards that carry one, on the pixels the studio paints:
+
+| | before | after |
+|---|---|---|
+| mark shown | 60 | 59 |
+| not the number's colour | 60 | 0 |
+| off the box that holds the number | 22 | 0 |
+| more than 12px off the number's middle | 46 | 0 |
+| gap to the digits | -175 to 77px | 18 to 26px |
+
+55 of the 93 asked for `phoneMark`, a name the icon table never had, so the
+lookup fell back to the sparkle: a star stood beside the number. `ICONS.phoneMark`
+is now a handset.
+
+`pgPhoneCue` runs after `pgPlateInk` everywhere the colour passes run (rule 95):
+
+- **Colour.** The mark takes the number's ink, whatever painted it last.
+- **Size and line.** The mark is 0.92 of the digits' cap height, measured from
+  the face, and centred on the digits (not the line box, which the leading and
+  the parentheses make taller).
+- **Box.** Inside the solid shape that holds the number, a gap of a quarter of
+  the number's size to its left. Where the number was centred on its box, the
+  mark and the number are centred together. A rect that hugs the number grows
+  about its middle to take the mark, when the slivers it gains touch no other
+  line and it stays on the card; a drawn shape never grows.
+- **Otherwise hidden.** A mark with no room, or one that would land on another
+  line, is hidden rather than left off its box (2 cards).
+- **The visitor's.** A mark or a number dragged in the designer is never moved
+  again.
+
+Under a colour theme the mark used to keep its old colour on a repainted box
+and vanish; 225 of the 444 themes held off (rule 101) were that, on 18 cards.
+With the mark following the number's ink, the 12 of those cards that are live
+were measured again: 89 themes come back on 9 of them (444 held to 355); the
+marks still lost are stepsFlow's step-number boxes and slabPoster's marks.
+
+It is not only the phone. On the same day 148 of the 331 live cards showed at
+least one sparkle where another mark was meant (265 marks under 31 names the
+table lacks: `corner` 96, `medal` 15, `cash` 14, `dollar` 14, `check` 12,
+`headset` 12, ...). OPEN-ITEMS §AI.
+
+## 119. Every mark is the one the generator drew, and stands clear of the headline
+
+Added 2026-10-03 (written as 111 on claude/beautiful-wozniak-xmvvuk; numbered 119 when merged). The owner: "keep working on the style", after rule 118 and
+the list of why a card looks unfinished (OPEN-ITEMS §AI).
+
+- **The generator's marks are the studio's.** retheme_lab.mjs draws 46 marks
+  into the page it renders with (`ICONS.medal`, `ICONS.corner`, `ICONS.globe`,
+  ...) and writes their names into the records; app.js never had 44 of them,
+  and `ICONS[name] || ICONS.sparkle` drew a star for each. 265 marks on 148
+  live cards were stars. The 44 are copied into `ICONS` as the generator drew
+  them, stroke weights and all (its `pin` and `phoneMark` keep the studio's).
+  Measured after: no mark on a live card falls back; the 466 marks shown are
+  the same 466, none newly on copy or off the card.
+- **A floating mark stands 118px clear of a headline on its row**
+  (`pgFlankClear`, after `pgPhoneCue` in every colour pass). The generator
+  kept its line art that far out because "a green tick beside SELL YOUR read
+  as part of the sentence" (owner, 2026-09-03: "really?"); the layout passes
+  then moved the headlines and left the marks. On the 331 live cards of
+  2026-10-03, 123 of the 166 marks shown sat closer than 118px to a headline
+  on their row, 45 closer than 60px, 4 on it. Now 113 are moved back out to
+  118px and 10 are hidden where there was no room.
+- **A mark that reads as a character never stands beside a headline.** A
+  dollar sign or a tick on a headline's row reads as a letter of it ("$CASH
+  FOR", "SELL YOUR ✓") at any distance: hidden (25 more). `PG_GLYPH_MARKS`.
+- On all 370 live cards after: 145 floating marks shown, none within 118px
+  of a headline on its row.
+- A mark the visitor dragged in the designer stays (`pgHandHook`, shared with
+  rule 118).
+
+## 120. The selling-points strip wears the CTA's colour
+
+Added 2026-10-03 (written as 112 on claude/beautiful-wozniak-xmvvuk; numbered 120 when merged). The owner, of a white strip of selling points above a blue
+call-to-action box: "the white box should be color match to blue or the CTA
+should be matched to white but either way it's lacking cohesiveness".
+
+- On the bubblePop and voltStack layouts the strip (`Info Text Panel`) was
+  drawn white whatever the CTA box (`CTA Card`) was. Where the box is
+  coloured, the strip takes the box's colour, and its words are white, as the
+  CTA's are, unless white would read under 3:1 on it (then near-black).
+- Done in the records, card by card, through the gate: 21 live cards and 7 of
+  the cards brought back with a photograph. One is left as it was:
+  voltStack-su02-30 sets its CTA line over the strip itself, and a coloured
+  strip took that line to 1.36:1.
+- A neutral CTA box keeps a neutral strip (bubblePop-jw04-20: white and white).
+
+## 121. A number alone on a band is on the band's middle, inside the guides
+
+Added 2026-10-03 (written as 113 on claude/beautiful-wozniak-xmvvuk; numbered 121 when merged). Rule 102 put the number on the middle of a plate it has to
+itself and made the gate check it (numCentre: the letters' middle within 12%
+of the plate's middle as it is seen). Two of the studio's own passes then
+disagreed with the gate on the same card:
+
+- **Easy Mode leaves the website line off** when the visitor has none. On
+  stepsFlow and trustSeal the footer band held the website over the number;
+  without it the number was alone, at the band's top.
+- **`numberFill` centred it in the room inside the guides**, and on a band
+  that runs off the card's foot that room's middle sits half a guide (32px)
+  above the band's middle as it is seen: a fifth of a 190px band, past the
+  gate's 12%. It used the right helper, `numberCentreY` (the seen middle,
+  clamped to the guides), only for restaged records.
+
+On 2026-10-03, 21 live cards and 4 classics were kept out of Easy Mode for
+that alone (choice-holds.json). Now:
+
+- `numberFill`, when the number is alone on its plate, sets it with
+  `numberCentreY` like a restaged record. A plate it shares (a CTA over it) is
+  a stack and keeps the room's middle.
+- `pgNumberMiddle`, in every colour pass, sets a number alone on its plate on
+  the same middle when it is further off than the gate allows; a band that
+  runs off the card's foot and is too shallow for both the guide and the
+  middle grows upward into clear space until it is (10 to 20px on stepsFlow's
+  footer).
+- Measured in Easy Mode on all 370 live cards, the work off and on: 22
+  renders change (stepsFlow and trustSeal only), and the number fails its
+  middle on 2 cards where it failed on 21 (trustSeal-jw10-30 and -jw10-31,
+  whose band has copy right above it and cannot grow). The 4 price-badge
+  classics pass. The thumbnail gate is 370 of 370 and the classics 346 of
+  404, as before.
+
+## 122. The hero is one colour and one ink
+
+Added 2026-10-04 (written as 114 on claude/beautiful-wozniak-xmvvuk; numbered 122 when merged). The owner, of voltStack-ca07-15's WE BUY over CARDS: "They
+look like different shades when there's white and black in the hero just
+doesn't make a ton of sense … We should just unify it to one shade one text
+color for the hero", then "any solid color could be a pattern gradient
+whatever you think is fitting but solid colors are most fitting in most
+circumstances".
+
+- **Colour blocks** (the tagline look that sets each headline line on its
+  own block) alternated the theme's two colours line by line, ink by
+  contrast. The one-colour pass (rule 95) then brought the second colour to
+  the first's hue at its own lightness: two shades of one teal, white letters
+  on the darker and black on the lighter. Now every block is the theme's
+  accent and every line takes the one ink that reads on it (white unless it
+  would fall under 4.5:1, the block's lightness moved if neither does).
+- **Solid**, as the owner said fits most cards. A gradient or a pattern is a
+  look of its own (Signature, Gradient, Pattern), chosen for the whole claim,
+  never one per line.
+- Measured on the 380 live cards after: of the 95 with two or more headline
+  lines on bands, none has bands of two colours and none lines of two inks
+  (seven read so to the measure: a white-to-white gradient on one line is
+  still white). 68 live cards carry the look as offered, and any card can
+  take it in Easy Mode or the designer, so its rows in the choice table were
+  measured again on every card (OPEN-ITEMS §AK).

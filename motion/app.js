@@ -1,7 +1,7 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf } from "./engine.js";
+import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -77,6 +77,8 @@ function restore() {
     const s = JSON.parse(localStorage.getItem(STORE) || "null");
     if (s && s.style && typeof s.style === "object") { state.style = { ...state.style, ...s.style }; state.locked = new Set(Array.isArray(s.locked) ? s.locked : [...state.locked]); }
     for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[state.style[k]]) state.style[k] = map[state.style[k]];   // a retired sound shows as its stand-in
+    // the user's own music lives in the page's memory only: after a reload the ad plays its other music
+    if (state.style.track === "upload") { state.style.track = "none"; state.locked.delete("track"); }
     if (s && (s.galleryCat === "all" || SHELVES.some(x => x.id === s.galleryCat))) state.galleryCat = s.galleryCat;
     if (s && typeof s.galleryPlay === "boolean") state.galleryPlay = s.galleryPlay;
   } catch (e) { /* fresh start */ }
@@ -90,6 +92,15 @@ function restore() {
   } catch (e) { /* none */ }
   const q = new URLSearchParams(location.search);
   if (q.get("look")) state.style.seed = parseInt(q.get("look"), 10) || state.style.seed;
+  // a look picked in the Look Book (looks.html): its vibe, ground or phone set, from its seed
+  const pick = { vibe: q.get("vibe"), bg: q.get("bg"), layout: q.get("layout"), aspect: q.get("aspect") };
+  if (pick.vibe || pick.bg || pick.layout) {
+    const { style, locked } = linkedLook({ ...state.style }, parseInt(q.get("look"), 10) || 1, pick);
+    state.style = style;
+    ["vibe", "background", "arrangement"].forEach(k => { if (locked.has(k)) state.locked.add(k); });
+    if (locked.has("vibe")) VIBE_AXES.forEach(a => state.locked.delete(a));
+    try { history.replaceState(null, "", location.pathname); } catch (e) { /* fine */ }
+  }
 }
 
 // ------------------------------------------------------------ building the ad
@@ -341,6 +352,18 @@ function buildPanel() {
     } catch (err) { console.warn(err); VH().toast("That picture could not be read. Try a PNG or JPG of the phone's back, on a plain background."); }
     e.target.value = "";
   });
+  // the user's own music: decoded here and kept in this page's memory, never sent anywhere;
+  // after a reload, without it, the ad plays its other music
+  $("music-upload").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try {
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      try { state.assets.userTrack = await ac.decodeAudioData(await f.arrayBuffer()); } finally { if (ac.close) ac.close(); }
+      pushHistory(); state.style.track = "upload"; state.locked.add("track"); save(); rebuild();
+      $("music-upload-name").textContent = `${f.name}: plays from the headline in this ad, until the page is reloaded.`;
+    } catch (err) { console.warn(err); $("music-upload-name").textContent = "That file could not be read as music. Try an MP3, WAV or M4A."; }
+    e.target.value = "";
+  });
 
   // actions
   $("shuffle-look").addEventListener("click", () => shuffle(false));
@@ -537,6 +560,8 @@ const STUDIO = {
   pattern: { label: "Patterns", backgrounds: ["dots", "stripes", "grid", "checker", "halftone", "rings", "waves", "halftone_duo", "halftone_comic", "halftone_lines", "checker_diamond", "checker_floor"] },
   light:   { label: "Light and glow", backgrounds: ["rays", "sunburst", "beams", "bokeh", "aurora", "drift", "mesh", "rays_corner", "beams_cross", "beams_stage"] },
   bold:    { label: "Bold and loud", backgrounds: ["bigword", "confetti", "frame", "noise"] },
+  fresh:   { label: "Fresh and clean", backgrounds: ["studio_sweep", "pill_stage", "arch_window", "paper_cut", "ribbon_wave", "concentric", "split_soft", "spot_floor", "marble_soft", "tile_gloss", "sky_gradient", "pastel_blobs", "window_light", "podium_steps", "sun_rays"] },
+  party:   { label: "Party and colour", backgrounds: ["confetti_pop", "sprinkles", "streamers", "confetti_soft", "polka_pop", "terrazzo", "paper_shapes", "glow_orbs", "neon_frame", "bokeh_night", "grid_glow", "halftone_fade", "diagonal_lines", "wave_lines", "checker_fade"] },
 };
 // the approved themes, one shelf per family (each thumbnail a different theme of it)
 const familyShelves = THEME_FAMILIES.map(f => ({ f, ids: Object.keys(VIBES).filter(id => VIBES[id].family === f) })).filter(x => x.ids.length)
