@@ -110,6 +110,16 @@ production CSP and decodes the files), `scripts/motion_gallery.mjs` +
 exercised in this repo's test container (its Chromium has no H.264 encoder):
 export one clip from Chrome or Safari before announcing it.
 
+## Colour sets
+One vocabulary (DESIGN-LAW rule 123): the twelve colour sets the library's
+cards are made in (Navy & Gold, Navy & Orange, Midnight & Cyan, Blue & Green,
+Green & Gold, Purple & Gold, Teal & Orange, Red & Yellow, Black & Gold, Black
+& Red, Black & Green, Silver & Blue) are the colour themes Easy Mode and the
+designer offer, the landing's Ready-made tab, and the builder's ready-made
+sets. Each theme is solved by the colour builder (`scripts/house_themes.mjs
+--write` prints them into `app.js`); `scripts/theme_cohesion_audit.mjs`,
+`scripts/cvd_audit.py` and `scripts/theme_law.mjs` check them.
+
 ## Library API (iPhones LA) — optional
 
 `/api/library/v1` hands the library's ads (the 311 finished cards the site
@@ -117,7 +127,12 @@ offers, each rendered at 1080x1080 into `assets/library-ads/` by
 `scripts/render_library_ads.mjs`) to a partner's server, behind a key: set
 `LIBRARY_KEYS` (`name:key` pairs, keys of 32 characters or more) in the
 Netlify environment. Without it the route answers 503 and nothing else
-changes. `?card=<id>` opens an ad in the studio. The other side, for iPhones
+changes. `?card=<id>` opens an ad in the studio. Every ad carries its dates
+(`created`, `updated`, `uploaded`, ISO 8601 UTC, read out of git by the
+render script and written into each JPEG's EXIF), and the ads route takes
+`?since=` and `?sort=newest|oldest` on them; after any change to the
+library run `render_library_ads.mjs --stamp` (or `--stale`, which stamps
+too) from a full clone, never a shallow one. The other side, for iPhones
 LA's listing page, is `docs/iphonesla-library.zip` (the folder
 `docs/iphonesla-library/`: a Python client, the server routes, the picker, a
 paste-ready prompt). After the library's thumbnails are drawn again, run

@@ -177,7 +177,7 @@ Object.entries(TAMED).forEach(([k,P]) => {
 });
 console.log(`  --> ${palRows.filter(r=>r.pass).length}/${palRows.length} pass   ('!' marks the value that failed)`);
 
-console.log('\n══ COLOR_THEMES — the 10 the customer picks in Easy Mode ══');
+console.log(`\n══ COLOR_THEMES — the ${COLOR_THEMES.length} the customer picks in Easy Mode and the designer (rule 123) ══`);
 console.log('   ink and accent against BOTH stops, not just the dark one.\n');
 console.log('  theme            ink/c1  ink/c2  acc/c1  acc/c2  accCVD  acc-vs-ink  hue  warm  verdict');
 let ctFails = 0;
@@ -208,7 +208,7 @@ console.log(byp.length
   ? `  · plate ink does NOT match onAccent() on: ${byp.map(r=>r.k).join(', ')} — something is hard-coding an ink again.`
   : `  · plate ink matches onAccent() on all ${palRows.length} palettes (the nine designer bypasses are gone).`);
 console.log(`  · accent warmth (house direction, HANDOFF §6): ` +
-  `${COLOR_THEMES.filter(t=>isWarm(t.accent)).length}/10 COLOR_THEMES warm, ` +
+  `${COLOR_THEMES.filter(t=>isWarm(t.accent)).length}/${COLOR_THEMES.length} COLOR_THEMES warm, ` +
   `${Object.values(TAMED).filter(P=>isWarm(P.a1)).length}/12 PAL a1 warm.`);
 console.log(`\n  floors: ink/sub >= 4.5:1 (body copy) · a1 and plate ink >= 3.0:1 (display sizes, WCAG large)`);
 console.log(`          accent >= 3.0:1 under the worst CVD simulation`);

@@ -2206,3 +2206,129 @@ Decisions for the owner, in order:
    traffic; watch the credits meter after the first push.
 7. **Partner and creator discounts** now work as Stripe promotion codes;
    none exist yet. Make one per partner in Stripe → Coupons.
+
+## AO. 2026-10-05 — one colour vocabulary: the themes are the library's twelve (DESIGN-LAW 123)
+
+(claude/busy-keller-i7qfrf, from `main` at 9040dcb9.)
+
+The owner: "Audit all themes after we make our master library make sure they
+follow all rules, don't contradict overlap or use wrong design language.
+make it cohesive and complete so they feel like ads we made from
+professional gfx designers."
+
+Found (`scripts/theme_cohesion_audit.mjs`, new): four colour vocabularies in
+one product. The library's 311 cards, the landing's Ready-made tab and the
+colour builder spoke rule 103's twelve pairings; Easy Mode and the designer
+offered 21 themes under the names rule 103 retired ("Blue Market", "Gold
+Offer", "Hot Sale"): 17 with no small-print colour, three with a brown or
+olive colour under the muddy floor, six with an accent outside its named
+band (a lavender, three salmons), three named for a plant or a food, and
+internal words in the chip's title ("GFX Grammar", "iOS Flat");
+`cvd_audit.py` graded ten themes that existed nowhere and failed; the
+choice holds were keyed by the 21 names. 93 problems on the tree as it
+stood.
+
+Done:
+- `COLOR_THEMES` is the twelve, each solved by the colour builder's own
+  solver in its ready-made look (`scripts/house_themes.mjs --write`), with a
+  support colour, `family` Dark or Light, and `aka` carrying the 21 retired
+  names (`ezThemeByName` reads them, so drafts and projects reopen). Chip
+  titles and the toast show the name and look only.
+- `cvd_audit.py` reads the live set (text, bright colour and small print on
+  both stops under four kinds of sight); `audit_theme_grammar.mjs` checks
+  every theme's four roles; the browser audits that name a light and a dark
+  theme take Silver & Blue and Black & Green; the builder audit's controls
+  are Navy & Gold and Purple & Gold.
+- `every_card_audit.mjs --dims` or `--ids` now updates only what it measured
+  (a themes-only sweep used to write an empty looks and voices table).
+- The offer family's sand look: its rust accent (`#8a3b12`) is navy at the
+  same luminance (rule 52); the look is sand and navy. Its eight cards
+  through audit_templates.mjs before and after: 8 of 8 pass both times,
+  the same warnings (crowded 8, contrast 7), nothing rejected.
+- The FAQ's colour answer names the twelve and the builder (visible answer
+  and JSON-LD together; CSP hashes recomputed).
+- Rule 123, the brief, the README.
+
+Checked: cohesion audit 0 problems after the hold sweep (631 cards, 7,572
+theme renders: 29 cards held as offered, a theme held on 143 pairs over 21
+cards, each theme on 9 to 15 cards); `cvd_audit.py` 12/12; `theme_law.mjs` 12/12; `audit_theme_grammar.mjs` 12/12;
+`colour_builder_audit.mjs --sets-only` all pass; `landing_check.mjs` clean at
+390 and 1440; `ez_theme_audit.mjs --quick` no problems, no page errors.
+
+Still open:
+
+1. **The video maker's palettes are a vocabulary of their own.** 165
+   palettes in motion/catalog.js and motion/themes.js: 34 named for a food,
+   drink or flower (butter, cherry, matcha, espresso, bubblegum...), 12
+   carrying three hue families, four named for two colours; the keys are
+   what the maker shows, title-cased. Rule 103's language (two colours to a
+   name, none food) has not reached them. A session of its own: the maker
+   has its own measured audit (`motion_palette_audit.mjs`, on rendered
+   pixels), fifty themes under `THEME_REVIEW`, and audiences keyed by
+   palette, so a rename touches audiences.js, palette-audit.json and saved
+   looks. The cohesion audit prints the counts; `--strict` fails on them.
+2. **The offer family's look keys** (bone, blush, mint, sand, plum, cream)
+   are internal, never shown; one look (`midnight`) carries three families
+   (navy ground, mint accent, gold band). Left as authored; the family is
+   held to the showcase's bar by audit_templates.mjs.
+3. **Only one of the twelve is light** (Silver & Blue). The 21 had eight
+   light themes. The builder's Light look makes a light set of any pairing
+   whose colour reads light (gold, yellow, cyan, orange, lime, pink), a tap
+   from the + in the colour row; if the owner wants light ready-made sets in
+   the row, they are solved the same way (`cbArrangements(..., 'light')`)
+   and named by the builder ("Gold & Navy").
+4. **The classics' own palettes (`PAL`, twelve)** and the showcase's twelve
+   are two tables with two sets of names (PAL: ocean, paper, rose, arctic,
+   mono, sunset...). PAL paints the classics' fallback grounds and plates; a
+   visitor never sees its names. Not unified here.
+
+## AP. 2026-10-06 — the library's media carries its dates (DESIGN-LAW 111, continued)
+
+(claude/busy-keller-i7qfrf.)
+
+The owner: "make sure our library is clean and cohesive when it ships off to
+iPhones LA to identify the media by creation / upload dates."
+
+Found: the 311 ads the API hands out had no date anywhere (a day-only
+`rendered` in the render index that the API never passed on; no EXIF in the
+JPEGs, drawn by a canvas). The rest of each record was cohesive: every ad
+has a "Palette · Layout" title, a category, one of the twelve themes, a
+layout and a subject.
+
+Done:
+- `render_library_ads.mjs` reads three dates out of git on every run and
+  writes them on each entry (`created`, `updated`, `rendered`, ISO 8601 UTC)
+  and into each JPEG's EXIF (`scripts/_jpeg_exif.mjs`); `--stamp` does only
+  that, without rendering; a shallow clone is refused.
+- The API: `created`, `updated`, `uploaded` on every ad; `?since=`,
+  `?sort=newest|oldest`; `Last-Modified` on one ad; `latest` on the index.
+- The hand-off: the client's `since`/`sort`, `dates()`, `changed_since()`,
+  `filename()`; the picker's dated tiles, Order control, and a File named
+  for the ad and its upload day; three more tests; the README's contract;
+  the zip repacked.
+- The checks: `library_api_check.mjs` (dates in order, EXIF as the index,
+  since, sort, Last-Modified, latest) and `library_handoff_check.mjs` (the
+  dated tiles, newest first, the file name and date).
+
+Checked: `library_api_check.mjs` no failures (311 ads, 55.1 MB of renders,
+unit and through the real function); `library_handoff_check.mjs` no failures
+(13 Python tests, 0 skipped, with Pillow; the listing page in Chromium: every
+tile dated, newest first ordered, the pick `checklistHero-pp09-35_2026-10-04.jpg`
+byte for byte the render, dated with its upload); every JPEG read back by
+ImageMagick and Pillow with the same dates.
+
+The dates as they stand: created 2026-09-02 to 2026-09-05 (the records'
+first commits, 92 / 92 / 127), updated 2026-10-02 to 2026-10-04 (207 / 65 /
+39), uploaded 2026-10-04T07:56:34Z for all 311 (the one render so far).
+
+Still open:
+
+1. **Every file's sha1 moved once** (the EXIF went in), so the API's `?v=`
+   links all changed: a partner that cached by `?v=` fetches each once more
+   after the deploy. From now on a sha1 moves only with the dates.
+2. **`uploaded` is when the render was drawn, not when it was deployed.**
+   The deploy is by hand from the Mac (AGENT-BRIEF, Deploying); a render
+   sits in git until then. If the owner wants the deploy time, the deploy
+   script is the place to stamp it.
+3. The repository grew by the 311 re-stamped files once more (55 MB of
+   history). A render is re-stamped only when its dates change.

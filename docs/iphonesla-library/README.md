@@ -77,7 +77,7 @@ library does).
 |---|---|
 | `/api/library/v1` | `{ name, version, partner, counts: { ads, categories }, routes }` |
 | `/api/library/v1/categories` | `{ version, categories: { phones: 64, gold: 33, ... } }` |
-| `/api/library/v1/ads?category=&q=&limit=&offset=` | a page of ads |
+| `/api/library/v1/ads?category=&q=&since=&sort=&limit=&offset=` | a page of ads |
 | `/api/library/v1/ads/{id}` | `{ version, item }` |
 
 - `category`: one or a comma list (`phones`, `gold`, `silver`, `coins`,
@@ -85,6 +85,11 @@ library does).
 - `q`: words; every word must start a word of the ad (its category, subject,
   title or layout), and what the ad is for comes first: "gold" gives the
   gold-buying ads before the ads in a black-and-gold palette.
+- `since`: a day (`2026-10-01`, from its first second UTC) or a timestamp
+  (`2026-10-01T12:00:00Z`): only the ads created, updated or uploaded at or
+  after it, so a server can ask what changed. Anything else is 400.
+- `sort`: `newest` or `oldest`, by upload date (then update, then creation);
+  without it, the library's own order. Anything else is 400.
 - `limit`: 1 to 200 (50); `offset`: 0 up. A page is
   `{ version, total, offset, limit, next_offset, items }`; `next_offset` is
   null on the last page.
@@ -94,16 +99,32 @@ An ad (the real record, 2026-10-04):
 ```json
 { "id": "bubblePop-nn05-30", "title": "Red & Yellow · Bubble Pop",
   "category": "sports", "theme": "Red & Yellow", "layout": "bubblePop", "subject": "cards",
-  "image": { "url": "https://buybackad-graphics-studio.netlify.app/assets/library-ads/bubblePop-nn05-30.jpg?v=35300c70fee0",
-             "width": 1080, "height": 1080, "bytes": 210802, "format": "jpg" },
+  "image": { "url": "https://buybackad-graphics-studio.netlify.app/assets/library-ads/bubblePop-nn05-30.jpg?v=e51bd5b61d1c",
+             "width": 1080, "height": 1080, "bytes": 211078, "format": "jpg" },
   "thumb": { "url": "https://buybackad-graphics-studio.netlify.app/assets/showcase/bubblePop-nn05-30.webp", "width": 448, "height": 448 },
-  "studio_url": "https://buybackad-graphics-studio.netlify.app/?card=bubblePop-nn05-30" }
+  "studio_url": "https://buybackad-graphics-studio.netlify.app/?card=bubblePop-nn05-30",
+  "created": "2026-09-05T06:37:29Z", "updated": "2026-10-02T08:07:47Z", "uploaded": "2026-10-04T07:56:34Z" }
 ```
 
 `image` is the ad itself, the picture for a listing (`?v=` changes when it is
 re-drawn). `thumb` is the library's preview, for a grid. `studio_url` opens the
 ad in the BUYBACK.AD studio, to change it before downloading (a download from
 there comes back through the existing studio link, the WE BUY picture library).
+
+**The dates** (ISO 8601, UTC) identify the media: `created` is when the ad
+entered the library; `updated` is when its design last changed; `uploaded` is
+when the picture you get was drawn (it is the one that changes when `?v=`
+does). `created <= updated <= uploaded`, always. The JPEG itself carries the
+same three as EXIF (`DateTimeOriginal` = created, `DateTime` = updated,
+`DateTimeDigitized` = uploaded, each `+00:00`, with `ImageDescription` the
+title and `Software` "BUYBACK.AD Graphics Studio"), so an ad still says what it
+is and when it was made after it has been uploaded to a listing or a photo
+library. The client's `filename(ad)` names a file for the ad and its upload
+day (`bubblePop-nn05-30_2026-10-04.jpg`); `dates(ad)` gives the three as
+datetimes; `changed_since("2026-10-01")` lists what to refresh. The index
+(`/api/library/v1`) carries `latest: { created, updated, uploaded }`, the
+newest of each across the library, and one ad's answer carries
+`Last-Modified` (its upload).
 
 Errors: `{ "error": "..." }` with 400 (a bad id), 401 (no key or a wrong
 one; `WWW-Authenticate: Bearer`), 404 (an ad no longer in the library, or an
@@ -120,7 +141,7 @@ Behind the same login as the listing page. Each is a few lines over
 |---|---|
 | `GET /api/buybackad-library/index` | counts and version (the partner name removed) |
 | `GET /api/buybackad-library/categories` | as above |
-| `GET /api/buybackad-library/ads?...` | as above; parameters other than category, q, limit, offset are dropped |
+| `GET /api/buybackad-library/ads?...` | as above; parameters other than category, q, since, sort, limit, offset are dropped |
 | `GET /api/buybackad-library/jpeg/{id}` | that ad as a listing JPEG, 1080x1080 (`?max=640` for smaller) |
 
 Flask:
@@ -210,23 +231,30 @@ Beside the title and description:
 </script>
 ```
 
-`file` is the ad as a JPEG `File` (`bubblePop-nn05-30.jpg`, 1080x1080, the
-library's own file byte for byte), as if it had been uploaded, so the listing's
-photo list, its order, its upload and "List it" stay exactly as they are. `ad`
-is the record above. The same comes as a `buybackad:pick` event on the element.
+`file` is the ad as a JPEG `File` (`bubblePop-nn05-30_2026-10-04.jpg`:
+the ad and its upload day; `lastModified` its upload; 1080x1080, the
+library's own file byte for byte, its EXIF dates inside), as if it had been
+uploaded, so the listing's photo list, its order, its upload and "List it"
+stay exactly as they are. `ad` is the record above. The same comes as a
+`buybackad:pick` event on the element. Each tile says when the ad was
+uploaded, and the Order control puts the newest upload first.
 
-## Checked (2026-10-04, from the BUYBACK.AD repo)
+## Checked (2026-10-06, from the BUYBACK.AD repo)
 
 `scripts/library_api_check.mjs`: the renders (one for every ad the site
 offers, each a 1080x1080 JPEG of the card as the library shows it now, none
-left over), the keys, rotation, the day's cap, every route, filters, paging,
-every link a real file, a held ad not offered, and the real function end to
-end. `scripts/library_handoff_check.mjs`: this folder's ten Python tests
-against a stand-in BUYBACK.AD; the Flask and FastAPI code above, taken out of
-this file and run; `example_server.py`'s listing page in Chromium (the
-picker loads the ads, "gold" narrows them, a pick adds the ad to the photos,
-byte for byte the library's file); and `docs/iphonesla-library.zip` holding
-exactly these files. Not checked from there: `loganipad/iphoneslainv`
+left over, each with its three dates in order and the same dates in its
+EXIF), the keys, rotation, the day's cap, every route, filters, `since`,
+`sort`, `Last-Modified`, the index's `latest`, paging, every link a real
+file, a held ad not offered, and the real function end to end.
+`scripts/library_handoff_check.mjs`: this folder's thirteen Python tests
+against a stand-in BUYBACK.AD (the dates on every ad, `since` and `sort`,
+the EXIF dates inside the JPEG among them); the Flask and FastAPI code
+above, taken out of this file and run; `example_server.py`'s listing page in
+Chromium (the picker loads the ads with their upload dates, "gold" narrows
+them, newest first orders them, a pick adds the ad to the photos named for
+its upload day, byte for byte the library's file); and
+`docs/iphonesla-library.zip` holding exactly these files. Not checked from there: `loganipad/iphoneslainv`
 itself, which that session could not reach, and the live site, which has the
 API only once `main` is deployed with `LIBRARY_KEYS` set.
 

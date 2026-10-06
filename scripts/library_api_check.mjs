@@ -6,7 +6,9 @@
       drift) has one, none is left for a card no longer offered, each file is
       the one its index entry names (sha1), a 1080x1080 JPEG, and made from
       the card's library thumbnail as it is now (thumb_sha1; a thumbnail drawn
-      again since makes it stale: run render_library_ads.mjs --stale).
+      again since makes it stale: run render_library_ads.mjs --stale). Each
+      carries its three dates (created, updated, rendered: ISO 8601 UTC, in
+      order), and the JPEG's EXIF says the same (_jpeg_exif.mjs).
    1. The router on its own, against this checkout's files: no keys is 503;
       no key, a wrong key or a key shorter than 32 is 401 with
       WWW-Authenticate; both headers work; two keys at once (a rotation) both
@@ -15,7 +17,10 @@
       render, thumbnail and studio link, every link a file in this checkout;
       categories add up; the filters filter; search puts what an ad is for
       (its category) before a palette in its title; paging adds up; a held
-      card is not there.
+      card is not there; every ad carries created, updated and uploaded;
+      since= keeps what changed since a date and refuses a non-date; sort=
+      orders by upload date; one ad answers Last-Modified; the index names
+      the latest dates.
    2. The real function (netlify/functions/api.mjs) with a stand-in
       @netlify/blobs, against a static server on this checkout: the library
       answers through it, and the routes after it still ask for a sign-in.
@@ -28,6 +33,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { exifRead } from './_jpeg_exif.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const BASE = process.env.GFX_BASE || 'http://localhost:8899';
@@ -59,7 +65,8 @@ const extra = Object.keys(renders).filter((id) => !offered.some((c) => c.id === 
 ok(!extra.length, extra.length + ' renders for cards no longer offered: ' + extra.slice(0, 5).join(', '));
 const files = readdirSync(join(ROOT, 'assets/library-ads')).filter((f) => f.endsWith('.jpg'));
 ok(files.length === Object.keys(renders).length, files.length + ' render files for ' + Object.keys(renders).length + ' entries');
-const wrong = [], stale = [];
+const wrong = [], stale = [], undated = [], unexif = [];
+const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 for (const c of offered) {
   const r = renders[c.id]; if (!r) continue;
   const f = join(ROOT, 'assets/library-ads', c.id + '.jpg');
@@ -67,9 +74,14 @@ for (const c of offered) {
   const b = readFileSync(f), size = jpegSize(b);
   if (sha1(b) !== r.sha1 || b[0] !== 0xff || b[1] !== 0xd8 || String(size) !== '1080,1080' || r.w !== 1080 || r.bytes !== b.length) wrong.push(c.id);
   if (sha1(readFileSync(join(ROOT, c.thumb))) !== r.thumb_sha1) stale.push(c.id);
+  if (![r.created, r.updated, r.rendered].every((d) => ISO.test(d || '')) || !(r.created <= r.updated && r.updated <= r.rendered)) undated.push(c.id + ' ' + [r.created, r.updated, r.rendered].join(' '));
+  const x = exifRead(b);
+  if (!x || x.created !== r.created || x.updated !== r.updated || x.uploaded !== r.rendered || !x.title || !x.software) unexif.push(c.id + ' ' + JSON.stringify(x));
 }
 ok(!wrong.length, wrong.length + " renders are not what their index says (a 1080x1080 JPEG of that sha1): " + wrong.slice(0, 5).join(', '));
 ok(!stale.length, stale.length + ' renders are older than their card in the library (run render_library_ads.mjs --stale): ' + stale.slice(0, 5).join(', '));
+ok(!undated.length, undated.length + ' renders lack their three dates in order (created, updated, rendered; run render_library_ads.mjs --stamp): ' + undated.slice(0, 3).join(', '));
+ok(!unexif.length, unexif.length + " renders' EXIF does not say what the index says (run render_library_ads.mjs --stamp): " + unexif.slice(0, 2).join(', '));
 
 /* ---------- 1. the router ---------- */
 const KEY = 'bbl_' + 'k'.repeat(40), KEY2 = 'bbl_' + 'n'.repeat(40);
@@ -122,6 +134,24 @@ const nofile = all.filter((a) => !existsSync(local(a.image.url)) || !existsSync(
 ok(!nofile.length, nofile.length + ' ads link to no file: ' + nofile.slice(0, 5).join(', '));
 ok(all.every((a) => a.image.url === ORIGIN + '/assets/library-ads/' + a.id + '.jpg?v=' + renders[a.id].sha1.slice(0, 12) && a.image.width === 1080 && a.image.format === 'jpg'
   && a.studio_url === ORIGIN + '/?card=' + a.id && a.title && a.category && !('_s' in a)), 'an ad is missing its image, size, studio link or title, or shows an internal field');
+/* the dates: every ad carries its three, as the index has them; since= and sort= work on them; one ad answers Last-Modified; the index names the latest */
+ok(all.every((a) => a.created === renders[a.id].created && a.updated === renders[a.id].updated && a.uploaded === renders[a.id].rendered && ISO.test(a.uploaded)), 'an ad does not carry created, updated and uploaded as the render index has them');
+const newestUp = all.map((a) => a.uploaded).sort().pop(), oldestCr = all.map((a) => a.created).sort()[0];
+ok(idx.latest && idx.latest.uploaded === newestUp && idx.latest.created === all.map((a) => a.created).sort().pop(), 'the index does not name the latest dates: ' + JSON.stringify(idx.latest));
+const sinceAll = (await call('/library/v1/ads?since=' + oldestCr.slice(0, 10) + '&limit=200')).body, sinceNone = (await call('/library/v1/ads?since=2099-01-01')).body;
+ok(sinceAll.total === want && sinceNone.total === 0, `since= does not filter: from the first day ${sinceAll.total}, from 2099 ${sinceNone.total}`);
+/* a timestamp is inclusive to the second: since= the newest upload keeps every ad uploaded then; one second later keeps none of them (nothing is updated after its upload) */
+const plusOne = new Date(Date.parse(newestUp) + 1000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+const atNewest = (await call('/library/v1/ads?since=' + encodeURIComponent(newestUp) + '&limit=200')).body, afterNewest = (await call('/library/v1/ads?since=' + encodeURIComponent(plusOne))).body;
+ok(atNewest.total === all.filter((a) => a.uploaded >= newestUp).length && afterNewest.total === all.filter((a) => a.created >= plusOne || a.updated >= plusOne || a.uploaded >= plusOne).length,
+  `since= a timestamp is not inclusive to the second: at the newest upload ${atNewest.total}, a second later ${afterNewest.total}`);
+ok((await call('/library/v1/ads?since=yesterday')).status === 400 && (await call('/library/v1/ads?sort=up')).status === 400, 'a bad since= or sort= is not 400');
+const pages = async (qs) => { const out = []; for (let off = 0; off !== null;) { const b = (await call('/library/v1/ads?' + qs + '&limit=200&offset=' + off)).body; out.push(...b.items); off = b.next_offset; } return out; };
+const newest = await pages('sort=newest'), oldest = await pages('sort=oldest');
+const keyOf = (a) => a.uploaded + '|' + a.updated + '|' + a.created;
+ok(newest.length === want && newest.every((a, i) => !i || keyOf(newest[i - 1]) >= keyOf(a)) && oldest.every((a, i) => !i || keyOf(oldest[i - 1]) <= keyOf(a)), 'sort= does not order by upload, then update, then creation');
+const oneR = await call('/library/v1/ads/' + all[0].id);
+ok(oneR.headers.get('Last-Modified') === new Date(all[0].uploaded).toUTCString(), 'one ad does not answer Last-Modified with its upload: ' + oneR.headers.get('Last-Modified'));
 
 const gold = (await call('/library/v1/ads?category=gold&limit=500')).body;
 ok(gold.limit === 200 && gold.total === offered.filter((c) => c.cat === 'gold').length && gold.items.every((a) => a.category === 'gold'), 'category does not filter, or the limit is not capped at 200');
