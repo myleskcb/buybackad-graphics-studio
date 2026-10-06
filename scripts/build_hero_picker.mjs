@@ -11,9 +11,11 @@
  * loud. Selection is kept on the device and copied out as a list.
  *
  * usage: node scripts/build_hero_picker.mjs
- * output: lab/hero.html + lab/hero.js  (CSP: no inline script)
+ * output: tools/hero-picker/index.html + hero.js  (CSP: no inline script).
+ * Under tools/ it is not served (netlify.toml 404s /tools/*): open it from a
+ * checkout. The lab that used to carry it left the repo on 2026-10-06.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 const ROOT = new URL('../', import.meta.url).pathname;
 const idx = JSON.parse(readFileSync(ROOT + 'assets/showcase/index.json', 'utf8'));
 
@@ -106,7 +108,6 @@ button.act.go{background:var(--keep);border-color:var(--keep);color:#0f1a15;min-
   </header>
   <div class="filters" id="filters"></div>
   <div class="grid" id="grid"></div>
-  <a class="back" href="./">&larr; Back to the lab</a>
 </div>
 <div class="dock">
   <div class="count"><b id="n">0</b> picked</div>
@@ -155,7 +156,7 @@ function build(){
     const d = document.createElement('div');
     d.className = 'card' + (picked.indexOf(c.sku) !== -1 ? ' on' : '');
     d.tabIndex = 0;
-    d.innerHTML = '<img src="../assets/showcase/' + c.id + '.webp" alt="" loading="lazy" decoding="async">'
+    d.innerHTML = '<img src="../../assets/showcase/' + c.id + '.webp" alt="" loading="lazy" decoding="async">'
       + '<div class="sku">' + c.sku + '</div><div class="tick">&#10003;</div>'
       + '<div class="meta"><div class="nm">' + c.theme + ' &middot; ' + c.layout + '</div>'
       + '<div class="row"><span class="chip">' + c.cat + '</span><span class="chip">' + c.family + '</span>'
@@ -194,6 +195,7 @@ $('copy2').onclick = () => {
 build();
 `;
 
-writeFileSync(ROOT + 'lab/hero.html', html);
-writeFileSync(ROOT + 'lab/hero.js', js);
-console.log('hero picker: ' + cards.length + ' candidates (' + eligible.length + ' product, ' + strong.length + ' photo) · lab/hero.html');
+mkdirSync(ROOT + 'tools/hero-picker', { recursive: true });
+writeFileSync(ROOT + 'tools/hero-picker/index.html', html);
+writeFileSync(ROOT + 'tools/hero-picker/hero.js', js);
+console.log('hero picker: ' + cards.length + ' candidates (' + eligible.length + ' product, ' + strong.length + ' photo) · tools/hero-picker/index.html');

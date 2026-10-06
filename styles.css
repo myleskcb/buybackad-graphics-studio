@@ -545,30 +545,35 @@ input,textarea,select{font-family:inherit;color:var(--text)}
 .lp-nav-links a{font-size:14px;font-weight:550;color:var(--text-2);text-decoration:none;transition:color .15s;white-space:nowrap}
 .lp-nav-links a:hover{color:var(--text)}
 .lp-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.lp-lab{white-space:nowrap}
 /* The bar measured about 1290px wide at every viewport, so from 1100 to 1439px
    "Make my ad" (the one action the page exists for) was clipped off the right
-   edge. It gives ground in order of least use: tighter link spacing and the
-   "Template" word first, then the two links that are also reachable from the
-   page itself, then the link row. */
+   edge. It gives ground in order of least use: tighter link spacing first,
+   then the three links that are also reachable from the page itself, then
+   the link row. (Until 2026-10-06 a Template Lab pill sat here too and gave
+   up its first word at this width; the lab has left the site. The same day
+   "How it works" joined the two that give way, and they give way under 1240
+   rather than 1200: with the Look Book link the bar had outgrown 1001 to
+   about 1115px again (15px of the caret clipped at 1100) and 1201 to 1240
+   (33px at 1201). Measured clean from 1440 to 360 after.) */
 @media(max-width:1380px){
   .lp-nav-links{gap:18px;margin-left:24px}
-  .lp-lab-full{display:none}
 }
-@media(max-width:1200px){
-  .lp-nav-links a[href="#lp-themes"],.lp-nav-links a[href="#faq"]{display:none}
+@media(max-width:1240px){
+  .lp-nav-links a[href="#lp-themes"],.lp-nav-links a[href="#faq"],.lp-nav-links a[href="#lp-how"]{display:none}
 }
-@media(max-width:1000px){
+/* 1010, not 1000: with "How it works" gone under 1240 the row still ran 7px
+   over at 1001 (measured 2026-10-06), so the row goes a hair earlier. */
+@media(max-width:1010px){
   .lp-nav-links{display:none}
 }
 @media(max-width:640px){
   .lp-nav-links{display:none}
-  /* The lab link is the one nav item that must survive on a phone (it is
-     reviewed from one). Measured at 375px: wordmark 186 + lab pill + toggle
-     + "Make my ad" overflowed by ~80px and the CTA clipped, so the logo
-     drops to its mark alone here; the mark keeps its own font-size below. */
+  /* Measured at 375px: wordmark 174 + toggle + "Make my ad" + its caret
+     still overflows by 6px (21px at 360) even with the Template Lab pill
+     gone (2026-10-06; before, by ~70px), so the logo drops to its mark alone
+     here; the mark keeps its own font-size below. At 414 the wordmark would
+     fit, but the rule is one for the whole phone range. */
   .lp-nav .logo{font-size:0;gap:0}
-  .lp-lab{padding:9px 12px}
   /* 343px of usable nav at 375 viewport cannot hold logo + 4 controls, and
      overflow-x:hidden was silently clipping "Make my ad" off the right edge.
      Log in / Sign up free stay reachable in the footer's Account column and
@@ -1113,6 +1118,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-open-adv{width:100%;margin-top:10px;background:none;border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:var(--r-lg);font:600 13px/1 var(--ui);padding:12px;cursor:pointer}
 .ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}
 .ez-hint{color:var(--text-dim);font-size:12px;margin-top:10px;text-align:center}
+/* The keys from the lab's console, in Easy Mode (2026-10-06). Shown only where
+   there is a keyboard to press them on: a phone never sees the line. */
+.ez-keys{display:none;margin:-6px 2px 12px;font-size:12px;color:var(--text-dim);line-height:1.8}
+.ez-keys b{font-weight:600;color:var(--text-2);margin-right:4px}
+.ez-keys kbd{display:inline-block;min-width:18px;padding:0 5px;margin:0 1px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;background:var(--surface-sunk);color:var(--text-2);font:inherit;font-size:11px;font-weight:600;line-height:17px;text-align:center}
+@media (hover:hover) and (pointer:fine){.ez-keys{display:block}}
 @media (max-width:920px){
   .ez-main{grid-template-columns:1fr}
   /* The preview used to be pulled above the form with order:-1, which made a

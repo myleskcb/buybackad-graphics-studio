@@ -1,5 +1,5 @@
 {
-  "note": "Hand-picked hero cards, chosen in /lab/hero.html. Entries may be a SKU (CHK-JW07-16) or a card id (checklistHero-jw07-16). Order is the order they appear. An empty list means the wall picks for itself: measured colourfulness, one palette per card, a product in every one.",
+  "note": "Hand-picked hero cards, chosen in the hero picker (node scripts/build_hero_picker.mjs, then open tools/hero-picker/index.html from a checkout). Entries may be a SKU (CHK-JW07-16) or a card id (checklistHero-jw07-16). Order is the order they appear. An empty list means the wall picks for itself: measured colourfulness, one palette per card, a product in every one.",
   "picks": [
     "SCR-NN04-20",
     "STP-NN01-20",

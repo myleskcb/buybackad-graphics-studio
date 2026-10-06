@@ -2332,3 +2332,88 @@ Still open:
    script is the place to stamp it.
 3. The repository grew by the 311 re-stamped files once more (55 MB of
    history). A render is re-stamped only when its dates change.
+
+## AQ. 2026-10-06 — the Template Lab leaves the repo; its walls and its keys join the studio
+
+The owner, over a screenshot of the lab's index: "audit and fix this also
+it's no longer necessary to include in the site"; then "clean this all up and
+look into all of the features and integrate as much new or unique features /
+content we had included that's relevant, helpful, and transformative".
+
+The lab (`lab/`: 1,397 files, 110 MB, all landed 2026-09-27) was the owner's
+judging tool in an older look; §V 3 had read its index as stale. What each
+part held, read against the product:
+- **The grades.** The bulk review (582 images), the hero picker, the theme,
+  font and asset labs and template sets 3 to 9 kept their verdicts in one
+  browser's localStorage. What was sent back is in the repo already:
+  `assets/approved-templates.json` (ten sets), `approved-fonts.json` (57 of
+  the gallery's 151 faces), `approved-grounds.json`, `approved-assets.json`
+  (360 of 464), `hero-picks.json`. Nothing else was recoverable.
+- **The 108-theme library** is `assets/looks.json`, the studio's looks
+  (`LOOKS` in app.js). The lab's Set 8 (247 cards) was those looks on the
+  engine's cards: judged there, never shipped as files, and not needed as
+  files since the studio draws a look on any card.
+- **Set 9, the device showcase grounds** (120 renders, 1080px): drawn by
+  `engine/showcase.mjs`, graded in the lab, and reached nothing else. The one
+  content set the product never received.
+- **The console** (the engine's tuning tool, built from the engine by
+  `scripts/build_console.mjs`) had keys, an axis view, hold-to-compare and a
+  measured export gate. The studio had its own gate (pgGate) and no keys.
+- The font gallery, the asset lab and the theme lab were the catalogues the
+  approved lists above were picked from; the product carries the picks.
+
+Done:
+1. **Off the site, out of the repo.** The morning's commit took the landing's
+   nav pill and footer link, the pill's CSS, the noindex header and the
+   robots line; this one deletes the folder, and with it
+   `build_lab_site.mjs`, `build_review_site.mjs` and their page templates,
+   which read `.render/` sets that no longer exist. The console now builds
+   to `tools/gfx/console.html` and the hero picker to `tools/hero-picker/`
+   (`scripts/build_hero_picker.mjs`): under `/tools/*` they are 404'd at the
+   edge and open from a checkout. Both rebuilt and load clean (150
+   candidates in the picker on today's index). `hero-picks.json`, the brief
+   and `engine/README.md` name the new places.
+2. **Device walls in the ground picker** (`device-walls.js`, a module loaded
+   after app.js the way `motion/photo-grounds.js` is). Eleven arrangements
+   (isometric wall, family portrait, device wall, three phones, stack, fan,
+   cascade, orbit, ring, halo, column), each registered with GROUNDS as a
+   drawn ground, so a card stores it like any other (`ground:devIso/…`),
+   and the studio thumbnails, edits, gates, exports and videos it like a
+   photograph. It paints in the card's own colours: the screens walk the
+   accent and support round the wheel (showcase.mjs `spread`), the bodies
+   take the ground; the three roles a card lacks (body, paper, dark) are
+   derived the way the engine's palette records relate them. The engine
+   draws SVG, which a browser rasterises only asynchronously: a wall paints
+   its ground colour first and the devices a moment later, then says so
+   ("device-wall-ready") and the swatches and the preview are read again.
+   A wall takes the scenes' soft shade (scrim .42, gradient) and the gate
+   deepens it where a line needs it. Measured on the served page: eleven
+   swatches, every cached canvas 61 to 193 distinct tones (none flat), the
+   preview takes the wall, no page errors. In Node, all eleven in three
+   palettes (a short hex and a missing support among them) draw well-formed
+   SVG, about 35 KB each.
+3. **The console's keys in Easy Mode** (app.js, appended): `[` `]` design,
+   `P` colour set, `T` typeface, `F` size, `B` background style, `G`
+   background, Shift back. Each presses the row's own button, so a key takes
+   the path a tap takes (the lock, the toast, the preview). Never while
+   typing in a field, never with a modifier, only on the Easy Mode page; the
+   hint line under the strip (`.ez-keys`) shows only where there is a
+   keyboard (hover and a fine pointer). All seven measured, and `P` in the
+   phone field types a p.
+4. **The nav clip closed** (the morning's open item 1): "How it works" gives
+   way with Palettes and FAQ, the three under 1240 rather than 1200, and the
+   link row under 1010 rather than 1000. Measured clean from 1440 to 360.
+
+Not ported, on purpose: hold-to-compare and the axis view (eight full cards
+of one choice at once): the strip, the colour-set row and the Look Book
+already put the choices side by side. The review's approve/deny: `pick.html`
+is that for the product. The engine's own ad cards: the owner's "completely
+new stray direction" (the review builder's own note).
+
+Still open:
+1. The device walls draw phones, tablets, laptops and desktops; a Cars or
+   Gold card gets the same wall. A wall per category would need frames the
+   engine does not have.
+2. `tools/gfx/console.js` (559 KB) and `tools/hero-picker/hero.js` are build
+   outputs, committed so the owner can open them; regenerate after an engine
+   or showcase-index change.

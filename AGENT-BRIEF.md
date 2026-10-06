@@ -160,8 +160,8 @@ git merge-base --is-ancestor origin/main <newest-branch> && echo "main is behind
 ```
 
 If `main` is behind the newest integration branch, start from that branch and
-say so. Screenshot the landing before you touch it: the violet Template Lab page
-is current; a warm orange one is August.
+say so. Screenshot the landing before you touch it: the violet landing is
+current; a warm orange one is August.
 
 **The newest branch is not always what is live either.** On 2026-09-29 three
 heads had diverged (`claude/vibrant-lovelace-rze4rx`, the trunk;

@@ -300,14 +300,14 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Owner tools that stay reachable by link but should never be in search:
-# the labs, the good/bad picker, the asset library and the old single-file build.
-# Mirrors _headers.
 [[headers]]
-  for = "/lab/*"
+  for = "/device-walls.js"
   [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
+# Owner tools that stay reachable by link but should never be in search:
+# the good/bad picker, the asset library and the old single-file build.
+# Mirrors _headers.
 [[headers]]
   for = "/pick.html"
   [headers.values]
