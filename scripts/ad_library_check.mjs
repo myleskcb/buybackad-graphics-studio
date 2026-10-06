@@ -10,10 +10,14 @@
       link answers JSON (CORS, noindex), RSS that parses, and each picture byte
       for byte; a held ad never auto-posts and cannot be switched on; slots
       come due on the schedule (a poster that keeps slot ids posts once a slot,
-      and again when the next comes due); a reset link stops answering.
+      and again when the next comes due); a reset link stops answering. A
+      video on an ad: begin, parts of the stated size, done joins and checks
+      them (the hash, the container); it is served byte for byte and by
+      range, named on the feed (kind, ?kind=) and in the RSS; a damaged
+      upload leaves the ad as it was; removed with the video or with the ad.
    2. The real function (netlify/functions/api.mjs) with a stand-in
-      @netlify/blobs: sign up, save, read the public link through it; the
-      library key route and /me still answer as before.
+      @netlify/blobs: sign up, save, a video in parts, read the public link
+      through it; the library key route and /me still answer as before.
    3. In Chromium, the studio and the page, under the production CSP: an Easy
       Mode download offers "Save to library"; saved, it is in the Library
       dialog and on the public link (a free account's watermarked ad held from
@@ -35,7 +39,7 @@ import { join, extname } from 'node:path';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const NO_BROWSER = process.argv.includes('--no-browser');
-const { adLibraryRoute, slotOf, jpegSize, ownerKey } = await import(pathToFileURL(join(ROOT, 'netlify/lib/adlibrary.mjs')).href);
+const { adLibraryRoute, slotOf, jpegSize, ownerKey, PART_BYTES, videoHeader } = await import(pathToFileURL(join(ROOT, 'netlify/lib/adlibrary.mjs')).href);
 const bad = [];
 const ok = (cond, what) => { if (!cond) bad.push(what); return cond; };
 const sha256 = (b) => createHash('sha256').update(b).digest('hex');
@@ -56,6 +60,9 @@ const resized = (b, w, h) => {      // the same JPEG, its frame header saying an
 };
 ok(jpegSize(J[0]) && jpegSize(J[0]).w === 1080 && jpegSize(J[0]).h === 1080, 'jpegSize reads a 1080 render');
 ok(jpegSize(Buffer.from('89504e470d0a1a0a', 'hex')) === null, 'jpegSize refuses a PNG');
+/* a video fixture: bytes that open as an MP4 (ftyp at 4), the rest a pattern */
+const mp4 = (n) => { const b = Buffer.alloc(n); b.set([0, 0, 0, 0x18, 0x66, 0x74, 0x79, 0x70, 0x69, 0x73, 0x6f, 0x6d]); for (let i = 12; i < n; i++) b[i] = (i * 7919 + (i >> 8)) & 255; return b; };
+ok(videoHeader(mp4(64)) === 'mp4' && videoHeader(Buffer.from('1a45dfa3a3428286', 'hex')) === 'webm' && videoHeader(J[0]) === null, 'videoHeader tells an MP4, a WebM and a JPEG apart');
 
 /* ---------- 1. the router ---------- */
 function memStore() {
@@ -87,16 +94,18 @@ const deps = (over) => Object.assign({
 async function call(method, path, opts) {
   opts = opts || {};
   const url = new URL(ORIGIN + '/api' + path);
-  const headers = {};
+  const headers = Object.assign({}, opts.headers || {});
   if (opts.as) headers.Authorization = 'Bearer ' + opts.as;
   if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
-  const req = new Request(url, { method, headers, body: opts.body === undefined ? undefined : (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body)) });
+  if (opts.raw !== undefined) headers['Content-Type'] = 'application/octet-stream';
+  const body = opts.raw !== undefined ? opts.raw : opts.body === undefined ? undefined : (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body));
+  const req = new Request(url, { method, headers, body });
   const p = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
   const res = await adLibraryRoute(req, url, p, opts.env || env, deps(opts.deps));
   if (!res) return null;
   const type = res.headers.get('content-type') || '';
   const raw = method === 'HEAD' ? null : Buffer.from(await res.arrayBuffer());
-  return { status: res.status, headers: res.headers, raw, body: raw && type.includes('json') ? JSON.parse(raw.toString('utf8')) : null, text: raw && !type.includes('image') ? raw.toString('utf8') : null };
+  return { status: res.status, headers: res.headers, raw, body: raw && type.includes('json') ? JSON.parse(raw.toString('utf8')) : null, text: raw && !type.includes('image') && !type.includes('video') ? raw.toString('utf8') : null };
 }
 const pathOf = (u) => new URL(u).pathname.replace(/^\/api/, '') + new URL(u).search;
 
@@ -218,6 +227,80 @@ ok((await call('GET', '/ads/feed/' + feedId)).status === 404 && (await call('GET
 r = await call('GET', '/ads/feed/' + newFeed);
 ok(r.status === 200 && r.body.count === 3 && (await call('GET', pathOf(r.body.items.find((x) => x.id === A.id).image.url))).status === 200, 'reset: the new link has the same ads and pictures');
 
+/* a video on an ad */
+const V = mp4(PART_BYTES * 2 + 12345);      // three parts: two full, one short
+const vsha = sha256(V);
+const begin = (body, as) => call('POST', '/ads/video/begin', { as: as || 'free@x.example', body });
+const part = (id, n, bytes, as) => call('POST', '/ads/video/part?id=' + id + '&n=' + n, { as: as || 'free@x.example', raw: bytes });
+const done = (id, as) => call('POST', '/ads/video/done', { as: as || 'free@x.example', body: { id } });
+const sendAll = async (id, bytes, as) => { const n = Math.ceil(bytes.length / PART_BYTES); for (let i = 0; i < n; i++) { const pr = await part(id, i, bytes.subarray(i * PART_BYTES, (i + 1) * PART_BYTES), as); if (pr.status !== 200) return pr; } return done(id, as); };
+ok((await begin({ id: A.id, format: 'avi', bytes: V.length, w: 1080, h: 1080, sha256: vsha })).status === 400, 'video: only MP4 or WebM');
+ok((await begin({ id: A.id, format: 'mp4', bytes: 50 * 1024 * 1024, w: 1080, h: 1080, sha256: vsha })).status === 413, 'video: over 40 MB is 413');
+ok((await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 100, h: 100, sha256: vsha })).status === 400, 'video: under 320 px is 400');
+ok((await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: 'nope' })).status === 400, 'video: the hash is required');
+ok((await begin({ id: 'ad_nothere1', format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: vsha })).status === 404, 'video: an unknown ad is 404');
+ok((await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: vsha }, 'pro@x.example')).status === 404, 'video: another account\'s ad is not yours');
+ok((await part(A.id, 0, V.subarray(0, PART_BYTES))).status === 409, 'video: a part before begin is 409');
+r = await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, seconds: 10, sha256: vsha });
+ok(r.status === 201 && r.body.part_bytes === PART_BYTES && r.body.count === 3, 'video: begin says the part size and the count (' + r.status + ')');
+ok((await done(A.id)).status === 409, 'video: done before the parts is 409');
+ok((await part(A.id, 3, V.subarray(0, 10))).status === 400, 'video: a part past the count is 400');
+ok((await part(A.id, 0, V.subarray(0, 100))).status === 400, 'video: a part of the wrong size is 400');
+ok((await part(A.id, 0, V.subarray(0, PART_BYTES), 'pro@x.example')).status === 404, 'video: a part on another account\'s ad is 404');
+for (let i = 0; i < 3; i++) { const pr = await part(A.id, i, V.subarray(i * PART_BYTES, (i + 1) * PART_BYTES)); ok(pr.status === 200 && pr.body.have === i + 1 && pr.body.count === 3, 'video: part ' + i + ' lands (' + pr.status + ')'); }
+r = await done(A.id);
+const AV = r.body && r.body.item;
+ok(r.status === 201 && AV && AV.kind === 'video' && AV.video && AV.video.bytes === V.length && AV.video.format === 'mp4' && AV.video.seconds === 10 && AV.video.width === 1080 && AV.video.url === ORIGIN + '/api/ads/feed/' + newFeed + '/video/' + A.id + '.mp4?v=' + vsha.slice(0, 12), 'video: done joins the parts and the ad is a video ad (' + r.status + ' ' + JSON.stringify(r.body).slice(0, 160) + ')');
+ok(AV && AV.image && AV.image.url && AV.title === 'Renamed', 'video: the photo and the words stay as they were');
+ok(![...store.m.keys()].some((k) => k.startsWith('vp:') || k.startsWith('vu:')), 'video: the parts and the upload record are gone once joined');
+ok((await done(A.id)).status === 409, 'video: done twice is 409');
+r = await call('GET', pathOf(AV.video.url));
+ok(r.status === 200 && r.headers.get('content-type') === 'video/mp4' && Buffer.compare(r.raw, V) === 0 && r.headers.get('accept-ranges') === 'bytes' && r.headers.get('cache-control') === 'public, max-age=86400' && r.headers.get('access-control-allow-origin') === '*', 'video: the public link serves it byte for byte, cached a day, CORS');
+ok((await call('GET', pathOf(AV.video.url).replace(/\?v=.*/, ''))).headers.get('cache-control') === 'public, max-age=300', 'video: an unversioned link caches five minutes');
+r = await call('HEAD', pathOf(AV.video.url));
+ok(r.status === 200 && r.headers.get('content-length') === String(V.length), 'video: HEAD answers its length');
+r = await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.mp4', { headers: { Range: 'bytes=10-19' } });
+ok(r.status === 206 && r.raw.length === 10 && Buffer.compare(r.raw, V.subarray(10, 20)) === 0 && r.headers.get('content-range') === 'bytes 10-19/' + V.length && r.headers.get('content-length') === '10', 'video: a byte range answers 206');
+r = await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.mp4', { headers: { Range: 'bytes=' + (V.length - 5) + '-' } });
+ok(r.status === 206 && r.raw.length === 5 && Buffer.compare(r.raw, V.subarray(V.length - 5)) === 0, 'video: an open-ended range answers the tail');
+ok((await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.mp4', { headers: { Range: 'bytes=' + V.length + '-' } })).status === 416, 'video: a range past the end is 416');
+ok((await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.webm')).status === 404, 'video: the other extension is 404');
+ok((await call('GET', '/ads/feed/' + newFeed + '/video/ad_nothere1.mp4')).status === 404, 'video: an unknown ad is 404');
+r = await call('GET', '/ads/feed/' + newFeed);
+ok(r.body.items.find((x) => x.id === A.id).kind === 'video' && r.body.items.filter((x) => x.kind === 'photo').length === 2 && r.body.items.every((x) => 'video' in x && 'source' in x), 'feed: kind, video and source on every ad');
+ok((await call('GET', '/ads/feed/' + newFeed + '?kind=video')).body.items.map((x) => x.id).join() === A.id && (await call('GET', '/ads/feed/' + newFeed + '?kind=photo')).body.items.length === 2, 'feed: ?kind= filters');
+ok(!JSON.stringify(r.body).includes(vsha), 'feed: the video\'s full hash is not in it');
+r = await call('GET', '/ads/feed/' + newFeed + '.rss');
+ok(r.status === 200 && rssCheck(r.text) && r.text.includes('<media:content url="' + AV.video.url.replace(/&/g, '&amp;') + '" type="video/mp4" medium="video" width="1080" height="1080" duration="10"/>') && r.text.includes('<enclosure url="' + AV.image.url.replace(/&/g, '&amp;') + '"'), 'rss: the video rides as media:content beside the picture\'s enclosure');
+/* a damaged upload leaves the ad as it was */
+r = await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: sha256(mp4(100)) });
+r = await sendAll(A.id, V);
+ok(r.status === 400 && /damaged/.test(r.body.error) && (await call('GET', pathOf(AV.video.url))).status === 200, 'video: a hash that differs is refused and the old video stays');
+r = await begin({ id: A.id, format: 'webm', bytes: V.length, w: 1080, h: 1080, sha256: vsha });
+r = await sendAll(A.id, V);
+ok(r.status === 400 && /WebM/.test(r.body.error), 'video: MP4 bytes sent as WebM are refused');
+ok(![...store.m.keys()].some((k) => k.startsWith('vp:') || k.startsWith('vu:')), 'video: a refused upload leaves no parts behind');
+/* a shorter video replaces it, one part */
+const V2 = mp4(4321);
+r = await begin({ id: A.id, format: 'mp4', bytes: V2.length, w: 1080, h: 1350, seconds: 6, sha256: sha256(V2) });
+ok(r.status === 201 && r.body.count === 1, 'video: a short clip is one part');
+r = await sendAll(A.id, V2);
+ok(r.status === 201 && r.body.item.video.bytes === V2.length && r.body.item.video.height === 1350 && (await call('GET', pathOf(r.body.item.video.url))).status === 200 && (await call('GET', pathOf(AV.video.url))).status === 200 && Buffer.compare((await call('GET', pathOf(AV.video.url))).raw, V2) === 0, 'video: the new clip replaces the old one');
+/* remove the video, the ad stays a photo */
+r = await call('POST', '/ads/video/remove', { as: 'free@x.example', body: { id: A.id } });
+ok(r.status === 200 && r.body.item.kind === 'photo' && r.body.item.video === null && (await call('GET', pathOf(AV.video.url))).status === 404 && ![...store.m.keys()].some((k) => k.startsWith('v:')), 'video: removed, the ad is a photo ad again and the bytes are gone');
+ok((await call('POST', '/ads/video/remove', { as: 'free@x.example', body: { id: A.id } })).status === 404, 'video: removing twice is 404');
+/* an ad removed takes its video */
+r = await call('POST', '/ads/save', { as: 'pro@x.example', body: { image: dataUrl(J[2]), title: 'Pro video', source: 'motion' } });
+const PV = r.body.item;
+ok(r.status === 201 && PV.source === 'motion' && PV.kind === 'photo', 'save: the source is kept, a new ad is a photo ad');
+await begin({ id: PV.id, format: 'mp4', bytes: V2.length, w: 1080, h: 1080, sha256: sha256(V2) }, 'pro@x.example');
+r = await sendAll(PV.id, V2, 'pro@x.example');
+const proOwner = await ownerKey('pro@x.example');
+ok(r.status === 201 && [...store.m.keys()].some((k) => k === 'v:' + proOwner + ':' + PV.id), 'video: on another account\'s ad');
+await call('POST', '/ads/remove', { as: 'pro@x.example', body: { id: PV.id } });
+ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad takes its video with it');
+
 /* ---------- 2. the real function ---------- */
 {
   const T = join(tmpdir(), 'adlib-api-' + process.pid);
@@ -257,6 +340,18 @@ ok(r.status === 200 && r.body.count === 3 && (await call('GET', pathOf(r.body.it
   ok(fd.status === 200 && fd.json.items[0].id === sv.json.item.id, 'function: the public link answers without a sign-in');
   const img = await hit('GET', new URL(fd.json.items[0].image.url).pathname.replace(/^\/api/, ''));
   ok(img.status === 200 && Buffer.compare(img.raw, J[0]) === 0, 'function: the picture through the function, byte for byte');
+  const vb = mp4(PART_BYTES + 777), vs = sha256(vb);
+  const b1 = await hit('POST', '/ads/video/begin', { id: sv.json.item.id, format: 'mp4', bytes: vb.length, w: 1080, h: 1080, seconds: 10, sha256: vs }, su.json.token);
+  ok(b1.status === 201 && b1.json.count === 2, 'function: a video upload begins (' + b1.status + ')');
+  for (let i = 0; i < 2; i++) {
+    const res = await api(new Request('https://studio.example/api/ads/video/part?id=' + sv.json.item.id + '&n=' + i, { method: 'POST', headers: { Authorization: 'Bearer ' + su.json.token, 'Content-Type': 'application/octet-stream' }, body: vb.subarray(i * PART_BYTES, (i + 1) * PART_BYTES) }));
+    ok(res.status === 200, 'function: video part ' + i + ' (' + res.status + ')');
+  }
+  const dn = await hit('POST', '/ads/video/done', { id: sv.json.item.id }, su.json.token);
+  ok(dn.status === 201 && dn.json.item.kind === 'video' && dn.json.item.video.bytes === vb.length, 'function: the video is joined (' + dn.status + ')');
+  const vid = await hit('GET', new URL(dn.json.item.video.url).pathname.replace(/^\/api/, ''));
+  ok(vid.status === 200 && Buffer.compare(vid.raw, vb) === 0, 'function: the video through the function, byte for byte');
+  ok((await hit('GET', '/ads/feed/' + fid)).json.items[0].kind === 'video', 'function: the public link names it a video ad');
   ok((await hit('GET', '/me')).status === 401, 'function: /me still asks for a sign-in');
   ok((await hit('GET', '/library/v1')).status === 503, 'function: the partner library still answers first (no keys: 503)');
 
