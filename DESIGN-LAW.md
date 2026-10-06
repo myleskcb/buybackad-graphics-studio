@@ -4537,3 +4537,74 @@ circumstances".
   still white). 68 live cards carry the look as offered, and any card can
   take it in Easy Mode or the designer, so its rows in the choice table were
   measured again on every card (OPEN-ITEMS §AK).
+
+## 123. A photo-real phone is a finish chosen by hand, and its light obeys rule 114
+
+Added 2026-10-06. The owner, asked whether the photo-real phone look for the
+video maker (left out of `main` on 2026-10-05 because the later notes asked
+for simpler phones) was wanted: "this too if possible". It came from
+`claude/sharp-maxwell-q2aq4o` c228696d, written before the 3-D slab, the
+styled phone sets and the wallpapered screen; it was re-drawn on today's slab,
+not merged.
+
+- **Chosen by hand, never by a shuffle.** "Phone finish" (Phones group):
+  Standard, the default and today's look, or Photo-real. It is a kept option
+  (`KEPT_OPTIONS`, weight 0): a shuffle keeps whatever is set and draws nothing
+  for it, so every look number draws as it did. Measured: 85 frames of 16
+  shuffled looks and the default look, rendered before and after, 0 pixels
+  differ.
+- **What it adds** (`softboxes`, `glassAndRim`, the contact shadow in
+  `drawPhone`): the studio's softboxes reflected down the band, a broad sheen
+  across the glass that slides as the phone turns, a catch-light on the rim
+  brightest toward the key light (high left, wherever the phone lies), and a
+  contact shadow: resting, the tightest shadow is darker and drawn in close
+  under the body, and it eases back to the standard shadow over the first
+  quarter of the rise. The standard finish's soft band on a turning back
+  (rule 114) is left out: the sheen does that work.
+- **Its light stays inside rule 114.** The softboxes only take light away
+  between the streaks (black laid over the side, which scales every channel
+  alike, so the hue holds), so no part of a body-colour side is lighter than
+  the standard side, which is no lighter than the body. A side in its measured
+  aluminium (`RAIL`) takes them at a third of the depth and is lifted by what
+  they take on average, capped at its standard peak, so it still averages to
+  its colour. The catch-light is the band's own colour, never white. The sheen
+  and the catch-light go as the glass turns edge on: side on, the glass is a
+  line along the rim, and the white sheen there (and the catch-light making the
+  photograph's own pale rim opaque) read up to 1.58 times the body.
+  `node scripts/motion_finish_check.mjs` measures every phone side on, both
+  finishes: the side's mean against its colour (0.89 to 1.10 for a measured
+  side, or no less than the standard's own less 0.02; under the body for any
+  other), its brightest 0.5% no lighter than the standard's or the body,
+  whichever is lighter, and its hue within 12 degrees. 57 of 57 pass; hue
+  shifts are 1.0 degree or less.
+- **Nothing flips at flat.** A stroke along an edge lying exactly level is
+  drawn by another rule, and the catch-light drawn as a stroke changed a row of
+  140 pixels as a 15 Pro came flat; it is a filled ring. Photo-real draws the
+  face in strips that widen from 3 px near flat to 8 px past about 21 degrees,
+  gradually, through the long lens only (through the Wide 3-D spin's wide lens
+  a strip's top steps, so it keeps 3 px); 6 px strips at flat showed their
+  seams as the phone settled.
+- **No slower.** Every addition is paid for by work the finish can drop. The
+  contact shadow is the resting shadow's own draw made darker (no draw of its
+  own); the softboxes are one fill of the side alone (even-odd against the
+  face); the sheen fills only the slab of glass it lights; the catch-light
+  ring is built on every other point of the outline; a body-colour band is
+  sliced every 2.4 px, not 1.2 (its own light is laid over it; measured
+  aluminium keeps 1.2 px, as its narrow glint sliced coarser read up to 1.13
+  times lighter and averaged 1.10); the face's strips widen
+  through the long lens; and a fill that changes no pixel near flat is skipped.
+  Measured on whole 6 s videos of five large phones, every frame drawn as an
+  export draws it, photo-real takes 12 to 17% less time than standard flat,
+  turned, on a turntable and side on, and the same within the measure's noise
+  (-1.6 to +3.3% over six runs) on the Wide 3-D spin, whose wide lens keeps
+  the 3 px strips (OPEN-ITEMS §AN).
+- **Angles.** Side on (left or right, turned 60 degrees) is offered by hand,
+  weight 0; it passes every phone audit in both finishes. The commit's leaned
+  angles (hero three-quarter, leaning back with the bottom edge and port) are
+  left out: leaned, the face is drawn in a grid of cells, and coming to rest it
+  changed 63 to 149 pixels in a 0.05 degree step against the bar of 60, in both
+  finishes (motion_phone_check's `flat`), and the hero view's face sheared past
+  its band. A leaned angle comes back only with a face that passes that test.
+- Before a commit that touches the phones' drawing: motion_phone_check.mjs
+  with and without `--finish photo`, motion_finish_check.mjs, and a pixel diff
+  of shuffled looks before and after.

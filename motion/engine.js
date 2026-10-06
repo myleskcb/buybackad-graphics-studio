@@ -582,9 +582,12 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
     : outline(-w / 2 + inset, -h / 2 + inset, w / 2 - inset, h / 2 - inset, [R, R, R, R].map(r => r - inset));
   // the side: the outline swept from the hidden face to the seen one, brushed
   // metal dark at both rims with a highlight a little in from the near face
-  // (photo-real draws a band only a few pixels wide in fewer slices: it costs a fill of the whole
-  // body each, and its light is laid over the side at once)
-  const steps = Math.min(30, Math.max(photo ? 3 : 6, Math.ceil(T * Math.abs(s) / 1.2)));
+  // (photo-real slices a body-colour band every 2.4 px, not 1.2, and any band under a pixel in
+  // two or three: each slice costs a fill of the whole body, and its own light is laid over the
+  // side at once. Measured aluminium keeps 1.2 px: its narrow glint, sliced coarser, read lighter.)
+  const steps = photo ? (p.railLin ? Math.min(30, Math.max(T * Math.abs(s) < 1 ? 2 : 3, Math.ceil(T * Math.abs(s) / 1.2)))
+      : Math.min(15, Math.max(T * Math.abs(s) < 1 ? 2 : 3, Math.ceil(T * Math.abs(s) / 2.4))))
+    : Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
   // Each slice is filled back to a slice and a half behind it: side-on, an outline is only
   // a line, and outlines alone left a phone at 90 degrees a hairline beside its full shadow
   // (and slices that only met left a see-through seam where their soft edges touched).
@@ -627,11 +630,11 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
   // the face, in thin vertical strips so it recedes; the back is seen from behind
   const [sx, sy, fw, fh] = src, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
   const near = P(X(0), 0, seen)[0], far = P(X(1), 0, seen)[0];
-  // (photo-real, through the long lens, widens its strips from 3 px near flat to 6 px once turned
-  // past about 14 degrees: across 6 px the perspective is flat to a fraction of a pixel, and it
-  // draws half the strips. Gradually, so no angle changes the strips at once, and never near flat,
-  // where 6 px strips' seams show as the phone settles.)
-  const sw0 = photo && D > 5 * h ? 3 + 3 * clamp((Math.abs(s) - .06) / .18) : 3;
+  // (photo-real, through the long lens, widens its strips from 3 px near flat to 8 px once turned
+  // past about 21 degrees: across 8 px the perspective is flat to a fraction of a pixel, and it
+  // draws fewer than half the strips. Gradually, so no angle changes the strips at once, and never
+  // near flat, where wide strips' seams show as the phone settles.)
+  const sw0 = photo && D > 5 * h ? 3 + 5 * clamp((Math.abs(s) - .06) / .3) : 3;
   const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / sw0)));
   for (let i = 0; i < n; i++) {
     const [xa, ta] = P(X(i / n), -h / 2, seen), [xb, tb] = P(X((i + 1) / n), -h / 2, seen);
@@ -650,14 +653,17 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
   const ns = s > 0 ? 1 : -1, k = Math.abs(s);
   const g = ctx.createLinearGradient(P(ns * w / 2, 0, seen)[0], 0, P(-ns * w / 2, 0, seen)[0], 0);
   g.addColorStop(0, `rgba(255,255,255,${.07 * k})`); g.addColorStop(.35, "rgba(0,0,0,0)"); g.addColorStop(1, `rgba(0,0,0,${.3 * k})`);
-  poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill();
+  // (photo-real leaves out the fill where it would change no pixel: under 0.4 of a level near flat)
+  if (!photo || k > .005) { poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill(); }
   // a turning back catches the key light (high on the left, where the shadows fall
   // from): a soft band crosses it, away from the light, as its face turns about 20
   // degrees toward it. Square to the lens or resting on an edge it is gone, so a still
   // phone looks as it did and only a moving one shows it. However the phone lies in the
   // frame the light stays where it is: a turn about its long axis faces it toward the
   // light only as far as that axis lies across the light (on its side, the turn tips it up).
-  if (c < 0) {
+  // (photo-real lights the glass its own way, a sheen that slides as the phone turns, so it
+  // leaves this band out)
+  if (c < 0 && !photo) {
     const ra = -rot * Math.PI / 180, across = Math.cos(ra) + Math.sin(ra);
     const phi = Math.asin(clamp(-s * across, -1, 1)), uc = .5 + Math.sign(across) * (phi - SHEEN_AT) * 6, a = .13 * clamp(Math.abs(c) * 3);
     if (a > .004 && uc > -.6 && uc < 1.6) {
@@ -725,9 +731,9 @@ function glassAndRim(ctx, p, w, h, s, rot, seenRim, edgeOn) {
   const L = Math.hypot(w, h) / 2, k = L / Math.hypot(dx, dy), x0 = -dx * k, y0 = -dy * k, x1 = dx * k, y1 = dy * k;
   // the sheen goes as the glass turns edge on: side on, the glass is a line along the rim
   const at = .36 + .22 * s, a = .1 * clamp(edgeOn * 3), g = ctx.createLinearGradient(x0, y0, x1, y1);
-  g.addColorStop(clamp(at - .2), "rgba(255,255,255,0)"); g.addColorStop(clamp(at), `rgba(255,255,255,${a})`);
-  g.addColorStop(clamp(at + .05), `rgba(255,255,255,${a * .45})`); g.addColorStop(clamp(at + .26), "rgba(255,255,255,0)");
-  const lit = a > .002 ? slabOf(seenRim, [x0, y0], [x1, y1], at - .2, at + .26) : [];
+  g.addColorStop(clamp(at - .16), "rgba(255,255,255,0)"); g.addColorStop(clamp(at), `rgba(255,255,255,${a})`);
+  g.addColorStop(clamp(at + .05), `rgba(255,255,255,${a * .45})`); g.addColorStop(clamp(at + .22), "rgba(255,255,255,0)");
+  const lit = a > .002 ? slabOf(seenRim, [x0, y0], [x1, y1], at - .16, at + .22) : [];
   if (lit.length > 2) { poly(ctx, lit); ctx.fillStyle = g; ctx.fill(); }
   // the catch-light goes with the glass too: edge on, the photograph's own rim is all there is
   const [r, gg, b] = hexRgb(p.metal), rg = ctx.createLinearGradient(x0, y0, x1, y1), ka = clamp(edgeOn * 3);
@@ -738,7 +744,8 @@ function glassAndRim(ctx, p, w, h, s, rot, seenRim, edgeOn) {
   // came flat
   const half = Math.max(.8, w * .005) / 2;
   ctx.beginPath();
-  for (const pts of [offsetPoly(seenRim, half), offsetPoly(seenRim, -half)]) pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  const coarse = seenRim.filter((_, i) => i % 2 === 0);   // a line this fine needs half the corner's points
+  for (const pts of [offsetPoly(coarse, half), offsetPoly(coarse, -half)]) pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
   ctx.fillStyle = rg; ctx.fill("evenodd");
 }
 
@@ -877,9 +884,14 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
   // two thirds of the way up), and is as wide as the turned body, its edge included.
   if (!noShadow) {                                  // a reflection casts none
     const f = zz * 2, i0 = Math.min(1, Math.floor(f)), k = f - i0, a = op * .42 * (1 - .55 * zz);
-    const a0 = a * (1 - k), a1 = k > 0 ? (a - a0) / (1 - a0) : 0;   // the two together as dark as one
+    let a0 = a * (1 - k), a1 = k > 0 ? (a - a0) / (1 - a0) : 0;   // the two together as dark as one
+    // photo-real (rule 123): resting, the shadow is a contact shadow, darker and drawn in close
+    // under the body. It is the tightest blur's own draw made darker (no draw of its own), and it
+    // goes over the first quarter of the rise, never all at once
+    const cf = p.finish === "photo" ? 1 - inOut(clamp(zz / .25)) : 0;
+    if (cf) a0 += op * .34 * cf * (1 - a0);
     ctx.save();
-    ctx.translate(x + W * (.006 + .03 * zz), y + W * (.010 + .045 * zz));
+    ctx.translate(x + W * (.006 + .03 * zz) * (1 - .55 * cf), y + W * (.010 + .045 * zz) * (1 - .55 * cf));
     ctx.rotate(-rot * Math.PI / 180);
     ctx.scale(scale * Math.max(ac + (p.design.depth || THICKNESS) * Math.abs(Math.sin(flip)), .02), scale);
     for (const [sh, al] of [[p.shadows[i0], a0], [p.shadows[i0 + 1], a1]]) {
@@ -887,24 +899,6 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
       ctx.globalAlpha = al; ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
     }
     ctx.restore();
-    // photo-real (rule 123): where it rests, a darker contact shadow tight under the body. It is
-    // the tightest of the shadows already blurred for this size, so it costs one draw, and it
-    // fades out over the first quarter of the rise, never all at once
-    const kc = p.finish === "photo" ? op * .34 * (1 - inOut(clamp(zz / .25))) : 0;
-    if (kc > .002) {
-      const sh = p.shadows[0];
-      ctx.save();
-      ctx.translate(x + W * .002, y + W * .0035);
-      ctx.rotate(-rot * Math.PI / 180);
-      ctx.scale(scale * Math.max(ac + (p.design.depth || THICKNESS) * Math.abs(Math.sin(flip)), .02) * .985,
-        scale * .99);
-      // only its border: the body is drawn opaque over the rest (wide enough to take the corners in)
-      const cw = sh.c.width, ch = sh.c.height, e = Math.ceil(sh.pad * 2 + CORNER * p.w * .32), ox = -p.w / 2 - sh.pad, oy = -p.h / 2 - sh.pad;
-      ctx.globalAlpha = kc;
-      for (const [sx, sy, sw, shh] of [[0, 0, cw, e], [0, ch - e, cw, e], [0, e, e, ch - 2 * e], [cw - e, e, e, ch - 2 * e]])
-        ctx.drawImage(sh.c, sx, sy, sw, shh, ox + sx, oy + sy, sw, shh);
-      ctx.restore();
-    }
   }
 
   ctx.save();

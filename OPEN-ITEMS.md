@@ -2163,3 +2163,48 @@ Check: `scripts/ad_library_check.mjs`.
    (`max-age=86400` on a versioned picture). The feed itself stops at once.
 5. **Recent downloads** are this browser's, as before (IndexedDB, the last 12).
    Saving one is how it reaches the library.
+
+## AN. 2026-10-06 — the photo-real phone finish for the video maker (DESIGN-LAW 123)
+
+The owner, of the photo-real look left out on 2026-10-05 (§AM, not done 3):
+"this too if possible". Re-drawn on today's slab from
+`claude/sharp-maxwell-q2aq4o` c228696d (not merged), on
+`claude/photo-real-phone-finish`.
+
+Done: "Phone finish" (Standard, the default; Photo-real by hand only, weight
+0, kept by a shuffle). Side on, left and right, as hand-picked angles.
+`scripts/motion_finish_check.mjs` (rule 114 on the pixels);
+`motion_phone_check.mjs --finish photo --poses …`.
+
+Measured (cloud container, Chromium 1194, fabric 5.3.0 served from disk):
+- Default unchanged: 16 shuffled looks and the default look, 5 moments each,
+  85 frames, 0 pixels differ before and after.
+- Rule 114: 57 of 57 phones pass side on; measured sides average 0.87 to 1.00
+  of their colour (standard 0.88 to 1.00), hue shifts 1.1 degrees at most, no
+  side's brightest 0.5% lighter than the standard's or the body.
+- motion_phone_check, every model all the way round, standard and photo-real
+  (flat, edge_left, side on): all pass. audit_phone_views.py: 59 of 59.
+- Speed, whole 6 s videos of five large phones at 1080, every frame as an
+  export draws it (median of three, ms): flat 26,019 standard / 22,608
+  photo-real; edge_left 26,100 / 21,666; turntable 28,728 / 25,126;
+  side on 22,160 / 19,399; Wide 3-D spin about level (six runs, -1.6 to
+  +3.3%). Five 640 px phones, one frame: 27 to 31 ms photo-real against 28 to
+  32 ms standard.
+- motion_export_check, landing_check at 390 and 1440: no errors, no failed
+  requests, no overflow. motion_audit: 0 first-frame and 0 flash failures over
+  684 cards; its 29 errors are held cards the studio will not open (the
+  classics gate and the choice-holds table), not the video engine.
+
+Not done, and why:
+1. **Hero three-quarter and leaning back** (the commit's leaned angles) are
+   left out. Leaned, the face is drawn in a grid of cells, and coming to rest
+   one 0.05 degree step changed 63 to 149 pixels against motion_phone_check's
+   bar of 60, in both finishes, on 25 to 36 phone faces; the hero view's face
+   also sheared past its band. They need a face drawing that passes that test.
+2. **video_photo_check's motion 1:1 case** failed on this branch in two full
+   runs ("no other moment that looks different enough") and passed in two
+   `--only motion` runs; `main` passed both ways once each. The maker's video
+   here is MediaRecorder's real-time WebM, so the second moment depends on
+   frame timing; the default look draws the same pixels as `main` (0 of 85
+   frames differ). Run it again on a quiet machine before trusting either way.
+3. **Not on `main`, not deployed**, as asked: the branch is pushed for review.
