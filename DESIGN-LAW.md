@@ -4601,10 +4601,9 @@ not merged.
   one moment and is unchanged. Measured on a fast spin's exported frames
   against drawing every moment: worst frame 0.215 levels off on average.
   Measured on whole 6 s videos of five large phones, every frame drawn as an
-  export draws it, photo-real takes 12 to 17% less time than standard flat,
-  turned, on a turntable and side on, and the same within the measure's noise
-  (-1.6 to +3.3% over six runs) on the Wide 3-D spin, whose wide lens keeps
-  the 3 px strips (OPEN-ITEMS §AN).
+  export draws it, photo-real takes 15 to 20% less time than standard flat,
+  turned, on a turntable and side on, and the same on the Wide 3-D spin
+  (-1.2% and +0.1%; its wide lens keeps the 3 px strips), OPEN-ITEMS §AN.
 - **Angles.** Side on (left or right, turned 60 degrees) is offered by hand,
   weight 0; it passes every phone audit in both finishes. The commit's leaned
   angles (hero three-quarter, leaning back with the bottom edge and port) are
