@@ -19,6 +19,8 @@
 <script src="vendor/mp4-muxer.min.js" defer></script>
 <script src="../video-help.js" defer></script>
 <script src="../video-still.js" defer></script>
+<script src="../account.js" defer></script>
+<script src="../ad-library.js" defer></script>
 <script type="module" src="app.js"></script>
 </head>
 <body class="mo">
@@ -29,6 +31,7 @@
     <a href="../index.html#lp-templates">Image ads</a>
     <a href="./" aria-current="page">Video ads</a>
     <a href="../looks.html">Look Book</a>
+    <a href="../master-library.html" id="mo-adlib" title="The ads you saved, and their public link">📚 Library</a>
     <a href="../index.html#pricing">Pricing</a>
     <a href="../about.html">About</a>
   </nav>
@@ -56,6 +59,7 @@
         <button class="mo-btn" id="shuffle-all" title="New design, new words">&#9861; Surprise me</button>
         <button class="mo-btn" id="undo" title="Back to the previous look" disabled>&#8630; Back</button>
         <a class="mo-btn" id="browse" href="#looks">&#9638; Browse looks</a>
+        <button class="mo-btn star" id="mo-star" title="Make this video ad and save it to your library, with its photo, for iPhones LA to post">&#11088; Save to library</button>
         <button class="mo-btn download" id="download">&#11015; Download MP4</button>
       </div>
       <section class="mo-attn" id="attn" aria-label="Attention check">

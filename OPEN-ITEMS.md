@@ -2417,3 +2417,52 @@ Still open:
 2. `tools/gfx/console.js` (559 KB) and `tools/hero-picker/hero.js` are build
    outputs, committed so the owner can open them; regenerate after an engine
    or showcase-index change.
+## Stars, video ads and accounts. 2026-10-06: every ad has a ★ that sends it to the library; accounts from every door
+
+The owner: "allow account creation so I can download content, upload to
+library properly", "make sure every ad has an option to add to library",
+"video ads photo ads all need a star button which will send to library".
+Built on the ad library above: `ad-library.js` (the stars, the saves, videos
+in parts), `account.js` (the account on the pages without app.js), the
+video on an item in `netlify/lib/adlibrary.mjs` (`/api/ads/video/*`, the
+public clip, the RSS), the video maker's star (`motion/app.js`, its
+`makeVideo` shared with Download MP4), the master library's stars and
+video playback, iPhones LA's worker taking the clip. README "Ad library";
+check `scripts/ad_library_check.mjs`.
+
+1. **Account creation was dead on the landing page.** `bindSaasUI()` ran
+   only when Easy Mode opened, so Sign up free, Log in, the footer's Create
+   free account and the dialog's own Create account button did nothing
+   until somebody had opened the studio. `boot()` binds it now (guarded, so
+   Easy Mode's call is a no-op). The dialog opens on Create account for a
+   device that never signed in (`pgfx_seen_account`), on Sign in after.
+2. **What a star saves.** A design card is drawn as it would download: the
+   card's own template with the brand kit's number and website (no website
+   on file: the line goes, as Easy Mode drops it), the gate, the plan's size
+   and watermark, counted as a download (operators excepted). So a free
+   account's star is watermarked and held from auto-post, like its
+   downloads. The finished designs on the master library save their
+   full-size render as shown (not counted: those files are public), held
+   when the render shows a website; the owner's renders all show
+   iphones.LA, so they are held. Whether a website on the picture should
+   still hold a WE BUY ad from auto-post is the rule iPhones LA's link set
+   (OPEN-ITEMS "iPhones LA"); it is kept, not re-decided here.
+3. **Videos.** A video ad is its clip beside its photo (OfferUp takes a
+   video only with a photo); the photo stays the picture every poster
+   reads, so a poster written before videos existed still works. MP4 where
+   the browser writes H.264, WebM otherwise (this container's Chromium:
+   WebM; the H.264 path is unexercised here, as before). Parts of 4.5 MB raw
+   under a request's 6 MB, 40 MB a clip at most, joined and checked (hash,
+   container) on `done`. `/ads/video/done` reads every part back and writes
+   the whole: on a slow path a 40 MB clip could approach the function's
+   time limit; a 10-second clip (4 to 8 MB) is well inside it.
+4. **The same still, saved twice, is one ad.** The save de-duplicates by the
+   picture's hash, so Save as video after Save to library replaces the clip
+   on the same ad rather than adding a second.
+5. **Not deployed, not exercised against production.** This session's
+   network denies every Netlify host. Deploy `main` from the Mac
+   (AGENT-BRIEF, Deploying), then on the live site: create an account from
+   the landing page, press a star, open 📚 Library.
+6. **The star on a locked (Pro) design** opens the plan page, as the card
+   does. The hero wall (the animated shop window) carries no stars: its
+   cards open the design in Easy Mode, where the strip's star is.

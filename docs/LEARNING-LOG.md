@@ -3829,3 +3829,62 @@ RESUME HERE:
   0. iPhones LA adds the receiving route (docs/iphonesla-library/README.md,
      "The link arrives by itself"); sent to its session on the owner's Mac.
   1. Deploy main (the session on the owner's Mac is doing it).
+
+## 2026-10-06 — a star on every ad, video ads in the library, accounts from the front door (claude/laughing-bardeen-uyh2xt)
+
+The owner: "allow account creation so I can download content, upload to
+library properly", "make sure every ad has an option to add to library",
+"video ads photo ads all need a star button which will send to library".
+
+Found:
+  - The ad library of 2026-10-05 (`ad-library.js`, `/api/ads/*`) offered a
+    save only after a download, and took pictures only.
+  - `bindSaasUI()` (the landing's Sign up free and Log in, the auth dialog's
+    tabs and its Create account button, `loadAccount`) ran only from
+    `bindEasyUI()`, so from the landing page a visitor could not create an
+    account at all: the buttons were dead until the studio had been opened.
+    The dialog also always opened on Sign in.
+  - The video maker and the master library have no app.js, so no account:
+    nothing there could save to a library.
+  - The site's CSP (`default-src 'self'`, no `media-src`) keeps a <video>
+    from playing a blob: URL. A clip's size is read off its file (the MP4's
+    tkhd box, a WebM's PixelWidth and PixelHeight) instead.
+  - The video helper's pop-up ("Video saved, with a catch") sits over the
+    page after a video download; a "save it" card under it cannot be
+    pressed, so the card waits until the pop-up closes.
+  - Easy Mode draws its strip again as photographs land, so an element held
+    across a save is stale: read a star back by its ref.
+  - fabric 5.3.1 is not on npm (5.3.0 is); `npm install --no-save` of one
+    package removes the others, so install them together.
+
+Did: the video on a library item (begin/part/done/remove, the public clip by
+range, kind/source/video on the feed, media:content in the RSS); account.js;
+bindSaasUI at boot and Create account first; ad-library.js rewritten on the
+same bones (stars on every card through wraps of scCard, scClassicCard,
+buildEzStrip, buildPickerGrid, refreshMyTemplates, edBuildLibrary,
+openHistory; Save to library and Save as video under the preview and in the
+export; deliverVideo wrapped for the capture and the after-download offer;
+videos in parts; the dialog's video badge and links; styles for the pages
+without styles.css); the video maker's makeVideo, saveLook and stars; the
+master library's video playback and stars; BuybackadFeed.video and the
+worker's post(..., video=); README, OPEN-ITEMS, the handoff zip.
+
+Checked:
+  - ad_library_check.mjs (routes, videos in parts, the real function, the
+    worker with the clip, Chromium under the production CSP: an account from
+    the landing, every star, the saves, Save as video, the after-download
+    offer, the video maker signed out and in, the master library): no
+    failures. tests-iphonesla-link.mjs 64 of 64; test_autopost.py 8 of 8.
+  - library_api_check.mjs, library_handoff_check.mjs, landing_check.mjs
+    (390 and 1440: no errors, no overflow), motion_export_check.mjs (the
+    refactored download: 300 frames at 30 fps, sound, no CSP violation),
+    video_photo_check.mjs (the studio and the maker, every format): no
+    failures.
+
+RESUME HERE:
+  0. Merge this branch to `main` and deploy `main` from the Mac (AGENT-BRIEF,
+     Deploying); this session cannot reach Netlify. On the live site: create
+     an account from the landing page, press a star, open 📚 Library, save a
+     video from the video maker.
+  1. Hand iPhones LA the updated handoff zip (docs/iphonesla-library.zip):
+     post(ad, jpeg, repost, video=None) takes the clip.

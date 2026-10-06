@@ -15,13 +15,15 @@ from buybackad_library import BuybackadFeed, LibraryError
 
 FEED = "fd_" + "A" * 24
 JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 2000
+MP4 = b"\x00\x00\x00\x18ftypisom" + b"\x00" * 4000
 
 
-def ad(i, round_=1, hold=None, autopost=True, due="2026-10-05T12:00:00Z", host=""):
+def ad(i, round_=1, hold=None, autopost=True, due="2026-10-05T12:00:00Z", host="", video=False):
     post = None if (hold or not autopost) else {"slot_id": f"ad_{i}@{due}", "due_at": due, "next_at": None, "round": round_}
     return {"id": f"ad_{i}", "title": f"Ad {i}", "category": "phones", "caption": f"We buy {i}", "hold": hold,
-            "autopost": bool(post), "repost_days": 7, "post": post,
-            "image": {"url": f"{host}/api/ads/feed/{FEED}/img/ad_{i}.jpg?v=1", "width": 1080, "height": 1080, "bytes": len(JPEG), "format": "jpg"}}
+            "autopost": bool(post), "repost_days": 7, "post": post, "kind": "video" if video else "photo",
+            "image": {"url": f"{host}/api/ads/feed/{FEED}/img/ad_{i}.jpg?v=1", "width": 1080, "height": 1080, "bytes": len(JPEG), "format": "jpg"},
+            "video": {"url": f"{host}/api/ads/feed/{FEED}/video/ad_{i}.mp4?v=1", "width": 1080, "height": 1080, "bytes": len(MP4), "format": "mp4", "seconds": 10} if video else None}
 
 
 class Stand(http.server.BaseHTTPRequestHandler):
@@ -37,6 +39,8 @@ class Stand(http.server.BaseHTTPRequestHandler):
             self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers(); self.wfile.write(body)
         elif path.startswith(f"/api/ads/feed/{FEED}/img/"):
             self.send_response(200); self.send_header("Content-Type", "image/jpeg"); self.end_headers(); self.wfile.write(JPEG)
+        elif path.startswith(f"/api/ads/feed/{FEED}/video/"):
+            self.send_response(200); self.send_header("Content-Type", "video/mp4"); self.end_headers(); self.wfile.write(MP4)
         else:
             body = b'{"error": "This library link was reset or never existed"}'
             self.send_response(404); self.send_header("Content-Type", "application/json"); self.end_headers(); self.wfile.write(body)
@@ -111,6 +115,21 @@ class FeedTest(unittest.TestCase):
         evil = ad(9, host="https://elsewhere.example")
         with self.assertRaises(LibraryError):
             self.feed.jpeg(evil)
+        with self.assertRaises(LibraryError):
+            self.feed.video(ad(9, host="https://elsewhere.example", video=True))
+
+    def test_a_video_ad_brings_its_clip_when_post_takes_one(self):
+        Stand.items = [ad(5, host=self.host, video=True), ad(6, host=self.host, due="2026-10-04T12:00:00Z")]
+        self.assertEqual(len(self.feed.video(Stand.items[0])), len(MP4))
+        self.assertIsNone(self.feed.video(Stand.items[1]))
+        got = []
+        post = lambda a, jpeg, repost, video=None: got.append((a["id"], a["kind"], len(jpeg), None if video is None else len(video))) or "listing-" + a["id"]
+        run_once(self.feed, post, PostedSlots(self.state_path))
+        self.assertEqual(got, [("ad_6", "photo", len(JPEG), None), ("ad_5", "video", len(JPEG), len(MP4))])
+        # a post() written before videos existed still gets the photo, and nothing else
+        old = []
+        run_once(self.feed, lambda a, jpeg, repost: old.append((a["id"], len(jpeg))) or 1, PostedSlots(os.path.join(self.dir, "old.json")))
+        self.assertEqual(old, [("ad_6", len(JPEG)), ("ad_5", len(JPEG))])
 
     def test_a_reset_link_is_a_clear_error(self):
         gone = BuybackadFeed(f"{self.host}/api/ads/feed/fd_{'B' * 24}")
