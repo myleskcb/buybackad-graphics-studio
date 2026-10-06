@@ -1,7 +1,9 @@
 # Deploys `main` to Netlify on every push, so nobody has to deploy by hand
 # from the Mac (AGENT-BRIEF.md, "Deploying": the lasting fix). It mirrors
-# the Mac command, `netlify deploy --prod --dir=.` from a clean checkout of
-# `main`, with the function bundled from node_modules by the CLI.
+# the Mac command, `netlify deploy --no-build --prod --dir=.` from a clean
+# checkout of `main` after `npm ci`, with the function bundled from
+# node_modules by the CLI (without --no-build, netlify-cli 26 detects "hugo"
+# and fails; without npm ci, every /api/* answers 502).
 #
 # Inert until these repository secrets exist (Settings → Secrets and
 # variables → Actions):
@@ -51,13 +53,13 @@ jobs:
         if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.SITE_1 != '' }}
         env:
           NETLIFY_SITE_ID: ${{ env.SITE_1 }}
-        run: npx --yes netlify-cli@latest deploy --prod --dir=. --message "GitHub ${{ github.sha }}"
+        run: npx --yes netlify-cli@latest deploy --no-build --prod --dir=. --message "GitHub ${{ github.sha }}"
 
       - name: Deploy the second project
         if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.SITE_2 != '' }}
         env:
           NETLIFY_SITE_ID: ${{ env.SITE_2 }}
-        run: npx --yes netlify-cli@latest deploy --prod --dir=. --message "GitHub ${{ github.sha }}"
+        run: npx --yes netlify-cli@latest deploy --no-build --prod --dir=. --message "GitHub ${{ github.sha }}"
 
       - name: What went live
         if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.SITE_1 != '' }}
@@ -66,3 +68,4 @@ jobs:
           curl -sS -o /dev/null -w '%{http_code} /\n' $U/
           curl -sS -o /dev/null -w '%{http_code} /colour-builder.js\n' $U/colour-builder.js
           curl -sS -o /dev/null -w '%{http_code} /docs (must be 404)\n' $U/docs/README.md
+          curl -sS -o /dev/null -w '%{http_code} /api/me (must be 401)\n' $U/api/me
