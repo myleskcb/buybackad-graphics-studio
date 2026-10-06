@@ -572,7 +572,7 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
   // The lens is focused on the face we see, not on the middle of the body: square on, that
   // face then stands at its photograph's own size. (Focused half a body deeper, it stood half a
   // percent large, and the phone jumped a pixel and a half where the bare photo took over.)
-  const seen = c >= 0 ? T / 2 : -T / 2, focus = D - seen * c;
+  const seen = c >= 0 ? T / 2 : -T / 2, focus = D - seen * c, photo = p.finish === "photo";
   const P = (x, y, zl) => { const X = x * c - zl * s, f = focus / (D - (x * s + zl * c)); return [X * f, y * f]; };
   // the back photograph lies mirrored on the slab: its left edge is the slab's right (+x). The
   // body stands 0.8 px inside the photograph's outline, so the photo's soft edge never shows
@@ -582,7 +582,9 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
     : outline(-w / 2 + inset, -h / 2 + inset, w / 2 - inset, h / 2 - inset, [R, R, R, R].map(r => r - inset));
   // the side: the outline swept from the hidden face to the seen one, brushed
   // metal dark at both rims with a highlight a little in from the near face
-  const steps = Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
+  // (photo-real draws a band only a few pixels wide in fewer slices: it costs a fill of the whole
+  // body each, and its light is laid over the side at once)
+  const steps = Math.min(30, Math.max(photo ? 3 : 6, Math.ceil(T * Math.abs(s) / 1.2)));
   // Each slice is filled back to a slice and a half behind it: side-on, an outline is only
   // a line, and outlines alone left a phone at 90 degrees a hairline beside its full shadow
   // (and slices that only met left a see-through seam where their soft edges touched).
@@ -594,8 +596,10 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
     // averages to that colour; any other is the body's own colour a shade darker, never lighter
     // than the body (owner, 2026-10-04: "we made sure the sides aren't too light ... darken
     // them to the proper body color"), the soft highlight only lifting it back toward it
-    ctx.fillStyle = p.railLin ? litRail(p.railLin, u) : shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u); ctx.fill();
+    ctx.fillStyle = p.railLin ? litRail(p.railLin, u, photo ? SOFTBOX_LIFT : 0) : shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u); ctx.fill();
   }
+  if (photo) softboxes(ctx, hull(rim.map(([x, y]) => P(x, y, -seen)).concat(rim.map(([x, y]) => P(x, y, seen)))), rim.map(([x, y]) => P(x, y, seen)),
+    P(0, -h / 2, seen)[1], P(0, h / 2, seen)[1], !!p.railLin);
   // the controls on the side we see, where Apple puts them. They come into view as that side
   // turns toward the lens, over the first 3.4 degrees: perspective alone gave them most of a
   // pixel square on, so they jumped from one edge to the other as the phone passed flat.
@@ -623,7 +627,12 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
   // the face, in thin vertical strips so it recedes; the back is seen from behind
   const [sx, sy, fw, fh] = src, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
   const near = P(X(0), 0, seen)[0], far = P(X(1), 0, seen)[0];
-  const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / 3)));
+  // (photo-real, through the long lens, widens its strips from 3 px near flat to 6 px once turned
+  // past about 14 degrees: across 6 px the perspective is flat to a fraction of a pixel, and it
+  // draws half the strips. Gradually, so no angle changes the strips at once, and never near flat,
+  // where 6 px strips' seams show as the phone settles.)
+  const sw0 = photo && D > 5 * h ? 3 + 3 * clamp((Math.abs(s) - .06) / .18) : 3;
+  const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / sw0)));
   for (let i = 0; i < n; i++) {
     const [xa, ta] = P(X(i / n), -h / 2, seen), [xb, tb] = P(X((i + 1) / n), -h / 2, seen);
     // each strip overlaps the next by 0.6 px so no seam shows, but never runs past the face, and
@@ -658,6 +667,96 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
       poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g2; ctx.fill();
     }
   }
+  if (photo) glassAndRim(ctx, p, w, h, s, rot, rim.map(([x, y]) => P(x, y, seen)), Math.abs(c));
+}
+
+// ------------------------------------------------------------ the photo-real finish (rule 123)
+// Chosen by hand ("Phone finish", photo); the standard finish above is drawn as it always was.
+// Its light stays inside rule 114: the band is the standard band with a studio's softboxes
+// reflected down its length, and the reflections only ever take light away between the
+// streaks (each stop at most the standard band's own colour, in linear light, so the hue
+// holds and no part of the side is lighter than the standard side, which is no lighter than
+// the body). The catch-light on the rim is the band's own colour. Only the glass, which is
+// glass, takes a white sheen.
+// The softboxes' reflections, as the share of the standard band's light kept along the
+// phone's length, in linear light: all of it in a streak, less between. Laid over the whole
+// side at once as black (at 1 - kept^(1/2.2), which scales each channel alike, so the hue holds
+// and nothing gets lighter). A side in its measured aluminium is lit brighter by what they take
+// on average (SOFTBOX_LIFT), capped at its standard peak, so it still averages to its colour.
+const SOFTBOX = [[0, .8], [.07, 1], [.19, .7], [.42, 1], [.52, .86], [.76, .68], [.9, .94], [1, .74]];
+// Measured aluminium is lit as a surface already, its light near its peak on the pale ones: it
+// takes the softboxes at a third of the depth (lifted by what that takes), or it could not average to its colour.
+const RAIL_SOFTBOX = SOFTBOX.map(([at, m]) => [at, 1 - (1 - m) / 3]);
+const stopsOf = box => box.map(([at, m]) => [at, `rgba(0,0,0,${(1 - m ** (1 / 2.2)).toFixed(3)})`]);
+const SOFTBOX_STOPS = stopsOf(SOFTBOX), RAIL_SOFTBOX_STOPS = stopsOf(RAIL_SOFTBOX);
+const SOFTBOX_LIFT = 1 / RAIL_SOFTBOX.slice(1).reduce((a, [at, m], i) => a + (at - RAIL_SOFTBOX[i][0]) * (m + RAIL_SOFTBOX[i][1]) / 2, 0);
+function softboxes(ctx, side, face, top, bot, rail) {
+  const g = ctx.createLinearGradient(0, top, 0, bot);
+  for (const [at, col] of rail ? RAIL_SOFTBOX_STOPS : SOFTBOX_STOPS) g.addColorStop(at, col);
+  // the side only: the face drawn over it is cut out, so only the band's pixels are touched
+  // (the face's own outline is inside the side's, so even-odd leaves exactly the band)
+  ctx.beginPath();
+  for (const pts of [side, face]) pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  ctx.fillStyle = g; ctx.fill("evenodd");
+}
+
+// The part of a convex outline between two lines across it (where t, the share of the way
+// from a to b, runs from t0 to t1): a light that covers only part of the glass is filled only there.
+function slabOf(pts, [ax, ay], [bx, by], t0, t1) {
+  const dx = bx - ax, dy = by - ay, d2 = dx * dx + dy * dy, t = ([x, y]) => ((x - ax) * dx + (y - ay) * dy) / d2;
+  const cut = (q, lim, sg) => {                    // keep the side where sg * (t - lim) >= 0
+    const out = [];
+    for (let i = 0; i < q.length; i++) {
+      const A = q[i], B = q[(i + 1) % q.length], ta = t(A), tb = t(B), ka = sg * (ta - lim) >= 0, kb = sg * (tb - lim) >= 0;
+      if (ka) out.push(A);
+      if (ka !== kb) { const k = (lim - ta) / (tb - ta); out.push([A[0] + (B[0] - A[0]) * k, A[1] + (B[1] - A[1]) * k]); }
+    }
+    return out;
+  };
+  return cut(cut(pts, t0, 1), t1, -1);
+}
+
+// A broad soft sheen across the glass, sliding as the phone turns, and a catch-light
+// on the rim, brightest toward the key light (high on the left, wherever the phone lies in the
+// frame), in the band's own colour. Both change smoothly through flat (nothing flips there) and
+// both go as the glass turns edge on (edgeOn, the face's cosine to the lens).
+function glassAndRim(ctx, p, w, h, s, rot, seenRim, edgeOn) {
+  const ra = rot * Math.PI / 180, dx = Math.cos(ra) - Math.sin(ra), dy = Math.sin(ra) + Math.cos(ra);   // high-left to low-right, in the phone's frame
+  const L = Math.hypot(w, h) / 2, k = L / Math.hypot(dx, dy), x0 = -dx * k, y0 = -dy * k, x1 = dx * k, y1 = dy * k;
+  // the sheen goes as the glass turns edge on: side on, the glass is a line along the rim
+  const at = .36 + .22 * s, a = .1 * clamp(edgeOn * 3), g = ctx.createLinearGradient(x0, y0, x1, y1);
+  g.addColorStop(clamp(at - .2), "rgba(255,255,255,0)"); g.addColorStop(clamp(at), `rgba(255,255,255,${a})`);
+  g.addColorStop(clamp(at + .05), `rgba(255,255,255,${a * .45})`); g.addColorStop(clamp(at + .26), "rgba(255,255,255,0)");
+  const lit = a > .002 ? slabOf(seenRim, [x0, y0], [x1, y1], at - .2, at + .26) : [];
+  if (lit.length > 2) { poly(ctx, lit); ctx.fillStyle = g; ctx.fill(); }
+  // the catch-light goes with the glass too: edge on, the photograph's own rim is all there is
+  const [r, gg, b] = hexRgb(p.metal), rg = ctx.createLinearGradient(x0, y0, x1, y1), ka = clamp(edgeOn * 3);
+  if (ka < .01) return;
+  rg.addColorStop(0, `rgba(${r},${gg},${b},${.9 * ka})`); rg.addColorStop(1, `rgba(${r},${gg},${b},${.25 * ka})`);
+  // a ring filled between the outline moved out and in by half its width, not a stroke: a stroke
+  // along an edge lying exactly level is drawn by another rule, and its row jumped as the phone
+  // came flat
+  const half = Math.max(.8, w * .005) / 2;
+  ctx.beginPath();
+  for (const pts of [offsetPoly(seenRim, half), offsetPoly(seenRim, -half)]) pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  ctx.fillStyle = rg; ctx.fill("evenodd");
+}
+
+// A convex outline moved out by d (in by -d), each corner along the bisector of its two edges.
+function offsetPoly(pts, d) {
+  let area = 0;
+  for (let i = 0; i < pts.length; i++) { const [x0, y0] = pts[i], [x1, y1] = pts[(i + 1) % pts.length]; area += x0 * y1 - x1 * y0; }
+  const sg = area > 0 ? 1 : -1, n = pts.length, out = [];
+  for (let i = 0; i < n; i++) {
+    const [ax, ay] = pts[(i + n - 1) % n], [bx, by] = pts[i], [cx, cy] = pts[(i + 1) % n];
+    let ux = by - ay, uy = ax - bx, vx = cy - by, vy = bx - cx;          // the two edges' outward normals (for sg > 0)
+    const lu = Math.hypot(ux, uy) || 1, lv = Math.hypot(vx, vy) || 1;
+    ux /= lu; uy /= lu; vx /= lv; vy /= lv;
+    let mx = ux + vx, my = uy + vy; const lm = Math.hypot(mx, my) || 1; mx /= lm; my /= lm;
+    const k = d * sg / Math.max(.5, mx * ux + my * uy);
+    out.push([bx + mx * k, by + my * k]);
+  }
+  return out;
 }
 const BLUR_STEP = 3;                               // px a phone corner may move between two moments of one frame (export)
 /** How an exported video's frames are drawn: 8 moments of the shutter while phones fly, 4
@@ -742,8 +841,11 @@ export const RAIL = {
 // between: the Cosmic Orange's side read peach.
 const toLin = v => (v /= 255) <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4;
 const toSrgb = v => Math.round(255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055));
-function litRail(lin, u) {
-  const f = .61 + .72 * Math.exp(-((u - .6) ** 2) / .1), glint = .035 * Math.exp(-((u - .64) ** 2) / .006);
+function litRail(lin, u, lift = 0) {
+  // photo-real lifts the light by what its softboxes take away, up to the peak, so the side
+  // still averages to its colour and its brightest is no brighter than the standard's
+  const f0 = .61 + .72 * Math.exp(-((u - .6) ** 2) / .1), f = lift ? Math.min(1.33, f0 * lift) : f0;
+  const glint = .035 * Math.exp(-((u - .64) ** 2) / .006);
   return `rgb(${lin.map(v => toSrgb(Math.min(1, v * f + glint))).join(",")})`;
 }
 
@@ -762,7 +864,7 @@ export class Phone {
     this.shadows = SHADOWS.get(sk) || SHADOWS.set(sk, [2, 10, 22].map(b => shadowSprite(this.w, this.h, b * ph / 400))).get(sk);
     if (SHADOWS.size > 64) SHADOWS.delete(SHADOWS.keys().next().value);
     Object.assign(this, { home: [0, 0], angle: 0, size: 1, reveal: false, landsBack: false, start: [0, 0], arc: [0, 0],
-      spin: 1, flips: 1, tIn: 0, tLand: 1, tReveal: 99, side: 1, glare: null, screen: null });
+      spin: 1, flips: 1, tIn: 0, tLand: 1, tReveal: 99, side: 1, glare: null, screen: null, finish: "standard" });
   }
 }
 
@@ -785,6 +887,24 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
       ctx.globalAlpha = al; ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
     }
     ctx.restore();
+    // photo-real (rule 123): where it rests, a darker contact shadow tight under the body. It is
+    // the tightest of the shadows already blurred for this size, so it costs one draw, and it
+    // fades out over the first quarter of the rise, never all at once
+    const kc = p.finish === "photo" ? op * .34 * (1 - inOut(clamp(zz / .25))) : 0;
+    if (kc > .002) {
+      const sh = p.shadows[0];
+      ctx.save();
+      ctx.translate(x + W * .002, y + W * .0035);
+      ctx.rotate(-rot * Math.PI / 180);
+      ctx.scale(scale * Math.max(ac + (p.design.depth || THICKNESS) * Math.abs(Math.sin(flip)), .02) * .985,
+        scale * .99);
+      // only its border: the body is drawn opaque over the rest (wide enough to take the corners in)
+      const cw = sh.c.width, ch = sh.c.height, e = Math.ceil(sh.pad * 2 + CORNER * p.w * .32), ox = -p.w / 2 - sh.pad, oy = -p.h / 2 - sh.pad;
+      ctx.globalAlpha = kc;
+      for (const [sx, sy, sw, shh] of [[0, 0, cw, e], [0, ch - e, cw, e], [0, e, e, ch - 2 * e], [cw - e, e, e, ch - 2 * e]])
+        ctx.drawImage(sh.c, sx, sy, sw, shh, ox + sx, oy + sy, sw, shh);
+      ctx.restore();
+    }
   }
 
   ctx.save();
@@ -1276,10 +1396,12 @@ const H0 = p => p.h * p.size;
 // The two angles that keep moving (a turntable sway, one wide spin) start from
 // flat once the phones settle; see phoneState0.
 const POSE_TURN = { flat: 0, edge_left: -.6, edge_right: .6 };
+// Side on, by hand only (rule 123): turned 60 degrees, the buttons' edge toward the lens.
+const POSE_SIDE = { profile_left: -1.05, profile_right: 1.05 };
 
 function phoneState(p, t, st) {
   const s = phoneState0(p, t, st);
-  const turn = POSE_TURN[st.pose] || 0;
+  const turn = POSE_TURN[st.pose] || POSE_SIDE[st.pose] || 0;
   if (s && turn) s[4] += turn;
   return s;
 }
@@ -2143,6 +2265,7 @@ export class Ad {
       p.reveal = endsBack && !p.landsBack;
       p.glare = new Glare(rng(st.seed * 101 + i), st.glare);
       p.lens = st.pose === "wide_spin" ? WIDE_LENS : LENS;      // a wide lens makes the spin wide
+      p.finish = st.phone_finish === "photo" ? "photo" : "standard";   // rule 123, chosen by hand
       p.turnSide = st.seed % 2 ? 1 : -1; p.order = i;           // every phone turns the same way
       return p;
     });

@@ -26,12 +26,16 @@
    The phones' shape, depth and buttons against the photographs are
    scripts/audit_phone_views.py's.
 
+   --finish photo   every test on the photo-real finish (rule 123) instead of the standard.
+   --poses a,b      the angles the blur test takes (flat and edge_left unless given).
+
    usage:  python3 -m http.server 8765   (repo root)   then
-           node scripts/motion_phone_check.mjs [--port 8765] [--entries fly_spin,deal]
+           node scripts/motion_phone_check.mjs [--port 8765] [--entries fly_spin,deal] [--finish photo] [--poses flat,edge_left]
    Uses puppeteer-core with CHROME=/path/to/chrome, else playwright's chromium.
    Exits 1 on a failure. */
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
-const PORT = +arg('--port', 8765), ONLY = arg('--entries', '');
+const PORT = +arg('--port', 8765), ONLY = arg('--entries', ''), FINISH = arg('--finish', 'standard');
+const POSES = arg('--poses', 'flat,edge_left').split(',');
 const BLUR_BAR = 1, SHADOW_BAR = 5, EDGE_BAR = .8, HOLE_BAR = 2, TURN_BAR = 2.5, FLAT_BAR = 60;
 
 let browser;
@@ -47,14 +51,16 @@ page.on('pageerror', e => { console.error('page error:', e.message); process.exi
 await page.goto(`http://localhost:${PORT}/motion/audit-sweep.html`);
 await page.waitForFunction(() => window.ready);
 
-const res = await page.evaluate(async ONLY => {
+const res = await page.evaluate(async ([ONLY, FINISH, POSES]) => {
   const { Ad, Phone, drawPhone, loadPhones, designOf, EXPORT_QUALITY } = await import('./engine.js');
   const { DEFAULT_STYLE, OPTIONS } = await import('./catalog.js');
   const { phones, index } = await loadPhones('./phones/');
   const ids = ['17-pro-cosmic-orange', '18-pro-burgundy', '18-pro-glacier'];
   const entries = ONLY ? ONLY.split(',') : OPTIONS.entry, dt = 1 / 30, blur = [];
-  for (const entry of entries) for (const pose of ['flat', 'edge_left']) {
-    const st = { ...DEFAULT_STYLE, phones: ids, entry, pose, arrangement: 'fan', seed: 3, hook: 'none', headline: '', number: '', camera: 'none', shake: 0 };
+  // a Phone made here takes the finish being checked
+  const mk = (img, meta, ph) => Object.assign(new Phone(img, meta, ph), { finish: FINISH });
+  for (const entry of entries) for (const pose of POSES) {
+    const st = { ...DEFAULT_STYLE, phone_finish: FINISH, phones: ids, entry, pose, arrangement: 'fan', seed: 3, hook: 'none', headline: '', number: '', camera: 'none', shake: 0 };
     const ad = new Ad(st, { phones }, 1080, 1080);
     let worst = { copy: 0, t: 0, gap: 0, n: 1 };
     for (let t = 0; t <= Math.min(ad.tl.revealEnd + .1, 3); t += dt) {
@@ -69,7 +75,7 @@ const res = await page.evaluate(async ONLY => {
   const x = c.getContext('2d', { willReadFrequently: true }), shadow = [];
   const luma = () => { const d = x.getImageData(0, 0, W, W).data, o = new Float32Array(W * W); for (let i = 0; i < W * W; i++) o[i] = .2126 * d[i * 4] + .7152 * d[i * 4 + 1] + .0722 * d[i * 4 + 2]; return o; };
   for (const id of ['17-pro-cosmic-orange', '15-plus-pink']) for (const [view, flip] of [['flat', Math.PI], ['turned', Math.PI - .6]]) {
-    const p = new Phone(phones[id].img, index.find(m => m.id === id), 360), steps = [];
+    const p = mk(phones[id].img, index.find(m => m.id === id), 360), steps = [];
     let prev = null;
     for (let k = 0; k <= 100; k++) {
       x.fillStyle = '#d8bb8c'; x.fillRect(0, 0, W, W);
@@ -87,7 +93,7 @@ const res = await page.evaluate(async ONLY => {
   for (const m of index) {
     if (seen.has(m.model)) continue;
     seen.add(m.model);
-    const p = new Phone(phones[m.id].img, m, 240), depth = designOf(m.model).depth * p.w;
+    const p = mk(phones[m.id].img, m, 240), depth = designOf(m.model).depth * p.w;
     for (const [rot, step] of [[0, 2], [90, 6]]) {
       let prev = null, edge = Infinity, hole = 0; const steps = [];
       for (let d = 0; d < 360; d += step) {
@@ -119,7 +125,7 @@ const res = await page.evaluate(async ONLY => {
   const fx = fc.getContext('2d', { willReadFrequently: true });
   for (const m of index) {
     if (flat.some(r => r.model === m.model)) continue;
-    const p = new Phone(phones[m.id].img, m, 480);
+    const p = mk(phones[m.id].img, m, 480);
     for (const [face, base] of [['back', Math.PI], ['screen', 0]]) {
       let prev = null; const steps = [];
       for (let k = 40; k >= 0; k--) {
@@ -138,7 +144,8 @@ const res = await page.evaluate(async ONLY => {
     }
   }
   return { blur, shadow, turn, flat };
-}, ONLY);
+}, [ONLY, FINISH, POSES]);
+console.log(`finish ${FINISH}`);
 
 let fails = 0;
 console.log(`blur: worst copy (px at 1080, bar ${BLUR_BAR})`);

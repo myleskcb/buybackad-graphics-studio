@@ -392,7 +392,13 @@ export const OPTIONS = {
   end_face: ["back", "front", "mixed"],
   // the phone angle, one for every phone in the video so the set reads as one: flat, turned
   // in 3-D to show one edge, swaying on a turntable, or one wide spin once they land
-  pose: ["flat", "edge_left", "edge_right", "turntable", "wide_spin"],
+  pose: ["flat", "edge_left", "edge_right", "turntable", "wide_spin",
+    // side on to the buttons (rule 123), offered by hand only
+    "profile_left", "profile_right"],
+  // how the phones are lit (rule 123): the standard look, or photo-real (a softbox streak
+  // down the band, a sheen over the glass, a catch-light on the rim, a contact shadow).
+  // Only by hand: a shuffle keeps it (KEPT_OPTIONS), so every look number draws as it did
+  phone_finish: ["standard", "photo"],
   front_glimpse: ["spin", "hold"],
   background: ["radial", "flat", "linear", "split", "rays", "dots", "stripes", "spotlight", "bigword", "grid",
     "mesh", "rings", "checker", "waves", "bokeh", "confetti", "duotone", "halftone", "beams", "frame", "sunburst", "noise",
@@ -523,7 +529,9 @@ export const WEIGHTS = {
   number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
   arrangement: { lineup: 3, showcase: 3, wings: 2, fan: 2, hand: 2, podium: 2, headliner: 2, burst: 1, tents: 1, gallery: 2, crown: 2, spotlight: 2, lean_in: 2, tilt_row: 2, rise: 2, fanfare: 1 },
-  pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1 },   // turned, as often as a turntable, either edge
+  pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1,   // turned, as often as a turntable, either edge
+    profile_left: 0, profile_right: 0 },   // by hand only (rule 123)
+  phone_finish: { standard: 1, photo: 0 },
   accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
   accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
   front_glimpse: { spin: 3, hold: 1 },
@@ -563,7 +571,7 @@ export const WEIGHTS = {
 // one goes at the end, after every draw an earlier look already makes.
 export const LATE_OPTIONS = ["melody", "lead", "accent", "tone", "track"];
 // Options a shuffle never changes: only a hand pick sets them.
-export const KEPT_OPTIONS = ["season"];
+export const KEPT_OPTIONS = ["season", "phone_finish"];
 
 // Holiday music (owner, 2026-10-02: "holiday tunes only in holiday ads"): a holiday's tunes,
 // recordings and opening sound play only in an ad set to that holiday, and an ad set to a
@@ -630,7 +638,7 @@ export const DEFAULT_STYLE = {
   font: "franklin", number_font: "same", case: "upper", tracking: 0, skew: 0,
   text_fx: "shadow", color_mode: "mono", accent_word: -1, text_in: "slide", text_pos: "top-left",
   text_scale: 1, number_style: "plain", number_format: "dashed", number_pos: "bottom-center", number_in: "pop",
-  number_scale: 1, arrangement: "lineup", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat",
+  number_scale: 1, arrangement: "lineup", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat", phone_finish: "standard",
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
   sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
@@ -654,7 +662,7 @@ export const LABELS = {
   font: "Typeface", number_font: "Number typeface", case: "Case", tracking: "Letter spacing", skew: "Slant",
   text_fx: "Type treatment", color_mode: "Colour use", text_in: "Headline entrance", text_pos: "Headline position",
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
-  number_in: "Number entrance", arrangement: "Phone layout", pose: "Phone angle",
+  number_in: "Number entrance", arrangement: "Phone layout", pose: "Phone angle", phone_finish: "Phone finish",
   accents: "Accents", accent_set: "Accent topic", accent_kind: "Accents drawn as", accent_in: "Accents enter by", accent_idle: "Accents move", accent_out: "Accents leave by", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
   sound_kit: "Music", melody: "Famous tune (public domain)", lead: "Tune played on", accent: "Opening sound", season: "Holiday music", tone: "Mix tone",
@@ -670,7 +678,7 @@ export const GROUPS = [
   ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
   ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
-  ["Phones", ["arrangement", "pose", "entry", "end_face", "front_glimpse", "glare", "depth"]],
+  ["Phones", ["arrangement", "pose", "phone_finish", "entry", "end_face", "front_glimpse", "glare", "depth"]],
   ["Accents", ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
   ["Sound", ["track", "sound_kit", "season", "melody", "lead", "tone", "accent", "hit", "number_sfx"]],
