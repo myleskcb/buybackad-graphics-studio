@@ -6392,6 +6392,7 @@ async function loadAccount(){
     else if (getToken()) account = (await api('/me')).user;
     else account = null;
   } catch (e){ account = null; }
+  if (account) jset('pgfx_seen_account', true);   // the auth dialog opens on Sign in from now on
   syncAcctUI();
   return account;
 }
@@ -6503,7 +6504,10 @@ function openAuth(msg, next){
   $('auth-ok').style.display = 'none';
   $('auth-err').textContent = '';
   $('auth-demo-note').style.display = DEMO ? '' : 'none';
-  setAuthMode('in');
+  /* a device that has never signed in opens on Create account (owner,
+     2026-10-06: "allow account creation"); one that has, on Sign in. A
+     caller that knows better sets the tab after this (the landing's buttons). */
+  setAuthMode(jget('pgfx_seen_account', false) ? 'in' : 'up');
   $('auth-overlay').classList.add('show');
   setTimeout(() => $('auth-email').focus(), 60);
 }
@@ -6654,7 +6658,16 @@ function applyWatermark(dataUrl, w, h){
   });
 }
 
+let _saasBound = false;
 function bindSaasUI(){
+  /* Once. Until 2026-10-06 this ran only when Easy Mode opened (bindEasyUI),
+     so on the landing page "Sign up free", "Log in", the footer's "Create
+     free account" and the dialog's own Create account button did nothing
+     until somebody had opened the studio: a visitor could not create an
+     account from the front door. boot() calls it now; the guard keeps the
+     second call from binding twice. */
+  if (_saasBound) return;
+  _saasBound = true;
   // Signed out → auth modal. Signed in → proper account menu (no confirm()
   // dialogs in a SaaS).
   const menu = $('acct-menu');
@@ -10024,6 +10037,7 @@ function boot(){
   $('lp-open-studio').onclick = () => showEasy(null);
   $('lp-cta-main').onclick = () => showEasy(null);
   $('lp-cta-bottom').onclick = () => showEasy(null);
+  bindSaasUI();   // the account works from the landing: Sign up free, Log in, the dialog
   /* bindEasyUI() builds the whole Easy Mode panel — background swatches, the
      layer rows, the template strip — and its swatches carry template photos as
      CSS backgrounds and <img> tags. Run at boot it fetched ten backdrops for a
