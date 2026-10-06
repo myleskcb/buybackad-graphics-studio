@@ -1982,6 +1982,48 @@ themes 314, looks 40, voices 1525). The look on every other card and
 classic is measured in the next commit. 68 thumbnails redrawn. ASSET_REV
 20261004b.
 
+## AN. 2026-10-06 — the Template Lab leaves the site
+
+The owner, over a screenshot of the lab's index: "audit and fix this also
+it's no longer necessary to include in the site".
+
+The lab (`lab/`: the template, theme, font and asset labs, the bulk review of
+582 images, the console and the hero picker; 1,397 files, 110 MB, all landed
+2026-09-27) was the owner's judging tool, in an older look, and §V 3 had
+already read its index as stale. Done:
+- **Off the site.** The landing's nav pill and footer link are gone, with
+  the pill's CSS (`.lp-lab`, `.lp-lab-full`). `/lab/*` is 404'd at the edge
+  in `netlify.toml`, the way docs/ and scripts/ are, so its noindex header
+  (`_headers`, `netlify.toml`) and the `robots.txt` Disallow go with it, and
+  AGENT-BRIEF's hint that named the landing by its lab pill now names the
+  landing. Nothing the site loads referred to `lab/` (app.js names it in two
+  comments only).
+- **The nav, measured without the pill** (Playwright, the served page):
+  1440 to 1280 and 1000 to 360 hold "Make my ad" and its caret inside the
+  viewport. On a phone the wordmark still cannot come back: 174 + toggle +
+  CTA + caret overflows 375 by 6px (360 by 21), so the logo stays its mark
+  alone; the comment in `styles.css` carries the new numbers.
+- **The folder stays** as the record of what was judged, and the four build
+  scripts (`build_lab_site`, `build_review_site`, `build_console`,
+  `build_hero_picker`) still write into it; open it from a checkout.
+- **Its index audited.** The 582 of the review page are right (120 in set9,
+  247 in set8, 215 theme samples). Fixed: Set 9 and Set 7 both read
+  "newest", Set 6 "new today", Set 4 "newest render" and "not published
+  yet", Set 3 "the live set" (Set 7 ships), Set 5 "from last night", and the
+  landing card named a Look menu the site no longer has (now the Look Book
+  and the dark/light toggle). A line at the top says the lab is not part of
+  the site and where to open it.
+
+Still open:
+1. **The landing nav still clips at 1001 to about 1115px.** Already on
+   `main`: with the Look Book link (PR #9) the bar overflows, so "Make my
+   ad" was clipped off the right by 88px at 1100 before this change and its
+   caret by 15px after it. One more link giving way under 1200 (or the
+   1000 breakpoint moving to 1120) would close it; which link is the
+   owner's call.
+2. Delete `lab/` outright if the record is not wanted (110 MB); the four
+   build scripts and the note in `assets/hero-picks.json` go with it.
+
 ## AM. 2026-10-05 — five sessions stopped at the weekly limit; their work, finished and on `main`
 
 The owner, over screenshots of five sessions that had stopped mid-work at
