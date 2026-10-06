@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* The photo-real finish (DESIGN-LAW rule 123) held to rule 114, measured on the pixels.
+/* The photo-real finish (DESIGN-LAW rule 124) held to rule 114, measured on the pixels.
 
    Every phone in motion/phones is drawn side on (turned 90 and 270 degrees, so the
    side is nearly all there is to see) in the standard finish and in photo-real, and

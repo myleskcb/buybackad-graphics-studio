@@ -26,7 +26,7 @@
    The phones' shape, depth and buttons against the photographs are
    scripts/audit_phone_views.py's.
 
-   --finish photo   every test on the photo-real finish (rule 123) instead of the standard.
+   --finish photo   every test on the photo-real finish (rule 124) instead of the standard.
    --poses a,b      the angles the blur test takes (flat and edge_left unless given).
 
    usage:  python3 -m http.server 8765   (repo root)   then

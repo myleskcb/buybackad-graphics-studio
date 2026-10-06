@@ -3888,3 +3888,60 @@ RESUME HERE:
      video from the video maker.
   1. Hand iPhones LA the updated handoff zip (docs/iphonesla-library.zip):
      post(ad, jpeg, repost, video=None) takes the clip.
+## 2026-10-06 — the photo-real phone finish, by hand, inside rule 114 (claude/photo-real-phone-finish)
+
+The owner, of the photo-real phones left out of `main` the day before: "this
+too if possible". Asked for it as an opt-in finish on today's slab, the
+default untouched, rule 114 held on the pixels, the extra angles only if they
+pass the phone audits, and no slower.
+
+Found:
+  - A finish that only takes light away cannot break "no lighter than the
+    body". The softbox streak is drawn as black over the standard side, so
+    every pixel is at most the standard's. But black at alpha a darkens sRGB,
+    and linear light goes as about (1 - a)^2.2: a streak meant to keep 84%
+    kept about 68%, and the measured-aluminium sides fell to 0.75 of their
+    colour. Define the light in linear terms and convert.
+  - A side-on measure finds what a turned one hides. Edge on, the glass is a
+    line on the silhouette's edge: a white sheen there, and a catch-light that
+    made the photograph's own pale rim opaque, read up to 1.58 times the
+    body. Both now go as the glass turns edge on.
+  - A canvas strokes a perfectly level edge by another rule than a tilted
+    one: the catch-light stroked round the rim changed a row of 140 pixels
+    the moment a phone came exactly flat. A filled ring does not.
+  - A bisect by global flags (`globalThis.NOGLASS` and the like, set before
+    the page loads) found each cost and each jump in minutes. Remove them
+    before committing.
+  - Speed came from what the finish lets the drawing drop, not from making the
+    additions cheap: the contact shadow as the resting shadow made darker
+    (no draw of its own), the band sliced coarser where its own light covers
+    it, the face's strips widened through the long lens. A microbenchmark
+    held phones on the ground at every angle; whole exported videos were the
+    honest measure, and found the wide spin (wide lens, no wide strips) the
+    one case at parity rather than faster.
+  - Coarser slicing changed the measured-aluminium sides again (the narrow
+    glint, sliced coarser, read 1.13 times lighter): run motion_finish_check
+    after any change to how the side is drawn, not only after a colour change.
+  - `pkill -f <pattern>` from a shell whose own command holds the pattern kills
+    that shell (the log said so on 2026-10-03; it happened again).
+
+Changed: motion/engine.js (`softboxes`, `slabOf`, `glassAndRim`,
+`offsetPoly`, the contact shadow, the side poses), motion/catalog.js and
+motion/app.js (Phone finish; side on), scripts/motion_finish_check.mjs (new),
+scripts/motion_phone_check.mjs (`--finish`, `--poses`); DESIGN-LAW 124;
+OPEN-ITEMS §AR.
+
+Rejected: merging c228696d (its light went lighter than the body: +0.22 and
++0.16 shades down the band, a white catch-light at 0.6); its leaned angles
+(they fail the coming-flat test in both finishes, 63 to 149 px against 60);
+a random weight for photo-real (the owner's rule: by hand).
+
+RESUME HERE:
+  0. The owner's look at the screenshots, then merge
+     `claude/photo-real-phone-finish` into `main` (merge `main` in first and
+     run motion_phone_check with and without `--finish photo`,
+     motion_finish_check and the seed pixel diff).
+  1. video_photo_check's motion 1:1 case on a quiet machine (§AR 2).
+  2. A leaned face that passes the coming-flat test, if the owner wants hero
+     three-quarter or leaning back (§AR 1).
+  3. Deploy `main` from the Mac (AGENT-BRIEF, Deploying).
