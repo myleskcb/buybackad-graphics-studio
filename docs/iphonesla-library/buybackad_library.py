@@ -31,6 +31,7 @@ key (the link is the access) and is what autopost_worker.py reads:
     feed = BuybackadFeed.from_env()
     for ad in feed.due(posted_slot_ids):         # what to post now, once per slot
         jpeg = feed.jpeg(ad)
+        video = feed.video(ad)                   # bytes for a video ad (ad["kind"] == "video"), else None
 """
 from __future__ import annotations
 
@@ -231,6 +232,20 @@ class BuybackadFeed:
         max_side (needs Pillow). Only from the BUYBACK.AD site the link is on."""
         image = ad.get("image") or {}
         return _as_jpeg(_fetch_image(image.get("url", ""), self.site, self.timeout, 15 * 1024 * 1024), image, max_side, quality)
+
+    def video(self, ad: dict, max_bytes: int = 60 * 1024 * 1024) -> bytes | None:
+        """A video ad's clip (ad["video"]: url, format "mp4" or "webm", width,
+        height, bytes, seconds), byte for byte; None for a photo ad. Only from
+        the BUYBACK.AD site the link is on. The photo (jpeg) is always there
+        too: OfferUp takes a video only with a photo beside it."""
+        video = ad.get("video") or None
+        if not video or not video.get("url"):
+            return None
+        data = _fetch_image(video["url"], self.site, self.timeout, max_bytes)
+        head = data[:12]
+        if not (head[4:8] == b"ftyp" or head[:4] == b"\x1a\x45\xdf\xa3"):
+            raise LibraryError("the library's video is not an MP4 or a WebM")
+        return data
 
 
 def _fetch_image(url: str, site, timeout: float, max_bytes: int) -> bytes:

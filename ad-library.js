@@ -532,6 +532,7 @@
      are often buttons themselves */
   function starFor(ref, opts){
     opts = opts || {};
+    style();
     const b = el('span', 'adl-star', '★');
     b.dataset.ref = ref;
     b.setAttribute('role', 'button'); b.tabIndex = 0;

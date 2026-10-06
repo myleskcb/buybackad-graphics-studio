@@ -16,7 +16,11 @@
      (assets/showcase/index.json and the full-size renders in
      assets/library-ads/), by the site's own test for an offered card
      (scIsLive in app.js, the same as netlify/lib/library.mjs). Whatever the
-     latest build re-drew is what shows: nothing here is a copy.
+     latest build re-drew is what shows: nothing here is a copy. Each carries
+     a ★ (owner, 2026-10-06: "every ad has an option to add to library"):
+     the full-size render, as shown, goes to the account's library through
+     ad-library.js; signed out, the account dialog comes first.
+   A saved video ad plays here, with its clip to download beside its photo.
    ═══════════════════════════════════════════════════════ */
 (() => {
   const API = String(window.PGFX_API || '').replace(/\/$/, '');
@@ -96,19 +100,32 @@
   /* ---------- saved ads ---------- */
   function savedCard(it){
     const c = el('div', 'ml-card');
-    const a = link(it.image.url, '', { blank: true });
-    a.className = 'ml-img';
-    a.setAttribute('aria-label', 'Open ' + it.title + ' at full size');
-    const im = el('img'); im.src = it.image.url; im.alt = it.title; im.loading = 'lazy'; im.width = 400; im.height = 400;
-    a.appendChild(im);
-    c.appendChild(a);
+    if (it.video){
+      /* the clip plays in place, its photo as the poster; nothing loads until it is pressed */
+      const box = el('div', 'ml-img');
+      const v = el('video'); v.controls = true; v.preload = 'none'; v.playsInline = true; v.poster = it.image.url; v.width = 400; v.height = 400;
+      v.setAttribute('aria-label', it.title + ', video');
+      const src = el('source'); src.src = it.video.url; src.type = it.video.format === 'webm' ? 'video/webm' : 'video/mp4';
+      v.appendChild(src);
+      box.appendChild(v);
+      box.appendChild(el('span', 'ml-kind', '🎬 VIDEO' + (it.video.seconds ? ' · ' + it.video.seconds + ' s' : '')));
+      c.appendChild(box);
+    } else {
+      const a = link(it.image.url, '', { blank: true });
+      a.className = 'ml-img';
+      a.setAttribute('aria-label', 'Open ' + it.title + ' at full size');
+      const im = el('img'); im.src = it.image.url; im.alt = it.title; im.loading = 'lazy'; im.width = 400; im.height = 400;
+      a.appendChild(im);
+      c.appendChild(a);
+    }
     c.appendChild(el('b', '', it.title));
-    c.appendChild(el('span', 'ml-meta', [catName(it.category), it.image.width + ' × ' + it.image.height, 'saved ' + when(it.created)].join(' · ')));
+    c.appendChild(el('span', 'ml-meta', [catName(it.category), it.image.width + ' × ' + it.image.height, it.video ? it.video.format.toUpperCase() + ' ' + it.video.width + ' × ' + it.video.height : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
     if (it.hold) c.appendChild(el('span', 'ml-held', it.hold === 'unchecked' ? 'Not auto-posted: not checked for a website' : 'Not auto-posted: it shows ' + it.hold));
     else if (it.post) c.appendChild(el('span', 'ml-post', 'Auto-post: due ' + when(it.post.due_at) + (it.post.next_at ? ', again ' + when(it.post.next_at) + ' (' + (REPOST[it.repost_days] || 'every ' + it.repost_days + ' days') + ')' : ', once')));
     else c.appendChild(el('span', 'ml-meta', 'Not set to auto-post'));
     const acts = el('div', 'ml-acts');
-    acts.appendChild(link(it.image.url, 'Download', { download: slug(it.title) + '.jpg' }));
+    acts.appendChild(link(it.image.url, it.video ? 'Photo' : 'Download', { download: slug(it.title) + '.jpg' }));
+    if (it.video) acts.appendChild(link(it.video.url, 'Video', { download: slug(it.title) + '.' + it.video.format }));
     c.appendChild(acts);
     return c;
   }
@@ -130,7 +147,8 @@
       box.appendChild(p);
     });
   }
-  const searchable = it => Object.assign({}, it, { _s: words([it.title, it.category, it.caption, (it.texts || []).map(t => t.text).join(' ')].join(' ')) });
+  const searchable = it => Object.assign({}, it, { _s: words([it.title, it.category, it.caption, it.video ? 'video' : 'photo', (it.texts || []).map(t => t.text).join(' ')].join(' ')) });
+  let feed = '';
 
   async function loadSaved(feed){
     const grid = $('grid-saved');
@@ -174,6 +192,33 @@
   }
 
   /* ---------- finished designs ---------- */
+  /* the design's full-size render, as shown, into the account's library; the
+     words on it read from its record, a website on it holds it from auto-post
+     (the same rule the studio keeps) */
+  async function saveFinished(x){
+    const lib = window.adLibrary;
+    if (!lib) throw new Error('the library did not load; reload the page');
+    if (!x.render) throw new Error('this design has no full-size render yet');
+    const full = 'assets/library-ads/' + x.id + '.jpg?v=' + x.render.slice(0, 12);
+    const r = await fetch(full);
+    if (!r.ok) throw new Error('the render could not be fetched (' + r.status + ')');
+    const blob = await r.blob();
+    const data = await new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(String(f.result)); f.onerror = () => rej(new Error('the render could not be read')); f.readAsDataURL(blob); });
+    const meta = { title: x.title, category: x.category, template: 'sc-' + x.id, texts: [], products: [], source: 'master', hold: '' };
+    try {
+      const rec = await fetch('assets/showcase/tpl/' + x.id + '.json').then(q => q.ok ? q.json() : null);
+      const layers = (rec && rec.tpl && rec.tpl.layers) || [];
+      layers.forEach(l => {
+        if (!l || !l.text || l.role === 'phone') return;
+        if (l.role === 'website' || l.role === 'qr') return;
+        if ((l.kind === 'text' || l.kind === 'textbox') && meta.texts.length < 24 && !/\d{3}[\s.-]?\d{3}[\s.-]?\d{4}/.test(l.text)) meta.texts.push({ role: l.role || 'text', text: String(l.text).replace(/\s+/g, ' ').trim().slice(0, 200) });
+        if (l.kind === 'cutout' && l.props && l.props.src){ const m = /([a-z0-9][a-z0-9-]{0,79})\.(?:webp|png|jpe?g)/i.exec(String(l.props.src)); if (m && meta.products.length < 24) meta.products.push(m[1].toLowerCase()); }
+      });
+      if (layers.some(l => l && l.role === 'website' && l.text)) meta.hold = 'a website';
+      else if (layers.some(l => l && l.role === 'qr')) meta.hold = 'a QR code';
+    } catch (e){ /* the words stay empty: the title carries the ad */ }
+    return lib.save({ name: x.id + '.jpg', data, meta });
+  }
   function finishedCard(x){
     const c = el('div', 'ml-card');
     const full = x.render ? 'assets/library-ads/' + x.id + '.jpg?v=' + x.render.slice(0, 12) : x.thumb;
@@ -182,6 +227,7 @@
     a.setAttribute('aria-label', 'Open ' + x.title + ' at full size');
     const im = el('img'); im.src = x.thumb; im.alt = x.title; im.loading = 'lazy'; im.width = 448; im.height = 448;
     a.appendChild(im);
+    if (window.adLibrary && x.render && !feed) a.appendChild(window.adLibrary.star('sc-' + x.id, { name: x.title, save: () => saveFinished(x) }));
     c.appendChild(a);
     c.appendChild(el('b', '', x.title));
     c.appendChild(el('span', 'ml-meta', catName(x.category) + (x.subject ? ' · ' + x.subject : '')));
@@ -241,7 +287,6 @@
     show(next); $('tab-' + next).focus();
   });
 
-  let feed = '';
   try { feed = new URLSearchParams(location.search).get('feed') || ''; } catch (e){}
   let badLink = false;
   if (feed && !FEED_RE.test(feed)){ feed = ''; badLink = true; }

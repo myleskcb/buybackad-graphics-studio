@@ -297,6 +297,7 @@ new link; the old one answers 404 from then on.
 | `/api/ads/feed/fd_...` (or `.json`) | `{ name, version, updated, repost_days, count, links, items }`; `?category=phones` filters, `?due=1` gives only what is due to post |
 | `/api/ads/feed/fd_....rss` | RSS 2.0: one item per ad that is due, its picture as the enclosure, its slot as the guid |
 | `/api/ads/feed/fd_.../img/<id>.jpg` | the ad's picture, the JPEG as it was saved (the download, at its size; up to 2160 a side) |
+| `/api/ads/feed/fd_.../video/<id>.mp4` (or `.webm`) | a video ad's clip, byte for byte (`Accept-Ranges: bytes`); `?kind=video` on the feed lists only video ads |
 
 An ad (an example record):
 
@@ -306,6 +307,8 @@ An ad (an example record):
   "texts": [{ "role": "headline", "text": "WE BUY iPHONES" }, { "role": "badge", "text": "Cash today" }],
   "products": ["iphone-15-pro"],
   "image": { "url": "https://.../api/ads/feed/fd_.../img/ad_mfx1k2abcd.jpg?v=3f2a9c1d0e4b", "width": 1440, "height": 1440, "bytes": 412233, "format": "jpg" },
+  "kind": "video", "source": "studio",
+  "video": { "url": "https://.../api/ads/feed/fd_.../video/ad_mfx1k2abcd.mp4?v=9b1c2d3e4f50", "width": 1080, "height": 1080, "bytes": 5213344, "format": "mp4", "seconds": 10 },
   "created": "2026-10-05T12:00:00Z", "updated": "2026-10-05T12:00:00Z",
   "autopost": true, "repost_days": 7, "hold": null,
   "post": { "slot_id": "ad_mfx1k2abcd@2026-10-05T12:00:00Z", "due_at": "2026-10-05T12:00:00Z", "next_at": "2026-10-12T12:00:00Z", "round": 1 } }
@@ -325,6 +328,14 @@ An ad (an example record):
   is listed with `post: null`.
 - `texts` and `products` are what is on the picture (the phone number is left
   out of `texts`), for writing the listing; `caption` is the owner's line.
+- `kind` is `"photo"` or `"video"`. A video ad carries `video` (its clip:
+  MP4 where the owner's browser could write one, WebM otherwise, with
+  `width`, `height`, `bytes` and `seconds`) beside `image`, which is still the
+  photo to post with it: OfferUp takes a video only with a photo. A photo ad
+  has `video: null`. `source` says where it was made (`studio`, `motion`,
+  the video maker, or `master`, the master library's finished designs). In
+  the RSS the clip rides as a second `media:content`; the enclosure stays
+  the picture.
 - No email or account detail is ever in the feed. Answers carry
   `Access-Control-Allow-Origin: *` and `X-Robots-Tag: noindex`; the JSON is
   cached for one minute.
@@ -333,8 +344,11 @@ An ad (an example record):
 
 `autopost_worker.py` does the above with the standard library. It reads the
 link, takes what is due, and calls `post(ad, jpeg_bytes, repost)` for each.
-It records a slot only after `post` returns, so a failed post is tried again
-on the next run. The posted slots live in one small JSON file.
+A `post` with a `video` parameter (`post(ad, jpeg_bytes, repost, video=None)`)
+gets a video ad's clip as bytes too (`BuybackadFeed.video(ad)`; `None` for a
+photo ad); a `post` without one gets the photo alone, as before. It records
+a slot only after `post` returns, so a failed post is tried again on the
+next run. The posted slots live in one small JSON file.
 
 ```
 BUYBACKAD_FEED_URL=https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_... \
@@ -346,9 +360,10 @@ running with `--loop 900`. `--dry-run` lists what is due and records nothing;
 `--limit` caps the posts per run (5 by default).
 
 `post` is the shop's own Auto-post: the same code path a person uses when they
-post a WE BUY ad by hand. It takes the picture as the ad's photo and writes the
-listing from `title`, `caption`, `texts`, `products` and `category`. It returns
-the listing's id, which is kept beside the slot. Do not build a second posting
+post a WE BUY ad by hand. It takes the picture as the ad's photo (and, for a
+video ad, the clip as the listing's video, with the photo beside it) and
+writes the listing from `title`, `caption`, `texts`, `products` and
+`category`. It returns the listing's id, which is kept beside the slot. Do not build a second posting
 pipeline. Each marketplace has its own rules on reposting and automation, and
 the schedule set in the studio should stay inside them.
 
@@ -365,8 +380,9 @@ each ad once per slot, because a repost is a new guid.
   reset link stops answering.
 - **The schedule.** A weekly ad comes due on days 0, 7, 14 and 21.
 - **The worker.** `autopost_worker.py` runs over HTTP against the real
-  function: it posts the due ad once, with its JPEG whole, and not again on
-  a second run. `test_autopost.py` also passes.
+  function: it posts the due ad once, with its JPEG whole (and a video ad's
+  clip whole, when `post` takes one), and not again on a second run.
+  `test_autopost.py` also passes (eight checks, 2026-10-06).
 - **The studio, in Chromium under the production CSP.** A download offers
   "Save to library". The Library dialog shows the saved ad and the link. A
   free account's watermarked ad is held from auto-post; an operator's is set
@@ -391,11 +407,14 @@ It is the contract.
   - test_autopost.py      into the tests
 
 1. Set BUYBACKAD_FEED_URL (the link) where this app keeps its settings.
-2. Write post(ad, jpeg_bytes, repost) over the EXISTING Auto-post: the ad's
-   picture becomes the WE BUY ad's photo, and the listing text comes from
-   ad["title"], ad["caption"], ad["texts"], ad["products"] and
-   ad["category"]. It returns the listing's id. Use the same code path as a
-   WE BUY ad posted by hand. Do not add a second posting pipeline.
+2. Write post(ad, jpeg_bytes, repost, video=None) over the EXISTING
+   Auto-post: the ad's picture becomes the WE BUY ad's photo, and the
+   listing text comes from ad["title"], ad["caption"], ad["texts"],
+   ad["products"] and ad["category"]. When video is not None (ad["kind"] ==
+   "video"; MP4 or WebM, see ad["video"]["format"]) it is the listing's
+   video, posted with the photo beside it, where the marketplace takes
+   one. It returns the listing's id. Use the same code path as a WE BUY ad
+   posted by hand. Do not add a second posting pipeline.
 3. Schedule autopost_worker.run_once (or the CLI with --once) every 10 to 15
    minutes, with its state file somewhere that survives a deploy.
 4. Run test_autopost.py. Then save one ad in the BUYBACK.AD studio and watch
