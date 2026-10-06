@@ -120,9 +120,42 @@ Caps: free 12 ads, Pro 300, operators 2000 (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`,
 saved ads, and **Finished designs**, every card the studio offers, read from
 this deploy (`assets/showcase/`, the full-size renders in
 `assets/library-ads/`), so whatever the latest build re-drew is what it shows.
-Check: `scripts/ad_library_check.mjs` (routes, the real function, iPhones LA's
-worker over HTTP, and the studio and page in Chromium under the production
-CSP; `FABRIC_JS=…` when cdnjs is out of reach).
+
+**The ★ on every ad** (owner, 2026-10-06: "every ad has an option to add to
+library", "video ads photo ads all need a star button"). Every card carries a
+star: the landing's gallery, Easy Mode's strip, the picker, the designer's
+Templates panel, the download history, the master library's finished
+designs, and every look in the video maker. A star on a design draws it as it
+would download, with the brand kit's number and website on it, through the
+same gate, at the plan's size and watermark, and counts it as a download
+(operators are not counted); the star fills once the ad is in the library.
+Under the Easy Mode preview and in the designer's export, **⭐ Save to
+library** saves the ad as made and **⭐🎬 Save as video** makes the studio's
+10-second video and saves it with its photo instead of downloading it. After
+a video download the save card offers the video ad too. In the video maker
+(`/motion`), **⭐ Save to library** beside Download MP4 and the star on each
+gallery look make that look, with its photo, and send both. A video ad on
+the feed carries `video` (MP4 where the browser could write one, WebM
+otherwise) beside `image`, served by link and by byte range; the RSS carries
+it as a second `media:content`. iPhones LA's worker hands the clip to a
+`post()` that takes a `video` argument. Videos go up in raw parts under a
+request's 6 MB (`/api/ads/video/begin`, `part`, `done`), 40 MB at most.
+
+**Accounts from every door.** Until 2026-10-06 the landing page's Sign up
+free, Log in and the dialog's Create account button did nothing until the
+studio had been opened (they were bound with Easy Mode): a visitor could
+not create an account from the front door. They work from the landing now;
+the dialog opens on **Create account** for a device that has never signed in
+and on Sign in after that. `account.js` carries the account (create, sign
+in, the same session token) to the pages without `app.js`: the video maker
+and the master library each open a dialog of their own when a star is
+pressed signed out, and the save follows the sign-in.
+
+Check: `scripts/ad_library_check.mjs` (routes, videos in parts, the real
+function, iPhones LA's worker over HTTP, and the studio, the video maker and
+the page in Chromium under the production CSP: the stars, an account from
+the landing, a video saved from each; `FABRIC_JS=…` when cdnjs is out of
+reach).
 
 ## SCANS.AD (ScanMap) integration — optional
 Graphics Studio runs 100% standalone. The integration is also **invisible to

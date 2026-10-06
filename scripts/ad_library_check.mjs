@@ -23,7 +23,21 @@
       dialog and on the public link (a free account's watermarked ad held from
       auto-post, an admin's set to post); master-library.html shows the public
       library at ?feed= and the finished designs (every offered card); no
-      sideways scroll at 390 px.
+      sideways scroll at 390 px. The stars (2026-10-06): an account is
+      created from the landing page, the dialog opening on Create account for
+      a new device; every card in the landing gallery, the Easy Mode strip,
+      the picker, the Templates panel and the download history carries a
+      star; a strip star saves the design at the plan's size, counted as a
+      download, a free account's held for its watermark; Save to library
+      under the preview and in the designer's export save the ad as made;
+      Save as video makes the studio's video and saves it with its photo,
+      served by range on the link; a video download offers the save once the
+      helper's pop-up is closed. The video maker: a signed-out star opens
+      Create account and the save follows the sign-up; every gallery look has
+      a star; the Library link opens the dialog there. The master library:
+      a saved video ad plays, every finished design has a star, a star saves
+      the render (held for the website on it), signed out it asks for an
+      account at 390 px.
 
    usage:  node scripts/ad_library_check.mjs [--no-browser]
            FABRIC_JS=/path/fabric.min.js for part 3 when cdnjs is out of reach
@@ -362,7 +376,7 @@ ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad tak
   const HAND = join(ROOT, 'docs/iphonesla-library');
   const W = join(tmpdir(), 'adlib-worker-' + process.pid);
   rmSync(W, { recursive: true, force: true }); mkdirSync(W, { recursive: true });
-  writeFileSync(join(W, 'shop_post.py'), 'import json, os\ndef post(ad, jpeg, repost):\n    with open(os.path.join(os.path.dirname(__file__), "posted.jsonl"), "a") as f:\n        f.write(json.dumps({"id": ad["id"], "repost": repost, "bytes": len(jpeg), "jpeg": jpeg[:3] == bytes([255, 216, 255])}) + "\\n")\n    return "listing-1"\n');
+  writeFileSync(join(W, 'shop_post.py'), 'import json, os\ndef post(ad, jpeg, repost, video=None):\n    with open(os.path.join(os.path.dirname(__file__), "posted.jsonl"), "a") as f:\n        f.write(json.dumps({"id": ad["id"], "repost": repost, "kind": ad.get("kind"), "video": len(video) if video else None, "bytes": len(jpeg), "jpeg": jpeg[:3] == bytes([255, 216, 255])}) + "\\n")\n    return "listing-1"\n');
   const pageLink = mine.json.links.page.replace('https://studio.example', srv.base);
   let workerLog = '';
   const runWorker = () => new Promise((resolve) => {
@@ -376,6 +390,7 @@ ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad tak
     if (!existsSync(join(W, 'posted.jsonl'))) throw new Error('nothing posted: ' + workerLog.slice(-400));
     const lines = readFileSync(join(W, 'posted.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
     ok(lines.length === 1 && lines[0].id === sv.json.item.id && !lines[0].repost && lines[0].jpeg && lines[0].bytes === J[0].length, 'worker: the due ad posted once, its JPEG whole (' + JSON.stringify(lines) + ')');
+    ok(lines.length === 1 && lines[0].kind === 'video' && lines[0].video === vb.length, 'worker: a video ad\'s clip reaches a post() that takes one, whole (' + JSON.stringify(lines) + ')');
     const st = JSON.parse(readFileSync(join(W, 'state.json'), 'utf8')).slots;
     ok(Object.keys(st).length === 1 && st[sv.json.item.post.slot_id] && st[sv.json.item.post.slot_id].ref === 'listing-1', 'worker: the slot and the listing id are kept');
   } catch (e) { ok(false, 'worker: ' + String(e.stderr || e.message).slice(0, 300)); }
@@ -544,6 +559,187 @@ async function browserPart() {
       ok(w.over <= 0 && w.page <= 0, 'browser: the Library dialog fits a phone (' + JSON.stringify(w) + ')');
       await page.context().close();
     } catch (e) { ok(false, 'browser: the master library: ' + String(e.message || e).split('\n')[0]); }
+
+    /* 3b. the stars: every ad has one, and it saves (owner, 2026-10-06);
+       an account from the landing page, Create account first */
+    try {
+      const page = await newPage();
+      await page.goto(BASE + '/index.html');
+      await page.waitForFunction(() => typeof window.showEasy === 'function' && window.adLibrary && window.pgfxAccount, null, { timeout: 30000 });
+      await page.waitForFunction(() => document.querySelectorAll('#lp-tpl-grid .tpl-card').length > 0, null, { timeout: 30000 });
+      await page.waitForTimeout(600);
+      const lp = await page.evaluate(() => ({ cards: document.querySelectorAll('#lp-tpl-grid .tpl-card').length, stars: document.querySelectorAll('#lp-tpl-grid .tpl-card .adl-star').length }));
+      ok(lp.cards > 0 && lp.stars === lp.cards, 'stars: every card in the landing gallery (' + JSON.stringify(lp) + ')');
+      await page.click('#lp-signup');
+      await page.waitForSelector('#auth-overlay.show', { timeout: 5000 });
+      await page.evaluate(() => { document.getElementById('auth-overlay').classList.remove('show'); openAuth('Sign in to download'); });
+      const tab = await page.evaluate(() => ({ up: document.getElementById('auth-tab-up').classList.contains('active'), go: document.getElementById('auth-go').textContent }));
+      ok(tab.up && tab.go === 'Create account', 'account: a device that never signed in opens on Create account (' + JSON.stringify(tab) + ')');
+      await page.fill('#auth-email', 'star@studio.example'); await page.fill('#auth-pass', 'a-long-password');
+      await page.click('#auth-go');
+      await page.waitForFunction(() => document.getElementById('auth-type').style.display !== 'none', null, { timeout: 15000 }).catch(() => {});
+      await page.click('#at-free').catch(() => {});
+      await page.waitForFunction(() => { try { return !!account; } catch (e) { return false; } }, null, { timeout: 15000 }).catch(() => {});
+      const made = await page.evaluate(() => { try { return { email: account && account.email, seen: localStorage.getItem('pgfx_seen_account') }; } catch (e) { return null; } });
+      ok(made && made.email === 'star@studio.example' && made.seen === 'true', 'account: created from the landing page, before Easy Mode opened (' + JSON.stringify(made) + ')');
+      await page.evaluate(() => openAuth('again'));
+      ok(await page.evaluate(() => document.getElementById('auth-tab-in').classList.contains('active')), 'account: a device that has signed in opens on Sign in');
+      await page.evaluate(() => { document.getElementById('auth-overlay').classList.remove('show'); showEasy(null); });
+      await page.waitForTimeout(1500);
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      const strip = await page.evaluate(() => ({ tiles: document.querySelectorAll('#ez-strip .ez-tpl').length, stars: document.querySelectorAll('#ez-strip .ez-tpl .adl-star').length, buttons: !!document.getElementById('ez-star') && !!document.getElementById('ez-star-video') }));
+      ok(strip.tiles > 0 && strip.stars === strip.tiles && strip.buttons, 'stars: every look in the Easy Mode strip, and the two buttons under the preview (' + JSON.stringify(strip) + ')');
+      const st = await page.evaluate(async () => {
+        const before = account.exports ? account.exports.count : 0;
+        const stars = [...document.querySelectorAll('#ez-strip .ez-tpl .adl-star')];
+        const s = stars.find((x) => x.dataset.ref !== ez.tpl) || stars[0];
+        const ref = s.dataset.ref;
+        await adLibrary.saveDesign(ref);
+        adLibrary.paint();
+        const lib = adLibrary.state().lib, it = lib && lib.items.find((i) => i.template === ref);
+        /* the strip is drawn again as photographs land, so the star is read by its ref, not by the element held before */
+        const now = document.querySelector('#ez-strip .adl-star[data-ref="' + ref + '"]');
+        return { ref, on: !!now && now.classList.contains('on'), it: it && { kind: it.kind, w: it.image.width, hold: it.hold, source: it.source }, before, after: account.exports ? account.exports.count : 0 };
+      });
+      ok(st.it && st.it.kind === 'photo' && st.it.w === 1080 && st.on && st.after === st.before + 1, 'stars: a strip star saves the design at the plan\'s size, counted as a download, and the star fills (' + JSON.stringify(st) + ')');
+      ok(st.it && /watermark/.test(st.it.hold || ''), 'stars: a free account\'s saved design is held for its watermark (' + (st.it && st.it.hold) + ')');
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      // the rest as an operator, who has no cap
+      await page.evaluate(async () => { const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'boss@studio.example', password: 'a-long-password' }) }); localStorage.setItem('pgfx_token', JSON.stringify((await r.json()).token)); });
+      await page.goto(BASE + '/index.html');
+      await page.waitForFunction(() => typeof window.showEasy === 'function' && window.adLibrary, null, { timeout: 30000 });
+      await page.evaluate(() => showEasy(null));
+      await page.waitForFunction(() => { try { return !!account && account.role === 'admin'; } catch (e) { return false; } }, null, { timeout: 30000 });
+      await page.waitForFunction(() => adLibrary.state().lib, null, { timeout: 20000 });
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      const ez2 = await page.evaluate(async () => {
+        document.getElementById('ez-phone').value = '(562) 999-4994'; document.getElementById('ez-phone').dispatchEvent(new Event('input', { bubbles: true }));
+        await new Promise((r) => setTimeout(r, 400));
+        const before = adLibrary.state().lib.count;
+        const it = await adLibrary.saveEasy();
+        return { before, after: adLibrary.state().lib.count, it: it && { template: it.template, kind: it.kind, w: it.image.width }, tpl: ez.tpl, on: document.getElementById('ez-star').classList.contains('on') };
+      });
+      ok(ez2.it && ez2.after === ez2.before + 1 && ez2.it.template === ez2.tpl && ez2.on, 'stars: Save to library under the preview saves the ad as made (' + JSON.stringify(ez2) + ')');
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      const ed = await page.evaluate(async () => {
+        showEditor(); loadTemplate(firstFreeTplId());
+        await new Promise((r) => setTimeout(r, 1200));
+        document.getElementById('export-btn').click();
+        await new Promise((r) => setTimeout(r, 300));
+        const has = !!document.getElementById('ex-star') && !!document.getElementById('ex-star-video');
+        const before = adLibrary.state().lib.count;
+        const it = await adLibrary.saveEditor();
+        return { has, before, after: adLibrary.state().lib.count, it: !!it, closed: !document.getElementById('export-overlay').classList.contains('show') };
+      });
+      ok(ed.has && ed.it && ed.after === ed.before + 1 && ed.closed, 'stars: the designer\'s export saves the canvas to the library (' + JSON.stringify(ed) + ')');
+      const panel = await page.evaluate(async () => {
+        openPicker(); await new Promise((r) => setTimeout(r, 500));
+        const picker = { cards: document.querySelectorAll('#picker-grid .tpl-card').length, stars: document.querySelectorAll('#picker-grid .tpl-card .adl-star').length };
+        closePicker();
+        return { picker, builtin: document.querySelectorAll('#builtin-tpl-grid .mini-tpl').length, builtinStars: document.querySelectorAll('#builtin-tpl-grid .mini-tpl .adl-star').length, lib: document.querySelectorAll('#ed-lib-grid .mini-tpl').length, libStars: document.querySelectorAll('#ed-lib-grid .mini-tpl .adl-star').length };
+      });
+      ok(panel.picker.cards > 0 && panel.picker.stars === panel.picker.cards && panel.builtin > 0 && panel.builtinStars === panel.builtin && panel.libStars === panel.lib, 'stars: the picker and the Templates panel (' + JSON.stringify(panel) + ')');
+      const hist = await page.evaluate(async () => {
+        showEasy(null); await new Promise((r) => setTimeout(r, 800));
+        document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show'));
+        await ezDownload(true); await new Promise((r) => setTimeout(r, 1000));
+        document.querySelectorAll('.adl-ask').forEach((a) => a.remove());
+        await openHistory(); await new Promise((r) => setTimeout(r, 600));
+        return { rows: document.querySelectorAll('#hist-list .hist-row').length, stars: document.querySelectorAll('#hist-list .adl-hist').length };
+      });
+      ok(hist.rows > 0 && hist.stars === hist.rows, 'stars: every row of the download history (' + JSON.stringify(hist) + ')');
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      await shot(page, 'stars-easy');
+      const vid = await page.evaluate(async () => {
+        const before = adLibrary.state().lib.count;
+        await adLibrary.saveVideoNow('ez');
+        await new Promise((r) => setTimeout(r, 300));
+        const lib = adLibrary.state().lib, top = lib.items[0];
+        return { before, after: lib.count, top: top && { kind: top.kind, video: top.video && { format: top.video.format, w: top.video.width, h: top.video.height, seconds: top.video.seconds, bytes: top.video.bytes, url: top.video.url } }, label: document.getElementById('ez-video').innerHTML };
+      });
+      ok(vid.top && vid.top.kind === 'video' && vid.top.video && vid.top.video.bytes > 10000 && vid.top.video.w === 1080 && vid.top.video.seconds === 10 && /Download as video/.test(vid.label), 'video: Save as video makes the studio\'s video and saves it with its photo (' + JSON.stringify(vid).slice(0, 300) + ')');
+      if (vid.top && vid.top.video) {
+        const pub = await page.evaluate(async (u) => { const r = await fetch(u, { headers: { Range: 'bytes=0-15' } }); return { status: r.status, type: r.headers.get('content-type'), range: r.headers.get('content-range') }; }, vid.top.video.url);
+        ok(pub.status === 206 && /^video\//.test(pub.type || '') && /^bytes 0-15\//.test(pub.range || ''), 'video: the public link serves the clip by range (' + JSON.stringify(pub) + ')');
+      }
+      const askV = await page.evaluate(async () => {
+        document.getElementById('ez-video').click();
+        const t0 = Date.now();
+        let popup = false;
+        while (Date.now() - t0 < 60000) {
+          await new Promise((r) => setTimeout(r, 400));
+          const vh = document.querySelector('.vh-back');
+          if (vh) { popup = true; await new Promise((r) => setTimeout(r, 1200)); if (document.querySelector('.adl-ask')) return { popup, early: true }; vh.remove(); }
+          if (document.querySelector('.adl-ask')) break;
+        }
+        const ask = document.querySelector('.adl-ask');
+        return { popup, early: false, asked: !!ask, video: !!(ask && /video ad/.test(ask.textContent)) };
+      });
+      ok(askV.asked && askV.video && !askV.early, 'video: a video download offers "Save to library" for the video ad, after the helper\'s pop-up (' + JSON.stringify(askV) + ')');
+      await page.click('#nav-adlib');
+      await page.waitForSelector('#adlib-overlay .adl-grid .adl-card', { timeout: 20000 });
+      await page.waitForTimeout(400);
+      const dlg = await page.evaluate(() => ({ kinds: document.querySelectorAll('#adlib-overlay .adl-kind').length, videoLinks: document.querySelectorAll('#adlib-overlay a.adl-x[download$=".webm"], #adlib-overlay a.adl-x[download$=".mp4"]').length }));
+      ok(dlg.kinds >= 1 && dlg.videoLinks >= 1, 'video: the Library dialog marks the video ad and links its clip (' + JSON.stringify(dlg) + ')');
+      await shot(page, 'stars-dialog');
+      await page.context().close();
+    } catch (e) { ok(false, 'stars: ' + String(e.message || e).split('\n')[0]); }
+
+    /* 3c. the video maker: a signed-out star asks for an account, the save follows */
+    try {
+      const page = await newPage();
+      await page.goto(BASE + '/motion/');
+      await page.waitForFunction(() => document.getElementById('loading').hidden && window.adLibrary && window.pgfxAccount, null, { timeout: 60000 });
+      await page.click('#mo-star');
+      await page.waitForSelector('#acct-overlay.show', { timeout: 10000 });
+      const au = await page.evaluate(() => ({ up: document.getElementById('acct-tab-up').getAttribute('aria-selected') === 'true', go: document.getElementById('acct-go').textContent }));
+      ok(au.up && au.go === 'Create account', 'video maker: a signed-out star asks for an account, Create account first (' + JSON.stringify(au) + ')');
+      await page.fill('#acct-email', 'maker@studio.example'); await page.fill('#acct-pass', 'a-long-password'); await page.click('#acct-go');
+      await page.waitForFunction(() => { const st = adLibrary.state(); return st.lib && st.lib.items.length === 1 && st.lib.items[0].video; }, null, { timeout: 180000 }).catch(() => {});
+      const saved = await page.evaluate(() => { const st = adLibrary.state(); const t = st.lib && st.lib.items[0]; return t && { kind: t.kind, template: t.template, source: t.source, seconds: t.video && t.video.seconds, w: t.video && t.video.width, photo: t.image.width, on: document.getElementById('mo-star').classList.contains('on') }; });
+      ok(saved && saved.kind === 'video' && /^motion-/.test(saved.template) && saved.source === 'motion' && saved.w === 1080 && saved.photo === 1440 && saved.on, 'video maker: after the sign-up the look is made and saved with its photo, the star fills (' + JSON.stringify(saved) + ')');
+      await page.evaluate(() => document.getElementById('looks').scrollIntoView());
+      await page.waitForFunction(() => document.querySelectorAll('#gallery .mo-thumb').length >= 4, null, { timeout: 60000 });
+      await page.waitForTimeout(600);
+      const gal = await page.evaluate(() => ({ thumbs: document.querySelectorAll('#gallery .mo-thumb').length, stars: document.querySelectorAll('#gallery .mo-thumb .adl-star').length }));
+      ok(gal.thumbs > 0 && gal.stars === gal.thumbs, 'video maker: every look in the gallery carries a star (' + JSON.stringify(gal) + ')');
+      await shot(page, 'maker-gallery');
+      await page.click('#mo-adlib');
+      await page.waitForSelector('#adlib-overlay.show .adl-card', { timeout: 20000 });
+      const mdlg = await page.evaluate(() => { const m = document.querySelector('#adlib-overlay .modal'); return { w: Math.round(m.getBoundingClientRect().width), bare: document.documentElement.classList.contains('adl-bare') }; });
+      ok(mdlg.w > 300 && mdlg.bare, 'video maker: the Library link opens the dialog, styled without the studio\'s stylesheet (' + JSON.stringify(mdlg) + ')');
+      await shot(page, 'maker-dialog');
+      await page.context().close();
+    } catch (e) { ok(false, 'video maker: ' + String(e.message || e).split('\n')[0]); }
+
+    /* 3d. the master library: the video ad plays, every finished design has a star */
+    try {
+      const page = await newPage();
+      await page.goto(BASE + '/index.html');
+      const token = await page.evaluate(async () => (await (await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'maker@studio.example', password: 'a-long-password' }) })).json()).token);
+      await page.evaluate((t) => localStorage.setItem('pgfx_token', JSON.stringify(t)), token);
+      await page.goto(BASE + '/master-library.html');
+      await page.waitForSelector('#grid-saved .ml-card', { timeout: 20000 });
+      const sv2 = await page.evaluate(() => { const c = document.querySelector('#grid-saved .ml-card'); return { video: !!c.querySelector('video source'), kind: (c.querySelector('.ml-kind') || {}).textContent, links: [...c.querySelectorAll('.ml-acts a')].map((a) => a.textContent).join() }; });
+      ok(sv2.video && /VIDEO/.test(sv2.kind || '') && sv2.links === 'Photo,Video', 'master library: a saved video ad plays, with its photo and clip to download (' + JSON.stringify(sv2) + ')');
+      await page.click('#tab-finished');
+      await page.waitForSelector('#grid-finished .ml-card .adl-star', { timeout: 20000 });
+      const fin = await page.evaluate(() => ({ cards: document.querySelectorAll('#grid-finished .ml-card').length, stars: document.querySelectorAll('#grid-finished .ml-card .adl-star').length }));
+      ok(fin.cards > 0 && fin.stars === fin.cards, 'master library: every finished design carries a star (' + JSON.stringify(fin) + ')');
+      const star = await page.evaluate(async () => { const s = document.querySelector('#grid-finished .ml-card .adl-star'); const ref = s.dataset.ref; s.click(); const t0 = Date.now(); while (Date.now() - t0 < 30000) { await new Promise((r) => setTimeout(r, 300)); const st = adLibrary.state(); if (st.lib && st.lib.items.some((i) => i.template === ref)) break; } const it = adLibrary.state().lib.items.find((i) => i.template === ref); return { on: s.classList.contains('on'), it: it && { hold: it.hold, source: it.source, w: it.image.width, texts: it.texts.length } }; });
+      ok(star.on && star.it && star.it.source === 'master' && star.it.w === 1080 && star.it.hold === 'a website' && star.it.texts > 0, 'master library: a star saves the full-size render, held from auto-post for the website on it (' + JSON.stringify(star) + ')');
+      await shot(page, 'master-stars');
+      await page.context().close();
+      const p2 = await newPage(390);
+      await p2.goto(BASE + '/master-library.html#finished');
+      await p2.waitForSelector('#grid-finished .ml-card .adl-star', { timeout: 20000 });
+      await p2.click('#grid-finished .ml-card .adl-star');
+      await p2.waitForSelector('#acct-overlay.show', { timeout: 10000 });
+      const so = await p2.evaluate(() => ({ up: document.getElementById('acct-tab-up').getAttribute('aria-selected') === 'true', wide: document.documentElement.scrollWidth - window.innerWidth }));
+      ok(so.up && so.wide <= 0, 'master library: signed out, a star opens Create account, inside a phone\'s width (' + JSON.stringify(so) + ')');
+      await shot(p2, 'master-auth-390');
+      await p2.context().close();
+    } catch (e) { ok(false, 'master library stars: ' + String(e.message || e).split('\n')[0]); }
   } catch (e) {
     ok(false, 'browser: ' + String(e.message || e).split('\n')[0]);
   } finally {
