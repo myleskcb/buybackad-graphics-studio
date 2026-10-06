@@ -106,7 +106,10 @@ download itself, as a JPEG: its size and its watermark, as the plan gave it.
 The library has one public link (`master-library.html?feed=fd_…`), shown in
 the dialog with **Copy link**, the JSON feed and RSS. Whoever holds it sees
 these ads and nothing else; **Reset link** makes a new one and the old one
-stops. Each ad is set to **Auto-post** or not and to post again once, every
+stops. When the studio is connected to iPhones LA (opened once from its
+Auto-post page), the link is sent there by itself, and again after a reset:
+nobody copies it across (`iplaLink.shareLibrary`, the dialog says whether it
+arrived). Each ad is set to **Auto-post** or not and to post again once, every
 day, every week and so on. The feed lists each ad when it is due, and lists
 it again each time it comes due. iPhones LA reads it and posts through its own
 Auto-post (`docs/iphonesla-library/autopost_worker.py`, the prompt in that
