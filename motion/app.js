@@ -60,7 +60,9 @@ const labelFor = (k, v) => {
   if (k === "glare") return v === .5 ? "Soft" : v === 1 ? "Normal" : "Bright";
   if (k === "front_glimpse") return v === "spin" ? "Flash past in the air" : "Land screen up, then flip";
   if (k === "pose") return { flat: "Flat, all the same", edge_left: "Turned in 3-D, left edge showing", edge_right: "Turned in 3-D, right edge showing",
-    turntable: "Turntable sway, all in step", wide_spin: "Wide 3-D spin" }[v] || v;
+    turntable: "Turntable sway, all in step", wide_spin: "Wide 3-D spin",
+    profile_left: "Side on, left edge", profile_right: "Side on, right edge" }[v] || v;
+  if (k === "phone_finish") return { standard: "Standard", photo: "Photo-real" }[v] || v;
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
   if (k === "accents") return ["None", "One", "Two", "Three"][v] ?? v;
   if (k === "accent_kind") return { mix: "Best for this device", emoji: IOS_EMOJI ? "iOS emoji" : "iOS emoji (Apple devices; stand-ins here)", asset: "Studio cutouts", symbol: "Keyboard symbols" }[v] || v;
