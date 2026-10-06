@@ -290,6 +290,37 @@ Opening it shows the library as a page. On iPhones LA's server, set it as
 shows these ads and nothing else. **Reset link** in the same dialog makes a
 new link; the old one answers 404 from then on.
 
+### The link arrives by itself
+
+Nobody has to copy the link across. When the studio is connected to the shop
+(opened once from iPhones LA's Auto-post page: the connect code, the same
+connection the WE BUY pictures use), it sends the library's link over that
+connection. It sends once when the studio starts, again after **Reset link**,
+and again on a new connection:
+
+```
+POST https://iphones.la/api/buy-ads/studio/library
+Authorization: Bearer <the studio token, as for /studio/images>
+Content-Type: application/json
+
+{ "feed_url": "https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_…",
+  "site": "https://buybackad-graphics-studio.netlify.app" }
+```
+
+iPhones LA's side of it:
+- Accept it with the same token check and CORS as `/studio/images`.
+- Accept only a `site` that is a BUYBACK.AD site: `https://buybackad-graphics-studio.netlify.app`,
+  `https://buybackad-finished-copy.netlify.app`, `https://studio.scans.ad`.
+  The `feed_url` must be exactly `site + /master-library.html?feed=fd_` plus
+  24 characters of `[A-Za-z0-9_-]`. Anything else is a 400.
+- Store it in the shop database as the feed the worker reads; the newest one
+  wins. Answer `200 {"ok": true}`, and 401 for a token that is no longer valid.
+- `BUYBACKAD_FEED_URL` stays as a fallback for when nothing has been sent.
+
+The studio reads a 404 or 405 as "not there yet" and asks again a day later.
+The Library dialog says which state it is in. Each Netlify project keeps its own
+library, so the link names the site the ads were saved on.
+
 ### What the link answers
 
 | address | answers |
@@ -406,7 +437,9 @@ It is the contract.
   - autopost_worker.py    the worker: what is due, once per slot, retried on failure
   - test_autopost.py      into the tests
 
-1. Set BUYBACKAD_FEED_URL (the link) where this app keeps its settings.
+1. Add POST /api/buy-ads/studio/library (README, "The link arrives by
+   itself"): the studio sends its library link there by itself. Store it in the
+   database as the feed the worker reads; BUYBACKAD_FEED_URL is only the fallback.
 2. Write post(ad, jpeg_bytes, repost, video=None) over the EXISTING
    Auto-post: the ad's picture becomes the WE BUY ad's photo, and the
    listing text comes from ad["title"], ad["caption"], ad["texts"],

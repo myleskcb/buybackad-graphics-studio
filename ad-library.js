@@ -41,6 +41,10 @@
      iPhones LA link's own check (iplaLink.refusal), so the two cannot differ.
    - This source is public. It holds no secret; the library link it shows is
      the account's, read from the server after sign-in.
+   - The link reaches iPhones LA by itself: when this browser is connected to
+     the shop (opened once from its Auto-post page), the link is sent over
+     that connection (iplaLink.shareLibrary), again after a reset or a new
+     connection. Nobody has to copy it across.
    ═══════════════════════════════════════════════════════ */
 (() => {
   const AUTO_KEY = 'pgfx_adlib_auto';          // localStorage: save every download
@@ -192,15 +196,83 @@
     if (why){ app.toast(why, 'error'); return false; }
     return true;
   }
+  /* the library is read at start (for the stars) and again when the dialog
+     opens: a dialog that already shows it keeps its cards while the fresh
+     copy comes, and is drawn again only when something changed */
   async function load(){
     await app.ensure();
     if (ready()) { state.lib = null; draw(); paint(); return null; }
-    state.loading = true; state.error = ''; draw();
-    try { state.lib = await app.call('/ads/mine'); }
+    const had = !!state.lib;
+    state.loading = true; state.error = '';
+    if (!had) draw();
+    let fresh = null;
+    try { fresh = await app.call('/ads/mine'); }
     catch (e){ state.error = e.message || 'The library did not load'; }
-    state.loading = false; draw(); paint();
+    state.loading = false;
+    /* what the dialog shows of a library: the version strings the server
+       stamps are not compared (a save added here leaves them behind) */
+    const key = l => l && JSON.stringify([l.name, l.repost_days, l.links, l.limit, l.count, l.items.map(i => [i.id, i.updated, i.autopost, i.repost_days, i.hold, i.image && i.image.url, i.video && i.video.url])]);
+    const changed = !!fresh && key(fresh) !== key(state.lib);
+    if (fresh) state.lib = fresh;
+    if (!had || changed || state.error) draw();
+    paint();
+    if (state.lib) share(state.lib).then(redraw);
     return state.lib;
   }
+
+  // ---------- the link, to iPhones LA by itself ----------
+  // Sent once per link and connection; a shop that cannot take it yet (no such
+  // route) is asked again a day later, a failed request on the next occasion.
+  const SHARED_KEY = 'pgfx_adlib_shared';     // localStorage: {page, conn, at, verdict}
+  const DAY_MS = 86400000;
+  const link = () => { try { return window.iplaLink && window.iplaLink.state(); } catch (e){ return null; } };
+  const connKey = () => { const l = link(); return l && l.connected ? String(l.connectedAt || 'yes') : ''; };
+  const shared = () => { try { return JSON.parse((box && box.getItem(SHARED_KEY)) || 'null'); } catch (e){ return null; } };
+  function sharedFor(page){
+    const s = shared(), c = connKey();
+    return s && c && s.page === page && s.conn === c ? s : null;
+  }
+  let sharing = null;
+  /* resolves true when the dialog's share line changed (a verdict landed),
+     so a redraw follows only then: a dialog drawn twice in a row swaps its
+     pictures out under the reader */
+  function share(lib){
+    const page = lib && lib.links && lib.links.page;
+    if (!page || !connKey() || !window.iplaLink || typeof window.iplaLink.shareLibrary !== 'function') return Promise.resolve(false);
+    const s = sharedFor(page);
+    if (s && (s.verdict === 'sent' || Date.now() - s.at < DAY_MS)) return Promise.resolve(false);
+    if (sharing) return sharing;
+    const conn = connKey();
+    sharing = window.iplaLink.shareLibrary(page).then(v => {
+      let changed = false;
+      if (v === 'sent' || v === 'unsupported' || v === 'refused'){
+        try { if (box) box.setItem(SHARED_KEY, JSON.stringify({ page, conn, at: Date.now(), verdict: v })); changed = true; } catch (e){}
+      }
+      if (v === 'sent') app.toast('Your library link went to iPhones LA. Its auto-post reads it from now on.', 'success');
+      return changed;
+    }, () => false).then(r => { sharing = null; return r; });
+    return sharing;
+  }
+  const redraw = changed => { if (changed) draw(); };
+  function shareLine(lib){
+    if (!connKey()) return 'To send this link to iPhones LA by itself, open the studio once from iPhones LA → Auto-post. Or copy it across.';
+    const s = sharedFor(lib.links.page);
+    if (!s) return 'Sending this link to iPhones LA…';
+    if (s.verdict === 'sent') return '✓ iPhones LA has this link: its auto-post reads it. A reset sends the new one by itself.';
+    if (s.verdict === 'unsupported') return 'iPhones LA cannot take the link yet. It is sent by itself once it can (asked again each day), or copy it across.';
+    return 'iPhones LA did not take the link. Copy it across instead.';
+  }
+  // once the studio has its account: a browser connected to the shop sends the
+  // link even if nobody opens the Library
+  (function watch(tries){
+    if (tries === 60 && connKey()) app.ensure();       // the account, without waiting for Easy Mode
+    if (!ready() && connKey()){
+      const s = shared();
+      if (!(s && s.conn === connKey() && s.verdict === 'sent')) load();
+      return;
+    }
+    if (tries > 0) setTimeout(() => watch(tries - 1), 3000);
+  })(60);
   /* an item the server just answered with, into the list this page holds */
   function took(item, duplicate){
     if (!state.lib) return;
@@ -219,7 +291,8 @@
       const repost = state.lib ? state.lib.repost_days : undefined;
       const r = await app.call('/ads/save', Object.assign({ image, repost_days: repost }, d));
       if (rec.id) state.saved[rec.id] = r.item.id;
-      if (!state.lib) await load(); else took(r.item, !!r.duplicate);
+      if (!state.lib) await load();                          // the first save makes the library: load() sends its link
+      else { took(r.item, !!r.duplicate); if (connKey()) share(state.lib).then(redraw); }
       if (!quiet || r.duplicate || d.hold){
         app.toast(r.duplicate ? 'Already in your ad library'
           : d.hold ? 'Saved to your ad library. ' + heldLine(d.hold)
@@ -697,6 +770,7 @@
       catch (e){ app.toast(e.message || 'Not reset', 'error'); }
     }));
     m.appendChild(feeds);
+    m.appendChild(el('div', 'adl-note adl-share', shareLine(lib)));
     m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these. Ads set to auto-post are listed when they are due, and again every time they come due.'));
 
     // settings

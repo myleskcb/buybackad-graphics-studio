@@ -3642,6 +3642,34 @@ RESUME HERE:
      live site, save one ad, open 📚 Library → Copy link, and hand the link
      plus the README prompt to the iPhones LA session.
 
+## 2026-10-06 — the library link reaches iPhones LA by itself
+
+The owner, over "give that link to the iPhones LA session": "why can't it
+automatically forwarded? the link". It can. The studio and the shop already
+share a connection (the Auto-post page's connect code, iphonesla-link.js),
+and the link now goes over it: `iplaLink.shareLibrary` POSTs it to
+`https://iphones.la/api/buy-ads/studio/library` with the studio token. It
+sends only a library link of this very site, and only to the shop.
+`ad-library.js` sends it as the studio starts (loading the account itself
+when the browser is connected), after the first save, after a reset, and on
+a new connection. A 404 means "not there yet" and is asked again a day later.
+The dialog says which state it is in.
+
+Learned: Netlify Blobs are per site, so the two Netlify projects keep two
+separate ad libraries. The link names its site, so the shop reads the right
+one, but the owner should save on one site.
+
+Checked: tests-iphonesla-link.mjs 68 of 68. Four new tests: the route and
+token, refused links, the answers read, connectedAt without the token.
+ad_library_check.mjs, no failures. In Chromium the link is sent at start with
+the token, once only, and again after a reset; a 404 shop shows "cannot take
+the link yet". With the forward removed, six checks fail.
+
+RESUME HERE:
+  0. iPhones LA adds the receiving route (docs/iphonesla-library/README.md,
+     "The link arrives by itself"); sent to its session on the owner's Mac.
+  1. Deploy main (the session on the owner's Mac is doing it).
+
 ## 2026-10-06 — a star on every ad, video ads in the library, accounts from the front door (claude/laughing-bardeen-uyh2xt)
 
 The owner: "allow account creation so I can download content, upload to
