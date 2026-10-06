@@ -4592,7 +4592,14 @@ not merged.
   sliced every 2.4 px, not 1.2 (its own light is laid over it; measured
   aluminium keeps 1.2 px, as its narrow glint sliced coarser read up to 1.13
   times lighter and averaged 1.10); the face's strips widen
-  through the long lens; and a fill that changes no pixel near flat is skipped.
+  through the long lens; a fill that changes no pixel near flat is skipped; and
+  in an export's motion blur the sheen and the softboxes are laid on every
+  other moment of the shutter at double strength (the moments are averaged,
+  and white or black laid over a pixel is linear in its strength, so the
+  average holds). The catch-light keeps its strength on the moments it is
+  drawn, so in a moving frame's blur it is about half; a settled frame draws
+  one moment and is unchanged. Measured on a fast spin's exported frames
+  against drawing every moment: worst frame 0.215 levels off on average.
   Measured on whole 6 s videos of five large phones, every frame drawn as an
   export draws it, photo-real takes 12 to 17% less time than standard flat,
   turned, on a turntable and side on, and the same within the measure's noise
