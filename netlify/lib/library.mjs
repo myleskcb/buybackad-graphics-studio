@@ -14,8 +14,20 @@
  *
  *   GET /api/library/v1               what is here: counts, version, routes
  *   GET /api/library/v1/categories    the categories, with counts
- *   GET /api/library/v1/ads           the ads; ?category= ?q= ?limit= ?offset=
+ *   GET /api/library/v1/ads           the ads; ?category= ?q= ?since= ?sort= ?limit= ?offset=
  *   GET /api/library/v1/ads/<id>      one of them
+ *
+ * Every ad carries its dates (2026-10-06, the owner: "identify the media by
+ * creation / upload dates"), ISO 8601 UTC, from assets/library-ads/index.json
+ * (render_library_ads.mjs reads them out of git): `created`, when the ad
+ * entered the library; `updated`, when its design last changed; `uploaded`,
+ * when its full-size render was drawn, the picture a partner gets. The same
+ * three are inside each JPEG as EXIF (DateTimeOriginal, DateTime,
+ * DateTimeDigitized). `?since=YYYY-MM-DD` (or a full timestamp) keeps the ads
+ * created, updated or uploaded at or after it, so a partner can ask what
+ * changed; `?sort=newest` (or oldest) orders by uploaded, then updated, then
+ * created; without it the library's own order stands. An ad's answer carries
+ * Last-Modified (its upload), and the index `latest`, the newest dates.
  *
  * The key: `Authorization: Bearer <key>` (or `X-Library-Key: <key>`). Keys
  * live in the env var LIBRARY_KEYS as comma-separated name:key pairs
@@ -108,12 +120,15 @@ async function load(origin, fetchJson, now) {
       image: { url: abs('assets/library-ads/' + c.id + '.jpg') + '?v=' + String(r.sha1 || '').slice(0, 12), width: r.w, height: r.h, bytes: r.bytes, format: 'jpg' },
       thumb: { url: abs(c.thumb), width: 448, height: 448 },
       studio_url: origin + '/?card=' + encodeURIComponent(c.id),
+      created: r.created || null, updated: r.updated || null, uploaded: r.rendered || null,
       _s: words([c.id, c.name, c.cat, c.theme, c.layout, c.subject, c.family].join(' ')),
       _n: words([c.cat, c.subject].join(' ')), _d: words([c.name, c.layout].join(' ')),
     };
   });
   const version = 'ads' + ads.length + '-' + String((renders && renders.built) || '').replace(/\D/g, '').slice(0, 14);
-  cache = { origin, at: now, data: { ads, version } };
+  const newest = (k) => ads.reduce((m, x) => (x[k] && (!m || x[k] > m) ? x[k] : m), null);
+  const latest = { created: newest('created'), updated: newest('updated'), uploaded: newest('uploaded') };
+  cache = { origin, at: now, data: { ads, version, latest } };
   return cache.data;
 }
 
@@ -125,6 +140,11 @@ function page(items, url) {
   return { total: items.length, offset, limit, next_offset: offset + limit < items.length ? offset + limit : null, items: slice };
 }
 const matches = (q) => { const t = words(q); return (x) => t.every((w) => x._s.some((s) => s.startsWith(w))); };
+/* since=: a day (2026-10-01, from its first second) or a full timestamp; an ad counts when any of its dates is at or after it */
+function sinceOf(v) { const s = String(v || '').trim(); if (!s) return null; const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(s) ? s + 'T00:00:00Z' : s); return isNaN(d) ? undefined : d.toISOString(); }
+const changedSince = (iso) => (x) => [x.created, x.updated, x.uploaded].some((d) => d && d >= iso);
+const byDate = (dir) => (a, b) => { const k = ['uploaded', 'updated', 'created']; for (const f of k) { const d = String(b[f] || '').localeCompare(String(a[f] || '')); if (d) return dir === 'oldest' ? -d : d; } return 0; };
+const httpDate = (iso) => { const d = new Date(iso || ''); return isNaN(d) ? null : d.toUTCString(); };
 /* best first: a word naming what the ad is for (its category or subject)
    counts 3, a word of its title or layout 2, anywhere else 1; the library's
    own order breaks ties. A title is a palette and a layout ("Black & Gold ·
@@ -162,6 +182,7 @@ export async function libraryRoute(req, url, p, env, deps) {
     return reply({
       name: 'BUYBACK.AD library', version: data.version, partner,
       counts: { ads: data.ads.length, categories: tally() },
+      latest: data.latest,
       routes: { categories: base + '/categories', ads: base + '/ads', ad: base + '/ads/{id}' },
     }, 200, head);
   }
@@ -170,13 +191,19 @@ export async function libraryRoute(req, url, p, env, deps) {
     if (parts.length === 2) {
       if (!ID_RE.test(parts[1])) return reply({ error: 'Not a library id' }, 400, head);
       const one = data.ads.find((x) => x.id === parts[1]);
-      return one ? reply({ version: data.version, item: strip(one) }, 200, head) : reply({ error: 'No such ad in the library (it may have been held back since)' }, 404, head);
+      return one ? reply({ version: data.version, item: strip(one) }, 200, Object.assign({}, head, httpDate(one.uploaded) ? { 'Last-Modified': httpDate(one.uploaded) } : {})) : reply({ error: 'No such ad in the library (it may have been held back since)' }, 404, head);
     }
     if (parts.length !== 1) return reply({ error: 'Not found' }, 404, head);
     const cats = list(url.searchParams.get('category'));
     let items = data.ads;
     if (cats.length) items = items.filter((x) => cats.includes(String(x.category || '').toLowerCase()));
+    const since = sinceOf(url.searchParams.get('since'));
+    if (since === undefined) return reply({ error: 'since must be a date (2026-10-01) or a timestamp (2026-10-01T12:00:00Z)' }, 400, head);
+    if (since) items = items.filter(changedSince(since));
     if (url.searchParams.get('q')) items = ranked(items.filter(matches(url.searchParams.get('q'))), url.searchParams.get('q'));
+    const sort = String(url.searchParams.get('sort') || '').toLowerCase();
+    if (sort && sort !== 'newest' && sort !== 'oldest') return reply({ error: 'sort must be newest or oldest' }, 400, head);
+    if (sort) items = items.slice().sort(byDate(sort));
     return reply(Object.assign({ version: data.version }, page(items, url)), 200, head);
   }
   return reply({ error: 'Not found' }, 404, head);

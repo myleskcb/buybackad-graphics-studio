@@ -3134,3 +3134,38 @@ RESUME HERE:
      (§AF 3): solved the same way in the builder's Light look.
   3. A full re-sweep of the holds (looks and voices too) on the merged
      build: `every_card_audit.mjs --write-holds` (hours; `--resume`).
+
+## 2026-10-06 — the library's media carries its dates (rule 111, continued)
+
+(claude/busy-keller-i7qfrf.)
+
+The owner: "make sure our library is clean and cohesive when it ships off to
+iPhones LA to identify the media by creation / upload dates."
+
+Found: no date reached iPhones LA. The render index had a day the API never
+passed on; the JPEGs had no EXIF (a browser canvas writes none). The records
+themselves were cohesive (every ad a "Palette · Layout" title, a category, a
+theme of the twelve, a layout, a subject).
+
+Did: three dates out of git on every render (created: the record's first
+commit; updated: the record's or thumbnail's last; rendered: when the
+picture was drawn), in the index and inside each JPEG as EXIF
+(scripts/_jpeg_exif.mjs, read back by the check, ImageMagick and Pillow);
+the API carries them with ?since= and ?sort=, Last-Modified and `latest`;
+the client, picker, tests and README on the iPhones LA side carry them
+(tiles dated, newest first, a File named for the ad and its upload day);
+the zip repacked; the two checks extended. The clone was shallow and would
+have dated every old card at its first commit: git fetch --unshallow first,
+and the render script now refuses a shallow clone.
+
+Checked: library_api_check.mjs no failures (unit and through the real
+function); library_handoff_check.mjs no failures (13 Python tests, the
+listing page in Chromium); the listing page looked at with its dated tiles.
+
+RESUME HERE:
+  0. Merge `main` in, run the checks, put this on `main`; deploy from the Mac
+     (the API's ?v= links all changed once, with the EXIF).
+  1. The video maker's palettes (OPEN-ITEMS §AF 1) are still a vocabulary of
+     their own.
+  2. A full re-sweep of the holds (looks and voices too): every_card_audit
+     --write-holds (hours; --resume).

@@ -9,8 +9,10 @@
       3.9+, Pillow for the JPEG checks).
    3. docs/iphonesla-library/example_server.py on 127.0.0.1:8896, and its
       demo listing page driven in Chromium: the picker loads the library's
-      ads, a search narrows them, a pick adds the ad to the listing's photos
-      as a JPEG File, byte for byte the library's 1080 render.
+      ads, each tile dated with its upload, a search narrows them, newest
+      first orders them, a pick adds the ad to the listing's photos as a JPEG
+      File named for the ad and its upload day and dated with its upload,
+      byte for byte the library's 1080 render.
    5. docs/iphonesla-library.zip holds exactly this folder's files, byte for
       byte (scripts/pack_iphonesla_library.sh makes it).
 
@@ -128,16 +130,22 @@ try {
   await page.waitForFunction((all) => /ads:/.test(document.querySelector('.bbl-status').textContent) && +document.querySelector('.bbl-status').textContent.split(' ')[0] < all, { timeout: 30000 }, +page_.status.split(' ')[0]).catch(() => {});
   page_.searched = await page.$eval('.bbl-status', (e) => e.textContent);
   page_.searchTiles = await page.$$eval('.bbl-tile span', (s) => s.slice(0, 4).map((x) => x.textContent));
+  page_.dated = await page.$$eval('.bbl-tile time', (t) => t.map((x) => x.dateTime));
+  await page.select('.bbl select[aria-label="Order"]', 'newest');
+  await page.waitForFunction(() => /ads:/.test(document.querySelector('.bbl-status').textContent) && document.querySelectorAll('.bbl-tile time').length > 0, { timeout: 30000 });
+  page_.newest = await page.$$eval('.bbl-tile time', (t) => t.map((x) => x.dateTime));
   await page.click('.bbl-tile');
   await page.waitForFunction(() => document.querySelectorAll('#photos img').length === 1, { timeout: 30000 }).catch(() => {});
   page_.added = await page.evaluate(async () => {
     const f = photos[0]; if (!f) return null;
     const bmp = await createImageBitmap(f);
     const b = new Uint8Array(await f.arrayBuffer()); let h = 0; for (let i = 0; i < b.length; i++) h = (h * 31 + b[i]) >>> 0;
-    return { name: f.name, type: f.type, bytes: f.size, size: [bmp.width, bmp.height], magic: [...b.slice(0, 3)], hash: h };
+    return { name: f.name, type: f.type, bytes: f.size, size: [bmp.width, bmp.height], magic: [...b.slice(0, 3)], hash: h, lastModified: f.lastModified };
   });
   if (page_.added){
-    const id = page_.added.name.replace(/\.jpg$/, ''), want = readFileSync(join(ROOT, 'assets/library-ads', id + '.jpg'));
+    const id = page_.added.name.replace(/(_\d{4}-\d{2}-\d{2})?\.jpg$/, ''), want = readFileSync(join(ROOT, 'assets/library-ads', id + '.jpg'));
+    const r = JSON.parse(readFileSync(join(ROOT, 'assets/library-ads/index.json'), 'utf8')).items[id] || {};
+    page_.added.namedForUpload = page_.added.name === id + '_' + String(r.rendered || '').slice(0, 10) + '.jpg' && page_.added.lastModified === Date.parse(r.rendered || '');
     let h = 0; for (const x of want) h = (h * 31 + x) >>> 0;
     page_.added.sameAsRender = h === page_.added.hash && want.length === page_.added.bytes;
   }
@@ -150,6 +158,9 @@ ok(page_.categories > 1, 'the categories did not load');
 ok(/ads:/.test(page_.searched) && +page_.searched.split(' ')[0] < +page_.status.split(' ')[0] && page_.searchTiles.length, 'the search did not narrow: ' + page_.searched);
 ok(page_.added && page_.added.type === 'image/jpeg' && page_.added.magic.join() === '255,216,255' && page_.added.size.join() === '1080,1080', 'the pick did not add a 1080 JPEG: ' + JSON.stringify(page_.added));
 ok(page_.added && page_.added.sameAsRender, "the pick is not the library's render byte for byte");
+ok(page_.added && page_.added.namedForUpload, 'the pick is not named for the ad and its upload day, or not dated with it: ' + JSON.stringify(page_.added && [page_.added.name, page_.added.lastModified]));
+ok(page_.dated && page_.dated.length && page_.dated.every((d) => /^\d{4}-\d{2}-\d{2}T/.test(d)), 'the tiles do not say when the ad was uploaded');
+ok(page_.newest && page_.newest.length > 1 && page_.newest.every((d, i) => !i || page_.newest[i - 1] >= d), 'newest first does not order the tiles by upload: ' + (page_.newest || []).slice(0, 3).join(', '));
 
 /* 5. the zip is the folder */
 const z = spawnSync('unzip', ['-Z1', join(ROOT, 'docs/iphonesla-library.zip')], { encoding: 'utf8' });

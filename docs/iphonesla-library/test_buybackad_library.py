@@ -56,6 +56,41 @@ class LibraryTest(unittest.TestCase):
             self.lib.ad("no-such-ad")
         self.assertEqual(e.exception.status, 404)
 
+    def test_every_ad_has_its_dates(self):
+        ads = list(self.lib.iter_ads())
+        for ad in ads:
+            d = self.lib.dates(ad)
+            self.assertTrue(d["created"] and d["updated"] and d["uploaded"], ad["id"])
+            self.assertLessEqual(d["created"], d["updated"])
+            self.assertLessEqual(d["updated"], d["uploaded"])
+            self.assertRegex(ad["uploaded"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+        self.assertEqual(self.lib.filename(ads[0]), ads[0]["id"] + "_" + ads[0]["uploaded"][:10] + ".jpg")
+        latest = self.lib.index()["latest"]
+        self.assertEqual(latest["uploaded"], max(a["uploaded"] for a in ads))
+
+    def test_since_and_sort(self):
+        every = self.lib.index()["counts"]["ads"]
+        self.assertEqual(self.lib.ads(since="2099-01-01")["total"], 0)
+        self.assertEqual(self.lib.ads(since="2000-01-01", limit=1)["total"], every)
+        newest = list(self.lib.iter_ads(sort="newest"))
+        self.assertEqual(len(newest), every)
+        self.assertEqual([a["uploaded"] for a in newest], sorted((a["uploaded"] for a in newest), reverse=True))
+        changed = self.lib.changed_since(newest[-1]["updated"])
+        self.assertTrue(0 < len(changed) <= every)
+        with self.assertRaises(ValueError):
+            self.lib.ads(sort="up")
+        with self.assertRaises(LibraryError) as e:
+            self.lib.ads(since="yesterday")
+        self.assertEqual(e.exception.status, 400)
+
+    def test_the_jpeg_carries_its_dates(self):
+        ad = self.lib.ads(limit=1)["items"][0]
+        jpeg = self.lib.ad_jpeg(ad)
+        # the EXIF dates, read with the standard library: "YYYY:MM:DD HH:MM:SS" for each
+        want = {k: ad[k].replace("-", ":").replace("T", " ").rstrip("Z").encode() for k in ("created", "updated", "uploaded")}
+        for v in want.values():
+            self.assertIn(v, jpeg)
+
     def test_wrong_key_is_401(self):
         with self.assertRaises(LibraryError) as e:
             BuybackadLibrary(URL, "bbl_" + "x" * 40).index()

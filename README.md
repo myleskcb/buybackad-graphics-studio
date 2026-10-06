@@ -97,7 +97,12 @@ offers, each rendered at 1080x1080 into `assets/library-ads/` by
 `scripts/render_library_ads.mjs`) to a partner's server, behind a key: set
 `LIBRARY_KEYS` (`name:key` pairs, keys of 32 characters or more) in the
 Netlify environment. Without it the route answers 503 and nothing else
-changes. `?card=<id>` opens an ad in the studio. The other side, for iPhones
+changes. `?card=<id>` opens an ad in the studio. Every ad carries its dates
+(`created`, `updated`, `uploaded`, ISO 8601 UTC, read out of git by the
+render script and written into each JPEG's EXIF), and the ads route takes
+`?since=` and `?sort=newest|oldest` on them; after any change to the
+library run `render_library_ads.mjs --stamp` (or `--stale`, which stamps
+too) from a full clone, never a shallow one. The other side, for iPhones
 LA's listing page, is `docs/iphonesla-library.zip` (the folder
 `docs/iphonesla-library/`: a Python client, the server routes, the picker, a
 paste-ready prompt). After the library's thumbnails are drawn again, run

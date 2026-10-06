@@ -4255,3 +4255,54 @@ theme on 9 to 15 cards; 92 for a mark that would vanish on what it sits on,
 50 for a line that would lose legibility or fit, 1 for a plate that keeps
 the card's old colour (reviewProof-du08-20). Looks and voices keep their
 table (28 look holds on 21 cards, 1,231 voice holds on 349 cards).
+
+## 111, continued (2026-10-06): the media carries its dates
+
+The owner: "make sure our library is clean and cohesive when it ships off to
+iPhones LA to identify the media by creation / upload dates."
+
+Measured first: the 311 ads the API hands out had no date anywhere. The
+render index carried a day (`rendered: "2026-10-04"`) that the API never
+passed on; the JPEGs, drawn by a browser canvas, carried no EXIF at all; a
+partner's photo library would file every ad under the day it was uploaded
+there. The rest of the record was already cohesive: every one of the 311 had
+a title of the form "Palette · Layout", a category (8), a theme (the twelve),
+a layout (15) and a subject (13), none missing.
+
+- **Three dates, from git, on every render.** `scripts/render_library_ads.mjs`
+  reads them out of the repository's own history on every run, in one walk:
+  `created`, the commit that first added the card's record (the ad entered
+  the library); `updated`, the last commit that touched its record or its
+  library thumbnail (its design last changed); `rendered`, when the full-size
+  picture was drawn (the upload: the time the file was made, kept on the
+  entry from then on). ISO 8601, UTC, to the second; `created <= updated <=
+  rendered` on every entry, and the API check fails otherwise. A shallow
+  clone would date every old card at the clone's first commit, so the script
+  refuses one (`git fetch --unshallow`).
+- **The picture says the same.** Each JPEG carries an EXIF segment
+  (`scripts/_jpeg_exif.mjs`: DateTimeOriginal = created, DateTime = updated,
+  DateTimeDigitized = uploaded, each with OffsetTime +00:00, ImageDescription
+  the title in ASCII, Software "BUYBACK.AD Graphics Studio"), written after
+  the JFIF segment, read back by the check, by ImageMagick and by Pillow,
+  the picture's bytes untouched. A file's sha1, and so the API's `?v=`,
+  moves only when its dates do: `--stamp` writes EXIF again only where it
+  would differ.
+- **The API hands them out and filters on them.** Every ad carries
+  `created`, `updated` and `uploaded`; `?since=` (a day or a timestamp)
+  keeps the ads created, updated or uploaded at or after it, so a partner
+  asks what changed; `?sort=newest|oldest` orders by upload, then update,
+  then creation, and without it the library's own order stands, so nothing
+  a partner already does moves; a malformed `since` or `sort` is 400; one
+  ad's answer carries `Last-Modified` (its upload); the index carries
+  `latest`, the newest of each.
+- **The partner's side keeps the dates with the picture.** The client
+  (`buybackad_library.py`) passes `since` and `sort`, gives `dates(ad)`,
+  `changed_since(when)` and `filename(ad)` (the ad and its upload day:
+  `bubblePop-nn05-30_2026-10-04.jpg`); the picker shows the upload date on
+  every tile, offers newest first, and hands the page a File named for the
+  ad and its upload day and dated with its upload. Three tests more (the
+  dates on every ad, since and sort, the EXIF dates inside the JPEG).
+
+Measured after: `library_api_check.mjs` and `library_handoff_check.mjs` pass
+(the numbers are in OPEN-ITEMS §AG); every one of the 311 renders carries
+its dates in order, in the index and in its EXIF.

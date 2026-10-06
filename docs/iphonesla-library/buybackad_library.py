@@ -15,8 +15,14 @@ Configure with two environment variables:
     lib = BuybackadLibrary.from_env()
     page = lib.ads(category="phones", q="iphone", limit=24)
     for ad in page["items"]:
-        print(ad["id"], ad["title"], ad["image"]["url"])
+        print(ad["id"], ad["title"], ad["uploaded"], ad["image"]["url"])
     jpeg = lib.ad_jpeg(page["items"][0])          # 1080x1080 JPEG bytes, ready for OfferUp
+    new = lib.ads(since="2026-10-01", sort="newest")   # what changed since a date, newest first
+
+Every ad carries three dates, ISO 8601 UTC: `created` (when it entered the
+library), `updated` (when its design last changed) and `uploaded` (when the
+picture you get was drawn). The same dates are inside the JPEG as EXIF, so
+the file identifies itself after it has been uploaded somewhere.
 
 What comes back is described in README.md beside this file (the contract
 of /api/library/v1).
@@ -34,7 +40,7 @@ import urllib.request
 
 __all__ = ["BuybackadLibrary", "LibraryError"]
 
-_ALLOWED_PARAMS = {"category", "q", "limit", "offset"}
+_ALLOWED_PARAMS = {"category", "q", "since", "sort", "limit", "offset"}
 
 
 class LibraryError(Exception):
@@ -75,10 +81,16 @@ class BuybackadLibrary:
         """{"version": ..., "categories": {"phones": 64, "gold": 33, ...}}"""
         return self._get("/categories")
 
-    def ads(self, category: str | None = None, q: str | None = None, limit: int = 50, offset: int = 0) -> dict:
+    def ads(self, category: str | None = None, q: str | None = None, since: str | None = None, sort: str | None = None,
+            limit: int = 50, offset: int = 0) -> dict:
         """One page of the library's ads:
-        {"version", "total", "offset", "limit", "next_offset", "items": [...]}"""
-        params = {k: v for k, v in {"category": category, "q": q}.items() if v}
+        {"version", "total", "offset", "limit", "next_offset", "items": [...]}
+        since: a date (2026-10-01) or timestamp; only the ads created, updated or
+        uploaded at or after it. sort: "newest" or "oldest" by upload date; without
+        it, the library's own order."""
+        if sort not in (None, "", "newest", "oldest"):
+            raise ValueError('sort must be "newest" or "oldest"')
+        params = {k: v for k, v in {"category": category, "q": q, "since": since, "sort": sort}.items() if v}
         params["limit"] = max(1, min(200, int(limit)))
         params["offset"] = max(0, int(offset))
         return self._get("/ads", params)
@@ -93,6 +105,28 @@ class BuybackadLibrary:
             page = self.ads(offset=offset, limit=200, **filters)
             yield from page["items"]
             offset = page["next_offset"]
+
+    def changed_since(self, when: str, **filters):
+        """The ads created, updated or uploaded at or after `when` (a date or a
+        timestamp), newest first: what to refresh on this side."""
+        return list(self.iter_ads(since=when, sort="newest", **filters))
+
+    @staticmethod
+    def dates(ad: dict) -> dict:
+        """The ad's dates as datetimes (UTC): {"created", "updated", "uploaded"}."""
+        from datetime import datetime, timezone
+        out = {}
+        for k in ("created", "updated", "uploaded"):
+            v = ad.get(k)
+            out[k] = datetime.fromisoformat(v.replace("Z", "+00:00")).astimezone(timezone.utc) if v else None
+        return out
+
+    @staticmethod
+    def filename(ad: dict) -> str:
+        """A file name that says which ad and when it was uploaded:
+        bubblePop-nn05-30_2026-10-04.jpg"""
+        day = (ad.get("uploaded") or "")[:10]
+        return ad["id"] + ("_" + day if day else "") + ".jpg"
 
     def proxy(self, route: str, params: dict) -> dict:
         """For the server route the listing page calls: route is "ads",
@@ -122,7 +156,7 @@ class BuybackadLibrary:
         u = urllib.parse.urlsplit(url or "")
         if (u.scheme, u.netloc) != (self.site.scheme, self.site.netloc):
             raise LibraryError("refusing a picture from outside the BUYBACK.AD site: " + str(url))
-        req = urllib.request.Request(url, headers={"User-Agent": "iphonesla-library/2"})
+        req = urllib.request.Request(url, headers={"User-Agent": "iphonesla-library/3"})
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as r:
                 data = r.read(max_bytes + 1)
@@ -165,7 +199,7 @@ class BuybackadLibrary:
         req = urllib.request.Request(url, headers={
             "Authorization": "Bearer " + self._key,
             "Accept": "application/json",
-            "User-Agent": "iphonesla-library/2",
+            "User-Agent": "iphonesla-library/3",
         })
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as r:
