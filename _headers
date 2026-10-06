@@ -63,9 +63,11 @@
 /colour-builder.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/device-walls.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 # Owner tools that stay reachable by link but should never be in search:
 # the good/bad picker, the asset library and the old single-file build.
-# (The labs under /lab/ are 404'd by netlify.toml since 2026-10-06.)
 # Mirrors netlify.toml.
 /pick.html
   X-Robots-Tag: noindex, nofollow

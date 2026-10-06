@@ -12,7 +12,7 @@ Nothing here is traced from a third-party template. Every shape is generated.
 ## What's in the box
 
 ```
-buyback-console.html      the console — open it in any browser, no server needed
+tools/gfx/console.html    the console — node scripts/build_console.mjs, then open it from a checkout
 engine/engine.mjs         the whole engine as one pure ES module (no DOM, no deps)
 tools/sweep.mjs           audit sweep across every archetype × vertical × format
 tools/contribution.mjs    what each device is actually worth, in points
@@ -26,7 +26,7 @@ samples/                  eight archetypes rendered, SVG + PNG
 ## Run it
 
 ```bash
-open buyback-console.html          # the console, offline
+node scripts/build_console.mjs     # the console -> tools/gfx/console.html, open it offline
 
 node tools/sweep.mjs 12            # 12 seed sets = 2,304 configurations
 node tools/contribution.mjs        # rank every device by measured contribution

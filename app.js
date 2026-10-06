@@ -10832,7 +10832,7 @@ const SC_FAMILIES = [
    answer, not taste. assets/hero-picks.json lets a person overrule it: the
    cards named there lead the wall, in the order they were picked, and the
    algorithm fills only what is left. Entries may be a SKU (CHK-JW07-16, the
-   code shown on /lab/hero.html) or a raw card id. */
+   code the hero picker shows, tools/hero-picker/) or a raw card id. */
 const SC_LAY = { checklistHero:'CHK', reviewProof:'REV', trustSeal:'TRS', stepsFlow:'STP', bubblePop:'BUB',
   voltStack:'VLT', neonNight:'NEO', slabPoster:'SLB', scriptRetro:'SCR', lowerThird:'LOW',
   gradientWave:'GRD', ticketStub:'TKT', hudTech:'HUD', bandKnockout:'BND', arcCrown:'ARC', glassCard:'GLS' };
@@ -20585,4 +20585,81 @@ function ezPhoneSetSettle(sc, S){
       el.hidden = !cat; });
     return r;
   };
+}
+
+/* THE DEVICE WALLS IN THE GROUND PICKER (2026-10-06, appended, not spliced).
+   The lab's Set 9: a wall of the devices the shop buys, drawn at one angle
+   across the whole card with every screen in the card's own palette
+   (engine/showcase.mjs, the owner's reference genre). device-walls.js (a
+   module, loaded after this script) registers eleven arrangements with
+   GROUNDS; here they join Easy Mode's and the designer's ground styles as one
+   more group. A wall is a picture, not a flat ground: like a scene it takes
+   the soft shade a photograph takes in the picker, and the gate deepens it
+   only where a line needs it. The engine draws SVG, which a browser can only
+   rasterise asynchronously, so a wall paints its ground colour first and the
+   devices a moment later; the module says when ("device-wall-ready") and the
+   swatches and the preview are read again. */
+{
+  EZ_GROUND_STYLES.push({ key: 'devices', label: 'Device walls', get kinds(){ return (window.DEVICE_WALLS || []).slice(); } });
+  const _ezGroundSpecsDW = ezGroundSpecs;
+  ezGroundSpecs = function(st, PArg){
+    const out = _ezGroundSpecsDW.apply(this, arguments);
+    if (st && st.key === 'devices'){ const light = scLum((PArg || ezPalette()).ink) > 0.4;
+      out.forEach(x => Object.assign(x.bg, { scrim: 0.42, scrimColor: light ? '#0b0b0d' : '#f6f6f4', scrimMode: 'gradient' })); }
+    return out;
+  };
+  const isWall = src => /^ground:dev[A-Z]/.test(String(src || ''));
+  let dwTimer = null;
+  window.addEventListener('device-wall-ready', () => {
+    clearTimeout(dwTimer);
+    dwTimer = setTimeout(() => {
+      try { if (ezGroundStyle === 'devices') ezDrawnSync(); } catch (e){}
+      try { if (edGroundStyle === 'devices'){ _edGroundKey = ''; edBuildGrounds(); } } catch (e){}
+      try { if (ez.bg && isWall(ez.bg.src)) schedEzPreview(0); } catch (e){}
+      try { if (typeof bgState !== 'undefined' && bgState && isWall(bgState.src) && typeof edPaintGround === 'function') edPaintGround(); } catch (e){}
+    }, 150);
+  });
+}
+
+/* KEYS IN EASY MODE (2026-10-06, from the lab's console, appended).
+   The console cycled a card's layout, palette, type and format from the
+   keyboard; Easy Mode's rows are the same choices, so the same keys drive
+   them: [ and ] walk the designs, P the colour sets, T the typefaces, F the
+   sizes, B the background styles and G the backgrounds in the open style,
+   Shift going back. Each key presses the row's own button, so every path a
+   tap takes (the lock, the toast, the preview) is the path a key takes.
+   Never while typing in a field, never with a modifier, and only on the Easy
+   Mode page. The hint line under the strip (index.html, .ez-keys) shows only
+   where there is a keyboard. */
+{
+  const onEasy = () => { const p = $('page-easy'); return !!p && p.classList.contains('active'); };
+  const typing = e => { const t = e.target; return !!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || '') || t.isContentEditable); };
+  const shown = b => !b.disabled && b.offsetParent !== null;
+  const step = (sel, active, dir) => {
+    const btns = [...document.querySelectorAll(sel)].filter(shown);
+    if (!btns.length) return false;
+    let i = btns.findIndex(active);
+    i = i < 0 ? 0 : (i + dir + btns.length) % btns.length;
+    const b = btns[i];
+    b.click();
+    /* the strip scrolls sideways to the pick; nothing moves the page */
+    const strip = b.closest('.ez-strip');
+    if (strip) strip.scrollTo({ left: b.offsetLeft - strip.clientWidth / 2 + b.offsetWidth / 2, behavior: 'smooth' });
+    return true;
+  };
+  window.addEventListener('keydown', e => {
+    if (!onEasy() || typing(e) || e.metaKey || e.ctrlKey || e.altKey || e.repeat && e.key !== '[' && e.key !== ']') return;
+    const dir = e.shiftKey ? -1 : 1;
+    let done = false;
+    switch (e.key){
+      case ']': done = step('#ez-strip .ez-tpl', b => b.classList.contains('sel'), 1); break;
+      case '[': done = step('#ez-strip .ez-tpl', b => b.classList.contains('sel'), -1); break;
+      case 'p': case 'P': done = step('#ez-themes .ez-theme', b => b.classList.contains('active'), dir); break;
+      case 't': case 'T': done = step('#ez-voices button', b => b.classList.contains('active'), dir); break;
+      case 'f': case 'F': done = step('#ez-sizes .ez-size', b => b.classList.contains('on'), dir); break;
+      case 'b': case 'B': done = step('#ez-bgstyles button', b => b.classList.contains('active'), dir); break;
+      case 'g': case 'G': done = step('#ez-drawn .ez-gsw', b => b.classList.contains('sel'), dir); break;
+    }
+    if (done) e.preventDefault();
+  });
 }
