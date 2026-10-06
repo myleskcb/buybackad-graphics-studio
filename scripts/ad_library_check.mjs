@@ -345,12 +345,13 @@ async function browserPart() {
   if (process.env.FABRIC_JS) fabricJs = readFileSync(process.env.FABRIC_JS);
   const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
   const errors = [];
-  const newPage = async (w) => {
+  const newPage = async (w, shop) => {
     const ctx = await browser.newContext({ viewport: { width: w || 1280, height: 900 }, acceptDownloads: true });
     const page = await ctx.newPage();
     await page.route('**/*', (route) => {
       const url = route.request().url();
       if (url.startsWith(BASE)) return route.continue();
+      if (shop && url.startsWith('https://iphones.la/')) return shop(route);
       if (/fabric(\.min)?\.js/.test(url) && fabricJs) return route.fulfill({ status: 200, contentType: 'application/javascript', body: fabricJs });
       return route.abort();
     });
@@ -417,6 +418,54 @@ async function browserPart() {
       await pub.context().close();
       await page.context().close();
     }
+    // the link goes to iPhones LA by itself, over the studio's connection to the
+    // shop (iphonesla-link.js): at start, and again after a reset. A shop that
+    // cannot take it yet is told so in the dialog.
+    for (const libStatus of [200, 404]) {
+      try {
+        const got = [];
+        const cors = { 'Access-Control-Allow-Origin': BASE, 'Access-Control-Allow-Headers': 'authorization, content-type', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' };
+        const page = await newPage(1280, (route) => {
+          const rq = route.request(), u = new URL(rq.url());
+          if (rq.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+          if (u.pathname === '/api/buy-ads/studio/library') {
+            got.push({ auth: rq.headers().authorization || '', body: JSON.parse(rq.postData() || '{}') });
+            return route.fulfill({ status: libStatus, headers: cors, contentType: 'application/json', body: '{"ok":true}' });
+          }
+          return route.fulfill({ status: 200, headers: cors, contentType: 'application/json', body: '{}' });
+        });
+        const email = 'linked' + libStatus + '@studio.example';
+        await page.goto(BASE + '/index.html');
+        await page.waitForFunction(() => window.adLibrary && window.iplaLink, null, { timeout: 30000 });
+        const token = await page.evaluate(async (em) => (await (await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: em, password: 'a-long-password' }) })).json()).token, email);
+        await page.evaluate((t) => {
+          localStorage.setItem('pgfx_token', JSON.stringify(t));
+          localStorage.setItem('ipla_link', JSON.stringify({ token: 'gfx_' + 'T'.repeat(30), connectedAt: '2026-10-06T00:00:00.000Z' }));
+        }, token);
+        await page.goto(BASE + '/index.html');      // nobody opens the Library: the studio sends the link as it starts
+        const t0 = Date.now();
+        while (!got.length && Date.now() - t0 < 30000) await page.waitForTimeout(250);
+        const mine = await page.evaluate(async () => (await (await fetch('/api/ads/mine', { headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('pgfx_token')) } })).json()).links.page);
+        ok(got.length === 1 && got[0].body.feed_url === mine && got[0].body.site === BASE && got[0].auth === 'Bearer gfx_' + 'T'.repeat(30),
+          'link (' + libStatus + '): sent to iPhones LA as the studio starts, with the connection token (' + JSON.stringify(got) + ')');
+        await page.evaluate(() => window.adLibrary.open());
+        await page.waitForSelector('#adlib-overlay .adl-share', { timeout: 20000 });
+        await page.waitForTimeout(800);
+        const line = await page.evaluate(() => document.querySelector('#adlib-overlay .adl-share').textContent);
+        ok(libStatus === 200 ? /iPhones LA has this link/.test(line) : /cannot take the link yet/.test(line), 'link (' + libStatus + '): the dialog says so (' + line + ')');
+        if (libStatus === 200) {
+          ok(got.length === 1, 'link: opening the Library does not send it again (' + got.length + ')');
+          await shot(page, 'dialog-linked');
+          await page.evaluate(async () => { await fetch('/api/ads/link/reset', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('pgfx_token')) }, body: '{}' }); await window.adLibrary.load(); });
+          const t1 = Date.now();
+          while (got.length < 2 && Date.now() - t1 < 15000) await page.waitForTimeout(250);
+          const fresh = await page.evaluate(async () => (await (await fetch('/api/ads/mine', { headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('pgfx_token')) } })).json()).links.page);
+          ok(got.length === 2 && got[1].body.feed_url === fresh && fresh !== mine, 'link: a reset sends the new link by itself (' + got.length + ')');
+        }
+        await page.context().close();
+      } catch (e) { ok(false, 'link (' + libStatus + '): ' + String(e.message || e).split('\n')[0]); }
+    }
+
     // the owner's master library: saved and finished, and at phone width
     try {
       const page = await newPage(390);

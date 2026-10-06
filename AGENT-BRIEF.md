@@ -227,14 +227,30 @@ git worktree add ~/Downloads/studio-main origin/main    # the first time
 cd ~/Downloads/studio-main
 git fetch origin && git checkout --detach origin/main   # every time after
 git log -1 --oneline        # the main you mean to ship
+npm ci                      # the API function bundles @netlify/blobs from here
 netlify link --name buybackad-graphics-studio           # the first time
-netlify deploy --dir=.      # DRAFT first, always
+netlify deploy --no-build --dir=.      # DRAFT first, always
 # before it uploads: "Config file" must be …/studio-main/netlify.toml and
 # "Deploy path" …/studio-main; "No config file was defined" means the wrong
 # folder, so Ctrl+C
-# open the draft URL and confirm it renders
-netlify deploy --prod --dir=.
+# open the draft URL and confirm it renders, and that /api/me answers 401
+netlify deploy --no-build --prod --dir=.
 ```
+
+Two traps, found on the 2026-10-06 deploy:
+- **`npm ci` first.** A clean worktree has no `node_modules`. The function
+  uploads without `@netlify/blobs`, and every `/api/*` answers 502. The site
+  itself renders, so only an API probe shows it (`/api/me` must be 401).
+- **`--no-build`.** netlify-cli 26 runs a build before deploying, and its
+  framework detection picks "hugo" for this folder and fails. The site has no
+  build step: the folder is the site.
+
+`buybackad-finished-copy` is in another Netlify team ("myleskcb2's team").
+The Mac's CLI login (team KCB) gets "Not Found" for it, so only an account in
+that team can deploy it or set its `JWT_SECRET`. On 2026-10-06 it still served
+`claude/fervent-pascal-w6mthe` (37a26d34) with no `JWT_SECRET`, so accounts and
+the ad library do not work there. `buybackad-graphics-studio` is the one that
+is current.
 
 Draft-deploy and *look* before `--prod`. Given landmine 2, the preview render is
 the only real check.
