@@ -51,7 +51,7 @@ every pricing surface. Found and fixed in this session:
    had no way to give one. Checkout now accepts Stripe promotion codes; a
    code made in Stripe → Coupons works with no deploy.
 
-Still open, carried into OPEN-ITEMS §AF:
+Still open, carried into OPEN-ITEMS §AN:
 
 5. **The size cap and the watermark are applied in the browser.** The
    function counts the download and answers `{maxPx, watermark}`; the
@@ -111,7 +111,7 @@ With those, no plan can lose money and the site's worst month of AI spend
 is bounded under the price of nine subscriptions. The better product answer
 is a monthly allowance that lines up with the download period ("60 AI
 backgrounds a month" is a line on the Pro card; "2 a day" is not), which is
-a small code change in `api.mjs`: OPEN-ITEMS §AF 1.
+a small code change in `api.mjs`: OPEN-ITEMS §AN 1.
 
 **Fixed costs.** Netlify's Free plan is 300 credits a month under the
 credit system introduced in 2025; third-party write-ups put bandwidth at
@@ -160,7 +160,7 @@ Reading:
 - **The phone video maker gives the strongest asset away**: fourteen styles,
   voices, three languages, no account, no watermark, not counted. As a lead
   magnet into the studio that is defensible; as a product it is unpriced.
-  The owner's call (§AF 4): leave it, or ask for the free account and count
+  The owner's call (§AN 4): leave it, or ask for the free account and count
   it like the studio's videos.
 
 ## 4. Does it make enough? Scenarios

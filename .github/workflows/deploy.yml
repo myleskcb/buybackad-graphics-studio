@@ -1,0 +1,68 @@
+# Deploys `main` to Netlify on every push, so nobody has to deploy by hand
+# from the Mac (AGENT-BRIEF.md, "Deploying": the lasting fix). It mirrors
+# the Mac command, `netlify deploy --prod --dir=.` from a clean checkout of
+# `main`, with the function bundled from node_modules by the CLI.
+#
+# Inert until these repository secrets exist (Settings → Secrets and
+# variables → Actions):
+#   NETLIFY_AUTH_TOKEN   Netlify → User settings → Applications → Personal
+#                        access tokens → New access token
+#   NETLIFY_SITE_ID      the project's Site ID (Project configuration →
+#                        General → Project details). buybackad-graphics-studio
+#                        is 95709613-cca5-4113-9498-68607779a4e9 (SETUP.md).
+#   NETLIFY_SITE_ID_2    optional: the second project (buybackad-finished-copy)
+#                        while both are served; the same commit goes to both.
+# Set the repository variable NETLIFY_DEPLOY to "off" to pause it.
+name: Deploy main to Netlify
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: netlify-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ vars.NETLIFY_DEPLOY != 'off' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      SITE_1: ${{ secrets.NETLIFY_SITE_ID }}
+      SITE_2: ${{ secrets.NETLIFY_SITE_ID_2 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install the function's dependency
+        run: npm ci
+
+      - name: Nothing to do without the secrets
+        if: ${{ env.NETLIFY_AUTH_TOKEN == '' || env.SITE_1 == '' }}
+        run: echo "NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are not set; see the comment at the top of this workflow." && exit 0
+
+      - name: Deploy to production
+        if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.SITE_1 != '' }}
+        env:
+          NETLIFY_SITE_ID: ${{ env.SITE_1 }}
+        run: npx --yes netlify-cli@latest deploy --prod --dir=. --message "GitHub ${{ github.sha }}"
+
+      - name: Deploy the second project
+        if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.SITE_2 != '' }}
+        env:
+          NETLIFY_SITE_ID: ${{ env.SITE_2 }}
+        run: npx --yes netlify-cli@latest deploy --prod --dir=. --message "GitHub ${{ github.sha }}"
+
+      - name: What went live
+        if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.SITE_1 != '' }}
+        run: |
+          U=https://buybackad-graphics-studio.netlify.app
+          curl -sS -o /dev/null -w '%{http_code} /\n' $U/
+          curl -sS -o /dev/null -w '%{http_code} /colour-builder.js\n' $U/colour-builder.js
+          curl -sS -o /dev/null -w '%{http_code} /docs (must be 404)\n' $U/docs/README.md

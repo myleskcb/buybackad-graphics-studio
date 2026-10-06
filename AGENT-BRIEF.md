@@ -133,6 +133,15 @@ when its branch is pushed: merge `main` in, run the checks, and put the
 result on `main` the same day, or say plainly in your last message that it
 is not on `main` and why.
 
+**And a session can stop before it gets there.** On 2026-10-05 five sessions
+had stopped at the weekly limit mid-task (OPEN-ITEMS §AM): three with
+finished edits never committed, one with a day of photograph picks on its
+container's disk only, which went with it. Commit and push at each step that
+works, not at the end, and keep the branch merged with `main` as you go; a
+session near its limit stops starting new work (docs/SESSION-PROTOCOL.md, the
+99% rule). Rule numbers and OPEN-ITEMS letters are decided when the work
+lands: four branches had each written a rule 112.
+
 History, and why this matters:
 
 On 2026-09-26 `main` was a month behind: the product had moved on across a
@@ -202,7 +211,9 @@ two showed different products. Deploy the same `main` commit to both, or
 retire one; the lasting fix is to link one project to this repository's
 `main` in Netlify (Project configuration, Build & deploy, Link repository;
 publish directory `.`) so that every push to `main` deploys and nobody deploys
-by hand. The cloud sessions cannot reach Netlify (their network policy denies
+by hand. `.github/workflows/deploy.yml` (2026-10-06) is that fix in GitHub's
+hands: it deploys every push to `main` once the repository secrets
+`NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` exist, and does nothing before. The cloud sessions cannot reach Netlify (their network policy denies
 `*.netlify.app` and `api.netlify.com`). The connector's deploy-site does not
 deploy by itself: it returns an `npx @netlify/mcp --site-id … --proxy-path
 https://netlify-mcp.netlify.app/proxy/…` command, which zips the working
@@ -398,7 +409,11 @@ produced." DESIGN-LAW rule 87. In practice:
   and keeps a card that fails as offered out of the lists. It takes hours in
   full; run it with `--ids a,b` on the cards a change touches (the table is
   updated for those cards only) and `--resume` to continue a stopped run. It
-  loads the studio with `?nochoiceholds=1`.
+  loads the studio with `?nochoiceholds=1`. For the whole population pass
+  its own list as `--ids` too (the offered classics and the live library):
+  without `--ids` the table starts empty, so a run of one dimension (`--dims
+  base`) empties the others, and a classic the table holds drops out of the
+  population and loses its row unmeasured.
 - **The designer's guides and lock** (rule 107, 2026-10-02): the pink guides
   (`sgSnap`) and the lock to the middle (`pgCentreLock`, kept by `ccKeep`
   before every render and undo step) work on the parts `ccParts` finds. A
@@ -433,7 +448,8 @@ produced." DESIGN-LAW rule 87. In practice:
   loose parts, near misses, a picture over a headline) and exits 1 on a
   failure; `scripts/centre_showcase.mjs --ids a,b` repairs with Centre all
   through the writers' gate. A pass that moves a showcase card's layers
-  runs the audit on the cards it touched.
+  runs the audit on the cards it touched. A number and its phone mark
+  (rule 118) are one line to the measure: centred together.
 - **The colour builder** (rule 112, 2026-10-03): `colour-builder.js`, loaded
   after app.js. The landing's colour section is two tabs (the twelve
   ready-made sets, or build your own); the + in Easy Mode's and the
@@ -447,8 +463,26 @@ produced." DESIGN-LAW rule 87. In practice:
   takes about a minute). A tweak never leaves the law: a slider's ends are
   `cbRange`'s, an exact colour goes through `cbExact`, and anything saved
   passes `cbTweakOk`. Saved sets can be renamed; old names live in `aka`.
+- **Real photographs only** (rule 117, 2026-10-04): no generated scene
+  (`assets/bg/dl_*`) or drawn ground (`dg_cast`) behind a card or template
+  where a real photograph of the goods exists. New photographs go in
+  assets/bg-web with their credits (`scripts/fetch_backdrops.mjs`), are
+  looked at before use, and reach cards through
+  `scripts/reground_showcase.mjs` and templates through `BG_REAL` in app.js.
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
+- **A stack keeps one rhythm to its call to action** (rule 115, 2026-10-02):
+  `pgStepRhythm`, last in the layout and again after `numberFill`, sets the
+  Steps Flow cards one gap apart and one gap off the CTA plate (the rows
+  move, the plate stays); `pgCtaStandOut` gives a plate in its rows' own
+  neutral the card's accent. A pass that moves or resizes the steps or the
+  number's plate after them must leave `node scripts/steps_rhythm_audit.mjs`
+  passing.
+- **The headline is the hero** (rule 116, 2026-10-03): judged by the letters
+  it covers (30,000 px² on the 1080 square at least), never by font size
+  alone. `node scripts/hero_headline.mjs --live` reports any live card under
+  it; with `--write` it grows them, gated. Look at every card on a
+  before-and-after before you show it.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

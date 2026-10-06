@@ -140,9 +140,18 @@ export async function openStudio(query = ''){
         const inner = [];
         P.forEach(p => {
           if (!p.u.plate) return;
-          /* the lines, not their depth copies or decoration */
+          /* the lines, not their depth copies or decoration. The phone mark belongs to
+             the number (DESIGN-LAW 118): where the number is centred, the mark and the
+             number are centred together, so a number with its mark beside it, on its
+             row, is measured as one line with it (measured alone it read 30 to 49px off
+             the middle of every plate that carries a mark) */
+          const cue = p.u.kids.find(o => o.name === 'Phone Cue' && o.type === 'path' && o.visible !== false);
+          const withCue = (o, b) => { if (!cue || o.pgRole !== 'phone') return b; const c = sgBox(cue);
+            if (Math.min(b.b, c.b) - Math.max(b.t, c.t) < 0.5 * Math.min(b.h, c.h)) return b;
+            const l = Math.min(b.l, c.l), r = Math.max(b.r, c.r), t = Math.min(b.t, c.t), bt = Math.max(b.b, c.b);
+            return { l, t, r, b: bt, w: r - l, h: bt - t, cx: (l + r) / 2, cy: (t + bt) / 2 }; };
           const lines = p.u.kids.filter(o => o.text !== undefined && /[A-Za-z0-9]/.test(o.text || '') && o.visible !== false && !o.pgKin && !o.pgKinId && (o.pgRole || '') !== 'deco')
-            .map(o => ({ o, b: sgBox(o) }));
+            .map(o => ({ o, b: withCue(o, sgBox(o)) }));
           if (lines.length < 2) return;
           /* a row (a label and its value side by side) is not a stack */
           if (lines.some((x, i) => lines.some((y, j) => j > i && Math.min(x.b.b, y.b.b) - Math.max(x.b.t, y.b.t) >= 0.5 * Math.min(x.b.h, y.b.h)))) return;

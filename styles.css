@@ -512,7 +512,7 @@ input,textarea,select{font-family:inherit;color:var(--text)}
 }
 .modal input::placeholder{color:var(--text-dim)}
 .modal input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-wash)}
-.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+.modal-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:24px}
 
 /* ═══════════ LANDING ═══════════ */
 #page-landing{min-height:100vh}

@@ -10,3 +10,8 @@ They were trimmed, levelled, tuned and encoded by scripts/build_motion_sounds.py
 The tunes the video maker plays with them (motion/music.js) are compositions
 published before 1931, public domain in the United States. What plays is the
 app's own performance of each tune, never anyone else's recording.
+
+The recordings in tracks/ are a separate set: real performances from Wikimedia Commons
+that are public domain (US government bands, Musopen, recordings published before 1926,
+and performers who released their own). tracks/index.json names the source file and the
+licence of each one; tracks/README.md says what qualifies.

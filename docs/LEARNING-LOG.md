@@ -3065,6 +3065,512 @@ RESUME HERE:
      Deploying); this session's network cannot reach Netlify.
   1. Re-sweep the choice holds on the merged build (OPEN-ITEMS §AE 6).
   2. Guard rule 104's plate ink with the muddy floor (§AE 2).
+## 2026-10-03 — the video maker's phones: the model's body, real blur, steady shadows
+
+(claude/great-johnson-v8ppp6, not yet on `main`: this session may push only
+its own branch.)
+
+The owner, with a screenshot of three turned 17 and 18 Pros from a video:
+"they look like sim tray devices missing the sim tray so it's got a hole...
+audit small detail and fix fill in body color". Then: "make sure we have even
+better movements, accuracy, and realism".
+
+Found (each measured, motion/views-sheet.html and the engine in a headless
+browser):
+  - The hole was Camera Control, drawn #1c1d21 on the rail: 2.2 to 5.1 times
+    darker than the rail beside it on every turned 16-and-later phone.
+  - The 17 and 18 Pro backs show the side button proud of the rail at 0.311
+    to 0.429 of the height (0.287 to 0.394 on the Max): the same 46.8 to 64.4
+    mm from the top on both sizes. The engine drew it at 0.27 to 0.405, so a
+    turned phone showed two buttons. No other back shows a button that can be
+    trusted (the non-Pro stripes sit at one share of the height on both
+    sides and both sizes).
+  - Every model's edge was 0.115 of its width deep; Apple's depths run from
+    0.100 (Plus) to 0.122 (17 Pro). Corners are right: every back's radius is
+    within 5% of the engine's 0.165.
+  - Motion blur took a fixed 8 moments: at 1080 a fast spin's corners jumped
+    7 to 39 px between them, and frame 0 showed a fan of copies.
+  - The shadow picked one of three blurs by height and jumped 22 times its
+    usual step at a third and two thirds of the way up.
+  - Movement curves themselves are smooth: no entrance or pose changes speed
+    by more than 26 px a frame within an eighth of a frame, but for the
+    bounces of drop and rain, which are meant.
+
+Did: DESIGN-LAW rule 114. Camera Control flush in the body's colour; `BODY`
+(Apple's width and depth per model) and `MEASURED_CONTROLS` in designOf;
+`Ad._subsFor` and `EXPORT_QUALITY` (8 to 24 moments, 3 px apart at most); the
+shadow blended between blurs and as wide as the turned body; a soft band of
+light across a turning back, gone at rest. audit_phone_views.py prints each
+model's depth and fails a drawn button the back disagrees with;
+scripts/motion_phone_check.mjs measures blur and shadow.
+
+Checked: motion_phone_check.mjs, all 46 entrance and pose pairs and four
+shadows pass (worst copy 0.48 px, fixed 8 measured up to 4.9; shadow 3.3
+against 22). audit_phone_views.py: 56 of 59, the same three 16-white-as-*
+shape fails as before. The attention audit (audit-sweep.html, 24 looks, seed
+101) gives the same scores and pass rates before and after; contrast moves in
+the fourth decimal. A 6 s export draws in 1.2 to 1.8 times the time (headless,
+no GPU: 10.6 s to 18.1 s for fly_spin). Views sheet, old engine against new:
+only the edge depths, the turned shadows and the 17/18 Pro button change.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main`, then deploy `main`
+     (OPEN-ITEMS §Z 0).
+  1. A turned 17 or 18 Pro's camera plateau is drawn flat on the back; it
+     stands proud of the body. Its height needs a source (a side photograph
+     or Apple's drawing) before it is drawn.
+  2. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-03 (later) — every phone, all the way round
+
+(claude/great-johnson-v8ppp6, not yet on `main`.)
+
+The owner: "All devices audit the 360 and any other angles".
+
+Found (every offered phone, 57 of the 59 backs; the two ok:false 16s are never
+offered): turned through 360 degrees every 2 upright and every 3 at 45, 90 and
+180 degrees in the frame, each angle measured for the body's width, gaps inside
+it and its change from the angle before:
+  - Side-on (90 and 270 degrees) every phone was 1 to 2 px wide where its edge
+    is 12 to 14, beside a full-width shadow: the side was a stack of outlines,
+    and side-on each is a line. A wide spin passes there twice, a flip-in
+    starts there.
+  - The iPhone 15 and 15 Plus were given the Action button; they kept the mute
+    switch (the Action button came on the 15 Pro and on every 16).
+  - The light band on a turning back was set by the phone's own left, so a
+    phone lying at an angle caught a light that was not there.
+  - No angle left a gap in the old engine; the first fix (slices filled to the
+    one behind) left a see-through seam down the middle side-on, which the
+    gap measure caught.
+
+Did: rule 114, all the way round. Each slice of the edge is filled back a
+slice and a half (`hull`); designOf gives the 15 and 15 Plus the mute switch;
+the band takes the scene's light whatever the phone's angle.
+audit_phone_views.py checks each model against Apple's line-up (FACTS; the 17e
+and 18 Pro unchecked); motion_phone_check.mjs turns one phone of every model.
+
+Checked: all 57 phones, upright, at 45, on its side and upside down: no gaps;
+side-on edges 12 to 14 px, within 10% of each model's depth (a pixel of
+rounding); the largest step of a turn 1.7 times the usual (2.4 before).
+motion_phone_check.mjs passes all of it (46 entrance and pose pairs, four
+shadows, 36 turns); audit_phone_views.py 56 of 59, the same three shape fails.
+The attention audit (24 looks, seed 101) is unchanged from the commit before.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main` (it carries `main` at
+     b7a67925); reconcile `claude/fervent-pascal-w6mthe` (37a26d34) into
+     `main` (renumber its rule 99, re-thumb the conflicting cards, verify),
+     then deploy `main` to both Netlify projects.
+  1. A turned 17 or 18 Pro's camera plateau is drawn flat; its height needs a
+     source before it is drawn. The 17e's and 18 Pro's notch, buttons and
+     Camera Control want checking against Apple's sheets (FACTS leaves them out).
+  2. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  3. `.modal-actions` on a phone: let the row wrap (styles.css, then
+     sync_css_fallback.mjs).
+  4. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-04 — the 17 and 18 Pro's sides, in their own colour
+
+(claude/great-johnson-v8ppp6, not yet on `main`.)
+
+The owner, with a side-on Cosmic Orange 17 Pro from the turn sheet: "Much
+better, but the orange looks a little bit too light. Wouldn't you say from the
+side angle?"
+
+Found: the side was drawn from index.json's `metal`, read off the back's thin
+rim, where the studio light catches it. On a 17 or 18 Pro the plateau is the
+sides' own aluminium, so the photograph says what the side should be: `metal`
+was 13 to 55 levels a channel off it on all twelve backs (1.1 to 3.4 times its
+light). Side-on the orange's average light was right (0.99) and its colour was
+not: the shading mixed it toward black at the rims and white between, brown
+and peach. With the plateau's colour under the old shading the light finishes
+went dark (0.61 to 0.68).
+
+Did: `RAIL` (each 17 and 18 Pro back's plateau colour, the median of two clear
+patches) and `litRail` (the colour scaled by the light in linear terms, a faint
+white glint, averaging to itself) for those sides; the older backs keep `metal`
+and the old shading, having no part of their frame's metal to measure.
+audit_phone_views.py: `rail`. DESIGN-LAW rule 114, a side is its metal's colour.
+
+Checked: side-on, the twelve sides average 0.89 to 1.10 of their plateau
+(0.67 to 2.65 before); audit_phone_views.py 56 of 59, the old `metal` fails
+`rail` on all twelve.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main` (it carries `main` at
+     b7a67925); reconcile `claude/fervent-pascal-w6mthe` (37a26d34) into
+     `main` (renumber its rule 99, re-thumb the conflicting cards, verify),
+     then deploy `main` to both Netlify projects.
+  1. A turned 17 or 18 Pro's camera plateau is drawn flat; its height needs a
+     source before it is drawn. The 17e's and 18 Pro's notch, buttons and
+     Camera Control want checking against Apple's sheets (FACTS leaves them out).
+  2. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  3. `.modal-actions` on a phone: let the row wrap (styles.css, then
+     sync_css_fallback.mjs).
+  4. The designer audit's standing failures on `main`: sell_iphone and
+     gold_spot open as other cards; bandKnockout-pp04-15's ORIG leaves 4.2%.
+
+## 2026-10-04 (later) — no flash at the edge as a phone comes flat
+
+(claude/great-johnson-v8ppp6, not yet on `main`.)
+
+The owner, watching the turntable reel: "There seems to be a minor bug that's
+clear in the burgundy 18 Pro Max that the left side kind of does a little bit
+of a flash and it's a little dark on the edge and then it disappears as the
+device goes flat. It's not gradual at all not very cohesive if you're staring
+at that specific location."
+
+Found: within 0.86 degrees of flat (|sin| 0.015) drawPhone drew the bare
+photograph, and turned it drew the slab; coming flat, one 0.05 degree step
+changed 4,161 to 8,188 pixels by over 16 levels, on every model, back and
+screen (the usual step: 0 to 15). The slab did not match the photograph in
+five ways, found one after another by measuring what was left:
+  - its outline was a rounded rectangle the photo's full size, but the 17 and
+    18 Pro backs are trimmed to the side button (0.7% of the width proud of
+    the body) and the 14 to 16 Pro backs are rounder at the left corners (0.18
+    of the width, against 0.15 at the right): a dark sliver of side;
+  - the lens was focused on the middle of the body, so the face stood half a
+    percent large and the phone jumped a pixel and a half;
+  - the last strip of the face ran 0.6 px past it, and each strip was stretched
+    17% over its overlap;
+  - side-on detail: the canvas draws an image's rectangle with hard, snapped
+    edges, and the backs are trimmed to the phone, so the outline jumped a
+    pixel column at a time (the spikes of 420 pixels);
+  - the side buttons keep most of a pixel of perspective square on, and swapped
+    edges as the phone passed flat.
+A hand-over moved to 0.006 degrees still stepped (the photo's soft edge over
+the side), and a fast path for dead flat put a step back and saved no time;
+both went.
+
+Did: rule 114, no hand-over to see. The slab at every angle (`bodyOf`, the
+photograph's outline 0.8 px inside; the lens on the seen face; buttons in
+over 3.4 degrees; `padded`; strips sampled; the screen at twice the size).
+motion_phone_check.mjs: `flat`, the last 2 degrees in steps of 0.05.
+
+Checked: motion_phone_check.mjs passes all of it on the new engine (flat: the
+worst step 17 pixels) and fails `flat` on all 36 model faces of the commit
+before (4,161 to 8,188 at 0.90 degrees); audit_phone_views.py 56 of 59; the
+attention audit (24 looks) unchanged. Still phones: the flat back changes by
+about its outline's anti-aliasing (400 pixels a phone), the screen's hairline
+frame stays as crisp. A 6 s export's frames: 13.2 to 15.7 s (flat), 16.7 to
+20.0 s (turntable), headless.
+
+RESUME HERE:
+  0. Merge claude/great-johnson-v8ppp6 into `main` (it carries `main` at
+     48ab3caf); reconcile `claude/fervent-pascal-w6mthe` (37a26d34) into
+     `main` (renumber its rule 99, re-thumb the conflicting cards, verify),
+     then deploy `main` to both Netlify projects.
+  1. The owner: make a key, set LIBRARY_KEYS on the Netlify project iPhones LA
+     will call, give the iPhones LA session docs/iphonesla-library/README.md's
+     prompt; after the deploy, curl /api/library/v1 with the key once.
+  2. A turned 17 or 18 Pro's camera plateau is drawn flat; its height needs a
+     source. The 17e's and 18 Pro's notch, buttons and Camera Control want
+     checking against Apple's sheets (FACTS leaves them out).
+  3. Export one video from Chrome or Safari (H.264) and post it to OfferUp
+     with its photo: the MP4 path is checked only with a stubbed recorder.
+  4. `.modal-actions` on a phone: let the row wrap (styles.css, then
+     sync_css_fallback.mjs).
+
+## 2026-10-02 — Steps Flow: one gap down to the CTA (DESIGN-LAW 115)
+
+(claude/relaxed-darwin-8aces4, from `main` at 8f4d1e72.)
+
+The owner, over two Steps Flow cards in the library: "Can we audit the margin
+between each bubble? I particularly think the CTA should have even margin",
+"if we have three boxes of the same color, maybe the CTA is a different
+color? Or maybe it has a highlight? See the green one looks a little more
+cohesive", then "most importantly, continue the same margin between each
+bubble".
+
+Found:
+  - The three step cards were evenly spaced on every one of the 83 cards
+    (11 to 15px). The CTA plate was never on that rhythm: from 26px over the
+    third card to 33px under it. Each pass was right by its own measure (the
+    guides fit, the number floor, the plate fit), and none of them looked at
+    the space between the plate and the rows. The gate could not see it
+    either: overlapping plates are not copy on copy.
+  - Easy Mode was worse than the thumbnails (the plate over the bottom 24px
+    of GET PAID), because the number grows to fill its plate there.
+  - Moving the plate was the wrong lever: it sits on the bottom guide, and
+    the headline sits right on top of the rows on most cards (2 to 30px), so
+    there was nowhere to push the stack. The rows give: they had 25px of air
+    over and under their words.
+  - First run: 7 of 83 still uneven. A 14px sheen was counted as a row's
+    words (thin was < 14px), and the classics' tilted number boxes are 107px
+    tall, so their rows could not come down far enough without the plate.
+    Letting the plate give first fixed it and made the Easy Mode number 20%
+    smaller; the owner has asked for this CTA to be bigger before, so the rows
+    give first and the plate last.
+  - Six CTA plates were the rows' own neutral; the first card the owner showed
+    (du08-15) was one. Their accent was already on the card (the kicker pill,
+    the step numbers), so the plate takes that and the card keeps one hue.
+  - The every-choice audit caught what the thumbnail audit could not: on
+    du02-20 under Electric Trust the theme repainted the recoloured plate in
+    its own accent, the number then widened it under the phone cue, and the
+    cue read 1.6:1. Proved on `main`'s build served beside this one (the
+    same audit, one card: no problem there), then fixed. A pass that
+    recolours early has to be checked again after everything that runs
+    later.
+
+Tooling in a cloud session: no puppeteer and cdnjs blocked. puppeteer-core
+and fabric 5.3.0 from npm into the scratchpad, `node_modules` symlinked into
+the repo (gitignored as a directory, so the symlink shows as untracked: do not
+add it), CHROME=/opt/pw-browsers/chromium-1194/chrome-linux/chrome and
+FABRIC_JS pointing at the npm fabric.min.js.
+
+RESUME HERE:
+  0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (OPEN-ITEMS
+     §AF); the earlier RESUME items stand.
+  1. `stepsFlow-pp06-35`'s number onto its band (§AF 1).
+
+## 2026-10-03 — the headline is the hero (DESIGN-LAW 116)
+
+(claude/relaxed-darwin-8aces4.)
+
+The owner, over the first before-and-after of rule 115, at stepsFlow-du01-20's
+one-word "iPHONE": "How many times do I have to tell you this is not a hero.
+It's tiny little text that looks extremely out of place compared to every
+other graphic seriously????"
+
+Found:
+  - I put a card with a caption-sized headline into a sheet meant to show
+    finished work, because the sheet was about the gaps and I looked only at
+    the gaps. A before-and-after shows the whole card; every card on it has
+    to be one I would ship.
+  - The gate passes it: 'thumb' reads font size (77px and up passes), and
+    104px of an extra-condensed face on one short word is small. Coverage of
+    the letters is the measure the owner's eye uses: 99k px² for the median
+    live card, 15k for du01-20.
+  - The first fit broke three ways, each caught only by looking: a row's
+    number badge pushed out of its card by the layout making room, a headline
+    jammed against the grade's 10, a second line across a slab label's edge
+    (no percentile of the ground can see a one-row border; the row and column
+    medians can). On the live run it dropped the product out of three Glass
+    Cards, which every number passed. Every constraint in the script is one
+    of those pictures.
+
+RESUME HERE:
+  0. Merge `claude/relaxed-darwin-8aces4` to `main` and deploy (§AF, §AG).
+  1. The four Glass Cards' headline and product (§AG 1), with the owner.
+## 2026-10-04 — real photographs of the goods
+
+(claude/trusting-ride-cfpk9o, then `main`.)
+
+The owner, of the fanned trading-card photographs: "go ahead and remove",
+then "replace everything and please use images of real things. People buy.
+This is like so classic AI slop … It's a placeholder at very best."
+
+Found:
+  - 87 offered cards stood on photographs the studio generated and 37 on
+    drawn placeholders; only 89 of 288 on real photographs. Fifteen of the
+    nineteen sports photographs were the same three card fans.
+  - My first answer moved the sports cards onto four other sports photographs
+    from the same generated set. It looked like progress and was the same
+    thing; the owner's next message said so. Read the complaint for its
+    class, not its instance.
+  - Commons search is a poor stock library: of 81 photographs fetched for the
+    thin categories, 6 were usable. Sports cards and Pokémon return trade
+    cards from the 1800s and tournament crowds. Unsplash, Pexels, Openverse
+    and Flickr are blocked by the cloud network policy.
+  - The gate passes a card whose ground is a flat black field: three cards
+    on the slabbed Morgan photograph passed every line and looked like a
+    blank card. I blamed the wrong photograph first; check which file a bad
+    card actually stands on before excluding one.
+  - The hand-built templates borrow their photograph from the pool of the
+    designer and street templates, so redirecting one set moves them; a
+    shade table keyed by src skips a row whose photograph changed, so
+    restoring old rows does nothing.
+
+Did: DESIGN-LAW 117, OPEN-ITEMS §AH.
+## 2026-10-02 (evening) — the phone mark joins the number; two car cards finished
+
+(claude/beautiful-wozniak-xmvvuk, from `main` at de8d35de.)
+
+The owner sent two car cards from the live site: "The Phone icon by the CTA
+looks super out of place and we could always color match it ... the white box
+should be color match to blue or the CTA should be matched to white ... needs
+a background image", then "Same thing with this one", then asked for a list of
+why cards look unfinished, whether they need to supply photographs, and for a
+quick view where their own edits could teach the generator.
+
+Found:
+  - Both cards had been held on `main` that morning for exactly this (no
+    photograph). The live site predates the hold. Check holds.json and the
+    deploy's commit before treating a screenshot as the product.
+  - One remark about one icon was a library-wide defect: the phone mark was
+    coloured and placed for the number as it stood at generation, and every
+    later pass moved the number and not the mark (60 of 60 shown in the wrong
+    colour). Measure the remark across the library before fixing the card.
+  - `ICONS[name] || ICONS.sparkle` hides missing art: 55 phone marks and 265
+    other marks on 148 live cards drew as a star. A fallback that draws
+    something is a defect generator; the gate cannot see it.
+  - A pass that tracks "did the visitor move this" by comparing positions is
+    fooled by the next pass that moves it. The designer's own
+    `object:modified` is the signal.
+  - A grown box exactly as wide as it must be fails a strict comparison by a
+    float: one card lost its mark to that.
+
+Tools: the cloud session cannot reach cdnjs; `npm i fabric@5.3.0
+puppeteer-core` in the scratchpad, `node_modules` linked into the repo
+(gitignored), and FABRIC_JS / CHROME=/opt/pw-browsers/chromium run every
+harness script.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0): the owner is reviewing a site that is
+     behind it.
+  1. The sparkle stand-ins (OPEN-ITEMS §AI 2): map, draw or drop the 31
+     missing mark names, sheet for the owner, gate.
+  2. Photographs for the 63 drawn-ground holds (§AI 1); sports, coins, gold
+     and silver need the owner's photographs first.
+  3. The owner's review view (§AI, proposed), if the owner wants it.
+
+## 2026-10-03 — the generator's marks; marks clear of the headline; 39 cards back with a photograph
+
+(claude/beautiful-wozniak-xmvvuk.)
+
+The owner: "keep working on the style", after the list of why a card looks
+unfinished (OPEN-ITEMS §AI).
+
+Found:
+  - The 265 sparkles were not missing art. retheme_lab.mjs draws its own 46
+    marks into the page it renders with; app.js never had 44 of them. Before
+    drawing a mark, look for the one the generator already drew.
+  - Restoring the right glyphs made a second problem visible: the layout
+    passes had moved headlines up to the floating marks the generator had
+    set 118px out. A fallback that draws something hides more than one
+    defect.
+  - A dollar sign or a tick reads as a letter beside a headline at any
+    distance. Distance is not the rule for a glyph-like mark; the row is.
+  - "Gate passes" is not "finished". All 39 photograph cards passed the gate
+    first time; seven still had a white strip beside a coloured box, found
+    by looking.
+  - A record's CTA ink is not what is drawn (the passes repaint it): choose
+    a new line's ink by contrast on its own plate, not by copying a field.
+  - Two of the studio's passes disagreed with the gate about the number's
+    middle (numberFill: inside the guides; the gate: the band as seen), and
+    25 cards were out of Easy Mode for it. numberCentreY already said what
+    both meant; it was used for restaged records only. Rule 121: 23 cards
+    back in Easy Mode, and the measure of which renders it changes (22, all
+    on the two layouts) is what kept its every-choice re-run to 26 cards.
+  - `pkill -f <pattern>` from a shell whose own command line holds the
+    pattern kills that shell (twice). Find processes by /proc cmdline under
+    `pgrep -x node`.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0).
+  1. The owner's photographs: sports (8 held), and one or two each for coins,
+     gold, silver (§AJ 1).
+  2. slabPoster's panel (§AJ 2) and the 2 trustSeal cards whose band cannot
+     grow under their copy (§AJ 3).
+  3. A thumbnail redraw re-encodes every webp; compare pixels and keep only
+     the ones that changed (10 of 971 here) rather than committing 971.
+  4. The owner's review view (§AI), if wanted.
+
+## 2026-10-04 — photographs from Wikimedia Commons; 17 more cards back
+
+(claude/beautiful-wozniak-xmvvuk.)
+
+The owner: "get imagery using the session with allowed cloud environments".
+
+Found:
+  - The one environment's network reaches Wikimedia Commons and nothing
+    else that serves photographs (Openverse, Pexels, Unsplash, Pixabay and
+    Flickr: 403 at the proxy). Probe the hosts before planning around them.
+  - Commons search answers a query about objects with museum pieces on
+    white: a flat card again. Scenes (a glove, a ball in grass, a stadium at
+    night) made better grounds than the objects themselves.
+  - A photograph over 2048 x 2048 pixels of area comes out black on a
+    showcase card, and the gate passes it (white words on black read well).
+    Measure a card's brightness after changing its ground, not only its
+    gate.
+
+RESUME HERE:
+  0. Deploy `main` (OPEN-ITEMS §Z 0) once this branch is merged into it.
+  1. The slabPoster panel (§AJ 2) and stepsFlow-du09-35's photograph (§AK 1).
+  2. The 28 holds for layout (§AK 2).
+  3. The owner's review view (§AI), if wanted.
+
+## 2026-10-05 — five sessions stopped at the weekly limit, landed
+
+(claude/zen-dijkstra-bmaw67, from `main` 9040dcb9, then `main`.)
+
+The owner, over screenshots of five sessions that had all stopped at the
+weekly limit mid-task: "read all of these conversations see where we left
+off and push and commit all of the rest of the changes make sure everything
+lands", then "push and commit all new design changes".
+
+Studied: where each session stopped, from its screenshot and its branch (the
+transcripts were not reachable from here), and every branch `main` did not
+have (OPEN-ITEMS §AM).
+
+Learned:
+  - A session that stops at its limit loses what it had not pushed. Three of
+    the five had finished edits uncommitted (the held-base fix, the dark
+    band, the classifier) and one had a day of photograph picks (80 cars, 15
+    sports cards) on its disk only. Commit at each step, not at the end.
+  - A base's flag leaks into its cards. scRegister builds a card as
+    Object.assign(base, record), so `gated` on a base held every card built
+    on it: 102 live cards stood on a held base, and each opened the first
+    card on offer instead. A card is gated:false now; it is held by its own
+    stamps.
+  - A measurement taken on a branch is that branch's. trusting-ride re-
+    grounded 89 cards and kept their old colour stamps: drawn on the merged
+    code, one (ticketStub-du07-15) measured 0.038 and left the site. Every
+    stamp is measured again after a merge, never merged as data.
+  - Two branches can add one file name with two photographs in it
+    (silver-silver-tea-set-2.jpg). Git calls it a conflict only because the
+    bytes differ; look at both before keeping either.
+  - Rule numbers collide every time two sessions add a rule the same day:
+    112 was written by four branches. The number is decided when it lands.
+
+Changed: the merges, the four finished edits, ticketStub-du07-15 and two
+held cards on real photographs, `.modal-actions` wraps, the library drawn
+again (366 cards, their full-size ads), the classics gate, the every-choice
+holds, ASSET_REV 20261005a; OPEN-ITEMS §AM; AGENT-BRIEF landmine 6.
+
+Measured, on the merged build in a cloud container (fabric 5.3.0 served
+locally, Chromium 1194):
+  - verify_showcase: 364 of 364 live cards pass the gate, 0 errors, 0 page
+    errors; then 366 with the cards re-grounded. The classics gate: 53 held,
+    the same 53 as trusting-ride's.
+  - The library drawn again: 364 thumbnails, colour measured, 366 full-size
+    ads (6 pruned), library_api_check passes through the real function;
+    ASSET_REV 20261005a.
+  - every_card_audit --dims base over 660 cards: 14 held as offered (one
+    newly), 32 released by beautiful-wozniak confirmed.
+  - composition_audit: 81 of 362 fail after the repairs (main 45 of 291 on
+    the same machine); steps_rhythm_audit 83 cards, 0 failing.
+  - designer_audit: the four measured cards pass but cars_kbb's blocking
+    after the editor opens (2.9 to 3.7s; main 2.4 to 2.8s, same machine).
+  - ez_theme_audit, in full: no problems over 19 cards x 21 themes.
+  - colour_builder_audit --sets-only, every set and 1,803 tweaks: all pass.
+    cvd_audit.py: the same output as main (two themes fail under simulation,
+    one before it, as on main).
+  - video_photo_check (studio and maker), motion_phone_check (every phone,
+    the last 2 degrees in 0.05 degree steps): all pass. The music port:
+    motion_sound_check, motion_music_check, motion_export_check pass.
+  - landing_check at 390 and 1440: no errors, no failed requests, no
+    overflow; every pop-up's buttons inside a 390px screen; the motion,
+    Look Book, pick and admin pages open without an error.
+
+Rejected: merging claude/sharp-maxwell-q2aq4o's c228696d whole (a second
+phone renderer the owner's later notes went against; its iPhone 17 refit is
+ported); merging claude/vigilant-wozniak-kyyy7b without the owner (52 themes
+against the colour builder: their call, §AM 2); a full every-choice sweep
+without --ids (it starts from an empty table, so a run of one dimension
+empties the others, and a classic the table holds is left out of its
+population, so its hold would be dropped unmeasured).
+
+RESUME HERE:
+  0. Deploy `main` from the Mac to both Netlify projects (AGENT-BRIEF,
+     Deploying); this session cannot reach Netlify.
+  1. The owner's call on claude/vigilant-wozniak-kyyy7b (§AM 2).
+  2. The car and sports picks, from a session that can reach Commons (§AM 1).
+
 
 ## 2026-10-05 — the SaaS side, measured against the offer, the model and the market
 
@@ -3084,7 +3590,7 @@ the Netlify function is documented now with every env var), the checkout
 return racing the webhook ("You are now on the Free plan" after paying;
 it now waits up to twelve seconds, then says Pro is switching on), and
 promotion codes on Stripe Checkout for the discounts the landing promises.
-Wrote `docs/SAAS-AUDIT-2026-10-05.md` and OPEN-ITEMS §AF.
+Wrote `docs/SAAS-AUDIT-2026-10-05.md` and OPEN-ITEMS §AN.
 
 Learned:
   - The one variable cost is the AI background: about $0.034 an image on
@@ -3115,10 +3621,26 @@ pages (no other change to them).
 Not done: nothing deployed (this session cannot reach Netlify); the work is
 on `claude/elegant-bohr-ee3nwp`, not `main`.
 
+**2026-10-06, continued.** The owner: "push and commit all changes and make
+sure the secondary color engine / color configurator is finally live."
+Merged `main` (86d08619: the five landed sessions, the real photographs,
+the music) into this branch; the two logs conflicted as appends and keep
+both sides, the SaaS section renumbered §AN (main had taken AF to AM). The
+colour builder (rule 112) is on `main` with its tabs on the landing, and
+§AM's audit passed every set and 1,803 tweaks; what it is not is deployed:
+api.netlify.com and every *.netlify.app answer 403 at this container's
+proxy, so nothing here can deploy or even read the live site. Added
+`.github/workflows/deploy.yml`, which deploys every push to `main` once
+`NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` are repository secrets; it does
+nothing until then. The branch is pushed and holds all of `main`; it is not
+on `main` (that push needs the owner's word).
+
 RESUME HERE:
-  0. Merge `main` in, run the checks, put this on `main`, deploy from the
-     Mac (AGENT-BRIEF, Deploying).
-  1. The owner's decisions in OPEN-ITEMS §AF, 1 to 4: the AI caps (one
+  0. Deploy `main` to both Netlify projects: from the Mac (AGENT-BRIEF,
+     Deploying), or add the two GitHub secrets and let
+     `.github/workflows/deploy.yml` do it on every push to `main`. This
+     session cannot reach Netlify.
+  1. The owner's decisions in OPEN-ITEMS §AN, 1 to 4: the AI caps (one
      command), the annual price, Stripe on with test keys, the video maker.
-  2. Then the earlier items: re-sweep the choice holds (§AE 6), the muddy
-     floor on rule 104's plate ink (§AE 2).
+  2. The entry above's list: the owner's call on
+     claude/vigilant-wozniak-kyyy7b (§AM 2), the car and sports picks (§AM 1).

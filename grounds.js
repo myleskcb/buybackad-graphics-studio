@@ -124,6 +124,7 @@
     const q = parse(s); if (!q) return null;
     const c = document.createElement('canvas');
     if (q.type === 'ground'){
+      if (!K[q.kind] && /^scene/.test(q.kind)) return null;     // a video maker's scene not registered yet: nothing cached in its place
       const n = size || 1620, k = n / 1080; c.width = c.height = n;
       const g = c.getContext('2d'); g.scale(k, k);
       draw(q.kind, scaledCtx(g, k), 1080, 1080, q.P, q.seed);
@@ -136,5 +137,13 @@
     overlay(q.kind, g, w / k, h / k, q.tone);
     return c;
   }
-  window.GROUNDS = { list, draw, kinds: Object.keys(K), overlay, overlays, src, overlaySrc, parse, canvasFor };
+  /* More kinds from elsewhere (the video maker's scenes, motion/photo-grounds.js):
+     a key of letters only (parse() reads [A-Za-z]+), drawn like the rest. */
+  const kinds = Object.keys(K);
+  function register(key, def){
+    if (!/^[A-Za-z]+$/.test(key) || K[key] || !def || typeof def.draw !== 'function') return false;
+    K[key] = def; kinds.push(key); list.push({ key, name: def.name, note: def.note || '', group: def.group || null });
+    return true;
+  }
+  window.GROUNDS = { list, draw, kinds, overlay, overlays, src, overlaySrc, parse, canvasFor, register };
 })();
