@@ -3642,6 +3642,183 @@ RESUME HERE:
      live site, save one ad, open 📚 Library → Copy link, and hand the link
      plus the README prompt to the iPhones LA session.
 
+## 2026-10-05 — the SaaS side, measured against the offer, the model and the market
+
+(claude/elegant-bohr-ee3nwp.)
+
+The owner: "make sure the saas side of things make sense with current model
+and offerings, and is worth the cost and make us enough, use market
+research."
+
+Did: read every plan number out of the function, the browser, the landing,
+about, terms and the category pages, and counted the offered cards (311
+live; 85 free, 27%). The two PLANS tables agree with every surface. Fixed
+what did not: the FAQ's "Video ads don't count" (the studio's video export
+goes through gateExport and recordExport, so it is one download; only the
+video maker's are free), the README's Cloudflare Worker backend (retired;
+the Netlify function is documented now with every env var), the checkout
+return racing the webhook ("You are now on the Free plan" after paying;
+it now waits up to twelve seconds, then says Pro is switching on), and
+promotion codes on Stripe Checkout for the discounts the landing promises.
+Wrote `docs/SAAS-AUDIT-2026-10-05.md` and OPEN-ITEMS §AN.
+
+Learned:
+  - The one variable cost is the AI background: about $0.034 an image on
+    Gemini 3.1 Flash Lite Image (not in the free tier), $0.03 on fal. At
+    the function's default caps a Pro account can spend $40.80 a month
+    against $14.16 net of Stripe, a free account $10.20, the site $408.
+    Three env vars bound it (2 / 8 / 120 a day); a monthly allowance is
+    the better product shape.
+  - $15 a month is the top of the 2026 range for a single-niche tool (Canva
+    Pro about $15 annual / $18 monthly, Kittl $15, Placeit $14.95,
+    PosterMyWall $13, VistaCreate $10, Adobe Express $9.99) and the only
+    one without an annual price; every comparable sells annual at about a
+    third off.
+  - Freemium converts at a median 8% across 200 products (2026 survey), a
+    quarter under 2.5%; niche self-serve sits at 3 to 6%. At that rate and
+    $15 the product is hundreds to low thousands a month until the free
+    base is in the tens of thousands; the levers are Stripe on, annual,
+    the partner channel, the BUSINESSES tier.
+  - Google's, Netlify's and Canva's own pages were unreachable from this
+    container's proxy; the prices are from third-party write-ups and the
+    audit says which. Confirm the model price on ai.google.dev before
+    quoting it to anyone.
+
+Checked: `node --check` on app.js and api.mjs; `scripts/build_seo_pages.mjs`
+rebuilt the ld-faq JSON-LD from the visible FAQ and the eight category
+pages (no other change to them).
+
+Not done: nothing deployed (this session cannot reach Netlify); the work is
+on `claude/elegant-bohr-ee3nwp`, not `main`.
+
+**2026-10-06, continued.** The owner: "push and commit all changes and make
+sure the secondary color engine / color configurator is finally live."
+Merged `main` (86d08619: the five landed sessions, the real photographs,
+the music) into this branch; the two logs conflicted as appends and keep
+both sides, the SaaS section renumbered §AN (main had taken AF to AM). The
+colour builder (rule 112) is on `main` with its tabs on the landing, and
+§AM's audit passed every set and 1,803 tweaks; what it is not is deployed:
+api.netlify.com and every *.netlify.app answer 403 at this container's
+proxy, so nothing here can deploy or even read the live site. Added
+`.github/workflows/deploy.yml`, which deploys every push to `main` once
+`NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` are repository secrets; it does
+nothing until then. The branch is pushed and holds all of `main`; it is not
+on `main` (that push needs the owner's word).
+
+RESUME HERE:
+  0. Deploy `main` to both Netlify projects: from the Mac (AGENT-BRIEF,
+     Deploying), or add the two GitHub secrets and let
+     `.github/workflows/deploy.yml` do it on every push to `main`. This
+     session cannot reach Netlify.
+  1. The owner's decisions in OPEN-ITEMS §AN, 1 to 4: the AI caps (one
+     command), the annual price, Stripe on with test keys, the video maker.
+  2. The entry above's list: the owner's call on
+     claude/vigilant-wozniak-kyyy7b (§AM 2), the car and sports picks (§AM 1).
+
+
+## 2026-10-05 — one colour vocabulary: the themes are the library's twelve (rule 123)
+
+(claude/busy-keller-i7qfrf, from `main` at 9040dcb9.)
+
+The owner: "Audit all themes after we make our master library make sure they
+follow all rules, don't contradict overlap or use wrong design language.
+make it cohesive and complete so they feel like ads we made from
+professional gfx designers."
+
+Found (a new check, scripts/theme_cohesion_audit.mjs, run first on the tree
+as it stood): the product spoke four colour vocabularies. The library's 311
+cards, the landing's Ready-made tab and the colour builder used rule 103's
+twelve pairings; Easy Mode and the designer offered 21 themes of their own
+under the names rule 103 retired ("Blue Market", "Gold Offer", "Hot
+Sale"): 17 of them with no small-print colour, three with a brown or olive
+colour under the muddy floor, six with an accent outside its named band (a
+lavender, three salmons), three named for a plant or a food, and internal
+words in the chip's title ("GFX Grammar", "iOS Flat"); cvd_audit.py graded
+ten themes that existed nowhere ("Teal x Coral") and failed on them; the
+choice holds were keyed by the 21 names. 93 problems on the tree as it
+stood.
+
+Did:
+  - COLOR_THEMES is the twelve, each solved by the colour builder's own
+    solver in its ready-made look (scripts/house_themes.mjs --write; the
+    small print a shade of the bright colour's family, so a card comes out
+    navy and gold under Navy & Gold, not navy and pale blue), with `aka`
+    carrying the 21 retired names (ezThemeByName reads them: drafts and
+    projects reopen in the nearest theme). Chip titles show the name and
+    the look (Dark, Light), nothing internal.
+  - cvd_audit.py reads the live set and holds text, bright colour and small
+    print on both stops under four kinds of sight; audit_theme_grammar.mjs
+    holds every theme to its four roles; the browser audits that name a
+    light and a dark theme take Silver & Blue and Black & Green.
+  - every_card_audit.mjs --dims or --ids updates only what it measured (a
+    themes-only sweep used to write an empty looks and voices table).
+  - The offer family's sand look: its rust accent is navy at the same
+    luminance (sand and navy, not sand and brown); its eight cards pass
+    audit_templates.mjs before and after, the same warnings.
+  - The FAQ's colour answer names the twelve and the builder, in the visible
+    answer and the JSON-LD; CSP hashes recomputed.
+  - Rule 123, the brief, the README, OPEN-ITEMS §AO.
+
+Checked: theme_cohesion_audit 0 problems once the holds were swept (631
+cards, 7,572 theme renders, 1.9% held: 143 pairs on 21 cards; 29 cards held
+as offered; the sweep lost its last four cards to a container restart and
+finished them with --resume);
+cvd_audit.py 12/12; theme_law.mjs 12/12; audit_theme_grammar.mjs 12/12;
+colour_builder_audit --sets-only all pass (12 of 12 ready-made pairs from
+both colours, 1,804 tweaks); landing_check clean at 390 and 1440;
+ez_theme_audit --quick no problems, no page errors; three cards looked at
+under four themes each (the pale-blue small print that made Navy & Gold
+read as navy and white was seen here, and is why the small print takes the
+bright colour's family).
+
+Not done: the video maker's 165 palettes keep their own names (34 food,
+drink or flower names; OPEN-ITEMS §AO 1). Not deployed: this session's
+network cannot reach Netlify.
+
+RESUME HERE:
+  0. Merge `main` in (another session may have moved it), run the checks,
+     put this on `main`; deploy from the Mac (AGENT-BRIEF, Deploying).
+  1. The video maker's palettes (OPEN-ITEMS §AO 1): rule 103's language for
+     motion/catalog.js and motion/themes.js, with its own measured audit.
+  2. Light ready-made sets in the colour row, if the owner wants them
+     (§AO 3): solved the same way in the builder's Light look.
+  3. A full re-sweep of the holds (looks and voices too) on the merged
+     build: `every_card_audit.mjs --write-holds` (hours; `--resume`).
+
+## 2026-10-06 — the library's media carries its dates (rule 111, continued)
+
+(claude/busy-keller-i7qfrf.)
+
+The owner: "make sure our library is clean and cohesive when it ships off to
+iPhones LA to identify the media by creation / upload dates."
+
+Found: no date reached iPhones LA. The render index had a day the API never
+passed on; the JPEGs had no EXIF (a browser canvas writes none). The records
+themselves were cohesive (every ad a "Palette · Layout" title, a category, a
+theme of the twelve, a layout, a subject).
+
+Did: three dates out of git on every render (created: the record's first
+commit; updated: the record's or thumbnail's last; rendered: when the
+picture was drawn), in the index and inside each JPEG as EXIF
+(scripts/_jpeg_exif.mjs, read back by the check, ImageMagick and Pillow);
+the API carries them with ?since= and ?sort=, Last-Modified and `latest`;
+the client, picker, tests and README on the iPhones LA side carry them
+(tiles dated, newest first, a File named for the ad and its upload day);
+the zip repacked; the two checks extended. The clone was shallow and would
+have dated every old card at its first commit: git fetch --unshallow first,
+and the render script now refuses a shallow clone.
+
+Checked: library_api_check.mjs no failures (unit and through the real
+function); library_handoff_check.mjs no failures (13 Python tests, the
+listing page in Chromium); the listing page looked at with its dated tiles.
+
+RESUME HERE:
+  0. Merge `main` in, run the checks, put this on `main`; deploy from the Mac
+     (the API's ?v= links all changed once, with the EXIF).
+  1. The video maker's palettes (OPEN-ITEMS §AO 1) are still a vocabulary of
+     their own.
+  2. A full re-sweep of the holds (looks and voices too): every_card_audit
+     --write-holds (hours; --resume).
 ## 2026-10-06 — the library link reaches iPhones LA by itself
 
 The owner, over "give that link to the iPhones LA session": "why can't it
@@ -3670,6 +3847,64 @@ RESUME HERE:
      "The link arrives by itself"); sent to its session on the owner's Mac.
   1. Deploy main (the session on the owner's Mac is doing it).
 
+## 2026-10-06 — a star on every ad, video ads in the library, accounts from the front door (claude/laughing-bardeen-uyh2xt)
+
+The owner: "allow account creation so I can download content, upload to
+library properly", "make sure every ad has an option to add to library",
+"video ads photo ads all need a star button which will send to library".
+
+Found:
+  - The ad library of 2026-10-05 (`ad-library.js`, `/api/ads/*`) offered a
+    save only after a download, and took pictures only.
+  - `bindSaasUI()` (the landing's Sign up free and Log in, the auth dialog's
+    tabs and its Create account button, `loadAccount`) ran only from
+    `bindEasyUI()`, so from the landing page a visitor could not create an
+    account at all: the buttons were dead until the studio had been opened.
+    The dialog also always opened on Sign in.
+  - The video maker and the master library have no app.js, so no account:
+    nothing there could save to a library.
+  - The site's CSP (`default-src 'self'`, no `media-src`) keeps a <video>
+    from playing a blob: URL. A clip's size is read off its file (the MP4's
+    tkhd box, a WebM's PixelWidth and PixelHeight) instead.
+  - The video helper's pop-up ("Video saved, with a catch") sits over the
+    page after a video download; a "save it" card under it cannot be
+    pressed, so the card waits until the pop-up closes.
+  - Easy Mode draws its strip again as photographs land, so an element held
+    across a save is stale: read a star back by its ref.
+  - fabric 5.3.1 is not on npm (5.3.0 is); `npm install --no-save` of one
+    package removes the others, so install them together.
+
+Did: the video on a library item (begin/part/done/remove, the public clip by
+range, kind/source/video on the feed, media:content in the RSS); account.js;
+bindSaasUI at boot and Create account first; ad-library.js rewritten on the
+same bones (stars on every card through wraps of scCard, scClassicCard,
+buildEzStrip, buildPickerGrid, refreshMyTemplates, edBuildLibrary,
+openHistory; Save to library and Save as video under the preview and in the
+export; deliverVideo wrapped for the capture and the after-download offer;
+videos in parts; the dialog's video badge and links; styles for the pages
+without styles.css); the video maker's makeVideo, saveLook and stars; the
+master library's video playback and stars; BuybackadFeed.video and the
+worker's post(..., video=); README, OPEN-ITEMS, the handoff zip.
+
+Checked:
+  - ad_library_check.mjs (routes, videos in parts, the real function, the
+    worker with the clip, Chromium under the production CSP: an account from
+    the landing, every star, the saves, Save as video, the after-download
+    offer, the video maker signed out and in, the master library): no
+    failures. tests-iphonesla-link.mjs 64 of 64; test_autopost.py 8 of 8.
+  - library_api_check.mjs, library_handoff_check.mjs, landing_check.mjs
+    (390 and 1440: no errors, no overflow), motion_export_check.mjs (the
+    refactored download: 300 frames at 30 fps, sound, no CSP violation),
+    video_photo_check.mjs (the studio and the maker, every format): no
+    failures.
+
+RESUME HERE:
+  0. Merge this branch to `main` and deploy `main` from the Mac (AGENT-BRIEF,
+     Deploying); this session cannot reach Netlify. On the live site: create
+     an account from the landing page, press a star, open 📚 Library, save a
+     video from the video maker.
+  1. Hand iPhones LA the updated handoff zip (docs/iphonesla-library.zip):
+     post(ad, jpeg, repost, video=None) takes the clip.
 ## 2026-10-06 — the photo-real phone finish, by hand, inside rule 114 (claude/photo-real-phone-finish)
 
 The owner, of the photo-real phones left out of `main` the day before: "this
@@ -3714,8 +3949,8 @@ Found:
 Changed: motion/engine.js (`softboxes`, `slabOf`, `glassAndRim`,
 `offsetPoly`, the contact shadow, the side poses), motion/catalog.js and
 motion/app.js (Phone finish; side on), scripts/motion_finish_check.mjs (new),
-scripts/motion_phone_check.mjs (`--finish`, `--poses`); DESIGN-LAW 123;
-OPEN-ITEMS §AN.
+scripts/motion_phone_check.mjs (`--finish`, `--poses`); DESIGN-LAW 124;
+OPEN-ITEMS §AR.
 
 Rejected: merging c228696d (its light went lighter than the body: +0.22 and
 +0.16 shades down the band, a white catch-light at 0.6); its leaned angles
@@ -3723,11 +3958,12 @@ Rejected: merging c228696d (its light went lighter than the body: +0.22 and
 a random weight for photo-real (the owner's rule: by hand).
 
 RESUME HERE:
-  0. The owner's look at the screenshots, then merge
-     `claude/photo-real-phone-finish` into `main` (merge `main` in first and
-     run motion_phone_check with and without `--finish photo`,
-     motion_finish_check and the seed pixel diff).
-  1. video_photo_check's motion 1:1 case on a quiet machine (§AN 2).
+  0. `main` has this branch to 886e507e (merged by another session as rule
+     124, §AR). Merge the rest (3c5e6032 on: the shutter-moment saving and
+     the final numbers), after the owner's look at the screenshots; run
+     motion_phone_check with and without `--finish photo`,
+     motion_finish_check and the seed pixel diff.
+  1. video_photo_check's motion 1:1 case on a quiet machine (§AR 2).
   2. A leaned face that passes the coming-flat test, if the owner wants hero
-     three-quarter or leaning back (§AN 1).
+     three-quarter or leaning back (§AR 1).
   3. Deploy `main` from the Mac (AGENT-BRIEF, Deploying).

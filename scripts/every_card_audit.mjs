@@ -200,7 +200,7 @@ const RUNNER = () => {
       }
       if (has('combos')){
         res.combos = {};
-        for (const th of ['Gold Offer', 'Cash Green']){
+        for (const th of ['Silver & Blue', 'Black & Green']){   // a light theme and a dark one (rule 123)
           const b = chip(th); if (!b) continue; b.click();
           const t0 = measure(false);
           for (const k of LOOKS){
@@ -225,6 +225,7 @@ await offline(pp);
 await pp.goto(BASE, { waitUntil: 'load', timeout: 180000 });
 await new Promise(r => setTimeout(r, 2500));
 const classics = await pp.evaluate(() => TEMPLATES.filter(t => !/^sc-/.test(t.id) && !t.gated).map(t => t.id));
+const themeNames = await pp.evaluate(() => COLOR_THEMES.map(t => t.name));   // the themes the studio offers (rule 123)
 await probe.close();
 const idx = JSON.parse(readFileSync(new URL('../assets/showcase/index.json', import.meta.url), 'utf8'));
 const library = idx.filter(live).map(c => c.id);
@@ -301,7 +302,11 @@ writeFileSync(OUT.replace(/\/?$/, '/') + 'summary.json', JSON.stringify({ cards:
 if (process.argv.includes('--write-holds')){
   const FILE = new URL('../assets/choice-holds.json', import.meta.url).pathname;
   let prev = null; try { prev = JSON.parse(readFileSync(FILE, 'utf8')); } catch (e){}
-  const holds = argv('--ids') && prev ? prev : { about: '', cards: {}, themes: {}, looks: {}, voices: {} };
+  /* a run over some cards (--ids) or some choices (--dims) updates only what
+     it measured; the rest of the table stands (a themes-only sweep used to
+     write an empty looks and voices table) */
+  const partial = !!argv('--ids') || !['themes', 'looks', 'voices'].every(d => DIMS.has(d));
+  const holds = partial && prev ? prev : { about: '', cards: {}, themes: {}, looks: {}, voices: {} };
   holds.about = 'Cards and choices that fail on the render a visitor gets (scripts/every_card_audit.mjs --write-holds). A card under cards is not offered; a theme, look or voice under a card is off on that card, and says why. DESIGN-LAW rule 101.';
   holds.date = new Date().toISOString().slice(0, 10);
   /* the reason, as the chip's title tells a visitor */
@@ -339,6 +344,12 @@ if (process.argv.includes('--write-holds')){
       if (bad.length) holds[dim][r.card] = Object.assign(only ? (holds[dim][r.card] || {}) : {}, Object.fromEntries(bad.map(([k, v]) => [k, why(v)])));
     });
   }
+  /* a card the studio no longer offers has no chips to hold, and a theme it
+     no longer offers (rule 123: the names changed) cannot be held by name:
+     a partial run left 17 unoffered cards holding 168 retired theme names */
+  const offered = new Set(classics.concat(library));
+  for (const tbl of ['cards', 'themes', 'looks', 'voices']) Object.keys(holds[tbl]).forEach(c => { if (!offered.has(c)) delete holds[tbl][c]; });
+  Object.keys(holds.themes).forEach(c => { Object.keys(holds.themes[c]).forEach(k => { if (!themeNames.includes(k)) delete holds.themes[c][k]; }); if (!Object.keys(holds.themes[c]).length) delete holds.themes[c]; });
   writeFileSync(FILE, JSON.stringify(holds, null, 0));
   console.log('wrote assets/choice-holds.json: cards ' + Object.keys(holds.cards).length + ', ' + ['themes', 'looks', 'voices'].map(d => d + ' ' + Object.values(holds[d]).reduce((n, o) => n + Object.keys(o).length, 0)).join(', '));
 }

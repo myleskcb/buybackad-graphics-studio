@@ -160,8 +160,8 @@ git merge-base --is-ancestor origin/main <newest-branch> && echo "main is behind
 ```
 
 If `main` is behind the newest integration branch, start from that branch and
-say so. Screenshot the landing before you touch it: the violet Template Lab page
-is current; a warm orange one is August.
+say so. Screenshot the landing before you touch it: the violet landing is
+current; a warm orange one is August.
 
 **The newest branch is not always what is live either.** On 2026-09-29 three
 heads had diverged (`claude/vibrant-lovelace-rze4rx`, the trunk;
@@ -211,7 +211,9 @@ two showed different products. Deploy the same `main` commit to both, or
 retire one; the lasting fix is to link one project to this repository's
 `main` in Netlify (Project configuration, Build & deploy, Link repository;
 publish directory `.`) so that every push to `main` deploys and nobody deploys
-by hand. The cloud sessions cannot reach Netlify (their network policy denies
+by hand. `.github/workflows/deploy.yml` (2026-10-06) is that fix in GitHub's
+hands: it deploys every push to `main` once the repository secrets
+`NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` exist, and does nothing before. The cloud sessions cannot reach Netlify (their network policy denies
 `*.netlify.app` and `api.netlify.com`). The connector's deploy-site does not
 deploy by itself: it returns an `npx @netlify/mcp --site-id … --proxy-path
 https://netlify-mcp.netlify.app/proxy/…` command, which zips the working
@@ -483,6 +485,19 @@ produced." DESIGN-LAW rule 87. In practice:
   assets/bg-web with their credits (`scripts/fetch_backdrops.mjs`), are
   looked at before use, and reach cards through
   `scripts/reground_showcase.mjs` and templates through `BG_REAL` in app.js.
+- **One colour vocabulary** (rule 123, 2026-10-05): the colour themes Easy
+  Mode and the designer offer (`COLOR_THEMES`) are rule 103's twelve
+  pairings, under the library's names, each solved by the colour builder
+  (`node scripts/house_themes.mjs --write`; never edit a colour in the
+  array by hand). `aka` on a theme lists the retired names drafts were
+  saved in. `node scripts/theme_cohesion_audit.mjs` is the check that the
+  vocabulary is one (themes, palettes, the builder's ready-made sets, the
+  live cards, the choice holds) and that each theme keeps the law; run it
+  with `cvd_audit.py` and `theme_law.mjs` before a commit that touches a
+  theme, a palette or the builder, and sweep the holds again
+  (`every_card_audit.mjs --dims themes --write-holds`) after the set
+  changes. The video maker's palettes are a vocabulary of their own still
+  (OPEN-ITEMS §AO).
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
 - **A stack keeps one rhythm to its call to action** (rule 115, 2026-10-02):

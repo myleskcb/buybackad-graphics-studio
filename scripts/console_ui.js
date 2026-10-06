@@ -31,7 +31,7 @@ const save = () => { try { localStorage.setItem(STORE, JSON.stringify(
 
 /* live config, including the direct palette/type choices the old console lacked */
 const conf = () => ({ ...S.cfg, palette: S.palette, pair: S.pair, brand: S.brand,
-  embedFonts: false, assetBase: '../', allowPlaceholder: true });   // the live view is a template; export is not
+  embedFonts: false, assetBase: '../../', allowPlaceholder: true });   // the live view is a template; export is not
 
 /* ── chrome ─────────────────────────────────────────────────────────────── */
 function segment(host, items, get, set) {
@@ -436,7 +436,7 @@ async function exportAll() {
   /* the exported SVG embeds its own fonts and absolute asset URLs so it opens
      anywhere, unlike the one on screen which leans on this page */
   const solo = render(S.arch, S.seed, S.vertical, S.size,
-    { ...conf(), embedFonts: true, assetBase: new URL('../', location.href).href });
+    { ...conf(), embedFonts: true, assetBase: new URL('../../', location.href).href });
   download(stem + '.svg', solo.svg, 'image/svg+xml');
   download(stem + '.json', JSON.stringify(record(r), null, 2), 'application/json');
   const all = Object.entries(S.grades);

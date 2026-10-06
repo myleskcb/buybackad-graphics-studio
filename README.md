@@ -1,41 +1,76 @@
 # BUYBACK.AD — deploy guide
 
-## Frontend (2 minutes)
-Drag this whole folder onto https://app.netlify.com/drop. Done.
-With `config.js` left empty the app runs in **demo mode**: sign-up/sign-in,
-plans, simulated checkout, the 3/week free limit, 1080p cap and watermark all
-work in-browser so you can test the entire flow today.
+## Frontend
+Deploy a clean checkout of `main` with the Netlify CLI (AGENT-BRIEF.md,
+"Deploying": draft first, look, then `--prod`). A local copy
+(`python3 -m http.server 8899`) opened as `http://localhost:8899/?demo=1` runs
+in **demo mode**: sign-up, plans, a simulated checkout, the 3-a-week free
+limit, the 1080 cap and the watermark all work in the browser, so the whole
+flow can be clicked through without a backend. `?demo=0` turns it off.
 
-## Backend — real accounts, real limits, real Stripe (~15 minutes)
-1. **Cloudflare** → Workers & Pages → Create Worker → paste `backend/worker.js`.
-2. Worker → Settings → **Bindings** → add KV namespace, variable name `USERS`.
-3. Worker → Settings → **Variables & secrets**:
-   - Secret `JWT_SECRET` — any long random string
-   - Secret `STRIPE_SECRET` — from Stripe → Developers → API keys (sk_live_… / sk_test_…)
-   - Secret `STRIPE_WEBHOOK_SECRET` — created in step 5 (whsec_…)
-   - Var `PRICE_PRO` — from step 4
-   - Var `SITE_URL` — your Netlify URL, e.g. https://buybackad.netlify.app
-4. **Stripe** → Product catalog → create the product “Pro $15/mo”
-   (recurring). Copy its **price id** (price_…) into step 3.
-5. Stripe → Developers → **Webhooks** → Add endpoint:
-   `https://YOUR-WORKER.workers.dev/stripe-webhook`, events
-   `checkout.session.completed` and `customer.subscription.deleted`.
-   Copy the signing secret into `STRIPE_WEBHOOK_SECRET`.
-6. Edit `config.js`: set `window.PGFX_API` to your worker URL. Redeploy the folder.
+Or let GitHub deploy: `.github/workflows/deploy.yml` runs the same command on
+every push to `main` once the repository secrets `NETLIFY_AUTH_TOKEN` and
+`NETLIFY_SITE_ID` exist (`NETLIFY_SITE_ID_2` for the second project). Until
+then it does nothing, and the Mac deploy stands.
 
-That’s the full loop: sign-up → Stripe-hosted checkout → webhook flips the plan
-→ limits/watermark enforced **server-side** (browser tricks can’t bypass them).
+## Backend — real accounts, real limits, real Stripe
+One Netlify Function deployed with the site, `netlify/functions/api.mjs`,
+answers at `/api/*` (`config.js` derives the path from where the app is
+served). Accounts, download counts and the daily counters live in Netlify
+Blobs (store `pgfx-users`). The Cloudflare Worker at `worker.js` is the
+retired first version: not deployed, 404'd at the edge, kept for history.
 
-## Plan rules (change in ONE place each side)
-`PLANS` at the top of `app.js` (labels/pricing shown in UI) and of
-`backend/worker.js` (the enforced truth):
-Free = 3/week, 1080px, watermark, 20 templates · Pro = 100/month, 2160px, all 50+ templates.
+Set these in Netlify (Project configuration → Environment variables), then
+redeploy. `.env.example` is the local copy for `netlify dev`.
+
+| variable | what it does |
+|---|---|
+| `JWT_SECRET` | required; any long random string, signs the sign-in tokens |
+| `ADMIN_EMAILS` | comma-separated operator emails: no caps, no watermark, the admin tools |
+| `GEMINI_KEY` | AI backgrounds (Gemini 3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it). `FAL_KEY` is the Seedream fallback. With neither, the button says the feature is not enabled yet |
+| `RL_USER_DAILY` / `RL_PRO_DAILY` / `RL_GLOBAL_DAILY` | AI backgrounds a day for a Free account, a Pro account and the whole site (defaults 10 / 40 / 400). **The only per-use cost in the product**, about $0.034 an image: read `docs/SAAS-AUDIT-2026-10-05.md` before raising them |
+| `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, `PRICE_PRO`, `SITE_URL` | billing, below. Until all four are set, Go Pro says "Pro checkout is not open yet" and nothing is charged |
+| `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button |
+| `LIBRARY_KEYS`, `LIBRARY_DAILY` | the partner library API, below |
+
+Stripe, once:
+1. Product catalog → product "Pro", recurring, $15 a month. Its price id
+   (`price_…`) goes in `PRICE_PRO`. (An annual price is a second Stripe
+   price and a small code change: OPEN-ITEMS §AN 2.)
+2. Developers → Webhooks → endpoint `https://<your site>/api/stripe-webhook`,
+   events `checkout.session.completed` and `customer.subscription.deleted`.
+   Its signing secret (`whsec_…`) goes in `STRIPE_WEBHOOK_SECRET`.
+3. `SITE_URL` is the site's own origin (Stripe sends people back to it).
+4. Discounts for partners and creators (the landing's partnership section)
+   are Stripe promotion codes: Checkout shows a code field, so a code made in
+   Stripe → Coupons needs no code change.
+
+That is the loop: sign-up → Stripe-hosted checkout → webhook flips the plan →
+the function counts every download and tells the browser the plan's size cap
+and watermark. The count is enforced server-side; the size cap and the
+watermark are applied by the browser (OPEN-ITEMS §AN 5).
+
+## Plan rules (change in ONE place each side, and the copy)
+`PLANS` in the SaaS section of `app.js` (what the UI shows) and at the top of
+`netlify/functions/api.mjs` (the enforced truth). The same numbers are written
+out in `index.html` (#pricing, the FAQ, the sign-up chooser), `about.html`,
+`terms.html` and `COMMON_FAQ` in `scripts/build_seo_pages.mjs`; run that
+script after editing the FAQ, it rebuilds the ld-faq JSON-LD and the category
+pages.
+
+Free = 3 downloads a week, 1080 px on the short side, BUYBACK.AD watermark,
+every Phones design plus the top 3 of each other category (85 of the 311 cards
+offered on 2026-10-05) · Pro = $15 a month, 100 downloads a month, 2160 px, no
+watermark, every design, the QR code layer. A download is an image, or a video
+with its photo, from the studio, counted once, re-downloads included. The phone
+video maker at `/motion` is free, needs no account and counts nothing. AI
+backgrounds are on both plans under the daily caps above.
 
 ## Notes
 - Test first with Stripe **test keys** + card 4242 4242 4242 4242.
 - No email verification / password reset in this MVP — add before wide launch.
-- AI background generation is separate (⚙ in the Backgrounds tab) and unrelated
-  to these keys.
+- The money side, measured against the market and the model's price:
+  `docs/SAAS-AUDIT-2026-10-05.md`.
 
 ## Formats
 **Square 1:1 is the format the ads are designed for; Tall 3:4 comes second and
@@ -80,6 +115,16 @@ production CSP and decodes the files), `scripts/motion_gallery.mjs` +
 exercised in this repo's test container (its Chromium has no H.264 encoder):
 export one clip from Chrome or Safari before announcing it.
 
+## Colour sets
+One vocabulary (DESIGN-LAW rule 123): the twelve colour sets the library's
+cards are made in (Navy & Gold, Navy & Orange, Midnight & Cyan, Blue & Green,
+Green & Gold, Purple & Gold, Teal & Orange, Red & Yellow, Black & Gold, Black
+& Red, Black & Green, Silver & Blue) are the colour themes Easy Mode and the
+designer offer, the landing's Ready-made tab, and the builder's ready-made
+sets. Each theme is solved by the colour builder (`scripts/house_themes.mjs
+--write` prints them into `app.js`); `scripts/theme_cohesion_audit.mjs`,
+`scripts/cvd_audit.py` and `scripts/theme_law.mjs` check them.
+
 ## Library API (iPhones LA) — optional
 
 `/api/library/v1` hands the library's ads (the 311 finished cards the site
@@ -87,7 +132,12 @@ offers, each rendered at 1080x1080 into `assets/library-ads/` by
 `scripts/render_library_ads.mjs`) to a partner's server, behind a key: set
 `LIBRARY_KEYS` (`name:key` pairs, keys of 32 characters or more) in the
 Netlify environment. Without it the route answers 503 and nothing else
-changes. `?card=<id>` opens an ad in the studio. The other side, for iPhones
+changes. `?card=<id>` opens an ad in the studio. Every ad carries its dates
+(`created`, `updated`, `uploaded`, ISO 8601 UTC, read out of git by the
+render script and written into each JPEG's EXIF), and the ads route takes
+`?since=` and `?sort=newest|oldest` on them; after any change to the
+library run `render_library_ads.mjs --stamp` (or `--stale`, which stamps
+too) from a full clone, never a shallow one. The other side, for iPhones
 LA's listing page, is `docs/iphonesla-library.zip` (the folder
 `docs/iphonesla-library/`: a Python client, the server routes, the picker, a
 paste-ready prompt). After the library's thumbnails are drawn again, run
@@ -123,9 +173,42 @@ Caps: free 12 ads, Pro 300, operators 2000 (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`,
 saved ads, and **Finished designs**, every card the studio offers, read from
 this deploy (`assets/showcase/`, the full-size renders in
 `assets/library-ads/`), so whatever the latest build re-drew is what it shows.
-Check: `scripts/ad_library_check.mjs` (routes, the real function, iPhones LA's
-worker over HTTP, and the studio and page in Chromium under the production
-CSP; `FABRIC_JS=…` when cdnjs is out of reach).
+
+**The ★ on every ad** (owner, 2026-10-06: "every ad has an option to add to
+library", "video ads photo ads all need a star button"). Every card carries a
+star: the landing's gallery, Easy Mode's strip, the picker, the designer's
+Templates panel, the download history, the master library's finished
+designs, and every look in the video maker. A star on a design draws it as it
+would download, with the brand kit's number and website on it, through the
+same gate, at the plan's size and watermark, and counts it as a download
+(operators are not counted); the star fills once the ad is in the library.
+Under the Easy Mode preview and in the designer's export, **⭐ Save to
+library** saves the ad as made and **⭐🎬 Save as video** makes the studio's
+10-second video and saves it with its photo instead of downloading it. After
+a video download the save card offers the video ad too. In the video maker
+(`/motion`), **⭐ Save to library** beside Download MP4 and the star on each
+gallery look make that look, with its photo, and send both. A video ad on
+the feed carries `video` (MP4 where the browser could write one, WebM
+otherwise) beside `image`, served by link and by byte range; the RSS carries
+it as a second `media:content`. iPhones LA's worker hands the clip to a
+`post()` that takes a `video` argument. Videos go up in raw parts under a
+request's 6 MB (`/api/ads/video/begin`, `part`, `done`), 40 MB at most.
+
+**Accounts from every door.** Until 2026-10-06 the landing page's Sign up
+free, Log in and the dialog's Create account button did nothing until the
+studio had been opened (they were bound with Easy Mode): a visitor could
+not create an account from the front door. They work from the landing now;
+the dialog opens on **Create account** for a device that has never signed in
+and on Sign in after that. `account.js` carries the account (create, sign
+in, the same session token) to the pages without `app.js`: the video maker
+and the master library each open a dialog of their own when a star is
+pressed signed out, and the save follows the sign-in.
+
+Check: `scripts/ad_library_check.mjs` (routes, videos in parts, the real
+function, iPhones LA's worker over HTTP, and the studio, the video maker and
+the page in Chromium under the production CSP: the stars, an account from
+the landing, a video saved from each; `FABRIC_JS=…` when cdnjs is out of
+reach).
 
 ## SCANS.AD (ScanMap) integration — optional
 Graphics Studio runs 100% standalone. The integration is also **invisible to

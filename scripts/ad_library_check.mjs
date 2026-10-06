@@ -10,16 +10,34 @@
       link answers JSON (CORS, noindex), RSS that parses, and each picture byte
       for byte; a held ad never auto-posts and cannot be switched on; slots
       come due on the schedule (a poster that keeps slot ids posts once a slot,
-      and again when the next comes due); a reset link stops answering.
+      and again when the next comes due); a reset link stops answering. A
+      video on an ad: begin, parts of the stated size, done joins and checks
+      them (the hash, the container); it is served byte for byte and by
+      range, named on the feed (kind, ?kind=) and in the RSS; a damaged
+      upload leaves the ad as it was; removed with the video or with the ad.
    2. The real function (netlify/functions/api.mjs) with a stand-in
-      @netlify/blobs: sign up, save, read the public link through it; the
-      library key route and /me still answer as before.
+      @netlify/blobs: sign up, save, a video in parts, read the public link
+      through it; the library key route and /me still answer as before.
    3. In Chromium, the studio and the page, under the production CSP: an Easy
       Mode download offers "Save to library"; saved, it is in the Library
       dialog and on the public link (a free account's watermarked ad held from
       auto-post, an admin's set to post); master-library.html shows the public
       library at ?feed= and the finished designs (every offered card); no
-      sideways scroll at 390 px.
+      sideways scroll at 390 px. The stars (2026-10-06): an account is
+      created from the landing page, the dialog opening on Create account for
+      a new device; every card in the landing gallery, the Easy Mode strip,
+      the picker, the Templates panel and the download history carries a
+      star; a strip star saves the design at the plan's size, counted as a
+      download, a free account's held for its watermark; Save to library
+      under the preview and in the designer's export save the ad as made;
+      Save as video makes the studio's video and saves it with its photo,
+      served by range on the link; a video download offers the save once the
+      helper's pop-up is closed. The video maker: a signed-out star opens
+      Create account and the save follows the sign-up; every gallery look has
+      a star; the Library link opens the dialog there. The master library:
+      a saved video ad plays, every finished design has a star, a star saves
+      the render (held for the website on it), signed out it asks for an
+      account at 390 px.
 
    usage:  node scripts/ad_library_check.mjs [--no-browser]
            FABRIC_JS=/path/fabric.min.js for part 3 when cdnjs is out of reach
@@ -35,7 +53,7 @@ import { join, extname } from 'node:path';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const NO_BROWSER = process.argv.includes('--no-browser');
-const { adLibraryRoute, slotOf, jpegSize, ownerKey } = await import(pathToFileURL(join(ROOT, 'netlify/lib/adlibrary.mjs')).href);
+const { adLibraryRoute, slotOf, jpegSize, ownerKey, PART_BYTES, videoHeader } = await import(pathToFileURL(join(ROOT, 'netlify/lib/adlibrary.mjs')).href);
 const bad = [];
 const ok = (cond, what) => { if (!cond) bad.push(what); return cond; };
 const sha256 = (b) => createHash('sha256').update(b).digest('hex');
@@ -56,6 +74,9 @@ const resized = (b, w, h) => {      // the same JPEG, its frame header saying an
 };
 ok(jpegSize(J[0]) && jpegSize(J[0]).w === 1080 && jpegSize(J[0]).h === 1080, 'jpegSize reads a 1080 render');
 ok(jpegSize(Buffer.from('89504e470d0a1a0a', 'hex')) === null, 'jpegSize refuses a PNG');
+/* a video fixture: bytes that open as an MP4 (ftyp at 4), the rest a pattern */
+const mp4 = (n) => { const b = Buffer.alloc(n); b.set([0, 0, 0, 0x18, 0x66, 0x74, 0x79, 0x70, 0x69, 0x73, 0x6f, 0x6d]); for (let i = 12; i < n; i++) b[i] = (i * 7919 + (i >> 8)) & 255; return b; };
+ok(videoHeader(mp4(64)) === 'mp4' && videoHeader(Buffer.from('1a45dfa3a3428286', 'hex')) === 'webm' && videoHeader(J[0]) === null, 'videoHeader tells an MP4, a WebM and a JPEG apart');
 
 /* ---------- 1. the router ---------- */
 function memStore() {
@@ -87,16 +108,18 @@ const deps = (over) => Object.assign({
 async function call(method, path, opts) {
   opts = opts || {};
   const url = new URL(ORIGIN + '/api' + path);
-  const headers = {};
+  const headers = Object.assign({}, opts.headers || {});
   if (opts.as) headers.Authorization = 'Bearer ' + opts.as;
   if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
-  const req = new Request(url, { method, headers, body: opts.body === undefined ? undefined : (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body)) });
+  if (opts.raw !== undefined) headers['Content-Type'] = 'application/octet-stream';
+  const body = opts.raw !== undefined ? opts.raw : opts.body === undefined ? undefined : (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body));
+  const req = new Request(url, { method, headers, body });
   const p = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
   const res = await adLibraryRoute(req, url, p, opts.env || env, deps(opts.deps));
   if (!res) return null;
   const type = res.headers.get('content-type') || '';
   const raw = method === 'HEAD' ? null : Buffer.from(await res.arrayBuffer());
-  return { status: res.status, headers: res.headers, raw, body: raw && type.includes('json') ? JSON.parse(raw.toString('utf8')) : null, text: raw && !type.includes('image') ? raw.toString('utf8') : null };
+  return { status: res.status, headers: res.headers, raw, body: raw && type.includes('json') ? JSON.parse(raw.toString('utf8')) : null, text: raw && !type.includes('image') && !type.includes('video') ? raw.toString('utf8') : null };
 }
 const pathOf = (u) => new URL(u).pathname.replace(/^\/api/, '') + new URL(u).search;
 
@@ -218,6 +241,80 @@ ok((await call('GET', '/ads/feed/' + feedId)).status === 404 && (await call('GET
 r = await call('GET', '/ads/feed/' + newFeed);
 ok(r.status === 200 && r.body.count === 3 && (await call('GET', pathOf(r.body.items.find((x) => x.id === A.id).image.url))).status === 200, 'reset: the new link has the same ads and pictures');
 
+/* a video on an ad */
+const V = mp4(PART_BYTES * 2 + 12345);      // three parts: two full, one short
+const vsha = sha256(V);
+const begin = (body, as) => call('POST', '/ads/video/begin', { as: as || 'free@x.example', body });
+const part = (id, n, bytes, as) => call('POST', '/ads/video/part?id=' + id + '&n=' + n, { as: as || 'free@x.example', raw: bytes });
+const done = (id, as) => call('POST', '/ads/video/done', { as: as || 'free@x.example', body: { id } });
+const sendAll = async (id, bytes, as) => { const n = Math.ceil(bytes.length / PART_BYTES); for (let i = 0; i < n; i++) { const pr = await part(id, i, bytes.subarray(i * PART_BYTES, (i + 1) * PART_BYTES), as); if (pr.status !== 200) return pr; } return done(id, as); };
+ok((await begin({ id: A.id, format: 'avi', bytes: V.length, w: 1080, h: 1080, sha256: vsha })).status === 400, 'video: only MP4 or WebM');
+ok((await begin({ id: A.id, format: 'mp4', bytes: 50 * 1024 * 1024, w: 1080, h: 1080, sha256: vsha })).status === 413, 'video: over 40 MB is 413');
+ok((await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 100, h: 100, sha256: vsha })).status === 400, 'video: under 320 px is 400');
+ok((await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: 'nope' })).status === 400, 'video: the hash is required');
+ok((await begin({ id: 'ad_nothere1', format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: vsha })).status === 404, 'video: an unknown ad is 404');
+ok((await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: vsha }, 'pro@x.example')).status === 404, 'video: another account\'s ad is not yours');
+ok((await part(A.id, 0, V.subarray(0, PART_BYTES))).status === 409, 'video: a part before begin is 409');
+r = await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, seconds: 10, sha256: vsha });
+ok(r.status === 201 && r.body.part_bytes === PART_BYTES && r.body.count === 3, 'video: begin says the part size and the count (' + r.status + ')');
+ok((await done(A.id)).status === 409, 'video: done before the parts is 409');
+ok((await part(A.id, 3, V.subarray(0, 10))).status === 400, 'video: a part past the count is 400');
+ok((await part(A.id, 0, V.subarray(0, 100))).status === 400, 'video: a part of the wrong size is 400');
+ok((await part(A.id, 0, V.subarray(0, PART_BYTES), 'pro@x.example')).status === 404, 'video: a part on another account\'s ad is 404');
+for (let i = 0; i < 3; i++) { const pr = await part(A.id, i, V.subarray(i * PART_BYTES, (i + 1) * PART_BYTES)); ok(pr.status === 200 && pr.body.have === i + 1 && pr.body.count === 3, 'video: part ' + i + ' lands (' + pr.status + ')'); }
+r = await done(A.id);
+const AV = r.body && r.body.item;
+ok(r.status === 201 && AV && AV.kind === 'video' && AV.video && AV.video.bytes === V.length && AV.video.format === 'mp4' && AV.video.seconds === 10 && AV.video.width === 1080 && AV.video.url === ORIGIN + '/api/ads/feed/' + newFeed + '/video/' + A.id + '.mp4?v=' + vsha.slice(0, 12), 'video: done joins the parts and the ad is a video ad (' + r.status + ' ' + JSON.stringify(r.body).slice(0, 160) + ')');
+ok(AV && AV.image && AV.image.url && AV.title === 'Renamed', 'video: the photo and the words stay as they were');
+ok(![...store.m.keys()].some((k) => k.startsWith('vp:') || k.startsWith('vu:')), 'video: the parts and the upload record are gone once joined');
+ok((await done(A.id)).status === 409, 'video: done twice is 409');
+r = await call('GET', pathOf(AV.video.url));
+ok(r.status === 200 && r.headers.get('content-type') === 'video/mp4' && Buffer.compare(r.raw, V) === 0 && r.headers.get('accept-ranges') === 'bytes' && r.headers.get('cache-control') === 'public, max-age=86400' && r.headers.get('access-control-allow-origin') === '*', 'video: the public link serves it byte for byte, cached a day, CORS');
+ok((await call('GET', pathOf(AV.video.url).replace(/\?v=.*/, ''))).headers.get('cache-control') === 'public, max-age=300', 'video: an unversioned link caches five minutes');
+r = await call('HEAD', pathOf(AV.video.url));
+ok(r.status === 200 && r.headers.get('content-length') === String(V.length), 'video: HEAD answers its length');
+r = await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.mp4', { headers: { Range: 'bytes=10-19' } });
+ok(r.status === 206 && r.raw.length === 10 && Buffer.compare(r.raw, V.subarray(10, 20)) === 0 && r.headers.get('content-range') === 'bytes 10-19/' + V.length && r.headers.get('content-length') === '10', 'video: a byte range answers 206');
+r = await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.mp4', { headers: { Range: 'bytes=' + (V.length - 5) + '-' } });
+ok(r.status === 206 && r.raw.length === 5 && Buffer.compare(r.raw, V.subarray(V.length - 5)) === 0, 'video: an open-ended range answers the tail');
+ok((await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.mp4', { headers: { Range: 'bytes=' + V.length + '-' } })).status === 416, 'video: a range past the end is 416');
+ok((await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.webm')).status === 404, 'video: the other extension is 404');
+ok((await call('GET', '/ads/feed/' + newFeed + '/video/ad_nothere1.mp4')).status === 404, 'video: an unknown ad is 404');
+r = await call('GET', '/ads/feed/' + newFeed);
+ok(r.body.items.find((x) => x.id === A.id).kind === 'video' && r.body.items.filter((x) => x.kind === 'photo').length === 2 && r.body.items.every((x) => 'video' in x && 'source' in x), 'feed: kind, video and source on every ad');
+ok((await call('GET', '/ads/feed/' + newFeed + '?kind=video')).body.items.map((x) => x.id).join() === A.id && (await call('GET', '/ads/feed/' + newFeed + '?kind=photo')).body.items.length === 2, 'feed: ?kind= filters');
+ok(!JSON.stringify(r.body).includes(vsha), 'feed: the video\'s full hash is not in it');
+r = await call('GET', '/ads/feed/' + newFeed + '.rss');
+ok(r.status === 200 && rssCheck(r.text) && r.text.includes('<media:content url="' + AV.video.url.replace(/&/g, '&amp;') + '" type="video/mp4" medium="video" width="1080" height="1080" duration="10"/>') && r.text.includes('<enclosure url="' + AV.image.url.replace(/&/g, '&amp;') + '"'), 'rss: the video rides as media:content beside the picture\'s enclosure');
+/* a damaged upload leaves the ad as it was */
+r = await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: sha256(mp4(100)) });
+r = await sendAll(A.id, V);
+ok(r.status === 400 && /damaged/.test(r.body.error) && (await call('GET', pathOf(AV.video.url))).status === 200, 'video: a hash that differs is refused and the old video stays');
+r = await begin({ id: A.id, format: 'webm', bytes: V.length, w: 1080, h: 1080, sha256: vsha });
+r = await sendAll(A.id, V);
+ok(r.status === 400 && /WebM/.test(r.body.error), 'video: MP4 bytes sent as WebM are refused');
+ok(![...store.m.keys()].some((k) => k.startsWith('vp:') || k.startsWith('vu:')), 'video: a refused upload leaves no parts behind');
+/* a shorter video replaces it, one part */
+const V2 = mp4(4321);
+r = await begin({ id: A.id, format: 'mp4', bytes: V2.length, w: 1080, h: 1350, seconds: 6, sha256: sha256(V2) });
+ok(r.status === 201 && r.body.count === 1, 'video: a short clip is one part');
+r = await sendAll(A.id, V2);
+ok(r.status === 201 && r.body.item.video.bytes === V2.length && r.body.item.video.height === 1350 && (await call('GET', pathOf(r.body.item.video.url))).status === 200 && (await call('GET', pathOf(AV.video.url))).status === 200 && Buffer.compare((await call('GET', pathOf(AV.video.url))).raw, V2) === 0, 'video: the new clip replaces the old one');
+/* remove the video, the ad stays a photo */
+r = await call('POST', '/ads/video/remove', { as: 'free@x.example', body: { id: A.id } });
+ok(r.status === 200 && r.body.item.kind === 'photo' && r.body.item.video === null && (await call('GET', pathOf(AV.video.url))).status === 404 && ![...store.m.keys()].some((k) => k.startsWith('v:')), 'video: removed, the ad is a photo ad again and the bytes are gone');
+ok((await call('POST', '/ads/video/remove', { as: 'free@x.example', body: { id: A.id } })).status === 404, 'video: removing twice is 404');
+/* an ad removed takes its video */
+r = await call('POST', '/ads/save', { as: 'pro@x.example', body: { image: dataUrl(J[2]), title: 'Pro video', source: 'motion' } });
+const PV = r.body.item;
+ok(r.status === 201 && PV.source === 'motion' && PV.kind === 'photo', 'save: the source is kept, a new ad is a photo ad');
+await begin({ id: PV.id, format: 'mp4', bytes: V2.length, w: 1080, h: 1080, sha256: sha256(V2) }, 'pro@x.example');
+r = await sendAll(PV.id, V2, 'pro@x.example');
+const proOwner = await ownerKey('pro@x.example');
+ok(r.status === 201 && [...store.m.keys()].some((k) => k === 'v:' + proOwner + ':' + PV.id), 'video: on another account\'s ad');
+await call('POST', '/ads/remove', { as: 'pro@x.example', body: { id: PV.id } });
+ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad takes its video with it');
+
 /* ---------- 2. the real function ---------- */
 {
   const T = join(tmpdir(), 'adlib-api-' + process.pid);
@@ -257,6 +354,18 @@ ok(r.status === 200 && r.body.count === 3 && (await call('GET', pathOf(r.body.it
   ok(fd.status === 200 && fd.json.items[0].id === sv.json.item.id, 'function: the public link answers without a sign-in');
   const img = await hit('GET', new URL(fd.json.items[0].image.url).pathname.replace(/^\/api/, ''));
   ok(img.status === 200 && Buffer.compare(img.raw, J[0]) === 0, 'function: the picture through the function, byte for byte');
+  const vb = mp4(PART_BYTES + 777), vs = sha256(vb);
+  const b1 = await hit('POST', '/ads/video/begin', { id: sv.json.item.id, format: 'mp4', bytes: vb.length, w: 1080, h: 1080, seconds: 10, sha256: vs }, su.json.token);
+  ok(b1.status === 201 && b1.json.count === 2, 'function: a video upload begins (' + b1.status + ')');
+  for (let i = 0; i < 2; i++) {
+    const res = await api(new Request('https://studio.example/api/ads/video/part?id=' + sv.json.item.id + '&n=' + i, { method: 'POST', headers: { Authorization: 'Bearer ' + su.json.token, 'Content-Type': 'application/octet-stream' }, body: vb.subarray(i * PART_BYTES, (i + 1) * PART_BYTES) }));
+    ok(res.status === 200, 'function: video part ' + i + ' (' + res.status + ')');
+  }
+  const dn = await hit('POST', '/ads/video/done', { id: sv.json.item.id }, su.json.token);
+  ok(dn.status === 201 && dn.json.item.kind === 'video' && dn.json.item.video.bytes === vb.length, 'function: the video is joined (' + dn.status + ')');
+  const vid = await hit('GET', new URL(dn.json.item.video.url).pathname.replace(/^\/api/, ''));
+  ok(vid.status === 200 && Buffer.compare(vid.raw, vb) === 0, 'function: the video through the function, byte for byte');
+  ok((await hit('GET', '/ads/feed/' + fid)).json.items[0].kind === 'video', 'function: the public link names it a video ad');
   ok((await hit('GET', '/me')).status === 401, 'function: /me still asks for a sign-in');
   ok((await hit('GET', '/library/v1')).status === 503, 'function: the partner library still answers first (no keys: 503)');
 
@@ -267,7 +376,7 @@ ok(r.status === 200 && r.body.count === 3 && (await call('GET', pathOf(r.body.it
   const HAND = join(ROOT, 'docs/iphonesla-library');
   const W = join(tmpdir(), 'adlib-worker-' + process.pid);
   rmSync(W, { recursive: true, force: true }); mkdirSync(W, { recursive: true });
-  writeFileSync(join(W, 'shop_post.py'), 'import json, os\ndef post(ad, jpeg, repost):\n    with open(os.path.join(os.path.dirname(__file__), "posted.jsonl"), "a") as f:\n        f.write(json.dumps({"id": ad["id"], "repost": repost, "bytes": len(jpeg), "jpeg": jpeg[:3] == bytes([255, 216, 255])}) + "\\n")\n    return "listing-1"\n');
+  writeFileSync(join(W, 'shop_post.py'), 'import json, os\ndef post(ad, jpeg, repost, video=None):\n    with open(os.path.join(os.path.dirname(__file__), "posted.jsonl"), "a") as f:\n        f.write(json.dumps({"id": ad["id"], "repost": repost, "kind": ad.get("kind"), "video": len(video) if video else None, "bytes": len(jpeg), "jpeg": jpeg[:3] == bytes([255, 216, 255])}) + "\\n")\n    return "listing-1"\n');
   const pageLink = mine.json.links.page.replace('https://studio.example', srv.base);
   let workerLog = '';
   const runWorker = () => new Promise((resolve) => {
@@ -281,6 +390,7 @@ ok(r.status === 200 && r.body.count === 3 && (await call('GET', pathOf(r.body.it
     if (!existsSync(join(W, 'posted.jsonl'))) throw new Error('nothing posted: ' + workerLog.slice(-400));
     const lines = readFileSync(join(W, 'posted.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
     ok(lines.length === 1 && lines[0].id === sv.json.item.id && !lines[0].repost && lines[0].jpeg && lines[0].bytes === J[0].length, 'worker: the due ad posted once, its JPEG whole (' + JSON.stringify(lines) + ')');
+    ok(lines.length === 1 && lines[0].kind === 'video' && lines[0].video === vb.length, 'worker: a video ad\'s clip reaches a post() that takes one, whole (' + JSON.stringify(lines) + ')');
     const st = JSON.parse(readFileSync(join(W, 'state.json'), 'utf8')).slots;
     ok(Object.keys(st).length === 1 && st[sv.json.item.post.slot_id] && st[sv.json.item.post.slot_id].ref === 'listing-1', 'worker: the slot and the listing id are kept');
   } catch (e) { ok(false, 'worker: ' + String(e.stderr || e.message).slice(0, 300)); }
@@ -498,6 +608,187 @@ async function browserPart() {
       ok(w.over <= 0 && w.page <= 0, 'browser: the Library dialog fits a phone (' + JSON.stringify(w) + ')');
       await page.context().close();
     } catch (e) { ok(false, 'browser: the master library: ' + String(e.message || e).split('\n')[0]); }
+
+    /* 3b. the stars: every ad has one, and it saves (owner, 2026-10-06);
+       an account from the landing page, Create account first */
+    try {
+      const page = await newPage();
+      await page.goto(BASE + '/index.html');
+      await page.waitForFunction(() => typeof window.showEasy === 'function' && window.adLibrary && window.pgfxAccount, null, { timeout: 30000 });
+      await page.waitForFunction(() => document.querySelectorAll('#lp-tpl-grid .tpl-card').length > 0, null, { timeout: 30000 });
+      await page.waitForTimeout(600);
+      const lp = await page.evaluate(() => ({ cards: document.querySelectorAll('#lp-tpl-grid .tpl-card').length, stars: document.querySelectorAll('#lp-tpl-grid .tpl-card .adl-star').length }));
+      ok(lp.cards > 0 && lp.stars === lp.cards, 'stars: every card in the landing gallery (' + JSON.stringify(lp) + ')');
+      await page.click('#lp-signup');
+      await page.waitForSelector('#auth-overlay.show', { timeout: 5000 });
+      await page.evaluate(() => { document.getElementById('auth-overlay').classList.remove('show'); openAuth('Sign in to download'); });
+      const tab = await page.evaluate(() => ({ up: document.getElementById('auth-tab-up').classList.contains('active'), go: document.getElementById('auth-go').textContent }));
+      ok(tab.up && tab.go === 'Create account', 'account: a device that never signed in opens on Create account (' + JSON.stringify(tab) + ')');
+      await page.fill('#auth-email', 'star@studio.example'); await page.fill('#auth-pass', 'a-long-password');
+      await page.click('#auth-go');
+      await page.waitForFunction(() => document.getElementById('auth-type').style.display !== 'none', null, { timeout: 15000 }).catch(() => {});
+      await page.click('#at-free').catch(() => {});
+      await page.waitForFunction(() => { try { return !!account; } catch (e) { return false; } }, null, { timeout: 15000 }).catch(() => {});
+      const made = await page.evaluate(() => { try { return { email: account && account.email, seen: localStorage.getItem('pgfx_seen_account') }; } catch (e) { return null; } });
+      ok(made && made.email === 'star@studio.example' && made.seen === 'true', 'account: created from the landing page, before Easy Mode opened (' + JSON.stringify(made) + ')');
+      await page.evaluate(() => openAuth('again'));
+      ok(await page.evaluate(() => document.getElementById('auth-tab-in').classList.contains('active')), 'account: a device that has signed in opens on Sign in');
+      await page.evaluate(() => { document.getElementById('auth-overlay').classList.remove('show'); showEasy(null); });
+      await page.waitForTimeout(1500);
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      const strip = await page.evaluate(() => ({ tiles: document.querySelectorAll('#ez-strip .ez-tpl').length, stars: document.querySelectorAll('#ez-strip .ez-tpl .adl-star').length, buttons: !!document.getElementById('ez-star') && !!document.getElementById('ez-star-video') }));
+      ok(strip.tiles > 0 && strip.stars === strip.tiles && strip.buttons, 'stars: every look in the Easy Mode strip, and the two buttons under the preview (' + JSON.stringify(strip) + ')');
+      const st = await page.evaluate(async () => {
+        const before = account.exports ? account.exports.count : 0;
+        const stars = [...document.querySelectorAll('#ez-strip .ez-tpl .adl-star')];
+        const s = stars.find((x) => x.dataset.ref !== ez.tpl) || stars[0];
+        const ref = s.dataset.ref;
+        await adLibrary.saveDesign(ref);
+        adLibrary.paint();
+        const lib = adLibrary.state().lib, it = lib && lib.items.find((i) => i.template === ref);
+        /* the strip is drawn again as photographs land, so the star is read by its ref, not by the element held before */
+        const now = document.querySelector('#ez-strip .adl-star[data-ref="' + ref + '"]');
+        return { ref, on: !!now && now.classList.contains('on'), it: it && { kind: it.kind, w: it.image.width, hold: it.hold, source: it.source }, before, after: account.exports ? account.exports.count : 0 };
+      });
+      ok(st.it && st.it.kind === 'photo' && st.it.w === 1080 && st.on && st.after === st.before + 1, 'stars: a strip star saves the design at the plan\'s size, counted as a download, and the star fills (' + JSON.stringify(st) + ')');
+      ok(st.it && /watermark/.test(st.it.hold || ''), 'stars: a free account\'s saved design is held for its watermark (' + (st.it && st.it.hold) + ')');
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      // the rest as an operator, who has no cap
+      await page.evaluate(async () => { const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'boss@studio.example', password: 'a-long-password' }) }); localStorage.setItem('pgfx_token', JSON.stringify((await r.json()).token)); });
+      await page.goto(BASE + '/index.html');
+      await page.waitForFunction(() => typeof window.showEasy === 'function' && window.adLibrary, null, { timeout: 30000 });
+      await page.evaluate(() => showEasy(null));
+      await page.waitForFunction(() => { try { return !!account && account.role === 'admin'; } catch (e) { return false; } }, null, { timeout: 30000 });
+      await page.waitForFunction(() => adLibrary.state().lib, null, { timeout: 20000 });
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      const ez2 = await page.evaluate(async () => {
+        document.getElementById('ez-phone').value = '(562) 999-4994'; document.getElementById('ez-phone').dispatchEvent(new Event('input', { bubbles: true }));
+        await new Promise((r) => setTimeout(r, 400));
+        const before = adLibrary.state().lib.count;
+        const it = await adLibrary.saveEasy();
+        return { before, after: adLibrary.state().lib.count, it: it && { template: it.template, kind: it.kind, w: it.image.width }, tpl: ez.tpl, on: document.getElementById('ez-star').classList.contains('on') };
+      });
+      ok(ez2.it && ez2.after === ez2.before + 1 && ez2.it.template === ez2.tpl && ez2.on, 'stars: Save to library under the preview saves the ad as made (' + JSON.stringify(ez2) + ')');
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      const ed = await page.evaluate(async () => {
+        showEditor(); loadTemplate(firstFreeTplId());
+        await new Promise((r) => setTimeout(r, 1200));
+        document.getElementById('export-btn').click();
+        await new Promise((r) => setTimeout(r, 300));
+        const has = !!document.getElementById('ex-star') && !!document.getElementById('ex-star-video');
+        const before = adLibrary.state().lib.count;
+        const it = await adLibrary.saveEditor();
+        return { has, before, after: adLibrary.state().lib.count, it: !!it, closed: !document.getElementById('export-overlay').classList.contains('show') };
+      });
+      ok(ed.has && ed.it && ed.after === ed.before + 1 && ed.closed, 'stars: the designer\'s export saves the canvas to the library (' + JSON.stringify(ed) + ')');
+      const panel = await page.evaluate(async () => {
+        openPicker(); await new Promise((r) => setTimeout(r, 500));
+        const picker = { cards: document.querySelectorAll('#picker-grid .tpl-card').length, stars: document.querySelectorAll('#picker-grid .tpl-card .adl-star').length };
+        closePicker();
+        return { picker, builtin: document.querySelectorAll('#builtin-tpl-grid .mini-tpl').length, builtinStars: document.querySelectorAll('#builtin-tpl-grid .mini-tpl .adl-star').length, lib: document.querySelectorAll('#ed-lib-grid .mini-tpl').length, libStars: document.querySelectorAll('#ed-lib-grid .mini-tpl .adl-star').length };
+      });
+      ok(panel.picker.cards > 0 && panel.picker.stars === panel.picker.cards && panel.builtin > 0 && panel.builtinStars === panel.builtin && panel.libStars === panel.lib, 'stars: the picker and the Templates panel (' + JSON.stringify(panel) + ')');
+      const hist = await page.evaluate(async () => {
+        showEasy(null); await new Promise((r) => setTimeout(r, 800));
+        document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show'));
+        await ezDownload(true); await new Promise((r) => setTimeout(r, 1000));
+        document.querySelectorAll('.adl-ask').forEach((a) => a.remove());
+        await openHistory(); await new Promise((r) => setTimeout(r, 600));
+        return { rows: document.querySelectorAll('#hist-list .hist-row').length, stars: document.querySelectorAll('#hist-list .adl-hist').length };
+      });
+      ok(hist.rows > 0 && hist.stars === hist.rows, 'stars: every row of the download history (' + JSON.stringify(hist) + ')');
+      await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
+      await shot(page, 'stars-easy');
+      const vid = await page.evaluate(async () => {
+        const before = adLibrary.state().lib.count;
+        await adLibrary.saveVideoNow('ez');
+        await new Promise((r) => setTimeout(r, 300));
+        const lib = adLibrary.state().lib, top = lib.items[0];
+        return { before, after: lib.count, top: top && { kind: top.kind, video: top.video && { format: top.video.format, w: top.video.width, h: top.video.height, seconds: top.video.seconds, bytes: top.video.bytes, url: top.video.url } }, label: document.getElementById('ez-video').innerHTML };
+      });
+      ok(vid.top && vid.top.kind === 'video' && vid.top.video && vid.top.video.bytes > 10000 && vid.top.video.w === 1080 && vid.top.video.seconds === 10 && /Download as video/.test(vid.label), 'video: Save as video makes the studio\'s video and saves it with its photo (' + JSON.stringify(vid).slice(0, 300) + ')');
+      if (vid.top && vid.top.video) {
+        const pub = await page.evaluate(async (u) => { const r = await fetch(u, { headers: { Range: 'bytes=0-15' } }); return { status: r.status, type: r.headers.get('content-type'), range: r.headers.get('content-range') }; }, vid.top.video.url);
+        ok(pub.status === 206 && /^video\//.test(pub.type || '') && /^bytes 0-15\//.test(pub.range || ''), 'video: the public link serves the clip by range (' + JSON.stringify(pub) + ')');
+      }
+      const askV = await page.evaluate(async () => {
+        document.getElementById('ez-video').click();
+        const t0 = Date.now();
+        let popup = false;
+        while (Date.now() - t0 < 60000) {
+          await new Promise((r) => setTimeout(r, 400));
+          const vh = document.querySelector('.vh-back');
+          if (vh) { popup = true; await new Promise((r) => setTimeout(r, 1200)); if (document.querySelector('.adl-ask')) return { popup, early: true }; vh.remove(); }
+          if (document.querySelector('.adl-ask')) break;
+        }
+        const ask = document.querySelector('.adl-ask');
+        return { popup, early: false, asked: !!ask, video: !!(ask && /video ad/.test(ask.textContent)) };
+      });
+      ok(askV.asked && askV.video && !askV.early, 'video: a video download offers "Save to library" for the video ad, after the helper\'s pop-up (' + JSON.stringify(askV) + ')');
+      await page.click('#nav-adlib');
+      await page.waitForSelector('#adlib-overlay .adl-grid .adl-card', { timeout: 20000 });
+      await page.waitForTimeout(400);
+      const dlg = await page.evaluate(() => ({ kinds: document.querySelectorAll('#adlib-overlay .adl-kind').length, videoLinks: document.querySelectorAll('#adlib-overlay a.adl-x[download$=".webm"], #adlib-overlay a.adl-x[download$=".mp4"]').length }));
+      ok(dlg.kinds >= 1 && dlg.videoLinks >= 1, 'video: the Library dialog marks the video ad and links its clip (' + JSON.stringify(dlg) + ')');
+      await shot(page, 'stars-dialog');
+      await page.context().close();
+    } catch (e) { ok(false, 'stars: ' + String(e.message || e).split('\n')[0]); }
+
+    /* 3c. the video maker: a signed-out star asks for an account, the save follows */
+    try {
+      const page = await newPage();
+      await page.goto(BASE + '/motion/');
+      await page.waitForFunction(() => document.getElementById('loading').hidden && window.adLibrary && window.pgfxAccount, null, { timeout: 60000 });
+      await page.click('#mo-star');
+      await page.waitForSelector('#acct-overlay.show', { timeout: 10000 });
+      const au = await page.evaluate(() => ({ up: document.getElementById('acct-tab-up').getAttribute('aria-selected') === 'true', go: document.getElementById('acct-go').textContent }));
+      ok(au.up && au.go === 'Create account', 'video maker: a signed-out star asks for an account, Create account first (' + JSON.stringify(au) + ')');
+      await page.fill('#acct-email', 'maker@studio.example'); await page.fill('#acct-pass', 'a-long-password'); await page.click('#acct-go');
+      await page.waitForFunction(() => { const st = adLibrary.state(); return st.lib && st.lib.items.length === 1 && st.lib.items[0].video; }, null, { timeout: 180000 }).catch(() => {});
+      const saved = await page.evaluate(() => { const st = adLibrary.state(); const t = st.lib && st.lib.items[0]; return t && { kind: t.kind, template: t.template, source: t.source, seconds: t.video && t.video.seconds, w: t.video && t.video.width, photo: t.image.width, on: document.getElementById('mo-star').classList.contains('on') }; });
+      ok(saved && saved.kind === 'video' && /^motion-/.test(saved.template) && saved.source === 'motion' && saved.w === 1080 && saved.photo === 1440 && saved.on, 'video maker: after the sign-up the look is made and saved with its photo, the star fills (' + JSON.stringify(saved) + ')');
+      await page.evaluate(() => document.getElementById('looks').scrollIntoView());
+      await page.waitForFunction(() => document.querySelectorAll('#gallery .mo-thumb').length >= 4, null, { timeout: 60000 });
+      await page.waitForTimeout(600);
+      const gal = await page.evaluate(() => ({ thumbs: document.querySelectorAll('#gallery .mo-thumb').length, stars: document.querySelectorAll('#gallery .mo-thumb .adl-star').length }));
+      ok(gal.thumbs > 0 && gal.stars === gal.thumbs, 'video maker: every look in the gallery carries a star (' + JSON.stringify(gal) + ')');
+      await shot(page, 'maker-gallery');
+      await page.click('#mo-adlib');
+      await page.waitForSelector('#adlib-overlay.show .adl-card', { timeout: 20000 });
+      const mdlg = await page.evaluate(() => { const m = document.querySelector('#adlib-overlay .modal'); return { w: Math.round(m.getBoundingClientRect().width), bare: document.documentElement.classList.contains('adl-bare') }; });
+      ok(mdlg.w > 300 && mdlg.bare, 'video maker: the Library link opens the dialog, styled without the studio\'s stylesheet (' + JSON.stringify(mdlg) + ')');
+      await shot(page, 'maker-dialog');
+      await page.context().close();
+    } catch (e) { ok(false, 'video maker: ' + String(e.message || e).split('\n')[0]); }
+
+    /* 3d. the master library: the video ad plays, every finished design has a star */
+    try {
+      const page = await newPage();
+      await page.goto(BASE + '/index.html');
+      const token = await page.evaluate(async () => (await (await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'maker@studio.example', password: 'a-long-password' }) })).json()).token);
+      await page.evaluate((t) => localStorage.setItem('pgfx_token', JSON.stringify(t)), token);
+      await page.goto(BASE + '/master-library.html');
+      await page.waitForSelector('#grid-saved .ml-card', { timeout: 20000 });
+      const sv2 = await page.evaluate(() => { const c = document.querySelector('#grid-saved .ml-card'); return { video: !!c.querySelector('video source'), kind: (c.querySelector('.ml-kind') || {}).textContent, links: [...c.querySelectorAll('.ml-acts a')].map((a) => a.textContent).join() }; });
+      ok(sv2.video && /VIDEO/.test(sv2.kind || '') && sv2.links === 'Photo,Video', 'master library: a saved video ad plays, with its photo and clip to download (' + JSON.stringify(sv2) + ')');
+      await page.click('#tab-finished');
+      await page.waitForSelector('#grid-finished .ml-card .adl-star', { timeout: 20000 });
+      const fin = await page.evaluate(() => ({ cards: document.querySelectorAll('#grid-finished .ml-card').length, stars: document.querySelectorAll('#grid-finished .ml-card .adl-star').length }));
+      ok(fin.cards > 0 && fin.stars === fin.cards, 'master library: every finished design carries a star (' + JSON.stringify(fin) + ')');
+      const star = await page.evaluate(async () => { const s = document.querySelector('#grid-finished .ml-card .adl-star'); const ref = s.dataset.ref; s.click(); const t0 = Date.now(); while (Date.now() - t0 < 30000) { await new Promise((r) => setTimeout(r, 300)); const st = adLibrary.state(); if (st.lib && st.lib.items.some((i) => i.template === ref)) break; } const it = adLibrary.state().lib.items.find((i) => i.template === ref); return { on: s.classList.contains('on'), it: it && { hold: it.hold, source: it.source, w: it.image.width, texts: it.texts.length } }; });
+      ok(star.on && star.it && star.it.source === 'master' && star.it.w === 1080 && star.it.hold === 'a website' && star.it.texts > 0, 'master library: a star saves the full-size render, held from auto-post for the website on it (' + JSON.stringify(star) + ')');
+      await shot(page, 'master-stars');
+      await page.context().close();
+      const p2 = await newPage(390);
+      await p2.goto(BASE + '/master-library.html#finished');
+      await p2.waitForSelector('#grid-finished .ml-card .adl-star', { timeout: 20000 });
+      await p2.click('#grid-finished .ml-card .adl-star');
+      await p2.waitForSelector('#acct-overlay.show', { timeout: 10000 });
+      const so = await p2.evaluate(() => ({ up: document.getElementById('acct-tab-up').getAttribute('aria-selected') === 'true', wide: document.documentElement.scrollWidth - window.innerWidth }));
+      ok(so.up && so.wide <= 0, 'master library: signed out, a star opens Create account, inside a phone\'s width (' + JSON.stringify(so) + ')');
+      await shot(p2, 'master-auth-390');
+      await p2.context().close();
+    } catch (e) { ok(false, 'master library stars: ' + String(e.message || e).split('\n')[0]); }
   } catch (e) {
     ok(false, 'browser: ' + String(e.message || e).split('\n')[0]);
   } finally {

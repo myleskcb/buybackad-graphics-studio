@@ -4537,10 +4537,181 @@ circumstances".
   still white). 68 live cards carry the look as offered, and any card can
   take it in Easy Mode or the designer, so its rows in the choice table were
   measured again on every card (OPEN-ITEMS §AK).
+## 123. One colour vocabulary: the themes are the library's twelve pairings
 
-## 123. A photo-real phone is a finish chosen by hand, and its light obeys rule 114
+Added 2026-10-05 (written as 114 on claude/busy-keller-i7qfrf; numbered 123 when merged). The owner: "Audit all themes after we make our master
+library make sure they follow all rules, don't contradict overlap or use
+wrong design language. make it cohesive and complete so they feel like ads
+we made from professional gfx designers."
 
-Added 2026-10-06. The owner, asked whether the photo-real phone look for the
+**Measured first** (`scripts/theme_cohesion_audit.mjs`, written for this, on
+`main` at 9040dcb9). The product spoke four colour vocabularies at once:
+
+- The library's 311 cards were drawn in rule 103's twelve proven pairings,
+  and the landing's Ready-made tab and the colour builder named them so
+  (Navy & Gold, Black & Red...).
+- Easy Mode's and the designer's colour row (`COLOR_THEMES`) offered 21
+  themes of their own, built 2026-08-31 to 2026-09-26, under the names rule
+  103 had retired a week later ("Blue Market", "Orchid Payday", "Gold Offer",
+  "Hot Sale"): a visitor read "Navy & Gold" on the landing and "Blue Ticket"
+  in the studio, and none of the twelve was a theme. Measured on the 21
+  (rule 103's own `muddy()` and `namedBand()`): 17 carried no support colour
+  (rule 51 asks four jobs of a theme); three drew a colour under the muddy
+  floor (Gold Offer's accent `#904d03` and Hot Sale's support `#7a4210`,
+  brown; Mint Counter's accent `#325f01`, olive); six set an accent outside
+  the band where it reads as its name (Mint Market's `#cd92ff`, a lavender
+  above purple's band; Indigo Cash's `#fe7f78`, Deep Red's `#ff6b57` and
+  Electric Trust's `#ff6a55`, salmons above red's; the two muddy accents
+  under theirs); three were named for a plant or a food (Mint Market, Mint
+  Counter, Orchid Payday); every one wore an internal family word in the
+  chip's title ("GFX Grammar", "iOS Flat", "Candy", "Cool Air"; rule 113) and
+  four an internal intent. The audit counted 93 problems on the tree as it
+  stood (the 21 themes, the vocabulary and the aka lines together).
+- `scripts/cvd_audit.py`, which AGENT-BRIEF lists among the checks to run
+  after a deploy, graded a hard-coded list of ten themes ("Teal x Coral",
+  "Crimson x Mint") that matched nothing in app.js, and failed on it: a
+  check asking a question nobody had asked for a month.
+- `assets/choice-holds.json` (rule 101) held themes by the 21 names.
+
+**The rule.**
+
+- **The themes are the palettes.** The colour themes Easy Mode and the
+  designer offer are rule 103's twelve pairings, under the same twelve names
+  the library's cards, the landing's Ready-made tab and the colour builder
+  use. One name means one set of colours everywhere a visitor meets it. A
+  thirteenth is a set the visitor builds (rule 112), or nothing.
+- **A theme is solved, not typed.** Each record is the colour builder's own
+  answer for its pairing (`cbArrangements`, colour-builder.js) in the look
+  the builder calls the pairing ready-made in (Silver & Blue on light, the
+  eleven on dark), printed by `scripts/house_themes.mjs --write`. So a
+  theme and the builder's "Navy & Gold" are the same colours, and every rule
+  the builder holds a set to holds the themes: four jobs (ground, reading
+  ink, bright accent, small print; rule 51), two hue families (rules 95,
+  103), no warm colour under the muddy floor, the accent inside its named
+  band and at rule 103's chroma floor, the ground's two stops in one hue
+  (rule 5), text and small print 4.5:1 on both stops for normal, protan,
+  deutan and tritan sight, the accent 4.5:1 and 3:1 simulated and 1.7:1 from
+  the text, the number 3:1 on an accent box (rules 43, 51, 87, 112). A
+  colour is never edited by hand in `COLOR_THEMES`: re-run the solver.
+- **The small print is a shade of the bright colour's family.** The builder
+  offers two small-print colours, a shade of the background's family first;
+  the themes take the bright colour's (rule 112 allows either). Seen on
+  checklistHero-jw07-15: its badges and icon discs carry the card's own
+  support role, so with a pale-blue small print "Navy & Gold" came out navy
+  and pale blue, with no gold on the card; with a pale gold it is navy and
+  gold. The two colours in the name are the two colours a visitor sees.
+- **The customer's words.** A theme's `family` is its look, Dark or Light;
+  a chip's title is the name and the look ("Navy & Gold · Dark"). No
+  internal family or intent reaches the screen (rule 113).
+- **A retired name still opens.** Each theme lists under `aka` the retired
+  names a draft or a project may have been saved in; `ezThemeByName` finds a
+  theme by either, so nothing a visitor made reopens in the card's own
+  colours by mistake. The mapping is the nearest pairing by the hue the old
+  theme led with, then its ground, then its side (light or dark), with five
+  pinned by the colour their name says (Gold Offer to Black & Gold, Cash
+  Green to Black & Green, Blue Market to Silver & Blue, Orchid Payday to
+  Purple & Gold, Electric Cyan to Midnight & Cyan).
+- **Every check reads the live set.** `cvd_audit.py` and
+  `audit_theme_grammar.mjs` read `COLOR_THEMES` out of app.js and hold every
+  theme to the same roles; the audits that need a light theme and a dark one
+  (ez_theme_audit, designer_audit, every_card_audit's combos) take Silver &
+  Blue and Black & Green; the colour builder audit's control themes are Navy
+  & Gold and Purple & Gold, the warm accents. `theme_cohesion_audit.mjs` is
+  the check that the vocabulary is one: the same twelve names in
+  `COLOR_THEMES`, `PALETTES`, `CB_READY` and on the live cards, every
+  choice-hold theme a live name, every retired name under exactly one `aka`,
+  and each theme inside the law above. It exits 1 on any of them.
+- **The holds follow the names.** A theme is held on a card only by its
+  live name (rule 101), so after the set changes the holds are swept again
+  (`every_card_audit.mjs --dims themes --write-holds`); a sweep over some
+  choices or some cards updates only what it measured and leaves the rest of
+  the table standing, and drops what cannot be held any more: a card the
+  studio no longer offers, and a theme name it no longer offers (a partial
+  run had left 17 unoffered cards holding 168 retired names).
+- **The other colour vocabularies are reported, not yet unified.** The
+  video maker's 165 palettes (motion/catalog.js, motion/themes.js: 34 named
+  for a food, drink or flower, 12 with three families, four named for two
+  colours) and the offer family's 20 looks (offer-library.js: keys a
+  customer never sees) are measured by the same audit and printed; `--strict`
+  fails on them. The offer family's one accent under the muddy floor (the
+  sand look's rust `#8a3b12`) takes the deep hue, navy, at its own luminance
+  (rule 52), as rule 103 says of a warm colour drawn too dark. The video
+  maker is a session of its own (OPEN-ITEMS §AO).
+
+**Measured after.** `theme_cohesion_audit.mjs`: 12 themes, 12 palettes, 12
+ready-made sets, the 311 live cards in the same 12 names; every theme two
+families or one, nothing muddy, every accent in its band; worst text 8.77:1,
+accent 4.54:1 (3.79:1 for a colour-blind reader, Black & Red), accent
+against text 1.74:1, small print 5.68:1, number on its box 4.91:1; 0
+problems once the holds were swept. `cvd_audit.py` 12 of 12; `theme_law.mjs`
+12 of 12 (and the twelve classics' palettes 12 of 12 as before);
+`audit_theme_grammar.mjs` 12 of 12 with every role; `colour_builder_audit.mjs
+--sets-only` all checks pass (12 of 12 ready-made pairs offered from both
+colours, 1,804 tweaked sets, 0 failing); `landing_check.mjs` 0 errors, 0
+failed requests, no overflow at 390 and 1440; `ez_theme_audit.mjs --quick` no
+problems, no page errors. The holds, swept on the new names over every
+offered card (631: 320 classics, 311 library; 7,572 theme renders): 29
+cards fail as offered and are held; a theme is held on 143 card-and-theme
+pairs (1.9% of renders; 2.6% on the 21 at rule 101), on 21 cards, each
+theme on 9 to 15 cards; 92 for a mark that would vanish on what it sits on,
+50 for a line that would lose legibility or fit, 1 for a plate that keeps
+the card's old colour (reviewProof-du08-20). Looks and voices keep their
+table (28 look holds on 21 cards, 1,231 voice holds on 349 cards).
+
+## 111, continued (2026-10-06): the media carries its dates
+
+The owner: "make sure our library is clean and cohesive when it ships off to
+iPhones LA to identify the media by creation / upload dates."
+
+Measured first: the 311 ads the API hands out had no date anywhere. The
+render index carried a day (`rendered: "2026-10-04"`) that the API never
+passed on; the JPEGs, drawn by a browser canvas, carried no EXIF at all; a
+partner's photo library would file every ad under the day it was uploaded
+there. The rest of the record was already cohesive: every one of the 311 had
+a title of the form "Palette · Layout", a category (8), a theme (the twelve),
+a layout (15) and a subject (13), none missing.
+
+- **Three dates, from git, on every render.** `scripts/render_library_ads.mjs`
+  reads them out of the repository's own history on every run, in one walk:
+  `created`, the commit that first added the card's record (the ad entered
+  the library); `updated`, the last commit that touched its record or its
+  library thumbnail (its design last changed); `rendered`, when the full-size
+  picture was drawn (the upload: the time the file was made, kept on the
+  entry from then on). ISO 8601, UTC, to the second; `created <= updated <=
+  rendered` on every entry, and the API check fails otherwise. A shallow
+  clone would date every old card at the clone's first commit, so the script
+  refuses one (`git fetch --unshallow`).
+- **The picture says the same.** Each JPEG carries an EXIF segment
+  (`scripts/_jpeg_exif.mjs`: DateTimeOriginal = created, DateTime = updated,
+  DateTimeDigitized = uploaded, each with OffsetTime +00:00, ImageDescription
+  the title in ASCII, Software "BUYBACK.AD Graphics Studio"), written after
+  the JFIF segment, read back by the check, by ImageMagick and by Pillow,
+  the picture's bytes untouched. A file's sha1, and so the API's `?v=`,
+  moves only when its dates do: `--stamp` writes EXIF again only where it
+  would differ.
+- **The API hands them out and filters on them.** Every ad carries
+  `created`, `updated` and `uploaded`; `?since=` (a day or a timestamp)
+  keeps the ads created, updated or uploaded at or after it, so a partner
+  asks what changed; `?sort=newest|oldest` orders by upload, then update,
+  then creation, and without it the library's own order stands, so nothing
+  a partner already does moves; a malformed `since` or `sort` is 400; one
+  ad's answer carries `Last-Modified` (its upload); the index carries
+  `latest`, the newest of each.
+- **The partner's side keeps the dates with the picture.** The client
+  (`buybackad_library.py`) passes `since` and `sort`, gives `dates(ad)`,
+  `changed_since(when)` and `filename(ad)` (the ad and its upload day:
+  `bubblePop-nn05-30_2026-10-04.jpg`); the picker shows the upload date on
+  every tile, offers newest first, and hands the page a File named for the
+  ad and its upload day and dated with its upload. Three tests more (the
+  dates on every ad, since and sort, the EXIF dates inside the JPEG).
+
+Measured after: `library_api_check.mjs` and `library_handoff_check.mjs` pass
+(the numbers are in OPEN-ITEMS §AP); every one of the 311 renders carries
+its dates in order, in the index and in its EXIF.
+
+## 124. A photo-real phone is a finish chosen by hand, and its light obeys rule 114
+
+Added 2026-10-06 (written as 123 on claude/photo-real-phone-finish; numbered 124 when merged). The owner, asked whether the photo-real phone look for the
 video maker (left out of `main` on 2026-10-05 because the later notes asked
 for simpler phones) was wanted: "this too if possible". It came from
 `claude/sharp-maxwell-q2aq4o` c228696d, written before the 3-D slab, the
@@ -4603,7 +4774,7 @@ not merged.
   Measured on whole 6 s videos of five large phones, every frame drawn as an
   export draws it, photo-real takes 15 to 20% less time than standard flat,
   turned, on a turntable and side on, and the same on the Wide 3-D spin
-  (-1.2% and +0.1%; its wide lens keeps the 3 px strips), OPEN-ITEMS §AN.
+  (-1.2% and +0.1%; its wide lens keeps the 3 px strips), OPEN-ITEMS §AR.
 - **Angles.** Side on (left or right, turned 60 degrees) is offered by hand,
   weight 0; it passes every phone audit in both finishes. The commit's leaned
   angles (hero three-quarter, leaning back with the bottom edge and port) are

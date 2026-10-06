@@ -23,10 +23,19 @@
  *   POST /api/ads/settings          { name?, repost_days? }  (the default for new saves)
  *   POST /api/ads/link/reset        a new public link; the old one stops
  *
+ *   a video on a saved ad (a video ad: the clip beside its photo), sent in
+ *   raw parts under a request's 6 MB, then joined and checked:
+ *   POST /api/ads/video/begin       { id, format: "mp4"|"webm", bytes, w, h,
+ *                                     seconds, sha256 }  → { part_bytes, count }
+ *   POST /api/ads/video/part?id=<id>&n=<n>   the part's bytes as the body
+ *   POST /api/ads/video/done        { id }  → the item, with video
+ *   POST /api/ads/video/remove      { id }  the video goes, the photo stays
+ *
  *   public, by link
- *   GET  /api/ads/feed/<feed>       JSON (also <feed>.json)
+ *   GET  /api/ads/feed/<feed>       JSON (also <feed>.json); ?kind=video|photo
  *   GET  /api/ads/feed/<feed>.rss   RSS 2.0 of what is due to post
  *   GET  /api/ads/feed/<feed>/img/<id>.jpg
+ *   GET  /api/ads/feed/<feed>/video/<id>.mp4 (or .webm; byte ranges honoured)
  *
  * Posting and posting again. An ad set to auto-post has a slot: it is due when
  * it is saved (or when auto-post is turned on), and again every repost_days
@@ -42,6 +51,8 @@
  *   o:<owner>       the library: { v, feed, name, repost_days, items: [...] }
  *   f:<feed>        <owner>
  *   i:<owner>:<id>  the JPEG
+ *   v:<owner>:<id>  the video, once joined; vu:/vp:<owner>:<id>… an upload
+ *                   under way (its record, its parts), gone when it is done
  * <owner> is a hash of the account's email, so no key or link carries it.
  *
  * The router answers null for any path outside /ads.
@@ -54,6 +65,12 @@ const ID_RE = /^ad_[a-z0-9]{6,24}$/;
 const CAT_RE = /^[a-z0-9-]{1,30}$/;
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,79}$/;
 const MAX_BYTES = 4200000;          // a 6 MB request carries about 4.4 MB once base64
+const VIDEO_TYPES = { mp4: 'video/mp4', webm: 'video/webm' };
+const VIDEO_MAX_BYTES = 40 * 1024 * 1024;   // a 10-second 1080p clip is 4 to 8 MB
+export const PART_BYTES = 4500000;          // raw bytes a part carries, under a request's 6 MB
+const PARTS_MAX = Math.ceil(VIDEO_MAX_BYTES / PART_BYTES);
+const SHA_RE = /^[0-9a-f]{64}$/;
+const VIDEO_SECONDS_MAX = 120;
 const MIN_SIDE = 320, MAX_SIDE = 4320;
 const DEFAULT_LIMITS = { free: 12, pro: 300, admin: 2000 };
 const enc = new TextEncoder();
@@ -92,6 +109,30 @@ export function jpegSize(b) {
     i += 2 + len;
   }
   return null;
+}
+
+/** the container the bytes open as: an MP4 (ftyp at 4) or a WebM (EBML), else null */
+export function videoHeader(b) {
+  if (b.length >= 12 && b[4] === 0x66 && b[5] === 0x74 && b[6] === 0x79 && b[7] === 0x70) return 'mp4';
+  if (b.length >= 4 && b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3) return 'webm';
+  return null;
+}
+const videoKey = (owner, id) => 'v:' + owner + ':' + id;
+const partKey = (owner, id, n) => 'vp:' + owner + ':' + id + ':' + n;
+const uploadKey = (owner, id) => 'vu:' + owner + ':' + id;
+async function readJson(store, key) {
+  const raw = await store.get(key);
+  if (!raw) return null;
+  try { return JSON.parse(typeof raw === 'string' ? raw : new TextDecoder().decode(raw)); } catch (e) { return null; }
+}
+/* an upload under way, or finished: its record and its parts are dropped;
+   with `whole` the joined video too. Nothing here can fail the caller. */
+async function dropVideo(store, owner, id, whole) {
+  const up = await readJson(store, uploadKey(owner, id));
+  const keys = [uploadKey(owner, id)];
+  if (whole) keys.push(videoKey(owner, id));
+  for (let i = 0; i < (up ? up.count : 0); i++) keys.push(partKey(owner, id, i));
+  for (const k of keys) { try { await store.delete(k); } catch (e) { /* gone already */ } }
 }
 
 /** limits per account: the plan's, or the operators' */
@@ -151,6 +192,14 @@ function itemOut(item, origin, feed, now) {
       url: origin + '/api/ads/feed/' + feed + '/img/' + item.id + '.jpg?v=' + item.sha256.slice(0, 12),
       width: item.w, height: item.h, bytes: item.bytes, format: 'jpg',
     },
+    /* a video ad carries its clip beside the photo (OfferUp takes a video
+       only with a photo); the photo stays the picture every poster reads */
+    video: item.video ? {
+      url: origin + '/api/ads/feed/' + feed + '/video/' + item.id + '.' + item.video.format + '?v=' + item.video.sha256.slice(0, 12),
+      width: item.video.w, height: item.video.h, bytes: item.video.bytes, format: item.video.format, seconds: item.video.seconds || null,
+    } : null,
+    kind: item.video ? 'video' : 'photo',
+    source: item.source || null,
     created: iso(item.created),
     updated: iso(item.updated || item.created),
     autopost: !!item.autopost && !item.hold,
@@ -195,6 +244,7 @@ function rss(lib, origin, now) {
       x.category ? '<category>' + esc(x.category) + '</category>' : '',
       '<enclosure url="' + esc(o.image.url) + '" length="' + x.bytes + '" type="image/jpeg"/>',
       '<media:content url="' + esc(o.image.url) + '" type="image/jpeg" medium="image" width="' + x.w + '" height="' + x.h + '"/>',
+      x.video ? '<media:content url="' + esc(o.video.url) + '" type="' + VIDEO_TYPES[x.video.format] + '" medium="video" width="' + x.video.w + '" height="' + x.video.h + '"' + (x.video.seconds ? ' duration="' + x.video.seconds + '"' : '') + '/>' : '',
       '</item>');
   }
   out.push('</channel>', '</rss>');
@@ -258,6 +308,8 @@ export async function adLibraryRoute(req, url, p, env, deps) {
       const cats = String(url.searchParams.get('category') || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
       if (cats.length) items = items.filter((x) => cats.includes(String(x.category || '')));
       if (url.searchParams.get('due') === '1') items = items.filter((x) => x.post);
+      const kind = String(url.searchParams.get('kind') || '');
+      if (kind === 'video' || kind === 'photo') items = items.filter((x) => x.kind === kind);
       return reply(Object.assign({}, out, { items, total: items.length }), 200, Object.assign({ 'Cache-Control': 'public, max-age=60' }, PUBLIC));
     }
     if (parts.length === 4 && parts[2] === 'img' && !m[2]) {
@@ -277,6 +329,31 @@ export async function adLibraryRoute(req, url, p, env, deps) {
         }, PUBLIC),
       });
     }
+    if (parts.length === 4 && parts[2] === 'video' && !m[2]) {
+      const mm = /^(ad_[a-z0-9]{6,24})\.(mp4|webm)$/.exec(parts[3] || '');
+      const item = mm && lib.items.find((x) => x.id === mm[1]);
+      if (!item || !item.video || item.video.format !== mm[2]) return reply({ error: 'No such video in this library' }, 404, PUBLIC);
+      const bytes = await store.get(videoKey(ownerId, item.id), { type: 'arrayBuffer' });
+      if (!bytes) return reply({ error: 'This ad\'s video is missing' }, 404, PUBLIC);
+      const total = bytes.byteLength;
+      const pinned = url.searchParams.get('v') === item.video.sha256.slice(0, 12);
+      const headers = Object.assign({
+        'Content-Type': VIDEO_TYPES[mm[2]],
+        'Accept-Ranges': 'bytes',
+        'Cache-Control': pinned ? 'public, max-age=86400' : 'public, max-age=300',
+        'Content-Disposition': 'inline; filename="' + (text(item.title, 60).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'ad') + '.' + mm[2] + '"',
+        'X-Content-Type-Options': 'nosniff',
+      }, PUBLIC);
+      /* a player asks for pieces of a video (one range at a time) */
+      const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.get('range') || '');
+      if (range && (range[1] !== '' || range[2] !== '')) {
+        const a = range[1] !== '' ? parseInt(range[1], 10) : Math.max(0, total - parseInt(range[2], 10));
+        const b = range[1] !== '' && range[2] !== '' ? Math.min(parseInt(range[2], 10), total - 1) : total - 1;
+        if (!(a >= 0 && a <= b && a < total)) return new Response(null, { status: 416, headers: Object.assign({ 'Content-Range': 'bytes */' + total }, PUBLIC) });
+        return new Response(req.method === 'HEAD' ? null : bytes.slice(a, b + 1), { status: 206, headers: Object.assign(headers, { 'Content-Range': 'bytes ' + a + '-' + b + '/' + total, 'Content-Length': String(b - a + 1) }) });
+      }
+      return new Response(req.method === 'HEAD' ? null : bytes, { headers: Object.assign(headers, { 'Content-Length': String(total) }) });
+    }
     return reply({ error: 'Not found' }, 404, PUBLIC);
   }
 
@@ -294,6 +371,25 @@ export async function adLibraryRoute(req, url, p, env, deps) {
     return reply(Object.assign(libOut(lib, origin, now), { limit: limitFor(acct, env), repost_choices: REPOST_CHOICES }));
   }
   if (req.method !== 'POST') return reply({ error: 'Not found' }, 404);
+
+  /* one part of a video, raw: its bytes are the body, not JSON */
+  if (route === 'video/part') {
+    const id = String(url.searchParams.get('id') || '');
+    const n = parseInt(url.searchParams.get('n') || '', 10);
+    const lib = await ensureLib(store, owner);
+    if (!ID_RE.test(id) || !lib.items.some((x) => x.id === id)) return reply({ error: 'No such ad in your library' }, 404);
+    const up = await readJson(store, uploadKey(owner, id));
+    if (!up) return reply({ error: 'Start the video with video/begin first' }, 409);
+    if (!(Number.isInteger(n) && n >= 0 && n < up.count)) return reply({ error: 'Part ' + n + ' is not one of this upload\'s ' + up.count }, 400);
+    const raw = await req.arrayBuffer();
+    const want = n === up.count - 1 ? up.bytes - PART_BYTES * n : PART_BYTES;
+    if (raw.byteLength !== want) return reply({ error: 'Part ' + n + ' must be ' + want + ' bytes, not ' + raw.byteLength }, 400);
+    await store.set(partKey(owner, id, n), raw);
+    up.have[n] = raw.byteLength;
+    await store.set(uploadKey(owner, id), JSON.stringify(up));
+    return reply({ ok: true, id, n, bytes: raw.byteLength, have: up.have.filter(Boolean).length, count: up.count });
+  }
+
   const body = await readBody(req);
   if (!body) return reply({ error: 'Send JSON' }, 400);
 
@@ -319,6 +415,7 @@ export async function adLibraryRoute(req, url, p, env, deps) {
       id: newId(), title,
       category: CAT_RE.test(String(body.category || '')) ? String(body.category) : '',
       template: text(body.template, 120),
+      source: text(body.source, 20),
       caption: text(body.caption, 500) || defaultCaption(texts, title),
       texts, products: cleanProducts(body.products),
       w: size.w, h: size.h, bytes: bytes.length, sha256,
@@ -362,7 +459,69 @@ export async function adLibraryRoute(req, url, p, env, deps) {
     const [gone] = lib.items.splice(at, 1);
     await writeLib(store, owner, lib);
     try { await store.delete('i:' + owner + ':' + gone.id); } catch (e) { /* the index no longer names it */ }
+    await dropVideo(store, owner, gone.id, true);
     return reply({ ok: true, id: gone.id, count: lib.items.length });
+  }
+
+  /* ---------- the video on an ad ---------- */
+  if (route === 'video/begin') {
+    const lib = await ensureLib(store, owner);
+    const item = ID_RE.test(String(body.id || '')) && lib.items.find((x) => x.id === body.id);
+    if (!item) return reply({ error: 'No such ad in your library' }, 404);
+    const format = String(body.format || '').toLowerCase();
+    if (!VIDEO_TYPES[format]) return reply({ error: 'The video must be MP4 or WebM' }, 400);
+    const bytes = Number(body.bytes);
+    if (!(Number.isInteger(bytes) && bytes >= 1000)) return reply({ error: 'Say how many bytes the video is' }, 400);
+    if (bytes > VIDEO_MAX_BYTES) return reply({ error: 'The video is too large (' + Math.round(VIDEO_MAX_BYTES / 1048576) + ' MB at most)' }, 413);
+    const w = Number(body.w), h = Number(body.h);
+    if (!(Number.isInteger(w) && Number.isInteger(h) && Math.min(w, h) >= MIN_SIDE && Math.max(w, h) <= MAX_SIDE)) return reply({ error: 'The video must be ' + MIN_SIDE + ' to ' + MAX_SIDE + ' pixels a side' }, 400);
+    const secs = Number(body.seconds);
+    const seconds = secs > 0 && secs <= VIDEO_SECONDS_MAX ? Math.round(secs * 10) / 10 : null;
+    const sha256 = String(body.sha256 || '').toLowerCase();
+    if (!SHA_RE.test(sha256)) return reply({ error: 'Send the video\'s SHA-256 (64 hex characters)' }, 400);
+    await dropVideo(store, owner, item.id, false);       // an upload left half-way starts over
+    const count = Math.ceil(bytes / PART_BYTES);
+    await store.set(uploadKey(owner, item.id), JSON.stringify({ format, bytes, w, h, seconds, sha256, count, have: [], started: now }));
+    return reply({ id: item.id, part_bytes: PART_BYTES, count }, 201);
+  }
+  if (route === 'video/done') {
+    const lib = await ensureLib(store, owner);
+    const item = ID_RE.test(String(body.id || '')) && lib.items.find((x) => x.id === body.id);
+    if (!item) return reply({ error: 'No such ad in your library' }, 404);
+    const up = await readJson(store, uploadKey(owner, item.id));
+    if (!up) return reply({ error: 'No video upload under way for this ad' }, 409);
+    const have = up.have.filter(Boolean).length;
+    if (have !== up.count) return reply({ error: 'Parts missing: ' + have + ' of ' + up.count + ' arrived' }, 409);
+    const out = new Uint8Array(up.bytes);
+    let at = 0;
+    for (let i = 0; i < up.count; i++) {
+      const part = await store.get(partKey(owner, item.id, i), { type: 'arrayBuffer' });
+      if (!part || at + part.byteLength > up.bytes) { await dropVideo(store, owner, item.id, false); return reply({ error: 'Part ' + i + ' is missing or wrong. Upload the video again.' }, 409); }
+      out.set(new Uint8Array(part), at);
+      at += part.byteLength;
+    }
+    if (at !== up.bytes) { await dropVideo(store, owner, item.id, false); return reply({ error: 'The parts do not add up to the video. Upload it again.' }, 409); }
+    const sha256 = hex(await crypto.subtle.digest('SHA-256', out));
+    if (sha256 !== up.sha256) { await dropVideo(store, owner, item.id, false); return reply({ error: 'The video arrived damaged (its hash differs). Upload it again.' }, 400); }
+    const opens = videoHeader(out);
+    if (opens !== up.format) { await dropVideo(store, owner, item.id, false); return reply({ error: 'The bytes are not ' + (up.format === 'mp4' ? 'an MP4' : 'a WebM') }, 400); }
+    await store.set(videoKey(owner, item.id), out.buffer);
+    item.video = { format: up.format, bytes: up.bytes, w: up.w, h: up.h, seconds: up.seconds, sha256 };
+    item.updated = now;
+    await writeLib(store, owner, lib);
+    await dropVideo(store, owner, item.id, false);
+    return reply({ item: itemOut(item, origin, lib.feed, now) }, 201);
+  }
+  if (route === 'video/remove') {
+    const lib = await ensureLib(store, owner);
+    const item = ID_RE.test(String(body.id || '')) && lib.items.find((x) => x.id === body.id);
+    if (!item) return reply({ error: 'No such ad in your library' }, 404);
+    if (!item.video) return reply({ error: 'This ad has no video' }, 404);
+    delete item.video;
+    item.updated = now;
+    await writeLib(store, owner, lib);
+    await dropVideo(store, owner, item.id, true);
+    return reply({ item: itemOut(item, origin, lib.feed, now) });
   }
 
   if (route === 'settings') {

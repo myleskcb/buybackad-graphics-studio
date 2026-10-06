@@ -13,7 +13,9 @@ What it does, each run:
      repost_days days, so its next slot is a repost);
   3. hands each to `post(ad, jpeg, repost)`, the shop's own posting, and
      records the slot once that returns. A post that raises is not recorded,
-     so the next run tries it again.
+     so the next run tries it again. A video ad (ad["kind"] == "video") also
+     brings its clip: `post(ad, jpeg, repost, video=bytes)` when `post`
+     takes a `video` argument, else the photo alone, as before.
 
 The posting itself is the shop's: plug the existing Auto-post in as `post`.
 This file posts nowhere by itself (the default `post` only prints).
@@ -26,14 +28,17 @@ Run it every 10 to 15 minutes from cron or the app's scheduler:
 or keep it running: --loop 900. --dry-run lists what is due and records nothing.
 
 `post` gets the ad record (title, category, caption, texts, products, image,
-post: {slot_id, due_at, next_at, round}), the picture as JPEG bytes, and
-repost=True from the second slot on. It returns anything worth keeping (the
-listing's id, say); that is stored beside the slot.
+video, kind, post: {slot_id, due_at, next_at, round}), the picture as JPEG
+bytes, and repost=True from the second slot on; with a `video` parameter it
+gets the clip's bytes too (MP4 or WebM, ad["video"]["format"]), None for a
+photo ad. It returns anything worth keeping (the listing's id, say); that is
+stored beside the slot.
 """
 from __future__ import annotations
 
 import argparse
 import importlib
+import inspect
 import json
 import logging
 import os
@@ -97,7 +102,10 @@ def run_once(feed: BuybackadFeed, post, state: PostedSlots, limit: int = 5, dry_
             continue
         try:
             jpeg = feed.jpeg(ad)
-            ref = post(ad, jpeg, repost)
+            if _takes_video(post):
+                ref = post(ad, jpeg, repost, video=feed.video(ad) if ad.get("video") else None)
+            else:
+                ref = post(ad, jpeg, repost)
         except Exception as e:                     # the shop's poster failed: try again next run
             log.warning("not posted: %s (%s): %s", ad.get("title"), slot, e)
             out.append(("failed", ad["id"], str(e)))
@@ -108,11 +116,21 @@ def run_once(feed: BuybackadFeed, post, state: PostedSlots, limit: int = 5, dry_
     return out
 
 
-def print_post(ad: dict, jpeg: bytes, repost: bool):
+def print_post(ad: dict, jpeg: bytes, repost: bool, video: bytes | None = None):
     """The default `post`: says what it would post and posts nothing."""
     print(("REPOST " if repost else "POST   ") + f"{ad.get('title')!r} [{ad.get('category')}] "
-          f"{len(jpeg)} bytes, due {ad['post']['due_at']}, next {ad['post'].get('next_at') or 'never'}")
+          f"{len(jpeg)} bytes" + (f" + video {len(video)} bytes" if video else "") +
+          f", due {ad['post']['due_at']}, next {ad['post'].get('next_at') or 'never'}")
     return None
+
+
+def _takes_video(post) -> bool:
+    """Whether the shop's `post` has a `video` parameter (or **kwargs)."""
+    try:
+        params = inspect.signature(post).parameters
+    except (TypeError, ValueError):
+        return False
+    return "video" in params or any(p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values())
 
 
 def _now_iso() -> str:

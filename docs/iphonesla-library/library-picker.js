@@ -2,9 +2,14 @@
 
    A panel beside the title and description: the library's ads (the finished
    ads approved into the BUYBACK.AD library, the shop's number on them), a
-   search, a category, a grid, More. Picking one hands the page the full-size
-   ad as a JPEG File (1080x1080), as if it had been uploaded, so the page's own
-   photo list takes it without knowing where it came from.
+   search, a category, an order (the library's own, newest upload first,
+   oldest first), a grid, More. Each tile says when the ad was uploaded.
+   Picking one hands the page the full-size ad as a JPEG File (1080x1080), as
+   if it had been uploaded, so the page's own photo list takes it without
+   knowing where it came from. The File is named for the ad and its upload
+   day (bubblePop-nn05-30_2026-10-04.jpg) and dated with its upload
+   (lastModified), and the JPEG's own EXIF carries the same dates, so the
+   picture identifies itself wherever it goes.
 
    It talks only to iPhones LA's own server (the routes below), never to
    BUYBACK.AD: the key stays on the server.
@@ -20,7 +25,7 @@
 
    The routes it calls (README.md, "The iPhones LA routes"):
      GET {endpoint}/categories
-     GET {endpoint}/ads?category=&q=&limit=&offset=
+     GET {endpoint}/ads?category=&q=&since=&sort=&limit=&offset=
      GET {endpoint}/jpeg/{ad id}          the ad as a listing JPEG
 
    Also fires `buybackad:pick` on the element, detail { ad, file }.
@@ -39,6 +44,7 @@
 .bbl .bbl-tile{display:flex;flex-direction:column;gap:4px;border:1px solid var(--bbl-line);border-radius:10px;padding:5px;background:transparent;text-align:left}
 .bbl-tile img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;background:rgba(127,127,127,.12)}
 .bbl-tile span{font-size:11.5px;color:var(--bbl-mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bbl-tile time{font-size:11px;color:var(--bbl-mut)}
 .bbl-tile[aria-busy="true"]{opacity:.5}
 .bbl-status{color:var(--bbl-mut);font-size:13px;margin:8px 0 0;min-height:1.4em}
 .bbl-more{margin-top:8px;width:100%}`;
@@ -56,7 +62,9 @@
     const bar = el('div', 'bbl-bar');
     const q = el('input'); q.type = 'search'; q.placeholder = 'Search: iphone, gold, pokemon…'; q.setAttribute('aria-label', 'Search the library');
     const cat = el('select'); cat.setAttribute('aria-label', 'Category');
-    bar.append(q, cat);
+    const order = el('select'); order.setAttribute('aria-label', 'Order');
+    [['', 'Library order'], ['newest', 'Newest upload first'], ['oldest', 'Oldest first']].forEach(([v, t]) => { const o = el('option', null, t); o.value = v; order.appendChild(o); });
+    bar.append(q, cat, order);
     const grid = el('div', 'bbl-grid');
     const status = el('p', 'bbl-status'); status.setAttribute('aria-live', 'polite');
     const more = el('button', 'bbl-more', 'More'); more.type = 'button'; more.hidden = true;
@@ -76,12 +84,17 @@
       if (keep && cats[keep]) cat.value = keep;              // the categories can land after a choice was made
     };
 
+    /* the upload day, for the tile and the file name; a date the library did not give stays blank */
+    const day = ad => /^\d{4}-\d{2}-\d{2}/.test(ad.uploaded || '') ? ad.uploaded.slice(0, 10) : '';
+    const when = ad => { const d = day(ad); if (!d) return ''; try { return new Date(ad.uploaded).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e){ return d; } };
+    const fileName = ad => ad.id + (day(ad) ? '_' + day(ad) : '') + '.jpg';
     async function pick(ad, tile){
       tile.setAttribute('aria-busy', 'true'); status.textContent = 'Getting ' + ad.title + '…';
       try {
         const r = await fetch(endpoint + '/jpeg/' + encodeURIComponent(ad.id), { credentials: 'same-origin' });
         if (!r.ok) throw new Error('picture ' + r.status);
-        const file = new File([await r.blob()], ad.id + '.jpg', { type: 'image/jpeg' });
+        const stamp = Date.parse(ad.uploaded || '');
+        const file = new File([await r.blob()], fileName(ad), Object.assign({ type: 'image/jpeg' }, isNaN(stamp) ? {} : { lastModified: stamp }));
         status.textContent = 'Added ' + ad.title + '.';
         if (typeof opts.onPick === 'function') opts.onPick({ ad, file });
         root.dispatchEvent(new CustomEvent('buybackad:pick', { detail: { ad, file }, bubbles: true }));
@@ -94,6 +107,7 @@
       const img = el('img'); img.loading = 'lazy'; img.decoding = 'async'; img.alt = ad.title;
       if (ad.thumb && safe(ad.thumb.url)) img.src = ad.thumb.url;
       b.append(img, el('span', null, ad.title));
+      if (day(ad)){ const t = el('time', null, 'Uploaded ' + when(ad)); t.dateTime = ad.uploaded; b.appendChild(t); }
       b.addEventListener('click', () => pick(ad, b));
       return b;
     }
@@ -105,6 +119,7 @@
       const p = new URLSearchParams({ limit: String(pageSize), offset: String(offset) });
       if (q.value.trim()) p.set('q', q.value.trim());
       if (cat.value) p.set('category', cat.value);
+      if (order.value) p.set('sort', order.value);
       try {
         const page = await get('/ads?' + p);
         if (my !== gen) return;
@@ -118,6 +133,7 @@
     let t = 0;
     q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => load(true), 300); });
     cat.addEventListener('change', () => load(true));
+    order.addEventListener('change', () => load(true));
     more.addEventListener('click', () => load(false));
     get('/categories').then(c => { cats = c.categories || {}; fillCats(); }).catch(() => fillCats());
     fillCats(); load(true);

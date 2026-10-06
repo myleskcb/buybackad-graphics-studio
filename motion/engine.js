@@ -676,7 +676,7 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
   if (photo) glassAndRim(ctx, p, w, h, s, rot, rim.map(([x, y]) => P(x, y, seen)), Math.abs(c));
 }
 
-// ------------------------------------------------------------ the photo-real finish (rule 123)
+// ------------------------------------------------------------ the photo-real finish (rule 124)
 // Chosen by hand ("Phone finish", photo); the standard finish above is drawn as it always was.
 // Its light stays inside rule 114: the band is the standard band with a studio's softboxes
 // reflected down its length, and the reflections only ever take light away between the
@@ -893,7 +893,7 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
   if (!noShadow) {                                  // a reflection casts none
     const f = zz * 2, i0 = Math.min(1, Math.floor(f)), k = f - i0, a = op * .42 * (1 - .55 * zz);
     let a0 = a * (1 - k), a1 = k > 0 ? (a - a0) / (1 - a0) : 0;   // the two together as dark as one
-    // photo-real (rule 123): resting, the shadow is a contact shadow, darker and drawn in close
+    // photo-real (rule 124): resting, the shadow is a contact shadow, darker and drawn in close
     // under the body. It is the tightest blur's own draw made darker (no draw of its own), and it
     // goes over the first quarter of the rise, never all at once
     const cf = p.finish === "photo" ? 1 - inOut(clamp(zz / .25)) : 0;
@@ -1398,7 +1398,7 @@ const H0 = p => p.h * p.size;
 // The two angles that keep moving (a turntable sway, one wide spin) start from
 // flat once the phones settle; see phoneState0.
 const POSE_TURN = { flat: 0, edge_left: -.6, edge_right: .6 };
-// Side on, by hand only (rule 123): turned 60 degrees, the buttons' edge toward the lens.
+// Side on, by hand only (rule 124): turned 60 degrees, the buttons' edge toward the lens.
 const POSE_SIDE = { profile_left: -1.05, profile_right: 1.05 };
 
 function phoneState(p, t, st) {
@@ -2267,7 +2267,7 @@ export class Ad {
       p.reveal = endsBack && !p.landsBack;
       p.glare = new Glare(rng(st.seed * 101 + i), st.glare);
       p.lens = st.pose === "wide_spin" ? WIDE_LENS : LENS;      // a wide lens makes the spin wide
-      p.finish = st.phone_finish === "photo" ? "photo" : "standard";   // rule 123, chosen by hand
+      p.finish = st.phone_finish === "photo" ? "photo" : "standard";   // rule 124, chosen by hand
       p.turnSide = st.seed % 2 ? 1 : -1; p.order = i;           // every phone turns the same way
       return p;
     });

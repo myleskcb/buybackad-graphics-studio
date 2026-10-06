@@ -2108,7 +2108,8 @@ Not done, and why:
    a catch-light on the rim; hero three-quarter, leaning-back and side-on
    angles). The owner asked after it for phones side by side at one angle,
    "not messy views", and for sides no lighter than the body. Port it if
-   the photo-real look is wanted.
+   the photo-real look is wanted. (Done 2026-10-06, by hand and inside rule
+   114: §AR, DESIGN-LAW 124.)
 4. Still held for want of a real photograph: scriptRetro-ca07-15 (the card
    scan passed the gate in one run and not the next), arcCrown-nn01-30, and
    the two Pokémon cards (the pool is two graded Charizard slabs).
@@ -2164,7 +2165,315 @@ Check: `scripts/ad_library_check.mjs`.
 5. **Recent downloads** are this browser's, as before (IndexedDB, the last 12).
    Saving one is how it reaches the library.
 
-## AN. 2026-10-06 — the photo-real phone finish for the video maker (DESIGN-LAW 123)
+## AN. 2026-10-05 — the SaaS side against the offer, the model's price and the market
+
+The owner: "make sure the saas side of things make sense with current model
+and offerings, and is worth the cost and make us enough, use market
+research." The full measurement is `docs/SAAS-AUDIT-2026-10-05.md`. Fixed
+on the branch: the FAQ's "Video ads don't count" (a studio video is one
+download; the video maker's are not), the README's retired Cloudflare
+backend, the checkout return that could say "You are now on the Free plan"
+to someone who had just paid, and Stripe promotion codes on checkout (the
+landing's partner discounts had no way to exist).
+
+Decisions for the owner, in order:
+
+1. **The AI background caps are the one way the product loses money.** At
+   the function's defaults a Pro account may spend $40.80 a month of Gemini
+   (40 a day at about $0.034) against $14.16 net, and a free account
+   $10.20. `netlify env:set RL_USER_DAILY 2`, `RL_PRO_DAILY 8`,
+   `RL_GLOBAL_DAILY 120` bounds it today without a deploy. The better
+   product shape is a monthly allowance in step with the download period
+   (a counter keyed by `isoMonth()` in `api.mjs`, and "60 AI backgrounds a
+   month" on the Pro card).
+2. **No annual price.** Every comparable tool sells one at about a third
+   off (Kittl $120, VistaCreate $120, Placeit $89.69, Canva about $180).
+   Add $120 a year: a second Stripe price, `PRICE_PRO_YEAR`, a second
+   button in `buildPlansGrid`, the checkout accepting `plan: 'pro-year'`.
+3. **Stripe is still off.** Set the four vars with test keys and walk the
+   loop once (checkout, webhook, Manage billing, cancel) before anything is
+   announced. Nothing on the SaaS side has taken a dollar yet.
+4. **The phone video maker is free, unwatermarked, uncounted and needs no
+   account.** Lead magnet or product: the owner's call. If product, ask for
+   the free account and count it as the studio's videos are counted.
+5. **The size cap and the watermark are applied by the browser** (carried
+   from the 2026-09-22 audit, item 8). The count is enforced; the rest is a
+   nudge a devtools user walks past. Moving them to the function means the
+   image goes up and comes back; a bigger change, decide when Pro has
+   customers.
+6. **Netlify's free plan** carries roughly 10,000 first visits a month
+   (300 credits; the landing is 2 to 3 MB on a first visit). Expect
+   Personal ($9) or Pro ($20 a seat) once the partner channel sends
+   traffic; watch the credits meter after the first push.
+7. **Partner and creator discounts** now work as Stripe promotion codes;
+   none exist yet. Make one per partner in Stripe → Coupons.
+8. **Nothing deploys itself.** Six sessions since 2026-09-30 have ended with
+   "deploy `main` from the Mac"; this one too (the proxy answers 403 to
+   every Netlify host). `.github/workflows/deploy.yml` now deploys every
+   push to `main` once two repository secrets exist, `NETLIFY_AUTH_TOKEN`
+   and `NETLIFY_SITE_ID` (`NETLIFY_SITE_ID_2` for the second project).
+   Until then it does nothing.
+
+## AO. 2026-10-05 — one colour vocabulary: the themes are the library's twelve (DESIGN-LAW 123)
+
+(claude/busy-keller-i7qfrf, from `main` at 9040dcb9.)
+
+The owner: "Audit all themes after we make our master library make sure they
+follow all rules, don't contradict overlap or use wrong design language.
+make it cohesive and complete so they feel like ads we made from
+professional gfx designers."
+
+Found (`scripts/theme_cohesion_audit.mjs`, new): four colour vocabularies in
+one product. The library's 311 cards, the landing's Ready-made tab and the
+colour builder spoke rule 103's twelve pairings; Easy Mode and the designer
+offered 21 themes under the names rule 103 retired ("Blue Market", "Gold
+Offer", "Hot Sale"): 17 with no small-print colour, three with a brown or
+olive colour under the muddy floor, six with an accent outside its named
+band (a lavender, three salmons), three named for a plant or a food, and
+internal words in the chip's title ("GFX Grammar", "iOS Flat");
+`cvd_audit.py` graded ten themes that existed nowhere and failed; the
+choice holds were keyed by the 21 names. 93 problems on the tree as it
+stood.
+
+Done:
+- `COLOR_THEMES` is the twelve, each solved by the colour builder's own
+  solver in its ready-made look (`scripts/house_themes.mjs --write`), with a
+  support colour, `family` Dark or Light, and `aka` carrying the 21 retired
+  names (`ezThemeByName` reads them, so drafts and projects reopen). Chip
+  titles and the toast show the name and look only.
+- `cvd_audit.py` reads the live set (text, bright colour and small print on
+  both stops under four kinds of sight); `audit_theme_grammar.mjs` checks
+  every theme's four roles; the browser audits that name a light and a dark
+  theme take Silver & Blue and Black & Green; the builder audit's controls
+  are Navy & Gold and Purple & Gold.
+- `every_card_audit.mjs --dims` or `--ids` now updates only what it measured
+  (a themes-only sweep used to write an empty looks and voices table).
+- The offer family's sand look: its rust accent (`#8a3b12`) is navy at the
+  same luminance (rule 52); the look is sand and navy. Its eight cards
+  through audit_templates.mjs before and after: 8 of 8 pass both times,
+  the same warnings (crowded 8, contrast 7), nothing rejected.
+- The FAQ's colour answer names the twelve and the builder (visible answer
+  and JSON-LD together; CSP hashes recomputed).
+- Rule 123, the brief, the README.
+
+Checked: cohesion audit 0 problems after the hold sweep (631 cards, 7,572
+theme renders: 29 cards held as offered, a theme held on 143 pairs over 21
+cards, each theme on 9 to 15 cards); `cvd_audit.py` 12/12; `theme_law.mjs` 12/12; `audit_theme_grammar.mjs` 12/12;
+`colour_builder_audit.mjs --sets-only` all pass; `landing_check.mjs` clean at
+390 and 1440; `ez_theme_audit.mjs --quick` no problems, no page errors.
+
+Still open:
+
+1. **The video maker's palettes are a vocabulary of their own.** 165
+   palettes in motion/catalog.js and motion/themes.js: 34 named for a food,
+   drink or flower (butter, cherry, matcha, espresso, bubblegum...), 12
+   carrying three hue families, four named for two colours; the keys are
+   what the maker shows, title-cased. Rule 103's language (two colours to a
+   name, none food) has not reached them. A session of its own: the maker
+   has its own measured audit (`motion_palette_audit.mjs`, on rendered
+   pixels), fifty themes under `THEME_REVIEW`, and audiences keyed by
+   palette, so a rename touches audiences.js, palette-audit.json and saved
+   looks. The cohesion audit prints the counts; `--strict` fails on them.
+2. **The offer family's look keys** (bone, blush, mint, sand, plum, cream)
+   are internal, never shown; one look (`midnight`) carries three families
+   (navy ground, mint accent, gold band). Left as authored; the family is
+   held to the showcase's bar by audit_templates.mjs.
+3. **Only one of the twelve is light** (Silver & Blue). The 21 had eight
+   light themes. The builder's Light look makes a light set of any pairing
+   whose colour reads light (gold, yellow, cyan, orange, lime, pink), a tap
+   from the + in the colour row; if the owner wants light ready-made sets in
+   the row, they are solved the same way (`cbArrangements(..., 'light')`)
+   and named by the builder ("Gold & Navy").
+4. **The classics' own palettes (`PAL`, twelve)** and the showcase's twelve
+   are two tables with two sets of names (PAL: ocean, paper, rose, arctic,
+   mono, sunset...). PAL paints the classics' fallback grounds and plates; a
+   visitor never sees its names. Not unified here.
+
+## AP. 2026-10-06 — the library's media carries its dates (DESIGN-LAW 111, continued)
+
+(claude/busy-keller-i7qfrf.)
+
+The owner: "make sure our library is clean and cohesive when it ships off to
+iPhones LA to identify the media by creation / upload dates."
+
+Found: the 311 ads the API hands out had no date anywhere (a day-only
+`rendered` in the render index that the API never passed on; no EXIF in the
+JPEGs, drawn by a canvas). The rest of each record was cohesive: every ad
+has a "Palette · Layout" title, a category, one of the twelve themes, a
+layout and a subject.
+
+Done:
+- `render_library_ads.mjs` reads three dates out of git on every run and
+  writes them on each entry (`created`, `updated`, `rendered`, ISO 8601 UTC)
+  and into each JPEG's EXIF (`scripts/_jpeg_exif.mjs`); `--stamp` does only
+  that, without rendering; a shallow clone is refused.
+- The API: `created`, `updated`, `uploaded` on every ad; `?since=`,
+  `?sort=newest|oldest`; `Last-Modified` on one ad; `latest` on the index.
+- The hand-off: the client's `since`/`sort`, `dates()`, `changed_since()`,
+  `filename()`; the picker's dated tiles, Order control, and a File named
+  for the ad and its upload day; three more tests; the README's contract;
+  the zip repacked.
+- The checks: `library_api_check.mjs` (dates in order, EXIF as the index,
+  since, sort, Last-Modified, latest) and `library_handoff_check.mjs` (the
+  dated tiles, newest first, the file name and date).
+
+Checked: `library_api_check.mjs` no failures (311 ads, 55.1 MB of renders,
+unit and through the real function); `library_handoff_check.mjs` no failures
+(13 Python tests, 0 skipped, with Pillow; the listing page in Chromium: every
+tile dated, newest first ordered, the pick `checklistHero-pp09-35_2026-10-04.jpg`
+byte for byte the render, dated with its upload); every JPEG read back by
+ImageMagick and Pillow with the same dates.
+
+The dates as they stand: created 2026-09-02 to 2026-09-05 (the records'
+first commits, 92 / 92 / 127), updated 2026-10-02 to 2026-10-04 (207 / 65 /
+39), uploaded 2026-10-04T07:56:34Z for all 311 (the one render so far).
+
+Still open:
+
+1. **Every file's sha1 moved once** (the EXIF went in), so the API's `?v=`
+   links all changed: a partner that cached by `?v=` fetches each once more
+   after the deploy. From now on a sha1 moves only with the dates.
+2. **`uploaded` is when the render was drawn, not when it was deployed.**
+   The deploy is by hand from the Mac (AGENT-BRIEF, Deploying); a render
+   sits in git until then. If the owner wants the deploy time, the deploy
+   script is the place to stamp it.
+3. The repository grew by the 311 re-stamped files once more (55 MB of
+   history). A render is re-stamped only when its dates change.
+
+## AQ. 2026-10-06 — the Template Lab leaves the repo; its walls and its keys join the studio
+
+The owner, over a screenshot of the lab's index: "audit and fix this also
+it's no longer necessary to include in the site"; then "clean this all up and
+look into all of the features and integrate as much new or unique features /
+content we had included that's relevant, helpful, and transformative".
+
+The lab (`lab/`: 1,397 files, 110 MB, all landed 2026-09-27) was the owner's
+judging tool in an older look; §V 3 had read its index as stale. What each
+part held, read against the product:
+- **The grades.** The bulk review (582 images), the hero picker, the theme,
+  font and asset labs and template sets 3 to 9 kept their verdicts in one
+  browser's localStorage. What was sent back is in the repo already:
+  `assets/approved-templates.json` (ten sets), `approved-fonts.json` (57 of
+  the gallery's 151 faces), `approved-grounds.json`, `approved-assets.json`
+  (360 of 464), `hero-picks.json`. Nothing else was recoverable.
+- **The 108-theme library** is `assets/looks.json`, the studio's looks
+  (`LOOKS` in app.js). The lab's Set 8 (247 cards) was those looks on the
+  engine's cards: judged there, never shipped as files, and not needed as
+  files since the studio draws a look on any card.
+- **Set 9, the device showcase grounds** (120 renders, 1080px): drawn by
+  `engine/showcase.mjs`, graded in the lab, and reached nothing else. The one
+  content set the product never received.
+- **The console** (the engine's tuning tool, built from the engine by
+  `scripts/build_console.mjs`) had keys, an axis view, hold-to-compare and a
+  measured export gate. The studio had its own gate (pgGate) and no keys.
+- The font gallery, the asset lab and the theme lab were the catalogues the
+  approved lists above were picked from; the product carries the picks.
+
+Done:
+1. **Off the site, out of the repo.** The morning's commit took the landing's
+   nav pill and footer link, the pill's CSS, the noindex header and the
+   robots line; this one deletes the folder, and with it
+   `build_lab_site.mjs`, `build_review_site.mjs` and their page templates,
+   which read `.render/` sets that no longer exist. The console now builds
+   to `tools/gfx/console.html` and the hero picker to `tools/hero-picker/`
+   (`scripts/build_hero_picker.mjs`): under `/tools/*` they are 404'd at the
+   edge and open from a checkout. Both rebuilt and load clean (150
+   candidates in the picker on today's index). `hero-picks.json`, the brief
+   and `engine/README.md` name the new places.
+2. **Device walls in the ground picker** (`device-walls.js`, a module loaded
+   after app.js the way `motion/photo-grounds.js` is). Eleven arrangements
+   (isometric wall, family portrait, device wall, three phones, stack, fan,
+   cascade, orbit, ring, halo, column), each registered with GROUNDS as a
+   drawn ground, so a card stores it like any other (`ground:devIso/…`),
+   and the studio thumbnails, edits, gates, exports and videos it like a
+   photograph. It paints in the card's own colours: the screens walk the
+   accent and support round the wheel (showcase.mjs `spread`), the bodies
+   take the ground; the three roles a card lacks (body, paper, dark) are
+   derived the way the engine's palette records relate them. The engine
+   draws SVG, which a browser rasterises only asynchronously: a wall paints
+   its ground colour first and the devices a moment later, then says so
+   ("device-wall-ready") and the swatches and the preview are read again.
+   A wall takes the scenes' soft shade (scrim .42, gradient) and the gate
+   deepens it where a line needs it. Measured on the served page: eleven
+   swatches, every cached canvas 61 to 193 distinct tones (none flat), the
+   preview takes the wall, no page errors. In Node, all eleven in three
+   palettes (a short hex and a missing support among them) draw well-formed
+   SVG, about 35 KB each.
+3. **The console's keys in Easy Mode** (app.js, appended): `[` `]` design,
+   `P` colour set, `T` typeface, `F` size, `B` background style, `G`
+   background, Shift back. Each presses the row's own button, so a key takes
+   the path a tap takes (the lock, the toast, the preview). Never while
+   typing in a field, never with a modifier, only on the Easy Mode page; the
+   hint line under the strip (`.ez-keys`) shows only where there is a
+   keyboard (hover and a fine pointer). All seven measured, and `P` in the
+   phone field types a p.
+4. **The nav clip closed** (the morning's open item 1): "How it works" gives
+   way with Palettes and FAQ, the three under 1240 rather than 1200, and the
+   link row under 1010 rather than 1000. Measured clean from 1440 to 360.
+
+Not ported, on purpose: hold-to-compare and the axis view (eight full cards
+of one choice at once): the strip, the colour-set row and the Look Book
+already put the choices side by side. The review's approve/deny: `pick.html`
+is that for the product. The engine's own ad cards: the owner's "completely
+new stray direction" (the review builder's own note).
+
+Still open:
+1. The device walls draw phones, tablets, laptops and desktops; a Cars or
+   Gold card gets the same wall. A wall per category would need frames the
+   engine does not have.
+2. `tools/gfx/console.js` (559 KB) and `tools/hero-picker/hero.js` are build
+   outputs, committed so the owner can open them; regenerate after an engine
+   or showcase-index change.
+## Stars, video ads and accounts. 2026-10-06: every ad has a ★ that sends it to the library; accounts from every door
+
+The owner: "allow account creation so I can download content, upload to
+library properly", "make sure every ad has an option to add to library",
+"video ads photo ads all need a star button which will send to library".
+Built on the ad library above: `ad-library.js` (the stars, the saves, videos
+in parts), `account.js` (the account on the pages without app.js), the
+video on an item in `netlify/lib/adlibrary.mjs` (`/api/ads/video/*`, the
+public clip, the RSS), the video maker's star (`motion/app.js`, its
+`makeVideo` shared with Download MP4), the master library's stars and
+video playback, iPhones LA's worker taking the clip. README "Ad library";
+check `scripts/ad_library_check.mjs`.
+
+1. **Account creation was dead on the landing page.** `bindSaasUI()` ran
+   only when Easy Mode opened, so Sign up free, Log in, the footer's Create
+   free account and the dialog's own Create account button did nothing
+   until somebody had opened the studio. `boot()` binds it now (guarded, so
+   Easy Mode's call is a no-op). The dialog opens on Create account for a
+   device that never signed in (`pgfx_seen_account`), on Sign in after.
+2. **What a star saves.** A design card is drawn as it would download: the
+   card's own template with the brand kit's number and website (no website
+   on file: the line goes, as Easy Mode drops it), the gate, the plan's size
+   and watermark, counted as a download (operators excepted). So a free
+   account's star is watermarked and held from auto-post, like its
+   downloads. The finished designs on the master library save their
+   full-size render as shown (not counted: those files are public), held
+   when the render shows a website; the owner's renders all show
+   iphones.LA, so they are held. Whether a website on the picture should
+   still hold a WE BUY ad from auto-post is the rule iPhones LA's link set
+   (OPEN-ITEMS "iPhones LA"); it is kept, not re-decided here.
+3. **Videos.** A video ad is its clip beside its photo (OfferUp takes a
+   video only with a photo); the photo stays the picture every poster
+   reads, so a poster written before videos existed still works. MP4 where
+   the browser writes H.264, WebM otherwise (this container's Chromium:
+   WebM; the H.264 path is unexercised here, as before). Parts of 4.5 MB raw
+   under a request's 6 MB, 40 MB a clip at most, joined and checked (hash,
+   container) on `done`. `/ads/video/done` reads every part back and writes
+   the whole: on a slow path a 40 MB clip could approach the function's
+   time limit; a 10-second clip (4 to 8 MB) is well inside it.
+4. **The same still, saved twice, is one ad.** The save de-duplicates by the
+   picture's hash, so Save as video after Save to library replaces the clip
+   on the same ad rather than adding a second.
+5. **Not deployed, not exercised against production.** This session's
+   network denies every Netlify host. Deploy `main` from the Mac
+   (AGENT-BRIEF, Deploying), then on the live site: create an account from
+   the landing page, press a star, open 📚 Library.
+6. **The star on a locked (Pro) design** opens the plan page, as the card
+   does. The hero wall (the animated shop window) carries no stars: its
+   cards open the design in Easy Mode, where the strip's star is.
+## AR. 2026-10-06 — the photo-real phone finish for the video maker (DESIGN-LAW 124)
 
 The owner, of the photo-real look left out on 2026-10-05 (§AM, not done 3):
 "this too if possible". Re-drawn on today's slab from
@@ -2208,4 +2517,9 @@ Not done, and why:
    here is MediaRecorder's real-time WebM, so the second moment depends on
    frame timing; the default look draws the same pixels as `main` (0 of 85
    frames differ). Run it again on a quiet machine before trusting either way.
-3. **Not on `main`, not deployed**, as asked: the branch is pushed for review.
+3. **Partly on `main`, not deployed.** Another session merged the branch at
+   886e507e into `main` (cb15cef8) and numbered it rule 124 and §AR. The
+   shutter-moment saving (3c5e6032), which takes the Wide 3-D spin from a few
+   percent slower to level, and these final numbers are on
+   `claude/photo-real-phone-finish` only, `main` merged in; merge it to land
+   them. Not deployed, as asked.

@@ -54,7 +54,7 @@ const SETS_ONLY = process.argv.includes('--sets-only');
    (gradientWave, Silver & Blue), a glass card, a band headline, a checklist */
 const CARDS = argv('--cards') ? argv('--cards').split(',')
   : ['top_buyer', 'cars_kbb', 'pkm_binder', 'checklistHero-jw07-15', 'gradientWave-nn05-15', 'glassCard-cd06-15', 'bandKnockout-pp02-15'];
-const CONTROL = ['Night Blue', 'Orchid Payday'];
+const CONTROL = ['Navy & Gold', 'Purple & Gold'];   // two house themes with a warm accent, the muddy-floor control (rule 123)
 const PICKS = ['#0d1b2a', '#3b82f6', '#c2185b', '#9acd32', '#808080', '#ffd700', '#e0f7fa', '#14532d', '#7c2d12', '#f97316'];
 
 /* ── the audit's own maths (theme_law.mjs) ─────────────────────────────── */
