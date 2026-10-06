@@ -211,7 +211,9 @@ two showed different products. Deploy the same `main` commit to both, or
 retire one; the lasting fix is to link one project to this repository's
 `main` in Netlify (Project configuration, Build & deploy, Link repository;
 publish directory `.`) so that every push to `main` deploys and nobody deploys
-by hand. The cloud sessions cannot reach Netlify (their network policy denies
+by hand. `.github/workflows/deploy.yml` (2026-10-06) is that fix in GitHub's
+hands: it deploys every push to `main` once the repository secrets
+`NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` exist, and does nothing before. The cloud sessions cannot reach Netlify (their network policy denies
 `*.netlify.app` and `api.netlify.com`). The connector's deploy-site does not
 deploy by itself: it returns an `npx @netlify/mcp --site-id … --proxy-path
 https://netlify-mcp.netlify.app/proxy/…` command, which zips the working

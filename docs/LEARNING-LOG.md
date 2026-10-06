@@ -3691,13 +3691,30 @@ pages (no other change to them).
 Not done: nothing deployed (this session cannot reach Netlify); the work is
 on `claude/elegant-bohr-ee3nwp`, not `main`.
 
+**2026-10-06, continued.** The owner: "push and commit all changes and make
+sure the secondary color engine / color configurator is finally live."
+Merged `main` (86d08619: the five landed sessions, the real photographs,
+the music) into this branch; the two logs conflicted as appends and keep
+both sides, the SaaS section renumbered §AN (main had taken AF to AM). The
+colour builder (rule 112) is on `main` with its tabs on the landing, and
+§AM's audit passed every set and 1,803 tweaks; what it is not is deployed:
+api.netlify.com and every *.netlify.app answer 403 at this container's
+proxy, so nothing here can deploy or even read the live site. Added
+`.github/workflows/deploy.yml`, which deploys every push to `main` once
+`NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` are repository secrets; it does
+nothing until then. The branch is pushed and holds all of `main`; it is not
+on `main` (that push needs the owner's word).
+
 RESUME HERE:
-  0. Merge `main` in, run the checks, put this on `main`, deploy from the
-     Mac (AGENT-BRIEF, Deploying).
+  0. Deploy `main` to both Netlify projects: from the Mac (AGENT-BRIEF,
+     Deploying), or add the two GitHub secrets and let
+     `.github/workflows/deploy.yml` do it on every push to `main`. This
+     session cannot reach Netlify.
   1. The owner's decisions in OPEN-ITEMS §AN, 1 to 4: the AI caps (one
      command), the annual price, Stripe on with test keys, the video maker.
-  2. Then the earlier items: re-sweep the choice holds (§AE 6), the muddy
-     floor on rule 104's plate ink (§AE 2).
+  2. The entry above's list: the owner's call on
+     claude/vigilant-wozniak-kyyy7b (§AM 2), the car and sports picks (§AM 1).
+
 
 ## 2026-10-05 — one colour vocabulary: the themes are the library's twelve (rule 123)
 

@@ -2207,6 +2207,12 @@ Decisions for the owner, in order:
    traffic; watch the credits meter after the first push.
 7. **Partner and creator discounts** now work as Stripe promotion codes;
    none exist yet. Make one per partner in Stripe → Coupons.
+8. **Nothing deploys itself.** Six sessions since 2026-09-30 have ended with
+   "deploy `main` from the Mac"; this one too (the proxy answers 403 to
+   every Netlify host). `.github/workflows/deploy.yml` now deploys every
+   push to `main` once two repository secrets exist, `NETLIFY_AUTH_TOKEN`
+   and `NETLIFY_SITE_ID` (`NETLIFY_SITE_ID_2` for the second project).
+   Until then it does nothing.
 
 ## AO. 2026-10-05 — one colour vocabulary: the themes are the library's twelve (DESIGN-LAW 123)
 

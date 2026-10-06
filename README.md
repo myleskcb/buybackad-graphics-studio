@@ -8,6 +8,11 @@ in **demo mode**: sign-up, plans, a simulated checkout, the 3-a-week free
 limit, the 1080 cap and the watermark all work in the browser, so the whole
 flow can be clicked through without a backend. `?demo=0` turns it off.
 
+Or let GitHub deploy: `.github/workflows/deploy.yml` runs the same command on
+every push to `main` once the repository secrets `NETLIFY_AUTH_TOKEN` and
+`NETLIFY_SITE_ID` exist (`NETLIFY_SITE_ID_2` for the second project). Until
+then it does nothing, and the Mac deploy stands.
+
 ## Backend — real accounts, real limits, real Stripe
 One Netlify Function deployed with the site, `netlify/functions/api.mjs`,
 answers at `/api/*` (`config.js` derives the path from where the app is
@@ -31,7 +36,7 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 Stripe, once:
 1. Product catalog → product "Pro", recurring, $15 a month. Its price id
    (`price_…`) goes in `PRICE_PRO`. (An annual price is a second Stripe
-   price and a small code change: OPEN-ITEMS §AF 2.)
+   price and a small code change: OPEN-ITEMS §AN 2.)
 2. Developers → Webhooks → endpoint `https://<your site>/api/stripe-webhook`,
    events `checkout.session.completed` and `customer.subscription.deleted`.
    Its signing secret (`whsec_…`) goes in `STRIPE_WEBHOOK_SECRET`.
@@ -43,7 +48,7 @@ Stripe, once:
 That is the loop: sign-up → Stripe-hosted checkout → webhook flips the plan →
 the function counts every download and tells the browser the plan's size cap
 and watermark. The count is enforced server-side; the size cap and the
-watermark are applied by the browser (OPEN-ITEMS §AF 5).
+watermark are applied by the browser (OPEN-ITEMS §AN 5).
 
 ## Plan rules (change in ONE place each side, and the copy)
 `PLANS` in the SaaS section of `app.js` (what the UI shows) and at the top of
