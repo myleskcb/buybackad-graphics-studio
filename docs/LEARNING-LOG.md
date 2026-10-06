@@ -3641,3 +3641,60 @@ RESUME HERE:
   1. Deploy `main` from the Mac with `JWT_SECRET` set. Then sign in on the
      live site, save one ad, open 📚 Library → Copy link, and hand the link
      plus the README prompt to the iPhones LA session.
+
+## 2026-10-05 — the SaaS side, measured against the offer, the model and the market
+
+(claude/elegant-bohr-ee3nwp.)
+
+The owner: "make sure the saas side of things make sense with current model
+and offerings, and is worth the cost and make us enough, use market
+research."
+
+Did: read every plan number out of the function, the browser, the landing,
+about, terms and the category pages, and counted the offered cards (311
+live; 85 free, 27%). The two PLANS tables agree with every surface. Fixed
+what did not: the FAQ's "Video ads don't count" (the studio's video export
+goes through gateExport and recordExport, so it is one download; only the
+video maker's are free), the README's Cloudflare Worker backend (retired;
+the Netlify function is documented now with every env var), the checkout
+return racing the webhook ("You are now on the Free plan" after paying;
+it now waits up to twelve seconds, then says Pro is switching on), and
+promotion codes on Stripe Checkout for the discounts the landing promises.
+Wrote `docs/SAAS-AUDIT-2026-10-05.md` and OPEN-ITEMS §AN.
+
+Learned:
+  - The one variable cost is the AI background: about $0.034 an image on
+    Gemini 3.1 Flash Lite Image (not in the free tier), $0.03 on fal. At
+    the function's default caps a Pro account can spend $40.80 a month
+    against $14.16 net of Stripe, a free account $10.20, the site $408.
+    Three env vars bound it (2 / 8 / 120 a day); a monthly allowance is
+    the better product shape.
+  - $15 a month is the top of the 2026 range for a single-niche tool (Canva
+    Pro about $15 annual / $18 monthly, Kittl $15, Placeit $14.95,
+    PosterMyWall $13, VistaCreate $10, Adobe Express $9.99) and the only
+    one without an annual price; every comparable sells annual at about a
+    third off.
+  - Freemium converts at a median 8% across 200 products (2026 survey), a
+    quarter under 2.5%; niche self-serve sits at 3 to 6%. At that rate and
+    $15 the product is hundreds to low thousands a month until the free
+    base is in the tens of thousands; the levers are Stripe on, annual,
+    the partner channel, the BUSINESSES tier.
+  - Google's, Netlify's and Canva's own pages were unreachable from this
+    container's proxy; the prices are from third-party write-ups and the
+    audit says which. Confirm the model price on ai.google.dev before
+    quoting it to anyone.
+
+Checked: `node --check` on app.js and api.mjs; `scripts/build_seo_pages.mjs`
+rebuilt the ld-faq JSON-LD from the visible FAQ and the eight category
+pages (no other change to them).
+
+Not done: nothing deployed (this session cannot reach Netlify); the work is
+on `claude/elegant-bohr-ee3nwp`, not `main`.
+
+RESUME HERE:
+  0. Merge `main` in, run the checks, put this on `main`, deploy from the
+     Mac (AGENT-BRIEF, Deploying).
+  1. The owner's decisions in OPEN-ITEMS §AN, 1 to 4: the AI caps (one
+     command), the annual price, Stripe on with test keys, the video maker.
+  2. Then the earlier items: re-sweep the choice holds (§AE 6), the muddy
+     floor on rule 104's plate ink (§AE 2).

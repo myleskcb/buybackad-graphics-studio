@@ -6592,10 +6592,16 @@ async function startCheckout(planId){
 }
 function showPayResult(ok, planId){
   $('page-plans').classList.remove('active');
-  $('pay-ico').textContent = ok ? '✅' : '↩️';
-  $('pay-title').textContent = ok ? 'Payment successful!' : 'Checkout cancelled';
+  /* paid, but the account still reads Free: Stripe's webhook has not reached
+     the function yet (handleCheckoutReturn waited for it). Say that, never
+     "You are now on the Free plan" to someone who just paid. */
+  const pending = ok && (!planId || planId === 'free');
+  $('pay-ico').textContent = ok ? (pending ? '⏳' : '✅') : '↩️';
+  $('pay-title').textContent = ok ? (pending ? 'Payment received' : 'Payment successful!') : 'Checkout cancelled';
   $('pay-sub').textContent = ok
-    ? 'You are now on the ' + (PLANS[planId] ? PLANS[planId].label : 'new') + ' plan. Watermark off, full resolution on.'
+    ? (pending
+        ? 'Pro is switching on. It usually takes a few seconds; if your account still says Free in a minute, reload the page.'
+        : 'You are now on the ' + (PLANS[planId] ? PLANS[planId].label : 'new') + ' plan. Watermark off, full resolution on.')
     : 'No charge was made. You are still on your previous plan.';
   $('pay-overlay').classList.add('show');
 }
@@ -6604,8 +6610,16 @@ async function handleCheckoutReturn(){
   const st = q.get('checkout');
   if (!st) return;
   history.replaceState(null, '', location.pathname);
-  if (st === 'success'){ await loadAccount(); showPayResult(true, account && account.plan); }
-  else showPayResult(false);
+  if (st !== 'success'){ showPayResult(false); return; }
+  /* Stripe sends the browser back before its webhook has always reached the
+     function, so the first /me can still say Free. Ask again for a few
+     seconds before announcing the plan. */
+  await loadAccount();
+  for (let i = 0; i < 8 && account && (account.plan || 'free') === 'free'; i++){
+    await new Promise(r => setTimeout(r, 1500));
+    await loadAccount();
+  }
+  showPayResult(true, account && account.plan);
 }
 
 // ── export gate + watermark ──
