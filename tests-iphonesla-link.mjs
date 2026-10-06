@@ -745,7 +745,7 @@ test('the source holds no secret, logs nothing, and every request leaves the coo
   assert.ok(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write|\beval\(|new Function/.test(code));
   assert.ok(!/\(\?<[=!]/.test(code), 'a lookbehind is a parse error in older Safari and would kill the whole file');
   const fetches = (code.match(/\bfetch\(/g) || []).length;
-  assert.equal(fetches, 3);
+  assert.equal(fetches, 4, 'exchange, brief, images and the library link');
   assert.equal((code.match(/credentials: 'omit'/g) || []).length, fetches);
   assert.ok(!/gfx_[A-Za-z0-9_-]{16,}|gfxc_[A-Za-z0-9_-]{16,}/.test(code));
 });
@@ -973,4 +973,66 @@ test('a successful connect with no brief clears tags, while code-less links cann
   assert.equal(s.ctx.iplaLink.state().brief, null);
   await s.exportAdvanced();
   assert.equal(s.uploads()[0].init.body.get('family'), null);
+});
+
+// ───────────── the ad library's link, to the shop by itself ─────────────
+
+const LIBRARY = API + '/api/buy-ads/studio/library';
+const PAGE = 'https://studio.example/master-library.html?feed=fd_' + 'Ab3_'.repeat(6);
+
+test('shareLibrary sends this site\'s library link, with the token, to the shop\'s library route only', async () => {
+  const s = studio({ local: linked() });
+  s.location.origin = 'https://studio.example';
+  await settle();
+  const before = s.calls.length;
+  assert.equal(await s.ctx.iplaLink.shareLibrary(PAGE), 'sent');
+  const c = s.calls.slice(before);
+  assert.equal(c.length, 1);
+  assert.equal(c[0].url, LIBRARY);
+  assert.equal(c[0].init.method, 'POST');
+  assert.equal(c[0].init.credentials, 'omit');
+  assert.equal(c[0].init.headers.Authorization, 'Bearer ' + TOKEN);
+  assert.deepEqual(JSON.parse(c[0].init.body), { feed_url: PAGE, site: 'https://studio.example' });
+});
+
+test('shareLibrary refuses a link of another site or not a library link, and sends nothing', async () => {
+  const s = studio({ local: linked() });
+  s.location.origin = 'https://studio.example';
+  await settle();
+  const before = s.calls.length;
+  for (const bad of [PAGE.replace('studio.example', 'evil.example'), 'https://studio.example/master-library.html?feed=fd_short',
+    'https://studio.example/index.html?feed=fd_' + 'Ab3_'.repeat(6), 'https://user:pw@studio.example/master-library.html?feed=fd_' + 'Ab3_'.repeat(6), 'not a url']){
+    assert.equal(await s.ctx.iplaLink.shareLibrary(bad), 'refused', bad);
+  }
+  assert.equal(s.calls.length, before);
+});
+
+test('shareLibrary: not connected sends nothing; the shop\'s answers are read; a 401 ends the connection', async () => {
+  const off = studio();
+  off.location.origin = 'https://studio.example';
+  assert.equal(await off.ctx.iplaLink.shareLibrary(PAGE), 'not-connected');
+  assert.equal(off.calls.length, 0);
+  for (const [status, verdict] of [[404, 'unsupported'], [405, 'unsupported'], [503, 'retry'], [429, 'retry'], [400, 'refused']]){
+    const s = studio({ local: linked(), respond: url => (url === LIBRARY ? { status, body: {} } : { status: 200, body: {} }) });
+    s.location.origin = 'https://studio.example';
+    await settle();
+    assert.equal(await s.ctx.iplaLink.shareLibrary(PAGE), verdict, String(status));
+  }
+  const s = studio({ local: linked(), respond: url => (url === LIBRARY ? { status: 401, body: {} } : { status: 200, body: {} }) });
+  s.location.origin = 'https://studio.example';
+  await settle();
+  assert.equal(await s.ctx.iplaLink.shareLibrary(PAGE), 'not-connected');
+  assert.equal(s.ctx.iplaLink.state().connected, false);
+  const dead = studio({ local: linked(), respond: url => { if (url === LIBRARY) throw new Error('offline'); return { status: 200, body: {} }; } });
+  dead.location.origin = 'https://studio.example';
+  await settle();
+  assert.equal(await dead.ctx.iplaLink.shareLibrary(PAGE), 'retry');
+  assert.equal(dead.ctx.iplaLink.state().connected, true);
+});
+
+test('the handle says when the connection was made, never the token', async () => {
+  const s = studio({ local: linked() });
+  await settle();
+  assert.equal(s.ctx.iplaLink.state().connectedAt, '2026-09-19T10:00:00.000Z');
+  assert.ok(!JSON.stringify(s.ctx.iplaLink.state()).includes(TOKEN));
 });

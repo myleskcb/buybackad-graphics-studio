@@ -14,8 +14,11 @@
      change it. A fragment is whatever the person who made the link typed.
    - The fragment is read and cleared before anything else runs, so the code
      never sits in the address bar, in history or in a screenshot.
-   - No cookie ever crosses (credentials: 'omit'), and the token goes to the two
-     studio routes only.
+   - No cookie ever crosses (credentials: 'omit'), and the token goes to the
+     studio routes only (exchange, images, brief, library).
+   - The only other thing sent is the ad library's public link, and only one
+     made on this very site (ad-library.js forwards it, so the shop can
+     auto-post the saved ads without anyone copying it across).
    - An upload can fail in any way it likes and the download still happens: the
      original addHistory runs first and nothing here throws into it.
    - A WE BUY picture may show the shop's phone number: people have to be able
@@ -31,6 +34,7 @@
   const EXCHANGE = API + '/api/buy-ads/studio/exchange';
   const IMAGES = API + '/api/buy-ads/studio/images';
   const BRIEF = API + '/api/buy-ads/studio/brief';
+  const LIBRARY = API + '/api/buy-ads/studio/library';
   const BACK = API + '/repost#configurator';
 
   const LINK_KEY = 'ipla_link';      // localStorage: {token, connectedAt}
@@ -341,6 +345,36 @@
       // The server may LOWER the ceiling. It cannot raise it past what this file knows.
       if (typeof cap === 'number' && cap >= 100000 && cap < HARD_MAX_BYTES) state.maxBytes = Math.floor(cap);
     } catch (e){}
+  }
+
+  // The ad library's public link, handed to the shop over this connection so its
+  // auto-post reads the saved ads with nobody copying the link across. Only a
+  // library link of this very site is sent, and only to the shop. Answers:
+  // 'sent', 'not-connected', 'unsupported' (the shop has no such route yet: try
+  // again another day), 'retry', 'refused'; a 401 ends the connection as anywhere.
+  const FEED_PAGE_RE = /^\/master-library\.html\?feed=fd_[A-Za-z0-9_-]{24}$/;
+  async function shareLibrary(pageUrl){
+    let u;
+    try { u = new URL(String(pageUrl)); } catch (e){ return 'refused'; }
+    let here = '';
+    try { here = location.origin; } catch (e){}
+    if (u.origin !== here || u.username || u.password || !FEED_PAGE_RE.test(u.pathname + u.search)) return 'refused';
+    const token = state.link && state.link.token;
+    if (!token || state.connecting) return 'not-connected';
+    let r;
+    try {
+      r = await fetch(LIBRARY, {
+        method: 'POST', mode: 'cors', credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ feed_url: u.href, site: u.origin }),
+      });
+    } catch (e){ return 'retry'; }
+    if (!state.link || state.link.token !== token) return 'not-connected';
+    if (r.ok) return 'sent';
+    if (r.status === 401){ forget('iPhones LA ended this connection. Open the studio from Auto-post to connect again.'); return 'not-connected'; }
+    if (r.status === 404 || r.status === 405) return 'unsupported';
+    if (r.status === 408 || r.status === 429 || r.status >= 500) return 'retry';
+    return 'refused';
   }
 
   function clearBrief(){ state.brief = null; drop(session, BRIEF_KEY); }
@@ -720,6 +754,7 @@
   window.iplaLink = {
     state: () => ({
       connected: !!state.link, connecting: state.connecting,
+      connectedAt: state.link ? state.link.connectedAt : '',
       brief: state.brief ? JSON.parse(JSON.stringify(state.brief)) : null,
       note: state.note, noteKind: state.noteKind,
       queued: state.queue.length, busy: state.busy, waiting: state.timer != null,
@@ -728,7 +763,9 @@
     retryNow,
     disconnect,
     graphicFor,
-    // The ad library (ad-library.js) holds the same pictures back from auto-post.
+    // The ad library (ad-library.js) holds the same pictures back from auto-post,
+    // and forwards its public link to the shop over this connection.
     refusal,
+    shareLibrary,
   };
 })();
