@@ -1112,6 +1112,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 @media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}
 .ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}
 .ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}
+/* bulk import, under the background swatches: a compact cousin of the preview card's upload button */
+.ez-bulk{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-pill);font:650 12.5px/1 var(--ui);padding:10px 14px;cursor:pointer;transition:border-color .15s,background .15s}
+.ez-bulk small{font:500 11.5px/1 var(--ui);color:var(--text-dim)}
+.ez-bulk:hover{border-color:var(--accent);background:var(--accent-wash)}
+.ez-bulk:disabled{opacity:.65;cursor:progress}
+.ez-bulk:disabled:hover{border-color:var(--hairline-strong);background:var(--surface-sunk)}
 .ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}
 .ez-dl:hover{filter:brightness(1.06)}
 .ez-dl:active{transform:scale(.985)}
@@ -1201,7 +1207,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* easy recents + layers + star */
 .ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}
 #ez-recents{display:flex;flex-wrap:wrap;gap:10px}
-#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}
+#ez-recents:empty::after{content:'Photos you use or import will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}
 .ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}
 .ez-recent img{width:100%;height:100%;object-fit:cover;display:block}
 .ez-recent.sel{border-color:var(--accent)}
@@ -2289,6 +2295,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .ez-lprev{font-size:12.5px;color:var(--text-2)}
 :root[data-skin='poster'] .ez-stepline small{font-size:14px;color:var(--text-2)}
 :root[data-skin='poster'] .ez-fxnote{font-size:13.5px;color:var(--text-2)}
+:root[data-skin='poster'] .ez-bulk{font-size:13.5px}
+:root[data-skin='poster'] .ez-bulk small{font-size:13.5px;color:var(--text-2)}
 :root[data-skin='poster'] .ez-hint{font-size:13.5px;color:var(--text-2)}
 :root[data-skin='poster'] .ez-adv-link{font-size:14px}
 :root[data-skin='poster'] .ez-tagstyle{font-size:12.5px}
