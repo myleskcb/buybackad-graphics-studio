@@ -1983,6 +1983,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-voices button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}
 .ed-voices{gap:5px}
 .ed-voices button{padding:7px 10px;font-size:11px}
+/* the look's sub-controls, hosted under the Designer's chips (ezTagHost) */
+#ez-tag-more.in-editor{margin-top:10px}
+#ez-tag-more.in-editor .ez-fxrow button{padding:7px 11px;font-size:11px}
+#ez-tag-more.in-editor .ez-subttl{margin-top:10px}
 
 /* ═════════════════════════════════════════════════════════════════════════
    POSTER — THE HOUSE LOOK, 2026-10-01 (DESIGN-LAW rule 98).
@@ -2288,7 +2292,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .ez-field input,
 :root[data-skin='poster'] .ez-field textarea{font-size:16px}
 :root[data-skin='poster'] .ez-fxrow button,
-:root[data-skin='poster'] #ltab-bg .ez-fxrow button{font-size:13.5px}
+:root[data-skin='poster'] #ltab-bg .ez-fxrow button,
+:root[data-skin='poster'] #ez-tag-more.in-editor .ez-fxrow button{font-size:13.5px}
 :root[data-skin='poster'] .ez-chip,
 :root[data-skin='poster'] .ez-sizes .chip{font-size:14px}
 :root[data-skin='poster'] .ez-lname{font-size:14px}

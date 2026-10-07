@@ -507,6 +507,23 @@ produced." DESIGN-LAW rule 87. In practice:
   neutral the card's accent. A pass that moves or resizes the steps or the
   number's plate after them must leave `node scripts/steps_rhythm_audit.mjs`
   passing.
+- **A step's numeral sits in the middle of its circle** (2026-10-07):
+  `pgStepNumCentre`, after every layout and after a voice, measures the
+  numeral's ink (`pgInkBox`, shadow off) and moves it onto the middle of its
+  "Step Num Box". The box had held the text's em box centred, and a digit's
+  ink rides high or low in that box by its face (2 to 3.5px on 80 of the 83
+  Steps cards, 6.5px for an old-style serif 3). A pass that moves a step's
+  number or its circle, or sets its face, must leave
+  `node scripts/step_number_audit.mjs` passing (`--before` measures with the
+  pass off).
+- **The look's controls travel** (2026-10-07): the Headline style
+  sub-controls (gradient presets, stops and angle; the 36 patterns, their
+  size and slide; outline; effect) are one block, `#ez-tag-more`, that
+  `ezTagHost` moves under Easy Mode's chips or the Designer's. They keep
+  their ids; `ezTagPreview` draws Easy Mode's preview or the Designer's
+  canvas (`taglineEditorApply`) by where the block stands. Keep both pages'
+  chip rows feeding the same `ez.tag`, and run
+  `node scripts/tagline_panel_check.mjs` after touching the panel.
 - **The headline is the hero** (rule 116, 2026-10-03): judged by the letters
   it covers (30,000 px² on the 1080 square at least), never by font size
   alone. `node scripts/hero_headline.mjs --live` reports any live card under
