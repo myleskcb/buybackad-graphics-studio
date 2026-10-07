@@ -250,6 +250,15 @@ export default async (req) => {
       },
     });
     if (ads) return ads;
+    /* One probe for a deploy (SETUP.md; the workflow's "What went live"):
+       the function runs with its dependency (anything but 502 says so),
+       accounts are switched on (JWT_SECRET), and the users store answers.
+       Booleans and a store verdict only, never a value. */
+    if (p === '/health') {
+      let store = 'ok';
+      try { await users().get('u:health@probe.invalid'); } catch (e) { store = 'error: ' + String((e && e.message) || e).slice(0, 160); }
+      return json({ ok: store === 'ok' && !!env.JWT_SECRET, accounts: !!env.JWT_SECRET, store, ai: !!(env.GEMINI_KEY || env.FAL_KEY), google: !!env.GOOGLE_CLIENT_ID, billing: !!(env.STRIPE_SECRET && env.STRIPE_WEBHOOK_SECRET && env.PRICE_PRO && env.SITE_URL) });
+    }
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 
     if (p === '/auth/signup' && req.method === 'POST') {

@@ -130,6 +130,16 @@
       <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
       <button class="btn btn-ghost" id="lp-login">Log in</button>
       <button class="btn btn-outline" id="lp-signup">Sign up free</button>
+      <span class="view-menu" id="lp-acct" style="display:none">
+        <button class="acct-chip" id="lp-acct-chip" title="Your account"><span id="lp-acct-label"></span><span class="acct-plan free" id="lp-acct-plan">FREE</span></button>
+        <div class="view-drop acct-drop" id="lp-acct-menu">
+          <div class="am-email" id="lpam-email"></div>
+          <button class="view-item" id="lpam-plans">💳 Plan &amp; billing</button>
+          <button class="view-item" id="lpam-exports">🕘 My downloads</button>
+          <button class="view-item" id="lpam-adlib">📚 Ad library</button>
+          <button class="view-item" id="lpam-signout">↪ Sign out</button>
+        </div>
+      </span>
       <span class="view-menu lp-split">
         <button class="btn btn-primary" id="lp-open-studio">Make my ad</button><button class="btn btn-primary lp-caret" id="lp-studio-caret" title="New project or reopen a previous one">▾</button>
         <div class="view-drop acct-drop" id="lp-projects-menu"></div>
@@ -345,6 +355,7 @@
         <a href="tel:+15629994994">Call (562) 999-4994</a>
         <a href="#" id="lpf-signup">Create free account</a>
         <a href="#" id="lpf-login">Log in</a>
+        <a href="#" id="lpf-signout" style="display:none">Sign out</a>
         <a href="sms:+15629994994">Text (562) 999-4994</a>
       </div>
       <div class="lpf-col">

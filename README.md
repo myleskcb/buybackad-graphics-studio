@@ -25,7 +25,7 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 
 | variable | what it does |
 |---|---|
-| `JWT_SECRET` | required; any long random string, signs the sign-in tokens |
+| `JWT_SECRET` | required; any long random string, signs the sign-in tokens. `GET /api/health` reports `accounts:true` once it is set (and `store:"ok"` once Blobs answers), the one probe to run after a deploy |
 | `ADMIN_EMAILS` | comma-separated operator emails: no caps, no watermark, the admin tools |
 | `GEMINI_KEY` | AI backgrounds (Gemini 3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it). `FAL_KEY` is the Seedream fallback. With neither, the button says the feature is not enabled yet |
 | `RL_USER_DAILY` / `RL_PRO_DAILY` / `RL_GLOBAL_DAILY` | AI backgrounds a day for a Free account, a Pro account and the whole site (defaults 10 / 40 / 400). **The only per-use cost in the product**, about $0.034 an image: read `docs/SAAS-AUDIT-2026-10-05.md` before raising them |

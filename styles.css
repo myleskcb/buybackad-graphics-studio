@@ -2345,3 +2345,15 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .ez-kind button{font-size:13.5px}
 :root[data-skin='poster'] .ez-kind button.active{background:var(--accent);color:var(--accent-ink)}
 :root[data-skin='poster'] .ez-vidopts-l{font-size:12px;color:var(--text-2)}
+
+/* ═══ THE LANDING'S ACCOUNT CHIP (2026-10-07) ═══
+   The studio's chip lives in the studio's nav, so a signed-in visitor on the
+   landing page had no account control at all. This one takes the place of
+   Log in / Sign up free; on a phone the plan badge goes and the name is
+   clipped, so the nav that was measured at 375px (above) keeps its width. */
+#lp-acct .acct-chip{padding:7px 12px}
+#lp-acct-label{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:640px){
+  #lp-acct .acct-plan{display:none}
+  #lp-acct-label{max-width:64px}
+}

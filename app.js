@@ -6306,8 +6306,23 @@ async function api(path, body){
     body: body ? JSON.stringify(body) : undefined,
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  if (!r.ok){ const e = new Error(j.error || ('HTTP ' + r.status)); e.status = r.status; throw e; }
   return j;
+}
+/* What the sign-in dialog says when the account server itself is the
+   problem, so a wrong password is never confused with a deploy or an env
+   mistake (SETUP.md, AGENT-BRIEF "Deploying"): a function shipped without
+   node_modules answers 502 on every /api/*; a site deployed without its
+   function answers 404 with an HTML page; a project without JWT_SECRET
+   answers 500 and says so. The same words in account.js, for the pages
+   without app.js. */
+function authErrorText(e){
+  const m = String((e && e.message) || e || ''), s = e && e.status;
+  if (/JWT_SECRET/.test(m)) return 'Accounts are not switched on for this site yet: JWT_SECRET is not set in the Netlify project\'s environment (SETUP.md).';
+  if (s === 502 || s === 503 || s === 504) return 'The account server is not answering (HTTP ' + s + '). Try again in a minute. If it stays like this after a deploy, the function shipped without its dependency: npm ci, then deploy (SETUP.md).';
+  if (s === 404 && /^HTTP 404$/.test(m)) return 'There is no account server at this address (HTTP 404): the site was deployed without its function (SETUP.md).';
+  if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'Could not reach the account server. Check your connection and try again.';
+  return m || 'That did not work. Try again.';
 }
 
 // demo-mode account store (browser only; real enforcement lives in the Worker)
@@ -6392,6 +6407,23 @@ function syncAcctUI(){
     const el = $(id);
     if (el) el.style.display = account ? 'none' : '';
   }
+  /* ... and the landing's own account chip takes their place (the studio's
+     chip lives in the studio's nav, so until 2026-10-07 a signed-in visitor
+     on the landing page had no account control at all: no name, no plan,
+     no sign-out). The footer's Create free account / Log in give way to
+     Sign out the same way. */
+  const la = $('lp-acct');
+  if (la){
+    la.style.display = account ? '' : 'none';
+    if (account){
+      $('lp-acct-label').textContent = account.email.split('@')[0];
+      const b = $('lp-acct-plan');
+      b.textContent = planOf().label.toUpperCase();
+      b.classList.toggle('free', (account.plan || 'free') === 'free');
+    }
+  }
+  for (const id of ['lpf-login', 'lpf-signup']){ const el = $(id); if (el) el.style.display = account ? 'none' : ''; }
+  const so = $('lpf-signout'); if (so) so.style.display = account ? '' : 'none';
 }
 function syncQuotaUI(){
   const q = $('ez-quota'); if (!q) return;
@@ -6495,7 +6527,7 @@ async function submitAuth(){
       toast('Welcome back, ' + email.split('@')[0] + '!', 'success');
       if (authNext) authNext();
     }
-  } catch (e){ err.textContent = e.message; }
+  } catch (e){ err.textContent = authErrorText(e); }
   $('auth-go').disabled = false;
 }
 
@@ -6672,10 +6704,15 @@ function bindSaasUI(){
       openPlans('Pro unlocks every design, 2160px exports and no watermark.');
       return;
     }
-    showEditor();
-    loadTemplate(firstFreeTplId()); // maybeStartTutorial fires from here
+    /* a new account lands on the three-step page, the product's own loop
+       (pick a design, type your number, download), not the advanced editor
+       it used to open; the editor's tour (pgfx_tut_done above) fires the
+       first time the editor opens. Signed up from inside the studio (a
+       download's gate), the visitor stays where they were. */
+    if (!inStudio()) showEasy(null);
     if (authNext) authNext();
   };
+  const inStudio = () => $('page-editor').classList.contains('active') || $('page-easy').classList.contains('active');
   const atFree = $('at-free'), atPro = $('at-pro');
   if (atFree) atFree.onclick = () => finishOnboarding(false);
   if (atPro) atPro.onclick = () => finishOnboarding(true);
@@ -6696,7 +6733,21 @@ function bindSaasUI(){
   $('auth-go').onclick = submitAuth;
   $('auth-pass').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
   $('auth-cancel').onclick = () => $('auth-overlay').classList.remove('show');
-  $('auth-ok-btn').onclick = () => { $('auth-overlay').classList.remove('show'); syncAcctUI(); if (authNext) authNext(); };
+  $('auth-ok-btn').onclick = () => { $('auth-overlay').classList.remove('show'); syncAcctUI(); if (!inStudio()) showEasy(null); if (authNext) authNext(); };
+  /* the landing's account chip and its menu, the studio chip's twin */
+  const lpMenu = $('lp-acct-menu');
+  bindIf('lp-acct-chip', (e) => {
+    if (!account){ openAuth(); return; }
+    e.stopPropagation();
+    $('lpam-email').textContent = account.email + ' · ' + planOf().label;
+    lpMenu.classList.toggle('open');
+  });
+  const lpItem = (id, fn) => bindIf(id, () => { lpMenu.classList.remove('open'); fn(); });
+  lpItem('lpam-plans', () => openPlans());
+  lpItem('lpam-exports', () => openHistory());
+  lpItem('lpam-adlib', () => { if (window.adLibrary) adLibrary.open(); else toast('The library did not load. Reload the page.', 'error'); });
+  lpItem('lpam-signout', () => signOut());
+  bindIf('lpf-signout', (e) => { e.preventDefault(); signOut(); });
   $('plans-close').onclick = () => $('page-plans').classList.remove('active');
   $('pay-ok').onclick = () => $('pay-overlay').classList.remove('show');
   loadAccount();
