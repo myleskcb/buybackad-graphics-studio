@@ -2489,16 +2489,17 @@ Measured (cloud container, Chromium 1194, fabric 5.3.0 served from disk):
 - Default unchanged: 16 shuffled looks and the default look, 5 moments each,
   85 frames, 0 pixels differ before and after.
 - Rule 114: 57 of 57 phones pass side on; measured sides average 0.87 to 1.00
-  of their colour (standard 0.88 to 1.00), hue shifts 1.1 degrees at most, no
+  of their colour (standard 0.88 to 1.00), hue shifts 1.0 degree at most, no
   side's brightest 0.5% lighter than the standard's or the body.
 - motion_phone_check, every model all the way round, standard and photo-real
   (flat, edge_left, side on): all pass. audit_phone_views.py: 59 of 59.
 - Speed, whole 6 s videos of five large phones at 1080, every frame as an
-  export draws it (median of three, ms): flat 26,019 standard / 22,608
-  photo-real; edge_left 26,100 / 21,666; turntable 28,728 / 25,126;
-  side on 22,160 / 19,399; Wide 3-D spin about level (six runs, -1.6 to
-  +3.3%). Five 640 px phones, one frame: 27 to 31 ms photo-real against 28 to
-  32 ms standard.
+  export draws it (median of three, ms, standard / photo-real): flat 25,902 /
+  21,832 (-15.7%); edge_left 26,191 / 21,317 (-18.6%); turntable 28,616 /
+  24,304 (-15.1%); side on 24,381 / 19,406 (-20.4%); Wide 3-D spin 27,702 /
+  27,383 (-1.2%) and again 29,038 / 29,065 (+0.1%). Five 640 px phones, one
+  frame, median of 21: 27.4 to 32.2 ms photo-real against 31.3 to 33.6 ms
+  standard. (c228696d's own figure, 261 to about 45 ms, was its own renderer's.)
 - motion_export_check, landing_check at 390 and 1440: no errors, no failed
   requests, no overflow. motion_audit: 0 first-frame and 0 flash failures over
   684 cards; its 29 errors are held cards the studio will not open (the
@@ -2516,4 +2517,9 @@ Not done, and why:
    here is MediaRecorder's real-time WebM, so the second moment depends on
    frame timing; the default look draws the same pixels as `main` (0 of 85
    frames differ). Run it again on a quiet machine before trusting either way.
-3. **Not on `main`, not deployed**, as asked: the branch is pushed for review.
+3. **Partly on `main`, not deployed.** Another session merged the branch at
+   886e507e into `main` (cb15cef8) and numbered it rule 124 and §AR. The
+   shutter-moment saving (3c5e6032), which takes the Wide 3-D spin from a few
+   percent slower to level, and these final numbers are on
+   `claude/photo-real-phone-finish` only, `main` merged in; merge it to land
+   them. Not deployed, as asked.

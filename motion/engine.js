@@ -602,7 +602,7 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
     ctx.fillStyle = p.railLin ? litRail(p.railLin, u, photo ? SOFTBOX_LIFT : 0) : shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u); ctx.fill();
   }
   if (photo) softboxes(ctx, hull(rim.map(([x, y]) => P(x, y, -seen)).concat(rim.map(([x, y]) => P(x, y, seen)))), rim.map(([x, y]) => P(x, y, seen)),
-    P(0, -h / 2, seen)[1], P(0, h / 2, seen)[1], !!p.railLin);
+    P(0, -h / 2, seen)[1], P(0, h / 2, seen)[1], !!p.railLin, p.glassSub ?? 1);
   // the controls on the side we see, where Apple puts them. They come into view as that side
   // turns toward the lens, over the first 3.4 degrees: perspective alone gave them most of a
   // pixel square on, so they jumped from one edge to the other as the phone passed flat.
@@ -693,12 +693,17 @@ const SOFTBOX = [[0, .8], [.07, 1], [.19, .7], [.42, 1], [.52, .86], [.76, .68],
 // Measured aluminium is lit as a surface already, its light near its peak on the pale ones: it
 // takes the softboxes at a third of the depth (lifted by what that takes), or it could not average to its colour.
 const RAIL_SOFTBOX = SOFTBOX.map(([at, m]) => [at, 1 - (1 - m) / 3]);
-const stopsOf = box => box.map(([at, m]) => [at, `rgba(0,0,0,${(1 - m ** (1 / 2.2)).toFixed(3)})`]);
-const SOFTBOX_STOPS = stopsOf(SOFTBOX), RAIL_SOFTBOX_STOPS = stopsOf(RAIL_SOFTBOX);
+const stopsOf = (box, gain = 1) => box.map(([at, m]) => [at, `rgba(0,0,0,${((1 - m ** (1 / 2.2)) * gain).toFixed(3)})`]);
+const SOFTBOX_STOPS = new Map();                   // by depth and strength (see glassSub)
+const softboxStops = (rail, gain) => {
+  const k = (rail ? "r" : "b") + gain;
+  return SOFTBOX_STOPS.get(k) || SOFTBOX_STOPS.set(k, stopsOf(rail ? RAIL_SOFTBOX : SOFTBOX, gain)).get(k);
+};
 const SOFTBOX_LIFT = 1 / RAIL_SOFTBOX.slice(1).reduce((a, [at, m], i) => a + (at - RAIL_SOFTBOX[i][0]) * (m + RAIL_SOFTBOX[i][1]) / 2, 0);
-function softboxes(ctx, side, face, top, bot, rail) {
+function softboxes(ctx, side, face, top, bot, rail, gain = 1) {
+  if (!gain) return;                               // a moment of the shutter it skips (Ad._phonesLayer)
   const g = ctx.createLinearGradient(0, top, 0, bot);
-  for (const [at, col] of rail ? RAIL_SOFTBOX_STOPS : SOFTBOX_STOPS) g.addColorStop(at, col);
+  for (const [at, col] of softboxStops(rail, gain)) g.addColorStop(at, col);
   // the side only: the face drawn over it is cut out, so only the band's pixels are touched
   // (the face's own outline is inside the side's, so even-odd leaves exactly the band)
   ctx.beginPath();
@@ -727,15 +732,18 @@ function slabOf(pts, [ax, ay], [bx, by], t0, t1) {
 // frame), in the band's own colour. Both change smoothly through flat (nothing flips there) and
 // both go as the glass turns edge on (edgeOn, the face's cosine to the lens).
 function glassAndRim(ctx, p, w, h, s, rot, seenRim, edgeOn) {
+  const gain = p.glassSub ?? 1;                    // Ad._phonesLayer: 0 on the moments it skips
+  if (!gain) return;
   const ra = rot * Math.PI / 180, dx = Math.cos(ra) - Math.sin(ra), dy = Math.sin(ra) + Math.cos(ra);   // high-left to low-right, in the phone's frame
   const L = Math.hypot(w, h) / 2, k = L / Math.hypot(dx, dy), x0 = -dx * k, y0 = -dy * k, x1 = dx * k, y1 = dy * k;
   // the sheen goes as the glass turns edge on: side on, the glass is a line along the rim
-  const at = .36 + .22 * s, a = .1 * clamp(edgeOn * 3), g = ctx.createLinearGradient(x0, y0, x1, y1);
+  const at = .36 + .22 * s, a = .1 * gain * clamp(edgeOn * 3), g = ctx.createLinearGradient(x0, y0, x1, y1);
   g.addColorStop(clamp(at - .16), "rgba(255,255,255,0)"); g.addColorStop(clamp(at), `rgba(255,255,255,${a})`);
   g.addColorStop(clamp(at + .05), `rgba(255,255,255,${a * .45})`); g.addColorStop(clamp(at + .22), "rgba(255,255,255,0)");
   const lit = a > .002 ? slabOf(seenRim, [x0, y0], [x1, y1], at - .16, at + .22) : [];
   if (lit.length > 2) { poly(ctx, lit); ctx.fillStyle = g; ctx.fill(); }
-  // the catch-light goes with the glass too: edge on, the photograph's own rim is all there is
+  // the catch-light goes with the glass too: edge on, the photograph's own rim is all there is.
+  // (It keeps its strength on the moments it is drawn, so in a fast move's blur it is about half.)
   const [r, gg, b] = hexRgb(p.metal), rg = ctx.createLinearGradient(x0, y0, x1, y1), ka = clamp(edgeOn * 3);
   if (ka < .01) return;
   rg.addColorStop(0, `rgba(${r},${gg},${b},${.9 * ka})`); rg.addColorStop(1, `rgba(${r},${gg},${b},${.25 * ka})`);
@@ -3135,6 +3143,10 @@ export class Ad {
         const p = this.phones[i], stt = phoneState(p, ts, this.st);
         if (!stt) continue;
         if (refl) this._reflect(target, p, stt);
+        // photo-real's light on the glass and the band on every other moment of the shutter, at
+        // double strength (the moments are averaged, and white or black laid over a pixel is linear
+        // in its strength, so the average is the same): half the cost
+        if (p.finish === "photo") p.glassSub = subs > 1 ? (s % 2 ? 0 : subs / Math.ceil(subs / 2)) : 1;
         const soft = this.dofBlur && p.size < this.dofSize * .93 && "filter" in target;
         if (soft) target.filter = `blur(${this.dofBlur}px)`;
         drawPhone(target, p, ...stt, this.W);
