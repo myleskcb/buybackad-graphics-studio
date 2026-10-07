@@ -3934,8 +3934,12 @@ Found:
     (no draw of its own), the band sliced coarser where its own light covers
     it, the face's strips widened through the long lens. A microbenchmark
     held phones on the ground at every angle; whole exported videos were the
-    honest measure, and found the wide spin (wide lens, no wide strips) the
-    one case at parity rather than faster.
+    honest measure, and found the wide spin (wide lens, no wide strips) a few
+    percent slower until the light was laid on every other moment of the
+    shutter at double strength: an export averages its moments and paint over
+    a pixel is linear in its strength, so the average holds for half the cost.
+    The same machine's timings moved by ±4% from run to run: measure a close
+    case several times before calling it either way.
   - Coarser slicing changed the measured-aluminium sides again (the narrow
     glint, sliced coarser, read 1.13 times lighter): run motion_finish_check
     after any change to how the side is drawn, not only after a colour change.
@@ -3954,10 +3958,11 @@ Rejected: merging c228696d (its light went lighter than the body: +0.22 and
 a random weight for photo-real (the owner's rule: by hand).
 
 RESUME HERE:
-  0. The owner's look at the screenshots, then merge
-     `claude/photo-real-phone-finish` into `main` (merge `main` in first and
-     run motion_phone_check with and without `--finish photo`,
-     motion_finish_check and the seed pixel diff).
+  0. `main` has this branch to 886e507e (merged by another session as rule
+     124, §AR). Merge the rest (3c5e6032 on: the shutter-moment saving and
+     the final numbers), after the owner's look at the screenshots; run
+     motion_phone_check with and without `--finish photo`,
+     motion_finish_check and the seed pixel diff.
   1. video_photo_check's motion 1:1 case on a quiet machine (§AR 2).
   2. A leaned face that passes the coming-flat test, if the owner wants hero
      three-quarter or leaning back (§AR 1).
