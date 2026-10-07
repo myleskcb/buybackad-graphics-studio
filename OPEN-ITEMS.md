@@ -2473,6 +2473,16 @@ check `scripts/ad_library_check.mjs`.
 6. **The star on a locked (Pro) design** opens the plan page, as the card
    does. The hero wall (the animated shop window) carries no stars: its
    cards open the design in Easy Mode, where the strip's star is.
+7. **Upload (2026-10-07).** The owner asked again for "upload to library
+   properly": the dialog takes a photo or a video from the device
+   (⬆ Upload), and Add video puts a clip onto a photo ad. An upload cannot
+   be checked for a website on the picture, so it is not held; it is set to
+   auto-post like every save and the card's tick is the owner's call. A
+   video's photo is its best frame (VideoStill.frames, the vendored
+   Mediabunny decoder), so a browser without WebCodecs (an old Firefox)
+   gets "upload the photo first, then Add video". A .mov goes up as MP4
+   (both open with ftyp); the clip is served as .mp4 and most players take
+   it, but it is not re-muxed.
 ## AR. 2026-10-06 — the photo-real phone finish for the video maker (DESIGN-LAW 124)
 
 The owner, of the photo-real look left out on 2026-10-05 (§AM, not done 3):

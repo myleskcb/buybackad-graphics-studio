@@ -28,6 +28,10 @@
      and in the designer's export: the ad as made, its words and photo.
    - after a download (a picture or a video): the "save it" card, or every
      download once "Save every download here" is ticked.
+   - ⬆ Upload in the Library dialog: a photo or a video ad from this device
+     (made anywhere), as it is. A video's photo is its best frame, read out
+     of the file (VideoStill.frames); on a page without the frame reader,
+     the photo goes first and Add video puts the clip onto it.
 
    Rules this file keeps:
    - Nothing in app.js is edited for the library. The hooks are wraps around
@@ -341,6 +345,49 @@
       app.toast('The photo was saved to your library, but the video was not: ' + (e.message || 'try again'), 'error');
       return item;
     }
+  }
+  /* a photo or a video ad from this device, as it is: no gate, no count (it
+     was not made here), auto-post as every save; the owner sees the card
+     and can untick it. A video needs its photo: the best frame, read out
+     of the file where the frame reader is on the page. */
+  const titleOf = name => String(name || 'Ad').replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ').trim().slice(0, 80) || 'Ad';
+  async function uploadFile(file, say){
+    say = say || (() => {});
+    const isVideo = /^video\//i.test(file.type) || /\.(mp4|webm|mov|m4v)$/i.test(file.name);
+    if (!isVideo){
+      if (!/^image\//i.test(file.type)) throw new Error(file.name + ' is not a picture or a video');
+      say('Reading ' + file.name + '…');
+      const data = await blobToDataUrl(file);
+      return save({ name: file.name, data, meta: { title: titleOf(file.name), category: '', template: '', texts: [], products: [], source: 'upload', hold: '' } });
+    }
+    const VS = window.VideoStill;
+    if (!VS || !VS.frames) throw new Error('This page cannot read a video\'s frames. Upload the photo first, then press Add video on it.');
+    say('Choosing the photo for ' + file.name + '…');
+    const fs = await VS.frames(file, { max: 1, onProgress: p => say('Choosing the photo for ' + file.name + '… ' + Math.round(p * 100) + '%') });
+    if (!fs.length) throw new Error('No frame of ' + file.name + ' could be read');
+    const data = await blobToDataUrl(fs[0].blob);
+    const item = await save({ name: file.name, data, meta: { title: titleOf(file.name), category: '', template: '', texts: [], products: [], source: 'upload', hold: '' } }, true);
+    if (!item) return null;
+    say('Sending ' + file.name + '…');
+    const v = await saveVideo(item.id, file, { w: fs[0].w, h: fs[0].h }, p => say('Sending ' + file.name + '… ' + Math.round(p * 100) + '%'));
+    app.toast('Video ad uploaded to your library 🎬 ⭐', 'success');
+    return v;
+  }
+  async function uploadFiles(files, say){
+    if (!await signedIn(() => uploadFiles(files, say), 'Create a free account to keep your ads in a library, or sign in.')) return;
+    let n = 0;
+    for (const f of files){
+      try { if (await uploadFile(f, say)) n++; }
+      catch (e){ console.warn('ad library: upload', e); app.toast(f.name + ': ' + (e.message || 'not uploaded'), 'error'); }
+    }
+    if (say) say('');
+    return n;
+  }
+  /* a file picker that calls back with the files chosen */
+  function picker(accept, multiple, onFiles){
+    const inp = el('input'); inp.type = 'file'; inp.accept = accept; inp.multiple = !!multiple; inp.style.display = 'none';
+    inp.onchange = () => { const fs = [...inp.files]; inp.value = ''; if (fs.length) onFiles(fs); };
+    return inp;
   }
   function enqueue(rec){
     state.queue.push(rec);
@@ -789,10 +836,24 @@
     set.appendChild(au);
     m.appendChild(set);
 
+    // upload: an ad made anywhere, from this device
+    const up = el('div', 'adl-row'); up.style.marginTop = '12px';
+    const upIn = picker('image/*,video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov', true, async files => {
+      upBtn.disabled = true;
+      await uploadFiles(files, t => { upBtn.textContent = t || '⬆ Upload a photo or video'; });
+      upBtn.disabled = false; upBtn.textContent = '⬆ Upload a photo or video';
+    });
+    upIn.id = 'adl-upload';
+    const upBtn = btn('⬆ Upload a photo or video', 'btn-outline', () => upIn.click());
+    upBtn.id = 'adl-upload-btn';
+    up.appendChild(upBtn); up.appendChild(upIn);
+    up.appendChild(el('span', 'adl-note', 'An ad made anywhere: a JPG or PNG, or an MP4 or WebM video (its photo is read out of the file).'));
+    m.appendChild(up);
+
     // the ads
     const videos = lib.items.filter(x => x.video).length;
     m.appendChild(el('h4', '', 'Saved ads (' + lib.count + ' of ' + lib.limit + (videos ? ', ' + videos + ' with video' : '') + ')'));
-    if (!lib.items.length) m.appendChild(el('div', 'adl-empty', 'Nothing saved yet. Press the ★ on any ad, or ⭐ Save to library under your preview, or save one of your recent downloads below.'));
+    if (!lib.items.length) m.appendChild(el('div', 'adl-empty', 'Nothing saved yet. Press the ★ on any ad, ⭐ Save to library under your preview, ⬆ Upload a photo or video, or save one of your recent downloads below.'));
     else {
       const grid = el('div', 'adl-grid');
       lib.items.forEach(it => grid.appendChild(card(it, lib)));
@@ -855,6 +916,24 @@
     if (it.video){
       const dv = el('a', 'adl-x', 'Video'); dv.href = it.video.url; dv.download = slug(it.title) + '.' + it.video.format;
       row.appendChild(dv);
+      const rv = el('button', 'adl-x', 'Remove video'); rv.type = 'button'; rv.title = 'The clip goes, the photo stays';
+      rv.onclick = async () => {
+        if (!window.confirm('Remove the video from "' + it.title + '"? Its photo stays.')) return;
+        try { const r = await app.call('/ads/video/remove', { id: it.id }); took(r.item, false); }
+        catch (e){ app.toast(e.message || 'Not removed', 'error'); }
+      };
+      row.appendChild(rv);
+    } else {
+      /* a clip from this device onto this photo: the video ad made elsewhere */
+      const addIn = picker('video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov', false, async files => {
+        add.disabled = true; add.textContent = 'Sending…';
+        try { await saveVideo(it.id, files[0], {}, p => { add.textContent = 'Sending… ' + Math.round(p * 100) + '%'; }); app.toast('Video added to "' + it.title + '" 🎬', 'success'); }
+        catch (e){ app.toast('Not added: ' + (e.message || 'try again'), 'error'); add.disabled = false; add.textContent = 'Add video'; }
+      });
+      addIn.className = 'adl-addvideo';
+      const add = el('button', 'adl-x', 'Add video'); add.type = 'button'; add.title = 'Put a video (MP4 or WebM) from this device onto this ad';
+      add.onclick = () => addIn.click();
+      row.appendChild(add); row.appendChild(addIn);
     }
     const rm = el('button', 'adl-x', 'Remove'); rm.type = 'button';
     rm.onclick = async () => {
@@ -974,7 +1053,7 @@
 
   window.adLibrary = {
     open, close, load, paint, isSaved,
-    save: rec => save(rec), saveVideo, saveVideoAd, saveDesign, saveEasy, saveEditor, saveVideoNow,
+    save: rec => save(rec), saveVideo, saveVideoAd, saveDesign, saveEasy, saveEditor, saveVideoNow, upload: files => uploadFiles(files),
     signedIn: (next, msg) => signedIn(next, msg), ready,
     star: starFor, decorate,
     state: () => ({ lib: state.lib, error: state.error, auto: autoOn(), queued: state.queue.length, last: !!state.last, capture: !!state.capture }),

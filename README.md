@@ -193,6 +193,12 @@ otherwise) beside `image`, served by link and by byte range; the RSS carries
 it as a second `media:content`. iPhones LA's worker hands the clip to a
 `post()` that takes a `video` argument. Videos go up in raw parts under a
 request's 6 MB (`/api/ads/video/begin`, `part`, `done`), 40 MB at most.
+**⬆ Upload a photo or video** in the Library dialog takes an ad made
+anywhere, from this device: a JPG or PNG as it is, or an MP4 or WebM whose
+photo is its best frame, read out of the file; **Add video** on a photo ad
+puts a clip onto it, **Remove video** takes it off. An upload is not gated
+or counted (it was not made here); it is set to auto-post like every save,
+and the owner unticks it on the card if the picture is not one to post.
 
 **Accounts from every door.** Until 2026-10-06 the landing page's Sign up
 free, Log in and the dialog's Create account button did nothing until the

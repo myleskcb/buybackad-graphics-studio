@@ -731,6 +731,26 @@ async function browserPart() {
       const dlg = await page.evaluate(() => ({ kinds: document.querySelectorAll('#adlib-overlay .adl-kind').length, videoLinks: document.querySelectorAll('#adlib-overlay a.adl-x[download$=".webm"], #adlib-overlay a.adl-x[download$=".mp4"]').length }));
       ok(dlg.kinds >= 1 && dlg.videoLinks >= 1, 'video: the Library dialog marks the video ad and links its clip (' + JSON.stringify(dlg) + ')');
       await shot(page, 'stars-dialog');
+      /* ⬆ Upload: a photo from this device, then a video (its photo read out of the file),
+         then a clip put onto a photo ad with Add video */
+      const n0 = await page.evaluate(() => adLibrary.state().lib.count);
+      await page.setInputFiles('#adl-upload', { name: 'we-buy-gold.jpg', mimeType: 'image/jpeg', buffer: J[3] });
+      await page.waitForFunction((n) => adLibrary.state().lib.count === n + 1, n0, { timeout: 30000 }).catch(() => {});
+      const upP = await page.evaluate(() => { const t = adLibrary.state().lib.items[0]; return { title: t.title, source: t.source, kind: t.kind, w: t.image.width, hold: t.hold, autopost: t.autopost }; });
+      ok(upP.source === 'upload' && upP.kind === 'photo' && upP.title === 'we buy gold' && upP.w === 1080 && !upP.hold, 'upload: a photo from this device lands as it is (' + JSON.stringify(upP) + ')');
+      const clip = vid.top && vid.top.video ? Buffer.from(await (await fetch(vid.top.video.url)).arrayBuffer()) : null;
+      if (ok(!!clip && clip.length > 10000, 'upload: the studio\'s clip fetched back as the fixture')) {
+        await page.setInputFiles('#adl-upload', { name: 'phones-ad.webm', mimeType: 'video/webm', buffer: clip });
+        await page.waitForFunction((n) => { const l = adLibrary.state().lib; return l.count === n + 2 && l.items[0].video; }, n0, { timeout: 120000 }).catch(() => {});
+        const upV = await page.evaluate(() => { const t = adLibrary.state().lib.items[0]; return { title: t.title, source: t.source, kind: t.kind, photo: t.image.width, video: t.video && { w: t.video.width, format: t.video.format, bytes: t.video.bytes } }; });
+        ok(upV.source === 'upload' && upV.kind === 'video' && upV.title === 'phones ad' && upV.video && upV.video.format === 'webm' && upV.video.bytes === clip.length && upV.photo >= 320, 'upload: a video from this device, its photo read out of the file (' + JSON.stringify(upV) + ')');
+        await page.waitForSelector('#adlib-overlay .adl-card input.adl-addvideo', { state: 'attached', timeout: 10000 });   // a hidden file input is never 'visible'
+        await page.setInputFiles('#adlib-overlay .adl-card input.adl-addvideo >> nth=0', { name: 'gold.webm', mimeType: 'video/webm', buffer: clip });
+        await page.waitForFunction(() => { const l = adLibrary.state().lib; return l.items.filter((x) => x.video).length >= 3; }, null, { timeout: 120000 }).catch(() => {});
+        const added = await page.evaluate(() => { const l = adLibrary.state().lib; return { videos: l.items.filter((x) => x.video).length, count: l.count, removeVideo: document.querySelectorAll('#adlib-overlay .adl-card button.adl-x').length }; });
+        ok(added.videos >= 3 && added.count === n0 + 2, 'upload: Add video puts a clip onto a photo ad, the count unchanged (' + JSON.stringify(added) + ')');
+      }
+      await shot(page, 'stars-upload');
       await page.context().close();
     } catch (e) { ok(false, 'stars: ' + String(e.message || e).split('\n')[0]); }
 

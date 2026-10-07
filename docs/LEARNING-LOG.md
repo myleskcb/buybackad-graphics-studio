@@ -3962,3 +3962,27 @@ RESUME HERE:
   2. A leaned face that passes the coming-flat test, if the owner wants hero
      three-quarter or leaning back (§AR 1).
   3. Deploy `main` from the Mac (AGENT-BRIEF, Deploying).
+
+## 2026-10-07 — upload to the library from the device (claude/laughing-bardeen-uyh2xt)
+
+The owner repeated the ask ("allow account creation, so I can download
+content, upload to library properly, video ads photo ads all need a star
+button"). The stars, the accounts and the videos had landed on `main` the
+day before (e8356dcb) and `main` now deploys from GitHub on every push
+(deploy.yml). What was left of the words was the literal one: an upload.
+
+Did: ⬆ Upload a photo or video in the Library dialog (ad-library.js
+uploadFiles: a picture as it is; a video's photo read out of the file with
+VideoStill.frames, then the clip in parts), Add video and Remove video on a
+card; the check uploads a JPG, a WebM and a clip onto a photo. README,
+OPEN-ITEMS item 7.
+
+Checked: ad_library_check.mjs no failures; tests-iphonesla-link.mjs 68 of
+68; test_autopost.py 8 of 8.
+
+RESUME HERE:
+  0. The GitHub deploy (deploy.yml) needs NETLIFY_AUTH_TOKEN and
+     NETLIFY_SITE_ID in the repository's secrets; until they are set it does
+     nothing and `main` is deployed from the Mac. Then on the live site:
+     create an account from the landing page, press a star, open 📚 Library,
+     upload a photo.
