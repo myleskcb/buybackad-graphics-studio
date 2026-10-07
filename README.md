@@ -83,8 +83,11 @@ back is lossless. Plan pixel caps apply to the short side, so rectangular
 exports keep their aspect.
 
 ## Video ads
-Every design also downloads as a 10-second video: **Download as video** in
-Easy Mode, **Video** in the editor's export. The clip opens on the finished ad
+Every design also downloads as a 10-second video: the **Photo | Video**
+switch on Easy Mode's Download step (or **Configure as video** under the
+Download button) turns the step into the video's, with the clip playing in
+place of the still and a sound on/off row; **Video** in the editor's export.
+The clip opens on the finished ad
 (frame 0 is the still, so every feed thumbnail and muted autoplay shows the
 ad), lets it breathe, and at 5.8 s shifts to a call to action built from the
 card's own headline, action line, number and photograph (DESIGN-LAW rule 65).

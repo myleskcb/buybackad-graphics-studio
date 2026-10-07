@@ -3962,3 +3962,63 @@ RESUME HERE:
   2. A leaned face that passes the coming-flat test, if the owner wants hero
      three-quarter or leaning back (§AR 1).
   3. Deploy `main` from the Mac (AGENT-BRIEF, Deploying).
+
+## 2026-10-07 — Photo | Video on the Download step (claude/funny-ride-kyis07)
+
+The owner, over a screenshot of Easy Mode's step 3: "maybe the top line has
+a photo or video toggle.. and download as video if photo will be changed to
+configure as video".
+
+Found:
+  - `pgfx_video_sound` had been read by the video export (`motionSoundOn`)
+    since the sound was made, and nothing had ever set it: there was no
+    sound control anywhere.
+  - Three things hung off `#ez-video` as the video button: the export's
+    progress label and the helper's Try again (`ezDownloadVideo`), the
+    library's Save as video (`saveVideoNow('ez')` showed its progress there)
+    and the photo-after-video button (`VideoHelp.keepPhoto` lands after the
+    button and copies its class, so after the Download button it must be
+    given the dashed class or it comes out as a second blue button).
+  - `showEasy` is hoisted, so `typeof window.showEasy === 'function'` is true
+    while app.js is still running and a call then dies in the TDZ of a later
+    const (`TYPE_VOICES`). Wait for `window.adLibrary` (loaded after app.js).
+  - Playwright tries the last route registered first: an abort for every CDN
+    registered after the fabric fulfil swallowed fabric. fabric 5.3.1 is not
+    on npm (logged 2026-10-06); 5.3.0 served the check.
+
+Did: one switch on the Download line (index.html `#ez-kind`, Photo | Video,
+kept in `pgfx_ez_kind`); the Download button makes what it says (ezDownload
+wrapped; ezDownloadVideo takes its button, default `ez-download`); the dashed
+button under it is the way across (Configure as video / Configure as photo);
+the video kind plays the clip itself where the still was (`#ez-preview-video`,
+the still's scene kept and baked by the export's own motionBake, drawn by its
+motionDraw at MOTION.fps, phase kept across re-bakes, nothing drawn off
+screen), a Sound On | Silent row writing `pgfx_video_sound`, its own hint,
+Save as video in place of Save to library (CSS by the card's `is-video`
+class, so no script fights the plan and partner inline displays); the
+library's star shows its own progress; README; the two check scripts that
+pressed `#ez-video`.
+
+Checked (Chromium, fabric 5.3.0 from npm, fonts aborted, app.js appended
+code ran with no page error): photo kind labels and rows; the way across;
+video kind labels, rows, 560×560 bake playing, frames 1.3 s apart differ,
+t = 7.2 s draws the call to action; Silent and On write the key; Download in
+the video kind calls ezDownloadVideo('ez-download') and in the photo kind
+does not; Story re-bakes 560×996; typing re-bakes without restarting the
+clip; back to photo stops the loop; arrow keys cross; the kind survives a
+reload and plays once Easy Mode opens; 390 px: the switch sits on the
+Download line, no sideways scroll. tests-iphonesla-link.mjs 68 of 68.
+Not run here: motion_export_check, video_photo_check, ad_library_check
+(puppeteer-core is not installed and no CDN reaches this container);
+verify_csp.mjs cannot reach the live site from here.
+
+Rejected: a third kind or a music row (nothing in app.js's export takes
+music; the motion maker's tracks are its own); sound on the preview (a feed
+starts every clip muted, so the preview does).
+
+RESUME HERE:
+  0. Merge this branch to `main` and deploy `main` from the Mac. On the live
+     site: Photo | Video, Download my video, Save as video from the star, the
+     photo button under Download after a video.
+  1. Run ad_library_check.mjs and video_photo_check.mjs (its selector moved
+     to `#ez-download + .vh-photo`) and motion_export_check.mjs on a Mac.

@@ -484,17 +484,20 @@
     if (item){ app.toast(item.hold ? 'Saved to your library. ' + heldLine(item.hold) : 'Saved to your library ⭐' + (app.admin() ? '' : ' (1 download used)'), 'success'); try { $('export-overlay').classList.remove('show'); } catch (e){} }
     return item;
   }
-  /* the video, made by the studio's own video button and caught on its way
-     to the download: counted as that download is, then saved with its photo */
+  /* the video, made by the studio's own video export and caught on its way
+     to the download: counted as that download is, then saved with its photo.
+     In Easy Mode the star itself shows the progress and takes the helper's
+     Try again (ezDownloadVideo's button), since Download as video became the
+     Photo | Video switch's Download button (2026-10-07). */
   async function saveVideoNow(kind){
     if (!await signedIn(() => saveVideoNow(kind))) return;
-    const id = kind === 'adv' ? 'ex-video' : 'ez-video';
+    const id = kind === 'adv' ? 'ex-video' : 'ez-star-video';
     const btn = $(id);
     if (!btn || btn.disabled) return;
     state.capture = { kind, btn };
     try {
       if (kind === 'adv') await guardVideo(editorDownloadVideo, id);
-      else await guardVideo(ezDownloadVideo, id);
+      else await guardVideo(() => ezDownloadVideo(id), id);
     } finally { if (state.capture && state.capture.btn === btn) state.capture = null; }
   }
   function studioVideoMeta(photo){

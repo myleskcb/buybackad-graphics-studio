@@ -254,7 +254,7 @@ if (ONLY !== 'motion'){
     const { vid, png } = judge(r, run.short);
     /* the photo stays a tap away right after the video button: one button, and it saves the same file again */
     if (png){
-      const sel = run.editor ? '#export-overlay .modal-actions + .vh-photo' : '#ez-video + .vh-photo';
+      const sel = run.editor ? '#export-overlay .modal-actions + .vh-photo' : '#ez-download + .vh-photo';
       await page.evaluate(() => VideoHelp.close());                       // a "saved, with a catch" pop-up (WebM here)
       const kept = await page.evaluate(sel => { const b = document.querySelector(sel); return { here: !!b, n: document.querySelectorAll('.vh-photo').length, label: b ? b.textContent : null }; }, sel);
       r.kept = kept.label;

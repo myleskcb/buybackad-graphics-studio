@@ -2313,3 +2313,35 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .ed-more{font-size:13px}
 :root[data-skin='poster'] .zb-pct{font-size:12.5px}
 :root[data-skin='poster'] .panel-tabs button{font-size:13px;white-space:nowrap;padding-left:6px;padding-right:6px}
+
+/* ═══ EASY MODE, STEP 3: PHOTO | VIDEO ═══════════════════════════════════
+   Owner, 2026-10-07: "maybe the top line has a photo or video toggle, and
+   Download as video, if photo, will be changed to Configure as video". One
+   switch on the Download line decides what the Download button makes; the
+   dashed button under it is the way across. Everything the other kind needs
+   stays in the markup and is hidden by the card's class, so no script fights
+   the inline display the plan and partner syncs set on the same buttons.
+   The video kind plays the real clip in place of the still (app.js, the
+   Photo | Video section), drawn by the export's own motionDraw. */
+.ez-kind{display:flex;gap:3px;margin-left:auto;padding:3px;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:var(--r-pill);flex:none}
+.ez-kind button{background:none;border:none;border-radius:var(--r-pill);padding:7px 12px;font:650 12px/1 var(--ui);color:var(--text-dim);cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
+.ez-kind button:hover{color:var(--text)}
+.ez-kind button.active{background:var(--accent-deep);color:var(--accent-ink);box-shadow:var(--glow-accent)}
+.ez-kind button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ez-preview-card:not(.is-video) .ez-only-video,
+.ez-preview-card:not(.is-video) #ez-star-video{display:none!important}
+.ez-preview-card.is-video #ez-preview,
+.ez-preview-card.is-video #ez-dl-hint,
+.ez-preview-card.is-video #ez-star,
+.ez-preview-card.is-video #ez-order{display:none!important}
+#ez-preview-video{width:100%;height:auto;border-radius:var(--r-lg);display:block;background:var(--surface-sunk);min-height:200px}
+.ez-vidopts{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+.ez-vidopts-l{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}
+.ez-vidopts .ez-fxrow{margin:0}
+@media (max-width:920px){{
+  .ez-kind button{padding:7px 10px}
+  .ez-preview-card #ez-preview-video{max-height:52vh;width:auto;margin:0 auto}
+}
+:root[data-skin='poster'] .ez-kind button{font-size:13.5px}
+:root[data-skin='poster'] .ez-kind button.active{background:var(--accent);color:var(--accent-ink)}
+:root[data-skin='poster'] .ez-vidopts-l{font-size:12px;color:var(--text-2)}

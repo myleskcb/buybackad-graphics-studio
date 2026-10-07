@@ -12445,7 +12445,12 @@ function guardVideo(fn, btnId){
   });
 }
 
-async function ezDownloadVideo(){
+/* `btnId` is the button that shows the progress and is pressed again by the
+   helper's Try again: the Download button (Easy Mode's Photo | Video switch
+   makes it the video button), or the library's Save as video star. The photo
+   that comes with the video always lands under the Download button. */
+async function ezDownloadVideo(btnId){
+  const bid = btnId || 'ez-download';
   const actx = motionSoundOn() ? motionAudioContext() : null;   // inside the click, see motionAudioContext
   const phone = $('ez-phone').value.trim();
   if (!phone){
@@ -12453,7 +12458,7 @@ async function ezDownloadVideo(){
     $('ez-phone').focus(); $('ez-phone').scrollIntoView({ behavior:'smooth', block:'center' });
     return;
   }
-  if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $('ez-video') }, new Error('this browser cannot record video')); return; }
+  if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $(bid) }, new Error('this browser cannot record video')); return; }
   const gate = await gateExport(ezExportPx());
   if (!gate) return;
   /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
@@ -12461,7 +12466,7 @@ async function ezDownloadVideo(){
   if (!await pgGate('ez', () => renderEzCanvas(1080, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true))) return;
   const sc = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true);
   const docW = sc.width, docH = sc.height, k = Math.min(gate.px, MOTION.maxShort) / Math.min(docW, docH);
-  await runVideoExport({ sc, docW, docH, w: Math.round(docW * k), h: Math.round(docH * k), watermark:gate.watermark, photoCap:motionPhotoCap(), actx, name:ezTpl().name, btn:$('ez-video') });
+  await runVideoExport({ sc, docW, docH, w: Math.round(docW * k), h: Math.round(docH * k), watermark:gate.watermark, photoCap:motionPhotoCap(), actx, name:ezTpl().name, btn:$(bid), photoAfter:$('ez-download'), photoClass:'ez-open-adv' });
 }
 async function editorDownloadVideo(){
   const actx = motionSoundOn() ? motionAudioContext() : null;
@@ -20645,3 +20650,153 @@ function ezPhoneSetSettle(sc, S){
     if (done) e.preventDefault();
   });
 }
+
+/* ═══════════════ EASY MODE, STEP 3: PHOTO | VIDEO ═══════════════
+   Owner, 2026-10-07: "maybe the top line has a photo or video toggle, and
+   Download as video, if photo, will be changed to Configure as video."
+
+   One switch on the Download line (index.html, #ez-kind) decides what the
+   Download button makes: the picture, or the 10-second video of it. The
+   dashed button under Download is the way across, Configure as video on the
+   photo and Configure as photo on the video, so nothing on the card reads as
+   a second download. The video kind plays the clip itself where the still
+   was, drawn by the export's own motionBake and motionDraw on the scene the
+   still is drawn from, so what plays is what downloads; and its one setting,
+   the sound track on or off (pgfx_video_sound, which the export has read
+   since the sound was made and nothing had ever set), gets a row. The choice
+   is kept, as the size is (pgfx_ez_format).
+
+   Appended, not spliced (rule 42): ezDownload and schedEzPreview are wrapped,
+   ezDownloadVideo takes its button (above), and the rest is new. */
+const EZ_KIND_KEY = 'pgfx_ez_kind';
+let ezKindNow = jget(EZ_KIND_KEY, 'photo') === 'video' ? 'video' : 'photo';
+function ezKind(){ return ezKindNow; }
+const EZ_KIND_LABEL = {
+  photo: { dl: '⬇&nbsp; Download my ad', across: '🎬&nbsp; Configure as video',
+           title: 'Set this ad up as a 10-second video for Reels, Stories and TikTok: it opens as the finished ad, the photo breathes, the headline, selling points and number each get a beat, then it shifts to its call to action' },
+  video: { dl: '🎬&nbsp; Download my video', across: '📸&nbsp; Configure as photo',
+           title: 'Back to the picture of this ad, for Marketplace, OfferUp and Instagram posts' },
+};
+const ezKindCard = () => { const im = $('ez-preview'); return im ? im.closest('.ez-preview-card') : null; };
+function ezKindPaint(){
+  const card = ezKindCard(); if (!card) return;
+  const video = ezKindNow === 'video';
+  card.classList.toggle('is-video', video);
+  const kind = $('ez-kind');
+  if (kind) kind.querySelectorAll('button').forEach(b => {
+    const on = b.dataset.kind === ezKindNow;
+    b.classList.toggle('active', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1;
+  });
+  const L = EZ_KIND_LABEL[ezKindNow], dl = $('ez-download'), across = $('ez-video');
+  if (dl && !dl.disabled) dl.innerHTML = L.dl;          // disabled: runVideoExport owns the label until it is done
+  if (across){ across.innerHTML = L.across; across.title = L.title; }
+  const snd = $('ez-sound');
+  if (snd) snd.querySelectorAll('button').forEach(b => b.classList.toggle('active', (b.dataset.sound === 'on') === motionSoundOn()));
+}
+function ezSetKind(k){
+  k = k === 'video' ? 'video' : 'photo';
+  const changed = k !== ezKindNow, dl = $('ez-download');
+  if (changed && dl && dl.disabled){ toast('Wait for the ' + (ezKindNow === 'video' ? 'video' : 'download') + ' to finish first'); return false; }
+  ezKindNow = k;
+  jset(EZ_KIND_KEY, k);
+  ezKindPaint();
+  if (k === 'video') ezMotionStart(changed); else ezMotionStop();
+  return true;
+}
+
+/* ── the clip, playing where the still was ──
+   The scene is the still preview's (renderEzCanvas at the preview's 560,
+   kept instead of flattened), baked by the export's motionBake and drawn by
+   its motionDraw at the clip's own rate, so the loop, the beats and the call
+   to action are the file's, not an imitation. The sound stays off: a feed
+   starts every video muted, and so does this. Nothing is drawn while the tab
+   is hidden, while Easy Mode is off screen, or on the photo kind. */
+const ezMotion = { raf: 0, timer: 0, bake: null, t0: 0, last: 0 };
+function ezMotionStop(){
+  cancelAnimationFrame(ezMotion.raf); ezMotion.raf = 0;
+  clearTimeout(ezMotion.timer); ezMotion.timer = 0;
+  ezMotion.bake = null;
+}
+function ezMotionStart(fromTop){
+  if (fromTop) ezMotion.t0 = 0;      // the clip opens on the ad, as the file does
+  ezMotionBake();
+}
+function ezMotionBake(){
+  if (ezKindNow !== 'video') return;
+  const cv = $('ez-preview-video'), page = $('page-easy');
+  if (!cv || !page || !page.classList.contains('active')) return;    // the next preview bakes it
+  if (typeof motionBake !== 'function' || typeof renderEzCanvas !== 'function') return;
+  const x = cv.getContext('2d');
+  if (!x) return;
+  let sc = null;
+  const tagInfo = ez.tagInfo;        // the still's own notes stay the tagline panel's
+  try {
+    sc = renderEzCanvas(560, 'png', undefined, undefined, undefined, true);
+    const docW = sc.width, docH = sc.height, k = 560 / Math.min(docW, docH);
+    const bake = motionBake(sc, docW, docH, Math.round(docW * k), Math.round(docH * k));
+    if (cv.width !== bake.W || cv.height !== bake.H){ cv.width = bake.W; cv.height = bake.H; }
+    ezMotion.bake = bake;
+    if (!ezMotion.raf) ezMotionLoop(cv, x);
+  } catch (e){
+    console.warn('GraphicsStudio motion: the video preview could not be drawn, the still stands in.', e);
+    ezMotion.bake = null;
+    const im = $('ez-preview');
+    if (im && im.naturalWidth){ cv.width = im.naturalWidth; cv.height = im.naturalHeight; try { x.drawImage(im, 0, 0); } catch (_){} }
+  } finally {
+    ez.tagInfo = tagInfo;
+    if (sc) try { sc.dispose(); } catch (e){}
+  }
+}
+function ezMotionLoop(cv, x){
+  const step = now => {
+    if (ezKindNow !== 'video'){ ezMotionStop(); return; }
+    ezMotion.raf = requestAnimationFrame(step);
+    const b = ezMotion.bake;
+    if (!b || document.hidden || cv.offsetParent === null) return;
+    if (now - ezMotion.last < 1000 / MOTION.fps - 2) return;         // the clip's rate, not the screen's
+    ezMotion.last = now;
+    if (!ezMotion.t0) ezMotion.t0 = now;
+    try { motionDraw(x, b, ((now - ezMotion.t0) / 1000) % MOTION.dur); }
+    catch (e){ console.warn('GraphicsStudio motion: the video preview stopped.', e); ezMotionStop(); }
+  };
+  ezMotion.raf = requestAnimationFrame(step);
+}
+{
+  /* every change the still preview sees, the clip sees: baked just after the
+     still, so the still lands first and the dark-or-light reading (which
+     reads the still) is never behind */
+  const _schedEzPreview = schedEzPreview;
+  schedEzPreview = function(delay){
+    _schedEzPreview.apply(this, arguments);
+    clearTimeout(ezMotion.timer); ezMotion.timer = 0;
+    if (ezKindNow !== 'video') return;
+    ezMotion.timer = setTimeout(ezMotionBake, delay === 0 ? 30 : 300);
+  };
+  /* the Download button makes what the switch says; the helper's Try again
+     presses this same button, so a retry stays a video */
+  const _ezDownload = ezDownload;
+  ezDownload = function(skipBgCheck){
+    if (ezKindNow === 'video') return guardVideo(() => ezDownloadVideo('ez-download'), 'ez-download');
+    return _ezDownload.apply(this, arguments);
+  };
+}
+(function bindEzKind(){
+  const bind = () => {
+    const kind = $('ez-kind');
+    if (!kind || kind.dataset.bound) return;
+    kind.dataset.bound = '1';
+    kind.querySelectorAll('button').forEach(b => { b.onclick = () => ezSetKind(b.dataset.kind); });
+    kind.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      e.preventDefault();
+      if (ezSetKind(ezKindNow === 'video' ? 'photo' : 'video')){ const a = kind.querySelector('button.active'); if (a) a.focus(); }
+    });
+    const across = $('ez-video');
+    if (across) across.onclick = () => ezSetKind(ezKindNow === 'video' ? 'photo' : 'video');
+    const snd = $('ez-sound');
+    if (snd) snd.querySelectorAll('button').forEach(b => { b.onclick = () => { jset('pgfx_video_sound', b.dataset.sound === 'on'); ezKindPaint(); }; });
+    ezKindPaint();
+    /* a kept video kind plays once Easy Mode opens: showEasy's first preview bakes it */
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+})();

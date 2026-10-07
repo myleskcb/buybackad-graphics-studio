@@ -506,13 +506,26 @@
       </div>
 
       <div class="ez-card ez-preview-card">
-        <div class="ez-stepline" style="margin-top:0"><span class="ez-stepnum">3</span><h2>Download</h2></div>
+        <div class="ez-stepline" style="margin-top:0"><span class="ez-stepnum">3</span><h2>Download</h2>
+          <div class="ez-kind" id="ez-kind" role="radiogroup" aria-label="Photo or video">
+            <button type="button" data-kind="photo" class="active" role="radio" aria-checked="true" title="A post-ready picture of this ad">📸 Photo</button>
+            <button type="button" data-kind="video" role="radio" aria-checked="false" title="A 10-second video of this ad for Reels, Stories and TikTok: it opens as the finished ad, the photo breathes, the headline, selling points and number each get a beat, then it shifts to its call to action">🎬 Video</button>
+          </div>
+        </div>
         <img id="ez-preview" alt="Live preview of your ad">
+        <canvas id="ez-preview-video" class="ez-only-video" aria-label="Live preview of your video, playing as it will download"></canvas>
         <button class="ez-upload-bg" id="ez-upload-bg">📸&nbsp; Upload background photo</button>
         <input type="file" id="ez-upload-bg-file" accept="image/*,.heic,.heif" style="display:none">
         <div class="ez-sizes" id="ez-sizes" title="Export size"></div>
+        <div class="ez-vidopts ez-only-video" id="ez-vidopts">
+          <span class="ez-vidopts-l">Sound</span>
+          <div class="ez-fxrow" id="ez-sound" role="group" aria-label="Video sound">
+            <button type="button" data-sound="on" title="A soft beat, a whoosh into the money word, a tick on the selling points and a chime when the number lands. Every feed starts it muted; it is there for the viewer who taps to hear">🔊 On</button>
+            <button type="button" data-sound="off" title="No sound track in the file">🔇 Silent</button>
+          </div>
+        </div>
         <button class="ez-dl" id="ez-download">⬇&nbsp; Download my ad</button>
-        <button class="ez-open-adv" id="ez-video" title="A 10-second video of this ad for Reels, Stories and TikTok: it opens as the finished ad, the photo breathes, the headline, selling points and number each get a beat, then it shifts to its call to action">🎬&nbsp; Download as video</button>
+        <button class="ez-open-adv" id="ez-video" title="Set this ad up as a 10-second video for Reels, Stories and TikTok: it opens as the finished ad, the photo breathes, the headline, selling points and number each get a beat, then it shifts to its call to action">🎬&nbsp; Configure as video</button>
         <div class="adl-starrow">
           <button class="ez-open-adv" id="ez-star" title="Save this ad to your library, as it is here, so iPhones LA can post it">⭐&nbsp; Save to library</button>
           <button class="ez-open-adv" id="ez-star-video" title="Make the 10-second video of this ad and save it to your library with its photo">⭐🎬&nbsp; Save as video</button>
@@ -522,6 +535,7 @@
         <div class="ez-quota" id="ez-quota"></div>
         <button class="ez-open-adv" id="ez-open-adv">Fine-tune in advanced editor</button>
         <div class="ez-hint" id="ez-dl-hint">1080 × 1080 PNG minimum, Marketplace · Instagram post</div>
+        <div class="ez-hint ez-only-video" id="ez-video-hint">A 10-second MP4 of this ad, with a photo to post beside it. Reels, Stories, TikTok and OfferUp. The preview above plays as it will download.</div>
         <div class="ez-layers">
           <div class="ez-subttl" style="margin-top:0">Layers</div>
           <div id="ez-layers-list"></div>
