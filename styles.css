@@ -1276,7 +1276,24 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .plans-close{background:var(--glass-bg-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);color:var(--text);border-radius:var(--r-pill);padding:10px 16px;font:600 13px/1 var(--ui);cursor:pointer}
 .plans-close:hover{background:var(--surface-raise)}
 .plans-sub{color:var(--text-dim);font:500 14px/1.5 var(--ui);margin:0 0 26px}
-.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.plans-grid{display:block}
+.plans-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.plans-toggle{display:inline-flex;gap:4px;padding:4px;margin:0 0 18px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline);max-width:100%;flex-wrap:wrap}
+.plans-toggle button{border:0;background:none;color:var(--text-2);font:650 13.5px/1 var(--ui);padding:11px 16px;border-radius:var(--r-pill);cursor:pointer;min-height:40px}
+.plans-toggle button[aria-pressed=true]{background:var(--glass-bg-strong);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.plans-note{font:500 13px/1.5 var(--ui);color:var(--text-2);background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:14px;padding:10px 14px;margin:0 0 16px}
+.plan-per{font:500 12.5px/1.4 var(--ui);color:var(--text-dim)}
+.plans-packs{margin-top:22px;background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:22px;padding:20px 24px;box-shadow:var(--glass-shadow)}
+.plans-packs h3{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin:0 0 6px}
+.plans-packs p{font:500 13px/1.5 var(--ui);color:var(--text-2);margin:0 0 14px}
+.plans-packs p b{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text)}
+.plans-pack-row{display:flex;gap:10px;flex-wrap:wrap}
+.pack-btn{flex:1 1 180px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:14px;padding:13px 16px;cursor:pointer;font:600 14px/1 var(--ui);min-height:48px}
+.pack-btn b{font-weight:700}
+.pack-btn span{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text-2)}
+.pack-btn:hover{border-color:var(--accent)}
+.ai-credits{font:500 12px/1.45 var(--ui);color:var(--text-dim);margin-top:6px}
+.ai-more{border:0;background:none;color:var(--accent);font:650 12px/1 var(--ui);text-decoration:underline;cursor:pointer;padding:4px 2px}
 .plan-card{
   background:var(--glass-bg);
   -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
@@ -1398,7 +1415,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .chip-x{opacity:.55;font-size:10px;margin-left:2px}
 .ez-chip-custom:hover .chip-x{opacity:1;color:var(--danger)}
 
-.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:720px}
+.lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;max-width:1040px}
+.lp-price-alt{font-size:13px;color:var(--text-dim);margin:-6px 0 12px}
+.lp-price-foot{font-size:13.5px;color:var(--text-2);margin:18px 0 0;max-width:720px}
 .lp-price-card{
   background:var(--glass-bg);
   -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
@@ -2123,6 +2142,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] #export-btn,
 :root[data-skin='poster'] .btn-gen,
 :root[data-skin='poster'] .tpl-card .tpl-use{background:var(--accent);color:var(--accent-ink);border:var(--line-w) solid var(--ink);box-shadow:var(--hard)}
+/* the plan page's quiet buttons (Manage billing, Cancel in billing) stay quiet in print */
+:root[data-skin='poster'] .plan-btn.ghost{background:var(--surface-solid);color:var(--text)}
+:root[data-skin='poster'] .plans-toggle button[aria-pressed=true]{background:var(--surface-solid);border:var(--line-w) solid var(--ink);box-shadow:none}
 :root[data-skin='poster'] .ez-stepnum{background:var(--pop-marigold);color:#141414;border:var(--line-w) solid var(--ink);line-height:22px}
 :root[data-skin='poster'] .chip.on,
 :root[data-skin='poster'] .look-chip.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:none}

@@ -26,24 +26,37 @@
  *                                one public link to them for a poster
  *                                (netlify/lib/adlibrary.mjs).
  *
+ *   GET  /api/plans              public. The plans, the packs and what an AI
+ *                                background costs in credits now.
+ *   /api/checkout, /checkout/confirm, /billing/change, /portal,
+ *   /stripe-webhook, /admin/billing   Stripe (netlify/lib/billing.mjs).
+ *
+ * The plans, the AI credits and every paid model's price are one table:
+ * netlify/lib/plans.mjs. A paid model call spends credits; a model with no
+ * price there is not sold.
+ *
  * Env vars: JWT_SECRET (required), GEMINI_KEY (required for AI), ADMIN_EMAILS
  * (comma-separated), optional: FAL_KEY (Seedream fallback when Gemini fails, or
- * the only provider without GEMINI_KEY), PGFX_BG_MODEL, RL_USER_DAILY, RL_PRO_DAILY,
- * RL_GLOBAL_DAILY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, PRICE_PRO, SITE_URL,
- * LIBRARY_KEYS (name:key pairs), LIBRARY_DAILY, ADLIB_DAILY, ADLIB_MAX_FREE,
- * ADLIB_MAX_PRO, ADLIB_MAX_ADMIN.
+ * the only provider without GEMINI_KEY), PGFX_BG_MODEL, MODEL_COSTS (JSON,
+ * dollars a call, merged over plans.mjs), AI_FREE_DAILY_CREDITS (the whole
+ * free tier's AI credits a day, default 100), AI_DAILY_CREDITS (everyone's,
+ * default 2000), STRIPE_SECRET (switches billing on), STRIPE_WEBHOOK_SECRET
+ * (optional: the webhook registers itself), PRICE_<KEY> (optional: a price
+ * made by hand; PRICE_PRO is PRICE_PRO_MONTH), SITE_URL, LIBRARY_KEYS
+ * (name:key pairs), LIBRARY_DAILY, ADLIB_DAILY, ADLIB_MAX_FREE, ADLIB_MAX_PRO,
+ * ADLIB_MAX_BUSINESS, ADLIB_MAX_ADMIN. RL_USER_DAILY, RL_PRO_DAILY and
+ * RL_GLOBAL_DAILY (the old daily AI caps) are retired: credits replace them.
  */
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
 import { adLibraryRoute } from '../lib/adlibrary.mjs';
+import { PLANS, PACKS, PAID, planId, creditState, spendCredits, refundCredits, backgroundCredits } from '../lib/plans.mjs';
+import {
+  billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
+  syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey,
+} from '../lib/billing.mjs';
 
 export const config = { path: '/api/*' };
-
-const PLANS = {
-  free: { maxPx: 1080, watermark: true, weekly: 3, monthly: null },
-  pro: { maxPx: 2160, watermark: false, weekly: null, monthly: 100 },
-  starter: { maxPx: 2160, watermark: false, weekly: null, monthly: 100 }, // legacy alias of pro
-};
 
 const enc = new TextEncoder();
 const b64u = (b) => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -81,7 +94,24 @@ const isoDay = () => new Date().toISOString().slice(0, 10);
 
 const adminEmails = (env) => String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
 const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'user');
-const publicUser = (u, env) => ({ email: u.email, plan: u.plan, exports: u.exports, role: roleFor(u.email, env) });
+const publicUser = (u, env) => ({
+  email: u.email, plan: planId(u.plan), exports: u.exports, role: roleFor(u.email, env),
+  credits: creditState(u),
+  sub: u.sub && u.sub.id ? { plan: u.sub.plan, interval: u.sub.interval, status: u.sub.status, periodEnd: u.sub.periodEnd, cancelAt: u.sub.cancelAt } : null,
+});
+/* the download meter of an account's plan: this period's count, its cap */
+function exportMeter(user) {
+  const plan = PLANS[planId(user.plan)];
+  const cap = plan.weekly ?? plan.monthly;
+  const period = plan.weekly ? isoWeek() : isoMonth();
+  if (!user.exports || user.exports.period !== period) user.exports = { period, count: 0 };
+  return { plan, cap, period, per: plan.weekly ? 'week' : 'month', remaining: cap === null ? null : Math.max(0, cap - user.exports.count) };
+}
+/* a paid account whose period ran out is read from Stripe again (billing.mjs) */
+async function freshUser(user, env) {
+  if (billingOn(env) && syncDue(user) && (await syncSub(user, env))) await putUser(user);
+  return user;
+}
 
 const json = (data, status) => new Response(JSON.stringify(data), {
   status: status || 200,
@@ -218,6 +248,14 @@ async function bumpCounter(key, cap) {
   return true;
 }
 
+async function bumpBy(key, n, cap) {
+  const store = users();
+  const have = parseInt((await store.get(key)) || '0', 10);
+  if (have + n > cap) return false;
+  await store.set(key, String(have + n));
+  return true;
+}
+
 const BG_FILE_RE = /^dl_[a-z]+_[A-Za-z]+_[a-z]+\.jpg$/; // Designer Library names only
 
 export default async (req) => {
@@ -250,6 +288,10 @@ export default async (req) => {
       },
     });
     if (ads) return ads;
+    /* what the plans page shows, from the table that is enforced */
+    if (p === '/plans') {
+      return json({ plans: PLANS, packs: PACKS, ai: { background: backgroundCredits(env) }, billing: billingOn(env) });
+    }
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 
     if (p === '/auth/signup' && req.method === 'POST') {
@@ -307,24 +349,27 @@ export default async (req) => {
       if (!em) return json({ error: 'Not signed in' }, 401);
       const user = await getUser(em);
       if (!user) return json({ error: 'Account not found' }, 404);
-      return json({ user: publicUser(user, env) });
+      return json({ user: publicUser(await freshUser(user, env), env) });
     }
 
-    if (p === '/export' && req.method === 'POST') {
+    /* One download, photo or video, from the studio or the video maker:
+       /export counts it, /export/check says what the plan allows without
+       counting (the video maker asks before it spends a minute making the
+       video, and counts once the file is made). */
+    if ((p === '/export' || p === '/export/check') && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Not signed in' }, 401);
       const user = await getUser(em);
       if (!user) return json({ error: 'Account not found' }, 404);
       // Operators export without caps, watermark or resolution limits.
-      if (roleFor(em, env) === 'admin') return json({ user: publicUser(user, env), maxPx: 2160, watermark: false });
-      const plan = PLANS[user.plan || 'free'];
-      const cap = plan.weekly ?? plan.monthly;
-      const period = plan.weekly ? isoWeek() : isoMonth();
-      if (user.exports.period !== period) user.exports = { period, count: 0 };
-      if (cap !== null && user.exports.count >= cap) return json({ error: 'Export limit reached for this ' + (plan.weekly ? 'week' : 'month') }, 402);
-      user.exports.count++;
-      await putUser(user);
-      return json({ user: publicUser(user, env), maxPx: plan.maxPx, watermark: plan.watermark });
+      if (roleFor(em, env) === 'admin') return json({ user: publicUser(user, env), maxPx: 2160, watermark: false, remaining: null });
+      await freshUser(user, env);
+      const m = exportMeter(user);
+      if (m.cap !== null && m.remaining <= 0) {
+        return json({ error: 'Download limit reached for this ' + m.per, limit: m.cap, per: m.per, user: publicUser(user, env) }, 402);
+      }
+      if (p === '/export') { user.exports.count++; await putUser(user); }
+      return json({ user: publicUser(user, env), maxPx: m.plan.maxPx, watermark: m.plan.watermark, remaining: m.cap === null ? null : m.cap - user.exports.count });
     }
 
     // ---------- AI backgrounds: customer path ----------
@@ -334,22 +379,45 @@ export default async (req) => {
       const user = await getUser(em);
       if (!user) return json({ error: 'Account not found' }, 404);
       if (!env.GEMINI_KEY && !env.FAL_KEY) return json({ error: 'AI backgrounds are not enabled yet' }, 503);
+      /* Credits, not a daily count (plans.mjs): the dearest model in the
+         chain sets the price, and a model with no price is not sold. Taken
+         before the call, given back if the model fails. */
+      const cost = backgroundCredits(env);
+      if (cost === null) {
+        console.error('generate-bg: the image model has no price in plans.mjs or MODEL_COSTS, so it is not sold');
+        return json({ error: 'AI backgrounds are paused for a moment. Nothing was charged.' }, 503);
+      }
       const isAdmin = roleFor(em, env) === 'admin';
+      let spent = null;
       if (!isAdmin) {
-        const userCap = (user.plan || 'free') === 'free'
-          ? parseInt(env.RL_USER_DAILY || '10', 10)
-          : parseInt(env.RL_PRO_DAILY || '40', 10);
-        if (!(await bumpCounter(`rl:${em}:${isoDay()}`, userCap))) {
-          return json({ error: 'Daily AI background limit reached — try again tomorrow' }, 429);
+        await freshUser(user, env);
+        spent = spendCredits(user, cost);
+        if (!spent) {
+          const c = creditState(user);
+          return json({ error: `An AI background takes ${cost} credit${cost === 1 ? '' : 's'} and you have ${c.total} left`, need: cost, credits: c }, 402);
         }
-        if (!(await bumpCounter(`rl:global:${isoDay()}`, parseInt(env.RL_GLOBAL_DAILY || '400', 10)))) {
-          return json({ error: 'AI backgrounds are cooling down — try again later' }, 429);
+        /* the whole free tier's AI is a marketing cost with a ceiling; paid
+           credits are profitable by construction and only meet the runaway
+           guard */
+        const day = isoDay();
+        if (spent.fromPlan && planId(user.plan) === 'free'
+          && !(await bumpBy('ai:free:' + day, spent.fromPlan, parseInt(env.AI_FREE_DAILY_CREDITS || '100', 10)))) {
+          return json({ error: 'Free AI backgrounds are used up for today. Try again tomorrow, or go Pro. Nothing was charged.' }, 429);
         }
+        if (!(await bumpBy('ai:all:' + day, cost, parseInt(env.AI_DAILY_CREDITS || '2000', 10)))) {
+          return json({ error: 'AI backgrounds are cooling down. Try again later. Nothing was charged.' }, 429);
+        }
+        await putUser(user);
       }
       const { text, category } = await req.json().catch(() => ({}));
       const prompt = fuseCustomerPrompt(extractKeywords(text), String(category || '').toLowerCase());
-      const image = await generateImage(prompt, env);
-      return json({ image }); // fused prompt intentionally NOT returned
+      let image;
+      try { image = await generateImage(prompt, env); }
+      catch (e) {
+        if (spent) { const back = await getUser(em); if (back) { refundCredits(back, spent); await putUser(back); } }
+        throw e;
+      }
+      return json({ image, spent: isAdmin ? 0 : cost, credits: creditState(user) }); // fused prompt intentionally NOT returned
     }
 
     // ---------- AI backgrounds: admin path ----------
@@ -420,80 +488,161 @@ export default async (req) => {
       return json(JSON.parse(raw));
     }
 
-    // ---------- Stripe (inert until STRIPE_SECRET is configured) ----------
+    // ---------- Stripe (netlify/lib/billing.mjs; inert until STRIPE_SECRET is set) ----------
+    const site = String(env.SITE_URL || url.origin).replace(/\/$/, '');
     if (p === '/portal' && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Sign in first' }, 401);
-      if (!env.STRIPE_SECRET) return json({ error: 'Billing is not enabled yet' }, 503);
+      if (!billingOn(env)) return json({ error: 'Billing is not enabled yet' }, 503);
       const user = await getUser(em);
-      if (!user || !user.stripeCustomer) return json({ error: 'No billing account on file yet' }, 400);
-      const r = await fetch('https://api.stripe.com/v1/billing_portal/sessions', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + env.STRIPE_SECRET, 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ customer: user.stripeCustomer, return_url: env.SITE_URL || url.origin }),
-      });
-      const j = await r.json();
-      if (!r.ok) return json({ error: (j.error && j.error.message) || 'Stripe error' }, 502);
+      const customer = user && customerOf(user, env);
+      if (!customer) return json({ error: 'No billing account on file yet' }, 400);
+      const j = await stripe(env, 'POST', '/billing_portal/sessions', { customer, return_url: site + '/?billing=back' })
+        .catch((e) => ({ error: e.message }));
+      if (j.error) return json({ error: j.error }, 502);
       return json({ url: j.url });
     }
+
+    /* Checkout for a plan ({plan, interval}) or a credit pack ({pack}). An
+       account already on a paid plan switches with /billing/change instead,
+       so nobody ends up paying for two subscriptions. */
     if (p === '/checkout' && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Sign in first' }, 401);
-      if (!env.STRIPE_SECRET || !env.PRICE_PRO) return json({ error: 'Billing is not enabled yet' }, 503);
-      const { plan } = await req.json();
-      if (plan !== 'pro') return json({ error: 'Unknown plan' }, 400);
-      const site = env.SITE_URL || url.origin;
-      const body = new URLSearchParams({
-        mode: 'subscription',
-        'line_items[0][price]': env.PRICE_PRO,
-        'line_items[0][quantity]': '1',
-        allow_promotion_codes: 'true', // partner and creator discounts are Stripe promotion codes, no code change
-        customer_email: em,
-        'metadata[email]': em,
-        'metadata[plan]': plan,
-        'subscription_data[metadata][email]': em,
-        'subscription_data[metadata][plan]': plan,
-        success_url: site + '/?checkout=success',
+      if (!billingOn(env)) return json({ error: 'Billing is not enabled yet' }, 503);
+      const user = await getUser(em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      const body = await req.json().catch(() => ({}));
+      const pack = PACKS[body.pack] ? body.pack : null;
+      const plan = pack ? null : planId(body.plan);
+      const interval = body.interval === 'year' ? 'year' : 'month';
+      if (!pack && (!PAID.includes(plan) || !PLANS[plan].price[interval])) return json({ error: 'Unknown plan' }, 400);
+      await freshUser(user, env);
+      if (plan && planId(user.plan) !== 'free' && user.sub && user.sub.id && user.sub.status !== 'gone') {
+        return json({ error: 'You already have a plan. Switch it instead.', switch: true }, 409);
+      }
+      try { await ensureWebhook(env, users(), url.origin); }
+      catch (e) { console.warn('billing: the webhook could not be registered; the return page and the sign-in check carry the plan', e.message); }
+      let price;
+      try { price = await priceFor(env, plan ? plan + '_' + interval : pack); }
+      catch (e) { return json({ error: 'Checkout could not start: ' + e.message }, 502); }
+      const customer = customerOf(user, env);
+      const md = plan ? { email: em, plan, interval } : { email: em, pack, credits: PACKS[pack].credits };
+      const params = {
+        mode: plan ? 'subscription' : 'payment',
+        line_items: [{ price, quantity: 1 }],
+        customer: customer || undefined,
+        customer_email: customer ? undefined : em,
+        customer_creation: !plan && !customer ? 'always' : undefined,
+        client_reference_id: em,
+        metadata: md,
+        // partner and creator discounts are Stripe promotion codes, on the plans
+        allow_promotion_codes: plan ? 'true' : undefined,
+        subscription_data: plan ? { metadata: { email: em, plan } } : undefined,
+        payment_intent_data: plan ? undefined : { metadata: md },
+        success_url: site + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}',
         cancel_url: site + '/?checkout=cancel',
-      });
-      const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + env.STRIPE_SECRET, 'Content-Type': 'application/x-www-form-urlencoded' },
-        body,
-      });
-      const j = await r.json();
-      if (!r.ok) return json({ error: (j.error && j.error.message) || 'Stripe error' }, 502);
+      };
+      const j = await stripe(env, 'POST', '/checkout/sessions', params).catch((e) => ({ error: e.message }));
+      if (j.error) return json({ error: j.error }, 502);
       return json({ url: j.url });
     }
+
+    /* The return from Checkout: the plan (or the credits) go on now, from
+       Stripe's own record of the session, whether or not the webhook has
+       arrived. Only the account that paid can claim a session. */
+    if (p === '/checkout/confirm' && req.method === 'POST') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Sign in first' }, 401);
+      if (!billingOn(env)) return json({ error: 'Billing is not enabled yet' }, 503);
+      const { session_id: sid } = await req.json().catch(() => ({}));
+      if (!/^cs_[A-Za-z0-9_]+$/.test(String(sid || ''))) return json({ error: 'Unknown checkout' }, 400);
+      const cs = await stripe(env, 'GET', '/checkout/sessions/' + sid, { expand: ['subscription'] }).catch((e) => ({ error: e.message }));
+      if (cs.error) return json({ error: cs.error }, 502);
+      const owner = String((cs.metadata || {}).email || cs.client_reference_id || '').toLowerCase();
+      if (owner !== em) return json({ error: 'That checkout belongs to another account' }, 403);
+      const user = await getUser(em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      if (cs.status !== 'complete') return json({ pending: true, user: publicUser(user, env) });
+      const got = applySession(user, cs, typeof cs.subscription === 'object' ? cs.subscription : null, env);
+      if (got) await putUser(user);
+      return json({ applied: got, kind: cs.mode === 'payment' ? 'credits' : 'plan', user: publicUser(user, env) });
+    }
+
+    /* A paid account moves to another plan or interval on the same
+       subscription, prorated and charged now (a failed card changes nothing).
+       Down to Free is a cancellation, in the billing portal. */
+    if (p === '/billing/change' && req.method === 'POST') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Sign in first' }, 401);
+      if (!billingOn(env)) return json({ error: 'Billing is not enabled yet' }, 503);
+      const user = await getUser(em);
+      if (!user || !user.sub || !user.sub.id || planId(user.plan) === 'free') return json({ error: 'No paid plan to change. Choose one instead.' }, 400);
+      const body = await req.json().catch(() => ({}));
+      const plan = planId(body.plan), interval = body.interval === 'year' ? 'year' : 'month';
+      if (!PAID.includes(plan) || !PLANS[plan].price[interval]) return json({ error: 'Unknown plan' }, 400);
+      try {
+        const now = await stripe(env, 'GET', '/subscriptions/' + user.sub.id);
+        const item = now.items && now.items.data && now.items.data[0];
+        if (!item) return json({ error: 'That subscription has nothing to change' }, 409);
+        const price = await priceFor(env, plan + '_' + interval);
+        const sub = item.price && item.price.id === price && !now.cancel_at_period_end ? now
+          : await stripe(env, 'POST', '/subscriptions/' + user.sub.id, {
+            items: [{ id: item.id, price }], proration_behavior: 'always_invoice',
+            payment_behavior: 'error_if_incomplete', cancel_at_period_end: 'false', metadata: { email: em, plan },
+          });
+        applySub(user, subState(sub, env), env);
+        await putUser(user);
+        return json({ user: publicUser(user, env) });
+      } catch (e) {
+        return json({ error: e.status === 402 ? 'The card was declined, so the plan did not change.' : 'The plan could not change: ' + e.message }, e.status === 402 ? 402 : 502);
+      }
+    }
+
     if (p === '/stripe-webhook' && req.method === 'POST') {
-      if (!env.STRIPE_WEBHOOK_SECRET) return new Response('not configured', { status: 503 });
       const payload = await req.text();
-      const sigHead = req.headers.get('Stripe-Signature') || '';
-      const t = (sigHead.match(/t=([^,]+)/) || [])[1];
-      const v1 = (sigHead.match(/v1=([0-9a-f]+)/) || [])[1];
-      if (!t || !v1) return new Response('bad signature', { status: 400 });
-      const expect = hex(await hmac(env.STRIPE_WEBHOOK_SECRET, t + '.' + payload));
-      if (expect !== v1) return new Response('bad signature', { status: 400 });
-      if (Math.abs(Date.now() / 1000 - Number(t)) > 300) return new Response('stale', { status: 400 });
-      const ev = JSON.parse(payload);
-      if (ev.type === 'checkout.session.completed') {
-        const md = ev.data.object.metadata || {};
-        const em = (md.email || ev.data.object.customer_email || '').toLowerCase();
-        if (em && PLANS[md.plan]) {
-          const user = await getUser(em);
-          if (user) {
-            user.plan = md.plan;
-            user.exports = { period: '', count: 0 };
-            if (ev.data.object.customer) user.stripeCustomer = ev.data.object.customer;
-            await putUser(user);
-          }
+      const ev = await verifyEvent(env, users(), payload, req.headers.get('Stripe-Signature'));
+      if (!ev) return new Response('bad signature', { status: 400 });
+      const obj = (ev.data && ev.data.object) || {};
+      if (ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') {
+        const em = String((obj.metadata || {}).email || obj.client_reference_id || obj.customer_email || '').toLowerCase();
+        const user = em && (await getUser(em));
+        if (user) {
+          const sub = obj.mode === 'subscription' && obj.subscription
+            ? (typeof obj.subscription === 'object' ? obj.subscription : await stripe(env, 'GET', '/subscriptions/' + obj.subscription))
+            : null;
+          if (applySession(user, obj, sub, env)) await putUser(user);
         }
       }
-      if (ev.type === 'customer.subscription.deleted') {
-        const em = ((ev.data.object.metadata || {}).email || '').toLowerCase();
-        if (em) { const user = await getUser(em); if (user) { user.plan = 'free'; await putUser(user); } }
+      if (ev.type.startsWith('customer.subscription.')) {
+        const em = String((obj.metadata || {}).email || '').toLowerCase();
+        const user = em && (await getUser(em));
+        // only the account's own subscription moves it (an old one ending must not end a new one)
+        if (user && (!user.sub || !user.sub.id || user.sub.id === obj.id || ev.type === 'customer.subscription.created' || planId(user.plan) === 'free')) {
+          applySub(user, subState(obj, env), env);
+          await putUser(user);
+        }
       }
       return new Response('ok');
+    }
+
+    /* For operators: is billing live, and is every price and the webhook in
+       place. POST makes whatever is missing. */
+    if (p === '/admin/billing') {
+      const em = await readToken(req, env);
+      if (!em || roleFor(em, env) !== 'admin') return json({ error: 'Not authorized' }, 403);
+      if (!billingOn(env)) return json({ on: false, say: 'Set STRIPE_SECRET in Netlify to switch billing on.' });
+      const out = { on: true, mode: stripeMode(env), site, prices: {}, webhook: null };
+      if (req.method === 'POST') {
+        try { out.webhook = await ensureWebhook(env, users(), url.origin); } catch (e) { out.webhook = { ok: false, reason: e.message }; }
+        for (const key of Object.keys(catalog())) {
+          try { out.prices[key] = await priceFor(env, key); } catch (e) { out.prices[key] = 'error: ' + e.message; }
+        }
+      } else {
+        const stored = await users().get(webhookSecretKey(stripeMode(env)));
+        out.webhook = env.STRIPE_WEBHOOK_SECRET ? { ok: true, source: 'env' } : stored ? { ok: true, source: 'stored', url: JSON.parse(stored).url } : { ok: false, reason: 'not registered yet (the first checkout registers it)' };
+      }
+      return json(out);
     }
 
     return json({ error: 'Not found' }, 404);

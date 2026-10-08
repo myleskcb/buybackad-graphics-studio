@@ -3973,7 +3973,7 @@ RESUME HERE:
 Asked: more proven palettes, some of two or three colours, with the
 gradients, 3-D and outlines in mind, "as much capability as possible".
 
-Did (DESIGN-LAW rule 125, OPEN-ITEMS §AS): two-colour and three-colour sets
+Did (DESIGN-LAW rule 125, OPEN-ITEMS §AT): two-colour and three-colour sets
 and the library's pairs in the studio, measured by theme_law; effects drawn
 from the palette (`thFx`); the one-colour pass keeps a theme's colours and a
 look the visitor picked; the accent shows on every card; the plate-matching
@@ -3998,7 +3998,7 @@ Did: every audit the repo has, on the final build. every_card_audit over all
 649 offered cards, themes and looks (42,000 renders), holds written; the
 library and classics gates; ez_theme_audit; tagline_audit; designer_audit;
 theme_law. Five problems it found are fixed (DESIGN-LAW 125, "What the full
-audit found"); OPEN-ITEMS §AS lists the per-card holds left.
+audit found"); OPEN-ITEMS §AT lists the per-card holds left.
 
 Learned:
   - Every hang of the full audit at fifteen minutes was the kernel killing a
@@ -4052,6 +4052,6 @@ Found:
     A comparison taken while anything else renders is not a measurement.
 
 RESUME HERE:
-  0. The deploy (OPEN-ITEMS §AS 1): the workflow's secrets, or the Mac.
-  1. The per-card holds (§AS 2), if a chip is worth giving back.
-  2. The salmon red (§AS 3).
+  0. The deploy (OPEN-ITEMS §AT 1): the workflow's secrets, or the Mac.
+  1. The per-card holds (§AT 2), if a chip is worth giving back.
+  2. The salmon red (§AT 3).
