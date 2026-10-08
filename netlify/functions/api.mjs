@@ -6,9 +6,13 @@
  * server-enforced export limits, Stripe checkout/webhook (inert until Stripe
  * env vars are set), community backgrounds — and the AI background endpoints:
  *
- *   POST /api/generate-bg        customer path. The user's text is reduced to
- *                                2-5 clean keywords and fused into the house
- *                                editorial prompt server-side; moderation and
+ *   GET  /api/bggen/config       customer path (netlify/lib/bggen.mjs): the
+ *   POST /api/generate-bg        choices, the price and the balance; one image
+ *                                per call. The user's text is reduced to clean
+ *                                keywords and fused, with the products they
+ *                                picked (sent to the model as reference photos),
+ *                                the style and the colour scheme, into the house
+ *                                prompt server-side; moderation, credits and
  *                                rate limits applied. The fused prompt is never
  *                                returned to the client.
  *   POST /api/admin/generate-bg  admin path. Prompt used VERBATIM; returned
@@ -26,9 +30,10 @@
  *                                one public link to them for a poster
  *                                (netlify/lib/adlibrary.mjs).
  *
- * Env vars: JWT_SECRET (required), GEMINI_KEY (required for AI), ADMIN_EMAILS
- * (comma-separated), optional: FAL_KEY (Seedream fallback when Gemini fails, or
- * the only provider without GEMINI_KEY), PGFX_BG_MODEL, RL_USER_DAILY, RL_PRO_DAILY,
+ * Env vars: JWT_SECRET (required), FAL_KEY and/or GEMINI_KEY (AI backgrounds:
+ * fal Seedream first when FAL_KEY is set, the other the fallback), ADMIN_EMAILS
+ * (comma-separated), optional: the AI_CREDIT_* and PGFX_* settings listed in
+ * netlify/lib/bggen.mjs, PGFX_BG_MODEL, RL_USER_DAILY, RL_PRO_DAILY,
  * RL_GLOBAL_DAILY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, PRICE_PRO, SITE_URL,
  * LIBRARY_KEYS (name:key pairs), LIBRARY_DAILY, ADLIB_DAILY, ADLIB_MAX_FREE,
  * ADLIB_MAX_PRO, ADLIB_MAX_ADMIN.
@@ -36,6 +41,7 @@
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
 import { adLibraryRoute } from '../lib/adlibrary.mjs';
+import { bggenRoute, generateImage, loadRecipe } from '../lib/bggen.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -100,114 +106,9 @@ const adStore = () => getStore({ name: 'pgfx-ad-library', consistency: 'strong' 
 async function getUser(em) { return JSON.parse((await users().get('u:' + em)) || 'null'); }
 async function putUser(u) { await users().set('u:' + u.email, JSON.stringify(u)); }
 
-// ---------- AI background: moderation + keyword fusion ----------
-const STOPWORDS = new Set(('the,and,with,for,from,that,this,have,has,are,was,were,will,would,can,could,you,your,yours,our,ours,their,them,they,his,her,hers,its,a,an,of,in,on,at,to,is,it,as,by,be,or,we,i,me,my,so,do,did,does,not,no,yes,please,make,makes,making,want,wants,need,needs,like,likes,just,get,put,show,give,really,very,some,more,most,image,picture,photo,photos,background,backgrounds,generate,create,style,styled,look,looking,type,kind,cool,nice,good,great,pretty,beautiful').split(','));
-// One regex, whole-input AND per-token. Conservative: a blocked token is
-// dropped, the rest of the request continues on the house prompt.
-const BLOCKLIST = /\b(nude|naked|nsfw|sex|sexual|porn|topless|erotic|lingerie|gore|blood|bloody|corpse|behead|kill|killing|murder|shoot|shooting|gun|guns|firearm|weapon|weapons|knife|knives|bomb|explosive|terror|terrorist|nazi|hitler|swastika|kkk|racist|slur|lynch|hate|drug|drugs|cocaine|heroin|meth|fentanyl|child|children|kid|kids|minor|minors|celebrity|kardashian|trump|biden|obama|elon|musk|swift|disney|nike|adidas|gucci|apple logo|nintendo|pokemon company|watermark|copyright|trademark)\b/i;
-
-function extractKeywords(text) {
-  const t = String(text || '').slice(0, 240).toLowerCase()
-    .replace(/https?:\S+|[\w.+-]+@[\w-]+\.\S+|@\w+|#\w+/g, ' ') // urls, emails, handles, tags
-    .replace(/[^a-z\s-]/g, ' ');
-  const words = [];
-  const seen = new Set();
-  for (const raw of t.split(/\s+/)) {
-    const w = raw.replace(/^-+|-+$/g, '');
-    if (w.length < 3 || w.length > 20) continue;
-    if (STOPWORDS.has(w) || seen.has(w) || BLOCKLIST.test(w)) continue;
-    seen.add(w);
-    words.push(w);
-    if (words.length >= 5) break; // 2-5 keywords by design
-  }
-  return words;
-}
-
-// Category anchors keep customer generations on-brand for the template they
-// are editing (short forms of the Designer Library base scenes).
-const CATEGORY_SCENES = {
-  phones: 'smartphones as subtle scene elements',
-  gold: 'gold jewelry tones',
-  silver: 'silver and cool metallic tones',
-  coins: 'antique coin collection tones',
-  cars: 'automotive dusk tones',
-  strips: 'sealed test strip boxes and cash tones',
-  pokemon: 'holographic card sleeve glints, no readable card artwork',
-  sports: 'vintage sports memorabilia tones, no readable card artwork',
-};
-
-// The proven house frame. Customer keywords ride inside it; the frame itself
-// is never shown to the customer.
-// The master frame is env-tunable: set PGFX_HOUSE_FRAME (use {subject} and
-// {anchor} placeholders) and/or PGFX_CATEGORY_ANCHORS (JSON object merged
-// over the defaults) with `netlify env:set`, then redeploy. No code edits.
-const DEFAULT_FRAME = 'candid real photo taken on a modern smartphone, {subject}{anchor}, composed with open space for large headline text, natural light, bright true-to-life exposure, slight handheld imperfection, subtle grain, background gently out of focus, no readable text or branding, no logos, no people';
-function fuseCustomerPrompt(keywords, category) {
-  const subject = keywords.length ? keywords.join(', ') : 'clean premium surface';
-  let anchors = CATEGORY_SCENES;
-  try {
-    if (process.env.PGFX_CATEGORY_ANCHORS) anchors = { ...CATEGORY_SCENES, ...JSON.parse(process.env.PGFX_CATEGORY_ANCHORS) };
-  } catch (e) { /* malformed JSON → defaults */ }
-  const anchor = anchors[category] || '';
-  const frame = process.env.PGFX_HOUSE_FRAME || DEFAULT_FRAME;
-  return frame.replace('{subject}', subject).replace('{anchor}', anchor ? ', ' + anchor : '');
-}
-
-// ---------- image providers: Gemini first, Seedream (fal.ai) fallback ----------
-async function generateImage(prompt, env) {
-  if (env.GEMINI_KEY) {
-    try { return await generateGeminiImage(prompt, env); }
-    catch (e) { if (!env.FAL_KEY) throw e; }
-  }
-  if (env.FAL_KEY) return generateFalImage(prompt, env);
-  throw new Error('no image provider configured');
-}
-
-async function generateFalImage(prompt, env) {
-  const res = await fetch('https://fal.run/fal-ai/bytedance/seedream/v4/text-to-image', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Key ' + env.FAL_KEY },
-    body: JSON.stringify({ prompt, image_size: { width: 2048, height: 2048 }, num_images: 1, enable_safety_checker: true }),
-  });
-  if (!res.ok) throw new Error(`image model error (${res.status})`);
-  const j = await res.json();
-  const url = j.images?.[0]?.url;
-  if (!url) throw new Error('the model declined this prompt, try different words');
-  if (url.startsWith('data:')) return url;
-  const img = await fetch(url);
-  if (!img.ok) throw new Error('image fetch failed');
-  const mime = img.headers.get('content-type') || 'image/jpeg';
-  const buf = Buffer.from(await img.arrayBuffer());
-  return `data:${mime};base64,${buf.toString('base64')}`;
-}
-
-async function generateGeminiImage(prompt, env) {
-  const model = env.PGFX_BG_MODEL || 'gemini-3.1-flash-lite-image'; // Nano Banana 2 Lite
-  const supportsSize = model.includes('3-pro') || model === 'gemini-3.1-flash-image';
-  const imgCfg = supportsSize ? { aspectRatio: '1:1', imageSize: '1K' } : { aspectRatio: '1:1' };
-  const attempts = [
-    { url: `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`,
-      generationConfig: { responseModalities: ['TEXT', 'IMAGE'], responseFormat: { image: imgCfg } } },
-    { url: `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      generationConfig: { responseModalities: ['TEXT', 'IMAGE'], imageConfig: imgCfg } },
-  ];
-  let lastErr;
-  for (const attempt of attempts) {
-    const res = await fetch(attempt.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_KEY },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: attempt.generationConfig }),
-    });
-    if (res.status === 400) { lastErr = new Error('model rejected request'); continue; }
-    if (!res.ok) throw new Error(`image model error (${res.status})`);
-    const j = await res.json();
-    const part = (j.candidates?.[0]?.content?.parts || []).find((p) => p.inlineData || p.inline_data);
-    if (!part) throw new Error('the model declined this prompt — try different words');
-    const d = part.inlineData || part.inline_data;
-    return `data:${d.mimeType || d.mime_type || 'image/png'};base64,${d.data}`;
-  }
-  throw lastErr || new Error('image model unavailable');
-}
+// ---------- AI backgrounds ----------
+// The customer generator (the recipe, the entities, the credits) and the image
+// providers live in netlify/lib/bggen.mjs; the prompt text never leaves it.
 
 // ---------- rate limits (daily, blob counters) ----------
 async function bumpCounter(key, cap) {
@@ -251,6 +152,20 @@ export default async (req) => {
     });
     if (ads) return ads;
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
+
+    /* AI backgrounds, the customer generator: its choices and credits, one
+       image per call, and the operator's recipe (netlify/lib/bggen.mjs) */
+    const bg = await bggenRoute(req, url, p, env, {
+      json,
+      readToken: (r) => readToken(r, env),
+      getUser, putUser,
+      isAdmin: (em) => roleFor(em, env) === 'admin',
+      users: users(),
+      bg: bgStore(),
+      bump: bumpCounter,
+      fetchJson: async (u) => { const r = await fetch(u, { headers: { Accept: 'application/json' } }); if (!r.ok) throw new Error(u.replace(url.origin, '') + ' ' + r.status); return r.json(); },
+    });
+    if (bg) return bg;
 
     if (p === '/auth/signup' && req.method === 'POST') {
       const { email, password } = await req.json();
@@ -327,31 +242,6 @@ export default async (req) => {
       return json({ user: publicUser(user, env), maxPx: plan.maxPx, watermark: plan.watermark });
     }
 
-    // ---------- AI backgrounds: customer path ----------
-    if (p === '/generate-bg' && req.method === 'POST') {
-      const em = await readToken(req, env);
-      if (!em) return json({ error: 'Sign in to generate backgrounds' }, 401);
-      const user = await getUser(em);
-      if (!user) return json({ error: 'Account not found' }, 404);
-      if (!env.GEMINI_KEY && !env.FAL_KEY) return json({ error: 'AI backgrounds are not enabled yet' }, 503);
-      const isAdmin = roleFor(em, env) === 'admin';
-      if (!isAdmin) {
-        const userCap = (user.plan || 'free') === 'free'
-          ? parseInt(env.RL_USER_DAILY || '10', 10)
-          : parseInt(env.RL_PRO_DAILY || '40', 10);
-        if (!(await bumpCounter(`rl:${em}:${isoDay()}`, userCap))) {
-          return json({ error: 'Daily AI background limit reached — try again tomorrow' }, 429);
-        }
-        if (!(await bumpCounter(`rl:global:${isoDay()}`, parseInt(env.RL_GLOBAL_DAILY || '400', 10)))) {
-          return json({ error: 'AI backgrounds are cooling down — try again later' }, 429);
-        }
-      }
-      const { text, category } = await req.json().catch(() => ({}));
-      const prompt = fuseCustomerPrompt(extractKeywords(text), String(category || '').toLowerCase());
-      const image = await generateImage(prompt, env);
-      return json({ image }); // fused prompt intentionally NOT returned
-    }
-
     // ---------- AI backgrounds: admin path ----------
     if (p === '/admin/generate-bg' && req.method === 'POST') {
       const em = await readToken(req, env);
@@ -360,8 +250,9 @@ export default async (req) => {
       const { prompt } = await req.json().catch(() => ({}));
       const clean = String(prompt || '').trim().slice(0, 600);
       if (!clean) return json({ error: 'Empty prompt' }, 400);
-      const image = await generateImage(clean, env); // verbatim — operator owns the words
-      return json({ image, prompt: clean });
+      const recipe = await loadRecipe(env, bgStore());
+      const out = await generateImage({ prompt: clean, negative: '', refs: [], aspect: '1:1' }, env, recipe, { origin: env.SITE_URL || url.origin }); // verbatim — operator owns the words
+      return json({ image: out.image, url: out.url, prompt: clean });
     }
 
     if (p === '/admin/approve-bg' && req.method === 'POST') {
